@@ -1,0 +1,208 @@
+/// <summary>
+/// Describes a registered customer at a movie theater.
+/// </summary>
+public class User : IRecord<int>
+{
+    /// <summary>
+    /// Creates a new instance of a user with the provided information.
+    /// </summary>
+    public const this(set int Id, set string FirstName, set string LastName, set string EmailAddress);
+
+    /// <summary>
+    /// Gets the user's unique identifier.
+    /// </summary>
+    public int Id { const get; private set; }
+    /// <summary>
+    /// Gets the user's first name.
+    /// </summary>
+    public string FirstName { const get; private set; }
+    /// <summary>
+    /// Gets the user's last name.
+    /// </summary>
+    public string LastName { const get; private set; }
+    /// <summary>
+    /// Gets the user's full name.
+    /// </summary>
+    public string Name { const get return FirstName + " " + LastName; }
+    /// <summary>
+    /// Gets the user's email address.
+    /// </summary>
+    public string EmailAddress { const get; private set; }
+    
+    public int Key { const get return Id; }
+    
+    /// <summary>
+    /// Gets the user's data as a string.
+    /// </summary>
+    public const string __str__()
+    {
+        return "User #" + Id + ": " + Name + " (" + EmailAddress + ")";
+    }
+    
+    /// <summary>
+    /// Tests user equality.
+    /// </summary>
+    public const bool operator==(User Other)
+    {
+        if (Other == null) return false;
+        else return this.Id == Other.Id;
+    }
+    
+    /// <summary>
+    /// Calculates a user's hash code.
+    /// </summary>
+    public const int operator hash()
+    {
+        return this.Id;
+    }
+}
+
+/// <summary>
+/// A request for a reservation. 
+/// Reservation requests are not permanent and do not have an ID.
+/// </summary>
+/// <remarks>
+/// Reservation requests are intended to be an easy way to create a reservation: the client only has to fill in the data fields, and need not concern itself with the number of remaining seats or the hassle of generating a unique identifier.
+/// Also, their none-permanent nature allows them to be disposed of without consequences if anything goes wrong while processing the reservation.
+/// </remarks>
+public class ReservationRequest
+{
+    /// <summary>
+    /// Creates a new reservation request.
+    /// </summary>
+    public const this(set User Customer, set Showtime Showtime, set int NumberOfSeats, set DateTime Timestamp);
+
+    /// <summary>
+    /// Gets the user who placed this request.
+    /// </summary>
+    public User Customer { const get; private set; }
+    /// <summary>
+    /// Gets the showtime request this reservation was placed for.
+    /// </summary>
+    public Showtime Showtime { const get; private set; }
+    /// <summary>
+    /// Gets the number of seats this reservation requests.
+    /// </summary>
+    public int NumberOfSeats { const get; private set; }
+    /// <summary>
+    /// Gets this reservation's timestamp.
+    /// </summary>
+    public DateTime Timestamp { const get; private set; }
+}
+
+/// <summary>
+/// Manages reservations for a movie theater.
+/// </summary>
+public class ReservationManager
+{
+    /// <summary>
+    /// Creates a new instance of the reservation manager.
+    /// </summary>
+    public const this();
+
+    private int currentId;
+    
+    private Queue<ReservationRequest> Requests = new Queue<ReservationRequest>();
+    private SwapList<Reservation> allReservations = new SwapList<Reservation>(new ArrayList<Reservation>());
+    /// <summary>
+    /// Gets the movie theater's processed and accepted reservations.
+    /// </summary>
+    public IReadOnlySwapList<Reservation> Reservations { const get return allReservations; }
+    
+    /// <summary>
+    /// Queues a reservation for a showtime for processing.
+    /// </summary>
+    public void QueueReservation(ReservationRequest Request)
+    {
+        Requests.Enqueue(Request);
+    }
+    
+    /// <summary>
+    /// Processes all queued reservations and returns a read-only list containing the newly made reservations.
+    /// </summary>
+    public IReadOnlyList<Reservation> ProcessReservations()
+    {
+        var results = new ArrayList<Reservation>();
+        while (!Requests.IsEmpty)
+        {
+            var request = Requests.Dequeue();
+            var reserv = request.Showtime.MakeReservation(currentId, request);
+            if (reserv != null)
+            {
+                currentId++;
+                allReservations.Add(reserv);
+                results.Add(reserv);
+            }
+        }
+        return results;
+    }
+}
+
+/// <summary>
+/// Describes a reservation at a movie theater by a registered customer.
+/// </summary>
+public class Reservation : IRecord<int>
+{
+    /// <summary>
+    /// Creates a new reservation object from the provided arguments.
+    /// </summary>
+    public const this(set int Id, set User Customer, set Showtime Showtime, set DateTime Timestamp, set int NumberOfSeats);
+
+    /// <summary>
+    /// Gets the reservation's unique identifier.
+    /// </summary>
+    public int Id { const get; private set; }
+    
+    /// <summary>
+    /// Gets the customer that has reserved a seat.
+    /// </summary>
+    public User Customer { const get; private set; }
+    
+    /// <summary>
+    /// Gets the date and time at which the reservation was processed.
+    /// </summary>
+    public DateTime Timestamp { const get; private set; }
+    
+    /// <summary>
+    /// Gets the showtime associated with this reservation.
+    /// </summary>
+    public Showtime Showtime { const get; private set; }
+    
+    /// <summary>
+    /// Gets the number of seats reserved by the user.
+    /// </summary>
+    public int NumberOfSeats { const get; private set; }
+    
+    public int Key { const get return Id; }
+    
+    /// <summary>
+    /// Gets the reservation's string representation.
+    /// </summary>
+    public const string __str__()
+    {
+        return "Reservation #" + Id + ", made at " + Timestamp + ": " + NumberOfSeats + " seats for " + Showtime;
+    }
+}
+
+/// <summary>
+/// Describes a ticket at a movie theater.
+/// </summary>
+public class Ticket : IRecord<int>
+{
+    /// <summary>
+    /// Creates a new ticket instance based on the customer it belongs to.
+    /// </summary>
+    public const this(set User Customer);
+
+    /// <summary>
+    /// Gets the user that is associated with this ticket.
+    /// </summary>
+    public User Customer { const get; private set; }
+    
+    /// <summary>
+    /// Gets the identifier of the user that is associated with this ticket.
+    /// </summary>
+    public int CustomerId { const get return Customer.Id; }
+    
+    public int Key { const get return CustomerId; }
+}

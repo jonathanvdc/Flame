@@ -1,0 +1,15 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler
+{
+	public interface IInitializedField : IField
+	{
+		/// <summary>
+        /// Gets an expression that represents the field's value.
+        /// </summary>
+        /// <returns></returns>
+        const IExpression GetValue();
+	}
+}

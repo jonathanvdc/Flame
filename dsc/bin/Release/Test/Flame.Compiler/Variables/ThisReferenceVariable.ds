@@ -1,0 +1,22 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Variables
+{
+	public static class ThisReferenceVariable
+	{
+		public static const IUnmanagedVariable Create(IType DeclaringType)
+		{
+			var thisVar = new ThisVariable(DeclaringType);
+			if (thisVar.Type.IsPointer)
+			{
+				return new AtAddressVariable(thisVar.CreateGetExpression());
+			}
+			else
+			{
+				return thisVar;
+			}
+		}
+	}
+}

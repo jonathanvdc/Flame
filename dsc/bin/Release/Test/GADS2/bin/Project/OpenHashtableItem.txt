@@ -1,0 +1,8 @@
+class OpenHashtableItem<T>
+// Describes an item in an open hash table.
+{
+
+    +CreateOpenHashtableItem(in Value : T, in IsEmpty : boolean) : OpenHashtableItem<T> { query }
+    // Creates a new item for use in an open hash table.
+
+}

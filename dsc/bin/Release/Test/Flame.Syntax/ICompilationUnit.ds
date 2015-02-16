@@ -1,0 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+
+namespace Flame.Syntax
+{
+	public interface ICompilationUnit : ISyntaxNode
+	{
+		IEnumerable<ISyntaxNode> GetChildren();
+		void CompileToNamespace(INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log);
+	}
+}

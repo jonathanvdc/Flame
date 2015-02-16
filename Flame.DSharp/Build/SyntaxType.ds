@@ -1,0 +1,72 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Build;
+using Flame.Compiler;
+using Flame.Compiler.Build;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.DSharp.Lexer;
+using Flame.Syntax;
+using Flame.Syntax.DSharp;
+
+namespace Flame.DSharp.Build
+{
+    public abstract class SyntaxType : SyntaxTypeBase
+    {
+    	public const this();
+        public const this(set TypeDeclarationSyntax syntax, set INamespace DeclaringNamespace, set IBinder Binder, set ICompilerLog Log)
+        {
+        	this.MemberProvider = new MemberProvider(Binder);
+        }
+        public const this(set TypeDeclarationSyntax syntax, set INamespace DeclaringNamespace, set IBinder Binder, set ICompilerLog Log, set IMemberProvider MemberProvider);
+        
+        protected TypeDeclarationSyntax syntax;
+        public override TypeDeclarationSyntax GetTypeSyntax()
+        {
+        	return syntax;
+        }
+
+        public IBinder Binder { const get; protected set; }
+        public ICompilerLog Log { const get; protected set; }
+        public IMemberProvider MemberProvider { const get; protected set; }
+
+        public override ISyntaxState GetSyntaxState()
+        {
+            var genericBinder = new PredefinedBinder(Binder);
+
+            var genericParams = this.GetGenericParameters();
+            var genericArgs = this.GetGenericArguments();
+            
+            bool empty = true;
+            foreach (var param in genericParams, var arg in genericArgs)
+            {
+            	genericBinder.MapType(param.Name, arg);
+            	empty = false;
+            }
+            if (empty)
+            {
+            	foreach (var param in genericParams)
+	            {
+	            	genericBinder.MapType(param.Name, param);
+	            }
+            }
+			
+			var descMethod = new DescribedMethod();
+			descMethod.DeclaringType = this;
+
+            return new SyntaxState(descMethod, genericBinder, Log, MemberProvider);
+        }
+
+        protected override ISyntaxState GetNamespaceSyntaxState()
+        {
+        	var descMethod = new DescribedMethod();
+			descMethod.DeclaringType = this;
+			
+            return new SyntaxState(descMethod, Binder, Log, MemberProvider);
+        }
+    }
+}

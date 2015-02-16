@@ -1,0 +1,5 @@
+C:\Users\Jonathan\SkyDrive\Flame\FlameRT\bin\Release\Flame.RT.dll
+C:\Users\Jonathan\SkyDrive\Flame\FlameRT\bin\Release\Flame.RT.pdb
+C:\Users\Jonathan\SkyDrive\Flame\FlameRT\obj\Release\FlameRT.csprojResolveAssemblyReference.cache
+C:\Users\Jonathan\SkyDrive\Flame\FlameRT\obj\Release\Flame.RT.dll
+C:\Users\Jonathan\SkyDrive\Flame\FlameRT\obj\Release\Flame.RT.pdb

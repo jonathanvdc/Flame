@@ -1,0 +1,18 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Expressions
+{
+	public class CharExpression : ConstantExpression<char>
+	{
+		public this(set char Value);
+		
+		public IType Type { const get return PrimitiveTypes.Char; }
+		
+		public ICodeBlock Emit(ICodeGenerator Generator)
+		{
+			return Generator.EmitChar(Value);
+		}
+	}
+}

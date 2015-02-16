@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F88EFCDF-EF4D-4B49-8908-AF89017C5A1D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Flame.Recompilation</RootNamespace>
+    <AssemblyName>Flame.Recompilation</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Flame">
+      <HintPath>..\Flame.Compiler\bin\Flame.dll</HintPath>
+    </Reference>
+    <Reference Include="Flame.Compiler">
+      <HintPath>..\Flame.Compiler\bin\Flame.Compiler.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyRecompiler.cs" />
+    <Compile Include="AsyncTaskManager.cs" />
+    <Compile Include="CompilationCache.cs" />
+    <Compile Include="DefaultOptimizer.cs" />
+    <Compile Include="Emit\CollectionBlock.cs" />
+    <Compile Include="Emit\ExplicitThisVariable.cs" />
+    <Compile Include="Emit\IfElseBlockGenerator.cs" />
+    <Compile Include="Emit\IStatementBlock.cs" />
+    <Compile Include="Emit\RecompiledBlockGenerator.cs" />
+    <Compile Include="Emit\ForeachBlockGenerator.cs" />
+    <Compile Include="Emit\RecompiledVariable.cs" />
+    <Compile Include="Emit\StatementBlock.cs" />
+    <Compile Include="Emit\StatementExpression.cs" />
+    <Compile Include="Emit\ThisAddressOfExpression.cs" />
+    <Compile Include="Emit\UnaryExpression.cs" />
+    <Compile Include="Emit\WhileBlockGenerator.cs" />
+    <Compile Include="GenericConstraintExtensions.cs" />
+    <Compile Include="IAsyncTaskManager.cs" />
+    <Compile Include="IMethodOptimizer.cs" />
+    <Compile Include="RecompilationOptions.cs" />
+    <Compile Include="RecompilationSettings.cs" />
+    <Compile Include="RecompiledAccessorTemplate.cs" />
+    <Compile Include="RecompiledGenericParameterTemplate.cs" />
+    <Compile Include="IAssemblyRecompiler.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Emit\RecompiledCodeGenerator.cs" />
+    <Compile Include="Emit\ExpressionBlock.cs" />
+    <Compile Include="RecompiledFieldTemplate.cs" />
+    <Compile Include="RecompiledMemberTemplate.cs" />
+    <Compile Include="RecompiledMethodTemplate.cs" />
+    <Compile Include="RecompiledNamespaceTemplate.cs" />
+    <Compile Include="RecompiledParameterTemplate.cs" />
+    <Compile Include="RecompiledPropertyTemplate.cs" />
+    <Compile Include="RecompiledTypeMemberTemplate.cs" />
+    <Compile Include="RecompiledTypeTemplate.cs" />
+    <Compile Include="RecompiledVariableMember.cs" />
+    <Compile Include="SingleThreadedTaskManager.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

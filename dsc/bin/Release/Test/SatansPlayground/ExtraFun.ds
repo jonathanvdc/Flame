@@ -1,0 +1,28 @@
+using System;
+using System.Collections.Generic;
+
+public struct Test
+{
+    public const this(set string val);
+    public const this(int x)
+    {
+        SetVal(x);
+    }
+    /*/ The lexer used to produce invalid values here.*/
+
+    private string val;
+
+    private void SetVal(int x)
+    {
+        val = (string)x + " (number)";
+    }
+    public static string GetNull()
+    {
+        return null;
+    }
+    public static object Box<T>(T x)
+        where T : object
+    {
+        return (object)x;
+    }
+}

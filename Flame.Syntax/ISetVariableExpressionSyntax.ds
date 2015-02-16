@@ -1,0 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+
+namespace Flame.Syntax
+{
+    public interface ISetVariableExpressionSyntax : IExpressionSyntax
+    {
+        IStatement CreateSetStatement(ISyntaxState State);
+    }
+}

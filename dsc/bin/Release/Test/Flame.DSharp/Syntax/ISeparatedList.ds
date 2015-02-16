@@ -1,0 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+	public interface ISeparatedList<T> : IEnumerable<T>, IReadOnlyList<T>, ISyntaxNode, IRelevantSyntax<Token>
+		where T : ISyntaxNode
+	{
+		
+	}
+}

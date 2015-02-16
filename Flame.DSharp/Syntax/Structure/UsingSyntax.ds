@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Binding;
+using Flame.Compiler;
+using Flame.DSharp;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class UsingSyntax : IBinderDirectiveSyntax
+    {
+        public const this(set Token UsingKeyword, set IEnumerable<Token> UsingNamespace, set Token Semicolon);
+
+        public Token UsingKeyword { const get; private set; }
+        public IEnumerable<Token> UsingNamespace { const get; private set; }
+
+        public string UsingNamespaceString
+        {
+            const get
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (var item in UsingNamespace)
+                {
+                    if (item.Type != TokenType.Whitespace)
+                    {
+                        sb.Append(item.TokenValue);
+                    }
+                }
+                return sb.ToString();
+            }
+        }
+
+        public Token Semicolon { const get; private set; }
+
+        public void ApplyDirective(INamespacedBinder Binder)
+        {
+            Binder.UseNamespace(UsingNamespaceString);
+        }
+
+        public override const string ToString()
+        {
+            return GetCode().ToString();
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            cb.Append(UsingKeyword.ToString());
+            foreach (var item in UsingNamespace)
+            {
+                cb.Append(item.ToString());
+            }
+            cb.Append(Semicolon.ToString());
+            return cb;
+        }
+    }
+}

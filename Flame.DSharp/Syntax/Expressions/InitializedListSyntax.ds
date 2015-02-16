@@ -1,0 +1,76 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class InitializedListSyntax : IExpressionSyntax
+    {
+        public const this(set IExpressionSyntax List, set Token RBraces, set IEnumerable<IExpressionSyntax> Elements, set Token LBraces);
+
+        public IExpressionSyntax List { const get; private set; }
+        public Token RBraces { const get; private set; }
+        public IEnumerable<IExpressionSyntax> Elements { const get; private set; }
+        public Token LBraces { const get; private set; }
+
+        public const IExpression CreateExpression(ISyntaxState State)
+        {
+            var elemExprs = Enumerable.ToArray<IExpression>(Elements.CreateVerifiedExpressions(State));
+
+            var enumExpr = List.CreateVerifiedExpression(State);
+            if (enumExpr is NewArrayExpression)
+            {
+            	var newArrExpr = (NewArrayExpression)enumExpr;
+            	if (Enumerable.Count<IExpression>(newArrExpr.Dimensions) == 1 && Enumerable.First<IExpression>(newArrExpr.Dimensions) == null)
+            	{
+                	//enumExpr = new NewArrayExpression(newArrExpr.ElementType, new IExpression[] { new Int32Expression(elemExprs.Length) });
+                	return new InitializedArrayExpression(newArrExpr.ElementType, elemExprs);
+                }
+            }
+
+            var localVar = new LateBoundVariable(enumExpr.Type);
+
+			List<IStatement> initStatements = new List<IStatement>();
+            initStatements.Add(localVar.CreateSetStatement(enumExpr));
+            for (int i = 0; i < elemExprs.Length; i++)
+            {
+                var elemVar = new ElementVariable(localVar.CreateGetExpression(), new IExpression[] { new Int32Expression(i) });
+                initStatements.Add(elemVar.CreateSetStatement(elemExprs[i]));
+            }
+
+            InitializedExpression expr = new InitializedExpression(new BlockStatement(initStatements.ToArray()),
+                localVar.CreateGetExpression(),
+                localVar.CreateReleaseStatement());
+
+            return expr;
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            CodeBuilder cb = List.GetCode();
+            cb.Append(RBraces.ToString());
+            var elems = Enumerable.ToArray<IExpressionSyntax>(Elements);
+            for (int i = 0; i < elems.Length; i++)
+            {
+                cb.Append(elems[i].GetCode());
+                if (i < elems.Length - 1)
+                {
+                    cb.Append(",");
+                }
+            }
+            cb.Append(LBraces.ToString());
+            return cb;
+        }
+
+        public override const string ToString()
+        {
+            return GetCode().ToString();
+        }
+    }
+}

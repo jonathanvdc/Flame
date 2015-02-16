@@ -1,0 +1,113 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+using Flame.Compiler.Variables;
+
+namespace Flame.Syntax
+{
+	public static class SyntaxExtensions
+	{
+		public static IType CreateVerifiedType(this ITypeSyntax Syntax, ISyntaxState State)
+		{
+			var type = Syntax.CreateType(State);
+			if (type == null)
+			{
+				State.Log.LogError(new LogEntry("Type resolution error", "Could not resolve type '" + Syntax.GetCode().ToString() + "'"));
+			}
+			return type;
+		}
+		
+		public static IExpression CreateVerifiedExpression(this IExpressionSyntax Syntax, ISyntaxState State)
+		{
+			var type = Syntax.CreateExpression(State);
+			if (type == null)
+			{
+				State.Log.LogError(new LogEntry("Expression resolution error", "Could not resolve expression '" + Syntax.GetCode().ToString() + "'"));
+			}
+			return type;
+		}
+		
+		/// <summary>
+        /// Gets an expression for the syntax that accesses the member. Returns null if the member is accessed statically.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <returns></returns>
+        public static IExpression GetCallerExpression(this ITypeMemberAccessSyntax Syntax, ISyntaxState State)
+        {
+            var variable = Syntax.GetCallerVariable(State);
+            if (variable == null)
+            {
+                return null;
+            }
+            else
+            {
+                return variable.CreateGetExpression();
+            }
+        }
+		
+		public static IVariable CreateVariable(IExpressionSyntax ExpressionSyntax, ISyntaxState State)
+        {
+            if (ExpressionSyntax is IVariableSyntax)
+            {
+                return ((IVariableSyntax)ExpressionSyntax).CreateVariable(State);
+            }
+            else
+            {
+                var expr = ExpressionSyntax.CreateExpression(State);
+                if (expr == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return new ExpressionVariable(expr);
+                }
+            }
+        }
+        
+        public static IVariable CreateVerifiedVariable(IExpressionSyntax ExpressionSyntax, ISyntaxState State)
+        {
+        	var variable = SyntaxExtensions.CreateVariable(ExpressionSyntax, State);
+			if (variable == null)
+			{
+				State.Log.LogError("The variable " + ExpressionSyntax.GetCode().ToString() + " could not be resolved.");
+			}
+			return variable;
+        }
+        
+        public static IVariable CreateVerifiedVariable(this IVariableSyntax Syntax, ISyntaxState State)
+        {
+        	var variable = Syntax.CreateVariable(State);
+			if (variable == null)
+			{
+				State.Log.LogError("The variable " + Syntax.GetCode().ToString() + " could not be resolved.");
+			}
+			return variable;
+        }
+        
+        public static const IEnumerable<ITypeMember> GetMembers(this IMemberProvider MemberProvider, IType Type, string Name)
+        {
+        	var candidates = MemberProvider.GetMembers(Type);
+        	List<ITypeMember> members = new List<ITypeMember>();
+        	foreach (var item in candidates)
+        	{
+        		if (item.Name.Equals(Name))
+				{
+					members.Add(item);
+				}
+        	}
+        	return members;
+        }
+        
+        public static IVariable DeclareVariable(this ISyntaxState State, string Name, IType Type)
+        {
+            LateBoundVariable lbVar = new LateBoundVariable(Name, Type);
+            return State.DeclareVariable(Name, lbVar);
+        }
+        
+        public static IEnvironment Environment[this ISyntaxState State]
+        {
+        	const get return State.Binder.Environment;
+        }
+	}
+}

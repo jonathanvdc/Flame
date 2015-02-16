@@ -1,0 +1,10 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Syntax
+{
+	public interface IMemberProvider
+	{
+		const IEnumerable<ITypeMember> GetMembers(IType Type);
+	}
+}

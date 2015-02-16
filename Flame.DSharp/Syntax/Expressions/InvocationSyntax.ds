@@ -1,0 +1,244 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Variables;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class InvocationSyntax : IInvocationSyntax
+    {
+        public const this(set ITypeMemberAccessSyntax Method, set IEnumerable<IExpressionSyntax> Arguments);
+
+        public ITypeMemberAccessSyntax Method { const get; private set; }
+        public IEnumerable<IExpressionSyntax> Arguments { const get; private set; }
+        
+        public static const IExpression CreateInvocationExpression(ISyntaxState State, IMethod Method, IVariable Caller)
+        {
+            return CreateInvocationExpression(State, Method, Caller, (IEnumerable<IExpression>)new IExpression[0]);
+        }
+
+        public static const IExpression CreateInvocationExpression(ISyntaxState State, IMethod Method, IVariable Caller, IEnumerable<IExpression> Arguments)
+        {
+            IExpression callerExpr;
+            if (Method.IsExtension && Caller != null)
+            {
+                callerExpr = null;
+                var callerInst = MemberAccessSyntaxBase.CreateExtensionCallerExpression(Caller, Enumerable.FirstOrDefault<IParameter>(Method.GetParameters()).ParameterType);
+                Arguments = Enumerable.ToArray<IExpression>(Enumerable.Concat<IExpression>((IEnumerable<IExpression>)new IExpression[] { callerInst }, Arguments));
+            }
+            else
+            {
+                callerExpr = MemberAccessSyntaxBase.CreateCallerExpression(State, Caller, Method);
+            }
+            
+            return new InvocationExpression(Method, callerExpr, Enumerable.ToArray<IExpression>(Arguments));
+        }
+        
+        public static const IExpression CastExtensionCallerExpression(ISyntaxState State, IVariable callerInst, ISyntaxNode MethodNode, IType TargetType)
+        {
+        	var valType = callerInst.Type;
+	    	if (valType.Is(TargetType))
+	     	{
+	        	return callerInst.CreateGetExpression();
+	    	}
+	    	else if (TargetType.IsPointer && !valType.IsPointer)
+	      	{
+	         	if (TargetType.AsContainerType().GetElementType().IsValueType)
+	       			return MemberAccessSyntaxBase.CreateAddressToValueExpression(callerInst);
+	     	}
+	       	if (CastSyntax.UseImplicitCast(State, valType, TargetType))
+	       	{
+	        	return new ConversionExpression(callerInst.CreateGetExpression(), TargetType);
+	      	}
+	     	
+	        State.Log.LogError(new LogEntry("Cast error", "The caller of '" + MethodNode.GetCode().ToString() + "' of type '" + valType.FullName + "' could not be cast implicitly to '" + TargetType.FullName + "'"));
+	        return new ConversionExpression(callerInst.CreateGetExpression(), TargetType);
+        }
+        
+        public static const IExpression CreateInvocationExpression(ISyntaxState State, IMethod Method, IVariable Caller, ISyntaxNode MethodNode, IEnumerable<IExpression> Arguments, IEnumerable<IExpressionSyntax> Nodes)
+        {
+        	IEnumerable<IParameter> methodParameters = Method.GetParameters();
+        	List<IExpression> callArgs = new List<IExpression>();
+            IExpression callerExpr;
+            if (Method.IsExtension && Caller != null)
+            {
+                callerExpr = null;
+                var targetType = Enumerable.FirstOrDefault<IParameter>(methodParameters).ParameterType;
+                var callerInst = InvocationSyntax.CastExtensionCallerExpression(State, Caller, MethodNode, targetType);
+                callArgs.Add(callerInst);
+                methodParameters = Enumerable.Skip<IParameter>(methodParameters, 1);
+            }
+            else
+            {
+                callerExpr = MemberAccessSyntaxBase.CreateCallerExpression(State, Caller, Method);
+            }
+            foreach (var item in Arguments, var node in Nodes, var parameter in methodParameters)
+            {
+            	callArgs.Add(CastSyntax.CreateImplicitCast(State, item, node, parameter.ParameterType));
+            }
+            
+            return new InvocationExpression(Method, callerExpr, callArgs.ToArray());
+        }
+        
+        public static const void AppendCallSignature(CodeBuilder SignatureBuilder, IType[] argTypes)
+        {
+    	    SignatureBuilder.Append('(');
+        	bool first = true;
+        	foreach (var item in argTypes)
+        	{
+        		if (first)
+        			first = false;
+        		else
+        			SignatureBuilder.Append(", ");
+        		
+        		SignatureBuilder.Append(item.FullName);
+        	}
+        	SignatureBuilder.Append(')'); 
+        }
+        
+        public static const CodeBuilder CreateExpectedSignatureDescription(IType CallerType, CodeBuilder CallerCode, IType[] ArgumentTypes, bool AllowStatic)
+        {
+            CodeBuilder expectedSignature = new CodeBuilder();
+        	expectedSignature.Append("'");
+        	if (CallerType == null && AllowStatic)
+        		expectedSignature.Append("static ");
+			expectedSignature.Append(CallerCode);
+        	AppendCallSignature(expectedSignature, ArgumentTypes);
+        	expectedSignature.Append("'");
+        	if (CallerType != null)
+        	{
+            	expectedSignature.Append(" (where the caller expression is of type '");
+            	expectedSignature.Append(CallerType.FullName);
+            	expectedSignature.Append("')");
+        	}
+        	return expectedSignature;
+        }
+
+        public const IExpression CreateExpression(ISyntaxState State)
+        {
+            var argExprs = Arguments.CreateVerifiedExpressions(State);
+            var argTypes = argExprs.Types;
+
+            var callerVar = Method.GetCallerVariable(State);
+            IType callerType;
+            if (callerVar == null)
+            	callerType = null;
+            else
+            	callerType = callerVar.Type;
+
+            var matches = Method.GetAccessedMembers(State);
+
+            IMethod method = Enumerable.OfType<IMethod>(matches).GetBestMethod(callerType, argTypes);
+
+            if (method == null && ThisVariable.IsThisVariable(callerVar))
+            {
+            	// Try for static methods
+            	method = Enumerable.OfType<IMethod>(matches).GetBestMethod(null, argTypes);
+            	if (method == null) // Try for singleton methods
+            	{
+            		var associatedSingleton = callerType.GetAssociatedSingleton();
+            		method = Enumerable.OfType<IMethod>(matches).GetBestMethod(associatedSingleton, argTypes);
+            		if (method != null)
+            			callerVar = new SingletonVariable(associatedSingleton);
+            	}
+            }
+            if (method == null)
+            {
+            	CodeBuilder expectedSignature = CreateExpectedSignatureDescription(callerType, Method.GetCode(), argTypes, true);
+            	
+            	var failedMatches = Enumerable.ToArray<IMethod>(Enumerable.OfType<IMethod>(matches));
+            	if (failedMatches.Length > 0)
+            	{
+            		CodeBuilder failedMatchesList = new CodeBuilder();
+            		foreach (var item in failedMatches)
+            		{
+            			if (item.IsStatic)
+            				failedMatchesList.Append("static ");
+            			var retType = item.ReturnType;
+            			if (retType == null)
+            				failedMatchesList.Append("void");
+            			else
+            				failedMatchesList.Append(item.ReturnType.FullName);
+            			failedMatchesList.Append(' ');
+            			failedMatchesList.Append(item.FullName);
+            			AppendCallSignature(failedMatchesList, item.GetParameters().GetTypes());
+            			failedMatchesList.AppendLine();
+            		}
+            		State.Log.LogError(new LogEntry("Method resolution error", "Method call '" + this.GetCode().ToString() + "' could not be resolved. Expected signature compatible with " + expectedSignature.ToString() + ". Incompatible or ambiguous matches: \r\n" + failedMatchesList));
+            	}
+            	else
+            	{
+            		State.Log.LogError(new LogEntry("Method resolution error", "Method call '" + this.GetCode().ToString() + "' could not be resolved because '" + this.Method.GetCode().ToString() + "' was not recognized as function or type member. Expected signature compatible with " + expectedSignature.ToString() + "."));
+            	}
+            }
+            
+            /*IExpression callerExpr;
+            if (method.IsExtension && callerVar != null)
+            {
+                callerExpr = null;
+                var callerInst = MemberAccessSyntaxBase.CreateExtensionCallerExpression(callerVar, Enumerable.FirstOrDefault<IParameter>(method.GetParameters()).ParameterType);
+                argExprs = Enumerable.ToArray<IExpression>(Enumerable.Concat<IExpression>((IEnumerable<IExpression>)new IExpression[] { callerInst }, argExprs));
+            }
+            else
+            {
+                callerExpr = MemberAccessSyntaxBase.CreateCallerExpression(callerVar, method);
+            }
+            return new InvocationExpression(method, callerExpr, argExprs);*/
+            
+            return CreateInvocationExpression(State, method, callerVar, this, argExprs, Arguments);
+        }
+
+        public override const string ToString()
+        {
+            return GetCode().ToString();
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            CodeBuilder sb = new CodeBuilder();
+            sb.Append(Method.GetCode().ToString());
+            sb.Append("(");
+            bool first = true;
+            foreach (var item in Arguments)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    sb.Append(",");
+                }
+                sb.Append(item.GetCode().ToString());
+            }
+            sb.Append(")");
+            return sb;
+        }
+
+        public IExpression GetCallerExpression(ISyntaxState State)
+        {
+            return Method.GetCallerExpression(State);
+        }
+
+        public IVariable GetCallerVariable(ISyntaxState State)
+        {
+            return Method.GetCallerVariable(State);
+        }
+
+        public IEnumerable<ITypeMember> GetAccessedMembers(ISyntaxState State)
+        {
+            var argExprs = Arguments.CreateExpressions(State);
+            var argTypes = argExprs.Types;
+
+            var callerVar = Method.GetCallerVariable(State);
+
+            var matches = Method.GetAccessedMembers(State);
+
+            return Enumerable.OfType<IMethod>(matches).GetBestMethods(callerVar.Type, argTypes);
+        }
+    }
+}

@@ -1,0 +1,301 @@
+/// <summary>
+/// Describes a binary search tree.
+/// </summary>
+public class BinarySearchTree<T, TKey> : ITree<T, TKey>
+{
+    public const this(set IMap<T, TKey> KeyMap);
+    private const this(set IMap<T, TKey> KeyMap, set BinaryTree<T> tree);
+
+    private BinaryTree<T> tree;
+    
+    /// <summary>
+    /// Gets the function that maps the binary search tree's records to their search keys.
+    /// </summary>
+    public IMap<T, TKey> KeyMap { const get; private set; }
+    
+    /// <summary>
+    /// Gets the binary tree's root key.
+    /// </summary>
+    public TKey Key 
+    { 
+        const get
+            if (tree == null)
+                return null;
+            else
+                return KeyMap.Map(tree.Data);
+    }
+    
+    /// <summary>
+    /// Gets or sets the binary tree's left subtree.
+    /// </summary>
+    public BinarySearchTree<T, TKey> Left 
+    { 
+        const get 
+        {
+            if (tree == null)
+                return null;
+            else
+                return new BinarySearchTree<T, TKey>(KeyMap, tree.Left);
+        }
+        private set
+        {
+            this.tree.Left = value.tree;
+        }
+    }
+    
+    /// <summary>
+    /// Gets the binary tree's leftmost node.
+    /// </summary>
+    private BinarySearchTree<T, TKey> GetLeftmost()
+    {
+        if (tree == null)
+        {
+            return null;
+        }
+        else
+        {
+            var ltree = Left;
+            if (ltree.IsEmpty)
+                return this;
+            else
+                return ltree.GetLeftmost();
+        }
+    }
+    
+    /// <summary>
+    /// Gets or sets the binary tree's right subtree.
+    /// </summary>
+    public BinarySearchTree<T, TKey> Right 
+    { 
+        const get 
+        {
+            if (tree == null)
+                return null;
+            else
+                return new BinarySearchTree<T, TKey>(KeyMap, tree.Right);
+        }
+        private set
+        {
+            this.tree.Right = value.tree;
+        }
+    }
+    
+    /// <summary>
+    /// Gets the number of items in the binary search tree.
+    /// </summary>
+    public int Count
+    {
+        const get
+        {
+            if (tree == null) return 0;
+            else return tree.Count;
+        }
+    }
+    
+    /// <summary>
+    /// Gets a boolean value that indicates if the binary search tree is empty.
+    /// </summary>
+    public bool IsEmpty
+    {
+        const get
+        {
+            return tree == null;
+        }
+    }
+    
+    /// <summary>
+    /// Gets a boolean value that indicates if the binary search tree is either empty, or a leaf.
+    /// </summary>
+    /// <post>
+    /// Returns true if this binary search tree is empty or has no children.
+    /// Otherwise, returns false.
+    /// </post>
+    public bool IsLeaf
+    {
+        const get
+        {
+            return tree == null || (tree.Left == null && tree.Right == null);
+        }
+    }
+    
+    /// <summary>
+    /// Performs inorder traversal on the binary search tree and writes its items to a new list.
+    /// </summary>
+    public const IReadOnlyList<T> TraverseInorder()
+    {
+        var aList = new LinkedList<T>();
+        TraverseInorder(aList);
+        return aList;
+    }
+    /// <summary>
+    /// Performs inorder traversal on the binary search tree and writes its items to the given target collection.
+    /// </summary>
+    public void TraverseInorder(ICollection<T> Target)
+    {
+        if (tree != null) 
+            tree.TraverseInorder(Target);
+    }
+    
+    public const [<T>] __iter__()
+    {
+        var rolist = TraverseInorder();
+        for (int i = 0; i < rolist.Count; i++)
+        {
+            yield return rolist[i];
+        }
+    }
+    
+    /// <summary>
+    /// Inserts an item in the binary search tree.
+    /// </summary>
+    public void Insert(T Item)
+    {
+        if (tree == null)
+        {
+            tree = new BinaryTree<T>(Item);
+        }
+        else
+        {
+            var recordKey = KeyMap.Map(Item);
+            if (recordKey < this.Key)
+                if (tree.Left == null)
+                    tree.Left = new BinaryTree<T>(Item);
+                else
+                    Left.Insert(Item);
+            else
+                if (tree.Right == null)
+                    tree.Right = new BinaryTree<T>(Item);
+                else
+                    Right.Insert(Item);
+        }
+    }
+    
+    /// <summary>
+    /// Retrieves the item with the specified key.
+    /// </summary>
+    /// <post>
+    /// If the binary search tree contains an item with the specified key, said item is returned. If not, None is returned.
+    /// </post>
+    public const T Retrieve(TKey Key)
+    {
+        if (tree == null)
+            return null;
+        else if (Key == this.Key)
+            return tree.Data;
+        else if (Key < this.Key)
+            return Left.Retrieve(Key);
+        else
+            return Right.Retrieve(Key);
+    }
+    
+    /// <summary>
+    /// Removes the item with the specified key from the binary search tree.
+    /// </summary>
+    public bool Remove(TKey Key)
+    {
+        if (IsEmpty)
+        {
+            return false;
+        }
+        else if (Count == 1)
+        {
+            if (Key == KeyMap.Map(tree.Data))
+            {
+                tree = null;
+                return true;
+            }
+            else return false;
+        }
+        else
+        {
+            var newTree = ImmutableRemove(Key);
+            //bool changed = newTree.Count == this.Count - 1;
+            bool changed = !Equals(newTree);
+            this.tree.CopyFrom(newTree.tree);
+            return changed;
+        }
+    }
+    
+    /// <summary>
+    /// Compares two trees for equality. 
+    /// This method is not intended for general use, and was specifically created for the 'Remove(TKey)' method.
+    /// It uses reference comparison to achieve O(log(n)) performance.
+    /// </summary>
+    private const bool Equals(BinarySearchTree<T, TKey> Other)
+    {
+        if (this.tree == Other.tree)
+        {
+            return true;
+        }
+        else if (this.IsEmpty || Other.IsEmpty)
+        {
+            return this.IsEmpty == Other.IsEmpty;
+        }
+        else
+        {
+            if (this.tree.Data != Other.tree.Data)
+                return false;
+            return this.Left.Equals(Other.Left) && this.Right.Equals(Other.Right);
+        }
+    }
+    
+    /// <summary>
+    /// Returns a tree with the leftmost child removed.
+    /// Search trees are treated as immutable objects in this method.
+    /// </summary>
+    private const BinarySearchTree<T, TKey> ImmutableRemoveLeftmost()
+    {
+        if (this.IsEmpty)
+            return this;
+        else if (this.Left.IsEmpty)
+            return this.Right;
+        else
+        {
+            var root = new BinarySearchTree<T, TKey>(KeyMap, new BinaryTree<T>(this.tree.Data));
+            root.Left = Left.ImmutableRemoveLeftmost();
+            root.tree.Right = tree.Right;
+            return root;
+        }
+    }
+    
+    /// <summary>
+    /// Returns a tree where one occurrence of an item with the provided key has been removed.
+    /// Search trees are treated as immutable objects in this method.
+    /// </summary>
+    private const BinarySearchTree<T, TKey> ImmutableRemove(TKey Key)
+    {
+        if (this.IsEmpty)
+            return this;
+            
+        var ownKey = this.Key;
+        if (Key > ownKey)
+        {
+            var root = new BinarySearchTree<T, TKey>(KeyMap, new BinaryTree<T>(this.tree.Data));
+            root.tree.Left = tree.Left;
+            root.Right = Right.ImmutableRemove(Key);
+            return root;
+        }
+        else if (Key < ownKey)
+        {
+            var root = new BinarySearchTree<T, TKey>(KeyMap, new BinaryTree<T>(this.tree.Data));
+            root.Left = Left.ImmutableRemove(Key);
+            root.tree.Right = tree.Right;
+            return root;
+        }
+        else if (!Left.IsEmpty && !Right.IsEmpty)
+        {
+            var root = new BinarySearchTree<T, TKey>(KeyMap, new BinaryTree<T>(Right.GetLeftmost().tree.Data));
+            root.tree.Left = tree.Left;
+            root.Right = Right.ImmutableRemoveLeftmost();
+            return root;
+        }
+        else if (Left.IsEmpty)
+        {
+            return Right;
+        }
+        else
+        {
+            return Left;
+        }
+    }
+}

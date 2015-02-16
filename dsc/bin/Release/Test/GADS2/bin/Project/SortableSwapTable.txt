@@ -1,0 +1,25 @@
+class SortableSwapTable<TKey, TValue> : IndirectTable<TKey, TValue>, ISortableTable<TKey, TValue>
+// A wrapper sortable table that allows for the underlying sortable table to be swapped out for another sortable table.
+{
+
+    +CreateSortableSwapTable(in table : ISortableTable<TKey, TValue>) : SortableSwapTable<TKey, TValue> { query }
+    // Creates a new instance of a swap table.
+
+    #GetTable() : ITable<TKey, TValue>
+    // Gets the indirect table's underlying table.
+
+    +Swap(in Table : ISortableTable<TKey, TValue>)
+    // Changes the underlying sortable table implementation to the provided table.
+    // Post:
+    // The underlying implementation of this table will be changed to 'Table', which will be populated with the items from the previous underlying table, in addition to the elements that were already in 'Table'.
+
+    +Sort(in Sorter : IListSorter<TValue>)
+    // Sorts the table's contents in ascending order based on the the provided comparer.
+    // Pre:
+    // The table must not be empty for this method to change the table's state.
+    // Post:
+    // The table's items will be sorted.
+    // After sorting, the table's 'ToList()' method must return a list whose items are sorted.
+    // If the table's state is modified after 'Sort()' is called, the list produced by 'ToList()' need no longer be sorted.
+
+}

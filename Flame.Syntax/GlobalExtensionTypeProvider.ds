@@ -1,0 +1,39 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Syntax
+{
+    public class GlobalExtensionTypeProvider : IExtensionTypeProvider
+    {
+        public const this(set IBinder Binder);
+
+        public IBinder Binder { const get; private set; }
+
+        private IType[] extTypes;
+        public IType[] ExtensionTypes
+        {
+            const get
+            {
+                if (extTypes == null)
+                {
+                	List<IType> extTypeList = new List<IType>();
+                	foreach (var item in Binder.GetTypes())
+                	{
+                		if (item.IsExtension)
+                		{
+                			extTypeList.Add(item);
+                		}
+                	}
+                    extTypes = extTypeList.ToArray();
+                }
+                return extTypes;
+            }
+        }
+        
+        public void ClearCache()
+        {
+        	this.extTypes = null;
+        }
+    }
+}

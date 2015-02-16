@@ -1,0 +1,59 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler.Expressions;
+
+namespace Flame.Compiler
+{
+	public static class OperatorExtensions
+	{
+		/// <summary>
+		/// Gets all operator methods associated with the given argument types for the given operator.
+		/// </summary>
+		public static const IEnumerable<IMethod> GetAllOperatorOverloads(this Operator Op, IEnumerable<IType> ArgumentTypes)
+		{
+			List<IMethod> results = new List<IMethod>();
+			foreach (var item in Enumerable.Distinct<IType>(ArgumentTypes))
+			{
+				results.AddRange(item.GetAssociatedOperatorMethods(Op));
+			}
+			return Enumerable.Distinct<IMethod>(results);
+		}
+		
+		/// <summary>
+		/// Gets the best operator overload for the given operator with the given argument types.
+		/// </summary>
+		public static const IMethod GetOperatorOverload(this Operator Op, IEnumerable<IType> ArgumentTypes)
+		{
+			var methods = Op.GetAllOperatorOverloads(ArgumentTypes);
+			var bestStatic = methods.GetBestMethod(Enumerable.ToArray<IType>(ArgumentTypes)); // Try static overload
+			if (bestStatic != null)
+			{
+				return bestStatic;
+			}
+			return methods.GetBestMethod(Enumerable.First<IType>(ArgumentTypes), Enumerable.ToArray<IType>(Enumerable.Skip<IType>(ArgumentTypes, 1))); // Try instance methods
+		}
+	
+		/// <summary>
+		/// Gets the best operator overload for the given operator with the given arguments.
+		/// </summary>
+		public static const IMethod GetOperatorOverload(this Operator Op, IEnumerable<IExpression> Arguments)
+		{
+			List<IType> argTypes = new List<IType>();
+			foreach (var item in Arguments)
+				argTypes.Add(item.Type);
+			return Op.GetOperatorOverload(argTypes);
+		}
+		
+		/// <summary>
+		/// Creates an invocation expression for this operator with the given arguments.
+		/// </summary>
+		public static const IExpression CreateOperatorInvocation(this Operator Op, [IExpression] Arguments)
+		{
+			var method = Op.GetOperatorOverload(Arguments);
+			if (method == null) return null;
+			return new RelaxedInvocation(method, Arguments);
+		}
+	}
+}

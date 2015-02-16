@@ -1,0 +1,114 @@
+            public class LinkedList<T> : IList<T>
+            { 
+                public const this();
+
+                public ListNode<T> Head { const get; set; }
+                public ListNode<T> Tail
+                {
+                    const get
+                        if (Head == null)
+                            return null;
+                        else
+                            return Head.Tail;
+                }
+
+                public int Count
+                {
+                    const get
+                    {
+                        var node = Head;
+                        var i = 0;
+                        while (node != null)
+                        {
+                            node = node.Successor;
+                            i++;
+                        }
+                        return i;
+                    }
+                }
+
+                public const T[] ToArray()
+                {
+                    T[] arr = new T[Count];
+                    var node = Head;
+                    for (int i = 0; i < arr.Length; i++)
+                    {
+                        arr[i] = node.Value;
+                        node = node.Successor;
+                    }
+                    return arr;
+                }
+
+                public const ListNode<T> NodeAt(int Index)
+                {
+                    var node = Head;
+                    var i = 0;
+                    while (node != null && i < Index)
+                    {
+                        node = node.Successor;
+                        i++;
+                    }
+                    return node;
+                }
+                public const T ItemAt(int Index)
+                {
+                    return NodeAt(Index).Value;
+                }
+                
+                public T this[int Index]
+                {
+                    const get return ItemAt(Index);
+                    set NodeAt(Index).Value = value;
+                }
+                
+                public void Add(T Item)
+                {
+                    if (Head == null)
+                        Head = new ListNode<T>(Item);
+                    else
+                        Tail.InsertAfter(Item);
+                }
+
+                public bool RemoveAt(int Index)
+                {
+                    if (Index < Count)
+                    {
+                        if (Index == 0)
+                        {
+                            Head = Head.Successor;
+                        }
+                        else
+                        {
+                            var predecessor = NodeAt(Index - 1);
+                            predecessor.Successor = predecessor.Successor.Successor;
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                public bool Insert(int Index, T Item)
+                {
+                    if (Index == 0)
+                    {
+                        var oldHead = Head;
+                        Head = new ListNode<T>(Item);
+                        if (oldHead != null)
+                            Head.Successor = oldHead;
+                        return true;
+                    }
+                    var node = NodeAt(Index - 1);
+                    if (node == null)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        node.InsertAfter(Item);
+                        return true;
+                    }
+                }
+            }

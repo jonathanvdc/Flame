@@ -1,0 +1,44 @@
+<Project Name="Flame.Syntax">
+	<Setter Property="TargetPlatform" Value="CLR/Release" />
+        <Option Key="invariant-culture" Value="true" />
+        <Option Key="generate-static" Value="true" />
+	<ItemGroup>
+		<RuntimeLibrary Include="PortableRT" />
+		<RuntimeLibrary Include="System" />
+		<RuntimeLibrary Include="System.Core" />
+		<Reference Include="../Flame/bin/Flame.dll" />
+		<Reference Include="../Flame.Compiler/bin/Flame.Compiler.dll" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Include="IExpressionSyntax.ds" />
+		<Compile Include="ISyntaxState.ds" />
+		<Compile Include="ISyntaxNode.ds" />
+		<Compile Include="IExtensionTypeProvider.ds" />
+		<Compile Include="IMemberProvider.ds" />
+		<Compile Include="ITypeSyntax.ds" />
+		<Compile Include="SyntaxExtensions.ds" />
+		<Compile Include="IVariableSyntax.ds" />
+		<Compile Include="IStatementSyntax.ds" />
+		<Compile Include="ITypeMemberAccessSyntax.ds" />
+		<Compile Include="EnumerableSyntaxExtensions.ds" />
+		<Compile Include="IInvocationSyntax.ds" />
+		<Compile Include="LocalExtensionTypeProvider.ds" />
+		<Compile Include="GlobalExtensionTypeProvider.ds" />
+		<Compile Include="MemberProvider.ds" />
+		<Compile Include="ISetVariableExpressionSyntax.ds" />
+		<Compile Include="ITypeDeclarationSyntax.ds" />
+		<Compile Include="IMemberSyntax.ds" />
+		<Compile Include="IGenericParameterDeclarationSyntax.ds" />
+		<Compile Include="IBinderDirectiveSyntax.ds" />
+		<Compile Include="IAccessorSyntax.ds" />
+		<Compile Include="IAttributeSyntax.ds" />
+		<Compile Include="ICodeMember.ds" />
+		<Compile Include="INamespaceSyntax.ds" />
+		<Compile Include="ICompilationUnit.ds" />
+		<Compile Include="ISyntaxAssembly.ds" />
+		<Compile Include="IScopedBinder.ds" />
+		<Compile Include="INamespaceBranchBuilder.ds" />
+		<Compile Include="TriviaBucket.ds" />
+		<Compile Include="TokenSink.ds" />
+	</ItemGroup>
+</Project>

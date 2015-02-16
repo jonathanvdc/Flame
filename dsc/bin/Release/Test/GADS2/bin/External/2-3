@@ -1,0 +1,46 @@
+//Author Othman Nahhas
+//Tester Jonathan Van der Cruysse
+class ITree<T, TKey> : iterable<T>
+// Describes a 2-3 search tree.
+
+{
+   
+    property Count
+    {
+
+        +get() : integer { query }
+        // Counts the number of items in the search tree.
+
+    }
+
+    property IsEmpty
+    {
+
+        +get() : boolean { query }
+        // Gets a boolean value that indicates if the list is empty.
+
+    }
+
+    +Insert(in Item : T)
+    // Inserts an item in the search tree.
+    // Post:
+    // The item will be added to the tree, regardless of whether the tree already contains an item with the same search key.
+
+    +Retrieve(in Key : TKey) : T { query }
+    // Retrieves the item with the specified key.
+    // Post:
+    // If the search tree contains an item with the specified key, said item is returned.
+    // If not, None is returned.
+
+    +Remove(in Key : TKey) : boolean
+    // Removes the item with the specified key from the search tree.
+    // Post:
+    // If the search tree contains an item with the provided key, it is removed, and true is returned.
+    // Otherwise, the tree's state remains unchanged, and false is returned.
+
+    +TraverseInorder() : IReadOnlyList<T> { query }
+    // Performs inorder traversal on the binary search tree and writes its items to a new list.
+    // Post:
+    // This method returns a read-only list with element type 'T' that can be used for iteration.
+
+}

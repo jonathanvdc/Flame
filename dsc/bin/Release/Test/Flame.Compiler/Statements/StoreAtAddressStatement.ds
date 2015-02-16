@@ -1,0 +1,36 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Statements
+{
+    public class StoreAtAddressStatement : IStatement, IVariableNode
+    {
+        public const this(set IExpression Pointer, set IExpression Value);
+
+        public IExpression Pointer { const get; private set; }
+        public IExpression Value { const get; private set; }
+
+        public bool IsEmpty
+        {
+            const get { return false; }
+        }
+        
+        public const IVariable GetVariable() : IVariableNode.GetVariable
+        {
+        	return new AtAddressVariable(Pointer);
+        }
+
+        public IStatement Optimize()
+        {
+            return new StoreAtAddressStatement(Pointer.Optimize(), Value.Optimize());
+        }
+
+        public void Emit(IBlockGenerator Generator)
+        {
+        	var codeGen = (IUnmanagedCodeGenerator)Generator.CodeGenerator;
+            var block = (codeGen).EmitStoreAtAddress(Pointer.Emit(codeGen), Value.Emit(codeGen));
+            Generator.EmitBlock(block);
+        }
+    }
+}

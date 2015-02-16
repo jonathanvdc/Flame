@@ -1,0 +1,66 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+using Flame.Compiler.Variables;
+using Flame.DSharp;
+using Flame.DSharp.Build;
+
+namespace Flame.Syntax.DSharp
+{
+    public class IndirectSyntaxState : ISyntaxState
+    {
+        public const this(set ISyntaxState State, set IBinder Binder)
+        {
+        	this.MemberProvider = new MemberProvider(Binder);
+        }
+        public const this(set ISyntaxState State, set IBinder Binder, set IMemberProvider MemberProvider);
+
+        public ISyntaxState State { const get; private set; }
+        public IBinder Binder { const get; private set; }
+        public IMemberProvider MemberProvider { const get; private set; }
+
+        public IVariable DeclareVariable(string Name, IVariable Variable) : ISyntaxState.DeclareVariable
+        {
+            return State.DeclareVariable(Name, Variable);
+        }
+
+        public IType CurrentType : ISyntaxState.CurrentType
+        {
+            const get { return State.CurrentType; }
+        }
+        public IType DeclaringType : ISyntaxState.DeclaringType
+        {
+        	const get { return State.DeclaringType; }
+        }
+        public IType ReturnType : ISyntaxState.ReturnType
+        {
+            const get { return State.ReturnType; }
+        }
+        
+        public ICompilerLog Log : ISyntaxState.Log
+        {
+        	const get { return State.Log; }
+        }
+
+        public const IVariable GetVariable(string Name) : IVariableProvider.GetVariable
+        {
+            return State.GetVariable(Name);
+        }
+
+        public const bool VariableExists(string Name) : IVariableProvider.VariableExists
+        {
+            return State.VariableExists(Name);
+        }
+
+        public void PushScope() : ISyntaxState.PushScope
+        {
+            State.PushScope();
+        }
+
+        public IStatement PopScope() : ISyntaxState.PopScope
+        {
+            return State.PopScope();
+        }
+    }
+}

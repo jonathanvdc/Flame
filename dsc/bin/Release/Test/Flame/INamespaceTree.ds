@@ -1,0 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame
+{
+    public interface INamespaceTree : IMember
+    {
+        const IEnumerable<INamespaceBranch> GetNamespaces();
+    }
+    public interface INamespaceBranch : INamespaceTree, INamespace
+    {
+    }
+}

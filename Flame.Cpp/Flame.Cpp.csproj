@@ -1,0 +1,163 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1E89128E-A307-474E-BFD7-02810498F792}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Flame.Cpp</RootNamespace>
+    <AssemblyName>Flame.Cpp</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Flame">
+      <HintPath>..\Flame.DSharp\bin\Flame.dll</HintPath>
+    </Reference>
+    <Reference Include="Flame.Compiler">
+      <HintPath>..\Flame.DSharp\bin\Flame.Compiler.dll</HintPath>
+    </Reference>
+    <Reference Include="Flame.Syntax">
+      <HintPath>..\Flame.DSharp\bin\Flame.Syntax.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AccessStringComparer.cs" />
+    <Compile Include="CppAccessor.cs" />
+    <Compile Include="CppAssembly.cs" />
+    <Compile Include="CppDocumentationExtensions.cs" />
+    <Compile Include="CppEnvironment.cs" />
+    <Compile Include="CppExtensions.cs" />
+    <Compile Include="CppField.cs" />
+    <Compile Include="CppNameExtensions.cs" />
+    <Compile Include="CppPointerExtensions.cs" />
+    <Compile Include="ICppEnvironment.cs" />
+    <Compile Include="ICppTypeConverter.cs" />
+    <Compile Include="Plugs\PrimitiveNamespace.cs" />
+    <Compile Include="Plugs\StdNamespace.cs" />
+    <Compile Include="Plugs\PrimitiveBase.cs" />
+    <Compile Include="DefaultCppTypeConverter.cs" />
+    <Compile Include="Emit\BoxConversionBlock.cs" />
+    <Compile Include="Emit\CopyBlock.cs" />
+    <Compile Include="Emit\CopyToPointerBlock.cs" />
+    <Compile Include="Emit\TypeArgumentBlock.cs" />
+    <Compile Include="CppFile.cs" />
+    <Compile Include="CppPrimitives.cs" />
+    <Compile Include="CppProperty.cs" />
+    <Compile Include="CppMethod.cs" />
+    <Compile Include="CppNamespace.cs" />
+    <Compile Include="CppSize32Namer.cs" />
+    <Compile Include="CppTemplateDefinition.cs" />
+    <Compile Include="CppType.cs" />
+    <Compile Include="CppTypeNamerBase.cs" />
+    <Compile Include="Emit\AddressOfBlock.cs" />
+    <Compile Include="Emit\ArgumentBlock.cs" />
+    <Compile Include="Emit\BinaryOperation.cs" />
+    <Compile Include="Emit\CompositeBlockBase.cs" />
+    <Compile Include="Emit\CppArgument.cs" />
+    <Compile Include="Emit\CppBlockGenerator.cs" />
+    <Compile Include="Emit\CppElement.cs" />
+    <Compile Include="Emit\CppField.cs" />
+    <Compile Include="Emit\CppLocal.cs" />
+    <Compile Include="Emit\CppLocalManager.cs" />
+    <Compile Include="Emit\DereferenceBlock.cs" />
+    <Compile Include="Emit\InvocationBlock.cs" />
+    <Compile Include="Emit\IPartialBlock.cs" />
+    <Compile Include="Emit\IPointerBlock.cs" />
+    <Compile Include="Emit\NewBlock.cs" />
+    <Compile Include="Emit\PartialArguments.cs" />
+    <Compile Include="Emit\PartialSharedPtrBlock.cs" />
+    <Compile Include="Emit\PartialStackConstructorBlock.cs" />
+    <Compile Include="Emit\ToAddressBlock.cs" />
+    <Compile Include="Emit\ToReferenceBlock.cs" />
+    <Compile Include="Emit\RetypedBlock.cs" />
+    <Compile Include="Emit\ScopeOperatorBlock.cs" />
+    <Compile Include="Emit\CppThis.cs" />
+    <Compile Include="Emit\ElementBlock.cs" />
+    <Compile Include="Emit\MemberAccessBlock.cs" />
+    <Compile Include="Emit\CppVariableBase.cs" />
+    <Compile Include="Emit\DoWhileBlockGenerator.cs" />
+    <Compile Include="Emit\ICppScopeBlock.cs" />
+    <Compile Include="Emit\IfElseBlockGenerator.cs" />
+    <Compile Include="Emit\KeywordStatementBlock.cs" />
+    <Compile Include="Emit\CharLiteral.cs" />
+    <Compile Include="Emit\ConversionBlock.cs" />
+    <Compile Include="Emit\CppBlockGeneratorBase.cs" />
+    <Compile Include="Emit\CppCodeGenerator.cs" />
+    <Compile Include="Emit\ExpressionStatementBlock.cs" />
+    <Compile Include="Emit\LocalBlock.cs" />
+    <Compile Include="Emit\LocalDeclarationBlock.cs" />
+    <Compile Include="Emit\ReturnBlock.cs" />
+    <Compile Include="Emit\SharedPtrBlock.cs" />
+    <Compile Include="Emit\StackConstructorBlock.cs" />
+    <Compile Include="Emit\StringLiteral.cs" />
+    <Compile Include="Emit\ICppBlock.cs" />
+    <Compile Include="Emit\LiteralBlock.cs" />
+    <Compile Include="Emit\UnaryOperation.cs" />
+    <Compile Include="Emit\VariableAssignmentBlock.cs" />
+    <Compile Include="Emit\WhileBlockGenerator.cs" />
+    <Compile Include="ICppType.cs" />
+    <Compile Include="IGenericResolver.cs" />
+    <Compile Include="ICppMember.cs" />
+    <Compile Include="IHeaderDependency.cs" />
+    <Compile Include="ImplicitCopyConstructor.cs" />
+    <Compile Include="IncludePath.cs" />
+    <Compile Include="Plugs\StdSharedPointer.cs" />
+    <Compile Include="Plugs\StdString.cs" />
+    <Compile Include="Plugs\StdTemplatedTypeBase.cs" />
+    <Compile Include="Plugs\StdVectorType.cs" />
+    <Compile Include="Plugs\StdxArraySlice.cs" />
+    <Compile Include="Plugs\StdxNamespace.cs" />
+    <Compile Include="PreprocessorDirective.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StandardDependency.cs" />
+    <Compile Include="CppTemplateParameter.cs" />
+    <Compile Include="CppTypeConverterBase.cs" />
+    <Compile Include="TypeHeaderDependency.cs" />
+    <Compile Include="UserDependency.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Flame.Cecil\Flame.CodeDescription\Flame.CodeDescription.csproj">
+      <Project>{b11dbde8-1b3a-4474-b425-d79178148c9d}</Project>
+      <Name>Flame.CodeDescription</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FlameRT\FlameRT.csproj">
+      <Project>{a0782faa-6754-4b9d-b856-334dfcba3462}</Project>
+      <Name>FlameRT</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

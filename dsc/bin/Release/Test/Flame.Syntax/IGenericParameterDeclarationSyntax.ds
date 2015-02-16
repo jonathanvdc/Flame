@@ -1,0 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Build;
+using Flame.Compiler.Build;
+
+namespace Flame.Syntax
+{
+    public interface IGenericParameterDeclarationSyntax : ISyntaxNode
+    {
+        IGenericParameterBuilder GetGenericParameter(IGenericMember DeclaringMember);
+    }
+}

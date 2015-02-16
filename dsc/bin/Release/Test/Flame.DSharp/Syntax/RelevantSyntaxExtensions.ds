@@ -1,0 +1,73 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+	public static class RelevantSyntaxExtensions
+	{
+		public static const IEnumerable<Token> GetAllTrivia(this ISyntaxNode Syntax)
+		{
+			if (Syntax is IRelevantSyntax<Token>)
+			{
+				var relevantSyntax = (IRelevantSyntax<Token>)Syntax;
+				return Enumerable.Concat<Token>(relevantSyntax.LeadingTrivia, relevantSyntax.TrailingTrivia);
+			}
+			else
+			{
+				return (IEnumerable<Token>)new Token[0];
+			}
+		}
+		public static const IEnumerable<Token> GetDescriptionComments(this IRelevantSyntax<Token> Syntax)
+		{
+			List<Token> tokens = new List<Token>();
+			foreach (var item in Syntax.LeadingTrivia)
+				if (item.Type == TokenType.DescriptionComment)
+					tokens.Add(item);
+			return tokens;
+		}
+		public static const string GetDescription(this IRelevantSyntax<Token> Syntax)
+		{
+			StringBuilder desc = new StringBuilder();
+			foreach (var item in Syntax.GetDescriptionComments())
+			{
+				desc.Append(item.ToString().Substring(3));
+			}
+			desc.Replace("\n", "");
+			desc.Replace("\r", "");
+			desc.Replace("\t", " ");
+			return desc.ToString();
+		}
+		private static void ParseDescriptionTag(string desc, string TagName, List<IAttribute> attrs, ISyntaxState State)
+		{
+			string startTag = "<" + TagName + ">";
+			int summaryIndex = desc.IndexOf(startTag);
+			if (summaryIndex > -1)
+			{				
+				int summaryStart = summaryIndex + startTag.Length;
+				string endTag = "</" + TagName + ">";
+				int summaryEnd = desc.IndexOf(endTag);
+				if (summaryEnd < 0)
+				{
+					summaryEnd = desc.Length;
+					State.Log.LogWarning(new LogEntry("Mismatched XML comment", "Could not find closing tag for '" + startTag + "' in description '" + desc + "'"));
+				}
+				string summary = desc.Substring(summaryStart, summaryEnd - summaryStart);
+				attrs.Add(new DescriptionAttribute(TagName, summary));
+			}
+		}
+		public static const IEnumerable<IAttribute> GetDescriptionAttributes(this IRelevantSyntax<Token> Syntax, ISyntaxState State)
+		{
+			string desc = Syntax.GetDescription();
+			List<IAttribute> attrs = new List<IAttribute>();
+			foreach (var tag in new string[] { "summary", "pre", "post", "remarks" })
+			{
+				ParseDescriptionTag(desc, tag, attrs, State);
+			}
+			return attrs;
+		}
+	}
+}

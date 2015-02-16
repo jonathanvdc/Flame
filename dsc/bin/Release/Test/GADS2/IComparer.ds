@@ -1,0 +1,16 @@
+/// <summary>
+/// Describes a generic comparer: a class containing pure function that compares two objects of the same types, and returns an integer value describing their relationship to each other.
+/// </summary>
+public interface IComparer<in T>
+{
+    /// <summary>
+    /// Compares two items and returns an integer describing their relationship to each other.
+    /// </summary>
+    /// <pre>
+    /// 'Item' is the left operand of the comparison, 'Other' is the right operand.
+    /// </pre>
+    /// <post>
+    /// Returns 0 if 'Item' and 'Other' are equal, -1 if 'Item' is less than 'Other' and 1 if 'Item' is greater than 'Other'.
+    /// </post>
+    const int Compare(T Item, T Other);
+}

@@ -1,0 +1,140 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Projects
+{
+	public static class ProjectExtensions
+	{
+		private static void WriteOptionsTo(IProjectNode Node, Dictionary<string, string> Target)
+		{
+			foreach (var item in Node.GetChildren())
+			{
+				if (item is IProjectOptionItem)
+				{
+					var optionItem = (IProjectOptionItem)item;
+					Target[optionItem.Key] = optionItem.Value;
+				}
+				else if (item is IProjectNode)
+				{
+					ProjectExtensions.WriteOptionsTo((IProjectNode)item, Target);
+				}
+			}
+		}
+	
+		public static Dictionary<string, string> GetOptions(this IProjectNode Node)
+		{
+			var dict = new Dictionary<string, string>();
+			WriteOptionsTo(Node, dict);
+			return dict;
+		}
+		public static List<IProjectSourceItem> GetSourceItems(this IProjectNode Node)
+		{
+			var list = new List<IProjectSourceItem>();
+			foreach (var item in Node.GetChildren())
+			{
+				if (item is IProjectSourceItem)
+				{
+					list.Add((IProjectSourceItem)item);
+				}
+				else if (item is IProjectNode)
+				{
+					list.AddRange(((IProjectNode)item).GetSourceItems());
+				}
+			}
+			return list;
+		}
+		public static List<IProjectReferenceItem> GetReferenceItems(this IProjectNode Node)
+		{
+			var list = new List<IProjectReferenceItem>();
+			foreach (var item in Node.GetChildren())
+			{
+				if (item is IProjectReferenceItem)
+				{
+					list.Add((IProjectReferenceItem)item);
+				}
+				else if (item is IProjectNode)
+				{
+					list.AddRange(((IProjectNode)item).GetReferenceItems());
+				}
+			}
+			return list;
+		}
+		public static List<string> GetReferences(IProjectNode Node, bool AreRuntimeLibraries)
+		{
+			var refItems = Node.GetReferenceItems();
+			List<string> refs = new List<string>();
+			foreach (var item in refItems)
+			{
+				if (item.IsRuntimeLibrary == AreRuntimeLibraries)
+				{
+					refs.Add(item.ReferenceIdentifier);
+				}
+			}
+			return refs;
+		}
+		public static List<string> GetProjectReferences(this IProjectNode Node)
+		{
+			return ProjectExtensions.GetReferences(Node, false);
+		}
+		public static List<string> GetRuntimeLibraryReferences(this IProjectNode Node)
+		{
+			return ProjectExtensions.GetReferences(Node, true);
+		}
+		
+		#region Project Copying
+		
+		private static IProjectItem CreateItem(IProjectItem Item, IMutableProject Project, string CurrentPath)
+        {
+            if (Item is IProjectNode)
+            {
+                return CreateNode((IProjectNode)Item, Project, CurrentPath);
+            }
+            else if (Item is IProjectSourceItem)
+            {
+                return Project.CreateSourceItem(((IProjectSourceItem)Item).SourceIdentifier, CurrentPath);
+            }
+            else if (Item is IProjectReferenceItem)
+            {
+                return Project.CreateReferenceItem(((IProjectReferenceItem)Item).ReferenceIdentifier, ((IProjectReferenceItem)Item).IsRuntimeLibrary);
+            }
+            else if (Item is IProjectOptionItem)
+            {
+                return Project.CreateOptionItem(((IProjectOptionItem)Item).Key, ((IProjectOptionItem)Item).Value);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private static void CopyNodeContents(IProjectNode Source, IMutableProjectNode Target, IMutableProject Project, string CurrentPath)
+        {
+            Target.SetName(Source.Name);
+            foreach (var item in Source.GetChildren())
+            {
+                var newChild = CreateItem(item, Project, CurrentPath);
+                if (newChild != null)
+                {
+                    Target.AddChild(newChild);
+                }
+            }
+        }
+
+        private static IProjectItem CreateNode(IProjectNode Node, IMutableProject Project, string CurrentPath)
+        {
+            var newNode = Project.CreateNode();
+            CopyNodeContents(Node, newNode, Project, CurrentPath);
+            return newNode;
+        }
+
+        public static void CopyTo(this IProject Source, IMutableProject Target, string CurrentPath)
+        {
+            Target.SetBuildTargetIdentifier(Source.BuildTargetIdentifier);
+            Target.SetAssemblyName(Source.AssemblyName);
+            CopyNodeContents(Source, Target, Target, CurrentPath);
+        }
+		
+		#endregion
+	}
+}

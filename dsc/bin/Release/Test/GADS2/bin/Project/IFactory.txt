@@ -1,0 +1,11 @@
+class IFactory<T, TArg>
+// A generic interface for the factory pattern.
+// It creates instances of type 'T' by using arguments of type 'TArg'.
+{
+
+    +Create(in Argument : TArg) : T
+    // Creates a new instance from the provided argument.
+    // Post:
+    // Creates a new instance of type 'T', and returns it.
+
+}

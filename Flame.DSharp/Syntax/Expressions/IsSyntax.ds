@@ -1,0 +1,57 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.DSharp.Lexer;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+
+namespace Flame.Syntax.DSharp
+{
+    public class IsSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>
+    {
+        public const this(set IExpressionSyntax Target, set Token IsKeyword, set ITypeSyntax Type);
+
+        public IExpressionSyntax Target { const get; private set; }
+        public Token IsKeyword { const get; private set; }
+        public ITypeSyntax Type { const get; private set; }
+
+        public const IExpression CreateExpression(ISyntaxState State)
+        {
+            return new IsExpression(Target.CreateVerifiedExpression(State), Type.CreateVerifiedType(State));
+        }
+        
+        public IEnumerable<Token> LeadingTrivia
+        {
+        	const get return Target.GetAllTrivia();
+        }
+        
+        public IEnumerable<Token> TrailingTrivia
+        {
+        	const get return Enumerable.Empty<Token>();
+        }
+        
+        public IReadOnlyList<Token> Tokens
+        {
+        	const get
+        	{
+        		var tks = new List<Token>();
+        		tks.AddRange(Target.GetTokens());
+        		tks.Add(IsKeyword);
+				tks.AddRange(Type.GetTokens());
+				return tks;
+        	}
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            cb.Append(Target.GetCode());
+            cb.Append(" ");
+            cb.Append(IsKeyword.TokenValue);
+            cb.Append(" ");
+            cb.Append(Type.GetCode());
+            return cb;
+        }
+    }
+}

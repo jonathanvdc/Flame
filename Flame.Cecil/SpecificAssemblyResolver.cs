@@ -1,0 +1,36 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Flame.Cecil
+{
+    public class SpecificAssemblyResolver : Mono.Cecil.BaseAssemblyResolver
+    {
+        public SpecificAssemblyResolver()
+        {
+            this.cachedDefs = new Dictionary<string, Mono.Cecil.AssemblyDefinition>();
+            foreach (var item in GetSearchDirectories())
+            {
+                RemoveSearchDirectory(item);
+            }
+        }
+
+        private Dictionary<string, Mono.Cecil.AssemblyDefinition> cachedDefs;
+
+        public void AddAssembly(Mono.Cecil.AssemblyDefinition Definition)
+        {
+            cachedDefs[Definition.Name.Name] = Definition;
+        }
+
+        public override Mono.Cecil.AssemblyDefinition Resolve(Mono.Cecil.AssemblyNameReference name, Mono.Cecil.ReaderParameters parameters)
+        {
+            if (cachedDefs.ContainsKey(name.Name))
+            {
+                return cachedDefs[name.Name];
+            }
+            return base.Resolve(name, parameters);
+        }
+    }
+}

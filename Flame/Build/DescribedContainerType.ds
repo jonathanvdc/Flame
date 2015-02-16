@@ -1,0 +1,149 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Build
+{
+    public abstract class DescribedContainerType : IContainerType
+    {
+    	public const this();
+        public const this(set IType ElementType);
+
+        public IType ElementType { const get; protected set; }
+        public INamespace DeclaringNamespace { const get; set; }
+
+        public virtual ITypeMember[] GetMembers()
+        {
+            List<ITypeMember> members = new List<ITypeMember>();
+            foreach (var method in GetMethods()) members.Add(method);
+            foreach (var prop in GetProperties()) members.Add(prop);
+            foreach (var ctor in GetConstructors()) members.Add(ctor);
+            foreach (var field in GetFields()) members.Add(field);
+            return members.ToArray();
+        }
+
+        public virtual IMethod[] GetMethods()
+        {
+            return new IMethod[0];
+        }
+
+        public virtual IProperty[] GetProperties()
+        {
+            return new IProperty[0];
+        }
+
+        public virtual IMethod[] GetConstructors()
+        {
+            return new IMethod[0];
+        }
+
+        public virtual IField[] GetFields()
+        {
+            return new IField[0];
+        }
+
+        public IArrayType MakeArrayType(int Rank)
+        {
+            return new DescribedArrayType(this, Rank);
+        }
+
+        public IType GetElementType()
+        {
+            return ElementType;
+        }
+
+        protected abstract string GetName(string ElementName);
+
+        public string Name
+        {
+            get
+            {
+                return GetName(ElementType.Name);
+            }
+        }
+
+        public string FullName
+        {
+            get
+            {
+                return GetName(ElementType.FullName);
+            }
+        }
+
+        public override string ToString()
+        {
+            return GetName(ElementType.FullName);
+        }
+
+        public IEnumerable<IAttribute> GetAttributes()
+        {
+            return (IEnumerable<IAttribute>)new IAttribute[0];
+        }
+
+        public virtual IType[] GetBaseTypes()
+        {
+            return new IType[0];
+        }
+
+        public IArrayType AsArrayType()
+        {
+            return (IArrayType)this;
+        }
+
+        public IBoundObject GetDefaultValue()
+        {
+            return null;
+        }
+
+        public abstract ContainerTypeKind ContainerKind { const get; }
+
+        public IPointerType AsPointerType()
+        {
+            return (IPointerType)this;
+        }
+
+        public bool IsContainerType
+        {
+            const get { return true; }
+        }
+
+        public const IContainerType AsContainerType()
+        {
+            return this;
+        }
+
+        public IPointerType MakePointerType(PointerKind PointerKind)
+        {
+            return new DescribedPointerType(this, PointerKind);
+        }
+
+        public IVectorType MakeVectorType(int[] Dimensions)
+        {
+            return new DescribedVectorType(this, Dimensions);
+        }
+
+        public IVectorType AsVectorType()
+        {
+            return (IVectorType)this;
+        }
+
+        public IType MakeGenericType(IEnumerable<IType> TypeArguments)
+        {
+            return null;
+        }
+
+        public IEnumerable<IGenericParameter> GetGenericParameters()
+        {
+            return (IEnumerable<IGenericParameter>)new IGenericParameter[0];
+        }
+
+        public IEnumerable<IType> GetGenericArguments()
+        {
+            return (IEnumerable<IType>)new IType[0];
+        }
+
+        public IType GetGenericDeclaration()
+        {
+            return this;
+        }
+    }
+}

@@ -1,0 +1,52 @@
+using Flame.DSharp.Lexer;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Flame.Syntax.DSharp
+{
+    public class NullSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>
+    {
+        public const this()
+        {
+            this.NullKeyword = new Token(TokenType.NullKeyword, "null");
+        }
+        public const this(set Token NullKeyword);
+
+        public Token NullKeyword { const get; private set; }
+        
+        public IEnumerable<Token> LeadingTrivia
+        {
+        	const get return NullKeyword.GetAllTrivia();
+        }
+        
+        public IEnumerable<Token> TrailingTrivia
+        {
+        	const get return Enumerable.Empty<Token>();
+        }
+        
+        public IReadOnlyList<Token> Tokens
+        {
+        	const get return (IReadOnlyList<Token>)new Token[] { NullKeyword };
+        }
+
+        public IExpression CreateExpression(ISyntaxState State) : IExpressionSyntax.CreateExpression
+        {
+        	return new NullExpression();
+        }
+        
+        public override const string ToString()
+        {
+        	return this.GetCode().ToString();
+        }
+
+        public CodeBuilder GetCode()
+        {
+            return new CodeBuilder(NullKeyword.ToString());
+        }
+    }
+}

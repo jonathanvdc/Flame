@@ -1,0 +1,7 @@
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Compiler.Emit\obj\Debug\Flame.Compiler.Emit.csprojResolveAssemblyReference.cache
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Compiler.Emit\bin\Debug\Flame.Compiler.Emit.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Compiler.Emit\bin\Debug\Flame.Compiler.Emit.pdb
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Compiler.Emit\bin\Debug\Flame.Compiler.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Compiler.Emit\bin\Debug\Flame.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Compiler.Emit\obj\Debug\Flame.Compiler.Emit.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Compiler.Emit\obj\Debug\Flame.Compiler.Emit.pdb

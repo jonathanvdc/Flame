@@ -1,0 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Syntax
+{
+	public interface IInvocationSyntax : IExpressionSyntax, ITypeMemberAccessSyntax
+    {
+        IEnumerable<IExpressionSyntax> Arguments { const get; }
+    }
+}

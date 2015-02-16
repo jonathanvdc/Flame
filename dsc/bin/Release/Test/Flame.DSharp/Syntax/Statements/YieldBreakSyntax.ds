@@ -1,0 +1,46 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+using Flame.Compiler.Statements;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class YieldBreakSyntax : IStatementSyntax, ITokenNode
+    {
+        public const this(set Token YieldKeyword, set BreakSyntax Break);
+
+		public Token YieldKeyword { const get; private set; }
+		public BreakSyntax Break { const get; private set; }
+		
+		public IReadOnlyList<Token> Tokens
+		{
+			const get
+			{
+				List<Token> tokens = new List<Token>();
+				tokens.Add(YieldKeyword);
+				tokens.AddRange(Break.GetTokens());
+				return tokens;
+			}
+		}
+
+        public IStatement CreateStatement(ISyntaxState State)
+        {
+        	return new YieldBreakStatement();
+        }
+        
+        public override const string ToString()
+        {
+        	return GetCode().ToString();
+        }
+        
+        public const CodeBuilder GetCode()
+        {
+        	CodeBuilder cb = new CodeBuilder();
+        	cb.Append(YieldKeyword.ToString());
+        	cb.Append(Break.GetCode());
+        	return cb;
+        }
+    }
+}

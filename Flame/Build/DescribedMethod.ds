@@ -1,0 +1,134 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Build
+{
+	public virtual class DescribedMethod : DescribedTypeMember, IMethod
+	{
+		public const this()
+		{
+			this.parameters = new List<IParameter>();
+			this.baseMethods = new List<IMethod>();
+			this.genericParams = new List<IGenericParameter>();
+		}
+		public const this(set string Name, set IType DeclaringType)
+		{
+			this.parameters = new List<IParameter>();
+			this.baseMethods = new List<IMethod>();
+			this.genericParams = new List<IGenericParameter>();
+		}
+		public const this(set string Name, set IType DeclaringType, set IType ReturnType, set bool IsStatic)
+		{
+			this.parameters = new List<IParameter>();
+			this.baseMethods = new List<IMethod>();
+			this.genericParams = new List<IGenericParameter>();
+		}
+	
+		public IType ReturnType { const get; set; }
+		public bool IsConstructor { const get; set; }
+		
+		private List<IParameter> parameters;
+		public void AddParameter(IParameter Parameter)
+		{
+			parameters.Add(Parameter);
+		}
+		public const IParameter[] GetParameters() : IMethod.GetParameters
+		{
+			return parameters.ToArray();
+		}
+		
+		private List<IMethod> baseMethods;
+		public void AddBaseMethod(IMethod Method)
+		{
+			baseMethods.Add(Method);
+		}
+		public const IMethod[] GetBaseMethods() : IMethod.GetBaseMethods
+		{
+			return baseMethods.ToArray();
+		}
+		
+		public IMethod MakeGenericMethod([IType] TypeArguments) : IMethod.MakeGenericMethod
+		{
+			return new DescribedGenericMethodInstance(this, new EmptyGenericResolver(), DeclaringType, TypeArguments);
+		}
+		public IMethod GetGenericDeclaration() : IMethod.GetGenericDeclaration
+		{
+			return this;
+		}
+		
+		private List<IGenericParameter> genericParams;
+		public void AddGenericParameter(IGenericParameter Parameter)
+		{
+			genericParams.Add(Parameter);
+		}
+		/// <summary>
+        /// Gets this method's generic parameters.
+        /// </summary>
+        /// <returns></returns>
+        public virtual IEnumerable<IGenericParameter> GetGenericParameters() : IMethod.GetGenericParameters
+        {
+        	return genericParams;
+        }
+        /// <summary>
+        /// Gets the method's generic arguments.
+        /// </summary>
+        /// <returns></returns>
+        public virtual IEnumerable<IType> GetGenericArguments() : IMethod.GetGenericArguments
+        {
+        	return (IEnumerable<IType>)new IType[0];
+        }
+        
+        public const IBoundObject Invoke(IBoundObject Target, IEnumerable<IBoundObject> Arguments)
+        {
+        	return null;
+        }
+        
+        public override int32 GetHashCode()
+		{
+			return Name.GetHashCode();
+		}
+		
+		public virtual const bool Equals(IMethod Other)
+		{
+			if (this.NameEqual(Other.Name) && Other.IsStatic == this.IsStatic && this.DeclaringTypeEqual(Other.DeclaringType))
+			{
+				if (!Other.ReturnType.Equals(this.ReturnType))
+					return false;
+				var otherParams = Other.GetParameters();
+				if (otherParams.Length != parameters.Count)
+					return false;
+				for (int i = 0; i < otherParams.Length; i++)
+				{
+					var tParam = otherParams[i].ParameterType;
+					var tOther = parameters[i].ParameterType;
+					if (tParam.IsGenericParameter != tOther.IsGenericParameter)
+					{
+						return false;
+					}
+					else if (tParam.IsGenericParameter)
+					{
+						if (!tParam.Name.Equals(tOther.Name))
+						{
+							return false;
+						}
+					}
+					else if (!tOther.Equals(tParam))
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+			return false;
+		}
+		
+		public virtual const override bool Equals(object Other)
+		{
+			if (Other is IMethod)
+			{
+				return Equals((IMethod)Other);
+			}
+			return false;
+		}
+	}
+}

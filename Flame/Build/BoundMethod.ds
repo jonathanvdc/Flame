@@ -1,0 +1,23 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame
+{
+	public class BoundMethod : IBoundMethod
+	{
+		public const this(set IMethod Method, set IBoundObject Caller);
+	
+		public IMethod Method { const get; private set; }
+		public IBoundObject Caller { const get; private set; }
+		
+		public IType Type
+		{
+			const get return MethodType.Create(Method);
+		}
+		
+		public void SetField(IField Field, IBoundObject Value);
+		public const IBoundObject GetField(IField Field)
+			return null;
+	}
+}

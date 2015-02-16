@@ -1,0 +1,22 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame
+{
+	public interface IMember
+	{
+		/// <summary>
+        /// Gets the member's name.
+        /// </summary>
+        string Name { const get; }
+        /// <summary>
+        /// Gets the member's full name.
+        /// </summary>
+        string FullName { const get; }
+        /// <summary>
+        /// Gets the member's attributes.
+        /// </summary>
+        /// <returns></returns>
+        const IEnumerable<IAttribute> GetAttributes();
+	}
+}

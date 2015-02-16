@@ -1,0 +1,51 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Build
+{
+	public virtual class DescribedTypeMember : DescribedMember, ITypeMember
+	{
+		protected this();
+		public this(set string Name, set IType DeclaringType);
+	
+		public IType DeclaringType { const get; set; }
+		public bool IsStatic { const get; set; }
+		
+		public override string FullName : DescribedMember.FullName 
+		{ 
+			const get return MemberExtensions.CombineNames(DeclaringType.FullName, Name); 
+		}
+		
+		public const bool NameEqual(string OtherName)
+		{
+			if (Name == null)
+				return OtherName == null;
+			else
+				return Name.Equals(OtherName);
+		}
+		public const bool DeclaringTypeEqual(IType OtherDeclaringType)
+		{
+			if (DeclaringType == null)
+				return OtherDeclaringType == null;
+			else
+				return DeclaringType.Equals(OtherDeclaringType); 
+		}
+		
+		public override virtual const bool Equals(object Other)
+		{
+			if (Other is ITypeMember)
+			{
+				var otherMember = (ITypeMember)Other;
+				return NameEqual(otherMember.Name) && DeclaringTypeEqual(otherMember.DeclaringType);
+			}
+			else
+			{
+				return false;
+			}
+		}
+		public override virtual const int GetHashCode()
+		{
+			return Name.GetHashCode() ^ DeclaringType.GetHashCode();
+		}
+	}
+}

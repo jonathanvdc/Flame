@@ -1,0 +1,133 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Expressions
+{
+    public class AddExpression : BinaryExpression
+    {
+        public const this(set IExpression LeftOperand, set IExpression RightOperand);
+
+        public override IBoundObject Evaluate()
+        {
+        	var lObj = LeftOperand.Evaluate();
+        	var rObj = RightOperand.Evaluate();
+        	var resultType = Type;
+        	if (resultType.Equals(PrimitiveTypes.Int8))
+        	{
+        		return new Int8Expression(lObj.GetValue<int8>() + rObj.GetValue<int8>());
+        	}
+        	else if (resultType.Equals(PrimitiveTypes.Int16))
+        	{
+        		return new Int16Expression(lObj.GetValue<int16>() + rObj.GetValue<int16>());
+        	}
+        	else if (resultType.Equals(PrimitiveTypes.Int32))
+        	{
+        		return new Int32Expression(lObj.GetValue<int32>() + rObj.GetValue<int32>());
+        	}
+        	else if (resultType.Equals(PrimitiveTypes.Int64))
+        	{
+        		return new Int64Expression(lObj.GetValue<int64>() + rObj.GetValue<int64>());
+        	}
+        	else if (resultType.Equals(PrimitiveTypes.UInt8))
+        	{
+        		return new UInt8Expression(lObj.GetValue<uint8>() + rObj.GetValue<uint8>());
+        	}
+        	else if (resultType.Equals(PrimitiveTypes.UInt16))
+        	{
+        		return new UInt16Expression(lObj.GetValue<uint16>() + rObj.GetValue<uint16>());
+        	}
+        	else if (resultType.Equals(PrimitiveTypes.UInt32))
+        	{
+        		return new UInt32Expression(lObj.GetValue<uint32>() + rObj.GetValue<uint32>());
+        	}
+        	else if (resultType.Equals(PrimitiveTypes.UInt64))
+        	{
+        		return new UInt64Expression(lObj.GetValue<uint64>() + rObj.GetValue<uint64>());
+        	}
+        	else if (resultType.Equals(PrimitiveTypes.Float32))
+        	{
+        		return new Float32Expression(lObj.GetValue<float32>() + rObj.GetValue<float32>());
+        	}
+        	else if (resultType.Equals(PrimitiveTypes.Float64))
+        	{
+        		return new Float64Expression(lObj.GetValue<float64>() + rObj.GetValue<float64>());
+        	}
+            return null;
+        }
+
+        public override const IExpression Optimize()
+        {
+            var optA = LeftOperand.Optimize();
+            var optB = RightOperand.Optimize();
+            var expr = new AddExpression(optA, optB);
+            if (expr.IsConstant && expr.Type.IsPrimitiveExpressionType())
+            {
+            	return expr.Evaluate().ToExpression();
+            }
+            else if (optA is AddExpression && optB.IsConstant)
+            {
+            	var ladd = (AddExpression)optA;
+            	if (ladd.LeftOperand.IsConstant)
+            	{
+            		return new AddExpression(new AddExpression(ladd.LeftOperand, optB).Optimize(), ladd.RightOperand);
+            	}
+            	else if (ladd.RightOperand.IsConstant)
+            	{
+            		return new AddExpression(ladd.LeftOperand, new AddExpression(ladd.RightOperand, optB).Optimize());
+            	}
+            }
+            else if (optA is SubtractExpression && optB.IsConstant)
+            {
+            	var lsub = (SubtractExpression)optA;
+            	if (lsub.LeftOperand.IsConstant)
+            	{
+            		return new SubtractExpression(new AddExpression(lsub.LeftOperand, optB).Optimize(), lsub.RightOperand);
+            	}
+            	else if (lsub.RightOperand.IsConstant)
+            	{
+            		return new SubtractExpression(lsub.LeftOperand, new SubtractExpression(lsub.RightOperand, optB).Optimize());
+            	}
+            }
+            else if (optB is AddExpression && optA.IsConstant)
+            {
+            	var radd = (AddExpression)optB;
+            	if (radd.LeftOperand.IsConstant)
+            	{
+            		return new AddExpression(new AddExpression(radd.LeftOperand, optA).Optimize(), radd.RightOperand);
+            	}
+            	else if (radd.RightOperand.IsConstant)
+            	{
+            		return new AddExpression(radd.LeftOperand, new AddExpression(radd.RightOperand, optA).Optimize());
+            	}
+            }
+            else if (optB is SubtractExpression && optA.IsConstant)
+            {
+            	var rsub = (SubtractExpression)optB;
+            	if (rsub.LeftOperand.IsConstant)
+            	{
+            		return new SubtractExpression(new AddExpression(rsub.LeftOperand, optA).Optimize(), rsub.RightOperand);
+            	}
+            	else if (rsub.RightOperand.IsConstant)
+            	{
+            		return new SubtractExpression(rsub.LeftOperand, new SubtractExpression(rsub.RightOperand, optA).Optimize());
+            	}
+            }
+            /*
+            else if (optA.IsConstant && optA.Type.IsNumberPrimitive() && Convert.ToDouble(optA.Evaluate()) == 0.0)
+            {
+                return optB;
+            }
+            else if (optB.IsConstant && optB.Type.IsNumberPrimitive() && Convert.ToDouble(optB.Evaluate()) == 0.0)
+            {
+                return optA;
+            }*/
+            return expr;
+        }
+
+        public override const ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Generator.EmitAdd(LeftOperand.Emit(Generator), RightOperand.Emit(Generator));
+        }
+    }
+}

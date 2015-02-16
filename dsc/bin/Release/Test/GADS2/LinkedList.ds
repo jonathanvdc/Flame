@@ -1,0 +1,204 @@
+/// <summary>
+/// Describes a linked list.
+/// </summary>
+/// <remarks>
+/// This linked list type inherits all functionality from the list ADT, but also exposes raw linked list access for dedicated classes, which want a finer grain of control and performance than what is offered by the list ADT.
+/// Such a property may resemble a violation of the principle of access through an interface, but it is in fact not: the linked list instead defines its own, extended interface.
+/// Access to the linked list's contents adheres to object-oriented principles, and does not require any knowledge of implementation details.
+/// For example, invoking linked list-specific methods on a generic list is indeed not allowed, but invoking a linked list method on an object that was obtained through a method that publically broadcasts its return type to be a linked list, is allowed.
+/// </remarks>
+public class LinkedList<T> : IList<T>
+{ 
+    /// <summary>
+    /// Creates an empty linked list.
+    /// </summary>
+    public const this();
+
+    /// <summary>
+    /// Gets or sets the linked list's head node.
+    /// </summary>
+    public ListNode<T> Head { const get; set; }
+    /// <summary>
+    /// Gets the linked list's tail node.
+    /// </summary>
+    public ListNode<T> Tail
+    {
+        const get
+            if (Head == null)
+                return null;
+            else
+                return Head.Tail;
+    }
+
+    public int Count
+    {
+        const get
+        {
+            var node = Head;
+            var i = 0;
+            while (node != null)
+            {
+                node = node.Successor;
+                i++;
+            }
+            return i;
+        }
+    }
+
+    /// <summary>
+    /// Gets an array representation of this linked list.
+    /// </summary>
+    /// <remarks>
+    /// This method was added to the 'LinkedList<T>' class to allow quick and easy O(n) iteration over its elements.
+    /// It goes without saying that this method should and can only be safely called if the 'LinkedList<T>' has been procured through a method that specifies its return value to be of said type.
+    /// </remarks>
+    public const T[] ToArray()
+    {
+        T[] arr = new T[Count];
+        var node = Head;
+        for (int i = 0; i < arr.Length; i++)
+        {
+            arr[i] = node.Value;
+            node = node.Successor;
+        }
+        return arr;
+    }
+    
+    public const [<T>] __iter__()
+    {
+        var node = Head;
+        while (node != null)
+        {
+            yield return node.Value;
+            node = node.Successor;
+        }
+    }
+
+    /// <summary>
+    /// Gets the list node at the specified index.
+    /// </summary>
+    /// <pre>
+    /// The index must be valid index within this linked list: it must be non-negative and less than the list's length, exposed by the Count property.
+    /// </pre>
+    /// <post>
+    /// If the index is a valid index in the linked list, the node at said index is returned.
+    /// Otherwise, None is returned.
+    /// </post>
+    public const ListNode<T> NodeAt(int Index)
+    {
+        if (Index < 0)
+        {
+            return null;
+        }
+        var node = Head;
+        var i = 0;
+        while (node != null && i < Index)
+        {
+            node = node.Successor;
+            i++;
+        }
+        return node;
+    }
+    
+    /// <summary>
+    /// Gets the item in the linked list at the given index.
+    /// </summary>
+    /// <pre>
+    /// The index must be valid index within this linked list: it must be non-negative and less than the list's length, exposed by the Count property.
+    /// </pre>
+    /// <post>
+    /// If the index is a valid index in the linked list, the item at said index is returned.
+    /// Otherwise, an exception is thrown.
+    /// </post>
+    public const T ItemAt(int Index)
+    {
+        return NodeAt(Index).Value;
+    }
+    
+    /// <summary>
+    /// Gets or sets the item in the linked list at the given index.
+    /// </summary>
+    /// <pre>
+    /// The index must be valid index within this linked list: it must be non-negative and less than the list's length, exposed by the Count property.
+    /// </pre>
+    /// <post>
+    /// If the index is a valid index in the linked list, the operation on said index is performed.
+    /// Otherwise, an exception is thrown.
+    /// </post>
+    public T this[int Index]
+    {
+        const get return ItemAt(Index);
+        set NodeAt(Index).Value = value;
+    }
+    
+    /// <summary>
+    /// Adds an item to the end of the linked list.
+    /// </summary>
+    /// <pre>
+    /// Item is the item that will be inserted at the end of the list.
+    /// </pre>
+    /// <post>
+    /// If the linked list has a head node, the item is inserted after the linked list's tail node.
+    /// Otherwise, a new head node containing Item is created, which coincidentally becomes this linked list's head.
+    /// </post>
+    public void Add(T Item)
+    {
+        if (Head == null)
+            Head = new ListNode<T>(Item);
+        else
+            Tail.InsertAfter(Item);
+    }
+
+    /// <summary>
+    /// Removes the item in the linked list at the specified index.
+    /// </summary>
+    /// <pre>
+    /// Index must be a valid index in the list: it must be non-negative and less than the list's length, as exposed by the Count property.
+    /// </pre>
+    /// <post>
+    /// If the provided index was an invalid index in the list, the list's state is not changed, and false is returned.
+    /// Otherwise, the item at the specified index is removed and the index of all items whose index is greater than the provided index, will be decremented by one.
+    /// </post>
+    public bool RemoveAt(int Index)
+    {
+        if (Index >= 0 && Index < Count)
+        {
+            if (Index == 0)
+            {
+                Head = Head.Successor;
+            }
+            else
+            {
+                var predecessor = NodeAt(Index - 1);
+                predecessor.Successor = predecessor.Successor.Successor;
+            }
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public bool Insert(int Index, T Item)
+    {
+        if (Index == 0)
+        {
+            var oldHead = Head;
+            Head = new ListNode<T>(Item);
+            if (oldHead != null)
+                Head.Successor = oldHead;
+            return true;
+        }
+        var node = NodeAt(Index - 1);
+        if (node == null)
+        {
+            return false;
+        }
+        else
+        {
+            node.InsertAfter(Item);
+            return true;
+        }
+    }
+}

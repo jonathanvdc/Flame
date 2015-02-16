@@ -1,0 +1,28 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Variables;
+using Flame.DSharp;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+	public class EmptySyntax : LineStatementSyntax
+	{
+		public const this();
+		public const this(set Token SemicolonToken);
+		
+		public override IStatement CreateStatement(ISyntaxState State)
+		{
+			return new EmptyStatement();
+		}
+		
+		protected override CodeBuilder GetStatementCode()
+		{
+			return new CodeBuilder();
+		}
+	}
+}

@@ -1,0 +1,21 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Projects
+{
+	/// <summary>
+	/// Describes a project item that specifies a compiler option.
+	/// </summary>
+	public interface IProjectOptionItem : IProjectItem
+	{
+		/// <summary>
+		/// Gets the option's key.
+		/// </summary>
+		string Key { const get; }
+		/// <summary>
+		/// Gets the value associated with the option.
+		/// </summary>
+		string Value { const get; }
+	}
+}

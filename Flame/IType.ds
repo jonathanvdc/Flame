@@ -1,0 +1,96 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame
+{
+	/// <summary>
+    /// Defines common functionality for types.
+    /// </summary>
+    public interface IType : IMember, IGenericMember
+    {
+        /// <summary>
+        /// Gets the type's members.
+        /// </summary>
+        ITypeMember[] GetMembers();
+        /// <summary>
+        /// Gets the type's methods, excluding any constructors.
+        /// </summary>
+        /// <returns></returns>
+        IMethod[] GetMethods();
+        /// <summary>
+        /// Gets the type's properties.
+        /// </summary>
+        /// <returns></returns>
+        IProperty[] GetProperties();
+        /// <summary>
+        /// Gets the type's fields.
+        /// </summary>
+        /// <returns></returns>
+        IField[] GetFields();
+        /// <summary>
+        /// Gets the type's constructors.
+        /// </summary>
+        /// <returns></returns>
+        IMethod[] GetConstructors();
+
+        /// <summary>
+        /// Gets the default value for this type.
+        /// </summary>
+        /// <returns></returns>
+        IBoundObject GetDefaultValue();
+
+        /// <summary>
+        /// Gets the namespace that defined the type.
+        /// </summary>
+        INamespace DeclaringNamespace { get; }
+
+        /// <summary>
+        /// Gets a boolean value that indicates if the current type is a container type, like an array or a pointer.
+        /// </summary>
+        bool IsContainerType { const get; }
+        /// <summary>
+        /// Gets this type as a container type.
+        /// </summary>
+        /// <returns></returns>
+        IContainerType AsContainerType();
+
+        /// <summary>
+        /// Creates an array type that contains objects of the current type.
+        /// </summary>
+        /// <param name="Rank"></param>
+        /// <returns></returns>
+        IArrayType MakeArrayType(int Rank);
+
+        /// <summary>
+        /// Creates a pointer type that points to a value of the current type.
+        /// </summary>
+        /// <returns></returns>
+        IPointerType MakePointerType(PointerKind PointerKind);
+
+        /// <summary>
+        /// Creates a vector type that contains objects of the current type.
+        /// </summary>
+        /// <param name="Dimensions"></param>
+        /// <returns></returns>
+        IVectorType MakeVectorType(int[] Dimensions);
+
+        /// <summary>
+        /// Gets the type's base types.
+        /// </summary>
+        /// <returns></returns>
+        IType[] GetBaseTypes();
+
+        /// <summary>
+        /// Gets a generic type with the provided type arguments.
+        /// </summary>
+        /// <param name="TypeArguments"></param>
+        /// <returns></returns>
+        IType MakeGenericType(IEnumerable<IType> TypeArguments);
+
+        /// <summary>
+        /// Gets the type's generic declaration.
+        /// </summary>
+        /// <returns></returns>
+        IType GetGenericDeclaration();
+    }
+}

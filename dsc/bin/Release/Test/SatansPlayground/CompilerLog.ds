@@ -1,0 +1,74 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler
+{
+	public interface ICompilerFeedbackProvider
+	{
+		ICompilerLog CreateLog(string ProcessName);
+	}
+
+    public interface ICompilerLog : IDisposable
+    {
+        void LogError(LogEntry Entry);
+        void LogWarning(LogEntry Entry);
+        void LogMessage(LogEntry Entry);
+
+        void LogEvent(LogEntry Entry);
+    }
+    
+    public static class CompilerLogExtensions
+    {
+    	public static void LogError(this ICompilerLog Log, string Message)
+        {
+            Log.LogError(new LogEntry(Message));
+        }
+        public static void LogEvent(this ICompilerLog Log, string EventName)
+        {
+            Log.LogEvent(new LogEntry(EventName));
+        }
+    }
+    
+    public class LogEntry
+    {
+        public this(set string Name)
+        {
+        	this.Message = Name;
+        }
+        public this(set string Name, set string Message)
+        {
+        	this.Location = new SourceLocation(null);
+        }
+        public this(set string Name, set SourceLocation Location)
+        {
+        	this.Message = Name;
+        }
+        public this(set string Name, set string Message, set SourceLocation Location);
+
+        public string Name { get; private set; }
+        public string Message { get; private set; }
+        public SourceLocation Location { get; private set; }
+    }
+    
+    public class SourceLocation
+    {
+        public this(set string DocumentPath)
+        {
+            this.Position = -1;
+        }
+        public this(set string DocumentPath, set int Position);
+
+        public string DocumentPath { get; private set; }
+        /*public string DocumentName
+        {
+            get
+            {
+            	if (DocumentPath == null)
+	            	return null;
+                var split = DocumentPath.Split(new char[] { '/', '\\' });
+                return split[split.Length - 1];
+            }
+        }*/
+        public int Position { get; private set; }
+    }
+}

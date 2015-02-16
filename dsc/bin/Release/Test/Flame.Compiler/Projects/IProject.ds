@@ -1,0 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Projects
+{
+	public interface IProject : IProjectNode
+	{
+		string AssemblyName { const get; }
+		string BuildTargetIdentifier { const get; }
+	}
+}

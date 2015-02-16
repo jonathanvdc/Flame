@@ -1,0 +1,29 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class BooleanSyntax : LiteralSyntax
+    {
+    	public const this(set Token Value);
+        public const this(bool Value)
+        {
+        	if (Value)
+        	{
+        		this.Value = new Token(TokenType.TrueLiteral, "true");
+        	}
+        	else
+        	{
+        		this.Value = new Token(TokenType.FalseLiteral, "false");
+        	}
+        }
+
+        protected override const IExpression CreateExpression(ISyntaxState State, Token Value)
+        {
+            return new BooleanExpression(Value.Type == TokenType.TrueLiteral);
+        }
+    }
+}

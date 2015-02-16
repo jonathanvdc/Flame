@@ -1,0 +1,13 @@
+namespace Engine
+{
+    /// <summary>
+    /// Describes a brush: a mechanism of applying color to a surface.
+    /// </summary>
+    public interface IBrush
+    {
+        /// <summary>
+        /// Gets the brush's color at the given position.
+        /// </summary>
+        const Vector4<double> GetColor(Vector2<double> Position);
+    }
+}

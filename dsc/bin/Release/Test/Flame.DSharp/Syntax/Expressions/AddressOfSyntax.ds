@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class AddressOfSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>
+    {
+        public const this(set IVariableSyntax Operand)
+        {
+        	this.Operator = new Token(TokenType.And, "&");
+        }
+        public const this(set Token Operator, set IVariableSyntax Operand);
+
+        public Token Operator { const get; private set; }
+        public IVariableSyntax Operand { const get; private set; }
+        
+        public IEnumerable<Token> LeadingTrivia
+        {
+        	const get return Operator.GetAllTrivia();
+        }
+        
+        public IEnumerable<Token> TrailingTrivia
+        {
+        	const get return (IEnumerable<Token>)new Token[0];
+        }
+        
+        public IReadOnlyList<Token> Tokens
+        {
+        	const get
+        	{
+        		var tks = new List<Token>();
+        		tks.Add(Operator);
+				tks.AddRange(Operand.GetTokens());
+				return tks;
+        	}
+        }
+
+        public const IExpression CreateExpression(ISyntaxState State)
+        {
+            var variable = Operand.CreateVariable(State);
+            return ((IUnmanagedVariable)variable).CreateAddressOfExpression();
+        }
+
+        public override const string ToString()
+        {
+            return Operator.ToString() + Operand.GetCode().ToString();
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            return new CodeBuilder(this.ToString());
+        }
+    }
+}

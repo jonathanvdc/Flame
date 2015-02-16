@@ -1,0 +1,55 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Build;
+
+namespace Flame.Primitives
+{
+	public class CharPrimitiveType : PrimitiveType<char>
+	{
+		public const this(set string Name, set int32 Magnitude)
+		{
+			this.DefaultValue = default(char);
+		}
+		
+		private IMethod[] getExtraCharMethods()
+		{
+			var isDigitMethod = new DescribedMethod("IsDigit", this, PrimitiveTypes.Boolean, true); // static const bool IsDigit(char Value);
+        	isDigitMethod.AddParameter(new DescribedParameter("Value", PrimitiveTypes.Char));
+        	isDigitMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+        	var isLetterMethod = new DescribedMethod("IsLetter", this, PrimitiveTypes.Boolean, true); // static const bool IsLetter(char Value);
+        	isLetterMethod.AddParameter(new DescribedParameter("Value", PrimitiveTypes.Char));
+        	isLetterMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+        	var isLetterOrDigitMethod = new DescribedMethod("IsLetterOrDigit", this, PrimitiveTypes.Boolean, true); // static const bool IsLetterOrDigit(char Value);
+        	isLetterOrDigitMethod.AddParameter(new DescribedParameter("Value", PrimitiveTypes.Char));
+        	isLetterOrDigitMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+        	var isLowerMethod = new DescribedMethod("IsLower", this, PrimitiveTypes.Boolean, true); // static const bool IsLower(char Value);
+        	isLowerMethod.AddParameter(new DescribedParameter("Value", PrimitiveTypes.Char));
+        	isLowerMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+        	var isUpperMethod = new DescribedMethod("IsUpper", this, PrimitiveTypes.Boolean, true); // static const bool IsUpper(char Value);
+        	isUpperMethod.AddParameter(new DescribedParameter("Value", PrimitiveTypes.Char));
+        	isUpperMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+        	
+			return new IMethod[]
+			{
+				isDigitMethod,
+				isLetterMethod,
+				isLetterOrDigitMethod,
+				isLowerMethod,
+				isUpperMethod
+			};
+		}
+		
+		public override IMethod[] GetMethods()
+		{
+			var commonMethods = this.GetCommonPrimitiveMethods();
+			var extraMethods = this.getExtraCharMethods();
+			var allMethods = new IMethod[commonMethods.Length + extraMethods.Length];
+			foreach (var item in commonMethods, var output in allMethods)
+				output = item;
+			for (int i = 0; i < extraMethods.Length; i++)
+				allMethods[commonMethods.Length + i] = extraMethods[i];
+			return allMethods;
+		}
+	}
+}

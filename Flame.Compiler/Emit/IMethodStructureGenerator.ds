@@ -1,0 +1,30 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Emit
+{
+    public interface IMethodStructureGenerator
+    {
+        /// <summary>
+        /// Gets the method this code generator belongs to.
+        /// </summary>
+        IMethod Method { const get; }
+
+        #region Variables
+
+        IVariable DeclareVariable(IVariableMember VariableMember);
+
+        #endregion
+
+        #region Arguments
+
+        IVariable GetArgument(int Index);
+        /// <summary>
+        /// Gets the "this" argument.
+        /// </summary>
+        /// <returns></returns>
+        IVariable GetThis();
+
+        #endregion
+    }
+}

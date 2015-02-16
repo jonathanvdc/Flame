@@ -1,0 +1,65 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Expressions
+{
+	public class InvocationExpression : IExpression
+	{
+		public const this(set IExpression Target, set IEnumerable<IExpression> Arguments);
+		public const this(IMethod Target, IExpression Caller, set IEnumerable<IExpression> Arguments)
+		{
+			this.Target = new GetMethodExpression(Target, Caller);
+		}
+		
+		public IExpression Target { const get; private set; }
+		public IEnumerable<IExpression> Arguments { const get; private set; }
+		
+		public IMethod Method
+		{
+			const get
+			{
+				return (IMethod)Target.Type;	
+			}
+		}
+		
+		public IType Type 
+		{ 
+			const get
+			{
+				if (Method.IsConstructor)
+				{
+					return Method.DeclaringType;
+				}
+				else
+				{
+					return Method.ReturnType;
+				}
+			}
+		}
+		
+		public bool IsConstant 
+		{
+			const get
+			{
+				return Target.IsConstant && Arguments.AreConstant;
+			}
+		}
+		
+		public IBoundObject Evaluate()
+		{
+			return ((IBoundMethod)Target.Evaluate()).Invoke(Arguments.EvaluateAll());
+		}
+		
+		public IExpression Optimize()
+		{
+			var targetExpr = Target.Optimize();
+			var argExprs = Arguments.OptimizeAll();
+			return new InvocationExpression(targetExpr, argExprs);
+		}
+		
+		public ICodeBlock Emit(ICodeGenerator Generator)
+		{
+			return Generator.EmitInvocation(Target.Emit(Generator), Arguments.EmitAll(Generator));
+		}
+	}
+}

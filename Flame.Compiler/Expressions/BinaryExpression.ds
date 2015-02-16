@@ -1,0 +1,172 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Expressions
+{
+	public abstract class BinaryExpression : IExpression
+	{
+		public const this();
+		public const this(set IExpression LeftOperand, set IExpression RightOperand);
+	
+		public IExpression LeftOperand { const get; protected set; } 
+		public IExpression RightOperand { const get; protected set; } 
+	
+		public virtual IType Type
+		{
+			virtual const get
+			{
+				return LeftOperand.Type;
+			}
+		}
+	
+		public virtual bool IsConstant
+		{
+			virtual const get
+			{
+				return LeftOperand.IsConstant && RightOperand.IsConstant && LeftOperand.Type.IsPrimitiveExpressionType() && RightOperand.Type.IsPrimitiveExpressionType();
+			}
+		}
+		
+		public abstract const IBoundObject Evaluate();
+		public abstract const IExpression Optimize();
+		public abstract const ICodeBlock Emit(ICodeGenerator Generator);
+	}
+	
+	public class PrimitiveBinaryExpression : BinaryExpression
+	{
+		public const this(set IExpression LeftOperand, set Operator Op, set IExpression RightOperand, set IType exprType);
+		
+		public Operator Op { const get; private set; }
+	
+		private IType exprType;
+		public override IType Type
+		{
+			override const get
+			{
+				return exprType;
+			}
+		} 
+		
+		public override bool IsConstant
+		{
+			override const get
+			{
+				return false;
+			}
+		}
+		
+		public override const IBoundObject Evaluate()
+		{
+			return null;
+		}
+		public override const IExpression Optimize()
+		{
+			return new PrimitiveBinaryExpression(LeftOperand.Optimize(), Op, RightOperand.Optimize(), Type);
+		}
+		public override const ICodeBlock Emit(ICodeGenerator Generator)
+		{
+			return Generator.EmitBinary(LeftOperand.Emit(Generator), RightOperand.Emit(Generator), Op);
+		}
+	}
+	
+	public class DirectBinaryExpression : BinaryExpression
+	{
+		public const this(set IExpression LeftOperand, set Operator Op, set IExpression RightOperand);
+		
+		public Operator Op { const get; private set; }
+		
+		public override IType Type
+		{
+			override const get
+			{
+				if (CanLower) return LoweredExpression.Type;
+				else return LeftOperand.Type;
+			}
+		}
+		
+		public override bool IsConstant
+		{
+			override const get
+			{
+				if (CanLower) return LoweredExpression.IsConstant;
+				else return false;
+			}
+		}
+		
+		private IExpression loweredExpr;
+		public IExpression LoweredExpression
+		{
+			const get
+			{
+				if (loweredExpr == null)
+					loweredExpr = ToBinaryExpression(LeftOperand, Op, RightOperand);
+				return loweredExpr;
+			}
+		}
+		
+		public bool CanLower
+		{
+			const get return !(LoweredExpression is DirectBinaryExpression);
+		}
+		
+		public static const IExpression ToBinaryExpression(IExpression LeftOperand, Operator Op, IExpression RightOperand)
+		{
+			if (Op == Operator.Add)
+				return new AddExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.Subtract)
+				return new SubtractExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.Multiply)
+				return new MultiplyExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.Divide)
+				return new DivideExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.Remainder)
+				return new RemainderExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.Or)
+				return new OrExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.And)
+				return new AndExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.Xor)
+				return new XorExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.LogicalOr)
+				return new LazyOrExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.LogicalAnd)
+				return new LazyAndExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.RightShift)
+				return new RightShiftExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.LeftShift)
+				return new LeftShiftExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.CheckEquality)
+				return new EqualityExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.CheckInequality)
+				return new InequalityExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.CheckGreaterThan)
+				return new GreaterThanExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.CheckLessThan)
+				return new LessThanExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.CheckGreaterThanOrEqual)
+				return new GreaterThanOrEqualsExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.CheckLessThanOrEqual)
+				return new LessThanOrEqualsExpression(LeftOperand, RightOperand);
+			else if (Op == Operator.Concat)
+				return new ConcatExpression(LeftOperand, RightOperand);
+			else
+				return new DirectBinaryExpression(LeftOperand, Op, RightOperand);
+		}
+		
+		public override const IBoundObject Evaluate()
+		{
+			if (CanLower) return LoweredExpression.Evaluate();
+			else return null;
+		}
+		public override const IExpression Optimize()
+		{
+			if (CanLower) return LoweredExpression.Optimize();
+			else return new DirectBinaryExpression(LeftOperand.Optimize(), Op, RightOperand.Optimize());
+		}
+		public override const ICodeBlock Emit(ICodeGenerator Generator)
+		{
+			if (CanLower) return LoweredExpression.Emit(Generator);
+			else return Generator.EmitBinary(LeftOperand.Emit(Generator), RightOperand.Emit(Generator), Op);
+		}
+	}
+}

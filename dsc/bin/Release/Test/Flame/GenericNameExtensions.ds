@@ -1,0 +1,61 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame
+{
+	public static class GenericNameExtensions
+	{
+		/// <summary>
+        /// Gets the member's name, without generic parameters.
+        /// </summary>
+        /// <param name="Member"></param>
+        /// <returns></returns>
+        public const static string GetGenericFreeName(this IGenericMember Member)
+        {
+            string genericName = Member.Name;
+            return RemoveGenerics(genericName);
+        }
+        /// <summary>
+        /// Gets the member's full name, without generic parameters.
+        /// </summary>
+        /// <param name="Member"></param>
+        /// <returns></returns>
+        public const static string GetGenericFreeFullName(this IGenericMember Member)
+        {
+            string genericName = Member.FullName;
+            return RemoveGenerics(genericName);
+        }
+
+        private const static string RemoveGenerics(string genericName)
+        {
+            if (genericName.EndsWith(">"))
+            {
+                int scope = 1;
+                int i;
+                for (i = genericName.Length - 2; i >= 0; i--)
+                {
+                    if (genericName[i] == '>')
+                    {
+                        scope++;
+                    }
+                    else if (genericName[i] == '<')
+                    {
+                        scope--;
+                    }
+
+                    if (scope == 0)
+                    {
+                        break;
+                    }
+                }
+
+                return genericName.Substring(0, i);
+            }
+            else
+            {
+                return genericName;
+            }
+        }
+	}
+}

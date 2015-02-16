@@ -1,0 +1,13 @@
+class ToStringMap<T> : IMap<T, string>
+// A mapping function object that converts an argument to its string representation.
+{
+
+    +CreateToStringMap() : ToStringMap<T> { query }
+    // Creates a new to-string map.
+
+    +Map(in Value : T) : string { query }
+    // Maps the item to its target representation.
+    // Post:
+    // This function must produce a constant return value, irrespective of external changes.
+
+}

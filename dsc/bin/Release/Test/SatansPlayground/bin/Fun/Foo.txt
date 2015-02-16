@@ -1,0 +1,24 @@
+class Foo
+{
+
+    +GetString() : string { query }
+
+    +GetStringLength() : integer { query }
+
+    +GetChar() : char { query }
+
+    +GetFloat32() : float { query }
+
+    +GetFloat64() : float { query }
+
+    +GetHexInteger() : integer { query }
+
+    +GetBit32() : bitstring { query }
+
+    +Square(in Vector : float[4]) : float[4] { query }
+
+    +AsEnumerable<T>(in Item : T) : iterable<T> { query }
+
+    +ShuffleVector<T>(in Values : T[4]) : iterable<T> { query }
+
+}

@@ -1,0 +1,23 @@
+public class ListNode<T> 
+{ 
+	public const this(set T Value);
+
+        public T Value { const get; set; } 
+        public ListNode<T> Successor { const get; set; } 
+        public void InsertAfter(T Value)
+        {
+            var nextVal = new ListNode<T>(Value);
+            nextVal.Successor = this.Successor;
+            this.Successor = nextVal;
+        }
+        public ListNode<T> Tail
+        {
+            const get
+            {
+                if (Successor == null)
+                    return this;
+                else
+                    return Successor.Tail;
+            }
+        }
+}

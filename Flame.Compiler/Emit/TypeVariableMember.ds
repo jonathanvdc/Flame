@@ -1,0 +1,30 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Emit
+{
+	public class TypeVariableMember : IVariableMember
+	{
+		public this(set IType VariableType);
+		
+		public IType VariableType { const get; private set; }
+		
+		/// <summary>
+        /// Gets the member's name.
+        /// </summary>
+        public string Name { const get return null; }
+        /// <summary>
+        /// Gets the member's full name.
+        /// </summary>
+        public string FullName { const get return Name; }
+        /// <summary>
+        /// Gets the member's attributes.
+        /// </summary>
+        /// <returns></returns>
+        public const IEnumerable<IAttribute> GetAttributes()
+        {
+        	return (IEnumerable<IAttribute>)new IAttribute[0];
+        }
+	}
+}

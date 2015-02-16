@@ -1,0 +1,23 @@
+using System;
+
+namespace Flame
+{
+    /// <summary>
+    /// Describes possible container types.
+    /// </summary>
+    public enum ContainerTypeKind : uint32
+    {
+        /// <summary>
+        /// An array container type.
+        /// </summary>
+        Array = 1,
+        /// <summary>
+        /// A pointer container type.
+        /// </summary>
+        Pointer = 2,
+        /// <summary>
+        /// A vector container type
+        /// </summary>
+        Vector = 4
+    }
+}

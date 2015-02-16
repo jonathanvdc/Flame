@@ -1,0 +1,335 @@
+/// <summary>
+/// Represents a simple date.
+/// </summary>
+public class Date
+{
+    /// <summary>
+    /// Creates a new date from a day, month and year.
+    /// </summary>
+    /// <pre>
+    /// Day must be a positive integer that represents a valid day for the provided month.
+    /// Month must be an integer from 1 to 12.
+    /// Year must be an integer.
+    /// </pre>
+    public const this(set int Day, set int Month, set int Year);
+    
+    /// <summary>
+    /// Gets the day of this date.
+    /// </summary>
+    public int Day { const get; private set; }
+    /// <summary>
+    /// Gets the month of this date.
+    /// </summary>
+    public int Month { const get; private set; }
+    /// <summary>
+    /// Gets the year of this date.
+    /// </summary>
+    public int Year { const get; private set; }
+    
+    /// <summary>
+    /// Gets this date's string representation.
+    /// </summary>
+    public const string operator cast()
+    {
+        return Day + "/" + Month + "/" + Year;
+    }
+    
+    /// <summary>
+    /// Compares this 'Date' instance with another 'Date' instance.
+    /// </summary>
+    /// <post>
+    /// Returns 1 if 'self > Other', -1 if 'self < Other', otherwise 0.
+    /// </post>
+    public const int Compare(Date Other)
+    {
+        if (Year > Other.Year)
+            return 1;
+        else if (Year < Other.Year)
+            return -1;
+        else if (Month > Other.Month)
+            return 1;
+        else if (Month < Other.Month)
+            return -1;
+        else if (Day > Other.Day)
+            return 1;
+        else if (Day < Other.Day)
+            return -1;
+        else return 0;
+    }
+    
+    /// <summary>
+    /// Finds out if two 'Date' instances are equal.
+    /// </summary>
+    public const bool operator ==(Date Other)
+    {
+        return Compare(Other) == 0;
+    }
+    /// <summary>
+    /// Finds out if two 'Date' instances are not equal.
+    /// </summary>
+    public const bool operator !=(Date Other)
+    {
+        return Compare(Other) != 0;
+    }
+    /// <summary>
+    /// Finds out if this 'Date' instance is less than the given 'Date' instance.
+    /// </summary>
+    public const bool operator <(Date Other)
+    {
+        return Compare(Other) < 0;
+    }
+    /// <summary>
+    /// Finds out if this 'Date' instance is greater than the given 'Date' instance.
+    /// </summary>
+    public const bool operator >(Date Other)
+    {
+        return Compare(Other) > 0;
+    }
+    /// <summary>
+    /// Finds out if this 'Date' instance is less than or equal to the given 'Date' instance.
+    /// </summary>
+    public const bool operator <=(Date Other)
+    {
+        return Compare(Other) <= 0;
+    }
+    /// <summary>
+    /// Finds out if this 'Date' instance is greater than or equal to the given 'Date' instance.
+    /// </summary>
+    public const bool operator >=(Date Other)
+    {
+        return Compare(Other) >= 0;
+    }
+    
+    /// <summary>
+    /// Gets a hash code for the current Date instance.
+    /// </summary>
+    public const int operator hash()
+    {
+        return (Day ^ Month) | Year << 5;
+    }
+}
+
+/// <summary>
+/// Represents the time of day.
+/// </summary>
+public class Time
+{
+    /// <summary>
+    /// Creates a new time based on an hour and minute.
+    /// </summary>
+    /// <pre>
+    /// Hour and minute must be non-negative integers.
+    /// </pre>
+    /// <post>
+    /// Returns a Time instance that exactly represents the provided hour and minute.
+    /// </post>
+    public const this(int Hour, int Minute)
+    {
+        totalSeconds = Hour * 3600 + Minute * 60;
+    }
+    /// <summary>
+    /// Creates a new time based on an hour, minute and second.
+    /// </summary>
+    /// <pre>
+    /// Hour, minute and second must be non-negative integers.
+    /// </pre>
+    /// <post>
+    /// Returns a Time instance that exactly represents the provided hour, minute and second.
+    /// </post>
+    public const this(int Hour, int Minute, int Second)
+    {
+        totalSeconds = Hour * 3600 + Minute * 60 + Second;
+    }
+
+    private int totalSeconds;
+    
+    /// <summary>
+    /// Gets the second of this time instance.
+    /// </summary>
+    public int Second { const get return totalSeconds % 60; }
+    /// <summary>
+    /// Gets the minute of this time instance.
+    /// </summary>
+    public int Minute { const get return (totalSeconds % 3600) / 60; }
+    /// <summary>
+    /// Gets the hour of this time instance.
+    /// </summary>
+    public int Hour { const get return totalSeconds / 3600; }
+    
+    /// <summary>
+    /// Gets a double-digit string representation for the given integer.
+    /// </summary>
+    private const string ToDoubleDigitNumber(int Value)
+    {
+        string num = (string)Value;
+        if (Value < 10)
+            return "0" + num;
+        else
+            return num;
+    }
+    
+    /// <summary>
+    /// Gets the time's string representation.
+    /// </summary>
+    public const string operator cast()
+    {
+        if (Second == 0)
+            return Hour + ":" + ToDoubleDigitNumber(Minute);
+        else
+            return Hour + ":" + ToDoubleDigitNumber(Minute) + ":" + ToDoubleDigitNumber(Second);
+    }
+    
+    /// <summary>
+    /// Calculates the sum of this 'Time' instance and the given 'Time' instance.
+    /// </summary>
+    public const Time operator +(Time Other)
+    {
+        var t = new Time(0, 0);
+        t.totalSeconds = totalSeconds + Other.totalSeconds;
+        return t;
+    }
+    /// <summary>
+    /// Calculates the difference between this 'Time' instance and the given 'Time' instance.
+    /// </summary>
+    public const Time operator -(Time Other)
+    {
+        var t = new Time(0, 0);
+        t.totalSeconds = totalSeconds - Other.totalSeconds;
+        return t;
+    }
+    
+    /// <summary>
+    /// Finds out if two 'Time' instances are equal.
+    /// </summary>
+    public const bool operator ==(Time Other)
+    {
+        return totalSeconds == Other.totalSeconds;
+    }
+    /// <summary>
+    /// Finds out if two 'Time' instances are not equal.
+    /// </summary>
+    public const bool operator !=(Time Other)
+    {
+        return totalSeconds != Other.totalSeconds;
+    }
+    /// <summary>
+    /// Finds out if this 'Time' instance is less than the given 'Time' instance.
+    /// </summary>
+    public const bool operator <(Time Other)
+    {
+        return totalSeconds < Other.totalSeconds;
+    }
+    /// <summary>
+    /// Finds out if this 'Time' instance is greater than the given 'Time' instance.
+    /// </summary>
+    public const bool operator >(Time Other)
+    {
+        return totalSeconds > Other.totalSeconds;
+    }
+    /// <summary>
+    /// Finds out if this 'Time' instance is less than or equal to the given 'Time' instance.
+    /// </summary>
+    public const bool operator <=(Time Other)
+    {
+        return totalSeconds <= Other.totalSeconds;
+    }
+    /// <summary>
+    /// Finds out if this 'Time' instance is greater than or equal to the given 'Time' instance.
+    /// </summary>
+    public const bool operator >=(Time Other)
+    {
+        return totalSeconds >= Other.totalSeconds;
+    }
+    
+    /// <summary>
+    /// Gets a hash code for the current Time instance.
+    /// </summary>
+    public const int operator hash()
+    {
+        return totalSeconds;
+    }
+}
+
+/// <summary>
+/// Describes a date and time: a date and the time of day.
+/// </summary>
+public class DateTime
+{
+    /// <summary>
+    /// Creates a new date-time instance based on the date and time provided.
+    /// </summary>
+    public const this(set Date Date, set Time TimeOfDay);
+
+    /// <summary>
+    /// Gets this timestamp's date.
+    /// </summary>
+    public Date Date { const get; private set; }
+    /// <summary>
+    /// Gets this timestamp's time of day.
+    /// </summary>
+    public Time TimeOfDay { const get; private set; }
+    
+    /// <summary>
+    /// Gets the time's string representation.
+    /// </summary>
+    public const string operator cast()
+    {
+        return Date + " " + TimeOfDay;
+    }
+    
+    /// <summary>
+    /// Gets a hash code for the current DateTime instance.
+    /// </summary>
+    public const int operator hash()
+    {
+        return hash(Date) ^ hash(TimeOfDay);
+    }
+    
+    /// <summary>
+    /// Finds out if two 'DateTime' instances are equal.
+    /// </summary>
+    public const bool operator ==(DateTime Other)
+    {
+        return Date == Other.Date && TimeOfDay == Other.TimeOfDay;
+    }
+    /// <summary>
+    /// Finds out if two 'DateTime' instances are not equal.
+    /// </summary>
+    public const bool operator !=(DateTime Other)
+    {
+        return Date != Other.Date || TimeOfDay != Other.TimeOfDay;
+    }
+    /// <summary>
+    /// Finds out if this 'DateTime' instance is less than the given 'DateTime' instance.
+    /// </summary>
+    public const bool operator <(DateTime Other)
+    {
+        if (Date < Other.Date)
+            return true;
+        else if (Date == Other.Date)
+            return TimeOfDay < Other.TimeOfDay;
+        else
+            return false;
+    }
+    /// <summary>
+    /// Finds out if this 'DateTime' instance is greater than the given 'DateTime' instance.
+    /// </summary>
+    public const bool operator >(DateTime Other)
+    {
+        return !(this <= Other);
+    }
+    /// <summary>
+    /// Finds out if this 'DateTime' instance is less than or equal to the given 'DateTime' instance.
+    /// </summary>
+    public const bool operator <=(DateTime Other)
+    {
+        return this < Other || this == Other;
+    }
+    /// <summary>
+    /// Finds out if this 'DateTime' instance is greater than or equal to the given 'DateTime' instance.
+    /// </summary>
+    public const bool operator >=(DateTime Other)
+    {
+        return !(this < Other);
+    }
+}

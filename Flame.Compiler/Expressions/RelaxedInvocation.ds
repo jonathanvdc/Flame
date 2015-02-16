@@ -1,0 +1,46 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Expressions
+{
+	/// <summary>
+	/// An invocation that invokes a method based on a sequence of arguments that may include the method's caller.
+	/// </summary>
+	public class RelaxedInvocation : ComplexExpressionBase
+	{
+		public const this(set IMethod Method, set [IExpression] Arguments);
+		
+		public IMethod Method { const get; private set; }
+		public [IExpression] Arguments { const get; private set; }
+	
+		protected override IExpression Lower()
+		{
+			var parameters = Method.GetParameters();
+			var argArray = Enumerable.ToArray<IExpression>(Arguments);
+			if (argArray.Length == parameters.Length)
+			{
+				if (Method.IsStatic)
+				{
+					return new InvocationExpression(Method, null, argArray);
+				}
+				else if (Method.DeclaringType.IsSingleton)
+				{
+					return new InvocationExpression(Method, new SingletonVariable(Method.DeclaringType).CreateGetExpression(), argArray);
+				}
+				return null; // Failed
+			}
+			else if (argArray.Length == parameters.Length + 1)
+			{
+				if (argArray.Length > 0 && argArray[0].Type.Is(Method.DeclaringType))
+				{
+					return new InvocationExpression(Method, argArray[0], Enumerable.Skip<IExpression>(argArray, 1));
+				}
+				return null; // Failed
+			}
+			return null; // Failed
+		}
+	}
+}

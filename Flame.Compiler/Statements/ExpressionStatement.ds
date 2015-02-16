@@ -1,0 +1,40 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Expressions;
+
+namespace Flame.Compiler.Statements
+{
+    public class ExpressionStatement : IStatement
+    {
+        public const this(set IExpression Expression);
+
+        public IExpression Expression { const get; private set; }
+
+        public bool IsEmpty : IStatement.IsEmpty
+        {
+            const get 
+            {
+            	return Expression.IsConstant;
+            }
+        }
+
+        public const IStatement Optimize() : IStatement.Optimize
+        {
+        	var optExpr = Expression.Optimize();
+        	if (optExpr.IsConstant)
+        	{
+        		return new EmptyStatement();
+        	}
+        	else
+        	{
+            	return new ExpressionStatement(Expression.Optimize());
+            }
+        }
+
+        public void Emit(IBlockGenerator Generator) : IStatement.Emit
+        {
+            var block = Expression.Emit(Generator.CodeGenerator);
+            Generator.EmitPop(block);
+        }
+    }
+}

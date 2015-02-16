@@ -1,0 +1,13 @@
+class MovieTitleMap : IMap<Movie, string>
+// A mapping function that maps a movie to its title.
+{
+
+    +CreateMovieTitleMap() : MovieTitleMap { query }
+    // Creates a new movie-title map.
+
+    +Map(in Item : Movie) : string
+    // Maps the item to its target representation.
+    // Post:
+    // This function must produce a constant return value, irrespective of external changes.
+
+}

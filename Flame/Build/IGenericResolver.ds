@@ -1,0 +1,16 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Build
+{
+    public interface IGenericResolver
+    {
+        const IType ResolveTypeParameter(IGenericParameter TypeParameter);
+    }
+    
+    public interface IGenericResolverType : IGenericResolver, IType
+    {
+    
+    }
+}

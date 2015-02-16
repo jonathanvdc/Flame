@@ -1,0 +1,46 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame
+{
+	public static class FieldExtensions
+	{
+		/// <summary>
+        /// Gets the field's value for the specified object.
+        /// </summary>
+        /// <param name="Target"></param>
+        /// <returns></returns>
+        public static const IBoundObject GetField(this IField Field, IBoundObject Target)
+        {
+        	if (Field is ILiteralField)
+        		return ((ILiteralField)Field).Value;
+        	else
+        		return Target.GetField(Field);
+        }
+
+        /// <summary>
+        /// Sets the field's value on the specified object.
+        /// </summary>
+        /// <param name="Target"></param>
+        /// <param name="Value"></param>
+        public static void SetField(this IField Field, IBoundObject Target, IBoundObject Value)
+        {
+        	Target.SetField(Field, Value);
+        }
+        
+        public static const IField GetField(this IEnumerable<IField> Candidates, string Name, bool IsStatic)
+        {
+        	foreach (var item in Candidates)
+        	{
+        		if (item.Name.Equals(Name) && item.IsStatic == IsStatic)
+					return item;        		
+        	}
+        	return null;
+        }
+        
+        public static const IField GetField(this IType Type, string Name, bool IsStatic)
+        {
+        	return Type.GetAllFields().GetField(Name, IsStatic);
+        }
+	}
+}

@@ -1,0 +1,15 @@
+public struct ValueTypeTest
+{
+    /// <summary>
+    /// Creates a new instance of the value type test.
+    /// </summary>
+    public const this(set int32 val);
+    
+    private int32 val;
+    public int32 Value { const get return val; }
+    
+    public override const string ToString()
+    {
+        return this.val.ToString();
+    }
+}

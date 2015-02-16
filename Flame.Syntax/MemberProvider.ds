@@ -1,0 +1,95 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Syntax;
+
+namespace Flame.Syntax
+{
+    public class MemberProvider : IMemberProvider
+    {
+        public const this(IExtensionTypeProvider GlobalExtensionTypeProvider, set IBinder Binder)
+        {
+            this.ExtensionTypeProvider = new LocalExtensionTypeProvider(GlobalExtensionTypeProvider, Binder);
+            this.memberMapping = new Dictionary<IType, ITypeMember[]>();
+        }
+        public const this(set IBinder Binder)
+        {
+            this.ExtensionTypeProvider = new LocalExtensionTypeProvider(Binder);
+            this.memberMapping = new Dictionary<IType, ITypeMember[]>();
+        }
+
+        public IExtensionTypeProvider ExtensionTypeProvider { const get; private set; }
+
+        public IType[] ExtensionTypes
+        {
+            const get
+            {
+                return ExtensionTypeProvider.ExtensionTypes;
+            }
+        }
+        private Dictionary<IType, ITypeMember[]> memberMapping;
+
+        public IBinder Binder { const get; private set; }
+
+        public IEnumerable<ITypeMember> GetMembers(IType Type)
+        {
+            if (memberMapping.ContainsKey(Type))
+            {
+                return memberMapping[Type];
+            }
+            else
+            {
+                List<ITypeMember> members = new List<ITypeMember>();
+                members.AddRange(Type.GetAllMembers());
+                
+                if (Type.IsInterface)
+                {
+                	bool pureInterface = true;
+                	foreach (var item in Type.GetBaseTypes())
+                	{
+                		if (!item.IsInterface)
+                		{
+                			pureInterface = false;
+                			break;
+                		}
+                	}
+                	if (pureInterface)
+                	{
+                		members.AddRange(Binder.RootType.GetMembers());
+                	}
+                }
+                
+                foreach (var related in Type.GetAssociatedTypes())
+                {
+                	members.AddRange(related.GetAllMembers());
+                }
+                
+                var extensionTypes = ExtensionTypes;
+                foreach (var item in extensionTypes)
+                {
+                	foreach (var method in item.GetMethods())
+                	{
+                		if (method.IsExtension)
+                		if (method.GetParameters()[0].IsAssignable(Type))
+                		{
+                			members.Add(method);
+                		}
+                	}
+                	foreach (var prop in item.GetProperties())
+                	{
+                		if (prop.IsExtension)
+                		if (prop.GetIndexerParameters()[0].IsAssignable(Type))
+                		{
+                			members.Add(prop);
+                		}
+                	}
+                }
+                
+                var memberArray = Enumerable.ToArray<ITypeMember>(Enumerable.Distinct<ITypeMember>(members));
+                memberMapping[Type] = memberArray;
+                return memberArray;
+            }
+        }
+    }
+}

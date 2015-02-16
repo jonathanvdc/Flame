@@ -1,0 +1,107 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    #region BinaryExpressionSyntax
+
+    public abstract class BinaryExpressionSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>
+    {
+    	protected const this();
+        public const this(set IExpressionSyntax Left, set Token OperatorToken, set IExpressionSyntax Right);
+
+        public IExpressionSyntax Left { const get; protected set; }
+        public Token OperatorToken { const get; protected set; }
+        public IExpressionSyntax Right { const get; protected set; }
+        
+        public IEnumerable<Token> LeadingTrivia
+        {
+        	const get return OperatorToken.GetAllTrivia();
+        }
+        
+        public IEnumerable<Token> TrailingTrivia
+        {
+        	const get return Enumerable.Empty<Token>();
+        }
+        
+        public IReadOnlyList<Token> Tokens
+        {
+        	const get
+        	{
+        		var tks = new List<Token>();
+				tks.AddRange(Left.GetTokens());
+				tks.Add(OperatorToken);
+				tks.AddRange(Right.GetTokens());
+				return tks;
+        	}
+        }
+        
+        public static const IType GetBinaryExpressionType(ISyntaxState State, IType Left, IType Right)
+        {
+        	if (CastSyntax.UseImplicitCast(State, Left, Right))
+        	{
+        		return Right;
+        	}
+        	else
+        	{
+        		return Left;
+        	}
+        }
+        
+        public static const IExpression CastLeftOperand(ISyntaxState State, IType TargetType, IExpression Left, ISyntaxNode Node, Operator Op)
+        {
+        	return CastSyntax.CreateImplicitCast(State, Left, Node, TargetType);
+        }
+        
+        public static const IExpression CastRightOperand(ISyntaxState State, IType TargetType, IExpression Right, ISyntaxNode Node, Operator Op)
+        {
+        	/*if (Op == Operator.RightShift || Op == Operator.LeftShift)
+        	{
+        		return Right;
+        	}
+        	else
+        	{
+        		return CastSyntax.CreateImplicitCast(State, Right, Node, TargetType);
+        	}*/
+        	return CastSyntax.CreateImplicitCast(State, Right, Node, TargetType);
+        }
+        
+        public static const IExpression CreateExpression(ISyntaxState State, IExpressionSyntax Left, Operator Op, IExpressionSyntax Right)
+        {
+        	var leftExpr = Left.CreateVerifiedExpression(State);
+            var rightExpr = Right.CreateVerifiedExpression(State);
+		    var tType = GetBinaryExpressionType(State, leftExpr.Type, rightExpr.Type)
+	    	var lExpr = CastLeftOperand(State, tType, leftExpr, Left, Op);
+	    	var rExpr = CastRightOperand(State, tType, rightExpr, Right, Op);
+	        return new DirectBinaryExpression(lExpr, Op, rExpr);
+        }
+
+        protected abstract const IExpression CreateExpression(ISyntaxState State, IExpressionSyntax Left, Token Op, IExpressionSyntax Right);
+
+        public const IExpression CreateExpression(ISyntaxState State)
+        {
+            return CreateExpression(State, Left, OperatorToken, Right);
+        }
+
+        public override const string ToString()
+        {
+            return GetCode().ToString();
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            var cb = new CodeBuilder();
+            cb.Append(Left.GetCode());
+            cb.Append(OperatorToken.ToString());
+            cb.Append(Right.GetCode());
+            return cb;
+        }
+    }
+
+    #endregion
+}

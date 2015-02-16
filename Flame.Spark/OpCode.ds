@@ -1,0 +1,39 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Spark
+{
+	public struct OpCode
+	{
+		private this(set bit8 Value, set int32 DataSize);
+	
+		public bit8 Value { const get; private set; }
+		public int32 DataSize { const get; private set; }
+		
+		public static OpCode Create(bit8 Value)
+		{
+			return new OpCode(Value, 0);
+		}		
+		public static OpCode Create(bit8 Value, int32 DataSize)
+		{
+			return new OpCode(Value, DataSize);
+		}
+		
+		public bool Equals(object Other) : object.Equals
+		{
+			if (Other is OpCode)
+			{
+				var otherOpCode = (OpCode)Other;
+				return otherOpCode.Value == this.Value;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		public int32 GetHashCode() : object.GetHashCode
+		{
+			return (int32)(uint8)Value;
+		}
+	}
+}

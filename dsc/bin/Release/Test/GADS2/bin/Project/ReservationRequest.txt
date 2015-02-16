@@ -1,0 +1,56 @@
+class ReservationRequest
+// A request for a reservation.
+// Reservation requests are not permanent and do not have an ID.
+// Remarks:
+// Reservation requests are intended to be an easy way to create a reservation: the client only has to fill in the data fields, and need not concern itself with the number of remaining seats or the hassle of generating a unique identifier.
+// Also, their none-permanent nature allows them to be disposed of without consequences if anything goes wrong while processing the reservation.
+{
+
+    +CreateReservationRequest(in Customer : User, in Showtime : Showtime, in NumberOfSeats : integer, in Timestamp : DateTime) : ReservationRequest { query }
+    // Creates a new reservation request.
+
+    property Customer
+    {
+
+        +get() : User { query }
+        // Gets the user who placed this request.
+
+        -set(in value : User)
+        // Sets the user who placed this request.
+
+    }
+
+    property Showtime
+    {
+
+        +get() : Showtime { query }
+        // Gets the showtime request this reservation was placed for.
+
+        -set(in value : Showtime)
+        // Sets the showtime request this reservation was placed for.
+
+    }
+
+    property NumberOfSeats
+    {
+
+        +get() : integer { query }
+        // Gets the number of seats this reservation requests.
+
+        -set(in value : integer)
+        // Sets the number of seats this reservation requests.
+
+    }
+
+    property Timestamp
+    {
+
+        +get() : DateTime { query }
+        // Gets this reservation's timestamp.
+
+        -set(in value : DateTime)
+        // Sets this reservation's timestamp.
+
+    }
+
+}

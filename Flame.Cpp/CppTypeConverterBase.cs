@@ -1,0 +1,71 @@
+﻿using Flame.Build;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Flame.Cpp
+{
+    public abstract class CppTypeConverterBase : TypeTransformerBase, ICppTypeConverter
+    {
+        public CppTypeConverterBase()
+        {
+
+        }
+
+        protected abstract override IType MakePointerType(IType Type, PointerKind Kind);
+        protected abstract IType MakeReferenceType(IType Type);
+        protected abstract override IType MakeArrayType(IType Type, int ArrayRank);
+        protected abstract override IType MakeVectorType(IType Type, int[] Dimensions);
+
+        protected override IType ConvertPointerType(IPointerType Type)
+        {
+            return MakePointerType(ConvertWithValueSemantics(Type.GetElementType()), Type.PointerKind);
+        }
+
+        protected virtual IType ConvertValueGenericInstance(IType Type)
+        {
+            return MakeGenericType(ConvertWithValueSemantics(Type.GetGenericDeclaration()), Convert(Type.GetGenericArguments()));
+        }
+
+        protected override IType ConvertGenericInstance(IType Type)
+        {
+            var genDecl = Type.GetGenericDeclaration();
+            if (genDecl.get_IsReferenceType())
+            {
+                return MakeReferenceType(ConvertValueGenericInstance(Type));
+            }
+            else
+            {
+                return base.ConvertGenericInstance(Type);
+            }
+        }
+
+        protected override IType ConvertReferenceType(IType Type)
+        {
+            return MakeReferenceType(Type);
+        }
+
+        protected override IType ConvertPrimitiveType(IType Type)
+        {
+            return Type;
+        }
+
+        public virtual IType ConvertWithValueSemantics(IType Type)
+        {
+            if (Type.get_IsGenericInstance())
+            {
+                return ConvertValueGenericInstance(Type);
+            }
+            else if (Type.get_IsReferenceType())
+            {
+                return ConvertValueType(Type);
+            }
+            else
+            {
+                return Convert(Type);
+            }
+        }
+    }
+}

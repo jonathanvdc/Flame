@@ -1,0 +1,133 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Compiler.Expressions
+{
+	public class ConcatExpression : IExpression
+    {
+    	public const this([IExpression] Values)
+    	{
+    		this.Operands = Enumerable.ToArray<IExpression>(Values);
+    	}
+    	public const this(set IExpression[] Operands);
+        public const this(IExpression LeftOperand, IExpression RightOperand)
+        {
+        	this.Operands = new IExpression[] { LeftOperand, RightOperand };
+        }
+
+		public IExpression[] Operands { const get; private set; }
+
+        public const IBoundObject Evaluate()
+        {
+    		return EvaluateExpression();
+        }
+        
+        public IType Type
+        {
+        	const get
+        	{
+        		return Operands[0].Type;
+        	}
+        }
+        
+        public const StringExpression EvaluateExpression()
+        {
+    		StringBuilder result = new StringBuilder();
+    		foreach (var item in Operands)
+    		{
+    			result.Append(item.Evaluate().GetValue<string>());
+    		}
+    		return new StringExpression(result.ToString());
+        }
+        
+        public bool IsConstant
+		{
+			const get
+			{
+				foreach (var item in Operands)
+				if (!item.IsConstant || !item.Type.Equals(PrimitiveTypes.String))
+				{
+					return false;
+				}
+				return true;
+			}
+		}
+
+        public override const IExpression Optimize()
+        {
+        	var optOperands = new List<IExpression>();
+        	foreach (var item in Operands)
+        	{
+        		var optOp = item.Optimize();
+        		if (optOp is ConcatExpression)
+        			optOperands.AddRange((IEnumerable<IExpression>)((ConcatExpression)optOp).Operands);
+        		else
+        			optOperands.Add(optOp);
+        	}
+        	
+        	int i = 1;
+        	while (i < optOperands.Count)
+        	{
+        		if (optOperands[i].IsConstant && optOperands[i].Type.Equals(PrimitiveTypes.String) && optOperands[i - 1].IsConstant && optOperands[i - 1].Type.Equals(PrimitiveTypes.String))
+        		{
+        			optOperands[i - 1] = new StringExpression(optOperands[i - 1].Evaluate().GetValue<string>() + optOperands[i].Evaluate().GetValue<string>());
+        			optOperands.RemoveAt(i);
+        		}
+        		else
+        		{
+        			i++;
+        		}
+        	}
+        	
+        	var optExpr = new ConcatExpression(optOperands.ToArray());
+        	
+        	if (optExpr.IsConstant) return optExpr.EvaluateExpression();
+        	else return optExpr;
+        }
+        
+        /// <summary>
+        /// Reduces the binary concatenation expression to a simpler expression.
+        /// </summary>
+        public static const IExpression ReduceBinary(IExpression LeftOperand, IExpression RightOperand)
+        {
+        	var invocation = Operator.Concat.CreateOperatorInvocation(new IExpression[] { LeftOperand, RightOperand });
+        	if (invocation == null)
+        	{
+        		return new PrimitiveBinaryExpression(LeftOperand, Operator.Concat, RightOperand, LeftOperand.Type);
+        	}
+        	else
+        	{
+        		return invocation;
+        	}
+        }
+        
+        /// <summary>
+        /// Reduces the concatenation expression to a simpler expression.
+        /// </summary>
+        public const IExpression Reduce()
+        {
+        	IExpression aggregate = Operands[0];
+        	for (int i = 1; i < Operands.Length; i++)
+        	{
+        		aggregate = ReduceBinary(aggregate, Operands[i]);
+        	}
+        	return aggregate;
+        }
+
+        public override const ICodeBlock Emit(ICodeGenerator Generator)
+        {
+        	ICodeBlock aggregate = Operands[0].Emit(Generator);
+        	for (int i = 1; i < Operands.Length; i++)
+        	{
+        		aggregate = Generator.EmitBinary(aggregate, Operands[i].Emit(Generator), Operator.Concat); // Try to preserve that this expression is a concat expression
+        		if (aggregate == null)
+        		{
+        			return Reduce().Emit(Generator); // Code generator doesn't support the concat operator, proceed to resolve invocation operator calls
+        		}
+        	}
+            return aggregate;
+        }
+    }
+}

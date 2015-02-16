@@ -1,0 +1,10 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame
+{
+	public interface IConverter<TSource, TTarget>
+	{
+		TTarget Convert(TSource Value);
+	}
+}

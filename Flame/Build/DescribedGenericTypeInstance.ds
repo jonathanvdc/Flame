@@ -1,0 +1,177 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Build
+{
+    public virtual class DescribedGenericTypeInstance : IGenericResolverType, IEquatable<IType>
+    {
+        public const this(set IType GenericDeclaration, set [IType] TypeArguments);
+
+        public IType GenericDeclaration { const get; private set; }
+        public [IType] TypeArguments { const get; private set; }
+
+        public const IType ResolveTypeParameter(IGenericParameter TypeParameter)
+        {
+        	foreach (var param in GetGenericParameters(), var arg in TypeArguments)
+        	{
+        		if (TypeParameter.Equals(param))
+        		{
+        			return arg;
+        		}
+        	}
+            if (DeclaringNamespace is IGenericResolver)
+            {
+                return ((IGenericResolver)DeclaringNamespace).ResolveType(TypeParameter);
+            }
+            return TypeParameter;
+        }
+
+        public virtual const IContainerType AsContainerType()
+        {
+            if (this is IContainerType) return (IContainerType)this;
+            else return null;
+        }
+
+        public INamespace DeclaringNamespace
+        {
+            const get { return GenericDeclaration.DeclaringNamespace; }
+        }
+
+        public const IType[] GetBaseTypes()
+        {
+            return this.ResolveTypes(GenericDeclaration.GetBaseTypes());
+        }
+
+        public const IMethod[] GetConstructors()
+        {
+        	IMethod[] ctors = GenericDeclaration.GetConstructors();
+        	IMethod[] results = new IMethod[ctors.Length];
+        	foreach (var input in ctors, var output in results)
+        	{
+        		output = new DescribedGenericMethodInstance(input, this);
+        	}
+            return results;
+        }
+
+        public const IBoundObject GetDefaultValue()
+        {
+            return null;
+        }
+
+        public const IField[] GetFields()
+        {
+        	IField[] fields = GenericDeclaration.GetFields();
+        	IField[] results = new IField[fields.Length];
+        	foreach (var input in fields, var output in results)
+        	{
+        		output = new DescribedGenericFieldInstance(input, this);
+        	}
+            return results;
+        }
+
+        public const IType GetGenericDeclaration()
+        {
+            return GenericDeclaration;
+        }
+
+        public const ITypeMember[] GetMembers()
+        {
+            return Enumerable.ToArray<ITypeMember>(Enumerable.Concat<ITypeMember>(Enumerable.Concat<ITypeMember>(Enumerable.Concat<ITypeMember>(GetFields(), GetMethods()), GetConstructors()), GetProperties()));
+        }
+
+        public const IMethod[] GetMethods()
+        {
+        	IMethod[] methods = GenericDeclaration.GetMethods();
+        	IMethod[] results = new IMethod[methods.Length];
+        	foreach (var input in methods, var output in results)
+        	{
+        		output = new DescribedGenericMethodInstance(input, this);
+        	}
+            return results;
+        }
+
+        public const IProperty[] GetProperties()
+        {
+        	IProperty[] props = GenericDeclaration.GetProperties();
+        	IProperty[] results = new IProperty[props.Length];
+        	foreach (var input in props, var output in results)
+        	{
+        		output = new DescribedGenericPropertyInstance(input, this);
+        	}
+            return results;
+        }
+
+        public virtual bool IsContainerType
+        {
+            const get { return this is IContainerType; }
+        }
+
+        public virtual const IArrayType MakeArrayType(int Rank)
+        {
+            return new DescribedArrayType(this, Rank);
+        }
+
+        public virtual const IType MakeGenericType(IEnumerable<IType> TypeArguments)
+        {
+            return new DescribedGenericTypeInstance(GenericDeclaration, TypeArguments);
+        }
+
+        public virtual const IPointerType MakePointerType(PointerKind PointerKind)
+        {
+            return new DescribedPointerType(this, PointerKind);
+        }
+
+        public virtual const IVectorType MakeVectorType(int[] Dimensions)
+        {
+            return new DescribedVectorType(this, Dimensions);
+        }
+
+        public string FullName
+        {
+            const get { return GenericNameExtensions.AppendTypeArguments(GenericDeclaration.GetGenericFreeFullName(), TypeArguments.FullNames); }
+        }
+
+        public virtual const [IAttribute] GetAttributes()
+        {
+            return GenericDeclaration.GetAttributes();
+        }
+
+        public string Name
+        {
+            const get { return GenericNameExtensions.AppendTypeArguments(GenericDeclaration.GetGenericFreeName(), TypeArguments.Names); }
+        }
+
+        public const [IType] GetGenericArguments()
+        {
+            return TypeArguments;
+        }
+
+        public const [IGenericParameter] GetGenericParameters()
+        {
+            return GenericDeclaration.GetGenericParameters();
+        }
+
+        public virtual override const bool Equals(object obj)
+        {
+            if (obj is IType)
+            {
+                return Equals((IType)obj);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public virtual override const int GetHashCode()
+        {
+            return GenericDeclaration.GetHashCode();
+        }
+
+        public virtual const bool Equals(IType other)
+        {
+            return other.IsGeneric && this.GenericDeclaration.Equals(other.GetGenericDeclaration()) && Enumerable.SequenceEqual<IType>(this.TypeArguments, other.GetGenericArguments());
+        }
+    }
+}

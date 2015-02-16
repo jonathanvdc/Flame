@@ -1,0 +1,137 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Binding;
+using Flame.Compiler;
+using Flame.Syntax;
+using Flame.DSharp.Lexer;
+
+namespace Flame.DSharp.Build
+{
+	public class NamespaceCompilationUnit : INamespaceSyntax
+	{
+		public const this(set Token NamepaceKeyword, set Token[] NameTokens, set Token RBraces, set ISyntaxNode[] Children, set Token LBraces);
+	
+		public ISyntaxNode[] Children { const get; private set; }
+		public const IEnumerable<ISyntaxNode> GetChildren()
+			return this.Children;
+			
+		public virtual void CompileNamespace(INamespaceSyntax Node, INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log)
+		{
+			Node.CreateNamespace(DeclaringNamespace, Binder, Log);
+		}
+		
+		public virtual void CompileType(ITypeDeclarationSyntax Node, INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log)
+		{
+			var type = Node.CreateType(DeclaringNamespace, Binder, Log, DeclaringNamespace.ExtensionTypeProvider);
+			DeclaringNamespace.AddType(type);
+		}
+		
+		public virtual void CompileToNamespace(INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ISyntaxNode Node, ICompilerLog Log)
+		{
+			if (Node is INamespaceSyntax)
+			{
+				CompileNamespace((INamespaceSyntax)Node, DeclaringNamespace, Binder, Log);
+			}
+			else if (Node is IBinderDirectiveSyntax)
+			{
+				((IBinderDirectiveSyntax)Node).ApplyDirective(Binder);
+			}
+			else if (Node is ITypeDeclarationSyntax)
+			{
+				CompileType((ITypeDeclarationSyntax)Node, DeclaringNamespace, Binder, Log);
+			}
+			else
+			{
+				Log.LogError("'" + Node.GetCode().ToString() + "' could not be resolved as a component of a compilation unit.");
+			}
+		}
+		
+		public virtual void CompileToNamespace(INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log)
+		{
+			var newBinder = Binder.PushScope(DeclaringNamespace.Name, DeclaringNamespace);
+			foreach (var child in Children)
+			{
+				CompileToNamespace(DeclaringNamespace, newBinder, child, Log);
+			}
+		}
+		
+		public Token NamepaceKeyword { const get; private set; }
+		public Token[] NameTokens { const get; private set; }
+		public Token RBraces { const get; private set; }
+		public Token LBraces { const get; private set; }
+		
+		public string[] SplitName
+		{
+			const get
+			{
+				int32 nameCount = NameTokens.Length / 2 + 1;
+				string[] split = new string[nameCount];
+				for (int32 i = 0; i < nameCount; i++)
+				{
+					split[i] = NameTokens[i * 2].TokenValue;
+				}
+				return split;
+			}
+		}
+		
+		public static INamespaceBranchBuilder CreateNamespaceBuilder(string Name, INamespaceBranchBuilder DeclaringNamespace)
+		{
+			foreach (var item in DeclaringNamespace.GetNamespaces())
+			{
+				if (Name.Equals(item.Name) && item is INamespaceBranchBuilder)
+				{
+					return (INamespaceBranchBuilder)item;
+				}
+			}
+			var ns = new SyntaxNamespace(Name, DeclaringNamespace);
+			DeclaringNamespace.AddNamespace(ns);
+			return ns;
+		}
+		
+		public INamespace CreateNamespace(INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log)
+		{
+			var splitName = this.SplitName;
+			INamespaceBranchBuilder ns = NamespaceCompilationUnit.CreateNamespaceBuilder(splitName[0], DeclaringNamespace);
+			for (int32 i = 1; i < splitName.Length; i++)
+			{
+				Binder = Binder.PushScope(ns.Name);
+				ns = NamespaceCompilationUnit.CreateNamespaceBuilder(splitName[i], ns);
+			}
+			this.CompileToNamespace(ns, Binder, Log);
+			return ns;
+		}
+		
+		public const CodeBuilder GetCode()
+		{
+			CodeBuilder cb = new CodeBuilder();
+			cb.Append(NamepaceKeyword.TokenValue);
+			cb.Append(" ");
+			foreach (var item in NameTokens)
+			{
+				cb.Append(item.TokenValue);
+			}
+			cb.AddLine(RBraces.TokenValue);
+			cb.IncreaseIndentation();
+			foreach (var item in Children)
+			{
+				cb.AddCodeBuilder(item.GetCode());
+			}
+			cb.DecreaseIndentation();
+			cb.AddLine(LBraces.TokenValue);
+			return cb;
+		}
+		
+		public virtual override const string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.Append(NamepaceKeyword.TokenValue);
+			sb.Append(' ');
+			foreach (var item in NameTokens)
+			{
+				sb.Append(item.TokenValue);
+			}
+			return sb.ToString();
+		}
+	}
+}

@@ -1,0 +1,13 @@
+class MovieRatingMap : IMap<Movie, float>
+// A mapping function that maps a movie to its rating.
+{
+
+    +CreateMovieRatingMap() : MovieRatingMap { query }
+    // Creates a new movie-rating map.
+
+    +Map(in Item : Movie) : float
+    // Maps the item to its target representation.
+    // Post:
+    // This function must produce a constant return value, irrespective of external changes.
+
+}

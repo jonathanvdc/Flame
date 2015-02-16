@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Syntax
+{
+    public class IndirectSyntaxState : ISyntaxState
+    {
+        public IndirectSyntaxState(ISyntaxState State, IBinder Binder)
+            : this(State, Binder, new MemberProvider(Binder))
+        {
+        }
+        public IndirectSyntaxState(set ISyntaxState State, set IBinder Binder, set IMemberProvider MemberProvider)
+        {
+            this.State = State;
+            this.Binder = Binder;
+            this.MemberProvider = MemberProvider;
+        }
+
+        public ISyntaxState State { const get; private set; }
+        public IBinder Binder { const get; private set; }
+        public IMemberProvider MemberProvider { const get; private set; }
+
+        public IVariable DeclareVariable(string Name, IVariable Variable)
+        {
+            return State.DeclareVariable(Name, Variable);
+        }
+
+        public IType CurrentType
+        {
+            get { return State.CurrentType; }
+        }
+        public IType ReturnType
+        {
+            get { return State.ReturnType; }
+        }
+
+        public IVariable GetVariable(string Name)
+        {
+            return State.GetVariable(Name);
+        }
+
+        public bool VariableExists(string Name)
+        {
+            return State.VariableExists(Name);
+        }
+
+        public void PushScope()
+        {
+            State.PushScope();
+        }
+
+        public IStatement PopScope()
+        {
+            return State.PopScope();
+        }
+    }
+}

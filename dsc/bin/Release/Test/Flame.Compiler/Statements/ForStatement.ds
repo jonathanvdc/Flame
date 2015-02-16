@@ -1,0 +1,50 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Expressions;
+
+namespace Flame.Compiler.Statements
+{
+    public class ForStatement : ComplexStatement
+    {
+    	public const this(set IStatement Setup, set IExpression Condition, set IStatement Change, set IStatement Body, set IStatement End);
+    	public const this(set IStatement Setup, set IExpression Condition, set IStatement Change, set IStatement Body)
+        {
+        	this.End = new EmptyStatement();
+        }
+        public const this(set IExpression Condition, set IStatement Change, set IStatement Body)
+        {
+        	this.Setup = new EmptyStatement();
+        	this.End = new EmptyStatement();
+        }
+        public const this()
+        {
+            this.Setup = new EmptyStatement();
+            this.Condition = new BooleanExpression(false);
+            this.Body = new EmptyStatement();
+            this.Change = new EmptyStatement();
+            this.End = new EmptyStatement();
+        }
+
+        public IStatement Setup { const get; private set; }
+        public IExpression Condition { const get; private set; }
+        public IStatement Body { const get; private set; }
+        public IStatement Change { const get; private set; }
+        public IStatement End { const get; private set; }
+
+        public override IStatement Peel()
+        {
+        	var list = new List<IStatement>();
+            list.Add(Setup);
+            
+            var loopBody = new List<IStatement>();
+            loopBody.Add(Body);
+            loopBody.Add(Change);
+            WhileStatement loop = new WhileStatement(Condition, new BlockStatement(loopBody));
+            list.Add(loop);
+            
+            list.Add(End);
+            BlockStatement block = new BlockStatement(list);
+            return block;
+        }
+    }
+}

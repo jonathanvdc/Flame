@@ -1,0 +1,107 @@
+class LinkedList<T> : IList<T>
+// Describes a linked list.
+// Remarks:
+// This linked list type inherits all functionality from the list ADT, but also exposes raw linked list access for dedicated classes, which want a finer grain of control and performance than what is offered by the list ADT.
+// Such a property may resemble a violation of the principle of access through an interface, but it is in fact not: the linked list instead defines its own, extended interface.
+// Access to the linked list's contents adheres to object-oriented principles, and does not require any knowledge of implementation details.
+// For example, invoking linked list-specific methods on a generic list is indeed not allowed, but invoking a linked list method on an object that was obtained through a method that publically broadcasts its return type to be a linked list, is allowed.
+{
+
+    +CreateLinkedList() : LinkedList<T> { query }
+    // Creates an empty linked list.
+
+    property Tail
+    {
+
+        +get() : ListNode<T> { query }
+        // Gets the linked list's tail node.
+
+    }
+
+    property Count
+    {
+
+        +get() : integer { query }
+        // Gets the number of elements in the collection.
+
+    }
+
+    indexer
+    {
+
+        +get(in Index : integer) : T { query }
+        // Gets the item in the linked list at the given index.
+        // Pre:
+        // The index must be valid index within this linked list: it must be non-negative and less than the list's length, exposed by the Count property.
+        // Post:
+        // If the index is a valid index in the linked list, the operation on said index is performed.
+        // Otherwise, an exception is thrown.
+
+        +set(in Index : integer, in value : T)
+        // Sets the item in the linked list at the given index.
+        // Pre:
+        // The index must be valid index within this linked list: it must be non-negative and less than the list's length, exposed by the Count property.
+        // Post:
+        // If the index is a valid index in the linked list, the operation on said index is performed.
+        // Otherwise, an exception is thrown.
+
+    }
+
+    property Head
+    {
+
+        +get() : ListNode<T> { query }
+        // Gets the linked list's head node.
+
+        +set(in value : ListNode<T>)
+        // Sets the linked list's head node.
+
+    }
+
+    +ToArray() : T[] { query }
+    // Gets an array representation of this linked list.
+    // Remarks:
+    // This method was added to the 'LinkedList<T>' class to allow quick and easy O(n) iteration over its elements.
+    // It goes without saying that this method should and can only be safely called if the 'LinkedList<T>' has been procured through a method that specifies its return value to be of said type.
+
+    +NodeAt(in Index : integer) : ListNode<T> { query }
+    // Gets the list node at the specified index.
+    // Pre:
+    // The index must be valid index within this linked list: it must be non-negative and less than the list's length, exposed by the Count property.
+    // Post:
+    // If the index is a valid index in the linked list, the node at said index is returned.
+    // Otherwise, None is returned.
+
+    +ItemAt(in Index : integer) : T { query }
+    // Gets the item in the linked list at the given index.
+    // Pre:
+    // The index must be valid index within this linked list: it must be non-negative and less than the list's length, exposed by the Count property.
+    // Post:
+    // If the index is a valid index in the linked list, the item at said index is returned.
+    // Otherwise, an exception is thrown.
+
+    +Add(in Item : T)
+    // Adds an item to the end of the linked list.
+    // Pre:
+    // Item is the item that will be inserted at the end of the list.
+    // Post:
+    // If the linked list has a head node, the item is inserted after the linked list's tail node.
+    // Otherwise, a new head node containing Item is created, which coincidentally becomes this linked list's head.
+
+    +RemoveAt(in Index : integer) : boolean
+    // Removes the item in the linked list at the specified index.
+    // Pre:
+    // Index must be a valid index in the list: it must be non-negative and less than the list's length, as exposed by the Count property.
+    // Post:
+    // If the provided index was an invalid index in the list, the list's state is not changed, and false is returned.
+    // Otherwise, the item at the specified index is removed and the index of all items whose index is greater than the provided index, will be decremented by one.
+
+    +Insert(in Index : integer, in Item : T) : boolean
+    // Inserts an item in the list at the specified position.
+    // Pre:
+    // Index must be a valid index in the list: it must be non-negative and less than the list's length, as exposed by the Count property.
+    // Post:
+    // If the provided index was an invalid index in the list, the list's state is not changed, and false is returned.
+    // Otherwise, all items from the given index upward are shifted once to the right, and the provided item is inserted at the specified index in the list.
+
+}

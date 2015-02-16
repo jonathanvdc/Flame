@@ -1,0 +1,83 @@
+/// <summary>
+/// Defines a quicksort implementation for IListSorter<T>.
+/// Elements are sorted in ascending order using quicksort based on input from an IComparer<T> which is obtained via a constructor parameter.
+/// </summary>
+public class Quicksort<T> : IListSorter<T>
+{
+    /// <summary>
+    /// Creates a new instance of a quicksort implementation for IListSorter<T> based on the given item comparer.
+    /// </summary>
+    public const this(set IComparer<T> ItemComparer);
+    
+    /// <summary>
+    /// Gets the item comparer that is used to order items.
+    /// </summary>
+    public IComparer<T> ItemComparer { const get; private set; }
+    
+    public IList<T> Sort(IList<T> Items)
+    {
+        // Sorting occurs in-place here, but this is only done to save some bits and preserve the type of list used.
+        // A functional implementation of the quicksort algorithm could just as easily treat 'Items' as an immutable list, and create a list of its own to store the results.
+        Quicksort(Items, 0, Items.Count - 1);
+        return Items;
+    }
+    
+    /// <summary>
+    /// Swaps two items' positions in the list.
+    /// </summary>
+    private void Swap(IList<T> Items, int First, int Second)
+    {
+        var temp = Items[First];
+        Items[First] = Items[Second];
+        Items[Second] = temp;
+    }
+    
+    /// <summary>
+    /// Sorts (a portion of) the given list list in-place using the quicksort algorithm.
+    /// </summary>
+    private void Quicksort(IList<T> Items, int Start, int End)
+    {
+        if (Start < End)
+        {
+            // Partition list
+            int p = Partition(Items, Start, End);
+            // Recursive call to sort the less-than part
+            Quicksort(Items, Start, p - 1);
+            // Recursive call to sort everything else
+            // The pivot is already in place, so it need not (and should not) be sorted again
+            Quicksort(Items, p + 1, End);
+        }
+    }
+    
+    /// <summary>
+    /// 'Partitions' the given list. Basically, a pivot item is selected, and all items that have a search key less than the pivot will be moved to the start of the list.
+    /// The pivot item will be the next item in the list, followed immediately by all items that have a search key greater than or equal to the pivot.
+    /// The returns value consists of the index of the pivot in the modified list. This method is used by the quicksort sorting method.
+    /// </summary>
+    /// <post>
+    /// Returns the index of the spot in the list where the pivot has been placed.
+    /// </post>
+    private int Partition(IList<T> Items, int Start, int End)
+    {
+        // Item in the middle of the list becomes the pivot.
+        int pivotIndex = (Start + End) / 2;
+        T pivot = Items[pivotIndex];
+        int lowIndex = Start;
+        // Moves the pivot to a 'safe' location at the end of the partition.
+        Swap(Items, pivotIndex, End);
+        
+        // Partition
+        for (int i = Start; i < End; i++)
+            // All items that are determined to be 'less' than the pivot are moved to the 'less-than' partition.
+            if (ItemComparer.Compare(Items[i], pivot) < 0)
+        {
+            Swap(Items, lowIndex, i);
+            lowIndex++;
+        }
+        
+        // Swap pivot back in place
+        Swap(Items, lowIndex, End);
+        
+        return lowIndex;
+    }
+}

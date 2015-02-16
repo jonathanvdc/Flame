@@ -1,0 +1,67 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+	public class HashSyntax : IExpressionSyntax, IRelevantSyntax<Token>, ITokenNode
+	{
+		public const this(set Token HashKeyword, set Token LeadingParen, set IExpressionSyntax Target, set Token TrailingParen);
+	
+		public Token HashKeyword { const get; private set; }
+		public Token LeadingParen { const get; private set; }
+		public IExpressionSyntax Target { const get; private set; }
+		public Token TrailingParen { const get; private set; }
+		
+        public IReadOnlyList<Token> Tokens
+        {
+        	const get
+        	{
+        		var tks = new List<Token>();
+        		tks.Add(HashKeyword);
+        		tks.Add(LeadingParen);
+				tks.AddRange(Target.GetTokens());
+				tks.Add(TrailingParen);
+				return tks;
+        	}
+        }
+		
+		public IEnumerable<Token> LeadingTrivia
+		{
+			const get
+			{
+				List<Token> trivia = new List<Token>();
+				trivia.AddRange(HashKeyword.GetAllTrivia());
+				trivia.AddRange(LeadingParen.GetAllTrivia());
+				return trivia;
+			}
+		}
+		
+		public IEnumerable<Token> TrailingTrivia
+		{
+			const get
+			{
+				return TrailingParen.GetAllTrivia();
+			}
+		}
+		
+		public const IExpression CreateExpression(ISyntaxState State)
+		{
+			var innerExpr = Target.CreateExpression(State);
+			return new HashExpression(innerExpr);
+		}
+		
+		public const CodeBuilder GetCode()
+		{
+			CodeBuilder cb = new CodeBuilder();
+			cb.Append(HashKeyword.ToString());
+			cb.Append(LeadingParen.ToString());
+			cb.Append(Target.GetCode());
+			cb.Append(TrailingParen.ToString());
+			return cb;
+		}
+	}
+}

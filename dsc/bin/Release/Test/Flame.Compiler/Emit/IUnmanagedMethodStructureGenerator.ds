@@ -1,0 +1,16 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Emit
+{
+    public interface IUnmanagedMethodStructureGenerator : IMethodStructureGenerator
+    {
+        IUnmanagedVariable DeclareUnmanagedVariable(IVariableMember VariableMember);
+        IUnmanagedVariable GetUnmanagedArgument(int Index);
+        /// <summary>
+        /// Gets the "this" argument.
+        /// </summary>
+        /// <returns></returns>
+        IUnmanagedVariable GetUnmanagedThis();
+    }
+}

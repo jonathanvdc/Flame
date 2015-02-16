@@ -1,0 +1,71 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Build;
+using Flame.Compiler;
+using Flame.DSharp;
+using Flame.DSharp.Build;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class GenericParameterDeclarationSyntax : IGenericParameterDeclarationSyntax
+    {
+        public const this(set IEnumerable<Token> ModifierTokens, set Token NameToken);
+
+        public IEnumerable<Token> ModifierTokens { const get; private set; }
+        public Token NameToken { const get; private set; }
+        public string Name
+        {
+            const get
+            {
+                return NameToken.TokenValue;
+            }
+        }
+
+        public IGenericParameterBuilder GetGenericParameter(IGenericMember DeclaringMember)
+        {
+            DescribedGenericParameter desc = new DescribedGenericParameter(Name, DeclaringMember);
+            foreach (var item in ModifierTokens)
+            {
+                desc.AddAttribute(GetGenericConstraintAttribute(item));
+            }
+            return desc;
+        }
+
+        public const static IAttribute GetGenericConstraintAttribute(Token Modifier)
+        {
+        	if (Modifier.Type == TokenType.ClassKeyword)
+        	{
+        		return PrimitiveAttributes.ReferenceTypeAttribute;
+        	}
+        	else if	(Modifier.Type == TokenType.StructKeyword)
+        	{
+        		return PrimitiveAttributes.ValueTypeAttribute;
+        	}
+        	else if (Modifier.Type == TokenType.OutKeyword)
+        	{
+        		return PrimitiveAttributes.OutAttribute;
+        	}
+        	else if (Modifier.Type == TokenType.InKeyword)
+        	{
+        		return PrimitiveAttributes.InAttribute;
+        	}
+            else
+            {
+            	return null;
+            }
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            foreach (var item in ModifierTokens)
+            {
+                cb.Append(item.ToString());
+            }
+            cb.Append(NameToken.ToString());
+            return cb;
+        }
+    }
+}

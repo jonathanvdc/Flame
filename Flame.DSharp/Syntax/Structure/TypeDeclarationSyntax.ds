@@ -1,0 +1,109 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Build;
+using Flame.Compiler;
+using Flame.DSharp.Build;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class TypeDeclarationSyntax : ITypeDeclarationSyntax, IMemberSyntax<IType>
+    {
+        public const this(set TypeSignatureSyntax Signature,
+            set IEnumerable<IMemberSyntax<IMember>> Members);
+
+        #region Signature
+
+        public TypeSignatureSyntax Signature { const get; private set; }
+
+        #endregion
+
+        #region Contents
+
+        public IEnumerable<IMemberSyntax<IMember>> Members { const get; private set; }
+
+        public IEnumerable<IMemberSyntax<T>> GetMembersOfType<T>() where T : IMember
+        {
+        	return Enumerable.OfType<IMemberSyntax<T>>(Members);
+        }
+
+        public IEnumerable<IMemberSyntax<IField>> Fields
+        {
+            const get
+            {
+                return GetMembersOfType<IField>();
+            }
+        }
+        public IEnumerable<IMemberSyntax<IProperty>> Properties
+        {
+            const get
+            {
+                return GetMembersOfType<IProperty>();
+            }
+        }
+        public IEnumerable<IMemberSyntax<IMethod>> Methods
+        {
+            const get
+            {
+                return GetMembersOfType<IMethod>();
+            }
+        }
+        public IEnumerable<IMemberSyntax<FieldProperty>> FieldProperties
+        {
+            const get
+            {
+                return GetMembersOfType<FieldProperty>();
+            }
+        }
+        public IEnumerable<IMemberSyntax<IType>> Types
+        {
+            const get
+            {
+                return GetMembersOfType<IType>();
+            }
+        }
+
+        #endregion
+
+        public IType CreateType(INamespace Namespace, IBinder Binder, ICompilerLog Log, IExtensionTypeProvider ExtensionTypeProvider)
+        {
+            return new OpenGenericType(this, Namespace, Binder, Log, ExtensionTypeProvider);
+        }
+
+        public IType CreateMember(ISyntaxState State)
+        {
+            return new OpenGenericType(this, (INamespace)State.DeclaringType, State.Binder, State.Log, State.MemberProvider);
+        }
+
+        public override const string ToString()
+        {
+            return GetCode().ToString();
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            CodeBuilder cb = Signature.GetCode();
+            cb.AddLine("{");
+            cb.IncreaseIndentation();
+            foreach (var item in Members)
+            {
+                cb.AddCodeBuilder(item.GetCode());
+            }
+            cb.DecreaseIndentation();
+            cb.AddLine("}");
+            return cb;
+        }
+
+        public bool IsExtensionMember
+        {
+            const get return false;
+        }
+        
+        public bool IsSingletonMember
+        {
+            const get return false;
+        }
+    }
+}

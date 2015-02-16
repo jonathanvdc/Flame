@@ -1,0 +1,119 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class GenericTypeArgumentsSyntax : IExpressionSyntax, ITypeMemberAccessSyntax, ITokenNode, IRelevantSyntax<Token>
+    {
+        public const this(set ITypeMemberAccessSyntax Target, set Token LeftDelimiter, set IEnumerable<ITypeSyntax> TypeArguments, set Token RightDelimiter);
+
+        public ITypeMemberAccessSyntax Target { const get; private set; }
+        public Token LeftDelimiter { const get; private set; }
+        public IEnumerable<ITypeSyntax> TypeArguments { const get; private set; }
+        public Token RightDelimiter { const get; private set; }
+        
+        public IEnumerable<Token> LeadingTrivia
+        {
+        	const get return LeftDelimiter.GetAllTrivia();
+        }
+        
+        public IEnumerable<Token> TrailingTrivia
+        {
+        	const get return RightDelimiter.GetAllTrivia();
+        }
+        
+        public IReadOnlyList<Token> Tokens
+        {
+        	const get
+        	{
+        		var tks = new List<Token>();
+				tks.AddRange(Target.GetTokens());
+				tks.Add(LeftDelimiter);
+				foreach (var item in TypeArguments)
+					tks.AddRange(item.GetTokens());
+				tks.Add(RightDelimiter);
+				return tks;
+        	}
+        }
+
+        public override const string ToString()
+        {
+            return GetCode().ToString();
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            var cb = Target.GetCode();
+            cb.Append(LeftDelimiter.ToString());
+            bool first = true;
+            foreach (var item in TypeArguments)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    cb.Append(",");
+                }
+                cb.Append(item.GetCode());
+            }
+            cb.Append(RightDelimiter.ToString());
+            return cb;
+        }
+
+        public const IExpression GetCallerExpression(ISyntaxState State)
+        {
+            return Target.GetCallerExpression(State);
+        }
+
+        public const IVariable GetCallerVariable(ISyntaxState State)
+        {
+            return Target.GetCallerVariable(State);
+        }
+
+        public const IEnumerable<ITypeMember> GetAccessedMembers(ISyntaxState State)
+        {
+            var genericArgs = Enumerable.ToArray<IType>(TypeArguments.CreateVerifiedTypes(State));
+
+            var members = Target.GetAccessedMembers(State);
+            var filteredMembers = new List<ITypeMember>();
+            foreach (var item in members)
+            {
+            	if (item is IGenericMember)
+            	{
+            		var genericItem = (IGenericMember)item;
+            		var genericParams = Enumerable.ToArray<IGenericParameter>(genericItem.GetGenericParameters());
+	                if (genericParams.Length != genericArgs.Length)
+	                {
+	                    break;
+	                }
+	                bool assignable = true;
+	                for (int i = 0; i < genericParams.Length; i++)
+	                {
+	                    if (!genericParams[i].IsAssignable(genericArgs[i]))
+	                    {
+	                        assignable = false;
+	                    }
+	                }
+	                if (assignable && genericItem is IMethod)
+	                {
+	                	filteredMembers.Add(((IMethod)genericItem).MakeGenericMethod(genericArgs));
+	                }
+            	}
+            }
+            
+            return filteredMembers;
+        }
+
+        public IExpression CreateExpression(ISyntaxState State)
+        {
+            return null;
+        }
+    }
+}

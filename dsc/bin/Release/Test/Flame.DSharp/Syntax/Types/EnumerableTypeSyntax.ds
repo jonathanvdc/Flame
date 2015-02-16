@@ -1,0 +1,80 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+	public class EnumerableTypeSyntax : ITokenTypeSyntax, IRelevantSyntax<Token>
+	{
+		public const this(set Token LeadingBrackets, set ITokenTypeSyntax ElementType, set Token TrailingBrackets);
+		
+		public Token LeadingBrackets { const get; private set; }
+		public ITokenTypeSyntax ElementType { const get; private set; }
+		public Token TrailingBrackets { const get; private set; }
+		
+		public IEnumerable<Token> LeadingTrivia
+        {
+        	const get
+        	{
+        		List<Token> trivia = new List<Token>();
+        		trivia.AddRange(LeadingBrackets.GetAllTrivia());
+        		trivia.AddRange(ElementType.GetAllTrivia());
+        		trivia.AddRange(TrailingBrackets.GetAllTrivia());
+				return trivia;
+        	}
+        }
+        
+        public IEnumerable<Token> TrailingTrivia
+        {
+        	const get return (IEnumerable<Token>)new Token[0];
+        }
+        
+        public IReadOnlyList<Token> Tokens
+        {
+        	const get
+        	{
+        		var list = new List<Token>();
+				list.Add(LeadingBrackets);
+				list.AddRange(ElementType.Tokens);
+				list.Add(TrailingBrackets);
+				return list;
+        	}
+        }
+        
+        public IType CreateType(ISyntaxState State)
+        {
+        	var elemType = ElementType.CreateType(State);
+        	if (elemType == null) return null;
+        	var genericEnumerableType = State.Environment.EnumerableType;
+        	if (genericEnumerableType.IsGeneric)
+        	{
+        		return genericEnumerableType.MakeGenericType((IEnumerable<IType>)new IType[] { elemType });
+        	}
+        	else
+        	{
+        		return genericEnumerableType;
+        	}
+        }
+        
+        public override string ToString()
+        {
+            return GetCode().ToString();
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            cb.Append(LeadingBrackets.ToString());
+            cb.Append(ElementType.GetCode());
+            cb.Append(TrailingBrackets.ToString());
+            return cb;
+        }
+
+        public bool IsVariable
+        {
+            const get return false;
+        }
+	}
+}

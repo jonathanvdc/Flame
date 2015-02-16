@@ -1,0 +1,159 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Spark
+{
+	public static class OpCodes
+	{
+		public static OpCode Return
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0x1);
+			}
+		}
+		public static OpCode Pop
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0x2);
+			}
+		}
+		
+		#region Constants
+		
+		#region Int
+		
+		public static OpCode PushInt8
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0x3, 1);
+			}
+		}
+		public static OpCode PushInt16
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0x4, 2);
+			}
+		}
+		public static OpCode PushInt32
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0x5, 4);
+			}
+		}
+		public static OpCode PushInt64
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0x6, 8);
+			}
+		}
+		
+		#endregion
+		
+		#region UInt
+		
+		public static OpCode PushUInt8
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0x7, 1);
+			}
+		}
+		public static OpCode PushUInt16
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0x8, 2);
+			}
+		}
+		public static OpCode PushUInt32
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0x9, 4);
+			}
+		}
+		public static OpCode PushUInt64
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0xA, 8);
+			}
+		}
+		
+		#endregion
+		
+		#region Bit
+		
+		public static OpCode PushBit8
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0xB, 1);
+			}
+		}
+		public static OpCode PushBit16
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0xC, 2);
+			}
+		}
+		public static OpCode PushBit32
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0xD, 4);
+			}
+		}
+		public static OpCode PushBit64
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0xE, 8);
+			}
+		}
+		
+		#endregion
+		
+		#endregion
+		
+		#region Math
+		
+		public static OpCode Add
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0xF);
+			}
+		}
+		public static OpCode Subtract
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0x10);
+			}
+		}
+		public static OpCode Multiply
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0x11);
+			}
+		}
+		public static OpCode Divide
+		{
+			const get
+			{
+				return OpCode.Create((bit8)(uint8)0x12);
+			}
+		}
+		
+		#endregion
+	}
+}

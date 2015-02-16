@@ -1,0 +1,24 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Build
+{
+	public virtual class DescribedGenericAccessorInstance : DescribedGenericMethodInstance, IAccessor
+    {
+    	protected const this();
+        public const this(IAccessor Accessor, set IProperty DeclaringProperty, set IGenericResolver Parent)
+        {
+        	this.Method = Accessor;
+        	this.DeclaringType = DeclaringProperty.DeclaringType;
+        }
+
+        public AccessorType AccessorType
+        {
+            const get { return ((IAccessor)Method).AccessorType; }
+        }
+
+        public IProperty DeclaringProperty { const get; protected set; }
+    }
+}

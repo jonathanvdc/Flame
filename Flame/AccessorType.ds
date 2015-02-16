@@ -1,0 +1,127 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame
+{
+    public struct AccessorType
+    {
+        private const this(set int32 typeIndex);
+        public const this(AccessorType Other)
+        {
+            this.typeIndex = Other.typeIndex;
+        }
+
+        private int32 typeIndex;
+
+        #region Equality
+
+        public override int32 GetHashCode()
+        {
+ 	         return typeIndex.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is AccessorType)
+            {
+                return ((AccessorType)obj).typeIndex == typeIndex;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /*public static bool operator ==(AccessorType A, AccessorType B)
+        {
+            return A.typeIndex == B.typeIndex;
+        }
+        public static bool operator !=(AccessorType A, AccessorType B)
+        {
+            return A.typeIndex != B.typeIndex;
+        }*/
+
+        #endregion
+
+        #region ToString
+
+        public override string ToString()
+        {
+            return typeNames[typeIndex];
+        }
+
+        #endregion
+
+        #region Static
+
+        #region Management
+
+        static this()
+        {
+            typeNames = new List<string>();
+            predefinedAccessors = new AccessorType[5];
+            predefinedAccessors[0] = Register("Default");
+            predefinedAccessors[1] = Register("Get");
+            predefinedAccessors[2] = Register("Set");
+            predefinedAccessors[3] = Register("Add");
+            predefinedAccessors[4] = Register("Remove");
+        }
+
+        private static List<string> typeNames;
+        private static AccessorType[] predefinedAccessors;
+
+        public static AccessorType Register(string Name)
+        {
+            typeNames.Add(Name);
+            return new AccessorType(typeNames.Count - 1);
+        }
+
+        #endregion
+
+        #region Common Accessors
+
+        public static AccessorType DefaultAccessor
+        {
+            get
+            {
+                return predefinedAccessors[0];
+            }
+        }
+
+        public static AccessorType GetAccessor
+        {
+            get
+            {
+                return predefinedAccessors[1];
+            }
+        }
+
+        public static AccessorType SetAccessor
+        {
+            get
+            {
+                return predefinedAccessors[2];
+            }
+        }
+
+        public static AccessorType AddAccessor
+        {
+            get
+            {
+                return predefinedAccessors[3];
+            }
+        }
+
+        public static AccessorType RemoveAccessor
+        {
+            get
+            {
+                return predefinedAccessors[4];
+            }
+        }
+
+        #endregion
+
+        #endregion
+    }
+}

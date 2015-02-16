@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="ITable">
+  <RuntimeLibrary Include="PortableRT" />
+  <RuntimeLibrary Include="System" />
+  <RuntimeLibrary Include="System.Core" />
+  <Compile Include="IList.ds" />
+  <Compile Include="IRecord.ds" />
+  <Compile Include="ITable.ds" />
+  <Compile Include="ITree.ds" />
+  <Compile Include="IFactory.ds" />
+  <Compile Include="ArrayList.ds" />
+  <Compile Include="ListNode.ds" />
+  <Compile Include="LinkedList.ds" />
+  <Compile Include="BinaryTree.ds" />
+  <Compile Include="BinarySearchTree.ds" />
+  <Compile Include="BinaryTreeTable.ds" />
+  <Compile Include="Hashtable.ds" />
+  <Compile Include="OpenHashtable.ds" />
+  <Compile Include="SwapTable.ds" />
+  <Compile Include="ProbeSequenceMaps.ds" />
+  <Compile Include="BinaryTreeTableFactory.ds" />
+  <Compile Include="DefaultRecordMap.ds" />
+  <Setter Property="TargetPlatform" Value="Python" />
+</Project>

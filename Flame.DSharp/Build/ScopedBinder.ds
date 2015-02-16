@@ -1,0 +1,308 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Binding;
+using Flame.Compiler;
+using Flame.Syntax;
+
+namespace Flame.DSharp.Build
+{
+	public class ScopedBinder : BinderBase, IScopedBinder
+	{
+		protected const this(set IBinder Binder, List<NamespaceScope> Scopes)
+		{
+			this.scopes = new List<NamespaceScope>(Scopes);
+		}
+		public const this(set IBinder Binder)
+        {
+        	this.scopes = new List<NamespaceScope>();
+        	PushScope("");
+        }
+
+		public IBinder Binder { const get; private set; }
+		private List<NamespaceScope> scopes;
+		public NamespaceScope CurrentScope
+		{
+			const get return scopes[scopes.Count - 1];
+		}
+		public IScopedBinder PushScope(string Name)
+		{
+			var newBinder = new ScopedBinder(Binder, scopes);
+			newBinder.scopes.Add(new NamespaceScope(Name));
+			return newBinder;
+		}
+		public IScopedBinder PushScope(string Name, INamespace CurrentNamespace)
+		{
+			var newBinder = new ScopedBinder(Binder, scopes);
+			newBinder.scopes.Add(new NamespaceScope(Name, CurrentNamespace));
+			return newBinder;
+		}
+
+        public void UseNamespace(string Namespace)
+        {
+        	CurrentScope.UsingNamespaces.Add(Namespace);
+        }
+
+        public void MapNamespace(string Key, string Namespace)
+        {
+        	CurrentScope.MappedNamespaces[Key] = Namespace;
+        }
+        
+        public INamespace CurrentNamespace
+        {
+        	const get
+        	{
+        		for (int32 i = scopes.Count - 1; i >= 0; i--)
+				{
+					if (scopes[i].CurrentNamespace != null)
+						return scopes[i].CurrentNamespace;					
+				}
+				return null;
+        	}
+        }
+
+        private string[] localNs;
+        protected string[] LocalNamespaces
+        {
+            const get
+            {
+                if (localNs == null)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    List<string> ns = new List<string>();
+                    bool first = true;
+                    foreach (var scope in scopes)
+                    {
+                    	string scopeName = scope.Name;
+                    	if (scopeName != null)
+                    	if (scopeName.Length > 0)
+                    	{
+                    		if (!first)
+                    		{
+                    			sb.Append('.');
+                    		}
+                    		else
+                    		{
+                    			first = false;
+                    		}
+                    		sb.Append(scopeName);
+                        	ns.Add(sb.ToString());
+                    	}
+                    }
+                    localNs = ns.ToArray();
+                }
+                return localNs;
+            }
+        }
+        
+        public override IEnvironment Environment : BinderBase.Environment { const get return Binder.Environment; }
+
+        public override IType BindTypeCore(string Name)
+        {
+            IType type = Binder.BindType(Name);
+            if (type != null)
+            {
+                return type;
+            }
+            string[] splitName = Name.Split(new char[] { '.' });
+            if (MappedNamespaces.ContainsKey(splitName[0]))
+            {
+                string newName = ToTypeName(ScopedBinder.ConcatArrays<string>(new string[] { MappedNamespaces[splitName[0]] }, ScopedBinder.SubArray<string>(splitName, 1)));
+                type = Binder.BindType(newName);
+                if (VerifyMatch(type))
+                {
+                    return type;
+                }
+            }
+            foreach (var item in UsingNamespaces)
+            {
+                string newName = ToTypeName(ScopedBinder.ConcatArrays<string>(new string[] { item }, splitName));
+                type = Binder.BindType(newName);
+                if (VerifyMatch(type))
+                {
+                    return type;
+                }
+            }
+            return null;
+        }
+
+        #region Match Verification
+
+        protected bool VerifyMatch(IType Type)
+        {
+            if (Type == null)
+            {
+                return false;
+            }
+            else
+            {
+                var accessModifier = Type.Access;
+                if (accessModifier == AccessModifier.Assembly)
+                	return VerifyAssemblyType(Type);
+                else if (accessModifier == AccessModifier.Protected)
+                	return VerifyProtectedType(Type);
+                else if (accessModifier == AccessModifier.ProtectedAndAssembly)
+                	return VerifyAssemblyType(Type) && VerifyProtectedType(Type);
+                else if (accessModifier == AccessModifier.ProtectedOrAssembly)
+                	return VerifyAssemblyType(Type) || VerifyProtectedType(Type);
+                else if (accessModifier == AccessModifier.Private)
+                	return VerifyPrivateType(Type);
+				else
+					return true;
+            }
+        }
+
+        protected bool VerifyPrivateType(IType Type)
+        {
+            if (!(CurrentNamespace is IType))
+            {
+                return false;
+            }
+            var declType = (IType)Type.DeclaringNamespace;
+            if (declType != null)
+            {
+                if (declType.Equals(CurrentNamespace))
+                {
+                    return true;
+                }
+                else
+                {
+                    return VerifyPrivateType(declType);
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        protected bool VerifyProtectedType(IType Type)
+        {
+            if (!(CurrentNamespace is IType))
+            {
+                return false;
+            }
+            var declType = (IType)Type.DeclaringNamespace;
+            if (declType != null)
+            {
+                if (declType.Is((IType)CurrentNamespace))
+                {
+                    return true;
+                }
+                else
+                {
+                    return VerifyPrivateType(declType);
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        protected bool VerifyAssemblyType(IType Type)
+        {
+        	if (CurrentNamespace == null)
+        	{
+        		return false;
+        	}
+            return CurrentNamespace.DeclaringAssembly.Equals(Type.DeclaringNamespace.DeclaringAssembly);
+        }
+
+        #endregion
+
+        private static T[] SubArray<T>(T[] Elements, int StartPosition)
+        {
+            T[] newArray = new T[Elements.Length - StartPosition];
+            for (int32 i = 0; i < newArray.Length; i++)
+            {
+                newArray[i] = Elements[i + StartPosition];
+            }
+            return newArray;
+        }
+        
+        private static T[] ConcatArrays<T>(T[] First, T[] Second)
+        {
+        	int32 firstLength = First.Length;
+        	T[] result = new T[firstLength + Second.Length];
+        	for (int32 i = 0; i < firstLength; i++)
+        	{
+        		result[i] = First[i];
+        	}
+        	for (int32 i = 0; i < Second.Length; i++)
+        	{
+        		result[firstLength + i] = Second[i];
+        	}
+        	return result;
+        }
+
+        private static string ToTypeName(string[] Elements)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int32 i = 0; i < Elements.Length; i++)
+            {
+                if (i != 0)
+                {
+                    sb.Append(".");
+                }
+                sb.Append(Elements[i]);
+            }
+            return sb.ToString();
+        }
+
+		private List<string> usingNs;
+        public IEnumerable<string> UsingNamespaces
+        {
+	        const get
+	        {
+	        	if (usingNs == null)
+				{		        
+		        	List<string> usingNamespaces = new List<string>();
+		        	foreach (var item in LocalNamespaces)
+		        	{
+		        		usingNamespaces.Add(item);
+		        	}
+		        	foreach (var item in scopes)
+		        	foreach (var usage in item.UsingNamespaces)
+		        	{
+		        		usingNamespaces.Add(usage);
+		        	}
+		        	usingNs = usingNamespaces;
+		        }
+	            return usingNs;
+	        }
+        }
+
+
+		private Dictionary<string, string> mappedNs;
+        public IDictionary<string, string> MappedNamespaces
+        {
+        	const get
+        	{	
+        		if (mappedNs == null)
+				{	
+	                Dictionary<string, string> dict = new Dictionary<string, string>();
+	        		foreach (var item in scopes)
+	        		{
+	        			foreach (var map in item.MappedNamespaces)
+	        			{
+	        				dict[map.Key] = map.Value;
+	        			}
+	        		}
+	        		mappedNs = dict;
+	        	}
+	        	return mappedNs;
+        	}
+        }
+
+        public bool SupportsNamespaces
+        {
+            const get { return true; }
+        }
+
+        public override const IEnumerable<IType> GetTypes()
+        {
+            return Binder.GetTypes();
+        }
+	}
+}

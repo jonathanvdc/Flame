@@ -1,0 +1,82 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler
+{
+	/// <summary>
+	/// Provides common functionality for code generators. Code generators take care of the generation of individual blocks of code.
+	/// </summary>
+	public interface ICodeGenerator : IMethodStructureGenerator
+	{
+		IBlockGenerator CreateBlock();		
+		IBlockGenerator CreateWhileBlock(ICodeBlock Condition);
+		IBlockGenerator CreateDoWhileBlock(ICodeBlock Condition);
+		IIfElseBlockGenerator CreateIfElseBlock(ICodeBlock Condition);
+		
+		#region Constants
+		
+		ICodeBlock EmitBoolean(bool Value);
+		ICodeBlock EmitChar(char Value);
+		
+		ICodeBlock EmitUInt8(uint8 Value);
+		ICodeBlock EmitInt8(int8 Value);
+		ICodeBlock EmitBit8(bit8 Value);
+		
+		ICodeBlock EmitUInt16(uint16 Value);
+		ICodeBlock EmitInt16(int16 Value);
+		ICodeBlock EmitBit16(bit16 Value);
+		
+		ICodeBlock EmitUInt32(uint32 Value);
+		ICodeBlock EmitInt32(int32 Value);
+		ICodeBlock EmitBit32(bit32 Value);
+		ICodeBlock EmitFloat32(float32 Value);
+		
+		ICodeBlock EmitUInt64(uint64 Value);
+		ICodeBlock EmitInt64(int64 Value);
+		ICodeBlock EmitBit64(bit64 Value);
+		ICodeBlock EmitFloat64(float64 Value);
+		
+		ICodeBlock EmitString(string Value);
+		ICodeBlock EmitNull();
+		
+		#endregion
+		
+		#region Math
+		
+		ICodeBlock EmitBinary(ICodeBlock A, ICodeBlock B, Operator Op);
+		ICodeBlock EmitUnary(ICodeBlock Value, Operator Op);
+		
+		#endregion
+		
+		#region Object Model
+		
+		/// <summary>
+        /// Checks if it is of the provided type.
+        /// </summary>
+        /// <param name="Type"></param>
+        ICodeBlock EmitIsOfType(IType Type, ICodeBlock Value);
+		ICodeBlock EmitDefaultValue(IType Type);
+		ICodeBlock EmitConversion(ICodeBlock Value, IType Type);
+		ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller);
+		ICodeBlock EmitInvocation(ICodeBlock Method, IEnumerable<ICodeBlock> Arguments);
+		
+		/// <summary>
+        /// Creates a new array of the specified element type with the specified dimensions.
+        /// </summary>
+        /// <param name="ElementType"></param>
+        /// <param name="Dimensions"></param>
+        ICodeBlock EmitNewArray(IType ElementType, IEnumerable<ICodeBlock> Dimensions);
+        /// <summary>
+        /// Creates a new vector of the specified element type with the specified dimensions.
+        /// </summary>
+        /// <param name="ElementType"></param>
+        /// <param name="Dimensions"></param>
+        ICodeBlock EmitNewVector(IType ElementType, int[] Dimensions);
+		
+		IVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index);
+		IVariable GetField(IField Field, ICodeBlock Target);
+		
+		#endregion
+	}
+}

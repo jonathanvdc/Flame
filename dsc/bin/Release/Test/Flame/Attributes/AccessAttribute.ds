@@ -1,0 +1,30 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Primitives;
+
+namespace Flame
+{
+	public class AccessAttribute : IAttribute
+	{
+		static this()
+		{
+			attrType = new PrimitiveType<IAttribute>("AccessAttribute", 0, null);
+		}
+		private static IType attrType;
+		public static IType AccessAttributeType { const get return attrType; }
+	
+		public const this(set AccessModifier Access);
+		
+		public AccessModifier Access { const get; private set; }
+		public IType AttributeType { const get return attrType; }
+		
+		public IBoundObject Value
+		{
+			const get
+			{
+				return new BoundPrimitive<IAttribute>(AttributeType, this);
+			}
+		}
+	}
+}

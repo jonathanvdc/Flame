@@ -1,0 +1,11 @@
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Cecil\obj\Debug\Flame.Cecil.csprojResolveAssemblyReference.cache
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Cecil\bin\Debug\Flame.Cecil.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Cecil\bin\Debug\Flame.Cecil.pdb
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Cecil\bin\Debug\Flame.Compiler.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Cecil\bin\Debug\Flame.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Cecil\bin\Debug\Mono.Cecil.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Cecil\bin\Debug\Mono.Cecil.Mdb.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Cecil\bin\Debug\Mono.Cecil.Pdb.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Cecil\bin\Debug\Mono.Cecil.Rocks.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Cecil\obj\Debug\Flame.Cecil.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Cecil\obj\Debug\Flame.Cecil.pdb

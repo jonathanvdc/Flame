@@ -1,0 +1,18 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Projects
+{
+	public interface IMutableProjectNode : IProjectNode
+	{
+		/// <summary>
+		/// Sets the project node's name.
+		/// </summary>
+		void SetName(string Name);
+		/// <summary>
+		/// Adds a child to the project node.
+		/// </summary>
+		void AddChild(IProjectItem Item);
+	}
+}

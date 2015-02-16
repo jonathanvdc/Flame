@@ -1,0 +1,156 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame
+{
+    public abstract class BinderBase : IBinder
+    {
+    	public const this();
+    
+    	/// <summary>
+		/// Gets the environment for this binder.
+		/// </summary>
+        public abstract IEnvironment Environment : IBinder.Environment { const get; }
+        public abstract const IEnumerable<IType> GetTypes() : IBinder.GetTypes;
+
+        public abstract IType BindTypeCore(string Name);
+
+        public IType BindType(string Name) : IBinder.BindType
+        {
+        	PointerKind ptrKind;
+            if (PointerKind.TryGetPointerKind(Name, &ptrKind))
+            {
+                string elemName = Name.Substring(0, Name.Length - 1);
+                var elemType = BindType(elemName);
+                return elemType.MakePointerType(ptrKind);
+            }
+            else if (Name.EndsWith("]"))
+            {
+                List<string> dimensions = new List<string>();
+                int length = 0;
+                int i = Name.Length - 2;
+                for (; i >= 0; i--)
+                {
+                    if (Name[i] == '[')
+                    {
+                        dimensions.Add(Name.Substring(i + 1, length));
+                        break;
+                    }
+                    else if (Name[i] == ',')
+                    {
+                        dimensions.Add(Name.Substring(i + 1, length));
+                        length = 0;
+                    }
+                    else
+                    {
+                        length++;
+                    }
+                }
+                var elementType = BindType(Name.Substring(0, i));
+                if (elementType == null)
+                {
+                    return null;
+                }
+                else
+                {
+                	bool anyEmpty = false;
+                	foreach (var item in dimensions)
+                	{
+                		if (string.IsNullOrWhiteSpace(item))
+                		{
+                			anyEmpty = true;
+                		}
+                	}
+                    if (anyEmpty)
+                    {
+                        return elementType.MakeArrayType(dimensions.Count);
+                    }
+                    else
+                    {
+                    	int32[] vectorDims = new int32[dimensions.Count];
+                    	foreach (var input in dimensions, var output in vectorDims)
+                    	{
+	                    	output = int32.Parse(input.Replace(" ", "").Replace("\t", "").Replace("\r", "").Replace("\n", ""));
+	                    }
+                        return elementType.MakeVectorType(vectorDims);
+                    }
+                }
+            }
+            else if (Name.EndsWith(">"))
+            {
+                int rank = 1;
+                List<IType> typeArgs = new List<IType>();
+                int i = Name.Length - 2;
+                int length = 0;
+                for (; rank > 0 && i >= 0; i--)
+                {
+                    if (Name[i] == '<')
+                    {
+                        rank--; 
+                        if (rank > 0)
+                        {
+                            length++;
+                        }
+                    }
+                    else if (Name[i] == '>')
+                    {
+                        rank++;
+                        if (rank > 1)
+                        {
+                            length++;
+                        }
+                    }
+                    else if (Name[i] == ',' && rank == 1)
+                    {
+                        string argString = Name.Substring(i + 1, length);
+                        typeArgs.Add(BindType(argString));
+                        length = 0;
+                    }
+                    else
+                    {
+                        length++;
+                    }
+                }
+                string lastArg = Name.Substring(i + 2, length);
+                typeArgs.Add(BindType(lastArg));
+
+                StringBuilder genericTypeName = new StringBuilder();
+                genericTypeName.Append(Name.Substring(0, i + 1));
+                genericTypeName.Append('<');
+                for (int j = 0; j < typeArgs.Count - 1; j++)
+                {
+                    genericTypeName.Append(',');
+                }
+                genericTypeName.Append('>');
+
+                var elementType = BindTypeCore(genericTypeName.ToString());
+                if (elementType == null)
+                {
+                    return null;
+                }
+                else 
+                {
+                	bool allNull = true;
+                	foreach (var item in typeArgs)
+                	{
+                		if (item != null)
+                		{
+                			allNull = false;
+                		}
+                	}
+	                if (allNull)
+	                {
+	                    return elementType;
+	                }
+	                else
+	                {
+	                    return elementType.MakeGenericType(Enumerable.Reverse<IType>(typeArgs));
+	                }
+                }
+            }
+            return BindTypeCore(Name);
+        }
+    }
+}

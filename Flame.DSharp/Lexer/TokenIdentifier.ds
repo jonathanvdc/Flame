@@ -1,0 +1,16 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.DSharp.Lexer
+{
+    #region TokenIdentifier
+
+    public class TokenIdentifier
+    {
+        public const this(set int32 Identifier);
+
+        public int32 Identifier { get; private set; }
+    }
+
+    #endregion
+}

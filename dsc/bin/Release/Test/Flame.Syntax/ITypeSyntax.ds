@@ -1,0 +1,14 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Syntax
+{
+    public interface ITypeSyntax : ISyntaxNode
+    {
+        /// <summary>
+        /// Gets if this type syntax represents a type that matches the type of the expression it's assigned to.
+        /// </summary>
+        bool IsVariable { const get; }
+        IType CreateType(ISyntaxState State);
+    }
+}

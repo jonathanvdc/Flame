@@ -1,0 +1,69 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class ParenthesesSyntax : IExpressionSyntax, IVariableSyntax, ITokenNode, IRelevantSyntax<Token>
+    {
+    	public const this(set IExpressionSyntax Expression)
+    	{
+    		this.OpeningToken = new Token(TokenType.RParen, "(");
+    		this.ClosingToken = new Token(TokenType.LParen, ")");
+    	}
+        public const this(set Token OpeningToken, set IExpressionSyntax Expression, set Token ClosingToken);
+
+        public Token OpeningToken { const get; private set; }
+        public IExpressionSyntax Expression { const get; private set; }
+        public Token ClosingToken { const get; private set; }
+        
+        public IEnumerable<Token> LeadingTrivia
+        {
+        	const get return OpeningToken.GetAllTrivia();
+        }
+        
+        public IEnumerable<Token> TrailingTrivia
+        {
+        	const get return ClosingToken.GetAllTrivia();
+        }
+        
+        public IReadOnlyList<Token> Tokens
+        {
+        	const get
+        	{
+        		var tks = new List<Token>();
+        		tks.Add(OpeningToken);
+				tks.AddRange(Expression.GetTokens());
+				tks.Add(ClosingToken);
+				return tks;
+        	}
+        }
+
+        public const IExpression CreateExpression(ISyntaxState State)
+        {
+            return Expression.CreateExpression(State);
+        }
+
+        public const IVariable CreateVariable(ISyntaxState State)
+        {
+            return SyntaxExtensions.CreateVariable(Expression, State);
+        }
+
+        public override const string ToString()
+        {
+            return GetCode().ToString();
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            cb.Append(OpeningToken.TokenValue);
+            cb.Append(Expression.GetCode());
+            cb.Append(ClosingToken.TokenValue);
+            return cb;
+        }
+    }
+}

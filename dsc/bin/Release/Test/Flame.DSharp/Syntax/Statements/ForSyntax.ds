@@ -1,0 +1,73 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Expressions;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class ForSyntax : IStatementSyntax, ITokenNode
+    {
+        public const this(set Token ForKeyword, set Token LeadingParentheses,
+            set IStatementSyntax Initialization, set IExpressionSyntax Condition, set IStatementSyntax DeltaStatement, 
+            set Token TrailingParentheses, set IStatementSyntax Body);
+
+        public Token ForKeyword { const get; private set; }
+        public Token LeadingParentheses { const get; private set; }
+        public IStatementSyntax Initialization { const get; private set; }
+        public IExpressionSyntax Condition { const get; private set; }
+        public IStatementSyntax DeltaStatement { const get; private set; }
+        public Token TrailingParentheses { const get; private set; }
+        public IStatementSyntax Body { const get; private set; }
+        
+        public IReadOnlyList<Token> Tokens
+        {
+        	const get
+        	{
+        		List<Token> results = new List<Token>();
+				results.Add(ForKeyword);
+				results.Add(LeadingParentheses);
+				results.AddRange(Initialization.GetTokens());
+				results.AddRange(Condition.GetTokens());
+				results.AddRange(DeltaStatement.GetTokens());
+				results.Add(TrailingParentheses);
+				results.AddRange(Body.GetTokens());
+				return results;
+        	}
+        }
+
+        public IStatement CreateStatement(ISyntaxState State) : IStatementSyntax.CreateStatement
+        {
+        	State.PushScope();
+            var setup = Initialization.CreateStatement(State);
+            var condExpr = Condition.CreateExpression(State);
+            var change = DeltaStatement.CreateStatement(State);
+            var body = Body.CreateStatement(State);
+            var cleanup = State.PopScope();
+            return new ForStatement(setup, condExpr, change, body, cleanup);
+        }
+
+        public override string ToString()
+        {
+            return GetCode().ToString();
+        }
+
+        public CodeBuilder GetCode() : ISyntaxNode.GetCode
+        {
+            CodeBuilder cb = new CodeBuilder();
+            cb.Append(ForKeyword.TokenValue);
+            cb.Append(" ");
+            cb.Append(LeadingParentheses.TokenValue);
+            cb.Append(Initialization.GetCode());
+            cb.Append(" ");
+            cb.Append(Condition.GetCode());
+            cb.Append("; ");
+            cb.Append(DeltaStatement.GetCode());
+            cb.Append(TrailingParentheses.TokenValue);
+            cb.AppendLine();
+            cb.Append(Body.GetCode());
+            return cb;
+        }
+    }
+}

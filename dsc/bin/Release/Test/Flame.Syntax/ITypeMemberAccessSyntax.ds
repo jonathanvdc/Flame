@@ -1,0 +1,22 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+
+namespace Flame.Syntax
+{
+    public interface ITypeMemberAccessSyntax : ISyntaxNode
+    {
+        /// <summary>
+        /// Gets a variable for the syntax that accesses the member. Returns null if the member is accessed statically.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <returns></returns>
+        IVariable GetCallerVariable(ISyntaxState State);
+        /// <summary>
+        /// Gets all type members that fit the syntax's description.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <returns></returns>
+        IEnumerable<ITypeMember> GetAccessedMembers(ISyntaxState State);
+    }
+}

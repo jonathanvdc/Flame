@@ -1,0 +1,13 @@
+class IRecord<T>
+// Describes a generic record.
+{
+
+    property Key
+    {
+
+        +get() : T { query }
+        // Gets the record's search key.
+
+    }
+
+}

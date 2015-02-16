@@ -1,0 +1,56 @@
+using System;
+
+/// <summary>
+/// Describes a key-value pair.
+/// </summary>
+public class KeyValuePair<TKey, TValue> : IRecord<TKey>
+{
+    /// <summary>
+    /// Creates a new key-value pair.
+    /// </summary>
+    public const this(set TKey Key, set TValue Value);
+    
+    /// <summary>
+    /// Gets the key-value pair's key.
+    /// </summary>
+    public TKey Key { const get; private set; }
+    /// <summary>
+    /// Gets the key-value pair's value.
+    /// </summary>
+    public TValue Value { const get; private set; }
+    
+    public const bool __gt__(KeyValuePair<TKey, TValue> Other)
+    {
+        return Key > Other.Key;
+    }
+    public const bool __ge__(KeyValuePair<TKey, TValue> Other)
+    {
+        return Key >= Other.Key;
+    }
+    public const bool __lt__(KeyValuePair<TKey, TValue> Other)
+    {
+        return Key < Other.Key;
+    }
+    public const bool __le__(KeyValuePair<TKey, TValue> Other)
+    {
+        return Key <= Other.Key;
+    }
+    public const bool __eq__(KeyValuePair<TKey, TValue> Other)
+    {
+        if (Other == null) return false;
+        return Key == Other.Key;
+    }
+    public const bool __ne__(KeyValuePair<TKey, TValue> Other)
+    {
+        if (Other == null) return true;
+        return Key != Other.Key;
+    }
+    public const string __str__()
+    {
+        return "(" + (string)Key + ", " + (string)Value + ")";
+    }
+    public const string __repr__()
+    {
+        return __str__();
+    }
+}

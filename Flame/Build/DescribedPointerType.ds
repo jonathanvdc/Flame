@@ -1,0 +1,42 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Build
+{
+    public class DescribedPointerType : DescribedContainerType, IPointerType
+    {
+        public this(set IType ElementType, set PointerKind PointerKind);
+
+        public PointerKind PointerKind { const get; private set; }
+
+        protected override string GetName(string ElementName)
+        {
+            return ElementName + PointerKind.Extension;
+        }
+
+        public override ContainerTypeKind ContainerKind
+        {
+            const get { return ContainerTypeKind.Pointer; }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is IPointerType)
+            {
+                var ptrType = (IPointerType)obj;
+                if (ptrType.IsPointer && ptrType.PointerKind == PointerKind)
+                {
+                    var elemType = ptrType.GetElementType();
+                    return ElementType.Equals(elemType);
+                }
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return ElementType.GetHashCode() + PointerKind.GetHashCode();
+        }
+    }
+}

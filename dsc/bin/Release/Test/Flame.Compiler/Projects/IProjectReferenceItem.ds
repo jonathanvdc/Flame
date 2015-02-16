@@ -1,0 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Projects
+{
+	public interface IProjectReferenceItem : IProjectItem
+	{
+		bool IsRuntimeLibrary { const get; }
+		string ReferenceIdentifier { const get; }
+	}
+}

@@ -1,0 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame
+{
+	/// <summary>
+	/// Describes an object that caches operator overload methods.
+	/// </summary>
+	public class OperatorCache
+	{
+		
+	}
+}

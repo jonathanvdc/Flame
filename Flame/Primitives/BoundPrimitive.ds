@@ -1,0 +1,22 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame
+{
+	public class BoundPrimitive<T> : IBoundPrimitive<T>
+	{
+		public const this(set IType Type, set T value);
+	
+		private T value;
+		public T Value : IBoundPrimitive<T>.Value { const get return value; }
+		public IType Type { const get; private set; }
+		
+	    public void SetField(IField Field, IBoundObject Value) : IBoundObject.SetField
+	    {
+	    }
+		public IBoundObject GetField(IField Field) : IBoundObject.GetField
+		{
+			return null;
+		}
+	}
+}

@@ -1,0 +1,39 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler
+{
+    public interface ITypeBuilder : IMemberBuilder<IType>, IType
+    {
+        /// <summary>
+        /// Declares a method that is based on the information provided by the specified method.
+        /// </summary>
+        /// <param name="Template">
+        /// An external method that will be used to declare a method.
+        /// This method does not have to support dynamic invocation because only its reflection information will be used.
+        /// </param>
+        /// <returns></returns>
+        IMethodBuilder DeclareMethod(IMethod Template);
+
+        /// <summary>
+        /// Declares a field that is based on the information provided by the specified field.
+        /// </summary>
+        /// <param name="Template">
+        /// An external field that will be used to declare a field.
+        /// This field does not have to support dynamic invocation because only its reflection information will be used.
+        /// </param>
+        /// <returns></returns>
+        IFieldBuilder DeclareField(IField Template);
+
+        /// <summary>
+        /// Declares a property that is based on the information provided by the specified property.
+        /// </summary>
+        /// <param name="Template">
+        /// An external property that will be used to declare a property.
+        /// This property does not have to support dynamic invocation because only its reflection information will be used.
+        /// </param>
+        /// <returns></returns>
+        IPropertyBuilder DeclareProperty(IProperty Template);
+    }
+}

@@ -1,0 +1,104 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler.Variables
+{
+    public interface ILateBoundVariable : IVariable
+    {
+        bool IsBound { const get; }
+        void BindVariable(IMethodStructureGenerator Generator);
+        IVariable BoundVariable { const get; }
+    }
+
+    public virtual class LateBoundVariable : ILateBoundVariable, IUnmanagedVariable
+    {
+    	protected const this();
+    	public const this(set IVariableMember Member);
+        public const this(IType Type)
+        {
+        	this.Member = new TypeVariableMember(Type);
+        }
+        public const this(string Name, IType Type)
+        {
+        	this.Member = new DescribedVariableMember(Name, Type);
+        }
+        
+        public IVariableMember Member { const get; protected set; }
+
+        public IType Type { const get return Member.VariableType; }
+        public IVariable BoundVariable { const get; private set; }
+        
+        /// <summary>
+        /// Assigns a real variable to this late-bound variable.
+        /// </summary>
+        /// <param name="Generator"></param>
+        public virtual void BindVariable(IMethodStructureGenerator Generator)
+        {
+            if (Generator is IUnmanagedMethodStructureGenerator)
+            {
+                BoundVariable = ((IUnmanagedMethodStructureGenerator)Generator).DeclareUnmanagedVariable(Member);
+            }
+            else
+            {
+                BoundVariable = Generator.DeclareVariable(Member);
+            }
+        }
+        
+        /// <summary>
+        /// Assigns a real variable to this late-bound variable.
+        /// </summary>
+        /// <param name="Generator"></param>
+        public void BindVariable(IVariable Variable)
+        {
+            BoundVariable = Variable;
+        }
+
+        public bool IsBound
+        {
+            const get
+            {
+                return BoundVariable != null;
+            }
+        }
+
+        public const IExpression CreateGetExpression()
+        {
+            return new LateBoundVariableGetExpression(this);
+        }
+
+        public const IStatement CreateSetStatement(IExpression Value)
+        {
+            return new LateBoundVariableSetStatement(this, Value);
+        }
+
+        public const IExpression CreateAddressOfExpression()
+        {
+            return new LateBoundVariableGetPointerExpression(this);
+        }
+
+        public const IStatement CreateReleaseStatement()
+        {
+            return new LateBoundVariableReleaseStatement(this);
+        }
+    }
+    
+    public class ManuallyBoundVariable : LateBoundVariable
+    {
+        public const this(set IVariableMember Member);
+        public const this(IType Type)
+        {
+        	this.Member = new TypeVariableMember(Type);
+        }
+        public const this(string Name, IType Type)
+        {
+        	this.Member = new DescribedVariableMember(Name, Type);
+        }
+        
+        public override void BindVariable(IMethodStructureGenerator Generator)
+        {
+        }
+    }
+}

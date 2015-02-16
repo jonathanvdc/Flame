@@ -1,0 +1,135 @@
+<Project Name="Flame">
+	<Setter Property="TargetPlatform" Value="CLR/Release" />
+	<ItemGroup>
+		<RuntimeLibrary Include="PortableRT" />
+		<RuntimeLibrary Include="System" />
+		<RuntimeLibrary Include="System.Core" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Include="IMember.ds" />
+		<Compile Include="ITypeMember.ds" />
+		<Compile Include="IType.ds" />
+		<Compile Include="IAttribute.ds" />
+		<Compile Include="IConstructedAttribute.ds" />
+		<Compile Include="ContainerTypeKind.ds" />
+		<Compile Include="IContainerType.ds" />
+		<Compile Include="PointerKind.ds" />
+		<Compile Include="IGenericMember.ds" />
+		<Compile Include="IParameter.ds" />
+		<Compile Include="IMethod.ds" />
+		<Compile Include="INamespace.ds" />
+		<Compile Include="IAssembly.ds" />
+		<Compile Include="ISearcheableMember.ds" />
+		<Compile Include="IProperty.ds" />
+		<Compile Include="AccessorType.ds" />
+		<Compile Include="IField.ds" />
+		<Compile Include="IBoundObject.ds" />
+		<Compile Include="MemberExtensions.ds" />
+		<Compile Include="MemberLookup.ds" />
+		<Compile Include="MemberSelection.ds" />
+		<Compile Include="PropertyExtensions.ds" />
+		<Compile Include="FieldExtensions.ds" />
+		<Compile Include="IEnvironment.ds" />
+		<Compile Include="MethodExtensions.ds" />
+		<Compile Include="IConverter.ds" />
+		<Compile Include="EnumerableExtensions.ds" />
+		<Compile Include="Operator.ds" />
+		<Compile Include="AccessModifier.ds" />
+		<Compile Include="GenericNameExtensions.ds" />
+		<Compile Include="INamespaceTree.ds" />
+		<Compile Include="NamespaceTreeExtensions.ds" />
+		<Compile Include="SingletonExtensions.ds" />
+		<Compile Include="AncestryGraph.ds" />
+		<Compile Include="IGenericConstraint.ds" />
+		<Compile Include="TypeConstraint.ds" />
+		<Compile Include="AndConstraint.ds" />
+		<Compile Include="ValueTypeConstraint.ds" />
+	</ItemGroup>
+	<ItemGroup Name="Primitives">
+		<ItemGroup>
+			<Compile Include="Primitives\BoundPrimitive.ds" />
+			<Compile Include="Primitives\PrimitiveType.ds" />
+			<Compile Include="Primitives\PrimitiveMethod.ds" />
+			<Compile Include="Primitives\PrimitiveTypes.ds" />
+			<Compile Include="Primitives\HashCodeProviderType.ds" />
+			<Compile Include="Primitives\PrimitiveMethods.ds" />
+			<Compile Include="Primitives\GetHashCodeImplementation.ds" />
+			<Compile Include="Primitives\PrimitiveParameter.ds" />
+			<Compile Include="Primitives\EquatableType.ds" />
+			<Compile Include="Primitives\MethodRootPrimitiveType.ds" />
+			<Compile Include="Primitives\EqualsImplementation.ds" />
+			<Compile Include="Primitives\StringPrimitiveType.ds" />
+			<Compile Include="Primitives\PrimitiveNumberType.ds" />
+			<Compile Include="Primitives\CharPrimitiveType.ds" />
+			<Compile Include="Primitives\NullPrimitiveType.ds" />
+		</ItemGroup>
+	</ItemGroup>
+	<ItemGroup Name="Attributes">
+		<ItemGroup>
+			<Compile Include="Attributes\FlagAttribute.ds" />
+			<Compile Include="Attributes\PrimitiveAttributes.ds" />
+			<Compile Include="Attributes\AccessAttribute.ds" />
+			<Compile Include="Attributes\ConstructedAttribute.ds" />
+			<Compile Include="Attributes\SetsMemberAttribute.ds" />
+			<Compile Include="Attributes\OperatorAttribute.ds" />
+			<Compile Include="Attributes\DescriptionAttribute.ds" />
+			<Compile Include="Attributes\EnumerableAttribute.ds" />
+			<Compile Include="Attributes\CastAttribute.ds" />
+			<Compile Include="Attributes\SingletonAttribute.ds" />
+			<Compile Include="Attributes\AssociatedTypeAttribute.ds" />
+			<Compile Include="Attributes\FieldAccessorAttribute.ds" />
+			<Compile Include="Attributes\AncestryGraphAttribute.ds" />
+			<Compile Include="Attributes\StaticInitializationAttribute.ds" />
+		</ItemGroup>
+	</ItemGroup>
+	<ItemGroup Name="Binding">
+		<ItemGroup>
+			<Compile Include="Binding\IBinder.ds" />
+			<Compile Include="Binding\BinderExtensions.ds" />
+			<Compile Include="Binding\BinderBase.ds" />
+			<Compile Include="Binding\INamespacedBinder.ds" />
+			<Compile Include="Binding\LocalNamespaceBinder.ds" />
+			<Compile Include="Binding\NamespaceState.ds" />
+			<Compile Include="Binding\PredefinedBinder.ds" />
+			<Compile Include="Binding\NamespaceTreeBinder.ds" />
+			<Compile Include="Binding\DualBinder.ds" />
+			<Compile Include="Binding\CachingBinder.ds" />
+		</ItemGroup>
+	</ItemGroup>
+	<ItemGroup Name="Build">
+		<ItemGroup>
+			<Compile Include="Build\AbstractMethod.ds" />
+			<Compile Include="Build\TemplatedMethod.ds" />
+			<Compile Include="Build\VirtualMethod.ds" />
+			<Compile Include="Build\DescribedMethod.ds" />
+			<Compile Include="Build\DescribedParameter.ds" />
+			<Compile Include="Build\DescribedMember.ds" />
+			<Compile Include="Build\ClosedGenericDescribedMethod.ds" />
+			<Compile Include="Build\DescribedContainerType.ds" />
+			<Compile Include="Build\DescribedArrayType.ds" />
+			<Compile Include="Build\DescribedProperty.ds" />
+			<Compile Include="Build\DescribedTypeMember.ds" />
+			<Compile Include="Build\DescribedAccessor.ds" />
+			<Compile Include="Build\DescribedVectorType.ds" />
+			<Compile Include="Build\DescribedPointerType.ds" />
+			<Compile Include="Build\DescribedField.ds" />
+			<Compile Include="Build\DescribedGenericParameter.ds" />
+			<Compile Include="Build\IGenericParameterBuilder.ds" />
+			<Compile Include="Build\MethodType.ds" />
+			<Compile Include="Build\BoundMethod.ds" />
+			<Compile Include="Build\DescribedType.ds" />
+			<Compile Include="Build\DescribedLiteralField.ds" />
+			<Compile Include="Build\TypeConverterBase.ds" />
+			<Compile Include="Build\IGenericResolver.ds" />
+			<Compile Include="Build\GenericResolvingConverter.ds" />
+			<Compile Include="Build\DescribedGenericMethodInstance.ds" />
+			<Compile Include="Build\DescribedGenericFieldInstance.ds" />
+			<Compile Include="Build\DescribedGenericAccessorInstance.ds" />
+			<Compile Include="Build\DescribedGenericPropertyInstance.ds" />
+			<Compile Include="Build\DescribedGenericTypeInstance.ds" />
+			<Compile Include="Build\TypeTransformerBase.ds" />
+			<Compile Include="Build\TypeNamerBase.ds" />
+			<Compile Include="Build\EmptyGenericResolver.ds" />
+		</ItemGroup>
+	</ItemGroup>
+</Project>

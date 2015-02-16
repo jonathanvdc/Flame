@@ -1,0 +1,43 @@
+public static class Operations
+{
+    public const int Negate(int Value)
+        return -Value;
+
+    public const int MinusOne()
+        return -1;
+
+    public const bool StrangeIf(int degree, int bestAncestry)
+    {
+        if (degree > -1 && (degree <= bestAncestry || bestAncestry == -1))
+            return true;
+        else return false;
+    }
+
+    public const Operations GetThis()
+        return this;
+
+    /*public const [T] Add<T>([T] Left, [T] Right)
+    {
+        foreach (var a in Left, var b in Right)
+             yield return a + b;
+    }*/
+}
+
+public static class OtherSingleton
+{
+    public const int GetValue()
+        return Operations.Negate(5);
+}
+
+public class Tuple<T1, T2>
+{
+    public const this(set T1 First, set T2 Second);
+
+    public T1 First { const get; private set; }
+    public T2 Second { const get; private set; }
+
+    public static Tuple<T1, T2> DefaultTuple
+    {
+        const get return new Tuple<T1, T2>(default(T1), default(T2));
+    }
+}

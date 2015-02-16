@@ -1,0 +1,107 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Attributes;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler
+{
+	public static class ParameterExtensions
+	{
+		#region Member-Setting Parameters
+		
+		/// <summary>
+        /// Gets the field this parameter sets. Returns null if no field is set.
+        /// </summary>
+        /// <param name="Parameter"></param>
+        /// <returns></returns>
+        public const static IField GetSetField(this IParameter Parameter, IType ParentType, bool IsStatic)
+        {
+            var attr = (SetsMemberAttribute)Parameter.GetAttribute(SetsMemberAttribute.SetsMemberAttributeType);
+            if (attr == null)
+            {
+                return null;
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(attr.TargetName))
+                {
+                    return ParentType.GetField(Parameter.Name, IsStatic);
+                }
+                else
+                {
+                    return ParentType.GetField(attr.TargetName, IsStatic);
+                }
+            }
+        }
+        /// <summary>
+        /// Gets the property this parameter sets. Returns null if no property is set.
+        /// </summary>
+        /// <param name="Parameter"></param>
+        /// <returns></returns>
+        public const static IProperty GetSetProperty(this IParameter Parameter, IType ParentType, bool IsStatic)
+        {
+            var attr = (SetsMemberAttribute)Parameter.GetAttribute(SetsMemberAttribute.SetsMemberAttributeType);
+            if (attr == null)
+            {
+                return null;
+            }
+            else
+            {
+            	var properties = ParentType.GetProperties();
+            	IProperty result;
+                if (string.IsNullOrWhiteSpace(attr.TargetName))
+                {
+                    result = properties.GetProperty(Parameter.Name, IsStatic);
+                }
+                else
+                {
+                    result = properties.GetProperty(attr.TargetName, IsStatic);
+                }
+                if (result == null)
+                {
+                	foreach (var baseType in ParentType.GetBaseTypes())
+                	{
+                		result = Parameter.GetSetProperty(baseType, IsStatic);
+                		if (result != null)
+                			return result;
+                	}
+                }
+                return result;
+            }
+        }
+
+        public const static IStatement CreateSetMemberStatement(this IParameter Parameter, int ParameterIndex, IType ParentType, bool IsStatic)
+        {
+            var field = Parameter.GetSetField(ParentType, IsStatic);
+            var thisVariable = new ThisVariable(ParentType);
+            var value = new ArgumentVariable(Parameter, ParameterIndex).CreateGetExpression();
+            if (field != null)
+            {
+                return new FieldSetStatement(field,
+                    thisVariable.CreateGetExpression(),
+                    value);
+            }
+            var property = Parameter.GetSetProperty(ParentType, IsStatic);
+            if (property != null)
+            {
+                IExpression callerExpr;
+                if (property.IsStatic)
+                {
+                    callerExpr = null;
+                }
+                else
+                {
+                    callerExpr = thisVariable.CreateGetExpression();
+                }
+
+                return new PropertyVariable(property, callerExpr).CreateSetStatement(value);
+            }
+            return null;
+        }
+
+        #endregion
+	}
+}

@@ -1,0 +1,11 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler
+{
+	public interface ICodeBlock
+	{
+		ICodeGenerator CodeGenerator { const get; }
+	}
+}

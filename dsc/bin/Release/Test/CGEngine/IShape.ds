@@ -1,0 +1,43 @@
+namespace Engine
+{
+    /// <summary>
+    /// Describes a partial segment: a segment that has not been closed yet.
+    /// </summary>
+    public interface IPartialSegment
+    {
+        /// <summary>
+        /// Gets the partial segment's start point.
+        /// </summary>
+        Vector2<double> StartPoint { const get; }
+        /// <summary>
+        /// Closes the partial segment to form a curve segment.
+        /// </summary>
+        const ISegment Close(Vector2<double> EndPoint);
+    }
+
+    /// <summary>
+    /// Provides common functionality for curve segments.
+    /// </summary>
+    public interface ISegment
+    {
+        /// <summary>
+        /// Gets the segment's position at the given offset (where offset is a value between 0.0 and 1.0).
+        /// </summary>
+        const Vector2<double> GetPosition(double Offset);
+        /// <summary>
+        /// Gets the segment's length.
+        /// </summary>
+        double Length { const get; }
+    }
+
+    /// <summary>
+    /// Describes a shape: an object that can draw itself on a render target.
+    /// </summary>
+    public interface IShape
+    {
+        /// <summary>
+        /// Creates a render command for this shape.
+        /// </summary>
+        const ICommand<IRenderTarget> Render(IBrush Brush);
+    }
+}

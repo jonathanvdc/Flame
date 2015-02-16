@@ -1,0 +1,11 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Variables
+{
+    public interface IVariableProvider
+    {
+        const IVariable GetVariable(string Name);
+        const bool VariableExists(string Name);
+    }
+}

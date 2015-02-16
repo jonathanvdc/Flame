@@ -1,0 +1,86 @@
+class DoubleNode<T>
+// A node that points to two other nodes.
+// It is used as a node in a doubly linked list.
+{
+
+    +CreateDoubleNode(in Value : T) : DoubleNode<T> { query }
+    // Creates a new doubly linked node containing the given value.
+
+    property Tail
+    {
+
+        +get() : DoubleNode<T> { query }
+        // Gets the "tail" node of this linked chain.
+        // Post:
+        // The tail of a list node is defined recursively as follows.
+        // If the current node has no successor, return the current node.
+        // Otherwise, return the current node's successor's tail.
+
+    }
+
+    property Value
+    {
+
+        +get() : T { query }
+        // Gets the node's value.
+
+        +set(in value : T)
+        // Sets the node's value.
+
+    }
+
+    property Successor
+    {
+
+        +get() : DoubleNode<T> { query }
+        // Gets the node's successor, if any.
+
+        +set(in value : DoubleNode<T>)
+        // Sets the node's successor, if any.
+
+    }
+
+    property Predecessor
+    {
+
+        +get() : DoubleNode<T> { query }
+        // Gets the node's predecessor, if any.
+
+        +set(in value : DoubleNode<T>)
+        // Sets the node's predecessor, if any.
+
+    }
+
+    +SetPredecessor(in Node : DoubleNode<T>) : DoubleNode<T>
+    // Sets this node's predecessor to the given node, and sets the given node's successor to this node, if 'Node' is not 'None'.
+    // Post:
+    // If 'Node' equals 'None', sets this node's predecessor to 'None'.
+    // Otherwise, this node's predecessor to the given node, and sets the given node's successor to this node.
+
+    +SetSuccessor(in Node : DoubleNode<T>) : DoubleNode<T>
+    // Sets this node's successor to the given node, and sets the given node's predecessor to this node, if 'Node' is not 'None'.
+    // Post:
+    // If 'Node' equals 'None', sets this node's successor to 'None'.
+    // Otherwise, this node's successor to the given node, and sets the given node's predecessor to this node.
+
+    +InsertAfter(in Value : T)
+    // Inserts a node containing the provided value after this node.
+    // Post:
+    // Creates a new node containing the provided value, sets its successor to this node's successor and its predecessor to this node, sets this node's successor to the newly created node, and sets this node's
+    // Remarks:
+    // This operation corresponds to (part of) a list insert for linked lists.
+
+    +InsertBefore(in Value : T)
+    // Inserts an item containing the provided node right before this node.
+    // Post:
+    // Creates a new node containing the provided value, sets its successor to this node and its predecessor to this node's predecessor, sets this node's predecessor's successor to the newly created node, and set this node's predecessor to the new node.
+
+    +Remove()
+    // Removes this node from the linked chain.
+    // Pre:
+    // For this method to change the chain's state, this node should have at least one successor or a predecessor;
+    // Post:
+    // If this node's predecessor is not 'None', sets this node's predecessor's successor to this node's successor, and vice-versa.
+    // Otherwise, if this node's successor is not 'None', sets this node's successor's predecessor to 'None'.
+
+}

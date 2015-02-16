@@ -1,0 +1,317 @@
+/// <summary>
+/// A node that points to two other nodes. It is used as a node in a doubly linked list.
+/// </summary>
+public class DoubleNode<T>
+{
+    /// <summary>
+    /// Creates a new doubly linked node containing the given value.
+    /// </summary>
+    public const this(set T Value);
+    
+    /// <summary>
+    /// Gets or sets the node's value.
+    /// </summary>
+    public T Value { const get; set; }
+    /// <summary>
+    /// Gets or sets the node's successor, if any.
+    /// </summary>
+    public DoubleNode<T> Successor { const get; set; }
+    /// <summary>
+    /// Gets or sets the node's predecessor, if any.
+    /// </summary>
+    public DoubleNode<T> Predecessor { const get; set; }
+    
+    /// <summary>
+    /// Sets this node's predecessor to the given node, and sets the given node's successor to this node, if 'Node' is not 'None'.
+    /// </summary>
+    /// <post>
+    /// If 'Node' equals 'None', sets this node's predecessor to 'None'. 
+    /// Otherwise, this node's predecessor to the given node, and sets the given node's successor to this node.
+    /// </post>
+    public DoubleNode<T> SetPredecessor(DoubleNode<T> Node)
+    {
+        this.Predecessor = Node;
+        if (Node != null)
+            Node.Successor = this;        
+    }
+    
+    /// <summary>
+    /// Sets this node's successor to the given node, and sets the given node's predecessor to this node, if 'Node' is not 'None'.
+    /// </summary>
+    /// <post>
+    /// If 'Node' equals 'None', sets this node's successor to 'None'. 
+    /// Otherwise, this node's successor to the given node, and sets the given node's predecessor to this node.
+    /// </post>
+    public DoubleNode<T> SetSuccessor(DoubleNode<T> Node)
+    {
+        this.Successor = Node;
+        if (Node != null)
+            Node.Predecessor = this;
+    }
+    
+    /// <summary>
+    /// Inserts a node containing the provided value after this node.
+    /// </summary>
+    /// <post>
+    /// Creates a new node containing the provided value, sets its successor to this node's successor and its predecessor to this node, sets this node's successor to the newly created node, and sets this node's 
+    /// </post>
+    /// <remarks>
+    /// This operation corresponds to (part of) a list insert for linked lists.
+    /// </remarks>
+    public void InsertAfter(T Value)
+    {
+        var nextVal = new DoubleNode<T>(Value);
+        nextVal.SetSuccessor(this.Successor);
+        nextVal.SetPredecessor(this);
+    }
+    
+    /// <summary>
+    /// Inserts an item containing the provided node right before this node.
+    /// </summary>
+    /// <post>
+    /// Creates a new node containing the provided value, sets its successor to this node and its predecessor to this node's predecessor, sets this node's predecessor's successor to the newly created node, and set this node's predecessor to the new node.
+    /// </post>
+    public void InsertBefore(T Value)
+    {
+        var prevVal = new DoubleNode<T>(Value);
+        prevVal.SetPredecessor(this.Predecessor);
+        prevVal.SetSuccessor(this);
+    }
+    
+    /// <summary>
+    /// Removes this node from the linked chain.
+    /// </summary>
+    /// <pre>
+    /// For this method to change the chain's state, this node should have at least one successor or a predecessor;
+    /// </pre>
+    /// <post>
+    /// If this node's predecessor is not 'None', sets this node's predecessor's successor to this node's successor, and vice-versa.
+    /// Otherwise, if this node's successor is not 'None', sets this node's successor's predecessor to 'None'.
+    /// </post>
+    public void Remove()
+    {
+        if (this.Predecessor != null)
+            this.Predecessor.SetSuccessor(this.Successor);
+        else if (this.Successor != null) // First node in linked chain. Set successor's predecessor to 'None'.
+            this.Successor.SetPredecessor(null);
+    }
+    
+    /// <summary>
+    /// Gets the "tail" node of this linked chain.
+    /// </summary>
+    /// <post>
+    /// The tail of a list node is defined recursively as follows.
+    /// If the current node has no successor, return the current node.
+    /// Otherwise, return the current node's successor's tail.
+    /// </post>
+    public DoubleNode<T> Tail
+    {
+        const get
+        {
+            if (Successor == null)
+                return this;
+            else
+                return Successor.Tail;
+        }
+    }
+}
+
+/// <summary>
+/// A doubly linked list implementation of a list.
+/// </summary>
+public class DoublyLinkedList<T> : IList<T>
+{
+    /// <summary>
+    /// Creates a new doubly linked list.
+    /// </summary>
+    public const this();
+
+    /// <summary>
+    /// Stores the doubly linked list's head node.
+    /// </summary>
+    private DoubleNode<T> Head;
+    
+    /// <summary>
+    /// Gets the linked list's tail node.
+    /// </summary>
+    private DoubleNode<T> Tail
+    {
+        const get
+            if (Head == null)
+                return null;
+            else
+                return Head.Tail;
+    }
+
+    public int Count
+    {
+        const get
+        {
+            var node = Head;
+            var i = 0;
+            while (node != null)
+            {
+                node = node.Successor;
+                i++;
+            }
+            return i;
+        }
+    }
+
+    /// <summary>
+    /// Gets an array representation of this linked list.
+    /// </summary>
+    /// <remarks>
+    /// This method was added to the 'DoublyLinkedList<T>' class to allow quick and easy O(n) iteration over its elements.
+    /// It goes without saying that this method should and can only be safely called if the 'DoublyLinkedList<T>' has been procured through a method that specifies its return value to be of said type.
+    /// </remarks>
+    public const T[] ToArray()
+    {
+        T[] arr = new T[Count];
+        var node = Head;
+        for (int i = 0; i < arr.Length; i++)
+        {
+            arr[i] = node.Value;
+            node = node.Successor;
+        }
+        return arr;
+    }
+    
+    public const [<T>] __iter__()
+    {
+        var node = Head;
+        while (node != null)
+        {
+            yield return node.Value;
+            node = node.Successor;
+        }
+    }
+
+    /// <summary>
+    /// Gets the list node at the specified index.
+    /// </summary>
+    /// <pre>
+    /// The index must be valid index within this linked list: it must be non-negative and less than the list's length, exposed by the Count property.
+    /// </pre>
+    /// <post>
+    /// If the index is a valid index in the linked list, the node at said index is returned.
+    /// Otherwise, None is returned.
+    /// </post>
+    public const DoubleNode<T> NodeAt(int Index)
+    {
+        if (Index < 0)
+        {
+            return null;
+        }
+        var node = Head;
+        var i = 0;
+        while (node != null && i < Index)
+        {
+            node = node.Successor;
+            i++;
+        }
+        return node;
+    }
+    
+    /// <summary>
+    /// Gets the item in the linked list at the given index.
+    /// </summary>
+    /// <pre>
+    /// The index must be valid index within this linked list: it must be non-negative and less than the list's length, exposed by the Count property.
+    /// </pre>
+    /// <post>
+    /// If the index is a valid index in the linked list, the item at said index is returned.
+    /// Otherwise, an exception is thrown.
+    /// </post>
+    public const T ItemAt(int Index)
+    {
+        return NodeAt(Index).Value;
+    }
+    
+    /// <summary>
+    /// Gets or sets the item in the linked list at the given index.
+    /// </summary>
+    /// <pre>
+    /// The index must be valid index within this linked list: it must be non-negative and less than the list's length, exposed by the Count property.
+    /// </pre>
+    /// <post>
+    /// If the index is a valid index in the linked list, the operation on said index is performed.
+    /// Otherwise, an exception is thrown.
+    /// </post>
+    public T this[int Index]
+    {
+        const get return ItemAt(Index);
+        set NodeAt(Index).Value = value;
+    }
+    
+    /// <summary>
+    /// Adds an item to the end of the linked list.
+    /// </summary>
+    /// <pre>
+    /// Item is the item that will be inserted at the end of the list.
+    /// </pre>
+    /// <post>
+    /// If the linked list has a head node, the item is inserted after the linked list's tail node.
+    /// Otherwise, a new head node containing Item is created, which coincidentally becomes this linked list's head.
+    /// </post>
+    public void Add(T Item)
+    {
+        if (Head == null)
+            Head = new DoubleNode<T>(Item);
+        else
+            Tail.InsertAfter(Item);
+    }
+
+    /// <summary>
+    /// Removes the item in the linked list at the specified index.
+    /// </summary>
+    /// <pre>
+    /// Index must be a valid index in the list: it must be non-negative and less than the list's length, as exposed by the Count property.
+    /// </pre>
+    /// <post>
+    /// If the provided index was an invalid index in the list, the list's state is not changed, and false is returned.
+    /// Otherwise, the item at the specified index is removed and the index of all items whose index is greater than the provided index, will be decremented by one.
+    /// </post>
+    public bool RemoveAt(int Index)
+    {
+        if (Index >= 0 && Index < Count)
+        {
+            if (Index == 0)
+            {
+                Head.Remove();
+                Head = Head.Successor;
+            }
+            else
+            {
+                var node = NodeAt(Index);
+                node.Remove();
+            }
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public bool Insert(int Index, T Item)
+    {
+        if (Index == 0)
+        {
+            var oldHead = Head;
+            Head = new DoubleNode<T>(Item);
+            Head.SetSuccessor(oldHead);
+            return true;
+        }
+        var node = NodeAt(Index - 1);
+        if (node == null)
+        {
+            return false;
+        }
+        else
+        {
+            node.InsertAfter(Item);
+            return true;
+        }
+    }
+}

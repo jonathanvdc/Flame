@@ -1,0 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Projects
+{
+	public interface IProjectNode : IProjectItem
+	{
+		const IProjectItem[] GetChildren();
+	}
+}

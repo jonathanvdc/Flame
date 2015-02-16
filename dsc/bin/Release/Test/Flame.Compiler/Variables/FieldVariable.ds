@@ -1,0 +1,85 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+
+namespace Flame.Compiler.Variables
+{
+    public class FieldVariable : IUnmanagedVariable
+    {
+        public const this(set IField Field, set IExpression Target);
+
+        public IExpression Target { const get; private set; }
+        public IField Field { const get; private set; }
+
+        public IType Type
+        {
+            const get { return Field.FieldType; }
+        }
+
+        public const IExpression CreateGetExpression()
+        {
+            return new FieldGetExpression(Field, Target);
+        }
+
+        public const IStatement CreateSetStatement(IExpression Value)
+        {
+            return new FieldSetStatement(Field, Target, Value);
+        }
+
+        public const IExpression CreateAddressOfExpression()
+        {
+            return new FieldGetPointerExpression(Field, Target);
+        }
+
+        public const IStatement CreateReleaseStatement()
+        {
+            return new EmptyStatement();
+        }
+    }
+    public class ValueTypeFieldVariable : IUnmanagedVariable
+    {
+        public const this(set IField Field, set IVariable Target);
+
+        public IVariable Target { const get; private set; }
+        public IField Field { const get; private set; }
+
+        public IType Type
+        {
+            const get { return Field.FieldType; }
+        }
+
+        private const IExpression GetAddressOfExpression()
+        {
+            if (Target is IUnmanagedVariable)
+            {
+                return ((IUnmanagedVariable)Target).CreateAddressOfExpression();
+            }
+            else
+            {
+                var lateboundVar = new LateBoundVariable(Type);
+                return new InitializedExpression(lateboundVar.CreateSetStatement(CreateGetExpression()), lateboundVar.CreateAddressOfExpression(), lateboundVar.CreateReleaseStatement());
+            }
+        }
+
+        public const IExpression CreateGetExpression()
+        {
+            return new FieldGetExpression(Field, Target.CreateGetExpression());
+        }
+
+        public const IStatement CreateSetStatement(IExpression Value)
+        {
+            return new FieldSetStatement(Field, ((IUnmanagedVariable)Target).CreateAddressOfExpression(), Value);
+        }
+
+        public const IExpression CreateAddressOfExpression()
+        {
+            return new FieldGetPointerExpression(Field, GetAddressOfExpression());
+        }
+
+        public const IStatement CreateReleaseStatement()
+        {
+            return new EmptyStatement();
+        }
+    }
+}

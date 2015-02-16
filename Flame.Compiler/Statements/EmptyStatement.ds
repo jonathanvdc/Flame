@@ -1,0 +1,25 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Statements
+{
+    public class EmptyStatement : IStatement
+    {
+    	public this();
+    
+        public bool IsEmpty
+        {
+            get { return true; }
+        }
+
+        public IStatement Optimize()
+        {
+            return this;
+        }
+
+        public void Emit(IBlockGenerator Generator)
+        {
+            // Obviously, we're not going to emit anything here
+        }
+    }
+}

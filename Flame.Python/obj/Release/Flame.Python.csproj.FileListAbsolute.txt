@@ -1,0 +1,15 @@
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\bin\Release\Flame.Python.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\bin\Release\Flame.Python.pdb
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\bin\Release\Flame.Compiler.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\bin\Release\Flame.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\bin\Release\Flame.Syntax.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\obj\Release\Flame.Python.csprojResolveAssemblyReference.cache
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\obj\Release\Flame.Python.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\obj\Release\Flame.Python.pdb
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\bin\Release\Flame.pdb
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\bin\Release\Flame.Compiler.pdb
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\bin\Release\Flame.Syntax.pdb
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\bin\Release\Flame.CodeDescription.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\bin\Release\Flame.CodeDescription.pdb
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\bin\Release\Flame.Compiler.xml
+C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\bin\Release\Flame.Syntax.xml

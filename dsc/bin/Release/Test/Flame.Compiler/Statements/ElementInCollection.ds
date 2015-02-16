@@ -1,0 +1,29 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Build;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Statements
+{
+    public class ElementInCollection
+    {
+        public const this(set IVariable Variable, set IStatement Initialization, 
+        				  set IExpression Condition, set IStatement BodyInitialization, 
+        				  set IStatement Delta, set IStatement Finalization, 
+        				  set IVariable Index);
+        public const this(set IVariable Variable, set IStatement Initialization, 
+        				  set IExpression Condition, set IStatement BodyInitialization, 
+        				  set IStatement Delta, set IStatement Finalization);
+
+        public IVariable Variable { const get; private set; }
+        public IStatement Initialization { const get; private set; }
+        public IStatement Finalization { const get; private set; }
+        public IExpression Condition { const get; private set; }
+        public IStatement BodyInitialization { const get; private set; }
+        public IStatement Delta { const get; private set; }
+        public IVariable Index { const get; private set; }
+    }
+}

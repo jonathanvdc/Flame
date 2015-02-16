@@ -1,0 +1,42 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Expressions
+{
+    public class HashExpression : UnaryExpression
+    {
+        public const this(set IExpression Value);
+        
+        public override IType Type
+        {
+            override const get { return PrimitiveTypes.Int32; }
+        }
+
+        public const IBoundObject Evaluate()
+        {
+        	return null;
+        }
+        
+        public const IExpression Optimize()
+        {
+        	return new HashExpression(Value.Optimize());
+        }
+        
+        public ICodeBlock Emit(ICodeGenerator Generator)
+        {
+        	var valBlock = Value.Emit(Generator);
+        	var hashBlock = Generator.EmitUnary(valBlock, Operator.Hash);
+        	if (hashBlock == null)
+        	{
+        		var method = PrimitiveMethods.GetHashCode.GetImplementation(Value.Type);
+        		var methodBlock = Generator.EmitMethod(method, valBlock);
+        		return Generator.EmitInvocation(methodBlock, (IEnumerable<ICodeBlock>)new ICodeBlock[0]);
+        	}
+        	else
+        	{
+        		return hashBlock;
+        	}
+        }
+    }
+}

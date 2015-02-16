@@ -1,0 +1,27 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+using Flame.Compiler.Build;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.DSharp.Lexer;
+using Flame.Syntax;
+using Flame.Syntax.DSharp;
+
+namespace Flame.DSharp.Build
+{
+    public class ClosedGenericMethod : SyntaxMethod
+    {
+        public const this(set MethodSyntax syntax, set IType DeclaringType, set IBinder Binder, set ICompilerLog Log, set IMemberProvider MemberProvider, set IEnumerable<IType> GenericArguments);
+
+        public IEnumerable<IType> GenericArguments { const get; private set; }
+
+        public override IEnumerable<IType> GetGenericArguments()
+        {
+            return GenericArguments;
+        }
+    }
+}

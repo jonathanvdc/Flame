@@ -1,0 +1,14 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Syntax
+{
+    #region IExtensionTypeProvider
+
+    public interface IExtensionTypeProvider
+    {
+        IType[] ExtensionTypes { const get; }
+    }
+
+    #endregion
+}

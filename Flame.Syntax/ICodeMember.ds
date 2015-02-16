@@ -1,0 +1,81 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+
+namespace Flame.Syntax
+{
+    public interface ICodeMember
+    {
+        string GetHeaderString();
+        CodeBuilder GetBodyCode();
+        CodeBuilder GetFullCode();
+    }
+    public abstract class CodeMember : ICodeMember
+    {
+    	public const this();
+    
+        public abstract string GetHeaderString();
+        public abstract CodeBuilder GetBodyCode();
+        public virtual string GetBodyString()
+        {
+            return GetBodyCode().ToString();
+        }
+
+        protected static void AppendWord(StringBuilder Builder, string Word)
+        {
+            if (!string.IsNullOrWhiteSpace(Word))
+            {
+                Builder.Append(Word);
+                Builder.Append(" ");
+            }
+        }
+
+        public virtual CodeBuilder GetFullCode()
+        {
+            string headerString = GetHeaderString();
+            var body = GetBodyCode();
+            if (body.LineCount == 0)
+            {
+                return new CodeBuilder(headerString);
+            }
+            else if (string.IsNullOrWhiteSpace(headerString))
+            {
+                return body;
+            }
+            else
+            {
+                CodeBuilder sb = new CodeBuilder();
+                sb.AddLine(headerString);
+                sb.AddCodeBuilder(body);
+                return sb;
+            }
+        }
+
+        public virtual string GetFullString()
+        {
+            string headerString = GetHeaderString();
+            var body = GetBodyCode();
+            if (body.LineCount == 0)
+            {
+                return headerString;
+            }
+            else if (string.IsNullOrWhiteSpace(headerString))
+            {
+                return body.ToString();
+            }
+            else
+            {
+                CodeBuilder sb = new CodeBuilder();
+                sb.AddLine(headerString);
+                sb.AddCodeBuilder(body);
+                return sb.ToString();
+            }
+        }
+
+        public virtual override string ToString()
+        {
+            return GetHeaderString();
+        }
+    }
+}

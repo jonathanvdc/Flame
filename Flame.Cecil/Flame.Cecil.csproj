@@ -1,0 +1,215 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4A1D02A2-22DF-4355-8EDC-9E47DB1979C3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Flame.Cecil</RootNamespace>
+    <AssemblyName>Flame.Cecil</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Flame">
+      <HintPath>..\Flame.Compiler\bin\Flame.dll</HintPath>
+    </Reference>
+    <Reference Include="Flame.Compiler">
+      <HintPath>..\Flame.Compiler\bin\Flame.Compiler.dll</HintPath>
+    </Reference>
+    <Reference Include="Flame.Syntax">
+      <HintPath>..\Flame.Syntax\bin\Flame.Syntax.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb">
+      <HintPath>packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb">
+      <HintPath>packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Rocks">
+      <HintPath>packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AncestryGraphCacheBase.cs" />
+    <Compile Include="CecilOperatorExtensions.cs" />
+    <Compile Include="Emit\LoadFieldIndirectionOptimization.cs" />
+    <Compile Include="Emit\EmptyBlock.cs" />
+    <Compile Include="SpecificAssemblyResolver.cs" />
+    <Compile Include="CecilAttributeExtensions.cs" />
+    <Compile Include="CecilCompilerOptionExtensions.cs" />
+    <Compile Include="CecilImportExtensions.cs" />
+    <Compile Include="Emit\ArgumentAddressOfBlock.cs" />
+    <Compile Include="Emit\ArgumentGetBlock.cs" />
+    <Compile Include="Emit\ArgumentSetBlock.cs" />
+    <Compile Include="Emit\BooleanNotOptimization.cs" />
+    <Compile Include="Emit\ComparisonBranchOptimization.cs" />
+    <Compile Include="Emit\ConstantBranchOptimization.cs" />
+    <Compile Include="Emit\BooleanBranchOptimization.cs" />
+    <Compile Include="Emit\ElementAddressOfBlock.cs" />
+    <Compile Include="Emit\ElementGetBlock.cs" />
+    <Compile Include="Emit\ElementGetEmitter.cs" />
+    <Compile Include="Emit\ElementSetBlock.cs" />
+    <Compile Include="Emit\FieldAddressOfBlock.cs" />
+    <Compile Include="Emit\FieldGetBlock.cs" />
+    <Compile Include="Emit\FieldSetBlock.cs" />
+    <Compile Include="Emit\ILBlockExtensions.cs" />
+    <Compile Include="Emit\ILElementVariable.cs" />
+    <Compile Include="Emit\ILFieldVariable.cs" />
+    <Compile Include="Emit\ILLabel.cs" />
+    <Compile Include="Emit\ILLocalVariable.cs" />
+    <Compile Include="Emit\ILLocalVariableReleaseStatement.cs" />
+    <Compile Include="Emit\IsOfTypeBranchOptimization.cs" />
+    <Compile Include="Emit\LabelBranchBlock.cs" />
+    <Compile Include="Emit\LabelMarkBlock.cs" />
+    <Compile Include="Emit\LocalAddressOfBlock.cs" />
+    <Compile Include="Emit\LocalGetBlock.cs" />
+    <Compile Include="Emit\LocalSetBlock.cs" />
+    <Compile Include="Emit\LocalVariableReleaseBlock.cs" />
+    <Compile Include="Emit\NegateBlock.cs" />
+    <Compile Include="Emit\NotComparisonBranchOptimization.cs" />
+    <Compile Include="Emit\OptimizationExtensions.cs" />
+    <Compile Include="Emit\PushElementBehavior.cs" />
+    <Compile Include="Emit\ILArgumentVariable.cs" />
+    <Compile Include="CecilAccessor.cs" />
+    <Compile Include="CecilArrayType.cs" />
+    <Compile Include="CecilArrayTypeBase.cs" />
+    <Compile Include="CecilAssembly.cs" />
+    <Compile Include="CecilAttribute.cs" />
+    <Compile Include="CecilBoundObject.cs" />
+    <Compile Include="CecilContainerTypeBase.cs" />
+    <Compile Include="CecilEnumBuilder.cs" />
+    <Compile Include="CecilEnvironment.cs" />
+    <Compile Include="CecilExtensions.cs" />
+    <Compile Include="CecilField.cs" />
+    <Compile Include="CecilGenericMethod.cs" />
+    <Compile Include="CecilGenericParameter.cs" />
+    <Compile Include="CecilGenericType.cs" />
+    <Compile Include="CecilMember.cs" />
+    <Compile Include="CecilMemberExtensions.cs" />
+    <Compile Include="CecilMethod.cs" />
+    <Compile Include="CecilMethodBase.cs" />
+    <Compile Include="CecilMethodBuilder.cs" />
+    <Compile Include="CecilModuleBinder.cs" />
+    <Compile Include="CecilNamespace.cs" />
+    <Compile Include="CecilParameter.cs" />
+    <Compile Include="CecilPointerType.cs" />
+    <Compile Include="CecilProperty.cs" />
+    <Compile Include="CecilPropertyBuilder.cs" />
+    <Compile Include="CecilResolvedTypeBase.cs" />
+    <Compile Include="CecilType.cs" />
+    <Compile Include="CecilTypeBase.cs" />
+    <Compile Include="CecilTypeBuilder.cs" />
+    <Compile Include="CecilTypeMemberBase.cs" />
+    <Compile Include="CecilVectorType.cs" />
+    <Compile Include="Emit\BinaryOpBlock.cs" />
+    <Compile Include="Emit\BinaryStackBehavior.cs" />
+    <Compile Include="Emit\BlockBuilder.cs" />
+    <Compile Include="Emit\BlockStackBehavior.cs" />
+    <Compile Include="Emit\BreakBlock.cs" />
+    <Compile Include="Emit\CecilCommandEmitContext.cs" />
+    <Compile Include="Emit\CecilCommandEmitContextBase.cs" />
+    <Compile Include="Emit\ContextExtensions.cs" />
+    <Compile Include="Emit\ConversionBlock.cs" />
+    <Compile Include="Emit\DefaultValueBlock.cs" />
+    <Compile Include="Emit\DereferencePointerEmitter.cs" />
+    <Compile Include="Emit\GlobalFlowControlStructure.cs" />
+    <Compile Include="Emit\InvocationBlock.cs" />
+    <Compile Include="Emit\InvocationStackBehavior.cs" />
+    <Compile Include="Emit\IPeepholeOptimization.cs" />
+    <Compile Include="Emit\ITypedInstructionEmitter.cs" />
+    <Compile Include="Emit\MethodBlock.cs" />
+    <Compile Include="Emit\MethodType.cs" />
+    <Compile Include="Emit\NewArrayBlock.cs" />
+    <Compile Include="Emit\NotOptimization.cs" />
+    <Compile Include="Emit\OpCodeBlock.cs" />
+    <Compile Include="Emit\CheckBinaryStackBehavior.cs" />
+    <Compile Include="Emit\ILCodeGenerator.cs" />
+    <Compile Include="Emit\DoWhileBlock.cs" />
+    <Compile Include="Emit\IfElseBlock.cs" />
+    <Compile Include="Emit\IfElseStackBehavior.cs" />
+    <Compile Include="Emit\OpCodeExtensions.cs" />
+    <Compile Include="Emit\OpCodeInt32Block.cs" />
+    <Compile Include="Emit\PushPointerOptimization.cs" />
+    <Compile Include="Emit\ReturnBlock.cs" />
+    <Compile Include="Emit\ICecilBlock.cs" />
+    <Compile Include="Emit\IEmitContext.cs" />
+    <Compile Include="Emit\IFlowControlStructure.cs" />
+    <Compile Include="Emit\IStackBehavior.cs" />
+    <Compile Include="Emit\PopStackBehavior.cs" />
+    <Compile Include="Emit\PopBlock.cs" />
+    <Compile Include="Emit\RetypedBlock.cs" />
+    <Compile Include="Emit\SinglePushBehavior.cs" />
+    <Compile Include="Emit\SizeOfBlock.cs" />
+    <Compile Include="Emit\StoreAtAddressBlock.cs" />
+    <Compile Include="Emit\StoreAtAddressEmitter.cs" />
+    <Compile Include="Emit\TypeCheckBlock.cs" />
+    <Compile Include="Emit\DereferenceEmitterBlock.cs" />
+    <Compile Include="Emit\TypedInstructionEmitterBase.cs" />
+    <Compile Include="Emit\UnaryOpBlock.cs" />
+    <Compile Include="Emit\VirtualPushBlock.cs" />
+    <Compile Include="Emit\WhileBlock.cs" />
+    <Compile Include="EmptyCompilerOptions.cs" />
+    <Compile Include="EmptyGenericResolver.cs" />
+    <Compile Include="ExpressionExtensions.cs" />
+    <Compile Include="GenericResolverMap.cs" />
+    <Compile Include="ICecilField.cs" />
+    <Compile Include="ICecilMember.cs" />
+    <Compile Include="ICecilMethod.cs" />
+    <Compile Include="ICecilNamespace.cs" />
+    <Compile Include="ICecilProperty.cs" />
+    <Compile Include="ICecilType.cs" />
+    <Compile Include="ICecilTypeBuilder.cs" />
+    <Compile Include="ICecilTypeMember.cs" />
+    <Compile Include="IGenericResolver.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Emit\TypeStack.cs" />
+    <Compile Include="Emit\UnaryStackBehavior.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FlameRT\FlameRT.csproj">
+      <Project>{a0782faa-6754-4b9d-b856-334dfcba3462}</Project>
+      <Name>FlameRT</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

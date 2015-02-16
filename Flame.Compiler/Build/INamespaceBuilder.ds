@@ -1,0 +1,18 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler
+{
+    public interface INamespaceBuilder : IMemberBuilder<INamespace>, INamespace
+    {
+        INamespaceBuilder DeclareNamespace(string Name);
+        
+        /// <summary>
+        /// Declares a type based on another type. The template's members will be ignored when creating the type.
+        /// </summary>
+        /// <param name="Template"></param>
+        /// <returns></returns>
+        ITypeBuilder DeclareType(IType Template);
+    }
+}

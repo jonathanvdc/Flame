@@ -1,0 +1,310 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame
+{
+    public struct Operator
+    {
+        private const this(set int32 typeIndex);
+        public const this(Operator Other)
+        {
+            this.typeIndex = Other.typeIndex;
+        }
+
+        private int32 typeIndex;
+        
+        public bool IsDefined
+        {
+        	const get return typeIndex > -1;
+        }
+
+        public string Name 
+        { 
+	        const get 
+	        {
+	        	if (typeIndex >= 0)
+	        		return typeNames[typeIndex]; 
+	        	else
+	        		return null;
+	        } 
+        }
+
+        #region Equality
+
+        public override const int32 GetHashCode()
+        {
+            return typeIndex.GetHashCode();
+        }
+
+        public override const bool Equals(object obj)
+        {
+            if (obj is Operator)
+            {
+                return ((Operator)obj).typeIndex == typeIndex;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /*public static bool operator ==(PointerKind A, PointerKind B)
+        {
+            return A.typeIndex == B.typeIndex;
+        }
+        public static bool operator !=(PointerKind A, PointerKind B)
+        {
+            return A.typeIndex != B.typeIndex;
+        }*/
+
+        #endregion
+
+        #region ToString
+
+        public override string ToString()
+        {
+            return typeNames[typeIndex];
+        }
+
+        #endregion
+
+        #region Static
+
+        #region Management
+
+        static this()
+        {
+            typeNames = new List<string>();
+            RegisterAll(new Operator[]
+            {
+            	Operator.Add, Operator.Subtract,
+            	Operator.Multiply, Operator.Divide, Operator.Remainder,
+            	Operator.LeftShift, Operator.RightShift,
+            	Operator.Or, Operator.And, Operator.Xor,
+            	Operator.LogicalOr, Operator.LogicalAnd,
+            	Operator.CheckEquality, Operator.CheckInequality,
+            	Operator.CheckLessThan, Operator.CheckLessThanOrEqual,
+            	Operator.CheckGreaterThan, Operator.CheckGreaterThanOrEqual,
+            	Operator.Not, Operator.Hash
+            });
+        }
+
+        private static List<string> typeNames;
+        
+        private static void RegisterAll(Operator[] Operators); // Does nothing. 'Operator' values are already registered.
+
+        public static Operator Register(string Name)
+        {
+        	int32 index = typeNames.IndexOf(Name);
+        	if (index < 0)
+        	{
+        		typeNames.Add(Name);
+        		index = typeNames.Count - 1;
+        	}
+            return new Operator(index);
+        }
+
+        public static bool IsOperator(string Operator)
+        {
+            return typeNames.Contains(Operator);
+        }
+        public static bool TryGetOperator(string OperatorName, out Operator^ Result)
+        {
+        	int32 index = typeNames.IndexOf(OperatorName);
+        	if (index < 0)
+        	{
+	            *Result = new Operator(-1);
+	            return false;
+        	}
+        	*Result = new Operator(index);
+            return true;
+        }
+        public static Operator GetOperator(string OperatorName)
+        {
+        	Operator result;
+        	TryGetOperator(OperatorName, &result);
+            return result;
+        }
+        
+        public static const bool IsComparisonOperator(Operator Op)
+        {
+        	int tIndex = Op.typeIndex;
+        	return 	tIndex == Operator.CheckEquality.typeIndex || tIndex == Operator.CheckInequality.typeIndex ||
+        			tIndex == Operator.CheckGreaterThan.typeIndex || tIndex == Operator.CheckGreaterThanOrEqual.typeIndex ||
+        			tIndex == Operator.CheckLessThan.typeIndex || tIndex == Operator.CheckLessThanOrEqual.typeIndex;
+        }
+
+        #endregion
+
+        #region Common Accessors
+
+		public static Operator Undefined
+		{
+			const get
+			{
+				return new Operator(-1);			
+			}
+		}
+
+        public static Operator Add
+        {
+            const get
+            {
+                return Register("+");
+            }
+        }
+
+        public static Operator Subtract
+        {
+            const get
+            {
+                return Register("-");
+            }
+        }
+        
+        public static Operator Multiply
+        {
+            const get
+            {
+                return Register("*");
+            }
+        }
+        
+        public static Operator Divide
+        {
+            const get
+            {
+                return Register("/");
+            }
+        }
+        
+        public static Operator Remainder
+        {
+            const get
+            {
+                return Register("%");
+            }
+        }
+        
+        public static Operator CheckEquality
+        {
+            const get
+            {
+                return Register("==");
+            }
+        }
+        
+        public static Operator CheckInequality
+        {
+            const get
+            {
+                return Register("!=");
+            }
+        }
+        
+        public static Operator CheckGreaterThan
+        {
+            const get
+            {
+                return Register(">");
+            }
+        }
+        
+        public static Operator CheckLessThan
+        {
+            const get
+            {
+                return Register("<");
+            }
+        }
+        
+        public static Operator CheckGreaterThanOrEqual
+        {
+            const get
+            {
+                return Register(">=");
+            }
+        }
+        
+        public static Operator CheckLessThanOrEqual
+        {
+            const get
+            {
+                return Register("<=");
+            }
+        }
+        
+        public static Operator Not
+        {
+            const get
+            {
+                return Register("!");
+            }
+        }
+        
+        public static Operator Or
+        {
+            const get
+            {
+                return Register("|");
+            }
+        }
+        public static Operator LogicalOr
+        {
+            const get
+            {
+                return Register("||");
+            }
+        }
+        
+        public static Operator And
+        {
+            const get
+            {
+                return Register("&");
+            }
+        }
+        public static Operator LogicalAnd
+        {
+            const get
+            {
+                return Register("&&");
+            }
+        }
+        
+        public static Operator Xor
+        {
+            const get
+            {
+                return Register("^");
+            }
+        }
+        
+        public static Operator LeftShift
+        {
+            const get
+            {
+                return Register("<<");
+            }
+        }
+        public static Operator RightShift
+        {
+            const get
+            {
+                return Register(">>");
+            }
+        }
+        public static Operator Hash
+        {
+        	const get
+        	{
+        		return Register("hash");	
+        	}
+        }
+
+        #endregion
+
+        #endregion
+    }
+}

@@ -1,0 +1,26 @@
+class MapComparer<TInput, TResult> : IComparer<TInput>
+// Compares items based on a mapping function.
+{
+
+    +CreateMapComparer(in ItemMap : IMap<TInput, TResult>) : MapComparer<TInput, TResult> { query }
+    // Creates a new map comparer.
+
+    property ItemMap
+    {
+
+        +get() : IMap<TInput, TResult> { query }
+        // Gets the mapping function that is used to produce two comparable items.
+
+        -set(in value : IMap<TInput, TResult>)
+        // Sets the mapping function that is used to produce two comparable items.
+
+    }
+
+    +Compare(in Item : TInput, in Other : TInput) : integer { query }
+    // Compares two items and returns an integer describing their relationship to each other.
+    // Pre:
+    // 'Item' is the left operand of the comparison, 'Other' is the right operand.
+    // Post:
+    // Returns 0 if 'Item' and 'Other' are equal, -1 if 'Item' is less than 'Other' and 1 if 'Item' is greater than 'Other'.
+
+}

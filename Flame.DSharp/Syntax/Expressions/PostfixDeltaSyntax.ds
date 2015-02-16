@@ -1,0 +1,67 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+   public class PostfixDeltaSyntax : ISetVariableExpressionSyntax, IRelevantSyntax<Token>, ITokenNode
+    {
+        public const this(set IVariableSyntax Variable, set Token Operator);
+
+        public IVariableSyntax Variable { const get; private set; }
+        public Token Operator { const get; private set; }
+        
+        public IReadOnlyList<Token> Tokens
+        {
+        	const get
+        	{
+        		var tks = new List<Token>();
+				tks.AddRange(Variable.GetTokens());
+				tks.Add(Operator);
+				return tks;
+        	}
+        }
+        
+        public IEnumerable<Token> LeadingTrivia
+        {
+        	const get return Enumerable.Empty<Token>();
+        }
+        
+        public IEnumerable<Token> TrailingTrivia
+        {
+        	const get return Operator.GetAllTrivia();
+        }
+
+        public IStatement CreateSetStatement(ISyntaxState State)
+        {
+            var variable = Variable.CreateVariable(State);
+            return PrefixDeltaSyntax.CreateSetStatement(variable, Operator, State.Log);
+        }
+
+        public IExpression CreateExpression(ISyntaxState State)
+        {
+            var variable = Variable.CreateVariable(State);
+            IStatement setStatement = PrefixDeltaSyntax.CreateSetStatement(variable, Operator, State.Log);
+            return new InitializedExpression(new EmptyStatement(), variable.CreateGetExpression(), setStatement);
+        }
+
+        public override const string ToString()
+        {
+            return GetCode().ToString();
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            cb.Append(Variable.GetCode());
+            cb.Append(Operator.ToString());
+            return cb;
+        }
+    }
+}

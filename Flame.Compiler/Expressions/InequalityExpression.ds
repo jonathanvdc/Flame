@@ -1,0 +1,28 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Expressions
+{
+    public class InequalityExpression : ConditionalExpression
+    {
+        public const this(set IExpression LeftOperand, set IExpression RightOperand);
+
+        public override const IBoundObject Evaluate()
+        {
+            return null;
+        }
+
+        public override const IExpression Optimize()
+        {
+            var optA = LeftOperand.Optimize();
+            var optB = RightOperand.Optimize();
+            return new InequalityExpression(optA, optB);
+        }
+
+        public override const ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Generator.EmitNotEquals(LeftOperand.Emit(Generator), RightOperand.Emit(Generator));
+        }
+    }
+}

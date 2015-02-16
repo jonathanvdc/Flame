@@ -1,0 +1,32 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Expressions
+{
+    public class ThisGetExpression : IExpression
+    {
+        public const this(set IType Type);
+
+        public IType Type { const get; private set; }
+
+        public bool IsConstant
+        {
+            const get { return false; }
+        }
+
+        public IBoundObject Evaluate()
+        {
+            return null;
+        }
+
+        public IExpression Optimize()
+        {
+            return this;
+        }
+
+        public ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Generator.GetThis().CreateGetExpression().Emit(Generator);
+        }
+    }
+}

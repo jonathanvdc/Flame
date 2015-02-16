@@ -1,0 +1,33 @@
+/// <summary>
+/// Represents a generic dictionary, or table.
+/// </summary>
+public interface IDictionary<TKey, TValue>
+{
+    /// <summary>
+    /// Gets the contents of this dictionary as a list.
+    /// </summary>
+    IReadOnlyList<KeyValuePair<TKey, TValue>> ToList();
+    
+    /// <summary>
+    /// Gets or sets the item associated with the specified key in the dictionary.
+    /// </summary>
+    TValue this[TKey Key] { const get; set; }
+    
+    /// <summary>
+    /// Removes a key from the dictionary.
+    /// </summary>
+    void Remove(TKey Key);
+    /// <summary>
+    /// Finds out of this dictionary contains the specified key.
+    /// </summary>
+    const bool ContainsKey(TKey Key);
+    
+    /// <summary>
+    /// Gets all keys in this table.
+    /// </summary>
+    IReadOnlyList<TKey> Keys { const get; }
+    /// <summary>
+    /// Gets all values in this table.
+    /// </summary>
+    IReadOnlyList<TValue> Values { const get; }
+}

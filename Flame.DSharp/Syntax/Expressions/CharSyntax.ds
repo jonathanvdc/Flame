@@ -1,0 +1,78 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class CharSyntax : LiteralSyntax
+    {
+        public const this(char Value)
+        {
+        	this.Value = CreateCharToken(Value);
+        }
+        public const this(set Token Value);
+
+        #region Static
+
+        private static IDictionary<string, string> escapeSequences
+        {
+            get
+            {
+                return StringSyntax.GetEscapeSequenceMapping();
+            }
+        }
+
+        public static const Token CreateCharToken(char Value)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(Value);
+            foreach (var item in CharSyntax.escapeSequences)
+            {
+                if (item.Value != "\"")
+                {
+                    sb.Replace(item.Value, item.Key);
+                }
+            }
+            sb.Insert(0, '\'');
+            sb.Append('\'');
+            return new Token(TokenType.Char, sb.ToString());
+        }
+
+        public static const char ExtractCharFromToken(Token Token)
+        {
+            string original = Token.TokenValue;
+            StringBuilder sb = new StringBuilder();
+            sb.Append(original.Substring(1, original.Length - 2));
+            int i = 0;
+            while (i < sb.Length)
+            {
+                if (sb[i] == '\\')
+                {
+                    string sequence = sb.ToString(i, 2);
+                    string result = CharSyntax.escapeSequences[sequence];
+                    sb.Remove(i, 2);
+                    sb.Insert(i, result);
+                    i += result.Length;
+                }
+                else
+                {
+                    ++i;
+                }
+            }
+            return Enumerable.Single<char>((IEnumerable<char>)sb.ToString());
+        }
+
+        #endregion
+
+        protected override const IExpression CreateExpression(ISyntaxState State, Token Value)
+        {
+            string original = Value.TokenValue;
+
+            return new CharExpression(ExtractCharFromToken(Value));
+        }
+    }
+}

@@ -1,0 +1,202 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame
+{
+	public class AncestryGraph
+	{
+		public const this()
+		{
+			this.caches = new Dictionary<IType, TypeAncestryCache>();	
+		}
+	
+		private Dictionary<IType, TypeAncestryCache> caches;
+		
+		private const TypeAncestryCache GetCache(IType Target)
+		{
+			if (caches.ContainsKey(Target))
+			{
+				return caches[Target];
+			}
+			else
+			{
+				var newCache = new TypeAncestryCache();
+				caches[Target] = newCache;
+				return newCache;
+			}
+		}
+	
+		public const int GetAncestryDegree(IType Target, IType Other)
+		{
+			var cache = GetCache(Target);
+			if (cache.ContainsAncestry(Other))
+			{
+				return cache[Other];
+			}
+			return ComputeAncestry(cache, Target, Other);
+		}
+		
+		public const bool Is(IType Target, IType Other)
+		{
+			return GetAncestryDegree(Target, Other) >= 0;
+		}
+		
+		private int ComputeAncestry(TypeAncestryCache TargetCache, IType Target, IType Other)
+		{
+			int degree = ComputeAncestry(Target, Other);
+			TargetCache[Other] = degree;
+			if (degree >= 0)
+			{
+				var otherCache = GetCache(Other);
+				if (degree == 0)
+				{
+					otherCache[Target] = 0;
+				}
+				else
+				{
+					otherCache[Target] = -1;
+				}
+			}
+			return degree;
+		}
+		
+		private const int ComputeElementAncestry(IType Type, IType Other)
+		{
+			return GetAncestryDegree(Type.AsContainerType().GetElementType(), Other.AsContainerType().GetElementType());
+		}
+		
+		private const int ComputeGenericVarianceAncestry(IType Type, IType Other)
+		{
+			if (Type.IsGenericInstance && Other.IsGenericInstance)
+            {
+            	if (Type.GetGenericDeclaration().Equals(Other.GetGenericDeclaration()))
+            	{
+            		int totalAncestry = 0;
+	            	foreach (var genParam in Type.GetGenericParameters(), var genArg1 in Type.GetGenericArguments(), var genArg2 in Other.GetGenericArguments())
+	            	{
+	            		int argAncestry = 0;
+	            		if (genParam.IsCovariant) // [int] is [object]
+	            		{
+	            			argAncestry = GetAncestryDegree(genArg1, genArg2);
+	            		}
+	            		else if (genParam.IsContravariant) // (object) => void is (int) => void, so if T is V, (V) => void is (T) => void
+	            		{
+	            			argAncestry = GetAncestryDegree(genArg2, genArg1);
+	            		}
+	            		else if (!genArg1.Equals(genArg2))
+	            		{
+	            			return -1;
+	            		}
+	            		
+	            		if (argAncestry < 0) return -1;
+	            		else totalAncestry += argAncestry;
+	            	}
+	            	return totalAncestry;
+            	}
+            }
+            return -1;
+		}
+		
+		private const int ComputeInheritanceAncestry(IType Type, IType Other)
+		{
+		    int bestAncestry = -1;
+            foreach (var item in Type.GetBaseTypes())
+            {
+                int degree = GetAncestryDegree(item, Other);
+                if (degree > -1 && (degree <= bestAncestry || bestAncestry == -1))
+                {
+                    bestAncestry = degree;
+                }
+            }
+            if (bestAncestry > -1)
+            {
+                return bestAncestry + 1;
+            }
+            else if (Other.IsRootType)
+            {
+                return 1;
+            }
+            else
+            {
+                return -1;
+            }
+		}
+		
+		private const int ComputeAncestry(IType Type, IType Other)
+		{
+			if (Type.Equals(Other))
+            {
+                return 0;
+            }
+            else if (Type.Equals(PrimitiveTypes.Null) && (!Other.IsValueType || Other.IsPointer))
+            {
+                return 0;
+            }
+            else if (Type.IsArray && Other.IsArray)
+            {
+                if (Type.AsContainerType().AsArrayType().ArrayRank == Other.AsContainerType().AsArrayType().ArrayRank)
+                {
+                    return ComputeElementAncestry(Type, Other);
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            else if (Type.IsVector && Other.IsArray)
+            {
+                if (Other.AsContainerType().AsArrayType().ArrayRank == Type.AsContainerType().AsVectorType().GetDimensions().Length)
+                {
+                    return ComputeElementAncestry(Type, Other);
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            else if (Type.IsPointer && Other.IsPointer)
+            {
+            	var typePtrKind = Type.AsContainerType().AsPointerType().PointerKind;
+            	var otherPtrKind = Other.AsContainerType().AsPointerType().PointerKind;
+            	var elementAncestry = ComputeElementAncestry(Type, Other);
+            	if (elementAncestry > 0)
+            	{
+            		if (!typePtrKind.Equals(PointerKind.TransientPointer) && otherPtrKind.Equals(PointerKind.TransientPointer))
+            		{
+            			return elementAncestry + 1;
+            		}
+            		else return elementAncestry;
+            	}
+            	else return -1;
+            }
+            int varianceAncestry = ComputeGenericVarianceAncestry(Type, Other);
+            if (varianceAncestry > 0)
+            {
+            	return varianceAncestry;
+            }
+            return ComputeInheritanceAncestry(Type, Other);
+		}
+	}
+	
+	public class TypeAncestryCache
+	{
+		public const this()
+		{
+			this.ancestries = new Dictionary<IType, int>();
+		}
+		
+		private Dictionary<IType, int> ancestries;
+		
+		public const bool ContainsAncestry(IType Other)
+		{
+			return ancestries.ContainsKey(Other);
+		}
+		
+		public const int this[IType Other]
+		{
+			const get return ancestries[Other];
+			set ancestries[Other] = value;
+		}
+	}
+}

@@ -1,0 +1,19 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame
+{
+    public interface INamespacedBinder : IBinder
+    {
+        bool SupportsNamespaces { const get; }
+        IEnumerable<string> UsingNamespaces { const get; }
+        IDictionary<string, string> MappedNamespaces { const get; }
+        void UseNamespace(string Namespace);
+        void MapNamespace(string Key, string Namespace);
+    }
+    public interface ILocalNamespaceBinder : INamespacedBinder
+    {
+        INamespace CurrentNamespace { const get; }
+    }
+}
