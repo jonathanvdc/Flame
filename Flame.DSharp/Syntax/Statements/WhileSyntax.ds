@@ -1,0 +1,62 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Expressions;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class WhileSyntax : IStatementSyntax, ITokenNode
+    {
+        public const this(set Token WhileKeyword, set Token LeadingParentheses, set IExpressionSyntax Condition, set Token TrailingParentheses, set IStatementSyntax Body);
+
+        public Token WhileKeyword { const get; private set; }
+        public Token LeadingParentheses { const get; private set; }
+        public IExpressionSyntax Condition { const get; private set; }
+        public Token TrailingParentheses { const get; private set; }
+        public IStatementSyntax Body { const get; private set; }
+        
+        public IReadOnlyList<Token> Tokens
+        {
+        	const get
+        	{
+        		List<Token> results = new List<Token>();
+				results.Add(WhileKeyword);
+				results.Add(LeadingParentheses);
+				results.AddRange(Condition.GetTokens());
+				results.Add(TrailingParentheses);
+				results.AddRange(Body.GetTokens());
+				return results;
+        	}
+        }
+
+        public const IStatement CreateStatement(ISyntaxState State) : IStatementSyntax.CreateStatement
+        {
+        	State.PushScope();
+            var cond = Condition.CreateExpression(State);
+            var body = Body.CreateStatement(State);
+            var cleanup = State.PopScope();
+            var whileLoop = new WhileStatement(cond, body);
+            IStatement[] statements = new IStatement[] { whileLoop, cleanup };
+            return new BlockStatement(statements);
+        }
+
+        public const CodeBuilder GetCode() : IStatementSyntax.GetCode
+        {
+            CodeBuilder cb = new CodeBuilder();
+            cb.Append(WhileKeyword.ToString());
+            cb.Append(LeadingParentheses.ToString());
+            cb.Append(Condition.GetCode());
+            cb.Append(TrailingParentheses.ToString());
+            cb.AppendLine();
+            cb.Append(Body.GetCode());
+            return cb;
+        }
+        
+        public override const string ToString()
+        {
+        	return this.GetCode().ToString();
+        }
+    }
+}

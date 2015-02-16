@@ -1,0 +1,74 @@
+class Date
+// Represents a simple date.
+{
+
+    +CreateDate(in Day : integer, in Month : integer, in Year : integer) : Date { query }
+    // Creates a new date from a day, month and year.
+    // Pre:
+    // Day must be a positive integer that represents a valid day for the provided month.
+    // Month must be an integer from 1 to 12.
+    // Year must be an integer.
+
+    property Day
+    {
+
+        +get() : integer { query }
+        // Gets the day of this date.
+
+        -set(in value : integer)
+        // Sets the day of this date.
+
+    }
+
+    property Month
+    {
+
+        +get() : integer { query }
+        // Gets the month of this date.
+
+        -set(in value : integer)
+        // Sets the month of this date.
+
+    }
+
+    property Year
+    {
+
+        +get() : integer { query }
+        // Gets the year of this date.
+
+        -set(in value : integer)
+        // Sets the year of this date.
+
+    }
+
+    +ToString() : string { query }
+    // Gets this date's string representation.
+
+    +Compare(in Other : Date) : integer { query }
+    // Compares this 'Date' instance with another 'Date' instance.
+    // Post:
+    // Returns 1 if 'self > Other', -1 if 'self < Other', otherwise 0.
+
+    +operator==(in Other : Date) : boolean { query }
+    // Finds out if two 'Date' instances are equal.
+
+    +operator!=(in Other : Date) : boolean { query }
+    // Finds out if two 'Date' instances are not equal.
+
+    +operator<(in Other : Date) : boolean { query }
+    // Finds out if this 'Date' instance is less than the given 'Date' instance.
+
+    +operator>(in Other : Date) : boolean { query }
+    // Finds out if this 'Date' instance is greater than the given 'Date' instance.
+
+    +operator<=(in Other : Date) : boolean { query }
+    // Finds out if this 'Date' instance is less than or equal to the given 'Date' instance.
+
+    +operator>=(in Other : Date) : boolean { query }
+    // Finds out if this 'Date' instance is greater than or equal to the given 'Date' instance.
+
+    +GetHashCode() : integer { query }
+    // Gets a hash code for the current Date instance.
+
+}

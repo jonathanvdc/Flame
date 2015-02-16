@@ -1,0 +1,122 @@
+/// <summary>
+/// Represents a movie theater.
+/// </summary>
+public class Theater
+{
+    /// <summary>
+    /// Creates a new movie theater instance.
+    /// </summary>
+    public const this(set string Name);
+
+    /// <summary>
+    /// Gets the movie theater's name.
+    /// </summary>
+    public string Name { const get; private set; }
+    private IList<Auditorium> auditors = new ArrayList<Auditorium>();
+    /// <summary>
+    /// Gets a read-only list of all auditoria in this movie theater.
+    /// </summary>
+    public IReadOnlyList<Auditorium> Auditoria { const get return auditors; }
+    private IList<Time> slots = new ArrayList<Time>();
+    /// <summary>
+    /// Gets the list of all available timeslots for this movie theater.
+    /// </summary>
+    public IList<Time> Timeslots { const get return slots; }
+    private IList<Movie> allmovies = new ArrayList<Movie>();
+    /// <summary>
+    /// Gets the list of all movies known to the movie theater.
+    /// </summary>
+    public IList<Movie> Movies { const get return allmovies; }
+    
+    /// <summary>
+    /// Builds and returns a new auditorium with the specified number of seats.
+    /// </summary>
+    /// <pre>
+    /// NumberOfSeats must be a nonzero positive integer.
+    /// </pre>
+    /// <post>
+    /// This method creates a new Auditorium object, adds it to the current movie theater, and returns it.
+    /// </post>
+    public Auditorium BuildAuditorium(int NumberOfSeats)
+    {
+        Auditorium auditor = new Auditorium(auditors.Count, NumberOfSeats);
+        auditors.Add(auditor);
+        return auditor;
+    }
+}
+
+/// <summary>
+/// Describes an auditorium.
+/// </summary>
+public class Auditorium : IRecord<int>
+{
+    public const this(set int Index, set int NumberOfSeats);
+
+    /// <summary>
+    /// Gets the auditorium's index, or room number.
+    /// </summary>
+    public int Index { const get; private set; }
+    /// <summary>
+    /// Gets the number of seats in the auditorium.
+    /// </summary>
+    public int NumberOfSeats { const get; private set; }
+    
+    public int Key { const get return Index; }
+    
+    public const string __str__()
+    {
+        return "Auditorium " + Index + "(" + NumberOfSeats + " seats)";
+    }
+}
+
+/// <summary>
+/// Describes a showtime at the movie theater.
+/// </summary>
+public class Showtime : IRecord<int>
+{
+    public const this(set int Id, set Auditorium Location, set Movie MoviePlaying, set Time Timeslot);
+
+    public int Id { const get; private set; }
+    public Auditorium Location { const get; private set; } 
+    public Movie MoviePlaying { const get; private set; }
+    public Time Timeslot { const get; private set; }
+    public int NumberOfFreeSeats { const get; private set; }
+    
+    public int AuditoriumIndex { const get return Location.Index; }
+    public int MovieId { const get return MoviePlaying.Id; }
+    
+    public const string __str__()
+    {
+        return "Showtime " + Id + " of " + MoviePlaying + ", " + Location + ", at " + Timeslot + ", " + NumberOfFreeSeats + " free seats";
+    }
+    
+    public int Key { const get return Id; }
+}
+
+/// <summary>
+/// Describes a movie.
+/// </summary>
+public class Movie : IRecord<int>
+{
+    public const this(set int Id, set string Title, set double Rating);
+
+    /// <summary>
+    /// Gets the movie's identifier.
+    /// </summary>
+    public int Id { const get; private set; }
+    /// <summary>
+    /// Gets the movie's title.
+    /// </summary>
+    public string Title { const get; private set; }
+    /// <summary>
+    /// Gets the movie's rating.
+    /// </summary>
+    public double Rating { const get; private set; }
+    
+    public int Key { const get return Id; }
+    
+    public const string __str__()
+    {
+        return (string)Id + ": " + Title + "(Rated " + (string)Rating + ")";
+    }
+}

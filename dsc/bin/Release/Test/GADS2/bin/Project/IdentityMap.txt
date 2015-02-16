@@ -1,0 +1,12 @@
+class IdentityMap<T> : IMap<T, T>
+// A mapping function that represents the identity function: its 'map' method simply returns the given argument.
+{
+
+    +CreateIdentityMap() : IdentityMap<T>
+
+    +Map(in Value : T) : T
+    // Maps the item to its target representation.
+    // Post:
+    // This function must produce a constant return value, irrespective of external changes.
+
+}

@@ -1,0 +1,53 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Expressions
+{
+    public class LateBoundVariableGetExpression : VariableGetExpressionBase<ILateBoundVariable>
+    {
+		public const this(set ILateBoundVariable Variable);
+		
+		public override const IExpression Optimize()
+		{
+			if (Variable.IsBound)
+			{
+				return Variable.BoundVariable.CreateGetExpression().Optimize();
+			}
+			else
+			{
+				return this;
+			}
+		}
+
+        public override ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            if (!Variable.IsBound)
+            {
+                Variable.BindVariable(Generator);
+            }
+            return Variable.BoundVariable.CreateGetExpression().Emit(Generator);
+        }
+    }
+    public class LateBoundVariableGetPointerExpression : VariableGetExpressionBase<ILateBoundVariable>
+    {
+        public const this(set ILateBoundVariable Variable);
+
+        public override IType Type
+        {
+            get
+            {
+                return Variable.Type.MakePointerType(PointerKind.ReferencePointer);
+            }
+        }
+
+        public override ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            if (!Variable.IsBound)
+            {
+                Variable.BindVariable(Generator);
+            }
+            return ((IUnmanagedVariable)Variable.BoundVariable).CreateAddressOfExpression().Emit(Generator);
+        }
+    }
+}

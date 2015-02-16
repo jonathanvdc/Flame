@@ -1,0 +1,10 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler
+{
+	public interface IBinder
+	{
+		IType BindType(string Name);
+	}
+}

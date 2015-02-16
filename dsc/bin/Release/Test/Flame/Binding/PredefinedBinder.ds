@@ -1,0 +1,45 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame
+{
+    public class PredefinedBinder : BinderBase, IBinder
+    {
+        public const this(set IBinder NormalBinder)
+        {
+            this.PredefinedTypes = new Dictionary<string, IType>();
+        }
+
+        public IBinder NormalBinder { const get; private set; }
+        public Dictionary<string, IType> PredefinedTypes { const get; private set; }
+        
+        public void MapType(string Name, IType Value)
+        {
+        	PredefinedTypes[Name] = Value;
+        }
+
+        public override IEnvironment Environment
+        {
+            const get { return NormalBinder.Environment; }
+        }
+
+        public override IType BindTypeCore(string Name)
+        {
+            if (PredefinedTypes.ContainsKey(Name))
+            {
+                return PredefinedTypes[Name];
+            }
+            else
+            {
+                return NormalBinder.BindType(Name);
+            }
+        }
+
+        public override IEnumerable<IType> GetTypes()
+        {
+            return Enumerable.Concat<IType>(PredefinedTypes.Values, NormalBinder.GetTypes());
+        }
+    }
+}

@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{AC94302E-857A-4A7E-9198-2EA880279FFE}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>dsc</RootNamespace>
+    <AssemblyName>dsc</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Flame">
+      <HintPath>..\Flame.DSharp\bin\Flame.dll</HintPath>
+    </Reference>
+    <Reference Include="Flame.Compiler">
+      <HintPath>..\Flame.DSharp\bin\Flame.Compiler.dll</HintPath>
+    </Reference>
+    <Reference Include="Flame.DSharp">
+      <HintPath>..\Flame.DSharp\bin\Flame.DSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Flame.Syntax">
+      <HintPath>..\Flame.DSharp\bin\Flame.Syntax.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil, Version=0.9.5.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Flame.Cecil\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb">
+      <HintPath>..\Flame.Cecil\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb">
+      <HintPath>..\Flame.Cecil\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Rocks, Version=0.9.5.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Flame.Cecil\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AnalyzingOptimizer.cs" />
+    <Compile Include="BinderResolver.cs" />
+    <Compile Include="Options\BuildArguments.cs" />
+    <Compile Include="CompilerOptionExtensions.cs" />
+    <Compile Include="DerivedSyntaxParser.cs" />
+    <Compile Include="FileOutputProvider.cs" />
+    <Compile Include="Options\IBuildOption.cs" />
+    <Compile Include="CecilReferenceResolver.cs" />
+    <Compile Include="CecilRuntimeLibraries.cs" />
+    <Compile Include="ConsoleLog.cs" />
+    <Compile Include="EmptyAssemblyResolver.cs" />
+    <Compile Include="IAssemblyResolver.cs" />
+    <Compile Include="Plugs\FlameAssemblies.cs" />
+    <Compile Include="Target\BuildTarget.cs" />
+    <Compile Include="MarsRuntimeLibraries.cs" />
+    <Compile Include="MultiBinder.cs" />
+    <Compile Include="Options\OptimizerOption.cs" />
+    <Compile Include="Options\OptionLog.cs" />
+    <Compile Include="Plugs\RuntimeAssemblyResolver.cs" />
+    <Compile Include="Plugs\PlugHandler.cs" />
+    <Compile Include="Projects\CompilationParameters.cs" />
+    <Compile Include="Projects\DSharpProjectHandler.cs" />
+    <Compile Include="Projects\IProjectHandler.cs" />
+    <Compile Include="Projects\ProjectHandlers.cs" />
+    <Compile Include="Projects\ProjectPath.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReferenceResolvers.cs" />
+    <Compile Include="Options\SingleFileBuildOption.cs" />
+    <Compile Include="Projects\SingleFileProject.cs" />
+    <Compile Include="Options\SourcePathOption.cs" />
+    <Compile Include="State\CompilerEnvironment.cs" />
+    <Compile Include="Options\StringCompilerOptions.cs" />
+    <Compile Include="Options\ForeignBuildOption.cs" />
+    <Compile Include="Options\ArgumentStream.cs" />
+    <Compile Include="Target\CecilDependencyBuilder.cs" />
+    <Compile Include="Target\DependencyBuilder.cs" />
+    <Compile Include="IDependencyBuilder.cs" />
+    <Compile Include="ReferenceDependency.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Flame.Analysis\Flame.Analysis.csproj">
+      <Project>{b262c36b-6162-40e1-9aa3-d6569694ac97}</Project>
+      <Name>Flame.Analysis</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Flame.Cecil\Flame.Cecil.csproj">
+      <Project>{4a1d02a2-22df-4355-8edc-9e47db1979c3}</Project>
+      <Name>Flame.Cecil</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Flame.Cecil\Flame.CodeDescription\Flame.CodeDescription.csproj">
+      <Project>{b11dbde8-1b3a-4474-b425-d79178148c9d}</Project>
+      <Name>Flame.CodeDescription</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Flame.Cpp\Flame.Cpp.csproj">
+      <Project>{1e89128e-a307-474e-bfd7-02810498f792}</Project>
+      <Name>Flame.Cpp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Flame.DSProject\Flame.DSProject.csproj">
+      <Project>{4ba294fe-ef52-46bb-aa1c-b25e327e44e3}</Project>
+      <Name>Flame.DSProject</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Flame.MIPS\Flame.MIPS.csproj">
+      <Project>{0f61b9f7-907b-4b19-8227-55662dc6e70a}</Project>
+      <Name>Flame.MIPS</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Flame.Python\Flame.Python.csproj">
+      <Project>{52e014a4-37d9-4049-9d92-cb8e5ff2151c}</Project>
+      <Name>Flame.Python</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Flame.Recompilation\Flame.Recompilation.csproj">
+      <Project>{f88efcdf-ef4d-4b49-8908-af89017c5a1d}</Project>
+      <Name>Flame.Recompilation</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Flame.TextContract\Flame.TextContract.csproj">
+      <Project>{54ec66e3-8b54-476f-8fac-8ac1934453e8}</Project>
+      <Name>Flame.TextContract</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Flame.Verification\Flame.Verification.csproj">
+      <Project>{a934b6b2-14ec-47e8-8b89-d978378b82f7}</Project>
+      <Name>Flame.Verification</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Flame.XmlDocs\Flame.XmlDocs.csproj">
+      <Project>{cd2775af-ed95-4562-9903-a309a6841bae}</Project>
+      <Name>Flame.XmlDocs</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

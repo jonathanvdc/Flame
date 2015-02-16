@@ -1,0 +1,77 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Build
+{
+	public virtual class DescribedGenericFieldInstance : IField, IEquatable<IField>
+	{
+		protected const this();
+		public const this(set IField Field, set IGenericResolverType Parent)
+		{
+			this.DeclaringType = Parent;
+		}
+		public const this(set IField Field, set IGenericResolver Parent, set IType DeclaringType);
+
+        public IField Field { const get; protected set; }
+        public IGenericResolver Parent { const get; protected set; }
+        public IType DeclaringType { const get; protected set; }
+
+        public IType FieldType
+        {
+            const get { return Parent.ResolveType(Field.FieldType); }
+        }
+        public bool IsStatic
+        {
+            const get { return Field.IsStatic; }
+        }
+
+        public string FullName
+        {
+            const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Field.Name); }
+        }
+
+        public const [IAttribute] GetAttributes()
+        {
+            return Field.GetAttributes();
+        }
+
+        public string Name
+        {
+            const get { return Field.Name; }
+        }
+        
+        #region Equality
+        
+        public override const bool Equals(object Other)
+        {
+        	if (Other is IField)
+        	{
+        		return Equals((IField)Other);
+        	}
+        	else return false;
+        }
+        
+        public const bool Equals(IField Other)
+        {
+        	if (Other is DescribedGenericFieldInstance)
+        	{
+        		return Equals((DescribedGenericFieldInstance)Other);
+        	}
+        	return this.Parent.Equals(Other.DeclaringType) && this.Field.Equals(Other);
+        }
+        
+        public const bool Equals(DescribedGenericFieldInstance Other)
+        {
+        	return this.Parent.Equals(Other.Parent) && this.Field.Equals(Other.Field);
+        }
+        
+        public override const int GetHashCode()
+        {
+        	return Field.GetHashCode();
+        }
+        
+        #endregion
+	}
+}

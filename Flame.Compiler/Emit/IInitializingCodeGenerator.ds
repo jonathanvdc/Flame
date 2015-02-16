@@ -1,0 +1,19 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Emit
+{
+	public interface IInitializingCodeGenerator : ICodeGenerator
+	{
+		/// <summary>
+		/// Creates and initializes a new array.
+		/// </summary>
+		ICodeBlock EmitInitializedArray(IType ElementType, ICodeBlock[] Items);
+		
+		/// <summary>
+		/// Creates and initializes a new vector.
+		/// </summary>
+		ICodeBlock EmitInitializedVector(IType ElementType, ICodeBlock[] Items);
+	}
+}

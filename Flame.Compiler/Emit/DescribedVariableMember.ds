@@ -1,0 +1,15 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Build;
+
+namespace Flame.Compiler.Emit
+{
+	public class DescribedVariableMember : DescribedMember, IVariableMember
+	{
+		public const this(set string Name, set IType VariableType);
+		
+		public IType VariableType { const get; private set; }
+		public override string FullName { const get return this.Name; }
+	}
+}

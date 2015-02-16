@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler
+{
+    public struct CodeLine
+    {
+        public const this(set string Text);
+        public const this(set string Text, set int Indentation);
+
+		/// <summary>
+		/// Gets a boolean value that indicates if this code line corresponds to the empty line pattern.
+		/// </summary>
+		public bool IsEmpty
+		{
+			const get return Text.Equals("\0");	
+		}
+
+		/// <summary>
+		/// Gets a boolean value that indicates if this code line is whitespace.
+		/// </summary>
+        public bool IsWhitespace
+        {
+            const get
+            {
+                return IsEmpty || string.IsNullOrWhiteSpace(Text);
+            }
+        }
+
+		/// <summary>
+		/// Gets or sets the code line's text.
+		/// </summary>
+        public string Text { const get; set; }
+        /// <summary>
+        /// Gets or sets this code line's indentation.
+        /// </summary>
+        public int Indentation { const get; set; }
+
+        public override const string ToString()
+        {
+            return this.ToString("\t");
+        }
+        public const string ToString(string IndentationString)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < Indentation; i++)
+            {
+                sb.Append(IndentationString);
+            }
+            if (!IsEmpty)
+            {
+            	sb.Append(Text);
+            }
+            return sb.ToString();
+        }
+    }
+}

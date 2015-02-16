@@ -1,0 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Syntax
+{
+    public interface IAccessorSyntax : ISyntaxNode
+    {
+        bool IsEmpty { const get; }
+        IAccessor CreateAccessor(IProperty DeclaringProperty, IBinder Binder);
+    }
+}

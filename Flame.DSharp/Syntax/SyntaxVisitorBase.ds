@@ -1,0 +1,385 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+	public virtual class SyntaxVisitorBase : ISyntaxVisitor
+	{
+		public const this();
+	
+		#region Visit Default
+	
+		protected virtual void VisitDefaultSyntax(ISyntaxNode Syntax);
+		protected virtual void VisitDefaultExpressionSyntax(IExpressionSyntax Syntax)
+		{
+			return VisitDefaultSyntax(Syntax);
+		}
+		protected virtual void VisitDefaultStatementSyntax(IStatementSyntax Syntax)
+		{
+			return VisitDefaultSyntax(Syntax);
+		}
+		protected virtual void VisitDefaultTypeSyntax(ITypeSyntax Syntax)
+		{
+			return VisitDefaultSyntax(Syntax);
+		}
+		
+		#endregion
+		
+		#region Expression Syntax
+		
+		protected virtual void VisitBinaryExpressionSyntax(BinaryExpressionSyntax Syntax)
+		{
+			Visit(Syntax.Left);
+			Visit(Syntax.Right);
+			VisitDefaultExpressionSyntax(Syntax);
+		}
+		protected virtual void VisitUnaryExpressionSyntax(UnaryExpressionSyntax Syntax)
+		{
+			Visit(Syntax.Operand);
+			VisitDefaultExpressionSyntax(Syntax);
+		}
+		protected virtual void VisitCastSyntax(CastSyntax Syntax)
+		{
+			Visit(Syntax.TargetType);
+			Visit(Syntax.Expression);
+			VisitDefaultExpressionSyntax(Syntax);
+		}
+	
+		protected virtual void VisitExpressionSyntax(IExpressionSyntax Syntax)
+		{
+			if (Syntax is BinaryExpressionSyntax)
+			{
+				VisitBinaryExpressionSyntax((BinaryExpressionSyntax)Syntax);
+			}
+			else if (Syntax is UnaryExpressionSyntax)
+			{
+				VisitUnaryExpressionSyntax((UnaryExpressionSyntax)Syntax);
+			}
+			else if (Syntax is CastSyntax)
+			{
+				VisitCastSyntax((CastSyntax)Syntax);
+			}
+			else
+			{
+				VisitDefaultExpressionSyntax(Syntax);
+			}
+		}
+		
+		#endregion
+		
+		#region Statement Syntax
+		
+		protected virtual void VisitBlockSyntax(BlockSyntax Syntax)
+		{
+			foreach (var item in Syntax.Statements)
+			{
+				Visit(item);
+			}
+			VisitDefaultStatementSyntax(Syntax);
+		}
+		
+		protected virtual void VisitBreakSyntax(BreakSyntax Syntax)
+		{
+			VisitDefaultStatementSyntax(Syntax);
+		}
+		
+		protected virtual void VisitDoWhileSyntax(DoWhileSyntax Syntax)
+		{
+			Visit(Syntax.Body);
+			Visit(Syntax.Condition);
+			VisitDefaultStatementSyntax(Syntax);
+		}
+		
+		protected virtual void VisitElementInCollectionSyntax(ElementInCollectionSyntax Syntax)
+		{
+			Visit(Syntax.VariableDeclaration);
+			Visit(Syntax.Collection);
+			VisitDefaultSyntax(Syntax);
+		}
+		
+		protected virtual void VisitEmptySyntax(EmptySyntax Syntax)
+		{
+			VisitDefaultStatementSyntax(Syntax);
+		}
+		
+		protected virtual void VisitExpressionStatementSyntax(ExpressionStatementSyntax Syntax)
+		{
+			Visit(Syntax.Expression);
+			VisitDefaultStatementSyntax(Syntax);
+		}
+		
+		protected virtual void VisitForSyntax(ForSyntax Syntax)
+		{
+			Visit(Syntax.Initialization);
+			Visit(Syntax.Condition);
+			Visit(Syntax.DeltaStatement);
+			Visit(Syntax.Body);
+			VisitDefaultStatementSyntax(Syntax);
+		}
+		
+		protected virtual void VisitForeachSyntax(ForeachSyntax Syntax)
+		{
+			foreach (var item in Syntax.Elements)
+			{
+				Visit(item);
+			}
+			Visit(Syntax.Body);
+			VisitDefaultStatementSyntax(Syntax);
+		}
+		
+		protected virtual void VisitIfElseSyntax(IfElseSyntax Syntax)
+		{
+			Visit(Syntax.Condition);
+			Visit(Syntax.IfBody);
+			Visit(Syntax.ElseBody);
+			VisitDefaultStatementSyntax(Syntax);
+		}
+		
+		protected virtual void VisitNextSyntax(NextSyntax Syntax)
+		{
+			VisitDefaultStatementSyntax(Syntax);
+		} 
+		
+		protected virtual void VisitReturnSyntax(ReturnSyntax Syntax)
+		{
+			if (Syntax.Expression != null)
+			{
+				Visit(Syntax.Expression);
+			}
+			VisitDefaultStatementSyntax(Syntax);
+		}
+		
+		protected virtual void VisitWhileSyntax(WhileSyntax Syntax)
+		{
+			Visit(Syntax.Condition);
+			Visit(Syntax.Body);
+			VisitDefaultStatementSyntax(Syntax);
+		}
+		
+		protected virtual void VisitSetVariableStatementSyntax(SetVariableStatementSyntax Syntax)
+		{
+			Visit(Syntax.StoreSyntax);
+			VisitDefaultStatementSyntax(Syntax);
+		}
+		
+		protected virtual void VisitVariableDeclarationSyntax(VariableDeclarationSyntax Syntax)
+		{
+			foreach (var item in Syntax.Declarations)
+			{
+				Visit(item);
+			}
+			VisitDefaultStatementSyntax(Syntax);
+		}
+		
+		protected virtual void VisitYieldBreakSyntax(YieldBreakSyntax Syntax)
+		{
+			VisitDefaultStatementSyntax(Syntax);
+		}
+		
+		protected virtual void VisitYieldReturnSyntax(YieldReturnSyntax Syntax)
+		{
+			Visit(Syntax.Return);
+			VisitDefaultStatementSyntax(Syntax);
+		}
+		
+		protected virtual void VisitStatementSyntax(IStatementSyntax Syntax)
+		{
+			if (Syntax is BlockSyntax)
+			{
+				VisitBlockSyntax((BlockSyntax)Syntax);
+			}
+			else if (Syntax is BreakSyntax)
+			{
+				VisitBreakSyntax((BreakSyntax)Syntax);
+			}
+			else if (Syntax is DoWhileSyntax)
+			{
+				VisitDoWhileSyntax((DoWhileSyntax)Syntax);
+			}
+			else if (Syntax is EmptySyntax)
+			{
+				VisitEmptySyntax((EmptySyntax)Syntax);
+			}
+			else if (Syntax is ExpressionStatementSyntax)
+			{
+				VisitExpressionStatementSyntax((ExpressionStatementSyntax)Syntax);
+			}
+			else if (Syntax is ForSyntax)
+			{
+				VisitForSyntax((ForSyntax)Syntax);
+			}
+			else if (Syntax is ForeachSyntax)
+			{
+				VisitForeachSyntax((ForeachSyntax)Syntax);
+			}
+			else if (Syntax is IfElseSyntax)
+			{
+				VisitIfElseSyntax((IfElseSyntax)Syntax);
+			}
+			else if (Syntax is NextSyntax)
+			{
+				VisitNextSyntax((NextSyntax)Syntax);
+			}
+			else if (Syntax is ReturnSyntax)
+			{
+				VisitReturnSyntax((ReturnSyntax)Syntax);
+			}
+			else if (Syntax is WhileSyntax)
+			{
+				VisitWhileSyntax((WhileSyntax)Syntax);
+			}
+			else if (Syntax is SetVariableStatementSyntax)
+			{
+				VisitSetVariableStatementSyntax((SetVariableStatementSyntax)Syntax);
+			}
+			else if (Syntax is VariableDeclarationSyntax)
+			{
+				VisitVariableDeclarationSyntax((VariableDeclarationSyntax)Syntax);
+			}
+			else if (Syntax is YieldBreakSyntax)
+			{
+				VisitYieldBreakSyntax((YieldBreakSyntax)Syntax);
+			}
+			else if (Syntax is YieldReturnSyntax)
+			{
+				VisitYieldReturnSyntax((YieldReturnSyntax)Syntax);
+			}
+			else
+			{
+				VisitDefaultStatementSyntax(Syntax);
+			}
+		}
+		
+		#endregion
+		
+		#region Type Syntax
+		
+		protected virtual void VisitIdentifierTypeSyntax(IdentifierTypeSyntax Syntax)
+		{
+			VisitDefaultTypeSyntax(Syntax);
+		}
+		
+		protected virtual void VisitInferredTypeSyntax(InferredTypeSyntax Syntax)
+		{
+			VisitDefaultTypeSyntax(Syntax);
+		}
+		
+		protected virtual void VisitDotTypeSyntax(DotTypeSyntax Syntax)
+		{
+			Visit(Syntax.ElementType);
+			VisitDefaultTypeSyntax(Syntax);
+		}
+		
+		protected virtual void VisitPointerTypeSyntax(PointerTypeSyntax Syntax)
+		{
+			Visit(Syntax.ElementType);
+			VisitDefaultTypeSyntax(Syntax);
+		}
+		
+		protected virtual void VisitArrayTypeSyntax(ArrayTypeSyntax Syntax)
+		{
+			Visit(Syntax.ElementType);
+			VisitDefaultTypeSyntax(Syntax);
+		}
+		
+		protected virtual void VisitVectorTypeSyntax(VectorTypeSyntax Syntax)
+		{
+			Visit(Syntax.ElementType);
+			var dims = Syntax.Dimensions;
+			for (int i = 0; i < dims.Count; i++)
+			{
+				Visit(dims[i]);
+			}
+			VisitDefaultTypeSyntax(Syntax);
+		}
+		
+		protected virtual void VisitEnumerableTypeSyntax(EnumerableTypeSyntax Syntax)
+		{
+			Visit(Syntax.ElementType);
+			VisitDefaultTypeSyntax(Syntax);
+		}
+		
+		protected virtual void VisitEnumeratorTypeSyntax(EnumeratorTypeSyntax Syntax)
+		{
+			Visit(Syntax.ElementType);
+			VisitDefaultTypeSyntax(Syntax);
+		}
+		
+		protected virtual void VisitGenericInstanceTypeSyntax(GenericInstanceTypeSyntax Syntax)
+		{
+			Visit(Syntax.ElementType);
+			var genericArgs = Syntax.GenericArguments;
+			for (int i = 0; i < genericArgs.Count; i++)
+			{
+				Visit(genericArgs[i]);
+			}
+			VisitDefaultTypeSyntax(Syntax);
+		}
+		
+		protected virtual void VisitTypeSyntax(ITypeSyntax Syntax)
+		{
+			if (Syntax is IdentifierTypeSyntax)
+				VisitIdentifierTypeSyntax((IdentifierTypeSyntax)Syntax);
+				
+			else if (Syntax is InferredTypeSyntax)
+				VisitInferredTypeSyntax((InferredTypeSyntax)Syntax);
+				
+			else if (Syntax is PointerTypeSyntax)
+				VisitPointerTypeSyntax((PointerTypeSyntax)Syntax);
+				
+			else if (Syntax is VectorTypeSyntax)
+				VisitVectorTypeSyntax((VectorTypeSyntax)Syntax);
+				
+			else if (Syntax is ArrayTypeSyntax)
+				VisitArrayTypeSyntax((ArrayTypeSyntax)Syntax);
+				
+			else if (Syntax is DotTypeSyntax)
+				VisitDotTypeSyntax((DotTypeSyntax)Syntax);
+				
+			else if (Syntax is EnumerableTypeSyntax)
+				VisitEnumerableTypeSyntax((EnumerableTypeSyntax)Syntax);
+				
+			else if (Syntax is EnumeratorTypeSyntax)
+				VisitEnumeratorTypeSyntax((EnumeratorTypeSyntax)Syntax);
+				
+			else if (Syntax is GenericInstanceTypeSyntax)
+				VisitGenericInstanceTypeSyntax((GenericInstanceTypeSyntax)Syntax);
+				
+			else
+				VisitDefaultTypeSyntax(Syntax);
+		}
+		
+		#endregion
+		
+		#region Public Visit
+	
+		public virtual void Visit(ISyntaxNode Syntax)
+		{
+			if (Syntax is IExpressionSyntax)
+			{
+				VisitExpressionSyntax((IExpressionSyntax)Syntax);
+			}
+			else if (Syntax is IStatementSyntax)
+			{
+				VisitStatementSyntax((IStatementSyntax)Syntax);
+			}
+			else if (Syntax is ITypeSyntax)
+			{
+				VisitTypeSyntax((ITypeSyntax)Syntax);
+			}
+			else if (Syntax is ElementInCollectionSyntax)
+			{
+				VisitElementInCollectionSyntax((ElementInCollectionSyntax)Syntax);
+			}
+			else
+			{
+				VisitDefaultSyntax(Syntax);
+			}
+		}
+		
+		#endregion
+	}
+}

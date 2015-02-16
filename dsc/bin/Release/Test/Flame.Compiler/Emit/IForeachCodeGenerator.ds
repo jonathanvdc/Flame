@@ -1,0 +1,29 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Emit
+{
+	public interface IForeachCodeGenerator : ICodeGenerator
+	{
+		ICollectionBlock CreateCollectionBlock(IVariableMember Member, ICodeBlock Collection);
+	
+		IForeachBlockGenerator CreateForeachBlock(IEnumerable<ICollectionBlock> Collections);
+	}
+	
+	/// <summary>
+	/// Describes general foreach block functionality.
+	/// </summary>
+	public interface IForeachBlockGenerator : IBlockGenerator
+	{
+		/// <summary>
+		/// Gets a read-only list that contains variables representing the collection's elements on each iteration.
+		/// </summary>
+		IReadOnlyList<IVariable> Elements { const get; }
+	}
+	
+	public interface ICollectionBlock : ICodeBlock
+	{
+		IVariableMember Member { const get; }
+	}
+}

@@ -1,0 +1,29 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.DSharp.Lexer;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Variables;
+
+namespace Flame.Syntax.DSharp
+{
+    public class AtAddressMemberAccessSyntax : MemberAccessSyntaxBase
+    {
+        public const this(set IExpressionSyntax Target, set Token Operator, set Token Member);
+        public const this(set IExpressionSyntax Target, set Token Member)
+        {
+        	this.Operator = new Token(TokenType.RArrow, "->");
+        }
+        public const this(set IExpressionSyntax Target, string MemberName)
+        {
+        	this.Operator = new Token(TokenType.RArrow, "->");
+        	this.Member = new Token(TokenType.Identifier, MemberName);
+        }
+
+        public override const IVariable GetCallerVariable(ISyntaxState State)
+        {
+            return new AtAddressVariable(Target.CreateExpression(State));
+        }
+    }
+}

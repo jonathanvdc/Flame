@@ -1,0 +1,57 @@
+/// <summary>
+/// A basic implementation of a swap list.
+/// </summary>
+/// <remarks>
+/// This class is essentially a wrapper around a list.
+/// See 'IReadOnlySwapList<T>' for a more detailed swap list contract.
+/// </remarks>
+public class SwapList<T> : IReadOnlySwapList<T>, IList<T>
+{
+    /// <summary>
+    /// Creates a new swap list.
+    /// </summary>
+    public const this(set IList<T> backingList);
+    
+    private IList<T> backingList;
+    
+    public void Swap(IList<T> Container)
+    {
+        while (Container.Count > 0)
+            Container.RemoveAt(0);
+        int count = backingList.Count;
+        for (int i = 0; i < count; i++)
+            Container.Add(backingList[i]);
+        this.backingList = Container;
+    }
+    
+    public void Add(T Item)
+    {
+        backingList.Add(Item);
+    }
+    
+    public bool Insert(int Index, T Item)
+    {
+        return backingList.Insert(Index, Item);
+    }
+    
+    public bool RemoveAt(int Index)
+    {
+        return backingList.RemoveAt(Index);
+    }
+    
+    public int Count
+    {
+        const get return backingList.Count;
+    }
+    
+    public T this[int Index]
+    {
+        const get return backingList[Index];
+        set backingList[Index] = value;
+    }
+    
+    public const [<T>] __iter__()
+    {
+        return backingList.__iter__();
+    }
+}

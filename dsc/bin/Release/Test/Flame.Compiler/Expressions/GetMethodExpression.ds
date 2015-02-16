@@ -1,0 +1,46 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Expressions
+{
+	public class GetMethodExpression : IExpression
+	{
+		public this(set IMethod Target, set IExpression Caller);
+	
+		public IExpression Caller { const get; private set; }
+		public IMethod Target { const get; private set; }
+		
+		public IType Type 
+		{ 
+			const get
+			{
+				return MethodType.Create(Target);
+			}
+		}
+		
+		public bool IsConstant 
+		{
+			const get
+			{
+				return Target.IsConstant && Caller.IsConstantOrNull;
+			}
+		}
+		
+		public const IBoundObject Evaluate()
+		{
+			return new BoundMethod(Target, Caller.EvaluateOrNull());
+		}
+		
+		public IExpression Optimize()
+		{
+			var callerExpr = Caller.OptimizeOrNull();
+			return new GetMethodExpression(Target, callerExpr);
+		}
+		
+		public ICodeBlock Emit(ICodeGenerator Generator)
+		{
+			return Generator.EmitMethod(Target, Caller.EmitOrNull(Generator));
+		}
+	}
+}

@@ -1,0 +1,50 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Binding
+{
+	/// <summary>
+	/// A binder that performs a type lookup only once, and then caches the result.
+	/// </summary>
+	public class CachingBinder : IBinder
+	{
+		public const this(set IBinder Binder)
+		{
+			this.cache = new Dictionary<string, IType>();
+		}
+	
+		public IBinder Binder { const get; private set; }
+		
+		private Dictionary<string, IType> cache;
+		public const IType BindType(string Name)
+		{
+			if (cache.ContainsKey(Name))
+			{
+				return cache[Name];
+			}
+			else
+			{
+				var result = Binder.BindType(Name);
+				cache[Name] = result;
+				return result;
+			}
+		}
+		
+		private IType[] allTypes;
+		public const IEnumerable<IType> GetTypes()
+		{
+			if (allTypes == null)
+			{
+				allTypes = Enumerable.ToArray<IType>(Binder.GetTypes());
+			}
+			return (IEnumerable<IType>)allTypes;
+		}
+		
+		/// <summary>
+		/// Gets the environment for this binder.
+		/// </summary>
+		public IEnvironment Environment { const get return Binder.Environment; }
+	}
+}

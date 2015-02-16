@@ -1,0 +1,192 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Build;
+using Flame.Compiler;
+using Flame.DSharp.Build;
+using Flame.DSharp.Lexer;
+using Flame.DSharp.Parser;
+
+namespace Flame.Syntax.DSharp
+{
+    public class TokenSignatureSyntax : ISignatureSyntax
+    {
+        public const this(set IEnumerable<IAttributeSyntax> Attributes, IList<Token> Tokens, set ICompilerLog Log)
+        {
+            nsIndex = -1;
+            tsIndex = -1;
+            this.tokens = Tokens;
+        }
+
+        public IEnumerable<IAttributeSyntax> Attributes { const get; private set; }
+        public ICompilerLog Log { const get; private set; }
+        public bool IsOperator { const get return false; }
+        private IList<Token> tokens;
+
+        #region TypeStartIndex
+
+        private int tsIndex;
+        protected int TypeStartIndex
+        {
+            const get
+            {
+                if (tsIndex == -1)
+                {
+                    int typeStart = NameStartIndex - 1;
+                    TokenType lastTokenType = TokenType.Dot;
+                    while (typeStart >= 0)
+                    {
+                        var currentTokenType = tokens[typeStart].Type;
+
+                        if (!lastTokenType.IsPrefixOrSuffixTypeToken() && !currentTokenType.IsPrefixOrSuffixTypeToken())
+                        {
+                            break;
+                        }
+
+                        lastTokenType = currentTokenType;
+                        typeStart--;
+                    }
+                    tsIndex = typeStart + 1;
+                }
+                return tsIndex;
+            }
+        }
+
+        private int nsIndex;
+        protected int NameStartIndex
+        {
+            const get
+            {
+                if (nsIndex == -1)
+                {
+                    int nameStart = tokens.Count - 1;
+                    if (tokens[nameStart].Type == TokenType.GreaterThan)
+                    {
+                        int blocks = 1;
+                        while (blocks > 0)
+                        {
+                            nameStart--;
+                            if (tokens[nameStart].Type == TokenType.GreaterThan)
+                            {
+                                blocks++;
+                            }
+                            else if (tokens[nameStart].Type == TokenType.LessThan)
+	                        {
+                                blocks--;
+	                        }
+                        }
+                        nameStart--;
+                    }
+                    nsIndex = nameStart;
+                }
+                return nsIndex;
+            }
+        }
+
+        #endregion
+
+        #region Modifiers
+
+        public IEnumerable<Token> ModifierTokens
+        {
+            const get
+            {
+                return Enumerable.Take<Token>(tokens, TypeStartIndex);
+            }
+        }
+
+        #endregion
+
+        #region Generics
+
+        public IEnumerable<IGenericParameterDeclarationSyntax> GenericDeclarations
+        {
+            const get
+            {
+                if (tokens.Count > NameStartIndex + 1)
+                {
+                	var genericTokens = Enumerable.Skip<Token>(tokens, NameStartIndex + 1);
+                    MemoryTokenStream tokenStream = new MemoryTokenStream(Enumerable.ToArray<Token>(genericTokens));
+                    List<IGenericParameterDeclarationSyntax> syntaxGroup = new List<IGenericParameterDeclarationSyntax>();
+                    tokenStream.Next(TokenType.LessThan, Log);
+
+                    while (tokenStream.Peek().Type != TokenType.GreaterThan)
+                    {
+                        List<Token> genericParameterTokens = new List<Token>();
+                        PeekToken peek = tokenStream.Peek();
+                        while (peek.Type != TokenType.Comma && peek.Type != TokenType.GreaterThan)
+                        {
+                            genericParameterTokens.Add(tokenStream.Next());
+                            peek = tokenStream.Peek();
+                        }
+                        if (peek.Type == TokenType.Comma)
+                        {
+                            tokenStream.Next();
+                        }
+
+                        GenericParameterDeclarationSyntax syntax = new GenericParameterDeclarationSyntax(Enumerable.Take<Token>(genericParameterTokens, genericParameterTokens.Count - 1), Enumerable.Last<Token>(genericParameterTokens));
+                        syntaxGroup.Add(syntax);
+                    }
+
+                    tokenStream.Next(TokenType.GreaterThan, Log);
+                    return syntaxGroup;
+                }
+                else
+                {
+                    return (IEnumerable<IGenericParameterDeclarationSyntax>)new IGenericParameterDeclarationSyntax[0];
+                }
+            }
+        }
+
+        #endregion
+
+        #region TypeSyntax
+
+        public ITypeSyntax TypeSyntax
+        {
+            const get
+            {
+                int startIndex = TypeStartIndex;
+                MemoryTokenStream signatureStream = new MemoryTokenStream(Enumerable.ToArray<Token>(Enumerable.Take<Token>(Enumerable.Skip<Token>(tokens, startIndex), NameStartIndex - startIndex)));
+                DSharpSyntaxParser parser = new DSharpSyntaxParser(Log);
+                return parser.ParseType(signatureStream);
+            }
+        }
+
+        #endregion
+
+        #region Name
+
+        public Token NameToken
+        {
+            const get { return tokens[NameStartIndex]; }
+        }
+        public string Name
+        {
+            const get { return NameToken.TokenValue; }
+        }
+
+        #endregion
+
+        public const SignatureSyntax ToSignatureSyntax()
+        {
+            return new SignatureSyntax(this);
+        }
+
+        public override const string ToString()
+        {
+            return GetCode().ToString();
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            foreach (var item in tokens)
+            {
+                cb.Append(item.ToString());
+            }
+            return cb;
+        }
+    }
+}

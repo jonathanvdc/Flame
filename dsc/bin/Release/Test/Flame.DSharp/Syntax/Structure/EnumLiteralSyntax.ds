@@ -1,0 +1,91 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Build;
+using Flame.Compiler;
+using Flame.Compiler.Build;
+using Flame.Attributes;
+using Flame.DSharp;
+using Flame.DSharp.Lexer;
+using Flame.DSharp.Build;
+
+namespace Flame.Syntax.DSharp
+{
+    public class EnumLiteralSyntax : IMemberSyntax<IField>, IRelevantSyntax<Token>
+    {
+        public const this(set Token Identifier)
+        {
+            this.AssignmentOperator = Token.Undefined;
+            this.LiteralValueSyntax = null;
+            this.Comma = Token.Undefined;
+        }
+        public const this(set Token Identifier, set Token AssignmentOperator, set IExpressionSyntax LiteralValueSyntax)
+        {
+            this.Comma = Token.Undefined;
+        }
+        public const this(set Token Identifier, set Token AssignmentOperator, set IExpressionSyntax LiteralValueSyntax, set Token Comma);
+
+        public Token Identifier { const get; private set; }
+        public Token AssignmentOperator { const get; private set; }
+        public IExpressionSyntax LiteralValueSyntax { const get; private set; }
+        public Token Comma { const get; private set; }
+        
+        public IEnumerable<Token> LeadingTrivia
+        {
+        	const get
+        	{
+        		List<Token> tokens = new List<Token>();
+        		
+        		tokens.AddRange(Identifier.GetAllTrivia());
+        		tokens.AddRange(AssignmentOperator.GetAllTrivia());
+				tokens.AddRange(LiteralValueSyntax.GetAllTrivia());
+				tokens.AddRange(Comma.GetAllTrivia());
+				
+				return tokens;
+        	}
+        }
+        
+        public IEnumerable<Token> TrailingTrivia { const get return (IEnumerable<Token>)new Token[0]; }
+
+        public IField CreateMember(ISyntaxState State)
+        {
+            return new SyntaxEnumLiteral(this, State);
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            cb.Append(Identifier.ToString());
+            if (LiteralValueSyntax != null)
+            {
+                cb.Append(" ");
+                cb.Append(AssignmentOperator.ToString());
+                cb.Append(" ");
+                cb.Append(LiteralValueSyntax.GetCode());
+            }
+            if (Comma.Type != TokenType.UNDEFINED)
+            {
+                cb.Append(Comma.ToString());
+            }
+            return cb;
+        }
+
+        public override const string ToString()
+        {
+            return GetCode().ToString();
+        }
+
+        public bool IsExtensionMember
+        {
+            const get { return false; }
+        }
+                
+        public bool IsSingletonMember
+        {
+        	const get
+        	{
+        		return false;
+        	}
+        }
+    }
+}

@@ -1,0 +1,15 @@
+/// <summary>
+/// A mapping function that maps users to their full names.
+/// </summary>
+public class UserNameMap : IMap<User, string>
+{
+    /// <summary>
+    /// Creates a new instance of a 'UserNameMap' mapping function.
+    /// </summary>
+    public const this();
+
+    public const string Map(User Customer)
+    {
+        return Customer.Name;
+    }
+}

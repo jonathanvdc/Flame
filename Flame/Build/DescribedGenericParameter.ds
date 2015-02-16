@@ -1,0 +1,327 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Attributes;
+
+namespace Flame.Build
+{
+    public class DescribedGenericParameter : DescribedMember, IGenericParameterBuilder
+    {
+        public const this(set string Name, set IGenericMember DeclaringMember)
+        {
+            this.constraints = new List<IGenericConstraint>();
+        }
+        public const this(set string Name, set IGenericMember DeclaringMember, [IGenericConstraint] Constraints)
+        {
+        	this.constraints = new List<IGenericConstraint>(Constraints);
+        }
+
+        public IType TypeArgument { const get; set; }
+        public IGenericMember DeclaringMember { const get; set; }
+
+		private List<IGenericConstraint> constraints;
+		
+		private IType[] cachedTypeConstraints;
+		private ITypeMember[] cachedMembers;
+		private IMethod[] cachedMethods;
+		private IMethod[] cachedCtors;
+		private IField[] cachedFields;
+		private IProperty[] cachedProperties;
+		
+		private void ClearCache()
+		{
+			this.cachedMembers = null;
+			this.cachedMethods = null;
+			this.cachedCtors = null;
+			this.cachedFields = null;
+			this.cachedProperties = null;
+			this.cachedTypeConstraints = null;
+		}
+
+        public IGenericConstraint Constraint
+        {
+	        const get
+			{
+				return new AndConstraint(constraints);
+			}
+		}
+		
+		public void AddConstraint(IGenericConstraint Constraint)
+		{
+			ClearCache();
+			if (Constraint.HasConstraint<ValueTypeConstraint>())
+			{
+				if (!this.IsValueType)
+				{
+					AddAttributeCore(PrimitiveAttributes.ValueTypeAttribute);
+				}
+			}
+			else if (Constraint.HasConstraint<ReferenceTypeConstraint>())
+			{
+				if (!this.IsReferenceType)
+				{
+					AddAttributeCore(PrimitiveAttributes.ReferenceTypeAttribute);
+				}
+			}
+			else if (Constraint.HasConstraint<EnumConstraint>())
+			{
+				if (!this.IsEnum)
+				{
+					AddAttributeCore(PrimitiveAttributes.EnumAttribute);
+				}
+			}
+			constraints.Add(Constraint);
+		}
+		
+		/*public void AddTypeConstraint(IType TypeConstraint)
+        {
+            AddConstraint(new TypeConstraint(TypeConstraint));
+        }*/
+        
+        private void AddAttributeCore(IAttribute Attribute)
+		{
+			this.Attributes.Add(Attribute);
+		}
+        
+        public override void AddAttribute(IAttribute Attribute)
+        {
+        	if (Attribute.AttributeType.Equals(PrimitiveAttributes.ValueTypeAttribute.AttributeType))
+        	{
+        		AddConstraint(new ValueTypeConstraint());
+        	}
+        	else if (Attribute.AttributeType.Equals(PrimitiveAttributes.ReferenceTypeAttribute.AttributeType))
+        	{
+        		AddConstraint(new ReferenceTypeConstraint());
+        	}
+        	else if (Attribute.AttributeType.Equals(PrimitiveAttributes.EnumAttribute.AttributeType))
+        	{
+        		AddConstraint(new EnumConstraint());
+        	}
+        	else
+        	{
+        		AddAttributeCore(Attribute);
+        	}
+        }
+        
+        public override string FullName
+        {
+        	const get
+        	{
+        		return MemberExtensions.CombineNames(DeclaringMember.FullName, Name);	
+        	}
+        }
+
+        public const IEnumerable<IType> GetTypeConstraints()
+        {
+            return (IEnumerable<IType>)TypeConstraints;
+        }
+        
+        public IType[] TypeConstraints
+        {
+        	const get
+        	{
+	        	if (cachedTypeConstraints == null)
+	        	{
+	            	cachedTypeConstraints = Enumerable.ToArray<IType>(constraints.ExtractBaseTypes());
+	            }
+	            return cachedTypeConstraints;
+        	}
+        }
+
+        public const ITypeMember[] GetMembers()
+        {
+            if (TypeArgument == null)
+            {
+            	if (cachedMembers == null)
+            	{
+	            	var members = new List<ITypeMember>();
+	            	foreach (var type in TypeConstraints)
+	            	foreach (var item in type.GetMembers())
+	            	{
+	            		members.Add(item);
+	            	}
+	                cachedMembers = members.ToArray();
+                }
+                return cachedMembers;
+            }
+            else
+            {
+                return TypeArgument.GetMembers();
+            }
+        }
+
+        public const IMethod[] GetMethods()
+        {
+            if (TypeArgument == null)
+            {
+            	if (cachedMethods == null)
+            	{
+	                var members = new List<IMethod>();
+	            	foreach (var type in TypeConstraints)
+	            	foreach (var item in type.GetMethods())
+	            	{
+	            		members.Add(item);
+	            	}
+	                cachedMethods = members.ToArray();
+                }
+                return cachedMethods;
+            }
+            else
+            {
+                return TypeArgument.GetMethods();
+            }
+        }
+
+        public const IProperty[] GetProperties()
+        {
+            if (TypeArgument == null)
+            {
+                if (cachedProperties == null)
+            	{
+	                var members = new List<IProperty>();
+	            	foreach (var type in TypeConstraints)
+	            	foreach (var item in type.GetProperties())
+	            	{
+	            		members.Add(item);
+	            	}
+	                cachedProperties = members.ToArray();
+                }
+                return cachedProperties;
+            }
+            else
+            {
+                return TypeArgument.GetProperties();
+            }
+        }
+
+        public const IField[] GetFields()
+        {
+            if (TypeArgument == null)
+            {
+                if (cachedFields == null)
+            	{
+	                var members = new List<IField>();
+	            	foreach (var type in TypeConstraints)
+	            	foreach (var item in type.GetFields())
+	            	{
+	            		members.Add(item);
+	            	}
+	                cachedFields = members.ToArray();
+	            }
+	            return cachedFields;
+            }
+            else
+            {
+                return TypeArgument.GetFields();
+            }
+        }
+
+        public const IMethod[] GetConstructors()
+        {
+            if (TypeArgument == null)
+            {
+            	if (cachedCtors == null)
+            	{
+	                var members = new List<IMethod>();
+	            	foreach (var type in TypeConstraints)
+	            	foreach (var item in type.GetConstructors())
+	            	{
+	            		members.Add(item);
+	            	}
+	                cachedCtors = members.ToArray();
+                }
+                return cachedCtors;
+            }
+            else
+            {
+                return TypeArgument.GetConstructors();
+            }
+        }
+
+        public const IBoundObject GetDefaultValue()
+        {
+        	if (TypeArgument == null)
+        		return null;
+        	else
+            	return TypeArgument.GetDefaultValue();
+        }
+
+        public INamespace DeclaringNamespace
+        {
+            const get { return null; }
+        }
+
+        public bool IsContainerType
+        {
+            const get { return false; }
+        }
+
+        public IContainerType AsContainerType()
+        {
+            return null;
+        }
+
+        public IArrayType MakeArrayType(int Rank)
+        {
+            return new DescribedArrayType(this, Rank);
+        }
+
+        public IPointerType MakePointerType(PointerKind PointerKind)
+        {
+            return new DescribedPointerType(this, PointerKind);
+        }
+
+        public IVectorType MakeVectorType(int[] Dimensions)
+        {
+            return new DescribedVectorType(this, Dimensions);
+        }
+
+        public IType[] GetBaseTypes()
+        {
+            return TypeConstraints;
+        }
+
+        public IType MakeGenericType(IEnumerable<IType> TypeArguments)
+        {
+            return this;
+        }
+
+        public const IEnumerable<IGenericParameter> GetGenericParameters()
+        {
+            return new IGenericParameter[0];
+        }
+
+        public const IEnumerable<IType> GetGenericArguments()
+        {
+            return new IType[0];
+        }
+
+        public const IType GetGenericDeclaration()
+        {
+            return this;
+        }
+
+        public IType ParameterType
+        {
+            const get { return TypeArgument; }
+        }
+
+        public const bool IsAssignable(IType Type)
+        {
+        	return Constraint.Satisfies(Type);
+        }
+
+        public override const bool Equals(object obj)
+        {
+            if (obj is IGenericParameter)
+            {
+                return DeclaringMember.Equals(((IGenericParameter)obj).DeclaringMember) && Name.Equals(((IGenericParameter)obj).Name);
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+}

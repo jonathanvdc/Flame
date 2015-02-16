@@ -1,0 +1,27 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Statements
+{
+    public abstract class ComplexStatement : IStatement
+    {
+    	public const this();
+    
+        public abstract IStatement Peel();
+
+        public bool IsEmpty
+        {
+            const get { return Peel().IsEmpty; }
+        }
+
+        public IStatement Optimize()
+        {
+            return Peel().Optimize();
+        }
+
+        public void Emit(IBlockGenerator Generator)
+        {
+            Peel().Emit(Generator);
+        }
+    }
+}

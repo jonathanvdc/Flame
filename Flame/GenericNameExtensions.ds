@@ -1,0 +1,127 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame
+{
+	public static class GenericNameExtensions
+	{
+		/// <summary>
+        /// Gets the member's name, without generic parameters.
+        /// </summary>
+        /// <param name="Member"></param>
+        /// <returns></returns>
+        public const static string GetGenericFreeName(this IGenericMember Member)
+        {
+            string genericName = Member.Name;
+            return RemoveGenerics(genericName);
+        }
+        /// <summary>
+        /// Gets the member's full name, without generic parameters.
+        /// </summary>
+        /// <param name="Member"></param>
+        /// <returns></returns>
+        public const static string GetGenericFreeFullName(this IGenericMember Member)
+        {
+            string genericName = Member.FullName;
+            return RemoveGenerics(genericName);
+        }
+
+		public static const string TrimGenerics(string Name)
+		{
+			return RemoveGenerics(Name);
+		}
+		
+		public static const string ChangeTypeArguments(string Name, [string] TypeArgumentNames)
+		{
+			return AppendTypeArguments(TrimGenerics(Name), TypeArgumentNames);
+		}
+
+        private const static string RemoveGenerics(string genericName)
+        {
+            if (genericName.EndsWith(">"))
+            {
+                int scope = 1;
+                int i;
+                for (i = genericName.Length - 2; i >= 0; i--)
+                {
+                    if (genericName[i] == '>')
+                    {
+                        scope++;
+                    }
+                    else if (genericName[i] == '<')
+                    {
+                        scope--;
+                    }
+
+                    if (scope == 0)
+                    {
+                        break;
+                    }
+                }
+
+                return genericName.Substring(0, i);
+            }
+            else
+            {
+                return genericName;
+            }
+        }
+        
+        public static const string AppendTypeArguments(string Name, [string] TypeArgumentNames)
+		{
+			if (!Enumerable.Any<string>(TypeArgumentNames))
+			{
+				return Name;
+			}
+			StringBuilder sb = new StringBuilder(Name);
+			sb.Append('<');
+			sb.Append(Enumerable.First<string>(TypeArgumentNames));
+			foreach (var item in Enumerable.Skip<string>(TypeArgumentNames, 1))
+			{
+				sb.Append(", ");
+				sb.Append(item);
+			}
+			sb.Append('>');
+			return sb.ToString();
+		}
+		
+		public static const string AppendArraySuffix(string Name, int Rank)
+		{
+			if (Rank > 0)
+			{
+				StringBuilder sb = new StringBuilder(Name);
+				sb.Append('[');
+				for (int i = 1; i < Rank; i++)
+				{
+					sb.Append(',');
+				}
+				sb.Append(']'); 
+				return sb.ToString();
+			}
+			else
+			{
+				return Name;
+			}
+		}
+		
+		public static const string AppendVectorSuffix(string Name, [int] Dimensions)
+		{
+			if (Enumerable.Any<int>(Dimensions))
+			{
+				StringBuilder sb = new StringBuilder(Name);
+				sb.Append('[');
+				sb.Append(Enumerable.First<int>(Dimensions));
+				foreach (var item in Enumerable.Skip<int>(Dimensions, 1))
+				{
+					sb.Append(", ");
+					sb.Append(item);
+				}
+				sb.Append(']');
+				return sb.ToString();
+			}
+			else return Name;
+		}
+	}
+}

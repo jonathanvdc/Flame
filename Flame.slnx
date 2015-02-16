@@ -1,0 +1,9 @@
+<Solution Name="Flame">
+	<Projects>
+		<Project Path="Flame/Flame.dsproj" />
+		<Project Path="Flame.Compiler/Flame.Compiler.dsproj" />
+		<Project Path="Flame.DSharp\Flame.DSharp.dsproj" IsMainProject="True" />
+		<Project Path="Flame.Spark\Flame.Spark.dsproj" />
+		<Project Path="Flame.Syntax\Flame.Syntax.dsproj" />
+	</Projects>
+</Solution>

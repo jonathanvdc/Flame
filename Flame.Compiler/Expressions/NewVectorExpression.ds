@@ -1,0 +1,57 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Expressions
+{
+    public class NewVectorExpression : IExpression
+    {
+        public const this(IType VectorType)
+        {
+            this.Type = VectorType;
+        }
+        public const this(IType ElementType, int[] Dimensions)
+        {
+            this.Type = ElementType.MakeVectorType(Dimensions);
+        }
+
+        public IType ElementType
+        {
+            const get
+            {
+                return Type.AsContainerType().AsVectorType().GetElementType();
+            }
+        }
+        public int[] Dimensions
+        {
+            const get
+            {
+                return Type.AsContainerType().AsVectorType().GetDimensions();
+            }
+        }
+
+        public IType Type { const get; private set; }
+
+        public bool IsConstant
+        {
+            //const get { return new NewArrayExpression(ElementType, Dimensions.Select((item) => new Int32Expression(item))).IsConstant; }
+            const get return false;
+        }
+
+        public const IBoundObject Evaluate()
+        {
+            //return new NewArrayExpression(ElementType, Dimensions.Select((item) => new Int32Expression(item))).Evaluate(); // close enough
+            return null;
+        }
+
+        public const IExpression Optimize()
+        {
+            return this;
+        }
+
+        public const ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Generator.EmitNewVector(ElementType, Dimensions);
+        }
+    }
+}

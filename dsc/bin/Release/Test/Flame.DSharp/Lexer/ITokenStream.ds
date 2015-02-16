@@ -1,0 +1,34 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.DSharp.Lexer
+{
+    #region ITokenStream
+
+    public interface ITokenStream
+    {
+        /// <summary>
+        /// Gets the next token in queue
+        /// </summary>
+        Token Next();
+        /// <summary>
+        /// Returns the next token after the provided position
+        /// </summary>
+        const PeekToken Peek(TokenIdentifier Position);
+        /// <summary>
+        /// Gets the token stream's current position.
+        /// </summary>
+        TokenIdentifier CurrentPosition { const get; }
+        /// <summary>
+        /// Sets the current parser position.
+        /// </summary>
+        /// <param name="Position"></param>
+        void Seek(TokenIdentifier Position);
+        /// <summary>
+        /// Resets the token stream.
+        /// </summary>
+        void Reset();
+    }
+
+    #endregion
+}

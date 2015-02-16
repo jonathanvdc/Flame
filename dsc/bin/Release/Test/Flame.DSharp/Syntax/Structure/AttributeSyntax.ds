@@ -1,0 +1,65 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Build;
+using Flame.Compiler;
+using Flame.Compiler.Build;
+using Flame.Attributes;
+using Flame.DSharp;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class AttributeSyntax : IAttributeSyntax, IRelevantSyntax<Token>
+    {
+        public this(set Token OpeningBracket, set IInvocationSyntax Constructor, set Token ClosingBracket);
+
+        public Token OpeningBracket { const get; private set; }
+        public IInvocationSyntax Constructor { const get; private set; }
+        public Token ClosingBracket { const get; private set; }
+        
+        public IEnumerable<Token> LeadingTrivia
+        {
+        	const get
+        	{
+        		List<Token> tokens = new List<Token>();
+        		
+        		tokens.AddRange(OpeningBracket.GetAllTrivia());
+				tokens.AddRange(Constructor.GetAllTrivia());
+				tokens.AddRange(ClosingBracket.GetAllTrivia());
+				
+				return tokens;
+        	}
+        }
+        
+        public IEnumerable<Token> TrailingTrivia { const get return (IEnumerable<Token>)new Token[0]; }
+
+        public IAttribute CreateAttribute(ISyntaxState State, IMember DeclaringMember)
+        {
+            var ctor = (IMethod)Enumerable.SingleOrDefault<ITypeMember>(Constructor.GetAccessedMembers(State));
+            
+            if (ctor == null)
+            {
+            	State.Log.LogError("The constructor for attribute '" + GetCode() + "' could not be resolved.");
+            }
+            
+            var args = new List<IBoundObject>();
+            foreach (var input in Constructor.Arguments)
+            {
+            	args.Add(input.CreateVerifiedExpression(State).Evaluate());
+            }
+            ConstructedAttribute attr = new ConstructedAttribute(ctor, args.ToArray());
+            return attr;
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            cb.Append(OpeningBracket.ToString());
+            cb.Append(Constructor.GetCode());
+            cb.Append(ClosingBracket.ToString());
+            return cb;
+        }
+    }
+}

@@ -1,0 +1,34 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Primitives;
+
+namespace Flame
+{
+	public class SetsMemberAttribute : IAttribute
+	{
+		static this()
+		{
+			attrType = new PrimitiveType<IAttribute>("SetsMemberAttribute", 0, null);
+		}
+		private static IType attrType;
+		public static IType SetsMemberAttributeType { const get return attrType; }
+	
+		public const this()
+		{
+			this.TargetName = null;
+		}
+		public const this(set string TargetName);
+		
+		public string TargetName { const get; private set; }
+		public IType AttributeType { const get return attrType; }
+		
+		public IBoundObject Value
+		{
+			const get
+			{
+				return new BoundPrimitive<IAttribute>(AttributeType, this);
+			}
+		}
+	}
+}

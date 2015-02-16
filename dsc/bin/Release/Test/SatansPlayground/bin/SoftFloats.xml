@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<doc>
+  <assembly>
+    <name>SoftFloats</name>
+  </assembly>
+  <members>
+    <member name="T:SoftFloat32">
+      <summary> Describes an IEEE-754 single precision floating point number implemented in software. </summary>
+    </member>
+    <member name="P:SoftFloat32.Data">
+      <summary>Gets the raw data describing the IEEE-754 single-precision number.</summary>
+    </member>
+    <member name="M:SoftFloat32.Static_Singleton.Add(SoftFloat32,SoftFloat32)">
+      <summary> Calculates the sum of two IEEE-754 single precision numbers. </summary>
+    </member>
+  </members>
+</doc>

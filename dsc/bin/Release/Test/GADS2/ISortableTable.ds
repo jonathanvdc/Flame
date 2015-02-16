@@ -1,0 +1,18 @@
+/// <summary>
+/// Describes a sortable table.
+/// </summary>
+public interface ISortableTable<TKey, TItem> : ITable<TKey, TItem>
+{
+    /// <summary>
+    /// Sorts the table's contents in ascending order based on the the provided comparer.
+    /// </summary>
+    /// <pre>
+    /// The table must not be empty for this method to change the table's state.
+    /// </pre>
+    /// <post>
+    /// The table's items will be sorted.
+    /// After sorting, the table's 'ToList()' method must return a list whose items are sorted.
+    /// If the table's state is modified after 'Sort()' is called, the list produced by 'ToList()' need no longer be sorted.
+    /// </post>
+    void Sort(IListSorter<TItem> Sorter);
+}

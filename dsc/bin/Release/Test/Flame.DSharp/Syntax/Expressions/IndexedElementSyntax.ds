@@ -1,0 +1,93 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class IndexedElementSyntax : VariableSyntaxBase, IInvocationSyntax
+    {
+        public const this(set IExpressionSyntax Caller, set IEnumerable<IExpressionSyntax> Arguments);
+
+        public IExpressionSyntax Caller { const get; private set; }
+        public IEnumerable<IExpressionSyntax> Arguments { const get; private set; }
+
+        public override const IVariable CreateVariable(ISyntaxState State)
+        {
+            var args = Enumerable.ToArray<IExpression>(Arguments.CreateVerifiedExpressions(State));
+
+            var callerExpr = Caller.CreateVerifiedExpression(State);
+            
+            var elemVariable = new ElementVariable(callerExpr, args);
+            
+            if (!elemVariable.CanResolve)
+            {
+            	State.Log.LogError(new LogEntry("Indexer resolution error", "The indexer property '" + Caller.GetCode().ToString() + "' could not be resolved in '" + this.GetCode().ToString() + "'"));
+            }
+            
+            return elemVariable;
+        }
+
+        public const IExpression GetCallerExpression(ISyntaxState State)
+        {
+            return Caller.CreateExpression(State);
+        }
+
+        public const IVariable GetCallerVariable(ISyntaxState State)
+        {
+            if (Caller is IVariableSyntax)
+            {
+                return ((IVariableSyntax)Caller).CreateVariable(State);
+            }
+            else
+            {
+                var expr = GetCallerExpression(State);
+                if (expr == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return new ExpressionVariable(expr);
+                }
+            }
+        }
+
+        public const IEnumerable<ITypeMember> GetAccessedMembers(ISyntaxState State)
+        {
+            var callerExpr = Caller.CreateVerifiedExpression(State);
+            return callerExpr.Type.GetBestIndexers(false, Arguments.CreateVerifiedExpressions(State).Types);
+        }
+
+        #region GetCode
+
+        public override CodeBuilder GetCode()
+        {
+            CodeBuilder sb = new CodeBuilder();
+            sb.Append(Caller.GetCode());
+            sb.Append("[");
+            bool first = true;
+            foreach (var item in Arguments)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    sb.Append(", ");
+                }
+                sb.Append(item.GetCode().ToString());
+            }
+            sb.Append("]");
+            return sb;
+        }
+
+        #endregion
+    }
+}

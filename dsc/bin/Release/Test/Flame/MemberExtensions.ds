@@ -1,0 +1,747 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame
+{
+	public static class MemberExtensions
+	{	
+		public static const string CombineNames(string First, string Second)
+		{
+			if (string.IsNullOrEmpty(First))
+			{
+				return Second;
+			}
+			else if (string.IsNullOrEmpty(Second))
+			{
+				return First;
+			}
+			else
+			{
+				StringBuilder sb = new StringBuilder();
+				sb.Append(First);
+				sb.Append(".");
+				sb.Append(Second);
+				return sb.ToString();
+			}
+		}
+		
+		public const static T GetPrimitiveValue<T>(this IBoundObject Value)
+		{
+			var primObj = (IBoundPrimitive<T>)Value;
+			return primObj.Value;
+		}
+		
+		#region Attributes
+		
+		public const static IEnumerable<IAttribute> GetAttributes(this IMember Member, IType Type)
+        {
+        	return Member.GetAttributes().GetAttributes(Type);
+        }
+		
+        public const static IAttribute GetAttribute(this IMember Member, IType Type)
+        {
+        	return Member.GetAttributes().GetAttribute(Type);
+        }
+        
+        public const static IAttribute GetAttribute(this IEnumerable<IAttribute> Attributes, IType Type)
+        {
+            foreach (var attr in Attributes)
+            {
+            	if (attr.AttributeType.Equals(Type))
+                {
+                    return attr;
+                }
+            }
+            return null;
+        }
+        
+        public const static IEnumerable<IAttribute> GetAttributes(this IEnumerable<IAttribute> Attributes, IType Type)
+        {
+        	List<IAttribute> attrs = new List<IAttribute>();
+            foreach (var attr in Attributes)
+            {
+            	if (attr.AttributeType.Equals(Type))
+                {
+                    attrs.Add(attr);
+                }
+            }
+            return attrs;
+        }
+        
+        public const static bool HasAttribute(this IMember Member, IType AttributeType)
+        {
+        	var attr = Member.GetAttribute(AttributeType);
+        	return attr != null;
+        }
+        
+        public const static bool HasAttribute(this IEnumerable<IAttribute> Attributes, IType AttributeType)
+        {
+        	var attr = Attributes.GetAttribute(AttributeType);
+        	return attr != null;
+        }
+        
+        public static AccessAttribute GetAccessAttribute(this IMember Member)
+        {
+        	return new AccessAttribute(Member.Access);
+        }
+        
+        public static AccessModifier Access[this IMember Member]
+        {
+        	const get
+        	{
+	        	var accessAttr = (AccessAttribute)Member.GetAttribute(AccessAttribute.AccessAttributeType);
+	        	if (accessAttr == null)
+	        	{
+	        		return AccessModifier.Public;
+	        	}
+	        	else
+	        	{
+	        		return accessAttr.Access;
+	        	}
+        	}
+        }
+        
+        #region GetAncestryGraph
+        
+        public static AncestryGraph GetAncestryGraph(this IMember Member)
+        {
+        	var attr = Member.GetAttribute(AncestryGraphAttribute.AncestryGraphAttributeType);
+        	if (attr == null)
+        	{
+        		return new AncestryGraph();
+        	}
+        	else
+        	{
+        		return ((AncestryGraphAttribute)attr).Graph;
+        	}
+        }
+        
+        public static AncestryGraph GetAncestryGraph(IMember First, IMember Second)
+        {
+        	var attr = First.GetAttribute(AncestryGraphAttribute.AncestryGraphAttributeType);
+        	if (attr == null)
+        	{
+        		return Second.GetAncestryGraph();
+        	}
+        	else
+        	{
+        		return ((AncestryGraphAttribute)attr).Graph;
+        	}
+        }
+        
+        #endregion
+        
+        #region IsCovariant
+        
+        public static bool IsCovariant[this IGenericParameter Type]
+        {
+            const get
+        	{
+        		return Type.HasAttribute(PrimitiveAttributes.OutAttribute.AttributeType);
+        	}
+        }
+        
+        #endregion
+        
+        #region IsContravariant
+        
+        public static bool IsContravariant[this IGenericParameter Type]
+        {
+            const get
+        	{
+        		return Type.HasAttribute(PrimitiveAttributes.InAttribute.AttributeType);
+        	}
+        }
+        
+        #endregion
+        
+        #region IsInterface
+        
+        public static bool IsInterface[this IType Type]
+        {
+            const get
+        	{
+        		return Type.HasAttribute(PrimitiveAttributes.InterfaceAttribute.AttributeType);
+        	}
+        }
+        
+        #endregion
+        
+        #region IsValueType
+        
+        public static bool IsValueType[this IType Type]
+        {
+        	const get
+        	{
+        		return Type.HasAttribute(PrimitiveAttributes.ValueTypeAttribute.AttributeType);
+        	}
+        }
+        
+        #endregion
+        
+        #region IsValueType
+        
+        public static bool IsEnum[this IType Type]
+        {
+        	const get
+        	{
+        		return Type.HasAttribute(PrimitiveAttributes.EnumAttribute.AttributeType);
+        	}
+        }
+        
+        #endregion
+        
+        #region IsReferenceType
+        
+        public static bool IsReferenceType[this IType Type]
+        {
+        	const get
+        	{
+        		if (Type.HasAttribute(PrimitiveAttributes.ReferenceTypeAttribute.AttributeType))
+        		{
+        			return true;
+        		}
+        		return !Type.IsValueType && !Type.IsGenericParameter;
+        	}
+        }
+        
+        #endregion
+        
+        #region IsRootType
+        
+        public static bool IsRootType[this IType Type]
+        {
+        	const get
+        	{
+        		return Type.HasAttribute(PrimitiveAttributes.RootTypeAttribute.AttributeType);
+        	}
+        }
+        
+        #endregion
+        
+        #region IsEnumerable
+        
+        public static bool IsEnumerableType[this IType Type]
+        {
+        	const get
+        	{
+        		return Type.HasAttribute(EnumerableAttribute.EnumerableAttributeType);
+        	}
+        }
+        
+        #endregion
+        
+        #region GetEnumerableElementType
+        
+        public static IType GetEnumerableElementType(this IType Type)
+        {
+        	if (Type.IsContainerType)
+        	{
+        		return Type.AsContainerType().GetElementType();
+        	}
+        	else
+        	{
+        		var attr = (EnumerableAttribute)Type.GetAttribute(EnumerableAttribute.EnumerableAttributeType);
+        		if (attr == null)
+        		{
+        			IType result = null;
+        			foreach (var bType in Type.GetBaseTypes())
+        			{
+        				var elemType = bType.GetEnumerableElementType();
+        				if (elemType != null)
+        				{
+        					if (result == null)
+        						result = elemType;
+        					else if (elemType.Is(result)) // Pick the more derived type
+        						result = elemType;
+        					else if (!result.Is(elemType)) // If one type does not inherit from the other, no definite result can be selected
+        						return null;
+        				}
+        			}
+        			return result;
+        		}
+        		else
+        		{
+        			return attr.ElementType;
+        		}
+        	}
+        }
+        
+        #endregion
+        
+        #region IsHidden
+        
+        public static bool IsHidden[this IMember Member]
+        {
+        	const get
+        	{
+        		return Member.HasAttribute(PrimitiveAttributes.HiddenAttribute.AttributeType);
+        	}
+        }
+        
+        #endregion
+        
+        #region IsOperator/GetOperator
+        
+        public static bool IsOperator[this IMethod Method]
+        {
+        	const get
+        	{
+        		if (Method.HasAttribute(OperatorAttribute.OperatorAttributeType))
+        		{
+        			return true;
+        		}
+        		foreach (var item in Method.GetBaseMethods())
+        		{
+        			if (item.IsOperator) return true;
+        		}
+        		return false;
+        	}
+        }
+        
+        public static const Operator GetOperator(this IMethod Method)
+        {
+            if (Method.HasAttribute(OperatorAttribute.OperatorAttributeType))
+    		{
+    			return ((OperatorAttribute)Method.GetAttribute(OperatorAttribute.OperatorAttributeType)).Operator;
+    		}
+    		foreach (var item in Method.GetBaseMethods())
+    		{
+    			var result = item.GetOperator();
+    			if (result.IsDefined) return result;
+    		}
+        	return Operator.Undefined;
+        }
+        
+        /*public static Operator Operator[this IMethod Method]
+        {
+        	const get
+        	{
+        		return Method.GetOperator();
+        	}
+        }*/
+        
+        public static bool IsCast[this IMethod Method]
+        {
+        	const get
+        	{
+        		return Method.HasAttribute(PrimitiveAttributes.CastAttribute.AttributeType);	
+        	}
+        }
+        
+        #endregion
+        
+        #region SetsMember
+        
+        public static bool SetsMember[this IParameter Parameter]
+        {
+        	const get
+        	{
+        		return Parameter.HasAttribute(PrimitiveAttributes.SetsMemberAttribute.AttributeType);
+        	}
+        }
+        
+        #endregion
+        
+        #region IsExtension
+        
+        private static bool AreExtensionParameters(IParameter[] Parameters)
+        {
+        	if (Parameters.Length > 0)
+        	{
+        		return Parameters[0].IsExtension;
+        	}
+        	else
+        	{
+        		return false;
+        	}
+        }
+        
+        public static bool IsExtension[this IMember Member]
+        {
+        	const get
+        	{
+        		var attr = MemberExtensions.GetAttribute(Member, PrimitiveAttributes.ExtensionAttribute.AttributeType);
+        		if (attr != null)
+        		{
+        			return true;
+        		}
+        		else if (Member is IMethod)
+        		{
+        			return AreExtensionParameters(((IMethod)Member).GetParameters());
+        		}
+        		else if (Member is IProperty)
+        		{
+        			return AreExtensionParameters(((IProperty)Member).GetIndexerParameters());
+        		}
+        		return false;
+        	}
+        }
+        
+        #endregion
+        
+        #region IsValueType
+        
+        public static bool IsConstant[this IMember Member]
+        {
+        	const get
+        	{
+        		return Member.HasAttribute(PrimitiveAttributes.ConstantAttribute.AttributeType);
+        	}
+        }
+        
+        #endregion
+		
+		#endregion
+		
+		#region IsPointer
+        
+        public static bool IsPointer[this IType Type]
+        {
+        	const get
+        	{
+        		if (!Type.IsContainerType)
+	        		return false;
+	        	return Type.AsContainerType().ContainerKind == ContainerTypeKind.Pointer;
+        	}
+        }
+        
+        #endregion
+        
+        #region IsArray
+        
+        public static bool IsArray[this IType Type]
+        {
+        	const get
+        	{
+        		if (!Type.IsContainerType)
+	        		return false;
+	        	return Type.AsContainerType().ContainerKind == ContainerTypeKind.Array;
+        	}
+        }
+        
+        #endregion
+        
+        #region IsArray
+        
+        public static bool IsVector[this IType Type]
+        {
+        	const get
+        	{
+        		if (!Type.IsContainerType)
+	        		return false;
+	        	return Type.AsContainerType().ContainerKind == ContainerTypeKind.Vector;
+        	}
+        }
+        
+        #endregion
+        
+        #region IsVirtual
+        
+        public static bool IsVirtual[this IMember Member]
+		{
+			const get
+			{
+				if (Member is ITypeMember)
+				if (((ITypeMember)Member).DeclaringType.IsInterface)
+				{
+					return true;
+				}
+				if (Member.IsAbstract)
+				{
+					return true;
+				}
+				return Member.HasAttribute(PrimitiveAttributes.VirtualAttribute.AttributeType);
+			}
+		}
+
+		#endregion
+        
+        #region IsAbstract
+        
+        public static bool IsAbstract[this IMember Member]
+		{
+			const get
+			{
+				return Member.HasAttribute(PrimitiveAttributes.AbstractAttribute.AttributeType);
+			}
+		}
+
+		#endregion
+
+        #region IsGenericParameter
+        
+        /// <summary>
+        /// Gets a boolean value that indicates if the given type is a generic parameter.
+        /// </summary>
+        /// <param name="Type"></param>
+        /// <returns></returns>
+        public static bool IsGenericParameter[this IType Type]
+        {
+        	const get
+        	{
+        		if (Type is IGenericParameter)
+        		{
+        			var genericParam = (IGenericParameter)Type;
+        			return genericParam.DeclaringMember != null;
+        		}
+        		else
+        		{
+        			return false;
+        		}
+            }
+        }
+        
+        #endregion
+        
+        #region IsGeneric
+        
+        public static bool IsGeneric[this IGenericMember Member]
+        {
+        	const get
+        	{
+        		return Enumerable.Any<IGenericParameter>(Member.GetGenericParameters());	
+        	}
+        }
+        
+        #endregion
+        
+        #region IsGenericDeclaration
+        
+        public static bool IsGenericDeclaration[this IGenericMember Member]
+        {
+        	const get
+        	{
+        		return !Enumerable.Any<IType>(Member.GetGenericArguments());	
+        	}
+        }
+        
+        #endregion
+        
+        #region IsGenericInstance
+        
+        public static bool IsGenericInstance[this IGenericMember Member]
+        {
+        	const get
+        	{
+        		return Enumerable.Any<IType>(Member.GetGenericArguments());	
+        	}
+        }
+        
+        #endregion
+        
+        #region GetAncestryDegree
+        
+        public static const int GetAncestryDegree(this IType Type, IType Other)
+        {
+            /*if (Type.Equals(Other))
+            {
+                return 0;
+            }
+            else if (Type.Equals(PrimitiveTypes.Null) && (!Other.IsValueType || Other.IsPointer))
+            {
+                return 0;
+            }
+            else if (Type.IsArray && Other.IsArray)
+            {
+                if (Type.AsContainerType().AsArrayType().ArrayRank == Other.AsContainerType().AsArrayType().ArrayRank && Type.AsContainerType().GetElementType().Equals(Other.AsContainerType().GetElementType()))
+                {
+                    return 0;
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            else if (Type.IsVector && Other.IsArray)
+            {
+                if (Other.AsContainerType().AsArrayType().ArrayRank == Type.AsContainerType().AsVectorType().GetDimensions().Length && Type.AsContainerType().GetElementType().Equals(Other.AsContainerType().GetElementType()))
+                {
+                    return 0;
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            else if (Type.IsPointer && Other.IsPointer)
+            {
+                var firstPtrType = Type.AsContainerType().AsPointerType();
+                var secondPtrType = Other.AsContainerType().AsPointerType();
+                if (firstPtrType.GetElementType().Equals(secondPtrType.GetElementType()))
+                {
+                	if (firstPtrType.PointerKind.Equals(secondPtrType.PointerKind))
+                	{
+                		return 0;
+                	}
+                	else
+                	{
+                		return 1;
+                	}
+                }
+                else
+                {
+                	return -1;
+                }
+            }
+            int bestAncestry = -1;
+            foreach (var item in Type.GetBaseTypes())
+            {
+                int degree = item.GetAncestryDegree(Other);
+                if (degree > -1 && (degree <= bestAncestry || bestAncestry == -1))
+                {
+                    bestAncestry = degree;
+                }
+            }
+            if (bestAncestry > -1)
+            {
+                return bestAncestry + 1;
+            }
+            else if (Other.IsRootType)
+            {
+                return 1;
+            }
+            else
+            {
+                return -1;
+            }*/
+            var graph = GetAncestryGraph(Type, Other);
+            return graph.GetAncestryDegree(Type, Other);
+        }
+        
+        #endregion
+        
+        #region Is
+        
+        /// <summary>
+        /// Gets a boolean value that indicates if this type can be stored in a variable of the provided type.
+        /// </summary>
+        /// <param name="Other"></param>
+        /// <returns></returns>
+        public const static bool Is(this IType Type, IType Other)
+        {
+            /*if (Type.Equals(Other))
+            {
+                return true;
+            }
+            else if (Other.IsRootType)
+            {
+                return true;
+            }
+            else if (Type.Equals(PrimitiveTypes.Null) && (!Other.IsValueType || Other.IsPointer))
+            {
+                return true;
+            }
+            else if (Type.IsArray && Other.IsArray)
+            {
+                return Type.AsContainerType().AsArrayType().ArrayRank == Other.AsContainerType().AsArrayType().ArrayRank && Type.AsContainerType().GetElementType().Is(Other.AsContainerType().GetElementType());
+            }
+            else if (Type.IsVector && Other.IsArray)
+            {
+                return Other.AsContainerType().AsArrayType().ArrayRank == Type.AsContainerType().AsVectorType().GetDimensions().Length && Type.AsContainerType().GetElementType().Is(Other.AsContainerType().GetElementType());
+            }
+            else if (Type.IsPointer && Other.IsPointer)
+            {
+                var firstPtrType = Type.AsContainerType().AsPointerType();
+                var secondPtrType = Other.AsContainerType().AsPointerType();
+                if (firstPtrType.PointerKind.Equals(secondPtrType.PointerKind))
+                {
+                	return firstPtrType.GetElementType().Is(secondPtrType.GetElementType());
+                }
+                else
+                {
+                	return false;
+                }
+            }
+            foreach (var item in Type.GetBaseTypes())
+            {
+            	if (item.Is(Other))
+            	{
+            		return true;
+            	}
+            }
+            if (Type.IsGenericInstance && Other.IsGenericInstance)
+            {
+            	if (Type.GetGenericDeclaration().Equals(Other.GetGenericDeclaration()))
+            	{
+	            	foreach (var genParam in Type.GetGenericParameters(), var genArg1 in Type.GetGenericArguments(), var genArg2 in Other.GetGenericArguments())
+	            	{
+	            		if (genParam.IsCovariant)
+	            		{
+	            			if (!genArg1.Is(genArg2))
+	            				return false;
+	            		}
+	            		else if (genParam.IsContravariant)
+	            		{
+	            			if (!genArg2.Is(genArg1))
+	            				return false;
+	            		}
+	            		else if (!genArg1.Equals(genArg2))
+	            		{
+	            			return false;
+	            		}
+	            	}
+	            	return true;
+            	}
+            }
+            return false;*/
+            var graph = GetAncestryGraph(Type, Other);
+            return graph.Is(Type, Other);
+        }
+        
+        #endregion
+        
+        #region GetParent/GetInterfaces
+        
+        /// <summary>
+        /// Gets the type's parent type.
+        /// </summary>
+        /// <param name="Other"></param>
+        /// <returns></returns>
+        public const static IType GetParent(this IType Type)
+        {
+        	foreach (var item in Type.GetBaseTypes())
+        		if (!item.IsInterface)
+        			return item;
+        	return null;
+        }
+        
+        public const static IList<IType> GetInterfaces(this IType Type)
+        {
+        	var interfs = new List<IType>();
+        	foreach (var item in Type.GetBaseTypes())
+        		if (item.IsInterface)
+        			interfs.Add(item);
+        	return interfs;
+        }
+        
+        #endregion
+        
+        #region GetAllBaseTypes
+        
+        public const static IList<IType> GetAllBaseTypes(this IType Type)
+        {
+        	var baseTypes = Type.GetBaseTypes();
+        	var allTypes = new List<IType>();
+        	foreach (var item in baseTypes)
+        	{
+        	    if (!allTypes.Contains(item))
+        		{
+        			allTypes.Add(item);
+        		}
+        		foreach (var type in item.GetAllBaseTypes())
+        		{
+        			if (!allTypes.Contains(type))
+        			{
+        				allTypes.Add(type);
+        			}
+        		}
+        	}
+            return allTypes;
+        }
+        
+        #endregion
+	}
+}

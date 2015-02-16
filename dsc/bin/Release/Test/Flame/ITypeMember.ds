@@ -1,0 +1,16 @@
+using System;
+
+namespace Flame
+{
+	public interface ITypeMember : IMember
+	{
+		/// <summary>
+        /// Gets the type that declared this member.
+        /// </summary>
+        IType DeclaringType { get; }
+        /// <summary>
+        /// Gets a boolean value that indicates whether the member is static or not.
+        /// </summary>
+        bool IsStatic { get; }
+	}
+}

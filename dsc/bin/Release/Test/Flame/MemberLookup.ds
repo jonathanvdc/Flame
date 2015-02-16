@@ -1,0 +1,196 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame
+{
+	public static class MemberLookup
+	{
+		#region GetAllFields
+
+        /*public const static IEnumerable<IField> GetAllFields(this IType Type)
+        {
+            List<IField> fields = new List<IField>();
+            fields.AddRange((IEnumerable<IField>)Type.GetFields());
+            foreach (var baseType in Type.GetBaseTypes())
+            {
+                foreach (var field in baseType.GetAllFields())
+            	{
+            		if (!fields.Contains(field))
+            		{
+            			fields.Add(field);
+            		}
+            	}
+            }
+            return fields;
+        }*/
+        
+        public const static IEnumerable<IField> GetAllFields(this IType Type, string Name)
+        {
+            List<IField> fields = new List<IField>();
+            fields.AddRange((IEnumerable<IField>)Type.GetFields());
+            foreach (var baseType in Type.GetBaseTypes())
+            {
+                foreach (var field in baseType.GetAllFields(Name))
+            	{
+            		if (field.Name == Name && !fields.Contains(field))
+            		{
+            			fields.Add(field);
+            		}
+            	}
+            }
+            return fields;
+        }
+        
+        /// <summary>
+        /// Gets all fields - locally declared and inherited - of the provided type.
+        /// </summary>
+        /// <remarks>
+        /// This implementation tries to accurately represent that fields' layout.
+        /// </remarks>
+        public static const IEnumerable<IField> GetAllFields(this IType Type)
+        {
+        	var list = new List<IField>();
+        	foreach (var item in Type.GetBaseTypes())
+        	{
+        		foreach (var field in item.GetAllFields())
+        		{
+        			if (list.GetField(field.Name, field.IsStatic) == null)
+        				list.Add(field);
+        		}
+        	}
+        	foreach (var field in Type.GetFields())
+        	{
+    			if (list.GetField(field.Name, field.IsStatic) == null)
+    				list.Add(field);
+        	}
+        	return list;
+        }
+
+        #endregion
+        
+        #region GetField
+        
+        public const static IField GetField(this IType Type, string Name)
+        {
+        	return Type.GetAllFields().GetField(Name);
+        }
+        
+        public const static IField GetField(this IEnumerable<IField> Fields, string Name)
+        {
+        	foreach (var field in Fields)
+        	{
+        		if (field.Name.Equals(Name))
+        		{
+        			return field;
+        		}
+        	}
+        	return null;
+        }
+        
+        #endregion
+        
+        #region GetAllProperties
+
+        public const static IEnumerable<IProperty> GetAllProperties(this IType Type)
+        {
+            List<IProperty> props = new List<IProperty>();
+            props.AddRange((IEnumerable<IProperty>)Type.GetProperties());
+            foreach (var baseType in Type.GetBaseTypes())
+            {
+            	foreach (var property in baseType.GetAllProperties())
+            	{
+            		if (!props.Contains(property))
+            		{
+            			props.Add(property);
+            		}
+            	}
+            }
+            return props;
+        }
+        
+        public const static IEnumerable<IProperty> GetAllProperties(this IType Type, string Name)
+        {
+            List<IProperty> props = new List<IProperty>();
+            props.AddRange((IEnumerable<IProperty>)Type.GetProperties());
+            foreach (var baseType in Type.GetBaseTypes())
+            {
+            	foreach (var property in baseType.GetAllProperties(Name))
+            	{
+            		if (property.Name == Name && !props.Contains(property))
+            		{
+            			props.Add(property);
+            		}
+            	}
+            }
+            return props;
+        }
+
+        #endregion
+        
+        #region GetAllMethods
+
+        public const static IEnumerable<IMethod> GetAllMethods(this IType Type)
+        {
+            List<IMethod> methods = new List<IMethod>();
+            methods.AddRange((IEnumerable<IMethod>)Type.GetMethods());
+            foreach (var baseType in Type.GetBaseTypes())
+            {
+            	foreach (var method in baseType.GetAllMethods())
+            	{
+            		if (!methods.Contains(method))
+            		{
+            			methods.Add(method);
+            		}
+            	}
+            }
+            return methods;
+        }
+        
+        public const static IEnumerable<IMethod> GetAllMethods(this IType Type, string Name)
+        {
+            List<IMethod> methods = new List<IMethod>();
+            methods.AddRange((IEnumerable<IMethod>)Type.GetMethods());
+            foreach (var baseType in Type.GetBaseTypes())
+            {
+            	foreach (var method in baseType.GetAllMethods(Name))
+            	{
+            		if (method.Name == Name && !methods.Contains(method))
+            		{
+            			methods.Add(method);
+            		}
+            	}
+            }
+            return methods;
+        }
+
+        #endregion
+        
+        #region GetAllMembers
+        
+        public const static IEnumerable<ITypeMember> GetAllMembers(this IType Type)
+        {
+        	List<ITypeMember> members = new List<ITypeMember>();
+        	members.AddRange((IEnumerable<ITypeMember>)Type.GetAllFields());
+        	members.AddRange((IEnumerable<ITypeMember>)Type.GetAllMethods());
+        	members.AddRange((IEnumerable<ITypeMember>)Type.GetAllProperties());
+        	members.AddRange((IEnumerable<ITypeMember>)Type.GetConstructors());
+        	return members;
+        }
+        
+        #endregion
+        
+        #region GetAllMembers
+        
+        public const static IEnumerable<ITypeMember> GetAllMembers(this IType Type, string Name)
+        {
+        	List<ITypeMember> members = new List<ITypeMember>();
+        	members.AddRange((IEnumerable<ITypeMember>)Type.GetAllFields(Name));
+        	members.AddRange((IEnumerable<ITypeMember>)Type.GetAllMethods(Name));
+        	members.AddRange((IEnumerable<ITypeMember>)Type.GetAllProperties(Name));
+        	return members;
+        }
+        
+        #endregion
+	}
+}

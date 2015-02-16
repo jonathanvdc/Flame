@@ -1,0 +1,76 @@
+class Time
+// Represents the time of day.
+{
+
+    +CreateTime(in Hour : integer, in Minute : integer) : Time { query }
+    // Creates a new time based on an hour and minute.
+    // Pre:
+    // Hour and minute must be non-negative integers.
+    // Post:
+    // Returns a Time instance that exactly represents the provided hour and minute.
+
+    +CreateTime(in Hour : integer, in Minute : integer, in Second : integer) : Time { query }
+    // Creates a new time based on an hour, minute and second.
+    // Pre:
+    // Hour, minute and second must be non-negative integers.
+    // Post:
+    // Returns a Time instance that exactly represents the provided hour, minute and second.
+
+    property Second
+    {
+
+        +get() : integer { query }
+        // Gets the second of this time instance.
+
+    }
+
+    property Minute
+    {
+
+        +get() : integer { query }
+        // Gets the minute of this time instance.
+
+    }
+
+    property Hour
+    {
+
+        +get() : integer { query }
+        // Gets the hour of this time instance.
+
+    }
+
+    -ToDoubleDigitNumber(in Value : integer) : string { query }
+    // Gets a double-digit string representation for the given integer.
+
+    +ToString() : string { query }
+    // Gets the time's string representation.
+
+    +operator+(in Other : Time) : Time { query }
+    // Calculates the sum of this 'Time' instance and the given 'Time' instance.
+
+    +operator-(in Other : Time) : Time { query }
+    // Calculates the difference between this 'Time' instance and the given 'Time' instance.
+
+    +operator==(in Other : Time) : boolean { query }
+    // Finds out if two 'Time' instances are equal.
+
+    +operator!=(in Other : Time) : boolean { query }
+    // Finds out if two 'Time' instances are not equal.
+
+    +operator<(in Other : Time) : boolean { query }
+    // Finds out if this 'Time' instance is less than the given 'Time' instance.
+
+    +operator>(in Other : Time) : boolean { query }
+    // Finds out if this 'Time' instance is greater than the given 'Time' instance.
+
+    +operator<=(in Other : Time) : boolean { query }
+    // Finds out if this 'Time' instance is less than or equal to the given 'Time' instance.
+
+    +operator>=(in Other : Time) : boolean { query }
+    // Finds out if this 'Time' instance is greater than or equal to the given 'Time' instance.
+
+    +GetHashCode() : integer { query }
+    // Gets a hash code for the current Time instance.
+
+}

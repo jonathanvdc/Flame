@@ -1,0 +1,43 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler
+{
+    /// <summary>
+    /// Accesses the underlying value of a pointer.
+    /// It acts like a reference ('ref' in C#, 'T&' in C++, 'ByRef' in VB) by using
+    /// pointer indirection to modify a variable.
+    /// </summary>
+    public class ReferenceVariable : IUnmanagedVariable
+    {
+        public const this(set IExpression Pointer);
+
+        public IType Type
+        {
+            const get { return Pointer.Type.AsContainerType().AsPointerType().GetElementType(); }
+        }
+
+        public IExpression Pointer { const get; private set; }
+        
+        public const IExpression CreateAddressOfExpression()
+        {
+        	return Pointer;
+        }
+
+        public const IExpression CreateGetExpression()
+        {
+            return new DereferencePointerExpression(Pointer);
+        }
+
+        public const IStatement CreateSetStatement(IExpression Value)
+        {
+            return new StoreAtAddressStatement(Pointer, Value);
+        }
+
+        public const IStatement CreateReleaseStatement()
+        {
+            return new EmptyStatement();
+        }
+    }
+}

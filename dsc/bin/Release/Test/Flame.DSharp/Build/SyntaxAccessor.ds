@@ -1,0 +1,324 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Build;
+using Flame.Compiler;
+using Flame.Compiler.Build;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.DSharp.Lexer;
+using Flame.Syntax;
+using Flame.Syntax.DSharp;
+using FlameAccessorType = Flame.AccessorType;
+
+namespace Flame.DSharp.Build
+{
+    public class SyntaxAccessor : CodeMember, IDSharpMethod, IAccessor, ISyntaxNode
+    {
+        public const this(set AccessorSyntax Syntax, set SyntaxProperty ParentProperty, set IBinder Binder);
+
+        public AccessorSyntax Syntax { const get; private set; }
+        public SyntaxProperty ParentProperty { const get; private set; }
+        public IProperty DeclaringProperty : IAccessor.DeclaringProperty
+        {
+            const get
+            {
+                return ParentProperty;
+            }
+        }
+        public IBinder Binder { const get; private set; }
+
+        #region Inherited Values
+
+        public IType DeclaringType
+        {
+            const get { return ParentProperty.DeclaringType; }
+        }
+
+        public bool IsStatic
+        {
+            const get { return ParentProperty.IsStatic; }
+        }
+
+        public string Name
+        {
+            const get { return ParentProperty.Name + "_" + Syntax.Name; }
+        }
+
+        public string FullName
+        {
+            const get { return ParentProperty.FullName + "_" + Syntax.Name; }
+        }
+
+        public bool IsConstructor
+        {
+            const get { return false; }
+        }
+
+        #endregion
+
+        #region Syntax State
+
+        public virtual ISyntaxState GetSyntaxState()
+        {
+            return new SyntaxState(this, Binder, ParentProperty.Log, ParentProperty.MemberProvider);
+        }
+
+        #endregion
+
+        #region IAccessor Implementation
+
+        public FlameAccessorType AccessorType
+        {
+            const get
+            {
+                if (Syntax.NameToken.TokenValue.Equals("get"))
+                {
+                    return FlameAccessorType.GetAccessor;
+                }
+                else
+                {
+                    return FlameAccessorType.SetAccessor; 
+                }
+            }
+        }
+
+        public IType ReturnType
+        {
+            const get 
+            {
+                if (this.IsGetAccessor)
+                {
+                    return DeclaringProperty.PropertyType;
+                }
+                else
+                {
+                    return PrimitiveTypes.Void;
+                }
+            }
+        }
+
+        public const IParameter[] GetParameters()
+        {
+            var indexerParams = DeclaringProperty.GetIndexerParameters();
+            if (this.IsGetAccessor)
+            {
+                return indexerParams;
+            }
+            else
+            {
+                return MemberSelection.Append<IParameter>(indexerParams, new DescribedParameter("value", DeclaringProperty.PropertyType));
+            }
+        }
+
+        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
+        {
+        	var environment = GetSyntaxState();
+        	if (environment is IDynamicEnvironment)
+        	{
+        		return ((IDynamicEnvironment)environment).InvokeDynamic(this, Caller, Arguments);
+        	}
+            return null;
+        }
+
+		private IAttribute[] attrCache;
+        public const IEnumerable<IAttribute> GetAttributes()
+        {
+        	if (attrCache == null)
+        	{
+	            List<IAttribute> attrs = new List<IAttribute>();
+	            foreach (var item in Syntax.Signature.ModifierTokens.GetModifiers())
+	            {
+	            	attrs.Add(item);
+	            }
+	            attrs.AddRange(Syntax.GetDescriptionAttributes(GetSyntaxState()));
+	            if (IsAutoProperty)
+	            {
+	            	attrs.Add(new FieldAccessorAttribute(FieldPropertySyntax.GetBackingFieldName(ParentProperty.Name)));
+	            }
+	            foreach (var item in DeclaringProperty.GetAttributes())
+	            {
+	            	var attrType = item.AttributeType;
+	            	if (attrType.Equals(DescriptionAttribute.DescriptionAttributeType))
+	            	{
+	            		var desc = (DescriptionAttribute)item;
+	            		string tag = desc.Tag;
+	            		
+	            		if (!tag.Equals("remarks"))
+	            		{
+		            		var localDescAttrs = attrs.GetAttributes(attrType);
+		            		bool containsTag = false;
+		            		foreach (var localAttr in localDescAttrs)
+		            			if (((DescriptionAttribute)localAttr).Tag.Equals(tag))
+		            			{
+		            				containsTag = true;
+		            				break;
+		            			}
+		            		if (!containsTag)
+		            		{
+		            			attrs.Add(desc);
+		            		}
+	            		}
+	            	}
+	                if (attrType.Equals(AccessAttribute.AccessAttributeType) || attrType.Equals(PrimitiveAttributes.VirtualAttribute.AttributeType) || attrType.Equals(PrimitiveAttributes.AbstractAttribute.AttributeType) || attrType.Equals(PrimitiveAttributes.InlineAttribute.AttributeType))
+	                {
+	                    if (!attrs.HasAttribute(attrType))
+	                    {
+	                        attrs.Add(item);
+	                    }
+	                }
+	            }
+	            attrCache = attrs.ToArray();
+            }
+            return attrCache;
+        }
+
+        public static const IField GetBackingField(IType CurrentType, string PropertyName)
+        {
+            return CurrentType.GetField(FieldPropertySyntax.GetBackingFieldName(PropertyName));
+        }
+        
+        public bool IsAutoProperty { const get return !ParentProperty.DeclaringType.IsInterface && ParentProperty.Syntax.IsFieldProperty; }
+
+        public const IStatement GetMethodBody()
+        {
+            var state = GetSyntaxState();
+            if (IsAutoProperty) // Auto-property detection
+            {
+                var currentType = state.CurrentType;
+                IExpression thisExpr;
+                if (IsStatic)
+                {
+                	thisExpr = null;
+                }
+                else
+                {
+                	thisExpr = new ThisGetExpression(currentType);
+                }
+                var backingField = new FieldVariable(GetBackingField(currentType, ParentProperty.Name), thisExpr);
+                if (this.IsGetAccessor)
+                {
+                    return new ReturnStatement(backingField.CreateGetExpression());
+                }
+                else if (this.IsSetAccessor)
+                {
+                    return new BlockStatement(new IStatement[] { backingField.CreateSetStatement(new ArgumentVariable(GetParameters()[0], 0).CreateGetExpression()), new ReturnStatement() });
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                var body = Syntax.Body.CreateStatement(state);
+                if (this.ReturnType.Equals(PrimitiveTypes.Void))
+                {
+                    return new BlockStatement(new IStatement[] { body, new ReturnStatement() });
+                }
+                else
+                {
+                    return body;
+                }
+            }
+        }
+
+        #endregion
+        
+        #region GetBaseMethods
+        
+        private IMethod[] baseMethodCache;
+        public virtual IMethod[] GetBaseMethods()
+        {
+        	if (baseMethodCache == null)
+        	{
+	        	var state = GetSyntaxState();
+	        	var baseMethods = new List<IMethod>();
+	        	foreach (var item in ParentProperty.GetBaseProperties())
+	        	{
+	        		var accessor = item.GetAccessor(AccessorType);
+	        		if (accessor != null)
+	        		if (accessor.IsVirtual)
+	        		{
+	        			baseMethods.Add(accessor);
+	        		}
+	        	}
+	        	baseMethodCache = baseMethods.ToArray();
+        	}
+        	return baseMethodCache;
+        }
+        
+        #endregion
+
+        #region Generics
+
+        public IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
+        {
+            return this;
+        }
+
+        public IMethod GetGenericDeclaration()
+        {
+            return this;
+        }
+
+        public IEnumerable<IGenericParameter> GetGenericParameters()
+        {
+            return new IGenericParameter[0];
+        }
+
+        public IEnumerable<IType> GetGenericArguments()
+        {
+            return new IType[0];
+        }
+
+        #endregion
+
+        #region CodeMember Implementation
+
+        public override string GetHeaderString()
+        {
+            return Syntax.ToString();
+        }
+
+        public override CodeBuilder GetBodyCode()
+        {
+            return Syntax.Body.GetCode();
+        }
+
+        #endregion
+
+        #region ISyntaxNode Implementation
+
+        public CodeBuilder GetCode()
+        {
+            return Syntax.GetCode();
+        }
+
+        #endregion
+
+        #region Equality
+
+        public override int GetHashCode()
+        {
+            return Syntax.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is SyntaxAccessor)
+            {
+            	var syntaxAcc = (SyntaxAccessor)obj;
+                return DeclaringProperty.Equals(syntaxAcc.DeclaringProperty) && Syntax.Equals(syntaxAcc.Syntax);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        #endregion
+    }
+}

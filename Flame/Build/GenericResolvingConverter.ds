@@ -1,0 +1,95 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Build
+{
+	/// <summary>
+	/// A type converter that resolves type parameters based on a generic resolver.
+	/// </summary>
+	public class GenericResolvingConverter : TypeTransformerBase
+	{
+		public const this(set IGenericResolver Resolver);
+		
+		public IGenericResolver Resolver { const get; private set; }
+		
+		protected override const IType ConvertGenericParameter(IGenericParameter Type)
+		{
+			return Resolver.ResolveTypeParameter(Type);
+		}
+	}
+	
+	public static class GenericResolverExtensions
+	{
+		public static const IType ResolveType(this IGenericResolver Resolver, IType Type)
+		{
+			var converter = new GenericResolvingConverter(Resolver);
+			return converter.Convert(Type);
+		}
+		public static const IType[] ResolveTypes(this IGenericResolver Resolver, IType[] Types)
+        {
+        	var converter = new GenericResolvingConverter(Resolver);
+        	IType[] results = new IType[Types.Length];
+        	foreach (var item in Types, var output in results)
+        	{
+        		output = converter.Convert(item);
+        	}
+        	return results;
+        }
+		public static const [IType] ResolveTypes(this IGenericResolver Resolver, [IType] Types)
+        {
+			var converter = new GenericResolvingConverter(Resolver);
+			return converter.Convert(Types);
+        }
+        
+        public static const IMethod ResolveMethod(this IGenericResolver Resolver, IMethod Method)
+        {
+            if (Method.IsGenericInstance)
+            {
+                var resolvedArgs = Resolver.ResolveTypes(Method.GetGenericArguments());
+                return Method.MakeGenericMethod(resolvedArgs);
+            }
+            else
+            {
+                return Method;
+            }
+        }
+        public static const IMethod[] ResolveMethods(this IGenericResolver Resolver, IMethod[] Methods)
+        {
+        	IMethod[] results = new IMethod[Methods.Length];
+        	foreach (var item in Methods, var output in results)
+        	{
+        		output = Resolver.ResolveMethod(item);
+        	}
+        	return results;
+        }
+        public static const [IMethod] ResolveMethods(this IGenericResolver Resolver, [IMethod] Methods)
+        {
+        	return Resolver.ResolveMethods(Enumerable.ToArray<IMethod>(Methods));
+        }
+        
+        public static const IParameter ResolveParameter(this IGenericResolver Resolver, IParameter Parameter)
+        {
+            var descParam = new DescribedParameter(Parameter.Name, Resolver.ResolveType(Parameter.ParameterType));
+            foreach (var item in Parameter.GetAttributes())
+            {
+                descParam.AddAttribute(item);
+            }
+            return descParam;
+        }
+        public static const IParameter[] ResolveParameters(this IGenericResolver Resolver, IParameter[] Parameters)
+        {
+        	IParameter[] results = new IParameter[Parameters.Length];
+        	foreach (var item in Parameters, var output in results)
+        	{
+        		output = Resolver.ResolveParameter(item);
+        	}
+        	return results;
+        }
+        public static const [IParameter] ResolveParameters(this IGenericResolver Resolver, [IParameter] Parameters)
+        {
+        	return Resolver.ResolveParameters(Enumerable.ToArray<IParameter>(Parameters));
+        }
+	}
+}

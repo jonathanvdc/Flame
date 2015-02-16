@@ -1,0 +1,67 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Expressions;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class ReturnSyntax : LineStatementSyntax, ITokenNode
+    {
+        public const this()
+        {
+            this.Expression = null;
+            this.ReturnKeyword = new Token(TokenType.ReturnKeyword, "return");
+        }
+        public const this(set IExpressionSyntax Expression)
+        {
+            this.ReturnKeyword = new Token(TokenType.ReturnKeyword, "return");
+        }
+        public const this(set IExpressionSyntax Expression, set Token ReturnKeyword);
+        public const this(set Token ReturnKeyword, set Token SemicolonToken)
+        {
+            this.Expression = null;
+        }
+        public const this(set IExpressionSyntax Expression, set Token ReturnKeyword, set Token SemicolonToken);
+
+        public Token ReturnKeyword { const get; private set; }
+        public IExpressionSyntax Expression { const get; private set; }
+        
+        public IReadOnlyList<Token> Tokens
+        {
+        	const get
+        	{
+        		List<Token> tokens = new List<Token>();
+				tokens.Add(ReturnKeyword);
+				tokens.AddRange(Expression.GetTokens());
+				tokens.Add(SemicolonToken);
+				return tokens;				
+        	}
+        }
+
+        public override IStatement CreateStatement(ISyntaxState State)
+        {
+            if (Expression == null)
+            {
+                return new ReturnStatement();
+            }
+            else
+            {
+                return new ReturnStatement(CastSyntax.CreateImplicitCast(State, Expression, State.ReturnType));
+            }
+        }
+
+        protected override CodeBuilder GetStatementCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            cb.Append(ReturnKeyword.ToString());
+            if (Expression != null)
+            {
+	            cb.Append(" ");
+	            cb.Append(Expression.GetCode().ToString());
+            }
+            return cb;
+        }
+    }
+}

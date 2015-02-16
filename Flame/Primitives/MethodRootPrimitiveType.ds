@@ -1,0 +1,70 @@
+using System;
+using System.Collections.Generic;
+using Flame.Build;
+
+namespace Flame.Primitives
+{
+	public abstract class MethodRootPrimitiveType : IType
+	{
+		public const this();
+	
+		public abstract string Name : IType.Name { const get; }
+		public string FullName : IType.FullName { const get return "System." + Name; }
+		
+		public INamespace DeclaringNamespace : IType.DeclaringNamespace
+		{
+			const get return new PrimitivesNamespace();
+		}
+		
+		public const IEnumerable<IAttribute> GetAttributes() : IType.GetAttributes
+		{
+			return (IEnumerable<IAttribute>)new IAttribute[] 
+			{ 
+				PrimitiveAttributes.InterfaceAttribute, 
+				PrimitiveAttributes.RootTypeAttribute 
+			};
+		}
+		
+		public const IProperty[] GetProperties() : IType.GetProperties 
+			return new IProperty[0];
+		public const IField[] GetFields() : IType.GetFields 
+			return new IField[0];
+		public const IMethod[] GetConstructors() : IType.GetConstructors 
+			return new IMethod[0];
+		public const ITypeMember[] GetMembers() : IType.GetMembers 
+			return GetMethods();
+		
+		public abstract const IMethod[] GetMethods() : IType.GetMethods;
+		
+		public const IType[] GetBaseTypes() : IType.GetBaseTypes
+			return new IType[0];
+		
+		public const IArrayType MakeArrayType(int ArrayRank) : IType.MakeArrayType
+		{
+			return new DescribedArrayType(this, ArrayRank);
+		}
+		public const IVectorType MakeVectorType(int[] Dimensions) : IType.MakeVectorType
+		{
+			return new DescribedVectorType(this, Dimensions);
+		}
+		public const IPointerType MakePointerType(PointerKind Kind) : IType.MakePointerType
+		{
+			return new DescribedPointerType(this, Kind);
+		}
+		
+		public const IType MakeGenericType(IEnumerable<IType> TypeArguments) : IType.MakeGenericType 
+			return null;
+		public const IType GetGenericDeclaration() : IType.GetGenericDeclaration 
+			return null;
+		public const IEnumerable<IType> GetGenericArguments() : IType.GetGenericArguments 
+			return (IEnumerable<IType>)new IType[0];
+		public const IEnumerable<IGenericParameter> GetGenericParameters() : IType.GetGenericParameters
+			return (IEnumerable<IGenericParameter>)new IGenericParameter[0];
+		
+		public const IBoundObject GetDefaultValue() : IType.GetDefaultValue 
+			return null;
+		public bool IsContainerType : IType.IsContainerType { const get return false; }
+		public const IContainerType AsContainerType() : IType.AsContainerType 
+			return null;
+	}
+}

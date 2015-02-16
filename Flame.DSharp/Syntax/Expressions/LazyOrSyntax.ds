@@ -1,0 +1,19 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class LazyOrSyntax : BinaryExpressionSyntax
+    {
+        public const this(set IExpressionSyntax Left, set Token OperatorToken, set IExpressionSyntax Right);
+
+        protected override const IExpression CreateExpression(ISyntaxState State, IExpressionSyntax Left, Token Op, IExpressionSyntax Right)
+        {
+            return new LazyOrExpression(Left.CreateVerifiedExpression(State), Right.CreateVerifiedExpression(State));
+        }
+    }
+}

@@ -1,0 +1,76 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Build;
+using Flame.Compiler;
+using Flame.DSharp;
+using Flame.DSharp.Build;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class AccessorSignatureSyntax : ISignatureSyntax
+    {
+        public const this(set IEnumerable<IAttributeSyntax> Attributes, set IEnumerable<Token> ModifierTokens, set Token NameToken);
+
+        public IEnumerable<IAttributeSyntax> Attributes { const get; private set; }
+        public IEnumerable<Token> ModifierTokens { const get; private set; }
+        public Token NameToken { const get; private set; }
+        public bool IsOperator { const get return false; }
+
+        public IEnumerable<IGenericParameterDeclarationSyntax> GenericDeclarations
+        {
+            const get { return (IEnumerable<IGenericParameterDeclarationSyntax>)new IGenericParameterDeclarationSyntax[0]; }
+        }
+
+        public ITypeSyntax TypeSyntax
+        {
+            const get { return null; }
+        }
+
+        public override const string ToString()
+        {
+            return GetCode().ToString();
+        }
+
+        public static const bool IsAccessorName(Token Token)
+        {
+            return IsAccessorName(Token.TokenValue);
+        }
+        
+        public static const bool IsAccessorName(string Name)
+        {
+        	foreach (var item in AccessorSignatureSyntax.AccessorNames)
+        	{
+        		if (Name.Equals(item))
+				{
+					return true;
+				}
+        	}
+        	return false;
+        }
+
+        public static string[] AccessorNames
+        {
+            get
+            {
+                return new string[]
+                {
+                    "get",
+                    "set"
+                };
+            }
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            foreach (var item in ModifierTokens)
+            {
+                cb.Append(item.ToString());
+            }
+            cb.Append(NameToken.ToString());
+            return cb;
+        }
+    }
+}

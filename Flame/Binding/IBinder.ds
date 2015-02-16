@@ -1,0 +1,16 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame
+{
+	public interface IBinder
+	{
+		const IType BindType(string Name);
+		const IEnumerable<IType> GetTypes();
+		
+		/// <summary>
+		/// Gets the environment for this binder.
+		/// </summary>
+		IEnvironment Environment { const get; }
+	}
+}

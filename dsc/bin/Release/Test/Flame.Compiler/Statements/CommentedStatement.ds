@@ -1,0 +1,62 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler.Statements
+{
+	/// <summary>
+	/// A statement that has a comment attached to it.
+	/// </summary>
+	public class CommentedStatement : IStatement
+	{
+		/// <summary>
+		/// Creates a new commented statement.
+		/// </summary>
+		public const this(set string Comment, set IStatement Statement);
+	
+		/// <summary>
+		/// Gets the comment to print.
+		/// </summary>
+		public string Comment { const get; private set; }
+		/// <summary>
+		/// Gets the actual statement to emit.
+		/// </summary>
+		public IStatement Statement { const get; private set; }
+		
+		public bool IsEmpty
+		{
+			const get
+			{
+				return Statement.IsEmpty;	
+			}
+		}
+		
+		public const IStatement Optimize()
+		{
+			var optStmt = Statement.Optimize();
+			if (string.IsNullOrWhiteSpace(Comment))
+			{
+				return optStmt;
+			}
+			else
+			{
+				return new CommentedStatement(Comment, optStmt);
+			}
+		}
+		
+		public void Emit(IBlockGenerator Generator)
+		{
+			if (Generator.CodeGenerator is ICommentedCodeGenerator)
+			{
+				var cg = (ICommentedCodeGenerator)Generator.CodeGenerator;
+				Generator.EmitBlock(cg.EmitComment(Comment));
+				Statement.Emit(Generator);
+			}
+			else
+			{
+				Statement.Emit(Generator);	
+			}
+		}
+	}
+}

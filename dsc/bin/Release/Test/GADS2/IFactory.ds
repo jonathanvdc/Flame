@@ -1,0 +1,14 @@
+/// <summary>
+/// A generic interface for the factory pattern.
+/// It creates instances of type 'T' by using arguments of type 'TArg'.
+/// </summary>
+public interface IFactory<out T, in TArg>
+{
+    /// <summary>
+    /// Creates a new instance from the provided argument.
+    /// </summary>
+    /// <post>
+    /// Creates a new instance of type 'T', and returns it.
+    /// </post>
+    T Create(TArg Argument);
+}

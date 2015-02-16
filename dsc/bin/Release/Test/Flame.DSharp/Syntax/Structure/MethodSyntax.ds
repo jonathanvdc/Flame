@@ -1,0 +1,122 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler;
+using Flame.DSharp;
+using Flame.DSharp.Build;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class MethodSyntax : MemberSyntax, IMemberSyntax<IMethod>
+    {
+        public const this(set ISignatureSyntax Signature, set IEnumerable<IMemberSyntax<IParameter>> Parameters, 
+        				  set IEnumerable<ITypeMemberAccessSyntax> ImplementedMethods, set IEnumerable<GenericConstraintSyntax> GenericConstraints, 
+        				  set IStatementSyntax Body);
+
+        public IStatementSyntax Body { const get; private set; }
+        public IEnumerable<IMemberSyntax<IParameter>> Parameters { const get; private set; }
+        public IEnumerable<ITypeMemberAccessSyntax> ImplementedMethods { const get; private set; }
+        public IEnumerable<GenericConstraintSyntax> GenericConstraints { const get; private set; }
+        
+        protected override void AddExtraLeadingTrivia(List<Token> tokens)
+        {
+        	foreach (var item in Parameters)
+        		tokens.AddRange(item.GetAllTrivia());
+        	foreach (var item in ImplementedMethods)
+        		tokens.AddRange(item.GetAllTrivia());
+        	foreach (var item in GenericConstraints)
+        		tokens.AddRange(item.GetAllTrivia());
+        }
+
+        public const IMethod CreateMember(ISyntaxState State)
+        {
+            return new OpenGenericMethod(this, State);
+        }
+
+        #region ToString/GetCode
+        
+        public const CodeBuilder GetHeaderCode()
+        {
+        	var cb = Signature.GetCode();
+            cb.Append("(");
+            bool first = true;
+            foreach (var item in Parameters)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    cb.Append(",");
+                }
+                cb.Append(item.GetCode());
+            }
+            cb.Append(")");
+            return cb;
+        }
+
+        public override const string ToString()
+        {
+            return GetHeaderCode().ToString();
+        }
+        
+        private static char GetFirstCharacter(CodeBuilder cb)
+        {
+        	char val = cb.CharacterAt(0);
+        	int i = 1;
+        	while (val == ' ' || val == '\t' || val == '\n' || val == '\r')
+        	{
+        		val = cb.CharacterAt(i);
+        		i++;
+        	}
+        	return val;
+        }
+
+        public override const CodeBuilder GetCode()
+        {
+            var cb = GetHeaderCode();
+            CodeBuilder bodyCode = Body.GetCode();
+            char firstChar = MethodSyntax.GetFirstCharacter(bodyCode);
+            if (firstChar != ';')
+            {
+            	if (firstChar == '{')
+            		cb.AppendLine();
+            	else
+            		cb.Append(" ");
+            }
+            cb.Append(Body.GetCode());
+            return cb;
+        }
+
+        #endregion
+
+        public bool IsExtensionMember
+        {
+            const get
+            {
+                var firstIndexerParam = Enumerable.FirstOrDefault<IMemberSyntax<IParameter>>(Parameters);
+                if (firstIndexerParam == null)
+                    return false;
+                return firstIndexerParam.IsExtensionMember;
+            }
+        }
+        
+        public bool IsSingletonMember
+        {
+        	const get
+        	{
+        		if (Signature.ModifierTokens.IsStatic)
+				{
+					return Signature.ModifierTokens.GetAccess() != AccessModifier.Private;
+				}
+				else
+				{
+					return false;
+				}
+        	}
+        }
+    }
+}

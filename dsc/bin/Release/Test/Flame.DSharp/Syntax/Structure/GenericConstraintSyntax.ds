@@ -1,0 +1,43 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+using Flame.DSharp;
+using Flame.DSharp.Build;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class GenericConstraintSyntax : ISyntaxNode
+    {
+        public const this(set Token WhereKeyword, set Token GenericParameterIdentifier, set Token Colon, set IEnumerable<ITypeSyntax> Constraints);
+
+        public Token WhereKeyword { const get; private set; }
+        public Token GenericParameterIdentifier { const get; private set; }
+        public Token Colon { const get; private set; }
+        public IEnumerable<ITypeSyntax> Constraints { const get; private set; }
+
+        public const CodeBuilder GetCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            cb.Append(WhereKeyword.ToString());
+            cb.Append(GenericParameterIdentifier.ToString());
+            cb.Append(Colon.ToString());
+            bool first = true;
+            foreach (var item in Constraints)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    cb.Append(",");
+                }
+
+                cb.Append(item.GetCode());
+            }
+            return cb;
+        }
+    }
+}

@@ -1,0 +1,105 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Build;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Syntax;
+using Flame.Syntax.DSharp;
+using FlameAccessorType = Flame.AccessorType;
+
+namespace Flame.DSharp.Build
+{
+	public class SingletonInstanceAccessor : IAccessor, IBodyMethod
+	{
+		public const this(set IProperty DeclaringProperty, set IField BackingField);
+	
+		public IField BackingField { const get; private set; }
+		public IProperty DeclaringProperty { const get; private set; }
+		public IType DeclaringType { const get return DeclaringProperty.DeclaringType; }
+		public string Name { const get return "get_" + DeclaringProperty.Name; }
+		public string FullName { const get return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+		
+		public FlameAccessorType AccessorType
+        {
+            const get return FlameAccessorType.GetAccessor;
+        }
+		
+		public IType ReturnType { const get return DeclaringType; }
+		public bool IsStatic { const get return true; }
+		public const IParameter[] GetParameters()
+		{
+			return new IParameter[0];
+		}
+		public bool IsConstructor { const get return false; }
+		public const IMethod[] GetBaseMethods()
+		{
+			return new IMethod[0];
+		}
+		
+		public const IEnumerable<IAttribute> GetAttributes()
+		{
+			return (IEnumerable<IAttribute>)new IAttribute[] { new AccessAttribute(AccessModifier.Public) };
+		}
+		
+		public const IBoundObject Invoke(IBoundObject Target, IEnumerable<IBoundObject> Arguments)
+		{
+			return null;
+		}
+		
+		public const IMethod GetGenericDeclaration()
+		{
+			return this;
+		}
+		
+		public const IMethod MakeGenericMethod(IEnumerable<IType> Arguments)
+		{
+			return null;
+		}
+		
+		public const IEnumerable<IType> GetGenericArguments()
+		{
+			return (IEnumerable<IType>)new IType[0];
+		}
+		
+		public const IEnumerable<IGenericParameter> GetGenericParameters()
+		{
+			return (IEnumerable<IGenericParameter>)new IGenericParameter[0];
+		}
+		
+		public const IStatement GetMethodBody()
+        {
+        	// Statement for:
+        	// 
+        	// if (<field> == null)
+			// {
+			//     <field> = new <type>();
+			// }
+        	// return <field>;
+        
+        	var newObjExpr = new NewObjectExpression(DeclaringType);
+        	var fieldVar = new FieldVariable(BackingField, null);
+        	var fieldGetExpr = fieldVar.CreateGetExpression();
+        	var eqExpr = new EqualityExpression(fieldGetExpr, new NullExpression());
+        	var setStmt = fieldVar.CreateSetStatement(newObjExpr);
+        	var ifStmt = new IfElseStatement(eqExpr, setStmt);
+        	var retStmt = new ReturnStatement(fieldGetExpr);
+        	return new BlockStatement((IEnumerable<IStatement>)new IStatement[] { ifStmt, retStmt });
+        }
+        
+        public static const FieldProperty CreateAccessorProperty(ISyntaxState State)
+        {
+        	var field = new DescribedField(State.DeclaringType.GetGenericFreeName().Replace('.', '_') + "_instance_value", State.CurrentType, true);
+        	field.DeclaringType = State.DeclaringType;
+        	field.AddAttribute(PrimitiveAttributes.HiddenAttribute);
+        	field.AddAttribute(new AccessAttribute(AccessModifier.Private));
+        	var property = new DescribedProperty("Instance", State.DeclaringType, State.CurrentType, true);
+        	property.AddAttribute(new AccessAttribute(AccessModifier.Public));
+        	var accessor = new SingletonInstanceAccessor(property, field);
+        	property.AddAccessor(accessor);
+        	return new FieldProperty(property, field);
+        }
+	}
+}

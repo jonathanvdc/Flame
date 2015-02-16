@@ -1,0 +1,14 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler
+{
+	public interface IUnmanagedVariable : IVariable
+	{
+		/// <summary>
+        /// Creates an expression that returns the address in memory of this variable.
+        /// </summary>
+        /// <returns></returns>
+        IExpression CreateAddressOfExpression();
+	}
+}

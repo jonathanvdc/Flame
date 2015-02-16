@@ -1,0 +1,18 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame
+{
+    public interface IField : ITypeMember
+    {
+        /// <summary>
+        /// Gets the field's type.
+        /// </summary>
+        IType FieldType { const get; }
+    }
+    
+    public interface ILiteralField : IField
+    {
+    	IBoundObject Value { const get; }
+    }
+}

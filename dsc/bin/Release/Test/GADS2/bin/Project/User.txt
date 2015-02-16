@@ -1,0 +1,76 @@
+class User : IRecord<integer>
+// Describes a registered customer at a movie theater.
+{
+
+    +CreateUser(in Id : integer, in FirstName : string, in LastName : string, in EmailAddress : string) : User { query }
+    // Creates a new instance of a user with the provided information.
+
+    property Name
+    {
+
+        +get() : string { query }
+        // Gets the user's full name.
+
+    }
+
+    property Key
+    {
+
+        +get() : integer { query }
+        // Gets the record's search key.
+
+    }
+
+    property Id
+    {
+
+        +get() : integer { query }
+        // Gets the user's unique identifier.
+
+        -set(in value : integer)
+        // Sets the user's unique identifier.
+
+    }
+
+    property FirstName
+    {
+
+        +get() : string { query }
+        // Gets the user's first name.
+
+        -set(in value : string)
+        // Sets the user's first name.
+
+    }
+
+    property LastName
+    {
+
+        +get() : string { query }
+        // Gets the user's last name.
+
+        -set(in value : string)
+        // Sets the user's last name.
+
+    }
+
+    property EmailAddress
+    {
+
+        +get() : string { query }
+        // Gets the user's email address.
+
+        -set(in value : string)
+        // Sets the user's email address.
+
+    }
+
+    +operator==(in Other : User) : boolean { query }
+    // Tests user equality.
+
+    +GetHashCode() : integer { query }
+    // Calculates a user's hash code.
+
+    +operator!=(in Other : User) : boolean { query }
+
+}

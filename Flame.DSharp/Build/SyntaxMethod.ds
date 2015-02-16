@@ -1,0 +1,59 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+using Flame.Compiler.Build;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.DSharp.Lexer;
+using Flame.Syntax;
+using Flame.Syntax.DSharp;
+
+namespace Flame.DSharp.Build
+{
+    public abstract class SyntaxMethod : SyntaxMethodBase
+    {
+    	public const this();
+        public const this(set MethodSyntax syntax, set IType DeclaringType, set IBinder Binder, set ICompilerLog Log, set IMemberProvider MemberProvider);
+
+        public IBinder Binder { const get; protected set; }
+        public IMemberProvider MemberProvider { const get; protected set; }
+        
+        protected MethodSyntax syntax;
+        public override const MethodSyntax GetMethodSyntax()
+        {
+        	return syntax;
+        }
+
+        public override ISyntaxState GetDeclaringSyntaxState()
+        {
+            return new SyntaxState(this, Binder, Log);
+        }
+
+        public override ISyntaxState GetSyntaxState()
+        {
+            var genericBinder = new PredefinedBinder(Binder);
+
+            var genericParams = this.GetGenericParameters();
+            var genericArgs = this.GetGenericArguments();
+            
+            bool empty = true;
+            foreach (var param in genericParams, var arg in genericArgs)
+            {
+            	genericBinder.MapType(param.Name, arg);
+            	empty = false;
+            }
+            if (empty)
+            {
+            	foreach (var param in genericParams)
+	            {
+	            	genericBinder.MapType(param.Name, param);
+	            }
+            }
+
+            return new SyntaxState(this, genericBinder, Log, MemberProvider);
+        }
+    }
+}

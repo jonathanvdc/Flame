@@ -1,0 +1,55 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler.Expressions
+{
+	public abstract class ComplexExpressionBase : IExpression
+	{
+		public const this();
+		
+		protected abstract const IExpression Lower();
+		
+		private IExpression lowered;
+		public const IExpression LoweredExpression
+		{
+			const get
+			{
+				if (lowered == null)
+				{
+					lowered = Lower();
+				}
+				return lowered;	
+			}
+		}
+		
+		public virtual IType Type
+		{
+			virtual const get return LoweredExpression.Type;
+		}
+		
+		public virtual const IExpression Optimize()
+		{
+			return LoweredExpression.Optimize();
+		}
+		
+		public virtual const ICodeBlock Emit(ICodeGenerator CodeGenerator)
+		{
+			return LoweredExpression.Emit(CodeGenerator);
+		}
+		
+		/// <summary>
+        /// Gets a boolean value that indicates if the expression is a constant expression. A constant expression can be evaluated at compile-time.
+        /// </summary>
+        public virtual bool IsConstant { const get return LoweredExpression.IsConstant; }
+        /// <summary>
+        /// Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned.
+        /// </summary>
+        /// <returns></returns>
+        public virtual const IBoundObject Evaluate()
+        {
+        	return LoweredExpression.Evaluate();
+        }
+	}
+}

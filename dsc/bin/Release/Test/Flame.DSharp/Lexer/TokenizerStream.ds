@@ -1,0 +1,407 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.DSharp.Lexer
+{
+	public class TokenizerStream : ITokenStream
+	{
+		public const this(set string Code)
+		{
+			this.tokens = new List<Token>();
+			
+			this.keywords = new Dictionary<string, TokenType>();
+			this.keywords["false"] = TokenType.FalseLiteral;
+			this.keywords["true"] = TokenType.TrueLiteral;
+			this.keywords["using"] = TokenType.UsingKeyword;
+			this.keywords["var"] = TokenType.VarKeyword;
+			this.keywords["set"] = TokenType.SetKeyword;
+			this.keywords["is"] = TokenType.IsKeyword;
+			this.keywords["as"] = TokenType.AsKeyword;
+			this.keywords["if"] = TokenType.IfKeyword;
+			this.keywords["else"] = TokenType.ElseKeyword;
+			this.keywords["while"] = TokenType.WhileKeyword;
+			this.keywords["where"] = TokenType.WhereKeyword;
+			this.keywords["sizeof"] = TokenType.SizeOfKeyword;
+			this.keywords["foreach"] = TokenType.ForeachKeyword;
+			this.keywords["for"] = TokenType.ForKeyword;
+			this.keywords["return"] = TokenType.ReturnKeyword;
+			this.keywords["new"] = TokenType.NewKeyword;
+			this.keywords["try"] = TokenType.TryKeyword;
+			this.keywords["catch"] = TokenType.CatchKeyword;
+			this.keywords["finally"] = TokenType.FinallyKeyword;
+			this.keywords["default"] = TokenType.DefaultKeyword;
+			this.keywords["namespace"] = TokenType.NamespaceKeyword;
+			this.keywords["class"] = TokenType.ClassKeyword;
+			this.keywords["struct"] = TokenType.StructKeyword;
+			this.keywords["interface"] = TokenType.InterfaceKeyword;
+			this.keywords["enum"] = TokenType.EnumKeyword;
+			this.keywords["public"] = TokenType.PublicKeyword;
+			this.keywords["protected"] = TokenType.ProtectedKeyword;
+			this.keywords["assembly"] = TokenType.AssemblyKeyword;
+			this.keywords["private"] = TokenType.PrivateKeyword;
+			this.keywords["abstract"] = TokenType.AbstractKeyword;
+			this.keywords["virtual"] = TokenType.VirtualKeyword;
+			this.keywords["override"] = TokenType.OverrideKeyword;
+			this.keywords["sealed"] = TokenType.SealedKeyword;
+			this.keywords["inline"] = TokenType.InlineKeyword;
+			this.keywords["const"] = TokenType.ConstKeyword;
+			this.keywords["static"] = TokenType.StaticKeyword;
+			this.keywords["this"] = TokenType.ThisKeyword;
+			this.keywords["base"] = TokenType.BaseKeyword;
+			this.keywords["in"] = TokenType.InKeyword;
+			this.keywords["out"] = TokenType.OutKeyword;
+			this.keywords["null"] = TokenType.NullKeyword;
+			this.keywords["break"] = TokenType.BreakKeyword;
+			this.keywords["next"] = TokenType.NextKeyword;
+			this.keywords["do"] = TokenType.DoKeyword;
+			this.keywords["yield"] = TokenType.YieldKeyword;
+			this.keywords["operator"] = TokenType.OperatorKeyword;
+			this.keywords["hash"] = TokenType.HashKeyword;
+			
+			this.operators1 = new Dictionary<char, TokenType>();
+			this.operators1[';'] = TokenType.Semicolon;
+			this.operators1[':'] = TokenType.Colon;
+			this.operators1['.'] = TokenType.Dot;
+			this.operators1[','] = TokenType.Comma;
+			this.operators1['('] = TokenType.RParen;
+			this.operators1[')'] = TokenType.LParen;
+			this.operators1['['] = TokenType.RBrackets;
+			this.operators1[']'] = TokenType.LBrackets;
+			this.operators1['{'] = TokenType.RBraces;
+			this.operators1['}'] = TokenType.LBraces;
+			this.operators1['&'] = TokenType.And;
+			this.operators1['|'] = TokenType.Bar;
+			this.operators1['%'] = TokenType.Percent;
+			this.operators1['^'] = TokenType.Caret;
+			this.operators1['~'] = TokenType.Tilde;
+			this.operators1['!'] = TokenType.Not;
+			this.operators1['>'] = TokenType.GreaterThan;
+			this.operators1['<'] = TokenType.LessThan;
+			this.operators1['='] = TokenType.Equals;
+			this.operators1['+'] = TokenType.Plus;
+			this.operators1['-'] = TokenType.Minus;
+			this.operators1['*'] = TokenType.Asterisk;
+			this.operators1['/'] = TokenType.Slash;
+			
+			this.operators2 = new Dictionary<string, TokenType>();
+			this.operators2["::"] = TokenType.ColonColon;
+			this.operators2["->"] = TokenType.RArrow;
+			this.operators2["&&"] = TokenType.AndAnd;
+			this.operators2["&="] = TokenType.AndEquals;
+			this.operators2["||"] = TokenType.BarBar;
+			this.operators2["|="] = TokenType.BarEquals;
+			this.operators2["%="] = TokenType.PercentEquals;
+			this.operators2["^="] = TokenType.CaretEquals;
+			this.operators2["~="] = TokenType.TildeEquals;
+			this.operators2["!="] = TokenType.NotEquals;
+			this.operators2["=="] = TokenType.EqualsEquals;
+			this.operators2[">="] = TokenType.GreaterThanOrEquals;
+			this.operators2["<="] = TokenType.LessThanOrEquals;
+			//this.operators2[">>"] = TokenType.RightShift; // This conflicts with 'List<Dictionary<string, int>>'. Too bad for right shift.
+			this.operators2["<<"] = TokenType.LeftShift;
+			this.operators2["+="] = TokenType.PlusEquals;
+			this.operators2["-="] = TokenType.MinusEquals;
+			this.operators2["++"] = TokenType.PlusPlus;
+			this.operators2["--"] = TokenType.MinusMinus;
+			this.operators2["*="] = TokenType.AsteriskEquals;
+			this.operators2["/="] = TokenType.SlashEquals;
+		}
+	
+		public string Code { const get; private set; }
+		private int pos;
+		private List<Token> tokens;
+		private int currentIndex;
+		private Dictionary<string, TokenType> keywords;
+		private Dictionary<char, TokenType> operators1;
+		private Dictionary<string, TokenType> operators2;
+	
+		private static bool IsWhitespace(char Value)
+		{
+			return Value == ' ' || Value == '\n' || Value == '\t' || Value == '\r';
+		}
+		
+		private static bool IsIdentifierElement(char Value)
+		{
+			return char.IsLetterOrDigit(Value) || Value == '_';
+		}
+		
+		private static bool IsIdentifierFirstElement(char Value)
+		{
+			return char.IsLetter(Value) || Value == '_';
+		}
+		
+		private static bool IsNumberToken(char Value)
+		{
+			return char.IsDigit(Value) || Value == '.' || Value == 'e' || Value == 'E' || Value == 'f' || Value == 'F';
+		}
+		
+		private static bool IsHexIntegerStart(string Value)
+		{
+			return Value[0] == '0' && (Value[1] == 'x' || Value[1] == 'X');
+		}
+		
+		private static bool IsBinaryIntegerStart(string Value)
+		{
+			return Value[0] == '0' && (Value[1] == 'b' || Value[1] == 'B');
+		}
+		
+		private char CharAt(int Position)
+		{
+			if (Position >= 0 && Position < Code.Length)
+				return Code[Position];
+			else
+				return default(char);
+		}
+		
+		private string ParseWhitespace()
+		{
+			int startPos = pos;
+			pos++;
+			char nextChar = Code[pos];
+			while (pos < Code.Length && IsWhitespace(nextChar))
+			{
+				pos++;
+				if (pos >= Code.Length)
+					break;
+				nextChar = Code[pos];
+			}
+			return Code.Substring(startPos, pos - startPos);
+		}
+		
+		private string ParseIdentifier()
+		{
+			int startPos = pos;
+			pos++;
+			char nextChar = Code[pos];
+			while (pos < Code.Length && IsIdentifierElement(nextChar))
+			{
+				pos++;
+				if (pos >= Code.Length)
+					break;
+				nextChar = Code[pos];
+			}
+			return Code.Substring(startPos, pos - startPos);
+		}
+		
+		private string ParseUntil(int StartLength, string End)
+		{
+			int startPos = pos;
+			pos += StartLength;
+			string slice = Code.Substring(pos, End.Length);
+			while (pos < Code.Length && !slice.Equals(End))
+			{
+				pos++;
+				if (pos + End.Length - 1 < Code.Length)
+					slice = Code.Substring(pos, End.Length);
+			}
+			pos += slice.Length;
+			return Code.Substring(startPos, pos - startPos);
+		}
+		
+		private string ParseString(char Delimiter)
+		{
+			int startPos = pos;
+			pos++; // Skip first delimiter
+			char nextChar = Code[pos];
+			bool escaping = false;
+			while (nextChar != Delimiter || escaping)
+			{
+				if (nextChar == '\\')
+					escaping = !escaping;
+				else
+					escaping = false;
+				pos++;
+				if (pos >= Code.Length)
+					break;
+				nextChar = Code[pos];
+			}
+			pos++; // Move to next pos
+			return Code.Substring(startPos, pos - startPos);
+		}
+		
+		private void ParseInteger()
+		{
+			int startPos = pos;
+			char nextChar = Code[pos];
+			while (char.IsDigit(nextChar))
+			{
+				pos++;
+				if (pos >= Code.Length)
+					break;
+				nextChar = Code[pos];
+			}
+		}
+		
+		private Token ParseNumberToken()
+		{
+			int startPos = pos;
+			char nextChar = Code[pos];
+			TokenType type = TokenType.Integer;
+			
+			if (nextChar == '.')
+			{
+				pos++;
+				type = TokenType.Float64;
+			}
+				
+			ParseInteger();
+			
+			if (pos < Code.Length && (Code[pos] == '.' && type != TokenType.Float64))
+			{
+				pos++;
+				type = TokenType.Float64;
+				ParseInteger();
+			}
+			
+			if (pos < Code.Length && (Code[pos] == 'e' || Code[pos] == 'E'))
+			{
+				pos++;
+				if (pos < Code.Length && (Code[pos] == '+' || Code[pos] == '-'))
+					pos++;
+				type = TokenType.Float64;
+				ParseInteger();
+			}
+			
+			if (pos < Code.Length && (Code[pos] == 'f' || Code[pos] == 'F'))
+		    {
+		    	pos++;
+		    	type = TokenType.Float32;
+		    }
+			
+			return new Token(type, Code.Substring(startPos, pos - startPos));			
+		}
+		
+		private Token ParseNextTokenValue()
+		{
+			char nextChar = Code[pos];
+			if (IsWhitespace(nextChar))
+			{
+				return new Token(TokenType.Whitespace, ParseWhitespace());
+			}
+			else if (IsIdentifierFirstElement(nextChar))
+			{
+			    string ident = ParseIdentifier();
+			    if (keywords.ContainsKey(ident)) return new Token(keywords[ident], ident);
+			    else return new Token(TokenType.Identifier, ident);
+			}
+			else if (nextChar == '"')
+			{
+				return new Token(TokenType.String, ParseString('"'));
+			}
+			else if (nextChar == '\'')
+			{
+				return new Token(TokenType.Char, ParseString('\''));
+			}
+			else if (nextChar == '#')
+			{
+				return new Token(TokenType.PreprocessorDirective, ParseUntil(1, "\n"));
+			}
+			if (pos + 2 < Code.Length)
+			{
+				string slice = Code.Substring(pos, 3);
+				if (slice.Equals("///"))
+					return new Token(TokenType.DescriptionComment, ParseUntil(3, "\n"));
+			}
+			if (pos + 1 < Code.Length)
+			{
+				string slice = Code.Substring(pos, 2);
+				if (slice.Equals("//"))
+				{
+					return new Token(TokenType.LineComment, ParseUntil(2, "\n"));
+				}
+				else if (slice.Equals("/*"))
+				{
+					return new Token(TokenType.BigComment, ParseUntil(2, "*/"));
+				}
+				else if (operators2.ContainsKey(slice))
+				{
+					pos += 2;
+					return new Token(operators2[slice], slice);
+				}
+				else if (nextChar == '.' && char.IsDigit(slice[1]))
+				{
+					return ParseNumberToken();
+				}
+				else if (IsHexIntegerStart(slice))
+				{
+					int startPos = pos;
+				    pos += 2;
+				    ParseIdentifier();
+				    return new Token(TokenType.HexInteger, Code.Substring(startPos, pos - startPos));
+				}
+				else if (IsBinaryIntegerStart(slice))
+				{
+					int startPos = pos;
+				    pos += 2;
+				    ParseInteger();
+				    return new Token(TokenType.BinaryInteger, Code.Substring(startPos, pos - startPos));
+				}
+			}
+			if (operators1.ContainsKey(nextChar))
+			{
+				pos++;
+				return new Token(operators1[nextChar], nextChar.ToString());
+			}
+			if (IsNumberToken(nextChar))
+			{
+				return ParseNumberToken();
+			}
+			return new Token(TokenType.UNDEFINED, Code[pos - 1].ToString());
+		}
+		
+		private Token ParseNextToken()
+		{
+			if (pos >= Code.Length)
+				return new Token(TokenType.EndOfFile, "", pos);
+		    int startPos = pos;
+			Token tokenValue = ParseNextTokenValue();
+			var token = new Token(tokenValue.Type, tokenValue.TokenValue, startPos);
+			tokens.Add(token);
+			return token;
+		}
+		
+		#region ITokenStream Implementation
+		
+		private Token TokenAt(int Index)
+		{
+			while (tokens.Count < Index + 1)
+			{
+				var token = ParseNextToken();
+				if (token.Type == TokenType.EndOfFile)
+					return token;
+			}
+			return tokens[Index];
+		}
+		
+		public Token Next()
+		{
+			var token = TokenAt(currentIndex);
+			if (token.Type != TokenType.EndOfFile)
+				currentIndex++;
+			return token;
+		}
+		
+		public void Seek(TokenIdentifier Identifier)
+		{
+			currentIndex = Identifier.Identifier;
+		}
+		
+		public TokenIdentifier CurrentPosition
+		{
+			const get return new TokenIdentifier(currentIndex);
+		}
+		
+		public const PeekToken Peek(TokenIdentifier Position)
+		{
+			return new PeekToken(Position.Identifier + 1, TokenAt(Position.Identifier));
+		}
+		
+		public void Reset()
+		{
+			currentIndex = 0;
+		}
+		
+		#endregion
+	}
+}

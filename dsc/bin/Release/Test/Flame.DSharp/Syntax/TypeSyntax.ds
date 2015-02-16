@@ -1,0 +1,96 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Flame.Compiler;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class TypeSyntax : ITypeSyntax, IRelevantSyntax<Token>
+    {
+        public this(Token Token)
+        {
+            this.Tokens = new Token[] { Token };
+        }
+        public this(set IEnumerable<Token> Tokens);
+
+        public IEnumerable<Token> Tokens { const get; private set; }
+        
+        public IEnumerable<Token> LeadingTrivia
+        {
+        	const get
+        	{
+        		List<Token> trivia = new List<Token>();
+				foreach (var item in Tokens)
+				{
+					trivia.AddRange(item.GetAllTrivia());
+				}
+				return trivia;
+        	}
+        }
+        
+        public IEnumerable<Token> TrailingTrivia
+        {
+        	const get return (IEnumerable<Token>)new Token[0];
+        }
+
+        public IType CreateType(ISyntaxState State)
+        {
+            var type = State.Binder.BindType(this.ToString());
+            if (!IsVariable && !VerifyType(type))
+            {
+            	State.Log.LogError(new LogEntry("Type resultion error", "Type " + this.GetCode().ToString() + " could not be resolved."));
+            }
+            return type;
+        }
+        
+        public static bool VerifyType(IType Type)
+        {
+        	if (Type == null)
+        		return false;
+        	else if (Type.IsContainerType)
+        		return VerifyType(Type.AsContainerType().GetElementType());
+        	else if (Type.IsGenericInstance)
+        		foreach (var item in Type.GetGenericArguments())
+        			if (!VerifyType(item))
+						return false;
+        	return true;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (Token item in Tokens)
+            {
+                sb.Append(item.TokenValue);
+            }
+            return sb.ToString();
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            return new CodeBuilder(this.ToString());
+        }
+
+        public bool IsVariable
+        {
+            const get
+            {
+            	Token firstToken = Token.Undefined;
+            	foreach (Token item in Tokens)
+            	{
+            		if (firstToken.Type == TokenType.UNDEFINED)
+            		{
+            			firstToken = item;
+            		}
+            		else
+            		{
+            			return false;
+            		}
+            	}
+            	return firstToken.Type == TokenType.VarKeyword;
+           	}
+        }
+    }
+}

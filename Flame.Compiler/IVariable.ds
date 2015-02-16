@@ -1,0 +1,15 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler
+{
+    public interface IVariable
+    {
+        IType Type { const get; }
+
+        IExpression CreateGetExpression();
+        IStatement CreateSetStatement(IExpression Value);
+
+        IStatement CreateReleaseStatement();
+    }
+}

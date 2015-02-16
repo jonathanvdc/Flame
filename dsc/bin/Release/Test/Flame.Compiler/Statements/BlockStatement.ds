@@ -1,0 +1,64 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Statements
+{
+    public class BlockStatement : IStatement
+    {
+    	public const this(IStatement Child)
+    	{
+    		this.Children = (IEnumerable<IStatement>)new IStatement[] { Child };
+    	}
+        public const this(set IEnumerable<IStatement> Children);
+
+        public IEnumerable<IStatement> Children { const get; private set; }
+
+        public void Emit(IBlockGenerator Generator)
+        {
+            foreach (var item in Children)
+            {
+                item.Emit(Generator);
+            }
+        }
+
+        public bool IsEmpty
+        {
+            const get
+            {
+            	foreach (var item in Children)
+            	{
+            		if (!item.IsEmpty)
+            		{
+            			return false;
+            		}
+            	}
+            	return true;
+            }
+        }
+
+        public IStatement Optimize()
+        {
+            List<IStatement> newStatements = new List<IStatement>();
+            foreach (var item in Children)
+            {
+                var optimizedChild = item.Optimize();
+                if (!optimizedChild.IsEmpty)
+                {
+                    newStatements.Add(optimizedChild);
+                }
+            }
+            if (newStatements.Count > 1)
+            {
+                return new BlockStatement(newStatements);
+            }
+            else if (newStatements.Count == 1)
+            {
+                return newStatements[0];
+            }
+            else
+            {
+                return new EmptyStatement();
+            }
+        }
+    }
+}

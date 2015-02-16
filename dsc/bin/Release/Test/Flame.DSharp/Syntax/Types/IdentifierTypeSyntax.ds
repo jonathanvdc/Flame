@@ -1,0 +1,63 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+	public class IdentifierTypeSyntax : ITokenTypeSyntax, IRelevantSyntax<Token>
+	{
+		public const this(set Token Identifier);
+		
+		public Token Identifier { const get; private set; }
+		
+		public IEnumerable<Token> LeadingTrivia
+        {
+        	const get
+        	{
+        		return Identifier.GetAllTrivia();
+        	}
+        }
+        
+        public IEnumerable<Token> TrailingTrivia
+        {
+        	const get return (IEnumerable<Token>)new Token[0];
+        }
+        
+        public IReadOnlyList<Token> Tokens
+        {
+        	const get
+        	{
+        		return (IReadOnlyList<Token>)new Token[] { Identifier };
+        	}
+        }
+        
+        public string TypeName
+        {
+        	const get return Identifier.TokenValue;
+        }
+        
+        public IType CreateType(ISyntaxState State)
+        {
+        	return State.Binder.BindType(TypeName);
+        }
+        
+        public override string ToString()
+        {
+            return GetCode().ToString();
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            cb.Append(Identifier.ToString());
+            return cb;
+        }
+
+        public bool IsVariable
+        {
+            const get return false;
+        }
+	}
+}

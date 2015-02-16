@@ -1,0 +1,61 @@
+class BinaryTree<T>
+// A link-based implementation of the Binary Tree ADT.
+{
+
+    +CreateBinaryTree(in Data : T) : BinaryTree<T> { query }
+    // Creates a new binary tree from a data item.
+
+    property Count
+    {
+
+        +get() : integer { query }
+        // Gets the number of items in the binary tree.
+
+    }
+
+    property Data
+    {
+
+        +get() : T { query }
+        // Gets the binary tree's data, i.e. the record contained in the root.
+
+        +set(in value : T)
+        // Sets the binary tree's data, i.e. the record contained in the root.
+
+    }
+
+    property Left
+    {
+
+        +get() : BinaryTree<T> { query }
+        // Gets the binary tree's left subtree.
+
+        +set(in value : BinaryTree<T>)
+        // Sets the binary tree's left subtree.
+
+    }
+
+    property Right
+    {
+
+        +get() : BinaryTree<T> { query }
+        // Gets the binary tree's right subtree.
+
+        +set(in value : BinaryTree<T>)
+        // Sets the binary tree's right subtree.
+
+    }
+
+    +TraverseInorder(in Target : ICollection<T>)
+    // Performs inorder traversal on the binary tree and writes its items to the given target collection.
+
+    +CopyFrom(in Other : BinaryTree<T>)
+    // Copies all information in the given binary tree into this binary tree.
+    // Pre:
+    // Other must either be a 'BinaryTree<T>' or 'None'.
+    // Post:
+    // If the given tree is not 'None', the Data, Left and Right properties are copied from the target tree into this tree.
+    // Note that these copies are shallow: the left and right trees (and possibly Data) will be mere aliases to the information contained in the other tree.
+    // If the provided other tree is 'None', Data, Left and Right are all set to 'None'.
+
+}

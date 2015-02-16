@@ -1,0 +1,138 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.DSharp;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class SyntaxState : ISyntaxState
+    {
+        public const this(set IMethod Method, set IBinder Binder, set ICompilerLog Log)
+        {
+        	this.MemberProvider = new MemberProvider(Binder);
+            this.declaredVariables = new Stack<Dictionary<string, IVariable>>();
+            PushScope();
+        }
+        public const this(set IMethod Method, set IBinder Binder, set ICompilerLog Log, set IMemberProvider MemberProvider)
+        {
+            this.declaredVariables = new Stack<Dictionary<string, IVariable>>();
+            PushScope();
+        }
+
+        public IType CurrentType
+        {
+            const get
+            {
+                var declType = Method.DeclaringType;
+                if (declType.IsGeneric && declType.IsGenericDeclaration)
+                {
+                	return declType.MakeGenericType((IEnumerable<IType>)declType.GetGenericParameters());
+                }
+                else
+                {
+                	return declType;
+                }
+            }
+        }
+        
+        public ICompilerLog Log { const get; private set; }
+        public IBinder Binder { const get; private set; }
+
+        public IMemberProvider MemberProvider { const get; private set; }
+
+        private Stack<Dictionary<string, IVariable>> declaredVariables;
+        public Dictionary<string, IVariable> Locals
+        {
+            const get
+            {
+            	Dictionary<string, IVariable> dict = new Dictionary<string, IVariable>();
+            	foreach (var map in declaredVariables)
+            	foreach (var item in map)
+            	{
+            		dict[item.Key] = item.Value;
+            	}
+                return dict;
+            }
+        }
+        
+        public IMethod Method { const get; private set; }
+
+		private IVariableProvider paramProvider;
+        public IVariableProvider ParameterProvider
+        {
+            const get
+            {
+            	if (paramProvider == null)
+            	{
+            		paramProvider = new MethodParameterProvider(Method);
+            	}
+                return paramProvider;
+            }
+        }
+        public IType ReturnType
+        {
+            const get
+            {
+                return Method.ReturnType;
+            }
+        }
+        public IType DeclaringType
+        {
+            const get
+            {
+                return Method.DeclaringType;
+            }
+        }
+        public IVariable DeclareVariable(string Name, IVariable Variable)
+        {
+            declaredVariables.Peek().Add(Name, Variable);
+            return Variable;
+        }
+        public const IVariable GetVariable(string Name)
+        {
+            var localDict = Locals;
+            if (localDict.ContainsKey(Name))
+            {
+                return localDict[Name];
+            }
+            else if (ParameterProvider != null && ParameterProvider.VariableExists(Name))
+            {
+                return ParameterProvider.GetVariable(Name);
+            }
+            return null;
+        }
+        public const bool VariableExists(string Name)
+        {
+            var localDict = Locals;
+            if (localDict.ContainsKey(Name))
+            {
+                return true;
+            }
+            else
+            {
+                return ParameterProvider != null && ParameterProvider.VariableExists(Name);
+            }
+        }
+
+        public void PushScope()
+        {
+            this.declaredVariables.Push(new Dictionary<string, IVariable>());
+        }
+
+        public IStatement PopScope()
+        {
+            List<IStatement> statements = new List<IStatement>();
+            var scopeVars = declaredVariables.Pop();
+            foreach (var item in scopeVars)
+            {
+                statements.Add(item.Value.CreateReleaseStatement());
+            }
+            return new BlockStatement(statements.ToArray());
+        }
+    }
+}

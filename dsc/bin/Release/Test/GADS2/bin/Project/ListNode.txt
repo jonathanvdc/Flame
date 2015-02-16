@@ -1,0 +1,58 @@
+class ListNode<T>
+// Describes a node in a linked list.
+// Remarks:
+// This class provides low-level access to the internal workings of a linked list.
+{
+
+    +CreateListNode(in Value : T) : ListNode<T> { query }
+    // Creates a new linked list node instance from the specified value.
+    // Post:
+    // Value will populate the linked list's Value property.
+
+    property Tail
+    {
+
+        +get() : ListNode<T> { query }
+        // Gets the "tail" node of this linked chain.
+        // Post:
+        // The tail of a list node is defined recursively as follows.
+        // If the current node has no successor, return the current node.
+        // Otherwise, return the current node's successor's tail.
+
+    }
+
+    property Value
+    {
+
+        +get() : T { query }
+        // Gets the value contained in the list node.
+
+        +set(in value : T)
+        // Sets the value contained in the list node.
+
+    }
+
+    property Successor
+    {
+
+        +get() : ListNode<T> { query }
+        // Gets the list node's successor node.
+        // Post:
+        // Gets the successor, if any.
+        // Otherwise, returns None.
+
+        +set(in value : ListNode<T>)
+        // Sets the list node's successor node.
+        // Pre:
+        // Sets the list node's successor to value, which may be either None or a ListNode<T>.
+
+    }
+
+    +InsertAfter(in Value : T)
+    // Inserts a node containing the provided value after this node.
+    // Post:
+    // Creates a new node containing the provided value, sets its successor to this node's successor, and sets this node's successor to the newly created node.
+    // Remarks:
+    // This operation corresponds to (part of) a list insert for linked lists.
+
+}

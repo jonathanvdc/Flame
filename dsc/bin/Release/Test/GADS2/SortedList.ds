@@ -1,0 +1,80 @@
+/// <summary>
+/// A straightforward implementation of a sorted list that uses a random-access list as backing storage and utilizes a mapping function to compare items.
+/// </summary>
+/// <remarks>
+/// This 'ISortedList<T>' implementation can be used to implement selection sort when used in conjunction with a 'SortedListSort<T>' instance.
+/// </remarks>
+public class SortedList<T> : ISortedList<T>
+{
+    /// <summary>
+    /// Creates a new sorted list from the given mapping function and list.
+    /// </summary>
+    public const this(set IMap<T, object> KeyMap, set IList<T> List);
+    
+    private IList<T> List;
+    
+    public IMap<T, object> KeyMap { const get; private set; }
+    
+    public void Add(T Item)
+    {
+        int index = 0;
+        var key = KeyMap.Map(Item);
+        foreach (T listItem in List)
+            if (KeyMap.Map(listItem) < key)
+        {
+            index++;
+        }
+        List.Insert(index, Item);
+    }
+
+    public bool IsEmpty { const get return List.Count == 0; }
+    public int Count { const get return List.Count; }
+
+    public bool Remove(T Item)
+    {
+        int index = -1;
+        var key = KeyMap.Map(Item);
+        int i = 0;
+        foreach (T listItem in List)
+        {
+            if (KeyMap.Map(listItem) == key)
+            {
+                index = i;
+                break;
+            }
+            i++;
+        }
+        if (index < 0) return false;
+        else
+        {
+            List.RemoveAt(index);
+            return true;
+        }
+    }
+    
+    /// <summary>
+    /// Finds out if the sorted list contains the given item.
+    /// </summary>
+    public const bool Contains(T Item)
+    {
+        var key = KeyMap.Map(Item);
+        foreach (T listItem in List)
+        {
+            if (KeyMap.Map(listItem) == key) return true;
+        }
+        return false;
+    }
+    
+    /// <summary>
+    /// Returns a read-only list that represents this list's contents, for easy enumeration.
+    /// </summary>
+    public const IReadOnlyList<T> ToList()
+    {
+        return List;
+    }
+    
+    public const [<T>] __iter__()
+    {
+        return List.__iter__();
+    }
+}

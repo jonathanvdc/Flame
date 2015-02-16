@@ -1,0 +1,69 @@
+/// <summary>
+/// Describes a node in a linked list.
+/// </summary>
+/// <remarks>
+/// This class provides low-level access to the internal workings of a linked list.
+/// </remarks>
+public class ListNode<T> 
+{ 
+    /// <summary>
+    /// Creates a new linked list node instance from the specified value.
+    /// </summary>
+    /// <post>
+    /// Value will populate the linked list's Value property.
+    /// </post>
+	public const this(set T Value);
+
+    /// <summary>
+    /// Gets or sets the value contained in the list node.
+    /// </summary>
+    public T Value { const get; set; } 
+    /// <summary>
+    /// Gets or sets the list node's successor node.
+    /// </summary>
+    public ListNode<T> Successor 
+    { 
+        /// <post>
+        /// Gets the successor, if any. Otherwise, returns None.
+        /// </post>
+        const get; 
+        /// <pre>
+        /// Sets the list node's successor to value, which may be either None or a ListNode<T>.
+        /// </pre>
+        set; 
+    } 
+    /// <summary>
+    /// Inserts a node containing the provided value after this node.
+    /// </summary>
+    /// <post>
+    /// Creates a new node containing the provided value, sets its successor to this node's successor, and sets this node's successor to the newly created node.
+    /// </post>
+    /// <remarks>
+    /// This operation corresponds to (part of) a list insert for linked lists.
+    /// </remarks>
+    public void InsertAfter(T Value)
+    {
+        var nextVal = new ListNode<T>(Value);
+        nextVal.Successor = this.Successor;
+        this.Successor = nextVal;
+    }
+    
+    /// <summary>
+    /// Gets the "tail" node of this linked chain.
+    /// </summary>
+    /// <post>
+    /// The tail of a list node is defined recursively as follows.
+    /// If the current node has no successor, return the current node.
+    /// Otherwise, return the current node's successor's tail.
+    /// </post>
+    public ListNode<T> Tail
+    {
+        const get
+        {
+            if (Successor == null)
+                return this;
+            else
+                return Successor.Tail;
+        }
+    }
+}

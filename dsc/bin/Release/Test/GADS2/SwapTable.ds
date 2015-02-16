@@ -1,0 +1,105 @@
+/// <summary>
+/// A wrapper class for tables that forwards function calls to another table.
+/// </summary>
+public abstract class IndirectTable<TKey, TValue> : ITable<TKey, TValue>
+{
+    /// <summary>
+    /// Gets the indirect table's underlying table.
+    /// </summary>
+    protected abstract ITable<TKey, TValue> GetTable();
+    
+    public IMap<TValue, TKey> KeyMap { const get return GetTable().KeyMap; }
+    
+    public TValue this[TKey Key]
+    {
+        const get return GetTable()[Key];
+    }
+    
+    public int Count { const get return GetTable().Count; }
+    
+    public bool Insert(TValue Value)
+        return GetTable().Insert(Value);
+        
+    public const bool ContainsKey(TKey Key)
+        return GetTable().ContainsKey(Key);
+    
+    public bool Remove(TKey Key)
+        return GetTable().Remove(Key);
+        
+    public const [<TValue>] __iter__()
+        return GetTable().__iter__();
+       
+    public const IReadOnlyList<TValue> ToList()
+        return GetTable().ToList();
+}
+
+/// <summary>
+/// A wrapper table that allows for the underlying table to be swapped out for another table.
+/// </summary>
+public class SwapTable<TKey, TValue> : IndirectTable<TKey, TValue>
+{
+    /// <summary>
+    /// Creates a new instance of a swap table.
+    /// </summary>
+    public const this(set ITable<TKey, TValue> table);
+    
+    private ITable<TKey, TValue> table;
+    
+    protected override ITable<TKey, TValue> GetTable()
+    {
+        return table;
+    }
+    
+    /// <summary>
+    /// Changes the underlying table implementation to the provided table.
+    /// </summary>
+    /// <post>
+    /// The underlying implementation of this table will be changed to 'Table', which will be populated with the items from the previous underlying table, in addition to the elements that were already in 'Table'.
+    /// </post>
+    public void Swap(ITable<TKey, TValue> Table)
+    {
+        foreach (TValue item in this)
+        {
+            Table.Insert(item);
+        }
+        this.table = Table;
+    }
+}
+
+/// <summary>
+/// A wrapper sortable table that allows for the underlying sortable table to be swapped out for another sortable table.
+/// </summary>
+public class SortableSwapTable<TKey, TValue> : IndirectTable<TKey, TValue>, ISortableTable<TKey, TValue>
+{
+    /// <summary>
+    /// Creates a new instance of a swap table.
+    /// </summary>
+    public const this(set ISortableTable<TKey, TValue> table);
+    
+    private ISortableTable<TKey, TValue> table;
+    
+    protected override ITable<TKey, TValue> GetTable()
+    {
+        return table;
+    }
+    
+    /// <summary>
+    /// Changes the underlying sortable table implementation to the provided table.
+    /// </summary>
+    /// <post>
+    /// The underlying implementation of this table will be changed to 'Table', which will be populated with the items from the previous underlying table, in addition to the elements that were already in 'Table'.
+    /// </post>
+    public void Swap(ISortableTable<TKey, TValue> Table)
+    {
+        foreach (TValue item in this)
+        {
+            Table.Insert(item);
+        }
+        this.table = Table;
+    }
+    
+    public void Sort(IListSorter<TValue> Sorter)
+    {
+        table.Sort(Sorter);
+    }
+}

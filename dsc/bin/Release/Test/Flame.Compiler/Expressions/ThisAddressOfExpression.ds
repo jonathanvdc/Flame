@@ -1,0 +1,34 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler.Expressions
+{
+    public class ThisAddressOfExpression : IExpression
+    {
+        public const this(set IType Type);
+
+        public IType Type { const get; private set; }
+
+        public const ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return ((IUnmanagedCodeGenerator)Generator).GetUnmanagedThis().CreateAddressOfExpression().Emit(Generator);
+        }
+
+        public const IBoundObject Evaluate()
+        {
+            return null;
+        }
+
+        public bool IsConstant
+        {
+            const get { return false; }
+        }
+
+        public const IExpression Optimize()
+        {
+            return this;
+        }
+    }
+}

@@ -1,0 +1,12 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Spark.Emit
+{
+	public interface ICommand
+	{
+		OpCode CommandOpCode { const get; }
+	
+		void Emit(ISparkEmitContext Context);
+	}
+}

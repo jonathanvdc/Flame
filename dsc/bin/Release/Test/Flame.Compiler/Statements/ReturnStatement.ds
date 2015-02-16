@@ -1,0 +1,39 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Statements
+{
+	public class ReturnStatement : IStatement
+	{
+		public const this();
+		public const this(set IExpression Value);
+	
+		public IExpression Value { const get; private set; }
+		
+		public bool IsEmpty { const get return false; }
+		
+		public IStatement Optimize()
+		{
+			if (Value != null)
+			{
+				return new ReturnStatement(Value.Optimize());
+			}
+			else
+			{
+				return this;
+			}
+		}
+		
+		public void Emit(IBlockGenerator Generator)
+		{
+			if (Value != null)
+			{
+				Generator.EmitReturn(Value.Emit(Generator.CodeGenerator));
+			}
+			else
+			{
+				Generator.EmitReturn(null);
+			}
+		}
+	}
+}

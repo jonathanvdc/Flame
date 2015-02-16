@@ -1,0 +1,31 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame
+{
+    public interface IGenericMember : IMember
+    {
+        /// <summary>
+        /// Gets this method's generic parameters.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<IGenericParameter> GetGenericParameters();
+        /// <summary>
+        /// Gets the method's generic arguments.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<IType> GetGenericArguments();
+    }
+    public interface IGenericParameter : IType, IParameter
+    {
+        /// <summary>
+        /// Gets the generic member that declared this parameter.
+        /// </summary>
+        IGenericMember DeclaringMember { const get; }
+        
+        /// <summary>
+        /// Gets the generic parameter's constraint.
+        /// </summary>
+        IGenericConstraint Constraint { const get; }
+    }
+}

@@ -1,0 +1,22 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler
+{
+    public interface IStatement : INode
+    {
+        /// <summary>
+        /// Gets a boolean value that indicates if the statement is empty. 
+        /// An empty statement is a statement that will not influence the output of a function when compiled.
+        /// </summary>
+        bool IsEmpty { const get; }
+        /// <summary>
+        /// Returns an optimized version of the statement.
+        /// </summary>
+        /// <returns></returns>
+        IStatement Optimize();
+        
+        void Emit(IBlockGenerator Generator);
+    }
+}

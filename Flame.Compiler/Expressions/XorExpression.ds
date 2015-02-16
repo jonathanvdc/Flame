@@ -1,0 +1,28 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Expressions
+{
+    public class XorExpression : BinaryExpression
+    {
+        public const this(set IExpression LeftOperand, set IExpression RightOperand);
+
+        public override IBoundObject Evaluate()
+        {
+            return null;
+        }
+
+        public override const IExpression Optimize()
+        {
+            var optA = LeftOperand.Optimize();
+            var optB = RightOperand.Optimize();
+            return new XorExpression(optA, optB);
+        }
+
+        public override const ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Generator.EmitXor(LeftOperand.Emit(Generator), RightOperand.Emit(Generator));
+        }
+    }
+}

@@ -1,0 +1,22 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame
+{
+    public interface IProperty : ITypeMember
+    {
+        /// <summary>
+        /// Gets the property's type.
+        /// </summary>
+        IType PropertyType { const get; }
+        /// <summary>
+        /// Gets the property's accessors.
+        /// </summary>
+        /// <returns></returns>
+        const IAccessor[] GetAccessors();
+        /// <summary>
+        /// Gets the indexer's parameters, if any.
+        /// </summary>
+        const IParameter[] GetIndexerParameters();
+    }
+}

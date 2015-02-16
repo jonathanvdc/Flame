@@ -1,0 +1,65 @@
+/// <summary>
+/// Describes a slightly modified version of the table ADT.
+/// </summary>
+/// <remarks>
+/// TKey is the type of keys stored in the table, TItem is the type of items.
+/// </remarks>
+public interface ITable<TKey, TItem> : IReadOnlyCollection<TItem>
+{
+    /// <summary>
+    /// Gets the table's record-to-key map.
+    /// </summary>
+    IMap<TItem, TKey> KeyMap { const get; }
+
+    /// <summary>
+    /// Inserts an item into the table.
+    /// </summary>
+    /// <post>
+    /// Returns true if item is successfully inserted, false if the table already contains an item with the same search key.
+    /// </post>
+    bool Insert(TItem Item);
+
+    /// <summary>
+    /// Retrieves the item in the table with the specified key.
+    /// </summary>
+    /// <remarks>
+    /// The original table ADT declares a 'success' out boolean for the retrieve operation. The lack of this boolean is compensated by the ContainsKey method.
+    /// </remarks>
+    /// <pre>
+    /// For this method to return an item in the table, rather than null, the key must be in the table, i.e. ContainsKey(Key) must return true.
+    /// </pre>
+    /// <post>
+    /// The return value of this method will be the item that corresponds with the key, or None, if it is not found.
+    /// It is recommended to check if the table contains the key by using ContainsKey.
+    /// </post>
+    TItem this[TKey Key] { const get; }
+
+    /// <summary>
+    /// Removes a key from the table.
+    /// </summary>
+    /// <post>
+    /// This method returns true if the key is in the table, false if not.
+    /// </post>
+    bool Remove(TKey Key);
+    
+    /// <summary>
+    /// Finds out if the table contains the specified key.
+    /// </summary>
+    /// <remarks>
+    /// The original table ADT does not specify this method. It is added, however, to compensate for the lack of the 'success' out parameter when using the retrieve operation.
+    /// </remarks>
+    const bool ContainsKey(TKey Key);
+
+    /// <summary>
+    /// Gets the table's items as a read-only list. 
+    /// The elements in this list are in the same order as those in the table's iterator, obtained through '__iter__' (the get iterator method).
+    /// Any statement that applies to this method therefore also applies to the '__iter__' (get iterator) method, and vice-versa.
+    /// </summary>
+    /// <post>
+    /// This method returns a read-only list that describes the items in this table.
+    /// Modifications to this list are not allowed - it is read-only.
+    /// Furthermore, this list may be an alias to an internal list containing the table's items, or a copy.
+    /// This list need not be sorted, but must contain every item in the table.
+    /// </post>
+    const IReadOnlyList<TItem> ToList();
+}

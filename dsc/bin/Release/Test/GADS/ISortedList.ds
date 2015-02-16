@@ -1,0 +1,20 @@
+/// <summary>
+/// Describes a generic sorted list.
+/// </summary>
+public interface ISortedList<T> : ICollection<T>
+{
+    /// <summary>
+    /// Removes an item from a list.
+    /// </summary>
+    bool Remove(T Item);
+    
+    /// <summary>
+    /// Finds out if the sorted list contains the given item.
+    /// </summary>
+    const bool Contains(T Item);
+    
+    /// <summary>
+    /// Returns a read-only list that represents this list's contents, for easy enumeration.
+    /// </summary>
+    const IReadOnlyList<T> ToList();
+}

@@ -1,0 +1,58 @@
+using std;
+using hashmap = std.unordered_map<int, Stack<string>>;
+//using System.Collections.Generic;
+
+public class StackTest
+{
+    public const this()
+    {
+        x = new Stack<int>();
+    }
+
+    private Stack<int> x;
+}
+
+public class StringTest
+{
+    public const this(set string A, set string B);
+
+    public string A { const get; private set; }
+    public string B { const get; private set; }
+
+    public const string operator cast()
+    {
+        return A + B + ". " + "Why, hi there, " + "C++" + " World!";
+    }
+}
+
+public class Stack<T>
+{
+    public const this();
+
+    private vector<T> data = new vector<T>();
+    
+    public void Push(T Item)
+    {
+        data.push_back(Item);
+    }
+    public T Pop()
+    {
+        T val = data.back();
+        data.pop_back();
+        return val;
+    }
+    public const T Peek()
+    {
+        return data.back();
+    }
+}
+
+public class MapTest
+{
+    public const this()
+    {
+        this.vals = new hashmap();
+    }
+
+    public hashmap vals;
+}

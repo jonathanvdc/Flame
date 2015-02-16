@@ -1,0 +1,68 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Emit;
+
+namespace Flame.Spark.Emit
+{
+	public class SparkCodeGenerator //: ICodeGenerator
+	{
+		public this()
+		{
+			this.Commands = new List<ICommand>();
+		}
+		
+		private List<ICommand> Commands { const get; private set; }
+		
+		#region Emit
+		
+		public void Emit(OpCode OpCode)
+		{
+			Commands.Add(new Command(OpCode));
+		}
+		public void Emit(OpCode OpCode, int32 Data)
+		{
+			Commands.Add(new Bit32Command(OpCode, (bit32)Data));
+		}
+		
+		#endregion
+	
+		public void EmitReturn()
+		{
+			Emit(OpCodes.Return);
+		}
+		public void EmitPop()
+		{
+			Emit(OpCodes.Pop);
+		}
+		
+		#region Constants
+		
+		public void EmitInt32(int32 Value)
+		{
+			Emit(OpCodes.PushInt32, Value);
+		}
+		
+		#endregion
+		
+		#region Math
+		
+		public void EmitAdd()
+		{
+			Emit(OpCodes.Add);
+		}
+		public void EmitSubtract()
+		{
+			Emit(OpCodes.Subtract);
+		}
+		public void EmitMultiply()
+		{
+			Emit(OpCodes.Multiply);
+		}
+		public void EmitDivide()
+		{
+			Emit(OpCodes.Divide);
+		}
+		
+		#endregion
+	}
+}

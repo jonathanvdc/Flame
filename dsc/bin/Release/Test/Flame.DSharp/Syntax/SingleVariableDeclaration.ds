@@ -1,0 +1,118 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Expressions;
+using Flame.DSharp;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class SingleVariableDeclaration : ISyntaxNode
+    {
+        public const this(set Token Name)
+        {
+            this.Operator = Token.Undefined;
+            this.Value = null;
+        }
+        public const this(set Token Name, set Token Operator, set IExpressionSyntax Value);
+
+        public Token Name { const get; private set; }
+        public Token Operator { const get; private set; }
+        public IExpressionSyntax Value { const get; private set; }
+
+        public const IVariable GetDeclaredVariable(ISyntaxState State)
+        {
+            return State.GetVariable(Name.TokenValue);
+        }
+
+        public const IStatement CreateStatement(ITypeSyntax VariableType, ISyntaxState State)
+        {
+            return CreateStatement(VariableType, State, null);
+        }
+
+        public const IStatement CreateStatement(ITypeSyntax VariableType, ISyntaxState State, IType TypeHint)
+        {
+        	var variable = CreateVariable(VariableType, State, TypeHint);
+        	if (variable is AssignedVariable)
+        	{
+        		return ((AssignedVariable)variable).CreateStoreStatement();
+        	}
+        	else
+        	{
+        		return new EmptyStatement();
+        	}
+        }
+        
+        public const IVariable CreateVariable(ITypeSyntax VariableType, ISyntaxState State, IType TypeHint)
+        {
+        	bool varType;
+        	if (VariableType == null)
+        	{
+        		varType = true;
+        	}
+        	else
+        	{
+        		varType = VariableType.IsVariable;
+        	}
+            IType type;
+            if (varType && TypeHint != null)
+            {
+                type = TypeHint;
+            }
+            else
+            {
+                type = VariableType.CreateType(State);
+                if (!varType && type == null)
+                {
+                	State.Log.LogError(new LogEntry("Type resolution error", "Type '" + VariableType.GetCode().ToString() + "' in variable declaration '" + this.GetCode().ToString() + "' could not be resolved"));
+                }
+            }
+
+            if (Value == null)
+            {
+            	if (varType)
+            	{
+            		State.Log.LogError(new LogEntry("Type inference error", "Could not infer 'var' type in variable declaration '" + this.GetCode().ToString() + "' as the variable was not initialized with an expression"));
+            	}
+                return State.DeclareVariable(Name.TokenValue, type);
+            }
+            else
+            {
+                IVariable val = SyntaxExtensions.CreateVerifiedVariable(Value, State);
+				
+                if (varType && type == null)
+                {
+                	type = val.Type;
+                }
+                else if (CastSyntax.UseImplicitCast(State, val.Type, type))
+                {
+                	val = new ExpressionVariable(CastSyntax.CreateImplicitCast(State, val.CreateGetExpression(), Value, type));
+                }
+				
+                var variable = State.DeclareVariable(Name.TokenValue, type);
+                return new AssignedVariable(variable, val);
+            }
+        }
+
+        public override const string ToString()
+        {
+            return GetCode().ToString();
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            var cb = new CodeBuilder();
+            cb.Append(Name.TokenValue);
+            if (Value != null)
+            {
+                cb.Append(" ");
+                cb.Append(Operator.TokenValue);
+                cb.Append(" ");
+                cb.Append(Value.GetCode());
+            }
+            return cb;
+        }
+    }
+}

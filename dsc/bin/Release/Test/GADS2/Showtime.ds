@@ -1,0 +1,148 @@
+/// <summary>
+/// Describes a showtime at the movie theater.
+/// </summary>
+public class Showtime : IRecord<int>
+{
+    /// <summary>
+    /// Creates a new instance of a showtime.
+    /// </summary>
+    /// <pre>
+    /// Id must be a valid and unique identifier, the location must be an existing at the theater, the movie must be known to the theater and the start time must correspond to one of the theater's time slots.
+    /// </pre>
+    public const this(set int Id, set Auditorium Location, set Movie MoviePlaying, set DateTime StartTime)
+    {
+        this.NumberOfFreeSeats = Location.NumberOfSeats;
+    }
+
+    /// <summary>
+    /// Gets the showtime's unique identifier.
+    /// </summary>
+    public int Id { const get; private set; }
+    /// <summary>
+    /// Gets the auditorium where the showtime will take place.
+    /// </summary>
+    public Auditorium Location { const get; private set; }
+    /// <summary>
+    /// Gets the movie that will play at the showtime.
+    /// </summary>
+    public Movie MoviePlaying { const get; private set; }
+    /// <summary>
+    /// Gets the date and time for which this showtime is scheduled.
+    /// </summary>
+    public DateTime StartTime { const get; private set; }
+    /// <summary>
+    /// Gets the date assigned to the showtime.
+    /// </summary>
+    public Date Date { const get return StartTime.Date; }
+    /// <summary>
+    /// Gets the movie's starting time.
+    /// </summary>
+    public Time Timeslot { const get return StartTime.TimeOfDay; }
+    
+    /// <summary>
+    /// Gets the number of remaining free seats for this showtime.
+    /// </summary>
+    public int NumberOfFreeSeats { const get; private set; }
+    private Stack<Ticket> tickets = new Stack<Ticket>();
+    
+    /// <summary>
+    /// Gets the index of the auditorium where the showtime will take place.
+    /// </summary>
+    public int AuditoriumIndex { const get return Location.Index; }
+    /// <summary>
+    /// Gets the identifier of the movie that's playing at the showtime instance.
+    /// </summary>
+    public int MovieId { const get return MoviePlaying.Id; }
+    
+    /// <summary>
+    /// Gets the showtime's string representation.
+    /// </summary>
+    public const string __str__()
+    {
+        int reservedSeats = Location.NumberOfSeats - NumberOfFreeSeats;
+        int present = reservedSeats - tickets.Count;
+        return "Showtime #" + Id + " of " + MoviePlaying + ", " + Location + ", at " + Timeslot + " (" + Date + "), " + NumberOfFreeSeats + " free seats, " + present + " people present";
+    }
+    
+    public int Key { const get return Id; }
+    
+    /// <summary>
+    /// Reserves a ticket for this showtime.
+    /// </summary>
+    /// <pre>
+    /// Id should be a unique identifier, and the number of seats in request should be no more than the amount of free seats.
+    /// The reservation request must always be a reservation for this showtime.
+    /// </pre>
+    /// <post>
+    /// If the reservation request demanded more seats than available, None will be returned, and no seats will be reserved.
+    /// The reservation is in effect considered to be canceled.
+    /// </post>
+    public Reservation MakeReservation(int Id, ReservationRequest Request)
+    {
+        if (Request.NumberOfSeats > NumberOfFreeSeats)
+        {
+            return null;
+        }
+        else
+        {
+            for (int i = 0; i < Request.NumberOfSeats; i++)
+            {
+                NumberOfFreeSeats--;
+                tickets.Push(new Ticket(Request.Customer));
+            }
+            return new Reservation(Id, Request.Customer, this, Request.Timestamp, Request.NumberOfSeats);
+        }
+    }
+    
+    /// <summary>
+    /// Gets a boolean value that indicates whether the provided customer has a ticket for this showtime.
+    /// </summary>
+    /// <post>
+    /// If the showtime has any tickets associated with it that belong to the given customer, 'True' is returned.
+    /// Otherwise, 'False' if returned.
+    /// </post>
+    public const bool HasTicket(User Customer)
+    {
+        foreach (Ticket item in tickets)
+            if (item.Customer == Customer)
+        {
+            return true;
+        }
+        return false;
+    }
+    
+    /// <summary>
+    /// Have one person redeem their ticket and enter the showtime. 
+    /// Note that a user who reserved more than one ticket must enter the showtime multiple times, once per ticket.
+    /// </summary>
+    /// <pre>
+    /// The customer must be a user who has an unredeemed ticket for this showtime.
+    /// The theater must be the theater containing this showtime.
+    /// </pre>
+    /// <post>
+    /// If the customer does not have an unredeemed ticket for this showtime, this method does nothing.
+    /// If, on the other hand, the user does, their ticket is redeemed, and their absence will no longer delay the showtime.
+    /// If the last ticket was redeemed, the showtime begins, and is be removed from the theater's showtime list.
+    /// </post>
+    public void RedeemTicket(Theater Theater, User Customer)
+    {
+        if (HasTicket(Customer))
+        {
+            var tempStorage = new Stack<Ticket>();
+            // Copy tickets from one stack to a temporary stack until a ticket belonging to the given customer is found
+            while (!tickets.IsEmpty)
+            {
+                var item = tickets.Pop();
+                if (item.Customer == Customer) break;
+                else tempStorage.Push(item);
+            }
+            // Copy tickets from the temporary stack back to the ticket stack
+            while (!tempStorage.IsEmpty)
+            {
+                tickets.Push(tempStorage.Pop());
+            }
+            if (tickets.IsEmpty) // If all tickets have been exhausted, the showtime begins
+                Theater.Showtimes.Remove(this.Id);
+        }
+    }
+}

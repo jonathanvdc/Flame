@@ -1,0 +1,118 @@
+class BinarySearchTree<T, TKey> : ITree<T, TKey>
+// Describes a binary search tree.
+{
+
+    +CreateBinarySearchTree(in KeyMap : IMap<T, TKey>) : BinarySearchTree<T, TKey> { query }
+
+    -CreateBinarySearchTree(in KeyMap : IMap<T, TKey>, in tree : BinaryTree<T>) : BinarySearchTree<T, TKey> { query }
+
+    property Key
+    {
+
+        +get() : TKey { query }
+        // Gets the binary tree's root key.
+
+    }
+
+    property Left
+    {
+
+        +get() : BinarySearchTree<T, TKey> { query }
+        // Gets the binary tree's left subtree.
+
+        -set(in value : BinarySearchTree<T, TKey>)
+        // Sets the binary tree's left subtree.
+
+    }
+
+    property Right
+    {
+
+        +get() : BinarySearchTree<T, TKey> { query }
+        // Gets the binary tree's right subtree.
+
+        -set(in value : BinarySearchTree<T, TKey>)
+        // Sets the binary tree's right subtree.
+
+    }
+
+    property Count
+    {
+
+        +get() : integer { query }
+        // Gets the number of items in the binary search tree.
+
+    }
+
+    property IsEmpty
+    {
+
+        +get() : boolean { query }
+        // Gets a boolean value that indicates if the binary search tree is empty.
+
+    }
+
+    property IsLeaf
+    {
+
+        +get() : boolean { query }
+        // Gets a boolean value that indicates if the binary search tree is either empty, or a leaf.
+        // Post:
+        // Returns true if this binary search tree is empty or has no children.
+        // Otherwise, returns false.
+
+    }
+
+    property KeyMap
+    {
+
+        +get() : IMap<T, TKey> { query }
+        // Gets the function that maps the binary search tree's records to their search keys.
+
+        -set(in value : IMap<T, TKey>)
+        // Sets the function that maps the binary search tree's records to their search keys.
+
+    }
+
+    -GetLeftmost() : BinarySearchTree<T, TKey>
+    // Gets the binary tree's leftmost node.
+
+    +TraverseInorder() : IReadOnlyList<T> { query }
+    // Performs inorder traversal on the binary search tree and writes its items to a new list.
+    // Post:
+    // This method returns a read-only list with element type 'T' that can be used for iteration.
+
+    +TraverseInorder(in Target : ICollection<T>)
+    // Performs inorder traversal on the binary search tree and writes its items to the given target collection.
+
+    +Insert(in Item : T)
+    // Inserts an item in the binary search tree.
+    // Post:
+    // The item will be added to the tree, regardless of whether the tree already contains an item with the same search key.
+
+    +Retrieve(in Key : TKey) : T { query }
+    // Retrieves the item with the specified key.
+    // Post:
+    // If the binary search tree contains an item with the specified key, said item is returned.
+    // If not, None is returned.
+
+    +Remove(in Key : TKey) : boolean
+    // Removes the item with the specified key from the binary search tree.
+    // Post:
+    // If the search tree contains an item with the provided key, it is removed, and true is returned.
+    // Otherwise, the tree's state remains unchanged, and false is returned.
+
+    -Equals(in Other : BinarySearchTree<T, TKey>) : boolean { query }
+    // Compares two trees for equality.
+    // This method is not intended for general use, and was specifically created for the 'Remove(TKey)' method.
+    // It uses reference comparison to achieve O(log(n)) performance.
+
+    -ImmutableRemoveLeftmost() : BinarySearchTree<T, TKey> { query }
+    // Returns a tree with the leftmost child removed.
+    // Search trees are treated as immutable objects in this method.
+
+    -ImmutableRemove(in Key : TKey) : BinarySearchTree<T, TKey> { query }
+    // Returns a tree where one occurrence of an item with the provided key has been removed.
+    // Search trees are treated as immutable objects in this method.
+
+}

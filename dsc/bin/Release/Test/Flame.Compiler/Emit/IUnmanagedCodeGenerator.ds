@@ -1,0 +1,17 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler
+{
+	public interface IUnmanagedCodeGenerator : ICodeGenerator, IUnmanagedMethodStructureGenerator
+	{
+		ICodeBlock EmitDereferencePointer(ICodeBlock Pointer);
+		ICodeBlock EmitStoreAtAddress(ICodeBlock Pointer, ICodeBlock Value);
+		
+		IUnmanagedVariable GetUnmanagedElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index);
+		IUnmanagedVariable GetUnmanagedField(IField Field, ICodeBlock Target);
+		
+		ICodeBlock EmitSizeOf(IType Type);
+	}
+}

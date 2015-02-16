@@ -1,0 +1,163 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Build
+{
+	public virtual class TypeTransformerBase : TypeConverterBase<IType>
+	{
+		public const this();
+		
+		protected override virtual const IType MakePointerType(IType ElementType, PointerKind Kind)
+		{
+			return ElementType.MakePointerType(Kind);
+		}
+		
+		protected override virtual const IType MakeArrayType(IType ElementType, int ArrayRank)
+		{
+			return ElementType.MakeArrayType(ArrayRank);
+		}
+		
+		protected override virtual const IType MakeVectorType(IType ElementType, int[] Dimensions)
+		{
+			return ElementType.MakeVectorType(Dimensions);
+		}
+		
+		protected override virtual const IType MakeGenericType(IType GenericDeclaration, [IType] TypeArguments)
+		{
+			return GenericDeclaration.MakeGenericType(TypeArguments);
+		}
+		
+		protected override virtual const IType ConvertTypeDefault(IType Type)
+		{
+			return Type;
+		}
+		
+		/*protected virtual const IType ConvertPointerType(IPointerType Type)
+		{
+			return MakePointerType(Convert(Type.GetElementType()), Type.PointerKind);
+		}
+		
+		protected virtual const IType ConvertArrayType(IArrayType Type)
+		{
+			return MakeArrayType(Convert(Type.GetElementType()), Type.ArrayRank);
+		}
+		
+		protected virtual const IType ConvertVectorType(IVectorType Type)
+		{
+			return MakeVectorType(Convert(Type.GetElementType()), Type.GetDimensions());
+		}
+		
+		protected virtual const IType ConvertGenericParameter(IGenericParameter Type)
+		{
+			return ConvertTypeDefault(Type);
+		}
+		
+		protected virtual const IType ConvertGenericInstance(IType Type)
+		{
+			return MakeGenericType(Convert(Type.GetGenericDeclaration()), Convert(Type.GetGenericArguments()));
+		}
+		
+		protected virtual const IType ConvertTypeDeclaration(IType Type)
+		{
+			if (Type.IsPrimitive)
+			{
+				return ConvertPrimitiveType(Type);
+			}
+			else
+			{
+				return ConvertUserType(Type);
+			}
+		}
+		
+		private const IType ConvertUserType(IType Type)
+		{
+			if (Type.IsGenericParameter)
+			{
+				return ConvertGenericParameter((IGenericParameter)Type);
+			}
+			else if (Type.IsEnum)
+			{
+				return ConvertEnumType(Type);
+			}
+			else if (Type.IsInterface)
+			{
+				return ConvertInterfaceType(Type);
+			}
+			else if (Type.IsValueType)
+			{
+				return ConvertValueType(Type);
+			}
+			else
+			{
+				return ConvertReferenceType(Type);
+			}
+		}
+		
+		protected virtual const IType ConvertReferenceType(IType Type)
+		{
+			return ConvertTypeDefault(Type);
+		}
+		
+		protected virtual const IType ConvertValueType(IType Type)
+		{
+			return ConvertTypeDefault(Type);
+		}
+		
+		protected virtual const IType ConvertEnumType(IType Type)
+		{
+			return ConvertValueType(Type);
+		}
+		
+		protected virtual const IType ConvertInterfaceType(IType Type)
+		{
+			return ConvertReferenceType(Type);
+		}
+		
+		protected virtual const IType ConvertPrimitiveType(IType Type)
+		{
+			if (Type.IsValueType)
+			{
+				return ConvertValueType(Type);	
+			}
+			else
+			{
+				return ConvertReferenceType(Type);
+			}
+		}
+		
+		public const virtual [IType] Convert([IType] Values)
+		{
+			List<IType> types = new List<IType>();
+			foreach (var item in Values)
+			{
+				types.Add(Convert(item));
+			}
+			return types;
+		}
+		
+		public const virtual IType Convert(IType Value)
+		{
+			if (Value.IsPointer)
+			{
+				return ConvertPointerType((IPointerType)Value);
+			}
+			else if (Value.IsArray)
+			{
+				return ConvertArrayType((IArrayType)Value);
+			}
+			else if (Value.IsVector)
+			{
+				return ConvertVectorType((IVectorType)Value);
+			}
+			else if (Value.IsGenericInstance)
+			{
+				return ConvertGenericInstance(Value);
+			}
+			else
+			{
+				return ConvertTypeDeclaration(Value);
+			}
+		}*/
+	}
+}

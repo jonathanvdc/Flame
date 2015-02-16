@@ -1,0 +1,43 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Variables;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class ElementInCollectionSyntax : ISyntaxNode, ITokenNode
+    {
+        public const this(set VariableDeclarationSyntax VariableDeclaration, set Token InKeyword, set IExpressionSyntax Collection);
+
+        public VariableDeclarationSyntax VariableDeclaration { const get; private set; }
+        public Token InKeyword { const get; private set; }
+        public IExpressionSyntax Collection { const get; private set; }
+        
+        public IReadOnlyList<Token> Tokens
+        {
+        	const get
+        	{
+        		List<Token> tokens = new List<Token>();
+				tokens.AddRange(VariableDeclaration.GetTokens());
+				tokens.Add(InKeyword);
+				tokens.AddRange(Collection.GetTokens());
+				return tokens;				
+        	}
+        }
+
+        public CodeBuilder GetCode()
+        {
+            CodeBuilder cb = VariableDeclaration.GetCode();
+            cb.Append(" ");
+            cb.Append(InKeyword.TokenValue);
+            cb.Append(" ");
+            cb.Append(Collection.GetCode());
+            return cb;
+        }
+    }
+}

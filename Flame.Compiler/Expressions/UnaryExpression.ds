@@ -1,0 +1,34 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Expressions
+{
+    public abstract class UnaryExpression : IExpression
+    {
+        protected const this();
+        public const this(IExpression Value)
+        {
+            this.Value = Value;
+        }
+
+        /// <summary>
+        /// The value the unary expression will be performed on.
+        /// </summary>
+        public IExpression Value { const get; protected set; }
+        
+        public virtual IType Type
+        {
+            virtual const get { return Value.Type; }
+        }
+
+        public bool IsConstant
+        {
+            const get { return Value.IsConstant; }
+        }
+
+        public const abstract IBoundObject Evaluate();
+        public const abstract IExpression Optimize();
+        public abstract ICodeBlock Emit(ICodeGenerator Generator);
+    }
+}

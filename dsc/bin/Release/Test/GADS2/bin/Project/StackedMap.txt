@@ -1,0 +1,36 @@
+class StackedMap<TFirst, TSecond, TThird> : IMap<TFirst, TThird>
+// A stacked map is a map "stacks" two mapping function by applying a mapping function to the result of a first mapping function.
+// A use case for this is when a key extracted from a record needs to be converted to its string representation.
+{
+
+    +CreateStackedMap(in FirstMap : IMap<TFirst, TSecond>, in SecondMap : IMap<TSecond, TThird>) : StackedMap<TFirst, TSecond, TThird> { query }
+    // Creates a new stacked map instance from the first and second mapping functions.
+
+    property FirstMap
+    {
+
+        +get() : IMap<TFirst, TSecond> { query }
+        // Gets the stacked map's first mapping function.
+
+        -set(in value : IMap<TFirst, TSecond>)
+        // Sets the stacked map's first mapping function.
+
+    }
+
+    property SecondMap
+    {
+
+        +get() : IMap<TSecond, TThird> { query }
+        // Gets the stacked map's second mapping function.
+
+        -set(in value : IMap<TSecond, TThird>)
+        // Sets the stacked map's second mapping function.
+
+    }
+
+    +Map(in Value : TFirst) : TThird { query }
+    // Maps the item to its target representation.
+    // Post:
+    // This function must produce a constant return value, irrespective of external changes.
+
+}

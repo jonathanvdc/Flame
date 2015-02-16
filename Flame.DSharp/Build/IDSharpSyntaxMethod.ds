@@ -1,0 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+using Flame.Syntax;
+using Flame.Syntax.DSharp;
+
+namespace Flame.DSharp.Build
+{
+    public interface IDSharpSyntaxMethod : IDSharpMethod
+    {
+        const IMemberSyntax<IMethod> GetSyntax();
+    }
+}

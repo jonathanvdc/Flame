@@ -1,0 +1,36 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Build
+{
+	public virtual class TypeNamerBase : TypeConverterBase<string>
+	{
+		public const this();
+		
+		protected override virtual const string MakePointerType(string ElementType, PointerKind Kind)
+		{
+			return ElementType + Kind.Extension;
+		}
+		
+		protected override virtual const string MakeArrayType(string ElementType, int ArrayRank)
+		{
+			return GenericNameExtensions.AppendArraySuffix(ElementType, ArrayRank);
+		}
+		
+		protected override virtual const string MakeVectorType(string ElementType, int[] Dimensions)
+		{
+			return GenericNameExtensions.AppendVectorSuffix(ElementType, Dimensions);
+		}
+		
+		protected override virtual const string MakeGenericType(string GenericDeclaration, [string] TypeArguments)
+		{
+			return GenericNameExtensions.ChangeTypeArguments(GenericDeclaration, TypeArguments);
+		}
+		
+		protected override virtual const string ConvertTypeDefault(IType Type)
+		{
+			return Type.FullName;
+		}
+	}
+}

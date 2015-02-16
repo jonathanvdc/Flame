@@ -1,0 +1,30 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler
+{
+    public interface IExpression : INode
+    {
+        /// <summary>
+        /// Gets the type of object that the expression will return.
+        /// </summary>
+        public IType Type { const get; }
+        /// <summary>
+        /// Gets a boolean value that indicates if the expression is a constant expression. A constant expression can be evaluated at compile-time.
+        /// </summary>
+        public bool IsConstant { const get; }
+        /// <summary>
+        /// Performs a compile-time evaluation of the expression. If it cannot be evaluated, an error is thrown.
+        /// </summary>
+        /// <returns></returns>
+        IBoundObject Evaluate();
+        /// <summary>
+        /// Returns an optimized version of the expression.
+        /// </summary>
+        /// <returns></returns>
+        public IExpression Optimize();
+        
+        ICodeBlock Emit(ICodeGenerator Generator);
+    }
+}

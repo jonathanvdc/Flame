@@ -1,0 +1,25 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame
+{
+    public interface IAssembly : IMember
+    {
+        /// <summary>
+        /// Creates a binder for this assembly.
+        /// </summary>
+        /// <returns></returns>
+        const IBinder CreateBinder();
+        
+        /// <summary>
+        /// Gets the entry point method for this assembly.
+        /// </summary>
+        /// <returns></returns>
+        const IMethod GetEntryPoint();
+
+        /// <summary>
+        /// Gets the assembly's version.
+        /// </summary>
+        Version AssemblyVersion { const get; }
+    }
+}

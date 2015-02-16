@@ -1,0 +1,73 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Binding;
+
+namespace Flame.DSharp.Build
+{
+	public static class DSharpBuildHelpers
+	{
+		public static void MapCommonTypeNames(PredefinedBinder Binder)
+		{
+			Binder.MapType("void", PrimitiveTypes.Void);
+			
+			Binder.MapType("bit8", PrimitiveTypes.Bit8);
+			Binder.MapType("bit16", PrimitiveTypes.Bit16);
+			Binder.MapType("bit32", PrimitiveTypes.Bit32);
+			Binder.MapType("bit64", PrimitiveTypes.Bit64);
+			
+			Binder.MapType("bool", PrimitiveTypes.Boolean);
+			Binder.MapType("string", PrimitiveTypes.String);
+			Binder.MapType("char", PrimitiveTypes.Char);
+			
+			var rootType = Binder.RootType;
+			if (rootType != null)
+			{
+				Binder.MapType("object", rootType);
+			}
+		}
+	
+		public static void MapAliasTypeNames(PredefinedBinder Binder)
+		{
+			Binder.MapType("sbyte", PrimitiveTypes.Int8);
+			Binder.MapType("short", PrimitiveTypes.Int16);
+			Binder.MapType("int", PrimitiveTypes.Int32);
+			Binder.MapType("long", PrimitiveTypes.Int64);
+			
+			Binder.MapType("byte", PrimitiveTypes.UInt8);
+			Binder.MapType("ushort", PrimitiveTypes.UInt16);
+			Binder.MapType("uint", PrimitiveTypes.UInt32);
+			Binder.MapType("ulong", PrimitiveTypes.UInt64);
+			
+			Binder.MapType("float", PrimitiveTypes.Float32);
+			Binder.MapType("double", PrimitiveTypes.Float64);
+		}
+		
+		public static void MapStrictTypeNames(PredefinedBinder Binder)
+		{
+			Binder.MapType("int8", PrimitiveTypes.Int8);
+			Binder.MapType("int16", PrimitiveTypes.Int16);
+			Binder.MapType("int32", PrimitiveTypes.Int32);
+			Binder.MapType("int64", PrimitiveTypes.Int64);
+			
+			Binder.MapType("uint8", PrimitiveTypes.UInt8);
+			Binder.MapType("uint16", PrimitiveTypes.UInt16);
+			Binder.MapType("uint32", PrimitiveTypes.UInt32);
+			Binder.MapType("uint64", PrimitiveTypes.UInt64);
+			
+			Binder.MapType("float32", PrimitiveTypes.Float32);
+			Binder.MapType("float64", PrimitiveTypes.Float64);
+		}
+		
+		public static const IBinder CreatePrimitiveBinder(IBinder MainBinder)
+		{
+			var binder = new PredefinedBinder(MainBinder);
+			
+			DSharpBuildHelpers.MapCommonTypeNames(binder);
+			DSharpBuildHelpers.MapStrictTypeNames(binder);
+			DSharpBuildHelpers.MapAliasTypeNames(binder);
+			
+			return binder;
+		}
+	}
+}

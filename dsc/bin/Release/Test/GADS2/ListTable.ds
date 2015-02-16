@@ -1,0 +1,84 @@
+/// <summary>
+/// An implementation of a table that uses a list as backing storage.
+/// </summary>
+public class ListTable<TKey, TValue> : ISortableTable<TKey, TValue>
+{
+    /// <summary>
+    /// Creates a new list table instance.
+    /// </summary>
+    public const this(set IMap<TValue, TKey> KeyMap, set IList<TValue> List);
+    
+    /// <summary>
+    /// Gets or sets the value-to-key mapping function of this list table.
+    /// </summary>
+    public IMap<TValue, TKey> KeyMap { const get; private set; }
+    private IList<TValue> List;
+    
+    public TValue this[TKey Key]
+    {
+        const get
+        {
+            foreach (TValue item in List)
+                if (KeyMap.Map(item) == Key)
+            {
+                return item;
+            }
+            return null;
+        }
+    }
+    
+    public const bool ContainsKey(TKey Key)
+    {
+        foreach (TValue item in List)
+        if (KeyMap.Map(item) == Key)
+            return true;
+        return false;
+    }
+    
+    public bool Remove(TKey Key)
+    {
+        for (int i = 0; i < List.Count; i++)
+            if (KeyMap.Map(List[i]) == Key)
+        {
+            List.RemoveAt(i);
+            return true;
+        }
+        return false;
+    }
+    
+    public bool Insert(TValue Item)
+    {
+        if (this.ContainsKey(KeyMap.Map(Item)))
+        {
+            return false;
+        }
+        else
+        {
+            List.Add(Item);
+            return true;
+        }
+    }
+    
+    public int Count
+    {
+        const get return List.Count;
+    }
+    
+    public const [<TValue>] __iter__()
+    {
+        return List.__iter__();
+    }
+    
+    public const IReadOnlyList<TValue> ToList()
+    {
+        return List;
+    }
+    
+    /// <summary>
+    /// Sorts the list based on the given item comparer.
+    /// </summary>
+    public void Sort(IListSorter<TValue> Sorter)
+    {
+        this.List = Sorter.Sort(this.List);
+    }
+}

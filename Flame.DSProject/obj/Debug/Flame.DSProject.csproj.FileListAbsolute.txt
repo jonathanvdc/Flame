@@ -1,0 +1,7 @@
+C:\Users\Jonathan\SkyDrive\Flame\Flame.DSProject\bin\Debug\Flame.DSProject.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.DSProject\bin\Debug\Flame.DSProject.pdb
+C:\Users\Jonathan\SkyDrive\Flame\Flame.DSProject\bin\Debug\Flame.Compiler.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.DSProject\bin\Debug\Flame.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.DSProject\obj\Debug\Flame.DSProject.csprojResolveAssemblyReference.cache
+C:\Users\Jonathan\SkyDrive\Flame\Flame.DSProject\obj\Debug\Flame.DSProject.dll
+C:\Users\Jonathan\SkyDrive\Flame\Flame.DSProject\obj\Debug\Flame.DSProject.pdb

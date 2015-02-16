@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F19ED070-66F3-43E2-8105-BF77531310A6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Flame.IL</RootNamespace>
+    <AssemblyName>Flame.IL</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Flame">
+      <HintPath>..\Flame.Compiler\bin\Flame.dll</HintPath>
+    </Reference>
+    <Reference Include="Flame.Compiler">
+      <HintPath>..\Flame.Compiler\bin\Flame.Compiler.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Emit\ArgumentInstruction.cs" />
+    <Compile Include="Emit\BranchInstruction.cs" />
+    <Compile Include="Emit\Command.cs" />
+    <Compile Include="Emit\DefaultValueInstruction.cs" />
+    <Compile Include="Emit\EmptyInstruction.cs" />
+    <Compile Include="Emit\FieldCommand.cs" />
+    <Compile Include="Emit\FieldInstruction.cs" />
+    <Compile Include="Emit\FloatCommand.cs" />
+    <Compile Include="Emit\GetArrayLengthInstruction.cs" />
+    <Compile Include="Emit\ICommand.cs" />
+    <Compile Include="Emit\ICommandEmitContext.cs" />
+    <Compile Include="Emit\IInstruction.cs" />
+    <Compile Include="Emit\BinaryInstruction.cs" />
+    <Compile Include="Emit\ILArgumentVariable.cs" />
+    <Compile Include="Emit\ILBlockGenerator.cs" />
+    <Compile Include="Emit\ILCodeEmitContext.cs" />
+    <Compile Include="Emit\ILCodeGenerator.cs" />
+    <Compile Include="Emit\ConversionInstruction.cs" />
+    <Compile Include="Emit\DereferencePointerInstruction.cs" />
+    <Compile Include="Emit\ILIfElseBlock.cs" />
+    <Compile Include="Emit\ILInstruction.cs" />
+    <Compile Include="Emit\AsInstanceOfInstruction.cs" />
+    <Compile Include="Emit\ILLabel.cs" />
+    <Compile Include="Emit\ILLocalVariable.cs" />
+    <Compile Include="Emit\ILThisVariable.cs" />
+    <Compile Include="Emit\InitObjectInstruction.cs" />
+    <Compile Include="Emit\IntCommand.cs" />
+    <Compile Include="Emit\InvocationInstruction.cs" />
+    <Compile Include="Emit\LabelCommand.cs" />
+    <Compile Include="Emit\LiteralInstruction.cs" />
+    <Compile Include="Emit\LocalCommand.cs" />
+    <Compile Include="Emit\LocalInstruction.cs" />
+    <Compile Include="Emit\MarkInstruction.cs" />
+    <Compile Include="Emit\MethodCommand.cs" />
+    <Compile Include="Emit\NewArrayInstruction.cs" />
+    <Compile Include="Emit\NewObjectInstruction.cs" />
+    <Compile Include="Emit\NewVectorInstruction.cs" />
+    <Compile Include="Emit\NotInstruction.cs" />
+    <Compile Include="Emit\OpCodeInstruction.cs" />
+    <Compile Include="Emit\OptimizingCommandEmitContext.cs" />
+    <Compile Include="Emit\PushPointerInstruction.cs" />
+    <Compile Include="Emit\SizeOfInstruction.cs" />
+    <Compile Include="Emit\StoreAtAddressInstruction.cs" />
+    <Compile Include="Emit\StringCommand.cs" />
+    <Compile Include="Emit\TypeCastInstruction.cs" />
+    <Compile Include="Emit\TypeCommand.cs" />
+    <Compile Include="Emit\UnaryInstruction.cs" />
+    <Compile Include="Emit\PushFloat.cs" />
+    <Compile Include="Emit\PushInt32Instruction.cs" />
+    <Compile Include="Emit\PushInt64Instruction.cs" />
+    <Compile Include="Emit\PushNullInstruction.cs" />
+    <Compile Include="Emit\PushStringInstruction.cs" />
+    <Compile Include="Emit\ILWhileBlockGenerator.cs" />
+    <Compile Include="Emit\InstructionExtensions.cs" />
+    <Compile Include="Emit\OpCode.cs" />
+    <Compile Include="Emit\OpCodeConverter.cs" />
+    <Compile Include="Emit\OpCodes.cs" />
+    <Compile Include="Emit\PopInstruction.cs" />
+    <Compile Include="Emit\ReturnInstruction.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Flame.Compiler.Emit\Flame.Compiler.Emit.csproj">
+      <Project>{869a8c2a-9d8c-4555-aa9b-23b645940259}</Project>
+      <Name>Flame.Compiler.Emit</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

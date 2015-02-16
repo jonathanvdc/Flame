@@ -1,0 +1,46 @@
+class Auditorium : IRecord<integer>
+// Describes an auditorium.
+{
+
+    +CreateAuditorium(in Index : integer, in NumberOfSeats : integer) : Auditorium { query }
+    // Creates a new auditorium instance for the provided index and number of seats.
+    // Pre:
+    // 'Index' must be a unique index and 'NumberOfSeats' must be a nonzero positive integer.
+
+    property Key
+    {
+
+        +get() : integer { query }
+        // Gets the record's search key.
+
+    }
+
+    property Index
+    {
+
+        +get() : integer { query }
+        // Gets the auditorium's index, or room number.
+
+        -set(in value : integer)
+        // Sets the auditorium's index, or room number.
+
+    }
+
+    property NumberOfSeats
+    {
+
+        +get() : integer { query }
+        // Gets the number of seats in the auditorium.
+
+        -set(in value : integer)
+        // Sets the number of seats in the auditorium.
+
+    }
+
+    +operator==(in Other : Auditorium) : boolean { query }
+    // Finds out if this auditorium equals the given auditorium.
+
+    +operator!=(in Other : Auditorium) : boolean { query }
+    // Finds out if this auditorium is not equal to the given auditorium.
+
+}

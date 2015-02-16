@@ -1,0 +1,27 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler.Statements
+{
+    public class ContinueStatement : IStatement
+    {
+        public const this();
+
+        public void Emit(IBlockGenerator Generator)
+        {
+            Generator.EmitContinue();
+        }
+
+        public bool IsEmpty
+        {
+            const get return false;
+        }
+
+        public const IStatement Optimize()
+        {
+            return new ContinueStatement();
+        }
+    }
+}

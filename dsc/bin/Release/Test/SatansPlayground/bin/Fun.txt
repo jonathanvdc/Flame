@@ -1,0 +1,10 @@
+class Foo
+{
+
+    +Square(in Value : integer[4]) : integer[4] { query }
+
+    +GetVector() : integer[4] { query }
+
+    +TestSquare() : integer[4] { query }
+
+}

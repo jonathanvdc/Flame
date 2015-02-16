@@ -1,0 +1,32 @@
+class KeyValuePair<TKey, TValue> : IRecord<TKey>
+// A pair record that contains a key and a value.
+// Remarks:
+// This type is particularly useful to associate keys with unrelated values.
+{
+
+    +CreateKeyValuePair(in Key : TKey, in Value : TValue) : KeyValuePair<TKey, TValue> { query }
+    // Creates a new instance of a key-value pair based on the given key and value.
+
+    property Key
+    {
+
+        +get() : TKey { query }
+        // Gets the key-value pair's key.
+
+        -set(in value : TKey)
+        // Sets the key-value pair's key.
+
+    }
+
+    property Value
+    {
+
+        +get() : TValue { query }
+        // Gets the key-value pair's value.
+
+        -set(in value : TValue)
+        // Sets the key-value pair's value.
+
+    }
+
+}

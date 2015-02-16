@@ -1,0 +1,184 @@
+using System;
+
+//namespace Trees
+//{
+	public class BinaryTree<class T>
+	{
+		public const this();
+		public const this(set T Value);
+		public const this(set T Value, set BinaryTree<T> Left, set BinaryTree<T> Right);
+	
+		public T Value { const get; set; }
+		public BinaryTree<T> Left { const get; set; }
+		public BinaryTree<T> Right { const get; set; }
+		
+		public bool IsLeaf
+		{
+			const get
+			{
+				return Left == null && Right == null;
+			}
+		}
+		
+		public BinaryTree<T> LeftmostTree
+		{
+			const get
+			{
+				if (Left == null)
+				{
+					return this;
+				}
+				else
+				{
+					return Left.LeftmostTree;
+				}
+			}
+		}
+		public BinaryTree<T> RightmostTree
+		{
+			const get
+			{
+				if (Right == null)
+				{
+					return this;
+				}
+				else
+				{
+					return Right.RightmostTree;
+				}
+			}
+		}
+		
+		public T RetrieveAndRemoveInorderSuccessor()
+		{
+			if (Right.Left == null)
+			{
+				T val = Right.Value;
+				Right = Right.Right;
+				return val;
+			}
+			else
+			{
+				return Right.RetrieveAndRemoveLeftmost();
+			}
+		}
+		
+		public T RetrieveAndRemoveLeftmost()
+		{
+			if (Left.Left == null)
+			{
+				T val = Left.Value;
+				Left = Left.Right;
+				return val;
+			}
+			else
+			{
+				return Left.RetrieveAndRemoveLeftmost();
+			}
+		}
+		
+		public const IList<T> TraverseInorder()
+		{
+			var list = new ArrayList<T>();
+			this.TraverseInorder(list);
+			return list;
+		}
+		
+		public void TraverseInorder(IList<T> Target)
+		{
+			if (Left != null)
+			{
+				Left.TraverseInorder(Target);
+			}
+			Target.Add(Value);
+			if (Right != null)
+			{
+				Right.TraverseInorder(Target);
+			}
+		}
+		
+		public void Insert(T Item)
+		{
+			if (Item < Value)
+			{
+				if (Left == null)
+				{
+					Left = new BinaryTree<T>(Item);
+				}
+				else
+				{
+					Left.Insert(Item);
+				}
+			}
+			else
+			{
+				if (Right == null)
+				{
+					Right = new BinaryTree<T>(Item);
+				}
+				else
+				{
+					Right.Insert(Item);
+				}
+			}
+		}
+        
+        public const bool Contains(T Item)
+        {
+            if (Item == Value)
+                return true;
+            else if (Item < Value)
+                if (Left != null)
+                    return Left.Contains(Item);
+                else
+                    return false;
+			else
+				if (Right != null)
+                    return Right.Contains(Item);
+                else
+                    return false;
+        }
+        
+        public const T Retrieve(T Item)
+        {
+            if (Item == Value)
+                return Value;
+            else if (Item < Value)
+                if (Left != null)
+                    return Left.Retrieve(Item);
+                else
+                    return default(T);
+			else
+				if (Right != null)
+                    return Right.Retrieve(Item);
+                else
+                    return default(T);
+        }
+		
+		public void Remove(T Item)
+		{
+			if (Item == Value)
+			{
+				//Value = null;
+				if (Right != null)
+				{
+					Value = RetrieveAndRemoveInorderSuccessor();
+			    }
+                else
+                {
+                    Value = Left.Value;
+                    Right = Left.Right;
+                    Left = Left.Left;
+                }
+			}
+			else if (Item < Value)
+			{
+				Left.Remove(Item);
+			}
+			else
+			{
+				Right.Remove(Item);
+			}
+		}
+	}
+//}

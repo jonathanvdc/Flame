@@ -1,0 +1,25 @@
+using System;
+using System.Collections.Generic;
+using Flame.Build;
+
+namespace Flame.Primitives
+{
+	public class GetHashCodeImplementation<T> : PrimitiveMethod where T : object
+	{
+		public const this(set IType DeclaringType)
+		{
+			this.Name = "GetHashCode";
+			this.IsConstructor = false;
+			this.ReturnType = PrimitiveTypes.Int32;
+			this.Parameters = new IParameter[0];
+			this.BaseMethods = new IMethod[] { PrimitiveMethods.GetHashCode };
+			this.Attributes = new IAttribute[] { PrimitiveAttributes.RecompileAttribute, new OperatorAttribute(Operator.Hash) };
+		}
+		
+		public override const IBoundObject Invoke(IBoundObject Target, IEnumerable<IBoundObject> Arguments) : PrimitiveMethod.Invoke
+		{
+			var primitive = (IBoundPrimitive<T>)Target;
+			return new BoundPrimitive<int32>(PrimitiveTypes.Int32, primitive.Value.GetHashCode());
+		}
+	}
+}

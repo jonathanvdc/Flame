@@ -1,0 +1,26 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame
+{
+    public interface IGenericParameterBuilder : IGenericParameter
+    {
+        /// <summary>
+        /// Adds a constraint to the generic parameter.
+        /// </summary>
+        void AddConstraint(IGenericConstraint Constraint);
+    }
+    
+    public static class GenericParameterBuilderExtensions
+    {
+        /// <summary>
+        /// Adds a type constraint to the generic parameter.
+        /// </summary>
+        /// <param name="TypeConstraint"></param>
+    	public static void AddTypeConstraint(this IGenericParameterBuilder Parameter, IType TypeConstraint)
+		{
+			Parameter.AddConstraint(new TypeConstraint(TypeConstraint));
+		}
+    }
+}

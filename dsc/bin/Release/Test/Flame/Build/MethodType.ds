@@ -1,0 +1,215 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Build;
+
+namespace Flame
+{
+    public class MethodType : IType, IMethod
+    {
+        protected const this(set IMethod Method);
+
+        public IMethod Method { const get; private set; }
+
+        public static const IType Create(IMethod Method)
+        {
+            if (Method is IType)
+            {
+                return (IType)Method;
+            }
+            else
+            {
+                return new MethodType(Method);
+            }
+        }
+        
+        public static const IMethod GetMethod(IType Type)
+        {
+        	if (Type is MethodType)
+        	{
+        		return ((MethodType)Type).Method;
+        	}
+        	else if (Type is IMethod)
+        	{
+        		return (IMethod)Type;
+        	}
+        	else
+        	{
+        		return null;
+        	}
+        }
+
+        #region IMethod Implementation
+
+        public IMethod[] GetBaseMethods()
+        {
+            return Method.GetBaseMethods();
+        }
+        
+        public IMethod GetGenericMethodDeclaration() : IMethod.GetGenericDeclaration
+        {
+            return new MethodType(Method.GetGenericDeclaration());
+        }
+
+        public IParameter[] GetParameters()
+        {
+            return Method.GetParameters();
+        }
+
+        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
+        {
+            return Method.Invoke(Caller, Arguments);
+        }
+
+        public bool IsConstructor
+        {
+            const get { return Method.IsConstructor; }
+        }
+
+        public IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
+        {
+            return new MethodType(Method.MakeGenericMethod(TypeArguments));
+        }
+
+        public IType ReturnType
+        {
+            const get { return Method.ReturnType; }
+        }
+
+        public IType DeclaringType
+        {
+            const get { return Method.DeclaringType; }
+        }
+
+        public bool IsStatic
+        {
+            const get { return Method.IsStatic; }
+        }
+
+        public string FullName
+        {
+            const get { return Method.FullName; }
+        }
+
+        public const IEnumerable<IAttribute> GetAttributes()
+        {
+            return Method.GetAttributes();
+        }
+
+        public string Name
+        {
+            const get { return Method.Name; }
+        }
+
+        public IEnumerable<IType> GetGenericArguments()
+        {
+            return Method.GetGenericArguments();
+        }
+
+        public IEnumerable<IGenericParameter> GetGenericParameters()
+        {
+            return Method.GetGenericParameters();
+        }
+
+        #endregion
+
+        #region IType Implementation
+
+        public IContainerType AsContainerType()
+        {
+            return null;
+        }
+
+        public INamespace DeclaringNamespace
+        {
+            const get { return DeclaringType.DeclaringNamespace; }
+        }
+
+        public IType[] GetBaseTypes()
+        {
+            return new IType[0];
+        }
+
+        public IMethod[] GetConstructors()
+        {
+            return new IMethod[0];
+        }
+
+        public IBoundObject GetDefaultValue()
+        {
+            return null;
+        }
+
+        public IField[] GetFields()
+        {
+            return new IField[0];
+        }
+
+        public IType GetGenericTypeDeclaration() : IType.GetGenericDeclaration
+        {
+            return new MethodType(Method.GetGenericDeclaration());
+        }
+
+        public ITypeMember[] GetMembers()
+        {
+            return new ITypeMember[0];
+        }
+
+        public IMethod[] GetMethods()
+        {
+            return new IMethod[0];
+        }
+
+        public IProperty[] GetProperties()
+        {
+            return new IProperty[0];
+        }
+
+        public bool IsContainerType
+        {
+            const get { return false; }
+        }
+
+        public IArrayType MakeArrayType(int Rank)
+        {
+            return new DescribedArrayType(this, Rank);
+        }
+
+        public IType MakeGenericType(IEnumerable<IType> TypeArguments)
+        {
+            return new MethodType(Method.MakeGenericMethod(TypeArguments));
+        }
+
+        public IPointerType MakePointerType(PointerKind PointerKind)
+        {
+            return new DescribedPointerType(this, PointerKind);
+        }
+
+        public IVectorType MakeVectorType(int[] Dimensions)
+        {
+            return new DescribedVectorType(this, Dimensions);
+        }
+
+        #endregion
+
+        public override const bool Equals(object obj)
+        {
+            if (obj is MethodType)
+            {
+                return Method.Equals(((MethodType)obj).Method);
+            }
+            else
+            {
+                return Method.Equals(obj);
+            }
+        }
+        public override const int GetHashCode()
+        {
+            return Method.GetHashCode();
+        }
+        public override const string ToString()
+        {
+            return Method.ToString();
+        }
+    }
+}

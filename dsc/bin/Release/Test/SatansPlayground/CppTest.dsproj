@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="CppTest">
+  <RuntimeLibrary Include="PortableRT" />
+  <RuntimeLibrary Include="System" />
+  <RuntimeLibrary Include="System.Core" />
+  <Compile Include="CppTest.ds" />
+  <Setter Property="TargetPlatform" Value="C++" />
+</Project>

@@ -1,0 +1,18 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Build
+{
+    public class DescribedAccessor : DescribedMethod, IAccessor
+    {
+    	public const this(set AccessorType AccessorType, set IProperty DeclaringProperty, set IType ReturnType)
+        {
+        	this.Name = AccessorType.ToString().ToLower() + "_" + DeclaringProperty.Name;
+        	this.DeclaringType = DeclaringProperty.DeclaringType;
+        	this.IsStatic = DeclaringProperty.IsStatic;
+        }
+
+        public AccessorType AccessorType { const get; private set; }
+        public IProperty DeclaringProperty { const get; private set; }
+    }
+}

@@ -1,0 +1,35 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame
+{
+	public static class EnumerableExtensions
+	{
+		public static const IType[] GetTypes(this IParameter[] Parameters)
+		{
+			IType[] types = new IType[Parameters.Length];
+			foreach (var param in Parameters, var output in types)
+			{
+				output = param.ParameterType;
+			}
+			return types;
+		}
+		
+		public static const bool AreEqual(this IType[] Types, IType[] Others)
+		{
+			if (Types.Length != Others.Length)
+			{
+				return false;
+			}
+			foreach (var type in Types, var other in Others)
+			{
+				if (!type.Equals(other))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+}

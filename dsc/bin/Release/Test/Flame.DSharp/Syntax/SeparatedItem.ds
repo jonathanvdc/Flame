@@ -1,0 +1,48 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+	public class SeparatedItem<T> : ISyntaxNode, IRelevantSyntax<Token>
+		where T : ISyntaxNode
+	{
+		public const this(set T Item)
+		{
+			this.Separator = Token.Undefined;
+		}
+		public const this(set Token Separator, set T Item);
+		
+		public Token Separator { const get; private set; }
+		public T Item { const get; private set; }
+		
+		public IEnumerable<Token> LeadingTrivia
+		{
+			const get
+			{
+				List<Token> tokens = new List<Token>();
+				tokens.AddRange(Separator.GetAllTrivia());
+				tokens.AddRange(Item.GetAllTrivia());
+				return tokens;
+			}
+		}
+		
+		public IEnumerable<Token> TrailingTrivia
+		{
+			const get
+			{
+				return (IEnumerable<Token>)new Token[0];	
+			}
+		}
+		
+		public CodeBuilder GetCode()
+		{
+			CodeBuilder cb = new CodeBuilder();
+			cb.Append(Separator.ToString());
+			cb.Append(Item.GetCode());
+			return cb;
+		}
+	}
+}

@@ -1,0 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame
+{
+    /*[Flags]*/
+    public enum AccessModifier : int32
+    {
+        Public = 0,
+        Protected = 1,
+        Assembly = 2,
+        ProtectedAndAssembly = 4,
+        ProtectedOrAssembly = 3, // = Assembly | Protected
+        Private = 8
+    }
+}

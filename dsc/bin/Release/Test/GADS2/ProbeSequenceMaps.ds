@@ -1,0 +1,85 @@
+/// <summary>
+/// Describes a mapping function that maps an integer to a probe sequence of the specified order.
+/// </summary>
+/// <remarks>
+/// This class is useful as a linear, quadratic, cubic, etc offset-to-probe sequence maps for tables.
+/// </remarks>
+public class PowerSequenceMap : IMap<int, [int]>
+{
+    /// <summary>
+    /// Creates a new instance of a power sequence map based on the power to which the offsets will be exponentiated.
+    /// </summary>
+    /// <pre>
+    /// Power should be a non-zero, positive integer.
+    /// If it is negative or zero, the argument will be accessible in its original form as exposed through the 'Power' property.
+    /// The 'Map' method will, however, generate a linear sequence.
+    /// </pre>
+    public const this(set int Power);
+    
+    /// <summary>
+    /// Gets the power to which the offsets will be exponentiated.
+    /// </summary>
+    public int Power { const get; private set; }
+
+    /// <summary>
+    /// Maps the starting point of a sequence to a power sequence with offsets exponentiated to the value exposed by the 'Power' property.
+    /// </summary>
+    /// <post>
+    /// Creates an infinite sequence from the initial position provided as argument, and offsets exponentiated to the value exposed by the 'Power' property.
+    /// </post>
+    public const [int] Map(int Value)
+    {
+        int index = 0;
+        while (true)
+        {
+            int offset = index;
+            for (int i = 1; i < Power; i++)
+                offset *= index;
+            
+            yield return Value + offset;
+            index++;
+        }
+    }
+}
+
+/// <summary>
+/// A mapping function object that converts an argument to its string representation.
+/// </summary>
+public class ToStringMap<T> : IMap<T, string>
+{
+    /// <summary>
+    /// Creates a new to-string map.
+    /// </summary>
+    public const this();
+
+    public const string Map(T Value)
+    {
+        return (string)Value;
+    }
+}
+
+/// <summary>
+/// A stacked map is a map "stacks" two mapping function by applying a mapping function to the result of a first mapping function.
+/// A use case for this is when a key extracted from a record needs to be converted to its string representation.
+/// </summary>
+public class StackedMap<TFirst, TSecond, TThird> : IMap<TFirst, TThird>
+{
+    /// <summary>
+    /// Creates a new stacked map instance from the first and second mapping functions.
+    /// </summary>
+    public const this(set IMap<TFirst, TSecond> FirstMap, set IMap<TSecond, TThird> SecondMap);
+    
+    /// <summary>
+    /// Gets the stacked map's first mapping function.
+    /// </summary>
+    public IMap<TFirst, TSecond> FirstMap { const get; private set; }
+    /// <summary>
+    /// Gets the stacked map's second mapping function.
+    /// </summary>
+    public IMap<TSecond, TThird> SecondMap { const get; private set; }
+    
+    public const TThird Map(TFirst Value)
+    {
+        return SecondMap.Map(FirstMap.Map(Value));
+    }
+}

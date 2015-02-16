@@ -1,0 +1,57 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Expressions
+{
+    public class SingletonGetExpression : IExpression
+    {
+    	private const this(set SingletonVariable Variable, set IExpression getExpr);
+        public const this(set SingletonVariable Variable);
+
+		public SingletonVariable Variable { const get; private set; }
+
+        public IType Type { const get return Variable.Type; }
+
+		private IExpression getExpr;
+		private IExpression InstanceGetExpression
+		{
+			const get
+			{
+				if (getExpr == null)
+				{
+					getExpr = Variable.InstanceVariable.CreateGetExpression();
+				}
+				return getExpr;
+			}
+		}
+		
+        public bool IsConstant
+        {
+            const get { return InstanceGetExpression.IsConstant; }
+        }
+
+        public const IBoundObject Evaluate()
+        {
+        	return InstanceGetExpression.Evaluate();
+        }
+
+        public const IExpression Optimize()
+        {
+            return new SingletonGetExpression(Variable, InstanceGetExpression.Optimize());
+        }
+
+        public const ICodeBlock Emit(ICodeGenerator Generator)
+        {
+        	if (Generator.Method.DeclaringType.Equals(Type))
+        	{
+        		return new ThisGetExpression(Type).Emit(Generator);
+        	}
+        	else
+        	{
+            	return InstanceGetExpression.Emit(Generator);
+            }
+        }
+    }
+}

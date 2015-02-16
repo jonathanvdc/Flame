@@ -1,0 +1,92 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Build
+{
+	public class DescribedGenericPropertyInstance : IProperty, IEquatable<IProperty>
+    {
+    	public const this(set IProperty Property, set IGenericResolver Parent, set IType DeclaringType);
+        public const this(set IProperty Property, set IGenericResolverType Parent)
+        {
+        	this.DeclaringType = Parent;
+        }
+
+        public IProperty Property { const get; private set; }
+        public IGenericResolver Parent { const get; private set; }
+        public IType DeclaringType { const get; private set; }
+
+        public IType PropertyType
+        {
+            const get { return Parent.ResolveType(Property.PropertyType); }
+        }
+        public bool IsStatic
+        {
+            const get { return Property.IsStatic; }
+        }
+
+        public string FullName
+        {
+            const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Property.Name); }
+        }
+
+        public string Name
+        {
+            const get { return Property.Name; }
+        }
+
+        public const [IAttribute] GetAttributes()
+        {
+            return Property.GetAttributes();
+        }
+
+        public IAccessor[] GetAccessors()
+        {
+        	IAccessor[] original = Property.GetAccessors();
+        	IAccessor[] results = new IAccessor[original.Length];
+        	foreach (var input in original, var output in results)
+        	{
+        		output = new DescribedGenericAccessorInstance(input, this, Parent);
+        	}
+            return results;
+        }
+
+        public const IParameter[] GetIndexerParameters()
+        {
+            return Parent.ResolveParameters(Property.GetIndexerParameters());
+        }
+        
+        #region Equality
+        
+        public override const bool Equals(object Other)
+        {
+        	if (Other is IProperty)
+        	{
+        		return Equals((IProperty)Other);
+        	}
+        	else return false;
+        }
+        
+        public const bool Equals(IProperty Other)
+        {
+        	if (Other is DescribedGenericPropertyInstance)
+        	{
+        		return Equals((DescribedGenericPropertyInstance)Other);
+        	}
+        	return this.Parent.Equals(Other.DeclaringType) && this.Property.Equals(Other);
+        }
+        
+        public const bool Equals(DescribedGenericPropertyInstance Other)
+        {
+        	return this.Parent.Equals(Other.Parent) && this.Property.Equals(Other.Property);
+        }
+        
+        public override const int GetHashCode()
+        {
+        	return Property.GetHashCode();
+        }
+        
+        #endregion
+	}
+}

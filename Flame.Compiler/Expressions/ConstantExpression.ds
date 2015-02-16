@@ -1,0 +1,43 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Expressions
+{
+    public abstract class ConstantExpression<T> : IExpression, Flame.IBoundPrimitive<T>
+    {
+        public const this()
+        {
+            this.Value = default(T); 
+        }
+        public const this(set T Value);
+
+        public T Value { const get; protected set; }
+        
+        public void SetField(IField Field, IBoundObject Value) : IBoundObject.SetField
+        {
+        }
+		public IBoundObject GetField(IField Field) : IBoundObject.GetField
+		{
+			return null;
+		}
+
+        public abstract IType Type { const get; }
+
+        public bool IsConstant
+        {
+            const get { return true; }
+        }
+
+        public IBoundObject Evaluate()
+        {
+            return this;
+        }
+
+        public IExpression Optimize()
+        {
+            return this;
+        }
+
+        public abstract ICodeBlock Emit(ICodeGenerator Generator);
+    }
+}

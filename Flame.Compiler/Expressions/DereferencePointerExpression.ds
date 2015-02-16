@@ -1,0 +1,43 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Expressions
+{
+    public class DereferencePointerExpression : IExpression, IVariableNode
+    {
+        public this(set IExpression Expression);
+
+        public IExpression Expression { const get; private set; }
+
+        public IType Type
+        {
+            const get { return Expression.Type.AsContainerType().GetElementType(); }
+        }
+
+        public bool IsConstant
+        {
+            const get { return false; }
+        }
+        
+        public const IVariable GetVariable() : IVariableNode.GetVariable
+        {
+        	return new AtAddressVariable(Expression);
+        }
+
+        public IBoundObject Evaluate()
+        {
+            return null;
+        }
+
+        public IExpression Optimize()
+        {
+            return new DereferencePointerExpression(Expression.Optimize());
+        }
+
+        public ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return ((IUnmanagedCodeGenerator)Generator).EmitDereferencePointer(Expression.Emit(Generator));
+        }
+    }
+}

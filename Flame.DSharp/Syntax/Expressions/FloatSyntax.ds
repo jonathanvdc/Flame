@@ -1,0 +1,32 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class Float32Syntax : LiteralSyntax
+    {
+        public this(float Value)
+        	this.Value = new Token(TokenType.Float32, Value.ToString());
+        public this(set Token Value);
+
+        protected override IExpression CreateExpression(ISyntaxState State, Token Value)
+        {
+            return new Float32Expression(float.Parse(Value.TokenValue.Substring(0, Value.TokenValue.Length - 1)));
+        }
+    }
+    public class Float64Syntax : LiteralSyntax
+    {
+        public this(double Value)
+        	this.Value = new Token(TokenType.Float64, Value.ToString());
+        public this(set Token Value);
+
+        protected override IExpression CreateExpression(ISyntaxState State, Token Value)
+        {
+            return new Float64Expression(double.Parse(Value.TokenValue));
+        }
+    }
+}

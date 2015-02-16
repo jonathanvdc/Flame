@@ -1,0 +1,52 @@
+namespace Engine
+{
+    /// <summary>
+    /// Implements a partial line segment.
+    /// </summary>
+    public class PartialLineSegment : IPartialSegment
+    {
+        public const this();
+        public const this(set Vector2<double> StartPoint);
+
+        /// <summary>
+        /// Gets the line segment's start position.
+        /// </summary>
+        public Vector2<double> StartPoint { const get; private set; }
+
+        public const ISegment Close(Vector2<double> EndPoint) return new LineSegment(StartPoint, EndPoint);
+    }
+
+    /// <summary>
+    /// Implements a line segment.
+    /// </summary>
+    public class LineSegment : ISegment
+    {
+        public const this();
+        public const this(set Vector2<double> StartPoint, set Vector2<double> EndPoint);
+
+        /// <summary>
+        /// Gets the line segment's start position.
+        /// </summary>
+        public Vector2<double> StartPoint { const get; private set; }
+        /// <summary>
+        /// Gets the line segment's end position.
+        /// </summary>
+        public Vector2<double> EndPoint { const get; private set; }
+
+        public double Length 
+        { 
+            const get
+            {
+                 double dx = EndPoint.X - StartPoint.X;
+                 double dy = EndPoint.Y - StartPoint.Y;
+                 // return Math.Sqrt(dx * dx + dy * dy);
+                 return dx * dx + dy * dy;
+            }
+        }
+
+        public const Vector2<double> GetPosition(double Offset)
+        {
+             return new Vector2<double>(StartPoint.X + Offset * EndPoint.X, StartPoint.Y + Offset * EndPoint.Y);
+        }
+    }
+}

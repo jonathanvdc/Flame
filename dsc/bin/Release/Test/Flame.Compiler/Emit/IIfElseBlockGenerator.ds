@@ -1,0 +1,11 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Emit
+{
+	public interface IIfElseBlockGenerator : ICodeBlock
+	{
+		IBlockGenerator IfBlock { const get; }
+		IBlockGenerator ElseBlock { const get; }
+	}
+}

@@ -1,0 +1,21 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Expressions;
+
+namespace Flame.Compiler.Statements
+{
+    public class ContainerElementSetStatement : VariableSetStatementBase<ElementVariable>
+    {
+        public this(set ElementVariable Variable, set IExpression Value);
+
+        public override void Emit(IBlockGenerator Generator)
+        {
+        	var target = Variable.Target.Emit(Generator.CodeGenerator);
+        	var indexArgs = Variable.IndexArguments.EmitAll(Generator.CodeGenerator);
+            var variable = Generator.CodeGenerator.GetElement(target, indexArgs);
+            variable.CreateSetStatement(Value).Emit(Generator);
+        }
+    }
+}

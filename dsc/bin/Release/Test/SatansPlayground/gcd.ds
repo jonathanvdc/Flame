@@ -1,0 +1,19 @@
+using System;
+
+public class GCDAssignment
+{
+    public const int rem(int x, int y)
+    {
+        return x % y;
+    }
+
+    public void Test();
+    
+    /*public const int gcd(int x, int y)
+    {
+        if (y == 0)
+            return x;
+        else
+            return gcd(y, rem(x, y));
+    }*/
+}

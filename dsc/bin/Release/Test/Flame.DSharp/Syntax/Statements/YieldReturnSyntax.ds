@@ -1,0 +1,65 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Statements;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class YieldReturnSyntax : IStatementSyntax, ITokenNode
+    {
+        public const this(set Token YieldKeyword, set ReturnSyntax Return);
+
+		public Token YieldKeyword { const get; private set; }
+		public ReturnSyntax Return { const get; private set; }
+		
+		public IReadOnlyList<Token> Tokens
+		{
+			const get
+			{
+				List<Token> tokens = new List<Token>();
+				tokens.Add(YieldKeyword);
+				tokens.AddRange(Return.GetTokens());
+				return tokens;
+			}
+		}
+		
+		private static IType GetYieldReturnType(ISyntaxState State)
+		{
+			if (State.ReturnType.IsEnumerableType)
+			{
+				return State.ReturnType.GetEnumerableElementType();
+			}
+			else
+			{
+				var genArgs = Enumerable.ToArray<IType>(State.ReturnType.GetGenericArguments());
+				if (genArgs.Length == 1)
+					return genArgs[0];
+				else
+					return State.Environment.RootType;
+			}
+		}
+
+        public IStatement CreateStatement(ISyntaxState State)
+        {
+        	var desiredType = GetYieldReturnType(State);
+        	IExpression expr = CastSyntax.CreateImplicitCast(State, Return.Expression, desiredType);
+            return new YieldReturnStatement(expr);
+        }
+        
+        public override const string ToString()
+        {
+        	return GetCode().ToString();
+        }
+        
+        public const CodeBuilder GetCode()
+        {
+        	CodeBuilder cb = new CodeBuilder();
+        	cb.Append(YieldKeyword.ToString());
+        	cb.Append(Return.GetCode());
+        	return cb;
+        }
+    }
+}
