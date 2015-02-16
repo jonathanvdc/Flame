@@ -1,9 +1,0 @@
-public interface IStringInputStream
-{
-    string Read();
-}
-
-public interface IStringOutputStream
-{
-    void Write(string Text);
-}
