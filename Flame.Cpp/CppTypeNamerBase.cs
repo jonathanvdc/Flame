@@ -104,7 +104,14 @@ namespace Flame.Cpp
 
         protected override string ConvertTypeDefault(IType Type)
         {
-            return CppNameExtensions.RemoveRedundantScope(Type.FullName, CurrentNamespace);
+            if (Type.IsGlobalType())
+            {
+                return CppNameExtensions.RemoveRedundantScope(Type.DeclaringNamespace.FullName, CurrentNamespace);
+            }
+            else
+            {
+                return CppNameExtensions.RemoveRedundantScope(Type.FullName, CurrentNamespace);
+            }
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get { return this.PropertyType.GetDependencies().MergeDependencies(GetIndexerParameters().GetDependencies()); }
+            get { return this.PropertyType.GetDependencies().MergeDependencies(GetIndexerParameters().GetDependencies()).MergeDependencies(accessors.SelectMany((item) => item.Dependencies)); }
         }
 
         public CodeBuilder GetHeaderCode()

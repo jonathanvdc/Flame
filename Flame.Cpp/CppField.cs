@@ -82,6 +82,7 @@ namespace Flame.Cpp
         public CodeBuilder GetHeaderCode()
         {
             CodeBuilder cb = this.GetDocumentationComments();
+            cb.AppendLine();
             if (this.IsStatic)
             {
                 cb.Append("static ");

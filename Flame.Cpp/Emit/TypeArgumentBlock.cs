@@ -32,7 +32,7 @@ namespace Flame.Cpp.Emit
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get { return Block.Dependencies; }
+            get { return Block.Dependencies.MergeDependencies(TypeArguments.SelectMany((item) => item.Dependencies)); }
         }
 
         public IEnumerable<CppLocal> LocalsUsed

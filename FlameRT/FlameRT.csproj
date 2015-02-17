@@ -37,6 +37,7 @@
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GlobalTypeAttribute.cs" />
     <Compile Include="HeaderAttribute.cs" />
     <Compile Include="IncludeAttribute.cs" />
     <Compile Include="PlugAttribute.cs" />

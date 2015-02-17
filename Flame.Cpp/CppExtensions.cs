@@ -11,7 +11,7 @@ namespace Flame.Cpp
 {
     public static class CppExtensions
     {
-        #region GetHeaderAttribute
+        #region GetHeaderAttributes
 
         public static IEnumerable<HeaderAttribute> GetHeaderAttributes(this IMember Member)
         {
@@ -26,6 +26,26 @@ namespace Flame.Cpp
                     }
                 }
             }
+        }
+
+        #endregion
+
+        #region IsGlobalType
+
+        public static bool IsGlobalType(this IMember Member)
+        {
+            foreach (var item in Member.GetAttributes())
+            {
+                if (item != null && item.Value != null)
+                {
+                    var eval = item.Value.GetObjectValue();
+                    if (eval is GlobalTypeAttribute)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         #endregion
