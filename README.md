@@ -30,6 +30,9 @@ Flame.Compiler also includes some simple interfaces that define common project b
 ### Textual code generation
 CodeBuilder and CodeLine ease the process generating well-formatted textual code.
 
+### Assembly creation
+IAssemblyBuilder, INamespaceBuilder, ITypeBuilder, etc function as a portable interface for any back-end.
+
 ## Flame.Syntax
 Flame.Syntax is a small project that makes writing front-ends and back-ends for various programming languages easier.  
 Flame.Syntax is written in D#.
@@ -48,6 +51,14 @@ Flame.Cpp is an experimental C++ back-end, which can be used by stating "-platfo
 Since Flame.Cpp cannot parse C++ itself, dsc "plugs" are used to allow the programmer to interact with the standard library from managed code.
 Plugs for PlatformRT and PortableRT can be found in the "Examples" folder.  
 Flame.Cpp is written in C#.
+
+## Flame.Python
+Flame.Python is an experimental Python back-end, accessible through "-platform Python" when compiling with dsc.  
+Flame.Python is written in C#.
+
+## Flame.Recompilation
+Flame.Recompilation uses the assembly creation and decompilation interfaces and of Flame.Compiler and the reflection facilities provided by Flame to "recompile" assemblies, namespaces, types and type members from one assembly to another.  
+Flame.Recompilation is written in C#.
 
 ## dsc
 dsc is a command-line utility that compiles D# code files and projects using Flame.DSharp and one of the various back-ends, such as Flame.Cecil, Flame.Python and Flame.Cpp.  
