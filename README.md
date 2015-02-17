@@ -25,7 +25,7 @@ Expressions can be queried for their type, and support compile-time evaluation.
 Both statements and expressions have an "Optimize" method, which is intended to perform simple optimizations, like compile-time string concatenation.
 
 ### Common project interfaces
-Flame also includes some simple interfaces that define common project behavior to make project file format interoperation easier.
+Flame.Compiler also includes some simple interfaces that define common project behavior to make project file format interoperation easier.
 
 ### Textual code generation
 CodeBuilder and CodeLine ease the process generating well-formatted textual code.
@@ -40,7 +40,7 @@ It is written in D#.
 
 ## Flame.Cecil
 Flame.Cecil facilitates reflecting upon and emitting .Net Framework assemblies.
-dsc uses it to generate .Net assemblies.  
+dsc uses this library to reference and generate .Net assemblies.  
 Flame.Cecil is written in C#.
 
 ## dsc
