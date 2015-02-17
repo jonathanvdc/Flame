@@ -1,6 +1,8 @@
 # Flame
 Flame is a collection of projects that form a compiler framework for managed code.
-It also includes a compiler for the homegrown D# programming language.  
+It also includes a compiler for the homegrown D# programming language.
+Flame's eventual goal is to provide a framework that can be used to compile code in a programming language to relatively efficient machine code or translate code to idiomatic code in another programming language.
+It also intends to be a useful library for expression/statement manipulation, reflection and code generation.  
 A summary of some Flame projects:
 
 ## Flame
