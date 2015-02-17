@@ -1,0 +1,117 @@
+using Flame.RT;
+
+namespace std
+{
+    [Header("vector")]
+    public struct vector<T>
+    {
+        public const this()
+        {
+            this.data = new T[0];
+        }
+        public const this(int Length)
+        {
+            this.data = new T[Length];
+        }
+        public const this(vector<T> Other)
+        {
+            this.data = new T[Other.size()];
+            Other.CopyTo(this.data);
+        }
+        
+        #region Implementation Details
+        
+        private T[] data;
+        
+        /// <summary>
+        /// Copies the array list's contents to the provided target array.
+        /// </summary>
+        /// <post>
+        /// Copies all elements from the list, starting at index 0 up to and including the last index of this list or the target array, whichever comes first.
+        /// </post>
+        private void CopyTo(T[] Target)
+        {
+            foreach (var input in data, var output in Target)
+                output = input;
+        }
+        
+        #endregion
+        
+        public const int size()
+        {
+            return data.Length;
+        }
+
+        public const int max_size()
+        {
+            return int32.MaxValue;
+        }
+
+        public const int capacity()
+        {
+            return data.Length;
+        }
+
+        public const bool empty()
+        {
+            return size() == 0;
+        }
+
+        public void resize(int n)
+        {
+            var newData = new T[n];
+            CopyTo(newData);
+            this.data = newData;
+        }
+        public void resize(int n, T val)
+        {
+            int oldSize = size();
+            resize(n);
+            for (int i = oldSize; i < n; i++)
+            {
+                this[i] = val;
+            }
+        }
+
+        public void shrink_to_fit();
+        public void reserve(int n);
+
+        public void push_back(T Item)
+        {
+            resize(data.Length + 1);
+            this.data[data.Length - 1] = Item;
+        }
+        public void pop_back()
+        {
+            resize(data.Length - 1);
+        }
+        
+        public T this[int Index]
+        {
+            const get
+            {
+                return data[Index];
+            }
+            set
+            {
+                data[Index] = value;
+            }
+        }
+        
+        public const T front() { return this[0]; }
+        public const T back() { return this[size() - 1]; }
+ 
+        public const T at(int Index) { return this[Index]; }
+   
+        public void swap(vector<T>* Other)
+        {
+            vector<T> temp = this;
+            this = *Other;
+            *Other = temp;
+        }
+        public void swap(vector<T>^ Other)
+        {
+            swap((vector<T>*)Other);
+        }
+    }
+}
