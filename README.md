@@ -43,6 +43,12 @@ Flame.Cecil facilitates reflecting upon and emitting .Net Framework assemblies.
 dsc uses this library to reference and generate .Net assemblies.  
 Flame.Cecil is written in C#.
 
+## Flame.Cpp
+Flame.Cpp is an experimental C++ back-end, which can be used by stating "-platform C++" when compiling with dsc.
+Since Flame.Cpp cannot parse C++ itself, dsc "plugs" are used to allow the programmer to interact with the standard library from managed code.
+Plugs for PlatformRT and PortableRT can be found in the "Examples" folder.  
+Flame.Cpp is written in C#.
+
 ## dsc
 dsc is a command-line utility that compiles D# code files and projects using Flame.DSharp and one of the various back-ends, such as Flame.Cecil, Flame.Python and Flame.Cpp.  
 dsc is written in C#.
