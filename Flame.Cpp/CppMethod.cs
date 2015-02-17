@@ -16,7 +16,7 @@ namespace Flame.Cpp
             this.DeclaringType = DeclaringType;
             this.Template = Template;
             this.Environment = Environment;
-            this.blockGen = new CppCodeGenerator(this, Environment).CreateBlock();
+            this.blockGen = (CppBlockGenerator)new CppCodeGenerator(this, Environment).CreateBlock();
             this.Templates = new CppTemplateDefinition(this, Template);
             this.built = false;
         }
@@ -34,11 +34,11 @@ namespace Flame.Cpp
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get { return ReturnType.GetDependencies(DeclaringType).MergeDependencies(GetParameters().GetDependencies(DeclaringType)); }
+            get { return ReturnType.GetDependencies(DeclaringType).MergeDependencies(GetParameters().GetDependencies(DeclaringType)).MergeDependencies(Body.Dependencies); }
         }
 
         private bool built;
-        private IBlockGenerator blockGen;
+        private CppBlockGenerator blockGen;
         public IBlockGenerator GetBodyGenerator()
         {
             if (built)
@@ -46,6 +46,11 @@ namespace Flame.Cpp
                 throw new InvalidOperationException();
             }
             return blockGen;
+        }
+
+        protected CppBlockGenerator Body
+        {
+            get { return blockGen; }
         }
 
         public IMethod Build()
@@ -289,7 +294,7 @@ namespace Flame.Cpp
 
             cb.Append(GetSharedSignature(true));
 
-            var body = ((CppBlockGenerator)blockGen).ImplyEmptyReturns();
+            var body = blockGen.ImplyEmptyReturns();
             if (this.IsConstructor)
             {
                 body = body.ImplyStructInit();

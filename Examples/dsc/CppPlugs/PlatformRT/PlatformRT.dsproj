@@ -12,5 +12,6 @@
     <Compile Include="Vector.ds" />
     <Compile Include="List.ds" />
     <Compile Include="UnorderedMap.ds" />
+    <Compile Include="Math.ds" />
   </ItemGroup>
 </Project>

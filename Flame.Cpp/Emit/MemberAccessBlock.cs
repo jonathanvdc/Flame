@@ -22,7 +22,7 @@ namespace Flame.Cpp.Emit
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get { return Target.Dependencies.MergeDependencies(Type.GetDependencies()); }
+            get { return Target.Dependencies.MergeDependencies(Member.DeclaringType.GetDependencies()).MergeDependencies(Type.GetDependencies()); }
         }
 
         public IEnumerable<CppLocal> LocalsUsed
@@ -37,6 +37,18 @@ namespace Flame.Cpp.Emit
 
         public CodeBuilder GetCode()
         {
+            if (Target.Type.get_IsSingleton() && Target.Type.IsGlobalType())
+            {
+                if (Member is IMethod)
+                {
+                    return ((IMethod)Member).CreateBlock(CodeGenerator).GetCode();
+                }
+                else if (Member is IField)
+                {
+                    return ((IField)Member).CreateBlock(CodeGenerator).GetCode();
+                }
+            }
+
             CodeBuilder cb = new CodeBuilder();
             if (Target is IPointerBlock)
             {

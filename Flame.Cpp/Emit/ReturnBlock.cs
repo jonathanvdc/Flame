@@ -21,7 +21,7 @@ namespace Flame.Cpp.Emit
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get { return Value.Dependencies; }
+            get { return Value == null ? Enumerable.Empty<IHeaderDependency>() : Value.Dependencies; }
         }
 
         public CodeBuilder GetCode()
