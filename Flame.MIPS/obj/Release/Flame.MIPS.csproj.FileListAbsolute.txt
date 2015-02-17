@@ -7,3 +7,12 @@ C:\Users\Jonathan\SkyDrive\Flame\Flame.MIPS\obj\Release\Flame.MIPS.dll
 C:\Users\Jonathan\SkyDrive\Flame\Flame.MIPS\obj\Release\Flame.MIPS.pdb
 C:\Users\Jonathan\SkyDrive\Flame\Flame.MIPS\bin\Release\Flame.pdb
 C:\Users\Jonathan\SkyDrive\Flame\Flame.MIPS\bin\Release\Flame.Compiler.pdb
+D:\Programming\Git\Flame\Flame.MIPS\bin\Release\Flame.MIPS.dll
+D:\Programming\Git\Flame\Flame.MIPS\bin\Release\Flame.MIPS.pdb
+D:\Programming\Git\Flame\Flame.MIPS\bin\Release\Flame.Compiler.dll
+D:\Programming\Git\Flame\Flame.MIPS\bin\Release\Flame.dll
+D:\Programming\Git\Flame\Flame.MIPS\bin\Release\Flame.pdb
+D:\Programming\Git\Flame\Flame.MIPS\bin\Release\Flame.Compiler.pdb
+D:\Programming\Git\Flame\Flame.MIPS\obj\Release\Flame.MIPS.csprojResolveAssemblyReference.cache
+D:\Programming\Git\Flame\Flame.MIPS\obj\Release\Flame.MIPS.dll
+D:\Programming\Git\Flame\Flame.MIPS\obj\Release\Flame.MIPS.pdb

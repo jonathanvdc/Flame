@@ -11,3 +11,16 @@ C:\Users\Jonathan\SkyDrive\Flame\Flame.TextContract\bin\Release\Flame.Compiler.p
 C:\Users\Jonathan\SkyDrive\Flame\Flame.TextContract\bin\Release\Flame.Syntax.pdb
 C:\Users\Jonathan\SkyDrive\Flame\Flame.TextContract\bin\Release\Flame.CodeDescription.dll
 C:\Users\Jonathan\SkyDrive\Flame\Flame.TextContract\bin\Release\Flame.CodeDescription.pdb
+D:\Programming\Git\Flame\Flame.TextContract\bin\Release\Flame.TextContract.dll
+D:\Programming\Git\Flame\Flame.TextContract\bin\Release\Flame.TextContract.pdb
+D:\Programming\Git\Flame\Flame.TextContract\bin\Release\Flame.CodeDescription.dll
+D:\Programming\Git\Flame\Flame.TextContract\bin\Release\Flame.Compiler.dll
+D:\Programming\Git\Flame\Flame.TextContract\bin\Release\Flame.dll
+D:\Programming\Git\Flame\Flame.TextContract\bin\Release\Flame.Syntax.dll
+D:\Programming\Git\Flame\Flame.TextContract\bin\Release\Flame.CodeDescription.pdb
+D:\Programming\Git\Flame\Flame.TextContract\bin\Release\Flame.pdb
+D:\Programming\Git\Flame\Flame.TextContract\bin\Release\Flame.Compiler.pdb
+D:\Programming\Git\Flame\Flame.TextContract\bin\Release\Flame.Syntax.pdb
+D:\Programming\Git\Flame\Flame.TextContract\obj\Release\Flame.TextContract.csprojResolveAssemblyReference.cache
+D:\Programming\Git\Flame\Flame.TextContract\obj\Release\Flame.TextContract.dll
+D:\Programming\Git\Flame\Flame.TextContract\obj\Release\Flame.TextContract.pdb

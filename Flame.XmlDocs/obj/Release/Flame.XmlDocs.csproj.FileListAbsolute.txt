@@ -10,3 +10,15 @@ C:\Users\Jonathan\SkyDrive\Flame\Flame.XmlDocs\obj\Release\Flame.XmlDocs.csprojR
 C:\Users\Jonathan\SkyDrive\Flame\Flame.XmlDocs\obj\Release\Flame.XmlDocs.dll
 C:\Users\Jonathan\SkyDrive\Flame\Flame.XmlDocs\obj\Release\Flame.XmlDocs.pdb
 C:\Users\Jonathan\SkyDrive\Flame\Flame.XmlDocs\bin\Release\Flame.Compiler.xml
+D:\Programming\Git\Flame\Flame.XmlDocs\bin\Release\Flame.XmlDocs.dll
+D:\Programming\Git\Flame\Flame.XmlDocs\bin\Release\Flame.XmlDocs.pdb
+D:\Programming\Git\Flame\Flame.XmlDocs\bin\Release\Flame.CodeDescription.dll
+D:\Programming\Git\Flame\Flame.XmlDocs\bin\Release\Flame.Compiler.dll
+D:\Programming\Git\Flame\Flame.XmlDocs\bin\Release\Flame.dll
+D:\Programming\Git\Flame\Flame.XmlDocs\bin\Release\Flame.CodeDescription.pdb
+D:\Programming\Git\Flame\Flame.XmlDocs\bin\Release\Flame.pdb
+D:\Programming\Git\Flame\Flame.XmlDocs\bin\Release\Flame.Compiler.pdb
+D:\Programming\Git\Flame\Flame.XmlDocs\bin\Release\Flame.Compiler.xml
+D:\Programming\Git\Flame\Flame.XmlDocs\obj\Release\Flame.XmlDocs.csprojResolveAssemblyReference.cache
+D:\Programming\Git\Flame\Flame.XmlDocs\obj\Release\Flame.XmlDocs.dll
+D:\Programming\Git\Flame\Flame.XmlDocs\obj\Release\Flame.XmlDocs.pdb

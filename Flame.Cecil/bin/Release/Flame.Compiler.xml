@@ -4,10 +4,10 @@
     <name>Flame.Compiler</name>
   </assembly>
   <members>
-    <member name="M:Flame.Compiler.IExpression.Evaluate()">
+    <member name="M:Flame.Compiler.IExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.IExpression.Optimize()">
+    <member name="M:Flame.Compiler.IExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
     <member name="P:Flame.Compiler.IExpression.Type">
@@ -16,13 +16,13 @@
     <member name="P:Flame.Compiler.IExpression.IsConstant">
       <summary> Gets a boolean value that indicates if the expression is a constant expression. A constant expression can be evaluated at compile-time. </summary>
     </member>
-    <member name="M:Flame.Compiler.IStatement.Optimize()">
+    <member name="M:Flame.Compiler.IStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
     <member name="P:Flame.Compiler.IStatement.IsEmpty">
       <summary> Gets a boolean value that indicates if the statement is empty.  An empty statement is a statement that will not influence the output of a function when compiled. </summary>
     </member>
-    <member name="M:Flame.Compiler.IUnmanagedVariable.CreateAddressOfExpression()">
+    <member name="M:Flame.Compiler.IUnmanagedVariable.CreateAddressOfExpression">
       <summary> Creates an expression that returns the address in memory of this variable. </summary>
     </member>
     <member name="T:Flame.Compiler.ILogAssembly">
@@ -37,22 +37,22 @@
     <member name="M:Flame.Compiler.ParameterExtensions.GetSetProperty(Flame.IParameter,Flame.IType,System.Boolean)">
       <summary> Gets the property this parameter sets. Returns null if no property is set. </summary>
     </member>
-    <member name="M:Flame.Compiler.IInitializedField.GetValue()">
+    <member name="M:Flame.Compiler.IInitializedField.GetValue">
       <summary> Gets an expression that represents the field's value. </summary>
     </member>
-    <member name="M:Flame.Compiler.IBodyMethod.GetMethodBody()">
+    <member name="M:Flame.Compiler.IBodyMethod.GetMethodBody">
       <summary> Gets the method's body statement. </summary>
     </member>
     <member name="T:Flame.Compiler.IDynamicEnvironment">
       <summary> Represents an environment capable of dynamic code execution. </summary>
     </member>
-    <member name="M:Flame.Compiler.IDynamicEnvironment.InvokeDynamic(Flame.Compiler.IBodyMethod,Flame.IBoundObject,System.Collections.Generic.IEnumerable`1)">
+    <member name="M:Flame.Compiler.IDynamicEnvironment.InvokeDynamic(Flame.Compiler.IBodyMethod,Flame.IBoundObject,System.Collections.Generic.IEnumerable`1{Flame.IBoundObject})">
       <summary> Invokes the provided method dynamically. </summary>
     </member>
     <member name="M:Flame.Compiler.PrimitiveExpressionExtensions.IsPrimitiveExpressionType(Flame.IType)">
       <summary> Gets a boolean value that indicates if primitive expressions can be created for this type. </summary>
     </member>
-    <member name="M:Flame.Compiler.ICompilerOptions.GetOption``1(System.String,Flame.Compiler.ICompilerOptions.GetOption.T)">
+    <member name="M:Flame.Compiler.ICompilerOptions.GetOption``1(System.String,T)">
       <summary> Gets the option associated with the given key. If no such option has been specified, returns the given default value. </summary>
     </member>
     <member name="M:Flame.Compiler.ICompilerOptions.HasOption(System.String)">
@@ -74,16 +74,16 @@
     <member name="M:Flame.Compiler.EnumerableEnvironmentExtensions.ImplementEnumerator(Flame.Compiler.IEnumerableEnvironment,Flame.Compiler.ITypeBuilder,Flame.IType,Flame.Compiler.IStatement,Flame.Compiler.IStatement)">
       <summary> Implements the enumerator pattern for the given type based on the provided implementations for the move next method and current item property. </summary>
     </member>
-    <member name="M:Flame.Compiler.OperatorExtensions.GetAllOperatorOverloads(Flame.Operator,System.Collections.Generic.IEnumerable`1)">
+    <member name="M:Flame.Compiler.OperatorExtensions.GetAllOperatorOverloads(Flame.Operator,System.Collections.Generic.IEnumerable`1{Flame.IType})">
       <summary> Gets all operator methods associated with the given argument types for the given operator. </summary>
     </member>
-    <member name="M:Flame.Compiler.OperatorExtensions.GetOperatorOverload(Flame.Operator,System.Collections.Generic.IEnumerable`1)">
+    <member name="M:Flame.Compiler.OperatorExtensions.GetOperatorOverload(Flame.Operator,System.Collections.Generic.IEnumerable`1{Flame.IType})">
       <summary> Gets the best operator overload for the given operator with the given argument types. </summary>
     </member>
-    <member name="M:Flame.Compiler.OperatorExtensions.GetOperatorOverload(Flame.Operator,System.Collections.Generic.IEnumerable`1)">
+    <member name="M:Flame.Compiler.OperatorExtensions.GetOperatorOverload(Flame.Operator,System.Collections.Generic.IEnumerable`1{Flame.Compiler.IExpression})">
       <summary> Gets the best operator overload for the given operator with the given arguments. </summary>
     </member>
-    <member name="M:Flame.Compiler.OperatorExtensions.CreateOperatorInvocation(Flame.Operator,System.Collections.Generic.IEnumerable`1)">
+    <member name="M:Flame.Compiler.OperatorExtensions.CreateOperatorInvocation(Flame.Operator,System.Collections.Generic.IEnumerable`1{Flame.Compiler.IExpression})">
       <summary> Creates an invocation expression for this operator with the given arguments. </summary>
     </member>
     <member name="T:Flame.Compiler.ICodeGenerator">
@@ -92,7 +92,7 @@
     <member name="M:Flame.Compiler.ICodeGenerator.EmitIsOfType(Flame.IType,Flame.Compiler.ICodeBlock)">
       <summary> Checks if it is of the provided type. </summary>
     </member>
-    <member name="M:Flame.Compiler.ICodeGenerator.EmitNewArray(Flame.IType,System.Collections.Generic.IEnumerable`1)">
+    <member name="M:Flame.Compiler.ICodeGenerator.EmitNewArray(Flame.IType,System.Collections.Generic.IEnumerable`1{Flame.Compiler.ICodeBlock})">
       <summary> Creates a new array of the specified element type with the specified dimensions. </summary>
     </member>
     <member name="M:Flame.Compiler.ICodeGenerator.EmitNewVector(Flame.IType,System.Int32[])">
@@ -140,7 +140,7 @@
     <member name="M:Flame.Compiler.IOutputProvider.Create(System.String,System.String)">
       <summary> Creates an output file for the specified name. </summary>
     </member>
-    <member name="M:Flame.Compiler.IOutputProvider.Create()">
+    <member name="M:Flame.Compiler.IOutputProvider.Create">
       <summary> Creates the default output file. </summary>
     </member>
     <member name="M:Flame.Compiler.IOutputProvider.Exists(System.String,System.String)">
@@ -152,22 +152,22 @@
     <member name="T:Flame.Compiler.IOutputFile">
       <summary> Represents a file that can be opened for writing. </summary>
     </member>
-    <member name="M:Flame.Compiler.IOutputFile.OpenOutput()">
+    <member name="M:Flame.Compiler.IOutputFile.OpenOutput">
       <summary> Opens an output stream to this file. </summary>
     </member>
-    <member name="M:Flame.Compiler.DescribedBodyMethod.GetMethodBody()">
+    <member name="M:Flame.Compiler.DescribedBodyMethod.GetMethodBody">
       <summary> Gets the method's body statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Emit.IMethodStructureGenerator.GetThis()">
+    <member name="M:Flame.Compiler.Emit.IMethodStructureGenerator.GetThis">
       <summary> Gets the "this" argument. </summary>
     </member>
     <member name="P:Flame.Compiler.Emit.IMethodStructureGenerator.Method">
       <summary> Gets the method this code generator belongs to. </summary>
     </member>
-    <member name="M:Flame.Compiler.Emit.IUnmanagedMethodStructureGenerator.GetUnmanagedThis()">
+    <member name="M:Flame.Compiler.Emit.IUnmanagedMethodStructureGenerator.GetUnmanagedThis">
       <summary> Gets the "this" argument. </summary>
     </member>
-    <member name="M:Flame.Compiler.Emit.TypeVariableMember.GetAttributes()">
+    <member name="M:Flame.Compiler.Emit.TypeVariableMember.GetAttributes">
       <summary> Gets the member's attributes. </summary>
     </member>
     <member name="P:Flame.Compiler.Emit.TypeVariableMember.Name">
@@ -188,331 +188,331 @@
     <member name="P:Flame.Compiler.Emit.IForeachBlockGenerator.Elements">
       <summary> Gets a read-only list that contains variables representing the collection's elements on each iteration. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ConstantExpression`1.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.ConstantExpression`1.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ConstantExpression`1.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.ConstantExpression`1.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.DefaultValueExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.DefaultValueExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.DefaultValueExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.DefaultValueExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.NullExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.NullExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.NullExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.NullExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.BinaryExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.BinaryExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.BinaryExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.BinaryExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.PrimitiveBinaryExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.PrimitiveBinaryExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.PrimitiveBinaryExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.PrimitiveBinaryExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.DirectBinaryExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.DirectBinaryExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.DirectBinaryExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.DirectBinaryExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.InitializedExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.InitializedExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.InitializedExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.InitializedExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.DereferencePointerExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.DereferencePointerExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.DereferencePointerExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.DereferencePointerExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ThisGetExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.ThisGetExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ThisGetExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.ThisGetExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ConversionExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.ConversionExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ConversionExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.ConversionExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.VariableGetExpressionBase`1.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.VariableGetExpressionBase`1.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.VariableGetExpressionBase`1.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.VariableGetExpressionBase`1.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.LateBoundVariableGetExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.LateBoundVariableGetExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.FieldGetExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.FieldGetExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.FieldGetExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.FieldGetExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.FieldGetPointerExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.FieldGetPointerExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.FieldGetPointerExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.FieldGetPointerExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.InvocationExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.InvocationExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.InvocationExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.InvocationExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ContainerElementGetExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.ContainerElementGetExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ContainerElementGetExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.ContainerElementGetExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ContainerElementAddressOfExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.ContainerElementAddressOfExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ContainerElementAddressOfExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.ContainerElementAddressOfExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.NewArrayExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.NewArrayExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.NewArrayExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.NewArrayExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.NewVectorExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.NewVectorExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.NewVectorExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.NewVectorExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.NewObjectExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.NewObjectExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.NewObjectExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.NewObjectExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.IsExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.IsExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.IsExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.IsExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
     <member name="P:Flame.Compiler.Expressions.IsExpression.TestType">
       <summary> Gets the type to test against. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.CodeBlockExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.CodeBlockExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.CodeBlockExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.CodeBlockExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.UnaryExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.UnaryExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.UnaryExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.UnaryExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
     <member name="P:Flame.Compiler.Expressions.UnaryExpression.Value">
       <summary> The value the unary expression will be performed on. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.NotExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.NotExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.NotExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.NotExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.AddExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.AddExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.AddExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.AddExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.SubtractExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.SubtractExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.SubtractExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.SubtractExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.MultiplyExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.MultiplyExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.MultiplyExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.MultiplyExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.DivideExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.DivideExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.DivideExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.DivideExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.LessThanExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.LessThanExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.LessThanExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.LessThanExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.LessThanOrEqualsExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.LessThanOrEqualsExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.LessThanOrEqualsExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.LessThanOrEqualsExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.GreaterThanExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.GreaterThanExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.GreaterThanExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.GreaterThanExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.GreaterThanOrEqualsExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.GreaterThanOrEqualsExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.GreaterThanOrEqualsExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.GreaterThanOrEqualsExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.EqualityExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.EqualityExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.EqualityExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.EqualityExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.AndExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.AndExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.AndExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.AndExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.OrExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.OrExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.OrExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.OrExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.XorExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.XorExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.XorExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.XorExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.LazyAndExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.LazyAndExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.LazyAndExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.LazyAndExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.LazyOrExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.LazyOrExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.LazyOrExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.LazyOrExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.PropertyGetExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.PropertyGetExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.PropertyGetExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.PropertyGetExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.GetMethodExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.GetMethodExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.GetMethodExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.GetMethodExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.SizeOfExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.SizeOfExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.SizeOfExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.SizeOfExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.InequalityExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.InequalityExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.InequalityExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.InequalityExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.RemainderExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.RemainderExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.RemainderExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.RemainderExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.HashExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.HashExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.HashExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.HashExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.InitializedArrayExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.InitializedArrayExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.InitializedArrayExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.InitializedArrayExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.InitializedVectorExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.InitializedVectorExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.InitializedVectorExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.InitializedVectorExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.LeftShiftExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.LeftShiftExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.LeftShiftExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.LeftShiftExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.RightShiftExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.RightShiftExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.RightShiftExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.RightShiftExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ConcatExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.ConcatExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ConcatExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.ConcatExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ConcatExpression.Reduce()">
+    <member name="M:Flame.Compiler.Expressions.ConcatExpression.Reduce">
       <summary> Reduces the concatenation expression to a simpler expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.SingletonGetExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.SingletonGetExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.SingletonGetExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.SingletonGetExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ConstantVariableGetExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.ConstantVariableGetExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ConstantVariableGetExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.ConstantVariableGetExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ThisAddressOfExpression.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.ThisAddressOfExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ThisAddressOfExpression.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.ThisAddressOfExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
     <member name="T:Flame.Compiler.Expressions.RelaxedInvocation">
       <summary> An invocation that invokes a method based on a sequence of arguments that may include the method's caller. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ComplexExpressionBase.Optimize()">
+    <member name="M:Flame.Compiler.Expressions.ComplexExpressionBase.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Expressions.ComplexExpressionBase.Evaluate()">
+    <member name="M:Flame.Compiler.Expressions.ComplexExpressionBase.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>
     <member name="P:Flame.Compiler.Expressions.ComplexExpressionBase.IsConstant">
@@ -524,67 +524,67 @@
     <member name="M:Flame.Compiler.Expressions.ConcatExpression.Static_Singleton.ReduceBinary(Flame.Compiler.IExpression,Flame.Compiler.IExpression)">
       <summary> Reduces the binary concatenation expression to a simpler expression. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.ReturnStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.ReturnStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.IfElseStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.IfElseStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.WhileStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.WhileStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.StoreAtAddressStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.StoreAtAddressStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.ThisSetStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.ThisSetStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.VariableSetStatementBase`1.Optimize()">
+    <member name="M:Flame.Compiler.Statements.VariableSetStatementBase`1.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.VariableReleaseStatementBase`1.Optimize()">
+    <member name="M:Flame.Compiler.Statements.VariableReleaseStatementBase`1.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.EmptyStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.EmptyStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.ComplexStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.ComplexStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.BlockStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.BlockStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.ExpressionStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.ExpressionStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.LateBoundVariableSetStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.LateBoundVariableSetStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.FieldSetStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.FieldSetStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.CodeBlockStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.CodeBlockStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.BreakStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.BreakStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.ContinueStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.ContinueStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.DoWhileStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.DoWhileStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.YieldReturnStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.YieldReturnStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.YieldBreakStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.YieldBreakStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.ForeachStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.ForeachStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.ForeachStatement.Reduce()">
+    <member name="M:Flame.Compiler.Statements.ForeachStatement.Reduce">
       <summary> Reduces the foreach statements to more primitive statements. </summary>
     </member>
     <member name="T:Flame.Compiler.Statements.CollectionElement">
@@ -593,7 +593,7 @@
     <member name="T:Flame.Compiler.Statements.CommentedStatement">
       <summary> A statement that has a comment attached to it. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.CommentedStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.CommentedStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
     <member name="P:Flame.Compiler.Statements.CommentedStatement.Comment">
@@ -602,19 +602,19 @@
     <member name="P:Flame.Compiler.Statements.CommentedStatement.Statement">
       <summary> Gets the actual statement to emit. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.RawExpressionStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.RawExpressionStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.LateBoundLabelBranchStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.LateBoundLabelBranchStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Statements.LateBoundLabelMarkStatement.Optimize()">
+    <member name="M:Flame.Compiler.Statements.LateBoundLabelMarkStatement.Optimize">
       <summary> Returns an optimized version of the statement. </summary>
     </member>
-    <member name="M:Flame.Compiler.Variables.ThisVariable.CreateAddressOfExpression()">
+    <member name="M:Flame.Compiler.Variables.ThisVariable.CreateAddressOfExpression">
       <summary> Creates an expression that returns the address in memory of this variable. </summary>
     </member>
-    <member name="M:Flame.Compiler.Variables.ArgumentVariable.CreateAddressOfExpression()">
+    <member name="M:Flame.Compiler.Variables.ArgumentVariable.CreateAddressOfExpression">
       <summary> Creates an expression that returns the address in memory of this variable. </summary>
     </member>
     <member name="M:Flame.Compiler.Variables.LateBoundVariable.BindVariable(Flame.Compiler.Emit.IMethodStructureGenerator)">
@@ -623,31 +623,31 @@
     <member name="M:Flame.Compiler.Variables.LateBoundVariable.BindVariable(Flame.Compiler.IVariable)">
       <summary> Assigns a real variable to this late-bound variable. </summary>
     </member>
-    <member name="M:Flame.Compiler.Variables.LateBoundVariable.CreateAddressOfExpression()">
+    <member name="M:Flame.Compiler.Variables.LateBoundVariable.CreateAddressOfExpression">
       <summary> Creates an expression that returns the address in memory of this variable. </summary>
     </member>
     <member name="M:Flame.Compiler.Variables.ManuallyBoundVariable.BindVariable(Flame.Compiler.Emit.IMethodStructureGenerator)">
       <summary> Assigns a real variable to this late-bound variable. </summary>
     </member>
-    <member name="M:Flame.Compiler.Variables.FieldVariable.CreateAddressOfExpression()">
+    <member name="M:Flame.Compiler.Variables.FieldVariable.CreateAddressOfExpression">
       <summary> Creates an expression that returns the address in memory of this variable. </summary>
     </member>
-    <member name="M:Flame.Compiler.Variables.ValueTypeFieldVariable.CreateAddressOfExpression()">
+    <member name="M:Flame.Compiler.Variables.ValueTypeFieldVariable.CreateAddressOfExpression">
       <summary> Creates an expression that returns the address in memory of this variable. </summary>
     </member>
-    <member name="M:Flame.Compiler.Variables.ElementVariable.CreateAddressOfExpression()">
+    <member name="M:Flame.Compiler.Variables.ElementVariable.CreateAddressOfExpression">
       <summary> Creates an expression that returns the address in memory of this variable. </summary>
     </member>
     <member name="T:Flame.Compiler.Variables.AtAddressVariable">
       <summary> Accesses the underlying value of a pointer. It acts like a reference ('ref' in C#, 'T&' in C++, 'ByRef' in VB) by using pointer indirection to modify a variable. </summary>
     </member>
-    <member name="M:Flame.Compiler.Variables.AtAddressVariable.CreateAddressOfExpression()">
+    <member name="M:Flame.Compiler.Variables.AtAddressVariable.CreateAddressOfExpression">
       <summary> Creates an expression that returns the address in memory of this variable. </summary>
     </member>
     <member name="T:Flame.Compiler.Variables.ConstantVariable">
       <summary> Describes a variable that has a constant value which may be evaluated at compile time by get expressions. This value is also assumed to be stored in the underlying variable object once get expressions or address-of expressions are created. Essentially, substituting variable access for value access should not have a result on the program's output. This is a useful property for certain optimizations. </summary>
     </member>
-    <member name="M:Flame.Compiler.Variables.ConstantVariable.CreateAddressOfExpression()">
+    <member name="M:Flame.Compiler.Variables.ConstantVariable.CreateAddressOfExpression">
       <summary> Creates an expression that returns the address in memory of this variable. </summary>
     </member>
     <member name="M:Flame.Compiler.Variables.ThisVariable.Static_Singleton.IsThisVariable(Flame.Compiler.IVariable)">
@@ -680,7 +680,7 @@
     <member name="M:Flame.Compiler.Projects.IMutableProject.CreateOptionItem(System.String,System.String)">
       <summary> Creates an option item for the given option key and value. </summary>
     </member>
-    <member name="M:Flame.Compiler.Projects.IMutableProject.CreateNode()">
+    <member name="M:Flame.Compiler.Projects.IMutableProject.CreateNode">
       <summary> Creates a new project node. </summary>
     </member>
     <member name="T:Flame.Compiler.Projects.IProjectOptionItem">
@@ -692,7 +692,7 @@
     <member name="P:Flame.Compiler.Projects.IProjectOptionItem.Value">
       <summary> Gets the value associated with the option. </summary>
     </member>
-    <member name="M:Flame.Compiler.CodeBuilder.Static_Singleton.GetIndentationString(System.Collections.Generic.IEnumerable`1)">
+    <member name="M:Flame.Compiler.CodeBuilder.Static_Singleton.GetIndentationString(System.Collections.Generic.IEnumerable`1{System.String})">
       <summary> Gets the best match for an indentation that suits the given indented lines. An indentation string is defined as a sequence of tab or space characters that precede every line in the given sequence zero or more times. </summary>
     </member>
   </members>
