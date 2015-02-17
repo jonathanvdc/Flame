@@ -120,7 +120,7 @@
       <Project>{4a1d02a2-22df-4355-8edc-9e47db1979c3}</Project>
       <Name>Flame.Cecil</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Flame.Cecil\Flame.CodeDescription\Flame.CodeDescription.csproj">
+    <ProjectReference Include="..\Flame.CodeDescription\Flame.CodeDescription.csproj">
       <Project>{b11dbde8-1b3a-4474-b425-d79178148c9d}</Project>
       <Name>Flame.CodeDescription</Name>
     </ProjectReference>

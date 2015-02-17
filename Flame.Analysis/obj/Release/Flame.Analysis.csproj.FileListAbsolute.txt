@@ -8,3 +8,13 @@ C:\Users\Jonathan\SkyDrive\Flame\Flame.Analysis\obj\Release\Flame.Analysis.pdb
 C:\Users\Jonathan\SkyDrive\Flame\Flame.Analysis\bin\Release\Flame.pdb
 C:\Users\Jonathan\SkyDrive\Flame\Flame.Analysis\bin\Release\Flame.Compiler.pdb
 C:\Users\Jonathan\SkyDrive\Flame\Flame.Analysis\bin\Release\Flame.Compiler.xml
+D:\Programming\Git\Flame\Flame.Analysis\bin\Release\Flame.Analysis.dll
+D:\Programming\Git\Flame\Flame.Analysis\bin\Release\Flame.Analysis.pdb
+D:\Programming\Git\Flame\Flame.Analysis\bin\Release\Flame.Compiler.dll
+D:\Programming\Git\Flame\Flame.Analysis\bin\Release\Flame.dll
+D:\Programming\Git\Flame\Flame.Analysis\bin\Release\Flame.pdb
+D:\Programming\Git\Flame\Flame.Analysis\bin\Release\Flame.Compiler.pdb
+D:\Programming\Git\Flame\Flame.Analysis\bin\Release\Flame.Compiler.xml
+D:\Programming\Git\Flame\Flame.Analysis\obj\Release\Flame.Analysis.csprojResolveAssemblyReference.cache
+D:\Programming\Git\Flame\Flame.Analysis\obj\Release\Flame.Analysis.dll
+D:\Programming\Git\Flame\Flame.Analysis\obj\Release\Flame.Analysis.pdb

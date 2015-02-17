@@ -143,7 +143,7 @@
     <Compile Include="UserDependency.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Flame.Cecil\Flame.CodeDescription\Flame.CodeDescription.csproj">
+    <ProjectReference Include="..\Flame.CodeDescription\Flame.CodeDescription.csproj">
       <Project>{b11dbde8-1b3a-4474-b425-d79178148c9d}</Project>
       <Name>Flame.CodeDescription</Name>
     </ProjectReference>

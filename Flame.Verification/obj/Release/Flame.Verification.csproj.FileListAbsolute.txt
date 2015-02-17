@@ -8,3 +8,13 @@ C:\Users\Jonathan\SkyDrive\Flame\Flame.Verification\bin\Release\Flame.Compiler.p
 C:\Users\Jonathan\SkyDrive\Flame\Flame.Verification\obj\Release\Flame.Verification.dll
 C:\Users\Jonathan\SkyDrive\Flame\Flame.Verification\obj\Release\Flame.Verification.pdb
 C:\Users\Jonathan\SkyDrive\Flame\Flame.Verification\bin\Release\Flame.Compiler.xml
+D:\Programming\Git\Flame\Flame.Verification\bin\Release\Flame.Verification.dll
+D:\Programming\Git\Flame\Flame.Verification\bin\Release\Flame.Verification.pdb
+D:\Programming\Git\Flame\Flame.Verification\bin\Release\Flame.Compiler.dll
+D:\Programming\Git\Flame\Flame.Verification\bin\Release\Flame.dll
+D:\Programming\Git\Flame\Flame.Verification\bin\Release\Flame.pdb
+D:\Programming\Git\Flame\Flame.Verification\bin\Release\Flame.Compiler.pdb
+D:\Programming\Git\Flame\Flame.Verification\bin\Release\Flame.Compiler.xml
+D:\Programming\Git\Flame\Flame.Verification\obj\Release\Flame.Verification.csprojResolveAssemblyReference.cache
+D:\Programming\Git\Flame\Flame.Verification\obj\Release\Flame.Verification.dll
+D:\Programming\Git\Flame\Flame.Verification\obj\Release\Flame.Verification.pdb

@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.Analysis", "..\Flame.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.Verification", "..\Flame.Verification\Flame.Verification.csproj", "{A934B6B2-14EC-47E8-8B89-D978378B82F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.CodeDescription", "Flame.CodeDescription\Flame.CodeDescription.csproj", "{B11DBDE8-1B3A-4474-B425-D79178148C9D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.CodeDescription", "..\Flame.CodeDescription\Flame.CodeDescription.csproj", "{B11DBDE8-1B3A-4474-B425-D79178148C9D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.XmlDocs", "..\Flame.XmlDocs\Flame.XmlDocs.csproj", "{CD2775AF-ED95-4562-9903-A309A6841BAE}"
 EndProject

@@ -7,7 +7,7 @@
     <member name="T:Flame.DSharp.Lexer.TokenType">
       <summary> Tokens is an enumeration of all possible token values. </summary>
     </member>
-    <member name="M:Flame.DSharp.Lexer.ITokenStream.Next()">
+    <member name="M:Flame.DSharp.Lexer.ITokenStream.Next">
       <summary> Gets the next token in queue. </summary>
     </member>
     <member name="M:Flame.DSharp.Lexer.ITokenStream.Peek(Flame.DSharp.Lexer.TokenIdentifier)">
@@ -16,7 +16,7 @@
     <member name="M:Flame.DSharp.Lexer.ITokenStream.Seek(Flame.DSharp.Lexer.TokenIdentifier)">
       <summary> Sets the current parser position. </summary>
     </member>
-    <member name="M:Flame.DSharp.Lexer.ITokenStream.Reset()">
+    <member name="M:Flame.DSharp.Lexer.ITokenStream.Reset">
       <summary> Resets the token stream. </summary>
     </member>
     <member name="P:Flame.DSharp.Lexer.ITokenStream.CurrentPosition">
@@ -30,10 +30,10 @@
       <summary> A Token object type </summary>
       <remarks> A Token object holds the token and token value. </remarks>
     </member>
-    <member name="M:Flame.DSharp.Lexer.MemoryTokenStream.Next()">
+    <member name="M:Flame.DSharp.Lexer.MemoryTokenStream.Next">
       <summary> Gets the next token in queue. </summary>
     </member>
-    <member name="M:Flame.DSharp.Lexer.MemoryTokenStream.Reset()">
+    <member name="M:Flame.DSharp.Lexer.MemoryTokenStream.Reset">
       <summary> Resets the token stream. </summary>
     </member>
     <member name="M:Flame.DSharp.Lexer.MemoryTokenStream.Peek(Flame.DSharp.Lexer.TokenIdentifier)">
@@ -46,16 +46,16 @@
       <summary> TokenParser </summary>
       <remarks> TokenParser is the main parser engine for converting input into lexical tokens. </remarks>
     </member>
-    <member name="M:Flame.DSharp.Lexer.TokenParser.PrepareRegex()">
+    <member name="M:Flame.DSharp.Lexer.TokenParser.PrepareRegex">
       <summary> PrepareRegex prepares the regex for parsing by pre-matching the Regex tokens. </summary>
     </member>
-    <member name="M:Flame.DSharp.Lexer.TokenParser.ResetParser()">
+    <member name="M:Flame.DSharp.Lexer.TokenParser.ResetParser">
       <summary> ResetParser resets the parser to its inital state. Reloading InputString is required. </summary>
     </member>
-    <member name="M:Flame.DSharp.Lexer.TokenParser.Reset()">
+    <member name="M:Flame.DSharp.Lexer.TokenParser.Reset">
       <summary> Resets the token stream. </summary>
     </member>
-    <member name="M:Flame.DSharp.Lexer.TokenParser.Next()">
+    <member name="M:Flame.DSharp.Lexer.TokenParser.Next">
       <summary> GetToken gets the next token in queue </summary>
       <remarks> GetToken attempts to the match the next character(s) using the Regex rules defined in the dictionary. If a match can not be located, then an Undefined token will be created with an empty string value. In addition, the token pointer will be incremented by one so that this token doesn't attempt to get identified again by GetToken() </remarks>
     </member>
@@ -89,7 +89,7 @@
     <member name="M:Flame.DSharp.Lexer.TokenExtensions.NextBlockContents(Flame.DSharp.Lexer.ITokenStream,Flame.DSharp.Lexer.TokenType,Flame.DSharp.Lexer.TokenType)">
       <summary> Reads the contents of a "block", delimited by a start and an end token. The end token will also be parsed by this method, but will not be added to the results. </summary>
     </member>
-    <member name="M:Flame.DSharp.Lexer.TokenizerStream.Next()">
+    <member name="M:Flame.DSharp.Lexer.TokenizerStream.Next">
       <summary> Gets the next token in queue. </summary>
     </member>
     <member name="M:Flame.DSharp.Lexer.TokenizerStream.Seek(Flame.DSharp.Lexer.TokenIdentifier)">
@@ -98,7 +98,7 @@
     <member name="M:Flame.DSharp.Lexer.TokenizerStream.Peek(Flame.DSharp.Lexer.TokenIdentifier)">
       <summary> Returns the token that immediately trails the token with the given position. </summary>
     </member>
-    <member name="M:Flame.DSharp.Lexer.TokenizerStream.Reset()">
+    <member name="M:Flame.DSharp.Lexer.TokenizerStream.Reset">
       <summary> Resets the token stream. </summary>
     </member>
     <member name="T:Flame.DSharp.Parser.DSharpSyntaxParser">
@@ -114,10 +114,10 @@
     <member name="M:Flame.DSharp.Build.SyntaxAssembly.AddCompilationUnit(Flame.Syntax.ICompilationUnit,Flame.Compiler.ICompilerLog)">
       <summary> Adds a compilation unit to the assembly. </summary>
     </member>
-    <member name="M:Flame.DSharp.Build.SyntaxAssembly.CreateBinder()">
+    <member name="M:Flame.DSharp.Build.SyntaxAssembly.CreateBinder">
       <summary> Creates a binder for this assembly. </summary>
     </member>
-    <member name="M:Flame.DSharp.Build.SyntaxAssembly.GetEntryPoint()">
+    <member name="M:Flame.DSharp.Build.SyntaxAssembly.GetEntryPoint">
       <summary> Gets the entry point method for this assembly. </summary>
     </member>
     <member name="P:Flame.DSharp.Build.SyntaxAssembly.RootNamespace">
