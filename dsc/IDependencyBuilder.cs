@@ -71,7 +71,7 @@ namespace dsc
 
         public static void AddAssemblyRegisteredCallback(this IDependencyBuilder DependencyBuilder, string Platform, Action<IAssembly> Callback)
         {
-            if (!RegisterCallbackPlatform(DependencyBuilder, Platform))
+            if (RegisterCallbackPlatform(DependencyBuilder, Platform))
             {
                 DependencyBuilder.SetAssemblyRegisteredCallback(DependencyBuilder.GetAssemblyRegisteredCallback() + Callback);
             }

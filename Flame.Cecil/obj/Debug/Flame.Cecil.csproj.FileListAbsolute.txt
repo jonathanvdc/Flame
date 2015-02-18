@@ -9,3 +9,6 @@ C:\Users\Jonathan\SkyDrive\Flame\Flame.Cecil\bin\Debug\Mono.Cecil.Pdb.dll
 C:\Users\Jonathan\SkyDrive\Flame\Flame.Cecil\bin\Debug\Mono.Cecil.Rocks.dll
 C:\Users\Jonathan\SkyDrive\Flame\Flame.Cecil\obj\Debug\Flame.Cecil.dll
 C:\Users\Jonathan\SkyDrive\Flame\Flame.Cecil\obj\Debug\Flame.Cecil.pdb
+D:\Programming\Git\Flame\Flame.Cecil\obj\Debug\Flame.Cecil.csprojResolveAssemblyReference.cache
+D:\Programming\Git\Flame\Flame.Cecil\obj\Debug\Flame.Cecil.dll
+D:\Programming\Git\Flame\Flame.Cecil\obj\Debug\Flame.Cecil.pdb
