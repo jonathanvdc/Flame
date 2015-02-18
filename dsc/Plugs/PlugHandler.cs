@@ -29,7 +29,9 @@ namespace dsc.Plugs
             {
                 { '+', 'p' },
                 { '-', 'm' },
-                { '#', 's' }
+                { '#', 's' },
+                { '*', 's' },
+                { '.', 'd' }
             };
             foreach (char item in Path.GetInvalidPathChars())
             {

@@ -8,23 +8,57 @@ using System.Threading.Tasks;
 
 namespace dsc.Target
 {
-    public class CecilDependencyBuilder : DependencyBuilder
+    public static class CecilDependencyBuilderExtensions
     {
-        public CecilDependencyBuilder(IAssemblyResolver RuntimeLibaryResolver, IEnvironment Environment, string CurrentPath, string OutputFolder, Flame.Cecil.SpecificAssemblyResolver CecilResolver)
-            : base(RuntimeLibaryResolver, Environment, CurrentPath, OutputFolder)
+        private const string CecilAssemblyResolverKey = "CecilAssemblyResolver";
+
+        private static bool HasCecilResolver(this IDependencyBuilder DependencyBuilder)
         {
-            this.CecilResolver = CecilResolver;
+            return DependencyBuilder.Properties.ContainsKey(CecilAssemblyResolverKey);
         }
 
-        public Flame.Cecil.SpecificAssemblyResolver CecilResolver { get; private set; }
-
-        protected override void RegisterAssembly(IAssembly Assembly)
+        public static Mono.Cecil.IAssemblyResolver GetCecilResolver(this IDependencyBuilder DependencyBuilder)
         {
-            base.RegisterAssembly(Assembly);
-            if (Assembly is CecilAssembly)
+            if (DependencyBuilder == null)
             {
-                CecilResolver.AddAssembly(((CecilAssembly)Assembly).Assembly);
+                var resolver = new Mono.Cecil.DefaultAssemblyResolver();
+                resolver.AddSearchDirectory(Plugs.FlameAssemblies.FlameAssemblyDirectory);
+                return resolver;
             }
+            if (!HasCecilResolver(DependencyBuilder))
+            {
+                DependencyBuilder.SetupCecil();
+            }
+            return DependencyBuilder.Properties.GetValue<Mono.Cecil.IAssemblyResolver>(CecilAssemblyResolverKey);
+        }
+
+        public static void SetCecilResolver(this IDependencyBuilder DependencyBuilder, Mono.Cecil.IAssemblyResolver Resolver)
+        {
+            DependencyBuilder.AddCecilAssemblyRegisteredCallback();
+            DependencyBuilder.Properties.SetValue(CecilAssemblyResolverKey, Resolver);
+        }
+
+        private static void SetupCecil(this IDependencyBuilder DependencyBuilder)
+        {
+            if (!DependencyBuilder.HasCecilResolver())
+            {
+                DependencyBuilder.SetCecilResolver(new Flame.Cecil.SpecificAssemblyResolver());
+            }
+        }
+
+        private static void AddCecilAssemblyRegisteredCallback(this IDependencyBuilder DependencyBuilder)
+        {
+            DependencyBuilder.AddAssemblyRegisteredCallback("Cecil", (asm) =>
+            {
+                if (asm is CecilAssembly)
+                {
+                    var resolver = DependencyBuilder.GetCecilResolver();
+                    if (resolver is Flame.Cecil.SpecificAssemblyResolver)
+                    {
+                        ((Flame.Cecil.SpecificAssemblyResolver)resolver).AddAssembly(((CecilAssembly)asm).Assembly);
+                    }
+                }
+            });
         }
     }
 }

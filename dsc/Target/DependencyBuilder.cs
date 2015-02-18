@@ -15,13 +15,24 @@ namespace dsc.Target
             this.CurrentPath = CurrentPath;
             this.OutputFolder = OutputFolder;
             this.Environment = Environment;
+            this.Properties = Properties;
             this.registeredAssemblies = new List<IAssembly>();
+            this.Properties = new TypedDictionary<string>();
         }
 
         public IAssemblyResolver RuntimeLibaryResolver { get; private set; }
         public IEnvironment Environment { get; private set; }
         public string CurrentPath { get; private set; }
         public string OutputFolder { get; private set; }
+        public ITypedDictionary<string> Properties { get; private set; }
+
+        protected Action<IAssembly> AssemblyRegisteredCallback
+        {
+            get
+            {
+                return this.GetAssemblyRegisteredCallback();
+            }
+        }
 
         private List<IAssembly> registeredAssemblies;
 
@@ -45,6 +56,11 @@ namespace dsc.Target
         protected virtual void RegisterAssembly(IAssembly Assembly)
         {
             registeredAssemblies.Add(Assembly);
+            var callback = AssemblyRegisteredCallback;
+            if (callback != null)
+            {
+                callback(Assembly);
+            }
         }
 
         private void RegisterAssemblySafe(IAssembly Assembly)

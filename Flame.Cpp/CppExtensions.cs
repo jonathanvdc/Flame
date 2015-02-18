@@ -17,12 +17,16 @@ namespace Flame.Cpp
         {
             foreach (var item in Member.GetAttributes())
             {
-                if (item != null && item.Value != null)
+                if (item != null && item.AttributeType.FullName == typeof(HeaderAttribute).FullName)
                 {
                     var eval = item.Value.GetObjectValue();
                     if (eval is HeaderAttribute)
                     {
                         yield return (HeaderAttribute)eval;
+                    }
+                    else if (item is IConstructedAttribute)
+                    {
+                        yield return new HeaderAttribute(((IConstructedAttribute)item).GetArguments().First().GetValue<string>());
                     }
                 }
             }
@@ -36,13 +40,9 @@ namespace Flame.Cpp
         {
             foreach (var item in Member.GetAttributes())
             {
-                if (item != null && item.Value != null)
+                if (item != null && item.AttributeType.FullName == typeof(GlobalTypeAttribute).FullName)
                 {
-                    var eval = item.Value.GetObjectValue();
-                    if (eval is GlobalTypeAttribute)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
             return false;

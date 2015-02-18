@@ -24,6 +24,11 @@ namespace Flame.Cecil
             cachedDefs[Definition.Name.Name] = Definition;
         }
 
+        public override Mono.Cecil.AssemblyDefinition Resolve(Mono.Cecil.AssemblyNameReference name)
+        {
+            return Resolve(name, new Mono.Cecil.ReaderParameters() { AssemblyResolver = this });
+        }
+
         public override Mono.Cecil.AssemblyDefinition Resolve(Mono.Cecil.AssemblyNameReference name, Mono.Cecil.ReaderParameters parameters)
         {
             if (cachedDefs.ContainsKey(name.Name))

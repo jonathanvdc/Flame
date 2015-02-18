@@ -70,7 +70,8 @@ namespace dsc.Target
                         break;
                 }
                 var asm = new CecilAssembly(Project.AssemblyName, new Version(), moduleKind, resolver, Log);
-                var cecilDepBuilder = new CecilDependencyBuilder(rtLibResolver, asm.CreateBinder().Environment, CurrentPath, OutputDirectory, resolver);
+                var cecilDepBuilder = new DependencyBuilder(rtLibResolver, asm.CreateBinder().Environment, CurrentPath, OutputDirectory);
+                cecilDepBuilder.SetCecilResolver(resolver);
                 return new BuildTarget(asm, rtLibResolver, cecilDepBuilder, extension);
             }
             IAssemblyBuilder targetAsm;
