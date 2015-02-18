@@ -78,6 +78,11 @@ namespace Flame.Cpp.Emit
             return TargetType.get_IsPointer() && TargetType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer) && SourceType.Is(TargetType.AsContainerType().GetElementType());
         }
 
+        public static bool UseDynamicCast(IType SourceType, IType TargetType)
+        {
+            return SourceType.get_IsPointer() && TargetType.get_IsPointer();
+        }
+
         public CodeBuilder GetCode()
         {
             var sType = Value.Type.RemoveAtAddressPointers();
@@ -97,6 +102,10 @@ namespace Flame.Cpp.Emit
             else if (UseBoxConversion(sType, tType))
             {
                 return new BoxConversionBlock(Value).GetCode();
+            }
+            else if (UseDynamicCast(sType, tType))
+            {
+                return new DynamicCastBlock(Value, Type).GetCode();
             }
             CodeBuilder cb = new CodeBuilder();
             if (!UseImplicitCast(sType, tType))

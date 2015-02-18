@@ -35,7 +35,9 @@ namespace Flame.Cecil
             {
                 return cachedDefs[name.Name];
             }
-            return base.Resolve(name, parameters);
+            var result = base.Resolve(name, parameters);
+            cachedDefs[name.Name] = result;
+            return result;
         }
     }
 }

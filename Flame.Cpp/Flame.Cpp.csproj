@@ -57,6 +57,7 @@
     <Compile Include="CppField.cs" />
     <Compile Include="CppNameExtensions.cs" />
     <Compile Include="CppPointerExtensions.cs" />
+    <Compile Include="Emit\DynamicCastBlock.cs" />
     <Compile Include="ICppEnvironment.cs" />
     <Compile Include="ICppTypeConverter.cs" />
     <Compile Include="Plugs\PrimitiveNamespace.cs" />

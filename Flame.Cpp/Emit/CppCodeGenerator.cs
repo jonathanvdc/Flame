@@ -228,7 +228,12 @@ namespace Flame.Cpp.Emit
 
         public ICodeBlock EmitIsOfType(IType Type, ICodeBlock Value)
         {
-            throw new NotImplementedException();
+            var cppVal = (ICppBlock)Value;
+            if (cppVal.Type.Is(Type))
+            {
+                return EmitBoolean(true);
+            }
+            return EmitBinary(EmitConversion(cppVal, Type), EmitNull(), Operator.CheckInequality);
         }
 
         public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller)
