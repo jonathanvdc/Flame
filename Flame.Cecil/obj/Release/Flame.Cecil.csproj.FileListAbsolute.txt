@@ -36,3 +36,4 @@ D:\Programming\Git\Flame\Flame.Cecil\bin\Release\Flame.Syntax.xml
 D:\Programming\Git\Flame\Flame.Cecil\obj\Release\Flame.Cecil.csprojResolveAssemblyReference.cache
 D:\Programming\Git\Flame\Flame.Cecil\obj\Release\Flame.Cecil.dll
 D:\Programming\Git\Flame\Flame.Cecil\obj\Release\Flame.Cecil.pdb
+D:\Programming\Git\Flame\Flame.Cecil\bin\Release\Flame.xml

@@ -18,3 +18,4 @@ D:\Programming\Git\Flame\Flame.Verification\bin\Release\Flame.Compiler.xml
 D:\Programming\Git\Flame\Flame.Verification\obj\Release\Flame.Verification.csprojResolveAssemblyReference.cache
 D:\Programming\Git\Flame\Flame.Verification\obj\Release\Flame.Verification.dll
 D:\Programming\Git\Flame\Flame.Verification\obj\Release\Flame.Verification.pdb
+D:\Programming\Git\Flame\Flame.Verification\bin\Release\Flame.xml

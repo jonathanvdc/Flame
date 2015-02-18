@@ -28,3 +28,4 @@ D:\Programming\Git\Flame\Flame.Python\bin\Release\Flame.Syntax.xml
 D:\Programming\Git\Flame\Flame.Python\obj\Release\Flame.Python.csprojResolveAssemblyReference.cache
 D:\Programming\Git\Flame\Flame.Python\obj\Release\Flame.Python.dll
 D:\Programming\Git\Flame\Flame.Python\obj\Release\Flame.Python.pdb
+D:\Programming\Git\Flame\Flame.Python\bin\Release\Flame.xml

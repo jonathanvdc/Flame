@@ -92,27 +92,17 @@ namespace Flame.Build
 		{
 			if (this.NameEqual(Other.Name) && Other.IsStatic == this.IsStatic && this.DeclaringTypeEqual(Other.DeclaringType))
 			{
-				if (!Other.ReturnType.Equals(this.ReturnType))
+				var tComparer = new ScopedTypeEqualityComparer();
+			
+				if (!tComparer.Compare(Other.ReturnType, this.ReturnType))
 					return false;
 				var otherParams = Other.GetParameters();
 				if (otherParams.Length != parameters.Count)
 					return false;
+				
 				for (int i = 0; i < otherParams.Length; i++)
 				{
-					var tParam = otherParams[i].ParameterType;
-					var tOther = parameters[i].ParameterType;
-					if (tParam.IsGenericParameter != tOther.IsGenericParameter)
-					{
-						return false;
-					}
-					else if (tParam.IsGenericParameter)
-					{
-						if (!tParam.Name.Equals(tOther.Name))
-						{
-							return false;
-						}
-					}
-					else if (!tOther.Equals(tParam))
+					if (!tComparer.Compare(parameters[i].ParameterType, otherParams[i].ParameterType))
 					{
 						return false;
 					}

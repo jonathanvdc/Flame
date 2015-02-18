@@ -84,3 +84,6 @@ D:\Programming\Git\Flame\dsc\bin\Release\Flame.DSharp.xml
 D:\Programming\Git\Flame\dsc\bin\Release\Flame.Syntax.pdb
 D:\Programming\Git\Flame\dsc\bin\Release\Flame.RT.pdb
 D:\Programming\Git\Flame\dsc\obj\Release\dsc.csprojResolveAssemblyReference.cache
+D:\Programming\Git\Flame\dsc\bin\Release\Flame.xml
+D:\Programming\Git\Flame\dsc\bin\Release\Flame.Compiler.xml
+D:\Programming\Git\Flame\dsc\bin\Release\Flame.Syntax.xml

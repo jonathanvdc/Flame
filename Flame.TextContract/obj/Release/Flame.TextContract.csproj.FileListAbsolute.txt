@@ -24,3 +24,6 @@ D:\Programming\Git\Flame\Flame.TextContract\bin\Release\Flame.Syntax.pdb
 D:\Programming\Git\Flame\Flame.TextContract\obj\Release\Flame.TextContract.csprojResolveAssemblyReference.cache
 D:\Programming\Git\Flame\Flame.TextContract\obj\Release\Flame.TextContract.dll
 D:\Programming\Git\Flame\Flame.TextContract\obj\Release\Flame.TextContract.pdb
+D:\Programming\Git\Flame\Flame.TextContract\bin\Release\Flame.xml
+D:\Programming\Git\Flame\Flame.TextContract\bin\Release\Flame.Compiler.xml
+D:\Programming\Git\Flame\Flame.TextContract\bin\Release\Flame.Syntax.xml

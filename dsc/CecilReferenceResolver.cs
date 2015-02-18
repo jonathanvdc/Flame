@@ -14,19 +14,7 @@ namespace dsc
 {
     public class CecilReferenceResolver : IAssemblyResolver
     {
-        private static string[] SecondaryExtensions = new[] { "pdb" };
-
-        /*public static Mono.Cecil.IAssemblyResolver CreateCecilAssemblyResolver(string Directory)
-        {
-            var resolver = new Mono.Cecil.DefaultAssemblyResolver();
-            var searchDirs = resolver.GetSearchDirectories();
-            foreach (var item in searchDirs)
-            {
-                resolver.RemoveSearchDirectory(item);
-            }
-            resolver.AddSearchDirectory(Directory);
-            return resolver;
-        }*/
+        private static string[] SecondaryExtensions = new[] { "pdb", "xml" }; // Copy debugging files and xml docs
 
         public async Task<IAssembly> ResolveAsync(string Identifier, IDependencyBuilder DependencyBuilder)
         {

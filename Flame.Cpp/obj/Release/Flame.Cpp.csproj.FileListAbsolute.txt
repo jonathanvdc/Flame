@@ -28,3 +28,6 @@ D:\Programming\Git\Flame\Flame.Cpp\bin\Release\Flame.Syntax.pdb
 D:\Programming\Git\Flame\Flame.Cpp\obj\Release\Flame.Cpp.csprojResolveAssemblyReference.cache
 D:\Programming\Git\Flame\Flame.Cpp\obj\Release\Flame.Cpp.dll
 D:\Programming\Git\Flame\Flame.Cpp\obj\Release\Flame.Cpp.pdb
+D:\Programming\Git\Flame\Flame.Cpp\bin\Release\Flame.xml
+D:\Programming\Git\Flame\Flame.Cpp\bin\Release\Flame.Compiler.xml
+D:\Programming\Git\Flame\Flame.Cpp\bin\Release\Flame.Syntax.xml
