@@ -257,7 +257,7 @@ namespace Flame.Syntax.DSharp
             return result;
         }
 
-        public IEnumerable<ITypeMember> GetAccessedMembers(ISyntaxState State)
+        public [ITypeMember] GetAccessedMembers(ISyntaxState State)
         {
             var expr = this.GetCallerExpression(State);
 
@@ -303,7 +303,7 @@ namespace Flame.Syntax.DSharp
             	{
             		State.Log.LogError(new LogEntry("Member access error", "'" + Target.GetCode().ToString() + "' in member access syntax '" + this.GetCode().ToString() + "' could not be resolved as a variable, expression or type"));
             	}
-            	return (IEnumerable<ITypeMember>)new ITypeMember[0]; // Keep it civilized by returning an empty enumerable instead of null
+            	return Enumerable.Empty<ITypeMember>(); // Keep it civilized by returning an empty enumerable instead of null
             }
 
             string name = Member.TokenValue;

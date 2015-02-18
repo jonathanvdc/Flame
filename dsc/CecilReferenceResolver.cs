@@ -23,10 +23,7 @@ namespace dsc
                 ConsoleLog.Instance.LogError(new LogEntry("File not found", "File '" + Identifier + "' could not be found."));
             }
             ReaderParameters readerParams = new ReaderParameters();
-            if (DependencyBuilder is CecilDependencyBuilder)
-            {
-                readerParams.AssemblyResolver = ((CecilDependencyBuilder)DependencyBuilder).CecilResolver;
-            }
+            readerParams.AssemblyResolver = DependencyBuilder.GetCecilResolver();
             return new CecilAssembly(AssemblyDefinition.ReadAssembly(Identifier, readerParams));
         }
 

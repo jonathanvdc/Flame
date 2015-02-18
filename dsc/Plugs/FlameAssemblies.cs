@@ -40,6 +40,14 @@ namespace dsc.Plugs
             }
         }
 
+        public static string FlameAssemblyDirectory
+        {
+            get
+            {
+                return Path.GetDirectoryName(FlameAssemblyBasePath.AbsolutePath);
+            }
+        }
+
         private static Dictionary<string, string> flameAssemblyNameMapping;
         public static void MapFlameAssembly(string Name, string FileName)
         {

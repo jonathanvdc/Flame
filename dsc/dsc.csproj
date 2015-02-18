@@ -106,6 +106,7 @@
     <Compile Include="Target\DependencyBuilder.cs" />
     <Compile Include="IDependencyBuilder.cs" />
     <Compile Include="ReferenceDependency.cs" />
+    <Compile Include="TypedDictionary.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -155,6 +156,10 @@
     <ProjectReference Include="..\Flame.XmlDocs\Flame.XmlDocs.csproj">
       <Project>{cd2775af-ed95-4562-9903-a309a6841bae}</Project>
       <Name>Flame.XmlDocs</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FlameRT\FlameRT.csproj">
+      <Project>{a0782faa-6754-4b9d-b856-334dfcba3462}</Project>
+      <Name>FlameRT</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
