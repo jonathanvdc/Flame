@@ -172,7 +172,8 @@ namespace Flame.Cpp.Emit
 
         public ICodeBlock EmitConversion(ICodeBlock Value, IType Type)
         {
-            return new ConversionBlock(this, (ICppBlock)Value, Type);
+            var cppVal = (ICppBlock)Value;
+            return new ConversionBlock(this, cppVal, Environment.TypeConverter.Convert(Type));
         }
 
         #endregion
