@@ -16,3 +16,5 @@ D:\Programming\Git\Flame\Flame.MIPS\bin\Release\Flame.Compiler.pdb
 D:\Programming\Git\Flame\Flame.MIPS\obj\Release\Flame.MIPS.csprojResolveAssemblyReference.cache
 D:\Programming\Git\Flame\Flame.MIPS\obj\Release\Flame.MIPS.dll
 D:\Programming\Git\Flame\Flame.MIPS\obj\Release\Flame.MIPS.pdb
+D:\Programming\Git\Flame\Flame.MIPS\bin\Release\Flame.xml
+D:\Programming\Git\Flame\Flame.MIPS\bin\Release\Flame.Compiler.xml

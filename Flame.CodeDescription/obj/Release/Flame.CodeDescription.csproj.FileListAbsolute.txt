@@ -18,3 +18,4 @@ D:\Programming\Git\Flame\Flame.CodeDescription\bin\Release\Flame.Compiler.xml
 D:\Programming\Git\Flame\Flame.CodeDescription\obj\Release\Flame.CodeDescription.csprojResolveAssemblyReference.cache
 D:\Programming\Git\Flame\Flame.CodeDescription\obj\Release\Flame.CodeDescription.dll
 D:\Programming\Git\Flame\Flame.CodeDescription\obj\Release\Flame.CodeDescription.pdb
+D:\Programming\Git\Flame\Flame.CodeDescription\bin\Release\Flame.xml

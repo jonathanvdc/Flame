@@ -16,3 +16,5 @@ D:\Programming\Git\Flame\Flame.DSProject\bin\Release\Flame.Compiler.pdb
 D:\Programming\Git\Flame\Flame.DSProject\obj\Release\Flame.DSProject.csprojResolveAssemblyReference.cache
 D:\Programming\Git\Flame\Flame.DSProject\obj\Release\Flame.DSProject.dll
 D:\Programming\Git\Flame\Flame.DSProject\obj\Release\Flame.DSProject.pdb
+D:\Programming\Git\Flame\Flame.DSProject\bin\Release\Flame.xml
+D:\Programming\Git\Flame\Flame.DSProject\bin\Release\Flame.Compiler.xml

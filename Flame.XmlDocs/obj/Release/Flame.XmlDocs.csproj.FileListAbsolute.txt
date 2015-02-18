@@ -22,3 +22,4 @@ D:\Programming\Git\Flame\Flame.XmlDocs\bin\Release\Flame.Compiler.xml
 D:\Programming\Git\Flame\Flame.XmlDocs\obj\Release\Flame.XmlDocs.csprojResolveAssemblyReference.cache
 D:\Programming\Git\Flame\Flame.XmlDocs\obj\Release\Flame.XmlDocs.dll
 D:\Programming\Git\Flame\Flame.XmlDocs\obj\Release\Flame.XmlDocs.pdb
+D:\Programming\Git\Flame\Flame.XmlDocs\bin\Release\Flame.xml

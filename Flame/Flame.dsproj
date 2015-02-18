@@ -104,7 +104,6 @@
 			<Compile Include="Build\DescribedMethod.ds" />
 			<Compile Include="Build\DescribedParameter.ds" />
 			<Compile Include="Build\DescribedMember.ds" />
-			<Compile Include="Build\ClosedGenericDescribedMethod.ds" />
 			<Compile Include="Build\DescribedContainerType.ds" />
 			<Compile Include="Build\DescribedArrayType.ds" />
 			<Compile Include="Build\DescribedProperty.ds" />
@@ -130,6 +129,8 @@
 			<Compile Include="Build\TypeTransformerBase.ds" />
 			<Compile Include="Build\TypeNamerBase.ds" />
 			<Compile Include="Build\EmptyGenericResolver.ds" />
+			<Compile Include="Build\TypeComparerBase.ds" />
+			<Compile Include="Build\TypeEqualityComparer.ds" />
 		</ItemGroup>
 	</ItemGroup>
 </Project>
