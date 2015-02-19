@@ -12,7 +12,7 @@ namespace Flame.Cpp.Plugs
     {
         private StdxArraySlice()
         {
-
+            this.ElementType = new DescribedGenericParameter("T", this);
         }
 
         public ICppEnvironment Environment { get { return new CppEnvironment(); } }
@@ -37,24 +37,85 @@ namespace Flame.Cpp.Plugs
             get { return StdxNamespace.Instance; }
         }
 
+
+        private IMethod[] ctorCache;
         public override IMethod[] GetConstructors()
         {
-            throw new NotImplementedException();
+            if (ctorCache == null)
+            {
+                List<IMethod> ctors = new List<IMethod>();
+
+                var lenCtor = new DescribedMethod("ArraySlice", this, PrimitiveTypes.Void, false);
+                lenCtor.IsConstructor = true;
+                lenCtor.AddParameter(new DescribedParameter("Length", PrimitiveTypes.Int32));
+                lenCtor.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+                ctors.Add(lenCtor);
+
+                var ptrCtor = new DescribedMethod("ArraySlice", this, PrimitiveTypes.Void, false);
+                ptrCtor.IsConstructor = true;
+                ptrCtor.AddParameter(new DescribedParameter("Pointer", ElementType.MakePointerType(PointerKind.TransientPointer)));
+                ptrCtor.AddParameter(new DescribedParameter("Length", PrimitiveTypes.Int32));
+                ptrCtor.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+                ctors.Add(ptrCtor);
+
+                var refCtor = new DescribedMethod("ArraySlice", this, PrimitiveTypes.Void, false);
+                refCtor.IsConstructor = true;
+                refCtor.AddParameter(new DescribedParameter("Pointer", ElementType.MakePointerType(PointerKind.ReferencePointer)));
+                refCtor.AddParameter(new DescribedParameter("Length", PrimitiveTypes.Int32));
+                refCtor.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+                ctors.Add(refCtor);
+
+                ctorCache = ctors.ToArray();
+            }
+            return ctorCache;
         }
 
         public override IField[] GetFields()
         {
-            throw new NotImplementedException();
+            return new IField[0];
         }
 
+        private IMethod[] methodCache;
         public override IMethod[] GetMethods()
         {
-            throw new NotImplementedException();
+            if (methodCache == null)
+            {
+                List<IMethod> methods = new List<IMethod>();
+
+                var sliceCountMethod = new DescribedMethod("Slice", this, this.MakeGenericType(new IType[] { ElementType }), false);
+                sliceCountMethod.AddParameter(new DescribedParameter("Offset", PrimitiveTypes.Int32));
+                sliceCountMethod.AddParameter(new DescribedParameter("Count", PrimitiveTypes.Int32));
+                sliceCountMethod.AddAttribute(new AccessAttribute(AccessModifier.Public));
+                sliceCountMethod.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+                methods.Add(sliceCountMethod);
+
+                var sliceOffsetMethod = new DescribedMethod("Slice", this, this.MakeGenericType(new IType[] { ElementType }), false);
+                sliceOffsetMethod.AddParameter(new DescribedParameter("Offset", PrimitiveTypes.Int32));
+                sliceOffsetMethod.AddAttribute(new AccessAttribute(AccessModifier.Public));
+                sliceOffsetMethod.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+                methods.Add(sliceOffsetMethod);
+
+                methodCache = methods.ToArray();
+            }
+            return methodCache;
         }
 
+        private IProperty[] propertyCache;
         public override IProperty[] GetProperties()
         {
-            throw new NotImplementedException();
+            if (propertyCache == null)
+            {
+                List<IProperty> props = new List<IProperty>();
+
+                var lenProp = new DescribedProperty("Length", this, PrimitiveTypes.Int32, false);
+                var getLenAccessor = new DescribedAccessor("GetLength", AccessorType.GetAccessor, lenProp, PrimitiveTypes.Int32);
+                getLenAccessor.AddAttribute(new AccessAttribute(AccessModifier.Public));
+                getLenAccessor.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+                props.Add(lenProp);
+
+                propertyCache = props.ToArray();
+            }
+            return propertyCache;
         }
 
         #region Make<Container>Type

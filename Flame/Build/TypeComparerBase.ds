@@ -26,6 +26,14 @@ namespace Flame.Build
 		}
 		
 		/// <summary>
+		/// Compares two types that have an unknown structure.
+		/// </summary>
+		protected virtual const T CompareUnknown(IType First, IType Second)
+		{
+			return CompareDefault(First, Second);
+		}
+		
+		/// <summary>
 		/// Compares two generic type instances.
 		/// </summary>
 		protected virtual const T CompareGenericInstances(IType First, IType Second)
@@ -61,25 +69,25 @@ namespace Flame.Build
 		
 		protected virtual const T CompareContainerTypes(IContainerType First, IContainerType Second)
 		{
-			if (First.IsPointer)
+			if (First.IsPointer || Second.IsPointer)
 			{
-				if (Second.IsPointer)
+				if (First.IsPointer && Second.IsPointer)
 				{
 					return ComparePointerTypes(First.AsPointerType(), Second.AsPointerType());
 				}
 				else return CompareIncompatible(First, Second);
 			}
-			else if (First.IsArray)
+			else if (First.IsArray || Second.IsArray)
 			{
-				if (Second.IsArray)
+				if (First.IsArray && Second.IsArray)
 				{
 					return CompareArrayTypes(First.AsArrayType(), Second.AsArrayType());
 				}
 				else return CompareIncompatible(First, Second);
 			}
-			else if (First.IsVector)
+			else if (First.IsVector || Second.IsVector)
 			{
-				if (Second.IsVector)
+				if (First.IsVector && Second.IsVector)
 				{
 					return CompareVectorTypes(First.AsVectorType(), Second.AsVectorType());
 				}
@@ -87,31 +95,31 @@ namespace Flame.Build
 			}
 			else
 			{
-				return CompareDefault(First, Second);
+				return CompareUnknown(First, Second);
 			}
 		}
 	
 		public virtual const T Compare(IType First, IType Second)
 		{
-			if (First.IsGenericInstance)
+			if (First.IsContainerType || Second.IsContainerType)
 			{
-				if (Second.IsGenericInstance)
-				{
-					return CompareGenericInstances(First, Second);
-				}
-				else return CompareIncompatible(First, Second);
-			}
-			else if (First.IsContainerType)
-			{
-				if (Second.IsContainerType)
+				if (First.IsContainerType && Second.IsContainerType)
 				{
 					return CompareContainerTypes(First.AsContainerType(), Second.AsContainerType());
 				}
 				else return CompareIncompatible(First, Second);
 			}
-			else if (First.IsGenericParameter)
+			else if (First.IsGenericInstance || Second.IsGenericInstance)
 			{
-				if (Second.IsGenericParameter)
+				if (First.IsGenericInstance && Second.IsGenericInstance)
+				{
+					return CompareGenericInstances(First, Second);
+				}
+				else return CompareIncompatible(First, Second);
+			}
+			else if (First.IsGenericParameter || Second.IsGenericParameter)
+			{
+				if (First.IsGenericParameter && Second.IsGenericParameter)
 				{
 					return CompareGenericParameters((IGenericParameter)First, (IGenericParameter)Second);	
 				}

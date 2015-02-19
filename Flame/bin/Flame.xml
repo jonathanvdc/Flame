@@ -989,6 +989,9 @@
     <member name="M:Flame.Build.TypeComparerBase`1.CompareIncompatible(Flame.IType,Flame.IType)">
       <summary> Compares two structurally incompatible types. </summary>
     </member>
+    <member name="M:Flame.Build.TypeComparerBase`1.CompareUnknown(Flame.IType,Flame.IType)">
+      <summary> Compares two types that have an unknown structure. </summary>
+    </member>
     <member name="M:Flame.Build.TypeComparerBase`1.CompareGenericInstances(Flame.IType,Flame.IType)">
       <summary> Compares two generic type instances. </summary>
     </member>
@@ -997,6 +1000,12 @@
     </member>
     <member name="T:Flame.Build.ScopedTypeEqualityComparer">
       <summary> A type equality comparer that assumes that type parameters with equal names are equal. </summary>
+    </member>
+    <member name="T:Flame.Build.GenericInstanceComparer">
+      <summary> Compares types and decides whether the second is a possible generic instantiation of the first. </summary>
+    </member>
+    <member name="M:Flame.Build.GenericInstanceComparer.CompareIncompatible(Flame.IType,Flame.IType)">
+      <summary> Compares two structurally incompatible types. </summary>
     </member>
   </members>
 </doc>

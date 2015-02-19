@@ -34,7 +34,7 @@ namespace Flame.Syntax.DSharp
         {
             string name = Name;
 
-			var descParam = new DescribedParameter(name, TypeSyntax.CreateType(State));
+			var descParam = new DescribedParameter(name, TypeSyntax.CreateVerifiedType(State));
 
             if (ModifierTokens.SetsMember)
             {

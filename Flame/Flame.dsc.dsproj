@@ -134,6 +134,7 @@
 			<Compile Include="Build\EmptyGenericResolver.ds" />
 			<Compile Include="Build\TypeComparerBase.ds" />
 			<Compile Include="Build\TypeEqualityComparer.ds" />
+			<Compile Include="Build\GenericInstanceComparer.ds" />
 		</ItemGroup>
 	</ItemGroup>
 </Project>

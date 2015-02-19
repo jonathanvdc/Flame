@@ -13,7 +13,11 @@ namespace Flame.Build
 		
 		public override string FullName : DescribedMember.FullName 
 		{ 
-			const get return MemberExtensions.CombineNames(DeclaringType.FullName, Name); 
+			const get
+			{
+				if (DeclaringType == null) return Name;
+				else return MemberExtensions.CombineNames(DeclaringType.FullName, Name);
+			}
 		}
 		
 		public const bool NameEqual(string OtherName)
@@ -46,6 +50,11 @@ namespace Flame.Build
 		public override virtual const int GetHashCode()
 		{
 			return Name.GetHashCode() ^ DeclaringType.GetHashCode();
+		}
+		
+		public virtual override const string ToString()
+		{
+			return FullName;
 		}
 	}
 }

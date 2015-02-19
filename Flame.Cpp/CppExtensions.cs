@@ -36,7 +36,7 @@ namespace Flame.Cpp
 
         #region IsGlobalType
 
-        public static bool IsGlobalType(this IMember Member)
+        public static bool IsGlobalType(this IType Member)
         {
             foreach (var item in Member.GetAttributes())
             {
