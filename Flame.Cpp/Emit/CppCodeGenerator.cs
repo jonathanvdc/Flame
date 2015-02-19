@@ -266,7 +266,8 @@ namespace Flame.Cpp.Emit
 
         public ICodeBlock EmitNewArray(IType ElementType, IEnumerable<ICodeBlock> Dimensions)
         {
-            throw new NotImplementedException();
+            var ctor = Plugs.StdxArraySlice.Instance.MakeGenericType(new IType[] { ElementType }).GetConstructor(new IType[] { PrimitiveTypes.Int32 }, false);
+            return EmitInvocation(EmitMethod(ctor, null), Dimensions);
         }
 
         public ICodeBlock EmitNewVector(IType ElementType, int[] Dimensions)

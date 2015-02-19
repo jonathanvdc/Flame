@@ -505,43 +505,16 @@ namespace Flame.Recompilation
                 return false;
             }
 
+            var comparer = new GenericInstanceComparer();
+
             for (int i = 0; i < genericParams.Length; i++)
             {
-                if (!CompareGenericParameterTypes(genericParams[i].ParameterType, specificParams[i].ParameterType))
+                if (!comparer.Compare(genericParams[i].ParameterType, specificParams[i].ParameterType))
                 {
                     return false;
                 }
             }
             return true;
-        }
-
-        private static bool CompareGenericParameterTypes(IType GenericParameterType, IType SpecificParameterType)
-        {
-            if (GenericParameterType.Equals(SpecificParameterType))
-            {
-                return true;
-            }
-            else if (GenericParameterType.get_IsGenericParameter())
-            {
-                return true;
-            }
-            else if (GenericParameterType.GetGenericDeclaration().Equals(SpecificParameterType.GetGenericDeclaration()))
-            {
-                var genericTypeArgs = GenericParameterType.GetGenericArguments().ToArray();
-                var specificTypeArgs = GenericParameterType.GetGenericArguments().ToArray();
-                for (int i = 0; i < genericTypeArgs.Length; i++)
-                {
-                    if (!CompareGenericParameterTypes(genericTypeArgs[i], specificTypeArgs[i]))
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            else
-            {
-                return false;
-            }
         }
 
         #endregion

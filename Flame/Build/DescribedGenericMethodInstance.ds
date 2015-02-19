@@ -7,7 +7,10 @@ namespace Flame.Build
 {
 	public virtual class DescribedGenericMethodInstance : IMethod, IGenericResolver, IEquatable<IMethod>
 	{
-		protected const this();
+		protected const this()
+		{
+			this.TypeArguments = Enumerable.Empty<IType>();
+		}
 		public const this(set IMethod Method, set IGenericResolver Parent, set IType DeclaringType, set [IType] TypeArguments);
 		public const this(set IMethod Method, set IGenericResolver Parent, set IType DeclaringType)
 		{
@@ -37,7 +40,14 @@ namespace Flame.Build
         			return arg;
         		}
         	}
-            return Parent.ResolveTypeParameter(TypeParameter);
+        	if (Parent != null)
+        	{
+            	return Parent.ResolveTypeParameter(TypeParameter);
+            }
+            else
+            {
+            	return TypeParameter;
+            }
         }
 		
 		public bool IsStatic { const get return Method.IsStatic; }

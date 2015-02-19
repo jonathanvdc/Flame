@@ -11,6 +11,11 @@ namespace Flame.Build
         	this.DeclaringType = DeclaringProperty.DeclaringType;
         	this.IsStatic = DeclaringProperty.IsStatic;
         }
+        public const this(set string Name, set AccessorType AccessorType, set IProperty DeclaringProperty, set IType ReturnType)
+        {
+        	this.DeclaringType = DeclaringProperty.DeclaringType;
+        	this.IsStatic = DeclaringProperty.IsStatic;
+        }
 
         public AccessorType AccessorType { const get; private set; }
         public IProperty DeclaringProperty { const get; private set; }

@@ -20,9 +20,9 @@ namespace Flame.Syntax.DSharp
         	const get
         	{
         		List<Token> results = new List<Token>();
-				results.Add(Type.GetTokens());
+				results.AddRange(Type.GetTokens());
 				foreach (var item in Declarations)
-					results.Add(item.GetTokens());
+					results.AddRange(item.GetTokens());
 				results.Add(SemicolonToken);
 				return results;					
         	}

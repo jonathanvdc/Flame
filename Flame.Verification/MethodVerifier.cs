@@ -25,6 +25,14 @@ namespace Flame.Verification
                     return true;
                 }
             }
+            foreach (var item in Member.GetParameters())
+            {
+                if (item.ParameterType == null)
+                {
+                    Log.LogError(new LogEntry("Verification error", "Parameter '" + item.Name + "' of method '" + Member.FullName + "' has a null parameter type."));
+                    return false;
+                }
+            }
             return false;
         }
     }

@@ -13,12 +13,9 @@ namespace Flame.Build
 			return First.Equals(Second);
 		}
 		
-		/// <summary>
-		/// Compares two structurally incompatible types.
-		/// </summary>
 		protected virtual override const bool CompareIncompatible(IType First, IType Second)
 		{
-			return false;
+			return false; // Return false so we don't have to compare every single pair of types
 		}
 		
 		protected virtual override const bool MakeGenericInstanceComparison(bool DeclarationComparison, [bool] TypeArgumentComparisons)
