@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class InvocationBlock : ICppBlock
+    public class InvocationBlock : IInvocationBlock
     {
         public InvocationBlock(ICppBlock Member, params ICppBlock[] Arguments)
             : this(Member, (IEnumerable<ICppBlock>)Arguments)
@@ -56,21 +56,7 @@ namespace Flame.Cpp.Emit
         public CodeBuilder GetCode()
         {
             var cb = Member.GetCode();
-            cb.Append('(');
-            bool first = true;
-            foreach (var item in Arguments)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    cb.Append(", ");
-                }
-                cb.Append(item.GetCode());
-            }
-            cb.Append(')');
+            cb.Append(this.GetArgumentListCode());
             return cb;
         }
     }

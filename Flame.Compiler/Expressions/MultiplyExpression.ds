@@ -4,9 +4,11 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-    public class MultiplyExpression : BinaryExpression
+    public class MultiplyExpression : BinaryOperatorExpression
     {
         public const this(set IExpression LeftOperand, set IExpression RightOperand);
+        
+        protected override Operator GetOperator() { return Operator.Multiply; }
 
         public override IBoundObject Evaluate()
         {
@@ -92,9 +94,9 @@ namespace Flame.Compiler.Expressions
             return expr;
         }
 
-        public override const ICodeBlock Emit(ICodeGenerator Generator)
+        protected override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
         {
-            return Generator.EmitMultiply(LeftOperand.Emit(Generator), RightOperand.Emit(Generator));
+            return Generator.EmitMultiply(Left, Right);
         }
     }
 }

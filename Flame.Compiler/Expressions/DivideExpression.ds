@@ -4,9 +4,11 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-    public class DivideExpression : BinaryExpression
+    public class DivideExpression : BinaryOperatorExpression
     {
         public const this(set IExpression LeftOperand, set IExpression RightOperand);
+        
+        protected override Operator GetOperator() { return Operator.Divide; }
 
         public override IBoundObject Evaluate()
         {
@@ -20,9 +22,9 @@ namespace Flame.Compiler.Expressions
             return new DivideExpression(optA, optB);
         }
 
-        public override const ICodeBlock Emit(ICodeGenerator Generator)
+        protected override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
         {
-            return Generator.EmitDivide(LeftOperand.Emit(Generator), RightOperand.Emit(Generator));
+            return Generator.EmitDivide(Left, Right);
         }
     }
 }

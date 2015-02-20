@@ -7,6 +7,8 @@ namespace Flame.Compiler.Expressions
     public class GreaterThanExpression : ConditionalExpression
     {
         public const this(set IExpression LeftOperand, set IExpression RightOperand);
+        
+        protected override Operator GetOperator() { return Operator.CheckGreaterThan; }
 
         public override const IBoundObject Evaluate()
         {
@@ -19,16 +21,18 @@ namespace Flame.Compiler.Expressions
             var optB = RightOperand.Optimize();
             return new GreaterThanExpression(optA, optB);
         }
-
-        public override const ICodeBlock Emit(ICodeGenerator Generator)
+        
+        protected override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
         {
-            return Generator.EmitGreaterThan(LeftOperand.Emit(Generator), RightOperand.Emit(Generator));
+            return Generator.EmitGreaterThan(Left, Right);
         }
     }
     
     public class GreaterThanOrEqualsExpression : ConditionalExpression
     {
         public const this(set IExpression LeftOperand, set IExpression RightOperand);
+        
+        protected override Operator GetOperator() { return Operator.CheckGreaterThanOrEqual; }
 
         public override const IBoundObject Evaluate()
         {
@@ -41,10 +45,10 @@ namespace Flame.Compiler.Expressions
             var optB = RightOperand.Optimize();
             return new GreaterThanOrEqualsExpression(optA, optB);
         }
-
-        public override const ICodeBlock Emit(ICodeGenerator Generator)
+        
+        protected override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
         {
-            return Generator.EmitGreaterThanOrEquals(LeftOperand.Emit(Generator), RightOperand.Emit(Generator));
+        	return Generator.EmitGreaterThanOrEquals(Left, Right);
         }
     }
 }

@@ -30,11 +30,15 @@ namespace Flame.Cpp.Emit
             get { return Value.LocalsUsed; }
         }
 
-        public static bool UseImplicitCast(IType SourceType, IType TargetType)
+        public bool UseImplicitCast(IType SourceType, IType TargetType)
         {
             if (SourceType.Is(TargetType))
             {
                 return true;
+            }
+            else if (SourceType.get_IsPointer() && TargetType.get_IsPointer() && SourceType.AsContainerType().AsPointerType().PointerKind.Equals(TargetType.AsContainerType().AsPointerType().PointerKind))
+            {
+                return SourceType.AsContainerType().GetElementType().Is(TargetType.AsContainerType().GetElementType());
             }
             else if (TargetType.get_IsBit())
             {
@@ -87,6 +91,10 @@ namespace Flame.Cpp.Emit
         {
             var sType = Value.Type.RemoveAtAddressPointers();
             var tType = Type.RemoveAtAddressPointers();
+            if (UseImplicitCast(sType, tType))
+            {
+                return Value.GetCode();
+            }
             if (sType.GetPointerDepth() == tType.GetPointerDepth() + 1)
             {
                 return new DereferenceBlock(Value).GetCode();
@@ -107,15 +115,15 @@ namespace Flame.Cpp.Emit
             {
                 return new DynamicCastBlock(Value, Type).GetCode();
             }
-            CodeBuilder cb = new CodeBuilder();
-            if (!UseImplicitCast(sType, tType))
+            else
             {
+                CodeBuilder cb = new CodeBuilder();
                 cb.Append('(');
                 cb.Append(CodeGenerator.GetTypeNamer().Name(tType, CodeGenerator));
                 cb.Append(')');
+                cb.Append(Value.GetCode());
+                return cb;
             }
-            cb.Append(Value.GetCode());
-            return cb;
         }
 
         public static ICppBlock Cast(ICppBlock Block, IType Target)

@@ -75,10 +75,44 @@ namespace Flame.Syntax.DSharp
         {
         	var leftExpr = Left.CreateVerifiedExpression(State);
             var rightExpr = Right.CreateVerifiedExpression(State);
-		    var tType = GetBinaryExpressionType(State, leftExpr.Type, rightExpr.Type)
-	    	var lExpr = CastLeftOperand(State, tType, leftExpr, Left, Op);
-	    	var rExpr = CastRightOperand(State, tType, rightExpr, Right, Op);
-	        return new DirectBinaryExpression(lExpr, Op, rExpr);
+            
+            var lType = leftExpr.Type;
+            var rType = rightExpr.Type;
+            
+            IMethod overload;
+            if ((lType.IsEnum || lType.IsPrimitive) && (rType.IsEnum || rType.IsPrimitive))
+            {
+            	overload = null;
+            }
+            else
+            {
+            	overload = Op.GetOperatorOverload(new IType[] { lType, rType });
+            }
+            
+            if (overload == null)
+            {
+			    var tType = GetBinaryExpressionType(State, leftExpr.Type, rightExpr.Type);	
+			    
+		    	var lExpr = CastLeftOperand(State, tType, leftExpr, Left, Op);
+		    	var rExpr = CastRightOperand(State, tType, rightExpr, Right, Op);
+		        return new DirectBinaryExpression(lExpr, Op, rExpr);
+	        }
+	        else
+	        {
+	        	var overloadParams = overload.GetParameters();
+	        	if (overloadParams.Length == 2)
+	        	{
+		        	var lExpr = CastSyntax.CreateImplicitCast(State, leftExpr, Left, overloadParams[0].ParameterType);
+		        	var rExpr = CastSyntax.CreateImplicitCast(State, rightExpr, Right, overloadParams[1].ParameterType);
+		        	return new DirectBinaryExpression(lExpr, Op, rExpr);
+	        	}
+	        	else
+	        	{
+	        		var lExpr = CastSyntax.CreateImplicitCast(State, leftExpr, Left, overload.DeclaringType);
+		        	var rExpr = CastSyntax.CreateImplicitCast(State, rightExpr, Right, overloadParams[0].ParameterType);
+		        	return new DirectBinaryExpression(lExpr, Op, rExpr);
+	        	}
+	        }
         }
 
         protected abstract const IExpression CreateExpression(ISyntaxState State, IExpressionSyntax Left, Token Op, IExpressionSyntax Right);

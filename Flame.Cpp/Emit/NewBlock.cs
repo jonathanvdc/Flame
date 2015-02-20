@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class NewBlock : ICppBlock
+    public class NewBlock : INewObjectBlock
     {
         public NewBlock(IMethod Constructor, ICodeGenerator CodeGenerator)
         {
-            this.Target = Constructor.CreateConstructorBlock(CodeGenerator);
+            this.Target = new StackConstructorBlock(Constructor.CreateConstructorBlock(CodeGenerator));
         }
-        public NewBlock(ICppBlock Target)
+        public NewBlock(INewObjectBlock Target)
         {
             this.Target = Target;
         }
 
-        public ICppBlock Target { get; private set; }
+        public INewObjectBlock Target { get; private set; }
 
         public IType Type
         {
@@ -48,6 +48,16 @@ namespace Flame.Cpp.Emit
             CodeBuilder cb = new CodeBuilder("new ");
             cb.Append(Target.GetCode());
             return cb;
+        }
+
+        public AllocationKind Kind
+        {
+            get { return AllocationKind.UnmanagedHeap; }
+        }
+
+        public IEnumerable<ICppBlock> Arguments
+        {
+            get { return Target.Arguments; }
         }
     }
 }

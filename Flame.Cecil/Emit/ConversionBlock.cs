@@ -258,7 +258,10 @@ namespace Flame.Cecil.Emit
             }
             else  // Unbox.Any as last resort
             {
-                Context.Emit(OpCodes.Unbox_Any, targetType);
+                if (!ILCodeGenerator.IsCLRValueType(exprType) || !ILCodeGenerator.IsCLRValueType(targetType)) // Do not use Unbox.Any if both types are value types
+                {
+                    Context.Emit(OpCodes.Unbox_Any, targetType);
+                }
             }
             Context.Stack.Push(targetType);
         }

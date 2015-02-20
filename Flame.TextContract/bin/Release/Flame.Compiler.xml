@@ -212,6 +212,12 @@
     <member name="M:Flame.Compiler.Expressions.BinaryExpression.Optimize">
       <summary> Returns an optimized version of the expression. </summary>
     </member>
+    <member name="M:Flame.Compiler.Expressions.BinaryOperatorExpression.GetOpOverload">
+      <summary> Gets the operator overload for this binary expression if an overload exists. Otherwise, null. </summary>
+    </member>
+    <member name="P:Flame.Compiler.Expressions.BinaryOperatorExpression.OperatorOverload">
+      <summary> Gets the operator overload for this binary expression if an overload exists. Otherwise, null. </summary>
+    </member>
     <member name="M:Flame.Compiler.Expressions.PrimitiveBinaryExpression.Evaluate">
       <summary> Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned. </summary>
     </member>

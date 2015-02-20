@@ -47,7 +47,16 @@ namespace Flame.Compiler.Expressions
 		
 		public IBoundObject Evaluate()
 		{
-			return ((IBoundMethod)Target.Evaluate()).Invoke(Arguments.EvaluateAll());
+			var targetObj = Target.Evaluate();
+			if (!(targetObj is IBoundMethod)) return null;
+			
+			var allArgs = Arguments.EvaluateAll();
+			foreach (var item in allArgs)
+				if (item == null)
+			{
+				return null;
+			}
+			return ((IBoundMethod)targetObj).Invoke(allArgs);
 		}
 		
 		public IExpression Optimize()

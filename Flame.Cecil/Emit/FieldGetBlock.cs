@@ -27,7 +27,7 @@ namespace Flame.Cecil.Emit
                 var type = Context.Stack.Pop();
                 if (!type.get_IsPointer())
                 {
-                    Context.ApplyOptimization(new LoadFieldIndirectionOptimization());
+                    Context.ApplyAnyOptimization(new LoadFieldIndirectionOptimization(), new UnboxAnyToPointerOptimization());
                 }
                 Context.Emit(OpCodes.Ldfld, fld);
             }

@@ -4,16 +4,14 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-    public abstract class ConditionalExpression : BinaryExpression
+    public abstract class ConditionalExpression : BinaryOperatorExpression
     {
     	protected const this();
     
-        public override IType Type
+        protected virtual override IType GetExpressionType()
         {
-            const get
-            {
-                return PrimitiveTypes.Boolean;
-            }
+            if (OperatorOverload != null) return OperatorOverload.ReturnType;
+			else return PrimitiveTypes.Boolean;
         }
     }
 }

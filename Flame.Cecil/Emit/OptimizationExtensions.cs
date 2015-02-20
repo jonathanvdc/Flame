@@ -8,6 +8,11 @@ namespace Flame.Cecil.Emit
 {
     public static class OptimizationExtensions
     {
+        public static bool ApplyAnyOptimization(this IEmitContext Context, params IPeepholeOptimization[] Optimizations)
+        {
+            return Context.ApplyAnyOptimization((IEnumerable<IPeepholeOptimization>)Optimizations);
+        }
+
         public static bool ApplyAnyOptimization(this IEmitContext Context, IEnumerable<IPeepholeOptimization> Optimizations)
         {
             var ordered = Optimizations.OrderByDescending((item) => item.InstructionCount); // Try big optimizations first

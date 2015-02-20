@@ -148,6 +148,7 @@ namespace Flame.Cpp.Plugs
 class ArraySlice
 {
 public:
+    ArraySlice();
     ArraySlice(int Length);
     ArraySlice(std::shared_ptr<T> Array, int Length);
     ArraySlice(T* Array, int Length);
@@ -168,6 +169,12 @@ private:
 };";
         private const string HeaderImplementationCode =
 @"template<typename T>
+ArraySlice<T>::ArraySlice()
+	: ptr(std::shared_ptr<T>(new T[0])), length(0), offset(0)
+{
+}
+
+template<typename T>
 ArraySlice<T>::ArraySlice(int Length)
     : ptr(std::shared_ptr<T>(new T[Length])), length(Length), offset(0)
 {

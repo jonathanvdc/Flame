@@ -32,5 +32,27 @@ namespace Flame.Cpp
                 return createSharedPtr;
             }
         }
+
+        public static IMethod GetMakeSharedPointerMethod(IType ElementType, IEnumerable<IType> ArgumentTypes)
+        {
+            // C++ signature:
+            // template<typename T>
+            // std::shared_ptr<T> std::make_shared(TArgs... Args)
+            // Flame signature (D#)
+            // T^ std.make_shared<T>(TArg0 Arg0, TArg1 Arg1, ...)
+
+            var descMethod = new DescribedMethod("std.make_shared<>", null);
+            descMethod.IsStatic = true;
+            var genParam = new DescribedGenericParameter("T", descMethod);
+            descMethod.AddGenericParameter(genParam);
+            descMethod.ReturnType = genParam;
+            int i = 0;
+            foreach (var item in ArgumentTypes)
+            {
+                descMethod.AddParameter(new DescribedParameter("Arg" + i, item));
+                i++;
+            }
+            return descMethod.MakeGenericMethod(new IType[] { ElementType });
+        }
     }
 }

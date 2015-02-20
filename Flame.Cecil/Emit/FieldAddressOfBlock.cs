@@ -24,7 +24,11 @@ namespace Flame.Cecil.Emit
             if (!fld.IsStatic)
             {
                 FieldVariable.Target.Emit(Context);
-                Context.Stack.Pop();
+                var type = Context.Stack.Pop();
+                if (!type.get_IsPointer())
+                {
+                    Context.ApplyAnyOptimization(new LoadFieldIndirectionOptimization(), new UnboxAnyToPointerOptimization());
+                }
                 Context.Emit(OpCodes.Ldflda, fld);
             }
             else

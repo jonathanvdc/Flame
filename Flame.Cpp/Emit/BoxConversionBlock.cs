@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class BoxConversionBlock : CompositeBlockBase
+    public class BoxConversionBlock : CompositeNewObjectBlockBase
     {
         public BoxConversionBlock(ICppBlock Value)
         {
@@ -21,7 +21,7 @@ namespace Flame.Cpp.Emit
             get { return Value.CodeGenerator; }
         }
 
-        protected override ICppBlock Simplify()
+        protected override INewObjectBlock SimplifyNewObject()
         {
             return new ToReferenceBlock(new CopyToPointerBlock(Value));
         }
