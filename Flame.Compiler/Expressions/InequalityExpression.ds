@@ -7,6 +7,8 @@ namespace Flame.Compiler.Expressions
     public class InequalityExpression : ConditionalExpression
     {
         public const this(set IExpression LeftOperand, set IExpression RightOperand);
+        
+        protected override Operator GetOperator() { return Operator.CheckInequality; }
 
         public override const IBoundObject Evaluate()
         {
@@ -19,10 +21,10 @@ namespace Flame.Compiler.Expressions
             var optB = RightOperand.Optimize();
             return new InequalityExpression(optA, optB);
         }
-
-        public override const ICodeBlock Emit(ICodeGenerator Generator)
+        
+        protected override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
         {
-            return Generator.EmitNotEquals(LeftOperand.Emit(Generator), RightOperand.Emit(Generator));
+            return Generator.EmitNotEquals(Left, Right);
         }
     }
 }

@@ -24,12 +24,26 @@ namespace Flame.DSharp.Build
 		public List<INamespace> Namespaces { const get; private set; }
 		public List<IType> Types { const get; private set; }
 		
-		public const IEnumerable<IAttribute> GetAttributes()
+		private AncestryGraph cachedGraph;
+		public AncestryGraph Graph
 		{
-			return (IEnumerable<IAttribute>)new IAttribute[0];
+			const get
+			{
+				if (cachedGraph == null)
+				{
+					cachedGraph = DeclaringAssembly.GetAncestryGraph();
+				}
+					
+				return cachedGraph;				
+			}
 		}
 		
-		public const IEnumerable<INamespaceBranch> GetNamespaces()
+		public const [IAttribute] GetAttributes()
+		{
+			return new IAttribute[] { new AncestryGraphAttribute(Graph) };
+		}
+		
+		public const [INamespaceBranch] GetNamespaces()
 		{
 			List<INamespaceBranch> branches = new List<INamespaceBranch>();
 			foreach (var item in Namespaces)

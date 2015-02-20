@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class SharedPtrBlock : CompositeBlockBase, IPointerBlock
+    public class SharedPtrBlock : CompositeBlockBase, IPointerBlock, INewObjectBlock
     {
         public SharedPtrBlock(ICppBlock Constructor, IEnumerable<ICppBlock> Arguments)
         {
@@ -40,10 +40,15 @@ namespace Flame.Cpp.Emit
 
         protected override ICppBlock Simplify()
         {
-            var newBlock = new NewBlock(Constructor);
-            var newInvokeBlock = new InvocationBlock(newBlock, Arguments);
+            /*var newBlock = new NewBlock(new StackConstructorBlock(Constructor, Arguments));
             var genericCtor = CppPrimitives.CreateSharedPointer.MakeGenericMethod(new IType[] { Method.DeclaringType });
-            return new InvocationBlock(genericCtor.CreateBlock(CodeGenerator), newInvokeBlock);
+            return new InvocationBlock(genericCtor.CreateBlock(CodeGenerator), newBlock);*/
+            return new ToReferenceBlock(new NewBlock(new StackConstructorBlock(Constructor, Arguments)));
+        }
+
+        public AllocationKind Kind
+        {
+            get { return AllocationKind.ManagedHeap; }
         }
     }
 }

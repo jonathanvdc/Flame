@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class ToReferenceBlock : CompositeBlockBase, IPointerBlock
+    public class ToReferenceBlock : CompositeBlockBase, IPointerBlock, INewObjectBlock
     {
         public ToReferenceBlock(ICppBlock Target)
         {
@@ -36,11 +36,29 @@ namespace Flame.Cpp.Emit
             get { return Target.CodeGenerator; }
         }
 
+        protected bool CanUseMakeShared
+        {
+            get
+            {
+                return Target is INewObjectBlock && ((INewObjectBlock)Target).Kind == AllocationKind.UnmanagedHeap;
+            }
+        }
+
         protected override ICppBlock Simplify()
         {
-            var method = CppPrimitives.CreateSharedPointer.MakeGenericMethod(new IType[] { Target.Type.AsContainerType().GetElementType() });
-            var methodBlock = CodeGenerator.EmitMethod(method, null);
-            return (ICppBlock)CodeGenerator.EmitInvocation(methodBlock, new ICodeBlock[] { Target });
+            if (CanUseMakeShared)
+            {
+                var innerCtor = (INewObjectBlock)Target;
+                var method = CppPrimitives.GetMakeSharedPointerMethod(Target.Type.AsContainerType().GetElementType(), innerCtor.Arguments.Select((item) => item.Type));
+                var methodBlock = CodeGenerator.EmitMethod(method, null);
+                return (ICppBlock)CodeGenerator.EmitInvocation(methodBlock, innerCtor.Arguments);
+            }
+            else
+            {
+                var method = CppPrimitives.CreateSharedPointer.MakeGenericMethod(new IType[] { Target.Type.AsContainerType().GetElementType() });
+                var methodBlock = CodeGenerator.EmitMethod(method, null);
+                return (ICppBlock)CodeGenerator.EmitInvocation(methodBlock, new ICodeBlock[] { Target });
+            }
         }
 
         public ICppBlock StaticDereference()
@@ -52,6 +70,36 @@ namespace Flame.Cpp.Emit
             else
             {
                 return new DereferenceBlock(Target);
+            }
+        }
+
+        public AllocationKind Kind
+        {
+            get
+            {
+                if (CanUseMakeShared)
+                {
+                    return AllocationKind.ManagedHeap;
+                }
+                else
+                {
+                    return AllocationKind.MakeManaged;
+                }
+            }
+        }
+
+        public IEnumerable<ICppBlock> Arguments
+        {
+            get
+            {
+                if (CanUseMakeShared)
+                {
+                    return ((INewObjectBlock)Target).Arguments;
+                }
+                else
+                {
+                    return new ICppBlock[] { Target };
+                }
             }
         }
     }

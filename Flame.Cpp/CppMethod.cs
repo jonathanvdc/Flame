@@ -201,12 +201,9 @@ namespace Flame.Cpp
                 cb.Append(TypeNamer.Name(genDeclType, this));
                 cb.Append("::");
             }
-            if (IsOperator)
-            {
-                cb.Append("operator ");
-            }
             if (isCast)
             {
+                cb.Append("operator ");
                 cb.Append(TypeNamer.Name(ReturnType, this));
             }
             else
@@ -235,10 +232,6 @@ namespace Flame.Cpp
             {
                 cb.Append(" const");
             }
-            if (IsOverride)
-            {
-                cb.Append(" override");
-            }
             return cb;
         }
 
@@ -259,6 +252,10 @@ namespace Flame.Cpp
                 cb.Append("virtual ");
             }
             cb.Append(GetSharedSignature(false));
+            if (IsOverride)
+            {
+                cb.Append(" override");
+            }
             if (this.IsPureVirtual)
             {
                 cb.Append(" = 0");

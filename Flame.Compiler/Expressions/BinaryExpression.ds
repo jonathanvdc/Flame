@@ -9,13 +9,20 @@ namespace Flame.Compiler.Expressions
 		public const this(set IExpression LeftOperand, set IExpression RightOperand);
 	
 		public IExpression LeftOperand { const get; protected set; } 
-		public IExpression RightOperand { const get; protected set; } 
+		public IExpression RightOperand { const get; protected set; }
 	
+		protected virtual IType GetExpressionType() { return LeftOperand.Type; }
+	
+		private IType cachedType;
 		public virtual IType Type
 		{
 			virtual const get
 			{
-				return LeftOperand.Type;
+				if (cachedType == null)
+				{
+					cachedType = GetExpressionType();
+				}
+				return cachedType;
 			}
 		}
 	
@@ -30,6 +37,78 @@ namespace Flame.Compiler.Expressions
 		public abstract const IBoundObject Evaluate();
 		public abstract const IExpression Optimize();
 		public abstract const ICodeBlock Emit(ICodeGenerator Generator);
+	}
+	
+	public abstract class BinaryOperatorExpression : BinaryExpression
+	{
+		public const this();
+		public const this(set IExpression LeftOperand, set IExpression RightOperand);
+		
+		protected abstract Operator GetOperator();
+		public Operator Op { const get return GetOperator(); }
+		
+		/// <summary>
+		/// Gets the operator overload for this binary expression if an overload exists. Otherwise, null.
+		/// </summary>
+		protected virtual IMethod GetOpOverload()
+		{
+			return Op.GetOperatorOverload(new IExpression[] { LeftOperand, RightOperand });
+		}
+		
+		private IMethod opOverload;
+		/// <summary>
+		/// Gets the operator overload for this binary expression if an overload exists. Otherwise, null.
+		/// </summary>
+		public IMethod OperatorOverload
+		{
+			const get
+			{
+				if (opOverload == null)
+				{
+					opOverload = GetOpOverload();
+				}
+				return opOverload;
+			}
+		}
+		
+		protected IExpression OverloadInvocation
+		{
+			const get
+			{
+				if (OperatorOverload == null) return null;
+				else return new RelaxedInvocation(OperatorOverload, new IExpression[] { LeftOperand, RightOperand });				
+			}
+		}
+		
+		protected virtual override IType GetExpressionType() 
+		{ 
+			if (OperatorOverload != null) return OperatorOverload.ReturnType;
+			else return LeftOperand.Type;
+		}
+		
+		protected virtual const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
+		{
+			return Generator.EmitBinary(Left, Right, Op);
+		}
+		
+		public virtual override const ICodeBlock Emit(ICodeGenerator Generator)
+		{
+			var lBlock = LeftOperand.Emit(Generator);
+			var rBlock = RightOperand.Emit(Generator);
+			var primBlock = EmitPrimitive(lBlock, rBlock, Generator);
+			if (primBlock != null)
+			{
+				return primBlock;
+			}
+			else if (OperatorOverload != null)
+			{
+				return OverloadInvocation.Emit(Generator);
+			}
+			else
+			{
+				return null;
+			}
+		}
 	}
 	
 	public class PrimitiveBinaryExpression : BinaryExpression
@@ -69,19 +148,22 @@ namespace Flame.Compiler.Expressions
 		}
 	}
 	
-	public class DirectBinaryExpression : BinaryExpression
+	public class DirectBinaryExpression : BinaryOperatorExpression
 	{
-		public const this(set IExpression LeftOperand, set Operator Op, set IExpression RightOperand);
-		
-		public Operator Op { const get; private set; }
-		
-		public override IType Type
+		public const this(set IExpression LeftOperand, Operator Op, set IExpression RightOperand)
 		{
-			override const get
-			{
-				if (CanLower) return LoweredExpression.Type;
-				else return LeftOperand.Type;
-			}
+			this.oper = Op;
+		}
+		
+		
+		private Operator oper;
+		protected override Operator GetOperator() { return oper; }
+		
+		protected override IType GetExpressionType() 
+		{ 
+			if (CanLower) return LoweredExpression.Type;
+			else if (OperatorOverload != null) return OperatorOverload.ReturnType;
+			else return LeftOperand.Type;
 		}
 		
 		public override bool IsConstant
@@ -89,7 +171,7 @@ namespace Flame.Compiler.Expressions
 			override const get
 			{
 				if (CanLower) return LoweredExpression.IsConstant;
-				else return false;
+				else return OperatorOverload.IsConstant && LeftOperand.IsConstant && RightOperand.IsConstant;
 			}
 		}
 		
@@ -156,7 +238,11 @@ namespace Flame.Compiler.Expressions
 		public override const IBoundObject Evaluate()
 		{
 			if (CanLower) return LoweredExpression.Evaluate();
-			else return null;
+			else if (OperatorOverload == null) return null;
+			else
+			{
+				return OverloadInvocation.Evaluate();
+			}
 		}
 		public override const IExpression Optimize()
 		{
@@ -166,7 +252,24 @@ namespace Flame.Compiler.Expressions
 		public override const ICodeBlock Emit(ICodeGenerator Generator)
 		{
 			if (CanLower) return LoweredExpression.Emit(Generator);
-			else return Generator.EmitBinary(LeftOperand.Emit(Generator), RightOperand.Emit(Generator), Op);
+			else
+			{
+				var lblock = LeftOperand.Emit(Generator);
+				var rblock = RightOperand.Emit(Generator);
+				var primBlock = EmitPrimitive(lblock, rblock, Generator);
+				if (primBlock != null)
+				{
+					return primBlock;
+				}
+				else if (OperatorOverload != null)
+				{
+					return OverloadInvocation.Emit(Generator);
+				}
+				else
+				{
+					return null;
+				}
+			}
 		}
 	}
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class StackConstructorBlock : ICppBlock
+    public class StackConstructorBlock : INewObjectBlock
     {
         public StackConstructorBlock(ICppBlock Constructor, params ICppBlock[] Arguments)
         {
@@ -23,6 +23,11 @@ namespace Flame.Cpp.Emit
         public ICppBlock Constructor { get; private set; }
         public IEnumerable<ICppBlock> Arguments { get; private set; }
 
+        public AllocationKind Kind
+        {
+            get { return AllocationKind.Stack; }
+        }
+
         public IMethod Method
         {
             get
@@ -36,7 +41,7 @@ namespace Flame.Cpp.Emit
         {
             get
             {
-                return Method.DeclaringType;
+                return CodeGenerator.ConvertValueType(Method.DeclaringType);
             }
         }
 
@@ -58,21 +63,7 @@ namespace Flame.Cpp.Emit
         public CodeBuilder GetCode()
         {
             CodeBuilder cb = Constructor.GetCode();
-            cb.Append('(');
-            bool first = true;
-            foreach (var item in Arguments)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    cb.Append(", ");
-                }
-                cb.Append(item.GetCode());
-            }
-            cb.Append(')');
+            cb.Append(this.GetArgumentListCode());
             return cb;
         }
     }

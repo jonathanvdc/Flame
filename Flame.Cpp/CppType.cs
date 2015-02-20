@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp
 {
-    public class CppType : ITypeBuilder, ICppTemplateMember, IGenericResolverType, INamespaceBranch, INamespaceBuilder
+    public class CppType : ITypeBuilder, ICppTemplateMember, IGenericResolverType, INamespaceBranch, INamespaceBuilder, IEquatable<IType>
     {
         public CppType(INamespace DeclaringNamespace, IType Template, ICppEnvironment Environment)
         {
@@ -50,9 +50,17 @@ namespace Flame.Cpp
 
         #region Type properties
 
+        private string cachedFullName;
         public string FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
+            get
+            {
+                if (cachedFullName == null)
+                {
+                    cachedFullName = MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
+                }
+                return cachedFullName;
+            }
         }
 
         public IEnumerable<IAttribute> GetAttributes()
@@ -60,9 +68,17 @@ namespace Flame.Cpp
             return Template.GetAttributes();
         }
 
+        private string cachedName;
         public string Name
         {
-            get { return Template.GetGenericFreeName(); }
+            get
+            {
+                if (cachedName == null)
+                {
+                    cachedName = Template.GetGenericFreeName();
+                }
+                return cachedName;
+            }
         }
 
         public IContainerType AsContainerType()
@@ -77,7 +93,7 @@ namespace Flame.Cpp
 
         public IType[] GetBaseTypes()
         {
-            return Template.GetBaseTypes();
+            return Template.GetBaseTypes().Select(this.ConvertValueType).ToArray();
         }
 
         public IBoundObject GetDefaultValue()
@@ -282,11 +298,11 @@ namespace Flame.Cpp
             {
                 var cb = new CodeBuilder();
                 cb.Append(" : public ");
-                cb.Append(TypeNamer.Name(this.ConvertValueType(bTypes[0]), (IType)this));
+                cb.Append(TypeNamer.Name(bTypes[0], (IType)this));
                 for (int i = 1; i < bTypes.Length; i++)
                 {
                     cb.Append(", public ");
-                    cb.Append(TypeNamer.Name(this.ConvertValueType(bTypes[i]), (IType)this));
+                    cb.Append(TypeNamer.Name(bTypes[i], (IType)this));
                 }
                 return cb;
             }
@@ -352,6 +368,32 @@ namespace Flame.Cpp
         public override string ToString()
         {
             return GetDeclarationCode().ToString();
+        }
+
+        #endregion
+
+        #region Equals/GetHashCode
+
+        public override bool Equals(object obj)
+        {
+            if (obj is IType)
+            {
+                return Equals((IType)obj);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool Equals(IType other)
+        {
+            return this.FullName == other.FullName;
+        }
+
+        public override int GetHashCode()
+        {
+            return FullName.GetHashCode();
         }
 
         #endregion

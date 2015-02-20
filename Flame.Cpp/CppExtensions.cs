@@ -353,31 +353,35 @@ namespace Flame.Cpp
             return Body[i].Text;
         }
 
-        public static void AddBodyCodeBuilder(this CodeBuilder CodeBuilder, CodeBuilder Body)
+        public static BodyStatementType AddBodyCodeBuilder(this CodeBuilder CodeBuilder, CodeBuilder Body)
         {
             string firstLine = GetFirstLine(Body).Trim();
             if (firstLine == ";")
             {
                 CodeBuilder.Append(Body);
+                return BodyStatementType.Empty;
             }
             else if (!firstLine.StartsWith("{"))
             {
                 CodeBuilder.IncreaseIndentation();
                 CodeBuilder.AddCodeBuilder(Body);
                 CodeBuilder.DecreaseIndentation();
+                return BodyStatementType.Single;
             }
             else
             {
                 CodeBuilder.AddCodeBuilder(Body);
+                return BodyStatementType.Block;
             }
         }
 
-        public static void AddEmbracedBodyCodeBuilder(this CodeBuilder CodeBuilder, CodeBuilder Body)
+        public static BodyStatementType AddEmbracedBodyCodeBuilder(this CodeBuilder CodeBuilder, CodeBuilder Body)
         {
             string firstLine = GetFirstLine(Body).Trim();
             if (firstLine == ";")
             {
                 CodeBuilder.AddLine("{ }");
+                return BodyStatementType.Empty;
             }
             else if (!firstLine.StartsWith("{"))
             {
@@ -386,10 +390,12 @@ namespace Flame.Cpp
                 CodeBuilder.AddCodeBuilder(Body); 
                 CodeBuilder.DecreaseIndentation();
                 CodeBuilder.AddLine("}");
+                return BodyStatementType.Single;
             }
             else
             {
                 CodeBuilder.AddCodeBuilder(Body);
+                return BodyStatementType.Block;
             }
         }
 

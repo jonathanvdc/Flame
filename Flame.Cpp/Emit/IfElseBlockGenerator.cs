@@ -41,13 +41,24 @@ namespace Flame.Cpp.Emit
             cb.Append(Condition.GetCode());
             cb.Append(")");
             cb.AppendLine();
-            cb.AddBodyCodeBuilder(((ICppBlock)IfBlock).GetCode());
+            var ifBodyType = cb.AddBodyCodeBuilder(((ICppBlock)IfBlock).GetCode());
             var elseBody = ((ICppBlock)ElseBlock).GetCode();
             if (elseBody.LineCount != 0 && !(elseBody.LineCount == 1 && elseBody[0].Text.Trim() == ";"))
             {
                 cb.AppendLine();
                 cb.AppendLine("else");
-                cb.AddBodyCodeBuilder(elseBody);
+                if (ifBodyType == BodyStatementType.Block)
+                {
+                    cb.AddEmbracedBodyCodeBuilder(elseBody);
+                }
+                else
+                {
+                    cb.AddBodyCodeBuilder(elseBody);
+                }
+            }
+            if (ifBodyType == BodyStatementType.Single)
+            {
+                cb.AddEmptyLine(); // Add some space for legibility
             }
             return cb;
         }

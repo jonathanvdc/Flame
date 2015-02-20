@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class CopyToPointerBlock : CompositeBlockBase
+    public class CopyToPointerBlock : CompositeNewObjectBlockBase
     {
         public CopyToPointerBlock(ICppBlock Value)
         {
@@ -16,7 +16,7 @@ namespace Flame.Cpp.Emit
 
         public ICppBlock Value { get; private set; }
 
-        protected override ICppBlock Simplify()
+        protected override INewObjectBlock SimplifyNewObject()
         {
             return new NewBlock(new CopyBlock(Value));
         }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class CopyBlock : CompositeBlockBase
+    public class CopyBlock : CompositeNewObjectBlockBase
     {
         public CopyBlock(ICppBlock Value)
         {
@@ -16,11 +16,11 @@ namespace Flame.Cpp.Emit
 
         public ICppBlock Value { get; private set; }
 
-        protected override ICppBlock Simplify()
+        protected override INewObjectBlock SimplifyNewObject()
         {
-            if (Value is StackConstructorBlock)
+            if (Value is INewObjectBlock && ((INewObjectBlock)Value).Kind == AllocationKind.Stack)
             {
-                return Value;
+                return (INewObjectBlock)Value;
             }
             else
             {

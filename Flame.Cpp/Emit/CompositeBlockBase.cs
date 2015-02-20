@@ -50,4 +50,34 @@ namespace Flame.Cpp.Emit
             return SimplifiedBlock.GetCode();
         }
     }
+
+    public abstract class CompositeInvocationBlockBase : CompositeBlockBase, IInvocationBlock
+    {
+        protected abstract IInvocationBlock SimplifyInvocation();
+
+        protected override ICppBlock Simplify()
+        {
+            return SimplifyInvocation();
+        }
+
+        public IEnumerable<ICppBlock> Arguments
+        {
+            get { return ((IInvocationBlock)SimplifiedBlock).Arguments; }
+        }
+    }
+
+    public abstract class CompositeNewObjectBlockBase : CompositeInvocationBlockBase, INewObjectBlock
+    {
+        protected abstract INewObjectBlock SimplifyNewObject();
+
+        protected override IInvocationBlock SimplifyInvocation()
+        {
+            return SimplifyInvocation();
+        }
+
+        public AllocationKind Kind
+        {
+            get { return ((INewObjectBlock)SimplifiedBlock).Kind; }
+        }
+    }
 }

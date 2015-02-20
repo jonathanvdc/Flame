@@ -20,17 +20,20 @@ namespace Flame.DSharp.Build
 	{
 		public const this(set IBinder ExternalBinder)
 		{
+			this.Graph = new AncestryGraph();
 			this.Name = "";
 			this.AssemblyVersion = default(Version);
 			this.MainNamespace = new AssemblyNamespace(this);
 		}
 		public const this(set IBinder ExternalBinder, set string Name)
 		{
+			this.Graph = new AncestryGraph();
 			this.AssemblyVersion = default(Version);
 			this.MainNamespace = new AssemblyNamespace(this);
 		}
 		public const this(set IBinder ExternalBinder, set string Name, set Version AssemblyVersion)
 		{
+			this.Graph = new AncestryGraph();
 			this.MainNamespace = new AssemblyNamespace(this);
 		}
 		
@@ -41,9 +44,11 @@ namespace Flame.DSharp.Build
         /// </summary>
         public Version AssemblyVersion { const get; set; }
         
-        public const IEnumerable<IAttribute> GetAttributes()
+        public AncestryGraph Graph { const get; private set; }
+        
+        public const [IAttribute] GetAttributes()
         {
-        	return (IEnumerable<IAttribute>)new IAttribute[0];
+        	return new IAttribute[] { new AncestryGraphAttribute(Graph) };
         }
         
         /// <summary>

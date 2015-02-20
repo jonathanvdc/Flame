@@ -446,7 +446,7 @@ namespace Flame.Cecil.Emit
 
         public static bool IsCLRValueType(IType Type)
         {
-            return Type.get_IsValueType() || (Type.get_IsPrimitive() && Type.GetPrimitiveMagnitude() > 0);
+            return Type.get_IsValueType() || Type.get_IsEnum() || (Type.get_IsPrimitive() && Type.GetPrimitiveMagnitude() > 0);
         }
 
         #endregion

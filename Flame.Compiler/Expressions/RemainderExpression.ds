@@ -4,9 +4,11 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-    public class RemainderExpression : BinaryExpression
+    public class RemainderExpression : BinaryOperatorExpression
     {
         public const this(set IExpression LeftOperand, set IExpression RightOperand);
+        
+        protected override Operator GetOperator() { return Operator.Remainder; }
 
         public override IBoundObject Evaluate()
         {
@@ -18,11 +20,6 @@ namespace Flame.Compiler.Expressions
             var optA = LeftOperand.Optimize();
             var optB = RightOperand.Optimize();
             return new RemainderExpression(optA, optB);
-        }
-
-        public override const ICodeBlock Emit(ICodeGenerator Generator)
-        {
-            return Generator.EmitBinary(LeftOperand.Emit(Generator), RightOperand.Emit(Generator), Operator.Remainder);
         }
     }
 }
