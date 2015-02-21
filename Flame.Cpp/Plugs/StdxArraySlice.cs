@@ -58,13 +58,6 @@ namespace Flame.Cpp.Plugs
                 ptrCtor.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
                 ctors.Add(ptrCtor);
 
-                var refCtor = new DescribedMethod("ArraySlice", this, PrimitiveTypes.Void, false);
-                refCtor.IsConstructor = true;
-                refCtor.AddParameter(new DescribedParameter("Pointer", ElementType.MakePointerType(PointerKind.ReferencePointer)));
-                refCtor.AddParameter(new DescribedParameter("Length", PrimitiveTypes.Int32));
-                refCtor.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
-                ctors.Add(refCtor);
-
                 ctorCache = ctors.ToArray();
             }
             return ctorCache;
@@ -149,13 +142,16 @@ namespace Flame.Cpp.Plugs
 class ArraySlice
 {
 public:
-    ArraySlice();
+	ArraySlice();
     ArraySlice(int Length);
-    ArraySlice(std::shared_ptr<T> Array, int Length);
+	ArraySlice(std::shared_ptr<std::vector<T>> Array, int Length);
     ArraySlice(T* Array, int Length);
+	ArraySlice(const ArraySlice<T>& Other);
+
 
     T& operator[](int Index);
     const T& operator[](int Index) const;
+	void operator=(const ArraySlice<T>& Other);
 
     ArraySlice<T> Slice(int Start, int Length) const;
     ArraySlice<T> Slice(int Start) const;
@@ -163,41 +159,33 @@ public:
     int GetLength() const;
 
 private:
-    ArraySlice(std::shared_ptr<T> Array, int Offset, int Length);
+	ArraySlice(std::shared_ptr<std::vector<T>> Array, int Offset, int Length);
 
-    const std::shared_ptr<T> ptr;
-    const int offset, length;
+    std::shared_ptr<std::vector<T>> ptr;
+    int offset, length;
 };";
         private const string HeaderImplementationCode =
 @"template<typename T>
 ArraySlice<T>::ArraySlice()
-	: ptr(std::shared_ptr<T>(new T[0])), length(0), offset(0)
+	: ptr(std::make_shared<std::vector<T>>()), length(0), offset(0)
 {
 }
 
 template<typename T>
 ArraySlice<T>::ArraySlice(int Length)
-    : ptr(std::shared_ptr<T>(new T[Length])), length(Length), offset(0)
+	: ptr(std::make_shared<std::vector<T>>(Length)), length(Length), offset(0)
 {
-    for (int i = 0; i < Length; i++)
-    {
-        (*this)[i] = T();
-    }
 }
 
 template<typename T>
-ArraySlice<T>::ArraySlice(std::shared_ptr<T> Array, int Length)
+ArraySlice<T>::ArraySlice(std::shared_ptr<std::vector<T>> Array, int Length)
     : ptr(Array), length(Length), offset(0)
 {
-    for (int i = 0; i < Length; i++)
-    {
-        (*this)[i] = T();
-    }
 }
 
 template<typename T>
 ArraySlice<T>::ArraySlice(T* Array, int Length)
-    : ptr(std::shared_ptr<T>(new T[Length])), length(Length), offset(0)
+	: ptr(std::make_shared<std::vector<T>>(Length)), length(Length), offset(0)
 {
     for (int i = 0; i < Length; i++)
     {
@@ -206,21 +194,36 @@ ArraySlice<T>::ArraySlice(T* Array, int Length)
 }
 
 template<typename T>
-ArraySlice<T>::ArraySlice(std::shared_ptr<T> Array, int Offset, int Length)
+ArraySlice<T>::ArraySlice(std::shared_ptr<std::vector<T>> Array, int Offset, int Length)
     : ptr(Array), length(Length), offset(Offset)
 {
 }
 
 template<typename T>
+ArraySlice<T>::ArraySlice(const ArraySlice<T>& Other)
+	: ptr(Other.ptr), length(Other.length), offset(Other.offset)
+{
+
+}
+
+template<typename T>
 T& ArraySlice<T>::operator[](int Index)
 {
-    return this->ptr.get()[this->offset + Index];
+    return this->ptr->at(this->offset + Index);
 }
 
 template<typename T>
 const T& ArraySlice<T>::operator[](int Index) const
 {
-    return this->ptr.get()[this->offset + Index];
+	return this->ptr->at(this->offset + Index);
+}
+
+template<typename T>
+void ArraySlice<T>::operator=(const ArraySlice<T>& Other)
+{
+	this->ptr = Other.ptr;
+	this->length = Other.length;
+	this->offset = Other.offset;
 }
 
 template<typename T>
