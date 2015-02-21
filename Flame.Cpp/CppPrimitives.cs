@@ -1,4 +1,6 @@
 ﻿using Flame.Build;
+using Flame.Compiler;
+using Flame.Cpp.Emit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,6 +55,37 @@ namespace Flame.Cpp
                 i++;
             }
             return descMethod.MakeGenericMethod(new IType[] { ElementType });
+        }
+
+        private static IMethod toStrMethod;
+        public static IMethod ToStringMethod
+        {
+            get
+            {
+                if (toStrMethod == null)
+                {
+                    // C++ signature: (actually a bunch of overrides, but nevermind that)
+                    // template<typename T>
+                    // std::string std::to_string(T Value)
+                    // Flame signature (D#)
+                    // string std.to_string<T>(T Value)
+
+                    var descMethod = new DescribedMethod("std.to_string<>", null);
+                    descMethod.IsStatic = true;
+                    var genParam = new DescribedGenericParameter("T", descMethod);
+                    descMethod.AddGenericParameter(genParam);
+                    descMethod.ReturnType = PrimitiveTypes.String;
+                    descMethod.AddParameter(new DescribedParameter("Value", genParam));
+                    toStrMethod = descMethod;
+                }
+                return toStrMethod;
+            }
+        }
+
+        public static ICppBlock GetToStringMethodBlock(IType SourceType, ICodeGenerator CodeGenerator)
+        {
+            var inst = ToStringMethod.MakeGenericMethod(new IType[] { SourceType });
+            return new RetypedBlock(ToStringMethod.CreateBlock(CodeGenerator), MethodType.Create(inst));
         }
     }
 }

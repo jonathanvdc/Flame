@@ -40,9 +40,6 @@ namespace Flame.Cpp.Emit
 
         protected override ICppBlock Simplify()
         {
-            /*var newBlock = new NewBlock(new StackConstructorBlock(Constructor, Arguments));
-            var genericCtor = CppPrimitives.CreateSharedPointer.MakeGenericMethod(new IType[] { Method.DeclaringType });
-            return new InvocationBlock(genericCtor.CreateBlock(CodeGenerator), newBlock);*/
             return new ToReferenceBlock(new NewBlock(new StackConstructorBlock(Constructor, Arguments)));
         }
 

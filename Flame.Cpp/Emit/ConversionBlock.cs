@@ -87,6 +87,11 @@ namespace Flame.Cpp.Emit
             return SourceType.get_IsPointer() && TargetType.get_IsPointer();
         }
 
+        public static bool UseToStringCast(IType SourceType, IType TargetType)
+        {
+            return TargetType.Equals(PrimitiveTypes.String) && (SourceType.get_IsInteger() || SourceType.get_IsFloatingPoint());
+        }
+
         public CodeBuilder GetCode()
         {
             var sType = Value.Type.RemoveAtAddressPointers();
@@ -114,6 +119,10 @@ namespace Flame.Cpp.Emit
             else if (UseDynamicCast(sType, tType))
             {
                 return new DynamicCastBlock(Value, Type).GetCode();
+            }
+            else if (UseToStringCast(sType, tType))
+            {
+                return new InvocationBlock(CppPrimitives.GetToStringMethodBlock(sType, CodeGenerator), Value).GetCode();
             }
             else
             {
