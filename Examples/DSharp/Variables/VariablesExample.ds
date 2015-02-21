@@ -1,6 +1,6 @@
 // This is a comment. It is ignored by the compiler.
 
-public static class VariablesTest
+public class VariablesTest
 {
      // Declares a pure function that computes (A + B) * C.
      // It takes three arguments of type 'int' (which is conventional for integer numbers),
