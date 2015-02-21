@@ -1,7 +1,0 @@
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Recompilation\bin\Debug\Flame.Recompilation.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Recompilation\bin\Debug\Flame.Recompilation.pdb
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Recompilation\bin\Debug\Flame.Compiler.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Recompilation\bin\Debug\Flame.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Recompilation\obj\Debug\Flame.Recompilation.csprojResolveAssemblyReference.cache
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Recompilation\obj\Debug\Flame.Recompilation.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Recompilation\obj\Debug\Flame.Recompilation.pdb
