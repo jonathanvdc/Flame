@@ -14,8 +14,8 @@ namespace Flame.Cpp
         {
             this.DeclaringNamespace = DeclaringNamespace;
             this.Template = Template;
-            this.Environment = Environment;
             this.Templates = new CppTemplateDefinition(this, Template);
+            this.Environment = new TemplatedMemberCppEnvironment(Environment, this);
             CreateMemberCache();
         }
 
@@ -91,6 +91,7 @@ namespace Flame.Cpp
             get { return false; }
         }
 
+        public IType[] BaseTypes { get { return GetBaseTypes(); } }
         public IType[] GetBaseTypes()
         {
             return Template.GetBaseTypes().Select(this.ConvertValueType).ToArray();

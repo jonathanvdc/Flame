@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccessStringComparer.cs" />
+    <Compile Include="CompositeCppTypeConverter.cs" />
     <Compile Include="CppAccessor.cs" />
     <Compile Include="CppAssembly.cs" />
     <Compile Include="CppDocumentationExtensions.cs" />
@@ -143,6 +144,7 @@
     <Compile Include="StandardDependency.cs" />
     <Compile Include="CppTemplateParameter.cs" />
     <Compile Include="CppTypeConverterBase.cs" />
+    <Compile Include="TemplatedMemberCppEnvironment.cs" />
     <Compile Include="TypeHeaderDependency.cs" />
     <Compile Include="UserDependency.cs" />
   </ItemGroup>

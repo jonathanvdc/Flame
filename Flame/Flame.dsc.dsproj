@@ -135,6 +135,8 @@
 			<Compile Include="Build\TypeComparerBase.ds" />
 			<Compile Include="Build\TypeEqualityComparer.ds" />
 			<Compile Include="Build\GenericInstanceComparer.ds" />
+			<Compile Include="Build\TypeMappingConverter.ds" />
+			<Compile Include="Build\CompositeConverter.ds" />
 		</ItemGroup>
 	</ItemGroup>
 </Project>

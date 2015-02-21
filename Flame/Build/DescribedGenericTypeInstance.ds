@@ -39,6 +39,7 @@ namespace Flame.Build
             const get { return GenericDeclaration.DeclaringNamespace; }
         }
 
+		public IType[] BaseTypes { const get return GetBaseTypes(); }
         public const IType[] GetBaseTypes()
         {
             return this.ResolveTypes(GenericDeclaration.GetBaseTypes());

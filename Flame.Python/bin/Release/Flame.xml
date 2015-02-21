@@ -1007,5 +1007,11 @@
     <member name="M:Flame.Build.GenericInstanceComparer.CompareIncompatible(Flame.IType,Flame.IType)">
       <summary> Compares two structurally incompatible types. </summary>
     </member>
+    <member name="T:Flame.Build.TypeMappingConverter">
+      <summary> A type converter that maps specific types to specific other types. </summary>
+    </member>
+    <member name="T:Flame.Build.TypeParameterConverter">
+      <summary> A type converter that converts type parameters to a type parameter with the same name of a generic member. </summary>
+    </member>
   </members>
 </doc>
