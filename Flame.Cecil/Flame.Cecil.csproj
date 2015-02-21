@@ -197,13 +197,13 @@
     <Compile Include="Emit\UnaryStackBehavior.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\FlameRT\FlameRT.csproj">
       <Project>{a0782faa-6754-4b9d-b856-334dfcba3462}</Project>
       <Name>FlameRT</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,8 +1,0 @@
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\bin\Debug\Flame.Python.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\bin\Debug\Flame.Python.pdb
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\bin\Debug\Flame.Compiler.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\bin\Debug\Flame.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\bin\Debug\Flame.Syntax.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\obj\Debug\Flame.Python.csprojResolveAssemblyReference.cache
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\obj\Debug\Flame.Python.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Python\obj\Debug\Flame.Python.pdb

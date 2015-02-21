@@ -1,8 +1,0 @@
-C:\Users\Jonathan\SkyDrive\Flame\Flame.TextContract\bin\Debug\Flame.TextContract.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.TextContract\bin\Debug\Flame.TextContract.pdb
-C:\Users\Jonathan\SkyDrive\Flame\Flame.TextContract\bin\Debug\Flame.Compiler.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.TextContract\bin\Debug\Flame.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.TextContract\bin\Debug\Flame.Syntax.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.TextContract\obj\Debug\Flame.TextContract.csprojResolveAssemblyReference.cache
-C:\Users\Jonathan\SkyDrive\Flame\Flame.TextContract\obj\Debug\Flame.TextContract.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.TextContract\obj\Debug\Flame.TextContract.pdb

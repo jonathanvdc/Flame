@@ -1,9 +1,0 @@
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Bytecode\bin\Release\Flame.Bytecode.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Bytecode\bin\Release\Flame.Bytecode.pdb
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Bytecode\bin\Release\Flame.Compiler.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Bytecode\bin\Release\Flame.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Bytecode\bin\Release\Flame.pdb
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Bytecode\bin\Release\Flame.Compiler.pdb
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Bytecode\obj\Release\Flame.Bytecode.csprojResolveAssemblyReference.cache
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Bytecode\obj\Release\Flame.Bytecode.dll
-C:\Users\Jonathan\SkyDrive\Flame\Flame.Bytecode\obj\Release\Flame.Bytecode.pdb
