@@ -111,6 +111,7 @@ namespace Flame.Cpp.Plugs
                 var getLenAccessor = new DescribedAccessor("GetLength", AccessorType.GetAccessor, lenProp, PrimitiveTypes.Int32);
                 getLenAccessor.AddAttribute(new AccessAttribute(AccessModifier.Public));
                 getLenAccessor.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+                lenProp.AddAccessor(getLenAccessor);
                 props.Add(lenProp);
 
                 propertyCache = props.ToArray();

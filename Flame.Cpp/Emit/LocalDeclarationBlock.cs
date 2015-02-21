@@ -124,6 +124,16 @@ namespace Flame.Cpp.Emit
                 {
                     cb.Append(", ");
                 }
+                if (item.Value is INewObjectBlock)
+                {
+                    var initBlock = (INewObjectBlock)item.Value;
+                    if (initBlock.Kind == AllocationKind.Stack || initBlock.Kind == AllocationKind.MakeManaged)
+                    {
+                        cb.Append(item.Target.GetCode());
+                        cb.Append(initBlock.GetArgumentListCode());
+                        continue;
+                    }
+                }
                 cb.Append(item.GetCode());
             }
             cb.Append(';');

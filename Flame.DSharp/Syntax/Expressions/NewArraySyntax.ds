@@ -22,7 +22,7 @@ namespace Flame.Syntax.DSharp
 
         public IExpression CreateExpression(ISyntaxState State)
         {
-            var realType = ElementType.CreateType(State);
+            var realType = ElementType.CreateVerifiedType(State);
 
             var args = Arguments.CreateExpressions(State);
 

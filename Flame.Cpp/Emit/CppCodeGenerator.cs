@@ -260,7 +260,25 @@ namespace Flame.Cpp.Emit
             }
             else
             {
-                return new MemberAccessBlock((ICppBlock)Caller, Method, MethodType.Create(Method));
+                var cppCaller = (ICppBlock)Caller;
+                if (cppCaller.Type.get_IsArray())
+                {
+                    if (Method is IAccessor)
+                    {
+                        var accessor = (IAccessor)Method;
+                        var declProp = accessor.DeclaringProperty;
+                        var arrSliceProp = cppCaller.Type.GetProperties().FirstOrDefault((item) => item.Name == declProp.Name && item.IsStatic == declProp.IsStatic);
+                        if (arrSliceProp != null)
+                        {
+                            var arrSliceAccessor = arrSliceProp.GetAccessor(accessor.AccessorType);
+                            if (arrSliceAccessor != null)
+                            {
+                                return new MemberAccessBlock(cppCaller, arrSliceAccessor, MethodType.Create(arrSliceAccessor));
+                            }
+                        }
+                    }
+                }
+                return new MemberAccessBlock(cppCaller, Method, MethodType.Create(Method));
             }
         }
 

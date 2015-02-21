@@ -1,0 +1,48 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Build
+{
+	/// <summary>
+	/// A type converter that maps specific types to specific other types.
+	/// </summary>
+	public class TypeMappingConverter : TypeTransformerBase
+	{
+		public const this(set IReadOnlyDictionary<IType, IType> Mapping);
+		
+		public IReadOnlyDictionary<IType, IType> Mapping { const get; private set; }
+		
+		protected override const IType ConvertTypeDefault(IType Type)
+		{
+			if (Mapping.ContainsKey(Type))
+			{
+				return Mapping[Type];
+			}
+			else
+			{
+				return Type;
+			}
+		}
+	}
+	
+	/// <summary>
+	/// A type converter that converts type parameters to a type parameter with the same name of a generic member.
+	/// </summary>
+	public class TypeParameterConverter : TypeTransformerBase
+	{
+		public const this(set IGenericMember DeclaringMember);
+		
+		public IGenericMember DeclaringMember { const get; private set; }
+		
+		protected override const IType ConvertGenericParameter(IGenericParameter Type)
+		{
+			foreach (var item in DeclaringMember.GetGenericParameters())
+				if (item.Name.Equals(Type.Name))
+			{
+				return item;
+			}
+			return Type;
+		}
+	}
+}

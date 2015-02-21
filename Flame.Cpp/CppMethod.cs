@@ -15,9 +15,9 @@ namespace Flame.Cpp
         {
             this.DeclaringType = DeclaringType;
             this.Template = Template;
-            this.Environment = Environment;
-            this.blockGen = (CppBlockGenerator)new CppCodeGenerator(this, Environment).CreateBlock();
             this.Templates = new CppTemplateDefinition(this, Template);
+            this.Environment = new TemplatedMemberCppEnvironment(Environment, this);
+            this.blockGen = (CppBlockGenerator)new CppCodeGenerator(this, this.Environment).CreateBlock();
             this.built = false;
         }
 
