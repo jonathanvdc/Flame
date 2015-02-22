@@ -207,16 +207,5 @@ namespace Flame.Cpp.Emit
                 return DeclareNew(VariableMember);
             }
         }
-
-        /// <summary>
-        /// Place the variable declarations in the specified scoped block.
-        /// </summary>
-        public void FlushVariables(ICppScopeBlock Block)
-        {
-            foreach (var item in locals)
-            {
-                Block.DeclareVariable(item);
-            }
-        }
     }
 }

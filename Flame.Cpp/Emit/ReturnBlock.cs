@@ -39,7 +39,7 @@ namespace Flame.Cpp.Emit
 
         public IEnumerable<CppLocal> LocalsUsed
         {
-            get { return Value.LocalsUsed; }
+            get { return Value == null ? Enumerable.Empty<CppLocal>() : Value.LocalsUsed; }
         }
 
         public override string ToString()

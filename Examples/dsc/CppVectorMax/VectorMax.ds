@@ -1,0 +1,18 @@
+using std;
+
+public static class VectorMax
+{
+    // -platform C++ compiles this to C++, whose templates gracefully accept the greater-than operator,
+    // even though it is not defined for every type 'T'.
+    public static T Max<T>(vector<T> Values)
+    {
+        T result = Values.at(0);
+        for (int i = 1; i < Values.size(); i++)
+        {
+            T item = Values.at(i);
+            if (item > result)
+                result = item;
+        }
+        return result;
+    }
+}

@@ -41,24 +41,6 @@ namespace Flame.Cpp.Emit
             get { return Condition.LocalsUsed.Concat(base.LocalsUsed).Distinct(); }
         }
 
-        public bool DeclareVariable(CppLocal Local)
-        {
-            if (Condition.UsesLocal(Local))
-            {
-                return false;
-            }
-            else
-            {
-                var singleBlock = GetSingleLocalUsingBlock(Local) as ICppScopeBlock;
-                if (singleBlock != null && singleBlock.DeclareVariable(Local))
-                {
-                    return true;
-                }
-                DeclareCore(Local);
-                return true;
-            }
-        }
-
         public override string ToString()
         {
             return GetCode().ToString();
