@@ -31,6 +31,16 @@ namespace Flame.Cpp.Emit
             }
         }
 
+        public override IStatement CreateSetStatement(IExpression Value)
+        {
+            if (Field is Flame.Cpp.CppField && CodeGenerator.Method.get_IsConstant())
+            {
+                var cppField = (Flame.Cpp.CppField)Field;
+                cppField.IsMutable = true;
+            }
+            return base.CreateSetStatement(Value);
+        }
+
         public override IType Type
         {
             get { return Field.FieldType; }
