@@ -55,11 +55,6 @@ namespace Flame.Cpp
 
         public IMethod Build()
         {
-            if (!built)
-            {
-                var cg = (CppCodeGenerator)blockGen.CodeGenerator;
-                cg.LocalManager.FlushVariables((ICppScopeBlock)blockGen);
-            }
             return this;
         }
 

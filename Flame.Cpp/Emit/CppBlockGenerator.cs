@@ -7,22 +7,11 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class CppBlockGenerator : CppBlockGeneratorBase, ICppScopeBlock
+    public class CppBlockGenerator : CppBlockGeneratorBase
     {
         public CppBlockGenerator(ICodeGenerator CodeGenerator)
             : base(CodeGenerator)
         {
-        }
-
-        public bool DeclareVariable(CppLocal Local)
-        {
-            var targetBlock = GetSingleLocalUsingBlock(Local) as ICppScopeBlock;
-            if (targetBlock != null && targetBlock.DeclareVariable(Local))
-            {
-                return true;
-            }
-            DeclareCore(Local);
-            return true;
         }
 
         public CppBlockGenerator ImplyEmptyReturns()

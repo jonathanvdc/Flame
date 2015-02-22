@@ -58,7 +58,7 @@ namespace Flame.Cpp
             {
                 return ConvertValueGenericInstance(Type);
             }
-            else if (Type.get_IsReferenceType())
+            else if (Type.get_IsReferenceType() && !Type.IsContainerType)
             {
                 return ConvertValueType(Type);
             }

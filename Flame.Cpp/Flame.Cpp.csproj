@@ -60,8 +60,10 @@
     <Compile Include="CppPointerExtensions.cs" />
     <Compile Include="Emit\BodyStatementType.cs" />
     <Compile Include="Emit\DynamicCastBlock.cs" />
+    <Compile Include="Emit\ICppBlockGenerator.cs" />
     <Compile Include="Emit\INewObjectBlock.cs" />
     <Compile Include="Emit\IInvocationBlock.cs" />
+    <Compile Include="Emit\LocalDeclaration.cs" />
     <Compile Include="ICppEnvironment.cs" />
     <Compile Include="ICppTypeConverter.cs" />
     <Compile Include="Plugs\PrimitiveNamespace.cs" />
@@ -108,7 +110,6 @@
     <Compile Include="Emit\MemberAccessBlock.cs" />
     <Compile Include="Emit\CppVariableBase.cs" />
     <Compile Include="Emit\DoWhileBlockGenerator.cs" />
-    <Compile Include="Emit\ICppScopeBlock.cs" />
     <Compile Include="Emit\IfElseBlockGenerator.cs" />
     <Compile Include="Emit\KeywordStatementBlock.cs" />
     <Compile Include="Emit\CharLiteral.cs" />
@@ -117,7 +118,6 @@
     <Compile Include="Emit\CppCodeGenerator.cs" />
     <Compile Include="Emit\ExpressionStatementBlock.cs" />
     <Compile Include="Emit\LocalBlock.cs" />
-    <Compile Include="Emit\LocalDeclarationBlock.cs" />
     <Compile Include="Emit\ReturnBlock.cs" />
     <Compile Include="Emit\SharedPtrBlock.cs" />
     <Compile Include="Emit\StackConstructorBlock.cs" />

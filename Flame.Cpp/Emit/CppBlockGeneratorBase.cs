@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class CppBlockGeneratorBase : IBlockGenerator, ICppBlock
+    public class CppBlockGeneratorBase : IBlockGenerator, ICppLocalDeclaringBlock
     {
         public CppBlockGeneratorBase(ICodeGenerator CodeGenerator)
         {
@@ -20,83 +20,82 @@ namespace Flame.Cpp.Emit
 
         #region Local Declaration
 
-        public IEnumerable<LocalDeclarationBlock> DeclarationBlocks
+        private void AddBlock(ICppBlock Block)
+        {
+            blocks.Add(Block);
+        }
+        
+        public IEnumerable<LocalDeclarationReference> DeclarationBlocks
         {
             get
             {
-                return blocks.TakeWhile((item) => item is LocalDeclarationBlock).Cast<LocalDeclarationBlock>();
+                return blocks.OfType<LocalDeclarationReference>();
             }
         }
 
-        public LocalDeclarationBlock FindLocalDeclarationOfType(IType Type)
+        public IEnumerable<LocalDeclaration> LocalDeclarations
         {
-            return DeclarationBlocks.FirstOrDefault((item) => item.LocalType.Equals(Type));
+            get { return DeclarationBlocks.Select((item) => item.Declaration); }
         }
 
-        protected void DeclareCore(CppLocal Local)
+        protected LocalDeclarationReference GetDeclarationBlock(CppLocal Local)
         {
-            var localDecl = FindLocalDeclarationOfType(Local.Type);
-            if (localDecl == null)
+            return DeclarationBlocks.FirstOrDefault((item) => item.Declaration.Local == Local);
+        }
+
+        protected void DeclareLocal(CppLocal Local)
+        {
+            var declBlock = GetDeclarationBlock(Local);
+            if (declBlock == null)
             {
-                localDecl = new LocalDeclarationBlock(CodeGenerator, Local);
-                blocks.Insert(0, localDecl);
+                AddBlock(new LocalDeclarationReference(Local));
+            }
+        }
+
+        protected void DeclareLocals(IEnumerable<CppLocal> Locals)
+        {
+            foreach (var item in Locals)
+            {
+                DeclareLocal(item);
+            }
+        }
+
+        protected void ReferenceLocalDeclaration(LocalDeclaration Declaration)
+        {
+            var declBlock = GetDeclarationBlock(Declaration.Local);
+            if (declBlock != null)
+            {
+                declBlock.Acquire();
+                Declaration.DeclareVariable = false;
             }
             else
             {
-                localDecl.Declare(Local);
+                AddBlock(new LocalDeclarationReference(Declaration));
             }
-            for (int i = 0; i < blocks.Count; i++)
+        }
+
+        protected void ReferenceLocalDeclarations(IEnumerable<LocalDeclaration> Declarations)
+        {
+            foreach (var item in Declarations)
             {
-                if (blocks[i].UsesLocal(Local) && blocks[i] != localDecl)
-                {
-                    if (blocks[i] is ExpressionStatementBlock)
-                    {
-                        var expr = ((ExpressionStatementBlock)blocks[i]).Expression;
-                        if (expr is VariableAssignmentBlock)
-                        {
-                            var assignment = (VariableAssignmentBlock)expr;
-                            if (assignment.Target is LocalBlock && ((LocalBlock)assignment.Target).Local == Local)
-                            {
-                                blocks.RemoveAt(i);
-                                localDecl.Assign(assignment);
-                            }
-                        }
-                    }
-                    break;
-                }
+                ReferenceLocalDeclaration(item);
             }
         }
 
         #endregion
 
-        /// <summary>
-        /// Gets the single block in this code generator that uses the given local, if any.
-        /// </summary>
-        /// <param name="Local"></param>
-        /// <returns></returns>
-        protected ICppBlock GetSingleLocalUsingBlock(CppLocal Local)
-        {
-            ICppBlock targetBlock = null;
-            foreach (var item in blocks)
-            {
-                if (item.UsesLocal(Local))
-                {
-                    if (targetBlock != null)
-                    {
-                        targetBlock = item;
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-            }
-            return targetBlock;
-        }
-
         public void EmitBlock(ICodeBlock Block)
         {
-            blocks.Add((ICppBlock)Block);
+            var cppBlock = (ICppBlock)Block;
+            if (!(Block is LocalDeclarationReference))
+            {
+                if (cppBlock is ICppLocalDeclaringBlock)
+                {
+                    ReferenceLocalDeclarations(((ICppLocalDeclaringBlock)cppBlock).LocalDeclarations);
+                }
+                DeclareLocals(cppBlock.LocalsUsed);
+            }
+            AddBlock(cppBlock);
         }
 
         public void EmitBreak()

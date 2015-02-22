@@ -72,6 +72,11 @@ namespace Flame.Cpp.Emit
             return new LocalBlock(this);
         }
 
+        public override IStatement CreateSetStatement(IExpression Value)
+        {
+            return new CodeBlockStatement(new LocalDeclarationReference(this, (ICppBlock)Value.Emit(CodeGenerator)));
+        }
+
         private class ReleaseLocalStatement : IStatement
         {
             public ReleaseLocalStatement(CppLocal Local)

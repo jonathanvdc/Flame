@@ -21,7 +21,7 @@ namespace Flame.Cpp.Emit
         public abstract ICppBlock CreateBlock();
         public abstract IType Type { get; }
 
-        public IExpression CreateGetExpression()
+        public virtual IExpression CreateGetExpression()
         {
             return new CodeBlockExpression(CreateBlock(), Type);
         }
@@ -31,7 +31,7 @@ namespace Flame.Cpp.Emit
             return new EmptyStatement();
         }
 
-        public IStatement CreateSetStatement(IExpression Value)
+        public virtual IStatement CreateSetStatement(IExpression Value)
         {
             return new ExpressionStatement(new CodeBlockExpression(new VariableAssignmentBlock(CreateBlock(), (ICppBlock)Value.Emit(CodeGenerator)), Type));
         }
@@ -41,7 +41,7 @@ namespace Flame.Cpp.Emit
             return CreateBlock().GetCode().ToString();
         }
 
-        public IExpression CreateAddressOfExpression()
+        public virtual IExpression CreateAddressOfExpression()
         {
             return new CodeBlockExpression(new AddressOfBlock(CreateBlock()), Type.MakePointerType(PointerKind.TransientPointer));
         }
