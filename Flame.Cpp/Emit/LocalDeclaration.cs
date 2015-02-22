@@ -119,12 +119,35 @@ namespace Flame.Cpp.Emit
             get { return TypeLocalsUsed.Union(ValueLocalsUsed); }
         }
 
+        protected bool UseAuto
+        {
+            get
+            {
+                if (Value is INewObjectBlock)
+                {
+                    var initBlock = (INewObjectBlock)Value;
+                    return initBlock.Kind == AllocationKind.ManagedHeap || initBlock.Kind == AllocationKind.UnmanagedHeap;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
         public CodeBuilder GetCode()
         {
             if (DeclareVariable)
             {
                 CodeBuilder cb = new CodeBuilder();
-                cb.Append(Declaration.Local.Type.CreateBlock(CodeGenerator).GetCode());
+                if (UseAuto)
+                {
+                    cb.Append("auto");
+                }
+                else
+                {
+                    cb.Append(Declaration.Local.Type.CreateBlock(CodeGenerator).GetCode());
+                }
                 cb.Append(' ');
                 cb.Append(Declaration.Local.Member.Name);
 
