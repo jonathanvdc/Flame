@@ -248,7 +248,7 @@ int ArraySlice<T>::GetLength() const
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get { return new IHeaderDependency[] { StandardDependency.Memory }; }
+            get { return new IHeaderDependency[] { StandardDependency.Memory, StandardDependency.Vector }; }
         }
 
         public CodeBuilder GetHeaderCode()

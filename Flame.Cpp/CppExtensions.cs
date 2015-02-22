@@ -217,7 +217,7 @@ namespace Flame.Cpp
 
         public static ICppBlock CreateBlock(this IType Type, ICodeGenerator CodeGenerator)
         {
-            return BlockFromName(CodeGenerator, CodeGenerator.GetTypeNamer().Name(Type, CodeGenerator));
+            return new ImplicitDependencyBlock(BlockFromName(CodeGenerator, CodeGenerator.GetTypeNamer().Name(Type, CodeGenerator)), Type.GetDependencies());
         }
 
         public static ICppBlock CreateConstructorBlock(this IMethod Member, ICodeGenerator CodeGenerator)
@@ -241,10 +241,10 @@ namespace Flame.Cpp
         private static ICppBlock CreateGenericBlock(ICppBlock Block, IGenericMember Member)
         {
             if (Member.get_IsGenericInstance())
-	        {
+            {
                 var cg = Block.CodeGenerator;
                 return new TypeArgumentBlock(Block, Member.GetGenericArguments().Select((item) => item.CreateBlock(cg)));
-	        }
+            }
             else
             {
                 return Block;
@@ -387,7 +387,7 @@ namespace Flame.Cpp
             {
                 CodeBuilder.AddLine("{");
                 CodeBuilder.IncreaseIndentation();
-                CodeBuilder.AddCodeBuilder(Body); 
+                CodeBuilder.AddCodeBuilder(Body);
                 CodeBuilder.DecreaseIndentation();
                 CodeBuilder.AddLine("}");
                 return BodyStatementType.Single;
