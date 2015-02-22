@@ -35,6 +35,14 @@ namespace Flame.Cpp
             }
         }
 
+        public static IHeaderDependency Vector
+        {
+            get
+            {
+                return new StandardDependency("vector");
+            }
+        }
+
         public static IHeaderDependency String
         {
             get

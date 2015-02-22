@@ -61,6 +61,7 @@
     <Compile Include="Emit\BodyStatementType.cs" />
     <Compile Include="Emit\DynamicCastBlock.cs" />
     <Compile Include="Emit\ICppBlockGenerator.cs" />
+    <Compile Include="Emit\ImplicitDependencyBlock.cs" />
     <Compile Include="Emit\INewObjectBlock.cs" />
     <Compile Include="Emit\IInvocationBlock.cs" />
     <Compile Include="Emit\LocalDeclaration.cs" />
