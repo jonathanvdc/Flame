@@ -18,7 +18,7 @@ namespace Flame.Cpp.Emit
         public ICppBlock Block { get; private set; }
         public IEnumerable<IHeaderDependency> ImplictDependencies { get; private set; }
 
-        public ICodeGenerator CodeGenerator { get; private set; }
+        public ICodeGenerator CodeGenerator { get { return Block.CodeGenerator; } }
         public CodeBuilder GetCode()
         {
             return Block.GetCode();
