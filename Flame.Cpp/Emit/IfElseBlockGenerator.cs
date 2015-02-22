@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class IfElseBlockGenerator : IIfElseBlockGenerator, ICppBlock
+    public class IfElseBlockGenerator : IIfElseBlockGenerator, ICppLocalDeclaringBlock
     {
         public IfElseBlockGenerator(ICodeGenerator CodeGenerator, ICppBlock Condition)
         {
@@ -23,6 +23,14 @@ namespace Flame.Cpp.Emit
         public ICppBlock Condition { get; private set; }
         public IBlockGenerator IfBlock { get; private set; }
         public IBlockGenerator ElseBlock { get; private set; }
+
+        public IEnumerable<LocalDeclaration> LocalDeclarations
+        {
+            get 
+            {
+                return new object[] { Condition, IfBlock, ElseBlock }.OfType<ICppLocalDeclaringBlock>().SelectMany((item) => item.LocalDeclarations);
+            }
+        }
 
         public IType Type
         {
