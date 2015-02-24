@@ -16,6 +16,14 @@ namespace Flame.Cpp.Emit
 
         public ICppBlock Value { get; private set; }
 
+        public override ICodeGenerator CodeGenerator
+        {
+            get
+            {
+                return Value.CodeGenerator;
+            }
+        }
+
         protected override INewObjectBlock SimplifyNewObject()
         {
             if (Value is INewObjectBlock && ((INewObjectBlock)Value).Kind == AllocationKind.Stack)

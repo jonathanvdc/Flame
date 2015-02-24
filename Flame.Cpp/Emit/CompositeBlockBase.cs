@@ -72,7 +72,7 @@ namespace Flame.Cpp.Emit
 
         protected override IInvocationBlock SimplifyInvocation()
         {
-            return SimplifyInvocation();
+            return SimplifyNewObject();
         }
 
         public AllocationKind Kind

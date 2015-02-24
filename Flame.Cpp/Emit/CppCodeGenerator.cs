@@ -258,6 +258,10 @@ namespace Flame.Cpp.Emit
                     return Method.CreateBlock(this);
                 }
             }
+            else if (Method.IsConstructor && Method.GetParameters().Length == 0)
+            {
+                return new PartialEmptyBlock(this, MethodType.Create(Method)); // Do not emit calls to the parameterless base constructor
+            }
             else
             {
                 var cppCaller = (ICppBlock)Caller;
