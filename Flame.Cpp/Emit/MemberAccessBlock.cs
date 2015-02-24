@@ -35,6 +35,30 @@ namespace Flame.Cpp.Emit
             get { return Target.CodeGenerator; }
         }
 
+        /// <summary>
+        /// Gets a boolean value that tells if the method is to be applied to a slice of this type.
+        /// </summary>
+        private bool IsSliceMethod
+        {
+            get
+            {
+                if (Target.GetCode().ToString() == "this" && Member.DeclaringType != null && CodeGenerator.Method.DeclaringType != null && CodeGenerator.Method.DeclaringType.Is(Member.DeclaringType) && Member is IMethod)
+                {
+                    var method = (IMethod)Member;
+                    if (method.IsConstructor)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        var impl = method.GetImplementation(CodeGenerator.Method.DeclaringType);
+                        return impl != null && !impl.Equals(Member);
+                    }
+                }
+                return false;
+            }
+        }
+
         public CodeBuilder GetCode()
         {
             if (Target.Type.get_IsSingleton() && Target.Type.IsGlobalType())
@@ -76,29 +100,10 @@ namespace Flame.Cpp.Emit
                 }
             }
 
-            if (Target.GetCode().ToString() == "this" && Member.DeclaringType != null && CodeGenerator.Method.DeclaringType != null && CodeGenerator.Method.DeclaringType.Is(Member.DeclaringType) && Member is IMethod)
+            if (IsSliceMethod)
             {
-                bool sliceTarget = false;
-
-                var method = (IMethod)Member;
-                if (method.IsConstructor)
-                {
-                    sliceTarget = true;
-                }
-                else
-                {
-                    var impl = method.GetImplementation(CodeGenerator.Method.DeclaringType);
-                    if (impl != null && !impl.Equals(Member))
-                    {
-                        sliceTarget = true;
-                    }
-                }
-
-                if (sliceTarget)
-                {
-                    cb.Append(Member.DeclaringType.Name);
-                    cb.Append("::");
-                }
+                cb.Append(Member.DeclaringType.Name);
+                cb.Append("::");
             }
             cb.Append(Member.Name);
             return cb;
