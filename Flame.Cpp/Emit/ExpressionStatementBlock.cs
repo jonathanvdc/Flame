@@ -34,7 +34,10 @@ namespace Flame.Cpp.Emit
         public CodeBuilder GetCode()
         {
             CodeBuilder cb = Expression.GetCode();
-            cb.Append(';');
+            if (!cb.IsWhitespace)
+            {
+                cb.Append(';');
+            }
             return cb;
         }
 
