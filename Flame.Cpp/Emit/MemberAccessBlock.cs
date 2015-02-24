@@ -64,7 +64,7 @@ namespace Flame.Cpp.Emit
                 }
                 else
                 {
-                    cb.Append(Target.GetCode()); 
+                    cb.Append(Target.GetCode());
                     if (Target.Type.get_IsPointer())
                     {
                         cb.Append("->");
@@ -73,6 +73,31 @@ namespace Flame.Cpp.Emit
                     {
                         cb.Append('.');
                     }
+                }
+            }
+
+            if (Target.GetCode().ToString() == "this" && Member.DeclaringType != null && CodeGenerator.Method.DeclaringType != null && CodeGenerator.Method.DeclaringType.Is(Member.DeclaringType) && Member is IMethod)
+            {
+                bool sliceTarget = false;
+
+                var method = (IMethod)Member;
+                if (method.IsConstructor)
+                {
+                    sliceTarget = true;
+                }
+                else
+                {
+                    var impl = method.GetImplementation(CodeGenerator.Method.DeclaringType);
+                    if (impl != null && !impl.Equals(Member))
+                    {
+                        sliceTarget = true;
+                    }
+                }
+
+                if (sliceTarget)
+                {
+                    cb.Append(Member.DeclaringType.Name);
+                    cb.Append("::");
                 }
             }
             cb.Append(Member.Name);

@@ -33,7 +33,7 @@ namespace Flame.Cpp.Emit
 
         public override IStatement CreateSetStatement(IExpression Value)
         {
-            if (Field is Flame.Cpp.CppField && CodeGenerator.Method.get_IsConstant())
+            if (Field is Flame.Cpp.CppField && CodeGenerator.Method.get_IsConstant() && !CodeGenerator.Method.IsConstructor)
             {
                 var cppField = (Flame.Cpp.CppField)Field;
                 cppField.IsMutable = true;

@@ -151,7 +151,7 @@ public:
 
     T& operator[](int Index);
     const T& operator[](int Index) const;
-	void operator=(const ArraySlice<T>& Other);
+	ArraySlice<T>& operator=(const ArraySlice<T>& Other);
 
     ArraySlice<T> Slice(int Start, int Length) const;
     ArraySlice<T> Slice(int Start) const;
@@ -219,11 +219,12 @@ const T& ArraySlice<T>::operator[](int Index) const
 }
 
 template<typename T>
-void ArraySlice<T>::operator=(const ArraySlice<T>& Other)
+ArraySlice<T>& ArraySlice<T>::operator=(const ArraySlice<T>& Other)
 {
 	this->ptr = Other.ptr;
 	this->length = Other.length;
 	this->offset = Other.offset;
+    return *this;
 }
 
 template<typename T>
