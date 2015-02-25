@@ -87,7 +87,7 @@ namespace dsc.Target
                     targetExt = "txt";
                     break;
                 case "c++":
-                    targetAsm = new CppAssembly(Project.AssemblyName, new Version());
+                    targetAsm = new CppAssembly(Project.AssemblyName, new Version(), Log);
                     targetExt = "cpp";
                     break;
                 case "mips":

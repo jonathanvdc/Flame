@@ -51,23 +51,74 @@ namespace dsc.Options
             }
         }
 
+        #region Static
+
+        static StringCompilerOptions()
+        {
+            parsers = new Dictionary<Type, Func<string, object>>();
+            RegisterParser<bool>(ParseFlag);
+            RegisterParser<string>((item) => item);
+            RegisterParser<char>(char.Parse);
+            RegisterParser<sbyte>((item) => sbyte.Parse(item, CultureInfo.InvariantCulture));
+            RegisterParser<short>((item) => short.Parse(item, CultureInfo.InvariantCulture));
+            RegisterParser<int>((item) => int.Parse(item, CultureInfo.InvariantCulture));
+            RegisterParser<long>((item) => long.Parse(item, CultureInfo.InvariantCulture));
+            RegisterParser<byte>((item) => byte.Parse(item, CultureInfo.InvariantCulture));
+            RegisterParser<ushort>((item) => ushort.Parse(item, CultureInfo.InvariantCulture));
+            RegisterParser<uint>((item) => uint.Parse(item, CultureInfo.InvariantCulture));
+            RegisterParser<ulong>((item) => ulong.Parse(item, CultureInfo.InvariantCulture));
+            RegisterParser<double>((item) => double.Parse(item, CultureInfo.InvariantCulture));
+            RegisterParser<float>((item) => float.Parse(item, CultureInfo.InvariantCulture));
+
+            RegisterParser<Flame.CodeDescription.IDocumentationFormatter>((item) =>
+            {
+                switch (item.ToLower())
+                {
+                    case "doxygen":
+                        return new Flame.CodeDescription.DoxygenFormatter();
+                    case "xml":
+                        return Flame.CodeDescription.XmlDocumentationFormatter.Instance;
+                    default:
+                        return Flame.CodeDescription.DefaultDocumentationFormatter.Instance;
+                }
+            });
+        }
+
+        public static bool ParseFlag(string Flag)
+        {
+            string lowerVal = Flag.ToLower();
+            return lowerVal == "true" || lowerVal == "yes" || lowerVal == "y"; 
+        }
+
+        private static Dictionary<Type, Func<string, object>> parsers;
+        public static Func<string, T> GetParser<T>()
+        {
+            var type = typeof(T);
+            if (parsers.ContainsKey(type))
+            {
+                return (val) => (T)parsers[type](val);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public static void RegisterParser<T>(Func<string, T> Parser)
+        {
+            parsers[typeof(T)] = (item) => Parser(item);
+        }
+        public static T ParseValue<T>(string Value)
+        {
+            return GetParser<T>()(Value);
+        }
+
+        #endregion
+
         public T GetOption<T>(string Key, T Default)
         {
             if (HasOption(Key))
             {
-                var tType = typeof(T);
-                if (tType == typeof(bool))
-                {
-                    return (T)(object)GetFlag(Key);
-                }
-                else if (tType == typeof(string))
-                {
-                    return (T)(object)options[Key];
-                }
-                else if (tType == typeof(int))
-                {
-                    return (T)(object)int.Parse(options[Key], CultureInfo.InvariantCulture);
-                }
+                return ParseValue<T>(this[Key]);
             }
             return Default;
         }

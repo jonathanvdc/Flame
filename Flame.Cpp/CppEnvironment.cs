@@ -1,4 +1,5 @@
 ﻿using Flame.CodeDescription;
+using Flame.Compiler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,13 +15,18 @@ namespace Flame.Cpp
         {
         }
         public CppEnvironment(ICppTypeConverter TypeConverter, Func<INamespace, IConverter<IType, string>> TypeNamer)
-            : this(TypeConverter, TypeNamer, new DocumentationCommentBuilder(new DoxygenFormatter(), (docs) => DocumentationExtensions.ToLineComments(docs, "///")))
+            : this(TypeConverter, TypeNamer, CreateDocumentationBuilder(new DoxygenFormatter()))
         {
         }
         public CppEnvironment(ICppTypeConverter TypeConverter, Func<INamespace, IConverter<IType, string>> TypeNamer, IDocumentationCommentBuilder DocumentationBuilder)
         {
             this.TypeConverter = TypeConverter;
             this.TypeNamer = TypeNamer;
+            this.DocumentationBuilder = DocumentationBuilder;
+        }
+        public CppEnvironment(IDocumentationCommentBuilder DocumentationBuilder)
+            : this()
+        {
             this.DocumentationBuilder = DocumentationBuilder;
         }
 
@@ -46,6 +52,18 @@ namespace Flame.Cpp
         public IType RootType
         {
             get { return null; }
+        }
+
+        public static IDocumentationCommentBuilder CreateDocumentationBuilder(IDocumentationFormatter Formatter)
+        {
+            return new DocumentationCommentBuilder(Formatter, (docs) => DocumentationExtensions.ToLineComments(docs, "///"));
+        }
+
+        public static CppEnvironment Create(ICompilerLog Log)
+        {
+            var formatter = Log.Options.GetDocumentationFormatter(new DoxygenFormatter());
+            var docBuilder = CreateDocumentationBuilder(formatter);
+            return new CppEnvironment(docBuilder);
         }
     }
 }
