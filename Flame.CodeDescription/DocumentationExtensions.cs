@@ -9,7 +9,7 @@ namespace Flame.CodeDescription
 {
     public static class DocumentationExtensions
     {
-        private static string ChangeFirstCharacter(string Value, Func<char, char> Change)
+        public static string ChangeFirstCharacter(string Value, Func<char, char> Change)
         {
             if (!string.IsNullOrEmpty(Value))
             {
@@ -21,57 +21,14 @@ namespace Flame.CodeDescription
             }
         }
 
-        private static string ProcessAccessorSummary(IAccessor Accessor, string Summary)
-        {
-            string trimmedDocstr = Summary.Trim();
-            if (trimmedDocstr.StartsWith("gets or sets ", StringComparison.InvariantCultureIgnoreCase))
-            {
-                trimmedDocstr = trimmedDocstr.Substring("gets or sets ".Length);
-            }
-            else if (trimmedDocstr.StartsWith("gets ", StringComparison.InvariantCultureIgnoreCase))
-            {
-                trimmedDocstr = trimmedDocstr.Substring("gets ".Length);
-            }
-            else if (trimmedDocstr.StartsWith("sets ", StringComparison.InvariantCultureIgnoreCase))
-            {
-                trimmedDocstr = trimmedDocstr.Substring("sets ".Length);
-            }
-            else
-            {
-                return Summary;
-            }
-            if (Accessor.get_IsGetAccessor())
-            {
-                return "Gets " + ChangeFirstCharacter(trimmedDocstr, char.ToLower);
-            }
-            else if (Accessor.get_IsSetAccessor())
-            {
-                return "Sets " + ChangeFirstCharacter(trimmedDocstr, char.ToLower);
-            }
-            else
-            {
-                return Summary;
-            }
-        }
-
-        private static string ProcessSummary(IMember Member, string Summary)
-        {
-            if (Member is IAccessor)
-            {
-                return ProcessAccessorSummary((IAccessor)Member, Summary);
-            }
-            else
-            {
-                return Summary;
-            }
-        }
+        private static char[] punctuation = new[] { '?', '!', '.' };
 
         public static string IntroduceLineBreaks(string Text)
         {
-            StringBuilder sb = new StringBuilder(Text);
+            StringBuilder sb = new StringBuilder(Text.Replace(Environment.NewLine, ""));
             for (int i = 0; i < sb.Length; i++)
             {
-                if (sb[i] == '?' || sb[i] == '!' || sb[i] == '.')
+                if (punctuation.Contains(sb[i]))
                 {
                     i++;
                     while (i + 1 < sb.Length && char.IsWhiteSpace(sb[i]))
@@ -90,35 +47,12 @@ namespace Flame.CodeDescription
 
         public static string ToDocumentation(this IEnumerable<DescriptionAttribute> Attributes, IMember Member)
         {
-            StringBuilder sb = new StringBuilder();
-            var summaryAttr = Attributes.WithTag("summary");
-            if (summaryAttr != null)
-            {
-                sb.AppendLine(ProcessSummary(Member, IntroduceLineBreaks(summaryAttr.Description)));
-            }
-            foreach (var item in Attributes.ExcludeTag("summary"))
-            {
-                sb.AppendLine(ChangeFirstCharacter(item.Tag.ToLower(), char.ToUpper) + ":");
-                sb.AppendLine(IntroduceLineBreaks(item.Description));
-            }
-            return sb.ToString();
+            return DefaultDocumentationFormatter.Instance.Format(DefaultDocumentationRewriter.Instance.Rewrite(Attributes, Member));
         }
 
         public static string ToXmlDocumentation(this IEnumerable<DescriptionAttribute> Attributes)
         {
-            StringBuilder sb = new StringBuilder();
-            foreach (var item in Attributes)
-            {
-                string lowerTag = item.Tag.ToLower();
-                sb.Append("<");
-                sb.Append(lowerTag);
-                sb.AppendLine(">");
-                sb.AppendLine(IntroduceLineBreaks(item.Description));
-                sb.Append("</");
-                sb.Append(lowerTag);
-                sb.AppendLine(">");
-            }
-            return sb.ToString();
+            return XmlDocumentationFormatter.Instance.Format(Attributes);
         }
 
         public static string GetDocumentation(this IMember Member)
