@@ -15,6 +15,10 @@ namespace Flame.Cpp
             : this(Name, AssemblyVersion, new CppEnvironment())
         {
         }
+        public CppAssembly(string Name, Version AssemblyVersion, ICompilerLog Log)
+            : this(Name, AssemblyVersion, CppEnvironment.Create(Log))
+        {
+        }
         public CppAssembly(string Name, Version AssemblyVersion, ICppEnvironment Environment)
         {
             this.Name = Name;

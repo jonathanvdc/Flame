@@ -154,5 +154,14 @@ namespace Flame.CodeDescription
         {
             return ToBlockComments(Member.GetDocumentation(), LeadingDelimiter, TrailingDelimiter, LinePrefix);
         }
+
+        public static IDocumentationFormatter GetDocumentationFormatter(this ICompilerOptions Options, IDocumentationFormatter Default)
+        {
+            return Options.GetOption<IDocumentationFormatter>("docs-formatter", Default);
+        }
+        public static IDocumentationFormatter GetDocumentationFormatter(this ICompilerOptions Options)
+        {
+            return Options.GetDocumentationFormatter(DefaultDocumentationFormatter.Instance);
+        }
     }
 }
