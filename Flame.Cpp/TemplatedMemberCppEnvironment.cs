@@ -1,4 +1,5 @@
 ﻿using Flame.Build;
+using Flame.CodeDescription;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,11 @@ namespace Flame.Cpp
 
         public ICppEnvironment DeclaringEnvironment { get; private set; }
         public IConverter<IType, IType> TemplateConverter { get; private set; }
+
+        public IDocumentationCommentBuilder DocumentationBuilder
+        {
+            get { return DeclaringEnvironment.DocumentationBuilder; }
+        }
 
         public ICppTypeConverter TypeConverter
         {

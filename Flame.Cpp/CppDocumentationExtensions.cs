@@ -12,7 +12,7 @@ namespace Flame.Cpp
     {
         public static CodeBuilder GetDocumentationComments(this ICppMember Member)
         {
-            return Member.GetDocumentationLineComments("//");
+            return Member.Environment.DocumentationBuilder.GetDocumentationComments(Member);
         }
     }
 }
