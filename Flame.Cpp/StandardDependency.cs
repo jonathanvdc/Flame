@@ -51,6 +51,14 @@ namespace Flame.Cpp
             }
         }
 
+        public static IHeaderDependency CAssert
+        {
+            get
+            {
+                return new StandardDependency("cassert");
+            }
+        }
+
         #endregion
     }
 }

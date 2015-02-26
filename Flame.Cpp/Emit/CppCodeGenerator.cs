@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class CppCodeGenerator : IUnmanagedCodeGenerator, IForeachCodeGenerator
+    public class CppCodeGenerator : IUnmanagedCodeGenerator, IForeachCodeGenerator, IExceptionCodeGenerator
     {
         public CppCodeGenerator(IMethod Method, ICppEnvironment Environment)
         {
@@ -400,6 +400,26 @@ namespace Flame.Cpp.Emit
                 }
             }
             return null;
+        }
+
+        #endregion
+
+        #region IExceptionCodeGenerator
+
+        public ITryBlockGenerator CreateTryBlock()
+        {
+            throw new NotImplementedException();
+        }
+
+        public ICodeBlock EmitAssert(ICodeBlock Condition)
+        {
+            var cppExpr = (ICppBlock)EmitInvocation(EmitMethod(CppPrimitives.AssertMethod, null), new ICodeBlock[] { Condition });
+            return new ImplicitDependencyBlock(new ExpressionStatementBlock(cppExpr), new IHeaderDependency[] { StandardDependency.CAssert });
+        }
+
+        public ICodeBlock EmitThrow(ICodeBlock Exception)
+        {
+            return new ThrowBlock(this, (ICppBlock)Exception);
         }
 
         #endregion

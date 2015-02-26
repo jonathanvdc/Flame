@@ -11,7 +11,8 @@ using System.Threading.Tasks;
 
 namespace Flame.Recompilation.Emit
 {
-    public class RecompiledCodeGenerator : IUnmanagedCodeGenerator, IYieldCodeGenerator, IInitializingCodeGenerator, IForeachCodeGenerator
+    public class RecompiledCodeGenerator : IUnmanagedCodeGenerator, IYieldCodeGenerator, 
+        IInitializingCodeGenerator, IForeachCodeGenerator, IExceptionCodeGenerator
     {
         public RecompiledCodeGenerator(AssemblyRecompiler Recompiler, IMethod Method)
         {
@@ -368,6 +369,25 @@ namespace Flame.Recompilation.Emit
         public IForeachBlockGenerator CreateForeachBlock(IEnumerable<ICollectionBlock> Collections)
         {
             return new ForeachBlockGenerator(this, Collections.Cast<CollectionBlock>());
+        }
+
+        #endregion
+
+        #region IExceptionCodeGenerator
+
+        public ITryBlockGenerator CreateTryBlock()
+        {
+            return new TryBlockGenerator(this);
+        }
+
+        public ICodeBlock EmitAssert(ICodeBlock Condition)
+        {
+            return new StatementBlock(this, new AssertStatement(GetExpression(Condition)));
+        }
+
+        public ICodeBlock EmitThrow(ICodeBlock Exception)
+        {
+            return new StatementBlock(this, new ThrowStatement(GetExpression(Exception)));
         }
 
         #endregion

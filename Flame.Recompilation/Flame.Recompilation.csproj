@@ -59,6 +59,7 @@
     <Compile Include="Emit\StatementBlock.cs" />
     <Compile Include="Emit\StatementExpression.cs" />
     <Compile Include="Emit\ThisAddressOfExpression.cs" />
+    <Compile Include="Emit\TryBlockGenerator.cs" />
     <Compile Include="Emit\UnaryExpression.cs" />
     <Compile Include="Emit\WhileBlockGenerator.cs" />
     <Compile Include="GenericConstraintExtensions.cs" />

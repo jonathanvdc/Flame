@@ -87,5 +87,25 @@ namespace Flame.Cpp
             var inst = ToStringMethod.MakeGenericMethod(new IType[] { SourceType });
             return new RetypedBlock(ToStringMethod.CreateBlock(CodeGenerator), MethodType.Create(inst));
         }
+
+        private static IMethod assertMethod;
+        public static IMethod AssertMethod
+        {
+            get
+            {
+                // assert(...) is a macro in C++,
+                // but that distinction is not entirely relevant from a code generation viewpoint.
+
+                if (assertMethod == null)
+                {
+                    var descMethod = new DescribedMethod("assert", null, PrimitiveTypes.Void, true);
+                    descMethod.AddParameter(new DescribedParameter("Condition", PrimitiveTypes.Boolean));
+                    descMethod.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+                    descMethod.AddAttribute(new HeaderDependencyAttribute(StandardDependency.CAssert));
+                    assertMethod = descMethod;
+                }
+                return assertMethod;
+            }
+        }
     }
 }
