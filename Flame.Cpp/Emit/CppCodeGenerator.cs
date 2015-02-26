@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class CppCodeGenerator : IUnmanagedCodeGenerator
+    public class CppCodeGenerator : IUnmanagedCodeGenerator, IForeachCodeGenerator
     {
         public CppCodeGenerator(IMethod Method, ICppEnvironment Environment)
         {
@@ -205,11 +205,10 @@ namespace Flame.Cpp.Emit
             {
                 return EmitNull();
             }
-            else if (Type.get_IsValueType())
+            else
             {
                 return new RetypedBlock(new StackConstructorBlock(Type.CreateBlock(this), new ICppBlock[0]), Type);
             }
-            throw new NotSupportedException();
         }
 
         #endregion
@@ -379,6 +378,28 @@ namespace Flame.Cpp.Emit
         public ICodeBlock EmitStoreAtAddress(ICodeBlock Pointer, ICodeBlock Value)
         {
             return new ExpressionStatementBlock(new VariableAssignmentBlock((ICppBlock)EmitDereferencePointer(Pointer), (ICppBlock)Value));
+        }
+
+        #endregion
+
+        #region Foreach
+
+        public ICollectionBlock CreateCollectionBlock(IVariableMember Member, ICodeBlock Collection)
+        {
+            return new CollectionBlock(this, Member, (ICppBlock)Collection);
+        }
+
+        public IForeachBlockGenerator CreateForeachBlock(IEnumerable<ICollectionBlock> Collections)
+        {
+            if (Collections.Count() == 1)
+            {
+                var singleCollection = Collections.Single() as CollectionBlock;
+                if (singleCollection != null && !singleCollection.IsArray)
+                {
+                    return new ForeachBlock(this, singleCollection);
+                }
+            }
+            return null;
         }
 
         #endregion

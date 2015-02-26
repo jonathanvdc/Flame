@@ -135,12 +135,12 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        public CodeBuilder GetCode()
+        public CodeBuilder GetExpressionCode(bool EmitAuto)
         {
             if (DeclareVariable)
             {
                 CodeBuilder cb = new CodeBuilder();
-                if (UseAuto)
+                if (EmitAuto)
                 {
                     cb.Append("auto");
                 }
@@ -153,30 +153,43 @@ namespace Flame.Cpp.Emit
 
                 if (Value != null)
                 {
-                    if (DeclareVariable && Value is INewObjectBlock)
+                    if (DeclareVariable && !EmitAuto && Value is INewObjectBlock)
                     {
                         var initBlock = (INewObjectBlock)Value;
                         if (initBlock.Kind == AllocationKind.Stack || initBlock.Kind == AllocationKind.MakeManaged)
                         {
                             cb.Append(initBlock.GetArgumentListCode());
-                            cb.Append(';');
                             return cb;
                         }
                     }
                     cb.Append(" = ");
                     cb.Append(Value.GetCode());
                 }
-                cb.Append(';');
                 return cb;
             }
             else if (Value != null)
             {
-                return new ExpressionStatementBlock(new VariableAssignmentBlock(Declaration.Local.CreateBlock(), Value)).GetCode();
+                return new VariableAssignmentBlock(Declaration.Local.CreateBlock(), Value).GetCode();
             }
             else
             {
                 return new CodeBuilder();
             }
+        }
+
+        public CodeBuilder GetExpressionCode()
+        {
+            return GetExpressionCode(this.UseAuto);
+        }
+
+        public CodeBuilder GetCode()
+        {
+            var exprCode = GetExpressionCode();
+            if (!exprCode.IsWhitespace)
+            {
+                exprCode.Append(";");
+            }
+            return exprCode;
         }
 
         public override string ToString()

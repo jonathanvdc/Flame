@@ -59,7 +59,9 @@
     <Compile Include="CppNameExtensions.cs" />
     <Compile Include="CppPointerExtensions.cs" />
     <Compile Include="Emit\BodyStatementType.cs" />
+    <Compile Include="Emit\CollectionBlock.cs" />
     <Compile Include="Emit\DynamicCastBlock.cs" />
+    <Compile Include="Emit\ForeachBlock.cs" />
     <Compile Include="Emit\ICppBlockGenerator.cs" />
     <Compile Include="Emit\ImplicitDependencyBlock.cs" />
     <Compile Include="Emit\INewObjectBlock.cs" />

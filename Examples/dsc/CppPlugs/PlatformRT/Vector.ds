@@ -1,9 +1,11 @@
 using Flame.RT;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace std
 {
     [Header("vector")]
-    public struct vector<T>
+    public struct vector<T> : [T]
     {
         public const this()
         {
@@ -112,6 +114,15 @@ namespace std
         public void swap(vector<T>^ Other)
         {
             swap((vector<T>*)Other);
+        }
+
+        public const [<T>] GetEnumerator()
+        {
+            return new List<T>(data).GetEnumerator();
+        }
+        public const IEnumerator GetObjectEnumerator() : IEnumerable.GetEnumerator
+        {
+            return GetEnumerator();
         }
     }
 }
