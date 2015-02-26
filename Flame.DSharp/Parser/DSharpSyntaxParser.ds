@@ -1405,6 +1405,10 @@ namespace Flame.DSharp.Parser
             	return new EmptySyntax(Tokens.NextNoTrivia());
             else if (tokenType == TokenType.ReturnKeyword)
             	return ParseReturnSyntax(Tokens);
+            else if (tokenType == TokenType.ThrowKeyword)
+            	return ParseThrowSyntax(Tokens);
+            else if (tokenType == TokenType.AssertKeyword)
+            	return ParseAssertSyntax(Tokens);
             else if (tokenType == TokenType.YieldKeyword)
             	return ParseYieldSyntax(Tokens);
             else if (tokenType == TokenType.BreakKeyword)
@@ -1574,6 +1578,32 @@ namespace Flame.DSharp.Parser
             }
         }
 
+        #endregion
+        
+        #region ParseThrowSyntax
+
+        protected virtual IStatementSyntax ParseThrowSyntax(ITokenStream Tokens)
+        {
+            var keyword = Tokens.NextNoTrivia(TokenType.ThrowKeyword, Log);
+            var expr = ParseExpression(Tokens);
+            var semicolon = Tokens.NextNoTrivia(TokenType.Semicolon, Log);
+            return new ThrowSyntax(expr, keyword, semicolon);
+        }
+
+        #endregion
+        
+        #region ParseAssertSyntax
+        
+        protected virtual IStatementSyntax ParseAssertSyntax(ITokenStream Tokens)
+        {
+            var keyword = Tokens.NextNoTrivia(TokenType.AssertKeyword, Log);
+            var leadingParen = Tokens.NextNoTrivia(TokenType.RParen, Log);
+            var expr = ParseExpression(Tokens);
+            var trailingParen = Tokens.NextNoTrivia(TokenType.LParen, Log);
+            var semicolon = Tokens.NextNoTrivia(TokenType.Semicolon, Log);
+            return new AssertSyntax(keyword, leadingParen, expr, trailingParen, semicolon);
+        }
+        
         #endregion
         
         #region ParseYieldSyntax

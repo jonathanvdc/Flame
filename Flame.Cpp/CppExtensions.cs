@@ -13,7 +13,7 @@ namespace Flame.Cpp
     {
         #region GetHeaderAttributes
 
-        public static IEnumerable<HeaderAttribute> GetHeaderAttributes(this IMember Member)
+        private static IEnumerable<HeaderAttribute> GetHeaderAttributes(this IMember Member)
         {
             foreach (var item in Member.GetAttributes())
             {
@@ -30,6 +30,16 @@ namespace Flame.Cpp
                     }
                 }
             }
+        }
+
+        private static IEnumerable<HeaderDependencyAttribute> GetHeaderDependencyAttributes(this IMember Member)
+        {
+            return Member.GetAttributes().OfType<HeaderDependencyAttribute>();
+        }
+
+        private static IEnumerable<IHeaderDependency> GetAttributeDependencies(this IMember Member)
+        {
+            return Member.GetHeaderAttributes().Select((item) => new StandardDependency(item.HeaderName)).MergeDependencies(Member.GetHeaderDependencyAttributes().Select((item) => item.Dependency)); 
         }
 
         #endregion
@@ -87,7 +97,10 @@ namespace Flame.Cpp
             {
                 return ((IParameter)Member).ParameterType.GetDependencies();
             }
-            return new IHeaderDependency[0];
+            else
+            {
+                return Member.GetAttributeDependencies();
+            }
         }
 
         public static IEnumerable<IHeaderDependency> GetDependencies(this IType Type, IEnumerable<IMember> Exclude)
@@ -123,7 +136,7 @@ namespace Flame.Cpp
             }
             else
             {
-                return Type.GetHeaderAttributes().Select((item) => new StandardDependency(item.HeaderName));
+                return Type.GetAttributeDependencies();
             }
         }
 

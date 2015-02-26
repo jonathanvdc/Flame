@@ -115,7 +115,9 @@ namespace Flame.DSharp.Lexer
         Slash = 101, // slash sign
         YieldKeyword = 102,
         OperatorKeyword = 103,
-        HashKeyword = 104
+        HashKeyword = 104,
+        AssertKeyword = 105,
+        ThrowKeyword = 106
     }
 
     #endregion

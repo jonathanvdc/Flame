@@ -49,6 +49,7 @@
 			<Compile Include="Emit\IInitializingCodeGenerator.ds" />
 			<Compile Include="Emit\IForeachCodeGenerator.ds" />
 			<Compile Include="Emit\ICommentedCodeGenerator.ds" />
+			<Compile Include="Emit\IExceptionCodeGenerator.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Expressions">
@@ -139,6 +140,9 @@
 			<Compile Include="Statements\CommentedStatement.ds" />
 			<Compile Include="Statements\RawExpressionStatement.ds" />
 			<Compile Include="Statements\LateBoundLabel.ds" />
+			<Compile Include="Statements\ThrowStatement.ds" />
+			<Compile Include="Statements\AssertStatement.ds" />
+			<Compile Include="Statements\TryStatement.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Variables">

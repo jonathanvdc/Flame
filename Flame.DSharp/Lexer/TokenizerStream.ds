@@ -58,6 +58,8 @@ namespace Flame.DSharp.Lexer
 			this.keywords["yield"] = TokenType.YieldKeyword;
 			this.keywords["operator"] = TokenType.OperatorKeyword;
 			this.keywords["hash"] = TokenType.HashKeyword;
+			this.keywords["assert"] = TokenType.AssertKeyword;
+			this.keywords["throw"] = TokenType.ThrowKeyword;
 			
 			this.operators1 = new Dictionary<char, TokenType>();
 			this.operators1[';'] = TokenType.Semicolon;

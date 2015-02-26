@@ -68,6 +68,8 @@
     <Compile Include="Emit\IInvocationBlock.cs" />
     <Compile Include="Emit\LocalDeclaration.cs" />
     <Compile Include="Emit\PartialEmptyBlock.cs" />
+    <Compile Include="Emit\ThrowBlock.cs" />
+    <Compile Include="HeaderDependencyAttribute.cs" />
     <Compile Include="ICppEnvironment.cs" />
     <Compile Include="ICppTypeConverter.cs" />
     <Compile Include="Plugs\PrimitiveNamespace.cs" />

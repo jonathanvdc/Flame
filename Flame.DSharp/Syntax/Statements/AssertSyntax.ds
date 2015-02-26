@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Flame.Compiler;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Expressions;
@@ -7,11 +8,11 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class HashSyntax : IExpressionSyntax, IRelevantSyntax<Token>, ITokenNode
+	public class AssertSyntax : LineStatementSyntax, IRelevantSyntax<Token>, ITokenNode
 	{
-		public const this(set Token HashKeyword, set Token LeadingParen, set IExpressionSyntax Target, set Token TrailingParen);
+		public const this(set Token AssertKeyword, set Token LeadingParen, set IExpressionSyntax Target, set Token TrailingParen, set Token SemicolonToken);
 	
-		public Token HashKeyword { const get; private set; }
+		public Token AssertKeyword { const get; private set; }
 		public Token LeadingParen { const get; private set; }
 		public IExpressionSyntax Target { const get; private set; }
 		public Token TrailingParen { const get; private set; }
@@ -21,10 +22,11 @@ namespace Flame.Syntax.DSharp
         	const get
         	{
         		var tks = new List<Token>();
-        		tks.Add(HashKeyword);
+        		tks.Add(AssertKeyword);
         		tks.Add(LeadingParen);
 				tks.AddRange(Target.GetTokens());
 				tks.Add(TrailingParen);
+				tks.Add(SemicolonToken);
 				return tks;
         	}
         }
@@ -34,7 +36,7 @@ namespace Flame.Syntax.DSharp
 			const get
 			{
 				List<Token> trivia = new List<Token>();
-				trivia.AddRange(HashKeyword.GetAllTrivia());
+				trivia.AddRange(AssertKeyword.GetAllTrivia());
 				trivia.AddRange(LeadingParen.GetAllTrivia());
 				return trivia;
 			}
@@ -44,24 +46,27 @@ namespace Flame.Syntax.DSharp
 		{
 			const get
 			{
-				return TrailingParen.GetAllTrivia();
+				List<Token> trivia = new List<Token>();
+				trivia.AddRange(TrailingParen.GetAllTrivia());
+				trivia.AddRange(SemicolonToken.GetAllTrivia());
+				return trivia;
 			}
 		}
 		
-		public const IExpression CreateExpression(ISyntaxState State)
+		public const IStatement CreateStatement(ISyntaxState State)
 		{
 			var innerExpr = Target.CreateVerifiedExpression(State);
-			return new HashExpression(innerExpr);
+			return new AssertStatement(innerExpr);
 		}
 		
-		public const CodeBuilder GetCode()
-		{
+		protected override CodeBuilder GetStatementCode()
+        {
 			CodeBuilder cb = new CodeBuilder();
-			cb.Append(HashKeyword.ToString());
+			cb.Append(AssertKeyword.ToString());
 			cb.Append(LeadingParen.ToString());
 			cb.Append(Target.GetCode());
 			cb.Append(TrailingParen.ToString());
 			return cb;
-		}
+        }
 	}
 }
