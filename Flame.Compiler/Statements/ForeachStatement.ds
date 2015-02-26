@@ -70,11 +70,18 @@ namespace Flame.Compiler.Statements
 				}
 				var loopBlock = cg.CreateForeachBlock(collectionBlocks);
 				
-				foreach (var item in loopBlock.Elements, var elem in elemCache.ElementVariables)
-					elem.BindVariable(item);
-				
-				Body.Emit(loopBlock);
-				Generator.EmitBlock(loopBlock);
+				if (loopBlock == null)
+				{
+					this.Reduce().Emit(Generator);
+				}
+				else
+				{
+					foreach (var item in loopBlock.Elements, var elem in elemCache.ElementVariables)
+						elem.BindVariable(item);
+					
+					Body.Emit(loopBlock);
+					Generator.EmitBlock(loopBlock);
+				}
 			}
 			else
 			{

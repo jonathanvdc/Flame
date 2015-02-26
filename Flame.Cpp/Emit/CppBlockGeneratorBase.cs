@@ -25,7 +25,7 @@ namespace Flame.Cpp.Emit
             blocks.Add(Block);
         }
         
-        public IEnumerable<LocalDeclarationReference> DeclarationBlocks
+        public virtual IEnumerable<LocalDeclarationReference> DeclarationBlocks
         {
             get
             {

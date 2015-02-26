@@ -348,7 +348,7 @@ namespace Flame.Cpp
         private static string GetFirstLine(CodeBuilder Body)
         {
             int i;
-            for (i = 0; i < Body.LineCount - 1 && string.IsNullOrWhiteSpace(Body[i].Text); i++) ;
+            for (i = 0; i < Body.LineCount - 1 && Body[i].IsWhitespace; i++) ;
 
             return Body[i].Text;
         }
