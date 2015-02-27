@@ -1,0 +1,181 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Variables;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+	public class TrySyntax : IStatementSyntax
+	{
+		public const this(set Token TryKeyword, set IStatementSyntax TryBody, set [CatchSyntax] CatchClauses);
+		public const this(set Token TryKeyword, set IStatementSyntax TryBody, set FinallySyntax FinallyClause, set [CatchSyntax] CatchClauses);
+	
+		public Token TryKeyword { const get; private set; }
+		public IStatementSyntax TryBody { const get; private set; }
+		public [CatchSyntax] CatchClauses { const get; private set; }
+		public FinallySyntax FinallyClause { const get; private set; }
+		
+		public IReadOnlyList<Token> Tokens
+        {
+        	const get
+        	{
+        		var tks = new List<Token>();
+        		tks.Add(TryKeyword);
+				tks.AddRange(TryBody.GetTokens());
+				foreach (var item in CatchClauses)
+				{
+					tks.AddRange(item.GetTokens());
+				}
+				tks.AddRange(FinallyClause.GetTokens());
+				return tks;
+        	}
+        }
+        
+        public const IStatement CreateStatement(ISyntaxState State)
+        {
+        	var tryClause = TryBody.CreateVerifiedStatement(State);
+        	var catchClauses = new List<CatchClause>();
+        	foreach (var item in CatchClauses)
+        	{
+        		catchClauses.Add(item.CreateClause(State));
+        	}
+        	if (FinallyClause == null)
+        	{
+        		return new TryStatement(tryClause, catchClauses);
+        	}
+        	else
+        	{
+        		var finallyClause = FinallyClause.Body.CreateVerifiedStatement(State);
+        		return new TryStatement(tryClause, finallyClause, catchClauses);
+        	}
+        }
+		
+		public const CodeBuilder GetCode()
+		{
+			var cb = new CodeBuilder();
+			cb.Append(TryKeyword.ToString());
+			cb.Append(TryBody.ToString());
+			foreach (var item in CatchClauses)
+			{
+				cb.Append(item.GetCode());
+			}
+			cb.Append(FinallyClause.GetCode());
+			return cb;
+		}
+		
+		public override const string ToString()
+		{
+			return GetCode().ToString();
+		}
+	}
+	
+	public class CatchSyntax : ITokenNode
+	{
+		public const this(set Token CatchKeyword, set Token LeadingParentheses, set VariableDeclarationSyntax ExceptionDeclaration, 
+			set Token TrailingParentheses, set IStatementSyntax Body);
+		
+		public Token CatchKeyword { const get; private set; }
+		public Token LeadingParentheses { const get; private set; }
+        public VariableDeclarationSyntax ExceptionDeclaration { const get; private set; }
+		public Token TrailingParentheses { const get; private set; }
+		public IStatementSyntax Body { const get; private set; }
+		
+		public IReadOnlyList<Token> Tokens
+        {
+        	const get
+        	{
+        		var tks = new List<Token>();
+        		tks.Add(CatchKeyword);
+				tks.Add(LeadingParentheses);
+				tks.AddRange(ExceptionDeclaration.GetTokens());
+				tks.Add(TrailingParentheses);
+				tks.AddRange(Body.GetTokens());
+				return tks;
+        	}
+        }
+	
+		public const CodeBuilder GetCode()
+		{
+			var cb = new CodeBuilder();
+			cb.Append(CatchKeyword.ToString());
+			cb.Append(LeadingParentheses.ToString());
+			cb.Append(ExceptionDeclaration.ToString());
+			cb.Append(TrailingParentheses.ToString());
+			cb.Append(Body.GetCode());
+			return cb;
+		}
+		
+		public const CatchClause CreateClause(ISyntaxState State)
+		{
+			State.PushScope();
+			
+		    [string] varNames = ExceptionDeclaration.VariableNames;
+    		
+    		if (Enumerable.Any<string>(Enumerable.Skip<string>(varNames, 1)))
+    		{
+    			State.Log.LogError(new LogEntry("Invalid syntax", "Catch clauses may have no more than one exception-catching variable."));
+    		}
+			
+    		string variableName = Enumerable.Single<string>(varNames);
+    		IType variableType = ExceptionDeclaration.Type.CreateType(State);
+    		
+    		var descMember = new DescribedVariableMember(variableName, variableType)
+        	
+			var clause = new CatchClause(descMember);
+			
+			State.DeclareVariable(variableName, clause.ExceptionVariable);
+			
+			var bodyStmt = Body.CreateVerifiedStatement(State);
+			var cleanup = State.PopScope();
+			
+			var completeBody = new BlockStatement(new IStatement[] { bodyStmt, cleanup });
+
+			clause.Body = completeBody;
+
+			return clause;
+		}
+		
+		public override const string ToString()
+		{
+			return GetCode().ToString();
+		}
+	}
+	
+	public class FinallySyntax : ITokenNode
+	{
+		public const this(set Token FinallyKeyword, set IStatementSyntax Body);
+	
+		public Token FinallyKeyword { const get; private set; }
+		public IStatementSyntax Body { const get; private set; }
+		
+		public IReadOnlyList<Token> Tokens
+        {
+        	const get
+        	{
+        		var tks = new List<Token>();
+        		tks.Add(FinallyKeyword);
+				tks.AddRange(Body.GetTokens());
+				return tks;
+        	}
+        }
+		
+		public const CodeBuilder GetCode()
+		{
+			var cb = new CodeBuilder();
+			cb.Append(FinallyKeyword.ToString());
+			cb.Append(Body.GetCode());
+			return cb;			
+		}
+		
+		public override const string ToString()
+		{
+			return GetCode().ToString();
+		}
+	}
+}

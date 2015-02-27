@@ -408,7 +408,7 @@ namespace Flame.Cpp.Emit
 
         public ITryBlockGenerator CreateTryBlock()
         {
-            throw new NotImplementedException();
+            return new TryBlockGenerator(this);
         }
 
         public ICodeBlock EmitAssert(ICodeBlock Condition)

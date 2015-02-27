@@ -1409,6 +1409,8 @@ namespace Flame.DSharp.Parser
             	return ParseThrowSyntax(Tokens);
             else if (tokenType == TokenType.AssertKeyword)
             	return ParseAssertSyntax(Tokens);
+            else if (tokenType == TokenType.TryKeyword)
+            	return ParseTrySyntax(Tokens);
             else if (tokenType == TokenType.YieldKeyword)
             	return ParseYieldSyntax(Tokens);
             else if (tokenType == TokenType.BreakKeyword)
@@ -1796,6 +1798,61 @@ namespace Flame.DSharp.Parser
             return new ForeachSyntax(foreachKeyword, leadingParen, elems, trailingParen, body);
         }
 
+        #endregion
+        
+        #region ParseCatchSyntax
+        
+        protected virtual CatchSyntax ParseCatchSyntax(ITokenStream Tokens)
+        {
+        	var keyword = Tokens.NextNoTrivia(TokenType.CatchKeyword, Log);
+        	var leadingParen = Tokens.NextNoTrivia(TokenType.RParen, Log);
+        	var variableDecl = ParseDeclarationSyntax(Tokens);
+        	var trailingParen = Tokens.NextNoTrivia(TokenType.LParen, Log);
+        	var body = ParseStatement(Tokens);
+        	return new CatchSyntax(keyword, leadingParen, variableDecl, trailingParen, body);
+        }
+        
+        #endregion
+        
+        #region ParseFinallySyntax
+        
+        protected virtual FinallySyntax ParseFinallySyntax(ITokenStream Tokens)
+        {
+        	var keyword = Tokens.NextNoTrivia(TokenType.FinallyKeyword, Log);
+        	var body = ParseStatement(Tokens);
+        	return new FinallySyntax(keyword, body);
+        }
+        
+        #endregion
+        
+        #region ParseTrySyntax
+        
+        protected virtual IStatementSyntax ParseTrySyntax(ITokenStream Tokens)
+        {
+        	var tryKeyword = Tokens.NextNoTrivia(TokenType.TryKeyword, Log);
+        	var tryBody = ParseStatement(Tokens);
+        	FinallySyntax finallyClause = null;
+        	List<CatchSyntax> catchClauses = new List<CatchSyntax>();
+        	var peek = Tokens.PeekNoTrivia();
+        	while (peek.Type == TokenType.CatchKeyword || peek.Type == TokenType.FinallyKeyword)
+        	{
+        		if (peek.Type == TokenType.CatchKeyword)
+        		{
+        			catchClauses.Add(ParseCatchSyntax(Tokens));
+        		}
+        		else if (peek.Type == TokenType.FinallyKeyword)
+        		{
+        			if (finallyClause != null)
+        			{
+        				Log.LogError(new LogEntry("Invalid syntax", "A try/catch/finally statement has multiple finally clauses."));
+        			}
+        			finallyClause = ParseFinallySyntax(Tokens);
+        		}
+        		peek = Tokens.PeekNoTrivia();
+        	}
+        	return new TrySyntax(tryKeyword, tryBody, finallyClause, catchClauses);
+        }
+        
         #endregion
 
         #endregion

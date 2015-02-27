@@ -48,7 +48,9 @@ namespace Flame.Syntax.DSharp
         	var collExprs = new List<CollectionElement>();
         	foreach (var item in Elements)
         	{
-        		string variableName = Enumerable.Single<string>((IEnumerable<string>)item.VariableDeclaration.VariableNames);
+        		[string] varNames = item.VariableDeclaration.VariableNames;
+        	
+        		string variableName = Enumerable.Single<string>(varNames);
         		var expr = item.Collection.CreateExpression(State);
         		
         		IType variableType;

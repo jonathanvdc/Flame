@@ -27,6 +27,16 @@ namespace Flame.Syntax
 			return type;
 		}
 		
+		public static IStatement CreateVerifiedStatement(this IStatementSyntax Syntax, ISyntaxState State)
+		{
+			var stmt = Syntax.CreateStatement(State);
+			if (stmt == null)
+			{
+				State.Log.LogError(new LogEntry("Statement resolution error", "Could not resolve statement '" + Syntax.GetCode().ToString() + "'"));
+			}
+			return stmt;
+		}
+		
 		/// <summary>
         /// Gets an expression for the syntax that accesses the member. Returns null if the member is accessed statically.
         /// </summary>
