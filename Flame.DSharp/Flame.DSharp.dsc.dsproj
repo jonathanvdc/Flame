@@ -101,6 +101,7 @@
 				<Compile Include="Syntax\Statements\YieldBreakSyntax.ds" />
 				<Compile Include="Syntax\Statements\ThrowSyntax.ds" />
 				<Compile Include="Syntax\Statements\AssertSyntax.ds" />
+				<Compile Include="Syntax\Statements\TrySyntax.ds" />
 			</ItemGroup>
 		</ItemGroup>
 		<ItemGroup>
