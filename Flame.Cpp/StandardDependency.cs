@@ -27,6 +27,14 @@ namespace Flame.Cpp
 
         #region Static
 
+        public static IHeaderDependency Functional
+        {
+            get
+            {
+                return new StandardDependency("functional");
+            }
+        }
+
         public static IHeaderDependency Memory
         {
             get

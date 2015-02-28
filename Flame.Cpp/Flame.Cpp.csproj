@@ -60,6 +60,7 @@
     <Compile Include="CppPointerExtensions.cs" />
     <Compile Include="Emit\BodyStatementType.cs" />
     <Compile Include="Emit\CollectionBlock.cs" />
+    <Compile Include="Emit\FinallyBlock.cs" />
     <Compile Include="Emit\TryBlockGenerator.cs" />
     <Compile Include="Emit\DynamicCastBlock.cs" />
     <Compile Include="Emit\ForeachBlock.cs" />
@@ -145,6 +146,7 @@
     <Compile Include="Plugs\StdTemplatedTypeBase.cs" />
     <Compile Include="Plugs\StdVectorType.cs" />
     <Compile Include="Plugs\StdxArraySlice.cs" />
+    <Compile Include="Plugs\StdxFinally.cs" />
     <Compile Include="Plugs\StdxNamespace.cs" />
     <Compile Include="PreprocessorDirective.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

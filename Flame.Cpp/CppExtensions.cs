@@ -358,12 +358,17 @@ namespace Flame.Cpp
 
         #region Code Builder Extensions
 
-        private static string GetFirstLine(CodeBuilder Body)
+        private static int GetFirstLineIndex(CodeBuilder Body)
         {
             int i;
             for (i = 0; i < Body.LineCount - 1 && Body[i].IsWhitespace; i++) ;
 
-            return Body[i].Text;
+            return i;
+        }
+
+        private static string GetFirstLine(CodeBuilder Body)
+        {
+            return Body[GetFirstLineIndex(Body)].Text;
         }
 
         public static BodyStatementType AddBodyCodeBuilder(this CodeBuilder CodeBuilder, CodeBuilder Body)
@@ -409,6 +414,43 @@ namespace Flame.Cpp
             {
                 CodeBuilder.AddCodeBuilder(Body);
                 return BodyStatementType.Block;
+            }
+        }
+
+        public static CodeBuilder PrependStatement(this CodeBuilder BlockBuilder, CodeBuilder StatementBody)
+        {
+            int firstLineIndex = GetFirstLineIndex(BlockBuilder);
+            string firstLine = BlockBuilder[firstLineIndex].Text.Trim();
+            if (firstLine.StartsWith("{"))
+            {
+                var cb = new CodeBuilder();
+                cb.AddLine("{");
+                cb.IncreaseIndentation();
+                cb.AddCodeBuilder(StatementBody);
+                cb.AddLine(BlockBuilder[firstLineIndex]);
+                for (int i = firstLineIndex + 1; i < BlockBuilder.LineCount; i++)
+                {
+                    cb.AddLine(BlockBuilder[i]);
+                }
+                return cb;
+            }
+            else
+            {
+                if (firstLine == ";" && BlockBuilder.ToString().Trim() == ";")
+                {
+                    return StatementBody;
+                }
+                else
+                {
+                    var cb = new CodeBuilder();
+                    cb.AddLine("{");
+                    cb.IncreaseIndentation();
+                    cb.AddCodeBuilder(StatementBody);
+                    cb.AddCodeBuilder(BlockBuilder);
+                    cb.DecreaseIndentation();
+                    cb.AddLine("}");
+                    return cb;
+                }
             }
         }
 
