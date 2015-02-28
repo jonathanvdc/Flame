@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
 
 namespace Flame.Compiler.Statements
@@ -30,6 +31,41 @@ namespace Flame.Compiler.Statements
         public IStatement Body { const get; private set; }
         public IStatement Change { const get; private set; }
         public IStatement End { const get; private set; }
+        
+        public override virtual IStatement Optimize()
+        {
+            var stmt = new ForStatement(Setup.Optimize(), Condition.Optimize(), Change.Optimize(), Body.Optimize(), End.Optimize());
+            if (stmt.IsEmpty)
+            {
+            	return new EmptyStatement();
+            }
+            return stmt;
+        }
+
+        public override virtual void Emit(IBlockGenerator Generator)
+        {
+        	if (Generator.CodeGenerator is IForCodeGenerator)
+        	{
+        		var cg = (IForCodeGenerator)Generator.CodeGenerator;
+        		var setupBlock = cg.CreateBlock();
+        		Setup.Emit(setupBlock);
+        		var condBlock = Condition.Emit(cg);
+        		var deltaBlock = cg.CreateBlock();
+        		Change.Emit(deltaBlock);
+        		var forBlock = cg.CreateForBlock(setupBlock, condBlock, deltaBlock);
+        		if (forBlock != null) // Code generator may choose to refuse our for block if it so chooses
+        		{
+        			Body.Emit(forBlock);
+        			Generator.EmitBlock(forBlock);
+        			if (!End.IsEmpty)
+        			{
+        				End.Emit(Generator);
+        			}
+        			return;
+        		}
+        	}
+            Peel().Emit(Generator);
+        }
 
         public override IStatement Peel()
         {

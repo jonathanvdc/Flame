@@ -4,6 +4,17 @@ using System.Text;
 
 namespace Flame.Compiler.Emit
 {
+	/// <summary>
+	/// Provides an interface for code generators that support C-family style for loops.
+	/// </summary>
+	public interface IForCodeGenerator : ICodeGenerator
+	{
+		/// <summary>
+		/// Creates block generator for a for loop with the given initialization, condition and delta code blocks.
+		/// </summary>
+		IBlockGenerator CreateForBlock(ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta);
+	}
+
 	public interface IForeachCodeGenerator : ICodeGenerator
 	{
 		ICollectionBlock CreateCollectionBlock(IVariableMember Member, ICodeBlock Collection);
