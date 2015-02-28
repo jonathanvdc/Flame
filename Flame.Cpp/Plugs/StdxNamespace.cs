@@ -24,6 +24,7 @@ namespace Flame.Cpp.Plugs
             inst = new StdxNamespace();
 
             inst.Register(StdxArraySlice.Instance);
+            inst.Register(StdxFinally.Instance);
         }
 
         private static StdxNamespace inst;
