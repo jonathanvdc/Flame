@@ -48,7 +48,6 @@ namespace Flame.Cpp.Emit
             cb.Append("if (");
             cb.Append(Condition.GetCode());
             cb.Append(")");
-            cb.AppendLine();
             var ifBodyType = cb.AddBodyCodeBuilder(((ICppBlock)IfBlock).GetCode());
             var elseBody = ((ICppBlock)ElseBlock).GetCode();
             if (elseBody.LineCount != 0 && !(elseBody.LineCount == 1 && elseBody[0].Text.Trim() == ";"))

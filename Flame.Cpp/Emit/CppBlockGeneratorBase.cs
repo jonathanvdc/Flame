@@ -24,7 +24,7 @@ namespace Flame.Cpp.Emit
         {
             blocks.Add(Block);
         }
-        
+
         public virtual IEnumerable<LocalDeclarationReference> DeclarationBlocks
         {
             get
@@ -33,7 +33,7 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        public IEnumerable<LocalDeclaration> LocalDeclarations
+        public virtual IEnumerable<LocalDeclaration> LocalDeclarations
         {
             get { return DeclarationBlocks.Select((item) => item.Declaration); }
         }
@@ -45,8 +45,7 @@ namespace Flame.Cpp.Emit
 
         protected void DeclareLocal(CppLocal Local)
         {
-            var declBlock = GetDeclarationBlock(Local);
-            if (declBlock == null)
+            if (!this.DeclaresLocal(Local))
             {
                 AddBlock(new LocalDeclarationReference(Local));
             }
@@ -60,8 +59,13 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        protected void ReferenceLocalDeclaration(LocalDeclaration Declaration)
+        protected void ReferenceLocalDeclaration(LocalDeclaration Declaration, LinkedList<LocalDeclaration> Exclude)
         {
+            if (Exclude.Any((item) => item.Local == Declaration.Local))
+            {
+                return;
+            }
+
             var declBlock = GetDeclarationBlock(Declaration.Local);
             if (declBlock != null)
             {
@@ -71,14 +75,16 @@ namespace Flame.Cpp.Emit
             else
             {
                 AddBlock(new LocalDeclarationReference(Declaration));
+                Exclude.AddLast(Declaration);
             }
         }
 
         protected void ReferenceLocalDeclarations(IEnumerable<LocalDeclaration> Declarations)
         {
+            LinkedList<LocalDeclaration> decls = new LinkedList<LocalDeclaration>();
             foreach (var item in Declarations)
             {
-                ReferenceLocalDeclaration(item);
+                ReferenceLocalDeclaration(item, decls);
             }
         }
 
@@ -89,10 +95,7 @@ namespace Flame.Cpp.Emit
             var cppBlock = (ICppBlock)Block;
             if (!(Block is LocalDeclarationReference))
             {
-                if (cppBlock is ICppLocalDeclaringBlock)
-                {
-                    ReferenceLocalDeclarations(((ICppLocalDeclaringBlock)cppBlock).LocalDeclarations);
-                }
+                ReferenceLocalDeclarations(cppBlock.GetLocalDeclarations());
                 DeclareLocals(cppBlock.LocalsUsed);
             }
             AddBlock(cppBlock);
@@ -155,6 +158,22 @@ namespace Flame.Cpp.Emit
             }
         }
 
+        public int StatementCount
+        {
+            get
+            {
+                int count = 0;
+                foreach (var item in blocks)
+                {
+                    if (!(item is LocalDeclarationReference) || !((LocalDeclarationReference)item).IsEmpty)
+                    {
+                        count++;
+                    }
+                }
+                return count;
+            }
+        }
+
         public virtual CodeBuilder GetCode()
         {
             if (blocks.Count == 0)
@@ -183,6 +202,11 @@ namespace Flame.Cpp.Emit
         public virtual IEnumerable<CppLocal> LocalsUsed
         {
             get { return blocks.SelectMany((item) => item.LocalsUsed).Distinct(); }
+        }
+
+        public override string ToString()
+        {
+            return GetCode().ToString();
         }
     }
 }

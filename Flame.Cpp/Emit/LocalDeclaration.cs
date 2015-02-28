@@ -30,6 +30,11 @@ namespace Flame.Cpp.Emit
         /// Gets or sets a boolean value that indicates whether the variable should be declared or not.
         /// </summary>
         public bool DeclareVariable { get; set; }
+
+        public override string ToString()
+        {
+            return Local.Type.FullName + " " + Local.Member.Name;
+        }
     }
 
     public class LocalDeclarationReference : ICppBlock
@@ -56,12 +61,22 @@ namespace Flame.Cpp.Emit
 
         private bool hasAcquired;
 
-        public bool DeclareVariable
+        public bool DeclaresVariable
         {
             get
             {
                 return Declaration.DeclareVariable && hasAcquired;
             }
+        }
+
+        public bool AssignsValue
+        {
+            get { return Value != null; }
+        }
+
+        public bool IsEmpty
+        {
+            get { return !DeclaresVariable && !AssignsValue; }
         }
 
         /// <summary>
@@ -93,7 +108,7 @@ namespace Flame.Cpp.Emit
 
         private IEnumerable<IHeaderDependency> TypeDependencies
         {
-            get { return DeclareVariable ? Declaration.Local.Type.GetDependencies() : Enumerable.Empty<IHeaderDependency>(); }
+            get { return DeclaresVariable ? Declaration.Local.Type.GetDependencies() : Enumerable.Empty<IHeaderDependency>(); }
         }
         private IEnumerable<IHeaderDependency> ValueDependencies
         {
@@ -107,7 +122,7 @@ namespace Flame.Cpp.Emit
 
         private IEnumerable<CppLocal> TypeLocalsUsed
         {
-            get { return DeclareVariable ? new CppLocal[] { Declaration.Local } : Enumerable.Empty<CppLocal>(); }
+            get { return DeclaresVariable ? new CppLocal[] { Declaration.Local } : Enumerable.Empty<CppLocal>(); }
         }
         private IEnumerable<CppLocal> ValueLocalsUsed
         {
@@ -137,7 +152,7 @@ namespace Flame.Cpp.Emit
 
         public CodeBuilder GetExpressionCode(bool EmitAuto)
         {
-            if (DeclareVariable)
+            if (DeclaresVariable)
             {
                 CodeBuilder cb = new CodeBuilder();
                 if (EmitAuto)
@@ -153,7 +168,7 @@ namespace Flame.Cpp.Emit
 
                 if (Value != null)
                 {
-                    if (DeclareVariable && !EmitAuto && Value is INewObjectBlock)
+                    if (DeclaresVariable && !EmitAuto && Value is INewObjectBlock)
                     {
                         var initBlock = (INewObjectBlock)Value;
                         if (initBlock.Kind == AllocationKind.Stack || initBlock.Kind == AllocationKind.MakeManaged)

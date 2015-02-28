@@ -12,7 +12,8 @@ using System.Threading.Tasks;
 namespace Flame.Recompilation.Emit
 {
     public class RecompiledCodeGenerator : IUnmanagedCodeGenerator, IYieldCodeGenerator, 
-        IInitializingCodeGenerator, IForeachCodeGenerator, IExceptionCodeGenerator
+        IInitializingCodeGenerator, IForeachCodeGenerator, IExceptionCodeGenerator,
+        IForCodeGenerator
     {
         public RecompiledCodeGenerator(AssemblyRecompiler Recompiler, IMethod Method)
         {
@@ -388,6 +389,15 @@ namespace Flame.Recompilation.Emit
         public ICodeBlock EmitThrow(ICodeBlock Exception)
         {
             return new StatementBlock(this, new ThrowStatement(GetExpression(Exception)));
+        }
+
+        #endregion
+
+        #region IForCodeGenerator
+
+        public IBlockGenerator CreateForBlock(ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta)
+        {
+            return new ForBlockGenerator(this, GetStatement(Initialization), GetExpression(Condition), GetStatement(Delta));
         }
 
         #endregion

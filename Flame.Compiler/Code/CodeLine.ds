@@ -14,7 +14,7 @@ namespace Flame.Compiler
 		/// </summary>
 		public bool IsEmpty
 		{
-			const get return Text.Equals("\0");	
+			const get return Text.Equals(null) || Text.Equals("") || Text.Equals("\0");	
 		}
 
 		/// <summary>

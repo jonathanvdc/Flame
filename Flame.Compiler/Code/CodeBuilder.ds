@@ -21,6 +21,13 @@ namespace Flame.Compiler
             	AddFormattedLine(item);
             }
         }
+        public const this(CodeBuilder Other)
+        {
+        	this.indentation = Other.indentation;
+        	this.lines = new List<CodeLine>(Other.lines);
+        	this.IndentationString = Other.IndentationString;
+        }
+        
         private void Init()
         {
         	indentation = 0;
@@ -150,6 +157,85 @@ namespace Flame.Compiler
         	}
         }
 
+        #endregion
+        
+        #region RemoveLine
+        
+        public void RemoveLine(int Index)
+        {
+        	lines.RemoveAt(Index);
+        }
+        
+        #endregion
+        
+        #region TrimStart
+        
+        public void TrimStart(char[] Characters)
+        {
+        	while (lines.Count > 0)
+        	{
+        		string trimmed = lines[0].Text.TrimStart(Characters);
+        		var newLine = new CodeLine(trimmed, lines[0].Indentation);
+        		if (newLine.IsEmpty)
+        		{
+        			lines.RemoveAt(0);
+        		}
+        		else
+        		{
+        			lines[0] = newLine;
+        			return;
+        		}
+        	}
+        }
+        
+        public void TrimStart()
+        {
+        	TrimStart(new char[0]);
+        }
+        
+        #endregion
+        
+        #region TrimEnd
+        
+        public void TrimEnd(char[] Characters)
+        {
+        	while (lines.Count > 0)
+        	{
+        		string trimmed = lines[lines.Count - 1].Text.TrimEnd(Characters);
+        		var newLine = new CodeLine(trimmed, lines[lines.Count - 1].Indentation);
+        		if (newLine.IsEmpty)
+        		{
+        			lines.RemoveAt(lines.Count - 1);
+        		}
+        		else
+        		{
+        			lines[lines.Count - 1] = newLine;
+        			return;
+        		}
+        	}
+        }
+        
+        public void TrimEnd()
+        {
+        	TrimEnd(new char[0]);
+        }
+        
+        #endregion
+        
+        #region Trim
+        
+        public void Trim(char[] Characters)
+        {
+        	TrimStart(Characters);
+        	TrimEnd(Characters);
+        }
+        
+        public void Trim()
+        {
+        	TrimStart();
+        	TrimEnd();
+        }
+        
         #endregion
         
         #region Properties

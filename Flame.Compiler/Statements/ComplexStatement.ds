@@ -9,17 +9,17 @@ namespace Flame.Compiler.Statements
     
         public abstract IStatement Peel();
 
-        public bool IsEmpty
+        public virtual bool IsEmpty
         {
             const get { return Peel().IsEmpty; }
         }
 
-        public IStatement Optimize()
+        public virtual IStatement Optimize()
         {
             return Peel().Optimize();
         }
 
-        public void Emit(IBlockGenerator Generator)
+        public virtual void Emit(IBlockGenerator Generator)
         {
             Peel().Emit(Generator);
         }

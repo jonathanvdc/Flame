@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class CppCodeGenerator : IUnmanagedCodeGenerator, IForeachCodeGenerator, IExceptionCodeGenerator
+    public class CppCodeGenerator : IUnmanagedCodeGenerator, IForeachCodeGenerator,
+        IExceptionCodeGenerator, IForCodeGenerator
     {
         public CppCodeGenerator(IMethod Method, ICppEnvironment Environment)
         {
@@ -420,6 +421,22 @@ namespace Flame.Cpp.Emit
         public ICodeBlock EmitThrow(ICodeBlock Exception)
         {
             return new ThrowBlock(this, (ICppBlock)Exception);
+        }
+
+        #endregion
+
+        #region IForCodeGenerator
+
+        public IBlockGenerator CreateForBlock(ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta)
+        {
+            var cppInit = (ICppBlock)Initialization;
+            var cppCond = (ICppBlock)Condition;
+            var cppDelta = (ICppBlock)Delta;
+            if (cppInit.IsSimple() && cppDelta.IsSimple())
+            {
+                return new ForBlockGenerator(this, cppInit, cppCond, cppDelta);
+            }
+            return null;
         }
 
         #endregion

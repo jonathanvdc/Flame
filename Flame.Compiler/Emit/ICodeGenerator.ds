@@ -7,11 +7,30 @@ namespace Flame.Compiler
 	/// <summary>
 	/// Provides common functionality for code generators. Code generators take care of the generation of individual blocks of code.
 	/// </summary>
+	/// <remarks>
+	/// All code generators must implement this interface.
+	/// They may, however, refuse certain block creation/emit requests by returning null.
+	/// It is up to the client to use some workaround for the issue, or log an error/throw an exception if it can't.
+	/// For example: a code generator may choose to refuse to generate binary blocks for non-intrinsic types.
+	/// A binary expression will then likely try to circumvent the issue by emitting a call an the operator overload.
+	/// </remarks>
 	public interface ICodeGenerator : IMethodStructureGenerator
 	{
-		IBlockGenerator CreateBlock();		
+		/// <summary>
+		/// Creates a new block generator.
+		/// </summary>
+		IBlockGenerator CreateBlock();
+		/// <summary>
+		/// Creates a block generator for a while loop with the given condition block.
+		/// </summary>
 		IBlockGenerator CreateWhileBlock(ICodeBlock Condition);
+		/// <summary>
+		/// Creates a block generator for a do-while loop with the given condition block.
+		/// </summary>
 		IBlockGenerator CreateDoWhileBlock(ICodeBlock Condition);
+		/// <summary>
+		/// Creates an if/else block generator based on the given condition.
+		/// </summary>		
 		IIfElseBlockGenerator CreateIfElseBlock(ICodeBlock Condition);
 		
 		#region Constants
