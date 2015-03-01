@@ -8,13 +8,17 @@ namespace Flame.Compiler.Expressions
     public class NewArrayExpression : IExpression
     {
         public const this(set IType ElementType, set IReadOnlyList<IExpression> Dimensions);
-        public const this(set IType ElementType, IEnumerable<IExpression> Dimensions)
+        public const this(set IType ElementType, [IExpression] Dimensions)
     	{
     		this.Dimensions = (IReadOnlyList<IExpression>)Enumerable.ToArray<IExpression>(Dimensions);
     	}
         public const this(set IType ElementType, IList<IExpression> Dimensions)
         {
         	this.Dimensions = (IReadOnlyList<IExpression>)Enumerable.ToArray<IExpression>(Dimensions);
+        }
+        public const this(set IType ElementType, IExpression[] Dimensions)
+        {
+        	this.Dimensions = (IReadOnlyList<IExpression>)Dimensions;
         }
 
         public IType ElementType { const get; private set; }

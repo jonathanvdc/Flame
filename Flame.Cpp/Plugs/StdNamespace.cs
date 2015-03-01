@@ -26,6 +26,7 @@ namespace Flame.Cpp.Plugs
             inst.Register(StdVectorType.Instance);
             inst.Register(StdSharedPointer.Instance);
             inst.Register(StdString.Instance);
+            inst.Register(StdInitializerList.Instance);
         }
 
         private static StdNamespace inst;
