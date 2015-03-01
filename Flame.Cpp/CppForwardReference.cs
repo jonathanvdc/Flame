@@ -16,6 +16,11 @@ namespace Flame.Cpp
 
         public CppType Type { get; private set; }
 
+        public string Namespace
+        {
+            get { return Type.DeclaringNamespace.FullName; }
+        }
+
         public bool IsStruct
         {
             get { return Type.IsStruct; }
@@ -32,6 +37,7 @@ namespace Flame.Cpp
         public CodeBuilder GetCode()
         {
             CodeBuilder cb = new CodeBuilder();
+            cb.IndentationString = new string(' ', 4);
             if (!TemplateDefinition.IsEmpty)
             {
                 cb.AddCodeBuilder(TemplateDefinition.GetHeaderCode());
@@ -45,7 +51,7 @@ namespace Flame.Cpp
             {
                 cb.Append("class ");
             }
-            cb.Append(Type.GetGenericFreeFullName().Replace(".", "::"));
+            cb.Append(Type.GetGenericFreeName().Replace(".", "::"));
             cb.Append(";");
             return cb;
         }

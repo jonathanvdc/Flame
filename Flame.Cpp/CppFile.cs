@@ -155,20 +155,6 @@ namespace Flame.Cpp
             return cb;
         }
 
-        public CodeBuilder GetForwardReferenceCode()
-        {
-            CodeBuilder cb = new CodeBuilder();
-            foreach (var item in ForwardReferences)
-            {
-                cb.AddCodeBuilder(item.GetCode());
-            }
-            if (!cb.IsWhitespace)
-            {
-                cb.AddEmptyLine();
-            }
-            return cb;
-        }
-
         public CodeBuilder GetSourceCode()
         {
             CodeBuilder cb = GetIncludeCode(false);
@@ -193,10 +179,22 @@ namespace Flame.Cpp
         {
             CodeBuilder cb = GetIncludeCode(true);
             cb.AddEmptyLine();
-            cb.AddCodeBuilder(GetForwardReferenceCode());
+            Dictionary<string, CodeBuilder> ns = new Dictionary<string, CodeBuilder>();
+            foreach (var item in ForwardReferences)
+            {
+                AddToNamespace(item.Namespace, item.GetCode(), ns);
+            }
+            foreach (var item in ns)
+            {
+                item.Value.AddEmptyLine();
+            }
             foreach (var item in Members)
             {
-                cb.AddCodeBuilder(GetHeaderCode(item));
+                AddToNamespace(GetNamespace(item), item.GetHeaderCode(), ns);
+            }
+            foreach (var item in ns)
+            {
+                cb.AddCodeBuilder(WrapNamespaces(ns));
             }
             if (ContainsTemplates && HasSourceCode) // Include .hxx
             {
@@ -264,15 +262,27 @@ namespace Flame.Cpp
             }
         }
 
-        private static string[] GetSplitNamespace(ICppMember Member)
+        private static void AddToNamespace(string Namespace, CodeBuilder Code, IDictionary<string, CodeBuilder> Namespaces)
         {
-            return GetNamespace(Member).Split(new string[] { "::", "." }, StringSplitOptions.RemoveEmptyEntries);
+            if (!Namespaces.ContainsKey(Namespace))
+            {
+                Namespaces[Namespace] = Code;
+            }
+            else
+            {
+                Namespaces[Namespace].AddCodeBuilder(Code);
+            }
         }
 
-        private static CodeBuilder GetHeaderCode(ICppMember Member)
+        private static CodeBuilder WrapNamespaces(IDictionary<string, CodeBuilder> Namespaces)
         {
-            string[] ns = GetSplitNamespace(Member);
-            return WrapNamespaces(Member.GetHeaderCode(), ns);
+            CodeBuilder cb = new CodeBuilder();
+            foreach (var item in Namespaces)
+            {
+                string[] split = item.Key.Split(new string[] { "::", "." }, StringSplitOptions.RemoveEmptyEntries);
+                cb.AddCodeBuilder(WrapNamespaces(item.Value, split));
+            }
+            return cb;
         }
 
         private static CodeBuilder WrapNamespaces(CodeBuilder Code, IEnumerable<string> Namespaces)
@@ -284,7 +294,6 @@ namespace Flame.Cpp
             else
             {
                 CodeBuilder cb = new CodeBuilder();
-                cb.IndentationString = Code.IndentationString;
                 cb.AddLine("namespace " + Namespaces.First());
                 cb.AddLine("{");
                 cb.IncreaseIndentation();
