@@ -61,5 +61,10 @@ namespace Flame.Cpp
         {
             get { return DeclaringEnvironment.RootType; }
         }
+
+        public ITypeDefinitionPacker TypeDefinitionPacker
+        {
+            get { return DefaultTypeDefinitionPacker.Instance; }
+        }
     }
 }

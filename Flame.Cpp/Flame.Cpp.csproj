@@ -58,6 +58,7 @@
     <Compile Include="CppField.cs" />
     <Compile Include="CppNameExtensions.cs" />
     <Compile Include="CppPointerExtensions.cs" />
+    <Compile Include="DefaultTypeDefinitionPacker.cs" />
     <Compile Include="Emit\BodyStatementType.cs" />
     <Compile Include="Emit\CollectionBlock.cs" />
     <Compile Include="Emit\CppBlockExtensions.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="HeaderDependencyAttribute.cs" />
     <Compile Include="ICppEnvironment.cs" />
     <Compile Include="ICppTypeConverter.cs" />
+    <Compile Include="ITypeDefinitionPacker.cs" />
     <Compile Include="Plugs\PrimitiveNamespace.cs" />
     <Compile Include="Plugs\StdNamespace.cs" />
     <Compile Include="Plugs\PrimitiveBase.cs" />

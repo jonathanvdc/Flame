@@ -145,9 +145,9 @@ public:
 	ArraySlice();
     ArraySlice(int Length);
 	ArraySlice(std::shared_ptr<std::vector<T>> Array, int Length);
+    ArraySlice(std::initializer_list<T> Values);
     ArraySlice(T* Array, int Length);
 	ArraySlice(const ArraySlice<T>& Other);
-
 
     T& operator[](int Index);
     const T& operator[](int Index) const;
@@ -181,6 +181,13 @@ template<typename T>
 ArraySlice<T>::ArraySlice(std::shared_ptr<std::vector<T>> Array, int Length)
     : ptr(Array), length(Length), offset(0)
 {
+}
+
+template<typename T>
+ArraySlice<T>::ArraySlice(std::initializer_list<T> Values)
+	: ptr(std::make_shared<std::vector<T>>(Values)), offset(0)
+{
+	this->length = this->ptr->size();
 }
 
 template<typename T>
@@ -249,7 +256,7 @@ int ArraySlice<T>::GetLength() const
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get { return new IHeaderDependency[] { StandardDependency.Memory, StandardDependency.Vector }; }
+            get { return new IHeaderDependency[] { StandardDependency.Memory, StandardDependency.InitializerList, StandardDependency.Vector }; }
         }
 
         public CodeBuilder GetHeaderCode()

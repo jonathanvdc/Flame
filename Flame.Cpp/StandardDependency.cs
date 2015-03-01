@@ -59,6 +59,14 @@ namespace Flame.Cpp
             }
         }
 
+        public static IHeaderDependency InitializerList
+        {
+            get
+            {
+                return new StandardDependency("initializer_list");
+            }
+        }
+
         public static IHeaderDependency CAssert
         {
             get

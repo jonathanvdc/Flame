@@ -261,12 +261,12 @@ namespace Flame.Cpp
             get { return GetMembers().GetDependencies().MergeDependencies(GetBaseTypes().GetDependencies()); }
         }
 
-        #region CodeToAccessGroup
+        #region MemberToAccessGroup
 
-        private static void CodeToAccessGroup(AccessModifier Access, CodeBuilder Code, IDictionary<string, IList<CodeBuilder>> AccessGroups)
+        private static void MemberToAccessGroup(ICppMember Member, IDictionary<string, IList<ICppMember>> AccessGroups)
         {
             string modifier;
-            switch (Access)
+            switch (Member.get_Access())
             {
                 case AccessModifier.Private:
                     modifier = "private";
@@ -281,9 +281,9 @@ namespace Flame.Cpp
             }
             if (!AccessGroups.ContainsKey(modifier))
             {
-                AccessGroups[modifier] = new List<CodeBuilder>();
+                AccessGroups[modifier] = new List<ICppMember>();
             }
-            AccessGroups[modifier].Add(Code);
+            AccessGroups[modifier].Add(Member);
         }
 
         #endregion
@@ -325,10 +325,10 @@ namespace Flame.Cpp
             cb.AddCodeBuilder(GetDeclarationCode());
             cb.AddLine("{");
 
-            var groups = new Dictionary<string, IList<CodeBuilder>>();
-            foreach (var item in GetCppMembers().SelectMany((item) => item is CppProperty ? ((CppProperty)item).GetAccessors().Cast<ICppMember>() : new ICppMember[] { item }))
+            var groups = new Dictionary<string, IList<ICppMember>>();
+            foreach (var item in GetCppMembers())
             {
-                CodeToAccessGroup(item.get_Access(), item.GetHeaderCode(), groups);
+                MemberToAccessGroup(item, groups);
             }
             bool isStruct = IsStruct;
             foreach (var group in groups.OrderByDescending((item) => item.Key, new AccessStringComparer()))
@@ -338,11 +338,12 @@ namespace Flame.Cpp
                     cb.AddLine(group.Key + ":");
                 }
                 cb.IncreaseIndentation();
-                foreach (var item in group.Value)
+                foreach (var item in Environment.TypeDefinitionPacker.Pack(group.Value).Where(item => !item.IsEmpty))
                 {
-                    cb.AddCodeBuilder(item);
+                    cb.AddCodeBuilder(item.GetHeaderCode());
                     cb.AddEmptyLine();
                 }
+                cb.TrimEnd(); // Gets rid of excessive whitespace
                 cb.DecreaseIndentation();
             }
 

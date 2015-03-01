@@ -65,5 +65,10 @@ namespace Flame.Cpp
             var docBuilder = CreateDocumentationBuilder(formatter);
             return new CppEnvironment(docBuilder);
         }
+
+        public ITypeDefinitionPacker TypeDefinitionPacker
+        {
+            get { return DefaultTypeDefinitionPacker.Instance; }
+        }
     }
 }
