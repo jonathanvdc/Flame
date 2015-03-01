@@ -108,6 +108,34 @@ namespace Flame.Cpp
             }
         }
 
+        private CppForwardReference[] forwardRefs;
+        public IEnumerable<CppForwardReference> ForwardReferences
+        {
+            get
+            {
+                if (forwardRefs == null)
+                {
+                    var individualForwards = LocallyDeclaredTypes.OfType<CppType>().GetCyclicDependencies();
+                    forwardRefs = individualForwards.OfType<CppType>().Select(item => new CppForwardReference(item)).ToArray();
+                }
+                return forwardRefs;
+            }
+        }
+
+        private IType[] localTypes;
+        public IEnumerable<IType> LocallyDeclaredTypes
+        {
+            get
+            {
+                if (localTypes == null)
+                {
+                    localTypes = Members.SelectMany(item => (item is INamespace ? ((INamespace)item).GetTypes() : Enumerable.Empty<IType>())
+                        .Concat(item is IType ? new IType[] { (IType)item } : Enumerable.Empty<IType>())).ToArray();
+                }
+                return localTypes;
+            }
+        }
+
         public CodeBuilder GetIncludeCode(bool IsHeader)
         {
             CodeBuilder cb = new CodeBuilder();
@@ -123,6 +151,20 @@ namespace Flame.Cpp
             if (!IsHeader)
             {
                 cb.AddCodeBuilder(PreprocessorDirective.CreateIncludeDirective(this).GetCode());
+            }
+            return cb;
+        }
+
+        public CodeBuilder GetForwardReferenceCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            foreach (var item in ForwardReferences)
+            {
+                cb.AddCodeBuilder(item.GetCode());
+            }
+            if (!cb.IsWhitespace)
+            {
+                cb.AddEmptyLine();
             }
             return cb;
         }
@@ -151,6 +193,7 @@ namespace Flame.Cpp
         {
             CodeBuilder cb = GetIncludeCode(true);
             cb.AddEmptyLine();
+            cb.AddCodeBuilder(GetForwardReferenceCode());
             foreach (var item in Members)
             {
                 cb.AddCodeBuilder(GetHeaderCode(item));

@@ -52,10 +52,12 @@
     <Compile Include="CompositeCppTypeConverter.cs" />
     <Compile Include="CppAccessor.cs" />
     <Compile Include="CppAssembly.cs" />
+    <Compile Include="CppDirectDependencyExtensions.cs" />
     <Compile Include="CppDocumentationExtensions.cs" />
     <Compile Include="CppEnvironment.cs" />
     <Compile Include="CppExtensions.cs" />
     <Compile Include="CppField.cs" />
+    <Compile Include="CppForwardReference.cs" />
     <Compile Include="CppNameExtensions.cs" />
     <Compile Include="CppPointerExtensions.cs" />
     <Compile Include="DefaultTypeDefinitionPacker.cs" />
@@ -158,6 +160,8 @@
     <Compile Include="CppTemplateParameter.cs" />
     <Compile Include="CppTypeConverterBase.cs" />
     <Compile Include="TemplatedMemberCppEnvironment.cs" />
+    <Compile Include="TypeDependencyCache.cs" />
+    <Compile Include="TypeDependencyConverter.cs" />
     <Compile Include="TypeHeaderDependency.cs" />
     <Compile Include="UserDependency.cs" />
   </ItemGroup>
