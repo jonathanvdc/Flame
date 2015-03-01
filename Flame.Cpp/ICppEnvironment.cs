@@ -13,5 +13,6 @@ namespace Flame.Cpp
         ICppTypeConverter TypeConverter { get; }
         Func<INamespace, IConverter<IType, string>> TypeNamer { get; }
         ITypeDefinitionPacker TypeDefinitionPacker { get; }
+        TypeDependencyCache DependencyCache { get; }
     }
 }

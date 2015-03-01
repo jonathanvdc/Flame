@@ -64,7 +64,12 @@ namespace Flame.Cpp
 
         public ITypeDefinitionPacker TypeDefinitionPacker
         {
-            get { return DefaultTypeDefinitionPacker.Instance; }
+            get { return DeclaringEnvironment.TypeDefinitionPacker; }
+        }
+
+        public TypeDependencyCache DependencyCache
+        {
+            get { return DeclaringEnvironment.DependencyCache; }
         }
     }
 }

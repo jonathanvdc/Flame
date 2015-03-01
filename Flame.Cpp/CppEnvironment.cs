@@ -23,6 +23,7 @@ namespace Flame.Cpp
             this.TypeConverter = TypeConverter;
             this.TypeNamer = TypeNamer;
             this.DocumentationBuilder = DocumentationBuilder;
+            this.DependencyCache = new TypeDependencyCache();
         }
         public CppEnvironment(IDocumentationCommentBuilder DocumentationBuilder)
             : this()
@@ -33,6 +34,7 @@ namespace Flame.Cpp
         public IDocumentationCommentBuilder DocumentationBuilder { get; private set; }
         public ICppTypeConverter TypeConverter { get; private set; }
         public Func<INamespace, IConverter<IType, string>> TypeNamer { get; private set; }
+        public TypeDependencyCache DependencyCache { get; private set; }
 
         public IType EnumerableType
         {
