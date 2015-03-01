@@ -58,6 +58,12 @@ namespace Flame.Cpp.Plugs
                 ptrCtor.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
                 ctors.Add(ptrCtor);
 
+                var initListCtor = new DescribedMethod("ArraySlice", this, PrimitiveTypes.Void, false);
+                initListCtor.IsConstructor = true;
+                initListCtor.AddParameter(new DescribedParameter("Values", StdInitializerList.Instance.MakeGenericType(new IType[] { ElementType })));
+                initListCtor.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+                ctors.Add(initListCtor);
+
                 ctorCache = ctors.ToArray();
             }
             return ctorCache;

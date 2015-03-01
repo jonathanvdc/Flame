@@ -22,12 +22,19 @@ namespace Flame.Compiler.Expressions
 		
 		public const IExpression Optimize() : IExpression.Optimize
 		{
-			var optElems = new IExpression[Elements.Length];
-			foreach (var item in Elements, var output in optElems)
+			if (Elements.Length == 0)
 			{
-				output = item.Optimize();
+				return new NewArrayExpression(ElementType, new IExpression[] { new Int32Expression(0) });
 			}
-			return new InitializedArrayExpression(ElementType, optElems);
+			else
+			{
+				var optElems = new IExpression[Elements.Length];
+				foreach (var item in Elements, var output in optElems)
+				{
+					output = item.Optimize();
+				}
+				return new InitializedArrayExpression(ElementType, optElems);
+			}
 		}
 		
 		public bool IsConstant : IExpression.IsConstant
@@ -50,7 +57,11 @@ namespace Flame.Compiler.Expressions
 		
 		public ICodeBlock Emit(ICodeGenerator Generator) : IExpression.Emit
 		{
-			if (Generator is IInitializingCodeGenerator)
+			if (Elements.Length == 0)
+			{
+				return Generator.EmitNewArray(ElementType, new ICodeBlock[] { Generator.EmitInt32(0) });
+			}
+			else if (Generator is IInitializingCodeGenerator)
 			{
 				var cg = (IInitializingCodeGenerator)Generator;
 				var elemBlocks = new ICodeBlock[Elements.Length];

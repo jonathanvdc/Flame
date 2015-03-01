@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Flame.Cpp.Emit
 {
     public class CppCodeGenerator : IUnmanagedCodeGenerator, IForeachCodeGenerator,
-        IExceptionCodeGenerator, IForCodeGenerator
+        IExceptionCodeGenerator, IForCodeGenerator, IInitializingCodeGenerator
     {
         public CppCodeGenerator(IMethod Method, ICppEnvironment Environment)
         {
@@ -437,6 +437,22 @@ namespace Flame.Cpp.Emit
                 return new ForBlockGenerator(this, cppInit, cppCond, cppDelta);
             }
             return null;
+        }
+
+        #endregion
+
+        #region IInitializingCodeGenerator
+
+        public ICodeBlock EmitInitializedArray(IType ElementType, ICodeBlock[] Items)
+        {
+            var initList = new InitializerListBlock(this, ElementType, Items.Cast<ICppBlock>());
+            var ctor = Plugs.StdxArraySlice.Instance.MakeGenericType(new IType[] { ElementType }).GetConstructor(new IType[] { initList.Type }, false);
+            return EmitInvocation(EmitMethod(ctor, null), new ICodeBlock[] { initList });
+        }
+
+        public ICodeBlock EmitInitializedVector(IType ElementType, ICodeBlock[] Items)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

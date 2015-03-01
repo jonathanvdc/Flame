@@ -66,6 +66,7 @@
     <Compile Include="Emit\CppBlockExtensions.cs" />
     <Compile Include="Emit\FinallyBlock.cs" />
     <Compile Include="Emit\ForBlockGenerator.cs" />
+    <Compile Include="Emit\InitializerListBlock.cs" />
     <Compile Include="Emit\TryBlockGenerator.cs" />
     <Compile Include="Emit\DynamicCastBlock.cs" />
     <Compile Include="Emit\ForeachBlock.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="ICppTypeConverter.cs" />
     <Compile Include="ITypeDefinitionPacker.cs" />
     <Compile Include="Plugs\PrimitiveNamespace.cs" />
+    <Compile Include="Plugs\StdInitializerList.cs" />
     <Compile Include="Plugs\StdNamespace.cs" />
     <Compile Include="Plugs\PrimitiveBase.cs" />
     <Compile Include="DefaultCppTypeConverter.cs" />
