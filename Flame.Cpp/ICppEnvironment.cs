@@ -12,5 +12,6 @@ namespace Flame.Cpp
         IDocumentationCommentBuilder DocumentationBuilder { get; }
         ICppTypeConverter TypeConverter { get; }
         Func<INamespace, IConverter<IType, string>> TypeNamer { get; }
+        ITypeDefinitionPacker TypeDefinitionPacker { get; }
     }
 }
