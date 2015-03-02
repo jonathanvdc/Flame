@@ -2021,9 +2021,15 @@ namespace Flame.DSharp.Parser
         {
             var outKeyword = Tokens.NextNoTrivia(TokenType.OutKeyword, Log);
             
-            var leadingParen = Tokens.NextNoTrivia(TokenType.RParen, Log);
-            var identifier = Tokens.NextNoTrivia(TokenType.Identifier, Log); 
-            var trailingParen = Tokens.NextNoTrivia(TokenType.LParen, Log);
+            Token leadingParen = null;
+            Token identifier = null;
+            Token trailingParen = null;
+            if (Tokens.PeekNoTrivia().Type == TokenType.RParen)
+            {
+	            leadingParen = Tokens.NextNoTrivia(TokenType.RParen, Log);
+	            identifier = Tokens.NextNoTrivia(TokenType.Identifier, Log); 
+	            trailingParen = Tokens.NextNoTrivia(TokenType.LParen, Log);
+            }
             
             var leadingBraces = Tokens.NextNoTrivia(TokenType.RBraces, Log);
             var cond = ParseExpression(Tokens);

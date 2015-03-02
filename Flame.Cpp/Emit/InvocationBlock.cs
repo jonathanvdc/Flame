@@ -40,7 +40,7 @@ namespace Flame.Cpp.Emit
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get { return Member.Dependencies.MergeDependencies(Arguments.SelectMany((item) => item.Dependencies)); }
+            get { return Member.Dependencies.Concat(Arguments.SelectMany((item) => item.Dependencies)).Distinct(HeaderComparer.Instance); }
         }
 
         public IEnumerable<CppLocal> LocalsUsed
