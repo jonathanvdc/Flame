@@ -58,7 +58,7 @@ namespace Flame.DSharp.Build
         public virtual const IStatement GetMethodBody()
         {
             var state = GetSyntaxState();
-            IStatement statement = Syntax.Body.CreateStatement(state);
+            IStatement statement = Syntax.Contract.CreateContractBody(Syntax.Body, state);
             var parameters = GetParameters();
 
 			var blockStatements = new List<IStatement>();

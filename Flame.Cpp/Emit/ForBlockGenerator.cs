@@ -9,7 +9,7 @@ namespace Flame.Cpp.Emit
 {
     public class ForBlockGenerator : CppBlockGeneratorBase
     {
-        public ForBlockGenerator(ICodeGenerator CodeGenerator, ICppBlock Initialization, ICppBlock Condition, ICppBlock Delta)
+        public ForBlockGenerator(CppCodeGenerator CodeGenerator, ICppBlock Initialization, ICppBlock Condition, ICppBlock Delta)
             : base(CodeGenerator)
         {
             this.Initialization = Initialization;

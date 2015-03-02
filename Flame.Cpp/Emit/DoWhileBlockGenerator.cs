@@ -9,7 +9,7 @@ namespace Flame.Cpp.Emit
 {
     public class DoWhileBlockGenerator : CppBlockGeneratorBase
     {
-        public DoWhileBlockGenerator(ICodeGenerator CodeGenerator, ICppBlock Condition)
+        public DoWhileBlockGenerator(CppCodeGenerator CodeGenerator, ICppBlock Condition)
             : base(CodeGenerator)
         {
             this.Condition = Condition;

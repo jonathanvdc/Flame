@@ -213,7 +213,7 @@ namespace Flame.DSharp.Build
             }
             else
             {
-                var body = Syntax.Body.CreateStatement(state);
+                var body = Syntax.Contract.CreateContractBody(Syntax.Body, state);
                 if (this.ReturnType.Equals(PrimitiveTypes.Void))
                 {
                     return new BlockStatement(new IStatement[] { body, new ReturnStatement() });

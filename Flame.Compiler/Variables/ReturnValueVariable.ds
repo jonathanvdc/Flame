@@ -1,0 +1,31 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Expressions;
+
+namespace Flame.Compiler.Variables
+{
+	public class ReturnValueVariable : IVariable
+	{
+		public const this(set IType Type);
+		
+		public IType Type { const get; private set; }
+		
+		public const IExpression CreateGetExpression()
+		{
+			return new ReturnValueGetExpression(Type);
+		}
+		
+		public const IStatement CreateSetStatement(IExpression Value)
+		{
+			return null;
+		}
+		
+		public const IStatement CreateReleaseStatement()
+		{
+			return new EmptyStatement();
+		}
+	}
+}

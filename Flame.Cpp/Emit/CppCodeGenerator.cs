@@ -9,14 +9,18 @@ using System.Threading.Tasks;
 namespace Flame.Cpp.Emit
 {
     public class CppCodeGenerator : IUnmanagedCodeGenerator, IForeachCodeGenerator,
-        IExceptionCodeGenerator, IForCodeGenerator, IInitializingCodeGenerator
+        IExceptionCodeGenerator, IForCodeGenerator, IInitializingCodeGenerator,
+        IContractCodeGenerator
     {
         public CppCodeGenerator(IMethod Method, ICppEnvironment Environment)
         {
             this.Method = Method;
             this.Environment = Environment;
             this.LocalManager = new CppLocalManager(this);
+            this.Contract = new MethodContract();
         }
+
+        public MethodContract Contract { get; private set; }
 
         #region Properties
 
@@ -453,6 +457,24 @@ namespace Flame.Cpp.Emit
         public ICodeBlock EmitInitializedVector(IType ElementType, ICodeBlock[] Items)
         {
             throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region IContractCodeGenerator
+
+        private IVariable retVar;
+
+        public IVariable ReturnVariable
+        {
+            get
+            {
+                if (retVar == null)
+                {
+                    retVar = LocalManager.DeclareNew(new DescribedVariableMember("result", Method.ReturnType));
+                }
+                return retVar;
+            }
         }
 
         #endregion

@@ -10,7 +10,7 @@ namespace Flame.Syntax.DSharp
 {
     public class AccessorSyntax : IAccessorSyntax, IRelevantSyntax<Token>
     {
-        public const this(set ISignatureSyntax Signature, set IStatementSyntax Body);
+        public const this(set ISignatureSyntax Signature, set MethodContract Contract, set IStatementSyntax Body);
 
         public Token NameToken
         {
@@ -28,9 +28,10 @@ namespace Flame.Syntax.DSharp
         }
 
         public ISignatureSyntax Signature { const get; private set; }
+        public MethodContract Contract { const get; private set; }
         public IStatementSyntax Body { const get; private set; }
         
-        public IEnumerable<Token> LeadingTrivia
+        public [Token] LeadingTrivia
         {
         	const get
         	{
@@ -47,7 +48,7 @@ namespace Flame.Syntax.DSharp
         	}
         }
         
-        public IEnumerable<Token> TrailingTrivia { const get return (IEnumerable<Token>)new Token[0]; }
+        public [Token] TrailingTrivia { const get return new Token[0]; }
 
         public bool IsEmpty
         {

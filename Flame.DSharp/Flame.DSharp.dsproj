@@ -137,6 +137,9 @@
 				<Compile Include="Syntax\Structure\ParameterSyntax.ds" />
 				<Compile Include="Syntax\Structure\RelevantSyntax.ds" />
 				<Compile Include="Syntax\Structure\OperatorSignatureSyntax.ds" />
+				<Compile Include="Syntax\Structure\PreconditionSyntax.ds" />
+				<Compile Include="Syntax\Structure\PostconditionSyntax.ds" />
+				<Compile Include="Syntax\Structure\MethodContract.ds" />
 			</ItemGroup>
 		</ItemGroup>
 		<ItemGroup Name="Types">

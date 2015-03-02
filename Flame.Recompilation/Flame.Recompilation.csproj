@@ -55,6 +55,7 @@
     <Compile Include="Emit\IStatementBlock.cs" />
     <Compile Include="Emit\RecompiledBlockGenerator.cs" />
     <Compile Include="Emit\ForeachBlockGenerator.cs" />
+    <Compile Include="Emit\RecompiledContractBlockGenerator.cs" />
     <Compile Include="Emit\RecompiledVariable.cs" />
     <Compile Include="Emit\StatementBlock.cs" />
     <Compile Include="Emit\StatementExpression.cs" />

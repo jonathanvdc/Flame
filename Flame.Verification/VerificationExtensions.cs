@@ -31,7 +31,7 @@ namespace Flame.Verification
                 var impl = DefinitionMethod.GetImplementation(ImplementationType);
                 if (impl == null || impl.Equals(DefinitionMethod))
                 {
-                    Log.LogError(new LogEntry("Method '" + DefinitionMethod.FullName + "' was not implemented in '" + ImplementationType.FullName + "'"));
+                    Log.LogError(new LogEntry("Method not implemented", "Method '" + DefinitionMethod.FullName + "' was not implemented in '" + ImplementationType.FullName + "'"));
                     success = false;
                 }
             }

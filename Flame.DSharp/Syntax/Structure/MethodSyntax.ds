@@ -11,14 +11,15 @@ namespace Flame.Syntax.DSharp
 {
     public class MethodSyntax : MemberSyntax, IMemberSyntax<IMethod>
     {
-        public const this(set ISignatureSyntax Signature, set IEnumerable<IMemberSyntax<IParameter>> Parameters, 
-        				  set IEnumerable<ITypeMemberAccessSyntax> ImplementedMethods, set IEnumerable<GenericConstraintSyntax> GenericConstraints, 
-        				  set IStatementSyntax Body);
+        public const this(set ISignatureSyntax Signature, set [IMemberSyntax<IParameter>] Parameters, 
+        				  set [ITypeMemberAccessSyntax] ImplementedMethods, set [GenericConstraintSyntax] GenericConstraints, 
+        				  set MethodContract Contract, set IStatementSyntax Body);
 
         public IStatementSyntax Body { const get; private set; }
-        public IEnumerable<IMemberSyntax<IParameter>> Parameters { const get; private set; }
-        public IEnumerable<ITypeMemberAccessSyntax> ImplementedMethods { const get; private set; }
-        public IEnumerable<GenericConstraintSyntax> GenericConstraints { const get; private set; }
+        public [IMemberSyntax<IParameter>] Parameters { const get; private set; }
+        public [ITypeMemberAccessSyntax] ImplementedMethods { const get; private set; }
+        public [GenericConstraintSyntax] GenericConstraints { const get; private set; }
+        public MethodContract Contract { const get; private set; }
         
         public bool IsConstructor
         {
@@ -60,6 +61,23 @@ namespace Flame.Syntax.DSharp
                 cb.Append(item.GetCode());
             }
             cb.Append(")");
+            if (Enumerable.Any<ITypeMemberAccessSyntax>(ImplementedMethods))
+            {
+            	cb.Append(" : ");
+            	cb.Append(Enumerable.First<ITypeMemberAccessSyntax>(ImplementedMethods).GetCode());	
+            	foreach (var item in Enumerable.Skip<ITypeMemberAccessSyntax>(ImplementedMethods, 1))
+            	{
+            		cb.Append(", ");
+            		cb.Append(item.GetCode());	
+            	}
+            }
+            cb.IncreaseIndentation();
+            foreach (var item in GenericConstraints)
+            {
+            	cb.AddCodeBuilder(item.GetCode());
+            }
+            cb.AddCodeBuilder(Contract.GetCode());
+            cb.DecreaseIndentation();
             return cb;
         }
 

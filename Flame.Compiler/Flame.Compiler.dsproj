@@ -50,6 +50,7 @@
 			<Compile Include="Emit\IForeachCodeGenerator.ds" />
 			<Compile Include="Emit\ICommentedCodeGenerator.ds" />
 			<Compile Include="Emit\IExceptionCodeGenerator.ds" />
+			<Compile Include="Emit\IContractBlockGenerator.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Expressions">
@@ -110,6 +111,7 @@
 			<Compile Include="Expressions\ThisAddressOfExpression.ds" />
 			<Compile Include="Expressions\RelaxedInvocation.ds" />
 			<Compile Include="Expressions\ComplexExpressionBase.ds" />
+			<Compile Include="Expressions\ReturnValueGetExpression.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Statements">
@@ -143,6 +145,7 @@
 			<Compile Include="Statements\ThrowStatement.ds" />
 			<Compile Include="Statements\AssertStatement.ds" />
 			<Compile Include="Statements\TryStatement.ds" />
+			<Compile Include="Statements\ContractBodyStatement.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Variables">
@@ -160,6 +163,7 @@
 			<Compile Include="Variables\SingletonVariable.ds" />
 			<Compile Include="Variables\ConstantVariable.ds" />
 			<Compile Include="Variables\ThisReferenceVariable.ds" />
+			<Compile Include="Variables\ReturnValueVariable.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Code">

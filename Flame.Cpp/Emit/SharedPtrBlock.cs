@@ -38,7 +38,7 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        protected override ICppBlock Simplify()
+        public override ICppBlock Simplify()
         {
             return new ToReferenceBlock(new NewBlock(new StackConstructorBlock(Constructor, Arguments)));
         }

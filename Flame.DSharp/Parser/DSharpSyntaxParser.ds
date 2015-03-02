@@ -1980,7 +1980,7 @@ namespace Flame.DSharp.Parser
         
         #region ParseGenericConstraints
 
-        protected virtual IEnumerable<GenericConstraintSyntax> ParseGenericConstraints(ITokenStream Tokens)
+        protected virtual [GenericConstraintSyntax] ParseGenericConstraints(ITokenStream Tokens)
         {
             List<GenericConstraintSyntax> constraints = new List<GenericConstraintSyntax>();
 
@@ -1999,6 +1999,66 @@ namespace Flame.DSharp.Parser
             return constraints;
         }
 
+        #endregion
+        
+        #region ParsePreconditions
+        
+        protected virtual PreconditionSyntax ParsePrecondition(ITokenStream Tokens)
+        {
+            var inKeyword = Tokens.NextNoTrivia(TokenType.InKeyword, Log);
+            var leadingBraces = Tokens.NextNoTrivia(TokenType.RBraces, Log);
+            var cond = ParseExpression(Tokens);
+            var trailingBraces = Tokens.NextNoTrivia(TokenType.LBraces, Log);
+
+            return new PreconditionSyntax(inKeyword, leadingBraces, cond, trailingBraces);
+        }
+        
+        #endregion
+        
+        #region ParsePostconditions
+        
+        protected virtual PostconditionSyntax ParsePostcondition(ITokenStream Tokens)
+        {
+            var outKeyword = Tokens.NextNoTrivia(TokenType.OutKeyword, Log);
+            
+            var leadingParen = Tokens.NextNoTrivia(TokenType.RParen, Log);
+            var identifier = Tokens.NextNoTrivia(TokenType.Identifier, Log); 
+            var trailingParen = Tokens.NextNoTrivia(TokenType.LParen, Log);
+            
+            var leadingBraces = Tokens.NextNoTrivia(TokenType.RBraces, Log);
+            var cond = ParseExpression(Tokens);
+            var trailingBraces = Tokens.NextNoTrivia(TokenType.LBraces, Log);
+
+            return new PostconditionSyntax(outKeyword, leadingParen, identifier, trailingParen, leadingBraces, cond, trailingBraces);
+        }
+        
+        #endregion
+        
+        #region ParseMethodContract
+        
+        protected virtual MethodContract ParseMethodContract(ITokenStream Tokens)
+        {
+        	List<PreconditionSyntax> pres = new List<PreconditionSyntax>();
+        	List<PostconditionSyntax> posts = new List<PostconditionSyntax>();
+
+			var peek = Tokens.PeekNoTrivia();
+            while (peek.Type == TokenType.OutKeyword || peek.Type == TokenType.InKeyword)
+            {
+            	if (peek.Type == TokenType.InKeyword)
+            	{
+            		pres.Add(ParsePrecondition(Tokens));
+            	}
+            	else
+            	{
+            		posts.Add(ParsePostcondition(Tokens));
+            	}
+            	
+                peek = Tokens.PeekNoTrivia();
+            }
+            
+            return new MethodContract(pres, posts);
+        }
+        
         #endregion
         
         #region ParseParameter
@@ -2180,7 +2240,7 @@ namespace Flame.DSharp.Parser
         {
             var parameters = ParseParameterList(Tokens, TokenType.RParen, TokenType.LParen);
 
-            IEnumerable<ITypeMemberAccessSyntax> implementedProperties;
+            [ITypeMemberAccessSyntax] implementedProperties;
             if (Tokens.PeekNoTrivia().Type == TokenType.Colon)
             {
                 List<ITypeMemberAccessSyntax> implProps = new List<ITypeMemberAccessSyntax>();
@@ -2193,14 +2253,15 @@ namespace Flame.DSharp.Parser
             }
             else
             {
-                implementedProperties = (IEnumerable<ITypeMemberAccessSyntax>)new ITypeMemberAccessSyntax[0];
+                implementedProperties = new ITypeMemberAccessSyntax[0];
             }
 
             var constraints = ParseGenericConstraints(Tokens);
-
+            var contract = ParseMethodContract(Tokens);
+            
             IStatementSyntax body = ParseStatement(Tokens);
 
-            return new MethodSyntax(Signature, parameters, implementedProperties, constraints, body);
+            return new MethodSyntax(Signature, parameters, implementedProperties, constraints, contract, body);
         }
 
         #endregion
@@ -2227,8 +2288,11 @@ namespace Flame.DSharp.Parser
 
             Token nameToken = Tokens.NextNoTrivia();
             AccessorSignatureSyntax signature = new AccessorSignatureSyntax(attrs, modifierTokens, nameToken);
+            var contract = ParseMethodContract(Tokens);
+            
             IStatementSyntax body = ParseStatement(Tokens);
-            return new AccessorSyntax(signature, body);
+            
+            return new AccessorSyntax(signature, contract, body);
         }
 
         #endregion

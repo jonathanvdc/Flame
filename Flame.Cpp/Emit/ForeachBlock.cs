@@ -10,7 +10,7 @@ namespace Flame.Cpp.Emit
 {
     public class ForeachBlock : CppBlockGeneratorBase, IForeachBlockGenerator
     {
-        public ForeachBlock(ICodeGenerator CodeGenerator, CollectionBlock Collection)
+        public ForeachBlock(CppCodeGenerator CodeGenerator, CollectionBlock Collection)
             : base(CodeGenerator)
         {
             this.Collection = Collection;

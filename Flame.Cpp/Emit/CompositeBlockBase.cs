@@ -23,7 +23,7 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        protected abstract ICppBlock Simplify();
+        public abstract ICppBlock Simplify();
 
         public virtual IType Type
         {
@@ -55,7 +55,7 @@ namespace Flame.Cpp.Emit
     {
         protected abstract IInvocationBlock SimplifyInvocation();
 
-        protected override ICppBlock Simplify()
+        public override ICppBlock Simplify()
         {
             return SimplifyInvocation();
         }

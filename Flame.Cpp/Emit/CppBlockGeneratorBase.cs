@@ -9,14 +9,19 @@ namespace Flame.Cpp.Emit
 {
     public class CppBlockGeneratorBase : IBlockGenerator, ICppLocalDeclaringBlock
     {
-        public CppBlockGeneratorBase(ICodeGenerator CodeGenerator)
+        public CppBlockGeneratorBase(CppCodeGenerator CodeGenerator)
         {
             this.CodeGenerator = CodeGenerator;
             this.blocks = new List<ICppBlock>();
         }
 
-        public ICodeGenerator CodeGenerator { get; private set; }
+        public CppCodeGenerator CodeGenerator { get; private set; }
         protected List<ICppBlock> blocks;
+
+        ICodeGenerator ICodeBlock.CodeGenerator
+        {
+            get { return CodeGenerator; }
+        }
 
         #region Local Declaration
 
@@ -118,7 +123,7 @@ namespace Flame.Cpp.Emit
 
         public void EmitReturn(ICodeBlock Block)
         {
-            EmitBlock(new ReturnBlock(CodeGenerator, (ICppBlock)Block));
+            EmitBlock(new ContractReturnBlock(CodeGenerator, CodeGenerator.Contract, Block as ICppBlock));
         }
 
         public IType Type

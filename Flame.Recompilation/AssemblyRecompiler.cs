@@ -851,7 +851,7 @@ namespace Flame.Recompilation
             try
             {
                 var codeGen = new RecompiledCodeGenerator(this, Method);
-                var block = codeGen.CreateBlock();
+                var block = new RecompiledContractBlockGenerator(codeGen);
                 SourceStatement.Emit(block);
                 return RecompiledCodeGenerator.GetStatement(block);
             }
