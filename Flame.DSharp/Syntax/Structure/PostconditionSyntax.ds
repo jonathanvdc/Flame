@@ -29,7 +29,10 @@ namespace Flame.Syntax.DSharp
 		{
 			State.PushScope();
 			
-			State.DeclareVariable(ReturnValueIdentifier.TokenValue, new ReturnValueVariable(State.ReturnType));
+			if (ReturnValueIdentifier != null)
+			{
+				State.DeclareVariable(ReturnValueIdentifier.TokenValue, new ReturnValueVariable(State.ReturnType));
+			}
 			
 			var condExpr = Condition.CreateVerifiedExpression(State);
 			
@@ -43,9 +46,12 @@ namespace Flame.Syntax.DSharp
 		{
 			CodeBuilder cb = new CodeBuilder();
 			cb.Append(OutKeyword.ToString());
-			cb.Append(LeadingParentheses.ToString());
-			cb.Append(ReturnValueIdentifier.ToString());
-			cb.Append(TrailingParentheses.ToString());
+			if (ReturnValueIdentifier != null)
+			{
+				cb.Append(LeadingParentheses.ToString());
+				cb.Append(ReturnValueIdentifier.ToString());
+				cb.Append(TrailingParentheses.ToString());
+			}
 			cb.Append(LeadingBraces.ToString());
 			cb.Append(Condition.GetCode());
 			cb.Append(TrailingBraces.ToString());
