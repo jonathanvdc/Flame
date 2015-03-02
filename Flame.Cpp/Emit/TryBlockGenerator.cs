@@ -10,7 +10,7 @@ namespace Flame.Cpp.Emit
 {
     public class TryBlockGenerator : ITryBlockGenerator, ICppLocalDeclaringBlock
     {
-        public TryBlockGenerator(ICodeGenerator CodeGenerator)
+        public TryBlockGenerator(CppCodeGenerator CodeGenerator)
         {
             this.CodeGenerator = CodeGenerator;
             this.TryBody = CodeGenerator.CreateBlock();
@@ -19,7 +19,13 @@ namespace Flame.Cpp.Emit
             this.finallyBlock = new FinallyBlock((ICppBlock)FinallyBody);
         }
 
-        public ICodeGenerator CodeGenerator { get; private set; }
+        public CppCodeGenerator CodeGenerator { get; private set; }
+
+
+        ICodeGenerator ICodeBlock.CodeGenerator
+        {
+            get { return CodeGenerator; }
+        }
 
         public ICatchBlockGenerator EmitCatchClause(IVariableMember ExceptionVariable)
         {
@@ -86,7 +92,7 @@ namespace Flame.Cpp.Emit
 
     public class CatchBlockGenerator : CppBlockGeneratorBase, ICatchBlockGenerator
     {
-        public CatchBlockGenerator(ICodeGenerator CodeGenerator, IVariableMember ExceptionVariableMember)
+        public CatchBlockGenerator(CppCodeGenerator CodeGenerator, IVariableMember ExceptionVariableMember)
             : base(CodeGenerator)
         {
             this.ExceptionVariableDeclaration = new LocalDeclarationReference((CppLocal)CodeGenerator.DeclareVariable(ExceptionVariableMember));

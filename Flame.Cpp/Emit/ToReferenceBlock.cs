@@ -44,7 +44,7 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        protected override ICppBlock Simplify()
+        public override ICppBlock Simplify()
         {
             if (CanUseMakeShared)
             {

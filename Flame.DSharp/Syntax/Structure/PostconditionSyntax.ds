@@ -1,0 +1,55 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Build;
+using Flame.Compiler;
+using Flame.DSharp;
+using Flame.DSharp.Build;
+using Flame.DSharp.Lexer;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+
+namespace Flame.Syntax.DSharp
+{
+	public class PostconditionSyntax : IExpressionSyntax
+	{
+		public const this(set Token OutKeyword, set Token LeadingParentheses, set Token ReturnValueIdentifier, set Token TrailingParentheses, 
+						  set Token LeadingBraces, set IExpressionSyntax Condition, set Token TrailingBraces);
+		
+		public Token OutKeyword { const get; private set; }
+		public Token LeadingParentheses { const get; private set; }
+		public Token ReturnValueIdentifier { const get; private set; }
+		public Token TrailingParentheses { const get; private set; }
+		public Token LeadingBraces { const get; private set; }
+		public IExpressionSyntax Condition { const get; private set; }
+		public Token TrailingBraces { const get; private set; }
+		
+		public const IExpression CreateExpression(ISyntaxState State)
+		{
+			State.PushScope();
+			
+			State.DeclareVariable(ReturnValueIdentifier.TokenValue, new ReturnValueVariable(State.ReturnType));
+			
+			var condExpr = Condition.CreateVerifiedExpression(State);
+			
+			var cleanup = State.PopScope();
+			
+			if (cleanup.IsEmpty) return condExpr;
+			else return new InitializedExpression(new EmptyStatement(), condExpr, cleanup);
+		}
+		
+		public const CodeBuilder GetCode()
+		{
+			CodeBuilder cb = new CodeBuilder();
+			cb.Append(OutKeyword.ToString());
+			cb.Append(LeadingParentheses.ToString());
+			cb.Append(ReturnValueIdentifier.ToString());
+			cb.Append(TrailingParentheses.ToString());
+			cb.Append(LeadingBraces.ToString());
+			cb.Append(Condition.GetCode());
+			cb.Append(TrailingBraces.ToString());
+			return cb;
+		}
+	}
+}

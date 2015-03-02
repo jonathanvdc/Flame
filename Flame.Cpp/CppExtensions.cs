@@ -160,28 +160,7 @@ namespace Flame.Cpp
 
         public static IEnumerable<IHeaderDependency> MergeDependencies(this IEnumerable<IHeaderDependency> Dependencies, IEnumerable<IHeaderDependency> Others)
         {
-            List<IHeaderDependency> results = new List<IHeaderDependency>();
-            foreach (var item in Dependencies)
-            {
-                results.Add(item);
-            }
-            foreach (var item in Others)
-            {
-                bool success = true;
-                foreach (var pre in Dependencies)
-                {
-                    if (pre.HeaderName == item.HeaderName && pre.IsStandard == item.IsStandard)
-                    {
-                        success = false;
-                        break;
-                    }
-                }
-                if (success)
-                {
-                    results.Add(item);
-                }
-            }
-            return results;
+            return Dependencies.Union(Others, HeaderComparer.Instance);
         }
 
         public static IEnumerable<IHeaderDependency> SortDependencies(this IEnumerable<IHeaderDependency> Dependencies)
@@ -191,22 +170,7 @@ namespace Flame.Cpp
 
         public static IEnumerable<IHeaderDependency> ExcludeDependencies(this IEnumerable<IHeaderDependency> Dependencies, IEnumerable<IHeaderDependency> Exclude)
         {
-            foreach (var item in Dependencies)
-            {
-                bool success = true;
-                foreach (var excl in Exclude)
-                {
-                    if (excl.HeaderName == item.HeaderName && excl.IsStandard == item.IsStandard)
-                    {
-                        success = false;
-                        break;
-                    }
-                }
-                if (success)
-                {
-                    yield return item;
-                }
-            }
+            return Dependencies.Except(Exclude, HeaderComparer.Instance);
         }
 
         #endregion

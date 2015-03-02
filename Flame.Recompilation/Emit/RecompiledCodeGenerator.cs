@@ -13,7 +13,7 @@ namespace Flame.Recompilation.Emit
 {
     public class RecompiledCodeGenerator : IUnmanagedCodeGenerator, IYieldCodeGenerator, 
         IInitializingCodeGenerator, IForeachCodeGenerator, IExceptionCodeGenerator,
-        IForCodeGenerator
+        IForCodeGenerator, IContractCodeGenerator
     {
         public RecompiledCodeGenerator(AssemblyRecompiler Recompiler, IMethod Method)
         {
@@ -312,6 +312,11 @@ namespace Flame.Recompilation.Emit
         public IUnmanagedVariable GetUnmanagedThis()
         {
             return new RecompiledVariable(this, new ThisVariable(Method.DeclaringType));
+        }
+
+        public IVariable ReturnVariable
+        {
+            get { return new RecompiledVariable(this, new ReturnValueVariable(Method.ReturnType)); }
         }
 
         #endregion

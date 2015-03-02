@@ -1,0 +1,55 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Build;
+using Flame.Compiler;
+using Flame.DSharp;
+using Flame.DSharp.Build;
+using Flame.DSharp.Lexer;
+using Flame.Compiler.Statements;
+
+namespace Flame.Syntax.DSharp
+{
+	public class MethodContract : ISyntaxNode
+	{
+		public const this(set [PreconditionSyntax] Preconditions, set [PostconditionSyntax] Postconditions);
+		
+        public [PreconditionSyntax] Preconditions { const get; private set; }
+        public [PostconditionSyntax] Postconditions { const get; private set; }
+        
+        public const CodeBuilder GetCode()
+        {
+        	var cb = new CodeBuilder();
+        	foreach (var item in Preconditions)
+        	{
+        		cb.AddCodeBuilder(item.GetCode());
+        	}
+        	foreach (var item in Postconditions)
+        	{
+        		cb.AddCodeBuilder(item.GetCode());
+        	}
+        	return cb;
+        }
+        
+        public override const string ToString()
+        {
+        	return GetCode().ToString();
+        }
+        
+        public const IStatement CreateContractBody(IStatement Body, ISyntaxState State)
+        {
+        	var pres = new List<IExpression>();
+        	var posts = new List<IExpression>();
+        	foreach (var item in Preconditions)
+        		pres.Add(item.CreateVerifiedExpression(State));
+        	foreach (var item in Postconditions)
+        		posts.Add(item.CreateVerifiedExpression(State));
+        		
+        	return new ContractBodyStatement(Body, pres, posts);
+        }
+        public const IStatement CreateContractBody(IStatementSyntax Body, ISyntaxState State)
+        {
+        	return CreateContractBody(Body.CreateVerifiedStatement(State), State);
+        }
+	}
+}

@@ -1,0 +1,69 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler.Statements
+{
+	public class ContractBodyStatement : IStatement
+	{
+		public const this(set IStatement Body, set [IExpression] Preconditions, set [IExpression] Postconditions);
+		
+		public IStatement Body { const get; private set; }
+		public [IExpression] Preconditions { const get; private set; }
+		public [IExpression] Postconditions { const get; private set; }
+		
+		public const IStatement Optimize()
+		{
+			if (!Enumerable.Any<IExpression>(Preconditions) && !Enumerable.Any<IExpression>(Postconditions))
+			{
+				return Body.Optimize();
+			}
+			else
+			{
+				return new ContractBodyStatement(Body.Optimize(), Preconditions.OptimizeAll(), Postconditions.OptimizeAll());
+			}
+		}
+		
+		public bool IsEmpty
+		{
+			const get return Body.IsEmpty && !Enumerable.Any<IExpression>(Preconditions) && !Enumerable.Any<IExpression>(Postconditions);
+		}
+		
+		public void Emit(IBlockGenerator Target)
+		{
+			if (Target is IContractBlockGenerator)
+			{
+				var cTarget = (IContractBlockGenerator)Target;
+				var cg = cTarget.CodeGenerator;
+				foreach (var item in Preconditions)
+				{
+					cTarget.EmitPrecondition(item.Emit(cg));
+				}
+				Body.Emit(cTarget);
+				foreach (var item in Postconditions)
+				{
+					cTarget.EmitPostcondition(item.Emit(cg));
+				}
+			}
+			else if (Target.CodeGenerator is IExceptionCodeGenerator)
+			{
+				var cg = (IExceptionCodeGenerator)Target.CodeGenerator;
+				foreach (var item in Preconditions)
+				{
+					Target.EmitBlock(cg.EmitAssert(item.Emit(cg)));
+				}
+				Body.Emit(Target);
+				foreach (var item in Postconditions)
+				{
+					Target.EmitBlock(cg.EmitAssert(item.Emit(cg)));
+				}
+			}
+			else
+			{
+				Body.Emit(Target);
+			}
+		}
+	}
+}

@@ -107,5 +107,45 @@ namespace Flame.Cpp
                 return assertMethod;
             }
         }
+
+        private static IMethod requireMethod;
+        public static IMethod RequireMethod
+        {
+            get
+            {
+                // require(...) is a macro in C++,
+                // but that distinction is not entirely relevant from a code generation viewpoint
+
+                if (requireMethod == null)
+                {
+                    var descMethod = new DescribedMethod("require", null, PrimitiveTypes.Void, true);
+                    descMethod.AddParameter(new DescribedParameter("Condition", PrimitiveTypes.Boolean));
+                    descMethod.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+                    descMethod.AddAttribute(new HeaderDependencyAttribute(Plugs.ContractsHeader.Instance));
+                    requireMethod = descMethod;
+                }
+                return requireMethod;
+            }
+        }
+
+        private static IMethod ensureMethod;
+        public static IMethod EnsureMethod
+        {
+            get
+            {
+                // require(...) is a macro in C++,
+                // but that distinction is not entirely relevant from a code generation viewpoint
+
+                if (ensureMethod == null)
+                {
+                    var descMethod = new DescribedMethod("ensure", null, PrimitiveTypes.Void, true);
+                    descMethod.AddParameter(new DescribedParameter("Condition", PrimitiveTypes.Boolean));
+                    descMethod.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+                    descMethod.AddAttribute(new HeaderDependencyAttribute(Plugs.ContractsHeader.Instance));
+                    ensureMethod = descMethod;
+                }
+                return ensureMethod;
+            }
+        }
     }
 }

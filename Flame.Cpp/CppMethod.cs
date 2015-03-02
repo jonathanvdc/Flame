@@ -17,7 +17,8 @@ namespace Flame.Cpp
             this.Template = Template;
             this.Templates = new CppTemplateDefinition(this, Template);
             this.Environment = new TemplatedMemberCppEnvironment(Environment, this);
-            this.blockGen = (CppBlockGenerator)new CppCodeGenerator(this, this.Environment).CreateBlock();
+            var codeGen = new CppCodeGenerator(this, this.Environment);
+            this.blockGen = new CppContractBlockGenerator(codeGen, codeGen.Contract);
             this.built = false;
         }
 
@@ -38,7 +39,7 @@ namespace Flame.Cpp
         }
 
         private bool built;
-        private CppBlockGenerator blockGen;
+        private CppContractBlockGenerator blockGen;
         public IBlockGenerator GetBodyGenerator()
         {
             if (built)

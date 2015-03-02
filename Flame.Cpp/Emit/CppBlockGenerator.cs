@@ -9,25 +9,53 @@ namespace Flame.Cpp.Emit
 {
     public class CppBlockGenerator : CppBlockGeneratorBase
     {
-        public CppBlockGenerator(ICodeGenerator CodeGenerator)
+        public CppBlockGenerator(CppCodeGenerator CodeGenerator)
             : base(CodeGenerator)
         {
         }
+        public CppBlockGenerator(CppBlockGenerator Other)
+            : base(Other.CodeGenerator)
+        {
+            this.blocks = Other.blocks;
+        }
 
-        public CppBlockGenerator ImplyEmptyReturns()
+        public virtual CppBlockGenerator ImplyEmptyReturns()
         {
             var blockGen = new CppBlockGenerator(CodeGenerator);
-            int i;
-            for (i = blocks.Count - 1; i >= 0; i--)
+            var processedBlocks = new List<ICppBlock>();
+            foreach (var item in blocks)
             {
-                if (!(blocks[i] is ReturnBlock) || ((ReturnBlock)blocks[i]).Value != null)
+                if (item is CompositeBlockBase)
+                {
+                    var result = ((CompositeBlockBase)item).Simplify();
+                    if (result is CppBlockGenerator)
+                    {
+                        foreach (var block in ((CppBlockGenerator)result).blocks)
+                        {
+                            processedBlocks.Add(block);
+                        }
+                    }
+                    else
+                    {
+                        processedBlocks.Add(result);
+                    }
+                }
+                else
+                {
+                    processedBlocks.Add(item);
+                }
+            }
+
+            foreach (var item in processedBlocks)
+            {
+                if (item is ReturnBlock && ((ReturnBlock)item).Value == null)
                 {
                     break;
                 }
-            }
-            for (int j = 0; j <= i; j++)
-            {
-                blockGen.blocks.Add(blocks[j]);
+                else
+                {
+                    blockGen.blocks.Add(item);
+                }
             }
             return blockGen;
         }
@@ -50,7 +78,7 @@ namespace Flame.Cpp.Emit
             return false;
         }
 
-        public CppBlockGenerator ImplyStructInit()
+        public virtual CppBlockGenerator ImplyStructInit()
         {
             var blockGen = new CppBlockGenerator(CodeGenerator);
             foreach (var item in blocks)

@@ -1,0 +1,32 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Emit
+{
+	/// <summary>
+	/// Provides a common interface for design by contract method code generators.
+	/// </summary>
+	public interface IContractCodeGenerator : ICodeGenerator
+	{
+		/// <summary>
+		/// Gets the contract method's return value variable.
+		/// </summary>
+		IVariable ReturnVariable { const get; }
+	}
+
+	/// <summary>
+	/// Provides a common interface for design by contract method body block generators.
+	/// </summary>
+	public interface IContractBlockGenerator : IBlockGenerator
+	{
+		/// <summary>
+		/// Emits a precondition, which must evaluate to true.
+		/// </summary>
+		void EmitPrecondition(ICodeBlock Block);
+		/// <summary>
+		/// Emits a postcondition, which must evaluate to true.
+		/// </summary>
+		void EmitPostcondition(ICodeBlock Block);
+	}
+}
