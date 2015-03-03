@@ -50,7 +50,7 @@ namespace Flame.Cpp.Emit
             }
             else if ((SourceType.get_IsSignedInteger() && TargetType.get_IsSignedInteger()) || (SourceType.get_IsUnsignedInteger() && TargetType.get_IsUnsignedInteger()) || (SourceType.get_IsBit() && TargetType.get_IsBit()) || (SourceType.get_IsFloatingPoint() && TargetType.get_IsFloatingPoint()))
             {
-                return SourceType.GetPrimitiveMagnitude() == TargetType.GetPrimitiveMagnitude();
+                return SourceType.GetPrimitiveMagnitude() <= TargetType.GetPrimitiveMagnitude();
             }
             else if (SourceType.get_IsUnsignedInteger() && TargetType.get_IsSignedInteger())
             {
@@ -130,7 +130,14 @@ namespace Flame.Cpp.Emit
                 cb.Append('(');
                 cb.Append(CodeGenerator.GetTypeNamer().Name(tType, CodeGenerator));
                 cb.Append(')');
-                cb.Append(Value.GetCode());
+                if (Value is BinaryOperation)
+                {
+                    cb.Append(BinaryOperation.GetEnclosedCode(Value));
+                }
+                else
+                {
+                    cb.Append(Value.GetCode());
+                }
                 return cb;
             }
         }

@@ -25,7 +25,7 @@ namespace Flame.Cpp.Emit
 
         public static int GetOperatorPrecedence(Operator Op)
         {
-            if (Op.Equals(Operator.Multiply) || Op.Equals(Operator.Divide))
+            if (Op.Equals(Operator.Multiply) || Op.Equals(Operator.Divide) || Op.Equals(Operator.Remainder))
             {
                 return 7;
             }

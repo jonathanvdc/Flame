@@ -15,6 +15,10 @@ namespace std
         {
             this.data = new T[Length];
         }
+        public const this(uint Length)
+        {
+            this.data = new T[Length];
+        }
         public const this(vector<T> Other)
         {
             this.data = new T[Other.size()];
@@ -39,53 +43,53 @@ namespace std
         
         #endregion
         
-        public const int size()
+        public const uint size()
         {
-            return data.Length;
+            return (uint)data.Length;
         }
 
-        public const int max_size()
+        public const uint max_size()
         {
-            return int32.MaxValue;
+            return uint32.MaxValue;
         }
 
-        public const int capacity()
+        public const uint capacity()
         {
-            return data.Length;
+            return (uint)data.Length;
         }
 
         public const bool empty()
         {
-            return size() == 0;
+            return size() == (uint)0;
         }
 
-        public void resize(int n)
+        public void resize(uint n)
         {
             var newData = new T[n];
             CopyTo(newData);
             this.data = newData;
         }
-        public void resize(int n, T val)
+        public void resize(uint n, T val)
         {
-            int oldSize = size();
+            uint oldSize = size();
             resize(n);
-            for (int i = oldSize; i < n; i++)
+            for (uint i = oldSize; i < n; i++)
             {
                 this[i] = val;
             }
         }
 
         public void shrink_to_fit();
-        public void reserve(int n);
+        public void reserve(uint n);
 
         public void push_back(T Item)
         {
-            resize(data.Length + 1);
+            resize((uint)(data.Length + 1));
             this.data[data.Length - 1] = Item;
         }
         public void pop_back()
         {
-            resize(data.Length - 1);
+            resize((uint)(data.Length - 1));
         }
         
         public T this[int Index]
@@ -99,11 +103,23 @@ namespace std
                 data[Index] = value;
             }
         }
+        public T this[uint Index]
+        {
+            const get
+            {
+                return data[(int)Index];
+            }
+            set
+            {
+                data[(int)Index] = value;
+            }
+        }
         
         public const T front() { return this[0]; }
-        public const T back() { return this[size() - 1]; }
+        public const T back() { return this[size() - (uint)1]; }
  
         public const T at(int Index) { return this[Index]; }
+        public const T at(uint Index) { return this[Index]; }
    
         public void swap(vector<T>* Other)
         {
