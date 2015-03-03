@@ -173,7 +173,10 @@ namespace Flame.Cpp.Emit
                         var initBlock = (INewObjectBlock)Value;
                         if (initBlock.Kind == AllocationKind.Stack || initBlock.Kind == AllocationKind.MakeManaged)
                         {
-                            cb.Append(initBlock.GetArgumentListCode());
+                            if (initBlock.Arguments.Any())
+                            {
+                                cb.Append(initBlock.GetArgumentListCode());
+                            }
                             return cb;
                         }
                     }
