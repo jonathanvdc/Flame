@@ -38,5 +38,22 @@ namespace Flame.Cpp.Emit
                 return Postconditions.Count > 0;
             }
         }
+
+        public IEnumerable<IAttribute> DescriptionAttributes
+        {
+            get
+            {
+                List<IAttribute> attrs = new List<IAttribute>();
+                foreach (var item in Preconditions)
+                {
+                    attrs.Add(new DescriptionAttribute("pre", item.GetCode().ToString()));
+                }
+                foreach (var item in Postconditions)
+                {
+                    attrs.Add(new DescriptionAttribute("post", item.GetCode().ToString()));
+                }
+                return attrs;
+            }
+        }
     }
 }

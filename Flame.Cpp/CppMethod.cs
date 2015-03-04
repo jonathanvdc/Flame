@@ -28,6 +28,14 @@ namespace Flame.Cpp
         public Func<INamespace, IConverter<IType, string>> TypeNamer { get { return Environment.TypeNamer; } }
         public CppTemplateDefinition Templates { get; private set; }
 
+        public MethodContract Contract
+        {
+            get
+            {
+                return blockGen.Contract;
+            }
+        }
+
         public IType ResolveTypeParameter(IGenericParameter TypeParameter)
         {
             return TypeParameter;
@@ -66,7 +74,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IAttribute> GetAttributes()
         {
-            return Template.GetAttributes();
+            return Template.GetAttributes().Concat(Contract.DescriptionAttributes);
         }
 
         public virtual string Name
