@@ -57,7 +57,11 @@ namespace dsc
             catch (Exception ex)
             {
                 ConsoleLog.Instance.LogEvent(new LogEntry("Compilation terminated", "Compilation has been terminated due to a fatal error."));
-                ConsoleLog.Instance.LogMessage(new LogEntry("Exception", ex.ToString()));
+                var entry = new LogEntry("Exception", ex.ToString());
+                if (buildArgs.LogFilter.ShouldLogMessage(entry))
+                {
+                    ConsoleLog.Instance.LogMessage(entry);
+                }
             }
         }
 
@@ -107,7 +111,7 @@ namespace dsc
         {
             string dirName = Path.GetDirectoryName(State.Arguments.GetTargetPathWithoutExtension(State.ParentPath, Project));
 
-            var target = BuildTarget.CreateBuildTarget(Project, State.Log, State.Arguments.GetTargetPlatform(Project), State.CurrentPath, dirName);
+            var target = BuildTarget.CreateBuildTarget(Project, State.FilteredLog, State.Arguments.GetTargetPlatform(Project), State.CurrentPath, dirName);
 
             string targetPath = State.Arguments.GetTargetPath(State.ParentPath, Project, target);
 
@@ -123,19 +127,19 @@ namespace dsc
 
             if (State.Arguments.VerifyAssembly)
             {
-                State.Log.LogEvent(new LogEntry("Status", "Verifying..."));
+                State.FilteredLog.LogEvent(new LogEntry("Status", "Verifying..."));
                 VerificationExtensions.VerifyAssembly(projAsm, State.Log);
-                State.Log.LogEvent(new LogEntry("Status", "Verified"));
+                State.FilteredLog.LogEvent(new LogEntry("Status", "Verified"));
             }
 
-            State.Log.LogEvent(new LogEntry("Status", "Recompiling..."));
+            State.FilteredLog.LogEvent(new LogEntry("Status", "Recompiling..."));
 
             var recompSettings = new RecompilationSettings(!(target.TargetAssembly is Flame.TextContract.ContractAssembly), true);
 
-            var asmRecompiler = new AssemblyRecompiler(target.TargetAssembly, State.Log, new SingleThreadedTaskManager(), State.Arguments.Optimizer, recompSettings);
+            var asmRecompiler = new AssemblyRecompiler(target.TargetAssembly, State.FilteredLog, new SingleThreadedTaskManager(), State.Arguments.Optimizer, recompSettings);
             await asmRecompiler.RecompileAsync(projAsm, new RecompilationOptions(State.Arguments.CompileAll));
 
-            State.Log.LogEvent(new LogEntry("Status", "Done recompiling"));
+            State.FilteredLog.LogEvent(new LogEntry("Status", "Done recompiling"));
 
             target.TargetAssembly.Build();
 
