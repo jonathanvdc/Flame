@@ -71,10 +71,12 @@
   <ItemGroup>
     <Compile Include="AnalyzingOptimizer.cs" />
     <Compile Include="BinderResolver.cs" />
+    <Compile Include="ILogFilter.cs" />
     <Compile Include="Options\BuildArguments.cs" />
     <Compile Include="CompilerOptionExtensions.cs" />
     <Compile Include="DerivedSyntaxParser.cs" />
     <Compile Include="FileOutputProvider.cs" />
+    <Compile Include="Options\ChatOption.cs" />
     <Compile Include="Options\IBuildOption.cs" />
     <Compile Include="CecilReferenceResolver.cs" />
     <Compile Include="CecilRuntimeLibraries.cs" />

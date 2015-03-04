@@ -37,6 +37,14 @@ namespace dsc.State
             }
         }
 
+        public ICompilerLog FilteredLog
+        {
+            get
+            {
+                return new FilteredLog(Arguments.LogFilter, Log);
+            }
+        }
+
         public string CurrentPath { get; private set; }
         public string ParentPath { get { return CurrentPath; } }
         public BuildArguments Arguments { get; private set; }
@@ -58,7 +66,7 @@ namespace dsc.State
 
         public Task<IAssembly> CompileAsync(Task<IBinder> Binder)
         {
-            return Handler.CompileAsync(Project, new CompilationParameters(Log, Binder, CurrentPath));
+            return Handler.CompileAsync(Project, new CompilationParameters(FilteredLog, Binder, CurrentPath));
         }
     }
 }

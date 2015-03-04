@@ -92,6 +92,14 @@ namespace dsc.Options
             }
         }
 
+        public ILogFilter LogFilter
+        {
+            get
+            {
+                return GetBuildArgumentOrDefault<ILogFilter>("chat") ?? new ChatLogFilter(ChatLevel.Loud);
+            }
+        }
+
         #endregion
 
         #region Helper Methods
@@ -262,6 +270,7 @@ namespace dsc.Options
             AddBuildParameter(new MakeProjectBuildOption());
             AddBuildParameter(new VerifyOption());
             AddBuildParameter(new OptimizerOption());
+            AddBuildParameter(new ChatOption());
         }
 
         private static Dictionary<string, IBuildParameter> parameters;

@@ -50,7 +50,7 @@ namespace dsc.Projects
 
         public async Task<IAssembly> CompileAsync(IProject Project, CompilationParameters Parameters)
         {
-            var units = await ParseCompilationUnitsAsync(Project.GetSourceItems(), Parameters.CurrentPath);
+            var units = await ParseCompilationUnitsAsync(Project.GetSourceItems(), Parameters);
             var binder = await Parameters.BinderTask;
 
             var dsAsm = new SyntaxAssembly(DSharpBuildHelpers.Instance.CreatePrimitiveBinder(binder), Project.Name);
@@ -63,48 +63,48 @@ namespace dsc.Projects
         }
 
 
-        public static Task<CompilationUnit[]> ParseCompilationUnitsAsync(List<IProjectSourceItem> SourceItems, string CurrentPath)
+        public static Task<CompilationUnit[]> ParseCompilationUnitsAsync(List<IProjectSourceItem> SourceItems, CompilationParameters Parameters)
         {
             Task<CompilationUnit>[] units = new Task<CompilationUnit>[SourceItems.Count];
             for (int i = 0; i < units.Length; i++)
             {
                 var item = SourceItems[i];
-                units[i] = ParseCompilationUnitAsync(item, CurrentPath);
+                units[i] = ParseCompilationUnitAsync(item, Parameters);
             }
             return Task.WhenAll(units);
         }
-        public static string GetSourceSafe(IProjectSourceItem Item, string CurrentPath)
+        public static string GetSourceSafe(IProjectSourceItem Item, CompilationParameters Parameters)
         {
             try
             {
-                return Item.GetSource(CurrentPath);
+                return Item.GetSource(Parameters.CurrentPath);
             }
             catch (FileNotFoundException ex)
             {
-                ConsoleLog.Instance.LogError(new LogEntry("Error getting source code", "File '" + Item.SourceIdentifier + "' was not found"));
+                Parameters.Log.LogError(new LogEntry("Error getting source code", "File '" + Item.SourceIdentifier + "' was not found"));
                 return null;
             }
             catch (Exception ex)
             {
-                ConsoleLog.Instance.LogError(new LogEntry("Error getting source code", "'" + Item.SourceIdentifier + "' could not be opened"));
-                ConsoleLog.Instance.LogError(new LogEntry("Exception", ex.ToString()));
+                Parameters.Log.LogError(new LogEntry("Error getting source code", "'" + Item.SourceIdentifier + "' could not be opened"));
+                Parameters.Log.LogError(new LogEntry("Exception", ex.ToString()));
                 return null;
             }
         }
 
-        public static Task<CompilationUnit> ParseCompilationUnitAsync(IProjectSourceItem SourceItem, string CurrentPath)
+        public static Task<CompilationUnit> ParseCompilationUnitAsync(IProjectSourceItem SourceItem, CompilationParameters Parameters)
         {
-            ConsoleLog.Instance.LogEvent(new LogEntry("Status", "Parsing " + SourceItem.SourceIdentifier));
+            Parameters.Log.LogEvent(new LogEntry("Status", "Parsing " + SourceItem.SourceIdentifier));
             return Task.Run(() =>
             {
-                string code = GetSourceSafe(SourceItem, CurrentPath);
+                string code = GetSourceSafe(SourceItem, Parameters);
                 if (code == null)
                 {
                     return null;
                 }
                 var parser = new TokenizerStream(code);
                 var unit = ParseCompilationUnit(parser);
-                ConsoleLog.Instance.LogEvent(new LogEntry("Status", "Parsed " + SourceItem.SourceIdentifier));
+                Parameters.Log.LogEvent(new LogEntry("Status", "Parsed " + SourceItem.SourceIdentifier));
                 return unit;
             });
         }
