@@ -104,7 +104,7 @@ namespace Flame.DSharp.Parser
 	            }
 	            else
 	            {
-	                Log.LogError("Could not identify token " + token.TokenValue + " as valid expression syntax.");
+	                Log.LogError(new LogEntry("Parser error", "Could not identify token '" + token.TokenValue + "' as valid expression syntax."));
 	                return null;
 	            }
 	            return ParseIdentifierExpression(expr, Parser);
