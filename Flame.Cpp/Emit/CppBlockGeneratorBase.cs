@@ -179,6 +179,35 @@ namespace Flame.Cpp.Emit
             }
         }
 
+        private static void AddBlockCode(CodeBuilder Target, CppBlockGenerator Block)
+        {
+            foreach (var item in Block.blocks)
+            {
+                AddBlockCode(Target, item);
+            }
+        }
+
+        private static void AddBlockCode(CodeBuilder Target, CompositeBlockBase Block)
+        {
+            AddBlockCode(Target, Block.Simplify());
+        }
+
+        private static void AddBlockCode(CodeBuilder Target, ICppBlock Block)
+        {
+            if (Block is CppBlockGenerator)
+            {
+                AddBlockCode(Target, (CppBlockGenerator)Block);
+            }
+            else if (Block is CompositeBlockBase)
+            {
+                AddBlockCode(Target, (CompositeBlockBase)Block);
+            }
+            else
+            {
+                Target.AddCodeBuilder(Block.GetCode());
+            }
+        }
+
         public virtual CodeBuilder GetCode()
         {
             if (blocks.Count == 0)
@@ -196,7 +225,7 @@ namespace Flame.Cpp.Emit
                 cb.IncreaseIndentation();
                 foreach (var item in blocks)
                 {
-                    cb.AddCodeBuilder(item.GetCode());
+                    AddBlockCode(cb, item);
                 }
                 cb.DecreaseIndentation();
                 cb.AddLine("}");

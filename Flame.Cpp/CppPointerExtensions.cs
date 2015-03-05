@@ -16,9 +16,14 @@ namespace Flame.Cpp
             }
         }
 
+        public static bool IsAtAddressPointer(this IType Type)
+        {
+            return Type.get_IsPointer() && Type.AsContainerType().AsPointerType().PointerKind.Equals(AtAddressPointer);
+        }
+
         public static IType RemoveAtAddressPointers(this IType Type)
         {
-            if (Type.get_IsPointer() && Type.AsContainerType().AsPointerType().PointerKind.Equals(AtAddressPointer))
+            if (Type.IsAtAddressPointer())
             {
                 return Type.AsContainerType().GetElementType().RemoveAtAddressPointers();
             }

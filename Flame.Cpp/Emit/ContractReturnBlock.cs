@@ -9,24 +9,45 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class ContractReturnBlock : CompositeBlockBase
+    public class ContractReturnBlock : CompositeBlockBase, ICppLocalDeclaringBlock
     {
         public ContractReturnBlock(IContractCodeGenerator CodeGenerator, MethodContract Contract, ICppBlock ReturnValue)
         {
             this.cg = CodeGenerator;
             this.Contract = Contract;
             this.ReturnValue = ReturnValue;
+            if (ReturnValue != null)
+            {
+                this.localDecl = new LocalDeclarationReference((CppLocal)cg.ReturnVariable, ReturnValue);
+            }
         }
 
         private IContractCodeGenerator cg;
+        private LocalDeclarationReference localDecl;
         public MethodContract Contract { get; private set; }
         public ICppBlock ReturnValue { get; private set; }
+
+        protected override bool HasChanged
+        {
+            get
+            {
+                return true;
+            }
+        }
 
         public override ICodeGenerator CodeGenerator
         {
             get
             {
                 return cg;
+            }
+        }
+
+        public override IType Type
+        {
+            get
+            {
+                return PrimitiveTypes.Void;
             }
         }
 
@@ -54,7 +75,7 @@ namespace Flame.Cpp.Emit
                 if (Contract.HasPostconditions)
                 {
                     var block = cg.CreateBlock();
-                    cg.ReturnVariable.CreateSetStatement(new CodeBlockExpression(ReturnValue, ReturnValue.Type)).Emit(block);
+                    block.EmitBlock(localDecl);
                     foreach (var item in Contract.Postconditions)
                     {
                         block.EmitBlock(item);
@@ -65,6 +86,21 @@ namespace Flame.Cpp.Emit
                 else
                 {
                     return new ReturnBlock(cg, ReturnValue);
+                }
+            }
+        }
+
+        public IEnumerable<LocalDeclaration> LocalDeclarations
+        {
+            get
+            {
+                if (localDecl != null)
+                {
+                    return new LocalDeclaration[] { localDecl.Declaration };
+                }
+                else
+                {
+                    return Enumerable.Empty<LocalDeclaration>();
                 }
             }
         }
