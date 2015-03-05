@@ -35,8 +35,9 @@ namespace Flame.Cpp
 
             var accessorPacks = props.Select(item => new CppMemberPack(item.GetAccessors().OfType<ICppMember>()));
             var methodPacks = methods.Select(item => new CppMemberPack(item));
+            var typePacks = Members.OfType<IType>().Cast<ICppMember>().Select(item => new CppMemberPack(item));
 
-            return new CppMemberPack[] { new CppMemberPack(ctors) }.Concat(methodPacks).Concat(accessorPacks).With(new CppMemberPack(fields));
+            return new CppMemberPack[] { new CppMemberPack(ctors) }.Concat(methodPacks).Concat(accessorPacks).With(new CppMemberPack(fields)).Concat(typePacks);
         }
     }
 }

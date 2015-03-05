@@ -39,6 +39,9 @@ namespace Flame.Cpp.Emit
             }
         }
 
+        /// <summary>
+        /// Gets a sequence of precondition/postcondition description attributes.
+        /// </summary>
         public IEnumerable<IAttribute> DescriptionAttributes
         {
             get

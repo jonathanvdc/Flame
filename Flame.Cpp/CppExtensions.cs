@@ -39,7 +39,7 @@ namespace Flame.Cpp
 
         private static IEnumerable<IHeaderDependency> GetAttributeDependencies(this IMember Member)
         {
-            return Member.GetHeaderAttributes().Select((item) => new StandardDependency(item.HeaderName)).MergeDependencies(Member.GetHeaderDependencyAttributes().Select((item) => item.Dependency)); 
+            return Member.GetHeaderAttributes().Select((item) => new StandardDependency(item.HeaderName)).MergeDependencies(Member.GetHeaderDependencyAttributes().Select((item) => item.Dependency));
         }
 
         #endregion
@@ -56,6 +56,52 @@ namespace Flame.Cpp
                 }
             }
             return false;
+        }
+
+        #endregion
+
+        #region GetReferencePointerAttribute
+
+        private static ReferencePointerAttribute GetReferencePointerAttribute(this IMember Member)
+        {
+            foreach (var item in Member.GetAttributes())
+            {
+                if (item != null && item.AttributeType.FullName == typeof(ReferencePointerAttribute).FullName)
+                {
+                    var eval = item.Value.GetObjectValue();
+                    if (eval is ReferencePointerAttribute)
+                    {
+                        return (ReferencePointerAttribute)eval;
+                    }
+                    else if (item is IConstructedAttribute)
+                    {
+                        return new ReferencePointerAttribute(((IConstructedAttribute)item).GetArguments().First().GetValue<string>());
+                    }
+                }
+            }
+            return null;
+        }
+
+        public static PointerKind GetReferencePointerKind(this IType Member)
+        {
+            var attr = Member.GetReferencePointerAttribute();
+            if (attr == null)
+            {
+                return PointerKind.ReferencePointer;
+            }
+            else
+            {
+                return PointerKind.Register(attr.PointerType);
+            }
+        }
+
+        #endregion
+
+        #region IsExplicitPointer
+
+        public static bool IsExplicitPointer(this IType Type)
+        {
+            return Type.get_IsPointer() && !Type.AsContainerType().AsPointerType().PointerKind.Equals(CppPointerExtensions.AtAddressPointer);
         }
 
         #endregion
@@ -500,9 +546,33 @@ namespace Flame.Cpp
             {
                 return ((ICppTemplateMember)Member).Templates;
             }
+            else if (Member.get_IsGenericInstance())
+            {
+                if (Member is IType)
+                {
+                    return ((IType)Member).GetGenericDeclaration().GetTemplateDefinition();
+                }
+                else if (Member is IMethod)
+                {
+                    return ((IMethod)Member).GetGenericDeclaration().GetTemplateDefinition();
+                }
+            }
+            return null;
+        }
+
+        #endregion
+
+        #region GetFullTemplateDefinition
+
+        public static CppTemplateDefinition GetFullTemplateDefinition(this IType Type)
+        {
+            if (Type.DeclaringNamespace is IType)
+            {
+                return ((IType)Type.DeclaringNamespace).GetFullTemplateDefinition().Merge(Type.GetTemplateDefinition());
+            }
             else
             {
-                return null;
+                return Type.GetTemplateDefinition();
             }
         }
 

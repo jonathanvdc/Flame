@@ -39,12 +39,14 @@ namespace Flame.Cpp
             this.methods = new List<CppMethod>();
             this.properties = new List<CppProperty>();
             this.types = new List<CppType>();
+            this.friendMethods = new List<CppMethod>();
         }
 
         private List<CppField> fields;
         private List<CppMethod> methods;
         private List<CppProperty> properties;
         private List<CppType> types;
+        private List<CppMethod> friendMethods;
 
         #endregion
 
@@ -132,9 +134,58 @@ namespace Flame.Cpp
             }
         }
 
+        /// <summary>
+        /// Gets a boolean flag that tells if this type is a static singleton.
+        /// </summary>
+        public bool IsStaticSingleton
+        {
+            get
+            {
+                if (DeclaringNamespace is IType)
+                {
+                    return this.get_IsSingleton() && this.Name == "Static_Singleton";
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public bool IsEmptyStaticSingleton
+        {
+            get
+            {
+                if (IsStaticSingleton)
+                {
+                    return fields.Count == 1 && methods.Count == 1 && properties.Count == 1;
+                }
+                return false;
+            }
+        }
+
+        public bool EmitType
+        {
+            get
+            {
+                return !IsEmptyStaticSingleton;
+            }
+        }
+
         #endregion
 
         #region Members
+
+        private bool ShouldCompileToParentFriend(IMethod Method)
+        {
+            return Method.get_IsOperator() && IsStaticSingleton;
+        }
+
+        private IMethodBuilder CompileToParentFriend(IMethod Method)
+        {
+            var declParent = (CppType)((IType)DeclaringNamespace).GetGenericDeclaration();
+            return declParent.DeclareFriendMethod(Method);
+        }
 
         public IFieldBuilder DeclareField(IField Template)
         {
@@ -145,9 +196,23 @@ namespace Flame.Cpp
 
         public IMethodBuilder DeclareMethod(IMethod Template)
         {
-            var method = new CppMethod(this, Template, Environment);
-            methods.Add(method);
-            return method;
+            if (ShouldCompileToParentFriend(Template))
+            {
+                return CompileToParentFriend(Template);
+            }
+            else
+            {
+                var method = new CppMethod(this, Template, Environment);
+                methods.Add(method);
+                return method;
+            }
+        }
+
+        public IMethodBuilder DeclareFriendMethod(IMethod Template)
+        {
+            var method = new CppMethod(this, Template, Environment, true, true);
+            friendMethods.Add(method);
+            return method; 
         }
 
         public IPropertyBuilder DeclareProperty(IProperty Template)
@@ -213,7 +278,7 @@ namespace Flame.Cpp
 
         public ITypeBuilder DeclareType(IType Template)
         {
-            var type = new CppType(this, Template, Environment);
+            var type = new CppType((INamespace)this.MakeGenericType(this.GetGenericParameters()), Template, Environment);
             types.Add(type);
             return type;
         }
@@ -239,6 +304,10 @@ namespace Flame.Cpp
 
         public IType MakeGenericType(IEnumerable<IType> TypeArguments)
         {
+            if (!TypeArguments.Any())
+            {
+                return this;
+            }
             return new DescribedGenericTypeInstance(this, TypeArguments);
         }
 
@@ -321,48 +390,70 @@ namespace Flame.Cpp
 
         public CodeBuilder GetHeaderCode()
         {
-            CodeBuilder cb = this.GetDocumentationComments();
-            cb.AddCodeBuilder(GetDeclarationCode());
-            cb.AddLine("{");
+            CodeBuilder cb = new CodeBuilder();
 
-            var groups = new Dictionary<string, IList<ICppMember>>();
-            foreach (var item in GetCppMembers())
+            if (EmitType)
             {
-                MemberToAccessGroup(item, groups);
-            }
-            bool isStruct = IsStruct;
-            foreach (var group in groups.OrderByDescending((item) => item.Key, new AccessStringComparer()))
-            {
-                if (!isStruct)
+                cb.AddCodeBuilder(this.GetDocumentationComments());
+                cb.AddCodeBuilder(GetDeclarationCode());
+                cb.AddLine("{");
+
+                var groups = new Dictionary<string, IList<ICppMember>>();
+                foreach (var item in GetCppMembers())
                 {
-                    cb.AddLine(group.Key + ":");
+                    MemberToAccessGroup(item, groups);
                 }
-                cb.IncreaseIndentation();
-                foreach (var item in Environment.TypeDefinitionPacker.Pack(group.Value).Where(item => !item.IsEmpty))
+                bool isStruct = IsStruct;
+                foreach (var group in groups.OrderByDescending((item) => item.Key, new AccessStringComparer()))
                 {
-                    cb.AddCodeBuilder(item.GetHeaderCode());
-                    cb.AddEmptyLine();
+                    if (!isStruct)
+                    {
+                        cb.AddLine(group.Key + ":");
+                    }
+                    cb.IncreaseIndentation();
+                    foreach (var item in Environment.TypeDefinitionPacker.Pack(group.Value).Where(item => !item.IsEmpty))
+                    {
+                        cb.AddCodeBuilder(item.GetHeaderCode());
+                        cb.AddEmptyLine();
+                    }
+                    cb.TrimEnd(); // Gets rid of excessive whitespace
+                    cb.DecreaseIndentation();
                 }
-                cb.TrimEnd(); // Gets rid of excessive whitespace
-                cb.DecreaseIndentation();
+
+                cb.AddLine("};");   
             }
 
-            cb.AddLine("};");
+            foreach (var item in friendMethods)
+            {
+                cb.TrimEnd();
+                cb.AddEmptyLine();
+                cb.AddCodeBuilder(item.GetHeaderCode());
+            }
+
             return cb;
         }
 
         public bool HasSourceCode
         {
-            get { return GetCppMembers().Any((item) => item.HasSourceCode); }
+            get { return GetCppMembers().Any(item => item.HasSourceCode); }
         }
 
         public CodeBuilder GetSourceCode()
         {
             CodeBuilder cb = new CodeBuilder();
-            foreach (var item in GetCppMembers().Where((item) => item.HasSourceCode))
+            if (EmitType)
             {
-                cb.AddCodeBuilder(item.GetSourceCode());
+                foreach (var item in GetCppMembers().Where(item => item.HasSourceCode))
+                {
+                    cb.AddCodeBuilder(item.GetSourceCode());
+                    cb.AddEmptyLine();
+                }
+            }
+            foreach (var item in friendMethods)
+            {
+                cb.TrimEnd();
                 cb.AddEmptyLine();
+                cb.AddCodeBuilder(item.GetSourceCode());
             }
             return cb;
         }

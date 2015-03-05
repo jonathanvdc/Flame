@@ -82,6 +82,7 @@
     <Compile Include="Emit\LocalDeclaration.cs" />
     <Compile Include="Emit\PartialEmptyBlock.cs" />
     <Compile Include="Emit\ThrowBlock.cs" />
+    <Compile Include="FriendAttribute.cs" />
     <Compile Include="HeaderComparer.cs" />
     <Compile Include="HeaderDependencyAttribute.cs" />
     <Compile Include="ICppEnvironment.cs" />

@@ -14,5 +14,6 @@
     <Compile Include="UnorderedMap.ds" />
     <Compile Include="Math.ds" />
     <Compile Include="Algorithm.ds" />
+    <Compile Include="OStream.ds" />
   </ItemGroup>
 </Project>
