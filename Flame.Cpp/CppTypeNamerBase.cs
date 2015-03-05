@@ -65,11 +65,11 @@ namespace Flame.Cpp
         {
             if (Kind.Equals(PointerKind.ReferencePointer))
             {
-                return "std::shared_ptr<" + ElementType + ">";
+                return MakeGenericType("std::shared_ptr", new string[] { ElementType });
             }
             else
             {
-                return ElementType + "*";
+                return ElementType + Kind.Extension;
             }
         }
 
@@ -100,6 +100,15 @@ namespace Flame.Cpp
         protected override string ConvertGenericParameter(IGenericParameter Type)
         {
             return Type.Name;
+        }
+
+        protected override string ConvertTypeDeclaration(IType Type)
+        {
+            if (Type.DeclaringNamespace is IType)
+            {
+                return Convert((IType)Type.DeclaringNamespace) + "::" + Type.Name;
+            }
+            return base.ConvertTypeDeclaration(Type);
         }
 
         protected override string ConvertTypeDefault(IType Type)

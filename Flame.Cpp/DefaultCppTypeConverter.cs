@@ -21,7 +21,7 @@ namespace Flame.Cpp
 
         protected override IType MakeReferenceType(IType Type)
         {
-            return MakePointerType(Type, PointerKind.ReferencePointer);
+            return MakePointerType(Type, Type.GetReferencePointerKind());
         }
 
         protected override IType MakeArrayType(IType Type, int ArrayRank)

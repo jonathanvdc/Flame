@@ -11,22 +11,29 @@ namespace Flame.Cpp
 {
     public class CppMethod : IMethodBuilder, ICppTemplateMember
     {
-        public CppMethod(IGenericResolverType DeclaringType, IMethod Template, ICppEnvironment Environment)
+        public CppMethod(IGenericResolverType DeclaringType, IMethod Template, ICppEnvironment Environment, bool IsStatic, bool IsGlobal)
         {
             this.DeclaringType = DeclaringType;
             this.Template = Template;
             this.Templates = new CppTemplateDefinition(this, Template);
             this.Environment = new TemplatedMemberCppEnvironment(Environment, this);
+            this.IsStatic = IsStatic;
+            this.IsGlobal = IsGlobal;
             var codeGen = new CppCodeGenerator(this, this.Environment);
             this.blockGen = new CppContractBlockGenerator(codeGen, codeGen.Contract);
             this.built = false;
         }
+        public CppMethod(IGenericResolverType DeclaringType, IMethod Template, ICppEnvironment Environment)
+            : this(DeclaringType, Template, Environment, Template.IsStatic, false)
+        { }
 
         public IType DeclaringType { get; private set; }
         public IMethod Template { get; private set; }
         public ICppEnvironment Environment { get; private set; }
         public Func<INamespace, IConverter<IType, string>> TypeNamer { get { return Environment.TypeNamer; } }
         public CppTemplateDefinition Templates { get; private set; }
+        public bool IsStatic { get; private set; }
+        public bool IsGlobal { get; private set; }
 
         public MethodContract Contract
         {
@@ -170,11 +177,6 @@ namespace Flame.Cpp
             }
         }
 
-        public bool IsStatic
-        {
-            get { return Template.IsStatic; }
-        }
-
         public IEnumerable<IType> GetGenericArguments()
         {
             return new IType[0];
@@ -191,7 +193,7 @@ namespace Flame.Cpp
 
         private CodeBuilder GetSharedSignature(bool PrefixName)
         {
-            bool isConst = this.get_IsConstant();
+            bool isConst = this.get_IsConstant() && !IsExistential;
             bool isCast = IsCast;
             CodeBuilder cb = new CodeBuilder();
             if (!IsExistential && !isCast)
@@ -232,7 +234,7 @@ namespace Flame.Cpp
                 cb.Append(parameters[i].Name);
             }
             cb.Append(')');
-            if (isConst && !IsExistential)
+            if (isConst)
             {
                 cb.Append(" const");
             }
@@ -245,9 +247,9 @@ namespace Flame.Cpp
         {
             bool isConst = this.get_IsConstant();
             CodeBuilder cb = this.GetDocumentationComments();
-            cb.AddCodeBuilder(Templates.GetHeaderCode());
+            cb.AddCodeBuilder(LocalTemplateDefinition.GetHeaderCode());
             cb.AppendLine();
-            if (this.IsStatic)
+            if (this.IsStatic && !this.IsGlobal)
             {
                 cb.Append("static ");
             }
@@ -273,6 +275,23 @@ namespace Flame.Cpp
             get { return !IsPureVirtual; }
         }
 
+        private CppTemplateDefinition LocalTemplateDefinition
+        {
+            get
+            {
+                return IsGlobal ? FullTemplateDefinition : Templates;
+            }
+        }
+
+        private CppTemplateDefinition FullTemplateDefinition
+        {
+            get
+            {
+                var declTemplDefs = DeclaringType.GetFullTemplateDefinition();
+                return declTemplDefs.Merge(Templates);
+            }
+        }
+
         public CodeBuilder GetSourceCode()
         {
             var cg = blockGen.CodeGenerator;
@@ -285,15 +304,14 @@ namespace Flame.Cpp
                 return cb;
             }
 
-            var declTemplDefs = DeclaringType.GetTemplateDefinition();
-            var allTemplDefs = declTemplDefs.Merge(Templates);
+            var allTemplDefs = FullTemplateDefinition;
             cb.AddCodeBuilder(allTemplDefs.GetHeaderCode());
             if (!allTemplDefs.IsEmpty)
             {
                 cb.AppendLine();
             }
 
-            cb.Append(GetSharedSignature(true));
+            cb.Append(GetSharedSignature(!IsGlobal));
 
             var body = blockGen.ImplyEmptyReturns();
             if (this.IsConstructor)

@@ -89,7 +89,7 @@ namespace Flame.Cpp.Emit
                 else
                 {
                     cb.Append(Target.GetCode());
-                    if (Target.Type.get_IsPointer())
+                    if (Target.Type.IsExplicitPointer())
                     {
                         cb.Append("->");
                     }

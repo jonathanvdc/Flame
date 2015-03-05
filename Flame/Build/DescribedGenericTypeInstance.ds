@@ -5,12 +5,19 @@ using System.Linq;
 
 namespace Flame.Build
 {
-    public virtual class DescribedGenericTypeInstance : IGenericResolverType, IEquatable<IType>
+    public virtual class DescribedGenericTypeInstance : IGenericResolverType, INamespace, IEquatable<IType>
     {
-        public const this(set IType GenericDeclaration, set [IType] TypeArguments);
+    	public const this(set IType GenericDeclaration, set [IType] TypeArguments, set INamespace DeclaringNamespace);
+        public const this(set IType GenericDeclaration, set [IType] TypeArguments)
+        {
+        	DeclaringNamespace = GenericDeclaration.DeclaringNamespace;
+        }
 
+		public INamespace DeclaringNamespace { const get; private set; }
         public IType GenericDeclaration { const get; private set; }
         public [IType] TypeArguments { const get; private set; }
+        
+        public IAssembly DeclaringAssembly { const get return DeclaringNamespace.DeclaringAssembly; }
 
         public const IType ResolveTypeParameter(IGenericParameter TypeParameter)
         {
@@ -32,11 +39,6 @@ namespace Flame.Build
         {
             if (this is IContainerType) return (IContainerType)this;
             else return null;
-        }
-
-        public INamespace DeclaringNamespace
-        {
-            const get { return GenericDeclaration.DeclaringNamespace; }
         }
 
 		public IType[] BaseTypes { const get return GetBaseTypes(); }
@@ -102,6 +104,22 @@ namespace Flame.Build
         		output = new DescribedGenericPropertyInstance(input, this);
         	}
             return results;
+        }
+        
+        public const IType[] GetTypes()
+        {
+        	if (GenericDeclaration is INamespace)
+        	{
+        		var genNs = (INamespace)GenericDeclaration;
+        		IType[] types = genNs.GetTypes();
+        		IType[] results = new IType[types.Length];
+        		foreach (var input in types, var output in results)
+        		{
+        			output = new DescribedGenericTypeInstance(input, Enumerable.Empty<IType>(), this);
+        		}
+        		return results;
+        	}
+        	return new IType[0];
         }
 
         public virtual bool IsContainerType
