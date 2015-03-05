@@ -50,11 +50,15 @@ namespace Flame.Cpp.Emit
             cb.Append(")");
             var ifBodyType = cb.AddBodyCodeBuilder(((ICppBlock)IfBlock).GetCode());
             var elseBody = ((ICppBlock)ElseBlock).GetCode();
-            if (elseBody.LineCount != 0 && !(elseBody.LineCount == 1 && elseBody[0].Text.Trim() == ";"))
+            if (elseBody.LineCount > 0 && !(elseBody.LineCount == 1 && elseBody[0].Text.Trim() == ";"))
             {
-                cb.AppendLine();
-                cb.AppendLine("else");
-                if (ifBodyType == BodyStatementType.Block)
+                cb.AddLine("else");
+                if (elseBody[0].Text.TrimStart().StartsWith("if"))
+                {
+                    cb.Append(" ");
+                    cb.Append(elseBody);
+                }
+                else if (ifBodyType == BodyStatementType.Block)
                 {
                     cb.AddEmbracedBodyCodeBuilder(elseBody);
                 }

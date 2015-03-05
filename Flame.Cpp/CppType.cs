@@ -327,7 +327,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get { return GetMembers().GetDependencies().MergeDependencies(GetBaseTypes().GetDependencies()); }
+            get { return GetMembers().GetDependencies().MergeDependencies(friendMethods.GetDependencies()).MergeDependencies(GetBaseTypes().GetDependencies()); }
         }
 
         #region MemberToAccessGroup
@@ -448,12 +448,6 @@ namespace Flame.Cpp
                     cb.AddCodeBuilder(item.GetSourceCode());
                     cb.AddEmptyLine();
                 }
-            }
-            foreach (var item in friendMethods)
-            {
-                cb.TrimEnd();
-                cb.AddEmptyLine();
-                cb.AddCodeBuilder(item.GetSourceCode());
             }
             return cb;
         }
