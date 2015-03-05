@@ -18,20 +18,20 @@ namespace Flame.Cpp
             : this(TypeConverter, TypeNamer, CreateDocumentationBuilder(new DoxygenFormatter()))
         {
         }
-        public CppEnvironment(ICppTypeConverter TypeConverter, Func<INamespace, IConverter<IType, string>> TypeNamer, IDocumentationCommentBuilder DocumentationBuilder)
+        public CppEnvironment(ICppTypeConverter TypeConverter, Func<INamespace, IConverter<IType, string>> TypeNamer, DocumentationCommentBuilder DocumentationBuilder)
         {
             this.TypeConverter = TypeConverter;
             this.TypeNamer = TypeNamer;
             this.DocumentationBuilder = DocumentationBuilder;
             this.DependencyCache = new TypeDependencyCache();
         }
-        public CppEnvironment(IDocumentationCommentBuilder DocumentationBuilder)
+        public CppEnvironment(DocumentationCommentBuilder DocumentationBuilder)
             : this()
         {
             this.DocumentationBuilder = DocumentationBuilder;
         }
 
-        public IDocumentationCommentBuilder DocumentationBuilder { get; private set; }
+        public DocumentationCommentBuilder DocumentationBuilder { get; private set; }
         public ICppTypeConverter TypeConverter { get; private set; }
         public Func<INamespace, IConverter<IType, string>> TypeNamer { get; private set; }
         public TypeDependencyCache DependencyCache { get; private set; }
@@ -56,9 +56,9 @@ namespace Flame.Cpp
             get { return null; }
         }
 
-        public static IDocumentationCommentBuilder CreateDocumentationBuilder(IDocumentationFormatter Formatter)
+        public static DocumentationCommentBuilder CreateDocumentationBuilder(IDocumentationFormatter Formatter)
         {
-            return new DocumentationCommentBuilder(Formatter, (docs) => DocumentationExtensions.ToLineComments(docs, "///"));
+            return new DocumentationCommentBuilder(Formatter, docs => DocumentationExtensions.ToLineComments(docs, "///"));
         }
 
         public static CppEnvironment Create(ICompilerLog Log)

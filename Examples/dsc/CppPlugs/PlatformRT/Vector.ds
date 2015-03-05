@@ -24,6 +24,13 @@ namespace std
             this.data = new T[Other.size()];
             Other.CopyTo(this.data);
         }
+        public const this(T[] Values)
+        {
+            this.data = Values;
+            var newData = new T[this.size()];
+            this.CopyTo(newData);
+            this.data = newData;
+        }
         
         #region Implementation Details
         
@@ -139,6 +146,13 @@ namespace std
         public const IEnumerator GetObjectEnumerator() : IEnumerable.GetEnumerator
         {
             return GetEnumerator();
+        }
+
+        public const T[] operator cast() 
+        { 
+            T[] temp = new T[this.size()]; 
+            this.CopyTo(temp); 
+            return temp; 
         }
     }
 }

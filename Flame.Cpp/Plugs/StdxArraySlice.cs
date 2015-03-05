@@ -148,114 +148,237 @@ namespace Flame.Cpp.Plugs
 class ArraySlice
 {
 public:
+	typedef int size_type;
+	typedef int offset_type;
+	typedef int difference_type;
+
 	ArraySlice();
-    ArraySlice(int Length);
-	ArraySlice(std::shared_ptr<std::vector<T>> Array, int Length);
-    ArraySlice(std::initializer_list<T> Values);
-    ArraySlice(T* Array, int Length);
+	ArraySlice(size_type Length);
+	ArraySlice(std::shared_ptr<std::vector<T>> Array, size_type Length);
+	ArraySlice(std::initializer_list<T> Values);
+	ArraySlice(std::vector<T> Values);
+	ArraySlice(T* Array, size_type Length);
 	ArraySlice(const ArraySlice<T>& Other);
 
-    T& operator[](int Index);
-    const T& operator[](int Index) const;
+	T& operator[](size_type Index);
+	const T& operator[](size_type Index) const;
 	ArraySlice<T>& operator=(const ArraySlice<T>& Other);
+	operator std::vector<T>() const;
 
-    ArraySlice<T> Slice(int Start, int Length) const;
-    ArraySlice<T> Slice(int Start) const;
+	ArraySlice<T> Slice(size_type Start, size_type Length) const;
+	ArraySlice<T> Slice(size_type Start) const;
 
-    int GetLength() const;
+	size_type GetLength() const;
+
+	class iterator
+	{
+	public:
+		iterator(std::shared_ptr<std::vector<T>> Pointer, size_type Index) : ptr(Pointer), index(Index) { }
+		T& operator*() const { return ptr->at(index); }
+		T& operator[](offset_type Index) const { return ptr->at(index + Index); }
+		iterator& operator++() { this->index++; return *this; }
+		iterator& operator--() { this->index--; return *this; }
+		iterator operator+(offset_type Offset) const { return iterator(this->ptr, index + Offset); }
+		iterator operator-(offset_type Offset) const { return iterator(this->ptr, index - Offset); }
+		iterator& operator+=(offset_type Offset) const { this->index += Offset; return *this; }
+		iterator& operator-=(offset_type Offset) const { this->index -= Offset; return *this; }
+		bool operator==(iterator& Other) const { return this->index == Other.index; }
+		bool operator!=(iterator& Other) const { return this->index != Other.index; }
+		difference_type operator-(iterator& Other) const { return this->index - Other.index; }
+		bool operator<(iterator& Other) const { return this->index < Other.index; }
+		bool operator<=(iterator& Other) const { return this->index <= Other.index; }
+		bool operator>(iterator& Other) const { return this->index > Other.index; }
+		bool operator>=(iterator& Other) const { return this->index >= Other.index; }
+
+	private:
+		std::shared_ptr<std::vector<T>> ptr;
+		size_type index;
+	};
+
+	class const_iterator
+	{
+	public:
+		const_iterator(std::shared_ptr<std::vector<T>> Pointer, size_type Index) : ptr(Pointer), index(Index) { }
+		const T& operator*() const { return ptr->at(index); }
+		const T& operator[](offset_type Index) const { return ptr->at(index + Index); }
+		const_iterator& operator++() { this->index++; return *this; }
+		const_iterator& operator--() { this->index--; return *this; }
+		const_iterator operator+(offset_type Offset) const { return const_iterator(this->ptr, index + Offset); }
+		const_iterator operator-(offset_type Offset) const { return const_iterator(this->ptr, index - Offset); }
+		const_iterator& operator+=(offset_type Offset) const { this->index += Offset; return *this; }
+		const_iterator& operator-=(offset_type Offset) const { this->index -= Offset; return *this; }
+		bool operator==(const_iterator& Other) const { return this->index == Other.index; }
+		bool operator!=(const_iterator& Other) const { return this->index != Other.index; }
+		difference_type operator-(const_iterator& Other) const { return this->index - Other.index; }
+		bool operator<(const_iterator& Other) const { return this->index < Other.index; }
+		bool operator<=(const_iterator& Other) const { return this->index <= Other.index; }
+		bool operator>(const_iterator& Other) const { return this->index > Other.index; }
+		bool operator>=(const_iterator& Other) const { return this->index >= Other.index; }
+
+	private:
+		std::shared_ptr<std::vector<T>> ptr;
+		size_type index;
+	};
+
+	iterator begin();
+	iterator end();
+	const_iterator begin() const;
+	const_iterator end() const;
+	const_iterator cbegin() const;
+	const_iterator cend() const;
 
 private:
-	ArraySlice(std::shared_ptr<std::vector<T>> Array, int Offset, int Length);
 
-    std::shared_ptr<std::vector<T>> ptr;
-    int offset, length;
+	ArraySlice(std::shared_ptr<std::vector<T>> Array, size_type Offset, size_type Length);
+
+	std::shared_ptr<std::vector<T>> ptr;
+	size_type offset, length;
 };";
         private const string HeaderImplementationCode =
 @"template<typename T>
 ArraySlice<T>::ArraySlice()
-	: ptr(std::make_shared<std::vector<T>>()), length(0), offset(0)
+    : ptr(std::make_shared<std::vector<T>>()), length(0), offset(0)
 {
 }
 
 template<typename T>
-ArraySlice<T>::ArraySlice(int Length)
-	: ptr(std::make_shared<std::vector<T>>(Length)), length(Length), offset(0)
+ArraySlice<T>::ArraySlice(typename ArraySlice<T>::size_type Length)
+    : ptr(std::make_shared<std::vector<T>>(Length)), length(Length), offset(0)
 {
 }
 
 template<typename T>
-ArraySlice<T>::ArraySlice(std::shared_ptr<std::vector<T>> Array, int Length)
+ArraySlice<T>::ArraySlice(std::shared_ptr<std::vector<T>> Array, typename ArraySlice<T>::size_type Length)
     : ptr(Array), length(Length), offset(0)
 {
 }
 
 template<typename T>
 ArraySlice<T>::ArraySlice(std::initializer_list<T> Values)
-	: ptr(std::make_shared<std::vector<T>>(Values)), offset(0)
+    : ptr(std::make_shared<std::vector<T>>(Values)), offset(0)
 {
-	this->length = this->ptr->size();
+    this->length = this->ptr->size();
 }
 
 template<typename T>
-ArraySlice<T>::ArraySlice(T* Array, int Length)
-	: ptr(std::make_shared<std::vector<T>>(Length)), length(Length), offset(0)
+ArraySlice<T>::ArraySlice(T* Array, typename ArraySlice<T>::size_type Length)
+    : ptr(std::make_shared<std::vector<T>>(Length)), length(Length), offset(0)
 {
-    for (int i = 0; i < Length; i++)
+	for (typename ArraySlice<T>::size_type i = 0; i < Length; i++)
     {
         (*this)[i] = Array[i];
     }
 }
 
 template<typename T>
-ArraySlice<T>::ArraySlice(std::shared_ptr<std::vector<T>> Array, int Offset, int Length)
+ArraySlice<T>::ArraySlice(std::shared_ptr<std::vector<T>> Array, typename ArraySlice<T>::size_type Offset, typename ArraySlice<T>::size_type Length)
     : ptr(Array), length(Length), offset(Offset)
 {
 }
 
 template<typename T>
 ArraySlice<T>::ArraySlice(const ArraySlice<T>& Other)
-	: ptr(Other.ptr), length(Other.length), offset(Other.offset)
+    : ptr(Other.ptr), length(Other.length), offset(Other.offset)
 {
-
 }
 
 template<typename T>
-T& ArraySlice<T>::operator[](int Index)
+ArraySlice<T>::ArraySlice(std::vector<T> Values)
+	: ptr(std::make_shared<std::vector<T>>(Values)), length(Values.size()), offset(0)
+{
+}
+
+template<typename T>
+T& ArraySlice<T>::operator[](typename ArraySlice<T>::size_type Index)
 {
     return this->ptr->at(this->offset + Index);
 }
 
 template<typename T>
-const T& ArraySlice<T>::operator[](int Index) const
+const T& ArraySlice<T>::operator[](typename ArraySlice<T>::size_type Index) const
 {
-	return this->ptr->at(this->offset + Index);
+    return this->ptr->at(this->offset + Index);
 }
 
 template<typename T>
 ArraySlice<T>& ArraySlice<T>::operator=(const ArraySlice<T>& Other)
 {
-	this->ptr = Other.ptr;
-	this->length = Other.length;
-	this->offset = Other.offset;
+    this->ptr = Other.ptr;
+    this->length = Other.length;
+    this->offset = Other.offset;
     return *this;
 }
 
 template<typename T>
-ArraySlice<T> ArraySlice<T>::Slice(int Start, int Length) const
+ArraySlice<T>::operator std::vector<T>() const
+{
+	if (offset == 0)
+	{
+		return *ptr; // Fast path. Just copy the vector.
+	}
+	else
+	{
+		std::vector<T> vals(this->GetLength()); // Slow path. Offset is not zero. These things happen.
+		for (typename ArraySlice<T>::size_type i = 0; i < this->GetLength(); i++)
+		{
+			vals[i] = (*this)[i];
+		}
+		return vals;
+	}
+}
+
+template<typename T>
+ArraySlice<T> ArraySlice<T>::Slice(typename ArraySlice<T>::size_type Start, typename ArraySlice<T>::size_type Length) const
 {
     return ArraySlice<T>(this->ptr, Start + this->offset, Length);
 }
 
 template<typename T>
-ArraySlice<T> ArraySlice<T>::Slice(int Start) const
+ArraySlice<T> ArraySlice<T>::Slice(typename ArraySlice<T>::size_type Start) const
 {
     return Slice(Start, this->length - Start);
 }
 
 template<typename T>
-int ArraySlice<T>::GetLength() const
+typename ArraySlice<T>::size_type ArraySlice<T>::GetLength() const
 {
     return this->length;
+}
+
+template<typename T>
+typename ArraySlice<T>::iterator ArraySlice<T>::begin()
+{
+	return ArraySlice<T>::iterator(this->ptr, this->offset);
+}
+
+template<typename T>
+typename ArraySlice<T>::iterator ArraySlice<T>::end()
+{
+	return ArraySlice<T>::iterator(this->ptr, this->offset + this->length);
+}
+
+template<typename T>
+typename ArraySlice<T>::const_iterator ArraySlice<T>::begin() const
+{
+	return this->cbegin();
+}
+
+template<typename T>
+typename ArraySlice<T>::const_iterator ArraySlice<T>::end() const
+{
+	return this->cend();
+}
+
+template<typename T>
+typename ArraySlice<T>::const_iterator ArraySlice<T>::cbegin() const
+{
+	return ArraySlice<T>::const_iterator(this->ptr, this->offset);
+}
+
+template<typename T>
+typename ArraySlice<T>::const_iterator ArraySlice<T>::cend() const
+{
+	return ArraySlice<T>::const_iterator(this->ptr, this->offset + this->length);
 }";
 
         #endregion
