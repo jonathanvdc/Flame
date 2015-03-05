@@ -27,7 +27,7 @@ namespace Flame.Cpp
         public ICppEnvironment DeclaringEnvironment { get; private set; }
         public IConverter<IType, IType> TemplateConverter { get; private set; }
 
-        public IDocumentationCommentBuilder DocumentationBuilder
+        public DocumentationCommentBuilder DocumentationBuilder
         {
             get { return DeclaringEnvironment.DocumentationBuilder; }
         }

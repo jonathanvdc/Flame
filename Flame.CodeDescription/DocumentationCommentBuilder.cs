@@ -14,6 +14,10 @@ namespace Flame.CodeDescription
 
     public class DocumentationCommentBuilder : IDocumentationCommentBuilder
     {
+        public DocumentationCommentBuilder(IDocumentationProvider Provider, DocumentationCommentBuilder Other)
+            : this(Provider, Other.Rewriter, Other.Formatter, Other.Commenter)
+        {
+        }
         public DocumentationCommentBuilder(IDocumentationFormatter Formatter, Func<string, CodeBuilder> Commenter)
             : this(DefaultDocumentationProvider.Instance, DefaultDocumentationRewriter.Instance, Formatter, Commenter)
         {

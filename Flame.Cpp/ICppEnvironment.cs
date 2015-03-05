@@ -9,7 +9,7 @@ namespace Flame.Cpp
 {
     public interface ICppEnvironment : IEnvironment
     {
-        IDocumentationCommentBuilder DocumentationBuilder { get; }
+        DocumentationCommentBuilder DocumentationBuilder { get; }
         ICppTypeConverter TypeConverter { get; }
         Func<INamespace, IConverter<IType, string>> TypeNamer { get; }
         ITypeDefinitionPacker TypeDefinitionPacker { get; }

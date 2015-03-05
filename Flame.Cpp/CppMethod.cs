@@ -1,4 +1,5 @@
 ﻿using Flame.Build;
+using Flame.CodeDescription;
 using Flame.Compiler;
 using Flame.Cpp.Emit;
 using System;
@@ -81,7 +82,14 @@ namespace Flame.Cpp
 
         public IEnumerable<IAttribute> GetAttributes()
         {
-            return Template.GetAttributes().Concat(Contract.DescriptionAttributes);
+            return Template.GetAttributes();
+        }
+
+        public CodeBuilder GetDocumentationComments()
+        {
+            var provider = new ConcatDocumentationProvider(Environment.DocumentationBuilder.Provider, new ConstantDocumentationProvider(Contract.DescriptionAttributes));
+            var docBuilder = new DocumentationCommentBuilder(provider, Environment.DocumentationBuilder);
+            return docBuilder.GetDocumentationComments(this);
         }
 
         public virtual string Name
