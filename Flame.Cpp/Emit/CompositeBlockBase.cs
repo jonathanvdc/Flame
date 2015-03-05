@@ -11,11 +11,13 @@ namespace Flame.Cpp.Emit
     {
         private ICppBlock simplified;
 
+        protected virtual bool HasChanged { get { return false; } }
+
         protected ICppBlock SimplifiedBlock
         {
             get
             {
-                if (simplified == null)
+                if (simplified == null || HasChanged)
                 {
                     simplified = Simplify();
                 }

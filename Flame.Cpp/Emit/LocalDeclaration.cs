@@ -138,14 +138,18 @@ namespace Flame.Cpp.Emit
         {
             get
             {
+                if (Value == null)
+                {
+                    return false;
+                }
                 if (Value is INewObjectBlock)
                 {
                     var initBlock = (INewObjectBlock)Value;
-                    return initBlock.Kind == AllocationKind.ManagedHeap || initBlock.Kind == AllocationKind.UnmanagedHeap;
+                    return initBlock.Kind != AllocationKind.MakeManaged && initBlock.Kind != AllocationKind.Stack;
                 }
                 else
                 {
-                    return false;
+                    return !Declaration.Local.Type.get_IsPrimitive() && !Value.Type.Equals(PrimitiveTypes.Null);
                 }
             }
         }
@@ -158,6 +162,10 @@ namespace Flame.Cpp.Emit
                 if (EmitAuto)
                 {
                     cb.Append("auto");
+                    if (Declaration.Local.Type.get_IsPointer() && Declaration.Local.Type.AsContainerType().AsPointerType().PointerKind.Equals(CppPointerExtensions.AtAddressPointer))
+                    {
+                        cb.Append("&");
+                    }
                 }
                 else
                 {
