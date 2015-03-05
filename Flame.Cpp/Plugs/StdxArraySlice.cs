@@ -156,7 +156,7 @@ public:
 	ArraySlice(size_type Length);
 	ArraySlice(std::shared_ptr<std::vector<T>> Array, size_type Length);
 	ArraySlice(std::initializer_list<T> Values);
-	ArraySlice(const std::vector<T>&& Values);
+	ArraySlice(const std::vector<T>& Values);
 	ArraySlice(T* Array, size_type Length);
 	ArraySlice(const ArraySlice<T>& Other);
 
@@ -283,7 +283,7 @@ ArraySlice<T>::ArraySlice(const ArraySlice<T>& Other)
 }
 
 template<typename T>
-ArraySlice<T>::ArraySlice(const std::vector<T>&& Values)
+ArraySlice<T>::ArraySlice(const std::vector<T>& Values)
 	: ptr(std::make_shared<std::vector<T>>(Values)), length(Values.size()), offset(0)
 {
 }
