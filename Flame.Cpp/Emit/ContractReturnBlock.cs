@@ -94,7 +94,7 @@ namespace Flame.Cpp.Emit
         {
             get
             {
-                if (localDecl != null)
+                if (Contract.HasPostconditions && localDecl != null)
                 {
                     return new LocalDeclaration[] { localDecl.Declaration };
                 }
