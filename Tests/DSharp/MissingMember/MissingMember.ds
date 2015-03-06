@@ -1,0 +1,14 @@
+public class SemicolonTest
+{
+    public const this();
+
+    public int MethodTest()
+    {
+        return this.X();
+    }
+
+    public int FieldTest()
+    {
+        return this.Y;
+    }
+}

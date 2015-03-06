@@ -9,12 +9,25 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class InvocationSyntax : IInvocationSyntax
+    public class InvocationSyntax : IInvocationSyntax, ISourceSyntax
     {
-        public const this(set ITypeMemberAccessSyntax Method, set IEnumerable<IExpressionSyntax> Arguments);
+        public const this(set ITypeMemberAccessSyntax Method, set [IExpressionSyntax] Arguments);
 
         public ITypeMemberAccessSyntax Method { const get; private set; }
-        public IEnumerable<IExpressionSyntax> Arguments { const get; private set; }
+        public [IExpressionSyntax] Arguments { const get; private set; }
+        
+        public SourceLocation Location
+        {
+        	const get
+        	{
+        		var result = Method.GetSourceLocation();
+        		foreach (var item in Arguments)
+        		{
+        			result = result.Concat(item.GetSourceLocation());
+        		}
+        		return result;
+        	}
+        }
         
         public static const IExpression CreateInvocationExpression(ISyntaxState State, IMethod Method, IVariable Caller)
         {
@@ -55,7 +68,7 @@ namespace Flame.Syntax.DSharp
 	        	return new ConversionExpression(callerInst.CreateGetExpression(), TargetType);
 	      	}
 	     	
-	        State.Log.LogError(new LogEntry("Cast error", "The caller of '" + MethodNode.GetCode().ToString() + "' of type '" + valType.FullName + "' could not be cast implicitly to '" + TargetType.FullName + "'"));
+	        State.Log.LogError(new LogEntry("Cast error", "The caller of '" + MethodNode.GetCode().ToString() + "' of type '" + valType.FullName + "' could not be cast implicitly to '" + TargetType.FullName + "'", MethodNode.GetSourceLocation()));
 	        return new ConversionExpression(callerInst.CreateGetExpression(), TargetType);
         }
         
@@ -168,11 +181,11 @@ namespace Flame.Syntax.DSharp
             			AppendCallSignature(failedMatchesList, item.GetParameters().GetTypes());
             			failedMatchesList.AppendLine();
             		}
-            		State.Log.LogError(new LogEntry("Method resolution error", "Method call '" + this.GetCode().ToString() + "' could not be resolved. Expected signature compatible with " + expectedSignature.ToString() + ". Incompatible or ambiguous matches: \r\n" + failedMatchesList));
+            		State.Log.LogError(new LogEntry("Method resolution error", "Method call '" + this.GetCode().ToString() + "' could not be resolved. Expected signature compatible with " + expectedSignature.ToString() + ". Incompatible or ambiguous matches: \r\n" + failedMatchesList, Location));
             	}
             	else
             	{
-            		State.Log.LogError(new LogEntry("Method resolution error", "Method call '" + this.GetCode().ToString() + "' could not be resolved because '" + this.Method.GetCode().ToString() + "' was not recognized as function or type member. Expected signature compatible with " + expectedSignature.ToString() + "."));
+            		State.Log.LogError(new LogEntry("Method resolution error", "Method call '" + this.GetCode().ToString() + "' could not be resolved because '" + this.Method.GetCode().ToString() + "' was not recognized as function or type member. Expected signature compatible with " + expectedSignature.ToString() + ".", Location));
             	}
             }
             
