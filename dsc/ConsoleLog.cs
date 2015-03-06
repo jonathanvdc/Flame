@@ -212,7 +212,7 @@ namespace dsc
                 }
             }
             Write("^", ConsoleColor.Green);
-            int highlightCount = Math.Min(loc.Length, lineSource.Length - GridPosition.Offset);
+            int highlightCount = Math.Max(0, Math.Min(loc.Length - 1, lineSource.Length - GridPosition.Offset));
             Write(new string('~', highlightCount), ConsoleColor.DarkGreen);
         }
 

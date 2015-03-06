@@ -10,7 +10,7 @@ namespace Flame.Syntax.DSharp
 {
     #region BinaryExpressionSyntax
 
-    public abstract class BinaryExpressionSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>
+    public abstract class BinaryExpressionSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>, ISourceSyntax
     {
     	protected const this();
         public const this(set IExpressionSyntax Left, set Token OperatorToken, set IExpressionSyntax Right);

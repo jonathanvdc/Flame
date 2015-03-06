@@ -1,21 +1,36 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Flame.Compiler;
 using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class ArrayTypeSyntax : ITokenTypeSyntax, IRelevantSyntax<Token>
+	public class ArrayTypeSyntax : ITokenTypeSyntax, IRelevantSyntax<Token>, ISourceSyntax
 	{
-		public const this(set ITokenTypeSyntax ElementType, set Token LeadingBrackets, set IEnumerable<Token> Commas, set Token TrailingBrackets);
+		public const this(set ITokenTypeSyntax ElementType, set Token LeadingBrackets, set [Token] Commas, set Token TrailingBrackets);
 		
 		public ITokenTypeSyntax ElementType { const get; private set; }
 		public Token LeadingBrackets { const get; private set; }
 		public Token TrailingBrackets { const get; private set; }
-		public IEnumerable<Token> Commas { const get; private set; }
+		public [Token] Commas { const get; private set; }
 		
-		public IEnumerable<Token> LeadingTrivia
+		public SourceLocation Location
+		{
+			const get
+			{
+				var result = ElementType.GetSourceLocation().Concat(LeadingBrackets.Location);
+				foreach (var item in Commas)
+				{
+					result = result.Concat(item.Location);
+				}
+				result = result.Concat(TrailingBrackets.Location);
+				return result;
+			}
+		}
+		
+		public [Token] LeadingTrivia
         {
         	const get
         	{
@@ -31,9 +46,9 @@ namespace Flame.Syntax.DSharp
         	}
         }
         
-        public IEnumerable<Token> TrailingTrivia
+        public [Token] TrailingTrivia
         {
-        	const get return (IEnumerable<Token>)new Token[0];
+        	const get return Enumerable.Empty<Token>();
         }
         
         public int ArrayRank

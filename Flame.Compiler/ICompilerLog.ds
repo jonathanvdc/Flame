@@ -87,6 +87,9 @@ namespace Flame.Compiler
         
         public const SourceLocation Concat(SourceLocation Other)
         {
+        	if (this.Position < 0) return Other;
+        	else if (Other.Position < 0) return this;
+        	
         	int pos = Math.Min(Position, Other.Position);
         	int len = Math.Max(Position + Length, Other.Position + Length) - pos;
         	if (this.Document == null)
