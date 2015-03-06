@@ -57,7 +57,7 @@ namespace Flame.Compiler
         	this.Message = Name;
         }
         public const this(set string Name, set string Message, set SourceLocation Location);
-
+		
         public string Name { const get; private set; }
         public string Message { const get; private set; }
         public SourceLocation Location { const get; private set; }
@@ -65,23 +65,18 @@ namespace Flame.Compiler
     
     public class SourceLocation
     {
-        public const this(set string DocumentPath)
+        public const this(set ISourceDocument Document)
         {
             this.Position = -1;
         }
-        public const this(set string DocumentPath, set int Position);
+        public const this(set ISourceDocument Document, set int Position);
 
-        public string DocumentPath { const get; private set; }
-        /*public string DocumentName
-        {
-            get
-            {
-            	if (DocumentPath == null)
-	            	return null;
-                var split = DocumentPath.Split(new char[] { '/', '\\' });
-                return split[split.Length - 1];
-            }
-        }*/
+        public ISourceDocument Document { const get; private set; }
         public int Position { const get; private set; }
+        
+        public SourceGridPosition GridPosition
+        {
+        	const get return Document.ToGridPosition(Position);
+        }
     }
 }

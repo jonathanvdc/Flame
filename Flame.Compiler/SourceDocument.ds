@@ -1,0 +1,125 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler
+{
+	/// <summary>
+	/// Provides a straightforward source document implementation.
+	/// </summary>
+	public class SourceDocument : ISourceDocument
+	{
+		public const this(set string Source, set string Identifier);
+	
+		/// <summary>
+		/// Gets the source document's identifier.
+		/// </summary>
+		public string Identifier { const get; private set; }
+	
+		/// <summary>
+		/// Gets the source document's source code.
+		/// </summary>
+		public string Source { const get; private set; }
+		
+		private string[] lines;
+		private string[] SourceLines
+		{
+			const get
+			{
+				if (lines == null)
+				{
+					lines = Source.Split(new char[] { '\n' });
+				}
+				return lines;
+			}
+		}
+		
+		/// <summary>
+		/// Gets the line count of this source document.
+		/// </summary>
+		public int LineCount 
+		{ 
+			const get return SourceLines.Length;
+		}
+		
+		/// <summary>
+		/// Gets the number of characters in the source file.
+		/// </summary>
+		public int CharacterCount
+		{
+			const get return Source.Length;
+		}
+		
+		/// <summary>
+		/// Gets document's line length for every line.
+		/// </summary>
+		public int[] LineLengths
+		{
+			const get
+			{
+				string[] lines = SourceLines;
+				int[] lens = new int[lines.Length];
+				foreach (var input in lines, var output in lens)
+					output = input.Length + 1;
+				return lens;
+			}
+		}
+		
+		private int[] cumSums;
+		/// <summary>
+		/// Gets document's cumulative line length for every line.
+		/// </summary>
+		public int[] CumulativeLineLengths
+		{
+			const get
+			{
+				if (cumSums == null)
+				{
+					string[] lines = SourceLines;
+					int[] lens = new int[lines.Length];
+					int sum = 0;
+					foreach (var input in lines, var output in lens)
+					{
+						sum += input.Length + 1;
+						output = sum;
+					}
+					cumSums = lens;
+				}
+				return cumSums;
+			}
+		}
+		
+		/// <summary>
+		/// Gets the source line with the given index.
+		/// </summary>
+		public const string GetLine(int Index)
+		{
+			return SourceLines[Index];
+		}
+		
+		/// <summary>
+		/// Converts a source code character index to a grid position.
+		/// </summary>
+		public const SourceGridPosition ToGridPosition(int CharacterIndex)
+		{
+			if (CharacterIndex >= CharacterCount)
+			{
+				return new SourceGridPosition(-1, -1);
+			}
+		
+			string[] lines = SourceLines;
+		
+			int sum = lines[0].Length + 1;
+			int prevSum = 0;
+			int i = 0;
+			while (CharacterIndex > sum)
+			{
+				prevSum = sum;
+				i++;
+				sum += lines[i].Length + 1;
+			}
+			
+			return new SourceGridPosition(i, CharacterIndex - prevSum);
+		}
+	}
+}

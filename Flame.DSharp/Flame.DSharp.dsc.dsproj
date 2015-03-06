@@ -18,10 +18,9 @@
 			<Compile Include="Lexer\Token.ds" />
 			<Compile Include="Lexer\TokenIdentifier.ds" />
 			<Compile Include="Lexer\MemoryTokenStream.ds" />
-			<Compile Include="Lexer\TokenParser.ds" />
 			<Compile Include="Lexer\TokenExtensions.ds" />
 			<Compile Include="Lexer\ModifierExtensions.ds" />
-			<Compile Include="Lexer\TokenizerStream.ds" />
+                        <Compile Include="Lexer\TokenizerStream.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Syntax">

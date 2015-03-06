@@ -18,6 +18,7 @@ namespace Flame.DSharp.Lexer
         private Dictionary<TokenType, string> _tokens;
         private Dictionary<TokenType, MatchCollection> _regExMatchCollection;
         private string _inputString;
+        private string _sourceIdentifier;
         private int _index;
 
         /// <summary>

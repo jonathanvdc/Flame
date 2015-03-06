@@ -1,4 +1,5 @@
-﻿using Flame.Compiler.Projects;
+﻿using Flame.Compiler;
+using Flame.Compiler.Projects;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,13 +31,13 @@ namespace Flame.DSProject
             this.SourceIdentifier = SourceIdentifier;
         }
 
-        public string GetSource(string CurrentPath)
+        public ISourceDocument GetSource(string CurrentPath)
         {
             Uri sourceUri = CurrentPath == null ? new Uri(SourceIdentifier, UriKind.Relative) : new Uri(new Uri(CurrentPath), new Uri(SourceIdentifier, UriKind.Relative));
             using (FileStream fs = new FileStream(sourceUri.AbsolutePath, FileMode.Open))
             using (StreamReader reader = new StreamReader(fs))
             {
-                return reader.ReadToEnd();
+                return new SourceDocument(reader.ReadToEnd(), SourceIdentifier);
             }
         }
 

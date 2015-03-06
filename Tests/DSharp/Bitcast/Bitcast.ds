@@ -1,0 +1,9 @@
+public class BitcastTest
+{
+    public const this();
+
+    public bit16 Test(bit32 Value)
+    {
+        return (bit16)Value;
+    }
+}

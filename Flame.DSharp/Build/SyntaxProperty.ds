@@ -40,7 +40,7 @@ namespace Flame.DSharp.Build
 
         public IType PropertyType
         {
-            const get { return Syntax.Signature.TypeSyntax.CreateType(GetSyntaxState()); }
+            const get { return Syntax.Signature.TypeSyntax.CreateVerifiedType(GetSyntaxState()); }
         }
 
 		private IAccessor[] accessorVals;

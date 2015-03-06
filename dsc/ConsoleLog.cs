@@ -13,9 +13,124 @@ namespace dsc
         private ConsoleLog(ICompilerOptions Options)
         {
             this.Options = Options;
+            this.gapQueued = false;
+            this.gapLock = new object();
         }
 
         public ICompilerOptions Options { get; private set; }
+        private bool gapQueued;
+        private object gapLock;
+
+        private void WriteGap()
+        {
+            lock (gapLock)
+            {
+                if (gapQueued)
+                {
+                    Console.WriteLine();
+                    gapQueued = false;
+                }
+            }
+        }
+
+        private void WriteInternal(string Text)
+        {
+            Console.Write(Text);
+        }
+        private void WriteInternal(char Value)
+        {
+            Console.Write(Value);
+        }
+        private void WriteLineInternal(string Text)
+        {
+            Console.WriteLine(Text);
+        }
+        private void WriteLineInternal()
+        {
+            Console.WriteLine();
+        }
+
+        public void WriteWhiteline()
+        {
+            lock (gapLock)
+            {
+                gapQueued = true;
+            }
+        }
+        public void Write(string Text, ConsoleColor Color)
+        {
+            WriteGap();
+            Console.ForegroundColor = Color;
+            WriteInternal(Text);
+            Console.ResetColor();
+        }
+        public void Write(string Text)
+        {
+            WriteGap();
+            WriteInternal(Text);
+        }
+        public void Write(char Value)
+        {
+            WriteGap();
+            WriteInternal(Value);
+        }
+        public void Write<T>(T Value)
+        {
+            Write(Value.ToString());
+        }
+        public void WriteLine(string Text, ConsoleColor Color)
+        {
+            WriteGap();
+            Console.ForegroundColor = Color;
+            WriteLineInternal(Text);
+            Console.ResetColor();
+        }
+        public void WriteLine()
+        {
+            WriteGap();
+            WriteLineInternal();
+        }
+        public void WriteLine(string Text)
+        {
+            WriteGap();
+            WriteLineInternal(Text);
+        }
+        public void WriteLine<T>(T Value)
+        {
+            WriteLine(Value.ToString());
+        }
+        public void WriteBlockEntry(string Header, ConsoleColor HeaderColor, LogEntry Entry)
+        {
+            WriteWhiteline();
+            Write(Header + ": ", HeaderColor);
+            WriteEntry(Entry);
+            WriteWhiteline();
+        }
+        public void WriteBlockEntry(string Header, ConsoleColor HeaderColor, string Entry)
+        {
+            WriteWhiteline();
+            Write(Header + ": ", HeaderColor);
+            WriteLine(Entry);
+            WriteWhiteline();
+        }
+        public void WriteBlockEntry(string Header, LogEntry Entry)
+        {
+            WriteWhiteline();
+            Write(Header + ": ");
+            WriteEntry(Entry);
+            WriteWhiteline();
+        }
+        public void WriteBlockEntry(string Header, string Entry)
+        {
+            WriteWhiteline();
+            Write(Header + ": ");
+            WriteLine(Entry);
+            WriteWhiteline();
+        }
+        public void WriteErrorBlock(string Header, string Message)
+        {
+            WriteBlockEntry(Header, ConsoleColor.Red, Message);
+        }
 
         private static ConsoleLog inst;
         public static ConsoleLog Instance
@@ -30,47 +145,95 @@ namespace dsc
             }
         }
 
-        public static string GetEntryString(LogEntry Entry)
+        #region WriteEntry
+
+        public void WriteEntry(LogEntry Entry)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(Entry.Name);
-            sb.Append(": ");
-            sb.Append(Entry.Message);
-            if (Entry.Location != null && Entry.Location.DocumentPath != null && Entry.Location.Position > -1)
+            Write(Entry.Name);
+            Write(": ");
+            Write(Entry.Message);
+            if (Entry.Location != null && Entry.Location.Document != null && Entry.Location.Position > -1)
             {
-                sb.Append(",");
-                if (Entry.Location.DocumentPath != null)
+                Write(",");
+                if (Entry.Location.Document == null)
                 {
-                    sb.Append(" in ");
-                    sb.Append(Entry.Location.DocumentPath);
+                    if (Entry.Location.Position > -1)
+                    {
+                        Write(" at position ");
+                        Write(Entry.Location.Position);
+                        Write(" in an unidentified source document.");
+                    }
                 }
-                if (Entry.Location.Position > -1)
+                else
                 {
-                    sb.Append(" at position ");
-                    sb.Append(Entry.Location.Position);
+                    var doc = Entry.Location.Document;
+                    Write(" in '");
+                    Write(Entry.Location.Document.Identifier);
+                    Write("'");
+                    if (Entry.Location.Position > -1)
+                    {
+                        var gridPos = Entry.Location.GridPosition;
+                        Write(" on line ");
+                        Write(gridPos.Line + 1);
+                        Write(", column ");
+                        Write(gridPos.Offset + 1);
+                        Write('.');
+                        WriteLine();
+                        WriteCaretDiagnostic(Entry, gridPos);
+                    }
+                    else
+                    {
+                        Write(" in '");
+                        Write(doc.Identifier);
+                        Write("\'.");
+                    }
                 }
             }
-            return sb.ToString();
+            WriteLine();
         }
+
+        private void WriteCaretDiagnostic(LogEntry Entry, SourceGridPosition GridPosition)
+        {
+            var loc = Entry.Location;
+            var doc = loc.Document;
+            string lineSource = doc.GetLine(GridPosition.Line);
+            WriteWhiteline();
+            Write(lineSource);
+            WriteLine();
+            for (int i = 0; i < GridPosition.Offset; i++)
+            {
+                if (lineSource[i] == '\t')
+                {
+                    Write('\t');
+                }
+                else
+                {
+                    Write(' ');
+                }
+            }
+            Write("^", ConsoleColor.Green);
+        }
+
+        #endregion
 
         public void LogError(LogEntry Entry)
         {
-            Console.WriteLine("Error: " + GetEntryString(Entry));
+            WriteBlockEntry("Error", ConsoleColor.Red, Entry);
         }
 
         public void LogEvent(LogEntry Entry)
         {
-            Console.WriteLine(GetEntryString(Entry));
+            WriteEntry(Entry);
         }
 
         public void LogMessage(LogEntry Entry)
         {
-            Console.WriteLine(GetEntryString(Entry));
+            WriteBlockEntry("Message", Entry);
         }
 
         public void LogWarning(LogEntry Entry)
         {
-            Console.WriteLine("Warning: " + GetEntryString(Entry));
+            WriteBlockEntry("Warning", ConsoleColor.Yellow, Entry);
         }
 
         public void Dispose()

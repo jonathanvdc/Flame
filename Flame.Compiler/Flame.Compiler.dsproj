@@ -29,6 +29,8 @@
 		<Compile Include="OperatorExtensions.ds" />
 		<Compile Include="OperatorCache.ds" />
 		<Compile Include="StaticInitializationExtensions.ds" />
+		<Compile Include="ISourceDocument.ds" />
+		<Compile Include="SourceDocument.ds" />
 	</ItemGroup>
 	<ItemGroup Name="Emit">
 		<ItemGroup>

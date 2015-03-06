@@ -56,7 +56,7 @@ namespace dsc
             }
             catch (Exception ex)
             {
-                ConsoleLog.Instance.LogEvent(new LogEntry("Compilation terminated", "Compilation has been terminated due to a fatal error."));
+                ConsoleLog.Instance.WriteErrorBlock("Compilation terminated", "Compilation has been terminated due to a fatal error.");
                 var entry = new LogEntry("Exception", ex.ToString());
                 if (buildArgs.LogFilter.ShouldLogMessage(entry))
                 {

@@ -1,12 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Compiler;
 
 namespace Flame.DSharp.Lexer
 {
 	public class TokenizerStream : ITokenStream
 	{
-		public const this(set string Code)
+		public const this(set ISourceDocument SourceDocument)
+		{
+			this.Code = SourceDocument.Source;
+			Initialize();
+		}
+		public const this(set string Code, set ISourceDocument SourceDocument)
+		{
+			Initialize();
+		}
+		
+		private void Initialize()
 		{
 			this.tokens = new List<Token>();
 			
@@ -111,6 +122,7 @@ namespace Flame.DSharp.Lexer
 		}
 	
 		public string Code { const get; private set; }
+		public ISourceDocument SourceDocument { const get; private set; }
 		private int pos;
 		private List<Token> tokens;
 		private int currentIndex;
@@ -355,10 +367,10 @@ namespace Flame.DSharp.Lexer
 		private Token ParseNextToken()
 		{
 			if (pos >= Code.Length)
-				return new Token(TokenType.EndOfFile, "", pos);
+				return new Token(TokenType.EndOfFile, "", SourceDocument, pos);
 		    int startPos = pos;
 			Token tokenValue = ParseNextTokenValue();
-			var token = new Token(tokenValue.Type, tokenValue.TokenValue, startPos);
+			var token = new Token(tokenValue.Type, tokenValue.TokenValue, SourceDocument, startPos);
 			tokens.Add(token);
 			return token;
 		}
