@@ -151,10 +151,10 @@ namespace dsc
         {
             Write(Entry.Name);
             Write(": ");
-            Write(Entry.Message);
+            Write(Entry.Message.TrimEnd('.'));
             if (Entry.Location != null && Entry.Location.Document != null && Entry.Location.Position > -1)
             {
-                Write(",");
+                Write(',');
                 if (Entry.Location.Document == null)
                 {
                     if (Entry.Location.Position > -1)
@@ -188,6 +188,10 @@ namespace dsc
                         Write("\'.");
                     }
                 }
+            }
+            else
+            {
+                Write('.');
             }
             WriteLine();
         }

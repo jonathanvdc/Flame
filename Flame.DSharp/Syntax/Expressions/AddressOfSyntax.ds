@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
 using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class AddressOfSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>
+    public class AddressOfSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>, ISourceSyntax
     {
         public const this(set IVariableSyntax Operand)
         {
@@ -18,14 +19,19 @@ namespace Flame.Syntax.DSharp
         public Token Operator { const get; private set; }
         public IVariableSyntax Operand { const get; private set; }
         
-        public IEnumerable<Token> LeadingTrivia
+        public SourceLocation Location
+        {
+        	const get return Operator.Location.Concat(Operand.GetSourceLocation());
+        }
+        
+        public [Token] LeadingTrivia
         {
         	const get return Operator.GetAllTrivia();
         }
         
-        public IEnumerable<Token> TrailingTrivia
+        public [Token] TrailingTrivia
         {
-        	const get return (IEnumerable<Token>)new Token[0];
+        	const get return Enumerable.Empty<Token>();
         }
         
         public IReadOnlyList<Token> Tokens
