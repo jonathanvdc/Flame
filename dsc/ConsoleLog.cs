@@ -99,11 +99,11 @@ namespace dsc
         {
             WriteLine(Value.ToString());
         }
-        public void WriteBlockEntry(string Header, ConsoleColor HeaderColor, LogEntry Entry)
+        public void WriteBlockEntry(string Header, ConsoleColor MainColor, ConsoleColor HighlightColor, LogEntry Entry)
         {
             WriteWhiteline();
-            Write(Header + ": ", HeaderColor);
-            WriteEntry(Entry);
+            Write(Header + ": ", MainColor);
+            WriteEntry(Entry, MainColor, HighlightColor);
             WriteWhiteline();
         }
         public void WriteBlockEntry(string Header, ConsoleColor HeaderColor, string Entry)
@@ -117,7 +117,7 @@ namespace dsc
         {
             WriteWhiteline();
             Write(Header + ": ");
-            WriteEntry(Entry);
+            WriteEntry(Entry, ConsoleColor.Green, ConsoleColor.DarkGreen);
             WriteWhiteline();
         }
         public void WriteBlockEntry(string Header, string Entry)
@@ -147,7 +147,7 @@ namespace dsc
 
         #region WriteEntry
 
-        public void WriteEntry(LogEntry Entry)
+        public void WriteEntry(LogEntry Entry, ConsoleColor CaretColor, ConsoleColor HighlightColor)
         {
             Write(Entry.Name);
             Write(": ");
@@ -179,7 +179,7 @@ namespace dsc
                         Write(gridPos.Offset + 1);
                         Write('.');
                         WriteLine();
-                        WriteCaretDiagnostic(Entry, gridPos);
+                        WriteCaretDiagnostic(Entry, gridPos, CaretColor, HighlightColor);
                     }
                     else
                     {
@@ -192,7 +192,7 @@ namespace dsc
             WriteLine();
         }
 
-        private void WriteCaretDiagnostic(LogEntry Entry, SourceGridPosition GridPosition)
+        private void WriteCaretDiagnostic(LogEntry Entry, SourceGridPosition GridPosition, ConsoleColor CaretColor, ConsoleColor HighlightColor)
         {
             var loc = Entry.Location;
             var doc = loc.Document;
@@ -211,21 +211,21 @@ namespace dsc
                     Write(' ');
                 }
             }
-            Write("^", ConsoleColor.Green);
+            Write("^", CaretColor);
             int highlightCount = Math.Max(0, Math.Min(loc.Length - 1, lineSource.Length - GridPosition.Offset));
-            Write(new string('~', highlightCount), ConsoleColor.DarkGreen);
+            Write(new string('~', highlightCount), HighlightColor);
         }
 
         #endregion
 
         public void LogError(LogEntry Entry)
         {
-            WriteBlockEntry("Error", ConsoleColor.Red, Entry);
+            WriteBlockEntry("Error", ConsoleColor.Red, ConsoleColor.DarkRed, Entry);
         }
 
         public void LogEvent(LogEntry Entry)
         {
-            WriteEntry(Entry);
+            WriteEntry(Entry, ConsoleColor.Green, ConsoleColor.DarkGreen);
         }
 
         public void LogMessage(LogEntry Entry)
@@ -235,7 +235,7 @@ namespace dsc
 
         public void LogWarning(LogEntry Entry)
         {
-            WriteBlockEntry("Warning", ConsoleColor.Yellow, Entry);
+            WriteBlockEntry("Warning", ConsoleColor.Yellow, ConsoleColor.DarkYellow, Entry);
         }
 
         public void Dispose()

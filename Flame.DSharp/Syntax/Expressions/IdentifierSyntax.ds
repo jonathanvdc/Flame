@@ -9,7 +9,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class IdentifierSyntax : VariableSyntaxBase, ITypeMemberAccessSyntax, ITokenNode
+    public class IdentifierSyntax : VariableSyntaxBase, ITypeMemberAccessSyntax, ITokenNode, ISourceSyntax
     {
         public const this(string Identifier)
         {
@@ -18,6 +18,11 @@ namespace Flame.Syntax.DSharp
         public const this(set Token Identifier);
 
         public Token Identifier { const get; private set; }
+        
+        public SourceLocation Location
+        {
+        	const get return Identifier.Location;
+        }
         
         public IReadOnlyList<Token> Tokens
         {
