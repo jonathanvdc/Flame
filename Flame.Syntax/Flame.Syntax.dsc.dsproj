@@ -42,5 +42,6 @@
 		<Compile Include="TriviaBucket.ds" />
 		<Compile Include="TokenSink.ds" />
 		<Compile Include="ISyntaxVisitor.ds" />
+		<Compile Include="ISourceSyntax.ds" />
 	</ItemGroup>
 </Project>

@@ -212,6 +212,8 @@ namespace dsc
                 }
             }
             Write("^", ConsoleColor.Green);
+            int highlightCount = Math.Min(loc.Length, lineSource.Length - GridPosition.Offset);
+            Write(new string('~', highlightCount), ConsoleColor.DarkGreen);
         }
 
         #endregion

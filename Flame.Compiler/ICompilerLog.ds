@@ -68,15 +68,35 @@ namespace Flame.Compiler
         public const this(set ISourceDocument Document)
         {
             this.Position = -1;
+            this.Length = 0;
         }
-        public const this(set ISourceDocument Document, set int Position);
+        public const this(set ISourceDocument Document, set int Position)
+        {
+        	this.Length = 0;
+        }
+        public const this(set ISourceDocument Document, set int Position, set int Length);
 
         public ISourceDocument Document { const get; private set; }
         public int Position { const get; private set; }
+        public int Length { const get; private set; }
         
         public SourceGridPosition GridPosition
         {
         	const get return Document.ToGridPosition(Position);
+        }
+        
+        public const SourceLocation Concat(SourceLocation Other)
+        {
+        	int pos = Math.Min(Position, Other.Position);
+        	int len = Math.Max(Position + Length, Other.Position + Length) - pos;
+        	if (this.Document == null)
+        	{
+        		return new SourceLocation(Other.Document, pos, len);
+        	}
+        	else
+        	{
+        		return new SourceLocation(Document, pos, len);
+        	}
         }
     }
 }

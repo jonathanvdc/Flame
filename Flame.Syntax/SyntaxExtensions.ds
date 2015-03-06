@@ -7,12 +7,25 @@ namespace Flame.Syntax
 {
 	public static class SyntaxExtensions
 	{
+		/// <summary>
+		/// Tries to get the node's source location by checking its ancestry for an ISourceSyntax implementation.
+		/// If the given node does not implement ISourceSyntax, null is returned.
+		/// </summary>
+		public static const SourceLocation GetSourceLocation(this ISyntaxNode Node)
+		{
+			if (Node is ISourceSyntax)
+			{
+				return ((ISourceSyntax)Node).Location;
+			}
+			else return null;
+		}
+	
 		public static IType CreateVerifiedType(this ITypeSyntax Syntax, ISyntaxState State)
 		{
 			var type = Syntax.CreateType(State);
 			if (type == null)
 			{
-				State.Log.LogError(new LogEntry("Type resolution error", "Could not resolve type '" + Syntax.GetCode().ToString() + "'"));
+				State.Log.LogError(new LogEntry("Type resolution error", "Could not resolve type '" + Syntax.GetCode().ToString() + "'", Syntax.GetSourceLocation()));
 			}
 			return type;
 		}
@@ -22,7 +35,7 @@ namespace Flame.Syntax
 			var type = Syntax.CreateExpression(State);
 			if (type == null)
 			{
-				State.Log.LogError(new LogEntry("Expression resolution error", "Could not resolve expression '" + Syntax.GetCode().ToString() + "'"));
+				State.Log.LogError(new LogEntry("Expression resolution error", "Could not resolve expression '" + Syntax.GetCode().ToString() + "'", Syntax.GetSourceLocation()));
 			}
 			return type;
 		}
@@ -32,7 +45,7 @@ namespace Flame.Syntax
 			var stmt = Syntax.CreateStatement(State);
 			if (stmt == null)
 			{
-				State.Log.LogError(new LogEntry("Statement resolution error", "Could not resolve statement '" + Syntax.GetCode().ToString() + "'"));
+				State.Log.LogError(new LogEntry("Statement resolution error", "Could not resolve statement '" + Syntax.GetCode().ToString() + "'", Syntax.GetSourceLocation()));
 			}
 			return stmt;
 		}
@@ -80,7 +93,7 @@ namespace Flame.Syntax
         	var variable = SyntaxExtensions.CreateVariable(ExpressionSyntax, State);
 			if (variable == null)
 			{
-				State.Log.LogError("The variable " + ExpressionSyntax.GetCode().ToString() + " could not be resolved.");
+				State.Log.LogError(new LogEntry("Variable resolution error", "The variable or expression " + ExpressionSyntax.GetCode().ToString() + " could not be resolved.", ExpressionSyntax.GetSourceLocation()));
 			}
 			return variable;
         }
@@ -90,7 +103,7 @@ namespace Flame.Syntax
         	var variable = Syntax.CreateVariable(State);
 			if (variable == null)
 			{
-				State.Log.LogError("The variable " + Syntax.GetCode().ToString() + " could not be resolved.");
+				State.Log.LogError(new LogEntry("Variable resolution error", "The variable " + Syntax.GetCode().ToString() + " could not be resolved.", Syntax.GetSourceLocation()));
 			}
 			return variable;
         }

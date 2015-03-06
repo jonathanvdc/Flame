@@ -1,0 +1,18 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+
+namespace Flame.Syntax
+{
+	/// <summary>
+	/// A syntax node that tracks it location in source code.
+	/// </summary>
+	public interface ISourceSyntax : ISyntaxNode
+	{
+		/// <summary>
+		/// Gets the node's source location.
+		/// </summary>
+		SourceLocation Location { const get; }
+	}
+}

@@ -10,7 +10,7 @@ namespace Flame.Syntax
 	}
 	public interface IRelevantSyntax<out TToken> : ISyntaxNode
 	{
-		IEnumerable<TToken> LeadingTrivia { const get; }
-		IEnumerable<TToken> TrailingTrivia { const get; }
+		[TToken] LeadingTrivia { const get; }
+		[TToken] TrailingTrivia { const get; }
 	}
 }

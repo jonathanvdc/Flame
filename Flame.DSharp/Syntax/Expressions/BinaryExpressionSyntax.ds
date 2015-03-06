@@ -19,12 +19,17 @@ namespace Flame.Syntax.DSharp
         public Token OperatorToken { const get; protected set; }
         public IExpressionSyntax Right { const get; protected set; }
         
-        public IEnumerable<Token> LeadingTrivia
+        public SourceLocation Location
+        {
+        	const get return Left.GetSourceLocation().Concat(OperatorToken.Location).Concat(Right.GetSourceLocation());
+        }
+        
+        public [Token] LeadingTrivia
         {
         	const get return OperatorToken.GetAllTrivia();
         }
         
-        public IEnumerable<Token> TrailingTrivia
+        public [Token] TrailingTrivia
         {
         	const get return Enumerable.Empty<Token>();
         }
