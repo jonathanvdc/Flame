@@ -21,12 +21,17 @@ namespace Flame.Syntax.DSharp
             return CreateExpression(State, Value);
         }
         
-        public IEnumerable<Token> LeadingTrivia
+        public SourceLocation Location
+        {
+        	const get return Value.Location;
+        }        
+        
+        public [Token] LeadingTrivia
         {
         	const get return Value.GetAllTrivia();
         }
         
-        public IEnumerable<Token> TrailingTrivia
+        public [Token] TrailingTrivia
         {
         	const get return Enumerable.Empty<Token>();
         }

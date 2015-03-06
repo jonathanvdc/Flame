@@ -359,18 +359,7 @@ namespace Flame.DSharp.Lexer
         {
             if (Token.Type != Type)
             {
-            	var trivia = Token.GetLeadingTrivia(); // Try to get the right token, even if that means ploughing through trivia
-            	SourceLocation loc;
-            	if (!Enumerable.Any<Token>(trivia))
-            	{
-            		loc = Token.Location;
-            	}
-            	else
-            	{
-            		loc = Enumerable.First<Token>(trivia).Location;
-            	}
-            	
-                Log.LogError(new LogEntry("Parser error", "Invalid syntax. Expected " + Type.ToString() + ", got " + Token.Type.ToString() + ".", loc));
+                Log.LogError(new LogEntry("Parser error", "Invalid syntax. Expected " + Type.ToString() + ", got " + Token.Type.ToString() + ".", Token.Location));
                 return false;
             }
             else

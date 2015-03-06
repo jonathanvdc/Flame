@@ -71,6 +71,19 @@ namespace Flame.DSharp.Lexer
     
     	public [Token] LeadingTrivia { const get; private set; }
     	
+    	public override SourceLocation Location
+        {
+        	override const get
+			{
+				var result = new SourceLocation(SourceDocument, Position, TokenValue.Length);
+				foreach (var item in LeadingTrivia)
+				{
+					result = result.Concat(item.Location);
+				}
+				return result;
+			}
+        }
+    	
     	public override virtual const string ToString()
         {
             StringBuilder sb = new StringBuilder();
@@ -100,9 +113,9 @@ namespace Flame.DSharp.Lexer
         public string TokenValue { const get; set; }
         public ISourceDocument SourceDocument { const get; protected set; }
         
-        public SourceLocation Location
+        public virtual SourceLocation Location
         {
-        	const get return new SourceLocation(SourceDocument, Position);
+        	virtual const get return new SourceLocation(SourceDocument, Position, TokenValue.Length);
         }
 
         #region Predefined Tokens
