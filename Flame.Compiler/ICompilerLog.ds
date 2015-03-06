@@ -91,7 +91,7 @@ namespace Flame.Compiler
         	else if (Other.Position < 0) return this;
         	
         	int pos = Math.Min(Position, Other.Position);
-        	int len = Math.Max(Position + Length, Other.Position + Length) - pos;
+        	int len = Math.Max(Position + Length, Other.Position + Other.Length) - pos;
         	if (this.Document == null)
         	{
         		return new SourceLocation(Other.Document, pos, len);

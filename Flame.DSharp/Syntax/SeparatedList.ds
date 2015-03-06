@@ -38,12 +38,7 @@ namespace Flame.Syntax.DSharp
 		{
 			const get
 			{
-				SourceLocation result = new SourceLocation(null);
-				foreach (var item in Items)
-				{
-					result = result.Concat(item.Location);
-				}
-				return result;
+				return Items.GetSourceLocation();
 			}
 		}
 		

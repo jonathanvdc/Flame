@@ -8,7 +8,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public abstract class UnaryExpressionSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>
+    public abstract class UnaryExpressionSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>, ISourceSyntax
     {
     	protected const this();
         public const this(set Token Operator, set IExpressionSyntax Operand);
@@ -24,12 +24,17 @@ namespace Flame.Syntax.DSharp
         	}
         }
         
-        public IEnumerable<Token> LeadingTrivia
+        public SourceLocation Location
+        {
+        	const get return Operator.Location.Concat(Operand.GetSourceLocation());
+        }
+        
+        public [Token] LeadingTrivia
         {
         	const get return Operator.GetAllTrivia();
         }
         
-        public IEnumerable<Token> TrailingTrivia
+        public [Token] TrailingTrivia
         {
         	const get return Enumerable.Empty<Token>();
         }

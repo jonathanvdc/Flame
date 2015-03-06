@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Syntax.DSharp
 {
-    public class NullSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>
+    public class NullSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>, ISourceSyntax
     {
         public const this()
         {
@@ -19,12 +19,17 @@ namespace Flame.Syntax.DSharp
 
         public Token NullKeyword { const get; private set; }
         
-        public IEnumerable<Token> LeadingTrivia
+        public SourceLocation Location
+        {
+        	const get return NullKeyword.Location;
+        }
+        
+        public [Token] LeadingTrivia
         {
         	const get return NullKeyword.GetAllTrivia();
         }
         
-        public IEnumerable<Token> TrailingTrivia
+        public [Token] TrailingTrivia
         {
         	const get return Enumerable.Empty<Token>();
         }

@@ -8,7 +8,25 @@ namespace Flame.Syntax
 {
 	public static class EnumerableSyntaxExtensions
 	{
-		public static IEnumerable<IExpression> CreateExpressions(this IEnumerable<IExpressionSyntax> Syntax, ISyntaxState State)
+		public static const SourceLocation GetSourceLocation(this [ISyntaxNode] Syntax)
+		{
+			SourceLocation result = new SourceLocation(null);
+			foreach (var item in Syntax)
+			{
+				var loc = item.GetSourceLocation();
+				if (loc != null)
+				{
+					result = result.Concat(loc);
+				}
+			}
+			if (result.Document == null && result.Position < 0)
+			{
+				return null;
+			}
+			else return result;
+		}
+	
+		public static [IExpression] CreateExpressions(this IEnumerable<IExpressionSyntax> Syntax, ISyntaxState State)
 		{
 			List<IExpression> exprs = new List<IExpression>();
 			foreach (var item in Syntax)
@@ -18,7 +36,7 @@ namespace Flame.Syntax
 			return exprs;
 		}
 		
-		public static IEnumerable<IExpression> CreateVerifiedExpressions(this IEnumerable<IExpressionSyntax> Syntax, ISyntaxState State)
+		public static [IExpression] CreateVerifiedExpressions(this IEnumerable<IExpressionSyntax> Syntax, ISyntaxState State)
 		{
 			List<IExpression> exprs = new List<IExpression>();
 			foreach (var item in Syntax)
@@ -28,7 +46,7 @@ namespace Flame.Syntax
 			return exprs;
 		}
 		
-		public static IEnumerable<IType> CreateVerifiedTypes(this IEnumerable<ITypeSyntax> Syntax, ISyntaxState State)
+		public static [IType] CreateVerifiedTypes(this IEnumerable<ITypeSyntax> Syntax, ISyntaxState State)
 		{
 			List<IType> exprs = new List<IType>();
 			foreach (var item in Syntax)

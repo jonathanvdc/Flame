@@ -8,7 +8,7 @@ using Flame.Compiler.Expressions;
 
 namespace Flame.Syntax.DSharp
 {
-    public class IsSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>
+    public class IsSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>, ISourceSyntax
     {
         public const this(set IExpressionSyntax Target, set Token IsKeyword, set ITypeSyntax Type);
 
@@ -18,15 +18,26 @@ namespace Flame.Syntax.DSharp
 
         public const IExpression CreateExpression(ISyntaxState State)
         {
-            return new IsExpression(Target.CreateVerifiedExpression(State), Type.CreateVerifiedType(State));
+        	var sourceExpr = Target.CreateVerifiedExpression(State);
+        	var targetType = Type.CreateVerifiedType(State);
+        	if (targetType != null && sourceExpr != null && sourceExpr.Type.Is(targetType))
+        	{
+        		State.Log.LogWarning(new LogEntry("Constant 'is' expression", "Expression '" + this.GetCode().ToString() + "' will always evaluate to true.", IsKeyword.Location.Concat(Type.GetSourceLocation())));
+        	}
+            return new IsExpression(sourceExpr, targetType);
         }
         
-        public IEnumerable<Token> LeadingTrivia
+        public SourceLocation Location
+        {
+        	const get return Target.GetSourceLocation().Concat(IsKeyword.Location).Concat(Type.GetSourceLocation());
+        }
+        
+        public [Token] LeadingTrivia
         {
         	const get return Target.GetAllTrivia();
         }
         
-        public IEnumerable<Token> TrailingTrivia
+        public [Token] TrailingTrivia
         {
         	const get return Enumerable.Empty<Token>();
         }

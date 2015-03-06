@@ -10,7 +10,7 @@ using Flame.DSharp.Parser;
 
 namespace Flame.Syntax.DSharp
 {
-    public abstract class MemberAccessSyntaxBase : VariableSyntaxBase, ITypeMemberAccessSyntax
+    public abstract class MemberAccessSyntaxBase : VariableSyntaxBase, ITypeMemberAccessSyntax, ISourceSyntax
     {
     	public const this();
         public const this(set IExpressionSyntax Target, set Token Operator, set Token Member);
@@ -18,6 +18,11 @@ namespace Flame.Syntax.DSharp
         public IExpressionSyntax Target { const get; protected set; }
         public Token Operator { const get; protected set; }
         public Token Member { const get; protected set; }
+        
+        public SourceLocation Location
+        {
+        	const get return Target.GetSourceLocation().Concat(Operator.Location).Concat(Member.Location);
+        }
 
         public abstract IVariable GetCallerVariable(ISyntaxState State);
 
@@ -292,16 +297,16 @@ namespace Flame.Syntax.DSharp
             		}
             		if (innerCallerExpr == null)
             		{
-            			State.Log.LogError(new LogEntry("Member access error", "'" + Target.GetCode().ToString() + "' in member access syntax '" + this.GetCode().ToString() + "' could not be resolved as a variable, expression or type, and '" + innerTarget.GetCode().ToString() + "' could not be resolved, either"));
+            			State.Log.LogError(new LogEntry("Member access error", "'" + Target.GetCode().ToString() + "' in member access syntax '" + this.GetCode().ToString() + "' could not be resolved as a variable, expression or type, and '" + innerTarget.GetCode().ToString() + "' could not be resolved, either", Location));
             		}
             		else
             		{
-            			State.Log.LogError(new LogEntry("Member access error", "'" + Target.GetCode().ToString() + "' in member access syntax '" + this.GetCode().ToString() + "' could not be resolved as a variable, expression or type, though '" + innerTarget.GetCode().ToString() + "' was resolved as an expression of type '" + innerCallerExpr.Type.FullName + "'"));
+            			State.Log.LogError(new LogEntry("Member access error", "'" + Target.GetCode().ToString() + "' in member access syntax '" + this.GetCode().ToString() + "' could not be resolved as a variable, expression or type, though '" + innerTarget.GetCode().ToString() + "' was resolved as an expression of type '" + innerCallerExpr.Type.FullName + "'", Location));
             		}
             	}
             	else
             	{
-            		State.Log.LogError(new LogEntry("Member access error", "'" + Target.GetCode().ToString() + "' in member access syntax '" + this.GetCode().ToString() + "' could not be resolved as a variable, expression or type"));
+            		State.Log.LogError(new LogEntry("Member access error", "'" + Target.GetCode().ToString() + "' in member access syntax '" + this.GetCode().ToString() + "' could not be resolved as a variable, expression or type", Location));
             	}
             	return Enumerable.Empty<ITypeMember>(); // Keep it civilized by returning an empty enumerable instead of null
             }

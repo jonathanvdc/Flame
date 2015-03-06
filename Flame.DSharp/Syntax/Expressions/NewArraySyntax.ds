@@ -8,7 +8,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class NewArraySyntax : IExpressionSyntax
+    public class NewArraySyntax : IExpressionSyntax, ISourceSyntax
     {
         public const this(set Token NewKeyword, set ITypeSyntax ElementType, set IEnumerable<IExpressionSyntax> Arguments);
         public const this(set ITypeSyntax ElementType, set IEnumerable<IExpressionSyntax> Arguments)
@@ -18,7 +18,20 @@ namespace Flame.Syntax.DSharp
 
         public Token NewKeyword { const get; private set; }
         public ITypeSyntax ElementType { const get; private set; }
-        public IEnumerable<IExpressionSyntax> Arguments { const get; private set; }
+        public [IExpressionSyntax] Arguments { const get; private set; }
+        
+        public SourceLocation Location
+        {
+        	const get
+			{
+				var result = NewKeyword.Location.Concat(ElementType.GetSourceLocation());
+				foreach (var item in Arguments)
+				{
+					result = result.Concat(item.GetSourceLocation());
+				}
+				return result;
+			}
+        }
 
         public IExpression CreateExpression(ISyntaxState State)
         {

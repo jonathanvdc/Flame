@@ -10,12 +10,17 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-   public class PostfixDeltaSyntax : ISetVariableExpressionSyntax, IRelevantSyntax<Token>, ITokenNode
+   public class PostfixDeltaSyntax : ISetVariableExpressionSyntax, IRelevantSyntax<Token>, ITokenNode, ISourceSyntax
     {
         public const this(set IVariableSyntax Variable, set Token Operator);
 
         public IVariableSyntax Variable { const get; private set; }
         public Token Operator { const get; private set; }
+        
+        public SourceLocation Location
+        {
+        	const get return Variable.GetSourceLocation().Concat(Operator.Location);
+        }
         
         public IReadOnlyList<Token> Tokens
         {
@@ -28,12 +33,12 @@ namespace Flame.Syntax.DSharp
         	}
         }
         
-        public IEnumerable<Token> LeadingTrivia
+        public [Token] LeadingTrivia
         {
         	const get return Enumerable.Empty<Token>();
         }
         
-        public IEnumerable<Token> TrailingTrivia
+        public [Token] TrailingTrivia
         {
         	const get return Operator.GetAllTrivia();
         }

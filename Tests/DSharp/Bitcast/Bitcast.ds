@@ -6,4 +6,9 @@ public class BitcastTest
     {
         return (bit16)Value;
     }
+
+    public bool StupidIs(BitcastTest Instance)
+    {
+        return Instance is BitcastTest;
+    }
 }
