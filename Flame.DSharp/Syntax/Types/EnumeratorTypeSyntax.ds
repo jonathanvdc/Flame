@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Flame.Compiler;
 using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class EnumeratorTypeSyntax : ITokenTypeSyntax, IRelevantSyntax<Token>
+	public class EnumeratorTypeSyntax : ITokenTypeSyntax, IRelevantSyntax<Token>, ISourceSyntax
 	{
 		public const this(set Token LeadingBrackets, set Token LeadingLessThan, set ITokenTypeSyntax ElementType, set Token TrailingGreaterThan, set Token TrailingBrackets);
 		
@@ -16,7 +17,12 @@ namespace Flame.Syntax.DSharp
 		public Token TrailingGreaterThan { const get; private set; }
 		public Token TrailingBrackets { const get; private set; }
 		
-		public IEnumerable<Token> LeadingTrivia
+		public SourceLocation Location
+		{
+			const get return LeadingBrackets.Location.Concat(LeadingLessThan.Location).Concat(ElementType.GetSourceLocation()).Concat(TrailingGreaterThan.Location).Concat(TrailingBrackets.Location);
+		}
+		
+		public [Token] LeadingTrivia
         {
         	const get
         	{
@@ -30,9 +36,9 @@ namespace Flame.Syntax.DSharp
         	}
         }
         
-        public IEnumerable<Token> TrailingTrivia
+        public [Token] TrailingTrivia
         {
-        	const get return (IEnumerable<Token>)new Token[0];
+        	const get return Enumerable.Empty<Token>();
         }
         
         public IReadOnlyList<Token> Tokens

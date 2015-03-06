@@ -8,7 +8,7 @@ using Flame.Compiler.Expressions;
 
 namespace Flame.Syntax.DSharp
 {
-    public class CastSyntax : IExpressionSyntax, ITokenNode
+    public class CastSyntax : IExpressionSyntax, ITokenNode, ISourceSyntax
     {
         public const this(set ITypeSyntax TargetType, set IExpressionSyntax Expression)
         {
@@ -21,6 +21,16 @@ namespace Flame.Syntax.DSharp
         public ITypeSyntax TargetType { const get; private set; }
         public Token ClosingToken { const get; private set; }
         public IExpressionSyntax Expression { const get; private set; }
+        
+        public SourceLocation Location
+        {
+        	const get return CastLocation.Concat(Expression.GetSourceLocation());
+        }
+        
+        public SourceLocation CastLocation
+        {
+        	const get return OpeningToken.Location.Concat(TargetType.GetSourceLocation()).Concat(ClosingToken.Location);
+        }
         
         public IReadOnlyList<Token> Tokens
         {
@@ -44,7 +54,7 @@ namespace Flame.Syntax.DSharp
         	{
 	       		if (exprType.GetPrimitiveMagnitude() > type.GetPrimitiveMagnitude())
 	       		{
-	       			State.Log.LogWarning(new LogEntry("Bit type downcast", "'" + this.GetCode().ToString() + "' implies a downcast of bit types (" + exprType.Name + " to " + type.Name + "). This could lead to an arbitrary loss of information."));	
+	       			State.Log.LogWarning(new LogEntry("Bit type downcast", "'" + this.GetCode().ToString() + "' implies a downcast of bit types (" + exprType.Name + " to " + type.Name + "). This could lead to an arbitrary loss of information.", CastLocation));	
 	       		}
 	       	}
             return new ConversionExpression(expr, type);
@@ -86,7 +96,7 @@ namespace Flame.Syntax.DSharp
         	}
         	else
         	{
-        		State.Log.LogError(new LogEntry("Cast error", "The expression '" + Value.GetCode().ToString() + "' of type '" + valType.FullName + "' could not be cast implicitly to '" + TargetType.FullName + "'"));
+        		State.Log.LogError(new LogEntry("Cast error", "The expression '" + Value.GetCode().ToString() + "' of type '" + valType.FullName + "' could not be cast implicitly to '" + TargetType.FullName + "'", Value.GetSourceLocation()));
         		return new ConversionExpression(expr, TargetType);
         	}
         }

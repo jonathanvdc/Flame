@@ -1,18 +1,24 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Flame.Compiler;
 using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class InferredTypeSyntax : ITokenTypeSyntax, IRelevantSyntax<Token>
+	public class InferredTypeSyntax : ITokenTypeSyntax, IRelevantSyntax<Token>, ISourceSyntax
 	{
 		public const this(set Token VarKeyword);
 		
 		public Token VarKeyword { const get; private set; }
 		
-		public IEnumerable<Token> LeadingTrivia
+		public SourceLocation Location
+		{
+			const get return VarKeyword.Location;
+		}
+		
+		public [Token] LeadingTrivia
         {
         	const get
         	{
@@ -20,9 +26,9 @@ namespace Flame.Syntax.DSharp
         	}
         }
         
-        public IEnumerable<Token> TrailingTrivia
+        public [Token] TrailingTrivia
         {
-        	const get return (IEnumerable<Token>)new Token[0];
+        	const get return Enumerable.Empty<Token>();
         }
         
         public IReadOnlyList<Token> Tokens

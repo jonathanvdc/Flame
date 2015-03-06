@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Flame.Compiler;
 using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class VectorTypeSyntax : ITokenTypeSyntax, IRelevantSyntax<Token>
+	public class VectorTypeSyntax : ITokenTypeSyntax, IRelevantSyntax<Token>, ISourceSyntax
 	{
 		public const this(set ITokenTypeSyntax ElementType, set Token LeadingBrackets, set SeparatedList<IExpressionSyntax> Dimensions, set Token TrailingBrackets);
 		
@@ -15,7 +16,15 @@ namespace Flame.Syntax.DSharp
 		public Token TrailingBrackets { const get; private set; }
 		public SeparatedList<IExpressionSyntax> Dimensions { const get; private set; }
 		
-		public IEnumerable<Token> LeadingTrivia
+		public SourceLocation Location
+		{
+			const get
+			{
+				return ElementType.GetSourceLocation().Concat(LeadingBrackets.Location).Concat(Dimensions.Location).Concat(TrailingBrackets.Location);
+			}
+		}
+		
+		public [Token] LeadingTrivia
         {
         	const get
         	{
@@ -28,9 +37,9 @@ namespace Flame.Syntax.DSharp
         	}
         }
         
-        public IEnumerable<Token> TrailingTrivia
+        public [Token] TrailingTrivia
         {
-        	const get return (IEnumerable<Token>)new Token[0];
+        	const get return Enumerable.Empty<Token>();
         }
         
         public IReadOnlyList<Token> Tokens

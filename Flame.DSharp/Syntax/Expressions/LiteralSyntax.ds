@@ -7,7 +7,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public abstract class LiteralSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>
+    public abstract class LiteralSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>, ISourceSyntax
     {
     	public const this();
         public const this(set Token Value);
@@ -24,7 +24,7 @@ namespace Flame.Syntax.DSharp
         public SourceLocation Location
         {
         	const get return Value.Location;
-        }        
+        }
         
         public [Token] LeadingTrivia
         {

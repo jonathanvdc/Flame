@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Flame.Compiler;
 using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class SeparatedList<T> : IRelevantSyntax<Token>, ISyntaxNode
+	public class SeparatedList<T> : IRelevantSyntax<Token>, ISyntaxNode, ISourceSyntax
 		// : IEnumerable<T>, IReadOnlyList<T>, IRelevantSyntax<Token>, ISyntaxNode --> commented out because of IEnumerable<T>.GetEnumerator ambiguity
 		where T : ISyntaxNode
 	{
@@ -33,6 +34,19 @@ namespace Flame.Syntax.DSharp
 			const get return Items[Index].Item;
 		}
 		
+		public SourceLocation Location
+		{
+			const get
+			{
+				SourceLocation result = new SourceLocation(null);
+				foreach (var item in Items)
+				{
+					result = result.Concat(item.Location);
+				}
+				return result;
+			}
+		}
+		
 		/*public IEnumerator<T> GetGenericEnumerator() : IEnumerable<T>.GetEnumerator
 		{
 			List<T> nodes = new List<T>();
@@ -48,7 +62,7 @@ namespace Flame.Syntax.DSharp
 			return GetGenericEnumerator();
 		}*/
 		
-		public IEnumerable<Token> LeadingTrivia
+		public [Token] LeadingTrivia
 		{
 			const get
 			{
@@ -61,9 +75,9 @@ namespace Flame.Syntax.DSharp
 			}
 		}
 		
-		public IEnumerable<Token> TrailingTrivia
+		public [Token] TrailingTrivia
 		{
-			const get return (IEnumerable<Token>)new Token[0];
+			const get return Enumerable.Empty<Token>();
 		}
 		
 		public CodeBuilder GetCode()

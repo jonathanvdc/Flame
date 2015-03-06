@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Flame.Compiler;
 using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class SeparatedItem<T> : ISyntaxNode, IRelevantSyntax<Token>
+	public class SeparatedItem<T> : ISyntaxNode, IRelevantSyntax<Token>, ISourceSyntax
 		where T : ISyntaxNode
 	{
 		public const this(set T Item)
@@ -18,7 +19,15 @@ namespace Flame.Syntax.DSharp
 		public Token Separator { const get; private set; }
 		public T Item { const get; private set; }
 		
-		public IEnumerable<Token> LeadingTrivia
+		public SourceLocation Location
+		{
+			const get
+			{
+				return Separator.Location.Concat(Item.GetSourceLocation());	
+			}
+		}
+		
+		public [Token] LeadingTrivia
 		{
 			const get
 			{
@@ -29,11 +38,11 @@ namespace Flame.Syntax.DSharp
 			}
 		}
 		
-		public IEnumerable<Token> TrailingTrivia
+		public [Token] TrailingTrivia
 		{
 			const get
 			{
-				return (IEnumerable<Token>)new Token[0];	
+				return Enumerable.Empty<Token>();	
 			}
 		}
 		
