@@ -184,7 +184,7 @@ namespace Flame.Syntax.DSharp
         private static const IType BindType(ISyntaxNode Node, ISyntaxState State)
         {
         	// Tokenize and parse
-        	var tokenStream = new TokenizerStream(Node.GetCode().ToString());
+        	var tokenStream = new TokenizerStream(Node.GetCode().ToString(), null);
         	var parser = new DSharpSyntaxParser(State.Log);
         	var tSyntax = parser.ToTypeSyntax(tokenStream);
         	if (tSyntax == null)

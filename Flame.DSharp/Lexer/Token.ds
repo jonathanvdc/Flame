@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Compiler;
 
 namespace Flame.DSharp.Lexer
 {
@@ -60,14 +61,15 @@ namespace Flame.DSharp.Lexer
     
     public class RelevantToken : Token
     {
-    	public const this(set IEnumerable<Token> LeadingTrivia, Token Value)
+    	public const this(set [Token] LeadingTrivia, Token Value)
     	{
     		this.Type = Value.Type;
     		this.Position = Value.Position;
     		this.TokenValue = Value.TokenValue;
+    		this.SourceDocument = Value.SourceDocument;
     	}
     
-    	public IEnumerable<Token> LeadingTrivia { const get; private set; }
+    	public [Token] LeadingTrivia { const get; private set; }
     	
     	public override virtual const string ToString()
         {
@@ -96,6 +98,12 @@ namespace Flame.DSharp.Lexer
         public TokenType Type { const get; set; }
         public int32 Position { const get; protected set; }
         public string TokenValue { const get; set; }
+        public ISourceDocument SourceDocument { const get; protected set; }
+        
+        public SourceLocation Location
+        {
+        	const get return new SourceLocation(SourceDocument, Position);
+        }
 
         #region Predefined Tokens
 
@@ -217,7 +225,7 @@ namespace Flame.DSharp.Lexer
             return TokenValue;
         }
 
-        public const this(set TokenType Type, set string TokenValue, set int32 Position);
+        public const this(set TokenType Type, set string TokenValue, set ISourceDocument SourceDocument, set int32 Position);
         public const this(set TokenType Type, set string TokenValue)
         {
             this.Position = -1;

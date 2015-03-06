@@ -1,0 +1,9 @@
+public class SemicolonTest
+{
+    public const this();
+
+    public int Test()
+    {
+        return 5
+    }
+}

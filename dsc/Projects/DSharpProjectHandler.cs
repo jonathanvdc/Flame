@@ -73,7 +73,7 @@ namespace dsc.Projects
             }
             return Task.WhenAll(units);
         }
-        public static string GetSourceSafe(IProjectSourceItem Item, CompilationParameters Parameters)
+        public static ISourceDocument GetSourceSafe(IProjectSourceItem Item, CompilationParameters Parameters)
         {
             try
             {
@@ -97,7 +97,7 @@ namespace dsc.Projects
             Parameters.Log.LogEvent(new LogEntry("Status", "Parsing " + SourceItem.SourceIdentifier));
             return Task.Run(() =>
             {
-                string code = GetSourceSafe(SourceItem, Parameters);
+                var code = GetSourceSafe(SourceItem, Parameters);
                 if (code == null)
                 {
                     return null;

@@ -1,0 +1,48 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler
+{
+	/// <summary>
+	/// Represents source code on a given line and at a given offset.
+	/// </summary>
+	public struct SourceGridPosition
+	{
+		public const this(set int Line, set int Offset);
+	
+		public int Line { const get; private set; }
+		public int Offset { const get; private set; }	
+	}
+
+	/// <summary>
+	/// Describes a source document.
+	/// </summary>
+	public interface ISourceDocument
+	{
+		/// <summary>
+		/// Gets the source document's identifier.
+		/// </summary>
+		string Identifier { const get; }
+	
+		/// <summary>
+		/// Gets the source document's source code.
+		/// </summary>
+		string Source { const get; }
+		
+		/// <summary>
+		/// Gets the line count of this source document.
+		/// </summary>
+		int LineCount { const get; }
+		
+		/// <summary>
+		/// Gets the source line with the given index.
+		/// </summary>
+		const string GetLine(int Index);
+		
+		/// <summary>
+		/// Converts a source code character index to a grid position.
+		/// </summary>
+		const SourceGridPosition ToGridPosition(int CharacterIndex);
+	}
+}

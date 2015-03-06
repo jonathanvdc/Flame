@@ -12,8 +12,8 @@ namespace Flame.Compiler.Projects
 		string SourceIdentifier { const get; }
 		
 		/// <summary>
-		/// Gets the source item's source code.
+		/// Gets the source item's source document.
 		/// </summary>
-		const string GetSource(string CurrentPath);
+		const ISourceDocument GetSource(string CurrentPath);
 	}
 }

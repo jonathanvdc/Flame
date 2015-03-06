@@ -9,7 +9,7 @@ namespace Flame.DSharp.Lexer
 	{
 		#region GetLeadingTrivia
 	
-		public static const IEnumerable<Token> GetLeadingTrivia(this Token Item)
+		public static const [Token] GetLeadingTrivia(this Token Item)
 		{
 			if (Item is RelevantToken)
 			{
@@ -17,7 +17,7 @@ namespace Flame.DSharp.Lexer
 			}
 			else
 			{
-				return (IEnumerable<Token>)new Token[0];
+				return Enumerable.Empty<Token>();
 			}
 		}
 
@@ -25,10 +25,10 @@ namespace Flame.DSharp.Lexer
 	
 		#region GetAllTrivia
 		
-		public static const IEnumerable<Token> GetAllTrivia(this Token Item)
+		public static const [Token] GetAllTrivia(this Token Item)
 			return Item.GetLeadingTrivia();
 	
-		public static const IEnumerable<Token> GetAllTrivia(this IEnumerable<Token> Tokens)
+		public static const [Token] GetAllTrivia(this IEnumerable<Token> Tokens)
 		{
 			List<Token> trivia = new List<Token>();
 			foreach (var item in Tokens)
@@ -359,7 +359,18 @@ namespace Flame.DSharp.Lexer
         {
             if (Token.Type != Type)
             {
-                Log.LogError("Invalid syntax. Expected " + Type.ToString() + ", got " + Token.Type.ToString() + ".");
+            	var trivia = Token.GetLeadingTrivia(); // Try to get the right token, even if that means ploughing through trivia
+            	SourceLocation loc;
+            	if (!Enumerable.Any<Token>(trivia))
+            	{
+            		loc = Token.Location;
+            	}
+            	else
+            	{
+            		loc = Enumerable.First<Token>(trivia).Location;
+            	}
+            	
+                Log.LogError(new LogEntry("Parser error", "Invalid syntax. Expected " + Type.ToString() + ", got " + Token.Type.ToString() + ".", loc));
                 return false;
             }
             else
@@ -374,7 +385,7 @@ namespace Flame.DSharp.Lexer
         
         public static Token Combine(this Token First, Token Second, TokenType Type)
         {
-        	var tkn = new Token(Type, First.TokenValue + Second.TokenValue, First.Position);
+        	var tkn = new Token(Type, First.TokenValue + Second.TokenValue, First.SourceDocument, First.Position);
         	return new RelevantToken(Enumerable.Concat<Token>(First.GetAllTrivia(), Second.GetAllTrivia()), tkn);
         }
         
