@@ -15,16 +15,27 @@ namespace Flame.CodeDescription
         {
             this.TagMap = DefaultTagMap;
             this.ArgumentMap = DefaultArgumentMap;
+            this.VerbatimTags = DefaultVerbatimTags;
         }
         public DoxygenFormatter(IReadOnlyDictionary<string, string> TagMap)
         {
             this.TagMap = TagMap;
             this.ArgumentMap = DefaultArgumentMap;
+            this.VerbatimTags = DefaultVerbatimTags;
         }
         public DoxygenFormatter(IReadOnlyDictionary<string, string> TagMap, IReadOnlyDictionary<string, Func<DescriptionAttribute, string>> ArgumentMap)
         {
             this.TagMap = TagMap;
             this.ArgumentMap = ArgumentMap;
+            this.VerbatimTags = DefaultVerbatimTags;
+        }
+        public DoxygenFormatter(IReadOnlyDictionary<string, string> TagMap, 
+            IReadOnlyDictionary<string, Func<DescriptionAttribute, string>> ArgumentMap,
+            ISet<string> VerbatimTags)
+        {
+            this.TagMap = TagMap;
+            this.ArgumentMap = ArgumentMap;
+            this.VerbatimTags = VerbatimTags;
         }
 
         #region Defaults
@@ -72,10 +83,29 @@ namespace Flame.CodeDescription
             }
         }
 
+        private static ISet<string> defaultVerbatimTagsVal;
+        public static ISet<string> DefaultVerbatimTags
+        {
+            get
+            {
+                if (defaultVerbatimTagsVal == null)
+                {
+                    defaultVerbatimTagsVal = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+                    {
+                        "pre",
+                        "post",
+                        "example"
+                    };
+                }
+                return defaultVerbatimTagsVal;
+            }
+        }
+
         #endregion
 
         public IReadOnlyDictionary<string, string> TagMap { get; private set; }
         public IReadOnlyDictionary<string, Func<DescriptionAttribute, string>> ArgumentMap { get; private set; }
+        public ISet<string> VerbatimTags { get; private set; }
 
         public string GetDoxygenTag(string Tag)
         {
@@ -107,7 +137,8 @@ namespace Flame.CodeDescription
             foreach (var item in Documentation)
             {
                 sb.Append('\\');
-                sb.Append(GetDoxygenTag(item.Tag));
+                string doxyTag = GetDoxygenTag(item.Tag);
+                sb.Append(doxyTag);
                 string args = GetDoxygenArguments(item);
                 if (!string.IsNullOrWhiteSpace(args))
                 {
@@ -115,7 +146,14 @@ namespace Flame.CodeDescription
                     sb.Append(args.Trim());
                 }
                 sb.Append(' ');
-                sb.AppendLine(DocumentationExtensions.IntroduceLineBreaks(item.Description).TrimStart());
+                if (VerbatimTags.Contains(doxyTag))
+                {
+                    sb.AppendLine(item.Description.TrimStart());
+                }
+                else
+                {
+                    sb.AppendLine(DocumentationExtensions.IntroduceLineBreaks(item.Description).TrimStart());
+                }
             }
             return sb.ToString();
         }
