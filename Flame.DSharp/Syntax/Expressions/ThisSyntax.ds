@@ -8,7 +8,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class ThisSyntax : VariableSyntaxBase, IRelevantSyntax<Token>, ITokenNode
+    public class ThisSyntax : VariableSyntaxBase, IRelevantSyntax<Token>, ITokenNode, ISourceSyntax
     {
         public const this()
         {
@@ -18,12 +18,17 @@ namespace Flame.Syntax.DSharp
 
         public Token ThisKeyword { const get; private set; }
         
-        public IEnumerable<Token> LeadingTrivia
+        public SourceLocation Location
+        {
+        	const get return ThisKeyword.Location;
+        }
+        
+        public [Token] LeadingTrivia
         {
         	const get return ThisKeyword.GetAllTrivia();
         }
         
-        public IEnumerable<Token> TrailingTrivia
+        public [Token] TrailingTrivia
         {
         	const get return Enumerable.Empty<Token>();
         }

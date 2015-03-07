@@ -7,7 +7,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class HashSyntax : IExpressionSyntax, IRelevantSyntax<Token>, ITokenNode
+	public class HashSyntax : IExpressionSyntax, IRelevantSyntax<Token>, ITokenNode, ISourceSyntax
 	{
 		public const this(set Token HashKeyword, set Token LeadingParen, set IExpressionSyntax Target, set Token TrailingParen);
 	
@@ -15,6 +15,11 @@ namespace Flame.Syntax.DSharp
 		public Token LeadingParen { const get; private set; }
 		public IExpressionSyntax Target { const get; private set; }
 		public Token TrailingParen { const get; private set; }
+		
+		public SourceLocation Location
+		{
+			const get return HashKeyword.Location.Concat(LeadingParen.Location).Concat(Target.GetSourceLocation()).Concat(TrailingParen.Location);
+		}
 		
         public IReadOnlyList<Token> Tokens
         {
@@ -29,7 +34,7 @@ namespace Flame.Syntax.DSharp
         	}
         }
 		
-		public IEnumerable<Token> LeadingTrivia
+		public [Token] LeadingTrivia
 		{
 			const get
 			{
@@ -40,7 +45,7 @@ namespace Flame.Syntax.DSharp
 			}
 		}
 		
-		public IEnumerable<Token> TrailingTrivia
+		public [Token] TrailingTrivia
 		{
 			const get
 			{

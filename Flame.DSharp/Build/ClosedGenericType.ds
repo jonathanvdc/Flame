@@ -16,9 +16,9 @@ namespace Flame.DSharp.Build
 {
     public class ClosedGenericType : SyntaxType
     {
-        public const this(set TypeDeclarationSyntax syntax, set INamespace DeclaringNamespace, set IBinder Binder, set ICompilerLog Log, set IMemberProvider MemberProvider, set IEnumerable<IType> GenericArguments);
+        public const this(set TypeDeclarationSyntax syntax, set INamespace DeclaringNamespace, set IBinder Binder, set ICompilerLog Log, set IMemberProvider MemberProvider, set [IType] GenericArguments);
 
-        public IEnumerable<IType> GenericArguments { const get; private set; }
+        public [IType] GenericArguments { const get; private set; }
 
         public override string Name
         {
@@ -70,9 +70,9 @@ namespace Flame.DSharp.Build
             }
         }
 
-        public override IEnumerable<IType> GetGenericArguments()
+        public override [IType] GetGenericArguments()
         {
-            return (IEnumerable<IType>)GenericArguments;
+            return GenericArguments;
         }
     }
 }

@@ -2,6 +2,8 @@ public class SemicolonTest
 {
     public const this();
 
+    public int X(int Value) return Value + 1;
+
     public int MethodTest()
     {
         return this.X();
@@ -10,5 +12,10 @@ public class SemicolonTest
     public int FieldTest()
     {
         return this.Y;
+    }
+
+    public void MissingVariable()
+    {
+        state.Log.LogWarning("Whoa. 'state' is not defined in this scope.");
     }
 }
