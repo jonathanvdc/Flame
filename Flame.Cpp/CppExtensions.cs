@@ -11,6 +11,15 @@ namespace Flame.Cpp
 {
     public static class CppExtensions
     {
+        #region IsForeign
+
+        public static bool IsForeign(this IType Type)
+        {
+            return ForeignTypePredicate.Instance.Convert(Type);
+        }
+
+        #endregion
+
         #region GetHeaderAttributes
 
         private static IEnumerable<HeaderAttribute> GetHeaderAttributes(this IMember Member)
