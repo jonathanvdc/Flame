@@ -22,7 +22,7 @@ namespace Flame.Syntax.DSharp
         	var targetType = Type.CreateVerifiedType(State);
         	if (targetType != null && sourceExpr != null && sourceExpr.Type.Is(targetType))
         	{
-        		State.Log.LogWarning(new LogEntry("Constant 'is' expression", "Expression '" + this.GetCode().ToString() + "' will always evaluate to true.", IsKeyword.Location.Concat(Type.GetSourceLocation())));
+        		State.Log.LogWarning(new LogEntry("Constant 'is' expression", "Expression '" + this.GetCode().ToString() + "' will always evaluate to true for non-null values of '" + Target.GetCode().ToString() + ".'", IsKeyword.Location.Concat(Type.GetSourceLocation())));
         	}
             return new IsExpression(sourceExpr, targetType);
         }
