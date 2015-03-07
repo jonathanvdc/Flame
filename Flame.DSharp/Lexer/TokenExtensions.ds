@@ -359,7 +359,7 @@ namespace Flame.DSharp.Lexer
         {
             if (Token.Type != Type)
             {
-                Log.LogError(new LogEntry("Parser error", "Invalid syntax. Expected " + Type.ToString() + ", got " + Token.Type.ToString() + ".", Token.Location));
+                Log.LogError(new LogEntry("Parser error", "Invalid syntax. Expected " + Type.ToString() + ", got " + Token.Type.ToString() + ".", Token.FullLocation));
                 return false;
             }
             else

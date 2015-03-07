@@ -21,7 +21,12 @@ namespace Flame.Syntax.DSharp
         
         public SourceLocation Location
         {
-        	const get return Target.GetSourceLocation().Concat(Operator.Location).Concat(Member.Location);
+        	const get return Target.GetSourceLocation().Concat(MemberAccessLocation);
+        }
+        
+        public SourceLocation MemberAccessLocation
+        {
+        	const get return Operator.Location.Concat(Member.Location);
         }
 
         public abstract IVariable GetCallerVariable(ISyntaxState State);
@@ -282,18 +287,10 @@ namespace Flame.Syntax.DSharp
             	{
             		var innerTarget = ((MemberAccessSyntaxBase)Target).Target;
             		var innerCallerExpr = innerTarget.CreateExpression(State);
-            		while (innerTarget != null && innerCallerExpr == null)
+            		while (innerTarget is MemberAccessSyntaxBase && innerCallerExpr == null)
             		{
-            			if (innerTarget is MemberAccessSyntaxBase)
-            			{
-            				innerTarget = ((MemberAccessSyntaxBase)innerTarget).Target;
-            				innerCallerExpr = innerTarget.CreateExpression(State);
-            			}
-            			else
-            			{
-            				innerTarget = null;
-            				innerCallerExpr = null;
-            			}
+            			innerTarget = ((MemberAccessSyntaxBase)innerTarget).Target;
+            			innerCallerExpr = innerTarget.CreateExpression(State);
             		}
             		if (innerCallerExpr == null)
             		{
@@ -301,7 +298,7 @@ namespace Flame.Syntax.DSharp
             		}
             		else
             		{
-            			State.Log.LogError(new LogEntry("Member access error", "'" + Target.GetCode().ToString() + "' in member access syntax '" + this.GetCode().ToString() + "' could not be resolved as a variable, expression or type, though '" + innerTarget.GetCode().ToString() + "' was resolved as an expression of type '" + innerCallerExpr.Type.FullName + "'", Location));
+            			State.Log.LogError(new LogEntry("Member access error", "'" + Target.GetCode().ToString() + "' in member access syntax '" + this.GetCode().ToString() + "' could not be resolved as a variable, expression or type, though '" + innerTarget.GetCode().ToString() + "' was resolved as an expression of type '" + innerCallerExpr.Type.FullName + "'", MemberAccessLocation));
             		}
             	}
             	else
