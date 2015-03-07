@@ -148,7 +148,7 @@ namespace dsc
                 target.TargetAssembly.Save(outputProvider);
             }
 
-            State.Log.LogEvent(new LogEntry("Status", "Assembly saved to: " + targetPath));
+            State.Log.LogEvent(new LogEntry("Status", "Assembly saved to: '" + targetPath + "'"));
 
             var docBuilder = State.Options.CreateDocumentationBuilder(projAsm);
 
@@ -158,7 +158,7 @@ namespace dsc
                 using (var docOutput = new FileOutputProvider(dirName, docTargetPath))
                 {
                     docBuilder.Save(docOutput);
-                    State.Log.LogEvent(new LogEntry("Status", "Documentation saved to: " + docTargetPath));
+                    State.Log.LogEvent(new LogEntry("Status", "Documentation saved to: '" + docTargetPath + "'"));
                 }
             }
         }
