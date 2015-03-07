@@ -131,7 +131,7 @@ namespace Flame
 		}
 		public static const IMethod GetMethod(this IType DeclaringType, string Name, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
 		{
-			return ((IEnumerable<IMethod>)DeclaringType.GetAllMethods()).GetMethod(Name, IsStatic, ReturnType, ParameterTypes);
+			return DeclaringType.GetAllMethods().GetMethod(Name, IsStatic, ReturnType, ParameterTypes);
 		}
 		public static const IMethod GetMethod(this IType DeclaringType, bool IsStatic, IType[] ParameterTypes)
 		{

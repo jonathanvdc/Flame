@@ -1,0 +1,185 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.DSharp.Lexer
+{
+	/// <summary>
+	/// Defines a token example.
+	/// </summary>
+	public struct TokenExample
+	{
+		public const this(set string Value);
+		public const this(set string Value, set bool IsDescription);
+		
+		/// <summary>
+		/// Gets a boolean flag that identifies whether the given example is really a description of the associated token type.
+		/// </summary>
+		public bool IsDescription { const get; private set; }
+		/// <summary>
+		/// Gets a boolean flag that identifies whether the given example is a real-world example of the associated token type.
+		/// </summary>
+		public bool IsExample { const get return !IsDescription; }
+		/// <summary>
+		/// Gets the token example's example string.
+		/// </summary>
+		public string Value { const get; private set; }
+		
+		public const string operator cast()
+		{
+			if (IsExample) return "'" + Value + "'";
+			else return Value;
+		}
+	}
+
+	/// <summary>
+	/// A static class that maintains a collection of token examples for loggin purposes.
+	/// </summary>
+	public static class TokenExamples
+	{
+		static this()
+		{
+			examples = new Dictionary<TokenType, TokenExample>();
+			
+			RegisterDescription(TokenType.EndOfFile, "end-of-file");
+			RegisterDescription(TokenType.UNDEFINED, "undefined");
+			
+			RegisterDescription(TokenType.Identifier, "identifier");
+			RegisterDescription(TokenType.Char, "character literal");
+			RegisterDescription(TokenType.String, "string literal");
+			RegisterDescription(TokenType.Float32, "single-precision float literal");
+			RegisterDescription(TokenType.Float64, "double-precision float literal");
+			RegisterDescription(TokenType.Integer, "integer literal");
+			RegisterDescription(TokenType.BinaryInteger, "bit literal");
+			RegisterDescription(TokenType.HexInteger, "hex integer literal");
+			
+			RegisterExample(TokenType.Semicolon, ";");
+			RegisterExample(TokenType.Colon, ":");
+			RegisterExample(TokenType.Dot, ".");
+			RegisterExample(TokenType.Comma, ",");
+			RegisterExample(TokenType.RParen, "(");
+			RegisterExample(TokenType.LParen, ")");
+			RegisterExample(TokenType.RBrackets, "[");
+			RegisterExample(TokenType.LBrackets, "]");
+			RegisterExample(TokenType.RBraces, "{");
+			RegisterExample(TokenType.LBraces, "}");
+			RegisterExample(TokenType.And, "&");
+			RegisterExample(TokenType.Bar, "|");
+			RegisterExample(TokenType.Percent, "%");
+			RegisterExample(TokenType.Caret, "^");
+			RegisterExample(TokenType.Tilde, "~");
+			RegisterExample(TokenType.Not, "!");
+			RegisterExample(TokenType.GreaterThan, ">");
+			RegisterExample(TokenType.LessThan, "<");
+			RegisterExample(TokenType.Equals, "=");
+			RegisterExample(TokenType.Plus, "+");
+			RegisterExample(TokenType.Minus, "-");
+			RegisterExample(TokenType.Asterisk, "*");
+			RegisterExample(TokenType.Slash, "/");
+			
+			RegisterExample(TokenType.ColonColon, "::");
+			RegisterExample(TokenType.RArrow, "->");
+			RegisterExample(TokenType.AndAnd, "&&");
+			RegisterExample(TokenType.AndEquals, "&=");
+			RegisterExample(TokenType.BarBar, "||");
+			RegisterExample(TokenType.BarEquals, "|=");
+			RegisterExample(TokenType.PercentEquals, "%=");
+			RegisterExample(TokenType.CaretEquals, "^=");
+			RegisterExample(TokenType.TildeEquals, "~=");
+			RegisterExample(TokenType.NotEquals, "!=");
+			RegisterExample(TokenType.EqualsEquals, "==");
+			RegisterExample(TokenType.GreaterThanOrEquals, ">=");
+			RegisterExample(TokenType.LessThanOrEquals, "<=");
+			RegisterExample(TokenType.RightShift, ">>");
+			RegisterExample(TokenType.LeftShift, "<<");
+			RegisterExample(TokenType.PlusEquals, "+=");
+			RegisterExample(TokenType.MinusEquals, "-=");
+			RegisterExample(TokenType.PlusPlus, "++");
+			RegisterExample(TokenType.MinusMinus, "--");
+			RegisterExample(TokenType.AsteriskEquals, "*=");
+			RegisterExample(TokenType.SlashEquals, "/=");
+			
+			RegisterExample(TokenType.FalseLiteral, "false");
+			RegisterExample(TokenType.TrueLiteral, "true");
+			RegisterExample(TokenType.UsingKeyword, "using");
+			RegisterExample(TokenType.VarKeyword, "var");
+			RegisterExample(TokenType.SetKeyword, "set");
+			RegisterExample(TokenType.IsKeyword, "is");
+			RegisterExample(TokenType.AsKeyword, "as");
+			RegisterExample(TokenType.IfKeyword, "if");
+			RegisterExample(TokenType.ElseKeyword, "else");
+			RegisterExample(TokenType.WhileKeyword, "while");
+			RegisterExample(TokenType.WhereKeyword, "where");
+			RegisterExample(TokenType.SizeOfKeyword, "sizeof");
+			RegisterExample(TokenType.ForeachKeyword, "foreach");
+			RegisterExample(TokenType.ForKeyword, "for");
+			RegisterExample(TokenType.ReturnKeyword, "return");
+			RegisterExample(TokenType.NewKeyword, "new");
+			RegisterExample(TokenType.TryKeyword, "try");
+			RegisterExample(TokenType.CatchKeyword, "catch");
+			RegisterExample(TokenType.FinallyKeyword, "finally");
+			RegisterExample(TokenType.DefaultKeyword, "default");
+			RegisterExample(TokenType.NamespaceKeyword, "namespace");
+			RegisterExample(TokenType.ClassKeyword, "class");
+			RegisterExample(TokenType.StructKeyword, "struct");
+			RegisterExample(TokenType.InterfaceKeyword, "interface");
+			RegisterExample(TokenType.EnumKeyword, "enum");
+			RegisterExample(TokenType.PublicKeyword, "public");
+			RegisterExample(TokenType.ProtectedKeyword, "protected");
+			RegisterExample(TokenType.AssemblyKeyword, "assembly");
+			RegisterExample(TokenType.PrivateKeyword, "private");
+			RegisterExample(TokenType.AbstractKeyword, "abstract");
+			RegisterExample(TokenType.VirtualKeyword, "virtual");
+			RegisterExample(TokenType.OverrideKeyword, "override");
+			RegisterExample(TokenType.SealedKeyword, "sealed");
+			RegisterExample(TokenType.InlineKeyword, "inline");
+			RegisterExample(TokenType.ConstKeyword, "const");
+			RegisterExample(TokenType.StaticKeyword, "static");
+			RegisterExample(TokenType.ThisKeyword, "this");
+			RegisterExample(TokenType.BaseKeyword, "base");
+			RegisterExample(TokenType.InKeyword, "in");
+			RegisterExample(TokenType.OutKeyword, "out");
+			RegisterExample(TokenType.NullKeyword, "null");
+			RegisterExample(TokenType.BreakKeyword, "break");
+			RegisterExample(TokenType.NextKeyword, "next");
+			RegisterExample(TokenType.DoKeyword, "do");
+			RegisterExample(TokenType.YieldKeyword, "yield");
+			RegisterExample(TokenType.OperatorKeyword, "operator");
+			RegisterExample(TokenType.HashKeyword, "hash");
+			RegisterExample(TokenType.AssertKeyword, "assert");
+			RegisterExample(TokenType.ThrowKeyword, "throw");
+		}
+	
+		private Dictionary<TokenType, TokenExample> examples;
+		
+		public void RegisterExample(TokenType Type, TokenExample Example)
+		{
+			examples[Type] = Example;
+		}
+		public void RegisterExample(TokenType Type, string Example)
+		{
+			RegisterExample(Type, new TokenExample(Example));
+		}
+		public void RegisterDescription(TokenType Type, string Description)
+		{
+			RegisterExample(Type, new TokenExample(Description, true));
+		}
+		
+		public const TokenExample GetExample(TokenType Type)
+		{
+			if (examples.ContainsKey(Type))
+			{
+				return examples[Type];
+			}
+			else
+			{
+				return new TokenExample(Type.ToString(), true);
+			}
+		}
+		public const string GetExampleString(TokenType Type)
+		{
+			return (string)GetExample(Type);
+		}
+	}
+}

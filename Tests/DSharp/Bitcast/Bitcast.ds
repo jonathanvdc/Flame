@@ -9,6 +9,6 @@ public class BitcastTest
 
     public bool StupidIs(BitcastTest Instance)
     {
-        return Instance is BitcastTest;
+        return (bool)(Instance is BitcastTest);
     }
 }
