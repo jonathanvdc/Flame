@@ -269,12 +269,12 @@ namespace Flame.Cpp.Emit
             else
             {
                 var cppCaller = (ICppBlock)Caller;
-                if (cppCaller.Type.get_IsArray())
+                if (Method is IAccessor)
                 {
-                    if (Method is IAccessor)
+                    var accessor = (IAccessor)Method;
+                    var declProp = accessor.DeclaringProperty;
+                    if (cppCaller.Type.get_IsArray())
                     {
-                        var accessor = (IAccessor)Method;
-                        var declProp = accessor.DeclaringProperty;
                         var arrSliceProp = cppCaller.Type.GetProperties().FirstOrDefault((item) => item.Name == declProp.Name && item.IsStatic == declProp.IsStatic);
                         if (arrSliceProp != null)
                         {
@@ -283,6 +283,17 @@ namespace Flame.Cpp.Emit
                             {
                                 return new MemberAccessBlock(cppCaller, arrSliceAccessor, MethodType.Create(arrSliceAccessor));
                             }
+                        }
+                    }
+                    else if (declProp.get_IsIndexer() && Method.DeclaringType.IsForeign() && declProp.GetIndexerParameters().Length == 1)
+                    {
+                        if (accessor.get_IsGetAccessor())
+                        {
+                            return new PartialElementBlock(cppCaller, Method.ReturnType);
+                        }
+                        else if (accessor.get_IsSetAccessor())
+                        {
+                            return new PartialSetElementBlock(cppCaller, declProp.PropertyType);
                         }
                     }
                 }
@@ -399,7 +410,7 @@ namespace Flame.Cpp.Emit
             if (Collections.Count() == 1)
             {
                 var singleCollection = Collections.Single() as CollectionBlock;
-                if (singleCollection != null && !singleCollection.IsArray)
+                if (singleCollection != null)
                 {
                     return new ForeachBlock(this, singleCollection);
                 }

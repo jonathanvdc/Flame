@@ -70,6 +70,8 @@
     <Compile Include="Emit\FinallyBlock.cs" />
     <Compile Include="Emit\ForBlockGenerator.cs" />
     <Compile Include="Emit\InitializerListBlock.cs" />
+    <Compile Include="Emit\PartialElementBlock.cs" />
+    <Compile Include="Emit\PartialSetElementBlock.cs" />
     <Compile Include="Emit\PostconditionBlock.cs" />
     <Compile Include="Emit\PreconditionBlock.cs" />
     <Compile Include="Emit\TryBlockGenerator.cs" />
@@ -82,6 +84,7 @@
     <Compile Include="Emit\LocalDeclaration.cs" />
     <Compile Include="Emit\PartialEmptyBlock.cs" />
     <Compile Include="Emit\ThrowBlock.cs" />
+    <Compile Include="ForeignTypePredicate.cs" />
     <Compile Include="FriendAttribute.cs" />
     <Compile Include="HeaderComparer.cs" />
     <Compile Include="HeaderDependencyAttribute.cs" />

@@ -15,9 +15,26 @@ namespace Flame.Cpp.Emit
 
         public ICppBlock[] Arguments { get; private set; }
 
+        public void AssertCount(int Count)
+        {
+            if (Arguments.Length != Count)
+            {
+                throw new ArgumentException("'Arguments' has " + Arguments.Length + " elements, " + Count + " were expected.");
+            }
+        }
+
         public ICppBlock Get(int Index)
         {
             return Arguments[Index];
+        }
+        public ICppBlock[] GetArguments(int Count)
+        {
+            AssertCount(Count);
+            return Arguments;
+        }
+        public ICppBlock Single()
+        {
+            return Arguments.Single();
         }
     }
 }
