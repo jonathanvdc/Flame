@@ -449,6 +449,13 @@ namespace Flame.Cpp
                     cb.AddEmptyLine();
                 }
             }
+
+            foreach (var item in friendMethods)
+            {
+                cb.TrimEnd();
+                cb.AddEmptyLine();
+                cb.AddCodeBuilder(item.GetSourceCode());
+            }
             return cb;
         }
 
