@@ -2288,7 +2288,9 @@ namespace Flame.DSharp.Parser
             
             if (!AccessorSignatureSyntax.IsAccessorName(peek))
             {
-            	Log.LogError(new LogEntry("Parser error", "Invalid accessor syntax. Expected valid accessor name, got '" + peek.ToString() + "'"));
+            	// Parse a single token here so we don't end up in an infinite loop when parsing properties
+            	var parsedToken = Tokens.NextNoTrivia();
+            	Log.LogError(new LogEntry("Parser error", "Invalid accessor syntax. Expected valid accessor name, got '" + parsedToken.ToString() + "'", parsedToken.Location));
             	return null;
             }
 
@@ -2337,9 +2339,11 @@ namespace Flame.DSharp.Parser
 
             List<IAccessorSyntax> accessors = new List<IAccessorSyntax>();
 
-            while (Tokens.PeekNoTrivia().Type != TokenType.LBraces)
+			var peek = Tokens.PeekNoTrivia();
+            while (peek.Type != TokenType.LBraces && peek.Type != TokenType.EndOfFile)
             {
                 accessors.Add(ParseAccessor(Tokens));
+                peek = Tokens.PeekNoTrivia();
             }
 
             Tokens.NextNoTrivia(TokenType.LBraces, Log);
