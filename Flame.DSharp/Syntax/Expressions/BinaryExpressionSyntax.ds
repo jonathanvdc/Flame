@@ -76,6 +76,16 @@ namespace Flame.Syntax.DSharp
         	return CastSyntax.CreateImplicitCast(State, Right, Node, TargetType);
         }
         
+        private static const bool IsPrimitiveOperation(IType Left, IType Right, Operator Op)
+        {
+        	return (Left.IsEnum || Left.IsPrimitive) && (Right.IsEnum || Right.IsPrimitive);
+        }
+        
+        private static const bool IsNullCheck(IType Left, IType Right, Operator Op)
+        {
+        	return (Op == Operator.CheckEquality || Op == Operator.CheckInequality) && (Right.Equals(PrimitiveTypes.Null) && Right.Is(Left)) || (Left.Equals(PrimitiveTypes.Null) && Left.Is(Right));
+        }
+        
         public static const IExpression CreateExpression(ISyntaxState State, IExpressionSyntax Left, Operator Op, IExpressionSyntax Right)
         {
         	var leftExpr = Left.CreateVerifiedExpression(State);
@@ -85,7 +95,7 @@ namespace Flame.Syntax.DSharp
             var rType = rightExpr.Type;
             
             IMethod overload;
-            if ((lType.IsEnum || lType.IsPrimitive) && (rType.IsEnum || rType.IsPrimitive))
+            if (IsPrimitiveOperation(lType, rType, Op) || IsNullCheck(lType, rType, Op))
             {
             	overload = null;
             }

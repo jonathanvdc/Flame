@@ -44,6 +44,10 @@ namespace Flame.Cpp
 
         protected override IType ConvertReferenceType(IType Type)
         {
+            if (Type.Equals(PrimitiveTypes.Null))
+            {
+                return Type;
+            }
             return MakeReferenceType(Type);
         }
 
