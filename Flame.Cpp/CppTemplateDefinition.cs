@@ -69,8 +69,10 @@ namespace Flame.Cpp
             }
             CodeBuilder cb = new CodeBuilder();
             cb.Append("template<");
-            foreach (var item in templParams)
+            cb.Append(templParams[0].GetHeaderCode());
+            foreach (var item in templParams.Skip(1))
             {
+                cb.Append(", ");
                 cb.Append(item.GetHeaderCode());
             }
             cb.Append(">");
