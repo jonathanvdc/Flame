@@ -59,7 +59,9 @@
     <Compile Include="IDocumentationRewriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RewritingDocumentationProvider.cs" />
+    <Compile Include="SelectingDocumentationFormatter.cs" />
     <Compile Include="SelectingDocumentationProvider.cs" />
+    <Compile Include="VerbatimDocumentationFormatter.cs" />
     <Compile Include="XmlDocumentationFormatter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

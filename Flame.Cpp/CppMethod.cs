@@ -87,8 +87,9 @@ namespace Flame.Cpp
 
         public CodeBuilder GetDocumentationComments()
         {
-            var provider = new ConcatDocumentationProvider(Environment.DocumentationBuilder.Provider, new ConstantDocumentationProvider(Contract.DescriptionAttributes));
-            var docBuilder = new DocumentationCommentBuilder(provider, Environment.DocumentationBuilder);
+            var envBuilder = Environment.DocumentationBuilder;
+            var provider = new ConcatDocumentationProvider(envBuilder.Provider, new ConstantDocumentationProvider(Contract.DescriptionAttributes));
+            var docBuilder = new DocumentationCommentBuilder(provider, envBuilder);
             return docBuilder.GetDocumentationComments(this);
         }
 

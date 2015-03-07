@@ -312,13 +312,13 @@ ArraySlice<T>& ArraySlice<T>::operator=(const ArraySlice<T>& Other)
 template<typename T>
 ArraySlice<T>::operator std::vector<T>() const
 {
-	if (offset == 0)
+	if (offset == 0 && this->GetLength() == ptr->size())
 	{
 		return *ptr; // Fast path. Just copy the vector.
 	}
 	else
 	{
-		std::vector<T> vals(this->GetLength()); // Slow path. Offset is not zero. These things happen.
+		std::vector<T> vals(this->GetLength()); // Slow path. Offset is not zero or length does not equal size. These things happen.
 		for (typename ArraySlice<T>::size_type i = 0; i < this->GetLength(); i++)
 		{
 			vals[i] = (*this)[i];
