@@ -49,6 +49,7 @@ namespace Flame.Cpp.Emit
             cb.Append(Condition.GetCode());
             cb.Append(")");
             var ifBodyType = cb.AddBodyCodeBuilder(((ICppBlock)IfBlock).GetCode());
+            bool appendEmptyLine = ifBodyType == BodyStatementType.Single;
             var elseBody = ((ICppBlock)ElseBlock).GetCode();
             if (elseBody.LineCount > 0 && !(elseBody.LineCount == 1 && elseBody[0].Text.Trim() == ";"))
             {
@@ -57,6 +58,7 @@ namespace Flame.Cpp.Emit
                 {
                     cb.Append(" ");
                     cb.Append(elseBody);
+                    appendEmptyLine = false;
                 }
                 else if (ifBodyType == BodyStatementType.Block)
                 {
@@ -67,7 +69,7 @@ namespace Flame.Cpp.Emit
                     cb.AddBodyCodeBuilder(elseBody);
                 }
             }
-            if (ifBodyType == BodyStatementType.Single)
+            if (appendEmptyLine)
             {
                 cb.AddEmptyLine(); // Add some space for legibility
             }

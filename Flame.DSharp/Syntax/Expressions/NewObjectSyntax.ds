@@ -10,10 +10,10 @@ using Flame.DSharp.Build;
 
 namespace Flame.Syntax.DSharp
 {
-    public class NewObjectSyntax : IInvocationSyntax
+    public class NewObjectSyntax : IInvocationSyntax, ISourceSyntax
     {
-        public const this(set Token NewKeyword, set ITypeSyntax Type, set IEnumerable<IExpressionSyntax> Arguments);
-        public const this(set ITypeSyntax Type, set IEnumerable<IExpressionSyntax> Arguments)
+        public const this(set Token NewKeyword, set ITypeSyntax Type, set [IExpressionSyntax] Arguments);
+        public const this(set ITypeSyntax Type, set [IExpressionSyntax] Arguments)
         {
         	this.NewKeyword = new Token(TokenType.NewKeyword, "new");
         }
@@ -25,7 +25,18 @@ namespace Flame.Syntax.DSharp
 
         public Token NewKeyword { const get; private set; }
         public ITypeSyntax Type { const get; private set; }
-        public IEnumerable<IExpressionSyntax> Arguments { const get; private set; }
+        public [IExpressionSyntax] Arguments { const get; private set; }
+        
+        public SourceLocation Location
+        {
+        	const get
+        	{
+        		var result = NewKeyword.Location.Concat(Type.GetSourceLocation());
+				foreach (var item in Arguments)
+					result = result.Concat(item.GetSourceLocation());
+				return result;
+        	}
+        }
 
         protected IType CreateType(ISyntaxState State)
         {
@@ -86,11 +97,11 @@ namespace Flame.Syntax.DSharp
 	            			InvocationSyntax.AppendCallSignature(failedMatchesList, item.GetParameters().GetTypes());
 	            			failedMatchesList.AppendLine();
 	            		}
-	            		State.Log.LogError(new LogEntry("Constructor resolution error", "No appropriate constructor for '" + Type.GetCode().ToString() + "' could be found in new object expression '" + this.GetCode().ToString() + "', expected signature compatible with " + expectedSignature.ToString() + ". Incompatible or ambiguous matches: \r\n" + failedMatchesList));
+	            		State.Log.LogError(new LogEntry("Constructor resolution error", "No appropriate constructor for '" + Type.GetCode().ToString() + "' could be found in new object expression '" + this.GetCode().ToString() + "', expected signature compatible with " + expectedSignature.ToString() + ". Incompatible or ambiguous matches: \r\n" + failedMatchesList, Location));
 	            	}
 	            	else
 	            	{
-	            		State.Log.LogError(new LogEntry("Constructor resolution error", "No appropriate constructor for '" + Type.GetCode().ToString() + "' could be found in new object expression '" + this.GetCode().ToString() + "', expected signature compatible with " + expectedSignature.ToString()));
+	            		State.Log.LogError(new LogEntry("Constructor resolution error", "No appropriate constructor for '" + Type.GetCode().ToString() + "' could be found in new object expression '" + this.GetCode().ToString() + "', expected signature compatible with " + expectedSignature.ToString(), Location));
 	            	}
                 	return null;
                 }
