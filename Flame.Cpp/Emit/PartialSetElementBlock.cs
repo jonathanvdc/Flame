@@ -26,7 +26,7 @@ namespace Flame.Cpp.Emit
         public ICppBlock Complete(PartialArguments Arguments)
         {
             Arguments.AssertCount(2);
-            return new VariableAssignmentBlock(new ElementBlock(Target, Arguments.Get(0), Type), Arguments.Get(1));
+            return new VariableAssignmentBlock(new ElementBlock(Target, Arguments.Get(0), ElementType), Arguments.Get(1));
         }
 
         public IEnumerable<IHeaderDependency> Dependencies
