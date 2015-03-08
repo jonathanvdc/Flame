@@ -100,7 +100,7 @@ namespace Flame.Syntax.DSharp
         	}
         	else
         	{
-        		State.Log.LogError(new LogEntry("Cast error", "The expression '" + Value.GetCode().ToString() + "' of type '" + valType.FullName + "' could not be cast implicitly to '" + TargetType.FullName + "'", Value.GetSourceLocation()));
+        		State.Log.LogError(new LogEntry("Cast error", "Expression '" + Value.GetCode().ToString() + "' of type '" + valType.FullName + "' could not be cast implicitly to '" + TargetType.FullName + "'", Value.GetSourceLocation()));
         		return new ConversionExpression(expr, TargetType);
         	}
         }

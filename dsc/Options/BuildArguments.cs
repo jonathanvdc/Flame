@@ -96,7 +96,7 @@ namespace dsc.Options
         {
             get
             {
-                return GetBuildArgumentOrDefault<ILogFilter>("chat") ?? new ChatLogFilter(ChatLevel.Loud);
+                return GetBuildArgumentOrDefault<ILogFilter>("chat") ?? new ChatLogFilter(ChatLevel.Silent);
             }
         }
 

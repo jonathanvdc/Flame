@@ -81,9 +81,12 @@ namespace Flame.Syntax.DSharp
         	return (Left.IsEnum || Left.IsPrimitive) && (Right.IsEnum || Right.IsPrimitive);
         }
         
-        private static const bool IsNullCheck(IType Left, IType Right, Operator Op)
+        private static const bool IsReferenceComparison(IType Left, IType Right, Operator Op)
         {
-        	return (Op == Operator.CheckEquality || Op == Operator.CheckInequality) && (Right.Equals(PrimitiveTypes.Null) && Right.Is(Left)) || (Left.Equals(PrimitiveTypes.Null) && Left.Is(Right));
+        	return (Op == Operator.CheckEquality || Op == Operator.CheckInequality)
+        		&& (Left.Equals(PrimitiveTypes.Null) || Left.IsPointer || Left.IsReferenceType) 
+        		&& (Right.Equals(PrimitiveTypes.Null) || Right.IsPointer || Right.IsReferenceType) 
+        		&& (Left.Is(Right) || Right.Is(Left));
         }
         
         public static const IExpression CreateExpression(ISyntaxState State, IExpressionSyntax Left, Operator Op, IExpressionSyntax Right)
@@ -95,13 +98,17 @@ namespace Flame.Syntax.DSharp
             var rType = rightExpr.Type;
             
             IMethod overload;
-            if (IsPrimitiveOperation(lType, rType, Op) || IsNullCheck(lType, rType, Op))
+            if (IsPrimitiveOperation(lType, rType, Op) || IsReferenceComparison(lType, rType, Op))
             {
             	overload = null;
             }
             else
             {
             	overload = Op.GetOperatorOverload(new IType[] { lType, rType });
+            	if (overload == null)
+            	{
+            		State.Log.LogWarning(new LogEntry("Operator overload missing", "No operator overload could be found for operator '" + Op.ToString() + "'.", Left.GetSourceLocation().Concat(Right.GetSourceLocation())));
+            	}
             }
             
             if (overload == null)

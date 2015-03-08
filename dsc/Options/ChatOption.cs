@@ -62,13 +62,13 @@ namespace dsc.Options
                 case "warnings":
                 case "warn":
                     return ChatLevel.Warnings;
-                case "silent":
-                    return ChatLevel.Silent;
                 case "messages":
                     return ChatLevel.Messages;
                 case "loud":
-                default:
                     return ChatLevel.Loud;
+                case "silent":
+                default:
+                    return ChatLevel.Silent;
             }
         }
 

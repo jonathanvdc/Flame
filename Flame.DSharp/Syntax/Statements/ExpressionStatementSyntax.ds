@@ -7,12 +7,20 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class ExpressionStatementSyntax : LineStatementSyntax, ITokenNode
+    public class ExpressionStatementSyntax : LineStatementSyntax, ITokenNode, ISourceSyntax
     {
         public const this(set IExpressionSyntax Expression);
         public const this(set IExpressionSyntax Expression, set Token SemicolonToken);
 
         public IExpressionSyntax Expression { const get; private set; }
+        
+        public SourceLocation Location
+        {
+        	const get
+        	{
+        		return Expression.GetSourceLocation().Concat(SemicolonToken.Location);	
+        	}
+        }
         
         public IReadOnlyList<Token> Tokens
         {
@@ -27,7 +35,12 @@ namespace Flame.Syntax.DSharp
 
         public override IStatement CreateStatement(ISyntaxState State)
         {
-            return new ExpressionStatement(Expression.CreateExpression(State));
+        	var expr = Expression.CreateVerifiedExpression(State);
+        	if (expr != null && expr.IsConstant)
+        	{
+        		State.Log.LogWarning(new LogEntry("Value discarded", "Expression statement '" + this.GetCode().ToString() + "' discards a constant value (of type '" + expr.Type.FullName + "').", Location));	
+        	}
+            return new ExpressionStatement(expr);
         }
 
         protected override CodeBuilder GetStatementCode()
