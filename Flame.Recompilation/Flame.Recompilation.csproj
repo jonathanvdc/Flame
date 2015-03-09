@@ -64,6 +64,7 @@
     <Compile Include="Emit\UnaryExpression.cs" />
     <Compile Include="Emit\WhileBlockGenerator.cs" />
     <Compile Include="GenericConstraintExtensions.cs" />
+    <Compile Include="GenericSubstitutionConverter.cs" />
     <Compile Include="IAsyncTaskManager.cs" />
     <Compile Include="IMethodOptimizer.cs" />
     <Compile Include="RecompilationOptions.cs" />

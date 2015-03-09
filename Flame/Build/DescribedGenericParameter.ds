@@ -323,5 +323,10 @@ namespace Flame.Build
                 return false;
             }
         }
+        
+        public override const string ToString()
+        {
+        	return FullName;
+        }
     }
 }
