@@ -59,7 +59,7 @@ Flame.Python is an experimental Python back-end, accessible through "-platform P
 Flame.Python is written in C#.
 
 ## Flame.Recompilation
-Flame.Recompilation uses the assembly creation and decompilation interfaces and of Flame.Compiler and the reflection facilities provided by Flame to "recompile" assemblies, namespaces, types and type members from one assembly to another.  
+Flame.Recompilation uses the assembly creation and decompilation interfaces of Flame.Compiler and the reflection facilities provided by Flame to "recompile" assemblies, namespaces, types and type members from one assembly to another.  
 Flame.Recompilation is written in C#.
 
 ## dsc
