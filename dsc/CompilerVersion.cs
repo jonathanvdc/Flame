@@ -20,7 +20,13 @@ namespace dsc
 
         public static void PrintVersion()
         {
-            ConsoleLog.Instance.LogMessage(new LogEntry("Current version", "dsc's current version number is " + CurrentVersion + "."));
+            StringBuilder msg = new StringBuilder();
+            msg.Append("dsc's current version number is '");
+            msg.Append(CurrentVersion);
+            msg.AppendLine("'.");
+            msg.AppendLine("You can check for new releases at https://github.com/jonathanvdc/Flame/releases.");
+            msg.Append("Thanks for using dsc! Have fun writing code.");
+            ConsoleLog.Instance.LogMessage(new LogEntry("Current version", msg.ToString()));
         }
     }
 }
