@@ -1,10 +1,11 @@
 using Flame.RT;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace std
 {
     [Header("unordered_map")]
-    public struct unordered_map<TKey, TValue>
+    public struct unordered_map<TKey, TValue> : [pair<TKey, TValue>]
     {
         public const this()
         {
@@ -33,6 +34,16 @@ namespace std
                 data = new Dictionary<TKey, TValue>(data);
                 data[Key] = value;
             }
+        }
+
+        public const [<pair<TKey, TValue>>] GetGenericEnumerator() : IEnumerable<pair<TKey, TValue>>.GetEnumerator
+        {
+            return null; // Not implemented
+        }
+
+        public const IEnumerator GetObjectEnumerator() : IEnumerable.GetEnumerator
+        {
+            throw null; // Not implemented
         }
     }
 }

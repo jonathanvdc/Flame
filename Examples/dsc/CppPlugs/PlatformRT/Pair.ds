@@ -1,0 +1,25 @@
+using Flame.RT;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace std
+{
+    [Header("utility")]
+    public struct pair<TFirst, TSecond>
+    {
+        public const this();
+        public const this(set TFirst first, set TSecond second);
+
+        public TFirst first;
+        public TSecond second;
+
+        public const bool operator==(pair<TFirst, TSecond> Other)
+        {
+            return first == Other.first && second == Other.second;
+        }
+        public const bool operator!=(pair<TFirst, TSecond> Other)
+        {
+            return first != Other.first || second != Other.second;
+        }
+    }
+}
