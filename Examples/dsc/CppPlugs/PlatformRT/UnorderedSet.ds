@@ -1,0 +1,41 @@
+using Flame.RT;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace std
+{
+    [Header("unordered_set")]
+    public struct unordered_set<T> : [T]
+    {
+        public const this()
+        {
+            this.data = new HashSet<T>();
+        }
+
+        private HashSet<T> data;
+
+        public const bool empty() return size() == 0;
+        public const int size() return data.Count;
+        public const int max_size() return int32.MaxValue;
+
+        public void clear()
+        {
+            data = new HashSet<T>();
+        }
+
+        public void insert(T Value)
+        {
+            data.Add(Value);
+        }
+
+        public const [<T>] GetGenericEnumerator() : IEnumerable<T>.GetEnumerator
+        {
+            return data.GetEnumerator();
+        }
+
+        public const IEnumerator GetObjectEnumerator() : IEnumerable.GetEnumerator
+        {
+            return data.GetEnumerator();
+        }
+    }
+}

@@ -168,6 +168,11 @@ namespace Flame.Cpp
             get { return this.get_IsAbstract() || this.DeclaringType.get_IsInterface(); }
         }
 
+        public bool EmitInline
+        {
+            get { return this.get_IsGeneric() && this.DeclaringType.get_IsGenericDeclaration(); }
+        }
+
         public bool IsOverride
         {
             get { return GetBaseMethods().Length > 0; }
@@ -275,7 +280,14 @@ namespace Flame.Cpp
             {
                 cb.Append(" = 0");
             }
-            cb.Append(';');
+            if (EmitInline)
+            {
+                cb.AddCodeBuilder(GetBodyCode());
+            }
+            else
+            {
+                cb.Append(';');
+            }
             return cb;
         }
 
@@ -301,8 +313,25 @@ namespace Flame.Cpp
             }
         }
 
+        public CodeBuilder GetBodyCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            var body = blockGen.ImplyEmptyReturns();
+            if (this.IsConstructor)
+            {
+                body = body.ImplyStructInit();
+            }
+            cb.AddEmbracedBodyCodeBuilder(body.GetCode());
+            return cb;
+        }
+
         public CodeBuilder GetSourceCode()
         {
+            if (EmitInline)
+            {
+                return new CodeBuilder();
+            }
+
             var cg = blockGen.CodeGenerator;
 
             bool isConst = this.get_IsConstant();
@@ -321,13 +350,7 @@ namespace Flame.Cpp
             }
 
             cb.Append(GetSharedSignature(!IsGlobal));
-
-            var body = blockGen.ImplyEmptyReturns();
-            if (this.IsConstructor)
-            {
-                body = body.ImplyStructInit();
-            }
-            cb.AddEmbracedBodyCodeBuilder(body.GetCode());
+            cb.AddCodeBuilder(GetBodyCode());
 
             return cb;
         }
