@@ -120,6 +120,12 @@ namespace dsc
             WriteEntry(Entry, ConsoleColor.Green, ConsoleColor.DarkGreen);
             WriteWhiteline();
         }
+        public void WriteBlockEntry(LogEntry Entry)
+        {
+            WriteWhiteline();
+            WriteEntry(Entry, ConsoleColor.Green, ConsoleColor.DarkGreen);
+            WriteWhiteline();
+        }
         public void WriteBlockEntry(string Header, string Entry)
         {
             WriteWhiteline();
@@ -234,7 +240,7 @@ namespace dsc
 
         public void LogMessage(LogEntry Entry)
         {
-            WriteBlockEntry("Message", Entry);
+            WriteBlockEntry(Entry);
         }
 
         public void LogWarning(LogEntry Entry)

@@ -18,15 +18,29 @@ namespace Flame.Recompilation
         public IType GenericDeclaration { get; private set; }
         public IType GenericInstance { get; private set; }
 
+        private Dictionary<IGenericParameter, IType> map;
+        public IReadOnlyDictionary<IGenericParameter, IType> Mapping
+        {
+            get
+            {
+                if (map == null)
+                {
+                    map = GenericInstance.GetGenericParameters()
+                            .Zip(GenericInstance.GetGenericArguments(), (a, b) => new KeyValuePair<IGenericParameter, IType>(a, b))
+                            .ToDictionary<KeyValuePair<IGenericParameter, IType>, IGenericParameter, IType>(
+                                item => item.Key, 
+                                item => item.Value, 
+                                TypeNameComparer.Instance);
+                }
+                return map;
+            }
+        }
+
         protected override IType ConvertGenericParameter(IGenericParameter Type)
         {
-            foreach (var item in GenericInstance.GetGenericParameters()
-                .Zip(GenericInstance.GetGenericArguments(), (a, b) => new KeyValuePair<IType, IType>(a, b)))
+            if (Mapping.ContainsKey(Type))
             {
-                if (item.Key.Name == Type.Name)
-                {
-                    return item.Value;
-                }
+                return Mapping[Type];
             }
             return Type;
         }

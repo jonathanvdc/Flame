@@ -24,25 +24,22 @@ namespace dsc
     {
         public static void Main(string[] args)
         {
-            bool greeted = false;
             if (args.Length == 0)
             {
                 Console.WriteLine("Welcome to the glorious D# compiler.");
                 Console.WriteLine("Please state your build arguments.");
                 args = Console.ReadLine().Split(' ');
-                greeted = true;
             }
+
             var buildArgs = BuildArguments.Parse(args);
-            if (string.IsNullOrWhiteSpace(buildArgs.SourcePath))
+            if (buildArgs.PrintVersion)
             {
-                if (!greeted)
-                {
-                    Console.WriteLine("Welcome to the glorious D# compiler.");
-                    greeted = true;
-                }
-                Console.WriteLine("Please specify the path of the project or file you would like to compile.");
-                string sourcePath = Console.ReadLine();
-                buildArgs.AddBuildArgument(new SourcePathOption(), sourcePath);
+                CompilerVersion.PrintVersion();
+            }
+            if (!buildArgs.CanCompile)
+            {
+                ConsoleLog.Instance.LogMessage(new LogEntry("Nothing to compile", "No source file or project was given."));
+                return;
             }
 
             try

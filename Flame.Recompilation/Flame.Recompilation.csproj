@@ -67,6 +67,7 @@
     <Compile Include="GenericSubstitutionConverter.cs" />
     <Compile Include="IAsyncTaskManager.cs" />
     <Compile Include="IMethodOptimizer.cs" />
+    <Compile Include="TypeNameComparer.cs" />
     <Compile Include="RecompilationOptions.cs" />
     <Compile Include="RecompilationSettings.cs" />
     <Compile Include="RecompiledAccessorTemplate.cs" />
