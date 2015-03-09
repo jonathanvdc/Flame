@@ -56,7 +56,7 @@ namespace Flame.Cpp.Emit
         {
             CodeBuilder cb = new CodeBuilder();
             cb.Append("for (");
-            cb.Append(elemDeclaration.GetExpressionCode(true));
+            cb.Append(elemDeclaration.GetExpressionCode(true, true));
             cb.Append(" : ");
             cb.Append(Collection.GetCode());
             cb.Append(")");
