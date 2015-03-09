@@ -108,7 +108,8 @@ namespace Flame.Syntax.DSharp
         		else
         			SignatureBuilder.Append(", ");
         		
-        		SignatureBuilder.Append(item.FullName);
+        		if (item == null) SignatureBuilder.Append("<unresolved type>");
+        		else SignatureBuilder.Append(item.FullName);
         	}
         	SignatureBuilder.Append(')'); 
         }

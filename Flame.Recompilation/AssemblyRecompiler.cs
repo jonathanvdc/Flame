@@ -403,13 +403,14 @@ namespace Flame.Recompilation
         {
             var genericDeclType = SourceProperty.DeclaringType.GetGenericDeclaration();
             var indexParams = SourceProperty.GetIndexerParameters();
+            var converter = CreateGenericParameterConverter(genericDeclType, SourceProperty.DeclaringType);
             if (SourceProperty.get_IsIndexer())
             {
-                return genericDeclType.GetProperties().Single((item) => item.get_IsIndexer() && CompareGenericMethodParameters(item.GetIndexerParameters(), indexParams));
+                return genericDeclType.GetProperties().Single((item) => item.get_IsIndexer() && CompareGenericMethodParameters(item.GetIndexerParameters(), indexParams, converter));
             }
             else
             {
-                return genericDeclType.GetProperties().Single((item) => item.Name == SourceProperty.Name && item.IsStatic == SourceProperty.IsStatic && CompareGenericMethodParameters(item.GetIndexerParameters(), indexParams));
+                return genericDeclType.GetProperties().Single((item) => item.Name == SourceProperty.Name && item.IsStatic == SourceProperty.IsStatic && CompareGenericMethodParameters(item.GetIndexerParameters(), indexParams, converter));
             }
         }
 
@@ -421,13 +422,14 @@ namespace Flame.Recompilation
         {
             var indexParams = GenericProperty.GetIndexerParameters();
             var properties = SpecificType.GetProperties();
+            var converter = CreateGenericParameterConverter(GenericProperty.DeclaringType, SpecificType);
             if (GenericProperty.get_IsIndexer())
             {
-                return properties.Single((item) => item.get_IsIndexer() && CompareGenericMethodParameters(indexParams, item.GetIndexerParameters()));
+                return properties.Single((item) => item.get_IsIndexer() && CompareGenericMethodParameters(indexParams, item.GetIndexerParameters(), converter));
             }
             else
             {
-                return properties.Single((item) => item.Name == GenericProperty.Name && item.IsStatic == GenericProperty.IsStatic && CompareGenericMethodParameters(indexParams, item.GetIndexerParameters()));
+                return properties.Single((item) => item.Name == GenericProperty.Name && item.IsStatic == GenericProperty.IsStatic && CompareGenericMethodParameters(indexParams, item.GetIndexerParameters(), converter));
             }
         }
 
@@ -481,6 +483,20 @@ namespace Flame.Recompilation
 
         #region Methods
 
+        #region CreateGenericParameterConverter
+
+        private static IConverter<IType, IType> CreateGenericParameterConverter(IType GenericType, IType SpecificType)
+        {
+            /*var genMap = GenericType.GetGenericParameters()
+                .Zip(SpecificType.GetGenericArguments(), (a, b) => new KeyValuePair<IType, IType>(a, b))
+                .ToDictionary(item => item.Key, item => item.Value);
+
+            return new TypeMappingConverter(genMap);*/
+            return new GenericSubstitutionConverter(GenericType, SpecificType);
+        }
+
+        #endregion
+
         #region CompareGenericTypeMethods
 
         private static bool CompareGenericTypeMethods(IMethod GenericMethod, IMethod SpecificMethod)
@@ -490,7 +506,9 @@ namespace Flame.Recompilation
                 var genericParams = GenericMethod.GetParameters();
                 var specificParams = SpecificMethod.GetParameters();
 
-                return CompareGenericMethodParameters(genericParams, specificParams);
+                var typeConv = CreateGenericParameterConverter(GenericMethod.DeclaringType, SpecificMethod.DeclaringType);
+
+                return CompareGenericMethodParameters(genericParams, specificParams, typeConv);
             }
             else
             {
@@ -498,18 +516,17 @@ namespace Flame.Recompilation
             }
         }
 
-        private static bool CompareGenericMethodParameters(IParameter[] genericParams, IParameter[] specificParams)
+        private static bool CompareGenericMethodParameters(IParameter[] genericParams, IParameter[] specificParams, IConverter<IType, IType> TypeConverter)
         {
             if (genericParams.Length != specificParams.Length)
             {
                 return false;
             }
 
-            var comparer = new GenericInstanceComparer();
-
             for (int i = 0; i < genericParams.Length; i++)
             {
-                if (!comparer.Compare(genericParams[i].ParameterType, specificParams[i].ParameterType))
+                var converted = TypeConverter.Convert(genericParams[i].ParameterType);
+                if (!converted.Equals(specificParams[i].ParameterType))
                 {
                     return false;
                 }
