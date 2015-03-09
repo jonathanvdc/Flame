@@ -154,7 +154,20 @@ namespace Flame.Cpp.Emit
             }
         }
 
+        protected bool UseReference
+        {
+            get
+            {
+                return Declaration.Local.Type.get_IsPointer() && Declaration.Local.Type.AsContainerType().AsPointerType().PointerKind.Equals(CppPointerExtensions.AtAddressPointer);
+            }
+        }
+
         public CodeBuilder GetExpressionCode(bool EmitAuto)
+        {
+            return GetExpressionCode(EmitAuto, UseReference);
+        }
+
+        public CodeBuilder GetExpressionCode(bool EmitAuto, bool EmitReference)
         {
             if (DeclaresVariable)
             {
@@ -162,7 +175,7 @@ namespace Flame.Cpp.Emit
                 if (EmitAuto)
                 {
                     cb.Append("auto");
-                    if (Declaration.Local.Type.get_IsPointer() && Declaration.Local.Type.AsContainerType().AsPointerType().PointerKind.Equals(CppPointerExtensions.AtAddressPointer))
+                    if (EmitReference)
                     {
                         cb.Append("&");
                     }
