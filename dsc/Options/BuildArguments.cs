@@ -100,6 +100,28 @@ namespace dsc.Options
             }
         }
 
+        /// <summary>
+        /// Gets a boolean value that tells if the compiler should print its version number.
+        /// </summary>
+        public bool PrintVersion
+        {
+            get
+            {
+                return GetBuildArgumentOrDefault<bool>("version");
+            }
+        }
+
+        /// <summary>
+        /// Gets a boolean value that tells if the compiler has anything to compile.
+        /// </summary>
+        public bool CanCompile
+        {
+            get
+            {
+                return !string.IsNullOrWhiteSpace(SourcePath);
+            }
+        }
+
         #endregion
 
         #region Helper Methods
@@ -271,6 +293,7 @@ namespace dsc.Options
             AddBuildParameter(new VerifyOption());
             AddBuildParameter(new OptimizerOption());
             AddBuildParameter(new ChatOption());
+            AddBuildParameter(new VersionOption());
         }
 
         private static Dictionary<string, IBuildParameter> parameters;
