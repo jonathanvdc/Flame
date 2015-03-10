@@ -37,9 +37,9 @@ namespace Flame.Primitives
 			minField.DeclaringType = this;
 			var maxField = new DescribedLiteralField<T>("MaxValue", this, MaxValue);
 			maxField.DeclaringType = this;
-			var pinfField = new DescribedLiteralField<T>("NegativeInfinity", this, PositiveInfinity);
+			var pinfField = new DescribedLiteralField<T>("PositiveInfinity", this, PositiveInfinity);
 			pinfField.DeclaringType = this;
-			var ninfField = new DescribedLiteralField<T>("PositiveInfinity", this, NegativeInfinity);
+			var ninfField = new DescribedLiteralField<T>("NegativeInfinity", this, NegativeInfinity);
 			ninfField.DeclaringType = this;
 			return new IField[] { minField, maxField, pinfField, ninfField };
 		}

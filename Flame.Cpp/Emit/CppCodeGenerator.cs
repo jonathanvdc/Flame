@@ -141,12 +141,12 @@ namespace Flame.Cpp.Emit
 
         public ICodeBlock EmitFloat32(float Value)
         {
-            return new LiteralBlock(this, Value);
+            return new FloatLiteralBlock(this, Value);
         }
 
         public ICodeBlock EmitFloat64(double Value)
         {
-            return new LiteralBlock(this, Value);
+            return new DoubleLiteralBlock(this, Value);
         }
 
         public ICodeBlock EmitBit16(ushort Value)
