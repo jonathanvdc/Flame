@@ -66,6 +66,8 @@
     <Compile Include="Emit\ContractReturnBlock.cs" />
     <Compile Include="Emit\CppBlockExtensions.cs" />
     <Compile Include="Emit\CppContractBlockGenerator.cs" />
+    <Compile Include="Emit\DoubleLiteralBlock.cs" />
+    <Compile Include="Emit\FloatLiteralBlock.cs" />
     <Compile Include="Emit\MethodContract.cs" />
     <Compile Include="Emit\FinallyBlock.cs" />
     <Compile Include="Emit\ForBlockGenerator.cs" />

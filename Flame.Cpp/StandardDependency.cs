@@ -75,6 +75,14 @@ namespace Flame.Cpp
             }
         }
 
+        public static IHeaderDependency Limits
+        {
+            get
+            {
+                return new StandardDependency("limits");
+            }
+        }
+
         #endregion
     }
 }
