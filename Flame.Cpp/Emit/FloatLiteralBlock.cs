@@ -57,7 +57,16 @@ namespace Flame.Cpp.Emit
             }
             else
             {
-                cb.Append(Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                string repr = Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                if (!(repr.IndexOf("E") > -1 || repr.IndexOf("e") > -1 || repr.IndexOf(".") > -1))
+                {
+                    cb.Append(repr + ".0");
+                }
+                else
+                {
+                    cb.Append(repr);
+                }
+                cb.Append("f");
             }
             return cb;
         }
