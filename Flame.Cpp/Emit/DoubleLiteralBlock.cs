@@ -53,7 +53,7 @@ namespace Flame.Cpp.Emit
             }
             else if (double.IsNaN(Value))
             {
-                cb.Append("-std::numeric_limits<double>::quiet_NaN()");
+                cb.Append("std::numeric_limits<double>::quiet_NaN()");
             }
             else
             {
