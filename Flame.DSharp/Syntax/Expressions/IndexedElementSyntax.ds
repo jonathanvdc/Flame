@@ -10,12 +10,32 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class IndexedElementSyntax : VariableSyntaxBase, IInvocationSyntax
+    public class IndexedElementSyntax : VariableSyntaxBase, IInvocationSyntax, ISourceSyntax
     {
-        public const this(set IExpressionSyntax Caller, set IEnumerable<IExpressionSyntax> Arguments);
+        public const this(set IExpressionSyntax Caller, set [IExpressionSyntax] Arguments)
+        {
+        	this.LeadingBrackets = Token.RBrackets;
+        	this.TrailingBrackets = Token.LBrackets;
+        }
+		public const this(set IExpressionSyntax Caller, set Token LeadingBrackets, set [IExpressionSyntax] Arguments, set Token TrailingBrackets);
 
         public IExpressionSyntax Caller { const get; private set; }
-        public IEnumerable<IExpressionSyntax> Arguments { const get; private set; }
+        public Token LeadingBrackets { const get; private set; }
+        public [IExpressionSyntax] Arguments { const get; private set; }
+        public Token TrailingBrackets { const get; private set; }
+        
+        public SourceLocation Location
+        {
+        	const get
+        	{
+        		var result = Caller.GetSourceLocation().Concat(LeadingBrackets.Location);
+        		foreach (var item in Arguments)
+        		{
+        			result = result.Concat(item.GetSourceLocation());
+        		}
+        		return result.Concat(TrailingBrackets.Location);
+        	}
+        }
 
         public override const IVariable CreateVariable(ISyntaxState State)
         {
@@ -27,7 +47,7 @@ namespace Flame.Syntax.DSharp
             
             if (!elemVariable.CanResolve)
             {
-            	State.Log.LogError(new LogEntry("Indexer resolution error", "The indexer property '" + Caller.GetCode().ToString() + "' could not be resolved in '" + this.GetCode().ToString() + "'"));
+            	State.Log.LogError(new LogEntry("Indexer resolution error", "The indexer property '" + Caller.GetCode().ToString() + "' could not be resolved in '" + this.GetCode().ToString() + "'", Location));
             }
             
             return elemVariable;
@@ -70,7 +90,7 @@ namespace Flame.Syntax.DSharp
         {
             CodeBuilder sb = new CodeBuilder();
             sb.Append(Caller.GetCode());
-            sb.Append("[");
+            sb.Append(LeadingBrackets.ToString());
             bool first = true;
             foreach (var item in Arguments)
             {
@@ -84,7 +104,7 @@ namespace Flame.Syntax.DSharp
                 }
                 sb.Append(item.GetCode().ToString());
             }
-            sb.Append("]");
+            sb.Append(TrailingBrackets.ToString());
             return sb;
         }
 

@@ -4,8 +4,8 @@ using System.Text;
 
 namespace Flame.Syntax
 {
-	public interface ISyntaxVisitor
+	public interface ISyntaxVisitor<TResult>
 	{
-		void Visit(ISyntaxNode Node);
+		TResult Visit(ISyntaxNode Node);
 	}
 }
