@@ -5,12 +5,31 @@ using Flame.Build;
 
 namespace Flame.Primitives
 {
-	public class PrimitiveNumberType<T> : PrimitiveType<T>
+	public virtual class PrimitiveNumberType<T> : PrimitiveType<T>
 	{
+		public const this();
 		public const this(set string Name, set int32 Magnitude, set T DefaultValue, set T MinValue, set T MaxValue);
 		
-		public T MinValue { const get; private set; }
-		public T MaxValue { const get; private set; }
+		public T MinValue { const get; protected set; }
+		public T MaxValue { const get; protected set; }
+		
+		public virtual override IField[] GetFields()
+		{
+			var minField = new DescribedLiteralField<T>("MinValue", this, MinValue);
+			minField.DeclaringType = this;
+			var maxField = new DescribedLiteralField<T>("MaxValue", this, MaxValue);
+			maxField.DeclaringType = this;
+			return new IField[] { minField, maxField };
+		}
+	}
+	
+	public class PrimitiveFloatType<T> : PrimitiveNumberType<T>
+	{
+		public const this(set string Name, set int32 Magnitude, set T DefaultValue,
+						  set T MinValue, set T MaxValue, set T PositiveInfinity, set T NegativeInfinity);
+		
+		public T PositiveInfinity { const get; private set; }
+		public T NegativeInfinity { const get; private set; }
 		
 		public override IField[] GetFields()
 		{
@@ -18,7 +37,11 @@ namespace Flame.Primitives
 			minField.DeclaringType = this;
 			var maxField = new DescribedLiteralField<T>("MaxValue", this, MaxValue);
 			maxField.DeclaringType = this;
-			return new IField[] { minField, maxField };
+			var pinfField = new DescribedLiteralField<T>("NegativeInfinity", this, PositiveInfinity);
+			pinfField.DeclaringType = this;
+			var ninfField = new DescribedLiteralField<T>("PositiveInfinity", this, NegativeInfinity);
+			ninfField.DeclaringType = this;
+			return new IField[] { minField, maxField, pinfField, ninfField };
 		}
 	}
 }
