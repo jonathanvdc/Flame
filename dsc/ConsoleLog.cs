@@ -207,23 +207,79 @@ namespace dsc
             var loc = Entry.Location;
             var doc = loc.Document;
             string lineSource = doc.GetLine(GridPosition.Line);
-            WriteWhiteline();
-            Write(lineSource);
-            WriteLine();
-            for (int i = 0; i < GridPosition.Offset; i++)
+            int highlightCount = Math.Max(0, Math.Min(loc.Length - 1, lineSource.Length - GridPosition.Offset));
+            StringBuilder formattedLineSource = new StringBuilder();
+            StringBuilder formattedCaret = new StringBuilder();
+            int i;
+            for (i = 0; i < lineSource.Length && char.IsWhiteSpace(lineSource[i]); i++) ;
+            for (; i < lineSource.Length; i++)
             {
                 if (lineSource[i] == '\t')
                 {
-                    Write('\t');
+                    formattedLineSource.Append(new string(' ', 4));
+                    formattedCaret.Append(new string(GetCaretCharacter(GridPosition, i, highlightCount), 4));
                 }
                 else
                 {
-                    Write(' ');
+                    formattedLineSource.Append(lineSource[i]);
+                    formattedCaret.Append(GetCaretCharacter(GridPosition, i, highlightCount));
                 }
             }
-            Write("^", CaretColor);
-            int highlightCount = Math.Max(0, Math.Min(loc.Length - 1, lineSource.Length - GridPosition.Offset));
-            Write(new string('~', highlightCount), HighlightColor);
+            WriteWhiteline();
+            string indent = new string(' ', 4);
+            int bufWidth = Console.BufferWidth - indent.Length - 4;
+            var splitSource = SplitLength(formattedLineSource.ToString(), bufWidth);
+            var splitCaret = SplitLength(formattedCaret.ToString(), bufWidth);
+            for (i = 0; i < splitSource.Count; i++)
+            {
+                Write(indent);
+                Write(splitSource[i].TrimEnd());
+                WriteLine();
+                if (!string.IsNullOrWhiteSpace(splitCaret[i]))
+                {
+                    Write(indent);
+                    foreach (var character in splitCaret[i])
+                    {
+                        if (character == '^')
+                        {
+                            Write("^", CaretColor);
+                        }
+                        else
+                        {
+                            Write(character.ToString(), HighlightColor);
+                        }
+                    }
+                    WriteLine();
+                }
+            }
+        }
+
+        private static char GetCaretCharacter(SourceGridPosition GridPosition, int Offset, int Length)
+        {
+            if (Offset == GridPosition.Offset)
+            {
+                return '^';
+            }
+            else if (Offset > GridPosition.Offset && Offset - GridPosition.Offset <= Length)
+            {
+                return '~';
+            }
+            else
+            {
+                return ' ';
+            }
+        }
+
+        private static IReadOnlyList<string> SplitLength(string Value, int Width)
+        {
+            List<string> results = new List<string>();
+            int breaks = Value.Length / Width;
+            for (int i = 0; i < breaks; i++)
+            {
+                results.Add(Value.Substring(i * Width, Width));
+            }
+            results.Add(Value.Substring(breaks * Width));
+            return results;
         }
 
         #endregion
