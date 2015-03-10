@@ -204,6 +204,41 @@ namespace dsc
 
         private void WriteCaretDiagnostic(LogEntry Entry, SourceGridPosition GridPosition, ConsoleColor CaretColor, ConsoleColor HighlightColor)
         {
+            WriteWhiteline();
+            string indent = new string(' ', 4);
+            int bufWidth = Console.BufferWidth - indent.Length - 4;
+            var annotated = AnnotateSource(Entry, GridPosition, bufWidth);
+            WriteCaretLines(annotated.Key, annotated.Value, indent, CaretColor, HighlightColor);
+        }
+
+        private void WriteCaretLines(IReadOnlyList<string> Lines, IReadOnlyList<string> Annotations, string Indentation, ConsoleColor CaretColor, ConsoleColor HighlightColor)
+        {
+            for (int i = 0; i < Lines.Count; i++)
+            {
+                Write(Indentation);
+                Write(Lines[i].TrimEnd());
+                WriteLine();
+                if (!string.IsNullOrWhiteSpace(Annotations[i]))
+                {
+                    Write(Indentation);
+                    foreach (var character in Annotations[i])
+                    {
+                        if (character == '^')
+                        {
+                            Write("^", CaretColor);
+                        }
+                        else
+                        {
+                            Write(character.ToString(), HighlightColor);
+                        }
+                    }
+                    WriteLine();
+                }
+            }
+        }
+
+        private static KeyValuePair<IReadOnlyList<string>, IReadOnlyList<string>> AnnotateSource(LogEntry Entry, SourceGridPosition GridPosition, int BufferWidth)
+        {
             var loc = Entry.Location;
             var doc = loc.Document;
             string lineSource = doc.GetLine(GridPosition.Line);
@@ -225,33 +260,9 @@ namespace dsc
                     formattedCaret.Append(GetCaretCharacter(GridPosition, i, highlightCount));
                 }
             }
-            WriteWhiteline();
-            string indent = new string(' ', 4);
-            int bufWidth = Console.BufferWidth - indent.Length - 4;
-            var splitSource = SplitLength(formattedLineSource.ToString(), bufWidth);
-            var splitCaret = SplitLength(formattedCaret.ToString(), bufWidth);
-            for (i = 0; i < splitSource.Count; i++)
-            {
-                Write(indent);
-                Write(splitSource[i].TrimEnd());
-                WriteLine();
-                if (!string.IsNullOrWhiteSpace(splitCaret[i]))
-                {
-                    Write(indent);
-                    foreach (var character in splitCaret[i])
-                    {
-                        if (character == '^')
-                        {
-                            Write("^", CaretColor);
-                        }
-                        else
-                        {
-                            Write(character.ToString(), HighlightColor);
-                        }
-                    }
-                    WriteLine();
-                }
-            }
+            var splitSource = SplitLength(formattedLineSource.ToString(), BufferWidth);
+            var splitCaret = SplitLength(formattedCaret.ToString(), BufferWidth);
+            return new KeyValuePair<IReadOnlyList<string>, IReadOnlyList<string>>(splitSource, splitCaret);
         }
 
         private static char GetCaretCharacter(SourceGridPosition GridPosition, int Offset, int Length)
