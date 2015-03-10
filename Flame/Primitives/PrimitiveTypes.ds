@@ -67,8 +67,8 @@ namespace Flame
     		PrimitiveTypes.UInt16 = new PrimitiveNumberType<uint16>("UInt16", 2, default(uint16), uint16.MinValue, uint16.MaxValue);
     		PrimitiveTypes.UInt32 = new PrimitiveNumberType<uint32>("UInt32", 3, default(uint32), uint32.MinValue, uint32.MaxValue);
     		PrimitiveTypes.UInt64 = new PrimitiveNumberType<uint64>("UInt64", 4, default(uint64), uint64.MinValue, uint64.MaxValue);
-    		PrimitiveTypes.Float32 = new PrimitiveNumberType<float32>("Float32", 3, default(float32), float32.MinValue, float32.MaxValue);
-    		PrimitiveTypes.Float64 = new PrimitiveNumberType<float64>("Float64", 4, default(float64), float64.MinValue, float64.MaxValue);
+    		PrimitiveTypes.Float32 = new PrimitiveFloatType<float32>("Float32", 3, default(float32), float32.MinValue, float32.MaxValue, (float32)1.0 / (float32)0.0, (float32)(-1.0) / (float32)0.0);
+    		PrimitiveTypes.Float64 = new PrimitiveFloatType<float64>("Float64", 4, default(float64), float64.MinValue, float64.MaxValue, 1.0 / 0.0, -1.0 / 0.0);
     		//PrimitiveTypes.Char = new PrimitiveType<char>("Char", 2, default(char));
     		PrimitiveTypes.Char = new CharPrimitiveType("Char", 2);
     		//PrimitiveTypes.Null = new PrimitiveType<object>("Null", 0, null);

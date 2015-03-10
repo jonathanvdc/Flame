@@ -17,5 +17,6 @@
     <Compile Include="Algorithm.ds" />
     <Compile Include="OStream.ds" />
     <Compile Include="Pair.ds" />
+    <Compile Include="InitializerList.ds" />
   </ItemGroup>
 </Project>
