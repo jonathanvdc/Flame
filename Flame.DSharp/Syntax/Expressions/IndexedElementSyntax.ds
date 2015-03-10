@@ -47,7 +47,7 @@ namespace Flame.Syntax.DSharp
             
             if (!elemVariable.CanResolve)
             {
-            	State.Log.LogError(new LogEntry("Indexer resolution error", "The indexer property '" + Caller.GetCode().ToString() + "' could not be resolved in '" + this.GetCode().ToString() + "'", Location));
+            	State.Log.LogError(new LogEntry("Indexer resolution error", "Indexer property on '" + Caller.GetCode().ToString() + "' could not be resolved in '" + this.GetCode().ToString() + "'", Location));
             }
             
             return elemVariable;

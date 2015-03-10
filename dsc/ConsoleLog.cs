@@ -153,6 +153,31 @@ namespace dsc
 
         #region WriteEntry
 
+        private static int bufWidth;
+        public static int BufferWidth
+        {
+            get
+            {
+                if (bufWidth <= 0)
+                {
+                    bufWidth = GetBufferWidth();
+                }
+                return bufWidth;
+            }
+        }
+        private static int GetBufferWidth()
+        {
+            try
+            {
+                int result = Console.BufferWidth;
+                return result > 0 ? result : 80;
+            }
+            catch (Exception ex)
+            {
+                return 80;
+            }
+        }
+
         public void WriteEntry(LogEntry Entry, ConsoleColor CaretColor, ConsoleColor HighlightColor)
         {
             Write(Entry.Name);
@@ -206,7 +231,7 @@ namespace dsc
         {
             WriteWhiteline();
             string indent = new string(' ', 4);
-            int bufWidth = Console.BufferWidth - indent.Length - 4;
+            int bufWidth = BufferWidth - indent.Length - 4;
             var annotated = AnnotateSource(Entry, GridPosition, bufWidth);
             WriteCaretLines(annotated.Key, annotated.Value, indent, CaretColor, HighlightColor);
         }
