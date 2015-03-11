@@ -198,18 +198,20 @@ namespace Flame.DSharp.Build
                 	thisExpr = new ThisGetExpression(currentType);
                 }
                 var backingField = new FieldVariable(GetBackingField(currentType, ParentProperty.Name), thisExpr);
+                IStatement body;
                 if (this.IsGetAccessor)
                 {
-                    return new ReturnStatement(backingField.CreateGetExpression());
+                    body = new ReturnStatement(backingField.CreateGetExpression());
                 }
                 else if (this.IsSetAccessor)
                 {
-                    return new BlockStatement(new IStatement[] { backingField.CreateSetStatement(new ArgumentVariable(GetParameters()[0], 0).CreateGetExpression()), new ReturnStatement() });
+                    body = new BlockStatement(new IStatement[] { backingField.CreateSetStatement(new ArgumentVariable(GetParameters()[0], 0).CreateGetExpression()), new ReturnStatement() });
                 }
                 else
                 {
-                    return null;
+                    body = null;
                 }
+                return Syntax.Contract.CreateContractBody(body, state);
             }
             else
             {
