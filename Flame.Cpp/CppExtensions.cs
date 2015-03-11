@@ -621,5 +621,15 @@ namespace Flame.Cpp
         }
 
         #endregion
+
+        #region HasUniformAccess
+
+        public static bool HasUniformAccess(this IProperty Property)
+        {
+            var propAccess = Property.get_Access();
+            return Property.GetAccessors().All(item => item.get_Access() == propAccess);
+        }
+
+        #endregion
     }
 }
