@@ -334,6 +334,19 @@ namespace Flame.Cpp
 
         private static void MemberToAccessGroup(ICppMember Member, IDictionary<string, IList<ICppMember>> AccessGroups)
         {
+            if (Member is IProperty)
+            {
+                var prop = (IProperty)Member;
+                if (!prop.HasUniformAccess())
+                {
+                    foreach (var item in prop.GetAccessors())
+                    {
+                        MemberToAccessGroup((ICppMember)item, AccessGroups);
+                    }
+                    return;
+                }
+            }
+
             string modifier;
             switch (Member.get_Access())
             {
