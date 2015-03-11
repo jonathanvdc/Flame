@@ -17,5 +17,26 @@ namespace Flame.Cpp
         {
             return Options.GetOption<string>("instance-checks", "default").Equals("verbose", StringComparison.InvariantCultureIgnoreCase);
         }
+
+        public static IAccessorNamer GetAccessorNamer(this ICppEnvironment Environment)
+        {
+            return Environment.Log.Options.GetAccessorNamer();
+        }
+        public static IAccessorNamer GetAccessorNamer(this ICompilerOptions Options)
+        {
+            switch (Options.GetOption<string>("accessor-names", "default").ToLower())
+            {
+                case "upper-camel":
+                    return UpperCamelCaseAccessorNamer.Instance;
+                case "implicit":
+                case "overload":
+                case "overloaded":
+                    return OverloadedAccessorNamer.Instance;
+                case "lower":
+                case "default":
+                default:
+                    return LowerCaseAccessorNamer.Instance;
+            }
+        }
     }
 }

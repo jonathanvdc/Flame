@@ -22,22 +22,16 @@ namespace Flame.Cpp
             get { return ((IAccessor)Template).AccessorType; }
         }
 
+        private string name;
         public override string Name
         {
             get
             {
-                if (AccessorType.Equals(AccessorType.GetAccessor))
+                if (name == null)
                 {
-                    return "get" + DeclaringProperty.Name;
+                    name = Environment.GetAccessorNamer().Name(this);
                 }
-                else if (AccessorType.Equals(AccessorType.SetAccessor))
-                {
-                    return "set" + DeclaringProperty.Name;
-                }
-                else
-                {
-                    return base.Name;
-                }
+                return name;
             }
         }
     }
