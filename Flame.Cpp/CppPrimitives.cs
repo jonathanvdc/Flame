@@ -147,5 +147,37 @@ namespace Flame.Cpp
                 return ensureMethod;
             }
         }
+
+        private static IDictionary<PointerKind, IMethod> isInstMethods;
+        public static IMethod GetIsInstanceMethod(PointerKind Kind)
+        {
+            // C++ signature (for std::shared_ptr<TSource>):
+            //
+            // template<typename TTarget, typename TSource>
+            // inline bool isinstance(std::shared_ptr<TSource> Value);
+            //
+            // Other pointer types are analogous
+
+            if (isInstMethods == null)
+            {
+                isInstMethods = new Dictionary<PointerKind, IMethod>();
+            }
+            if (!isInstMethods.ContainsKey(Kind))
+            {
+                var descMethod = new DescribedMethod("stdx.isinstance<,>", null, PrimitiveTypes.Boolean, true);
+                descMethod.AddGenericParameter(new DescribedGenericParameter("TTarget", descMethod));
+                var tSource = new DescribedGenericParameter("TSource", descMethod);
+                descMethod.AddGenericParameter(tSource);
+                descMethod.AddParameter(new DescribedParameter("Pointer", tSource.MakePointerType(Kind)));
+                descMethod.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+                descMethod.AddAttribute(new HeaderDependencyAttribute(Plugs.IsInstanceHeader.Instance));
+                isInstMethods[Kind] = descMethod;
+            }
+            return isInstMethods[Kind];
+        }
+        public static IMethod GetIsInstanceMethod(PointerKind Kind, IType SourceType, IType TargetType)
+        {
+            return GetIsInstanceMethod(Kind).MakeGenericMethod(new IType[] { TargetType, SourceType });
+        }
     }
 }
