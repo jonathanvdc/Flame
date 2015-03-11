@@ -1,4 +1,5 @@
 ﻿using Flame.CodeDescription;
+using Flame.Compiler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace Flame.Cpp
 {
     public interface ICppEnvironment : IEnvironment
     {
+        ICompilerLog Log { get; }
         DocumentationCommentBuilder DocumentationBuilder { get; }
         ICppTypeConverter TypeConverter { get; }
         Func<INamespace, IConverter<IType, string>> TypeNamer { get; }

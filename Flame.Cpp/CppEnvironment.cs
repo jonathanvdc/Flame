@@ -11,26 +11,33 @@ namespace Flame.Cpp
     public class CppEnvironment : ICppEnvironment
     {
         public CppEnvironment()
-            : this(new DefaultCppTypeConverter(), (ns) => new CppSize32Namer(ns))
+            : this(new EmptyCompilerLog(new EmptyCompilerOptions()))
+        {
+
+        }
+        public CppEnvironment(ICompilerLog Log)
+            : this(Log, new DefaultCppTypeConverter(), (ns) => new CppSize32Namer(ns))
         {
         }
-        public CppEnvironment(ICppTypeConverter TypeConverter, Func<INamespace, IConverter<IType, string>> TypeNamer)
-            : this(TypeConverter, TypeNamer, CreateDocumentationBuilder(new DoxygenFormatter()))
+        public CppEnvironment(ICompilerLog Log, ICppTypeConverter TypeConverter, Func<INamespace, IConverter<IType, string>> TypeNamer)
+            : this(Log, TypeConverter, TypeNamer, CreateDocumentationBuilder(new DoxygenFormatter()))
         {
         }
-        public CppEnvironment(ICppTypeConverter TypeConverter, Func<INamespace, IConverter<IType, string>> TypeNamer, DocumentationCommentBuilder DocumentationBuilder)
+        public CppEnvironment(ICompilerLog Log, ICppTypeConverter TypeConverter, Func<INamespace, IConverter<IType, string>> TypeNamer, DocumentationCommentBuilder DocumentationBuilder)
         {
+            this.Log = Log;
             this.TypeConverter = TypeConverter;
             this.TypeNamer = TypeNamer;
             this.DocumentationBuilder = DocumentationBuilder;
             this.DependencyCache = new TypeDependencyCache();
         }
-        public CppEnvironment(DocumentationCommentBuilder DocumentationBuilder)
-            : this()
+        public CppEnvironment(ICompilerLog Log, DocumentationCommentBuilder DocumentationBuilder)
+            : this(Log)
         {
             this.DocumentationBuilder = DocumentationBuilder;
         }
 
+        public ICompilerLog Log { get; private set; }
         public DocumentationCommentBuilder DocumentationBuilder { get; private set; }
         public ICppTypeConverter TypeConverter { get; private set; }
         public Func<INamespace, IConverter<IType, string>> TypeNamer { get; private set; }
@@ -65,7 +72,7 @@ namespace Flame.Cpp
         {
             var formatter = Log.Options.GetDocumentationFormatter(new DoxygenFormatter());
             var docBuilder = CreateDocumentationBuilder(formatter);
-            return new CppEnvironment(docBuilder);
+            return new CppEnvironment(Log, docBuilder);
         }
 
         public ITypeDefinitionPacker TypeDefinitionPacker

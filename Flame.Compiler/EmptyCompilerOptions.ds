@@ -4,10 +4,10 @@ using System.Text;
 
 namespace Flame.Compiler
 {
-	// Implement this elsewhere
+	/* Implement this elsewhere
 	
-	/*public class EmptyCompilerOptions : ICompilerOptions
-	{
+	public class EmptyCompilerOptions : ICompilerOptions
+ 	{
 		public const this();
 	
 		/// <summary>
@@ -20,7 +20,7 @@ namespace Flame.Compiler
 		/// <summary>
 		/// Gets a boolean value that indicates whether an option for the given key has been specified.
 		/// </summary>
-		public bool HasOption(string Key)
+		public bool HasOption(string Key) : ICompilerOptions.HasOption
 		{
 			return false;
 		}

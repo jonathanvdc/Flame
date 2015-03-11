@@ -59,6 +59,7 @@
     <Compile Include="CppField.cs" />
     <Compile Include="CppForwardReference.cs" />
     <Compile Include="CppNameExtensions.cs" />
+    <Compile Include="CppOptionExtensions.cs" />
     <Compile Include="CppPointerExtensions.cs" />
     <Compile Include="DefaultTypeDefinitionPacker.cs" />
     <Compile Include="Emit\BodyStatementType.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="Emit\CppContractBlockGenerator.cs" />
     <Compile Include="Emit\DoubleLiteralBlock.cs" />
     <Compile Include="Emit\FloatLiteralBlock.cs" />
+    <Compile Include="Emit\IsInstanceBlock.cs" />
     <Compile Include="Emit\MethodContract.cs" />
     <Compile Include="Emit\FinallyBlock.cs" />
     <Compile Include="Emit\ForBlockGenerator.cs" />
@@ -86,6 +88,7 @@
     <Compile Include="Emit\LocalDeclaration.cs" />
     <Compile Include="Emit\PartialEmptyBlock.cs" />
     <Compile Include="Emit\ThrowBlock.cs" />
+    <Compile Include="EmptyCompilerOptions.cs" />
     <Compile Include="ForeignTypePredicate.cs" />
     <Compile Include="FriendAttribute.cs" />
     <Compile Include="HeaderComparer.cs" />
@@ -94,6 +97,7 @@
     <Compile Include="ICppTypeConverter.cs" />
     <Compile Include="ITypeDefinitionPacker.cs" />
     <Compile Include="Plugs\ContractsHeader.cs" />
+    <Compile Include="Plugs\IsInstanceHeader.cs" />
     <Compile Include="Plugs\PrimitiveNamespace.cs" />
     <Compile Include="Plugs\StdInitializerList.cs" />
     <Compile Include="Plugs\StdNamespace.cs" />
