@@ -38,7 +38,7 @@ namespace dsc
             }
             if (!buildArgs.CanCompile)
             {
-                ConsoleLog.Instance.LogMessage(new LogEntry("Nothing to compile", "No source file or project was given."));
+                ConsoleLog.Instance.WriteBlockEntry("Nothing to compile", ConsoleColor.Yellow, "No source file or project was given.");
                 return;
             }
 
