@@ -93,6 +93,7 @@
     <Compile Include="FriendAttribute.cs" />
     <Compile Include="HeaderComparer.cs" />
     <Compile Include="HeaderDependencyAttribute.cs" />
+    <Compile Include="IAccessorNamer.cs" />
     <Compile Include="ICppEnvironment.cs" />
     <Compile Include="ICppTypeConverter.cs" />
     <Compile Include="ITypeDefinitionPacker.cs" />
