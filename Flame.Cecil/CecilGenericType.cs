@@ -323,7 +323,7 @@ namespace Flame.Cecil
         }
         public IField[] GetFields()
         {
-            return CecilTypeBase.GetFields(this, GenericDeclaration.GetTypeReference().Resolve().Fields);
+            return GenericDeclaration.GetFields().Select(item => new CecilGenericInstanceField(this, (ICecilField)item)).ToArray();
         }
         public IMethod[] GetConstructors()
         {

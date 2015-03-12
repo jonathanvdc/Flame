@@ -91,9 +91,19 @@ namespace Flame.Cecil
         {
             var cecilFields = FieldDefinitions;
             IField[] fields = new IField[cecilFields.Count];
-            for (int i = 0; i < fields.Length; i++)
+            if (DeclaringType.IsCecilGenericInstance())
             {
-                fields[i] = new CecilField(DeclaringType, cecilFields[i].Reference(DeclaringType));
+                for (int i = 0; i < fields.Length; i++)
+                {
+                    fields[i] = new CecilGenericInstanceField(DeclaringType, new CecilField((ICecilType)DeclaringType.GetGenericDeclaration(), cecilFields[i]));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < fields.Length; i++)
+                {
+                    fields[i] = new CecilField(DeclaringType, cecilFields[i]);
+                }
             }
             return fields;
         }

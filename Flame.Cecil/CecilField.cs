@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil
 {
-    public class CecilField : CecilTypeMemberBase, ICecilField, IFieldBuilder, IEquatable<ICecilField>
+    public class CecilField : CecilFieldBase, IFieldBuilder
     {
         public CecilField(ICecilType DeclaringType, FieldReference Field)
             : base(DeclaringType)
@@ -21,107 +21,16 @@ namespace Flame.Cecil
 
         #region CecilTypeMemberBase Implementation
 
-        private FieldReference genericFieldRef;
-        public override MemberReference GetMemberReference()
+        public override FieldReference GetFieldReference()
         {
-            return GetFieldReference();
+            return Field;
         }
-        public FieldReference GetFieldReference()
-        {
-            if (genericFieldRef == null)
-            {
-                genericFieldRef = Field.Reference(DeclaringType);
-            }
-            return genericFieldRef;
-        }
-        public FieldDefinition GetResolvedField()
+        public override FieldDefinition GetResolvedField()
         {
             return Field.Resolve();
         }
 
-        public override bool IsStatic
-        {
-            get
-            {
-                var field = GetResolvedField();
-                return field.IsStatic || field.IsLiteral;
-            }
-        }
-
-        public static AccessModifier GetAccess(FieldDefinition Field)
-        {
-            if (Field.IsPublic)
-            {
-                return AccessModifier.Public;
-            }
-            else if (Field.IsAssembly)
-            {
-                return AccessModifier.Assembly;
-            }
-            else if (Field.IsFamilyOrAssembly)
-            {
-                return AccessModifier.ProtectedOrAssembly;
-            }
-            else if (Field.IsFamily)
-            {
-                return AccessModifier.Protected;
-            }
-            else if (Field.IsFamilyAndAssembly)
-            {
-                return AccessModifier.ProtectedAndAssembly;
-            }
-            else
-            {
-                return AccessModifier.Private;
-            }
-        }
-
-        protected override IEnumerable<IAttribute> GetMemberAttributes()
-        {
-            var resolvedField = GetResolvedField();
-            List<IAttribute> attrs = new List<IAttribute>();
-            attrs.Add(new AccessAttribute(GetAccess(resolvedField)));
-            if (resolvedField.IsLiteral)
-            {
-                attrs.Add(PrimitiveAttributes.Instance.ConstantAttribute);
-            }
-            return attrs;
-        }
-
-        protected override IList<CustomAttribute> GetCustomAttributes()
-        {
-            return GetResolvedField().CustomAttributes;
-        }
-
         #endregion
-
-        #region IField Implementation
-
-        public IType FieldType
-        {
-            get { return this.ResolveType(Field.FieldType); }
-        }
-
-        public IBoundObject GetField(IBoundObject Target)
-        {
-            if (Target == null)
-            {
-                return GetValue().Evaluate();
-            }
-            throw new NotImplementedException();
-        }
-
-        public void SetField(IBoundObject Target, IBoundObject Value)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-        protected override IType ResolveLocalTypeParameter(IGenericParameter TypeParameter)
-        {
-            return null;
-        }
 
         #region Static
 
@@ -233,46 +142,6 @@ namespace Flame.Cecil
         public IField Build()
         {
             return this;
-        }
-
-        public IExpression GetValue()
-        {
-            var field = GetResolvedField();
-            if (field.IsLiteral)
-            {
-                object val = field.Constant;
-                return ExpressionExtensions.ToExpression(val);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        #endregion
-
-        #region Equality
-
-        public override bool Equals(object obj)
-        {
-            if (obj is ICecilField)
-            {
-                return Equals((ICecilField)obj);
-            }
-            else
-            {
-                return base.Equals(obj);
-            }
-        }
-
-        public virtual bool Equals(ICecilField other)
-        {
-            return GetFieldReference().Equals(other.GetFieldReference());
-        }
-
-        public override int GetHashCode()
-        {
-            return GetFieldReference().GetHashCode();
         }
 
         #endregion

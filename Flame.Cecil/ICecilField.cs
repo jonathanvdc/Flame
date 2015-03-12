@@ -11,5 +11,6 @@ namespace Flame.Cecil
     public interface ICecilField : IField, IInitializedField
     {
         FieldReference GetFieldReference();
+        FieldDefinition GetResolvedField();
     }
 }
