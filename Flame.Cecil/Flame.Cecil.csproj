@@ -61,10 +61,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AncestryGraphCacheBase.cs" />
+    <Compile Include="CecilFieldBase.cs" />
     <Compile Include="CecilOperatorExtensions.cs" />
     <Compile Include="Emit\LoadFieldIndirectionOptimization.cs" />
     <Compile Include="Emit\EmptyBlock.cs" />
     <Compile Include="Emit\UnboxAnyToPointerOptimization.cs" />
+    <Compile Include="CecilGenericInstanceField.cs" />
     <Compile Include="SpecificAssemblyResolver.cs" />
     <Compile Include="CecilAttributeExtensions.cs" />
     <Compile Include="CecilCompilerOptionExtensions.cs" />

@@ -45,10 +45,19 @@ namespace Flame.Build
 			{
 				return ConvertPrimitiveType(Type);
 			}
+			else if (Type.DeclaringNamespace is IType)
+			{
+				return ConvertNestedType(Type, (IType)Type.DeclaringNamespace);
+			}
 			else
 			{
 				return ConvertUserType(Type);
 			}
+		}
+		
+		protected virtual const TTarget ConvertNestedType(IType Type, IType DeclaringType)
+		{
+			return ConvertUserType(Type);
 		}
 		
 		private const TTarget ConvertUserType(IType Type)

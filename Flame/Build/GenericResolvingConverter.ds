@@ -14,6 +14,23 @@ namespace Flame.Build
 		
 		public IGenericResolver Resolver { const get; private set; }
 		
+		protected override const IType ConvertNestedType(IType Type, IType DeclaringType)
+		{
+			var convDeclType = Convert(DeclaringType);
+			var convDeclNs = (INamespace)convDeclType;
+			
+			string tName = Type.Name;
+			int genParamCount = Enumerable.Count<IGenericParameter>(Type.GetGenericParameters());
+			
+			foreach (var item in convDeclNs.GetTypes())
+				if (item.Name == tName && Enumerable.Count<IGenericParameter>(item.GetGenericParameters()) == genParamCount)
+			{
+				return item;
+			}
+			
+			return null; // Failure
+		}
+		
 		protected override const IType ConvertGenericParameter(IGenericParameter Type)
 		{
 			return Resolver.ResolveTypeParameter(Type);
