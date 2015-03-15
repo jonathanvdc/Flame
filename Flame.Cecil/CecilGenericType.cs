@@ -58,7 +58,7 @@ namespace Flame.Cecil
         {
             get
             {
-                return GetTypeReference().GetDeclaringNamespace();
+                return GenericDefinition.GetTypeReference().GetDeclaringNamespace();
             }
         }
 
