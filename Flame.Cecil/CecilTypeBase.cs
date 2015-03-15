@@ -11,10 +11,14 @@ namespace Flame.Cecil
     public abstract class CecilTypeBase : CecilMember, ICecilType, IEquatable<ICecilType>
     {
         public CecilTypeBase()
-        { }
+        {
+            InitializeMembers();
+        }
         public CecilTypeBase(AncestryGraph AncestryGraph)
             : base(AncestryGraph)
-        { }
+        {
+            InitializeMembers();
+        }
 
         #region ICecilType Implementation
 
@@ -107,25 +111,40 @@ namespace Flame.Cecil
             return properties.ToArray();
         }
 
-        public virtual ITypeMember[] GetMembers()
+        private void InitializeMembers()
+        {
+            lazyMethods = new Lazy<IMethod[]>(new Func<IMethod[]>(() => ConvertMethodDefinitions(this, GetCecilMethods(), false)));
+            lazyProperties = new Lazy<IProperty[]>(new Func<IProperty[]>(() => ConvertPropertyDefinitions(this, GetCecilProperties(), GetCecilEvents())));
+            lazyFields = new Lazy<IField[]>(new Func<IField[]>(() => ConvertFieldDefinitions(this, GetCecilFields())));
+            lazyCtors = new Lazy<IMethod[]>(new Func<IMethod[]>(() => ConvertMethodDefinitions(this, GetCecilMethods(), true)));
+        }
+
+        public ITypeMember[] GetMembers()
         {
             return GetMembers(this);
         }
-        public virtual IMethod[] GetMethods()
+        private Lazy<IMethod[]> lazyMethods;
+        public IMethod[] GetMethods()
         {
-            return ConvertMethodDefinitions(this, GetCecilMethods(), false);
+            return lazyMethods.Value;
         }
-        public virtual IProperty[] GetProperties()
+
+        private Lazy<IProperty[]> lazyProperties;
+        public IProperty[] GetProperties()
         {
-            return ConvertPropertyDefinitions(this, GetCecilProperties(), GetCecilEvents());
+            return lazyProperties.Value;
         }
-        public virtual IField[] GetFields()
+
+        private Lazy<IField[]> lazyFields;
+        public IField[] GetFields()
         {
-            return ConvertFieldDefinitions(this, GetCecilFields());
+            return lazyFields.Value;
         }
-        public virtual IMethod[] GetConstructors()
+
+        private Lazy<IMethod[]> lazyCtors;
+        public IMethod[] GetConstructors()
         {
-            return ConvertMethodDefinitions(this, GetCecilMethods(), true);
+            return lazyCtors.Value;
         }
 
         #endregion
