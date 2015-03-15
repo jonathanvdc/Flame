@@ -32,7 +32,7 @@ namespace Flame.Cecil
             return new CecilGenericInstanceMethod(DeclaringType, elemMethod);
         }
 
-        private ICecilMethod ConvertGenericInstanceMethod(GenericInstanceMethod Instance)
+        private ICecilMethod ConvertGenericMethodInstance(GenericInstanceMethod Instance)
         {
             var elemMethod = Convert(Instance.ElementMethod);
             var genArgs = Instance.GenericArguments.Select(TypeConverter.Convert).ToArray();
@@ -43,7 +43,7 @@ namespace Flame.Cecil
         {
             if (Value.IsGenericInstance)
             {
-                return ConvertGenericInstanceMethod((GenericInstanceMethod)Value);
+                return ConvertGenericMethodInstance((GenericInstanceMethod)Value);
             }
             else
             {
