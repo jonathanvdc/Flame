@@ -1,0 +1,15 @@
+public class InheritanceTest
+{
+    public override const string ToString()
+    {
+        return "Why, hi there.";
+    }
+    public override const int GetHashCode()
+    {
+        return 0;
+    }
+    public override const bool Equals(object Other)
+    {
+        return Other is InheritanceTest;
+    }
+}
