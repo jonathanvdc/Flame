@@ -104,7 +104,7 @@ namespace Flame.Cecil
 
         private IType ConvertGenericInstance(TypeReference ElementType, IEnumerable<IType> TypeArguments)
         {
-            int declTypeArgCount = ElementType.DeclaringType.GenericParameters.Count;
+            int declTypeArgCount = ElementType.DeclaringType != null ? ElementType.DeclaringType.GenericParameters.Count : 0;
             if (declTypeArgCount > 0)
             {
                 var declGeneric = ConvertGenericInstance(ElementType.DeclaringType, TypeArguments.Take(declTypeArgCount));
