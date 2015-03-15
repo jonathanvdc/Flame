@@ -45,7 +45,7 @@ namespace Flame.Cecil
                 }
                 else
                 {
-                    baseTypes.Add(CecilTypeBase.ImportCecil(type.BaseType, this));
+                    baseTypes.Add(CecilTypeBase.Create(type.BaseType));
                 }
             }
             else if (type.FullName == "System.Object")
@@ -55,7 +55,7 @@ namespace Flame.Cecil
             }
             foreach (var item in type.Interfaces)
             {
-                baseTypes.Add(CecilTypeBase.ImportCecil(item, this));
+                baseTypes.Add(CecilTypeBase.Create(item));
             }
             return baseTypes.ToArray();
         }
@@ -68,7 +68,7 @@ namespace Flame.Cecil
             return cachedBaseTypes;
         }
 
-        public override ICecilType GetCecilGenericDeclaration()
+        public override IType GetGenericDeclaration()
         {
             var type = GetResolvedType();
             if (type.IsGenericInstance)
@@ -209,25 +209,7 @@ namespace Flame.Cecil
             return null;
         }
 
-        public override bool IsComplete
-        {
-            get { return true; }
-        }
-
         #region Generics
-
-        public override IEnumerable<IType> GetCecilGenericArguments()
-        {
-            var declGeneric = DeclaringGenericMember;
-            if (declGeneric != null)
-            {
-                return declGeneric.GetCecilGenericParameters().Prefer(declGeneric.GetCecilGenericArguments());
-            }
-            else
-            {
-                return new IType[0];
-            }
-        }
 
         public override IEnumerable<IType> GetGenericArguments()
         {
@@ -273,5 +255,29 @@ namespace Flame.Cecil
             }
             throw new NotImplementedException();
         }
+
+        #region Generics
+
+        public virtual IEnumerable<IGenericParameter> GetCecilGenericParameters()
+        {
+            var typeRef = GetTypeReference();
+            return ConvertGenericParameters(typeRef, typeRef.Resolve, this, AncestryGraph);
+        }
+
+        public override IEnumerable<IGenericParameter> GetGenericParameters()
+        {
+            var genParams = GetCecilGenericParameters();
+            var declType = DeclaringGenericMember;
+            if (declType == null)
+            {
+                return genParams;
+            }
+            else
+            {
+                return genParams.Skip(declType.GetAllGenericArguments().Count());
+            }
+        }
+
+        #endregion
     }
 }

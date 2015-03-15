@@ -128,11 +128,12 @@ namespace Flame.Cecil
 
         public static CecilAttribute CreateCecil(IMethod Constructor, IEnumerable<IBoundObject> Arguments, ICecilMember ImportingMember)
         {
-            var ctor = CecilMethodBase.ImportCecil(Constructor, ImportingMember);
-            var attrDef = new CustomAttribute(ctor.GetMethodReference());
+            var methodImporter = new CecilMethodImporter(ImportingMember.GetModule());
+            var ctor = methodImporter.Convert(Constructor);
+            var attrDef = new CustomAttribute(ctor);
             foreach (var item in Arguments)
             {
-                attrDef.ConstructorArguments.Add(new CustomAttributeArgument(CecilTypeBase.ImportCecil(item.Type, ImportingMember).GetTypeReference(), item.GetPrimitiveValue<object>()));
+                attrDef.ConstructorArguments.Add(new CustomAttributeArgument(methodImporter.TypeImporter.Convert(item.Type), item.GetPrimitiveValue<object>()));
             }
             return new CecilAttribute(attrDef, ImportingMember);
         }
@@ -166,18 +167,16 @@ namespace Flame.Cecil
 
         public static CecilAttribute DeclareAttributeOrDefault(Mono.Cecil.ICustomAttributeProvider AttributeProvider, ICecilMember Member, IAttribute Template)
         {
-            CustomAttribute attrDef;
             if (Template is IConstructedAttribute)
             {
                 var constructedAttr = (IConstructedAttribute)Template;
-                var ctor = CecilMethodBase.ImportCecil(constructedAttr.Constructor, Member);
-                attrDef = new CustomAttribute(ctor.GetMethodReference());
-                foreach (var item in constructedAttr.GetArguments())
-                {
-                    attrDef.ConstructorArguments.Add(new CustomAttributeArgument(CecilTypeBase.ImportCecil(item.Type, Member).GetTypeReference(), item.GetPrimitiveValue<object>()));
-                }
+                var attr = CreateCecil(constructedAttr.Constructor, constructedAttr.GetArguments(), Member);
+                AttributeProvider.CustomAttributes.Add(attr.Attribute);
+                return attr;
             }
-            else if (Template.AttributeType.Equals(PrimitiveAttributes.Instance.ConstantAttribute.AttributeType))
+
+            CustomAttribute attrDef;
+            if (Template.AttributeType.Equals(PrimitiveAttributes.Instance.ConstantAttribute.AttributeType))
             {
                 attrDef = new CustomAttribute(CecilMethodBase.ImportCecil(typeof(System.Diagnostics.Contracts.PureAttribute).GetConstructor(new Type[0]), Member).GetMethodReference());
             }

@@ -30,11 +30,6 @@ namespace Flame.Cecil
             return Method.Resolve();
         }
 
-        public override IEnumerable<IType> GetCecilGenericArguments()
-        {
-            return new IType[0];
-        }
-
         public override IMethod GetGenericDeclaration()
         {
             return this;
@@ -135,9 +130,9 @@ namespace Flame.Cecil
             return overrides.ToArray();
         }
 
-        public override bool IsComplete
+        public override IEnumerable<IType> GetGenericArguments()
         {
-            get { return true; }
+            return Enumerable.Empty<IType>();
         }
     }
 }

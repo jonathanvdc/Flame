@@ -31,11 +31,6 @@ namespace Flame.Cecil
             return genericParam;
         }
 
-        public override bool IsComplete
-        {
-            get { return true; }
-        }
-
         #region IGenericParameter Implementation
 
         private IGenericMember declMember;
@@ -177,11 +172,6 @@ namespace Flame.Cecil
             return cachedBaseTypes;
         }
 
-        public override ICecilType GetCecilGenericDeclaration()
-        {
-            return this;
-        }
-
         protected override IEnumerable<IAttribute> GetMemberAttributes()
         {
             List<IAttribute> attrs = new List<IAttribute>();
@@ -226,9 +216,14 @@ namespace Flame.Cecil
             return new IType[0];
         }
 
-        public override IEnumerable<IType> GetCecilGenericArguments()
+        public override IType GetGenericDeclaration()
         {
-            return DeclaringGenericMember.GetCecilGenericArgumentsOrEmpty();
+            return this;
+        }
+
+        public override IEnumerable<IGenericParameter> GetGenericParameters()
+        {
+            return Enumerable.Empty<IGenericParameter>();
         }
 
         public override IBoundObject GetDefaultValue()
@@ -366,7 +361,7 @@ namespace Flame.Cecil
         public bool Equals(IGenericParameter other)
         {
             var thisParam = this.genericParam;
-            var otherParam = other.GetTypeReference(thisParam.Module) as GenericParameter;
+            var otherParam = other.GetImportedReference(thisParam.Module) as GenericParameter;
 
             if (otherParam == null)
             {

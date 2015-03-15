@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using Flame.Build;
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,5 @@ namespace Flame.Cecil
     public interface ICecilType : ICecilGenericMember, IType, IGenericResolver, INamespace
     {
         TypeReference GetTypeReference();
-        bool IsComplete { get; }
-        ICecilType GetCecilGenericDeclaration();
     }
 }

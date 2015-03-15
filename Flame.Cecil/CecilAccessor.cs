@@ -16,8 +16,8 @@ namespace Flame.Cecil
             this.Method = Method;
             this.AccessorType = AccessorType;
         }
-        public CecilAccessor(ICecilProperty DeclaringProperty, MethodReference Method, AccessorType AccessorType)
-            : this(DeclaringProperty, CecilMethodBase.Create((ICecilType)DeclaringProperty.DeclaringType, Method), AccessorType)
+        public CecilAccessor(ICecilProperty DeclaringProperty, MethodDefinition Method, AccessorType AccessorType)
+            : this(DeclaringProperty, new CecilMethod((ICecilType)DeclaringProperty.DeclaringType, Method), AccessorType)
         {
         }
 
@@ -29,11 +29,6 @@ namespace Flame.Cecil
         }
         public ICecilMethod Method { get; private set; }
 
-        public override bool IsComplete
-        {
-            get { return true; }
-        }
-
         public override MethodReference GetMethodReference()
         {
             return Method.GetMethodReference();
@@ -42,11 +37,6 @@ namespace Flame.Cecil
         public override IEnumerable<IType> GetGenericArguments()
         {
             return Method.GetGenericArguments();
-        }
-
-        public override IEnumerable<IType> GetCecilGenericArguments()
-        {
-            return Method.GetCecilGenericArguments();
         }
 
         public override IMethod GetGenericDeclaration()

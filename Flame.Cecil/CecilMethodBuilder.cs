@@ -1,4 +1,5 @@
-﻿using Flame.Cecil.Emit;
+﻿using Flame.Build;
+using Flame.Cecil.Emit;
 using Flame.Compiler;
 using Mono.Cecil;
 using Mono.Cecil.Rocks;

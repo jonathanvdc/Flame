@@ -120,7 +120,7 @@ namespace Flame.Cecil
 
         public void SetEntryPoint(IMethod Method)
         {
-            Assembly.EntryPoint = CecilMethodBase.ImportCecil(Method, MainModule).GetMethodReference().Resolve();
+            Assembly.EntryPoint = ((ICecilMethod)Method).GetMethodReference().Resolve();
         }
 
         public IAssembly Build()

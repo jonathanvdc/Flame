@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using Flame.Build;
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +36,14 @@ namespace Flame.Cecil
             return Field.GetResolvedField();
         }
 
+        public override IType FieldType
+        {
+            get
+            {
+                return this.DeclaringType.ResolveType(Field.FieldType);
+            }
+        }
+
         public override bool IsStatic
         {
             get
@@ -48,14 +57,6 @@ namespace Flame.Cecil
             get
             {
                 return Field.Name;
-            }
-        }
-
-        public override string FullName
-        {
-            get
-            {
-                return Field.FullName;
             }
         }
 

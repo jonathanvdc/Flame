@@ -134,6 +134,7 @@
 			<Compile Include="Build\GenericInstanceComparer.ds" />
 			<Compile Include="Build\TypeMappingConverter.ds" />
 			<Compile Include="Build\CompositeConverter.ds" />
+			<Compile Include="Build\DescribedRetypedParameter.ds" />
 		</ItemGroup>
 	</ItemGroup>
 </Project>
