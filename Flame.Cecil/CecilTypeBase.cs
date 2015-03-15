@@ -123,29 +123,34 @@ namespace Flame.Cecil
         {
             return GetMembers(this);
         }
+
         private Lazy<IMethod[]> lazyMethods;
         public IMethod[] GetMethods()
         {
             return lazyMethods.Value;
         }
+        public IMethod[] Methods { get { return GetMethods(); } }
 
         private Lazy<IProperty[]> lazyProperties;
         public IProperty[] GetProperties()
         {
             return lazyProperties.Value;
         }
+        public IProperty[] Properties { get { return GetProperties(); } }
 
         private Lazy<IField[]> lazyFields;
         public IField[] GetFields()
         {
             return lazyFields.Value;
         }
+        public IField[] Fields { get { return GetFields(); } }
 
         private Lazy<IMethod[]> lazyCtors;
         public IMethod[] GetConstructors()
         {
             return lazyCtors.Value;
         }
+        public IMethod[] Constructors { get { return GetConstructors(); } }
 
         #endregion
 
