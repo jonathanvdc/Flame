@@ -34,9 +34,14 @@ namespace Flame.Cecil
             return ElementType;
         }
 
-        public override ICecilType GetCecilGenericDeclaration()
+        public override IType GetGenericDeclaration()
         {
             return this;
+        }
+
+        public override IEnumerable<IGenericParameter> GetGenericParameters()
+        {
+            return Enumerable.Empty<IGenericParameter>();
         }
 
         protected override IList<CustomAttribute> GetCustomAttributes()
@@ -64,17 +69,7 @@ namespace Flame.Cecil
             return null;
         }
 
-        public override bool IsComplete
-        {
-            get { return ElementType.IsComplete; }
-        }
-
         public override IEnumerable<IType> GetGenericArguments()
-        {
-            return new IType[0];
-        }
-
-        public override IEnumerable<IType> GetCecilGenericArguments()
         {
             return new IType[0];
         }

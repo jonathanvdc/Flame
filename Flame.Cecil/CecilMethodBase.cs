@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using Flame.Build;
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,37 +16,26 @@ namespace Flame.Cecil
         }
 
         public abstract MethodReference GetMethodReference();
-        public abstract IEnumerable<IType> GetCecilGenericArguments();
         public abstract IMethod GetGenericDeclaration();
         public abstract bool IsConstructor { get; }
-        public abstract bool IsComplete { get; }
         public abstract IMethod[] GetBaseMethods();
+        public abstract IEnumerable<IType> GetGenericArguments();
 
-        public virtual IEnumerable<IType> GetGenericArguments()
-        {
-            return GetCecilGenericArguments();
-        }
-
-        public virtual IEnumerable<IGenericParameter> GetCecilGenericParameters()
+        public virtual IEnumerable<IGenericParameter> GetGenericParameters()
         {
             var methodRef = GetMethodReference();
             return CecilTypeBase.ConvertGenericParameters(methodRef, methodRef.Resolve, this, AncestryGraph);
         }
 
-        public virtual IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return GetCecilGenericParameters();
-        }
-
-        public IType ReturnType
+        public virtual IType ReturnType
         {
             get
             {
-                return this.ResolveType(GetMethodReference().ReturnType);
+                return CecilTypeBase.Create(GetMethodReference().ReturnType);
             }
         }
 
-        public IParameter[] GetParameters()
+        public virtual IParameter[] GetParameters()
         {
             return CecilParameter.GetParameters(this, GetMethodReference().Parameters);
         }
@@ -190,18 +180,7 @@ namespace Flame.Cecil
 
         public static ICecilMethod Create(MethodReference Method)
         {
-            return Create(CecilTypeBase.CreateCecil(Method.DeclaringType), Method);
-        }
-        public static ICecilMethod Create(ICecilType DeclaringType, MethodReference Method)
-        {
-            if (Method.IsGenericInstance)
-            {
-                return new CecilGenericMethod(DeclaringType, (GenericInstanceMethod)Method);
-            }
-            else
-            {
-                return new CecilMethod(DeclaringType, Method);
-            }
+            return CecilMethodConverter.Instance.Convert(Method);
         }
         public static ICecilMethod ImportCecil(System.Reflection.MethodInfo Method, ICecilMember CecilMember)
         {
@@ -218,90 +197,6 @@ namespace Flame.Cecil
         public static ICecilMethod ImportCecil(System.Reflection.ConstructorInfo Method, ModuleDefinition Module)
         {
             return CecilMethodBase.Create(Module.Import(Method));
-        }
-        public static ICecilMethod ImportCecil(IMethod Method, ICecilMember CecilMember)
-        {
-            return ImportCecil(Method, CecilMember.GetMemberReference().Module);
-        }
-        public static ICecilMethod ImportCecil(IMethod Method, ModuleDefinition Module)
-        {
-            if (Method.get_IsGenericInstance())
-            {
-                var genDecl = ImportCecil(Method.GetGenericDeclaration(), Module);
-                if (genDecl != null)
-                {
-                    var typeArgs = Method.GetGenericArguments().Select((item) => CecilTypeBase.ImportCecil(item, Module)).ToArray();
-                    return (ICecilMethod)genDecl.MakeGenericMethod(typeArgs);
-                }
-            }
-            if (Method is ICecilMethod)
-            {
-                var cecilMethod = (ICecilMethod)Method;
-                var methodRef = cecilMethod.GetMethodReference();
-                if (methodRef.Module.Name == Module.Name)
-                {
-                    return cecilMethod;
-                }
-                else if (Method.DeclaringType is ICecilType)
-                {
-                    var cecilDeclType = (ICecilType)Method.DeclaringType;
-                    if (cecilDeclType.GetModule().Name != Module.Name)
-                    {
-                        cecilDeclType = CecilTypeBase.ImportCecil(cecilDeclType, Module);
-                        var tempMethod = new CecilMethod(cecilDeclType, methodRef);
-                        var resultMethod = (ICecilMethod)GetCorrespondingMethod(cecilDeclType.GetMethods().Concat(cecilDeclType.GetConstructors()), tempMethod);
-                        return Create(cecilDeclType, Module.Import(resultMethod.GetMethodReference(), cecilDeclType.GetTypeReference()));
-                    }
-                    else
-                    {
-                        return Create(cecilDeclType, Module.Import(methodRef, cecilDeclType.GetTypeReference()));
-                    }
-                }
-                else
-                {
-                    return Create(Module.Import(methodRef));
-                }
-            }
-            else if (Method.DeclaringType.get_IsPrimitive())
-            {
-                var declType = Method.DeclaringType;
-                var type = CecilTypeBase.ImportCecil(declType, Module);
-                if (Method is IAccessor)
-                {
-                    var declProp = ((IAccessor)Method).DeclaringProperty;
-                    var propType = CecilTypeBase.Import(declProp.PropertyType, Module);
-                    var indexerTypes = CecilTypeBase.Import(declProp.GetIndexerParameters().GetTypes(), Module);
-                    var cecilProperties = type.GetProperties();
-                    var cecilProp = cecilProperties.Single((item) =>
-                    {
-                        if (item.IsStatic == declProp.IsStatic && ((item.get_IsIndexer() && declProp.get_IsIndexer()) || item.Name == declProp.Name) && item.PropertyType.Equals(propType))
-                        {
-                            var indexerParams = item.GetIndexerParameterTypes();
-                            return indexerTypes.AreEqual(indexerParams);
-                        }
-                        return false;
-                    });
-                    return (ICecilMethod)cecilProp.GetAccessor(((IAccessor)Method).AccessorType);
-                }
-                else
-                {
-                    return (ICecilMethod)type.GetMethod(Method.Name, Method.IsStatic, CecilTypeBase.Import(Method.ReturnType, Module), CecilTypeBase.Import(Method.GetParameters().GetTypes(), Module));
-                }
-            }
-            else if (Method.Equals(PrimitiveMethods.Instance.Equals))
-            {
-                var objType = CecilTypeBase.Import<object>(Module);
-                return (ICecilMethod)objType.GetMethod("Equals", false, PrimitiveTypes.Boolean, new IType[] { objType });
-            }
-            else if (Method.Equals(PrimitiveMethods.Instance.GetHashCode))
-            {
-                var objType = CecilTypeBase.ImportCecil<object>(Module);
-                return (ICecilMethod)objType.GetMethod("GetHashCode", false, PrimitiveTypes.Int32, new IType[0]);
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
         }
 
         #endregion

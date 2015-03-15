@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using Flame.Build;
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,7 +72,7 @@ namespace Flame.Cecil
 
         public IType ParameterType
         {
-            get { return DeclaringMember.ResolveType(Parameter.ParameterType); }
+            get { return CecilTypeBase.Create(Parameter.ParameterType); }
         }
 
         public bool IsAssignable(IType Type)

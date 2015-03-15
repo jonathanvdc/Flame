@@ -29,7 +29,6 @@ namespace Flame.Cecil
         }
 
         private TypeReference typeReference;
-        private TypeReference genericTypeRef;
         private TypeDefinition resolvedType;
         public override TypeDefinition GetResolvedType()
         {
@@ -44,11 +43,6 @@ namespace Flame.Cecil
             return resolvedType;
         }
 
-        /*public override ICecilType GetCecilGenericDeclaration()
-        {
-            return this;
-        }*/
-
         public override IEnumerable<IGenericParameter> GetCecilGenericParameters()
         {
             return ConvertGenericParameters(typeReference, typeReference.Resolve, this, AncestryGraph);
@@ -56,37 +50,7 @@ namespace Flame.Cecil
 
         public override TypeReference GetTypeReference()
         {
-            if (genericTypeRef == null)
-            {
-                ICecilGenericMember declMember = null;
-                if (typeReference.DeclaringType != null)
-                {
-                    declMember = CecilTypeBase.Create(typeReference.DeclaringType) as ICecilGenericMember;
-                }
-                if (declMember != null && !this.get_IsGenericParameter())
-                {
-                    if (declMember.GetCecilGenericParameters().Any())
-                    {
-                        var cecilTypeArgs = this.GetCecilGenericParameters().Prefer(declMember.GetCecilGenericArguments());
-                        var inst = new GenericInstanceType(typeReference);
-                        var module = typeReference.Module;
-                        foreach (var item in cecilTypeArgs)
-                        {
-                            inst.GenericArguments.Add(item.GetImportedReference(module, typeReference));
-                        }
-                        this.genericTypeRef = inst;
-                    }
-                    else
-                    {
-                        this.genericTypeRef = typeReference;
-                    }
-                }
-                else
-                {
-                    this.genericTypeRef = typeReference;
-                }
-            }
-            return genericTypeRef;
+            return typeReference;
         }
     }
 }

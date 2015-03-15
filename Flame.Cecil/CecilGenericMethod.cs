@@ -9,18 +9,6 @@ namespace Flame.Cecil
 {
     public class CecilGenericMethod : CecilMethodBase
     {
-        public CecilGenericMethod(GenericInstanceMethod GenericInstance)
-            : base(CecilTypeBase.CreateCecil(GenericInstance.DeclaringType))
-        {
-            this.GenericDeclaration = CecilMethodBase.Create(DeclaringType, GenericInstance.ElementMethod.Resolve());
-            this.TypeArguments = GenericInstance.GenericArguments.Select((item) => CecilTypeBase.Create(item)).ToArray();
-        }
-        public CecilGenericMethod(ICecilType DeclaringType, GenericInstanceMethod GenericInstance)
-            : base(DeclaringType)
-        {
-            this.GenericDeclaration = CecilMethodBase.Create(DeclaringType, GenericInstance.ElementMethod.Resolve());
-            this.TypeArguments = GenericInstance.GenericArguments.Select((item) => CecilTypeBase.Create(item)).ToArray();
-        }
         public CecilGenericMethod(ICecilType DeclaringType, ICecilMethod GenericDeclaration, IEnumerable<IType> TypeArguments)
             : base(DeclaringType)
         {
@@ -31,15 +19,6 @@ namespace Flame.Cecil
         public ICecilMethod GenericDeclaration { get; private set; }
         public IType[] TypeArguments { get; private set; }
 
-        public override bool IsComplete
-        {
-            get
-            {
-                var cecilTypeArgs = TypeArguments.Select((item) => CecilTypeBase.ImportCecil(item, DeclaringType)).ToArray();
-                return cecilTypeArgs.All((item) => item != null && item.IsComplete);
-            }
-        }
-
         private MethodReference methodRef;
         public override MethodReference GetMethodReference()
         {
@@ -47,7 +26,7 @@ namespace Flame.Cecil
             {
                 var genericMethodRef = GenericDeclaration.GetMethodReference();
                 var module = genericMethodRef.Module;
-                var cecilTypeArgs = TypeArguments.Select((item) => item.GetTypeReference(module)).ToArray();
+                var cecilTypeArgs = TypeArguments.Select((item) => item.GetImportedReference(module)).ToArray();
                 if (cecilTypeArgs.All((item) => item != null))
                 {
                     var inst = new GenericInstanceMethod(genericMethodRef);
@@ -68,11 +47,6 @@ namespace Flame.Cecil
         public override IEnumerable<IType> GetGenericArguments()
         {
             return TypeArguments;
-        }
-
-        public override IEnumerable<IType> GetCecilGenericArguments()
-        {
-            return DeclaringType.GetCecilGenericArguments().Concat(TypeArguments);
         }
 
         public override IMethod GetGenericDeclaration()

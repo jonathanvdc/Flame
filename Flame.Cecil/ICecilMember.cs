@@ -11,9 +11,7 @@ namespace Flame.Cecil
     {
         MemberReference GetMemberReference();
     }
-    public interface ICecilGenericMember : ICecilMember
+    public interface ICecilGenericMember : ICecilMember, IGenericMember
     {
-        IEnumerable<IType> GetCecilGenericArguments();
-        IEnumerable<IGenericParameter> GetCecilGenericParameters();
     }
 }

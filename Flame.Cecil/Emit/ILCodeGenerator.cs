@@ -588,7 +588,7 @@ namespace Flame.Cecil.Emit
         public static void EmitCultureInvariantCall(IEmitContext Context, IMethod Method, IType CallerType)
         {
             var module = Context.Processor.Body.Method.Module;
-            var cecilDeclType = CecilType.ImportCecil(Method.DeclaringType, module);
+            var cecilDeclType = CecilTypeConverter.CecilPrimitiveConverter.Convert(CecilTypeImporter.Import(module, Context.Processor.Body.Method, Method.DeclaringType));
             var paramTypes = Method.GetParameters().GetTypes().Concat(new IType[] { CecilType.ImportCecil(typeof(System.IFormatProvider), module) }).ToArray();
             var newMethod = cecilDeclType.GetMethod(Method.Name, Method.IsStatic, Method.ReturnType, paramTypes);
             if (newMethod == null)
