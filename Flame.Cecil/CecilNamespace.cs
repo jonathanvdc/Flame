@@ -103,7 +103,7 @@ namespace Flame.Cecil
 
         public bool Equals(ICecilNamespace other)
         {
-            return FullName == other.FullName && GetModule().Equals(other.GetModule());
+            return FullName == other.FullName;
         }
 
         public override int GetHashCode()
