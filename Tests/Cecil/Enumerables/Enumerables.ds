@@ -1,0 +1,15 @@
+using System;
+using System.Collections.Generic;
+
+public interface IEnumerableTest
+{
+    void Process([int] Values);
+}
+
+public class EnumerableImpl : IEnumerableTest
+{
+    public void Process(IEnumerable<int> Values) : IEnumerableTest.Process
+    {
+    
+    }
+}
