@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil
 {
-    public abstract class CecilGenericTypeBase : ICecilType
+    public abstract class CecilGenericTypeBase : ICecilType, IEquatable<CecilGenericTypeBase>
     {
         public CecilGenericTypeBase(ICecilType GenericDefinition)
         {
@@ -178,9 +178,17 @@ namespace Flame.Cecil
                 return GetMemberReference().Equals(other.GetMemberReference());
             }
         }
+        public bool Equals(CecilGenericTypeBase other)
+        {
+            return GenericDefinition.Equals(other.GenericDefinition) && GetGenericArguments().SequenceEqual(other.GetGenericArguments());
+        }
         public bool Equals(ICecilType other)
         {
-            if (DeclaringNamespace.Equals(other.DeclaringNamespace) && this.Name == other.Name)
+            if (other is CecilGenericTypeBase)
+            {
+                return Equals((CecilGenericTypeBase)other);
+            }
+            else if (DeclaringNamespace.Equals(other.DeclaringNamespace) && this.Name == other.Name)
             {
                 return GetGenericArguments().SequenceEqual(other.GetGenericArguments());
             }
