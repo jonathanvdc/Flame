@@ -19,7 +19,7 @@ public interface IGenericTest<T>
     const T Transform(T Value);
 }
 
-public class GenericTestImpl<double> : IGenericTest<T>
+public class GenericTestImpl : IGenericTest<double>
 {
     public const double Transform(double Value) return Value * 2;
 }
