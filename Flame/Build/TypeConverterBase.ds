@@ -45,6 +45,14 @@ namespace Flame.Build
 			{
 				return ConvertPrimitiveType(Type);
 			}
+			else if (Type.IsGenericParameter)
+			{
+				return ConvertGenericParameter((IGenericParameter)Type);
+			}
+			else if (Type.DeclaringNamespace is IType)
+			{
+				return ConvertNestedType(Type, (IType)Type.DeclaringNamespace);
+			}
 			else
 			{
 				return ConvertUserType(Type);
@@ -61,10 +69,6 @@ namespace Flame.Build
 			if (Type.IsGenericParameter)
 			{
 				return ConvertGenericParameter((IGenericParameter)Type);
-			}
-			else if (Type.DeclaringNamespace is IType)
-			{
-				return ConvertNestedType(Type, (IType)Type.DeclaringNamespace);
 			}
 			else if (Type.IsEnum)
 			{
