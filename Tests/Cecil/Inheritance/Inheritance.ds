@@ -13,3 +13,13 @@ public class InheritanceTest
         return Other is InheritanceTest;
     }
 }
+
+public interface IGenericTest<T>
+{
+    const T Transform(T Value);
+}
+
+public class GenericTestImpl<double> : IGenericTest<T>
+{
+    public const double Transform(double Value) return Value * 2;
+}
