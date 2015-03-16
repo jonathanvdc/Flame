@@ -51,9 +51,9 @@ namespace Flame.DSharp.Build
             return this;
         }
 
-        public override IEnumerable<IType> GetGenericArguments()
+        public override [IType] GetGenericArguments()
         {
-            return (IEnumerable<IType>)new IType[0];
+            return Enumerable.Empty<IType>();
         }
     }
 }
