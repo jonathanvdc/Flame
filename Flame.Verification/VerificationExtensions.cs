@@ -28,7 +28,7 @@ namespace Flame.Verification
             bool success = true;
             if (DefinitionMethod.get_IsAbstract() || DefinitionMethod.DeclaringType.get_IsInterface())
             {
-                var impl = DefinitionMethod.GetImplementation(ImplementationType);
+                var impl = ImplementationExtensions.GetImplementation(DefinitionMethod, ImplementationType);
                 if (impl == null || impl.Equals(DefinitionMethod))
                 {
                     Log.LogError(new LogEntry("Method not implemented", "Method '" + DefinitionMethod.FullName + "' was not implemented in '" + ImplementationType.FullName + "'"));

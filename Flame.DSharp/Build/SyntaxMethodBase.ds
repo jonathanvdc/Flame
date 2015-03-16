@@ -279,6 +279,10 @@ namespace Flame.DSharp.Build
 	        	foreach (var item in Syntax.ImplementedMethods)
 	            {
 	                var member = Enumerable.OfType<IMethod>(item.GetAccessedMembers(state)).GetMethod(this.IsStatic, this.ReturnType, paramTypes);
+	                if (member == null)
+	                {
+	                	state.Log.LogError(new LogEntry("Base method resolution error", "Could not resolve base method '" + item.GetCode().ToString() + "'.", item.GetSourceLocation()));
+	                }
 	                baseMethods.Add(member);
 	            }
 	            if (baseMethods.Count == 0)
@@ -295,7 +299,7 @@ namespace Flame.DSharp.Build
 	            	}
 	            	if (baseMethods.Count == 0 && Syntax.Signature.ModifierTokens.IsOverride)
 	            	{
-	            		state.Log.LogError("Override method '" + FullName + "' could not find any suitable base methods to override.");
+	            		state.Log.LogError(new LogEntry("No suitable base methods", "Override method '" + FullName + "' could not find any suitable base methods to override."));
 	            	}
 	            }
 	            baseMethodCache = baseMethods.ToArray();
