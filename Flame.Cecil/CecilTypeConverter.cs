@@ -156,6 +156,10 @@ namespace Flame.Cecil
             {
                 return ConvertModifierType((IModifierType)Value);
             }
+            else if (Value.IsGenericParameter)
+            {
+                return ConvertGenericParameter((GenericParameter)Value);
+            }
             else
             {
                 return ConvertTypeDeclaration(Value);
