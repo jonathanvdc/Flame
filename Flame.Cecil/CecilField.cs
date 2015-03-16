@@ -126,7 +126,7 @@ namespace Flame.Cecil
             }
             else
             {
-                if (DeclaringType.get_IsGenericDeclaration())
+                if (DeclaringType.get_IsGenericDeclaration() && DeclaringType.get_IsGeneric())
                 {
                     var genericDeclType = DeclaringType.MakeGenericType(DeclaringType.GetGenericParameters());
                     var genericField = genericDeclType.GetField(Name, IsStatic);
