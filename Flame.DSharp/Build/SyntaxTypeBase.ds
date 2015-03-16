@@ -499,9 +499,16 @@ namespace Flame.DSharp.Build
             return new OpenGenericType(Syntax, DeclaringNamespace, GetSyntaxState().Binder, state.Log, state.MemberProvider);
         }
 
+		private [IGenericParameter] genericParamCache;
+		public [IGenericParameter] GenericParameters { const get return GetGenericParameters(); }
+		
         public virtual [IGenericParameter] GetGenericParameters()
         {
-            return DSharpTypeExtensions.CreateConstrainedGenericParameters(GetNamespaceSyntaxState(), this, Syntax.Signature.GenericDeclarations, Syntax.Signature.GenericConstraints);
+        	if (genericParamCache == null)
+        	{
+            	genericParamCache = DSharpTypeExtensions.CreateConstrainedGenericParameters(GetNamespaceSyntaxState(), this, Syntax.Signature.GenericDeclarations, Syntax.Signature.GenericConstraints);
+        	}
+        	return genericParamCache;
         }
 
         public abstract [IType] GetGenericArguments();
