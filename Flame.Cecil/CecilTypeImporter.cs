@@ -39,7 +39,14 @@ namespace Flame.Cecil
 
         protected override TypeReference ConvertTypeDefault(IType Type)
         {
-            return Module.Import(((ICecilType)Type).GetTypeReference(), Context);
+            if (Type is ICecilType)
+            {
+                return Module.Import(((ICecilType)Type).GetTypeReference(), Context);
+            }
+            else
+            {
+                return null; // Null is a signaling value
+            }
         }
 
         private TypeReference MakeBitType(TypeReference Reference)
