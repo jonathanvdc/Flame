@@ -103,7 +103,9 @@ namespace Flame.DSharp.Build
 		}
 
 		private IAttribute[] attrCache;
-        public virtual IEnumerable<IAttribute> GetAttributes()
+		public [IAttribute] Attributes { const get return GetAttributes(); }
+		
+        public virtual [IAttribute] GetAttributes()
         {
         	if (attrCache == null)
         	{
@@ -149,6 +151,8 @@ namespace Flame.DSharp.Build
         #region INamespace
 
 		private IType[] nestedTypeCache;
+		public IType[] NestedTypes { const get return GetTypes(); }
+		
         public const IType[] GetTypes()
         {
         	if (nestedTypeCache == null)
@@ -170,7 +174,8 @@ namespace Flame.DSharp.Build
             return nestedTypeCache;
         }
 
-        public const IEnumerable<INamespaceBranch> GetNamespaces()
+		public [INamespaceBranch] NestedNamespaces { const get return GetNamespaces(); }
+        public const [INamespaceBranch] GetNamespaces()
         {
             var state = GetSyntaxState();
             List<INamespaceBranch> branches = new List<INamespaceBranch>();
@@ -482,7 +487,7 @@ namespace Flame.DSharp.Build
 
         #region Generics
 
-        public virtual IType MakeGenericType(IEnumerable<IType> TypeArguments)
+        public virtual IType MakeGenericType([IType] TypeArguments)
         {
             var state = GetSyntaxState();
             return new ClosedGenericType(Syntax, DeclaringNamespace, state.Binder, state.Log, state.MemberProvider, TypeArguments);
@@ -494,12 +499,12 @@ namespace Flame.DSharp.Build
             return new OpenGenericType(Syntax, DeclaringNamespace, GetSyntaxState().Binder, state.Log, state.MemberProvider);
         }
 
-        public virtual IEnumerable<IGenericParameter> GetGenericParameters()
+        public virtual [IGenericParameter] GetGenericParameters()
         {
             return DSharpTypeExtensions.CreateConstrainedGenericParameters(GetNamespaceSyntaxState(), this, Syntax.Signature.GenericDeclarations, Syntax.Signature.GenericConstraints);
         }
 
-        public abstract IEnumerable<IType> GetGenericArguments();
+        public abstract [IType] GetGenericArguments();
 
         #endregion
 

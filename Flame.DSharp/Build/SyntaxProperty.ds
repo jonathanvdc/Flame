@@ -44,6 +44,8 @@ namespace Flame.DSharp.Build
         }
 
 		private IAccessor[] accessorVals;
+		public IAccessor[] Accessors { const get return GetAccessors(); }
+		
         public const IAccessor[] GetAccessors()
         {
         	if (accessorVals == null)
@@ -59,6 +61,8 @@ namespace Flame.DSharp.Build
         }
 
 		private IParameter[] indexerParams;
+		public IParameter[] IndexerParameters { const get return GetIndexerParameters(); }
+		
         public const IParameter[] GetIndexerParameters()
         {
         	if (indexerParams == null)
@@ -89,7 +93,9 @@ namespace Flame.DSharp.Build
         }
 
 		private IAttribute[] attrCache;
-        public const IEnumerable<IAttribute> GetAttributes()
+		public [IAttribute] Attributes { const get return GetAttributes(); }
+		
+        public const [IAttribute] GetAttributes()
         {
         	if (attrCache == null)
         	{
@@ -125,7 +131,9 @@ namespace Flame.DSharp.Build
         #endregion GetBaseProperties
         
         private IProperty[] basePropertyCache;
-        public virtual IEnumerable<IProperty> GetBaseProperties()
+        public [IProperty] BaseProperties { const get return GetBaseProperties(); }
+        
+        public virtual [IProperty] GetBaseProperties()
         {
         	if (basePropertyCache == null)
         	{

@@ -35,7 +35,7 @@ namespace Flame.DSharp.Build
         public MethodSyntax Syntax { const get return GetMethodSyntax(); }
         public abstract ISyntaxState GetSyntaxState();
         public abstract ISyntaxState GetDeclaringSyntaxState();
-        public abstract IEnumerable<IType> GetGenericArguments();
+        public abstract [IType] GetGenericArguments();
 
         #endregion
 
@@ -185,7 +185,9 @@ namespace Flame.DSharp.Build
         }
 
 		private IAttribute[] attrCache;
-        public const IEnumerable<IAttribute> GetAttributes()
+		public [IAttribute] Attributes { const get return GetAttributes(); }
+		
+        public const [IAttribute] GetAttributes()
         {
         	if (attrCache == null)
         	{
@@ -257,7 +259,7 @@ namespace Flame.DSharp.Build
 		       	
 	            attrCache = extraAttrs.ToArray();
 	    	}
-	    	return (IEnumerable<IAttribute>)attrCache;
+	    	return ([IAttribute])attrCache;
         }
 
         #endregion
@@ -265,6 +267,8 @@ namespace Flame.DSharp.Build
         #region Base Methods
         
         private IMethod[] baseMethodCache;
+        public IMethod[] BaseMethods { const get return GetBaseMethods(); }
+        
         public virtual IMethod[] GetBaseMethods()
         {
         	if (baseMethodCache == null)
@@ -303,7 +307,7 @@ namespace Flame.DSharp.Build
 
         #region Generics
 
-        public virtual IEnumerable<IGenericParameter> GetGenericParameters()
+        public virtual [IGenericParameter] GetGenericParameters()
         {
             return DSharpTypeExtensions.CreateConstrainedGenericParameters(GetDeclaringSyntaxState(), this, Syntax.Signature.GenericDeclarations, Syntax.GenericConstraints);
         }
