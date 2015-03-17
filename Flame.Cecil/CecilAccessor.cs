@@ -59,6 +59,35 @@ namespace Flame.Cecil
             get { return Method.IsStatic; }
         }
 
+        public override IType ReturnType
+        {
+            get
+            {
+                return Method.ReturnType;
+            }
+        }
+
+        public override IParameter[] GetParameters()
+        {
+            return Method.GetParameters();
+        }
+
+        public override string Name
+        {
+            get
+            {
+                return Method.Name;
+            }
+        }
+
+        public override string FullName
+        {
+            get
+            {
+                return Method.FullName;
+            }
+        }
+
         protected override IType ResolveLocalTypeParameter(IGenericParameter TypeParameter)
         {
             return Method.ResolveTypeParameter(TypeParameter);
