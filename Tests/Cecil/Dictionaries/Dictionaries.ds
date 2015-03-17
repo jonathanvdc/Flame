@@ -1,0 +1,21 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class DictionariesTest
+{
+    public const this() { dict = new Dictionary<string, string>(); }
+
+    private Dictionary<string, string> dict;
+
+    public string this[string Key]
+    {
+        const get return dict[Key];
+        set dict[Key] = value;
+    }
+
+    public [string] Values
+    {
+        const get return dict.Values;
+    }
+}
