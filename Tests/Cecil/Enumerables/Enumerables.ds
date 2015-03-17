@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public interface IEnumerableTest
 {
-    void Process([int] Values);
+    int Process([int] Values);
 }
 
 public class EnumerableImpl : IEnumerableTest
 {
-    public void Process(IEnumerable<int> Values) : IEnumerableTest.Process
+    public int Process(IEnumerable<int> Values) : IEnumerableTest.Process
     {
-    
+        return Enumerable.SingleOrDefault<int>(Values);
     }
 }
