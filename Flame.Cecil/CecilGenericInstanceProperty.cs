@@ -81,7 +81,7 @@ namespace Flame.Cecil
             {
                 if (accs == null)
                 {
-                    accs = Property.GetAccessors().Select(item => new CecilAccessor(this, (ICecilMethod)item, item.AccessorType)).ToArray();
+                    accs = Property.GetAccessors().Select(item => new CecilAccessor(this, new CecilGenericInstanceMethod(DeclaringType, (ICecilMethod)item), item.AccessorType)).ToArray();
                 }
                 return accs;
             }
