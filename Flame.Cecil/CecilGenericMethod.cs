@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using Flame.Build;
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,6 +73,35 @@ namespace Flame.Cecil
         public override bool IsStatic
         {
             get { return GenericDeclaration.IsStatic; }
+        }
+
+        public override string Name
+        {
+            get
+            {
+                return GenericNameExtensions.ChangeTypeArguments(GenericDeclaration.Name, TypeArguments.Select(item => item.Name));
+            }
+        }
+
+        public override string FullName
+        {
+            get
+            {
+                return GenericNameExtensions.ChangeTypeArguments(GenericDeclaration.FullName, TypeArguments.Select(item => item.FullName));
+            }
+        }
+
+        public override IParameter[] GetParameters()
+        {
+            return this.ResolveParameters(GenericDeclaration.GetParameters());
+        }
+
+        public override IType ReturnType
+        {
+            get
+            {
+                return this.ResolveType(GenericDeclaration.ReturnType);
+            }
         }
 
         protected override IType ResolveLocalTypeParameter(IGenericParameter TypeParameter)
