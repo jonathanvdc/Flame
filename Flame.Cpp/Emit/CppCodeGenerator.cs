@@ -327,22 +327,12 @@ namespace Flame.Cpp.Emit
 
         public IUnmanagedVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
         {
-            var descMember = new DescribedVariableMember(VariableMember.Name, this.ConvertType(VariableMember.VariableType));
-            foreach (var attr in VariableMember.GetAttributes())
-            {
-                descMember.AddAttribute(attr);
-            }
-            return LocalManager.Declare(descMember);
+            return LocalManager.Declare(this.ConvertVariableMember(VariableMember));
         }
 
         public IUnmanagedVariable DeclareNewUnmanagedVariable(IVariableMember VariableMember)
         {
-            var descMember = new DescribedVariableMember(VariableMember.Name, this.ConvertType(VariableMember.VariableType));
-            foreach (var attr in VariableMember.GetAttributes())
-            {
-                descMember.AddAttribute(attr);
-            }
-            return LocalManager.DeclareNew(descMember);
+            return LocalManager.DeclareNew(this.ConvertVariableMember(VariableMember));
         }
 
         #endregion
