@@ -112,6 +112,7 @@
 			<Compile Include="Syntax\SeparatedItem.ds" />
 			<Compile Include="Syntax\ITokenNode.ds" />
 			<Compile Include="Syntax\SyntaxVisitorBase.ds" />
+			<Compile Include="Syntax\DelimitedList.ds" />
 		</ItemGroup>
 		<ItemGroup Name="Structure">
 			<ItemGroup>
