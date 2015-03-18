@@ -320,6 +320,11 @@ namespace Flame.Cpp.Emit
             return DeclareUnmanagedVariable(VariableMember);
         }
 
+        public IVariable DeclareNewVariable(IVariableMember VariableMember)
+        {
+            return DeclareNewUnmanagedVariable(VariableMember);
+        }
+
         public IUnmanagedVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
         {
             var descMember = new DescribedVariableMember(VariableMember.Name, this.ConvertType(VariableMember.VariableType));
@@ -328,6 +333,16 @@ namespace Flame.Cpp.Emit
                 descMember.AddAttribute(attr);
             }
             return LocalManager.Declare(descMember);
+        }
+
+        public IUnmanagedVariable DeclareNewUnmanagedVariable(IVariableMember VariableMember)
+        {
+            var descMember = new DescribedVariableMember(VariableMember.Name, this.ConvertType(VariableMember.VariableType));
+            foreach (var attr in VariableMember.GetAttributes())
+            {
+                descMember.AddAttribute(attr);
+            }
+            return LocalManager.DeclareNew(descMember);
         }
 
         #endregion

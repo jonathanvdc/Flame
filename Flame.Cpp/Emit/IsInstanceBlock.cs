@@ -22,7 +22,10 @@ namespace Flame.Cpp.Emit
 
         public PointerKind ValuePointerKind
         {
-            get { return Value.Type.AsContainerType().AsPointerType().PointerKind; }
+            get
+            {
+                return Value.Type.AsContainerType().AsPointerType().PointerKind;
+            }
         }
         public IType ValueElementType
         {
