@@ -1,0 +1,20 @@
+using System;
+using System.Collections.Generic;
+using System.Collections;
+
+public class CustomEnumerableTest<T> : [T]
+{
+    public const this(set List<T> Values);
+
+    public List<T> Values { const get; private set; }
+
+    public const [<T>] GetGenericEnumerator() : IEnumerable<T>.GetEnumerator
+    {
+        return Values.GetEnumerator();
+    }
+
+    public const IEnumerator GetObjectEnumerator() : IEnumerable.GetEnumerator
+    {
+        return GetGenericEnumerator();
+    }
+}

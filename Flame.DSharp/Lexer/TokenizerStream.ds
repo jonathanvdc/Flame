@@ -172,6 +172,9 @@ namespace Flame.DSharp.Lexer
 		{
 			int startPos = pos;
 			pos++;
+            
+            if (pos == Code.Length) return Code.Substring(startPos, 1);
+            
 			char nextChar = Code[pos];
 			while (pos < Code.Length && IsWhitespace(nextChar))
 			{
