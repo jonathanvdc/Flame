@@ -1,5 +1,7 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Expressions;
 using Flame.Cpp.Emit;
 using System;
 using System.Collections.Generic;
@@ -119,13 +121,35 @@ namespace Flame.Cpp
                     var bodyGen = method.GetBodyGenerator();
                     var codeGen = bodyGen.CodeGenerator;
 
+                    // if (!isCheckingInvariants)
+                    // {
+                    //     isCheckingInvariants = true;
+                    //     bool result = <condition>;
+                    //     isCheckingInvariants = false;
+                    //     return result;
+                    // }
+                    // return true;
+
+                    var fieldVar = codeGen.GetField(Invariants.IsCheckingInvariantsField, codeGen.GetThis().CreateGetExpression().Emit(codeGen));
+
+                    var ifBlock = codeGen.CreateIfElseBlock(codeGen.EmitNot(fieldVar.CreateGetExpression().Emit(codeGen)));
+
+                    var ifBody = ifBlock.IfBlock;
+
+                    fieldVar.CreateSetStatement(new BooleanExpression(true)).Emit(ifBody); // isCheckingInvariants = true;
+                    var resultVariable = codeGen.DeclareVariable(new DescribedVariableMember("result", PrimitiveTypes.Boolean));
                     var allInvariants = Invariants.GetAllInvariants();
                     var test = allInvariants.First();
                     foreach (var item in allInvariants.Skip(1))
                     {
                         test = (ICppBlock)codeGen.EmitLogicalAnd(test, item);
                     }
-                    bodyGen.EmitReturn(test);
+                    resultVariable.CreateSetStatement(new CodeBlockExpression(test, PrimitiveTypes.Boolean)).Emit(ifBody); // bool result = <condition>;
+                    fieldVar.CreateSetStatement(new BooleanExpression(false)).Emit(ifBody); // isCheckingInvariants = false;
+                    ifBody.EmitReturn(resultVariable.CreateGetExpression().Emit(codeGen)); // return result;
+
+                    bodyGen.EmitBlock(ifBlock);
+                    bodyGen.EmitReturn(codeGen.EmitBoolean(true));
                 }
                 invariantCount = Invariants.InvariantCount;
                 cppMethod = method;

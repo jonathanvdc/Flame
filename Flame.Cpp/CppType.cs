@@ -233,7 +233,12 @@ namespace Flame.Cpp
 
         public IField[] GetFields()
         {
-            return fields.ToArray();
+            IEnumerable<IField> results = fields;
+            if (Invariants.HasInvariants)
+            {
+                results = results.With(Invariants.IsCheckingInvariantsField);
+            }
+            return results.ToArray();
         }
 
         public IMethod[] GetConstructors()
@@ -266,7 +271,8 @@ namespace Flame.Cpp
             var results = fields.Concat<ICppMember>(methods).Concat(properties).Concat(types);
             if (Invariants.HasInvariants)
             {
-                results = results.With(Invariants.CheckInvariantsMethod.ToCppMethod());
+                results = results.With(Invariants.CheckInvariantsMethod.ToCppMethod())
+                                 .With(Invariants.IsCheckingInvariantsField);
             }
             return results;
         }

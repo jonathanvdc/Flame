@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Expressions;
 using Flame.Cpp.Emit;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,13 @@ namespace Flame.Cpp
             this.CheckInvariantsMethod = new InvariantMethod(this);
             this.CodeGenerator = new CppCodeGenerator(CheckInvariantsMethod, Environment);
             this.invariants = new List<ICppBlock>();
+
+            var descField = new DescribedField("isCheckingInvariants", PrimitiveTypes.Boolean, false);
+            descField.DeclaringType = DeclaringType;
+            descField.AddAttribute(new AccessAttribute(AccessModifier.Private));
+            this.IsCheckingInvariantsField = new CppField(DeclaringType, descField, Environment);
+            this.IsCheckingInvariantsField.SetValue(new BooleanExpression(false));
+            this.IsCheckingInvariantsField.IsMutable = true;
         }
 
         public IGenericResolverType DeclaringType { get; private set; }
@@ -25,6 +33,7 @@ namespace Flame.Cpp
         public ICppEnvironment Environment { get; private set; }
 
         public InvariantMethod CheckInvariantsMethod { get; private set; }
+        public CppField IsCheckingInvariantsField { get; private set; }
 
         private List<ICppBlock> invariants;
 
