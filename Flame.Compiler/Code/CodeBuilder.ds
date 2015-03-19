@@ -247,7 +247,7 @@ namespace Flame.Compiler
         /// </summary>
         public const CodeLine GetCodeLine(int StartLine, int Count)
         {
-        	for (int i = StartLine; i < Count; i++)
+        	for (int i = StartLine; i < StartLine + Count; i++)
         	{
         		if (!this[i].IsWhitespace)
         		{
@@ -295,6 +295,30 @@ namespace Flame.Compiler
         }
         
         /// <summary>
+        /// Counts the number of non-whitespace code lines in a region
+        /// with the given length, starting at the given start line.
+        /// </summary>
+        public const int GetCodeLineCount(int StartLine, int Count)
+        {
+        	int result = 0;
+        	for (int i = StartLine; i < StartLine + Count; i++)
+        		if (!this[i].IsWhitespace)
+        	{
+        		result++;
+        	}
+        	return result;
+        }
+        
+        /// <summary>
+        /// Counts the number of non-whitespace code lines in a region
+        /// from the given start index to the end of the code builder.
+        /// </summary>
+        public const int GetCodeLineCount(int StartLine)
+        {
+        	return GetCodeLineCount(StartLine, LineCount - StartLine);
+        }
+        
+        /// <summary>
         /// Gets the code builder's first non-whitespace line of code.
         /// </summary>
         public CodeLine FirstCodeLine
@@ -308,6 +332,14 @@ namespace Flame.Compiler
         public CodeLine LastCodeLine
         {
         	const get return GetLastCodeLine(0);
+        }
+        
+        /// <summary>
+        /// Gets the total amount of non-whitespace code lines in the code builder.
+        /// </summary>
+        public int CodeLineCount
+        {
+        	const get return GetCodeLineCount(0);
         }
         
         #endregion

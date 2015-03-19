@@ -61,7 +61,7 @@ namespace Flame.Cpp.Emit
             }
             bool appendEmptyLine = ifBodyType == BodyStatementType.Single;
             var elseBody = ((ICppBlock)ElseBlock).GetCode();
-            if (elseBody.LineCount > 0 && !(elseBody.LineCount == 1 && elseBody[0].Text.Trim() == ";"))
+            if (elseBody.LineCount > 0 && !(elseBody.CodeLineCount == 1 && elseBody.FirstCodeLine.Text.Trim() == ";"))
             {
                 cb.AddLine("else");
                 if (elseBody[0].Text.TrimStart().StartsWith("if"))
