@@ -112,7 +112,7 @@ namespace Flame.DSharp.Build
 
 
 		private IAttribute[] attrCache;
-        public const IEnumerable<IAttribute> GetAttributes()
+        public const [IAttribute] GetAttributes()
         {
         	if (attrCache == null)
         	{

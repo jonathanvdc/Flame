@@ -1,0 +1,52 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Build;
+using Flame.Compiler;
+using Flame.DSharp;
+using Flame.DSharp.Build;
+using Flame.DSharp.Lexer;
+using Flame.Compiler.Expressions;
+
+namespace Flame.Syntax.DSharp
+{
+	public class InvariantSyntax : IExpressionSyntax, IMemberSyntax<IInvariant>
+	{
+		public const this(set Token InvariantKeyword, set Token LeadingBraces, set IExpressionSyntax Condition, set Token TrailingBraces);
+		
+		public Token InvariantKeyword { const get; private set; }
+		public Token LeadingBraces { const get; private set; }
+		public IExpressionSyntax Condition { const get; private set; }
+		public Token TrailingBraces { const get; private set; }
+		
+		public const IExpression CreateExpression(ISyntaxState State)
+		{
+			return Condition.CreateVerifiedExpression(State);
+		}
+		
+		public const CodeBuilder GetCode()
+		{
+			CodeBuilder cb = new CodeBuilder();
+			cb.Append(InvariantKeyword.ToString());
+			cb.Append(LeadingBraces.ToString());
+			cb.Append(Condition.GetCode());
+			cb.Append(TrailingBraces.ToString());
+			return cb;
+		}
+		
+		public const IInvariant CreateMember(ISyntaxState State)
+        {
+        	return new SyntaxInvariant(this, State);
+        }
+        
+        public bool IsExtensionMember
+        {
+            const get return false;
+        }
+        
+        public bool IsSingletonMember
+        {
+        	const get return false;
+        }
+	}
+}

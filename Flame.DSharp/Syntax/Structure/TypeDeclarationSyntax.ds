@@ -22,42 +22,49 @@ namespace Flame.Syntax.DSharp
 
         #region Contents
 
-        public IEnumerable<IMemberSyntax<IMember>> Members { const get; private set; }
+        public [IMemberSyntax<IMember>] Members { const get; private set; }
 
-        public IEnumerable<IMemberSyntax<T>> GetMembersOfType<T>() where T : IMember
+        public [IMemberSyntax<T>] GetMembersOfType<T>() where T : IMember
         {
         	return Enumerable.OfType<IMemberSyntax<T>>(Members);
         }
 
-        public IEnumerable<IMemberSyntax<IField>> Fields
+        public [IMemberSyntax<IField>] Fields
         {
             const get
             {
                 return GetMembersOfType<IField>();
             }
         }
-        public IEnumerable<IMemberSyntax<IProperty>> Properties
+        public [IMemberSyntax<IProperty>] Properties
         {
             const get
             {
                 return GetMembersOfType<IProperty>();
             }
         }
-        public IEnumerable<IMemberSyntax<IMethod>> Methods
+        public [IMemberSyntax<IMethod>] Methods
         {
             const get
             {
                 return GetMembersOfType<IMethod>();
             }
         }
-        public IEnumerable<IMemberSyntax<FieldProperty>> FieldProperties
+        public [IMemberSyntax<IInvariant>] Invariants
+        {
+            const get
+            {
+                return GetMembersOfType<IInvariant>();
+            }
+        }
+        public [IMemberSyntax<FieldProperty>] FieldProperties
         {
             const get
             {
                 return GetMembersOfType<FieldProperty>();
             }
         }
-        public IEnumerable<IMemberSyntax<IType>> Types
+        public [IMemberSyntax<IType>] Types
         {
             const get
             {

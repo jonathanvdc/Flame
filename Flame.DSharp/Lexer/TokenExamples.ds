@@ -149,6 +149,7 @@ namespace Flame.DSharp.Lexer
 			RegisterExample(TokenType.HashKeyword, "hash");
 			RegisterExample(TokenType.AssertKeyword, "assert");
 			RegisterExample(TokenType.ThrowKeyword, "throw");
+			RegisterExample(TokenType.InvariantKeyword, "invariant");
 		}
 	
 		private Dictionary<TokenType, TokenExample> examples;

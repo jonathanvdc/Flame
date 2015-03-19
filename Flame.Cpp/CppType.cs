@@ -456,7 +456,7 @@ namespace Flame.Cpp
             CodeBuilder cb = new CodeBuilder();
             if (EmitType)
             {
-                foreach (var item in GetCppMembers().Where(item => item.HasSourceCode))
+                foreach (var item in Environment.TypeDefinitionPacker.Pack(GetCppMembers().Where(item => item.HasSourceCode)))
                 {
                     cb.AddCodeBuilder(item.GetSourceCode());
                     cb.AddEmptyLine();

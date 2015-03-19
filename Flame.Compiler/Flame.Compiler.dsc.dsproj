@@ -56,6 +56,7 @@
 			<Compile Include="Emit\ICommentedCodeGenerator.ds" />
 			<Compile Include="Emit\IExceptionCodeGenerator.ds" />
 			<Compile Include="Emit\IContractBlockGenerator.ds" />
+			<Compile Include="Emit\IInvariantGenerator.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Expressions">
@@ -191,6 +192,11 @@
 			<Compile Include="Build\IOutputProvider.ds" />
 			<Compile Include="Build\DescribedBodyMethod.ds" />
 			<Compile Include="Build\GeneratorType.ds" />
+			<Compile Include="Build\IInvariantTypeBuilder.ds" />
+			<Compile Include="Build\IInvariantType.ds" />
+			<Compile Include="Build\IInvariant.ds" />
+			<Compile Include="Build\DescribedInvariant.ds" />
+			<Compile Include="Build\InvariantExtensions.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Projects">
