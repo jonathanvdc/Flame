@@ -37,11 +37,14 @@ namespace Flame.Cpp.Plugs
 
         public void Include(IOutputProvider OutputProvider)
         {
-            var handle = OutputProvider.Create("Contracts", "h");
-            using (var stream = handle.OpenOutput())
-            using (var writer = new StreamWriter(stream))
+            if (!OutputProvider.Exists("Contracts", "h"))
             {
-                writer.Write(Code);
+                var handle = OutputProvider.Create("Contracts", "h");
+                using (var stream = handle.OpenOutput())
+                using (var writer = new StreamWriter(stream))
+                {
+                    writer.Write(Code);
+                }
             }
         }
 

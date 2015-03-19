@@ -8,21 +8,32 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class GenericTypeArgumentsSyntax : IExpressionSyntax, ITypeMemberAccessSyntax, ITokenNode, IRelevantSyntax<Token>
+    public class GenericTypeArgumentsSyntax : IExpressionSyntax, ITypeMemberAccessSyntax, ITokenNode, IRelevantSyntax<Token>, ISourceSyntax
     {
-        public const this(set ITypeMemberAccessSyntax Target, set Token LeftDelimiter, set IEnumerable<ITypeSyntax> TypeArguments, set Token RightDelimiter);
+        public const this(set ITypeMemberAccessSyntax Target, set Token LeftDelimiter, set [ITypeSyntax] TypeArguments, set Token RightDelimiter);
 
         public ITypeMemberAccessSyntax Target { const get; private set; }
         public Token LeftDelimiter { const get; private set; }
-        public IEnumerable<ITypeSyntax> TypeArguments { const get; private set; }
+        public [ITypeSyntax] TypeArguments { const get; private set; }
         public Token RightDelimiter { const get; private set; }
         
-        public IEnumerable<Token> LeadingTrivia
+        public SourceLocation Location
+        {
+        	const get
+        	{
+        		var loc = Target.GetSourceLocation().Concat(LeftDelimiter.Location);
+        		foreach (var item in TypeArguments) loc = loc.Concat(item.GetSourceLocation());
+        		loc = loc.Concat(RightDelimiter.Location);
+        		return loc;
+        	}
+        }
+        
+        public [Token] LeadingTrivia
         {
         	const get return LeftDelimiter.GetAllTrivia();
         }
         
-        public IEnumerable<Token> TrailingTrivia
+        public [Token] TrailingTrivia
         {
         	const get return RightDelimiter.GetAllTrivia();
         }
@@ -77,7 +88,7 @@ namespace Flame.Syntax.DSharp
             return Target.GetCallerVariable(State);
         }
 
-        public const IEnumerable<ITypeMember> GetAccessedMembers(ISyntaxState State)
+        public const [ITypeMember] GetAccessedMembers(ISyntaxState State)
         {
             var genericArgs = Enumerable.ToArray<IType>(TypeArguments.CreateVerifiedTypes(State));
 

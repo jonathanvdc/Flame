@@ -115,6 +115,7 @@
 			<Compile Include="Syntax\SeparatedItem.ds" />
 			<Compile Include="Syntax\ITokenNode.ds" />
 			<Compile Include="Syntax\SyntaxVisitorBase.ds" />
+			<Compile Include="Syntax\DelimitedList.ds" />
 		</ItemGroup>
 		<ItemGroup Name="Structure">
 			<ItemGroup>
@@ -143,6 +144,7 @@
 				<Compile Include="Syntax\Structure\PreconditionSyntax.ds" />
 				<Compile Include="Syntax\Structure\PostconditionSyntax.ds" />
 				<Compile Include="Syntax\Structure\MethodContract.ds" />
+				<Compile Include="Syntax\Structure\InvariantSyntax.ds" />
 			</ItemGroup>
 		</ItemGroup>
 		<ItemGroup Name="Types">
@@ -197,6 +199,7 @@
 			<Compile Include="Build\SingletonInstanceAccessor.ds" />
 			<Compile Include="Build\AssociatedSingletonSyntaxType.ds" />
 			<Compile Include="Build\SingletonInitializeMethod.ds" />
+			<Compile Include="Build\SyntaxInvariant.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Variables">

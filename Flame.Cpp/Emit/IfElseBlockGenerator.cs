@@ -48,10 +48,20 @@ namespace Flame.Cpp.Emit
             cb.Append("if (");
             cb.Append(Condition.GetCode());
             cb.Append(")");
-            var ifBodyType = cb.AddBodyCodeBuilder(((ICppBlock)IfBlock).GetCode());
+            var ifBody = ((ICppBlock)IfBlock).GetCode();
+            BodyStatementType ifBodyType;
+            if (ifBody.FirstCodeLine.Text.TrimStart().StartsWith("if"))
+            {
+                cb.AddEmbracedBodyCodeBuilder(ifBody);
+                ifBodyType = BodyStatementType.Block;
+            }
+            else
+            {
+                ifBodyType = cb.AddBodyCodeBuilder(ifBody);
+            }
             bool appendEmptyLine = ifBodyType == BodyStatementType.Single;
             var elseBody = ((ICppBlock)ElseBlock).GetCode();
-            if (elseBody.LineCount > 0 && !(elseBody.LineCount == 1 && elseBody[0].Text.Trim() == ";"))
+            if (elseBody.LineCount > 0 && !(elseBody.CodeLineCount == 1 && elseBody.FirstCodeLine.Text.Trim() == ";"))
             {
                 cb.AddLine("else");
                 if (elseBody[0].Text.TrimStart().StartsWith("if"))
