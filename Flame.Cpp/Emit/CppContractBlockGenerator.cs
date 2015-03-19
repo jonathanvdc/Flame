@@ -36,12 +36,12 @@ namespace Flame.Cpp.Emit
 
         public void EmitPostcondition(ICodeBlock Block)
         {
-            Contract.Postconditions.Add(new PostconditionBlock((ICppBlock)Block));
+            Contract.AddPostcondition(new PostconditionBlock((ICppBlock)Block));
         }
 
         public void EmitPrecondition(ICodeBlock Block)
         {
-            Contract.Preconditions.Add(new PreconditionBlock((ICppBlock)Block));
+            Contract.AddPrecondition(new PreconditionBlock((ICppBlock)Block));
         }
 
         public override CodeBuilder GetCode()
@@ -49,7 +49,7 @@ namespace Flame.Cpp.Emit
             if (Contract.HasPreconditions)
             {
                 var oldBlocks = blocks;
-                var newBlocks = new List<ICppBlock>(Contract.Preconditions.Count + oldBlocks.Count);
+                var newBlocks = new List<ICppBlock>(oldBlocks.Count);
                 newBlocks.AddRange(Contract.Preconditions);
                 newBlocks.AddRange(oldBlocks);
                 this.blocks = newBlocks;

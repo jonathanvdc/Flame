@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp
 {
-    public class CppMethod : IMethodBuilder, ICppTemplateMember
+    public class CppMethod : IMethodBuilder, ICppTemplateMember, IEquatable<IMethod>
     {
         public CppMethod(IGenericResolverType DeclaringType, IMethod Template, ICppEnvironment Environment, bool IsStatic, bool IsGlobal)
         {
@@ -358,6 +358,65 @@ namespace Flame.Cpp
         public override string ToString()
         {
             return GetHeaderCode().ToString();
+        }
+
+        #endregion
+
+        #region Equality
+
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode() ^ DeclaringType.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is IMethod)
+            {
+                return this.Equals((IMethod)obj);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public static bool Equals(IMethod First, IMethod Other)
+        {
+            if (object.ReferenceEquals(First, Other))
+            {
+                return true;
+            }
+            if ((First.DeclaringType == null || Other.DeclaringType == null) && object.ReferenceEquals(First.DeclaringType, Other.DeclaringType))
+            {
+                return false;
+            }
+            if (First.Name == Other.Name && Other.IsStatic == First.IsStatic && (First.DeclaringType == null || First.DeclaringType.Equals(Other.DeclaringType)))
+            {
+                var tComparer = new ScopedTypeEqualityComparer();
+
+                if (!tComparer.Compare(Other.ReturnType, First.ReturnType))
+                    return false;
+                var otherParams = Other.GetParameters();
+                var parameters = First.GetParameters();
+                if (otherParams.Length != parameters.Length)
+                    return false;
+
+                for (int i = 0; i < otherParams.Length; i++)
+                {
+                    if (!tComparer.Compare(parameters[i].ParameterType, otherParams[i].ParameterType))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
+        public bool Equals(IMethod Other)
+        {
+            return Equals(this, Other);
         }
 
         #endregion

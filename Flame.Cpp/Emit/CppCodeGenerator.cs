@@ -17,7 +17,7 @@ namespace Flame.Cpp.Emit
             this.Method = Method;
             this.Environment = Environment;
             this.LocalManager = new CppLocalManager(this);
-            this.Contract = new MethodContract();
+            this.Contract = new MethodContract(this);
         }
 
         public MethodContract Contract { get; private set; }
