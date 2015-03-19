@@ -2079,7 +2079,7 @@ namespace Flame.DSharp.Parser
 
         #region ParseParameterList
 
-        protected virtual IEnumerable<IMemberSyntax<IParameter>> ParseParameterList(ITokenStream Tokens, TokenType LeftDelimiter, TokenType RightDelimiter)
+        protected virtual [IMemberSyntax<IParameter>] ParseParameterList(ITokenStream Tokens, TokenType LeftDelimiter, TokenType RightDelimiter)
         {
             Tokens.NextNoTrivia(LeftDelimiter, Log);
 
@@ -2112,7 +2112,7 @@ namespace Flame.DSharp.Parser
 
         #region ParseTypeList
 
-        protected virtual IEnumerable<ITypeSyntax> ParseTypeList(ITokenStream Tokens)
+        protected virtual [ITypeSyntax] ParseTypeList(ITokenStream Tokens)
         {
             List<ITypeSyntax> baseTypes = new List<ITypeSyntax>();
             while (true)
@@ -2365,6 +2365,11 @@ namespace Flame.DSharp.Parser
 
         protected virtual IMemberSyntax<IMember> ParseMember(ITokenStream Tokens)
         {
+        	if (Tokens.PeekNoTrivia().Type == TokenType.InvariantKeyword)
+        	{
+        		return ParseInvariant(Tokens);
+        	}
+        
             var commonSig = ParseCommonSignatureSyntax(Tokens);
 
 			bool isTypeDecl = false;
@@ -2401,6 +2406,20 @@ namespace Flame.DSharp.Parser
 
         #endregion
         
+        #region Invariant Parsing
+        
+        protected virtual IMemberSyntax<IInvariant> ParseInvariant(ITokenStream Tokens)
+        {
+        	var invariantKeyword = Tokens.NextNoTrivia(TokenType.InvariantKeyword, Log);
+        	var leadingBraces = Tokens.NextNoTrivia(TokenType.RBraces, Log);
+            var cond = ParseExpression(Tokens);
+            var trailingBraces = Tokens.NextNoTrivia(TokenType.LBraces, Log);
+			
+            return new InvariantSyntax(invariantKeyword, leadingBraces, cond, trailingBraces);
+        }
+        
+        #endregion
+        
         #region Type Declaration Parsing
 
         protected virtual ITypeDeclarationSyntax ParseTypeDeclaration(ITokenStream Tokens, ISignatureSyntax Signature)
@@ -2408,7 +2427,7 @@ namespace Flame.DSharp.Parser
             var peek = Tokens.PeekNoTrivia();
 
             Token colon;
-            IEnumerable<ITypeSyntax> baseTypes;
+            [ITypeSyntax] baseTypes;
 
             if (peek.Type == TokenType.Colon)
             {

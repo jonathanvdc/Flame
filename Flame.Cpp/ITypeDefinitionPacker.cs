@@ -37,6 +37,21 @@ namespace Flame.Cpp
             }
             return cb;
         }
+
+        public CodeBuilder GetSourceCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            if (Members.Any())
+            {
+                cb.AddCodeBuilder(Members.First().GetSourceCode());
+                foreach (var item in Members.Skip(1))
+                {
+                    cb.AddEmptyLine();
+                    cb.AddCodeBuilder(item.GetSourceCode());
+                }
+            }
+            return cb;
+        }
     }
 
     /// <summary>

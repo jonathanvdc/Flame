@@ -15,7 +15,7 @@ using Flame.Syntax.DSharp;
 
 namespace Flame.DSharp.Build
 {
-    public abstract class SyntaxTypeBase : CodeMember, IDSharpSyntaxType
+    public abstract class SyntaxTypeBase : CodeMember, IDSharpSyntaxType, IInvariantType
     {
     	public const this()
     	{
@@ -412,6 +412,12 @@ namespace Flame.DSharp.Build
             return methods.ToArray();
         }
         public IMethod[] Constructors { const get return GetConstructors(); }
+        
+        public virtual [IInvariant] GetInvariants()
+        {
+            return CreateTypeMembers<IInvariant>(Syntax.Invariants, "Invariants");
+        }
+        public [IInvariant] Invariants { const get return GetInvariants(); }
 
         public IBoundObject GetDefaultValue()
         {
