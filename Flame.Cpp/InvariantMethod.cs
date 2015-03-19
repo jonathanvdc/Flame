@@ -21,7 +21,10 @@ namespace Flame.Cpp
 
         public IMethod[] GetBaseMethods()
         {
-            return DeclaringType.GetBaseTypes().Select(item => item.GetMethod(Name, IsStatic, ReturnType, GetParameters().GetTypes())).ToArray();
+            return DeclaringType.GetBaseTypes()
+                .Select(item => item.GetMethod(Name, IsStatic, ReturnType, GetParameters().GetTypes()))
+                .Where(item => item != null)
+                .ToArray();
         }
 
         public IMethod GetGenericDeclaration()

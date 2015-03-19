@@ -170,7 +170,7 @@ namespace Flame.Cpp
 
         public bool EmitInline
         {
-            get { return this.get_IsGeneric() && this.DeclaringType.get_IsGenericDeclaration(); }
+            get { return (this.get_IsGeneric() && this.DeclaringType.get_IsGenericDeclaration()) || this.Equals(DeclaringType.GetInvariantsCheckMethod()); }
         }
 
         public bool IsOverride
@@ -386,6 +386,10 @@ namespace Flame.Cpp
             if (object.ReferenceEquals(First, Other))
             {
                 return true;
+            }
+            else if (First == null || Other == null)
+            {
+                return false;
             }
             if ((First.DeclaringType == null || Other.DeclaringType == null) && object.ReferenceEquals(First.DeclaringType, Other.DeclaringType))
             {
