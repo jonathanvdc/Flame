@@ -704,7 +704,12 @@ namespace Flame.Recompilation
                 Log.LogEvent(new LogEntry("Status", "Recompiling " + SourceType.FullName));
             }
             var typeTemplate = RecompiledTypeTemplate.GetRecompilerTemplate(this, SourceType);
-            return DeclaringNamespace.DeclareType(typeTemplate);
+            var type = DeclaringNamespace.DeclareType(typeTemplate);
+            if (type is IInvariantTypeBuilder && SourceType is IInvariantType)
+            {
+                RecompileInvariants((IInvariantType)SourceType, (IInvariantTypeBuilder)type);
+            }
+            return type;
         }
 
         private void RecompileEntireType(IType Type)
@@ -831,6 +836,34 @@ namespace Flame.Recompilation
         private IPropertyBuilder RecompilePropertyHeader(ITypeBuilder DeclaringType, IProperty SourceProperty)
         {
             return DeclaringType.DeclareProperty(RecompiledPropertyTemplate.GetRecompilerTemplate(this, SourceProperty));
+        }
+
+        #endregion
+
+        #region Invariant Recompilation
+
+        private void RecompileInvariant(IInvariantTypeBuilder DeclaringType, IInvariant Invariant)
+        {
+            var invariantGen = DeclaringType.InvariantGenerator;
+            var expr = GetExpression(Invariant.Invariant, CreateEmptyMethod(Invariant));
+            var block = expr.Emit(invariantGen.CodeGenerator);
+            invariantGen.EmitInvariant(block);
+        }
+
+        private void RecompileInvariantsCore(IInvariantType SourceType, IInvariantTypeBuilder TargetType)
+        {
+            foreach (var item in SourceType.GetInvariants())
+            {
+                RecompileInvariant(TargetType, item);
+            }
+        }
+
+        private void RecompileInvariants(IInvariantType SourceType, IInvariantTypeBuilder TargetType)
+        {
+            if (RecompileBodies && !Log.Options.GetOption<bool>("omit-invariants", false))
+            {
+                TaskManager.QueueAction(() => RecompileInvariantsCore(SourceType, TargetType));
+            }
         }
 
         #endregion

@@ -22,7 +22,10 @@ namespace Flame.Cpp.Emit
 
         public PointerKind ValuePointerKind
         {
-            get { return Value.Type.AsContainerType().AsPointerType().PointerKind; }
+            get
+            {
+                return Value.Type.AsContainerType().AsPointerType().PointerKind;
+            }
         }
         public IType ValueElementType
         {
@@ -63,13 +66,14 @@ namespace Flame.Cpp.Emit
         {
             get
             {
+                var baseDeps = Value.Dependencies.MergeDependencies(TestElementType.GetDependencies());
                 if (!UseVerboseCheck)
                 {
-                    return Value.Dependencies.MergeDependencies(new IHeaderDependency[] { Plugs.IsInstanceHeader.Instance });
+                    return baseDeps.MergeDependencies(new IHeaderDependency[] { Plugs.IsInstanceHeader.Instance });
                 }
                 else
                 {
-                    return Value.Dependencies;
+                    return baseDeps;
                 }
             }
         }

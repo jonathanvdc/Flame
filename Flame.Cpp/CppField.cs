@@ -101,6 +101,13 @@ namespace Flame.Cpp
                 cb.Append(" = ");
                 cb.Append(block.GetCode());
             }
+            else if (FieldType.get_IsPrimitive() && !FieldType.Equals(PrimitiveTypes.String))
+            {
+                var cg = new CppCodeGenerator(new DescribedMethod(Name, DeclaringType, FieldType, IsStatic), Environment);
+                var block = (ICppBlock)cg.EmitDefaultValue(FieldType);
+                cb.Append(" = ");
+                cb.Append(block.GetCode());
+            }
             cb.Append(';');
             return cb;
         }

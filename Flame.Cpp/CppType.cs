@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Emit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,8 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp
 {
-    public class CppType : ITypeBuilder, ICppTemplateMember, IGenericResolverType, INamespaceBranch, INamespaceBuilder, IEquatable<IType>
+    public class CppType : IInvariantTypeBuilder, ICppTemplateMember, IGenericResolverType,
+                           INamespaceBranch, INamespaceBuilder, IEquatable<IType>
     {
         public CppType(INamespace DeclaringNamespace, IType Template, ICppEnvironment Environment)
         {
@@ -16,6 +18,7 @@ namespace Flame.Cpp
             this.Template = Template;
             this.Templates = new CppTemplateDefinition(this, Template);
             this.Environment = new TemplatedMemberCppEnvironment(Environment, this);
+            this.Invariants = new TypeInvariants(this, Environment);
             CreateMemberCache();
         }
 
@@ -23,6 +26,12 @@ namespace Flame.Cpp
         public IType Template { get; private set; }
         public CppTemplateDefinition Templates { get; private set; }
         public ICppEnvironment Environment { get; private set; }
+        public TypeInvariants Invariants { get; private set; }
+
+        public IInvariantGenerator InvariantGenerator
+        {
+            get { return new Flame.Cpp.Emit.InvariantGenerator(Invariants); }
+        }
 
         public Func<INamespace, IConverter<IType, string>> TypeNamer { get { return Environment.TypeNamer; } }
 
@@ -212,7 +221,7 @@ namespace Flame.Cpp
         {
             var method = new CppMethod(this, Template, Environment, true, true);
             friendMethods.Add(method);
-            return method; 
+            return method;
         }
 
         public IPropertyBuilder DeclareProperty(IProperty Template)
@@ -224,7 +233,12 @@ namespace Flame.Cpp
 
         public IField[] GetFields()
         {
-            return fields.ToArray();
+            IEnumerable<IField> results = fields;
+            if (Invariants.HasInvariants)
+            {
+                results = results.With(Invariants.IsCheckingInvariantsField);
+            }
+            return results.ToArray();
         }
 
         public IMethod[] GetConstructors()
@@ -234,7 +248,12 @@ namespace Flame.Cpp
 
         public IMethod[] GetMethods()
         {
-            return methods.Where((item) => !item.IsConstructor).ToArray();
+            IEnumerable<IMethod> results = methods.Where((item) => !item.IsConstructor);
+            if (Invariants.HasInvariants)
+            {
+                results = results.With(Invariants.CheckInvariantsMethod);
+            }
+            return results.ToArray();
         }
 
         public IProperty[] GetProperties()
@@ -249,7 +268,13 @@ namespace Flame.Cpp
 
         public IEnumerable<ICppMember> GetCppMembers()
         {
-            return fields.Concat<ICppMember>(methods).Concat(properties).Concat(types);
+            var results = fields.Concat<ICppMember>(methods).Concat(properties).Concat(types);
+            if (Invariants.HasInvariants)
+            {
+                results = results.With(Invariants.CheckInvariantsMethod.ToCppMethod())
+                                 .With(Invariants.IsCheckingInvariantsField);
+            }
+            return results;
         }
 
         #endregion
@@ -433,7 +458,7 @@ namespace Flame.Cpp
                     cb.DecreaseIndentation();
                 }
 
-                cb.AddLine("};");   
+                cb.AddLine("};");
             }
 
             foreach (var item in friendMethods)
@@ -456,7 +481,7 @@ namespace Flame.Cpp
             CodeBuilder cb = new CodeBuilder();
             if (EmitType)
             {
-                foreach (var item in GetCppMembers().Where(item => item.HasSourceCode))
+                foreach (var item in Environment.TypeDefinitionPacker.Pack(GetCppMembers().Where(item => item.HasSourceCode)))
                 {
                     cb.AddCodeBuilder(item.GetSourceCode());
                     cb.AddEmptyLine();

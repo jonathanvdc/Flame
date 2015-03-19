@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Emit;
 using Flame.Cpp.Emit;
 using Flame.RT;
 using System;
@@ -362,6 +363,20 @@ namespace Flame.Cpp
         public static IType ConvertValueType(this IMember Member, IType Type)
         {
             return Member.GetEnvironment().TypeConverter.ConvertWithValueSemantics(Type);
+        }
+
+        #endregion
+
+        #region ConvertVariableMember
+
+        public static IVariableMember ConvertVariableMember(this ICodeGenerator CodeGenerator, IVariableMember Member)
+        {
+            var descMember = new DescribedVariableMember(Member.Name, CodeGenerator.ConvertType(Member.VariableType));
+            foreach (var attr in Member.GetAttributes())
+            {
+                descMember.AddAttribute(attr);
+            } 
+            return descMember;
         }
 
         #endregion

@@ -71,6 +71,7 @@ namespace Flame.DSharp.Lexer
 			this.keywords["hash"] = TokenType.HashKeyword;
 			this.keywords["assert"] = TokenType.AssertKeyword;
 			this.keywords["throw"] = TokenType.ThrowKeyword;
+			this.keywords["invariant"] = TokenType.InvariantKeyword;
 			
 			this.operators1 = new Dictionary<char, TokenType>();
 			this.operators1[';'] = TokenType.Semicolon;
@@ -172,6 +173,9 @@ namespace Flame.DSharp.Lexer
 		{
 			int startPos = pos;
 			pos++;
+            
+            if (pos == Code.Length) return Code.Substring(startPos, 1);
+            
 			char nextChar = Code[pos];
 			while (pos < Code.Length && IsWhitespace(nextChar))
 			{

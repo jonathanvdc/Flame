@@ -238,8 +238,117 @@ namespace Flame.Compiler
         
         #endregion
         
+        #region Code lines
+        
+        /// <summary>
+        /// Gets the code builder's first non-whitespace line of code,
+        /// starting at the given start line and ending after having examined the given number of lines.
+        /// If no matching line is found, a whiteline is returned.
+        /// </summary>
+        public const CodeLine GetCodeLine(int StartLine, int Count)
+        {
+        	for (int i = StartLine; i < StartLine + Count; i++)
+        	{
+        		if (!this[i].IsWhitespace)
+        		{
+        			return this[i];
+        		}
+        	}
+        	return new CodeLine("\0");
+        }
+        
+        /// <summary>
+        /// Gets the code builder's last non-whitespace last of code,
+        /// starting at the given start line and ending after having examined the given number of lines.
+        /// If no matching line is found, a whiteline is returned.
+        /// </summary>
+        public const CodeLine GetLastCodeLine(int StartLine, int Count)
+        {
+        	for (int i = StartLine + Count - 1; i >= StartLine; i--)
+        	{
+        		if (!this[i].IsWhitespace)
+        		{
+        			return this[i];
+        		}
+        	}
+        	return new CodeLine("\0");
+        }
+        
+        /// <summary>
+        /// Gets the code builder's first non-whitespace line of code,
+        /// starting at the given start line.
+        /// If matching line is found, a whiteline is returned.
+        /// </summary>
+        public const CodeLine GetCodeLine(int StartLine)
+        {
+        	return GetCodeLine(StartLine, LineCount - StartLine);
+        }
+        
+        /// <summary>
+        /// Gets the code builder's last non-whitespace line of code,
+        /// starting at the given start line.
+        /// If matching line is found, a whiteline is returned.
+        /// </summary>
+        public const CodeLine GetLastCodeLine(int StartLine)
+        {
+        	return GetLastCodeLine(StartLine, LineCount - StartLine);
+        }
+        
+        /// <summary>
+        /// Counts the number of non-whitespace code lines in a region
+        /// with the given length, starting at the given start line.
+        /// </summary>
+        public const int GetCodeLineCount(int StartLine, int Count)
+        {
+        	int result = 0;
+        	for (int i = StartLine; i < StartLine + Count; i++)
+        		if (!this[i].IsWhitespace)
+        	{
+        		result++;
+        	}
+        	return result;
+        }
+        
+        /// <summary>
+        /// Counts the number of non-whitespace code lines in a region
+        /// from the given start index to the end of the code builder.
+        /// </summary>
+        public const int GetCodeLineCount(int StartLine)
+        {
+        	return GetCodeLineCount(StartLine, LineCount - StartLine);
+        }
+        
+        /// <summary>
+        /// Gets the code builder's first non-whitespace line of code.
+        /// </summary>
+        public CodeLine FirstCodeLine
+        {
+        	const get return GetCodeLine(0);
+        }
+        
+        /// <summary>
+        /// Gets the code builder's last non-whitespace line of code.
+        /// </summary>
+        public CodeLine LastCodeLine
+        {
+        	const get return GetLastCodeLine(0);
+        }
+        
+        /// <summary>
+        /// Gets the total amount of non-whitespace code lines in the code builder.
+        /// </summary>
+        public int CodeLineCount
+        {
+        	const get return GetCodeLineCount(0);
+        }
+        
+        #endregion
+        
         #region Properties
 
+		/// <summary>
+		/// Gets the number of lines the code builder currently has.
+		/// </summary>
         public int LineCount
         {
             const get
@@ -248,6 +357,9 @@ namespace Flame.Compiler
             }
         }
         
+        /// <summary>
+        /// Gets a boolean value that tells if this code builder consists of whitespace only.
+        /// </summary>
         public bool IsWhitespace
         {
         	const get
@@ -261,6 +373,9 @@ namespace Flame.Compiler
         	}
         }
         
+        /// <summary>
+        /// Gets or sets the code line at the given index.
+        /// </summary>
         public CodeLine this[int index]
         {
             const get { return lines[index]; }
@@ -269,6 +384,9 @@ namespace Flame.Compiler
         
         #endregion
 
+		/// <summary>
+		/// Inserts a code line at the given index.
+		/// </summary>
         public void InsertLine(int Index, CodeLine Line)
         {
             lines.Insert(Index, Line);

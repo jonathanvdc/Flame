@@ -58,9 +58,12 @@
     <Compile Include="CppExtensions.cs" />
     <Compile Include="CppField.cs" />
     <Compile Include="CppForwardReference.cs" />
+    <Compile Include="CppInvariantExtensions.cs" />
+    <Compile Include="InvariantMethod.cs" />
     <Compile Include="CppNameExtensions.cs" />
     <Compile Include="CppOptionExtensions.cs" />
     <Compile Include="CppPointerExtensions.cs" />
+    <Compile Include="TypeInvariants.cs" />
     <Compile Include="DefaultTypeDefinitionPacker.cs" />
     <Compile Include="Emit\BodyStatementType.cs" />
     <Compile Include="Emit\CollectionBlock.cs" />
@@ -68,7 +71,9 @@
     <Compile Include="Emit\CppBlockExtensions.cs" />
     <Compile Include="Emit\CppContractBlockGenerator.cs" />
     <Compile Include="Emit\DoubleLiteralBlock.cs" />
+    <Compile Include="Emit\EmptyBlock.cs" />
     <Compile Include="Emit\FloatLiteralBlock.cs" />
+    <Compile Include="Emit\InvariantGenerator.cs" />
     <Compile Include="Emit\IsInstanceBlock.cs" />
     <Compile Include="Emit\MethodContract.cs" />
     <Compile Include="Emit\FinallyBlock.cs" />

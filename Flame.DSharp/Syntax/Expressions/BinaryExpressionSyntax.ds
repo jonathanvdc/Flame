@@ -105,7 +105,8 @@ namespace Flame.Syntax.DSharp
             else
             {
             	overload = Op.GetOperatorOverload(new IType[] { lType, rType });
-            	if (overload == null)
+            	if (overload == null && !State.Log.Options.GetOption<bool>("wrelax-operators", false))
+            	if (!(State.Log.Options.GetOption<bool>("wrelax-generic-operators", false) && (lType.IsGenericParameter || rType.IsGenericParameter)))
             	{
             		State.Log.LogWarning(new LogEntry("Operator overload missing", "No operator overload could be found for operator '" + Op.ToString() + "'.", Left.GetSourceLocation().Concat(Right.GetSourceLocation())));
             	}

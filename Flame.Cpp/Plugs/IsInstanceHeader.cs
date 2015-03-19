@@ -55,11 +55,17 @@ namespace stdx
 
         public void Include(IOutputProvider OutputProvider)
         {
-            var handle = OutputProvider.Create("IsInstance", "h");
-            using (var stream = handle.OpenOutput())
-            using (var writer = new StreamWriter(stream))
+            if (!OutputProvider.Exists("IsInstance", "h"))
             {
-                writer.Write(Code);
+                var cb = new CodeBuilder(Code); // Format code first.
+                cb.IndentationString = new string(' ', 4);
+
+                var handle = OutputProvider.Create("IsInstance", "h");
+                using (var stream = handle.OpenOutput())
+                using (var writer = new StreamWriter(stream))
+                {
+                    writer.Write(cb.ToString());
+                }
             }
         }
 

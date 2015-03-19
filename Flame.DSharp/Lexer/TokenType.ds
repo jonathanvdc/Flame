@@ -117,7 +117,8 @@ namespace Flame.DSharp.Lexer
         OperatorKeyword = 103,
         HashKeyword = 104,
         AssertKeyword = 105,
-        ThrowKeyword = 106
+        ThrowKeyword = 106,
+        InvariantKeyword = 107
     }
 
     #endregion
