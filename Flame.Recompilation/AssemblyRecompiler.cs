@@ -860,7 +860,7 @@ namespace Flame.Recompilation
 
         private void RecompileInvariants(IInvariantType SourceType, IInvariantTypeBuilder TargetType)
         {
-            if (RecompileBodies)
+            if (RecompileBodies && !Log.Options.GetOption<bool>("omit-invariants", false))
             {
                 TaskManager.QueueAction(() => RecompileInvariantsCore(SourceType, TargetType));
             }
