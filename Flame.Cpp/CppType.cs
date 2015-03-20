@@ -409,6 +409,16 @@ namespace Flame.Cpp
 
         #endregion
 
+        private void AppendInheritanceCode(CodeBuilder cb, IType Type)
+        {
+            cb.Append("public ");
+            if (Type.get_IsInterface())
+            {
+                cb.Append("virtual ");
+            }
+            cb.Append(TypeNamer.Name(Type, (IType)this));
+        }
+
         private CodeBuilder GetInheritanceCode()
         {
             var bTypes = GetBaseTypes();
@@ -419,12 +429,12 @@ namespace Flame.Cpp
             else
             {
                 var cb = new CodeBuilder();
-                cb.Append(" : public ");
-                cb.Append(TypeNamer.Name(bTypes[0], (IType)this));
+                cb.Append(" : ");
+                AppendInheritanceCode(cb, bTypes[0]);
                 for (int i = 1; i < bTypes.Length; i++)
                 {
-                    cb.Append(", public ");
-                    cb.Append(TypeNamer.Name(bTypes[i], (IType)this));
+                    cb.Append(", ");
+                    AppendInheritanceCode(cb, bTypes[i]);
                 }
                 return cb;
             }
