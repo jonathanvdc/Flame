@@ -170,7 +170,7 @@ namespace Flame.Cpp
 
         public bool EmitInline
         {
-            get { return (this.get_IsGeneric() && this.DeclaringType.get_IsGenericDeclaration()) || this.Equals(DeclaringType.GetInvariantsCheckMethod()); }
+            get { return (this.get_IsGeneric() && this.DeclaringType.get_IsGenericDeclaration()) || this.Equals(DeclaringType.GetInvariantsCheckImplementationMethod()); }
         }
 
         public bool IsOverride
