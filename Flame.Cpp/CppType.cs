@@ -234,7 +234,7 @@ namespace Flame.Cpp
         public IField[] GetFields()
         {
             IEnumerable<IField> results = fields;
-            if (Invariants.HasInvariants)
+            if (Invariants.HasInvariants && !Invariants.InheritsInvariants)
             {
                 results = results.With(Invariants.IsCheckingInvariantsField);
             }
@@ -251,7 +251,14 @@ namespace Flame.Cpp
             IEnumerable<IMethod> results = methods.Where((item) => !item.IsConstructor);
             if (Invariants.HasInvariants)
             {
-                results = results.With(Invariants.CheckInvariantsMethod);
+                if (!Invariants.InheritsInvariants)
+                {
+                    results = results.With(Invariants.CheckInvariantsMethod);
+                }
+                if (!Invariants.CheckInvariantsImplementationMethod.InlineTestBlock)
+                {
+                    results = results.With(Invariants.CheckInvariantsImplementationMethod.ToCppMethod());
+                }
             }
             return results.ToArray();
         }
@@ -271,8 +278,15 @@ namespace Flame.Cpp
             var results = fields.Concat<ICppMember>(methods).Concat(properties).Concat(types);
             if (Invariants.HasInvariants)
             {
-                results = results.With(Invariants.CheckInvariantsMethod.ToCppMethod())
-                                 .With(Invariants.IsCheckingInvariantsField);
+                if (!Invariants.InheritsInvariants)
+                {
+                    results = results.With(Invariants.CheckInvariantsMethod.ToCppMethod())
+                                     .With(Invariants.IsCheckingInvariantsField);
+                }
+                if (!Invariants.CheckInvariantsImplementationMethod.InlineTestBlock)
+                {
+                    results = results.With(Invariants.CheckInvariantsImplementationMethod.ToCppMethod());
+                }
             }
             return results;
         }

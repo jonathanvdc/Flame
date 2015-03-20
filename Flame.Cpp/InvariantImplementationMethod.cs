@@ -1,7 +1,4 @@
-﻿using Flame.Build;
-using Flame.Compiler;
-using Flame.Compiler.Emit;
-using Flame.Compiler.Expressions;
+﻿using Flame.Compiler;
 using Flame.Cpp.Emit;
 using System;
 using System.Collections.Generic;
@@ -11,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp
 {
-    public class InvariantMethod : IMethod, ICppMember, IEquatable<IMethod>
+    public class InvariantImplementationMethod : IMethod, ICppMember, IEquatable<IMethod>
     {
-        public InvariantMethod(TypeInvariants Invariants)
+        public InvariantImplementationMethod(TypeInvariants Invariants)
         {
             this.Invariants = Invariants;
         }
@@ -71,22 +68,35 @@ namespace Flame.Cpp
 
         private DescriptionAttribute CreateSummary()
         {
-            return new DescriptionAttribute("summary", "Checks if this type's invariants are being respected. A boolean value is returned that indicates whether this is indeed the case. This method is publically visible, and can be used to verify an instance's state.");
+            return new DescriptionAttribute("summary", "Checks if this type's invariants are being respected. A boolean value is returned that indicates whether this is indeed the case.");
+        }
+
+        private DescriptionAttribute CreateRemarks()
+        {
+            return new DescriptionAttribute("remarks", "This method should not be called directly. It should only be called from '" + Invariants.CheckInvariantsMethod.Name + "'.");
         }
 
         public IEnumerable<IAttribute> GetAttributes()
         {
-            return new IAttribute[] 
-            { 
-                new AccessAttribute(AccessModifier.Public),
+            var baseAttrs = new IAttribute[] 
+            {
                 PrimitiveAttributes.Instance.ConstantAttribute,
-                CreateSummary()
+                CreateSummary(),
+                CreateRemarks()
             };
+            if (DeclaringType.get_IsVirtual() || DeclaringType.get_IsInterface())
+            {
+                return baseAttrs.With(new AccessAttribute(AccessModifier.Protected)).With(PrimitiveAttributes.Instance.VirtualAttribute);
+            }
+            else
+            {
+                return baseAttrs.With(new AccessAttribute(AccessModifier.Private));
+            }
         }
 
         public string Name
         {
-            get { return "CheckInvariants"; }
+            get { return "CheckInvariantsCore"; }
         }
 
         public IEnumerable<IType> GetGenericArguments()
@@ -101,6 +111,25 @@ namespace Flame.Cpp
 
         #region ICppMember Implementation
 
+        public bool InlineTestBlock
+        {
+            get
+            {
+                return !this.get_IsVirtual() && GetBaseMethods().Length == 0;
+            }
+        }
+
+        public ICppBlock CreateTestBlock(ICodeGenerator CodeGenerator)
+        {
+            var allInvariants = Invariants.GetAllInvariants();
+            var test = allInvariants.First();
+            foreach (var item in allInvariants.Skip(1))
+            {
+                test = (ICppBlock)CodeGenerator.EmitLogicalAnd(test, item);
+            }
+            return test;
+        }
+
         private CppMethod cppMethod;
         private int invariantCount;
         public CppMethod ToCppMethod()
@@ -112,32 +141,15 @@ namespace Flame.Cpp
                 {
                     var bodyGen = method.GetBodyGenerator();
                     var codeGen = bodyGen.CodeGenerator;
+                    
+                    var allInvariants = Invariants.GetAllInvariants();
+                    var test = allInvariants.First();
+                    foreach (var item in allInvariants.Skip(1))
+                    {
+                        test = (ICppBlock)codeGen.EmitLogicalAnd(test, item);
+                    }
 
-                    // if (!isCheckingInvariants)
-                    // {
-                    //     isCheckingInvariants = true;
-                    //     bool result = <condition>;
-                    //     isCheckingInvariants = false;
-                    //     return result;
-                    // }
-                    // return true;
-
-                    var fieldVar = codeGen.GetField(Invariants.IsCheckingInvariantsField, codeGen.GetThis().CreateGetExpression().Emit(codeGen));
-
-                    var ifBlock = codeGen.CreateIfElseBlock(codeGen.EmitNot(fieldVar.CreateGetExpression().Emit(codeGen)));
-
-                    var ifBody = ifBlock.IfBlock;
-
-                    fieldVar.CreateSetStatement(new BooleanExpression(true)).Emit(ifBody); // isCheckingInvariants = true;
-                    var resultVariable = codeGen.DeclareVariable(new DescribedVariableMember("result", PrimitiveTypes.Boolean));
-                    var checkImpl = Invariants.CheckInvariantsImplementationMethod;
-                    var test = checkImpl.InlineTestBlock  ? checkImpl.CreateTestBlock(codeGen) : codeGen.EmitInvocation(checkImpl, codeGen.GetThis().CreateGetExpression().Emit(codeGen), Enumerable.Empty<ICodeBlock>());
-                    resultVariable.CreateSetStatement(new CodeBlockExpression(test, PrimitiveTypes.Boolean)).Emit(ifBody); // bool result = <condition>;
-                    fieldVar.CreateSetStatement(new BooleanExpression(false)).Emit(ifBody); // isCheckingInvariants = false;
-                    ifBody.EmitReturn(resultVariable.CreateGetExpression().Emit(codeGen)); // return result;
-
-                    bodyGen.EmitBlock(ifBlock);
-                    bodyGen.EmitReturn(codeGen.EmitBoolean(true));
+                    bodyGen.EmitReturn(test);
                 }
                 invariantCount = Invariants.InvariantCount;
                 cppMethod = method;
