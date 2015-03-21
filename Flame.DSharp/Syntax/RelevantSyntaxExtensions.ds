@@ -21,7 +21,7 @@ namespace Flame.Syntax.DSharp
 				return (IEnumerable<Token>)new Token[0];
 			}
 		}
-		public static const IEnumerable<Token> GetDescriptionComments(this IRelevantSyntax<Token> Syntax)
+		public static const [Token] GetDescriptionComments(this IRelevantSyntax<Token> Syntax)
 		{
 			List<Token> tokens = new List<Token>();
 			foreach (var item in Syntax.LeadingTrivia)
@@ -59,7 +59,7 @@ namespace Flame.Syntax.DSharp
 				attrs.Add(new DescriptionAttribute(TagName, summary));
 			}
 		}
-		public static const IEnumerable<IAttribute> GetDescriptionAttributes(this IRelevantSyntax<Token> Syntax, ISyntaxState State)
+		public static const [IAttribute] GetDescriptionAttributes(this IRelevantSyntax<Token> Syntax, ISyntaxState State)
 		{
 			string desc = Syntax.GetDescription();
 			List<IAttribute> attrs = new List<IAttribute>();
