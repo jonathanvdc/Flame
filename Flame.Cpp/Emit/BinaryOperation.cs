@@ -45,7 +45,7 @@ namespace Flame.Cpp.Emit
             {
                 return 3;
             }
-            else if (Op.Equals(Operator.CheckGreaterThan) || Op.Equals(Operator.CheckLessThan) || Op.Equals(Operator.CheckGreaterThanOrEqual) || Op.Equals(Operator.CheckGreaterThanOrEqual))
+            else if (Op.Equals(Operator.CheckGreaterThan) || Op.Equals(Operator.CheckLessThan) || Op.Equals(Operator.CheckGreaterThanOrEqual) || Op.Equals(Operator.CheckLessThanOrEqual))
             {
                 return 2;
             }
