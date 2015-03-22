@@ -120,11 +120,16 @@ namespace Flame.Cpp.Emit
             }
         }
 
+        private IType returnType;
         public IType Type
         {
             get
             {
-                return GetResultType(Left, Right, Operator);
+                if (returnType == null)
+                {
+                    returnType = GetResultType(Left, Right, Operator);
+                }
+                return returnType;
             }
         }
 
@@ -140,18 +145,24 @@ namespace Flame.Cpp.Emit
 
         public static IType GetResultType(ICppBlock Left, ICppBlock Right, Operator Operator)
         {
+            var lType = Left.Type;
+            var rType = Right.Type;
+            var overload = Operator.GetOperatorOverload(new IType[] { lType, rType });
+            if (overload != null)
+            {
+                return overload.ReturnType;
+            }
             if (Operator.Equals(Operator.CheckEquality) || Operator.Equals(Operator.CheckInequality) || Operator.Equals(Operator.CheckGreaterThan) || Operator.Equals(Operator.CheckLessThan) || Operator.Equals(Operator.CheckGreaterThanOrEqual) || Operator.Equals(Operator.CheckGreaterThanOrEqual))
             {
                 return PrimitiveTypes.Boolean;
             }
-            var rType = Right.Type;
             if (rType.get_IsFloatingPoint())
             {
                 return rType;
             }
             else
             {
-                return Left.Type;
+                return lType;
             }
         }
 
