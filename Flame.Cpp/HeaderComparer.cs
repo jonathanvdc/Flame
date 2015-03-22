@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp
 {
-    public sealed class HeaderComparer : IEqualityComparer<IHeaderDependency>
+    public sealed class HeaderComparer : IEqualityComparer<IHeaderDependency>, IComparer<IHeaderDependency>
     {
         private HeaderComparer() { }
 
@@ -31,6 +31,22 @@ namespace Flame.Cpp
         public int GetHashCode(IHeaderDependency obj)
         {
             return obj.HeaderName.GetHashCode();
+        }
+
+        public int Compare(IHeaderDependency x, IHeaderDependency y)
+        {
+            if (x.IsStandard && !y.IsStandard)
+            {
+                return -1;
+            }
+            else if (!x.IsStandard && y.IsStandard)
+            {
+                return 1;
+            }
+            else
+            {
+                return StringComparer.InvariantCultureIgnoreCase.Compare(x.HeaderName, y.HeaderName);
+            }
         }
     }
 }

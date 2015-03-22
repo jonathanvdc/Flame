@@ -221,7 +221,7 @@ namespace Flame.Cpp
 
         public static IEnumerable<IHeaderDependency> SortDependencies(this IEnumerable<IHeaderDependency> Dependencies)
         {
-            return Dependencies.Where((item) => item.IsStandard).Concat(Dependencies.Where((item) => !item.IsStandard));
+            return Dependencies.OrderBy(item => item, HeaderComparer.Instance);
         }
 
         public static IEnumerable<IHeaderDependency> ExcludeDependencies(this IEnumerable<IHeaderDependency> Dependencies, IEnumerable<IHeaderDependency> Exclude)

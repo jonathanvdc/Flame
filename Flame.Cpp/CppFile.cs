@@ -144,13 +144,14 @@ namespace Flame.Cpp
             {
                 cb.AddCodeBuilder(item.GetCode());
             }
-            foreach (var item in Dependencies)
-            {
-                cb.AddCodeBuilder(PreprocessorDirective.CreateIncludeDirective(item).GetCode());
-            }
             if (!IsHeader)
             {
                 cb.AddCodeBuilder(PreprocessorDirective.CreateIncludeDirective(this).GetCode());
+                cb.AddEmptyLine();
+            }
+            foreach (var item in Dependencies)
+            {
+                cb.AddCodeBuilder(PreprocessorDirective.CreateIncludeDirective(item).GetCode());
             }
             return cb;
         }
