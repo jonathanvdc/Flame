@@ -26,22 +26,28 @@ namespace Flame.Cpp
             }
         }
 
+        private IEnumerable<CppMemberPack> PackIndividually(IEnumerable<ICppMember> Items)
+        {
+            return Items.Select(item => new CppMemberPack(item));
+        }
+        
+        private IEnumerable<CppMemberPack> PackSortedMethods(IEnumerable<ICppMember> Members)
+        {
+            return PackIndividually(Members.Cast<IMethod>().OrderBy(item => item, DefaultMethodComparer.Instance).Cast<ICppMember>());
+        }
+
         public IEnumerable<CppMemberPack> Pack(IEnumerable<ICppMember> Members)
         {
-            IEnumerable<ICppMember> ctors = Members.OfType<IMethod>().Where(item => item.IsConstructor).Cast<ICppMember>();
-            IEnumerable<ICppMember> fields = Members.OfType<IField>().Cast<ICppMember>();
-            IEnumerable<IProperty> props = Members.OfType<IProperty>();
+            IEnumerable<ICppMember> ctors = Members.OfType<IMethod>().Where(item => item.IsConstructor).OrderBy(item => item.GetParameters().Length).Cast<ICppMember>();
+            IEnumerable<ICppMember> fields = Members.OfType<IField>().OrderBy(item => item.Name).Cast<ICppMember>();
+            IEnumerable<IProperty> props = Members.OfType<IProperty>().OrderBy(item => item.Name);
             IEnumerable<ICppMember> methods = Members.OfType<IMethod>().Where(item => !item.IsConstructor && !item.get_IsOperator() && !item.get_IsCast()).Cast<ICppMember>();
-            IEnumerable<ICppMember> operators = Members.OfType<IMethod>().Where(item => !item.IsConstructor && item.get_IsOperator() && !item.get_IsCast()).Cast<ICppMember>();
-            IEnumerable<ICppMember> casts = Members.OfType<IMethod>().Where(item => !item.IsConstructor && !item.get_IsOperator() && item.get_IsCast()).Cast<ICppMember>();
-            
-            Func<ICppMember, CppMemberPack> packSingle = item => new CppMemberPack(item);
-            Func<IEnumerable<ICppMember>, IEnumerable<CppMemberPack>> packIndividually = items => items.Select(packSingle);
+            IEnumerable<ICppMember> operators = Members.OfType<IMethod>().Where(item => !item.IsConstructor && (item.get_IsOperator() || item.get_IsCast())).Cast<ICppMember>();
 
             var accessorPacks = props.Select(item => new CppMemberPack(item.GetAccessors().OfType<ICppMember>()));
-            var methodPacks = packIndividually(methods);
-            var opPacks = packIndividually(operators.Concat(casts));
-            var typePacks = packIndividually(Members.OfType<IType>().Cast<ICppMember>());
+            var methodPacks = PackSortedMethods(methods);
+            var opPacks = PackSortedMethods(operators);
+            var typePacks = PackIndividually(Members.OfType<IType>().Cast<ICppMember>());
 
             return new CppMemberPack[] { new CppMemberPack(ctors) }
                 .Concat(typePacks)
