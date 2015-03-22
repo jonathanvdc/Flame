@@ -58,6 +58,19 @@ namespace Flame.Cpp
             }
         }
 
+        public IEnumerable<IHeaderDependency> DeclarationDependencies
+        {
+            get
+            {
+                IEnumerable<IHeaderDependency> depends = new IHeaderDependency[0];
+                foreach (var item in Members)
+                {
+                    depends = depends.MergeDependencies(item.GetDeclarationDependencies());
+                }
+                return depends.ExcludeDependencies(new IHeaderDependency[] { this }).SortDependencies(); 
+            }
+        }
+
         public string HeaderName { get { return Name + "." + HeaderExtension; } }
         public string SourceName { get { return Name + "." + SourceExtension; } }
 
@@ -148,10 +161,17 @@ namespace Flame.Cpp
             {
                 cb.AddCodeBuilder(PreprocessorDirective.CreateIncludeDirective(this).GetCode());
                 cb.AddEmptyLine();
+                foreach (var item in Dependencies)
+                {
+                    cb.AddCodeBuilder(PreprocessorDirective.CreateIncludeDirective(item).GetCode());
+                }
             }
-            foreach (var item in Dependencies)
+            else
             {
-                cb.AddCodeBuilder(PreprocessorDirective.CreateIncludeDirective(item).GetCode());
+                foreach (var item in DeclarationDependencies)
+                {
+                    cb.AddCodeBuilder(PreprocessorDirective.CreateIncludeDirective(item).GetCode());
+                }
             }
             return cb;
         }
