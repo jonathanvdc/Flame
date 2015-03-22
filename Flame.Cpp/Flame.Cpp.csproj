@@ -60,6 +60,7 @@
     <Compile Include="CppForwardReference.cs" />
     <Compile Include="CppInvariantExtensions.cs" />
     <Compile Include="DefaultMethodComparer.cs" />
+    <Compile Include="DependencyExtensions.cs" />
     <Compile Include="InvariantImplementationMethod.cs" />
     <Compile Include="InvariantMethod.cs" />
     <Compile Include="CppNameExtensions.cs" />
