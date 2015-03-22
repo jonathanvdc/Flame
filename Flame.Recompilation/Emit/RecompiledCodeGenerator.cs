@@ -202,22 +202,16 @@ namespace Flame.Recompilation.Emit
         {
             var exprA = GetExpression(A);
             var exprB = GetExpression(B);
-            var overload = Op.GetOperatorOverload(new IType[] { exprA.Type, exprB.Type });
-            if (overload != null)
-            {
-                Recompiler.GetMethod(overload);
-            }
+            Recompiler.GetOperatorOverload(Op, exprA.Type, exprB.Type);
+
             return new ExpressionBlock(this, new DirectBinaryExpression(exprA, Op, exprB));
         }
 
         public ICodeBlock EmitUnary(ICodeBlock Value, Operator Op)
         {
             var expr = GetExpression(Value);
-            var overload = Op.GetOperatorOverload(new IType[] { expr.Type });
-            if (overload != null)
-            {
-                Recompiler.GetMethod(overload);
-            }
+            Recompiler.GetOperatorOverload(Op, expr.Type);
+
             return new ExpressionBlock(this, new UnaryExpression(expr, Op));
         }
 

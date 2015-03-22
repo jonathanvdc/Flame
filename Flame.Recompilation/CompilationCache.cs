@@ -37,6 +37,21 @@ namespace Flame.Recompilation
             }
         }
 
+        public T GetOriginal(T Value)
+        {
+            lock (cache)
+            {
+                foreach (var item in cache)
+                {
+                    if (Value.Equals(item.Value))
+                    {
+                        return item.Key;
+                    }
+                }
+                return default(T);
+            }
+        }
+
         public T[] GetAll()
         {
             lock (cache)
