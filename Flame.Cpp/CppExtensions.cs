@@ -156,16 +156,21 @@ namespace Flame.Cpp
             return new RetypedBlock(CodeGenerator.ConvertValueType(Member.DeclaringType).CreateBlock(CodeGenerator), MethodType.Create(Member));
         }
 
+        private static ICppBlock CreateGenericFreeMemberBlock(IMethod Member, ICodeGenerator CodeGenerator)
+        {
+            return new RetypedBlock(BlockFromName(CodeGenerator, Member.GetGenericFreeName()), MethodType.Create(Member));
+        }
+
         private static ICppBlock CreateGenericFreeBlock(IMethod Member, ICodeGenerator CodeGenerator)
         {
             var declType = Member.DeclaringType;
             if (declType == null)
             {
-                return new RetypedBlock(BlockFromName(CodeGenerator, Member.GetGenericFreeName()), MethodType.Create(Member));
+                return CreateGenericFreeMemberBlock(Member, CodeGenerator);
             }
             else
             {
-                return new ScopeOperatorBlock(declType.CreateBlock(CodeGenerator), new LiteralBlock(CodeGenerator, Member.GetGenericFreeName(), MethodType.Create(Member)));
+                return new ScopeOperatorBlock(declType.CreateBlock(CodeGenerator), CreateGenericFreeMemberBlock(Member, CodeGenerator));
             }
         }
 
@@ -174,7 +179,7 @@ namespace Flame.Cpp
             if (Member.get_IsGenericInstance())
             {
                 var cg = Block.CodeGenerator;
-                return new TypeArgumentBlock(Block, Member.GetGenericArguments().Select((item) => item.CreateBlock(cg)));
+                return new TypeArgumentBlock(Block, Member.GetGenericArguments().Select(item => item.CreateBlock(cg)));
             }
             else
             {
@@ -192,12 +197,22 @@ namespace Flame.Cpp
             var declType = Member.DeclaringType;
             if (declType == null)
             {
-                return new RetypedBlock(BlockFromName(CodeGenerator, Member.Name), Member.FieldType);
+                return Member.CreateMemberBlock(CodeGenerator);
             }
             else
             {
-                return new ScopeOperatorBlock(declType.CreateBlock(CodeGenerator), new LiteralBlock(CodeGenerator, Member.Name, Member.FieldType));
+                return new ScopeOperatorBlock(declType.CreateBlock(CodeGenerator), Member.CreateMemberBlock(CodeGenerator));
             }
+        }
+
+        public static ICppBlock CreateMemberBlock(this IMethod Method, ICodeGenerator CodeGenerator)
+        {
+            return CreateGenericBlock(CreateGenericFreeMemberBlock(Method, CodeGenerator), Method);
+        }
+
+        public static ICppBlock CreateMemberBlock(this IField Member, ICodeGenerator CodeGenerator)
+        {
+            return new RetypedBlock(BlockFromName(CodeGenerator, Member.Name), Member.FieldType);
         }
 
         #endregion

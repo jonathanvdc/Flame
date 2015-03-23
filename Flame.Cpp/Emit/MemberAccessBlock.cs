@@ -59,6 +59,22 @@ namespace Flame.Cpp.Emit
             }
         }
 
+        private CodeBuilder GetMemberCode()
+        {
+            if (Member is IMethod)
+            {
+                return ((IMethod)Member).CreateMemberBlock(CodeGenerator).GetCode();
+            }
+            else if (Member is IField)
+            {
+                return ((IField)Member).CreateMemberBlock(CodeGenerator).GetCode();
+            }
+            else
+            {
+                return new CodeBuilder(Member.Name);
+            }
+        }
+
         public CodeBuilder GetCode()
         {
             if (Target.Type.get_IsSingleton() && Target.Type.IsGlobalType())
@@ -102,10 +118,10 @@ namespace Flame.Cpp.Emit
 
             if (IsSliceMethod)
             {
-                cb.Append(Member.DeclaringType.Name);
+                cb.Append(Member.DeclaringType.CreateBlock(CodeGenerator).GetCode());
                 cb.Append("::");
             }
-            cb.Append(Member.Name);
+            cb.Append(GetMemberCode());
             return cb;
         }
 
