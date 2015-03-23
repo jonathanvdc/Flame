@@ -1,0 +1,40 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Compiler
+{
+	public static class InvariantExtensions
+	{
+		/// <summary>
+		/// Gets the union of all invariants the given types have, both directly and indirectly.
+		/// </summary>
+		public static const [IInvariant] GetAllInvariants(this [IType] Types)
+		{
+			var results = Enumerable.Empty<IInvariant>();
+			foreach (var item in Types)
+			{
+				results = Enumerable.Concat<IInvariant>(results, item.GetAllInvariants());
+			}
+			return Enumerable.Distinct<IInvariant>(results);
+		}
+	
+		/// <summary>
+		/// Gets the union of all invariants the given type has, both directly and indirectly.
+		/// </summary>
+		public static const [IInvariant] GetAllInvariants(this IType Type)
+		{
+			var baseInvariants = Type.GetBaseTypes().GetAllInvariants();
+			if (Type is IInvariantType)
+			{
+				var typeInvariants = ((IInvariantType)Type).GetInvariants();
+				return Enumerable.Distinct<IInvariant>(Enumerable.Concat<IInvariant>(baseInvariants, typeInvariants));
+			}
+			else
+			{
+				return baseInvariants;
+			}
+		}
+	}
+}

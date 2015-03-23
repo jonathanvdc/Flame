@@ -1,0 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler
+{
+	public interface IInvariant : ITypeMember
+	{
+		/// <summary>
+		/// Gets the invariant member's invariant as an expression.
+		/// </summary>
+		public IExpression Invariant { const get; }
+	}
+}
