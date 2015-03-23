@@ -9,12 +9,12 @@ namespace Flame
         /// Gets this method's generic parameters.
         /// </summary>
         /// <returns></returns>
-        IEnumerable<IGenericParameter> GetGenericParameters();
+        [IGenericParameter] GetGenericParameters();
         /// <summary>
         /// Gets the method's generic arguments.
         /// </summary>
         /// <returns></returns>
-        IEnumerable<IType> GetGenericArguments();
+        [IType] GetGenericArguments();
     }
     public interface IGenericParameter : IType, IParameter
     {
