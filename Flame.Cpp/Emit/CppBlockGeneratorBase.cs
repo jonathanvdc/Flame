@@ -25,7 +25,7 @@ namespace Flame.Cpp.Emit
 
         #region Local Declaration
 
-        private void AddBlock(ICppBlock Block)
+        protected virtual void AddBlock(ICppBlock Block)
         {
             blocks.Add(Block);
         }
@@ -98,7 +98,15 @@ namespace Flame.Cpp.Emit
         public void EmitBlock(ICodeBlock Block)
         {
             var cppBlock = (ICppBlock)Block;
-            if (!(Block is LocalDeclarationReference))
+            if (Block is LocalDeclarationReference)
+            {
+                var declBlock = (LocalDeclarationReference)Block;
+                if (this.DeclaresLocal(declBlock.Declaration.Local)) // Don't declare a variable twice
+                {
+                    declBlock.Declaration.DeclareVariable = false;
+                }
+            }
+            else
             {
                 ReferenceLocalDeclarations(cppBlock.GetLocalDeclarations());
                 DeclareLocals(cppBlock.LocalsUsed);
@@ -179,28 +187,14 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        private static void AddBlockCode(CodeBuilder Target, CppBlockGenerator Block)
-        {
-            foreach (var item in Block.blocks)
-            {
-                AddBlockCode(Target, item);
-            }
-        }
-
-        private static void AddBlockCode(CodeBuilder Target, CompositeBlockBase Block)
-        {
-            AddBlockCode(Target, Block.Simplify());
-        }
-
         private static void AddBlockCode(CodeBuilder Target, ICppBlock Block)
         {
-            if (Block is CppBlockGenerator)
+            if (Block is IMultiBlock)
             {
-                AddBlockCode(Target, (CppBlockGenerator)Block);
-            }
-            else if (Block is CompositeBlockBase)
-            {
-                AddBlockCode(Target, (CompositeBlockBase)Block);
+                foreach (var item in ((IMultiBlock)Block).GetBlocks())
+                {
+                    AddBlockCode(Target, item);
+                }
             }
             else
             {

@@ -8,92 +8,96 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class IfElseBlockGenerator : IIfElseBlockGenerator, ICppLocalDeclaringBlock
+    public class IfElseBlockGenerator : MutableCompositeBlockBase, IIfElseBlockGenerator, ICppLocalDeclaringBlock
     {
-        public IfElseBlockGenerator(ICodeGenerator CodeGenerator, ICppBlock Condition)
+        public IfElseBlockGenerator(CppCodeGenerator CodeGenerator, ICppBlock Condition)
         {
-            this.CodeGenerator = CodeGenerator;
+            this.codeGen = CodeGenerator;
             this.Condition = Condition;
-            this.IfBlock = CodeGenerator.CreateBlock();
-            this.ElseBlock = CodeGenerator.CreateBlock();
+            this.IfBlock = new NotifyingBlockGenerator(CodeGenerator);
+            this.ElseBlock = new NotifyingBlockGenerator(CodeGenerator);
+            this.commonDecls = new List<LocalDeclarationReference>();
+
+            this.IfBlock.BlockAdded += (sender, args) =>
+            {
+                RegisterChanged();
+            };
+            this.ElseBlock.BlockAdded += (sender, args) =>
+            {
+                RegisterChanged();
+            };
+            this.IfBlock.LocalDeclared += (sender, args) =>
+            {
+                if (Condition.DeclaresLocal(args.Local) || ElseBlock.DeclaresLocal(args.Local))
+                {
+                    Acquire(args.Declaration);
+                }
+            };
+            this.ElseBlock.LocalDeclared += (sender, args) =>
+            {
+                if (Condition.DeclaresLocal(args.Local) || IfBlock.DeclaresLocal(args.Local))
+                {
+                    Acquire(args.Declaration);
+                }
+            };
         }
 
-        public ICodeGenerator CodeGenerator { get; private set; }
-
+        private CppCodeGenerator codeGen;
         public ICppBlock Condition { get; private set; }
-        public IBlockGenerator IfBlock { get; private set; }
-        public IBlockGenerator ElseBlock { get; private set; }
+        public NotifyingBlockGenerator IfBlock { get; private set; }
+        public NotifyingBlockGenerator ElseBlock { get; private set; }
+
+        public override ICodeGenerator CodeGenerator
+        {
+            get
+            {
+                return codeGen;
+            }
+        }
+
+        IBlockGenerator IIfElseBlockGenerator.IfBlock
+        {
+            get { return IfBlock; }
+        }
+
+        IBlockGenerator IIfElseBlockGenerator.ElseBlock
+        {
+            get { return ElseBlock; }
+        }
 
         public IEnumerable<LocalDeclaration> LocalDeclarations
         {
             get 
             {
-                return new object[] { Condition, IfBlock, ElseBlock }.OfType<ICppLocalDeclaringBlock>().SelectMany((item) => item.LocalDeclarations);
+                return CommonDeclarations.Concat(new object[] { Condition, IfBlock, ElseBlock }.OfType<ICppLocalDeclaringBlock>().SelectMany((item) => item.LocalDeclarations));
             }
         }
 
-        public IType Type
+        private List<LocalDeclarationReference> commonDecls;
+        public IEnumerable<LocalDeclaration> CommonDeclarations
         {
-            get { return ((ICppBlock)IfBlock).Type; }
+            get { return commonDecls.Select(item => item.Declaration); }
         }
 
-        public IEnumerable<IHeaderDependency> Dependencies
+        public void Acquire(LocalDeclaration Declaration)
         {
-            get { return Condition.Dependencies.MergeDependencies(((ICppBlock)IfBlock).Dependencies.MergeDependencies(((ICppBlock)ElseBlock).Dependencies)); }
+            var localDecl = new LocalDeclarationReference(Declaration);
+            localDecl.Acquire();
+            commonDecls.Add(localDecl);
+            RegisterChanged();
         }
 
-        public CodeBuilder GetCode()
+        public override ICppBlock Simplify()
         {
-            CodeBuilder cb = new CodeBuilder();
-            cb.Append("if (");
-            cb.Append(Condition.GetCode());
-            cb.Append(")");
-            var ifBody = ((ICppBlock)IfBlock).GetCode();
-            BodyStatementType ifBodyType;
-            if (ifBody.FirstCodeLine.Text.TrimStart().StartsWith("if"))
+            var blockGen = new CppBlockGenerator(codeGen);
+
+            foreach (var item in commonDecls)
             {
-                cb.AddEmbracedBodyCodeBuilder(ifBody);
-                ifBodyType = BodyStatementType.Block;
+                blockGen.EmitBlock(item);
             }
-            else
-            {
-                ifBodyType = cb.AddBodyCodeBuilder(ifBody);
-            }
-            bool appendEmptyLine = ifBodyType == BodyStatementType.Single;
-            var elseBody = ((ICppBlock)ElseBlock).GetCode();
-            if (elseBody.LineCount > 0 && !(elseBody.CodeLineCount == 1 && elseBody.FirstCodeLine.Text.Trim() == ";"))
-            {
-                cb.AddLine("else");
-                if (elseBody[0].Text.TrimStart().StartsWith("if"))
-                {
-                    cb.Append(" ");
-                    cb.Append(elseBody);
-                    appendEmptyLine = false;
-                }
-                else if (ifBodyType == BodyStatementType.Block)
-                {
-                    cb.AddEmbracedBodyCodeBuilder(elseBody);
-                }
-                else
-                {
-                    cb.AddBodyCodeBuilder(elseBody);
-                }
-            }
-            if (appendEmptyLine)
-            {
-                cb.AddEmptyLine(); // Add some space for legibility
-            }
-            return cb;
-        }
+            blockGen.EmitBlock(new IfElseBlock(CodeGenerator, Condition, IfBlock, ElseBlock));
 
-        public IEnumerable<CppLocal> LocalsUsed
-        {
-            get { return Condition.LocalsUsed.Concat(((ICppBlock)IfBlock).LocalsUsed).Concat(((ICppBlock)ElseBlock).LocalsUsed).Distinct(); }
-        }
-
-        public override string ToString()
-        {
-            return GetCode().ToString();
+            return blockGen;
         }
     }
 }
