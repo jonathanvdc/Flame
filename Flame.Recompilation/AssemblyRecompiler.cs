@@ -796,7 +796,7 @@ namespace Flame.Recompilation
                         {
                             TargetField.SetValue(GetExpression(expr, CreateEmptyMethod(TargetField)));
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
                             System.Diagnostics.Debugger.Break();
                             throw;
