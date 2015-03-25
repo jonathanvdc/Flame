@@ -103,7 +103,7 @@ namespace Flame.Cpp.Emit
                 var declBlock = (LocalDeclarationReference)Block;
                 if (this.DeclaresLocal(declBlock.Declaration.Local)) // Don't declare a variable twice
                 {
-                    declBlock.Declaration.DeclareVariable = false;
+                    declBlock.Hoist();
                 }
             }
             else
