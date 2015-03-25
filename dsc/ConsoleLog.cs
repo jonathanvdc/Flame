@@ -14,16 +14,16 @@ namespace dsc
         {
             this.Options = Options;
             this.gapQueued = false;
-            this.gapLock = new object();
+            this.writeLock = new object();
         }
 
         public ICompilerOptions Options { get; private set; }
         private bool gapQueued;
-        private object gapLock;
+        private object writeLock;
 
         private void WriteGap()
         {
-            lock (gapLock)
+            lock (writeLock)
             {
                 if (gapQueued)
                 {
@@ -52,7 +52,7 @@ namespace dsc
 
         public void WriteWhiteline()
         {
-            lock (gapLock)
+            lock (writeLock)
             {
                 gapQueued = true;
             }
@@ -66,13 +66,19 @@ namespace dsc
         }
         public void Write(string Text)
         {
-            WriteGap();
-            WriteInternal(Text);
+            lock (writeLock)
+            {
+                WriteGap();
+                WriteInternal(Text);
+            }
         }
         public void Write(char Value)
         {
-            WriteGap();
-            WriteInternal(Value);
+            lock (writeLock)
+            {
+                WriteGap();
+                WriteInternal(Value);
+            }
         }
         public void Write<T>(T Value)
         {
@@ -80,20 +86,25 @@ namespace dsc
         }
         public void WriteLine(string Text, ConsoleColor Color)
         {
-            WriteGap();
-            Console.ForegroundColor = Color;
-            WriteLineInternal(Text);
-            Console.ResetColor();
+            lock (writeLock)
+            {
+                WriteGap();
+                Console.ForegroundColor = Color;
+                WriteLineInternal(Text);
+                Console.ResetColor();
+            }
         }
         public void WriteLine()
         {
-            WriteGap();
-            WriteLineInternal();
+            WriteLine("");
         }
         public void WriteLine(string Text)
         {
-            WriteGap();
-            WriteLineInternal(Text);
+            lock (writeLock)
+            {
+                WriteGap();
+                WriteLineInternal(Text);
+            }
         }
         public void WriteLine<T>(T Value)
         {
@@ -101,24 +112,33 @@ namespace dsc
         }
         public void WriteBlockEntry(string Header, ConsoleColor MainColor, ConsoleColor HighlightColor, LogEntry Entry)
         {
-            WriteWhiteline();
-            Write(Header + ": ", MainColor);
-            WriteEntry(Entry, MainColor, HighlightColor);
-            WriteWhiteline();
+            lock (writeLock)
+            {
+                WriteWhiteline();
+                Write(Header + ": ", MainColor);
+                WriteEntry(Entry, MainColor, HighlightColor);
+                WriteWhiteline();
+            }
         }
         public void WriteBlockEntry(string Header, ConsoleColor HeaderColor, string Entry)
         {
-            WriteWhiteline();
-            Write(Header + ": ", HeaderColor);
-            WriteLine(Entry);
-            WriteWhiteline();
+            lock (writeLock)
+            {
+                WriteWhiteline();
+                Write(Header + ": ", HeaderColor);
+                WriteLine(Entry);
+                WriteWhiteline();
+            }
         }
         public void WriteBlockEntry(string Header, LogEntry Entry)
         {
-            WriteWhiteline();
-            Write(Header + ": ");
-            WriteEntry(Entry, ConsoleColor.Green, ConsoleColor.DarkGreen);
-            WriteWhiteline();
+            lock (writeLock)
+            {
+                WriteWhiteline();
+                Write(Header + ": ");
+                WriteEntry(Entry, ConsoleColor.Green, ConsoleColor.DarkGreen);
+                WriteWhiteline();
+            }
         }
         public void WriteBlockEntry(LogEntry Entry)
         {
@@ -128,10 +148,13 @@ namespace dsc
         }
         public void WriteBlockEntry(string Header, string Entry)
         {
-            WriteWhiteline();
-            Write(Header + ": ");
-            WriteLine(Entry);
-            WriteWhiteline();
+            lock (writeLock)
+            {
+                WriteWhiteline();
+                Write(Header + ": ");
+                WriteLine(Entry);
+                WriteWhiteline();
+            }
         }
         public void WriteErrorBlock(string Header, string Message)
         {
@@ -180,51 +203,54 @@ namespace dsc
 
         public void WriteEntry(LogEntry Entry, ConsoleColor CaretColor, ConsoleColor HighlightColor)
         {
-            Write(Entry.Name);
-            Write(": ");
-            Write(Entry.Message.TrimEnd('.'));
-            if (Entry.Location != null && Entry.Location.Document != null && Entry.Location.Position > -1)
+            lock (writeLock)
             {
-                Write(',');
-                if (Entry.Location.Document == null)
+                Write(Entry.Name);
+                Write(": ");
+                Write(Entry.Message.TrimEnd('.'));
+                if (Entry.Location != null && Entry.Location.Document != null && Entry.Location.Position > -1)
                 {
-                    if (Entry.Location.Position > -1)
+                    Write(',');
+                    if (Entry.Location.Document == null)
                     {
-                        Write(" at position ");
-                        Write(Entry.Location.Position);
-                        Write(" in an unidentified source document.");
+                        if (Entry.Location.Position > -1)
+                        {
+                            Write(" at position ");
+                            Write(Entry.Location.Position);
+                            Write(" in an unidentified source document.");
+                        }
+                    }
+                    else
+                    {
+                        var doc = Entry.Location.Document;
+                        Write(" in '");
+                        Write(Entry.Location.Document.Identifier);
+                        Write("'");
+                        if (Entry.Location.Position > -1)
+                        {
+                            var gridPos = Entry.Location.GridPosition;
+                            Write(" on line ");
+                            Write(gridPos.Line + 1);
+                            Write(", column ");
+                            Write(gridPos.Offset + 1);
+                            Write('.');
+                            WriteLine();
+                            WriteCaretDiagnostic(Entry, gridPos, CaretColor, HighlightColor);
+                        }
+                        else
+                        {
+                            Write(" in '");
+                            Write(doc.Identifier);
+                            Write("\'.");
+                        }
                     }
                 }
                 else
                 {
-                    var doc = Entry.Location.Document;
-                    Write(" in '");
-                    Write(Entry.Location.Document.Identifier);
-                    Write("'");
-                    if (Entry.Location.Position > -1)
-                    {
-                        var gridPos = Entry.Location.GridPosition;
-                        Write(" on line ");
-                        Write(gridPos.Line + 1);
-                        Write(", column ");
-                        Write(gridPos.Offset + 1);
-                        Write('.');
-                        WriteLine();
-                        WriteCaretDiagnostic(Entry, gridPos, CaretColor, HighlightColor);
-                    }
-                    else
-                    {
-                        Write(" in '");
-                        Write(doc.Identifier);
-                        Write("\'.");
-                    }
+                    Write('.');
                 }
+                WriteLine();
             }
-            else
-            {
-                Write('.');
-            }
-            WriteLine();
         }
 
         private void WriteCaretDiagnostic(LogEntry Entry, SourceGridPosition GridPosition, ConsoleColor CaretColor, ConsoleColor HighlightColor)
