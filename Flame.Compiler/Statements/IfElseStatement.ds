@@ -7,11 +7,11 @@ namespace Flame.Compiler.Statements
 	{
 		public this(set IExpression Condition, set IStatement IfBody);
 		public this(set IExpression Condition, set IStatement IfBody, set IStatement ElseBody);
-	
+
 		public IExpression Condition { const get; private set; }
 		public IStatement IfBody { const get; private set; }
 		public IStatement ElseBody { const get; private set; }
-		
+
 		public bool IsEmpty : IStatement.IsEmpty
 		{
 			const get
@@ -26,7 +26,7 @@ namespace Flame.Compiler.Statements
 				}
 			}
 		}
-		
+
 		public IStatement Optimize() : IStatement.Optimize
 		{
 			var optCond = Condition.Optimize();
@@ -40,16 +40,19 @@ namespace Flame.Compiler.Statements
 				return new IfElseStatement(optCond, optIf, ElseBody.Optimize());
 			}
 		}
-		
+
 		public void Emit(IBlockGenerator Generator) : IStatement.Emit
 		{
-			var conditionBlock = Condition.Emit(Generator.CodeGenerator);
-			var ifElseBlock = Generator.CodeGenerator.CreateIfElseBlock(conditionBlock);
-			IfBody.Emit(ifElseBlock.IfBlock);
+			var cg = Generator.CodeGenerator;
+			var conditionBlock = Condition.Emit(cg);
+			var ifBodyBlock = cg.CreateBlock();
+			IfBody.Emit(ifBodyBlock);
+			var elseBodyBlock = cg.CreateBlock();
 			if (ElseBody != null)
 			{
-				ElseBody.Emit(ifElseBlock.ElseBlock);
+				ElseBody.Emit(elseBodyBlock);
 			}
+			var ifElseBlock = cg.CreateIfElseBlock(conditionBlock, ifBodyBlock, elseBodyBlock);
 			Generator.EmitBlock(ifElseBlock);
 		}
 	}

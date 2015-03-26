@@ -8,31 +8,21 @@ using System.Threading.Tasks;
 
 namespace Flame.Python.Emit
 {
-    public class IfElseBlockGenerator : IIfElseBlockGenerator, IPythonBlock
+    public class IfElseBlock : IPythonBlock
     {
-        public IfElseBlockGenerator(PythonCodeGenerator CodeGenerator, IPythonBlock Condition)
+        public IfElseBlock(PythonCodeGenerator CodeGenerator, IPythonBlock Condition, IPythonBlock IfBlock, IPythonBlock ElseBlock)
         {
             this.CodeGenerator = CodeGenerator;
-            this.IfBlockGenerator = (BlockGenerator)CodeGenerator.CreateBlock();
-            this.ElseBlockGenerator = (BlockGenerator)CodeGenerator.CreateBlock();
+            this.IfBlock = IfBlock;
+            this.ElseBlock = ElseBlock;
             this.Condition = Condition;
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
 
         public IPythonBlock Condition { get; private set; }
-        public BlockGenerator IfBlockGenerator { get; private set; }
-        public BlockGenerator ElseBlockGenerator { get; private set; }
-
-        public IBlockGenerator ElseBlock
-        {
-            get { return ElseBlockGenerator; }
-        }
-
-        public IBlockGenerator IfBlock
-        {
-            get { return IfBlockGenerator; }
-        }
+        public IPythonBlock IfBlock { get; private set; }
+        public IPythonBlock ElseBlock { get; private set; }
 
         public CodeBuilder GetCode()
         {
@@ -53,21 +43,23 @@ namespace Flame.Python.Emit
             cb.Append(Condition.GetCode());
             cb.Append(':');
             cb.IncreaseIndentation();
-            cb.AddCodeBuilder(IfBlockGenerator.GetBlockCode(true));
+            var ifBlockGen = IfBlock is BlockGenerator ? ((BlockGenerator)IfBlock) : new BlockGenerator(CodeGenerator, IfBlock);
+            cb.AddCodeBuilder(ifBlockGen.GetBlockCode(true));
             cb.DecreaseIndentation();
-            if (ElseBlockGenerator.Children.Count == 1 && ElseBlockGenerator.Children[0] is IfElseBlockGenerator)
+            var elseBlockGen = ElseBlock is BlockGenerator ? ((BlockGenerator)ElseBlock) : new BlockGenerator(CodeGenerator, ElseBlock);
+            if (elseBlockGen.Children.Count == 1 && elseBlockGen.Children[0] is IfElseBlock)
             {
-                var chainedIf = (IfElseBlockGenerator)ElseBlockGenerator.Children[0];
+                var chainedIf = (IfElseBlock)elseBlockGen.Children[0];
                 cb.AddCodeBuilder(chainedIf.GetCode(true));
             }
             else
             {
-                var elseBlockCode = ElseBlockGenerator.GetCode();
+                var elseBlockCode = ElseBlock.GetCode();
                 if (elseBlockCode.LineCount > 0)
                 {
                     cb.AddLine("else:");
                     cb.IncreaseIndentation();
-                    cb.AddCodeBuilder(ElseBlockGenerator.GetCode());
+                    cb.AddCodeBuilder(elseBlockGen.GetCode());
                     cb.DecreaseIndentation();
                 }
             }
@@ -81,7 +73,7 @@ namespace Flame.Python.Emit
 
         public IEnumerable<ModuleDependency> GetDependencies()
         {
-            return DependencyExtensions.GetDependencies(Condition, IfBlockGenerator, ElseBlockGenerator);
+            return DependencyExtensions.GetDependencies(Condition, IfBlock, ElseBlock);
         }
     }
 }

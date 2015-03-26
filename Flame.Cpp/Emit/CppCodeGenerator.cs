@@ -42,9 +42,23 @@ namespace Flame.Cpp.Emit
             return new DoWhileBlockGenerator(this, (ICppBlock)Condition);
         }
 
-        public IIfElseBlockGenerator CreateIfElseBlock(ICodeBlock Condition)
+        public ICodeBlock CreateIfElseBlock(ICodeBlock Condition, ICodeBlock IfBlock, ICodeBlock ElseBlock)
         {
-            return new IfElseBlockGenerator(this, (ICppBlock)Condition);
+            var cppCond = (ICppBlock)Condition;
+            var cppIf = (ICppBlock)IfBlock;
+            var cppElse = (ICppBlock)ElseBlock;
+
+            var blocks = new ICppBlock[] { cppIf, cppElse };
+            var enclosingBlock = new CppBlockGenerator(this);
+
+            var commonDecls = blocks.GetCommonLocalDeclarations();
+
+            enclosingBlock.ReferenceLocalDeclarations(commonDecls);
+
+            var ifElseBlock = new IfElseBlock(this, cppCond, cppIf, cppElse);
+            enclosingBlock.EmitBlock(ifElseBlock);
+
+            return enclosingBlock.Simplify();
         }
 
         public IBlockGenerator CreateWhileBlock(ICodeBlock Condition)
@@ -412,7 +426,7 @@ namespace Flame.Cpp.Emit
                 var singleCollection = Collections.Single() as CollectionBlock;
                 if (singleCollection != null)
                 {
-                    return new ForeachBlock(this, singleCollection);
+                    return new ForeachBlockGenerator(this, singleCollection);
                 }
             }
             return null;

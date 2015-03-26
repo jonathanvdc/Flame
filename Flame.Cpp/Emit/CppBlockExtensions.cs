@@ -17,9 +17,10 @@ namespace Flame.Cpp.Emit
         /// <returns></returns>
         public static bool IsSimple(this ICppBlock Block)
         {
-            if (Block is CppBlockGeneratorBase)
+            if (Block is IMultiBlock)
             {
-                return Block is CppBlockGenerator && ((CppBlockGenerator)Block).StatementCount <= 1;
+                var items = ((IMultiBlock)Block).GetBlocks();
+                return !items.Skip(1).Any();
             }
             return true;
         }
@@ -47,6 +48,53 @@ namespace Flame.Cpp.Emit
         public static IEnumerable<LocalDeclaration> GetLocalDeclarations(this IEnumerable<ICppBlock> Blocks)
         {
             return Blocks.SelectMany((item) => item.GetLocalDeclarations());
+        }
+
+        public static IEnumerable<CppLocal> GetDeclaredLocals(this ICppBlock Block)
+        {
+            return Block.GetLocalDeclarations().Select(item => item.Local).Distinct();
+        }
+
+        public static IEnumerable<CppLocal> GetDeclaredLocals(this IEnumerable<ICppBlock> Blocks)
+        {
+            return Blocks.Aggregate(Enumerable.Empty<CppLocal>(), (acc, item) => acc.Union(item.GetDeclaredLocals()));
+        }
+
+        #endregion
+
+        #region IntersectLocalDeclarations
+
+        public static IEnumerable<LocalDeclaration> GetCommonLocalDeclarations(this IEnumerable<ICppBlock> Blocks)
+        {
+            var localDecls = Blocks.Select(GetLocalDeclarations).ToArray();
+            foreach (var declGroup in localDecls)
+            {
+                foreach (var item in declGroup)
+                {
+                    if (localDecls.Any(group => group != declGroup && group.Any(value => value.Local == item.Local)))
+                    {
+                        yield return item;
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        #region GetUsedLocals
+
+        public static IEnumerable<CppLocal> GetUsedLocals(this IEnumerable<ICppBlock> Blocks)
+        {
+            return Blocks.Aggregate(Enumerable.Empty<CppLocal>(), (acc, block) => acc.Union(block.LocalsUsed));
+        }
+
+        #endregion
+
+        #region GetDependencies
+
+        public static IEnumerable<IHeaderDependency> GetDependencies(this IEnumerable<ICppBlock> Blocks)
+        {
+            return Blocks.Aggregate(Enumerable.Empty<IHeaderDependency>(), (acc, block) => acc.Union(block.Dependencies));
         }
 
         #endregion

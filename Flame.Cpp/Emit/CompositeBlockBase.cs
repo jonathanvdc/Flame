@@ -52,12 +52,12 @@ namespace Flame.Cpp.Emit
             get { return SimplifiedBlock.CodeGenerator; }
         }
 
-        public CodeBuilder GetCode()
+        public virtual CodeBuilder GetCode()
         {
             return SimplifiedBlock.GetCode();
         }
 
-        public IEnumerable<ICppBlock> GetBlocks()
+        public virtual IEnumerable<ICppBlock> GetBlocks()
         {
             return new ICppBlock[] { SimplifiedBlock };
         }

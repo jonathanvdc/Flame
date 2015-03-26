@@ -31,7 +31,6 @@
 		<Compile Include="StaticInitializationExtensions.ds" />
 		<Compile Include="ISourceDocument.ds" />
 		<Compile Include="SourceDocument.ds" />
-		<Compile Include="ITextNode.ds" />
 	</ItemGroup>
 	<ItemGroup Name="Emit">
 		<ItemGroup>
@@ -39,7 +38,6 @@
 			<Compile Include="Emit\IMethodStructureGenerator.ds" />
 			<Compile Include="Emit\ICodeBlock.ds" />
 			<Compile Include="Emit\IBlockGenerator.ds" />
-			<Compile Include="Emit\IIfElseBlockGenerator.ds" />
 			<Compile Include="Emit\IUnmanagedCodeGenerator.ds" />
 			<Compile Include="Emit\IUnmanagedMethodStructureGenerator.ds" />
 			<Compile Include="Emit\IBranchingCodeGenerator.ds" />

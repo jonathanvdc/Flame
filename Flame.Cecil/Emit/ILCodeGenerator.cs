@@ -71,9 +71,9 @@ namespace Flame.Cecil.Emit
             return new DoWhileBlock(this, Condition);
         }
 
-        public IIfElseBlockGenerator CreateIfElseBlock(ICodeBlock Condition)
+        public ICodeBlock CreateIfElseBlock(ICodeBlock Condition, ICodeBlock IfBlock, ICodeBlock ElseBlock)
         {
-            return new IfElseBlock(this, (ICecilBlock)Condition);
+            return new IfElseBlock(this, (ICecilBlock)Condition, (ICecilBlock)IfBlock, (ICecilBlock)ElseBlock);
         }
 
         public IBlockGenerator CreateWhileBlock(ICodeBlock Condition)

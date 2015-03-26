@@ -332,7 +332,7 @@ namespace Flame.Cpp
                 return new CodeBuilder();
             }
 
-            var cg = blockGen.CodeGenerator;
+            var cg = blockGen.CppCodeGenerator;
 
             bool isConst = this.get_IsConstant();
             CodeBuilder cb = this.GetDocumentationComments();

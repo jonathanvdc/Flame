@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class CppLocal : CppVariableBase
+    public class CppLocal : CppVariableBase, IEquatable<CppLocal>
     {
         public CppLocal(ICodeGenerator CodeGenerator, int Index, IVariableMember Member)
             : base(CodeGenerator)
@@ -47,6 +47,11 @@ namespace Flame.Cpp.Emit
             return base.Equals(obj);
         }
 
+        public bool Equals(CppLocal other)
+        {
+            return this == other;
+        }
+
         public override int GetHashCode()
         {
             return Index;
@@ -54,7 +59,7 @@ namespace Flame.Cpp.Emit
 
         public override string ToString()
         {
-            return Member.ToString();
+            return Member.VariableType.FullName + " " + Member.Name;
         }
 
         public override IStatement CreateReleaseStatement()
