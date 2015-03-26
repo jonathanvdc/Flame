@@ -27,14 +27,6 @@ namespace Flame.Cpp.Emit
         public MethodContract Contract { get; private set; }
         public ICppBlock ReturnValue { get; private set; }
 
-        protected override bool HasChanged
-        {
-            get
-            {
-                return true;
-            }
-        }
-
         public override ICodeGenerator CodeGenerator
         {
             get
