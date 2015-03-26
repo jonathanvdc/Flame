@@ -9,11 +9,11 @@ namespace Flame.Compiler.Statements
 	public class ContractBodyStatement : IStatement
 	{
 		public const this(set IStatement Body, set [IExpression] Preconditions, set [IExpression] Postconditions);
-		
+
 		public IStatement Body { const get; private set; }
 		public [IExpression] Preconditions { const get; private set; }
 		public [IExpression] Postconditions { const get; private set; }
-		
+
 		public const IStatement Optimize()
 		{
 			if (!Enumerable.Any<IExpression>(Preconditions) && !Enumerable.Any<IExpression>(Postconditions))
@@ -25,12 +25,12 @@ namespace Flame.Compiler.Statements
 				return new ContractBodyStatement(Body.Optimize(), Preconditions.OptimizeAll(), Postconditions.OptimizeAll());
 			}
 		}
-		
+
 		public bool IsEmpty
 		{
 			const get return Body.IsEmpty && !Enumerable.Any<IExpression>(Preconditions) && !Enumerable.Any<IExpression>(Postconditions);
 		}
-		
+
 		public void Emit(IBlockGenerator Target)
 		{
 			if (Target is IContractBlockGenerator)
@@ -41,11 +41,11 @@ namespace Flame.Compiler.Statements
 				{
 					cTarget.EmitPrecondition(item.Emit(cg));
 				}
-				Body.Emit(cTarget);
 				foreach (var item in Postconditions)
 				{
 					cTarget.EmitPostcondition(item.Emit(cg));
 				}
+				Body.Emit(cTarget);
 			}
 			else if (Target.CodeGenerator is IExceptionCodeGenerator)
 			{
@@ -55,10 +55,10 @@ namespace Flame.Compiler.Statements
 					Target.EmitBlock(cg.EmitAssert(item.Emit(cg)));
 				}
 				Body.Emit(Target);
-				foreach (var item in Postconditions)
+				/*foreach (var item in Postconditions) // Not helpful
 				{
 					Target.EmitBlock(cg.EmitAssert(item.Emit(cg)));
-				}
+				}*/
 			}
 			else
 			{
