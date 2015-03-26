@@ -37,7 +37,7 @@ namespace Flame.Cpp.Emit
         public event EventHandler<BlockAddedEventArgs> BlockAdded;
         public event EventHandler<LocalDeclaredEventArgs> LocalDeclared;
 
-        protected override void AddBlock(ICppBlock Block)
+        public override void AddBlock(ICppBlock Block)
         {
             base.AddBlock(Block);
             if (BlockAdded != null)

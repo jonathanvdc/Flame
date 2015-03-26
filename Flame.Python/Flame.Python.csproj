@@ -80,7 +80,7 @@
     <Compile Include="PythonIteratorType.cs" />
     <Compile Include="PythonMemberNamerBase.cs" />
     <Compile Include="Emit\AssignmentBlock.cs" />
-    <Compile Include="Emit\IfElseBlockGenerator.cs" />
+    <Compile Include="Emit\IfElseBlock.cs" />
     <Compile Include="Emit\IPythonBlock.cs" />
     <Compile Include="Emit\MemberAccessBlock.cs" />
     <Compile Include="Emit\NewListBlock.cs" />

@@ -124,9 +124,7 @@ namespace Flame.Cpp
 
                     var fieldVar = codeGen.GetField(Invariants.IsCheckingInvariantsField, codeGen.GetThis().CreateGetExpression().Emit(codeGen));
 
-                    var ifBlock = codeGen.CreateIfElseBlock(codeGen.EmitNot(fieldVar.CreateGetExpression().Emit(codeGen)));
-
-                    var ifBody = ifBlock.IfBlock;
+                    var ifBody = codeGen.CreateBlock();
 
                     fieldVar.CreateSetStatement(new BooleanExpression(true)).Emit(ifBody); // isCheckingInvariants = true;
                     var resultVariable = codeGen.DeclareVariable(new DescribedVariableMember("result", PrimitiveTypes.Boolean));
@@ -135,6 +133,8 @@ namespace Flame.Cpp
                     resultVariable.CreateSetStatement(new CodeBlockExpression(test, PrimitiveTypes.Boolean)).Emit(ifBody); // bool result = <condition>;
                     fieldVar.CreateSetStatement(new BooleanExpression(false)).Emit(ifBody); // isCheckingInvariants = false;
                     ifBody.EmitReturn(resultVariable.CreateGetExpression().Emit(codeGen)); // return result;
+
+                    var ifBlock = codeGen.CreateIfElseBlock(codeGen.EmitNot(fieldVar.CreateGetExpression().Emit(codeGen)), ifBody, codeGen.CreateBlock());
 
                     bodyGen.EmitBlock(ifBlock);
                     bodyGen.EmitReturn(codeGen.EmitBoolean(true));

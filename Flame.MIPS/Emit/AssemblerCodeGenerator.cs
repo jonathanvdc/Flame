@@ -43,9 +43,9 @@ namespace Flame.MIPS.Emit
             return new DoWhileBlock(this, (IAssemblerBlock)Condition);
         }
 
-        public IIfElseBlockGenerator CreateIfElseBlock(ICodeBlock Condition)
+        public ICodeBlock CreateIfElseBlock(ICodeBlock Condition, ICodeBlock IfBlock, ICodeBlock ElseBlock)
         {
-            return new IfElseBlock(this, (IAssemblerBlock)Condition);
+            return new IfElseBlock(this, (IAssemblerBlock)Condition, (IAssemblerBlock)IfBlock, (IAssemblerBlock)ElseBlock);
         }
 
         public IBlockGenerator CreateWhileBlock(ICodeBlock Condition)

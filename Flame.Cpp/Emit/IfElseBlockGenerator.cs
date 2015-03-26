@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class IfElseBlockGenerator : MutableCompositeBlockBase, IIfElseBlockGenerator, ICppLocalDeclaringBlock
+    /*public class IfElseBlockGenerator : MutableCompositeBlockBase, IIfElseBlockGenerator, ICppLocalDeclaringBlock
     {
         public IfElseBlockGenerator(CppCodeGenerator CodeGenerator, ICppBlock Condition)
         {
@@ -16,7 +16,8 @@ namespace Flame.Cpp.Emit
             this.Condition = Condition;
             this.IfBlock = new NotifyingBlockGenerator(CodeGenerator);
             this.ElseBlock = new NotifyingBlockGenerator(CodeGenerator);
-            this.commonDecls = new List<LocalDeclarationReference>();
+            var condLocals = Condition.LocalsUsed;
+            this.commonDecls = new List<LocalDeclarationReference>(condLocals.Select(item => new LocalDeclarationReference(item)));
 
             this.IfBlock.BlockAdded += (sender, args) =>
             {
@@ -28,14 +29,14 @@ namespace Flame.Cpp.Emit
             };
             this.IfBlock.LocalDeclared += (sender, args) =>
             {
-                if (Condition.DeclaresLocal(args.Local) || ElseBlock.DeclaresLocal(args.Local))
+                if (ElseBlock.DeclaresLocal(args.Local))
                 {
                     Acquire(args.Declaration);
                 }
             };
             this.ElseBlock.LocalDeclared += (sender, args) =>
             {
-                if (Condition.DeclaresLocal(args.Local) || IfBlock.DeclaresLocal(args.Local))
+                if (IfBlock.DeclaresLocal(args.Local))
                 {
                     Acquire(args.Declaration);
                 }
@@ -69,7 +70,7 @@ namespace Flame.Cpp.Emit
         {
             get 
             {
-                return CommonDeclarations.Concat(new object[] { Condition, IfBlock, ElseBlock }.OfType<ICppLocalDeclaringBlock>().SelectMany((item) => item.LocalDeclarations));
+                return CommonDeclarations.Concat(new object[] { IfBlock, ElseBlock }.OfType<ICppLocalDeclaringBlock>().SelectMany((item) => item.LocalDeclarations));
             }
         }
 
@@ -81,10 +82,13 @@ namespace Flame.Cpp.Emit
 
         public void Acquire(LocalDeclaration Declaration)
         {
-            var localDecl = new LocalDeclarationReference(Declaration);
-            localDecl.Acquire();
-            commonDecls.Add(localDecl);
-            RegisterChanged();
+            if (!commonDecls.Any(item => item.DeclaresLocal(Declaration.Local)))
+            {
+                var localDecl = new LocalDeclarationReference(Declaration);
+                localDecl.Acquire();
+                commonDecls.Add(localDecl);
+                RegisterChanged();
+            }
         }
 
         public override ICppBlock Simplify()
@@ -93,11 +97,11 @@ namespace Flame.Cpp.Emit
 
             foreach (var item in commonDecls)
             {
-                blockGen.EmitBlock(item);
+                blockGen.AddBlock(item);
             }
             blockGen.EmitBlock(new IfElseBlock(CodeGenerator, Condition, IfBlock, ElseBlock));
 
             return blockGen;
         }
-    }
+    }*/
 }

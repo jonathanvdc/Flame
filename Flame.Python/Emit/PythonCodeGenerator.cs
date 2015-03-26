@@ -30,9 +30,9 @@ namespace Flame.Python.Emit
             throw new NotImplementedException();
         }
 
-        public IIfElseBlockGenerator CreateIfElseBlock(ICodeBlock Condition)
+        public ICodeBlock CreateIfElseBlock(ICodeBlock Condition, ICodeBlock IfBlock, ICodeBlock ElseBlock)
         {
-            return new IfElseBlockGenerator(this, (IPythonBlock)Condition);
+            return new IfElseBlock(this, (IPythonBlock)Condition, (IPythonBlock)IfBlock, (IPythonBlock)ElseBlock);
         }
 
         public IBlockGenerator CreateWhileBlock(ICodeBlock Condition)

@@ -8,13 +8,9 @@ using System.Threading.Tasks;
 
 namespace Flame.MIPS.Emit
 {
-    public class IfElseBlock : IIfElseBlockGenerator, IAssemblerBlock
+    public class IfElseBlock : IAssemblerBlock
     {
-        public IfElseBlock(ICodeGenerator CodeGenerator, IAssemblerBlock Condition)
-            : this(CodeGenerator, Condition, CodeGenerator.CreateBlock(), CodeGenerator.CreateBlock())
-        {
-        }
-        public IfElseBlock(ICodeGenerator CodeGenerator, IAssemblerBlock Condition, IBlockGenerator IfBlock, IBlockGenerator ElseBlock)
+        public IfElseBlock(ICodeGenerator CodeGenerator, IAssemblerBlock Condition, IAssemblerBlock IfBlock, IAssemblerBlock ElseBlock)
         {
             this.CodeGenerator = CodeGenerator;
             this.Condition = Condition;
@@ -24,12 +20,12 @@ namespace Flame.MIPS.Emit
 
         public ICodeGenerator CodeGenerator { get; private set; }
         public IAssemblerBlock Condition { get; private set; }
-        public IBlockGenerator IfBlock { get; private set; }
-        public IBlockGenerator ElseBlock { get; private set; }
+        public IAssemblerBlock IfBlock { get; private set; }
+        public IAssemblerBlock ElseBlock { get; private set; }
 
         public IType Type
         {
-            get { return ((IAssemblerBlock)IfBlock).Type; }
+            get { return IfBlock.Type; }
         }
 
         public IEnumerable<IStorageLocation> Emit(IAssemblerEmitContext Context)
@@ -51,7 +47,7 @@ namespace Flame.MIPS.Emit
 
             if (results.Count == 1)
             {
-                ((IAssemblerBlock)ElseBlock).EmitStoreTo(results[0], Context);
+                ElseBlock.EmitStoreTo(results[0], Context);
             }
             else
             {

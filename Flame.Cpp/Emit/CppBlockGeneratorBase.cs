@@ -7,27 +7,28 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class CppBlockGeneratorBase : IBlockGenerator, ICppLocalDeclaringBlock
+    public class CppBlockGeneratorBase : MutableCompositeBlockBase, IBlockGenerator, ICppLocalDeclaringBlock
     {
         public CppBlockGeneratorBase(CppCodeGenerator CodeGenerator)
         {
-            this.CodeGenerator = CodeGenerator;
+            this.CppCodeGenerator = CodeGenerator;
             this.blocks = new List<ICppBlock>();
         }
 
-        public CppCodeGenerator CodeGenerator { get; private set; }
+        public CppCodeGenerator CppCodeGenerator { get; private set; }
         protected List<ICppBlock> blocks;
 
         ICodeGenerator ICodeBlock.CodeGenerator
         {
-            get { return CodeGenerator; }
+            get { return CppCodeGenerator; }
         }
 
         #region Local Declaration
 
-        protected virtual void AddBlock(ICppBlock Block)
+        public virtual void AddBlock(ICppBlock Block)
         {
             blocks.Add(Block);
+            RegisterChanged();
         }
 
         public virtual IEnumerable<LocalDeclarationReference> DeclarationBlocks
@@ -38,9 +39,12 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        public virtual IEnumerable<LocalDeclaration> LocalDeclarations
+        public IEnumerable<LocalDeclaration> LocalDeclarations
         {
-            get { return DeclarationBlocks.Select((item) => item.Declaration); }
+            get
+            {
+                return SimplifiedBlock.GetLocalDeclarations();
+            }
         }
 
         protected LocalDeclarationReference GetDeclarationBlock(CppLocal Local)
@@ -64,13 +68,8 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        protected void ReferenceLocalDeclaration(LocalDeclaration Declaration, LinkedList<LocalDeclaration> Exclude)
+        public void ReferenceLocalDeclaration(LocalDeclaration Declaration)
         {
-            if (Exclude.Any((item) => item.Local == Declaration.Local))
-            {
-                return;
-            }
-
             var declBlock = GetDeclarationBlock(Declaration.Local);
             if (declBlock != null)
             {
@@ -80,16 +79,14 @@ namespace Flame.Cpp.Emit
             else
             {
                 AddBlock(new LocalDeclarationReference(Declaration));
-                Exclude.AddLast(Declaration);
             }
         }
 
-        protected void ReferenceLocalDeclarations(IEnumerable<LocalDeclaration> Declarations)
+        public void ReferenceLocalDeclarations(IEnumerable<LocalDeclaration> Declarations)
         {
-            LinkedList<LocalDeclaration> decls = new LinkedList<LocalDeclaration>();
             foreach (var item in Declarations)
             {
-                ReferenceLocalDeclaration(item, decls);
+                ReferenceLocalDeclaration(item);
             }
         }
 
@@ -101,27 +98,30 @@ namespace Flame.Cpp.Emit
             if (Block is LocalDeclarationReference)
             {
                 var declBlock = (LocalDeclarationReference)Block;
-                if (this.DeclaresLocal(declBlock.Declaration.Local)) // Don't declare a variable twice
+                if (GetDeclarationBlock(declBlock.Declaration.Local) != null) // Don't declare a variable twice
                 {
                     declBlock.Hoist();
                 }
             }
             else
             {
-                ReferenceLocalDeclarations(cppBlock.GetLocalDeclarations());
-                DeclareLocals(cppBlock.LocalsUsed);
+                var localDecls = cppBlock.GetLocalDeclarations().ToArray();
+                ReferenceLocalDeclarations(localDecls);
+                var usedLocals = cppBlock.LocalsUsed.ToArray();
+                var declUsed = usedLocals.Except(localDecls.Select(item => item.Local)).ToArray();
+                DeclareLocals(declUsed);
             }
             AddBlock(cppBlock);
         }
 
         public void EmitBreak()
         {
-            EmitBlock(new KeywordStatementBlock(CodeGenerator, "break"));
+            EmitBlock(new KeywordStatementBlock(CppCodeGenerator, "break"));
         }
 
         public void EmitContinue()
         {
-            EmitBlock(new KeywordStatementBlock(CodeGenerator, "continue"));
+            EmitBlock(new KeywordStatementBlock(CppCodeGenerator, "continue"));
         }
 
         public void EmitPop(ICodeBlock Block)
@@ -131,105 +131,12 @@ namespace Flame.Cpp.Emit
 
         public void EmitReturn(ICodeBlock Block)
         {
-            EmitBlock(new ContractReturnBlock(CodeGenerator, CodeGenerator.Contract, Block as ICppBlock));
+            EmitBlock(new ContractReturnBlock(CppCodeGenerator, CppCodeGenerator.Contract, Block as ICppBlock));
         }
 
-        public IType Type
+        public override ICppBlock Simplify()
         {
-            get
-            {
-                Stack<IType> types = new Stack<IType>();
-                foreach (var item in blocks)
-                {
-                    var t = item.Type;
-                    if (t.Equals(PrimitiveTypes.Void))
-                    {
-                        types.Push(t);
-                    }
-                }
-                if (types.Count > 0)
-                {
-                    return types.Pop();
-                }
-                else
-                {
-                    return PrimitiveTypes.Void;
-                }
-            }
-        }
-
-        public virtual IEnumerable<IHeaderDependency> Dependencies
-        {
-            get
-            {
-                IEnumerable<IHeaderDependency> depends = new IHeaderDependency[0];
-                foreach (var item in blocks)
-                {
-                    depends = depends.MergeDependencies(item.Dependencies);
-                }
-                return depends;
-            }
-        }
-
-        public int StatementCount
-        {
-            get
-            {
-                int count = 0;
-                foreach (var item in blocks)
-                {
-                    if (!(item is LocalDeclarationReference) || !((LocalDeclarationReference)item).IsEmpty)
-                    {
-                        count++;
-                    }
-                }
-                return count;
-            }
-        }
-
-        private static void AddBlockCode(CodeBuilder Target, ICppBlock Block)
-        {
-            if (Block is IMultiBlock)
-            {
-                foreach (var item in ((IMultiBlock)Block).GetBlocks())
-                {
-                    AddBlockCode(Target, item);
-                }
-            }
-            else
-            {
-                Target.AddCodeBuilder(Block.GetCode());
-            }
-        }
-
-        public virtual CodeBuilder GetCode()
-        {
-            if (blocks.Count == 0)
-            {
-                return new CodeBuilder(";");
-            }
-            else if (blocks.Count == 1)
-            {
-                return blocks[0].GetCode();
-            }
-            else
-            {
-                CodeBuilder cb = new CodeBuilder();
-                cb.AddLine("{");
-                cb.IncreaseIndentation();
-                foreach (var item in blocks)
-                {
-                    AddBlockCode(cb, item);
-                }
-                cb.DecreaseIndentation();
-                cb.AddLine("}");
-                return cb;
-            }
-        }
-
-        public virtual IEnumerable<CppLocal> LocalsUsed
-        {
-            get { return blocks.SelectMany((item) => item.LocalsUsed).Distinct(); }
+            return new CppBlock(CppCodeGenerator, blocks);
         }
 
         public override string ToString()

@@ -90,9 +90,9 @@ namespace Flame.Recompilation.Emit
             return new DoWhileBlockGenerator(this, GetExpression(Condition));
         }
 
-        public IIfElseBlockGenerator CreateIfElseBlock(ICodeBlock Condition)
+        public ICodeBlock CreateIfElseBlock(ICodeBlock Condition, ICodeBlock IfBlock, ICodeBlock ElseBlock)
         {
-            return new IfElseBlockGenerator(this, GetExpression(Condition), CreateBlock(), CreateBlock());
+            return new IfElseBlock(this, GetExpression(Condition), IfBlock, ElseBlock);
         }
 
         public IBlockGenerator CreateWhileBlock(ICodeBlock Condition)
