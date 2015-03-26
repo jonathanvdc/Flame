@@ -90,10 +90,5 @@ namespace Flame.Cpp.Emit
             }
             return blockGen;
         }
-
-        public IEnumerable<ICppBlock> GetBlocks()
-        {
-            return blocks;
-        }
     }
 }
