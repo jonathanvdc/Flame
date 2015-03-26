@@ -60,21 +60,7 @@ namespace Flame.Cpp.Emit
         
         public override CodeBuilder GetCode()
         {
-            if (Contract.HasPreconditions)
-            {
-                var oldBlocks = blocks;
-                var newBlocks = new List<ICppBlock>(oldBlocks.Count);
-                newBlocks.AddRange(Contract.Preconditions);
-                newBlocks.AddRange(oldBlocks);
-                this.blocks = newBlocks;
-                var code = base.GetCode();
-                this.blocks = oldBlocks;
-                return code;
-            }
-            else
-            {
-                return base.GetCode();
-            }
+            return Simplify().GetCode();
         }
 
         public override CppBlockGenerator ImplyEmptyReturns()
