@@ -160,7 +160,6 @@
     <Compile Include="Emit\MemberAccessBlock.cs" />
     <Compile Include="Emit\CppVariableBase.cs" />
     <Compile Include="Emit\DoWhileBlockGenerator.cs" />
-    <Compile Include="Emit\IfElseBlockGenerator.cs" />
     <Compile Include="Emit\KeywordStatementBlock.cs" />
     <Compile Include="Emit\CharLiteral.cs" />
     <Compile Include="Emit\ConversionBlock.cs" />
