@@ -48,17 +48,7 @@ namespace Flame.Cpp.Emit
             var cppIf = (ICppBlock)IfBlock;
             var cppElse = (ICppBlock)ElseBlock;
 
-            var blocks = new ICppBlock[] { cppIf, cppElse };
-            var enclosingBlock = new CppBlockGenerator(this);
-
-            var commonDecls = blocks.GetCommonLocalDeclarations();
-
-            enclosingBlock.ReferenceLocalDeclarations(commonDecls);
-
-            var ifElseBlock = new IfElseBlock(this, cppCond, cppIf, cppElse);
-            enclosingBlock.EmitBlock(ifElseBlock);
-
-            return enclosingBlock.Simplify();
+            return new IfElseBlock(this, cppCond, cppIf, cppElse);
         }
 
         public IBlockGenerator CreateWhileBlock(ICodeBlock Condition)
