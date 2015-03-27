@@ -259,12 +259,13 @@ namespace Flame.Python
                     var ceq = codeGenerator.EmitEquals(parameterIdentBlock, param.DefaultValue.Emit(codeGenerator));
                     condition = codeGenerator.EmitLogicalAnd(condition, ceq);
                 }
-                var ifBlock = codeGenerator.CreateIfElseBlock(condition);
-                ifBlock.IfBlock.EmitBlock(new PythonCodeBlock(codeGenerator, PrimitiveTypes.Void, item.GetBodyCode()));
+                var ifBody = codeGenerator.CreateBlock();
+                ifBody.EmitBlock(new PythonCodeBlock(codeGenerator, PrimitiveTypes.Void, item.GetBodyCode()));
                 if (!item.get_HasReturnValue())
                 {
-                    ifBlock.IfBlock.EmitReturn(null);
+                    ifBody.EmitReturn(null);
                 }
+                var ifBlock = codeGenerator.CreateIfElseBlock(condition, ifBody, codeGenerator.CreateBlock());    
                 cb.AddCodeBuilder(((IPythonBlock)ifBlock).GetCode());
             }
             cb.AddCodeBuilder(sortedMethods.Last().GetBodyCode());

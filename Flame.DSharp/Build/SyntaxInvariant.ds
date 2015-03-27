@@ -1,0 +1,119 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Build;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.DSharp.Lexer;
+using Flame.Syntax;
+using Flame.Syntax.DSharp;
+
+namespace Flame.DSharp.Build
+{
+	public class SyntaxInvariant : CodeMember, IInvariant, ISyntaxNode
+	{
+        public const this(set InvariantSyntax Syntax, set ISyntaxState State);
+
+		public InvariantSyntax Syntax { const get; private set; }
+		public ISyntaxState State { const get; private set; }
+		
+		#region IInvariantMember Implementation
+		
+		private IExpression cachedInvariant;
+		public IExpression Invariant
+		{
+			const get
+			{
+				if (cachedInvariant == null)
+				{
+					cachedInvariant = Syntax.CreateExpression(State);
+				}
+				return cachedInvariant;
+			}
+		}
+		
+		#endregion
+		
+		#region ITypeMember Implementation
+		
+		public IType DeclaringType 
+		{ 
+			const get return State.DeclaringType;
+		}
+        
+        public bool IsStatic
+        {
+        	const get return false;
+        }
+
+		public string Name
+		{
+			const get return "invariant";
+		}
+		
+		public string FullName
+		{
+			const get return MemberExtensions.CombineNames(DeclaringType.FullName, Name);
+		}
+		
+		public const [IAttribute] GetAttributes()
+        {
+        	return Enumerable.Empty<IAttribute>();
+        }
+        
+        #endregion
+        
+        #region CodeMember Implementation
+        
+        public override string GetHeaderString()
+        {
+        	return Name;
+        }
+        
+        public override CodeBuilder GetBodyCode()
+        {
+        	CodeBuilder cb = new CodeBuilder();
+        	cb.Append(Syntax.LeadingBraces.ToString());
+        	cb.Append(Syntax.Condition.GetCode());
+        	cb.Append(Syntax.TrailingBraces.ToString());
+        	return cb;
+        }
+        
+        #endregion
+        
+        #region ISyntaxNode Implementation
+        
+        public const CodeBuilder GetCode()
+        {
+            return Syntax.GetCode();
+        }
+        
+        #endregion
+        
+        #region Equality
+
+        public override int GetHashCode()
+        {
+            return Syntax.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is SyntaxInvariant)
+            {
+            	var syntaxInvariant = (SyntaxInvariant)obj;
+                return DeclaringType.Equals(syntaxInvariant.DeclaringType) && Syntax.Equals(syntaxInvariant.Syntax);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        #endregion
+	}
+}

@@ -64,7 +64,7 @@ namespace Flame.Cpp.Emit
             if (invariantCheck == null)
             {
                 var checkMethod = DeclaringType.GetInvariantsCheckMethod();
-                if (checkMethod != null && !checkMethod.Equals(Method))
+                if (checkMethod != null && !checkMethod.Equals(Method) && !DeclaringType.GetInvariantsCheckImplementationMethod().Equals(Method))
                 {
                     invariantCheck = (ICppBlock)CodeGenerator.EmitInvocation(checkMethod, CodeGenerator.GetThis().CreateGetExpression().Emit(CodeGenerator), Enumerable.Empty<ICodeBlock>());
                 }

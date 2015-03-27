@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Plugs
 {
-    public class StdxArraySlice : PrimitiveBase, ICppMember
+    public class StdxArraySlice : PrimitiveBase, IDeclarationDependencyMember
     {
         private StdxArraySlice()
         {
@@ -386,6 +386,11 @@ typename ArraySlice<T>::const_iterator ArraySlice<T>::cend() const
         public IEnumerable<IHeaderDependency> Dependencies
         {
             get { return new IHeaderDependency[] { StandardDependency.Memory, StandardDependency.InitializerList, StandardDependency.Vector }; }
+        }
+
+        public IEnumerable<IHeaderDependency> DeclarationDependencies
+        {
+            get { return Dependencies; }
         }
 
         public CodeBuilder GetHeaderCode()

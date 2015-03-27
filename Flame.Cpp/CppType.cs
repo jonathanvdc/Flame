@@ -234,7 +234,7 @@ namespace Flame.Cpp
         public IField[] GetFields()
         {
             IEnumerable<IField> results = fields;
-            if (Invariants.HasInvariants)
+            if (Invariants.HasInvariants && !Invariants.InheritsInvariants)
             {
                 results = results.With(Invariants.IsCheckingInvariantsField);
             }
@@ -251,7 +251,14 @@ namespace Flame.Cpp
             IEnumerable<IMethod> results = methods.Where((item) => !item.IsConstructor);
             if (Invariants.HasInvariants)
             {
-                results = results.With(Invariants.CheckInvariantsMethod);
+                if (!Invariants.InheritsInvariants)
+                {
+                    results = results.With(Invariants.CheckInvariantsMethod);
+                }
+                if (!Invariants.CheckInvariantsImplementationMethod.InlineTestBlock)
+                {
+                    results = results.With(Invariants.CheckInvariantsImplementationMethod.ToCppMethod());
+                }
             }
             return results.ToArray();
         }
@@ -271,8 +278,15 @@ namespace Flame.Cpp
             var results = fields.Concat<ICppMember>(methods).Concat(properties).Concat(types);
             if (Invariants.HasInvariants)
             {
-                results = results.With(Invariants.CheckInvariantsMethod.ToCppMethod())
-                                 .With(Invariants.IsCheckingInvariantsField);
+                if (!Invariants.InheritsInvariants)
+                {
+                    results = results.With(Invariants.CheckInvariantsMethod.ToCppMethod())
+                                     .With(Invariants.IsCheckingInvariantsField);
+                }
+                if (!Invariants.CheckInvariantsImplementationMethod.InlineTestBlock)
+                {
+                    results = results.With(Invariants.CheckInvariantsImplementationMethod.ToCppMethod());
+                }
             }
             return results;
         }
@@ -395,6 +409,16 @@ namespace Flame.Cpp
 
         #endregion
 
+        private void AppendInheritanceCode(CodeBuilder cb, IType Type)
+        {
+            cb.Append("public ");
+            if (Type.get_IsInterface())
+            {
+                cb.Append("virtual ");
+            }
+            cb.Append(TypeNamer.Name(Type, (IType)this));
+        }
+
         private CodeBuilder GetInheritanceCode()
         {
             var bTypes = GetBaseTypes();
@@ -405,12 +429,12 @@ namespace Flame.Cpp
             else
             {
                 var cb = new CodeBuilder();
-                cb.Append(" : public ");
-                cb.Append(TypeNamer.Name(bTypes[0], (IType)this));
+                cb.Append(" : ");
+                AppendInheritanceCode(cb, bTypes[0]);
                 for (int i = 1; i < bTypes.Length; i++)
                 {
-                    cb.Append(", public ");
-                    cb.Append(TypeNamer.Name(bTypes[i], (IType)this));
+                    cb.Append(", ");
+                    AppendInheritanceCode(cb, bTypes[i]);
                 }
                 return cb;
             }

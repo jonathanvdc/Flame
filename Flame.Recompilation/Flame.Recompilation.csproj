@@ -51,7 +51,7 @@
     <Compile Include="DefaultOptimizer.cs" />
     <Compile Include="Emit\CollectionBlock.cs" />
     <Compile Include="Emit\ExplicitThisVariable.cs" />
-    <Compile Include="Emit\IfElseBlockGenerator.cs" />
+    <Compile Include="Emit\IfElseBlock.cs" />
     <Compile Include="Emit\IStatementBlock.cs" />
     <Compile Include="Emit\RecompiledBlockGenerator.cs" />
     <Compile Include="Emit\ForeachBlockGenerator.cs" />

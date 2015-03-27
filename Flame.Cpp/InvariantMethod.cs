@@ -71,25 +71,17 @@ namespace Flame.Cpp
 
         private DescriptionAttribute CreateSummary()
         {
-            return new DescriptionAttribute("summary", "Checks if this type's invariants are being respected. A boolean value is returned that indicates whether this is indeed the case.");
+            return new DescriptionAttribute("summary", "Checks if this type's invariants are being respected. A boolean value is returned that indicates whether this is indeed the case. This method is publically visible, and can be used to verify an instance's state.");
         }
 
         public IEnumerable<IAttribute> GetAttributes()
         {
-            var baseAttrs = new IAttribute[] 
+            return new IAttribute[] 
             { 
                 new AccessAttribute(AccessModifier.Public),
                 PrimitiveAttributes.Instance.ConstantAttribute,
                 CreateSummary()
             };
-            if (DeclaringType.get_IsVirtual() || DeclaringType.get_IsInterface())
-            {
-                return baseAttrs.With(PrimitiveAttributes.Instance.VirtualAttribute);
-            }
-            else
-            {
-                return baseAttrs;
-            }
         }
 
         public string Name
@@ -132,21 +124,17 @@ namespace Flame.Cpp
 
                     var fieldVar = codeGen.GetField(Invariants.IsCheckingInvariantsField, codeGen.GetThis().CreateGetExpression().Emit(codeGen));
 
-                    var ifBlock = codeGen.CreateIfElseBlock(codeGen.EmitNot(fieldVar.CreateGetExpression().Emit(codeGen)));
-
-                    var ifBody = ifBlock.IfBlock;
+                    var ifBody = codeGen.CreateBlock();
 
                     fieldVar.CreateSetStatement(new BooleanExpression(true)).Emit(ifBody); // isCheckingInvariants = true;
                     var resultVariable = codeGen.DeclareVariable(new DescribedVariableMember("result", PrimitiveTypes.Boolean));
-                    var allInvariants = Invariants.GetAllInvariants();
-                    var test = allInvariants.First();
-                    foreach (var item in allInvariants.Skip(1))
-                    {
-                        test = (ICppBlock)codeGen.EmitLogicalAnd(test, item);
-                    }
+                    var checkImpl = Invariants.CheckInvariantsImplementationMethod;
+                    var test = checkImpl.InlineTestBlock  ? checkImpl.CreateTestBlock(codeGen) : codeGen.EmitInvocation(checkImpl, codeGen.GetThis().CreateGetExpression().Emit(codeGen), Enumerable.Empty<ICodeBlock>());
                     resultVariable.CreateSetStatement(new CodeBlockExpression(test, PrimitiveTypes.Boolean)).Emit(ifBody); // bool result = <condition>;
                     fieldVar.CreateSetStatement(new BooleanExpression(false)).Emit(ifBody); // isCheckingInvariants = false;
                     ifBody.EmitReturn(resultVariable.CreateGetExpression().Emit(codeGen)); // return result;
+
+                    var ifBlock = codeGen.CreateIfElseBlock(codeGen.EmitNot(fieldVar.CreateGetExpression().Emit(codeGen)), ifBody, codeGen.CreateBlock());
 
                     bodyGen.EmitBlock(ifBlock);
                     bodyGen.EmitReturn(codeGen.EmitBoolean(true));

@@ -501,20 +501,32 @@ namespace Flame.DSharp.Build
 
         public virtual IType GetGenericDeclaration()
         {
-            var state = GetSyntaxState();
-            return new OpenGenericType(Syntax, DeclaringNamespace, GetSyntaxState().Binder, state.Log, state.MemberProvider);
+            var state = GetNamespaceSyntaxState();
+            return new OpenGenericType(Syntax, DeclaringNamespace, state.Binder, state.Log, state.MemberProvider);
         }
 
-		private [IGenericParameter] genericParamCache;
 		public [IGenericParameter] GenericParameters { const get return GetGenericParameters(); }
+		
+		protected virtual [IGenericParameter] CreateGenericParameters()
+		{
+			return DSharpTypeExtensions.CreateConstrainedGenericParameters(GetNamespaceSyntaxState(), this, Syntax.Signature.GenericDeclarations, Syntax.Signature.GenericConstraints);
+		}
 		
         public virtual [IGenericParameter] GetGenericParameters()
         {
-        	if (genericParamCache == null)
+            if (AllowMemberCaching && typeMemberCache.ContainsKey("GenericParameters"))
+            {
+                return ([IGenericParameter])typeMemberCache["GenericParameters"];
+            }
+            
+            var genericParams = CreateGenericParameters();
+            
+        	if (AllowMemberCaching)
         	{
-            	genericParamCache = DSharpTypeExtensions.CreateConstrainedGenericParameters(GetNamespaceSyntaxState(), this, Syntax.Signature.GenericDeclarations, Syntax.Signature.GenericConstraints);
+            	typeMemberCache["GenericParameters"] = genericParams;
         	}
-        	return genericParamCache;
+        	
+        	return genericParams;
         }
 
         public abstract [IType] GetGenericArguments();

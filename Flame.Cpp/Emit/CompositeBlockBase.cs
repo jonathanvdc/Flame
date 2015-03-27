@@ -7,11 +7,15 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public abstract class CompositeBlockBase : ICppBlock
+    public abstract class CompositeBlockBase : ICppBlock, IMultiBlock
     {
         private ICppBlock simplified;
 
         protected virtual bool HasChanged { get { return false; } }
+        protected virtual void RegisterSimplified(ICppBlock Block)
+        {
+
+        }
 
         protected ICppBlock SimplifiedBlock
         {
@@ -20,6 +24,7 @@ namespace Flame.Cpp.Emit
                 if (simplified == null || HasChanged)
                 {
                     simplified = Simplify();
+                    RegisterSimplified(simplified);
                 }
                 return simplified;
             }
@@ -47,9 +52,41 @@ namespace Flame.Cpp.Emit
             get { return SimplifiedBlock.CodeGenerator; }
         }
 
-        public CodeBuilder GetCode()
+        public virtual CodeBuilder GetCode()
         {
             return SimplifiedBlock.GetCode();
+        }
+
+        public virtual IEnumerable<ICppBlock> GetBlocks()
+        {
+            return new ICppBlock[] { SimplifiedBlock };
+        }
+
+        public override string ToString()
+        {
+            return GetCode().ToString();
+        }
+    }
+
+    public abstract class MutableCompositeBlockBase : CompositeBlockBase
+    {
+        private bool hasChanged;
+        protected override bool HasChanged
+        {
+            get
+            {
+                return hasChanged;
+            }
+        }
+
+        protected override void RegisterSimplified(ICppBlock Block)
+        {
+            hasChanged = false;
+        }
+
+        protected virtual void RegisterChanged()
+        {
+            hasChanged = true;
         }
     }
 
