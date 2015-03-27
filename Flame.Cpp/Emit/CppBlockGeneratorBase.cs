@@ -54,7 +54,7 @@ namespace Flame.Cpp.Emit
 
         protected void DeclareLocal(CppLocal Local)
         {
-            if (!this.DeclaresLocal(Local))
+            if (this.GetDeclarationBlock(Local) == null)
             {
                 AddBlock(new LocalDeclarationReference(Local));
             }

@@ -13,4 +13,10 @@ public class ContractsTest
             return true;
         else return false;
     }
+
+    public bool Asymmetric(bool Value)
+    {
+        if (Value) return false;
+        return true;
+    }
 }
