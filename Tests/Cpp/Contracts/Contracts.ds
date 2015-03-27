@@ -5,7 +5,7 @@ public class ContractsTest
 
     public int X;
 
-    invariant { X > 0 }
+    invariant { X >= 0 }
 
     public bool GreaterThan(int Value)
     {

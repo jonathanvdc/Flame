@@ -52,16 +52,9 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        public override CodeBuilder GetCode()
+        public override ICppBlock Simplify()
         {
-            CodeBuilder cb = new CodeBuilder();
-            cb.Append("for (");
-            cb.Append(elemDeclaration.GetExpressionCode(true, true));
-            cb.Append(" : ");
-            cb.Append(Collection.GetCode());
-            cb.Append(")");
-            cb.AddBodyCodeBuilder(base.GetCode());
-            return cb;
+            return new ForeachBlock(elemDeclaration, Collection, base.Simplify());
         }
     }
 }

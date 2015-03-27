@@ -33,8 +33,8 @@ namespace Flame.Cpp.Emit
         {
             if (Block is LocalDeclarationReference)
             {
-                var decl = ((LocalDeclarationReference)Block).Declaration;
-                return decl.DeclareVariable ? new LocalDeclaration[] { ((LocalDeclarationReference)Block).Declaration } : Enumerable.Empty<LocalDeclaration>();
+                var block = (LocalDeclarationReference)Block;
+                return block.DeclaresVariable ? new LocalDeclaration[] { block.Declaration } : Enumerable.Empty<LocalDeclaration>();
             }
             else if (Block is ICppLocalDeclaringBlock)
             {
