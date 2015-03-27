@@ -18,6 +18,11 @@ namespace Flame.Cpp
         CodeBuilder GetSourceCode();
     }
 
+    public interface IDeclarationDependencyMember : ICppMember
+    {
+        IEnumerable<IHeaderDependency> DeclarationDependencies { get; }
+    }
+
     public interface ICppTemplateMember : ICppMember, IGenericMember, IGenericResolver
     {
         CppTemplateDefinition Templates { get; }

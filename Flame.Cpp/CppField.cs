@@ -101,7 +101,7 @@ namespace Flame.Cpp
                 cb.Append(" = ");
                 cb.Append(block.GetCode());
             }
-            else if (FieldType.get_IsPrimitive() && !FieldType.Equals(PrimitiveTypes.String))
+            else if (FieldType.get_IsPrimitive() && !FieldType.Equals(PrimitiveTypes.String) && Environment.Log.Options.GetOption<bool>("initialize-fields", true))
             {
                 var cg = new CppCodeGenerator(new DescribedMethod(Name, DeclaringType, FieldType, IsStatic), Environment);
                 var block = (ICppBlock)cg.EmitDefaultValue(FieldType);

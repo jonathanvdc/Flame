@@ -4,15 +4,30 @@ using System.Text;
 
 namespace Flame.Compiler
 {
+	/// <summary>
+	/// Defines common functionality for generic option dictionaries.
+	/// </summary>
 	public interface ICompilerOptions
 	{
 		/// <summary>
-		/// Gets the option associated with the given key. If no such option has been specified, returns the given default value.
+		/// Gets the option associated with the given key.
+		/// If no such option has been specified, returns the given default value.
 		/// </summary>
 		T GetOption<T>(string Key, T Default);
 		/// <summary>
 		/// Gets a boolean value that indicates whether an option for the given key has been specified.
 		/// </summary>
 		bool HasOption(string Key);
+	}
+
+	/// <summary>
+	/// Defines common functionality for string-serializable option dictionaries.
+	/// </summary>
+	public interface IStringOptions : ICompilerOptions
+	{
+		/// <summary>
+		/// Gets all string options.
+		/// </summary>
+		[string] GetOptions();
 	}
 }

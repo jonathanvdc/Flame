@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Analysis
 {
-    public class AnalyzedIfElseBlockGenerator : AnalyzedStatementBase<AnalyzedIfElseBlockGenerator>, IIfElseBlockGenerator
+    /*public class AnalyzedIfElseBlockGenerator : AnalyzedStatementBase<AnalyzedIfElseBlockGenerator>, IIfElseBlockGenerator
     {
         public AnalyzedIfElseBlockGenerator(ICodeGenerator CodeGenerator, IAnalyzedExpression Condition)
             : base(CodeGenerator)
@@ -67,5 +67,5 @@ namespace Flame.Analysis
         {
             return ToImmutable().GetHashCode();
         }
-    }
+    }*/
 }

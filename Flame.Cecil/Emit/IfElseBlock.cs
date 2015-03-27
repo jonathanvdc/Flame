@@ -9,13 +9,9 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
-    public class IfElseBlock : IIfElseBlockGenerator, ICecilBlock
+    public class IfElseBlock : ICecilBlock
     {
-        public IfElseBlock(ICodeGenerator CodeGenerator, ICecilBlock Condition)
-            : this(CodeGenerator, Condition, CodeGenerator.CreateBlock(), CodeGenerator.CreateBlock())
-        {
-        }
-        public IfElseBlock(ICodeGenerator CodeGenerator, ICecilBlock Condition, IBlockGenerator IfBlock, IBlockGenerator ElseBlock)
+        public IfElseBlock(ICodeGenerator CodeGenerator, ICecilBlock Condition, ICecilBlock IfBlock, ICecilBlock ElseBlock)
         {
             this.CodeGenerator = CodeGenerator;
             this.Condition = Condition;
@@ -25,8 +21,8 @@ namespace Flame.Cecil.Emit
 
         public ICodeGenerator CodeGenerator { get; private set; }
         public ICecilBlock Condition { get; private set; }
-        public IBlockGenerator IfBlock { get; private set; }
-        public IBlockGenerator ElseBlock { get; private set; }
+        public ICecilBlock IfBlock { get; private set; }
+        public ICecilBlock ElseBlock { get; private set; }
 
         public void Emit(IEmitContext Context)
         {

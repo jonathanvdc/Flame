@@ -170,7 +170,7 @@ namespace Flame.Cpp
 
         public bool EmitInline
         {
-            get { return (this.get_IsGeneric() && this.DeclaringType.get_IsGenericDeclaration()) || this.Equals(DeclaringType.GetInvariantsCheckMethod()); }
+            get { return (this.get_IsGeneric() && this.DeclaringType.get_IsGenericDeclaration()) || this.Equals(DeclaringType.GetInvariantsCheckImplementationMethod()); }
         }
 
         public bool IsOverride
@@ -332,7 +332,7 @@ namespace Flame.Cpp
                 return new CodeBuilder();
             }
 
-            var cg = blockGen.CodeGenerator;
+            var cg = blockGen.CppCodeGenerator;
 
             bool isConst = this.get_IsConstant();
             CodeBuilder cb = this.GetDocumentationComments();

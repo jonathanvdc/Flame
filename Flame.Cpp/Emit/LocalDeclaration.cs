@@ -91,6 +91,17 @@ namespace Flame.Cpp.Emit
                 Declaration = new LocalDeclaration(Declaration.Local);
             }
         }
+
+        /// <summary>
+        /// Hoists the local out from this declaration block.
+        /// This eliminates the possibility of acquiring it later.
+        /// </summary>
+        public void Hoist()
+        {
+            hasAcquired = true;
+            Declaration.DeclareVariable = false;
+        }
+
         /// <summary>
         /// Acquires the local variable and assigns it the given value.
         /// </summary>

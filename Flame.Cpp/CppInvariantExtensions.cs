@@ -22,7 +22,7 @@ namespace Flame.Cpp
             }
         }
 
-        public static IMethod GetInvariantsCheckMethod(this IType Type)
+        public static InvariantMethod GetInvariantsCheckMethod(this IType Type)
         {
             var invars = Type.GetTypeInvariants();
             if (invars == null || !invars.HasAnyInvariants)
@@ -32,13 +32,42 @@ namespace Flame.Cpp
             return invars.CheckInvariantsMethod;
         }
 
-        public static ICppBlock CreateInvariantsCheck(this IType Type, ICodeGenerator CodeGenerator)
+        public static IMethod GetInvariantsCheckImplementationMethod(this IType Type)
         {
-            var checkMethod = Type.GetInvariantsCheckMethod();
-            if (checkMethod == null)
+            var invars = Type.GetTypeInvariants();
+            if (invars == null || !invars.HasAnyInvariants)
             {
                 return null;
             }
+            var method = invars.CheckInvariantsImplementationMethod;
+            if (method.InlineTestBlock)
+            {
+                return invars.CheckInvariantsMethod;
+            }
+            else
+            {
+                return invars.CheckInvariantsImplementationMethod;
+            }
+        }
+
+        public static CppField GetIsCheckingInvariantsField(this IType Type)
+        {
+            var invars = Type.GetTypeInvariants();
+            if (invars == null || !invars.HasAnyInvariants)
+            {
+                return null;
+            }
+            return invars.IsCheckingInvariantsField;
+        }
+
+        public static ICppBlock CreateInvariantsCheck(this IType Type, ICodeGenerator CodeGenerator)
+        {
+            var invars = Type.GetTypeInvariants();
+            if (invars == null || !invars.HasAnyInvariants)
+            {
+                return null;
+            }
+            var checkMethod = invars.CheckInvariantsMethod;
             var call = CodeGenerator.EmitInvocation(checkMethod, CodeGenerator.GetThis().CreateGetExpression().Emit(CodeGenerator), Enumerable.Empty<ICodeBlock>());
             return (ICppBlock)call;
         }

@@ -102,38 +102,9 @@ namespace Flame.Cpp.Emit
 
         public IVariable ExceptionVariable { get { return ExceptionVariableDeclaration.Declaration.Local; } }
 
-        public override IEnumerable<LocalDeclarationReference> DeclarationBlocks
+        public override ICppBlock Simplify()
         {
-            get
-            {
-                return base.DeclarationBlocks.Concat(new LocalDeclarationReference[] { ExceptionVariableDeclaration });
-            }
-        }
-
-        public override IEnumerable<IHeaderDependency> Dependencies
-        {
-            get
-            {
-                return base.Dependencies.MergeDependencies(ExceptionVariableDeclaration.Dependencies);
-            }
-        }
-
-        public override IEnumerable<CppLocal> LocalsUsed
-        {
-            get
-            {
-                return base.LocalsUsed.Union(ExceptionVariableDeclaration.LocalsUsed);
-            }
-        }
-
-        public override CodeBuilder GetCode()
-        {
-            CodeBuilder cb = new CodeBuilder();
-            cb.Append("catch (");
-            cb.Append(ExceptionVariableDeclaration.GetCode());
-            cb.Append(")");
-            cb.AddEmbracedBodyCodeBuilder(base.GetCode());
-            return cb;
+            return new CatchBlock(ExceptionVariableDeclaration, base.Simplify());
         }
     }
 }

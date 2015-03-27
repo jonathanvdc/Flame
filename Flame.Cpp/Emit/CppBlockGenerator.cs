@@ -7,21 +7,21 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class CppBlockGenerator : CppBlockGeneratorBase
+    public class CppBlockGenerator : CppBlockGeneratorBase, IMultiBlock
     {
         public CppBlockGenerator(CppCodeGenerator CodeGenerator)
             : base(CodeGenerator)
         {
         }
         public CppBlockGenerator(CppBlockGenerator Other)
-            : base(Other.CodeGenerator)
+            : base(Other.CppCodeGenerator)
         {
             this.blocks = Other.blocks;
         }
 
         public virtual CppBlockGenerator ImplyEmptyReturns()
         {
-            var blockGen = new CppBlockGenerator(CodeGenerator);
+            var blockGen = new CppBlockGenerator(CppCodeGenerator);
             var processedBlocks = new List<ICppBlock>();
             foreach (var item in blocks)
             {
@@ -80,7 +80,7 @@ namespace Flame.Cpp.Emit
 
         public virtual CppBlockGenerator ImplyStructInit()
         {
-            var blockGen = new CppBlockGenerator(CodeGenerator);
+            var blockGen = new CppBlockGenerator(CppCodeGenerator);
             foreach (var item in blocks)
             {
                 if (!IsStoreThisBlock(item))

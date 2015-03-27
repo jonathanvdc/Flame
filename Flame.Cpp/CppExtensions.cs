@@ -47,7 +47,7 @@ namespace Flame.Cpp
             return Member.GetAttributes().OfType<HeaderDependencyAttribute>();
         }
 
-        private static IEnumerable<IHeaderDependency> GetAttributeDependencies(this IMember Member)
+        public static IEnumerable<IHeaderDependency> GetAttributeDependencies(this IMember Member)
         {
             return Member.GetHeaderAttributes().Select((item) => new StandardDependency(item.HeaderName)).MergeDependencies(Member.GetHeaderDependencyAttributes().Select((item) => item.Dependency));
         }
@@ -129,108 +129,6 @@ namespace Flame.Cpp
 
         #endregion
 
-        #region Dependencies
-
-        public static IEnumerable<IHeaderDependency> GetDependencies(this IMember Member, params IMember[] Exclude)
-        {
-            return GetDependencies(Member, (IEnumerable<IMember>)Exclude);
-        }
-        public static IEnumerable<IHeaderDependency> GetDependencies(this IMember Member, IEnumerable<IMember> Exclude)
-        {
-            if (Exclude.Contains(Member))
-            {
-                return new IHeaderDependency[0];
-            }
-            if (Member is IType)
-            {
-                return GetDependencies((IType)Member, Exclude);
-            }
-            else if (Member is ICppMember)
-            {
-                return ((ICppMember)Member).Dependencies;
-            }
-            else if (Member is IParameter)
-            {
-                return ((IParameter)Member).ParameterType.GetDependencies();
-            }
-            else
-            {
-                return Member.GetAttributeDependencies();
-            }
-        }
-
-        public static IEnumerable<IHeaderDependency> GetDependencies(this IType Type, IEnumerable<IMember> Exclude)
-        {
-            if (Exclude.Contains(Type) || Type.get_IsGenericParameter())
-            {
-                return new IHeaderDependency[0];
-            }
-            else if (Type.get_IsPointer())
-            {
-                var depends = Type.AsContainerType().GetElementType().GetDependencies();
-                if (Type.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer))
-                {
-                    return depends.MergeDependencies(new IHeaderDependency[] { StandardDependency.Memory });
-                }
-                else
-                {
-                    return depends;
-                }
-            }
-            else if (Type.get_IsGenericInstance())
-            {
-                return Type.GetGenericDeclaration().GetDependencies(Exclude).MergeDependencies(Type.GetGenericArguments().SelectMany((item) => item.GetDependencies(Exclude)));
-            }
-            else if (Type is ICppMember)
-            {
-                //return new IHeaderDependency[] { new TypeHeaderDependency(Type) };
-                return new IHeaderDependency[] { new CppFile((ICppMember)Type) };
-            }
-            else if (Type.Equals(PrimitiveTypes.String))
-            {
-                return new IHeaderDependency[] { StandardDependency.String };
-            }
-            else
-            {
-                return Type.GetAttributeDependencies();
-            }
-        }
-
-        public static IEnumerable<IHeaderDependency> GetDependencies(this IEnumerable<IMember> Members, params IMember[] Exclude)
-        {
-            return GetDependencies(Members, (IEnumerable<IMember>)Exclude);
-        }
-
-        public static IEnumerable<IHeaderDependency> GetDependencies(this IEnumerable<IMember> Members, IEnumerable<IMember> Exclude)
-        {
-            var depends = Members.Select((item) => item.GetDependencies(Exclude));
-            if (!depends.Any())
-            {
-                return new IHeaderDependency[0];
-            }
-            else
-            {
-                return depends.Aggregate((first, second) => first.MergeDependencies(second));
-            }
-        }
-
-        public static IEnumerable<IHeaderDependency> MergeDependencies(this IEnumerable<IHeaderDependency> Dependencies, IEnumerable<IHeaderDependency> Others)
-        {
-            return Dependencies.Union(Others, HeaderComparer.Instance);
-        }
-
-        public static IEnumerable<IHeaderDependency> SortDependencies(this IEnumerable<IHeaderDependency> Dependencies)
-        {
-            return Dependencies.Where((item) => item.IsStandard).Concat(Dependencies.Where((item) => !item.IsStandard));
-        }
-
-        public static IEnumerable<IHeaderDependency> ExcludeDependencies(this IEnumerable<IHeaderDependency> Dependencies, IEnumerable<IHeaderDependency> Exclude)
-        {
-            return Dependencies.Except(Exclude, HeaderComparer.Instance);
-        }
-
-        #endregion
-
         #region Scoping Blocks
 
         public static ICppBlock BlockFromName(ICodeGenerator CodeGenerator, string Name)
@@ -258,16 +156,21 @@ namespace Flame.Cpp
             return new RetypedBlock(CodeGenerator.ConvertValueType(Member.DeclaringType).CreateBlock(CodeGenerator), MethodType.Create(Member));
         }
 
+        private static ICppBlock CreateGenericFreeMemberBlock(IMethod Member, ICodeGenerator CodeGenerator)
+        {
+            return new RetypedBlock(BlockFromName(CodeGenerator, Member.GetGenericFreeName()), MethodType.Create(Member));
+        }
+
         private static ICppBlock CreateGenericFreeBlock(IMethod Member, ICodeGenerator CodeGenerator)
         {
             var declType = Member.DeclaringType;
             if (declType == null)
             {
-                return new RetypedBlock(BlockFromName(CodeGenerator, Member.GetGenericFreeName()), MethodType.Create(Member));
+                return CreateGenericFreeMemberBlock(Member, CodeGenerator);
             }
             else
             {
-                return new ScopeOperatorBlock(declType.CreateBlock(CodeGenerator), new LiteralBlock(CodeGenerator, Member.GetGenericFreeName(), MethodType.Create(Member)));
+                return new ScopeOperatorBlock(declType.CreateBlock(CodeGenerator), CreateGenericFreeMemberBlock(Member, CodeGenerator));
             }
         }
 
@@ -276,7 +179,7 @@ namespace Flame.Cpp
             if (Member.get_IsGenericInstance())
             {
                 var cg = Block.CodeGenerator;
-                return new TypeArgumentBlock(Block, Member.GetGenericArguments().Select((item) => item.CreateBlock(cg)));
+                return new TypeArgumentBlock(Block, Member.GetGenericArguments().Select(item => item.CreateBlock(cg)));
             }
             else
             {
@@ -294,12 +197,22 @@ namespace Flame.Cpp
             var declType = Member.DeclaringType;
             if (declType == null)
             {
-                return new RetypedBlock(BlockFromName(CodeGenerator, Member.Name), Member.FieldType);
+                return Member.CreateMemberBlock(CodeGenerator);
             }
             else
             {
-                return new ScopeOperatorBlock(declType.CreateBlock(CodeGenerator), new LiteralBlock(CodeGenerator, Member.Name, Member.FieldType));
+                return new ScopeOperatorBlock(declType.CreateBlock(CodeGenerator), Member.CreateMemberBlock(CodeGenerator));
             }
+        }
+
+        public static ICppBlock CreateMemberBlock(this IMethod Method, ICodeGenerator CodeGenerator)
+        {
+            return CreateGenericBlock(CreateGenericFreeMemberBlock(Method, CodeGenerator), Method);
+        }
+
+        public static ICppBlock CreateMemberBlock(this IField Member, ICodeGenerator CodeGenerator)
+        {
+            return new RetypedBlock(BlockFromName(CodeGenerator, Member.Name), Member.FieldType);
         }
 
         #endregion

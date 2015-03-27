@@ -1,0 +1,22 @@
+
+public class ContractsTest
+{
+    public const this();
+
+    public int X;
+
+    invariant { X >= 0 }
+
+    public bool GreaterThan(int Value)
+    {
+        if (X > Value)
+            return true;
+        else return false;
+    }
+
+    public bool Asymmetric(bool Value)
+    {
+        if (Value) return false;
+        return true;
+    }
+}

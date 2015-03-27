@@ -38,18 +38,48 @@ namespace Flame.Cpp.Emit
         public CodeBuilder GetCode()
         {
             var cb = new CodeBuilder();
+
+            int maxLength = CodeGenerator.GetEnvironment().Log.Options.GetOption<int>("list-line-length", 30);
+            var elemCodeBuilders = Elements.Select(item => item.GetCode()).ToArray();
+            int totalLength = elemCodeBuilders.Aggregate(0, (length, item) => length + item.LastCodeLine.Text.Length);
+            bool breakLines = totalLength > maxLength;
+
             cb.Append("{");
+            if (breakLines)
+            {
+                cb.IncreaseIndentation();
+                cb.AppendLine();
+            }
             if (Elements.Any())
             {
-                cb.Append(" ");
-                cb.Append(Elements.First().GetCode());
-                foreach (var item in Elements.Skip(1))
+                if (!breakLines)
+                {
+                    cb.Append(" ");
+                }
+                cb.Append(elemCodeBuilders.First());
+                int currentLength = elemCodeBuilders[0].LastCodeLine.Text.Length;
+                foreach (var item in elemCodeBuilders.Skip(1))
                 {
                     cb.Append(", ");
-                    cb.Append(item.GetCode());
+                    if (currentLength > maxLength)
+                    {
+                        cb.AppendLine();
+                        currentLength = 0;
+                    }
+                    cb.Append(item);
+                    currentLength += item.LastCodeLine.Text.Length;
                 }
             }
-            cb.Append(" }");
+            if (breakLines)
+            {
+                cb.DecreaseIndentation();
+                cb.AppendLine();
+            }
+            else
+            {
+                cb.Append(" ");
+            }
+            cb.Append("}");
             return cb;
         }
     }

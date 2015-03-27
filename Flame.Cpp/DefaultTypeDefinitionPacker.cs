@@ -26,18 +26,35 @@ namespace Flame.Cpp
             }
         }
 
+        private IEnumerable<CppMemberPack> PackIndividually(IEnumerable<ICppMember> Items)
+        {
+            return Items.Select(item => new CppMemberPack(item));
+        }
+        
+        private IEnumerable<CppMemberPack> PackSortedMethods(IEnumerable<ICppMember> Members)
+        {
+            return PackIndividually(Members.Cast<IMethod>().OrderBy(item => item, DefaultMethodComparer.Instance).Cast<ICppMember>());
+        }
+
         public IEnumerable<CppMemberPack> Pack(IEnumerable<ICppMember> Members)
         {
-            IEnumerable<ICppMember> ctors = Members.OfType<IMethod>().Where(item => item.IsConstructor).Cast<ICppMember>();
-            IEnumerable<ICppMember> fields = Members.OfType<IField>().Cast<ICppMember>();
-            IEnumerable<IProperty> props = Members.OfType<IProperty>();
-            IEnumerable<ICppMember> methods = Members.OfType<IMethod>().Where(item => !item.IsConstructor).Cast<ICppMember>();
+            IEnumerable<ICppMember> ctors = Members.OfType<IMethod>().Where(item => item.IsConstructor).OrderBy(item => item.GetParameters().Length).Cast<ICppMember>();
+            IEnumerable<ICppMember> fields = Members.OfType<IField>().OrderBy(item => item.Name).Cast<ICppMember>();
+            IEnumerable<IProperty> props = Members.OfType<IProperty>().OrderBy(item => item.Name);
+            IEnumerable<ICppMember> methods = Members.OfType<IMethod>().Where(item => !item.IsConstructor && !item.get_IsOperator() && !item.get_IsCast()).Cast<ICppMember>();
+            IEnumerable<ICppMember> operators = Members.OfType<IMethod>().Where(item => !item.IsConstructor && (item.get_IsOperator() || item.get_IsCast())).Cast<ICppMember>();
 
             var accessorPacks = props.Select(item => new CppMemberPack(item.GetAccessors().OfType<ICppMember>()));
-            var methodPacks = methods.Select(item => new CppMemberPack(item));
-            var typePacks = Members.OfType<IType>().Cast<ICppMember>().Select(item => new CppMemberPack(item));
+            var methodPacks = PackSortedMethods(methods);
+            var opPacks = PackSortedMethods(operators);
+            var typePacks = PackIndividually(Members.OfType<IType>().Cast<ICppMember>());
 
-            return new CppMemberPack[] { new CppMemberPack(ctors) }.Concat(methodPacks).Concat(accessorPacks).With(new CppMemberPack(fields)).Concat(typePacks);
+            return new CppMemberPack[] { new CppMemberPack(ctors) }
+                .Concat(typePacks)
+                .Concat(methodPacks)
+                .Concat(accessorPacks)
+                .Concat(opPacks)
+                .With(new CppMemberPack(fields));
         }
     }
 }

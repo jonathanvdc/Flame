@@ -19,6 +19,11 @@ namespace Flame.Python.Emit
             this.CodeGenerator = CodeGenerator;
             this.Children = new List<IPythonBlock>(Children);
         }
+        public BlockGenerator(ICodeGenerator CodeGenerator, params IPythonBlock[] Children)
+        {
+            this.CodeGenerator = CodeGenerator;
+            this.Children = new List<IPythonBlock>(Children);
+        }
 
         public ICodeGenerator CodeGenerator { get; private set; }
         public List<IPythonBlock> Children { get; private set; }

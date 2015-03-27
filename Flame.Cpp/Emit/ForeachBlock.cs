@@ -1,5 +1,4 @@
 ﻿using Flame.Compiler;
-using Flame.Compiler.Emit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,59 +7,59 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class ForeachBlock : CppBlockGeneratorBase, IForeachBlockGenerator
+    public class ForeachBlock : ICppLocalDeclaringBlock
     {
-        public ForeachBlock(CppCodeGenerator CodeGenerator, CollectionBlock Collection)
-            : base(CodeGenerator)
+        public ForeachBlock(LocalDeclarationReference Element,ICppBlock Collection, ICppBlock Body)
         {
+            this.Element = Element;
             this.Collection = Collection;
-            DeclareElement();
+            this.Body = Body;
         }
 
-        public CollectionBlock Collection { get; private set; }
-        public IReadOnlyList<IVariable> Elements { get { return new IVariable[] { elemDeclaration.Declaration.Local }; } }
+        public LocalDeclarationReference Element { get; private set; }
+        public ICppBlock Collection { get; private set; }
+        public ICppBlock Body { get; private set; }
 
-        private LocalDeclarationReference elemDeclaration;
-
-        private void DeclareElement()
-        {
-            var elemVar = (CppLocal)CodeGenerator.DeclareNewVariable(Collection.Member);
-            this.elemDeclaration = new LocalDeclarationReference(elemVar);
-        }
-
-        public override IEnumerable<IHeaderDependency> Dependencies
+        public IEnumerable<IHeaderDependency> Dependencies
         {
             get
             {
-                return base.Dependencies.MergeDependencies(Collection.Dependencies);
+                return Element.Dependencies.MergeDependencies(Collection.Dependencies).MergeDependencies(Body.Dependencies);
             }
         }
 
-        public override IEnumerable<CppLocal> LocalsUsed
+        public IEnumerable<CppLocal> LocalsUsed
         {
             get
             {
-                return base.LocalsUsed.Union(Collection.LocalsUsed);
+                return Element.LocalsUsed.Union(Collection.LocalsUsed).Union(Body.LocalsUsed);
             }
         }
 
-        public override IEnumerable<LocalDeclarationReference> DeclarationBlocks
+        public IEnumerable<LocalDeclaration> LocalDeclarations
         {
-            get
-            {
-                return base.DeclarationBlocks.Concat(new LocalDeclarationReference[] { elemDeclaration });
-            }
+            get { return Element.GetLocalDeclarations().Concat(Collection.GetLocalDeclarations()).Union(Body.GetLocalDeclarations()); }
         }
 
-        public override CodeBuilder GetCode()
+        public IType Type
+        {
+            get { return PrimitiveTypes.Void; }
+        }
+
+        public ICodeGenerator CodeGenerator
+        {
+            get { return Body.CodeGenerator; }
+        }
+
+        public CodeBuilder GetCode()
         {
             CodeBuilder cb = new CodeBuilder();
             cb.Append("for (");
-            cb.Append(elemDeclaration.GetExpressionCode(true, true));
+            cb.Append(Element.GetExpressionCode(true, true));
             cb.Append(" : ");
             cb.Append(Collection.GetCode());
             cb.Append(")");
-            cb.AddBodyCodeBuilder(base.GetCode());
+            cb.AddBodyCodeBuilder(Body.GetCode());
             return cb;
         }
     }

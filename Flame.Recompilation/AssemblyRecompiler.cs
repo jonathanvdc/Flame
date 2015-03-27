@@ -359,6 +359,36 @@ namespace Flame.Recompilation
 
         #endregion
 
+        #region Reverse type lookup
+
+        public IType GetOriginalType(IType RecompiledType)
+        {
+            return TypeCache.GetOriginal(RecompiledType);
+        }
+
+        #endregion
+
+        #region Operators
+
+        public IMethod GetOperatorOverload(Operator Op, IEnumerable<IType> Types)
+        {
+            var reverseTypes = Types.Select(GetOriginalType);
+            var paramTypes = reverseTypes.Zip(Types, (a, b) => a == null ? b : a);
+            var overload = Op.GetOperatorOverload(paramTypes);
+            if (overload == null)
+            {
+                return null;
+            }
+            return GetMethod(overload);
+        }
+
+        public IMethod GetOperatorOverload(Operator Op, params IType[] Types)
+        {
+            return GetOperatorOverload(Op, (IEnumerable<IType>)Types);
+        }
+
+        #endregion
+
         #region Fields
 
         public IField GetField(IField SourceField)
@@ -766,7 +796,7 @@ namespace Flame.Recompilation
                         {
                             TargetField.SetValue(GetExpression(expr, CreateEmptyMethod(TargetField)));
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
                             System.Diagnostics.Debugger.Break();
                             throw;

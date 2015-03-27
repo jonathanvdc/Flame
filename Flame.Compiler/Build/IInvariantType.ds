@@ -1,0 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler
+{
+	/// <summary>
+	/// Defines common functionality for types with type invariants.
+	/// </summary>
+	public interface IInvariantType : IType
+	{
+		/// <summary>
+		/// Gets the type's invariants as expressions that must all evaluate to true.
+		/// </summary>
+		[IInvariant] GetInvariants();
+	}
+}

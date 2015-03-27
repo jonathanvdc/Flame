@@ -1,0 +1,162 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Build;
+using Flame.DSharp.Lexer;
+using Flame.Syntax.DSharp;
+
+namespace Flame.DSharp.Build
+{
+	public class SyntaxGenericParameter : IGenericParameterBuilder
+	{
+		public const this(set IGenericMember DeclaringMember,
+						  set GenericParameterDeclarationSyntax Declaration)
+		{
+			backingType = new DescribedGenericParameter(Declaration.Name, DeclaringMember);
+            foreach (var item in Declaration.ModifierTokens)
+            {
+                backingType.AddAttribute(GetGenericConstraintAttribute(item));
+            }
+		}
+						  
+		private DescribedGenericParameter backingType;
+		
+		public IGenericMember DeclaringMember { const get; private set; }
+		public GenericParameterDeclarationSyntax Declaration { const get; private set; }
+		
+		public string Name { const get return Declaration.Name; }
+		public string FullName { const get return MemberExtensions.CombineNames(DeclaringMember.FullName, Name); }
+		
+		public const [IAttribute] GetAttributes()
+		{
+			return backingType.GetAttributes();
+		}
+		
+		public IGenericConstraint Constraint
+        {
+	        const get
+			{
+				return backingType.Constraint;
+			}
+		}
+		
+		public const IField[] GetFields() { return backingType.GetFields(); }
+		public const IMethod[] GetMethods() { return backingType.GetMethods(); }
+		public const IMethod[] GetConstructors() { return backingType.GetConstructors(); }
+		public const IProperty[] GetProperties() { return backingType.GetProperties(); }
+		public const ITypeMember[] GetMembers() { return backingType.GetMembers(); }
+		
+		public void AddConstraint(IGenericConstraint Constraint)
+		{
+			backingType.AddConstraint(Constraint);
+		}
+		
+		public const IBoundObject GetDefaultValue()
+        {
+        	return backingType.GetDefaultValue();
+        }
+
+        public INamespace DeclaringNamespace
+        {
+            const get { return backingType.DeclaringNamespace; }
+        }
+
+        public bool IsContainerType
+        {
+            const get { return false; }
+        }
+
+        public IContainerType AsContainerType()
+        {
+            return null;
+        }
+
+        public IType[] GetBaseTypes()
+        {
+            return backingType.GetBaseTypes();
+        }
+
+        public IType ParameterType
+        {
+            const get { return backingType.ParameterType; }
+        }
+
+        public const bool IsAssignable(IType Type)
+        {
+        	return backingType.IsAssignable(Type);
+        }
+		
+		public const IType GetGenericDeclaration()
+		{
+			return this;
+		}
+		public const IType MakeGenericType([IType] TypeArguments)
+		{
+			return this;
+		}
+		public const [IType] GetGenericArguments()
+		{
+			return Enumerable.Empty<IType>();
+		}
+		public const [IGenericParameter] GetGenericParameters()
+		{
+			return Enumerable.Empty<IGenericParameter>();
+		}
+		
+		public const IArrayType MakeArrayType(int Rank)
+		{
+			return new DescribedArrayType(this, Rank);
+		}
+		public const IPointerType MakePointerType(PointerKind Kind)
+		{
+			return new DescribedPointerType(this, Kind);
+		}
+		public const IVectorType MakeVectorType(int[] Dimensions)
+		{
+			return new DescribedVectorType(this, Dimensions);
+		}
+		
+		public override const int GetHashCode()
+		{
+			return Declaration.GetHashCode();
+		}
+		
+		public override const bool Equals(object Other)
+		{
+			if (Other is SyntaxGenericParameter)
+			{
+				return Declaration.Equals(((SyntaxGenericParameter)Other).Declaration);	
+			}
+			else return false;
+		}
+		
+		#region Static
+		
+		public const static IAttribute GetGenericConstraintAttribute(Token Modifier)
+        {
+        	if (Modifier.Type == TokenType.ClassKeyword)
+        	{
+        		return PrimitiveAttributes.ReferenceTypeAttribute;
+        	}
+        	else if	(Modifier.Type == TokenType.StructKeyword)
+        	{
+        		return PrimitiveAttributes.ValueTypeAttribute;
+        	}
+        	else if (Modifier.Type == TokenType.OutKeyword)
+        	{
+        		return PrimitiveAttributes.OutAttribute;
+        	}
+        	else if (Modifier.Type == TokenType.InKeyword)
+        	{
+        		return PrimitiveAttributes.InAttribute;
+        	}
+            else
+            {
+            	return null;
+            }
+        }
+        
+        #endregion
+	}
+}

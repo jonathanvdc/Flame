@@ -16,16 +16,26 @@ namespace Flame.Cpp
         {
             this.DeclaringType = DeclaringType;
             this.Environment = Environment;
-            this.CheckInvariantsMethod = new InvariantMethod(this);
-            this.CodeGenerator = new CppCodeGenerator(CheckInvariantsMethod, Environment);
+            this.CheckInvariantsImplementationMethod = new InvariantImplementationMethod(this);
+            this.CodeGenerator = new CppCodeGenerator(CheckInvariantsImplementationMethod, Environment);
             this.invariants = new List<ICppBlock>();
 
-            var descField = new DescribedField("isCheckingInvariants", PrimitiveTypes.Boolean, false);
-            descField.DeclaringType = DeclaringType;
-            descField.AddAttribute(new AccessAttribute(AccessModifier.Private));
-            this.IsCheckingInvariantsField = new CppField(DeclaringType, descField, Environment);
-            this.IsCheckingInvariantsField.SetValue(new BooleanExpression(false));
-            this.IsCheckingInvariantsField.IsMutable = true;
+            if (CheckInvariantsImplementationMethod.GetBaseMethods().Length == 0)
+            {
+                this.CheckInvariantsMethod = new InvariantMethod(this);
+                var descField = new DescribedField("isCheckingInvariants", PrimitiveTypes.Boolean, false);
+                descField.DeclaringType = DeclaringType;
+                descField.AddAttribute(new AccessAttribute(AccessModifier.Private));
+                this.IsCheckingInvariantsField = new CppField(DeclaringType, descField, Environment);
+                this.IsCheckingInvariantsField.SetValue(new BooleanExpression(false));
+                this.IsCheckingInvariantsField.IsMutable = true;
+            }
+            else
+            {
+                var parent = DeclaringType.GetParent();
+                this.CheckInvariantsMethod = parent.GetInvariantsCheckMethod();
+                this.IsCheckingInvariantsField = parent.GetIsCheckingInvariantsField();
+            }
         }
 
         public IGenericResolverType DeclaringType { get; private set; }
@@ -33,6 +43,7 @@ namespace Flame.Cpp
         public ICppEnvironment Environment { get; private set; }
 
         public InvariantMethod CheckInvariantsMethod { get; private set; }
+        public InvariantImplementationMethod CheckInvariantsImplementationMethod { get; private set; }
         public CppField IsCheckingInvariantsField { get; private set; }
 
         private List<ICppBlock> invariants;
@@ -40,13 +51,14 @@ namespace Flame.Cpp
         public IEnumerable<ICppBlock> Invariants { get { return invariants; } }
         public bool HasInvariants { get { return InvariantCount > 0; } }
         public int InvariantCount { get { return invariants.Count; } }
-        public bool HasAnyInvariants { get { return HasInvariants || CheckInvariantsMethod.GetBaseMethods().Any(); } }
+        public bool HasAnyInvariants { get { return HasInvariants || InheritsInvariants; } }
+        public bool InheritsInvariants { get { return CheckInvariantsImplementationMethod.GetBaseMethods().Any(); } }
 
         public IEnumerable<ICppBlock> GetInheritedInvariants()
         {
             List<ICodeBlock> results = new List<ICodeBlock>();
             var cg = CodeGenerator;
-            foreach (var item in CheckInvariantsMethod.GetBaseMethods())
+            foreach (var item in CheckInvariantsImplementationMethod.GetBaseMethods())
             {
                 results.Add(cg.EmitInvocation(item, cg.GetThis().CreateGetExpression().Emit(cg), Enumerable.Empty<ICodeBlock>()));
             }

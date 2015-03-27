@@ -32,9 +32,9 @@ namespace Flame.Analysis
             throw new NotImplementedException();
         }
 
-        public IIfElseBlockGenerator CreateIfElseBlock(ICodeBlock Condition)
+        public ICodeBlock CreateIfElseBlock(ICodeBlock Condition, ICodeBlock IfBlock, ICodeBlock ElseBlock)
         {
-            return new AnalyzedIfElseBlockGenerator(this, (IAnalyzedExpression)Condition);
+            return new AnalyzedIfElseStatement(this, (IAnalyzedExpression)Condition, (IAnalyzedStatement)IfBlock, (IAnalyzedStatement)ElseBlock);
         }
 
         public IBlockGenerator CreateWhileBlock(ICodeBlock Condition)

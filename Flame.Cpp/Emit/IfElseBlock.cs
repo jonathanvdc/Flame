@@ -1,5 +1,4 @@
 ﻿using Flame.Compiler;
-using Flame.Compiler.Emit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,38 +7,51 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class IfElseBlockGenerator : IIfElseBlockGenerator, ICppLocalDeclaringBlock
+    public class IfElseBlock : ICppLocalDeclaringBlock
     {
-        public IfElseBlockGenerator(ICodeGenerator CodeGenerator, ICppBlock Condition)
+        public IfElseBlock(ICodeGenerator CodeGenerator, ICppBlock Condition,
+                           ICppBlock IfBlock, ICppBlock ElseBlock)
         {
             this.CodeGenerator = CodeGenerator;
             this.Condition = Condition;
-            this.IfBlock = CodeGenerator.CreateBlock();
-            this.ElseBlock = CodeGenerator.CreateBlock();
+            this.IfBlock = IfBlock;
+            this.ElseBlock = ElseBlock;
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
-
         public ICppBlock Condition { get; private set; }
-        public IBlockGenerator IfBlock { get; private set; }
-        public IBlockGenerator ElseBlock { get; private set; }
+        public ICppBlock IfBlock { get; private set; }
+        public ICppBlock ElseBlock { get; private set; }
 
         public IEnumerable<LocalDeclaration> LocalDeclarations
         {
-            get 
+            get
             {
                 return new object[] { Condition, IfBlock, ElseBlock }.OfType<ICppLocalDeclaringBlock>().SelectMany((item) => item.LocalDeclarations);
             }
         }
 
+        public IEnumerable<LocalDeclaration> CommonDeclarations
+        {
+            get
+            {
+                var condDecls = Condition.GetLocalDeclarations();
+                var ifDecls = IfBlock.GetLocalDeclarations();
+                var elseDecls = ElseBlock.GetLocalDeclarations();
+                return condDecls.Intersect(ifDecls)
+                    .Union(condDecls.Intersect(elseDecls))
+                    .Union(ifDecls.Intersect(elseDecls));
+            }
+        }
+
         public IType Type
         {
-            get { return ((ICppBlock)IfBlock).Type; }
+            get { return IfBlock.Type; }
         }
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get { return Condition.Dependencies.MergeDependencies(((ICppBlock)IfBlock).Dependencies.MergeDependencies(((ICppBlock)ElseBlock).Dependencies)); }
+            get { return Condition.Dependencies.MergeDependencies(IfBlock.Dependencies.MergeDependencies(ElseBlock.Dependencies)); }
         }
 
         public CodeBuilder GetCode()
@@ -48,9 +60,9 @@ namespace Flame.Cpp.Emit
             cb.Append("if (");
             cb.Append(Condition.GetCode());
             cb.Append(")");
-            var ifBody = ((ICppBlock)IfBlock).GetCode();
+            var ifBody = IfBlock.GetCode();
             BodyStatementType ifBodyType;
-            if (ifBody.FirstCodeLine.Text.TrimStart().StartsWith("if"))
+            if (ifBody.FirstCodeLine.Text.TrimStart().StartsWith("if")) // We don't want a dangling else
             {
                 cb.AddEmbracedBodyCodeBuilder(ifBody);
                 ifBodyType = BodyStatementType.Block;
@@ -60,7 +72,7 @@ namespace Flame.Cpp.Emit
                 ifBodyType = cb.AddBodyCodeBuilder(ifBody);
             }
             bool appendEmptyLine = ifBodyType == BodyStatementType.Single;
-            var elseBody = ((ICppBlock)ElseBlock).GetCode();
+            var elseBody = ElseBlock.GetCode();
             if (elseBody.LineCount > 0 && !(elseBody.CodeLineCount == 1 && elseBody.FirstCodeLine.Text.Trim() == ";"))
             {
                 cb.AddLine("else");
@@ -88,7 +100,7 @@ namespace Flame.Cpp.Emit
 
         public IEnumerable<CppLocal> LocalsUsed
         {
-            get { return Condition.LocalsUsed.Concat(((ICppBlock)IfBlock).LocalsUsed).Concat(((ICppBlock)ElseBlock).LocalsUsed).Distinct(); }
+            get { return Condition.LocalsUsed.Concat(IfBlock.LocalsUsed).Concat(ElseBlock.LocalsUsed).Distinct(); }
         }
 
         public override string ToString()
