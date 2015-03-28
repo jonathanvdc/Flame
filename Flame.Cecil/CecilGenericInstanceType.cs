@@ -33,10 +33,9 @@ namespace Flame.Cecil
             var typeRef = GenericDefinition.GetTypeReference();
             var cecilTypeArgs = this.GetAllGenericParameters().Prefer(DeclaringType.GetAllGenericArguments());
             var inst = new GenericInstanceType(typeRef);
-            var module = typeRef.Module;
             foreach (var item in cecilTypeArgs)
             {
-                inst.GenericArguments.Add(item.GetImportedReference(Module, typeRef));
+                inst.GenericArguments.Add(item.GetImportedReference(Module));
             }
             return inst;
         }
