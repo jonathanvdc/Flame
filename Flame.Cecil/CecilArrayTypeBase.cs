@@ -13,6 +13,10 @@ namespace Flame.Cecil
             : base(ElementType)
         {
         }
+        public CecilArrayTypeBase(ICecilType ElementType, CecilModule Module)
+            : base(ElementType, Module)
+        {
+        }
 
         public static TypeReference CreateArrayReference(TypeReference ElementType, int ArrayRank)
         {

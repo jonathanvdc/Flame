@@ -9,16 +9,16 @@ namespace Flame.Cecil
 {
     public class CecilModuleBinder : BinderBase
     {
-        public CecilModuleBinder(ModuleDefinition Module)
+        public CecilModuleBinder(CecilModule Module)
         {
             this.Module = Module;
         }
 
-        public ModuleDefinition Module { get; private set; }
+        public CecilModule Module { get; private set; }
 
         public override IEnumerable<IType> GetTypes()
         {
-            return Module.Types.Select((item) => CecilTypeBase.Create(item));
+            return Module.Types;
         }
 
         public override IType BindTypeCore(string Name)
@@ -27,7 +27,7 @@ namespace Flame.Cecil
             {
                 return null;
             }
-            string typeName;
+            /*string typeName;
             if (Name.EndsWith(">"))
             {
                 int start = Name.IndexOf('<');
@@ -38,12 +38,12 @@ namespace Flame.Cecil
             else
             {
                 typeName = Name;
-            }
+            }*/
             foreach (var item in Module.Types)
             {
-                if (item.FullName == typeName)
+                if (item.FullName == Name)
                 {
-                    return CecilTypeBase.Create(item);
+                    return item;
                 }
             }
             return null;

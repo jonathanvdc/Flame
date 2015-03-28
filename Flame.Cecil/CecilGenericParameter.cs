@@ -9,17 +9,13 @@ namespace Flame.Cecil
 {
     public class CecilGenericParameter : CecilTypeBase, IGenericParameter, IEquatable<IGenericParameter>
     {
-        public CecilGenericParameter(GenericParameter GenericParameter)
+        public CecilGenericParameter(GenericParameter GenericParameter, CecilModule Module)
+            : base(Module)
         {
             this.genericParam = GenericParameter;
         }
-        public CecilGenericParameter(GenericParameter GenericParameter, AncestryGraph Graph)
-            : base(Graph)
-        {
-            this.genericParam = GenericParameter;
-        }
-        public CecilGenericParameter(GenericParameter GenericParameter, AncestryGraph Graph, IGenericMember DeclaringMember)
-            : base(Graph)
+        public CecilGenericParameter(GenericParameter GenericParameter, CecilModule Module, IGenericMember DeclaringMember)
+            : base(Module)
         {
             this.genericParam = GenericParameter;
             this.declMember = DeclaringMember;
@@ -29,11 +25,6 @@ namespace Flame.Cecil
         public override TypeReference GetTypeReference()
         {
             return genericParam;
-        }
-
-        public override bool IsComplete
-        {
-            get { return true; }
         }
 
         #region IGenericParameter Implementation
@@ -48,11 +39,11 @@ namespace Flame.Cecil
                     var declType = genericParam.DeclaringType;
                     if (declType != null)
                     {
-                        declMember = CecilTypeBase.Create(declType);
+                        declMember = Module.Convert(declType);
                     }
                     else
                     {
-                        declMember = CecilMethodBase.Create(genericParam.DeclaringMethod);
+                        declMember = Module.Convert(genericParam.DeclaringMethod);
                     }
                 }
                 return declMember;
@@ -129,7 +120,7 @@ namespace Flame.Cecil
             var results = new List<IGenericConstraint>(constraints.Count);
             for (int i = 0; i < constraints.Count; i++)
             {
-                results.Add(new TypeConstraint(CecilTypeBase.Create(constraints[i])));
+                results.Add(new TypeConstraint(Module.Convert(constraints[i])));
             }
             if (HasReferenceTypeConstraint)
             {
@@ -177,11 +168,6 @@ namespace Flame.Cecil
             return cachedBaseTypes;
         }
 
-        public override ICecilType GetCecilGenericDeclaration()
-        {
-            return this;
-        }
-
         protected override IEnumerable<IAttribute> GetMemberAttributes()
         {
             List<IAttribute> attrs = new List<IAttribute>();
@@ -226,9 +212,14 @@ namespace Flame.Cecil
             return new IType[0];
         }
 
-        public override IEnumerable<IType> GetCecilGenericArguments()
+        public override IType GetGenericDeclaration()
         {
-            return DeclaringGenericMember.GetCecilGenericArgumentsOrEmpty();
+            return this;
+        }
+
+        public override IEnumerable<IGenericParameter> GetGenericParameters()
+        {
+            return Enumerable.Empty<IGenericParameter>();
         }
 
         public override IBoundObject GetDefaultValue()
@@ -292,12 +283,12 @@ namespace Flame.Cecil
             }
         }
 
-        public static CecilGenericParameter[] DeclareGenericParameters(IGenericParameterProvider ParameterProvider, IGenericParameter[] Templates, AncestryGraph Graph, IGenericMember DeclaringMember)
+        public static CecilGenericParameter[] DeclareGenericParameters(IGenericParameterProvider ParameterProvider, IGenericParameter[] Templates, CecilModule Module, IGenericMember DeclaringMember)
         {
-            return DeclareGenericParameters(ParameterProvider, Templates).Select((item) => new CecilGenericParameter(item, Graph, DeclaringMember)).ToArray();
+            return DeclareGenericParameters(ParameterProvider, Templates, Module).Select((item) => new CecilGenericParameter(item, Module, DeclaringMember)).ToArray();
         }
 
-        public static GenericParameter[] DeclareGenericParameters(IGenericParameterProvider ParameterProvider, IGenericParameter[] Templates)
+        public static GenericParameter[] DeclareGenericParameters(IGenericParameterProvider ParameterProvider, IGenericParameter[] Templates, CecilModule Module)
         {
             GenericParameter[] parameters = new GenericParameter[Templates.Length];
             for (int i = 0; i < Templates.Length; i++)
@@ -306,12 +297,11 @@ namespace Flame.Cecil
                 parameters[i] = param;
                 ParameterProvider.GenericParameters.Add(param);
             }
-            var module = ParameterProvider.Module;
             for (int i = 0; i < parameters.Length; i++)
             {
                 foreach (var item in Templates[i].GetBaseTypes())
                 {
-                    parameters[i].Constraints.Add(item.GetImportedReference(module, ParameterProvider));
+                    parameters[i].Constraints.Add(item.GetImportedReference(Module, ParameterProvider));
                 }
 
                 GenericParameterAttributes genericParamAttrs = default(GenericParameterAttributes);
@@ -366,14 +356,12 @@ namespace Flame.Cecil
         public bool Equals(IGenericParameter other)
         {
             var thisParam = this.genericParam;
-            var otherParam = other.GetTypeReference(thisParam.Module) as GenericParameter;
+            var otherParam = other.GetImportedReference(Module) as GenericParameter;
 
             if (otherParam == null)
             {
                 return false;
             }
-
-            //return thisParam.Owner == otherParam.Owner && thisParam.Position == otherParam.Position;
 
             if (other is CecilGenericParameter)
             {

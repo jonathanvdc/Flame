@@ -11,7 +11,6 @@ namespace Flame.Cecil
     public interface ICecilMethod : ICecilTypeMember, ICecilGenericMember, IMethod
     {
         MethodReference GetMethodReference();
-        bool IsComplete { get; }
     }
     public interface ICecilMethodBuilder : ICecilMethod, IMethodBuilder
     {

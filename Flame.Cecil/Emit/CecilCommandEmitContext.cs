@@ -19,10 +19,6 @@ namespace Flame.Cecil.Emit
             : this(new ILCodeGenerator(Method), Processor)
         {
         }
-        public CecilCommandEmitContext(ILProcessor Processor)
-            : this(CecilMethodBase.Create(Processor.Body.Method), Processor)
-        {
-        }
 
         private List<Instruction> branchTargets;
 

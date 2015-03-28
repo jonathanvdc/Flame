@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil
 {
-    public interface ICecilNamespace : INamespace
+    public interface ICecilNamespace : ICecilComponent, INamespace
     {
-        ModuleDefinition GetModule();
         void AddType(TypeDefinition Definition);
     }
 }

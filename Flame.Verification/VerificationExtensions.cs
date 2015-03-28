@@ -28,7 +28,7 @@ namespace Flame.Verification
             bool success = true;
             if (DefinitionMethod.get_IsAbstract() || DefinitionMethod.DeclaringType.get_IsInterface())
             {
-                var impl = DefinitionMethod.GetImplementation(ImplementationType);
+                var impl = ImplementationExtensions.GetImplementation(DefinitionMethod, ImplementationType);
                 if (impl == null || impl.Equals(DefinitionMethod))
                 {
                     Log.LogError(new LogEntry("Method not implemented", "Method '" + DefinitionMethod.FullName + "' was not implemented in '" + ImplementationType.FullName + "'"));
@@ -46,7 +46,7 @@ namespace Flame.Verification
                 if (!item.VerifyImplementation(ImplementationType, Log)) success = false;
             }
             foreach (var prop in DefinitionType.GetAllProperties())
-                foreach (var item in prop.GetAccessors())
+            foreach (var item in prop.GetAccessors())
             {
                 if (!item.VerifyImplementation(ImplementationType, Log)) success = false;
             }

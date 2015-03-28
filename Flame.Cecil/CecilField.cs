@@ -38,7 +38,7 @@ namespace Flame.Cecil
         {
             var attrs = GetFieldAttributes(Template);
             var module = DeclaringType.GetModule();
-            var fieldTypeRef = DeclaringType.ResolveType(Template.FieldType).GetImportedReference(module, DeclaringType.GetTypeReference());
+            var fieldTypeRef = Template.FieldType.GetImportedReference(DeclaringType.Module, DeclaringType.GetTypeReference());
             var fieldRef = new FieldDefinition(Template.Name, attrs, fieldTypeRef);
             DeclaringType.AddField(fieldRef);
             var cecilField = new CecilField(DeclaringType, fieldRef);
@@ -58,7 +58,7 @@ namespace Flame.Cecil
         {
             var attrs = GetFieldAttributes(Template) | FieldAttributes.Literal | FieldAttributes.HasDefault | FieldAttributes.Static;
             var module = DeclaringType.GetModule();
-            var fieldTypeRef = DeclaringType.ResolveType(Template.FieldType).GetImportedReference(module, DeclaringType.GetTypeReference());
+            var fieldTypeRef = Template.FieldType.GetImportedReference(DeclaringType.Module, DeclaringType.GetTypeReference());
             var fieldRef = new FieldDefinition(Template.Name, attrs, fieldTypeRef);
             DeclaringType.AddField(fieldRef);
             var cecilField = new CecilField(DeclaringType, fieldRef);
@@ -126,7 +126,7 @@ namespace Flame.Cecil
             }
             else
             {
-                if (DeclaringType.get_IsGenericDeclaration())
+                if (DeclaringType.get_IsGenericDeclaration() && DeclaringType.get_IsGeneric())
                 {
                     var genericDeclType = DeclaringType.MakeGenericType(DeclaringType.GetGenericParameters());
                     var genericField = genericDeclType.GetField(Name, IsStatic);

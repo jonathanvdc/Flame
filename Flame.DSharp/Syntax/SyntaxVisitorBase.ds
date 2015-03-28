@@ -6,13 +6,13 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public virtual class SyntaxVisitorBase<TResult> : ISyntaxVisitor<TResult>
+	public abstract class SyntaxVisitorBase<TResult> : ISyntaxVisitor<TResult>
 	{
 		public const this();
-	
+
 		#region Visit Default
-	
-		protected virtual TResult VisitDefaultSyntax(ISyntaxNode Syntax);
+
+		protected abstract TResult VisitDefaultSyntax(ISyntaxNode Syntax);
 		protected virtual TResult VisitDefaultExpressionSyntax(IExpressionSyntax Syntax)
 		{
 			return VisitDefaultSyntax(Syntax);
@@ -25,11 +25,11 @@ namespace Flame.Syntax.DSharp
 		{
 			return VisitDefaultSyntax(Syntax);
 		}
-		
+
 		#endregion
-		
+
 		#region Expression Syntax
-		
+
 		protected virtual TResult VisitBinaryExpressionSyntax(BinaryExpressionSyntax Syntax)
 		{
 			return VisitDefaultExpressionSyntax(Syntax);
@@ -42,7 +42,7 @@ namespace Flame.Syntax.DSharp
 		{
 			return VisitDefaultExpressionSyntax(Syntax);
 		}
-	
+
 		protected virtual TResult VisitExpressionSyntax(IExpressionSyntax Syntax)
 		{
 			if (Syntax is BinaryExpressionSyntax)
@@ -62,91 +62,91 @@ namespace Flame.Syntax.DSharp
 				return VisitDefaultExpressionSyntax(Syntax);
 			}
 		}
-		
+
 		#endregion
-		
+
 		#region Statement Syntax
-		
+
 		protected virtual TResult VisitBlockSyntax(BlockSyntax Syntax)
 		{
 			return VisitDefaultStatementSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitBreakSyntax(BreakSyntax Syntax)
 		{
 			return VisitDefaultStatementSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitDoWhileSyntax(DoWhileSyntax Syntax)
 		{
 			return VisitDefaultStatementSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitElementInCollectionSyntax(ElementInCollectionSyntax Syntax)
 		{
 			return VisitDefaultSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitEmptySyntax(EmptySyntax Syntax)
 		{
 			return VisitDefaultStatementSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitExpressionStatementSyntax(ExpressionStatementSyntax Syntax)
 		{
 			return VisitDefaultStatementSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitForSyntax(ForSyntax Syntax)
 		{
 			return VisitDefaultStatementSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitForeachSyntax(ForeachSyntax Syntax)
 		{
 			return VisitDefaultStatementSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitIfElseSyntax(IfElseSyntax Syntax)
 		{
 			return VisitDefaultStatementSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitNextSyntax(NextSyntax Syntax)
 		{
 			return VisitDefaultStatementSyntax(Syntax);
-		} 
-		
+		}
+
 		protected virtual TResult VisitReturnSyntax(ReturnSyntax Syntax)
 		{
 			return VisitDefaultStatementSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitWhileSyntax(WhileSyntax Syntax)
 		{
 			return VisitDefaultStatementSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitSetVariableStatementSyntax(SetVariableStatementSyntax Syntax)
 		{
 			return VisitDefaultStatementSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitVariableDeclarationSyntax(VariableDeclarationSyntax Syntax)
 		{
 			return VisitDefaultStatementSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitYieldBreakSyntax(YieldBreakSyntax Syntax)
 		{
 			return VisitDefaultStatementSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitYieldReturnSyntax(YieldReturnSyntax Syntax)
 		{
 			return VisitDefaultStatementSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitStatementSyntax(IStatementSyntax Syntax)
 		{
 			if (Syntax is BlockSyntax)
@@ -214,93 +214,93 @@ namespace Flame.Syntax.DSharp
 				return VisitDefaultStatementSyntax(Syntax);
 			}
 		}
-		
+
 		#endregion
-		
+
 		#region Type Syntax
-		
+
 		protected virtual TResult VisitIdentifierTypeSyntax(IdentifierTypeSyntax Syntax)
 		{
 			return VisitDefaultTypeSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitInferredTypeSyntax(InferredTypeSyntax Syntax)
 		{
 			return VisitDefaultTypeSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitDotTypeSyntax(DotTypeSyntax Syntax)
 		{
 			return VisitDefaultTypeSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitPointerTypeSyntax(PointerTypeSyntax Syntax)
 		{
 			return VisitDefaultTypeSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitArrayTypeSyntax(ArrayTypeSyntax Syntax)
 		{
 			return VisitDefaultTypeSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitVectorTypeSyntax(VectorTypeSyntax Syntax)
 		{
 			return VisitDefaultTypeSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitEnumerableTypeSyntax(EnumerableTypeSyntax Syntax)
 		{
 			return VisitDefaultTypeSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitEnumeratorTypeSyntax(EnumeratorTypeSyntax Syntax)
 		{
 			return VisitDefaultTypeSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitGenericInstanceTypeSyntax(GenericInstanceTypeSyntax Syntax)
 		{
 			return VisitDefaultTypeSyntax(Syntax);
 		}
-		
+
 		protected virtual TResult VisitTypeSyntax(ITypeSyntax Syntax)
 		{
 			if (Syntax is IdentifierTypeSyntax)
 				return VisitIdentifierTypeSyntax((IdentifierTypeSyntax)Syntax);
-				
+
 			else if (Syntax is InferredTypeSyntax)
 				return VisitInferredTypeSyntax((InferredTypeSyntax)Syntax);
-				
+
 			else if (Syntax is PointerTypeSyntax)
 				return VisitPointerTypeSyntax((PointerTypeSyntax)Syntax);
-				
+
 			else if (Syntax is VectorTypeSyntax)
 				return VisitVectorTypeSyntax((VectorTypeSyntax)Syntax);
-				
+
 			else if (Syntax is ArrayTypeSyntax)
 				return VisitArrayTypeSyntax((ArrayTypeSyntax)Syntax);
-				
+
 			else if (Syntax is DotTypeSyntax)
 				return VisitDotTypeSyntax((DotTypeSyntax)Syntax);
-				
+
 			else if (Syntax is EnumerableTypeSyntax)
 				return VisitEnumerableTypeSyntax((EnumerableTypeSyntax)Syntax);
-				
+
 			else if (Syntax is EnumeratorTypeSyntax)
 				return VisitEnumeratorTypeSyntax((EnumeratorTypeSyntax)Syntax);
-				
+
 			else if (Syntax is GenericInstanceTypeSyntax)
 				return VisitGenericInstanceTypeSyntax((GenericInstanceTypeSyntax)Syntax);
-				
+
 			else
 				return VisitDefaultTypeSyntax(Syntax);
 		}
-		
+
 		#endregion
-		
+
 		#region Public Visit
-	
+
 		public virtual TResult Visit(ISyntaxNode Syntax)
 		{
 			if (Syntax is IExpressionSyntax)
@@ -324,7 +324,7 @@ namespace Flame.Syntax.DSharp
 				return VisitDefaultSyntax(Syntax);
 			}
 		}
-		
+
 		#endregion
 	}
 }

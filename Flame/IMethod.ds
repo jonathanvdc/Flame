@@ -30,14 +30,14 @@ namespace Flame
         /// <param name="Caller"></param>
         /// <param name="Arguments"></param>
         /// <returns></returns>
-        IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments);
+        IBoundObject Invoke(IBoundObject Caller, [IBoundObject] Arguments);
 
         /// <summary>
         /// Gets a generic method of this type with the provided type arguments.
         /// </summary>
         /// <param name="TypeArguments"></param>
         /// <returns></returns>
-        IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments);
+        IMethod MakeGenericMethod([IType] TypeArguments);
 
         /// <summary>
         /// Gets the method's generic declaration.

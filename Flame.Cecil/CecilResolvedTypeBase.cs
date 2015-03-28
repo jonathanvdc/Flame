@@ -9,10 +9,8 @@ namespace Flame.Cecil
 {
     public abstract class CecilResolvedTypeBase : CecilTypeBase
     {
-        public CecilResolvedTypeBase()
-        { }
-        public CecilResolvedTypeBase(AncestryGraph AncestryGraph)
-            : base(AncestryGraph)
+        public CecilResolvedTypeBase(CecilModule Module)
+            : base(Module)
         { }
 
         public virtual TypeDefinition GetResolvedType()
@@ -45,7 +43,7 @@ namespace Flame.Cecil
                 }
                 else
                 {
-                    baseTypes.Add(CecilTypeBase.ImportCecil(type.BaseType, this));
+                    baseTypes.Add(Module.Convert(type.BaseType));
                 }
             }
             else if (type.FullName == "System.Object")
@@ -55,7 +53,7 @@ namespace Flame.Cecil
             }
             foreach (var item in type.Interfaces)
             {
-                baseTypes.Add(CecilTypeBase.ImportCecil(item, this));
+                baseTypes.Add(Module.Convert(item));
             }
             return baseTypes.ToArray();
         }
@@ -68,16 +66,16 @@ namespace Flame.Cecil
             return cachedBaseTypes;
         }
 
-        public override ICecilType GetCecilGenericDeclaration()
+        public override IType GetGenericDeclaration()
         {
             var type = GetResolvedType();
             if (type.IsGenericInstance)
             {
-                return CecilTypeBase.CreateCecil(type.GetElementType());
+                return Module.ConvertStrict(type.GetElementType());
             }
             else
             {
-                return CecilTypeBase.CreateCecil(type);
+                return Module.Convert(type);
             }
         }
 
@@ -209,25 +207,7 @@ namespace Flame.Cecil
             return null;
         }
 
-        public override bool IsComplete
-        {
-            get { return true; }
-        }
-
         #region Generics
-
-        public override IEnumerable<IType> GetCecilGenericArguments()
-        {
-            var declGeneric = DeclaringGenericMember;
-            if (declGeneric != null)
-            {
-                return declGeneric.GetCecilGenericParameters().Prefer(declGeneric.GetCecilGenericArguments());
-            }
-            else
-            {
-                return new IType[0];
-            }
-        }
 
         public override IEnumerable<IType> GetGenericArguments()
         {
@@ -262,7 +242,7 @@ namespace Flame.Cecil
 
         public override IBoundObject GetDefaultValue()
         {
-            var created = CecilTypeBase.Create(GetTypeReference());
+            var created = Module.Convert(GetTypeReference());
             if (created.get_IsPrimitive())
             {
                 return created.GetDefaultValue();
@@ -273,5 +253,29 @@ namespace Flame.Cecil
             }
             throw new NotImplementedException();
         }
+
+        #region Generics
+
+        public virtual IEnumerable<IGenericParameter> GetCecilGenericParameters()
+        {
+            var typeRef = GetTypeReference();
+            return ConvertGenericParameters(typeRef, typeRef.Resolve, this, Module);
+        }
+
+        public override IEnumerable<IGenericParameter> GetGenericParameters()
+        {
+            var genParams = GetCecilGenericParameters();
+            var declType = DeclaringGenericMember;
+            if (declType == null)
+            {
+                return genParams;
+            }
+            else
+            {
+                return genParams.Skip(declType.GetAllGenericParameters().Count());
+            }
+        }
+
+        #endregion
     }
 }

@@ -1,4 +1,5 @@
-﻿using Flame.Cecil.Emit;
+﻿using Flame.Build;
+using Flame.Cecil.Emit;
 using Flame.Compiler;
 using Mono.Cecil;
 using Mono.Cecil.Rocks;
@@ -85,14 +86,14 @@ namespace Flame.Cecil
             {
                 if (!resolvedMethod.HasBody || resolvedMethod.Body.Instructions.Count == 0)
                 {
-                    throw new InvalidOperationException("Cannot build a non-abstract, non-runtime or non-interal call method that has no method body.");
+                    throw new InvalidOperationException("Cannot build a non-abstract, non-runtime or non-internal call method without method body.");
                 }
             }
             else
             {
                 if (resolvedMethod.HasBody && resolvedMethod.Body.Instructions.Count > 0)
                 {
-                    throw new InvalidOperationException("Cannot build an abstract, runtime or interal call method that has a method body.");
+                    throw new InvalidOperationException("Cannot build an abstract, runtime or internal call method that has a method body.");
                 }
             }
             return this;
@@ -104,7 +105,7 @@ namespace Flame.Cecil
 
         #region GetMethodOverrides
 
-        protected static IEnumerable<KeyValuePair<IMethod, MethodReference>> GetMethodOverrides(ICecilType DeclaringType, ModuleDefinition Module, IMethod Template)
+        protected static IEnumerable<KeyValuePair<IMethod, MethodReference>> GetMethodOverrides(ICecilType DeclaringType, CecilModule Module, IMethod Template)
         {
             var baseMethods = Template.GetBaseMethods();
             return baseMethods.Zip(baseMethods.Select((item) => item.GetImportedReference(Module, DeclaringType.GetTypeReference())), (a, b) => new KeyValuePair<IMethod, MethodReference>(a, b));
@@ -114,7 +115,7 @@ namespace Flame.Cecil
 
         private static CecilMethodBuilder DeclareMethod(ICecilType DeclaringType, IMethod Template, Action<MethodDefinition> AddMethod)
         {
-            var module = DeclaringType.GetModule();
+            var module = DeclaringType.Module;
 
             var attrs = ExtractMethodAttributes(Template.GetAttributes());
 
@@ -171,12 +172,12 @@ namespace Flame.Cecil
 
             AddMethod(methodDef);
 
-            var cecilGenericParams = CecilGenericParameter.DeclareGenericParameters(methodDef, Template.GetGenericParameters().ToArray());
+            var cecilGenericParams = CecilGenericParameter.DeclareGenericParameters(methodDef, Template.GetGenericParameters().ToArray(), module);
 
             var cecilMethod = new CecilMethodBuilder(DeclaringType, methodDef);
             if (!methodDef.IsConstructor)
             {
-                var genericParams = cecilGenericParams.Select((item) => new CecilGenericParameter(item, cecilMethod.AncestryGraph, cecilMethod)).ToArray();
+                var genericParams = cecilGenericParams.Select((item) => new CecilGenericParameter(item, cecilMethod.Module, cecilMethod)).ToArray();
                 methodDef.ReturnType = DeclaringType.ResolveType(CecilTypeBuilder.GetGenericType(Template.ReturnType, genericParams)).GetImportedReference(module, methodDef);
             }
 
