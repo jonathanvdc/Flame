@@ -25,7 +25,7 @@ namespace Flame.Cecil
 
         public override string Name
         {
-            get { return DeclaringType.Name; }
+            get { return GenericDefinition.Name; }
         }
 
         public override TypeReference GetTypeReference()

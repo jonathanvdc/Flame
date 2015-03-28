@@ -274,7 +274,7 @@ namespace Flame.Cecil
             }
             else
             {
-                return genParams.Skip(declType.GetAllGenericArguments().Count());
+                return genParams.Skip(declType.GetAllGenericParameters().Count());
             }
         }
 
