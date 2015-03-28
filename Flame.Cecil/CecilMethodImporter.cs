@@ -53,6 +53,23 @@ namespace Flame.Cecil
             return Module.Module.Import(DeclaringType.ReferenceMethod(decl.Resolve()), DeclaringType);
         }
 
+        private IType NormalizeParameterType(IParameter Parameter)
+        {
+            return NormalizeType(Parameter.ParameterType);
+        }
+
+        private IType NormalizeType(IType Type)
+        {
+            if (Type.Equals(PrimitiveTypes.IHashCodeProvider) || Type.Equals(PrimitiveTypes.IEquatable))
+            {
+                return Module.Convert(Module.Module.TypeSystem.Object);
+            }
+            else
+            {
+                return Type;
+            }
+        }
+
         protected override MethodReference ConvertPrimitive(IMethod Member)
         {
             var declType = Member.DeclaringType;
@@ -76,7 +93,7 @@ namespace Flame.Cecil
             }
             else
             {
-                return Convert(type.GetMethod(Member.Name, Member.IsStatic, Member.ReturnType, Member.GetParameters().GetTypes()));
+                return Convert(type.GetMethod(Member.Name, Member.IsStatic, Member.ReturnType, Member.GetParameters().Select(NormalizeParameterType).ToArray()));
             }
         }
 
