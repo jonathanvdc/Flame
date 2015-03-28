@@ -86,14 +86,14 @@ namespace Flame.Cecil
             {
                 if (!resolvedMethod.HasBody || resolvedMethod.Body.Instructions.Count == 0)
                 {
-                    throw new InvalidOperationException("Cannot build a non-abstract, non-runtime or non-interal call method that has no method body.");
+                    throw new InvalidOperationException("Cannot build a non-abstract, non-runtime or non-internal call method without method body.");
                 }
             }
             else
             {
                 if (resolvedMethod.HasBody && resolvedMethod.Body.Instructions.Count > 0)
                 {
-                    throw new InvalidOperationException("Cannot build an abstract, runtime or interal call method that has a method body.");
+                    throw new InvalidOperationException("Cannot build an abstract, runtime or internal call method that has a method body.");
                 }
             }
             return this;

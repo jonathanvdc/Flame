@@ -135,6 +135,11 @@ namespace Flame.Cecil
 
         protected override TypeReference MakeGenericType(TypeReference GenericDeclaration, IEnumerable<TypeReference> TypeArguments)
         {
+            if (GenericDeclaration == null || TypeArguments.Any(item => item == null))
+            {
+                return null;
+            }
+
             TypeReference genericDecl;
             IEnumerable<TypeReference> genArgs;
             if (GenericDeclaration.IsGenericInstance)
