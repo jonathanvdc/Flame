@@ -1,0 +1,33 @@
+
+public struct Pair<T1, T2>
+{
+    public const this(set T1 First, set T2 Second);
+
+    public T1 First { const get; private set; }
+    public T2 Second { const get; private set; }
+}
+
+public virtual class GenericMethodTest
+{
+    public const this();
+
+    public const T CreateDefault<T>()
+    {
+        return default(T);
+    }
+
+    public const Pair<T, T> CreateDefaultPair<T>()
+    {
+        return new Pair<T, T>(CreateDefault<T>(), CreateDefault<T>());
+    }
+}
+
+public class ExtraGenericMethodTest : GenericMethodTest
+{
+    public const this();
+
+    public const Pair<T1, T2> CreateDefaultPair<T1, T2>()
+    {
+        return new Pair<T1, T2>(CreateDefault<T1>(), CreateDefault<T2>());
+    }
+}
