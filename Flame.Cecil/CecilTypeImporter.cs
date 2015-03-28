@@ -37,11 +37,29 @@ namespace Flame.Cecil
             return new CecilTypeImporter(Module, Context).Convert(Types);
         }
 
+        protected override TypeReference ConvertGenericParameter(IGenericParameter Type)
+        {
+            if (Type is ICecilType)
+            {
+                var typeRef = ((ICecilType)Type).GetTypeReference();
+                if (Context == null)
+                {
+                    return typeRef;
+                }
+                return Module.Import(typeRef, Context);
+            }
+            else
+            {
+                return null; // Null is a signaling value
+            }
+        }
+
         protected override TypeReference ConvertTypeDefault(IType Type)
         {
             if (Type is ICecilType)
             {
-                return Module.Import(((ICecilType)Type).GetTypeReference(), Context);
+                var typeRef = ((ICecilType)Type).GetTypeReference();
+                return Module.Import(typeRef, Context);
             }
             else
             {
