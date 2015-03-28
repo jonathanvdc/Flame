@@ -4,9 +4,10 @@ using System.Linq;
 
 public class DictionariesTest
 {
-    public const this() { dict = new Dictionary<string, string>(); }
+    public const this() { dict = new Dictionary<string, string>(); otherDict = new Dictionary<int, string>(); }
 
     private Dictionary<string, string> dict;
+    private Dictionary<int, string> otherDict;
 
     public string this[string Key]
     {
@@ -19,7 +20,8 @@ public class DictionariesTest
         const get
         {
             var vals = dict.Values;
-            return vals;
+            var otherVals = otherDict.Values;
+            return Enumerable.Concat<string>(vals, otherVals);
         }
     }
 }
