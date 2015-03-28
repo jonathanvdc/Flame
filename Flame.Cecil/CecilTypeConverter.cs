@@ -9,19 +9,16 @@ namespace Flame.Cecil
 {
     public sealed class CecilTypeConverter : IConverter<TypeReference, IType>
     {
-        private CecilTypeConverter(bool UsePrimitives)
+        public CecilTypeConverter(CecilModule Module, bool UsePrimitives)
         {
+            this.Module = Module;
             this.UsePrimitives = UsePrimitives;
         }
 
-        static CecilTypeConverter()
-        {
-            CecilPrimitiveConverter = new CecilTypeConverter(false);
-            DefaultConverter = new CecilTypeConverter(true);
-        }
-
-        public static CecilTypeConverter CecilPrimitiveConverter { get; private set; }
-        public static CecilTypeConverter DefaultConverter { get; private set; }
+        /// <summary>
+        /// Gets the module this type converter is associated with.
+        /// </summary>
+        public CecilModule Module { get; private set; }
 
         /// <summary>
         /// Gets a boolean value that indicates if this type converter converts CLR primitives to their Flame equivalents.
@@ -31,7 +28,7 @@ namespace Flame.Cecil
         private IType ConvertModifierType(IModifierType Type)
         {
             var elemType = Convert(Type.ElementType);
-            if (elemType.get_IsPrimitive() && Type.ModifierType.FullName == "System.Runtime.CompilerServices.IsSignUnspecifiedByte")
+            if (UsePrimitives && elemType.get_IsPrimitive() && Type.ModifierType.FullName == "System.Runtime.CompilerServices.IsSignUnspecifiedByte")
             {
                 switch (elemType.GetPrimitiveMagnitude())
                 {
@@ -99,7 +96,7 @@ namespace Flame.Cecil
                 else if (Declaration.Equals(typeSys.String))
                     return PrimitiveTypes.String;
             }
-            return new CecilType(Declaration);
+            return new CecilType(Declaration, Module);
         }
 
         private IType ConvertGenericInstance(TypeReference ElementType, IEnumerable<IType> TypeArguments)
@@ -108,7 +105,7 @@ namespace Flame.Cecil
             if (declTypeArgCount > 0)
             {
                 var declGeneric = (ICecilType)ConvertGenericInstance(ElementType.DeclaringType, TypeArguments.Take(declTypeArgCount));
-                var nestedDecl = new CecilGenericInstanceType(declGeneric, new CecilType(ElementType));
+                var nestedDecl = new CecilGenericInstanceType(declGeneric, new CecilType(ElementType, Module));
                 if (ElementType.GenericParameters.Count - declTypeArgCount > 0)
                 {
                     return nestedDecl.MakeGenericType(TypeArguments.Skip(declTypeArgCount));
@@ -140,7 +137,7 @@ namespace Flame.Cecil
                 }
             }
             var convertedDeclType = Convert(DeclaringType);
-            return new CecilGenericParameter(Type, convertedDeclType);
+            return new CecilGenericParameter(Type, Module, convertedDeclType);
         }
 
         private IType ConvertGenericParameter(GenericParameter Type)
@@ -149,7 +146,7 @@ namespace Flame.Cecil
             {
                 return ConvertGenericParameter(Type, Type.DeclaringType);
             }
-            return new CecilGenericParameter(Type);
+            return new CecilGenericParameter(Type, Module);
         }
 
         public IType Convert(TypeReference Value)

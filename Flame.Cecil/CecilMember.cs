@@ -7,13 +7,12 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil
 {
-    public abstract class CecilMember : AncestryGraphCacheBase, ICecilMember, IEquatable<ICecilMember>
+    public abstract class CecilMember : ICecilMember, IEquatable<ICecilMember>
     {
-        public CecilMember()
-        { }
-        public CecilMember(AncestryGraph AncestryGraph)
-            : base(AncestryGraph)
-        { }
+        public CecilMember(CecilModule Module)
+        {
+            this.Module = Module;
+        }
 
         protected abstract IEnumerable<IAttribute> GetMemberAttributes();
         protected abstract IList<CustomAttribute> GetCustomAttributes();
@@ -22,13 +21,16 @@ namespace Flame.Cecil
         public abstract string Name { get; }
         public abstract string FullName { get; }
 
+        public CecilModule Module { get; private set; }
+        public AncestryGraph Graph { get { return Module.Graph; } }
+
         private IAttribute[] attrs;
         public virtual IEnumerable<IAttribute> GetAttributes()
         {
             if (attrs == null)
             {
                 var customAttrs = CecilAttribute.GetAttributes(GetCustomAttributes(), this);
-                attrs = new[] { new AncestryGraphAttribute(AncestryGraph) }.Concat(GetMemberAttributes()).Concat(customAttrs).ToArray();
+                attrs = new[] { new AncestryGraphAttribute(Graph) }.Concat(GetMemberAttributes()).Concat(customAttrs).ToArray();
             }
             return attrs;
         }

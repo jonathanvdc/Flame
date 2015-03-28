@@ -10,7 +10,12 @@ namespace Flame.Cecil
     public abstract class CecilContainerTypeBase : CecilTypeBase, IContainerType, IEquatable<IContainerType>
     {
         public CecilContainerTypeBase(ICecilType ElementType)
-            : base(ElementType.GetAncestryGraph())
+            : base(ElementType.Module)
+        {
+            this.ElementType = ElementType;
+        }
+        public CecilContainerTypeBase(ICecilType ElementType, CecilModule Module)
+            : base(Module)
         {
             this.ElementType = ElementType;
         }

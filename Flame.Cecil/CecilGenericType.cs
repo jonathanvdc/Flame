@@ -35,9 +35,8 @@ namespace Flame.Cecil
             if (typeRef == null)
             {
                 var declTypeRef = GenericDefinition.GetTypeReference();
-                var module = declTypeRef.Module;
                 var genericTypeRef = declTypeRef.Resolve();
-                var cecilTypeArgs = this.GetAllGenericArguments().Select((item) => item.GetImportedReference(module)).ToArray();
+                var cecilTypeArgs = this.GetAllGenericArguments().Select((item) => item.GetImportedReference(Module)).ToArray();
                 if (cecilTypeArgs.All((item) => item != null))
                 {
                     var inst = new GenericInstanceType(genericTypeRef);
@@ -59,7 +58,7 @@ namespace Flame.Cecil
         {
             get
             {
-                return GenericDefinition.GetTypeReference().GetDeclaringNamespace();
+                return GenericDefinition.GetTypeReference().GetDeclaringNamespace(Module);
             }
         }
 

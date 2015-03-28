@@ -105,7 +105,7 @@ namespace Flame.Cecil
 
         #region GetMethodOverrides
 
-        protected static IEnumerable<KeyValuePair<IMethod, MethodReference>> GetMethodOverrides(ICecilType DeclaringType, ModuleDefinition Module, IMethod Template)
+        protected static IEnumerable<KeyValuePair<IMethod, MethodReference>> GetMethodOverrides(ICecilType DeclaringType, CecilModule Module, IMethod Template)
         {
             var baseMethods = Template.GetBaseMethods();
             return baseMethods.Zip(baseMethods.Select((item) => item.GetImportedReference(Module, DeclaringType.GetTypeReference())), (a, b) => new KeyValuePair<IMethod, MethodReference>(a, b));
@@ -115,7 +115,7 @@ namespace Flame.Cecil
 
         private static CecilMethodBuilder DeclareMethod(ICecilType DeclaringType, IMethod Template, Action<MethodDefinition> AddMethod)
         {
-            var module = DeclaringType.GetModule();
+            var module = DeclaringType.Module;
 
             var attrs = ExtractMethodAttributes(Template.GetAttributes());
 
@@ -172,12 +172,12 @@ namespace Flame.Cecil
 
             AddMethod(methodDef);
 
-            var cecilGenericParams = CecilGenericParameter.DeclareGenericParameters(methodDef, Template.GetGenericParameters().ToArray());
+            var cecilGenericParams = CecilGenericParameter.DeclareGenericParameters(methodDef, Template.GetGenericParameters().ToArray(), module);
 
             var cecilMethod = new CecilMethodBuilder(DeclaringType, methodDef);
             if (!methodDef.IsConstructor)
             {
-                var genericParams = cecilGenericParams.Select((item) => new CecilGenericParameter(item, cecilMethod.AncestryGraph, cecilMethod)).ToArray();
+                var genericParams = cecilGenericParams.Select((item) => new CecilGenericParameter(item, cecilMethod.Module, cecilMethod)).ToArray();
                 methodDef.ReturnType = DeclaringType.ResolveType(CecilTypeBuilder.GetGenericType(Template.ReturnType, genericParams)).GetImportedReference(module, methodDef);
             }
 

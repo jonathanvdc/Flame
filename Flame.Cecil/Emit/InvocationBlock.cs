@@ -56,7 +56,7 @@ namespace Flame.Cecil.Emit
                 else if (log.Options.UseInvariantCulture() && ILCodeGenerator.IsCultureSpecific(method))
                     // Fix culture-specific calls if necessary
                 {
-                    ILCodeGenerator.EmitCultureInvariantCall(Context, method, callerType);
+                    ILCodeGenerator.EmitCultureInvariantCall(Context, method, callerType, CodeGenerator.GetModule());
                 }
                 else
                 {
@@ -71,7 +71,7 @@ namespace Flame.Cecil.Emit
                 var method = (IMethod)Context.Stack.Pop();
                 var cecilMethod = (ICecilMethod)CodeGenerator.Method;
                 var methodRef = cecilMethod.GetMethodReference();
-                var module = methodRef.Module;
+                var module = CodeGenerator.GetModule();
                 var callSite = new CallSite(method.ReturnType.GetImportedReference(module, methodRef));
                 foreach (var item in method.GetParameters())
                 {

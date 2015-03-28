@@ -14,12 +14,12 @@ namespace Flame.Cecil
 
         #region Types
 
-        public static TypeReference GetImportedReference(this IType Method, ModuleDefinition Module)
+        public static TypeReference GetImportedReference(this IType Method, CecilModule Module)
         {
             return CecilTypeImporter.Import(Module, Method);
         }
 
-        public static TypeReference GetImportedReference(this IType Type, ModuleDefinition Module, IGenericParameterProvider Context)
+        public static TypeReference GetImportedReference(this IType Type, CecilModule Module, IGenericParameterProvider Context)
         {
             return CecilTypeImporter.Import(Module, Context, Type);
         }
@@ -28,12 +28,12 @@ namespace Flame.Cecil
 
         #region Methods
 
-        public static MethodReference GetImportedReference(this IMethod Method, ModuleDefinition Module)
+        public static MethodReference GetImportedReference(this IMethod Method, CecilModule Module)
         {
             return CecilMethodImporter.Import(Module, Method);
         }
 
-        public static MethodReference GetImportedReference(this IMethod Method, ModuleDefinition Module, IGenericParameterProvider Context)
+        public static MethodReference GetImportedReference(this IMethod Method, CecilModule Module, IGenericParameterProvider Context)
         {
             return CecilMethodImporter.Import(Module, Context, Method);
         }

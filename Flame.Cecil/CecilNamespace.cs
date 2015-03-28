@@ -10,24 +10,16 @@ namespace Flame.Cecil
 {
     public class CecilNamespace : INamespaceBuilder, ICecilNamespace, IEquatable<ICecilNamespace>
     {
-        public CecilNamespace(AssemblyDefinition Assembly, string Name)
-            : this(new CecilAssembly(Assembly), Name)
+        public CecilNamespace(CecilModule Module, string Name)
         {
-        }
-        public CecilNamespace(CecilAssembly Assembly, string Name)
-        {
-            this.Assembly = Assembly;
+            this.Module = Module;
             this.Name = Name;
         }
 
-        public CecilAssembly Assembly { get; private set; }
+        public CecilAssembly Assembly { get { return Module.Assembly; } }
+        public CecilModule Module { get; private set; }
 
         public AncestryGraph AncestryGraph { get { return Assembly.AncestryGraph; } }
-
-        public ModuleDefinition GetModule()
-        {
-            return Assembly.MainModule;
-        }
 
         public string Name { get; private set; }
         public string FullName
@@ -42,7 +34,7 @@ namespace Flame.Cecil
             {
                 if (item.Namespace == Name)
                 {
-                    types.Add(CecilTypeBase.Create(item));
+                    types.Add(Module.Convert(item));
                 }
             }
             return types.ToArray();
@@ -62,12 +54,12 @@ namespace Flame.Cecil
 
         public void AddType(TypeDefinition Definition)
         {
-            GetModule().Types.Add(Definition);
+            Module.Module.Types.Add(Definition);
         }
 
         public INamespaceBuilder DeclareNamespace(string Name)
         {
-            return new CecilNamespace(Assembly, MemberExtensions.CombineNames(FullName, Name));
+            return new CecilNamespace(Module, MemberExtensions.CombineNames(FullName, Name));
         }
 
         public ITypeBuilder DeclareType(IType Template)

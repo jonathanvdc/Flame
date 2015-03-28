@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil
 {
-    public interface ICecilField : IField, IInitializedField
+    public interface ICecilField : ICecilMember, IField, IInitializedField
     {
         FieldReference GetFieldReference();
         FieldDefinition GetResolvedField();

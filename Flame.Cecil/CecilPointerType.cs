@@ -9,13 +9,18 @@ namespace Flame.Cecil
 {
     public class CecilPointerType : CecilContainerTypeBase, IPointerType
     {
-        public CecilPointerType(PointerType PointerType)
-            : this(CecilTypeBase.CreateCecil(PointerType.ElementType), PointerKind.TransientPointer)
+        public CecilPointerType(PointerType PointerType, CecilModule Module)
+            : this(Module.ConvertStrict(PointerType.ElementType), PointerKind.TransientPointer, Module)
         {
         }
-        public CecilPointerType(ByReferenceType ByReferenceType)
-            : this(CecilTypeBase.CreateCecil(ByReferenceType.ElementType), PointerKind.ReferencePointer)
+        public CecilPointerType(ByReferenceType ByReferenceType, CecilModule Module)
+            : this(Module.ConvertStrict(ByReferenceType.ElementType), PointerKind.ReferencePointer, Module)
         {
+        }
+        public CecilPointerType(ICecilType ElementType, PointerKind PointerKind, CecilModule Module)
+            : base(ElementType, Module)
+        {
+            this.PointerKind = PointerKind;
         }
         public CecilPointerType(ICecilType ElementType, PointerKind PointerKind)
             : base(ElementType)

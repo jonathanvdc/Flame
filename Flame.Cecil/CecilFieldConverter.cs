@@ -9,6 +9,12 @@ namespace Flame.Cecil
 {
     public class CecilFieldConverter : CecilTypeMemberConverterBase<FieldReference, ICecilField>
     {
+        public CecilFieldConverter(CecilModule Module)
+            : base(Module)
+        {
+
+        }
+
         protected override ICecilField ConvertMemberDeclaration(ICecilType DeclaringType, FieldReference Reference)
         {
             return new CecilField(DeclaringType, Reference);

@@ -9,7 +9,7 @@ namespace Flame.Cecil
     public abstract class CecilTypeMemberBase : CecilMember, ICecilTypeMember
     {
         public CecilTypeMemberBase(ICecilType DeclaringType)
-            : base(DeclaringType.GetAncestryGraph())
+            : base(DeclaringType.Module)
         {
             this.DeclaringType = DeclaringType;
         }

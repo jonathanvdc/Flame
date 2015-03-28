@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Flame
 {
-	public interface IConverter<TSource, TTarget>
+	public interface IConverter<in TSource, out TTarget>
 	{
 		TTarget Convert(TSource Value);
 	}

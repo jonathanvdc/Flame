@@ -10,22 +10,22 @@ namespace Flame.Cecil
     public abstract class CecilTypeMemberImporterBase<TMember, TReference> : IConverter<TMember, TReference>
         where TMember : ITypeMember
     {
-        public CecilTypeMemberImporterBase(ModuleDefinition Module, IGenericParameterProvider Context, IConverter<IType, TypeReference> TypeImporter)
+        public CecilTypeMemberImporterBase(CecilModule Module, IGenericParameterProvider Context, IConverter<IType, TypeReference> TypeImporter)
         {
             this.Module = Module;
             this.TypeImporter = TypeImporter;
             this.Context = Context;
         }
-        public CecilTypeMemberImporterBase(ModuleDefinition Module, IGenericParameterProvider Context)
+        public CecilTypeMemberImporterBase(CecilModule Module, IGenericParameterProvider Context)
             : this(Module, Context, new CecilTypeImporter(Module, Context))
         {
         }
-        public CecilTypeMemberImporterBase(ModuleDefinition Module)
+        public CecilTypeMemberImporterBase(CecilModule Module)
             : this(Module, null)
         {
         }
 
-        public ModuleDefinition Module { get; private set; }
+        public CecilModule Module { get; private set; }
         public IGenericParameterProvider Context { get; private set; }
         public IConverter<IType, TypeReference> TypeImporter { get; private set; }
 

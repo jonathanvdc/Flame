@@ -73,7 +73,7 @@ namespace Flame.Cecil
 
         public static CecilPropertyBuilder DeclareProperty(ICecilTypeBuilder DeclaringType, IProperty Template)
         {
-            var module = DeclaringType.GetModule();
+            var module = DeclaringType.Module;
             var propTypeRef = Template.PropertyType.GetImportedReference(module, null);
             var propDef = new PropertyDefinition(Template.get_IsIndexer() ? "Item" : Template.Name, Mono.Cecil.PropertyAttributes.None, propTypeRef);
             DeclaringType.AddProperty(propDef);

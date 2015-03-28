@@ -10,14 +10,10 @@ namespace Flame.Cecil
 {
     public abstract class CecilTypeBase : CecilMember, ICecilType, IEquatable<ICecilType>
     {
-        public CecilTypeBase()
+        public CecilTypeBase(CecilModule Module)
+            : base(Module)
         {
-            InitializeMembers();
-        }
-        public CecilTypeBase(AncestryGraph AncestryGraph)
-            : base(AncestryGraph)
-        {
-            InitializeMembers();
+            ClearMemberCaches();
         }
 
         #region ICecilType Implementation
@@ -111,11 +107,28 @@ namespace Flame.Cecil
             return properties.ToArray();
         }
 
-        private void InitializeMembers()
+        protected void ClearMemberCaches()
+        {
+            ClearMethodCache();
+            ClearPropertyCache();
+            ClearFieldCache();
+            ClearConstructorCache();
+        }
+
+        protected void ClearMethodCache()
         {
             lazyMethods = new Lazy<IMethod[]>(new Func<IMethod[]>(() => ConvertMethodDefinitions(this, GetCecilMethods(), false)));
+        }
+        protected void ClearPropertyCache()
+        {
             lazyProperties = new Lazy<IProperty[]>(new Func<IProperty[]>(() => ConvertPropertyDefinitions(this, GetCecilProperties(), GetCecilEvents())));
+        }
+        protected void ClearFieldCache()
+        {
             lazyFields = new Lazy<IField[]>(new Func<IField[]>(() => ConvertFieldDefinitions(this, GetCecilFields())));
+        }
+        protected void ClearConstructorCache()
+        {
             lazyCtors = new Lazy<IMethod[]>(new Func<IMethod[]>(() => ConvertMethodDefinitions(this, GetCecilMethods(), true)));
         }
 
@@ -173,7 +186,7 @@ namespace Flame.Cecil
         {
             get
             {
-                return GetTypeReference().GetDeclaringNamespace();
+                return GetTypeReference().GetDeclaringNamespace(Module);
             }
         }
 
@@ -249,7 +262,7 @@ namespace Flame.Cecil
 
         #region Static
 
-        public static IGenericParameter[] ConvertGenericParameters(IGenericParameterProvider Owner, Func<IGenericParameterProvider> Resolver, IGenericMember DeclaringMember, AncestryGraph Graph)
+        public static IGenericParameter[] ConvertGenericParameters(IGenericParameterProvider Owner, Func<IGenericParameterProvider> Resolver, IGenericMember DeclaringMember, CecilModule Module)
         {
             IGenericParameterProvider resolved = null;
             var cecilParameters = Owner.GenericParameters;
@@ -265,63 +278,54 @@ namespace Flame.Cecil
                     }
                     param = CecilExtensions.CloneGenericParameter(resolved.GenericParameters[i], Owner);
                 }
-                genericParameters[i] = new CecilGenericParameter(param, Graph, DeclaringMember);
+                genericParameters[i] = new CecilGenericParameter(param, Module, DeclaringMember);
             }
             return genericParameters;
-        }
-
-        public static IType Create(TypeReference Reference)
-        {
-            return CecilTypeConverter.DefaultConverter.Convert(Reference);
-        }
-        public static ICecilType CreateCecil(TypeReference Reference)
-        {
-            return (ICecilType)CecilTypeConverter.CecilPrimitiveConverter.Convert(Reference);
         }
 
         #region Import
 
         public static IType Import(Type ImportedType, ICecilMember ImportingMember)
         {
-            return Import(ImportedType, ImportingMember.GetModule());
+            return Import(ImportedType, ImportingMember.Module);
         }
-        public static IType Import(Type ImportedType, ModuleDefinition ImportingModule)
+        public static IType Import(Type ImportedType, CecilModule ImportingModule)
         {
-            return CecilTypeConverter.DefaultConverter.Convert(ImportingModule.Import(ImportedType));
+            return ImportingModule.Convert(ImportingModule.Module.Import(ImportedType));
         }
 
         public static ICecilType ImportCecil(Type ImportedType, ICecilMember ImportingMember)
         {
-            return ImportCecil(ImportedType, ImportingMember.GetModule());
+            return ImportCecil(ImportedType, ImportingMember.Module);
         }
-        public static ICecilType ImportCecil(Type ImportedType, ModuleDefinition ImportingModule)
+        public static ICecilType ImportCecil(Type ImportedType, CecilModule ImportingModule)
         {
-            return (ICecilType)CecilTypeConverter.CecilPrimitiveConverter.Convert(ImportingModule.Import(ImportedType));
+            return ImportingModule.ConvertStrict(ImportingModule.Module.Import(ImportedType));
         }
 
         public static ICecilType ImportCecil<T>(ICecilMember ImportingMember)
         {
             return ImportCecil(typeof(T), ImportingMember);
         }
-        public static ICecilType ImportCecil<T>(ModuleDefinition ImportingModule)
+        public static ICecilType ImportCecil<T>(CecilModule ImportingModule)
         {
             return ImportCecil(typeof(T), ImportingModule);
         }
 
         public static IType Import(TypeReference ImportedType, ICecilMember ImportingMember)
         {
-            return Import(ImportedType, ImportingMember.GetModule());
+            return Import(ImportedType, ImportingMember.Module);
         }
-        public static IType Import(TypeReference ImportedType, ModuleDefinition ImportingModule)
+        public static IType Import(TypeReference ImportedType, CecilModule ImportingModule)
         {
-            return CecilTypeConverter.DefaultConverter.Convert(ImportingModule.Import(ImportedType));
+            return ImportingModule.Convert(ImportingModule.Module.Import(ImportedType));
         }
 
         public static IType Import<T>(ICecilMember ImportingMember)
         {
             return Import(typeof(T), ImportingMember);
         }
-        public static IType Import<T>(ModuleDefinition ImportingModule)
+        public static IType Import<T>(CecilModule ImportingModule)
         {
             return Import(typeof(T), ImportingModule);
         }
@@ -364,7 +368,7 @@ namespace Flame.Cecil
             IType[] results = new IType[nestedTypes.Count];
             for (int i = 0; i < nestedTypes.Count; i++)
             {
-                results[i] = Create(nestedTypes[i]);
+                results[i] = Module.Convert(nestedTypes[i]);
             }
             return results;
         }

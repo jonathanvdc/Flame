@@ -9,12 +9,8 @@ namespace Flame.Cecil
 {
     public class CecilType : CecilResolvedTypeBase
     {
-        public CecilType(TypeReference Reference)
-        {
-            SetReference(Reference);
-        }
-        public CecilType(TypeReference Reference, AncestryGraph Graph)
-            : base(Graph)
+        public CecilType(TypeReference Reference, CecilModule Module)
+            : base(Module)
         {
             SetReference(Reference);
         }
@@ -45,7 +41,7 @@ namespace Flame.Cecil
 
         public override IEnumerable<IGenericParameter> GetCecilGenericParameters()
         {
-            return ConvertGenericParameters(typeReference, typeReference.Resolve, this, AncestryGraph);
+            return ConvertGenericParameters(typeReference, typeReference.Resolve, this, Module);
         }
 
         public override TypeReference GetTypeReference()

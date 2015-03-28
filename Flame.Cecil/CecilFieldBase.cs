@@ -60,7 +60,7 @@ namespace Flame.Cecil
 
         public virtual IType FieldType
         {
-            get { return CecilTypeBase.Create(GetFieldReference().FieldType); }
+            get { return Module.Convert(GetFieldReference().FieldType); }
         }
 
         public IBoundObject GetField(IBoundObject Target)

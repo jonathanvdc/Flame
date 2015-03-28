@@ -7,7 +7,12 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil
 {
-    public interface ICecilMember : IMember
+    public interface ICecilComponent
+    {
+        CecilModule Module { get; }
+    }
+
+    public interface ICecilMember : ICecilComponent, IMember
     {
         MemberReference GetMemberReference();
     }

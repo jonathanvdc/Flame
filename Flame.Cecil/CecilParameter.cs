@@ -18,6 +18,7 @@ namespace Flame.Cecil
 
         public ParameterReference Parameter { get; private set; }
         public ICecilTypeMember DeclaringMember { get; private set; }
+        public CecilModule Module { get { return DeclaringMember.Module; } }
 
         public ParameterDefinition GetResolvedParameter()
         {
@@ -72,7 +73,7 @@ namespace Flame.Cecil
 
         public IType ParameterType
         {
-            get { return CecilTypeBase.Create(Parameter.ParameterType); }
+            get { return Module.Convert(Parameter.ParameterType); }
         }
 
         public bool IsAssignable(IType Type)
@@ -94,7 +95,7 @@ namespace Flame.Cecil
 
         private static CecilParameter DeclareParameter(ICecilTypeMember Member, IParameter Template, out ParameterDefinition paramDef)
         {
-            var module = Member.GetModule();
+            var module = Member.Module;
             IType paramType = Member.ResolveType(Template.ParameterType);
             IGenericParameterProvider context;
             if (Member is IGenericMember)
