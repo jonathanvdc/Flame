@@ -36,15 +36,14 @@ namespace dsc.Target
             switch (BuildTargetIdentifier.Split('\\', '/')[0].ToLower())
             {
                 case "clr":
-                    return CecilRuntimeLibraries.Resolver;
-                case "python":
+                    return CecilRuntimeLibraries.Resolver;                    
+                case "mips":
+                    return MarsRuntimeLibraries.Resolver;
+                case "python": // Use plugs
                 case "contract":
                 case "c++":
-                    return new EmptyAssemblyResolver();
-                case "mars":
-                    return MarsRuntimeLibraries.Resolver;
                 default:
-                    throw new NotSupportedException();
+                    return new EmptyAssemblyResolver();
             }
         }
 
@@ -95,6 +94,19 @@ namespace dsc.Target
                     targetExt = "asm";
                     break;
                 default:
+                    StringBuilder message = new StringBuilder();
+                    if (string.IsNullOrWhiteSpace(BuildTargetIdentifier))
+                    {
+                        message.AppendLine("No target platform was provided.");
+                        message.AppendLine("To specify a platform, use the -platform option with one of the following:");
+                    }
+                    else
+                    {
+                        message.Append("Target platform '").Append(BuildTargetIdentifier).AppendLine("' was not recognized as a known target platform.");
+                        message.AppendLine("Known target platforms:");
+                    }                    
+                    message.AppendLine(" * clr").AppendLine(" * c++").AppendLine(" * python").AppendLine(" * contract");
+                    Log.LogError(new LogEntry("Unrecognized target platform", message.ToString()));
                     throw new NotSupportedException();
             }
             var depBuilder = new DependencyBuilder(rtLibResolver, targetAsm.CreateBinder().Environment, CurrentPath, OutputDirectory);
