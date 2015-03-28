@@ -13,6 +13,7 @@ namespace Flame.Cecil
         {
             this.Module = Module;
             this.UsePrimitives = UsePrimitives;
+            this.convertedTypes = new Dictionary<TypeReference, IType>();
         }
 
         /// <summary>
@@ -24,6 +25,8 @@ namespace Flame.Cecil
         /// Gets a boolean value that indicates if this type converter converts CLR primitives to their Flame equivalents.
         /// </summary>
         public bool UsePrimitives { get; private set; }
+
+        private Dictionary<TypeReference, IType> convertedTypes;
 
         private IType ConvertModifierType(IModifierType Type)
         {
@@ -149,7 +152,7 @@ namespace Flame.Cecil
             return new CecilGenericParameter(Type, Module);
         }
 
-        public IType Convert(TypeReference Value)
+        private IType ConvertCore(TypeReference Value)
         {
             if (Value.IsPointer)
             {
@@ -178,6 +181,20 @@ namespace Flame.Cecil
             else
             {
                 return ConvertTypeDeclaration(Value);
+            }
+        }
+
+        public IType Convert(TypeReference Reference)
+        {
+            if (convertedTypes.ContainsKey(Reference))
+            {
+                return convertedTypes[Reference];
+            }
+            else
+            {
+                var result = ConvertCore(Reference);
+                convertedTypes[Reference] = result;
+                return result;
             }
         }
     }
