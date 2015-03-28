@@ -492,14 +492,17 @@ namespace Flame.Recompilation
                 else if (IsExternalStrict(SourceProperty))
                 {
                     var recompDeclType = GetType(SourceProperty.DeclaringType);
+                    IProperty result;
                     if (SourceProperty.get_IsIndexer())
                     {
-                        return recompDeclType.GetIndexer(SourceProperty.IsStatic, GetTypes(SourceProperty.GetIndexerParameters().GetTypes()));
+                        result = recompDeclType.GetIndexer(SourceProperty.IsStatic, GetTypes(SourceProperty.GetIndexerParameters().GetTypes()));
                     }
                     else
                     {
-                        return recompDeclType.GetProperties().GetProperty(SourceProperty.Name, SourceProperty.IsStatic, GetType(SourceProperty.PropertyType), GetTypes(SourceProperty.GetIndexerParameters().GetTypes()));
+                        result = recompDeclType.GetProperties().GetProperty(SourceProperty.Name, SourceProperty.IsStatic, GetType(SourceProperty.PropertyType), GetTypes(SourceProperty.GetIndexerParameters().GetTypes()));
                     }
+                    System.Diagnostics.Debug.Assert(result != null);
+                    return result;
                 }
                 else
                 {
@@ -585,6 +588,33 @@ namespace Flame.Recompilation
 
         #endregion
 
+        private IMethod GetNewAccessor(IAccessor SourceAccessor)
+        {
+            IMethod result;
+            if (SourceAccessor.DeclaringType.get_IsGenericInstance())
+            {
+                var genericProperty = GetGenericTypeProperty(SourceAccessor.DeclaringProperty);
+                var genericAccessor = genericProperty.GetAccessor(SourceAccessor.AccessorType);
+                var recompDeclProperty = GetProperty(SourceAccessor.DeclaringProperty);
+                var recompGenericAccessor = GetMethod(genericAccessor);
+                result = recompDeclProperty.GetAccessor(SourceAccessor.AccessorType);
+                System.Diagnostics.Debug.Assert(result != null);
+            }
+            else if (IsExternalStrict(SourceAccessor.DeclaringType))
+            {
+                var declProperty = GetProperty(SourceAccessor.DeclaringProperty);
+                result = declProperty.GetAccessor(SourceAccessor.AccessorType);
+                System.Diagnostics.Debug.Assert(result != null);
+            }
+            else
+            {
+                var recompiledProperty = GetPropertyBuilder(SourceAccessor.DeclaringProperty);
+                result = RecompileAccessor(recompiledProperty, SourceAccessor);
+                System.Diagnostics.Debug.Assert(result != null);
+            }
+            return result;
+        }
+
         private IMethod GetNewMethod(IMethod SourceMethod)
         {
             if (IsExternal(SourceMethod))
@@ -601,25 +631,7 @@ namespace Flame.Recompilation
 
             if (SourceMethod is IAccessor)
             {
-                var sourceAccessor = (IAccessor)SourceMethod;
-                if (SourceMethod.DeclaringType.get_IsGenericInstance())
-                {
-                    var genericProperty = GetGenericTypeProperty(sourceAccessor.DeclaringProperty);
-                    var genericAccessor = genericProperty.GetAccessor(sourceAccessor.AccessorType);
-                    var recompDeclProperty = GetProperty(sourceAccessor.DeclaringProperty);
-                    var recompGenericAccessor = GetMethod(genericAccessor);
-                    return recompDeclProperty.GetAccessor(sourceAccessor.AccessorType);
-                }
-                else if (IsExternalStrict(SourceMethod.DeclaringType))
-                {
-                    var declProperty = GetProperty(sourceAccessor.DeclaringProperty);
-                    return declProperty.GetAccessor(sourceAccessor.AccessorType);
-                }
-                else
-                {
-                    var recompiledProperty = GetPropertyBuilder(sourceAccessor.DeclaringProperty);
-                    return RecompileAccessor(recompiledProperty, sourceAccessor);
-                }
+                return GetNewAccessor((IAccessor)SourceMethod);
             }
 
             if (SourceMethod.DeclaringType.get_IsGenericInstance())

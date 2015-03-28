@@ -74,16 +74,16 @@ namespace Flame.Cecil
             return Property.GetAttributes();
         }
 
-        private IAccessor[] accs;
+        private IAccessor ConvertAccessor(IAccessor Item)
+        {
+            return new CecilAccessor(this, new CecilGenericInstanceMethod(DeclaringType, (ICecilMethod)Item), Item.AccessorType);
+        }
+
         public IAccessor[] Accessors
         {
             get
             {
-                if (accs == null)
-                {
-                    accs = Property.GetAccessors().Select(item => new CecilAccessor(this, new CecilGenericInstanceMethod(DeclaringType, (ICecilMethod)item), item.AccessorType)).ToArray();
-                }
-                return accs;
+                return Property.GetAccessors().Select(ConvertAccessor).ToArray();
             }
         }
         public override IAccessor[] GetAccessors()
@@ -95,7 +95,7 @@ namespace Flame.Cecil
         {
             get
             {
-                return this.GetGetAccessor();
+                return ConvertAccessor(Property.GetGetAccessor());
             }
         }
 
@@ -103,7 +103,7 @@ namespace Flame.Cecil
         {
             get
             {
-                return this.GetSetAccessor();
+                return ConvertAccessor(Property.GetSetAccessor());
             }
         }
     }
