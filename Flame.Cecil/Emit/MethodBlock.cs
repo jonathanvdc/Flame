@@ -12,6 +12,8 @@ namespace Flame.Cecil.Emit
     {
         public MethodBlock(ICodeGenerator CodeGenerator, IMethod Method, ICecilBlock Caller)
         {
+            System.Diagnostics.Debug.Assert(CodeGenerator != null);
+            System.Diagnostics.Debug.Assert(Method != null);
             this.CodeGenerator = CodeGenerator;
             this.Method = Method;
             this.Caller = Caller;

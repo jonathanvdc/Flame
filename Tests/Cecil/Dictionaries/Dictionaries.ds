@@ -1,0 +1,27 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class DictionariesTest
+{
+    public const this() { dict = new Dictionary<string, string>(); otherDict = new Dictionary<int, string>(); }
+
+    private Dictionary<string, string> dict;
+    private Dictionary<int, string> otherDict;
+
+    public string this[string Key]
+    {
+        const get return dict[Key];
+        set dict[Key] = value;
+    }
+
+    public [string] Values
+    {
+        const get
+        {
+            var vals = dict.Values;
+            var otherVals = otherDict.Values;
+            return Enumerable.Concat<string>(vals, otherVals);
+        }
+    }
+}

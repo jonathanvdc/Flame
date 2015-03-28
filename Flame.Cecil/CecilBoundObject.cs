@@ -31,7 +31,7 @@ namespace Flame.Cecil
             {
                 return new StringExpression((string)val);
             }
-            var fieldType = CecilTypeBase.CreateCecil(type.GetModule().Import(clrField.FieldType));
+            var fieldType = type.Module.ConvertStrict(type.GetModule().Import(clrField.FieldType));
             return new CecilBoundObject(val, type);
         }
 

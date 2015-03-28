@@ -88,12 +88,7 @@ namespace Flame.Build
         
         public static const IParameter ResolveParameter(this IGenericResolver Resolver, IParameter Parameter)
         {
-            var descParam = new DescribedParameter(Parameter.Name, Resolver.ResolveType(Parameter.ParameterType));
-            foreach (var item in Parameter.GetAttributes())
-            {
-                descParam.AddAttribute(item);
-            }
-            return descParam;
+        	return new DescribedRetypedParameter(Parameter, Resolver.ResolveType(Parameter.ParameterType));
         }
         public static const IParameter[] ResolveParameters(this IGenericResolver Resolver, IParameter[] Parameters)
         {

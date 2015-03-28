@@ -10,12 +10,12 @@ namespace Flame.Cecil
 {
     public class CecilEnumBuilder : CecilTypeBuilder
     {
-        public CecilEnumBuilder(TypeDefinition Definition, INamespace DeclaringNamespace)
-            : base(Definition, DeclaringNamespace)
+        public CecilEnumBuilder(TypeDefinition Definition, INamespace DeclaringNamespace, CecilModule Module)
+            : base(Definition, DeclaringNamespace, Module)
         {
         }
-        public CecilEnumBuilder(CecilResolvedTypeBase Type, INamespace DeclaringNamespace)
-            : base(Type, DeclaringNamespace)
+        public CecilEnumBuilder(CecilResolvedTypeBase Type, INamespace DeclaringNamespace, CecilModule Module)
+            : base(Type, DeclaringNamespace, Module)
         {
         }
 

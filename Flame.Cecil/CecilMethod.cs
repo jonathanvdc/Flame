@@ -9,8 +9,8 @@ namespace Flame.Cecil
 {
     public class CecilMethod : CecilMethodBase, ICecilMethod
     {
-        public CecilMethod(MethodReference Method)
-            : this(CecilTypeBase.CreateCecil(Method.DeclaringType), Method)
+        public CecilMethod(MethodReference Method, CecilModule Module)
+            : this(Module.ConvertStrict(Method.DeclaringType), Method)
         {
         }
         public CecilMethod(ICecilType DeclaringType, MethodReference Method)
@@ -28,11 +28,6 @@ namespace Flame.Cecil
         public MethodDefinition GetResolvedMethod()
         {
             return Method.Resolve();
-        }
-
-        public override IEnumerable<IType> GetCecilGenericArguments()
-        {
-            return new IType[0];
         }
 
         public override IMethod GetGenericDeclaration()
@@ -118,7 +113,7 @@ namespace Flame.Cecil
             List<IMethod> overrides = new List<IMethod>(cecilOverrides.Count);
             for (int i = 0; i < cecilOverrides.Count; i++)
             {
-                overrides.Add(CecilMethodBase.Create(cecilOverrides[i]));
+                overrides.Add(Module.Convert(cecilOverrides[i]));
             }
             if (this.DeclaringType.get_IsRootType())
             {
@@ -135,9 +130,9 @@ namespace Flame.Cecil
             return overrides.ToArray();
         }
 
-        public override bool IsComplete
+        public override IEnumerable<IType> GetGenericArguments()
         {
-            get { return true; }
+            return Enumerable.Empty<IType>();
         }
     }
 }

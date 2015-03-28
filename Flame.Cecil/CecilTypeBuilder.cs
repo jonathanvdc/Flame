@@ -13,18 +13,18 @@ namespace Flame.Cecil
 {
     public class CecilTypeBuilder : CecilType, ICecilTypeBuilder
     {
-        public CecilTypeBuilder(TypeDefinition Definition, INamespace DeclaringNamespace)
-            : this(Definition, DeclaringNamespace, new EmptyGenericResolver())
+        public CecilTypeBuilder(TypeDefinition Definition, INamespace DeclaringNamespace, CecilModule Module)
+            : this(Definition, DeclaringNamespace, new EmptyGenericResolver(), Module)
         {
         }
-        public CecilTypeBuilder(TypeDefinition Definition, INamespace DeclaringNamespace, IGenericResolver Resolver)
-            : base(Definition, DeclaringNamespace.GetAncestryGraph())
+        public CecilTypeBuilder(TypeDefinition Definition, INamespace DeclaringNamespace, IGenericResolver Resolver, CecilModule Module)
+            : base(Definition, Module)
         {
             this.declNs = DeclaringNamespace;
             this.Resolver = Resolver;
         }
-        public CecilTypeBuilder(CecilResolvedTypeBase Type, INamespace DeclaringNamespace)
-            : this(Type.GetResolvedType(), DeclaringNamespace, Type)
+        public CecilTypeBuilder(CecilResolvedTypeBase Type, INamespace DeclaringNamespace, CecilModule Module)
+            : this(Type.GetResolvedType(), DeclaringNamespace, Type, Module)
         {
         }
 
@@ -149,33 +149,33 @@ namespace Flame.Cecil
             //IGenericResolver resolver = isEnum || !Template.GetGenericParameters().Any() ? 
             if (isEnum)
             {
-                cecilType = new CecilEnumBuilder(reference, CecilNamespace);
+                cecilType = new CecilEnumBuilder(reference, CecilNamespace, CecilNamespace.Module);
                 genericResolver = new EmptyGenericResolver();
             }
             else if (CecilNamespace is ICecilType)
             {
                 var declType = (ICecilType)CecilNamespace;
                 var mapResolver = new GenericResolverMap(declType);
-                cecilType = new CecilTypeBuilder(reference, CecilNamespace, mapResolver);
+                cecilType = new CecilTypeBuilder(reference, CecilNamespace, mapResolver, CecilNamespace.Module);
                 var declGenerics = declType.GetGenericParameters().ToArray();
-                var inheritedGenerics = CecilGenericParameter.DeclareGenericParameters(reference, declGenerics, cecilType.AncestryGraph, cecilType);
+                var inheritedGenerics = CecilGenericParameter.DeclareGenericParameters(reference, declGenerics, cecilType.Module, cecilType);
                 mapResolver.Map(declGenerics, inheritedGenerics);
                 genericResolver = mapResolver;
             }
             else
             {
                 genericResolver = new EmptyGenericResolver();
-                cecilType = new CecilTypeBuilder(reference, CecilNamespace, genericResolver);
+                cecilType = new CecilTypeBuilder(reference, CecilNamespace, genericResolver, CecilNamespace.Module);
             }
 
             CecilNamespace.AddType(reference);
 
-            var module = CecilNamespace.GetModule();
+            var module = CecilNamespace.Module.Module;
 
             // generics
             var genericTemplates = Template.GetGenericParameters().ToArray();
 
-            var genericParams = CecilGenericParameter.DeclareGenericParameters(reference, genericTemplates, cecilType.AncestryGraph, cecilType);
+            var genericParams = CecilGenericParameter.DeclareGenericParameters(reference, genericTemplates, cecilType.Module, cecilType);
 
             var baseTypes = genericResolver.ResolveTypes(GetGenericTypes(Template.GetBaseTypes(), genericParams));
 
@@ -194,7 +194,7 @@ namespace Flame.Cecil
                     var parentType = baseTypes.SingleOrDefault((item) => !item.get_IsInterface());
                     if (parentType != null)
                     {
-                        reference.BaseType = parentType.GetImportedReference(module, reference);
+                        reference.BaseType = parentType.GetImportedReference(CecilNamespace.Module, reference);
                     }
                     else
                     {
@@ -204,7 +204,7 @@ namespace Flame.Cecil
             }
             foreach (var item in baseTypes.Where((item) => item.get_IsInterface()))
             {
-                reference.Interfaces.Add(item.GetImportedReference(module, reference));
+                reference.Interfaces.Add(item.GetImportedReference(CecilNamespace.Module, reference));
             }
 
             CecilAttribute.DeclareAttributes(reference, cecilType, Template.GetAttributes());
@@ -218,7 +218,7 @@ namespace Flame.Cecil
             {
                 var field = new FieldDefinition("value__",
                     FieldAttributes.Public | FieldAttributes.SpecialName | FieldAttributes.RTSpecialName,
-                    baseTypes.SingleOrDefault((item) => !item.get_IsInterface()).GetImportedReference(module, reference));
+                    baseTypes.SingleOrDefault((item) => !item.get_IsInterface()).GetImportedReference(CecilNamespace.Module, reference));
                 cecilType.AddField(field);
             }
 
@@ -231,12 +231,17 @@ namespace Flame.Cecil
 
         public virtual IMethodBuilder DeclareMethod(IMethod Template)
         {
-            return CecilMethodBuilder.DeclareMethod(this, Template);
+            var method = CecilMethodBuilder.DeclareMethod(this, Template);
+            ClearMethodCache();
+            ClearConstructorCache();
+            return method;
         }
 
         public virtual IFieldBuilder DeclareField(IField Template)
         {
-            return CecilField.DeclareField(this, Template);
+            var field = CecilField.DeclareField(this, Template);
+            ClearFieldCache();
+            return field;
         }
 
         public virtual IPropertyBuilder DeclareProperty(IProperty Template)
@@ -246,6 +251,7 @@ namespace Flame.Cecil
             {
                 this.GetResolvedType().SetDefaultMember(property.Name);
             }
+            ClearPropertyCache();
             return property;
         }
 

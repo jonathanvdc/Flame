@@ -7,13 +7,16 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil
 {
-    public interface ICecilMember : IMember
+    public interface ICecilComponent
+    {
+        CecilModule Module { get; }
+    }
+
+    public interface ICecilMember : ICecilComponent, IMember
     {
         MemberReference GetMemberReference();
     }
-    public interface ICecilGenericMember : ICecilMember
+    public interface ICecilGenericMember : ICecilMember, IGenericMember
     {
-        IEnumerable<IType> GetCecilGenericArguments();
-        IEnumerable<IGenericParameter> GetCecilGenericParameters();
     }
 }

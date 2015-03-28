@@ -1,4 +1,5 @@
-﻿using Flame.Compiler;
+﻿using Flame.Build;
+using Flame.Compiler;
 using Mono.Cecil;
 using System;
 using System.Collections.Generic;
@@ -59,7 +60,7 @@ namespace Flame.Cecil
 
         public virtual IType FieldType
         {
-            get { return this.ResolveType(GetFieldReference().FieldType); }
+            get { return Module.Convert(GetFieldReference().FieldType); }
         }
 
         public IBoundObject GetField(IBoundObject Target)

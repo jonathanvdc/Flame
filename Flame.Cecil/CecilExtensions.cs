@@ -135,7 +135,7 @@ namespace Flame.Cecil
 
         public static MethodReference ReferenceIfGenericDeclaringType(MethodDefinition MethodDef, ICecilType DeclaringType)
         {
-            if (DeclaringType.GetCecilGenericArguments().Any())
+            if (DeclaringType.GetAllGenericArguments().Any())
             {
                 return DeclaringType.GetTypeReference().ReferenceMethod(MethodDef);
             }
@@ -147,7 +147,7 @@ namespace Flame.Cecil
 
         public static FieldReference ReferenceIfGenericDeclaringType(FieldDefinition FieldDef, ICecilType DeclaringType)
         {
-            if (DeclaringType.GetCecilGenericArguments().Any())
+            if (DeclaringType.GetAllGenericArguments().Any())
             {
                 return DeclaringType.GetTypeReference().ReferenceField(FieldDef);
             }
@@ -243,40 +243,15 @@ namespace Flame.Cecil
 
         #endregion
 
-        public static INamespace GetDeclaringNamespace(this TypeReference Reference)
+        public static INamespace GetDeclaringNamespace(this TypeReference Reference, CecilModule Module)
         {
             if (Reference.DeclaringType == null)
             {
-                return new CecilNamespace(Reference.Module.Assembly, Reference.Namespace);
+                return new CecilNamespace(Module, Reference.Namespace);
             }
             else
             {
-                return (INamespace)CecilTypeBase.Create(Reference.DeclaringType);
-            }
-        }
-
-        public static bool IsCecilGenericInstance(this IType Member)
-        {
-            if (Member is ICecilType)
-            {
-                var cecilType = (ICecilType)Member;
-                return !cecilType.GetCecilGenericArguments().ToArray().AreEqual((cecilType.GetCecilGenericDeclaration().GetCecilGenericArguments().ToArray()));
-            }
-            else
-            {
-                return false;
-            }
-        }
-        public static bool IsCecilGenericDeclaration(this IType Member)
-        {
-            if (Member is ICecilType)
-            {
-                var cecilType = (ICecilType)Member;
-                return cecilType.GetCecilGenericParameters().Any() && cecilType.Equals(cecilType.GetCecilGenericDeclaration());
-            }
-            else
-            {
-                return false;
+                return (INamespace)Module.Convert(Reference.DeclaringType);
             }
         }
 
@@ -296,24 +271,6 @@ namespace Flame.Cecil
             }
             Implementation.Overrides.Add(OverriddenReference);
         }
-
-        /*public static TypeDefinition ResolveNested(this TypeReference Reference)
-        {
-            if (Reference.IsDefinition)
-            {
-                return (TypeDefinition)Reference;
-            }
-            if (Reference.IsNested)
-            {
-                var declType = Reference.DeclaringType.ResolveNested();
-                var nestedTypes = declType.NestedTypes;
-                return nestedTypes.Single((item) => item.Name == Reference.Name);
-            }
-            else
-            {
-                return Reference.Resolve();
-            }
-        }*/
 
         public static string StripCLRGenerics(string Name)
         {
