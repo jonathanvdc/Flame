@@ -59,7 +59,7 @@ namespace dsc.Options
         {
             get
             {
-                return GetBuildArgumentOrDefault<string>("platform");
+                return GetBuildArgumentOrDefault<string>("platform") ?? "";
             }
         }
         public bool CompileAll
