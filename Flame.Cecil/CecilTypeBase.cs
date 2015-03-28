@@ -338,6 +338,11 @@ namespace Flame.Cecil
 
         public virtual bool Equals(ICecilType other)
         {
+            if (object.ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
             return FullName == other.FullName;
         }
 
