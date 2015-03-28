@@ -176,12 +176,12 @@ namespace Flame.Cecil
             }
             else
             {
-                return GetMemberReference().Equals(other.GetMemberReference());
+                return false;
             }
         }
         public bool Equals(CecilGenericTypeBase other)
         {
-            return GenericDefinition.Equals(other.GenericDefinition) && GetGenericArguments().SequenceEqual(other.GetGenericArguments());
+            return GenericDefinition.Equals(other.GenericDefinition) && this.GetAllGenericArguments().SequenceEqual(other.GetAllGenericArguments());
         }
         public bool Equals(ICecilType other)
         {
@@ -191,7 +191,7 @@ namespace Flame.Cecil
             }
             else if (DeclaringNamespace.Equals(other.DeclaringNamespace) && this.Name == other.Name)
             {
-                return GetGenericArguments().SequenceEqual(other.GetGenericArguments());
+                return this.GetAllGenericArguments().SequenceEqual(other.GetAllGenericArguments());
             }
             else
             {
