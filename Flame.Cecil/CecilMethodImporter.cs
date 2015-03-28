@@ -9,31 +9,31 @@ namespace Flame.Cecil
 {
     public class CecilMethodImporter : CecilTypeMemberImporterBase<IMethod, MethodReference>
     {
-        public CecilMethodImporter(ModuleDefinition Module)
+        public CecilMethodImporter(CecilModule Module)
             : base(Module)
         {
         }
-        public CecilMethodImporter(ModuleDefinition Module, IGenericParameterProvider Context)
+        public CecilMethodImporter(CecilModule Module, IGenericParameterProvider Context)
             : base(Module, Context)
         {
         }
 
-        public static MethodReference Import(ModuleDefinition Module, IMethod Type)
+        public static MethodReference Import(CecilModule Module, IMethod Type)
         {
             return new CecilMethodImporter(Module).Convert(Type);
         }
-        public static MethodReference Import(ModuleDefinition Module, IGenericParameterProvider Context, IMethod Type)
+        public static MethodReference Import(CecilModule Module, IGenericParameterProvider Context, IMethod Type)
         {
             return new CecilMethodImporter(Module, Context).Convert(Type);
         }
-        public static IEnumerable<MethodReference> Import(ModuleDefinition Module, IGenericParameterProvider Context, IEnumerable<IMethod> Types)
+        public static IEnumerable<MethodReference> Import(CecilModule Module, IGenericParameterProvider Context, IEnumerable<IMethod> Types)
         {
             return new CecilMethodImporter(Module, Context).Convert(Types);
         }
 
         protected override MethodReference ConvertDeclaration(IMethod Method)
         {
-            return Module.Import(((ICecilMethod)Method).GetMethodReference(), Context);
+            return Module.Module.Import(((ICecilMethod)Method).GetMethodReference(), Context);
         }
 
         protected virtual MethodReference ConvertGenericInstance(IMethod Method)
@@ -50,13 +50,13 @@ namespace Flame.Cecil
         protected override MethodReference ConvertInstanceGeneric(TypeReference DeclaringType, IMethod Member)
         {
             var decl = ConvertDeclaration(Member);
-            return Module.Import(DeclaringType.ReferenceMethod(decl.Resolve()), DeclaringType);
+            return Module.Module.Import(DeclaringType.ReferenceMethod(decl.Resolve()), DeclaringType);
         }
 
         protected override MethodReference ConvertPrimitive(IMethod Member)
         {
             var declType = Member.DeclaringType;
-            var type = CecilTypeConverter.CecilPrimitiveConverter.Convert(ConvertType(declType));
+            var type = Module.ConvertStrict(ConvertType(declType));
             if (Member is IAccessor)
             {
                 var declProp = ((IAccessor)Member).DeclaringProperty;
@@ -88,12 +88,12 @@ namespace Flame.Cecil
             }
             else if (Value.Equals(PrimitiveMethods.Instance.Equals))
             {
-                var objType = CecilTypeBase.Create(Module.TypeSystem.Object);
+                var objType = Module.Convert(Module.Module.TypeSystem.Object);
                 return Convert(objType.GetMethod("Equals", false, PrimitiveTypes.Boolean, new IType[] { objType }));
             }
             else if (Value.Equals(PrimitiveMethods.Instance.GetHashCode))
             {
-                var objType = CecilTypeBase.Create(Module.TypeSystem.Object);
+                var objType = Module.Convert(Module.Module.TypeSystem.Object);
                 return Convert(objType.GetMethod("GetHashCode", false, PrimitiveTypes.Int32, new IType[0]));
             }
             else

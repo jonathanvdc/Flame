@@ -9,12 +9,12 @@ namespace Flame.Cecil
 {
     public class CecilEnvironment : IEnvironment
     {
-        public CecilEnvironment(ModuleDefinition Module)
+        public CecilEnvironment(CecilModule Module)
         {
             this.Module = Module;
         }
 
-        public ModuleDefinition Module { get; private set; }
+        public CecilModule Module { get; private set; }
 
         public string Name
         {
@@ -23,17 +23,17 @@ namespace Flame.Cecil
 
         public IType RootType
         {
-            get { return CecilTypeBase.CreateCecil(Module.TypeSystem.Object); }
+            get { return Module.ConvertStrict(Module.Module.TypeSystem.Object); }
         }
 
         public IType EnumerableType
         {
-            get { return CecilTypeBase.ImportCecil(typeof(IEnumerable<>), Module); }
+            get { return Module.ConvertStrict(typeof(IEnumerable<>)); }
         }
 
         public IType EnumeratorType
         {
-            get { return CecilTypeBase.ImportCecil(typeof(IEnumerator<>), Module); }
+            get { return Module.ConvertStrict(typeof(IEnumerator<>)); }
         }
     }
 }

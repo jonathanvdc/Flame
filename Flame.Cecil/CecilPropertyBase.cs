@@ -28,7 +28,7 @@ namespace Flame.Cecil
         {
             get
             {
-                return CecilTypeBase.Create(GetPropertyReference().PropertyType);
+                return Module.Convert(GetPropertyReference().PropertyType);
             }
         }
 

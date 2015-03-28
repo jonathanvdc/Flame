@@ -243,15 +243,15 @@ namespace Flame.Cecil
 
         #endregion
 
-        public static INamespace GetDeclaringNamespace(this TypeReference Reference)
+        public static INamespace GetDeclaringNamespace(this TypeReference Reference, CecilModule Module)
         {
             if (Reference.DeclaringType == null)
             {
-                return new CecilNamespace(Reference.Module.Assembly, Reference.Namespace);
+                return new CecilNamespace(Module, Reference.Namespace);
             }
             else
             {
-                return (INamespace)CecilTypeBase.Create(Reference.DeclaringType);
+                return (INamespace)Module.Convert(Reference.DeclaringType);
             }
         }
 

@@ -10,20 +10,16 @@ namespace Flame.Cecil
     public abstract class CecilTypeMemberConverterBase<TReference, TMember> : IConverter<TReference, TMember>
         where TReference : MemberReference
     {
-        public CecilTypeMemberConverterBase(IConverter<TypeReference, IType> TypeConverter)
+        public CecilTypeMemberConverterBase(CecilModule Module)
         {
-            this.TypeConverter = TypeConverter;
-        }
-        public CecilTypeMemberConverterBase()
-            : this(CecilTypeConverter.CecilPrimitiveConverter)
-        {
+            this.Module = Module;
         }
 
-        public IConverter<TypeReference, IType> TypeConverter { get; private set; }
+        public CecilModule Module { get; private set; }
 
         protected ICecilType ConvertType(TypeReference Reference)
         {
-            return (ICecilType)TypeConverter.Convert(Reference);
+            return Module.ConvertStrict(Reference);
         }
         protected abstract TMember ConvertMemberDeclaration(ICecilType DeclaringType, TReference Reference);
         protected abstract TMember ConvertGenericInstanceMember(ICecilType DeclaringType, TReference Reference);

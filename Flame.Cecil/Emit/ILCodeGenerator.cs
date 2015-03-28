@@ -585,11 +585,10 @@ namespace Flame.Cecil.Emit
             return false;
         }
 
-        public static void EmitCultureInvariantCall(IEmitContext Context, IMethod Method, IType CallerType)
+        public static void EmitCultureInvariantCall(IEmitContext Context, IMethod Method, IType CallerType, CecilModule Module)
         {
-            var module = Context.Processor.Body.Method.Module;
-            var cecilDeclType = CecilTypeConverter.CecilPrimitiveConverter.Convert(CecilTypeImporter.Import(module, Context.Processor.Body.Method, Method.DeclaringType));
-            var paramTypes = Method.GetParameters().GetTypes().Concat(new IType[] { CecilType.ImportCecil(typeof(System.IFormatProvider), module) }).ToArray();
+            var cecilDeclType = Module.ConvertStrict(CecilTypeImporter.Import(Module, Context.Processor.Body.Method, Method.DeclaringType));
+            var paramTypes = Method.GetParameters().GetTypes().Concat(new IType[] { CecilType.ImportCecil(typeof(System.IFormatProvider), Module) }).ToArray();
             var newMethod = cecilDeclType.GetMethod(Method.Name, Method.IsStatic, Method.ReturnType, paramTypes);
             if (newMethod == null)
             {
@@ -597,7 +596,7 @@ namespace Flame.Cecil.Emit
             }
             else
             {
-                var cultureInfoType = CecilType.ImportCecil(typeof(System.Globalization.CultureInfo), module);
+                var cultureInfoType = CecilType.ImportCecil(typeof(System.Globalization.CultureInfo), Module);
                 var invariantCultureProperty = cultureInfoType.GetProperties().GetProperty("InvariantCulture", true);
                 // Pushes System.Globalization.CultureInfo.InvariantCulture on the stack
                 EmitCall(Context, invariantCultureProperty.GetGetAccessor(), null);
@@ -609,5 +608,13 @@ namespace Flame.Cecil.Emit
         #endregion
 
         #endregion
+    }
+
+    public static class ILCodeGeneratorExtensions
+    {
+        public static CecilModule GetModule(this ICodeGenerator CodeGenerator)
+        {
+            return ((ICecilMethod)CodeGenerator.Method).Module;
+        }
     }
 }

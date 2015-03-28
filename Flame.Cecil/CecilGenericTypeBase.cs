@@ -16,6 +16,7 @@ namespace Flame.Cecil
         }
 
         public ICecilType GenericDefinition { get; private set; }
+        public CecilModule Module { get { return GenericDefinition.Module; } }
 
         public abstract IType ResolveTypeParameter(IGenericParameter TypeParameter);
         public abstract INamespace DeclaringNamespace { get; }

@@ -70,6 +70,7 @@
     <Compile Include="CecilGenericTypeBase.cs" />
     <Compile Include="CecilMethodConverter.cs" />
     <Compile Include="CecilMethodImporter.cs" />
+    <Compile Include="CecilModule.cs" />
     <Compile Include="CecilOperatorExtensions.cs" />
     <Compile Include="CecilPropertyBase.cs" />
     <Compile Include="CecilTypeConverter.cs" />

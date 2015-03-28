@@ -11,10 +11,15 @@ namespace Flame.Cecil
 {
     public class CecilAssembly : AncestryGraphCacheBase, IAssembly, ILogAssembly, IAssemblyBuilder, IEquatable<CecilAssembly>
     {
-        public CecilAssembly(string Name, Version AssemblyVersion, string ModuleName, ModuleParameters ModuleParameters, ICompilerLog Log)
+        public CecilAssembly(string Name, Version AssemblyVersion, string ModuleName, ModuleParameters ModuleParameters, ICompilerLog Log, AncestryGraph Graph)
+            : base(Graph)
         {
             this.Assembly = AssemblyDefinition.CreateAssembly(new AssemblyNameDefinition(Name, AssemblyVersion), ModuleName, ModuleParameters);
             this.Log = Log;
+        }
+        public CecilAssembly(string Name, Version AssemblyVersion, string ModuleName, ModuleParameters ModuleParameters, ICompilerLog Log)
+            : this(Name, AssemblyVersion, ModuleName, ModuleParameters, Log, new AncestryGraph())
+        {
         }
         public CecilAssembly(string Name, Version AssemblyVersion, ModuleKind Kind, IAssemblyResolver Resolver, ICompilerLog Log)
         {
@@ -39,13 +44,27 @@ namespace Flame.Cecil
         {
         }
 
-        public ICompilerLog Log { get; private set; }
-        public AssemblyDefinition Assembly { get; private set; }
-        public ModuleDefinition MainModule
+        private CecilModule[] modules;
+        public IEnumerable<CecilModule> Modules
         {
             get
             {
-                return Assembly.MainModule;
+                if (modules == null)
+                {
+                    modules = Assembly.Modules.Select(item => new CecilModule(this, item, AncestryGraph)).ToArray();
+                }
+                return modules;
+            }
+        }
+
+        public ICompilerLog Log { get; private set; }
+        public AssemblyDefinition Assembly { get; private set; }
+
+        public CecilModule MainModule
+        {
+            get
+            {
+                return Modules.First(item => item.IsMain);
             }
         }
 
@@ -56,7 +75,7 @@ namespace Flame.Cecil
 
         public IMethod GetEntryPoint()
         {
-            return CecilMethodBase.Create(Assembly.EntryPoint);
+            return MainModule.Convert(Assembly.EntryPoint);
         }
 
         public Version AssemblyVersion
@@ -74,7 +93,7 @@ namespace Flame.Cecil
 
         public IType[] GetTypes()
         {
-            return MainModule.Types.Select((item) => CecilTypeBase.Create(item)).ToArray();
+            return Modules.Aggregate(Enumerable.Empty<IType>(), (acc, module) => acc.Concat(module.Types)).ToArray();
         }
 
         public IType GetType(string Name)
@@ -101,7 +120,7 @@ namespace Flame.Cecil
 
         public INamespaceBuilder DeclareNamespace(string Name)
         {
-            return new CecilNamespace(this, Name);
+            return new CecilNamespace(MainModule, Name);
         }
 
         public void Save(Stream Stream)

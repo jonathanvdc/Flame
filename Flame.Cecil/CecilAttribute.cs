@@ -13,22 +13,22 @@ namespace Flame.Cecil
         public CecilAttribute(CustomAttribute Attribute, ICecilMember ImportingMember)
         {
             this.Attribute = Attribute;
-            this.importingModule = ImportingMember.GetModule();
+            this.importingModule = ImportingMember.Module;
         }
-        public CecilAttribute(CustomAttribute Attribute, ModuleDefinition ImportingModule)
+        public CecilAttribute(CustomAttribute Attribute, CecilModule ImportingModule)
         {
             this.Attribute = Attribute;
             this.importingModule = ImportingModule;
         }
 
         public CustomAttribute Attribute { get; private set; }
-        private ModuleDefinition importingModule;
+        private CecilModule importingModule;
 
         public IType AttributeType
         {
             get
             {
-                return CecilTypeBase.Create(Attribute.AttributeType);
+                return importingModule.Convert(Attribute.AttributeType);
             }
         }
 
@@ -55,7 +55,7 @@ namespace Flame.Cecil
                         var property = clrType.GetProperty(item.Name);
                         property.SetValue(clrType, item.Argument);
                     }
-                    return new CecilBoundObject(instance, CecilTypeBase.ImportCecil(clrType, importingModule));
+                    return new CecilBoundObject(instance, importingModule.ConvertStrict(clrType));
                 }
             }
         }
@@ -64,9 +64,9 @@ namespace Flame.Cecil
 
         public static IAttribute[] GetAttributes(IList<CustomAttribute> CustomAttributes, ICecilMember ImportingMember)
         {
-            return GetAttributes(CustomAttributes, ImportingMember.GetModule());
+            return GetAttributes(CustomAttributes, ImportingMember.Module);
         }
-        public static IAttribute[] GetAttributes(IList<CustomAttribute> CustomAttributes, ModuleDefinition ImportingModule)
+        public static IAttribute[] GetAttributes(IList<CustomAttribute> CustomAttributes, CecilModule ImportingModule)
         {
             IAttribute[] attrs = new IAttribute[CustomAttributes.Count];
             for (int i = 0; i < attrs.Length; i++)
@@ -103,7 +103,7 @@ namespace Flame.Cecil
 
         public IMethod Constructor
         {
-            get { return CecilMethodBase.Create(Attribute.Constructor); }
+            get { return importingModule.Convert(Attribute.Constructor); }
         }
 
         public IEnumerable<IBoundObject> GetArguments()
@@ -128,7 +128,7 @@ namespace Flame.Cecil
 
         public static CecilAttribute CreateCecil(IMethod Constructor, IEnumerable<IBoundObject> Arguments, ICecilMember ImportingMember)
         {
-            var methodImporter = new CecilMethodImporter(ImportingMember.GetModule());
+            var methodImporter = new CecilMethodImporter(ImportingMember.Module);
             var ctor = methodImporter.Convert(Constructor);
             var attrDef = new CustomAttribute(ctor);
             foreach (var item in Arguments)

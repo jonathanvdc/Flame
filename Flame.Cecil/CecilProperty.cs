@@ -10,8 +10,8 @@ namespace Flame.Cecil
 {
     public class CecilProperty : CecilPropertyBase
     {
-        public CecilProperty(PropertyReference Property)
-            : base(CecilTypeBase.CreateCecil(Property.DeclaringType))
+        public CecilProperty(PropertyReference Property, CecilModule Module)
+            : base(Module.ConvertStrict(Property.DeclaringType))
         {
             this.Property = Property;
         }
@@ -36,7 +36,7 @@ namespace Flame.Cecil
         {
             get
             {
-                return CecilTypeBase.Create(Property.PropertyType);
+                return Module.Convert(Property.PropertyType);
             }
         }
     }

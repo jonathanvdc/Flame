@@ -9,10 +9,8 @@ namespace Flame.Cecil
 {
     public abstract class CecilResolvedTypeBase : CecilTypeBase
     {
-        public CecilResolvedTypeBase()
-        { }
-        public CecilResolvedTypeBase(AncestryGraph AncestryGraph)
-            : base(AncestryGraph)
+        public CecilResolvedTypeBase(CecilModule Module)
+            : base(Module)
         { }
 
         public virtual TypeDefinition GetResolvedType()
@@ -45,7 +43,7 @@ namespace Flame.Cecil
                 }
                 else
                 {
-                    baseTypes.Add(CecilTypeBase.Create(type.BaseType));
+                    baseTypes.Add(Module.Convert(type.BaseType));
                 }
             }
             else if (type.FullName == "System.Object")
@@ -55,7 +53,7 @@ namespace Flame.Cecil
             }
             foreach (var item in type.Interfaces)
             {
-                baseTypes.Add(CecilTypeBase.Create(item));
+                baseTypes.Add(Module.Convert(item));
             }
             return baseTypes.ToArray();
         }
@@ -73,11 +71,11 @@ namespace Flame.Cecil
             var type = GetResolvedType();
             if (type.IsGenericInstance)
             {
-                return CecilTypeBase.CreateCecil(type.GetElementType());
+                return Module.ConvertStrict(type.GetElementType());
             }
             else
             {
-                return CecilTypeBase.CreateCecil(type);
+                return Module.Convert(type);
             }
         }
 
@@ -244,7 +242,7 @@ namespace Flame.Cecil
 
         public override IBoundObject GetDefaultValue()
         {
-            var created = CecilTypeBase.Create(GetTypeReference());
+            var created = Module.Convert(GetTypeReference());
             if (created.get_IsPrimitive())
             {
                 return created.GetDefaultValue();
@@ -261,7 +259,7 @@ namespace Flame.Cecil
         public virtual IEnumerable<IGenericParameter> GetCecilGenericParameters()
         {
             var typeRef = GetTypeReference();
-            return ConvertGenericParameters(typeRef, typeRef.Resolve, this, AncestryGraph);
+            return ConvertGenericParameters(typeRef, typeRef.Resolve, this, Module);
         }
 
         public override IEnumerable<IGenericParameter> GetGenericParameters()

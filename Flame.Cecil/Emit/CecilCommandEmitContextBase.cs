@@ -204,11 +204,11 @@ namespace Flame.Cecil.Emit
 
         #region GetReference Methods
 
-        public ModuleDefinition Module
+        public CecilModule Module
         {
             get
             {
-                return MethodReference.Module;
+                return CodeGenerator.GetModule();
             }
         }
 
@@ -232,7 +232,7 @@ namespace Flame.Cecil.Emit
 
         protected FieldReference GetFieldReference(IField Field)
         {
-            var cecilField = Module.Import(((ICecilField)Field).GetFieldReference());
+            var cecilField = CecilFieldImporter.Import(this.Module, this.MethodReference, Field);
             return cecilField;
         }
 

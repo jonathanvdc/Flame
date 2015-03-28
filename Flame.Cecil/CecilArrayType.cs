@@ -9,9 +9,14 @@ namespace Flame.Cecil
 {
     public class CecilArrayType : CecilArrayTypeBase, IArrayType
     {
-        public CecilArrayType(ArrayType ArrayType)
-            : this(CecilTypeBase.CreateCecil(ArrayType.ElementType), ArrayType.Rank)
+        public CecilArrayType(ArrayType ArrayType, CecilModule Module)
+            : this(Module.ConvertStrict(ArrayType.ElementType), ArrayType.Rank, Module)
         {
+        }
+        public CecilArrayType(ICecilType ElementType, int ArrayRank, CecilModule Module)
+            : base(ElementType, Module)
+        {
+            this.ArrayRank = ArrayRank;
         }
         public CecilArrayType(ICecilType ElementType, int ArrayRank)
             : base(ElementType)

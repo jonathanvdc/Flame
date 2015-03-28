@@ -10,29 +10,29 @@ namespace Flame.Cecil
 {
     public sealed class CecilTypeImporter : TypeConverterBase<TypeReference>
     {
-        public CecilTypeImporter(ModuleDefinition Module)
+        public CecilTypeImporter(CecilModule Module)
         {
             this.Module = Module;
             this.Context = null;
         }
-        public CecilTypeImporter(ModuleDefinition Module, IGenericParameterProvider Context)
+        public CecilTypeImporter(CecilModule Module, IGenericParameterProvider Context)
         {
             this.Module = Module;
             this.Context = Context;
         }
 
-        public ModuleDefinition Module { get; private set; }
+        public CecilModule Module { get; private set; }
         public IGenericParameterProvider Context { get; private set; }
 
-        public static TypeReference Import(ModuleDefinition Module, IType Type)
+        public static TypeReference Import(CecilModule Module, IType Type)
         {
             return new CecilTypeImporter(Module).Convert(Type);
         }
-        public static TypeReference Import(ModuleDefinition Module, IGenericParameterProvider Context, IType Type)
+        public static TypeReference Import(CecilModule Module, IGenericParameterProvider Context, IType Type)
         {
             return new CecilTypeImporter(Module, Context).Convert(Type);
         }
-        public static IEnumerable<TypeReference> Import(ModuleDefinition Module, IGenericParameterProvider Context, IEnumerable<IType> Types)
+        public static IEnumerable<TypeReference> Import(CecilModule Module, IGenericParameterProvider Context, IEnumerable<IType> Types)
         {
             return new CecilTypeImporter(Module, Context).Convert(Types);
         }
@@ -46,7 +46,7 @@ namespace Flame.Cecil
                 {
                     return typeRef;
                 }
-                return Module.Import(typeRef, Context);
+                return Module.Module.Import(typeRef, Context);
             }
             else
             {
@@ -59,7 +59,7 @@ namespace Flame.Cecil
             if (Type is ICecilType)
             {
                 var typeRef = ((ICecilType)Type).GetTypeReference();
-                return Module.Import(typeRef, Context);
+                return Module.Module.Import(typeRef, Context);
             }
             else
             {
@@ -69,55 +69,60 @@ namespace Flame.Cecil
 
         private TypeReference MakeBitType(TypeReference Reference)
         {
-            return new OptionalModifierType(Module.Import(typeof(System.Runtime.CompilerServices.IsSignUnspecifiedByte)), Reference);
+            return new OptionalModifierType(Module.Module.Import(typeof(System.Runtime.CompilerServices.IsSignUnspecifiedByte)), Reference);
         }
 
         protected override TypeReference ConvertPrimitiveType(IType Type)
         {
+            var ts = Module.Module.TypeSystem;
             if (Type.Equals(PrimitiveTypes.Void))
-                return Module.TypeSystem.Void;
+                return ts.Void;
             else if (Type.Equals(PrimitiveTypes.Boolean))
-                return Module.TypeSystem.Boolean;
+                return ts.Boolean;
             else if (Type.Equals(PrimitiveTypes.Int8))
-                return Module.TypeSystem.SByte;
+                return ts.SByte;
             else if (Type.Equals(PrimitiveTypes.Int16))
-                return Module.TypeSystem.Int16;
+                return ts.Int16;
             else if (Type.Equals(PrimitiveTypes.Int32))
-                return Module.TypeSystem.Int32;
+                return ts.Int32;
             else if (Type.Equals(PrimitiveTypes.Int64))
-                return Module.TypeSystem.Int64;
+                return ts.Int64;
             else if (Type.Equals(PrimitiveTypes.UInt8))
-                return Module.TypeSystem.Byte;
+                return ts.Byte;
             else if (Type.Equals(PrimitiveTypes.UInt16))
-                return Module.TypeSystem.UInt16;
+                return ts.UInt16;
             else if (Type.Equals(PrimitiveTypes.UInt32))
-                return Module.TypeSystem.UInt32;
+                return ts.UInt32;
             else if (Type.Equals(PrimitiveTypes.UInt64))
-                return Module.TypeSystem.UInt64;
+                return ts.UInt64;
             else if (Type.Equals(PrimitiveTypes.Bit8))
-                return MakeBitType(Module.TypeSystem.Byte);
+                return MakeBitType(ts.Byte);
             else if (Type.Equals(PrimitiveTypes.Bit16))
-                return MakeBitType(Module.TypeSystem.UInt16);
+                return MakeBitType(ts.UInt16);
             else if (Type.Equals(PrimitiveTypes.Bit32))
-                return MakeBitType(Module.TypeSystem.UInt32);
+                return MakeBitType(ts.UInt32);
             else if (Type.Equals(PrimitiveTypes.Bit64))
-                return MakeBitType(Module.TypeSystem.UInt64);
+                return MakeBitType(ts.UInt64);
             else if (Type.Equals(PrimitiveTypes.Float32))
-                return Module.TypeSystem.Single;
+                return ts.Single;
             else if (Type.Equals(PrimitiveTypes.Float64))
-                return Module.TypeSystem.Double;
+                return ts.Double;
             else if (Type.Equals(PrimitiveTypes.Char))
-                return Module.TypeSystem.Char;
+                return ts.Char;
             else if (Type.Equals(PrimitiveTypes.String))
-                return Module.TypeSystem.String;
+                return ts.String;
             else if (Type.get_IsRootType())
-                return Module.TypeSystem.Object;
+                return ts.Object;
             else
                 return base.ConvertPrimitiveType(Type);
         }
 
         protected override TypeReference MakeArrayType(TypeReference ElementType, int ArrayRank)
         {
+            if (ElementType == null)
+            {
+                return null;
+            }
             if (ArrayRank == 1)
             {
                 return new ArrayType(ElementType);

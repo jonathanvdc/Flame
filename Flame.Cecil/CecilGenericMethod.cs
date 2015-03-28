@@ -26,8 +26,7 @@ namespace Flame.Cecil
             if (methodRef == null)
             {
                 var genericMethodRef = GenericDeclaration.GetMethodReference();
-                var module = genericMethodRef.Module;
-                var cecilTypeArgs = TypeArguments.Select((item) => item.GetImportedReference(module)).ToArray();
+                var cecilTypeArgs = TypeArguments.Select((item) => item.GetImportedReference(Module)).ToArray();
                 if (cecilTypeArgs.All((item) => item != null))
                 {
                     var inst = new GenericInstanceMethod(genericMethodRef);

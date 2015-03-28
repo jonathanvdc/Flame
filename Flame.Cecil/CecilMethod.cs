@@ -9,8 +9,8 @@ namespace Flame.Cecil
 {
     public class CecilMethod : CecilMethodBase, ICecilMethod
     {
-        public CecilMethod(MethodReference Method)
-            : this(CecilTypeBase.CreateCecil(Method.DeclaringType), Method)
+        public CecilMethod(MethodReference Method, CecilModule Module)
+            : this(Module.ConvertStrict(Method.DeclaringType), Method)
         {
         }
         public CecilMethod(ICecilType DeclaringType, MethodReference Method)
@@ -113,7 +113,7 @@ namespace Flame.Cecil
             List<IMethod> overrides = new List<IMethod>(cecilOverrides.Count);
             for (int i = 0; i < cecilOverrides.Count; i++)
             {
-                overrides.Add(CecilMethodBase.Create(cecilOverrides[i]));
+                overrides.Add(Module.Convert(cecilOverrides[i]));
             }
             if (this.DeclaringType.get_IsRootType())
             {

@@ -11,15 +11,7 @@ namespace Flame.Cecil
     {
         public static ModuleDefinition GetModule(this ICecilMember CecilMember)
         {
-            /*if (CecilMember is IMethod)
-            {
-                var method = (IMethod)CecilMember;
-                if (method.get_IsGenericInstance())
-                {
-                    return ((ICecilMember)method.GetGenericDeclaration()).GetModule();
-                }
-            }*/
-            return CecilMember.GetMemberReference().Module;
+            return CecilMember.Module.Module;
         }
 
         public static IEnumerable<T> Prefer<T>(this IEnumerable<T> Sequence, IEnumerable<T> Preferred)

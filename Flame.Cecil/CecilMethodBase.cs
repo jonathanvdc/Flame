@@ -24,14 +24,14 @@ namespace Flame.Cecil
         public virtual IEnumerable<IGenericParameter> GetGenericParameters()
         {
             var methodRef = GetMethodReference();
-            return CecilTypeBase.ConvertGenericParameters(methodRef, methodRef.Resolve, this, AncestryGraph);
+            return CecilTypeBase.ConvertGenericParameters(methodRef, methodRef.Resolve, this, Module);
         }
 
         public virtual IType ReturnType
         {
             get
             {
-                return CecilTypeBase.Create(GetMethodReference().ReturnType);
+                return Module.Convert(GetMethodReference().ReturnType);
             }
         }
 
@@ -178,25 +178,25 @@ namespace Flame.Cecil
 
         #endregion
 
-        public static ICecilMethod Create(MethodReference Method)
+        public static ICecilMethod Create(MethodReference Method, CecilModule Module)
         {
-            return CecilMethodConverter.Instance.Convert(Method);
+            return Module.Convert(Method);
         }
         public static ICecilMethod ImportCecil(System.Reflection.MethodInfo Method, ICecilMember CecilMember)
         {
-            return ImportCecil(Method, CecilMember.GetMemberReference().Module);
+            return ImportCecil(Method, CecilMember.Module);
         }
         public static ICecilMethod ImportCecil(System.Reflection.ConstructorInfo Method, ICecilMember CecilMember)
         {
-            return ImportCecil(Method, CecilMember.GetMemberReference().Module);
+            return ImportCecil(Method, CecilMember.Module);
         }
-        public static ICecilMethod ImportCecil(System.Reflection.MethodInfo Method, ModuleDefinition Module)
+        public static ICecilMethod ImportCecil(System.Reflection.MethodInfo Method, CecilModule Module)
         {
-            return CecilMethodBase.Create(Module.Import(Method));
+            return Module.Convert(Module.Module.Import(Method));
         }
-        public static ICecilMethod ImportCecil(System.Reflection.ConstructorInfo Method, ModuleDefinition Module)
+        public static ICecilMethod ImportCecil(System.Reflection.ConstructorInfo Method, CecilModule Module)
         {
-            return CecilMethodBase.Create(Module.Import(Method));
+            return Module.Convert(Module.Module.Import(Method));
         }
 
         #endregion
