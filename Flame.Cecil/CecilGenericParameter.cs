@@ -24,6 +24,12 @@ namespace Flame.Cecil
             this.genericParam = GenericParameter;
             this.declMember = DeclaringMember;
         }
+        public CecilGenericParameter(GenericParameter GenericParameter, IGenericMember DeclaringMember)
+            : base(DeclaringMember.GetAncestryGraph())
+        {
+            this.genericParam = GenericParameter;
+            this.declMember = DeclaringMember;
+        }
 
         private GenericParameter genericParam;
         public override TypeReference GetTypeReference()

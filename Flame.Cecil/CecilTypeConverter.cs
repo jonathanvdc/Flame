@@ -107,9 +107,9 @@ namespace Flame.Cecil
             int declTypeArgCount = ElementType.DeclaringType != null ? ElementType.DeclaringType.GenericParameters.Count : 0;
             if (declTypeArgCount > 0)
             {
-                var declGeneric = ConvertGenericInstance(ElementType.DeclaringType, TypeArguments.Take(declTypeArgCount));
-                var nestedDecl = new CecilType(ElementType);
-                if (ElementType.HasGenericParameters)
+                var declGeneric = (ICecilType)ConvertGenericInstance(ElementType.DeclaringType, TypeArguments.Take(declTypeArgCount));
+                var nestedDecl = new CecilGenericInstanceType(declGeneric, new CecilType(ElementType));
+                if (ElementType.GenericParameters.Count - declTypeArgCount > 0)
                 {
                     return nestedDecl.MakeGenericType(TypeArguments.Skip(declTypeArgCount));
                 }
@@ -129,8 +129,26 @@ namespace Flame.Cecil
             return ConvertGenericInstance(Type.ElementType, Type.GenericArguments.Select(Convert));
         }
 
+        private IType ConvertGenericParameter(GenericParameter Type, TypeReference DeclaringType)
+        {
+            if (DeclaringType.IsNested)
+            {
+                var declGenParams = DeclaringType.DeclaringType.GenericParameters;
+                if (Type.Position < declGenParams.Count)
+                {
+                    return ConvertGenericParameter(declGenParams[Type.Position], DeclaringType.DeclaringType);
+                }
+            }
+            var convertedDeclType = Convert(DeclaringType);
+            return new CecilGenericParameter(Type, convertedDeclType);
+        }
+
         private IType ConvertGenericParameter(GenericParameter Type)
         {
+            if (Type.DeclaringType != null)
+            {
+                return ConvertGenericParameter(Type, Type.DeclaringType);
+            }
             return new CecilGenericParameter(Type);
         }
 
