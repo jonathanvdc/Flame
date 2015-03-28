@@ -363,8 +363,6 @@ namespace Flame.Cecil
                 return false;
             }
 
-            //return thisParam.Owner == otherParam.Owner && thisParam.Position == otherParam.Position;
-
             if (other is CecilGenericParameter)
             {
                 return thisParam.Position == otherParam.Position && this.ResolvedDeclaringReference.Equals(((CecilGenericParameter)other).ResolvedDeclaringReference);

@@ -13,6 +13,7 @@ namespace Flame.Cecil
         public CecilGenericType(ICecilType GenericDefinition, IEnumerable<IType> TypeArguments)
             : base(GenericDefinition)
         {
+            System.Diagnostics.Debug.Assert(GenericDefinition != null);
             System.Diagnostics.Debug.Assert(TypeArguments.All(item => item != null));
             this.TypeArguments = TypeArguments;
         }
