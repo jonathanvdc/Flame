@@ -1,0 +1,17 @@
+
+public struct DefaultValue<T>
+{
+    public const this(set T Value);
+
+    public T Value { const get; private set; }
+}
+
+public class GenericPropertyTest<T>
+{
+    public const this();
+
+    public const T GetDefault<T>()
+    {
+        return default(DefaultValue<T>).Value;
+    }
+}
