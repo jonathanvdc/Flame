@@ -276,7 +276,7 @@ namespace Flame.Cecil
                     {
                         resolved = Resolver();
                     }
-                    param = CecilExtensions.CloneGenericParameter(resolved.GenericParameters[i], Owner);
+                    param = resolved.GenericParameters[i];
                 }
                 genericParameters[i] = new CecilGenericParameter(param, Module, DeclaringMember);
             }
