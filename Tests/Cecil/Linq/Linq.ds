@@ -1,0 +1,33 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class LinqTest
+{
+    public const this();
+
+    public const [T] ToEnumerable<T>(T First, T Second)
+    {
+        return new T[] { First, Second };
+    }
+
+    public const T GetSecond<T>([T] Values)
+    {
+        return Enumerable.First<T>(Enumerable.Skip<T>(Values, 1));
+    }
+
+    public const int Test()
+    {
+        return GetSecond<int>(ToEnumerable<int>(2, 3));
+    }
+
+    public const [T] Tail<T>([T] Values)
+    {
+        List<T> results = new List<T>();
+        foreach (var item in Enumerable.Skip<T>(Values, 1))
+        {
+            results.Add(item);
+        }
+        return results;
+    }
+}
