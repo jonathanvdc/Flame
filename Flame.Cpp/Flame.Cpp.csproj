@@ -63,12 +63,14 @@
     <Compile Include="DependencyExtensions.cs" />
     <Compile Include="Emit\CatchBlock.cs" />
     <Compile Include="Emit\CppBlock.cs" />
+    <Compile Include="Emit\DoWhileBlock.cs" />
     <Compile Include="Emit\ForBlock.cs" />
     <Compile Include="Emit\ForeachBlock.cs" />
     <Compile Include="Emit\IfElseBlock.cs" />
     <Compile Include="Emit\IMultiBlock.cs" />
     <Compile Include="Emit\NotifyingBlockGenerator.cs" />
     <Compile Include="Emit\TryBlock.cs" />
+    <Compile Include="Emit\WhileBlock.cs" />
     <Compile Include="InvariantImplementationMethod.cs" />
     <Compile Include="InvariantMethod.cs" />
     <Compile Include="CppNameExtensions.cs" />
