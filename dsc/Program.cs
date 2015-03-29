@@ -79,6 +79,20 @@ namespace dsc
                         return Flame.CodeDescription.DefaultDocumentationFormatter.Instance;
                 }
             });
+            options.RegisterParser<Flame.Recompilation.IMethodOptimizer>(item =>
+            {
+                switch (item.ToLower())
+                {
+                    case "aggressive":
+                    case "analysis":
+                        return new AnalyzingOptimizer();
+
+                    case "default":
+                    case "conservative":
+                    default:
+                        return new DefaultOptimizer();
+                }
+            });
             return options;
         }
 
