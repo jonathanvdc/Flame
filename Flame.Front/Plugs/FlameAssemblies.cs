@@ -32,7 +32,7 @@ namespace Flame.Front.Plugs
         {
             get
             {
-                if (flameAsmBasePath == null)
+                if (flameAsmBasePath.IsEmpty)
                 {
                     flameAsmBasePath = new PathIdentifier(Assembly.GetExecutingAssembly().Location);
                 }

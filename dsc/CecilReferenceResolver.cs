@@ -30,13 +30,14 @@ namespace dsc
 
         public Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier)
         {
+            var allTasks = new List<Task>();
+            allTasks.Add(CopyFileAsync(SourceIdentifier, TargetIdentifier));
+
             var sourceDirPath = SourceIdentifier.Parent;
             var sourceFileName = SourceIdentifier.NameWithoutExtension;
             var targetDirPath = TargetIdentifier.Parent;
             var targetFileName = TargetIdentifier.NameWithoutExtension;
 
-            var allTasks = new List<Task>();
-            allTasks.Add(CopyFileAsync(SourceIdentifier, TargetIdentifier));
             foreach (var item in SecondaryExtensions)
             {
                 var itemSourcePath = sourceDirPath.Combine(sourceFileName + "." + item);
