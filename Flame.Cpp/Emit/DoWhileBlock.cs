@@ -43,7 +43,7 @@ namespace Flame.Cpp.Emit
             var cb = new CodeBuilder();
             cb.AddLine("do");
             cb.AddBodyCodeBuilder(Body.GetCode());
-            cb.Append("while (");
+            cb.Append(" while (");
             cb.Append(Condition.GetCode());
             cb.Append(");");
             return cb;
