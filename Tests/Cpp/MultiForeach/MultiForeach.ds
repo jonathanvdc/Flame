@@ -11,10 +11,8 @@ public struct Pair<T1, T2>
     public T2 Second;
 }
 
-public class MultiForeach
+public static class MultiForeach
 {
-    public const this();
-
     public const Pair<T, V>[] zip<T, V>(T[] Left, V[] Right)
         in { Left.Length == Right.Length }
     {
