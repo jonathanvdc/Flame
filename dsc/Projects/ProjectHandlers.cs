@@ -46,11 +46,11 @@ namespace dsc.Projects
             {
                 if (string.IsNullOrWhiteSpace(Path.Extension))
                 {
-                    ConsoleLog.Instance.LogError(new LogEntry("Invalid project extension", "'" + Path.Path.Path + "' does not have an extension."));
+                    ConsoleLog.Instance.LogError(new LogEntry("Invalid extension", "'" + Path.Path.Path + "' does not have an extension."));
                 }
                 else
                 {
-                    ConsoleLog.Instance.LogError(new LogEntry("Invalid project extension", "Extension '" + Path.Extension + "' in '" + Path.Path.Path + "' was not recognized as a known project extension."));
+                    ConsoleLog.Instance.LogError(new LogEntry("Invalid extension", "Extension '" + Path.Extension + "' in '" + Path.Path.Path + "' was not recognized as a known project extension."));
                 }
                 ConsoleLog.Instance.WriteLine("Supported extensions:");
                 foreach (var item in handlers.SelectMany(item => item.Extensions))
