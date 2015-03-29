@@ -10,6 +10,12 @@ namespace Flame.Cpp.Emit
     {
         #region IsSimple
 
+        public static IEnumerable<ICppBlock> Flatten(this IMultiBlock Block)
+        {
+            var items = Block.GetBlocks();
+            return items.SelectMany(item => item is IMultiBlock ? Flatten((IMultiBlock)item) : new IMultiBlock[] { Block });
+        }
+             
         /// <summary>
         /// Gets a boolean value that identifies the block as either a simple or complex statement.
         /// </summary>
@@ -19,7 +25,7 @@ namespace Flame.Cpp.Emit
         {
             if (Block is IMultiBlock)
             {
-                var items = ((IMultiBlock)Block).GetBlocks();
+                var items = Flatten((IMultiBlock)Block);
                 return !items.Skip(1).Any();
             }
             return true;
