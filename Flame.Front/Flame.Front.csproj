@@ -47,6 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BinderResolver.cs" />
+    <Compile Include="ConsoleLog.cs" />
     <Compile Include="EmptyAssemblyResolver.cs" />
     <Compile Include="FileOutputProvider.cs" />
     <Compile Include="MultiBinder.cs" />

@@ -5,6 +5,7 @@ using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
 using Flame.DSharp.Parser;
 using Flame.DSProject;
+using Flame.Front;
 using Flame.Front.Projects;
 using System;
 using System.Collections.Generic;

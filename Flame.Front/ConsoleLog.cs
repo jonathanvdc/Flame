@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace dsc
+namespace Flame.Front
 {
     public sealed class ConsoleLog : ICompilerLog
     {
