@@ -6,22 +6,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace dsc
+namespace Flame.Front
 {
     public class FileOutputProvider : IOutputProvider, IDisposable
     {
-        public FileOutputProvider(string DirectoryName, string FileName)
+        public FileOutputProvider(PathIdentifier DirectoryName, PathIdentifier FileName)
         {
             this.FileName = FileName;
             this.DirectoryName = DirectoryName;
             this.files = new HashSet<PathOutputFile>();
         }
 
-        public string FileName { get; private set; }
-        public string DirectoryName { get; private set; }
+        public PathIdentifier FileName { get; private set; }
+        public PathIdentifier DirectoryName { get; private set; }
         private HashSet<PathOutputFile> files;
 
-        private string GetPath(string Name, string Extension)
+        private PathIdentifier GetPath(string Name, string Extension)
         {
             StringBuilder sb = new StringBuilder(Name);
             sb.Replace('.', System.IO.Path.DirectorySeparatorChar);
@@ -31,12 +31,12 @@ namespace dsc
             }
             sb.Append('.');
             sb.Append(Extension);
-            return System.IO.Path.Combine(DirectoryName, sb.ToString());
+            return DirectoryName.Combine(sb.ToString());
         }
 
         public IOutputFile Create()
         {
-            Directory.CreateDirectory(DirectoryName);
+            Directory.CreateDirectory(DirectoryName.Path);
             var file = new PathOutputFile(FileName);
             files.Add(file);
             return file;
@@ -44,8 +44,8 @@ namespace dsc
 
         public IOutputFile Create(string Name, string Extension)
         {
-            string fileName = GetPath(Name, Extension);
-            Directory.CreateDirectory(System.IO.Path.GetDirectoryName(fileName));
+            var fileName = GetPath(Name, Extension);
+            Directory.CreateDirectory(fileName.Parent.Path);
             var file = new PathOutputFile(fileName);
             files.Add(file);
             return file;
@@ -72,17 +72,17 @@ namespace dsc
 
     public class PathOutputFile : IOutputFile, IDisposable, IEquatable<PathOutputFile>
     {
-        public PathOutputFile(string Path)
+        public PathOutputFile(PathIdentifier Path)
         {
             this.Path = Path;
         }
 
-        public string Path { get; private set; }
+        public PathIdentifier Path { get; private set; }
         private FileStream stream;
 
         public Stream OpenOutput()
         {
-            stream = new FileStream(Path, FileMode.Create);
+            stream = new FileStream(Path.Path, FileMode.Create);
             return stream;
         }
 

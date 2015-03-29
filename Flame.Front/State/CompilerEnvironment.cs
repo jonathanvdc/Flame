@@ -14,7 +14,7 @@ namespace Flame.Front.State
 {
     public class CompilerEnvironment
     {
-        public CompilerEnvironment(string CurrentPath, BuildArguments Arguments, IProjectHandler Handler, IProject Project, ICompilerLog Log)
+        public CompilerEnvironment(PathIdentifier CurrentPath, BuildArguments Arguments, IProjectHandler Handler, IProject Project, ICompilerLog Log)
         {
             this.CurrentPath = CurrentPath;
             this.Arguments = Arguments;
@@ -45,8 +45,8 @@ namespace Flame.Front.State
             }
         }
 
-        public string CurrentPath { get; private set; }
-        public string ParentPath { get { return CurrentPath; } }
+        public PathIdentifier CurrentPath { get; private set; }
+        public PathIdentifier ParentPath { get { return CurrentPath; } }
         public BuildArguments Arguments { get; private set; }
         public IProjectHandler Handler { get; private set; }
         public IProject Project { get; private set; }
@@ -58,7 +58,8 @@ namespace Flame.Front.State
             {
                 if (options == null)
                 {
-                    options = BuildTarget.GetCompilerOptions(Arguments, Project);
+                    var parser = new TransformingOptionParser<string, string[]>(Arguments.OptionParser, item => new string[] { item });
+                    options = BuildTarget.GetCompilerOptions(Arguments, parser, Project);
                 }
                 return options;
             }

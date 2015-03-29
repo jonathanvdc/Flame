@@ -11,6 +11,12 @@ namespace Flame.Front
     /// </summary>
     public struct ReferenceDependency
     {
+        public ReferenceDependency(string Identifier, bool UseCopy)
+        {
+            this = default(ReferenceDependency);
+            this.Identifier = new PathIdentifier(Identifier);
+            this.UseCopy = UseCopy;
+        }
         public ReferenceDependency(PathIdentifier Identifier, bool UseCopy)
         {
             this = default(ReferenceDependency);

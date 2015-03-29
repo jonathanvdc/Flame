@@ -10,7 +10,7 @@ namespace Flame.Front.Projects
 {
     public class CompilationParameters
     {
-        public CompilationParameters(ICompilerLog Log, Task<IBinder> BinderTask, string CurrentPath)
+        public CompilationParameters(ICompilerLog Log, Task<IBinder> BinderTask, PathIdentifier CurrentPath)
         {
             this.Log = Log;
             this.BinderTask = BinderTask;
@@ -19,6 +19,6 @@ namespace Flame.Front.Projects
 
         public Task<IBinder> BinderTask { get; private set; }
         public ICompilerLog Log { get; private set; }
-        public string CurrentPath { get; private set; }
+        public PathIdentifier CurrentPath { get; private set; }
     }
 }

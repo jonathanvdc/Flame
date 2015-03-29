@@ -20,7 +20,7 @@ namespace Flame.Front.Projects
 
         public ISourceDocument GetSource(string CurrentPath)
         {
-            PathIdentifier sourceUri = CurrentPath == null ? new PathIdentifier(SourceIdentifier) : new PathIdentifier(CurrentPath, SourceIdentifier);
+            PathIdentifier sourceUri = CurrentPath == null ? new PathIdentifier(SourceIdentifier) : new PathIdentifier(CurrentPath).GetAbsolutePath(SourceIdentifier);
             using (FileStream fs = new FileStream(sourceUri.AbsolutePath.Path, FileMode.Open))
             using (StreamReader reader = new StreamReader(fs))
             {

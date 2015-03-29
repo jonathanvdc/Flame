@@ -13,10 +13,12 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using dsc.Options;
 using dsc.Projects;
-using dsc.State;
 using dsc.Target;
+using Flame.Front.Projects;
+using Flame.Front.Options;
+using Flame.Front.State;
+using Flame.Front;
 
 namespace dsc
 {
@@ -31,7 +33,7 @@ namespace dsc
                 args = Console.ReadLine().Split(' ');
             }
 
-            var buildArgs = BuildArguments.Parse(args);
+            var buildArgs = BuildArguments.Parse(CreateOptionParser(), ConsoleLog.Instance, args);
             if (buildArgs.PrintVersion)
             {
                 CompilerVersion.PrintVersion();
@@ -47,7 +49,7 @@ namespace dsc
                 var projPath = new ProjectPath(buildArgs.SourcePath, buildArgs);
                 var handler = GetProjectHandler(projPath);
                 var project = handler.Parse(projPath);
-                string currentPath = GetAbsolutePath(buildArgs.SourcePath);
+                var currentPath = GetAbsolutePath(buildArgs.SourcePath);
 
                 Compile(project, new CompilerEnvironment(currentPath, buildArgs, handler, project, ConsoleLog.Instance)).Wait();
             }
@@ -60,6 +62,24 @@ namespace dsc
                     ConsoleLog.Instance.LogMessage(entry);
                 }
             }
+        }
+
+        public static IOptionParser<string> CreateOptionParser()
+        {
+            var options = StringOptionParser.CreateDefault();
+            options.RegisterParser<Flame.CodeDescription.IDocumentationFormatter>((item) =>
+            {
+                switch (item.ToLower())
+                {
+                    case "doxygen":
+                        return new Flame.CodeDescription.DoxygenFormatter();
+                    case "xml":
+                        return Flame.CodeDescription.XmlDocumentationFormatter.Instance;
+                    default:
+                        return Flame.CodeDescription.DefaultDocumentationFormatter.Instance;
+                }
+            });
+            return options;
         }
 
         public static IProjectHandler GetProjectHandler(ProjectPath Path)
@@ -95,26 +115,24 @@ namespace dsc
             return proj;
         }
 
-        private static string GetAbsolutePath(string RelativePath)
+        private static PathIdentifier GetAbsolutePath(PathIdentifier RelativePath)
         {
-            string currentPath = Path.Combine(Directory.GetCurrentDirectory(), "dsc");
-            var currentUri = new Uri(currentPath);
-            var relUri = new Uri(RelativePath, UriKind.RelativeOrAbsolute);
-            var resultUri = new Uri(currentUri, relUri);
+            var currentUri = new PathIdentifier(Directory.GetCurrentDirectory());
+            var resultUri = currentUri.Combine(RelativePath);
             return resultUri.AbsolutePath;
         }
 
         public static async Task Compile(IProject Project, CompilerEnvironment State)
         {
-            string dirName = Path.GetDirectoryName(State.Arguments.GetTargetPathWithoutExtension(State.ParentPath, Project));
+            var dirName = State.Arguments.GetTargetPathWithoutExtension(State.ParentPath, Project).Parent;
 
-            var target = BuildTarget.CreateBuildTarget(Project, State.FilteredLog, State.Arguments.GetTargetPlatform(Project), State.CurrentPath, dirName);
+            var target = BuildTargetParsers.CreateBuildTarget(Project, State.FilteredLog, State.Arguments.GetTargetPlatform(Project), State.CurrentPath, dirName);
 
-            string targetPath = State.Arguments.GetTargetPath(State.ParentPath, Project, target);
+            var targetPath = State.Arguments.GetTargetPath(State.ParentPath, Project, target);
 
             if (target.TargetAssembly is Flame.TextContract.ContractAssembly)
             {
-                dirName = Path.Combine(dirName, Path.GetFileNameWithoutExtension(targetPath));
+                dirName = dirName.Combine(targetPath.NameWithoutExtension);
             }
 
             var binderResolver = new BinderResolver(Project);
@@ -151,7 +169,7 @@ namespace dsc
 
             if (docBuilder != null)
             {
-                string docTargetPath = Path.ChangeExtension(targetPath, docBuilder.Extension);
+                var docTargetPath = targetPath.ChangeExtension(docBuilder.Extension);
                 using (var docOutput = new FileOutputProvider(dirName, docTargetPath))
                 {
                     docBuilder.Save(docOutput);

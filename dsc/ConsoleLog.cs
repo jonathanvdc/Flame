@@ -1,5 +1,5 @@
-﻿using dsc.Options;
-using Flame.Compiler;
+﻿using Flame.Compiler;
+using Flame.Front.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;

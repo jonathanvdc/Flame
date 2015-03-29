@@ -9,12 +9,12 @@ namespace Flame.Front
 {
     public class EmptyAssemblyResolver : IAssemblyResolver
     {
-        public async Task<IAssembly> ResolveAsync(string Identifier, IDependencyBuilder DependencyBuilder)
+        public async Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
         {
             return null;
         }
 
-        public async Task CopyAsync(string SourceIdentifier, string TargetIdentifier)
+        public async Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier)
         {
         }
     }
