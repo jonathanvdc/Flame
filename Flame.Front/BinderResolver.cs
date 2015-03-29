@@ -1,17 +1,8 @@
-﻿using dsc.Target;
-using Flame;
-using Flame.Binding;
-using Flame.Cecil;
-using Flame.Compiler.Projects;
-using Flame.Front;
+﻿using Flame.Compiler.Projects;
 using Flame.Front.Target;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace dsc
+namespace Flame.Front
 {
     public class BinderResolver
     {

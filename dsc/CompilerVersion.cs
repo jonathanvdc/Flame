@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Front;
 using System;
 using System.Collections.Generic;
 using System.Linq;

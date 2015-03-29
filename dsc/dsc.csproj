@@ -85,12 +85,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnalyzingOptimizer.cs" />
-    <Compile Include="BinderResolver.cs" />
     <Compile Include="CompilerVersion.cs" />
     <Compile Include="CompilerOptionExtensions.cs" />
     <Compile Include="CecilReferenceResolver.cs" />
     <Compile Include="CecilRuntimeLibraries.cs" />
-    <Compile Include="ConsoleLog.cs" />
     <Compile Include="MarsRuntimeLibraries.cs" />
     <Compile Include="Projects\DSharpProjectHandler.cs" />
     <Compile Include="Projects\ProjectHandlers.cs" />

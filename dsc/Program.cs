@@ -47,7 +47,7 @@ namespace dsc
             try
             {
                 var projPath = new ProjectPath(buildArgs.SourcePath, buildArgs);
-                var handler = GetProjectHandler(projPath);
+                var handler = ProjectHandlers.GetProjectHandler(projPath);
                 var project = handler.Parse(projPath);
                 var currentPath = GetAbsolutePath(buildArgs.SourcePath);
 
@@ -59,7 +59,7 @@ namespace dsc
                 var entry = new LogEntry("Exception", ex.ToString());
                 if (buildArgs.LogFilter.ShouldLogEvent(entry))
                 {
-                    ConsoleLog.Instance.LogMessage(entry);
+                    ConsoleLog.Instance.LogError(entry);
                 }
             }
         }
@@ -80,17 +80,6 @@ namespace dsc
                 }
             });
             return options;
-        }
-
-        public static IProjectHandler GetProjectHandler(ProjectPath Path)
-        {
-            var handler = ProjectHandlers.GetHandler(Path);
-            if (handler == null)
-            {
-                ConsoleLog.Instance.LogError(new LogEntry("Invalid project extension", "The extension '" + Path.Extension + "' was not recognized as a known project extension."));
-                throw new NotSupportedException();
-            }
-            return handler;
         }
 
         public static IProject LoadProject(ProjectPath Path, IProjectHandler Handler)
