@@ -1,6 +1,5 @@
 ﻿using Flame;
 using Flame.Cecil;
-using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +8,7 @@ using System.Threading.Tasks;
 using System.IO;
 using Flame.Compiler;
 using dsc.Target;
+using Flame.Front;
 
 namespace dsc
 {
@@ -16,54 +16,57 @@ namespace dsc
     {
         private static string[] SecondaryExtensions = new[] { "pdb", "xml" }; // Copy debugging files and xml docs
 
-        public async Task<IAssembly> ResolveAsync(string Identifier, IDependencyBuilder DependencyBuilder)
+        public async Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
         {
-            if (!File.Exists(Identifier))
+            var absPath = Identifier.AbsolutePath.Path;
+            if (!File.Exists(absPath))
             {
-                ConsoleLog.Instance.LogError(new LogEntry("File not found", "File '" + Identifier + "' could not be found."));
+                ConsoleLog.Instance.LogError(new LogEntry("File not found", "File '" + Identifier.AbsolutePath + "' could not be found."));
             }
-            ReaderParameters readerParams = new ReaderParameters();
+            var readerParams = new Mono.Cecil.ReaderParameters();
             readerParams.AssemblyResolver = DependencyBuilder.GetCecilResolver();
-            return new CecilAssembly(AssemblyDefinition.ReadAssembly(Identifier, readerParams));
+            return new CecilAssembly(Mono.Cecil.AssemblyDefinition.ReadAssembly(absPath, readerParams));
         }
 
-        public Task CopyAsync(string SourceIdentifier, string TargetIdentifier)
+        public Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier)
         {
-            string sourceDirPath = Path.GetDirectoryName(SourceIdentifier);
-            string sourceFileName = Path.GetFileNameWithoutExtension(SourceIdentifier);
-            string targetDirPath = Path.GetDirectoryName(TargetIdentifier);
-            string targetFileName = Path.GetFileNameWithoutExtension(TargetIdentifier);
+            var sourceDirPath = SourceIdentifier.Parent;
+            var sourceFileName = SourceIdentifier.NameWithoutExtension;
+            var targetDirPath = TargetIdentifier.Parent;
+            var targetFileName = TargetIdentifier.NameWithoutExtension;
 
             var allTasks = new List<Task>();
             allTasks.Add(CopyFileAsync(SourceIdentifier, TargetIdentifier));
             foreach (var item in SecondaryExtensions)
             {
-                string itemSourcePath = Path.Combine(sourceDirPath, sourceFileName + "." + item);
-                if (File.Exists(itemSourcePath))
+                var itemSourcePath = sourceDirPath.Combine(sourceFileName + "." + item);
+                if (File.Exists(itemSourcePath.AbsolutePath.Path))
                 {
-                    string itemTargetPath = Path.Combine(targetDirPath, targetFileName + "." + item);
+                    var itemTargetPath = targetDirPath.Combine(targetFileName + "." + item);
                     allTasks.Add(CopyFileAsync(itemSourcePath, itemTargetPath));
                 }
             }
             return Task.WhenAll(allTasks);
         }
 
-        private static async Task CopyFileAsync(string sourcePath, string destinationPath)
+        private static async Task CopyFileAsync(PathIdentifier sourcePath, PathIdentifier destinationPath)
         {
-            if (Path.GetFullPath(sourcePath) != Path.GetFullPath(destinationPath))
+            var absSourcePath = sourcePath.AbsolutePath.Path;
+            var absTargetPath = destinationPath.AbsolutePath.Path;
+            if (absSourcePath != absTargetPath)
             {
-                if (!File.Exists(sourcePath))
+                if (!File.Exists(absSourcePath))
                 {
                     ConsoleLog.Instance.LogError(new LogEntry("File not found", "File '" + sourcePath + "' could not be found."));
                 }
-                string dirName = Path.GetDirectoryName(destinationPath);
+                string dirName = Path.GetDirectoryName(absTargetPath);
                 if (!Directory.Exists(dirName))
                 {
                     Directory.CreateDirectory(dirName);
                 }
-                using (var source = new FileStream(sourcePath, FileMode.Open))
+                using (var source = new FileStream(absSourcePath, FileMode.Open))
                 {
-                    using (var destination = new FileStream(destinationPath, FileMode.Create))
+                    using (var destination = new FileStream(absTargetPath, FileMode.Create))
                     {
                         await source.CopyToAsync(destination);
                     }

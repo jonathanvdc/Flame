@@ -3,6 +3,8 @@ using Flame;
 using Flame.Binding;
 using Flame.Cecil;
 using Flame.Compiler.Projects;
+using Flame.Front;
+using Flame.Front.Target;
 using System;
 using System.Collections.Generic;
 using System.Linq;

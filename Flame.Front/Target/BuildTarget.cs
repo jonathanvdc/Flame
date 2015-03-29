@@ -27,10 +27,10 @@ namespace Flame.Front.Target
         public IDependencyBuilder DependencyBuilder { get; private set; }
         public string Extension { get; private set; }
 
-        public static ICompilerOptions GetCompilerOptions(ICompilerOptions Options, IProject Project)
+        public static ICompilerOptions GetCompilerOptions(ICompilerOptions Options, IOptionParser<string> OptionParser, IProject Project)
         {
             var projOptions = Project.GetOptions();
-            var result = new StringCompilerOptions(projOptions);
+            var result = new StringCompilerOptions(projOptions, OptionParser);
             return new MergedOptions(Options, result);
         }
     }

@@ -78,6 +78,19 @@ namespace Flame.Front
             return new PathIdentifier(relativeUri.LocalPath);
         }
 
+        public PathIdentifier GetAbsolutePath(string RelativePath)
+        {
+            var relUri = new Uri(RelativePath, UriKind.RelativeOrAbsolute);
+            var baseUri = new Uri(Path, UriKind.RelativeOrAbsolute);
+            var absUri = new Uri(baseUri, relUri);
+            return new PathIdentifier(absUri.LocalPath);
+        }
+
+        public PathIdentifier GetAbsolutePath(PathIdentifier RelativePath)
+        {
+            return GetAbsolutePath(RelativePath.Path);
+        }
+
         public PathIdentifier Parent
         {
             get

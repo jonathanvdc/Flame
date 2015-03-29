@@ -5,6 +5,7 @@ using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
 using Flame.DSharp.Parser;
 using Flame.DSProject;
+using Flame.Front.Projects;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,8 +34,8 @@ namespace dsc.Projects
                 var sfp = new SingleFileProject(Path);
                 if (Path.MakeProject)
                 {
-                    var dsp = sfp.ToDSProject();
-                    dsp.WriteTo(Path.ChangeExtension("dsproj").Path);
+                    var dsp = DSProject.FromProject(sfp, sfp.FilePath.AbsolutePath.Path);
+                    dsp.WriteTo(Path.ChangeExtension("dsproj").Path.Path);
                     return dsp;
                 }
                 else
@@ -44,7 +45,7 @@ namespace dsc.Projects
             }
             else
             {
-                return DSProject.ReadProject(Path.Path);
+                return DSProject.ReadProject(Path.Path.Path);
             }
         }
 
@@ -77,7 +78,7 @@ namespace dsc.Projects
         {
             try
             {
-                return Item.GetSource(Parameters.CurrentPath);
+                return Item.GetSource(Parameters.CurrentPath.AbsolutePath.Path);
             }
             catch (FileNotFoundException ex)
             {

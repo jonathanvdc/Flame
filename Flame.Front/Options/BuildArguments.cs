@@ -180,7 +180,7 @@ namespace Flame.Front.Options
 
         #region Helper Methods
 
-        public bool InSingleFileMode(string Path, IEnumerable<string> SingleFileExtensions)
+        public bool InSingleFileMode(PathIdentifier Path, IEnumerable<string> SingleFileExtensions)
         {
             if (CompileSingleFile.HasValue)
             {
@@ -188,11 +188,11 @@ namespace Flame.Front.Options
             }
             else
             {
-                return SingleFileExtensions.Contains(System.IO.Path.GetExtension(Path));
+                return SingleFileExtensions.Contains(Path.Extension);
             }
         }
 
-        public PathIdentifier GetTargetPathWithoutExtension(string CurrentPath, IProject Project)
+        public PathIdentifier GetTargetPathWithoutExtension(PathIdentifier CurrentPath, IProject Project)
         {
             PathIdentifier relUri;
             if (!TargetPath.IsEmpty)
@@ -203,10 +203,10 @@ namespace Flame.Front.Options
             {
                 relUri = new PathIdentifier("bin", Project.Name);
             }
-            return relUri.ChangeExtension(null);
+            return CurrentPath.GetAbsolutePath(relUri.ChangeExtension(null));
         }
 
-        public PathIdentifier GetTargetPath(string CurrentPath, IProject Project, BuildTarget Target)
+        public PathIdentifier GetTargetPath(PathIdentifier CurrentPath, IProject Project, BuildTarget Target)
         {
             PathIdentifier relUri;
             if (!TargetPath.IsEmpty)
@@ -217,7 +217,7 @@ namespace Flame.Front.Options
             {
                 relUri = new PathIdentifier("bin", Project.Name).ChangeExtension(Target.Extension);
             }
-            return relUri;
+            return CurrentPath.GetAbsolutePath(relUri);
         }
 
         public string GetTargetPlatform(IProject Project)
@@ -327,7 +327,7 @@ namespace Flame.Front.Options
 
                 // Parse arguments
                 string[] args = ParseArguments(argStream);
-                result.AddBuildArgument(GetOptionParameterName(item), args);
+                result.AddBuildArgument(GetOptionParameterName(param), args);
             }
 
             return result;

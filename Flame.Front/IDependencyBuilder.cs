@@ -36,6 +36,11 @@ namespace Flame.Front
 
     public static class DependencyBuilderExtensions
     {
+        public static Task AddRuntimeLibraryAsync(this IDependencyBuilder DependencyBuilder, string Identifier)
+        {
+            return DependencyBuilder.AddRuntimeLibraryAsync(new PathIdentifier(Identifier));
+        }
+
         public static Action<IAssembly> GetAssemblyRegisteredCallback(this IDependencyBuilder DependencyBuilder)
         {
             return DependencyBuilder.Properties.ContainsKey("AssemblyRegisteredCallback") ? DependencyBuilder.Properties.GetValue<Action<IAssembly>>("AssemblyRegisteredCallback") : null;
