@@ -1,0 +1,52 @@
+using System;
+using System.Collections.Generic;
+
+namespace Pixie
+{
+    /// <summary>
+    /// Defines a collection of attributes that uses a dictionary of string
+    /// attributes and an attribute parser.
+    /// </summary>
+    public class StringAttributes : IStringAttributes
+    {
+        /// <summary>
+        /// Creates a new string attribute collection based on the given
+        /// attribute dictionary and attribute parser.
+        /// </summary>
+        public const this(set IReadOnlyDictionary<string, string> Values,
+                          set IAttributeParser Parser);
+
+        /// <summary>
+        /// Gets the string attribute collection's values.
+        /// </summary>
+        public IReadOnlyDictionary<string, string> Values { const get; private set; }
+        /// <summary>
+        /// Gets the string attribute collection's value parser.
+        /// </summary>
+        public IAttributeParser Parser { const get; private set; }
+
+        public const IReadOnlyDictionary<string, string> AsDictionary()
+        {
+            return Values;
+        }
+
+        public const T Get<T>(string Key, T Default) : IAttributes.Get<T>
+        {
+            if (ContainsKey(Key) && Parser.CanParse<T>())
+            {
+                return Parser.Parse<T>(Values[Key]);
+            }
+            else return Default;
+        }
+
+        public const bool ContainsKey(string Key)
+        {
+            return Values.ContainsKey(Key);
+        }
+
+        public [string] Keys
+        {
+            const get return Values.Keys;
+        }
+    }
+}

@@ -1,0 +1,16 @@
+using System;
+using System.Collections.Generic;
+
+namespace Pixie
+{
+    /// <summary>
+    /// Defines a collection of attributes that are represented by strings.
+    /// </summary>
+    public interface IStringAttributes : IAttributes
+    {
+        /// <summary>
+        /// Gets a read-only dictionary that contains these attributes as strings.
+        /// </summary>
+        const IReadOnlyDictionary<string, string> AsDictionary();
+    }
+}

@@ -1,0 +1,9 @@
+namespace Pixie
+{
+    /// <summary>
+    /// Defines common functionality for attribute value handlers.
+    /// </summary>
+    public interface IAttributeHandler : IAttributeParser, IAttributePrinter
+    {
+    }
+}
