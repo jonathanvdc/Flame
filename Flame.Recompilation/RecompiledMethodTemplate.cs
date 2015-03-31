@@ -48,7 +48,7 @@ namespace Flame.Recompilation
 
         public IMethod[] GetBaseMethods()
         {
-            return Recompiler.GetMethods(SourceMethod.GetBaseMethods());
+            return GetWeakRecompiledMethods(SourceMethod.GetBaseMethods(), Recompiler, SourceMethod);
         }
 
         public IMethod GetGenericDeclaration()
@@ -85,5 +85,28 @@ namespace Flame.Recompilation
         {
             return base.GetAttributes().Concat(Recompiler.Optimizer.InferAttributes(SourceMethod));
         }
+
+        #region Static
+
+        public static IMethod[] GetWeakRecompiledMethods(IMethod[] SourceMethods, AssemblyRecompiler Recompiler, IGenericMember DeclaringMember)
+        {
+            return SourceMethods.Select(item => GetWeakRecompiledMethod(item, Recompiler, DeclaringMember)).ToArray();
+        }
+
+        public static IMethod GetWeakRecompiledMethod(IMethod SourceMethod, AssemblyRecompiler Recompiler, IGenericMember DeclaringMember)
+        {
+            if (SourceMethod.get_IsGenericInstance())
+            {
+                var genDecl = Recompiler.GetMethod(SourceMethod.GetGenericDeclaration());
+                var genArgs = SourceMethod.GetGenericArguments().Select(item => RecompiledTypeTemplate.GetWeakRecompiledType(item, Recompiler, DeclaringMember));
+                return genDecl.MakeGenericMethod(genArgs.ToArray());
+            }
+            else
+            {
+                return Recompiler.GetMethod(SourceMethod);
+            }
+        }
+
+        #endregion
     }
 }
