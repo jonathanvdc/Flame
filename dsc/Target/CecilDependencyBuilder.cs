@@ -1,5 +1,7 @@
 ﻿using Flame;
 using Flame.Cecil;
+using Flame.Front;
+using Flame.Front.Plugs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +24,7 @@ namespace dsc.Target
             if (DependencyBuilder == null)
             {
                 var resolver = new Mono.Cecil.DefaultAssemblyResolver();
-                resolver.AddSearchDirectory(Plugs.FlameAssemblies.FlameAssemblyDirectory);
+                resolver.AddSearchDirectory(FlameAssemblies.FlameAssemblyDirectory.Path);
                 return resolver;
             }
             if (!HasCecilResolver(DependencyBuilder))
