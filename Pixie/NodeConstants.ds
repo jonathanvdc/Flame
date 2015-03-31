@@ -56,8 +56,24 @@ namespace Pixie
         public const string SourceNodeType = "source";
 
         /// <summary>
+        /// A markup node type that identifies a node that represents diagnostics
+        /// data.
+        /// </summary>
+        public const string DiagnosticsNodeType = "diagnostics";
+
+        /// <summary>
         /// A markup node type for title nodes.
         /// </summary>
         public const string TitleNodeType = "title";
+
+        /// <summary>
+        /// A markup node type for nodes that represent a summary.
+        /// </summary>
+        public const string SummaryNodeType = "summary";
+
+        /// <summary>
+        /// A markup node type for nodes that represent additional remarks.
+        /// </summary>
+        public const string RemarksNodeType = "remarks";
     }
 }
