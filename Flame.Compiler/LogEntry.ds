@@ -1,4 +1,5 @@
 using System;
+using Pixie;
 
 namespace Flame.Compiler
 {
@@ -12,39 +13,47 @@ namespace Flame.Compiler
         /// </summary>
         public const this(set string Name)
         {
-            this.Message = Name;
+            this.Contents = new MarkupNode(NodeConstants.TextNodeType, Name);
         }
         /// <summary>
         /// Creates a new log entry from the given name and message.
         /// </summary>
-        public const this(set string Name, set string Message)
+        public const this(set string Name, string Message)
         {
-            this.Location = new SourceLocation(null);
+            this.Contents = new MarkupNode(NodeConstants.TextNodeType, Message);
         }
         /// <summary>
         /// Creates a new log entry from the given name and source location.
         /// </summary>
-        public const this(set string Name, set SourceLocation Location)
+        public const this(set string Name, SourceLocation Location)
         {
-            this.Message = Name;
+            this.Contents = Location.CreateDiagnosticsNode();
         }
         /// <summary>
         /// Creates a new log entry from the given name, message and source
         /// location.
         /// </summary>
-        public const this(set string Name, set string Message, set SourceLocation Location);
+        public const this(set string Name, string Message, SourceLocation Location)
+        {
+            var messageNode = new MarkupNode(NodeConstants.TextNodeType, Message);
+            var diagNode = Location.CreateDiagnosticsNode();
+            this.Contents = new MarkupNode("entry", new IMarkupNode[] { messageNode, diagNode }); 
+        }
+        public const this(set string Name, set IMarkupNode Contents);
 
         /// <summary>
         /// Gets the log entry's name.
         /// </summary>
         public string Name { const get; private set; }
+
         /// <summary>
-        /// Gets the log entry's message.
+        /// Gets the log entry's contents.
         /// </summary>
-        public string Message { const get; private set; }
+        public IMarkupNode Contents { const get; private set; }
+
         /// <summary>
-        /// Gets the log entry's source code location.
+        /// Gets the log entry's entire error message.
         /// </summary>
-        public SourceLocation Location { const get; private set; }
+        public string Message { const get return Contents.GetAllText(); }
     }
 }
