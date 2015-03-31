@@ -6,6 +6,10 @@ namespace Flame
 {
 	public static class MethodExtensions
 	{
+		/// <summary>
+		/// Gets a boolean value that tells if this method implements
+		/// the given base method.
+		/// </summary>
 		public static const bool IsImplementationOf(this IMethod Method, IMethod BaseMethod)
 		{
 			foreach (var item in Method.GetBaseMethods())
@@ -23,6 +27,15 @@ namespace Flame
 			return false;
 		}
 
+		/// <summary>
+		/// Gets this method's implementation in the given type.
+		/// If no implementation can be found, null is returned.
+		/// </summary>
+		/// <remarks>
+		/// Note: a virtual method without overrides in the given type could
+		/// arguably be considered its own, albeit trivial, implementation.
+		/// This method still returns null in that case, however.
+		/// </remarks>
 		public static const IMethod GetImplementation(this IMethod Method, IType Target)
 		{
 			if (Method is IAccessor)
@@ -58,7 +71,7 @@ namespace Flame
 			return null;
 		}
 
-		public static const IMethod ConcatMethods(this IEnumerable<IMethod> Methods)
+		public static const IMethod ConcatMethods(this [IMethod] Methods)
 		{
 			if (Enumerable.Any<IMethod>(Enumerable.Skip<IMethod>(Methods, 1))) // More than 2 elements
 				return null;
@@ -75,15 +88,15 @@ namespace Flame
 			return false;
 		}
 
-		public static const IMethod GetBestMethod(this IEnumerable<IMethod> Candidates, IType[] ParameterTypes)
+		public static const IMethod GetBestMethod(this [IMethod] Candidates, IType[] ParameterTypes)
 		{
-			return ((IEnumerable<IMethod>)Candidates.GetBestMethods(ParameterTypes)).ConcatMethods();
+			return (([IMethod])Candidates.GetBestMethods(ParameterTypes)).ConcatMethods();
 		}
-		public static const IMethod GetBestMethod(this IEnumerable<IMethod> Candidates, IType CallerType, IType[] ParameterTypes)
+		public static const IMethod GetBestMethod(this [IMethod] Candidates, IType CallerType, IType[] ParameterTypes)
 		{
-			return ((IEnumerable<IMethod>)Candidates.GetBestMethods(CallerType, ParameterTypes)).ConcatMethods();
+			return (([IMethod])Candidates.GetBestMethods(CallerType, ParameterTypes)).ConcatMethods();
 		}
-		public static const IMethod GetBestMethod(this IEnumerable<IMethod> Candidates, bool IsStatic, IType CallerType, IType[] ParameterTypes)
+		public static const IMethod GetBestMethod(this [IMethod] Candidates, bool IsStatic, IType CallerType, IType[] ParameterTypes)
 		{
 			List<IMethod> matches = new List<IMethod>();
 			foreach (var method in Candidates.GetBestMethods(CallerType, ParameterTypes))
@@ -94,7 +107,7 @@ namespace Flame
 			return matches.ConcatMethods();
 		}
 
-		public static const IEnumerable<IMethod> GetAllMethods(this IType DeclaringType, string Name, bool IsStatic, IType[] ParameterTypes)
+		public static const [IMethod] GetAllMethods(this IType DeclaringType, string Name, bool IsStatic, IType[] ParameterTypes)
 		{
 			List<IMethod> methods = new List<IMethod>();
 			foreach (var method in DeclaringType.GetAllMethods())
@@ -107,7 +120,7 @@ namespace Flame
 			return methods;
 		}
 
-		public static const IMethod GetMethod(this IEnumerable<IMethod> Candidates, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
+		public static const IMethod GetMethod(this [IMethod] Candidates, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
 		{
 			foreach (var method in Candidates)
 			{
@@ -118,7 +131,7 @@ namespace Flame
 			}
 			return null;
 		}
-		public static const IMethod GetMethod(this IEnumerable<IMethod> Candidates, string Name, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
+		public static const IMethod GetMethod(this [IMethod] Candidates, string Name, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
 		{
 			foreach (var method in Candidates)
 			{
@@ -167,12 +180,12 @@ namespace Flame
 			return Type.GetAllMethods().GetOperatorMethods();
 		}
 
-		public static const IEnumerable<IMethod> GetOperatorMethods(this IType Type, Operator Op)
+		public static const [IMethod] GetOperatorMethods(this IType Type, Operator Op)
 		{
 			return Type.GetAllMethods().GetOperatorMethods(Op);
 		}
 
-		public static const IEnumerable<IMethod> GetOperatorMethods(this IEnumerable<IMethod> Candidates)
+		public static const [IMethod] GetOperatorMethods(this [IMethod] Candidates)
 		{
 			List<IMethod> methods = new List<IMethod>();
 			foreach (var item in Candidates)
@@ -183,7 +196,7 @@ namespace Flame
 			return methods;
 		}
 
-		public static const IEnumerable<IMethod> GetOperatorMethods(this IEnumerable<IMethod> Candidates, Operator Op)
+		public static const [IMethod] GetOperatorMethods(this [IMethod] Candidates, Operator Op)
 		{
 			List<IMethod> methods = new List<IMethod>();
 			foreach (var item in Candidates)
@@ -195,7 +208,7 @@ namespace Flame
 			return methods;
 		}
 
-		public static const IMethod GetOperatorMethod(this IEnumerable<IMethod> Candidates, Operator Op)
+		public static const IMethod GetOperatorMethod(this [IMethod] Candidates, Operator Op)
 		{
 			foreach (var item in Candidates)
 			{
