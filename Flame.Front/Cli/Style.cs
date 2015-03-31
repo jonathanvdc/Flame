@@ -8,22 +8,21 @@ using System.Threading.Tasks;
 namespace Flame.Front.Cli
 {
     /// <summary>
-    /// Describes a console.
+    /// A style for console output.
     /// </summary>
-    public struct ConsoleDescription
+    public class Style
     {
-        public ConsoleDescription(string Name, int BufferWidth, Color ForegroundColor, Color BackgroundColor)
+        public Style(string Name, Color ForegroundColor, Color BackgroundColor, params string[] Preferences)
         {
-            this = default(ConsoleDescription);
             this.Name = Name;
-            this.BufferWidth = BufferWidth;
             this.ForegroundColor = ForegroundColor;
             this.BackgroundColor = BackgroundColor;
+            this.Preferences = Preferences;
         }
 
         public string Name { get; private set; }
-        public int BufferWidth { get; private set; }
-        public Color BackgroundColor { get; private set; }
         public Color ForegroundColor { get; private set; }
+        public Color BackgroundColor { get; private set; }
+        public string[] Preferences { get; private set; }
     }
 }

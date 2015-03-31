@@ -1,6 +1,7 @@
 ﻿using Flame.Compiler;
 using Flame.Compiler.Projects;
 using Flame.Front;
+using Flame.Front.Cli;
 using Flame.Front.Projects;
 using System;
 using System.Collections.Generic;
@@ -46,16 +47,16 @@ namespace dsc.Projects
             {
                 if (string.IsNullOrWhiteSpace(Path.Extension))
                 {
-                    ConsoleLog.Instance.LogError(new LogEntry("Invalid extension", "'" + Path.Path.Path + "' does not have an extension."));
+                    Program.CompilerLog.LogError(new LogEntry("Invalid extension", "'" + Path.Path.Path + "' does not have an extension."));
                 }
                 else
                 {
-                    ConsoleLog.Instance.LogError(new LogEntry("Invalid extension", "Extension '" + Path.Extension + "' in '" + Path.Path.Path + "' was not recognized as a known project extension."));
+                    Program.CompilerLog.LogError(new LogEntry("Invalid extension", "Extension '" + Path.Extension + "' in '" + Path.Path.Path + "' was not recognized as a known project extension."));
                 }
-                ConsoleLog.Instance.WriteLine("Supported extensions:");
+                Program.CompilerLog.WriteLine("Supported extensions:");
                 foreach (var item in handlers.SelectMany(item => item.Extensions))
                 {
-                    ConsoleLog.Instance.WriteLine(" *." + item, ConsoleColor.Yellow);
+                    Program.CompilerLog.WriteLine(" *." + item, DefaultConsole.ToPixieColor(ConsoleColor.Yellow));
                 }
                 throw new NotSupportedException();
             }

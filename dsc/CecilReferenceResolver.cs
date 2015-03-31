@@ -21,7 +21,7 @@ namespace dsc
             var absPath = Identifier.AbsolutePath.Path;
             if (!File.Exists(absPath))
             {
-                ConsoleLog.Instance.LogError(new LogEntry("File not found", "File '" + Identifier.AbsolutePath + "' could not be found."));
+                Program.CompilerLog.LogError(new LogEntry("File not found", "File '" + Identifier.AbsolutePath + "' could not be found."));
             }
             var readerParams = new Mono.Cecil.ReaderParameters();
             readerParams.AssemblyResolver = DependencyBuilder.GetCecilResolver();
@@ -58,7 +58,7 @@ namespace dsc
             {
                 if (!File.Exists(absSourcePath))
                 {
-                    ConsoleLog.Instance.LogError(new LogEntry("File not found", "File '" + sourcePath + "' could not be found."));
+                    Program.CompilerLog.LogError(new LogEntry("File not found", "File '" + sourcePath + "' could not be found."));
                 }
                 string dirName = Path.GetDirectoryName(absTargetPath);
                 if (!Directory.Exists(dirName))

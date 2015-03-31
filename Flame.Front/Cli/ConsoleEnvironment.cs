@@ -57,7 +57,7 @@ namespace Flame.Front.Cli
             registeredConsoles.Add(new KeyValuePair<Func<string, bool>, Func<string, IConsole>>(Predicate, Builder));
         }
 
-        public static IConsole GetConsole(string Identifier)
+        public static IConsole AcquireConsole(string Identifier)
         {
             foreach (var item in registeredConsoles)
             {
@@ -66,11 +66,11 @@ namespace Flame.Front.Cli
                     return item.Value(Identifier);
                 }
             }
-            return new DefaultConsole();
+            return new DefaultConsole(DefaultConsole.GetBufferWidth());
         }
-        public static IConsole GetConsole()
+        public static IConsole AcquireConsole()
         {
-            return GetConsole(TerminalIdentifier);
+            return AcquireConsole(TerminalIdentifier);
         }
     }
 }

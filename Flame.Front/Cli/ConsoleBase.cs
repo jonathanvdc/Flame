@@ -6,9 +6,34 @@ using System.Threading.Tasks;
 
 namespace Flame.Front.Cli
 {
-    public abstract class ConsoleBase : IConsole
+    public abstract class ConsoleBase<TStyle> : IConsole, IDisposable
     {
+        public ConsoleBase()
+        {
+            styles = new Stack<TStyle>();
+            styles.Push(DefaultStyle);
+        }
+
         public abstract ConsoleDescription Description { get; }
+        protected abstract TStyle DefaultStyle { get; }
+        protected abstract TStyle MergeStyles(TStyle Source, Style Delta);
+        protected abstract void ApplyStyle(TStyle Style);
+        public abstract void Dispose();
+
+        private Stack<TStyle> styles;
+
+        public void PushStyle(Style Value)
+        {
+            var result = MergeStyles(styles.Peek(), Value);
+            styles.Push(result);
+            ApplyStyle(result);
+        }
+
+        public void PopStyle()
+        {
+            styles.Pop();
+            ApplyStyle(styles.Peek());
+        }
 
         public void Write(string Text)
         {
