@@ -1,0 +1,63 @@
+namespace Pixie
+{
+    /// <summary>
+    /// Defines constants for markup nodes.
+    /// </summary>
+    public static class NodeConstants
+    {
+        /// <summary>
+        /// A markup node type for text nodes.
+        /// </summary>
+        public const string TextNodeType = "#text";
+
+        /// <summary>
+        /// An attribute key for text node contents.
+        /// </summary>
+        public const string TextAttribute = "#text";
+
+        /// <summary>
+        /// An attribute key for color attributes.
+        /// </summary>
+        public const string ColorAttribute = "color";
+
+        /// <summary>
+        /// A markup node type for nodes that contain an error report.
+        /// </summary>
+        public const string ErrorNodeType = "error";
+
+        /// <summary>
+        /// A markup node type for nodes that contain an warning report.
+        /// </summary>
+        public const string WarningNodeType = "warning";
+
+        /// <summary>
+        /// A markup node type for message nodes.
+        /// </summary>
+        public const string MessageNodeType = "message";
+
+        /// <summary>
+        /// A markup node type for nodes that report events.
+        /// </summary>
+        public const string EventNodeType = "event";
+
+        /// <summary>
+        /// A markup node type for nodes that report a success.
+        /// </summary>
+        public const string SuccessNodeType = "success";
+
+        /// <summary>
+        /// A markup node type for nodes that should be highlighted.
+        /// </summary>
+        public const string HighlightNodeType = "highlight";
+
+        /// <summary>
+        /// A markup node type that identifies a source code node.
+        /// </summary>
+        public const string SourceNodeType = "source";
+
+        /// <summary>
+        /// A markup node type for title nodes.
+        /// </summary>
+        public const string TitleNodeType = "title";
+    }
+}

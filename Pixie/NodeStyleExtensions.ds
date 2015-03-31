@@ -1,0 +1,24 @@
+namespace Pixie
+{
+    /// <summary>
+    /// Provides node extensions for node style data.
+    /// </summary>
+    public static class StyleNodeExtensions
+    {
+        /// <summary>
+        /// Gets a boolean value that tells if the given markup node has a
+        /// color attribute.
+        /// </summary>
+        public static bool HasColor[this IMarkupNode Node]
+        {
+            const get return Node.Attributes.ContainsKey(NodeConstants.ColorAttribute);
+        }
+        /// <summary>
+        /// Gets the color associated with this markup node.
+        /// </summary>
+        public static Color GetColor(this IMarkupNode Node)
+        {
+            return Node.Attributes.Get<Color>(NodeConstants.ColorAttribute, default(Color));
+        }
+    }
+}
