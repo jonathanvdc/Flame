@@ -51,6 +51,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinderResolver.cs" />
+    <Compile Include="Cli\AnsiConsole.cs" />
+    <Compile Include="Cli\AnsiConsoleStyle.cs" />
     <Compile Include="Cli\ConsoleBase.cs" />
     <Compile Include="Cli\ConsoleDescription.cs" />
     <Compile Include="Cli\ConsoleEnvironment.cs" />

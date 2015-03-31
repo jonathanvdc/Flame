@@ -48,6 +48,7 @@ namespace Flame.Front.Cli
         static ConsoleEnvironment()
         {
             registeredConsoles = new List<KeyValuePair<Func<string, bool>, Func<string, IConsole>>>();
+            RegisterConsole(name => name != null && name.Equals(XTermIdentifier, StringComparison.OrdinalIgnoreCase), name => new AnsiConsole(name, 80));
         }
 
         private static List<KeyValuePair<Func<string, bool>, Func<string, IConsole>>> registeredConsoles;

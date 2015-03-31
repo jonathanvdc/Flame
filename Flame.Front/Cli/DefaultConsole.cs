@@ -66,7 +66,7 @@ namespace Flame.Front.Cli
 
             consoleColorMapping.Add(ConsoleColor.Black,         new Color(0, 0, 0));
             consoleColorMapping.Add(ConsoleColor.DarkBlue,      new Color(0, 0, 0.5));
-            consoleColorMapping.Add(ConsoleColor.DarkGreen,         new Color(0, 0.5, 0));
+            consoleColorMapping.Add(ConsoleColor.DarkGreen,     new Color(0, 0.5, 0));
             consoleColorMapping.Add(ConsoleColor.DarkCyan,      new Color(0, 0.5, 0.5));
             consoleColorMapping.Add(ConsoleColor.DarkRed,       new Color(0.5, 0, 0));
             consoleColorMapping.Add(ConsoleColor.DarkMagenta,   new Color(0.5, 0, 0.5));
