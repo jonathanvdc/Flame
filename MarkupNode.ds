@@ -15,6 +15,13 @@ namespace Pixie
             this.Attributes = new PredefinedAttributes(dict);
             this.Children = Enumerable.Empty<IMarkupNode>();
         }
+        public const this(set string Type, string Text)
+        {
+            var dict = new Dictionary<string, object>();
+            dict[NodeConstants.TextAttribute] = Text;
+            this.Attributes = new PredefinedAttributes(dict);
+            this.Children = Enumerable.Empty<IMarkupNode>();
+        }
         public const this(set string Type, set [IMarkupNode] Children)
         {
             var dict = new Dictionary<string, object>();

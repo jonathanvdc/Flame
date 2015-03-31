@@ -59,5 +59,15 @@ namespace Pixie
         /// A markup node type for title nodes.
         /// </summary>
         public const string TitleNodeType = "title";
+
+        /// <summary>
+        /// A markup node type for nodes that represent a summary.
+        /// </summary>
+        public const string SummaryNodeType = "summary";
+
+        /// <summary>
+        /// A markup node type for nodes that represent additional remarks.
+        /// </summary>
+        public const string RemarksNodeType = "remarks";
     }
 }
