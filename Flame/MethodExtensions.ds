@@ -218,6 +218,10 @@ namespace Flame
 			return null;
 		}
 
+		/// <summary>
+		/// Gets a boolean value that indicates whether the given method has a
+		/// non-null, non-void return value.
+		/// </summary>
 		public static bool HasReturnValue[this IMethod Method]
 		{
 			const get
