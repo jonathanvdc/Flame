@@ -9,6 +9,12 @@ namespace Flame.Front.Cli
 {
     public class StylePalette : IStylePalette
     {
+        public StylePalette(ConsoleDescription Description)
+        {
+            this.registeredStyles = new Dictionary<string, Style>();
+            this.ForegroundColor = Description.ForegroundColor;
+            this.BackgroundColor = Description.BackgroundColor;
+        }
         public StylePalette(Color ForegroundColor, Color BackgroundColor)
         {
             this.registeredStyles = new Dictionary<string, Style>();
@@ -46,17 +52,18 @@ namespace Flame.Front.Cli
         public Color ChangeLuminance(Color Value, double Luminance)
         {
             var hsl = RGBtoHSL(Value);
-            return HSLtoRGB(hsl.Item1, hsl.Item2, Luminance);
+            var result = HSLtoRGB(hsl.Item1, hsl.Item2, Luminance);
+            return result;
         }
 
         public Color MakeContrastColor(Color Value)
         {
-            return ChangeLuminance(Value, 1.0 - BackgroundLuminance);
+            return ChangeLuminance(Value, 0.5 + (0.5 - BackgroundLuminance) / 3.0);
         }
 
         public Color MakeDimColor(Color Value)
         {
-            return ChangeLuminance(Value, 0.5 + (BackgroundLuminance - 0.5) / 2.0);
+            return ChangeLuminance(Value, 0.5 + (BackgroundLuminance - 0.5) / 3.0);
         }
 
         public Color MakeBackgroundColor(Color Value)

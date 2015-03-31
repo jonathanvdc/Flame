@@ -16,12 +16,14 @@ namespace Flame.Front
         {
             this.Options = Options;
             this.Console = Console;
+            this.Palette = new StylePalette(Console.Description);
             this.gapQueued = false;
             this.writeLock = new object();
         }
 
         public IConsole Console { get; private set; }
         public ICompilerOptions Options { get; private set; }
+        public IStylePalette Palette { get; private set; }
         private bool gapQueued;
         private object writeLock;
 
@@ -170,7 +172,7 @@ namespace Flame.Front
             {
                 WriteWhiteline();
                 Write(Header + ": ");
-                WriteEntry(Entry, DefaultConsole.ToPixieColor(ConsoleColor.Green), DefaultConsole.ToPixieColor(ConsoleColor.DarkGreen));
+                WriteEntry(Entry, ContrastGreen, DimGreen);
                 WriteSeparator();
             }
         }
@@ -179,7 +181,7 @@ namespace Flame.Front
             lock (writeLock)
             {
                 WriteWhiteline();
-                WriteEntry(Entry, DefaultConsole.ToPixieColor(ConsoleColor.Green), DefaultConsole.ToPixieColor(ConsoleColor.DarkGreen));
+                WriteEntry(Entry, ContrastGreen, DimGreen);
                 WriteSeparator();
             }
         }
@@ -195,8 +197,92 @@ namespace Flame.Front
         }
         public void WriteErrorBlock(string Header, string Message)
         {
-            WriteBlockEntry(Header, DefaultConsole.ToPixieColor(ConsoleColor.Red), Message);
+            WriteBlockEntry(Header, ContrastRed, Message);
         }
+
+        #region Palette
+
+        public Color ContrastRed
+        {
+            get
+            {
+                return Palette.MakeContrastColor(DefaultConsole.ToPixieColor(ConsoleColor.Red));
+            }
+        }
+
+        public Color DimRed
+        {
+            get
+            {
+                return Palette.MakeDimColor(DefaultConsole.ToPixieColor(ConsoleColor.Red));
+            }
+        }
+
+        public Color ContrastYellow
+        {
+            get
+            {
+                return Palette.MakeContrastColor(DefaultConsole.ToPixieColor(ConsoleColor.Yellow));
+            }
+        }
+
+        public Color DimYellow
+        {
+            get
+            {
+                return Palette.MakeDimColor(DefaultConsole.ToPixieColor(ConsoleColor.Yellow));
+            }
+        }
+
+        public Color ContrastBlue
+        {
+            get
+            {
+                return Palette.MakeContrastColor(DefaultConsole.ToPixieColor(ConsoleColor.Blue));
+            }
+        }
+
+        public Color DimBlue
+        {
+            get
+            {
+                return Palette.MakeDimColor(DefaultConsole.ToPixieColor(ConsoleColor.Blue));
+            }
+        }
+
+        public Color ContrastGreen
+        {
+            get
+            {
+                return Palette.MakeContrastColor(DefaultConsole.ToPixieColor(ConsoleColor.Green));
+            }
+        }
+
+        public Color DimGreen
+        {
+            get
+            {
+                return Palette.MakeDimColor(DefaultConsole.ToPixieColor(ConsoleColor.Green));
+            }
+        }
+
+        public Color ContrastGray
+        {
+            get
+            {
+                return Palette.MakeContrastColor(DefaultConsole.ToPixieColor(ConsoleColor.Gray));
+            }
+        }
+
+        public Color DimGray
+        {
+            get
+            {
+                return Palette.MakeDimColor(DefaultConsole.ToPixieColor(ConsoleColor.Gray));
+            }
+        }
+
+        #endregion
 
         #region Write*Node
 
@@ -228,7 +314,7 @@ namespace Flame.Front
             else if (Node.Type == NodeConstants.RemarksNodeType)
             {
                 WriteWhiteline();
-                Console.PushStyle(new Style("remarks", new Color(0.3), new Color()));
+                Console.PushStyle(new Style("remarks", DimGray, new Color()));
                 Write("Remarks: ");
                 WriteNodeDefault(Node, CaretColor, HighlightColor);
                 Console.PopStyle();
@@ -275,13 +361,13 @@ namespace Flame.Front
 
         public void LogError(LogEntry Entry)
         {
-            WriteBlockEntry("Error", DefaultConsole.ToPixieColor(ConsoleColor.Red), DefaultConsole.ToPixieColor(ConsoleColor.DarkRed), Entry);
+            WriteBlockEntry("Error", ContrastRed, DimRed, Entry);
         }
 
         public void LogEvent(LogEntry Entry)
         {
             WriteWhiteline();
-            WriteEntry(Entry, DefaultConsole.ToPixieColor(ConsoleColor.Green), DefaultConsole.ToPixieColor(ConsoleColor.DarkGreen));
+            WriteEntry(Entry, ContrastGreen, DimGreen);
             WriteWhiteline();
         }
 
@@ -292,7 +378,7 @@ namespace Flame.Front
 
         public void LogWarning(LogEntry Entry)
         {
-            WriteBlockEntry("Warning", DefaultConsole.ToPixieColor(ConsoleColor.Yellow), DefaultConsole.ToPixieColor(ConsoleColor.DarkYellow), Entry);
+            WriteBlockEntry("Warning", ContrastYellow, DimYellow, Entry);
         }
 
         public void Dispose()
