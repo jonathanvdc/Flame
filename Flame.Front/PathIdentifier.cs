@@ -104,6 +104,11 @@ namespace Flame.Front
             return new PathIdentifier(System.IO.Path.ChangeExtension(Path, Extension));
         }
 
+        public PathIdentifier AppendExtension(string Extension)
+        {
+            return new PathIdentifier(Path + '.' + Extension);
+        }
+
         public PathIdentifier Combine(PathIdentifier Other)
         {
             return new PathIdentifier(System.IO.Path.Combine(Path, Other.Path));

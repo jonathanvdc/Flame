@@ -197,13 +197,13 @@ namespace Flame.Front.Options
             PathIdentifier relUri;
             if (!TargetPath.IsEmpty)
             {
-                relUri = TargetPath;
+                relUri = TargetPath.ChangeExtension(null);
             }
             else
             {
                 relUri = new PathIdentifier("bin", Project.Name);
             }
-            return CurrentPath.GetAbsolutePath(relUri.ChangeExtension(null));
+            return CurrentPath.GetAbsolutePath(relUri);
         }
 
         public PathIdentifier GetTargetPath(PathIdentifier CurrentPath, IProject Project, BuildTarget Target)
@@ -215,7 +215,7 @@ namespace Flame.Front.Options
             }
             else
             {
-                relUri = new PathIdentifier("bin", Project.Name).ChangeExtension(Target.Extension);
+                relUri = new PathIdentifier("bin", Project.Name).AppendExtension(Target.Extension);
             }
             return CurrentPath.GetAbsolutePath(relUri);
         }
