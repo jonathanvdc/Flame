@@ -11,11 +11,11 @@ namespace Flame.Front.Cli
         public ConsoleBase()
         {
             styles = new Stack<TStyle>();
-            styles.Push(DefaultStyle);
+            styles.Push(GetInitialStyle());
         }
 
         public abstract ConsoleDescription Description { get; }
-        protected abstract TStyle DefaultStyle { get; }
+        protected abstract TStyle GetInitialStyle();
         protected abstract TStyle MergeStyles(TStyle Source, Style Delta);
         protected abstract void ApplyStyle(TStyle Style);
         public abstract void Dispose();

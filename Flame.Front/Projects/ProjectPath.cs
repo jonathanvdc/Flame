@@ -39,5 +39,10 @@ namespace Flame.Front.Projects
         {
             return new ProjectPath(Path.ChangeExtension(Extension), Arguments);
         }
+
+        public override string ToString()
+        {
+            return Path.ToString();
+        }
     }
 }

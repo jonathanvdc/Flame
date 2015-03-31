@@ -79,6 +79,17 @@ namespace Flame.Front
                 gapQueued = true;
             }
         }
+        public void WriteSeparator()
+        {
+            lock (writeLock)
+            {
+                WriteLineInternal();
+                if (!gapQueued)
+                {
+                    WriteWhiteline();
+                }
+            }
+        }
         public void Write(string Text, Color Color)
         {
             lock (writeLock)
@@ -140,7 +151,7 @@ namespace Flame.Front
                 WriteWhiteline();
                 Write(Header + ": ", MainColor);
                 WriteEntry(Entry, MainColor, HighlightColor);
-                WriteWhiteline();
+                WriteSeparator();
             }
         }
         public void WriteBlockEntry(string Header, Color HeaderColor, string Entry)
@@ -150,7 +161,7 @@ namespace Flame.Front
                 WriteWhiteline();
                 Write(Header + ": ", HeaderColor);
                 WriteLine(Entry);
-                WriteWhiteline();
+                WriteSeparator();
             }
         }
         public void WriteBlockEntry(string Header, LogEntry Entry)
@@ -160,14 +171,17 @@ namespace Flame.Front
                 WriteWhiteline();
                 Write(Header + ": ");
                 WriteEntry(Entry, DefaultConsole.ToPixieColor(ConsoleColor.Green), DefaultConsole.ToPixieColor(ConsoleColor.DarkGreen));
-                WriteWhiteline();
+                WriteSeparator();
             }
         }
         public void WriteBlockEntry(LogEntry Entry)
         {
-            WriteWhiteline();
-            WriteEntry(Entry, DefaultConsole.ToPixieColor(ConsoleColor.Green), DefaultConsole.ToPixieColor(ConsoleColor.DarkGreen));
-            WriteWhiteline();
+            lock (writeLock)
+            {
+                WriteWhiteline();
+                WriteEntry(Entry, DefaultConsole.ToPixieColor(ConsoleColor.Green), DefaultConsole.ToPixieColor(ConsoleColor.DarkGreen));
+                WriteSeparator();
+            }
         }
         public void WriteBlockEntry(string Header, string Entry)
         {
@@ -176,7 +190,7 @@ namespace Flame.Front
                 WriteWhiteline();
                 Write(Header + ": ");
                 WriteLine(Entry);
-                WriteWhiteline();
+                WriteSeparator();
             }
         }
         public void WriteErrorBlock(string Header, string Message)
@@ -186,65 +200,92 @@ namespace Flame.Front
 
         #region Write*Node
 
-        public void WriteNode(IMarkupNode Node)
+        public void WriteNode(IMarkupNode Node, Color CaretColor, Color HighlightColor)
         {
             lock (writeLock)
             {
-                WriteSourceNode(Node);
+                WriteNodeCore(Node, CaretColor, HighlightColor);
             }
         }
 
-        private void WriteNodeCore(IMarkupNode Node)
+        private void WriteNodeDefault(IMarkupNode Node, Color CaretColor, Color HighlightColor)
+        {
+            Write(Node.GetText());
+            foreach (var item in Node.Children)
+            {
+                WriteNodeCore(item, CaretColor, HighlightColor);
+            }
+        }
+
+        private void WriteNodeCore(IMarkupNode Node, Color CaretColor, Color HighlightColor)
         {
             if (Node.Type == NodeConstants.SourceNodeType)
             {
                 WriteWhiteline();
-                WriteSourceNode(Node);
+                WriteSourceNode(Node, CaretColor, HighlightColor);
                 WriteWhiteline();
             }
             else if (Node.Type == NodeConstants.RemarksNodeType)
             {
                 WriteWhiteline();
                 Console.PushStyle(new Style("remarks", new Color(0.3), new Color()));
-                WriteNode(Node);
+                Write("Remarks: ");
+                WriteNodeDefault(Node, CaretColor, HighlightColor);
                 Console.PopStyle();
                 WriteWhiteline();
             }
             else
             {
-                WriteLine(Node.GetText());
-                foreach (var item in Node.Children)
-                {
-                    WriteNodeCore(item);
-                }
+                WriteNodeDefault(Node, CaretColor, HighlightColor);
             }
         }
 
         #region WriteSourceNode
 
-        private void WriteSourceNode(IMarkupNode Node)
+        private void WriteSourceNode(IMarkupNode Node, Color CaretColor, Color HighlightColor)
         {
             int width = 0;
             var caret = new IndirectConsole(Console.Description);
+            caret.PushStyle(new Style("caret-highlight", HighlightColor, new Color()));
             string indent = new string(' ', 4);
             int bufWidth = BufferWidth - indent.Length - 4;
-            WriteSourceNode(Node, false, false, caret, indent, bufWidth, ref width);
+            WriteWhiteline();
+            WriteLine();
+            Write(indent);
+            WriteSourceNode(Node, false, false, caret, indent, bufWidth, CaretColor, HighlightColor, ref width);
             if (width > 0)
             {
+                Console.WriteLine();
+                Write(indent);
+                caret.PopStyle();
                 caret.Flush(Console);
             }
         }
 
         private void WriteSourceNode(IMarkupNode Node, bool CaretStarted, bool UseCaret, IndirectConsole CaretConsole,
-            string Indentation, int MaxWidth, ref int Width)
+            string Indentation, int MaxWidth, Color CaretColor, Color HighlightColor, ref int Width)
         {
             if (Node.Type.Equals(NodeConstants.HighlightNodeType))
             {
                 UseCaret = true;
+                CaretStarted = false;
             }
             string nodeText = Node.GetText();
+            bool started = false;
             foreach (var item in nodeText)
             {
+                if (!started)
+                {
+                    if (char.IsWhiteSpace(item))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        started = true;
+                    }
+                }
+
                 Width += item == '\t' ? 4 : 1;
                 if (Width >= MaxWidth)
                 {
@@ -252,29 +293,35 @@ namespace Flame.Front
                     Write(Indentation);
                     if (!CaretConsole.IsWhitespace)
                     {
-                        CaretConsole.Flush(Console);
                         WriteLine();
                         Write(Indentation);
+                        CaretConsole.PopStyle();
+                        CaretConsole.Flush(Console);
+                        CaretConsole.PushStyle(new Style("caret-highlight", HighlightColor, new Color()));
                     }
                     else
                     {
                         CaretConsole.Clear();
                     }
                     Width = 0;
+                    started = false;
                 }
-                string caretString;
-                if (CaretStarted && UseCaret)
+                if (!CaretStarted && UseCaret)
                 {
-                    caretString = item != '\t' ? "^" : "^~~~";
-                    CaretStarted = false;
+                    CaretConsole.Write("^", CaretColor);
+                    if (item == '\t')
+                    {
+                        CaretConsole.Write(new string('~', 3));
+                    }
+                    CaretStarted = true;
                 }
                 else if (UseCaret)
                 {
-                    caretString = item != '\t' ? "~" : new string('~', 4);
+                    CaretConsole.Write(item != '\t' ? "~" : new string('~', 4));
                 }
                 else
                 {
-                    caretString = item != '\t' ? " " : new string(' ', 4);
+                    CaretConsole.Write(item != '\t' ? " " : new string(' ', 4));
                 }
                 if (item == '\t')
                 {
@@ -284,11 +331,11 @@ namespace Flame.Front
                 {
                     WriteUnsafe(item);
                 }
-                CaretConsole.Write(caretString);
+                
             }
             foreach (var item in Node.Children)
             {
-                WriteSourceNode(item, CaretStarted, UseCaret, CaretConsole, Indentation, MaxWidth, ref Width);
+                WriteSourceNode(item, CaretStarted, UseCaret, CaretConsole, Indentation, MaxWidth, CaretColor, HighlightColor, ref Width);
             }
         }
 
@@ -304,152 +351,9 @@ namespace Flame.Front
             {
                 Write(Entry.Name);
                 Write(": ");
-                WriteNode(Entry.Contents);
+                WriteNode(Entry.Contents, CaretColor, HighlightColor);
             }
         }
-
-        /*public void WriteEntry(LogEntry Entry, Color CaretColor, Color HighlightColor)
-        {
-            lock (writeLock)
-            {
-                Write(Entry.Name);
-                Write(": ");
-                Write(Entry.Message.TrimEnd('.'));
-                if (Entry.Location != null && Entry.Location.Document != null && Entry.Location.Position > -1)
-                {
-                    Write(',');
-                    if (Entry.Location.Document == null)
-                    {
-                        if (Entry.Location.Position > -1)
-                        {
-                            Write(" at position ");
-                            Write(Entry.Location.Position);
-                            Write(" in an unidentified source document.");
-                        }
-                    }
-                    else
-                    {
-                        var doc = Entry.Location.Document;
-                        Write(" in '");
-                        Write(Entry.Location.Document.Identifier);
-                        Write("'");
-                        if (Entry.Location.Position > -1)
-                        {
-                            var gridPos = Entry.Location.GridPosition;
-                            Write(" on line ");
-                            Write(gridPos.Line + 1);
-                            Write(", column ");
-                            Write(gridPos.Offset + 1);
-                            Write('.');
-                            WriteLine();
-                            WriteCaretDiagnostic(Entry, gridPos, CaretColor, HighlightColor);
-                        }
-                        else
-                        {
-                            Write(" in '");
-                            Write(doc.Identifier);
-                            Write("\'.");
-                        }
-                    }
-                }
-                else
-                {
-                    Write('.');
-                }
-                WriteLine();
-            }
-        }
-
-        private void WriteCaretDiagnostic(LogEntry Entry, SourceGridPosition GridPosition, ConsoleColor CaretColor, ConsoleColor HighlightColor)
-        {
-            WriteWhiteline();
-            string indent = new string(' ', 4);
-            int bufWidth = BufferWidth - indent.Length - 4;
-            var annotated = AnnotateSource(Entry, GridPosition, bufWidth);
-            WriteCaretLines(annotated.Key, annotated.Value, indent, CaretColor, HighlightColor);
-        }
-
-        private void WriteCaretLines(IReadOnlyList<string> Lines, IReadOnlyList<string> Annotations, string Indentation, ConsoleColor CaretColor, ConsoleColor HighlightColor)
-        {
-            for (int i = 0; i < Lines.Count; i++)
-            {
-                Write(Indentation);
-                Write(Lines[i].TrimEnd());
-                WriteLine();
-                if (!string.IsNullOrWhiteSpace(Annotations[i]))
-                {
-                    Write(Indentation);
-                    foreach (var character in Annotations[i])
-                    {
-                        if (character == '^')
-                        {
-                            Write("^", CaretColor);
-                        }
-                        else
-                        {
-                            Write(character.ToString(), HighlightColor);
-                        }
-                    }
-                    WriteLine();
-                }
-            }
-        }
-
-        private static KeyValuePair<IReadOnlyList<string>, IReadOnlyList<string>> AnnotateSource(LogEntry Entry, SourceGridPosition GridPosition, int BufferWidth)
-        {
-            var loc = Entry.Location;
-            var doc = loc.Document;
-            string lineSource = doc.GetLine(GridPosition.Line);
-            int highlightCount = Math.Max(0, Math.Min(loc.Length - 1, lineSource.Length - GridPosition.Offset));
-            StringBuilder formattedLineSource = new StringBuilder();
-            StringBuilder formattedCaret = new StringBuilder();
-            int i;
-            for (i = 0; i < lineSource.Length && char.IsWhiteSpace(lineSource[i]); i++) ;
-            for (; i < lineSource.Length; i++)
-            {
-                if (lineSource[i] == '\t')
-                {
-                    formattedLineSource.Append(new string(' ', 4));
-                    formattedCaret.Append(new string(GetCaretCharacter(GridPosition, i, highlightCount), 4));
-                }
-                else
-                {
-                    formattedLineSource.Append(lineSource[i]);
-                    formattedCaret.Append(GetCaretCharacter(GridPosition, i, highlightCount));
-                }
-            }
-            var splitSource = SplitLength(formattedLineSource.ToString(), BufferWidth);
-            var splitCaret = SplitLength(formattedCaret.ToString(), BufferWidth);
-            return new KeyValuePair<IReadOnlyList<string>, IReadOnlyList<string>>(splitSource, splitCaret);
-        }
-
-        private static char GetCaretCharacter(SourceGridPosition GridPosition, int Offset, int Length)
-        {
-            if (Offset == GridPosition.Offset)
-            {
-                return '^';
-            }
-            else if (Offset > GridPosition.Offset && Offset - GridPosition.Offset <= Length)
-            {
-                return '~';
-            }
-            else
-            {
-                return ' ';
-            }
-        }
-
-        private static IReadOnlyList<string> SplitLength(string Value, int Width)
-        {
-            List<string> results = new List<string>();
-            int breaks = Value.Length / Width;
-            for (int i = 0; i < breaks; i++)
-            {
-                results.Add(Value.Substring(i * Width, Width));
-            }
-            results.Add(Value.Substring(breaks * Width));
-            return results;
-        }*/
 
         #endregion
 
@@ -460,7 +364,9 @@ namespace Flame.Front
 
         public void LogEvent(LogEntry Entry)
         {
+            WriteWhiteline();
             WriteEntry(Entry, DefaultConsole.ToPixieColor(ConsoleColor.Green), DefaultConsole.ToPixieColor(ConsoleColor.DarkGreen));
+            WriteWhiteline();
         }
 
         public void LogMessage(LogEntry Entry)
