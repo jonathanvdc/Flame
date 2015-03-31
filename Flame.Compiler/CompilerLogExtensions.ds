@@ -107,7 +107,7 @@ namespace Flame.Compiler
                 }
             }
             text.Append('.');
-            return new MarkupNode(NodeConstants.RemarksNodeType, text);
+            return new MarkupNode(NodeConstants.RemarksNodeType, text.ToString());
         }
     }
 }
