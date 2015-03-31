@@ -35,6 +35,9 @@
 		<Compile Include="StaticInitializationExtensions.ds" />
 		<Compile Include="ISourceDocument.ds" />
 		<Compile Include="SourceDocument.ds" />
+		<Compile Include="LogEntry.ds" />
+		<Compile Include="CompilerLogExtensions.ds" />
+		<Compile Include="SourceLocation.ds" />
 	</ItemGroup>
 	<ItemGroup Name="Emit">
 		<ItemGroup>
