@@ -9,8 +9,8 @@ namespace Flame.Front.Cli
 {
     public interface IStylePalette
     {
-        Style CreateNamedStyle(string Name);
-        bool IsKnownStyle(string Name);
+        Style GetNamedStyle(string Name);
+        bool IsNamedStyle(string Name);
 
         Color MakeContrastColor(Color Value);
         Color MakeDimColor(Color Value);
