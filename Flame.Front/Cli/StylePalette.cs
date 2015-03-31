@@ -11,7 +11,7 @@ namespace Flame.Front.Cli
     {
         public StylePalette(Color ForegroundColor, Color BackgroundColor)
         {
-            registeredStyles = new Dictionary<string, Style>();
+            this.registeredStyles = new Dictionary<string, Style>();
             this.ForegroundColor = ForegroundColor;
             this.BackgroundColor = BackgroundColor;
         }
@@ -70,12 +70,12 @@ namespace Flame.Front.Cli
             registeredStyles[Value.Name] = Value;
         }
 
-        public Style CreateNamedStyle(string Name)
+        public Style GetNamedStyle(string Name)
         {
             return registeredStyles[Name];
         }
 
-        public bool IsKnownStyle(string Name)
+        public bool IsNamedStyle(string Name)
         {
             return registeredStyles.ContainsKey(Name);
         }
