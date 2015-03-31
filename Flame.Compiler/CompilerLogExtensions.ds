@@ -70,7 +70,7 @@ namespace Flame.Compiler
                 return posNode;
             }
 
-            string lineText = Location.GetLine(gridPos.Line);
+            string lineText = doc.GetLine(gridPos.Line);
             int offset = gridPos.Offset;
             int length = Location.Length;
             var preTextNode = new MarkupNode(NodeConstants.TextNodeType, lineText.Substring(0, offset));
