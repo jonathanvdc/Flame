@@ -1,0 +1,19 @@
+namespace Pixie
+{
+    /// <summary>
+    /// Defines common functionality for attribute value printers.
+    /// </summary>
+    public interface IAttributePrinter
+    {
+        /// <summary>
+        /// Gets a boolean value that indicates whether a value of the given
+        /// type can be converted to its string representation or not.
+        /// </summary>
+        const bool CanPrint<T>();
+
+        /// <summary>
+        /// Gets a value's string representation.
+        /// </summary>
+        const string Print<T>(T Value);
+    }
+}
