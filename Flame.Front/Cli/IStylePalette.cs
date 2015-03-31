@@ -1,0 +1,18 @@
+﻿using Pixie;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Flame.Front.Cli
+{
+    public interface IStylePalette
+    {
+        Style CreateNamedStyle(string Name);
+        bool IsKnownStyle(string Name);
+
+        Color MakeContrastColor(Color Value);
+        Color MakeDimColor(Color Value);
+    }
+}
