@@ -17,7 +17,7 @@ namespace Flame.Front
     {
         public static async Task<IAssembly> CopyAndResolveAsync(this IAssemblyResolver Resolver, PathIdentifier RelativePath, PathIdentifier CurrentPath, PathIdentifier OutputFolder, IDependencyBuilder DependencyBuilder)
         {
-            var absPath = new PathIdentifier(CurrentPath, RelativePath);
+            var absPath = CurrentPath.GetAbsolutePath(RelativePath);
             string fileName = absPath.Name;
             var targetPath = new PathIdentifier(OutputFolder, fileName);
             if (absPath != targetPath)
@@ -28,7 +28,7 @@ namespace Flame.Front
         }
         public static Task<IAssembly> ResolveAsync(this IAssemblyResolver Resolver, PathIdentifier RelativePath, PathIdentifier CurrentPath, IDependencyBuilder DependencyBuilder)
         {
-            var absPath = new PathIdentifier(CurrentPath, RelativePath);
+            var absPath = CurrentPath.GetAbsolutePath(RelativePath);
             return Resolver.ResolveAsync(absPath, DependencyBuilder);
         }
     }

@@ -48,9 +48,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinderResolver.cs" />
+    <Compile Include="Cli\ConsoleBase.cs" />
+    <Compile Include="Cli\ConsoleDescription.cs" />
+    <Compile Include="Cli\ConsoleEnvironment.cs" />
     <Compile Include="ConsoleLog.cs" />
+    <Compile Include="Cli\DefaultConsole.cs" />
     <Compile Include="EmptyAssemblyResolver.cs" />
     <Compile Include="FileOutputProvider.cs" />
+    <Compile Include="Cli\IConsole.cs" />
     <Compile Include="MultiBinder.cs" />
     <Compile Include="Options\TransformingOptionParser.cs" />
     <Compile Include="Options\MergedOptions.cs" />
