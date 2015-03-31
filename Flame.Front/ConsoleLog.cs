@@ -244,92 +244,14 @@ namespace Flame.Front
 
         private void WriteSourceNode(IMarkupNode Node, Color CaretColor, Color HighlightColor)
         {
-            int width = 0;
-            var caret = new IndirectConsole(Console.Description);
-            caret.PushStyle(new Style("caret-highlight", HighlightColor, new Color()));
+            var highlightingStyle = new Style("caret-highlight", HighlightColor, new Color());
+            var caretStyle = new Style("caret-marker", CaretColor, new Color());
             string indent = new string(' ', 4);
             int bufWidth = BufferWidth - indent.Length - 4;
             WriteWhiteline();
-            WriteLine();
-            Write(indent);
-            WriteSourceNode(Node, false, false, caret, indent, bufWidth, CaretColor, HighlightColor, ref width);
-            if (width > 0)
+            using (var writer = new SourceNodeWriter(Console, caretStyle, highlightingStyle, indent, bufWidth))
             {
-                Console.WriteLine();
-                Write(indent);
-                caret.PopStyle();
-                caret.Flush(Console);
-            }
-        }
-
-        private void WriteSourceNode(IMarkupNode Node, bool CaretStarted, bool UseCaret, IndirectConsole CaretConsole,
-            string Indentation, int MaxWidth, Color CaretColor, Color HighlightColor, ref int Width)
-        {
-            if (Node.Type.Equals(NodeConstants.HighlightNodeType))
-            {
-                UseCaret = true;
-                CaretStarted = false;
-            }
-            string nodeText = Node.GetText();
-            foreach (var item in nodeText)
-            {
-                if (Width == 0)
-                {
-                    if (char.IsWhiteSpace(item))
-                    {
-                        continue;
-                    }
-                }
-
-                Width += item == '\t' ? 4 : 1;
-                if (Width >= MaxWidth)
-                {
-                    WriteLine();
-                    Write(Indentation);
-                    if (!CaretConsole.IsWhitespace)
-                    {
-                        WriteLine();
-                        Write(Indentation);
-                        CaretConsole.PopStyle();
-                        CaretConsole.Flush(Console);
-                        CaretConsole.PushStyle(new Style("caret-highlight", HighlightColor, new Color()));
-                    }
-                    else
-                    {
-                        CaretConsole.Clear();
-                    }
-                    Width = 0;
-                }
-                if (!CaretStarted && UseCaret)
-                {
-                    CaretConsole.Write("^", CaretColor);
-                    if (item == '\t')
-                    {
-                        CaretConsole.Write(new string('~', 3));
-                    }
-                    CaretStarted = true;
-                }
-                else if (UseCaret)
-                {
-                    CaretConsole.Write(item != '\t' ? "~" : new string('~', 4));
-                }
-                else
-                {
-                    CaretConsole.Write(item != '\t' ? " " : new string(' ', 4));
-                }
-                if (item == '\t')
-                {
-                    WriteUnsafe(new string(' ', 4));
-                }
-                else
-                {
-                    WriteUnsafe(item);
-                }
-                
-            }
-            foreach (var item in Node.Children)
-            {
-                WriteSourceNode(item, CaretStarted, UseCaret, CaretConsole, Indentation, MaxWidth, CaretColor, HighlightColor, ref Width);
+                writer.Write(Node);
             }
         }
 

@@ -55,7 +55,10 @@
     <Compile Include="Cli\ConsoleDescription.cs" />
     <Compile Include="Cli\ConsoleEnvironment.cs" />
     <Compile Include="Cli\DefaultConsoleStyle.cs" />
+    <Compile Include="Cli\StylePalette.cs" />
     <Compile Include="Cli\IndirectConsole.cs" />
+    <Compile Include="Cli\IStylePalette.cs" />
+    <Compile Include="Cli\SourceNodeWriter.cs" />
     <Compile Include="Cli\Style.cs" />
     <Compile Include="ConsoleLog.cs" />
     <Compile Include="Cli\DefaultConsole.cs" />
@@ -63,6 +66,7 @@
     <Compile Include="FileOutputProvider.cs" />
     <Compile Include="Cli\IConsole.cs" />
     <Compile Include="MultiBinder.cs" />
+    <Compile Include="Cli\INodeWriter.cs" />
     <Compile Include="Options\TransformingOptionParser.cs" />
     <Compile Include="Options\MergedOptions.cs" />
     <Compile Include="PathIdentifier.cs" />
