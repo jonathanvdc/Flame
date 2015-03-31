@@ -109,4 +109,29 @@ namespace Flame.Cpp.Emit
             return GetCode().ToString();
         }
     }
+
+    public static class LiteralExtensions
+    {
+        public static bool IsZeroLiteral(this ICppBlock Block)
+        {
+            if (Block is DoubleLiteralBlock)
+            {
+                return ((DoubleLiteralBlock)Block).Value == 0.0;
+            }
+            else if (Block is FloatLiteralBlock)
+            {
+                return ((FloatLiteralBlock)Block).Value == 0.0f;
+            }
+            else if (Block is LiteralBlock)
+            {
+                string val = ((LiteralBlock)Block).Value;
+                double result;
+                if (double.TryParse(val, NumberStyles.Any, CultureInfo.InvariantCulture, out result))
+                {
+                    return result == 0.0;
+                }
+            }
+            return false;
+        }
+    }
 }

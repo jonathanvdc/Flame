@@ -64,7 +64,11 @@ namespace Flame.Cpp.Emit
         {
             var left = (ICppBlock)A;
             var right = (ICppBlock)B;
-            if (BinaryOperation.IsSupported(Op, left.Type, right.Type))
+            if (left.IsZeroLiteral() && right.Type.get_IsPrimitive())
+            {
+                return new UnaryOperation(this, right, Operator.Subtract);
+            }
+            else if (BinaryOperation.IsSupported(Op, left.Type, right.Type))
             {
                 return new BinaryOperation(this, left, Op, right);
             }
