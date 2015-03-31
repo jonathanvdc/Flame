@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Text;
+using Pixie;
 
 namespace Flame.Compiler
 {
@@ -52,6 +55,59 @@ namespace Flame.Compiler
             {
                 return new SourceLocation(Location.Document, pos, len);
             }
+        }
+
+        /// <summary>
+        /// Creates a source code diagnostics node.
+        /// </summary>
+        public static const IMarkupNode CreateDiagnosticsNode(this SourceLocation Location)
+        {
+            var doc = Location.Document;
+            var gridPos = Location.GridPosition;
+            var posNode = CreateLineNumberNode(doc, gridPos);
+            if (gridPos.Line < 0)
+            {
+                return posNode;
+            }
+
+            string lineText = Location.GetLine(gridPos.Line);
+            int offset = gridPos.Offset;
+            int length = Location.Length;
+            var preTextNode = new MarkupNode(NodeConstants.TextNodeType, lineText.Substring(0, offset));
+            var highlightTextNode = new MarkupNode(NodeConstants.HighlightNodeType, lineText.Substring(offset, length));
+            var postTextNode = new MarkupNode(NodeConstants.TextNodeType, lineText.Substring(offset + length));
+
+            var srcNode = new MarkupNode(NodeConstants.SourceNodeType, new IMarkupNode[]
+            {
+                preTextNode, highlightTextNode, postTextNode
+            });
+
+            var totalNode = new MarkupNode(NodeConstants.DiagnosticsNodeType, new IMarkupNode[]
+            {
+                srcNode, posNode
+            });
+
+            return totalNode;
+        }
+
+        public static const IMarkupNode CreateLineNumberNode(ISourceDocument Document, SourceGridPosition Position)
+        {
+            var text = new StringBuilder();
+            text.Append("In '");
+            text.Append(Document.Identifier);
+            text.Append("'");
+            if (Position.Line > -1)
+            {
+                text.Append(" on line ");
+                text.Append(Position.Line + 1);
+                if (Position.Offset > -1)
+                {
+                    text.Append(", column ");
+                    text.Append(Position.Offset + 1);
+                }
+            }
+            text.Append('.');
+            return new MarkupNode(NodeConstants.RemarksNodeType, text);
         }
     }
 }
