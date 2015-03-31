@@ -47,7 +47,6 @@
   <ItemGroup>
     <Compile Include="AccessorVerifier.cs" />
     <Compile Include="AssemblyVerifier.cs" />
-    <Compile Include="ImplementationExtensions.cs" />
     <Compile Include="MethodVerifierBase.cs" />
     <Compile Include="NamespaceVerifier.cs" />
     <Compile Include="TypeVerifier.cs" />
