@@ -1,0 +1,25 @@
+namespace Pixie
+{
+    /// <summary>
+    /// Defines a collection of attributes.
+    /// </summary>
+    public interface IAttributes
+    {
+        /// <summary>
+        /// Gets the attribute with the given key if it is present.
+        /// Otherwise, returns the given default value.
+        /// </summary>
+        const T Get<T>(string Key, T Default);
+
+        /// <summary>
+        /// Gets a boolean value that indicates whether an attribute is identified
+        /// by the given key.
+        /// </summary>
+        const bool ContainsKey(string Key);
+
+        /// <summary>
+        /// Gets all attribute keys in this attribute collection.
+        /// </summary>
+        [string] Keys { const get; }
+    }
+}
