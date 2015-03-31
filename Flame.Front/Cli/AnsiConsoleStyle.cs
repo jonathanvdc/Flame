@@ -74,13 +74,13 @@ namespace Flame.Front.Cli
         public string GetEscapeSequence()
         {
             List<string> codes = new List<string>();
-            if (!IsBold)
+            if (IsBold)
             {
-                codes.Add("0");
+                codes.Add("1");
             }
             else
             {
-                codes.Add("1");
+                codes.Add("0");
             }
             codes.Add("3" + colorIdents[ForegroundConsoleColor].ToString(CultureInfo.InvariantCulture));
             codes.Add("4" + colorIdents[BackgroundConsoleColor].ToString(CultureInfo.InvariantCulture));

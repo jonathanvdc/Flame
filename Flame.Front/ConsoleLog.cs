@@ -81,6 +81,13 @@ namespace Flame.Front
                 gapQueued = true;
             }
         }
+        public void CancelWhiteline()
+        {
+            lock (writeLock)
+            {
+                gapQueued = false;
+            }
+        }
         public void WriteSeparator()
         {
             lock (writeLock)
@@ -334,7 +341,8 @@ namespace Flame.Front
             var caretStyle = new Style("caret-marker", CaretColor, new Color());
             string indent = new string(' ', 4);
             int bufWidth = BufferWidth - indent.Length - 4;
-            WriteWhiteline();
+            CancelWhiteline();
+            WriteLine();
             using (var writer = new SourceNodeWriter(Console, caretStyle, highlightingStyle, indent, bufWidth))
             {
                 writer.Write(Node);
