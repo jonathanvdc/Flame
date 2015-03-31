@@ -271,18 +271,13 @@ namespace Flame.Front
                 CaretStarted = false;
             }
             string nodeText = Node.GetText();
-            bool started = false;
             foreach (var item in nodeText)
             {
-                if (!started)
+                if (Width == 0)
                 {
                     if (char.IsWhiteSpace(item))
                     {
                         continue;
-                    }
-                    else
-                    {
-                        started = true;
                     }
                 }
 
@@ -304,7 +299,6 @@ namespace Flame.Front
                         CaretConsole.Clear();
                     }
                     Width = 0;
-                    started = false;
                 }
                 if (!CaretStarted && UseCaret)
                 {

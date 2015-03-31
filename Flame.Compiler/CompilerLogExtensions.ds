@@ -72,9 +72,15 @@ namespace Flame.Compiler
 
             string lineText = doc.GetLine(gridPos.Line);
             int offset = gridPos.Offset;
-            int length = Location.Length;
+            int length = Math.Min(Location.Length, lineText.Length - offset);
             var preTextNode = new MarkupNode(NodeConstants.TextNodeType, lineText.Substring(0, offset));
-            var highlightTextNode = new MarkupNode(NodeConstants.HighlightNodeType, lineText.Substring(offset, length));
+            string highlightedText = lineText.Substring(offset, length);
+            if (string.IsNullOrWhiteSpace(highlightedText))
+            {
+                highlightedText = " "; // Make sure we have at least a whitespace
+                                       // character to highlight.
+            }
+            var highlightTextNode = new MarkupNode(NodeConstants.HighlightNodeType, highlightedText);
             var postTextNode = new MarkupNode(NodeConstants.TextNodeType, lineText.Substring(offset + length));
 
             var srcNode = new MarkupNode(NodeConstants.SourceNodeType, new IMarkupNode[]
