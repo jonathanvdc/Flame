@@ -24,7 +24,7 @@ namespace Flame.DSProject
 
             var relUri = localUri.MakeRelativeUri(absUri);
 
-            this.SourceIdentifier = relUri.LocalPath;
+            this.SourceIdentifier = relUri.ToString();
         }
         public DSProjectSourceItem(string SourceIdentifier)
         {
@@ -33,7 +33,7 @@ namespace Flame.DSProject
 
         public ISourceDocument GetSource(string CurrentPath)
         {
-            Uri sourceUri = CurrentPath == null ? new Uri(SourceIdentifier, UriKind.Relative) : new Uri(new Uri(CurrentPath), new Uri(SourceIdentifier, UriKind.Relative));
+            Uri sourceUri = CurrentPath == null ? new Uri(SourceIdentifier, UriKind.RelativeOrAbsolute) : new Uri(new Uri(CurrentPath), new Uri(SourceIdentifier, UriKind.Relative));
             using (FileStream fs = new FileStream(sourceUri.LocalPath, FileMode.Open))
             using (StreamReader reader = new StreamReader(fs))
             {

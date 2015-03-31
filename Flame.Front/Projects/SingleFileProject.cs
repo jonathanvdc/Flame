@@ -35,7 +35,8 @@ namespace Flame.Front.Projects
             if (projChildren == null)
             {
                 List<IProjectItem> items = new List<IProjectItem>();
-                foreach (var item in Path.Arguments)
+                string[] excluded = new[] { "source", "make-project" };
+                foreach (var item in Path.Arguments.Where(item => !excluded.Contains(item.Key)))
                 {
                     items.Add(new ProjectOption(item.Key, item.Value.Length == 0 ? "true" : item.Value[0]));
                 }
@@ -47,7 +48,7 @@ namespace Flame.Front.Projects
                 }));
                 items.Add(new ProjectNode(new IProjectItem[]
                 {
-                    new ProjectSource(FilePath.Path)
+                    new ProjectSource(FilePath.AbsolutePath.Path)
                 }));
                 projChildren = items.ToArray();
             }

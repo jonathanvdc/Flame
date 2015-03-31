@@ -35,8 +35,9 @@ namespace dsc.Projects
                 var sfp = new SingleFileProject(Path);
                 if (Path.MakeProject)
                 {
-                    var dsp = DSProject.FromProject(sfp, sfp.FilePath.AbsolutePath.Path);
-                    dsp.WriteTo(Path.ChangeExtension("dsproj").Path.Path);
+                    var newPath = Path.ChangeExtension("dsproj");
+                    var dsp = DSProject.FromProject(sfp, newPath.Path.AbsolutePath.Path);
+                    dsp.WriteTo(newPath.Path.Path);
                     return dsp;
                 }
                 else
