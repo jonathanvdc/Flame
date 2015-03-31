@@ -112,7 +112,7 @@ namespace dsc.Projects
         }
         public static CompilationUnit ParseCompilationUnit(ITokenStream TokenParser)
         {
-            DSharpSyntaxParser syntaxParser = new DSharpSyntaxParser(ConsoleLog.Instance);
+            DSharpSyntaxParser syntaxParser = new DSharpSyntaxParser(Program.CompilerLog);
             return syntaxParser.ParseCompilationUnit(TokenParser);
         }
     }

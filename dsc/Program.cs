@@ -19,13 +19,18 @@ using Flame.Front.Projects;
 using Flame.Front.Options;
 using Flame.Front.State;
 using Flame.Front;
+using Flame.Front.Cli;
 
 namespace dsc
 {
     public static class Program
     {
+        public static ConsoleLog CompilerLog { get; private set; }
+
         public static void Main(string[] args)
         {
+            var log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(), new StringCompilerOptions());
+            CompilerLog = log;
             if (args.Length == 0)
             {
                 Console.WriteLine("Welcome to the glorious D# compiler.");
@@ -33,14 +38,14 @@ namespace dsc
                 args = Console.ReadLine().Split(' ');
             }
 
-            var buildArgs = BuildArguments.Parse(CreateOptionParser(), ConsoleLog.Instance, args);
+            var buildArgs = BuildArguments.Parse(CreateOptionParser(), log, args);
             if (buildArgs.PrintVersion)
             {
                 CompilerVersion.PrintVersion();
             }
             if (!buildArgs.CanCompile)
             {
-                ConsoleLog.Instance.WriteBlockEntry("Nothing to compile", ConsoleColor.Yellow, "No source file or project was given.");
+                log.WriteBlockEntry("Nothing to compile", DefaultConsole.ToPixieColor(ConsoleColor.Yellow), "No source file or project was given.");
                 return;
             }
 
@@ -48,19 +53,23 @@ namespace dsc
             {
                 var projPath = new ProjectPath(buildArgs.SourcePath, buildArgs);
                 var handler = ProjectHandlers.GetProjectHandler(projPath);
-                var project = handler.Parse(projPath);
+                var project = LoadProject(projPath, handler, log);
                 var currentPath = GetAbsolutePath(buildArgs.SourcePath);
 
-                Compile(project, new CompilerEnvironment(currentPath, buildArgs, handler, project, ConsoleLog.Instance)).Wait();
+                Compile(project, new CompilerEnvironment(currentPath, buildArgs, handler, project, log)).Wait();
             }
             catch (Exception ex)
             {
-                ConsoleLog.Instance.WriteErrorBlock("Compilation terminated", "Compilation has been terminated due to a fatal error.");
+                log.WriteErrorBlock("Compilation terminated", "Compilation has been terminated due to a fatal error.");
                 var entry = new LogEntry("Exception", ex.ToString());
                 if (buildArgs.LogFilter.ShouldLogEvent(entry))
                 {
-                    ConsoleLog.Instance.LogError(entry);
+                    log.LogError(entry);
                 }
+            }
+            finally
+            {
+                log.Dispose();
             }
         }
 
@@ -96,14 +105,14 @@ namespace dsc
             return options;
         }
 
-        public static IProject LoadProject(ProjectPath Path, IProjectHandler Handler)
+        public static IProject LoadProject(ProjectPath Path, IProjectHandler Handler, ICompilerLog Log)
         {
             if (!Path.FileExists)
             {
-                ConsoleLog.Instance.LogError(new LogEntry("File not found", "The file at '" + Path + "' could not be found."));
+                Log.LogError(new LogEntry("File not found", "The file at '" + Path + "' could not be found."));
                 throw new FileNotFoundException("The file at '" + Path + "' could not be found.");
             }
-            ConsoleLog.Instance.LogEvent(new LogEntry("Status", "Parsing project at '" + Path + "'"));
+            Log.LogEvent(new LogEntry("Status", "Parsing project at '" + Path + "'"));
             IProject proj;
             try
             {
@@ -111,10 +120,10 @@ namespace dsc
             }
             catch (Exception)
             {
-                ConsoleLog.Instance.LogError(new LogEntry("Error parsing project", "An error occured when parsing the project at '" + Path + "'"));
+                Log.LogError(new LogEntry("Error parsing project", "An error occured when parsing the project at '" + Path + "'"));
                 throw;
             }
-            ConsoleLog.Instance.LogEvent(new LogEntry("Status", "Parsed project at '" + Path + "' (" + proj.Name + ")"));
+            Log.LogEvent(new LogEntry("Status", "Parsed project at '" + Path + "' (" + proj.Name + ")"));
             return proj;
         }
 

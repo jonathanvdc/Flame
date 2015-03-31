@@ -38,6 +38,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Flame.Compiler\bin\Flame.Compiler.dll</HintPath>
     </Reference>
+    <Reference Include="Pixie">
+      <HintPath>..\Pixie\bin\Pixie.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -51,6 +54,9 @@
     <Compile Include="Cli\ConsoleBase.cs" />
     <Compile Include="Cli\ConsoleDescription.cs" />
     <Compile Include="Cli\ConsoleEnvironment.cs" />
+    <Compile Include="Cli\DefaultConsoleStyle.cs" />
+    <Compile Include="Cli\IndirectConsole.cs" />
+    <Compile Include="Cli\Style.cs" />
     <Compile Include="ConsoleLog.cs" />
     <Compile Include="Cli\DefaultConsole.cs" />
     <Compile Include="EmptyAssemblyResolver.cs" />
