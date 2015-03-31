@@ -105,10 +105,19 @@ namespace Flame.Cecil
 
         #region GetMethodOverrides
 
-        protected static IEnumerable<KeyValuePair<IMethod, MethodReference>> GetMethodOverrides(ICecilType DeclaringType, CecilModule Module, IMethod Template)
+        protected static MethodReference[] ImportMethodOverrides(ICecilType DeclaringType, CecilModule Module, IMethod[] Overrides, IGenericParameter[] GenericParameters)
         {
-            var baseMethods = Template.GetBaseMethods();
-            return baseMethods.Zip(baseMethods.Select((item) => item.GetImportedReference(Module, DeclaringType.GetTypeReference())), (a, b) => new KeyValuePair<IMethod, MethodReference>(a, b));
+            MethodReference[] refs = new MethodReference[Overrides.Length];
+            TypeReference tRef = null;
+            for (int i = 0; i < refs.Length; i++)
+            {
+                if (tRef == null) // Optimize the case where the method has no overrides
+                {
+                    tRef = DeclaringType.GetTypeReference();
+                }
+                refs[i] = Overrides[i].GetGenericDeclaration().GetImportedReference(Module, tRef);
+            }
+            return refs;
         }
 
         #endregion
@@ -119,15 +128,15 @@ namespace Flame.Cecil
 
             var attrs = ExtractMethodAttributes(Template.GetAttributes());
 
-            var baseMethods = GetMethodOverrides(DeclaringType, module, Template).Distinct().ToArray();
+            var baseMethods = Template.GetBaseMethods().Distinct().ToArray();
 
-            var simpleBaseMethod = baseMethods.FirstOrDefault((item) => !item.Key.DeclaringType.get_IsInterface());
+            var simpleBaseMethod = baseMethods.FirstOrDefault((item) => !item.DeclaringType.get_IsInterface());
             if (baseMethods.Length > 0 && ((attrs & MethodAttributes.Virtual) != MethodAttributes.Virtual))
             {
                 attrs |= MethodAttributes.Virtual | MethodAttributes.Final;
             }
 
-            if (simpleBaseMethod.Key == null && ((attrs & MethodAttributes.Virtual) == MethodAttributes.Virtual))
+            if (simpleBaseMethod == null && ((attrs & MethodAttributes.Virtual) == MethodAttributes.Virtual))
             {
                 attrs |= MethodAttributes.NewSlot;
             }
@@ -175,9 +184,9 @@ namespace Flame.Cecil
             var cecilGenericParams = CecilGenericParameter.DeclareGenericParameters(methodDef, Template.GetGenericParameters().ToArray(), module);
 
             var cecilMethod = new CecilMethodBuilder(DeclaringType, methodDef);
+            var genericParams = cecilGenericParams.Select((item) => new CecilGenericParameter(item, cecilMethod.Module, cecilMethod)).ToArray();
             if (!methodDef.IsConstructor)
             {
-                var genericParams = cecilGenericParams.Select((item) => new CecilGenericParameter(item, cecilMethod.Module, cecilMethod)).ToArray();
                 methodDef.ReturnType = DeclaringType.ResolveType(CecilTypeBuilder.GetGenericType(Template.ReturnType, genericParams)).GetImportedReference(module, methodDef);
             }
 
@@ -195,16 +204,18 @@ namespace Flame.Cecil
             }
 
             var log = ((INamespace)DeclaringType).GetLog();
-            if (simpleBaseMethod.Key == null)
+            if (simpleBaseMethod == null)
             {
-                foreach (var item in baseMethods)
+                var imported = ImportMethodOverrides(DeclaringType, module, baseMethods, genericParams);
+                foreach (var item in imported)
                 {
-                    methodDef.AddOverride(item.Value, log);
+                    methodDef.AddOverride(item, log);
                 }
             }
             else
             {
-                methodDef.AddOverride(simpleBaseMethod.Value, log);
+                var imported = ImportMethodOverrides(DeclaringType, module, new[] { simpleBaseMethod }, genericParams);
+                methodDef.AddOverride(imported[0], log);
             }
 
             return cecilMethod;
