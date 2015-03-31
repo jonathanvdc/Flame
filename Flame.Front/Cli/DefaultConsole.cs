@@ -65,14 +65,14 @@ namespace Flame.Front.Cli
             consoleColorMapping = new Dictionary<ConsoleColor, Color>();
 
             consoleColorMapping.Add(ConsoleColor.Black,         new Color(0, 0, 0));
-            consoleColorMapping.Add(ConsoleColor.DarkBlue,      new Color(0, 0, 0.55));
-            consoleColorMapping.Add(ConsoleColor.DarkGreen,     new Color(0, 0.4, 0));
-            consoleColorMapping.Add(ConsoleColor.DarkCyan,      new Color(0, 0.55, 0.55));
-            consoleColorMapping.Add(ConsoleColor.DarkRed,       new Color(0.55, 0, 0));
-            consoleColorMapping.Add(ConsoleColor.DarkMagenta,   new Color(0.55, 0, 0.55));
-            consoleColorMapping.Add(ConsoleColor.DarkYellow,    new Color(0.55, 0.55, 0.0));
-            consoleColorMapping.Add(ConsoleColor.Gray,          new Color(0.5, 0.5, 0.5));
-            consoleColorMapping.Add(ConsoleColor.DarkGray,      new Color(0.4, 0.4, 0.4));
+            consoleColorMapping.Add(ConsoleColor.DarkBlue,      new Color(0, 0, 0.5));
+            consoleColorMapping.Add(ConsoleColor.DarkGreen,         new Color(0, 0.5, 0));
+            consoleColorMapping.Add(ConsoleColor.DarkCyan,      new Color(0, 0.5, 0.5));
+            consoleColorMapping.Add(ConsoleColor.DarkRed,       new Color(0.5, 0, 0));
+            consoleColorMapping.Add(ConsoleColor.DarkMagenta,   new Color(0.5, 0, 0.5));
+            consoleColorMapping.Add(ConsoleColor.DarkYellow,    new Color(0.5, 0.5, 0.0));
+            consoleColorMapping.Add(ConsoleColor.Gray,          new Color(0.75, 0.75, 0.75));
+            consoleColorMapping.Add(ConsoleColor.DarkGray,      new Color(0.5, 0.5, 0.5));
             consoleColorMapping.Add(ConsoleColor.Blue,          new Color(0.0, 0.0, 1.0));
             consoleColorMapping.Add(ConsoleColor.Cyan,          new Color(0.0, 1.0, 1.0));
             consoleColorMapping.Add(ConsoleColor.Green,         new Color(0.0, 1.0, 0.0));
