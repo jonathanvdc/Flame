@@ -29,9 +29,9 @@ namespace Flame.DSharp.Build
             return Syntax;
         }
 
-		
+
 		public abstract const MethodSyntax GetMethodSyntax();
-		
+
         public MethodSyntax Syntax { const get return GetMethodSyntax(); }
         public abstract ISyntaxState GetSyntaxState();
         public abstract ISyntaxState GetDeclaringSyntaxState();
@@ -62,7 +62,7 @@ namespace Flame.DSharp.Build
             var parameters = GetParameters();
 
 			var blockStatements = new List<IStatement>();
-			
+
 			if (this.IsConstructor)
 			{
 				if (!this.IsStatic)
@@ -70,7 +70,7 @@ namespace Flame.DSharp.Build
 					blockStatements.Add(DSharpTypeExtensions.CreateBaseConstructorCall(state));
 				}
 			}
-            
+
             for (int i = 0; i < parameters.Length; i++)
             {
                 if (parameters[i].SetsMember)
@@ -86,14 +86,14 @@ namespace Flame.DSharp.Build
                     }
                 }
             }
-            
+
             blockStatements.Add(statement);
 
             if (!this.HasReturnValue)
             {
             	blockStatements.Add(new ReturnStatement());
             }
-            
+
             return new BlockStatement(blockStatements.ToArray());
         }
 
@@ -104,7 +104,7 @@ namespace Flame.DSharp.Build
             {
                 if (returnTypeVal == null)
                 {
-                    returnTypeVal = Syntax.Signature.TypeSyntax.CreateType(GetSyntaxState());
+                    returnTypeVal = Syntax.Signature.TypeSyntax.CreateVerifiedType(GetSyntaxState());
                 }
                 return returnTypeVal;
             }
@@ -152,7 +152,7 @@ namespace Flame.DSharp.Build
 
         public string Name
         {
-            const get 
+            const get
             {
             	if (Syntax.Signature.IsOperator)
             	{
@@ -175,7 +175,7 @@ namespace Flame.DSharp.Build
             		}
             	}
             	else
-            		return Syntax.Signature.NameToken.TokenValue; 
+            		return Syntax.Signature.NameToken.TokenValue;
            	}
         }
 
@@ -186,13 +186,13 @@ namespace Flame.DSharp.Build
 
 		private IAttribute[] attrCache;
 		public [IAttribute] Attributes { const get return GetAttributes(); }
-		
+
         public const [IAttribute] GetAttributes()
         {
         	if (attrCache == null)
         	{
 	            var state = GetSyntaxState();
-	
+
 	            var modifierAttrs = Syntax.Signature.ModifierTokens.GetModifiers();
 	            var extraAttrs = new List<IAttribute>();
 	            // Singleton constructor handling
@@ -231,12 +231,12 @@ namespace Flame.DSharp.Build
 	            	}
 	            	extraAttrs.Add(new AccessAttribute(accessMod));
 	            }
-	            
+
 	            foreach (var item in modifierAttrs)
 		            extraAttrs.Add(item);
 		        foreach (var item in Syntax.Signature.Attributes)
 		        	extraAttrs.Add(item.CreateAttribute(state, this));
-		        	
+
 		        if (Syntax.Signature.IsOperator)
 		        {
 		        	string opName = Syntax.Signature.NameToken.TokenValue;
@@ -254,21 +254,21 @@ namespace Flame.DSharp.Build
 		        		extraAttrs.Add(new OperatorAttribute(op));
 		        	}
 		        }
-		        	
+
 		       	extraAttrs.AddRange(Syntax.GetDescriptionAttributes(GetDeclaringSyntaxState()));
-		       	
+
 	            attrCache = extraAttrs.ToArray();
 	    	}
 	    	return ([IAttribute])attrCache;
         }
 
         #endregion
-        
+
         #region Base Methods
-        
+
         private IMethod[] baseMethodCache;
         public IMethod[] BaseMethods { const get return GetBaseMethods(); }
-        
+
         public virtual IMethod[] GetBaseMethods()
         {
         	if (baseMethodCache == null)
@@ -306,7 +306,7 @@ namespace Flame.DSharp.Build
             }
             return baseMethodCache;
         }
-        
+
         #endregion
 
         #region Generics

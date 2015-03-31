@@ -36,11 +36,26 @@ namespace Flame.Cpp.Emit
             get { return Target.CodeGenerator; }
         }
 
+        private bool? cachedUseMakeShared;
         protected bool CanUseMakeShared
         {
             get
             {
-                return Target is INewObjectBlock && ((INewObjectBlock)Target).Kind == AllocationKind.UnmanagedHeap;
+                if (!cachedUseMakeShared.HasValue)
+	            {
+		            if (Target is INewObjectBlock && ((INewObjectBlock)Target).Kind == AllocationKind.UnmanagedHeap)
+                    {
+                        // Make sure that the ctor std::make_shared<T> is calling is public.
+                        var innerCtor = (INewObjectBlock)Target;
+                        var ctor = Target.Type.AsContainerType().GetElementType().GetConstructor(innerCtor.Arguments.Select(item => item.Type).ToArray());
+                        return ctor != null && ctor.get_Access() == AccessModifier.Public; // Must be public.
+                    }
+                    else
+                    {
+                        cachedUseMakeShared = false;
+                    }
+	            }
+                return cachedUseMakeShared.Value;
             }
         }
 

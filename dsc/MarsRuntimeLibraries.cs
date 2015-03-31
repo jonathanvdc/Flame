@@ -1,4 +1,5 @@
 ﻿using Flame;
+using Flame.Front;
 using Flame.MIPS;
 using System;
 using System.Collections.Generic;
@@ -41,12 +42,12 @@ namespace dsc
 
         private class MarsRTLibraryResolver : IAssemblyResolver
         {
-            public async Task<IAssembly> ResolveAsync(string Identifier, IDependencyBuilder DependencyBuilder)
+            public async Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
             {
-                return RevolveRuntimeLibrary(Identifier);
+                return RevolveRuntimeLibrary(Identifier.Path);
             }
 
-            public async Task CopyAsync(string SourceIdentifier, string TargetIdentifier)
+            public async Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier)
             {
             }
         }

@@ -25,15 +25,9 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        public override CodeBuilder GetCode()
+        public override ICppBlock Simplify()
         {
-            var cb = new CodeBuilder();
-            cb.Append("while (");
-            cb.Append(Condition.GetCode());
-            cb.Append(')');
-            cb.AppendLine();
-            cb.AddBodyCodeBuilder(base.GetCode());
-            return cb;
+            return new WhileBlock(Condition, base.Simplify());
         }
 
         public override IEnumerable<CppLocal> LocalsUsed

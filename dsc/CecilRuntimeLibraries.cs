@@ -1,7 +1,7 @@
 ﻿using dsc.Target;
 using Flame;
 using Flame.Cecil;
-using Mono.Cecil;
+using Flame.Front;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,17 +48,17 @@ namespace dsc
                 default:
                     return null;
             }
-            return new CecilAssembly(AssemblyDefinition.ReadAssembly(loadedAsm.Location));
+            return new CecilAssembly(Mono.Cecil.AssemblyDefinition.ReadAssembly(loadedAsm.Location));
         }
 
         private class CecilRTLibraryResolver : IAssemblyResolver
         {
-            public async Task<IAssembly> ResolveAsync(string Identifier, IDependencyBuilder DependencyBuilder)
+            public async Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
             {
-                return RevolveRuntimeLibrary(Identifier);
+                return RevolveRuntimeLibrary(Identifier.Path);
             }
 
-            public async Task CopyAsync(string SourceIdentifier, string TargetIdentifier)
+            public async Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier)
             {
             }
         }

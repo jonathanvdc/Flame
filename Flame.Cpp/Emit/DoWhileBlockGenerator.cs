@@ -25,20 +25,14 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        public override CodeBuilder GetCode()
+        public override ICppBlock Simplify()
         {
-            var cb = new CodeBuilder();
-            cb.AddLine("do");
-            cb.AddBodyCodeBuilder(base.GetCode());
-            cb.Append("while (");
-            cb.Append(Condition.GetCode());
-            cb.Append(");");
-            return cb;
+            return new DoWhileBlock(Condition, base.Simplify());
         }
 
         public override IEnumerable<CppLocal> LocalsUsed
         {
-            get { return Condition.LocalsUsed.Concat(base.LocalsUsed).Distinct(); }
+            get { return Condition.LocalsUsed.Union(base.LocalsUsed); }
         }
 
         public override string ToString()
