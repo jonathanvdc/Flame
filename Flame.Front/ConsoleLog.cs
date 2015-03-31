@@ -206,7 +206,7 @@ namespace Flame.Front
         {
             get
             {
-                return Palette.MakeContrastColor(DefaultConsole.ToPixieColor(ConsoleColor.Red));
+                return Palette.MakeBrightColor(DefaultConsole.ToPixieColor(ConsoleColor.Red));
             }
         }
 
@@ -222,7 +222,7 @@ namespace Flame.Front
         {
             get
             {
-                return Palette.MakeContrastColor(DefaultConsole.ToPixieColor(ConsoleColor.Yellow));
+                return Palette.MakeBrightColor(DefaultConsole.ToPixieColor(ConsoleColor.Yellow));
             }
         }
 
@@ -238,7 +238,7 @@ namespace Flame.Front
         {
             get
             {
-                return Palette.MakeContrastColor(DefaultConsole.ToPixieColor(ConsoleColor.Blue));
+                return Palette.MakeBrightColor(DefaultConsole.ToPixieColor(ConsoleColor.Blue));
             }
         }
 
@@ -254,7 +254,7 @@ namespace Flame.Front
         {
             get
             {
-                return Palette.MakeContrastColor(DefaultConsole.ToPixieColor(ConsoleColor.Green));
+                return Palette.MakeBrightColor(DefaultConsole.ToPixieColor(ConsoleColor.Green));
             }
         }
 
@@ -270,7 +270,7 @@ namespace Flame.Front
         {
             get
             {
-                return Palette.MakeContrastColor(DefaultConsole.ToPixieColor(ConsoleColor.Gray));
+                return Palette.MakeBrightColor(DefaultConsole.ToPixieColor(ConsoleColor.Gray));
             }
         }
 

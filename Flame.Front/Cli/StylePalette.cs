@@ -37,7 +37,7 @@ namespace Flame.Front.Cli
         {
             get
             {
-                return MakeContrastColor(ForegroundColor);
+                return MakeBrightColor(ForegroundColor);
             }
         }
 
@@ -56,7 +56,7 @@ namespace Flame.Front.Cli
             return result;
         }
 
-        public Color MakeContrastColor(Color Value)
+        public Color MakeBrightColor(Color Value)
         {
             return ChangeLuminance(Value, 0.5 + (0.5 - BackgroundLuminance) / 3.0);
         }

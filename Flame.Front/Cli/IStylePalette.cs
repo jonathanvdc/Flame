@@ -12,7 +12,7 @@ namespace Flame.Front.Cli
         Style GetNamedStyle(string Name);
         bool IsNamedStyle(string Name);
 
-        Color MakeContrastColor(Color Value);
+        Color MakeBrightColor(Color Value);
         Color MakeDimColor(Color Value);
     }
 }
