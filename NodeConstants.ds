@@ -6,52 +6,57 @@ namespace Pixie
     public static class NodeConstants
     {
         /// <summary>
-        /// The markup node type of text nodes.
+        /// A markup node type for text nodes.
         /// </summary>
         public const string TextNodeType = "#text";
 
         /// <summary>
-        /// The attribute key for text node contents.
+        /// An attribute key for text node contents.
         /// </summary>
         public const string TextAttribute = "#text";
 
         /// <summary>
-        /// The attribute key for color attributes.
+        /// An attribute key for color attributes.
         /// </summary>
         public const string ColorAttribute = "color";
 
         /// <summary>
-        /// The markup node type for nodes that contain an error report.
+        /// A markup node type for nodes that contain an error report.
         /// </summary>
         public const string ErrorNodeType = "error";
 
         /// <summary>
-        /// The markup node type for nodes that contain an warning report.
+        /// A markup node type for nodes that contain an warning report.
         /// </summary>
         public const string WarningNodeType = "warning";
 
         /// <summary>
-        /// The markup node type for message nodes.
+        /// A markup node type for message nodes.
         /// </summary>
         public const string MessageNodeType = "message";
 
         /// <summary>
-        /// The markup node type for nodes that report events.
+        /// A markup node type for nodes that report events.
         /// </summary>
         public const string EventNodeType = "event";
 
         /// <summary>
-        /// The markup node type for nodes that report a success.
+        /// A markup node type for nodes that report a success.
         /// </summary>
         public const string SuccessNodeType = "success";
 
         /// <summary>
-        /// The markup node type for nodes that should be highlighted.
+        /// A markup node type for nodes that should be highlighted.
         /// </summary>
         public const string HighlightNodeType = "highlight";
 
         /// <summary>
-        /// The markup node type for title nodes.
+        /// A markup node type that identifies a source code node.
+        /// </summary>
+        public const string SourceNodeType = "source";
+
+        /// <summary>
+        /// A markup node type for title nodes.
         /// </summary>
         public const string TitleNodeType = "title";
     }
