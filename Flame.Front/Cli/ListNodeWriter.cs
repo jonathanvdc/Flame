@@ -23,6 +23,7 @@ namespace Flame.Front.Cli
             foreach (var item in Node.Children)
             {
                 Console.WriteLine();
+                Console.Write(" * ");
                 MainWriter.Write(item);
             }
         }

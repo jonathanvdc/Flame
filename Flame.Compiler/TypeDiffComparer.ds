@@ -57,7 +57,7 @@ namespace Flame.Compiler
             string secondName = TypeNamer.Convert(Second);
             if (firstName.Equals(secondName))
             {
-                return ToTextNode(secondName);
+                return ToTextNode(GenericNameExtensions.TrimGenerics(secondName));
             }
             else return HighlightNode(secondName);
         }
