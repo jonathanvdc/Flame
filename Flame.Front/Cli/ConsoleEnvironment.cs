@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Flame.Compiler;
+using Flame.Front.Options;
+using Pixie;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -47,31 +50,45 @@ namespace Flame.Front.Cli
 
         static ConsoleEnvironment()
         {
-            registeredConsoles = new List<KeyValuePair<Func<string, bool>, Func<string, IConsole>>>();
-            RegisterConsole(name => name != null && name.Equals(XTermIdentifier, StringComparison.OrdinalIgnoreCase), name => new AnsiConsole(name, DefaultConsole.GetBufferWidth()));
+            registeredConsoles = new List<KeyValuePair<Func<string, bool>, Func<string, ICompilerOptions, IConsole>>>();
+            RegisterConsole(name => name != null && name.Equals(XTermIdentifier, StringComparison.OrdinalIgnoreCase),
+                (name, ops) => new AnsiConsole(name, DefaultConsole.GetBufferWidth(), GetForegroundColor(ops), GetBackgroundColor(ops)));
         }
 
-        private static List<KeyValuePair<Func<string, bool>, Func<string, IConsole>>> registeredConsoles;
+        private static List<KeyValuePair<Func<string, bool>, Func<string, ICompilerOptions, IConsole>>> registeredConsoles;
 
-        public static void RegisterConsole(Func<string, bool> Predicate, Func<string, IConsole> Builder)
+        public static void RegisterConsole(Func<string, bool> Predicate, Func<string, ICompilerOptions, IConsole> Builder)
         {
-            registeredConsoles.Add(new KeyValuePair<Func<string, bool>, Func<string, IConsole>>(Predicate, Builder));
+            registeredConsoles.Add(new KeyValuePair<Func<string, bool>, Func<string, ICompilerOptions, IConsole>>(Predicate, Builder));
         }
 
-        public static IConsole AcquireConsole(string Identifier)
+        private static Color GetForegroundColor(ICompilerOptions Options)
+        {
+            return Options.GetOption<Color>("fg-color", new Color());
+        }
+        private static Color GetBackgroundColor(ICompilerOptions Options)
+        {
+            return Options.GetOption<Color>("bg-color", new Color());
+        }
+
+        public static IConsole AcquireConsole(string Identifier, ICompilerOptions Options)
         {
             foreach (var item in registeredConsoles)
             {
                 if (item.Key(Identifier))
                 {
-                    return item.Value(Identifier);
+                    return item.Value(Identifier, Options);
                 }
             }
-            return new DefaultConsole(DefaultConsole.GetBufferWidth());
+            return new DefaultConsole(DefaultConsole.GetBufferWidth(), GetForegroundColor(Options), GetBackgroundColor(Options));
+        }
+        public static IConsole AcquireConsole(ICompilerOptions Options)
+        {
+            return AcquireConsole(TerminalIdentifier, Options);
         }
         public static IConsole AcquireConsole()
         {
-            return AcquireConsole(TerminalIdentifier);
+            return AcquireConsole(TerminalIdentifier, new StringCompilerOptions());
         }
     }
 }

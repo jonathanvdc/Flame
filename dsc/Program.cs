@@ -30,7 +30,6 @@ namespace dsc
         public static void Main(string[] args)
         {
             var log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(), new StringCompilerOptions());
-            CompilerLog = log;
             if (args.Length == 0)
             {
                 Console.WriteLine("Welcome to the glorious D# compiler.");
@@ -39,6 +38,11 @@ namespace dsc
             }
 
             var buildArgs = BuildArguments.Parse(CreateOptionParser(), log, args);
+
+            log.Dispose();
+            log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(buildArgs), new StringCompilerOptions());
+            CompilerLog = log;
+
             if (buildArgs.PrintVersion)
             {
                 CompilerVersion.PrintVersion();

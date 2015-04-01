@@ -9,37 +9,48 @@ namespace Flame.Front.Cli
 {
     public class AnsiConsole : ConsoleBase<AnsiConsoleStyle>
     {
-        public AnsiConsole(string Name, int BufferWidth)
+        public AnsiConsole(string Name, int BufferWidth, Color ForegroundColor, Color BackgroundColor)
+            : base(new AnsiConsoleStyle(ForegroundColor.Over(DefaultForegroundColor), BackgroundColor.Over(DefaultBackgroundColor), true))
         {
-            var initStyle = GetInitialStyle();
-            this.desc = new ConsoleDescription(Name, BufferWidth, initStyle.ForegroundColor, initStyle.BackgroundColor);
+            desc = new ConsoleDescription("default", BufferWidth, 
+                InitialStyle.ForegroundColor, InitialStyle.BackgroundColor);
+        }
+        public AnsiConsole(string Name, int BufferWidth)
+            : this(Name, BufferWidth, new Color(), new Color())
+        {
+        }
+
+        public static Color DefaultBackgroundColor
+        {
+            get
+            {
+                return DefaultConsole.DefaultBackgroundColor;
+            }
+        }
+
+        public static Color DefaultForegroundColor
+        {
+            get
+            {
+                return DefaultConsole.DefaultForegroundColor;
+            }
         }
 
         private ConsoleDescription desc;
-        private AnsiConsoleStyle initialStyle;
 
         public override ConsoleDescription Description
         {
             get { return desc; }
         }
 
-        protected override AnsiConsoleStyle GetInitialStyle()
-        {
-            if (initialStyle == null)
-            {
-                initialStyle = new AnsiConsoleStyle(new Color(0.75), new Color(0.0), true);
-            }
-            return initialStyle;
-        }
-
         protected override AnsiConsoleStyle MergeStyles(AnsiConsoleStyle Source, Style Delta)
         {
-            return new AnsiConsoleStyle(Delta.ForegroundColor, Delta.BackgroundColor, Source == null);
+            return new AnsiConsoleStyle(Delta.ForegroundColor.Over(Source.ForegroundColor), Delta.BackgroundColor.Over(Source.BackgroundColor), Source == null);
         }
 
         protected override void ApplyStyle(AnsiConsoleStyle OldStyle, AnsiConsoleStyle Style)
         {
-            Style.Apply(OldStyle, GetInitialStyle());
+            Style.Apply(OldStyle, InitialStyle);
         }
 
         public override void Dispose()

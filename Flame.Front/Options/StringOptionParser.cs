@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pixie;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -15,6 +16,29 @@ namespace Flame.Front.Options
         }
 
         #region Static
+
+        static StringOptionParser()
+        {
+            namedColors = new Dictionary<string, Color>();
+            namedColors["red"] = new Color(1.0, 0.0, 0.0);
+            namedColors["green"] = new Color(0.0, 1.0, 0.0);
+            namedColors["blue"] = new Color(0.0, 0.0, 1.0);
+            namedColors["yellow"] = new Color(1.0, 1.0, 0.0);
+            namedColors["magenta"] = new Color(1.0, 0.0, 1.0);
+            namedColors["cyan"] = new Color(0.0, 1.0, 1.0);
+            namedColors["black"] = new Color(0.0, 0.0, 0.0);
+            namedColors["white"] = new Color(1.0, 1.0, 1.0);
+            namedColors["gray"] = new Color(0.75, 0.75, 0.75);
+            namedColors["dark-gray"] = new Color(0.5, 0.5, 0.5);
+            namedColors["dark-red"] = new Color(0.5, 0.0, 0.0);
+            namedColors["dark-green"] = new Color(0.0, 0.5, 0.0);
+            namedColors["dark-blue"] = new Color(0.0, 0.0, 0.5);
+            namedColors["dark-yellow"] = new Color(0.5, 0.5, 0.0);
+            namedColors["dark-magenta"] = new Color(0.5, 0.0, 0.5);
+            namedColors["dark-cyan"] = new Color(0.0, 0.5, 0.5);
+        }
+
+        private static Dictionary<string, Color> namedColors;
 
         public static void RegisterPrimitiveParsers(StringOptionParser Parser)
         {
@@ -39,6 +63,14 @@ namespace Flame.Front.Options
             Parser.RegisterParser<ChatLevel>(ChatLogFilter.ParseChatLevel);
             Parser.RegisterParser<ILogFilter>(ChatLogFilter.ParseLogFilter);
             Parser.RegisterParser<PathIdentifier>(PathIdentifier.Parse);
+            Parser.RegisterParser<Color>(item =>
+            {
+                if (namedColors.ContainsKey(item))
+                {
+                    return namedColors[item];
+                }
+                else return Color.Static_Singleton.Instance.Parse(item);
+            });
         }
 
         public static StringOptionParser CreateDefault()
