@@ -10,12 +10,13 @@ namespace Flame.Front.Cli
 {
     public class AnsiConsoleStyle
     {
-        public AnsiConsoleStyle(Color ForegroundColor, Color BackgroundColor, bool ResetAll)
+        public AnsiConsoleStyle(Color ForegroundColor, Color BackgroundColor, bool Underline, bool ResetAll)
         {
             this.ForegroundColor = ForegroundColor;
             this.BackgroundColor = BackgroundColor;
             this.ForegroundConsoleColor = DefaultConsole.ToConsoleColor(ForegroundColor);
             this.BackgroundConsoleColor = DefaultConsole.ToConsoleColor(BackgroundColor);
+            this.Underline = Underline;
             this.ResetAll = ResetAll;
         }
 
@@ -25,6 +26,7 @@ namespace Flame.Front.Cli
 
         public ConsoleColor ForegroundConsoleColor { get; private set; }
         public ConsoleColor BackgroundConsoleColor { get; private set; }
+        public bool Underline { get; private set; }
 
         public bool IsBold
         {
@@ -77,7 +79,7 @@ namespace Flame.Front.Cli
         {
             List<string> codes = new List<string>();
             bool reset = false;
-            if (ResetAll || (!IsBold && OldStyle.IsBold))
+            if (ResetAll || (!IsBold && OldStyle.IsBold) || (!Underline && OldStyle.Underline))
             {
                 codes.Add("0");
                 reset = true;
@@ -85,6 +87,10 @@ namespace Flame.Front.Cli
             else if (IsBold && !OldStyle.IsBold)
             {
                 codes.Add("1");
+            }
+            else if (Underline && !OldStyle.Underline)
+            {
+                codes.Add("4");
             }
             if (!ResetAll)
             {
