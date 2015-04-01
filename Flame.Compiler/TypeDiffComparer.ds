@@ -1,0 +1,143 @@
+using System;
+using System.Collections.Generic;
+using Flame.Build;
+using Pixie;
+
+namespace Flame.Compiler
+{
+    public virtual class TypeDiffComparer : TypeComparerBase<IMarkupNode>
+    {
+        public const this(set IConverter<IType, string> TypeNamer);
+        public const this()
+        {
+            this.TypeNamer = new TypeNamerBase();
+        }
+
+        public IConverter<IType, string> TypeNamer { const get; private set; }
+
+        public static const IMarkupNode HighlightNode(IMarkupNode Node)
+        {
+            return new MarkupNode(NodeConstants.HighlightNodeType, new IMarkupNode[] { Node });
+        }
+        public static const IMarkupNode HighlightExtraNode(IMarkupNode Node)
+        {
+            var dict = new Dictionary<string, object>();
+            dict["type"] = "extra";
+            var attrs = new PredefinedAttributes(dict);
+            return new MarkupNode(NodeConstants.HighlightNodeType, attrs, new IMarkupNode[] { Node });
+        }
+        public static const IMarkupNode HighlightMissingNode(IMarkupNode Node)
+        {
+            var dict = new Dictionary<string, object>();
+            dict["type"] = "missing";
+            var attrs = new PredefinedAttributes(dict);
+            return new MarkupNode(NodeConstants.HighlightNodeType, attrs, new IMarkupNode[] { Node });
+        }
+        public static const IMarkupNode HighlightNode(string Text)
+        {
+            return HighlightNode(ToTextNode(Text));
+        }
+        public static const IMarkupNode HighlightExtraNode(string Text)
+        {
+            return HighlightExtraNode(ToTextNode(Text));
+        }
+        public static const IMarkupNode HighlightMissingNode(string Text)
+        {
+            return HighlightMissingNode(ToTextNode(Text));
+        }
+
+        public static const IMarkupNode ToTextNode(string Text)
+        {
+            return new MarkupNode(NodeConstants.TextNodeType, Text);
+        }
+
+        protected override const IMarkupNode CompareDefault(IType First, IType Second)
+        {
+            string firstName = TypeNamer.Convert(First);
+            string secondName = TypeNamer.Convert(Second);
+            if (firstName.Equals(secondName))
+            {
+                return ToTextNode(secondName);
+            }
+            else return HighlightNode(secondName);
+        }
+        protected override const IMarkupNode MakeGenericInstanceComparison(IMarkupNode DeclarationComparison, [IMarkupNode] TypeArgumentComparisons)
+        {
+            var nodes = new List<IMarkupNode>();
+            nodes.Add(DeclarationComparison);
+            nodes.Add(ToTextNode("<"));
+            bool isFirst = true;
+            foreach (var item in TypeArgumentComparisons)
+            {
+                if (isFirst)
+                {
+                    isFirst = false;
+                }
+                else nodes.Add(ToTextNode(", "));
+                nodes.Add(item);
+            }
+            nodes.Add(ToTextNode(">"));
+            return new MarkupNode("node", nodes);
+        }
+        protected override const IMarkupNode MakePointerComparison(IMarkupNode ElementComparison, PointerKind FirstKind, PointerKind SecondKind)
+        {
+            if (FirstKind == SecondKind)
+            {
+                return new MarkupNode("node", new IMarkupNode[] { ElementComparison, ToTextNode(SecondKind.ToString()) });
+            }
+            else return new MarkupNode("node", new IMarkupNode[] { ElementComparison, HighlightNode(SecondKind.ToString()) });
+        }
+        protected override const IMarkupNode MakeArrayComparison(IMarkupNode ElementComparison, int FirstRank, int SecondRank)
+        {
+            var nodes = new List<IMarkupNode>();
+            nodes.Add(ElementComparison);
+            nodes.Add(ToTextNode("["));
+            for (int i = 1; i < SecondRank; i++)
+            {
+                if (i < FirstRank)
+                    nodes.Add(ToTextNode(","));
+                else
+                    nodes.Add(HighlightMissingNode(","));
+            }
+            if (SecondRank < FirstRank)
+                nodes.Add(HighlightExtraNode("]"));
+            else
+                nodes.Add(ToTextNode("]"));
+            return new MarkupNode("node", nodes);
+        }
+        protected override const IMarkupNode MakeVectorComparison(IMarkupNode ElementComparison, int[] FirstDimensions, int[] SecondDimensions)
+        {
+            var nodes = new List<IMarkupNode>();
+            nodes.Add(ElementComparison);
+            nodes.Add(ToTextNode("["));
+            for (int i = 0; i < SecondDimensions.Length; i++)
+            {
+                if (i > 0)
+                {
+                    nodes.Add(ToTextNode(", "));
+                }
+                if (i < FirstDimensions.Length)
+                {
+                    if (FirstDimensions[i] == SecondDimensions[i])
+                    {
+                        nodes.Add(ToTextNode(SecondDimensions[i].ToString()));
+                    }
+                    else nodes.Add(HighlightNode(SecondDimensions[i].ToString()));
+                }
+                else
+                {
+                    nodes.Add(HighlightMissingNode(SecondDimensions[i].ToString()));
+                }
+            }
+            if (SecondDimensions.Length < FirstDimensions.Length)
+            {
+                nodes.Add(HighlightExtraNode("]"));
+            }
+            else
+            {
+                nodes.Add(ToTextNode("]"));
+            }
+            return new MarkupNode("node", nodes);
+        }
+    }
+}

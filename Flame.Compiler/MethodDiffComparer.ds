@@ -1,0 +1,57 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Build;
+using Pixie;
+
+namespace Flame.Compiler
+{
+    public virtual class MethodDiffComparer
+    {
+        public const this(set IConverter<IType, string> TypeNamer,
+                          set TypeComparerBase<IMarkupNode> Comparer);
+        public const this(set IConverter<IType, string> TypeNamer)
+        {
+            this.Comparer = new TypeDiffComparer(TypeNamer);
+        }
+        public const this()
+        {
+            var cmp = new TypeDiffComparer();
+            this.Comparer = cmp;
+            this.TypeNamer = cmp.TypeNamer;
+        }
+
+        public IConverter<IType, string> TypeNamer { const get; private set; }
+        public TypeComparerBase<IMarkupNode> Comparer { const get; private set; }
+
+        public const IMarkupNode CompareArguments([IType] ArgumentTypes, IMethod Method)
+        {
+            var argArray = Enumerable.ToArray<IType>(ArgumentTypes);
+            var paramArray = Method.GetParameters();
+            var nodes = new List<IMarkupNode>();
+            nodes.Add(TypeDiffComparer.ToTextNode("("));
+            for (int i = 0; i < paramArray.Length; i++)
+            {
+                if (i > 0)
+                {
+                    nodes.Add(TypeDiffComparer.ToTextNode(", "));
+                }
+                if (i < argArray.Length)
+                {
+                    nodes.Add(Comparer.Compare(argArray[i], paramArray[i].ParameterType));
+                }
+                else
+                {
+                    string name = TypeNamer.Convert(paramArray[i].ParameterType);
+                    nodes.Add(TypeDiffComparer.HighlightMissingNode(name));
+                }
+            }
+            if (paramArray.Length < argArray.Length)
+                nodes.Add(TypeDiffComparer.HighlightExtraNode(")"));
+            else
+                nodes.Add(TypeDiffComparer.ToTextNode(")"));
+
+            return new MarkupNode("node", nodes);
+        }
+    }
+}
