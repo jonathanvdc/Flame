@@ -1,0 +1,24 @@
+using System;
+using System.Collections.Generic;
+
+public static class InvalidGenericsTest
+{
+    public const int Sum(List<int> Values)
+    {
+        int result = 0;
+        foreach (int item in Values) result += item;
+        return result;
+    }
+    public const long Sum(List<long> Values)
+    {
+        long result = 0;
+        foreach (long item in Values) result += item;
+        return result;
+    }
+
+    public void Test()
+    {
+        var vals = new List<double>();
+        double result = Sum(vals);
+    }
+}
