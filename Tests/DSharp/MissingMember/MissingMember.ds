@@ -2,11 +2,12 @@ public class SemicolonTest
 {
     public const this();
 
-    public int X(int Value) return Value + 1;
+    public int X(string Left, int Right) return Left.Length + Right;
+    public int X() return 5;
 
     public int MethodTest()
     {
-        return this.X();
+        return this.X("Howdy", 2.0);
     }
 
     public int FieldTest()
