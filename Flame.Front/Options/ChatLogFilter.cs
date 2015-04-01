@@ -28,6 +28,10 @@ namespace Flame.Front.Options
 
         public bool ShouldLogError(LogEntry Error)
         {
+            if ("exception".Equals(Error.Name, StringComparison.OrdinalIgnoreCase)) // Only log exceptions when being loud
+            {
+                return Level == ChatLevel.Loud;
+            }
             return Level != ChatLevel.None;
         }
 

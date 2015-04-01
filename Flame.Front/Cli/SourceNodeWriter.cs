@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Front.Cli
 {
-    public class SourceNodeWriter : INodeWriter, IDisposable
+    public class SourceNodeWriter : INodeWriter
     {
         public SourceNodeWriter(IConsole Console, Style CaretStyle, Style HighlightStyle, string Indentation, int MaxWidth)
         {
@@ -110,11 +110,8 @@ namespace Flame.Front.Cli
 
         public void Write(IMarkupNode Node)
         {
+            Console.WriteLine();
             Write(Node, false, false);
-        }
-
-        public void Dispose()
-        {
             FlushLine();
         }
     }
