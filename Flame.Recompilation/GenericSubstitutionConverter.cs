@@ -25,8 +25,8 @@ namespace Flame.Recompilation
             {
                 if (map == null)
                 {
-                    map = GenericInstance.GetGenericParameters()
-                            .Zip(GenericInstance.GetGenericArguments(), (a, b) => new KeyValuePair<IGenericParameter, IType>(a, b))
+                    map = GenericInstance.GetRecursiveGenericParameters()
+                            .Zip(GenericInstance.GetRecursiveGenericArguments(), (a, b) => new KeyValuePair<IGenericParameter, IType>(a, b))
                             .ToDictionary<KeyValuePair<IGenericParameter, IType>, IGenericParameter, IType>(
                                 item => item.Key, 
                                 item => item.Value, 
