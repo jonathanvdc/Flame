@@ -257,6 +257,38 @@ namespace Flame.Front
             }
         }
 
+        public Color ContrastCyan
+        {
+            get
+            {
+                return Palette.MakeBrightColor(DefaultConsole.ToPixieColor(ConsoleColor.Cyan));
+            }
+        }
+
+        public Color DimCyan
+        {
+            get
+            {
+                return Palette.MakeDimColor(DefaultConsole.ToPixieColor(ConsoleColor.Cyan));
+            }
+        }
+
+        public Color ContrastMagenta
+        {
+            get
+            {
+                return Palette.MakeBrightColor(DefaultConsole.ToPixieColor(ConsoleColor.Magenta));
+            }
+        }
+
+        public Color DimMagenta
+        {
+            get
+            {
+                return Palette.MakeDimColor(DefaultConsole.ToPixieColor(ConsoleColor.Magenta));
+            }
+        }
+
         public Color ContrastGreen
         {
             get
@@ -312,44 +344,21 @@ namespace Flame.Front
 
         private void WriteNodeCore(IMarkupNode Node, Color CaretColor, Color HighlightColor)
         {
-            if (Node.Type == NodeConstants.SourceNodeType)
-            {
-                WriteWhiteline();
-                WriteSourceNode(Node, CaretColor, HighlightColor);
-                WriteWhiteline();
-            }
-            else if (Node.Type == NodeConstants.RemarksNodeType)
-            {
-                WriteWhiteline();
-                Console.PushStyle(new Style("remarks", DimGray, new Color()));
-                Write("Remarks: ");
-                WriteNodeDefault(Node, CaretColor, HighlightColor);
-                Console.PopStyle();
-                WriteWhiteline();
-            }
-            else
-            {
-                WriteNodeDefault(Node, CaretColor, HighlightColor);
-            }
+            var writer = new NodeWriter(Console);
+            writer.Writers[NodeConstants.RemarksNodeType] = new RemarksNodeWriter(Console, writer, new Style("remarks", DimGray, new Color()));
+            writer.Writers[NodeConstants.SourceNodeType] = new SourceNodeWriter(Console, 
+                new Style("caret-marker", CaretColor, new Color()),
+                new Style("caret-highlight", HighlightColor, new Color()),
+                new string(' ', 4),
+                BufferWidth - 8);
+            writer.Writers["list"] = new ListNodeWriter(Console, writer);
+            writer.Writers[NodeConstants.HighlightNodeType] = new HighlightingNodeWriter(Console, writer,
+                new Style("highlight", ContrastCyan, new Color()),
+                new Style("highlight-missing", ContrastYellow, new Color()),
+                new Style("highlight-extra", ContrastMagenta, new Color()));
+
+            writer.Write(Node);
         }
-
-        #region WriteSourceNode
-
-        private void WriteSourceNode(IMarkupNode Node, Color CaretColor, Color HighlightColor)
-        {
-            var highlightingStyle = new Style("caret-highlight", HighlightColor, new Color());
-            var caretStyle = new Style("caret-marker", CaretColor, new Color());
-            string indent = new string(' ', 4);
-            int bufWidth = BufferWidth - indent.Length - 4;
-            CancelWhiteline();
-            WriteLine();
-            using (var writer = new SourceNodeWriter(Console, caretStyle, highlightingStyle, indent, bufWidth))
-            {
-                writer.Write(Node);
-            }
-        }
-
-        #endregion
 
         #endregion
 

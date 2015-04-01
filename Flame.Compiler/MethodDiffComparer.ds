@@ -38,7 +38,15 @@ namespace Flame.Compiler
                 }
                 if (i < argArray.Length)
                 {
-                    nodes.Add(Comparer.Compare(argArray[i], paramArray[i].ParameterType));
+                    if (argArray[i] == null)
+                    {
+                        string name = TypeNamer.Convert(paramArray[i].ParameterType);
+                        nodes.Add(TypeDiffComparer.HighlightNode(name));
+                    }
+                    else
+                    {
+                        nodes.Add(Comparer.Compare(argArray[i], paramArray[i].ParameterType));
+                    }
                 }
                 else
                 {
