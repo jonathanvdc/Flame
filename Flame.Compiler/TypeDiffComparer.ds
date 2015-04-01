@@ -53,9 +53,8 @@ namespace Flame.Compiler
 
         protected override const IMarkupNode CompareDefault(IType First, IType Second)
         {
-            string firstName = TypeNamer.Convert(First);
             string secondName = TypeNamer.Convert(Second);
-            if (firstName.Equals(secondName))
+            if (First.Is(Second))
             {
                 return ToTextNode(GenericNameExtensions.TrimGenerics(secondName));
             }

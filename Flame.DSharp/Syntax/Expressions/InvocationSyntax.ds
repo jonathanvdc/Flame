@@ -123,17 +123,25 @@ namespace Flame.Syntax.DSharp
             {
                 nodes.Add(TypeDiffComparer.ToTextNode("static "));
             }
-            var retType = Method.ReturnType;
-            if (retType == null)
+            if (Method.IsConstructor)
             {
-                nodes.Add(TypeDiffComparer.ToTextNode("void"));
+                nodes.Add(TypeDiffComparer.ToTextNode("new "));
+                nodes.Add(TypeDiffComparer.ToTextNode(TypeNamer.Convert(Method.DeclaringType)));
             }
             else
             {
-                nodes.Add(TypeDiffComparer.ToTextNode(TypeNamer.Convert(Method.ReturnType)));
+                var retType = Method.ReturnType;
+                if (retType == null)
+                {
+                    nodes.Add(TypeDiffComparer.ToTextNode("void"));
+                }
+                else
+                {
+                    nodes.Add(TypeDiffComparer.ToTextNode(TypeNamer.Convert(Method.ReturnType)));
+                }
+                nodes.Add(TypeDiffComparer.ToTextNode(" "));
+                nodes.Add(TypeDiffComparer.ToTextNode(Method.FullName));
             }
-            nodes.Add(TypeDiffComparer.ToTextNode(" "));
-            nodes.Add(TypeDiffComparer.ToTextNode(Method.FullName));
             var methodDiffBuilder = new MethodDiffComparer(TypeNamer);
             nodes.Add(methodDiffBuilder.CompareArguments(ArgumentTypes, Method));
             return new MarkupNode("node", nodes);

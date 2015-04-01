@@ -21,4 +21,9 @@ public static class InvalidGenericsTest
         var vals = new List<double>();
         double result = Sum(vals);
     }
+
+    public Dictionary<double, double> Test2()
+    {
+        return new Dictionary<double, double>(2.0);
+    }
 }
