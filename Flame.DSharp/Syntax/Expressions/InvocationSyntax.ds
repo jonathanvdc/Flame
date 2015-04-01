@@ -6,6 +6,7 @@ using Flame.Compiler;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Variables;
 using Flame.DSharp.Lexer;
+using Flame.DSharp.Build;
 using Pixie;
 
 namespace Flame.Syntax.DSharp
@@ -98,7 +99,7 @@ namespace Flame.Syntax.DSharp
             return new InvocationExpression(Method, callerExpr, callArgs.ToArray());
         }
 
-        public static const void AppendCallSignature(CodeBuilder SignatureBuilder, IType[] argTypes)
+        public static const void AppendCallSignature(CodeBuilder SignatureBuilder, IType[] argTypes, IConverter<IType, string> TypeNamer)
         {
     	    SignatureBuilder.Append('(');
         	bool first = true;
@@ -110,12 +111,12 @@ namespace Flame.Syntax.DSharp
         			SignatureBuilder.Append(", ");
 
         		if (item == null) SignatureBuilder.Append("<unresolved type>");
-        		else SignatureBuilder.Append(item.FullName);
+        		else SignatureBuilder.Append(TypeNamer.Convert(item));
         	}
         	SignatureBuilder.Append(')');
         }
 
-        public static const IMarkupNode CreateSignatureDiff(IMethod Method, IType[] ArgumentTypes)
+        public static const IMarkupNode CreateSignatureDiff(IMethod Method, IType[] ArgumentTypes, IConverter<IType, string> TypeNamer)
         {
             var nodes = new List<IMarkupNode>();
             if (Method.IsStatic)
@@ -129,28 +130,28 @@ namespace Flame.Syntax.DSharp
             }
             else
             {
-                nodes.Add(TypeDiffComparer.ToTextNode(Method.ReturnType.FullName));
+                nodes.Add(TypeDiffComparer.ToTextNode(TypeNamer.Convert(Method.ReturnType)));
             }
             nodes.Add(TypeDiffComparer.ToTextNode(" "));
             nodes.Add(TypeDiffComparer.ToTextNode(Method.FullName));
-            var methodDiffBuilder = new MethodDiffComparer();
+            var methodDiffBuilder = new MethodDiffComparer(TypeNamer);
             nodes.Add(methodDiffBuilder.CompareArguments(ArgumentTypes, Method));
             return new MarkupNode("node", nodes);
         }
 
-        public static const CodeBuilder CreateExpectedSignatureDescription(IType CallerType, CodeBuilder CallerCode, IType[] ArgumentTypes, bool AllowStatic)
+        public static const CodeBuilder CreateExpectedSignatureDescription(IType CallerType, CodeBuilder CallerCode, IType[] ArgumentTypes, bool AllowStatic, IConverter<IType, string> TypeNamer)
         {
             CodeBuilder expectedSignature = new CodeBuilder();
         	expectedSignature.Append("'");
         	if (CallerType == null && AllowStatic)
         		expectedSignature.Append("static ");
 			expectedSignature.Append(CallerCode);
-        	AppendCallSignature(expectedSignature, ArgumentTypes);
+        	AppendCallSignature(expectedSignature, ArgumentTypes, TypeNamer);
         	expectedSignature.Append("'");
         	if (CallerType != null)
         	{
             	expectedSignature.Append(" (where the caller expression is of type '");
-            	expectedSignature.Append(CallerType.FullName);
+            	expectedSignature.Append(TypeNamer.Convert(CallerType));
             	expectedSignature.Append("')");
         	}
         	return expectedSignature;
@@ -186,7 +187,8 @@ namespace Flame.Syntax.DSharp
             }
             if (method == null)
             {
-            	CodeBuilder expectedSignature = CreateExpectedSignatureDescription(callerType, Method.GetCode(), argTypes, true);
+                var namer = new DSharpTypeNamer();
+            	CodeBuilder expectedSignature = CreateExpectedSignatureDescription(callerType, Method.GetCode(), argTypes, true, namer);
 
             	var failedMatches = Enumerable.ToArray<IMethod>(Enumerable.OfType<IMethod>(matches));
             	if (failedMatches.Length > 0)
@@ -194,7 +196,7 @@ namespace Flame.Syntax.DSharp
             		var failedMatchesList = new List<IMarkupNode>();
             		foreach (var item in failedMatches)
             		{
-                        failedMatchesList.Add(CreateSignatureDiff(item, argTypes));
+                        failedMatchesList.Add(CreateSignatureDiff(item, argTypes, namer));
             		}
                     var explanationNode = new MarkupNode(NodeConstants.TextNodeType,
                         "Method call '" + this.GetCode().ToString() + "' could not be resolved. Expected signature compatible with " + expectedSignature.ToString() + ". Incompatible or ambiguous matches:");
