@@ -73,6 +73,8 @@ namespace dsc
             }
             finally
             {
+                log.CancelWhiteline();
+                log.WriteLine();
                 log.Dispose();
             }
         }
