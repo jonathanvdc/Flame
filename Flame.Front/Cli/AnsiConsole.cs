@@ -16,6 +16,7 @@ namespace Flame.Front.Cli
         }
 
         private ConsoleDescription desc;
+        private AnsiConsoleStyle initialStyle;
 
         public override ConsoleDescription Description
         {
@@ -24,17 +25,21 @@ namespace Flame.Front.Cli
 
         protected override AnsiConsoleStyle GetInitialStyle()
         {
-            return new AnsiConsoleStyle(null, new Color(0.75), new Color(0.0));
+            if (initialStyle == null)
+            {
+                initialStyle = new AnsiConsoleStyle(new Color(0.75), new Color(0.0), true);
+            }
+            return initialStyle;
         }
 
         protected override AnsiConsoleStyle MergeStyles(AnsiConsoleStyle Source, Style Delta)
         {
-            return new AnsiConsoleStyle(Source, Delta.ForegroundColor, Delta.BackgroundColor);
+            return new AnsiConsoleStyle(Delta.ForegroundColor, Delta.BackgroundColor, Source == null);
         }
 
-        protected override void ApplyStyle(AnsiConsoleStyle Style)
+        protected override void ApplyStyle(AnsiConsoleStyle OldStyle, AnsiConsoleStyle Style)
         {
-            Style.Apply();
+            Style.Apply(OldStyle, GetInitialStyle());
         }
 
         public override void Dispose()
