@@ -10,6 +10,7 @@
 		<Reference Include="../Flame/bin/Flame.dll" />
 		<Reference Include="../Flame.Compiler/bin/Flame.Compiler.dll" />
 		<Reference Include="../Flame.Syntax/bin/Flame.Syntax.dll" />
+		<Reference Include="../Pixie/bin/Pixie.dll" />
 	</ItemGroup>
 	<ItemGroup Name="Lexer">
 		<ItemGroup>
