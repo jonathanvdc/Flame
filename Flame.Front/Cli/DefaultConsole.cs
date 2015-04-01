@@ -34,7 +34,7 @@ namespace Flame.Front.Cli
             return new DefaultConsoleStyle(fgColor, bgColor);
         }
 
-        protected override void ApplyStyle(DefaultConsoleStyle Style)
+        protected override void ApplyStyle(DefaultConsoleStyle OldStyle, DefaultConsoleStyle Style)
         {
             Style.Apply();
         }

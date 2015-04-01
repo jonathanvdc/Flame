@@ -17,22 +17,23 @@ namespace Flame.Front.Cli
         public abstract ConsoleDescription Description { get; }
         protected abstract TStyle GetInitialStyle();
         protected abstract TStyle MergeStyles(TStyle Source, Style Delta);
-        protected abstract void ApplyStyle(TStyle Style);
+        protected abstract void ApplyStyle(TStyle PreviousStyle, TStyle NewStyle);
         public abstract void Dispose();
 
         private Stack<TStyle> styles;
 
         public void PushStyle(Style Value)
         {
-            var result = MergeStyles(styles.Peek(), Value);
+            var peek = styles.Peek();
+            var result = MergeStyles(peek, Value);
             styles.Push(result);
-            ApplyStyle(result);
+            ApplyStyle(peek, result);
         }
 
         public void PopStyle()
         {
-            styles.Pop();
-            ApplyStyle(styles.Peek());
+            var old = styles.Pop();
+            ApplyStyle(old, styles.Peek());
         }
 
         public void Write(string Text)

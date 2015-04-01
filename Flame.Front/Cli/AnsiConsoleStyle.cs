@@ -10,16 +10,18 @@ namespace Flame.Front.Cli
 {
     public class AnsiConsoleStyle
     {
-        public AnsiConsoleStyle(AnsiConsoleStyle PreviousStyle, Color ForegroundColor, Color BackgroundColor)
+        public AnsiConsoleStyle(Color ForegroundColor, Color BackgroundColor, bool ResetAll)
         {
             this.ForegroundColor = ForegroundColor;
             this.BackgroundColor = BackgroundColor;
             this.ForegroundConsoleColor = DefaultConsole.ToConsoleColor(ForegroundColor);
             this.BackgroundConsoleColor = DefaultConsole.ToConsoleColor(BackgroundColor);
+            this.ResetAll = ResetAll;
         }
 
         public Color ForegroundColor { get; private set; }
         public Color BackgroundColor { get; private set; }
+        public bool ResetAll { get; private set; }
 
         public ConsoleColor ForegroundConsoleColor { get; private set; }
         public ConsoleColor BackgroundConsoleColor { get; private set; }
@@ -32,9 +34,9 @@ namespace Flame.Front.Cli
             }
         }
 
-        public void Apply()
+        public void Apply(AnsiConsoleStyle OldStyle, AnsiConsoleStyle InitialStyle)
         {
-            Console.Write(GetEscapeSequence());
+            Console.Write(GetEscapeSequence(OldStyle, InitialStyle));
         }
 
         static AnsiConsoleStyle()
@@ -71,19 +73,30 @@ namespace Flame.Front.Cli
         private static Dictionary<ConsoleColor, int> colorIdents;
         private static HashSet<ConsoleColor> boldColors;
 
-        public string GetEscapeSequence()
+        public string GetEscapeSequence(AnsiConsoleStyle OldStyle, AnsiConsoleStyle InitialStyle)
         {
             List<string> codes = new List<string>();
-            if (IsBold)
+            bool reset = false;
+            if (ResetAll || (!IsBold && OldStyle.IsBold))
+            {
+                codes.Add("0");
+                reset = true;
+            }
+            else if (IsBold && !OldStyle.IsBold)
             {
                 codes.Add("1");
             }
-            else
+            if (!ResetAll)
             {
-                codes.Add("0");
+                if (reset && (ForegroundConsoleColor != InitialStyle.ForegroundConsoleColor) || ForegroundConsoleColor != OldStyle.ForegroundConsoleColor)
+                {
+                    codes.Add("3" + colorIdents[ForegroundConsoleColor].ToString(CultureInfo.InvariantCulture));
+                }
+                if (reset && (BackgroundConsoleColor != InitialStyle.BackgroundConsoleColor) || BackgroundConsoleColor != OldStyle.BackgroundConsoleColor)
+                {
+                    codes.Add("4" + colorIdents[BackgroundConsoleColor].ToString(CultureInfo.InvariantCulture));
+                }
             }
-            codes.Add("3" + colorIdents[ForegroundConsoleColor].ToString(CultureInfo.InvariantCulture));
-            codes.Add("4" + colorIdents[BackgroundConsoleColor].ToString(CultureInfo.InvariantCulture));
 
             if (codes.Count == 0)
             {
