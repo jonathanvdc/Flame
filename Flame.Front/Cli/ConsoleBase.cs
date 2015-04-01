@@ -8,14 +8,16 @@ namespace Flame.Front.Cli
 {
     public abstract class ConsoleBase<TStyle> : IConsole, IDisposable
     {
-        public ConsoleBase()
+        public ConsoleBase(TStyle InitialStyle)
         {
             styles = new Stack<TStyle>();
-            styles.Push(GetInitialStyle());
+            styles.Push(InitialStyle);
+            this.InitialStyle = InitialStyle;
         }
 
+        public TStyle InitialStyle { get; private set; }
+
         public abstract ConsoleDescription Description { get; }
-        protected abstract TStyle GetInitialStyle();
         protected abstract TStyle MergeStyles(TStyle Source, Style Delta);
         protected abstract void ApplyStyle(TStyle PreviousStyle, TStyle NewStyle);
         public abstract void Dispose();

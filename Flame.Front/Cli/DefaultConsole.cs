@@ -9,10 +9,31 @@ namespace Flame.Front.Cli
 {
     public class DefaultConsole : ConsoleBase<DefaultConsoleStyle>
     {
-        public DefaultConsole(int BufferWidth)
+        public DefaultConsole(int BufferWidth, Color ForegroundColor, Color BackgroundColor)
+            : base(new DefaultConsoleStyle(ForegroundColor.Over(DefaultForegroundColor), BackgroundColor.Over(DefaultBackgroundColor)))
         {
             desc = new ConsoleDescription("default", BufferWidth, 
-                ToPixieColor(Console.ForegroundColor), ToPixieColor(Console.BackgroundColor));
+                InitialStyle.ForegroundColor, InitialStyle.BackgroundColor);
+        }
+        public DefaultConsole(int BufferWidth)
+            : this(BufferWidth, new Color(), new Color())
+        {
+        }
+
+        public static Color DefaultBackgroundColor
+        {
+            get
+            {
+                return ToPixieColor(Console.BackgroundColor);
+            }
+        }
+
+        public static Color DefaultForegroundColor
+        {
+            get
+            {
+                return ToPixieColor(Console.ForegroundColor);
+            }
         }
 
         private ConsoleDescription desc;
@@ -20,11 +41,6 @@ namespace Flame.Front.Cli
         public override ConsoleDescription Description
         {
             get { return desc; }
-        }
-
-        protected override DefaultConsoleStyle GetInitialStyle()
-        {
-            return new DefaultConsoleStyle(ToPixieColor(Console.ForegroundColor), ToPixieColor(Console.BackgroundColor));
         }
 
         protected override DefaultConsoleStyle MergeStyles(DefaultConsoleStyle Source, Style Delta)
