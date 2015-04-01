@@ -202,6 +202,7 @@
 			<Compile Include="Build\SingletonInitializeMethod.ds" />
 			<Compile Include="Build\SyntaxInvariant.ds" />
 			<Compile Include="Build\SyntaxGenericParameter.ds" />
+			<Compile Include="Build\DSharpTypeNamer.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Variables">

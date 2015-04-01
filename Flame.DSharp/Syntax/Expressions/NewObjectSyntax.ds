@@ -7,6 +7,7 @@ using Flame.Compiler.Expressions;
 using Flame.Compiler.Variables;
 using Flame.DSharp.Lexer;
 using Flame.DSharp.Build;
+using Pixie;
 
 namespace Flame.Syntax.DSharp
 {
@@ -26,7 +27,7 @@ namespace Flame.Syntax.DSharp
         public Token NewKeyword { const get; private set; }
         public ITypeSyntax Type { const get; private set; }
         public [IExpressionSyntax] Arguments { const get; private set; }
-        
+
         public SourceLocation Location
         {
         	const get
@@ -77,7 +78,7 @@ namespace Flame.Syntax.DSharp
             else
             {
             	var argTypes = args.Types;
-            
+
                 var ctor = realType.GetConstructors().GetBestMethod(false, realType, argTypes);
 
                 if (ctor == null)
@@ -85,19 +86,21 @@ namespace Flame.Syntax.DSharp
                 	var newInstanceCode = new CodeBuilder();
                 	newInstanceCode.Append(NewKeyword.ToString());
                 	newInstanceCode.Append(Type.GetCode());
-                	var expectedSignature = InvocationSyntax.CreateExpectedSignatureDescription(null, newInstanceCode, argTypes, false);
+                    var namer = new DSharpTypeNamer();
+                	var expectedSignature = InvocationSyntax.CreateExpectedSignatureDescription(null, newInstanceCode, argTypes, false, namer);
                 	var failedMatches = Enumerable.ToArray<IMethod>(realType.GetConstructors());
 	            	if (failedMatches.Length > 0)
 	            	{
-	            		CodeBuilder failedMatchesList = new CodeBuilder();
-	            		foreach (var item in failedMatches)
-	            		{
-	            			failedMatchesList.Append("new ");
-	            			failedMatchesList.Append(item.DeclaringType.Name);
-	            			InvocationSyntax.AppendCallSignature(failedMatchesList, item.GetParameters().GetTypes());
-	            			failedMatchesList.AppendLine();
-	            		}
-	            		State.Log.LogError(new LogEntry("Constructor resolution error", "No appropriate constructor for '" + Type.GetCode().ToString() + "' could be found in new object expression '" + this.GetCode().ToString() + "', expected signature compatible with " + expectedSignature.ToString() + ". Incompatible or ambiguous matches: \r\n" + failedMatchesList, Location));
+                        var failedMatchesList = new List<IMarkupNode>();
+                        foreach (var item in failedMatches)
+                        {
+                            failedMatchesList.Add(InvocationSyntax.CreateSignatureDiff(item, argTypes, namer));
+                        }
+                        var explanationNode = new MarkupNode(NodeConstants.TextNodeType,
+                            "No appropriate constructor for '" + Type.GetCode().ToString() + "' could be found in new object expression '" + this.GetCode().ToString() + "', expected signature compatible with " + expectedSignature.ToString() + ". Incompatible or ambiguous matches:");
+                        var failedMatchesNode = new MarkupNode("list", failedMatchesList);
+                        var messageNode = new MarkupNode("entry", new IMarkupNode[] { explanationNode, failedMatchesNode });
+                        State.Log.LogError(new LogEntry("Constructor resolution error", messageNode, Location));
 	            	}
 	            	else
 	            	{

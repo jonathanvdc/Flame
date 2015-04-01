@@ -810,7 +810,8 @@ namespace Flame.Recompilation
                         }
                         catch (Exception ex)
                         {
-                            System.Diagnostics.Debugger.Break();
+                            Log.LogError(new LogEntry("Unhandled exception while recompiling field", "An unhandled exception was thrown while recompiling value of field '" + SourceField.FullName + "'."));
+                            Log.LogException(ex);
                             throw;
                         }
                     }
@@ -860,6 +861,8 @@ namespace Flame.Recompilation
             }
             catch (Exception ex)
             {
+                Log.LogError(new LogEntry("Unhandled exception while recompiling method", "An unhandled exception was thrown while recompiling method '" + SourceMethod.FullName + "'."));
+                Log.LogException(ex);
                 throw;
             }
         }
