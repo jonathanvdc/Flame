@@ -38,6 +38,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Flame.Compiler\bin\Flame.Compiler.dll</HintPath>
     </Reference>
+    <Reference Include="Pixie">
+      <HintPath>..\Pixie\bin\Pixie.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -48,15 +51,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinderResolver.cs" />
+    <Compile Include="Cli\AnsiConsole.cs" />
+    <Compile Include="Cli\AnsiConsoleStyle.cs" />
     <Compile Include="Cli\ConsoleBase.cs" />
     <Compile Include="Cli\ConsoleDescription.cs" />
     <Compile Include="Cli\ConsoleEnvironment.cs" />
+    <Compile Include="Cli\DefaultConsoleStyle.cs" />
+    <Compile Include="Cli\StylePalette.cs" />
+    <Compile Include="Cli\IndirectConsole.cs" />
+    <Compile Include="Cli\IStylePalette.cs" />
+    <Compile Include="Cli\SourceNodeWriter.cs" />
+    <Compile Include="Cli\Style.cs" />
     <Compile Include="ConsoleLog.cs" />
     <Compile Include="Cli\DefaultConsole.cs" />
     <Compile Include="EmptyAssemblyResolver.cs" />
     <Compile Include="FileOutputProvider.cs" />
     <Compile Include="Cli\IConsole.cs" />
     <Compile Include="MultiBinder.cs" />
+    <Compile Include="Cli\INodeWriter.cs" />
     <Compile Include="Options\TransformingOptionParser.cs" />
     <Compile Include="Options\MergedOptions.cs" />
     <Compile Include="PathIdentifier.cs" />

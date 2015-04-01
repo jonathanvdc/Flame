@@ -9,6 +9,7 @@
 		<RuntimeLibrary Include="System.Core" />
 		<Reference Include="../Flame/bin/Flame.dll" />
 		<Reference Include="../Flame.Compiler/bin/Flame.Compiler.dll" />
+		<Reference Include="../Pixie/bin/Pixie.dll" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Include="IExpressionSyntax.ds" />

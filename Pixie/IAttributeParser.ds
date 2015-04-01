@@ -1,0 +1,19 @@
+namespace Pixie
+{
+    /// <summary>
+    /// Defines common functionality for attribute value parsers.
+    /// </summary>
+    public interface IAttributeParser
+    {
+        /// <summary>
+        /// Parses an attribute's value.
+        /// </summary>
+        const T Parse<T>(string Value);
+
+        /// <summary>
+        /// Gets a boolean value that indicates whether this attribute handler
+        /// can parse a value of the given type or not.
+        /// </summary>
+        const bool CanParse<T>();
+    }
+}

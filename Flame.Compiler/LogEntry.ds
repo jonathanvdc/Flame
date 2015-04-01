@@ -1,0 +1,59 @@
+using System;
+using Pixie;
+
+namespace Flame.Compiler
+{
+    /// <summary>
+    /// Describes a compiler log entry.
+    /// </summary>
+    public class LogEntry
+    {
+        /// <summary>
+        /// Creates a new log entry from the given name.
+        /// </summary>
+        public const this(set string Name)
+        {
+            this.Contents = new MarkupNode(NodeConstants.TextNodeType, Name);
+        }
+        /// <summary>
+        /// Creates a new log entry from the given name and message.
+        /// </summary>
+        public const this(set string Name, string Message)
+        {
+            this.Contents = new MarkupNode(NodeConstants.TextNodeType, Message);
+        }
+        /// <summary>
+        /// Creates a new log entry from the given name and source location.
+        /// </summary>
+        public const this(set string Name, SourceLocation Location)
+        {
+            this.Contents = Location.CreateDiagnosticsNode();
+        }
+        /// <summary>
+        /// Creates a new log entry from the given name, message and source
+        /// location.
+        /// </summary>
+        public const this(set string Name, string Message, SourceLocation Location)
+        {
+            var messageNode = new MarkupNode(NodeConstants.TextNodeType, Message);
+            var diagNode = Location.CreateDiagnosticsNode();
+            this.Contents = new MarkupNode("entry", new IMarkupNode[] { messageNode, diagNode }); 
+        }
+        public const this(set string Name, set IMarkupNode Contents);
+
+        /// <summary>
+        /// Gets the log entry's name.
+        /// </summary>
+        public string Name { const get; private set; }
+
+        /// <summary>
+        /// Gets the log entry's contents.
+        /// </summary>
+        public IMarkupNode Contents { const get; private set; }
+
+        /// <summary>
+        /// Gets the log entry's entire error message.
+        /// </summary>
+        public string Message { const get return Contents.GetAllText(); }
+    }
+}

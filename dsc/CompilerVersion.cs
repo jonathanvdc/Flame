@@ -39,7 +39,7 @@ namespace dsc
             WriteVariable("Console", ConsoleEnvironment.TerminalIdentifier, msg);
             msg.AppendLine("You can check for new releases at https://github.com/jonathanvdc/Flame/releases.");
             msg.Append("Thanks for using dsc! Have fun writing code.");
-            ConsoleLog.Instance.LogMessage(new LogEntry("Current version", msg.ToString()));
+            Program.CompilerLog.LogMessage(new LogEntry("Current version", msg.ToString()));
         }
     }
 }

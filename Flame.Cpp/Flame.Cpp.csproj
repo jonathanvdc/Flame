@@ -39,6 +39,9 @@
     <Reference Include="Flame.Syntax">
       <HintPath>..\Flame.DSharp\bin\Flame.Syntax.dll</HintPath>
     </Reference>
+    <Reference Include="Pixie">
+      <HintPath>..\Pixie\bin\Pixie.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
