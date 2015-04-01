@@ -248,7 +248,7 @@ namespace Flame.Cpp
 
         public IMethod[] GetMethods()
         {
-            IEnumerable<IMethod> results = methods.Where((item) => !item.IsConstructor);
+            IEnumerable<IMethod> results = methods.Concat(friendMethods).Where((item) => !item.IsConstructor);
             if (Invariants.HasInvariants)
             {
                 if (!Invariants.InheritsInvariants)
@@ -270,7 +270,7 @@ namespace Flame.Cpp
 
         public ITypeMember[] GetMembers()
         {
-            return GetCppMembers().OfType<ITypeMember>().ToArray();
+            return GetCppMembers().Concat(friendMethods).OfType<ITypeMember>().ToArray();
         }
 
         public IEnumerable<ICppMember> GetCppMembers()

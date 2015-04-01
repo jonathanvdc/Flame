@@ -39,6 +39,7 @@
 		<Compile Include="Operator.ds" />
 		<Compile Include="AccessModifier.ds" />
 		<Compile Include="GenericNameExtensions.ds" />
+        <Compile Include="GenericExtensions.ds" />
 		<Compile Include="INamespaceTree.ds" />
 		<Compile Include="NamespaceTreeExtensions.ds" />
 		<Compile Include="SingletonExtensions.ds" />

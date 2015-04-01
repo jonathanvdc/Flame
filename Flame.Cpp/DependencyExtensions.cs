@@ -126,7 +126,10 @@ namespace Flame.Cpp
             }
             else if (Type is ICppMember)
             {
-                //return new IHeaderDependency[] { new TypeHeaderDependency(Type) };
+                if (Type.DeclaringNamespace is IType)
+                {
+                    return ((IType)Type.DeclaringNamespace).GetDependencies(Exclude);
+                }
                 return new IHeaderDependency[] { new CppFile((ICppMember)Type) };
             }
             else if (Type.Equals(PrimitiveTypes.String))

@@ -15,14 +15,14 @@ using Flame.Syntax.DSharp;
 
 namespace Flame.DSharp.Build
 {
-	public class AssociatedSingletonSyntaxType : IType
+	public class AssociatedSingletonSyntaxType : IType, IEquatable<IType>
 	{
 		public const this(set ISyntaxState InstanceState, set TypeDeclarationSyntax Syntax);
-	
+
 		public ISyntaxState InstanceState { const get; private set; }
 		public IType InstanceType { const get return InstanceState.CurrentType; }
 		public TypeDeclarationSyntax Syntax { const get; private set; }
-		
+
         public const ISyntaxState GetSyntaxState()
         {
 	    	var descMethod = new DescribedMethod();
@@ -30,11 +30,11 @@ namespace Flame.DSharp.Build
 
             return new SyntaxState(descMethod, InstanceState.Binder, InstanceState.Log, InstanceState.MemberProvider);
         }
-		
+
 		public string Name { const get return "Static_Singleton"; }
 		public string FullName { const get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
 		public INamespace DeclaringNamespace { const get return (INamespace)InstanceType; }
-		
+
 		public IEnumerable<IAttribute> Attributes { const get return GetAttributes(); }
 		private IEnumerable<IAttribute> attrCache;
 		public const IEnumerable<IAttribute> GetAttributes()
@@ -54,7 +54,7 @@ namespace Flame.DSharp.Build
 	    	}
 			return attrCache;
 		}
-		
+
 		public bool IsContainerType { const get return false; }
 		public const IContainerType AsContainerType() return null;
 		public const IType GetGenericDeclaration() return this;
@@ -68,7 +68,7 @@ namespace Flame.DSharp.Build
 		{
 			return null;
 		}
-		
+
 		private IType[] baseTypes;
 		public const IType[] GetBaseTypes()
 		{
@@ -94,7 +94,7 @@ namespace Flame.DSharp.Build
 			}
 			return baseTypes;
 		}
-		
+
 		private IMethod[] methodCache;
 		private void BuildMethodCache()
 		{
@@ -102,19 +102,19 @@ namespace Flame.DSharp.Build
 			{
 				var state = GetSyntaxState();
 	        	var methods = new List<IMethod>();
-	        	
+
 	        	foreach (var item in Syntax.Methods)
         		if (item.IsSingletonMember)
         		{
 	        		methods.Add(item.CreateMember(state));
         		}
-        		
+
         		methods.AddRange(DSharpTypeExtensions.GenerateOperators(methods, state));
-	        	
+
 	            methodCache = methods.ToArray();
             }
 		}
-		
+
 		private IMethod[] noCtorCache;
 		public const IMethod[] GetMethods()
 		{
@@ -127,12 +127,12 @@ namespace Flame.DSharp.Build
 				{
 					methods.Add(item);
 				}
-				
+
 				noCtorCache = methods.ToArray();
             }
             return noCtorCache;
 		}
-		
+
 		private IMethod[] ctorCache;
 		public const IMethod[] GetConstructors()
 		{
@@ -140,25 +140,25 @@ namespace Flame.DSharp.Build
 			{
 				BuildMethodCache();
 				List<IMethod> methods = new List<IMethod>();
-				
+
 				foreach (var item in methodCache)
 				if (item.IsConstructor)
 				{
 					methods.Add(item);
 				}
-				
+
 				if (methods.Count == 0)
 		    	{
 		    		var state = GetSyntaxState();
 		    		var defaultCtor = DSharpTypeExtensions.CreateParameterlessConstructor(state);
 	            	methods.Add(defaultCtor);
 		    	}
-		    	
+
 				ctorCache = methods.ToArray();
             }
             return ctorCache;
 		}
-		
+
 		private FieldProperty singletonInstanceProp;
 		public FieldProperty SingletonInstanceProperty
 		{
@@ -171,7 +171,7 @@ namespace Flame.DSharp.Build
 		    	return singletonInstanceProp;
 			}
 		}
-		
+
 		private FieldProperty[] fieldPropertyCache;
 		public const FieldProperty[] GetFieldProperties()
 		{
@@ -179,20 +179,20 @@ namespace Flame.DSharp.Build
 			{
 			   	var state = GetSyntaxState();
 	        	var props = new List<FieldProperty>();
-	        	
+
 	        	foreach (var item in Syntax.FieldProperties)
 	        		if (item.IsSingletonMember)
 	        	{
         			props.Add(item.CreateMember(state));
 	        	}
-		    	
+
 		    	props.Add(SingletonInstanceProperty);
-	        	
+
 	            fieldPropertyCache = props.ToArray();
 			}
 			return fieldPropertyCache;
 		}
-		
+
 		private IProperty[] propertyCache;
 		public const IProperty[] GetProperties()
 		{
@@ -205,17 +205,17 @@ namespace Flame.DSharp.Build
 	        	{
         			props.Add(item.CreateMember(state));
 	        	}
-		    	
+
 		    	foreach (var item in GetFieldProperties())
 		    	{
 		    		props.Add(item.Property);
 		    	}
-	        	
+
 	            propertyCache = props.ToArray();
             }
             return propertyCache;
 		}
-		
+
 		private IField[] fieldCache;
 		public const IField[] GetFields()
 		{
@@ -228,17 +228,17 @@ namespace Flame.DSharp.Build
 	        	{
 	        		fields.Add(item.CreateMember(state));
 	        	}
-	        	
+
 	        	foreach (var item in GetFieldProperties())
 		    	{
 		    		fields.Add(item.Field);
 		    	}
-	        	
+
 	            fieldCache = fields.ToArray();
             }
             return fieldCache;
 		}
-		
+
 		public const ITypeMember[] GetMembers()
 		{
 			List<ITypeMember> members = new List<ITypeMember>();
@@ -251,6 +251,36 @@ namespace Flame.DSharp.Build
 			foreach (var item in GetConstructors())
 				members.Add(item);
 			return members.ToArray();
+		}
+
+		public const bool Equals(AssociatedSingletonSyntaxType Other)
+		{
+			return InstanceType.Equals(Other.InstanceType);
+		}
+		public const bool Equals(IType Other)
+		{
+			if (Other is AssociatedSingletonSyntaxType)
+			{
+				return Equals((AssociatedSingletonSyntaxType)Other);
+			}
+			else return false;
+		}
+		public override const bool Equals(object Other)
+		{
+			if (Other is IType)
+			{
+				return Equals((IType)Other);
+			}
+			else return false;
+		}
+		public override const int GetHashCode()
+		{
+			return InstanceType.GetHashCode() ^ Name.GetHashCode();
+		}
+
+		public override const string operator cast()
+		{
+			return FullName;
 		}
 	}
 }

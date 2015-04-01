@@ -1,11 +1,99 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Flame
 {
-	public class GenericExtensions
+	public static class GenericExtensions
 	{
-		
+		public static bool IsRecursiveGenericInstance[this IType Type]
+		{
+			const get
+			{
+				if (Type.IsGenericInstance)
+				{
+					return true;
+				}
+				else if (Type.DeclaringNamespace is IType)
+				{
+					var nsType = (IType)Type.DeclaringNamespace;
+					return !Enumerable.SequenceEqual<IType>(([IType])nsType.GetRecursiveGenericParameters(),
+														   nsType.GetRecursiveGenericArguments());
+				}
+				else return false;
+			}
+		}
+
+		public static const [IGenericParameter] GetRecursiveGenericParameters(this IType Type)
+		{
+			var typeParams = Type.GetGenericParameters();
+			if (Type.DeclaringNamespace is IType)
+			{
+				return Enumerable.Concat<IGenericParameter>(((IType)Type.DeclaringNamespace).GetRecursiveGenericParameters(),
+						typeParams);
+			}
+			else return typeParams;
+		}
+
+		public static const [IType] GetRecursiveGenericArguments(this IType Type)
+		{
+			var genArgs = Type.GetGenericArguments();
+			if (Type.DeclaringNamespace is IType)
+			{
+				return Enumerable.Concat<IType>(((IType)Type.DeclaringNamespace).GetRecursiveGenericArguments(),
+					genArgs);
+			}
+			else return genArgs;
+		}
+
+		private static const IType GetChildType(INamespace Namespace, IType Type)
+		{
+			var types = Namespace.GetTypes();
+			int genParamCount = Enumerable.Count<IGenericParameter>(Type.GetGenericParameters());
+			foreach (var item in types)
+				if (item.Name == Type.Name)
+				if (Enumerable.Count<IGenericParameter>(item.GetGenericParameters()) == genParamCount)
+			{
+				return item;
+			}
+			return null;
+		}
+
+		public static const IType GetRecursiveGenericDeclaration(this IType Type)
+		{
+			if (Type.DeclaringNamespace is IType && ((IType)Type.DeclaringNamespace).IsRecursiveGenericInstance)
+			{
+				var genDecl = (INamespace)((IType)Type.DeclaringNamespace).GetRecursiveGenericDeclaration();
+				return GetChildType(genDecl, Type);
+			}
+			else if (Type.IsGenericInstance)
+			{
+				return Type.GetGenericDeclaration();
+			}
+			else return Type;
+		}
+
+		public static const IType MakeRecursiveGenericType(this IType Type, [IType] TypeArguments)
+		{
+			if (Type.DeclaringNamespace is IType)
+			{
+				var nsType = (IType)Type.DeclaringNamespace;
+				if (nsType.IsRecursiveGenericInstance)
+				{
+					int paramCount = Enumerable.Count<IGenericParameter>(nsType.GetRecursiveGenericParameters());
+					var parentArgs = Enumerable.Take<IType>(TypeArguments, paramCount);
+					var actualArgs = Enumerable.Skip<IType>(TypeArguments, paramCount);
+					var parentType = nsType.MakeRecursiveGenericType(parentArgs);
+					var decl = GetChildType((INamespace)nsType, Type);
+					if (Enumerable.Any<IType>(actualArgs))
+					{
+						return decl.MakeGenericType(actualArgs);
+					}
+					else return decl;
+				}
+			}
+			return Type.MakeGenericType(TypeArguments);
+		}
 	}
 }
