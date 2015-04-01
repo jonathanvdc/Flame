@@ -353,7 +353,7 @@ namespace Flame.Front
                 BufferWidth - 8);
             writer.Writers["list"] = new ListNodeWriter(Console, writer);
             writer.Writers[NodeConstants.HighlightNodeType] = new HighlightingNodeWriter(Console, writer,
-                new Style("highlight", DimCyan, new Color()),
+                new Style("highlight", DimCyan, new Color(), "underline"),
                 new Style("highlight-missing", DimYellow, new Color()),
                 new Style("highlight-extra", DimMagenta, new Color()));
 
