@@ -70,33 +70,34 @@ namespace Flame.Cpp.Emit
             cb.Append(')');
             return cb;
         }
-        private CodeBuilder GetBinaryOperandCodeBuilder(ICppBlock Operand)
+        private CodeBuilder GetBinaryOperandCodeBuilder(ICppBlock Operand, IType OtherType, IType ReturnType)
         {
+            var opType = Operand.Type;
+
+            bool ptrCmp = opType.get_IsPointer() && OtherType.get_IsPointer() && IsComparisonOperator(Operator);
+
+            ICppBlock actualOperand = ptrCmp && opType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer) && 
+                                      OtherType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.TransientPointer) ?
+                                      new ConversionBlock(CodeGenerator, Operand, OtherType) : Operand;
+
             if (Operand is BinaryOperation)
             {
                 if (GetOperatorPrecedence(Operator) > GetOperatorPrecedence(((BinaryOperation)Operand).Operator))
                 {
-                    return GetEnclosedCode(Operand);
+                    return GetEnclosedCode(actualOperand);
                 }
             }
-            /*else if (Operand is UnaryOperation)
-            {
-                if (((UnaryOperation)Operand).Operator.Equals(Operator.Not))
-                {
-                    return GetEnclosedCode(Operand);
-                }
-            }*/
-            return Operand.GetCode();
+            return actualOperand.GetCode();
         }
 
         public CodeBuilder GetCode()
         {
             CodeBuilder cb = new CodeBuilder();
-            cb.Append(GetBinaryOperandCodeBuilder(Left));
+            cb.Append(GetBinaryOperandCodeBuilder(Left, Right.Type, Type));
             cb.Append(" ");
             cb.Append(GetOperatorString());
             cb.Append(" ");
-            cb.Append(GetBinaryOperandCodeBuilder(Right));
+            cb.Append(GetBinaryOperandCodeBuilder(Right, Left.Type, Type));
             return cb;
         }
 
@@ -143,6 +144,11 @@ namespace Flame.Cpp.Emit
             get { return Left.Dependencies.MergeDependencies(Right.Dependencies); }
         }
 
+        private static bool IsComparisonOperator(Operator Op)
+        {
+            return Op.Equals(Operator.CheckEquality) || Op.Equals(Operator.CheckInequality) || Op.Equals(Operator.CheckGreaterThan) || Op.Equals(Operator.CheckLessThan) || Op.Equals(Operator.CheckGreaterThanOrEqual) || Op.Equals(Operator.CheckGreaterThanOrEqual);
+        }
+
         public static IType GetResultType(ICppBlock Left, ICppBlock Right, Operator Operator)
         {
             var lType = Left.Type;
@@ -152,7 +158,7 @@ namespace Flame.Cpp.Emit
             {
                 return overload.ReturnType;
             }
-            if (Operator.Equals(Operator.CheckEquality) || Operator.Equals(Operator.CheckInequality) || Operator.Equals(Operator.CheckGreaterThan) || Operator.Equals(Operator.CheckLessThan) || Operator.Equals(Operator.CheckGreaterThanOrEqual) || Operator.Equals(Operator.CheckGreaterThanOrEqual))
+            if (IsComparisonOperator(Operator))
             {
                 return PrimitiveTypes.Boolean;
             }
