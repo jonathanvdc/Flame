@@ -9,40 +9,45 @@ namespace Flame.Front.Cli
 {
     public class HighlightingNodeWriter : INodeWriter
     {
-        public HighlightingNodeWriter(IConsole Console, INodeWriter MainWriter, Style HighlightStyle, Style HighlightMissingStyle, Style HighlightExtraStyle)
+        public HighlightingNodeWriter(INodeWriter MainWriter)
         {
-            this.Console = Console;
             this.MainWriter = MainWriter;
-            this.HighlightStyle = HighlightStyle;
-            this.HighlightMissingStyle = HighlightMissingStyle;
-            this.HighlightExtraStyle = HighlightExtraStyle;
         }
 
         public INodeWriter MainWriter { get; private set; }
-        public IConsole Console { get; private set; }
-        public Style HighlightStyle { get; private set; }
-        public Style HighlightMissingStyle { get; private set; }
-        public Style HighlightExtraStyle { get; private set; }
 
-        public void Write(IMarkupNode Node)
+        public static Style GetHighlightStyle(IStylePalette Palette)
+        {
+            return StyleConstants.GetDimStyle(Palette, StyleConstants.HighlightStyleName, new Color(0.0, 1.0, 1.0), "underline");
+        }
+        public static Style GetHighlightMissingStyle(IStylePalette Palette)
+        {
+            return StyleConstants.GetDimStyle(Palette, StyleConstants.HighlightMissingStyleName, new Color(1.0, 1.0, 0.0));
+        }
+        public static Style GetHighlightExtraStyle(IStylePalette Palette)
+        {
+            return StyleConstants.GetDimStyle(Palette, StyleConstants.HighlightExtraStyleName, new Color(1.0, 0.0, 1.0));
+        }
+
+        public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
         {
             string type = Node.Attributes.Get<string>("type", "default");
             if ("missing".Equals(type, StringComparison.OrdinalIgnoreCase))
             {
-                Console.PushStyle(HighlightMissingStyle);
+                Console.PushStyle(GetHighlightMissingStyle(Palette));
             }
             else if ("extra".Equals(type, StringComparison.OrdinalIgnoreCase))
             {
-                Console.PushStyle(HighlightExtraStyle);
+                Console.PushStyle(GetHighlightExtraStyle(Palette));
             }
             else
             {
-                Console.PushStyle(HighlightStyle);
+                Console.PushStyle(GetHighlightStyle(Palette));
             }
             Console.Write(Node.GetText());
             foreach (var item in Node.Children)
             {
-                MainWriter.Write(item);
+                MainWriter.Write(item, Console, Palette);
             }
             Console.PopStyle();
         }

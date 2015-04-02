@@ -13,10 +13,26 @@ namespace Flame.Front
     public sealed class ConsoleLog : ICompilerLog
     {
         public ConsoleLog(IConsole Console, ICompilerOptions Options)
+            : this(Console, Options, CreateDefaultPalette(Console.Description), CreateDefaultNodeWriter(Console.Description.BufferWidth))
+        {
+        }
+
+        public ConsoleLog(IConsole Console, ICompilerOptions Options, IStylePalette Palette)
+            : this(Console, Options, Palette, CreateDefaultNodeWriter(Console.Description.BufferWidth))
+        {
+        }
+
+        public ConsoleLog(IConsole Console, ICompilerOptions Options, INodeWriter NodeWriter)
+            : this(Console, Options, CreateDefaultPalette(Console.Description), NodeWriter)
+        {
+        }
+
+        public ConsoleLog(IConsole Console, ICompilerOptions Options, IStylePalette Palette, INodeWriter NodeWriter)
         {
             this.Options = Options;
             this.Console = Console;
-            this.Palette = new StylePalette(Console.Description);
+            this.Palette = Palette;
+            this.NodeWriter = NodeWriter;
             this.gapQueued = false;
             this.writeLock = new object();
         }
@@ -24,6 +40,7 @@ namespace Flame.Front
         public IConsole Console { get; private set; }
         public ICompilerOptions Options { get; private set; }
         public IStylePalette Palette { get; private set; }
+        public INodeWriter NodeWriter { get; private set; }
         private bool gapQueued;
         private object writeLock;
 
@@ -207,6 +224,43 @@ namespace Flame.Front
             WriteBlockEntry(Header, ContrastRed, Message);
         }
 
+        #region Defaults
+
+        #region Node Writer
+
+        public static INodeWriter CreateDefaultNodeWriter(int BufferWidth)
+        {
+            var writer = new NodeWriter();
+            writer.Writers[NodeConstants.RemarksNodeType] = new RemarksNodeWriter(writer);
+            writer.Writers[NodeConstants.SourceNodeType] = new SourceNodeWriter(new string(' ', 4), BufferWidth - 8);
+            writer.Writers["list"] = new ListNodeWriter(writer);
+            writer.Writers[NodeConstants.HighlightNodeType] = new HighlightingNodeWriter(writer);
+            return writer;
+        }
+
+        #endregion
+
+        #region Palette
+
+        public static IStylePalette CreateDefaultPalette(ConsoleDescription Description)
+        {
+            return CreateDefaultPalette(Description.ForegroundColor, Description.BackgroundColor);
+        }
+
+        public static IStylePalette CreateDefaultPalette(Color ForegroundColor, Color BackgroundColor)
+        {
+            var palette = new StylePalette(ForegroundColor, BackgroundColor);
+            palette.RegisterStyle(RemarksNodeWriter.GetRemarksStyle(palette));
+            palette.RegisterStyle(HighlightingNodeWriter.GetHighlightStyle(palette));
+            palette.RegisterStyle(HighlightingNodeWriter.GetHighlightExtraStyle(palette));
+            palette.RegisterStyle(HighlightingNodeWriter.GetHighlightMissingStyle(palette));
+            return palette;
+        }
+
+        #endregion
+
+        #endregion
+
         #region Palette
 
         public Color ContrastRed
@@ -344,20 +398,13 @@ namespace Flame.Front
 
         private void WriteNodeCore(IMarkupNode Node, Color CaretColor, Color HighlightColor)
         {
-            var writer = new NodeWriter(Console);
-            writer.Writers[NodeConstants.RemarksNodeType] = new RemarksNodeWriter(Console, writer, new Style("remarks", DimGray, new Color()));
-            writer.Writers[NodeConstants.SourceNodeType] = new SourceNodeWriter(Console, 
-                new Style("caret-marker", CaretColor, new Color()),
-                new Style("caret-highlight", HighlightColor, new Color()),
-                new string(' ', 4),
-                BufferWidth - 8);
-            writer.Writers["list"] = new ListNodeWriter(Console, writer);
-            writer.Writers[NodeConstants.HighlightNodeType] = new HighlightingNodeWriter(Console, writer,
-                new Style("highlight", DimCyan, new Color(), "underline"),
-                new Style("highlight-missing", DimYellow, new Color()),
-                new Style("highlight-extra", DimMagenta, new Color()));
+            var dependentStyles = new List<Style>();
+            dependentStyles.Add(new Style(StyleConstants.CaretMarkerStyleName, CaretColor, new Color()));
+            dependentStyles.Add(new Style(StyleConstants.CaretHighlightStyleName, HighlightColor, new Color()));
 
-            writer.Write(Node);
+            var extPalette = new ExtendedPalette(Palette, dependentStyles);
+
+            NodeWriter.Write(Node, Console, extPalette);
         }
 
         #endregion

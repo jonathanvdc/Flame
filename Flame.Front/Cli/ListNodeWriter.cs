@@ -9,22 +9,20 @@ namespace Flame.Front.Cli
 {
     public class ListNodeWriter : INodeWriter
     {
-        public ListNodeWriter(IConsole Console, INodeWriter MainWriter)
+        public ListNodeWriter(INodeWriter MainWriter)
         {
-            this.Console = Console;
             this.MainWriter = MainWriter;
         }
 
         public INodeWriter MainWriter { get; private set; }
-        public IConsole Console { get; private set; }
 
-        public void Write(IMarkupNode Node)
+        public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
         {
             foreach (var item in Node.Children)
             {
                 Console.WriteLine();
                 Console.Write(" * ");
-                MainWriter.Write(item);
+                MainWriter.Write(item, Console, Palette);
             }
         }
     }

@@ -9,7 +9,49 @@ namespace Flame.Front.Cli
 {
     public class SourceNodeWriter : INodeWriter
     {
-        public SourceNodeWriter(IConsole Console, Style CaretStyle, Style HighlightStyle, string Indentation, int MaxWidth)
+        public SourceNodeWriter(string Indentation, int MaxWidth)
+        {
+            this.Indentation = Indentation;
+            this.MaxWidth = MaxWidth;
+        }
+
+        public int MaxWidth { get; private set; }
+        public string Indentation { get; private set; }
+
+        public static Style GetCaretHighlightStyle(IStylePalette Palette)
+        {
+            if (Palette.IsNamedStyle(StyleConstants.CaretHighlightStyleName))
+            {
+                return Palette.GetNamedStyle(StyleConstants.CaretHighlightStyleName);
+            }
+            else
+            {
+                return new Style(StyleConstants.CaretHighlightStyleName, Palette.MakeDimColor(new Color(0.0, 1.0, 0.0)), new Color());
+            }
+        }
+
+        public static Style GetCaretMarkerStyle(IStylePalette Palette)
+        {
+            if (Palette.IsNamedStyle(StyleConstants.CaretMarkerStyleName))
+            {
+                return Palette.GetNamedStyle(StyleConstants.CaretMarkerStyleName);
+            }
+            else
+            {
+                return new Style(StyleConstants.CaretMarkerStyleName, Palette.MakeBrightColor(new Color(0.0, 1.0, 0.0)), new Color());
+            }
+        }
+
+        public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
+        {
+            var writer = new SourceNodeWriterState(Console, GetCaretMarkerStyle(Palette), GetCaretHighlightStyle(Palette), Indentation, MaxWidth);
+            writer.Write(Node);
+        }
+    }
+
+    public class SourceNodeWriterState
+    {
+        public SourceNodeWriterState(IConsole Console, Style CaretStyle, Style HighlightStyle, string Indentation, int MaxWidth)
         {
             this.Console = Console;
             this.CaretStyle = CaretStyle;

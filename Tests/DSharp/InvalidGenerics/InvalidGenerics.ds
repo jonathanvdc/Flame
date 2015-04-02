@@ -26,4 +26,9 @@ public static class InvalidGenericsTest
     {
         return new Dictionary<double, double>(2.0);
     }
+
+    public List<int> BadCast()
+    {
+        return new List<double>();
+    }
 }

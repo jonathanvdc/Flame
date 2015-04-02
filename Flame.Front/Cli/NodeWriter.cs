@@ -9,33 +9,31 @@ namespace Flame.Front.Cli
 {
     public class NodeWriter : INodeWriter
     {
-        public NodeWriter(IConsole Console)
+        public NodeWriter()
         {
-            this.Console = Console;
             this.Writers = new Dictionary<string, INodeWriter>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public IConsole Console { get; private set; }
         public IDictionary<string, INodeWriter> Writers { get; private set; }
 
-        protected virtual void WriteDefault(IMarkupNode Node)
+        protected virtual void WriteDefault(IMarkupNode Node, IConsole Console, IStylePalette Palette)
         {
             Console.Write(Node.GetText());
             foreach (var item in Node.Children)
             {
-                Write(item);
+                Write(item, Console, Palette);
             }
         }
 
-        public void Write(IMarkupNode Node)
+        public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
         {
             if (Writers.ContainsKey(Node.Type))
             {
-                Writers[Node.Type].Write(Node);
+                Writers[Node.Type].Write(Node, Console, Palette);
             }
             else
             {
-                WriteDefault(Node);
+                WriteDefault(Node, Console, Palette);
             }            
         }
     }
