@@ -57,10 +57,12 @@
     <Compile Include="Cli\ConsoleDescription.cs" />
     <Compile Include="Cli\ConsoleEnvironment.cs" />
     <Compile Include="Cli\DefaultConsoleStyle.cs" />
+    <Compile Include="Cli\ExtendedPalette.cs" />
     <Compile Include="Cli\HighlightingNodeWriter.cs" />
     <Compile Include="Cli\ListNodeWriter.cs" />
     <Compile Include="Cli\NodeWriter.cs" />
     <Compile Include="Cli\RemarksNodeWriter.cs" />
+    <Compile Include="Cli\StyleConstants.cs" />
     <Compile Include="Cli\StylePalette.cs" />
     <Compile Include="Cli\IndirectConsole.cs" />
     <Compile Include="Cli\IStylePalette.cs" />

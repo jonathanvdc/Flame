@@ -9,12 +9,6 @@ namespace Flame.Front.Cli
 {
     public class StylePalette : IStylePalette
     {
-        public StylePalette(ConsoleDescription Description)
-        {
-            this.registeredStyles = new Dictionary<string, Style>();
-            this.ForegroundColor = Description.ForegroundColor;
-            this.BackgroundColor = Description.BackgroundColor;
-        }
         public StylePalette(Color ForegroundColor, Color BackgroundColor)
         {
             this.registeredStyles = new Dictionary<string, Style>();

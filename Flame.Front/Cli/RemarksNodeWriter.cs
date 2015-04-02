@@ -9,26 +9,27 @@ namespace Flame.Front.Cli
 {
     public class RemarksNodeWriter : INodeWriter
     {
-        public RemarksNodeWriter(IConsole Console, INodeWriter MainWriter, Style RemarksStyle)
+        public RemarksNodeWriter(INodeWriter MainWriter)
         {
-            this.Console = Console;
             this.MainWriter = MainWriter;
-            this.RemarksStyle = RemarksStyle;
         }
 
         public INodeWriter MainWriter { get; private set; }
-        public IConsole Console { get; private set; }
-        public Style RemarksStyle { get; private set; }
 
-        public void Write(IMarkupNode Node)
+        public static Style GetRemarksStyle(IStylePalette Palette)
+        {
+            return StyleConstants.GetDimStyle(Palette, StyleConstants.RemarksStyleName, new Color(0.75));
+        }
+
+        public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
         {
             Console.WriteLine();
-            Console.PushStyle(RemarksStyle);
+            Console.PushStyle(GetRemarksStyle(Palette));
             Console.Write("Remarks: ");
             Console.Write(Node.GetText());
             foreach (var item in Node.Children)
             {
-                MainWriter.Write(item);
+                MainWriter.Write(item, Console, Palette);
             }
             Console.PopStyle();
         }
