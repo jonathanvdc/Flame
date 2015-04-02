@@ -43,11 +43,31 @@ namespace Flame.Front.Cli
             }
         }
 
-        public Color ChangeLuminance(Color Value, double Luminance)
+        public static Color ChangeLuminance(Color Value, double Luminance)
         {
             var hsl = RGBtoHSL(Value);
             var result = HSLtoRGB(hsl.Item1, hsl.Item2, Luminance);
             return result;
+        }
+
+        public static double GetLuminance(Color Value)
+        {
+            return RGBtoHSL(Value).Item3;
+        }
+
+        public static Color MakeContrastColor(Color Value, double BackgroundLuminance)
+        {
+            return ChangeLuminance(Value, BackgroundLuminance > 0.5 ? 0.0 : 1.0);
+        }
+
+        public static Color MakeContrastColor(Color Value, Color BackgroundColor)
+        {
+            return MakeContrastColor(Value, GetLuminance(BackgroundColor));
+        }
+
+        public Color MakeContrastColor(Color Value)
+        {
+            return MakeContrastColor(Value, BackgroundLuminance);
         }
 
         public Color MakeBrightColor(Color Value)

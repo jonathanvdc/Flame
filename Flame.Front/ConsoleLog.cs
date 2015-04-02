@@ -170,42 +170,34 @@ namespace Flame.Front
         {
             WriteLine(Value.ToString());
         }
-        public void WriteBlockEntry(string Header, Color MainColor, Color HighlightColor, LogEntry Entry)
-        {
-            lock (writeLock)
-            {
-                WriteWhiteline();
-                Write(Header + ": ", MainColor);
-                WriteEntry(Entry, MainColor, HighlightColor);
-                WriteSeparator();
-            }
-        }
-        public void WriteBlockEntry(string Header, Color HeaderColor, string Entry)
+        public void WriteBlockEntry(string Header, Color HeaderColor, Color PrimaryColor, Color SecondaryColor, LogEntry Entry)
         {
             lock (writeLock)
             {
                 WriteWhiteline();
                 Write(Header + ": ", HeaderColor);
-                WriteLine(Entry);
+                WriteEntry(Entry, PrimaryColor, SecondaryColor);
                 WriteSeparator();
             }
         }
+        public void WriteBlockEntry(string Header, Color MainColor, Color HighlightColor, LogEntry Entry)
+        {
+            WriteBlockEntry(Header, MainColor, MainColor, HighlightColor, Entry);
+        }
+        public void WriteBlockEntry(string Header, Color HeaderColor, string Entry)
+        {
+            WriteBlockEntry(Header, HeaderColor, BrightGreen, DimGreen, new LogEntry("", Entry));
+        }
         public void WriteBlockEntry(string Header, LogEntry Entry)
         {
-            lock (writeLock)
-            {
-                WriteWhiteline();
-                Write(Header + ": ");
-                WriteEntry(Entry, ContrastGreen, DimGreen);
-                WriteSeparator();
-            }
+            WriteBlockEntry(Header, new Color(), BrightGreen, DimGreen, Entry);
         }
         public void WriteBlockEntry(LogEntry Entry)
         {
             lock (writeLock)
             {
                 WriteWhiteline();
-                WriteEntry(Entry, ContrastGreen, DimGreen);
+                WriteEntry(Entry, BrightGreen, DimGreen);
                 WriteSeparator();
             }
         }
@@ -221,7 +213,7 @@ namespace Flame.Front
         }
         public void WriteErrorBlock(string Header, string Message)
         {
-            WriteBlockEntry(Header, ContrastRed, Message);
+            WriteBlockEntry(Header, BrightRed, Message);
         }
 
         #region Defaults
@@ -263,7 +255,31 @@ namespace Flame.Front
 
         #region Palette
 
-        public Color ContrastRed
+        public Color ContrastForegroundColor
+        {
+            get
+            {
+                return StylePalette.MakeContrastColor(Console.Description.ForegroundColor, Console.Description.BackgroundColor);
+            }
+        }
+
+        public Color ForegroundColor
+        {
+            get
+            {
+                return Console.Description.ForegroundColor;
+            }
+        }
+
+        public Color BackgroundColor
+        {
+            get
+            {
+                return Console.Description.BackgroundColor;
+            }
+        }
+
+        public Color BrightRed
         {
             get
             {
@@ -279,7 +295,7 @@ namespace Flame.Front
             }
         }
 
-        public Color ContrastYellow
+        public Color BrightYellow
         {
             get
             {
@@ -295,7 +311,7 @@ namespace Flame.Front
             }
         }
 
-        public Color ContrastBlue
+        public Color BrightBlue
         {
             get
             {
@@ -311,7 +327,7 @@ namespace Flame.Front
             }
         }
 
-        public Color ContrastCyan
+        public Color BrightCyan
         {
             get
             {
@@ -327,7 +343,7 @@ namespace Flame.Front
             }
         }
 
-        public Color ContrastMagenta
+        public Color BrightMagenta
         {
             get
             {
@@ -343,7 +359,7 @@ namespace Flame.Front
             }
         }
 
-        public Color ContrastGreen
+        public Color BrightGreen
         {
             get
             {
@@ -359,7 +375,7 @@ namespace Flame.Front
             }
         }
 
-        public Color ContrastGray
+        public Color BrightGray
         {
             get
             {
@@ -415,8 +431,12 @@ namespace Flame.Front
         {
             lock (writeLock)
             {
-                Write(Entry.Name);
-                Write(": ");
+                string name = Entry.Name;
+                if (!string.IsNullOrWhiteSpace(name))
+                {
+                    Write(name, ContrastForegroundColor);
+                    Write(": ");
+                }
                 WriteNode(Entry.Contents, CaretColor, HighlightColor);
             }
         }
@@ -425,13 +445,13 @@ namespace Flame.Front
 
         public void LogError(LogEntry Entry)
         {
-            WriteBlockEntry("Error", ContrastRed, DimRed, Entry);
+            WriteBlockEntry("Error", BrightRed, DimRed, Entry);
         }
 
         public void LogEvent(LogEntry Entry)
         {
             WriteWhiteline();
-            WriteEntry(Entry, ContrastGreen, DimGreen);
+            WriteEntry(Entry, BrightGreen, DimGreen);
             WriteWhiteline();
         }
 
@@ -442,7 +462,7 @@ namespace Flame.Front
 
         public void LogWarning(LogEntry Entry)
         {
-            WriteBlockEntry("Warning", ContrastYellow, DimYellow, Entry);
+            WriteBlockEntry("Warning", BrightYellow, DimYellow, Entry);
         }
 
         public void Dispose()
