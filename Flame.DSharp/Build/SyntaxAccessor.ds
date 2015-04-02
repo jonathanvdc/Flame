@@ -63,7 +63,8 @@ namespace Flame.DSharp.Build
 
         public virtual ISyntaxState GetSyntaxState()
         {
-            return new SyntaxState(this, Binder, ParentProperty.Log, ParentProperty.MemberProvider);
+            return new SyntaxState(this, Binder, ParentProperty.Log,
+                ParentProperty.MemberProvider, ParentProperty.TypeNamer);
         }
 
         #endregion
@@ -80,14 +81,14 @@ namespace Flame.DSharp.Build
                 }
                 else
                 {
-                    return FlameAccessorType.SetAccessor; 
+                    return FlameAccessorType.SetAccessor;
                 }
             }
         }
 
         public IType ReturnType
         {
-            const get 
+            const get
             {
                 if (this.IsGetAccessor)
                 {
@@ -145,7 +146,7 @@ namespace Flame.DSharp.Build
 	            	{
 	            		var desc = (DescriptionAttribute)item;
 	            		string tag = desc.Tag;
-	            		
+
 	            		if (!tag.Equals("remarks"))
 	            		{
 		            		var localDescAttrs = attrs.GetAttributes(attrType);
@@ -179,7 +180,7 @@ namespace Flame.DSharp.Build
         {
             return CurrentType.GetField(FieldPropertySyntax.GetBackingFieldName(PropertyName));
         }
-        
+
         public bool IsAutoProperty { const get return !ParentProperty.DeclaringType.IsInterface && ParentProperty.Syntax.IsFieldProperty; }
 
         public const IStatement GetMethodBody()
@@ -228,9 +229,9 @@ namespace Flame.DSharp.Build
         }
 
         #endregion
-        
+
         #region GetBaseMethods
-        
+
         private IMethod[] baseMethodCache;
         public virtual IMethod[] GetBaseMethods()
         {
@@ -251,7 +252,7 @@ namespace Flame.DSharp.Build
         	}
         	return baseMethodCache;
         }
-        
+
         #endregion
 
         #region Generics

@@ -86,7 +86,7 @@ namespace Flame.Syntax.DSharp
                 	var newInstanceCode = new CodeBuilder();
                 	newInstanceCode.Append(NewKeyword.ToString());
                 	newInstanceCode.Append(Type.GetCode());
-                    var namer = new DSharpTypeNamer();
+                    var namer = State.TypeNamer;
                 	var expectedSignature = InvocationSyntax.CreateExpectedSignatureDescription(null, newInstanceCode, argTypes, false, namer);
                 	var failedMatches = Enumerable.ToArray<IMethod>(realType.GetConstructors());
 	            	if (failedMatches.Length > 0)

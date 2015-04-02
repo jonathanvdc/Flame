@@ -13,9 +13,10 @@ namespace Flame.Syntax
         IBinder Binder { const get; }
         IMemberProvider MemberProvider { const get; }
         ICompilerLog Log { const get; }
-        
+        IConverter<IType, string> TypeNamer { const get; }
+
         IVariable DeclareVariable(string Name, IVariable Variable);
-    	
+
     	void PushScope();
     	IStatement PopScope();
     }

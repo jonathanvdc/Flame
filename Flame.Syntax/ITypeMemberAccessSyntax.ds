@@ -17,6 +17,6 @@ namespace Flame.Syntax
         /// </summary>
         /// <param name="State"></param>
         /// <returns></returns>
-        IEnumerable<ITypeMember> GetAccessedMembers(ISyntaxState State);
+        [ITypeMember] GetAccessedMembers(ISyntaxState State);
     }
 }

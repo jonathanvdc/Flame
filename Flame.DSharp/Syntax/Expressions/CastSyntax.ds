@@ -5,6 +5,7 @@ using System.Linq;
 using Flame.DSharp.Lexer;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
+using Pixie;
 
 namespace Flame.Syntax.DSharp
 {
@@ -21,17 +22,17 @@ namespace Flame.Syntax.DSharp
         public ITypeSyntax TargetType { const get; private set; }
         public Token ClosingToken { const get; private set; }
         public IExpressionSyntax Expression { const get; private set; }
-        
+
         public SourceLocation Location
         {
         	const get return CastLocation.Concat(Expression.GetSourceLocation());
         }
-        
+
         public SourceLocation CastLocation
         {
         	const get return OpeningToken.Location.Concat(TargetType.GetSourceLocation()).Concat(ClosingToken.Location);
         }
-        
+
         public IReadOnlyList<Token> Tokens
         {
         	const get
@@ -54,7 +55,7 @@ namespace Flame.Syntax.DSharp
         	{
 	       		if (exprType.GetPrimitiveMagnitude() > type.GetPrimitiveMagnitude())
 	       		{
-	       			State.Log.LogWarning(new LogEntry("Bit type downcast", "'" + this.GetCode().ToString() + "' implies a downcast of bit types (" + exprType.Name + " to " + type.Name + "). This could lead to an arbitrary loss of information.", CastLocation));	
+	       			State.Log.LogWarning(new LogEntry("Bit type downcast", "'" + this.GetCode().ToString() + "' implies a downcast of bit types (" + State.TypeNamer.Convert(exprType) + " to " + State.TypeNamer.Convert(type) + "). This could lead to an arbitrary loss of information.", CastLocation));
 	       		}
 	       	}
 	       	else if (exprType.Equals(type))
@@ -78,15 +79,15 @@ namespace Flame.Syntax.DSharp
             cb.Append(Expression.GetCode());
             return cb;
         }
-        
+
         #region Static
-        
+
         public static const IExpression CreateImplicitCast(ISyntaxState State, IExpressionSyntax Value, IType TargetType)
         {
         	var expr = Value.CreateVerifiedExpression(State);
         	return CastSyntax.CreateImplicitCast(State, expr, Value, TargetType);
         }
-        
+
         public static const IExpression CreateImplicitCast(ISyntaxState State, IExpression expr, ISyntaxNode Value, IType TargetType)
         {
         	var valType = expr.Type;
@@ -100,11 +101,24 @@ namespace Flame.Syntax.DSharp
         	}
         	else
         	{
-        		State.Log.LogError(new LogEntry("Cast error", "Expression '" + Value.GetCode().ToString() + "' of type '" + valType.FullName + "' could not be cast implicitly to '" + TargetType.FullName + "'", Value.GetSourceLocation()));
+                var diffBuilder = new TypeDiffComparer(State.TypeNamer);
+                var leftDiff = diffBuilder.Compare(TargetType, valType);
+                var rightDiff = diffBuilder.Compare(valType, TargetType);
+                var nodes = new List<IMarkupNode>();
+                nodes.Add(TypeDiffComparer.ToTextNode("Expression '"));
+                nodes.Add(TypeDiffComparer.ToTextNode(Value.GetCode().ToString()));
+                nodes.Add(TypeDiffComparer.ToTextNode("' of type '"));
+                nodes.Add(leftDiff);
+                nodes.Add(TypeDiffComparer.ToTextNode("' could not be cast implicitly to '"));
+                nodes.Add(rightDiff);
+                nodes.Add(TypeDiffComparer.ToTextNode("'"));
+                var message = new MarkupNode("entry", nodes);
+
+        		State.Log.LogError(new LogEntry("Cast error", message, Value.GetSourceLocation()));
         		return new ConversionExpression(expr, TargetType);
         	}
         }
-        
+
         public static const bool UseImplicitCast(ISyntaxState State, IType SourceType, IType TargetType)
         {
         	if (SourceType.Is(TargetType))
@@ -160,7 +174,7 @@ namespace Flame.Syntax.DSharp
         	}
         	return false;
         }
-        
+
         #endregion
     }
 }

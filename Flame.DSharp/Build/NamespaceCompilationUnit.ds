@@ -11,22 +11,23 @@ namespace Flame.DSharp.Build
 	public class NamespaceCompilationUnit : INamespaceSyntax
 	{
 		public const this(set Token NamepaceKeyword, set Token[] NameTokens, set Token RBraces, set ISyntaxNode[] Children, set Token LBraces);
-	
+
 		public ISyntaxNode[] Children { const get; private set; }
-		public const IEnumerable<ISyntaxNode> GetChildren()
+		public const [ISyntaxNode] GetChildren()
 			return this.Children;
-			
+
 		public virtual void CompileNamespace(INamespaceSyntax Node, INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log)
 		{
 			Node.CreateNamespace(DeclaringNamespace, Binder, Log);
 		}
-		
+
 		public virtual void CompileType(ITypeDeclarationSyntax Node, INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log)
 		{
-			var type = Node.CreateType(DeclaringNamespace, Binder, Log, DeclaringNamespace.ExtensionTypeProvider);
+			var type = Node.CreateType(DeclaringNamespace, Binder, Log,
+				DeclaringNamespace.ExtensionTypeProvider, DeclaringNamespace.TypeNamer);
 			DeclaringNamespace.AddType(type);
 		}
-		
+
 		public virtual void CompileToNamespace(INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ISyntaxNode Node, ICompilerLog Log)
 		{
 			if (Node is INamespaceSyntax)
@@ -46,7 +47,7 @@ namespace Flame.DSharp.Build
 				Log.LogError("'" + Node.GetCode().ToString() + "' could not be resolved as a component of a compilation unit.");
 			}
 		}
-		
+
 		public virtual void CompileToNamespace(INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log)
 		{
 			var newBinder = Binder.PushScope(DeclaringNamespace.Name, DeclaringNamespace);
@@ -55,12 +56,12 @@ namespace Flame.DSharp.Build
 				CompileToNamespace(DeclaringNamespace, newBinder, child, Log);
 			}
 		}
-		
+
 		public Token NamepaceKeyword { const get; private set; }
 		public Token[] NameTokens { const get; private set; }
 		public Token RBraces { const get; private set; }
 		public Token LBraces { const get; private set; }
-		
+
 		public string[] SplitName
 		{
 			const get
@@ -74,7 +75,7 @@ namespace Flame.DSharp.Build
 				return split;
 			}
 		}
-		
+
 		public static INamespaceBranchBuilder CreateNamespaceBuilder(string Name, INamespaceBranchBuilder DeclaringNamespace)
 		{
 			foreach (var item in DeclaringNamespace.GetNamespaces())
@@ -88,7 +89,7 @@ namespace Flame.DSharp.Build
 			DeclaringNamespace.AddNamespace(ns);
 			return ns;
 		}
-		
+
 		public INamespace CreateNamespace(INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log)
 		{
 			var splitName = this.SplitName;
@@ -101,7 +102,7 @@ namespace Flame.DSharp.Build
 			this.CompileToNamespace(ns, Binder, Log);
 			return ns;
 		}
-		
+
 		public const CodeBuilder GetCode()
 		{
 			CodeBuilder cb = new CodeBuilder();
@@ -121,7 +122,7 @@ namespace Flame.DSharp.Build
 			cb.AddLine(LBraces.TokenValue);
 			return cb;
 		}
-		
+
 		public virtual override const string ToString()
 		{
 			StringBuilder sb = new StringBuilder();

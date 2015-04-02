@@ -22,15 +22,16 @@ namespace Flame.DSharp.Build
 			this.Namespaces = new List<INamespace>();
 			this.Types = new List<IType>();
 		}
-		
+
 		public List<INamespace> Namespaces { const get; private set; }
 		public List<IType> Types { const get; private set; }
-	
+		public IConverter<IType, string> TypeNamer { const get return Assembly.TypeNamer; }
+
 		public SyntaxAssembly Assembly { const get; private set; }
 		public IAssembly DeclaringAssembly { const get return Assembly; }
 		private GlobalExtensionTypeProvider extTypeProvider;
-		public IExtensionTypeProvider ExtensionTypeProvider 
-		{ 
+		public IExtensionTypeProvider ExtensionTypeProvider
+		{
 			const get
 			{
 				if (extTypeProvider == null)
@@ -40,20 +41,20 @@ namespace Flame.DSharp.Build
 				return extTypeProvider;
 			}
 		}
-		
+
 		public void ClearExtensionTypeCache()
 		{
 			if (extTypeProvider != null)
 				this.extTypeProvider.ClearCache();
 		}
-		
+
 		public string Name { const get return ""; }
 		public string FullName { const get return Name; }
 		public const [IAttribute] GetAttributes()
 		{
 			return new IAttribute[] { new AncestryGraphAttribute(Assembly.Graph) };
 		}
-		
+
 		public const [INamespaceBranch] GetNamespaces()
 		{
 			List<INamespaceBranch> branches = new List<INamespaceBranch>();
@@ -65,12 +66,12 @@ namespace Flame.DSharp.Build
 					branches.Add((INamespaceBranch)item);
 			return branches;
 		}
-		
+
 		public const IType[] GetTypes()
 		{
 			return Types.ToArray();
 		}
-	
+
 		public void AddNamespace(INamespace Namespace)
 		{
 			this.Namespaces.Add(Namespace);
@@ -79,7 +80,7 @@ namespace Flame.DSharp.Build
 		{
 			this.Types.Add(Type);
 		}
-		
+
 		public const CodeBuilder GetCode()
 		{
 			var cb = new CodeBuilder();

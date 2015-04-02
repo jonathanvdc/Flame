@@ -23,7 +23,7 @@ namespace Flame.DSharp.Build
 			{
 				simpleGenericParams.Add(item.GetGenericParameter(DeclaringMember));
 			}
-			
+
             var genericBinder = new PredefinedBinder(State.Binder);
 
 			foreach (var item in simpleGenericParams)
@@ -32,7 +32,7 @@ namespace Flame.DSharp.Build
 			}
 
             var fullSyntaxState = new IndirectSyntaxState(State, genericBinder);
-			
+
 			foreach (var genParam in simpleGenericParams, var item in GenericDeclarations)
 			{
 				foreach (var genericConstraint in GenericConstraints)
@@ -46,21 +46,21 @@ namespace Flame.DSharp.Build
                     }
                 }
 			}
-			
+
 			return (IEnumerable<IGenericParameter>)simpleGenericParams;
         }
-        
+
         public static IType CreateExtensionType(INamespace Namespace, ISyntaxState State, TypeDeclarationSyntax Syntax)
         {
 	    	var descType = new DescribedType(Syntax.Signature.NameToken.TokenValue + "_Extensions", Namespace);
 	    	descType.AddAttribute(new AccessAttribute(AccessModifier.Public));
 	    	descType.AddAttribute(PrimitiveAttributes.StaticTypeAttribute);
-	    	
+
 	    	var descMethod = new DescribedMethod();
 			descMethod.DeclaringType = (IType)Namespace;
 
-            var state = new SyntaxState(descMethod, State.Binder, State.Log, State.MemberProvider);
-            
+            var state = new SyntaxState(descMethod, State.Binder, State.Log, State.MemberProvider, State.TypeNamer);
+
 	    	foreach (var item in Syntax.Methods)
 	    	{
 	    		descType.AddMethod(item.CreateMember(state));
@@ -69,10 +69,10 @@ namespace Flame.DSharp.Build
 	    	{
 	    		descType.AddProperty(item.CreateMember(state));
 	    	}
-	    	
+
 	    	return descType;
 	    }
-	    
+
 	    public static const IStatement CreateBaseConstructorCall(ISyntaxState State)
 	    {
 	    	var currentType = State.CurrentType;
@@ -99,20 +99,20 @@ namespace Flame.DSharp.Build
             // If all else fails, return an empty statement
             return new EmptyStatement();
 	    }
-	    
+
 	    public static IBodyMethod CreateParameterlessConstructor(ISyntaxState State)
 	    {
 	    	var declType = State.DeclaringType;
     	    var defaultCtor = new DescribedBodyMethod("this", declType, PrimitiveTypes.Void, false);
     		defaultCtor.IsConstructor = true;
-    		
+
     		if (!declType.IsSingleton && !declType.IsHidden)
     			defaultCtor.AddAttribute(new AccessAttribute(AccessModifier.Public));
     		else if (declType.IsVirtual || declType.IsAbstract)
     			defaultCtor.AddAttribute(new AccessAttribute(AccessModifier.Protected));
     		else
     			defaultCtor.AddAttribute(new AccessAttribute(AccessModifier.Private));
-    		
+
 		    var parent = declType.GetParent();
         	if (parent != null)
         	{
@@ -124,18 +124,18 @@ namespace Flame.DSharp.Build
                 defaultCtor.Body = new ExpressionStatement(new InvocationExpression(ctor, new ThisVariable(declType).CreateGetExpression(), (IEnumerable<IExpression>)new IExpression[0]));
         		if (ctor.IsConstant)
         		{
-        			defaultCtor.AddAttribute(PrimitiveAttributes.ConstantAttribute);	
+        			defaultCtor.AddAttribute(PrimitiveAttributes.ConstantAttribute);
         		}
         	}
         	else
         	{
         		defaultCtor.Body = new EmptyStatement();
-        		defaultCtor.AddAttribute(PrimitiveAttributes.ConstantAttribute);	
+        		defaultCtor.AddAttribute(PrimitiveAttributes.ConstantAttribute);
         	}
         	defaultCtor.Body = new BlockStatement((IEnumerable<IStatement>)new IStatement[] { defaultCtor.Body, new ReturnStatement() });
         	return defaultCtor;
 	    }
-	    
+
 	    /*public static IType CreateAssociatedSingleton(INamespace DeclaringNamespace, ISyntaxState State, TypeDeclarationSyntax Syntax)
 	    {
 	    	var descType = new DescribedType("Associated_Singleton", DeclaringNamespace);
@@ -150,12 +150,12 @@ namespace Flame.DSharp.Build
 	    	{
 	    		descType.AddAttribute(PrimitiveAttributes.VirtualAttribute);
 	    	}
-	    	
+
 	    	var descMethod = new DescribedMethod();
 			descMethod.DeclaringType = descType;
 
             var descState = new SyntaxState(descMethod, State.Binder, State.Log, State.MemberProvider);
-            
+
             bool hasSingletonCtor = false;
 	    	foreach (var item in Syntax.FieldProperties)
 	    	{
@@ -188,17 +188,17 @@ namespace Flame.DSharp.Build
 	    		var defaultCtor = DSharpTypeExtensions.CreateParameterlessConstructor(descState);
             	descType.AddMethod(defaultCtor);
 	    	}
-	    	
+
 	    	if (!descType.IsAbstract)
 	    	{
 		    	var singletonInstance = SingletonInstanceAccessor.CreateAccessorProperty(descType);
 		    	descType.AddField(singletonInstance.Field);
 		    	descType.AddProperty(singletonInstance.Property);
 	    	}
-	    	
+
 	    	return descType;
 	    }*/
-	    
+
 	    private static const IExpression CreateNotBinaryOp(IMethod Method, ISyntaxState State, Operator Op)
         {
         	var parameters = Method.GetParameters();
@@ -207,7 +207,7 @@ namespace Flame.DSharp.Build
         	else
         		return new NotExpression(new DirectBinaryExpression(new ArgumentVariable(parameters[0], 0).CreateGetExpression(), Op, new ArgumentVariable(parameters[1], 0).CreateGetExpression()));
         }
-        
+
         private static const IMethod CreateNotOperator(IMethod Method, ISyntaxState State, Operator Op)
         {
     	    var bodyMethod = new DescribedBodyMethod("operator" + Op.ToString(), State.DeclaringType, Method.ReturnType, false);
@@ -223,11 +223,11 @@ namespace Flame.DSharp.Build
     		bodyMethod.Body = new ReturnStatement(CreateNotBinaryOp(bodyMethod, State, Method.GetOperator()));
     		return bodyMethod;
         }
-	    
+
 	    public static const IEnumerable<IMethod> GenerateOperators(IEnumerable<IMethod> Methods, ISyntaxState State)
 	    {
 	    	List<IMethod> results = new List<IMethod>();
-	    	
+
 	    	IMethod ceq = null;
 	    	IMethod cne = null;
 	    	foreach (var item in Methods)
@@ -246,7 +246,7 @@ namespace Flame.DSharp.Build
 					}
 	    		}
 	    	}
-	    	
+
         	if (ceq != null && cne == null)
         	{
         		results.Add(CreateNotOperator(ceq, State, Operator.CheckInequality));
@@ -255,7 +255,7 @@ namespace Flame.DSharp.Build
         	{
         	    results.Add(CreateNotOperator(cne, State, Operator.CheckEquality));
         	}
-        	
+
             return results;
 	    }
 	}

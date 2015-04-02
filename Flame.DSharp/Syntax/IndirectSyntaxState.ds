@@ -14,11 +14,14 @@ namespace Flame.Syntax.DSharp
         {
         	this.MemberProvider = new MemberProvider(Binder);
         }
-        public const this(set ISyntaxState State, set IBinder Binder, set IMemberProvider MemberProvider);
+        public const this(set ISyntaxState State, set IBinder Binder,
+            set IMemberProvider MemberProvider);
 
         public ISyntaxState State { const get; private set; }
         public IBinder Binder { const get; private set; }
         public IMemberProvider MemberProvider { const get; private set; }
+
+        public IConverter<IType, string> TypeNamer { const get return State.TypeNamer; }
 
         public IVariable DeclareVariable(string Name, IVariable Variable) : ISyntaxState.DeclareVariable
         {
@@ -37,7 +40,7 @@ namespace Flame.Syntax.DSharp
         {
             const get { return State.ReturnType; }
         }
-        
+
         public ICompilerLog Log : ISyntaxState.Log
         {
         	const get { return State.Log; }

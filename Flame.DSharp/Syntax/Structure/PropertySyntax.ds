@@ -31,14 +31,14 @@ namespace Flame.Syntax.DSharp
             		{
             			if (!item.IsEmpty)
             			{
-            				return false;	
+            				return false;
             			}
             		}
             	}
                 return true;
             }
         }
-        
+
         protected override void AddExtraLeadingTrivia(List<Token> tokens)
         {
             foreach (var item in IndexerParameters)
@@ -99,14 +99,15 @@ namespace Flame.Syntax.DSharp
 
         public IProperty CreateMember(ISyntaxState State)
         {
-            return new SyntaxProperty(this, State.DeclaringType, State.Binder, State.Log, State.MemberProvider);
+            return new SyntaxProperty(this, State.DeclaringType, State.Binder,
+                State.Log, State.MemberProvider, State.TypeNamer);
         }
 
         #endregion
 
         public bool IsExtensionMember
         {
-            get 
+            get
             {
                 var firstIndexerParam = Enumerable.FirstOrDefault<IMemberSyntax<IParameter>>(IndexerParameters);
                 if (firstIndexerParam == null)
@@ -114,7 +115,7 @@ namespace Flame.Syntax.DSharp
                 return firstIndexerParam.IsExtensionMember;
             }
         }
-        
+
         public bool IsSingletonMember
         {
         	const get

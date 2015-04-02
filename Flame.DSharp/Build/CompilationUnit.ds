@@ -14,22 +14,23 @@ namespace Flame.DSharp.Build
 			this.Children = new ISyntaxNode[0];
 		}
 		public const this(set ISyntaxNode[] Children);
-	
+
 		public ISyntaxNode[] Children { const get; private set; }
-		public const IEnumerable<ISyntaxNode> GetChildren()
+		public const [ISyntaxNode] GetChildren()
 			return this.Children;
-			
+
 		public virtual void CompileNamespace(INamespaceSyntax Node, INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log)
 		{
 			Node.CreateNamespace(DeclaringNamespace, Binder, Log);
 		}
-		
+
 		public virtual void CompileType(ITypeDeclarationSyntax Node, INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log)
 		{
-			var type = Node.CreateType(DeclaringNamespace, Binder, Log, DeclaringNamespace.ExtensionTypeProvider);
+			var type = Node.CreateType(DeclaringNamespace, Binder, Log,
+				DeclaringNamespace.ExtensionTypeProvider, DeclaringNamespace.TypeNamer);
 			DeclaringNamespace.AddType(type);
 		}
-		
+
 		public virtual void CompileToNamespace(INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ISyntaxNode Node, ICompilerLog Log)
 		{
 			if (Node is INamespaceSyntax)
@@ -49,7 +50,7 @@ namespace Flame.DSharp.Build
 				Log.LogError("'" + Node.GetCode().ToString() + "' could not be resolved as a component of a compilation unit.");
 			}
 		}
-		
+
 		public virtual void CompileToNamespace(INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log)
 		{
 			var newBinder = Binder.PushScope(DeclaringNamespace.Name, DeclaringNamespace);
@@ -58,13 +59,13 @@ namespace Flame.DSharp.Build
 				CompileToNamespace(DeclaringNamespace, newBinder, child, Log);
 			}
 		}
-			
+
 		public virtual void CompileToAssembly(ISyntaxAssembly Assembly, ICompilerLog Log)
 		{
 			var binder = new ScopedBinder(Assembly.GetSyntaxBinder());
 			CompileToNamespace(Assembly.RootNamespace, binder, Log);
 		}
-			
+
 		public virtual const CodeBuilder GetCode()
 		{
 			CodeBuilder cb = new CodeBuilder();
@@ -74,7 +75,7 @@ namespace Flame.DSharp.Build
 			}
 			return cb;
 		}
-		
+
 		public virtual override const string ToString()
 		{
 			return this.GetCode().ToString();

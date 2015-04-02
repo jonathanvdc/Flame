@@ -24,38 +24,48 @@ namespace Flame.DSharp.Build
 			this.Name = "";
 			this.AssemblyVersion = default(Version);
 			this.MainNamespace = new AssemblyNamespace(this);
+			this.TypeNamer = new DSharpTypeNamer();
 		}
 		public const this(set IBinder ExternalBinder, set string Name)
 		{
 			this.Graph = new AncestryGraph();
 			this.AssemblyVersion = default(Version);
 			this.MainNamespace = new AssemblyNamespace(this);
+			this.TypeNamer = new DSharpTypeNamer();
 		}
-		public const this(set IBinder ExternalBinder, set string Name, set Version AssemblyVersion)
+		public const this(set IBinder ExternalBinder, set string Name, set IConverter<IType, string> TypeNamer)
+		{
+			this.Graph = new AncestryGraph();
+			this.AssemblyVersion = default(Version);
+			this.MainNamespace = new AssemblyNamespace(this);
+		}
+		public const this(set IBinder ExternalBinder, set string Name, set Version AssemblyVersion,
+						  set IConverter<IType, string> TypeNamer)
 		{
 			this.Graph = new AncestryGraph();
 			this.MainNamespace = new AssemblyNamespace(this);
 		}
-		
+
 		public string Name { const get; set; }
 		public string FullName { const get return Name; }
 		/// <summary>
         /// Gets the assembly's version.
         /// </summary>
         public Version AssemblyVersion { const get; set; }
-        
+
         public AncestryGraph Graph { const get; private set; }
-        
+		public IConverter<IType, string> TypeNamer { const get; private set; }
+
         public const [IAttribute] GetAttributes()
         {
         	return new IAttribute[] { new AncestryGraphAttribute(Graph) };
         }
-        
+
         /// <summary>
 		/// Gets the nameless root namespace of the assembly.
 		/// </summary>
         public AssemblyNamespace MainNamespace { const get; private set; }
-        
+
         /// <summary>
         /// Adds a compilation unit to the assembly.
         /// </summary>
@@ -64,12 +74,12 @@ namespace Flame.DSharp.Build
         	MainNamespace.ClearExtensionTypeCache();
         	Item.CompileToNamespace(MainNamespace, new ScopedBinder(GetSyntaxBinder()), Log);
         }
-        
+
         /// <summary>
 		/// Gets the nameless root namespace of the assembly.
 		/// </summary>
 		public INamespaceBranchBuilder RootNamespace { const get return MainNamespace; }
-		
+
 		public IBinder ExternalBinder { const get; private set; }
 		private IBinder syntaxBinder;
 		public const IBinder GetSyntaxBinder()
@@ -80,7 +90,7 @@ namespace Flame.DSharp.Build
 			}
 			return syntaxBinder;
 		}
-		
+
 		/// <summary>
         /// Creates a binder for this assembly.
         /// </summary>
@@ -89,7 +99,7 @@ namespace Flame.DSharp.Build
         {
         	return new NamespaceTreeBinder(ExternalBinder.Environment, MainNamespace);
         }
-        
+
         /// <summary>
         /// Gets all types in the assembly.
         /// </summary>
@@ -100,7 +110,7 @@ namespace Flame.DSharp.Build
         		return CreateBinder().GetTypes();
         	}
         }
-        
+
         /// <summary>
         /// Gets the entry point method for this assembly.
         /// </summary>
