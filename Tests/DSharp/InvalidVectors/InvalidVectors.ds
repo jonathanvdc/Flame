@@ -1,0 +1,14 @@
+
+public static class InvalidVectorTest
+{
+    public const double GetLengthSquared(double[2] Vector)
+    {
+        return Vector[0] * Vector[0] + Vector[1] * Vector[1];
+    }
+
+    public const double Test()
+    {
+        int[3] vec = new int[3] { 2, 3, 0 };
+        return GetLengthSquared(vec);
+    }
+}
