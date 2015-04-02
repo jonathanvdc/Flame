@@ -49,7 +49,7 @@ namespace dsc
             }
             if (!buildArgs.CanCompile)
             {
-                log.WriteBlockEntry("Nothing to compile", log.ContrastYellow, "No source file or project was given.");
+                log.WriteBlockEntry("Nothing to compile", log.BrightYellow, "No source file or project was given.");
                 return;
             }
 
