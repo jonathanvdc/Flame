@@ -49,7 +49,7 @@ namespace dsc
             }
             if (!buildArgs.CanCompile)
             {
-                log.WriteBlockEntry("Nothing to compile", log.BrightYellow, "No source file or project was given.");
+                log.WriteEntry("Nothing to compile", log.BrightYellow, "No source file or project was given.");
                 return;
             }
 
@@ -64,7 +64,7 @@ namespace dsc
             }
             catch (Exception ex)
             {
-                log.WriteErrorBlock("Compilation terminated", "Compilation has been terminated due to a fatal error.");
+                log.LogError(new LogEntry("Compilation terminated", "Compilation has been terminated due to a fatal error."));
                 var entry = new LogEntry("Exception", ex.ToString());
                 if (buildArgs.LogFilter.ShouldLogEvent(entry))
                 {
@@ -73,7 +73,6 @@ namespace dsc
             }
             finally
             {
-                log.CancelWhiteline();
                 log.WriteLine();
                 log.Dispose();
             }

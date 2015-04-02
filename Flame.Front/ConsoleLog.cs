@@ -30,18 +30,16 @@ namespace Flame.Front
         public ConsoleLog(IConsole Console, ICompilerOptions Options, IStylePalette Palette, INodeWriter NodeWriter)
         {
             this.Options = Options;
-            this.Console = Console;
+            this.Console = new ParagraphConsole(Console);
             this.Palette = Palette;
             this.NodeWriter = NodeWriter;
-            this.gapQueued = false;
             this.writeLock = new object();
         }
 
-        public IConsole Console { get; private set; }
+        public ParagraphConsole Console { get; private set; }
         public ICompilerOptions Options { get; private set; }
         public IStylePalette Palette { get; private set; }
         public INodeWriter NodeWriter { get; private set; }
-        private bool gapQueued;
         private object writeLock;
 
         public int BufferWidth
@@ -49,18 +47,6 @@ namespace Flame.Front
             get
             {
                 return Console.Description.BufferWidth;
-            }
-        }
-
-        private void WriteGap()
-        {
-            lock (writeLock)
-            {
-                if (gapQueued)
-                {
-                    Console.WriteLine();
-                    gapQueued = false;
-                }
             }
         }
 
@@ -80,47 +66,22 @@ namespace Flame.Front
         {
             Console.WriteLine();
         }
-        private void WriteUnsafe(string Text)
+        private void WriteEntryInternal(Color PrimaryColor, Color SecondaryColor, LogEntry Entry)
         {
-            WriteGap();
-            WriteInternal(Text);
-        }
-        private void WriteUnsafe(char Value)
-        {
-            WriteGap();
-            WriteInternal(Value);
+            string name = Entry.Name;
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                Write(name, ContrastForegroundColor);
+                Write(": ");
+            }
+            WriteNode(Entry.Contents, PrimaryColor, SecondaryColor);
+            WriteLine();
         }
 
-        public void WriteWhiteline()
-        {
-            lock (writeLock)
-            {
-                gapQueued = true;
-            }
-        }
-        public void CancelWhiteline()
-        {
-            lock (writeLock)
-            {
-                gapQueued = false;
-            }
-        }
-        public void WriteSeparator()
-        {
-            lock (writeLock)
-            {
-                WriteLineInternal();
-                if (!gapQueued)
-                {
-                    WriteWhiteline();
-                }
-            }
-        }
         public void Write(string Text, Color Color)
         {
             lock (writeLock)
             {
-                WriteGap();
                 Console.PushStyle(new Style("custom", Color, new Color()));
                 WriteInternal(Text);
                 Console.PopStyle();
@@ -130,25 +91,13 @@ namespace Flame.Front
         {
             lock (writeLock)
             {
-                WriteUnsafe(Text);
+                WriteInternal(Text);
             }
-        }
-        public void Write(char Value)
-        {
-            lock (writeLock)
-            {
-                WriteUnsafe(Value);
-            }
-        }
-        public void Write<T>(T Value)
-        {
-            Write(Value.ToString());
         }
         public void WriteLine(string Text, Color Color)
         {
             lock (writeLock)
             {
-                WriteGap();
                 Console.PushStyle(new Style("custom", Color, new Color()));
                 WriteLineInternal(Text);
                 Console.PopStyle();
@@ -162,58 +111,54 @@ namespace Flame.Front
         {
             lock (writeLock)
             {
-                WriteGap();
                 WriteLineInternal(Text);
             }
         }
-        public void WriteLine<T>(T Value)
+
+        public void WriteEntry(string Header, Color HeaderColor, Color PrimaryColor, Color SecondaryColor, LogEntry Entry)
         {
-            WriteLine(Value.ToString());
+            lock (writeLock)
+            {
+                if (!string.IsNullOrWhiteSpace(Header))
+                {
+                    Write(Header + ": ", HeaderColor);
+                }
+                WriteEntryInternal(PrimaryColor, SecondaryColor, Entry);
+            }
         }
+        public void WriteEntry(string Header, Color PrimaryColor, Color SecondaryColor, LogEntry Entry)
+        {
+            WriteEntry(Header, PrimaryColor, PrimaryColor, SecondaryColor, Entry);
+        }
+        public void WriteEntry(string Header, Color HeaderColor, string Entry)
+        {
+            WriteEntry(Header, HeaderColor, BrightGreen, DimGreen, new LogEntry("", Entry));
+        }
+        public void WriteEntry(string Header, LogEntry Entry)
+        {
+            WriteEntry(Header, new Color(), BrightGreen, DimGreen, Entry);
+        }
+        public void WriteEntry(LogEntry Entry)
+        {
+            WriteEntry("", BrightGreen, DimGreen, Entry);
+        }
+
         public void WriteBlockEntry(string Header, Color HeaderColor, Color PrimaryColor, Color SecondaryColor, LogEntry Entry)
         {
             lock (writeLock)
             {
-                WriteWhiteline();
-                Write(Header + ": ", HeaderColor);
-                WriteEntry(Entry, PrimaryColor, SecondaryColor);
-                WriteSeparator();
+                Console.WriteSeparator(2);
+                WriteEntry(Header, HeaderColor, PrimaryColor, SecondaryColor, Entry);
+                Console.WriteSeparator(2);
             }
         }
-        public void WriteBlockEntry(string Header, Color MainColor, Color HighlightColor, LogEntry Entry)
+        public void WriteBlockEntry(string Header, Color PrimaryColor, Color SecondaryColor, LogEntry Entry)
         {
-            WriteBlockEntry(Header, MainColor, MainColor, HighlightColor, Entry);
-        }
-        public void WriteBlockEntry(string Header, Color HeaderColor, string Entry)
-        {
-            WriteBlockEntry(Header, HeaderColor, BrightGreen, DimGreen, new LogEntry("", Entry));
-        }
-        public void WriteBlockEntry(string Header, LogEntry Entry)
-        {
-            WriteBlockEntry(Header, new Color(), BrightGreen, DimGreen, Entry);
+            WriteBlockEntry(Header, PrimaryColor, PrimaryColor, SecondaryColor, Entry);
         }
         public void WriteBlockEntry(LogEntry Entry)
         {
-            lock (writeLock)
-            {
-                WriteWhiteline();
-                WriteEntry(Entry, BrightGreen, DimGreen);
-                WriteSeparator();
-            }
-        }
-        public void WriteBlockEntry(string Header, string Entry)
-        {
-            lock (writeLock)
-            {
-                WriteWhiteline();
-                Write(Header + ": ");
-                WriteLine(Entry);
-                WriteSeparator();
-            }
-        }
-        public void WriteErrorBlock(string Header, string Message)
-        {
-            WriteBlockEntry(Header, BrightRed, Message);
+            WriteBlockEntry("", BrightGreen, DimGreen, Entry);
         }
 
         #region Defaults
@@ -425,24 +370,6 @@ namespace Flame.Front
 
         #endregion
 
-        #region WriteEntry
-
-        public void WriteEntry(LogEntry Entry, Color CaretColor, Color HighlightColor)
-        {
-            lock (writeLock)
-            {
-                string name = Entry.Name;
-                if (!string.IsNullOrWhiteSpace(name))
-                {
-                    Write(name, ContrastForegroundColor);
-                    Write(": ");
-                }
-                WriteNode(Entry.Contents, CaretColor, HighlightColor);
-            }
-        }
-
-        #endregion
-
         public void LogError(LogEntry Entry)
         {
             WriteBlockEntry("Error", BrightRed, DimRed, Entry);
@@ -450,9 +377,7 @@ namespace Flame.Front
 
         public void LogEvent(LogEntry Entry)
         {
-            WriteWhiteline();
-            WriteEntry(Entry, BrightGreen, DimGreen);
-            WriteWhiteline();
+            WriteEntry(Entry);
         }
 
         public void LogMessage(LogEntry Entry)
