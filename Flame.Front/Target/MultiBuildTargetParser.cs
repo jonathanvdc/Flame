@@ -18,7 +18,7 @@ namespace Flame.Front.Target
         private List<IBuildTargetParser> parsers;
         public IBuildTargetParser GetParser(string Identifier)
         {
-            return parsers.FirstOrDefault(item => item.MatchesPlatformIdentifier(Identifier));
+            return parsers.FirstOrDefault(item => item.MatchesPlatformIdentifier(Identifier ?? ""));
         }
         public void RegisterParser(IBuildTargetParser Parser)
         {
