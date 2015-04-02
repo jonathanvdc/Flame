@@ -9,7 +9,8 @@ namespace Flame.Syntax
 	public interface INamespaceBranchBuilder : INamespaceBranch
 	{
 		IExtensionTypeProvider ExtensionTypeProvider { const get; }
-	
+		IConverter<IType, string> TypeNamer { const get;}
+
 		void AddNamespace(INamespace Namespace);
 		void AddType(IType Type);
 	}

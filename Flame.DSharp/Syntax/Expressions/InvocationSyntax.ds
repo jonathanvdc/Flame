@@ -33,7 +33,7 @@ namespace Flame.Syntax.DSharp
 
         public static const IExpression CreateInvocationExpression(ISyntaxState State, IMethod Method, IVariable Caller)
         {
-            return CreateInvocationExpression(State, Method, Caller, (IEnumerable<IExpression>)new IExpression[0]);
+            return CreateInvocationExpression(State, Method, Caller, Enumerable.Empty<IExpression>());
         }
 
         public static const IExpression CreateInvocationExpression(ISyntaxState State, IMethod Method, IVariable Caller, IEnumerable<IExpression> Arguments)
@@ -195,7 +195,7 @@ namespace Flame.Syntax.DSharp
             }
             if (method == null)
             {
-                var namer = new DSharpTypeNamer();
+                var namer = State.TypeNamer;
             	CodeBuilder expectedSignature = CreateExpectedSignatureDescription(callerType, Method.GetCode(), argTypes, true, namer);
 
             	var failedMatches = Enumerable.ToArray<IMethod>(Enumerable.OfType<IMethod>(matches));
@@ -271,7 +271,7 @@ namespace Flame.Syntax.DSharp
             return Method.GetCallerVariable(State);
         }
 
-        public IEnumerable<ITypeMember> GetAccessedMembers(ISyntaxState State)
+        public [ITypeMember] GetAccessedMembers(ISyntaxState State)
         {
             var argExprs = Arguments.CreateExpressions(State);
             var argTypes = argExprs.Types;

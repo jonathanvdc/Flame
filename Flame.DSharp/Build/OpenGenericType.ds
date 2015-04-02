@@ -16,8 +16,10 @@ namespace Flame.DSharp.Build
 {
     public class OpenGenericType : SyntaxType
     {
-        public const this(set TypeDeclarationSyntax syntax, set INamespace DeclaringNamespace, set IBinder Binder, set ICompilerLog Log, set IMemberProvider MemberProvider);
-        public const this(set TypeDeclarationSyntax syntax, set INamespace DeclaringNamespace, set IBinder Binder, set ICompilerLog Log, IExtensionTypeProvider ExtensionTypeProvider)
+        public const this(set TypeDeclarationSyntax syntax, set INamespace DeclaringNamespace, set IBinder Binder,
+            set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer);
+        public const this(set TypeDeclarationSyntax syntax, set INamespace DeclaringNamespace,
+            set IBinder Binder, set ICompilerLog Log, IExtensionTypeProvider ExtensionTypeProvider, set IConverter<IType, string> TypeNamer)
         {
         	this.MemberProvider = new MemberProvider(ExtensionTypeProvider, Binder);
         }

@@ -74,14 +74,14 @@ namespace Flame.Syntax.DSharp
 
         #endregion
 
-        public IType CreateType(INamespace Namespace, IBinder Binder, ICompilerLog Log, IExtensionTypeProvider ExtensionTypeProvider)
+        public IType CreateType(INamespace Namespace, IBinder Binder, ICompilerLog Log, IExtensionTypeProvider ExtensionTypeProvider, IConverter<IType, string> TypeNamer)
         {
-            return new OpenGenericType(this, Namespace, Binder, Log, ExtensionTypeProvider);
+            return new OpenGenericType(this, Namespace, Binder, Log, ExtensionTypeProvider, TypeNamer);
         }
 
         public IType CreateMember(ISyntaxState State)
         {
-            return new OpenGenericType(this, (INamespace)State.DeclaringType, State.Binder, State.Log, State.MemberProvider);
+            return new OpenGenericType(this, (INamespace)State.DeclaringType, State.Binder, State.Log, State.MemberProvider, State.TypeNamer);
         }
 
         public override const string ToString()
@@ -107,7 +107,7 @@ namespace Flame.Syntax.DSharp
         {
             const get return false;
         }
-        
+
         public bool IsSingletonMember
         {
             const get return false;

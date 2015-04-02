@@ -316,16 +316,18 @@ namespace Flame.DSharp.Build
             return DSharpTypeExtensions.CreateConstrainedGenericParameters(GetDeclaringSyntaxState(), this, Syntax.Signature.GenericDeclarations, Syntax.GenericConstraints);
         }
 
-        public virtual IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
+        public virtual IMethod MakeGenericMethod([IType] TypeArguments)
         {
             var state = GetSyntaxState();
-            return new ClosedGenericMethod(Syntax, DeclaringType, state.Binder, state.Log, state.MemberProvider, TypeArguments);
+            return new ClosedGenericMethod(Syntax, DeclaringType, state.Binder,
+                state.Log, state.MemberProvider, state.TypeNamer, TypeArguments);
         }
 
         public virtual IMethod GetGenericDeclaration()
         {
             var state = GetSyntaxState();
-            return new OpenGenericMethod(Syntax, DeclaringType, state.Binder, state.Log, state.MemberProvider);
+            return new OpenGenericMethod(Syntax, DeclaringType, state.Binder,
+                state.Log, state.MemberProvider, state.TypeNamer);
         }
 
         #endregion

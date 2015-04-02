@@ -9,7 +9,7 @@ namespace Flame.DSharp.Build
 	{
         public const this()
         {
-            this.PreferTrivialNames = false;
+            this.PreferTrivialNames = true;
         }
         public const this(set bool PreferTrivialNames);
 

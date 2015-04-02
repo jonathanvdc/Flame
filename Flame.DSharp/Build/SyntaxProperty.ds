@@ -17,13 +17,15 @@ namespace Flame.DSharp.Build
 {
     public class SyntaxProperty : CodeMember, IProperty, ISyntaxNode
     {
-        public const this(set PropertySyntax Syntax, set IType DeclaringType, set IBinder Binder, set ICompilerLog Log, set IMemberProvider MemberProvider);
+        public const this(set PropertySyntax Syntax, set IType DeclaringType, set IBinder Binder,
+            set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer);
 
         public PropertySyntax Syntax { const get; private set; }
         public IType DeclaringType { const get; private set; }
         public ICompilerLog Log { const get; private set; }
         public IBinder Binder { const get; private set; }
         public IMemberProvider MemberProvider { const get; private set; }
+        public IConverter<IType, string> TypeNamer { const get; private set; }
 
         #region GetSyntaxState
 
@@ -31,7 +33,7 @@ namespace Flame.DSharp.Build
         {
         	var descMethod = new DescribedMethod();
 			descMethod.DeclaringType = DeclaringType;
-            return new SyntaxState(descMethod, Binder, Log, MemberProvider);
+            return new SyntaxState(descMethod, Binder, Log, MemberProvider, TypeNamer);
         }
 
         #endregion
@@ -45,7 +47,7 @@ namespace Flame.DSharp.Build
 
 		private IAccessor[] accessorVals;
 		public IAccessor[] Accessors { const get return GetAccessors(); }
-		
+
         public const IAccessor[] GetAccessors()
         {
         	if (accessorVals == null)
@@ -62,7 +64,7 @@ namespace Flame.DSharp.Build
 
 		private IParameter[] indexerParams;
 		public IParameter[] IndexerParameters { const get return GetIndexerParameters(); }
-		
+
         public const IParameter[] GetIndexerParameters()
         {
         	if (indexerParams == null)
@@ -94,13 +96,13 @@ namespace Flame.DSharp.Build
 
 		private IAttribute[] attrCache;
 		public [IAttribute] Attributes { const get return GetAttributes(); }
-		
+
         public const [IAttribute] GetAttributes()
         {
         	if (attrCache == null)
         	{
 	            var state = GetSyntaxState();
-	
+
 	            var modifierAttrs = Syntax.Signature.ModifierTokens.GetModifiers();
 	            var extraAttributes = new List<IAttribute>();
 	            /*foreach (var item in Syntax.ImplementedProperties)
@@ -120,19 +122,19 @@ namespace Flame.DSharp.Build
 	            	extraAttributes.Add(item);
 	            foreach (var item in Syntax.Signature.Attributes)
 	            	extraAttributes.Add(item.CreateAttribute(state, this));
-	            	
+
 	            extraAttributes.AddRange(Syntax.GetDescriptionAttributes(GetSyntaxState()));
-	            	
+
 	            attrCache = extraAttributes.ToArray();
             }
             return attrCache;
         }
 
         #endregion GetBaseProperties
-        
+
         private IProperty[] basePropertyCache;
         public [IProperty] BaseProperties { const get return GetBaseProperties(); }
-        
+
         public virtual [IProperty] GetBaseProperties()
         {
         	if (basePropertyCache == null)
@@ -165,9 +167,9 @@ namespace Flame.DSharp.Build
             }
             return basePropertyCache;
         }
-        
-        #region 
-        
+
+        #region
+
         #endregion
 
         #region CodeMember Implementation

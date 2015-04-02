@@ -28,15 +28,17 @@ namespace Flame.DSharp.Build
 	    	var descMethod = new DescribedMethod();
 			descMethod.DeclaringType = this;
 
-            return new SyntaxState(descMethod, InstanceState.Binder, InstanceState.Log, InstanceState.MemberProvider);
+            return new SyntaxState(descMethod, InstanceState.Binder,
+				InstanceState.Log, InstanceState.MemberProvider,
+				InstanceState.TypeNamer);
         }
 
 		public string Name { const get return "Static_Singleton"; }
 		public string FullName { const get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
 		public INamespace DeclaringNamespace { const get return (INamespace)InstanceType; }
 
-		public IEnumerable<IAttribute> Attributes { const get return GetAttributes(); }
-		private IEnumerable<IAttribute> attrCache;
+		public [IAttribute] Attributes { const get return GetAttributes(); }
+		private [IAttribute] attrCache;
 		public const IEnumerable<IAttribute> GetAttributes()
 		{
 			if (attrCache == null)
@@ -59,8 +61,8 @@ namespace Flame.DSharp.Build
 		public const IContainerType AsContainerType() return null;
 		public const IType GetGenericDeclaration() return this;
 		public const IType MakeGenericType(IEnumerable<IType> TypeArguments) return null;
-		public const IEnumerable<IType> GetGenericArguments() return (IEnumerable<IType>)new IType[0];
-		public const IEnumerable<IGenericParameter> GetGenericParameters() return (IEnumerable<IGenericParameter>)new IGenericParameter[0];
+		public const [IType] GetGenericArguments() return Enumerable.Empty<IType>();
+		public const [IGenericParameter] GetGenericParameters() return Enumerable.Empty<IGenericParameter>();
 		public const IArrayType MakeArrayType(int Rank) return new DescribedArrayType(this, Rank);
 		public const IVectorType MakeVectorType(int[] Dimensions) return new DescribedVectorType(this, Dimensions);
 		public const IPointerType MakePointerType(PointerKind PtrType) return new DescribedPointerType(this, PtrType);

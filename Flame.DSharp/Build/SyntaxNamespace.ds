@@ -14,16 +14,17 @@ namespace Flame.DSharp.Build
 			this.Namespaces = new List<INamespace>();
 			this.Types = new List<IType>();
 		}
-		
+
 		public string FullName { const get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
 		public string Name { const get; private set; }
 		public IAssembly DeclaringAssembly { const get return DeclaringNamespace.DeclaringAssembly; }
-		public INamespaceBranchBuilder DeclaringNamespace { const get; private set; }	
+		public INamespaceBranchBuilder DeclaringNamespace { const get; private set; }
 		public IExtensionTypeProvider ExtensionTypeProvider { const get return DeclaringNamespace.ExtensionTypeProvider; }
-		
+		public IConverter<IType, string> TypeNamer { const get return DeclaringNamespace.TypeNamer; }
+
 		public List<INamespace> Namespaces { const get; private set; }
 		public List<IType> Types { const get; private set; }
-		
+
 		private AncestryGraph cachedGraph;
 		public AncestryGraph Graph
 		{
@@ -33,16 +34,16 @@ namespace Flame.DSharp.Build
 				{
 					cachedGraph = DeclaringAssembly.GetAncestryGraph();
 				}
-					
-				return cachedGraph;				
+
+				return cachedGraph;
 			}
 		}
-		
+
 		public const [IAttribute] GetAttributes()
 		{
 			return new IAttribute[] { new AncestryGraphAttribute(Graph) };
 		}
-		
+
 		public const [INamespaceBranch] GetNamespaces()
 		{
 			List<INamespaceBranch> branches = new List<INamespaceBranch>();
@@ -54,12 +55,12 @@ namespace Flame.DSharp.Build
 					branches.Add((INamespaceBranch)item);
 			return branches;
 		}
-		
+
 		public const IType[] GetTypes()
 		{
 			return Types.ToArray();
 		}
-	
+
 		public void AddNamespace(INamespace Namespace)
 		{
 			this.Namespaces.Add(Namespace);
@@ -68,7 +69,7 @@ namespace Flame.DSharp.Build
 		{
 			this.Types.Add(Type);
 		}
-		
+
 		public const CodeBuilder GetCode()
 		{
 			var cb = new CodeBuilder();
@@ -85,7 +86,7 @@ namespace Flame.DSharp.Build
 			cb.AddLine("}");
 			return cb;
 		}
-		
+
 		public override const string ToString()
 		{
 			return "namespace " + Name;

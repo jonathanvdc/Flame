@@ -32,7 +32,7 @@ namespace Flame.DSharp.Build
         }
 
 		public abstract const TypeDeclarationSyntax GetTypeSyntax();
-		
+
         public TypeDeclarationSyntax Syntax { const get return GetTypeSyntax(); }
 
         public INamespace DeclaringNamespace { const get; protected set; }
@@ -56,7 +56,7 @@ namespace Flame.DSharp.Build
 		{
 			const get return Syntax.Signature.ModifierTokens.IsStatic;
 		}
-		
+
 		public bool IsExtensionType
 		{
 			const get
@@ -71,7 +71,7 @@ namespace Flame.DSharp.Build
 	            return false;
 			}
 		}
-		
+
 		public bool HasAssociatedSingleton
 		{
 			const get
@@ -89,12 +89,12 @@ namespace Flame.DSharp.Build
     			return false;
 			}
 		}
-		
+
 		private AncestryGraph RetrieveAncestryGraph()
 		{
 			if (DeclaringNamespace == null)
 			{
-				return new AncestryGraph();		
+				return new AncestryGraph();
 			}
 			else
 			{
@@ -104,7 +104,7 @@ namespace Flame.DSharp.Build
 
 		private IAttribute[] attrCache;
 		public [IAttribute] Attributes { const get return GetAttributes(); }
-		
+
         public virtual [IAttribute] GetAttributes()
         {
         	if (attrCache == null)
@@ -126,19 +126,19 @@ namespace Flame.DSharp.Build
 	            {
 	            	attrs.Add(new SingletonAttribute("Instance"));
 	            }
-	            
+
 	            foreach (var item in Syntax.Signature.Attributes)
 	            {
 	            	attrs.Add(item.CreateAttribute(state, this));
 	            }
-	            
+
 	            foreach (var related in AssociatedTypes)
 	            {
 	            	attrs.Add(new AssociatedTypeAttribute(related));
 	            }
-	            
+
 	            attrs.AddRange(Syntax.Signature.GetDescriptionAttributes(GetNamespaceSyntaxState()));
-	            
+
 	            if (this.AllowMemberCaching)
 	            	this.attrCache = attrs.ToArray();
 	            return attrs;
@@ -152,7 +152,7 @@ namespace Flame.DSharp.Build
 
 		private IType[] nestedTypeCache;
 		public IType[] NestedTypes { const get return GetTypes(); }
-		
+
         public const IType[] GetTypes()
         {
         	if (nestedTypeCache == null)
@@ -196,9 +196,9 @@ namespace Flame.DSharp.Build
         }
 
         #endregion
-        
+
         #region Associated Types
-        
+
         /// <summary>
         /// Gets all associated types for this type.
         /// </summary>
@@ -218,15 +218,15 @@ namespace Flame.DSharp.Build
         				related.Add(new AssociatedSingletonSyntaxType(GetSyntaxState(), Syntax));
         			}
         			var relatedArr = related.ToArray();
-        			
+
         			if (AllowMemberCaching)
         				typeMemberCache["AssociatedTypes"] = relatedArr;
-        			
+
         			return relatedArr;
         		}
         	}
         }
-        
+
         #endregion
 
         #region IType
@@ -284,7 +284,7 @@ namespace Flame.DSharp.Build
         {
             return CreateTypeMembers<ITypeMember>(Syntax.GetMembersOfType<ITypeMember>());
         }
-        
+
         protected FieldProperty GetSingletonInstanceProperty()
         {
         	if (AllowMemberCaching && typeMemberCache.ContainsKey("Instance"))
@@ -314,13 +314,13 @@ namespace Flame.DSharp.Build
             	return definedFieldProps;
             }
         }
-        
+
         private const IExpression CreateNotThisOp(IMethod Method, Operator Op)
         {
         	//return new NotExpression(new InvocationExpression(Method, new ThisVariable(GetSyntaxState().CurrentType).CreateGetExpression(), (IEnumerable<IExpression>)new IExpression[0]));
         	return new NotExpression(new DirectBinaryExpression(new ThisVariable(GetSyntaxState().CurrentType).CreateGetExpression(), Op, new ArgumentVariable(Method.GetParameters()[0], 0).CreateGetExpression()));
         }
-        
+
         private const IMethod CreateNotOperator(IMethod Method, Operator Op)
         {
     	    var bodyMethod = new DescribedBodyMethod("operator" + Op.ToString(), this, Method.ReturnType, false);
@@ -348,11 +348,11 @@ namespace Flame.DSharp.Build
 	        		if (!item.IsConstructor)
 	        			methods.Add(item);
 	        	}
-	        	
+
 	        	var state = GetSyntaxState();
-	        	
+
 	        	methods.AddRange(DSharpTypeExtensions.GenerateOperators(methods, state));
-	        	
+
 	            methodCache = methods.ToArray();
             }
             return methodCache;
@@ -412,7 +412,7 @@ namespace Flame.DSharp.Build
             return methods.ToArray();
         }
         public IMethod[] Constructors { const get return GetConstructors(); }
-        
+
         public virtual [IInvariant] GetInvariants()
         {
             return CreateTypeMembers<IInvariant>(Syntax.Invariants, "Invariants");
@@ -449,9 +449,9 @@ namespace Flame.DSharp.Build
             	if (rootType != null)
             		bTypes.Add(rootType);
             }
-            
+
             var baseTypes = bTypes.ToArray();
-            
+
             if (AllowMemberCaching)
             {
                 typeMemberCache["BaseTypes"] = baseTypes;
@@ -496,36 +496,38 @@ namespace Flame.DSharp.Build
         public virtual IType MakeGenericType([IType] TypeArguments)
         {
             var state = GetSyntaxState();
-            return new ClosedGenericType(Syntax, DeclaringNamespace, state.Binder, state.Log, state.MemberProvider, TypeArguments);
+            return new ClosedGenericType(Syntax, DeclaringNamespace, state.Binder,
+                state.Log, state.MemberProvider, state.TypeNamer, TypeArguments);
         }
 
         public virtual IType GetGenericDeclaration()
         {
             var state = GetNamespaceSyntaxState();
-            return new OpenGenericType(Syntax, DeclaringNamespace, state.Binder, state.Log, state.MemberProvider);
+            return new OpenGenericType(Syntax, DeclaringNamespace, state.Binder,
+                state.Log, state.MemberProvider, state.TypeNamer);
         }
 
 		public [IGenericParameter] GenericParameters { const get return GetGenericParameters(); }
-		
+
 		protected virtual [IGenericParameter] CreateGenericParameters()
 		{
 			return DSharpTypeExtensions.CreateConstrainedGenericParameters(GetNamespaceSyntaxState(), this, Syntax.Signature.GenericDeclarations, Syntax.Signature.GenericConstraints);
 		}
-		
+
         public virtual [IGenericParameter] GetGenericParameters()
         {
             if (AllowMemberCaching && typeMemberCache.ContainsKey("GenericParameters"))
             {
                 return ([IGenericParameter])typeMemberCache["GenericParameters"];
             }
-            
+
             var genericParams = CreateGenericParameters();
-            
+
         	if (AllowMemberCaching)
         	{
             	typeMemberCache["GenericParameters"] = genericParams;
         	}
-        	
+
         	return genericParams;
         }
 

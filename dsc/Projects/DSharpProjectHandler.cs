@@ -56,7 +56,7 @@ namespace dsc.Projects
             var units = await ParseCompilationUnitsAsync(Project.GetSourceItems(), Parameters);
             var binder = await Parameters.BinderTask;
 
-            var dsAsm = new SyntaxAssembly(DSharpBuildHelpers.Instance.CreatePrimitiveBinder(binder), Project.Name);
+            var dsAsm = new SyntaxAssembly(DSharpBuildHelpers.Instance.CreatePrimitiveBinder(binder), Project.Name, GetTypeNamer(Parameters.Log.Options));
             foreach (var item in units)
             {
                 dsAsm.AddCompilationUnit(item, Parameters.Log);
@@ -65,6 +65,22 @@ namespace dsc.Projects
             return dsAsm;
         }
 
+        private static IConverter<IType, string> GetTypeNamer(ICompilerOptions Options)
+        {
+            switch (Options.GetOption<string>("type-names", "default"))
+            {
+                case "trivial":
+                case "prefer-trivial":
+                    return new DSharpTypeNamer(true);
+
+                case "precise":
+                    return new DSharpTypeNamer(false);
+
+                case "default":
+                default:
+                    return new DSharpTypeNamer();
+            }
+        }
 
         public static Task<CompilationUnit[]> ParseCompilationUnitsAsync(List<IProjectSourceItem> SourceItems, CompilationParameters Parameters)
         {

@@ -7,6 +7,7 @@ namespace Flame.Syntax
 {
     public interface ITypeDeclarationSyntax : ISyntaxNode
     {
-        IType CreateType(INamespace Namespace, IBinder Binder, ICompilerLog Log, IExtensionTypeProvider ExtensionTypeProvider);
+        IType CreateType(INamespace Namespace, IBinder Binder, ICompilerLog Log,
+            IExtensionTypeProvider ExtensionTypeProvider, IConverter<IType, string> TypeNamer);
     }
 }

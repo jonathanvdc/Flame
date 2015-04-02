@@ -12,13 +12,13 @@ namespace Flame.Syntax.DSharp
 {
     public class SyntaxState : ISyntaxState
     {
-        public const this(set IMethod Method, set IBinder Binder, set ICompilerLog Log)
+        public const this(set IMethod Method, set IBinder Binder, set ICompilerLog Log, set IConverter<IType, string> TypeNamer)
         {
-        	this.MemberProvider = new MemberProvider(Binder);
+            this.MemberProvider = new MemberProvider(Binder);
             this.declaredVariables = new Stack<Dictionary<string, IVariable>>();
             PushScope();
         }
-        public const this(set IMethod Method, set IBinder Binder, set ICompilerLog Log, set IMemberProvider MemberProvider)
+        public const this(set IMethod Method, set IBinder Binder, set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer)
         {
             this.declaredVariables = new Stack<Dictionary<string, IVariable>>();
             PushScope();
@@ -39,10 +39,10 @@ namespace Flame.Syntax.DSharp
                 }
             }
         }
-        
+
         public ICompilerLog Log { const get; private set; }
         public IBinder Binder { const get; private set; }
-
+        public IConverter<IType, string> TypeNamer { const get; private set; }
         public IMemberProvider MemberProvider { const get; private set; }
 
         private Stack<Dictionary<string, IVariable>> declaredVariables;
@@ -59,7 +59,7 @@ namespace Flame.Syntax.DSharp
                 return dict;
             }
         }
-        
+
         public IMethod Method { const get; private set; }
 
 		private IVariableProvider paramProvider;

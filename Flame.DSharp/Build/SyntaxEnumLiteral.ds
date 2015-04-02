@@ -55,7 +55,7 @@ namespace Flame.DSharp.Build
         }
 
 		private IAttribute[] cachedAttrs;
-        public const IEnumerable<IAttribute> GetAttributes()
+        public const [IAttribute] GetAttributes()
         {
         	if (this.cachedAttrs == null)
         	{
@@ -81,7 +81,7 @@ namespace Flame.DSharp.Build
         {
             return Syntax.GetCode();
         }
-        
+
         #region Equality
 
         public override int GetHashCode()

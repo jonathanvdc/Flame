@@ -16,11 +16,13 @@ namespace Flame.DSharp.Build
     public abstract class SyntaxMethod : SyntaxMethodBase
     {
     	public const this();
-        public const this(set MethodSyntax syntax, set IType DeclaringType, set IBinder Binder, set ICompilerLog Log, set IMemberProvider MemberProvider);
+        public const this(set MethodSyntax syntax, set IType DeclaringType, set IBinder Binder,
+            set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer);
 
         public IBinder Binder { const get; protected set; }
         public IMemberProvider MemberProvider { const get; protected set; }
-        
+        public IConverter<IType, string> TypeNamer { const get; protected set; }
+
         protected MethodSyntax syntax;
         public override const MethodSyntax GetMethodSyntax()
         {
@@ -29,7 +31,7 @@ namespace Flame.DSharp.Build
 
         public override ISyntaxState GetDeclaringSyntaxState()
         {
-            return new SyntaxState(this, Binder, Log);
+            return new SyntaxState(this, Binder, Log, TypeNamer);
         }
 
         public override ISyntaxState GetSyntaxState()
@@ -38,7 +40,7 @@ namespace Flame.DSharp.Build
 
             var genericParams = this.GetGenericParameters();
             var genericArgs = this.GetGenericArguments();
-            
+
             bool empty = true;
             foreach (var param in genericParams, var arg in genericArgs)
             {
@@ -53,7 +55,7 @@ namespace Flame.DSharp.Build
 	            }
             }
 
-            return new SyntaxState(this, genericBinder, Log, MemberProvider);
+            return new SyntaxState(this, genericBinder, Log, MemberProvider, TypeNamer);
         }
     }
 }
