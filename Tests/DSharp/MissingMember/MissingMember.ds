@@ -18,7 +18,7 @@ public class SemicolonTest
 
     public void MissingVariable()
     {
-        state.Log.LogWarning("Whoa. 'state' is not defined in this scope.");
+        state.Log.LogWarning("Whoa. 'state' is not defined in this scope. This line's really long, too. I wonder what the compiler will make of this.");
     }
 
     public void MissingAccessor()
