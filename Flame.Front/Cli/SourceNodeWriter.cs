@@ -91,6 +91,31 @@ namespace Flame.Front.Cli
             width = 0;
         }
 
+        private bool FlushLine(char Value, int CharacterWidth)
+        {
+            FlushLine();
+            bool result = PrepareWrite(Value);
+            width = CharacterWidth;
+            return result;
+        }
+
+        private bool PrepareWrite(char Value)
+        {
+            if (width == 0)
+            {
+                if (char.IsWhiteSpace(Value))
+                {
+                    return false;
+                }
+                else
+                {
+                    Console.WriteLine();
+                    Console.Write(Indentation);
+                }
+            }
+            return true;
+        }
+
         private void Write(IMarkupNode Node, bool UseCaret, bool CaretStarted)
         {
             Console.PushStyle(Node.GetStyle(Palette));
@@ -102,24 +127,21 @@ namespace Flame.Front.Cli
             string nodeText = Node.GetText();
             foreach (var item in nodeText)
             {
-                if (width == 0)
+                if (!PrepareWrite(item))
                 {
-                    if (char.IsWhiteSpace(item))
+                    continue;
+                }
+
+                int itemWidth = item == '\t' ? 4 : 1;
+                width += itemWidth;
+                if (width >= MaxWidth)
+                {
+                    if (!FlushLine(item, itemWidth))
                     {
                         continue;
                     }
-                    else
-                    {
-                        Console.WriteLine();
-                        Console.Write(Indentation);
-                    }
                 }
 
-                width += item == '\t' ? 4 : 1;
-                if (width >= MaxWidth)
-                {
-                    FlushLine();
-                }
                 if (!CaretStarted && UseCaret)
                 {
                     caretConsole.Write("^", CaretStyle);
