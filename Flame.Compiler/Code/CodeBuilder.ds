@@ -183,24 +183,32 @@ namespace Flame.Compiler
         {
         	while (lines.Count > 0)
         	{
-        		string trimmed = lines[0].Text.TrimStart(Characters);
-        		var newLine = new CodeLine(trimmed, lines[0].Indentation);
-        		if (newLine.IsEmpty)
-        		{
-        			lines.RemoveAt(0);
-        		}
-        		else
-        		{
-        			lines[0] = newLine;
-        			return this;
-        		}
+                var firstLine = lines[0];
+                if (firstLine.IsEmpty)
+                {
+                    lines.RemoveAt(0);
+                }
+                else
+                {
+                    string trimmed = firstLine.Text.TrimStart(Characters);
+                    var newLine = new CodeLine(trimmed, firstLine.Indentation);
+                    if (newLine.IsEmpty)
+                    {
+                        lines.RemoveAt(0);
+                    }
+                    else
+                    {
+                        lines[0] = newLine;
+                        return this;
+                    }
+                }
         	}
             return this;
         }
 
         public CodeBuilder TrimStart()
         {
-        	return TrimStart(new char[0]);
+        	return TrimStart(null);
         }
 
         #endregion
@@ -211,24 +219,47 @@ namespace Flame.Compiler
         {
         	while (lines.Count > 0)
         	{
-        		string trimmed = lines[lines.Count - 1].Text.TrimEnd(Characters);
-        		var newLine = new CodeLine(trimmed, lines[lines.Count - 1].Indentation);
-        		if (newLine.IsEmpty)
-        		{
-        			lines.RemoveAt(lines.Count - 1);
-        		}
-        		else
-        		{
-        			lines[lines.Count - 1] = newLine;
-                    return this;
-        		}
+                var lastLine = lines[lines.Count - 1];
+                if (lastLine.IsEmpty)
+                {
+                    lines.RemoveAt(lines.Count - 1);
+                }
+                else
+                {
+                    string trimmed = lastLine.Text.TrimEnd(Characters);
+                    var newLine = new CodeLine(trimmed, lastLine.Indentation);
+                    if (newLine.IsEmpty)
+                    {
+                        lines.RemoveAt(lines.Count - 1);
+                    }
+                    else
+                    {
+                        lines[lines.Count - 1] = newLine;
+                        return this;
+                    }
+                }
         	}
             return this;
         }
 
         public CodeBuilder TrimEnd()
         {
-        	return TrimEnd(new char[0]);
+        	return TrimEnd(null);
+        }
+
+        #endregion
+
+        #region TrimIndentation
+
+        public CodeBuilder TrimIndentation()
+        {
+            int minIndent = MinIndentation;
+            for (int i = 0; i < lines.Count; i++)
+            {
+                var line = lines[i];
+                lines[i] = new CodeLine(line.Text, line.Indentation - minIndent);
+            }
+            return this;
         }
 
         #endregion
@@ -238,13 +269,53 @@ namespace Flame.Compiler
         public CodeBuilder Trim(char[] Characters)
         {
         	TrimStart(Characters);
-        	return TrimEnd(Characters);
+        	TrimEnd(Characters);
+            return TrimIndentation();
         }
 
         public CodeBuilder Trim()
         {
-        	TrimStart();
-        	return TrimEnd();
+        	return Trim(null);
+        }
+
+        #endregion
+
+        #region MinIndentation/MaxIndentation
+
+        public int MinIndentation
+        {
+            const get
+            {
+                if (lines.Count == 0) return 0;
+                else
+                {
+                    int result = lines[0].Indentation;
+                    foreach (var item in lines)
+                        if (item.Indentation < result)
+                    {
+                        result = item.Indentation;
+                    }
+                    return result;
+                }
+            }
+        }
+
+        public int MaxIndentation
+        {
+            const get
+            {
+                if (lines.Count == 0) return 0;
+                else
+                {
+                    int result = lines[0].Indentation;
+                    foreach (var item in lines)
+                        if (item.Indentation > result)
+                    {
+                        result = item.Indentation;
+                    }
+                    return result;
+                }
+            }
         }
 
         #endregion
