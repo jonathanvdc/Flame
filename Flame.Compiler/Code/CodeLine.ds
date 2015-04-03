@@ -8,10 +8,10 @@ namespace Flame.Compiler
     {
         public const this(set string Text);
         public const this(set string Text, set int Indentation);
-        
+
         /// <summary>
         /// Gets a boolean flag that indicates if this code line is a line of whitespace, i.e. contains only a single null character ('\0').
-        /// A truly empty code line (text "") will not be outputted by a CodeBuilder. A whiteline, however, will be.
+        /// A truly empty code line (text "") will not be output by a CodeBuilder. A whiteline, however, will be.
         /// </summary>
         public bool IsWhiteline
         {
@@ -23,7 +23,7 @@ namespace Flame.Compiler
 		/// </summary>
 		public bool IsEmpty
 		{
-			const get return Text.Equals(null) || Text.Equals("") || IsWhiteline;	
+			const get return Text.Equals(null) || Text.Equals("") || IsWhiteline;
 		}
 
 		/// <summary>

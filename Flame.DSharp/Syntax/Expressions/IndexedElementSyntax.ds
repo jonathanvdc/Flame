@@ -23,7 +23,7 @@ namespace Flame.Syntax.DSharp
         public Token LeadingBrackets { const get; private set; }
         public [IExpressionSyntax] Arguments { const get; private set; }
         public Token TrailingBrackets { const get; private set; }
-        
+
         public SourceLocation Location
         {
         	const get
@@ -42,14 +42,16 @@ namespace Flame.Syntax.DSharp
             var args = Enumerable.ToArray<IExpression>(Arguments.CreateVerifiedExpressions(State));
 
             var callerExpr = Caller.CreateVerifiedExpression(State);
-            
+
             var elemVariable = new ElementVariable(callerExpr, args);
-            
+
             if (!elemVariable.CanResolve)
             {
-            	State.Log.LogError(new LogEntry("Indexer resolution error", "Indexer property on '" + Caller.GetCode().ToString() + "' could not be resolved in '" + this.GetCode().ToString() + "'", Location));
+                var callerCode = Caller.GetCode().Trim();
+                var thisCode = this.GetCode().Trim();
+            	State.Log.LogError(new LogEntry("Indexer resolution error", "Indexer property on '" + callerCode.ToString() + "' could not be resolved in '" + thisCode.ToString() + "'", Location));
             }
-            
+
             return elemVariable;
         }
 

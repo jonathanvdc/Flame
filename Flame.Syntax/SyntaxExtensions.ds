@@ -19,37 +19,37 @@ namespace Flame.Syntax
 			}
 			else return null;
 		}
-	
+
 		public static IType CreateVerifiedType(this ITypeSyntax Syntax, ISyntaxState State)
 		{
 			var type = Syntax.CreateType(State);
 			if (type == null)
 			{
-				State.Log.LogError(new LogEntry("Type resolution error", "Could not resolve type '" + Syntax.GetCode().ToString() + "'", Syntax.GetSourceLocation()));
+				State.Log.LogError(new LogEntry("Type resolution error", "Could not resolve type '" + Syntax.GetCode().Trim().ToString() + "'", Syntax.GetSourceLocation()));
 			}
 			return type;
 		}
-		
+
 		public static IExpression CreateVerifiedExpression(this IExpressionSyntax Syntax, ISyntaxState State)
 		{
 			var type = Syntax.CreateExpression(State);
 			if (type == null)
 			{
-				State.Log.LogError(new LogEntry("Expression resolution error", "Could not resolve expression '" + Syntax.GetCode().ToString() + "'", Syntax.GetSourceLocation()));
+				State.Log.LogError(new LogEntry("Expression resolution error", "Could not resolve expression '" + Syntax.GetCode().Trim().ToString() + "'", Syntax.GetSourceLocation()));
 			}
 			return type;
 		}
-		
+
 		public static IStatement CreateVerifiedStatement(this IStatementSyntax Syntax, ISyntaxState State)
 		{
 			var stmt = Syntax.CreateStatement(State);
 			if (stmt == null)
 			{
-				State.Log.LogError(new LogEntry("Statement resolution error", "Could not resolve statement '" + Syntax.GetCode().ToString() + "'", Syntax.GetSourceLocation()));
+				State.Log.LogError(new LogEntry("Statement resolution error", "Could not resolve statement '" + Syntax.GetCode().Trim().ToString() + "'", Syntax.GetSourceLocation()));
 			}
 			return stmt;
 		}
-		
+
 		/// <summary>
         /// Gets an expression for the syntax that accesses the member. Returns null if the member is accessed statically.
         /// </summary>
@@ -67,7 +67,7 @@ namespace Flame.Syntax
                 return variable.CreateGetExpression();
             }
         }
-		
+
 		public static IVariable CreateVariable(IExpressionSyntax ExpressionSyntax, ISyntaxState State)
         {
             if (ExpressionSyntax is IVariableSyntax)
@@ -87,27 +87,27 @@ namespace Flame.Syntax
                 }
             }
         }
-        
+
         public static IVariable CreateVerifiedVariable(IExpressionSyntax ExpressionSyntax, ISyntaxState State)
         {
         	var variable = SyntaxExtensions.CreateVariable(ExpressionSyntax, State);
 			if (variable == null)
 			{
-				State.Log.LogError(new LogEntry("Variable resolution error", "The variable or expression " + ExpressionSyntax.GetCode().ToString() + " could not be resolved.", ExpressionSyntax.GetSourceLocation()));
+				State.Log.LogError(new LogEntry("Variable resolution error", "Variable or expression '" + ExpressionSyntax.GetCode().Trim().ToString() + "' could not be resolved.", ExpressionSyntax.GetSourceLocation()));
 			}
 			return variable;
         }
-        
+
         public static IVariable CreateVerifiedVariable(this IVariableSyntax Syntax, ISyntaxState State)
         {
         	var variable = Syntax.CreateVariable(State);
 			if (variable == null)
 			{
-				State.Log.LogError(new LogEntry("Variable resolution error", "The variable " + Syntax.GetCode().ToString() + " could not be resolved.", Syntax.GetSourceLocation()));
+				State.Log.LogError(new LogEntry("Variable resolution error", "Variable '" + Syntax.GetCode().Trim().ToString() + "' could not be resolved.", Syntax.GetSourceLocation()));
 			}
 			return variable;
         }
-        
+
         public static const IEnumerable<ITypeMember> GetMembers(this IMemberProvider MemberProvider, IType Type, string Name)
         {
         	var candidates = MemberProvider.GetMembers(Type);
@@ -121,13 +121,13 @@ namespace Flame.Syntax
         	}
         	return members;
         }
-        
+
         public static IVariable DeclareVariable(this ISyntaxState State, string Name, IType Type)
         {
             LateBoundVariable lbVar = new LateBoundVariable(Name, Type);
             return State.DeclareVariable(Name, lbVar);
         }
-        
+
         public static IEnvironment Environment[this ISyntaxState State]
         {
         	const get return State.Binder.Environment;
