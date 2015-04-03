@@ -25,8 +25,6 @@ namespace dsc
 {
     public static class Program
     {
-        public static ConsoleLog CompilerLog { get; private set; }
-
         public static void Main(string[] args)
         {
             var log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(), new StringCompilerOptions());
@@ -40,12 +38,11 @@ namespace dsc
             var buildArgs = BuildArguments.Parse(CreateOptionParser(), log, args);
 
             log.Dispose();
-            log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(buildArgs), new StringCompilerOptions());
-            CompilerLog = log;
+            log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(buildArgs), buildArgs);
 
             if (buildArgs.PrintVersion)
             {
-                CompilerVersion.PrintVersion();
+                CompilerVersion.PrintVersion(log);
             }
             if (!buildArgs.CanCompile)
             {
@@ -56,8 +53,8 @@ namespace dsc
             try
             {
                 var projPath = new ProjectPath(buildArgs.SourcePath, buildArgs);
-                var handler = ProjectHandlers.GetProjectHandler(projPath);
-                var project = LoadProject(projPath, handler, log);
+                var handler = ProjectHandlers.GetProjectHandler(projPath, log);
+                var project = LoadProject(projPath, handler, new FilteredLog(buildArgs.LogFilter, log));
                 var currentPath = GetAbsolutePath(buildArgs.SourcePath);
 
                 Compile(project, new CompilerEnvironment(currentPath, buildArgs, handler, project, log)).Wait();
@@ -73,7 +70,7 @@ namespace dsc
             }
             finally
             {
-                log.WriteLine();
+                log.Console.WriteSeparator(1);
                 log.Dispose();
             }
         }
@@ -121,7 +118,7 @@ namespace dsc
             IProject proj;
             try
             {
-                proj = Handler.Parse(Path);
+                proj = Handler.Parse(Path, Log);
             }
             catch (Exception)
             {

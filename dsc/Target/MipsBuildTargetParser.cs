@@ -31,7 +31,7 @@ namespace dsc.Target
         public BuildTarget CreateBuildTarget(string Identifier, IProject Project, ICompilerLog Log, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
         {
             var targetAsm = new AssemblerAssembly(Project.AssemblyName, new Version(), new MarsEnvironment());
-            var depBuilder = new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, targetAsm.CreateBinder().Environment, CurrentPath, OutputDirectory);
+            var depBuilder = new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, targetAsm.CreateBinder().Environment, CurrentPath, OutputDirectory, Log);
             return new BuildTarget(targetAsm, RuntimeAssemblyResolver, depBuilder, "asm");
         }
     }

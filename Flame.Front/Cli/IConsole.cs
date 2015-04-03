@@ -48,8 +48,11 @@ namespace Flame.Front.Cli
         /// <param name="Text"></param>
         public static void WriteLine(this IConsole Target, string Text)
         {
-            Target.Write(Text);
-            Target.WriteLine();
+            lock (Target)
+            {
+                Target.Write(Text);
+                Target.WriteLine();
+            }
         }
         /// <summary>
         /// Writes the text representation of the given object to the console.
@@ -72,9 +75,12 @@ namespace Flame.Front.Cli
 
         public static void WriteLine(this IConsole Target, string Text, Style Style)
         {
-            Target.PushStyle(Style);
-            Target.WriteLine(Text);
-            Target.PopStyle();
+            lock (Target)
+            {
+                Target.PushStyle(Style);
+                Target.WriteLine(Text);
+                Target.PopStyle();
+            }
         }
 
         public static void WriteLine(this IConsole Target, string Text, Color Foreground)
@@ -84,9 +90,12 @@ namespace Flame.Front.Cli
 
         public static void Write(this IConsole Target, string Text, Style Style)
         {
-            Target.PushStyle(Style);
-            Target.Write(Text);
-            Target.PopStyle();
+            lock (Target)
+            {
+                Target.PushStyle(Style);
+                Target.Write(Text);
+                Target.PopStyle();
+            }
         }
 
         public static void Write(this IConsole Target, string Text, Color Foreground)

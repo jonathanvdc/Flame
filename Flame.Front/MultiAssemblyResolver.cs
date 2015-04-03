@@ -41,11 +41,11 @@ namespace Flame.Front
             return resolver.ResolveAsync(Identifier, DependencyBuilder);
         }
 
-        public Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier)
+        public Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
         {
             string ext = SourceIdentifier.Extension;
             var resolver = GetResolver(ext);
-            return resolver.CopyAsync(SourceIdentifier, TargetIdentifier);
+            return resolver.CopyAsync(SourceIdentifier, TargetIdentifier, Log);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Flame;
+using Flame.Compiler;
 using Flame.Compiler.Projects;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace Flame.Front.Projects
     public interface IProjectHandler
     {
         IEnumerable<string> Extensions { get; }
-        IProject Parse(ProjectPath Path);
+        IProject Parse(ProjectPath Path, ICompilerLog Log);
         Task<IAssembly> CompileAsync(IProject Project, CompilationParameters Parameters);
     }
 }

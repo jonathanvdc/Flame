@@ -1,4 +1,5 @@
 ﻿using Flame;
+using Flame.Compiler;
 using Flame.Front;
 using Flame.MIPS;
 using System;
@@ -47,7 +48,7 @@ namespace dsc
                 return RevolveRuntimeLibrary(Identifier.Path);
             }
 
-            public async Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier)
+            public async Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
             {
             }
         }

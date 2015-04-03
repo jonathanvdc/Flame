@@ -18,11 +18,13 @@ namespace Flame.Front.Cli
 
         protected virtual void WriteDefault(IMarkupNode Node, IConsole Console, IStylePalette Palette)
         {
+            Console.PushStyle(Node.GetStyle(Palette));
             Console.Write(Node.GetText());
             foreach (var item in Node.Children)
             {
                 Write(item, Console, Palette);
             }
+            Console.PopStyle();
         }
 
         public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)

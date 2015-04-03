@@ -3,6 +3,7 @@ using Flame.Compiler.Projects;
 using Flame.Front;
 using Flame.Front.Cli;
 using Flame.Front.Projects;
+using Pixie;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,24 +41,29 @@ namespace dsc.Projects
             return null;
         }
 
-        public static IProjectHandler GetProjectHandler(ProjectPath Path)
+        public static IProjectHandler GetProjectHandler(ProjectPath Path, ICompilerLog Log)
         {
             var handler = ProjectHandlers.GetHandler(Path);
             if (handler == null)
             {
                 if (string.IsNullOrWhiteSpace(Path.Extension))
                 {
-                    Program.CompilerLog.LogError(new LogEntry("Invalid extension", "'" + Path.Path.Path + "' does not have an extension."));
+                    Log.LogError(new LogEntry("Invalid extension", "'" + Path.Path.Path + "' does not have an extension."));
                 }
                 else
                 {
-                    Program.CompilerLog.LogError(new LogEntry("Invalid extension", "Extension '" + Path.Extension + "' in '" + Path.Path.Path + "' was not recognized as a known project extension."));
+                    Log.LogError(new LogEntry("Invalid extension", "Extension '" + Path.Extension + "' in '" + Path.Path.Path + "' was not recognized as a known project extension."));
                 }
-                Program.CompilerLog.WriteLine("Supported extensions:");
+                var listItems = new List<IMarkupNode>();
                 foreach (var item in handlers.SelectMany(item => item.Extensions))
                 {
-                    Program.CompilerLog.WriteLine(" *." + item, DefaultConsole.ToPixieColor(ConsoleColor.Yellow));
+                    listItems.Add(new MarkupNode("list-item", item));
                 }
+                var attrDict = new Dictionary<string, object>();
+                attrDict[NodeConstants.ColorAttribute] = new Color(1.0, 1.0, 0.0);
+                attrDict[StyleConstants.ColorModifierAttribute] = StyleConstants.BrightColorModifier;
+                var list = new MarkupNode("list", new PredefinedAttributes(attrDict), listItems);
+                Log.LogMessage(new LogEntry("Supported extensions", list));
                 throw new NotSupportedException();
             }
             return handler;

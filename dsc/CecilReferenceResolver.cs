@@ -21,17 +21,17 @@ namespace dsc
             var absPath = Identifier.AbsolutePath.Path;
             if (!File.Exists(absPath))
             {
-                Program.CompilerLog.LogError(new LogEntry("File not found", "File '" + Identifier.AbsolutePath + "' could not be found."));
+                DependencyBuilder.Log.LogError(new LogEntry("File not found", "File '" + Identifier.AbsolutePath + "' could not be found."));
             }
             var readerParams = new Mono.Cecil.ReaderParameters();
             readerParams.AssemblyResolver = DependencyBuilder.GetCecilResolver();
             return new CecilAssembly(Mono.Cecil.AssemblyDefinition.ReadAssembly(absPath, readerParams));
         }
 
-        public Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier)
+        public Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
         {
             var allTasks = new List<Task>();
-            allTasks.Add(CopyFileAsync(SourceIdentifier, TargetIdentifier));
+            allTasks.Add(CopyFileAsync(SourceIdentifier, TargetIdentifier, Log));
 
             var sourceDirPath = SourceIdentifier.Parent;
             var sourceFileName = SourceIdentifier.NameWithoutExtension;
@@ -44,13 +44,13 @@ namespace dsc
                 if (File.Exists(itemSourcePath.AbsolutePath.Path))
                 {
                     var itemTargetPath = targetDirPath.Combine(targetFileName + "." + item);
-                    allTasks.Add(CopyFileAsync(itemSourcePath, itemTargetPath));
+                    allTasks.Add(CopyFileAsync(itemSourcePath, itemTargetPath, Log));
                 }
             }
             return Task.WhenAll(allTasks);
         }
 
-        private static async Task CopyFileAsync(PathIdentifier sourcePath, PathIdentifier destinationPath)
+        private static async Task CopyFileAsync(PathIdentifier sourcePath, PathIdentifier destinationPath, ICompilerLog Log)
         {
             var absSourcePath = sourcePath.AbsolutePath.Path;
             var absTargetPath = destinationPath.AbsolutePath.Path;
@@ -58,7 +58,7 @@ namespace dsc
             {
                 if (!File.Exists(absSourcePath))
                 {
-                    Program.CompilerLog.LogError(new LogEntry("File not found", "File '" + sourcePath + "' could not be found."));
+                    Log.LogError(new LogEntry("File not found", "File '" + sourcePath + "' could not be found."));
                 }
                 string dirName = Path.GetDirectoryName(absTargetPath);
                 if (!Directory.Exists(dirName))

@@ -31,7 +31,7 @@ namespace dsc
             }
         }
 
-        public static void PrintVersion()
+        public static void PrintVersion(ICompilerLog Log)
         {
             StringBuilder msg = new StringBuilder();
             WriteVariable("dsc's current version number is", CurrentVersion.ToString(), msg);
@@ -39,7 +39,7 @@ namespace dsc
             WriteVariable("Console", ConsoleEnvironment.TerminalIdentifier, msg);
             msg.AppendLine("You can check for new releases at https://github.com/jonathanvdc/Flame/releases.");
             msg.Append("Thanks for using dsc! Have fun writing code.");
-            Program.CompilerLog.LogMessage(new LogEntry("Current version", msg.ToString()));
+            Log.LogMessage(new LogEntry("Current version", msg.ToString()));
         }
     }
 }

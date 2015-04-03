@@ -18,12 +18,15 @@ namespace Flame.Front.Cli
 
         public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
         {
+            Console.PushStyle(Node.GetStyle(Palette));
+            var itemConsole = new ListItemConsole(Console, " * ");
             foreach (var item in Node.Children)
             {
                 Console.WriteLine();
-                Console.Write(" * ");
-                MainWriter.Write(item, Console, Palette);
+                MainWriter.Write(item, itemConsole, Palette);
+                itemConsole.Reset();
             }
+            Console.PopStyle();
         }
     }
 }

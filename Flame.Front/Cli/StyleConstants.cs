@@ -15,6 +15,10 @@ namespace Flame.Front.Cli
         public const string HighlightStyleName = "highlight";
         public const string HighlightMissingStyleName = "highlight-missing";
         public const string HighlightExtraStyleName = "highlight-extra";
+        public const string ColorModifierAttribute = "color-modifier";
+        public const string DimColorModifier = "dim";
+        public const string BrightColorModifier = "bright";
+        public const string NoColorModifier = "none";
 
         public static Style GetBrightStyle(IStylePalette Palette, string Name, Color ForegroundColor, params string[] Preferences)
         {
@@ -37,6 +41,32 @@ namespace Flame.Front.Cli
             {
                 return new Style(Name, Palette.MakeDimColor(ForegroundColor), new Color(), Preferences);
             }
+        }
+
+        public static Color ModifyColor(Color Value, IStylePalette Palette, string Modifier)
+        {
+            switch (Modifier.ToLower())
+            {
+                case DimColorModifier:
+                    return Palette.MakeDimColor(Value);
+                case BrightColorModifier:
+                    return Palette.MakeBrightColor(Value);
+                case NoColorModifier:
+                default:
+                    return Value;
+            }
+        }
+
+        public static Color GetColor(this IMarkupNode Node, IStylePalette Palette)
+        {
+            var color = Node.GetColor();
+            string modifier = Node.Attributes.Get<string>(ColorModifierAttribute, NoColorModifier);
+            return ModifyColor(color, Palette, modifier);
+        }
+
+        public static Style GetStyle(this IMarkupNode Node, IStylePalette Palette)
+        {
+            return new Style("custom", Node.GetColor(Palette), new Color());
         }
     }
 }
