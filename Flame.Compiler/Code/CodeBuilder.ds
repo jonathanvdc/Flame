@@ -27,7 +27,7 @@ namespace Flame.Compiler
         	this.lines = new List<CodeLine>(Other.lines);
         	this.IndentationString = Other.IndentationString;
         }
-        
+
         private void Init()
         {
         	indentation = 0;
@@ -41,27 +41,29 @@ namespace Flame.Compiler
 
         #region Increase/Decrease Indentation
 
-        public void IncreaseIndentation()
+        public CodeBuilder IncreaseIndentation()
         {
             indentation++;
+            return this;
         }
-        public void DecreaseIndentation()
+        public CodeBuilder DecreaseIndentation()
         {
             if (indentation > 0)
             {
                 indentation--;
             }
+            return this;
         }
 
         #endregion
 
         #region Append
 
-        public void Append(char Character)
+        public CodeBuilder Append(char Character)
         {
-            Append(Character.ToString());
+            return Append(Character.ToString());
         }
-        public void Append(string Text)
+        public CodeBuilder Append(string Text)
         {
             if (lines.Count == 0)
             {
@@ -74,8 +76,9 @@ namespace Flame.Compiler
             {
 	        	AddLine(splitText[i]);
 	        }
+            return this;
         }
-        public void Append(CodeBuilder Builder)
+        public CodeBuilder Append(CodeBuilder Builder)
         {
         	var builderLines = Builder.lines;
             if (builderLines.Count > 0)
@@ -93,49 +96,53 @@ namespace Flame.Compiler
                     AddLine(new CodeLine(item.Text, item.Indentation + indentation));
                 }
             }
+            return this;
         }
-        public void AppendLine(string Text)
+        public CodeBuilder AppendLine(string Text)
         {
             Append(Text);
-            AddLine();
+            return AddLine();
         }
-        public void AppendLine()
+        public CodeBuilder AppendLine()
         {
-            AddLine();
+            return AddLine();
         }
 
         #endregion
 
         #region AddLine
 
-        public void AddLine()
+        public CodeBuilder AddLine()
         {
-            AddLine("");
+            return AddLine("");
         }
-        public void AddEmptyLine()
+        public CodeBuilder AddEmptyLine()
         {
-            AddLine("\0");
+            return AddLine("\0");
         }
-        public void AddLine(string Text)
+        public CodeBuilder AddLine(string Text)
         {
             lines.Add(new CodeLine(Text, indentation));
+            return this;
         }
-        public void AddLine(CodeLine Line)
+        public CodeBuilder AddLine(CodeLine Line)
         {
             lines.Add(Line);
+            return this;
         }
-        public void AddCodeBuilder(CodeBuilder Builder)
+        public CodeBuilder AddCodeBuilder(CodeBuilder Builder)
         {
             foreach (var item in Builder.lines)
             {
                 AddLine(new CodeLine(item.Text, item.Indentation + indentation));
             }
+            return this;
         }
         /// <summary>
         /// Adds a line to the code builder that has already been formatted.
         /// The current indentation is adjusted to fit the line.
         /// </summary>
-        public void AddFormattedLine(string Text)
+        public CodeBuilder AddFormattedLine(string Text)
         {
         	if (string.IsNullOrEmpty(Text))
         	{
@@ -155,22 +162,24 @@ namespace Flame.Compiler
 	        	this.indentation = indent;
 	        	AddLine(Text.Substring(indent * IndentationString.Length));
         	}
+            return this;
         }
 
         #endregion
-        
+
         #region RemoveLine
-        
-        public void RemoveLine(int Index)
+
+        public CodeBuilder RemoveLine(int Index)
         {
         	lines.RemoveAt(Index);
+            return this;
         }
-        
+
         #endregion
-        
+
         #region TrimStart
-        
-        public void TrimStart(char[] Characters)
+
+        public CodeBuilder TrimStart(char[] Characters)
         {
         	while (lines.Count > 0)
         	{
@@ -183,21 +192,22 @@ namespace Flame.Compiler
         		else
         		{
         			lines[0] = newLine;
-        			return;
+        			return this;
         		}
         	}
+            return this;
         }
-        
-        public void TrimStart()
+
+        public CodeBuilder TrimStart()
         {
-        	TrimStart(new char[0]);
+        	return TrimStart(new char[0]);
         }
-        
+
         #endregion
-        
+
         #region TrimEnd
-        
-        public void TrimEnd(char[] Characters)
+
+        public CodeBuilder TrimEnd(char[] Characters)
         {
         	while (lines.Count > 0)
         	{
@@ -210,36 +220,37 @@ namespace Flame.Compiler
         		else
         		{
         			lines[lines.Count - 1] = newLine;
-        			return;
+                    return this;
         		}
         	}
+            return this;
         }
-        
-        public void TrimEnd()
+
+        public CodeBuilder TrimEnd()
         {
-        	TrimEnd(new char[0]);
+        	return TrimEnd(new char[0]);
         }
-        
+
         #endregion
-        
+
         #region Trim
-        
-        public void Trim(char[] Characters)
+
+        public CodeBuilder Trim(char[] Characters)
         {
         	TrimStart(Characters);
-        	TrimEnd(Characters);
+        	return TrimEnd(Characters);
         }
-        
-        public void Trim()
+
+        public CodeBuilder Trim()
         {
         	TrimStart();
-        	TrimEnd();
+        	return TrimEnd();
         }
-        
+
         #endregion
-        
+
         #region Code lines
-        
+
         /// <summary>
         /// Gets the code builder's first non-whitespace line of code,
         /// starting at the given start line and ending after having examined the given number of lines.
@@ -256,7 +267,7 @@ namespace Flame.Compiler
         	}
         	return new CodeLine("\0");
         }
-        
+
         /// <summary>
         /// Gets the code builder's last non-whitespace last of code,
         /// starting at the given start line and ending after having examined the given number of lines.
@@ -273,7 +284,7 @@ namespace Flame.Compiler
         	}
         	return new CodeLine("\0");
         }
-        
+
         /// <summary>
         /// Gets the code builder's first non-whitespace line of code,
         /// starting at the given start line.
@@ -283,7 +294,7 @@ namespace Flame.Compiler
         {
         	return GetCodeLine(StartLine, LineCount - StartLine);
         }
-        
+
         /// <summary>
         /// Gets the code builder's last non-whitespace line of code,
         /// starting at the given start line.
@@ -293,7 +304,7 @@ namespace Flame.Compiler
         {
         	return GetLastCodeLine(StartLine, LineCount - StartLine);
         }
-        
+
         /// <summary>
         /// Counts the number of non-whitespace code lines in a region
         /// with the given length, starting at the given start line.
@@ -308,7 +319,7 @@ namespace Flame.Compiler
         	}
         	return result;
         }
-        
+
         /// <summary>
         /// Counts the number of non-whitespace code lines in a region
         /// from the given start index to the end of the code builder.
@@ -317,7 +328,7 @@ namespace Flame.Compiler
         {
         	return GetCodeLineCount(StartLine, LineCount - StartLine);
         }
-        
+
         /// <summary>
         /// Gets the code builder's first non-whitespace line of code.
         /// </summary>
@@ -325,7 +336,7 @@ namespace Flame.Compiler
         {
         	const get return GetCodeLine(0);
         }
-        
+
         /// <summary>
         /// Gets the code builder's last non-whitespace line of code.
         /// </summary>
@@ -333,7 +344,7 @@ namespace Flame.Compiler
         {
         	const get return GetLastCodeLine(0);
         }
-        
+
         /// <summary>
         /// Gets the total amount of non-whitespace code lines in the code builder.
         /// </summary>
@@ -341,9 +352,9 @@ namespace Flame.Compiler
         {
         	const get return GetCodeLineCount(0);
         }
-        
+
         #endregion
-        
+
         #region Properties
 
 		/// <summary>
@@ -356,7 +367,7 @@ namespace Flame.Compiler
                 return lines.Count;
             }
         }
-        
+
         /// <summary>
         /// Gets a boolean value that tells if this code builder consists of whitespace only.
         /// </summary>
@@ -372,7 +383,7 @@ namespace Flame.Compiler
 				return true;
         	}
         }
-        
+
         /// <summary>
         /// Gets or sets the code line at the given index.
         /// </summary>
@@ -381,17 +392,18 @@ namespace Flame.Compiler
             const get { return lines[index]; }
             set { lines[index] = value; }
         }
-        
+
         #endregion
 
 		/// <summary>
 		/// Inserts a code line at the given index.
 		/// </summary>
-        public void InsertLine(int Index, CodeLine Line)
+        public CodeBuilder InsertLine(int Index, CodeLine Line)
         {
             lines.Insert(Index, Line);
+            return this;
         }
-        
+
         public const char CharacterAt(int Index)
         {
         	int count = 0;
@@ -411,7 +423,7 @@ namespace Flame.Compiler
                 {
                     sb.AppendLine(lines[i].ToString(IndentationString));
                 }
-                
+
                 if (Index < count + sb.Length)
                 {
                 	return sb[Index - count];
@@ -445,14 +457,14 @@ namespace Flame.Compiler
             }
             return sb.ToString().TrimEnd(new char[] { '\r', '\n', '\t', ' ' });
         }
-        
+
         #region Static
-        
+
         private static const string Untabify(string Value)
         {
         	return Value.Replace("\t", "    ");
         }
-        
+
         private static const string LongestCommonSubstring(string First, string Second, int FirstOffset, int SecondOffset)
         {
     	    int i = FirstOffset;
@@ -468,12 +480,12 @@ namespace Flame.Compiler
     		}
     		return First.Substring(FirstOffset, i - FirstOffset);
         }
-        
+
         private static const string LongestCommonSubstring(string First, string Second)
         {
         	return LongestCommonSubstring(First, Second, 0, 0);
         }
-        
+
         private static const string GetIndentationString(string IndentString, string Line)
         {
         	if (IndentString.Length == 0)
@@ -488,7 +500,7 @@ namespace Flame.Compiler
         	else if (Line.StartsWith(IndentString))
         	{
         		return IndentString;
-        	}        	
+        	}
         	else if (Line.StartsWith("\t") && IndentString.StartsWith(" ") && Line[0] != IndentString[0])
         	{
         		return GetIndentationString(Untabify(IndentString), Untabify(Line));
@@ -496,7 +508,7 @@ namespace Flame.Compiler
         	else
         	{
         		string lcs = LongestCommonSubstring(IndentString, Line);
-        		
+
         		if (lcs.Length > 0) return lcs;
         		else
         		{
@@ -504,7 +516,7 @@ namespace Flame.Compiler
         		}
         	}
         }
-        
+
         /// <summary>
         /// Gets the best match for an indentation that suits the given indented lines.
         /// An indentation string is defined as a sequence of tab or space characters that precede every line in the given sequence zero or more times.
@@ -518,7 +530,7 @@ namespace Flame.Compiler
         	}
         	return bestMatch;
         }
-        
+
         #endregion
     }
 }
