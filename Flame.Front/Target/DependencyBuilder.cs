@@ -1,4 +1,5 @@
 ﻿using Flame;
+using Flame.Compiler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,8 @@ namespace Flame.Front.Target
 {
     public class DependencyBuilder : IDependencyBuilder
     {
-        public DependencyBuilder(IAssemblyResolver RuntimeLibaryResolver, IAssemblyResolver ExternalResolver, 
-            IEnvironment Environment, PathIdentifier CurrentPath, PathIdentifier OutputFolder)
+        public DependencyBuilder(IAssemblyResolver RuntimeLibaryResolver, IAssemblyResolver ExternalResolver,
+            IEnvironment Environment, PathIdentifier CurrentPath, PathIdentifier OutputFolder, ICompilerLog Log)
         {
             this.RuntimeLibaryResolver = RuntimeLibaryResolver;
             this.ExternalResolver = ExternalResolver;
@@ -18,6 +19,7 @@ namespace Flame.Front.Target
             this.OutputFolder = OutputFolder;
             this.Environment = Environment;
             this.Properties = Properties;
+            this.Log = Log;
             this.registeredAssemblies = new List<IAssembly>();
             this.Properties = new TypedDictionary<string>();
         }
@@ -25,6 +27,7 @@ namespace Flame.Front.Target
         public IAssemblyResolver RuntimeLibaryResolver { get; private set; }
         public IAssemblyResolver ExternalResolver { get; private set; }
         public IEnvironment Environment { get; private set; }
+        public ICompilerLog Log { get; private set; }
         public PathIdentifier CurrentPath { get; private set; }
         public PathIdentifier OutputFolder { get; private set; }
         public ITypedDictionary<string> Properties { get; private set; }

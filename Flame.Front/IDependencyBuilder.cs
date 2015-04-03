@@ -1,4 +1,5 @@
 ﻿using Flame;
+using Flame.Compiler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +28,11 @@ namespace Flame.Front
         /// </summary>
         /// <returns></returns>
         IBinder CreateBinder();
+
+        /// <summary>
+        /// Gets the compiler log associated with this dependency builder.
+        /// </summary>
+        ICompilerLog Log { get; }
 
         /// <summary>
         /// Gets a types dictionary that describes the dependency builder's properties.

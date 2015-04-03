@@ -44,14 +44,14 @@ namespace Flame.Front.Cli
 
         public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
         {
-            var writer = new SourceNodeWriterState(Console, GetCaretMarkerStyle(Palette), GetCaretHighlightStyle(Palette), Indentation, MaxWidth);
+            var writer = new SourceNodeWriterState(Console, GetCaretMarkerStyle(Palette), GetCaretHighlightStyle(Palette), Indentation, MaxWidth, Palette);
             writer.Write(Node);
         }
     }
 
     public class SourceNodeWriterState
     {
-        public SourceNodeWriterState(IConsole Console, Style CaretStyle, Style HighlightStyle, string Indentation, int MaxWidth)
+        public SourceNodeWriterState(IConsole Console, Style CaretStyle, Style HighlightStyle, string Indentation, int MaxWidth, IStylePalette Palette)
         {
             this.Console = Console;
             this.CaretStyle = CaretStyle;
@@ -60,6 +60,7 @@ namespace Flame.Front.Cli
             this.MaxWidth = MaxWidth;
             this.caretConsole = new IndirectConsole(Console.Description);
             this.caretConsole.PushStyle(HighlightStyle);
+            this.Palette = Palette;
             this.width = 0;
         }
 
@@ -68,6 +69,7 @@ namespace Flame.Front.Cli
         public string Indentation { get; private set; }
         public Style CaretStyle { get; private set; }
         public Style HighlightStyle { get; private set; }
+        public IStylePalette Palette { get; private set; }
 
         private IndirectConsole caretConsole;
         private int width;
@@ -91,6 +93,7 @@ namespace Flame.Front.Cli
 
         private void Write(IMarkupNode Node, bool UseCaret, bool CaretStarted)
         {
+            Console.PushStyle(Node.GetStyle(Palette));
             if (Node.Type == NodeConstants.HighlightNodeType)
             {
                 UseCaret = true;
@@ -148,6 +151,7 @@ namespace Flame.Front.Cli
             {
                 Write(item, CaretStarted, UseCaret);
             }
+            Console.PopStyle();
         }
 
         public void Write(IMarkupNode Node)

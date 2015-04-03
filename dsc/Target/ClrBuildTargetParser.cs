@@ -46,7 +46,7 @@ namespace dsc.Target
                     break;
             }
             var asm = new CecilAssembly(Project.AssemblyName, new Version(), moduleKind, resolver, Log);
-            var cecilDepBuilder = new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, asm.CreateBinder().Environment, CurrentPath, OutputDirectory);
+            var cecilDepBuilder = new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, asm.CreateBinder().Environment, CurrentPath, OutputDirectory, Log);
             cecilDepBuilder.SetCecilResolver(resolver);
             return new BuildTarget(asm, RuntimeAssemblyResolver, cecilDepBuilder, extension);
         }

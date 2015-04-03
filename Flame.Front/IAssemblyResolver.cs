@@ -1,4 +1,5 @@
 ﻿using Flame;
+using Flame.Compiler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Flame.Front
     public interface IAssemblyResolver
     {
         Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder);
-        Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier);
+        Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log);
     }
 
     public static class ResolverExtensions
@@ -22,7 +23,7 @@ namespace Flame.Front
             var targetPath = new PathIdentifier(OutputFolder, fileName);
             if (absPath != targetPath)
             {
-                await Resolver.CopyAsync(absPath, targetPath);
+                await Resolver.CopyAsync(absPath, targetPath, DependencyBuilder.Log);
             }
             return await Resolver.ResolveAsync(targetPath, DependencyBuilder);
         }

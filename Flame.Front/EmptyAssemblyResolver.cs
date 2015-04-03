@@ -1,4 +1,5 @@
 ﻿using Flame;
+using Flame.Compiler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace Flame.Front
             return null;
         }
 
-        public async Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier)
+        public async Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
         {
         }
     }

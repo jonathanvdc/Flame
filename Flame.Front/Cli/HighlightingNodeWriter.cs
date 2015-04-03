@@ -44,11 +44,13 @@ namespace Flame.Front.Cli
             {
                 Console.PushStyle(GetHighlightStyle(Palette));
             }
+            Console.PushStyle(Node.GetStyle(Palette));
             Console.Write(Node.GetText());
             foreach (var item in Node.Children)
             {
                 MainWriter.Write(item, Console, Palette);
             }
+            Console.PopStyle();
             Console.PopStyle();
         }
     }

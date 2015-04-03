@@ -1,8 +1,10 @@
 ﻿using Flame.Compiler;
 using Flame.Compiler.Projects;
 using Flame.Front;
+using Flame.Front.Cli;
 using Flame.Front.Plugs;
 using Flame.Front.Target;
+using Pixie;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,22 +33,27 @@ namespace dsc.Target
 
             if (parser == null)
             {
-                StringBuilder message = new StringBuilder();
-                if (string.IsNullOrWhiteSpace(BuildTargetIdentifier))
+                bool hasPlatform = !string.IsNullOrWhiteSpace(BuildTargetIdentifier);
+                if (hasPlatform)
                 {
-                    message.AppendLine("No target platform was provided.");
-                    message.AppendLine("To specify a platform, use the -platform option with one of the following:");
+                    Log.LogError(new LogEntry("Unrecognized target platform", "Target platform '" + BuildTargetIdentifier + "' was not recognized as a known target platform."));
                 }
                 else
                 {
-                    message.Append("Target platform '").Append(BuildTargetIdentifier).AppendLine("' was not recognized as a known target platform.");
-                    message.AppendLine("Known target platforms:");
+                    Log.LogError(new LogEntry("Missing target platform", "No target platform was provided."));
                 }
+
+                var listItems = new List<IMarkupNode>();
                 foreach (var item in Parser.PlatformIdentifiers)
                 {
-                    message.Append(" * ").AppendLine(item);
+                    listItems.Add(new MarkupNode("list-item", item));
                 }
-                Log.LogError(new LogEntry("Unrecognized target platform", message.ToString()));
+                var list = new MarkupNode("list", listItems);
+                string firstPlatform = Parser.PlatformIdentifiers.FirstOrDefault();
+                var hint = new MarkupNode(NodeConstants.RemarksNodeType, "Prefix one of these platforms with '-platform' when providing build arguments to specify a target platform. For example: 'dsc " + Log.Options.GetOption<string>("source", CurrentPath.ToString()) + " -platform " + firstPlatform + "' will instruct the compiler to compile for the '" + firstPlatform + "' target platform.");
+                var message = new MarkupNode("entry", new IMarkupNode[] { list, hint });
+                Log.LogMessage(new LogEntry("Known target platforms", message));
+
                 throw new NotSupportedException();
             }
 

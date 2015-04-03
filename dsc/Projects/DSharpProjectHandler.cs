@@ -28,7 +28,7 @@ namespace dsc.Projects
             get { return new string[] { "dsproj", "ds" }; }
         }
 
-        public IProject Parse(ProjectPath Path)
+        public IProject Parse(ProjectPath Path, ICompilerLog Log)
         {
             if (Path.HasExtension("ds"))
             {
@@ -122,14 +122,14 @@ namespace dsc.Projects
                     return null;
                 }
                 var parser = new TokenizerStream(code);
-                var unit = ParseCompilationUnit(parser);
+                var unit = ParseCompilationUnit(parser, Parameters.Log);
                 Parameters.Log.LogEvent(new LogEntry("Status", "Parsed " + SourceItem.SourceIdentifier));
                 return unit;
             });
         }
-        public static CompilationUnit ParseCompilationUnit(ITokenStream TokenParser)
+        public static CompilationUnit ParseCompilationUnit(ITokenStream TokenParser, ICompilerLog Log)
         {
-            DSharpSyntaxParser syntaxParser = new DSharpSyntaxParser(Program.CompilerLog);
+            DSharpSyntaxParser syntaxParser = new DSharpSyntaxParser(Log);
             return syntaxParser.ParseCompilationUnit(TokenParser);
         }
     }

@@ -9,8 +9,13 @@ namespace Flame.Front.Cli
     public class ParagraphConsole : IConsole
     {
         public ParagraphConsole(IConsole Console)
+            : this(Console, 0)
+        {
+        }
+        public ParagraphConsole(IConsole Console, int NewlineCount)
         {
             this.Console = Console;
+            this.newlineCount = NewlineCount;
         }
 
         public IConsole Console { get; private set; }

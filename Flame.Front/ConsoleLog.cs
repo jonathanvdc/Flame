@@ -30,7 +30,7 @@ namespace Flame.Front
         public ConsoleLog(IConsole Console, ICompilerOptions Options, IStylePalette Palette, INodeWriter NodeWriter)
         {
             this.Options = Options;
-            this.Console = new ParagraphConsole(Console);
+            this.Console = new ParagraphConsole(Console, 1);
             this.Palette = Palette;
             this.NodeWriter = NodeWriter;
             this.writeLock = new object();
@@ -50,69 +50,16 @@ namespace Flame.Front
             }
         }
 
-        private void WriteInternal(string Text)
-        {
-            Console.Write(Text);
-        }
-        private void WriteInternal(char Value)
-        {
-            Console.Write(Value);
-        }
-        private void WriteLineInternal(string Text)
-        {
-            Console.WriteLine(Text);
-        }
-        private void WriteLineInternal()
-        {
-            Console.WriteLine();
-        }
         private void WriteEntryInternal(Color PrimaryColor, Color SecondaryColor, LogEntry Entry)
         {
             string name = Entry.Name;
             if (!string.IsNullOrWhiteSpace(name))
             {
-                Write(name, ContrastForegroundColor);
-                Write(": ");
+                Console.Write(name, ContrastForegroundColor);
+                Console.Write(": ");
             }
             WriteNode(Entry.Contents, PrimaryColor, SecondaryColor);
-            WriteLine();
-        }
-
-        public void Write(string Text, Color Color)
-        {
-            lock (writeLock)
-            {
-                Console.PushStyle(new Style("custom", Color, new Color()));
-                WriteInternal(Text);
-                Console.PopStyle();
-            }
-        }
-        public void Write(string Text)
-        {
-            lock (writeLock)
-            {
-                WriteInternal(Text);
-            }
-        }
-        public void WriteLine(string Text, Color Color)
-        {
-            lock (writeLock)
-            {
-                Console.PushStyle(new Style("custom", Color, new Color()));
-                WriteLineInternal(Text);
-                Console.PopStyle();
-            }
-        }
-        public void WriteLine()
-        {
-            WriteLine("");
-        }
-        public void WriteLine(string Text)
-        {
-            lock (writeLock)
-            {
-                WriteLineInternal(Text);
-            }
+            Console.WriteLine();
         }
 
         public void WriteEntry(string Header, Color HeaderColor, Color PrimaryColor, Color SecondaryColor, LogEntry Entry)
@@ -121,7 +68,7 @@ namespace Flame.Front
             {
                 if (!string.IsNullOrWhiteSpace(Header))
                 {
-                    Write(Header + ": ", HeaderColor);
+                    Console.Write(Header + ": ", HeaderColor);
                 }
                 WriteEntryInternal(PrimaryColor, SecondaryColor, Entry);
             }
@@ -350,7 +297,7 @@ namespace Flame.Front
 
         private void WriteNodeDefault(IMarkupNode Node, Color CaretColor, Color HighlightColor)
         {
-            Write(Node.GetText());
+            Console.Write(Node.GetText());
             foreach (var item in Node.Children)
             {
                 WriteNodeCore(item, CaretColor, HighlightColor);

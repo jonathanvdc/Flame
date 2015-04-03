@@ -25,12 +25,14 @@ namespace Flame.Front.Cli
         {
             Console.WriteLine();
             Console.PushStyle(GetRemarksStyle(Palette));
+            Console.PushStyle(Node.GetStyle(Palette));
             Console.Write("Remarks: ");
             Console.Write(Node.GetText());
             foreach (var item in Node.Children)
             {
                 MainWriter.Write(item, Console, Palette);
             }
+            Console.PopStyle();
             Console.PopStyle();
         }
     }
