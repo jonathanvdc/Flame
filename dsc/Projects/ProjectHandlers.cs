@@ -57,12 +57,9 @@ namespace dsc.Projects
                 var listItems = new List<IMarkupNode>();
                 foreach (var item in handlers.SelectMany(item => item.Extensions))
                 {
-                    listItems.Add(new MarkupNode("list-item", item));
+                    listItems.Add(new MarkupNode(NodeConstants.ListItemNodeType, item));
                 }
-                var attrDict = new Dictionary<string, object>();
-                attrDict[NodeConstants.ColorAttribute] = new Color(1.0, 1.0, 0.0);
-                attrDict[StyleConstants.ColorModifierAttribute] = StyleConstants.BrightColorModifier;
-                var list = new MarkupNode("list", new PredefinedAttributes(attrDict), listItems);
+                var list = ListExtensions.Instance.CreateList(listItems);
                 Log.LogMessage(new LogEntry("Supported extensions", list));
                 throw new NotSupportedException();
             }

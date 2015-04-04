@@ -19,7 +19,7 @@ namespace Flame.Front.Cli
         public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
         {
             Console.PushStyle(Node.GetStyle(Palette));
-            var itemConsole = new ListItemConsole(Console, " * ");
+            var itemConsole = new ListItemConsole(Console, " " + Node.Attributes.Get<string>(NodeConstants.ListBulletAttribute, "*") + " ");
             foreach (var item in Node.Children)
             {
                 Console.WriteLine();
