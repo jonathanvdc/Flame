@@ -15,6 +15,8 @@ namespace Flame.Front.Cli
         public const string HighlightStyleName = "highlight";
         public const string HighlightMissingStyleName = "highlight-missing";
         public const string HighlightExtraStyleName = "highlight-extra";
+        public const string SourceQuoteStyleName = "source-quote";
+
         public const string ColorModifierAttribute = "color-modifier";
         public const string DimColorModifier = "dim";
         public const string BrightColorModifier = "bright";

@@ -64,6 +64,7 @@
     <Compile Include="Cli\NodeWriter.cs" />
     <Compile Include="Cli\ParagraphConsole.cs" />
     <Compile Include="Cli\RemarksNodeWriter.cs" />
+    <Compile Include="Cli\SourceQuoteNodeWriter.cs" />
     <Compile Include="Cli\StyleConstants.cs" />
     <Compile Include="Cli\StylePalette.cs" />
     <Compile Include="Cli\IndirectConsole.cs" />

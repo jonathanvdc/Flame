@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Flame.Compiler;
 using Flame.Compiler.Variables;
+using Pixie;
 
 namespace Flame.Syntax
 {
@@ -20,12 +21,29 @@ namespace Flame.Syntax
 			else return null;
 		}
 
+		public const string SourceQuoteNodeType = "source-quote";
+
+		public static const IMarkupNode CreateCodeQuote(this ISyntaxNode Node)
+		{
+			var src = new MarkupNode(SourceQuoteNodeType, Node.GetCode().Trim().ToString());
+			var quoteNode = new MarkupNode(NodeConstants.TextNodeType, "'");
+			return new MarkupNode("node", new IMarkupNode[] { quoteNode, src, quoteNode });
+		}
+
+		public static const IMarkupNode CreateCodeQuote(string LeadingText, ISyntaxNode Node, string TrailingText)
+		{
+			var preTextNode = new MarkupNode(NodeConstants.TextNodeType, LeadingText);
+			var quoteNode = Node.CreateCodeQuote();
+			var postTextNode = new MarkupNode(NodeConstants.TextNodeType, TrailingText);
+			return new MarkupNode("node", new IMarkupNode[] { preTextNode, quoteNode, postTextNode });
+		}
+
 		public static IType CreateVerifiedType(this ITypeSyntax Syntax, ISyntaxState State)
 		{
 			var type = Syntax.CreateType(State);
 			if (type == null)
 			{
-				State.Log.LogError(new LogEntry("Type resolution error", "Could not resolve type '" + Syntax.GetCode().Trim().ToString() + "'", Syntax.GetSourceLocation()));
+				State.Log.LogError(new LogEntry("Type resolution error", CreateCodeQuote("Could not resolve type ", Syntax, "."), Syntax.GetSourceLocation()));
 			}
 			return type;
 		}
@@ -35,7 +53,7 @@ namespace Flame.Syntax
 			var type = Syntax.CreateExpression(State);
 			if (type == null)
 			{
-				State.Log.LogError(new LogEntry("Expression resolution error", "Could not resolve expression '" + Syntax.GetCode().Trim().ToString() + "'", Syntax.GetSourceLocation()));
+				State.Log.LogError(new LogEntry("Expression resolution error", CreateCodeQuote("Could not resolve expression ", Syntax, "."), Syntax.GetSourceLocation()));
 			}
 			return type;
 		}
@@ -45,7 +63,7 @@ namespace Flame.Syntax
 			var stmt = Syntax.CreateStatement(State);
 			if (stmt == null)
 			{
-				State.Log.LogError(new LogEntry("Statement resolution error", "Could not resolve statement '" + Syntax.GetCode().Trim().ToString() + "'", Syntax.GetSourceLocation()));
+				State.Log.LogError(new LogEntry("Statement resolution error", CreateCodeQuote("Could not resolve statement ", Syntax, "."), Syntax.GetSourceLocation()));
 			}
 			return stmt;
 		}
@@ -93,7 +111,7 @@ namespace Flame.Syntax
         	var variable = SyntaxExtensions.CreateVariable(ExpressionSyntax, State);
 			if (variable == null)
 			{
-				State.Log.LogError(new LogEntry("Variable resolution error", "Variable or expression '" + ExpressionSyntax.GetCode().Trim().ToString() + "' could not be resolved.", ExpressionSyntax.GetSourceLocation()));
+				State.Log.LogError(new LogEntry("Variable resolution error", CreateCodeQuote("Could not resolve ", ExpressionSyntax, " as a variable or expression."), ExpressionSyntax.GetSourceLocation()));
 			}
 			return variable;
         }
@@ -103,7 +121,7 @@ namespace Flame.Syntax
         	var variable = Syntax.CreateVariable(State);
 			if (variable == null)
 			{
-				State.Log.LogError(new LogEntry("Variable resolution error", "Variable '" + Syntax.GetCode().Trim().ToString() + "' could not be resolved.", Syntax.GetSourceLocation()));
+				State.Log.LogError(new LogEntry("Variable resolution error", CreateCodeQuote("Variable ", Syntax, " could not be resolved."), Syntax.GetSourceLocation()));
 			}
 			return variable;
         }

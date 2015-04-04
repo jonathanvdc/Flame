@@ -119,6 +119,7 @@ namespace Flame.Front
             writer.Writers[NodeConstants.SourceNodeType] = new SourceNodeWriter(new string(' ', 4), BufferWidth - 8);
             writer.Writers["list"] = new ListNodeWriter(writer);
             writer.Writers[NodeConstants.HighlightNodeType] = new HighlightingNodeWriter(writer);
+            writer.Writers["source-quote"] = new SourceQuoteNodeWriter(writer);
             return writer;
         }
 
