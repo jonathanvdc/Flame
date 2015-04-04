@@ -31,14 +31,5 @@ namespace dsc
         {
             return ReferenceResolver.CanResolve(Extension);
         }
-
-        public static Task<IAssembly> CopyAndResolveAsync(PathIdentifier RelativePath, PathIdentifier CurrentPath, PathIdentifier OutputFolder, IDependencyBuilder DependencyBuilder)
-        {
-            return ReferenceResolver.CopyAndResolveAsync(RelativePath, CurrentPath, OutputFolder, DependencyBuilder);
-        }
-        public static Task<IAssembly> ResolveAsync(PathIdentifier RelativePath, PathIdentifier CurrentPath, IDependencyBuilder DependencyBuilder)
-        {
-            return ReferenceResolver.ResolveAsync(RelativePath, CurrentPath, DependencyBuilder);
-        }
     }
 }
