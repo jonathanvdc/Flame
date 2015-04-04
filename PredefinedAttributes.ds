@@ -10,6 +10,13 @@ namespace Pixie
     public class PredefinedAttributes : IAttributes
     {
         /// <summary>
+        /// Creates an empty attribute collection.
+        /// </summary>
+        public const this()
+        {
+            this.Values = new Dictionary<string, object>();
+        }
+        /// <summary>
         /// Creates a new attribute collection based on a dictionary of
         /// predefined attributes.
         /// </summary>
