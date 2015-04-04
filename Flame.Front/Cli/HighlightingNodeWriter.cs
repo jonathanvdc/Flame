@@ -31,12 +31,12 @@ namespace Flame.Front.Cli
 
         public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
         {
-            string type = Node.Attributes.Get<string>("type", "default");
-            if ("missing".Equals(type, StringComparison.OrdinalIgnoreCase))
+            string type = Node.Attributes.Get<string>(NodeConstants.HighlightingTypeAttribute, NodeConstants.DefaultHighlightingType);
+            if (NodeConstants.MissingHighlightingType.Equals(type, StringComparison.OrdinalIgnoreCase))
             {
                 Console.PushStyle(GetHighlightMissingStyle(Palette));
             }
-            else if ("extra".Equals(type, StringComparison.OrdinalIgnoreCase))
+            else if (NodeConstants.ExtraHighlightingType.Equals(type, StringComparison.OrdinalIgnoreCase))
             {
                 Console.PushStyle(GetHighlightExtraStyle(Palette));
             }

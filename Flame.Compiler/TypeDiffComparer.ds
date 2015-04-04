@@ -22,14 +22,14 @@ namespace Flame.Compiler
         public static const IMarkupNode HighlightExtraNode(IMarkupNode Node)
         {
             var dict = new Dictionary<string, object>();
-            dict["type"] = "extra";
+            dict[NodeConstants.HighlightingTypeAttribute] = NodeConstants.ExtraHighlightingType;
             var attrs = new PredefinedAttributes(dict);
             return new MarkupNode(NodeConstants.HighlightNodeType, attrs, new IMarkupNode[] { Node });
         }
         public static const IMarkupNode HighlightMissingNode(IMarkupNode Node)
         {
             var dict = new Dictionary<string, object>();
-            dict["type"] = "missing";
+            dict[NodeConstants.HighlightingTypeAttribute] = NodeConstants.MissingHighlightingType;
             var attrs = new PredefinedAttributes(dict);
             return new MarkupNode(NodeConstants.HighlightNodeType, attrs, new IMarkupNode[] { Node });
         }

@@ -21,11 +21,9 @@ namespace Flame.Syntax
 			else return null;
 		}
 
-		public const string SourceQuoteNodeType = "source-quote";
-
 		public static const IMarkupNode CreateCodeQuote(this ISyntaxNode Node)
 		{
-			var src = new MarkupNode(SourceQuoteNodeType, Node.GetCode().Trim().ToString());
+			var src = new MarkupNode(NodeConstants.SourceQuoteNodeType, Node.GetCode().Trim().ToString());
 			var quoteNode = new MarkupNode(NodeConstants.TextNodeType, "'");
 			return new MarkupNode("node", new IMarkupNode[] { quoteNode, src, quoteNode });
 		}
