@@ -5,10 +5,21 @@ using Flame.Build;
 
 namespace Flame.Compiler.Emit
 {
+	/// <summary>
+	/// Implements a described variable member: a veriable member that can be
+	/// constructed one member at a time.
+	/// </summary>
 	public class DescribedVariableMember : DescribedMember, IVariableMember
 	{
+		/// <summary>
+		/// Creates a new described variable member from the given name and variable
+		/// type.
+		/// </summary>
 		public const this(set string Name, set IType VariableType);
-		
+
+		/// <summary>
+		/// Gets the variable member's variable type.
+		/// </summary>
 		public IType VariableType { const get; private set; }
 		public override string FullName { const get return this.Name; }
 	}

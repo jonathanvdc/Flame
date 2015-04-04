@@ -10,18 +10,33 @@ namespace Flame.Compiler
 	{
 		#region Math
 
+		/// <summary>
+		/// Creates a block that adds the given values.
+		/// </summary>
 		public static ICodeBlock EmitAdd(this ICodeGenerator CodeGenerator, ICodeBlock A, ICodeBlock B)
 		{
 			return CodeGenerator.EmitBinary(A, B, Operator.Add);
 		}
+		
+		/// <summary>
+		/// Creates a block that subtracts the given values.
+		/// </summary>
 		public static ICodeBlock EmitSubtract(this ICodeGenerator CodeGenerator, ICodeBlock A, ICodeBlock B)
 		{
 			return CodeGenerator.EmitBinary(A, B, Operator.Subtract);
 		}
+
+		/// <summary>
+		/// Creates a block that multiplies the given values.
+		/// </summary>
 		public static ICodeBlock EmitMultiply(this ICodeGenerator CodeGenerator, ICodeBlock A, ICodeBlock B)
 		{
 			return CodeGenerator.EmitBinary(A, B, Operator.Multiply);
 		}
+
+		/// <summary>
+		/// Creates a block that divides the given values.
+		/// </summary>
 		public static ICodeBlock EmitDivide(this ICodeGenerator CodeGenerator, ICodeBlock A, ICodeBlock B)
 		{
 			return CodeGenerator.EmitBinary(A, B, Operator.Divide);

@@ -4,8 +4,14 @@ using System.Text;
 
 namespace Flame.Compiler.Emit
 {
+	/// <summary>
+	/// Defines common functionality for code generators that can emit comments.
+	/// </summary>
 	public interface ICommentedCodeGenerator : ICodeGenerator
 	{
+		/// <summary>
+		/// Creates a new comment block.
+		/// </summary>
 		ICodeBlock EmitComment(string Comment);
 	}
 }

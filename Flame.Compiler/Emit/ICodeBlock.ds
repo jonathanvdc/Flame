@@ -4,8 +4,15 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler
 {
+	/// <summary>
+	/// Defines a code block: an atomic unit of code that was created by a code
+	/// generator.
+	/// </summary>
 	public interface ICodeBlock
 	{
+		/// <summary>
+		/// Gets the code generator that created this code block.
+		/// </summary>
 		ICodeGenerator CodeGenerator { const get; }
 	}
 }
