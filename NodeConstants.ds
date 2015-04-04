@@ -67,7 +67,7 @@ namespace Pixie
 
         /// <summary>
         /// A highlighting type that indicates additional components.
-        /// </summary> 
+        /// </summary>
         public const string ExtraHighlightingType = "extra";
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Pixie
         /// <summary>
         /// A markup node type that identifies an inline source code quote node.
         /// </summary>
-        public const string SourceQuoteNode = "source-quote";
+        public const string SourceQuoteNodeType = "source-quote";
 
         /// <summary>
         /// A markup node type that identifies a node that represents diagnostics
