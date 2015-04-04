@@ -18,6 +18,7 @@
     <Compile Include="NodeConstants.ds" />
     <Compile Include="TextNodeExtensions.ds" />
     <Compile Include="NodeStyleExtensions.ds" />
+    <Compile Include="ListExtensions.ds" />
     <Compile Include="PredefinedAttributes.ds" />
     <Compile Include="StringAttributes.ds" />
     <Compile Include="Color.ds" />
