@@ -1,0 +1,52 @@
+using System;
+using System.Collections.Generic;
+
+namespace Pixie
+{
+    /// <summary>
+    /// Defines common extensions for lists.
+    /// </summary>
+    public static class ListExtensions
+    {
+        /// <summary>
+        /// Creates a list from the given header, attributes and items.
+        /// </summary>
+        public const IMarkupNode CreateList(string Header, IAttributes Attributes, [IMarkupNode] Items)
+        {
+            var listNode = new MarkupNode(NodeConstants.ListNodeType, Attributes, Items);
+            if (string.IsNullOrWhiteSpace(Header))
+            {
+                return listNode;
+            }
+
+            var headerNode = new MarkupNode(NodeConstants.TextNodeType, Items);
+            return new MarkupNode("node", Attributes, new IMarkupNode[] { headerNode, listNode });
+        }
+
+        /// <summary>
+        /// Creates a list from the given header, bullet string and list items.
+        /// </summary>
+        public const IMarkupNode CreateList(string Header, string Bullet, [IMarkupNode] Items)
+        {
+            var attrDict = new Dictionary<string, object>();
+            attrDict[NodeConstants.ListBulletAttribute] = Bullet;
+            return CreateList(Header, new PredefinedAttributes(attrDict), Items);
+        }
+
+        /// <summary>
+        /// Creates a list from the given header and list items.
+        /// </summary>
+        public const IMarkupNode CreateList(string Header, [IMarkupNode] Items)
+        {
+            return CreateList(Header, new PredefinedAttributes(), Items);
+        }
+
+        /// <summary>
+        /// Creates a list from the given list items.
+        /// </summary>
+        public const IMarkupNode CreateList([IMarkupNode] Items)
+        {
+            return CreateList("", Items);
+        }
+    }
+}
