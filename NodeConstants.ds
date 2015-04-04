@@ -51,9 +51,34 @@ namespace Pixie
         public const string HighlightNodeType = "highlight";
 
         /// <summary>
-        /// A markup node type that identifies a source code node.
+        /// An attribute key that specifies a highlighting type.
+        /// </summary>
+        public const string HighlightingTypeAttribute = "type";
+
+        /// <summary>
+        /// The default highlighting type value.
+        /// </summary>
+        public const string DefaultHighlightingType = "default";
+
+        /// <summary>
+        /// A highlighting type that indicates missing components.
+        /// </summary>
+        public const string MissingHighlightingType = "missing";
+
+        /// <summary>
+        /// A highlighting type that indicates additional components.
+        /// </summary> 
+        public const string ExtraHighlightingType = "extra";
+
+        /// <summary>
+        /// A markup node type that identifies a source code block node.
         /// </summary>
         public const string SourceNodeType = "source";
+
+        /// <summary>
+        /// A markup node type that identifies an inline source code quote node.
+        /// </summary>
+        public const string SourceQuoteNode = "source-quote";
 
         /// <summary>
         /// A markup node type that identifies a node that represents diagnostics
@@ -75,5 +100,20 @@ namespace Pixie
         /// A markup node type for nodes that represent additional remarks.
         /// </summary>
         public const string RemarksNodeType = "remarks";
+
+        /// <summary>
+        /// A markup node type for lists.
+        /// </summary>
+        public const string ListNodeType = "list";
+
+        /// <summary>
+        /// An attribute key for list bullet strings.
+        /// </summary>
+        public const string ListBulletAttribute = "bullet";
+
+        /// <summary>
+        /// A markup node type for list items.
+        /// </summary>
+        public const string ListItemNodeType = "list-item";
     }
 }
