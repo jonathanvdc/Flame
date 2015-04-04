@@ -16,15 +16,20 @@ namespace Flame.Front.Cli
 
         public IDictionary<string, INodeWriter> Writers { get; private set; }
 
-        protected virtual void WriteDefault(IMarkupNode Node, IConsole Console, IStylePalette Palette)
+        public static void WriteDefault(IMarkupNode Node, IConsole Console, IStylePalette Palette, INodeWriter MainWriter)
         {
             Console.PushStyle(Node.GetStyle(Palette));
             Console.Write(Node.GetText());
             foreach (var item in Node.Children)
             {
-                Write(item, Console, Palette);
+                MainWriter.Write(item, Console, Palette);
             }
             Console.PopStyle();
+        }
+
+        protected virtual void WriteDefault(IMarkupNode Node, IConsole Console, IStylePalette Palette)
+        {
+            WriteDefault(Node, Console, Palette, this);
         }
 
         public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
