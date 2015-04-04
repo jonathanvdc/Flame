@@ -46,9 +46,9 @@ namespace dsc.Target
                 var listItems = new List<IMarkupNode>();
                 foreach (var item in Parser.PlatformIdentifiers)
                 {
-                    listItems.Add(new MarkupNode("list-item", item));
+                    listItems.Add(new MarkupNode(NodeConstants.ListItemNodeType, item));
                 }
-                var list = new MarkupNode("list", listItems);
+                var list = ListExtensions.Instance.CreateList(listItems);
                 string firstPlatform = Parser.PlatformIdentifiers.FirstOrDefault();
                 var hint = new MarkupNode(NodeConstants.RemarksNodeType, "Prefix one of these platforms with '-platform' when providing build arguments to specify a target platform. For example: 'dsc " + Log.Options.GetOption<string>("source", CurrentPath.ToString()) + " -platform " + firstPlatform + "' will instruct the compiler to compile for the '" + firstPlatform + "' target platform.");
                 var message = new MarkupNode("entry", new IMarkupNode[] { list, hint });
