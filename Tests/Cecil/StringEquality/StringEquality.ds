@@ -1,7 +1,0 @@
-public class StringEqualityTest
-{
-    public const bool CheckEquality(string Left, string Right)
-    {
-        return Left.Equals(Right);
-    }
-}
