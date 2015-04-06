@@ -2,20 +2,20 @@
 using Flame.Compiler.Projects;
 using Flame.Front;
 using Flame.Front.Target;
-using Flame.TextContract;
+using Flame.MIPS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace dsc.Target
+namespace Flame.Front.Target
 {
-    public class ContractBuildTargetParser : IBuildTargetParser
+    public class MipsBuildTargetParser : IBuildTargetParser
     {
         public IEnumerable<string> PlatformIdentifiers
         {
-            get { return new string[] { "contract" }; }
+            get { return new string[] { "mips" }; }
         }
 
         public bool MatchesPlatformIdentifier(string Identifier)
@@ -25,14 +25,14 @@ namespace dsc.Target
 
         public IAssemblyResolver GetRuntimeAssemblyResolver(string Identifier)
         {
-            return new EmptyAssemblyResolver();
+            return MarsRuntimeLibraries.Resolver;
         }
 
         public BuildTarget CreateBuildTarget(string Identifier, IProject Project, ICompilerLog Log, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
         {
-            var targetAsm = new ContractAssembly(Project.AssemblyName, new ContractEnvironment());
+            var targetAsm = new AssemblerAssembly(Project.AssemblyName, new Version(), new MarsEnvironment());
             var depBuilder = new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, targetAsm.CreateBinder().Environment, CurrentPath, OutputDirectory, Log);
-            return new BuildTarget(targetAsm, RuntimeAssemblyResolver, depBuilder, "txt");
+            return new BuildTarget(targetAsm, RuntimeAssemblyResolver, depBuilder, "asm");
         }
     }
 }

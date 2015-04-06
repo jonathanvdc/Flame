@@ -1,4 +1,4 @@
-﻿using dsc.Target;
+﻿using Flame.Front.Target;
 using Flame;
 using Flame.Cecil;
 using Flame.Compiler;
@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace dsc
+namespace Flame.Front
 {
     public static class CecilRuntimeLibraries
     {

@@ -10,14 +10,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace dsc.Projects
+namespace Flame.Front.Projects
 {
     public static class ProjectHandlers
     {
         static ProjectHandlers()
         {
             handlers = new List<IProjectHandler>();
-            RegisterHandler(new DSharpProjectHandler());
         }
 
         private static List<IProjectHandler> handlers;

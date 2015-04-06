@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace dsc.Target
+namespace Flame.Front.Target
 {
     public class ClrBuildTargetParser : IBuildTargetParser
     {
