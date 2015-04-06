@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace dsc
+namespace Flame.Front
 {
     public static class CompilerVersion
     {
@@ -31,14 +31,14 @@ namespace dsc
             }
         }
 
-        public static void PrintVersion(ICompilerLog Log)
+        public static void PrintVersion(string CompilerName, string CompilerReleasesSite, ICompilerLog Log)
         {
             StringBuilder msg = new StringBuilder();
-            WriteVariable("dsc's current version number is", CurrentVersion.ToString(), msg);
+            WriteVariable(CompilerName + "'s current version number is", CurrentVersion.ToString(), msg);
             WriteVariable("Platform", ConsoleEnvironment.OSVersionString, msg);
             WriteVariable("Console", ConsoleEnvironment.TerminalIdentifier, msg);
-            msg.AppendLine("You can check for new releases at https://github.com/jonathanvdc/Flame/releases.");
-            msg.Append("Thanks for using dsc! Have fun writing code.");
+            msg.AppendLine("You can check for new releases at " + CompilerReleasesSite + ".");
+            msg.Append("Thanks for using " + CompilerName + "! Have fun writing code.");
             Log.LogMessage(new LogEntry("Current version", msg.ToString()));
         }
     }

@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace dsc.Target
+namespace Flame.Front.Target
 {
     public static class BuildTargetParsers
     {

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace dsc
+namespace Flame.Front
 {
     public static class MarsRuntimeLibraries
     {

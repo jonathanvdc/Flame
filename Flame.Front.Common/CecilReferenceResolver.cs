@@ -7,10 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using Flame.Compiler;
-using dsc.Target;
+using Flame.Front.Target;
 using Flame.Front;
 
-namespace dsc
+namespace Flame.Front
 {
     public class CecilReferenceResolver : IAssemblyResolver
     {
