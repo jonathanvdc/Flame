@@ -18,7 +18,7 @@ namespace Flame.Syntax.DSharp
 
         public const IVariable CreateVariable(ISyntaxState State)
         {
-            return new AtAddressVariable(Operand.CreateExpression(State));
+            return new AtAddressVariable(Operand.CreateVerifiedExpression(State));
         }
 
         protected override const IExpression CreateExpression(ISyntaxState State, Token Operator, IExpressionSyntax Operand)
