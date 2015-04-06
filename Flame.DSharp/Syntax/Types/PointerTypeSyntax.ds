@@ -54,7 +54,7 @@ namespace Flame.Syntax.DSharp
         		return PointerKind.ReferencePointer;
         	else
         	{
-        		State.Log.LogError(new LogEntry("Type resultion error", "Pointer token '" + PointerToken.TokenValue + "' in '" + this.GetCode().ToString() + "' was not recognized as such"));
+        		State.Log.LogError(new LogEntry("Type resolution error", "Pointer token '" + PointerToken.TokenValue + "' in '" + this.GetCode().ToString() + "' was not recognized as such"));
         		return default(PointerKind);
         	}
         }

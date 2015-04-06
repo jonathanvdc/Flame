@@ -50,7 +50,7 @@ namespace Flame.Syntax.DSharp
             if (ElseBody == null)
             {
             	if (ifBody.IsEmpty)
-            		State.Log.LogWarning(new LogEntry("If block without body", "If block " + this.GetCode().ToString() + " has an empty statement as its body"));
+            		State.Log.LogWarning(new LogEntry("If block without body", "If block '" + IfKeyword.ToString().TrimStart(null) + LeadingParentheses.ToString() + Condition.GetCode().Trim().ToString() + TrailingParentheses.ToString().TrimEnd(null) + "' has an empty statement as its body.", IfKeyword.Location));
             	statements = new IStatement[] { new IfElseStatement(cond, ifBody), cleanup };
             }
             else
