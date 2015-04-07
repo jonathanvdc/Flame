@@ -87,24 +87,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnalyzingOptimizer.cs" />
-    <Compile Include="CompilerVersion.cs" />
-    <Compile Include="CompilerOptionExtensions.cs" />
-    <Compile Include="CecilReferenceResolver.cs" />
-    <Compile Include="CecilRuntimeLibraries.cs" />
-    <Compile Include="MarsRuntimeLibraries.cs" />
     <Compile Include="Projects\DSharpProjectHandler.cs" />
-    <Compile Include="Projects\ProjectHandlers.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReferenceResolvers.cs" />
-    <Compile Include="Target\BuildTargetParsers.cs" />
-    <Compile Include="Target\CecilDependencyBuilder.cs" />
-    <Compile Include="Target\ClrBuildTargetParser.cs" />
-    <Compile Include="Target\ContractBuildTarget.cs" />
-    <Compile Include="Target\CppBuildTargetParser.cs" />
-    <Compile Include="Target\MipsBuildTargetParser.cs" />
-    <Compile Include="Target\PythonBuildTargetParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -130,6 +115,10 @@
     <ProjectReference Include="..\Flame.DSProject\Flame.DSProject.csproj">
       <Project>{4ba294fe-ef52-46bb-aa1c-b25e327e44e3}</Project>
       <Name>Flame.DSProject</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Flame.Front.Common\Flame.Front.Common.csproj">
+      <Project>{a3241429-cd38-4876-88d6-fc8f361f4a20}</Project>
+      <Name>Flame.Front.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\Flame.Front\Flame.Front.csproj">
       <Project>{a362bcd9-7b23-45da-99a6-6b995c92480e}</Project>
