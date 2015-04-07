@@ -15,7 +15,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Flame.Front.Projects;
 using Flame.Front.Target;
-using Flame.Front.Projects;
 using Flame.Front.Options;
 using Flame.Front.State;
 using Flame.Front;
