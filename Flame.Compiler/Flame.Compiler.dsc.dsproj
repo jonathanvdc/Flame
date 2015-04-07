@@ -40,6 +40,7 @@
 		<Compile Include="SourceLocation.ds" />
 		<Compile Include="TypeDiffComparer.ds" />
 		<Compile Include="MethodDiffComparer.ds" />
+		<Compile Include="SilentLog.ds" />
 	</ItemGroup>
 	<ItemGroup Name="Emit">
 		<ItemGroup>

@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Compiler
+{
+    public class SilentLog : ICompilerLog
+    {
+        public const this(set ICompilerOptions Options)
+        {
+            this.errs = new List<LogEntry>();
+            this.warns = new List<LogEntry>();
+            this.messgs = new List<LogEntry>();
+            this.evnts = new List<LogEntry>();
+        }
+
+        private List<LogEntry> errs;
+        private List<LogEntry> warns;
+        private List<LogEntry> messgs;
+        private List<LogEntry> evnts;
+
+        public IReadOnlyList<LogEntry> Errors { const get return errs; }
+        public IReadOnlyList<LogEntry> Warnings { const get return warns; }
+        public IReadOnlyList<LogEntry> Messages { const get return messgs; }
+        public IReadOnlyList<LogEntry> Events { const get return evnts; }
+        public [LogEntry] Entries
+        {
+            const get
+            {
+                return  Enumerable.Concat<LogEntry>(
+                        Enumerable.Concat<LogEntry>(
+                        Enumerable.Concat<LogEntry>(
+                            errs, warns), messgs), evnts);
+            }
+        }
+
+        public ICompilerOptions Options { const get; private set; }
+
+        public void LogError(LogEntry Entry)
+        {
+            errs.Add(Entry);
+        }
+        public void LogWarning(LogEntry Entry)
+        {
+            warns.Add(Entry);
+        }
+        public void LogMessage(LogEntry Entry)
+        {
+            messgs.Add(Entry);
+        }
+        public void LogEvent(LogEntry Entry)
+        {
+            evnts.Add(Entry);
+        }
+
+        public void Dispose();
+    }
+}

@@ -102,7 +102,7 @@ namespace Flame.Compiler
 		/// </summary>
 		public const SourceGridPosition ToGridPosition(int CharacterIndex)
 		{
-			if (CharacterIndex >= CharacterCount)
+			if (CharacterIndex < 0 || CharacterIndex >= CharacterCount)
 			{
 				return new SourceGridPosition(-1, -1);
 			}
