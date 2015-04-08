@@ -61,6 +61,7 @@
     <Compile Include="Cli\HighlightingNodeWriter.cs" />
     <Compile Include="Cli\ListItemConsole.cs" />
     <Compile Include="Cli\ListNodeWriter.cs" />
+    <Compile Include="Cli\NeutralDiagnosticsWriter.cs" />
     <Compile Include="Cli\NodeWriter.cs" />
     <Compile Include="Cli\ParagraphConsole.cs" />
     <Compile Include="Cli\RemarksNodeWriter.cs" />

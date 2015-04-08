@@ -12,6 +12,8 @@ namespace Flame.Front.Cli
         public const string RemarksStyleName = "remarks";
         public const string CaretMarkerStyleName = "caret-marker";
         public const string CaretHighlightStyleName = "caret-highlight";
+        public const string NeutralCaretMarkerStyleName = "neutral-caret-marker";
+        public const string NeutralCaretHighlightStyleName = "neutral-caret-highlight";
         public const string HighlightStyleName = "highlight";
         public const string HighlightMissingStyleName = "highlight-missing";
         public const string HighlightExtraStyleName = "highlight-extra";
