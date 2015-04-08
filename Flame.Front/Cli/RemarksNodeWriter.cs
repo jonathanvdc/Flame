@@ -24,15 +24,15 @@ namespace Flame.Front.Cli
         public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
         {
             Console.WriteLine();
-            Console.PushStyle(GetRemarksStyle(Palette));
             Console.PushStyle(Node.GetStyle(Palette));
-            Console.Write("Remarks: ");
+            Console.PushStyle(GetRemarksStyle(Palette));
+            Console.Write("Remark: ");
+            Console.PopStyle();
             Console.Write(Node.GetText());
             foreach (var item in Node.Children)
             {
                 MainWriter.Write(item, Console, Palette);
             }
-            Console.PopStyle();
             Console.PopStyle();
         }
     }

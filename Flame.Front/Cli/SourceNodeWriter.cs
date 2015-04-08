@@ -59,7 +59,6 @@ namespace Flame.Front.Cli
             this.Indentation = Indentation;
             this.MaxWidth = MaxWidth;
             this.caretConsole = new IndirectConsole(Console.Description);
-            this.caretConsole.PushStyle(HighlightStyle);
             this.Palette = Palette;
             this.width = 0;
         }
@@ -74,27 +73,30 @@ namespace Flame.Front.Cli
         private IndirectConsole caretConsole;
         private int width;
 
-        private void FlushLine()
+        private void FlushLine(bool AppendWhitespace)
         {
             if (!caretConsole.IsWhitespace)
             {
                 Console.WriteLine();
                 Console.Write(Indentation);
-                caretConsole.PopStyle();
+                Console.PushStyle(HighlightStyle);
                 caretConsole.Flush(Console);
-                caretConsole.PushStyle(HighlightStyle);
+                Console.PopStyle();
             }
             else
             {
                 caretConsole.Clear();
-                this.caretConsole.PushStyle(HighlightStyle);
+                if (AppendWhitespace)
+                {
+                    Console.WriteLine();
+                }
             }
             width = 0;
         }
 
         private bool FlushLine(char Value, int CharacterWidth)
         {
-            FlushLine();
+            FlushLine(false);
             bool result = PrepareWrite(Value);
             width = CharacterWidth;
             return result;
@@ -181,7 +183,7 @@ namespace Flame.Front.Cli
         {
             Console.WriteLine();
             Write(Node, false, false);
-            FlushLine();
+            FlushLine(true);
         }
     }
 }
