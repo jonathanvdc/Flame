@@ -87,6 +87,7 @@ namespace Flame.Front.Cli
             else
             {
                 caretConsole.Clear();
+                this.caretConsole.PushStyle(HighlightStyle);
             }
             width = 0;
         }
