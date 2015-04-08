@@ -70,9 +70,33 @@ namespace Flame.Compiler
                 return posNode;
             }
 
+            var srcNode = CreateSourceNode(doc, gridPos, Location.Length);
+
+            var totalNode = new MarkupNode(NodeConstants.DiagnosticsNodeType, new IMarkupNode[]
+            {
+                srcNode, posNode
+            });
+
+            return totalNode;
+        }
+
+        public static const IMarkupNode CreateSourceNode(this SourceLocation Location)
+        {
+            var doc = Location.Document;
+            var gridPos = Location.GridPosition;
+            if (gridPos.Line < 0)
+            {
+                return new MarkupNode(NodeConstants.TextNodeType, "");
+            }
+
+            return CreateSourceNode(doc, gridPos, Location.Length);
+        }
+
+        public static const IMarkupNode CreateSourceNode(ISourceDocument doc, SourceGridPosition gridPos, int Length)
+        {
             string lineText = doc.GetLine(gridPos.Line);
             int offset = gridPos.Offset;
-            int length = Math.Min(Location.Length, lineText.Length - offset);
+            int length = Math.Min(Length, lineText.Length - offset);
             var preTextNode = new MarkupNode(NodeConstants.TextNodeType, lineText.Substring(0, offset));
             string highlightedText = lineText.Substring(offset, length);
             if (string.IsNullOrWhiteSpace(highlightedText))
@@ -88,15 +112,27 @@ namespace Flame.Compiler
                 preTextNode, highlightTextNode, postTextNode
             });
 
-            var totalNode = new MarkupNode(NodeConstants.DiagnosticsNodeType, new IMarkupNode[]
-            {
-                srcNode, posNode
-            });
+            return srcNode;
+        }
 
-            return totalNode;
+        public static const IMarkupNode CreateLineNumberNode(this SourceLocation Location)
+        {
+            return Location.CreateLineNumberNode(NodeConstants.RemarksNodeType);
+        }
+
+        public static const IMarkupNode CreateLineNumberNode(this SourceLocation Location, string NodeType)
+        {
+            var doc = Location.Document;
+            var gridPos = Location.GridPosition;
+            return CreateLineNumberNode(doc, gridPos, NodeType);
         }
 
         public static const IMarkupNode CreateLineNumberNode(ISourceDocument Document, SourceGridPosition Position)
+        {
+            return CreateLineNumberNode(Document, Position, NodeConstants.RemarksNodeType);
+        }
+
+        public static const IMarkupNode CreateLineNumberNode(ISourceDocument Document, SourceGridPosition Position, string NodeType)
         {
             var text = new StringBuilder();
             text.Append("In '");
@@ -113,7 +149,7 @@ namespace Flame.Compiler
                 }
             }
             text.Append('.');
-            return new MarkupNode(NodeConstants.RemarksNodeType, text.ToString());
+            return new MarkupNode(NodeType, text.ToString());
         }
     }
 }
