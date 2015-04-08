@@ -16,7 +16,7 @@ namespace Flame.Front
         {
             get
             {
-                return Assembly.GetExecutingAssembly().GetName().Version;
+                return Assembly.GetEntryAssembly().GetName().Version;
             }
         }
 
