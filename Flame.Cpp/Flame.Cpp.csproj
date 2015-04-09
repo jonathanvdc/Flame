@@ -72,6 +72,7 @@
     <Compile Include="Emit\IfElseBlock.cs" />
     <Compile Include="Emit\IMultiBlock.cs" />
     <Compile Include="Emit\NotifyingBlockGenerator.cs" />
+    <Compile Include="Emit\SizeOfBlock.cs" />
     <Compile Include="Emit\TryBlock.cs" />
     <Compile Include="Emit\WhileBlock.cs" />
     <Compile Include="InvariantImplementationMethod.cs" />
