@@ -396,7 +396,7 @@ namespace Flame.Cpp.Emit
 
         public ICodeBlock EmitSizeOf(IType Type)
         {
-            return new InvocationBlock(new LiteralBlock(this, "sizeof", PrimitiveTypes.Void), new ICppBlock[] { Type.CreateBlock(this) });
+            return new SizeOfBlock(this, Type.CreateBlock(this));
         }
 
         public ICodeBlock EmitStoreAtAddress(ICodeBlock Pointer, ICodeBlock Value)
