@@ -84,7 +84,7 @@ namespace Flame.Front.Options
         public static bool ParseFlag(string Flag)
         {
             string lowerVal = Flag.ToLower();
-            return lowerVal == "true" || lowerVal == "yes" || lowerVal == "y"; 
+            return lowerVal == "true" || lowerVal == "yes" || lowerVal == "y" || lowerVal == "yea" || lowerVal == "on"; 
         }
 
         #endregion

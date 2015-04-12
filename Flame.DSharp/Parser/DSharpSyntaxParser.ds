@@ -18,11 +18,11 @@ namespace Flame.DSharp.Parser
 	public virtual class DSharpSyntaxParser
 	{
 		public this(set ICompilerLog Log);
-	
+
 		public ICompilerLog Log { const get; private set; }
-	
+
 		#region ParseExpression
-	
+
         public virtual IExpressionSyntax ParseExpression(ITokenStream Tokens)
         {
             var firstExpr = ParseSingleExpression(Tokens);
@@ -36,7 +36,7 @@ namespace Flame.DSharp.Parser
                 return firstExpr;
             }
         }
-        
+
         protected virtual IExpressionSyntax ParseSafeExpression(ITokenStream Tokens)
         {
             /*IExpressionSyntax syntax;
@@ -51,11 +51,11 @@ namespace Flame.DSharp.Parser
             return syntax;*/
             return ParseExpression(Tokens); // All expressions should be safe now.
         }
-        
+
         #endregion
-        
+
         #region ParseSingleExpression
-        
+
         protected virtual IExpressionSyntax ParseSingleExpression(ITokenStream Parser)
         {
         	if (MatchesInlineDeclarationPattern(Parser))
@@ -104,15 +104,15 @@ namespace Flame.DSharp.Parser
 	            }
 	            else
 	            {
-	                Log.LogError(new LogEntry("Parser error", "Could not identify token '" + token.TokenValue + "' as valid expression syntax."));
+	                Log.LogError(new LogEntry("Parser error", "Could not identify token '" + token.TokenValue + "' as valid expression syntax.", token.Location));
 	                return null;
 	            }
 	            return ParseIdentifierExpression(expr, Parser);
             }
         }
-        
+
         #endregion
-        
+
         #region Type Parsing
 
         #region Array Type Shred
@@ -155,9 +155,9 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region Peek Array Type Shred
-        
+
         protected virtual ITokenTypeSyntax PeekArrayTypeShred(ITokenStream Tokens, ITokenTypeSyntax ElementType, TokenIdentifier^ Position)
         {
         	var leading = Tokens.PeekNoTrivia(*Position);
@@ -205,7 +205,7 @@ namespace Flame.DSharp.Parser
 	                		return null;
 	                	}
                 	}
-                		
+
                     var nextShred = PeekTypeShred(Tokens, type, Position);
                     if (nextShred == null)
                     	return type;
@@ -218,7 +218,7 @@ namespace Flame.DSharp.Parser
                 }
             }
         }
-        
+
         #endregion
 
         #region Generic Type Shred
@@ -254,9 +254,9 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region Peek Generic Type Shred
-        
+
         protected virtual ITokenTypeSyntax PeekGenericTypeShred(ITokenStream Tokens, ITokenTypeSyntax ElementType, TokenIdentifier^ Position)
         {
         	var leading = Tokens.PeekNoTrivia(*Position);
@@ -289,9 +289,9 @@ namespace Flame.DSharp.Parser
                 if (peek.Type == TokenType.GreaterThan)
                 {
                 	*Position = peek.Identifier;
-                	
+
                 	ITokenTypeSyntax type = new GenericInstanceTypeSyntax(ElementType, leading.TokenPeek, new SeparatedList<ITokenTypeSyntax>(typeArgs), peek.TokenPeek);
-                		
+
                     var nextShred = PeekTypeShred(Tokens, type, Position);
                     if (nextShred == null)
                     	return type;
@@ -304,7 +304,7 @@ namespace Flame.DSharp.Parser
                 }
             }
         }
-        
+
         #endregion
 
         #region Dot Type Shred
@@ -327,9 +327,9 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region Peek Dot Type Shred
-        
+
         // .identifier
         protected virtual ITokenTypeSyntax PeekDotTypeShred(ITokenStream Tokens, ITokenTypeSyntax ElementType, TokenIdentifier^ Position)
         {
@@ -351,11 +351,11 @@ namespace Flame.DSharp.Parser
             else
             	return nextType;
         }
-        
+
         #endregion
-        
+
         #region Enumerable Type Shred
-        
+
         protected virtual int ExploreEnumerableTypeShred(ITokenStream Tokens, TokenIdentifier^ Position)
         {
         	var peek = Tokens.PeekNoTrivia(*Position);
@@ -389,11 +389,11 @@ namespace Flame.DSharp.Parser
             *Position = peek.Identifier;
             return count + 1;
         }
-        
+
         #endregion
-        
+
         #region Peek Type Shred
-        
+
         protected virtual ITokenTypeSyntax PeekEnumerableTypeShred(ITokenStream Tokens, TokenIdentifier^ Position)
         {
         	var leadingPeek = Tokens.PeekNoTrivia(*Position);
@@ -403,7 +403,7 @@ namespace Flame.DSharp.Parser
                 return null;
             }
             *Position = leadingPeek.Identifier;
-            
+
             var leadingLessThanPeek = Tokens.PeekNoTrivia(leadingPeek);
             if (leadingLessThanPeek.Type == TokenType.LessThan)
             {
@@ -434,11 +434,11 @@ namespace Flame.DSharp.Parser
             	return new EnumerableTypeSyntax(leadingPeek.TokenPeek, elemType, trailingPeek.TokenPeek);
             }
         }
-        
+
         #endregion
-        
+
         #region Explore Entire Type
-        
+
         protected virtual int ExploreEntireType(ITokenStream Tokens, TokenIdentifier^ Position)
         {
         	var peek = Tokens.PeekNoTrivia(*Position);
@@ -461,17 +461,17 @@ namespace Flame.DSharp.Parser
 				return 0;
             }
         }
-        
+
         protected virtual int ExploreEntireType(ITokenStream Tokens)
         {
             TokenIdentifier pos = Tokens.CurrentPosition;
             return ExploreEntireType(Tokens, &pos);
         }
-        
+
         #endregion
-        
+
         #region Peek Entire Type
-        
+
         protected virtual ITokenTypeSyntax PeekEntireType(ITokenStream Tokens, TokenIdentifier^ Position)
         {
         	var peek = Tokens.PeekNoTrivia(*Position);
@@ -493,13 +493,13 @@ namespace Flame.DSharp.Parser
 				return null;
             }
         }
-        
+
         protected virtual ITokenTypeSyntax PeekEntireType(ITokenStream Tokens)
         {
             TokenIdentifier pos = Tokens.CurrentPosition;
             return PeekEntireType(Tokens, &pos);
         }
-        
+
         #endregion
 
         #region ExploreTypeIdentifierShred
@@ -525,22 +525,22 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region Peek Type Identifier Shred
-        
+
         protected virtual ITokenTypeSyntax PeekIdentifierTypeShred(ITokenStream Tokens, TokenIdentifier^ Position)
         {
             var peek = Tokens.PeekNoTrivia(*Position);
             if (peek.Type == TokenType.VarKeyword)
             {
             	*Position = peek.Identifier;
-            	return new InferredTypeSyntax(peek.TokenPeek); 
+            	return new InferredTypeSyntax(peek.TokenPeek);
             }
             else if (peek.Type == TokenType.Identifier)
             {
                 *Position = peek.Identifier;
                 var identifierSyntax = new IdentifierTypeSyntax(peek.TokenPeek);
-                
+
                 var nextType = PeekTypeShred(Tokens, identifierSyntax, Position);
                 if (nextType != null)
                 {
@@ -556,7 +556,7 @@ namespace Flame.DSharp.Parser
 				return null;
             }
         }
-        
+
         #endregion
 
         #region ExploreTypeShred
@@ -588,7 +588,7 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region Peek Type Shred
 
         protected virtual ITokenTypeSyntax PeekTypeShred(ITokenStream Tokens, ITokenTypeSyntax ElementType, TokenIdentifier^ Position)
@@ -610,9 +610,9 @@ namespace Flame.DSharp.Parser
             {
                 *Position = peek.Identifier;
                 var pointerType = new PointerTypeSyntax(ElementType, peek.TokenPeek);
-                
+
                 var nextType = PeekTypeShred(Tokens, pointerType, Position);
-                
+
                 if (nextType == null)
                 	return pointerType;
                 else
@@ -629,10 +629,10 @@ namespace Flame.DSharp.Parser
         protected virtual IEnumerable<Token> ParseTypeTokens(ITokenStream Tokens)
         {
         	var peekType = PeekEntireType(Tokens);
-        	
+
         	if (peekType == null)
         		return (IEnumerable<Token>)new Token[0];
-        	
+
             int parseCount = peekType.Tokens.Count;
 
             Token[] tokens = new Token[parseCount];
@@ -667,30 +667,30 @@ namespace Flame.DSharp.Parser
             /*IEnumerable<Token> tTokens = ParseTypeTokens(Tokens);
 
             return new TypeSyntax(tTokens);*/
-            
+
             var type = PeekEntireType(Tokens);
-            
+
             if (type == null) // No type was parsed. So be it.
             {
             	return null;
             }
-            
+
             int parseCount = type.Tokens.Count;
-            
+
             for (int i = 0; i < parseCount; i++)
             {
                 Tokens.NextNoTrivia();
             }
-            
+
             return type;
         }
 
         #endregion
-        
+
         #region Expressions
-        
+
         #region ParseHashExpression
-        
+
         protected virtual IExpressionSyntax ParseHashExpression(Token HashKeyword, ITokenStream Parser)
         {
         	var leadingParen = Parser.NextNoTrivia(TokenType.RParen, Log);
@@ -698,11 +698,11 @@ namespace Flame.DSharp.Parser
         	var trailingParen = Parser.NextNoTrivia(TokenType.LParen, Log);
         	return new HashSyntax(HashKeyword, leadingParen, expr, trailingParen);
         }
-        
+
         #endregion
-        
+
         #region ParseParenthesesSyntax
-        
+
         protected virtual IExpressionSyntax ParseCastExpression(ITypeSyntax Type, ITokenStream Parser)
         {
             var expr = ParseSingleExpression(Parser);
@@ -711,12 +711,12 @@ namespace Flame.DSharp.Parser
 
         protected virtual IExpressionSyntax ParseParenthesesExpression(ITokenStream Parser)
         {
-            var block = Parser.NextBlockContents(TokenType.RParen, TokenType.LParen);            
+            var block = Parser.NextBlockContents(TokenType.RParen, TokenType.LParen);
 
             var tSyntax = ToTypeSyntax(block);
             block.Reset();
 
-            /* This is what the C# spec says about parentheses: 
+            /* This is what the C# spec says about parentheses:
              * To resolve cast-expression ambiguities, the following rule exists: A sequence of one or more tokens (§2.3.3) enclosed in parentheses is considered the start of a cast-expression only if at least one of the following are true:
              *  ⦁	The sequence of tokens is correct grammar for a type, but not for an expression.
              *  ⦁	The sequence of tokens is correct grammar for a type, and the token immediately following the closing parentheses is the token “~”, the token “!”, the token “(”, an identifier (§2.4.1), a literal (§2.4.4), or any keyword (§2.4.3) except as and is.
@@ -746,9 +746,9 @@ namespace Flame.DSharp.Parser
                 return new ParenthesesSyntax(ParseExpression(block));
             }
         }
-        
+
         #endregion
-        
+
         #region GetPrecendence
 
         protected virtual int32 GetPrecedence(TokenType Token)
@@ -769,7 +769,7 @@ namespace Flame.DSharp.Parser
            	{
            		return 3;
            	}
-           	else if (Token == TokenType.GreaterThanOrEquals || Token == TokenType.GreaterThan || 
+           	else if (Token == TokenType.GreaterThanOrEquals || Token == TokenType.GreaterThan ||
            			Token == TokenType.LessThanOrEquals || Token == TokenType.LessThan ||
            			Token == TokenType.IsKeyword)
             {
@@ -795,7 +795,7 @@ namespace Flame.DSharp.Parser
             {
             	return 9;
             }
-            else if (Token == TokenType.Equals || Token == TokenType.AndEquals || 
+            else if (Token == TokenType.Equals || Token == TokenType.AndEquals ||
            			Token == TokenType.BarEquals || Token == TokenType.PercentEquals ||
            			Token == TokenType.CaretEquals || Token == TokenType.PlusEquals ||
            			Token == TokenType.MinusEquals || Token == TokenType.AsteriskEquals ||
@@ -810,7 +810,7 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region CreateBinaryExpression
 
         protected virtual IExpressionSyntax CreateNormalBinaryExpression(IExpressionSyntax A, IExpressionSyntax B, Token Operator)
@@ -878,7 +878,7 @@ namespace Flame.DSharp.Parser
         	else if (Operator.Type == TokenType.Slash)
         	{
         		return new DivideSyntax(A, Operator, B);
-        	}        	
+        	}
         	else if (Operator.Type == TokenType.RightShift)
         	{
         		return new RightShiftSyntax(A, Operator, B);
@@ -934,13 +934,13 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region ParseBinaryExpression
-        
+
         private static Token PeekOperator(ITokenStream Parser)
         {
         	var peek = Parser.PeekNoTrivia();
-        	
+
         	if (peek.Type == TokenType.GreaterThan)
         	{
         		var peek2 = Parser.Peek(peek);
@@ -949,14 +949,14 @@ namespace Flame.DSharp.Parser
         			return peek.TokenPeek.Combine(peek2.TokenPeek, TokenType.RightShift);
         		}
         	}
-        	
+
         	return peek.TokenPeek;
         }
-        
+
         private static Token ParseOperator(ITokenStream Parser)
         {
         	var op = Parser.NextNoTrivia();
-        	
+
         	if (op.Type == TokenType.GreaterThan)
         	{
         		var peek = Parser.Peek();
@@ -965,10 +965,10 @@ namespace Flame.DSharp.Parser
         			return op.Combine(Parser.Next(), TokenType.RightShift);
         		}
         	}
-        	
+
         	return op;
         }
-        
+
         protected IExpressionSyntax ParseBinaryExpression(IExpressionSyntax FirstExpression, ITokenStream Parser, int MaxPrecedence)
         {
             List<ISyntaxNode> operands = new List<ISyntaxNode>();
@@ -1018,9 +1018,9 @@ namespace Flame.DSharp.Parser
             } while (nextOpTokenPeek.Type.IsBinaryExpressionToken())
             return CreateBinaryExpression(operands, op);
         }
-        
+
         #endregion
-        
+
         #region ParseInvocationExpression
 
         protected virtual IExpressionSyntax ParseInvocationExpression(ITypeMemberAccessSyntax Caller, ITokenStream Parser)
@@ -1071,7 +1071,7 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region ParseDefaultValueExpression
 
         protected virtual IExpressionSyntax ParseDefaultValueExpression(Token DefaultToken, ITokenStream Tokens)
@@ -1081,9 +1081,9 @@ namespace Flame.DSharp.Parser
 	            var rParen = Tokens.NextNoTrivia(TokenType.RParen, Log);
 	            var type = ParseType(Tokens);
 	            var lParen = Tokens.NextNoTrivia(TokenType.LParen, Log);
-	
+
 	            var expr = new DefaultValueSyntax(DefaultToken, rParen, type, lParen);
-	
+
 	            return expr;
 	        }
 	        else
@@ -1093,7 +1093,7 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region ParseNewObjectExpression
 
         protected virtual IExpressionSyntax ParseNewObjectExpression(Token NewToken, ITokenStream Tokens)
@@ -1132,7 +1132,7 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region ParseInitializedListExpression
 
         protected virtual IExpressionSyntax ParseInitializedListExpression(IExpressionSyntax List, ITokenStream Tokens)
@@ -1149,7 +1149,7 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region GetValue
 
         protected virtual IExpressionSyntax GetValue(Token Token)
@@ -1199,7 +1199,7 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region ParsePrefixedExpression
 
         protected virtual IExpressionSyntax ParsePrefixedExpression(Token Token, ITokenStream Parser)
@@ -1218,7 +1218,7 @@ namespace Flame.DSharp.Parser
                 }
                 else if (Token.Type == TokenType.PlusPlus || Token.Type == TokenType.MinusMinus)
                 {
-                	return new PrefixDeltaSyntax(Token, (IVariableSyntax)InnerExpression); 
+                	return new PrefixDeltaSyntax(Token, (IVariableSyntax)InnerExpression);
                 }
                 else if (Token.Type == TokenType.Minus)
                 {
@@ -1241,7 +1241,7 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region IsGenericTypeArgumentSyntax
 
         protected virtual bool IsGenericTypeArgumentSyntax(ITokenStream Parser)
@@ -1289,7 +1289,7 @@ namespace Flame.DSharp.Parser
                 Tokens.NextNoTrivia(TokenType.Comma, Log);
                 typeSyntaxGroup.Add(ParseType(Tokens));
             }
-			
+
             var closer = Tokens.NextNoTrivia(TokenType.GreaterThan, Log);
 
             return new GenericTypeArgumentsSyntax(Target, opener, typeSyntaxGroup, closer);
@@ -1350,9 +1350,9 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #endregion
-        
+
         #region Variable Parsing
 
         #region GetVariable
@@ -1377,7 +1377,7 @@ namespace Flame.DSharp.Parser
         #endregion
 
         #endregion
-        
+
         #region Statement Parsing
 
         public virtual IStatementSyntax ParseStatement(ITokenStream Tokens)
@@ -1457,12 +1457,12 @@ namespace Flame.DSharp.Parser
         #endregion
 
         #region MatchesDeclarationPattern
-        
+
         protected virtual bool MatchesGeneralDeclarationPattern(ITokenStream Tokens, out PeekToken^ TokenPeek)
         {
         	return MatchesGeneralDeclarationPattern(Tokens, true, TokenPeek);
         }
-        
+
         protected virtual bool MatchesGeneralDeclarationPattern(ITokenStream Tokens, bool AllowAmbiguousTypes, out PeekToken^ TokenPeek)
         {
             int parseCount = ExploreEntireType(Tokens);
@@ -1496,7 +1496,7 @@ namespace Flame.DSharp.Parser
             }
             return peek.Type == TokenType.Semicolon || peek.Type == TokenType.Comma || peek.Type == TokenType.Equals;
         }
-        
+
         protected virtual bool MatchesInlineDeclarationPattern(ITokenStream Tokens)
         {
             PeekToken peek;
@@ -1551,7 +1551,7 @@ namespace Flame.DSharp.Parser
 
             return new VariableDeclarationSyntax(type, decl, semicolon);
         }
-        
+
         protected virtual InlineVariableDeclarationSyntax ParseInlineDeclarationSyntax(ITokenStream Tokens)
         {
             var type = ParseType(Tokens);
@@ -1581,7 +1581,7 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region ParseThrowSyntax
 
         protected virtual IStatementSyntax ParseThrowSyntax(ITokenStream Tokens)
@@ -1593,9 +1593,9 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region ParseAssertSyntax
-        
+
         protected virtual IStatementSyntax ParseAssertSyntax(ITokenStream Tokens)
         {
             var keyword = Tokens.NextNoTrivia(TokenType.AssertKeyword, Log);
@@ -1605,11 +1605,11 @@ namespace Flame.DSharp.Parser
             var semicolon = Tokens.NextNoTrivia(TokenType.Semicolon, Log);
             return new AssertSyntax(keyword, leadingParen, expr, trailingParen, semicolon);
         }
-        
+
         #endregion
-        
+
         #region ParseYieldSyntax
-        
+
         protected virtual IStatementSyntax ParseYieldSyntax(ITokenStream Tokens)
         {
         	var yieldKeyword = Tokens.NextNoTrivia(TokenType.YieldKeyword, Log);
@@ -1627,7 +1627,7 @@ namespace Flame.DSharp.Parser
         		return new YieldReturnSyntax(yieldKeyword, new ReturnSyntax(expr, returnKeyword, semicolon));
         	}
         }
-        
+
         #endregion
 
         #region ParseBreakSyntax
@@ -1799,9 +1799,9 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region ParseCatchSyntax
-        
+
         protected virtual CatchSyntax ParseCatchSyntax(ITokenStream Tokens)
         {
         	var keyword = Tokens.NextNoTrivia(TokenType.CatchKeyword, Log);
@@ -1811,22 +1811,22 @@ namespace Flame.DSharp.Parser
         	var body = ParseStatement(Tokens);
         	return new CatchSyntax(keyword, leadingParen, variableDecl, trailingParen, body);
         }
-        
+
         #endregion
-        
+
         #region ParseFinallySyntax
-        
+
         protected virtual FinallySyntax ParseFinallySyntax(ITokenStream Tokens)
         {
         	var keyword = Tokens.NextNoTrivia(TokenType.FinallyKeyword, Log);
         	var body = ParseStatement(Tokens);
         	return new FinallySyntax(keyword, body);
         }
-        
+
         #endregion
-        
+
         #region ParseTrySyntax
-        
+
         protected virtual IStatementSyntax ParseTrySyntax(ITokenStream Tokens)
         {
         	var tryKeyword = Tokens.NextNoTrivia(TokenType.TryKeyword, Log);
@@ -1844,7 +1844,7 @@ namespace Flame.DSharp.Parser
         		{
         			if (finallyClause != null)
         			{
-        				Log.LogError(new LogEntry("Invalid syntax", "A try/catch/finally statement has multiple finally clauses."));
+        				Log.LogError(new LogEntry("Invalid syntax", "A try/catch/finally statement cannot have multiple finally clauses.", peek.TokenPeek.Location));
         			}
         			finallyClause = ParseFinallySyntax(Tokens);
         		}
@@ -1852,13 +1852,13 @@ namespace Flame.DSharp.Parser
         	}
         	return new TrySyntax(tryKeyword, tryBody, finallyClause, catchClauses);
         }
-        
+
         #endregion
 
         #endregion
-        
+
         #region Structure Parsing
-        
+
         #region Attribute Parsing
 
         public virtual IAttributeSyntax ParseAttribute(ITokenStream Tokens)
@@ -1878,7 +1878,7 @@ namespace Flame.DSharp.Parser
             }
             return attrs;
         }
-        
+
         protected virtual bool PeekIsUnambiguousAttribute(ITokenStream Tokens)
         {
         	var peek = Tokens.PeekNoTrivia();
@@ -1889,23 +1889,23 @@ namespace Flame.DSharp.Parser
         	var pos = peek.Identifier;
         	var type = PeekEntireType(Tokens, &pos);
         	int parseCount = type.Tokens.Count;
-        	
+
         	if (parseCount == 0)
         		return false;
-        	
+
             // Skip all tokens in the type, and skip one extra token for the leading RBrackets
             for (int i = 0; i < parseCount + 1; i++)
         	{
         		peek = Tokens.PeekNoTrivia(peek);
         	}
-        	
+
         	if (peek.Type == TokenType.RParen)
         		return true; // Constructor syntax, i.e. [Attribute()]. This is, unambiguously, an attribute.
         	if (peek.Type != TokenType.LBrackets)
         		return false; // Not an attribute
-        	
+
         	peek = Tokens.PeekNoTrivia(peek);
-        	
+
         	if (peek.Type == TokenType.Identifier) // [T] SomeMethod() --> [T] is not an attribute, because it is trailed by an identifier
         	{
         		return false; // Parse [T] as an enumerable
@@ -1915,9 +1915,9 @@ namespace Flame.DSharp.Parser
         		// 'this' is tricky:
         		// [T] this() --> attribute
         		// [T] this[int Index] --> enumerable
-        		
+
         		peek = Tokens.PeekNoTrivia(peek); // One last lookahead
-        		
+
         		return peek.Type != TokenType.RBrackets; // [T] this[int Index] syntax
         	}
         	else
@@ -1925,7 +1925,7 @@ namespace Flame.DSharp.Parser
         		return true; // The syntax was matched to be that of an attribute, and was not trailed by an enumerator
         	}
         }
-        
+
         /// <summary>
         /// Parses a list of attributes that may or may not be trailed by an enumerator, which uses the same syntax.
         /// </summary>
@@ -1940,7 +1940,7 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region ParseGenericParameters
 
         protected IEnumerable<IGenericParameterDeclarationSyntax> ParseGenericParameters(ITokenStream Tokens)
@@ -1977,7 +1977,7 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region ParseGenericConstraints
 
         protected virtual [GenericConstraintSyntax] ParseGenericConstraints(ITokenStream Tokens)
@@ -1993,16 +1993,16 @@ namespace Flame.DSharp.Parser
                 var genericBaseTypes = ParseTypeList(Tokens);
 
                 constraints.Add(new GenericConstraintSyntax(whereKeyword, identifier, genericColon, genericBaseTypes));
-                
+
                 peek = Tokens.PeekNoTrivia();
             }
             return constraints;
         }
 
         #endregion
-        
+
         #region ParsePreconditions
-        
+
         protected virtual PreconditionSyntax ParsePrecondition(ITokenStream Tokens)
         {
             var inKeyword = Tokens.NextNoTrivia(TokenType.InKeyword, Log);
@@ -2012,36 +2012,36 @@ namespace Flame.DSharp.Parser
 
             return new PreconditionSyntax(inKeyword, leadingBraces, cond, trailingBraces);
         }
-        
+
         #endregion
-        
+
         #region ParsePostconditions
-        
+
         protected virtual PostconditionSyntax ParsePostcondition(ITokenStream Tokens)
         {
             var outKeyword = Tokens.NextNoTrivia(TokenType.OutKeyword, Log);
-            
+
             Token leadingParen = null;
             Token identifier = null;
             Token trailingParen = null;
             if (Tokens.PeekNoTrivia().Type == TokenType.RParen)
             {
 	            leadingParen = Tokens.NextNoTrivia(TokenType.RParen, Log);
-	            identifier = Tokens.NextNoTrivia(TokenType.Identifier, Log); 
+	            identifier = Tokens.NextNoTrivia(TokenType.Identifier, Log);
 	            trailingParen = Tokens.NextNoTrivia(TokenType.LParen, Log);
             }
-            
+
             var leadingBraces = Tokens.NextNoTrivia(TokenType.RBraces, Log);
             var cond = ParseExpression(Tokens);
             var trailingBraces = Tokens.NextNoTrivia(TokenType.LBraces, Log);
 
             return new PostconditionSyntax(outKeyword, leadingParen, identifier, trailingParen, leadingBraces, cond, trailingBraces);
         }
-        
+
         #endregion
-        
+
         #region ParseMethodContract
-        
+
         protected virtual MethodContract ParseMethodContract(ITokenStream Tokens)
         {
         	List<PreconditionSyntax> pres = new List<PreconditionSyntax>();
@@ -2058,15 +2058,15 @@ namespace Flame.DSharp.Parser
             	{
             		posts.Add(ParsePostcondition(Tokens));
             	}
-            	
+
                 peek = Tokens.PeekNoTrivia();
             }
-            
+
             return new MethodContract(pres, posts);
         }
-        
+
         #endregion
-        
+
         #region ParseParameter
 
         protected virtual IMemberSyntax<IParameter> ParseParameter(ITokenStream Tokens)
@@ -2132,9 +2132,9 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region ParseCommonSignatureSyntax
-        
+
         private bool IsConstructorSyntaxIdentifier(Token LastToken, ITokenStream Tokens)
         {
         	if (LastToken != default(Token))
@@ -2142,7 +2142,7 @@ namespace Flame.DSharp.Parser
         		return true;
         	return false;
         }
-        
+
         protected virtual ISignatureSyntax ParseCommonSignatureSyntax(ITokenStream Tokens)
         {
             var attrs = ParseAmbiguousAttributes(Tokens);
@@ -2188,7 +2188,7 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region Field Parsing
 
         protected virtual IMemberSyntax<IField> ParseField(ITokenStream Tokens, ISignatureSyntax Signature)
@@ -2264,7 +2264,7 @@ namespace Flame.DSharp.Parser
 
             var constraints = ParseGenericConstraints(Tokens);
             var contract = ParseMethodContract(Tokens);
-            
+
             IStatementSyntax body = ParseStatement(Tokens);
 
             return new MethodSyntax(Signature, parameters, implementedProperties, constraints, contract, body);
@@ -2285,7 +2285,7 @@ namespace Flame.DSharp.Parser
                 modifierTokens.Add(Tokens.NextNoTrivia());
                 peek = Tokens.PeekNoTrivia().TokenPeek;
             }
-            
+
             if (!AccessorSignatureSyntax.IsAccessorName(peek))
             {
             	// Parse a single token here so we don't end up in an infinite loop when parsing properties
@@ -2297,14 +2297,14 @@ namespace Flame.DSharp.Parser
             Token nameToken = Tokens.NextNoTrivia();
             AccessorSignatureSyntax signature = new AccessorSignatureSyntax(attrs, modifierTokens, nameToken);
             var contract = ParseMethodContract(Tokens);
-            
+
             IStatementSyntax body = ParseStatement(Tokens);
-            
+
             return new AccessorSyntax(signature, contract, body);
         }
 
         #endregion
-        
+
         #region Property Parsing
 
         protected virtual IMemberSyntax<ITypeMember> ParseProperty(ITokenStream Tokens, ISignatureSyntax Signature)
@@ -2360,7 +2360,7 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region Member Parsing
 
         protected virtual IMemberSyntax<IMember> ParseMember(ITokenStream Tokens)
@@ -2369,7 +2369,7 @@ namespace Flame.DSharp.Parser
         	{
         		return ParseInvariant(Tokens);
         	}
-        
+
             var commonSig = ParseCommonSignatureSyntax(Tokens);
 
 			bool isTypeDecl = false;
@@ -2378,7 +2378,7 @@ namespace Flame.DSharp.Parser
 				if (item.Type.IsTypeKindToken())
 				{
 					isTypeDecl = true;
-					break;					
+					break;
 				}
 			}
             if (isTypeDecl)
@@ -2405,21 +2405,21 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         #region Invariant Parsing
-        
+
         protected virtual IMemberSyntax<IInvariant> ParseInvariant(ITokenStream Tokens)
         {
         	var invariantKeyword = Tokens.NextNoTrivia(TokenType.InvariantKeyword, Log);
         	var leadingBraces = Tokens.NextNoTrivia(TokenType.RBraces, Log);
             var cond = ParseExpression(Tokens);
             var trailingBraces = Tokens.NextNoTrivia(TokenType.LBraces, Log);
-			
+
             return new InvariantSyntax(invariantKeyword, leadingBraces, cond, trailingBraces);
         }
-        
+
         #endregion
-        
+
         #region Type Declaration Parsing
 
         protected virtual ITypeDeclarationSyntax ParseTypeDeclaration(ITokenStream Tokens, ISignatureSyntax Signature)
@@ -2485,7 +2485,7 @@ namespace Flame.DSharp.Parser
         }
 
         #endregion
-        
+
         public virtual IBinderDirectiveSyntax ParseUsingSyntax(ITokenStream Tokens)
         {
         	var usingKeyword = Tokens.NextNoTrivia(TokenType.UsingKeyword, Log);
@@ -2513,7 +2513,7 @@ namespace Flame.DSharp.Parser
                 return new UsingSyntax(usingKeyword, name, token);
             }
         }
-        
+
         public NamespaceCompilationUnit ParseNamespaceSyntax(ITokenStream Tokens)
         {
             var nsKeyword = Tokens.NextNoTrivia(TokenType.NamespaceKeyword, Log);
@@ -2535,10 +2535,10 @@ namespace Flame.DSharp.Parser
 			}
 
             var lBraces = Tokens.NextNoTrivia(TokenType.LBraces, Log);
-            
+
             return new NamespaceCompilationUnit(nsKeyword, nameTokens.ToArray(), rBraces, contents.ToArray(), lBraces);
         }
-        
+
         public virtual ISyntaxNode ParseCompilationUnitChild(ITokenStream Tokens)
         {
         	var peek = Tokens.PeekNoTrivia();
@@ -2555,7 +2555,7 @@ namespace Flame.DSharp.Parser
         		return ParseTypeDeclaration(Tokens);
         	}
         }
-        
+
         public virtual CompilationUnit ParseCompilationUnit(ITokenStream Tokens)
         {
         	var children = new List<ISyntaxNode>();
@@ -2567,7 +2567,7 @@ namespace Flame.DSharp.Parser
         	}
         	return new CompilationUnit(children.ToArray());
         }
-        
+
         #endregion
 	}
 }
