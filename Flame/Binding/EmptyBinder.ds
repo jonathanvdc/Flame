@@ -1,0 +1,25 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Binding
+{
+    public static class EmptyEnvironment : IEnvironment
+    {
+        public string Name { const get return ""; }
+
+        public IType RootType { const get return null; }
+
+        public IType EnumerableType { const get return null; }
+
+        public IType EnumeratorType { const get return null; }
+    }
+
+    public static class EmptyBinder : IBinder
+    {
+		public const IType BindType(string Name) { return null; }
+		public const [IType] GetTypes() { return Enumerable.Empty<IType>(); }
+
+		public IEnvironment Environment { const get return EmptyEnvironment; }
+    }
+}

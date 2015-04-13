@@ -7,12 +7,50 @@ namespace Flame.Compiler.Expressions
     public class LessThanExpression : ConditionalExpression
     {
         public const this(set IExpression LeftOperand, set IExpression RightOperand);
-        
+
         protected override Operator GetOperator() { return Operator.CheckLessThan; }
+
+        public override bool IsConstant
+        {
+            override const get
+            {
+                return LeftOperand.IsConstant && RightOperand.IsConstant;
+            }
+        }
+
+        public static const Nullable<int> Compare(IBoundObject First, IBoundObject Second)
+        {
+            object firstObj = First.GetObjectValue();
+            object secondObj = Second.GetObjectValue();
+
+            if (object.ReferenceEquals(firstObj, secondObj))
+            {
+                return new Nullable<int>(0);
+            }
+            else if (firstObj is IComparable)
+            {
+                return new Nullable<int>(((IComparable)firstObj).CompareTo(secondObj));
+            }
+            else if (secondObj is IComparable)
+            {
+                return new Nullable<int>(-((IComparable)secondObj).CompareTo(firstObj));
+            }
+            else
+            {
+                return default(Nullable<int>);
+            }
+        }
 
         public override const IBoundObject Evaluate()
         {
-            return null;
+            var first = LeftOperand.Evaluate();
+            var second = RightOperand.Evaluate();
+            var cmp = Compare(first, second);
+            if (cmp.HasValue)
+            {
+                return new BooleanExpression(cmp.Value < 0);
+            }
+            else return null;
         }
 
         public override const IExpression Optimize()
@@ -27,16 +65,31 @@ namespace Flame.Compiler.Expressions
             return Generator.EmitLessThan(Left, Right);
         }
     }
-    
+
     public class LessThanOrEqualsExpression : ConditionalExpression
     {
         public const this(set IExpression LeftOperand, set IExpression RightOperand);
-        
+
         protected override Operator GetOperator() { return Operator.CheckLessThanOrEqual; }
+
+        public override bool IsConstant
+        {
+            override const get
+            {
+                return LeftOperand.IsConstant && RightOperand.IsConstant;
+            }
+        }
 
         public override const IBoundObject Evaluate()
         {
-            return null;
+            var first = LeftOperand.Evaluate();
+            var second = RightOperand.Evaluate();
+            var cmp = LessThanExpression.Compare(first, second);
+            if (cmp.HasValue)
+            {
+                return new BooleanExpression(cmp.Value <= 0);
+            }
+            else return null;
         }
 
         public override const IExpression Optimize()

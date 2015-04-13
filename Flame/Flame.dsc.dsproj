@@ -91,6 +91,7 @@
 			<Compile Include="Binding\IBinder.ds" />
 			<Compile Include="Binding\BinderExtensions.ds" />
 			<Compile Include="Binding\BinderBase.ds" />
+            <Compile Include="Binding\EmptyBinder.ds" />
 			<Compile Include="Binding\INamespacedBinder.ds" />
 			<Compile Include="Binding\LocalNamespaceBinder.ds" />
 			<Compile Include="Binding\NamespaceState.ds" />

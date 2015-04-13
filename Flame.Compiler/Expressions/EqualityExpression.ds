@@ -7,12 +7,41 @@ namespace Flame.Compiler.Expressions
     public class EqualityExpression : ConditionalExpression
     {
         public const this(set IExpression LeftOperand, set IExpression RightOperand);
-        
+
         protected override Operator GetOperator() { return Operator.CheckEquality; }
+
+        public override bool IsConstant
+        {
+            override const get
+            {
+                return LeftOperand.IsConstant && RightOperand.IsConstant;
+            }
+        }
+
+        public static const IBoundObject CheckObjectEquality(IBoundObject First, IBoundObject Second)
+        {
+            object firstObj = First.GetObjectValue();
+            object secondObj = Second.GetObjectValue();
+
+            if (object.ReferenceEquals(firstObj, secondObj))
+            {
+                return new BooleanExpression(true);
+            }
+            else if (firstObj == null || secondObj == null)
+            {
+                return new BooleanExpression(false);
+            }
+            else
+            {
+                return new BooleanExpression(firstObj.Equals(secondObj) && secondObj.Equals(firstObj));
+            }
+        }
 
         public override const IBoundObject Evaluate()
         {
-            return null;
+            var first = LeftOperand.Evaluate();
+            var second = RightOperand.Evaluate();
+            return CheckObjectEquality(first, second);
         }
 
         public override const IExpression Optimize()
@@ -21,7 +50,7 @@ namespace Flame.Compiler.Expressions
             var optB = RightOperand.Optimize();
             return new EqualityExpression(optA, optB);
         }
-        
+
         public override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
         {
             return Generator.EmitEquals(Left, Right);
