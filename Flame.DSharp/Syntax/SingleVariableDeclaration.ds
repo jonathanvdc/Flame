@@ -5,11 +5,12 @@ using Flame.Compiler.Variables;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Expressions;
 using Flame.DSharp;
+using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class SingleVariableDeclaration : ISyntaxNode
+    public class SingleVariableDeclaration : ISourceSyntax
     {
         public const this(set Token Name)
         {
@@ -21,6 +22,24 @@ namespace Flame.Syntax.DSharp
         public Token Name { const get; private set; }
         public Token Operator { const get; private set; }
         public IExpressionSyntax Value { const get; private set; }
+
+        public SourceLocation AssignmentLocation
+        {
+            const get
+            {
+                if (Value == null) return null;
+                else return Operator.Location.Concat(Value.GetSourceLocation());
+            }
+        }
+
+        public SourceLocation Location
+        {
+            const get
+            {
+                if (Value == null) return Name.Location;
+                else return Name.Location.Concat(AssignmentLocation);
+            }
+        }
 
         public const IVariable GetDeclaredVariable(ISyntaxState State)
         {
@@ -44,9 +63,18 @@ namespace Flame.Syntax.DSharp
         		return new EmptyStatement();
         	}
         }
-        
+
         public const IVariable CreateVariable(ITypeSyntax VariableType, ISyntaxState State, IType TypeHint)
         {
+            string name = Name.TokenValue;
+
+            if (State.Log.ShowShadowWarnings && State.VariableExists(name))
+            {
+                var node = RedefinitionHelpers.CreateRedefinitionMessageNode("Variable '" + name + "' is shadowed. [-" + Warnings.ShadowWarnings + "]",
+                    Location, State.GetDeclarationLocation(name));
+                State.Log.LogWarning(new LogEntry("Variable shadowed", node));
+            }
+
         	bool varType;
         	if (VariableType == null)
         	{
@@ -76,12 +104,12 @@ namespace Flame.Syntax.DSharp
             	{
             		State.Log.LogError(new LogEntry("Type inference error", "Could not infer 'var' type in variable declaration '" + this.GetCode().ToString() + "' as the variable was not initialized with an expression"));
             	}
-                return State.DeclareVariable(Name.TokenValue, type);
+                return State.DeclareVariable(name, type, Location);
             }
             else
             {
                 IVariable val = SyntaxExtensions.CreateVerifiedVariable(Value, State);
-				
+
                 if (varType && type == null)
                 {
                 	type = val.Type;
@@ -90,8 +118,8 @@ namespace Flame.Syntax.DSharp
                 {
                 	val = new ExpressionVariable(CastSyntax.CreateImplicitCast(State, val.CreateGetExpression(), Value, type));
                 }
-				
-                var variable = State.DeclareVariable(Name.TokenValue, type);
+
+                var variable = State.DeclareVariable(name, type, Location);
                 return new AssignedVariable(variable, val);
             }
         }

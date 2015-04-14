@@ -8,13 +8,26 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class VariableDeclarationSyntax : LineStatementSyntax, ITokenNode
+    public class VariableDeclarationSyntax : LineStatementSyntax, ITokenNode, ISourceSyntax
     {
-        public const this(set ITypeSyntax Type, set IEnumerable<SingleVariableDeclaration> Declarations, set Token SemicolonToken);
+        public const this(set ITypeSyntax Type, set [SingleVariableDeclaration] Declarations, set Token SemicolonToken);
 
         public ITypeSyntax Type { const get; private set; }
-        public IEnumerable<SingleVariableDeclaration> Declarations { const get; private set; }
-        
+        public [SingleVariableDeclaration] Declarations { const get; private set; }
+
+        public SourceLocation Location
+        {
+            const get
+            {
+                var loc = Type.GetSourceLocation();
+                foreach (var item in Declarations)
+                {
+                    loc = loc.Concat(item.Location);
+                }
+                return loc.Concat(SemicolonToken.Location);
+            }
+        }
+
         public IReadOnlyList<Token> Tokens
         {
         	const get
@@ -24,10 +37,10 @@ namespace Flame.Syntax.DSharp
 				foreach (var item in Declarations)
 					results.AddRange(item.GetTokens());
 				results.Add(SemicolonToken);
-				return results;					
+				return results;
         	}
         }
-        
+
         public const IEnumerable<string> VariableNames
         {
             const get

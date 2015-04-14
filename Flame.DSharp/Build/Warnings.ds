@@ -1,0 +1,35 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+
+namespace Flame.DSharp.Build
+{
+    public static class Warnings
+    {
+        public const string Pedantic = "pedantic";
+        public const string ShadowWarnings = "Wshadow";
+
+        public static bool IsPedantic[this ICompilerLog Log]
+        {
+            const get return Log.Options.GetOption<bool>(Pedantic, false);
+        }
+
+        public static const bool UsePedanticWarnings(this ICompilerLog Log, string Name)
+        {
+            if (Log.Options.HasOption(Name))
+            {
+                return Log.Options.GetOption<bool>(Name, false);
+            }
+            else
+            {
+                return Log.IsPedantic;
+            }
+        }
+
+        public static bool ShowShadowWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UsePedanticWarnings(ShadowWarnings);
+        }
+    }
+}

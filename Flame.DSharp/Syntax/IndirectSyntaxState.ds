@@ -23,9 +23,9 @@ namespace Flame.Syntax.DSharp
 
         public IConverter<IType, string> TypeNamer { const get return State.TypeNamer; }
 
-        public IVariable DeclareVariable(string Name, IVariable Variable) : ISyntaxState.DeclareVariable
+        public IVariable DeclareVariable(string Name, IVariable Variable, SourceLocation Location) : ISyntaxState.DeclareVariable
         {
-            return State.DeclareVariable(Name, Variable);
+            return State.DeclareVariable(Name, Variable, Location);
         }
 
         public IType CurrentType : ISyntaxState.CurrentType
@@ -49,6 +49,11 @@ namespace Flame.Syntax.DSharp
         public const IVariable GetVariable(string Name) : IVariableProvider.GetVariable
         {
             return State.GetVariable(Name);
+        }
+
+        public const DeclaredVariable GetDeclaredVariable(string Name) : ISyntaxState.GetDeclaredVariable
+        {
+            return State.GetDeclaredVariable(Name);
         }
 
         public const bool VariableExists(string Name) : IVariableProvider.VariableExists

@@ -203,6 +203,7 @@
 			<Compile Include="Build\SyntaxInvariant.ds" />
 			<Compile Include="Build\SyntaxGenericParameter.ds" />
 			<Compile Include="Build\DSharpTypeNamer.ds" />
+			<Compile Include="Build\Warnings.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Variables">
