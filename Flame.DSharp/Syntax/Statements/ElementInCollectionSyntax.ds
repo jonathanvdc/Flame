@@ -10,14 +10,24 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class ElementInCollectionSyntax : ISyntaxNode, ITokenNode
+    public class ElementInCollectionSyntax : ISyntaxNode, ITokenNode, ISourceSyntax
     {
         public const this(set VariableDeclarationSyntax VariableDeclaration, set Token InKeyword, set IExpressionSyntax Collection);
 
         public VariableDeclarationSyntax VariableDeclaration { const get; private set; }
         public Token InKeyword { const get; private set; }
         public IExpressionSyntax Collection { const get; private set; }
-        
+
+        public SourceLocation Location
+        {
+            const get
+            {
+                return VariableDeclaration.GetSourceLocation()
+                                          .Concat(InKeyword.Location)
+                                          .Concat(Collection.GetSourceLocation());
+            }
+        }
+
         public IReadOnlyList<Token> Tokens
         {
         	const get
@@ -26,16 +36,14 @@ namespace Flame.Syntax.DSharp
 				tokens.AddRange(VariableDeclaration.GetTokens());
 				tokens.Add(InKeyword);
 				tokens.AddRange(Collection.GetTokens());
-				return tokens;				
+				return tokens;
         	}
         }
 
         public CodeBuilder GetCode()
         {
             CodeBuilder cb = VariableDeclaration.GetCode();
-            cb.Append(" ");
-            cb.Append(InKeyword.TokenValue);
-            cb.Append(" ");
+            cb.Append(InKeyword.ToString());
             cb.Append(Collection.GetCode());
             return cb;
         }

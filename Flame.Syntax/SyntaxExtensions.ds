@@ -124,7 +124,7 @@ namespace Flame.Syntax
 			return variable;
         }
 
-        public static const IEnumerable<ITypeMember> GetMembers(this IMemberProvider MemberProvider, IType Type, string Name)
+        public static const [ITypeMember] GetMembers(this IMemberProvider MemberProvider, IType Type, string Name)
         {
         	var candidates = MemberProvider.GetMembers(Type);
         	List<ITypeMember> members = new List<ITypeMember>();
@@ -138,11 +138,16 @@ namespace Flame.Syntax
         	return members;
         }
 
-        public static IVariable DeclareVariable(this ISyntaxState State, string Name, IType Type)
+        public static IVariable DeclareVariable(this ISyntaxState State, string Name, IType Type, SourceLocation Location)
         {
             LateBoundVariable lbVar = new LateBoundVariable(Name, Type);
-            return State.DeclareVariable(Name, lbVar);
+            return State.DeclareVariable(Name, lbVar, Location);
         }
+
+		public static const SourceLocation GetDeclarationLocation(this ISyntaxState State, string Name)
+		{
+			return State.GetDeclaredVariable(Name).Location;
+		}
 
         public static IEnvironment Environment[this ISyntaxState State]
         {

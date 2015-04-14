@@ -15,15 +15,15 @@ namespace Flame.Syntax.DSharp
     public class ForeachSyntax : IStatementSyntax, ITokenNode
     {
         public const this(set Token ForeachKeyword, set Token LeadingParentheses,
-            set IEnumerable<ElementInCollectionSyntax> Elements, 
+            set [ElementInCollectionSyntax] Elements,
             set Token TrailingParentheses, set IStatementSyntax Body);
 
         public Token ForeachKeyword { const get; private set; }
         public Token LeadingParentheses { const get; private set; }
-        public IEnumerable<ElementInCollectionSyntax> Elements { const get; private set; }
+        public [ElementInCollectionSyntax] Elements { const get; private set; }
         public Token TrailingParentheses { const get; private set; }
         public IStatementSyntax Body { const get; private set; }
-        
+
         public IReadOnlyList<Token> Tokens
         {
         	const get
@@ -39,39 +39,39 @@ namespace Flame.Syntax.DSharp
 				results.AddRange(Body.GetTokens());
 				return results;
         	}
-        } 
+        }
 
         public const IStatement CreateStatement(ISyntaxState State)
         {
             State.PushScope();
-            
+
         	var collExprs = new List<CollectionElement>();
         	foreach (var item in Elements)
         	{
         		[string] varNames = item.VariableDeclaration.VariableNames;
-        	
+
         		string variableName = Enumerable.Single<string>(varNames);
         		var expr = item.Collection.CreateExpression(State);
-        		
+
         		IType variableType;
         		if (item.VariableDeclaration.Type.IsVariable)
         			variableType = expr.Type.GetEnumerableElementType();
         		else
         			variableType = item.VariableDeclaration.Type.CreateType(State);
-        		
+
         		collExprs.Add(new CollectionElement(new DescribedVariableMember(variableName, variableType), expr));
         	}
         	var loop = new ForeachStatement(collExprs);
-        	
-        	foreach (var item in collExprs, var elem in loop.Elements)
+
+        	foreach (var item in collExprs, var elem in loop.Elements, var node in Elements)
         	{
-        		State.DeclareVariable(item.Member.Name, elem);
+        		State.DeclareVariable(item.Member.Name, elem, node.Location);
         	}
-        	
+
         	loop.Body = Body.CreateStatement(State);
-        	
+
         	var cleanup = State.PopScope();
-        	
+
         	return new BlockStatement(new IStatement[] { loop, cleanup });
         }
 

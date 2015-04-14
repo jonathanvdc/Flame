@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Flame.Compiler.Variables;
 using Flame.Compiler;
+using Pixie;
 
 namespace Flame.Syntax
 {
@@ -15,9 +16,62 @@ namespace Flame.Syntax
         ICompilerLog Log { const get; }
         IConverter<IType, string> TypeNamer { const get; }
 
-        IVariable DeclareVariable(string Name, IVariable Variable);
+        IVariable DeclareVariable(string Name, IVariable Variable, SourceLocation Location);
+        const DeclaredVariable GetDeclaredVariable(string Name);
 
     	void PushScope();
     	IStatement PopScope();
+    }
+
+    public struct DeclaredVariable
+    {
+        public const this(set IVariable Variable, set SourceLocation Location);
+
+        public IVariable Variable { const get; private set; }
+        public SourceLocation Location { const get; private set; }
+    }
+
+    public static class RedefinitionHelpers
+    {
+        public static const IMarkupNode CreateRedefinitionMessageNode(string Message,
+            SourceLocation NewDefinition, SourceLocation OldDefinition)
+        {
+            var firstMessage = new MarkupNode(NodeConstants.TextNodeType, Message);
+            var firstDiag = NewDefinition.CreateDiagnosticsNode();
+
+            if (OldDefinition == null)
+            {
+                return new MarkupNode("entry", new IMarkupNode[]
+                {
+                    firstMessage,
+                    firstDiag
+                });
+            }
+
+            var oldSrc = OldDefinition.CreateSourceNode();
+            var neutralOldSrc = new MarkupNode("neutral-diagnostics", new IMarkupNode[] { oldSrc });
+            var oldTitle = new MarkupNode(NodeConstants.TextNodeType, "Previous definition: ");
+            var oldMessage = OldDefinition.CreateLineNumberNode(NodeConstants.TextNodeType);
+
+            var oldRemark = new MarkupNode(NodeConstants.RemarksNodeType, new IMarkupNode[]
+            {
+                oldTitle,
+                oldMessage,
+                neutralOldSrc
+            });
+
+            return new MarkupNode("entry", new IMarkupNode[]
+            {
+                firstMessage,
+                firstDiag,
+                oldRemark
+            });
+        }
+
+        public static const IMarkupNode CreateRedefinitionNode(string Name,
+            SourceLocation NewDefinition, SourceLocation OldDefinition)
+        {
+            return CreateRedefinitionMessageNode("'" + Name + "' is defined more than once.", NewDefinition, OldDefinition);
+        }
     }
 }
