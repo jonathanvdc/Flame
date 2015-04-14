@@ -6,6 +6,7 @@ using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
 using Flame.DSharp;
+using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
@@ -95,6 +96,12 @@ namespace Flame.Syntax.DSharp
             {
                 var body = RedefinitionHelpers.CreateRedefinitionNode(Name, Location, localDecls[Name].Location);
                 Log.LogError(new LogEntry("Variable redefinition", body));
+            }
+            else if (Log.ShowShadowWarnings && VariableExists(Name))
+            {
+                var node = RedefinitionHelpers.CreateRedefinitionMessageNode("Variable '" + Name + "' is shadowed. [-" + Warnings.ShadowWarnings + "]",
+                    Location, this.GetDeclarationLocation(Name));
+                Log.LogWarning(new LogEntry("Variable shadowed", node));
             }
             localDecls[Name] = new DeclaredVariable(Variable, Location);
             return Variable;

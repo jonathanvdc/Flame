@@ -67,14 +67,7 @@ namespace Flame.Syntax.DSharp
         public const IVariable CreateVariable(ITypeSyntax VariableType, ISyntaxState State, IType TypeHint)
         {
             string name = Name.TokenValue;
-
-            if (State.Log.ShowShadowWarnings && State.VariableExists(name))
-            {
-                var node = RedefinitionHelpers.CreateRedefinitionMessageNode("Variable '" + name + "' is shadowed. [-" + Warnings.ShadowWarnings + "]",
-                    Location, State.GetDeclarationLocation(name));
-                State.Log.LogWarning(new LogEntry("Variable shadowed", node));
-            }
-
+            
         	bool varType;
         	if (VariableType == null)
         	{
