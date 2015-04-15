@@ -31,11 +31,17 @@ namespace Flame.DSharp.Build
 
         public static bool IsPedantic[this ICompilerLog Log]
         {
-            const get return Log.Options.GetOption<bool>(Pedantic, false) ||
-                             Log.Options.GetOption<bool>(GetWarningName(Pedantic), false);
+            const get
+            {
+                if (Log.Options.HasOption(Pedantic))
+                {
+                    return Log.Options.GetOption<bool>(Pedantic, false);
+                }
+                else return Log.UseDefaultWarnings(Pedantic, false);
+            }
         }
 
-        public static const bool UseWarnings(this ICompilerLog Log, string Name, bool IsPedantic)
+        private static const bool UseWarnings(this ICompilerLog Log, string Name, bool IsPedantic, bool DefaultValue)
         {
             string warningName = GetWarningName(Name);
             if (Log.Options.HasOption(warningName))
@@ -47,24 +53,28 @@ namespace Flame.DSharp.Build
                 string relaxName = GetRelaxWarningName(Name);
                 if (Log.Options.HasOption(relaxName))
                 {
-                    return !Log.Options.GetOption<bool>(warningName, true);
+                    return !Log.Options.GetOption<bool>(relaxName, true);
                 }
                 else if (IsPedantic)
                 {
                     return Log.IsPedantic;
                 }
-                else return true;
+                else return DefaultValue;
             }
         }
 
         public static const bool UsePedanticWarnings(this ICompilerLog Log, string Name)
         {
-            return Log.UseWarnings(Name, true);
+            return Log.UseWarnings(Name, true, false);
         }
 
+        public static const bool UseDefaultWarnings(this ICompilerLog Log, string Name, bool DefaultValue)
+        {
+            return Log.UseWarnings(Name, false, DefaultValue);
+        }
         public static const bool UseDefaultWarnings(this ICompilerLog Log, string Name)
         {
-            return Log.UseWarnings(Name, false);
+            return Log.UseDefaultWarnings(Name, true);
         }
 
         public static bool ShowShadowWarnings[this ICompilerLog Log]
@@ -81,11 +91,11 @@ namespace Flame.DSharp.Build
         }
         public static bool ShowBitcastWarnings[this ICompilerLog Log]
         {
-            const get return Log.UseDefaultWarnings(Bitcast);
+            const get return Log.UsePedanticWarnings(Bitcast);
         }
         public static bool ShowMeaninglessCastWarnings[this ICompilerLog Log]
         {
-            const get return Log.UseDefaultWarnings(MeaninglessCast);
+            const get return Log.UsePedanticWarnings(MeaninglessCast);
         }
     }
 }
