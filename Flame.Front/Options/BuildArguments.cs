@@ -16,7 +16,7 @@ namespace Flame.Front.Options
         public BuildArguments(IOptionParser<string[]> OptionParser)
         {
             this.OptionParser = OptionParser;
-            this.args = new Dictionary<string, string[]>(StringComparer.InvariantCultureIgnoreCase);
+            this.args = new Dictionary<string, string[]>();
         }
 
         public IOptionParser<string[]> OptionParser { get; private set; }
