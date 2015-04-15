@@ -14,13 +14,19 @@ namespace std
 
         private Dictionary<TKey, TValue> data;
 
-        public const bool empty() return size() == 0;
-        public const int size() return data.Count;
-        public const int max_size() return int32.MaxValue;
+        public const bool empty() return (int)size() == 0;
+        public const uint size() return (uint)data.Count;
+        public const uint max_size() return uint.MaxValue;
 
         public void clear()
         {
             data = new Dictionary<TKey, TValue>();
+        }
+
+        public const uint count(TKey Key)
+        {
+            if (data.ContainsKey(Key)) return (uint)1;
+            else return (uint)0;
         }
 
         public TValue this[TKey Key]

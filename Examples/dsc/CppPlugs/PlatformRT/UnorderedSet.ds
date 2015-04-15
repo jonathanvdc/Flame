@@ -14,9 +14,9 @@ namespace std
 
         private HashSet<T> data;
 
-        public const bool empty() return size() == 0;
-        public const int size() return data.Count;
-        public const int max_size() return int32.MaxValue;
+        public const bool empty() return (int)size() == 0;
+        public const uint size() return (uint)data.Count;
+        public const uint max_size() return uint.MaxValue;
 
         public void clear()
         {
