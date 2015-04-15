@@ -11,6 +11,8 @@ namespace Flame.DSharp.Build
         public const string Shadow = "shadow";
         public const string GenericOperators = "generic-operators";
         public const string Operators = "operators";
+        public const string Bitcast = "bitcast";
+        public const string MeaninglessCast = "meaningless-cast";
 
         public static const string GetWarningName(string Name)
         {
@@ -76,6 +78,14 @@ namespace Flame.DSharp.Build
         public static bool ShowGenericOperatorWarnings[this ICompilerLog Log]
         {
             const get return Log.UseDefaultWarnings(GenericOperators);
+        }
+        public static bool ShowBitcastWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UseDefaultWarnings(Bitcast);
+        }
+        public static bool ShowMeaninglessCastWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UseDefaultWarnings(MeaninglessCast);
         }
     }
 }
