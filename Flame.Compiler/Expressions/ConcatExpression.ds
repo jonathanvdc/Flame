@@ -23,7 +23,7 @@ namespace Flame.Compiler.Expressions
         {
     		return EvaluateExpression();
         }
-        
+
         public IType Type
         {
         	const get
@@ -31,7 +31,7 @@ namespace Flame.Compiler.Expressions
         		return Operands[0].Type;
         	}
         }
-        
+
         public const StringExpression EvaluateExpression()
         {
     		StringBuilder result = new StringBuilder();
@@ -41,7 +41,7 @@ namespace Flame.Compiler.Expressions
     		}
     		return new StringExpression(result.ToString());
         }
-        
+
         public bool IsConstant
 		{
 			const get
@@ -66,27 +66,36 @@ namespace Flame.Compiler.Expressions
         		else
         			optOperands.Add(optOp);
         	}
-        	
+
         	int i = 1;
         	while (i < optOperands.Count)
         	{
         		if (optOperands[i].IsConstant && optOperands[i].Type.Equals(PrimitiveTypes.String) && optOperands[i - 1].IsConstant && optOperands[i - 1].Type.Equals(PrimitiveTypes.String))
         		{
-        			optOperands[i - 1] = new StringExpression(optOperands[i - 1].Evaluate().GetValue<string>() + optOperands[i].Evaluate().GetValue<string>());
-        			optOperands.RemoveAt(i);
+					var leftEval = optOperands[i - 1].Evaluate();
+					var rightEval = optOperands[i].Evaluate();
+					if (leftEval != null && rightEval != null)
+					{
+						optOperands[i - 1] = new StringExpression(leftEval.GetValue<string>() + rightEval.GetValue<string>());
+						optOperands.RemoveAt(i);
+					}
+					else
+					{
+						i++;
+					}
         		}
         		else
         		{
         			i++;
         		}
         	}
-        	
+
         	var optExpr = new ConcatExpression(optOperands.ToArray());
-        	
+
         	if (optExpr.IsConstant) return optExpr.EvaluateExpression();
         	else return optExpr;
         }
-        
+
         /// <summary>
         /// Reduces the binary concatenation expression to a simpler expression.
         /// </summary>
@@ -102,7 +111,7 @@ namespace Flame.Compiler.Expressions
         		return invocation;
         	}
         }
-        
+
         /// <summary>
         /// Reduces the concatenation expression to a simpler expression.
         /// </summary>
