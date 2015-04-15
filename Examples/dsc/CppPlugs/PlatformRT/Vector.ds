@@ -55,11 +55,11 @@ namespace std
                 push_back(item);
             }
         }
-        
+
         #region Implementation Details
-        
+
         private T[] data;
-        
+
         /// <summary>
         /// Copies the array list's contents to the provided target array.
         /// </summary>
@@ -71,9 +71,22 @@ namespace std
             foreach (var input in data, var output in Target)
                 output = input;
         }
-        
+
         #endregion
-        
+
+        #region Iterators
+
+        public const IBidirectionalIterator begin()
+        {
+            return null; // Not implemented
+        }
+        public const IBidirectionalIterator end()
+        {
+            return null; // Not implemented
+        }
+
+        #endregion
+
         public const uint size()
         {
             return (uint)data.Length;
@@ -122,7 +135,7 @@ namespace std
         {
             resize((uint)(data.Length - 1));
         }
-        
+
         public T this[int Index]
         {
             const get
@@ -145,13 +158,13 @@ namespace std
                 data[(int)Index] = value;
             }
         }
-        
+
         public const T front() { return this[0]; }
         public const T back() { return this[size() - (uint)1]; }
- 
+
         public const T at(int Index) { return this[Index]; }
         public const T at(uint Index) { return this[Index]; }
-   
+
         public void swap(vector<T>* Other)
         {
             vector<T> temp = this;
@@ -172,11 +185,11 @@ namespace std
             return GetEnumerator();
         }
 
-        public const T[] operator cast() 
-        { 
-            T[] temp = new T[this.size()]; 
-            this.CopyTo(temp); 
-            return temp; 
+        public const T[] operator cast()
+        {
+            T[] temp = new T[this.size()];
+            this.CopyTo(temp);
+            return temp;
         }
     }
 }
