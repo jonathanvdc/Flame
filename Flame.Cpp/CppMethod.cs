@@ -10,7 +10,12 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp
 {
-    public class CppMethod : IMethodBuilder, ICppTemplateMember, IEquatable<IMethod>
+    public interface ICppMethod : IMethod, ICppTemplateMember
+    {
+
+    }
+
+    public class CppMethod : IMethodBuilder, ICppMethod, IEquatable<IMethod>
     {
         public CppMethod(IGenericResolverType DeclaringType, IMethod Template, ICppEnvironment Environment, bool IsStatic, bool IsGlobal)
         {
@@ -158,6 +163,11 @@ namespace Flame.Cpp
             get { return this.get_IsOperator() || this.IsCast; }
         }
 
+        public bool IsHashOperator
+        {
+            get { return this.get_IsOperator() && this.GetOperator().Equals(Operator.Hash); }
+        }
+
         public bool IsVirtual
         {
             get { return this.get_IsVirtual() || this.IsPureVirtual; }
@@ -239,7 +249,7 @@ namespace Flame.Cpp
                     cb.Append(", ");
                 }
                 var tParam = parameters[i].ParameterType;
-                if (isConst && tParam.get_IsPointer() && tParam.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.TransientPointer))
+                if (isConst && tParam.get_IsPointer() && tParam.AsContainerType().AsPointerType().IsPrimitivePointer())
                 {
                     cb.Append("const ");
                 }

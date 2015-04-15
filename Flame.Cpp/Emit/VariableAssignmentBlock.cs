@@ -45,7 +45,7 @@ namespace Flame.Cpp.Emit
             if (Value is BinaryOperation)
             {
                 var binOp = (BinaryOperation)Value;
-                if (binOp.Left.GetCode().ToString() == targetCode.ToString())
+                if (BinaryOperation.IsAssignableBinaryOperator(binOp.Operator) && binOp.Left.GetCode().ToString() == targetCode.ToString())
                 {
                     if (binOp.Operator.Equals(Operator.Add) && binOp.Right is LiteralBlock && ((LiteralBlock)binOp.Right).Value == "1")
                     {
