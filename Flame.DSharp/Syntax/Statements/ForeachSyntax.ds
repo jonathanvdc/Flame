@@ -51,13 +51,13 @@ namespace Flame.Syntax.DSharp
         		[string] varNames = item.VariableDeclaration.VariableNames;
 
         		string variableName = Enumerable.Single<string>(varNames);
-        		var expr = item.Collection.CreateExpression(State);
+        		var expr = item.Collection.CreateVerifiedExpression(State);
 
         		IType variableType;
         		if (item.VariableDeclaration.Type.IsVariable)
         			variableType = expr.Type.GetEnumerableElementType();
         		else
-        			variableType = item.VariableDeclaration.Type.CreateType(State);
+        			variableType = item.VariableDeclaration.Type.CreateVerifiedType(State);
 
         		collExprs.Add(new CollectionElement(new DescribedVariableMember(variableName, variableType), expr));
         	}
@@ -68,7 +68,7 @@ namespace Flame.Syntax.DSharp
         		State.DeclareVariable(item.Member.Name, elem, node.Location);
         	}
 
-        	loop.Body = Body.CreateStatement(State);
+        	loop.Body = Body.CreateVerifiedStatement(State);
 
         	var cleanup = State.PopScope();
 
