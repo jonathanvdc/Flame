@@ -8,28 +8,74 @@ namespace Flame.DSharp.Build
     public static class Warnings
     {
         public const string Pedantic = "pedantic";
-        public const string ShadowWarnings = "Wshadow";
+        public const string Shadow = "shadow";
+        public const string GenericOperators = "generic-operators";
+        public const string Operators = "operators";
+
+        public static const string GetWarningName(string Name)
+        {
+            return "W" + Name;
+        }
+
+        public static const string GetRelaxWarningName(string Name)
+        {
+            return "Wrelax-" + Name;
+        }
+
+        public static const string GetWarningNameMessage(string Name)
+        {
+            return "[-" + GetWarningName(Name) + "]";
+        }
 
         public static bool IsPedantic[this ICompilerLog Log]
         {
-            const get return Log.Options.GetOption<bool>(Pedantic, false);
+            const get return Log.Options.GetOption<bool>(Pedantic, false) ||
+                             Log.Options.GetOption<bool>(GetWarningName(Pedantic), false);
+        }
+
+        public static const bool UseWarnings(this ICompilerLog Log, string Name, bool IsPedantic)
+        {
+            string warningName = GetWarningName(Name);
+            if (Log.Options.HasOption(warningName))
+            {
+                return Log.Options.GetOption<bool>(warningName, false);
+            }
+            else
+            {
+                string relaxName = GetRelaxWarningName(Name);
+                if (Log.Options.HasOption(relaxName))
+                {
+                    return !Log.Options.GetOption<bool>(warningName, true);
+                }
+                else if (IsPedantic)
+                {
+                    return Log.IsPedantic;
+                }
+                else return true;
+            }
         }
 
         public static const bool UsePedanticWarnings(this ICompilerLog Log, string Name)
         {
-            if (Log.Options.HasOption(Name))
-            {
-                return Log.Options.GetOption<bool>(Name, false);
-            }
-            else
-            {
-                return Log.IsPedantic;
-            }
+            return Log.UseWarnings(Name, true);
+        }
+
+        public static const bool UseDefaultWarnings(this ICompilerLog Log, string Name)
+        {
+            return Log.UseWarnings(Name, false);
         }
 
         public static bool ShowShadowWarnings[this ICompilerLog Log]
         {
-            const get return Log.UsePedanticWarnings(ShadowWarnings);
+            const get return Log.UsePedanticWarnings(Shadow);
+        }
+        public static bool ShowOperatorWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UseDefaultWarnings(Operators);
+        }
+        public static bool ShowGenericOperatorWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UseDefaultWarnings(GenericOperators);
         }
     }
 }

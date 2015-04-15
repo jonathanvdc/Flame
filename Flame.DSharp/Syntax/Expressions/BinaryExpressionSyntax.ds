@@ -4,6 +4,7 @@ using System.Text;
 using System.Linq;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
+using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
@@ -105,12 +106,25 @@ namespace Flame.Syntax.DSharp
             else
             {
             	overload = Op.GetOperatorOverload(new IType[] { lType, rType });
-                
-            	if (overload == null && !State.Log.Options.GetOption<bool>("wrelax-operators", false))
-            	if (!(State.Log.Options.GetOption<bool>("wrelax-generic-operators", false) && (lType.IsGenericParameter || rType.IsGenericParameter)))
-            	{
-            		State.Log.LogWarning(new LogEntry("Operator overload missing", "No operator overload could be found for operator '" + Op.ToString() + "'.", Left.GetSourceLocation().Concat(Right.GetSourceLocation())));
-            	}
+
+            	if (overload == null)
+                {
+                    if (State.Log.ShowGenericOperatorWarnings && (lType.IsGenericParameter || rType.IsGenericParameter))
+                    {
+                        State.Log.LogWarning(new LogEntry("Operator overload missing",
+                            "No operator overload could be found for generic parameter operator '" + Op.ToString() + "'. " +
+                            Warnings.GetWarningNameMessage(Warnings.GenericOperators),
+                            Left.GetSourceLocation().Concat(Right.GetSourceLocation())));
+                    }
+                    else if (State.Log.ShowOperatorWarnings)
+                    {
+                        State.Log.LogWarning(new LogEntry("Operator overload missing",
+                            "No operator overload could be found for operator '" + Op.ToString() + "'. " +
+                            Warnings.GetWarningNameMessage(Warnings.Operators),
+                            Left.GetSourceLocation().Concat(Right.GetSourceLocation())));
+                    }
+                }
+
             }
 
             if (overload == null)
