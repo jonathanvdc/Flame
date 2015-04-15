@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
@@ -51,16 +52,26 @@ namespace Flame.Syntax.DSharp
         	var expr = Expression.CreateVerifiedExpression(State);
         	var type = TargetType.CreateVerifiedType(State);
         	var exprType = expr.Type;
-        	if (exprType.IsBit && type.IsBit)
+
+            if (State.Log.ShowMeaninglessCastWarnings && exprType.Equals(type))
+            {
+                State.Log.LogWarning(new LogEntry("Meaningless cast",
+                "'" + this.GetCode().Trim().ToString() + "' does not change the type of '" +
+                Expression.GetCode().Trim().ToString() + "'. " +
+                Warnings.GetWarningNameMessage(Warnings.MeaninglessCast),
+                CastLocation));
+            }
+        	else if (State.Log.ShowBitcastWarnings && exprType.IsBit && type.IsBit)
         	{
 	       		if (exprType.GetPrimitiveMagnitude() > type.GetPrimitiveMagnitude())
 	       		{
-	       			State.Log.LogWarning(new LogEntry("Bit type downcast", "'" + this.GetCode().ToString() + "' implies a downcast of bit types (" + State.TypeNamer.Convert(exprType) + " to " + State.TypeNamer.Convert(type) + "). This could lead to an arbitrary loss of information.", CastLocation));
+	       			State.Log.LogWarning(new LogEntry("Bit type downcast",
+                       "'" + this.GetCode().Trim().ToString() + "' implies a downcast of bit types ('" +
+                       State.TypeNamer.Convert(exprType) + "' to '" + State.TypeNamer.Convert(type) +
+                       "'). This could lead to an arbitrary loss of information. " +
+                       Warnings.GetWarningNameMessage(Warnings.Bitcast),
+                       CastLocation));
 	       		}
-	       	}
-	       	else if (exprType.Equals(type))
-	       	{
-	       		State.Log.LogWarning(new LogEntry("Meaningless cast", "'" + this.GetCode().ToString() + "' does not change the type of '" + Expression.GetCode().ToString() + "'.", CastLocation));
 	       	}
             return new ConversionExpression(expr, type);
         }
