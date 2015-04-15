@@ -1,0 +1,18 @@
+
+namespace std
+{
+    public interface IIterator
+    {
+
+    }
+
+    public interface IForwardIterator : IIterator
+    {
+
+    }
+
+    public interface IBidirectionalIterator : IForwardIterator
+    {
+
+    }
+}

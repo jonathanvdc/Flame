@@ -43,7 +43,7 @@ namespace std
 
         public const IEnumerator GetObjectEnumerator() : IEnumerable.GetEnumerator
         {
-            throw null; // Not implemented
+            return null; // Not implemented
         }
     }
 }
