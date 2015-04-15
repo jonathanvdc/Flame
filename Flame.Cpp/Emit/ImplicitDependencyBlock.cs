@@ -38,5 +38,10 @@ namespace Flame.Cpp.Emit
         {
             get { return Block.LocalsUsed; }
         }
+
+        public override string ToString()
+        {
+            return GetCode().ToString();
+        }
     }
 }

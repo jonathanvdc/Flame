@@ -80,7 +80,14 @@ namespace Flame.Cpp.Emit
 
         public ICodeBlock EmitUnary(ICodeBlock Value, Operator Op)
         {
-            return new UnaryOperation(this, (ICppBlock)Value, Op);
+            if (Op.Equals(Operator.Hash))
+            {
+                return new HashBlock((ICppBlock)Value);
+            }
+            else
+            {
+                return new UnaryOperation(this, (ICppBlock)Value, Op);
+            }            
         }
 
         #endregion

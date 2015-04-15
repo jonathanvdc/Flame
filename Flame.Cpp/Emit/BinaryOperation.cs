@@ -101,24 +101,39 @@ namespace Flame.Cpp.Emit
             return cb;
         }
 
-        public string GetOperatorString()
+        public static string GetOperatorString(Operator Op)
         {
-            if (Operator.Equals(Operator.LogicalOr))
+            if (Op.Equals(Operator.LogicalOr))
             {
                 return "||";
             }
-            else if (Operator.Equals(Operator.LogicalAnd))
+            else if (Op.Equals(Operator.LogicalAnd))
             {
                 return "&&";
             }
-            else if (Operator.Equals(Operator.Concat))
+            else if (Op.Equals(Operator.Concat))
             {
                 return "+"; // For strings, that is
             }
             else
             {
-                return Operator.Name;
+                return Op.Name;
             }
+        }
+
+        public static bool IsAssignableBinaryOperator(Operator Op)
+        {
+            return new Operator[] 
+            { 
+                Operator.Add, Operator.Subtract, Operator.Multiply, Operator.Divide, Operator.Remainder, 
+                Operator.Concat, 
+                Operator.And, Operator.Or, Operator.Xor 
+            }.Contains(Op);
+        }
+
+        public string GetOperatorString()
+        {
+            return GetOperatorString(Operator);
         }
 
         private IType returnType;

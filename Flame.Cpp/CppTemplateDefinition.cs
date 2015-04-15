@@ -61,6 +61,18 @@ namespace Flame.Cpp
             get { return templParams.GetDependencies(); }
         }
 
+        public CodeBuilder GetImplementationCode()
+        {
+            if (IsEmpty)
+            {
+                return new CodeBuilder("template<>");
+            }
+            else
+            {
+                return GetHeaderCode();
+            }
+        }
+
         public CodeBuilder GetHeaderCode()
         {
             if (IsEmpty)

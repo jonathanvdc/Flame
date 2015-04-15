@@ -13,28 +13,28 @@ namespace Flame.Cpp
         public CppFile(ICppMember Member)
         {
             this.Name = Member.Name;
-            this.Members = new ICppMember[] { Member };
+            this.Members = Member.WithAssociatedMembers();
             this.HeaderDirectives = new PreprocessorDirective[] { PreprocessorDirective.PragmaOnce };
             this.SourceDirectives = new PreprocessorDirective[] { };
         }
         public CppFile(string Name, IEnumerable<ICppMember> Members)
         {
             this.Name = Name;
-            this.Members = Members;
+            this.Members = Members.WithAssociatedMembers();
             this.HeaderDirectives = new PreprocessorDirective[] { PreprocessorDirective.PragmaOnce };
             this.SourceDirectives = new PreprocessorDirective[] { };
         }
         public CppFile(string Name, IEnumerable<ICppMember> Members, IEnumerable<PreprocessorDirective> Directives)
         {
             this.Name = Name;
-            this.Members = Members;
+            this.Members = Members.WithAssociatedMembers();
             this.HeaderDirectives = new PreprocessorDirective[] { PreprocessorDirective.PragmaOnce }.Concat(Directives);
             this.SourceDirectives = Directives;
         }
         public CppFile(string Name, IEnumerable<ICppMember> Members, IEnumerable<PreprocessorDirective> HeaderDirectives, IEnumerable<PreprocessorDirective> SourceDirectives)
         {
             this.Name = Name;
-            this.Members = Members;
+            this.Members = Members.WithAssociatedMembers();
             this.HeaderDirectives = HeaderDirectives;
             this.SourceDirectives = SourceDirectives;
         }
@@ -213,10 +213,7 @@ namespace Flame.Cpp
             {
                 AddToNamespace(GetNamespace(item), item.GetHeaderCode(), ns);
             }
-            foreach (var item in ns)
-            {
-                cb.AddCodeBuilder(WrapNamespaces(ns));
-            }
+            cb.AddCodeBuilder(WrapNamespaces(ns));
             if (ContainsTemplates && HasSourceCode) // Include .hxx
             {
                 cb.AddEmptyLine();
@@ -268,7 +265,7 @@ namespace Flame.Cpp
 
         private IEnumerable<string> GetNamespaces()
         {
-            return Members.Select(GetNamespace).Where((item) => !string.IsNullOrWhiteSpace(item));
+            return Members.Select(GetNamespace).Where((item) => !string.IsNullOrWhiteSpace(item)).Distinct();
         }
 
         private static string GetNamespace(ICppMember Member)

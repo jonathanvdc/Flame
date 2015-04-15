@@ -1,6 +1,7 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
 using Flame.Compiler.Emit;
+using Flame.Cpp.Emit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 namespace Flame.Cpp
 {
     public class CppType : IInvariantTypeBuilder, ICppTemplateMember, IGenericResolverType,
-                           INamespaceBranch, INamespaceBuilder, IEquatable<IType>
+                           INamespaceBranch, INamespaceBuilder, IEquatable<IType>, IAssociatedMember
     {
         public CppType(INamespace DeclaringNamespace, IType Template, ICppEnvironment Environment)
         {
@@ -45,17 +46,17 @@ namespace Flame.Cpp
         private void CreateMemberCache()
         {
             this.fields = new List<CppField>();
-            this.methods = new List<CppMethod>();
+            this.methods = new List<ICppMethod>();
             this.properties = new List<CppProperty>();
             this.types = new List<CppType>();
-            this.friendMethods = new List<CppMethod>();
+            this.globalFriends = new List<ICppMember>(); 
         }
 
         private List<CppField> fields;
-        private List<CppMethod> methods;
+        private List<ICppMethod> methods;
         private List<CppProperty> properties;
         private List<CppType> types;
-        private List<CppMethod> friendMethods;
+        private List<ICppMember> globalFriends;
 
         #endregion
 
@@ -213,6 +214,14 @@ namespace Flame.Cpp
             {
                 var method = new CppMethod(this, Template, Environment);
                 methods.Add(method);
+                if (method.IsHashOperator)
+                {
+                    globalFriends.Add(new CppHashImplementation(this, method));
+                }                
+                else if (method.get_IsOperator() && BinaryOperation.IsAssignableBinaryOperator(method.GetOperator()))
+                {
+                    methods.Add(new CppBinaryAssignmentOverload(this, method));
+                }
                 return method;
             }
         }
@@ -220,7 +229,7 @@ namespace Flame.Cpp
         public IMethodBuilder DeclareFriendMethod(IMethod Template)
         {
             var method = new CppMethod(this, Template, Environment, true, true);
-            friendMethods.Add(method);
+            globalFriends.Add(method);
             return method;
         }
 
@@ -248,7 +257,7 @@ namespace Flame.Cpp
 
         public IMethod[] GetMethods()
         {
-            IEnumerable<IMethod> results = methods.Concat(friendMethods).Where((item) => !item.IsConstructor);
+            IEnumerable<IMethod> results = methods.Concat(globalFriends.OfType<IMethod>()).Where((item) => !item.IsConstructor);
             if (Invariants.HasInvariants)
             {
                 if (!Invariants.InheritsInvariants)
@@ -270,7 +279,7 @@ namespace Flame.Cpp
 
         public ITypeMember[] GetMembers()
         {
-            return GetCppMembers().Concat(friendMethods).OfType<ITypeMember>().ToArray();
+            return GetCppMembers().Concat(globalFriends).OfType<ITypeMember>().ToArray();
         }
 
         public IEnumerable<ICppMember> GetCppMembers()
@@ -366,7 +375,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get { return GetMembers().GetDependencies().MergeDependencies(friendMethods.GetDependencies()).MergeDependencies(GetBaseTypes().GetDependencies()); }
+            get { return GetMembers().GetDependencies().MergeDependencies(globalFriends.GetDependencies()).MergeDependencies(GetBaseTypes().GetDependencies()); }
         }
 
         #region MemberToAccessGroup
@@ -485,13 +494,6 @@ namespace Flame.Cpp
                 cb.AddLine("};");
             }
 
-            foreach (var item in friendMethods)
-            {
-                cb.TrimEnd();
-                cb.AddEmptyLine();
-                cb.AddCodeBuilder(item.GetHeaderCode());
-            }
-
             return cb;
         }
 
@@ -512,12 +514,6 @@ namespace Flame.Cpp
                 }
             }
 
-            foreach (var item in friendMethods)
-            {
-                cb.TrimEnd();
-                cb.AddEmptyLine();
-                cb.AddCodeBuilder(item.GetSourceCode());
-            }
             return cb;
         }
 
@@ -553,5 +549,10 @@ namespace Flame.Cpp
         }
 
         #endregion
+
+        public IEnumerable<ICppMember> AssociatedMembers
+        {
+            get { return globalFriends; }
+        }
     }
 }
