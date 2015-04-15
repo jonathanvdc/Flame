@@ -2,6 +2,7 @@
 <Project Name="PlatformRT">
   <Setter Property="TargetPlatform" Value="CLR" />
   <Setter Property="AssemblyName" Value="PlatformRT" />
+  <Option Key="Wrelax-generic-operators" Value="true" />
   <ItemGroup>
     <RuntimeLibrary Include="PortableRT" />
     <RuntimeLibrary Include="System" />
@@ -9,14 +10,15 @@
     <RuntimeLibrary Include="Flame.RT" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Vector.ds" />
+    <Compile Include="Algorithm.ds" />
+    <Compile Include="IIterator.ds" />
     <Compile Include="List.ds" />
+    <Compile Include="InitializerList.ds" />
+    <Compile Include="Math.ds" />
+    <Compile Include="Pair.ds" />
+    <Compile Include="OStream.ds" />
     <Compile Include="UnorderedMap.ds" />
     <Compile Include="UnorderedSet.ds" />
-    <Compile Include="Math.ds" />
-    <Compile Include="Algorithm.ds" />
-    <Compile Include="OStream.ds" />
-    <Compile Include="Pair.ds" />
-    <Compile Include="InitializerList.ds" />
+    <Compile Include="Vector.ds" />
   </ItemGroup>
 </Project>

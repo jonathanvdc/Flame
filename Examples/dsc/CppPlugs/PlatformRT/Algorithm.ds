@@ -21,5 +21,15 @@ namespace std
             if (a > b) return a;
             else return b;
         }
+
+        public void iter_swap(IForwardIterator first, IForwardIterator second)
+        {
+            // There is really just no decent way to implement this
+        }
+
+        public void reverse(IBidirectionalIterator first, IBidirectionalIterator last)
+        {
+            // There is really just no decent way to implement this
+        }
     }
 }
