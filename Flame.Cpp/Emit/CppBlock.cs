@@ -74,22 +74,26 @@ namespace Flame.Cpp.Emit
 
         public CodeBuilder GetCode()
         {
-            if (Blocks.Count == 0)
+            var codes = Blocks.Select(item => item.GetCode())
+                              .Where(item => !item.IsWhitespace)
+                              .ToArray();
+
+            if (codes.Length == 0)
             {
                 return new CodeBuilder(";");
             }
-            else if (Blocks.Count == 1)
+            else if (codes.Length == 1)
             {
-                return Blocks[0].GetCode();
+                return codes[0];
             }
             else
             {
                 CodeBuilder cb = new CodeBuilder();
                 cb.AddLine("{");
                 cb.IncreaseIndentation();
-                foreach (var item in Blocks)
+                foreach (var item in codes)
                 {
-                    AddBlockCode(cb, item);
+                    cb.AddCodeBuilder(item);
                 }
                 cb.DecreaseIndentation();
                 cb.AddLine("}");

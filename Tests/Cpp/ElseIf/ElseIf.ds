@@ -1,0 +1,16 @@
+using std;
+
+public static class ElseIfTest
+{
+    public static double Test(pair<double, pair<double, double>>[] First, pair<double, double>[] Second)
+    {
+        foreach (var orig in First, var proj in Second)
+        {
+            if (orig.first != 0.0)
+                return -proj.first * orig.second.second / orig.first;
+            else if (orig.second.first != 0.0)
+                return -proj.second * orig.second.second / orig.second.first;
+        }
+        return 1.0;
+    }
+}
