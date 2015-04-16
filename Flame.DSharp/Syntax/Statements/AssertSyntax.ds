@@ -71,31 +71,33 @@ namespace Flame.Syntax.DSharp
 			if (innerExpr != null && State.Log.ShowConstantAssertWarnings && innerExpr.IsConstant)
 			{
 				var evalExpr = innerExpr.Evaluate();
+				string assertCode = this.GetCode().Trim().ToString();
+				string warningName = Warnings.GetWarningNameMessage(Warnings.ConstantAssert);
 				if (evalExpr != null && evalExpr.Type.Equals(PrimitiveTypes.Boolean))
 				{
 					if (evalExpr.GetValue<bool>())
 					{
 						State.Log.LogWarning(new LogEntry("Constant assertion",
-							"Assertion '" + this.GetCode().Trim().ToString() +
+							"Assertion '" + assertCode +
 							"' always evaluates to true (which makes it meaningless). " +
-							Warnings.GetWarningNameMessage(Warnings.ConstantAssert),
+							warningName,
 							Location));
 					}
 					else
 					{
 						State.Log.LogWarning(new LogEntry("Constant assertion",
-							"Assertion '" + this.GetCode().Trim().ToString() +
+							"Assertion '" + assertCode +
 							"' always evaluates to false (which will always results in an assertion failure). " +
-							Warnings.GetWarningNameMessage(Warnings.ConstantAssert),
+							warningName,
 							Location));
 					}
 				}
 				else
 				{
 					State.Log.LogWarning(new LogEntry("Constant assertion",
-						"Assertion '" + this.GetCode().Trim().ToString() +
+						"Assertion '" + assertCode +
 						"' depends on a compile-time constant (which means it doesn't check any run-time behavior). " +
-						Warnings.GetWarningNameMessage(Warnings.ConstantAssert),
+						warningName,
 						Location));
 				}
 			}
