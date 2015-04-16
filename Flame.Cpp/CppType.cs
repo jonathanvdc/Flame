@@ -218,7 +218,7 @@ namespace Flame.Cpp
                 {
                     globalFriends.Add(new CppHashImplementation(this, method));
                 }                
-                else if (method.get_IsOperator() && BinaryOperation.IsAssignableBinaryOperator(method.GetOperator()))
+                else if (method.get_IsOperator() && BinaryOperation.IsAssignableBinaryOperator(method.GetOperator()) && method.ReturnType.Equals(this))
                 {
                     methods.Add(new CppBinaryAssignmentOverload(this, method));
                 }

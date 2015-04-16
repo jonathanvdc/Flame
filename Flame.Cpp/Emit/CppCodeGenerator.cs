@@ -313,7 +313,7 @@ namespace Flame.Cpp.Emit
 
         public ICodeBlock EmitNewArray(IType ElementType, IEnumerable<ICodeBlock> Dimensions)
         {
-            var ctor = Plugs.StdxArraySlice.Instance.MakeGenericType(new IType[] { ElementType }).GetConstructor(new IType[] { PrimitiveTypes.Int32 }, false);
+            var ctor = Environment.GetStdxNamespace().ArraySlice.MakeGenericType(new IType[] { ElementType }).GetConstructor(new IType[] { PrimitiveTypes.Int32 }, false);
             return EmitInvocation(EmitMethod(ctor, null), Dimensions);
         }
 
@@ -476,7 +476,7 @@ namespace Flame.Cpp.Emit
         public ICodeBlock EmitInitializedArray(IType ElementType, ICodeBlock[] Items)
         {
             var initList = new InitializerListBlock(this, ElementType, Items.Cast<ICppBlock>());
-            var ctor = Plugs.StdxArraySlice.Instance.MakeGenericType(new IType[] { ElementType }).GetConstructor(new IType[] { initList.Type }, false);
+            var ctor = Environment.GetStdxNamespace().ArraySlice.MakeGenericType(new IType[] { ElementType }).GetConstructor(new IType[] { initList.Type }, false);
             return EmitInvocation(EmitMethod(ctor, null), new ICodeBlock[] { initList });
         }
 

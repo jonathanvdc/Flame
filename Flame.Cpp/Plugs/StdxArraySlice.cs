@@ -10,12 +10,14 @@ namespace Flame.Cpp.Plugs
 {
     public class StdxArraySlice : PrimitiveBase, IDeclarationDependencyMember
     {
-        private StdxArraySlice()
+        public StdxArraySlice(StdxNamespace Namespace)
         {
+            this.Namespace = Namespace;
             this.ElementType = new DescribedGenericParameter("T", this);
         }
 
-        public ICppEnvironment Environment { get { return new CppEnvironment(); } }
+        public StdxNamespace Namespace { get; private set; }
+        public ICppEnvironment Environment { get { return Namespace.Environment; } }
         public IGenericParameter ElementType { get; private set; }
         public override IEnumerable<IGenericParameter> GetGenericParameters()
         {
@@ -34,7 +36,7 @@ namespace Flame.Cpp.Plugs
 
         public override INamespace DeclaringNamespace
         {
-            get { return StdxNamespace.Instance; }
+            get { return Namespace; }
         }
 
 
@@ -122,14 +124,14 @@ namespace Flame.Cpp.Plugs
 
         public override IType MakeGenericType(IEnumerable<IType> TypeArguments)
         {
-            return new StdxArraySliceInstance(TypeArguments.Single());
+            return new StdxArraySliceInstance(this, TypeArguments.Single());
         }
 
         public override IArrayType MakeArrayType(int Rank)
         {
             if (Rank == 1)
             {
-                return new StdxArraySliceInstance(this);
+                return new StdxArraySliceInstance(this, this);
             }
             else
             {
@@ -409,25 +411,12 @@ typename ArraySlice<T>::const_iterator ArraySlice<T>::cend() const
         }
 
         #endregion
-
-        #region Static
-
-        private static StdxArraySlice inst = new StdxArraySlice();
-        public static StdxArraySlice Instance
-        {
-            get
-            {
-                return inst;
-            }
-        }
-
-        #endregion
     }
 
     public class StdxArraySliceInstance : DescribedGenericTypeInstance, IArrayType
     {
-        public StdxArraySliceInstance(IType ElementType)
-            : base(StdxArraySlice.Instance, new IType[] { ElementType })
+        public StdxArraySliceInstance(IType GenericDeclaration, IType ElementType)
+            : base(GenericDeclaration, new IType[] { ElementType })
         {
 
         }

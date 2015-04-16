@@ -8,8 +8,12 @@ namespace Flame.Cpp.Plugs
 {
     public class StdxNamespace : PrimitiveNamespace
     {
-        private StdxNamespace()
+        public StdxNamespace(ICppEnvironment Environment)
         {
+            this.Environment = Environment;
+
+            Register(ArraySlice = new StdxArraySlice(this));
+            Register(Finally = new StdxFinally(this));
         }
 
         public override string Name
@@ -17,25 +21,8 @@ namespace Flame.Cpp.Plugs
             get { return "stdx"; }
         }
 
-        #region Static
-
-        static StdxNamespace()
-        {
-            inst = new StdxNamespace();
-
-            inst.Register(StdxArraySlice.Instance);
-            inst.Register(StdxFinally.Instance);
-        }
-
-        private static StdxNamespace inst;
-        public static StdxNamespace Instance
-        {
-            get
-            {
-                return inst;
-            }
-        }
-
-        #endregion
+        public ICppEnvironment Environment { get; private set; }
+        public StdxArraySlice ArraySlice { get; private set; }
+        public StdxFinally Finally { get; private set; }
     }
 }

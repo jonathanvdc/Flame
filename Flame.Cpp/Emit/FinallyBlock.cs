@@ -13,7 +13,7 @@ namespace Flame.Cpp.Emit
         public FinallyBlock(ICppBlock Body)
         {
             this.Body = Body;
-            this.FinallyDeclaration = new LocalDeclarationReference((CppLocal)Body.CodeGenerator.DeclareVariable(new DescribedVariableMember("final_action", Plugs.StdxFinally.Instance)));
+            this.FinallyDeclaration = new LocalDeclarationReference((CppLocal)Body.CodeGenerator.DeclareVariable(new DescribedVariableMember("final_action", Body.CodeGenerator.GetEnvironment().GetStdxNamespace().Finally)));
         }
 
         public LocalDeclarationReference FinallyDeclaration { get; private set; }
@@ -34,7 +34,7 @@ namespace Flame.Cpp.Emit
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get { return IsEmpty ? Enumerable.Empty<IHeaderDependency>() : Plugs.StdxFinally.Instance.GetDependencies().MergeDependencies(Body.Dependencies); }
+            get { return IsEmpty ? Enumerable.Empty<IHeaderDependency>() : FinallyDeclaration.Declaration.Local.Type.GetDependencies().MergeDependencies(Body.Dependencies); }
         }
 
         public IEnumerable<CppLocal> LocalsUsed

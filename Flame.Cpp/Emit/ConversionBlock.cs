@@ -148,14 +148,16 @@ namespace Flame.Cpp.Emit
             {
                 return null;
             }
+            var cg = Block.CodeGenerator;
+            var tType = cg.GetEnvironment().TypeConverter.Convert(Target); 
             var sType = Block.Type;
-            if (sType.Equals(Target))
+            if (sType.Equals(tType))
             {
                 return Block;
             }
             else
             {
-                return new ConversionBlock(Block.CodeGenerator, Block, Target);
+                return new ConversionBlock(cg, Block, tType);
             }
         }
 

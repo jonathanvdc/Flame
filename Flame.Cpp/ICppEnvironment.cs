@@ -16,5 +16,6 @@ namespace Flame.Cpp
         Func<INamespace, IConverter<IType, string>> TypeNamer { get; }
         ITypeDefinitionPacker TypeDefinitionPacker { get; }
         TypeDependencyCache DependencyCache { get; }
+        IEnumerable<INamespace> StandardNamespaces { get; }
     }
 }

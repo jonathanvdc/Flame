@@ -10,22 +10,9 @@ namespace Flame.Cpp.Plugs
 {
     public class StdxFinally : PrimitiveBase, ICppMember
     {
-        private StdxFinally()
+        public StdxFinally(StdxNamespace Namespace)
         {
-
-        }
-
-        private static StdxFinally inst;
-        public static StdxFinally Instance
-        {
-            get
-            {
-                if (inst == null)
-                {
-                    inst = new StdxFinally();
-                }
-                return inst;
-            }
+            this.declNs = Namespace;
         }
 
         public override string Name
@@ -38,10 +25,8 @@ namespace Flame.Cpp.Plugs
             return new IAttribute[] { new AccessAttribute(AccessModifier.Public), PrimitiveAttributes.Instance.ValueTypeAttribute };
         }
 
-        public override INamespace DeclaringNamespace
-        {
-            get { return StdxNamespace.Instance; }
-        }
+        private StdxNamespace declNs;
+        public override INamespace DeclaringNamespace { get { return declNs; } }
 
         public override IMethod[] GetConstructors()
         {
@@ -92,7 +77,7 @@ public:
 
         public ICppEnvironment Environment
         {
-            get { return new CppEnvironment(); }
+            get { return declNs.Environment; }
         }
 
         public CodeBuilder GetHeaderCode()
