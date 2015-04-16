@@ -64,6 +64,7 @@
     <Compile Include="CppForwardReference.cs" />
     <Compile Include="CppHashImplementation.cs" />
     <Compile Include="CppInvariantExtensions.cs" />
+    <Compile Include="CppNamespaceExtensions.cs" />
     <Compile Include="DefaultMethodComparer.cs" />
     <Compile Include="DependencyExtensions.cs" />
     <Compile Include="Emit\CatchBlock.cs" />

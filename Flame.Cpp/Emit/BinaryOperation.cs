@@ -121,14 +121,17 @@ namespace Flame.Cpp.Emit
             }
         }
 
+        public static readonly Operator[] AssignableOperators = new Operator[] 
+        { 
+            Operator.Add, Operator.Subtract, Operator.Multiply, Operator.Divide, Operator.Remainder, 
+            Operator.Concat, 
+            Operator.And, Operator.Or, Operator.Xor,
+            Operator.LeftShift, Operator.RightShift
+        };
+
         public static bool IsAssignableBinaryOperator(Operator Op)
         {
-            return new Operator[] 
-            { 
-                Operator.Add, Operator.Subtract, Operator.Multiply, Operator.Divide, Operator.Remainder, 
-                Operator.Concat, 
-                Operator.And, Operator.Or, Operator.Xor 
-            }.Contains(Op);
+            return AssignableOperators.Contains(Op);
         }
 
         public string GetOperatorString()
@@ -166,7 +169,7 @@ namespace Flame.Cpp.Emit
 
         public static IType GetResultType(ICppBlock Left, ICppBlock Right, Operator Operator)
         {
-            var lType = Left.Type;
+            var lType = Left.Type.RemoveAtAddressPointers();
             var rType = Right.Type;
             var overload = Operator.GetOperatorOverload(new IType[] { lType, rType });
             if (overload != null)
@@ -177,7 +180,7 @@ namespace Flame.Cpp.Emit
             {
                 return PrimitiveTypes.Boolean;
             }
-            if (rType.get_IsFloatingPoint())
+            if (rType.get_IsFloatingPoint() && lType.get_IsInteger())
             {
                 return rType;
             }

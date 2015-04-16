@@ -9,10 +9,12 @@ namespace Flame.Cpp
 {
     public class DefaultCppTypeConverter : CppTypeConverterBase
     {
-        public DefaultCppTypeConverter()
+        public DefaultCppTypeConverter(ICppEnvironment Environment)
         {
-
+            this.Environment = Environment;
         }
+
+        public ICppEnvironment Environment { get; private set; }
 
         protected override IType MakePointerType(IType Type, PointerKind Kind)
         {
@@ -28,7 +30,7 @@ namespace Flame.Cpp
         {
             if (ArrayRank == 1)
             {
-                return StdxArraySlice.Instance.MakeGenericType(new IType[] { Type });
+                return Environment.GetStdxNamespace().ArraySlice.MakeGenericType(new IType[] { Type });
             }
             else
             {

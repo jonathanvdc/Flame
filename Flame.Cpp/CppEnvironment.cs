@@ -16,7 +16,7 @@ namespace Flame.Cpp
 
         }
         public CppEnvironment(ICompilerLog Log)
-            : this(Log, new DefaultCppTypeConverter(), (ns) => new CppSize32Namer(ns))
+            : this(Log, null, (ns) => new CppSize32Namer(ns))
         {
         }
         public CppEnvironment(ICompilerLog Log, ICppTypeConverter TypeConverter, Func<INamespace, IConverter<IType, string>> TypeNamer)
@@ -26,9 +26,10 @@ namespace Flame.Cpp
         public CppEnvironment(ICompilerLog Log, ICppTypeConverter TypeConverter, Func<INamespace, IConverter<IType, string>> TypeNamer, DocumentationCommentBuilder DocumentationBuilder)
         {
             this.Log = Log;
-            this.TypeConverter = TypeConverter;
+            this.TypeConverter = TypeConverter ?? new DefaultCppTypeConverter(this);
             this.TypeNamer = TypeNamer;
             this.DocumentationBuilder = DocumentationBuilder;
+            this.StandardNamespaces = new INamespace[] { new Plugs.StdxNamespace(this) };
             this.DependencyCache = new TypeDependencyCache();
         }
         public CppEnvironment(ICompilerLog Log, DocumentationCommentBuilder DocumentationBuilder)
@@ -42,6 +43,7 @@ namespace Flame.Cpp
         public ICppTypeConverter TypeConverter { get; private set; }
         public Func<INamespace, IConverter<IType, string>> TypeNamer { get; private set; }
         public TypeDependencyCache DependencyCache { get; private set; }
+        public IEnumerable<INamespace> StandardNamespaces { get; private set; }
 
         public IType EnumerableType
         {

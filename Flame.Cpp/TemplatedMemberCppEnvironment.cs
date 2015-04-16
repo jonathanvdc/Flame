@@ -77,5 +77,10 @@ namespace Flame.Cpp
         {
             get { return DeclaringEnvironment.DependencyCache; }
         }
+
+        public IEnumerable<INamespace> StandardNamespaces
+        {
+            get { return DeclaringEnvironment.StandardNamespaces; }
+        }
     }
 }
