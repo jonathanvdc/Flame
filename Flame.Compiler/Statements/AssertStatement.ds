@@ -8,16 +8,35 @@ namespace Flame.Compiler.Statements
 	public class AssertStatement : IStatement
 	{
 		public const this(set IExpression Expression);
-		
+
 		public IExpression Expression { const get; private set; }
-		
-		public bool IsEmpty { const get return false; }
-		
+
+		public bool IsEmpty
+		{
+			const get
+			{
+				if (Expression.IsConstant)
+			 	{
+					var evalExpr = Expression.Evaluate();
+					if (evalExpr != null)
+					{
+						return evalExpr.GetValue<bool>();
+					}
+				}
+				return false;
+			}
+		}
+
 		public const IStatement Optimize()
 		{
-			return new AssertStatement(Expression.Optimize());
+			var optAssert = new AssertStatement(Expression.Optimize());
+			if (optAssert.IsEmpty)
+			{
+				return new EmptyStatement();
+			}
+			return optAssert;
 		}
-		
+
 		public void Emit(IBlockGenerator Generator)
 		{
 			var cg = (IExceptionCodeGenerator)Generator.CodeGenerator;

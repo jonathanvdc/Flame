@@ -12,9 +12,9 @@ namespace Flame.Compiler.Statements
 	{
 		public const this()
 		{
-			this.ElementVariables = new List<ManuallyBoundVariable>();	
+			this.ElementVariables = new List<ManuallyBoundVariable>();
 		}
-	
+
 		public List<ManuallyBoundVariable> ElementVariables { const get; private set; }
 	}
 
@@ -30,14 +30,14 @@ namespace Flame.Compiler.Statements
 				elemCache.ElementVariables.Add(new ManuallyBoundVariable(item.Member));
 			}
 		}
-	
+
 		public IEnumerable<CollectionElement> Collections { const get; private set; }
 		public IStatement Body { const get; set; }
-		
+
 		private ForeachElementCache elemCache;
-		
+
 		public IReadOnlyList<IVariable> Elements { const get return elemCache.ElementVariables; }
-		
+
 		public bool IsEmpty : IStatement.IsEmpty
 		{
 			const get
@@ -45,7 +45,7 @@ namespace Flame.Compiler.Statements
 				return Body.IsEmpty;
 			}
 		}
-		
+
 		public IStatement Optimize() : IStatement.Optimize
 		{
 			var optColl = new List<CollectionElement>();
@@ -56,7 +56,7 @@ namespace Flame.Compiler.Statements
 			var optBody = Body.Optimize();
 			return new ForeachStatement(optColl, optBody, elemCache);
 		}
-		
+
 		public void Emit(IBlockGenerator Generator) : IStatement.Emit
 		{
 			var codeGen = Generator.CodeGenerator;
@@ -69,7 +69,7 @@ namespace Flame.Compiler.Statements
 					collectionBlocks.Add(cg.CreateCollectionBlock(item.Member, item.Collection.Emit(cg)));
 				}
 				var loopBlock = cg.CreateForeachBlock(collectionBlocks);
-				
+
 				if (loopBlock == null)
 				{
 					this.Reduce().Emit(Generator);
@@ -78,7 +78,7 @@ namespace Flame.Compiler.Statements
 				{
 					foreach (var item in loopBlock.Elements, var elem in elemCache.ElementVariables)
 						elem.BindVariable(item);
-					
+
 					Body.Emit(loopBlock);
 					Generator.EmitBlock(loopBlock);
 				}
@@ -88,7 +88,7 @@ namespace Flame.Compiler.Statements
 				this.Reduce().Emit(Generator);
 			}
 		}
-		
+
 		/// <summary>
 		/// Reduces the foreach statements to more primitive statements.
 		/// </summary>
@@ -99,7 +99,7 @@ namespace Flame.Compiler.Statements
             var deltas = new List<IStatement>();
             var finalStatements = new List<IStatement>();
             var bodyInits = new List<IStatement>();
-            
+
             IVariable index = null;
             foreach (var item in Collections, var elem in elemCache.ElementVariables)
             {
@@ -115,19 +115,19 @@ namespace Flame.Compiler.Statements
                 deltas.Add(elemInCollection.Delta);
                 finalStatements.Add(elemInCollection.Finalization);
             }
-            
-        	var init = new BlockStatement((IEnumerable<IStatement>)initStatements.ToArray());
+
+        	var init = new BlockStatement(initStatements.ToArray());
             IExpression cond = conditions[0];
             for (int i = 1; i < conditions.Count; i++)
 			{
                 cond = new LazyAndExpression(cond, conditions[i]);
 			}
-            var bodyInit = new BlockStatement((IEnumerable<IStatement>)bodyInits.ToArray());
-            var delta = new BlockStatement((IEnumerable<IStatement>)deltas.ToArray());
+            var bodyInit = new BlockStatement(bodyInits.ToArray());
+            var delta = new BlockStatement(deltas.ToArray());
 
-            var body = new BlockStatement((IEnumerable<IStatement>)new IStatement[] { bodyInit, Body });
+            var body = new BlockStatement(new IStatement[] { bodyInit, Body });
 
-            var final = new BlockStatement((IEnumerable<IStatement>)finalStatements.ToArray());
+            var final = new BlockStatement(finalStatements.ToArray());
 
             return new ForStatement(init, cond, delta, body, final);
 		}
