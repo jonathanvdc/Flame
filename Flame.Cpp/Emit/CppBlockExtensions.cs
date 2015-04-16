@@ -10,6 +10,18 @@ namespace Flame.Cpp.Emit
     {
         #region IsSimple
 
+        public static IEnumerable<ICppBlock> Flatten(this ICppBlock Block)
+        {
+            if (Block is IMultiBlock)
+            {
+                return ((IMultiBlock)Block).Flatten();
+            }
+            else
+            {
+                return new ICppBlock[] { Block };
+            }
+        }
+
         public static IEnumerable<ICppBlock> Flatten(this IMultiBlock Block)
         {
             var items = Block.GetBlocks();
