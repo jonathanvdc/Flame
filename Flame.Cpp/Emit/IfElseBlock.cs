@@ -76,7 +76,7 @@ namespace Flame.Cpp.Emit
             if (elseBody.LineCount > 0 && !(elseBody.CodeLineCount == 1 && elseBody.FirstCodeLine.Text.Trim() == ";"))
             {
                 cb.AddLine("else");
-                if (elseBody[0].Text.TrimStart().StartsWith("if"))
+                if (elseBody.FirstCodeLine.Text.TrimStart().StartsWith("if"))
                 {
                     cb.Append(" ");
                     cb.Append(elseBody);
