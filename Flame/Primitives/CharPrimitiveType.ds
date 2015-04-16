@@ -11,7 +11,7 @@ namespace Flame.Primitives
 		{
 			this.DefaultValue = default(char);
 		}
-		
+
 		private IMethod[] getExtraCharMethods()
 		{
 			var isDigitMethod = new DescribedMethod("IsDigit", this, PrimitiveTypes.Boolean, true); // static const bool IsDigit(char Value);
@@ -29,17 +29,29 @@ namespace Flame.Primitives
         	var isUpperMethod = new DescribedMethod("IsUpper", this, PrimitiveTypes.Boolean, true); // static const bool IsUpper(char Value);
         	isUpperMethod.AddParameter(new DescribedParameter("Value", PrimitiveTypes.Char));
         	isUpperMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	
+			var isWhitespaceMethod = new DescribedMethod("IsWhiteSpace", this, PrimitiveTypes.Boolean, true); // static const bool IsWhiteSpace(char Value);
+			isWhitespaceMethod.AddParameter(new DescribedParameter("Value", PrimitiveTypes.Char));
+			isWhitespaceMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+			var toUpperMethod = new DescribedMethod("ToUpper", this, PrimitiveTypes.Char, true); // static const char ToUpper(char Value);
+			toUpperMethod.AddParameter(new DescribedParameter("Value", PrimitiveTypes.Char));
+			toUpperMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+			var toLowerMethod = new DescribedMethod("ToLower", this, PrimitiveTypes.Char, true); // static const char ToLower(char Value);
+			toLowerMethod.AddParameter(new DescribedParameter("Value", PrimitiveTypes.Char));
+			toLowerMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+
 			return new IMethod[]
 			{
 				isDigitMethod,
 				isLetterMethod,
 				isLetterOrDigitMethod,
 				isLowerMethod,
-				isUpperMethod
+				isUpperMethod,
+				isWhitespaceMethod,
+				toUpperMethod,
+				toLowerMethod
 			};
 		}
-		
+
 		public override IMethod[] GetMethods()
 		{
 			var commonMethods = this.GetCommonPrimitiveMethods();
