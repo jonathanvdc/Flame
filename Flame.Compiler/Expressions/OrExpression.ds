@@ -7,7 +7,7 @@ namespace Flame.Compiler.Expressions
     public class OrExpression : BinaryOperatorExpression
     {
         public const this(set IExpression LeftOperand, set IExpression RightOperand);
-        
+
         protected override Operator GetOperator() { return Operator.Or; }
 
         public override IBoundObject Evaluate()
@@ -77,7 +77,9 @@ namespace Flame.Compiler.Expressions
             var expr = new OrExpression(optA, optB);
             if (expr.IsConstant && expr.Type.IsPrimitiveExpressionType())
             {
-            	return expr.Evaluate().ToExpression();
+                var evalExpr = expr.Evaluate();
+                if (evalExpr != null)
+                   return evalExpr.ToExpression();
             }
             return expr;
         }

@@ -7,7 +7,7 @@ namespace Flame.Compiler.Expressions
     public class AddExpression : BinaryOperatorExpression
     {
         public const this(set IExpression LeftOperand, set IExpression RightOperand);
-        
+
         protected override Operator GetOperator() { return Operator.Add; }
 
         public override IBoundObject Evaluate()
@@ -65,9 +65,11 @@ namespace Flame.Compiler.Expressions
             var expr = new AddExpression(optA, optB);
             if (expr.IsConstant && expr.Type.IsPrimitiveExpressionType())
             {
-            	return expr.Evaluate().ToExpression();
+                var evalExpr = expr.Evaluate();
+                if (evalExpr != null)
+                    return evalExpr.ToExpression();
             }
-            else if (optA is AddExpression && optB.IsConstant)
+            if (optA is AddExpression && optB.IsConstant)
             {
             	var ladd = (AddExpression)optA;
             	if (ladd.LeftOperand.IsConstant)
@@ -115,15 +117,6 @@ namespace Flame.Compiler.Expressions
             		return new SubtractExpression(rsub.LeftOperand, new SubtractExpression(rsub.RightOperand, optA).Optimize());
             	}
             }
-            /*
-            else if (optA.IsConstant && optA.Type.IsNumberPrimitive() && Convert.ToDouble(optA.Evaluate()) == 0.0)
-            {
-                return optB;
-            }
-            else if (optB.IsConstant && optB.Type.IsNumberPrimitive() && Convert.ToDouble(optB.Evaluate()) == 0.0)
-            {
-                return optA;
-            }*/
             return expr;
         }
 

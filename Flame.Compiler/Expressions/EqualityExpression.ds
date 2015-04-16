@@ -48,7 +48,14 @@ namespace Flame.Compiler.Expressions
         {
             var optA = LeftOperand.Optimize();
             var optB = RightOperand.Optimize();
-            return new EqualityExpression(optA, optB);
+            var expr = new EqualityExpression(optA, optB);
+            if (expr.IsConstant && expr.Type.IsPrimitiveExpressionType())
+            {
+                var evalExpr = expr.Evaluate();
+                if (evalExpr != null)
+                   return evalExpr.ToExpression();
+            }
+            return expr;
         }
 
         public override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)

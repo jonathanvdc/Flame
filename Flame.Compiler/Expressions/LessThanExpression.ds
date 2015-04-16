@@ -57,7 +57,14 @@ namespace Flame.Compiler.Expressions
         {
             var optA = LeftOperand.Optimize();
             var optB = RightOperand.Optimize();
-            return new LessThanExpression(optA, optB);
+            var expr = new LessThanExpression(optA, optB);
+            if (expr.IsConstant && expr.Type.IsPrimitiveExpressionType())
+            {
+                var evalExpr = expr.Evaluate();
+                if (evalExpr != null)
+                   return evalExpr.ToExpression();
+            }
+            return expr;
         }
 
         protected override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
@@ -96,7 +103,14 @@ namespace Flame.Compiler.Expressions
         {
             var optA = LeftOperand.Optimize();
             var optB = RightOperand.Optimize();
-            return new LessThanOrEqualsExpression(optA, optB);
+            var expr = new LessThanOrEqualsExpression(optA, optB);
+            if (expr.IsConstant && expr.Type.IsPrimitiveExpressionType())
+            {
+                var evalExpr = expr.Evaluate();
+                if (evalExpr != null)
+                   return evalExpr.ToExpression();
+            }
+            return expr;
         }
 
         protected override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
