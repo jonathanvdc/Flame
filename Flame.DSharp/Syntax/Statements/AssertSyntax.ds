@@ -4,19 +4,31 @@ using System.Text;
 using Flame.Compiler;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Expressions;
+using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class AssertSyntax : LineStatementSyntax, IRelevantSyntax<Token>, ITokenNode
+	public class AssertSyntax : LineStatementSyntax, IRelevantSyntax<Token>, ITokenNode, ISourceSyntax
 	{
 		public const this(set Token AssertKeyword, set Token LeadingParen, set IExpressionSyntax Target, set Token TrailingParen, set Token SemicolonToken);
-	
+
 		public Token AssertKeyword { const get; private set; }
 		public Token LeadingParen { const get; private set; }
 		public IExpressionSyntax Target { const get; private set; }
 		public Token TrailingParen { const get; private set; }
-		
+
+		public SourceLocation Location
+		{
+			const get
+			{
+				return AssertKeyword.Location
+									.Concat(LeadingParen.Location)
+									.Concat(Target.GetSourceLocation())
+									.Concat(TrailingParen.Location);
+			}
+		}
+
         public IReadOnlyList<Token> Tokens
         {
         	const get
@@ -30,8 +42,8 @@ namespace Flame.Syntax.DSharp
 				return tks;
         	}
         }
-		
-		public IEnumerable<Token> LeadingTrivia
+
+		public [Token] LeadingTrivia
 		{
 			const get
 			{
@@ -41,8 +53,8 @@ namespace Flame.Syntax.DSharp
 				return trivia;
 			}
 		}
-		
-		public IEnumerable<Token> TrailingTrivia
+
+		public [Token] TrailingTrivia
 		{
 			const get
 			{
@@ -52,13 +64,44 @@ namespace Flame.Syntax.DSharp
 				return trivia;
 			}
 		}
-		
+
 		public const IStatement CreateStatement(ISyntaxState State)
 		{
 			var innerExpr = Target.CreateVerifiedExpression(State);
+			if (innerExpr != null && State.Log.ShowConstantAssertWarnings && innerExpr.IsConstant)
+			{
+				var evalExpr = innerExpr.Evaluate();
+				if (evalExpr != null && evalExpr.Type.Equals(PrimitiveTypes.Boolean))
+				{
+					if (evalExpr.GetValue<bool>())
+					{
+						State.Log.LogWarning(new LogEntry("Constant assertion",
+							"Assertion '" + this.GetCode().Trim().ToString() +
+							"' always evaluates to true (which makes it meaningless). " +
+							Warnings.GetWarningNameMessage(Warnings.ConstantAssert),
+							Location));
+					}
+					else
+					{
+						State.Log.LogWarning(new LogEntry("Constant assertion",
+							"Assertion '" + this.GetCode().Trim().ToString() +
+							"' always evaluates to false (which will always results in an assertion failure). " +
+							Warnings.GetWarningNameMessage(Warnings.ConstantAssert),
+							Location));
+					}
+				}
+				else
+				{
+					State.Log.LogWarning(new LogEntry("Constant assertion",
+						"Assertion '" + this.GetCode().Trim().ToString() +
+						"' depends on a compile-time constant (which means it doesn't check any run-time behavior). " +
+						Warnings.GetWarningNameMessage(Warnings.ConstantAssert),
+						Location));
+				}
+			}
 			return new AssertStatement(innerExpr);
 		}
-		
+
 		protected override CodeBuilder GetStatementCode()
         {
 			CodeBuilder cb = new CodeBuilder();

@@ -15,15 +15,15 @@ namespace Flame.Compiler.Statements
 	public class CollectionElement
 	{
 		public const this(set IVariableMember Member, set IExpression Collection);
-		
+
 		public IVariableMember Member { const get; private set; }
 		public IExpression Collection { const get; private set; }
-        
+
         private static const IExpression CreateInvocationExpression(IMethod Method, IVariable Caller)
         {
-            return new InvocationExpression(Method, Caller.CreateGetExpression(), (IEnumerable<IExpression>)new IExpression[0]);
+            return new InvocationExpression(Method, Caller.CreateGetExpression(), new IExpression[0]);
         }
-		
+
 		#region CreateArrayElementInCollection
 
         private ElementInCollection CreateArrayElementInCollection(IVariable IndexVariable)
@@ -51,7 +51,7 @@ namespace Flame.Compiler.Statements
             IExpression lengthExpr;
             if (collectionVariable.Type.IsVector)
             {
-                lengthExpr = new Int32Expression(Enumerable.Single<int32>((IEnumerable<int32>)collectionVariable.CreateGetExpression().Type.AsContainerType().AsVectorType().GetDimensions()));
+                lengthExpr = new Int32Expression(Enumerable.Single<int32>(collectionVariable.CreateGetExpression().Type.AsContainerType().AsVectorType().GetDimensions()));
             }
             else
             {
@@ -75,9 +75,9 @@ namespace Flame.Compiler.Statements
                 index = IndexVariable;
                 delta = new EmptyStatement();
             }
-            
+
             IExpression condition = new LessThanExpression(index.CreateGetExpression(), lengthExpr);
-            
+
             var iteratingVariable = new ElementVariable(collectionVariable.CreateGetExpression(), (IEnumerable<IExpression>)new IExpression[] { index.CreateGetExpression() });
 
             if (IndexVariable == null)
@@ -90,21 +90,21 @@ namespace Flame.Compiler.Statements
                 finalStatements.Add(iteratingVariable.CreateReleaseStatement());
             }
 
-            var initStatement = new BlockStatement((IEnumerable<IStatement>)initStatements.ToArray());
-            var finalStatement = new BlockStatement((IEnumerable<IStatement>)finalStatements.ToArray());
+            var initStatement = new BlockStatement(initStatements.ToArray());
+            var finalStatement = new BlockStatement(finalStatements.ToArray());
 
             return new ElementInCollection(iteratingVariable, initStatement, condition, new EmptyStatement(), delta, finalStatement, index);
         }
 
         #endregion
-        
+
         #region CreateEnumerableElementInCollection
 
         private ElementInCollection CreateEnumerableElementInCollection()
         {
             var getEnumeratorMethods = Collection.Type.GetAllMethods("GetEnumerator", false, new IType[0]);
             IMethod getEnumerator = null, nextMethod = null, currentAccessor = null;
-            
+
             if (!Enumerable.Any<IMethod>(getEnumeratorMethods))
             {
             	return null;
@@ -157,13 +157,13 @@ namespace Flame.Compiler.Statements
                 finishStatements.Add(new ExpressionStatement(CreateInvocationExpression(disposeMethod, enumeratorVariable)));
             }
             finishStatements.Add(enumeratorVariable.CreateReleaseStatement());
-            IStatement finish = new BlockStatement((IEnumerable<IStatement>)finishStatements.ToArray());
+            IStatement finish = new BlockStatement(finishStatements.ToArray());
 
             return new ElementInCollection(iteratingVariable, enumeratorInitStatement, condition, delta, new EmptyStatement(), finish);
         }
 
         #endregion
-        
+
         public ElementInCollection Reduce(IVariable IndexVariable)
         {
             if (Collection.Type.IsArray || Collection.Type.IsVector)

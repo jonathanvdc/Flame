@@ -1,0 +1,9 @@
+
+public static class ConstantAssertTest
+{
+    public static int Test()
+    {
+        assert(true);
+        return 2;
+    }
+}

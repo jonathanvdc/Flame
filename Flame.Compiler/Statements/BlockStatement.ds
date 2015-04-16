@@ -7,11 +7,11 @@ namespace Flame.Compiler.Statements
     {
     	public const this(IStatement Child)
     	{
-    		this.Children = (IEnumerable<IStatement>)new IStatement[] { Child };
+    		this.Children = new IStatement[] { Child };
     	}
-        public const this(set IEnumerable<IStatement> Children);
+        public const this(set [IStatement] Children);
 
-        public IEnumerable<IStatement> Children { const get; private set; }
+        public [IStatement] Children { const get; private set; }
 
         public void Emit(IBlockGenerator Generator)
         {
