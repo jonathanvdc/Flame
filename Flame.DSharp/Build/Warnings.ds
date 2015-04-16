@@ -13,6 +13,7 @@ namespace Flame.DSharp.Build
         public const string Operators = "operators";
         public const string Bitcast = "bitcast";
         public const string MeaninglessCast = "meaningless-cast";
+        public const string ConstantDiscarded = "constant-discarded";
 
         public static const string GetWarningName(string Name)
         {
@@ -96,6 +97,10 @@ namespace Flame.DSharp.Build
         public static bool ShowMeaninglessCastWarnings[this ICompilerLog Log]
         {
             const get return Log.UsePedanticWarnings(MeaninglessCast);
+        }
+        public static bool ShowConstantDiscardedWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UseDefaultWarnings(ConstantDiscarded);
         }
     }
 }
