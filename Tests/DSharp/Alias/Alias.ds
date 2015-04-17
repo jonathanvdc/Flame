@@ -1,0 +1,23 @@
+
+alias Math = System.Math;
+using IntSequence = [int]; // Old-style. -pedantic won't like this.
+
+public class AliasTest
+{
+    public IntSequence Test(int A, int B)
+    {
+        if (Math.Max(A, B) == A)
+        {
+            return new int[] { A, B };
+        }
+        else
+        {
+            return new int[] { B, A };
+        }
+    }
+}
+
+public struct GenericAliasTest<T>
+{
+    alias Seq = [T];
+}
