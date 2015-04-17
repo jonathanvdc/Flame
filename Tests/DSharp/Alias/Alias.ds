@@ -3,17 +3,19 @@ using IntSequence = [int]; // Old-style. -pedantic won't like this.
 
 public class AliasTest
 {
+    alias Arr = int[];
+
     public IntSequence Test(int A, int B)
     {
         using System;
 
         if (Math.Max(A, B) == A)
         {
-            return new int[] { A, B };
+            return new Arr { A, B };
         }
         else
         {
-            return new int[] { B, A };
+            return new Arr { B, A };
         }
     }
 }
