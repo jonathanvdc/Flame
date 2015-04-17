@@ -44,5 +44,9 @@
 		<Compile Include="TokenSink.ds" />
 		<Compile Include="ISyntaxVisitor.ds" />
 		<Compile Include="ISourceSyntax.ds" />
+		<Compile Include="ISyntaxBinder.ds" />
+		<Compile Include="SyntaxBinder.ds" />
+		<Compile Include="ScopedBinder.ds" />
+		<Compile Include="NamespaceScope.ds" />
 	</ItemGroup>
 </Project>

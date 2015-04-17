@@ -2486,6 +2486,21 @@ namespace Flame.DSharp.Parser
 
         #endregion
 
+		protected virtual IBinderDirectiveSyntax ParseAliasSyntax(Token AliasKeyword, Token Alias, Token EqualsToken, ITokenStream Tokens)
+		{
+			var type = ParseType(Tokens);
+			var semi = Tokens.NextNoTrivia(TokenType.Semicolon, Log);
+			return new AliasSyntax(AliasKeyword, Alias, EqualsToken, type, semi);
+		}
+
+		public virtual IBinderDirectiveSyntax ParseAliasSyntax(ITokenStream Tokens)
+		{
+			var aliasKeyword = Tokens.NextNoTrivia(TokenType.AliasKeyword, Log);
+			var ident = Tokens.NextNoTrivia(TokenType.Identifier, Log);
+			var eqToken = Tokens.NextNoTrivia(TokenType.Equals, Log);
+			return ParseAliasSyntax(aliasKeyword, ident, eqToken, Tokens);
+		}
+
         public virtual IBinderDirectiveSyntax ParseUsingSyntax(ITokenStream Tokens)
         {
         	var usingKeyword = Tokens.NextNoTrivia(TokenType.UsingKeyword, Log);
@@ -2496,17 +2511,29 @@ namespace Flame.DSharp.Parser
                 name.Add(token);
                 token = Tokens.NextNoTrivia();
             }
+			if (name.Count == 0)
+			{
+				Log.LogError(new LogEntry("Empty using declaration", "An empty using declaration is not legal.", usingKeyword.Location));
+				if (token.Type == TokenType.Equals)
+				{
+					var type = ParseType(Tokens);
+					var semi = Tokens.NextNoTrivia(TokenType.Semicolon, Log);
+					return new AliasSyntax(usingKeyword, Token.Undefined, token, type, semi);
+				}
+				else return new EmptyUsingSyntax(usingKeyword, token);
+			}
             if (token.Type == TokenType.Equals)
             {
-                Token endToken = Tokens.NextNoTrivia();
-                List<Token> mapped = new List<Token>();
-                while (endToken.Type != TokenType.Semicolon && endToken.Type != TokenType.EndOfFile)
-                {
-                    mapped.Add(endToken);
-                    endToken = Tokens.NextNoTrivia();
-                }
-                endToken.EnsureType(TokenType.Semicolon, Log);
-                return new UsingMapSyntax(usingKeyword, name, token, mapped, endToken);
+				var singleIdentifier = name[0];
+				if (Log.ShowBadAliasWarnings)
+				{
+					Log.LogWarning(new LogEntry("C++/C# style alias declaration",
+						"C++/C# style alias declarations are nonstandard in D#. " +
+						"Consider using the 'alias' keyword instead of 'using' when declaring aliases. " +
+						Warnings.GetWarningNameMessage(Warnings.BadAlias),
+						usingKeyword.Location.Concat(token.Location)));
+				}
+				return ParseAliasSyntax(usingKeyword, singleIdentifier, token, Tokens);
             }
             else
             {
@@ -2539,6 +2566,20 @@ namespace Flame.DSharp.Parser
             return new NamespaceCompilationUnit(nsKeyword, nameTokens.ToArray(), rBraces, contents.ToArray(), lBraces);
         }
 
+		public virtual IBinderDirectiveSyntax ParseBinderDirective(ITokenStream Tokens)
+		{
+			var peek = Tokens.PeekNoTrivia();
+			if (peek.Type == TokenType.UsingKeyword)
+			{
+				return ParseUsingSyntax(Tokens);
+			}
+			else if (peek.Type == TokenType.AliasKeyword)
+			{
+				return ParseAliasSyntax(Tokens);
+			}
+			else return null;
+		}
+
         public virtual ISyntaxNode ParseCompilationUnitChild(ITokenStream Tokens)
         {
         	var peek = Tokens.PeekNoTrivia();
@@ -2546,6 +2587,10 @@ namespace Flame.DSharp.Parser
         	{
         		return ParseUsingSyntax(Tokens);
         	}
+			else if (peek.Type == TokenType.AliasKeyword)
+			{
+				return ParseAliasSyntax(Tokens);
+			}
         	else if (peek.Type == TokenType.NamespaceKeyword)
         	{
         		return ParseNamespaceSyntax(Tokens);

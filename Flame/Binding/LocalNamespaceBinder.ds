@@ -7,11 +7,16 @@ namespace Flame.Binding
 {
     public class LocalNamespaceBinder : BinderBase, ILocalNamespaceBinder
     {
-        public this(set IBinder Binder, set INamespace CurrentNamespace)
+        public const this(set ILocalNamespaceBinder Binder)
+        {
+            this.State = new NamespaceState();
+            this.CurrentNamespace = Binder.CurrentNamespace;
+        }
+        public const this(set IBinder Binder, set INamespace CurrentNamespace)
         {
         	this.State = new NamespaceState();
         }
-        public this(set IBinder Binder, set INamespace CurrentNamespace, set NamespaceState State);
+        public const this(set IBinder Binder, set INamespace CurrentNamespace, set NamespaceState State);
 
         private INamespace currentNs;
         public INamespace CurrentNamespace
@@ -71,7 +76,7 @@ namespace Flame.Binding
                 return localNs;
             }
         }
-        
+
         public override IEnvironment Environment : BinderBase.Environment { const get return Binder.Environment; }
 
         public override IType BindTypeCore(string Name)
@@ -193,7 +198,7 @@ namespace Flame.Binding
             }
             return newArray;
         }
-        
+
         private static T[] ConcatArrays<T>(T[] First, T[] Second)
         {
         	int32 firstLength = First.Length;
@@ -223,9 +228,9 @@ namespace Flame.Binding
             return sb.ToString();
         }
 
-        public IEnumerable<string> UsingNamespaces
+        public [string] UsingNamespaces
         {
-            const get { return Enumerable.Concat<string>((IEnumerable<string>)LocalNamespaces, (IEnumerable<string>)State.UsingNamespaces); }
+            const get { return Enumerable.Concat<string>(([string])LocalNamespaces, ([string])State.UsingNamespaces); }
         }
 
         public IDictionary<string, string> MappedNamespaces
@@ -238,7 +243,7 @@ namespace Flame.Binding
             const get { return true; }
         }
 
-        public override const IEnumerable<IType> GetTypes()
+        public override const [IType] GetTypes()
         {
             return Binder.GetTypes();
         }

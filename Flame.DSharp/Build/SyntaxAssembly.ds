@@ -72,7 +72,10 @@ namespace Flame.DSharp.Build
         public void AddCompilationUnit(ICompilationUnit Item, ICompilerLog Log)
         {
         	MainNamespace.ClearExtensionTypeCache();
-        	Item.CompileToNamespace(MainNamespace, new ScopedBinder(GetSyntaxBinder()), Log);
+			var descMethod = new DescribedMethod("global", null);
+			var state = new SyntaxState(descMethod, GetSyntaxBinder(), Log, TypeNamer);
+			var binder = state.Binder;
+        	Item.CompileToNamespace(MainNamespace, binder, Log);
         }
 
         /// <summary>
@@ -103,7 +106,7 @@ namespace Flame.DSharp.Build
         /// <summary>
         /// Gets all types in the assembly.
         /// </summary>
-        public const IEnumerable<IType> AllTypes
+        public const [IType] AllTypes
         {
         	const get
         	{

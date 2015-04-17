@@ -78,7 +78,8 @@ namespace Flame.DSharp.Build
                 	var setStatement = parameters[i].CreateSetMemberStatement(i, state.CurrentType, this.IsStatic);
                 	if (setStatement == null)
                 	{
-                		state.Log.LogError(new LogEntry("'set' modifier on parameter '" + parameters[i].Name + "' in '" + this.GetHeaderString() + "' could not be mapped to a field or property of type '" + this.DeclaringType.FullName + "'."));
+                		state.Log.LogError(new LogEntry("Invalid 'set' modifier",
+                            "'set' modifier on parameter '" + parameters[i].Name + "' in '" + this.GetHeaderString() + "' could not be mapped to a field or property of type '" + this.DeclaringType.FullName + "'."));
                 	}
                 	else
                 	{

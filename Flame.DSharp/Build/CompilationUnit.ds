@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Build;
 using Flame.Binding;
 using Flame.Compiler;
 using Flame.Syntax;
+using Flame.Syntax.DSharp;
 
 namespace Flame.DSharp.Build
 {
@@ -58,12 +60,6 @@ namespace Flame.DSharp.Build
 			{
 				CompileToNamespace(DeclaringNamespace, newBinder, child, Log);
 			}
-		}
-
-		public virtual void CompileToAssembly(ISyntaxAssembly Assembly, ICompilerLog Log)
-		{
-			var binder = new ScopedBinder(Assembly.GetSyntaxBinder());
-			CompileToNamespace(Assembly.RootNamespace, binder, Log);
 		}
 
 		public virtual const CodeBuilder GetCode()

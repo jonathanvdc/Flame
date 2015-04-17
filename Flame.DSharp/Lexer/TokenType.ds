@@ -118,7 +118,8 @@ namespace Flame.DSharp.Lexer
         HashKeyword = 104,
         AssertKeyword = 105,
         ThrowKeyword = 106,
-        InvariantKeyword = 107
+        InvariantKeyword = 107,
+        AliasKeyword = 108
     }
 
     #endregion

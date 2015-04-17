@@ -6,6 +6,6 @@ namespace Flame.Syntax
 {
     public interface IBinderDirectiveSyntax : ISyntaxNode
     {
-        void ApplyDirective(INamespacedBinder Binder);
+        void ApplyDirective(ISyntaxBinder Binder);
     }
 }

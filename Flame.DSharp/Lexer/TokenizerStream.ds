@@ -16,11 +16,11 @@ namespace Flame.DSharp.Lexer
 		{
 			Initialize();
 		}
-		
+
 		private void Initialize()
 		{
 			this.tokens = new List<Token>();
-			
+
 			this.keywords = new Dictionary<string, TokenType>();
 			this.keywords["false"] = TokenType.FalseLiteral;
 			this.keywords["true"] = TokenType.TrueLiteral;
@@ -72,7 +72,8 @@ namespace Flame.DSharp.Lexer
 			this.keywords["assert"] = TokenType.AssertKeyword;
 			this.keywords["throw"] = TokenType.ThrowKeyword;
 			this.keywords["invariant"] = TokenType.InvariantKeyword;
-			
+			this.keywords["alias"] = TokenType.AliasKeyword;
+
 			this.operators1 = new Dictionary<char, TokenType>();
 			this.operators1[';'] = TokenType.Semicolon;
 			this.operators1[':'] = TokenType.Colon;
@@ -97,7 +98,7 @@ namespace Flame.DSharp.Lexer
 			this.operators1['-'] = TokenType.Minus;
 			this.operators1['*'] = TokenType.Asterisk;
 			this.operators1['/'] = TokenType.Slash;
-			
+
 			this.operators2 = new Dictionary<string, TokenType>();
 			this.operators2["::"] = TokenType.ColonColon;
 			this.operators2["->"] = TokenType.RArrow;
@@ -121,7 +122,7 @@ namespace Flame.DSharp.Lexer
 			this.operators2["*="] = TokenType.AsteriskEquals;
 			this.operators2["/="] = TokenType.SlashEquals;
 		}
-	
+
 		public string Code { const get; private set; }
 		public ISourceDocument SourceDocument { const get; private set; }
 		private int pos;
@@ -130,37 +131,37 @@ namespace Flame.DSharp.Lexer
 		private Dictionary<string, TokenType> keywords;
 		private Dictionary<char, TokenType> operators1;
 		private Dictionary<string, TokenType> operators2;
-	
+
 		private static bool IsWhitespace(char Value)
 		{
 			return Value == ' ' || Value == '\n' || Value == '\t' || Value == '\r';
 		}
-		
+
 		private static bool IsIdentifierElement(char Value)
 		{
 			return char.IsLetterOrDigit(Value) || Value == '_';
 		}
-		
+
 		private static bool IsIdentifierFirstElement(char Value)
 		{
 			return char.IsLetter(Value) || Value == '_';
 		}
-		
+
 		private static bool IsNumberToken(char Value)
 		{
 			return char.IsDigit(Value) || Value == '.' || Value == 'e' || Value == 'E' || Value == 'f' || Value == 'F';
 		}
-		
+
 		private static bool IsHexIntegerStart(string Value)
 		{
 			return Value[0] == '0' && (Value[1] == 'x' || Value[1] == 'X');
 		}
-		
+
 		private static bool IsBinaryIntegerStart(string Value)
 		{
 			return Value[0] == '0' && (Value[1] == 'b' || Value[1] == 'B');
 		}
-		
+
 		private char CharAt(int Position)
 		{
 			if (Position >= 0 && Position < Code.Length)
@@ -168,14 +169,14 @@ namespace Flame.DSharp.Lexer
 			else
 				return default(char);
 		}
-		
+
 		private string ParseWhitespace()
 		{
 			int startPos = pos;
 			pos++;
-            
+
             if (pos == Code.Length) return Code.Substring(startPos, 1);
-            
+
 			char nextChar = Code[pos];
 			while (pos < Code.Length && IsWhitespace(nextChar))
 			{
@@ -186,7 +187,7 @@ namespace Flame.DSharp.Lexer
 			}
 			return Code.Substring(startPos, pos - startPos);
 		}
-		
+
 		private string ParseIdentifier()
 		{
 			int startPos = pos;
@@ -201,7 +202,7 @@ namespace Flame.DSharp.Lexer
 			}
 			return Code.Substring(startPos, pos - startPos);
 		}
-		
+
 		private string ParseUntil(int StartLength, string End)
 		{
 			int startPos = pos;
@@ -216,7 +217,7 @@ namespace Flame.DSharp.Lexer
 			pos += slice.Length;
 			return Code.Substring(startPos, pos - startPos);
 		}
-		
+
 		private string ParseString(char Delimiter)
 		{
 			int startPos = pos;
@@ -237,7 +238,7 @@ namespace Flame.DSharp.Lexer
 			pos++; // Move to next pos
 			return Code.Substring(startPos, pos - startPos);
 		}
-		
+
 		private void ParseInteger()
 		{
 			int startPos = pos;
@@ -250,28 +251,28 @@ namespace Flame.DSharp.Lexer
 				nextChar = Code[pos];
 			}
 		}
-		
+
 		private Token ParseNumberToken()
 		{
 			int startPos = pos;
 			char nextChar = Code[pos];
 			TokenType type = TokenType.Integer;
-			
+
 			if (nextChar == '.')
 			{
 				pos++;
 				type = TokenType.Float64;
 			}
-				
+
 			ParseInteger();
-			
+
 			if (pos < Code.Length && (Code[pos] == '.' && type != TokenType.Float64))
 			{
 				pos++;
 				type = TokenType.Float64;
 				ParseInteger();
 			}
-			
+
 			if (pos < Code.Length && (Code[pos] == 'e' || Code[pos] == 'E'))
 			{
 				pos++;
@@ -280,16 +281,16 @@ namespace Flame.DSharp.Lexer
 				type = TokenType.Float64;
 				ParseInteger();
 			}
-			
+
 			if (pos < Code.Length && (Code[pos] == 'f' || Code[pos] == 'F'))
 		    {
 		    	pos++;
 		    	type = TokenType.Float32;
 		    }
-			
-			return new Token(type, Code.Substring(startPos, pos - startPos));			
+
+			return new Token(type, Code.Substring(startPos, pos - startPos));
 		}
-		
+
 		private Token ParseNextTokenValue()
 		{
 			char nextChar = Code[pos];
@@ -367,7 +368,7 @@ namespace Flame.DSharp.Lexer
 			}
 			return new Token(TokenType.UNDEFINED, Code[pos - 1].ToString());
 		}
-		
+
 		private Token ParseNextToken()
 		{
 			if (pos >= Code.Length)
@@ -378,9 +379,9 @@ namespace Flame.DSharp.Lexer
 			tokens.Add(token);
 			return token;
 		}
-		
+
 		#region ITokenStream Implementation
-		
+
 		private Token TokenAt(int Index)
 		{
 			while (tokens.Count < Index + 1)
@@ -391,7 +392,7 @@ namespace Flame.DSharp.Lexer
 			}
 			return tokens[Index];
 		}
-		
+
 		public Token Next()
 		{
 			var token = TokenAt(currentIndex);
@@ -399,27 +400,27 @@ namespace Flame.DSharp.Lexer
 				currentIndex++;
 			return token;
 		}
-		
+
 		public void Seek(TokenIdentifier Identifier)
 		{
 			currentIndex = Identifier.Identifier;
 		}
-		
+
 		public TokenIdentifier CurrentPosition
 		{
 			const get return new TokenIdentifier(currentIndex);
 		}
-		
+
 		public const PeekToken Peek(TokenIdentifier Position)
 		{
 			return new PeekToken(Position.Identifier + 1, TokenAt(Position.Identifier));
 		}
-		
+
 		public void Reset()
 		{
 			currentIndex = 0;
 		}
-		
+
 		#endregion
 	}
 }

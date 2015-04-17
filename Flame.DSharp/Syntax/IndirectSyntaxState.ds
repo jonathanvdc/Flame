@@ -10,15 +10,19 @@ namespace Flame.Syntax.DSharp
 {
     public class IndirectSyntaxState : ISyntaxState
     {
-        public const this(set ISyntaxState State, set IBinder Binder)
+        public const this(set ISyntaxState State, IBinder OuterBinder)
         {
+            this.Binder = new ScopedBinder(OuterBinder, this);
         	this.MemberProvider = new MemberProvider(Binder);
         }
-        public const this(set ISyntaxState State, set IBinder Binder,
-            set IMemberProvider MemberProvider);
+        public const this(set ISyntaxState State, IBinder OuterBinder,
+            set IMemberProvider MemberProvider)
+        {
+            this.Binder = new ScopedBinder(OuterBinder, this);
+        }
 
         public ISyntaxState State { const get; private set; }
-        public IBinder Binder { const get; private set; }
+        public IScopedBinder Binder { const get; private set; }
         public IMemberProvider MemberProvider { const get; private set; }
 
         public IConverter<IType, string> TypeNamer { const get return State.TypeNamer; }
@@ -63,11 +67,13 @@ namespace Flame.Syntax.DSharp
 
         public void PushScope() : ISyntaxState.PushScope
         {
+            Binder = Binder.PushScope();
             State.PushScope();
         }
 
         public IStatement PopScope() : ISyntaxState.PopScope
         {
+            Binder = Binder.PopScope();
             return State.PopScope();
         }
     }

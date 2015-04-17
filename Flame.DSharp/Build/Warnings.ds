@@ -15,6 +15,7 @@ namespace Flame.DSharp.Build
         public const string MeaninglessCast = "meaningless-cast";
         public const string ConstantDiscarded = "constant-discarded";
         public const string ConstantAssert = "constant-assert";
+        public const string BadAlias = "bad-alias";
 
         public static const string GetWarningName(string Name)
         {
@@ -106,6 +107,10 @@ namespace Flame.DSharp.Build
         public static bool ShowConstantAssertWarnings[this ICompilerLog Log]
         {
             const get return Log.UseDefaultWarnings(ConstantAssert);
+        }
+        public static bool ShowBadAliasWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UsePedanticWarnings(BadAlias);
         }
     }
 }

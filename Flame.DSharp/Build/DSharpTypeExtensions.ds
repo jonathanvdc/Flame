@@ -16,7 +16,7 @@ namespace Flame.DSharp.Build
 {
 	public static class DSharpTypeExtensions
 	{
-        public static [IGenericParameter] CreateConstrainedGenericParameters(ISyntaxState State, IGenericMember DeclaringMember, IEnumerable<IGenericParameterDeclarationSyntax> GenericDeclarations, IEnumerable<GenericConstraintSyntax> GenericConstraints)
+        public static [IGenericParameter] CreateConstrainedGenericParameters(ISyntaxState State, IGenericMember DeclaringMember, [IGenericParameterDeclarationSyntax] GenericDeclarations, [GenericConstraintSyntax] GenericConstraints)
 		{
 			var simpleGenericParams = new List<IGenericParameterBuilder>();
 			foreach (var item in GenericDeclarations)

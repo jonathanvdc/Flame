@@ -190,8 +190,6 @@
 			<Compile Include="Build\OpenGenericType.ds" />
 			<Compile Include="Build\ClosedGenericType.ds" />
 			<Compile Include="Build\CompilationUnit.ds" />
-			<Compile Include="Build\ScopedBinder.ds" />
-			<Compile Include="Build\NamespaceScope.ds" />
 			<Compile Include="Build\SyntaxNamespace.ds" />
 			<Compile Include="Build\NamespaceCompilationUnit.ds" />
 			<Compile Include="Build\SyntaxAssembly.ds" />

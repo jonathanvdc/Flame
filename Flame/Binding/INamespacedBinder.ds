@@ -7,7 +7,7 @@ namespace Flame
     public interface INamespacedBinder : IBinder
     {
         bool SupportsNamespaces { const get; }
-        IEnumerable<string> UsingNamespaces { const get; }
+        [string] UsingNamespaces { const get; }
         IDictionary<string, string> MappedNamespaces { const get; }
         void UseNamespace(string Namespace);
         void MapNamespace(string Key, string Namespace);
