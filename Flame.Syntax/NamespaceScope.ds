@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Flame.Binding;
 
-namespace Flame.DSharp.Build
+namespace Flame.Syntax
 {
 	public class NamespaceScope
 	{
@@ -11,16 +11,19 @@ namespace Flame.DSharp.Build
 		{
 			this.UsingNamespaces = new List<string>();
 			this.MappedNamespaces = new Dictionary<string, string>();
+			this.Aliases = new Dictionary<string, ITypeSyntax>();
 		}
 		public const this(set string Name, set INamespace CurrentNamespace)
 		{
 			this.UsingNamespaces = new List<string>();
 			this.MappedNamespaces = new Dictionary<string, string>();
+			this.Aliases = new Dictionary<string, ITypeSyntax>();
 		}
-		
+
 		public string Name { const get; private set; }
 		public INamespace CurrentNamespace { const get; private set; }
 		public List<string> UsingNamespaces { const get; private set; }
         public Dictionary<string, string> MappedNamespaces { const get; private set; }
+		public Dictionary<string, ITypeSyntax> Aliases { const get; private set; }
 	}
 }

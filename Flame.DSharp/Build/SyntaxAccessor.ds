@@ -11,7 +11,7 @@ using Flame.Compiler.Variables;
 using Flame.DSharp.Lexer;
 using Flame.Syntax;
 using Flame.Syntax.DSharp;
-using FlameAccessorType = Flame.AccessorType;
+alias FlameAccessorType = Flame.AccessorType;
 
 namespace Flame.DSharp.Build
 {

@@ -11,7 +11,7 @@ namespace Flame.Syntax
         IType CurrentType { const get; }
         IType DeclaringType { const get; }
         IType ReturnType { const get; }
-        IBinder Binder { const get; }
+        IScopedBinder Binder { const get; }
         IMemberProvider MemberProvider { const get; }
         ICompilerLog Log { const get; }
         IConverter<IType, string> TypeNamer { const get; }

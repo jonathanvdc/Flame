@@ -1,0 +1,12 @@
+using System;
+using System.Collections.Generic;
+using Flame.Binding;
+
+namespace Flame.Syntax
+{
+    public interface ISyntaxBinder : INamespacedBinder
+    {
+        IReadOnlyDictionary<string, ITypeSyntax> Aliases { const get; }
+        void UseAlias(string Key, ITypeSyntax Alias);
+    }
+}

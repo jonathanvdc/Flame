@@ -3,37 +3,55 @@ using System.Collections.Generic;
 using System.Text;
 using Flame.Binding;
 using Flame.Compiler;
-using Flame.Syntax;
 
-namespace Flame.DSharp.Build
+namespace Flame.Syntax
 {
 	public class ScopedBinder : BinderBase, IScopedBinder
 	{
-		protected const this(set IBinder Binder, List<NamespaceScope> Scopes)
+		protected const this(set IBinder Binder, set ISyntaxState State, List<NamespaceScope> Scopes)
 		{
 			this.scopes = new List<NamespaceScope>(Scopes);
 		}
-		public const this(set IBinder Binder)
+		public const this(set IBinder Binder, set ISyntaxState State)
         {
         	this.scopes = new List<NamespaceScope>();
         	PushScope("");
         }
 
 		public IBinder Binder { const get; private set; }
+		public ISyntaxState State { const get; private set; }
+
+		private Dictionary<string, ITypeSyntax> aliasTypes;
 		private List<NamespaceScope> scopes;
+
 		public NamespaceScope CurrentScope
 		{
 			const get return scopes[scopes.Count - 1];
 		}
+
+		public IScopedBinder PopScope()
+		{
+			if (scopes.Count > 1)
+			{
+				var newBinder = new ScopedBinder(Binder, State, scopes);
+				newBinder.scopes.RemoveAt(scopes.Count - 1);
+				return newBinder;
+			}
+			else return new ScopedBinder(Binder, State, scopes);
+		}
+		public IScopedBinder PushScope()
+		{
+			return PushScope("");
+		}
 		public IScopedBinder PushScope(string Name)
 		{
-			var newBinder = new ScopedBinder(Binder, scopes);
+			var newBinder = new ScopedBinder(Binder, State, scopes);
 			newBinder.scopes.Add(new NamespaceScope(Name));
 			return newBinder;
 		}
 		public IScopedBinder PushScope(string Name, INamespace CurrentNamespace)
 		{
-			var newBinder = new ScopedBinder(Binder, scopes);
+			var newBinder = new ScopedBinder(Binder, State, scopes);
 			newBinder.scopes.Add(new NamespaceScope(Name, CurrentNamespace));
 			return newBinder;
 		}
@@ -41,21 +59,29 @@ namespace Flame.DSharp.Build
         public void UseNamespace(string Namespace)
         {
         	CurrentScope.UsingNamespaces.Add(Namespace);
+			usingNs = null;
         }
 
         public void MapNamespace(string Key, string Namespace)
         {
         	CurrentScope.MappedNamespaces[Key] = Namespace;
+			mappedNs = null;
         }
-        
+
+		public void UseAlias(string Key, ITypeSyntax Alias)
+		{
+			CurrentScope.Aliases[Key] = Alias;
+			allAliases = null;
+		}
+
         public INamespace CurrentNamespace
         {
         	const get
         	{
-        		for (int32 i = scopes.Count - 1; i >= 0; i--)
+        		for (int i = scopes.Count - 1; i >= 0; i--)
 				{
 					if (scopes[i].CurrentNamespace != null)
-						return scopes[i].CurrentNamespace;					
+						return scopes[i].CurrentNamespace;
 				}
 				return null;
         	}
@@ -74,8 +100,7 @@ namespace Flame.DSharp.Build
                     foreach (var scope in scopes)
                     {
                     	string scopeName = scope.Name;
-                    	if (scopeName != null)
-                    	if (scopeName.Length > 0)
+                    	if (!string.IsNullOrWhiteSpace(scopeName))
                     	{
                     		if (!first)
                     		{
@@ -94,11 +119,17 @@ namespace Flame.DSharp.Build
                 return localNs;
             }
         }
-        
+
         public override IEnvironment Environment : BinderBase.Environment { const get return Binder.Environment; }
 
         public override IType BindTypeCore(string Name)
         {
+			var typeAliases = Aliases;
+			if (typeAliases.ContainsKey(Name))
+			{
+				return typeAliases[Name].CreateVerifiedType(State);
+			}
+
             IType type = Binder.BindType(Name);
             if (type != null)
             {
@@ -220,7 +251,7 @@ namespace Flame.DSharp.Build
             }
             return newArray;
         }
-        
+
         private static T[] ConcatArrays<T>(T[] First, T[] Second)
         {
         	int32 firstLength = First.Length;
@@ -251,12 +282,12 @@ namespace Flame.DSharp.Build
         }
 
 		private List<string> usingNs;
-        public IEnumerable<string> UsingNamespaces
+        public [string] UsingNamespaces
         {
 	        const get
 	        {
 	        	if (usingNs == null)
-				{		        
+				{
 		        	List<string> usingNamespaces = new List<string>();
 		        	foreach (var item in LocalNamespaces)
 		        	{
@@ -278,9 +309,9 @@ namespace Flame.DSharp.Build
         public IDictionary<string, string> MappedNamespaces
         {
         	const get
-        	{	
+        	{
         		if (mappedNs == null)
-				{	
+				{
 	                Dictionary<string, string> dict = new Dictionary<string, string>();
 	        		foreach (var item in scopes)
 	        		{
@@ -295,12 +326,33 @@ namespace Flame.DSharp.Build
         	}
         }
 
+		private Dictionary<string, ITypeSyntax> allAliases;
+		public IReadOnlyDictionary<string, ITypeSyntax> Aliases
+		{
+			const get
+			{
+				if (allAliases == null)
+				{
+					Dictionary<string, ITypeSyntax> dict = new Dictionary<string, ITypeSyntax>();
+					foreach (var item in scopes)
+					{
+						foreach (var map in item.Aliases)
+						{
+							dict[map.Key] = map.Value;
+						}
+					}
+					allAliases = dict;
+				}
+				return allAliases;
+			}
+		}
+
         public bool SupportsNamespaces
         {
             const get { return true; }
         }
 
-        public override const IEnumerable<IType> GetTypes()
+        public override const [IType] GetTypes()
         {
             return Binder.GetTypes();
         }

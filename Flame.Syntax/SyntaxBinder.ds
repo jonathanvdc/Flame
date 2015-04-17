@@ -1,0 +1,72 @@
+using System;
+using System.Collections.Generic;
+using Flame.Binding;
+
+namespace Flame.Syntax
+{
+    /*public class SyntaxBinder : ISyntaxBinder
+    {
+        public const this(IBinder Binder, set ISyntaxState State)
+        {
+            this.Binder = new ScopedBinder(Binder);
+            this.aliasTypes = new Dictionary<string, ITypeSyntax>();
+        }
+        public const this(set INamespacedBinder Binder, set ISyntaxState State)
+        {
+            this.aliasTypes = new Dictionary<string, ITypeSyntax>();
+        }
+
+        private Dictionary<string, ITypeSyntax> aliasTypes;
+
+        public INamespacedBinder Binder { const get; private set; }
+        public ISyntaxState State { const get; private set; }
+        public IEnvironment Environment { const get return Binder.Environment; }
+
+        public IReadOnlyDictionary<string, ITypeSyntax> Aliases
+        {
+            const get return aliasTypes;
+        }
+        public void UseAlias(string Key, ITypeSyntax Alias)
+        {
+            aliasTypes[Key] = Alias;
+        }
+
+        public bool SupportsNamespaces
+        {
+            const get return Binder.SupportsNamespaces;
+        }
+        public [string] UsingNamespaces
+        {
+            const get return Binder.UsingNamespaces;
+        }
+        public IDictionary<string, string> MappedNamespaces
+        {
+            const get return Binder.MappedNamespaces;
+        }
+        public void UseNamespace(string Namespace)
+        {
+            Binder.UseNamespace(Namespace);
+        }
+        public void MapNamespace(string Key, string Namespace)
+        {
+            Binder.MapNamespace(Key, Namespace);
+        }
+
+        public const [IType] GetTypes()
+        {
+            return Binder.GetTypes();
+        }
+
+        public const IType BindType(string Name)
+        {
+            if (aliasTypes.ContainsKey(Name))
+            {
+                return aliasTypes[Name].CreateVerifiedType(State);
+            }
+            else
+            {
+                return Binder.BindType(Name);
+            }
+        }
+    }*/
+}

@@ -7,7 +7,7 @@ namespace Flame.Syntax
 {
 	public interface ICompilationUnit : ISyntaxNode
 	{
-		IEnumerable<ISyntaxNode> GetChildren();
+		[ISyntaxNode] GetChildren();
 		void CompileToNamespace(INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log);
 	}
 }

@@ -37,7 +37,9 @@ namespace Flame.Compiler.Expressions
     		StringBuilder result = new StringBuilder();
     		foreach (var item in Operands)
     		{
-    			result.Append(item.Evaluate().GetValue<string>());
+				var eval = item.Evaluate();
+				if (eval == null) return null;
+    			result.Append(eval.GetValue<string>());
     		}
     		return new StringExpression(result.ToString());
         }
@@ -62,7 +64,7 @@ namespace Flame.Compiler.Expressions
         	{
         		var optOp = item.Optimize();
         		if (optOp is ConcatExpression)
-        			optOperands.AddRange((IEnumerable<IExpression>)((ConcatExpression)optOp).Operands);
+        			optOperands.AddRange(([IExpression])((ConcatExpression)optOp).Operands);
         		else
         			optOperands.Add(optOp);
         	}
@@ -92,8 +94,12 @@ namespace Flame.Compiler.Expressions
 
         	var optExpr = new ConcatExpression(optOperands.ToArray());
 
-        	if (optExpr.IsConstant) return optExpr.EvaluateExpression();
-        	else return optExpr;
+        	if (optExpr.IsConstant)
+			{
+				var result = optExpr.EvaluateExpression();
+				if (result != null) return result;
+			}
+        	return optExpr;
         }
 
         /// <summary>
