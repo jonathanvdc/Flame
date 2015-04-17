@@ -1429,6 +1429,8 @@ namespace Flame.DSharp.Parser
             	return ParseForSyntax(Tokens);
             else if (tokenType == TokenType.ForeachKeyword)
             	return ParseForeachSyntax(Tokens);
+			else if (tokenType.IsBinderDirectiveToken)
+				return new BinderDirectiveStatementSyntax(ParseBinderDirective(Tokens));
             else
             {
             	if (MatchesDeclarationPattern(Tokens))
@@ -2369,6 +2371,10 @@ namespace Flame.DSharp.Parser
         	{
         		return ParseInvariant(Tokens);
         	}
+			else if (Tokens.PeekNoTrivia().Type.IsBinderDirectiveToken)
+			{
+				return new BinderDirectiveMemberSyntax(ParseBinderDirective(Tokens));
+			}
 
             var commonSig = ParseCommonSignatureSyntax(Tokens);
 
@@ -2437,7 +2443,7 @@ namespace Flame.DSharp.Parser
             else
             {
                 colon = Token.Undefined;
-                baseTypes = (IEnumerable<ITypeSyntax>)new ITypeSyntax[0];
+                baseTypes = new ITypeSyntax[0];
             }
 
             var constraints = ParseGenericConstraints(Tokens);
@@ -2583,14 +2589,10 @@ namespace Flame.DSharp.Parser
         public virtual ISyntaxNode ParseCompilationUnitChild(ITokenStream Tokens)
         {
         	var peek = Tokens.PeekNoTrivia();
-        	if (peek.Type == TokenType.UsingKeyword)
+        	if (peek.Type.IsBinderDirectiveToken)
         	{
-        		return ParseUsingSyntax(Tokens);
+        		return ParseBinderDirective(Tokens);
         	}
-			else if (peek.Type == TokenType.AliasKeyword)
-			{
-				return ParseAliasSyntax(Tokens);
-			}
         	else if (peek.Type == TokenType.NamespaceKeyword)
         	{
         		return ParseNamespaceSyntax(Tokens);

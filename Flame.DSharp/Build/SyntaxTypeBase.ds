@@ -143,7 +143,7 @@ namespace Flame.DSharp.Build
 	            	this.attrCache = attrs.ToArray();
 	            return attrs;
             }
-            return (IEnumerable<IAttribute>)this.attrCache;
+            return this.attrCache;
         }
 
         #endregion
@@ -253,7 +253,7 @@ namespace Flame.DSharp.Build
             }
         }
 
-        protected T[] CreateTypeMembers<T>(IEnumerable<IMemberSyntax<T>> Syntax, string CacheKey) where T : ITypeMember
+        protected T[] CreateTypeMembers<T>([IMemberSyntax<T>] Syntax, string CacheKey) where T : ITypeMember
         {
             if (AllowMemberCaching && typeMemberCache.ContainsKey(CacheKey))
             {
@@ -269,14 +269,17 @@ namespace Flame.DSharp.Build
                 return value;
             }
         }
-        protected T[] CreateTypeMembers<T>(IEnumerable<IMemberSyntax<T>> Syntax) where T : ITypeMember
+        protected T[] CreateTypeMembers<T>([IMemberSyntax<T>] Syntax)
+            where T : ITypeMember
         {
             var state = GetSyntaxState();
             List<T> members = new List<T>();
             bool isStaticType = this.IsSingleton || this.IsExtensionType;
             foreach (var item in Syntax)
-            if (isStaticType || !item.IsSingletonMember)
+                if (isStaticType || !item.IsSingletonMember)
+            {
             	members.Add(item.CreateMember(state));
+            }
             return members.ToArray();
         }
 

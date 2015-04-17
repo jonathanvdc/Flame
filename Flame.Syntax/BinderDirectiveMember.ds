@@ -1,0 +1,34 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Syntax
+{
+    public class BinderDirectiveMember : ITypeMember
+    {
+        public const this(set IBinderDirectiveSyntax Syntax, set IType DeclaringType);
+
+        public IBinderDirectiveSyntax Syntax { const get; private set; }
+        public IType DeclaringType { const get; private set; }
+
+        public bool IsStatic
+        {
+            const get { return true; }
+        }
+
+        public string Name
+        {
+            const get { return Syntax.GetCode().ToString(); }
+        }
+
+        public string FullName
+        {
+            const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+        }
+
+        public [IAttribute] GetAttributes()
+        {
+            return Enumerable.Empty<IAttribute>();
+        }
+    }
+}

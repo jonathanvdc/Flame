@@ -1,0 +1,32 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Expressions;
+
+namespace Flame.Syntax
+{
+	public class BinderDirectiveStatementSyntax : IStatementSyntax, ISourceSyntax
+    {
+        public const this(set IBinderDirectiveSyntax Syntax);
+
+        public IBinderDirectiveSyntax Syntax { const get; private set; }
+
+        public SourceLocation Location
+        {
+            const get return Syntax.GetSourceLocation();
+        }
+
+        public IStatement CreateStatement(ISyntaxState State)
+        {
+            Syntax.ApplyDirective(State.Binder);
+            return new EmptyStatement();
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            return Syntax.GetCode();
+        }
+    }
+}

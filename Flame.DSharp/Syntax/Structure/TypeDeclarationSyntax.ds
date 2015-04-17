@@ -72,6 +72,14 @@ namespace Flame.Syntax.DSharp
             }
         }
 
+        public [IMemberSyntax<BinderDirectiveMember>] BinderDeclarations
+        {
+            const get
+            {
+                return GetMembersOfType<BinderDirectiveMember>();
+            }
+        }
+
         #endregion
 
         public IType CreateType(INamespace Namespace, IBinder Binder, ICompilerLog Log, IExtensionTypeProvider ExtensionTypeProvider, IConverter<IType, string> TypeNamer)
