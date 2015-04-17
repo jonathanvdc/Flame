@@ -48,5 +48,8 @@
 		<Compile Include="SyntaxBinder.ds" />
 		<Compile Include="ScopedBinder.ds" />
 		<Compile Include="NamespaceScope.ds" />
+		<Compile Include="BinderDirectiveMember.ds" />
+		<Compile Include="BinderDirectiveMemberSyntax.ds" />
+		<Compile Include="BinderDirectiveStatementSyntax.ds" />
 	</ItemGroup>
 </Project>

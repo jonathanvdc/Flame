@@ -18,32 +18,32 @@ namespace Flame.Syntax.DSharp
         public Token OpeningBracket { const get; private set; }
         public IInvocationSyntax Constructor { const get; private set; }
         public Token ClosingBracket { const get; private set; }
-        
-        public IEnumerable<Token> LeadingTrivia
+
+        public [Token] LeadingTrivia
         {
         	const get
         	{
         		List<Token> tokens = new List<Token>();
-        		
+
         		tokens.AddRange(OpeningBracket.GetAllTrivia());
 				tokens.AddRange(Constructor.GetAllTrivia());
 				tokens.AddRange(ClosingBracket.GetAllTrivia());
-				
+
 				return tokens;
         	}
         }
-        
-        public IEnumerable<Token> TrailingTrivia { const get return (IEnumerable<Token>)new Token[0]; }
+
+        public [Token] TrailingTrivia { const get return new Token[0]; }
 
         public IAttribute CreateAttribute(ISyntaxState State, IMember DeclaringMember)
         {
             var ctor = (IMethod)Enumerable.SingleOrDefault<ITypeMember>(Constructor.GetAccessedMembers(State));
-            
+
             if (ctor == null)
             {
             	State.Log.LogError("The constructor for attribute '" + GetCode() + "' could not be resolved.");
             }
-            
+
             var args = new List<IBoundObject>();
             foreach (var input in Constructor.Arguments)
             {

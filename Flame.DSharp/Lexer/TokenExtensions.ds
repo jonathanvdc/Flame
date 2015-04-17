@@ -8,12 +8,12 @@ namespace Flame.DSharp.Lexer
 	public static class TokenExtensions
 	{
 		#region GetLeadingTrivia
-	
+
 		public static const [Token] GetLeadingTrivia(this Token Item)
 		{
 			if (Item is RelevantToken)
 			{
-				return ((RelevantToken)Item).LeadingTrivia;		
+				return ((RelevantToken)Item).LeadingTrivia;
 			}
 			else
 			{
@@ -22,26 +22,26 @@ namespace Flame.DSharp.Lexer
 		}
 
 		#endregion
-	
+
 		#region GetAllTrivia
-		
+
 		public static const [Token] GetAllTrivia(this Token Item)
 			return Item.GetLeadingTrivia();
-	
+
 		public static const [Token] GetAllTrivia(this IEnumerable<Token> Tokens)
 		{
 			List<Token> trivia = new List<Token>();
 			foreach (var item in Tokens)
 			{
-				trivia.AddRange(item.GetLeadingTrivia());	
+				trivia.AddRange(item.GetLeadingTrivia());
 			}
 			return trivia;
 		}
 
-		#endregion	
-	
+		#endregion
+
 		#region IsTrivia
-	
+
 		public static const bool IsTrivia(this TokenType TokenType)
         {
         	return (TokenType == TokenType.EndOfFile | TokenType == TokenType.Whitespace |
@@ -51,7 +51,7 @@ namespace Flame.DSharp.Lexer
         }
 
 		#endregion
-		
+
 		#region IsTypeToken
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Flame.DSharp.Lexer
         	Type == TokenType.RBrackets | // a[
         	Type == TokenType.Comma | // a<...,
         	Type == TokenType.LessThan); // a<...
-        	
+
             /*switch (Type)
             {
                 case TokenType.Dot: // a.b
@@ -95,7 +95,7 @@ namespace Flame.DSharp.Lexer
         	Type == TokenType.GreaterThan | // a<...>
         	Type == TokenType.VarKeyword | // var
         	Type == TokenType.Identifier);  // a
-        
+
             /*switch (Type)
             {
                 case TokenType.Dot: // a.b
@@ -125,7 +125,7 @@ namespace Flame.DSharp.Lexer
         	Type == TokenType.Caret | // a^
         	Type == TokenType.LBrackets | // a[]
         	Type == TokenType.GreaterThan); // a<...>
-        
+
             /*switch (Type)
             {
                 case TokenType.Asterisk: // a*
@@ -149,7 +149,7 @@ namespace Flame.DSharp.Lexer
         }
 
         #endregion
-        
+
         #region IsValueToken
 
         public static const bool IsValueToken(this TokenType Token)
@@ -172,7 +172,7 @@ namespace Flame.DSharp.Lexer
         }
 
         #endregion
-        
+
         #region IsModifier
 
         public static const bool IsModifier(this TokenType Token)
@@ -203,7 +203,7 @@ namespace Flame.DSharp.Lexer
         }
 
         #endregion
-        
+
         #region IsAssignmentToken
 
         public static const bool IsKeyword(this TokenType Token)
@@ -251,7 +251,7 @@ namespace Flame.DSharp.Lexer
         }
 
         #endregion
-        
+
         #region Unary
 
         public static const bool IsPrefixUnaryToken(this TokenType Token)
@@ -268,7 +268,7 @@ namespace Flame.DSharp.Lexer
         }
 
         #endregion
-		
+
 		#region Peek
 
         /// <summary>
@@ -288,20 +288,20 @@ namespace Flame.DSharp.Lexer
         }
 
         #endregion
-        
+
         #region Next
-        
+
         public static Token Next(this ITokenStream Tokens, TokenType Type, ICompilerLog Log)
         {
             var Next = Tokens.Next();
             Next.EnsureType(Type, Log);
             return Next;
         }
-        
+
         #endregion
-		
+
 		#region NextNoTrivia
-		
+
 		public static Token NextNoTrivia(this ITokenStream Tokens)
         {
         	List<Token> trivia = new List<Token>();
@@ -326,9 +326,9 @@ namespace Flame.DSharp.Lexer
             	return Tokens.NextNoTrivia();
             }
         }
-		
+
 		#endregion
-		
+
 		#region PeekNoTrivia
 
         public static PeekToken PeekNoTrivia(this ITokenStream Tokens)
@@ -352,7 +352,7 @@ namespace Flame.DSharp.Lexer
         }
 
         #endregion
-	
+
 		#region EnsureType
 
         public static bool EnsureType(this Token Token, TokenType Type, ICompilerLog Log)
@@ -371,19 +371,19 @@ namespace Flame.DSharp.Lexer
         }
 
         #endregion
-        
+
         #region Combine
-        
+
         public static Token Combine(this Token First, Token Second, TokenType Type)
         {
         	var tkn = new Token(Type, First.TokenValue + Second.TokenValue, First.SourceDocument, First.Position);
         	return new RelevantToken(Enumerable.Concat<Token>(First.GetAllTrivia(), Second.GetAllTrivia()), tkn);
         }
-        
+
         #endregion
-        
+
         #region Blocks
-        
+
         /// <summary>
         /// Reads the contents of a "block", delimited by a start and an end token. The end token will also be parsed by this method, but will not be added to the results.
         /// </summary>
@@ -458,7 +458,12 @@ namespace Flame.DSharp.Lexer
 
             return new MemoryTokenStream(tokens.ToArray());
         }
-        
+
         #endregion
+
+		public static bool IsBinderDirectiveToken[this TokenType Value]
+		{
+			const get return Value == TokenType.UsingKeyword || Value == TokenType.AliasKeyword;
+		}
 	}
 }

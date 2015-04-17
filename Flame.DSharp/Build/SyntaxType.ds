@@ -37,31 +37,39 @@ namespace Flame.DSharp.Build
         public IMemberProvider MemberProvider { const get; protected set; }
         public IConverter<IType, string> TypeNamer { const get; protected set; }
 
+        private ISyntaxState currentState;
         public override ISyntaxState GetSyntaxState()
         {
-            var genericBinder = new PredefinedBinder(Binder);
-
-            var genericParams = this.GetGenericParameters();
-            var genericArgs = this.GetGenericArguments();
-
-            bool empty = true;
-            foreach (var param in genericParams, var arg in genericArgs)
+            if (currentState == null)
             {
-            	genericBinder.MapType(param.Name, arg);
-            	empty = false;
-            }
-            if (empty)
-            {
-            	foreach (var param in genericParams)
-	            {
-	            	genericBinder.MapType(param.Name, param);
-	            }
+                var genericBinder = new PredefinedBinder(Binder);
+
+                var genericParams = this.GetGenericParameters();
+                var genericArgs = this.GetGenericArguments();
+
+                bool empty = true;
+                foreach (var param in genericParams, var arg in genericArgs)
+                {
+                	genericBinder.MapType(param.Name, arg);
+                	empty = false;
+                }
+                if (empty)
+                {
+                	foreach (var param in genericParams)
+    	            {
+    	            	genericBinder.MapType(param.Name, param);
+    	            }
+                }
+
+    			var descMethod = new DescribedMethod();
+    			descMethod.DeclaringType = this;
+
+                currentState = new SyntaxState(descMethod, genericBinder, Log, MemberProvider, TypeNamer);
+
+                this.CreateTypeMembers<BinderDirectiveMember>(Syntax.BinderDeclarations, "binderDecls");
             }
 
-			var descMethod = new DescribedMethod();
-			descMethod.DeclaringType = this;
-
-            return new SyntaxState(descMethod, genericBinder, Log, MemberProvider, TypeNamer);
+            return currentState;
         }
 
         protected override ISyntaxState GetNamespaceSyntaxState()

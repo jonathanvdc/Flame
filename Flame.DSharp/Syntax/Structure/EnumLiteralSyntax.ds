@@ -29,23 +29,23 @@ namespace Flame.Syntax.DSharp
         public Token AssignmentOperator { const get; private set; }
         public IExpressionSyntax LiteralValueSyntax { const get; private set; }
         public Token Comma { const get; private set; }
-        
-        public IEnumerable<Token> LeadingTrivia
+
+        public [Token] LeadingTrivia
         {
         	const get
         	{
         		List<Token> tokens = new List<Token>();
-        		
+
         		tokens.AddRange(Identifier.GetAllTrivia());
         		tokens.AddRange(AssignmentOperator.GetAllTrivia());
 				tokens.AddRange(LiteralValueSyntax.GetAllTrivia());
 				tokens.AddRange(Comma.GetAllTrivia());
-				
+
 				return tokens;
         	}
         }
-        
-        public IEnumerable<Token> TrailingTrivia { const get return (IEnumerable<Token>)new Token[0]; }
+
+        public [Token] TrailingTrivia { const get return new Token[0]; }
 
         public IField CreateMember(ISyntaxState State)
         {
@@ -79,7 +79,7 @@ namespace Flame.Syntax.DSharp
         {
             const get { return false; }
         }
-                
+
         public bool IsSingletonMember
         {
         	const get

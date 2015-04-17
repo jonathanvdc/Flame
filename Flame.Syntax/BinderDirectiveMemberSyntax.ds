@@ -1,0 +1,43 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Build;
+using Flame.Compiler;
+using Flame.Compiler.Build;
+using Flame.Attributes;
+
+namespace Flame.Syntax
+{
+    public class BinderDirectiveMemberSyntax : IMemberSyntax<BinderDirectiveMember>
+    {
+        public const this(set IBinderDirectiveSyntax Syntax);
+
+        public IBinderDirectiveSyntax Syntax { const get; private set; }
+
+        public BinderDirectiveMember CreateMember(ISyntaxState State)
+        {
+            Syntax.ApplyDirective(State.Binder);
+            return new BinderDirectiveMember(Syntax, State.DeclaringType);
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            return Syntax.GetCode();
+        }
+
+        public override const string ToString()
+        {
+            return GetCode().ToString();
+        }
+
+        public bool IsExtensionMember
+        {
+            const get { return false; }
+        }
+
+        public bool IsSingletonMember
+        {
+        	const get return false;
+        }
+    }
+}
