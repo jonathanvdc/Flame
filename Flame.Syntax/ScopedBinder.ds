@@ -128,12 +128,12 @@ namespace Flame.Syntax
 			if (typeAliases.ContainsKey(Name))
 			{
 				var aliasType = typeAliases[Name].CreateType(State);
-				if (aliasType != null)
+				if (VerifyMatch(aliasType))
 					return aliasType;
 			}
 
             IType type = Binder.BindType(Name);
-            if (type != null)
+            if (VerifyMatch(type))
             {
                 return type;
             }
@@ -167,6 +167,10 @@ namespace Flame.Syntax
             {
                 return false;
             }
+			else if (CurrentNamespace == null)
+			{
+				return true;
+			}
             else
             {
                 var accessModifier = Type.Access;
