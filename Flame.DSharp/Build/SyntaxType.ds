@@ -66,7 +66,10 @@ namespace Flame.DSharp.Build
 
                 currentState = new SyntaxState(descMethod, genericBinder, Log, MemberProvider, TypeNamer);
 
-                this.CreateTypeMembers<BinderDirectiveMember>(Syntax.BinderDeclarations, "binderDecls");
+                foreach (var item in Syntax.BinderDeclarations)
+                {
+                    item.CreateMember(currentState);
+                }
             }
 
             return currentState;
