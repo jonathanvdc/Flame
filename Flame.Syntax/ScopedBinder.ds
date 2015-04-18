@@ -127,7 +127,9 @@ namespace Flame.Syntax
 			var typeAliases = Aliases;
 			if (typeAliases.ContainsKey(Name))
 			{
-				return typeAliases[Name].CreateVerifiedType(State);
+				var aliasType = typeAliases[Name].CreateType(State);
+				if (aliasType != null)
+					return aliasType;
 			}
 
             IType type = Binder.BindType(Name);
