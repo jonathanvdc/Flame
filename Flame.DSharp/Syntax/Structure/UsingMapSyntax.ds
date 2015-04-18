@@ -18,11 +18,37 @@ namespace Flame.Syntax.DSharp
         public ITypeSyntax Type { const get; private set; }
         public Token Semicolon { const get; private set; }
 
+        public string AliasNamespaceString
+        {
+            const get
+            {
+                if (Type is ITokenTypeSyntax)
+                {
+                    var sb = new StringBuilder();
+                    foreach (var item in ((ITokenTypeSyntax)Type).Tokens)
+                    {
+                        if (item.Type != TokenType.Identifier && item.Type != TokenType.Dot)
+                        {
+                            return null;
+                        }
+                        sb.Append(item.TokenValue);
+                    }
+                    return sb.ToString();
+                }
+                else return null;
+            }
+        }
+
         public void ApplyDirective(ISyntaxBinder Binder)
         {
             if (!string.IsNullOrWhiteSpace(Alias.TokenValue))
             {
                 Binder.UseAlias(Alias.TokenValue, Type);
+                string aliasString = AliasNamespaceString;
+                if (!string.IsNullOrWhiteSpace(aliasString)) // Also map this to a namespace if it looks like one
+                {
+                    Binder.MapNamespace(Alias.TokenValue, aliasString);
+                }
             }
         }
 

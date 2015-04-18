@@ -7,9 +7,9 @@ public class AliasTest
 
     public IntSequence Test(int A, int B)
     {
-        using System;
+        alias Sys = System;
 
-        if (Math.Max(A, B) == A)
+        if (Sys.Math.Max(A, B) == A)
         {
             return new Arr { A, B };
         }
