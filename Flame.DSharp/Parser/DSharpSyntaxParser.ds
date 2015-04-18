@@ -626,12 +626,12 @@ namespace Flame.DSharp.Parser
 
         #endregion
 
-        protected virtual IEnumerable<Token> ParseTypeTokens(ITokenStream Tokens)
+        protected virtual [Token] ParseTypeTokens(ITokenStream Tokens)
         {
         	var peekType = PeekEntireType(Tokens);
 
         	if (peekType == null)
-        		return (IEnumerable<Token>)new Token[0];
+        		return new Token[0];
 
             int parseCount = peekType.Tokens.Count;
 
@@ -664,10 +664,6 @@ namespace Flame.DSharp.Parser
 
         public virtual ITypeSyntax ParseType(ITokenStream Tokens)
         {
-            /*IEnumerable<Token> tTokens = ParseTypeTokens(Tokens);
-
-            return new TypeSyntax(tTokens);*/
-
             var type = PeekEntireType(Tokens);
 
             if (type == null) // No type was parsed. So be it.
@@ -2510,6 +2506,18 @@ namespace Flame.DSharp.Parser
         public virtual IBinderDirectiveSyntax ParseUsingSyntax(ITokenStream Tokens)
         {
         	var usingKeyword = Tokens.NextNoTrivia(TokenType.UsingKeyword, Log);
+			if (Tokens.PeekNoTrivia().Type == TokenType.NamespaceKeyword)
+			{
+				var nsTok = Tokens.NextNoTrivia();
+				if (Log.ShowCppUsingNamespaceWarnings)
+				{
+					Log.LogWarning(new LogEntry("C++ style 'using namespace'",
+						"C++ style 'using namespace' statements are not standard D#. " +
+						"Consider omitting the 'namespace' keyword. " +
+						Warnings.GetWarningNameMessage(Warnings.CppUsingNamespace),
+						nsTok.Location));
+				}
+			}
             List<Token> name = new List<Token>();
             Token token = Tokens.NextNoTrivia();
             while (token.Type != TokenType.Semicolon && token.Type != TokenType.Equals && token.Type != TokenType.EndOfFile)
