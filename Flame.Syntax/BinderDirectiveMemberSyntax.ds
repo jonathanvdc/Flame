@@ -17,7 +17,7 @@ namespace Flame.Syntax
         public BinderDirectiveMember CreateMember(ISyntaxState State)
         {
             Syntax.ApplyDirective(State.Binder);
-            return new BinderDirectiveMember(Syntax, State.DeclaringType);
+            return new BinderDirectiveMember(Syntax);
         }
 
         public const CodeBuilder GetCode()
