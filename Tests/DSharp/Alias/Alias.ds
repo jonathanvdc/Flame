@@ -7,10 +7,10 @@ public class AliasTest
 
     public IntSequence Test(int A, int B)
     {
-        alias Sys = System;
-        alias Math = Sys.Math;
+        using namespace System; // -pedantic will be furious with me for doing this.
+        alias math = Math;
 
-        if (Math.Max(A, B) == A)
+        if (math.Max(A, B) == A)
         {
             return new Arr { A, B };
         }
