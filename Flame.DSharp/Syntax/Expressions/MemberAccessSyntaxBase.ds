@@ -301,12 +301,12 @@ namespace Flame.Syntax.DSharp
             		}
             		else
             		{
-            			State.Log.LogError(new LogEntry("Member access error", "'" + targetCode.ToString() + "' in member access syntax '" + thisCode.ToString() + "' could not be resolved as a variable, expression or type, though '" + innerCode.ToString() + "' was resolved as an expression of type '" + State.TypeNamer.Convert(innerCallerExpr.Type) + "'", MemberAccessLocation));
+            			State.Log.LogError(new LogEntry("Member access error", "'" + targetCode.ToString() + "' in member access syntax '" + thisCode.ToString() + "' could not be resolved as a variable, expression or type, though '" + innerCode.ToString() + "' was resolved as an expression of type '" + State.TypeNamer.Convert(innerCallerExpr.Type) + "'.", MemberAccessLocation));
             		}
             	}
             	else
             	{
-            		State.Log.LogError(new LogEntry("Member access error", "'" + targetCode.ToString() + "' in member access syntax '" + thisCode.ToString() + "' could not be resolved as a variable, expression or type", Location));
+            		State.Log.LogError(new LogEntry("Member access error", "'" + targetCode.ToString() + "' in member access syntax '" + thisCode.ToString() + "' could not be resolved as a variable, expression or type.", Target.GetSourceLocation()));
             	}
             	return Enumerable.Empty<ITypeMember>(); // Keep it civilized by returning an empty enumerable instead of null
             }
