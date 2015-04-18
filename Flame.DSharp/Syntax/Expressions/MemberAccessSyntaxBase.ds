@@ -191,12 +191,17 @@ namespace Flame.Syntax.DSharp
             return null;
         }
 
+        private static const ITypeSyntax CreateTypeSyntax(ISyntaxNode Node, ISyntaxState State)
+        {
+            // Tokenize and parse
+            var tokenStream = new TokenizerStream(Node.GetCode().ToString(), null);
+            var parser = new DSharpSyntaxParser(State.Log);
+            return parser.ToTypeSyntax(tokenStream);
+        }
+
         private static const IType BindType(ISyntaxNode Node, ISyntaxState State)
         {
-        	// Tokenize and parse
-        	var tokenStream = new TokenizerStream(Node.GetCode().ToString(), null);
-        	var parser = new DSharpSyntaxParser(State.Log);
-        	var tSyntax = parser.ToTypeSyntax(tokenStream);
+        	var tSyntax = CreateTypeSyntax(Node, State);
         	if (tSyntax == null)
         		return null;
         	else
