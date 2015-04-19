@@ -45,6 +45,10 @@ namespace Flame.Front
         {
             string ext = Identifier.Extension;
             var resolver = GetResolver(ext);
+            if (resolver == null)
+            {
+                return Task.FromResult<IAssembly>(null);
+            }
             return resolver.ResolveAsync(Identifier, DependencyBuilder);
         }
 

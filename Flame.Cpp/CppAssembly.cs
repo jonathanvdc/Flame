@@ -33,7 +33,7 @@ namespace Flame.Cpp
 
         public IMethod GetEntryPoint()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public string FullName
@@ -80,7 +80,7 @@ namespace Flame.Cpp
 
         public void SetEntryPoint(IMethod Method)
         {
-            throw new NotImplementedException();
+            
         }
 
         public IAssembly Build()

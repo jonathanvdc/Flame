@@ -85,7 +85,7 @@ namespace Flame.Python
 
         public void SetEntryPoint(IMethod Method)
         {
-            throw new NotImplementedException();
+            // Implement this
         }
 
         public IAssembly Build()
