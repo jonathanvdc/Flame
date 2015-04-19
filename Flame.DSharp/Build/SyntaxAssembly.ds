@@ -114,23 +114,75 @@ namespace Flame.DSharp.Build
         	}
         }
 
+		public const IMethod GetEntryMethod()
+		{
+			foreach (var type in AllTypes)
+            {
+				bool isSingletonType = type.IsSingleton;
+                foreach (var item in type.GetMethods())
+                {
+                    if (isSingletonType || item.IsStatic)
+                    if (item.Name.Equals("main") || item.Name.Equals("Main"))
+					if (item.Access == AccessModifier.Public)
+					{
+                        return item;
+                    }
+                }
+            }
+            return null;
+		}
+
+		private IMethod entryPointWrapper;
         /// <summary>
         /// Gets the entry point method for this assembly.
         /// </summary>
         /// <returns></returns>
         public const IMethod GetEntryPoint()
         {
-        	foreach (var type in AllTypes)
-            {
-                foreach (var item in type.GetMethods())
-                {
-                    if (item.IsStatic && item.Name.Equals("main"))
-                    {
-                        return item;
-                    }
-                }
-            }
-            return null;
+			if (entryPointWrapper == null)
+			{
+				var target = GetEntryMethod();
+
+				if (target == null)
+				{
+					return null;
+				}
+
+				if (target.IsStatic)
+				{
+					entryPointWrapper = target;
+					return entryPointWrapper;
+				}
+
+				var descType = new DescribedType("__entry_point", RootNamespace);
+				descType.AddAttribute(PrimitiveAttributes.StaticTypeAttribute);
+				descType.AddAttribute(new AccessAttribute(AccessModifier.Public));
+				var descMethod = new DescribedBodyMethod(target.Name, descType, target.ReturnType, true);
+				var targetParams = target.GetParameters();
+				var args = new IExpression[targetParams.Length];
+				for (int i = 0; i < targetParams.Length; i++)
+				{
+					descMethod.AddParameter(targetParams[i]);
+					args[i] = new ArgumentVariable(targetParams[i], i).CreateGetExpression();
+				}
+				foreach (var item in target.GetAttributes())
+				{
+					descMethod.AddAttribute(item);
+				}
+				var relaxedCall = new RelaxedInvocation(target, args);
+				if (target.ReturnType.Equals(PrimitiveTypes.Void))
+				{
+					var popStatement = new ExpressionStatement(relaxedCall);
+					descMethod.Body = new BlockStatement(new IStatement[] { popStatement, new ReturnStatement() });
+				}
+				else
+				{
+					descMethod.Body = new ReturnStatement(relaxedCall);
+				}
+
+				entryPointWrapper = descMethod;
+			}
+			return entryPointWrapper;
         }
 	}
 }
