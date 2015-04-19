@@ -98,6 +98,7 @@
     <Compile Include="Plugs\RuntimeAssemblyResolver.cs" />
     <Compile Include="Projects\CompilationParameters.cs" />
     <Compile Include="Projects\IProjectHandler.cs" />
+    <Compile Include="Projects\ProjectHandlerHelpers.cs" />
     <Compile Include="Projects\ProjectNode.cs" />
     <Compile Include="Projects\ProjectOption.cs" />
     <Compile Include="Projects\ProjectPath.cs" />

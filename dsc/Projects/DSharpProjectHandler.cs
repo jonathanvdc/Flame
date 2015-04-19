@@ -92,31 +92,13 @@ namespace dsc.Projects
             }
             return Task.WhenAll(units);
         }
-        public static ISourceDocument GetSourceSafe(IProjectSourceItem Item, CompilationParameters Parameters)
-        {
-            try
-            {
-                return Item.GetSource(Parameters.CurrentPath.AbsolutePath.Path);
-            }
-            catch (FileNotFoundException ex)
-            {
-                Parameters.Log.LogError(new LogEntry("Error getting source code", "File '" + Item.SourceIdentifier + "' was not found"));
-                return null;
-            }
-            catch (Exception ex)
-            {
-                Parameters.Log.LogError(new LogEntry("Error getting source code", "'" + Item.SourceIdentifier + "' could not be opened"));
-                Parameters.Log.LogError(new LogEntry("Exception", ex.ToString()));
-                return null;
-            }
-        }
 
         public static Task<CompilationUnit> ParseCompilationUnitAsync(IProjectSourceItem SourceItem, CompilationParameters Parameters)
         {
             Parameters.Log.LogEvent(new LogEntry("Status", "Parsing " + SourceItem.SourceIdentifier));
             return Task.Run(() =>
             {
-                var code = GetSourceSafe(SourceItem, Parameters);
+                var code = ProjectHandlerHelpers.GetSourceSafe(SourceItem, Parameters);
                 if (code == null)
                 {
                     return null;
