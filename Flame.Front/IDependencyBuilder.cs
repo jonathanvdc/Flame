@@ -15,7 +15,7 @@ namespace Flame.Front
         /// </summary>
         /// <param name="RuntimeLibrary"></param>
         /// <returns></returns>
-        Task AddRuntimeLibraryAsync(PathIdentifier Identifier);
+        Task AddRuntimeLibraryAsync(ReferenceDependency Reference);
         /// <summary>
         /// Adds a reference to an assembly.
         /// </summary>
@@ -42,9 +42,15 @@ namespace Flame.Front
 
     public static class DependencyBuilderExtensions
     {
+        public static bool ShouldCopyRuntimeLibraries(this ICompilerOptions Options)
+        {
+            return Options.GetOption<bool>("copy-rt", false);
+        }
+
         public static Task AddRuntimeLibraryAsync(this IDependencyBuilder DependencyBuilder, string Identifier)
         {
-            return DependencyBuilder.AddRuntimeLibraryAsync(new PathIdentifier(Identifier));
+            bool copyRt = DependencyBuilder.Log.Options.ShouldCopyRuntimeLibraries();
+            return DependencyBuilder.AddRuntimeLibraryAsync(new ReferenceDependency(new PathIdentifier(Identifier), copyRt));
         }
 
         public static Action<IAssembly> GetAssemblyRegisteredCallback(this IDependencyBuilder DependencyBuilder)

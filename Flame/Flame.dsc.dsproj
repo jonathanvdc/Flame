@@ -106,6 +106,7 @@
 			<Compile Include="Build\AbstractMethod.ds" />
 			<Compile Include="Build\TemplatedMethod.ds" />
 			<Compile Include="Build\VirtualMethod.ds" />
+            <Compile Include="Build\DescribedAssembly.ds" />
 			<Compile Include="Build\DescribedMethod.ds" />
 			<Compile Include="Build\DescribedParameter.ds" />
 			<Compile Include="Build\DescribedMember.ds" />

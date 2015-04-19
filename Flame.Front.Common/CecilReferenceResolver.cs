@@ -28,10 +28,12 @@ namespace Flame.Front
             return new CecilAssembly(Mono.Cecil.AssemblyDefinition.ReadAssembly(absPath, readerParams));
         }
 
-        public Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
+        public Task<PathIdentifier?> CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
         {
+            var mainTask = CopyFileAsync(SourceIdentifier, TargetIdentifier, Log);
+
             var allTasks = new List<Task>();
-            allTasks.Add(CopyFileAsync(SourceIdentifier, TargetIdentifier, Log));
+            allTasks.Add(mainTask);
 
             var sourceDirPath = SourceIdentifier.Parent;
             var sourceFileName = SourceIdentifier.NameWithoutExtension;
@@ -47,10 +49,11 @@ namespace Flame.Front
                     allTasks.Add(CopyFileAsync(itemSourcePath, itemTargetPath, Log));
                 }
             }
-            return Task.WhenAll(allTasks);
+
+            return Task.WhenAll(allTasks).ContinueWith(task => mainTask.Result);
         }
 
-        private static async Task CopyFileAsync(PathIdentifier sourcePath, PathIdentifier destinationPath, ICompilerLog Log)
+        private static async Task<PathIdentifier?> CopyFileAsync(PathIdentifier sourcePath, PathIdentifier destinationPath, ICompilerLog Log)
         {
             var absSourcePath = sourcePath.AbsolutePath.Path;
             var absTargetPath = destinationPath.AbsolutePath.Path;
@@ -59,20 +62,22 @@ namespace Flame.Front
                 if (!File.Exists(absSourcePath))
                 {
                     Log.LogError(new LogEntry("File not found", "File '" + sourcePath + "' could not be found."));
+                    return null;
                 }
                 string dirName = Path.GetDirectoryName(absTargetPath);
                 if (!Directory.Exists(dirName))
                 {
                     Directory.CreateDirectory(dirName);
                 }
-                using (var source = new FileStream(absSourcePath, FileMode.Open))
+                using (var source = new FileStream(absSourcePath, FileMode.Open, FileAccess.Read))
                 {
-                    using (var destination = new FileStream(absTargetPath, FileMode.Create))
+                    using (var destination = new FileStream(absTargetPath, FileMode.Create, FileAccess.Write))
                     {
-                        await source.CopyToAsync(destination);
+                        await source.CopyToAsync(destination);                        
                     }
                 }
             }
+            return destinationPath;
         }
     }
 }

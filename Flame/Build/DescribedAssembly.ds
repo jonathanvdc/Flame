@@ -1,0 +1,63 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Binding;
+
+namespace Flame.Build
+{
+    public class DescribedAssembly : DescribedMember, IAssembly, INamespaceBranch
+    {
+        public const this(set string Name)
+        {
+            this.types = new List<IType>();
+            this.Environment = new EmptyEnvironment;
+        }
+        public const this(set string Name, set IEnvironment Environment)
+        {
+            this.types = new List<IType>();
+        }
+        public const this(set string Name, set Version AssemblyVersion, set IEnvironment Environment)
+        {
+            this.types = new List<IType>();
+        }
+
+        public override string FullName { const get return Name; }
+
+        public Version AssemblyVersion { const get; private set; }
+        public IEnvironment Environment { const get; private set; }
+
+        public IMethod EntryPoint { const get; set; }
+
+        private List<IType> types;
+
+        public void AddType(IType Type)
+        {
+            types.Add(Type);
+        }
+
+        public const IType[] GetTypes()
+        {
+            return types.ToArray();
+        }
+
+        public const IBinder CreateBinder()
+        {
+            return new NamespaceTreeBinder(Environment, this);
+        }
+
+        public const IMethod GetEntryPoint()
+        {
+            return EntryPoint;
+        }
+
+        public IAssembly DeclaringAssembly
+        {
+            const get { return this; }
+        }
+
+        public const [INamespaceBranch] GetNamespaces()
+        {
+            return new INamespaceBranch[] { };
+        }
+    }
+}

@@ -14,7 +14,7 @@ namespace Flame
 
         public IBinder NormalBinder { const get; private set; }
         public Dictionary<string, IType> PredefinedTypes { const get; private set; }
-        
+
         public void MapType(string Name, IType Value)
         {
         	PredefinedTypes[Name] = Value;
@@ -37,7 +37,7 @@ namespace Flame
             }
         }
 
-        public override IEnumerable<IType> GetTypes()
+        public override [IType] GetTypes()
         {
             return Enumerable.Concat<IType>(PredefinedTypes.Values, NormalBinder.GetTypes());
         }

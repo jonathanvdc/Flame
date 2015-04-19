@@ -42,9 +42,16 @@ namespace Flame.Front.Target
 
         private List<IAssembly> registeredAssemblies;
 
-        protected Task<IAssembly> ResolveRuntimeLibraryAsync(PathIdentifier Identifier)
+        protected Task<IAssembly> ResolveRuntimeLibraryAsync(ReferenceDependency Reference)
         {
-            return RuntimeLibaryResolver.ResolveAsync(Identifier, this);
+            if (Reference.UseCopy)
+            {
+                return RuntimeLibaryResolver.CopyAndResolveAsync(Reference.Identifier, OutputFolder, this);
+            }
+            else
+            {
+                return RuntimeLibaryResolver.ResolveAsync(Reference.Identifier, this);
+            }
         }
 
         protected Task<IAssembly> ResolveReferenceAsync(ReferenceDependency Reference)
@@ -77,9 +84,9 @@ namespace Flame.Front.Target
             }
         }
 
-        public async Task AddRuntimeLibraryAsync(PathIdentifier Identifier)
+        public async Task AddRuntimeLibraryAsync(ReferenceDependency Reference)
         {
-            RegisterAssemblySafe(await ResolveRuntimeLibraryAsync(Identifier));
+            RegisterAssemblySafe(await ResolveRuntimeLibraryAsync(Reference));
         }
 
         public async Task AddReferenceAsync(ReferenceDependency Reference)
