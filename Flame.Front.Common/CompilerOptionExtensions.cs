@@ -22,11 +22,12 @@ namespace Flame.Front
         /// <returns></returns>
         public static IDocumentationBuilder CreateDocumentationBuilder(this ICompilerOptions CompilerOptions, IAssembly Assembly)
         {
-            string docsOption = CompilerOptions.GetOption<string>("docs", "none").ToLower();
+            string docsOption = (CompilerOptions.GetOption<string>("docs", "none") ?? "").ToLower();
             switch (docsOption)
             {
                 case "xml":
                 case "true":
+                case "":
                     return XmlDocumentationProvider.FromAssembly(Assembly);
                 case "none":
                 case "false":

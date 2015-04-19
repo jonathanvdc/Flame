@@ -59,8 +59,9 @@ namespace Flame.Front
                 return RevolveRuntimeLibrary(Identifier.Path);
             }
 
-            public async Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
+            public async Task<PathIdentifier?> CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
             {
+                return null;
             }
         }
     }

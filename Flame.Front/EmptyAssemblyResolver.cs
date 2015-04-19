@@ -15,8 +15,9 @@ namespace Flame.Front
             return null;
         }
 
-        public async Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
+        public async Task<PathIdentifier?> CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
         {
+            return null;
         }
     }
 }

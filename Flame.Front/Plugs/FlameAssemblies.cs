@@ -13,15 +13,20 @@ namespace Flame.Front.Plugs
     {
         static FlameAssemblies()
         {
-            flameAssemblyNameMapping = new Dictionary<string, PathIdentifier>(StringComparer.OrdinalIgnoreCase);
             FlameAssemblyBasePath = new PathIdentifier(Assembly.GetExecutingAssembly().Location);
-            MapFlameDll(FlameRTName);
-            MapFlameDll(FlameName);
-            MapFlameDll(FlameCompilerName);
-            MapFlameDll(FlameSyntaxName);
-            MapFlameDll(FlameDSharpName);
         }
 
+        private static void InitializeFlameAssemblies()
+        {
+            flameAssemblyNameMappingDict = new Dictionary<string, PathIdentifier>(StringComparer.OrdinalIgnoreCase);
+            foreach (var item in Directory.GetFiles(FlameAssemblyDirectory.Path, "*.dll", SearchOption.TopDirectoryOnly))
+            {
+                var ident = new PathIdentifier(item);
+                MapFlameAssembly(ident.NameWithoutExtension, ident.Name);
+            }
+        }
+
+        public const string PixieName = "Pixie";
         public const string FlameRTName = "Flame.RT";
         public const string FlameName = "Flame";
         public const string FlameCompilerName = "Flame.Compiler";
@@ -38,10 +43,27 @@ namespace Flame.Front.Plugs
             }
         }
 
-        private static Dictionary<string, PathIdentifier> flameAssemblyNameMapping;
+        private static Dictionary<string, PathIdentifier> flameAssemblyNameMappingDict;
+        private static Dictionary<string, PathIdentifier> FlameAssemblyNameMapping
+        {
+            get
+            {
+                if (flameAssemblyNameMappingDict == null)
+                {
+                    InitializeFlameAssemblies();
+                }
+                return flameAssemblyNameMappingDict;
+            }
+        }
+
+        public static IEnumerable<PathIdentifier> FlameAssemblyPaths
+        {
+            get { return FlameAssemblyNameMapping.Values; }
+        }
+        
         public static void MapFlameAssembly(string Name, string FileName)
         {
-            flameAssemblyNameMapping[Name] = new PathIdentifier(FlameAssemblyDirectory, FileName);
+            FlameAssemblyNameMapping[Name] = new PathIdentifier(FlameAssemblyDirectory, FileName);
         }
         public static void MapFlameAssemblyByExtension(string Name, string Extension)
         {
@@ -54,12 +76,12 @@ namespace Flame.Front.Plugs
 
         public static bool IsFlameAssembly(string Name)
         {
-            return flameAssemblyNameMapping.ContainsKey(Name);
+            return FlameAssemblyNameMapping.ContainsKey(Name);
         }
 
         public static PathIdentifier GetFlameAssemblyPath(string Name)
         {
-            return flameAssemblyNameMapping[Name];
+            return FlameAssemblyNameMapping[Name];
         }
 
         public static Task<IAssembly> GetFlameAssemblyAsync(IAssemblyResolver Resolver, string Name)

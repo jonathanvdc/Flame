@@ -27,7 +27,14 @@ namespace Flame.Front
         }
         public IAssemblyResolver GetResolver(string Extension)
         {
-            return resolvers[Extension];
+            if (resolvers.ContainsKey(Extension))
+            {
+                return resolvers[Extension];
+            }
+            else
+            {
+                return null;
+            }
         }
         public bool CanResolve(string Extension)
         {
@@ -41,10 +48,14 @@ namespace Flame.Front
             return resolver.ResolveAsync(Identifier, DependencyBuilder);
         }
 
-        public Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
+        public Task<PathIdentifier?> CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
         {
             string ext = SourceIdentifier.Extension;
             var resolver = GetResolver(ext);
+            if (resolver == null)
+            {
+                return Task.FromResult<PathIdentifier?>(null);
+            }
             return resolver.CopyAsync(SourceIdentifier, TargetIdentifier, Log);
         }
     }

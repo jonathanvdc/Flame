@@ -2,6 +2,7 @@
 using Flame.Compiler.Projects;
 using Flame.Front.Cli;
 using Flame.Front.Options;
+using Flame.Front.Plugs;
 using Flame.Front.Projects;
 using Flame.Front.State;
 using Flame.Front.Target;
@@ -50,6 +51,19 @@ namespace Flame.Front.Cli
             }
             if (!buildArgs.CanCompile)
             {
+                if (buildArgs.ShouldCopyRuntimeLibraries())
+                {
+                    var curPath = new PathIdentifier(Directory.GetCurrentDirectory());
+                    var targetPath = curPath.GetAbsolutePath(buildArgs.TargetPath);
+                    var allTasks = new List<Task>();
+                    foreach (var item in FlameAssemblies.FlameAssemblyPaths)
+                    {
+                        allTasks.Add(ReferenceResolvers.ReferenceResolver.CopyAsync(item, targetPath.Combine(item.Name), log));
+                    }
+                    Task.WhenAll(allTasks).Wait();
+                    log.LogEvent(new LogEntry("Flame libraries copied", "All Flame libraries included with " + Name + " have been copied to '" + targetPath.ToString() + "'."));
+                }
+
                 log.WriteEntry("Nothing to compile", log.BrightYellow, "No source file or project was given.");
                 return;
             }

@@ -10,26 +10,33 @@ namespace Flame.Front.Plugs
 {
     public class RuntimeAssemblyResolver : IAssemblyResolver
     {
-        public RuntimeAssemblyResolver(IAssemblyResolver RuntimeLibraryResolver, IAssemblyResolver PlugResolver, string TargetPlatform)
+        public RuntimeAssemblyResolver(IAssemblyResolver RuntimeLibraryResolver, IAssemblyResolver ExternalResolver, string TargetPlatform)
         {
             this.RuntimeLibraryResolver = RuntimeLibraryResolver;
-            this.PlugResolver = PlugResolver;
+            this.ExternalResolver = ExternalResolver;
             this.TargetPlatform = TargetPlatform;
         }
 
         public string TargetPlatform { get; private set; }
         public IAssemblyResolver RuntimeLibraryResolver { get; private set; }
-        public IAssemblyResolver PlugResolver { get; private set; }
+        public IAssemblyResolver ExternalResolver { get; private set; }
 
         public async Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
         {
             var result = await RuntimeLibraryResolver.ResolveAsync(Identifier, DependencyBuilder);
             if (result == null)
             {
-                var plugAsm = await PlugHandler.GetPlugAssemblyAsync(PlugResolver, TargetPlatform, Identifier.Path);
-                if (plugAsm == null && FlameAssemblies.IsFlameAssembly(Identifier.Path))
+                var plugAsm = await PlugHandler.GetPlugAssemblyAsync(ExternalResolver, TargetPlatform, Identifier.Path);
+                if (plugAsm == null)
                 {
-                    return await FlameAssemblies.GetFlameAssemblyAsync(PlugResolver, Identifier.Path);
+                    if (FlameAssemblies.IsFlameAssembly(Identifier.Path))
+                    {
+                        return await FlameAssemblies.GetFlameAssemblyAsync(ExternalResolver, Identifier.Path);
+                    }
+                    else
+                    {
+                        return await ExternalResolver.ResolveAsync(Identifier, DependencyBuilder);
+                    }
                 }
                 else
                 {
@@ -42,9 +49,21 @@ namespace Flame.Front.Plugs
             }
         }
 
-        public async Task CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
+        public async Task<PathIdentifier?> CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
         {
-            
+            if (FlameAssemblies.IsFlameAssembly(SourceIdentifier.Path))
+            {
+                var realPath = FlameAssemblies.GetFlameAssemblyPath(SourceIdentifier.Path);
+                if (!TargetIdentifier.Extension.Equals(realPath.Extension))
+                {
+                    TargetIdentifier = TargetIdentifier.AppendExtension(realPath.Extension);
+                }
+                return await ExternalResolver.CopyAsync(realPath, TargetIdentifier, Log);
+            }
+            else
+            {
+                return await ExternalResolver.CopyAsync(SourceIdentifier, TargetIdentifier, Log);
+            }
         }
     }
 }
