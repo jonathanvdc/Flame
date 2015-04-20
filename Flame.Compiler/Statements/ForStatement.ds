@@ -31,7 +31,7 @@ namespace Flame.Compiler.Statements
         public IStatement Body { const get; private set; }
         public IStatement Change { const get; private set; }
         public IStatement End { const get; private set; }
-        
+
         public override virtual IStatement Optimize()
         {
             var stmt = new ForStatement(Setup.Optimize(), Condition.Optimize(), Change.Optimize(), Body.Optimize(), End.Optimize());
@@ -42,42 +42,44 @@ namespace Flame.Compiler.Statements
             return stmt;
         }
 
-        public override virtual void Emit(IBlockGenerator Generator)
+        public override virtual ICodeBlock Emit(ICodeGenerator Generator)
         {
-        	if (Generator.CodeGenerator is IForCodeGenerator)
+        	if (Generator is IForCodeGenerator)
         	{
-        		var cg = (IForCodeGenerator)Generator.CodeGenerator;
-        		var setupBlock = cg.CreateBlock();
-        		Setup.Emit(setupBlock);
+        		var cg = (IForCodeGenerator)Generator;
+        		var setupBlock = Setup.Emit(cg);
         		var condBlock = Condition.Emit(cg);
-        		var deltaBlock = cg.CreateBlock();
-        		Change.Emit(deltaBlock);
-        		var forBlock = cg.CreateForBlock(setupBlock, condBlock, deltaBlock);
-        		if (forBlock != null) // Code generator may choose to refuse our for block if it so chooses
+        		var deltaBlock = Change.Emit(cg);
+                var bodyBlock = Body.Emit(cg);
+        		var forBlock = cg.CreateForBlock(setupBlock, condBlock, deltaBlock, bodyBlock);
+        		if (forBlock != null) // Code generator may choose to refuse our
+                                      // painstakingly constructed for block if it so chooses
         		{
-        			Body.Emit(forBlock);
-        			Generator.EmitBlock(forBlock);
         			if (!End.IsEmpty)
         			{
-        				End.Emit(Generator);
+        				var endBlock = End.Emit(cg);
+                        return cg.EmitSequence(forBlock, endBlock);
         			}
-        			return;
+                    else
+                    {
+                        return forBlock;
+                    }
         		}
         	}
-            Peel().Emit(Generator);
+            return Lower().Emit(Generator);
         }
 
-        public override IStatement Peel()
+        public override IStatement Lower()
         {
         	var list = new List<IStatement>();
             list.Add(Setup);
-            
+
             var loopBody = new List<IStatement>();
             loopBody.Add(Body);
             loopBody.Add(Change);
             WhileStatement loop = new WhileStatement(Condition, new BlockStatement(loopBody));
             list.Add(loop);
-            
+
             list.Add(End);
             BlockStatement block = new BlockStatement(list);
             return block;

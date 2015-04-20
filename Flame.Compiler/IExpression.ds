@@ -4,27 +4,40 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler
 {
+    /// <summary>
+    /// Defines an expression: a code node focused on yielding a value.
+    /// </summary>
     public interface IExpression : INode
     {
         /// <summary>
         /// Gets the type of object that the expression will return.
         /// </summary>
-        public IType Type { const get; }
+        IType Type { const get; }
+
         /// <summary>
-        /// Gets a boolean value that indicates if the expression is a constant expression. A constant expression can be evaluated at compile-time.
+        /// Gets a boolean value that indicates if the expression is a constant expression.
+        /// A constant expression has no side-effects, and depends soley on
+        /// information that is known at compile-time.
         /// </summary>
-        public bool IsConstant { const get; }
+        /// <remarks>
+        /// Constant expressions can often be evaluated at compile-time,
+        /// but this is not a requirement. For example, a sizeof(type) expression is
+        /// constant by its very nature, but cannot be evaluated before the
+        /// layout of the type has been defined.
+        /// </remarks>
+        bool IsConstant { const get; }
+
         /// <summary>
-        /// Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned.
+        /// Performs a compile-time evaluation of the expression.
+        /// If it cannot be evaluated, null is returned.
         /// </summary>
         /// <returns></returns>
         IBoundObject Evaluate();
+
         /// <summary>
         /// Returns an optimized version of the expression.
         /// </summary>
         /// <returns></returns>
-        public IExpression Optimize();
-        
-        ICodeBlock Emit(ICodeGenerator Generator);
+        IExpression Optimize();
     }
 }

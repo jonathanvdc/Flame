@@ -17,7 +17,7 @@ namespace Flame.Compiler
 		{
 			return CodeGenerator.EmitBinary(A, B, Operator.Add);
 		}
-		
+
 		/// <summary>
 		/// Creates a block that subtracts the given values.
 		/// </summary>
@@ -128,7 +128,7 @@ namespace Flame.Compiler
 			else
 			{
 				// Left ? Right : false
-				return CodeGenerator.CreateIfElseBlock(Left, Right, CodeGenerator.EmitBoolean(false));
+				return CodeGenerator.EmitIfElse(Left, Right, CodeGenerator.EmitBoolean(false));
 			}
 		}
 
@@ -142,7 +142,7 @@ namespace Flame.Compiler
 			else
 			{
 				// Left ? true : Right
-				return CodeGenerator.CreateIfElseBlock(Left, CodeGenerator.EmitBoolean(true), Right);
+				return CodeGenerator.EmitIfElse(Left, CodeGenerator.EmitBoolean(true), Right);
             }
 		}
 
@@ -152,15 +152,15 @@ namespace Flame.Compiler
 
 		public static ICodeBlock EmitGetField(this ICodeGenerator CodeGenerator, IField Field, ICodeBlock Target)
 		{
-			return CodeGenerator.GetField(Field, Target).CreateGetExpression().Emit(CodeGenerator);
+			return CodeGenerator.GetField(Field, Target).EmitGet();
 		}
 		public static ICodeBlock EmitGetFieldAddress(this IUnmanagedCodeGenerator CodeGenerator, IField Field, ICodeBlock Target)
 		{
-			return CodeGenerator.GetUnmanagedField(Field, Target).CreateAddressOfExpression().Emit(CodeGenerator);
+			return CodeGenerator.GetUnmanagedField(Field, Target).EmitAddressOf();
 		}
-		public static void EmitSetField(this IBlockGenerator BlockGenerator, IField Field, ICodeBlock Target, ICodeBlock Value)
+		public static ICodeBlock EmitSetField(this ICodeGenerator CodeGenerator, IField Field, ICodeBlock Target, ICodeBlock Value)
 		{
-			BlockGenerator.CodeGenerator.GetField(Field, Target).CreateSetStatement(new CodeBlockExpression(Value, Field.FieldType)).Emit(BlockGenerator);
+			return CodeGenerator.GetField(Field, Target).EmitSet(Value);
 		}
 
 		public static ICodeBlock EmitInvocation(this ICodeGenerator CodeGenerator, IMethod Method, ICodeBlock Caller, IEnumerable<ICodeBlock> Arguments)
@@ -168,12 +168,12 @@ namespace Flame.Compiler
 			return CodeGenerator.EmitInvocation(CodeGenerator.EmitMethod(Method, Caller), Arguments);
 		}
 
-		public static IVariable DeclareVariable(this IMethodStructureGenerator Generator, IType Type)
+		public static IEmitVariable DeclareVariable(this IMethodStructureGenerator Generator, IType Type)
 		{
 			return Generator.DeclareVariable(new TypeVariableMember(Type));
 		}
 
-		public static IUnmanagedVariable DeclareUnmanagedVariable(this IUnmanagedMethodStructureGenerator Generator, IType Type)
+		public static IUnmanagedEmitVariable DeclareUnmanagedVariable(this IUnmanagedMethodStructureGenerator Generator, IType Type)
 		{
 			return Generator.DeclareUnmanagedVariable(new TypeVariableMember(Type));
 		}

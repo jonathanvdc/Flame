@@ -12,18 +12,18 @@ namespace Flame.Compiler.Emit
 
         #region Variables
 
-        IVariable DeclareVariable(IVariableMember VariableMember);
+        IEmitVariable DeclareVariable(IVariableMember VariableMember);
 
         #endregion
 
         #region Arguments
 
-        IVariable GetArgument(int Index);
+        IEmitVariable GetArgument(int Index);
         /// <summary>
         /// Gets the "this" argument.
         /// </summary>
         /// <returns></returns>
-        IVariable GetThis();
+        IEmitVariable GetThis();
 
         #endregion
     }

@@ -17,21 +17,57 @@ namespace Flame.Compiler
 	public interface ICodeGenerator : IMethodStructureGenerator
 	{
 		/// <summary>
-		/// Creates a new block generator.
+		/// Creates a void block, which is the equivalent of the empty statement.
 		/// </summary>
-		IBlockGenerator CreateBlock();
+		ICodeBlock EmitVoid();
+
 		/// <summary>
-		/// Creates a block generator for a while loop with the given condition block.
+		/// Creates a block that executes that given blocks in sequence.
 		/// </summary>
-		IBlockGenerator CreateWhileBlock(ICodeBlock Condition);
+		ICodeBlock EmitSequence(ICodeBlock First, ICodeBlock Second);
+
 		/// <summary>
-		/// Creates a block generator for a do-while loop with the given condition block.
+		/// Creates a block that repeats the given body as long as the given condition
+		/// block evaluates to true.
 		/// </summary>
-		IBlockGenerator CreateDoWhileBlock(ICodeBlock Condition);
+		ICodeBlock EmitWhile(ICodeBlock Condition, ICodeBlock Body);
+
 		/// <summary>
-		/// Creates an if/else block based on the given condition and bodies.
+		/// Creates a block that executes the given body once, and then keeps on executing
+		/// it as long as the given condition block evaluates to true.
 		/// </summary>
-		ICodeBlock CreateIfElseBlock(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody);
+		ICodeBlock EmitDoWhile(ICodeBlock Body, ICodeBlock Condition);
+
+		/// <summary>
+		/// Creates a block that executes and returns the given if body if the
+		/// given condition block evaluates to true. Otherwise, the given else
+		/// block is executed.
+		/// </summary>
+		ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody);
+
+		/// <summary>
+		/// Creates a block that 'pops' a value: the value of the given code block
+		/// is discarded, and replaced by void.
+		/// </summary>
+		ICodeBlock EmitPop(ICodeBlock Value);
+
+		/// <summary>
+		/// Creates a return block: a block that terminates the containing
+		/// function's exection and transfers control back to the calling block.
+		/// </summary>
+		ICodeBlock EmitReturn(ICodeBlock Value);
+
+		/// <summary>
+		/// Creates a break block: a block that 'breaks' out of the enclosing loop block:
+		/// control is transferred to the block that trails said block.
+		/// </summary>
+		ICodeBlock EmitBreak();
+
+		/// <summary>
+		/// Creates a continue block: a block that stops the execution of the
+		/// enclosing loop block's body, and starts the next iteration.
+		/// </summary>
+		ICodeBlock EmitContinue();
 
 		#region Constants
 
@@ -161,7 +197,7 @@ namespace Flame.Compiler
         /// </summary>
         /// <param name="ElementType"></param>
         /// <param name="Dimensions"></param>
-        ICodeBlock EmitNewArray(IType ElementType, IEnumerable<ICodeBlock> Dimensions);
+        ICodeBlock EmitNewArray(IType ElementType, [ICodeBlock] Dimensions);
         /// <summary>
         /// Creates a new vector of the specified element type with the specified dimensions.
         /// </summary>
@@ -169,8 +205,8 @@ namespace Flame.Compiler
         /// <param name="Dimensions"></param>
         ICodeBlock EmitNewVector(IType ElementType, int[] Dimensions);
 
-		IVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index);
-		IVariable GetField(IField Field, ICodeBlock Target);
+		IEmitVariable GetElement(ICodeBlock Value, [ICodeBlock] Index);
+		IEmitVariable GetField(IField Field, ICodeBlock Target);
 
 		#endregion
 	}

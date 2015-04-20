@@ -13,26 +13,27 @@ namespace Flame.Compiler.Statements
 		{
 			this.exVariable = new ManuallyBoundVariable(Member);
 		}
-		public const this(IVariableMember Member) 
+		public const this(IVariableMember Member)
 		{
 			this.exVariable = new ManuallyBoundVariable(Member);
 		}
-	
+
 		private ManuallyBoundVariable exVariable;
-	
+
 		public IVariable ExceptionVariable { const get return exVariable; }
 		public IStatement Body { const get; set; }
-		
+
 		public const CatchClause Optimize()
 		{
 			return new CatchClause(exVariable, Body.Optimize());
 		}
-		
-		public void Emit(ITryBlockGenerator Generator)
+
+		public ICatchClause Emit(IExceptionCodeGenerator Generator)
 		{
-			var clause = Generator.EmitCatchClause(exVariable.Member);
-			exVariable.BindVariable(clause.ExceptionVariable);
-			Body.Emit(clause);
+			var header = Generator.EmitCatchHeader(exVariable.Member);
+			exVariable.BindVariable(header.ExceptionVariable);
+			var body = Body.Emit(Generator);
+			return Generator.EmitCatchClause(header, body);
 		}
 	}
 
@@ -42,16 +43,16 @@ namespace Flame.Compiler.Statements
 		public const this(set IStatement TryBody, set IStatement FinallyBody);
 		public const this(set IStatement TryBody, set [CatchClause] CatchClauses);
 		public const this(set IStatement TryBody, set IStatement FinallyBody, set [CatchClause] CatchClauses);
-	
+
 		public IStatement TryBody { const get; private set; }
 		public IStatement FinallyBody { const get; private set; }
 		public [CatchClause] CatchClauses { const get; private set; }
-		
+
 		public bool IsEmpty
 		{
 			const get return TryBody.IsEmpty && FinallyBody.IsEmpty;
 		}
-		
+
 		public const IStatement Optimize()
 		{
 			var optTry = TryBody.Optimize();
@@ -63,18 +64,18 @@ namespace Flame.Compiler.Statements
 			}
 			return new TryStatement(optTry, optFinally, optClauses);
 		}
-		
-		public void Emit(IBlockGenerator Generator)
+
+		public ICodeBlock Emit(ICodeGenerator Generator)
 		{
-			var cg = (IExceptionCodeGenerator)Generator.CodeGenerator;
-			var block = cg.CreateTryBlock();
-			TryBody.Emit(block.TryBody);
-			FinallyBody.Emit(block.FinallyBody);
+			var cg = (IExceptionCodeGenerator)Generator;
+			var tryBlock = TryBody.Emit(Generator);
+			var finallyBlock = FinallyBody.Emit(Generator);
+			var catchBlocks = new List<ICatchClause>();
 			foreach (var item in CatchClauses)
 			{
-				item.Emit(block);
+				catchBlocks.Add(item.Emit(cg));
 			}
-			Generator.EmitBlock(block);
+			return cg.EmitTryBlock(tryBlock, finallyBlock, catchBlocks);
 		}
 	}
 }

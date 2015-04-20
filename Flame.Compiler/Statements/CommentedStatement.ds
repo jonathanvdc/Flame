@@ -14,7 +14,7 @@ namespace Flame.Compiler.Statements
 		/// Creates a new commented statement.
 		/// </summary>
 		public const this(set string Comment, set IStatement Statement);
-	
+
 		/// <summary>
 		/// Gets the comment to print.
 		/// </summary>
@@ -23,15 +23,15 @@ namespace Flame.Compiler.Statements
 		/// Gets the actual statement to emit.
 		/// </summary>
 		public IStatement Statement { const get; private set; }
-		
+
 		public bool IsEmpty
 		{
 			const get
 			{
-				return Statement.IsEmpty;	
+				return Statement.IsEmpty;
 			}
 		}
-		
+
 		public const IStatement Optimize()
 		{
 			var optStmt = Statement.Optimize();
@@ -44,18 +44,19 @@ namespace Flame.Compiler.Statements
 				return new CommentedStatement(Comment, optStmt);
 			}
 		}
-		
-		public void Emit(IBlockGenerator Generator)
+
+		public ICodeBlock Emit(ICodeGenerator Generator)
 		{
-			if (Generator.CodeGenerator is ICommentedCodeGenerator)
+			if (Generator is ICommentedCodeGenerator)
 			{
-				var cg = (ICommentedCodeGenerator)Generator.CodeGenerator;
-				Generator.EmitBlock(cg.EmitComment(Comment));
-				Statement.Emit(Generator);
+				var cg = (ICommentedCodeGenerator)Generator;
+				var commentBlock = cg.EmitComment(Comment);
+				var bodyBlock = Statement.Emit(Generator);
+				return cg.EmitSequence(commentBlock, bodyBlock);
 			}
 			else
 			{
-				Statement.Emit(Generator);	
+				return Statement.Emit(Generator);
 			}
 		}
 	}

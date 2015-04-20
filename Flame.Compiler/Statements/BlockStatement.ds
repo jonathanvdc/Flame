@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Flame.Compiler.Statements
 {
@@ -13,12 +14,19 @@ namespace Flame.Compiler.Statements
 
         public [IStatement] Children { const get; private set; }
 
-        public void Emit(IBlockGenerator Generator)
+        public ICodeBlock Emit(ICodeGenerator Generator)
         {
-            foreach (var item in Children)
+            if (!Enumerable.Any<IStatement>(Children))
             {
-                item.Emit(Generator);
+                return Generator.EmitVoid();
             }
+
+            var result = Enumerable.First<IStatement>(Children).Emit(Generator);
+            foreach (var item in Enumerable.Skip<IStatement>(Children, 1))
+            {
+                result = Generator.EmitSequence(result, item.Emit(Generator));
+            }
+            return result;
         }
 
         public bool IsEmpty

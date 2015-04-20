@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Emit
 {
-	public interface IFlowBlockGenerator : IBlockGenerator
+	/*public interface IFlowBlockGenerator : IBlockGenerator
 	{
 		void EmitBreak();
 		void EmitContinue();
-	}
+	}*/
 }

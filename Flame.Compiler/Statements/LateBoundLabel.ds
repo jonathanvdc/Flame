@@ -8,9 +8,9 @@ namespace Flame.Compiler.Statements
 	public class LateBoundLabel
 	{
 		public const this();
-	
+
 		private ILabel boundLabel;
-		
+
 		public ILabel Bind(IBranchingCodeGenerator CodeGenerator)
 		{
 			if (boundLabel == null)
@@ -19,7 +19,7 @@ namespace Flame.Compiler.Statements
 			}
 			return boundLabel;
 		}
-		
+
 		public const IStatement CreateBranchStatement(IExpression Condition)
 		{
 			return new LateBoundLabelBranchStatement(this, Condition);
@@ -28,22 +28,22 @@ namespace Flame.Compiler.Statements
 		{
 			return CreateBranchStatement(new BooleanExpression(true));
 		}
-		
+
 		public const IStatement CreateMarkStatement()
 		{
 			return new LateBoundLabelMarkStatement(this);
 		}
 	}
-	
+
 	public class LateBoundLabelBranchStatement : IStatement
 	{
 		public const this(set LateBoundLabel Label, set IExpression Condition);
-		
+
 		public LateBoundLabel Label { const get; private set; }
 		public IExpression Condition { const get; private set; }
-		
+
 		public bool IsEmpty { const get return Condition.EvaluatesTo<bool>(false); }
-		
+
 		public const IStatement Optimize()
 		{
 			var optCond = Condition.Optimize();
@@ -53,34 +53,34 @@ namespace Flame.Compiler.Statements
 			}
 			return new LateBoundLabelBranchStatement(Label, optCond);
 		}
-		
-		public void Emit(IBlockGenerator BlockGenerator)
+
+		public ICodeBlock Emit(ICodeGenerator Generator)
 		{
-			var cg = (IBranchingCodeGenerator)BlockGenerator.CodeGenerator;
+			var cg = (IBranchingCodeGenerator)Generator;
 			var boundLabel = Label.Bind(cg);
 			var cond = Condition.Emit(cg);
-			BlockGenerator.EmitBlock(boundLabel.EmitBranch(cond));
+			return boundLabel.EmitBranch(cond);
 		}
 	}
-	
+
 	public class LateBoundLabelMarkStatement : IStatement
 	{
 		public const this(set LateBoundLabel Label);
-		
+
 		public LateBoundLabel Label { const get; private set; }
-		
+
 		public bool IsEmpty { const get return false; }
-		
+
 		public const IStatement Optimize()
 		{
 			return this;
 		}
-		
-		public void Emit(IBlockGenerator BlockGenerator)
+
+		public ICodeBlock Emit(ICodeGenerator Generator)
 		{
-			var cg = (IBranchingCodeGenerator)BlockGenerator.CodeGenerator;
+			var cg = (IBranchingCodeGenerator)Generator;
 			var boundLabel = Label.Bind(cg);
-			BlockGenerator.EmitBlock(boundLabel.EmitMark());
+			return boundLabel.EmitMark();
 		}
 	}
 }

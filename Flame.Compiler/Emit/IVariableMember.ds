@@ -5,10 +5,13 @@ using System.Text;
 namespace Flame.Compiler
 {
 	/// <summary>
-	/// Describes a variable.
+	/// Defines a variable member: a (fairly) complete description of a variable.
 	/// </summary>
 	public interface IVariableMember : IMember
 	{
+		/// <summary>
+		/// Gets the variable's type.
+		/// </summary>
 		IType VariableType { const get; }
 	}
 }

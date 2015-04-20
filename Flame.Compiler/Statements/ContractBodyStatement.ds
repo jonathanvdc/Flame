@@ -31,38 +31,35 @@ namespace Flame.Compiler.Statements
 			const get return Body.IsEmpty && !Enumerable.Any<IExpression>(Preconditions) && !Enumerable.Any<IExpression>(Postconditions);
 		}
 
-		public void Emit(IBlockGenerator Target)
+		public ICodeBlock Emit(ICodeGenerator Target)
 		{
-			if (Target is IContractBlockGenerator)
+			if (Target is IContractCodeGenerator)
 			{
-				var cTarget = (IContractBlockGenerator)Target;
-				var cg = cTarget.CodeGenerator;
-				foreach (var item in Preconditions)
-				{
-					cTarget.EmitPrecondition(item.Emit(cg));
-				}
-				foreach (var item in Postconditions)
-				{
-					cTarget.EmitPostcondition(item.Emit(cg));
-				}
-				Body.Emit(cTarget);
+				var cg = (IContractCodeGenerator)Target;
+
+				var pre = Preconditions.EmitAll(cg);
+				var post = Postconditions.EmitAll(cg);
+				var body = Body.Emit(cg);
+				return cg.EmitContractBlock(pre, post, body);
 			}
-			else if (Target.CodeGenerator is IExceptionCodeGenerator)
+			else if (Target is IExceptionCodeGenerator)
 			{
-				var cg = (IExceptionCodeGenerator)Target.CodeGenerator;
+				var cg = (IExceptionCodeGenerator)Target;
+
+				var pres = cg.EmitVoid();
 				foreach (var item in Preconditions)
 				{
-					Target.EmitBlock(cg.EmitAssert(item.Emit(cg)));
+					pres = cg.EmitSequence(pres, cg.EmitAssert(item.Emit(cg)));
 				}
-				Body.Emit(Target);
-				/*foreach (var item in Postconditions) // Not helpful
+				return cg.EmitSequence(pres, Body.Emit(Target));
+				/*foreach (var item in Postconditions) // Not helpful. The method has already returned at this point.
 				{
 					Target.EmitBlock(cg.EmitAssert(item.Emit(cg)));
 				}*/
 			}
 			else
 			{
-				Body.Emit(Target);
+				return Body.Emit(Target);
 			}
 		}
 	}

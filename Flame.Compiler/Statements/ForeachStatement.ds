@@ -20,8 +20,8 @@ namespace Flame.Compiler.Statements
 
 	public class ForeachStatement : IStatement
 	{
-		public const this(set IEnumerable<CollectionElement> Collections, set IStatement Body, set ForeachElementCache elemCache);
-		public const this(set IEnumerable<CollectionElement> Collections)
+		public const this(set [CollectionElement] Collections, set IStatement Body, set ForeachElementCache elemCache);
+		public const this(set [CollectionElement] Collections)
 		{
 			this.Body = new EmptyStatement();
 			this.elemCache = new ForeachElementCache();
@@ -31,7 +31,7 @@ namespace Flame.Compiler.Statements
 			}
 		}
 
-		public IEnumerable<CollectionElement> Collections { const get; private set; }
+		public [CollectionElement] Collections { const get; private set; }
 		public IStatement Body { const get; set; }
 
 		private ForeachElementCache elemCache;
@@ -57,42 +57,39 @@ namespace Flame.Compiler.Statements
 			return new ForeachStatement(optColl, optBody, elemCache);
 		}
 
-		public void Emit(IBlockGenerator Generator) : IStatement.Emit
+		public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
 		{
-			var codeGen = Generator.CodeGenerator;
-			if (codeGen is IForeachCodeGenerator)
+			if (Generator is IForeachCodeGenerator)
 			{
-				var cg = (IForeachCodeGenerator)codeGen;
+				var cg = (IForeachCodeGenerator)Generator;
 				List<ICollectionBlock> collectionBlocks = new List<ICollectionBlock>();
 				foreach (var item in Collections)
 				{
 					collectionBlocks.Add(cg.CreateCollectionBlock(item.Member, item.Collection.Emit(cg)));
 				}
-				var loopBlock = cg.CreateForeachBlock(collectionBlocks);
 
-				if (loopBlock == null)
+				var loopHeader = cg.CreateForeachHeader(collectionBlocks);
+
+				if (loopHeader != null)
 				{
-					this.Reduce().Emit(Generator);
-				}
-				else
-				{
-					foreach (var item in loopBlock.Elements, var elem in elemCache.ElementVariables)
+					foreach (var item in loopHeader.Elements, var elem in elemCache.ElementVariables)
 						elem.BindVariable(item);
 
-					Body.Emit(loopBlock);
-					Generator.EmitBlock(loopBlock);
+					var body = Body.Emit(Generator);
+
+					var result = cg.CreateForeachBlock(loopHeader, body);
+
+					if (result != null)
+						return result;
 				}
 			}
-			else
-			{
-				this.Reduce().Emit(Generator);
-			}
+			return this.Lower().Emit(Generator);
 		}
 
 		/// <summary>
 		/// Reduces the foreach statements to more primitive statements.
 		/// </summary>
-		public IStatement Reduce()
+		public IStatement Lower()
 		{
 			var initStatements = new List<IStatement>();
             var conditions = new List<IExpression>();

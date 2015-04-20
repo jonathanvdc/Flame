@@ -8,11 +8,11 @@ namespace Flame.Compiler.Statements
 	public class YieldReturnStatement : IStatement
 	{
 		public const this(set IExpression Value);
-	
+
 		public IExpression Value { const get; private set; }
-		
+
 		public bool IsEmpty { const get return false; }
-		
+
 		public const IStatement Optimize()
 		{
 			if (Value != null)
@@ -24,11 +24,11 @@ namespace Flame.Compiler.Statements
 				return this;
 			}
 		}
-		
-		public void Emit(IBlockGenerator Generator)
+
+		public ICodeBlock Emit(ICodeGenerator Generator)
 		{
-			var cg = (IYieldCodeGenerator)Generator.CodeGenerator;
-			Generator.EmitBlock(cg.EmitYieldReturn(Value.Emit(cg)));
+			var cg = (IYieldCodeGenerator)Generator;
+			return cg.EmitYieldReturn(Value.Emit(cg));
 		}
 	}
 }
