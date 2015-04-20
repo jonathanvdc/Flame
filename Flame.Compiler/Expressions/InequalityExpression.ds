@@ -22,7 +22,9 @@ namespace Flame.Compiler.Expressions
         {
             var first = LeftOperand.Evaluate();
             var second = RightOperand.Evaluate();
-            return !EqualityExpression.CheckObjectEquality(first, second);
+            var eqObj = EqualityExpression.CheckObjectEquality(first, second);
+            if (eqObj == null) return eqObj;
+            else return new BooleanExpression(!eqObj.GetValue<bool>());
         }
 
         public override const IExpression Optimize()
