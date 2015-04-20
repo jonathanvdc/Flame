@@ -11,7 +11,7 @@ namespace Flame.Compiler.Statements
 
 		public T Variable { const get; protected set; }
         public IExpression Value { const get; protected set; }
-        
+
         public const IVariable GetVariable() : IVariableNode.GetVariable
         {
         	return Variable;
@@ -28,30 +28,30 @@ namespace Flame.Compiler.Statements
             const get { return false; }
         }
 
-        public abstract void Emit(IBlockGenerator Generator);
+        public abstract ICodeBlock Emit(ICodeGenerator Generator);
     }
     public abstract class VariableReleaseStatementBase<T> : IStatement, IVariableNode where T : IVariable
     {
-    	public this(); 
+    	public this();
         public this(set T Variable);
-        
+
         public T Variable { const get; protected set; }
-        
+
         public const IVariable GetVariable() : IVariableNode.GetVariable
         {
         	return Variable;
         }
-        
+
         public virtual IStatement Optimize()
         {
             return this;
         }
-        
+
         public bool IsEmpty
         {
             const get { return false; }
         }
-        
-        public abstract void Emit(IBlockGenerator Generator);
+
+        public abstract ICodeBlock Emit(ICodeGenerator Generator);
     }
 }

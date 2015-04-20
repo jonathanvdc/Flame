@@ -51,6 +51,7 @@
 			<Compile Include="Emit\IUnmanagedCodeGenerator.ds" />
 			<Compile Include="Emit\IUnmanagedMethodStructureGenerator.ds" />
 			<Compile Include="Emit\IBranchingCodeGenerator.ds" />
+			<Compile Include="Emit\IEmitVariable.ds" />
 			<Compile Include="Emit\ILabel.ds" />
 			<Compile Include="Emit\CodeGeneratorExtensions.ds" />
 			<Compile Include="Emit\IVariableMember.ds" />
@@ -158,6 +159,7 @@
 			<Compile Include="Statements\AssertStatement.ds" />
 			<Compile Include="Statements\TryStatement.ds" />
 			<Compile Include="Statements\ContractBodyStatement.ds" />
+			<Compile Include="Statements\EmitVariableSetStatement.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Variables">
@@ -176,6 +178,7 @@
 			<Compile Include="Variables\ConstantVariable.ds" />
 			<Compile Include="Variables\ThisReferenceVariable.ds" />
 			<Compile Include="Variables\ReturnValueVariable.ds" />
+			<Compile Include="Variables\TypedEmitVariable.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Code">

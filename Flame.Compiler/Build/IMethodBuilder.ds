@@ -6,6 +6,7 @@ namespace Flame.Compiler
 {
     public interface IMethodBuilder : IMemberBuilder<IMethod>, IMethod
     {
-        IBlockGenerator GetBodyGenerator();
+        ICodeGenerator GetBodyGenerator();
+        void SetBody(ICodeBlock Body);
     }
 }

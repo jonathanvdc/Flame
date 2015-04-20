@@ -37,11 +37,18 @@ namespace Flame.Compiler.Statements
 			return optAssert;
 		}
 
-		public void Emit(IBlockGenerator Generator)
+		public ICodeBlock Emit(ICodeGenerator Generator)
 		{
-			var cg = (IExceptionCodeGenerator)Generator.CodeGenerator;
-			var expr = Expression.Emit(cg);
-			Generator.EmitBlock(cg.EmitAssert(expr));
+			if (Generator is IExceptionCodeGenerator)
+			{
+				var cg = (IExceptionCodeGenerator)Generator;
+				var expr = Expression.Emit(cg);
+				return cg.EmitAssert(expr);
+			}
+			else
+			{
+				return Generator.EmitVoid(); // Oh, well.
+			}
 		}
 	}
 }

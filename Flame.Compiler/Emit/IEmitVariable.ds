@@ -1,0 +1,34 @@
+
+namespace Flame.Compiler.Emit
+{
+    /// <summary>
+    /// Describes common functionality for codegen-level variables.
+    /// </summary>
+    public interface IEmitVariable
+    {
+        /// <summary>
+        /// Creates a block that gets this variable's value.
+        /// </summary>
+        ICodeBlock EmitGet();
+        /// <summary>
+        /// Creates a block that sets this variable's value to the given value.
+        /// </summary>
+        ICodeBlock EmitSet(ICodeBlock Value);
+        /// <summary>
+        /// Creates a block that flags this variable for re-use.
+        /// </summary>
+        ICodeBlock EmitRelease();
+    }
+
+    /// <summary>
+    /// Describes common functionality for codegen-level variables whose address
+    /// can be taken.
+    /// </summary>
+    public interface IUnmanagedEmitVariable : IEmitVariable
+    {
+        /// <summary>
+        /// Creates a block that gets this variable's address, as a (reference) pointer.
+        /// </summary>
+        ICodeBlock EmitAddressOf();
+    }
+}

@@ -15,7 +15,7 @@ namespace Flame.Compiler.Statements
         {
             const get { return false; }
         }
-        
+
         public const IVariable GetVariable() : IVariableNode.GetVariable
         {
         	return new AtAddressVariable(Pointer);
@@ -26,11 +26,10 @@ namespace Flame.Compiler.Statements
             return new StoreAtAddressStatement(Pointer.Optimize(), Value.Optimize());
         }
 
-        public void Emit(IBlockGenerator Generator)
+        public ICodeBlock Emit(ICodeGenerator Generator)
         {
-        	var codeGen = (IUnmanagedCodeGenerator)Generator.CodeGenerator;
-            var block = (codeGen).EmitStoreAtAddress(Pointer.Emit(codeGen), Value.Emit(codeGen));
-            Generator.EmitBlock(block);
+        	var cg = (IUnmanagedCodeGenerator)Generator;
+            return cg.EmitStoreAtAddress(Pointer.Emit(cg), Value.Emit(cg));
         }
     }
 }

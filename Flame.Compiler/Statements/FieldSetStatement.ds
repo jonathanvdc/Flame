@@ -16,7 +16,7 @@ namespace Flame.Compiler.Statements
         {
             const get { return false; }
         }
-        
+
         public const IVariable GetVariable() : IVariableNode.GetVariable
         {
         	return new FieldVariable(Field, Target);
@@ -34,10 +34,10 @@ namespace Flame.Compiler.Statements
         		optTarget = Target.Optimize();
         	}
             var optVal = Value.Optimize();
-            return new FieldSetStatement(Field, optTarget, optVal);    
+            return new FieldSetStatement(Field, optTarget, optVal);
         }
 
-        public void Emit(IBlockGenerator Generator) : IStatement.Emit
+        public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
         {
         	ICodeBlock targetBlock;
         	if (Target == null)
@@ -46,10 +46,10 @@ namespace Flame.Compiler.Statements
         	}
         	else
         	{
-        		targetBlock = Target.Emit(Generator.CodeGenerator);
+        		targetBlock = Target.Emit(Generator);
         	}
-        	
-            Generator.EmitSetField(Field, targetBlock, Value.Emit(Generator.CodeGenerator));
+
+            return Generator.EmitSetField(Field, targetBlock, Value.Emit(Generator));
         }
     }
 }

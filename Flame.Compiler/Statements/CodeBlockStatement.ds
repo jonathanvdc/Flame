@@ -7,22 +7,22 @@ namespace Flame.Compiler.Statements
 	public class CodeBlockStatement : IStatement
 	{
 		public const this(set ICodeBlock Block);
-		
+
 		public ICodeBlock Block { const get; private set; }
-		
+
 		public bool IsEmpty
 		{
 			const get return false;
 		}
-		
+
 		public const IStatement Optimize() : IStatement.Optimize
 		{
 			return this;
 		}
-		
-		public void Emit(IBlockGenerator BlockGenerator) : IStatement.Emit
+
+		public ICodeBlock Emit(ICodeGenerator BlockGenerator) : INode.Emit
 		{
-			BlockGenerator.EmitBlock(Block);
+			return Block;
 		}
 	}
 }

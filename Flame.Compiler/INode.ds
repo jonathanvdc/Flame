@@ -4,8 +4,16 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler
 {
+    /// <summary>
+    /// Defines a code node: the root type for independent code generation:
+    /// code nodes specify the *how* of generating code blocks based on a
+    /// code generator.
+    /// </summary>
     public interface INode
     {
-        
+        /// <summary>
+        /// Creates a code block that captures this code node.
+        /// </summary>
+        ICodeBlock Emit(ICodeGenerator CodeGenerator);
     }
 }

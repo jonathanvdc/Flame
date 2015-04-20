@@ -10,8 +10,8 @@ namespace Flame.Compiler.Expressions
 
 		public IExpression Target { const get; private set; }
 		public IEnumerable<IExpression> IndexArguments { const get; private set; }
-        public IType Type 
-        { 
+        public IType Type
+        {
 	        const get
 			{
 				return Target.Type.AsContainerType().GetElementType();
@@ -22,7 +22,7 @@ namespace Flame.Compiler.Expressions
         {
             const get { return false; }
         }
-        
+
         public const IVariable GetVariable() : IVariableNode.GetVariable
         {
         	return new ElementVariable(Target, IndexArguments);
@@ -42,7 +42,7 @@ namespace Flame.Compiler.Expressions
         {
         	var targetBlock = Target.Emit(Generator);
         	var argBlocks = IndexArguments.EmitAll(Generator);
-            return Generator.GetElement(targetBlock, argBlocks).CreateGetExpression().Emit(Generator);
+            return Generator.GetElement(targetBlock, argBlocks).EmitGet();
         }
     }
 }

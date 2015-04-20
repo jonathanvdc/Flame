@@ -7,11 +7,11 @@ namespace Flame.Compiler.Statements
 	{
 		public const this();
 		public const this(set IExpression Value);
-	
+
 		public IExpression Value { const get; private set; }
-		
+
 		public bool IsEmpty { const get return false; }
-		
+
 		public IStatement Optimize()
 		{
 			if (Value != null)
@@ -23,16 +23,16 @@ namespace Flame.Compiler.Statements
 				return this;
 			}
 		}
-		
-		public void Emit(IBlockGenerator Generator)
+
+		public ICodeBlock Emit(ICodeGenerator Generator)
 		{
 			if (Value != null)
 			{
-				Generator.EmitReturn(Value.Emit(Generator.CodeGenerator));
+				return Generator.EmitReturn(Value.Emit(Generator));
 			}
 			else
 			{
-				Generator.EmitReturn(null);
+				return Generator.EmitReturn(null);
 			}
 		}
 	}

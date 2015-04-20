@@ -41,19 +41,20 @@ namespace Flame.Compiler.Statements
 			}
 		}
 
-		public void Emit(IBlockGenerator Generator) : IStatement.Emit
+		public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
 		{
-			var cg = Generator.CodeGenerator;
-			var conditionBlock = Condition.Emit(cg);
-			var ifBodyBlock = cg.CreateBlock();
-			IfBody.Emit(ifBodyBlock);
-			var elseBodyBlock = cg.CreateBlock();
+			var conditionBlock = Condition.Emit(Generator);
+			var ifBodyBlock = IfBody.Emit(Generator);
+			ICodeBlock elseBodyBlock;
 			if (ElseBody != null)
 			{
-				ElseBody.Emit(elseBodyBlock);
+				elseBodyBlock = ElseBody.Emit(Generator);
 			}
-			var ifElseBlock = cg.CreateIfElseBlock(conditionBlock, ifBodyBlock, elseBodyBlock);
-			Generator.EmitBlock(ifElseBlock);
+			else
+			{
+				elseBodyBlock = Generator.EmitVoid();
+			}
+			return Generator.EmitIfElse(conditionBlock, ifBodyBlock, elseBodyBlock);
 		}
 	}
 }

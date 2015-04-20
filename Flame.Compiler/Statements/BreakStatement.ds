@@ -9,9 +9,9 @@ namespace Flame.Compiler.Statements
     {
         public const this();
 
-        public void Emit(IBlockGenerator Generator)
+        public ICodeBlock Emit(ICodeGenerator Generator)
         {
-            Generator.EmitBreak();
+            return Generator.EmitBreak();
         }
 
         public bool IsEmpty
