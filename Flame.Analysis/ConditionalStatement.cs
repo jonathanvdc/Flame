@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Analysis
 {
-    public class ConditionalStatement : IStatement
+    /*public class ConditionalStatement : IStatement
     {
         public ConditionalStatement(IStatement Statement, bool EmitStatement)
         {
@@ -47,5 +47,5 @@ namespace Flame.Analysis
                 return new EmptyStatement();
             }
         }
-    }
+    }*/
 }

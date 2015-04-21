@@ -943,8 +943,7 @@ namespace Flame.Recompilation
             try
             {
                 var codeGen = new RecompiledCodeGenerator(this, Method);
-                var block = new RecompiledContractBlockGenerator(codeGen);
-                SourceStatement.Emit(block);
+                var block = SourceStatement.Emit(codeGen);
                 return RecompiledCodeGenerator.GetStatement(block);
             }
             catch (Exception ex)

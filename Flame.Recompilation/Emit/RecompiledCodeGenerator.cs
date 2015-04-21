@@ -85,24 +85,49 @@ namespace Flame.Recompilation.Emit
 
         #region Blocks
 
-        public IBlockGenerator CreateBlock()
+        public ICodeBlock EmitBreak()
         {
-            return new RecompiledBlockGenerator(this);
+            return new StatementBlock(this, new BreakStatement());
         }
 
-        public IBlockGenerator CreateDoWhileBlock(ICodeBlock Condition)
+        public ICodeBlock EmitContinue()
         {
-            return new DoWhileBlockGenerator(this, GetExpression(Condition));
+            return new StatementBlock(this, new ContinueStatement());
         }
 
-        public ICodeBlock CreateIfElseBlock(ICodeBlock Condition, ICodeBlock IfBlock, ICodeBlock ElseBlock)
+        public ICodeBlock EmitDoWhile(ICodeBlock Body, ICodeBlock Condition)
         {
-            return new IfElseBlock(this, GetExpression(Condition), IfBlock, ElseBlock);
+            return new StatementBlock(this, new DoWhileStatement(GetStatement(Body), GetExpression(Condition)));
         }
 
-        public IBlockGenerator CreateWhileBlock(ICodeBlock Condition)
+        public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
         {
-            return new WhileBlockGenerator(this, GetExpression(Condition));
+            return new StatementBlock(this, new IfElseStatement(GetExpression(Condition), GetStatement(IfBody), GetStatement(ElseBody)));
+        }
+
+        public ICodeBlock EmitPop(ICodeBlock Value)
+        {
+            return new StatementBlock(this, new ExpressionStatement(GetExpression(Value)));
+        }
+
+        public ICodeBlock EmitReturn(ICodeBlock Value)
+        {
+            return new StatementBlock(this, new ReturnStatement(GetExpression(Value)));
+        }
+
+        public ICodeBlock EmitSequence(ICodeBlock First, ICodeBlock Second)
+        {
+            return new StatementBlock(this, new BlockStatement(new IStatement[] { GetStatement(First), GetStatement(Second) }));
+        }
+
+        public ICodeBlock EmitVoid()
+        {
+            return new StatementBlock(this, new EmptyStatement());
+        }
+
+        public ICodeBlock EmitWhile(ICodeBlock Condition, ICodeBlock Body)
+        {
+            return new StatementBlock(this, new WhileStatement(GetExpression(Condition), GetStatement(Body)));
         }
 
         #endregion
@@ -263,57 +288,57 @@ namespace Flame.Recompilation.Emit
 
         #region Variables
 
-        public IVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
+        public IEmitVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
         {
             return GetUnmanagedElement(Value, Index);
         }
 
-        public IVariable GetField(IField Field, ICodeBlock Target)
+        public IEmitVariable GetField(IField Field, ICodeBlock Target)
         {
             return GetUnmanagedField(Field, Target);
         }
 
-        public IVariable DeclareVariable(IVariableMember VariableMember)
+        public IEmitVariable DeclareVariable(IVariableMember VariableMember)
         {
             return DeclareUnmanagedVariable(VariableMember);
         }
 
-        public IVariable GetArgument(int Index)
+        public IEmitVariable GetArgument(int Index)
         {
             return GetUnmanagedArgument(Index);
         }
 
-        public IVariable GetThis()
+        public IEmitVariable GetThis()
         {
             return GetUnmanagedThis();
         }
 
-        public IUnmanagedVariable GetUnmanagedElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
+        public IUnmanagedEmitVariable GetUnmanagedElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
         {
             return new RecompiledVariable(this, new ElementVariable(GetExpression(Value), GetExpressions(Index)));
         }
 
-        public IUnmanagedVariable GetUnmanagedField(IField Field, ICodeBlock Target)
+        public IUnmanagedEmitVariable GetUnmanagedField(IField Field, ICodeBlock Target)
         {
             return new RecompiledVariable(this, new FieldVariable(Recompiler.GetField(Field), GetExpression(Target)));
         }
 
-        public IUnmanagedVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
+        public IUnmanagedEmitVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
         {
             return new RecompiledVariable(this, new LateBoundVariable(new RecompiledVariableMember(Recompiler, VariableMember)));
         }
 
-        public IUnmanagedVariable GetUnmanagedArgument(int Index)
+        public IUnmanagedEmitVariable GetUnmanagedArgument(int Index)
         {
             return new RecompiledVariable(this, new ArgumentVariable(Method.GetParameters()[Index], Index));
         }
 
-        public IUnmanagedVariable GetUnmanagedThis()
+        public IUnmanagedEmitVariable GetUnmanagedThis()
         {
             return new RecompiledVariable(this, new ThisVariable(Method.DeclaringType));
         }
 
-        public IVariable ReturnVariable
+        public IEmitVariable ReturnVariable
         {
             get { return new RecompiledVariable(this, new ReturnValueVariable(Method.ReturnType)); }
         }
@@ -371,18 +396,35 @@ namespace Flame.Recompilation.Emit
             return new CollectionBlock(this, new RecompiledVariableMember(Recompiler, Member), GetExpression(Collection));
         }
 
-        public IForeachBlockGenerator CreateForeachBlock(IEnumerable<ICollectionBlock> Collections)
+        public ICodeBlock CreateForeachBlock(IForeachBlockHeader Header, ICodeBlock Body)
         {
-            return new ForeachBlockGenerator(this, Collections.Cast<CollectionBlock>());
+            return new StatementBlock(this, ((ForeachBlockHeader)Header).ToForeachStatement(GetStatement(Body)));
+        }
+
+        public IForeachBlockHeader CreateForeachHeader(IEnumerable<ICollectionBlock> Collections)
+        {
+            return new ForeachBlockHeader(this, Collections.Cast<CollectionBlock>());
         }
 
         #endregion
 
         #region IExceptionCodeGenerator
 
-        public ITryBlockGenerator CreateTryBlock()
+        public ICatchClause EmitCatchClause(ICatchHeader Header, ICodeBlock Body)
         {
-            return new TryBlockGenerator(this);
+            var clause = (CatchHeader)Header;
+            clause.SetBody(GetStatement(Body));
+            return clause;
+        }
+
+        public ICatchHeader EmitCatchHeader(IVariableMember ExceptionVariable)
+        {
+            return new CatchHeader(this, ExceptionVariable);
+        }
+
+        public ICodeBlock EmitTryBlock(ICodeBlock TryBody, ICodeBlock FinallyBody, IEnumerable<ICatchClause> CatchClauses)
+        {
+            return new StatementBlock(this, new TryStatement(GetStatement(TryBody), GetStatement(FinallyBody), CatchClauses.Select(item => ((CatchHeader)item).ToClause())));
         }
 
         public ICodeBlock EmitAssert(ICodeBlock Condition)
@@ -399,9 +441,18 @@ namespace Flame.Recompilation.Emit
 
         #region IForCodeGenerator
 
-        public IBlockGenerator CreateForBlock(ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta)
+        public ICodeBlock CreateForBlock(ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body)
         {
-            return new ForBlockGenerator(this, GetStatement(Initialization), GetExpression(Condition), GetStatement(Delta));
+            return new StatementBlock(this, new ForStatement(GetStatement(Initialization), GetExpression(Condition), GetStatement(Delta), GetStatement(Body)));
+        }
+
+        #endregion
+
+        #region Contracts
+
+        public ICodeBlock EmitContractBlock(IEnumerable<ICodeBlock> Preconditions, IEnumerable<ICodeBlock> Postconditions, ICodeBlock Body)
+        {
+            return new StatementBlock(this, new ContractBodyStatement(GetStatement(Body), GetExpressions(Preconditions), GetExpressions(Postconditions)));
         }
 
         #endregion
