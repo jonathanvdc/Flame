@@ -11,13 +11,13 @@ namespace Flame.Python.Emit
     public interface IPythonCollectionBlock : ICollectionBlock, IPythonBlock
     {
         IPythonBlock Collection { get; }
-        IVariable GetElementVariable();
+        IEmitVariable GetElementVariable();
     }
 
     public interface IPythonIndexedCollectionBlock : IPythonCollectionBlock
     {
-        IVariable GetElementVariable(IVariable Index);
-        IVariable GetIndexVariable();
+        IEmitVariable GetElementVariable(IEmitVariable Index);
+        IEmitVariable GetIndexVariable();
         IPythonBlock GetLengthExpression();
     }
 
@@ -48,7 +48,7 @@ namespace Flame.Python.Emit
             return cb;
         }
 
-        public IVariable GetElementVariable()
+        public IEmitVariable GetElementVariable()
         {
             return CodeGenerator.DeclareVariable(this.Member);
         }
@@ -115,20 +115,20 @@ namespace Flame.Python.Emit
             return cb;
         }
 
-        public IVariable GetElementVariable()
+        public IEmitVariable GetElementVariable()
         {
             return GetElementVariable(null);
         }
 
-        public IVariable GetElementVariable(IVariable Index)
+        public IEmitVariable GetElementVariable(IEmitVariable Index)
         {
             if (Index != null)
             {
                 indexVariable = (PythonVariableBase)Index;
             }
             return new PythonIndexedReleaseVariable(CodeGenerator, List,
-                new IPythonBlock[] { (IPythonBlock)IndexVariable.CreateGetExpression().Emit(CodeGenerator) },
-                IndexVariable.CreateReleaseStatement());
+                new IPythonBlock[] { (IPythonBlock)IndexVariable.EmitGet() },
+                (IPythonBlock)IndexVariable.EmitRelease());
         }
 
         public IPythonBlock GetLengthExpression()
@@ -138,7 +138,7 @@ namespace Flame.Python.Emit
             return lenCall;
         }
 
-        public IVariable GetIndexVariable()
+        public IEmitVariable GetIndexVariable()
         {
             return IndexVariable;
         }

@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace Flame.Python.Emit
 {
-    public class ForeachBlockGenerator : BlockGenerator, IForeachBlockGenerator
+    public class ForeachBlockHeader : IForeachBlockHeader
     {
-        public ForeachBlockGenerator(ICodeGenerator CodeGenerator, IEnumerable<IPythonCollectionBlock> CollectionBlocks)
-            : base(CodeGenerator)
+        public ForeachBlockHeader(ICodeGenerator CodeGenerator, IEnumerable<IPythonCollectionBlock> CollectionBlocks)
         {
+            this.CodeGenerator = CodeGenerator;
             var collBlocks = CollectionBlocks.ToArray();
-            var elemDict = new Dictionary<IPythonCollectionBlock, IVariable>();
-            var elems = new List<IVariable>();
+            var elemDict = new Dictionary<IPythonCollectionBlock, IEmitVariable>();
+            var elems = new List<IEmitVariable>();
             this.indexedBlocks = new List<IPythonIndexedCollectionBlock>();
             for (int i = 0; i < collBlocks.Length; i++)
             {
@@ -40,15 +40,16 @@ namespace Flame.Python.Emit
             this.collectionMap = elemDict;
         }
 
+        public ICodeGenerator CodeGenerator { get; private set; }
         private List<IPythonIndexedCollectionBlock> indexedBlocks;
         private PythonVariableBase indexVariable;
-        private IReadOnlyDictionary<IPythonCollectionBlock, IVariable> collectionMap;
+        private IReadOnlyDictionary<IPythonCollectionBlock, IEmitVariable> collectionMap;
 
-        public IReadOnlyList<IVariable> Elements { get; private set; }
+        public IReadOnlyList<IEmitVariable> Elements { get; private set; }
 
-        public IReadOnlyList<IVariable> IndexVariables
+        public IReadOnlyList<IEmitVariable> IndexVariables
         {
-            get { return indexVariable != null ? new IVariable[] { indexVariable } : new IVariable[0]; }
+            get { return indexVariable != null ? new IEmitVariable[] { indexVariable } : new IEmitVariable[0]; }
         }
         public IEnumerable<IPythonCollectionBlock> CollectionBlocks
         {
@@ -123,7 +124,12 @@ namespace Flame.Python.Emit
             return new InvocationBlock(first.CodeGenerator, rangeMethod, new IPythonBlock[] { GetMin(Values) }, PythonIterableType.Instance);
         }
 
-        public override CodeBuilder GetCode()
+        public IEnumerable<ModuleDependency> GetDependencies()
+        {
+            return CollectionBlocks.GetDependencies();
+        }
+
+        public CodeBuilder GetCode()
         {
             CodeBuilder cb = new CodeBuilder();
             cb.Append("for ");
@@ -146,16 +152,41 @@ namespace Flame.Python.Emit
             var zipped = ZipCollections(GetCollections());
             cb.Append(zipped.GetCode());
             cb.Append(":");
+            return cb;
+        }
+    }
+
+    public class ForeachBlock : IPythonBlock
+    {
+        public ForeachBlock(ForeachBlockHeader Header, IPythonBlock Body)
+        {
+            this.Header = Header;
+            this.Body = Body;
+        }
+
+        public ForeachBlockHeader Header { get; private set; }
+        public IPythonBlock Body { get; private set; }
+
+        public IType Type
+        {
+            get { return PrimitiveTypes.Void; }
+        }
+
+        public ICodeGenerator CodeGenerator { get { return Header.CodeGenerator; } }
+        
+        public CodeBuilder GetCode()
+        {
+            CodeBuilder cb = Header.GetCode();
             cb.AppendLine();
             cb.IncreaseIndentation();
-            cb.AddCodeBuilder(GetBlockCode(true));
+            cb.AddBodyCodeBuilder(Body.GetCode());
             cb.DecreaseIndentation();
             return cb;
         }
 
-        public override IEnumerable<ModuleDependency> GetDependencies()
+        public IEnumerable<ModuleDependency> GetDependencies()
         {
-            return CollectionBlocks.GetDependencies().Union(base.GetDependencies());
+            return Header.GetDependencies().MergeDependencies(Body.GetDependencies());
         }
     }
 }
