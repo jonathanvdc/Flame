@@ -32,9 +32,13 @@ namespace Flame.Recompilation.Emit
 
         public IEnumerable<IType> ResultTypes
         {
-            get 
-            { 
-                return ((IStatementBlock)IfBlock).ResultTypes; 
+            get
+            {
+                if (IfBlock is ExpressionBlock)
+                {
+                    return new IType[] { ((ExpressionBlock)IfBlock).Expression.Type };
+                }
+                return ((IStatementBlock)IfBlock).ResultTypes;
             }
         }
     }
