@@ -88,7 +88,6 @@
     <Compile Include="Emit\NewListBlock.cs" />
     <Compile Include="Emit\PythonArgumentVariable.cs" />
     <Compile Include="Emit\BinaryOperation.cs" />
-    <Compile Include="Emit\BlockGenerator.cs" />
     <Compile Include="Emit\PythonCodeGenerator.cs" />
     <Compile Include="Emit\IntConstant.cs" />
     <Compile Include="Emit\InvocationBlock.cs" />
