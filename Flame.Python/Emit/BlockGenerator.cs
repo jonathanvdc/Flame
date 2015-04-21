@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Python.Emit
 {
-    public class BlockGenerator : IPythonBlock, IBlockGenerator
+    /*public class BlockGenerator : IPythonBlock, IBlockGenerator
     {
         public BlockGenerator(ICodeGenerator CodeGenerator)
         {
@@ -85,5 +85,5 @@ namespace Flame.Python.Emit
         {
             return Children.GetDependencies();
         }
-    }
+    }*/
 }

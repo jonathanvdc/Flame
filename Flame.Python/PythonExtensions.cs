@@ -144,16 +144,16 @@ namespace Flame.Python
         public static IPythonBlock CreatePythonFieldInitBlock(this IType Type, ICodeGenerator CodeGenerator)
         {
             var instanceFields = Type.GetFields().OfType<PythonField>().Where((item) => !item.IsStatic);
-            var initBlock = (BlockGenerator)CodeGenerator.CreateBlock();
+            var initBlock = CodeGenerator.EmitVoid();
             foreach (var item in instanceFields)
             {
                 if (!CodeGenerator.Method.SetsField(item))
                 {
-                    var setStatement = initBlock.CodeGenerator.GetField(item, initBlock.CodeGenerator.GetThis().CreateGetExpression().Emit(initBlock.CodeGenerator)).CreateSetStatement(item.AssignedValue);
-                    setStatement.Emit(initBlock);
+                    var setStatement = initBlock.CodeGenerator.GetField(item, initBlock.CodeGenerator.GetThis().EmitGet()).EmitSet(item.AssignedValue.Emit(CodeGenerator));
+                    initBlock = CodeGenerator.EmitSequence(initBlock, setStatement);
                 }
             }
-            return initBlock;
+            return (IPythonBlock)initBlock;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Python.Emit
 {
-    public abstract class PythonVariableBase : IVariable
+    public abstract class PythonVariableBase : IEmitVariable
     {
         public PythonVariableBase(ICodeGenerator CodeGenerator)
         {
@@ -21,19 +22,19 @@ namespace Flame.Python.Emit
         public abstract IPythonBlock CreateGetBlock();
         public abstract IType Type { get; }
 
-        public IExpression CreateGetExpression()
+        public ICodeBlock EmitGet()
         {
-            return new CodeBlockExpression(CreateGetBlock(), Type);
+            return CreateGetBlock();
         }
 
-        public virtual IStatement CreateReleaseStatement()
+        public virtual ICodeBlock EmitRelease()
         {
-            return new EmptyStatement();
+            return new EmptyBlock(CodeGenerator);
         }
 
-        public IStatement CreateSetStatement(IExpression Value)
+        public ICodeBlock EmitSet(ICodeBlock Value)
         {
-            return new CodeBlockStatement(new AssignmentBlock(CodeGenerator, CreateGetBlock(), (IPythonBlock)Value.Emit(CodeGenerator)));
+            return new AssignmentBlock(CodeGenerator, CreateGetBlock(), (IPythonBlock)Value);
         }
 
         public CodeBuilder GetCode()

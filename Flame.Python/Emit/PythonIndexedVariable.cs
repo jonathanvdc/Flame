@@ -32,15 +32,15 @@ namespace Flame.Python.Emit
 
     public class PythonIndexedReleaseVariable : PythonIndexedVariable
     {
-        public PythonIndexedReleaseVariable(ICodeGenerator CodeGenerator, IPythonBlock Target, IPythonBlock[] Arguments, IStatement ReleaseStatement)
+        public PythonIndexedReleaseVariable(ICodeGenerator CodeGenerator, IPythonBlock Target, IPythonBlock[] Arguments, IPythonBlock ReleaseStatement)
             : base(CodeGenerator, Target, Arguments)
         {
             this.ReleaseStatement = ReleaseStatement;
         }
 
-        public IStatement ReleaseStatement { get; private set; }
+        public IPythonBlock ReleaseStatement { get; private set; }
 
-        public override IStatement CreateReleaseStatement()
+        public override ICodeBlock EmitRelease()
         {
             return ReleaseStatement;
         }

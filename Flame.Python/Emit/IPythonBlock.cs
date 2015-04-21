@@ -13,4 +13,19 @@ namespace Flame.Python.Emit
     {
         IType Type { [Pure] get; }
     }
+
+    public static class PythonEmitExtensions
+    {
+        public static void AddBodyCodeBuilder(this CodeBuilder Target, CodeBuilder Body)
+        {
+            if (Body.IsWhitespace)
+            {
+                Target.AddLine("pass");
+            }
+            else
+            {
+                Target.AddCodeBuilder(Body);
+            }
+        }
+    }
 }
