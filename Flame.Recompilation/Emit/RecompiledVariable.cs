@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Recompilation.Emit
 {
-    public class RecompiledVariable : IUnmanagedVariable
+    public class RecompiledVariable : IUnmanagedEmitVariable
     {
         public RecompiledVariable(ICodeGenerator CodeGenerator, IVariable Variable)
         {
@@ -21,30 +22,18 @@ namespace Flame.Recompilation.Emit
         public ICodeGenerator CodeGenerator { get; private set; }
         public IVariable Variable { get; private set; }
 
-        public IExpression CreateGetExpression()
+        public ICodeBlock EmitGet()
         {
             var expr = Variable.CreateGetExpression();
-            return new CodeBlockExpression(new ExpressionBlock(CodeGenerator, expr), expr.Type);
+            return new ExpressionBlock(CodeGenerator, expr);
         }
 
-        public IStatement CreateReleaseStatement()
-        {
-            return new CodeBlockStatement(new StatementBlock(CodeGenerator, Variable.CreateReleaseStatement()));
-        }
-
-        public IStatement CreateSetStatement(IExpression Value)
-        {
-            var val = Value.Emit(CodeGenerator);
-            var valExpr = RecompiledCodeGenerator.GetExpression(val);
-            return new CodeBlockStatement(new StatementBlock(CodeGenerator, Variable.CreateSetStatement(valExpr)));
-        }
-
-        public IExpression CreateAddressOfExpression()
+        public ICodeBlock EmitAddressOf()
         {
             if (Variable is IUnmanagedVariable)
             {
                 var expr = ((IUnmanagedVariable)Variable).CreateAddressOfExpression();
-                return new CodeBlockExpression(new ExpressionBlock(CodeGenerator, expr), expr.Type);
+                return new ExpressionBlock(CodeGenerator, expr);
             }
             else
             {
@@ -52,9 +41,15 @@ namespace Flame.Recompilation.Emit
             }
         }
 
-        public IType Type
+        public ICodeBlock EmitSet(ICodeBlock Value)
         {
-            get { return Variable.Type; }
+            var valExpr = RecompiledCodeGenerator.GetExpression(Value);
+            return new StatementBlock(CodeGenerator, Variable.CreateSetStatement(valExpr));
+        }
+
+        public ICodeBlock EmitRelease()
+        {
+            return new StatementBlock(CodeGenerator, Variable.CreateReleaseStatement());
         }
     }
 }
