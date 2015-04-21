@@ -1,0 +1,74 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Expressions
+{
+	public class SelectExpression : IExpression
+	{
+		public this(set IExpression Condition, set IExpression TrueValue, set IExpression FalseValue);
+
+		public IExpression Condition { const get; private set; }
+		public IExpression TrueValue { const get; private set; }
+		public IExpression FalseValue { const get; private set; }
+
+        public IType Type
+        {
+            const get return TrueValue.Type;
+        }
+
+        public bool IsConstant
+        {
+            const get
+            {
+                if (Condition.EvaluatesTo<bool>(true))
+                {
+                    return TrueValue.IsConstant;
+                }
+                else if (Condition.EvaluatesTo<bool>(false))
+                {
+                    return FalseValue.IsConstant;
+                }
+                else return false;
+            }
+        }
+
+        public IBoundObject Evaluate()
+        {
+            if (Condition.EvaluatesTo<bool>(true))
+            {
+                return TrueValue.Evaluate();
+            }
+            else if (Condition.EvaluatesTo<bool>(false))
+            {
+                return FalseValue.Evaluate();
+            }
+            else return null;
+        }
+
+		public IExpression Optimize() : IExpression.Optimize
+		{
+			var optCond = Condition.Optimize();
+
+            if (optCond.EvaluatesTo<bool>(true))
+            {
+                return TrueValue.Optimize();
+            }
+            else if (optCond.EvaluatesTo<bool>(false))
+            {
+                return FalseValue.Optimize();
+            }
+
+			var optTrue = TrueValue.Optimize();
+            var optFalse = FalseValue.Optimize();
+            return new SelectExpression(optCond, optTrue, optFalse);
+		}
+
+		public ICodeBlock Emit(ICodeGenerator Generator) : IExpression.Emit
+		{
+			var conditionBlock = Condition.Emit(Generator);
+            var trueBlock = TrueValue.Emit(Generator);
+            var falseBlock = FalseValue.Emit(Generator);
+			return Generator.CreateIfElseBlock(conditionBlock, trueBlock, falseBlock);
+		}
+	}
+}

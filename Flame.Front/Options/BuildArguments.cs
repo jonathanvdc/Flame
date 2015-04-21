@@ -139,6 +139,14 @@ namespace Flame.Front.Options
             }
         }
 
+        public bool TimeCompilation
+        {
+            get
+            {
+                return GetOption<bool>("time", false);
+            }
+        }
+
         public IMethodOptimizer Optimizer
         {
             get
