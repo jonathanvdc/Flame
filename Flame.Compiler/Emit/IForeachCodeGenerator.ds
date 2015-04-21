@@ -51,7 +51,7 @@ namespace Flame.Compiler.Emit
 		/// <summary>
 		/// Gets a read-only list that contains variables representing the collections' elements on each iteration.
 		/// </summary>
-		IReadOnlyList<IVariable> Elements { const get; }
+		IReadOnlyList<IEmitVariable> Elements { const get; }
 	}
 
 	/// <summary>

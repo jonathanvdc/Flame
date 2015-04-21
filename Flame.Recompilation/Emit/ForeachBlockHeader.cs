@@ -20,18 +20,18 @@ namespace Flame.Recompilation.Emit
 
         public RecompiledCodeGenerator CodeGenerator { get; private set; }
         private ForeachStatement foreachStatement;
-        private IReadOnlyList<IVariable> elems;
+        private IReadOnlyList<IEmitVariable> elems;
 
-        public IReadOnlyList<IVariable> Elements
+        public IReadOnlyList<IEmitVariable> Elements
         {
             get 
             {
                 if (elems == null)
                 {
-                    var foreachElems = new List<IVariable>();
+                    var foreachElems = new List<IEmitVariable>();
                     foreach (var item in foreachStatement.Elements)
                     {
-                        foreachElems.Add(new TypedEmitVariable(new RecompiledVariable(CodeGenerator, item), item.Type));
+                        foreachElems.Add(new RecompiledVariable(CodeGenerator, item));
                     }
                     elems = foreachElems;
                 }
