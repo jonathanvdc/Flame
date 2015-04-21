@@ -124,6 +124,7 @@
 			<Compile Include="Expressions\RelaxedInvocation.ds" />
 			<Compile Include="Expressions\ComplexExpressionBase.ds" />
 			<Compile Include="Expressions\ReturnValueGetExpression.ds" />
+			<Compile Include="Expressions\SelectExpression.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Statements">
