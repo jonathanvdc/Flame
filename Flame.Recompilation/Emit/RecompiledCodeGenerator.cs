@@ -63,6 +63,11 @@ namespace Flame.Recompilation.Emit
             var stmtBlock = CodeBlock as IStatementBlock;
             if (stmtBlock == null)
             {
+                var exprBlock = CodeBlock as ExpressionBlock;
+                if (exprBlock != null)
+                {
+                    return new RawExpressionStatement(exprBlock.Expression);
+                }
                 throw new InvalidOperationException();
             }
             else
