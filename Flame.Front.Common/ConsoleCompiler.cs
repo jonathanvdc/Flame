@@ -8,8 +8,10 @@ using Flame.Front.State;
 using Flame.Front.Target;
 using Flame.Recompilation;
 using Flame.Verification;
+using Pixie;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -44,6 +46,13 @@ namespace Flame.Front.Cli
 
             log.Dispose();
             log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(buildArgs), buildArgs);
+
+            var timer = buildArgs.TimeCompilation ? new Stopwatch() : null;
+            var startTime = DateTime.Now;
+            if (timer != null)
+            {
+                timer.Start();
+            }
 
             if (buildArgs.PrintVersion)
             {
@@ -88,6 +97,16 @@ namespace Flame.Front.Cli
             }
             finally
             {
+                if (timer != null)
+                {
+                    timer.Stop();
+                    var listItems = new List<MarkupNode>();
+                    listItems.Add(new MarkupNode(NodeConstants.ListItemNodeType, "Start time: " + startTime.TimeOfDay));
+                    listItems.Add(new MarkupNode(NodeConstants.ListItemNodeType, "End time: " + DateTime.Now.TimeOfDay));
+                    listItems.Add(new MarkupNode(NodeConstants.ListItemNodeType, "Elapsed time: " + timer.Elapsed));
+                    var listNode = ListExtensions.Instance.CreateList(listItems);
+                    log.WriteBlockEntry(new LogEntry("Timing information", listNode));                    
+                }
                 log.Console.WriteSeparator(1);
                 log.Dispose();
             }
