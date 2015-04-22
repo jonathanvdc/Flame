@@ -83,6 +83,19 @@ namespace Flame.Recompilation.Emit
 
         #endregion
 
+        #region GetType
+
+        public static IEnumerable<IType> GetResultTypes(ICodeBlock Block)
+        {
+            if (Block is ExpressionBlock)
+            {
+                return new IType[] { ((ExpressionBlock)Block).Expression.Type };
+            }
+            return ((IStatementBlock)Block).ResultTypes;
+        }
+
+        #endregion
+
         #region Blocks
 
         public ICodeBlock EmitBreak()
@@ -117,7 +130,7 @@ namespace Flame.Recompilation.Emit
 
         public ICodeBlock EmitSequence(ICodeBlock First, ICodeBlock Second)
         {
-            return new StatementBlock(this, new BlockStatement(new IStatement[] { GetStatement(First), GetStatement(Second) }));
+            return new SequenceBlock(this, First, Second);
         }
 
         public ICodeBlock EmitVoid()

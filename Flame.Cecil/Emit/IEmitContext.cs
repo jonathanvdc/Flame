@@ -57,6 +57,6 @@ namespace Flame.Cecil.Emit
     {
         int Index { get; }
         string Name { get; set; }
-        TypeReference Type { get; }
+        Mono.Cecil.Cil.VariableDefinition Variable { get; }
     }
 }

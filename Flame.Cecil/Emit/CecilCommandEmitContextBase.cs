@@ -429,7 +429,7 @@ namespace Flame.Cecil.Emit
 
         public void Emit(OpCode OpCode, IEmitLocal Local)
         {
-            EmitInstruction(Processor.Create(OpCode, ((CecilLocal)Local).Variable));
+            EmitInstruction(Processor.Create(OpCode, Local.Variable));
         }
 
         #region Locals
@@ -443,7 +443,7 @@ namespace Flame.Cecil.Emit
             for (int i = 0; i < localVarPool.Count; i++)
             {
                 var local = localVarPool[i];
-                if (local.Type == typeRef)
+                if (local.Variable.VariableType == typeRef)
                 {
                     localVarPool.RemoveAt(i);
                     return new RecycledLocal(local);
@@ -487,7 +487,6 @@ namespace Flame.Cecil.Emit
             }
 
             public Mono.Cecil.Cil.VariableDefinition Variable { get; private set; }
-            public TypeReference Type { get { return Variable.VariableType; } }
 
             public string Name
             {
@@ -509,17 +508,16 @@ namespace Flame.Cecil.Emit
                 this.Local = Local;
             }
 
-
             public IEmitLocal Local { get; private set; }
+
+            public VariableDefinition Variable
+            {
+                get { return Local.Variable; }
+            }
 
             public int Index
             {
                 get { return Local.Index; }
-            }
-
-            public TypeReference Type
-            {
-                get { throw new NotImplementedException(); }
             }
 
             public string Name
