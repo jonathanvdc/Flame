@@ -8,17 +8,20 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
-    public class WhileBlock : BlockBuilder
+    public class WhileBlock : ICecilBlock
     {
-        public WhileBlock(ICodeGenerator CodeGenerator, ICodeBlock Condition)
-            : base(CodeGenerator)
+        public WhileBlock(ICodeGenerator CodeGenerator, ICecilBlock Condition, ICecilBlock Body)
         {
+            this.CodeGenerator = CodeGenerator;
             this.Condition = Condition;
+            this.Body = Body;
         }
 
-        public ICodeBlock Condition { get; private set; }
+        public ICodeGenerator CodeGenerator { get; private set; }
+        public ICecilBlock Condition { get; private set; }
+        public ICecilBlock Body { get; private set; }
 
-        public override void Emit(IEmitContext Context)
+        public void Emit(IEmitContext Context)
         {
             var brCg = (IBranchingCodeGenerator)CodeGenerator;
             var start = brCg.CreateLabel();
@@ -32,13 +35,18 @@ namespace Flame.Cecil.Emit
 
             Context.PushFlowControl(flowStruct);
 
-            base.Emit(Context);
+            Body.Emit(Context);
 
             Context.PopFlowControl();
 
             ((ICecilBlock)start.EmitMark()).Emit(Context);
             ((ICecilBlock)body.EmitBranch(Condition)).Emit(Context);
             ((ICecilBlock)end.EmitMark()).Emit(Context);
+        }
+
+        public IStackBehavior StackBehavior
+        {
+            get { return new PopStackBehavior(0); }
         }
     }
     public class BranchFlowStructure : IFlowControlStructure

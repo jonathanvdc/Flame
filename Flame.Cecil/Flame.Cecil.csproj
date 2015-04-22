@@ -108,7 +108,6 @@
     <Compile Include="Emit\ILFieldVariable.cs" />
     <Compile Include="Emit\ILLabel.cs" />
     <Compile Include="Emit\ILLocalVariable.cs" />
-    <Compile Include="Emit\ILLocalVariableReleaseStatement.cs" />
     <Compile Include="Emit\IsOfTypeBranchOptimization.cs" />
     <Compile Include="Emit\LabelBranchBlock.cs" />
     <Compile Include="Emit\LabelMarkBlock.cs" />

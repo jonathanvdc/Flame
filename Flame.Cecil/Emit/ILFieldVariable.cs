@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
-    public class ILFieldVariable : IUnmanagedVariable
+    public class ILFieldVariable : IUnmanagedEmitVariable
     {
         public ILFieldVariable(ICodeGenerator CodeGenerator, ICecilBlock Target, IField Field)
         {
@@ -22,29 +23,29 @@ namespace Flame.Cecil.Emit
         public ICecilBlock Target { get; private set; }
         public IField Field { get; private set; }
 
-        public IExpression CreateAddressOfExpression()
-        {
-            return new CodeBlockExpression(new FieldAddressOfBlock(this), Type.MakePointerType(PointerKind.ReferencePointer));
-        }
-
-        public IExpression CreateGetExpression()
-        {
-            return new CodeBlockExpression(new FieldGetBlock(this), Type);
-        }
-
-        public IStatement CreateReleaseStatement()
-        {
-            return new EmptyStatement();
-        }
-
-        public IStatement CreateSetStatement(IExpression Value)
-        {
-            return new CodeBlockStatement(new FieldSetBlock(this, (ICecilBlock)Value.Emit(CodeGenerator)));
-        }
-
         public IType Type
         {
             get { return Field.FieldType; }
+        }
+
+        public ICodeBlock EmitAddressOf()
+        {
+            return new FieldAddressOfBlock(this);
+        }
+
+        public ICodeBlock EmitGet()
+        {
+            return new FieldGetBlock(this);
+        }
+
+        public ICodeBlock EmitRelease()
+        {
+            return CodeGenerator.EmitVoid();
+        }
+
+        public ICodeBlock EmitSet(ICodeBlock Value)
+        {
+            return new FieldSetBlock(this, (ICecilBlock)Value);
         }
     }
 }
