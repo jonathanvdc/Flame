@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class CppBlockGenerator : CppBlockGeneratorBase, IMultiBlock
+    /*public class CppBlockGenerator : CppBlockGeneratorBase, IMultiBlock
     {
         public CppBlockGenerator(CppCodeGenerator CodeGenerator)
             : base(CodeGenerator)
@@ -90,5 +90,5 @@ namespace Flame.Cpp.Emit
             }
             return blockGen;
         }
-    }
+    }*/
 }

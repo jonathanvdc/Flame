@@ -49,12 +49,12 @@ namespace Flame.Cpp.Emit
             {
                 if (Contract.HasPostconditions)
                 {
-                    var block = cg.CreateBlock();
+                    var block = cg.EmitVoid();
                     foreach (var item in Contract.Postconditions)
                     {
-                        block.EmitBlock(item);
+                        block = cg.EmitSequence(block, item);
                     }
-                    block.EmitBlock(new ReturnBlock(cg, null));
+                    block = cg.EmitSequence(block, new ReturnBlock(cg, null));
                     return (ICppBlock)block;
                 }
                 else
@@ -66,13 +66,12 @@ namespace Flame.Cpp.Emit
             {
                 if (Contract.HasPostconditions)
                 {
-                    var block = cg.CreateBlock();
-                    block.EmitBlock(localDecl);
+                    ICodeBlock block = localDecl;
                     foreach (var item in Contract.Postconditions)
                     {
-                        block.EmitBlock(item);
+                        block = cg.EmitSequence(block, item);
                     }
-                    block.EmitBlock(new ReturnBlock(cg, (ICppBlock)cg.ReturnVariable.CreateGetExpression().Emit(cg)));
+                    block = cg.EmitSequence(block, new ReturnBlock(cg, (ICppBlock)cg.ReturnVariable.EmitGet()));
                     return (ICppBlock)block;
                 }
                 else

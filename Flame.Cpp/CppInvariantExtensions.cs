@@ -68,7 +68,7 @@ namespace Flame.Cpp
                 return null;
             }
             var checkMethod = invars.CheckInvariantsMethod;
-            var call = CodeGenerator.EmitInvocation(checkMethod, CodeGenerator.GetThis().CreateGetExpression().Emit(CodeGenerator), Enumerable.Empty<ICodeBlock>());
+            var call = CodeGenerator.EmitInvocation(checkMethod, CodeGenerator.GetThis().EmitGet(), Enumerable.Empty<ICodeBlock>());
             return (ICppBlock)call;
         }
     }
