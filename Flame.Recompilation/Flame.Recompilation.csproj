@@ -57,6 +57,7 @@
     <Compile Include="Emit\IStatementBlock.cs" />
     <Compile Include="Emit\ForeachBlockHeader.cs" />
     <Compile Include="Emit\RecompiledVariable.cs" />
+    <Compile Include="Emit\SequenceBlock.cs" />
     <Compile Include="Emit\StatementBlock.cs" />
     <Compile Include="Emit\StatementExpression.cs" />
     <Compile Include="Emit\ThisAddressOfExpression.cs" />

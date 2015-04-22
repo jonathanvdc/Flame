@@ -843,6 +843,11 @@ namespace Flame.Recompilation
         }
         private void RecompileMethodBodyCore(IMethodBuilder TargetMethod, IMethod SourceMethod)
         {
+            if (SourceMethod.get_IsAbstract() || SourceMethod.DeclaringType.get_IsInterface())
+            {
+                return;
+            }
+
             var bodyMethod = SourceMethod as IBodyMethod;
             if (bodyMethod == null)
             {
