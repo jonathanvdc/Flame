@@ -1,4 +1,5 @@
-﻿using Flame;
+﻿/*
+using Flame;
 using Flame.Analysis;
 using Flame.Compiler;
 using Flame.Recompilation;
@@ -28,3 +29,4 @@ namespace Flame.Front
         }
     }
 }
+*/

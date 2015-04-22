@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Flame.MIPS.Emit
 {
-    public class AssemblerArgument : IVariable
+    public class AssemblerArgument : IEmitVariable
     {
         public AssemblerArgument(ICodeGenerator CodeGenerator, int Index)
         {
@@ -20,29 +21,28 @@ namespace Flame.MIPS.Emit
         public ICodeGenerator CodeGenerator { get; private set; }
         public int Index { get; private set; }
 
-        public IExpression CreateGetExpression()
+        public ICodeBlock EmitGet()
         {
             var t = Type;
-            return new CodeBlockExpression(new FunctionAssemblerBlock(CodeGenerator, t, (context) =>
+            return new FunctionAssemblerBlock(CodeGenerator, t, (context) =>
             {
                 var arg = context.GetArgument(Index);
                 return new IStorageLocation[] { arg };
-            }), t);
+            });
         }
 
-        public IStatement CreateReleaseStatement()
+        public ICodeBlock EmitRelease()
         {
-            return new CodeBlockStatement(new EmptyBlock(CodeGenerator));
+            return CodeGenerator.EmitVoid();
         }
 
-        public IStatement CreateSetStatement(IExpression Value)
+        public ICodeBlock EmitSet(ICodeBlock Value)
         {
-            var valBlock = (IAssemblerBlock)Value.Emit(CodeGenerator);
-            return new CodeBlockStatement(new ActionAssemblerBlock(CodeGenerator, (context) =>
+            return new ActionAssemblerBlock(CodeGenerator, (context) =>
             {
                 var arg = context.GetArgument(Index);
-                valBlock.EmitStoreTo(arg, context);
-            }));
+                ((IAssemblerBlock)Value).EmitStoreTo(arg, context);
+            });
         }
 
         public IType Type

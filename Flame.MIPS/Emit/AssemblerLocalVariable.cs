@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Flame.MIPS.Emit
 {
-    public class AssemblerLocalVariable : IUnmanagedVariable
+    public class AssemblerLocalVariable : IUnmanagedEmitVariable
     {
         public AssemblerLocalVariable(IVariableMember Member, ICodeGenerator CodeGenerator)
         {
@@ -43,25 +44,25 @@ namespace Flame.MIPS.Emit
             }
         }
 
-        public IExpression CreateGetExpression()
-        {
-            return new CodeBlockExpression(new AssemblerLocalGetBlock(this), Type);
-        }
-
-        public IStatement CreateReleaseStatement()
-        {
-            return new CodeBlockStatement(new AssemblerLocalReleaseBlock(this));
-        }
-
-        public IStatement CreateSetStatement(IExpression Value)
-        {
-            return new CodeBlockStatement(new AssemblerLocalSetBlock(this, (IAssemblerBlock)Value.Emit(CodeGenerator)));
-        }
-
-        public IExpression CreateAddressOfExpression()
+        public ICodeBlock EmitAddressOf()
         {
             this.IsUnmanaged = true;
-            return new CodeBlockExpression(new AssemblerLocalAddressOfBlock(this), Type);
+            return new AssemblerLocalAddressOfBlock(this);
+        }
+
+        public ICodeBlock EmitGet()
+        {
+            return new AssemblerLocalGetBlock(this);
+        }
+
+        public ICodeBlock EmitRelease()
+        {
+            return new AssemblerLocalReleaseBlock(this);
+        }
+
+        public ICodeBlock EmitSet(ICodeBlock Value)
+        {
+            return new AssemblerLocalSetBlock(this, (IAssemblerBlock)Value);
         }
     }
 

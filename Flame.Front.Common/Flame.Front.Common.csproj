@@ -79,10 +79,6 @@
     <Compile Include="Target\PythonBuildTargetParser.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Flame.Analysis\Flame.Analysis.csproj">
-      <Project>{b262c36b-6162-40e1-9aa3-d6569694ac97}</Project>
-      <Name>Flame.Analysis</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Flame.Cecil\Flame.Cecil.csproj">
       <Project>{4a1d02a2-22df-4355-8edc-9e47db1979c3}</Project>
       <Name>Flame.Cecil</Name>

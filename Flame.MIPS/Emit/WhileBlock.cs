@@ -7,17 +7,20 @@ using System.Threading.Tasks;
 
 namespace Flame.MIPS.Emit
 {
-    public class WhileBlock : AssemblerBlockGenerator
+    public class WhileBlock : IAssemblerBlock
     {
-        public WhileBlock(ICodeGenerator CodeGenerator, ICodeBlock Condition)
-            : base(CodeGenerator)
+        public WhileBlock(ICodeGenerator CodeGenerator, IAssemblerBlock Condition, IAssemblerBlock Body)
         {
+            this.CodeGenerator = CodeGenerator;
             this.Condition = Condition;
+            this.Body = Body;
         }
 
-        public ICodeBlock Condition { get; private set; }
+        public ICodeGenerator CodeGenerator { get; private set; }
+        public IAssemblerBlock Condition { get; private set; }
+        public IAssemblerBlock Body { get; private set; }
 
-        public override IEnumerable<IStorageLocation> Emit(IAssemblerEmitContext Context)
+        public IEnumerable<IStorageLocation> Emit(IAssemblerEmitContext Context)
         {
             var brCg = (IBranchingCodeGenerator)CodeGenerator;
             var start = brCg.CreateLabel();
@@ -31,7 +34,7 @@ namespace Flame.MIPS.Emit
 
             Context.FlowControl.Push(flowStruct);
 
-            var results = base.Emit(Context);
+            var results = Body.Emit(Context);
 
             Context.FlowControl.Pop();
 
@@ -40,6 +43,11 @@ namespace Flame.MIPS.Emit
             ((IAssemblerBlock)end.EmitMark()).Emit(Context);
 
             return results;
+        }
+
+        public IType Type
+        {
+            get { return Body.Type; }
         }
     }
     public class BranchFlowStructure : IFlowControlStructure

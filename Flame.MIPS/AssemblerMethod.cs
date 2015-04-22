@@ -18,8 +18,7 @@ namespace Flame.MIPS
             this.Label = GlobalState.Labels.DeclareLabel(this);
             this.CallConvention = new AutoCallConvention(this);
 
-            this.codeGen = new AssemblerCodeGenerator(this);
-            this.bodyContext = new AssemblerEmitContext(codeGen, Label, GlobalState);
+            this.codeGen = new AssemblerCodeGenerator(this);            
         }
 
         public IType DeclaringType { get; private set; }
@@ -34,7 +33,6 @@ namespace Flame.MIPS
             return new CallLabelBlock(CodeGenerator, Label, Name);
         }
 
-        private AssemblerBlockGenerator bodyBlock;
         private AssemblerEmitContext bodyContext;
         private AssemblerCodeGenerator codeGen;
 
@@ -142,24 +140,20 @@ namespace Flame.MIPS
 
         #region IMethodBuilder
 
-        public IBlockGenerator GetBodyGenerator()
+        public ICodeGenerator GetBodyGenerator()
         {
-            if (bodyBlock == null && codeGen != null)
-            {
-                this.bodyBlock = new AssemblerBlockGenerator(codeGen);
-            }
-            return bodyBlock;
+            return codeGen;
+        }
+
+        public void SetMethodBody(ICodeBlock Body)
+        {
+            this.bodyContext = new AssemblerEmitContext(codeGen, Label, GlobalState);
+            ((IAssemblerBlock)Body).Emit(bodyContext);
+            bodyContext.Build();
         }
 
         public IMethod Build()
-        {
-            if (bodyBlock != null)
-            {
-                bodyBlock.Emit(bodyContext);
-                codeGen = null;
-                bodyBlock = null;
-            }
-            bodyContext.Build();
+        {            
             return this;
         }
 
