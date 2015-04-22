@@ -18,7 +18,7 @@ namespace Flame.Bytecode
 
         public abstract int Size { get; }
         public abstract IEnumerable<IInstruction> GetNext(IBuffer<IInstruction> Instructions);
-        public abstract void Emit(IBlockGenerator Target);
+        public abstract ICodeBlock Emit(ICodeGenerator Target);
         public abstract bool Equals(IInstruction other);
 
         public override bool Equals(object obj)
