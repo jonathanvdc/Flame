@@ -28,7 +28,7 @@ namespace Flame.Cecil.Emit
 
         public IStackBehavior StackBehavior
         {
-            get { return new BlockStackBehavior(new IStackBehavior[] { First.StackBehavior, Second.StackBehavior }); }
+            get { return new BlockStackBehavior(First.StackBehavior, Second.StackBehavior); }
         }
     }
 }
