@@ -44,7 +44,9 @@ namespace Flame.Cecil.Emit
 
         IEmitLabel CreateLabel();
         void MarkLabel(IEmitLabel Label);
+
         IEmitLocal DeclareLocal(IType Type);
+        void ReleaseLocal(IEmitLocal Local);
 
         void Flush();
     }
@@ -54,6 +56,7 @@ namespace Flame.Cecil.Emit
     public interface IEmitLocal
     {
         int Index { get; }
-        void SetName(string Name);
+        string Name { get; set; }
+        TypeReference Type { get; }
     }
 }

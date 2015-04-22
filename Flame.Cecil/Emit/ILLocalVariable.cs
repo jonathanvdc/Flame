@@ -40,7 +40,7 @@ namespace Flame.Cecil.Emit
                 emitLocal = Context.DeclareLocal(Type);
                 if (!string.IsNullOrWhiteSpace(Name))
                 {
-                    emitLocal.SetName(Name);
+                    emitLocal.Name = Name;
                 }
             }
             return emitLocal;
@@ -70,7 +70,10 @@ namespace Flame.Cecil.Emit
 
         public void Release(IEmitContext Context)
         {
-            CodeGenerator.ReleaseLocal(this);
+            if (emitLocal != null)
+            {
+                Context.ReleaseLocal(emitLocal);
+            }
         }
 
         #endregion

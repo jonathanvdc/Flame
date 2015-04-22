@@ -14,7 +14,6 @@ namespace Flame.Cecil.Emit
         public ILCodeGenerator(IMethod Method)
         {
             this.Method = Method;
-            this.localVarPool = new List<ILLocalVariable>();
         }
 
         public IMethod Method { get; private set; }
@@ -351,31 +350,9 @@ namespace Flame.Cecil.Emit
 
         #region Locals
 
-        private List<ILLocalVariable> localVarPool;
-
-        public void ReleaseLocal(ILLocalVariable Variable)
-        {
-            localVarPool.Add(Variable);
-        }
-
-        protected ILLocalVariable DeclareNewVariable(IVariableMember VariableMember)
-        {
-            return new ILLocalVariable(this, VariableMember);
-        }
-
         public IUnmanagedEmitVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
         {
-            var varType = VariableMember.VariableType;
-            for (int i = 0; i < localVarPool.Count; i++)
-            {
-                var local = localVarPool[i];
-                if (local.Type.Equals(varType))
-                {
-                    localVarPool.RemoveAt(i);
-                    return local;
-                }
-            }
-            return DeclareNewVariable(VariableMember);
+            return new ILLocalVariable(this, VariableMember);
         }
 
         public IEmitVariable DeclareVariable(IVariableMember VariableMember)
