@@ -67,7 +67,9 @@
     <Compile Include="CppNamespaceExtensions.cs" />
     <Compile Include="DefaultMethodComparer.cs" />
     <Compile Include="DependencyExtensions.cs" />
+    <Compile Include="Emit\BodyExtensions.cs" />
     <Compile Include="Emit\CatchBlock.cs" />
+    <Compile Include="Emit\ContractBlock.cs" />
     <Compile Include="Emit\CppBlock.cs" />
     <Compile Include="Emit\DoWhileBlock.cs" />
     <Compile Include="Emit\ForBlock.cs" />
@@ -99,15 +101,13 @@
     <Compile Include="Emit\IsInstanceBlock.cs" />
     <Compile Include="Emit\MethodContract.cs" />
     <Compile Include="Emit\FinallyBlock.cs" />
-    <Compile Include="Emit\ForBlockGenerator.cs" />
     <Compile Include="Emit\InitializerListBlock.cs" />
     <Compile Include="Emit\PartialElementBlock.cs" />
     <Compile Include="Emit\PartialSetElementBlock.cs" />
     <Compile Include="Emit\PostconditionBlock.cs" />
     <Compile Include="Emit\PreconditionBlock.cs" />
-    <Compile Include="Emit\TryBlockGenerator.cs" />
+    <Compile Include="Emit\ExceptionHandlingBlock.cs" />
     <Compile Include="Emit\DynamicCastBlock.cs" />
-    <Compile Include="Emit\ForeachBlockGenerator.cs" />
     <Compile Include="Emit\ICppBlockGenerator.cs" />
     <Compile Include="Emit\ImplicitDependencyBlock.cs" />
     <Compile Include="Emit\INewObjectBlock.cs" />
@@ -170,7 +170,6 @@
     <Compile Include="Emit\ElementBlock.cs" />
     <Compile Include="Emit\MemberAccessBlock.cs" />
     <Compile Include="Emit\CppVariableBase.cs" />
-    <Compile Include="Emit\DoWhileBlockGenerator.cs" />
     <Compile Include="Emit\KeywordStatementBlock.cs" />
     <Compile Include="Emit\CharLiteral.cs" />
     <Compile Include="Emit\ConversionBlock.cs" />
@@ -186,7 +185,6 @@
     <Compile Include="Emit\LiteralBlock.cs" />
     <Compile Include="Emit\UnaryOperation.cs" />
     <Compile Include="Emit\VariableAssignmentBlock.cs" />
-    <Compile Include="Emit\WhileBlockGenerator.cs" />
     <Compile Include="ICppType.cs" />
     <Compile Include="IGenericResolver.cs" />
     <Compile Include="ICppMember.cs" />

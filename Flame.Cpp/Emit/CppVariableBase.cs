@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public abstract class CppVariableBase : IUnmanagedVariable
+    public abstract class CppVariableBase : IUnmanagedEmitVariable
     {
         public CppVariableBase(ICodeGenerator CodeGenerator)
         {
@@ -21,29 +22,29 @@ namespace Flame.Cpp.Emit
         public abstract ICppBlock CreateBlock();
         public abstract IType Type { get; }
 
-        public virtual IExpression CreateGetExpression()
+        public virtual ICodeBlock EmitAddressOf()
         {
-            return new CodeBlockExpression(CreateBlock(), Type);
+            return new AddressOfBlock(CreateBlock());
         }
 
-        public virtual IStatement CreateReleaseStatement()
+        public virtual ICodeBlock EmitGet()
         {
-            return new EmptyStatement();
+            return CreateBlock();
         }
 
-        public virtual IStatement CreateSetStatement(IExpression Value)
+        public virtual ICodeBlock EmitRelease()
         {
-            return new ExpressionStatement(new CodeBlockExpression(new VariableAssignmentBlock(CreateBlock(), (ICppBlock)Value.Emit(CodeGenerator)), Type));
+            return new EmptyBlock(CodeGenerator);
+        }
+
+        public virtual ICodeBlock EmitSet(ICodeBlock Value)
+        {
+            return new VariableAssignmentBlock(CreateBlock(), (ICppBlock)Value);
         }
 
         public override string ToString()
         {
             return CreateBlock().GetCode().ToString();
-        }
-
-        public virtual IExpression CreateAddressOfExpression()
-        {
-            return new CodeBlockExpression(new AddressOfBlock(CreateBlock()), Type.MakePointerType(PointerKind.TransientPointer));
         }
     }
 }

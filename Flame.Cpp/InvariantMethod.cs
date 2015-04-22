@@ -110,8 +110,7 @@ namespace Flame.Cpp
                 var method = new CppMethod(Invariants.DeclaringType, this, Environment);
                 if (Invariants.HasInvariants)
                 {
-                    var bodyGen = method.GetBodyGenerator();
-                    var codeGen = bodyGen.CodeGenerator;
+                    var codeGen = method.GetBodyGenerator();
 
                     // if (!isCheckingInvariants)
                     // {
@@ -122,22 +121,23 @@ namespace Flame.Cpp
                     // }
                     // return true;
 
-                    var fieldVar = codeGen.GetField(Invariants.IsCheckingInvariantsField, codeGen.GetThis().CreateGetExpression().Emit(codeGen));
+                    var fieldVar = codeGen.GetField(Invariants.IsCheckingInvariantsField, codeGen.GetThis().EmitGet());
 
-                    var ifBody = codeGen.CreateBlock();
-
-                    fieldVar.CreateSetStatement(new BooleanExpression(true)).Emit(ifBody); // isCheckingInvariants = true;
+                    var setBool = fieldVar.EmitSet(codeGen.EmitBoolean(true)); // isCheckingInvariants = true;
                     var resultVariable = codeGen.DeclareVariable(new DescribedVariableMember("result", PrimitiveTypes.Boolean));
                     var checkImpl = Invariants.CheckInvariantsImplementationMethod;
-                    var test = checkImpl.InlineTestBlock  ? checkImpl.CreateTestBlock(codeGen) : codeGen.EmitInvocation(checkImpl, codeGen.GetThis().CreateGetExpression().Emit(codeGen), Enumerable.Empty<ICodeBlock>());
-                    resultVariable.CreateSetStatement(new CodeBlockExpression(test, PrimitiveTypes.Boolean)).Emit(ifBody); // bool result = <condition>;
-                    fieldVar.CreateSetStatement(new BooleanExpression(false)).Emit(ifBody); // isCheckingInvariants = false;
-                    ifBody.EmitReturn(resultVariable.CreateGetExpression().Emit(codeGen)); // return result;
+                    var test = checkImpl.InlineTestBlock  ? checkImpl.CreateTestBlock(codeGen) : codeGen.EmitInvocation(checkImpl, codeGen.GetThis().EmitGet(), Enumerable.Empty<ICodeBlock>());
+                    var setResult = resultVariable.EmitSet(test); // bool result = <condition>;
+                    var resetBool = fieldVar.EmitSet(codeGen.EmitBoolean(false)); // isCheckingInvariants = false;
+                    var returnResult = codeGen.EmitReturn(resultVariable.EmitGet()); // return result;
 
-                    var ifBlock = codeGen.CreateIfElseBlock(codeGen.EmitNot(fieldVar.CreateGetExpression().Emit(codeGen)), ifBody, codeGen.CreateBlock());
+                    var ifBody = codeGen.EmitSequence(setBool, codeGen.EmitSequence(setResult, codeGen.EmitSequence(resetBool, returnResult)));
 
-                    bodyGen.EmitBlock(ifBlock);
-                    bodyGen.EmitReturn(codeGen.EmitBoolean(true));
+                    var ifBlock = codeGen.EmitIfElse(codeGen.EmitNot(fieldVar.EmitGet()), ifBody, codeGen.EmitVoid());
+
+                    var body = codeGen.EmitSequence(ifBody, codeGen.EmitReturn(codeGen.EmitBoolean(true)));
+
+                    method.SetMethodBody(body);
                 }
                 invariantCount = Invariants.InvariantCount;
                 cppMethod = method;

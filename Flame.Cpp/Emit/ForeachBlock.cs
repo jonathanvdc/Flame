@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Emit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,24 +8,33 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class ForeachBlock : ICppLocalDeclaringBlock
+    public class ForeachHeader : IForeachBlockHeader
     {
-        public ForeachBlock(LocalDeclarationReference Element,ICppBlock Collection, ICppBlock Body)
+        public ForeachHeader(CppCodeGenerator CodeGenerator, CollectionBlock Collection)
         {
             this.Element = Element;
-            this.Collection = Collection;
-            this.Body = Body;
+            DeclareElement(CodeGenerator);
         }
 
         public LocalDeclarationReference Element { get; private set; }
-        public ICppBlock Collection { get; private set; }
-        public ICppBlock Body { get; private set; }
+        public CollectionBlock Collection { get; private set; }
+
+        private void DeclareElement(CppCodeGenerator CodeGenerator)
+        {
+            var elemVar = (CppLocal)CodeGenerator.DeclareNewVariable(Collection.Member);
+            this.Element = new LocalDeclarationReference(elemVar);
+        }
+
+        public IReadOnlyList<IEmitVariable> Elements
+        {
+            get { return new IEmitVariable[] { Element.Declaration.Local }; }
+        }
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
             get
             {
-                return Element.Dependencies.MergeDependencies(Collection.Dependencies).MergeDependencies(Body.Dependencies);
+                return Element.Dependencies.MergeDependencies(Collection.Dependencies);
             }
         }
 
@@ -32,13 +42,57 @@ namespace Flame.Cpp.Emit
         {
             get
             {
-                return Element.LocalsUsed.Union(Collection.LocalsUsed).Union(Body.LocalsUsed);
+                return Element.LocalsUsed.Union(Collection.LocalsUsed);
             }
         }
 
         public IEnumerable<LocalDeclaration> LocalDeclarations
         {
-            get { return Element.GetLocalDeclarations().Concat(Collection.GetLocalDeclarations()).Union(Body.GetLocalDeclarations()); }
+            get { return Element.GetLocalDeclarations().Concat(Collection.GetLocalDeclarations()); }
+        }
+
+        public CodeBuilder GetCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            cb.Append("for (");
+            cb.Append(Element.GetExpressionCode(true, true));
+            cb.Append(" : ");
+            cb.Append(Collection.GetCode());
+            cb.Append(")");
+            return cb;
+        }
+    }
+
+    public class ForeachBlock : ICppLocalDeclaringBlock
+    {
+        public ForeachBlock(ForeachHeader Header, ICppBlock Body)
+        {
+            this.Header = Header;
+            this.Body = Body;
+        }
+
+        public ForeachHeader Header { get; private set; }
+        public ICppBlock Body { get; private set; }
+
+        public IEnumerable<IHeaderDependency> Dependencies
+        {
+            get
+            {
+                return Header.Dependencies.MergeDependencies(Body.Dependencies);
+            }
+        }
+
+        public IEnumerable<CppLocal> LocalsUsed
+        {
+            get
+            {
+                return Header.LocalsUsed.Union(Body.LocalsUsed);
+            }
+        }
+
+        public IEnumerable<LocalDeclaration> LocalDeclarations
+        {
+            get { return Header.LocalDeclarations.Union(Body.GetLocalDeclarations()); }
         }
 
         public IType Type
@@ -53,12 +107,7 @@ namespace Flame.Cpp.Emit
 
         public CodeBuilder GetCode()
         {
-            CodeBuilder cb = new CodeBuilder();
-            cb.Append("for (");
-            cb.Append(Element.GetExpressionCode(true, true));
-            cb.Append(" : ");
-            cb.Append(Collection.GetCode());
-            cb.Append(")");
+            CodeBuilder cb = Header.GetCode();
             cb.AddBodyCodeBuilder(Body.GetCode());
             return cb;
         }
