@@ -853,7 +853,8 @@ namespace Flame.Recompilation
                 var optBody = Optimizer.GetOptimizedBody(bodyMethod);
                 var bodyStatement = GetStatement(optBody, TargetMethod);
                 var targetBody = TargetMethod.GetBodyGenerator();
-                bodyStatement.Emit(targetBody);
+                var block = bodyStatement.Emit(targetBody);
+                TargetMethod.SetMethodBody(block);
                 TargetMethod.Build();
             }
             catch (Exception ex)
