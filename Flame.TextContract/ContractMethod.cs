@@ -176,14 +176,19 @@ namespace Flame.TextContract
             return cb;
         }
 
-        public IBlockGenerator GetBodyGenerator()
+        public IMethod Build()
+        {
+            return this;
+        }
+
+        public ICodeGenerator GetBodyGenerator()
         {
             return null;
         }
 
-        public IMethod Build()
+        public void SetMethodBody(ICodeBlock Body)
         {
-            return this;
+            
         }
     }
 }
