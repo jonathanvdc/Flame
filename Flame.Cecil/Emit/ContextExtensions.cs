@@ -23,11 +23,9 @@ namespace Flame.Cecil.Emit
             if (!Context.ApplyOptimization(optimization))
             {
                 var local = CodeGenerator.DeclareUnmanagedVariable(ElementType); // Create temporary
-                var block = CodeGenerator.CreateBlock();
-                local.CreateSetStatement(new CodeBlockExpression(CodeGenerator.CreateBlock(), ElementType)).Emit(block); // Set temporary to value on top of stack
-                block.EmitBlock(local.CreateAddressOfExpression().Emit(CodeGenerator)); // Push address on stack
-                local.CreateReleaseStatement().Emit(block); // Release temporary
-                ((ICecilBlock)block).Emit(Context);
+                ((ICecilBlock)local.EmitSet(CodeGenerator.EmitVoid())).Emit(Context); // Set temporary to value on top of stack
+                ((ICecilBlock)local.EmitAddressOf()).Emit(Context); // Push address on stack
+                ((ICecilBlock)local.EmitRelease()).Emit(Context); // Release temporary
             }
             else
             {

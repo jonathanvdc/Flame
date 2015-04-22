@@ -18,9 +18,7 @@ namespace Flame.Cecil.Emit
 
         public ICecilBlock CreateBreak()
         {
-            var blockBuilder = CodeGenerator.CreateBlock();
-            blockBuilder.EmitReturn(CodeGenerator.CreateBlock());
-            return (ICecilBlock)blockBuilder;
+            return (ICecilBlock)CodeGenerator.EmitReturn(CodeGenerator.EmitVoid());
         }
 
         public ICecilBlock CreateContinue()

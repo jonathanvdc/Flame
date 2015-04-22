@@ -18,7 +18,7 @@ namespace Flame.Cecil.Emit
 
         public void Emit(IEmitContext Context)
         {
-            LocalVariable.Release();
+            LocalVariable.Release(Context);
         }
 
         public IStackBehavior StackBehavior

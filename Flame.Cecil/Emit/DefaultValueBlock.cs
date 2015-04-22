@@ -61,12 +61,10 @@ namespace Flame.Cecil.Emit
                 {
                     var variable = ((IUnmanagedCodeGenerator)CodeGenerator).DeclareUnmanagedVariable(Type);
 
-                    ((ICecilBlock)variable.CreateAddressOfExpression().Emit(CodeGenerator)).Emit(Context);
+                    ((ICecilBlock)variable.EmitAddressOf()).Emit(Context);
                     Context.Emit(OpCodes.Initobj, Type);
-                    ((ICecilBlock)variable.CreateGetExpression().Emit(CodeGenerator)).Emit(Context);
-                    var releaseBlock = CodeGenerator.CreateBlock();
-                    variable.CreateReleaseStatement().Emit(releaseBlock);
-                    ((ICecilBlock)releaseBlock).Emit(Context);
+                    ((ICecilBlock)variable.EmitGet()).Emit(Context);
+                    ((ICecilBlock)variable.EmitRelease()).Emit(Context);
                 }
                 else
                 {

@@ -59,26 +59,51 @@ namespace Flame.Cecil.Emit
 
         #endregion
 
-        #region CreateBlock
+        #region Blocks
 
-        public IBlockGenerator CreateBlock()
+        public ICodeBlock EmitBreak()
         {
-            return new BlockBuilder(this);
+            return new BreakBlock(this);
         }
 
-        public IBlockGenerator CreateDoWhileBlock(ICodeBlock Condition)
+        public ICodeBlock EmitContinue()
         {
-            return new DoWhileBlock(this, Condition);
+            return new ContinueBlock(this);
         }
 
-        public ICodeBlock CreateIfElseBlock(ICodeBlock Condition, ICodeBlock IfBlock, ICodeBlock ElseBlock)
+        public ICodeBlock EmitDoWhile(ICodeBlock Body, ICodeBlock Condition)
         {
-            return new IfElseBlock(this, (ICecilBlock)Condition, (ICecilBlock)IfBlock, (ICecilBlock)ElseBlock);
+            return new DoWhileBlock(this, (ICecilBlock)Condition, (ICecilBlock)Body);
         }
 
-        public IBlockGenerator CreateWhileBlock(ICodeBlock Condition)
+        public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
         {
-            return new WhileBlock(this, Condition);
+            return new IfElseBlock(this, (ICecilBlock)Condition, (ICecilBlock)IfBody, (ICecilBlock)ElseBody);
+        }
+
+        public ICodeBlock EmitPop(ICodeBlock Value)
+        {
+            return new PopBlock(this, (ICecilBlock)Value);
+        }
+
+        public ICodeBlock EmitReturn(ICodeBlock Value)
+        {
+            return new ReturnBlock(this, (ICecilBlock)Value);
+        }
+
+        public ICodeBlock EmitSequence(ICodeBlock First, ICodeBlock Second)
+        {
+            return new SequenceBlock(this, (ICecilBlock)First, (ICecilBlock)Second);
+        }
+
+        public ICodeBlock EmitVoid()
+        {
+            return new EmptyBlock(this);
+        }
+
+        public ICodeBlock EmitWhile(ICodeBlock Condition, ICodeBlock Body)
+        {
+            return new WhileBlock(this, (ICecilBlock)Condition, (ICecilBlock)Body);
         }
 
         #endregion
@@ -294,12 +319,12 @@ namespace Flame.Cecil.Emit
 
         #region Arguments
 
-        public IVariable GetArgument(int Index)
+        public IEmitVariable GetArgument(int Index)
         {
             return GetUnmanagedArgument(Index);
         }
 
-        public IUnmanagedVariable GetUnmanagedArgument(int Index)
+        public IUnmanagedEmitVariable GetUnmanagedArgument(int Index)
         {
             return new ILArgumentVariable(this, Method.IsStatic ? Index : Index + 1);
         }
@@ -308,7 +333,7 @@ namespace Flame.Cecil.Emit
 
         #region This
 
-        public IUnmanagedVariable GetUnmanagedThis()
+        public IUnmanagedEmitVariable GetUnmanagedThis()
         {
             if (Method.IsStatic)
             {
@@ -317,7 +342,7 @@ namespace Flame.Cecil.Emit
             return new ILArgumentVariable(this, 0);
         }
 
-        public IVariable GetThis()
+        public IEmitVariable GetThis()
         {
             return GetUnmanagedThis();
         }
@@ -338,7 +363,7 @@ namespace Flame.Cecil.Emit
             return new ILLocalVariable(this, VariableMember);
         }
 
-        public IUnmanagedVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
+        public IUnmanagedEmitVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
         {
             var varType = VariableMember.VariableType;
             for (int i = 0; i < localVarPool.Count; i++)
@@ -353,7 +378,7 @@ namespace Flame.Cecil.Emit
             return DeclareNewVariable(VariableMember);
         }
 
-        public IVariable DeclareVariable(IVariableMember VariableMember)
+        public IEmitVariable DeclareVariable(IVariableMember VariableMember)
         {
             return DeclareUnmanagedVariable(VariableMember);
         }
@@ -362,12 +387,12 @@ namespace Flame.Cecil.Emit
 
         #region Fields
 
-        public IVariable GetField(IField Field, ICodeBlock Target)
+        public IEmitVariable GetField(IField Field, ICodeBlock Target)
         {
             return GetUnmanagedField(Field, Target);
         }
 
-        public IUnmanagedVariable GetUnmanagedField(IField Field, ICodeBlock Target)
+        public IUnmanagedEmitVariable GetUnmanagedField(IField Field, ICodeBlock Target)
         {
             return new ILFieldVariable(this, (ICecilBlock)Target, Field);
         }
@@ -376,12 +401,12 @@ namespace Flame.Cecil.Emit
 
         #region Elements
 
-        public IVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
+        public IEmitVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
         {
             return GetUnmanagedElement(Value, Index);
         }
 
-        public IUnmanagedVariable GetUnmanagedElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
+        public IUnmanagedEmitVariable GetUnmanagedElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
         {
             return new ILElementVariable(this, (ICecilBlock)Value, Index.Cast<ICecilBlock>().ToArray());
         }
@@ -394,10 +419,7 @@ namespace Flame.Cecil.Emit
 
         public ICodeBlock EmitDereferencePointer(ICodeBlock Pointer)
         {
-            var bigBlock = CreateBlock();
-            bigBlock.EmitBlock(Pointer);
-            bigBlock.EmitBlock(new DereferenceEmitterBlock(this));
-            return bigBlock;
+            return EmitSequence(Pointer, new DereferenceEmitterBlock(this));
         }
 
         public ICodeBlock EmitStoreAtAddress(ICodeBlock Pointer, ICodeBlock Value)
