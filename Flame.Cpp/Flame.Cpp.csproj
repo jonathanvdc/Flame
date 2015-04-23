@@ -149,7 +149,6 @@
     <Compile Include="Emit\BinaryOperation.cs" />
     <Compile Include="Emit\CompositeBlockBase.cs" />
     <Compile Include="Emit\CppArgument.cs" />
-    <Compile Include="Emit\CppBlockGenerator.cs" />
     <Compile Include="Emit\CppElement.cs" />
     <Compile Include="Emit\CppField.cs" />
     <Compile Include="Emit\CppLocal.cs" />
@@ -173,7 +172,6 @@
     <Compile Include="Emit\KeywordStatementBlock.cs" />
     <Compile Include="Emit\CharLiteral.cs" />
     <Compile Include="Emit\ConversionBlock.cs" />
-    <Compile Include="Emit\CppBlockGeneratorBase.cs" />
     <Compile Include="Emit\CppCodeGenerator.cs" />
     <Compile Include="Emit\ExpressionStatementBlock.cs" />
     <Compile Include="Emit\LocalBlock.cs" />
