@@ -18,6 +18,21 @@ namespace Flame.Compiler.Statements
 			}
 		}
 
+		public IStatement Accept(INodeVisitor Visitor)
+		{
+			var transCond = Visitor.Visit(Condition);
+			var transBody = Visitor.Visit(Body);
+
+			if (transCond == Condition && transBody == Body)
+			{
+				return this;
+			}
+			else
+			{
+				return new WhileStatement(transCond, transBody);
+			}
+		}
+
 		public IStatement Optimize() : IStatement.Optimize
 		{
 			var optCond = Condition.Optimize();

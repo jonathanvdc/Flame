@@ -42,6 +42,11 @@ namespace Flame.Compiler.Statements
 		public LateBoundLabel Label { const get; private set; }
 		public IExpression Condition { const get; private set; }
 
+		public IStatement Accept(INodeVisitor Visitor)
+		{
+			return this;
+		}
+
 		public bool IsEmpty { const get return Condition.EvaluatesTo<bool>(false); }
 
 		public const IStatement Optimize()
@@ -68,6 +73,11 @@ namespace Flame.Compiler.Statements
 		public const this(set LateBoundLabel Label);
 
 		public LateBoundLabel Label { const get; private set; }
+
+		public IStatement Accept(INodeVisitor Visitor)
+		{
+			return this;
+		}
 
 		public bool IsEmpty { const get return false; }
 

@@ -8,9 +8,9 @@ namespace Flame.Compiler.Expressions
 	public abstract class ComplexExpressionBase : IExpression
 	{
 		public const this();
-		
+
 		protected abstract const IExpression Lower();
-		
+
 		private IExpression lowered;
 		public const IExpression LoweredExpression
 		{
@@ -20,25 +20,30 @@ namespace Flame.Compiler.Expressions
 				{
 					lowered = Lower();
 				}
-				return lowered;	
+				return lowered;
 			}
 		}
-		
+
 		public virtual IType Type
 		{
 			virtual const get return LoweredExpression.Type;
 		}
-		
+
+		public virtual IExpression Accept(INodeVisitor Visitor)
+		{
+			return Visitor.Visit(LoweredExpression);
+		}
+
 		public virtual const IExpression Optimize()
 		{
 			return LoweredExpression.Optimize();
 		}
-		
+
 		public virtual const ICodeBlock Emit(ICodeGenerator CodeGenerator)
 		{
 			return LoweredExpression.Emit(CodeGenerator);
 		}
-		
+
 		/// <summary>
         /// Gets a boolean value that indicates if the expression is a constant expression. A constant expression can be evaluated at compile-time.
         /// </summary>

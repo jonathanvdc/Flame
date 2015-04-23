@@ -11,11 +11,25 @@ namespace Flame.Compiler.Expressions
         public IField Field { const get; private set; }
         public IExpression Target { const get; private set; }
 
+		public IExpression Accept(INodeVisitor Visitor)
+		{
+			var transTarget = Visitor.Visit(Target);
+
+			if (transTarget == Target)
+			{
+				return this;
+			}
+			else
+			{
+				return new FieldGetExpression(Field, transTarget);
+			}
+		}
+
         public IType Type
         {
             const get { return Field.FieldType; }
         }
-        
+
         public const IVariable GetVariable() : IVariableNode.GetVariable
         {
         	return new FieldVariable(Field, Target);
@@ -23,8 +37,8 @@ namespace Flame.Compiler.Expressions
 
         public bool IsConstant
         {
-            const get 
-            { 
+            const get
+            {
             	if (Field.IsConstant)
             	{
             		if (Target == null)
@@ -88,7 +102,7 @@ namespace Flame.Compiler.Expressions
         	{
         		targetBlock = Target.Emit(Generator);
         	}
-        
+
         	return Generator.EmitGetField(Field, targetBlock);
         }
     }
@@ -103,7 +117,21 @@ namespace Flame.Compiler.Expressions
         {
             const get { return Field.FieldType.MakePointerType(PointerKind.ReferencePointer); }
         }
-        
+
+		public IExpression Accept(INodeVisitor Visitor)
+		{
+			var transTarget = Visitor.Visit(Target);
+
+			if (transTarget == Target)
+			{
+				return this;
+			}
+			else
+			{
+				return new FieldGetPointerExpression(Field, transTarget);
+			}
+		}
+
         public const IVariable GetVariable() : IVariableNode.GetVariable
         {
         	return new FieldVariable(Field, Target);
@@ -127,7 +155,7 @@ namespace Flame.Compiler.Expressions
         public ICodeBlock Emit(ICodeGenerator Generator)
         {
         	var cg = (IUnmanagedCodeGenerator)Generator;
-        
+
         	ICodeBlock targetBlock;
         	if (Target == null)
         	{
@@ -137,7 +165,7 @@ namespace Flame.Compiler.Expressions
         	{
         		targetBlock = Target.Emit(Generator);
         	}
-        
+
             return cg.EmitGetFieldAddress(Field, targetBlock);
         }
     }

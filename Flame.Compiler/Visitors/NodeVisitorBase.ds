@@ -1,0 +1,38 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Compiler.Visitors
+{
+    public abstract class NodeVisitorBase : INodeVisitor
+    {
+        protected abstract bool Matches(IExpression Value);
+        protected abstract bool Matches(IStatement Value);
+        protected abstract IExpression Transform(IExpression Expression);
+        protected abstract IStatement Transform(IStatement Statement);
+
+        public IExpression Visit(IExpression Value)
+        {
+            if (Matches(Value))
+            {
+                return Transform(Value);
+            }
+            else
+            {
+                return Value.Accept(this);
+            }
+        }
+
+        public IStatement Visit(IStatement Value)
+        {
+            if (Matches(Value))
+            {
+                return Transform(Value);
+            }
+            else
+            {
+                return Value.Accept(this);
+            }
+        }
+    }
+}

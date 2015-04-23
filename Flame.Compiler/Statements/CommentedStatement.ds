@@ -32,6 +32,20 @@ namespace Flame.Compiler.Statements
 			}
 		}
 
+		public IStatement Accept(INodeVisitor Visitor)
+		{
+			var inner = Visitor.Visit(Statement);
+
+			if (inner == Statement)
+			{
+				return this;
+			}
+			else
+			{
+				return new CommentedStatement(Comment, inner);
+			}
+		}
+
 		public const IStatement Optimize()
 		{
 			var optStmt = Statement.Optimize();

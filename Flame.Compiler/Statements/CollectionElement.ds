@@ -24,6 +24,20 @@ namespace Flame.Compiler.Statements
             return new InvocationExpression(Method, Caller.CreateGetExpression(), new IExpression[0]);
         }
 
+		public CollectionElement Accept(INodeVisitor Visitor)
+		{
+			var transColl = Visitor.Visit(Collection);
+
+			if (transColl == Collection)
+			{
+				return this;
+			}
+			else
+			{
+				return new CollectionElement(Member, transColl);
+			}
+		}
+
 		#region CreateArrayElementInCollection
 
         private ElementInCollection CreateArrayElementInCollection(IVariable IndexVariable)

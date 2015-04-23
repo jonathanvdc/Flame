@@ -7,22 +7,27 @@ namespace Flame.Compiler.Expressions
     public class HashExpression : UnaryExpression
     {
         public const this(set IExpression Value);
-        
+
         public override IType Type
         {
             override const get { return PrimitiveTypes.Int32; }
+        }
+
+        protected override const IExpression Create(IExpression Operand)
+        {
+            return new HashExpression(Operand);
         }
 
         public const IBoundObject Evaluate()
         {
         	return null;
         }
-        
+
         public const IExpression Optimize()
         {
         	return new HashExpression(Value.Optimize());
         }
-        
+
         public ICodeBlock Emit(ICodeGenerator Generator)
         {
         	var valBlock = Value.Emit(Generator);

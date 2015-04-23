@@ -13,17 +13,20 @@ namespace Flame.Compiler.Statements
 
 		public bool IsEmpty
 		{
-			const get
+			const get return Expression.EvaluatesTo<bool>(true);
+		}
+
+		public IStatement Accept(INodeVisitor Visitor)
+		{
+			var transVal = Visitor.Visit(Expression);
+
+			if (transVal == Expression)
 			{
-				if (Expression.IsConstant)
-			 	{
-					var evalExpr = Expression.Evaluate();
-					if (evalExpr != null)
-					{
-						return evalExpr.GetValue<bool>();
-					}
-				}
-				return false;
+				return this;
+			}
+			else
+			{
+				return new AssertStatement(transVal);
 			}
 		}
 

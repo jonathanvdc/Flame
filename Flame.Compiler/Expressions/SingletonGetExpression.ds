@@ -26,7 +26,12 @@ namespace Flame.Compiler.Expressions
 				return getExpr;
 			}
 		}
-		
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
         public bool IsConstant
         {
             const get { return InstanceGetExpression.IsConstant; }

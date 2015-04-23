@@ -10,6 +10,20 @@ namespace Flame.Compiler.Statements
 
         public IExpression Value { const get; protected set; }
 
+        public IStatement Accept(INodeVisitor Visitor)
+        {
+            var expr = Visitor.Visit(Value);
+
+            if (expr == Value)
+            {
+                return this;
+            }
+            else
+            {
+                return new ThisSetStatement(expr);
+            }
+        }
+
         public const IStatement Optimize()
         {
             var optVal = Value.Optimize();
