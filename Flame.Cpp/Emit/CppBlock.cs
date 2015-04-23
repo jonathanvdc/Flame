@@ -22,6 +22,8 @@ namespace Flame.Cpp.Emit
         public ICodeGenerator CodeGenerator { get; private set; }
         public IReadOnlyList<ICppBlock> Blocks { get; private set; }
 
+        #region Declarations
+
         public static IReadOnlyList<ICppBlock> InsertSequenceDeclarations(params ICppBlock[] Blocks)
         {
             return InsertSequenceDeclarations((IEnumerable<ICppBlock>)Blocks);
@@ -57,6 +59,89 @@ namespace Flame.Cpp.Emit
             }
             return results;
         }
+
+        public static IReadOnlyList<LocalDeclarationReference> HoistSequenceDeclarations(params ICppBlock[] Blocks)
+        {
+            return HoistSequenceDeclarations((IEnumerable<ICppBlock>)Blocks);
+        }
+
+        public static IReadOnlyList<LocalDeclarationReference> HoistSequenceDeclarations(IEnumerable<ICppBlock> Blocks)
+        {
+            var results = new List<LocalDeclarationReference>();
+            var declLocals = new HashSet<CppLocal>();
+            foreach (var item in Blocks)
+            {
+                foreach (var declLocal in item.GetLocalDeclarations())
+                {
+                    if (declLocals.Contains(declLocal.Local))
+                    {
+                        declLocal.DeclareVariable = false;
+                    }
+                    else
+                    {
+                        declLocals.Add(declLocal.Local);
+                    }
+                }
+                foreach (var local in item.LocalsUsed)
+                {
+                    if (!declLocals.Contains(local))
+                    {
+                        var newRef = new LocalDeclarationReference(local);
+                        results.Add(newRef);
+                        declLocals.Add(local);
+                    }
+                }
+            }
+            return results;
+        }
+
+        public static ISet<CppLocal> GetCommonVariables(IEnumerable<ICppBlock> Blocks)
+        {
+            var localOccurences = new Dictionary<CppLocal, int>();
+            foreach (var block in Blocks)
+            {
+                foreach (var item in block.GetLocalDeclarations().Select(item => item.Local).Concat(block.LocalsUsed).Distinct())
+                {
+                    if (localOccurences.ContainsKey(item))
+                    {
+                        localOccurences[item]++;
+                    }
+                    else
+                    {
+                        localOccurences[item] = 1;
+                    }
+                }
+            }
+            return new HashSet<CppLocal>(localOccurences.Where(item => item.Value > 1).Select(item => item.Key));
+        }
+
+        public static IReadOnlyList<LocalDeclarationReference> HoistUnionDeclarations(params ICppBlock[] Blocks)
+        {
+            return HoistUnionDeclarations((IEnumerable<ICppBlock>)Blocks);
+        }
+
+        public static IReadOnlyList<LocalDeclarationReference> HoistUnionDeclarations(IEnumerable<ICppBlock> Blocks)
+        {
+            var results = new List<LocalDeclarationReference>();
+            var commonVariables = GetCommonVariables(Blocks);
+            foreach (var item in commonVariables)
+            {
+                results.Add(new LocalDeclarationReference(item));
+            }
+            foreach (var item in Blocks)
+            {
+                foreach (var declLocal in item.GetLocalDeclarations())
+                {
+                    if (commonVariables.Contains(declLocal.Local))
+                    {
+                        declLocal.DeclareVariable = false;
+                    }
+                }
+            }
+            return results;
+        }
+
+        #endregion
 
         private Lazy<LocalDeclaration[]> localDecls;
         public IEnumerable<LocalDeclaration> LocalDeclarations

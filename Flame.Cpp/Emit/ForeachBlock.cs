@@ -12,7 +12,7 @@ namespace Flame.Cpp.Emit
     {
         public ForeachHeader(CppCodeGenerator CodeGenerator, CollectionBlock Collection)
         {
-            this.Element = Element;
+            this.Collection = Collection;
             DeclareElement(CodeGenerator);
         }
 

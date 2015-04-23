@@ -39,14 +39,36 @@ namespace Flame.Cpp.Emit
             return new KeywordStatementBlock(this, "continue");
         }
 
+        private ICodeBlock EmitUnionBlock(ICppBlock UnionBlock, params ICppBlock[] UnionItems)
+        {
+            var unionDecls = CppBlock.HoistUnionDeclarations(UnionItems);
+            if (unionDecls.Count > 0)
+            {
+                return EmitSequence(new CppBlock(this, unionDecls), UnionBlock);
+            }
+            else
+            {
+                return UnionBlock;
+            }
+        }
+
         public ICodeBlock EmitDoWhile(ICodeBlock Body, ICodeBlock Condition)
         {
-            return new DoWhileBlock((ICppBlock)Condition, (ICppBlock)Body);
+            var cond = (ICppBlock)Condition;
+            var body = (ICppBlock)Body;
+            var doWhileBlock = new DoWhileBlock(cond, body);
+
+            return EmitUnionBlock(doWhileBlock, cond, body);
         }
 
         public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
         {
-            return new IfElseBlock(this, (ICppBlock)Condition, (ICppBlock)IfBody, (ICppBlock)ElseBody);
+            var cond = (ICppBlock)Condition;
+            var ifBody = (ICppBlock)IfBody;
+            var elseBody = (ICppBlock)ElseBody;
+            var ifElseBlock = new IfElseBlock(this, cond, ifBody, elseBody);
+
+            return EmitUnionBlock(ifElseBlock, cond, ifBody, elseBody);
         }
 
         public ICodeBlock EmitPop(ICodeBlock Value)
@@ -71,7 +93,11 @@ namespace Flame.Cpp.Emit
 
         public ICodeBlock EmitWhile(ICodeBlock Condition, ICodeBlock Body)
         {
-            return new WhileBlock((ICppBlock)Condition, (ICppBlock)Body);
+            var cond = (ICppBlock)Condition;
+            var body = (ICppBlock)Body;
+            var whileBlock = new WhileBlock(cond, body);
+
+            return EmitUnionBlock(whileBlock, cond, body);
         }
 
         #endregion
@@ -499,7 +525,26 @@ namespace Flame.Cpp.Emit
             if (cppInit.IsSimple() && cppDelta.IsSimple())
             {
                 var cppBody = (ICppBlock)Body;
-                return new ForBlock(cppInit, cppCond, cppDelta, cppBody);
+
+                var forBlock = new ForBlock(cppInit, cppCond, cppDelta, cppBody);
+
+                // How this works:
+                // Step #1: Hoist all variable declarations common to the condition, delta and body.
+                // Step #2: Assume the initialization and the rest of the for loop is executed in sequence,
+                //          and hoist variable declarations accordingly
+                // Step #3: If any variable declarations have been hoisted, emit them.
+                //          In any case, the 'for' block is subsequently emitted.
+
+                var unionDecls = CppBlock.HoistUnionDeclarations(cppCond, cppDelta, cppBody);
+                var seqDecls = CppBlock.HoistSequenceDeclarations(new ICppBlock[] { cppInit }.Concat(unionDecls));
+                if (seqDecls.Count > 0)
+                {
+                    return EmitSequence(new CppBlock(this, seqDecls), forBlock);
+                }
+                else
+                {
+                    return forBlock;
+                }
             }
             return null;
         }
