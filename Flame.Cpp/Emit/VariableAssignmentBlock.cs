@@ -52,6 +52,11 @@ namespace Flame.Cpp.Emit
                         cb.Append("++");
                         cb.Append(targetCode);
                     }
+                    else if ((binOp.Operator.Equals(Operator.Subtract) && binOp.Right is LiteralBlock && ((LiteralBlock)binOp.Right).Value == "1") || (binOp.Operator.Equals(Operator.Add) && binOp.Right is LiteralBlock && ((LiteralBlock)binOp.Right).Value == "-1"))
+                    {
+                        cb.Append("--");
+                        cb.Append(targetCode);
+                    }
                     else
                     {
                         cb.Append(targetCode);
