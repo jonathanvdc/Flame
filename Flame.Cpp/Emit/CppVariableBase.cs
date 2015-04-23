@@ -39,7 +39,7 @@ namespace Flame.Cpp.Emit
 
         public virtual ICodeBlock EmitSet(ICodeBlock Value)
         {
-            return new VariableAssignmentBlock(CreateBlock(), (ICppBlock)Value);
+            return new ExpressionStatementBlock(new VariableAssignmentBlock(CreateBlock(), (ICppBlock)Value));
         }
 
         public override string ToString()
