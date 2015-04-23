@@ -25,7 +25,7 @@ namespace Flame.Cpp.Emit
         public static IEnumerable<ICppBlock> Flatten(this IMultiBlock Block)
         {
             var items = Block.GetBlocks();
-            return items.SelectMany(item => item is IMultiBlock ? Flatten((IMultiBlock)item) : new IMultiBlock[] { Block });
+            return items.SelectMany(item => item is IMultiBlock ? Flatten((IMultiBlock)item) : new ICppBlock[] { item });
         }
              
         /// <summary>
