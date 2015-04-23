@@ -61,7 +61,7 @@ namespace Flame.Cpp.Emit
 
         public ICodeBlock EmitSequence(ICodeBlock First, ICodeBlock Second)
         {
-            return new CppBlock(this, new ICppBlock[] { (ICppBlock)First, (ICppBlock)Second });
+            return new CppBlock(this, CppBlock.InsertSequenceDeclarations((ICppBlock)First, (ICppBlock)Second));
         }
 
         public ICodeBlock EmitVoid()
@@ -73,11 +73,6 @@ namespace Flame.Cpp.Emit
         {
             return new WhileBlock((ICppBlock)Condition, (ICppBlock)Body);
         }
-
-        /*public IBlockGenerator CreateBlock()
-        {
-            return new CppBlockGenerator(this);
-        }*/
 
         #endregion
 
