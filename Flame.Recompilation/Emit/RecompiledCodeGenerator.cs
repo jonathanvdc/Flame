@@ -115,7 +115,7 @@ namespace Flame.Recompilation.Emit
 
         public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
         {
-            return new StatementBlock(this, new IfElseStatement(GetExpression(Condition), GetStatement(IfBody), GetStatement(ElseBody)));
+            return new IfElseBlock(this, GetExpression(Condition), IfBody, ElseBody);
         }
 
         public ICodeBlock EmitPop(ICodeBlock Value)
