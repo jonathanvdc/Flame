@@ -17,6 +17,7 @@ namespace Flame.Cpp.Emit
             this.depends = new Lazy<IHeaderDependency[]>(() => Blocks.Aggregate(Enumerable.Empty<IHeaderDependency>(), (acc, item) => acc.Union(item.Dependencies)).ToArray());
             this.type = new Lazy<IType>(() => Blocks.Select(item => item.Type).Where(item => !item.Equals(PrimitiveTypes.Void)).LastOrDefault() ?? PrimitiveTypes.Void);
             this.localDecls = new Lazy<LocalDeclaration[]>(() => Blocks.GetLocalDeclarations().ToArray());
+            this.spilledDecls = new Lazy<LocalDeclaration[]>(() => Blocks.GetSpilledLocals().ToArray());
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
@@ -31,68 +32,84 @@ namespace Flame.Cpp.Emit
 
         public static IReadOnlyList<ICppBlock> InsertSequenceDeclarations(IEnumerable<ICppBlock> Blocks)
         {
+            return InsertSequenceDeclarations(Blocks, true);
+        }
+
+        private static IReadOnlyList<ICppBlock> InsertSequenceDeclarations(IEnumerable<ICppBlock> Blocks, bool IncludeBlocks)
+        {
             var results = new List<ICppBlock>();
-            var declLocals = new HashSet<CppLocal>();
+            var declLocals = new HashSet<CppLocal>(); // Locals that are definitely declared
+            var externalDecls = new Dictionary<CppLocal, LocalDeclarationReference>(); // Local declarations that have not been applied yet
             foreach (var item in Blocks)
             {
-                foreach (var declLocal in item.GetLocalDeclarations())
+                var spilledLocals = item.GetSpilledLocals().ToArray();
+
+                foreach (var declLocal in spilledLocals)
                 {
                     if (declLocals.Contains(declLocal.Local))
                     {
                         declLocal.DeclareVariable = false;
+                    }
+                    else if (externalDecls.ContainsKey(declLocal.Local))
+                    {
+                        externalDecls[declLocal.Local].Acquire();
+                        declLocal.DeclareVariable = false;
+                        declLocals.Add(declLocal.Local);
                     }
                     else
                     {
                         declLocals.Add(declLocal.Local);
                     }
                 }
-                foreach (var local in item.LocalsUsed)
+                
+                var internalLocals = item.GetLocalDeclarations().Distinct(DeclarationLocalComparer.Instance).ToArray();
+
+                foreach (var declLocal in internalLocals.Except(spilledLocals, DeclarationLocalComparer.Instance))
+                {
+                    if (declLocals.Contains(declLocal.Local))
+                    {
+                        declLocal.DeclareVariable = false;
+                    }
+                    else if (externalDecls.ContainsKey(declLocal.Local))
+                    {
+                        externalDecls[declLocal.Local].Acquire();
+                        declLocal.DeclareVariable = false;
+                        declLocals.Add(declLocal.Local);
+                    }
+                    else
+                    {
+                        var declRef = new LocalDeclarationReference(declLocal);
+                        externalDecls[declLocal.Local] = declRef;
+                        results.Add(declRef);
+                    }
+                }
+
+                foreach (var local in item.LocalsUsed.Except(internalLocals.Select(decl => decl.Local)))
                 {
                     if (!declLocals.Contains(local))
                     {
-                        var newRef = new LocalDeclarationReference(local);
+                        var newRef = externalDecls.ContainsKey(local) ? externalDecls[local] : new LocalDeclarationReference(local);
+                        newRef.Acquire();
                         results.Add(newRef);
                         declLocals.Add(local);
                     }
                 }
-                results.Add(item);
+                if (IncludeBlocks)
+                {
+                    results.Add(item);
+                }
             }
             return results;
         }
 
-        public static IReadOnlyList<LocalDeclarationReference> HoistSequenceDeclarations(params ICppBlock[] Blocks)
+        public static IReadOnlyList<ICppBlock> HoistSequenceDeclarations(params ICppBlock[] Blocks)
         {
             return HoistSequenceDeclarations((IEnumerable<ICppBlock>)Blocks);
         }
 
-        public static IReadOnlyList<LocalDeclarationReference> HoistSequenceDeclarations(IEnumerable<ICppBlock> Blocks)
+        public static IReadOnlyList<ICppBlock> HoistSequenceDeclarations(IEnumerable<ICppBlock> Blocks)
         {
-            var results = new List<LocalDeclarationReference>();
-            var declLocals = new HashSet<CppLocal>();
-            foreach (var item in Blocks)
-            {
-                foreach (var declLocal in item.GetLocalDeclarations())
-                {
-                    if (declLocals.Contains(declLocal.Local))
-                    {
-                        declLocal.DeclareVariable = false;
-                    }
-                    else
-                    {
-                        declLocals.Add(declLocal.Local);
-                    }
-                }
-                foreach (var local in item.LocalsUsed)
-                {
-                    if (!declLocals.Contains(local))
-                    {
-                        var newRef = new LocalDeclarationReference(local);
-                        results.Add(newRef);
-                        declLocals.Add(local);
-                    }
-                }
-            }
-            return results;
+            return InsertSequenceDeclarations(Blocks, false);
         }
 
         public static ISet<CppLocal> GetCommonVariables(IEnumerable<ICppBlock> Blocks)
@@ -147,6 +164,12 @@ namespace Flame.Cpp.Emit
         public IEnumerable<LocalDeclaration> LocalDeclarations
         {
             get { return localDecls.Value; }
+        }
+
+        private Lazy<LocalDeclaration[]> spilledDecls;
+        public IEnumerable<LocalDeclaration> SpilledDeclarations
+        {
+            get { return spilledDecls.Value; }
         }
 
         private Lazy<IType> type;

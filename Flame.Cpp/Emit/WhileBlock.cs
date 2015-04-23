@@ -58,5 +58,10 @@ namespace Flame.Cpp.Emit
         {
             get { return Condition.GetLocalDeclarations().Concat(Body.GetLocalDeclarations()); }
         }
+
+        public IEnumerable<LocalDeclaration> SpilledDeclarations
+        {
+            get { return Enumerable.Empty<LocalDeclaration>(); }
+        }
     }
 }

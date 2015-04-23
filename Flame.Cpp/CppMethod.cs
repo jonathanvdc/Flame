@@ -12,7 +12,6 @@ namespace Flame.Cpp
 {
     public interface ICppMethod : IMethod, ICppTemplateMember
     {
-
     }
 
     public class CppMethod : IMethodBuilder, ICppMethod, IEquatable<IMethod>
@@ -63,23 +62,20 @@ namespace Flame.Cpp
             return codeGen;
         }
 
-        private ICppBlock methodBody;
-        public ICppBlock Body { get { return methodBody ?? new EmptyBlock(codeGen); } }
+        private ContractBlock methodBody;
+        public ICppBlock Body { get { return methodBody as ICppBlock ?? new EmptyBlock(codeGen); } }
 
         public MethodContract Contract
         {
             get
             {
-                var contractBody = Body as ContractBlock;
-                return new MethodContract(codeGen, 
-                    contractBody == null ? Enumerable.Empty<ICppBlock>() : contractBody.Preconditions, 
-                    contractBody == null ? Enumerable.Empty<ICppBlock>() : contractBody.Postconditions);
+                return methodBody != null ? methodBody.Contract : new MethodContract(codeGen, Enumerable.Empty<ICppBlock>(), Enumerable.Empty<ICppBlock>());
             }
         }
 
         public void SetMethodBody(ICodeBlock Body)
         {
-            this.methodBody = (ICppBlock)Body;
+            this.methodBody = Body is ContractBlock ? (ContractBlock)Body : new ContractBlock((ICppBlock)Body, Enumerable.Empty<ICppBlock>(), Enumerable.Empty<ICppBlock>());
         }
 
         #endregion

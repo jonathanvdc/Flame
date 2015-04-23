@@ -135,7 +135,7 @@ namespace Flame.Cpp
 
                     var ifBlock = codeGen.EmitIfElse(codeGen.EmitNot(fieldVar.EmitGet()), ifBody, codeGen.EmitVoid());
 
-                    var body = codeGen.EmitSequence(ifBody, codeGen.EmitReturn(codeGen.EmitBoolean(true)));
+                    var body = codeGen.EmitSequence(ifBlock, codeGen.EmitReturn(codeGen.EmitBoolean(true)));
 
                     method.SetMethodBody(body);
                 }

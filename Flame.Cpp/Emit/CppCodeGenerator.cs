@@ -19,6 +19,21 @@ namespace Flame.Cpp.Emit
             this.LocalManager = new CppLocalManager(this);
         }
 
+        public MethodContract Contract
+        {
+            get
+            {
+                if (Method is CppMethod)
+                {
+                    return ((CppMethod)Method).Contract;
+                }
+                else
+                {
+                    return new MethodContract(this, Enumerable.Empty<ICppBlock>(), Enumerable.Empty<ICppBlock>());
+                }
+            }
+        }
+
         #region Properties
 
         public IMethod Method { get; private set; }
@@ -78,7 +93,7 @@ namespace Flame.Cpp.Emit
 
         public ICodeBlock EmitReturn(ICodeBlock Value)
         {
-            return new ReturnBlock(this, Value as ICppBlock);
+            return new ContractReturnBlock(this, Value as ICppBlock);
         }
 
         public ICodeBlock EmitSequence(ICodeBlock First, ICodeBlock Second)

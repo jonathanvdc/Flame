@@ -31,6 +31,11 @@ namespace Flame.Cpp.Emit
             }
         }
 
+        public IEnumerable<LocalDeclaration> SpilledDeclarations
+        {
+            get { return Enumerable.Empty<LocalDeclaration>(); }
+        }
+
         public IEnumerable<LocalDeclaration> CommonDeclarations
         {
             get

@@ -71,6 +71,7 @@
     <Compile Include="Emit\CatchBlock.cs" />
     <Compile Include="Emit\ContractBlock.cs" />
     <Compile Include="Emit\CppBlock.cs" />
+    <Compile Include="Emit\DeclarationLocalComparer.cs" />
     <Compile Include="Emit\DoWhileBlock.cs" />
     <Compile Include="Emit\ForBlock.cs" />
     <Compile Include="Emit\ForeachBlock.cs" />
@@ -107,7 +108,7 @@
     <Compile Include="Emit\PreconditionBlock.cs" />
     <Compile Include="Emit\ExceptionHandlingBlock.cs" />
     <Compile Include="Emit\DynamicCastBlock.cs" />
-    <Compile Include="Emit\ICppBlockGenerator.cs" />
+    <Compile Include="Emit\ICppLocalDeclaringBlock.cs" />
     <Compile Include="Emit\ImplicitDependencyBlock.cs" />
     <Compile Include="Emit\INewObjectBlock.cs" />
     <Compile Include="Emit\IInvocationBlock.cs" />
