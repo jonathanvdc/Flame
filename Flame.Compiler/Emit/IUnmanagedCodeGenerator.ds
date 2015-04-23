@@ -8,10 +8,10 @@ namespace Flame.Compiler
 	{
 		ICodeBlock EmitDereferencePointer(ICodeBlock Pointer);
 		ICodeBlock EmitStoreAtAddress(ICodeBlock Pointer, ICodeBlock Value);
-		
-		IUnmanagedVariable GetUnmanagedElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index);
-		IUnmanagedVariable GetUnmanagedField(IField Field, ICodeBlock Target);
-		
+
+		IUnmanagedEmitVariable GetUnmanagedElement(ICodeBlock Value, [ICodeBlock] Index);
+		IUnmanagedEmitVariable GetUnmanagedField(IField Field, ICodeBlock Target);
+
 		ICodeBlock EmitSizeOf(IType Type);
 	}
 }

@@ -34,11 +34,7 @@ namespace Flame.Recompilation.Emit
         {
             get
             {
-                if (IfBlock is ExpressionBlock)
-                {
-                    return new IType[] { ((ExpressionBlock)IfBlock).Expression.Type };
-                }
-                return ((IStatementBlock)IfBlock).ResultTypes;
+                return RecompiledCodeGenerator.GetResultTypes(IfBlock);
             }
         }
     }

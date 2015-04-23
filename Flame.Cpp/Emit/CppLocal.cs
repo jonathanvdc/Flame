@@ -62,9 +62,10 @@ namespace Flame.Cpp.Emit
             return Member.VariableType.FullName + " " + Member.Name;
         }
 
-        public override IStatement CreateReleaseStatement()
+        public override ICodeBlock EmitRelease()
         {
-            return new ReleaseLocalStatement(this);
+            ((CppCodeGenerator)CodeGenerator).LocalManager.Release(this);
+            return base.EmitRelease();
         }
 
         public override IType Type
@@ -77,34 +78,9 @@ namespace Flame.Cpp.Emit
             return new LocalBlock(this);
         }
 
-        public override IStatement CreateSetStatement(IExpression Value)
+        public override ICodeBlock EmitSet(ICodeBlock Value)
         {
-            return new CodeBlockStatement(new LocalDeclarationReference(this, (ICppBlock)Value.Emit(CodeGenerator)));
-        }
-
-        private class ReleaseLocalStatement : IStatement
-        {
-            public ReleaseLocalStatement(CppLocal Local)
-            {
-                this.Local = Local;
-            }
-
-            public CppLocal Local { get; private set; }
-
-            public void Emit(IBlockGenerator Generator)
-            {
-                ((CppCodeGenerator)Local.CodeGenerator).LocalManager.Release(Local);
-            }
-
-            public bool IsEmpty
-            {
-                get { return false; }
-            }
-
-            public IStatement Optimize()
-            {
-                return this;
-            }
+            return new LocalDeclarationReference(this, (ICppBlock)Value);
         }
     }
 }

@@ -5,12 +5,12 @@ namespace Flame.Compiler.Emit
 {
     public interface IUnmanagedMethodStructureGenerator : IMethodStructureGenerator
     {
-        IUnmanagedVariable DeclareUnmanagedVariable(IVariableMember VariableMember);
-        IUnmanagedVariable GetUnmanagedArgument(int Index);
+        IUnmanagedEmitVariable DeclareUnmanagedVariable(IVariableMember VariableMember);
+        IUnmanagedEmitVariable GetUnmanagedArgument(int Index);
         /// <summary>
         /// Gets the "this" argument.
         /// </summary>
         /// <returns></returns>
-        IUnmanagedVariable GetUnmanagedThis();
+        IUnmanagedEmitVariable GetUnmanagedThis();
     }
 }

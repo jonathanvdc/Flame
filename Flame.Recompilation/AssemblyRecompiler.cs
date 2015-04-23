@@ -843,6 +843,11 @@ namespace Flame.Recompilation
         }
         private void RecompileMethodBodyCore(IMethodBuilder TargetMethod, IMethod SourceMethod)
         {
+            if (SourceMethod.get_IsAbstract() || SourceMethod.DeclaringType.get_IsInterface())
+            {
+                return;
+            }
+
             var bodyMethod = SourceMethod as IBodyMethod;
             if (bodyMethod == null)
             {
@@ -853,7 +858,8 @@ namespace Flame.Recompilation
                 var optBody = Optimizer.GetOptimizedBody(bodyMethod);
                 var bodyStatement = GetStatement(optBody, TargetMethod);
                 var targetBody = TargetMethod.GetBodyGenerator();
-                bodyStatement.Emit(targetBody);
+                var block = bodyStatement.Emit(targetBody);
+                TargetMethod.SetMethodBody(block);
                 TargetMethod.Build();
             }
             catch (Exception ex)
@@ -943,8 +949,7 @@ namespace Flame.Recompilation
             try
             {
                 var codeGen = new RecompiledCodeGenerator(this, Method);
-                var block = new RecompiledContractBlockGenerator(codeGen);
-                SourceStatement.Emit(block);
+                var block = SourceStatement.Emit(codeGen);
                 return RecompiledCodeGenerator.GetStatement(block);
             }
             catch (Exception ex)

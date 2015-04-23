@@ -18,7 +18,7 @@ namespace Flame.Recompilation.Emit
 
         public ICodeBlock Emit(ICodeGenerator Generator)
         {
-            return ((IUnmanagedCodeGenerator)Generator).GetUnmanagedThis().CreateAddressOfExpression().Emit(Generator);
+            return ((IUnmanagedCodeGenerator)Generator).GetUnmanagedThis().EmitAddressOf();
         }
 
         public IBoundObject Evaluate()

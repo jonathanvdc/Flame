@@ -10,12 +10,12 @@ namespace Flame.Compiler.Statements
     {
         public this(set ElementVariable Variable, set IExpression Value);
 
-        public override void Emit(IBlockGenerator Generator)
+        public override ICodeBlock Emit(ICodeGenerator Generator)
         {
-        	var target = Variable.Target.Emit(Generator.CodeGenerator);
-        	var indexArgs = Variable.IndexArguments.EmitAll(Generator.CodeGenerator);
-            var variable = Generator.CodeGenerator.GetElement(target, indexArgs);
-            variable.CreateSetStatement(Value).Emit(Generator);
+        	var target = Variable.Target.Emit(Generator);
+        	var indexArgs = Variable.IndexArguments.EmitAll(Generator);
+            var variable = Generator.GetElement(target, indexArgs);
+            return variable.EmitSet(Value.Emit(Generator));
         }
     }
 }

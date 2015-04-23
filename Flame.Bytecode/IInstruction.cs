@@ -28,9 +28,9 @@ namespace Flame.Bytecode
         IEnumerable<IInstruction> GetNext(IBuffer<IInstruction> Instructions);
 
         /// <summary>
-        /// Emits the instruction to a block generator.
+        /// Emits the instruction to a code generator.
         /// </summary>
         /// <param name="Target"></param>
-        void Emit(IBlockGenerator Target);
+        ICodeBlock Emit(ICodeGenerator Target);
     }
 }

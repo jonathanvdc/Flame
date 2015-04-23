@@ -53,6 +53,7 @@
     <Compile Include="DefaultPythonMemberNamer.cs" />
     <Compile Include="Emit\CollectionBlock.cs" />
     <Compile Include="DependencyExtensions.cs" />
+    <Compile Include="Emit\EmptyBlock.cs" />
     <Compile Include="Emit\FloatBitwiseConversionBlock.cs" />
     <Compile Include="Emit\ForeachBlockGenerator.cs" />
     <Compile Include="Emit\ImplicitlyConvertedBlock.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="Emit\PropertySetBlock.cs" />
     <Compile Include="Emit\PythonCodeBlock.cs" />
     <Compile Include="Emit\PythonSliceBlock.cs" />
+    <Compile Include="Emit\SequenceBlock.cs" />
     <Compile Include="Emit\YieldBlock.cs" />
     <Compile Include="IPythonModule.cs" />
     <Compile Include="IPythonProperty.cs" />
@@ -86,7 +88,6 @@
     <Compile Include="Emit\NewListBlock.cs" />
     <Compile Include="Emit\PythonArgumentVariable.cs" />
     <Compile Include="Emit\BinaryOperation.cs" />
-    <Compile Include="Emit\BlockGenerator.cs" />
     <Compile Include="Emit\PythonCodeGenerator.cs" />
     <Compile Include="Emit\IntConstant.cs" />
     <Compile Include="Emit\InvocationBlock.cs" />
@@ -101,7 +102,7 @@
     <Compile Include="Emit\ReturnBlock.cs" />
     <Compile Include="Emit\StringConstant.cs" />
     <Compile Include="Emit\UnaryOperation.cs" />
-    <Compile Include="Emit\WhileBlockGenerator.cs" />
+    <Compile Include="Emit\WhileBlock.cs" />
     <Compile Include="IMemberNamer.cs" />
     <Compile Include="IPythonMethod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

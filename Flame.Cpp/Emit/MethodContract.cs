@@ -9,20 +9,23 @@ namespace Flame.Cpp.Emit
 {
     public class MethodContract
     {
-        public MethodContract(ICodeGenerator CodeGenerator)
+        public MethodContract(ICodeGenerator CodeGenerator, IEnumerable<ICppBlock> LocalPreconditions, IEnumerable<ICppBlock> LocalPostconditions)
         {
             this.CodeGenerator = CodeGenerator;
-            this.preconds = new List<PreconditionBlock>();
-            this.postconds = new List<PostconditionBlock>();
+            this.LocalPreconditions = LocalPreconditions;
+            this.LocalPostconditions = LocalPostconditions;
         }
 
-        private List<PreconditionBlock> preconds;
-        private List<PostconditionBlock> postconds;
+        public ICodeGenerator CodeGenerator { get; private set; }
+        public IEnumerable<ICppBlock> LocalPreconditions { get; private set; }
+        public IEnumerable<ICppBlock> LocalPostconditions { get; private set; }
+
+        private PreconditionBlock[] preconds;
+        private PostconditionBlock[] postconds;
         private ICppBlock invariantCheck;
 
         public IType DeclaringType { get { return CodeGenerator.Method.DeclaringType; } }
         public IMethod Method { get { return CodeGenerator.Method; } }
-        public ICodeGenerator CodeGenerator { get; private set; }
 
         private bool EmitInvariantPrecondition
         {
@@ -34,28 +37,26 @@ namespace Flame.Cpp.Emit
             get { return Method.get_Access() != AccessModifier.Private; }
         }
 
-        public void AddPrecondition(PreconditionBlock Block)
-        {
-            preconds.Add(Block);
-        }
-
-        public void AddPostcondition(PostconditionBlock Block)
-        {
-            postconds.Add(Block);
-        }
-
         public IEnumerable<PreconditionBlock> Preconditions
         {
             get
             {
-                return WithInvariantsAssertion(preconds, EmitInvariantPrecondition, block => new PreconditionBlock(block));
+                if (preconds == null)
+                {
+                    preconds = WithInvariantsAssertion(LocalPreconditions, EmitInvariantPrecondition, block => new PreconditionBlock(block)).ToArray();
+                }
+                return preconds;
             }
         }
         public IEnumerable<PostconditionBlock> Postconditions
         {
             get
             {
-                return WithInvariantsAssertion(postconds, EmitInvariantPostcondition, block => new PostconditionBlock(block));
+                if (postconds == null)
+                {
+                    postconds = WithInvariantsAssertion(LocalPostconditions, EmitInvariantPostcondition, block => new PostconditionBlock(block)).ToArray();
+                }
+                return postconds;
             }
         }
 
@@ -66,26 +67,26 @@ namespace Flame.Cpp.Emit
                 var checkMethod = DeclaringType.GetInvariantsCheckMethod();
                 if (checkMethod != null && !checkMethod.Equals(Method) && !DeclaringType.GetInvariantsCheckImplementationMethod().Equals(Method))
                 {
-                    invariantCheck = (ICppBlock)CodeGenerator.EmitInvocation(checkMethod, CodeGenerator.GetThis().CreateGetExpression().Emit(CodeGenerator), Enumerable.Empty<ICodeBlock>());
+                    invariantCheck = (ICppBlock)CodeGenerator.EmitInvocation(checkMethod, CodeGenerator.GetThis().EmitGet(), Enumerable.Empty<ICodeBlock>());
                 }
             }
             return invariantCheck;
         }
 
-        private IEnumerable<T> WithInvariantsAssertion<T>(IEnumerable<T> Assertions, bool EmitInvariant, Func<ICppBlock, T> AssertionBuilder)
+        private IEnumerable<T> WithInvariantsAssertion<T>(IEnumerable<ICppBlock> Assertions, bool EmitInvariant, Func<ICppBlock, T> AssertionBuilder)
         {
             if (!EmitInvariant)
             {
-                return Assertions;
+                return Assertions.Select(AssertionBuilder);
             }
             var check = GetInvariantsCheck();
             if (check == null)
             {
-                return Assertions;
+                return Assertions.Select(AssertionBuilder);
             }
             else
             {
-                return Assertions.With(AssertionBuilder(check));
+                return Assertions.Select(AssertionBuilder).With(AssertionBuilder(check));
             }
         }
 

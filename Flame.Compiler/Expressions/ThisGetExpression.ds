@@ -26,7 +26,7 @@ namespace Flame.Compiler.Expressions
 
         public ICodeBlock Emit(ICodeGenerator Generator)
         {
-            return Generator.GetThis().CreateGetExpression().Emit(Generator);
+            return Generator.GetThis().EmitGet();
         }
     }
 }

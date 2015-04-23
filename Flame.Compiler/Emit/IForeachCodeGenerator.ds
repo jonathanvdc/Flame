@@ -10,31 +10,59 @@ namespace Flame.Compiler.Emit
 	public interface IForCodeGenerator : ICodeGenerator
 	{
 		/// <summary>
-		/// Creates block generator for a for loop with the given initialization, condition and delta code blocks.
+		/// Creates a for loop block from the given initialization, condition, delta and body blocks.
 		/// </summary>
-		IBlockGenerator CreateForBlock(ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta);
+		ICodeBlock EmitForBlock(ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body);
 	}
 
+	/// <summary>
+	/// Provides a common interface for code generators that support foreach loops.
+	/// </summary>
 	public interface IForeachCodeGenerator : ICodeGenerator
 	{
-		ICollectionBlock CreateCollectionBlock(IVariableMember Member, ICodeBlock Collection);
-	
-		IForeachBlockGenerator CreateForeachBlock(IEnumerable<ICollectionBlock> Collections);
+		/// <summary>
+		/// Creates a collection block: a block that captures one element of the
+		/// given collection block at a time.
+		/// </summary>
+		ICollectionBlock EmitCollectionBlock(IVariableMember Member, ICodeBlock Collection);
+
+		/// <summary>
+		/// Creates a foreach block header based on the given collection blocks.
+		/// </summary>
+		/// <remarks>
+		/// This method has a high likelihood of returning null, especially
+		/// when confronted with multiple collections.
+		/// </remarks>
+		IForeachBlockHeader EmitForeachHeader([ICollectionBlock] Collections);
+
+		/// <summary>
+		/// Creates a foreach block based on the given foreach header and the
+		/// given body block.
+		/// </summary>
+		ICodeBlock EmitForeachBlock(IForeachBlockHeader Header, ICodeBlock Body);
 	}
-	
+
 	/// <summary>
-	/// Describes general foreach block functionality.
+	/// Defines a "header" for a foreach block: a definition of all element variables
+	/// that a foreach block captures.
 	/// </summary>
-	public interface IForeachBlockGenerator : IBlockGenerator
+	public interface IForeachBlockHeader
 	{
 		/// <summary>
-		/// Gets a read-only list that contains variables representing the collection's elements on each iteration.
+		/// Gets a read-only list that contains variables representing the collections' elements on each iteration.
 		/// </summary>
-		IReadOnlyList<IVariable> Elements { const get; }
+		IReadOnlyList<IEmitVariable> Elements { const get; }
 	}
-	
+
+	/// <summary>
+	/// Defines a collection block: a block that captures a collection's elements
+	/// one at a time.
+	/// </summary>
 	public interface ICollectionBlock : ICodeBlock
 	{
+		/// <summary>
+		/// Gets the variable member of the collection block's element variable.
+		/// </summary>
 		IVariableMember Member { const get; }
 	}
 }

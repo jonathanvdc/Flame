@@ -50,9 +50,9 @@ namespace Flame.Python.Emit
             return new PythonIdentifierBlock(this.CodeGenerator, Name, Type);
         }
 
-        public override IStatement CreateReleaseStatement()
+        public override ICodeBlock EmitRelease()
         {
-            return new ReleaseLocalVariableStatement(this);
+            return new ReleaseLocalVariableBlock(this);
         }
 
         public override IType Type
@@ -60,28 +60,34 @@ namespace Flame.Python.Emit
             get { return Member.VariableType; }
         }
 
-        private class ReleaseLocalVariableStatement : IStatement
+        private class ReleaseLocalVariableBlock : IPythonBlock
         {
-            public ReleaseLocalVariableStatement(PythonLocalVariable Variable)
+            public ReleaseLocalVariableBlock(PythonLocalVariable Variable)
             {
                 this.Variable = Variable;
             }
 
             public PythonLocalVariable Variable { get; private set; }
 
-            public void Emit(IBlockGenerator Generator)
+            public IType Type
+            {
+                get { return PrimitiveTypes.Void; }
+            }
+
+            public ICodeGenerator CodeGenerator
+            {
+                get { return Variable.CodeGenerator; }
+            }
+
+            public CodeBuilder GetCode()
             {
                 Variable.ReleaseName();
+                return new CodeBuilder();
             }
 
-            public bool IsEmpty
+            public IEnumerable<ModuleDependency> GetDependencies()
             {
-                get { return false; }
-            }
-
-            public IStatement Optimize()
-            {
-                return this;
+                return Enumerable.Empty<ModuleDependency>();
             }
         }
     }

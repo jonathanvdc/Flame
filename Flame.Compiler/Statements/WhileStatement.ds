@@ -6,10 +6,10 @@ namespace Flame.Compiler.Statements
 	public class WhileStatement : IStatement
 	{
 		public const this(set IExpression Condition, set IStatement Body);
-	
+
 		public IExpression Condition { const get; private set; }
 		public IStatement Body { const get; private set; }
-		
+
 		public bool IsEmpty : IStatement.IsEmpty
 		{
 			const get
@@ -17,20 +17,19 @@ namespace Flame.Compiler.Statements
 				return Body.IsEmpty;
 			}
 		}
-		
+
 		public IStatement Optimize() : IStatement.Optimize
 		{
 			var optCond = Condition.Optimize();
 			var optBody = Body.Optimize();
 			return new WhileStatement(optCond, optBody);
 		}
-		
-		public void Emit(IBlockGenerator Generator) : IStatement.Emit
+
+		public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
 		{
-			var conditionBlock = Condition.Emit(Generator.CodeGenerator);
-			var whileBlock = Generator.CodeGenerator.CreateWhileBlock(conditionBlock);
-			Body.Emit(whileBlock);
-			Generator.EmitBlock(whileBlock);
+			var conditionBlock = Condition.Emit(Generator);
+			var bodyBlock = Body.Emit(Generator);
+			return Generator.EmitWhile(conditionBlock, bodyBlock);
 		}
 	}
 }

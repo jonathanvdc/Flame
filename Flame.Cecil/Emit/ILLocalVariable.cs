@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
-    public class ILLocalVariable : IUnmanagedVariable
+    public class ILLocalVariable : IUnmanagedEmitVariable
     {
         public ILLocalVariable(ILCodeGenerator CodeGenerator, IType Type)
             : this(CodeGenerator, Type, null)
@@ -40,38 +40,40 @@ namespace Flame.Cecil.Emit
                 emitLocal = Context.DeclareLocal(Type);
                 if (!string.IsNullOrWhiteSpace(Name))
                 {
-                    emitLocal.SetName(Name);
+                    emitLocal.Name = Name;
                 }
             }
             return emitLocal;
         }
 
-        public IExpression CreateAddressOfExpression()
+        public ICodeBlock EmitAddressOf()
         {
-            return new CodeBlockExpression(new LocalAddressOfBlock(this), Type.MakePointerType(PointerKind.ReferencePointer));
+            return new LocalAddressOfBlock(this);
         }
 
-        public IExpression CreateGetExpression()
+        public ICodeBlock EmitGet()
         {
-            return new CodeBlockExpression(new LocalGetBlock(this), Type);
+            return new LocalGetBlock(this);
         }
 
-        public IStatement CreateSetStatement(IExpression Value)
+        public ICodeBlock EmitSet(ICodeBlock Value)
         {
-            return new CodeBlockStatement(new LocalSetBlock(this, (ICecilBlock)Value.Emit(CodeGenerator)));
+            return new LocalSetBlock(this, (ICecilBlock)Value);
         }
 
         #region Recycling
 
-        public IStatement CreateReleaseStatement()
+        public ICodeBlock EmitRelease()
         {
-            //return new CodeBlockStatement(new LocalVariableReleaseBlock(this));
-            return new ILLocalVariableReleaseStatement(this);
+            return new LocalVariableReleaseBlock(this);
         }
 
-        public void Release()
+        public void Release(IEmitContext Context)
         {
-            CodeGenerator.ReleaseLocal(this);
+            if (emitLocal != null)
+            {
+                Context.ReleaseLocal(emitLocal);
+            }
         }
 
         #endregion

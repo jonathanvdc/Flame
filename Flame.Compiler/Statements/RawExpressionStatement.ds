@@ -4,15 +4,18 @@ using System.Text;
 
 namespace Flame.Compiler.Statements
 {
+    /// <summary>
+    /// A statement wrapper for expressions.
+    /// </summary>
     public class RawExpressionStatement : IStatement
     {
         public const this(set IExpression Expression);
 
         public IExpression Expression { const get; private set; }
 
-        public void Emit(IBlockGenerator Generator)
+        public ICodeBlock Emit(ICodeGenerator Generator)
         {
-            Generator.EmitBlock(Expression.Emit(Generator.CodeGenerator));
+            return Expression.Emit(Generator);
         }
 
         public bool IsEmpty

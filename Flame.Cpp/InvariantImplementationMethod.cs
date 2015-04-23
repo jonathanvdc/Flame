@@ -139,8 +139,7 @@ namespace Flame.Cpp
                 var method = new CppMethod(Invariants.DeclaringType, this, Environment);
                 if (Invariants.HasInvariants)
                 {
-                    var bodyGen = method.GetBodyGenerator();
-                    var codeGen = bodyGen.CodeGenerator;
+                    var codeGen = method.GetBodyGenerator();
                     
                     var allInvariants = Invariants.GetAllInvariants();
                     var test = allInvariants.First();
@@ -149,7 +148,8 @@ namespace Flame.Cpp
                         test = (ICppBlock)codeGen.EmitLogicalAnd(test, item);
                     }
 
-                    bodyGen.EmitReturn(test);
+                    var body = codeGen.EmitReturn(test);
+                    method.SetMethodBody(body);
                 }
                 invariantCount = Invariants.InvariantCount;
                 cppMethod = method;

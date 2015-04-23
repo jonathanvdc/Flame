@@ -25,12 +25,12 @@ namespace Flame.Compiler.Variables
         {
         	this.Member = new DescribedVariableMember(Name, Type);
         }
-        
+
         public IVariableMember Member { const get; protected set; }
 
         public IType Type { const get return Member.VariableType; }
         public IVariable BoundVariable { const get; private set; }
-        
+
         /// <summary>
         /// Assigns a real variable to this late-bound variable.
         /// </summary>
@@ -39,19 +39,28 @@ namespace Flame.Compiler.Variables
         {
             if (Generator is IUnmanagedMethodStructureGenerator)
             {
-                BoundVariable = ((IUnmanagedMethodStructureGenerator)Generator).DeclareUnmanagedVariable(Member);
+                BindVariable(((IUnmanagedMethodStructureGenerator)Generator).DeclareUnmanagedVariable(Member));
             }
             else
             {
-                BoundVariable = Generator.DeclareVariable(Member);
+                BindVariable(Generator.DeclareVariable(Member));
             }
         }
-        
+
         /// <summary>
-        /// Assigns a real variable to this late-bound variable.
+        /// Assigns an emit variable to this late-bound variable.
         /// </summary>
         /// <param name="Generator"></param>
-        public void BindVariable(IVariable Variable)
+        public virtual void BindVariable(IEmitVariable Variable)
+        {
+            BindVariable(new TypedEmitVariable(Variable, Type));
+        }
+
+        /// <summary>
+        /// Assigns a "real" variable to this late-bound variable.
+        /// </summary>
+        /// <param name="Generator"></param>
+        public virtual void BindVariable(IVariable Variable)
         {
             BoundVariable = Variable;
         }
@@ -84,7 +93,7 @@ namespace Flame.Compiler.Variables
             return new LateBoundVariableReleaseStatement(this);
         }
     }
-    
+
     public class ManuallyBoundVariable : LateBoundVariable
     {
         public const this(set IVariableMember Member);
@@ -96,7 +105,7 @@ namespace Flame.Compiler.Variables
         {
         	this.Member = new DescribedVariableMember(Name, Type);
         }
-        
+
         public override void BindVariable(IMethodStructureGenerator Generator)
         {
         }

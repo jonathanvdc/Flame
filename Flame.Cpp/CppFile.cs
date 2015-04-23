@@ -91,7 +91,7 @@ namespace Flame.Cpp
             {
                 if (containsTempls == null)
                 {
-                    containsTempls = Members.Any((item) => item.ContainsTemplates());
+                    containsTempls = Members.Any(CppExtensions.ContainsTemplates);
                 }
                 return containsTempls.Value;
             }

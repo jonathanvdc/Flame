@@ -20,9 +20,7 @@ namespace Flame.Recompilation.Emit
 
         public ICodeBlock Emit(ICodeGenerator Generator)
         {
-            var block = Generator.CreateBlock();
-            Statement.Emit(block);
-            return block;
+            return Statement.Emit(Generator);
         }
 
         public IBoundObject Evaluate()

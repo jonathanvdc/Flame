@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class CppContractBlockGenerator : CppBlockGenerator, IContractBlockGenerator
+    /*public class CppContractBlockGenerator : CppBlockGenerator, IContractBlockGenerator
     {
         public CppContractBlockGenerator(CppCodeGenerator CodeGenerator, MethodContract Contract)
             : base(CodeGenerator)
@@ -72,5 +72,5 @@ namespace Flame.Cpp.Emit
         {
             return new CppContractBlockGenerator(base.ImplyStructInit(), Contract);
         }
-    }
+    }*/
 }

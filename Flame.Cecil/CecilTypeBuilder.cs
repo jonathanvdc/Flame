@@ -300,7 +300,7 @@ namespace Flame.Cecil
             var staticMethod = DeclaringType.DeclareMethod(descMethod);
             var call = CreateSingletonCall(GetSingletonExpression, Method);
             var bodyGen = staticMethod.GetBodyGenerator();
-            bodyGen.EmitReturn(call.Emit(bodyGen.CodeGenerator));
+            staticMethod.SetMethodBody(bodyGen.EmitReturn(call.Emit(bodyGen)));
             staticMethod.Build();
         }
 
@@ -319,7 +319,7 @@ namespace Flame.Cecil
             var staticMethod = DeclaringProperty.DeclareAccessor(descMethod);
             var call = CreateSingletonCall(GetSingletonExpression, Accessor);
             var bodyGen = staticMethod.GetBodyGenerator();
-            bodyGen.EmitReturn(call.Emit(bodyGen.CodeGenerator));
+            staticMethod.SetMethodBody(bodyGen.EmitReturn(call.Emit(bodyGen)));
             staticMethod.Build();
         }
 

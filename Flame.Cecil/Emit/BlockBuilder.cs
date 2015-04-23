@@ -7,53 +7,28 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
-    public class BlockBuilder : ICecilBlock, IBlockGenerator
+    public class SequenceBlock : ICecilBlock
     {
-        public BlockBuilder(ICodeGenerator CodeGenerator)
+        public SequenceBlock(ICodeGenerator CodeGenerator, ICecilBlock First, ICecilBlock Second)
         {
             this.CodeGenerator = CodeGenerator;
-            this.Blocks = new List<ICecilBlock>();
+            this.First = First;
+            this.Second = Second;
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
-        public List<ICecilBlock> Blocks { get; private set; }
+        public ICecilBlock First { get; private set; }
+        public ICecilBlock Second { get; private set; }
 
-        public void EmitBlock(ICodeBlock Block)
+        public void Emit(IEmitContext Context)
         {
-            Blocks.Add((ICecilBlock)Block);
-        }
-
-        public void EmitBreak()
-        {
-            Blocks.Add(new BreakBlock(CodeGenerator));
-        }
-
-        public void EmitContinue()
-        {
-            Blocks.Add(new ContinueBlock(CodeGenerator));
-        }
-
-        public void EmitPop(ICodeBlock Block)
-        {
-            Blocks.Add(new PopBlock(CodeGenerator, (ICecilBlock)Block));
-        }
-
-        public void EmitReturn(ICodeBlock Block)
-        {
-            Blocks.Add(new ReturnBlock(CodeGenerator, (ICecilBlock)Block));
-        }
-
-        public virtual void Emit(IEmitContext Context)
-        {
-            foreach (var item in Blocks)
-            {
-                item.Emit(Context);
-            }
+            First.Emit(Context);
+            Second.Emit(Context);
         }
 
         public IStackBehavior StackBehavior
         {
-            get { return new BlockStackBehavior(Blocks.Select((item) => item.StackBehavior).ToArray()); }
+            get { return new BlockStackBehavior(First.StackBehavior, Second.StackBehavior); }
         }
     }
 }

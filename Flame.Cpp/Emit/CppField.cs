@@ -31,14 +31,14 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        public override IStatement CreateSetStatement(IExpression Value)
+        public override ICodeBlock EmitSet(ICodeBlock Value)
         {
             if (Field is Flame.Cpp.CppField && CodeGenerator.Method.get_IsConstant() && !CodeGenerator.Method.IsConstructor)
             {
                 var cppField = (Flame.Cpp.CppField)Field;
                 cppField.IsMutable = true;
             }
-            return base.CreateSetStatement(Value);
+            return base.EmitSet(Value);
         }
 
         public override IType Type

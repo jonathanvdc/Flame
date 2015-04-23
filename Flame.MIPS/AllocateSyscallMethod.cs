@@ -82,13 +82,9 @@ namespace Flame.MIPS
         public IAssemblerBlock CreateCallBlock(ICodeGenerator CodeGenerator)
         {
             int size = TypeArgument.GetSize();
-            var block = CodeGenerator.CreateBlock();
             var lbReg = new LateBoundRegister(CodeGenerator, new RegisterData(RegisterType.Argument, 0), PrimitiveTypes.Int32);
             var val = (IAssemblerBlock)CodeGenerator.EmitBinary(new LocationBlock(CodeGenerator, lbReg), CodeGenerator.EmitInt32(size), Operator.Multiply);
-            block.EmitBlock(new StoreToBlock(val, lbReg));
-            block.EmitBlock(lbReg.EmitRelease());
-            block.EmitBlock(new SyscallBlock(CodeGenerator, this));
-            return (IAssemblerBlock)block;
+            return (IAssemblerBlock)CodeGenerator.EmitSequence(new StoreToBlock(val, lbReg), CodeGenerator.EmitSequence(lbReg.EmitRelease(), new SyscallBlock(CodeGenerator, this)));
         }
 
         public IMethod[] GetBaseMethods()

@@ -6,22 +6,22 @@ namespace Flame.Compiler.Statements
     public abstract class ComplexStatement : IStatement
     {
     	public const this();
-    
-        public abstract IStatement Peel();
+
+        public abstract IStatement Lower();
 
         public virtual bool IsEmpty
         {
-            const get { return Peel().IsEmpty; }
+            const get { return Lower().IsEmpty; }
         }
 
         public virtual IStatement Optimize()
         {
-            return Peel().Optimize();
+            return Lower().Optimize();
         }
 
-        public virtual void Emit(IBlockGenerator Generator)
+        public virtual ICodeBlock Emit(ICodeGenerator Generator)
         {
-            Peel().Emit(Generator);
+            return Lower().Emit(Generator);
         }
     }
 }

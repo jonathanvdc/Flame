@@ -13,24 +13,28 @@ namespace Flame.Compiler.Statements
             return new LateBoundVariableSetStatement(Variable, Value.Optimize());
         }
 
-        public override void Emit(IBlockGenerator Generator)
+        public override ICodeBlock Emit(ICodeGenerator Generator)
         {
             if (!Variable.IsBound)
             {
-                Variable.BindVariable(Generator.CodeGenerator);
+                Variable.BindVariable(Generator);
             }
-            Variable.BoundVariable.CreateSetStatement(Value).Emit(Generator);
+            return Variable.BoundVariable.CreateSetStatement(Value).Emit(Generator);
         }
     }
     public class LateBoundVariableReleaseStatement : VariableReleaseStatementBase<ILateBoundVariable>
     {
         public const this(set ILateBoundVariable Variable);
 
-        public override void Emit(IBlockGenerator Generator)
+        public override ICodeBlock Emit(ICodeGenerator Generator)
         {
             if (Variable.IsBound)
             {
-                Variable.BoundVariable.CreateReleaseStatement().Emit(Generator);
+                return Variable.BoundVariable.CreateReleaseStatement().Emit(Generator);
+            }
+            else
+            {
+                return Generator.EmitVoid();
             }
         }
     }

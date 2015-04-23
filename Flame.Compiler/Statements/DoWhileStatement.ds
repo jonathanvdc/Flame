@@ -7,10 +7,10 @@ namespace Flame.Compiler.Statements
 	public class DoWhileStatement : IStatement
 	{
 		public this(set IStatement Body, set IExpression Condition);
-	
+
 		public IExpression Condition { const get; private set; }
 		public IStatement Body { const get; private set; }
-		
+
 		public bool IsEmpty : IStatement.IsEmpty
 		{
 			const get
@@ -18,20 +18,19 @@ namespace Flame.Compiler.Statements
 				return Body.IsEmpty;
 			}
 		}
-		
+
 		public IStatement Optimize() : IStatement.Optimize
 		{
 			var optCond = Condition.Optimize();
 			var optBody = Body.Optimize();
 			return new DoWhileStatement(optBody, optCond);
 		}
-		
-		public void Emit(IBlockGenerator Generator) : IStatement.Emit
+
+		public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
 		{
-			var conditionBlock = Condition.Emit(Generator.CodeGenerator);
-			var whileBlock = Generator.CodeGenerator.CreateDoWhileBlock(conditionBlock);
-			Body.Emit(whileBlock);
-			Generator.EmitBlock(whileBlock);
+			var body = Body.Emit(Generator);
+			var conditionBlock = Condition.Emit(Generator);
+			return Generator.EmitDoWhile(body, conditionBlock);
 		}
 	}
 }

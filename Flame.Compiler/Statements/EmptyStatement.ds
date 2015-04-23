@@ -5,21 +5,21 @@ namespace Flame.Compiler.Statements
 {
     public class EmptyStatement : IStatement
     {
-    	public this();
-    
+    	public const this();
+
         public bool IsEmpty
         {
-            get { return true; }
+            const get { return true; }
         }
 
-        public IStatement Optimize()
+        public const IStatement Optimize()
         {
             return this;
         }
 
-        public void Emit(IBlockGenerator Generator)
+        public ICodeBlock Emit(ICodeGenerator Generator)
         {
-            // Obviously, we're not going to emit anything here
+            return Generator.EmitVoid();
         }
     }
 }

@@ -11,10 +11,12 @@ namespace Flame.Cpp.Emit
 {
     public class ContractReturnBlock : CompositeBlockBase, ICppLocalDeclaringBlock
     {
-        public ContractReturnBlock(IContractCodeGenerator CodeGenerator, MethodContract Contract, ICppBlock ReturnValue)
+        // ContractReturnBlock is the ugly mutable duckling in a perfect immutable garden.
+        // This entire class is a hack.
+
+        public ContractReturnBlock(CppCodeGenerator CodeGenerator, ICppBlock ReturnValue)
         {
             this.cg = CodeGenerator;
-            this.Contract = Contract;
             this.ReturnValue = ReturnValue;
             if (ReturnValue != null)
             {
@@ -22,9 +24,8 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        private IContractCodeGenerator cg;
+        private CppCodeGenerator cg;
         private LocalDeclarationReference localDecl;
-        public MethodContract Contract { get; private set; }
         public ICppBlock ReturnValue { get; private set; }
 
         public override ICodeGenerator CodeGenerator
@@ -45,16 +46,17 @@ namespace Flame.Cpp.Emit
 
         public override ICppBlock Simplify()
         {
+            var contract = cg.Contract;
             if (ReturnValue == null)
             {
-                if (Contract.HasPostconditions)
+                if (contract.HasPostconditions)
                 {
-                    var block = cg.CreateBlock();
-                    foreach (var item in Contract.Postconditions)
+                    var block = cg.EmitVoid();
+                    foreach (var item in contract.Postconditions)
                     {
-                        block.EmitBlock(item);
+                        block = cg.EmitSequence(block, item);
                     }
-                    block.EmitBlock(new ReturnBlock(cg, null));
+                    block = cg.EmitSequence(block, new ReturnBlock(cg, null));
                     return (ICppBlock)block;
                 }
                 else
@@ -64,15 +66,14 @@ namespace Flame.Cpp.Emit
             }
             else
             {
-                if (Contract.HasPostconditions)
+                if (contract.HasPostconditions)
                 {
-                    var block = cg.CreateBlock();
-                    block.EmitBlock(localDecl);
-                    foreach (var item in Contract.Postconditions)
+                    ICodeBlock block = localDecl;
+                    foreach (var item in contract.Postconditions)
                     {
-                        block.EmitBlock(item);
+                        block = cg.EmitSequence(block, item);
                     }
-                    block.EmitBlock(new ReturnBlock(cg, (ICppBlock)cg.ReturnVariable.CreateGetExpression().Emit(cg)));
+                    block = cg.EmitSequence(block, new ReturnBlock(cg, (ICppBlock)cg.ReturnVariable.EmitGet()));
                     return (ICppBlock)block;
                 }
                 else
@@ -82,18 +83,41 @@ namespace Flame.Cpp.Emit
             }
         }
 
+        public override IEnumerable<IHeaderDependency> Dependencies
+        {
+            get
+            {
+                return cg.Contract.Postconditions.GetDependencies()
+                         .MergeDependencies(ReturnValue == null ? Enumerable.Empty<IHeaderDependency>() : ReturnValue.Dependencies);
+            }
+        }
+
         public IEnumerable<LocalDeclaration> LocalDeclarations
         {
             get
             {
-                if (Contract.HasPostconditions && localDecl != null)
+                /*if (Contract.HasPostconditions && localDecl != null)
                 {
                     return new LocalDeclaration[] { localDecl.Declaration };
                 }
                 else
                 {
                     return Enumerable.Empty<LocalDeclaration>();
-                }
+                }*/
+                return Enumerable.Empty<LocalDeclaration>(); // Lie for better results.
+            }
+        }
+
+        public IEnumerable<LocalDeclaration> SpilledDeclarations
+        {
+            get { return Enumerable.Empty<LocalDeclaration>(); } // Lie for better results.
+        }
+
+        public override IEnumerable<CppLocal> LocalsUsed
+        {
+            get
+            {
+                return ReturnValue == null ? Enumerable.Empty<CppLocal>() : ReturnValue.LocalsUsed; // Don't mention the return value variable.
             }
         }
     }

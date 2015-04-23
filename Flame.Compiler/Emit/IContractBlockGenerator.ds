@@ -10,23 +10,14 @@ namespace Flame.Compiler.Emit
 	public interface IContractCodeGenerator : ICodeGenerator
 	{
 		/// <summary>
+		/// Creates a code block that enforces the given precondition and postcondition blocks
+		/// on the given body block.
+		/// </summary>
+		ICodeBlock EmitContractBlock([ICodeBlock] Preconditions, [ICodeBlock] Postconditions, ICodeBlock Body);
+
+		/// <summary>
 		/// Gets the contract method's return value variable.
 		/// </summary>
-		IVariable ReturnVariable { const get; }
-	}
-
-	/// <summary>
-	/// Provides a common interface for design by contract method body block generators.
-	/// </summary>
-	public interface IContractBlockGenerator : IBlockGenerator
-	{
-		/// <summary>
-		/// Emits a precondition, which must evaluate to true.
-		/// </summary>
-		void EmitPrecondition(ICodeBlock Block);
-		/// <summary>
-		/// Emits a postcondition, which must evaluate to true.
-		/// </summary>
-		void EmitPostcondition(ICodeBlock Block);
+		IEmitVariable ReturnVariable { const get; }
 	}
 }

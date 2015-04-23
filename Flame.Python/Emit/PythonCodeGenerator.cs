@@ -20,27 +20,56 @@ namespace Flame.Python.Emit
 
         #region Blocks
 
-        public IBlockGenerator CreateBlock()
+        public ICodeBlock EmitBreak()
         {
-            return new BlockGenerator(this);
+            return new KeywordBlock(this, "break", PrimitiveTypes.Void);
         }
 
-        public IBlockGenerator CreateDoWhileBlock(ICodeBlock Condition)
+        public ICodeBlock EmitContinue()
+        {
+            return new KeywordBlock(this, "continue", PrimitiveTypes.Void);
+        }
+
+        public ICodeBlock EmitDoWhile(ICodeBlock Body, ICodeBlock Condition)
         {
             throw new NotImplementedException();
         }
 
-        public ICodeBlock CreateIfElseBlock(ICodeBlock Condition, ICodeBlock IfBlock, ICodeBlock ElseBlock)
+        public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
         {
-            return new IfElseBlock(this, (IPythonBlock)Condition, (IPythonBlock)IfBlock, (IPythonBlock)ElseBlock);
+            return new IfElseBlock(this, (IPythonBlock)Condition, (IPythonBlock)IfBody, (IPythonBlock)ElseBody);
         }
 
-        public IBlockGenerator CreateWhileBlock(ICodeBlock Condition)
+        public ICodeBlock EmitPop(ICodeBlock Value)
         {
-            return new WhileBlockGenerator(this, (IPythonBlock)Condition);
+            return Value;
         }
 
-        public ICollectionBlock CreateCollectionBlock(IVariableMember Member, ICodeBlock Collection)
+        public ICodeBlock EmitReturn(ICodeBlock Value)
+        {
+            return new ReturnBlock(this, Value as IPythonBlock);
+        }
+
+        public ICodeBlock EmitSequence(ICodeBlock First, ICodeBlock Second)
+        {
+            return new SequenceBlock((IPythonBlock)First, (IPythonBlock)Second);
+        }
+
+        public ICodeBlock EmitVoid()
+        {
+            return new EmptyBlock(this);
+        }
+
+        public ICodeBlock EmitWhile(ICodeBlock Condition, ICodeBlock Body)
+        {
+            return new WhileBlock(this, (IPythonBlock)Condition, (IPythonBlock)Body);
+        }
+
+        #endregion
+
+        #region Foreach
+
+        public ICollectionBlock EmitCollectionBlock(IVariableMember Member, ICodeBlock Collection)
         {
             var pyColl = (IPythonBlock)Collection;
             if (pyColl.Type.IsContainerType)
@@ -53,9 +82,14 @@ namespace Flame.Python.Emit
             }
         }
 
-        public IForeachBlockGenerator CreateForeachBlock(IEnumerable<ICollectionBlock> Collections)
+        public ICodeBlock EmitForeachBlock(IForeachBlockHeader Header, ICodeBlock Body)
         {
-            return new ForeachBlockGenerator(this, Collections.Cast<IPythonCollectionBlock>());
+            return new ForeachBlock((ForeachBlockHeader)Header, (IPythonBlock)Body);
+        }
+
+        public IForeachBlockHeader EmitForeachHeader(IEnumerable<ICollectionBlock> Collections)
+        {
+            return new ForeachBlockHeader(this, Collections.Cast<IPythonCollectionBlock>());
         }
 
         #endregion
@@ -442,27 +476,27 @@ namespace Flame.Python.Emit
 
         #region Variables
 
-        public IVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
+        public IEmitVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
         {
             return new PythonIndexedVariable(this, (IPythonBlock)Value, Index.Cast<IPythonBlock>().ToArray());
         }
 
-        public IVariable GetField(IField Field, ICodeBlock Target)
+        public IEmitVariable GetField(IField Field, ICodeBlock Target)
         {
             return new PythonFieldVariable(this, (IPythonBlock)Target, Field);
         }
 
-        public IVariable DeclareVariable(IVariableMember VariableMember)
+        public IEmitVariable DeclareVariable(IVariableMember VariableMember)
         {
             return new PythonLocalVariable(this, VariableMember);
         }
 
-        public IVariable GetArgument(int Index)
+        public IEmitVariable GetArgument(int Index)
         {
             return new PythonArgumentVariable(this, Index);
         }
 
-        public IVariable GetThis()
+        public IEmitVariable GetThis()
         {
             return new PythonThisVariable(this);
         }
@@ -496,5 +530,6 @@ namespace Flame.Python.Emit
         }
 
         #endregion
+
     }
 }

@@ -43,13 +43,11 @@ namespace Flame.Python.Emit
             cb.Append(Condition.GetCode());
             cb.Append(':');
             cb.IncreaseIndentation();
-            var ifBlockGen = IfBlock is BlockGenerator ? ((BlockGenerator)IfBlock) : new BlockGenerator(CodeGenerator, IfBlock);
-            cb.AddCodeBuilder(ifBlockGen.GetBlockCode(true));
+            cb.AddBodyCodeBuilder(IfBlock.GetCode());
             cb.DecreaseIndentation();
-            var elseBlockGen = ElseBlock is BlockGenerator ? ((BlockGenerator)ElseBlock) : new BlockGenerator(CodeGenerator, ElseBlock);
-            if (elseBlockGen.Children.Count == 1 && elseBlockGen.Children[0] is IfElseBlock)
+            if (ElseBlock is IfElseBlock)
             {
-                var chainedIf = (IfElseBlock)elseBlockGen.Children[0];
+                var chainedIf = (IfElseBlock)ElseBlock;
                 cb.AddCodeBuilder(chainedIf.GetCode(true));
             }
             else
@@ -59,7 +57,7 @@ namespace Flame.Python.Emit
                 {
                     cb.AddLine("else:");
                     cb.IncreaseIndentation();
-                    cb.AddCodeBuilder(elseBlockGen.GetCode());
+                    cb.AddBodyCodeBuilder(ElseBlock.GetCode());
                     cb.DecreaseIndentation();
                 }
             }

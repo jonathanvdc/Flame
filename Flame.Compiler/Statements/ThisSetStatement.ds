@@ -7,9 +7,9 @@ namespace Flame.Compiler.Statements
     public class ThisSetStatement : IStatement
     {
         public const this(set IExpression Value);
-        
+
         public IExpression Value { const get; protected set; }
-        
+
         public const IStatement Optimize()
         {
             var optVal = Value.Optimize();
@@ -21,10 +21,10 @@ namespace Flame.Compiler.Statements
             const get { return false; }
         }
 
-        public void Emit(IBlockGenerator Generator)
+        public ICodeBlock Emit(ICodeGenerator Generator)
         {
-            var variable = Generator.CodeGenerator.GetThis();
-            variable.CreateSetStatement(Value).Emit(Generator);
+            var variable = Generator.GetThis();
+            return variable.EmitSet(Value.Emit(Generator));
         }
     }
 }
