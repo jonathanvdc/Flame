@@ -14,6 +14,20 @@ namespace Flame.Compiler.Expressions
         /// </summary>
         public IType TestType { const get; private set; }
 
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            var transVal = Visitor.Visit(Target);
+
+            if (transVal == Target)
+            {
+                return this;
+            }
+            else
+            {
+                return new IsExpression(transVal, Type);
+            }
+        }
+
         public IType Type
         {
             const get { return PrimitiveTypes.Boolean; }
@@ -30,7 +44,7 @@ namespace Flame.Compiler.Expressions
             {
             	var eval = Target.Evaluate();
             	if (eval == null) return null;
-            	
+
             	var evalType = eval.Type;
             	if (evalType.Equals(PrimitiveTypes.Null)) return new BooleanExpression(TestType.Equals(PrimitiveTypes.Null));
                 else return new BooleanExpression(evalType.Is(TestType));

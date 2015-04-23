@@ -10,6 +10,11 @@ namespace Flame.Compiler.Statements
 
 		public ICodeBlock Block { const get; private set; }
 
+		public IStatement Accept(INodeVisitor Visitor)
+		{
+			return this;
+		}
+
 		public bool IsEmpty
 		{
 			const get return false;

@@ -7,22 +7,27 @@ namespace Flame.Compiler.Expressions
 	public class CodeBlockExpression : IExpression
 	{
 		public const this(set ICodeBlock Block, set IType Type);
-		
+
 		public ICodeBlock Block { const get; private set; }
 		public IType Type { const get; private set; }
-		
+
 		public const IExpression Optimize()
 		{
 			return this;
 		}
-		
+
+		public IExpression Accept(INodeVisitor Visitor)
+		{
+			return this;
+		}
+
 		public bool IsConstant { const get return false; }
-		
+
 		public const IBoundObject Evaluate()
 		{
 			return null;
 		}
-		
+
 		public const ICodeBlock Emit(ICodeGenerator CodeGenerator)
 		{
 			return Block;

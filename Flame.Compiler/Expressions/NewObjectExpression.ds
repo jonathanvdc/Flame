@@ -10,15 +10,22 @@ namespace Flame.Compiler.Expressions
         public const this(IType ConstructedType)
         {
             this.Type = ConstructedType;
-            this.Arguments = (IEnumerable<IExpression>)new IExpression[0];
+            this.Arguments = Enumerable.Empty<IExpression>();
         }
-        public const this(IType ConstructedType, set IEnumerable<IExpression> Arguments)
+        public const this(IType ConstructedType, set [IExpression] Arguments)
         {
             this.Type = ConstructedType;
         }
 
-        public IEnumerable<IExpression> Arguments { const get; private set; }
+        public [IExpression] Arguments { const get; private set; }
         public IType Type { const get; private set; }
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            var transArgs = Visitor.VisitAll(Arguments);
+
+            return new NewObjectExpression(Type, transArgs);
+        }
 
         public bool IsConstant
         {

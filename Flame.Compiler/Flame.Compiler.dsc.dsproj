@@ -182,6 +182,12 @@
 			<Compile Include="Variables\TypedEmitVariable.ds" />
 		</ItemGroup>
 	</ItemGroup>
+	<ItemGroup Name="Expressions">
+		<ItemGroup>
+			<Compile Include="Visitors\NodeVisitorBase.ds" />
+			<Compile Include="Visitors\VariableSubstitutingVisitor.ds" />
+		</ItemGroup>
+	</ItemGroup>
 	<ItemGroup Name="Code">
 		<ItemGroup>
 			<Compile Include="Code\CodeBuilder.ds" />

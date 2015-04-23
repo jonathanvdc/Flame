@@ -4,13 +4,16 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Statements
 {
-    public abstract class VariableSetStatementBase<T> : IStatement, IVariableNode where T : IVariable
+    public abstract class VariableSetStatementBase<T> : IStatement, ISetVariableNode
+        where T : IVariable
     {
-        public this();
-        public this(set T Variable, set IExpression Value);
+        public const this();
+        public const this(set T Variable, set IExpression Value);
 
 		public T Variable { const get; protected set; }
         public IExpression Value { const get; protected set; }
+
+        public VariableNodeAction Action { const get return VariableNodeAction.Set; }
 
         public const IVariable GetVariable() : IVariableNode.GetVariable
         {
@@ -28,14 +31,18 @@ namespace Flame.Compiler.Statements
             const get { return false; }
         }
 
+        public abstract IStatement Accept(INodeVisitor Visitor);
         public abstract ICodeBlock Emit(ICodeGenerator Generator);
     }
-    public abstract class VariableReleaseStatementBase<T> : IStatement, IVariableNode where T : IVariable
+    public abstract class VariableReleaseStatementBase<T> : IStatement, IVariableNode
+        where T : IVariable
     {
-    	public this();
-        public this(set T Variable);
+    	public const this();
+        public const this(set T Variable);
 
         public T Variable { const get; protected set; }
+
+        public VariableNodeAction Action { const get return VariableNodeAction.Release; }
 
         public const IVariable GetVariable() : IVariableNode.GetVariable
         {
@@ -52,6 +59,10 @@ namespace Flame.Compiler.Statements
             const get { return false; }
         }
 
+        public virtual IStatement Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
         public abstract ICodeBlock Emit(ICodeGenerator Generator);
     }
 }

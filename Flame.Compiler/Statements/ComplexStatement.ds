@@ -9,6 +9,11 @@ namespace Flame.Compiler.Statements
 
         public abstract IStatement Lower();
 
+        public virtual IStatement Accept(INodeVisitor Visitor)
+        {
+            return Visitor.Visit(Lower());
+        }
+
         public virtual bool IsEmpty
         {
             const get { return Lower().IsEmpty; }

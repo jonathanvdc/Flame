@@ -12,6 +12,21 @@ namespace Flame.Compiler.Statements
         public IExpression Target { const get; private set; }
         public IExpression Value { const get; private set; }
 
+        public IStatement Accept(INodeVisitor Visitor)
+        {
+            var transTarget = Visitor.Visit(Target);
+            var transVal = Visitor.Visit(Value);
+
+            if (transTarget == Target && transVal == Value)
+            {
+                return this;
+            }
+            else
+            {
+                return new FieldSetStatement(Field, transTarget, transVal);
+            }
+        }
+
         public bool IsEmpty : IStatement.IsEmpty
         {
             const get { return false; }

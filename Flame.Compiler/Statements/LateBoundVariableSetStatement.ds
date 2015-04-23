@@ -8,6 +8,20 @@ namespace Flame.Compiler.Statements
     {
         public const this(set ILateBoundVariable Variable, set IExpression Value);
 
+        public override IStatement Accept(INodeVisitor Visitor)
+        {
+            var expr = Visitor.Visit(Value);
+
+            if (expr == Value)
+            {
+                return this;
+            }
+            else
+            {
+                return new LateBoundVariableSetStatement(Variable, expr);
+            }
+        }
+
         public override const IStatement Optimize()
         {
             return new LateBoundVariableSetStatement(Variable, Value.Optimize());

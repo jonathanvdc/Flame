@@ -9,6 +9,11 @@ namespace Flame.Compiler.Statements
     {
         public const this();
 
+        public IStatement Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
         public ICodeBlock Emit(ICodeGenerator Generator)
         {
             return Generator.EmitContinue();

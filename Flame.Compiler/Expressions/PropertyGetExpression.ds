@@ -8,27 +8,40 @@ namespace Flame.Compiler.Expressions
 	public class PropertyGetExpression : VariableGetExpressionBase<PropertyVariable>
 	{
 		public const this(set PropertyVariable Variable);
-		
+
 		private const InvocationExpression CreateExpression()
 		{
 			return new InvocationExpression(Variable.Property.GetGetAccessor(), Variable.Caller, Variable.IndexerArguments);
 		}
-		
-		public override bool IsConstant 
+
+		public override bool IsConstant
 		{
 			const get return CreateExpression().IsConstant;
 		}
-		
+
+		public override IExpression Accept(INodeVisitor Visitor)
+		{
+			var propVar = Variable.Accept(Visitor);
+			if (propVar == Variable)
+			{
+				return this;
+			}
+			else
+			{
+				return propVar.CreateGetExpression();
+			}
+		}
+
 		public override const IBoundObject Evaluate()
 		{
 			return CreateExpression().Evaluate();
 		}
-		
+
 		public override const IExpression Optimize()
 		{
 			return CreateExpression().Optimize();
 		}
-		
+
 		public override const ICodeBlock Emit(ICodeGenerator Generator)
 		{
 			return CreateExpression().Emit(Generator);

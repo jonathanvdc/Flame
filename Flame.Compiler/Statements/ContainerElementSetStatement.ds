@@ -10,6 +10,21 @@ namespace Flame.Compiler.Statements
     {
         public this(set ElementVariable Variable, set IExpression Value);
 
+        public override IStatement Accept(INodeVisitor Visitor)
+        {
+            var elemVar = Variable.Accept(Visitor);
+            var transVal = Visitor.Visit(Value);
+
+            if (elemVar == Variable && transVal == Value)
+            {
+                return this;
+            }
+            else
+            {
+                return new ContainerElementSetStatement(elemVar, transVal);
+            }
+        }
+
         public override ICodeBlock Emit(ICodeGenerator Generator)
         {
         	var target = Variable.Target.Emit(Generator);

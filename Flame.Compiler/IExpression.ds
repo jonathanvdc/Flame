@@ -39,5 +39,14 @@ namespace Flame.Compiler
         /// </summary>
         /// <returns></returns>
         IExpression Optimize();
+
+        /// <summary>
+        /// Accepts a node visitor.
+        /// This method is applies the visitor to this node's children and
+        /// returns a new node with the same structure as this node, but with
+        /// the updated children.
+        /// If this node has no children, this node is returned.
+        /// </summary>
+        IExpression Accept(INodeVisitor Visitor);
     }
 }

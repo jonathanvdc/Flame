@@ -26,6 +26,11 @@ namespace Flame.Compiler.Expressions
             const get { return false; }
         }
 
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
         public const IExpression Optimize()
         {
             return this;

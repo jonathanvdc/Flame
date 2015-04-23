@@ -24,6 +24,20 @@ namespace Flame.Compiler.Expressions
         public IType ElementType { const get; private set; }
         public IReadOnlyList<IExpression> Dimensions { const get; private set; }
 
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            var transDims = Visitor.VisitAll(Dimensions);
+
+            if (Enumerable.SequenceEqual<IExpression>(transDims, Dimensions))
+            {
+                return this;
+            }
+            else
+            {
+                return new NewArrayExpression(ElementType, transDims);
+            }
+        }
+
         public IType Type
         {
             const get

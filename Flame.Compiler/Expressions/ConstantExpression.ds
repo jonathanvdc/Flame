@@ -7,12 +7,12 @@ namespace Flame.Compiler.Expressions
     {
         public const this()
         {
-            this.Value = default(T); 
+            this.Value = default(T);
         }
         public const this(set T Value);
 
         public T Value { const get; protected set; }
-        
+
         public void SetField(IField Field, IBoundObject Value) : IBoundObject.SetField
         {
         }
@@ -34,6 +34,11 @@ namespace Flame.Compiler.Expressions
         }
 
         public IExpression Optimize()
+        {
+            return this;
+        }
+
+        public IExpression Accept(INodeVisitor Visitor)
         {
             return this;
         }

@@ -10,12 +10,12 @@ namespace Flame.Compiler.Statements
 {
     public class ElementInCollection
     {
-        public const this(set IVariable Variable, set IStatement Initialization, 
-        				  set IExpression Condition, set IStatement BodyInitialization, 
-        				  set IStatement Delta, set IStatement Finalization, 
+        public const this(set IVariable Variable, set IStatement Initialization,
+        				  set IExpression Condition, set IStatement BodyInitialization,
+        				  set IStatement Delta, set IStatement Finalization,
         				  set IVariable Index);
-        public const this(set IVariable Variable, set IStatement Initialization, 
-        				  set IExpression Condition, set IStatement BodyInitialization, 
+        public const this(set IVariable Variable, set IStatement Initialization,
+        				  set IExpression Condition, set IStatement BodyInitialization,
         				  set IStatement Delta, set IStatement Finalization);
 
         public IVariable Variable { const get; private set; }
