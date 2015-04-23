@@ -14,7 +14,7 @@ namespace Flame.Cpp.Emit
             this.CodeGenerator = CodeGenerator;
             this.Blocks = Blocks;
             this.usedLocals = new Lazy<CppLocal[]>(() => Blocks.Aggregate(Enumerable.Empty<CppLocal>(), (acc, item) => acc.Union(item.LocalsUsed)).ToArray());
-            this.depends = new Lazy<IHeaderDependency[]>(() => Blocks.Aggregate(Enumerable.Empty<IHeaderDependency>(), (acc, item) => acc.Union(item.Dependencies)).ToArray());
+            this.depends = new Lazy<IHeaderDependency[]>(() => Blocks.Aggregate(Enumerable.Empty<IHeaderDependency>(), (acc, item) => acc.MergeDependencies(item.Dependencies)).ToArray());
             this.type = new Lazy<IType>(() => Blocks.Select(item => item.Type).Where(item => !item.Equals(PrimitiveTypes.Void)).LastOrDefault() ?? PrimitiveTypes.Void);
             this.localDecls = new Lazy<LocalDeclaration[]>(() => Blocks.GetLocalDeclarations().ToArray());
             this.spilledDecls = new Lazy<LocalDeclaration[]>(() => Blocks.GetSpilledLocals().ToArray());

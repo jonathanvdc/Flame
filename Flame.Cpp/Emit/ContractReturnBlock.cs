@@ -87,7 +87,8 @@ namespace Flame.Cpp.Emit
         {
             get
             {
-                return cg.Contract.Postconditions.GetDependencies();
+                return cg.Contract.Postconditions.GetDependencies()
+                         .MergeDependencies(ReturnValue == null ? Enumerable.Empty<IHeaderDependency>() : ReturnValue.Dependencies);
             }
         }
 
@@ -116,7 +117,7 @@ namespace Flame.Cpp.Emit
         {
             get
             {
-                return Enumerable.Empty<CppLocal>(); // Just lie.
+                return ReturnValue == null ? Enumerable.Empty<CppLocal>() : ReturnValue.LocalsUsed; // Don't mention the return value variable.
             }
         }
     }
