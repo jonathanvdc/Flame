@@ -63,7 +63,8 @@ namespace Flame.Cpp
             return codeGen;
         }
 
-        public ICppBlock Body { get; private set; }
+        private ICppBlock methodBody;
+        public ICppBlock Body { get { return methodBody ?? new EmptyBlock(codeGen); } }
 
         public MethodContract Contract
         {
@@ -78,7 +79,7 @@ namespace Flame.Cpp
 
         public void SetMethodBody(ICodeBlock Body)
         {
-            this.Body = (ICppBlock)Body;
+            this.methodBody = (ICppBlock)Body;
         }
 
         #endregion

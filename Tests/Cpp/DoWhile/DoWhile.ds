@@ -1,0 +1,21 @@
+
+public class DoWhileTest
+{
+    public const this();
+
+    public int Test(int[] Values)
+    {
+        int result = 0;
+        int i = 0;
+        bool isDone;
+        do
+        {
+            int item = Values[i];
+            isDone = item == 0;
+            result += item;
+            i++;
+        } while (!isDone)
+
+        return result;
+    }
+}
