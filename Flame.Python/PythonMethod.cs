@@ -129,7 +129,7 @@ namespace Flame.Python
 
         public void SetMethodBody(ICodeBlock Body)
         {
-            Body = (IPythonBlock)Body;
+            this.Body = (IPythonBlock)Body;
         }
 
         #endregion
@@ -301,31 +301,25 @@ namespace Flame.Python
 
         public CodeBuilder GetBodyCode()
         {
-            var bodyBlock = new CodeBuilder();
-            var bodyCode = Body.GetCode();
-            if (IsConstructor)
-            {
-                bodyBlock.AddCodeBuilder(DeclaringType.CreatePythonFieldInitBlock(CodeGenerator).GetCode());
-            }
+            var bodyCode = GetCompleteBody().GetCode();
             var lastLine = bodyCode.LastCodeLine;
             if (lastLine.Indentation == 0 && lastLine.Text.TrimEnd() == "return")
             {
                 bodyCode.TrimEnd();
                 bodyCode[bodyCode.LineCount - 1] = new CodeLine("");
             }
-            bodyBlock.AddCodeBuilder(bodyCode);
-            if (bodyBlock.IsWhitespace)
+            if (bodyCode.IsWhitespace)
             {
                 if (DeclaringType.get_IsInterface() || this.get_IsAbstract())
                 {
-                    bodyBlock.AddLine("raise NotImplementedError(\"" + NotImplementedDescription + "\")");
+                    bodyCode.AddLine("raise NotImplementedError(\"" + NotImplementedDescription + "\")");
                 }
                 else
                 {
-                    bodyBlock.AddLine("pass");
+                    bodyCode.AddLine("pass");
                 }
             }
-            return bodyBlock;
+            return bodyCode;
         }
 
         public override string ToString()
