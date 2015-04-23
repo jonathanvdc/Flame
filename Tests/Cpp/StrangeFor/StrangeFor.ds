@@ -1,0 +1,16 @@
+
+public class StrangeForTest
+{
+    public const this();
+
+    public int WeirdLoop(int[] Values)
+    {
+        int result = 0;
+        for (int i = 0; i < Values.Length; i++)
+        {
+            i++;
+            result += i;
+        }
+        return result;
+    }
+}

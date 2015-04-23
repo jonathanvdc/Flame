@@ -17,10 +17,22 @@ namespace Flame.Cpp.Emit
             this.Method = Method;
             this.Environment = Environment;
             this.LocalManager = new CppLocalManager(this);
-            this.Contract = new MethodContract(this);
         }
 
-        public MethodContract Contract { get; private set; }
+        public MethodContract Contract
+        {
+            get
+            {
+                if (Method is CppMethod)
+                {
+                    return ((CppMethod)Method).Contract;
+                }
+                else
+                {
+                    return new MethodContract(this, Enumerable.Empty<ICppBlock>(), Enumerable.Empty<ICppBlock>());
+                }
+            }
+        }
 
         #region Properties
 
@@ -32,28 +44,75 @@ namespace Flame.Cpp.Emit
 
         #region Block Generators
 
-        public IBlockGenerator CreateBlock()
+        public ICodeBlock EmitBreak()
         {
-            return new CppBlockGenerator(this);
+            return new KeywordStatementBlock(this, "break");
         }
 
-        public IBlockGenerator CreateDoWhileBlock(ICodeBlock Condition)
+        public ICodeBlock EmitContinue()
         {
-            return new DoWhileBlockGenerator(this, (ICppBlock)Condition);
+            return new KeywordStatementBlock(this, "continue");
         }
 
-        public ICodeBlock CreateIfElseBlock(ICodeBlock Condition, ICodeBlock IfBlock, ICodeBlock ElseBlock)
+        private ICodeBlock EmitUnionBlock(ICppBlock UnionBlock, params ICppBlock[] UnionItems)
         {
-            var cppCond = (ICppBlock)Condition;
-            var cppIf = (ICppBlock)IfBlock;
-            var cppElse = (ICppBlock)ElseBlock;
-
-            return new IfElseBlock(this, cppCond, cppIf, cppElse);
+            var unionDecls = CppBlock.HoistUnionDeclarations(UnionItems);
+            if (unionDecls.Count > 0)
+            {
+                return EmitSequence(new CppBlock(this, unionDecls), UnionBlock);
+            }
+            else
+            {
+                return UnionBlock;
+            }
         }
 
-        public IBlockGenerator CreateWhileBlock(ICodeBlock Condition)
+        public ICodeBlock EmitDoWhile(ICodeBlock Body, ICodeBlock Condition)
         {
-            return new WhileBlockGenerator(this, (ICppBlock)Condition);
+            var cond = (ICppBlock)Condition;
+            var body = (ICppBlock)Body;
+            var doWhileBlock = new DoWhileBlock(cond, body);
+
+            return EmitUnionBlock(doWhileBlock, cond, body);
+        }
+
+        public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
+        {
+            var cond = (ICppBlock)Condition;
+            var ifBody = (ICppBlock)IfBody;
+            var elseBody = (ICppBlock)ElseBody;
+            var ifElseBlock = new IfElseBlock(this, cond, ifBody, elseBody);
+
+            return EmitUnionBlock(ifElseBlock, cond, ifBody, elseBody);
+        }
+
+        public ICodeBlock EmitPop(ICodeBlock Value)
+        {
+            return new ExpressionStatementBlock((ICppBlock)Value);
+        }
+
+        public ICodeBlock EmitReturn(ICodeBlock Value)
+        {
+            return new ContractReturnBlock(this, Value as ICppBlock);
+        }
+
+        public ICodeBlock EmitSequence(ICodeBlock First, ICodeBlock Second)
+        {
+            return new CppBlock(this, CppBlock.InsertSequenceDeclarations((ICppBlock)First, (ICppBlock)Second));
+        }
+
+        public ICodeBlock EmitVoid()
+        {
+            return new EmptyBlock(this);
+        }
+
+        public ICodeBlock EmitWhile(ICodeBlock Condition, ICodeBlock Body)
+        {
+            var cond = (ICppBlock)Condition;
+            var body = (ICppBlock)Body;
+            var whileBlock = new WhileBlock(cond, body);
+
+            return EmitUnionBlock(whileBlock, cond, body);
         }
 
         #endregion
@@ -87,7 +146,7 @@ namespace Flame.Cpp.Emit
             else
             {
                 return new UnaryOperation(this, (ICppBlock)Value, Op);
-            }            
+            }
         }
 
         #endregion
@@ -330,64 +389,64 @@ namespace Flame.Cpp.Emit
 
         public CppLocalManager LocalManager { get; private set; }
 
-        public IVariable DeclareVariable(IVariableMember VariableMember)
+        public IEmitVariable DeclareVariable(IVariableMember VariableMember)
         {
             return DeclareUnmanagedVariable(VariableMember);
         }
 
-        public IVariable DeclareNewVariable(IVariableMember VariableMember)
+        public IEmitVariable DeclareNewVariable(IVariableMember VariableMember)
         {
             return DeclareNewUnmanagedVariable(VariableMember);
         }
 
-        public IUnmanagedVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
+        public IUnmanagedEmitVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
         {
             return LocalManager.Declare(this.ConvertVariableMember(VariableMember));
         }
 
-        public IUnmanagedVariable DeclareNewUnmanagedVariable(IVariableMember VariableMember)
+        public IUnmanagedEmitVariable DeclareNewUnmanagedVariable(IVariableMember VariableMember)
         {
             return LocalManager.DeclareNew(this.ConvertVariableMember(VariableMember));
         }
 
         #endregion
 
-        public IVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
+        public IEmitVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
         {
             return GetUnmanagedElement(Value, Index);
         }
 
-        public IVariable GetField(IField Field, ICodeBlock Target)
+        public IEmitVariable GetField(IField Field, ICodeBlock Target)
         {
             return GetUnmanagedField(Field, Target);
         }
 
-        public IVariable GetArgument(int Index)
+        public IEmitVariable GetArgument(int Index)
         {
             return GetUnmanagedArgument(Index);
         }
 
-        public IVariable GetThis()
+        public IEmitVariable GetThis()
         {
             return GetUnmanagedThis();
         }
 
-        public IUnmanagedVariable GetUnmanagedElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
+        public IUnmanagedEmitVariable GetUnmanagedElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
         {
             return new CppElement(this, (ICppBlock)Value, (ICppBlock)Index.Single());
         }
 
-        public IUnmanagedVariable GetUnmanagedField(IField Field, ICodeBlock Target)
+        public IUnmanagedEmitVariable GetUnmanagedField(IField Field, ICodeBlock Target)
         {
             return new CppField(this, (ICppBlock)Target, Field);
         }
 
-        public IUnmanagedVariable GetUnmanagedArgument(int Index)
+        public IUnmanagedEmitVariable GetUnmanagedArgument(int Index)
         {
             return new CppArgument(this, Index);
         }
 
-        public IUnmanagedVariable GetUnmanagedThis()
+        public IUnmanagedEmitVariable GetUnmanagedThis()
         {
             return new CppThis(this);
         }
@@ -415,19 +474,24 @@ namespace Flame.Cpp.Emit
 
         #region Foreach
 
-        public ICollectionBlock CreateCollectionBlock(IVariableMember Member, ICodeBlock Collection)
+        public ICollectionBlock EmitCollectionBlock(IVariableMember Member, ICodeBlock Collection)
         {
             return new CollectionBlock(this, Member, (ICppBlock)Collection);
         }
 
-        public IForeachBlockGenerator CreateForeachBlock(IEnumerable<ICollectionBlock> Collections)
+        public ICodeBlock EmitForeachBlock(IForeachBlockHeader Header, ICodeBlock Body)
         {
-            if (Collections.Count() == 1)
+            return new ForeachBlock((ForeachHeader)Header, (ICppBlock)Body);
+        }
+
+        public IForeachBlockHeader EmitForeachHeader(IEnumerable<ICollectionBlock> Collections)
+        {
+            if (Collections.Any() && !Collections.Skip(1).Any()) // == (Collections.Count() == 1)
             {
                 var singleCollection = Collections.Single() as CollectionBlock;
                 if (singleCollection != null)
                 {
-                    return new ForeachBlockGenerator(this, singleCollection);
+                    return new ForeachHeader(this, singleCollection);
                 }
             }
             return null;
@@ -437,9 +501,19 @@ namespace Flame.Cpp.Emit
 
         #region IExceptionCodeGenerator
 
-        public ITryBlockGenerator CreateTryBlock()
+        public ICatchClause EmitCatchClause(ICatchHeader Header, ICodeBlock Body)
         {
-            return new TryBlockGenerator(this);
+            return new CatchBlock((CatchHeader)Header, (ICppBlock)Body);
+        }
+
+        public ICatchHeader EmitCatchHeader(IVariableMember ExceptionVariable)
+        {
+            return new CatchHeader(this, ExceptionVariable);
+        }
+
+        public ICodeBlock EmitTryBlock(ICodeBlock TryBody, ICodeBlock FinallyBody, IEnumerable<ICatchClause> CatchClauses)
+        {
+            return new ExceptionHandlingBlock(this, (ICppBlock)TryBody, (ICppBlock)FinallyBody, CatchClauses.Cast<CatchBlock>());
         }
 
         public ICodeBlock EmitAssert(ICodeBlock Condition)
@@ -457,14 +531,35 @@ namespace Flame.Cpp.Emit
 
         #region IForCodeGenerator
 
-        public IBlockGenerator CreateForBlock(ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta)
+        public ICodeBlock EmitForBlock(ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body)
         {
             var cppInit = (ICppBlock)Initialization;
             var cppCond = (ICppBlock)Condition;
             var cppDelta = (ICppBlock)Delta;
+
             if (cppInit.IsSimple() && cppDelta.IsSimple())
             {
-                return new ForBlockGenerator(this, cppInit, cppCond, cppDelta);
+                var cppBody = (ICppBlock)Body;
+
+                var forBlock = new ForBlock(cppInit, cppCond, cppDelta, cppBody);
+
+                // How this works:
+                // Step #1: Hoist all variable declarations common to the condition, delta and body.
+                // Step #2: Assume the initialization and the rest of the for loop is executed in sequence,
+                //          and hoist variable declarations accordingly
+                // Step #3: If any variable declarations have been hoisted, emit them.
+                //          In any case, the 'for' block is subsequently emitted.
+
+                var unionDecls = CppBlock.HoistUnionDeclarations(cppCond, cppDelta, cppBody);
+                var seqDecls = CppBlock.HoistSequenceDeclarations(new ICppBlock[] { cppInit }.Concat(unionDecls));
+                if (seqDecls.Count > 0)
+                {
+                    return EmitSequence(new CppBlock(this, seqDecls), forBlock);
+                }
+                else
+                {
+                    return forBlock;
+                }
             }
             return null;
         }
@@ -489,9 +584,9 @@ namespace Flame.Cpp.Emit
 
         #region IContractCodeGenerator
 
-        private IVariable retVar;
+        private IEmitVariable retVar;
 
-        public IVariable ReturnVariable
+        public IEmitVariable ReturnVariable
         {
             get
             {
@@ -501,6 +596,11 @@ namespace Flame.Cpp.Emit
                 }
                 return retVar;
             }
+        }
+
+        public ICodeBlock EmitContractBlock(IEnumerable<ICodeBlock> Preconditions, IEnumerable<ICodeBlock> Postconditions, ICodeBlock Body)
+        {
+            return new ContractBlock((ICppBlock)Body, Preconditions.Cast<ICppBlock>(), Postconditions.Cast<ICppBlock>());
         }
 
         #endregion

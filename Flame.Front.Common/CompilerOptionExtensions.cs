@@ -56,9 +56,9 @@ namespace Flame.Front
             {
                 switch (item.ToLower())
                 {
-                    case "aggressive":
+                    /*case "aggressive":
                     case "analysis":
-                        return new AnalyzingOptimizer();
+                        return new AnalyzingOptimizer();*/
 
                     case "default":
                     case "conservative":

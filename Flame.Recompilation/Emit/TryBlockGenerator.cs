@@ -9,64 +9,35 @@ using System.Threading.Tasks;
 
 namespace Flame.Recompilation.Emit
 {
-    public class CatchBlockGenerator : RecompiledBlockGenerator, ICatchBlockGenerator
+    public class CatchHeader : ICatchHeader, ICatchClause
     {
-        public CatchBlockGenerator(RecompiledCodeGenerator CodeGenerator, IVariableMember Member)
-            : base(CodeGenerator)
+        public CatchHeader(RecompiledCodeGenerator CodeGenerator, IVariableMember Member)
         {
-            this.Clause = new CatchClause(Member);
-            this.exVar = new RecompiledVariable(CodeGenerator, Clause.ExceptionVariable);
+            this.clause = new CatchClause(Member);
+            this.exVar = new RecompiledVariable(CodeGenerator, clause.ExceptionVariable);
         }
 
+        private CatchClause clause;
         private RecompiledVariable exVar;
-        public IVariable ExceptionVariable
+
+        public IEmitVariable ExceptionVariable
         {
             get { return exVar; }
         }
 
-        public CatchClause Clause { get; private set; }
-    }
-
-    public class TryBlockGenerator : ITryBlockGenerator, IStatementBlock
-    {
-        public TryBlockGenerator(RecompiledCodeGenerator CodeGenerator)
+        public ICatchHeader Header
         {
-            this.CodeGenerator = CodeGenerator;
-            this.CatchClauses = new List<CatchBlockGenerator>();
-            this.TryBody = CodeGenerator.CreateBlock();
-            this.FinallyBody = CodeGenerator.CreateBlock();
+            get { return this; }
         }
 
-        public RecompiledCodeGenerator CodeGenerator { get; private set; } 
-
-        public IBlockGenerator TryBody { get; private set; }
-        public IBlockGenerator FinallyBody { get; private set; }
-        public List<CatchBlockGenerator> CatchClauses { get; private set; }
-
-        public ICatchBlockGenerator EmitCatchClause(IVariableMember ExceptionVariable)
+        public void SetBody(IStatement Body)
         {
-            var clause = new CatchBlockGenerator(CodeGenerator, ExceptionVariable);
-            CatchClauses.Add(clause);
+            this.clause.Body = Body;
+        }
+
+        public CatchClause ToClause()
+        {
             return clause;
-        }
-
-        public IStatement GetStatement()
-        {
-            var tryStmt = RecompiledCodeGenerator.GetStatement(TryBody);
-            var finallyStmt = RecompiledCodeGenerator.GetStatement(FinallyBody);
-            var clauses = CatchClauses.Select((item) => item.Clause).ToArray();
-            var tryStatement = new TryStatement(tryStmt, finallyStmt, clauses);
-            return tryStatement;
-        }
-
-        public IEnumerable<IType> ResultTypes
-        {
-            get { return new IType[0]; }
-        }
-
-        ICodeGenerator ICodeBlock.CodeGenerator
-        {
-            get { return CodeGenerator; }
         }
     }
 }

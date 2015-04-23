@@ -27,21 +27,13 @@ namespace Flame.Cpp.Emit
         {
             get
             {
-                return new object[] { Condition, IfBlock, ElseBlock }.OfType<ICppLocalDeclaringBlock>().SelectMany((item) => item.LocalDeclarations);
+                return new ICppBlock[] { Condition, IfBlock, ElseBlock }.SelectMany(CppBlockExtensions.GetLocalDeclarations);
             }
         }
 
-        public IEnumerable<LocalDeclaration> CommonDeclarations
+        public IEnumerable<LocalDeclaration> SpilledDeclarations
         {
-            get
-            {
-                var condDecls = Condition.GetLocalDeclarations();
-                var ifDecls = IfBlock.GetLocalDeclarations();
-                var elseDecls = ElseBlock.GetLocalDeclarations();
-                return condDecls.Intersect(ifDecls)
-                    .Union(condDecls.Intersect(elseDecls))
-                    .Union(ifDecls.Intersect(elseDecls));
-            }
+            get { return Enumerable.Empty<LocalDeclaration>(); }
         }
 
         public IType Type

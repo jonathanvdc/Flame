@@ -1,0 +1,31 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler.Statements
+{
+    public class EmitVariableSetStatement : IStatement
+    {
+        public const this(set IEmitVariable Variable, set IExpression Value);
+
+        public IEmitVariable Variable { const get; private set; }
+        public IExpression Value { const get; private set; }
+
+        public const IStatement Optimize()
+        {
+            var optVal = Value.Optimize();
+            return new EmitVariableSetStatement(Variable, optVal);
+        }
+
+        public bool IsEmpty
+        {
+            const get { return false; }
+        }
+
+        public ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Variable.EmitSet(Value.Emit(Generator));
+        }
+    }
+}

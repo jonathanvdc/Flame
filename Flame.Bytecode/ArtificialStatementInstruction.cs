@@ -37,9 +37,9 @@ namespace Flame.Bytecode
             return NextInstructions;
         }
 
-        public override void Emit(IBlockGenerator Target)
+        public override ICodeBlock Emit(ICodeGenerator Target)
         {
-            this.Statement.Emit(Target);
+            return this.Statement.Emit(Target);
         }
 
         public bool Equals(ArtificialStatementInstruction other)

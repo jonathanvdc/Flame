@@ -105,7 +105,7 @@ namespace Flame.Front.Cli
                     listItems.Add(new MarkupNode(NodeConstants.ListItemNodeType, "End time: " + DateTime.Now.TimeOfDay));
                     listItems.Add(new MarkupNode(NodeConstants.ListItemNodeType, "Elapsed time: " + timer.Elapsed));
                     var listNode = ListExtensions.Instance.CreateList(listItems);
-                    log.WriteBlockEntry(new LogEntry("Timing information", listNode));                    
+                    log.WriteBlockEntry(new LogEntry("Timing report", listNode));                    
                 }
                 log.Console.WriteSeparator(1);
                 log.Dispose();

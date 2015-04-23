@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Flame.Compiler.Variables;
+using Flame.Compiler.Emit;
 
 namespace Flame.Compiler.Expressions
 {
@@ -10,8 +11,8 @@ namespace Flame.Compiler.Expressions
 
 		public IExpression Target { const get; private set; }
 		public IEnumerable<IExpression> IndexArguments { const get; private set; }
-        public IType Type 
-        { 
+        public IType Type
+        {
 	        const get
 			{
 				return Target.Type.AsContainerType().GetElementType().MakePointerType(PointerKind.ReferencePointer);
@@ -22,7 +23,7 @@ namespace Flame.Compiler.Expressions
         {
             const get { return false; }
         }
-        
+
         public const IVariable GetVariable() : IVariableNode.GetVariable
         {
         	return new ElementVariable(Target, IndexArguments);
@@ -42,8 +43,8 @@ namespace Flame.Compiler.Expressions
         {
         	var targetBlock = Target.Emit(Generator);
         	var argBlocks = IndexArguments.EmitAll(Generator);
-        	var elem = (IUnmanagedVariable)Generator.GetElement(targetBlock, argBlocks);
-            return elem.CreateAddressOfExpression().Emit(Generator);
+        	var elem = (IUnmanagedEmitVariable)Generator.GetElement(targetBlock, argBlocks);
+            return elem.EmitAddressOf();
         }
     }
 }}

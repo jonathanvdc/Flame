@@ -12,7 +12,6 @@ namespace Flame.Cpp
 {
     public interface ICppMethod : IMethod, ICppTemplateMember
     {
-
     }
 
     public class CppMethod : IMethodBuilder, ICppMethod, IEquatable<IMethod>
@@ -25,8 +24,7 @@ namespace Flame.Cpp
             this.Environment = new TemplatedMemberCppEnvironment(Environment, this);
             this.IsStatic = IsStatic;
             this.IsGlobal = IsGlobal;
-            var codeGen = new CppCodeGenerator(this, this.Environment);
-            this.blockGen = new CppContractBlockGenerator(codeGen, codeGen.Contract);
+            this.codeGen = new CppCodeGenerator(this, this.Environment);
             this.built = false;
         }
         public CppMethod(IGenericResolverType DeclaringType, IMethod Template, ICppEnvironment Environment)
@@ -41,14 +39,6 @@ namespace Flame.Cpp
         public bool IsStatic { get; private set; }
         public bool IsGlobal { get; private set; }
 
-        public MethodContract Contract
-        {
-            get
-            {
-                return blockGen.Contract;
-            }
-        }
-
         public IType ResolveTypeParameter(IGenericParameter TypeParameter)
         {
             return TypeParameter;
@@ -59,24 +49,40 @@ namespace Flame.Cpp
             get { return ReturnType.GetDependencies(DeclaringType).MergeDependencies(GetParameters().GetDependencies(DeclaringType)).MergeDependencies(Body.Dependencies); }
         }
 
+        #region Code Generation
+
         private bool built;
-        private CppContractBlockGenerator blockGen;
-        public IBlockGenerator GetBodyGenerator()
+        private CppCodeGenerator codeGen;
+        public ICodeGenerator GetBodyGenerator()
         {
             if (built)
             {
                 throw new InvalidOperationException();
             }
-            return blockGen;
+            return codeGen;
         }
 
-        protected CppBlockGenerator Body
+        private ContractBlock methodBody;
+        public ICppBlock Body { get { return methodBody as ICppBlock ?? new EmptyBlock(codeGen); } }
+
+        public MethodContract Contract
         {
-            get { return blockGen; }
+            get
+            {
+                return methodBody != null ? methodBody.Contract : new MethodContract(codeGen, Enumerable.Empty<ICppBlock>(), Enumerable.Empty<ICppBlock>());
+            }
         }
+
+        public void SetMethodBody(ICodeBlock Body)
+        {
+            this.methodBody = Body is ContractBlock ? (ContractBlock)Body : new ContractBlock((ICppBlock)Body, Enumerable.Empty<ICppBlock>(), Enumerable.Empty<ICppBlock>());
+        }
+
+        #endregion
 
         public IMethod Build()
         {
+            built = true;
             return this;
         }
 
@@ -326,7 +332,7 @@ namespace Flame.Cpp
         public CodeBuilder GetBodyCode()
         {
             CodeBuilder cb = new CodeBuilder();
-            var body = blockGen.ImplyEmptyReturns();
+            var body = Body.ImplyEmptyReturns();
             if (this.IsConstructor)
             {
                 body = body.ImplyStructInit();
@@ -341,8 +347,6 @@ namespace Flame.Cpp
             {
                 return new CodeBuilder();
             }
-
-            var cg = blockGen.CppCodeGenerator;
 
             bool isConst = this.get_IsConstant();
             CodeBuilder cb = this.GetDocumentationComments();

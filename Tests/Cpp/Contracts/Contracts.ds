@@ -8,6 +8,7 @@ public class ContractsTest
     invariant { X >= 0 }
 
     public bool GreaterThan(int Value)
+        out (result) { result || !result } // It's just a test, okay?
     {
         if (X > Value)
             return true;

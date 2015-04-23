@@ -32,15 +32,17 @@ namespace Flame.Bytecode
         /// </summary>
         public int EntryPoint { get; private set; }
 
-        public void Emit(IBlockGenerator Block)
+        public ICodeBlock Emit(ICodeGenerator Block)
         {
             // Packing eliminates some dead code and reverses esoteric optimizations
             InstructionPacker packer = new InstructionPacker();
             packer.AddSequence(Instructions[EntryPoint], Instructions);
+            var result = Block.EmitVoid();
             foreach (var item in packer.GetPackedInstructions())
             {
-                item.Emit(Block);
+                result = Block.EmitSequence(result, item.Emit(Block));
             }
+            return result;
         }
     }
 }

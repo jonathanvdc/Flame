@@ -29,7 +29,7 @@ namespace Flame.Compiler.Expressions
 
         public ICodeBlock Emit(ICodeGenerator Generator)
         {
-            return ((IContractCodeGenerator)Generator).ReturnVariable.CreateGetExpression().Emit(Generator);
+            return ((IContractCodeGenerator)Generator).ReturnVariable.EmitGet();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
-    public class ILElementVariable : IUnmanagedVariable
+    public class ILElementVariable : IUnmanagedEmitVariable
     {
         public ILElementVariable(ICodeGenerator CodeGenerator, ICecilBlock Container, ICecilBlock[] Arguments)
         {
@@ -31,25 +32,25 @@ namespace Flame.Cecil.Emit
                 return typeStack.Pop();
             }
         }
-        
-        public IExpression CreateAddressOfExpression()
+
+        public ICodeBlock EmitAddressOf()
         {
-            return new CodeBlockExpression(new ElementAddressOfBlock(this), Type);
+            return new ElementAddressOfBlock(this);
         }
 
-        public IExpression CreateGetExpression()
+        public ICodeBlock EmitGet()
         {
-            return new CodeBlockExpression(new ElementGetBlock(this), Type);
+            return new ElementGetBlock(this);
         }
 
-        public IStatement CreateReleaseStatement()
+        public ICodeBlock EmitRelease()
         {
-            return new EmptyStatement();
+            return CodeGenerator.EmitVoid();
         }
 
-        public IStatement CreateSetStatement(IExpression Value)
+        public ICodeBlock EmitSet(ICodeBlock Value)
         {
-            return new CodeBlockStatement(new ElementSetBlock(this, (ICecilBlock)Value.Emit(CodeGenerator)));
+            return new ElementSetBlock(this, (ICecilBlock)Value);
         }
     }
 }

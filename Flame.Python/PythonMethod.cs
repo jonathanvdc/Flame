@@ -125,26 +125,20 @@ namespace Flame.Python
             }
         }
 
-        private BlockGenerator body;
-        public BlockGenerator Body
+        public IPythonBlock Body { get; private set; }
+
+        public void SetMethodBody(ICodeBlock Body)
         {
-            get
-            {
-                if (body == null)
-                {
-                    body = (BlockGenerator)CodeGenerator.CreateBlock();
-                }
-                return body;
-            }
+            this.Body = (IPythonBlock)Body;
         }
 
         #endregion
 
         #region IMethodBuilder Implementation
 
-        public IBlockGenerator GetBodyGenerator()
+        public ICodeGenerator GetBodyGenerator()
         {
-            return Body;
+            return CodeGenerator;
         }
 
         public IMethod Build()
@@ -295,42 +289,37 @@ namespace Flame.Python
             }
         }
 
-        public BlockGenerator GetCompleteBody()
+        public IPythonBlock GetCompleteBody()
         {
-            var bodyBlock = (BlockGenerator)CodeGenerator.CreateBlock();
+            var bodyBlock = Body ?? new EmptyBlock(CodeGenerator);
             if (IsConstructor)
             {
-                bodyBlock.EmitBlock(DeclaringType.CreatePythonFieldInitBlock(CodeGenerator));
+                return (IPythonBlock)CodeGenerator.EmitSequence(DeclaringType.CreatePythonFieldInitBlock(CodeGenerator), bodyBlock);
             }
-            bodyBlock.EmitBlock(Body);
             return bodyBlock;
         }
 
         public CodeBuilder GetBodyCode()
         {
-            var bodyBlock = new CodeBuilder();
-            var bodyCode = Body.GetCode();
-            if (IsConstructor)
+            var bodyCode = GetCompleteBody().GetCode();
+            var lastLine = bodyCode.LastCodeLine;
+            if (lastLine.Indentation == 0 && lastLine.Text.TrimEnd() == "return")
             {
-                bodyBlock.AddCodeBuilder(DeclaringType.CreatePythonFieldInitBlock(CodeGenerator).GetCode());
-            }
-            if (bodyCode.LineCount > 0 && bodyCode[bodyCode.LineCount - 1].ToString().TrimEnd() == "return")
-            {
+                bodyCode.TrimEnd();
                 bodyCode[bodyCode.LineCount - 1] = new CodeLine("");
             }
-            bodyBlock.AddCodeBuilder(bodyCode);
-            if (string.IsNullOrWhiteSpace(bodyBlock.ToString()))
+            if (bodyCode.IsWhitespace)
             {
                 if (DeclaringType.get_IsInterface() || this.get_IsAbstract())
                 {
-                    bodyBlock.AddLine("raise NotImplementedError(\"" + NotImplementedDescription + "\")");
+                    bodyCode.AddLine("raise NotImplementedError(\"" + NotImplementedDescription + "\")");
                 }
                 else
                 {
-                    bodyBlock.AddLine("pass");
+                    bodyCode.AddLine("pass");
                 }
             }
-            return bodyBlock;
+            return bodyCode;
         }
 
         public override string ToString()

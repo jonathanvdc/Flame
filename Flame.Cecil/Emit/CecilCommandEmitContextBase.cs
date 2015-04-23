@@ -19,6 +19,7 @@ namespace Flame.Cecil.Emit
             this.flowControls = new Stack<IFlowControlStructure>();
             PushFlowControl(new GlobalFlowControlStructure(CodeGenerator));
             this.Stack = new TypeStack();
+            this.localVarPool = new List<IEmitLocal>();
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
@@ -428,19 +429,47 @@ namespace Flame.Cecil.Emit
 
         public void Emit(OpCode OpCode, IEmitLocal Local)
         {
-            EmitInstruction(Processor.Create(OpCode, ((CecilLocal)Local).Variable));
+            EmitInstruction(Processor.Create(OpCode, Local.Variable));
         }
+
+        #region Locals
+
+        private List<IEmitLocal> localVarPool;
 
         public IEmitLocal DeclareLocal(IType Type)
         {
             var typeRef = GetTypeReference(Type);
-            Processor.Body.Variables.Add(new Mono.Cecil.Cil.VariableDefinition(typeRef));
+
+            for (int i = 0; i < localVarPool.Count; i++)
+            {
+                var local = localVarPool[i];
+                if (local.Variable.VariableType == typeRef)
+                {
+                    localVarPool.RemoveAt(i);
+                    return new RecycledLocal(local);
+                }
+            }
+
+            return DeclareNewLocal(typeRef);
+        }
+
+        private IEmitLocal DeclareNewLocal(TypeReference Type)
+        {
+            var result = new VariableDefinition(Type);
+            Processor.Body.Variables.Add(result);
             if (!Processor.Body.InitLocals)
             {
                 Processor.Body.InitLocals = true;
             }
             return new CecilLocal(Processor.Body.Variables[Processor.Body.Variables.Count - 1]);
         }
+
+        public void ReleaseLocal(IEmitLocal Variable)
+        {
+            localVarPool.Add(Variable);
+        }
+
+        #endregion
 
         private class CecilLocal : IEmitLocal
         {
@@ -456,11 +485,54 @@ namespace Flame.Cecil.Emit
                     return Variable.Index;
                 }
             }
+
             public Mono.Cecil.Cil.VariableDefinition Variable { get; private set; }
 
-            public void SetName(string Name)
+            public string Name
             {
-                this.Variable.Name = Name;
+                get
+                {
+                    return this.Variable.Name;
+                }
+                set
+                {
+                    this.Variable.Name = value;
+                }
+            }
+        }
+
+        private class RecycledLocal : IEmitLocal
+        {
+            public RecycledLocal(IEmitLocal Local)
+            {
+                this.Local = Local;
+            }
+
+            public IEmitLocal Local { get; private set; }
+
+            public VariableDefinition Variable
+            {
+                get { return Local.Variable; }
+            }
+
+            public int Index
+            {
+                get { return Local.Index; }
+            }
+
+            public string Name
+            {
+                get
+                {
+                    return Local.Name;
+                }
+                set
+                {
+                    if (string.IsNullOrWhiteSpace(Local.Name))
+                    {
+                        Local.Name = value;
+                    }
+                }
             }
         }
 

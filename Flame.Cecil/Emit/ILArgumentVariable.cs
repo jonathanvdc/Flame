@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
-    public class ILArgumentVariable : IUnmanagedVariable
+    public class ILArgumentVariable : IUnmanagedEmitVariable
     {
         public ILArgumentVariable(ICodeGenerator CodeGenerator, int Index)
         {
@@ -21,24 +22,24 @@ namespace Flame.Cecil.Emit
         public int Index { get; private set; }
         public IType Type { get { return ILCodeGenerator.GetExtendedParameterTypes(CodeGenerator)[Index]; } }
 
-        public IExpression CreateAddressOfExpression()
+        public ICodeBlock EmitAddressOf()
         {
-            return new CodeBlockExpression(new ArgumentAddressOfBlock(CodeGenerator, Index), Type.MakePointerType(PointerKind.ReferencePointer));
+            return new ArgumentAddressOfBlock(CodeGenerator, Index);
         }
 
-        public IExpression CreateGetExpression()
+        public ICodeBlock EmitGet()
         {
-            return new CodeBlockExpression(new ArgumentGetBlock(CodeGenerator, Index), Type);
+            return new ArgumentGetBlock(CodeGenerator, Index);
         }
 
-        public IStatement CreateReleaseStatement()
+        public ICodeBlock EmitRelease()
         {
-            return new EmptyStatement();
+            return CodeGenerator.EmitVoid();
         }
 
-        public IStatement CreateSetStatement(IExpression Value)
+        public ICodeBlock EmitSet(ICodeBlock Value)
         {
-            return new CodeBlockStatement(new ArgumentSetBlock(CodeGenerator, Index, (ICecilBlock)Value.Emit(CodeGenerator)));
+            return new ArgumentSetBlock(CodeGenerator, Index, (ICecilBlock)Value);
         }
     }
 }

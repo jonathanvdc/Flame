@@ -68,5 +68,10 @@ namespace Flame.Cpp.Emit
         {
             get { return AllBlocks.GetLocalDeclarations(); }
         }
+
+        public IEnumerable<LocalDeclaration> SpilledDeclarations
+        {
+            get { return Enumerable.Empty<LocalDeclaration>(); }
+        }
     }
 }

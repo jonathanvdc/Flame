@@ -10,44 +10,52 @@ namespace Flame.Compiler.Emit
 	public interface IExceptionCodeGenerator : ICodeGenerator
 	{
 		/// <summary>
-		/// Creates a new try/catch/finally block generator.
+		/// Creates a new catch header based on the given exception variable.
 		/// </summary>
-		ITryBlockGenerator CreateTryBlock();
-		
+		ICatchHeader EmitCatchHeader(IVariableMember ExceptionVariable);
+
+		/// <summary>
+		/// Creates a new catch clause based on the given header and body.
+		/// </summary>
+		ICatchClause EmitCatchClause(ICatchHeader Header, ICodeBlock Body);
+
+		/// <summary>
+		/// Creates a try/catch/finally block from a try body, a finally body and
+		/// zero or more catch clauses.
+		/// </summary>
+		ICodeBlock EmitTryBlock(ICodeBlock TryBody, ICodeBlock FinallyBody, [ICatchClause] CatchClauses);
+
 		/// <summary>
 		/// Creates a block that throws the given exception.
 		/// </summary>
 		ICodeBlock EmitThrow(ICodeBlock Exception);
-		
+
 		/// <summary>
 		/// Emits an assertion on the given code block.
 		/// </summary>
 		ICodeBlock EmitAssert(ICodeBlock Condition);
 	}
-	
+
 	/// <summary>
-	/// Provides common functionality for try/catch/finally block generation.
+	/// Defines a header for a catch clause, which contains the variable that
+	/// will hold the exception if one is thrown.
 	/// </summary>
-	public interface ITryBlockGenerator : ICodeBlock
+	public interface ICatchHeader
 	{
 		/// <summary>
-		/// Gets the try block's try body generator.
+		/// Gets the catch header's exception variable.
 		/// </summary>
-		IBlockGenerator TryBody { const get; }
-		
-		/// <summary>
-		/// Gets the try block's finally body generator.
-		/// </summary>
-		IBlockGenerator FinallyBody { const get; }
-		
-		/// <summary>
-		/// Creates a new catch clause for the given exception variable.
-		/// </summary>
-		ICatchBlockGenerator EmitCatchClause(IVariableMember ExceptionVariable);
+		IEmitVariable ExceptionVariable { const get; }
 	}
-	
-	public interface ICatchBlockGenerator : IBlockGenerator
+
+	/// <summary>
+	/// Defines a catch clause.
+	/// </summary>
+	public interface ICatchClause
 	{
-		IVariable ExceptionVariable { const get; }
+		/// <summary>
+		/// Gets the catch clause's header.
+		/// </summary>
+		ICatchHeader Header { const get; }
 	}
 }

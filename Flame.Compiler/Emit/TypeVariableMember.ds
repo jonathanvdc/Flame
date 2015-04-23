@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Flame.Compiler.Emit
 {
 	public class TypeVariableMember : IVariableMember
 	{
 		public this(set IType VariableType);
-		
+
 		public IType VariableType { const get; private set; }
-		
+
 		/// <summary>
         /// Gets the member's name.
         /// </summary>
@@ -22,9 +23,9 @@ namespace Flame.Compiler.Emit
         /// Gets the member's attributes.
         /// </summary>
         /// <returns></returns>
-        public const IEnumerable<IAttribute> GetAttributes()
+        public const [IAttribute] GetAttributes()
         {
-        	return (IEnumerable<IAttribute>)new IAttribute[0];
+        	return Enumerable.Empty<IAttribute>();
         }
 	}
 }

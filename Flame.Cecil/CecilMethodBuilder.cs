@@ -20,15 +20,36 @@ namespace Flame.Cecil
 
         #region ICecilMethodBuilder Implementation
 
-        private BlockBuilder bodyGenerator;
-
-        public IBlockGenerator GetBodyGenerator()
+        private ICodeGenerator codeGen;
+        public ICodeGenerator GetBodyGenerator()
         {
-            if (bodyGenerator == null)
+            if (codeGen == null)
             {
-                bodyGenerator = (BlockBuilder)new ILCodeGenerator(this).CreateBlock();
+                codeGen = new ILCodeGenerator(this);
             }
-            return bodyGenerator;
+            return codeGen;
+        }
+
+        public void SetMethodBody(ICodeBlock Body)
+        {
+            var resolvedMethod = GetResolvedMethod();
+
+            var context = GetEmitContext();
+            if (context == null)
+            {
+                throw new InvalidOperationException("Cannot set an abstract method's body.");
+            }
+            var cg = GetBodyGenerator();
+            if (IsConstructor && DeclaringType is ICecilTypeBuilder)
+            {
+                foreach (var item in ((ICecilTypeBuilder)DeclaringType).GetFieldInitStatements())
+                {
+                    ((ICecilBlock)item.Emit(cg)).Emit(context);
+                }
+            }
+            ((ICecilBlock)Body).Emit(context);
+            context.Flush();
+            resolvedMethod.Body.OptimizeMacros();
         }
 
         public IEmitContext GetEmitContext()
@@ -52,36 +73,7 @@ namespace Flame.Cecil
                 }
                 return this;
             }
-            if (bodyGenerator != null)
-            {
-                var context = GetEmitContext();
-                if (IsConstructor && DeclaringType is ICecilTypeBuilder)
-                {
-                    var initBlock = bodyGenerator.CodeGenerator.CreateBlock();
-                    foreach (var item in ((ICecilTypeBuilder)DeclaringType).GetFieldInitStatements())
-                    {
-                        item.Emit(initBlock);
-                    }
-                    ((ICecilBlock)initBlock).Emit(context);
-                }
-                bodyGenerator.Emit(context);
-                context.Flush();
-                resolvedMethod.Body.OptimizeMacros();
-                bodyGenerator = null;
-            }
-            else if (IsConstructor && DeclaringType is ICecilTypeBuilder)
-            {
-                var bodyGen = GetBodyGenerator();
-                foreach (var item in ((ICecilTypeBuilder)DeclaringType).GetFieldInitStatements())
-                {
-                    item.Emit(bodyGenerator);
-                }
-                var context = GetEmitContext();
-                bodyGenerator.Emit(context);
-                context.Flush();
-                resolvedMethod.Body.OptimizeMacros();
-                bodyGenerator = null;
-            }
+
             if (!resolvedMethod.IsAbstract && !resolvedMethod.IsRuntime && !resolvedMethod.IsInternalCall)
             {
                 if (!resolvedMethod.HasBody || resolvedMethod.Body.Instructions.Count == 0)

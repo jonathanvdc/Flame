@@ -75,5 +75,10 @@ namespace Flame.Cpp.Emit
                 }
             }
         }
+
+        public IEnumerable<LocalDeclaration> SpilledDeclarations
+        {
+            get { return new LocalDeclaration[] { FinallyDeclaration.Declaration }; }
+        }
     }
 }

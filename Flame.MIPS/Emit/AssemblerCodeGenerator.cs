@@ -33,24 +33,49 @@ namespace Flame.MIPS.Emit
 
         #region Blocks
 
-        public IBlockGenerator CreateBlock()
+        public ICodeBlock EmitBreak()
         {
-            return new AssemblerBlockGenerator(this);
+            return new BreakBlock(this);
         }
 
-        public IBlockGenerator CreateDoWhileBlock(ICodeBlock Condition)
+        public ICodeBlock EmitContinue()
         {
-            return new DoWhileBlock(this, (IAssemblerBlock)Condition);
+            return new ContinueBlock(this);
         }
 
-        public ICodeBlock CreateIfElseBlock(ICodeBlock Condition, ICodeBlock IfBlock, ICodeBlock ElseBlock)
+        public ICodeBlock EmitDoWhile(ICodeBlock Body, ICodeBlock Condition)
         {
-            return new IfElseBlock(this, (IAssemblerBlock)Condition, (IAssemblerBlock)IfBlock, (IAssemblerBlock)ElseBlock);
+            return new DoWhileBlock(this, (IAssemblerBlock)Condition, (IAssemblerBlock)Body);
         }
 
-        public IBlockGenerator CreateWhileBlock(ICodeBlock Condition)
+        public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
         {
-            return new WhileBlock(this, Condition);
+            return new IfElseBlock(this, (IAssemblerBlock)Condition, (IAssemblerBlock)IfBody, (IAssemblerBlock)ElseBody);
+        }
+
+        public ICodeBlock EmitPop(ICodeBlock Value)
+        {
+            return new PopBlock((IAssemblerBlock)Value);
+        }
+
+        public ICodeBlock EmitReturn(ICodeBlock Value)
+        {
+            return new ReturnBlock((IAssemblerBlock)Value);
+        }
+
+        public ICodeBlock EmitSequence(ICodeBlock First, ICodeBlock Second)
+        {
+            return new SequenceBlock(this, (IAssemblerBlock)First, (IAssemblerBlock)Second);
+        }
+
+        public ICodeBlock EmitVoid()
+        {
+            return new EmptyBlock(this);
+        }
+
+        public ICodeBlock EmitWhile(ICodeBlock Condition, ICodeBlock Body)
+        {
+            return new WhileBlock(this, (IAssemblerBlock)Condition, (IAssemblerBlock)Body);
         }
 
         #endregion
@@ -262,54 +287,54 @@ namespace Flame.MIPS.Emit
 
         #region Locals
 
-        public IVariable DeclareVariable(IVariableMember VariableMember)
+        public IEmitVariable DeclareVariable(IVariableMember VariableMember)
         {
             return new AssemblerLocalVariable(VariableMember, this);
         }
 
-        public IUnmanagedVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
+        public IUnmanagedEmitVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
         {
             return new AssemblerLocalVariable(VariableMember, this);
         }
 
         #endregion
 
-        public IVariable GetArgument(int Index)
+        public IEmitVariable GetArgument(int Index)
         {
             return new AssemblerArgument(this, Index);
         }
 
-        public IVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
+        public IEmitVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
         {
             throw new NotImplementedException();
         }
 
-        public IVariable GetField(IField Field, ICodeBlock Target)
+        public IEmitVariable GetField(IField Field, ICodeBlock Target)
         {
             throw new NotImplementedException();
         }
 
-        public IVariable GetThis()
+        public IEmitVariable GetThis()
         {
             throw new NotImplementedException();
         }
 
-        public IUnmanagedVariable GetUnmanagedElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
+        public IUnmanagedEmitVariable GetUnmanagedElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
         {
             throw new NotImplementedException();
         }
 
-        public IUnmanagedVariable GetUnmanagedField(IField Field, ICodeBlock Target)
+        public IUnmanagedEmitVariable GetUnmanagedField(IField Field, ICodeBlock Target)
         {
             throw new NotImplementedException();
         }
 
-        public IUnmanagedVariable GetUnmanagedArgument(int Index)
+        public IUnmanagedEmitVariable GetUnmanagedArgument(int Index)
         {
             throw new NotImplementedException();
         }
 
-        public IUnmanagedVariable GetUnmanagedThis()
+        public IUnmanagedEmitVariable GetUnmanagedThis()
         {
             throw new NotImplementedException();
         }
@@ -334,5 +359,6 @@ namespace Flame.MIPS.Emit
         }
 
         #endregion
+
     }
 }

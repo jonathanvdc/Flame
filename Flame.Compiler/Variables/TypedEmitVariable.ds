@@ -1,0 +1,46 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler.Variables
+{
+    public class TypedEmitVariable : IUnmanagedVariable
+    {
+        public const this(set IEmitVariable Variable, set IType Type);
+
+        public IEmitVariable Variable { const get; private set; }
+        public IType Type { const get; private set; }
+
+        public bool IsUnmanaged
+        {
+            const get return Variable is IUnmanagedEmitVariable;
+        }
+
+        public const IExpression CreateAddressOfExpression() : IUnmanagedVariable.CreateAddressOfExpression
+        {
+            if (IsUnmanaged)
+            {
+                var unmanagedVar = (IUnmanagedEmitVariable)Variable;
+                return new CodeBlockExpression(unmanagedVar.EmitAddressOf(), Type.MakePointerType(PointerKind.ReferencePointer));
+            }
+            else return null;
+        }
+
+        public const IExpression CreateGetExpression() : IVariable.CreateGetExpression
+        {
+            return new CodeBlockExpression(Variable.EmitGet(), Type);
+        }
+
+        public const IStatement CreateSetStatement(IExpression Value) : IVariable.CreateSetStatement
+        {
+            return new EmitVariableSetStatement(Variable, Value);
+        }
+
+        public const IStatement CreateReleaseStatement() : IVariable.CreateReleaseStatement
+        {
+            return new CodeBlockStatement(Variable.EmitRelease());
+        }
+    }
+}

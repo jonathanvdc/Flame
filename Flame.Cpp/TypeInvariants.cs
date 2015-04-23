@@ -60,7 +60,7 @@ namespace Flame.Cpp
             var cg = CodeGenerator;
             foreach (var item in CheckInvariantsImplementationMethod.GetBaseMethods())
             {
-                results.Add(cg.EmitInvocation(item, cg.GetThis().CreateGetExpression().Emit(cg), Enumerable.Empty<ICodeBlock>()));
+                results.Add(cg.EmitInvocation(item, cg.GetThis().EmitGet(), Enumerable.Empty<ICodeBlock>()));
             }
             return results.Cast<ICppBlock>();
         }

@@ -537,10 +537,6 @@ namespace Flame.Cpp
             {
                 if (((IGenericMember)Member).get_IsGeneric()) return true;
             }
-            if (Member is IType)
-            {
-                if (((IType)Member).GetMethods().Any(ContainsTemplates)) return true;
-            }
             if (Member is INamespace)
             {
                 if (((INamespace)Member).GetTypes().Any(ContainsTemplates)) return true;

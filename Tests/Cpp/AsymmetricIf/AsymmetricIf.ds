@@ -1,0 +1,17 @@
+
+public class AsymmetricIf
+{
+    public const this();
+
+    public const int Test(int First, int Second)
+    {
+        int result;
+        if (First > Second)
+        {
+            result = First;
+            return result;
+        }
+        result = Second;
+        return result;
+    }
+}
