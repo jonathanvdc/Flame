@@ -474,17 +474,17 @@ namespace Flame.Cpp.Emit
 
         #region Foreach
 
-        public ICollectionBlock CreateCollectionBlock(IVariableMember Member, ICodeBlock Collection)
+        public ICollectionBlock EmitCollectionBlock(IVariableMember Member, ICodeBlock Collection)
         {
             return new CollectionBlock(this, Member, (ICppBlock)Collection);
         }
 
-        public ICodeBlock CreateForeachBlock(IForeachBlockHeader Header, ICodeBlock Body)
+        public ICodeBlock EmitForeachBlock(IForeachBlockHeader Header, ICodeBlock Body)
         {
             return new ForeachBlock((ForeachHeader)Header, (ICppBlock)Body);
         }
 
-        public IForeachBlockHeader CreateForeachHeader(IEnumerable<ICollectionBlock> Collections)
+        public IForeachBlockHeader EmitForeachHeader(IEnumerable<ICollectionBlock> Collections)
         {
             if (Collections.Any() && !Collections.Skip(1).Any()) // == (Collections.Count() == 1)
             {
@@ -531,7 +531,7 @@ namespace Flame.Cpp.Emit
 
         #region IForCodeGenerator
 
-        public ICodeBlock CreateForBlock(ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body)
+        public ICodeBlock EmitForBlock(ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body)
         {
             var cppInit = (ICppBlock)Initialization;
             var cppCond = (ICppBlock)Condition;

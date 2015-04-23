@@ -12,7 +12,7 @@ namespace Flame.Compiler.Emit
 		/// <summary>
 		/// Creates a for loop block from the given initialization, condition, delta and body blocks.
 		/// </summary>
-		ICodeBlock CreateForBlock(ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body);
+		ICodeBlock EmitForBlock(ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body);
 	}
 
 	/// <summary>
@@ -24,7 +24,7 @@ namespace Flame.Compiler.Emit
 		/// Creates a collection block: a block that captures one element of the
 		/// given collection block at a time.
 		/// </summary>
-		ICollectionBlock CreateCollectionBlock(IVariableMember Member, ICodeBlock Collection);
+		ICollectionBlock EmitCollectionBlock(IVariableMember Member, ICodeBlock Collection);
 
 		/// <summary>
 		/// Creates a foreach block header based on the given collection blocks.
@@ -33,13 +33,13 @@ namespace Flame.Compiler.Emit
 		/// This method has a high likelihood of returning null, especially
 		/// when confronted with multiple collections.
 		/// </remarks>
-		IForeachBlockHeader CreateForeachHeader([ICollectionBlock] Collections);
+		IForeachBlockHeader EmitForeachHeader([ICollectionBlock] Collections);
 
 		/// <summary>
 		/// Creates a foreach block based on the given foreach header and the
 		/// given body block.
 		/// </summary>
-		ICodeBlock CreateForeachBlock(IForeachBlockHeader Header, ICodeBlock Body);
+		ICodeBlock EmitForeachBlock(IForeachBlockHeader Header, ICodeBlock Body);
 	}
 
 	/// <summary>

@@ -69,7 +69,7 @@ namespace Flame.Python.Emit
 
         #region Foreach
 
-        public ICollectionBlock CreateCollectionBlock(IVariableMember Member, ICodeBlock Collection)
+        public ICollectionBlock EmitCollectionBlock(IVariableMember Member, ICodeBlock Collection)
         {
             var pyColl = (IPythonBlock)Collection;
             if (pyColl.Type.IsContainerType)
@@ -82,12 +82,12 @@ namespace Flame.Python.Emit
             }
         }
 
-        public ICodeBlock CreateForeachBlock(IForeachBlockHeader Header, ICodeBlock Body)
+        public ICodeBlock EmitForeachBlock(IForeachBlockHeader Header, ICodeBlock Body)
         {
             return new ForeachBlock((ForeachBlockHeader)Header, (IPythonBlock)Body);
         }
 
-        public IForeachBlockHeader CreateForeachHeader(IEnumerable<ICollectionBlock> Collections)
+        public IForeachBlockHeader EmitForeachHeader(IEnumerable<ICollectionBlock> Collections)
         {
             return new ForeachBlockHeader(this, Collections.Cast<IPythonCollectionBlock>());
         }

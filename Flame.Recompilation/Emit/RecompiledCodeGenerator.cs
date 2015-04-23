@@ -404,17 +404,17 @@ namespace Flame.Recompilation.Emit
 
         #region IForeachCodeGenerator
 
-        public ICollectionBlock CreateCollectionBlock(IVariableMember Member, ICodeBlock Collection)
+        public ICollectionBlock EmitCollectionBlock(IVariableMember Member, ICodeBlock Collection)
         {
             return new CollectionBlock(this, new RecompiledVariableMember(Recompiler, Member), GetExpression(Collection));
         }
 
-        public ICodeBlock CreateForeachBlock(IForeachBlockHeader Header, ICodeBlock Body)
+        public ICodeBlock EmitForeachBlock(IForeachBlockHeader Header, ICodeBlock Body)
         {
             return new StatementBlock(this, ((ForeachBlockHeader)Header).ToForeachStatement(GetStatement(Body)));
         }
 
-        public IForeachBlockHeader CreateForeachHeader(IEnumerable<ICollectionBlock> Collections)
+        public IForeachBlockHeader EmitForeachHeader(IEnumerable<ICollectionBlock> Collections)
         {
             return new ForeachBlockHeader(this, Collections.Cast<CollectionBlock>());
         }
@@ -454,7 +454,7 @@ namespace Flame.Recompilation.Emit
 
         #region IForCodeGenerator
 
-        public ICodeBlock CreateForBlock(ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body)
+        public ICodeBlock EmitForBlock(ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body)
         {
             return new StatementBlock(this, new ForStatement(GetStatement(Initialization), GetExpression(Condition), GetStatement(Delta), GetStatement(Body)));
         }
