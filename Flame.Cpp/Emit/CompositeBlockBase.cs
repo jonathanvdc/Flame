@@ -10,21 +10,13 @@ namespace Flame.Cpp.Emit
     public abstract class CompositeBlockBase : ICppBlock, IMultiBlock
     {
         private ICppBlock simplified;
-
-        protected virtual bool HasChanged { get { return false; } }
-        protected virtual void RegisterSimplified(ICppBlock Block)
-        {
-
-        }
-
         protected ICppBlock SimplifiedBlock
         {
             get
             {
-                if (simplified == null || HasChanged)
+                if (simplified == null)
                 {
                     simplified = Simplify();
-                    RegisterSimplified(simplified);
                 }
                 return simplified;
             }
@@ -65,28 +57,6 @@ namespace Flame.Cpp.Emit
         public override string ToString()
         {
             return GetCode().ToString();
-        }
-    }
-
-    public abstract class MutableCompositeBlockBase : CompositeBlockBase
-    {
-        private bool hasChanged;
-        protected override bool HasChanged
-        {
-            get
-            {
-                return hasChanged;
-            }
-        }
-
-        protected override void RegisterSimplified(ICppBlock Block)
-        {
-            hasChanged = false;
-        }
-
-        protected virtual void RegisterChanged()
-        {
-            hasChanged = true;
         }
     }
 

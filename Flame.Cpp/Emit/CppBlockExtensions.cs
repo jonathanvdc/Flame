@@ -49,6 +49,16 @@ namespace Flame.Cpp.Emit
 
         public static IEnumerable<LocalDeclaration> GetLocalDeclarations(this ICppBlock Block)
         {
+            return Block.GetLocalDeclarations(item => item.LocalDeclarations);
+        }
+
+        public static IEnumerable<LocalDeclaration> GetLocalDeclarations(this IEnumerable<ICppBlock> Blocks)
+        {
+            return Blocks.SelectMany((item) => item.GetLocalDeclarations());
+        }
+
+        private static IEnumerable<LocalDeclaration> GetLocalDeclarations(this ICppBlock Block, Func<ICppLocalDeclaringBlock, IEnumerable<LocalDeclaration>> GetDeclarations)
+        {
             if (Block is LocalDeclarationReference)
             {
                 var block = (LocalDeclarationReference)Block;
@@ -56,7 +66,7 @@ namespace Flame.Cpp.Emit
             }
             else if (Block is ICppLocalDeclaringBlock)
             {
-                return ((ICppLocalDeclaringBlock)Block).LocalDeclarations;
+                return GetDeclarations((ICppLocalDeclaringBlock)Block);
             }
             else
             {
@@ -64,9 +74,14 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        public static IEnumerable<LocalDeclaration> GetLocalDeclarations(this IEnumerable<ICppBlock> Blocks)
+        public static IEnumerable<LocalDeclaration> GetSpilledLocals(this ICppBlock Block)
         {
-            return Blocks.SelectMany((item) => item.GetLocalDeclarations());
+            return Block.GetLocalDeclarations(item => item.SpilledDeclarations);
+        }
+
+        public static IEnumerable<LocalDeclaration> GetSpilledLocals(this IEnumerable<ICppBlock> Blocks)
+        {
+            return Blocks.SelectMany((item) => item.GetSpilledLocals());
         }
 
         public static IEnumerable<CppLocal> GetDeclaredLocals(this ICppBlock Block)

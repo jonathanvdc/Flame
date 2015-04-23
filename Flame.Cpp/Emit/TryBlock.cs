@@ -48,5 +48,10 @@ namespace Flame.Cpp.Emit
             cb.AddEmbracedBodyCodeBuilder(Body.GetCode());
             return cb;
         }
+
+        public IEnumerable<LocalDeclaration> SpilledDeclarations
+        {
+            get { return Enumerable.Empty<LocalDeclaration>(); }
+        }
     }
 }

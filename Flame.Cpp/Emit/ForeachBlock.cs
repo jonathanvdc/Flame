@@ -95,6 +95,11 @@ namespace Flame.Cpp.Emit
             get { return Header.LocalDeclarations.Union(Body.GetLocalDeclarations()); }
         }
 
+        public IEnumerable<LocalDeclaration> SpilledDeclarations
+        {
+            get { return Enumerable.Empty<LocalDeclaration>(); }
+        }
+
         public IType Type
         {
             get { return PrimitiveTypes.Void; }

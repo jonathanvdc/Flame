@@ -11,10 +11,12 @@ namespace Flame.Cpp.Emit
 {
     public class ContractReturnBlock : CompositeBlockBase, ICppLocalDeclaringBlock
     {
-        public ContractReturnBlock(IContractCodeGenerator CodeGenerator, MethodContract Contract, ICppBlock ReturnValue)
+        // ContractReturnBlock is the ugly mutable duckling in a perfect immutable garden.
+        // This entire class is a hack.
+
+        public ContractReturnBlock(CppCodeGenerator CodeGenerator, ICppBlock ReturnValue)
         {
             this.cg = CodeGenerator;
-            this.Contract = Contract;
             this.ReturnValue = ReturnValue;
             if (ReturnValue != null)
             {
@@ -22,9 +24,8 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        private IContractCodeGenerator cg;
+        private CppCodeGenerator cg;
         private LocalDeclarationReference localDecl;
-        public MethodContract Contract { get; private set; }
         public ICppBlock ReturnValue { get; private set; }
 
         public override ICodeGenerator CodeGenerator
@@ -45,12 +46,13 @@ namespace Flame.Cpp.Emit
 
         public override ICppBlock Simplify()
         {
+            var contract = cg.Contract;
             if (ReturnValue == null)
             {
-                if (Contract.HasPostconditions)
+                if (contract.HasPostconditions)
                 {
                     var block = cg.EmitVoid();
-                    foreach (var item in Contract.Postconditions)
+                    foreach (var item in contract.Postconditions)
                     {
                         block = cg.EmitSequence(block, item);
                     }
@@ -64,10 +66,10 @@ namespace Flame.Cpp.Emit
             }
             else
             {
-                if (Contract.HasPostconditions)
+                if (contract.HasPostconditions)
                 {
                     ICodeBlock block = localDecl;
-                    foreach (var item in Contract.Postconditions)
+                    foreach (var item in contract.Postconditions)
                     {
                         block = cg.EmitSequence(block, item);
                     }
@@ -81,18 +83,40 @@ namespace Flame.Cpp.Emit
             }
         }
 
+        public override IEnumerable<IHeaderDependency> Dependencies
+        {
+            get
+            {
+                return cg.Contract.Postconditions.GetDependencies();
+            }
+        }
+
         public IEnumerable<LocalDeclaration> LocalDeclarations
         {
             get
             {
-                if (Contract.HasPostconditions && localDecl != null)
+                /*if (Contract.HasPostconditions && localDecl != null)
                 {
                     return new LocalDeclaration[] { localDecl.Declaration };
                 }
                 else
                 {
                     return Enumerable.Empty<LocalDeclaration>();
-                }
+                }*/
+                return Enumerable.Empty<LocalDeclaration>(); // Lie for better results.
+            }
+        }
+
+        public IEnumerable<LocalDeclaration> SpilledDeclarations
+        {
+            get { return Enumerable.Empty<LocalDeclaration>(); } // Lie for better results.
+        }
+
+        public override IEnumerable<CppLocal> LocalsUsed
+        {
+            get
+            {
+                return Enumerable.Empty<CppLocal>(); // Just lie.
             }
         }
     }

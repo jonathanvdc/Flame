@@ -29,6 +29,11 @@ namespace Flame.Cpp.Emit
             get { return Try.LocalDeclarations.Concat(Finally.LocalDeclarations).Concat(CatchClauses.SelectMany((item) => item.LocalDeclarations)); }
         }
 
+        public IEnumerable<LocalDeclaration> SpilledDeclarations
+        {
+            get { return Enumerable.Empty<LocalDeclaration>(); }
+        }
+
         public IType Type
         {
             get { return PrimitiveTypes.Void; }
