@@ -65,10 +65,10 @@ namespace Flame.Compiler.Statements
 				List<ICollectionBlock> collectionBlocks = new List<ICollectionBlock>();
 				foreach (var item in Collections)
 				{
-					collectionBlocks.Add(cg.CreateCollectionBlock(item.Member, item.Collection.Emit(cg)));
+					collectionBlocks.Add(cg.EmitCollectionBlock(item.Member, item.Collection.Emit(cg)));
 				}
 
-				var loopHeader = cg.CreateForeachHeader(collectionBlocks);
+				var loopHeader = cg.EmitForeachHeader(collectionBlocks);
 
 				if (loopHeader != null)
 				{
@@ -77,7 +77,7 @@ namespace Flame.Compiler.Statements
 
 					var body = Body.Emit(Generator);
 
-					var result = cg.CreateForeachBlock(loopHeader, body);
+					var result = cg.EmitForeachBlock(loopHeader, body);
 
 					if (result != null)
 						return result;

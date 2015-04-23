@@ -51,7 +51,7 @@ namespace Flame.Compiler.Statements
         		var condBlock = Condition.Emit(cg);
         		var deltaBlock = Change.Emit(cg);
                 var bodyBlock = Body.Emit(cg);
-        		var forBlock = cg.CreateForBlock(setupBlock, condBlock, deltaBlock, bodyBlock);
+        		var forBlock = cg.EmitForBlock(setupBlock, condBlock, deltaBlock, bodyBlock);
         		if (forBlock != null) // Code generator may choose to refuse our
                                       // painstakingly constructed for block if it so chooses
         		{
