@@ -57,24 +57,10 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        private static void AddBlockCode(CodeBuilder Target, ICppBlock Block)
-        {
-            if (Block is IMultiBlock)
-            {
-                foreach (var item in ((IMultiBlock)Block).GetBlocks())
-                {
-                    AddBlockCode(Target, item);
-                }
-            }
-            else
-            {
-                Target.AddCodeBuilder(Block.GetCode());
-            }
-        }
-
         public CodeBuilder GetCode()
         {
-            var codes = Blocks.Select(item => item.GetCode())
+            var codes = this.Flatten()
+                              .Select(item => item.GetCode())
                               .Where(item => !item.IsWhitespace)
                               .ToArray();
 
@@ -105,5 +91,10 @@ namespace Flame.Cpp.Emit
         {
             return Blocks;
         }
+
+        /*public override string ToString()
+        {
+            return GetCode().ToString();
+        }*/
     }
 }
