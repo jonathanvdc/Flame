@@ -1,0 +1,16 @@
+
+public class Count
+{
+    public const this();
+
+    public const int CountGreaterThan(int[] Values, int Reference)
+    {
+        int result = 0;
+        foreach (var item in Values)
+            if (item > Reference)
+        {
+            result++;
+        }
+        return result;
+    }
+}
