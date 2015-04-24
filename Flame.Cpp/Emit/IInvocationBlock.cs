@@ -17,25 +17,37 @@ namespace Flame.Cpp.Emit
 
     public static class InvocationBlockExtensions
     {
-        public static CodeBuilder GetArgumentListCode(this IInvocationBlock Block)
+        public static CodeBuilder GetArgumentListCode(this IInvocationBlock Block, bool OmitEmptyParentheses)
         {
-            CodeBuilder cb = new CodeBuilder();
-            cb.Append('(');
             var args = Block.Arguments;
-            if (args.Any())
+            if (!args.Any())
             {
-                cb.Append(args.First().GetCode());
-                foreach (var item in args.Skip(1))
-                {
-                    cb.Append(", ");
-                    cb.Append(item.GetCode());
-                }
+                return OmitEmptyParentheses ? new CodeBuilder() : new CodeBuilder("()");
             }
-            cb.Append(')');
-            return cb;
+            else
+            {
+                var cb = new CodeBuilder();
+                cb.Append('(');
+                if (args.Any())
+                {
+                    cb.Append(args.First().GetCode());
+                    foreach (var item in args.Skip(1))
+                    {
+                        cb.Append(", ");
+                        cb.Append(item.GetCode());
+                    }
+                }
+                cb.Append(')');
+                return cb;
+            }
         }
 
-        public static CodeBuilder GetInitializationListCode(this INewObjectBlock Block, bool OmitParentheses)
+        public static CodeBuilder GetArgumentListCode(this IInvocationBlock Block)
+        {
+            return Block.GetArgumentListCode(false);
+        }
+
+        public static CodeBuilder GetInitializationListCode(this INewObjectBlock Block, bool OmitEmptyParentheses)
         {
             var args = Block.Arguments;
             if (args.Any() && !args.Skip(1).Any())
@@ -46,9 +58,9 @@ namespace Flame.Cpp.Emit
                     var initBlock = (INewObjectBlock)singleArg;
                     if (initBlock.Kind == AllocationKind.Stack || initBlock.Kind == AllocationKind.MakeManaged)
                     {
-                        if (!OmitParentheses || initBlock.Arguments.Any())
+                        if (!OmitEmptyParentheses || initBlock.Arguments.Any())
                         {
-                            return initBlock.GetInitializationListCode(OmitParentheses);
+                            return initBlock.GetInitializationListCode(OmitEmptyParentheses);
                         }
                         else
                         {
@@ -57,7 +69,7 @@ namespace Flame.Cpp.Emit
                     }
                 }
             }
-            return Block.GetArgumentListCode();
+            return Block.GetArgumentListCode(OmitEmptyParentheses);
         }
     }
 }
