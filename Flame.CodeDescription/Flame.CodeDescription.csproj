@@ -45,9 +45,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlockDocumentationFormatter.cs" />
     <Compile Include="ConcatDocumentationProvider.cs" />
     <Compile Include="ConstantDocumentationProvider.cs" />
-    <Compile Include="DefaultDocumentationFormatter.cs" />
+    <Compile Include="PunctuationDocumentationFormatter.cs" />
     <Compile Include="DefaultDocumentationProvider.cs" />
     <Compile Include="DefaultDocumentationRewriter.cs" />
     <Compile Include="DescriptionAttributeExtensions.cs" />
