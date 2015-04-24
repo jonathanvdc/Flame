@@ -65,7 +65,14 @@ namespace Flame.DSharp.Build
 
 			if (this.IsConstructor)
 			{
-				if (!this.IsStatic)
+                bool hasBaseCtor = false;
+                foreach (var item in Syntax.ImplementedMethods)
+	            {
+	                var baseCtorExpr = ((IExpressionSyntax)item).CreateVerifiedExpression(state);
+                    blockStatements.Add(new ExpressionStatement(baseCtorExpr));
+                    hasBaseCtor = true;
+	            }
+				if (!hasBaseCtor && !this.IsStatic)
 				{
 					blockStatements.Add(DSharpTypeExtensions.CreateBaseConstructorCall(state));
 				}
@@ -274,6 +281,13 @@ namespace Flame.DSharp.Build
         {
         	if (baseMethodCache == null)
         	{
+                if (IsConstructor) // Constructors can't have base methods.
+                                   // (base method syntax has a different meaning for them)
+                {
+                    baseMethodCache = new IMethod[0];
+                    return baseMethodCache;
+                }
+
 	        	var state = GetSyntaxState();
 	        	var baseMethods = new List<IMethod>();
 	        	var paramTypes = this.GetParameters().GetTypes();
@@ -282,7 +296,7 @@ namespace Flame.DSharp.Build
 	                var member = Enumerable.OfType<IMethod>(item.GetAccessedMembers(state)).GetMethod(this.IsStatic, this.ReturnType, paramTypes);
 	                if (member == null)
 	                {
-	                	state.Log.LogError(new LogEntry("Base method resolution error", "Could not resolve base method '" + item.GetCode().ToString() + "'.", item.GetSourceLocation()));
+	                	state.Log.LogError(new LogEntry("Base method resolution error", "Could not resolve base method '" + item.GetCode().Trim().ToString() + "'.", item.GetSourceLocation()));
 	                }
 	                baseMethods.Add(member);
 	            }
