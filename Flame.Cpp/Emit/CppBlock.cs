@@ -158,6 +158,17 @@ namespace Flame.Cpp.Emit
             return results;
         }
 
+        public static void HoistVariableDeclarations(CppLocal Local, ICppBlock Block)
+        {
+            foreach (var item in Block.GetLocalDeclarations())
+            {
+                if (item.Local == Local)
+                {
+                    item.DeclareVariable = false;
+                }
+            }
+        }
+
         #endregion
 
         private Lazy<LocalDeclaration[]> localDecls;
