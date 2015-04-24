@@ -9,23 +9,45 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class MethodSyntax : MemberSyntax, IMemberSyntax<IMethod>
+    public class MethodSyntax : MemberSyntax, IMemberSyntax<IMethod>, ISourceSyntax
     {
-        public const this(set ISignatureSyntax Signature, set [IMemberSyntax<IParameter>] Parameters, 
-        				  set [ITypeMemberAccessSyntax] ImplementedMethods, set [GenericConstraintSyntax] GenericConstraints, 
+        public const this(set ISignatureSyntax Signature, set DelimitedList<IMemberSyntax<IParameter>> Parameters,
+        				  set DelimitedList<ITypeMemberAccessSyntax> ImplementedMethods, set [GenericConstraintSyntax] GenericConstraints,
         				  set MethodContract Contract, set IStatementSyntax Body);
 
         public IStatementSyntax Body { const get; private set; }
-        public [IMemberSyntax<IParameter>] Parameters { const get; private set; }
-        public [ITypeMemberAccessSyntax] ImplementedMethods { const get; private set; }
+        public DelimitedList<IMemberSyntax<IParameter>> Parameters { const get; private set; }
+        public DelimitedList<ITypeMemberAccessSyntax> ImplementedMethods { const get; private set; }
         public [GenericConstraintSyntax] GenericConstraints { const get; private set; }
         public MethodContract Contract { const get; private set; }
-        
+
+        public static const bool IsConstructorSignature(ISignatureSyntax Value)
+        {
+            return Value.NameToken.TokenValue.Equals("this");
+        }
+
         public bool IsConstructor
         {
-        	const get return Signature.NameToken.TokenValue.Equals("this");
+        	const get return IsConstructorSignature(Signature);
         }
-        
+
+        public SourceLocation Location
+        {
+            const get
+            {
+                var result = Signature.GetSourceLocation()
+                                      .Concat(Parameters.Location)
+                                      .Concat(ImplementedMethods.Location);
+
+                foreach (var item in GenericConstraints)
+                {
+                    result = result.Concat(item.GetSourceLocation());
+                }
+
+                return result.Concat(Contract.Location).Concat(Body.GetSourceLocation());
+            }
+        }
+
         protected override void AddExtraLeadingTrivia(List<Token> tokens)
         {
         	foreach (var item in Parameters)
@@ -42,35 +64,12 @@ namespace Flame.Syntax.DSharp
         }
 
         #region ToString/GetCode
-        
+
         public const CodeBuilder GetHeaderCode()
         {
         	var cb = Signature.GetCode();
-            cb.Append("(");
-            bool first = true;
-            foreach (var item in Parameters)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    cb.Append(",");
-                }
-                cb.Append(item.GetCode());
-            }
-            cb.Append(")");
-            if (Enumerable.Any<ITypeMemberAccessSyntax>(ImplementedMethods))
-            {
-            	cb.Append(" : ");
-            	cb.Append(Enumerable.First<ITypeMemberAccessSyntax>(ImplementedMethods).GetCode());	
-            	foreach (var item in Enumerable.Skip<ITypeMemberAccessSyntax>(ImplementedMethods, 1))
-            	{
-            		cb.Append(", ");
-            		cb.Append(item.GetCode());	
-            	}
-            }
+            cb.Append(Parameters.GetCode());
+            cb.Append(ImplementedMethods.GetCode());
             cb.IncreaseIndentation();
             foreach (var item in GenericConstraints)
             {
@@ -85,7 +84,7 @@ namespace Flame.Syntax.DSharp
         {
             return GetHeaderCode().ToString();
         }
-        
+
         private static char GetFirstCharacter(CodeBuilder cb)
         {
         	char val = cb.CharacterAt(0);
@@ -102,7 +101,7 @@ namespace Flame.Syntax.DSharp
         {
             var cb = GetHeaderCode();
             CodeBuilder bodyCode = Body.GetCode();
-            char firstChar = MethodSyntax.GetFirstCharacter(bodyCode);
+            char firstChar = GetFirstCharacter(bodyCode);
             if (firstChar != ';')
             {
             	if (firstChar == '{')
@@ -126,7 +125,7 @@ namespace Flame.Syntax.DSharp
                 return firstIndexerParam.IsExtensionMember;
             }
         }
-        
+
         public bool IsSingletonMember
         {
         	const get

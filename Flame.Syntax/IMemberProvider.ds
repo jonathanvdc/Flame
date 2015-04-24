@@ -5,6 +5,6 @@ namespace Flame.Syntax
 {
 	public interface IMemberProvider
 	{
-		const IEnumerable<ITypeMember> GetMembers(IType Type);
+		const [ITypeMember] GetMembers(IType Type);
 	}
 }

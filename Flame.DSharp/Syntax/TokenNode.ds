@@ -1,0 +1,25 @@
+using System;
+using Flame.Compiler;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class TokenNode : ISourceSyntax
+    {
+        public const this(set Token Value);
+
+        public Token Value { const get; private set; }
+
+        public SourceLocation Location
+        {
+            const get return Value.Location;
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            var cb = new CodeBuilder();
+            cb.Append(Value.ToString());
+            return cb;
+        }
+    }
+}
