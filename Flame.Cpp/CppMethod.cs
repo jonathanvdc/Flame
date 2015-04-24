@@ -186,7 +186,18 @@ namespace Flame.Cpp
 
         public bool EmitInline
         {
-            get { return (this.get_IsGeneric() && this.DeclaringType.get_IsGenericDeclaration()) || this.Equals(DeclaringType.GetInvariantsCheckImplementationMethod()); }
+            get { return (this.get_IsGeneric() && this.DeclaringType.get_IsGenericDeclaration()); }
+        }
+
+        /// <summary>
+        /// Gets a boolean value that, if true, explains that
+        /// a commented version of the method's body will be emitted
+        /// in the header file, even though the method is technically 
+        /// defined in the source file.
+        /// </summary>
+        public bool HasPublicBody
+        {
+            get { return this.Equals(DeclaringType.GetInvariantsCheckImplementationMethod()); }
         }
 
         public bool IsOverride
@@ -303,6 +314,15 @@ namespace Flame.Cpp
             else
             {
                 cb.Append(';');
+                if (HasPublicBody) // Emit a sneak peek nonetheless
+                {
+                    var bodyCode = GetBodyCode();
+                    for (int i = 0; i < bodyCode.LineCount; i++)
+			        {
+                        var line = bodyCode[i];
+                        cb.AddLine("// " + line.ToString(new string(' ', 4)));
+			        }
+                }
             }
             return cb;
         }

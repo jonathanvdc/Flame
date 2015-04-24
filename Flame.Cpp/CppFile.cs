@@ -49,7 +49,7 @@ namespace Flame.Cpp
         {
             get
             {
-                IEnumerable<IHeaderDependency> depends = new IHeaderDependency[0];
+                IEnumerable<IHeaderDependency> depends = ForwardReferences.Select(item => new CppFile(item.Type));
                 foreach (var item in Members)
                 {
                     depends = depends.MergeDependencies(item.Dependencies);
@@ -67,7 +67,7 @@ namespace Flame.Cpp
                 {
                     depends = depends.MergeDependencies(item.GetDeclarationDependencies());
                 }
-                return depends.ExcludeDependencies(new IHeaderDependency[] { this }).SortDependencies(); 
+                return depends.ExcludeDependencies(ForwardReferences.Select(item => new CppFile(item.Type)).With(this)).SortDependencies();
             }
         }
 
@@ -214,10 +214,11 @@ namespace Flame.Cpp
                 AddToNamespace(GetNamespace(item), item.GetHeaderCode(), ns);
             }
             cb.AddCodeBuilder(WrapNamespaces(ns));
-            if (ContainsTemplates && HasSourceCode) // Include .hxx
+
+            if (ContainsTemplates && HasSourceCode)
             {
                 cb.AddEmptyLine();
-                cb.AddCodeBuilder(PreprocessorDirective.CreateIncludeDirective(SourceDependency).GetCode());
+                cb.AddCodeBuilder(PreprocessorDirective.CreateIncludeDirective(SourceDependency).GetCode()); // Include .hxx
             }
             return cb;
         }
