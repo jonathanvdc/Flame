@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Flame.Build;
 using Flame.Compiler;
 using Flame.Compiler.Build;
@@ -88,11 +89,14 @@ namespace Flame.DSharp.Build
                     var ctor = parent.GetConstructor(new IType[0]);
                     if (ctor == null)
                     {
-                    	State.Log.LogError("No appropriate parameterless constructor could be found for type \"" + parent.FullName + "\".");
+                    	State.Log.LogError(new LogEntry("Parameterless constructor missing",
+							"No appropriate parameterless constructor could be found for type '" +
+							State.TypeNamer.Convert(parent) + "'. '" +
+							State.TypeNamer.Convert(currentType) + "' requires one, though."));
                     }
                     else
                     {
-                    	return new ExpressionStatement(new InvocationExpression(ctor, new ThisVariable(currentType).CreateGetExpression(), (IEnumerable<IExpression>)new IExpression[0]));
+                    	return new ExpressionStatement(new InvocationExpression(ctor, new ThisVariable(currentType).CreateGetExpression(), Enumerable.Empty<IExpression>()));
             		}
             	}
             }
