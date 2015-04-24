@@ -286,7 +286,7 @@ namespace Flame.Cpp.Emit
             }
             else
             {
-                return new RetypedBlock(new StackConstructorBlock(Type.CreateBlock(this), new ICppBlock[0]), Type);
+                return new StackConstructorBlock(Type.GetParameterlessConstructor().CreateConstructorBlock(this), new ICppBlock[0]);
             }
         }
 

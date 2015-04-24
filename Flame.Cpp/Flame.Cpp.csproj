@@ -78,10 +78,15 @@
     <Compile Include="Emit\HashBlock.cs" />
     <Compile Include="Emit\IfElseBlock.cs" />
     <Compile Include="Emit\IMultiBlock.cs" />
+    <Compile Include="Emit\InitializationList.cs" />
+    <Compile Include="Emit\InitializedConstructorBody.cs" />
+    <Compile Include="Emit\MemberInitializationBlock.cs" />
+    <Compile Include="Emit\MethodBodyBlock.cs" />
     <Compile Include="Emit\SizeOfBlock.cs" />
     <Compile Include="Emit\TryBlock.cs" />
     <Compile Include="Emit\WhileBlock.cs" />
     <Compile Include="IAssociatedMember.cs" />
+    <Compile Include="ImplicitParameterlessConstructor.cs" />
     <Compile Include="InvariantImplementationMethod.cs" />
     <Compile Include="InvariantMethod.cs" />
     <Compile Include="CppNameExtensions.cs" />
@@ -93,7 +98,6 @@
     <Compile Include="Emit\CollectionBlock.cs" />
     <Compile Include="Emit\ContractReturnBlock.cs" />
     <Compile Include="Emit\CppBlockExtensions.cs" />
-    <Compile Include="Emit\CppContractBlockGenerator.cs" />
     <Compile Include="Emit\DoubleLiteralBlock.cs" />
     <Compile Include="Emit\EmptyBlock.cs" />
     <Compile Include="Emit\FloatLiteralBlock.cs" />
