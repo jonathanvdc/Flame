@@ -129,7 +129,10 @@ namespace Flame.Cpp
                 if (forwardRefs == null)
                 {
                     var individualForwards = LocallyDeclaredTypes.OfType<CppType>().GetCyclicDependencies();
-                    forwardRefs = individualForwards.OfType<CppType>().Select(item => new CppForwardReference(item)).ToArray();
+                    var allRefs = individualForwards.OfType<CppType>().Select(item => new CppForwardReference(item)).ToArray();
+                    var structRefs = allRefs.Where(item => item.IsStruct).OrderBy(item => item.Type.Name);
+                    var classRefs = allRefs.Where(item => !item.IsStruct).OrderBy(item => item.Type.Name);
+                    forwardRefs = classRefs.Concat(structRefs).ToArray();
                 }
                 return forwardRefs;
             }
