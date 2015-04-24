@@ -53,7 +53,7 @@ namespace Flame.Syntax.DSharp
                 return null;
             }
 
-            return new InvocationExpression(bestCtor, new ThisVariable(State.CurrentType).CreateGetExpression(), Enumerable.Empty<IExpression>());
+            return new InvocationExpression(bestCtor, new ThisVariable(State.CurrentType).CreateGetExpression(), argExprs);
         }
 
         public IVariable GetCallerVariable(ISyntaxState State)
