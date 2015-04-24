@@ -11,12 +11,28 @@ using Pixie;
 
 namespace Flame.Syntax.DSharp
 {
+    /// <summary>
+    /// Represents a call to one of the parent type's constructors.
+    /// </summary>
+    /// <remarks>
+    /// Syntax: 'base(arg1, arg2, ...)'.
+    /// </remarks>
     public class BaseConstructorCallSyntax : IInvocationSyntax, ISourceSyntax
     {
+        /// <summary>
+        /// Creates a new base constructor call syntax node.
+        /// </summary>
         public const this(set Token BaseKeyword, set DelimitedList<IExpressionSyntax> ArgumentList);
 
+        /// <summary>
+        /// Gets the base keyword token.
+        /// </summary>
         public Token BaseKeyword { const get; private set; }
+        /// <summary>
+        /// Gets the base constructor call's argument list.
+        /// </summary>
         public DelimitedList<IExpressionSyntax> ArgumentList { const get; private set; }
+
         public [IExpressionSyntax] Arguments { const get return ArgumentList; }
 
         public SourceLocation Location
@@ -65,13 +81,10 @@ namespace Flame.Syntax.DSharp
         {
             var parent = State.CurrentType.GetParent();
 
-			List<IType> argTypes = new List<IType>();
-			foreach (var arg in Arguments)
-			{
-				argTypes.Add(arg.CreateVerifiedExpression(State).Type);
-			}
+            var argExprs = ArgumentList.CreateVerifiedExpressions(State);
+            var argTypes = argExprs.Types;
 
-            return new ITypeMember[] { parent.GetConstructors().GetBestMethod(false, parent, argTypes.ToArray()) };
+            return new ITypeMember[] { parent.GetConstructors().GetBestMethod(false, parent, argTypes) };
         }
 
         public const CodeBuilder GetCode()
