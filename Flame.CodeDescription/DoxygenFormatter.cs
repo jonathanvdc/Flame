@@ -16,18 +16,24 @@ namespace Flame.CodeDescription
             this.TagMap = DefaultTagMap;
             this.ArgumentMap = DefaultArgumentMap;
             this.VerbatimTags = DefaultVerbatimTags;
+            this.SuggestedBlockWidth = BlockDocumentationFormatter.DefaultSuggestedBlockWidth;
+            this.MaxBlockWidth = BlockDocumentationFormatter.DefaultMaxBlockWidth;
         }
         public DoxygenFormatter(IReadOnlyDictionary<string, string> TagMap)
         {
             this.TagMap = TagMap;
             this.ArgumentMap = DefaultArgumentMap;
             this.VerbatimTags = DefaultVerbatimTags;
+            this.SuggestedBlockWidth = BlockDocumentationFormatter.DefaultSuggestedBlockWidth;
+            this.MaxBlockWidth = BlockDocumentationFormatter.DefaultMaxBlockWidth;
         }
         public DoxygenFormatter(IReadOnlyDictionary<string, string> TagMap, IReadOnlyDictionary<string, Func<DescriptionAttribute, string>> ArgumentMap)
         {
             this.TagMap = TagMap;
             this.ArgumentMap = ArgumentMap;
             this.VerbatimTags = DefaultVerbatimTags;
+            this.SuggestedBlockWidth = BlockDocumentationFormatter.DefaultSuggestedBlockWidth;
+            this.MaxBlockWidth = BlockDocumentationFormatter.DefaultMaxBlockWidth;
         }
         public DoxygenFormatter(IReadOnlyDictionary<string, string> TagMap, 
             IReadOnlyDictionary<string, Func<DescriptionAttribute, string>> ArgumentMap,
@@ -36,6 +42,18 @@ namespace Flame.CodeDescription
             this.TagMap = TagMap;
             this.ArgumentMap = ArgumentMap;
             this.VerbatimTags = VerbatimTags;
+            this.SuggestedBlockWidth = BlockDocumentationFormatter.DefaultSuggestedBlockWidth;
+            this.MaxBlockWidth = BlockDocumentationFormatter.DefaultMaxBlockWidth;
+        }
+        public DoxygenFormatter(IReadOnlyDictionary<string, string> TagMap,
+            IReadOnlyDictionary<string, Func<DescriptionAttribute, string>> ArgumentMap,
+            ISet<string> VerbatimTags, int SuggestedBlockWidth, int MaxBlockWidth)
+        {
+            this.TagMap = TagMap;
+            this.ArgumentMap = ArgumentMap;
+            this.VerbatimTags = VerbatimTags;
+            this.SuggestedBlockWidth = SuggestedBlockWidth;
+            this.MaxBlockWidth = MaxBlockWidth;
         }
 
         #region Defaults
@@ -106,6 +124,8 @@ namespace Flame.CodeDescription
         public IReadOnlyDictionary<string, string> TagMap { get; private set; }
         public IReadOnlyDictionary<string, Func<DescriptionAttribute, string>> ArgumentMap { get; private set; }
         public ISet<string> VerbatimTags { get; private set; }
+        public int SuggestedBlockWidth { get; private set; }
+        public int MaxBlockWidth { get; private set; }
 
         public string GetDoxygenTag(string Tag)
         {
@@ -152,7 +172,7 @@ namespace Flame.CodeDescription
                 }
                 else
                 {
-                    sb.AppendLine(DocumentationExtensions.IntroduceLineBreaks(item.Description).TrimStart());
+                    sb.AppendLine(DocumentationExtensions.IntroduceBlockLineBreaks(item.Description, SuggestedBlockWidth, MaxBlockWidth).TrimStart());
                 }
             }
             return sb.ToString();

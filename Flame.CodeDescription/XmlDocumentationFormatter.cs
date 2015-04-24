@@ -43,7 +43,7 @@ namespace Flame.CodeDescription
                 }
                 sb.Append('>');
                 sb.AppendLine();
-                sb.AppendLine(DocumentationExtensions.IntroduceLineBreaks(item.Description));
+                sb.AppendLine(DocumentationExtensions.IntroducePunctuationLineBreaks(item.Description));
                 sb.Append("</");
                 sb.Append(item.Tag);
                 sb.Append('>');
