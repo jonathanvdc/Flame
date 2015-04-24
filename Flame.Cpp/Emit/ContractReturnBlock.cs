@@ -73,8 +73,15 @@ namespace Flame.Cpp.Emit
                     {
                         block = cg.EmitSequence(block, item);
                     }
-                    block = cg.EmitSequence(block, new ReturnBlock(cg, (ICppBlock)cg.ReturnVariable.EmitGet()));
-                    return (ICppBlock)block;
+                    var cppBlock = (ICppBlock)cg.EmitSequence(block, new ReturnBlock(cg, (ICppBlock)cg.ReturnVariable.EmitGet()));
+                    foreach (var item in cppBlock.GetSpilledLocals())
+                    {
+                        if (item.Local != localDecl.Declaration.Local)
+                        {
+                            item.DeclareVariable = false;
+                        }
+                    }
+                    return cppBlock;
                 }
                 else
                 {
