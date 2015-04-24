@@ -7,15 +7,29 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class DelimitedList<T> : IRelevantSyntax<Token>, ISyntaxNode, ISourceSyntax
+	public class DelimitedList<T> : IRelevantSyntax<Token>, ISyntaxNode, ISourceSyntax, IEnumerable<T>
 		where T : ISyntaxNode
 	{
+		public const this()
+		{
+			this.LeftDelimiter = Token.Undefined;
+			this.Items = new SeparatedList<T>();
+			this.RightDelimiter = Token.Undefined;
+		}
+		public const this(set Token LeftDelimiter, set SeparatedList<T> Items)
+		{
+			this.RightDelimiter = Token.Undefined;
+		}
+		public const this(set SeparatedList<T> Items, set Token RightDelimiter)
+		{
+			this.LeftDelimiter = Token.Undefined;
+		}
 		public const this(set Token LeftDelimiter, set SeparatedList<T> Items, set Token RightDelimiter);
-		
+
 		public Token LeftDelimiter { const get; private set; }
 		public SeparatedList<T> Items { const get; private set; }
 		public Token RightDelimiter { const get; private set; }
-		
+
 		public SourceLocation Location
 		{
 			const get
@@ -23,14 +37,14 @@ namespace Flame.Syntax.DSharp
 				return LeftDelimiter.Location.Concat(Items.Location).Concat(RightDelimiter.Location);
 			}
 		}
-		
+
 		public int Count { const get return Items.Count; }
-		
+
 		public T this[int Index]
 		{
 			const get return Items[Index];
 		}
-		
+
 		public [Token] LeadingTrivia
 		{
 			const get
@@ -38,13 +52,23 @@ namespace Flame.Syntax.DSharp
 				return Enumerable.Concat<Token>(LeftDelimiter.GetAllTrivia(), Items.LeadingTrivia);
 			}
 		}
-		
+
 		public [Token] TrailingTrivia
 		{
 			const get return Enumerable.Empty<Token>();
 		}
-		
-		public CodeBuilder GetCode()
+
+		public const IEnumerator<T> GetGenericEnumerator() : IEnumerable<T>.GetEnumerator
+		{
+			return Items.GetGenericEnumerator();
+		}
+
+		public const System.Collections.IEnumerator GetObjectEnumerator() : System.Collections.IEnumerable.GetEnumerator
+		{
+			return Items.GetObjectEnumerator();
+		}
+
+		public const CodeBuilder GetCode()
 		{
 			CodeBuilder cb = new CodeBuilder();
 			cb.Append(LeftDelimiter.ToString());

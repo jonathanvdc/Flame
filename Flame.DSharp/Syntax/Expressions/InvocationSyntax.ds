@@ -13,22 +13,15 @@ namespace Flame.Syntax.DSharp
 {
     public class InvocationSyntax : IInvocationSyntax, ISourceSyntax
     {
-        public const this(set ITypeMemberAccessSyntax Method, set [IExpressionSyntax] Arguments);
+        public const this(set ITypeMemberAccessSyntax Method, set DelimitedList<IExpressionSyntax> ArgumentList);
 
         public ITypeMemberAccessSyntax Method { const get; private set; }
-        public [IExpressionSyntax] Arguments { const get; private set; }
+        public DelimitedList<IExpressionSyntax> ArgumentList { const get; private set; }
+        public [IExpressionSyntax] Arguments { const get return ArgumentList; }
 
         public SourceLocation Location
         {
-        	const get
-        	{
-        		var result = Method.GetSourceLocation();
-        		foreach (var item in Arguments)
-        		{
-        			result = result.Concat(item.GetSourceLocation());
-        		}
-        		return result;
-        	}
+        	const get return Method.GetSourceLocation().Concat(ArgumentList.Location);
         }
 
         public static const IExpression CreateInvocationExpression(ISyntaxState State, IMethod Method, IVariable Caller)
@@ -244,23 +237,9 @@ namespace Flame.Syntax.DSharp
 
         public const CodeBuilder GetCode()
         {
-            CodeBuilder sb = new CodeBuilder();
-            sb.Append(Method.GetCode().ToString());
-            sb.Append("(");
-            bool first = true;
-            foreach (var item in Arguments)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    sb.Append(",");
-                }
-                sb.Append(item.GetCode().ToString());
-            }
-            sb.Append(")");
+            var sb = new CodeBuilder();
+            sb.Append(Method.GetCode());
+            sb.Append(ArgumentList.GetCode());
             return sb;
         }
 

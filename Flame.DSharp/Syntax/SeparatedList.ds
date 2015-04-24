@@ -7,10 +7,13 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class SeparatedList<T> : IRelevantSyntax<Token>, ISyntaxNode, ISourceSyntax
-		// : IEnumerable<T>, IReadOnlyList<T>, IRelevantSyntax<Token>, ISyntaxNode --> commented out because of IEnumerable<T>.GetEnumerator ambiguity
+	public class SeparatedList<T> : IRelevantSyntax<Token>, ISyntaxNode, ISourceSyntax, IEnumerable<T>
 		where T : ISyntaxNode
 	{
+		public const this()
+		{
+			this.Items = (IReadOnlyList<SeparatedItem<T>>)new SeparatedItem<T>[0];
+		}
 		public const this(set IReadOnlyList<SeparatedItem<T>> Items);
 		public const this(IReadOnlyList<T> Values, IReadOnlyList<Token> Separators)
 		{
@@ -24,39 +27,36 @@ namespace Flame.Syntax.DSharp
 			}
 			this.Items = pairs;
 		}
-		
+
 		public IReadOnlyList<SeparatedItem<T>> Items { const get; private set; }
-		
+
 		public int Count { const get return Items.Count; }
-		
+
 		public T this[int Index]
 		{
 			const get return Items[Index].Item;
 		}
-		
+
 		public SourceLocation Location
 		{
-			const get
-			{
-				return Items.GetSourceLocation();
-			}
+			const get return Items.GetSourceLocation();
 		}
-		
-		/*public IEnumerator<T> GetGenericEnumerator() : IEnumerable<T>.GetEnumerator
+
+		public const IEnumerator<T> GetGenericEnumerator() : IEnumerable<T>.GetEnumerator
 		{
-			List<T> nodes = new List<T>();
-			foreach (var item in Items)
+			var nodes = new T[Items.Count];
+			foreach (var input in Items, var output in nodes)
 			{
-				nodes.Add(item.Item);
+				output = input.Item;
 			}
-			return nodes.GetEnumerator();
+			return ((IEnumerable<T>)nodes).GetEnumerator();
 		}
-		
-		public System.Collections.IEnumerator GetObjectEnumerator() : System.Collections.IEnumerable.GetEnumerator
+
+		public const System.Collections.IEnumerator GetObjectEnumerator() : System.Collections.IEnumerable.GetEnumerator
 		{
 			return GetGenericEnumerator();
-		}*/
-		
+		}
+
 		public [Token] LeadingTrivia
 		{
 			const get
@@ -64,23 +64,23 @@ namespace Flame.Syntax.DSharp
 				List<Token> tokens = new List<Token>();
 				foreach (var item in Items)
 				{
-					tokens.AddRange(item.GetAllTrivia());		
+					tokens.AddRange(item.GetAllTrivia());
 				}
 				return tokens;
 			}
 		}
-		
+
 		public [Token] TrailingTrivia
 		{
 			const get return Enumerable.Empty<Token>();
 		}
-		
-		public CodeBuilder GetCode()
+
+		public const CodeBuilder GetCode()
 		{
 			CodeBuilder cb = new CodeBuilder();
 			foreach (var item in Items)
 			{
-				cb.Append(item.GetCode());	
+				cb.Append(item.GetCode());
 			}
 			return cb;
 		}

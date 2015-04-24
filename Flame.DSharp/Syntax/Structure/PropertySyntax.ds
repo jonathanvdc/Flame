@@ -9,13 +9,35 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class PropertySyntax : MemberSyntax, IMemberSyntax<IProperty>
+    public class PropertySyntax : MemberSyntax, IMemberSyntax<IProperty>, ISourceSyntax
     {
-        public const this(set ISignatureSyntax Signature, set IEnumerable<IAccessorSyntax> Accessors, set IEnumerable<IMemberSyntax<IParameter>> IndexerParameters, set IEnumerable<ITypeMemberAccessSyntax> ImplementedProperties);
+        public const this(set ISignatureSyntax Signature,
+            set DelimitedList<IMemberSyntax<IParameter>> IndexerParameters,
+            set DelimitedList<ITypeMemberAccessSyntax> ImplementedProperties,
+            set Token LeadingBraces, set [IAccessorSyntax] Accessors, set Token TrailingBraces);
 
-        public IEnumerable<IAccessorSyntax> Accessors { const get; private set; }
-        public IEnumerable<IMemberSyntax<IParameter>> IndexerParameters { const get; private set; }
-        public IEnumerable<ITypeMemberAccessSyntax> ImplementedProperties { const get; private set; }
+
+        public DelimitedList<IMemberSyntax<IParameter>> IndexerParameters { const get; private set; }
+        public DelimitedList<ITypeMemberAccessSyntax> ImplementedProperties { const get; private set; }
+        public Token LeadingBraces { const get; private set; }
+        public [IAccessorSyntax] Accessors { const get; private set; }
+        public Token TrailingBraces { const get; private set; }
+
+        public SourceLocation Location
+        {
+            const get
+            {
+                var result = Signature.GetSourceLocation()
+                                      .Concat(IndexerParameters.Location)
+                                      .Concat(ImplementedProperties.Location)
+                                      .Concat(LeadingBraces.Location);
+                foreach (var item in Accessors)
+                {
+                    result = result.Concat(item.GetSourceLocation());
+                }
+                return result.Concat(TrailingBraces.Location);
+            }
+        }
 
         public bool IsFieldProperty
         {
@@ -55,41 +77,16 @@ namespace Flame.Syntax.DSharp
         public override CodeBuilder GetCode()
         {
             var cb = Signature.GetCode();
-            var indexerArgs = Enumerable.ToArray<IMemberSyntax<IParameter>>(IndexerParameters);
-            if (indexerArgs.Length > 0)
-            {
-                cb.Append("[");
-                for (int i = 0; i < indexerArgs.Length; i++)
-                {
-                    if (i != 0)
-                    {
-                        cb.Append(",");
-                    }
-                    cb.Append(indexerArgs[i].GetCode());
-                }
-                cb.Append("]");
-            }
-            var implProperties = Enumerable.ToArray<ITypeMemberAccessSyntax>(ImplementedProperties);
-            if (implProperties.Length > 0)
-            {
-                cb.Append(":");
-                for (int i = 0; i < implProperties.Length; i++)
-                {
-                    if (i != 0)
-                    {
-                        cb.Append(",");
-                    }
-                    cb.Append(implProperties[i].GetCode());
-                }
-            }
-            cb.AddLine("{");
+            cb.Append(IndexerParameters.GetCode());
+            cb.Append(ImplementedProperties.GetCode());
+            cb.Append(LeadingBraces.ToString());
             cb.IncreaseIndentation();
             foreach (var item in Accessors)
             {
                 cb.AddCodeBuilder(item.GetCode());
             }
             cb.DecreaseIndentation();
-            cb.AddLine("}");
+            cb.Append(TrailingBraces.ToString());
             return cb;
         }
 

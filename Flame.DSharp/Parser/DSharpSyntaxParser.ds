@@ -1026,42 +1026,38 @@ namespace Flame.DSharp.Parser
             return new InvocationSyntax(Caller, exprs);
         }
 
-        protected virtual IEnumerable<IExpressionSyntax> ParseArgumentListContents(ITokenStream Parser, TokenType RightDelimiter)
+        protected virtual SeparatedList<IExpressionSyntax> ParseArgumentListContents(ITokenStream Parser, TokenType RightDelimiter)
         {
-            List<IExpressionSyntax> exprs = new List<IExpressionSyntax>();
+			var args = new List<SeparatedItem<IExpressionSyntax>>();
 
-            var peek = Parser.PeekNoTrivia();
-            while (peek.Type != RightDelimiter)
-            {
-                exprs.Add(ParseExpression(Parser));
-                peek = Parser.PeekNoTrivia();
-                if (peek.Type == TokenType.Comma)
-                {
-                    Parser.NextNoTrivia();
-                }
-                else
-                {
-                    //peek.TokenPeek.EnsureType(RightDelimiter, Log);
-                    break;
-                }
-            }
+			while (Parser.PeekNoTrivia().Type != RightDelimiter)
+			{
+				Token comma;
 
-            return exprs;
+				if (args.Count == 0)
+					comma = Token.Undefined;
+				else
+					comma = Parser.NextNoTrivia(TokenType.Comma, Log);
+
+				var syntax = ParseExpression(Parser);
+				args.Add(new SeparatedItem<IExpressionSyntax>(comma, syntax));
+			}
+
+			return new SeparatedList<IExpressionSyntax>(args);
         }
 
-        protected virtual IEnumerable<IExpressionSyntax> ParseArgumentList(ITokenStream Parser, TokenType LeftDelimiter, TokenType RightDelimiter)
+        protected virtual DelimitedList<IExpressionSyntax> ParseArgumentList(ITokenStream Parser, TokenType LeftDelimiter, TokenType RightDelimiter)
         {
-            var rParen = Parser.NextNoTrivia();
-            rParen.EnsureType(LeftDelimiter, Log);
+            var rParen = Parser.NextNoTrivia(LeftDelimiter, Log);
 
             var exprs = ParseArgumentListContents(Parser, RightDelimiter);
 
             var lParen = Parser.NextNoTrivia(RightDelimiter, Log);
 
-            return exprs;
+            return new DelimitedList<IExpressionSyntax>(rParen, exprs, lParen);
         }
 
-        protected virtual IEnumerable<IExpressionSyntax> ParseArgumentList(ITokenStream Parser)
+        protected virtual DelimitedList<IExpressionSyntax> ParseArgumentList(ITokenStream Parser)
         {
             return ParseArgumentList(Parser, TokenType.RParen, TokenType.LParen);
         }
@@ -1101,20 +1097,20 @@ namespace Flame.DSharp.Parser
 
             if (peek.Type != TokenType.RBrackets)
             {
-                IEnumerable<IExpressionSyntax> args;
+				DelimitedList<IExpressionSyntax> args;
                 if (peek.Type == TokenType.RParen)
                 {
                     args = ParseArgumentList(Tokens);
                 }
                 else
                 {
-                    args = new IExpressionSyntax[0];
+                    args = new DelimitedList<IExpressionSyntax>();
                 }
                 expr = new NewObjectSyntax(NewToken, type, args);
             }
             else
             {
-                IEnumerable<IExpressionSyntax> arrayArgs = ParseArgumentList(Tokens, TokenType.RBrackets, TokenType.LBrackets);
+                var arrayArgs = ParseArgumentList(Tokens, TokenType.RBrackets, TokenType.LBrackets);
                 expr = new NewArraySyntax(NewToken, type, arrayArgs);
             }
             if (Tokens.PeekNoTrivia().Type == TokenType.RBraces)
@@ -1133,15 +1129,9 @@ namespace Flame.DSharp.Parser
 
         protected virtual IExpressionSyntax ParseInitializedListExpression(IExpressionSyntax List, ITokenStream Tokens)
         {
-            var rBraces = Tokens.NextNoTrivia(TokenType.RBraces, Log);
+			var args = ParseArgumentList(Tokens, TokenType.RBraces, TokenType.LBraces);
 
-            IEnumerable<IExpressionSyntax> exprs = ParseArgumentListContents(Tokens, TokenType.LBraces);
-
-            var lBraces = Tokens.NextNoTrivia(TokenType.LBraces, Log);
-
-            InitializedListSyntax syntax = new InitializedListSyntax(List, rBraces, exprs, lBraces);
-
-            return syntax;
+            return new InitializedListSyntax(List, args);
         }
 
         #endregion
@@ -2077,33 +2067,30 @@ namespace Flame.DSharp.Parser
 
         #region ParseParameterList
 
-        protected virtual [IMemberSyntax<IParameter>] ParseParameterList(ITokenStream Tokens, TokenType LeftDelimiter, TokenType RightDelimiter)
+        protected virtual DelimitedList<IMemberSyntax<IParameter>> ParseParameterList(ITokenStream Tokens, TokenType LeftDelimiter, TokenType RightDelimiter)
         {
-            Tokens.NextNoTrivia(LeftDelimiter, Log);
+            var leftDelim = Tokens.NextNoTrivia(LeftDelimiter, Log);
 
-            List<IMemberSyntax<IParameter>> parameters = new List<IMemberSyntax<IParameter>>();
+            var parameters = new List<SeparatedItem<IMemberSyntax<IParameter>>>();
 
-			var peek = Tokens.PeekNoTrivia();
-            while (peek.Type != RightDelimiter)
+            while (Tokens.PeekNoTrivia().Type != RightDelimiter)
             {
-                var syntax = ParseParameter(Tokens);
-                parameters.Add(syntax);
+				Token comma;
 
-                peek = Tokens.PeekNoTrivia();
-                if (peek.Type == TokenType.Comma)
-                {
-                    Tokens.NextNoTrivia(TokenType.Comma, Log);
-                    peek = Tokens.PeekNoTrivia();
-                }
-                else
-                {
-                    break;
-                }
+				if (parameters.Count == 0)
+					comma = Token.Undefined;
+				else
+					comma = Tokens.NextNoTrivia(TokenType.Comma, Log);
+
+                var syntax = ParseParameter(Tokens);
+                parameters.Add(new SeparatedItem<IMemberSyntax<IParameter>>(comma, syntax));
             }
 
-            Tokens.NextNoTrivia(RightDelimiter, Log);
+            var rightDelim = Tokens.NextNoTrivia(RightDelimiter, Log);
 
-            return parameters;
+            return new DelimitedList<IMemberSyntax<IParameter>>(leftDelim,
+				new SeparatedList<IMemberSyntax<IParameter>>(parameters),
+				rightDelim);
         }
 
         #endregion
@@ -2238,34 +2225,94 @@ namespace Flame.DSharp.Parser
 
         #endregion
 
+		#region Base member parsing
+
+		protected virtual DelimitedList<ITypeMemberAccessSyntax> ParseBaseMembers(ITokenStream Tokens)
+		{
+            if (Tokens.PeekNoTrivia().Type == TokenType.Colon)
+            {
+				var colon = Tokens.NextNoTrivia(TokenType.Colon, Log);
+                var implProps = new List<SeparatedItem<ITypeMemberAccessSyntax>>();
+                do
+                {
+					Token comma = Token.Undefined;
+					if (Tokens.PeekNoTrivia().Type == TokenType.Comma)
+					{
+						comma = Tokens.NextNoTrivia(TokenType.Comma, Log);
+					}
+					implProps.Add(new SeparatedItem<ITypeMemberAccessSyntax>(comma, (ITypeMemberAccessSyntax)ParseExpression(Tokens)));
+                } while (Tokens.PeekNoTrivia().Type == TokenType.Comma);
+
+				return new DelimitedList<ITypeMemberAccessSyntax>(colon,
+					   new SeparatedList<ITypeMemberAccessSyntax>(implProps));
+            }
+            else
+            {
+				return new DelimitedList<ITypeMemberAccessSyntax>();
+            }
+		}
+
+		#endregion
+
+		#region Base constructor parsing
+
+		protected virtual BaseConstructorCallSyntax ParseBaseConstructorCall(ITokenStream Tokens)
+		{
+			var baseKeyword = Tokens.NextNoTrivia(TokenType.BaseKeyword, Log);
+			var exprs = ParseArgumentList(Tokens);
+
+			return new BaseConstructorCallSyntax(baseKeyword, exprs);
+		}
+
+		protected virtual DelimitedList<ITypeMemberAccessSyntax> ParseBaseConstructors(ITokenStream Tokens)
+		{
+			if (Tokens.PeekNoTrivia().Type == TokenType.Colon)
+			{
+				var colon = Tokens.NextNoTrivia(TokenType.Colon, Log);
+				var implProps = new List<SeparatedItem<ITypeMemberAccessSyntax>>();
+				do
+				{
+					Token comma = Token.Undefined;
+					if (Tokens.PeekNoTrivia().Type == TokenType.Comma)
+					{
+						comma = Tokens.NextNoTrivia(TokenType.Comma, Log);
+					}
+					implProps.Add(new SeparatedItem<ITypeMemberAccessSyntax>(comma, (ITypeMemberAccessSyntax)ParseBaseConstructorCall(Tokens)));
+				} while (Tokens.PeekNoTrivia().Type == TokenType.Comma);
+
+				return new DelimitedList<ITypeMemberAccessSyntax>(colon,
+					new SeparatedList<ITypeMemberAccessSyntax>(implProps));
+			}
+			else
+			{
+				return new DelimitedList<ITypeMemberAccessSyntax>();
+			}
+		}
+
+		#endregion
+
         #region Method Parsing
 
         protected virtual IMemberSyntax<IMethod> ParseMethod(ITokenStream Tokens, ISignatureSyntax Signature)
         {
             var parameters = ParseParameterList(Tokens, TokenType.RParen, TokenType.LParen);
 
-            [ITypeMemberAccessSyntax] implementedProperties;
-            if (Tokens.PeekNoTrivia().Type == TokenType.Colon)
-            {
-                List<ITypeMemberAccessSyntax> implProps = new List<ITypeMemberAccessSyntax>();
-                do
-                {
-                    Tokens.NextNoTrivia();
-                    implProps.Add((ITypeMemberAccessSyntax)ParseExpression(Tokens));
-                } while (Tokens.PeekNoTrivia().Type == TokenType.Comma);
-                implementedProperties = implProps;
-            }
-            else
-            {
-                implementedProperties = new ITypeMemberAccessSyntax[0];
-            }
+			DelimitedList<ITypeMemberAccessSyntax> implementedMethods;
+			if (MethodSyntax.IsConstructorSignature(Signature))
+			{
+				implementedMethods = ParseBaseConstructors(Tokens);
+			}
+			else
+			{
+				implementedMethods = ParseBaseMembers(Tokens);
+			}
 
             var constraints = ParseGenericConstraints(Tokens);
             var contract = ParseMethodContract(Tokens);
 
             IStatementSyntax body = ParseStatement(Tokens);
 
-            return new MethodSyntax(Signature, parameters, implementedProperties, constraints, contract, body);
+            return new MethodSyntax(Signature, parameters, implementedMethods, constraints, contract, body);
         }
 
         #endregion
@@ -2307,33 +2354,19 @@ namespace Flame.DSharp.Parser
 
         protected virtual IMemberSyntax<ITypeMember> ParseProperty(ITokenStream Tokens, ISignatureSyntax Signature)
         {
-            IEnumerable<IMemberSyntax<IParameter>> parameters;
+            DelimitedList<IMemberSyntax<IParameter>> parameters;
             if (Tokens.PeekNoTrivia().Type == TokenType.RBrackets)
             {
                 parameters = ParseParameterList(Tokens, TokenType.RBrackets, TokenType.LBrackets);
             }
             else
             {
-                parameters = new List<IMemberSyntax<IParameter>>();
+                parameters = new DelimitedList<IMemberSyntax<IParameter>>();
             }
 
-            IEnumerable<ITypeMemberAccessSyntax> implementedProperties;
-            if (Tokens.PeekNoTrivia().Type == TokenType.Colon)
-            {
-                List<ITypeMemberAccessSyntax> implProps = new List<ITypeMemberAccessSyntax>();
-                do
-                {
-                    Tokens.NextNoTrivia();
-                    implProps.Add((ITypeMemberAccessSyntax)ParseExpression(Tokens));
-                } while (Tokens.PeekNoTrivia().Type == TokenType.Comma);
-                implementedProperties = implProps;
-            }
-            else
-            {
-                implementedProperties = new ITypeMemberAccessSyntax[0];
-            }
+            var implementedProperties = ParseBaseMembers(Tokens);
 
-            Tokens.NextNoTrivia(TokenType.RBraces, Log);
+            var leadingBraces = Tokens.NextNoTrivia(TokenType.RBraces, Log);
 
             List<IAccessorSyntax> accessors = new List<IAccessorSyntax>();
 
@@ -2344,9 +2377,9 @@ namespace Flame.DSharp.Parser
                 peek = Tokens.PeekNoTrivia();
             }
 
-            Tokens.NextNoTrivia(TokenType.LBraces, Log);
+            var trailingBraces = Tokens.NextNoTrivia(TokenType.LBraces, Log);
 
-            var syntax = new PropertySyntax(Signature, accessors, parameters, implementedProperties);
+            var syntax = new PropertySyntax(Signature, parameters, implementedProperties, leadingBraces, accessors, trailingBraces);
             if (syntax.IsFieldProperty)
             {
                 return new FieldPropertySyntax(syntax);
@@ -2458,7 +2491,7 @@ namespace Flame.DSharp.Parser
 				}
 			}
 
-            List<IMemberSyntax<IMember>> members = new List<IMemberSyntax<IMember>>();
+            var members = new List<IMemberSyntax<IMember>>();
 
             peek = Tokens.PeekNoTrivia();
             while (peek.Type != TokenType.LBraces)
