@@ -34,5 +34,30 @@ namespace Flame.Cpp.Emit
             cb.Append(')');
             return cb;
         }
+
+        public static CodeBuilder GetInitializationListCode(this INewObjectBlock Block, bool OmitParentheses)
+        {
+            var args = Block.Arguments;
+            if (args.Any() && !args.Skip(1).Any())
+            {
+                var singleArg = args.Single();
+                if (singleArg is INewObjectBlock && singleArg.Type.Equals(Block.Type))
+                {
+                    var initBlock = (INewObjectBlock)singleArg;
+                    if (initBlock.Kind == AllocationKind.Stack || initBlock.Kind == AllocationKind.MakeManaged)
+                    {
+                        if (!OmitParentheses || initBlock.Arguments.Any())
+                        {
+                            return initBlock.GetInitializationListCode(OmitParentheses);
+                        }
+                        else
+                        {
+                            return new CodeBuilder();
+                        }
+                    }
+                }
+            }
+            return Block.GetArgumentListCode();
+        }
     }
 }
