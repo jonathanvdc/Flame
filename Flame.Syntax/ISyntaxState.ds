@@ -33,39 +33,50 @@ namespace Flame.Syntax
 
     public static class RedefinitionHelpers
     {
+        public static const IMarkupNode CreateNeutralDiagnosticsNode(string Title, SourceLocation Location)
+        {
+            var oldSrc = Location.CreateSourceNode();
+            var neutralOldSrc = new MarkupNode("neutral-diagnostics", new IMarkupNode[] { oldSrc });
+            var oldTitle = new MarkupNode(NodeConstants.TextNodeType, Title);
+            var oldMessage = Location.CreateLineNumberNode(NodeConstants.TextNodeType);
+
+            return new MarkupNode(NodeConstants.RemarksNodeType, new IMarkupNode[]
+            {
+                oldTitle,
+                oldMessage,
+                neutralOldSrc
+            });
+        }
+
+        public static const IMarkupNode AppendDiagnosticsRemark(IMarkupNode Node, string Title, SourceLocation Location)
+        {
+            if (Location == null)
+            {
+                return Node;
+            }
+
+            var nextRemark = CreateNeutralDiagnosticsNode(Title, Location);
+
+            return new MarkupNode("entry", new IMarkupNode[]
+            {
+                Node,
+                nextRemark
+            });
+        }
+
         public static const IMarkupNode CreateRedefinitionMessageNode(string Message,
             SourceLocation NewDefinition, SourceLocation OldDefinition)
         {
             var firstMessage = new MarkupNode(NodeConstants.TextNodeType, Message);
             var firstDiag = NewDefinition.CreateDiagnosticsNode();
 
-            if (OldDefinition == null)
-            {
-                return new MarkupNode("entry", new IMarkupNode[]
-                {
-                    firstMessage,
-                    firstDiag
-                });
-            }
-
-            var oldSrc = OldDefinition.CreateSourceNode();
-            var neutralOldSrc = new MarkupNode("neutral-diagnostics", new IMarkupNode[] { oldSrc });
-            var oldTitle = new MarkupNode(NodeConstants.TextNodeType, "Previous definition: ");
-            var oldMessage = OldDefinition.CreateLineNumberNode(NodeConstants.TextNodeType);
-
-            var oldRemark = new MarkupNode(NodeConstants.RemarksNodeType, new IMarkupNode[]
-            {
-                oldTitle,
-                oldMessage,
-                neutralOldSrc
-            });
-
-            return new MarkupNode("entry", new IMarkupNode[]
+            var firstEntry = new MarkupNode("entry", new IMarkupNode[]
             {
                 firstMessage,
-                firstDiag,
-                oldRemark
+                firstDiag
             });
+
+            return AppendDiagnosticsRemark(firstEntry, "Previous definition: ", OldDefinition);
         }
 
         public static const IMarkupNode CreateRedefinitionNode(string Name,

@@ -6,6 +6,7 @@ using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
 using Flame.Syntax;
 using Flame.Syntax.DSharp;
+using Pixie;
 
 namespace Flame.DSharp.Parser
 {
@@ -1180,7 +1181,7 @@ namespace Flame.DSharp.Parser
             {
             	Log.LogError(new LogEntry("Parser error",
 					"Token '" + Token.ToString() +
-					"' was mistakenly identified as a value token or could not be parsed.",
+					"' was mistakenly identified as a literal or could not be parsed.",
 					Token.Location));
             	return null;
             }
@@ -1701,12 +1702,25 @@ namespace Flame.DSharp.Parser
 					var ifElseBody = (IfElseSyntax)ifBody;
 					if (ifElseBody.ElseBody != null)
 					{
-						Log.LogWarning(new LogEntry("Dangling else",
+						var firstMessage = new MarkupNode(NodeConstants.TextNodeType,
 							"Nested if statement has a dangling else clause. " +
 							"(A dangling else clause is assumed to belong to the innermost " +
 							"if statement.) " +
-							Warnings.GetWarningNameMessage(Warnings.DanglingElse),
-							ifElseBody.ElseKeyword.Location))
+							Warnings.GetWarningNameMessage(Warnings.DanglingElse));
+
+						var firstDiag = ifElseBody.ElseKeyword.Location.CreateDiagnosticsNode();
+
+						var firstEntry = new MarkupNode("entry", new IMarkupNode[]
+						{
+							firstMessage,
+							firstDiag
+						});
+
+						var node = RedefinitionHelpers.AppendDiagnosticsRemark(firstEntry,
+							"Dangling else belongs to this if statement: ",
+							ifElseBody.IfKeyword.Location);
+
+						Log.LogWarning(new LogEntry("Dangling else", node));
 					}
 				}
                 return new IfElseSyntax(ifKeyword, leadingParen, expr, trailingParen, ifBody);
