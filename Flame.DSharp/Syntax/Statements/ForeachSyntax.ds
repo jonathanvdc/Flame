@@ -8,6 +8,7 @@ using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Variables;
 using Flame.DSharp;
+using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
@@ -69,6 +70,15 @@ namespace Flame.Syntax.DSharp
         	}
 
         	loop.Body = Body.CreateVerifiedStatement(State);
+
+            if (loop.Body.IsEmpty && State.Log.ShowEmptyBodyWarnings)
+            {
+                State.Log.LogWarning(new LogEntry("Foreach block without body",
+                    "Foreach block '" + this.GetCode().Trim().ToString() +
+                    "' has an empty statement as its body. " +
+                    Warnings.GetWarningNameMessage(Warnings.EmptyBody),
+                    Body.GetSourceLocation()));
+            }
 
         	var cleanup = State.PopScope();
 

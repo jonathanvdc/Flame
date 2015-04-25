@@ -20,27 +20,27 @@ namespace Flame.Syntax.DSharp
         {
             return CreateExpression(State, Value);
         }
-        
+
         public SourceLocation Location
         {
         	const get return Value.Location;
         }
-        
+
         public [Token] LeadingTrivia
         {
         	const get return Value.GetAllTrivia();
         }
-        
+
         public [Token] TrailingTrivia
         {
         	const get return Enumerable.Empty<Token>();
         }
-        
+
         public IReadOnlyList<Token> Tokens
         {
         	const get
         	{
-        		return (IReadOnlyList<Token>)new Token[] { Value };	
+        		return (IReadOnlyList<Token>)new Token[] { Value };
         	}
         }
 
@@ -51,7 +51,9 @@ namespace Flame.Syntax.DSharp
 
         public const CodeBuilder GetCode()
         {
-            return new CodeBuilder(Value.ToString());
+            var cb = new CodeBuilder();
+            cb.Append(Value.ToString());
+            return cb;
         }
     }
 }

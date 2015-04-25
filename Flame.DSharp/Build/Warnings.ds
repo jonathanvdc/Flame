@@ -17,6 +17,8 @@ namespace Flame.DSharp.Build
         public const string ConstantAssert = "constant-assert";
         public const string BadAlias = "bad-alias";
         public const string CppUsingNamespace = "cpp-using-namespace";
+        public const string EmptyBody = "empty-body";
+        public const string DanglingElse = "dangling-else";
 
         public static const string GetWarningName(string Name)
         {
@@ -116,6 +118,14 @@ namespace Flame.DSharp.Build
         public static bool ShowCppUsingNamespaceWarnings[this ICompilerLog Log]
         {
             const get return Log.UsePedanticWarnings(BadAlias);
+        }
+        public static bool ShowEmptyBodyWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UsePedanticWarnings(EmptyBody);
+        }
+        public static bool ShowDanglingElseWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UsePedanticWarnings(DanglingElse);
         }
     }
 }
