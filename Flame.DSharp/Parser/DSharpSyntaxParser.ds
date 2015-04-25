@@ -1140,7 +1140,6 @@ namespace Flame.DSharp.Parser
 
         protected virtual IExpressionSyntax GetValue(Token Token)
         {
-            string val = Token.TokenValue;
             if (Token.Type == TokenType.String)
             {
             	return new StringSyntax(Token);
@@ -1179,7 +1178,10 @@ namespace Flame.DSharp.Parser
             }
             else
             {
-            	Log.LogError("The token " + Token.ToString() + " was mistakenly identified as a value token or could not be parsed.");
+            	Log.LogError(new LogEntry("Parser error",
+					"Token '" + Token.ToString() +
+					"' was mistakenly identified as a value token or could not be parsed.",
+					Token.Location));
             	return null;
             }
         }
@@ -1694,6 +1696,19 @@ namespace Flame.DSharp.Parser
             }
             else
             {
+				if (ifBody is IfElseSyntax && Log.ShowDanglingElseWarnings)
+				{
+					var ifElseBody = (IfElseSyntax)ifBody;
+					if (ifElseBody.ElseBody != null)
+					{
+						Log.LogWarning(new LogEntry("Dangling else",
+							"Nested if statement has a dangling else clause. " +
+							"(A dangling else clause is assumed to belong to the innermost " +
+							"if statement.) " +
+							Warnings.GetWarningNameMessage(Warnings.DanglingElse),
+							ifElseBody.ElseKeyword.Location))
+					}
+				}
                 return new IfElseSyntax(ifKeyword, leadingParen, expr, trailingParen, ifBody);
             }
         }

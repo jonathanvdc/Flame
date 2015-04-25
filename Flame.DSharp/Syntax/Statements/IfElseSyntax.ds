@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Flame.Compiler;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Expressions;
+using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
@@ -23,7 +24,7 @@ namespace Flame.Syntax.DSharp
         public IStatementSyntax IfBody { const get; private set; }
         public Token ElseKeyword { const get; private set; }
         public IStatementSyntax ElseBody { const get; private set; }
-        
+
         public IReadOnlyList<Token> Tokens
         {
         	const get
@@ -45,17 +46,36 @@ namespace Flame.Syntax.DSharp
         	State.PushScope();
             var cond = Condition.CreateVerifiedExpression(State);
             var ifBody = IfBody.CreateStatement(State);
+
+            if (ifBody.IsEmpty && State.Log.ShowEmptyBodyWarnings)
+            {
+                State.Log.LogWarning(new LogEntry("If block without body",
+                    "If block '" + IfKeyword.ToString().TrimStart(null) +
+                    LeadingParentheses.ToString() + Condition.GetCode().ToString() +
+                    TrailingParentheses.ToString().TrimEnd(null) +
+                    "' has an empty statement as its body. " +
+                    Warnings.GetWarningNameMessage(Warnings.EmptyBody),
+                    IfBody.GetSourceLocation()));
+            }
+
             var cleanup = State.PopScope();
             IStatement[] statements;
             if (ElseBody == null)
             {
-            	if (ifBody.IsEmpty)
-            		State.Log.LogWarning(new LogEntry("If block without body", "If block '" + IfKeyword.ToString().TrimStart(null) + LeadingParentheses.ToString() + Condition.GetCode().Trim().ToString() + TrailingParentheses.ToString().TrimEnd(null) + "' has an empty statement as its body.", IfKeyword.Location));
             	statements = new IStatement[] { new IfElseStatement(cond, ifBody), cleanup };
             }
             else
             {
                 var elseBody = ElseBody.CreateStatement(State);
+                if (elseBody.IsEmpty && State.Log.ShowEmptyBodyWarnings)
+                {
+                    State.Log.LogWarning(new LogEntry("Else block without body",
+                        "Else block '"  + ElseKeyword.ToString().TrimStart(null) +
+                        ElseBody.GetCode().ToString().TrimEnd(null) +
+                        "' has an empty statement as its body. " +
+                        Warnings.GetWarningNameMessage(Warnings.EmptyBody),
+                        ElseBody.GetSourceLocation()));
+                }
                 statements = new IStatement[] { new IfElseStatement(cond, ifBody, elseBody), cleanup };
             }
             return new BlockStatement(statements);
