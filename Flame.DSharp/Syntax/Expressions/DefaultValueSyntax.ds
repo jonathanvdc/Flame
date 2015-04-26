@@ -6,7 +6,7 @@ using Flame.Compiler.Expressions;
 
 namespace Flame.Syntax.DSharp
 {
-    public class DefaultValueSyntax : IExpressionSyntax, ITokenNode
+    public class DefaultValueSyntax : IExpressionSyntax, ITokenNode, ISourceSyntax
     {
         public const this(set Token DefaultKeyword, set Token RParentheses, set ITypeSyntax TypeSyntax, set Token LParentheses);
 
@@ -14,7 +14,14 @@ namespace Flame.Syntax.DSharp
         public Token RParentheses { const get; private set; }
         public ITypeSyntax TypeSyntax { const get; private set; }
         public Token LParentheses { const get; private set; }
-        
+
+        public SourceLocation Location
+        {
+            const get return DefaultKeyword.Location.Concat(RParentheses.Location)
+                                                    .Concat(TypeSyntax.GetSourceLocation())
+                                                    .Concat(LParentheses.Location);
+        }
+
         public IReadOnlyList<Token> Tokens
         {
         	const get
@@ -29,7 +36,7 @@ namespace Flame.Syntax.DSharp
         }
 
         public IExpression CreateExpression(ISyntaxState State)
-        {        
+        {
             return new DefaultValueExpression(TypeSyntax.CreateVerifiedType(State));
         }
 
