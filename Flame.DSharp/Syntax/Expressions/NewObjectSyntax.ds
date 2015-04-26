@@ -34,10 +34,8 @@ namespace Flame.Syntax.DSharp
         {
         	const get
         	{
-        		var result = NewKeyword.Location.Concat(Type.GetSourceLocation());
-				foreach (var item in Arguments)
-					result = result.Concat(item.GetSourceLocation());
-				return result;
+        		return NewKeyword.Location.Concat(Type.GetSourceLocation())
+                                          .Concat(ArgumentList.Location);
         	}
         }
 
