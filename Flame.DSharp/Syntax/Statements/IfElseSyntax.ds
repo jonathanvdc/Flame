@@ -8,7 +8,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class IfElseSyntax : IStatementSyntax, ITokenNode
+    public class IfElseSyntax : IStatementSyntax, ITokenNode, ISourceSyntax
     {
         public const this(set Token IfKeyword, set Token LeadingParentheses, set IExpressionSyntax Condition, set Token TrailingParentheses, set IStatementSyntax IfBody)
         {
@@ -24,6 +24,21 @@ namespace Flame.Syntax.DSharp
         public IStatementSyntax IfBody { const get; private set; }
         public Token ElseKeyword { const get; private set; }
         public IStatementSyntax ElseBody { const get; private set; }
+
+        public SourceLocation Location
+        {
+            const get
+            {
+                var result = IfKeyword.Location.Concat(LeadingParentheses.Location)
+                                               .Concat(Condition.GetSourceLocation())
+                                               .Concat(TrailingParentheses.Location)
+                                               .Concat(IfBody.GetSourceLocation());
+                if (ElseBody == null)
+                    return result;
+                else
+                    return result.Concat(ElseKeyword.Location).Concat(ElseBody.GetSourceLocation());
+            }
+        }
 
         public IReadOnlyList<Token> Tokens
         {

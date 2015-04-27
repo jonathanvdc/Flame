@@ -57,6 +57,19 @@ namespace Flame.Syntax.DSharp
 			return GetGenericEnumerator();
 		}
 
+		public IReadOnlyList<Token> Tokens
+		{
+			const get
+			{
+				var results = new List<Token>();
+				foreach (var item in Items)
+				{
+					results.AddRange(item.Tokens);
+				}
+				return results;
+			}
+		}
+
 		public [Token] LeadingTrivia
 		{
 			const get

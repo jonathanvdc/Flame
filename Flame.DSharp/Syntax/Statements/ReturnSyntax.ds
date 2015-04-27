@@ -7,7 +7,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class ReturnSyntax : LineStatementSyntax, ITokenNode
+    public class ReturnSyntax : LineStatementSyntax, ITokenNode, ISourceSyntax
     {
         public const this()
         {
@@ -27,7 +27,16 @@ namespace Flame.Syntax.DSharp
 
         public Token ReturnKeyword { const get; private set; }
         public IExpressionSyntax Expression { const get; private set; }
-        
+
+        public SourceLocation Location
+        {
+            const get
+                if (Expression == null)
+                    return ReturnKeyword.Location;
+                else
+                    return ReturnKeyword.Location.Concat(Expression.GetSourceLocation());
+        }
+
         public IReadOnlyList<Token> Tokens
         {
         	const get
@@ -36,7 +45,7 @@ namespace Flame.Syntax.DSharp
 				tokens.Add(ReturnKeyword);
 				tokens.AddRange(Expression.GetTokens());
 				tokens.Add(SemicolonToken);
-				return tokens;				
+				return tokens;
         	}
         }
 

@@ -11,7 +11,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class TrySyntax : IStatementSyntax
+	public class TrySyntax : IStatementSyntax, ISourceSyntax
 	{
 		public const this(set Token TryKeyword, set IStatementSyntax TryBody, set [CatchSyntax] CatchClauses);
 		public const this(set Token TryKeyword, set IStatementSyntax TryBody, set FinallySyntax FinallyClause, set [CatchSyntax] CatchClauses);
@@ -20,6 +20,26 @@ namespace Flame.Syntax.DSharp
 		public IStatementSyntax TryBody { const get; private set; }
 		public [CatchSyntax] CatchClauses { const get; private set; }
 		public FinallySyntax FinallyClause { const get; private set; }
+
+		public SourceLocation Location
+		{
+			const get
+			{
+				var result = TryKeyword.Location.Concat(TryBody.GetSourceLocation());
+				foreach (var item in CatchClauses)
+				{
+					result = result.Concat(item.Location);
+				}
+				if (FinallyClause != null)
+				{
+					return result.Concat(FinallyClause.Location);
+				}
+				else
+				{
+					return result;
+				}
+			}
+		}
 
 		public IReadOnlyList<Token> Tokens
         {
@@ -75,7 +95,7 @@ namespace Flame.Syntax.DSharp
 		}
 	}
 
-	public class CatchSyntax : ITokenNode
+	public class CatchSyntax : ITokenNode, ISourceSyntax
 	{
 		public const this(set Token CatchKeyword, set Token LeadingParentheses, set VariableDeclarationSyntax ExceptionDeclaration,
 			set Token TrailingParentheses, set IStatementSyntax Body);
@@ -85,6 +105,14 @@ namespace Flame.Syntax.DSharp
         public VariableDeclarationSyntax ExceptionDeclaration { const get; private set; }
 		public Token TrailingParentheses { const get; private set; }
 		public IStatementSyntax Body { const get; private set; }
+
+		public SourceLocation Location
+		{
+			const get return CatchKeyword.Location.Concat(LeadingParentheses.Location)
+												  .Concat(ExceptionDeclaration.GetSourceLocation())
+												  .Concat(TrailingParentheses.Location)
+												  .Concat(Body.GetSourceLocation());
+		}
 
 		public IReadOnlyList<Token> Tokens
         {
@@ -147,12 +175,18 @@ namespace Flame.Syntax.DSharp
 		}
 	}
 
-	public class FinallySyntax : ITokenNode
+	public class FinallySyntax : ITokenNode, ISourceSyntax
 	{
 		public const this(set Token FinallyKeyword, set IStatementSyntax Body);
 
 		public Token FinallyKeyword { const get; private set; }
 		public IStatementSyntax Body { const get; private set; }
+
+		public SourceLocation Location
+		{
+			const get return FinallyKeyword.Location.Concat(Body.GetSourceLocation());
+		}
+
 
 		public IReadOnlyList<Token> Tokens
         {

@@ -8,7 +8,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class WhileSyntax : IStatementSyntax, ITokenNode
+    public class WhileSyntax : IStatementSyntax, ITokenNode, ISourceSyntax
     {
         public const this(set Token WhileKeyword, set Token LeadingParentheses, set IExpressionSyntax Condition, set Token TrailingParentheses, set IStatementSyntax Body);
 
@@ -17,6 +17,14 @@ namespace Flame.Syntax.DSharp
         public IExpressionSyntax Condition { const get; private set; }
         public Token TrailingParentheses { const get; private set; }
         public IStatementSyntax Body { const get; private set; }
+
+        public SourceLocation Location
+        {
+            const get return WhileKeyword.Location.Concat(LeadingParentheses.Location)
+                                                  .Concat(Condition.GetSourceLocation())
+                                                  .Concat(TrailingParentheses.Location)
+                                                  .Concat(Body.GetSourceLocation());
+        }
 
         public IReadOnlyList<Token> Tokens
         {
