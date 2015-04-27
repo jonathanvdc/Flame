@@ -8,11 +8,16 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class SetVariableStatementSyntax : LineStatementSyntax
+    public class SetVariableStatementSyntax : LineStatementSyntax, ISourceSyntax
     {
         public const this(set ISetVariableExpressionSyntax StoreSyntax);
 
         public ISetVariableExpressionSyntax StoreSyntax { const get; private set; }
+
+        public SourceLocation Location
+        {
+            const get return StoreSyntax.GetSourceLocation();
+        }
 
         public override IStatement CreateStatement(ISyntaxState State)
         {

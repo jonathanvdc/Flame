@@ -1795,24 +1795,45 @@ namespace Flame.DSharp.Parser
 
         #endregion
 
+		#region ParseElementInCollectionList
+
+		protected virtual SeparatedList<ElementInCollectionSyntax> ParseElementInCollectionListContents(ITokenStream Parser)
+		{
+			var args = new List<SeparatedItem<ElementInCollectionSyntax>>();
+
+			while (Parser.PeekNoTrivia().Type != TokenType.LParen)
+			{
+				Token comma;
+
+				if (args.Count == 0)
+					comma = Token.Undefined;
+				else
+					comma = Parser.NextNoTrivia(TokenType.Comma, Log);
+
+				var syntax = ParseElementInCollection(Parser);
+				args.Add(new SeparatedItem<ElementInCollectionSyntax>(comma, syntax));
+			}
+
+			return new SeparatedList<ElementInCollectionSyntax>(args);
+		}
+
+		protected virtual DelimitedList<ElementInCollectionSyntax> ParseElementInCollectionList(ITokenStream Parser)
+		{
+			var rParen = Parser.NextNoTrivia(TokenType.RParen, Log);
+			var exprs = ParseElementInCollectionListContents(Parser);
+			var lParen = Parser.NextNoTrivia(TokenType.LParen, Log);
+
+			return new DelimitedList<ElementInCollectionSyntax>(rParen, exprs, lParen);
+		}
+
+		#endregion
+
         protected virtual IStatementSyntax ParseForeachSyntax(ITokenStream Tokens)
         {
             var foreachKeyword = Tokens.NextNoTrivia(TokenType.ForeachKeyword, Log);
-            var leadingParen = Tokens.NextNoTrivia(TokenType.RParen, Log);
-
-            List<ElementInCollectionSyntax> elems = new List<ElementInCollectionSyntax>();
-            elems.Add(ParseElementInCollection(Tokens));
-            var peek = Tokens.PeekNoTrivia();
-            while (peek.Type == TokenType.Comma)
-            {
-                Tokens.NextNoTrivia(TokenType.Comma, Log);
-                elems.Add(ParseElementInCollection(Tokens));
-                peek = Tokens.PeekNoTrivia();
-            }
-
-            var trailingParen = Tokens.NextNoTrivia(TokenType.LParen, Log);
+			var elems = ParseElementInCollectionList(Tokens);
             var body = ParseStatement(Tokens);
-            return new ForeachSyntax(foreachKeyword, leadingParen, elems, trailingParen, body);
+            return new ForeachSyntax(foreachKeyword, elems, body);
         }
 
         #endregion

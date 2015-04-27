@@ -14,7 +14,12 @@ namespace Flame.Syntax.DSharp
 
 		public Token YieldKeyword { const get; private set; }
 		public ReturnSyntax Return { const get; private set; }
-		
+
+        public SourceLocation Location
+        {
+            const get return YieldKeyword.Location.Concat(Return.Location);
+        }
+
 		public IReadOnlyList<Token> Tokens
 		{
 			const get
@@ -25,7 +30,7 @@ namespace Flame.Syntax.DSharp
 				return tokens;
 			}
 		}
-		
+
 		private static IType GetYieldReturnType(ISyntaxState State)
 		{
 			if (State.ReturnType.IsEnumerableType)
@@ -48,12 +53,12 @@ namespace Flame.Syntax.DSharp
         	IExpression expr = CastSyntax.CreateImplicitCast(State, Return.Expression, desiredType);
             return new YieldReturnStatement(expr);
         }
-        
+
         public override const string ToString()
         {
         	return GetCode().ToString();
         }
-        
+
         public const CodeBuilder GetCode()
         {
         	CodeBuilder cb = new CodeBuilder();

@@ -7,18 +7,31 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class BlockSyntax : IStatementSyntax
+    public class BlockSyntax : IStatementSyntax, ISourceSyntax
     {
-        public const this(set Token OpeningToken, set Token ClosingToken, set IEnumerable<IStatementSyntax> Statements);
-        public const this(set IEnumerable<IStatementSyntax> Statements)
+        public const this(set Token OpeningToken, set Token ClosingToken, set [IStatementSyntax] Statements);
+        public const this(set [IStatementSyntax] Statements)
         {
             this.OpeningToken = Token.RBraces;
             this.ClosingToken = Token.LBraces;
         }
 
         public Token OpeningToken { const get; private set; }
-        public IEnumerable<IStatementSyntax> Statements { const get; private set; }
+        public [IStatementSyntax] Statements { const get; private set; }
         public Token ClosingToken { const get; private set; }
+
+        public SourceLocation Location
+        {
+            const get
+            {
+                var result = OpeningToken.Location;
+                foreach (var item in Statements)
+                {
+                    result = result.Concat(item.GetSourceLocation());
+                }
+                return result.Concat(ClosingToken.Location);
+            }
+        }
 
         public IStatement CreateStatement(ISyntaxState State)
         {

@@ -13,17 +13,21 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class ForeachSyntax : IStatementSyntax, ITokenNode
+    public class ForeachSyntax : IStatementSyntax, ITokenNode, ISourceSyntax
     {
-        public const this(set Token ForeachKeyword, set Token LeadingParentheses,
-            set [ElementInCollectionSyntax] Elements,
-            set Token TrailingParentheses, set IStatementSyntax Body);
+        public const this(set Token ForeachKeyword,
+            set DelimitedList<ElementInCollectionSyntax> Elements,
+            set IStatementSyntax Body);
 
         public Token ForeachKeyword { const get; private set; }
-        public Token LeadingParentheses { const get; private set; }
-        public [ElementInCollectionSyntax] Elements { const get; private set; }
-        public Token TrailingParentheses { const get; private set; }
+        public DelimitedList<ElementInCollectionSyntax> Elements { const get; private set; }
         public IStatementSyntax Body { const get; private set; }
+
+        public SourceLocation Location
+        {
+            const get return ForeachKeyword.Location.Concat(Elements.Location)
+                                                    .Concat(Body.GetSourceLocation());
+        }
 
         public IReadOnlyList<Token> Tokens
         {
@@ -31,12 +35,7 @@ namespace Flame.Syntax.DSharp
         	{
         		List<Token> results = new List<Token>();
 				results.Add(ForeachKeyword);
-				results.Add(LeadingParentheses);
-				foreach (var item in Elements)
-				{
-					results.AddRange(item.GetTokens());
-				}
-				results.Add(TrailingParentheses);
+				results.Add(Elements.Tokens);
 				results.AddRange(Body.GetTokens());
 				return results;
         	}
@@ -89,22 +88,7 @@ namespace Flame.Syntax.DSharp
         {
             CodeBuilder cb = new CodeBuilder();
             cb.Append(ForeachKeyword.ToString());
-            cb.Append(LeadingParentheses.ToString());
-            bool first = true;
-            foreach (var item in Elements)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    cb.Append(",");
-                }
-                cb.Append(item.GetCode());
-            }
-            cb.Append(TrailingParentheses.ToString());
-            cb.AppendLine();
+            cb.Append(Elements.GetCode());
             cb.Append(Body.GetCode());
             return cb;
         }

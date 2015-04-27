@@ -7,7 +7,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class DelimitedList<T> : IRelevantSyntax<Token>, ISyntaxNode, ISourceSyntax, IEnumerable<T>
+	public class DelimitedList<T> : IRelevantSyntax<Token>, ISyntaxNode, ISourceSyntax, ITokenNode, IEnumerable<T>
 		where T : ISyntaxNode
 	{
 		public const this()
@@ -43,6 +43,18 @@ namespace Flame.Syntax.DSharp
 		public T this[int Index]
 		{
 			const get return Items[Index];
+		}
+
+		public IReadOnlyList<Token> Tokens
+		{
+			const get
+			{
+				var results = new List<Token>();
+				results.Add(LeftDelimiter);
+				results.AddRange(Items.Tokens);
+				results.Add(RightDelimiter);
+				return results;
+			}
 		}
 
 		public [Token] LeadingTrivia
