@@ -41,11 +41,11 @@ namespace Flame.Syntax.DSharp
         	}
         }
 
-        public const IEnumerable<string> VariableNames
+        public const [string] VariableNames
         {
             const get
             {
-            	List<string> names = new List<string>();
+            	var names = new List<string>();
             	foreach (var item in Declarations)
             	{
             		names.Add(item.Name.TokenValue);
@@ -54,7 +54,7 @@ namespace Flame.Syntax.DSharp
             }
         }
 
-        public IEnumerable<IVariable> GetDeclaredVariables(ISyntaxState State)
+        public [IVariable] GetDeclaredVariables(ISyntaxState State)
         {
         	var list = new List<IVariable>();
         	foreach (var item in Declarations)
