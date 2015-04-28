@@ -91,7 +91,7 @@ namespace Flame.Cecil
             {
                 attrs.Add(PrimitiveAttributes.Instance.AbstractAttribute);
             }
-            else if (resolvedMethod.IsVirtual && !resolvedMethod.IsFinal)
+            else if (resolvedMethod.IsVirtual && !resolvedMethod.IsFinal && !resolvedMethod.DeclaringType.IsValueType)
             {
                 attrs.Add(PrimitiveAttributes.Instance.VirtualAttribute);
             }
