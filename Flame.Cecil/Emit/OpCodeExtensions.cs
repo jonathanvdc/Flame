@@ -111,32 +111,47 @@ namespace Flame.Cecil.Emit
 
         #region GetArgumentIndex
 
-        public static uint GetArgumentIndex(Instruction Instruction)
+        public static ParameterDefinition GetArgumentOperand(Instruction Instruction, ILProcessor Processor)
         {
             var opCode = Instruction.OpCode;
+            var parameters = Processor.Body.Method.Parameters;
             if (opCode == OpCodes.Ldarg_0)
             {
-                return 0;
+                return parameters[0];
             }
             else if (opCode == OpCodes.Ldarg_1)
             {
-                return 1;
+                return parameters[1];
             }
             else if (opCode == OpCodes.Ldarg_2)
             {
-                return 2;
+                return parameters[2];
             }
             else if (opCode == OpCodes.Ldarg_3)
             {
-                return 3;
+                return parameters[3];
             }
             else if (opCode == OpCodes.Ldarg_S || opCode == OpCodes.Starg_S || opCode == OpCodes.Ldarga_S)
             {
-                return (byte)Instruction.Operand;
+                if (Instruction.Operand is byte)
+                {
+                    return parameters[(byte)Instruction.Operand];
+                }
+                else
+                {
+                    return (ParameterDefinition)Instruction.Operand;
+                }
             }
             else if (opCode == OpCodes.Ldarg || opCode == OpCodes.Starg || opCode == OpCodes.Ldarga)
             {
-                return (uint)Instruction.Operand;
+                if (Instruction.Operand is uint)
+                {
+                    return parameters[(int)(uint)Instruction.Operand];
+                }
+                else
+                {
+                    return (ParameterDefinition)Instruction.Operand;
+                }
             }
             else
             {
@@ -234,7 +249,7 @@ namespace Flame.Cecil.Emit
             }
             else if (opCode.IsLoadArgumentOpCode())
             {
-                return Processor.CreateArgumentAddressOfInstruction(GetArgumentIndex(Instruction));
+                return Processor.CreateArgumentAddressOfInstruction(GetArgumentOperand(Instruction, Processor));
             }
             else if (opCode.IsLoadElementOpCode())
             {
@@ -268,15 +283,15 @@ namespace Flame.Cecil.Emit
 
         #region CreateArgumentAddressOfInstruction
 
-        public static Instruction CreateArgumentAddressOfInstruction(this ILProcessor Processor, uint Index)
+        public static Instruction CreateArgumentAddressOfInstruction(this ILProcessor Processor, ParameterDefinition Argument)
         {
-            if (ILCodeGenerator.IsBetween(Index, byte.MinValue, byte.MaxValue))
+            if (ILCodeGenerator.IsBetween(Argument.Index, byte.MinValue, byte.MaxValue))
             {
-                return Processor.Create(OpCodes.Ldarga_S, (byte)Index);
+                return Processor.Create(OpCodes.Ldarga_S, Argument);
             }
             else
             {
-                return Processor.Create(OpCodes.Ldarga, Index);
+                return Processor.Create(OpCodes.Ldarga, Argument);
             }
         }
 
