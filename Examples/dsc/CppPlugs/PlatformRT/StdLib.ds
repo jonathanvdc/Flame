@@ -1,0 +1,27 @@
+using System;
+using Flame.RT;
+
+namespace std
+{
+    [Header("cstdlib")]
+    [GlobalType]
+    public static class cstdlib
+    {
+        static this()
+        {
+            randGen = new Random();
+        }
+
+        private Random randGen;
+
+        public void srand(uint seed)
+        {
+            randGen = new Random((int)seed);
+        }
+
+        public uint rand()
+        {
+            return (uint)randGen.Next();
+        }
+    }
+}

@@ -20,5 +20,6 @@
     <Compile Include="UnorderedMap.ds" />
     <Compile Include="UnorderedSet.ds" />
     <Compile Include="Vector.ds" />
+    <Compile Include="StdLib.ds" />
   </ItemGroup>
 </Project>
