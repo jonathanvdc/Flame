@@ -11,13 +11,19 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class AttributeSyntax : IAttributeSyntax, IRelevantSyntax<Token>
+    public class AttributeSyntax : IAttributeSyntax, IRelevantSyntax<Token>, ISourceSyntax
     {
         public this(set Token OpeningBracket, set IInvocationSyntax Constructor, set Token ClosingBracket);
 
         public Token OpeningBracket { const get; private set; }
         public IInvocationSyntax Constructor { const get; private set; }
         public Token ClosingBracket { const get; private set; }
+
+        public SourceLocation Location
+        {
+            const get return OpeningBracket.Location.Concat(Constructor.GetSourceLocation())
+                                                    .Concat(ClosingBracket.Location);
+        }
 
         public [Token] LeadingTrivia
         {

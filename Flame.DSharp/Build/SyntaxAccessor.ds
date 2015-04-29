@@ -59,6 +59,15 @@ namespace Flame.DSharp.Build
 
         #endregion
 
+        #region ISourceMember Implementation
+
+        public SourceLocation Location
+        {
+            const get return Syntax.Location;
+        }
+
+        #endregion
+
         #region Syntax State
 
         public virtual ISyntaxState GetSyntaxState()

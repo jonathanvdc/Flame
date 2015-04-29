@@ -13,11 +13,11 @@ namespace Flame.Syntax.DSharp
         {
             this.Tokens = new Token[] { Token };
         }
-        public this(set IEnumerable<Token> Tokens);
+        public this(set [Token] Tokens);
 
-        public IEnumerable<Token> Tokens { const get; private set; }
-        
-        public IEnumerable<Token> LeadingTrivia
+        public [Token] Tokens { const get; private set; }
+
+        public [Token] LeadingTrivia
         {
         	const get
         	{
@@ -29,10 +29,10 @@ namespace Flame.Syntax.DSharp
 				return trivia;
         	}
         }
-        
-        public IEnumerable<Token> TrailingTrivia
+
+        public [Token] TrailingTrivia
         {
-        	const get return (IEnumerable<Token>)new Token[0];
+        	const get return new Token[0];
         }
 
         public IType CreateType(ISyntaxState State)
@@ -44,7 +44,7 @@ namespace Flame.Syntax.DSharp
             }
             return type;
         }
-        
+
         public static bool VerifyType(IType Type)
         {
         	if (Type == null)

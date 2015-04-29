@@ -205,6 +205,7 @@
 			<Compile Include="Build\IInvariantTypeBuilder.ds" />
 			<Compile Include="Build\IInvariantType.ds" />
 			<Compile Include="Build\IInvariant.ds" />
+			<Compile Include="Build\ISourceMember.ds" />
 			<Compile Include="Build\DescribedInvariant.ds" />
 			<Compile Include="Build\InvariantExtensions.ds" />
 		</ItemGroup>

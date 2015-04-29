@@ -40,6 +40,15 @@ namespace Flame.DSharp.Build
 
         #endregion
 
+		#region ISourceMember Implementation
+
+		public SourceLocation Location
+		{
+			const get return Syntax.Location;
+		}
+
+		#endregion
+
 		private IExpression cachedFieldValue;
 		private const IExpression GetValue(bool UseDefault)
 		{
@@ -56,7 +65,7 @@ namespace Flame.DSharp.Build
             }
             return cachedFieldValue;
 		}
-		
+
         public const IExpression GetValue()
         {
         	return GetValue(true);
@@ -65,7 +74,7 @@ namespace Flame.DSharp.Build
 		private IType cachedFieldType;
         public IType FieldType
         {
-            const get 
+            const get
             {
             	if (cachedFieldType == null)
             	{
@@ -118,18 +127,18 @@ namespace Flame.DSharp.Build
         	{
 	            var modifierAttrs = Syntax.Signature.ModifierTokens.GetModifiers();
 	            var extraAttributes = new List<IAttribute>();
-	            
+
 	            if (!modifierAttrs.HasAccessAttribute)
 	                extraAttributes.Add(DeclaringType.GetAccessAttribute());
-	            
+
 	            foreach (var item in modifierAttrs)
 	            	extraAttributes.Add(item);
-	            	
+
 	            foreach (var item in Syntax.Signature.Attributes)
 	            	extraAttributes.Add(item.CreateAttribute(State, this));
-	            	
+
 	            extraAttributes.AddRange(Syntax.GetDescriptionAttributes(State));
-	            	
+
 	            attrCache = extraAttributes.ToArray();
             }
             return attrCache;
@@ -139,7 +148,7 @@ namespace Flame.DSharp.Build
         {
             return Syntax.GetCode();
         }
-        
+
         #region Equality
 
         public override int GetHashCode()

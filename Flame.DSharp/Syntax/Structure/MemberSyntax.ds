@@ -19,29 +19,29 @@ namespace Flame.Syntax.DSharp
                 return Signature.NameToken.TokenValue;
             }
         }
-        
-        public IEnumerable<Token> LeadingTrivia
+
+        public [Token] LeadingTrivia
         {
         	const get
         	{
         		List<Token> tokens = new List<Token>();
-        		
+
 				foreach (var item in Signature.Attributes)
 					tokens.AddRange(item.GetAllTrivia());
 				foreach (var item in Signature.ModifierTokens)
 					tokens.AddRange(item.GetAllTrivia());
 				tokens.AddRange(Signature.TypeSyntax.GetAllTrivia());
 				tokens.AddRange(Signature.NameToken.GetAllTrivia());
-				
+
 				AddExtraLeadingTrivia(tokens);
-				
+
 				return tokens;
         	}
         }
-        
+
         protected virtual void AddExtraLeadingTrivia(List<Token> Target);
-        
-        public IEnumerable<Token> TrailingTrivia { const get return (IEnumerable<Token>)new Token[0]; }
+
+        public [Token] TrailingTrivia { const get return new Token[0]; }
 
         public virtual override string ToString()
         {

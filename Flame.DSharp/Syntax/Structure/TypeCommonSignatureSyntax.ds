@@ -9,18 +9,31 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class TypeCommonSignatureSyntax : ISignatureSyntax
+    public class TypeCommonSignatureSyntax : ISignatureSyntax, ISourceSyntax
     {
-        public const this(set IEnumerable<IAttributeSyntax> Attributes, IList<Token> Tokens, set ICompilerLog Log)
+        public const this(set [IAttributeSyntax] Attributes, IList<Token> Tokens, set ICompilerLog Log)
         {
             nsIndex = -1;
             this.tokens = Tokens;
         }
 
-        public IEnumerable<IAttributeSyntax> Attributes { const get; private set; }
+        public [IAttributeSyntax] Attributes { const get; private set; }
         public ICompilerLog Log { const get; private set; }
         public bool IsOperator { const get return false; }
         private IList<Token> tokens;
+
+        public SourceLocation Location
+        {
+            const get
+            {
+                SourceLocation result = null;
+                foreach (var item in tokens)
+                {
+                    result = result.Concat(item.Location);
+                }
+                return result;
+            }
+        }
 
         #region NameStartIndex
 
@@ -59,7 +72,7 @@ namespace Flame.Syntax.DSharp
 
         #region Modifiers
 
-        public IEnumerable<Token> ModifierTokens
+        public [Token] ModifierTokens
         {
             const get
             {
@@ -71,7 +84,7 @@ namespace Flame.Syntax.DSharp
 
         #region Generics
 
-        public IEnumerable<IGenericParameterDeclarationSyntax> GenericDeclarations
+        public [IGenericParameterDeclarationSyntax] GenericDeclarations
         {
             const get
             {
@@ -136,7 +149,7 @@ namespace Flame.Syntax.DSharp
         }
 
         #endregion
-        
+
         public const SignatureSyntax ToSignatureSyntax()
         {
             return new SignatureSyntax(this);

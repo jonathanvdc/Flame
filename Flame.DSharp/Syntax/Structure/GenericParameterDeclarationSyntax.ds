@@ -9,7 +9,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class GenericParameterDeclarationSyntax : IGenericParameterDeclarationSyntax
+    public class GenericParameterDeclarationSyntax : IGenericParameterDeclarationSyntax, ISourceSyntax
     {
         public const this(set [Token] ModifierTokens, set Token NameToken);
 
@@ -20,6 +20,19 @@ namespace Flame.Syntax.DSharp
             const get
             {
                 return NameToken.TokenValue;
+            }
+        }
+
+        public SourceLocation Location
+        {
+            const get
+            {
+                var result = NameToken.Location;
+                foreach (var item in ModifierTokens)
+                {
+                    result = result.Concat(item.Location);
+                }
+                return result;
             }
         }
 

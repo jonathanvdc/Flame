@@ -14,15 +14,15 @@ using Flame.Syntax.DSharp;
 
 namespace Flame.DSharp.Build
 {
-	public class SyntaxInvariant : CodeMember, IInvariant, ISyntaxNode
+	public class SyntaxInvariant : CodeMember, IInvariant, ISyntaxNode, ISourceMember
 	{
         public const this(set InvariantSyntax Syntax, set ISyntaxState State);
 
 		public InvariantSyntax Syntax { const get; private set; }
 		public ISyntaxState State { const get; private set; }
-		
+
 		#region IInvariantMember Implementation
-		
+
 		private IExpression cachedInvariant;
 		public IExpression Invariant
 		{
@@ -35,16 +35,25 @@ namespace Flame.DSharp.Build
 				return cachedInvariant;
 			}
 		}
-		
+
 		#endregion
-		
+
+		#region ISourceMember Implementation
+
+		public SourceLocation Location
+		{
+			const get return Syntax.Location;
+		}
+
+		#endregion
+
 		#region ITypeMember Implementation
-		
-		public IType DeclaringType 
-		{ 
+
+		public IType DeclaringType
+		{
 			const get return State.DeclaringType;
 		}
-        
+
         public bool IsStatic
         {
         	const get return false;
@@ -54,26 +63,26 @@ namespace Flame.DSharp.Build
 		{
 			const get return "invariant";
 		}
-		
+
 		public string FullName
 		{
 			const get return MemberExtensions.CombineNames(DeclaringType.FullName, Name);
 		}
-		
+
 		public const [IAttribute] GetAttributes()
         {
         	return Enumerable.Empty<IAttribute>();
         }
-        
+
         #endregion
-        
+
         #region CodeMember Implementation
-        
+
         public override string GetHeaderString()
         {
         	return Name;
         }
-        
+
         public override CodeBuilder GetBodyCode()
         {
         	CodeBuilder cb = new CodeBuilder();
@@ -82,18 +91,18 @@ namespace Flame.DSharp.Build
         	cb.Append(Syntax.TrailingBraces.ToString());
         	return cb;
         }
-        
+
         #endregion
-        
+
         #region ISyntaxNode Implementation
-        
+
         public const CodeBuilder GetCode()
         {
             return Syntax.GetCode();
         }
-        
+
         #endregion
-        
+
         #region Equality
 
         public override int GetHashCode()

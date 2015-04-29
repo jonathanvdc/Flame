@@ -8,7 +8,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class AliasSyntax : IBinderDirectiveSyntax
+    public class AliasSyntax : IBinderDirectiveSyntax, ISourceSyntax
     {
         public const this(set Token AliasKeyword, set Token Alias, set Token Operator, set ITypeSyntax Type, set Token Semicolon);
 
@@ -17,6 +17,14 @@ namespace Flame.Syntax.DSharp
         public Token Operator { const get; private set; }
         public ITypeSyntax Type { const get; private set; }
         public Token Semicolon { const get; private set; }
+
+        public SourceLocation Location
+        {
+            const get return AliasKeyword.Location.Concat(Alias.Location)
+                                                  .Concat(Operator.Location)
+                                                  .Concat(Type.GetSourceLocation())
+                                                  .Concat(Semicolon.Location);
+        }
 
         public string AliasNamespaceString
         {
