@@ -22,7 +22,7 @@ namespace Flame.Cecil.Emit
 
         private List<Instruction> branchTargets;
 
-        protected override void RemoveLastInstructions(int Count)
+        public override void PopInstructions(int Count)
         {
             var instrs = Processor.Body.Instructions;
             for (int i = 0; i < Count; i++)

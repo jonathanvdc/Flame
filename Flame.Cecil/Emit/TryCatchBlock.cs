@@ -7,21 +7,25 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
-    public class TryBlock : ICecilBlock
+    public class TryCatchBlock : ICecilBlock
     {
-        public TryBlock(ICecilBlock TryBody, ICecilBlock FinallyBody, IEnumerable<CatchClause> CatchClauses)
+        public TryCatchBlock(ICecilBlock TryBody, IEnumerable<CatchClause> CatchClauses)
         {
             this.TryBody = TryBody;
-            this.FinallyBody = FinallyBody;
             this.CatchClauses = CatchClauses;
         }
 
         public ICecilBlock TryBody { get; private set; }
-        public ICecilBlock FinallyBody { get; private set; }
         public IEnumerable<CatchClause> CatchClauses { get; private set; }
 
         public void Emit(IEmitContext Context)
         {
+            if (!CatchClauses.Any()) // Do not emit a try block if there are no catch clauses
+            {
+                TryBody.Emit(Context);
+                return;
+            }
+
             var blockEndLabel = Context.CreateLabel();
 
             var tryStartLabel = Context.CreateLabel();
@@ -50,23 +54,6 @@ namespace Flame.Cecil.Emit
                 Context.MarkLabel(catchEndLabel);
 
                 Context.CreateCatchHandler(tryStartLabel, tryEndLabel, catchStartLabel, catchEndLabel, item.Header.ExceptionType);
-            }
-
-            var finallyStartLabel = Context.CreateLabel();
-            Context.MarkLabel(finallyStartLabel);
-
-            int instrCount = Context.Processor.Body.Instructions.Count;
-
-            FinallyBody.Emit(Context);
-
-            if (Context.Processor.Body.Instructions.Count - instrCount > 0)
-            {
-                Context.Emit(Mono.Cecil.Cil.OpCodes.Endfinally);
-
-                var finallyEndLabel = Context.CreateLabel();
-                Context.MarkLabel(finallyEndLabel);
-
-                Context.CreateFinallyHandler(tryStartLabel, tryEndLabel, finallyStartLabel, finallyEndLabel);
             }
 
             Context.MarkLabel(blockEndLabel);

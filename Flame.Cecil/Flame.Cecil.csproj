@@ -80,11 +80,12 @@
     <Compile Include="CecilTypeImporter.cs" />
     <Compile Include="CecilTypeMemberConverterBase.cs" />
     <Compile Include="CecilTypeMemberImporterBase.cs" />
+    <Compile Include="Emit\TryCatchBlock.cs" />
     <Compile Include="Emit\CatchClause.cs" />
     <Compile Include="Emit\LoadFieldIndirectionOptimization.cs" />
     <Compile Include="Emit\EmptyBlock.cs" />
     <Compile Include="Emit\ThrowBlock.cs" />
-    <Compile Include="Emit\TryBlock.cs" />
+    <Compile Include="Emit\TryFinallyBlock.cs" />
     <Compile Include="Emit\UnboxAnyToPointerOptimization.cs" />
     <Compile Include="CecilGenericInstanceField.cs" />
     <Compile Include="GenericExtensions.cs" />
