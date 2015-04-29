@@ -19,6 +19,19 @@ namespace Flame.Verification
             : base(Verifier)
         { }
 
+        protected override string PluralMemberKindName
+        {
+            get { return "accessors"; }
+        }
+        protected override string SingularMemberKindName
+        {
+            get { return "accessor"; }
+        }
+        protected override string GetDescription(IAccessor Method)
+        {
+            return "Accessor '" + Method.Name + "' in property '" + Method.DeclaringProperty.Name + "' of '" + Method.DeclaringType.FullName + "'";
+        }
+
         protected override IEnumerable<IAccessor> GetDuplicates(IAccessor Member, ICompilerLog Log)
         {
             return Member.DeclaringProperty.GetAccessors()
