@@ -111,31 +111,48 @@ namespace Flame.Cecil.Emit
 
         #region GetArgumentIndex
 
+        public static ParameterDefinition GetParameterDefinition(int Index, ILProcessor Processor)
+        {
+            var method = Processor.Body.Method;
+            if (method.IsStatic)
+            {
+                return method.Parameters[Index];
+            }
+            else if (Index == 0)
+            {
+                return Processor.Body.ThisParameter;
+            }
+            else
+            {
+                return method.Parameters[Index - 1];
+            }
+        }
+
         public static ParameterDefinition GetArgumentOperand(Instruction Instruction, ILProcessor Processor)
         {
             var opCode = Instruction.OpCode;
-            var parameters = Processor.Body.Method.Parameters;
+
             if (opCode == OpCodes.Ldarg_0)
             {
-                return parameters[0];
+                return GetParameterDefinition(0, Processor);
             }
             else if (opCode == OpCodes.Ldarg_1)
             {
-                return parameters[1];
+                return GetParameterDefinition(1, Processor);
             }
             else if (opCode == OpCodes.Ldarg_2)
             {
-                return parameters[2];
+                return GetParameterDefinition(2, Processor);
             }
             else if (opCode == OpCodes.Ldarg_3)
             {
-                return parameters[3];
+                return GetParameterDefinition(3, Processor);
             }
             else if (opCode == OpCodes.Ldarg_S || opCode == OpCodes.Starg_S || opCode == OpCodes.Ldarga_S)
             {
                 if (Instruction.Operand is byte)
                 {
-                    return parameters[(byte)Instruction.Operand];
+                    return GetParameterDefinition((byte)Instruction.Operand, Processor);
                 }
                 else
                 {
@@ -146,7 +163,7 @@ namespace Flame.Cecil.Emit
             {
                 if (Instruction.Operand is uint)
                 {
-                    return parameters[(int)(uint)Instruction.Operand];
+                    return GetParameterDefinition((int)(uint)Instruction.Operand, Processor);
                 }
                 else
                 {

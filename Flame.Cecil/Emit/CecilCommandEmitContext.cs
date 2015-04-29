@@ -55,7 +55,7 @@ namespace Flame.Cecil.Emit
         protected override bool IsSingleFlow(int InstructionCount)
         {
             int count = Processor.Body.Instructions.Count;
-            if (count < InstructionCount || AtBranchTarget)
+            if (count < InstructionCount || AtProtectedInstruction)
             {
                 return false;
             }
