@@ -7,6 +7,7 @@ using Flame.Compiler.Statements;
 using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Variables;
+using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
@@ -60,6 +61,18 @@ namespace Flame.Syntax.DSharp
         public const IStatement CreateStatement(ISyntaxState State)
         {
         	var tryClause = TryBody.CreateVerifiedStatement(State);
+
+			bool showEmptyBodyWarnings = State.Log.ShowEmptyBodyWarnings;
+
+			if (showEmptyBodyWarnings && tryClause.IsEmpty)
+			{
+				State.Log.LogWarning(new LogEntry("Empty try block",
+					"A try block has an empty statement as its body. " +
+					"Any associated catch or finally clauses will never be executed. " +
+					Warnings.GetWarningNameMessage(Warnings.EmptyBody),
+					TryKeyword.Location.Concat(TryBody.GetSourceLocation())));
+			}
+
         	var catchClauses = new List<CatchClause>();
         	foreach (var item in CatchClauses)
         	{
@@ -72,6 +85,16 @@ namespace Flame.Syntax.DSharp
         	else
         	{
         		var finallyClause = FinallyClause.Body.CreateVerifiedStatement(State);
+
+				if (showEmptyBodyWarnings && finallyClause.IsEmpty)
+				{
+					State.Log.LogWarning(new LogEntry("Empty finally clause",
+						"A finally block has an empty statement as its body. " +
+						"This does not change the observable behavior of the program. " +
+						Warnings.GetWarningNameMessage(Warnings.EmptyBody),
+						FinallyClause.Location));
+				}
+
         		return new TryStatement(tryClause, finallyClause, catchClauses);
         	}
         }
@@ -128,13 +151,19 @@ namespace Flame.Syntax.DSharp
         	}
         }
 
-		public const CodeBuilder GetCode()
+		public const CodeBuilder GetHeaderCode()
 		{
 			var cb = new CodeBuilder();
 			cb.Append(CatchKeyword.ToString());
 			cb.Append(LeadingParentheses.ToString());
 			cb.Append(ExceptionDeclaration.ToString());
 			cb.Append(TrailingParentheses.ToString());
+			return cb;
+		}
+
+		public const CodeBuilder GetCode()
+		{
+			var cb = GetHeaderCode();
 			cb.Append(Body.GetCode());
 			return cb;
 		}
@@ -151,7 +180,7 @@ namespace Flame.Syntax.DSharp
     		}
 
     		string variableName = Enumerable.Single<string>(varNames);
-    		IType variableType = ExceptionDeclaration.Type.CreateType(State);
+    		IType variableType = ExceptionDeclaration.Type.CreateVerifiedType(State);
 
     		var descMember = new DescribedVariableMember(variableName, variableType)
 
@@ -160,6 +189,18 @@ namespace Flame.Syntax.DSharp
 			State.DeclareVariable(variableName, clause.ExceptionVariable, ExceptionDeclaration.Location);
 
 			var bodyStmt = Body.CreateVerifiedStatement(State);
+
+			if (bodyStmt.IsEmpty && State.Log.ShowEmptyBodyWarnings)
+			{
+				State.Log.LogWarning(new LogEntry("Empty catch clause",
+					"Catch clause '" + this.GetHeaderCode().Trim() +
+					"' has an empty statement as its body. " +
+					"This will silently hide all exceptions of type '" +
+					ExceptionDeclaration.Type.GetCode().Trim() + "'. " +
+					Warnings.GetWarningNameMessage(Warnings.EmptyBody),
+					this.Location));
+			}
+
 			var cleanup = State.PopScope();
 
 			var completeBody = new BlockStatement(new IStatement[] { bodyStmt, cleanup });
