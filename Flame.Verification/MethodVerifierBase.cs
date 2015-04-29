@@ -46,7 +46,7 @@ namespace Flame.Verification
 
                 duplicates.UnionWith(dupls);
 
-                var message = new MarkupNode(NodeConstants.TextNodeType,  "Method '" + Member.Name + "' of '" + Member.DeclaringType + "' has a duplicate.");
+                var message = new MarkupNode(NodeConstants.TextNodeType, GetDescription(Member) + " has a duplicate.");
                 IMarkupNode mainNode = new MarkupNode("entry", new IMarkupNode[] { message, Member.GetSourceLocation().CreateDiagnosticsNode() });
                 int count = 1;
                 foreach (var item in dupls)
@@ -63,7 +63,7 @@ namespace Flame.Verification
                     count++;
                 }
 
-                Log.LogError(new LogEntry(dupls.Length == 1 ? "Duplicate method" : "Duplicate methods", mainNode));
+                Log.LogError(new LogEntry(dupls.Length == 1 ? "Duplicate " + SingularMemberKindName : "Duplicate " + PluralMemberKindName, mainNode));
 
                 return false;
             }
@@ -71,6 +71,14 @@ namespace Flame.Verification
         }
 
         protected abstract IEnumerable<TMethod> GetDuplicates(TMethod Member, ICompilerLog Log);
+
+        protected virtual string GetDescription(TMethod Method)
+        {
+            return "Method '" + Method.Name + "' of '" + Method.DeclaringType.FullName + "'";
+        }
+
+        protected virtual string SingularMemberKindName { get { return "method"; } }
+        protected virtual string PluralMemberKindName { get { return "methods"; } }
 
         protected override bool VerifyMemberCore(TMethod Member, ICompilerLog Log)
         {

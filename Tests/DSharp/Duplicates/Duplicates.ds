@@ -10,4 +10,10 @@ public static class DuplicatesTest
     {
         return 0;
     }
+
+    public int Value
+    {
+        const get return 2;
+        get return 5;
+    }
 }
