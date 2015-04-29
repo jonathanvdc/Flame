@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
@@ -20,28 +21,33 @@ namespace Flame.Syntax.DSharp
         {
         	var sourceExpr = Target.CreateVerifiedExpression(State);
         	var targetType = Type.CreateVerifiedType(State);
-        	if (targetType != null && sourceExpr != null && sourceExpr.Type.Is(targetType))
+        	if (targetType != null && sourceExpr != null && State.Log.ShowHiddenNullCheckWarnings && sourceExpr.Type.Is(targetType))
         	{
-        		State.Log.LogWarning(new LogEntry("Constant 'is' expression", "Expression '" + this.GetCode().ToString() + "' will always evaluate to true for non-null values of '" + Target.GetCode().ToString() + ".'", IsKeyword.Location.Concat(Type.GetSourceLocation())));
+        		State.Log.LogWarning(new LogEntry("Constant 'is' expression",
+                    "Expression '" + this.GetCode().ToString() +
+                    "' will always evaluate to true for non-null values of '" +
+                    Target.GetCode().ToString() + ".' An explicit null-check may be clearer. " +
+                    Warnings.GetWarningNameMessage(Warnings.HiddenNullCheck),
+                    IsKeyword.Location.Concat(Type.GetSourceLocation())));
         	}
             return new IsExpression(sourceExpr, targetType);
         }
-        
+
         public SourceLocation Location
         {
         	const get return Target.GetSourceLocation().Concat(IsKeyword.Location).Concat(Type.GetSourceLocation());
         }
-        
+
         public [Token] LeadingTrivia
         {
         	const get return Target.GetAllTrivia();
         }
-        
+
         public [Token] TrailingTrivia
         {
         	const get return Enumerable.Empty<Token>();
         }
-        
+
         public IReadOnlyList<Token> Tokens
         {
         	const get

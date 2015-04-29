@@ -134,6 +134,19 @@ namespace Flame.DSharp.Build
         public const string LonelyTry = "lonely-try";
 
         /// <summary>
+        /// The warning name for hidden or convoluted null checks.
+        /// </summary>
+        /// <example>
+        /// public static int Derp(object x)
+        /// {
+        ///     if (x is object) return 0;
+        ///           ^~~~~~~~~
+        ///     else return 1;
+        /// }
+        /// </example>
+        public const string HiddenNullCheck = "hidden-null-check";
+
+        /// <summary>
         /// Gets a warning's "official name", which the log maps to an on/off boolean.
         /// </summary>
         public static const string GetWarningName(string Name)
@@ -260,6 +273,10 @@ namespace Flame.DSharp.Build
         public static bool ShowLonelyTryWarnings[this ICompilerLog Log]
         {
             const get return Log.UsePedanticWarnings(LonelyTry);
+        }
+        public static bool ShowHiddenNullCheckWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UsePedanticWarnings(HiddenNullCheck);
         }
     }
 }
