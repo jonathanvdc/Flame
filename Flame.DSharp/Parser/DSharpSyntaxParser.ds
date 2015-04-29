@@ -1870,7 +1870,7 @@ namespace Flame.DSharp.Parser
         	var tryKeyword = Tokens.NextNoTrivia(TokenType.TryKeyword, Log);
         	var tryBody = ParseStatement(Tokens);
         	FinallySyntax finallyClause = null;
-        	List<CatchSyntax> catchClauses = new List<CatchSyntax>();
+        	var catchClauses = new List<CatchSyntax>();
         	var peek = Tokens.PeekNoTrivia();
         	while (peek.Type == TokenType.CatchKeyword || peek.Type == TokenType.FinallyKeyword)
         	{
@@ -1888,6 +1888,16 @@ namespace Flame.DSharp.Parser
         		}
         		peek = Tokens.PeekNoTrivia();
         	}
+
+			if (finallyClause == null && catchClauses.Count == 0 && Log.ShowLonelyTryWarnings)
+			{
+				Log.LogWarning(new LogEntry("Lonely try statement",
+					"This try statement does not have an associated catch or finally clause. " +
+					"The 'try' keyword is therefore meaningless here. " +
+					Warnings.GetWarningNameMessage(Warnings.LonelyTry),
+					tryKeyword.Location));
+			}
+
         	return new TrySyntax(tryKeyword, tryBody, finallyClause, catchClauses);
         }
 
