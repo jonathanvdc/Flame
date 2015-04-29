@@ -36,7 +36,7 @@ namespace Flame.Cecil.Emit
         }
 
         protected abstract IReadOnlyList<Mono.Cecil.Cil.Instruction> GetLastInstructions(int Count);
-        protected abstract void RemoveLastInstructions(int Count);
+        public abstract void PopInstructions(int Count);
         public virtual Mono.Cecil.Cil.Instruction CurrentInstruction
         {
             get

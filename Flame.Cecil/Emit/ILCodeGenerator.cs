@@ -340,7 +340,7 @@ namespace Flame.Cecil.Emit
 
         public ICodeBlock EmitTryBlock(ICodeBlock TryBody, ICodeBlock FinallyBody, IEnumerable<ICatchClause> CatchClauses)
         {
-            return new TryBlock((ICecilBlock)TryBody, (ICecilBlock)FinallyBody, CatchClauses.Cast<CatchClause>());
+            return new TryFinallyBlock(new TryCatchBlock((ICecilBlock)TryBody, CatchClauses.Cast<CatchClause>()), (ICecilBlock)FinallyBody);
         }
 
         #endregion
