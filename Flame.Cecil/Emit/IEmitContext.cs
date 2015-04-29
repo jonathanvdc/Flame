@@ -45,6 +45,13 @@ namespace Flame.Cecil.Emit
         IEmitLabel CreateLabel();
         void MarkLabel(IEmitLabel Label);
 
+        void CreateCatchHandler(IEmitLabel TryStartLabel, IEmitLabel TryEndLabel, 
+            IEmitLabel HandlerStartLabel, IEmitLabel HandlerEndLabel,
+            IType CatchType);
+
+        void CreateFinallyHandler(IEmitLabel TryStartLabel, IEmitLabel TryEndLabel, 
+            IEmitLabel HandlerStartLabel, IEmitLabel HandlerEndLabel);
+
         IEmitLocal DeclareLocal(IType Type);
         void ReleaseLocal(IEmitLocal Local);
 

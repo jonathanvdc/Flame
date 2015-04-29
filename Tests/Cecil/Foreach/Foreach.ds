@@ -1,0 +1,45 @@
+using System;
+using System.Collections.Generic;
+
+public static class ForeachTest
+{
+    public const int Sum([int] First, [int] Second)
+    {
+        int result = 0;
+        foreach (var left in First, var right in Second)
+        {
+            result += left + right;
+        }
+        return result;
+    }
+
+    public const [int] GetIntegers([object] First)
+    {
+        var results = new List<int>();
+        foreach (var item in First)
+            if (item is int)
+                results.Add((int)item);
+        return results;
+    }
+
+    public const [int] GetIntegers(List<object> First)
+    {
+        var results = new List<int>();
+        foreach (var item in First)
+            if (item is int)
+                results.Add((int)item);
+        return results;
+    }
+
+    public const [int] GetIntegers(List<object> First, List<object> Second)
+    {
+        var results = new List<int>();
+        foreach (var item in First)
+            if (item is int)
+                results.Add((int)item);
+        foreach (var item in Second)
+            if (item is int)
+                results.Add((int)item);
+        return results;
+    }
+}

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Flame.Compiler.Emit;
 using Flame.Compiler.Variables;
 
@@ -39,9 +40,14 @@ namespace Flame.Compiler.Statements
 
 	public class TryStatement : IStatement
 	{
-		public const this(set IStatement TryBody);
-		public const this(set IStatement TryBody, set IStatement FinallyBody);
-		public const this(set IStatement TryBody, set [CatchClause] CatchClauses);
+		public const this(set IStatement TryBody, set IStatement FinallyBody)
+		{
+			this.CatchClauses = Enumerable.Empty<CatchClause>();
+		}
+		public const this(set IStatement TryBody, set [CatchClause] CatchClauses)
+		{
+			this.FinallyBody = new EmptyStatement();
+		}
 		public const this(set IStatement TryBody, set IStatement FinallyBody, set [CatchClause] CatchClauses);
 
 		public IStatement TryBody { const get; private set; }
