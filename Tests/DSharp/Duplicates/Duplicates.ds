@@ -1,0 +1,13 @@
+
+public static class DuplicatesTest
+{
+    public static int Test()
+    {
+        return 0;
+    }
+
+    static public int Test()
+    {
+        return 0;
+    }
+}
