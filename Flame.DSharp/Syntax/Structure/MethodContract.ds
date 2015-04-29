@@ -10,7 +10,7 @@ using Flame.Compiler.Statements;
 
 namespace Flame.Syntax.DSharp
 {
-	public class MethodContract : ISyntaxNode
+	public class MethodContract : ISyntaxNode, ISourceSyntax
 	{
 		public const this(set [PreconditionSyntax] Preconditions, set [PostconditionSyntax] Postconditions);
 

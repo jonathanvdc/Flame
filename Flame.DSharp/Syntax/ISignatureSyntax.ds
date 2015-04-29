@@ -8,9 +8,9 @@ namespace Flame.Syntax.DSharp
 {
     public interface ISignatureSyntax : ISyntaxNode
     {
-        IEnumerable<IAttributeSyntax> Attributes { const get; }
-        IEnumerable<Token> ModifierTokens { const get; }
-        IEnumerable<IGenericParameterDeclarationSyntax> GenericDeclarations { const get; }
+        [IAttributeSyntax] Attributes { const get; }
+        [Token] ModifierTokens { const get; }
+        [IGenericParameterDeclarationSyntax] GenericDeclarations { const get; }
         ITypeSyntax TypeSyntax { const get; }
         Token NameToken { const get; }
         bool IsOperator { const get; }

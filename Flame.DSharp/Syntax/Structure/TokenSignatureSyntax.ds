@@ -10,19 +10,32 @@ using Flame.DSharp.Parser;
 
 namespace Flame.Syntax.DSharp
 {
-    public class TokenSignatureSyntax : ISignatureSyntax
+    public class TokenSignatureSyntax : ISignatureSyntax, ISourceSyntax
     {
-        public const this(set IEnumerable<IAttributeSyntax> Attributes, IList<Token> Tokens, set ICompilerLog Log)
+        public const this(set [IAttributeSyntax] Attributes, IList<Token> Tokens, set ICompilerLog Log)
         {
             nsIndex = -1;
             tsIndex = -1;
             this.tokens = Tokens;
         }
 
-        public IEnumerable<IAttributeSyntax> Attributes { const get; private set; }
+        public [IAttributeSyntax] Attributes { const get; private set; }
         public ICompilerLog Log { const get; private set; }
         public bool IsOperator { const get return false; }
         private IList<Token> tokens;
+
+        public SourceLocation Location
+        {
+            const get
+            {
+                SourceLocation result = null;
+                foreach (var item in tokens)
+                {
+                    result = result.Concat(item.Location);
+                }
+                return result;
+            }
+        }
 
         #region TypeStartIndex
 

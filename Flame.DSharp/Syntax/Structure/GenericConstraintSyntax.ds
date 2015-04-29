@@ -8,14 +8,21 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class GenericConstraintSyntax : ISyntaxNode
+    public class GenericConstraintSyntax : ISyntaxNode, ISourceSyntax
     {
-        public const this(set Token WhereKeyword, set Token GenericParameterIdentifier, set Token Colon, set IEnumerable<ITypeSyntax> Constraints);
+        public const this(set Token WhereKeyword, set Token GenericParameterIdentifier, set Token Colon, set SeparatedList<ITypeSyntax> Constraints);
 
         public Token WhereKeyword { const get; private set; }
         public Token GenericParameterIdentifier { const get; private set; }
         public Token Colon { const get; private set; }
-        public IEnumerable<ITypeSyntax> Constraints { const get; private set; }
+        public SeparatedList<ITypeSyntax> Constraints { const get; private set; }
+
+        public SourceLocation Location
+        {
+            const get return WhereKeyword.Location.Concat(GenericParameterIdentifier.Location)
+                                                  .Concat(Colon.Location)
+                                                  .Concat(Constraints.Location);
+        }
 
         public const CodeBuilder GetCode()
         {
@@ -23,20 +30,7 @@ namespace Flame.Syntax.DSharp
             cb.Append(WhereKeyword.ToString());
             cb.Append(GenericParameterIdentifier.ToString());
             cb.Append(Colon.ToString());
-            bool first = true;
-            foreach (var item in Constraints)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    cb.Append(",");
-                }
-
-                cb.Append(item.GetCode());
-            }
+            cb.Append(Constraints.GetCode());
             return cb;
         }
     }

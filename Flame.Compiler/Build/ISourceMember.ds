@@ -1,0 +1,32 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Build
+{
+    /// <summary>
+    /// Defines common functionality for members that expose their source locations.
+    /// </summary>
+	public interface ISourceMember : IMember
+	{
+        /// <summary>
+        /// Gets the member's source location.
+        /// </summary>
+        SourceLocation Location { const get; }
+	}
+
+	public static class SourceMemberExtensions
+	{
+		/// <summary>
+		/// Tries to get the given member's source location.
+		/// </summary>
+		public static const SourceLocation GetSourceLocation(this IMember Member)
+		{
+			if (Member is ISourceMember)
+			{
+				return ((ISourceMember)Member).Location;
+			}
+			else return null;
+		}
+	}
+}

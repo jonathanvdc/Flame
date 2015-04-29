@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Build;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,13 +48,15 @@ namespace Flame.Verification
                     if (!item.get_IsValueType() && !item.get_IsPrimitive())
                     {
                         Log.LogError(new LogEntry("Invalid enum backing type", 
-                            "enum type '" + Member.FullName + "' must be backed by a primitive or value type. '" + item.FullName + "' is neither."));
+                            "enum type '" + Member.FullName + "' must be backed by a primitive or value type. '" + item.FullName + "' is neither.",
+                            Member.GetSourceLocation()));
                     }
                 }
                 else if (!item.get_IsVirtual() && !item.get_IsAbstract() && !item.get_IsInterface())
                 {
                     Log.LogError(new LogEntry("Invalid inheritance tree", 
-                        "Type '" + Member.FullName + "' cannot derive from non-virtual type '" + item.FullName + "'."));
+                        "Type '" + Member.FullName + "' cannot derive from non-virtual type '" + item.FullName + "'.",
+                        Member.GetSourceLocation()));
                 }
             }
             if (!Member.get_IsAbstract() && !Member.get_IsInterface())

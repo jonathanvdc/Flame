@@ -2157,23 +2157,25 @@ namespace Flame.DSharp.Parser
 
         #region ParseTypeList
 
-        protected virtual [ITypeSyntax] ParseTypeList(ITokenStream Tokens)
+        protected virtual SeparatedList<ITypeSyntax> ParseTypeList(ITokenStream Tokens)
         {
-            List<ITypeSyntax> baseTypes = new List<ITypeSyntax>();
-            while (true)
-            {
-                baseTypes.Add(ParseType(Tokens));
-                var peek = Tokens.PeekNoTrivia();
-                if (peek.Type == TokenType.Comma)
-                {
-                    Tokens.NextNoTrivia();
-                }
-                else
-                {
-                    break;
-                }
-            }
-            return baseTypes;
+			var args = new List<SeparatedItem<ITypeSyntax>>();
+
+			do
+			{
+				Token comma;
+
+				if (args.Count == 0)
+					comma = Token.Undefined;
+				else
+					comma = Tokens.NextNoTrivia(TokenType.Comma, Log);
+
+				var syntax = ParseType(Tokens);
+				args.Add(new SeparatedItem<ITypeSyntax>(comma, syntax));
+
+			} while (Tokens.PeekNoTrivia().Type == TokenType.Comma);
+
+			return new SeparatedList<ITypeSyntax>(args);
         }
 
         #endregion

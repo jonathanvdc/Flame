@@ -15,7 +15,7 @@ using Flame.Syntax.DSharp;
 
 namespace Flame.DSharp.Build
 {
-    public class SyntaxProperty : CodeMember, IProperty, ISyntaxNode
+    public class SyntaxProperty : CodeMember, IProperty, ISyntaxNode, ISourceMember
     {
         public const this(set PropertySyntax Syntax, set IType DeclaringType, set IBinder Binder,
             set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer);
@@ -34,6 +34,15 @@ namespace Flame.DSharp.Build
         	var descMethod = new DescribedMethod();
 			descMethod.DeclaringType = DeclaringType;
             return new SyntaxState(descMethod, Binder, Log, MemberProvider, TypeNamer);
+        }
+
+        #endregion
+
+        #region ISourceMember Implementation
+
+        public SourceLocation Location
+        {
+            const get return Syntax.Location;
         }
 
         #endregion

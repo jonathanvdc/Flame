@@ -40,6 +40,15 @@ namespace Flame.DSharp.Build
         public abstract ISyntaxState GetSyntaxState();
         protected abstract ISyntaxState GetNamespaceSyntaxState();
 
+        #region ISourceMember Implementation
+
+        public SourceLocation Location
+        {
+            const get return Syntax.HeaderLocation;
+        }
+
+        #endregion
+
         #region IMember
 
         public virtual string Name

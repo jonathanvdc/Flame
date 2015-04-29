@@ -7,7 +7,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class FieldSyntax : MemberSyntax, IMemberSyntax<IField>
+    public class FieldSyntax : MemberSyntax, IMemberSyntax<IField>, ISourceSyntax
     {
         public const this(set ISignatureSyntax Signature, set Token Semicolon);
         public const this(set ISignatureSyntax Signature, set Token FieldAssignmentToken, set IExpressionSyntax FieldValueSyntax, set Token Semicolon);
@@ -15,7 +15,24 @@ namespace Flame.Syntax.DSharp
         public Token FieldAssignmentToken { const get; private set; }
         public IExpressionSyntax FieldValueSyntax { const get; private set; }
         public Token Semicolon { const get; private set; }
-        
+
+        public SourceLocation Location
+        {
+            const get
+            {
+                if (FieldValueSyntax == null)
+                {
+                    return Signature.GetSourceLocation().Concat(Semicolon.Location);
+                }
+                else
+                {
+                    return Signature.GetSourceLocation().Concat(FieldAssignmentToken.Location)
+                                                        .Concat(FieldValueSyntax.GetSourceLocation())
+                                                        .Concat(Semicolon.Location);
+                }
+            }
+        }
+
         protected override void AddExtraLeadingTrivia(List<Token> tokens)
         {
         	tokens.AddRange(FieldAssignmentToken.GetAllTrivia());
@@ -46,7 +63,7 @@ namespace Flame.Syntax.DSharp
         {
             const get { return false; }
         }
-        
+
         public bool IsSingletonMember
         {
         	const get

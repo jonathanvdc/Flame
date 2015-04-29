@@ -10,12 +10,14 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class FieldPropertySyntax : IMemberSyntax<FieldProperty>
+    public class FieldPropertySyntax : IMemberSyntax<FieldProperty>, ISourceSyntax
     {
         public const this(set PropertySyntax PropertySyntax);
 
         public PropertySyntax PropertySyntax { const get; private set; }
-        
+
+        public SourceLocation Location { const get return PropertySyntax.Location; }
+
         public static const string GetBackingFieldName(string PropertyName)
         	return PropertyName + "_value";
 
@@ -38,7 +40,7 @@ namespace Flame.Syntax.DSharp
         {
             const get { return false; }
         }
-        
+
         public bool IsSingletonMember
         {
         	const get return PropertySyntax.IsSingletonMember;
