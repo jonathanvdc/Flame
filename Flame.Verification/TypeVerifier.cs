@@ -40,6 +40,22 @@ namespace Flame.Verification
         protected override bool VerifyMemberCore(IType Member, ICompilerLog Log)
         {
             bool success = true;
+            foreach (var item in Member.GetBaseTypes())
+            {
+                if (Member.get_IsEnum())
+                {
+                    if (!item.get_IsValueType() && !item.get_IsPrimitive())
+                    {
+                        Log.LogError(new LogEntry("Invalid enum backing type", 
+                            "enum type '" + Member.FullName + "' must be backed by a primitive or value type. '" + item.FullName + "' is neither."));
+                    }
+                }
+                else if (!item.get_IsVirtual() && !item.get_IsAbstract() && !item.get_IsInterface())
+                {
+                    Log.LogError(new LogEntry("Invalid inheritance tree", 
+                        "Type '" + Member.FullName + "' cannot derive from non-virtual type '" + item.FullName + "'."));
+                }
+            }
             if (!Member.get_IsAbstract() && !Member.get_IsInterface())
             {
                 foreach (var item in Member.GetBaseTypes())

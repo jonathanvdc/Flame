@@ -147,6 +147,15 @@ namespace Flame.Cecil
             {
                 attrs.Add(PrimitiveAttributes.Instance.InterfaceAttribute);
             }
+            else if (t.IsAbstract)
+            {
+                attrs.Add(PrimitiveAttributes.Instance.AbstractAttribute);
+            }
+            else if (!t.IsSealed)
+            {
+                attrs.Add(PrimitiveAttributes.Instance.VirtualAttribute);
+            }
+
             if (t.IsEnum)
             {
                 attrs.Add(PrimitiveAttributes.Instance.EnumAttribute);
