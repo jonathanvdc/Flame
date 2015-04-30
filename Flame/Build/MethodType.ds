@@ -22,7 +22,7 @@ namespace Flame
                 return new MethodType(Method);
             }
         }
-        
+
         public static const IMethod GetMethod(IType Type)
         {
         	if (Type is MethodType)
@@ -45,7 +45,7 @@ namespace Flame
         {
             return Method.GetBaseMethods();
         }
-        
+
         public IMethod GetGenericMethodDeclaration() : IMethod.GetGenericDeclaration
         {
             return new MethodType(Method.GetGenericDeclaration());
@@ -91,7 +91,7 @@ namespace Flame
             const get { return Method.FullName; }
         }
 
-        public const IEnumerable<IAttribute> GetAttributes()
+        public const [IAttribute] GetAttributes()
         {
             return Method.GetAttributes();
         }
@@ -101,12 +101,12 @@ namespace Flame
             const get { return Method.Name; }
         }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public [IType] GetGenericArguments()
         {
             return Method.GetGenericArguments();
         }
 
-        public IEnumerable<IGenericParameter> GetGenericParameters()
+        public [IGenericParameter] GetGenericParameters()
         {
             return Method.GetGenericParameters();
         }
