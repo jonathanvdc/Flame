@@ -126,6 +126,8 @@
 			<Compile Include="Expressions\ComplexExpressionBase.ds" />
 			<Compile Include="Expressions\ReturnValueGetExpression.ds" />
 			<Compile Include="Expressions\SelectExpression.ds" />
+			<Compile Include="Expressions\VoidExpression.ds" />
+			<Compile Include="Expressions\IntersectionExpression.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Statements">
