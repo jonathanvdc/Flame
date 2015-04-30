@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Flame.Compiler
 {
-	public enum VariableNodeAction
+	public enum VariableNodeAction : int
 	{
 		Get,
 		Set,

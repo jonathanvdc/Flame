@@ -46,6 +46,22 @@ namespace Flame.Compiler.Statements
 			}
 		}
 
+		public IStatement Accept(INodeVisitor Visitor)
+		{
+			var newCollectionElements = new List<CollectionElement>();
+			foreach (var item in Collections)
+			{
+				newCollectionElements.Add(item.Accept(Visitor));
+			}
+			var newForeachStmt = new ForeachStatement(newCollectionElements);
+			foreach (var item in newForeachStmt.elemCache.ElementVariables, var elem in elemCache.ElementVariables)
+				elem.BindVariable(item);
+
+			newForeachStmt.Body = Visitor.Visit(Body);
+
+			return newForeachStmt;
+		}
+
 		public IStatement Optimize() : IStatement.Optimize
 		{
 			var optColl = new List<CollectionElement>();

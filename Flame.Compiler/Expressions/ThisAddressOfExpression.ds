@@ -2,14 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Flame.Compiler.Emit;
+using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Expressions
 {
-    public class ThisAddressOfExpression : IExpression
+    public class ThisAddressOfExpression : IExpression, IVariableNode
     {
         public const this(set IType Type);
 
         public IType Type { const get; private set; }
+
+        public const IVariable GetVariable()
+        {
+            return new ThisVariable(Type);
+        }
+
+        public VariableNodeAction Action
+        {
+            const get return VariableNodeAction.AddressOf;
+        }
 
         public const ICodeBlock Emit(ICodeGenerator Generator)
         {
