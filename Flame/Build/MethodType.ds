@@ -39,6 +39,16 @@ namespace Flame
         	}
         }
 
+        public static const [IMethod] GetIntersectedMethods(IType Type)
+        {
+            var results = new List<IMethod>();
+            foreach (var item in IntersectionType.GetIntersectedTypes(Type))
+            {
+                results.Add(GetMethod(item));
+            }
+            return results;
+        }
+
         #region IMethod Implementation
 
         public IMethod[] GetBaseMethods()
@@ -66,7 +76,7 @@ namespace Flame
             const get { return Method.IsConstructor; }
         }
 
-        public IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
+        public IMethod MakeGenericMethod([IType] TypeArguments)
         {
             return new MethodType(Method.MakeGenericMethod(TypeArguments));
         }
@@ -175,7 +185,7 @@ namespace Flame
             return new DescribedArrayType(this, Rank);
         }
 
-        public IType MakeGenericType(IEnumerable<IType> TypeArguments)
+        public IType MakeGenericType([IType] TypeArguments)
         {
             return new MethodType(Method.MakeGenericMethod(TypeArguments));
         }
