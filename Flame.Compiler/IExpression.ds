@@ -49,4 +49,22 @@ namespace Flame.Compiler
         /// </summary>
         IExpression Accept(INodeVisitor Visitor);
     }
+
+    /// <summary>
+    /// Defines common behavior for delegate expressions, i.e. expressions
+    /// that can support creating invocation.
+    /// </summary>
+    public interface IDelegateExpression : IExpression
+    {
+        /// <summary>
+        /// Gets the delegate expression's parameter types.
+        /// </summary>
+        [IType] ParameterTypes { const get; }
+
+        /// <summary>
+        /// Creates an invocation expression based on this delegate expression and
+        /// the given arguments.
+        /// </summary>
+        IExpression CreateInvocationExpression([IExpression] Arguments);
+    }
 }

@@ -31,6 +31,21 @@ namespace Flame.Compiler.Expressions
             }
         }
 
+        public static const [IExpression] GetIntersectedExpressions(IExpression Expression)
+        {
+            if (Expression is IntersectionExpression)
+        	{
+                var interExpr = (IntersectionExpression)Expression;
+        		return Enumerable.Concat<IExpression>(
+                    GetIntersectedExpressions(interExpr.First),
+                    GetIntersectedExpressions(interExpr.Second));
+        	}
+        	else
+        	{
+        		return new IExpression[] { Expression };
+        	}
+        }
+
         private IType cachedType;
 		public IType Type
         {
