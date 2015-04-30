@@ -1,0 +1,65 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Compiler.Expressions
+{
+    public class GetExtensionMethodExpression : IDelegateExpression
+    {
+        public this(set IMethod Target, set IExpression Caller);
+
+		public IExpression Caller { const get; private set; }
+		public IMethod Target { const get; private set; }
+
+        public [IType] ParameterTypes
+        {
+            const get return Enumerable.Skip<IType>(Target.GetParameters().GetTypes(), 1);
+        }
+
+        public const IExpression CreateInvocationExpression([IExpression] Arguments)
+        {
+            return new InvocationExpression(Target, null,
+                Enumerable.Concat<IExpression>(new IExpression[] { Caller }, Arguments));
+        }
+
+		public IExpression Accept(INodeVisitor Visitor)
+		{
+			var transCaller = Visitor.Visit(Caller);
+
+			if (transCaller == Caller)
+			{
+				return this;
+			}
+			else
+			{
+				return new GetExtensionMethodExpression(Target, transCaller);
+			}
+		}
+
+		public IType Type
+		{
+			const get return MethodType.Create(Target);
+		}
+
+		public bool IsConstant
+		{
+			const get return Target.IsConstant && Caller.IsConstantOrNull;
+		}
+
+		public const IBoundObject Evaluate()
+		{
+			return null; // Evaluating extension method delegates is not supported at this time.
+		}
+
+		public IExpression Optimize()
+		{
+			var callerExpr = Caller.OptimizeOrNull();
+			return new GetExtensionMethodExpression(Target, callerExpr);
+		}
+
+		public ICodeBlock Emit(ICodeGenerator Generator)
+		{
+			return null; // Emitting extension method delegates is not supported at this time.
+		}
+    }
+}

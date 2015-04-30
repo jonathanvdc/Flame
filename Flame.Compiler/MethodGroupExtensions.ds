@@ -16,5 +16,25 @@ namespace Flame.Compiler
         {
             return MethodType.GetIntersectedMethods(Expression.Type);
         }
+
+        /// <summary>
+        /// Gets an expression's delegate parameter types.
+        /// </summary>
+        public static const [IType] GetDelegateParameterTypes(this IExpression Expression)
+        {
+            if (Expression is IDelegateExpression)
+            {
+                return ((IDelegateExpression)Expression).ParameterTypes;
+            }
+            else
+            {
+                var method = MethodType.GetMethod(Expression.Type);
+                if (method == null)
+                {
+                    return null;
+                }
+                else return method.GetParameters().GetTypes();
+            }
+        }
     }
 }

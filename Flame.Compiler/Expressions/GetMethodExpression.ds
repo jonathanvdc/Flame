@@ -4,12 +4,19 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-	public class GetMethodExpression : IExpression
+	public class GetMethodExpression : IDelegateExpression
 	{
 		public this(set IMethod Target, set IExpression Caller);
 
 		public IExpression Caller { const get; private set; }
 		public IMethod Target { const get; private set; }
+
+		public [IType] ParameterTypes { const get return Target.GetParameters().GetTypes(); }
+
+		public const IExpression CreateInvocationExpression([IExpression] Arguments)
+		{
+			return new InvocationExpression(this, Arguments);
+		}
 
 		public IExpression Accept(INodeVisitor Visitor)
 		{
