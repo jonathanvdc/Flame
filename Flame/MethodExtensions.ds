@@ -175,7 +175,7 @@ namespace Flame
 			return DeclaringType.GetConstructor(ParameterTypes, false);
 		}
 
-		public static const IEnumerable<IMethod> GetOperatorMethods(this IType Type)
+		public static const [IMethod] GetOperatorMethods(this IType Type)
 		{
 			return Type.GetAllMethods().GetOperatorMethods();
 		}
