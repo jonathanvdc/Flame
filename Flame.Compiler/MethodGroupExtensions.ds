@@ -1,0 +1,20 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler
+{
+    /// <summary>
+    /// Provides extensions for method groups:
+    /// groups of methods that are contained in an expression.
+    /// </summary>
+    public static class MethodGroupExtensions
+    {
+        /// <summary>
+        /// Gets the method group contained in this expression.
+        /// </summary>
+        public static const [IMethod] GetMethodGroup(this IExpression Expression)
+        {
+            return MethodType.GetIntersectedMethods(Expression.Type);
+        }
+    }
+}
