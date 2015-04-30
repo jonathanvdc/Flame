@@ -38,21 +38,24 @@ namespace Flame.Cpp.Emit
         /// <summary>
         /// Gets a boolean value that tells if the method is to be applied to a slice of this type.
         /// </summary>
-        private bool IsSliceMethod
+        public bool IsSliceMethod
         {
             get
             {
-                if (Target.GetCode().ToString() == "this" && Member.DeclaringType != null && CodeGenerator.Method.DeclaringType != null && CodeGenerator.Method.DeclaringType.Is(Member.DeclaringType) && Member is IMethod)
+                if (Member is IMethod)
                 {
-                    var method = (IMethod)Member;
-                    if (method.IsConstructor)
+                    if (Target.GetCode().ToString() == "this" && Member.DeclaringType != null && CodeGenerator.Method.DeclaringType != null && CodeGenerator.Method.DeclaringType.Is(Member.DeclaringType))
                     {
-                        return true;
-                    }
-                    else
-                    {
-                        var impl = method.GetImplementation(CodeGenerator.Method.DeclaringType);
-                        return impl != null && !impl.Equals(Member);
+                        var method = (IMethod)Member;
+                        if (method.IsConstructor)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            var impl = method.GetImplementation(CodeGenerator.Method.DeclaringType);
+                            return impl != null && !impl.Equals(Member);
+                        }
                     }
                 }
                 return false;

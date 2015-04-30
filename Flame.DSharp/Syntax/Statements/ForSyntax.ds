@@ -7,10 +7,10 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class ForSyntax : IStatementSyntax, ITokenNode
+    public class ForSyntax : IStatementSyntax, ITokenNode, ISourceSyntax
     {
         public const this(set Token ForKeyword, set Token LeadingParentheses,
-            set IStatementSyntax Initialization, set IExpressionSyntax Condition, set IStatementSyntax DeltaStatement, 
+            set IStatementSyntax Initialization, set IExpressionSyntax Condition, set IStatementSyntax DeltaStatement,
             set Token TrailingParentheses, set IStatementSyntax Body);
 
         public Token ForKeyword { const get; private set; }
@@ -20,7 +20,17 @@ namespace Flame.Syntax.DSharp
         public IStatementSyntax DeltaStatement { const get; private set; }
         public Token TrailingParentheses { const get; private set; }
         public IStatementSyntax Body { const get; private set; }
-        
+
+        public SourceLocation Location
+        {
+            const get return ForKeyword.Location.Concat(LeadingParentheses.Location)
+                                                .Concat(Initialization.GetSourceLocation())
+                                                .Concat(Condition.GetSourceLocation())
+                                                .Concat(DeltaStatement.GetSourceLocation())
+                                                .Concat(TrailingParentheses.Location)
+                                                .Concat(Body.GetSourceLocation());
+        }
+
         public IReadOnlyList<Token> Tokens
         {
         	const get

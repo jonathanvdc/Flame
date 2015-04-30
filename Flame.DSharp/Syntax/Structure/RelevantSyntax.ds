@@ -10,11 +10,11 @@ namespace Flame.Syntax.DSharp
 	{
 		public const this();
 		public const this(set TriviaBucket<Token> Trivia);
-	
+
 		public TriviaBucket<Token> Trivia { const get; private set; }
-		public IEnumerable<Token> LeadingTrivia { const get return Trivia.LeadingTrivia; }
-		public IEnumerable<Token> TrailingTrivia { const get return Trivia.TrailingTrivia; }
-	
+		public [Token] LeadingTrivia { const get return Trivia.LeadingTrivia; }
+		public [Token] TrailingTrivia { const get return Trivia.TrailingTrivia; }
+
 		public abstract const CodeBuilder GetRelevantCode();
 		public const CodeBuilder GetCode()
 		{

@@ -15,11 +15,12 @@ namespace Flame.Cecil.Emit
         {
             this.CodeGenerator = CodeGenerator;
             this.Processor = Processor;
-            this.inserts = new List<BranchInsert>();
+            this.inserts = new List<IInsertable>();
             this.flowControls = new Stack<IFlowControlStructure>();
             PushFlowControl(new GlobalFlowControlStructure(CodeGenerator));
             this.Stack = new TypeStack();
             this.localVarPool = new List<IEmitLocal>();
+            this.labels = new List<CecilLabel>();
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
@@ -35,12 +36,12 @@ namespace Flame.Cecil.Emit
         }
 
         protected abstract IReadOnlyList<Mono.Cecil.Cil.Instruction> GetLastInstructions(int Count);
-        protected abstract void RemoveLastInstructions(int Count);
+        public abstract void PopInstructions(int Count);
         public virtual Mono.Cecil.Cil.Instruction CurrentInstruction
         {
             get
             {
-                return GetLastInstructions(1)[0];
+                return Processor.Body.Instructions.Count > 0 ? GetLastInstructions(1)[0] : null;
             }
         }
         protected abstract void EmitInstructionCore(Mono.Cecil.Cil.Instruction Instruction);
@@ -53,12 +54,22 @@ namespace Flame.Cecil.Emit
             }
         }
 
-        protected bool AtBranchTarget
+        protected bool AtProtectedInstruction
         {
             get
             {
-                return inserts.Any((item) => item.Label.Instruction == CurrentInstruction);
+                return inserts.Any(item => item.IsProtected(CurrentInstruction));
             }
+        }
+
+        private bool RedirectMarkedBranchTarget(Instruction OldTarget, Instruction NewTarget, bool IsMarked)
+        {
+            if (!IsMarked)
+            {
+                MarkBranchTarget(NewTarget);
+                UnmarkBranchTarget(OldTarget);
+            }
+            return true;
         }
 
         protected void RedirectBranches(Instruction OldTarget, Instruction NewTarget)
@@ -72,18 +83,34 @@ namespace Flame.Cecil.Emit
                     if (instrs[i].Operand == OldTarget)
                     {
                         instrs[i].Operand = NewTarget;
-                        if (!marked)
-                        {
-                            MarkBranchTarget(NewTarget);
-                            UnmarkBranchTarget(OldTarget);
-                            marked = true;
-                        }
+                        marked = RedirectMarkedBranchTarget(OldTarget, NewTarget, marked);
                     }
+                }
+            }
+            foreach (var item in labels)
+            {
+                if (item.NextInstruction == OldTarget)
+                {
+                    item.NextInstruction = NewTarget;
+                    marked = RedirectMarkedBranchTarget(OldTarget, NewTarget, marked);
                 }
             }
         }
 
-        private List<BranchInsert> inserts;
+        private List<IInsertable> inserts;
+        private List<CecilLabel> labels;
+
+        private void QueueInsert(IInsertable Insertable)
+        {
+            if (Insertable.CanInsert)
+            {
+                Insertable.Insert(this);
+            }
+            else
+            {
+                inserts.Add(Insertable);
+            }
+        }
 
         private void ApplyInserts()
         {
@@ -93,7 +120,7 @@ namespace Flame.Cecil.Emit
                 var item = inserts[i];
                 if (item.CanInsert)
                 {
-                    item.Insert(Processor, this);
+                    item.Insert(this);
                     inserts.RemoveAt(i);
                 }
                 else
@@ -342,43 +369,70 @@ namespace Flame.Cecil.Emit
             var instr = Processor.Create(Mono.Cecil.Cil.OpCodes.Nop);
             Processor.Append(instr);
             var branch = new BranchInsert(instr, OpCode, ((CecilLabel)Label));
-            if (branch.CanInsert)
-            {
-                branch.Insert(Processor, this);
-            }
-            else
-            {
-                inserts.Add(branch);
-            }
+            QueueInsert(branch);
         }
 
         public IEmitLabel CreateLabel()
         {
-            return new CecilLabel();
+            var lbl = new CecilLabel();
+            labels.Add(lbl);
+            return lbl;
         }
 
         public void MarkLabel(IEmitLabel Label)
         {
-            ((CecilLabel)Label).Instruction = CurrentInstruction;
+            inserts.Insert(0, new MarkLabelInsert((CecilLabel)Label, Processor.Body.Instructions.Count > 0 ? CurrentInstruction : null));
         }
 
         private class CecilLabel : IEmitLabel
         {
-            public Mono.Cecil.Cil.Instruction Instruction;
-            public Mono.Cecil.Cil.Instruction NextInstruction
+            public Mono.Cecil.Cil.Instruction NextInstruction { get; set; }
+
+            public bool IsMarked
             {
-                get
-                {
-                    if (Instruction == null)
-                    {
-                        return null;
-                    }
-                    return Instruction.Next;
-                }
+                get { return NextInstruction != null; }
             }
         }
 
-        private struct BranchInsert
+        #region MarkLabelInsert
+
+        private class MarkLabelInsert : IInsertable
+        {
+            public MarkLabelInsert(CecilLabel Label, Mono.Cecil.Cil.Instruction Instruction)
+            {
+                this.Label = Label;
+                this.Instruction = Instruction;
+            }
+
+            public CecilLabel Label { get; private set; }
+            public Mono.Cecil.Cil.Instruction Instruction { get; private set; }
+
+            public bool CanInsert
+            {
+                get { return Instruction == null || Instruction.Next != null; }
+            }
+
+            public bool IsProtected(Instruction Instr)
+            {
+                return true;
+            }
+
+            public void Insert(CecilCommandEmitContextBase Context)
+            {
+                Label.NextInstruction = Instruction == null ? Context.Processor.Body.Instructions[0] : Instruction.Next;
+            }
+
+            public void Delete(CecilCommandEmitContextBase Context)
+            {
+
+            }
+        }
+
+        #endregion
+
+        #region BranchInsert
+
+        private struct BranchInsert : IInsertable
         {
             public BranchInsert(Mono.Cecil.Cil.Instruction Target, Mono.Cecil.Cil.OpCode OpCode, CecilLabel Label)
             {
@@ -391,11 +445,16 @@ namespace Flame.Cecil.Emit
             public Mono.Cecil.Cil.OpCode OpCode;
             public CecilLabel Label;
 
+            public bool IsProtected(Instruction Instr)
+            {
+                return Label.NextInstruction == Instr || Label.NextInstruction != null && Label.NextInstruction.Previous == Instr;
+            }
+
             public bool CanInsert
             {
                 get
                 {
-                    return Label.NextInstruction != null;
+                    return Label.IsMarked;
                 }
             }
 
@@ -414,13 +473,36 @@ namespace Flame.Cecil.Emit
                 }
             }
 
-            public void Insert(Mono.Cecil.Cil.ILProcessor Processor, CecilCommandEmitContextBase EmitContext)
+            public void Insert(CecilCommandEmitContextBase EmitContext)
             {
                 Target.OpCode = OpCode;
                 var nextInstr = Label.NextInstruction;
                 Target.Operand = nextInstr;
                 EmitContext.MarkBranchTarget(nextInstr);
             }
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Exception handling
+
+        public void CreateCatchHandler(IEmitLabel TryStartLabel, IEmitLabel TryEndLabel,
+            IEmitLabel HandlerStartLabel, IEmitLabel HandlerEndLabel,
+            IType CatchType)
+        {
+            var block = ExceptionHandlingBlock.CreateCatch((CecilLabel)TryStartLabel, (CecilLabel)TryEndLabel,
+                (CecilLabel)HandlerStartLabel, (CecilLabel)HandlerEndLabel, GetTypeReference(CatchType));
+            QueueInsert(block);
+        }
+
+        public void CreateFinallyHandler(IEmitLabel TryStartLabel, IEmitLabel TryEndLabel,
+            IEmitLabel HandlerStartLabel, IEmitLabel HandlerEndLabel)
+        {
+            var block = ExceptionHandlingBlock.CreateFinally((CecilLabel)TryStartLabel, (CecilLabel)TryEndLabel,
+                                                    (CecilLabel)HandlerStartLabel, (CecilLabel)HandlerEndLabel);
+            QueueInsert(block);
         }
 
         #endregion
@@ -533,6 +615,89 @@ namespace Flame.Cecil.Emit
                         Local.Name = value;
                     }
                 }
+            }
+        }
+
+        #endregion
+
+        #region IInsertable
+
+        private interface IInsertable
+        {
+            bool CanInsert { get; }
+            bool IsProtected(Mono.Cecil.Cil.Instruction Instr);
+            void Insert(CecilCommandEmitContextBase Context);
+            void Delete(CecilCommandEmitContextBase Context);
+        }
+
+        #endregion
+
+        #region ExceptionHandlingBlock
+
+        private struct ExceptionHandlingBlock : IInsertable
+        {
+            public ExceptionHandlerType HandlerType;
+            public CecilLabel TryStartLabel;
+            public CecilLabel TryEndLabel;
+            public CecilLabel HandlerStartLabel;
+            public CecilLabel HandlerEndLabel;
+            public TypeReference CatchType;
+
+            public bool CanInsert
+            {
+                get
+                {
+                    return TryStartLabel.IsMarked && TryEndLabel.IsMarked && HandlerStartLabel.IsMarked && HandlerEndLabel.IsMarked;
+                }
+            }
+
+            public void Insert(CecilCommandEmitContextBase Context)
+            {
+                var handler = new ExceptionHandler(HandlerType)
+                {
+                    TryStart = TryStartLabel.NextInstruction,
+                    TryEnd = TryEndLabel.NextInstruction,
+                    CatchType = CatchType,
+                    HandlerStart = HandlerStartLabel.NextInstruction,
+                    HandlerEnd = HandlerEndLabel.NextInstruction,
+                };
+                Context.Processor.Body.ExceptionHandlers.Add(handler);
+            }
+
+            public bool IsProtected(Instruction Instr)
+            {
+                return new CecilLabel[] { TryStartLabel, TryEndLabel, HandlerStartLabel, HandlerEndLabel }.Any(item => item.NextInstruction == Instr || item.NextInstruction != null && item.NextInstruction.Previous == Instr);
+            }
+
+            public void Delete(CecilCommandEmitContextBase Context)
+            {
+
+            }
+
+            public static ExceptionHandlingBlock CreateFinally(CecilLabel TryStartLabel, CecilLabel TryEndLabel, CecilLabel HandlerStartLabel, CecilLabel HandlerEndLabel)
+            {
+                return new ExceptionHandlingBlock()
+                {
+                    TryStartLabel = TryStartLabel,
+                    TryEndLabel = TryEndLabel,
+                    HandlerStartLabel = HandlerStartLabel,
+                    HandlerEndLabel = HandlerEndLabel,
+                    CatchType = null,
+                    HandlerType = ExceptionHandlerType.Finally
+                };
+            }
+
+            public static ExceptionHandlingBlock CreateCatch(CecilLabel TryStartLabel, CecilLabel TryEndLabel, CecilLabel HandlerStartLabel, CecilLabel HandlerEndLabel, TypeReference CatchType)
+            {
+                return new ExceptionHandlingBlock()
+                {
+                    TryStartLabel = TryStartLabel,
+                    TryEndLabel = TryEndLabel,
+                    HandlerStartLabel = HandlerStartLabel,
+                    HandlerEndLabel = HandlerEndLabel,
+                    CatchType = CatchType,
+                    HandlerType = ExceptionHandlerType.Catch
+                };
             }
         }
 

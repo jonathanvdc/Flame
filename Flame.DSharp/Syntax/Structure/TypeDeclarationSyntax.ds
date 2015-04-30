@@ -9,14 +9,36 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class TypeDeclarationSyntax : ITypeDeclarationSyntax, IMemberSyntax<IType>
+    public class TypeDeclarationSyntax : ITypeDeclarationSyntax, IMemberSyntax<IType>, ISourceSyntax
     {
         public const this(set TypeSignatureSyntax Signature,
-            set IEnumerable<IMemberSyntax<IMember>> Members);
+            set [IMemberSyntax<IMember>] Members);
 
         #region Signature
 
         public TypeSignatureSyntax Signature { const get; private set; }
+
+        #endregion
+
+        #region Location
+
+        public SourceLocation HeaderLocation
+        {
+            const get return Signature.HeaderLocation;
+        }
+
+        public SourceLocation Location
+        {
+            const get
+            {
+                var result = Signature.Location;
+                foreach (var item in Members)
+                {
+                    result = result.Concat(item.GetSourceLocation());
+                }
+                return result;
+            }
+        }
 
         #endregion
 

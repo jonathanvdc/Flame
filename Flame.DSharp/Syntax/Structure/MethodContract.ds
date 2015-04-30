@@ -10,13 +10,30 @@ using Flame.Compiler.Statements;
 
 namespace Flame.Syntax.DSharp
 {
-	public class MethodContract : ISyntaxNode
+	public class MethodContract : ISyntaxNode, ISourceSyntax
 	{
 		public const this(set [PreconditionSyntax] Preconditions, set [PostconditionSyntax] Postconditions);
-		
+
         public [PreconditionSyntax] Preconditions { const get; private set; }
         public [PostconditionSyntax] Postconditions { const get; private set; }
-        
+
+		public SourceLocation Location
+		{
+			const get
+			{
+				SourceLocation result = null;
+				foreach (var item in Preconditions)
+				{
+					result = result.Concat(item.Location);
+				}
+				foreach (var item in Postconditions)
+				{
+					result = result.Concat(item.Location);
+				}
+				return result;
+			}
+		}
+
         public const CodeBuilder GetCode()
         {
         	var cb = new CodeBuilder();
@@ -30,12 +47,12 @@ namespace Flame.Syntax.DSharp
         	}
         	return cb;
         }
-        
+
         public override const string ToString()
         {
         	return GetCode().ToString();
         }
-        
+
         public const IStatement CreateContractBody(IStatement Body, ISyntaxState State)
         {
         	var pres = new List<IExpression>();
@@ -44,7 +61,7 @@ namespace Flame.Syntax.DSharp
         		pres.Add(item.CreateVerifiedExpression(State));
         	foreach (var item in Postconditions)
         		posts.Add(item.CreateVerifiedExpression(State));
-        		
+
         	return new ContractBodyStatement(Body, pres, posts);
         }
         public const IStatement CreateContractBody(IStatementSyntax Body, ISyntaxState State)

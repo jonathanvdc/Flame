@@ -49,7 +49,7 @@ namespace Flame.Front
                     case "xml":
                         return Flame.CodeDescription.XmlDocumentationFormatter.Instance;
                     default:
-                        return Flame.CodeDescription.DefaultDocumentationFormatter.Instance;
+                        return Flame.CodeDescription.PunctuationDocumentationFormatter.Instance;
                 }
             });
             options.RegisterParser<Flame.Recompilation.IMethodOptimizer>(item =>

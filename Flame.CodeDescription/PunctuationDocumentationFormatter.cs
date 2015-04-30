@@ -6,21 +6,21 @@ using System.Threading.Tasks;
 
 namespace Flame.CodeDescription
 {
-    public sealed class DefaultDocumentationFormatter : IDocumentationFormatter
+    public sealed class PunctuationDocumentationFormatter : IDocumentationFormatter
     {
-        private DefaultDocumentationFormatter()
+        private PunctuationDocumentationFormatter()
         {
 
         }
 
-        private static DefaultDocumentationFormatter instance;
-        public static DefaultDocumentationFormatter Instance
+        private static PunctuationDocumentationFormatter instance;
+        public static PunctuationDocumentationFormatter Instance
         {
             get
             {
                 if (instance == null)
                 {
-                    instance = new DefaultDocumentationFormatter();
+                    instance = new PunctuationDocumentationFormatter();
                 }
                 return instance;
             }
@@ -32,12 +32,12 @@ namespace Flame.CodeDescription
             var summaryAttr = Attributes.WithTag("summary");
             if (summaryAttr != null)
             {
-                sb.AppendLine(DocumentationExtensions.IntroduceLineBreaks(summaryAttr.Description));
+                sb.AppendLine(DocumentationExtensions.IntroducePunctuationLineBreaks(summaryAttr.Description));
             }
             foreach (var item in Attributes.ExcludeTag("summary"))
             {
                 sb.AppendLine(DocumentationExtensions.ChangeFirstCharacter(item.Tag.ToLower(), char.ToUpper) + ":");
-                sb.AppendLine(DocumentationExtensions.IntroduceLineBreaks(item.Description));
+                sb.AppendLine(DocumentationExtensions.IntroducePunctuationLineBreaks(item.Description));
             }
             return sb.ToString();
         }

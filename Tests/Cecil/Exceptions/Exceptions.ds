@@ -1,0 +1,35 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+public static class ExceptionTest
+{
+    public void ThrowTest()
+    {
+        throw new Exception();
+    }
+
+    public void CatchTest()
+    {
+        try
+        {
+            ThrowTest();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Oops?");
+        }
+        finally
+        {
+            Console.WriteLine("Finally!");
+        }
+    }
+
+    public void Main(string[] Args)
+    {
+        assert(Args.Length >= 0);
+
+        CatchTest();
+    }
+}

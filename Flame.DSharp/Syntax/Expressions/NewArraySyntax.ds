@@ -10,26 +10,23 @@ namespace Flame.Syntax.DSharp
 {
     public class NewArraySyntax : IExpressionSyntax, ISourceSyntax
     {
-        public const this(set Token NewKeyword, set ITypeSyntax ElementType, set IEnumerable<IExpressionSyntax> Arguments);
-        public const this(set ITypeSyntax ElementType, set IEnumerable<IExpressionSyntax> Arguments)
+        public const this(set Token NewKeyword, set ITypeSyntax ElementType, set DelimitedList<IExpressionSyntax> Arguments);
+        public const this(set ITypeSyntax ElementType, set DelimitedList<IExpressionSyntax> Arguments)
         {
         	this.NewKeyword = new Token(TokenType.NewKeyword, "new");
         }
 
         public Token NewKeyword { const get; private set; }
         public ITypeSyntax ElementType { const get; private set; }
-        public [IExpressionSyntax] Arguments { const get; private set; }
-        
+        public DelimitedList<IExpressionSyntax> Arguments { const get; private set; }
+
         public SourceLocation Location
         {
         	const get
 			{
-				var result = NewKeyword.Location.Concat(ElementType.GetSourceLocation());
-				foreach (var item in Arguments)
-				{
-					result = result.Concat(item.GetSourceLocation());
-				}
-				return result;
+				return NewKeyword.Location
+                                 .Concat(ElementType.GetSourceLocation())
+                                 .Concat(Arguments.Location);
 			}
         }
 
@@ -37,7 +34,7 @@ namespace Flame.Syntax.DSharp
         {
             var realType = ElementType.CreateVerifiedType(State);
 
-            var args = Arguments.CreateExpressions(State);
+            var args = Arguments.CreateVerifiedExpressions(State);
 
             return new NewArrayExpression(realType, args);
         }
@@ -52,21 +49,7 @@ namespace Flame.Syntax.DSharp
             CodeBuilder cb = new CodeBuilder();
             cb.Append(NewKeyword.ToString());
             cb.Append(ElementType.GetCode());
-            bool first = true;
-            cb.Append("[");
-            foreach (var item in Arguments)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    cb.Append(",");
-                }
-                cb.Append(item.GetCode().ToString());
-            }
-            cb.Append("]");
+            cb.Append(Arguments.GetCode());
             return cb;
         }
     }

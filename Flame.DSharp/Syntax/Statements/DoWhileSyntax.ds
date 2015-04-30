@@ -8,7 +8,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class DoWhileSyntax : IStatementSyntax, ITokenNode
+    public class DoWhileSyntax : IStatementSyntax, ITokenNode, ISourceSyntax
     {
         public const this(set Token DoKeyword, set IStatementSyntax Body, set Token WhileKeyword, set Token LeadingParentheses, set IExpressionSyntax Condition, set Token TrailingParentheses);
 
@@ -18,7 +18,16 @@ namespace Flame.Syntax.DSharp
         public IExpressionSyntax Condition { const get; private set; }
         public Token TrailingParentheses { const get; private set; }
         public IStatementSyntax Body { const get; private set; }
-        
+
+        public SourceLocation Location
+        {
+            const get return DoKeyword.Location.Concat(Body.GetSourceLocation())
+                                               .Concat(WhileKeyword.Location)
+                                               .Concat(LeadingParentheses.Location)
+                                               .Concat(Condition.GetSourceLocation())
+                                               .Concat(TrailingParentheses.Location);
+        }
+
         public IReadOnlyList<Token> Tokens
         {
         	const get
@@ -57,7 +66,7 @@ namespace Flame.Syntax.DSharp
             cb.Append(TrailingParentheses.ToString());
             return cb;
         }
-        
+
         public override const string ToString()
         {
         	return this.GetCode().ToString();

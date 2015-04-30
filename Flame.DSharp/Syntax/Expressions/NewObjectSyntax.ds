@@ -13,29 +13,29 @@ namespace Flame.Syntax.DSharp
 {
     public class NewObjectSyntax : IInvocationSyntax, ISourceSyntax
     {
-        public const this(set Token NewKeyword, set ITypeSyntax Type, set [IExpressionSyntax] Arguments);
-        public const this(set ITypeSyntax Type, set [IExpressionSyntax] Arguments)
+        public const this(set Token NewKeyword, set ITypeSyntax Type, set DelimitedList<IExpressionSyntax> ArgumentList);
+        public const this(set ITypeSyntax Type, set DelimitedList<IExpressionSyntax> ArgumentList)
         {
         	this.NewKeyword = new Token(TokenType.NewKeyword, "new");
         }
         public const this(set ITypeSyntax Type)
         {
         	this.NewKeyword = new Token(TokenType.NewKeyword, "new");
-        	this.Arguments = new IExpressionSyntax[0];
+        	this.ArgumentList = new DelimitedList<IExpressionSyntax>();
         }
 
         public Token NewKeyword { const get; private set; }
         public ITypeSyntax Type { const get; private set; }
-        public [IExpressionSyntax] Arguments { const get; private set; }
+        public DelimitedList<IExpressionSyntax> ArgumentList { const get; private set; }
+
+        public [IExpressionSyntax] Arguments { const get return ArgumentList; }
 
         public SourceLocation Location
         {
         	const get
         	{
-        		var result = NewKeyword.Location.Concat(Type.GetSourceLocation());
-				foreach (var item in Arguments)
-					result = result.Concat(item.GetSourceLocation());
-				return result;
+        		return NewKeyword.Location.Concat(Type.GetSourceLocation())
+                                          .Concat(ArgumentList.Location);
         	}
         }
 
@@ -53,6 +53,35 @@ namespace Flame.Syntax.DSharp
             }
 
             return Type.CreateVerifiedType(localSyntaxState);
+        }
+
+        public static LogEntry CreateFailedConstructorCallEntry(ISyntaxNode Node,
+            ISyntaxNode TypeNode, string NodeDescription,
+            [IMethod] Candidates, IType[] ArgumentTypes, ISyntaxState State)
+        {
+            var newInstanceCode = new CodeBuilder();
+            newInstanceCode.Append("new ");
+            newInstanceCode.Append(TypeNode.GetCode().Trim());
+            var namer = State.TypeNamer;
+            var expectedSignature = InvocationSyntax.CreateExpectedSignatureDescription(null, newInstanceCode, ArgumentTypes, false, namer);
+            var failedMatches = Enumerable.ToArray<IMethod>(Candidates);
+            if (failedMatches.Length > 0)
+            {
+                var failedMatchesList = new List<IMarkupNode>();
+                foreach (var item in failedMatches)
+                {
+                    failedMatchesList.Add(InvocationSyntax.CreateSignatureDiff(item, ArgumentTypes, namer));
+                }
+                var explanationNode = new MarkupNode(NodeConstants.TextNodeType,
+                    "No appropriate constructor for '" + TypeNode.GetCode().ToString() + "' could be found in " + NodeDescription + " '" + Node.GetCode().Trim().ToString() + "', expected signature compatible with " + expectedSignature.ToString() + ". Incompatible or ambiguous matches:");
+                var failedMatchesNode = new MarkupNode("list", failedMatchesList);
+                var messageNode = new MarkupNode("entry", new IMarkupNode[] { explanationNode, failedMatchesNode });
+                return new LogEntry("Constructor resolution error", messageNode, Node.GetSourceLocation());
+            }
+            else
+            {
+                return new LogEntry("Constructor resolution error", "No appropriate constructor for '" + TypeNode.GetCode().Trim().ToString() + "' could be found in " + NodeDescription + " '" + Node.GetCode().Trim().ToString() + "', expected signature compatible with " + expectedSignature.ToString(), Node.GetSourceLocation());
+            }
         }
 
         public IExpression CreateExpression(ISyntaxState State)
@@ -83,29 +112,10 @@ namespace Flame.Syntax.DSharp
 
                 if (ctor == null)
                 {
-                	var newInstanceCode = new CodeBuilder();
-                	newInstanceCode.Append(NewKeyword.ToString());
-                	newInstanceCode.Append(Type.GetCode());
-                    var namer = State.TypeNamer;
-                	var expectedSignature = InvocationSyntax.CreateExpectedSignatureDescription(null, newInstanceCode, argTypes, false, namer);
-                	var failedMatches = Enumerable.ToArray<IMethod>(realType.GetConstructors());
-	            	if (failedMatches.Length > 0)
-	            	{
-                        var failedMatchesList = new List<IMarkupNode>();
-                        foreach (var item in failedMatches)
-                        {
-                            failedMatchesList.Add(InvocationSyntax.CreateSignatureDiff(item, argTypes, namer));
-                        }
-                        var explanationNode = new MarkupNode(NodeConstants.TextNodeType,
-                            "No appropriate constructor for '" + Type.GetCode().ToString() + "' could be found in new object expression '" + this.GetCode().ToString() + "', expected signature compatible with " + expectedSignature.ToString() + ". Incompatible or ambiguous matches:");
-                        var failedMatchesNode = new MarkupNode("list", failedMatchesList);
-                        var messageNode = new MarkupNode("entry", new IMarkupNode[] { explanationNode, failedMatchesNode });
-                        State.Log.LogError(new LogEntry("Constructor resolution error", messageNode, Location));
-	            	}
-	            	else
-	            	{
-	            		State.Log.LogError(new LogEntry("Constructor resolution error", "No appropriate constructor for '" + Type.GetCode().ToString() + "' could be found in new object expression '" + this.GetCode().ToString() + "', expected signature compatible with " + expectedSignature.ToString(), Location));
-	            	}
+                    var entry = CreateFailedConstructorCallEntry(this, Type, "new object expression",
+                                realType.GetConstructors(), argTypes, State);
+
+                    State.Log.LogError(entry);
                 	return null;
                 }
 
@@ -123,7 +133,7 @@ namespace Flame.Syntax.DSharp
             return null;
         }
 
-        public const IEnumerable<ITypeMember> GetAccessedMembers(ISyntaxState State)
+        public const [ITypeMember] GetAccessedMembers(ISyntaxState State)
         {
             var realType = CreateType(State);
 
@@ -149,21 +159,7 @@ namespace Flame.Syntax.DSharp
                 cb.Append(NewKeyword.ToString());
             }
             cb.Append(Type.GetCode());
-            cb.Append("(");
-            bool first = true;
-            foreach (var item in Arguments)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    cb.Append(",");
-                }
-                cb.Append(item.GetCode().ToString());
-            }
-            cb.Append(")");
+            cb.Append(ArgumentList.GetCode());
             return cb;
         }
     }

@@ -1,0 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+public static class LogicalOpsTest
+{
+    public const bool LogicalAnd(bool First, bool Second)
+    {
+        return First && Second;
+    }
+
+    public const bool LogicalOr(bool First, bool Second)
+    {
+        return First || Second;
+    }
+}

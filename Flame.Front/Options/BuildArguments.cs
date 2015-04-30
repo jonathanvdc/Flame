@@ -70,7 +70,7 @@ namespace Flame.Front.Options
         {
             get
             {
-                return HasOption("target");
+                return HasOption("target") || HasOption("o");
             }
         }
 
@@ -85,7 +85,14 @@ namespace Flame.Front.Options
         {
             get
             {
-                return GetOption<PathIdentifier>("target", new PathIdentifier(""));
+                if (HasOption("target"))
+                {
+                    return GetOption<PathIdentifier>("target", new PathIdentifier(""));
+                }
+                else
+                {
+                    return GetOption<PathIdentifier>("o", new PathIdentifier(""));
+                }
             }
         }
         public bool? CompileSingleFile

@@ -17,10 +17,7 @@ namespace Flame.Syntax.DSharp
 
         public SourceLocation Location
         {
-        	const get
-        	{
-        		return Expression.GetSourceLocation().Concat(SemicolonToken.Location);
-        	}
+        	const get return Expression.GetSourceLocation().Concat(SemicolonToken.Location);
         }
 
         public IReadOnlyList<Token> Tokens

@@ -17,22 +17,59 @@ namespace Flame.Cpp.Emit
 
     public static class InvocationBlockExtensions
     {
+        public static CodeBuilder GetArgumentListCode(this IInvocationBlock Block, bool OmitEmptyParentheses)
+        {
+            var args = Block.Arguments;
+            if (!args.Any())
+            {
+                return OmitEmptyParentheses ? new CodeBuilder() : new CodeBuilder("()");
+            }
+            else
+            {
+                var cb = new CodeBuilder();
+                cb.Append('(');
+                if (args.Any())
+                {
+                    cb.Append(args.First().GetCode());
+                    foreach (var item in args.Skip(1))
+                    {
+                        cb.Append(", ");
+                        cb.Append(item.GetCode());
+                    }
+                }
+                cb.Append(')');
+                return cb;
+            }
+        }
+
         public static CodeBuilder GetArgumentListCode(this IInvocationBlock Block)
         {
-            CodeBuilder cb = new CodeBuilder();
-            cb.Append('(');
+            return Block.GetArgumentListCode(false);
+        }
+
+        public static CodeBuilder GetInitializationListCode(this INewObjectBlock Block, bool OmitEmptyParentheses)
+        {
             var args = Block.Arguments;
-            if (args.Any())
+            if (args.Any() && !args.Skip(1).Any())
             {
-                cb.Append(args.First().GetCode());
-                foreach (var item in args.Skip(1))
+                var singleArg = args.Single();
+                if (singleArg is INewObjectBlock && singleArg.Type.Equals(Block.Type))
                 {
-                    cb.Append(", ");
-                    cb.Append(item.GetCode());
+                    var initBlock = (INewObjectBlock)singleArg;
+                    if (initBlock.Kind == AllocationKind.Stack || initBlock.Kind == AllocationKind.MakeManaged)
+                    {
+                        if (!OmitEmptyParentheses || initBlock.Arguments.Any())
+                        {
+                            return initBlock.GetInitializationListCode(OmitEmptyParentheses);
+                        }
+                        else
+                        {
+                            return new CodeBuilder();
+                        }
+                    }
                 }
             }
-            cb.Append(')');
-            return cb;
+            return Block.GetArgumentListCode(OmitEmptyParentheses);
         }
     }
 }

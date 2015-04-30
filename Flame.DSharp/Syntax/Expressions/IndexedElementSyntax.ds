@@ -12,29 +12,16 @@ namespace Flame.Syntax.DSharp
 {
     public class IndexedElementSyntax : VariableSyntaxBase, IInvocationSyntax, ISourceSyntax
     {
-        public const this(set IExpressionSyntax Caller, set [IExpressionSyntax] Arguments)
-        {
-        	this.LeadingBrackets = Token.RBrackets;
-        	this.TrailingBrackets = Token.LBrackets;
-        }
-		public const this(set IExpressionSyntax Caller, set Token LeadingBrackets, set [IExpressionSyntax] Arguments, set Token TrailingBrackets);
+        public const this(set IExpressionSyntax Caller, set DelimitedList<IExpressionSyntax> ArgumentList);
 
         public IExpressionSyntax Caller { const get; private set; }
-        public Token LeadingBrackets { const get; private set; }
-        public [IExpressionSyntax] Arguments { const get; private set; }
-        public Token TrailingBrackets { const get; private set; }
+        public DelimitedList<IExpressionSyntax> ArgumentList { const get; private set; }
+
+        public [IExpressionSyntax] Arguments { const get return ArgumentList; }
 
         public SourceLocation Location
         {
-        	const get
-        	{
-        		var result = Caller.GetSourceLocation().Concat(LeadingBrackets.Location);
-        		foreach (var item in Arguments)
-        		{
-        			result = result.Concat(item.GetSourceLocation());
-        		}
-        		return result.Concat(TrailingBrackets.Location);
-        	}
+        	const get return Caller.GetSourceLocation().Concat(ArgumentList.Location);
         }
 
         public override const IVariable CreateVariable(ISyntaxState State)
@@ -80,7 +67,7 @@ namespace Flame.Syntax.DSharp
             }
         }
 
-        public const IEnumerable<ITypeMember> GetAccessedMembers(ISyntaxState State)
+        public const [ITypeMember] GetAccessedMembers(ISyntaxState State)
         {
             var callerExpr = Caller.CreateVerifiedExpression(State);
             return callerExpr.Type.GetBestIndexers(false, Arguments.CreateVerifiedExpressions(State).Types);
@@ -92,21 +79,7 @@ namespace Flame.Syntax.DSharp
         {
             CodeBuilder sb = new CodeBuilder();
             sb.Append(Caller.GetCode());
-            sb.Append(LeadingBrackets.ToString());
-            bool first = true;
-            foreach (var item in Arguments)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    sb.Append(", ");
-                }
-                sb.Append(item.GetCode().ToString());
-            }
-            sb.Append(TrailingBrackets.ToString());
+            sb.Append(ArgumentList.GetCode());
             return sb;
         }
 

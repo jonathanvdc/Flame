@@ -31,6 +31,10 @@ namespace Flame.Front.Cli
         /// The default linux terminal identifier.
         /// </summary>
         public const string LinuxIdentifier = "linux";
+        /// <summary>
+        /// The html output terminal identifier.
+        /// </summary>
+        public const string HtmlIdentifier = "html";
 
         public static string OSVersionString
         {
@@ -53,6 +57,8 @@ namespace Flame.Front.Cli
             registeredConsoles = new List<KeyValuePair<Func<string, bool>, Func<string, ICompilerOptions, IConsole>>>();
             RegisterConsole(name => name != null && name.Equals(XTermIdentifier, StringComparison.OrdinalIgnoreCase),
                 (name, ops) => new AnsiConsole(name, DefaultConsole.GetBufferWidth(), GetForegroundColor(ops), GetBackgroundColor(ops)));
+            RegisterConsole(name => name != null && name.Equals(HtmlIdentifier, StringComparison.OrdinalIgnoreCase),
+                (name, ops) => new HtmlConsole(new ConsoleDescription(name, 80, GetForegroundColor(ops), GetBackgroundColor(ops)), OverridesDefaultStyle(ops)));
         }
 
         private static List<KeyValuePair<Func<string, bool>, Func<string, ICompilerOptions, IConsole>>> registeredConsoles;
@@ -70,6 +76,10 @@ namespace Flame.Front.Cli
         {
             return Options.GetOption<Color>("bg-color", new Color());
         }
+        private static bool OverridesDefaultStyle(ICompilerOptions Options)
+        {
+            return Options.GetOption<bool>("override-style", false);
+        }
 
         public static IConsole AcquireConsole(string Identifier, ICompilerOptions Options)
         {
@@ -84,7 +94,7 @@ namespace Flame.Front.Cli
         }
         public static IConsole AcquireConsole(ICompilerOptions Options)
         {
-            return AcquireConsole(TerminalIdentifier, Options);
+            return AcquireConsole(Options.GetOption<string>("terminal", TerminalIdentifier), Options);
         }
         public static IConsole AcquireConsole()
         {

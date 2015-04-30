@@ -12,7 +12,7 @@ using Flame.Compiler.Statements;
 
 namespace Flame.Syntax.DSharp
 {
-	public class PostconditionSyntax : IExpressionSyntax
+	public class PostconditionSyntax : IExpressionSyntax, ISourceSyntax
 	{
 		public const this(set Token OutKeyword, set Token LeadingParentheses, set Token ReturnValueIdentifier, set Token TrailingParentheses,
 						  set Token LeadingBraces, set IExpressionSyntax Condition, set Token TrailingBraces);
@@ -24,6 +24,16 @@ namespace Flame.Syntax.DSharp
 		public Token LeadingBraces { const get; private set; }
 		public IExpressionSyntax Condition { const get; private set; }
 		public Token TrailingBraces { const get; private set; }
+
+		public SourceLocation Location
+		{
+			const get return OutKeyword.Location.Concat(LeadingParentheses.Location)
+											    .Concat(ReturnValueIdentifier.Location)
+												.Concat(TrailingParentheses.Location)
+												.Concat(LeadingBraces.Location)
+												.Concat(Condition.GetSourceLocation())
+												.Concat(TrailingBraces.Location);
+		}
 
 		public const IExpression CreateExpression(ISyntaxState State)
 		{

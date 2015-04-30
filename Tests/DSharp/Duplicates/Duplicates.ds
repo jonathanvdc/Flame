@@ -1,0 +1,19 @@
+
+public static class DuplicatesTest
+{
+    public static int Test()
+    {
+        return 0;
+    }
+
+    static public int Test()
+    {
+        return 0;
+    }
+
+    public int Value
+    {
+        const get return 2;
+        get return 5;
+    }
+}

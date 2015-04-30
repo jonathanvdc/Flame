@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
-    public class ILCodeGenerator : IBranchingCodeGenerator, IUnmanagedCodeGenerator
+    public class ILCodeGenerator : IBranchingCodeGenerator, IUnmanagedCodeGenerator, IExceptionCodeGenerator
     {
         public ILCodeGenerator(IMethod Method)
         {
@@ -311,6 +311,37 @@ namespace Flame.Cecil.Emit
         }
 
         #endregion
+
+        #endregion
+
+        #region IExceptionCodeGenerator
+
+        public ICodeBlock EmitAssert(ICodeBlock Condition)
+        {
+            var method = CecilMethod.ImportCecil(typeof(System.Diagnostics.Debug).GetMethod("Assert", new Type[] { typeof(bool) }), (ICecilMember)Method);
+
+            return EmitInvocation(EmitMethod(method, null), new ICodeBlock[] { Condition });
+        }
+
+        public ICatchClause EmitCatchClause(ICatchHeader Header, ICodeBlock Body)
+        {
+            return new CatchClause((CatchHeader)Header, (ICecilBlock)Body);
+        }
+
+        public ICatchHeader EmitCatchHeader(IVariableMember ExceptionVariable)
+        {
+            return new CatchHeader(ExceptionVariable.VariableType, DeclareVariable(ExceptionVariable));
+        }
+
+        public ICodeBlock EmitThrow(ICodeBlock Exception)
+        {
+            return new ThrowBlock(this, (ICecilBlock)Exception);
+        }
+
+        public ICodeBlock EmitTryBlock(ICodeBlock TryBody, ICodeBlock FinallyBody, IEnumerable<ICatchClause> CatchClauses)
+        {
+            return new TryFinallyBlock(new TryCatchBlock((ICecilBlock)TryBody, CatchClauses.Cast<CatchClause>()), (ICecilBlock)FinallyBody);
+        }
 
         #endregion
 

@@ -106,6 +106,7 @@
 			</ItemGroup>
 		</ItemGroup>
 		<ItemGroup>
+			<Compile Include="Syntax\TokenNode.ds" />
 			<Compile Include="Syntax\TypeSyntax.ds" />
 			<Compile Include="Syntax\SingleVariableDeclaration.ds" />
 			<Compile Include="Syntax\IndirectSyntaxState.ds" />
@@ -121,6 +122,7 @@
 		<ItemGroup Name="Structure">
 			<ItemGroup>
 				<Compile Include="Syntax\Structure\AttributeSyntax.ds" />
+				<Compile Include="Syntax\Structure\BaseConstructorCallSyntax.ds" />
 				<Compile Include="Syntax\Structure\FieldSyntax.ds" />
 				<Compile Include="Syntax\Structure\MemberSyntax.ds" />
 				<Compile Include="Syntax\Structure\MethodSyntax.ds" />

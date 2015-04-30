@@ -15,17 +15,27 @@ namespace Flame.Verification
         public AccessorVerifier(IEnumerable<IAttributeVerifier<IAccessor>> Verifiers)
             : base(Verifiers)
         { }
+        public AccessorVerifier(MethodVerifierBase<IAccessor> Verifier)
+            : base(Verifier)
+        { }
 
-        protected override bool HasDuplicates(IAccessor Member, ICompilerLog Log)
+        protected override string PluralMemberKindName
         {
-            foreach (var item in Member.DeclaringProperty.GetAccessors())
-            {
-                if (!Member.Equals(item) && Member.AccessorType.Equals(item.AccessorType) && Member.HasSameSignature(item))
-                {
-                    return true;
-                }
-            }
-            return false;
+            get { return "accessors"; }
+        }
+        protected override string SingularMemberKindName
+        {
+            get { return "accessor"; }
+        }
+        protected override string GetDescription(IAccessor Method)
+        {
+            return "Accessor '" + Method.Name + "' in property '" + Method.DeclaringProperty.Name + "' of '" + Method.DeclaringType.FullName + "'";
+        }
+
+        protected override IEnumerable<IAccessor> GetDuplicates(IAccessor Member, ICompilerLog Log)
+        {
+            return Member.DeclaringProperty.GetAccessors()
+                .Where(item => !Member.Equals(item) && Member.AccessorType.Equals(item.AccessorType) && Member.HasSameSignature(item));
         }
     }
 }

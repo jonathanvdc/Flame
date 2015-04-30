@@ -1,5 +1,5 @@
 using Flame.RT;
-using SysMath = System.Math;
+alias SysMath = System.Math;
 
 namespace std
 {

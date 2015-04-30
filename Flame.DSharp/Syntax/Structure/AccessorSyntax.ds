@@ -8,7 +8,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class AccessorSyntax : IAccessorSyntax, IRelevantSyntax<Token>
+    public class AccessorSyntax : IAccessorSyntax, IRelevantSyntax<Token>, ISourceSyntax
     {
         public const this(set ISignatureSyntax Signature, set MethodContract Contract, set IStatementSyntax Body);
 
@@ -16,7 +16,7 @@ namespace Flame.Syntax.DSharp
         {
             const get
             {
-                return Signature.NameToken; 
+                return Signature.NameToken;
             }
         }
         public string Name
@@ -30,24 +30,30 @@ namespace Flame.Syntax.DSharp
         public ISignatureSyntax Signature { const get; private set; }
         public MethodContract Contract { const get; private set; }
         public IStatementSyntax Body { const get; private set; }
-        
+
+        public SourceLocation Location
+        {
+            const get return Signature.GetSourceLocation().Concat(Contract.Location)
+                                                          .Concat(Body.GetSourceLocation());
+        }
+
         public [Token] LeadingTrivia
         {
         	const get
         	{
         		List<Token> tokens = new List<Token>();
-        		
+
 				foreach (var item in Signature.Attributes)
 					tokens.AddRange(item.GetAllTrivia());
 				foreach (var item in Signature.ModifierTokens)
 					tokens.AddRange(item.GetAllTrivia());
 				tokens.AddRange(Signature.TypeSyntax.GetAllTrivia());
 				tokens.AddRange(Signature.NameToken.GetAllTrivia());
-				
+
 				return tokens;
         	}
         }
-        
+
         public [Token] TrailingTrivia { const get return new Token[0]; }
 
         public bool IsEmpty

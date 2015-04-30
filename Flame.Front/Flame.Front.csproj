@@ -59,6 +59,7 @@
     <Compile Include="Cli\DefaultConsoleStyle.cs" />
     <Compile Include="Cli\ExtendedPalette.cs" />
     <Compile Include="Cli\HighlightingNodeWriter.cs" />
+    <Compile Include="Cli\HtmlConsole.cs" />
     <Compile Include="Cli\ListItemConsole.cs" />
     <Compile Include="Cli\ListNodeWriter.cs" />
     <Compile Include="Cli\NeutralDiagnosticsWriter.cs" />

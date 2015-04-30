@@ -11,7 +11,9 @@ namespace Flame.Syntax.DSharp
 {
 	public class AssertSyntax : LineStatementSyntax, IRelevantSyntax<Token>, ITokenNode, ISourceSyntax
 	{
-		public const this(set Token AssertKeyword, set Token LeadingParen, set IExpressionSyntax Target, set Token TrailingParen, set Token SemicolonToken);
+		public const this(set Token AssertKeyword, set Token LeadingParen,
+			set IExpressionSyntax Target, set Token TrailingParen,
+			set Token SemicolonToken);
 
 		public Token AssertKeyword { const get; private set; }
 		public Token LeadingParen { const get; private set; }
@@ -25,7 +27,8 @@ namespace Flame.Syntax.DSharp
 				return AssertKeyword.Location
 									.Concat(LeadingParen.Location)
 									.Concat(Target.GetSourceLocation())
-									.Concat(TrailingParen.Location);
+									.Concat(TrailingParen.Location)
+									.Concat(SemicolonToken.Location);
 			}
 		}
 
@@ -81,7 +84,7 @@ namespace Flame.Syntax.DSharp
 							"Assertion '" + assertCode +
 							"' always evaluates to true (which makes it meaningless). " +
 							warningName,
-							Location));
+							AssertKeyword.Location));
 					}
 					else
 					{
@@ -89,16 +92,16 @@ namespace Flame.Syntax.DSharp
 							"Assertion '" + assertCode +
 							"' always evaluates to false (which will always results in an assertion failure). " +
 							warningName,
-							Location));
+							AssertKeyword.Location));
 					}
 				}
 				else
 				{
 					State.Log.LogWarning(new LogEntry("Constant assertion",
 						"Assertion '" + assertCode +
-						"' depends on a compile-time constant (which means it doesn't check any run-time behavior). " +
+						"' depends on a constant value (which means it doesn't check any run-time behavior). " +
 						warningName,
-						Location));
+						AssertKeyword.Location));
 				}
 			}
 			return new AssertStatement(innerExpr);

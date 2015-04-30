@@ -40,10 +40,22 @@ namespace Flame.Cecil.Emit
         void Emit(OpCode OpCode, IType Type);
         void Emit(OpCode OpCode, IField Field);
 
+        /// <summary>
+        /// Removes the last few instruction from the emit context.
+        /// </summary>
+        void PopInstructions(int Count);
+
         bool ApplyOptimization(IPeepholeOptimization Optimization);
 
         IEmitLabel CreateLabel();
         void MarkLabel(IEmitLabel Label);
+
+        void CreateCatchHandler(IEmitLabel TryStartLabel, IEmitLabel TryEndLabel, 
+            IEmitLabel HandlerStartLabel, IEmitLabel HandlerEndLabel,
+            IType CatchType);
+
+        void CreateFinallyHandler(IEmitLabel TryStartLabel, IEmitLabel TryEndLabel, 
+            IEmitLabel HandlerStartLabel, IEmitLabel HandlerEndLabel);
 
         IEmitLocal DeclareLocal(IType Type);
         void ReleaseLocal(IEmitLocal Local);

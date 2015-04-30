@@ -9,7 +9,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class ParameterSyntax : IMemberSyntax<IParameter>
+    public class ParameterSyntax : IMemberSyntax<IParameter>, ISourceSyntax
     {
         public const this(ISignatureSyntax Signature)
         {
@@ -27,6 +27,19 @@ namespace Flame.Syntax.DSharp
             const get
             {
                 return NameToken.TokenValue;
+            }
+        }
+
+        public SourceLocation Location
+        {
+            const get
+            {
+                var result = TypeSyntax.GetSourceLocation().Concat(NameToken.Location);
+                foreach (var item in ModifierTokens)
+                {
+                    result = result.Concat(item.Location);
+                }
+                return result;
             }
         }
 

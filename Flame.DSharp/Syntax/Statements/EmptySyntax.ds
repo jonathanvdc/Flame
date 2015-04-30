@@ -10,16 +10,21 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class EmptySyntax : LineStatementSyntax
+	public class EmptySyntax : LineStatementSyntax, ISourceSyntax
 	{
 		public const this();
 		public const this(set Token SemicolonToken);
-		
+
+		public SourceLocation Location
+		{
+			const get return SemicolonToken.Location;
+		}
+
 		public override IStatement CreateStatement(ISyntaxState State)
 		{
 			return new EmptyStatement();
 		}
-		
+
 		protected override CodeBuilder GetStatementCode()
 		{
 			return new CodeBuilder();

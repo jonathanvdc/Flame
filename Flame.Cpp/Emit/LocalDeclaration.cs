@@ -47,7 +47,7 @@ namespace Flame.Cpp.Emit
         public LocalDeclarationReference(CppLocal Local, ICppBlock Value)
             : this(Local)
         {
-            this.Value = Value; 
+            this.Value = Value;
         }
         public LocalDeclarationReference(LocalDeclaration Declaration)
         {
@@ -205,10 +205,7 @@ namespace Flame.Cpp.Emit
                         var initBlock = (INewObjectBlock)Value;
                         if (initBlock.Kind == AllocationKind.Stack || initBlock.Kind == AllocationKind.MakeManaged)
                         {
-                            if (initBlock.Arguments.Any())
-                            {
-                                cb.Append(initBlock.GetArgumentListCode());
-                            }
+                            cb.Append(initBlock.GetInitializationListCode(true));
                             return cb;
                         }
                     }

@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Build;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +32,9 @@ namespace Flame.Verification
                 var impl = DefinitionMethod.GetImplementation(ImplementationType);
                 if (impl == null || impl.Equals(DefinitionMethod))
                 {
-                    Log.LogError(new LogEntry("Method not implemented", "Method '" + DefinitionMethod.FullName + "' was not implemented in '" + ImplementationType.FullName + "'"));
+                    Log.LogError(new LogEntry("Method not implemented", 
+                        "Method '" + DefinitionMethod.FullName + "' was not implemented in '" + ImplementationType.FullName + "'",
+                        ImplementationType.GetSourceLocation()));
                     success = false;
                 }
             }

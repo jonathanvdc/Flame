@@ -38,12 +38,6 @@ namespace Flame.Verification
                     success = false;
                 }
             }
-            var duplicates = accessors.Select((item) => item.AccessorType).GroupBy((item) => item).Where((item) => item.Skip(1).Any()).Select((item) => item.Key);
-            foreach (var item in duplicates)
-	        {
-                Log.LogError(new LogEntry("Property verification error", "Duplicate '" + item + "' accessor in '" + Member.FullName + "'"));
-                success = false;
-            }
             return success;
         }
     }

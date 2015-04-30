@@ -20,6 +20,15 @@ namespace Flame.DSharp.Build
         public EnumLiteralSyntax Syntax { const get; private set; }
         public ISyntaxState State { const get; private set; }
 
+        #region ISourceMember Implementation
+
+        public SourceLocation Location
+        {
+            const get return Syntax.Location;
+        }
+
+        #endregion
+
         public const IExpression GetValue()
         {
             if (Syntax.LiteralValueSyntax == null)
