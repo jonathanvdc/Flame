@@ -1,0 +1,98 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Variables;
+using Flame.DSharp.Lexer;
+using Flame.DSharp.Build;
+using Pixie;
+
+namespace Flame.Syntax.DSharp
+{
+    /// <summary>
+    /// Represents a call to one of the parent type's constructors.
+    /// </summary>
+    /// <remarks>
+    /// Syntax: 'base(arg1, arg2, ...)'.
+    /// </remarks>
+    public class BaseConstructorCallSyntax : IInvocationSyntax, ISourceSyntax
+    {
+        /// <summary>
+        /// Creates a new base constructor call syntax node.
+        /// </summary>
+        public const this(set Token BaseKeyword, set DelimitedList<IExpressionSyntax> ArgumentList);
+
+        /// <summary>
+        /// Gets the base keyword token.
+        /// </summary>
+        public Token BaseKeyword { const get; private set; }
+        /// <summary>
+        /// Gets the base constructor call's argument list.
+        /// </summary>
+        public DelimitedList<IExpressionSyntax> ArgumentList { const get; private set; }
+
+        public [IExpressionSyntax] Arguments { const get return ArgumentList; }
+
+        public SourceLocation Location
+        {
+            const get return BaseKeyword.Location.Concat(ArgumentList.Location);
+        }
+
+        public IExpression CreateExpression(ISyntaxState State)
+        {
+            var parent = State.CurrentType.GetParent();
+            if (parent == null)
+            {
+                State.Log.LogError(new LogEntry("Invalid 'base' constructor call",
+                    "A 'base' constructor call could not be resolved because the enclosing type ('" +
+                    State.TypeNamer.Convert(State.CurrentType) + "') does not have a 'base' type.",
+                    BaseKeyword.Location));
+                return null;
+            }
+
+            var argExprs = ArgumentList.CreateVerifiedExpressions(State);
+            var argTypes = argExprs.Types;
+
+            var baseCtors = parent.GetConstructors();
+
+            var bestCtor = baseCtors.GetBestMethod(false, parent, argTypes);
+
+            if (bestCtor == null)
+            {
+                var entry = NewObjectSyntax.CreateFailedConstructorCallEntry(
+                                this, new TokenNode(BaseKeyword), "base constructor call",
+                                baseCtors, argTypes, State);
+
+                State.Log.LogError(entry);
+                return null;
+            }
+
+            return new InvocationExpression(bestCtor, new ThisVariable(State.CurrentType).CreateGetExpression(), argExprs);
+        }
+
+        public IVariable GetCallerVariable(ISyntaxState State)
+        {
+            return new ThisVariable(State.CurrentType);
+        }
+
+        public const [ITypeMember] GetAccessedMembers(ISyntaxState State)
+        {
+            var parent = State.CurrentType.GetParent();
+
+            var argExprs = ArgumentList.CreateVerifiedExpressions(State);
+            var argTypes = argExprs.Types;
+
+            return new ITypeMember[] { parent.GetConstructors().GetBestMethod(false, parent, argTypes) };
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            var cb = new CodeBuilder();
+            cb.Append(BaseKeyword.ToString());
+            cb.Append(ArgumentList.GetCode());
+            return cb;
+        }
+    }
+}

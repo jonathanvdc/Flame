@@ -34,7 +34,12 @@ namespace Flame.Cpp.Emit
 
         private bool EmitInvariantPostcondition
         {
-            get { return Method.get_Access() != AccessModifier.Private; }
+            get
+            {
+                return Method.get_Access() != AccessModifier.Private &&
+                       (!Method.get_IsConstant() || Method.IsConstructor ||
+                       CodeGenerator.GetEnvironment().Log.Options.GetOption<bool>("ensure-const-invariants", false));
+            }
         }
 
         public IEnumerable<PreconditionBlock> Preconditions

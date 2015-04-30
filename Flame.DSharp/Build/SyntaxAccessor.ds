@@ -59,6 +59,15 @@ namespace Flame.DSharp.Build
 
         #endregion
 
+        #region ISourceMember Implementation
+
+        public SourceLocation Location
+        {
+            const get return Syntax.Location;
+        }
+
+        #endregion
+
         #region Syntax State
 
         public virtual ISyntaxState GetSyntaxState()
@@ -216,15 +225,12 @@ namespace Flame.DSharp.Build
             }
             else
             {
-                var body = Syntax.Contract.CreateContractBody(Syntax.Body, state);
+                var body = Syntax.Body.CreateVerifiedStatement(state);
                 if (this.ReturnType.Equals(PrimitiveTypes.Void))
                 {
-                    return new BlockStatement(new IStatement[] { body, new ReturnStatement() });
+                    body = new BlockStatement(new IStatement[] { body, new ReturnStatement() });
                 }
-                else
-                {
-                    return body;
-                }
+                return Syntax.Contract.CreateContractBody(body, state);
             }
         }
 

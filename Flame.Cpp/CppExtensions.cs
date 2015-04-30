@@ -515,6 +515,20 @@ namespace Flame.Cpp
 
         #endregion
 
+        #region GetParameterlessConstructor
+
+        public static IMethod GetParameterlessConstructor(this IType Type)
+        {
+            var method = Type.GetConstructor(new IType[] { }, false);
+            if (method == null)
+            {
+                method = new ImplicitParameterlessConstructor(Type);
+            }
+            return method;
+        }
+
+        #endregion
+
         #region GetCopyConstructor
 
         public static IMethod GetCopyConstructor(this IType Type)

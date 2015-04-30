@@ -9,13 +9,13 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class TypeSignatureSyntax : ISignatureSyntax, IRelevantSyntax<Token>
+    public class TypeSignatureSyntax : ISignatureSyntax, IRelevantSyntax<Token>, ISourceSyntax
     {
-        public const this(set ISignatureSyntax SignatureSyntax, set Token Colon, set IEnumerable<ITypeSyntax> BaseTypes)
+        public const this(set ISignatureSyntax SignatureSyntax, set Token Colon, set [ITypeSyntax] BaseTypes)
         {
             this.GenericConstraints = new GenericConstraintSyntax[0];
         }
-        public const this(set ISignatureSyntax SignatureSyntax, set Token Colon, set IEnumerable<ITypeSyntax> BaseTypes, set IEnumerable<GenericConstraintSyntax> GenericConstraints);
+        public const this(set ISignatureSyntax SignatureSyntax, set Token Colon, set [ITypeSyntax] BaseTypes, set [GenericConstraintSyntax] GenericConstraints);
         public const this(ISignatureSyntax CommonSignatureSyntax)
         {
             this.SignatureSyntax = CommonSignatureSyntax;
@@ -25,11 +25,33 @@ namespace Flame.Syntax.DSharp
 
         public ISignatureSyntax SignatureSyntax { const get; private set; }
         public Token Colon { const get; private set; }
-        public IEnumerable<ITypeSyntax> BaseTypes { const get; private set; }
-        public IEnumerable<GenericConstraintSyntax> GenericConstraints { const get; private set; }
+        public [ITypeSyntax] BaseTypes { const get; private set; }
+        public [GenericConstraintSyntax] GenericConstraints { const get; private set; }
         public bool IsOperator { const get return false; }
-        
-        public IEnumerable<Token> LeadingTrivia
+
+        public SourceLocation HeaderLocation
+        {
+            const get return SignatureSyntax.GetSourceLocation();
+        }
+
+        public SourceLocation Location
+        {
+            const get
+            {
+                var result = SignatureSyntax.GetSourceLocation().Concat(Colon.Location);
+                foreach (var item in BaseTypes)
+                {
+                    result = result.Concat(item.GetSourceLocation());
+                }
+                foreach (var item in GenericConstraints)
+                {
+                    result = result.Concat(item.GetSourceLocation());
+                }
+                return result;
+            }
+        }
+
+        public [Token] LeadingTrivia
         {
         	const get
         	{
@@ -50,19 +72,19 @@ namespace Flame.Syntax.DSharp
 				return tokens;
         	}
         }
-        public IEnumerable<Token> TrailingTrivia { const get return (IEnumerable<Token>)new Token[0]; }
+        public [Token] TrailingTrivia { const get return new Token[0]; }
 
-        public IEnumerable<IAttributeSyntax> Attributes
+        public [IAttributeSyntax] Attributes
         {
             const get { return SignatureSyntax.Attributes; }
         }
 
-        public IEnumerable<Token> ModifierTokens
+        public [Token] ModifierTokens
         {
             const get { return SignatureSyntax.ModifierTokens; }
         }
 
-        public IEnumerable<IGenericParameterDeclarationSyntax> GenericDeclarations
+        public [IGenericParameterDeclarationSyntax] GenericDeclarations
         {
             const get { return SignatureSyntax.GenericDeclarations; }
         }

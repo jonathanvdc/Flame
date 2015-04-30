@@ -7,32 +7,174 @@ namespace Flame.DSharp.Build
 {
     public static class Warnings
     {
+        /// <summary>
+        /// The -pedantic option, which turns on most non-essential warnings.
+        /// </summary>
         public const string Pedantic = "pedantic";
+
+        /// <summary>
+        /// The warning name for shadowed locals.
+        /// </summary>
+        /// <example>
+        /// for (int i = 0; i < 5; i++)
+        /// {
+        ///     for (int i = 0; i < 5; i++)
+        ///              ^~~~~
+        ///     {
+        ///
+        ///     }
+        /// }
+        /// </example>
         public const string Shadow = "shadow";
+
+        /// <summary>
+        /// The warning name for undefined operators on generic parameters.
+        /// </summary>
+        /// <example>
+        /// T z = x + y;
+        ///       ^~~~~
+        /// </example>
         public const string GenericOperators = "generic-operators";
+
+        /// <summary>
+        /// The warning name for undefined operators.
+        /// </summary>
+        /// <example>
+        /// bool x = true, y = false;
+        /// bool z = x + y;
+        ///          ^~~~~
+        /// </example>
         public const string Operators = "operators";
+
+        /// <summary>
+        /// The warning name for bitcasts.
+        /// </summary>
+        /// <example>
+        /// int x = -5;
+        /// bit32 y = (bit32)x;
+        /// bit16 z = (bit16)y;
+        ///            ^~~~~
+        /// x = (int)(bit32)z;
         public const string Bitcast = "bitcast";
+
+        /// <summary>
+        /// The warning name for meaningless casts.
+        /// </summary>
+        /// <example>
+        /// int x = 5;
+        /// int y = (int)x;
+        ///          ^~~
+        /// </example>
         public const string MeaninglessCast = "meaningless-cast";
+
+        /// <summary>
+        /// The warning name for discarded constants.
+        /// </summary>
+        /// <example>
+        /// 5;
+        ///  ^
+        /// </example>
         public const string ConstantDiscarded = "constant-discarded";
+
+        /// <summary>
+        /// The warning name for constant assertions.
+        /// </summary>
+        /// <example>
+        /// assert(true);
+        /// ^~~~~~
+        /// </example>
         public const string ConstantAssert = "constant-assert";
+
+        /// <summary>
+        /// The warning name for C# style alias directives.
+        /// </summary>
+        /// <example>
+        /// using x = y;
+        /// ^~~~~
+        /// </example>
         public const string BadAlias = "bad-alias";
+
+        /// <summary>
+        /// The warning name for (illegal) C++ style directives.
+        /// </summary>
+        /// <example>
+        /// using namespace x;
+        ///       ^~~~~~~~~
+        /// </example>
         public const string CppUsingNamespace = "cpp-using-namespace";
 
+        /// <summary>
+        /// The warning name for control flow statements with empty bodies.
+        /// </summary>
+        /// <example>
+        /// while (flag);
+        ///             ^
+        /// </example>
+        public const string EmptyBody = "empty-body";
+
+        /// <summary>
+        /// The warning name for dangling else statements.
+        /// </summary>
+        /// <example>
+        /// if (x)
+        /// if (y) return x;
+        /// else return y;
+        /// ^~~~
+        /// </example>
+        public const string DanglingElse = "dangling-else";
+
+        /// <summary>
+        /// The warning name for try statements without associated catch or finally blocks.
+        /// </summary>
+        /// <example>
+        /// try { Console.WriteLine("Hi"); }
+        /// ^~~
+        /// return 0;
+        /// </example>
+        public const string LonelyTry = "lonely-try";
+
+        /// <summary>
+        /// The warning name for hidden or convoluted null checks.
+        /// </summary>
+        /// <example>
+        /// public static int Derp(object x)
+        /// {
+        ///     if (x is object) return 0;
+        ///           ^~~~~~~~~
+        ///     else return 1;
+        /// }
+        /// </example>
+        public const string HiddenNullCheck = "hidden-null-check";
+
+        /// <summary>
+        /// Gets a warning's "official name", which the log maps to an on/off boolean.
+        /// </summary>
         public static const string GetWarningName(string Name)
         {
             return "W" + Name;
         }
 
+        /// <summary>
+        /// Gets a warning's "relaxed name", which the log maps to an on/off boolean.
+        /// A warning that is relaxed will not be shown unless the warning is explicitly
+        /// turned on.
+        /// </summary>
         public static const string GetRelaxWarningName(string Name)
         {
             return "Wrelax-" + Name;
         }
 
+        /// <summary>
+        /// Gets a "[-W...]" style warning name.
+        /// </summary>
         public static const string GetWarningNameMessage(string Name)
         {
             return "[-" + GetWarningName(Name) + "]";
         }
 
+        /// <summary>
+        /// Finds out whether the given log instance is in pedantic mode.
+        /// </summary>
         public static bool IsPedantic[this ICompilerLog Log]
         {
             const get
@@ -81,10 +223,7 @@ namespace Flame.DSharp.Build
             return Log.UseDefaultWarnings(Name, true);
         }
 
-        public static bool ShowShadowWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UsePedanticWarnings(Shadow);
-        }
+        // Default warnings
         public static bool ShowOperatorWarnings[this ICompilerLog Log]
         {
             const get return Log.UseDefaultWarnings(Operators);
@@ -93,21 +232,27 @@ namespace Flame.DSharp.Build
         {
             const get return Log.UseDefaultWarnings(GenericOperators);
         }
+        public static bool ShowConstantAssertWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UseDefaultWarnings(ConstantAssert);
+        }
+
+        // Pedantic warnings
+        public static bool ShowShadowWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UsePedanticWarnings(Shadow);
+        }
         public static bool ShowBitcastWarnings[this ICompilerLog Log]
         {
             const get return Log.UsePedanticWarnings(Bitcast);
         }
+        public static bool ShowConstantDiscardedWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UsePedanticWarnings(ConstantDiscarded);
+        }
         public static bool ShowMeaninglessCastWarnings[this ICompilerLog Log]
         {
             const get return Log.UsePedanticWarnings(MeaninglessCast);
-        }
-        public static bool ShowConstantDiscardedWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UseDefaultWarnings(ConstantDiscarded);
-        }
-        public static bool ShowConstantAssertWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UseDefaultWarnings(ConstantAssert);
         }
         public static bool ShowBadAliasWarnings[this ICompilerLog Log]
         {
@@ -116,6 +261,22 @@ namespace Flame.DSharp.Build
         public static bool ShowCppUsingNamespaceWarnings[this ICompilerLog Log]
         {
             const get return Log.UsePedanticWarnings(BadAlias);
+        }
+        public static bool ShowEmptyBodyWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UsePedanticWarnings(EmptyBody);
+        }
+        public static bool ShowDanglingElseWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UsePedanticWarnings(DanglingElse);
+        }
+        public static bool ShowLonelyTryWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UsePedanticWarnings(LonelyTry);
+        }
+        public static bool ShowHiddenNullCheckWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UsePedanticWarnings(HiddenNullCheck);
         }
     }
 }

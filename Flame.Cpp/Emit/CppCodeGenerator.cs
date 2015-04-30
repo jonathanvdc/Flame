@@ -286,7 +286,7 @@ namespace Flame.Cpp.Emit
             }
             else
             {
-                return new RetypedBlock(new StackConstructorBlock(Type.CreateBlock(this), new ICppBlock[0]), Type);
+                return new StackConstructorBlock(Type.GetParameterlessConstructor().CreateConstructorBlock(this), new ICppBlock[0]);
             }
         }
 
@@ -481,7 +481,11 @@ namespace Flame.Cpp.Emit
 
         public ICodeBlock EmitForeachBlock(IForeachBlockHeader Header, ICodeBlock Body)
         {
-            return new ForeachBlock((ForeachHeader)Header, (ICppBlock)Body);
+            var header = (ForeachHeader)Header;
+            var body = (ICppBlock)Body;
+            CppBlock.HoistVariableDeclarations(header.Element.Declaration.Local, body);
+
+            return new ForeachBlock(header, body);
         }
 
         public IForeachBlockHeader EmitForeachHeader(IEnumerable<ICollectionBlock> Collections)

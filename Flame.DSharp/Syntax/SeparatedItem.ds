@@ -7,7 +7,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class SeparatedItem<T> : ISyntaxNode, IRelevantSyntax<Token>, ISourceSyntax
+	public class SeparatedItem<T> : ISyntaxNode, IRelevantSyntax<Token>, ISourceSyntax, ITokenNode
 		where T : ISyntaxNode
 	{
 		public const this(set T Item)
@@ -15,18 +15,29 @@ namespace Flame.Syntax.DSharp
 			this.Separator = Token.Undefined;
 		}
 		public const this(set Token Separator, set T Item);
-		
+
 		public Token Separator { const get; private set; }
 		public T Item { const get; private set; }
-		
+
 		public SourceLocation Location
 		{
 			const get
 			{
-				return Separator.Location.Concat(Item.GetSourceLocation());	
+				return Separator.Location.Concat(Item.GetSourceLocation());
 			}
 		}
-		
+
+		public IReadOnlyList<Token> Tokens
+		{
+			const get
+			{
+				var results = new List<Token>();
+				results.Add(Separator);
+				results.AddRange(Item.GetTokens());
+				return results;
+			}
+		}
+
 		public [Token] LeadingTrivia
 		{
 			const get
@@ -37,15 +48,15 @@ namespace Flame.Syntax.DSharp
 				return tokens;
 			}
 		}
-		
+
 		public [Token] TrailingTrivia
 		{
 			const get
 			{
-				return Enumerable.Empty<Token>();	
+				return Enumerable.Empty<Token>();
 			}
 		}
-		
+
 		public CodeBuilder GetCode()
 		{
 			CodeBuilder cb = new CodeBuilder();

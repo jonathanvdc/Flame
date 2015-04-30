@@ -12,12 +12,10 @@ namespace Flame.Syntax.DSharp
 {
     public class InitializedListSyntax : IExpressionSyntax
     {
-        public const this(set IExpressionSyntax List, set Token RBraces, set IEnumerable<IExpressionSyntax> Elements, set Token LBraces);
+        public const this(set IExpressionSyntax List, set DelimitedList<IExpressionSyntax> Elements);
 
         public IExpressionSyntax List { const get; private set; }
-        public Token RBraces { const get; private set; }
-        public IEnumerable<IExpressionSyntax> Elements { const get; private set; }
-        public Token LBraces { const get; private set; }
+        public DelimitedList<IExpressionSyntax> Elements { const get; private set; }
 
         public const IExpression CreateExpression(ISyntaxState State)
         {
@@ -54,17 +52,7 @@ namespace Flame.Syntax.DSharp
         public const CodeBuilder GetCode()
         {
             CodeBuilder cb = List.GetCode();
-            cb.Append(RBraces.ToString());
-            var elems = Enumerable.ToArray<IExpressionSyntax>(Elements);
-            for (int i = 0; i < elems.Length; i++)
-            {
-                cb.Append(elems[i].GetCode());
-                if (i < elems.Length - 1)
-                {
-                    cb.Append(",");
-                }
-            }
-            cb.Append(LBraces.ToString());
+            cb.Append(Elements.GetCode());
             return cb;
         }
 

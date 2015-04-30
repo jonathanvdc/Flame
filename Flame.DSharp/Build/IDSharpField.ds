@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Syntax;
 using Flame.Syntax.DSharp;
 
 namespace Flame.DSharp.Build
 {
-    public interface IDSharpField : ICodeMember, IInitializedField
+    public interface IDSharpField : ICodeMember, IInitializedField, ISourceMember
     {
     }
 }

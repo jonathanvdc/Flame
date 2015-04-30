@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Compiler.Build;
 using Flame.Syntax;
 
 namespace Flame.DSharp.Build
 {
 	public interface IDSharpType : IType, ICodeMember, ISyntaxNode, INamespaceBranch
     {
-        ISyntaxState GetSyntaxState(); 
+        ISyntaxState GetSyntaxState();
     }
-    public interface IDSharpSyntaxType : IDSharpType
+    public interface IDSharpSyntaxType : IDSharpType, ISourceMember
     {
         ITypeDeclarationSyntax GetSyntax();
     }

@@ -63,7 +63,7 @@ namespace Flame.Cpp.Emit
         public CodeBuilder GetCode()
         {
             CodeBuilder cb = Constructor.GetCode();
-            cb.Append(this.GetArgumentListCode());
+            cb.Append(this.GetInitializationListCode(false));
             return cb;
         }
     }

@@ -7,13 +7,18 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class YieldBreakSyntax : IStatementSyntax, ITokenNode
+    public class YieldBreakSyntax : IStatementSyntax, ITokenNode, ISourceSyntax
     {
         public const this(set Token YieldKeyword, set BreakSyntax Break);
 
 		public Token YieldKeyword { const get; private set; }
 		public BreakSyntax Break { const get; private set; }
-		
+
+        public SourceLocation Location
+        {
+            const get return YieldKeyword.Location.Concat(Break.Location);
+        }
+
 		public IReadOnlyList<Token> Tokens
 		{
 			const get
@@ -29,12 +34,12 @@ namespace Flame.Syntax.DSharp
         {
         	return new YieldBreakStatement();
         }
-        
+
         public override const string ToString()
         {
         	return GetCode().ToString();
         }
-        
+
         public const CodeBuilder GetCode()
         {
         	CodeBuilder cb = new CodeBuilder();

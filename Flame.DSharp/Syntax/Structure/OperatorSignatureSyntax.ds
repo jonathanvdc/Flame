@@ -8,18 +8,18 @@ namespace Flame.Syntax.DSharp
 {
     public class OperatorSignatureSyntax : ISignatureSyntax, IRelevantSyntax<Token>
     {
-        public const this(set IEnumerable<IAttributeSyntax> Attributes, set IEnumerable<Token> ModifierTokens,
+        public const this(set [IAttributeSyntax] Attributes, set [Token] ModifierTokens,
         					set ITypeSyntax TypeSyntax, set Token OperatorKeyword,
         					set Token OperatorToken);
 
-        public IEnumerable<IAttributeSyntax> Attributes { const get; private set; }
-        public IEnumerable<Token> ModifierTokens { const get; private set; }
+        public [IAttributeSyntax] Attributes { const get; private set; }
+        public [Token] ModifierTokens { const get; private set; }
         public ITypeSyntax TypeSyntax { const get; private set; }
         public Token OperatorKeyword { const get; private set; }
         public Token OperatorToken { const get; private set; }
         public Token NameToken { const get return OperatorToken; }
         public bool IsOperator { const get return true; }
-        public IEnumerable<IGenericParameterDeclarationSyntax> GenericDeclarations { const get return (IEnumerable<IGenericParameterDeclarationSyntax>)new IGenericParameterDeclarationSyntax[0]; }
+        public [IGenericParameterDeclarationSyntax] GenericDeclarations { const get return new IGenericParameterDeclarationSyntax[0]; }
 
         public [Token] LeadingTrivia
         {

@@ -47,6 +47,12 @@ namespace Flame.Front.Cli
             log.Dispose();
             log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(buildArgs), buildArgs);
 
+            if (buildArgs.GetOption<bool>("repeat-command", false))
+            {
+                log.Console.WriteLine(Name + " " + string.Join(" ", args));
+                log.Console.WriteSeparator(1);
+            }
+
             var timer = buildArgs.TimeCompilation ? new Stopwatch() : null;
             var startTime = DateTime.Now;
             if (timer != null)

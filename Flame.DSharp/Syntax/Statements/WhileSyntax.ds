@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using Flame.Compiler;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Expressions;
+using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class WhileSyntax : IStatementSyntax, ITokenNode
+    public class WhileSyntax : IStatementSyntax, ITokenNode, ISourceSyntax
     {
         public const this(set Token WhileKeyword, set Token LeadingParentheses, set IExpressionSyntax Condition, set Token TrailingParentheses, set IStatementSyntax Body);
 
@@ -16,7 +17,15 @@ namespace Flame.Syntax.DSharp
         public IExpressionSyntax Condition { const get; private set; }
         public Token TrailingParentheses { const get; private set; }
         public IStatementSyntax Body { const get; private set; }
-        
+
+        public SourceLocation Location
+        {
+            const get return WhileKeyword.Location.Concat(LeadingParentheses.Location)
+                                                  .Concat(Condition.GetSourceLocation())
+                                                  .Concat(TrailingParentheses.Location)
+                                                  .Concat(Body.GetSourceLocation());
+        }
+
         public IReadOnlyList<Token> Tokens
         {
         	const get
@@ -36,6 +45,16 @@ namespace Flame.Syntax.DSharp
         	State.PushScope();
             var cond = Condition.CreateExpression(State);
             var body = Body.CreateStatement(State);
+
+            if (body.IsEmpty && State.Log.ShowEmptyBodyWarnings)
+            {
+                State.Log.LogWarning(new LogEntry("While block without body",
+                    "While block '" + this.GetCode().Trim().ToString() +
+                    "' has an empty statement as its body. " +
+                    Warnings.GetWarningNameMessage(Warnings.EmptyBody),
+                    Body.GetSourceLocation()));
+            }
+
             var cleanup = State.PopScope();
             var whileLoop = new WhileStatement(cond, body);
             IStatement[] statements = new IStatement[] { whileLoop, cleanup };
@@ -53,7 +72,7 @@ namespace Flame.Syntax.DSharp
             cb.Append(Body.GetCode());
             return cb;
         }
-        
+
         public override const string ToString()
         {
         	return this.GetCode().ToString();

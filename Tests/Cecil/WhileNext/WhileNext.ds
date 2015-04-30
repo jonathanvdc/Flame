@@ -1,0 +1,18 @@
+using System;
+using System.Collections.Generic;
+
+public static class WhileNextTests
+{
+    public const int Sum(List<int> Values)
+    {
+        int result = 0;
+        foreach (var item in Values) // This should be disassembled and then reviewed.
+                                     // A bug would cause the branch at the end of the foreach
+                                     // loop to point to the start of the function
+                                     // instead of the start of the foreach loop.
+        {
+            result += item;
+        }
+        return result;
+    }
+}

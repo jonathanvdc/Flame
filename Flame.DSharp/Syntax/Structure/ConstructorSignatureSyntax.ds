@@ -9,7 +9,7 @@ using Flame.DSharp.Build;
 
 namespace Flame.Syntax.DSharp
 {
-    public class ConstructorSignatureSyntax : ISignatureSyntax
+    public class ConstructorSignatureSyntax : ISignatureSyntax, ISourceSyntax
     {
         public const this(set [IAttributeSyntax] Attributes, set [Token] ModifierTokens, set Token NameToken);
 
@@ -17,6 +17,23 @@ namespace Flame.Syntax.DSharp
         public [Token] ModifierTokens { const get; private set; }
         public Token NameToken { const get; private set; }
         public bool IsOperator { const get return false; }
+
+        public SourceLocation Location
+        {
+            const get
+            {
+                var result = NameToken.Location;
+                foreach (var item in Attributes)
+                {
+                    result = result.Concat(item.GetSourceLocation());
+                }
+                foreach (var item in ModifierTokens)
+                {
+                    result = result.Concat(item.Location);
+                }
+                return result;
+            }
+        }
 
         public [IGenericParameterDeclarationSyntax] GenericDeclarations
         {

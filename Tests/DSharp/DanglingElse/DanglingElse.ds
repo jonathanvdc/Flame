@@ -1,0 +1,12 @@
+
+public class DanglingElseTest
+{
+    public const int Test(int A, int B)
+    {
+        if (A >= B)
+            if (A == B);
+        else A = B;
+
+        return A;
+    }
+}

@@ -62,8 +62,21 @@ namespace Flame.Cpp
             return codeGen;
         }
 
+        private ICppBlock processedBody;
         private ContractBlock methodBody;
         public ICppBlock Body { get { return methodBody as ICppBlock ?? new EmptyBlock(codeGen); } }
+
+        public ICppBlock ProcessedBody
+        {
+            get
+            {
+                if (processedBody == null)
+                {
+                    processedBody = this.IsConstructor ? (ICppBlock)Body.OptimizeConstructorBody() : (ICppBlock)Body.OptimizeMethodBody();
+                }
+                return processedBody;
+            }
+        }
 
         public MethodContract Contract
         {
@@ -75,6 +88,7 @@ namespace Flame.Cpp
 
         public void SetMethodBody(ICodeBlock Body)
         {
+            this.processedBody = null;
             this.methodBody = Body is ContractBlock ? (ContractBlock)Body : new ContractBlock((ICppBlock)Body, Enumerable.Empty<ICppBlock>(), Enumerable.Empty<ICppBlock>());
         }
 
@@ -186,7 +200,18 @@ namespace Flame.Cpp
 
         public bool EmitInline
         {
-            get { return (this.get_IsGeneric() && this.DeclaringType.get_IsGenericDeclaration()) || this.Equals(DeclaringType.GetInvariantsCheckImplementationMethod()); }
+            get { return (this.get_IsGeneric() && this.DeclaringType.get_IsGenericDeclaration()); }
+        }
+
+        /// <summary>
+        /// Gets a boolean value that, if true, explains that
+        /// a commented version of the method's body will be emitted
+        /// in the header file, even though the method is technically 
+        /// defined in the source file.
+        /// </summary>
+        public bool HasPublicBody
+        {
+            get { return this.Equals(DeclaringType.GetInvariantsCheckImplementationMethod()); }
         }
 
         public bool IsOverride
@@ -298,11 +323,20 @@ namespace Flame.Cpp
             }
             if (EmitInline)
             {
-                cb.AddCodeBuilder(GetBodyCode());
+                cb.AddCodeBuilder(ProcessedBody.GetCode());
             }
             else
             {
                 cb.Append(';');
+                if (HasPublicBody) // Emit a sneak peek nonetheless
+                {
+                    var bodyCode = ProcessedBody.GetCode();
+                    for (int i = 0; i < bodyCode.LineCount; i++)
+			        {
+                        var line = bodyCode[i];
+                        cb.AddLine("// " + line.ToString(new string(' ', 4)));
+			        }
+                }
             }
             return cb;
         }
@@ -329,18 +363,6 @@ namespace Flame.Cpp
             }
         }
 
-        public CodeBuilder GetBodyCode()
-        {
-            CodeBuilder cb = new CodeBuilder();
-            var body = Body.ImplyEmptyReturns();
-            if (this.IsConstructor)
-            {
-                body = body.ImplyStructInit();
-            }
-            cb.AddEmbracedBodyCodeBuilder(body.GetCode());
-            return cb;
-        }
-
         public CodeBuilder GetSourceCode()
         {
             if (EmitInline)
@@ -364,7 +386,7 @@ namespace Flame.Cpp
             }
 
             cb.Append(GetSharedSignature(!IsGlobal));
-            cb.AddCodeBuilder(GetBodyCode());
+            cb.AddCodeBuilder(ProcessedBody.GetCode());
 
             return cb;
         }

@@ -8,7 +8,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class NextSyntax : LineStatementSyntax, ITokenNode
+	public class NextSyntax : LineStatementSyntax, ITokenNode, ISourceSyntax
     {
         public const this()
         {
@@ -17,7 +17,12 @@ namespace Flame.Syntax.DSharp
         public const this(set Token NextKeyword, set Token SemicolonToken);
 
         public Token NextKeyword { const get; private set; }
-        
+
+		public SourceLocation Location
+		{
+			const get return NextKeyword.Location;
+		}
+
         public IReadOnlyList<Token> Tokens
         {
         	const get return (IReadOnlyList<Token>)new Token[] { NextKeyword, SemicolonToken };

@@ -8,12 +8,25 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class UsingSyntax : IBinderDirectiveSyntax
+    public class UsingSyntax : IBinderDirectiveSyntax, ISourceSyntax
     {
         public const this(set Token UsingKeyword, set [Token] UsingNamespace, set Token Semicolon);
 
         public Token UsingKeyword { const get; private set; }
         public [Token] UsingNamespace { const get; private set; }
+
+        public SourceLocation Location
+        {
+            const get
+            {
+                var result = UsingKeyword.Location;
+                foreach (var item in UsingNamespace)
+                {
+                    result = result.Concat(item.Location);
+                }
+                return result;
+            }
+        }
 
         public string UsingNamespaceString
         {
