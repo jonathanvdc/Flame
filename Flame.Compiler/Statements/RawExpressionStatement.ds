@@ -13,6 +13,20 @@ namespace Flame.Compiler.Statements
 
         public IExpression Expression { const get; private set; }
 
+        public override IStatement Accept(INodeVisitor Visitor)
+        {
+            var transExpr = Visitor.Visit(Expression);
+
+            if (transExpr == Expression)
+            {
+                return this;
+            }
+            else
+            {
+                return new RawExpressionStatement(transExpr);
+            }
+        }
+
         public ICodeBlock Emit(ICodeGenerator Generator)
         {
             return Expression.Emit(Generator);

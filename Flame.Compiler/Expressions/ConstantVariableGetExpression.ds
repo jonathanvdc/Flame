@@ -8,7 +8,12 @@ namespace Flame.Compiler.Expressions
     public class ConstantVariableGetExpression : VariableGetExpressionBase<ConstantVariable>
     {
 		public const this(set ConstantVariable Variable);
-		
+
+        public override IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
 		public override bool IsConstant
         {
             const get { return Variable.Value.IsConstant; }

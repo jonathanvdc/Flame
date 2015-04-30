@@ -19,6 +19,11 @@ namespace Flame.Compiler.Expressions
 
 		public IExpression[] Operands { const get; private set; }
 
+		public IExpression Accept(INodeVisitor Visitor)
+		{
+			return new ConcatExpression(Visitor.VisitAll(Operands));
+		}
+
         public const IBoundObject Evaluate()
         {
     		return EvaluateExpression();

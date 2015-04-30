@@ -17,6 +17,11 @@ namespace Flame.Compiler.Expressions
             const get { return true; }
         }
 
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
         public const IBoundObject Evaluate()
         {
             return this;
@@ -31,12 +36,12 @@ namespace Flame.Compiler.Expressions
         {
             return Generator.EmitNull();
         }
-        
+
         public object Value : IBoundPrimitive<object>.Value
-		{ 
+		{
 			const get return null;
 		}
-        
+
         public void SetField(IField Field, IBoundObject Value) : IBoundObject.SetField
 	    {
 	    }

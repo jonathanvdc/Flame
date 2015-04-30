@@ -11,6 +11,20 @@ namespace Flame.Compiler.Statements
 
 		public IExpression Value { const get; private set; }
 
+		public IStatement Accept(INodeVisitor Visitor)
+		{
+			var transVal = Visitor.Visit(Value);
+
+			if (transVal == Value)
+			{
+				return this;
+			}
+			else
+			{
+				return new YieldReturnStatement(transVal);
+			}
+		}
+
 		public bool IsEmpty { const get return false; }
 
 		public const IStatement Optimize()

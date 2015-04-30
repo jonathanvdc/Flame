@@ -12,6 +12,20 @@ namespace Flame.Compiler.Statements
 
 		public bool IsEmpty { const get return false; }
 
+		public IStatement Accept(INodeVisitor Visitor)
+		{
+			var expr = Visitor.Visit(Value);
+
+			if (expr == Value)
+			{
+				return this;
+			}
+			else
+			{
+				return new ReturnStatement(expr);
+			}
+		}
+
 		public IStatement Optimize()
 		{
 			if (Value != null)

@@ -12,6 +12,20 @@ namespace Flame.Compiler.Statements
         public IEmitVariable Variable { const get; private set; }
         public IExpression Value { const get; private set; }
 
+        public IStatement Accept(INodeVisitor Visitor)
+        {
+            var transVal = Visitor.Visit(Value);
+
+            if (transVal == Value)
+            {
+                return this;
+            }
+            else
+            {
+                return new EmitVariableSetStatement(Variable, transVal);
+            }
+        }
+
         public const IStatement Optimize()
         {
             var optVal = Value.Optimize();

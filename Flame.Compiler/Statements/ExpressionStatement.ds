@@ -10,6 +10,20 @@ namespace Flame.Compiler.Statements
 
         public IExpression Expression { const get; private set; }
 
+        public IStatement Accept(INodeVisitor Visitor)
+        {
+            var expr = Visitor.Visit(Expression);
+
+            if (expr == Expression)
+            {
+                return this;
+            }
+            else
+            {
+                return new ExpressionStatement(expr);
+            }
+        }
+
         public bool IsEmpty : IStatement.IsEmpty
         {
             const get

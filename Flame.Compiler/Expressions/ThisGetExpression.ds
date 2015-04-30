@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Expressions
 {
-    public class ThisGetExpression : IExpression
+    public class ThisGetExpression : IExpression, IVariableNode
     {
         public const this(set IType Type);
 
@@ -12,6 +13,21 @@ namespace Flame.Compiler.Expressions
         public bool IsConstant
         {
             const get { return false; }
+        }
+
+        public const IVariable GetVariable()
+        {
+            return new ThisVariable(Type);
+        }
+
+        public VariableNodeAction Action
+        {
+            const get return VariableNodeAction.Get;
+        }
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
         }
 
         public IBoundObject Evaluate()

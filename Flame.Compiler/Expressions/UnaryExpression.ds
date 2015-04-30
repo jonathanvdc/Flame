@@ -16,7 +16,7 @@ namespace Flame.Compiler.Expressions
         /// The value the unary expression will be performed on.
         /// </summary>
         public IExpression Value { const get; protected set; }
-        
+
         public virtual IType Type
         {
             virtual const get { return Value.Type; }
@@ -26,6 +26,21 @@ namespace Flame.Compiler.Expressions
         {
             const get { return Value.IsConstant; }
         }
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            var operand = Visitor.Visit(Value);
+            if (Value == operand)
+            {
+                return this;
+            }
+            else
+            {
+                return Create(operand);
+            }
+        }
+
+        protected const abstract IExpression Create(IExpression Operand);
 
         public const abstract IBoundObject Evaluate();
         public const abstract IExpression Optimize();

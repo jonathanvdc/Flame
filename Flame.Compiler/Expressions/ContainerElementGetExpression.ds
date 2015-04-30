@@ -1,20 +1,36 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Expressions
 {
 	public class ContainerElementGetExpression : IExpression, IVariableNode
     {
-        public const this(set IExpression Target, set IEnumerable<IExpression> IndexArguments);
+        public const this(set IExpression Target, set [IExpression] IndexArguments);
 
 		public IExpression Target { const get; private set; }
-		public IEnumerable<IExpression> IndexArguments { const get; private set; }
+		public [IExpression] IndexArguments { const get; private set; }
         public IType Type
         {
 	        const get
 			{
 				return Target.Type.AsContainerType().GetElementType();
+			}
+		}
+
+		public IExpression Accept(INodeVisitor Visitor)
+		{
+			var transTarget = Visitor.Visit(Target);
+			var args = Visitor.VisitAll(IndexArguments);
+
+			if (transTarget == Target && Enumerable.SequenceEqual<IExpression>(args, IndexArguments))
+			{
+				return this;
+			}
+			else
+			{
+				return new ContainerElementGetExpression(transTarget, args);
 			}
 		}
 
@@ -27,6 +43,11 @@ namespace Flame.Compiler.Expressions
         {
         	return new ElementVariable(Target, IndexArguments);
         }
+
+		public VariableNodeAction Action
+		{
+			const get return VariableNodeAction.Get;
+		}
 
         public const IBoundObject Evaluate()
         {

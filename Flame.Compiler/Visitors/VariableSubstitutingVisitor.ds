@@ -1,0 +1,62 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Compiler.Visitors
+{
+    public class VariableSubsitutingVisitor : NodeVisitorBase
+    {
+        public const this(set IReadOnlyDictionary<IVariable, IVariable> Mapping);
+
+        public IReadOnlyDictionary<IVariable, IVariable> Mapping { const get; private set; }
+
+        protected override bool Matches(IExpression Value)
+        {
+            return Value is IVariableNode;
+        }
+        protected override bool Matches(IStatement Value)
+        {
+            return Value is IVariableNode;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            var node = (IVariableNode)Expression;
+            var variable = node.GetVariable();
+
+            if (Mapping.ContainsKey(variable))
+            {
+                var targetVariable = Mapping[variable];
+                if (node.Action == VariableNodeAction.AddressOf)
+                {
+                    return ((IUnmanagedVariable)targetVariable).CreateAddressOfExpression();
+                }
+                else if (node.Action == VariableNodeAction.Get)
+                {
+                    return targetVariable.CreateGetExpression();
+                }
+            }
+            return Expression;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            var node = (IVariableNode)Statement;
+            var variable = node.GetVariable();
+
+            if (Mapping.ContainsKey(variable))
+            {
+                var targetVariable = Mapping[variable];
+                if (node.Action == VariableNodeAction.Set)
+                {
+                    return targetVariable.CreateSetStatement(((ISetVariableNode)node).Value);
+                }
+                else if (node.Action == VariableNodeAction.Release)
+                {
+                    return targetVariable.CreateReleaseStatement();
+                }
+            }
+            return Statement;
+        }
+    }
+}

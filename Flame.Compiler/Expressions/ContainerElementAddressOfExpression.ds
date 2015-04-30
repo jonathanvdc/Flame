@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Compiler.Variables;
 using Flame.Compiler.Emit;
 
@@ -7,10 +8,10 @@ namespace Flame.Compiler.Expressions
 {
 	public class ContainerElementAddressOfExpression : IExpression, IVariableNode
     {
-        public const this(set IExpression Target, set IEnumerable<IExpression> IndexArguments);
+        public const this(set IExpression Target, set [IExpression] IndexArguments);
 
 		public IExpression Target { const get; private set; }
-		public IEnumerable<IExpression> IndexArguments { const get; private set; }
+		public [IExpression] IndexArguments { const get; private set; }
         public IType Type
         {
 	        const get
@@ -24,10 +25,30 @@ namespace Flame.Compiler.Expressions
             const get { return false; }
         }
 
+		public IExpression Accept(INodeVisitor Visitor)
+		{
+			var transTarget = Visitor.Visit(Target);
+			var args = Visitor.VisitAll(IndexArguments);
+
+			if (transTarget == Target && Enumerable.SequenceEqual<IExpression>(args, IndexArguments))
+			{
+				return this;
+			}
+			else
+			{
+				return new ContainerElementAddressOfExpression(transTarget, args);
+			}
+		}
+
         public const IVariable GetVariable() : IVariableNode.GetVariable
         {
         	return new ElementVariable(Target, IndexArguments);
         }
+
+		public VariableNodeAction Action
+		{
+			const get return VariableNodeAction.AddressOf;
+		}
 
         public IBoundObject Evaluate()
         {
