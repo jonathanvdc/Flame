@@ -6,11 +6,11 @@ namespace Flame.Compiler
 {
 	public enum VariableNodeAction : int
 	{
-		Get,
-		Set,
-		AddressOf,
-		Release,
-		Other
+		Get = 0,
+		Set = 1,
+		AddressOf = 2,
+		Release = 3,
+		Other = 4
 	}
 
 	public interface IVariableNode : INode
