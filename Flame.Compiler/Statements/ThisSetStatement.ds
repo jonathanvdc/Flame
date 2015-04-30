@@ -4,7 +4,7 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Statements
 {
-    public class ThisSetStatement : IStatement
+    public class ThisSetStatement : IStatement, IVariableNode
     {
         public const this(set IExpression Value);
 
@@ -22,6 +22,16 @@ namespace Flame.Compiler.Statements
             {
                 return new ThisSetStatement(expr);
             }
+        }
+
+        public const IVariable GetVariable()
+        {
+            return new ThisVariable(Value.Type);
+        }
+
+        public VariableNodeAction Action
+        {
+            const get return VariableNodeAction.Set;
         }
 
         public const IStatement Optimize()

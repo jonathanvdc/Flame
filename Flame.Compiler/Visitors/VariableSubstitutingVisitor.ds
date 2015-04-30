@@ -27,11 +27,11 @@ namespace Flame.Compiler.Visitors
             if (Mapping.ContainsKey(variable))
             {
                 var targetVariable = Mapping[variable];
-                if (variable.Action == VariableNodeAction.AddressOf)
+                if (node.Action == VariableNodeAction.AddressOf)
                 {
                     return ((IUnmanagedVariable)targetVariable).CreateAddressOfExpression();
                 }
-                else if (variable.Action == VariableNodeAction.Get)
+                else if (node.Action == VariableNodeAction.Get)
                 {
                     return targetVariable.CreateGetExpression();
                 }
@@ -41,17 +41,17 @@ namespace Flame.Compiler.Visitors
 
         protected override IStatement Transform(IStatement Statement)
         {
-            var node = (IVariableNode)Expression;
+            var node = (IVariableNode)Statement;
             var variable = node.GetVariable();
 
             if (Mapping.ContainsKey(variable))
             {
                 var targetVariable = Mapping[variable];
-                if (variable.Action == VariableNodeAction.Set)
+                if (node.Action == VariableNodeAction.Set)
                 {
                     return targetVariable.CreateSetStatement(((ISetVariableNode)node).Value);
                 }
-                else if (variable.Action == VariableNodeAction.Release)
+                else if (node.Action == VariableNodeAction.Release)
                 {
                     return targetVariable.CreateReleaseStatement();
                 }

@@ -17,12 +17,27 @@ namespace Flame.Compiler.Statements
 		public const this(IVariableMember Member)
 		{
 			this.exVariable = new ManuallyBoundVariable(Member);
+			this.Body = new EmptyStatement();
 		}
 
 		private ManuallyBoundVariable exVariable;
 
 		public IVariable ExceptionVariable { const get return exVariable; }
 		public IStatement Body { const get; set; }
+
+		public CatchClause Accept(INodeVisitor Visitor)
+		{
+			var visitedBody = Visitor.Visit(Body);
+
+			if (visitedBody == Body)
+			{
+				return this;
+			}
+			else
+			{
+				return new CatchClause(exVariable, new EmptyStatement());
+			}
+		}
 
 		public const CatchClause Optimize()
 		{
@@ -53,6 +68,27 @@ namespace Flame.Compiler.Statements
 		public IStatement TryBody { const get; private set; }
 		public IStatement FinallyBody { const get; private set; }
 		public [CatchClause] CatchClauses { const get; private set; }
+
+		public IStatement Accept(INodeVisitor Visitor)
+		{
+			var visitedTryBody = Visitor.Visit(TryBody);
+			var visitedFinallyBody = Visitor.Visit(FinallyBody);
+			var visitedCatchClauses = new List<CatchClause>();
+
+			bool sameStatement = visitedTryBody == TryBody && visitedFinallyBody == FinallyBody;
+			foreach (var item in CatchClauses)
+			{
+				var visitedClause = item.Accept(Visitor);
+				if (visitedClause != item)
+				{
+					sameStatement = false;
+				}
+				visitedCatchClauses.Add(visitedClause);
+			}
+
+			if (sameStatement) return this;
+			else return new TryStatement(visitedTryBody, visitedFinallyBody, visitedCatchClauses);
+		}
 
 		public bool IsEmpty
 		{

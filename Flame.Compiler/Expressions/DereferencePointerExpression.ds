@@ -39,6 +39,11 @@ namespace Flame.Compiler.Expressions
         	return new AtAddressVariable(Expression);
         }
 
+        public VariableNodeAction Action
+        {
+            const get return VariableNodeAction.Get;
+        }
+
         public IBoundObject Evaluate()
         {
             return null;

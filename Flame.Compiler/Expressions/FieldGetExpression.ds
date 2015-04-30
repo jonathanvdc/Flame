@@ -35,6 +35,11 @@ namespace Flame.Compiler.Expressions
         	return new FieldVariable(Field, Target);
         }
 
+		public VariableNodeAction Action
+		{
+			const get return VariableNodeAction.Get;
+		}
+
         public bool IsConstant
         {
             const get
@@ -136,6 +141,11 @@ namespace Flame.Compiler.Expressions
         {
         	return new FieldVariable(Field, Target);
         }
+
+		public VariableNodeAction Action
+		{
+			const get return VariableNodeAction.AddressOf;
+		}
 
         public bool IsConstant
         {
