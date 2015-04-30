@@ -11,17 +11,32 @@ namespace Flame.Compiler.Variables
         public const this(set IProperty Property)
         {
         	this.Caller = null;
-        	this.IndexerArguments = new IExpression[0];
+        	this.IndexerArguments = Enumerable.Empty<IExpression>();
         }
         public const this(set IProperty Property, set IExpression Caller)
         {
-        	this.IndexerArguments = new IExpression[0];
+        	this.IndexerArguments = Enumerable.Empty<IExpression>();
         }
-        public const this(set IProperty Property, set IExpression Caller, set IEnumerable<IExpression> IndexerArguments);
+        public const this(set IProperty Property, set IExpression Caller, set [IExpression] IndexerArguments);
 
         public IExpression Caller { const get; private set; }
         public IProperty Property { const get; private set; }
-        public IEnumerable<IExpression> IndexerArguments { const get; private set; }
+        public [IExpression] IndexerArguments { const get; private set; }
+
+        public PropertyVariable Accept(INodeVisitor Visitor)
+        {
+            var transCaller = Visitor.Visit(Caller);
+            var transArgs = Visitor.VisitAll(IndexerArguments);
+
+            if (transCaller == Caller && Enumerable.SequenceEqual<IExpression>(IndexerArguments, transArgs))
+            {
+                return this;
+            }
+            else
+            {
+                return new PropertyVariable(Property, transCaller, transArgs);
+            }
+        }
 
         public IType Type
         {
@@ -36,7 +51,7 @@ namespace Flame.Compiler.Variables
 
         public IStatement CreateSetStatement(IExpression Value)
         {
-        	var args = Enumerable.Concat<IExpression>(IndexerArguments, (IEnumerable<IExpression>)new IExpression[] { Value });
+        	var args = Enumerable.Concat<IExpression>(IndexerArguments, new IExpression[] { Value });
         	return new ExpressionStatement(new InvocationExpression(Property.GetSetAccessor(), Caller, args));
         }
 

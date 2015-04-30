@@ -10,20 +10,28 @@ namespace Flame.Compiler.Expressions
 		{
 			this.Target = new GetMethodExpression(Target, Caller);
 		}
-		
+
 		public IExpression Target { const get; private set; }
 		public [IExpression] Arguments { const get; private set; }
-		
+
 		public IMethod Method
 		{
 			const get
 			{
-				return (IMethod)Target.Type;	
+				return (IMethod)Target.Type;
 			}
 		}
-		
-		public IType Type 
-		{ 
+
+		public IExpression Accept(INodeVisitor Visitor)
+		{
+			var transTarget = Visitor.Visit(Target);
+			var transArgs = Visitor.VisitAll(Arguments);
+
+			return new InvocationExpression(transTarget, transArgs);
+		}
+
+		public IType Type
+		{
 			const get
 			{
 				if (Method.IsConstructor)
@@ -36,20 +44,20 @@ namespace Flame.Compiler.Expressions
 				}
 			}
 		}
-		
-		public bool IsConstant 
+
+		public bool IsConstant
 		{
 			const get
 			{
 				return Target.IsConstant && Arguments.AreConstant;
 			}
 		}
-		
+
 		public IBoundObject Evaluate()
 		{
 			var targetObj = Target.Evaluate();
 			if (!(targetObj is IBoundMethod)) return null;
-			
+
 			var allArgs = Arguments.EvaluateAll();
 			foreach (var item in allArgs)
 				if (item == null)
@@ -58,14 +66,14 @@ namespace Flame.Compiler.Expressions
 			}
 			return ((IBoundMethod)targetObj).Invoke(allArgs);
 		}
-		
+
 		public IExpression Optimize()
 		{
 			var targetExpr = Target.Optimize();
 			var argExprs = Arguments.OptimizeAll();
 			return new InvocationExpression(targetExpr, argExprs);
 		}
-		
+
 		public ICodeBlock Emit(ICodeGenerator Generator)
 		{
 			return Generator.EmitInvocation(Target.Emit(Generator), Arguments.EmitAll(Generator));

@@ -11,10 +11,15 @@ namespace Flame.Compiler.Expressions
 
         public bool IsConstant
         {
-            get
+            const get
             {
                 return Type.IsPrimitiveExpressionType();
             }
+        }
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
         }
 
         /*public object Evaluate()

@@ -16,6 +16,22 @@ namespace Flame.Compiler.Expressions
             const get return TrueValue.Type;
         }
 
+		public IExpression Accept(INodeVisitor Visitor)
+		{
+			var cond = Visitor.Visit(Condition);
+			var trueVal = Visitor.Visit(TrueValue);
+			var falseVal = Visitor.Visit(FalseValue);
+
+			if (cond == Condition && trueVal == TrueValue && falseVal == FalseValue)
+			{
+				return this;
+			}
+			else
+			{
+				return new SelectExpression(cond, trueVal, falseVal);
+			}
+		}
+
         public bool IsConstant
         {
             const get

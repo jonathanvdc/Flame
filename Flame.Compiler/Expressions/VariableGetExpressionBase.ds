@@ -5,13 +5,16 @@ using Flame.Compiler.Statements;
 
 namespace Flame.Compiler.Expressions
 {
-    public abstract class VariableGetExpressionBase<T> : IExpression, IVariableNode where T : IVariable
+    public abstract class VariableGetExpressionBase<T> : IExpression, IVariableNode
+        where T : IVariable
     {
     	public const this();
     	public const this(set T Variable);
-        
+
         public T Variable { const get; protected set; }
-        
+
+        public VariableNodeAction Action { const get return VariableNodeAction.Get; }
+
         public const IVariable GetVariable() : IVariableNode.GetVariable
         {
         	return Variable;
@@ -36,7 +39,8 @@ namespace Flame.Compiler.Expressions
         {
             return this;
         }
-        
+
+        public abstract IExpression Accept(INodeVisitor Visitor);
         public abstract const ICodeBlock Emit(ICodeGenerator CodeGenerator);
     }
 }

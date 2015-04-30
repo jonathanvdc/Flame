@@ -10,6 +10,20 @@ namespace Flame.Compiler.Expressions
 
         public IExpression Expression { const get; private set; }
 
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            var transPtr = Visitor.Visit(Expression);
+
+            if (transPtr == Expression)
+            {
+                return this;
+            }
+            else
+            {
+                return new DereferencePointerExpression(transPtr);
+            }
+        }
+
         public IType Type
         {
             const get { return Expression.Type.AsContainerType().GetElementType(); }
@@ -19,10 +33,15 @@ namespace Flame.Compiler.Expressions
         {
             const get { return false; }
         }
-        
+
         public const IVariable GetVariable() : IVariableNode.GetVariable
         {
         	return new AtAddressVariable(Expression);
+        }
+
+        public VariableNodeAction Action
+        {
+            const get return VariableNodeAction.Get;
         }
 
         public IBoundObject Evaluate()

@@ -32,7 +32,7 @@ namespace Flame.Compiler.Statements
         public IStatement Change { const get; private set; }
         public IStatement End { const get; private set; }
 
-        public override virtual IStatement Optimize()
+        public override IStatement Optimize()
         {
             var stmt = new ForStatement(Setup.Optimize(), Condition.Optimize(), Change.Optimize(), Body.Optimize(), End.Optimize());
             if (stmt.IsEmpty)
@@ -42,7 +42,27 @@ namespace Flame.Compiler.Statements
             return stmt;
         }
 
-        public override virtual ICodeBlock Emit(ICodeGenerator Generator)
+        public override IStatement Accept(INodeVisitor Visitor)
+        {
+            var transSetup = Visitor.Visit(Setup);
+            var transCond = Visitor.Visit(Condition);
+            var transBody = Visitor.Visit(Body);
+            var transChange = Visitor.Visit(Change);
+            var transEnd = Visitor.Visit(End);
+
+            if (transSetup == Setup && transCond == Condition &&
+                transBody == Body && transChange == Change &&
+                transEnd == End)
+            {
+                return this;
+            }
+            else
+            {
+                return new ForStatement(transSetup, transCond, transChange, transBody, transEnd);
+            }
+        }
+
+        public override ICodeBlock Emit(ICodeGenerator Generator)
         {
         	if (Generator is IForCodeGenerator)
         	{

@@ -11,6 +11,21 @@ namespace Flame.Compiler.Statements
         public IExpression Pointer { const get; private set; }
         public IExpression Value { const get; private set; }
 
+        public IStatement Accept(INodeVisitor Visitor)
+        {
+            var transPtr = Visitor.Visit(Pointer);
+            var transVal = Visitor.Visit(Value);
+
+            if (transPtr == Pointer && transVal == Value)
+            {
+                return this;
+            }
+            else
+            {
+                return new StoreAtAddressStatement(transPtr, transVal);
+            }
+        }
+
         public bool IsEmpty
         {
             const get { return false; }
@@ -19,6 +34,11 @@ namespace Flame.Compiler.Statements
         public const IVariable GetVariable() : IVariableNode.GetVariable
         {
         	return new AtAddressVariable(Pointer);
+        }
+
+        public VariableNodeAction Action
+        {
+            const get return VariableNodeAction.Set;
         }
 
         public IStatement Optimize()

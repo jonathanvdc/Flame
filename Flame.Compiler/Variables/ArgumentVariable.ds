@@ -41,6 +41,11 @@ namespace Flame.Compiler.Variables
     {
         public const this(set ArgumentVariable Variable);
 
+        public override IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
         public override const ICodeBlock Emit(ICodeGenerator Generator)
         {
             var variable = Generator.GetArgument(Variable.Index);
@@ -50,6 +55,11 @@ namespace Flame.Compiler.Variables
     public class ArgumentAddressOfExpression : VariableGetExpressionBase<ArgumentVariable>
     {
         public const this(set ArgumentVariable Variable);
+
+        public override IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
 
         public override IType Type
         {
@@ -68,6 +78,20 @@ namespace Flame.Compiler.Variables
     public class ArgumentSetStatement : VariableSetStatementBase<ArgumentVariable>
     {
         public const this(set ArgumentVariable Variable, set IExpression Value);
+
+        public override IStatement Accept(INodeVisitor Visitor)
+        {
+            var transVal = Visitor.Visit(Value);
+
+            if (transVal == Value)
+            {
+                return this;
+            }
+            else
+            {
+                return new ArgumentSetStatement(Variable, transVal);
+            }
+        }
 
         public override ICodeBlock Emit(ICodeGenerator Generator)
         {

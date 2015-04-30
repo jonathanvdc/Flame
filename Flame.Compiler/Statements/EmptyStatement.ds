@@ -12,6 +12,11 @@ namespace Flame.Compiler.Statements
             const get { return true; }
         }
 
+        public IStatement Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
         public const IStatement Optimize()
         {
             return this;

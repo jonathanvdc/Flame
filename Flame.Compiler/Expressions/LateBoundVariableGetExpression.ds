@@ -7,7 +7,12 @@ namespace Flame.Compiler.Expressions
     public class LateBoundVariableGetExpression : VariableGetExpressionBase<ILateBoundVariable>
     {
 		public const this(set ILateBoundVariable Variable);
-		
+
+        public override IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
 		public override const IExpression Optimize()
 		{
 			if (Variable.IsBound)
@@ -32,6 +37,11 @@ namespace Flame.Compiler.Expressions
     public class LateBoundVariableGetPointerExpression : VariableGetExpressionBase<ILateBoundVariable>
     {
         public const this(set ILateBoundVariable Variable);
+
+        public override IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
 
         public override IType Type
         {

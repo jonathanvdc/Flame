@@ -8,6 +8,11 @@ namespace Flame.Compiler.Expressions
     {
         public const this(set IExpression Value);
 
+        protected override IExpression Create(IExpression Operand)
+        {
+            return new NotExpression(Operand);
+        }
+
         public override IBoundObject Evaluate()
         {
             var boundObject = Value.Evaluate();

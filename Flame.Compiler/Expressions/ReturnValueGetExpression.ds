@@ -12,6 +12,11 @@ namespace Flame.Compiler.Expressions
 
         public IType Type { const get; private set; }
 
+		public IExpression Accept(INodeVisitor Visitor)
+		{
+			return this;
+		}
+
         public bool IsConstant
         {
             const get { return false; }

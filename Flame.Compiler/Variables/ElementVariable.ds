@@ -9,11 +9,26 @@ namespace Flame.Compiler.Variables
 {
 	public class ElementVariable : IUnmanagedVariable
 	{
-        public const this(set IExpression Target, set IEnumerable<IExpression> IndexArguments);
+        public const this(set IExpression Target, set [IExpression] IndexArguments);
 
         public IExpression Target { const get; private set; }
-        public IEnumerable<IExpression> IndexArguments { const get; private set; }
-        
+        public [IExpression] IndexArguments { const get; private set; }
+
+		public ElementVariable Accept(INodeVisitor Visitor)
+		{
+			var transTarget = Visitor.Visit(Target);
+			var args = Visitor.VisitAll(IndexArguments);
+
+			if (transTarget == Target && Enumerable.SequenceEqual<IExpression>(args, IndexArguments))
+			{
+				return this;
+			}
+			else
+			{
+				return new ElementVariable(transTarget, args);
+			}
+		}
+
         private IType[] indexerArgTypes;
         protected IType[] IndexArgumentTypes
         {
@@ -24,7 +39,7 @@ namespace Flame.Compiler.Variables
 	        		List<IType> types = new List<IType>();
 	        		foreach (var item in IndexArguments)
 	        		{
-	        			types.Add(item.Type);	
+	        			types.Add(item.Type);
 	               	}
 	               	indexerArgTypes = types.ToArray();
                	}
@@ -46,7 +61,7 @@ namespace Flame.Compiler.Variables
                 return indexerProp;
             }
         }
-        
+
         public static IType GetElementType(IType TargetType, IEnumerable<IType> ArgumentTypes)
         {
             if (TargetType.IsContainerType)
@@ -59,7 +74,7 @@ namespace Flame.Compiler.Variables
 	       		return indexerProp.PropertyType;
           	}
         }
-        
+
         public bool CanResolve
         {
         	const get
@@ -74,7 +89,7 @@ namespace Flame.Compiler.Variables
 				}
         	}
         }
-        
+
         public bool IsContainerElement
         {
         	const get
@@ -103,7 +118,7 @@ namespace Flame.Compiler.Variables
         {
             if (IsContainerElement)
             {
-            	return new ContainerElementAddressOfExpression(Target, IndexArguments); 
+            	return new ContainerElementAddressOfExpression(Target, IndexArguments);
             }
             else
             {

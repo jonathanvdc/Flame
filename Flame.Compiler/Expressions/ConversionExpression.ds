@@ -7,21 +7,30 @@ namespace Flame.Compiler.Expressions
     {
         public const this(set IExpression Value)
         {
-            this.Value = Value;
             this.Type = Value.Type;
         }
-        public const this(set IExpression Value, set IType Type)
-        {
-            this.Value = Value;
-            this.Type = Type;
-        }
+        public const this(set IExpression Value, set IType Type);
 
         public IExpression Value { const get; private set; }
         public IType Type { const get; private set; }
 
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            var transVal = Visitor.Visit(Value);
+
+            if (transVal == Value)
+            {
+                return this;
+            }
+            else
+            {
+                return new ConversionExpression(transVal, Type);
+            }
+        }
+
         public bool IsConstant
         {
-            const get 
+            const get
             {
             	if (!ConversionNeeded)
             		return Value.IsConstant;
@@ -29,7 +38,7 @@ namespace Flame.Compiler.Expressions
             		return Value.IsConstant && Value.Type.IsPrimitiveExpressionType() && Type.IsPrimitiveExpressionType();
            	}
         }
-        
+
         /// <summary>
         /// Gets a boolean value that indicates whether the given source type must be converted to legally be assigned to a variable of the target type.
         /// </summary>
@@ -53,7 +62,7 @@ namespace Flame.Compiler.Expressions
 	        	}
         	}
         }
-        
+
         private bool ConversionNeeded
         {
         	const get

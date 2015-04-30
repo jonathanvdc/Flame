@@ -12,6 +12,23 @@ namespace Flame.Compiler.Statements
 		public IStatement IfBody { const get; private set; }
 		public IStatement ElseBody { const get; private set; }
 
+		public override IStatement Accept(INodeVisitor Visitor)
+		{
+			var transCond = Visitor.Visit(Condition);
+			var transIf = Visitor.Visit(IfBody);
+			var transElse = Visitor.Visit(ElseBody);
+
+			if (transCond == Condition && transIf == IfBody &&
+				transElse == ElseBody)
+			{
+				return this;
+			}
+			else
+			{
+				return new IfElseStatement(transCond, transIf, transElse);
+			}
+		}
+
 		public bool IsEmpty : IStatement.IsEmpty
 		{
 			const get

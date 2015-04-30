@@ -4,8 +4,23 @@ using System.Text;
 
 namespace Flame.Compiler
 {
+	public enum VariableNodeAction : int
+	{
+		Get,
+		Set,
+		AddressOf,
+		Release,
+		Other
+	}
+
 	public interface IVariableNode : INode
 	{
 		const IVariable GetVariable();
+		VariableNodeAction Action { const get; }
+	}
+
+	public interface ISetVariableNode : IVariableNode
+	{
+		IExpression Value { const get; }
 	}
 }

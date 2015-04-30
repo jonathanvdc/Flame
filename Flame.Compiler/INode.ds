@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Compiler.Emit;
 
 namespace Flame.Compiler
@@ -15,5 +16,54 @@ namespace Flame.Compiler
         /// Creates a code block that captures this code node.
         /// </summary>
         ICodeBlock Emit(ICodeGenerator CodeGenerator);
+    }
+
+    /// <summary>
+    /// Defines a node visitor: an object that transforms code nodes.
+    /// </summary>
+    public interface INodeVisitor
+    {
+        /// <summary>
+        /// "Visits" an expression: an expression is taken as input and transformed another expression.
+        /// </summary>
+        IExpression Visit(IExpression Value);
+
+        /// <summary>
+        /// "Visits" a statement: an statement is taken as input and transformed another statement.
+        /// </summary>
+        IStatement Visit(IStatement Value);
+    }
+
+    public static class VisitorExtensions
+    {
+        public static IExpression[] VisitAll(this INodeVisitor Visitor, IExpression[] Values)
+        {
+            var results = new IExpression[Values.Length];
+            foreach (var output in results, var input in Values)
+            {
+                output = Visitor.Visit(input);
+            }
+            return results;
+        }
+
+        public static IExpression[] VisitAll(this INodeVisitor Visitor, [IExpression] Values)
+        {
+            return Visitor.VisitAll(Enumerable.ToArray<IExpression>(Values));
+        }
+
+        public static IStatement[] VisitAll(this INodeVisitor Visitor, IStatement[] Values)
+        {
+            var results = new IStatement[Values.Length];
+            foreach (var output in results, var input in Values)
+            {
+                output = Visitor.Visit(input);
+            }
+            return results;
+        }
+
+        public static IStatement[] VisitAll(this INodeVisitor Visitor, [IStatement] Values)
+        {
+            return Visitor.VisitAll(Enumerable.ToArray<IStatement>(Values));
+        }
     }
 }

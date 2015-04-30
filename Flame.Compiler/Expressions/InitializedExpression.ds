@@ -18,6 +18,22 @@ namespace Flame.Compiler.Expressions
 
 		public IType Type : IExpression.Type { const get return Value.Type; }
 
+		public IExpression Accept(INodeVisitor Visitor) : IExpression.Accept
+		{
+			var transInit = Visitor.Visit(Initialization);
+			var transValue = Visitor.Visit(Value);
+			var transFinal = Visitor.Visit(Finalization);
+
+			if (transInit == Initialization && transValue == Value && transFinal == Finalization)
+			{
+				return this;
+			}
+			else
+			{
+				return new InitializedExpression(transInit, transValue, transFinal);
+			}
+		}
+
 		public bool IsConstant : IExpression.IsConstant
 		{
 			const get return false;

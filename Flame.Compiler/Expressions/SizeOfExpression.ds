@@ -8,7 +8,7 @@ namespace Flame.Compiler.Expressions
 	public class SizeOfExpression : IExpression
 	{
 		public const this(set IType Target);
-		
+
 		public IType Target { const get; private set; }
 
         public IType Type
@@ -20,7 +20,12 @@ namespace Flame.Compiler.Expressions
         {
             const get { return false; }
         }
-        
+
+		public IExpression Accept(INodeVisitor Visitor)
+		{
+			return this;
+		}
+
         public const IBoundObject Evaluate()
         {
             return null;
@@ -35,7 +40,7 @@ namespace Flame.Compiler.Expressions
         {
             return ((IUnmanagedCodeGenerator)Generator).EmitSizeOf(Target);
         }
-        
+
         public override const string ToString()
         {
         	return "sizeof(" + Target.FullName + ")";
