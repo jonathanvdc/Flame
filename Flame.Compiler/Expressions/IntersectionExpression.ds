@@ -1,0 +1,76 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Compiler.Expressions
+{
+	public class IntersectionExpression : IExpression
+	{
+		public const this(set IExpression First, set IExpression Second);
+
+        public IExpression First { const get; private set; }
+        public IExpression Second { const get; private set; }
+
+        public static const IExpression Create([IExpression] Expressions)
+        {
+            if (!Enumerable.Any<IExpression>(Expressions))
+            {
+                return VoidExpression;
+            }
+
+            var first = Enumerable.First<IExpression>(Expressions);
+            var others = Enumerable.Skip<IExpression>(Expressions, 1);
+
+            if (!Enumerable.Any<IExpression>(others))
+            {
+                return first;
+            }
+            else
+            {
+                return new IntersectionExpression(first, Create(others));
+            }
+        }
+
+        private IType cachedType;
+		public IType Type
+        {
+            const get
+            {
+                if (cachedType == null)
+                    cachedType = new IntersectionType(First.Type, Second.Type);
+                return cachedType;
+            }
+        }
+
+        public bool IsConstant { const get return First.IsConstant && Second.IsConstant; }
+
+        public const IBoundObject Evaluate()
+        {
+            return null; // Dealing with intersection expressions is all well and good,
+                         // but dealing with bound intersection *objects* seems tricky.
+                         // It probably exceeds the current scope of this expression type at this time.
+        }
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            var visitedFirst = Visitor.Visit(First);
+            var visitedSecond = Visitor.Visit(Second);
+
+            if (visitedFirst == First && visitedSecond == Second)
+                return this;
+            else return new IntersectionExpression(visitedFirst, visitedSecond);
+        }
+
+        public IExpression Optimize()
+        {
+            return new IntersectionExpression(First.Optimize(), Second.Optimize());
+        }
+
+		public ICodeBlock Emit(ICodeGenerator Generator)
+		{
+			return null; // Maybe we should create a code generator for this,
+                         // though intersection expressions are mainly aimed at
+                         // compile-time method group resolution.
+		}
+	}
+}
