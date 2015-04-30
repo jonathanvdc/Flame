@@ -35,5 +35,10 @@ namespace Flame.Recompilation.Emit
         {
             return this;
         }
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
     }
 }

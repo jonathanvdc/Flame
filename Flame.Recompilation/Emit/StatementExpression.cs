@@ -36,6 +36,20 @@ namespace Flame.Recompilation.Emit
         public IExpression Optimize()
         {
             return new StatementExpression(Statement.Optimize(), Type);
-        }        
+        }
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            var visitedStmt = Visitor.Visit(Statement);
+
+            if (visitedStmt == Statement)
+            {
+                return this;
+            }
+            else
+            {
+                return new StatementExpression(visitedStmt, Type);
+            }
+        }
     }
 }
