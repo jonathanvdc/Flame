@@ -45,5 +45,19 @@ namespace Flame.Recompilation.Emit
                 return Value.Type;
             }
         }
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            var visitedUnary = Visitor.Visit(Value);
+
+            if (visitedUnary == Value)
+            {
+                return this;
+            }
+            else
+            {
+                return new UnaryExpression(visitedUnary, Op);
+            }
+        }
     }
 }
