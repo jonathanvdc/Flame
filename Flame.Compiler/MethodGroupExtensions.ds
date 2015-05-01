@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Compiler.Expressions;
 
 namespace Flame.Compiler
@@ -117,7 +118,7 @@ namespace Flame.Compiler
             {
                 var elemParamTypes = elem.GetDelegateParameterTypes();
                 if (elemParamTypes != null)
-                    dict.Add(elem, elemParamTypes);
+                    dict.Add(elem, Enumerable.ToArray<IType>(elemParamTypes));
             }
             var sortedMethodList = MemberSelection.SortByParameterMatch<IExpression>(paramTypes, dict);
             return sortedMethodList.FilterBaseDelegates();
