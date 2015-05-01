@@ -36,7 +36,10 @@ namespace Flame.Syntax.DSharp
             {
                 var callerCode = Caller.GetCode().Trim();
                 var thisCode = this.GetCode().Trim();
-            	State.Log.LogError(new LogEntry("Indexer resolution error", "Indexer property on '" + callerCode.ToString() + "' could not be resolved in '" + thisCode.ToString() + "'", Location));
+            	State.Log.LogError(new LogEntry("Indexer resolution error",
+                    "Indexer property on '" + callerCode.ToString() +
+                    "' could not be resolved in '" + thisCode.ToString() + "'",
+                    Location));
             }
 
             return elemVariable;
