@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Flame.Compiler.Expressions;
 
 namespace Flame.Compiler
 {
@@ -15,6 +16,18 @@ namespace Flame.Compiler
         public static const [IMethod] GetMethodGroup(this IExpression Expression)
         {
             return MethodType.GetIntersectedMethods(Expression.Type);
+        }
+
+        public static const IExpression CreateDelegateInvocationExpression(this IExpression Expression, [IExpression] Arguments)
+        {
+            if (Expression is IDelegateExpression)
+            {
+                return ((IDelegateExpression)Expression).CreateInvocationExpression(Arguments);
+            }
+            else
+            {
+                return new InvocationExpression(Expression, Arguments);
+            }
         }
 
         /// <summary>

@@ -6,7 +6,7 @@ namespace Flame.Compiler.Expressions
 {
     public class GetExtensionMethodExpression : IDelegateExpression
     {
-        public this(set IMethod Target, set IExpression Caller);
+        public const this(set IMethod Target, set IExpression Caller);
 
 		public IExpression Caller { const get; private set; }
 		public IMethod Target { const get; private set; }
