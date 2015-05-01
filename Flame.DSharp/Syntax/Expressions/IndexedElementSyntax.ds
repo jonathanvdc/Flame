@@ -42,11 +42,6 @@ namespace Flame.Syntax.DSharp
             return elemVariable;
         }
 
-        public const IExpression GetCallerExpression(ISyntaxState State)
-        {
-            return Caller.CreateExpression(State);
-        }
-
         public const IVariable GetCallerVariable(ISyntaxState State)
         {
             if (Caller is IVariableSyntax)
@@ -55,7 +50,7 @@ namespace Flame.Syntax.DSharp
             }
             else
             {
-                var expr = GetCallerExpression(State);
+                var expr = Caller.CreateExpression(State);
                 if (expr == null)
                 {
                     return null;
