@@ -9,11 +9,11 @@ namespace Flame.Cecil
 {
     public sealed class CecilTypeConverter : IConverter<TypeReference, IType>
     {
-        public CecilTypeConverter(CecilModule Module, bool UsePrimitives)
+        public CecilTypeConverter(CecilModule Module, bool UsePrimitives, IDictionary<TypeReference, IType> Cache)
         {
             this.Module = Module;
             this.UsePrimitives = UsePrimitives;
-            this.convertedTypes = new Dictionary<TypeReference, IType>();
+            this.convertedTypes = Cache;
         }
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace Flame.Cecil
         /// </summary>
         public bool UsePrimitives { get; private set; }
 
-        private Dictionary<TypeReference, IType> convertedTypes;
+        private IDictionary<TypeReference, IType> convertedTypes;
 
         private IType ConvertModifierType(IModifierType Type)
         {

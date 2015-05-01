@@ -14,6 +14,13 @@ namespace Flame.Front
 {
     public class CecilReferenceResolver : IAssemblyResolver
     {
+        static CecilReferenceResolver()
+        {
+            ConversionCache = new ConverterCache();
+        }
+
+        public static ConverterCache ConversionCache { get; private set; }
+
         private static string[] SecondaryExtensions = new[] { "pdb", "xml" }; // Copy debugging files and xml docs
 
         public async Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
@@ -25,7 +32,7 @@ namespace Flame.Front
             }
             var readerParams = new Mono.Cecil.ReaderParameters();
             readerParams.AssemblyResolver = DependencyBuilder.GetCecilResolver();
-            return new CecilAssembly(Mono.Cecil.AssemblyDefinition.ReadAssembly(absPath, readerParams));
+            return new CecilAssembly(Mono.Cecil.AssemblyDefinition.ReadAssembly(absPath, readerParams), ConversionCache);
         }
 
         public Task<PathIdentifier?> CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)

@@ -49,7 +49,7 @@ namespace Flame.Front
                 default:
                     return null;
             }
-            return new CecilAssembly(Mono.Cecil.AssemblyDefinition.ReadAssembly(loadedAsm.Location));
+            return new CecilAssembly(Mono.Cecil.AssemblyDefinition.ReadAssembly(loadedAsm.Location), CecilReferenceResolver.ConversionCache);
         }
 
         private class CecilRTLibraryResolver : IAssemblyResolver
