@@ -8,11 +8,11 @@ namespace Flame
 	{
 		public const this()
 		{
-			this.caches = new Dictionary<IType, TypeAncestryCache>();	
+			this.caches = new Dictionary<IType, TypeAncestryCache>();
 		}
-	
+
 		private Dictionary<IType, TypeAncestryCache> caches;
-		
+
 		private const TypeAncestryCache GetCache(IType Target)
 		{
 			if (caches.ContainsKey(Target))
@@ -26,7 +26,7 @@ namespace Flame
 				return newCache;
 			}
 		}
-	
+
 		public const int GetAncestryDegree(IType Target, IType Other)
 		{
 			var cache = GetCache(Target);
@@ -36,12 +36,12 @@ namespace Flame
 			}
 			return ComputeAncestry(cache, Target, Other);
 		}
-		
+
 		public const bool Is(IType Target, IType Other)
 		{
 			return GetAncestryDegree(Target, Other) >= 0;
 		}
-		
+
 		private int ComputeAncestry(TypeAncestryCache TargetCache, IType Target, IType Other)
 		{
 			int degree = ComputeAncestry(Target, Other);
@@ -60,12 +60,12 @@ namespace Flame
 			}
 			return degree;
 		}
-		
+
 		private const int ComputeElementAncestry(IType Type, IType Other)
 		{
 			return GetAncestryDegree(Type.AsContainerType().GetElementType(), Other.AsContainerType().GetElementType());
 		}
-		
+
 		private const int ComputeGenericVarianceAncestry(IType Type, IType Other)
 		{
 			if (Type.IsGenericInstance && Other.IsGenericInstance)
@@ -80,7 +80,8 @@ namespace Flame
 	            		{
 	            			argAncestry = GetAncestryDegree(genArg1, genArg2);
 	            		}
-	            		else if (genParam.IsContravariant) // (object) => void is (int) => void, so if T is V, (V) => void is (T) => void
+	            		else if (genParam.IsContravariant) // '(object) => void is (int) => void',
+														   // so if 'T is V', '(V) => void is (T) => void'
 	            		{
 	            			argAncestry = GetAncestryDegree(genArg2, genArg1);
 	            		}
@@ -88,7 +89,7 @@ namespace Flame
 	            		{
 	            			return -1;
 	            		}
-	            		
+
 	            		if (argAncestry < 0) return -1;
 	            		else totalAncestry += argAncestry;
 	            	}
@@ -97,7 +98,7 @@ namespace Flame
             }
             return -1;
 		}
-		
+
 		private const int ComputeInheritanceAncestry(IType Type, IType Other)
 		{
 		    int bestAncestry = -1;
@@ -122,14 +123,14 @@ namespace Flame
                 return -1;
             }
 		}
-		
+
 		private const int ComputeAncestry(IType Type, IType Other)
 		{
 			if (Type.Equals(Other))
             {
                 return 0;
             }
-            else if (Type.Equals(PrimitiveTypes.Null) && (!Other.IsValueType || Other.IsPointer))
+            else if (Type.Equals(PrimitiveTypes.Null) && (Other.IsReferenceType || Other.IsPointer))
             {
                 return 0;
             }
@@ -178,21 +179,21 @@ namespace Flame
             return ComputeInheritanceAncestry(Type, Other);
 		}
 	}
-	
+
 	public class TypeAncestryCache
 	{
 		public const this()
 		{
 			this.ancestries = new Dictionary<IType, int>();
 		}
-		
+
 		private Dictionary<IType, int> ancestries;
-		
+
 		public const bool ContainsAncestry(IType Other)
 		{
 			return ancestries.ContainsKey(Other);
 		}
-		
+
 		public const int this[IType Other]
 		{
 			const get return ancestries[Other];

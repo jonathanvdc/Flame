@@ -225,7 +225,7 @@ namespace Flame.Syntax.DSharp
             else // Extension methods defined in a different type without a caller
                  // variable should not be included.
             {
-                return null;
+                return (IDelegateExpression)null;
             }
         }
 
