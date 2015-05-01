@@ -80,6 +80,7 @@
     <Compile Include="CecilTypeImporter.cs" />
     <Compile Include="CecilTypeMemberConverterBase.cs" />
     <Compile Include="CecilTypeMemberImporterBase.cs" />
+    <Compile Include="ConverterCache.cs" />
     <Compile Include="Emit\TryCatchBlock.cs" />
     <Compile Include="Emit\CatchClause.cs" />
     <Compile Include="Emit\LoadFieldIndirectionOptimization.cs" />
