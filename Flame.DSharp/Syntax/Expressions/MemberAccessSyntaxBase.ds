@@ -116,21 +116,25 @@ namespace Flame.Syntax.DSharp
 
         #region CreateExtensionCallerExpression
 
-        public static IExpression CreateExtensionCallerExpression(IVariable Caller, IType CallerType)
+        public static IExpression CreateExtensionCallerExpression(ISyntaxState State, IVariable Caller, IType CallerType)
         {
-            if (CallerType.IsPointer)
-            	if (CallerType.AsContainerType().GetElementType().IsValueType && !Caller.Type.IsPointer)
-                	return CreateAddressToValueExpression(Caller);
+            if (CallerType.IsPointer && !Caller.Type.IsPointer)
+            	return CreateAddressToValueExpression(Caller);
 
-            return Caller.CreateGetExpression();
+            else if (CastSyntax.UseImplicitCast(State, Caller.Type, CallerType))
+                return new ConversionExpression(Caller.CreateGetExpression(), CallerType);
+
+            else
+                return Caller.CreateGetExpression();
         }
 
         #endregion
 
-        public static IVariable CreateVariable(IVariable Caller, IType CallerType, string MemberName, ISyntaxState State)
+        private static const IVariable CreateFieldVariable([ITypeMember] members,
+            IVariable Caller, IType CallerType,
+            string MemberName, ISyntaxState State)
         {
-        	var members = State.MemberProvider.GetMembers(CallerType, MemberName);
-        	var possibleFields = Enumerable.OfType<IField>(members);
+            var possibleFields = Enumerable.OfType<IField>(members);
             var field = possibleFields.GetField(MemberName);
             if (field != null)
             {
@@ -141,28 +145,48 @@ namespace Flame.Syntax.DSharp
                 else
                 	return new FieldVariable(field, CreateCallerExpression(State, Caller, field));
             }
-            List<IProperty> properties = new List<IProperty>();
-            var possibleProperties = Enumerable.OfType<IProperty>(members);
+            return null;
+        }
+
+        private static const List<T> GroupTypeMembers<T>([ITypeMember] Members,
+                                    string MemberName, bool CallerNull, bool SingletonCaller)
+            where T : ITypeMember
+        {
+            var results = new List<T>();
+            var possibleResults = Enumerable.OfType<T>(Members);
+            foreach (var item in possibleResults)
+                if (!item.IsHidden && item.Name.Equals(MemberName))
+            {
+                if (item.IsStatic)
+                {
+                    if (CallerNull || SingletonCaller || item.IsExtension)
+                        results.Add(item);
+                }
+                else if (!CallerNull)
+                {
+                    results.Add(item);
+                }
+            }
+            return results;
+        }
+
+        private static const IType GetNullableType(IVariable Target)
+        {
+            if (Target == null)
+                return null;
+            else
+                return Target.Type;
+        }
+
+        private static const IVariable CreatePropertyVariable([ITypeMember] members,
+            IVariable Caller, IType CallerType,
+            string MemberName, ISyntaxState State)
+        {
             bool callerNull = Caller == null;
             bool singletonCaller = CallerType.IsSingleton && Caller != null;
-            foreach (var item in possibleProperties)
-            {
-            	if (item.IsStatic)
-            	{
-            		if (callerNull || singletonCaller || item.IsExtension)
-            			properties.Add(item);
-            	}
-            	else if (!callerNull)
-            	{
-            		properties.Add(item);
-            	}
-            }
+            var properties = GroupTypeMembers<IProperty>(members, MemberName, callerNull, singletonCaller);
 
-            IType propertyTargetType;
-            if (Caller == null)
-            	propertyTargetType = null;
-            else
-            	propertyTargetType = Caller.Type;
+            var propertyTargetType = GetNullableType(Caller);
 
             var property = Enumerable.FirstOrDefault<IProperty>(properties.GetBestProperties(propertyTargetType, new IType[0]));
             if (property != null)
@@ -170,7 +194,7 @@ namespace Flame.Syntax.DSharp
                 IExpression callerExpr;
                 if (Caller != null && property.IsExtension)
                 {
-                    callerExpr = CreateExtensionCallerExpression(Caller, Enumerable.First<IParameter>(property.GetIndexerParameters()).ParameterType);
+                    callerExpr = CreateExtensionCallerExpression(State, Caller, Enumerable.First<IParameter>(property.GetIndexerParameters()).ParameterType);
                     return new PropertyVariable(property, null, new IExpression[] { callerExpr });
                 }
                 else
@@ -189,6 +213,76 @@ namespace Flame.Syntax.DSharp
             }
 
             return null;
+        }
+
+        private static const IDelegateExpression CreateGetMethodExpression(IMethod Method,
+            IVariable Caller, IType CallerType, ISyntaxState State)
+        {
+            bool isExt = Method.IsExtension && !Method.DeclaringType.Equals(CallerType);
+            if (Caller != null && isExt)
+            {
+                var callerExpr = CreateExtensionCallerExpression(State, Caller,
+                    Enumerable.First<IParameter>(Method.GetParameters()).ParameterType);
+                return new GetExtensionMethodExpression(Method, callerExpr);
+            }
+            else if (Caller != null && !Method.IsStatic)
+            {
+                var callerExpr = CreateCallerExpression(State, Caller, Method);
+                return new GetMethodExpression(Method, callerExpr);
+            }
+            else if (Caller == null && !isExt)
+            {
+                return new GetMethodExpression(Method, null);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private static const IVariable CreateMethodGroupVariable([ITypeMember] members,
+            IVariable Caller, IType CallerType,
+            string MemberName, ISyntaxState State)
+        {
+            bool callerNull = Caller == null;
+            bool singletonCaller = CallerType.IsSingleton && Caller != null;
+            var methods = GroupTypeMembers<IMethod>(members, MemberName, callerNull, singletonCaller);
+
+            var methodTargetType = GetNullableType(Caller);
+
+            var results = new List<IExpression>();
+
+            foreach (var item in methods)
+            {
+                var expr = CreateGetMethodExpression(item, Caller, CallerType, State);
+                if (expr != null)
+                {
+                    results.Add(expr);
+                }
+            }
+
+            if (results.Count == 0)
+                return null;
+
+            return new ExpressionVariable(IntersectionExpression.Create(results));
+        }
+
+        public static IVariable CreateVariable(IVariable Caller, IType CallerType, string MemberName, ISyntaxState State)
+        {
+        	var members = State.MemberProvider.GetMembers(CallerType, MemberName);
+            var fieldVar = CreateFieldVariable(members, Caller, CallerType, MemberName, State);
+            if (fieldVar != null)
+            {
+            	return fieldVar;
+            }
+
+            var propVar = CreatePropertyVariable(members, Caller, CallerType, MemberName, State);
+            if (propVar != null)
+            {
+                return propVar;
+            }
+
+            return CreateMethodGroupVariable(members, Caller, CallerType, MemberName, State);
         }
 
         private static const ITypeSyntax CreateTypeSyntax(ISyntaxNode Node, ISyntaxState State)
@@ -302,16 +396,30 @@ namespace Flame.Syntax.DSharp
                     var innerCode = innerTarget.GetCode().Trim();
             		if (innerCallerExpr == null)
             		{
-            			State.Log.LogError(new LogEntry("Member access error", "'" + targetCode.ToString() + "' in member access syntax '" + thisCode.ToString() + "' could not be resolved as a variable, expression or type, and '" + innerCode.ToString() + "' could not be resolved, either.", Location));
+            			State.Log.LogError(new LogEntry("Member access error",
+                            "'" + targetCode.ToString() + "' in member access syntax '" +
+                            thisCode.ToString() +
+                            "' could not be resolved as a variable, expression or type, and '" +
+                            innerCode.ToString() + "' could not be resolved, either.",
+                            Location));
             		}
             		else
             		{
-            			State.Log.LogError(new LogEntry("Member access error", "'" + targetCode.ToString() + "' in member access syntax '" + thisCode.ToString() + "' could not be resolved as a variable, expression or type, though '" + innerCode.ToString() + "' was resolved as an expression of type '" + State.TypeNamer.Convert(innerCallerExpr.Type) + "'.", MemberAccessLocation));
+            			State.Log.LogError(new LogEntry("Member access error",
+                            "'" + targetCode.ToString() + "' in member access syntax '" +
+                            thisCode.ToString() +
+                            "' could not be resolved as a variable, expression or type, though '" +
+                            innerCode.ToString() + "' was resolved as an expression of type '" +
+                            State.TypeNamer.Convert(innerCallerExpr.Type) + "'.",
+                            MemberAccessLocation));
             		}
             	}
             	else
             	{
-            		State.Log.LogError(new LogEntry("Member access error", "'" + targetCode.ToString() + "' in member access syntax '" + thisCode.ToString() + "' could not be resolved as a variable, expression or type.", Target.GetSourceLocation()));
+            		State.Log.LogError(new LogEntry("Member access error",
+                        "'" + targetCode.ToString() + "' in member access syntax '" +
+                        thisCode.ToString() + "' could not be resolved as a variable, expression or type.",
+                        Target.GetSourceLocation()));
             	}
             	return Enumerable.Empty<ITypeMember>(); // Keep it civilized by returning an empty enumerable instead of null
             }

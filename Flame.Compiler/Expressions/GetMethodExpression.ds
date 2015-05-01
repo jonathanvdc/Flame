@@ -18,6 +18,11 @@ namespace Flame.Compiler.Expressions
 			return new InvocationExpression(this, Arguments);
 		}
 
+		public const IDelegateExpression MakeGenericExpression([IType] TypeArguments)
+		{
+			return new GetMethodExpression(Target.MakeGenericMethod(TypeArguments), Caller);
+		}
+
 		public IExpression Accept(INodeVisitor Visitor)
 		{
 			var transCaller = Visitor.Visit(Caller);
