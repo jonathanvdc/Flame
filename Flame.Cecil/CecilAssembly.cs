@@ -11,38 +11,44 @@ namespace Flame.Cecil
 {
     public class CecilAssembly : AncestryGraphCacheBase, IAssembly, ILogAssembly, IAssemblyBuilder, IEquatable<CecilAssembly>
     {
-        public CecilAssembly(string Name, Version AssemblyVersion, string ModuleName, ModuleParameters ModuleParameters, ICompilerLog Log, AncestryGraph Graph)
+        public CecilAssembly(string Name, Version AssemblyVersion, string ModuleName, ModuleParameters ModuleParameters, ICompilerLog Log, AncestryGraph Graph, ConverterCache ConversionCache)
             : base(Graph)
         {
             this.Assembly = AssemblyDefinition.CreateAssembly(new AssemblyNameDefinition(Name, AssemblyVersion), ModuleName, ModuleParameters);
             this.Log = Log;
+            this.ConversionCache = ConversionCache;
         }
-        public CecilAssembly(string Name, Version AssemblyVersion, string ModuleName, ModuleParameters ModuleParameters, ICompilerLog Log)
-            : this(Name, AssemblyVersion, ModuleName, ModuleParameters, Log, new AncestryGraph())
+        public CecilAssembly(string Name, Version AssemblyVersion, string ModuleName, ModuleParameters ModuleParameters, ICompilerLog Log, ConverterCache ConversionCache)
+            : this(Name, AssemblyVersion, ModuleName, ModuleParameters, Log, new AncestryGraph(), ConversionCache)
         {
         }
-        public CecilAssembly(string Name, Version AssemblyVersion, ModuleKind Kind, IAssemblyResolver Resolver, ICompilerLog Log)
+        public CecilAssembly(string Name, Version AssemblyVersion, ModuleKind Kind, IAssemblyResolver Resolver, ICompilerLog Log, ConverterCache ConversionCache)
         {
             var parameters = new ModuleParameters();
             parameters.AssemblyResolver = Resolver;
             parameters.Kind = Kind;
             this.Assembly = AssemblyDefinition.CreateAssembly(new AssemblyNameDefinition(Name, AssemblyVersion), Name, parameters);
             this.Log = Log;
+            this.ConversionCache = ConversionCache;
         }
-        public CecilAssembly(string Name, Version AssemblyVersion, ModuleKind Kind, ICompilerLog Log)
+        public CecilAssembly(string Name, Version AssemblyVersion, ModuleKind Kind, ICompilerLog Log, ConverterCache ConversionCache)
         {
             this.Assembly = AssemblyDefinition.CreateAssembly(new AssemblyNameDefinition(Name, AssemblyVersion), Name, Kind);
             this.Log = Log;
+            this.ConversionCache = ConversionCache;
         }
-        public CecilAssembly(AssemblyDefinition Assembly, ICompilerLog Log)
+        public CecilAssembly(AssemblyDefinition Assembly, ICompilerLog Log, ConverterCache ConversionCache)
         {
             this.Assembly = Assembly;
             this.Log = Log;
+            this.ConversionCache = ConversionCache;
         }
-        public CecilAssembly(AssemblyDefinition Assembly)
-            : this(Assembly, new EmptyCompilerLog(new EmptyCompilerOptions()))
+        public CecilAssembly(AssemblyDefinition Assembly, ConverterCache ConversionCache)
+            : this(Assembly, new EmptyCompilerLog(new EmptyCompilerOptions()), ConversionCache)
         {
         }
+
+        public ConverterCache ConversionCache { get; private set; }
 
         private CecilModule[] modules;
         public IEnumerable<CecilModule> Modules

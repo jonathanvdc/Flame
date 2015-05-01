@@ -40,7 +40,8 @@ namespace Flame.Cecil
 
         public override IMethod[] GetBaseMethods()
         {
-            return Method.GetBaseMethods().Select(DeclaringType.ResolveMethod).ToArray();
+            var results = Method.GetBaseMethods().Select(DeclaringType.ResolveMethod).ToArray();
+            return results;
         }
 
         public override bool IsStatic
@@ -86,7 +87,7 @@ namespace Flame.Cecil
 
         public override IParameter[] GetParameters()
         {
-            return this.ResolveParameters(base.GetParameters());
+            return this.ResolveParameters(Method.GetParameters());
         }
 
         public override IEnumerable<IType> GetGenericArguments()

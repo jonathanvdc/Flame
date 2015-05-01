@@ -721,7 +721,7 @@ namespace Flame.DSharp.Parser
             if (tSyntax != null) // probably a conversion
             {
                 var peek = Parser.PeekNoTrivia();
-                if ((peek.Type.IsValueToken() || peek.Type == TokenType.Not || peek.Type == TokenType.Tilde || peek.Type == TokenType.RParen || (peek.Type.IsKeyword() && !peek.Type.IsTypeBinaryExpressionToken())))
+                if ((peek.Type.IsValueToken() || peek.Type == TokenType.Not || peek.Type == TokenType.Tilde || peek.Type == TokenType.RParen || (peek.Type.IsKeywordToken() && !peek.Type.IsTypeBinaryExpressionToken())))
                 {
                     return ParseCastExpression(tSyntax, Parser);
                 }

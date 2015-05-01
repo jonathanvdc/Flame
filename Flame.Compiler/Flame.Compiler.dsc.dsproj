@@ -41,6 +41,7 @@
 		<Compile Include="TypeDiffComparer.ds" />
 		<Compile Include="MethodDiffComparer.ds" />
 		<Compile Include="SilentLog.ds" />
+		<Compile Include="MethodGroupExtensions.ds" />
 	</ItemGroup>
 	<ItemGroup Name="Emit">
 		<ItemGroup>
@@ -109,7 +110,8 @@
 			<Compile Include="Expressions\LazyAndExpression.ds" />
 			<Compile Include="Expressions\LazyOrExpression.ds" />
 			<Compile Include="Expressions\PropertyGetExpression.ds" />
-			<Compile Include="Expressions\GetMethodExpression.ds" />
+			<Compile Include="Expressions\GetExtensionMethodExpression.ds" />
+			<Compile Include="Expressions\GetMethodExpression.ds" />			
 			<Compile Include="Expressions\SizeOfExpression.ds" />
 			<Compile Include="Expressions\InequalityExpression.ds" />
 			<Compile Include="Expressions\RemainderExpression.ds" />
@@ -126,6 +128,8 @@
 			<Compile Include="Expressions\ComplexExpressionBase.ds" />
 			<Compile Include="Expressions\ReturnValueGetExpression.ds" />
 			<Compile Include="Expressions\SelectExpression.ds" />
+			<Compile Include="Expressions\VoidExpression.ds" />
+			<Compile Include="Expressions\IntersectionExpression.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Statements">

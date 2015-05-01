@@ -1,0 +1,25 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class OverloadingTest
+{
+    public int Max(int A, int B)
+    {
+        if (A > B) return A;
+        else return B;
+    }
+
+    public long Max(long A, long B)
+    {
+        if (A > B) return A;
+        else return B;
+    }
+
+    public void Test()
+    {
+        int a = 1, b = 3;
+        int x = Max(a, b);
+        [int] seq = Enumerable.Concat<int>(new int[] { a, b }, new int[] { x });
+    }
+}

@@ -11,32 +11,36 @@ namespace Flame.Build
 	public class GenericResolvingConverter : TypeTransformerBase
 	{
 		public const this(set IGenericResolver Resolver);
-		
+
 		public IGenericResolver Resolver { const get; private set; }
-		
+
 		protected override const IType ConvertNestedType(IType Type, IType DeclaringType)
 		{
 			var convDeclType = Convert(DeclaringType);
 			var convDeclNs = (INamespace)convDeclType;
-			
+
 			string tName = Type.Name;
 			int genParamCount = Enumerable.Count<IGenericParameter>(Type.GetGenericParameters());
-			
+
 			foreach (var item in convDeclNs.GetTypes())
 				if (item.Name == tName && Enumerable.Count<IGenericParameter>(item.GetGenericParameters()) == genParamCount)
 			{
 				return item;
 			}
-			
+
 			return null; // Failure
 		}
-		
+
 		protected override const IType ConvertGenericParameter(IGenericParameter Type)
 		{
-			return Resolver.ResolveTypeParameter(Type);
+			var result = Resolver.ResolveTypeParameter(Type);
+			if (result == null)
+				return Type;
+			else
+				return result;
 		}
 	}
-	
+
 	public static class GenericResolverExtensions
 	{
 		public static const IType ResolveType(this IGenericResolver Resolver, IType Type)
@@ -59,22 +63,64 @@ namespace Flame.Build
 			var converter = new GenericResolvingConverter(Resolver);
 			return converter.Convert(Types);
         }
-        
+
+		private static const IMethod ResolveGenericInstanceMethod(IGenericResolver Resolver, IMethod Method)
+		{
+			var declType = Method.DeclaringType;
+			var resolvedDeclType = Resolver.ResolveType(declType);
+			if (!resolvedDeclType.Equals(declType))
+			{
+				var resolvedParamTypes = Resolver.ResolveTypes(Method.GetParameters().GetTypes());
+				var comparer = new ScopedTypeEqualityComparer();
+
+				if (Method.IsConstructor)
+				{
+					foreach (var item in resolvedDeclType.GetConstructors())
+						if (item.IsStatic == Method.IsStatic)
+						if (comparer.CompareAll(resolvedParamTypes,
+							Resolver.ResolveTypes(item.GetParameters().GetTypes())))
+					{
+						return item;
+					}
+				}
+				else
+				{
+					var resolvedRetType = Resolver.ResolveType(Method.ReturnType);
+
+					foreach (var item in resolvedDeclType.GetMethods())
+						if (item.Name.Equals(Method.Name))
+						if (item.IsStatic == Method.IsStatic)
+						if (comparer.Compare(resolvedRetType,
+							Resolver.ResolveType(item.ReturnType)))
+						if (comparer.CompareAll(resolvedParamTypes,
+							Resolver.ResolveTypes(item.GetParameters().GetTypes())))
+					{
+						return item;
+					}
+				}
+
+				return null; // Failure
+			}
+			else return Method;
+		}
+
         public static const IMethod ResolveMethod(this IGenericResolver Resolver, IMethod Method)
         {
-            if (Method.IsGenericInstance)
+			var instMethod = ResolveGenericInstanceMethod(Resolver, Method);
+
+            if (instMethod.IsGenericInstance)
             {
-                var resolvedArgs = Resolver.ResolveTypes(Method.GetGenericArguments());
-                return Method.MakeGenericMethod(resolvedArgs);
+                var resolvedArgs = Resolver.ResolveTypes(instMethod.GetGenericArguments());
+                return instMethod.MakeGenericMethod(resolvedArgs);
             }
             else
             {
-                return Method;
+                return instMethod;
             }
         }
         public static const IMethod[] ResolveMethods(this IGenericResolver Resolver, IMethod[] Methods)
         {
-        	IMethod[] results = new IMethod[Methods.Length];
+        	var results = new IMethod[Methods.Length];
         	foreach (var item in Methods, var output in results)
         	{
         		output = Resolver.ResolveMethod(item);
@@ -85,7 +131,7 @@ namespace Flame.Build
         {
         	return Resolver.ResolveMethods(Enumerable.ToArray<IMethod>(Methods));
         }
-        
+
         public static const IParameter ResolveParameter(this IGenericResolver Resolver, IParameter Parameter)
         {
         	return new DescribedRetypedParameter(Parameter, Resolver.ResolveType(Parameter.ParameterType));

@@ -10,13 +10,13 @@ namespace Flame.Build
 	public abstract class TypeComparerBase<T>
 	{
 		public const this();
-	
+
 		protected abstract const T CompareDefault(IType First, IType Second);
 		protected abstract const T MakeGenericInstanceComparison(T DeclarationComparison, [T] TypeArgumentComparisons);
 		protected abstract const T MakePointerComparison(T ElementComparison, PointerKind FirstKind, PointerKind SecondKind);
 		protected abstract const T MakeArrayComparison(T ElementComparison, int FirstRank, int SecondRank);
 		protected abstract const T MakeVectorComparison(T ElementComparison, int[] FirstDimensions, int[] SecondDimensions);
-		
+
 		/// <summary>
 		/// Compares two structurally incompatible types.
 		/// </summary>
@@ -24,7 +24,7 @@ namespace Flame.Build
 		{
 			return CompareDefault(First, Second);
 		}
-		
+
 		/// <summary>
 		/// Compares two types that have an unknown structure.
 		/// </summary>
@@ -32,7 +32,7 @@ namespace Flame.Build
 		{
 			return CompareDefault(First, Second);
 		}
-		
+
 		/// <summary>
 		/// Compares two generic type instances.
 		/// </summary>
@@ -46,27 +46,27 @@ namespace Flame.Build
 			}
 			return MakeGenericInstanceComparison(declComparison, argComparsions);
 		}
-		
+
 		protected virtual const T ComparePointerTypes(IPointerType First, IPointerType Second)
 		{
 			return MakePointerComparison(Compare(First.GetElementType(), Second.GetElementType()), First.PointerKind, Second.PointerKind);
 		}
-		
+
 		protected virtual const T CompareArrayTypes(IArrayType First, IArrayType Second)
 		{
 			return MakeArrayComparison(Compare(First.GetElementType(), Second.GetElementType()), First.ArrayRank, Second.ArrayRank);
 		}
-		
+
 		protected virtual const T CompareVectorTypes(IVectorType First, IVectorType Second)
 		{
-			return MakeVectorTypeComparison(Compare(First.GetElementType(), Second.GetElementType()), First.GetDimensions(), Second.GetDimensions());
+			return MakeVectorComparison(Compare(First.GetElementType(), Second.GetElementType()), First.GetDimensions(), Second.GetDimensions());
 		}
-		
+
 		protected virtual const T CompareGenericParameters(IGenericParameter Left, IGenericParameter Right)
 		{
 			return CompareDefault(Left, Right);
 		}
-		
+
 		protected virtual const T CompareContainerTypes(IContainerType First, IContainerType Second)
 		{
 			if (First.IsPointer || Second.IsPointer)
@@ -98,7 +98,7 @@ namespace Flame.Build
 				return CompareUnknown(First, Second);
 			}
 		}
-	
+
 		public virtual const T Compare(IType First, IType Second)
 		{
 			if (First.IsContainerType || Second.IsContainerType)
@@ -121,7 +121,7 @@ namespace Flame.Build
 			{
 				if (First.IsGenericParameter && Second.IsGenericParameter)
 				{
-					return CompareGenericParameters((IGenericParameter)First, (IGenericParameter)Second);	
+					return CompareGenericParameters((IGenericParameter)First, (IGenericParameter)Second);
 				}
 				else return CompareIncompatible(First, Second);
 			}
@@ -130,13 +130,13 @@ namespace Flame.Build
 				return CompareDefault(First, Second);
 			}
 		}
-		
+
 		public virtual const [T] Compare([IType] First, [IType] Second)
 		{
 			List<T> results = new List<T>();
 			foreach (var left in First, var right in Second)
 			{
-				results.Add(Compare(left, right));	
+				results.Add(Compare(left, right));
 			}
 			return results;
 		}

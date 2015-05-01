@@ -44,8 +44,8 @@ namespace Flame.Syntax.DSharp
         {
             const get
             {
-           		var tokens = new Token[] { new Token(TokenType.Identifier, "void") };
-           		return new TypeSyntax(([Token])tokens);
+                var ident = new Token(TokenType.Identifier, "void");
+           		return new IdentifierTypeSyntax(ident);
             }
         }
 

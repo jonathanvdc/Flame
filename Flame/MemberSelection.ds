@@ -26,9 +26,9 @@ namespace Flame
 			arr[Array.Length] = Value;
 			return arr;
 		}
-	
+
 		#region GetBestProperties
-	
+
 		/// <summary>
         /// Gets the properties that match the specified parameter types best.
         /// </summary>
@@ -59,11 +59,11 @@ namespace Flame
             }
             return SortByParameterMatch<IProperty>(paramTypes, dict).ToArray();
         }
-        
+
         #endregion
-        
+
         #region GetBestMethods
-		
+
 		/// <summary>
         /// Gets the methods that match the specified parameter types best.
         /// </summary>
@@ -95,7 +95,7 @@ namespace Flame
             List<IMethod> sortedMethodList = SortByParameterMatch<IMethod>(paramTypes, dict);
             return sortedMethodList.ToArray().FilterBaseMethods();
         }
-        
+
         /// <summary>
         /// Gets the methods that match the specified parameter types best.
         /// </summary>
@@ -119,11 +119,11 @@ namespace Flame
             List<IMethod> sortedMethodList = SortByParameterMatch<IMethod>(ParameterTypes, dict);
             return sortedMethodList.ToArray().FilterBaseMethods();
         }
-        
+
         #endregion
-        
+
         #region Inheritance chain filter
-        
+
         /// <summary>
         /// Filters out all method in the given array of method that have an override or implementation which is also present in the given array.
         /// </summary>
@@ -133,7 +133,7 @@ namespace Flame
         	foreach (var item in Methods)
         	{
         		bool inserted = false;
-        		
+
         		for (int i = 0; i < results.Count; i++)
         		{
         			if (item.IsImplementationOf(results[i]))
@@ -148,7 +148,7 @@ namespace Flame
 	    				break;
 	    			}
     			}
-    			
+
         		if (!inserted)
         		{
         			results.Add(item);
@@ -156,10 +156,10 @@ namespace Flame
         	}
         	return results.ToArray();
         }
-        
+
         #endregion
-        
-        public static const IEnumerable<T> FilterByStatic<T>(this IEnumerable<T> Candidates, bool IsStatic) where T : ITypeMember
+
+        public static const [T] FilterByStatic<T>(this [T] Candidates, bool IsStatic) where T : ITypeMember
         {
         	List<T> props = new List<T>();
         	foreach (var item in Candidates)
@@ -171,27 +171,38 @@ namespace Flame
         	}
         	return props;
         }
-        
+
+		public static const [T] FilterVisible<T>(this [T] Members)
+			where T : IMember
+		{
+			var results = new List<T>();
+			foreach (var item in Members)
+				if (!item.IsHidden)
+			{
+				results.Add(item);
+			}
+			return results;
+		}
+
         #region Rating and sorting
 
         private const int DisqualificationScore = 65536;
 
-        public static List<T> SortByParameterMatch<T>(IType[] ParameterTypes, Dictionary<T, IType[]> PossibleMembers) where T : IMember
+        public static List<T> SortByParameterMatch<T>(IType[] ParameterTypes, Dictionary<T, IType[]> PossibleMembers)
         {
             int parameterTypesLength = ParameterTypes.Length;
             var filteredPossibleMembers = new Dictionary<T, IType[]>();
             foreach (var member in PossibleMembers)
             {
             	if (member.Value.Length == parameterTypesLength)
-            	if (!member.Key.IsHidden)
             		filteredPossibleMembers.Add(member.Key, member.Value);
             }
             //var filteredPossibleMembers = PossibleMembers.Where((member) => !member.Key.IsHidden && member.Value.Length == parameterTypesLength);
             var possibleParameterTypes = Enumerable.ToArray<IType[]>(filteredPossibleMembers.Values);
-            Dictionary<int, List<T>> ratedMembers = new Dictionary<int, List<T>>();
+            var ratedMembers = new Dictionary<int, List<T>>();
             foreach (var item in filteredPossibleMembers)
             {
-                int score = RateMatch(ParameterTypes, item.Value, (IEnumerable<IType[]>)possibleParameterTypes);
+                int score = RateMatch(ParameterTypes, item.Value, possibleParameterTypes);
                 if (score < DisqualificationScore)
                 {
                     if (!ratedMembers.ContainsKey(score))
@@ -218,7 +229,7 @@ namespace Flame
                 return new List<T>();
             }
         }
-        
+
         private static int GetMaxAncestryDegree(IEnumerable<IType[]> Types, int Index, IType BaseType)
         {
         	int maxDegree = -1;
@@ -230,7 +241,7 @@ namespace Flame
         	}
         	return maxDegree;
         }
-        
+
         public static const bool UseImplicitCast(IType SourceType, IType TargetType)
         {
         	if (SourceType.IsVector && TargetType.IsArray)
@@ -274,7 +285,7 @@ namespace Flame
         	}
         	return false;
         }
-        
+
         private static IType GetRootType(IType Value)
         {
         	if (Value == null)
@@ -329,6 +340,11 @@ namespace Flame
                         	score += 1;
                         }
                     }
+					else if (ActualParameterTypes[i].IsRootType)
+					{
+						int highestAncestryDegree = GetMaxAncestryDegree(AllParameterTypes, i, ActualParameterTypes[i]);
+						score += highestAncestryDegree + 1;
+					}
                     else
                     {
                         int ancestryDegree = DesiredParameterTypes[i].GetAncestryDegree(ActualParameterTypes[i]);
@@ -336,11 +352,6 @@ namespace Flame
                         {
                             score += ancestryDegree;
                         }
-                        else if (ActualParameterTypes[i].IsRootType)
-	                    {
-	                        int highestAncestryDegree = GetMaxAncestryDegree(AllParameterTypes, i, ActualParameterTypes[i]);
-	                        score += highestAncestryDegree + 1;
-	                    }
                         else if (MemberSelection.UseImplicitCast(DesiredParameterTypes[i], ActualParameterTypes[i])) // Try implicit cast
                         {
                             score++;

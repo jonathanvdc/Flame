@@ -1,0 +1,33 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public interface ITest<T>
+{
+    T DoSomething();
+}
+
+public class ImplementationTest : ITest<string>
+{
+    public string DoSomething() : ITest<string>.DoSomething
+    {
+        return "bark";
+    }
+
+    public const bool HasKey(Dictionary<string, object> Dict, string Key)
+    {
+        return Dict.ContainsKey(Key);
+    }
+
+    public string Test()
+    {
+        var dict = new Dictionary<string, object>();
+        string key = DoSomething();
+        dict[key] = "woof";
+        if (HasKey(dict, key))
+        {
+            return (string)dict[key];
+        }
+        else return key;
+    }
+}

@@ -7,7 +7,7 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class ParenthesesSyntax : IExpressionSyntax, IVariableSyntax, ITokenNode, IRelevantSyntax<Token>
+    public class ParenthesesSyntax : IExpressionSyntax, IVariableSyntax, ITokenNode, IRelevantSyntax<Token>, ISourceSyntax
     {
     	public const this(set IExpressionSyntax Expression)
     	{
@@ -19,17 +19,23 @@ namespace Flame.Syntax.DSharp
         public Token OpeningToken { const get; private set; }
         public IExpressionSyntax Expression { const get; private set; }
         public Token ClosingToken { const get; private set; }
-        
-        public IEnumerable<Token> LeadingTrivia
+
+        public SourceLocation Location
+        {
+            const get return OpeningToken.Location.Concat(Expression.GetSourceLocation())
+                                                  .Concat(ClosingToken.Location);
+        }
+
+        public [Token] LeadingTrivia
         {
         	const get return OpeningToken.GetAllTrivia();
         }
-        
-        public IEnumerable<Token> TrailingTrivia
+
+        public [Token] TrailingTrivia
         {
         	const get return ClosingToken.GetAllTrivia();
         }
-        
+
         public IReadOnlyList<Token> Tokens
         {
         	const get

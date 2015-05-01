@@ -1,0 +1,140 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler.Expressions;
+
+namespace Flame.Compiler
+{
+    /// <summary>
+    /// Provides extensions for method groups:
+    /// groups of methods that are contained in an expression.
+    /// </summary>
+    public static class MethodGroupExtensions
+    {
+        /// <summary>
+        /// Gets the method group contained in this expression.
+        /// </summary>
+        public static const [IMethod] GetMethodGroup(this IExpression Expression)
+        {
+            return MethodType.GetIntersectedMethods(Expression.Type);
+        }
+
+        public static const IExpression CreateDelegateInvocationExpression(this IExpression Expression, [IExpression] Arguments)
+        {
+            if (Expression is IDelegateExpression)
+            {
+                return ((IDelegateExpression)Expression).CreateInvocationExpression(Arguments);
+            }
+            else
+            {
+                return new InvocationExpression(Expression, Arguments);
+            }
+        }
+
+        public static const IExpression MakeGenericDelegateExpression(this IExpression Expression, [IType] TypeArguments)
+        {
+            if (Expression is IDelegateExpression)
+            {
+                return ((IDelegateExpression)Expression).MakeGenericExpression(TypeArguments);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Gets an expression's delegate parameter types.
+        /// </summary>
+        public static const [IType] GetDelegateParameterTypes(this IExpression Expression)
+        {
+            if (Expression is IDelegateExpression)
+            {
+                return ((IDelegateExpression)Expression).ParameterTypes;
+            }
+            else
+            {
+                var method = MethodType.GetMethod(Expression.Type);
+                if (method == null)
+                {
+                    return null;
+                }
+                else return method.GetParameters().GetTypes();
+            }
+        }
+
+        /// <summary>
+        /// Filters out all delegates in the given sequence of method that have
+        /// an override or implementation which is also present in the given array.
+        /// </summary>
+        public static const IExpression[] FilterBaseDelegates(this [IExpression] Methods)
+        {
+            var results = new List<IExpression>();
+            var resultMethods = new List<IMethod>();
+            foreach (var elem in Methods)
+            {
+                bool shouldInsert = true;
+
+                var item = MethodType.GetMethod(elem.Type);
+
+                if (item == null)
+                {
+                    shouldInsert = false;
+                }
+
+                for (int i = 0; i < resultMethods.Count && shouldInsert; i++)
+                {
+                    if (item.Shadows(resultMethods[i]))
+                    {
+                        resultMethods[i] = item;
+                        results[i] = elem;
+                        shouldInsert = false;
+                    }
+                    else if (resultMethods[i].Shadows(item))
+                    {
+                        shouldInsert = false;
+                    }
+                }
+
+                if (shouldInsert)
+                {
+                    results.Add(elem);
+                    resultMethods.Add(item);
+                }
+            }
+            return results.ToArray();
+        }
+
+        /// <summary>
+        /// Gets the delegates that match the specified parameter types best.
+        /// </summary>
+        /// <param name="ParameterTypes"></param>
+        /// <returns></returns>
+        public const static IExpression[] GetBestDelegates(this [IExpression] Candidates, IType[] ParameterTypes)
+        {
+            var paramTypes = ParameterTypes;
+            var dict = new Dictionary<IExpression, IType[]>();
+            foreach (var elem in Candidates)
+            {
+                var elemParamTypes = elem.GetDelegateParameterTypes();
+                if (elemParamTypes != null)
+                    dict.Add(elem, Enumerable.ToArray<IType>(elemParamTypes));
+            }
+            var sortedMethodList = MemberSelection.SortByParameterMatch<IExpression>(paramTypes, dict);
+            return sortedMethodList.FilterBaseDelegates();
+        }
+
+        /// <summary>
+        /// Gets the delegate expression that matches the specifies parameter
+        /// types best.
+        /// </summary>
+        public const static IExpression GetBestDelegate(this [IExpression] Candidates, IType[] ParameterTypes)
+        {
+            var bestElems = Candidates.GetBestDelegates(ParameterTypes);
+            if (bestElems.Length == 1)
+                return bestElems[0];
+            else
+                return null;
+        }
+    }
+}

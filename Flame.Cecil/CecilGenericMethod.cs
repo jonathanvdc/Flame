@@ -15,6 +15,8 @@ namespace Flame.Cecil
         {
             this.GenericDeclaration = GenericDeclaration;
             this.TypeArguments = TypeArguments.ToArray();
+            this.cachedParams = new Lazy<IParameter[]>(GetParametersCore);
+            this.cachedReturnType = new Lazy<IType>(GetReturnTypeCore);
         }
 
         public ICecilMethod GenericDeclaration { get; private set; }
@@ -90,16 +92,29 @@ namespace Flame.Cecil
             }
         }
 
-        public override IParameter[] GetParameters()
+        private Lazy<IParameter[]> cachedParams;
+        private Lazy<IType> cachedReturnType;
+
+        private IParameter[] GetParametersCore()
         {
             return this.ResolveParameters(GenericDeclaration.GetParameters());
+        }
+
+        private IType GetReturnTypeCore()
+        {
+            return this.ResolveType(GenericDeclaration.ReturnType);
+        }
+
+        public override IParameter[] GetParameters()
+        {
+            return cachedParams.Value;
         }
 
         public override IType ReturnType
         {
             get
             {
-                return this.ResolveType(GenericDeclaration.ReturnType);
+                return cachedReturnType.Value;
             }
         }
 

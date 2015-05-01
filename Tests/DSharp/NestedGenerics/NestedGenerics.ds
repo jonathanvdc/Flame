@@ -1,0 +1,46 @@
+using System;
+using System.Collections.Generic;
+
+public struct SeparatedItem<TItem, TSeparator>
+{
+    public const this();
+    public const this(set TItem Item, set TSeparator Separator);
+
+    public TItem Item { const get; private set; }
+    public TSeparator Separator { const get; private set; }
+}
+
+public class SeparatedList<TItem, TSeparator>
+{
+    public const this()
+    {
+        this.Values = (IReadOnlyList<SeparatedItem<TItem, TSeparator>>)new SeparatedItem<TItem, TSeparator>[0];
+    }
+    public const this(set IReadOnlyList<SeparatedItem<TItem, TSeparator>> Values);
+    public const this([TItem] Values, [TSeparator] Separators)
+    {
+        var pairs = new List<SeparatedItem<TItem, TSeparator>>();
+        foreach (var item in Values, var sep in Separators)
+        {
+            pairs.Add(new SeparatedItem<TItem, TSeparator>(item, sep));
+        }
+        this.Values = pairs;
+    }
+
+    public IReadOnlyList<SeparatedItem<TItem, TSeparator>> Values { const get; private set; }
+}
+
+public static class NestedGenericsTest
+{
+    public SeparatedItem<T1, T2> CreateItem<T1, T2>(T1 Item, T2 Separator)
+    {
+        return new SeparatedItem<T1, T2>(Item, Separator);
+    }
+
+    public List<T> ToList<T>(T Value)
+    {
+        var result = new List<T>();
+        result.Add(Value);
+        return result;
+    }
+}

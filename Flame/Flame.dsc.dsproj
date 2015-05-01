@@ -120,6 +120,7 @@
 			<Compile Include="Build\DescribedField.ds" />
 			<Compile Include="Build\DescribedGenericParameter.ds" />
 			<Compile Include="Build\IGenericParameterBuilder.ds" />
+            <Compile Include="Build\IntersectionType.ds" />
 			<Compile Include="Build\MethodType.ds" />
 			<Compile Include="Build\BoundMethod.ds" />
 			<Compile Include="Build\DescribedType.ds" />
