@@ -137,9 +137,7 @@
 				<Compile Include="Syntax\Structure\AccessorSignatureSyntax.ds" />
 				<Compile Include="Syntax\Structure\ConstructorSignatureSyntax.ds" />
 				<Compile Include="Syntax\Structure\SignatureSyntax.ds" />
-				<Compile Include="Syntax\Structure\TypeCommonSignatureSyntax.ds" />
 				<Compile Include="Syntax\Structure\TypeSignatureSyntax.ds" />
-				<Compile Include="Syntax\Structure\TokenSignatureSyntax.ds" />
 				<Compile Include="Syntax\Structure\TypeDeclarationSyntax.ds" />
 				<Compile Include="Syntax\Structure\ParameterSyntax.ds" />
 				<Compile Include="Syntax\Structure\RelevantSyntax.ds" />
