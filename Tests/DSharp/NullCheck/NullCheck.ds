@@ -1,0 +1,14 @@
+using System;
+using System.Collections.Generic;
+
+public static class NullCheckTest
+{
+    public const this();
+
+    public bool Test()
+    {
+        return dict != null;
+    }
+
+    private Dictionary<string, object> dict;
+}
