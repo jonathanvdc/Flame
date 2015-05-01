@@ -33,7 +33,11 @@ namespace Flame.Build
 
 		protected override const IType ConvertGenericParameter(IGenericParameter Type)
 		{
-			return Resolver.ResolveTypeParameter(Type);
+			var result = Resolver.ResolveTypeParameter(Type);
+			if (result == null)
+				return Type;
+			else
+				return result;
 		}
 	}
 
