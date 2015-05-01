@@ -87,7 +87,7 @@ namespace Flame.Cecil
 
         public override IParameter[] GetParameters()
         {
-            return this.ResolveParameters(base.GetParameters());
+            return this.ResolveParameters(Method.GetParameters());
         }
 
         public override IEnumerable<IType> GetGenericArguments()
