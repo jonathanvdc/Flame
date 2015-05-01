@@ -6,6 +6,6 @@ namespace Flame.Syntax
 {
 	public interface IInvocationSyntax : IExpressionSyntax, ITypeMemberAccessSyntax
     {
-        IEnumerable<IExpressionSyntax> Arguments { const get; }
+        [IExpressionSyntax] Arguments { const get; }
     }
 }
