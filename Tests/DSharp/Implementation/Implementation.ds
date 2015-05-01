@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 public interface ITest<T>
 {
@@ -9,6 +12,11 @@ public class ImplementationTest : ITest<string>
     public string DoSomething() : ITest<string>.DoSomething
     {
         return "bark";
+    }
+
+    public const bool HasKey(Dictionary<string, string> Dict, string Key)
+    {
+        return Dict.ContainsKey(Key);
     }
 
     public string Test()
