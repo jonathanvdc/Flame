@@ -101,7 +101,7 @@ namespace Flame.Syntax.DSharp
             {
                 callerExpr = CreateAddressToValueExpression(Caller);
             }
-            else if (CallerType.IsAssociatedSingletonOf(Caller.Type))
+            else if (CallerType.IsSingleton && (Caller == null || CallerType.IsAssociatedSingletonOf(Caller.Type)))
             {
             	callerExpr = (SingletonVariable.GetSingletonVariable(CallerType, State.CurrentType)).CreateGetExpression();
             }
@@ -149,7 +149,7 @@ namespace Flame.Syntax.DSharp
         }
 
         private static const List<T> GroupTypeMembers<T>([ITypeMember] Members,
-                                    string MemberName, bool CallerNull, bool SingletonCaller)
+                                    string MemberName)
             where T : ITypeMember
         {
             var results = new List<T>();
@@ -157,15 +157,7 @@ namespace Flame.Syntax.DSharp
             foreach (var item in possibleResults)
                 if (!item.IsHidden && item.Name.Equals(MemberName))
             {
-                if (item.IsStatic)
-                {
-                    if (CallerNull || SingletonCaller || item.IsExtension)
-                        results.Add(item);
-                }
-                else if (!CallerNull)
-                {
-                    results.Add(item);
-                }
+                results.Add(item);
             }
             return results;
         }
@@ -184,7 +176,7 @@ namespace Flame.Syntax.DSharp
         {
             bool callerNull = Caller == null;
             bool singletonCaller = CallerType.IsSingleton && Caller != null;
-            var properties = GroupTypeMembers<IProperty>(members, MemberName, callerNull, singletonCaller);
+            var properties = GroupTypeMembers<IProperty>(members, MemberName);
 
             var propertyTargetType = GetNullableType(Caller);
 
@@ -225,16 +217,13 @@ namespace Flame.Syntax.DSharp
                     Enumerable.First<IParameter>(Method.GetParameters()).ParameterType);
                 return new GetExtensionMethodExpression(Method, callerExpr);
             }
-            else if (Caller != null && !Method.IsStatic)
+            else if (!isExt)
             {
                 var callerExpr = CreateCallerExpression(State, Caller, Method);
                 return new GetMethodExpression(Method, callerExpr);
             }
-            else if (Caller == null && !isExt)
-            {
-                return new GetMethodExpression(Method, null);
-            }
-            else
+            else // Extension methods defined in a different type without a caller
+                 // variable should not be included.
             {
                 return null;
             }
@@ -244,9 +233,7 @@ namespace Flame.Syntax.DSharp
             IVariable Caller, IType CallerType,
             string MemberName, ISyntaxState State)
         {
-            bool callerNull = Caller == null;
-            bool singletonCaller = CallerType.IsSingleton && Caller != null;
-            var methods = GroupTypeMembers<IMethod>(members, MemberName, callerNull, singletonCaller);
+            var methods = GroupTypeMembers<IMethod>(members, MemberName);
 
             var methodTargetType = GetNullableType(Caller);
 
