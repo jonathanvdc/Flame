@@ -67,12 +67,14 @@ namespace Flame.Build
 			if (!resolvedDeclType.Equals(declType))
 			{
 				var resolvedParamTypes = Resolver.ResolveTypes(Method.GetParameters().GetTypes());
+				var comparer = new ScopedTypeEqualityComparer();
 
 				if (Method.IsConstructor)
 				{
 					foreach (var item in resolvedDeclType.GetConstructors())
 						if (item.IsStatic == Method.IsStatic)
-						if (resolvedParamTypes.AreEqual(Resolver.ResolveTypes(item.GetParameters().GetTypes())))
+						if (comparer.CompareAll(resolvedParamTypes,
+							Resolver.ResolveTypes(item.GetParameters().GetTypes())))
 					{
 						return item;
 					}
@@ -84,8 +86,10 @@ namespace Flame.Build
 					foreach (var item in resolvedDeclType.GetMethods())
 						if (item.Name.Equals(Method.Name))
 						if (item.IsStatic == Method.IsStatic)
-						if (resolvedRetType.Equals(Resolver.ResolveType(item.ReturnType)))
-						if (resolvedParamTypes.AreEqual(Resolver.ResolveTypes(item.GetParameters().GetTypes())))
+						if (comparer.Compare(resolvedRetType,
+							Resolver.ResolveType(item.ReturnType)))
+						if (comparer.CompareAll(resolvedParamTypes,
+							Resolver.ResolveTypes(item.GetParameters().GetTypes())))
 					{
 						return item;
 					}
