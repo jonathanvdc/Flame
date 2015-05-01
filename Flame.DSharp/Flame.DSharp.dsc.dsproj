@@ -107,7 +107,6 @@
 		</ItemGroup>
 		<ItemGroup>
 			<Compile Include="Syntax\TokenNode.ds" />
-			<Compile Include="Syntax\TypeSyntax.ds" />
 			<Compile Include="Syntax\SingleVariableDeclaration.ds" />
 			<Compile Include="Syntax\IndirectSyntaxState.ds" />
 			<Compile Include="Syntax\SyntaxState.ds" />
