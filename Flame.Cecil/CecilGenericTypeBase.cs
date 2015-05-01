@@ -13,6 +13,8 @@ namespace Flame.Cecil
         public CecilGenericTypeBase(ICecilType GenericDefinition)
         {
             this.GenericDefinition = GenericDefinition;
+            this.cachedBaseTypes = new Lazy<IType[]>(GetBaseTypesCore);
+            this.InitializeCache();
         }
 
         public ICecilType GenericDefinition { get; private set; }
@@ -41,12 +43,34 @@ namespace Flame.Cecil
             return this as IContainerType;
         }
 
-        public IType[] GetBaseTypes()
+        private Lazy<IType[]> cachedBaseTypes;
+
+        private IType[] GetBaseTypesCore()
         {
             return this.ResolveTypes(GenericDefinition.GetBaseTypes());
         }
 
+        public IType[] GetBaseTypes()
+        {
+            return cachedBaseTypes.Value;
+        }
+
         #region Members
+
+        private Lazy<IMethod[]> cachedCtors;
+        private Lazy<IField[]> cachedFields;
+        private Lazy<IMethod[]> cachedMethods;
+        private Lazy<IProperty[]> cachedProperties;
+        private Lazy<IType[]> cachedTypes;
+
+        private void InitializeCache()
+        {
+            this.cachedCtors = new Lazy<IMethod[]>(GetConstructorsCore);
+            this.cachedFields = new Lazy<IField[]>(GetFieldsCore);
+            this.cachedMethods = new Lazy<IMethod[]>(GetMethodsCore);
+            this.cachedProperties = new Lazy<IProperty[]>(GetPropertiesCore);
+            this.cachedTypes = new Lazy<IType[]>(GetTypesCore);
+        }
 
         public ITypeMember[] GetMembers()
         {
@@ -55,25 +79,50 @@ namespace Flame.Cecil
 
         public IMethod[] GetConstructors()
         {
-            return this.GenericDefinition.GetConstructors().Select(item => new CecilGenericInstanceMethod(this, (ICecilMethod)item)).ToArray();
+            return cachedCtors.Value;
         }
 
         public IField[] GetFields()
         {
-            return this.GenericDefinition.GetFields().Select(item => new CecilGenericInstanceField(this, (ICecilField)item)).ToArray();
+            return cachedFields.Value;
         }
 
         public IMethod[] GetMethods()
         {
-            return this.GenericDefinition.GetMethods().Select(item => new CecilGenericInstanceMethod(this, (ICecilMethod)item)).ToArray();
+            return cachedMethods.Value;
         }
 
         public IProperty[] GetProperties()
         {
-            return this.GenericDefinition.GetProperties().Select(item => new CecilGenericInstanceProperty(this, (ICecilProperty)item)).ToArray();
+            return cachedProperties.Value;
         }
 
         public IType[] GetTypes()
+        {
+            return cachedTypes.Value;
+        }
+
+        private IMethod[] GetConstructorsCore()
+        {
+            return this.GenericDefinition.GetConstructors().Select(item => new CecilGenericInstanceMethod(this, (ICecilMethod)item)).ToArray();
+        }
+
+        private IField[] GetFieldsCore()
+        {
+            return this.GenericDefinition.GetFields().Select(item => new CecilGenericInstanceField(this, (ICecilField)item)).ToArray();
+        }
+
+        private IMethod[] GetMethodsCore()
+        {
+            return this.GenericDefinition.GetMethods().Select(item => new CecilGenericInstanceMethod(this, (ICecilMethod)item)).ToArray();
+        }
+
+        private IProperty[] GetPropertiesCore()
+        {
+            return this.GenericDefinition.GetProperties().Select(item => new CecilGenericInstanceProperty(this, (ICecilProperty)item)).ToArray();
+        }
+
+        private IType[] GetTypesCore()
         {
             IType[] oldTypes = GenericDefinition.GetTypes();
             IType[] newTypes = new IType[oldTypes.Length];

@@ -158,7 +158,8 @@ namespace Flame.DSharp.Lexer
         		Token == TokenType.Integer || Token == TokenType.BinaryInteger ||
         		Token == TokenType.HexInteger || Token == TokenType.String ||
         		Token == TokenType.Char || Token == TokenType.Identifier ||
-        		Token == TokenType.TrueLiteral || Token == TokenType.FalseLiteral;
+        		Token == TokenType.TrueLiteral || Token == TokenType.FalseLiteral ||
+				Token == TokenType.NullKeyword;
         }
 
         #endregion
@@ -206,7 +207,7 @@ namespace Flame.DSharp.Lexer
 
         #region IsAssignmentToken
 
-        public static const bool IsKeyword(this TokenType Token)
+        public static const bool IsKeywordToken(this TokenType Token)
         {
         	return Token == TokenType.AbstractKeyword || Token == TokenType.VirtualKeyword ||
         		Token == TokenType.OverrideKeyword || Token == TokenType.StaticKeyword ||
@@ -224,7 +225,8 @@ namespace Flame.DSharp.Lexer
         		Token == TokenType.StructKeyword || Token == TokenType.InterfaceKeyword ||
         		Token == TokenType.ElseKeyword || Token == TokenType.DefaultKeyword ||
         		Token == TokenType.EnumKeyword || Token == TokenType.BreakKeyword ||
-        		Token == TokenType.NextKeyword || Token == TokenType.OutKeyword;
+        		Token == TokenType.NextKeyword || Token == TokenType.OutKeyword ||
+				Token == TokenType.AssertKeyword;
         }
 
         #endregion

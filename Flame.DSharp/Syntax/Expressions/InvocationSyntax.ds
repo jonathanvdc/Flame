@@ -24,28 +24,6 @@ namespace Flame.Syntax.DSharp
         	const get return Method.GetSourceLocation().Concat(ArgumentList.Location);
         }
 
-        public static const IExpression CreateInvocationExpression(ISyntaxState State, IMethod Method, IVariable Caller)
-        {
-            return CreateInvocationExpression(State, Method, Caller, Enumerable.Empty<IExpression>());
-        }
-
-        public static const IExpression CreateInvocationExpression(ISyntaxState State, IMethod Method, IVariable Caller, IEnumerable<IExpression> Arguments)
-        {
-            IExpression callerExpr;
-            if (Method.IsExtension && Caller != null)
-            {
-                callerExpr = null;
-                var callerInst = MemberAccessSyntaxBase.CreateExtensionCallerExpression(Caller, Enumerable.FirstOrDefault<IParameter>(Method.GetParameters()).ParameterType);
-                Arguments = Enumerable.ToArray<IExpression>(Enumerable.Concat<IExpression>((IEnumerable<IExpression>)new IExpression[] { callerInst }, Arguments));
-            }
-            else
-            {
-                callerExpr = MemberAccessSyntaxBase.CreateCallerExpression(State, Caller, Method);
-            }
-
-            return new InvocationExpression(Method, callerExpr, Enumerable.ToArray<IExpression>(Arguments));
-        }
-
         public static const IExpression CastExtensionCallerExpression(ISyntaxState State, IVariable callerInst, ISyntaxNode MethodNode, IType TargetType)
         {
         	var valType = callerInst.Type;
@@ -63,33 +41,27 @@ namespace Flame.Syntax.DSharp
 	        	return new ConversionExpression(callerInst.CreateGetExpression(), TargetType);
 	      	}
 
-	        State.Log.LogError(new LogEntry("Cast error", "The caller of '" + MethodNode.GetCode().ToString() + "' of type '" + State.TypeNamer.Convert(valType) + "' could not be cast implicitly to '" + State.TypeNamer.Convert(TargetType) + "'", MethodNode.GetSourceLocation()));
+	        State.Log.LogError(new LogEntry("Cast error",
+                "The caller of '" + MethodNode.GetCode().ToString() +
+                "' of type '" + State.TypeNamer.Convert(valType) +
+                "' could not be cast implicitly to '" +
+                State.TypeNamer.Convert(TargetType) + "'",
+                MethodNode.GetSourceLocation()));
+
 	        return new ConversionExpression(callerInst.CreateGetExpression(), TargetType);
         }
 
-        public static const IExpression CreateInvocationExpression(ISyntaxState State, IMethod Method, IVariable Caller, ISyntaxNode MethodNode, IEnumerable<IExpression> Arguments, IEnumerable<IExpressionSyntax> Nodes)
+        public static const IExpression CreateInvocationExpression(ISyntaxState State, IExpression Delegate, ISyntaxNode MethodNode, [IExpression] Arguments, [IExpressionSyntax] Nodes)
         {
-        	IEnumerable<IParameter> methodParameters = Method.GetParameters();
-        	List<IExpression> callArgs = new List<IExpression>();
-            IExpression callerExpr;
-            if (Method.IsExtension && Caller != null)
+            var delegateParams = Delegate.GetDelegateParameterTypes();
+
+            var callArgs = new List<IExpression>();
+            foreach (var input in Arguments, var node in Nodes, var targetType in delegateParams)
             {
-                callerExpr = null;
-                var targetType = Enumerable.FirstOrDefault<IParameter>(methodParameters).ParameterType;
-                var callerInst = InvocationSyntax.CastExtensionCallerExpression(State, Caller, MethodNode, targetType);
-                callArgs.Add(callerInst);
-                methodParameters = Enumerable.Skip<IParameter>(methodParameters, 1);
-            }
-            else
-            {
-                callerExpr = MemberAccessSyntaxBase.CreateCallerExpression(State, Caller, Method);
-            }
-            foreach (var item in Arguments, var node in Nodes, var parameter in methodParameters)
-            {
-            	callArgs.Add(CastSyntax.CreateImplicitCast(State, item, node, parameter.ParameterType));
+                callArgs.Add(CastSyntax.CreateImplicitCast(State, input, node, targetType));
             }
 
-            return new InvocationExpression(Method, callerExpr, callArgs.ToArray());
+            return Delegate.CreateDelegateInvocationExpression(callArgs);
         }
 
         public static const void AppendCallSignature(CodeBuilder SignatureBuilder, IType[] argTypes, IConverter<IType, string> TypeNamer)
@@ -140,94 +112,67 @@ namespace Flame.Syntax.DSharp
             return new MarkupNode("node", nodes);
         }
 
-        public static const CodeBuilder CreateExpectedSignatureDescription(IType CallerType, CodeBuilder CallerCode, IType[] ArgumentTypes, bool AllowStatic, IConverter<IType, string> TypeNamer)
+        public static const CodeBuilder CreateExpectedSignatureDescription(CodeBuilder CallerCode, IType[] ArgumentTypes, IConverter<IType, string> TypeNamer)
         {
-            CodeBuilder expectedSignature = new CodeBuilder();
+            var expectedSignature = new CodeBuilder();
         	expectedSignature.Append("'");
-        	if (CallerType == null && AllowStatic)
-        		expectedSignature.Append("static ");
 			expectedSignature.Append(CallerCode);
         	AppendCallSignature(expectedSignature, ArgumentTypes, TypeNamer);
         	expectedSignature.Append("'");
-        	if (CallerType != null)
+        	/*if (CallerType != null)
         	{
             	expectedSignature.Append(" (where the caller expression is of type '");
             	expectedSignature.Append(TypeNamer.Convert(CallerType));
             	expectedSignature.Append("')");
-        	}
+        	}*/
         	return expectedSignature;
         }
 
         public const IExpression CreateExpression(ISyntaxState State)
         {
+            var delegatesExpr = ((IExpressionSyntax)Method).CreateVerifiedExpression(State);
+            var delegates = IntersectionExpression.GetIntersectedExpressions(delegatesExpr);
+
             var argExprs = Arguments.CreateVerifiedExpressions(State);
             var argTypes = argExprs.Types;
 
-            var callerVar = Method.GetCallerVariable(State);
-            IType callerType;
-            if (callerVar == null)
-            	callerType = null;
-            else
-            	callerType = callerVar.Type;
+            var resolvedDelegate = delegates.GetBestDelegate(argTypes);
 
-            var matches = Method.GetAccessedMembers(State);
-
-            IMethod method = Enumerable.OfType<IMethod>(matches).GetBestMethod(callerType, argTypes);
-
-            if (method == null && ThisVariable.IsThisVariable(callerVar))
+            if (resolvedDelegate != null)
             {
-            	// Try for static methods
-            	method = Enumerable.OfType<IMethod>(matches).GetBestMethod(null, argTypes);
-            	if (method == null) // Try for singleton methods
-            	{
-            		var associatedSingleton = callerType.GetAssociatedSingleton();
-            		method = Enumerable.OfType<IMethod>(matches).GetBestMethod(associatedSingleton, argTypes);
-            		if (method != null)
-            			callerVar = new SingletonVariable(associatedSingleton);
-            	}
-            }
-            if (method == null)
-            {
-                var namer = State.TypeNamer;
-            	var expectedSignature = CreateExpectedSignatureDescription(callerType, Method.GetCode(), argTypes, true, namer).Trim();
-
-                var thisCode = this.GetCode().Trim();
-
-            	var failedMatches = Enumerable.ToArray<IMethod>(Enumerable.OfType<IMethod>(matches));
-            	if (failedMatches.Length > 0)
-            	{
-            		var failedMatchesList = new List<IMarkupNode>();
-            		foreach (var item in failedMatches)
-            		{
-                        failedMatchesList.Add(CreateSignatureDiff(item, argTypes, namer));
-            		}
-                    var explanationNode = new MarkupNode(NodeConstants.TextNodeType,
-                        "Method call '" + thisCode.ToString() + "' could not be resolved. Expected signature compatible with " + expectedSignature.ToString() + ". Incompatible or ambiguous matches:");
-                    var failedMatchesNode = new MarkupNode("list", failedMatchesList);
-                    var messageNode = new MarkupNode("entry", new IMarkupNode[] { explanationNode, failedMatchesNode });
-            		State.Log.LogError(new LogEntry("Method resolution error", messageNode, Location));
-            	}
-            	else
-            	{
-                    var thisMethodCode = this.Method.GetCode().Trim();
-            		State.Log.LogError(new LogEntry("Method resolution error", "Method call '" + thisCode.ToString() + "' could not be resolved because '" + thisMethodCode.ToString() + "' was not recognized as function or type member. Expected signature compatible with " + expectedSignature.ToString() + ".", Location));
-            	}
+                return CreateInvocationExpression(State, resolvedDelegate, Method, argExprs, Arguments);
             }
 
-            /*IExpression callerExpr;
-            if (method.IsExtension && callerVar != null)
-            {
-                callerExpr = null;
-                var callerInst = MemberAccessSyntaxBase.CreateExtensionCallerExpression(callerVar, Enumerable.FirstOrDefault<IParameter>(method.GetParameters()).ParameterType);
-                argExprs = Enumerable.ToArray<IExpression>(Enumerable.Concat<IExpression>((IEnumerable<IExpression>)new IExpression[] { callerInst }, argExprs));
-            }
-            else
-            {
-                callerExpr = MemberAccessSyntaxBase.CreateCallerExpression(callerVar, method);
-            }
-            return new InvocationExpression(method, callerExpr, argExprs);*/
+            var matches = delegatesExpr.GetMethodGroup();
 
-            return CreateInvocationExpression(State, method, callerVar, this, argExprs, Arguments);
+            var namer = State.TypeNamer;
+        	var expectedSignature = CreateExpectedSignatureDescription(Method.GetCode().Trim(), argTypes, namer).Trim();
+
+            var thisCode = this.GetCode().Trim();
+
+        	var failedMatches = Enumerable.ToArray<IMethod>(matches);
+        	if (failedMatches.Length > 0)
+        	{
+        		var failedMatchesList = new List<IMarkupNode>();
+        		foreach (var item in failedMatches)
+        		{
+                    failedMatchesList.Add(CreateSignatureDiff(item, argTypes, namer));
+        		}
+                var explanationNode = new MarkupNode(NodeConstants.TextNodeType,
+                    "Method call '" + thisCode.ToString() + "' could not be resolved. " +
+                    "Expected signature compatible with " + expectedSignature.ToString() +
+                    ". Incompatible or ambiguous matches:");
+                var failedMatchesNode = new MarkupNode("list", failedMatchesList);
+                var messageNode = new MarkupNode("entry", new IMarkupNode[] { explanationNode, failedMatchesNode });
+        		State.Log.LogError(new LogEntry("Method resolution error", messageNode, Location));
+        	}
+        	else
+        	{
+                var thisMethodCode = this.Method.GetCode().Trim();
+        		State.Log.LogError(new LogEntry("Method resolution error", "Method call '" + thisCode.ToString() + "' could not be resolved because '" + thisMethodCode.ToString() + "' was not recognized as function or type member. Expected signature compatible with " + expectedSignature.ToString() + ".", Location));
+        	}
+
+            return null;
         }
 
         public override const string ToString()

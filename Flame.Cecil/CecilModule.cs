@@ -19,10 +19,10 @@ namespace Flame.Cecil
             this.Assembly = Assembly;
             this.Module = Module;
             this.Graph = Graph;
-            this.typeConverter = new CecilTypeConverter(this, true);
-            this.strictTypeConverter = new CecilTypeConverter(this, false);
-            this.methodConverter = new CecilMethodConverter(this);
-            this.fieldConverter = new CecilFieldConverter(this);
+            this.typeConverter = new CecilTypeConverter(this, true, Assembly.ConversionCache.ConvertedTypes);
+            this.strictTypeConverter = new CecilTypeConverter(this, false, Assembly.ConversionCache.ConvertedStrictTypes);
+            this.methodConverter = new CecilMethodConverter(this, Assembly.ConversionCache.ConvertedMethods);
+            this.fieldConverter = new CecilFieldConverter(this, Assembly.ConversionCache.ConvertedFields);
         }
 
         public CecilAssembly Assembly { get; private set; }
@@ -42,10 +42,10 @@ namespace Flame.Cecil
             get { return Module.Types.Select(Convert); }
         }
 
-        private IConverter<TypeReference, IType> typeConverter;
-        private IConverter<TypeReference, IType> strictTypeConverter;
-        private IConverter<MethodReference, ICecilMethod> methodConverter;
-        private IConverter<FieldReference, ICecilField> fieldConverter;
+        private CecilTypeConverter typeConverter;
+        private CecilTypeConverter strictTypeConverter;
+        private CecilMethodConverter methodConverter;
+        private CecilFieldConverter fieldConverter;
 
         public IType Convert(TypeReference Reference)
         {

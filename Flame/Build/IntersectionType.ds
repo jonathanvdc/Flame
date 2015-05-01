@@ -1,0 +1,158 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Build;
+
+namespace Flame
+{
+    public class IntersectionType : IType
+    {
+        public const this(set IType First, set IType Second);
+
+        public IType First { const get; private set; }
+        public IType Second { const get; private set; }
+
+        public static const [IType] GetIntersectedTypes(IType Type)
+        {
+        	if (Type is IntersectionType)
+        	{
+                var interType = (IntersectionType)Type;
+        		return Enumerable.Concat<IType>(
+                    GetIntersectedTypes(interType.First),
+                    GetIntersectedTypes(interType.Second));
+        	}
+        	else
+        	{
+        		return new IType[] { Type };
+        	}
+        }
+
+        public string FullName
+        {
+            const get { return First.FullName + "&" + Second.FullName; }
+        }
+
+        public const [IAttribute] GetAttributes()
+        {
+            return Enumerable.Empty<IAttribute>();
+        }
+
+        public string Name
+        {
+            const get { return First.Name + "&" + Second.Name; }
+        }
+
+        public [IType] GetGenericArguments()
+        {
+            return Enumerable.Empty<IType>();
+        }
+
+        public [IGenericParameter] GetGenericParameters()
+        {
+            return Enumerable.Empty<IGenericParameter>();
+        }
+
+        #region IType Implementation
+
+        public IContainerType AsContainerType()
+        {
+            return null;
+        }
+
+        public INamespace DeclaringNamespace
+        {
+            const get { return null; }
+        }
+
+        public IType[] GetBaseTypes()
+        {
+            return new IType[0];
+        }
+
+        public IMethod[] GetConstructors()
+        {
+            return new IMethod[0];
+        }
+
+        public IBoundObject GetDefaultValue()
+        {
+            return null;
+        }
+
+        public IField[] GetFields()
+        {
+            return new IField[0];
+        }
+
+        public IType GetGenericTypeDeclaration() : IType.GetGenericDeclaration
+        {
+            return this;
+        }
+
+        public ITypeMember[] GetMembers()
+        {
+            return new ITypeMember[0];
+        }
+
+        public IMethod[] GetMethods()
+        {
+            return new IMethod[0];
+        }
+
+        public IProperty[] GetProperties()
+        {
+            return new IProperty[0];
+        }
+
+        public bool IsContainerType
+        {
+            const get { return false; }
+        }
+
+        public IArrayType MakeArrayType(int Rank)
+        {
+            return new DescribedArrayType(this, Rank);
+        }
+
+        public IType MakeGenericType([IType] TypeArguments)
+        {
+            return this;
+        }
+
+        public IPointerType MakePointerType(PointerKind PointerKind)
+        {
+            return new DescribedPointerType(this, PointerKind);
+        }
+
+        public IVectorType MakeVectorType(int[] Dimensions)
+        {
+            return new DescribedVectorType(this, Dimensions);
+        }
+
+        #endregion
+
+        public override const bool Equals(object obj)
+        {
+            if (obj is IType)
+            {
+                var firstInter = GetIntersectedTypes(this);
+                var otherInter = GetIntersectedTypes((IType)obj);
+
+                return Enumerable.SequenceEqual<IType>(firstInter, otherInter);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public override const int GetHashCode()
+        {
+            return First.GetHashCode() ^ Second.GetHashCode();
+        }
+        public override const string ToString()
+        {
+            return First.ToString() + "&" + Second.ToString();
+        }
+    }
+}

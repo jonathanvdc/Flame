@@ -36,15 +36,13 @@ namespace Flame.Syntax.DSharp
             {
                 var callerCode = Caller.GetCode().Trim();
                 var thisCode = this.GetCode().Trim();
-            	State.Log.LogError(new LogEntry("Indexer resolution error", "Indexer property on '" + callerCode.ToString() + "' could not be resolved in '" + thisCode.ToString() + "'", Location));
+            	State.Log.LogError(new LogEntry("Indexer resolution error",
+                    "Indexer property on '" + callerCode.ToString() +
+                    "' could not be resolved in '" + thisCode.ToString() + "'",
+                    Location));
             }
 
             return elemVariable;
-        }
-
-        public const IExpression GetCallerExpression(ISyntaxState State)
-        {
-            return Caller.CreateExpression(State);
         }
 
         public const IVariable GetCallerVariable(ISyntaxState State)
@@ -55,7 +53,7 @@ namespace Flame.Syntax.DSharp
             }
             else
             {
-                var expr = GetCallerExpression(State);
+                var expr = Caller.CreateExpression(State);
                 if (expr == null)
                 {
                     return null;

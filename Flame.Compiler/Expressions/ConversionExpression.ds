@@ -44,22 +44,19 @@ namespace Flame.Compiler.Expressions
         /// </summary>
         public static const bool RequiresConversion(IType SourceType, IType TargetType)
         {
-        	if (SourceType.Equals(TargetType))
+        	if (SourceType.Equals(TargetType) || SourceType.Equals(PrimitiveTypes.Null) && SourceType.Is(TargetType))
         	{
         		return false;
         	}
-        	else
-        	{
-        		if (SourceType.IsValueType || TargetType.IsValueType ||
+        	else if (SourceType.IsValueType || TargetType.IsValueType ||
         		    SourceType.IsGenericParameter || TargetType.IsGenericParameter ||
         		    SourceType.IsPrimitive || TargetType.IsPrimitive)
-	        	{
-	        		return true;
-	        	}
-	        	else
-	        	{
-	        		return !SourceType.Is(TargetType);
-	        	}
+        	{
+        		return true;
+        	}
+        	else
+        	{
+        		return !SourceType.Is(TargetType);
         	}
         }
 

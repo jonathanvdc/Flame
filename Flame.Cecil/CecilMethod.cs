@@ -17,6 +17,7 @@ namespace Flame.Cecil
             : base(DeclaringType)
         {
             this.Method = Method;
+            this.baseMethods = new Lazy<IMethod[]>(FindBaseMethods);
         }
 
         public MethodReference Method { get; private set; }
@@ -107,13 +108,23 @@ namespace Flame.Cecil
             return GetResolvedMethod().CustomAttributes;
         }
 
-        public override IMethod[] GetBaseMethods()
+        private IMethod[] FindBaseMethods()
         {
             var cecilOverrides = GetResolvedMethod().Overrides;
             List<IMethod> overrides = new List<IMethod>(cecilOverrides.Count);
             for (int i = 0; i < cecilOverrides.Count; i++)
             {
                 overrides.Add(Module.Convert(cecilOverrides[i]));
+            }
+            foreach (var bType in DeclaringType.GetBaseTypes())
+            {
+                foreach (var item in bType.GetAllMethods())
+                {
+                    if (item.HasSameSignature(this))
+                    {
+                        overrides.Add(item);
+                    }
+                }
             }
             if (this.DeclaringType.get_IsRootType())
             {
@@ -126,8 +137,14 @@ namespace Flame.Cecil
                     overrides.Add(PrimitiveMethods.Instance.Equals);
                 }
             }
-            
-            return overrides.ToArray();
+
+            return overrides.ToArray();         
+        }
+
+        private Lazy<IMethod[]> baseMethods;
+        public override IMethod[] GetBaseMethods()
+        {
+            return baseMethods.Value;
         }
 
         public override IEnumerable<IType> GetGenericArguments()

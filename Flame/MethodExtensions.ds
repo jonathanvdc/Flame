@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Build;
 
 namespace Flame
 {
@@ -78,13 +79,30 @@ namespace Flame
 			return Enumerable.SingleOrDefault<IMethod>(Methods);
 		}
 
+		public static const bool Shadows(this IMethod Method, IMethod Other)
+		{
+			if (Method.Name.Equals(Other.Name) &&
+				Method.IsStatic == Other.IsStatic &&
+				!Method.Equals(Other) &&
+				Method.DeclaringType.Is(Other.DeclaringType))
+			{
+				return new ScopedTypeEqualityComparer().CompareAll(
+					Method.GetParameters().GetTypes(),
+				 	Other.GetParameters().GetTypes());
+			}
+			else return false;
+		}
+
 		public static const bool HasSameSignature(this IMethod Method, IMethod Other)
 		{
+			var comparer = new ScopedTypeEqualityComparer();
+
 			if (Method.Name.Equals(Other.Name))
 			if (Method.IsStatic == Other.IsStatic)
-			if (Method.ReturnType.Equals(Other.ReturnType))
-			if (Method.GetParameters().GetTypes().AreEqual(Other.GetParameters().GetTypes()))
+			if (comparer.Compare(Method.ReturnType, Other.ReturnType))
+			if (comparer.CompareAll(Method.GetParameters().GetTypes(), Other.GetParameters().GetTypes()))
 				return true;
+
 			return false;
 		}
 
@@ -175,7 +193,7 @@ namespace Flame
 			return DeclaringType.GetConstructor(ParameterTypes, false);
 		}
 
-		public static const IEnumerable<IMethod> GetOperatorMethods(this IType Type)
+		public static const [IMethod] GetOperatorMethods(this IType Type)
 		{
 			return Type.GetAllMethods().GetOperatorMethods();
 		}

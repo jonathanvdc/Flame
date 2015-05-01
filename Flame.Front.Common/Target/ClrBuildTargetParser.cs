@@ -45,7 +45,7 @@ namespace Flame.Front.Target
                     extension = "dll";
                     break;
             }
-            var asm = new CecilAssembly(Project.AssemblyName, new Version(), moduleKind, resolver, Log);
+            var asm = new CecilAssembly(Project.AssemblyName, new Version(), moduleKind, resolver, Log, CecilReferenceResolver.ConversionCache);
             var cecilDepBuilder = new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, asm.CreateBinder().Environment, CurrentPath, OutputDirectory, Log);
             cecilDepBuilder.SetCecilResolver(resolver);
             return new BuildTarget(asm, RuntimeAssemblyResolver, cecilDepBuilder, extension);

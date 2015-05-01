@@ -10,8 +10,8 @@ namespace Flame.Cecil
 {
     public sealed class CecilMethodConverter : CecilTypeMemberConverterBase<MethodReference, ICecilMethod>
     {
-        public CecilMethodConverter(CecilModule Module)
-            : base(Module)
+        public CecilMethodConverter(CecilModule Module, IDictionary<MethodReference, ICecilMethod> Cache)
+            : base(Module, Cache)
         {
         }
 

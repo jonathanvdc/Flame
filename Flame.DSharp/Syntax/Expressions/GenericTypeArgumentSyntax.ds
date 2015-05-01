@@ -16,7 +16,7 @@ namespace Flame.Syntax.DSharp
         public Token LeftDelimiter { const get; private set; }
         public [ITypeSyntax] TypeArguments { const get; private set; }
         public Token RightDelimiter { const get; private set; }
-        
+
         public SourceLocation Location
         {
         	const get
@@ -27,17 +27,17 @@ namespace Flame.Syntax.DSharp
         		return loc;
         	}
         }
-        
+
         public [Token] LeadingTrivia
         {
         	const get return LeftDelimiter.GetAllTrivia();
         }
-        
+
         public [Token] TrailingTrivia
         {
         	const get return RightDelimiter.GetAllTrivia();
         }
-        
+
         public IReadOnlyList<Token> Tokens
         {
         	const get
@@ -118,13 +118,40 @@ namespace Flame.Syntax.DSharp
 	                }
             	}
             }
-            
+
             return filteredMembers;
         }
 
         public IExpression CreateExpression(ISyntaxState State)
         {
-            return null;
+            var expr = ((IExpressionSyntax)Target).CreateExpression(State);
+
+            if (expr == null) // Something like IEnumerable<T> would be parsed as
+                              // generic type argument syntax, even though it is a type.
+                              // Gracefully return null in that case.
+                return null;
+
+            var genericArgs = Enumerable.ToArray<IType>(TypeArguments.CreateVerifiedTypes(State));
+            var delegates = IntersectionExpression.GetIntersectedExpressions(expr);
+
+            var results = new List<IExpression>();
+            foreach (var item in delegates)
+            {
+                var method = MethodType.GetMethod(item.Type);
+                if (method != null)
+                {
+                    var typeParams = Enumerable.ToArray<IGenericParameter>(method.GetGenericParameters());
+                    if (typeParams.Length == genericArgs.Length)
+                    {
+                        var genDeleg = item.MakeGenericDelegateExpression(genericArgs);
+                        if (genDeleg != null)
+                        {
+                            results.Add(genDeleg);
+                        }
+                    }
+                }
+            }
+            return IntersectionExpression.Create(results);
         }
     }
 }

@@ -7,17 +7,17 @@ namespace Flame.Build
 	public virtual class TypeEqualityComparer : TypeComparerBase<bool>
 	{
 		public const this();
-	
+
 		protected virtual override const bool CompareDefault(IType First, IType Second)
 		{
 			return First.Equals(Second);
 		}
-		
+
 		protected virtual override const bool CompareIncompatible(IType First, IType Second)
 		{
 			return false; // Return false so we don't have to compare every single pair of types
 		}
-		
+
 		protected virtual override const bool MakeGenericInstanceComparison(bool DeclarationComparison, [bool] TypeArgumentComparisons)
 		{
 			if (!DeclarationComparison) return false;
@@ -28,41 +28,54 @@ namespace Flame.Build
 			}
 			return true;
 		}
-		
+
 		protected virtual override const bool MakePointerComparison(bool ElementComparison, PointerKind FirstKind, PointerKind SecondKind)
 		{
 			return ElementComparison && FirstKind == SecondKind;
 		}
-		
+
 		protected virtual override const bool MakeArrayComparison(bool ElementComparison, int FirstRank, int SecondRank)
 		{
 			return ElementComparison && FirstRank == SecondRank;
 		}
-		
+
 		protected virtual override const bool MakeVectorComparison(bool ElementComparison, int[] FirstDimensions, int[] SecondDimensions)
 		{
 			if (!ElementComparison)
 				return false;
-				
+
 			if (FirstDimensions.Length != SecondDimensions.Length) return false;
-			
+
 			foreach (var dim1 in FirstDimensions, var dim2 in SecondDimensions)
 				if (dim1 != dim2)
 			{
 				return false;
 			}
-			
+
+			return true;
+		}
+
+		public const bool CompareAll(IType[] First, IType[] Second)
+		{
+			if (First.Length != Second.Length)
+				return false;
+
+			foreach (var left in First, var right in Second)
+				if (!Compare(left, right))
+			{
+				return false;
+			}
 			return true;
 		}
 	}
-	
+
 	/// <summary>
 	/// A type equality comparer that assumes that type parameters with equal names are equal.
 	/// </summary>
 	public virtual class ScopedTypeEqualityComparer : TypeEqualityComparer
 	{
 		public const this();
-		
+
 		protected virtual override const bool CompareGenericParameters(IGenericParameter Left, IGenericParameter Right)
 		{
 			return Left.Name.Equals(Right.Name);

@@ -9,8 +9,8 @@ namespace Flame.Cecil
 {
     public class CecilFieldConverter : CecilTypeMemberConverterBase<FieldReference, ICecilField>
     {
-        public CecilFieldConverter(CecilModule Module)
-            : base(Module)
+        public CecilFieldConverter(CecilModule Module, IDictionary<FieldReference, ICecilField> Cache)
+            : base(Module, Cache)
         {
 
         }
