@@ -117,7 +117,7 @@ namespace Flame.Syntax.DSharp
                 var rightDiff = diffBuilder.Compare(valType, TargetType);
                 var nodes = new List<IMarkupNode>();
                 nodes.Add(TypeDiffComparer.ToTextNode("Expression '"));
-                nodes.Add(TypeDiffComparer.ToTextNode(Value.GetCode().ToString()));
+                nodes.Add(TypeDiffComparer.ToTextNode(Value.GetCode().Trim().ToString()));
                 nodes.Add(TypeDiffComparer.ToTextNode("' of type '"));
                 nodes.Add(leftDiff);
                 nodes.Add(TypeDiffComparer.ToTextNode("' could not be cast implicitly to '"));
@@ -138,13 +138,17 @@ namespace Flame.Syntax.DSharp
         	}
         	else if (SourceType.IsVector && TargetType.IsArray)
         	{
-        		return SourceType.AsContainerType().GetElementType().Is(TargetType.AsContainerType().GetElementType()) && SourceType.AsContainerType().AsVectorType().GetDimensions().Length == TargetType.AsContainerType().AsArrayType().ArrayRank;
+        		return SourceType.AsContainerType().GetElementType().Is(
+                            TargetType.AsContainerType().GetElementType()) &&
+                       SourceType.AsContainerType().AsVectorType().GetDimensions().Length ==
+                            TargetType.AsContainerType().AsArrayType().ArrayRank;
         	}
         	if (SourceType.IsPointer && TargetType.IsPointer)
         	{
         		var firstPtrType = SourceType.AsContainerType().AsPointerType();
                 var secondPtrType = TargetType.AsContainerType().AsPointerType();
-                return firstPtrType.PointerKind.Equals(PointerKind.ReferencePointer) && secondPtrType.PointerKind.Equals(PointerKind.TransientPointer);
+                return firstPtrType.PointerKind.Equals(PointerKind.ReferencePointer) &&
+                       secondPtrType.PointerKind.Equals(PointerKind.TransientPointer);
         	}
         	if (SourceType.IsPrimitive && TargetType.IsPrimitive)
         	{
