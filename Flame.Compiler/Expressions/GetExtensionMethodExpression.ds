@@ -22,6 +22,11 @@ namespace Flame.Compiler.Expressions
                 Enumerable.Concat<IExpression>(new IExpression[] { Caller }, Arguments));
         }
 
+        public const IDelegateExpression MakeGenericExpression([IType] TypeArguments)
+        {
+            return new GetExtensionMethodExpression(Target.MakeGenericMethod(TypeArguments), Caller);
+        }
+
 		public IExpression Accept(INodeVisitor Visitor)
 		{
 			var transCaller = Visitor.Visit(Caller);

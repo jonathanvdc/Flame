@@ -1,0 +1,18 @@
+
+public interface ITest<T>
+{
+    T DoSomething();
+}
+
+public class ImplementationTest : ITest<string>
+{
+    public string DoSomething() : ITest<string>.DoSomething
+    {
+        return "bark";
+    }
+
+    public string Test()
+    {
+        return DoSomething();
+    }
+}

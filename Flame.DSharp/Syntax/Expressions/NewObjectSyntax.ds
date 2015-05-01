@@ -63,7 +63,7 @@ namespace Flame.Syntax.DSharp
             newInstanceCode.Append("new ");
             newInstanceCode.Append(TypeNode.GetCode().Trim());
             var namer = State.TypeNamer;
-            var expectedSignature = InvocationSyntax.CreateExpectedSignatureDescription(null, newInstanceCode, ArgumentTypes, false, namer);
+            var expectedSignature = InvocationSyntax.CreateExpectedSignatureDescription(newInstanceCode, ArgumentTypes, namer);
             var failedMatches = Enumerable.ToArray<IMethod>(Candidates);
             if (failedMatches.Length > 0)
             {

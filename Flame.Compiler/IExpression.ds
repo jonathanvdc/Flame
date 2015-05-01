@@ -66,5 +66,10 @@ namespace Flame.Compiler
         /// the given arguments.
         /// </summary>
         IExpression CreateInvocationExpression([IExpression] Arguments);
+
+        /// <summary>
+        /// Creates a generic delegate instantiation.
+        /// </summary>
+        IDelegateExpression MakeGenericExpression([IType] TypeArguments);
     }
 }

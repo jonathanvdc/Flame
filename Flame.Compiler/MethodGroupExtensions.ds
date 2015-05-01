@@ -30,6 +30,18 @@ namespace Flame.Compiler
             }
         }
 
+        public static const IExpression MakeGenericDelegateExpression(this IExpression Expression, [IType] TypeArguments)
+        {
+            if (Expression is IDelegateExpression)
+            {
+                return ((IDelegateExpression)Expression).MakeGenericExpression(TypeArguments);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         /// <summary>
         /// Gets an expression's delegate parameter types.
         /// </summary>
@@ -60,29 +72,30 @@ namespace Flame.Compiler
             var resultMethods = new List<IMethod>();
             foreach (var elem in Methods)
             {
-                bool inserted = false;
+                bool shouldInsert = true;
 
                 var item = MethodType.GetMethod(elem.Type);
 
                 if (item == null)
                 {
-                    inserted = true;
+                    shouldInsert = false;
                 }
 
-                for (int i = 0; i < results.Count && !inserted; i++)
+                for (int i = 0; i < resultMethods.Count && shouldInsert; i++)
                 {
                     if (item.IsImplementationOf(resultMethods[i]))
                     {
                         resultMethods[i] = item;
-                        inserted = true;
+                        results[i] = elem;
+                        shouldInsert = false;
                     }
                     else if (resultMethods[i].IsImplementationOf(item))
                     {
-                        inserted = true;
+                        shouldInsert = false;
                     }
                 }
 
-                if (!inserted)
+                if (shouldInsert)
                 {
                     results.Add(elem);
                     resultMethods.Add(item);
@@ -102,9 +115,9 @@ namespace Flame.Compiler
             var dict = new Dictionary<IExpression, IType[]>();
             foreach (var elem in Candidates)
             {
-                var paramTypes = elem.GetDelegateParameterTypes();
-                if (paramTypes != null)
-                    dict.Add(elem, paramTypes);
+                var elemParamTypes = elem.GetDelegateParameterTypes();
+                if (elemParamTypes != null)
+                    dict.Add(elem, elemParamTypes);
             }
             var sortedMethodList = MemberSelection.SortByParameterMatch<IExpression>(paramTypes, dict);
             return sortedMethodList.FilterBaseDelegates();
