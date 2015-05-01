@@ -199,10 +199,10 @@ namespace Flame
             }
             //var filteredPossibleMembers = PossibleMembers.Where((member) => !member.Key.IsHidden && member.Value.Length == parameterTypesLength);
             var possibleParameterTypes = Enumerable.ToArray<IType[]>(filteredPossibleMembers.Values);
-            Dictionary<int, List<T>> ratedMembers = new Dictionary<int, List<T>>();
+            var ratedMembers = new Dictionary<int, List<T>>();
             foreach (var item in filteredPossibleMembers)
             {
-                int score = RateMatch(ParameterTypes, item.Value, (IEnumerable<IType[]>)possibleParameterTypes);
+                int score = RateMatch(ParameterTypes, item.Value, possibleParameterTypes);
                 if (score < DisqualificationScore)
                 {
                     if (!ratedMembers.ContainsKey(score))
@@ -340,6 +340,11 @@ namespace Flame
                         	score += 1;
                         }
                     }
+					else if (ActualParameterTypes[i].IsRootType)
+					{
+						int highestAncestryDegree = GetMaxAncestryDegree(AllParameterTypes, i, ActualParameterTypes[i]);
+						score += highestAncestryDegree + 1;
+					}
                     else
                     {
                         int ancestryDegree = DesiredParameterTypes[i].GetAncestryDegree(ActualParameterTypes[i]);
@@ -347,11 +352,6 @@ namespace Flame
                         {
                             score += ancestryDegree;
                         }
-                        else if (ActualParameterTypes[i].IsRootType)
-	                    {
-	                        int highestAncestryDegree = GetMaxAncestryDegree(AllParameterTypes, i, ActualParameterTypes[i]);
-	                        score += highestAncestryDegree + 1;
-	                    }
                         else if (MemberSelection.UseImplicitCast(DesiredParameterTypes[i], ActualParameterTypes[i])) // Try implicit cast
                         {
                             score++;
