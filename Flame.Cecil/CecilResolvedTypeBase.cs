@@ -11,7 +11,9 @@ namespace Flame.Cecil
     {
         public CecilResolvedTypeBase(CecilModule Module)
             : base(Module)
-        { }
+        {
+            this.cachedBaseTypes = new Lazy<IType[]>(GetBaseTypesCore);
+        }
 
         public virtual TypeDefinition GetResolvedType()
         {
@@ -30,7 +32,7 @@ namespace Flame.Cecil
             return null;
         }
 
-        private IType[] cachedBaseTypes;
+        private Lazy<IType[]> cachedBaseTypes;
         protected virtual IType[] GetBaseTypesCore()
         {
             var type = GetResolvedType();
@@ -59,11 +61,7 @@ namespace Flame.Cecil
         }
         public sealed override IType[] GetBaseTypes()
         {
-            if (cachedBaseTypes == null)
-            {
-                cachedBaseTypes = GetBaseTypesCore();
-            }
-            return cachedBaseTypes;
+            return cachedBaseTypes.Value;
         }
 
         public override IType GetGenericDeclaration()
