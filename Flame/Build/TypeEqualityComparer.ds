@@ -55,8 +55,11 @@ namespace Flame.Build
 			return true;
 		}
 
-		public const bool CompareAll([IType] First, [IType] Second)
+		public const bool CompareAll(IType[] First, IType[] Second)
 		{
+			if (First.Length != Second.Length)
+				return false;
+
 			foreach (var left in First, var right in Second)
 				if (!Compare(left, right))
 			{
