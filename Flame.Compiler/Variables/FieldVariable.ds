@@ -62,9 +62,21 @@ namespace Flame.Compiler.Variables
             }
         }
 
+        private const IExpression GetValueOrAddressExpression()
+        {
+            if (Target is IUnmanagedVariable)
+            {
+                return ((IUnmanagedVariable)Target).CreateAddressOfExpression();
+            }
+            else
+            {
+                return Target.CreateGetExpression();
+            }
+        }
+
         public const IExpression CreateGetExpression()
         {
-            return new FieldGetExpression(Field, Target.CreateGetExpression());
+            return new FieldGetExpression(Field, GetValueOrAddressExpression());
         }
 
         public const IStatement CreateSetStatement(IExpression Value)

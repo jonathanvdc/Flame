@@ -34,7 +34,7 @@ namespace Flame.Cpp
 
         public static IEnumerable<IType> GetCyclicDependencies(this CppType Type)
         {
-            return Type.Environment.DependencyCache.GetCyclicDependencies(Type);
+            return Type.Environment.DependencyCache.GetCyclicDependencies(Type).Except(Type.GetBaseTypes());
         }
 
         public static IEnumerable<IType> GetCyclicDependencies(this IEnumerable<CppType> Types)
