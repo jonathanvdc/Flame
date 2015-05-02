@@ -46,14 +46,16 @@ namespace Flame.Syntax.DSharp
 			string startTag = "<" + TagName + ">";
 			int summaryIndex = desc.IndexOf(startTag);
 			if (summaryIndex > -1)
-			{				
+			{
 				int summaryStart = summaryIndex + startTag.Length;
 				string endTag = "</" + TagName + ">";
 				int summaryEnd = desc.IndexOf(endTag);
 				if (summaryEnd < 0)
 				{
 					summaryEnd = desc.Length;
-					State.Log.LogWarning(new LogEntry("Mismatched XML comment", "Could not find closing tag for '" + startTag + "' in description '" + desc + "'"));
+					State.Log.LogWarning(new LogEntry("Mismatched XML comment",
+						"Could not find closing tag for '" + startTag +
+						"' in description '" + desc + "'"));
 				}
 				string summary = desc.Substring(summaryStart, summaryEnd - summaryStart);
 				attrs.Add(new DescriptionAttribute(TagName, summary));

@@ -88,7 +88,7 @@ namespace Flame.Syntax.DSharp
         {
             var realType = CreateType(State);
 
-			List<IExpression> argList = new List<IExpression>();
+			var argList = new List<IExpression>();
 			foreach (var item in Arguments)
 			{
 				argList.Add(item.CreateVerifiedExpression(State));
@@ -119,7 +119,9 @@ namespace Flame.Syntax.DSharp
                 	return null;
                 }
 
-                return new InvocationExpression(ctor, null, args);
+                var methodExpr = new GetMethodExpression(ctor, null);
+
+                return InvocationSyntax.CreateInvocationExpression(State, methodExpr, Type, args, Arguments);
             }
         }
 
@@ -137,13 +139,16 @@ namespace Flame.Syntax.DSharp
         {
             var realType = CreateType(State);
 
-			List<IType> argTypes = new List<IType>();
+			var argTypes = new List<IType>();
 			foreach (var arg in Arguments)
 			{
 				argTypes.Add(arg.CreateVerifiedExpression(State).Type);
 			}
 
-            return new ITypeMember[] { realType.GetConstructors().GetBestMethod(false, realType, argTypes.ToArray()) };
+            return new ITypeMember[]
+            {
+                realType.GetConstructors().GetBestMethod(false, realType, argTypes.ToArray())
+            };
         }
 
         public override const string ToString()
