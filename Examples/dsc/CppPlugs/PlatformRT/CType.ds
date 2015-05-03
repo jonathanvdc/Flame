@@ -1,0 +1,19 @@
+using System;
+using Flame.RT;
+
+namespace std
+{
+    [Header("cctype")]
+    [GlobalType]
+    public static class cctype
+    {
+        public const int toupper(int c)
+        {
+            return (int)char.ToUpper((char)c);
+        }
+        public const int tolower(int c)
+        {
+            return (int)char.ToLower((char)c);
+        }
+    }
+}
