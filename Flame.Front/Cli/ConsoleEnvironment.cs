@@ -28,6 +28,10 @@ namespace Flame.Front.Cli
         /// </summary>
         public const string VT102Identifier = "vt102";
         /// <summary>
+        /// The vt220 terminal identifier.
+        /// </summary>
+        public const string VT220Identifier = "vt220";
+        /// <summary>
         /// The default linux terminal identifier.
         /// </summary>
         public const string LinuxIdentifier = "linux";
@@ -52,10 +56,20 @@ namespace Flame.Front.Cli
             }
         }
 
+        public static bool IsXTerminalIdentifier(string Identifier)
+        {
+            return Identifier != null && Identifier.Equals(XTermIdentifier, StringComparison.OrdinalIgnoreCase) || Identifier.StartsWith(XTermIdentifier + "-", StringComparison.OrdinalIgnoreCase);
+        }
+
+        public static bool IsVTerminal(string Identifier)
+        {
+            return Identifier != null && Identifier.StartsWith("vt", StringComparison.OrdinalIgnoreCase) && Identifier.Substring(2).All(char.IsDigit);
+        }
+
         static ConsoleEnvironment()
         {
             registeredConsoles = new List<KeyValuePair<Func<string, bool>, Func<string, ICompilerOptions, IConsole>>>();
-            RegisterConsole(name => name != null && name.Equals(XTermIdentifier, StringComparison.OrdinalIgnoreCase),
+            RegisterConsole(name => IsXTerminalIdentifier(name) || IsVTerminal(name),
                 (name, ops) => new AnsiConsole(name, DefaultConsole.GetBufferWidth(), GetForegroundColor(ops), GetBackgroundColor(ops)));
             RegisterConsole(name => name != null && name.Equals(HtmlIdentifier, StringComparison.OrdinalIgnoreCase),
                 (name, ops) => new HtmlConsole(new ConsoleDescription(name, 80, GetForegroundColor(ops), GetBackgroundColor(ops)), OverridesDefaultStyle(ops)));
