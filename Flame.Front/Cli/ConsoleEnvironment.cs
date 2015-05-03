@@ -58,7 +58,7 @@ namespace Flame.Front.Cli
 
         public static bool IsXTerminalIdentifier(string Identifier)
         {
-            return Identifier != null && Identifier.Equals(XTermIdentifier, StringComparison.OrdinalIgnoreCase) || Identifier.StartsWith(XTermIdentifier + "-", StringComparison.OrdinalIgnoreCase);
+            return Identifier != null && (Identifier.Equals(XTermIdentifier, StringComparison.OrdinalIgnoreCase) || Identifier.StartsWith(XTermIdentifier + "-", StringComparison.OrdinalIgnoreCase));
         }
 
         public static bool IsVTerminal(string Identifier)
