@@ -21,5 +21,6 @@
     <Compile Include="UnorderedSet.ds" />
     <Compile Include="Vector.ds" />
     <Compile Include="StdLib.ds" />
+    <Compile Include="CType.ds" />
   </ItemGroup>
 </Project>
