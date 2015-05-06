@@ -19,6 +19,7 @@ namespace Flame.Cecil
             this.Assembly = Assembly;
             this.Module = Module;
             this.Graph = Graph;
+            this.TypeSystem = new CecilTypeSystem(this);
             this.typeConverter = new CecilTypeConverter(this, true, Assembly.ConversionCache.ConvertedTypes);
             this.strictTypeConverter = new CecilTypeConverter(this, false, Assembly.ConversionCache.ConvertedStrictTypes);
             this.methodConverter = new CecilMethodConverter(this, Assembly.ConversionCache.ConvertedMethods);
@@ -28,6 +29,7 @@ namespace Flame.Cecil
         public CecilAssembly Assembly { get; private set; }
         public ModuleDefinition Module { get; private set; }
         public AncestryGraph Graph { get; private set; }
+        public CecilTypeSystem TypeSystem { get; private set; }
 
         public bool IsMain
         {

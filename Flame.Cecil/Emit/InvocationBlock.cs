@@ -66,9 +66,16 @@ namespace Flame.Cecil.Emit
             }
             else
             {
-                // Call function pointer
+                // Call delegate
                 Method.Emit(Context);
-                var method = (IMethod)Context.Stack.Pop();
+                var type = Context.Stack.Pop();
+                var invokeMethod = CecilDelegateType.GetInvokeMethod(type);
+                ILCodeGenerator.EmitArguments(Arguments, invokeMethod, Context);
+                Context.Emit(OpCodes.Callvirt, invokeMethod);
+
+                // This emits calli (for function pointers), but Flame.Cecil uses delegates
+                /* 
+                var method = (IMethod)type;
                 var cecilMethod = (ICecilMethod)CodeGenerator.Method;
                 var methodRef = cecilMethod.GetMethodReference();
                 var module = CodeGenerator.GetModule();
@@ -79,8 +86,10 @@ namespace Flame.Cecil.Emit
                     callSite.Parameters.Add(paramDef);
                 }
                 ILCodeGenerator.EmitArguments(Arguments, method, Context);
-                Context.Emit(OpCodes.Calli, callSite);
-                Context.Stack.Push(method.ReturnType);
+                Context.Emit(OpCodes.Calli, callSite); */
+
+                Context.Stack.Push(invokeMethod.ReturnType);
+               
             }
         }
 

@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AncestryGraphCacheBase.cs" />
+    <Compile Include="CecilDelegateType.cs" />
     <Compile Include="CecilFieldBase.cs" />
     <Compile Include="CecilFieldConverter.cs" />
     <Compile Include="CecilFieldImporter.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="CecilTypeImporter.cs" />
     <Compile Include="CecilTypeMemberConverterBase.cs" />
     <Compile Include="CecilTypeMemberImporterBase.cs" />
+    <Compile Include="CecilTypeSystem.cs" />
     <Compile Include="ConverterCache.cs" />
     <Compile Include="Emit\TryCatchBlock.cs" />
     <Compile Include="Emit\CatchClause.cs" />
