@@ -2,22 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Flame.Build;
 using Flame.Compiler;
 using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class GenericInstanceTypeSyntax : ITokenTypeSyntax, IRelevantSyntax<Token>, ISourceSyntax
+    public class DelegateTypeSyntax : ITokenTypeSyntax, IRelevantSyntax<Token>, ISourceSyntax
 	{
-		public const this(set ITokenTypeSyntax ElementType, set DelimitedList<ITokenTypeSyntax> GenericArguments);
+		public const this(set ITokenTypeSyntax ElementType,
+                          set DelimitedList<ITokenTypeSyntax> ParameterTypes);
 
 		public ITokenTypeSyntax ElementType { const get; private set; }
-		public DelimitedList<ITokenTypeSyntax> GenericArguments { const get; private set; }
+		public DelimitedList<ITokenTypeSyntax> ParameterTypes { const get; private set; }
 
 		public SourceLocation Location
 		{
 			const get return ElementType.GetSourceLocation()
-										.Concat(GenericArguments.Location);
+                                        .Concat(ParameterTypes.Location);
 		}
 
 		public [Token] LeadingTrivia
@@ -26,7 +28,7 @@ namespace Flame.Syntax.DSharp
         	{
         		List<Token> trivia = new List<Token>();
         		trivia.AddRange(ElementType.GetAllTrivia());
-        		trivia.AddRange(GenericArguments.GetAllTrivia());
+        		trivia.AddRange(ParameterTypes.GetAllTrivia());
 				return trivia;
         	}
         }
@@ -42,47 +44,32 @@ namespace Flame.Syntax.DSharp
         	{
         		var list = new List<Token>();
 				list.AddRange(ElementType.Tokens);
-				list.AddRange(GenericArguments.Tokens);
+                list.AddRange(ParameterTypes.Tokens);
 				return list;
         	}
         }
 
-        public IType[] GetGenericArguments(ISyntaxState State)
+        public IType[] CreateParameterTypes(ISyntaxState State)
         {
-        	IType[] args = new IType[GenericArguments.Count];
-        	foreach (var item in GenericArguments, var output in args)
+        	IType[] args = new IType[ParameterTypes.Count];
+        	foreach (var item in ParameterTypes, var output in args)
         	{
-        		output = item.CreateType(State);
+        		output = item.CreateVerifiedType(State);
         	}
         	return args;
         }
 
-        public string GenericTypeName
-        {
-        	const get
-			{
-				StringBuilder sb = new StringBuilder();
-				foreach (var item in ElementType.Tokens)
-					sb.Append(item.TokenValue);
-				sb.Append("<");
-				for (int i = 1; i < GenericArguments.Count; i++)
-				{
-					sb.Append(',');
-				}
-				sb.Append(">");
-				return sb.ToString();
-			}
-        }
-
         public IType CreateType(ISyntaxState State)
         {
-        	var elemType = State.Binder.BindType(GenericTypeName);
-        	if (elemType == null)
+        	var elemType = ElementType.CreateVerifiedType(State);
+        	var typeArgs = CreateParameterTypes(State);
+
+            var descMethod = new DescribedMethod("", null, elemType, true);
+            for (int i = 0; i < typeArgs.Length; i++)
             {
-            	return null;
+                descMethod.AddParameter(new DescribedParameter("param" + i, typeArgs[i]));
             }
-        	IType[] typeArgs = GetGenericArguments(State);
-        	return elemType.MakeGenericType(typeArgs);
+            return MethodType.Create(descMethod);
         }
 
         public override string ToString()
@@ -94,7 +81,7 @@ namespace Flame.Syntax.DSharp
         {
             CodeBuilder cb = new CodeBuilder();
             cb.Append(ElementType.GetCode());
-            cb.Append(GenericArguments.GetCode());
+            cb.Append(ParameterTypes.GetCode());
             return cb;
         }
 

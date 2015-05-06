@@ -50,9 +50,11 @@ namespace Flame.Syntax.DSharp
 			const get
 			{
 				var results = new List<Token>();
-				results.Add(LeftDelimiter);
+				if (LeftDelimiter.Type != TokenType.UNDEFINED)
+					results.Add(LeftDelimiter);
 				results.AddRange(Items.Tokens);
-				results.Add(RightDelimiter);
+				if (RightDelimiter.Type != TokenType.UNDEFINED)
+					results.Add(RightDelimiter);
 				return results;
 			}
 		}

@@ -182,7 +182,7 @@ namespace Flame.Syntax.DSharp
     		string variableName = Enumerable.Single<string>(varNames);
     		IType variableType = ExceptionDeclaration.Type.CreateVerifiedType(State);
 
-    		var descMember = new DescribedVariableMember(variableName, variableType)
+    		var descMember = new DescribedVariableMember(variableName, variableType);
 
 			var clause = new CatchClause(descMember);
 

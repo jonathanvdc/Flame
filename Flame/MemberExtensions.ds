@@ -6,9 +6,9 @@ using System.Linq;
 namespace Flame
 {
 	public static class MemberExtensions
-	{	
+	{
 		#region Member Manipulation
-	
+
 		public static const string CombineNames(string First, string Second)
 		{
 			if (string.IsNullOrEmpty(First))
@@ -28,7 +28,7 @@ namespace Flame
 				return sb.ToString();
 			}
 		}
-	
+
 		public static [string] Names[this [IMember] Members]
 		{
 			const get
@@ -45,7 +45,7 @@ namespace Flame
 		{
 			const get return (([IMember])Types).Names;
 		}
-		
+
 		public static [string] FullNames[this [IMember] Members]
 		{
 			const get
@@ -62,27 +62,27 @@ namespace Flame
 		{
 			const get return (([IMember])Types).FullNames;
 		}
-		
+
 		#endregion
-		
+
 		public const static T GetPrimitiveValue<T>(this IBoundObject Value)
 		{
 			var primObj = (IBoundPrimitive<T>)Value;
 			return primObj.Value;
 		}
-		
+
 		#region Attributes
-		
+
 		public const static IEnumerable<IAttribute> GetAttributes(this IMember Member, IType Type)
         {
         	return Member.GetAttributes().GetAttributes(Type);
         }
-		
+
         public const static IAttribute GetAttribute(this IMember Member, IType Type)
         {
         	return Member.GetAttributes().GetAttribute(Type);
         }
-        
+
         public const static IAttribute GetAttribute(this IEnumerable<IAttribute> Attributes, IType Type)
         {
             foreach (var attr in Attributes)
@@ -94,7 +94,7 @@ namespace Flame
             }
             return null;
         }
-        
+
         public const static IEnumerable<IAttribute> GetAttributes(this IEnumerable<IAttribute> Attributes, IType Type)
         {
         	List<IAttribute> attrs = new List<IAttribute>();
@@ -107,24 +107,24 @@ namespace Flame
             }
             return attrs;
         }
-        
+
         public const static bool HasAttribute(this IMember Member, IType AttributeType)
         {
         	var attr = Member.GetAttribute(AttributeType);
         	return attr != null;
         }
-        
+
         public const static bool HasAttribute(this IEnumerable<IAttribute> Attributes, IType AttributeType)
         {
         	var attr = Attributes.GetAttribute(AttributeType);
         	return attr != null;
         }
-        
+
         public static AccessAttribute GetAccessAttribute(this IMember Member)
         {
         	return new AccessAttribute(Member.Access);
         }
-        
+
         public static AccessModifier Access[this IMember Member]
         {
         	const get
@@ -140,9 +140,9 @@ namespace Flame
 	        	}
         	}
         }
-        
+
         #region GetAncestryGraph
-        
+
         public static AncestryGraph GetAncestryGraph(this IMember Member)
         {
         	var attr = Member.GetAttribute(AncestryGraphAttribute.AncestryGraphAttributeType);
@@ -155,7 +155,7 @@ namespace Flame
         		return ((AncestryGraphAttribute)attr).Graph;
         	}
         }
-        
+
         public static AncestryGraph GetAncestryGraph(IMember First, IMember Second)
         {
         	var attr = First.GetAttribute(AncestryGraphAttribute.AncestryGraphAttributeType);
@@ -168,11 +168,11 @@ namespace Flame
         		return ((AncestryGraphAttribute)attr).Graph;
         	}
         }
-        
+
         #endregion
-        
+
         #region IsCovariant
-        
+
         public static bool IsCovariant[this IGenericParameter Type]
         {
             const get
@@ -180,11 +180,11 @@ namespace Flame
         		return Type.HasAttribute(PrimitiveAttributes.OutAttribute.AttributeType);
         	}
         }
-        
+
         #endregion
-        
+
         #region IsContravariant
-        
+
         public static bool IsContravariant[this IGenericParameter Type]
         {
             const get
@@ -192,11 +192,11 @@ namespace Flame
         		return Type.HasAttribute(PrimitiveAttributes.InAttribute.AttributeType);
         	}
         }
-        
+
         #endregion
-        
+
         #region IsInterface
-        
+
         public static bool IsInterface[this IType Type]
         {
             const get
@@ -204,11 +204,11 @@ namespace Flame
         		return Type.HasAttribute(PrimitiveAttributes.InterfaceAttribute.AttributeType);
         	}
         }
-        
+
         #endregion
-        
+
         #region IsValueType
-        
+
         public static bool IsValueType[this IType Type]
         {
         	const get
@@ -216,11 +216,11 @@ namespace Flame
         		return Type.HasAttribute(PrimitiveAttributes.ValueTypeAttribute.AttributeType);
         	}
         }
-        
+
         #endregion
-        
-        #region IsValueType
-        
+
+        #region IsEnum
+
         public static bool IsEnum[this IType Type]
         {
         	const get
@@ -228,11 +228,11 @@ namespace Flame
         		return Type.HasAttribute(PrimitiveAttributes.EnumAttribute.AttributeType);
         	}
         }
-        
+
         #endregion
-        
+
         #region IsReferenceType
-        
+
         public static bool IsReferenceType[this IType Type]
         {
         	const get
@@ -244,11 +244,11 @@ namespace Flame
         		return !Type.IsValueType && !Type.IsGenericParameter;
         	}
         }
-        
+
         #endregion
-        
+
         #region IsRootType
-        
+
         public static bool IsRootType[this IType Type]
         {
         	const get
@@ -256,11 +256,23 @@ namespace Flame
         		return Type.HasAttribute(PrimitiveAttributes.RootTypeAttribute.AttributeType);
         	}
         }
-        
+
         #endregion
-        
+
+		#region IsDelegate
+
+		public static bool IsDelegate[this IType Type]
+		{
+			const get
+			{
+				return MethodType.GetMethod(Type) != null;
+			}
+		}
+
+		#endregion
+
         #region IsEnumerable
-        
+
         public static bool IsEnumerableType[this IType Type]
         {
         	const get
@@ -268,11 +280,11 @@ namespace Flame
         		return Type.HasAttribute(EnumerableAttribute.EnumerableAttributeType);
         	}
         }
-        
+
         #endregion
-        
+
         #region GetEnumerableElementType
-        
+
         public static IType GetEnumerableElementType(this IType Type)
         {
         	if (Type.IsContainerType)
@@ -306,11 +318,11 @@ namespace Flame
         		}
         	}
         }
-        
+
         #endregion
-        
+
         #region IsHidden
-        
+
         public static bool IsHidden[this IMember Member]
         {
         	const get
@@ -318,11 +330,11 @@ namespace Flame
         		return Member.HasAttribute(PrimitiveAttributes.HiddenAttribute.AttributeType);
         	}
         }
-        
+
         #endregion
-        
+
         #region IsOperator/GetOperator
-        
+
         public static bool IsOperator[this IMethod Method]
         {
         	const get
@@ -338,7 +350,7 @@ namespace Flame
         		return false;
         	}
         }
-        
+
         public static const Operator GetOperator(this IMethod Method)
         {
             if (Method.HasAttribute(OperatorAttribute.OperatorAttributeType))
@@ -352,7 +364,7 @@ namespace Flame
     		}
         	return Operator.Undefined;
         }
-        
+
         /*public static Operator Operator[this IMethod Method]
         {
         	const get
@@ -360,19 +372,19 @@ namespace Flame
         		return Method.GetOperator();
         	}
         }*/
-        
+
         public static bool IsCast[this IMethod Method]
         {
         	const get
         	{
-        		return Method.HasAttribute(PrimitiveAttributes.CastAttribute.AttributeType);	
+        		return Method.HasAttribute(PrimitiveAttributes.CastAttribute.AttributeType);
         	}
         }
-        
+
         #endregion
-        
+
         #region SetsMember
-        
+
         public static bool SetsMember[this IParameter Parameter]
         {
         	const get
@@ -380,11 +392,11 @@ namespace Flame
         		return Parameter.HasAttribute(PrimitiveAttributes.SetsMemberAttribute.AttributeType);
         	}
         }
-        
+
         #endregion
-        
+
         #region IsExtension
-        
+
         private static bool AreExtensionParameters(IParameter[] Parameters)
         {
         	if (Parameters.Length > 0)
@@ -396,7 +408,7 @@ namespace Flame
         		return false;
         	}
         }
-        
+
         public static bool IsExtension[this IMember Member]
         {
         	const get
@@ -417,11 +429,11 @@ namespace Flame
         		return false;
         	}
         }
-        
+
         #endregion
-        
+
         #region IsValueType
-        
+
         public static bool IsConstant[this IMember Member]
         {
         	const get
@@ -429,13 +441,13 @@ namespace Flame
         		return Member.HasAttribute(PrimitiveAttributes.ConstantAttribute.AttributeType);
         	}
         }
-        
+
         #endregion
-		
+
 		#endregion
-		
+
 		#region IsPointer
-        
+
         public static bool IsPointer[this IType Type]
         {
         	const get
@@ -445,11 +457,11 @@ namespace Flame
 	        	return Type.AsContainerType().ContainerKind == ContainerTypeKind.Pointer;
         	}
         }
-        
+
         #endregion
-        
+
         #region IsArray
-        
+
         public static bool IsArray[this IType Type]
         {
         	const get
@@ -459,11 +471,11 @@ namespace Flame
 	        	return Type.AsContainerType().ContainerKind == ContainerTypeKind.Array;
         	}
         }
-        
+
         #endregion
-        
+
         #region IsArray
-        
+
         public static bool IsVector[this IType Type]
         {
         	const get
@@ -473,11 +485,11 @@ namespace Flame
 	        	return Type.AsContainerType().ContainerKind == ContainerTypeKind.Vector;
         	}
         }
-        
+
         #endregion
-        
+
         #region IsVirtual
-        
+
         public static bool IsVirtual[this IMember Member]
 		{
 			const get
@@ -496,9 +508,9 @@ namespace Flame
 		}
 
 		#endregion
-        
+
         #region IsAbstract
-        
+
         public static bool IsAbstract[this IMember Member]
 		{
 			const get
@@ -510,7 +522,7 @@ namespace Flame
 		#endregion
 
         #region IsGenericParameter
-        
+
         /// <summary>
         /// Gets a boolean value that indicates if the given type is a generic parameter.
         /// </summary>
@@ -531,57 +543,57 @@ namespace Flame
         		}
             }
         }
-        
+
         #endregion
-        
+
         #region IsGeneric
-        
+
         public static bool IsGeneric[this IGenericMember Member]
         {
         	const get
         	{
-        		return Enumerable.Any<IGenericParameter>(Member.GetGenericParameters());	
+        		return Enumerable.Any<IGenericParameter>(Member.GetGenericParameters());
         	}
         }
-        
+
         #endregion
-        
+
         #region IsGenericDeclaration
-        
+
         public static bool IsGenericDeclaration[this IGenericMember Member]
         {
         	const get
         	{
-        		return !Enumerable.Any<IType>(Member.GetGenericArguments());	
+        		return !Enumerable.Any<IType>(Member.GetGenericArguments());
         	}
         }
-        
+
         #endregion
-        
+
         #region IsGenericInstance
-        
+
         public static bool IsGenericInstance[this IGenericMember Member]
         {
         	const get
         	{
-        		return Enumerable.Any<IType>(Member.GetGenericArguments());	
+        		return Enumerable.Any<IType>(Member.GetGenericArguments());
         	}
         }
-        
+
         #endregion
-        
+
         #region GetAncestryDegree
-        
+
         public static const int GetAncestryDegree(this IType Type, IType Other)
         {
             var graph = GetAncestryGraph(Type, Other);
             return graph.GetAncestryDegree(Type, Other);
         }
-        
+
         #endregion
-        
+
         #region Is
-        
+
         /// <summary>
         /// Gets a boolean value that indicates if this type can be stored in a variable of the provided type.
         /// </summary>
@@ -592,11 +604,11 @@ namespace Flame
             var graph = GetAncestryGraph(Type, Other);
             return graph.Is(Type, Other);
         }
-        
+
         #endregion
-        
+
         #region GetParent/GetInterfaces
-        
+
         /// <summary>
         /// Gets the type's parent type.
         /// </summary>
@@ -609,7 +621,7 @@ namespace Flame
         			return item;
         	return null;
         }
-        
+
         public const static IList<IType> GetInterfaces(this IType Type)
         {
         	var interfs = new List<IType>();
@@ -618,11 +630,11 @@ namespace Flame
         			interfs.Add(item);
         	return interfs;
         }
-        
+
         #endregion
-        
+
         #region GetAllBaseTypes
-        
+
         public const static IList<IType> GetAllBaseTypes(this IType Type)
         {
         	var baseTypes = Type.GetBaseTypes();
@@ -643,7 +655,7 @@ namespace Flame
         	}
             return allTypes;
         }
-        
+
         #endregion
 	}
 }

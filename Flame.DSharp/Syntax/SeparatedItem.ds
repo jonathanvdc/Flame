@@ -32,7 +32,8 @@ namespace Flame.Syntax.DSharp
 			const get
 			{
 				var results = new List<Token>();
-				results.Add(Separator);
+				if (Separator.Type != TokenType.UNDEFINED)
+					results.Add(Separator);
 				results.AddRange(Item.GetTokens());
 				return results;
 			}

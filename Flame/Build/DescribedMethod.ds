@@ -23,10 +23,10 @@ namespace Flame.Build
 			this.baseMethods = new List<IMethod>();
 			this.genericParams = new List<IGenericParameter>();
 		}
-	
+
 		public IType ReturnType { const get; set; }
 		public bool IsConstructor { const get; set; }
-		
+
 		private List<IParameter> parameters;
 		public void AddParameter(IParameter Parameter)
 		{
@@ -36,7 +36,7 @@ namespace Flame.Build
 		{
 			return parameters.ToArray();
 		}
-		
+
 		private List<IMethod> baseMethods;
 		public void AddBaseMethod(IMethod Method)
 		{
@@ -46,7 +46,7 @@ namespace Flame.Build
 		{
 			return baseMethods.ToArray();
 		}
-		
+
 		public IMethod MakeGenericMethod([IType] TypeArguments) : IMethod.MakeGenericMethod
 		{
 			return new DescribedGenericMethodInstance(this, new EmptyGenericResolver(), DeclaringType, TypeArguments);
@@ -55,7 +55,7 @@ namespace Flame.Build
 		{
 			return this;
 		}
-		
+
 		private List<IGenericParameter> genericParams;
 		public void AddGenericParameter(IGenericParameter Parameter)
 		{
@@ -73,33 +73,33 @@ namespace Flame.Build
         /// Gets the method's generic arguments.
         /// </summary>
         /// <returns></returns>
-        public virtual IEnumerable<IType> GetGenericArguments() : IMethod.GetGenericArguments
+        public virtual [IType] GetGenericArguments() : IMethod.GetGenericArguments
         {
-        	return (IEnumerable<IType>)new IType[0];
+        	return new IType[0];
         }
-        
+
         public const IBoundObject Invoke(IBoundObject Target, IEnumerable<IBoundObject> Arguments)
         {
         	return null;
         }
-        
+
         public override int32 GetHashCode()
 		{
 			return Name.GetHashCode();
 		}
-		
+
 		public virtual const bool Equals(IMethod Other)
 		{
 			if (this.NameEqual(Other.Name) && Other.IsStatic == this.IsStatic && this.DeclaringTypeEqual(Other.DeclaringType))
 			{
 				var tComparer = new ScopedTypeEqualityComparer();
-			
+
 				if (!tComparer.Compare(Other.ReturnType, this.ReturnType))
 					return false;
 				var otherParams = Other.GetParameters();
 				if (otherParams.Length != parameters.Count)
 					return false;
-				
+
 				for (int i = 0; i < otherParams.Length; i++)
 				{
 					if (!tComparer.Compare(parameters[i].ParameterType, otherParams[i].ParameterType))
@@ -111,9 +111,12 @@ namespace Flame.Build
 			}
 			return false;
 		}
-		
+
 		public virtual const override bool Equals(object Other)
 		{
+			if (object.ReferenceEquals(this, Other))
+				return true;
+
 			if (Other is IMethod)
 			{
 				return Equals((IMethod)Other);
