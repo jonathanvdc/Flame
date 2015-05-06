@@ -47,13 +47,20 @@ namespace Flame.Cecil.Emit
             // Push a function pointer on the stack.
             if (ILCodeGenerator.UseVirtualCall(Method))
             {
-                Context.Emit(OpCodes.Ldvirtftn);
+                Context.Emit(OpCodes.Ldvirtftn, Method);
             }
             else
             {
-                Context.Emit(OpCodes.Ldftn);
+                Context.Emit(OpCodes.Ldftn, Method);
             }
-            StackBehavior.Apply(Context.Stack);
+
+            var resultType = MethodType.Create(Method);
+            var module = CodeGenerator.GetModule();
+            var importedType = module.TypeSystem.GetCanonicalDelegate(Method);
+
+            Context.Emit(OpCodes.Newobj, importedType.GetConstructors().Single());
+            
+            Context.Stack.Push(resultType);
         }
 
         public IStackBehavior StackBehavior
