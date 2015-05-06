@@ -298,5 +298,11 @@ namespace Flame.Cecil
         {
             return AppendFlameGenerics(StripCLRGenerics(Name), TypeParameterCount);
         }
+
+        public static bool IsDelegate(this TypeDefinition Definition)
+        {
+            var baseType = Definition.BaseType;
+            return baseType != null && baseType.FullName == "System.MulticastDelegate";
+        }
     }
 }

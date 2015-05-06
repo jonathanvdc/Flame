@@ -99,7 +99,18 @@ namespace Flame.Cecil
                 else if (Declaration.Equals(typeSys.String))
                     return PrimitiveTypes.String;
             }
-            return new CecilType(Declaration, Module);
+
+            var resolvedDecl = Declaration.Resolve();
+
+            var result = new CecilType(resolvedDecl, Module);
+            if (resolvedDecl.IsDelegate())
+            {
+                return new CecilDelegateType(result);
+            }
+            else
+            {
+                return result;
+            }
         }
 
         private IType ConvertGenericInstance(TypeReference ElementType, IEnumerable<IType> TypeArguments)

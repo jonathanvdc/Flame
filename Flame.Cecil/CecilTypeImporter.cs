@@ -61,6 +61,11 @@ namespace Flame.Cecil
                 var typeRef = ((ICecilType)Type).GetTypeReference();
                 return Module.Module.Import(typeRef, Context);
             }
+            else if (Type.get_IsDelegate())
+            {
+                var typeRef = Module.TypeSystem.GetCanonicalDelegate(MethodType.GetMethod(Type)).GetTypeReference();
+                return Module.Module.Import(typeRef, Context);
+            }
             else
             {
                 return null; // Null is a signaling value
