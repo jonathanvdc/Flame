@@ -1,0 +1,20 @@
+using System;
+using System.Collections.Generic;
+
+public static class DelegatesTest
+{
+    public static const int Twice(int Value)
+    {
+        return Value * 2;
+    }
+
+    public static const [int] Apply([int] Values, int(int) Func)
+    {
+        var results = new List<int>();
+        foreach (var item in Values)
+        {
+            results.Add(Func(item));
+        }
+        return results;
+    }
+}
