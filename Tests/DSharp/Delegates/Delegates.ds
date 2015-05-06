@@ -17,4 +17,9 @@ public static class DelegatesTest
         }
         return results;
     }
+
+    public static const [int] Double([int] Values)
+    {
+        return Apply(Values, Twice);
+    }
 }

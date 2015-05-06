@@ -73,7 +73,9 @@ namespace Flame
             	if (Type.GetGenericDeclaration().Equals(Other.GetGenericDeclaration()))
             	{
             		int totalAncestry = 0;
-	            	foreach (var genParam in Type.GetGenericParameters(), var genArg1 in Type.GetGenericArguments(), var genArg2 in Other.GetGenericArguments())
+	            	foreach (var genParam in Type.GetGenericParameters(),
+							 var genArg1 in Type.GetGenericArguments(),
+							 var genArg2 in Other.GetGenericArguments())
 	            	{
 	            		int argAncestry = 0;
 	            		if (genParam.IsCovariant) // [int] is [object]
@@ -97,6 +99,30 @@ namespace Flame
             	}
             }
             return -1;
+		}
+
+		private const int ComputeDelegateAncestry(IMethod Method, IMethod Other)
+		{
+			int totalAncestry = GetAncestryDegree(Method.ReturnType, Other.ReturnType);
+			if (totalAncestry < 0) return -1;
+
+			var firstParams = Method.GetParameters();
+			var secondParams = Other.GetParameters();
+
+			if (firstParams.Length != secondParams.Length) return -1;
+
+			var firstParamTypes = firstParams.GetTypes();
+			var secondParamTypes = secondParams.GetTypes();
+
+			foreach (var first in firstParamTypes, var second in secondParamTypes)
+			{
+				int argAncestry = GetAncestryDegree(second, first);
+
+				if (argAncestry < 0) return -1;
+				else totalAncestry += argAncestry;
+			}
+
+			return totalAncestry;
 		}
 
 		private const int ComputeInheritanceAncestry(IType Type, IType Other)
@@ -171,6 +197,13 @@ namespace Flame
             	}
             	else return -1;
             }
+			else if (Type.IsDelegate && Other.IsDelegate)
+			{
+				var firstMethod = MethodType.GetMethod(Type);
+				var secondMethod = MethodType.GetMethod(Other);
+
+				return ComputeDelegateAncestry(firstMethod, secondMethod);
+			}
             int varianceAncestry = ComputeGenericVarianceAncestry(Type, Other);
             if (varianceAncestry > 0)
             {
