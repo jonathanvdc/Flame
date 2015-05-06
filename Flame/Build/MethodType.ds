@@ -132,7 +132,15 @@ namespace Flame
 
         public INamespace DeclaringNamespace
         {
-            const get { return DeclaringType.DeclaringNamespace; }
+            const get
+            {
+                if (DeclaringType == null)
+                    return null;
+                else if (DeclaringType is INamespace)
+                    return (INamespace)DeclaringType;
+                else
+                    return DeclaringType.DeclaringNamespace;
+            }
         }
 
         public IType[] GetBaseTypes()
