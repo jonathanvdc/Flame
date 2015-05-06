@@ -59,9 +59,10 @@ namespace Flame.DSharp.Parser
 
         protected virtual IExpressionSyntax ParseSingleExpression(ITokenStream Parser)
         {
-        	if (MatchesInlineDeclarationPattern(Parser))
+			var inlineDecl = ParseInlineDeclarationSyntax(Parser);
+        	if (!object.ReferenceEquals(inlineDecl, null))
         	{
-        		return ParseInlineDeclarationSyntax(Parser);
+        		return inlineDecl;
         	}
         	else
         	{
@@ -116,50 +117,9 @@ namespace Flame.DSharp.Parser
 
         #region Type Parsing
 
-        #region Array Type Shred
-
-        protected virtual int ExploreArrayTypeShred(ITokenStream Tokens, TokenIdentifier^ Position)
-        {
-            var peek = Tokens.PeekNoTrivia(*Position);
-            int count = 1;
-            if (peek.Type != TokenType.RBrackets)
-            {
-                return 0;
-            }
-            else
-            {
-                do
-                {
-                    *Position = peek.Identifier;
-                    peek = Tokens.PeekNoTrivia(*Position);
-                    count++;
-                    if (peek.Type == TokenType.Integer) // Vector type.
-                    {
-                        peek = Tokens.PeekNoTrivia(peek);
-                        count++;
-                    }
-                    else if (peek.Type != TokenType.Comma && peek.Type != TokenType.LBrackets)
-                    {
-                        return 0;
-                    }
-                } while (peek.Type == TokenType.Comma)
-                if (peek.Type == TokenType.LBrackets)
-                {
-                	*Position = peek.Identifier;
-                    return ExploreTypeShred(Tokens, Position) + count;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-        }
-
-        #endregion
-
         #region Peek Array Type Shred
 
-        protected virtual ITokenTypeSyntax PeekArrayTypeShred(ITokenStream Tokens, ITokenTypeSyntax ElementType, TokenIdentifier^ Position)
+        protected virtual ITokenTypeSyntax PeekArrayTypeShred(ITokenStream Tokens, ITokenTypeSyntax ElementType, bool AllowDelegates, TokenIdentifier^ Position)
         {
         	var leading = Tokens.PeekNoTrivia(*Position);
             if (leading.Type != TokenType.RBrackets)
@@ -207,7 +167,7 @@ namespace Flame.DSharp.Parser
 	                	}
                 	}
 
-                    var nextShred = PeekTypeShred(Tokens, type, Position);
+                    var nextShred = PeekTypeShred(Tokens, type, AllowDelegates, Position);
                     if (nextShred == null)
                     	return type;
                     else
@@ -216,40 +176,6 @@ namespace Flame.DSharp.Parser
                 else
                 {
                     return null;
-                }
-            }
-        }
-
-        #endregion
-
-        #region Generic Type Shred
-
-        // <shred, shred, shred>
-        protected virtual int ExploreGenericTypeShred(ITokenStream Tokens, TokenIdentifier^ Position)
-        {
-            var peek = Tokens.PeekNoTrivia(*Position);
-            int count = 1;
-            if (peek.Type != TokenType.LessThan)
-            {
-                return 0;
-            }
-            else
-            {
-                do
-                {
-                    *Position = peek.Identifier;
-                    count += ExploreEntireType(Tokens, Position);
-                    peek = Tokens.PeekNoTrivia(*Position);
-                    count++;
-                } while (peek.Type == TokenType.Comma)
-                if (peek.Type == TokenType.GreaterThan)
-                {
-                    *Position = peek.Identifier;
-                    return ExploreTypeShred(Tokens, Position) + count;
-                }
-                else
-                {
-                    return 0;
                 }
             }
         }
@@ -258,81 +184,84 @@ namespace Flame.DSharp.Parser
 
         #region Peek Generic Type Shred
 
-        protected virtual ITokenTypeSyntax PeekGenericTypeShred(ITokenStream Tokens, ITokenTypeSyntax ElementType, TokenIdentifier^ Position)
+		protected virtual DelimitedList<ITokenTypeSyntax> PeekTypeList(ITokenStream Tokens,
+			TokenType LeftDelimiter, TokenType RightDelimiter, TokenIdentifier^ Position)
+		{
+			var leading = Tokens.PeekNoTrivia(*Position);
+			if (leading.Type != LeftDelimiter)
+			{
+				return null;
+			}
+			else
+			{
+				*Position = leading.Identifier;
+
+				var peek = Tokens.PeekNoTrivia(leading);
+				var typeArgs = new List<SeparatedItem<ITokenTypeSyntax>>();
+				while (peek.Type != RightDelimiter && peek.Type != TokenType.EndOfFile && peek.Type != TokenType.UNDEFINED)
+				{
+					var arg = PeekEntireType(Tokens, true, Position);
+					if (arg == null)
+					{
+						return null;
+					}
+					if (peek.Type == TokenType.Comma)
+					{
+						typeArgs.Add(new SeparatedItem<ITokenTypeSyntax>(peek.TokenPeek, arg));
+					}
+					else
+					{
+						typeArgs.Add(new SeparatedItem<ITokenTypeSyntax>(arg));
+					}
+					peek = Tokens.PeekNoTrivia(*Position);
+					*Position = peek.Identifier;
+
+					if (peek.Type != TokenType.Comma)
+						break;
+				}
+				if (peek.Type == RightDelimiter)
+				{
+					*Position = peek.Identifier;
+
+					return new DelimitedList<ITokenTypeSyntax>(leading.TokenPeek, new SeparatedList<ITokenTypeSyntax>(typeArgs), peek.TokenPeek);
+				}
+				else
+				{
+					return null;
+				}
+			}
+		}
+
+        protected virtual ITokenTypeSyntax PeekGenericTypeShred(ITokenStream Tokens,
+			ITokenTypeSyntax ElementType, bool AllowDelegates, TokenIdentifier^ Position)
         {
-        	var leading = Tokens.PeekNoTrivia(*Position);
-            if (leading.Type != TokenType.LessThan)
-            {
-                return null;
-            }
-            else
-            {
-            	var peek = leading;
-            	List<SeparatedItem<ITokenTypeSyntax>> typeArgs = new List<SeparatedItem<ITokenTypeSyntax>>();
-                do
-                {
-                    *Position = peek.Identifier;
-                    var arg = PeekEntireType(Tokens, Position);
-                    if (arg == null)
-                    {
-                    	return null;
-                    }
-                    if (peek.Type == TokenType.Comma)
-                    {
-                    	typeArgs.Add(new SeparatedItem<ITokenTypeSyntax>(peek.TokenPeek, arg));
-                    }
-                    else
-                    {
-                    	typeArgs.Add(new SeparatedItem<ITokenTypeSyntax>(arg));
-                    }
-                    peek = Tokens.PeekNoTrivia(*Position);
-                } while (peek.Type == TokenType.Comma)
-                if (peek.Type == TokenType.GreaterThan)
-                {
-                	*Position = peek.Identifier;
+			var tList = PeekTypeList(Tokens, TokenType.LessThan, TokenType.GreaterThan, Position);
 
-                	ITokenTypeSyntax type = new GenericInstanceTypeSyntax(ElementType, leading.TokenPeek, new SeparatedList<ITokenTypeSyntax>(typeArgs), peek.TokenPeek);
+			if (tList == null) return null;
 
-                    var nextShred = PeekTypeShred(Tokens, type, Position);
-                    if (nextShred == null)
-                    	return type;
-                    else
-                    	return nextShred;
-                }
-                else
-                {
-                    return null;
-                }
-            }
+			var type = new GenericInstanceTypeSyntax(ElementType, tList);
+
+			return PeekTypeShred(Tokens, type, AllowDelegates, Position);
         }
 
-        #endregion
+		protected virtual ITokenTypeSyntax PeekDelegateTypeShred(ITokenStream Tokens, ITokenTypeSyntax ElementType, TokenIdentifier^ Position)
+		{
+			var tList = PeekTypeList(Tokens, TokenType.RParen, TokenType.LParen, Position);
 
-        #region Dot Type Shred
+			if (tList == null) return null;
 
-        // .identifier
-        protected virtual int ExploreDotTypeShred(ITokenStream Tokens, TokenIdentifier^ Position)
-        {
-            var peek = Tokens.PeekNoTrivia(*Position);
-            if (peek.Type != TokenType.Dot)
-            {
-                return 0;
-            }
-            peek = Tokens.PeekNoTrivia(peek);
-            if (peek.Type != TokenType.Identifier)
-            {
-                return 0;
-            }
-            *Position = peek.Identifier;
-            return ExploreTypeShred(Tokens, Position) + 2;
-        }
+			var type = new DelegateTypeSyntax(ElementType, tList);
+
+			return PeekTypeShred(Tokens, type, true, Position);
+		}
 
         #endregion
 
         #region Peek Dot Type Shred
 
         // .identifier
-        protected virtual ITokenTypeSyntax PeekDotTypeShred(ITokenStream Tokens, ITokenTypeSyntax ElementType, TokenIdentifier^ Position)
+        protected virtual ITokenTypeSyntax PeekDotTypeShred(ITokenStream Tokens,
+			ITokenTypeSyntax ElementType, bool AllowDelegates, TokenIdentifier^ Position)
         {
             var dotPeek = Tokens.PeekNoTrivia(*Position);
             if (dotPeek.Type != TokenType.Dot)
@@ -346,7 +275,7 @@ namespace Flame.DSharp.Parser
             }
             var type = new DotTypeSyntax(ElementType, dotPeek.TokenPeek, identifierPeek.TokenPeek);
             *Position = identifierPeek.Identifier;
-            var nextType = PeekTypeShred(Tokens, type, Position);
+            var nextType = PeekTypeShred(Tokens, type, AllowDelegates, Position);
             if (nextType == null)
             	return type;
             else
@@ -355,47 +284,9 @@ namespace Flame.DSharp.Parser
 
         #endregion
 
-        #region Enumerable Type Shred
-
-        protected virtual int ExploreEnumerableTypeShred(ITokenStream Tokens, TokenIdentifier^ Position)
-        {
-        	var peek = Tokens.PeekNoTrivia(*Position);
-        	int count = 1;
-            if (peek.Type != TokenType.RBrackets)
-            {
-                return 0;
-            }
-            *Position = peek.Identifier;
-            peek = Tokens.PeekNoTrivia(peek);
-            bool isEnumerator = false;
-            if (peek.Type == TokenType.LessThan)
-            {
-            	isEnumerator = true;
-            	*Position = peek.Identifier;
-            }
-            count += ExploreEntireType(Tokens, Position);
-            peek = Tokens.PeekNoTrivia(*Position);
-            if (isEnumerator)
-            {
-	            if (peek.Type != TokenType.GreaterThan)
-	            {
-	            	return 0;
-	            }
-            	peek = Tokens.PeekNoTrivia(peek);
-            }
-            if (peek.Type != TokenType.LBrackets)
-            {
-            	return 0;
-            }
-            *Position = peek.Identifier;
-            return count + 1;
-        }
-
-        #endregion
-
         #region Peek Type Shred
 
-        protected virtual ITokenTypeSyntax PeekEnumerableTypeShred(ITokenStream Tokens, TokenIdentifier^ Position)
+        protected virtual ITokenTypeSyntax PeekEnumerableTypeShredCore(ITokenStream Tokens, TokenIdentifier^ Position)
         {
         	var leadingPeek = Tokens.PeekNoTrivia(*Position);
         	int count = 1;
@@ -409,7 +300,7 @@ namespace Flame.DSharp.Parser
             if (leadingLessThanPeek.Type == TokenType.LessThan)
             {
             	*Position = leadingLessThanPeek.Identifier;
-            	var elemType = PeekEntireType(Tokens, Position);
+            	var elemType = PeekEntireType(Tokens, true, Position);
             	var trailingGreaterThanPeek = Tokens.PeekNoTrivia(*Position);
             	if (trailingGreaterThanPeek.Type != TokenType.GreaterThan)
             	{
@@ -425,7 +316,7 @@ namespace Flame.DSharp.Parser
             }
             else
             {
-            	var elemType = PeekEntireType(Tokens, Position);
+            	var elemType = PeekEntireType(Tokens, true, Position);
             	var trailingPeek = Tokens.PeekNoTrivia(*Position);
             	if (trailingPeek.Type != TokenType.LBrackets)
             	{
@@ -436,44 +327,22 @@ namespace Flame.DSharp.Parser
             }
         }
 
-        #endregion
-
-        #region Explore Entire Type
-
-        protected virtual int ExploreEntireType(ITokenStream Tokens, TokenIdentifier^ Position)
-        {
-        	var peek = Tokens.PeekNoTrivia(*Position);
-        	if (peek.Type == TokenType.VarKeyword)
-        	{
-        		*Position = peek.Identifier;
-        		return 1;
-        	}
-        	else if (peek.Type == TokenType.Identifier)
-            {
-                *Position = peek.Identifier;
-                return ExploreTypeShred(Tokens, Position) + 1;
-            }
-            else if (peek.Type == TokenType.RBrackets)
-            {
-            	return ExploreEnumerableTypeShred(Tokens, Position);
-            }
-            else
-            {
-				return 0;
-            }
-        }
-
-        protected virtual int ExploreEntireType(ITokenStream Tokens)
-        {
-            TokenIdentifier pos = Tokens.CurrentPosition;
-            return ExploreEntireType(Tokens, &pos);
-        }
+		protected virtual ITokenTypeSyntax PeekEnumerableTypeShred(ITokenStream Tokens, bool AllowDelegates, TokenIdentifier^ Position)
+		{
+			var shred = PeekEnumerableTypeShredCore(Tokens, Position);
+			if (shred == null)
+				return null;
+			else if (AllowDelegates && Tokens.PeekNoTrivia(*Position).Type == TokenType.RParen)
+				return PeekDelegateTypeShred(Tokens, shred, Position);
+			else
+				return shred;
+		}
 
         #endregion
 
         #region Peek Entire Type
 
-        protected virtual ITokenTypeSyntax PeekEntireType(ITokenStream Tokens, TokenIdentifier^ Position)
+        public virtual ITokenTypeSyntax PeekEntireType(ITokenStream Tokens, bool AllowDelegates, TokenIdentifier^ Position)
         {
         	var peek = Tokens.PeekNoTrivia(*Position);
         	if (peek.Type == TokenType.VarKeyword)
@@ -483,11 +352,11 @@ namespace Flame.DSharp.Parser
         	}
         	else if (peek.Type == TokenType.Identifier)
             {
-                return PeekIdentifierTypeShred(Tokens, Position);
+                return PeekIdentifierTypeShred(Tokens, AllowDelegates, Position);
             }
             else if (peek.Type == TokenType.RBrackets)
             {
-            	return PeekEnumerableTypeShred(Tokens, Position);
+            	return PeekEnumerableTypeShred(Tokens, AllowDelegates, Position);
             }
             else
             {
@@ -495,41 +364,17 @@ namespace Flame.DSharp.Parser
             }
         }
 
-        protected virtual ITokenTypeSyntax PeekEntireType(ITokenStream Tokens)
+        public virtual ITokenTypeSyntax PeekEntireType(ITokenStream Tokens, bool AllowDelegates)
         {
             TokenIdentifier pos = Tokens.CurrentPosition;
-            return PeekEntireType(Tokens, &pos);
-        }
-
-        #endregion
-
-        #region ExploreTypeIdentifierShred
-
-        protected virtual int ExploreTypeIdentifierShred(ITokenStream Tokens, TokenIdentifier^ Position)
-        {
-            var peek = Tokens.PeekNoTrivia(*Position);
-            if (peek.Type == TokenType.Identifier || peek.Type == TokenType.VarKeyword)
-            {
-                *Position = peek.Identifier;
-                return ExploreTypeShred(Tokens, Position) + 1;
-            }
-            else
-            {
-				return 0;
-            }
-        }
-
-        protected virtual int ExploreTypeIdentifierShred(ITokenStream Tokens)
-        {
-            TokenIdentifier pos = Tokens.CurrentPosition;
-            return ExploreTypeIdentifierShred(Tokens, &pos);
+            return PeekEntireType(Tokens, AllowDelegates, &pos);
         }
 
         #endregion
 
         #region Peek Type Identifier Shred
 
-        protected virtual ITokenTypeSyntax PeekIdentifierTypeShred(ITokenStream Tokens, TokenIdentifier^ Position)
+        protected virtual ITokenTypeSyntax PeekIdentifierTypeShred(ITokenStream Tokens, bool AllowDelegates, TokenIdentifier^ Position)
         {
             var peek = Tokens.PeekNoTrivia(*Position);
             if (peek.Type == TokenType.VarKeyword)
@@ -542,15 +387,7 @@ namespace Flame.DSharp.Parser
                 *Position = peek.Identifier;
                 var identifierSyntax = new IdentifierTypeSyntax(peek.TokenPeek);
 
-                var nextType = PeekTypeShred(Tokens, identifierSyntax, Position);
-                if (nextType != null)
-                {
-                	return nextType;
-                }
-                else
-                {
-                	return identifierSyntax;
-                }
+                return PeekTypeShred(Tokens, identifierSyntax, AllowDelegates, Position);
             }
             else
             {
@@ -560,68 +397,71 @@ namespace Flame.DSharp.Parser
 
         #endregion
 
-        #region ExploreTypeShred
-
-        protected virtual int ExploreTypeShred(ITokenStream Tokens, TokenIdentifier^ Position)
-        {
-            var peek = Tokens.PeekNoTrivia(*Position);
-            if (peek.Type == TokenType.LessThan)
-            {
-                return ExploreGenericTypeShred(Tokens, Position);
-            }
-            else if (peek.Type == TokenType.RBrackets)
-            {
-                return ExploreArrayTypeShred(Tokens, Position);
-            }
-            else if (peek.Type == TokenType.Dot)
-            {
-                return ExploreDotTypeShred(Tokens, Position);
-            }
-            else if (peek.Type == TokenType.Asterisk || peek.Type == TokenType.Caret)
-            {
-                *Position = peek.Identifier;
-                return ExploreTypeShred(Tokens, Position) + 1;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
-        #endregion
-
         #region Peek Type Shred
 
-        protected virtual ITokenTypeSyntax PeekTypeShred(ITokenStream Tokens, ITokenTypeSyntax ElementType, TokenIdentifier^ Position)
+		protected virtual ITokenTypeSyntax CoalescePeekFailure(TokenIdentifier OldPosition,
+			ITokenTypeSyntax ElementType, ITokenTypeSyntax Result, TokenIdentifier^ Position)
+		{
+			if (Result == null)
+			{
+				*Position = OldPosition;
+				return ElementType;
+			}
+			else
+			{
+				return Result;
+			}
+		}
+
+        protected virtual ITokenTypeSyntax PeekTypeShred(ITokenStream Tokens, ITokenTypeSyntax ElementType, bool AllowDelegates, TokenIdentifier^ Position)
         {
+			var oldPos = *Position;
             var peek = Tokens.PeekNoTrivia(*Position);
             if (peek.Type == TokenType.LessThan)
             {
-                return PeekGenericTypeShred(Tokens, ElementType, Position);
+                return CoalescePeekFailure(oldPos, ElementType,
+					PeekGenericTypeShred(Tokens, ElementType, AllowDelegates, Position),
+					Position);
             }
+			else if (AllowDelegates && peek.Type == TokenType.RParen)
+			{
+				return CoalescePeekFailure(oldPos, ElementType,
+					PeekDelegateTypeShred(Tokens, ElementType, Position),
+					Position);
+			}
             else if (peek.Type == TokenType.RBrackets)
             {
-                return PeekArrayTypeShred(Tokens, ElementType, Position);
+				return CoalescePeekFailure(oldPos, ElementType,
+					PeekArrayTypeShred(Tokens, ElementType, AllowDelegates, Position),
+					Position);
             }
             else if (peek.Type == TokenType.Dot)
             {
-                return PeekDotTypeShred(Tokens, ElementType, Position);
+				return CoalescePeekFailure(oldPos, ElementType,
+					PeekDotTypeShred(Tokens, ElementType, AllowDelegates, Position),
+					Position);
             }
             else if (peek.Type == TokenType.Asterisk || peek.Type == TokenType.Caret)
             {
                 *Position = peek.Identifier;
                 var pointerType = new PointerTypeSyntax(ElementType, peek.TokenPeek);
 
-                var nextType = PeekTypeShred(Tokens, pointerType, Position);
+                var nextType = PeekTypeShred(Tokens, pointerType, AllowDelegates, Position);
 
                 if (nextType == null)
+				{
+					*Position = oldPos;
                 	return pointerType;
+				}
                 else
+				{
                 	return nextType;
+				}
             }
             else
             {
-                return null;
+				*Position = oldPos;
+                return ElementType;
             }
         }
 
@@ -629,7 +469,7 @@ namespace Flame.DSharp.Parser
 
         protected virtual [Token] ParseTypeTokens(ITokenStream Tokens)
         {
-        	var peekType = PeekEntireType(Tokens);
+        	var peekType = PeekEntireType(Tokens, true);
 
         	if (peekType == null)
         		return new Token[0];
@@ -663,24 +503,48 @@ namespace Flame.DSharp.Parser
             }
         }
 
-        public virtual ITypeSyntax ParseType(ITokenStream Tokens)
+        public virtual ITypeSyntax ParseType(ITokenStream Tokens, bool AllowDelegates)
         {
-            var type = PeekEntireType(Tokens);
+            var type = PeekEntireType(Tokens, AllowDelegates);
 
             if (type == null) // No type was parsed. So be it.
             {
             	return null;
             }
 
-            int parseCount = type.Tokens.Count;
-
-            for (int i = 0; i < parseCount; i++)
-            {
-                Tokens.NextNoTrivia();
-            }
+			SkipTypeTokens(Tokens, type);
 
             return type;
         }
+
+		public virtual ITypeSyntax ParseType(ITokenStream Tokens)
+		{
+			return ParseType(Tokens, true);
+		}
+
+		protected virtual void SkipTypeTokens(ITokenStream Tokens, ITokenTypeSyntax Syntax)
+		{
+			int parseCount = Syntax.Tokens.Count;
+
+			for (int i = 0; i < parseCount; i++)
+			{
+				Tokens.NextNoTrivia();
+			}
+		}
+
+		protected virtual PeekToken PeekTypeTokens(ITokenStream Tokens, ITokenTypeSyntax Syntax)
+		{
+			var peek = Tokens.PeekNoTrivia();
+
+			int parseCount = Syntax.Tokens.Count;
+
+			for (int i = 0; i < parseCount; i++)
+			{
+				peek = Tokens.PeekNoTrivia(peek);
+			}
+
+			return peek;
+		}
 
         #endregion
 
@@ -1091,7 +955,7 @@ namespace Flame.DSharp.Parser
 
         protected virtual IExpressionSyntax ParseNewObjectExpression(Token NewToken, ITokenStream Tokens)
         {
-            var type = ParseType(Tokens);
+            var type = ParseType(Tokens, false);
             var peek = Tokens.PeekNoTrivia();
 
             IExpressionSyntax expr;
@@ -1422,9 +1286,10 @@ namespace Flame.DSharp.Parser
 				return new BinderDirectiveStatementSyntax(ParseBinderDirective(Tokens));
             else
             {
-            	if (MatchesDeclarationPattern(Tokens))
+				var decl = MaybeParseTopLevelDeclarationSyntax(Tokens);
+            	if (decl != null)
                	{
-                	return ParseDeclarationSyntax(Tokens);
+                	return decl;
                	}
              	else
              	{
@@ -1447,60 +1312,49 @@ namespace Flame.DSharp.Parser
 
         #endregion
 
-        #region MatchesDeclarationPattern
+		#region IsAmbiguousType
 
-        protected virtual bool MatchesGeneralDeclarationPattern(ITokenStream Tokens, out PeekToken^ TokenPeek)
-        {
-        	return MatchesGeneralDeclarationPattern(Tokens, true, TokenPeek);
-        }
+		protected virtual bool IsAmbiguousType(ITokenTypeSyntax Syntax)
+		{
+			var tkns = Syntax.Tokens;
+			// This is ambiguous:
+			//  - p* x <-> p * x (pointer declaration and multiplication)
+			//  - p^ x <-> p ^ x (pointer declaration and bitwise xor)
+			// This is not:
+			//  - int*[] x
+			//  - List<int*> x
+			//  - int(int*) x
+			//  - int*(int) x ('int*(int)' is ambiguous, but 'int*(int) x' is not)
 
-        protected virtual bool MatchesGeneralDeclarationPattern(ITokenStream Tokens, bool AllowAmbiguousTypes, out PeekToken^ TokenPeek)
-        {
-            int parseCount = ExploreEntireType(Tokens);
-            if (parseCount < 1) // At least one token must be valid type syntax.
-            {
-            	return false;
-            }
-            var peek = Tokens.PeekNoTrivia();
-            for (int i = 0; i < parseCount; i++)
-            {
-                if (!AllowAmbiguousTypes && i == parseCount - 1 && (peek.Type == TokenType.Asterisk || peek.Type == TokenType.Caret)) // Inline pointer declaration is ambiguous: 'a * b' could be either multiplication or a transient pointer declaration.
-                {
-                	return false;
-                }
-            	peek = Tokens.PeekNoTrivia(peek);
-            }
-            if (peek.Type != TokenType.Identifier)
-            {
-                return false;
-            }
-            *TokenPeek = Tokens.PeekNoTrivia(peek);
-            return true;
-        }
+			var lastToken = tkns[tkns.Count - 1];
 
-        protected virtual bool MatchesDeclarationPattern(ITokenStream Tokens)
-        {
-        	PeekToken peek;
-            if (!MatchesGeneralDeclarationPattern(Tokens, &peek))
-            {
-            	return false;
-            }
-            return peek.Type == TokenType.Semicolon || peek.Type == TokenType.Comma || peek.Type == TokenType.Equals;
-        }
+			return lastToken.Type == TokenType.Asterisk || lastToken.Type == TokenType.Caret;
+		}
 
-        protected virtual bool MatchesInlineDeclarationPattern(ITokenStream Tokens)
-        {
-            PeekToken peek;
-            return MatchesGeneralDeclarationPattern(Tokens, false, &peek);
-        }
+		#endregion
 
-        #endregion
+		#region IsSingleVariableDeclaration
+
+		protected virtual bool IsSingleVariableDeclaration(ITokenStream Tokens, TokenIdentifier Position)
+		{
+			var peek = Tokens.PeekNoTrivia(Position);
+			if (peek.Type != TokenType.Identifier)
+			{
+				return false;
+			}
+			peek = Tokens.PeekNoTrivia(peek);
+			return peek.Type == TokenType.Semicolon ||
+				   peek.Type == TokenType.Comma ||
+				   peek.Type == TokenType.Equals;
+		}
+
+		#endregion
 
         #region ParseDeclarationSyntax
 
         protected virtual SingleVariableDeclaration ParseSingleVariableDeclaration(ITokenStream Tokens)
         {
-            Token name = Tokens.NextNoTrivia();
+            var name = Tokens.NextNoTrivia(TokenType.Identifier, Log);
             var quickPeek = Tokens.PeekNoTrivia();
             if (quickPeek.Type == TokenType.Equals)
             {
@@ -1514,38 +1368,80 @@ namespace Flame.DSharp.Parser
             }
         }
 
-        protected virtual VariableDeclarationSyntax ParseDeclarationSyntax(ITokenStream Tokens)
-        {
-            var type = ParseType(Tokens);
+		protected virtual SeparatedList<SingleVariableDeclaration> ParseSingleVariableDeclarationList(ITokenStream Tokens)
+		{
+			var decl = new List<SeparatedItem<SingleVariableDeclaration>>();
 
-            List<SingleVariableDeclaration> decl = new List<SingleVariableDeclaration>();
             var peek = Tokens.PeekNoTrivia();
             do
             {
+				Token sep;
                 if (peek.Type == TokenType.Comma)
                 {
-                    Tokens.NextNoTrivia();
+					sep = Tokens.NextNoTrivia();
                 }
-                decl.Add(ParseSingleVariableDeclaration(Tokens));
+				else sep = Token.Undefined;
+
+				var val = ParseSingleVariableDeclaration(Tokens);
+
+                decl.Add(new SeparatedItem<SingleVariableDeclaration>(sep, val));
+
                 peek = Tokens.PeekNoTrivia();
             } while (peek.Type == TokenType.Comma)
 
-            Token semicolon;
-            if (Tokens.PeekNoTrivia().Type == TokenType.Semicolon)
-            {
-                semicolon = Tokens.NextNoTrivia();
-            }
-            else
-            {
-                semicolon = Token.Undefined;
-            }
+			return new SeparatedList<SingleVariableDeclaration>(decl);
+		}
+
+		protected virtual VariableDeclarationSyntax MaybeParseTopLevelDeclarationSyntax(ITokenStream Tokens)
+		{
+			var pos = Tokens.CurrentPosition;
+			var type = PeekEntireType(Tokens, true, &pos);
+			if (type == null) return null;
+
+			if (!IsSingleVariableDeclaration(Tokens, pos))
+			{
+				return null;
+			}
+
+			SkipTypeTokens(Tokens, type);
+
+            var decl = ParseSingleVariableDeclarationList(Tokens);
+
+            var semicolon = Tokens.NextNoTrivia(TokenType.Semicolon, Log);
+
+            return new VariableDeclarationSyntax(type, decl, semicolon);
+		}
+
+        protected virtual VariableDeclarationSyntax ParseDeclarationSyntax(ITokenStream Tokens)
+        {
+			var type = ParseType(Tokens);
+
+            var decl = ParseSingleVariableDeclarationList(Tokens);
+
+			Token semicolon;
+			if (Tokens.PeekNoTrivia().Type == TokenType.Semicolon)
+	            semicolon = Tokens.NextNoTrivia(TokenType.Semicolon, Log);
+			else
+				semicolon = Token.Undefined;
 
             return new VariableDeclarationSyntax(type, decl, semicolon);
         }
 
         protected virtual InlineVariableDeclarationSyntax ParseInlineDeclarationSyntax(ITokenStream Tokens)
         {
-            var type = ParseType(Tokens);
+			var pos = Tokens.CurrentPosition;
+            var type = PeekEntireType(Tokens, true, &pos);
+
+			if (type == null || IsAmbiguousType(type))
+				return null;
+
+			var peek = PeekTypeTokens(Tokens, type);
+
+			if (peek.Type != TokenType.Identifier)
+				return null;
+
+			SkipTypeTokens(Tokens, type);
+
             var decl = ParseSingleVariableDeclaration(Tokens);
 
             return new InlineVariableDeclarationSyntax(type, decl);
@@ -1935,7 +1831,7 @@ namespace Flame.DSharp.Parser
         		return false;
         	}
         	var pos = peek.Identifier;
-        	var type = PeekEntireType(Tokens, &pos);
+        	var type = PeekEntireType(Tokens, false, &pos);
         	int parseCount = type.Tokens.Count;
 
         	if (parseCount == 0)

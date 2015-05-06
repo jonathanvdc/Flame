@@ -7,23 +7,23 @@ namespace Flame.Build
 	{
 		protected this();
 		public this(set string Name, set IType DeclaringType);
-	
+
 		public IType DeclaringType { const get; set; }
 		public bool IsStatic { const get; set; }
-		
-		public override string FullName : DescribedMember.FullName 
-		{ 
+
+		public override string FullName : DescribedMember.FullName
+		{
 			const get
 			{
 				if (DeclaringType == null) return Name;
 				else return MemberExtensions.CombineNames(DeclaringType.FullName, Name);
 			}
 		}
-		
+
 		public const bool NameEqual(string OtherName)
 		{
-			if (Name == null)
-				return OtherName == null;
+			if (string.IsNullOrEmpty(Name))
+				return false;
 			else
 				return Name.Equals(OtherName);
 		}
@@ -32,9 +32,9 @@ namespace Flame.Build
 			if (DeclaringType == null)
 				return OtherDeclaringType == null;
 			else
-				return DeclaringType.Equals(OtherDeclaringType); 
+				return DeclaringType.Equals(OtherDeclaringType);
 		}
-		
+
 		public override virtual const bool Equals(object Other)
 		{
 			if (Other is ITypeMember)
@@ -51,7 +51,7 @@ namespace Flame.Build
 		{
 			return Name.GetHashCode() ^ DeclaringType.GetHashCode();
 		}
-		
+
 		public virtual override const string ToString()
 		{
 			return FullName;

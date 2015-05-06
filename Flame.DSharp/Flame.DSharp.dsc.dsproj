@@ -159,6 +159,7 @@
 				<Compile Include="Syntax\Types\DotTypeSyntax.ds" />
 				<Compile Include="Syntax\Types\ITokenTypeSyntax.ds" />
 				<Compile Include="Syntax\Types\EnumeratorTypeSyntax.ds" />
+				<Compile Include="Syntax\Types\DelegateTypeSyntax.ds" />
 			</ItemGroup>
 		</ItemGroup>
 	</ItemGroup>

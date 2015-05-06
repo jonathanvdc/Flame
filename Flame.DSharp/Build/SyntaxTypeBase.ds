@@ -252,7 +252,7 @@ namespace Flame.DSharp.Build
             {
                 if (!value)
                 {
-                    typeMemberCache = null;
+                    typeMemberCache = (Dictionary<string, object>)null;
                     attrCache = null;
                 }
                 else if (typeMemberCache == null)

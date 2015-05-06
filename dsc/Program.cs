@@ -20,6 +20,7 @@ using Flame.Front.State;
 using Flame.Front;
 using Flame.Front.Cli;
 using dsc.Projects;
+using Flame.Syntax.DSharp;
 
 namespace dsc
 {
