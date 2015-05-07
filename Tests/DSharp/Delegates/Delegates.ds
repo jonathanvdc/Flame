@@ -1,6 +1,18 @@
 using System;
 using System.Collections.Generic;
 
+public struct IntValue
+{
+    public const this(set int Data);
+
+    public int Data;
+
+    public const IntValue Add(IntValue Val)
+    {
+        return new IntValue(Data + Val.Data);
+    }
+}
+
 public static class DelegatesTest
 {
     public static const int Twice(int Value)
@@ -10,6 +22,10 @@ public static class DelegatesTest
     public static const double Twice(double Value)
     {
         return Value * 2.0;
+    }
+    public static const IntValue Twice(IntValue Value)
+    {
+        return Value.Add(Value);
     }
 
     public static const [T] Apply<T>([T] Values, T(T) Func)
@@ -29,5 +45,9 @@ public static class DelegatesTest
     public static const [double] Double([double] Values)
     {
         return Apply<double>(Values, Twice);
+    }
+    public static const [IntValue] Double([IntValue] Values)
+    {
+        return Apply<IntValue>(Values, Twice);
     }
 }
