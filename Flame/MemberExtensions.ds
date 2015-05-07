@@ -33,7 +33,7 @@ namespace Flame
 		{
 			const get
 			{
-				List<string> results = new List<string>();
+				var results = new List<string>();
 				foreach (var item in Members)
 				{
 					results.Add(item.Name);
@@ -43,14 +43,22 @@ namespace Flame
 		}
 		public static [string] Names[this [IType] Types]
 		{
-			const get return (([IMember])Types).Names;
+			const get
+			{
+				var results = new List<string>();
+				foreach (var item in Types)
+				{
+					results.Add(item.Name);
+				}
+				return results;
+			}
 		}
 
 		public static [string] FullNames[this [IMember] Members]
 		{
 			const get
 			{
-				List<string> results = new List<string>();
+				var results = new List<string>();
 				foreach (var item in Members)
 				{
 					results.Add(item.FullName);
@@ -60,7 +68,15 @@ namespace Flame
 		}
 		public static [string] FullNames[this [IType] Types]
 		{
-			const get return (([IMember])Types).FullNames;
+			const get
+			{
+				var results = new List<string>();
+				foreach (var item in Types)
+				{
+					results.Add(item.FullName);
+				}
+				return results;
+			}
 		}
 
 		#endregion

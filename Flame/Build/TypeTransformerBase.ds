@@ -54,7 +54,7 @@ namespace Flame.Build
 				return Type;
 			}
 
-			var descMethod = new DescribedMethod(method.Name, method.DeclaringType, retType, method.IsStatic);
+			var descMethod = new DescribedMethod("", method.DeclaringType, retType, method.IsStatic);
 
 			foreach (var type in convTypes, var item in parameters)
 			{

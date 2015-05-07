@@ -122,6 +122,11 @@ namespace Flame.Recompilation
         }
         public bool IsExternal(ITypeMember Member)
         {
+            var declType = Member.DeclaringType;
+            if (declType == null)
+            {
+                return true;
+            }
             if (Member is IGenericMember)
             {
                 var genMember = (IGenericMember)Member;
@@ -134,7 +139,7 @@ namespace Flame.Recompilation
                     }
                 }
             }
-            return IsExternal(Member.DeclaringType);
+            return IsExternal(declType);
         }
         public bool IsExternal(IMember Member)
         {
@@ -162,7 +167,9 @@ namespace Flame.Recompilation
 
         public bool IsExternalStrict(ITypeMember Member)
         {
-            return IsExternalStrict(Member.DeclaringType);
+            var declType = Member.DeclaringType;
+
+            return declType == null ? true : IsExternalStrict(declType);
         }
 
         public bool IsExternalStrict(IType Type)
@@ -278,7 +285,7 @@ namespace Flame.Recompilation
 
         private IType GetNewType(IType SourceType)
         {
-            if (SourceType.get_IsDelegate())
+            if (SourceType.get_IsDelegate() && !SourceType.get_IsGenericInstance())
             {
                 return MethodType.Create(GetMethod(MethodType.GetMethod(SourceType)));
             }
