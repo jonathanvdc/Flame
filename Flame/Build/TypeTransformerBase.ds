@@ -9,6 +9,16 @@ namespace Flame.Build
 	{
 		public const this();
 
+		private static const bool TypeReferencesEqual([IType] First, [IType] Second)
+		{
+			foreach (var left in First, var right in Second)
+				if (!object.ReferenceEquals(left, right))
+			{
+				return false;
+			}
+			return true;
+		}
+
 		protected override virtual const IType MakePointerType(IType ElementType, PointerKind Kind)
 		{
 			return ElementType.MakePointerType(Kind);
@@ -36,8 +46,14 @@ namespace Flame.Build
 
 			var parameters = method.GetParameters();
 			var paramTypes = parameters.GetTypes();
-			var convTypes = Convert(paramTypes);
-			
+			var convTypes = Enumerable.ToArray<IType>(Convert(paramTypes));
+
+			if (object.ReferenceEquals(retType, method.ReturnType) &&
+				TypeReferencesEqual(convTypes, paramTypes))
+			{
+				return Type;
+			}
+
 			var descMethod = new DescribedMethod(method.Name, method.DeclaringType, retType, method.IsStatic);
 
 			foreach (var type in convTypes, var item in parameters)
@@ -54,7 +70,72 @@ namespace Flame.Build
 
 		protected override virtual const IType ConvertIntersectionType(IntersectionType Type)
 		{
+			var convFirst = Convert(Type.First);
+			var convSecond = Convert(Type.Second);
+
+			if (object.ReferenceEquals(convFirst, Type.First) &&
+				object.ReferenceEquals(convSecond, Type.Second))
+			{
+				return Type;
+			}
+
 			return new IntersectionType(Convert(Type.First), Convert(Type.Second));
+		}
+
+		protected override virtual const IType ConvertGenericInstance(IType Type)
+		{
+			var genDecl = Type.GetGenericDeclaration();
+			var genArgs = Type.GetGenericArguments();
+
+			var convDecl = Convert(genDecl);
+			var convArgs = Enumerable.ToArray<IType>(Convert(genArgs));
+
+			if (object.ReferenceEquals(convDecl, genDecl) &&
+				TypeReferencesEqual(convArgs, genArgs))
+			{
+				return Type;
+			}
+
+			return MakeGenericType(convDecl, convArgs);
+		}
+
+		protected override virtual const IType ConvertPointerType(IPointerType Type)
+		{
+			var elemType = Type.GetElementType();
+			var convElem = Convert(elemType);
+
+			if (object.ReferenceEquals(convElem, elemType))
+			{
+				return Type;
+			}
+
+			return MakePointerType(convElem, Type.PointerKind);
+		}
+
+		protected override virtual const IType ConvertArrayType(IArrayType Type)
+		{
+			var elemType = Type.GetElementType();
+			var convElem = Convert(elemType);
+
+			if (object.ReferenceEquals(convElem, elemType))
+			{
+				return Type;
+			}
+
+			return MakeArrayType(convElem, Type.ArrayRank);
+		}
+
+		protected override virtual const IType ConvertVectorType(IVectorType Type)
+		{
+			var elemType = Type.GetElementType();
+			var convElem = Convert(elemType);
+
+			if (object.ReferenceEquals(convElem, elemType))
+			{
+				return Type;
+			}
+
+			return MakeVectorType(convElem, Type.GetDimensions());
 		}
 
 		protected override virtual const IType ConvertTypeDefault(IType Type)
