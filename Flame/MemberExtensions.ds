@@ -271,6 +271,18 @@ namespace Flame
 
 		#endregion
 
+		#region IsIntersectionType
+
+		public static bool IsIntersectionType[this IType Type]
+		{
+			const get
+			{
+				return Type is IntersectionType;
+			}
+		}
+
+		#endregion
+
         #region IsEnumerable
 
         public static bool IsEnumerableType[this IType Type]

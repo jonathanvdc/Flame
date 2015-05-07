@@ -125,17 +125,38 @@ namespace Flame
 			return totalAncestry;
 		}
 
+		private const int ComputeIntersectionAncestry(IType Type, IType Other)
+		{
+			var leftInter = IntersectionType.GetIntersectedTypes(Type);
+			var rightInter = IntersectionType.GetIntersectedTypes(Other);
+
+			int result = 0;
+			foreach (var item in rightInter)
+			{
+				int bestAncestry = ComputeLowestAncestry(leftInter, item);
+				if (bestAncestry < 0) return -1;
+				result += bestAncestry;
+			}
+			return result;
+		}
+
+		private const int ComputeLowestAncestry([IType] Types, IType Other)
+		{
+			int bestAncestry = -1;
+			foreach (var item in Types)
+			{
+				int degree = GetAncestryDegree(item, Other);
+				if (degree > -1 && (degree <= bestAncestry || bestAncestry == -1))
+				{
+					bestAncestry = degree;
+				}
+			}
+			return bestAncestry;
+		}
+
 		private const int ComputeInheritanceAncestry(IType Type, IType Other)
 		{
-		    int bestAncestry = -1;
-            foreach (var item in Type.GetBaseTypes())
-            {
-                int degree = GetAncestryDegree(item, Other);
-                if (degree > -1 && (degree <= bestAncestry || bestAncestry == -1))
-                {
-                    bestAncestry = degree;
-                }
-            }
+		    int bestAncestry = ComputeLowestAncestry(Type.GetBaseTypes(), Other);
             if (bestAncestry > -1)
             {
                 return bestAncestry + 1;
@@ -203,6 +224,10 @@ namespace Flame
 				var secondMethod = MethodType.GetMethod(Other);
 
 				return ComputeDelegateAncestry(firstMethod, secondMethod);
+			}
+			else if (Type.IsIntersectionType)
+			{
+				return ComputeIntersectionAncestry(Type, Other);
 			}
             int varianceAncestry = ComputeGenericVarianceAncestry(Type, Other);
             if (varianceAncestry > 0)

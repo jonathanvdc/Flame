@@ -7,6 +7,10 @@ public static class DelegatesTest
     {
         return Value * 2;
     }
+    public static const double Twice(double Value)
+    {
+        return Value * 2.0;
+    }
 
     public static const [int] Apply([int] Values, int(int) Func)
     {

@@ -65,7 +65,8 @@ namespace Flame.Compiler.Expressions
         	else if (SourceType.IsValueType || TargetType.IsValueType ||
         		    SourceType.IsGenericParameter || TargetType.IsGenericParameter ||
         		    SourceType.IsPrimitive || TargetType.IsPrimitive ||
-                    SourceType.IsDelegate && TargetType.IsDelegate)
+                    SourceType.IsDelegate && TargetType.IsDelegate ||
+                    SourceType.IsIntersectionType)
         	{
         		return true;
         	}
