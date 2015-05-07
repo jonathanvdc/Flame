@@ -161,7 +161,7 @@ namespace Flame.Compiler.Statements
             IExpression deltaValueExpr = CreateInvocationExpression(currentAccessor, enumeratorVariable);
             if (iteratingVariable.Type != null)
             {
-                deltaValueExpr = new ConversionExpression(deltaValueExpr, iteratingVariable.Type).Optimize();
+                deltaValueExpr = ConversionExpression.Create(deltaValueExpr, iteratingVariable.Type).Optimize();
             }
 
             var delta = iteratingVariable.CreateSetStatement(deltaValueExpr);

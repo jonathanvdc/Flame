@@ -37,7 +37,7 @@ namespace Flame.DSharp.Build
             }
             else
             {
-                return new ConversionExpression(Syntax.LiteralValueSyntax.CreateExpression(State), DeclaringType.GetParent());
+                return ConversionExpression.Create(Syntax.LiteralValueSyntax.CreateExpression(State), DeclaringType.GetParent());
             }
         }
 

@@ -19,7 +19,7 @@ namespace Flame.Syntax.DSharp
             }
             else
             {
-            	return new ConversionExpression(Expression, PrimitiveTypes.String);
+            	return ConversionExpression.Create(Expression, PrimitiveTypes.String);
                 //var method = Expression.Type.GetMethod("ToString", false, PrimitiveTypes.String, new IType[0]);
                 //return new InvocationExpression(method, Expression, new IExpression[0]);
             }

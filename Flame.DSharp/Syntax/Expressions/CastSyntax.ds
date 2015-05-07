@@ -73,7 +73,7 @@ namespace Flame.Syntax.DSharp
                        CastLocation));
 	       		}
 	       	}
-            return new ConversionExpression(expr, type);
+            return ConversionExpression.Create(expr, type);
         }
 
         public override const string ToString()
@@ -108,7 +108,7 @@ namespace Flame.Syntax.DSharp
         	}
         	else if (CastSyntax.UseImplicitCast(State, valType, TargetType))
         	{
-        		return new ConversionExpression(expr, TargetType);
+        		return ConversionExpression.Create(expr, TargetType);
         	}
         	else
         	{
@@ -126,7 +126,7 @@ namespace Flame.Syntax.DSharp
                 var message = new MarkupNode("entry", nodes);
 
         		State.Log.LogError(new LogEntry("Cast error", message, Value.GetSourceLocation()));
-        		return new ConversionExpression(expr, TargetType);
+        		return ConversionExpression.Create(expr, TargetType);
         	}
         }
 

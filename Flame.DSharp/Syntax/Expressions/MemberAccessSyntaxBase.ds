@@ -122,7 +122,7 @@ namespace Flame.Syntax.DSharp
             	return CreateAddressToValueExpression(Caller);
 
             else if (CastSyntax.UseImplicitCast(State, Caller.Type, CallerType))
-                return new ConversionExpression(Caller.CreateGetExpression(), CallerType);
+                return ConversionExpression.Create(Caller.CreateGetExpression(), CallerType);
 
             else
                 return Caller.CreateGetExpression();

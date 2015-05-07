@@ -38,7 +38,7 @@ namespace Flame.Syntax.DSharp
 	     	}
 	       	if (CastSyntax.UseImplicitCast(State, valType, TargetType))
 	       	{
-	        	return new ConversionExpression(callerInst.CreateGetExpression(), TargetType);
+	        	return ConversionExpression.Create(callerInst.CreateGetExpression(), TargetType);
 	      	}
 
 	        State.Log.LogError(new LogEntry("Cast error",
@@ -48,7 +48,7 @@ namespace Flame.Syntax.DSharp
                 State.TypeNamer.Convert(TargetType) + "'",
                 MethodNode.GetSourceLocation()));
 
-	        return new ConversionExpression(callerInst.CreateGetExpression(), TargetType);
+	        return ConversionExpression.Create(callerInst.CreateGetExpression(), TargetType);
         }
 
         public static const IExpression CreateInvocationExpression(ISyntaxState State, IExpression Delegate, ISyntaxNode MethodNode, [IExpression] Arguments, [IExpressionSyntax] Nodes)
