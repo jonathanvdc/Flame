@@ -76,59 +76,12 @@ namespace Flame.Cecil
 
         public static IType[] GetGenericTypes(IType[] SourceTypes, IGenericParameter[] GenericParameters)
         {
-            IType[] results = new IType[SourceTypes.Length];
-            for (int i = 0; i < SourceTypes.Length; i++)
-            {
-                results[i] = GetGenericType(SourceTypes[i], GenericParameters);
-            }
-            return results;
+            return new GenericParameterTransformer(GenericParameters).Convert(SourceTypes).ToArray();
         }
 
         public static IType GetGenericType(IType SourceType, IGenericParameter[] GenericParameters)
         {
-            if (SourceType.get_IsGenericParameter())
-            {
-                foreach (var item in GenericParameters)
-                {
-                    if (SourceType.Name == item.Name)
-                    {
-                        return item;
-                    }
-                }
-            }
-            if (SourceType.IsContainerType)
-            {
-                var containerType = SourceType.AsContainerType();
-                var recompiledElemType = GetGenericType(containerType.GetElementType(), GenericParameters);
-                if (SourceType.get_IsVector())
-                {
-                    return recompiledElemType.MakeVectorType(containerType.AsVectorType().GetDimensions());
-                }
-                else if (SourceType.get_IsPointer())
-                {
-                    return recompiledElemType.MakePointerType(containerType.AsPointerType().PointerKind);
-                }
-                else if (SourceType.get_IsArray())
-                {
-                    return recompiledElemType.MakeArrayType(containerType.AsArrayType().ArrayRank);
-                }
-                else
-                {
-                    throw new InvalidOperationException();
-                }
-            }
-            else if (SourceType.get_IsGenericInstance())
-            {
-                var genericDecl = SourceType.GetGenericDeclaration();
-                var recompiledGenericDecl = GetGenericType(genericDecl, GenericParameters);
-                var genericArgs = SourceType.GetGenericArguments();
-                var recompiledGenericArgs = GetGenericTypes(genericArgs.ToArray(), GenericParameters);
-                return recompiledGenericDecl.MakeGenericType(recompiledGenericArgs);
-            }
-            else
-            {
-                return SourceType;
-            }
+            return new GenericParameterTransformer(GenericParameters).Convert(SourceType);
         }
 
         public static CecilTypeBuilder DeclareType(ICecilNamespace CecilNamespace, IType Template)

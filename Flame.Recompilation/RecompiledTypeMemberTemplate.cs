@@ -20,7 +20,11 @@ namespace Flame.Recompilation
 
         public IType DeclaringType
         {
-            get { return Recompiler.GetType(GetSourceTypeMember().DeclaringType); }
+            get
+            {
+                var declType = GetSourceTypeMember().DeclaringType;
+                return declType == null ? null : Recompiler.GetType(declType);
+            }
         }
 
         public bool IsStatic

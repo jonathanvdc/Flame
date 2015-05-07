@@ -95,9 +95,9 @@ namespace Flame
             return null;
         }
 
-        public const static IEnumerable<IAttribute> GetAttributes(this IEnumerable<IAttribute> Attributes, IType Type)
+        public const static [IAttribute] GetAttributes(this IEnumerable<IAttribute> Attributes, IType Type)
         {
-        	List<IAttribute> attrs = new List<IAttribute>();
+        	var attrs = new List<IAttribute>();
             foreach (var attr in Attributes)
             {
             	if (attr.AttributeType.Equals(Type))
@@ -332,6 +332,15 @@ namespace Flame
         }
 
         #endregion
+
+		#region IsAnonymous
+
+		public static bool IsAnonymous[this ITypeMember Member]
+		{
+			const get return string.IsNullOrEmpty(Member.Name) && Member.DeclaringType == null;
+		}
+
+		#endregion
 
         #region IsHidden
 

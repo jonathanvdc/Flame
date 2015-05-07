@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Flame.Build;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -100,6 +101,21 @@ namespace Flame.Recompilation
                 var genDecl = Recompiler.GetMethod(SourceMethod.GetGenericDeclaration());
                 var genArgs = SourceMethod.GetGenericArguments().Select(item => RecompiledTypeTemplate.GetWeakRecompiledType(item, Recompiler, DeclaringMember));
                 return genDecl.MakeGenericMethod(genArgs.ToArray());
+            }
+            else if (SourceMethod.get_IsAnonymous())
+            {
+                var recompRetType = RecompiledTypeTemplate.GetWeakRecompiledType(SourceMethod.ReturnType, Recompiler, DeclaringMember);
+                var recompParams = RecompiledParameterTemplate.GetParameterTemplates(Recompiler, SourceMethod.GetParameters(), DeclaringMember);
+                var descMethod = new DescribedMethod(SourceMethod.Name, SourceMethod.DeclaringType, recompRetType, SourceMethod.IsStatic);
+                foreach (var item in recompParams)
+                {
+                    descMethod.AddParameter(item);
+                }
+                foreach (var item in SourceMethod.GetAttributes().Select(Recompiler.GetAttribute))
+                {
+                    descMethod.AddAttribute(item);
+                }
+                return descMethod;
             }
             else
             {
