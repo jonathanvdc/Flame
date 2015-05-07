@@ -37,7 +37,31 @@ namespace Flame.DSharp.Build
 
 		protected override const string ConvertTypeDefault(IType Type)
 		{
-			return Type.FullName;
+            if (Type == null)
+            {
+                return "<unresolved type>";
+            }
+            else if (Type.IsDelegate)
+            {
+                var deleg = MethodType.GetMethod(Type);
+                var sb = new StringBuilder();
+                sb.Append(Convert(deleg.ReturnType));
+                sb.Append('(');
+                var params = deleg.GetParameters();
+                for (int i = 0; i < params.Length; i++)
+                {
+                    if (i > 0) sb.Append(", ");
+                    sb.Append(Convert(params[i].ParameterType));
+                }
+                sb.Append(')');
+                return (string)sb;
+            }
+            else if (Type.IsIntersectionType)
+            {
+                var interType = (IntersectionType)Type;
+                return Convert(interType.First) + "&" + Convert(interType.Second);
+            }
+			else return Type.FullName;
 		}
 
         protected override const string ConvertPrimitiveType(IType Type)
