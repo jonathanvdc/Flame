@@ -13,22 +13,22 @@ public struct IntValue
     }
 }
 
-public static class DelegatesTest
+public class DelegatesTest
 {
-    public static const int Twice(int Value)
+    public virtual const int Twice(int Value)
     {
         return Value * 2;
     }
-    public static const double Twice(double Value)
+    public virtual const double Twice(double Value)
     {
         return Value * 2.0;
     }
-    public static const IntValue Twice(IntValue Value)
+    public virtual const IntValue Twice(IntValue Value)
     {
         return Value.Add(Value);
     }
 
-    public static const [V] Apply<T, V>([T] Values, V(T) Func)
+    public virtual const [V] Apply<T, V>([T] Values, V(T) Func)
     {
         var results = new List<V>();
         foreach (var item in Values)
@@ -38,24 +38,24 @@ public static class DelegatesTest
         return results;
     }
 
-    public static const [int] Double([int] Values)
+    public virtual const [int] Double([int] Values)
     {
         return Apply<int, int>(Values, Twice);
     }
-    public static const [double] Double([double] Values)
+    public virtual const [double] Double([double] Values)
     {
         return Apply<double, double>(Values, Twice);
     }
-    public static const [IntValue] Double([IntValue] Values)
+    public virtual const [IntValue] Double([IntValue] Values)
     {
         return Apply<IntValue, IntValue>(Values, Twice);
     }
 
-    public static const IntValue Convert(int Value)
+    public virtual const IntValue Convert(int Value)
     {
         return new IntValue(Value);
     }
-    public static const [T] Convert<T>([IntValue] Values, T(IntValue) Converter)
+    public virtual const [T] Convert<T>([IntValue] Values, T(IntValue) Converter)
     {
         return Apply<IntValue, T>(Values, Converter);
     }

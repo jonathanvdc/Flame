@@ -65,6 +65,7 @@ namespace Flame.Cecil.Emit
             // Push a function pointer on the stack.
             if (ILCodeGenerator.UseVirtualCall(Method))
             {
+                Context.Emit(OpCodes.Dup);
                 Context.Emit(OpCodes.Ldvirtftn, Method);
             }
             else
