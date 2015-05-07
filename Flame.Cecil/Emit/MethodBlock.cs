@@ -10,6 +10,15 @@ namespace Flame.Cecil.Emit
 {
     public class MethodBlock : ICecilBlock
     {
+        public MethodBlock(ICodeGenerator CodeGenerator, IMethod Method, ICecilBlock Caller, ICecilType DelegateType)
+        {
+            System.Diagnostics.Debug.Assert(CodeGenerator != null);
+            System.Diagnostics.Debug.Assert(Method != null);
+            this.CodeGenerator = CodeGenerator;
+            this.Method = Method;
+            this.Caller = Caller;
+            this.delegateType = new Lazy<ICecilType>(() => DelegateType);
+        }
         public MethodBlock(ICodeGenerator CodeGenerator, IMethod Method, ICecilBlock Caller)
         {
             System.Diagnostics.Debug.Assert(CodeGenerator != null);
@@ -17,11 +26,20 @@ namespace Flame.Cecil.Emit
             this.CodeGenerator = CodeGenerator;
             this.Method = Method;
             this.Caller = Caller;
+            this.delegateType = new Lazy<ICecilType>(() => CodeGenerator.GetModule().TypeSystem.GetCanonicalDelegate(Method));
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
         public IMethod Method { get; private set; }
         public ICecilBlock Caller { get; private set; }
+
+        private Lazy<ICecilType> delegateType;
+        public ICecilType DelegateType { get { return delegateType.Value; } }
+
+        public MethodBlock ChangeDelegateType(ICecilType NewDelegateType)
+        {
+            return new MethodBlock(CodeGenerator, Method, Caller, NewDelegateType);
+        }
 
         public static void EmitCaller(ICecilBlock Caller, IMethod Target, IEmitContext Context)
         {
@@ -54,20 +72,16 @@ namespace Flame.Cecil.Emit
                 Context.Emit(OpCodes.Ldftn, Method);
             }
 
-            var resultType = MethodType.Create(Method);
-            var module = CodeGenerator.GetModule();
-            var importedType = module.TypeSystem.GetCanonicalDelegate(Method);
+            Context.Emit(OpCodes.Newobj, DelegateType.GetConstructors().Single());
 
-            Context.Emit(OpCodes.Newobj, importedType.GetConstructors().Single());
-            
-            Context.Stack.Push(resultType);
+            Context.Stack.Push(DelegateType);
         }
 
         public IStackBehavior StackBehavior
         {
             get 
             {
-                return new SinglePushBehavior(MethodType.Create(Method));
+                return new SinglePushBehavior(DelegateType);
             }
         }
     }
