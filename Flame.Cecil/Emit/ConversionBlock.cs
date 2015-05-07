@@ -187,7 +187,7 @@ namespace Flame.Cecil.Emit
             Block.ChangeDelegateType(TargetType).Emit(Context);
         }
 
-        private void EmitDelegateConversion(ICecilType Type, IType TargetType, IEmitContext Context)
+        private void EmitDelegateConversion(ICecilType Type, ICecilType TargetType, IEmitContext Context)
         {
             if (!CanDowncastDelegate(Type, TargetType))
             {
@@ -285,7 +285,10 @@ namespace Flame.Cecil.Emit
             }
             else if (targetIsDeleg && exprType.get_IsDelegate())
             {
-                EmitDelegateConversion((ICecilType)exprType, targetType, Context);
+                if (TargetType is ICecilType)
+                {
+                    EmitDelegateConversion((ICecilType)exprType, (ICecilType)targetType, Context);
+                }
             }
             else if (TargetType.get_IsReferenceType() && exprType.get_IsReferenceType()) // Castclass, then
             {

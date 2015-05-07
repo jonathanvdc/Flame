@@ -37,6 +37,8 @@ namespace Flame.Recompilation
             return SourceMethod;
         }
 
+        public IParameter[] Parameters { get { return GetParameters(); } }
+
         public IParameter[] GetParameters()
         {
             return RecompiledParameterTemplate.GetParameterTemplates(Recompiler, SourceMethod.GetParameters(), SourceMethod);

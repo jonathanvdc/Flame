@@ -63,8 +63,7 @@ namespace Flame.Cecil
             }
             else if (Type.get_IsDelegate())
             {
-                var typeRef = Module.TypeSystem.GetCanonicalDelegate(MethodType.GetMethod(Type)).GetTypeReference();
-                return Module.Module.Import(typeRef, Context);
+                return Convert(Module.TypeSystem.GetCanonicalDelegate(MethodType.GetMethod(Type)));
             }
             else
             {

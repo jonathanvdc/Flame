@@ -49,7 +49,7 @@ namespace Flame.Build
 			{
 				return ConvertGenericParameter((IGenericParameter)Type);
 			}
-			else if (Type.IsDelegate)
+			else if (Type.IsDelegate && (Type.IsGenericInstance || !Type.IsGeneric))
 			{
 				return ConvertDelegateType(Type);
 			}

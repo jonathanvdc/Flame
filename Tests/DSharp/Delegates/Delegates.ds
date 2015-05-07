@@ -28,9 +28,9 @@ public static class DelegatesTest
         return Value.Add(Value);
     }
 
-    public static const [T] Apply<T>([T] Values, T(T) Func)
+    public static const [V] Apply<T, V>([T] Values, V(T) Func)
     {
-        var results = new List<T>();
+        var results = new List<V>();
         foreach (var item in Values)
         {
             results.Add(Func(item));
@@ -40,14 +40,23 @@ public static class DelegatesTest
 
     public static const [int] Double([int] Values)
     {
-        return Apply<int>(Values, Twice);
+        return Apply<int, int>(Values, Twice);
     }
     public static const [double] Double([double] Values)
     {
-        return Apply<double>(Values, Twice);
+        return Apply<double, double>(Values, Twice);
     }
     public static const [IntValue] Double([IntValue] Values)
     {
-        return Apply<IntValue>(Values, Twice);
+        return Apply<IntValue, IntValue>(Values, Twice);
+    }
+
+    public static const IntValue Convert(int Value)
+    {
+        return new IntValue(Value);
+    }
+    public static const [T] Convert<T>([IntValue] Values, T(IntValue) Converter)
+    {
+        return Apply<IntValue, T>(Values, Converter);
     }
 }
