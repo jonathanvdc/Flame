@@ -28,6 +28,20 @@ namespace Flame.Compiler.Expressions
             }
         }
 
+        public static const IExpression Create(IExpression Value, IType Type)
+        {
+            var interExpr = IntersectionExpression.FilterIntersection(Value, Type);
+
+            if (!RequiresConversion(interExpr.Type, Type))
+            {
+                return interExpr;
+            }
+            else
+            {
+                return new ConversionExpression(interExpr, Type);
+            }
+        }
+
         public bool IsConstant
         {
             const get
@@ -44,7 +58,7 @@ namespace Flame.Compiler.Expressions
         /// </summary>
         public static const bool RequiresConversion(IType SourceType, IType TargetType)
         {
-        	if (SourceType.Equals(TargetType) || SourceType.Equals(PrimitiveTypes.Null) && SourceType.Is(TargetType))
+        	if (SourceType.Equals(TargetType) || (SourceType.Equals(PrimitiveTypes.Null) && (TargetType.IsReferenceType || TargetType.IsPointer)))
         	{
         		return false;
         	}

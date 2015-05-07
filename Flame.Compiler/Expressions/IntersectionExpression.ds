@@ -46,6 +46,25 @@ namespace Flame.Compiler.Expressions
         	}
         }
 
+		public static const IExpression FilterIntersection(IExpression Expression, IType Type)
+		{
+			if (Expression is IntersectionExpression)
+			{
+				var exprs = GetIntersectedExpressions(Expression);
+				var filteredExprs = new List<IExpression>();
+				foreach (var item in exprs)
+					if (item.Type.Is(Type))
+				{
+					filteredExprs.Add(item);
+				}
+				return Create(filteredExprs);
+			}
+			else
+			{
+				return Expression;
+			}
+		}
+
         private IType cachedType;
 		public IType Type
         {
