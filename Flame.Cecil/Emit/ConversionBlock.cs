@@ -177,12 +177,46 @@ namespace Flame.Cecil.Emit
             }
         }
 
+        private bool CanDowncastDelegate(IType Type, IType TargetType)
+        {
+            return Type.GetGenericDeclaration().Equals(TargetType.GetGenericDeclaration()) && Type.Is(TargetType);
+        }
+
+        private void EmitRetypedMethodBlock(MethodBlock Block, ICecilType TargetType, IEmitContext Context)
+        {
+            Block.ChangeDelegateType(TargetType).Emit(Context);
+        }
+
+        private void EmitDelegateConversion(ICecilType Type, IType TargetType, IEmitContext Context)
+        {
+            if (!CanDowncastDelegate(Type, TargetType))
+            {
+                var callMethod = CecilDelegateType.GetInvokeMethod(Type);
+                Context.Emit(OpCodes.Newobj, TargetType.GetConstructors().Single());
+            }
+        }
+
         #endregion
 
         #endregion
 
         public void Emit(IEmitContext Context)
         {
+            bool targetIsDeleg = TargetType.get_IsDelegate();
+
+            if (Value is MethodBlock && targetIsDeleg)
+            {
+                if (TargetType is ICecilType)
+                {
+                    EmitRetypedMethodBlock((MethodBlock)Value, (ICecilType)TargetType, Context); 
+                }
+                else
+                {
+                    Value.Emit(Context);
+                }
+                return;
+            }
+
             Value.Emit(Context);
             var exprType = Context.Stack.Pop();
             var targetType = TargetType;
@@ -248,6 +282,10 @@ namespace Flame.Cecil.Emit
             else if (IsPrimitiveType(exprType) && IsPrimitiveType(targetType)) // Primitive conversions
             {
                 EmitPrimitiveConversion(exprType, targetType, Context);
+            }
+            else if (targetIsDeleg && exprType.get_IsDelegate())
+            {
+                EmitDelegateConversion((ICecilType)exprType, targetType, Context);
             }
             else if (TargetType.get_IsReferenceType() && exprType.get_IsReferenceType()) // Castclass, then
             {
