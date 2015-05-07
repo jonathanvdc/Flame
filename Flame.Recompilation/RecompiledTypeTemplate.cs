@@ -32,9 +32,9 @@ namespace Flame.Recompilation
                 var container = SourceType.AsContainerType();
                 var elem = new RecompiledTypeTemplate(Recompiler, container.GetElementType());
                 if (elem.get_IsVector())
-	            {
+                {
                     return elem.MakeVectorType(container.AsVectorType().GetDimensions());
-	            }
+                }
                 else if (elem.get_IsArray())
                 {
                     return elem.MakeArrayType(container.AsArrayType().ArrayRank);
@@ -44,9 +44,9 @@ namespace Flame.Recompilation
                     return elem.MakePointerType(container.AsPointerType().PointerKind);
                 }
                 else
-	            {
+                {
                     throw new NotSupportedException();
-	            }
+                }
             }
             else
             {
@@ -145,9 +145,24 @@ namespace Flame.Recompilation
                 if (((IGenericParameter)SourceType).DeclaringMember.Equals(DeclaringMember))
                 {
                     return SourceType;
-                }                
+                }
             }
-            if (SourceType.IsContainerType)
+            if (SourceType.get_IsDelegate())
+            {
+                return MethodType.Create(
+                        RecompiledMethodTemplate.GetWeakRecompiledMethod(
+                                         MethodType.GetMethod(SourceType), 
+                                         Recompiler, 
+                                         DeclaringMember));
+            }
+            else if (SourceType.get_IsIntersectionType())
+            {
+                var interType = (IntersectionType)SourceType;
+
+                return new IntersectionType(GetWeakRecompiledType(interType.First, Recompiler, DeclaringMember),
+                                            GetWeakRecompiledType(interType.Second, Recompiler, DeclaringMember));
+            }
+            else if (SourceType.IsContainerType)
             {
                 var containerType = SourceType.AsContainerType();
                 var recompiledElemType = GetWeakRecompiledType(containerType.GetElementType(), Recompiler, DeclaringMember);

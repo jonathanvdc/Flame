@@ -12,9 +12,9 @@ public static class DelegatesTest
         return Value * 2.0;
     }
 
-    public static const [int] Apply([int] Values, int(int) Func)
+    public static const [T] Apply<T>([T] Values, T(T) Func)
     {
-        var results = new List<int>();
+        var results = new List<T>();
         foreach (var item in Values)
         {
             results.Add(Func(item));
@@ -24,6 +24,10 @@ public static class DelegatesTest
 
     public static const [int] Double([int] Values)
     {
-        return Apply(Values, Twice);
+        return Apply<int>(Values, Twice);
+    }
+    public static const [double] Double([double] Values)
+    {
+        return Apply<double>(Values, Twice);
     }
 }

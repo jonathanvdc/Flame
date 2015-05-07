@@ -278,12 +278,21 @@ namespace Flame.Recompilation
 
         private IType GetNewType(IType SourceType)
         {
-            if (IsExternal(SourceType))
+            if (SourceType.get_IsDelegate())
+            {
+                return MethodType.Create(GetMethod(MethodType.GetMethod(SourceType)));
+            }
+            else if (SourceType.get_IsIntersectionType())
+            {
+                var interType = (IntersectionType)SourceType;
+
+                return new IntersectionType(GetType(interType.First), GetType(interType.Second));
+            }
+            else if (IsExternal(SourceType))
             {
                 return SourceType;
             }
-
-            if (SourceType.IsContainerType)
+            else if (SourceType.IsContainerType)
             {
                 var containerType = SourceType.AsContainerType();
                 var recompiledElemType = GetType(containerType.GetElementType());
@@ -614,6 +623,11 @@ namespace Flame.Recompilation
 
         private IMethod GetNewMethod(IMethod SourceMethod)
         {
+            if (SourceMethod.get_IsAnonymous())
+            {
+                return new RecompiledMethodTemplate(this, SourceMethod);
+            }
+
             if (IsExternal(SourceMethod))
             {
                 return SourceMethod;
