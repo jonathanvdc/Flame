@@ -5,7 +5,7 @@ using Flame.Build;
 
 namespace Flame.DSharp.Build
 {
-    public class DSharpTypeNamer : TypeConverterBase<string>
+    public class DSharpTypeNamer : TypeNamerBase
 	{
         public const this()
         {
@@ -14,61 +14,6 @@ namespace Flame.DSharp.Build
         public const this(set bool PreferTrivialNames);
 
         public bool PreferTrivialNames { const get; private set; }
-
-		protected override const string MakePointerType(string ElementType, PointerKind Kind)
-		{
-			return ElementType + Kind.Extension;
-		}
-
-		protected override const string MakeArrayType(string ElementType, int ArrayRank)
-		{
-			return GenericNameExtensions.AppendArraySuffix(ElementType, ArrayRank);
-		}
-
-		protected override const string MakeVectorType(string ElementType, int[] Dimensions)
-		{
-			return GenericNameExtensions.AppendVectorSuffix(ElementType, Dimensions);
-		}
-
-		protected override const string MakeGenericType(string GenericDeclaration, [string] TypeArguments)
-		{
-			return GenericNameExtensions.ChangeTypeArguments(GenericDeclaration, TypeArguments);
-		}
-
-        protected override const string ConvertGenericParameter(IGenericParameter Type)
-        {
-            return Type.Name;
-        }
-
-        protected override const string ConvertDelegateType(IType Type)
-        {
-            var deleg = MethodType.GetMethod(Type);
-            var sb = new StringBuilder();
-            sb.Append(Convert(deleg.ReturnType));
-            sb.Append('(');
-            var params = deleg.GetParameters();
-            for (int i = 0; i < params.Length; i++)
-            {
-                if (i > 0) sb.Append(", ");
-                sb.Append(Convert(params[i].ParameterType));
-            }
-            sb.Append(')');
-            return (string)sb;
-        }
-
-        protected override const string ConvertIntersectionType(IntersectionType Type)
-        {
-            return Convert(Type.First) + "&" + Convert(Type.Second);
-        }
-
-		protected override const string ConvertTypeDefault(IType Type)
-		{
-            if (Type == null)
-            {
-                return "<unresolved type>";
-            }
-			else return Type.FullName;
-		}
 
         protected override const string ConvertPrimitiveType(IType Type)
         {
