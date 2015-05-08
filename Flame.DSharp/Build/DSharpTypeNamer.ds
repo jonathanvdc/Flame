@@ -35,31 +35,37 @@ namespace Flame.DSharp.Build
 			return GenericNameExtensions.ChangeTypeArguments(GenericDeclaration, TypeArguments);
 		}
 
+        protected override const string ConvertGenericParameter(IGenericParameter Type)
+        {
+            return Type.Name;
+        }
+
+        protected override const string ConvertDelegateType(IType Type)
+        {
+            var deleg = MethodType.GetMethod(Type);
+            var sb = new StringBuilder();
+            sb.Append(Convert(deleg.ReturnType));
+            sb.Append('(');
+            var params = deleg.GetParameters();
+            for (int i = 0; i < params.Length; i++)
+            {
+                if (i > 0) sb.Append(", ");
+                sb.Append(Convert(params[i].ParameterType));
+            }
+            sb.Append(')');
+            return (string)sb;
+        }
+
+        protected override const string ConvertIntersectionType(IntersectionType Type)
+        {
+            return Convert(Type.First) + "&" + Convert(Type.Second);
+        }
+
 		protected override const string ConvertTypeDefault(IType Type)
 		{
             if (Type == null)
             {
                 return "<unresolved type>";
-            }
-            else if (Type.IsDelegate)
-            {
-                var deleg = MethodType.GetMethod(Type);
-                var sb = new StringBuilder();
-                sb.Append(Convert(deleg.ReturnType));
-                sb.Append('(');
-                var params = deleg.GetParameters();
-                for (int i = 0; i < params.Length; i++)
-                {
-                    if (i > 0) sb.Append(", ");
-                    sb.Append(Convert(params[i].ParameterType));
-                }
-                sb.Append(')');
-                return (string)sb;
-            }
-            else if (Type.IsIntersectionType)
-            {
-                var interType = (IntersectionType)Type;
-                return Convert(interType.First) + "&" + Convert(interType.Second);
             }
 			else return Type.FullName;
 		}
