@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp
 {
-    public abstract class CppTypeConverterBase : TypeTransformerBase, ICppTypeConverter
+    public abstract class CppTypeConverterBase : TypeConverterBase<IType>, ICppTypeConverter
     {
         public CppTypeConverterBase()
         {
@@ -70,6 +70,16 @@ namespace Flame.Cpp
             {
                 return Convert(Type);
             }
+        }
+
+        protected override IType ConvertTypeDefault(IType Type)
+        {
+            return Type;
+        }
+
+        protected override IType MakeGenericType(IType GenericDeclaration, IEnumerable<IType> TypeArguments)
+        {
+            return GenericDeclaration.MakeGenericType(TypeArguments);
         }
     }
 }
