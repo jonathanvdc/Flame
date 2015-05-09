@@ -136,10 +136,10 @@ namespace Flame
         {
             if (obj is IType)
             {
-                var firstInter = GetIntersectedTypes(this);
-                var otherInter = GetIntersectedTypes((IType)obj);
+                var firstInter = new HashSet<IType>(GetIntersectedTypes(this));
+                var otherInter = new HashSet<IType>(GetIntersectedTypes((IType)obj));
 
-                return Enumerable.SequenceEqual<IType>(firstInter, otherInter);
+                return firstInter.SetEquals(otherInter);
             }
             else
             {
