@@ -13,14 +13,32 @@ namespace Flame
         public IType First { const get; private set; }
         public IType Second { const get; private set; }
 
+        private static void AddIntersectionToSet(IType Type, ISet<IType> Results)
+        {
+            if (Type is IntersectionType)
+        	{
+                var interType = (IntersectionType)Type;
+                AddIntersectionToSet(interType.First, Results);
+                AddIntersectionToSet(interType.Second, Results);
+        	}
+        	else
+        	{
+        		Results.Add(Type);
+        	}
+        }
+
+        public static const HashSet<IType> GetIntersectedTypeSet(IType Type)
+        {
+            var results = new HashSet<IType>();
+            AddIntersectionToSet(Type, results);
+            return results;
+        }
+
         public static const [IType] GetIntersectedTypes(IType Type)
         {
         	if (Type is IntersectionType)
         	{
-                var interType = (IntersectionType)Type;
-        		return Enumerable.Concat<IType>(
-                    GetIntersectedTypes(interType.First),
-                    GetIntersectedTypes(interType.Second));
+                return GetIntersectedTypeSet(Type);
         	}
         	else
         	{
@@ -134,10 +152,10 @@ namespace Flame
 
         public override const bool Equals(object obj)
         {
-            if (obj is IType)
+            if (obj is IntersectionType)
             {
-                var firstInter = new HashSet<IType>(GetIntersectedTypes(this));
-                var otherInter = new HashSet<IType>(GetIntersectedTypes((IType)obj));
+                var firstInter = GetIntersectedTypeSet(this);
+                var otherInter = GetIntersectedTypeSet((IType)obj);
 
                 return firstInter.SetEquals(otherInter);
             }
