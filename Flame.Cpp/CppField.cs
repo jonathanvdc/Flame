@@ -79,6 +79,49 @@ namespace Flame.Cpp
 
         #region GetCode
 
+        private bool EmitCustomAssignment
+        {
+            get { return this.Value != null && !(Value is DefaultValueExpression); }
+        }
+
+        private bool EmitPrimitiveAssignment
+        {
+            get { return IsStatic || FieldType.get_IsPrimitive() && !FieldType.Equals(PrimitiveTypes.String) && Environment.Log.Options.GetOption<bool>("initialize-fields", true); }
+        }
+
+        private bool EmitAssignment
+        {
+            get { return EmitCustomAssignment || EmitPrimitiveAssignment; }
+        }
+
+        private ICppBlock CreateAssignedValueBlock()
+        {
+            if (EmitCustomAssignment)
+            {
+                var cg = new CppCodeGenerator(new DescribedMethod(Name, DeclaringType, FieldType, IsStatic), Environment);
+                return (ICppBlock)Value.Emit(cg);
+            }
+            else if (EmitPrimitiveAssignment)
+            {
+                var cg = new CppCodeGenerator(new DescribedMethod(Name, DeclaringType, FieldType, IsStatic), Environment);
+                return (ICppBlock)cg.EmitDefaultValue(FieldType);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private void AppendAssignment(CodeBuilder cb)
+        {
+            var block = CreateAssignedValueBlock();
+            if (block != null)
+            {
+                cb.Append(" = ");
+                cb.Append(block.GetCode());
+            }
+        }
+
         public CodeBuilder GetHeaderCode()
         {
             CodeBuilder cb = this.GetDocumentationComments();
@@ -94,19 +137,9 @@ namespace Flame.Cpp
             cb.Append(TypeNamer.Name(FieldType, this));
             cb.Append(' ');
             cb.Append(Name);
-            if (this.Value != null && !(Value is DefaultValueExpression))
+            if (!IsStatic)
             {
-                var cg = new CppCodeGenerator(new DescribedMethod(Name, DeclaringType, FieldType, IsStatic), Environment);
-                var block = (ICppBlock)Value.Emit(cg);
-                cb.Append(" = ");
-                cb.Append(block.GetCode());
-            }
-            else if (FieldType.get_IsPrimitive() && !FieldType.Equals(PrimitiveTypes.String) && Environment.Log.Options.GetOption<bool>("initialize-fields", true))
-            {
-                var cg = new CppCodeGenerator(new DescribedMethod(Name, DeclaringType, FieldType, IsStatic), Environment);
-                var block = (ICppBlock)cg.EmitDefaultValue(FieldType);
-                cb.Append(" = ");
-                cb.Append(block.GetCode());
+                AppendAssignment(cb);
             }
             cb.Append(';');
             return cb;
@@ -114,12 +147,27 @@ namespace Flame.Cpp
 
         public CodeBuilder GetSourceCode()
         {
-            return new CodeBuilder();
+            var cb = new CodeBuilder();
+
+            if (!IsStatic)
+            {
+                return cb;
+            }
+
+            cb.Append(TypeNamer.Name(FieldType, this));
+            cb.Append(' '); 
+            var genDeclType = (IGenericResolverType)DeclaringType.MakeGenericType(DeclaringType.GetGenericParameters());
+            cb.Append(TypeNamer.Name(genDeclType, this));
+            cb.Append("::");
+            cb.Append(Name);
+            AppendAssignment(cb);
+            cb.Append(';');
+            return cb;
         }
 
         public bool HasSourceCode
         {
-            get { return false; }
+            get { return IsStatic; }
         }
 
         public override string ToString()
