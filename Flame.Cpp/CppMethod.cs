@@ -289,7 +289,7 @@ namespace Flame.Cpp
                 cb.Append(parameters[i].Name);
             }
             cb.Append(')');
-            if (isConst)
+            if (isConst && !IsStatic)
             {
                 cb.Append(" const");
             }
