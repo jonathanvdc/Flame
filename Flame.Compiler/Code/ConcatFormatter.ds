@@ -1,0 +1,70 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Compiler.Code
+{
+    // What this formatter does:
+    //   It takes a peek at a number of lines and decides whether it is
+    //   acceptable to concatenate them.
+    //
+    // For example:
+    // {
+    //     1,
+    //     2
+    // }
+    // ~~> {1,2}
+    //
+    // {
+    //     Console.WriteLine("Wow. Such long line.");
+    // }
+    // ~~>
+    // {
+    //     Console.WriteLine("Wow. Such long line.");
+    // }
+
+    public class ConcatFormatter : ICodeFormatter
+    {
+        public const this();
+        public const this(set int Offset);
+
+        public int Offset { const get; private set; }
+
+        private const int GetTotalLength([CodeAtom] Atoms)
+        {
+            int result = Offset;
+            foreach (var item in Lines)
+                result += item.GetTotalLength(0);
+            return result;
+        }
+
+        private const int GetIndentation([CodeAtom] Atoms)
+        {
+            if (!Enumerable.Any<CodeAtom>(Atoms))
+                return 0;
+            else
+                return Enumerable.First<CodeAtom>(Atoms).InitialIndentation;
+        }
+
+        public const CodeAtom Format([CodeAtom] Atoms, ICompilerOptions Options)
+        {
+            int totalLength = GetTotalLength(Atoms);
+
+            if (totalLength > Options.MaxLineLength)
+            {
+                return CodeAtom.Concat(Atoms);
+            }
+            else
+            {
+                var sb = new StringBuilder();
+                foreach (var item in Atoms)
+                    if (!item.IsEmpty)
+                {
+                    sb.Append(item.Text);
+                }
+                return new CodeAtom(new CodeLine[] { new CodeLine((string)sb, GetIndentation(Atoms)) });
+            }
+        }
+    }
+}

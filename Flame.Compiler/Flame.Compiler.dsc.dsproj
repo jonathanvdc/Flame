@@ -111,7 +111,7 @@
 			<Compile Include="Expressions\LazyOrExpression.ds" />
 			<Compile Include="Expressions\PropertyGetExpression.ds" />
 			<Compile Include="Expressions\GetExtensionMethodExpression.ds" />
-			<Compile Include="Expressions\GetMethodExpression.ds" />			
+			<Compile Include="Expressions\GetMethodExpression.ds" />
 			<Compile Include="Expressions\SizeOfExpression.ds" />
 			<Compile Include="Expressions\InequalityExpression.ds" />
 			<Compile Include="Expressions\RemainderExpression.ds" />
@@ -194,8 +194,11 @@
 	</ItemGroup>
 	<ItemGroup Name="Code">
 		<ItemGroup>
+			<Compile Include="Code\AlignFormatter.ds" />
 			<Compile Include="Code\CodeBuilder.ds" />
 			<Compile Include="Code\CodeLine.ds" />
+			<Compile Include="Code\CodeOptionExtensions.ds" />
+			<Compile Include="Code\ICodeFormatter.ds" />
 		</ItemGroup>
 	</ItemGroup>
 	<ItemGroup Name="Build">

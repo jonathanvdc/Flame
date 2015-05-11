@@ -42,7 +42,8 @@ namespace Flame.Cpp.Emit
         {
             CodeBuilder cb = new CodeBuilder();
             cb.Append("sizeof");
-            cb.Append(this.GetArgumentListCode());
+            var options = CodeGenerator.GetEnvironment().Log.Options;
+            cb.AppendAligned(this.GetArgumentListCode(cb.LastCodeLine.Length, options));
             return cb;
         }
     }

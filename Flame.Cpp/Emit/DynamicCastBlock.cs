@@ -41,7 +41,7 @@ namespace Flame.Cpp.Emit
                 cb.Append("std::dynamic_pointer_cast<");
                 cb.Append(Type.AsContainerType().GetElementType().CreateBlock(CodeGenerator).GetCode());
                 cb.Append(">(");
-                cb.Append(Value.GetCode());
+                cb.AppendAligned(Value.GetCode());
                 cb.Append(")");
             }
             else
@@ -49,7 +49,7 @@ namespace Flame.Cpp.Emit
                 cb.Append("dynamic_cast<");
                 cb.Append(Type.CreateBlock(CodeGenerator).GetCode());
                 cb.Append(">(");
-                cb.Append(Value.GetCode());
+                cb.AppendAligned(Value.GetCode());
                 cb.Append(")");
             }
             return cb;

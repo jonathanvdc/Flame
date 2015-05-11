@@ -32,11 +32,11 @@ namespace Flame.Cpp.Emit
             }
             if (Value is BinaryOperation)
             {
-                cb.Append(BinaryOperation.GetEnclosedCode(Value));
+                cb.AppendAligned(BinaryOperation.GetEnclosedCode(Value));
             }
             else
             {
-                cb.Append(Value.GetCode());
+                cb.AppendAligned(Value.GetCode());
             }
             return cb;
         }

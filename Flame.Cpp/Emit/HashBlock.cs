@@ -42,7 +42,8 @@ namespace Flame.Cpp.Emit
             cb.Append("std::hash<");
             cb.Append(Value.Type.CreateBlock(CodeGenerator).GetCode());
             cb.Append(">()");
-            cb.Append(this.GetArgumentListCode());
+            var options = CodeGenerator.GetEnvironment().Log.Options;
+            cb.AppendAligned(this.GetArgumentListCode(cb.LastCodeLine.Length, options));
             return cb;
         }
 

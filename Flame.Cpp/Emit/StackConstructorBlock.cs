@@ -63,7 +63,9 @@ namespace Flame.Cpp.Emit
         public CodeBuilder GetCode()
         {
             CodeBuilder cb = Constructor.GetCode();
-            cb.Append(this.GetInitializationListCode(false));
+            var options = CodeGenerator.GetEnvironment().Log.Options;
+            int offset = cb.LastCodeLine.Length;
+            cb.AppendAligned(this.GetInitializationListCode(false, offset, options));
             return cb;
         }
     }

@@ -205,12 +205,13 @@ namespace Flame.Cpp.Emit
                         var initBlock = (INewObjectBlock)Value;
                         if (initBlock.Kind == AllocationKind.Stack || initBlock.Kind == AllocationKind.MakeManaged)
                         {
-                            cb.Append(initBlock.GetInitializationListCode(true));
+                            var options = CodeGenerator.GetEnvironment().Log.Options;
+                            cb.AppendAligned(initBlock.GetInitializationListCode(true, cb.LastCodeLine.Length, options));
                             return cb;
                         }
                     }
                     cb.Append(" = ");
-                    cb.Append(Value.GetCode());
+                    cb.AppendAligned(Value.GetCode());
                 }
                 return cb;
             }

@@ -1,0 +1,135 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Compiler.Code
+{
+    // What this formatter does:
+    //   It takes a peek at a number of lines and tries to align them with the
+    //   some offset. If that cannot happen, all lines will be indented.
+    //
+    // For example:
+    // {
+    //     1,
+    //     2
+    // }
+    // ~~>
+    // {1,2}
+    //
+    // CallFunction(
+    // ~~~~~~~~~~~~~^
+    // argument1,
+    // argument2,
+    // argument3,
+    // argument4,
+    // argument5
+    // )
+    // ~~>
+    // CallFunction(argument1,argument2,
+    //              argument3,argument4,
+    //              argument5)
+    //
+    // CallFunction(
+    // ReallyLongName("This can't possibly fit on the same line."),
+    // argument2,
+    // argument3
+    // )
+    // ~~>
+    // CallFunction(
+    //     ReallyLongName("This can't possibly fit on the same line."),
+    //     argument2, argument3)
+
+    public class AlignFormatter : ICodeFormatter
+    {
+        public const this();
+        public const this(set int Offset);
+
+        public int Offset { const get; private set; }
+
+        private const int GetTotalLength([CodeAtom] Atoms)
+        {
+            int result = Offset;
+            foreach (var item in Atoms)
+                result += item.GetTotalLength(0);
+            return result;
+        }
+
+        private const bool CanAlign(CodeAtom[] Atoms, int MaxLength)
+        {
+            foreach (var item in Atoms)
+                if (item.GetTotalLength(0) + Offset > MaxLength)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public static const string CreateWhitespaceString(int Length)
+        {
+            var result = new StringBuilder();
+            for (int i = 0; i < Length; i++)
+                result.Append(' ');
+            return (string)result;
+        }
+
+        private void AppendAtoms(CodeBuilder cb, CodeAtom[] Atoms,
+                                 string IndentationString, int CurrentOffset,
+                                 int MaxLength)
+        {
+            int currentLength = CurrentOffset;
+
+            foreach (var item in Atoms)
+            {
+                if (Enumerable.Any<CodeLine>(item.Lines))
+                {
+                    var firstLine = Enumerable.First<CodeLine>(item.Lines);
+
+                    if (currentLength > CurrentOffset && currentLength + firstLine.Length > MaxLength)
+                    {
+                        currentLength = CurrentOffset;
+                        cb.AddLine(IndentationString);
+                    }
+
+                    currentLength += firstLine.Length;
+                    cb.Append(firstLine.Text);
+                    int minIndent = item.MinIndentation;
+                    foreach (var line in Enumerable.Skip<CodeLine>(item.Lines, 1))
+                    {
+                        cb.AddLine(new CodeLine(IndentationString, line.Indentation + cb.CurrentIndentation - minIndent));
+                        cb.Append(line.Text);
+                        currentLength = CurrentOffset + line.Length;
+                    }
+                }
+            }
+        }
+
+        public const CodeAtom Format([CodeAtom] Atoms, ICompilerOptions Options)
+        {
+            if (!Enumerable.Any<CodeAtom>(Atoms))
+                return new CodeAtom();
+
+            int maxLength = Options.MaxLineLength;
+
+            var atomArr = Enumerable.ToArray<CodeAtom>(Atoms);
+            var cb = new CodeBuilder();
+
+            if (CanAlign(atomArr, maxLength))
+            {
+                string ws = CreateWhitespaceString(Offset);
+
+                AppendAtoms(cb, atomArr, ws, Offset, maxLength);
+            }
+            else
+            {
+                cb.IncreaseIndentation();
+
+                AppendAtoms(cb, atomArr, "", Options.IndentationLength, maxLength);
+
+                cb.DecreaseIndentation();
+            }
+
+            return new CodeAtom(cb.GetLines());
+        }
+    }
+}
