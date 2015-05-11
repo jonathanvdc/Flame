@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Code;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -92,12 +93,28 @@ namespace Flame.Cpp.Emit
 
         public CodeBuilder GetCode()
         {
-            CodeBuilder cb = new CodeBuilder();
-            cb.Append(GetBinaryOperandCodeBuilder(Left, Right.Type, Type));
+            CodeBuilder cb = GetBinaryOperandCodeBuilder(Left, Right.Type, Type);
             cb.Append(" ");
             cb.Append(GetOperatorString());
             cb.Append(" ");
-            cb.Append(GetBinaryOperandCodeBuilder(Right, Left.Type, Type));
+
+            var rCode = GetBinaryOperandCodeBuilder(Right, Left.Type, Type);
+
+            var lLength = cb.LastCodeLine.Length;
+            var rLength = rCode.FirstCodeLine.Length;
+
+            int maxLength = CodeGenerator.GetOptions().get_MaxLineLength();
+
+            if (lLength <= maxLength && rLength <= maxLength && lLength + rLength > maxLength)
+            {
+                cb.AppendLine();
+                cb.Append(rCode);
+            }
+            else
+            {
+                cb.AppendAligned(rCode);
+            }
+
             return cb;
         }
 

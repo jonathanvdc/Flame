@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
+using Flame.Compiler.Code;
 
 namespace Flame.Compiler
 {
@@ -27,6 +29,16 @@ namespace Flame.Compiler
         	this.lines = new List<CodeLine>(Other.lines);
         	this.IndentationString = Other.IndentationString;
         }
+        public const this([CodeLine] Lines)
+        {
+            this.indentation = 0;
+            this.lines = new List<CodeLine>(Lines);
+            this.IndentationString = "\t";
+        }
+        public const this(set int indentation, [CodeLine] Lines, set string IndentationString)
+        {
+            this.lines = new List<CodeLine>(Lines);
+        }
 
         private void Init()
         {
@@ -38,6 +50,12 @@ namespace Flame.Compiler
         private List<CodeLine> lines;
         private int indentation;
         public string IndentationString { const get; set; }
+        public int CurrentIndentation { const get return indentation; }
+
+        public [CodeLine] GetLines()
+        {
+            return lines;
+        }
 
         #region Increase/Decrease Indentation
 
@@ -106,6 +124,46 @@ namespace Flame.Compiler
         public CodeBuilder AppendLine()
         {
             return AddLine();
+        }
+
+        public CodeBuilder Append(CodeAtom Atom)
+        {
+            return Append(Atom.ToCodeBuilder(IndentationString));
+        }
+
+        public CodeBuilder AppendAligned(int AlignOffset, CodeAtom Atom)
+        {
+            int wsLength = AlignOffset;
+            string ws = AlignFormatter.CreateWhitespaceString(wsLength);
+
+            if (Enumerable.Any<CodeLine>(Atom.Lines))
+            {
+                var firstLine = Enumerable.First<CodeLine>(Atom.Lines);
+                Append(firstLine.Text);
+                int minIndent = Atom.MinIndentation;
+                foreach (var line in Enumerable.Skip<CodeLine>(Atom.Lines, 1))
+                {
+                    AddLine(new CodeLine(ws, CurrentIndentation + line.Indentation - minIndent));
+                    Append(line.Text);
+                }
+            }
+
+            return this;
+        }
+
+        public CodeBuilder AppendAligned(CodeAtom Atom)
+        {
+            return AppendAligned(LastCodeLine.Length, Atom);
+        }
+
+        public CodeBuilder AppendAligned(int AlignOffset, CodeBuilder Builder)
+        {
+            return AppendAligned(AlignOffset, new CodeAtom(Builder));
+        }
+
+        public CodeBuilder AppendAligned(CodeBuilder Builder)
+        {
+            return AppendAligned(new CodeAtom(Builder));
         }
 
         #endregion

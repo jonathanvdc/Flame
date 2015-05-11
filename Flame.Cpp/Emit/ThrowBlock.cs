@@ -28,7 +28,7 @@ namespace Flame.Cpp.Emit
         {
             var cb = new CodeBuilder();
             cb.Append("throw ");
-            cb.Append(Value.GetCode());
+            cb.AppendAligned(Value.GetCode());
             cb.Append(';');
             return cb;
         }

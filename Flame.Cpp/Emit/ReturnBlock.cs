@@ -31,7 +31,7 @@ namespace Flame.Cpp.Emit
             if (Value != null)
             {
                 cb.Append(' ');
-                cb.Append(Value.GetCode());
+                cb.AppendAligned(Value.GetCode());
             }
             cb.Append(';');
             return cb;
