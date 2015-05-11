@@ -40,7 +40,7 @@ namespace Flame.Cpp.Emit
         {
             CodeBuilder cb = new CodeBuilder();
             cb.Append('&');
-            cb.Append(Target.GetCode());
+            cb.AppendAligned(Target.GetCode());
             return cb;
         }
 

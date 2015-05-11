@@ -1,0 +1,119 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Compiler.Code
+{
+    public class CodeAtom
+    {
+        public const this()
+        {
+            this.Lines = Enumerable.Empty<CodeLine>();
+        }
+        public const this(string Code)
+        {
+            this.Lines = new CodeLine[] { new CodeLine(Code) };
+        }
+        public const this(CodeBuilder Builder)
+        {
+            this.Lines = Builder.GetLines();
+        }
+        public const this(set [CodeLine] Lines);
+
+        public [CodeLine] Lines { const get; private set; }
+
+        public int MinIndentation
+        {
+            const get
+            {
+                if (!Enumerable.Any<CodeLine>(Lines))
+                    return 0;
+
+                int result = Enumerable.First<CodeLine>(Lines).Indentation;
+                foreach (var item in Lines)
+                    if (item.Indentation < result)
+                {
+                    result = item.Indentation;
+                }
+                return result;
+            }
+        }
+
+        public int MaxIndentation
+        {
+            const get
+            {
+                int result = 0;
+                foreach (var item in Lines)
+                    if (item.Indentation > result)
+                {
+                    result = item.Indentation;
+                }
+                return result;
+            }
+        }
+
+        public int InitialIndentation
+        {
+            const get
+            {
+                if (!Enumerable.Any<CodeLine>(Lines))
+                    return 0;
+                else
+                    return Enumerable.First<CodeLine>(Lines).Indentation;
+            }
+        }
+
+        public const int GetMaxLength(int IndentationLength)
+        {
+            int result = 0;
+            foreach (var item in Lines)
+                if (item.GetTotalLength(IndentationLength) > result)
+            {
+                result = item.GetTotalLength(IndentationLength);
+            }
+            return result;
+        }
+
+        public const int GetTotalLength(int IndentationLength)
+        {
+            int result = 0;
+            foreach (var item in Lines)
+            {
+                result += item.GetTotalLength(IndentationLength);
+            }
+            return result;
+        }
+
+        public const CodeAtom Concat(CodeAtom Other)
+        {
+            return new CodeAtom(Enumerable.Concat<CodeLine>(Lines, Other.Lines));
+        }
+
+        public static const CodeAtom Concat([CodeAtom] Atoms)
+        {
+            var result = new CodeAtom(Enumerable.Empty<CodeLine>());
+            foreach (var item in Atoms)
+            {
+                result = result.Concat(item);
+            }
+            return result;
+        }
+
+        public CodeBuilder ToCodeBuilder(string IndentationString)
+        {
+            return new CodeBuilder(InitialIndentation, Lines, IndentationString);
+        }
+
+        public const string ToString(string IndentationString)
+        {
+            return (string)ToCodeBuilder(IndentationString);
+        }
+    }
+
+    public interface ICodeFormatter
+    {
+        const CodeAtom Format([CodeAtom] Atoms, ICompilerOptions Options);
+    }
+}

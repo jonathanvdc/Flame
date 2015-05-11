@@ -50,12 +50,12 @@ namespace Flame.Cpp.Emit
                     if (binOp.Operator.Equals(Operator.Add) && binOp.Right is LiteralBlock && ((LiteralBlock)binOp.Right).Value == "1")
                     {
                         cb.Append("++");
-                        cb.Append(targetCode);
+                        cb.AppendAligned(targetCode);
                     }
                     else if ((binOp.Operator.Equals(Operator.Subtract) && binOp.Right is LiteralBlock && ((LiteralBlock)binOp.Right).Value == "1") || (binOp.Operator.Equals(Operator.Add) && binOp.Right is LiteralBlock && ((LiteralBlock)binOp.Right).Value == "-1"))
                     {
                         cb.Append("--");
-                        cb.Append(targetCode);
+                        cb.AppendAligned(targetCode);
                     }
                     else
                     {
@@ -63,7 +63,7 @@ namespace Flame.Cpp.Emit
                         cb.Append(' ');
                         cb.Append(binOp.GetOperatorString());
                         cb.Append("= ");
-                        cb.Append(binOp.Right.GetCode());
+                        cb.AppendAligned(binOp.Right.GetCode());
                     }
                     return cb;
                 }
@@ -72,11 +72,11 @@ namespace Flame.Cpp.Emit
             cb.Append(" = ");
             if (Value.Type.Equals(Target.Type))
             {
-                cb.Append(Value.GetCode());
+                cb.AppendAligned(Value.GetCode());
             }
             else
             {
-                cb.Append(((ICppBlock)CodeGenerator.EmitConversion(Value, Target.Type)).GetCode());
+                cb.AppendAligned(((ICppBlock)CodeGenerator.EmitConversion(Value, Target.Type)).GetCode());
             }
             return cb;
         }

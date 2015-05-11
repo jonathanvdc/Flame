@@ -37,6 +37,23 @@ namespace Flame.Compiler
             }
         }
 
+        /// <summary>
+        /// Gets the code line's text length.
+        /// </summary>
+        public int Length
+        {
+            const get if (IsEmpty) return 0; else return Text.Length;
+        }
+
+        /// <summary>
+        /// Gets the code line's total length. This includes the line's
+        /// indentation.
+        /// </summary>
+        public const int GetTotalLength(int IndentationLength)
+        {
+            return Length + Indentation * IndentationLength;
+        }
+
 		/// <summary>
 		/// Gets or sets the code line's text.
 		/// </summary>

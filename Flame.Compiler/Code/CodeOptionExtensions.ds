@@ -1,0 +1,30 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Compiler.Code
+{
+    public static class CodeOptionExtensions
+    {
+        public static string IndentationString[this ICompilerOptions Options]
+        {
+            const get return Options.GetOption<string>("indentation-string", "    ");
+        }
+
+        public static int IndentationLength[this ICompilerOptions Options]
+        {
+            const get return Options.GetOption<int>("indentation-length", 4);
+        }
+
+        public static int MaxLineLength[this ICompilerOptions Options]
+        {
+            const get return Options.GetOption<int>("max-line-length", 60);
+        }
+
+        public static int MinLineLength[this ICompilerOptions Options]
+        {
+            const get return Options.GetOption<int>("min-line-length", 20);
+        }
+    }
+}
