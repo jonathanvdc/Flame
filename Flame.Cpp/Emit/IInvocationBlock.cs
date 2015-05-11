@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Code;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace Flame.Cpp.Emit
 
     public static class InvocationBlockExtensions
     {
-        public static CodeBuilder GetArgumentListCode(this IInvocationBlock Block, bool OmitEmptyParentheses)
+        public static CodeBuilder GetArgumentListCode(this IInvocationBlock Block, bool OmitEmptyParentheses, int Offset, ICompilerOptions Options)
         {
             var args = Block.Arguments;
             if (!args.Any())
@@ -30,11 +31,34 @@ namespace Flame.Cpp.Emit
                 cb.Append('(');
                 if (args.Any())
                 {
-                    cb.Append(args.First().GetCode());
-                    foreach (var item in args.Skip(1))
+                    int maxLen = Options.get_MaxLineLength() - Offset - 1;
+                    int curLen = 0;
+
+                    var argArr = args.ToArray();
+
+                    for (int i = 0; i < argArr.Length; i++)
                     {
-                        cb.Append(", ");
-                        cb.Append(item.GetCode());
+                        var argCode = argArr[i].GetCode();
+                        if (i < argArr.Length - 1)
+                        {
+                            argCode.Append(", ");
+                        }
+                        int argLen = argCode.GetLines().Max(item => item.Length);
+                        if (curLen == 0)
+                        {
+                            curLen = argLen;
+                        }
+                        else
+                        {
+                            curLen += argLen;
+                            if (curLen > maxLen)
+                            {
+                                curLen = argLen;
+                                cb.AppendLine();
+                                cb.Append(" ");
+                            }
+                        }
+                        cb.AppendAligned(1, argCode);
                     }
                 }
                 cb.Append(')');
@@ -42,12 +66,12 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        public static CodeBuilder GetArgumentListCode(this IInvocationBlock Block)
+        public static CodeBuilder GetArgumentListCode(this IInvocationBlock Block, int Offset, ICompilerOptions Options)
         {
-            return Block.GetArgumentListCode(false);
+            return Block.GetArgumentListCode(false, Offset, Options);
         }
 
-        public static CodeBuilder GetInitializationListCode(this INewObjectBlock Block, bool OmitEmptyParentheses)
+        public static CodeBuilder GetInitializationListCode(this INewObjectBlock Block, bool OmitEmptyParentheses, int Offset, ICompilerOptions Options)
         {
             var args = Block.Arguments;
             if (args.Any() && !args.Skip(1).Any())
@@ -60,7 +84,7 @@ namespace Flame.Cpp.Emit
                     {
                         if (!OmitEmptyParentheses || initBlock.Arguments.Any())
                         {
-                            return initBlock.GetInitializationListCode(OmitEmptyParentheses);
+                            return initBlock.GetInitializationListCode(OmitEmptyParentheses, Offset, Options);
                         }
                         else
                         {
@@ -69,7 +93,7 @@ namespace Flame.Cpp.Emit
                     }
                 }
             }
-            return Block.GetArgumentListCode(OmitEmptyParentheses);
+            return Block.GetArgumentListCode(OmitEmptyParentheses, Offset, Options);
         }
     }
 }

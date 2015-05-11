@@ -242,6 +242,15 @@ namespace Flame.Cpp
 
         #endregion
 
+        #region GetOptions
+
+        public static ICompilerOptions GetOptions(this ICodeGenerator CodeGenerator)
+        {
+            return CodeGenerator.GetEnvironment().Log.Options;
+        }
+
+        #endregion
+
         #region GetTypeNamer
 
         public static Func<INamespace, IConverter<IType, string>> GetTypeNamer(this ICodeGenerator CodeGenerator)

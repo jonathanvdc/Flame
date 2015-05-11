@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Code;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,7 +57,9 @@ namespace Flame.Cpp.Emit
         public CodeBuilder GetCode()
         {
             var cb = Member.GetCode();
-            cb.Append(this.GetArgumentListCode());
+            var options = CodeGenerator.GetEnvironment().Log.Options;
+            int offset = cb.LastCodeLine.Length;
+            cb.AppendAligned(this.GetArgumentListCode(offset, options));
             return cb;
         }
     }
