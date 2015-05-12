@@ -1,14 +1,99 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Flame
 {
+	public struct TypeSequence
+	{
+		public const this(set [IType] Types)
+		{
+			this.cachedHash = hashImpl();
+		}
+
+		public [IType] Types { const get; private set; }
+		private int cachedHash;
+
+		private const int hashImpl()
+		{
+			int result = 0;
+			foreach (var item in Types)
+			{
+				result ^= item.GetHashCode();
+			}
+			return result;
+		}
+
+		public const override int GetHashCode()
+		{
+			return cachedHash;
+		}
+		public const bool Equals(TypeSequence Types)
+		{
+			return Enumerable.SequenceEqual<IType>(this.Types, Types.Types);
+		}
+		public const override bool Equals(object Other)
+		{
+			return Other is TypeSequence && Equals((TypeSequence)Other);
+		}
+	}
+
 	/// <summary>
 	/// Describes an object that caches operator overload methods.
 	/// </summary>
 	public class OperatorCache
 	{
-		
+		public const this()
+		{
+			this.cachedBestOperators = new Dictionary<Operator, Dictionary<TypeSequence, IMethod>>();
+		}
+
+		private Dictionary<Operator, Dictionary<TypeSequence, IMethod>> cachedBestOperators;
+
+		private Dictionary<TypeSequence, IMethod> GetOrCreate(Operator Op)
+		{
+			if (!cachedBestOperators.ContainsKey(Op))
+			{
+				cachedBestOperators[Op] = new Dictionary<TypeSequence, IMethod>();
+			}
+			return cachedBestOperators[Op];
+		}
+
+		private IMethod GetBestOperatorOverloadImpl(Operator Op, TypeSequence Types)
+		{
+			var argTypes = Types.Types;
+
+			var methods = Op.GetAllOperatorOverloads(argTypes);
+			var bestStatic = methods.GetBestMethod(Enumerable.ToArray<IType>(argTypes));
+			// Try static/singleton overloads first
+			if (bestStatic != null)
+			{
+				return bestStatic;
+			}
+			return methods.GetBestMethod(Enumerable.First<IType>(argTypes),
+				   Enumerable.ToArray<IType>(Enumerable.Skip<IType>(argTypes, 1)));
+				   // Try instance methods
+		}
+
+		public const IMethod GetBestOperatorMethod(Operator Op, TypeSequence Types)
+		{
+			var dict = GetOrCreate(Op);
+			if (dict.ContainsKey(Types))
+			{
+				return dict[Types];
+			}
+			else
+			{
+				var result = GetBestOperatorOverloadImpl(Op, Types);
+				dict[Types] = result;
+				return result;
+			}
+		}
+
+		public const IMethod GetBestOperatorMethod(Operator Op, [IType] Types)
+		{
+			return GetBestOperatorMethod(Op, new TypeSequence(Types));
+		}
 	}
 }

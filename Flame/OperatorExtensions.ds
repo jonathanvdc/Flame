@@ -1,0 +1,32 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame
+{
+	public static class OperatorExtensions
+	{
+		/// <summary>
+		/// Gets all operator methods associated with the given argument types for the given operator.
+		/// </summary>
+		public static const [IMethod] GetAllOperatorOverloads(this Operator Op, [IType] ArgumentTypes)
+		{
+			var results = new HashSet<IMethod>();
+			foreach (var item in Enumerable.Distinct<IType>(ArgumentTypes))
+			{
+				results.UnionWith(item.GetAssociatedOperatorMethods(Op));
+			}
+			return results;
+		}
+
+		/// <summary>
+		/// Gets the best operator overload for the given operator with the given argument types.
+		/// </summary>
+		public static const IMethod GetOperatorOverload(this Operator Op, [IType] ArgumentTypes)
+		{
+            var graph = MemberExtensions.GetAncestryGraph(ArgumentTypes);
+            return graph.Operators.GetBestOperatorMethod(Op, ArgumentTypes);
+        }
+	}
+}
