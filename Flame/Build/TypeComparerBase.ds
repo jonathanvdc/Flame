@@ -16,6 +16,7 @@ namespace Flame.Build
 		protected abstract const T MakePointerComparison(T ElementComparison, PointerKind FirstKind, PointerKind SecondKind);
 		protected abstract const T MakeArrayComparison(T ElementComparison, int FirstRank, int SecondRank);
 		protected abstract const T MakeVectorComparison(T ElementComparison, int[] FirstDimensions, int[] SecondDimensions);
+		protected abstract const T MakeDelegateComparison(T ReturnTypeComparison, [T] ParameterTypesComparison);
 
 		/// <summary>
 		/// Compares two structurally incompatible types.
@@ -45,6 +46,34 @@ namespace Flame.Build
 				argComparsions.Add(Compare(item1, item2));
 			}
 			return MakeGenericInstanceComparison(declComparison, argComparsions);
+		}
+
+		protected virtual const T CompareDelegates(IType First, IType Second)
+		{
+			var lmethod = MethodType.GetMethod(First);
+			var rmethod = MethodType.GetMethod(Second);
+
+			var retTypeComparison = Compare(lmethod.ReturnType, rmethod.ReturnType);
+
+			var lParams = lmethod.GetParameters().GetTypes();
+			var rParams = rmethod.GetParameters().GetTypes();
+
+			if (lParams.Length != rParams.Length)
+				return CompareIncompatible(First, Second);
+
+			var argComparsions = new T[lParams.Length];
+			foreach (var lType in lParams, var rType in rParams,
+				     var comp in argComparsions)
+			{
+				comp = Compare(lType, rType);
+			}
+
+			return MakeDelegateComparison(retTypeComparison, argComparsions);
+		}
+
+		protected virtual const T CompareIntersectionTypes(IntersectionType First, IntersectionType Second)
+		{
+			return CompareDefault(First, Second);
 		}
 
 		protected virtual const T ComparePointerTypes(IPointerType First, IPointerType Second)
@@ -109,6 +138,17 @@ namespace Flame.Build
 				}
 				else return CompareIncompatible(First, Second);
 			}
+			bool firstIsDelegate = First.IsDelegate && (First.IsGenericInstance || !First.IsGeneric);
+			bool secondIsDelegate = Second.IsDelegate && (Second.IsGenericInstance || !Second.IsGeneric);
+
+			if (firstIsDelegate || secondIsDelegate)
+			{
+				if (firstIsDelegate && secondIsDelegate)
+				{
+					return CompareDelegates(First, Second);
+				}
+				else return CompareIncompatible(First, Second);
+			}
 			else if (First.IsGenericInstance || Second.IsGenericInstance)
 			{
 				if (First.IsGenericInstance && Second.IsGenericInstance)
@@ -125,6 +165,14 @@ namespace Flame.Build
 				}
 				else return CompareIncompatible(First, Second);
 			}
+			else if (First.IsIntersectionType || Second.IsIntersectionType)
+			{
+				if (First.IsIntersectionType && Second.IsIntersectionType)
+				{
+					return CompareIntersectionTypes((IntersectionType)First, (IntersectionType)Second);
+				}
+				else return CompareIncompatible(First, Second);
+			}
 			else
 			{
 				return CompareDefault(First, Second);
@@ -133,7 +181,7 @@ namespace Flame.Build
 
 		public virtual const [T] Compare([IType] First, [IType] Second)
 		{
-			List<T> results = new List<T>();
+			var results = new List<T>();
 			foreach (var left in First, var right in Second)
 			{
 				results.Add(Compare(left, right));

@@ -23,7 +23,7 @@ namespace Flame.Build
 		public const bool NameEqual(string OtherName)
 		{
 			if (string.IsNullOrEmpty(Name))
-				return false;
+				return string.IsNullOrEmpty(OtherName);
 			else
 				return Name.Equals(OtherName);
 		}
