@@ -37,6 +37,8 @@
 		<Compile Include="IConverter.ds" />
 		<Compile Include="EnumerableExtensions.ds" />
 		<Compile Include="Operator.ds" />
+        <Compile Include="OperatorCache.ds" />
+        <Compile Include="OperatorExtensions.ds" />
 		<Compile Include="AccessModifier.ds" />
 		<Compile Include="GenericNameExtensions.ds" />
         <Compile Include="GenericExtensions.ds" />

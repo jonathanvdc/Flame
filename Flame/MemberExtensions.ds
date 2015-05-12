@@ -185,6 +185,17 @@ namespace Flame
         	}
         }
 
+		public static AncestryGraph GetAncestryGraph([IMember] Members)
+		{
+			foreach (var item in Members)
+			{
+				var attr = item.GetAttribute(AncestryGraphAttribute.AncestryGraphAttributeType);
+				if (attr != null)
+					return ((AncestryGraphAttribute)attr).Graph;
+			}
+			return new AncestryGraph();
+		}
+
         #endregion
 
         #region IsCovariant
@@ -672,22 +683,16 @@ namespace Flame
 
         #region GetAllBaseTypes
 
-        public const static IList<IType> GetAllBaseTypes(this IType Type)
+        public const static [IType] GetAllBaseTypes(this IType Type)
         {
         	var baseTypes = Type.GetBaseTypes();
-        	var allTypes = new List<IType>();
+        	var allTypes = new HashSet<IType>();
         	foreach (var item in baseTypes)
         	{
-        	    if (!allTypes.Contains(item))
-        		{
-        			allTypes.Add(item);
-        		}
+				allTypes.Add(item);
         		foreach (var type in item.GetAllBaseTypes())
         		{
-        			if (!allTypes.Contains(type))
-        			{
-        				allTypes.Add(type);
-        			}
+					allTypes.Add(type);
         		}
         	}
             return allTypes;

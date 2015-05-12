@@ -9,9 +9,11 @@ namespace Flame
 		public const this()
 		{
 			this.caches = new Dictionary<IType, TypeAncestryCache>();
+			this.Operators = new OperatorCache();
 		}
 
 		private Dictionary<IType, TypeAncestryCache> caches;
+		public OperatorCache Operators { const get; private set; }
 
 		private const TypeAncestryCache GetCache(IType Target)
 		{
