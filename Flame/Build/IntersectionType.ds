@@ -27,6 +27,13 @@ namespace Flame
         	}
         }
 
+        public static const HashSet<IType> GetIntersectedTypeSet(IType Type, IEqualityComparer<IType> Comparer)
+        {
+            var results = new HashSet<IType>(Comparer);
+            AddIntersectionToSet(Type, results);
+            return results;
+        }
+
         public static const HashSet<IType> GetIntersectedTypeSet(IType Type)
         {
             var results = new HashSet<IType>();

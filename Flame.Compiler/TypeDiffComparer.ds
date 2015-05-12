@@ -51,6 +51,29 @@ namespace Flame.Compiler
             return new MarkupNode(NodeConstants.TextNodeType, Text);
         }
 
+        protected void AddDelimitedComparisonList(List<IMarkupNode> Target, [IMarkupNode] Comparisons, string LeftDelimiter, string Separator, string RightDelimiter)
+        {
+            Target.Add(ToTextNode(LeftDelimiter));
+            bool isFirst = true;
+            foreach (var item in Comparisons)
+            {
+                if (isFirst)
+                {
+                    isFirst = false;
+                }
+                else Target.Add(ToTextNode(Separator));
+                Target.Add(item);
+            }
+            Target.Add(ToTextNode(RightDelimiter));
+        }
+
+        protected const IMarkupNode CreateDelimitedComparisonList([IMarkupNode] Comparisons, string LeftDelimiter, string Separator, string RightDelimiter)
+        {
+            var nodes = new List<IMarkupNode>();
+            AddDelimitedComparisonList(nodes, Comparisons, LeftDelimiter, Separator, RightDelimiter);
+            return new MarkupNode("node", nodes);
+        }
+
         protected override const IMarkupNode CompareDefault(IType First, IType Second)
         {
             string secondName = TypeNamer.Convert(Second);
@@ -64,18 +87,7 @@ namespace Flame.Compiler
         {
             var nodes = new List<IMarkupNode>();
             nodes.Add(DeclarationComparison);
-            nodes.Add(ToTextNode("<"));
-            bool isFirst = true;
-            foreach (var item in TypeArgumentComparisons)
-            {
-                if (isFirst)
-                {
-                    isFirst = false;
-                }
-                else nodes.Add(ToTextNode(", "));
-                nodes.Add(item);
-            }
-            nodes.Add(ToTextNode(">"));
+            AddDelimitedComparisonList(nodes, TypeArgumentComparisons, "<", ", ", ">");
             return new MarkupNode("node", nodes);
         }
         protected override const IMarkupNode MakePointerComparison(IMarkupNode ElementComparison, PointerKind FirstKind, PointerKind SecondKind)
@@ -136,6 +148,14 @@ namespace Flame.Compiler
             {
                 nodes.Add(ToTextNode("]"));
             }
+            return new MarkupNode("node", nodes);
+        }
+
+        protected override const IMarkupNode MakeDelegateComparison(IMarkupNode ReturnTypeComparison, [IMarkupNode] ParameterTypesComparison)
+        {
+            var nodes = new List<IMarkupNode>();
+            nodes.Add(ReturnTypeComparison);
+            AddDelimitedComparisonList(nodes, ParameterTypesComparison, "(", ", ", ")");
             return new MarkupNode("node", nodes);
         }
     }

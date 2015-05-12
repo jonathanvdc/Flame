@@ -65,7 +65,7 @@ namespace Flame.Build
         /// Gets this method's generic parameters.
         /// </summary>
         /// <returns></returns>
-        public virtual IEnumerable<IGenericParameter> GetGenericParameters() : IMethod.GetGenericParameters
+        public virtual [IGenericParameter] GetGenericParameters() : IMethod.GetGenericParameters
         {
         	return genericParams;
         }
