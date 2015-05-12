@@ -149,7 +149,7 @@ namespace Flame.DSharp.Build
         	if (basePropertyCache == null)
         	{
 	        	var state = GetSyntaxState();
-	        	var baseMethods = new List<IProperty>();
+	        	var baseMethods = new HashSet<IProperty>();
 	        	var paramTypes = this.GetIndexerParameters().GetTypes();
 	        	foreach (var item in Syntax.ImplementedProperties)
 	            {
@@ -162,17 +162,18 @@ namespace Flame.DSharp.Build
 	            	{
 	            		var match = item.GetProperties().GetProperty(this.Name, this.IsStatic, this.PropertyType, paramTypes);
 	            		if (match != null)
-	            		if (!baseMethods.Contains(match))
 	            		{
 	            			baseMethods.Add(match);
 	            		}
 	            	}
 	            	if (baseMethods.Count == 0 && Syntax.Signature.ModifierTokens.IsOverride)
 	            	{
-	            		state.Log.LogError("Override method '" + FullName + "' could not find any suitable base methods to override.");
+	            		state.Log.LogError(new LogEntry("Base property missing",
+                            "Override property '" + FullName + "' could not find any suitable base properties to override.",
+                            Location));
 	            	}
 	            }
-	            basePropertyCache = baseMethods.ToArray();
+	            basePropertyCache = Enumerable.ToArray<IProperty>(baseMethods);
             }
             return basePropertyCache;
         }

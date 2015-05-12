@@ -323,7 +323,9 @@ namespace Flame.DSharp.Build
 	            	}
 	            	if (baseMethods.Count == 0 && Syntax.Signature.ModifierTokens.IsOverride)
 	            	{
-	            		state.Log.LogError(new LogEntry("No suitable base methods", "Override method '" + FullName + "' could not find any suitable base methods to override."));
+	            		state.Log.LogError(new LogEntry("Base method missing",
+                            "Override method '" + FullName + "' could not find any suitable base methods to override.",
+                            Location));
 	            	}
 	            }
 	            baseMethodCache = baseMethods.ToArray();
