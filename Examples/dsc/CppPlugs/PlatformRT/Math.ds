@@ -69,6 +69,15 @@ namespace std
             return (float)SysMath.Atan(Value);
         }
 
+        public const double atan2(double y, double x)
+        {
+            return SysMath.Atan2(y, x);
+        }
+        public const float atan2(float y, float x)
+        {
+            return (float)SysMath.Atan2(y, x);
+        }
+
         public const double sqrt(double Value)
         {
             return SysMath.Sqrt(Value);
