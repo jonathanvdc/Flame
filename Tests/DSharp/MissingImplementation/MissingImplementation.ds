@@ -1,0 +1,12 @@
+
+public interface IReversible<T> : [T]
+{
+    [T] Reverse();
+}
+
+public class ReversibleArray<T> : IReversible<T>
+{
+    public const this(set T[] Data);
+
+    public T[] Data { const get; private set; }
+}
