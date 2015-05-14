@@ -83,4 +83,17 @@ namespace Flame.Cpp.Emit
             return new LocalDeclarationReference(this, (ICppBlock)Value);
         }
     }
+
+    public class OwnedCppLocal : CppLocal
+    {
+        public OwnedCppLocal(ICodeGenerator CodeGenerator, int Index, IVariableMember Member)
+            : base(CodeGenerator, Index, Member)
+        {
+        }
+
+        public override ICodeBlock EmitRelease()
+        {
+            return new EmptyBlock(CodeGenerator);
+        }
+    }
 }
