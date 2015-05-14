@@ -1,5 +1,7 @@
 ﻿using Flame.Compiler;
 using Flame.Compiler.Build;
+using Flame.Syntax;
+using Pixie;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +26,34 @@ namespace Flame.Verification
             return success;
         }
 
+        private static IMarkupNode CreateImplementationDiagnostics(IMethod DefinitionMethod, IType ImplementationType)
+        {
+            var implLoc = ImplementationType.GetSourceLocation();
+            var defLoc = DefinitionMethod.GetSourceLocation();
+
+            var mainNode = implLoc.CreateDiagnosticsNode();
+
+            if (defLoc == null)
+            {
+                return implLoc.CreateDiagnosticsNode();
+            }
+            else if (implLoc == null)
+            {
+                return RedefinitionHelpers.Instance.CreateNeutralDiagnosticsNode("Definition: ", defLoc);
+            }
+            else
+            {
+                return RedefinitionHelpers.Instance.AppendDiagnosticsRemark(mainNode, "Definition: ", defLoc);
+            }
+        }
+
+        private static IMarkupNode CreateImplementationNode(IMethod DefinitionMethod, IType ImplementationType)
+        {
+            var message = new MarkupNode(NodeConstants.TextNodeType, "Method '" + DefinitionMethod.FullName + "' was not implemented in '" + ImplementationType.FullName + "'.");
+            var diagnostics = CreateImplementationDiagnostics(DefinitionMethod, ImplementationType);
+            return new MarkupNode("entry", new[] { message, diagnostics });
+        }
+
         public static bool VerifyImplementation(this IMethod DefinitionMethod, IType ImplementationType, ICompilerLog Log)
         {
             bool success = true;
@@ -32,9 +62,7 @@ namespace Flame.Verification
                 var impl = DefinitionMethod.GetImplementation(ImplementationType);
                 if (impl == null || impl.Equals(DefinitionMethod))
                 {
-                    Log.LogError(new LogEntry("Method not implemented", 
-                        "Method '" + DefinitionMethod.FullName + "' was not implemented in '" + ImplementationType.FullName + "'",
-                        ImplementationType.GetSourceLocation()));
+                    Log.LogError(new LogEntry("Method not implemented", CreateImplementationNode(DefinitionMethod, ImplementationType)));
                     success = false;
                 }
             }
