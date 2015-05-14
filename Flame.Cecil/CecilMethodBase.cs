@@ -44,7 +44,7 @@ namespace Flame.Cecil
 
         public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public virtual IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
