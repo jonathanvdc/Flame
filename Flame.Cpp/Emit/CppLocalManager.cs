@@ -185,7 +185,20 @@ namespace Flame.Cpp.Emit
         public CppLocal DeclareNew(IVariableMember VariableMember)
         {
             var varMember = GenerateVariableMember(VariableMember);
-            CppLocal local = new CppLocal(CodeGenerator, locals.Count, varMember);
+            var local = new CppLocal(CodeGenerator, locals.Count, varMember);
+            locals.Add(local);
+            return local;
+        }
+
+        /// <summary>
+        /// Declares an owned local variable, i.e. a variable that cannot be released by a call to EmitRelease.
+        /// </summary>
+        /// <param name="VariableMember"></param>
+        /// <returns></returns>
+        public OwnedCppLocal DeclareOwned(IVariableMember VariableMember)
+        {
+            var varMember = GenerateVariableMember(VariableMember);
+            var local = new OwnedCppLocal(CodeGenerator, locals.Count, varMember);
             locals.Add(local);
             return local;
         }

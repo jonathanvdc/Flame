@@ -21,7 +21,7 @@ namespace Flame.Cpp.Emit
 
         private void DeclareElement(CppCodeGenerator CodeGenerator)
         {
-            var elemVar = (CppLocal)CodeGenerator.DeclareNewVariable(Collection.Member);
+            var elemVar = ((CppCodeGenerator)CodeGenerator).LocalManager.DeclareOwned(Collection.Member);
             this.Element = new LocalDeclarationReference(elemVar);
         }
 
