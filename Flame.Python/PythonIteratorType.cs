@@ -26,7 +26,11 @@ namespace Flame.Python
 
         public override IEnumerable<IAttribute> GetAttributes()
         {
-            return new IAttribute[] { PrimitiveAttributes.Instance.ReferenceTypeAttribute };
+            return new IAttribute[] 
+            { 
+                PrimitiveAttributes.Instance.ReferenceTypeAttribute,
+                PrimitiveAttributes.Instance.VirtualAttribute
+            };
         }
     }
 }
