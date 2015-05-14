@@ -6,25 +6,25 @@ namespace Flame.Attributes
 {
 	public class ConstructedAttribute : IConstructedAttribute
 	{
-		public const this(set IMethod Constructor, set IEnumerable<IBoundObject> ConstructorArguments);
-	
+		public const this(set IMethod Constructor, set [IBoundObject] ConstructorArguments);
+
 		public IMethod Constructor { const get; private set; }
-		public IEnumerable<IBoundObject> ConstructorArguments { const get; private set; }
+		public [IBoundObject] ConstructorArguments { const get; private set; }
 
 		/// <summary>
 		/// Gets the arguments that were passed to the attribute constructor.
 		/// </summary>
 		/// <returns></returns>
-		public const IEnumerable<IBoundObject> GetArguments()
+		public const [IBoundObject] GetArguments()
 		{
 			return ConstructorArguments;
 		}
-		
+
 		/// <summary>
         /// Gets the attribute's type.
         /// </summary>
-        public IType AttributeType 
-        { 
+        public IType AttributeType
+        {
         	const get
         	{
         		return Constructor.DeclaringType;
@@ -33,7 +33,7 @@ namespace Flame.Attributes
         /// <summary>
         /// Gets the attribute's value.
         /// </summary>
-        public IBoundObject Value 
+        public IBoundObject Value
         {
         	const get
         	{
