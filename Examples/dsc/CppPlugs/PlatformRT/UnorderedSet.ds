@@ -1,4 +1,5 @@
 using Flame.RT;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -27,6 +28,24 @@ namespace std
         {
             data.Add(Value);
         }
+
+        #region Iterators
+
+        public const IBidirectionalIterator find(T Value)
+        {
+            throw new NotImplementedException(); // Not implemented
+        }
+
+        public const IBidirectionalIterator begin()
+        {
+            throw new NotImplementedException(); // Not implemented
+        }
+        public const IBidirectionalIterator end()
+        {
+            throw new NotImplementedException(); // Not implemented
+        }
+
+        #endregion
 
         public const [<T>] GetGenericEnumerator() : IEnumerable<T>.GetEnumerator
         {

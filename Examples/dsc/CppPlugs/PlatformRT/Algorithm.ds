@@ -1,4 +1,5 @@
 using Flame.RT;
+using System;
 
 namespace std
 {
@@ -22,14 +23,29 @@ namespace std
             else return b;
         }
 
+        public IForwardIterator begin<T>([T] Container)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IForwardIterator end<T>([T] Container)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IForwardIterator find<T>([T] Container, T Value)
+        {
+            throw new NotImplementedException();
+        }
+
         public void iter_swap(IForwardIterator first, IForwardIterator second)
         {
-            // There is really just no decent way to implement this
+            throw new NotImplementedException(); // There is really just no decent way to implement this
         }
 
         public void reverse(IBidirectionalIterator first, IBidirectionalIterator last)
         {
-            // There is really just no decent way to implement this
+            throw new NotImplementedException(); // There is really just no decent way to implement this
         }
     }
 }
