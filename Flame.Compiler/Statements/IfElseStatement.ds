@@ -35,11 +35,13 @@ namespace Flame.Compiler.Statements
 			{
 				if (ElseBody == null)
 				{
-					return IfBody.IsEmpty;
+					return IfBody.IsEmpty || Condition.EvaluatesTo<bool>(false);
 				}
 				else
 				{
-					return IfBody.IsEmpty && ElseBody.IsEmpty;
+					var evalCond = Condition.EvaluateConstant();
+					return (evalCond.EvaluatesTo<bool>(false) || IfBody.IsEmpty) &&
+					       (evalCond.EvaluatesTo<bool>(true)  || ElseBody.IsEmpty);
 				}
 			}
 		}
@@ -47,14 +49,26 @@ namespace Flame.Compiler.Statements
 		public IStatement Optimize() : IStatement.Optimize
 		{
 			var optCond = Condition.Optimize();
-			var optIf = IfBody.Optimize();
+			var condVal = optCond.EvaluateConstant();
 			if (ElseBody == null)
 			{
-				return new IfElseStatement(optCond, optIf);
+				if (condVal.EvaluatesTo<bool>(false))
+				{
+					return new EmptyStatement();
+				}
+				else return new IfElseStatement(optCond, IfBody.Optimize());
+			}
+			else if (condVal.EvaluatesTo<bool>(true))
+			{
+				return IfBody.Optimize();
+			}
+			else if (condVal.EvaluatesTo<bool>(false))
+			{
+				return ElseBody.Optimize();
 			}
 			else
 			{
-				return new IfElseStatement(optCond, optIf, ElseBody.Optimize());
+				return new IfElseStatement(optCond, IfBody.Optimize(), ElseBody.Optimize());
 			}
 		}
 

@@ -38,6 +38,12 @@ namespace Flame.Compiler.Statements
 		{
 			var optCond = Condition.Optimize();
 			var optBody = Body.Optimize();
+
+			if (optCond.EvaluatesTo<bool>(false))
+			{
+				return optBody;
+			}
+
 			return new DoWhileStatement(optBody, optCond);
 		}
 

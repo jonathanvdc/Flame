@@ -6,7 +6,7 @@ namespace Flame.Compiler
 	public static class NodeExtensions
 	{
 		#region IsConstant
-	
+
 		public static bool AreConstant[this IEnumerable<IExpression> Expressions]
 		{
 			const get
@@ -21,7 +21,7 @@ namespace Flame.Compiler
 				return true;
 			}
 		}
-	
+
 		public static bool IsConstantOrNull[this IExpression Expression]
 		{
 			const get
@@ -36,11 +36,11 @@ namespace Flame.Compiler
 				}
 			}
 		}
-		
+
 		#endregion
-		
+
 		#region Optimize
-		
+
 		public static IEnumerable<IExpression> OptimizeAll(this IEnumerable<IExpression> Expressions)
 		{
 			List<IExpression> exprs = new List<IExpression>();
@@ -50,7 +50,7 @@ namespace Flame.Compiler
 			}
 			return exprs;
 		}
-	
+
 		public static IExpression OptimizeOrNull(this IExpression Expression)
 		{
 			if (Expression == null)
@@ -73,23 +73,23 @@ namespace Flame.Compiler
 				return Statement.Optimize();
 			}
 		}
-		
+
 		#endregion
-		
+
 		#region Evaluate
-		
+
 		public static IBoundObject EvaluateOrNull(this IExpression Expression)
 		{
 			if (Expression == null)
 			{
-				return null;	
+				return null;
 			}
 			else
 			{
 				return Expression.Evaluate();
 			}
 		}
-		
+
 		public static IEnumerable<IBoundObject> EvaluateAll(this IEnumerable<IExpression> Expressions)
 		{
 			List<IBoundObject> exprs = new List<IBoundObject>();
@@ -99,11 +99,11 @@ namespace Flame.Compiler
 			}
 			return exprs;
 		}
-		
+
 		#endregion
-		
+
 		#region Emit
-	
+
 		public static ICodeBlock EmitOrNull(this IExpression Expression, ICodeGenerator Generator)
 		{
 			if (Expression == null)
@@ -115,7 +115,7 @@ namespace Flame.Compiler
 				return Expression.Emit(Generator);
 			}
 		}
-		
+
 		public static IEnumerable<ICodeBlock> EmitAll(this IEnumerable<IExpression> Expressions, ICodeGenerator Generator)
 		{
 			List<ICodeBlock> exprs = new List<ICodeBlock>();
@@ -125,16 +125,16 @@ namespace Flame.Compiler
 			}
 			return exprs;
 		}
-		
+
 		#endregion
-		
+
 		#region Types
-		
+
 		public static IType[] Types[this IEnumerable<IExpression> Expressions]
 		{
 			const get
 			{
-				List<IType> types = new List<IType>();
+				var types = new List<IType>();
 				foreach (var item in Expressions)
 				{
 					types.Add(item.Type);
@@ -142,28 +142,40 @@ namespace Flame.Compiler
 				return types.ToArray();
 			}
 		}
-		
+
 		#endregion
-		
-		#region EvaluatesTo
-		
-		public static bool EvaluatesTo<T>(this IExpression Expression, T Value)
-			where T : object
+
+		#region EvaluateConstant
+
+		public static const IBoundObject EvaluateConstant(this IExpression Expression)
 		{
 			if (Expression.IsConstant)
 			{
-				var result = Expression.Evaluate();
-				if (result != null)
-				{
-					if (result is IBoundPrimitive<T>)
-					{
-						return result.GetValue<T>().Equals(Value);
-					}
-				}
+				return Expression.Evaluate();
+			}
+			return null;
+		}
+
+		#endregion
+
+		#region EvaluatesTo
+
+		public static const bool EvaluatesTo<T>(this IExpression Expression, T Value)
+			where T : object
+		{
+			return Expression.EvaluateConstant().EvaluatesTo<T>(Value);
+		}
+
+		public static const bool EvaluatesTo<T>(this IBoundObject BoundObject, T Value)
+			where T : object
+		{
+			if (BoundObject is IBoundPrimitive<T>) // This also performs an implicit null-check.
+			{
+				return BoundObject.GetValue<T>().Equals(Value);
 			}
 			return false;
 		}
-		
+
 		#endregion
 	}
 }
