@@ -14,7 +14,7 @@ namespace Flame.Compiler.Statements
 		{
 			const get
 			{
-				return Body.IsEmpty;
+				return Body.IsEmpty || Condition.EvaluatesTo<bool>(false);
 			}
 		}
 
@@ -36,6 +36,11 @@ namespace Flame.Compiler.Statements
 		public IStatement Optimize() : IStatement.Optimize
 		{
 			var optCond = Condition.Optimize();
+			if (optCond.EvaluatesTo<bool>(false))
+			{
+				return new EmptyStatement();
+			}
+
 			var optBody = Body.Optimize();
 			return new WhileStatement(optCond, optBody);
 		}
