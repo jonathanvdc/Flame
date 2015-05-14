@@ -11,8 +11,15 @@ namespace Flame.RT
         public HeaderAttribute(string HeaderName)
         {
             this.HeaderName = HeaderName;
+            this.IsStandardHeader = true;
+        }
+        public HeaderAttribute(string HeaderName, bool IsStandardHeader)
+        {
+            this.HeaderName = HeaderName;
+            this.IsStandardHeader = IsStandardHeader;
         }
 
         public string HeaderName { get; private set; }
+        public bool IsStandardHeader { get; private set; }
     }
 }

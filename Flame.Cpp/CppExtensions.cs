@@ -36,7 +36,15 @@ namespace Flame.Cpp
                     }
                     else if (item is IConstructedAttribute)
                     {
-                        yield return new HeaderAttribute(((IConstructedAttribute)item).GetArguments().First().GetValue<string>());
+                        var args = ((IConstructedAttribute)item).GetArguments().ToArray();
+                        if (args.Length == 1)
+                        {
+                            yield return new HeaderAttribute(args[0].GetValue<string>());
+                        }
+                        else
+                        {
+                            yield return new HeaderAttribute(args[0].GetValue<string>(), args[1].GetValue<bool>());
+                        }
                     }
                 }
             }
@@ -49,7 +57,11 @@ namespace Flame.Cpp
 
         public static IEnumerable<IHeaderDependency> GetAttributeDependencies(this IMember Member)
         {
-            return Member.GetHeaderAttributes().Select((item) => new StandardDependency(item.HeaderName)).MergeDependencies(Member.GetHeaderDependencyAttributes().Select((item) => item.Dependency));
+            return Member.GetHeaderAttributes().Select(
+                item => (item.IsStandardHeader ? 
+                            (IHeaderDependency)new StandardDependency(item.HeaderName) : 
+                            (IHeaderDependency)new UserDependency(item.HeaderName)))
+                .MergeDependencies(Member.GetHeaderDependencyAttributes().Select(item => item.Dependency));
         }
 
         #endregion

@@ -6,7 +6,7 @@ namespace Flame
 	public interface IBoundObject
 	{
 		IType Type { const get; }
-		
+
 		void SetField(IField Field, IBoundObject Value);
 		const IBoundObject GetField(IField Field);
 	}
@@ -15,12 +15,12 @@ namespace Flame
 		IMethod Method { const get; }
 		IBoundObject Caller { const get; }
 	}
-	
+
 	public interface IBoundPrimitive<out T> : IBoundObject
 	{
 		T Value { const get; }
 	}
-	
+
 	public static class BoundObjectExtensions
 	{
 		public static IBoundObject Invoke(this IBoundMethod Target, IEnumerable<IBoundObject> Arguments)
@@ -31,7 +31,7 @@ namespace Flame
 		{
 			return ((IBoundPrimitive<T>)Target).Value;
 		}
-		
+
 		public static int32 GetInt32Value(this IBoundObject Target)
 		{
 			if (Target is IBoundPrimitive<int64>)
@@ -67,9 +67,14 @@ namespace Flame
 				return Target.GetValue<int32>();
 			}
 		}
-		
+
 		public static object GetObjectValue(this IBoundObject Target)
 		{
+			if (Target == null)
+			{
+				return null;
+			}
+
 			if (Target is IBoundPrimitive<int64>)
 			{
 				return (object)Target.GetValue<int64>();

@@ -69,6 +69,11 @@ namespace Flame.Recompilation
 
         #region IsExternal
 
+        private static bool HasExternalAttribute(IMember Member)
+        {
+            return Member.GetAttributes().Any(item => item.AttributeType.FullName == "Flame.RT.ExternalAttribute");
+        }
+
         public bool IsExternal(IAssembly Assembly)
         {
             if (Assembly == null)
@@ -89,6 +94,11 @@ namespace Flame.Recompilation
         }
         public bool IsExternal(INamespace Namespace)
         {
+            if (Namespace is IType)
+            {
+                return IsExternal((IType)Namespace);
+            }
+
             return IsExternal(Namespace.DeclaringAssembly);
         }
         public bool IsExternal(IType Type)
@@ -110,6 +120,10 @@ namespace Flame.Recompilation
             {
                 return IsExternal(Type.GetGenericDeclaration()) && Type.GetGenericArguments().All(IsExternal);
             }
+            if (HasExternalAttribute(Type))
+            {
+                return true;
+            }
             var declNs = Type.DeclaringNamespace;
             if (declNs == null)
             {
@@ -122,6 +136,11 @@ namespace Flame.Recompilation
         }
         public bool IsExternal(ITypeMember Member)
         {
+            if (HasExternalAttribute(Member))
+            {
+                return true;
+            }
+
             var declType = Member.DeclaringType;
             if (declType == null)
             {
@@ -169,6 +188,11 @@ namespace Flame.Recompilation
         {
             var declType = Member.DeclaringType;
 
+            if (HasExternalAttribute(Member))
+            {
+                return true;
+            }
+
             return declType == null ? true : IsExternalStrict(declType);
         }
 
@@ -178,7 +202,7 @@ namespace Flame.Recompilation
             {
                 return false;
             }
-            else if (Type.IsContainerType)
+            else if (HasExternalAttribute(Type) || Type.IsContainerType)
             {
                 return true;
             }
@@ -200,7 +224,11 @@ namespace Flame.Recompilation
 
         public bool IsExternalStrict(IMember Member)
         {
-            if (Member is ITypeMember)
+            if (HasExternalAttribute(Member))
+            {
+                return true;
+            }
+            else if (Member is ITypeMember)
             {
                 return IsExternalStrict((ITypeMember)Member);
             }
