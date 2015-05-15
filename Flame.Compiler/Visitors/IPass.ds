@@ -1,0 +1,15 @@
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// Defines a generic "pass": a transformation of a value that may or may not
+    /// leave the old value in an undefined state.
+    /// </summary>
+    public interface IPass<in TIn, out TOut>
+    {
+        /// <summary>
+        /// Applies this pass to the given value.
+        /// </summary>
+        TOut Apply(TIn Value);
+    }
+}

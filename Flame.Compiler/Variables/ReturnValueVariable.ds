@@ -10,22 +10,31 @@ namespace Flame.Compiler.Variables
 	public class ReturnValueVariable : IVariable
 	{
 		public const this(set IType Type);
-		
+
 		public IType Type { const get; private set; }
-		
+
 		public const IExpression CreateGetExpression()
 		{
 			return new ReturnValueGetExpression(Type);
 		}
-		
+
 		public const IStatement CreateSetStatement(IExpression Value)
 		{
 			return null;
 		}
-		
+
 		public const IStatement CreateReleaseStatement()
 		{
 			return new EmptyStatement();
+		}
+
+		public override const int GetHashCode()
+		{
+			return 1;
+		}
+		public override const bool Equals(object Other)
+		{
+			return Other is ReturnValueVariable;
 		}
 	}
 }

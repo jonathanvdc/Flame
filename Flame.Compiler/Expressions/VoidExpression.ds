@@ -6,8 +6,6 @@ namespace Flame.Compiler.Expressions
 {
 	public static class VoidExpression : IExpression, IBoundObject
 	{
-		public const this();
-
 		public IType Type
         {
             const get return PrimitiveTypes.Void;

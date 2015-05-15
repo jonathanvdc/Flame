@@ -1,0 +1,23 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// Defines a base class for node visitors that care only about statements.
+    /// Expressions are ignored.
+    /// </summary>
+    public abstract class StatementVisitorBase : NodeVisitorBase
+    {
+        public override bool Matches(IExpression Value)
+        {
+            return false;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            return Expression;
+        }
+    }
+}

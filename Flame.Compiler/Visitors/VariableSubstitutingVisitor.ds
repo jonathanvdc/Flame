@@ -4,29 +4,30 @@ using System.Linq;
 
 namespace Flame.Compiler.Visitors
 {
-    public class VariableSubsitutingVisitor : NodeVisitorBase
+    public abstract class VariableSubsitutingVisitorBase : NodeVisitorBase
     {
-        public const this(set IReadOnlyDictionary<IVariable, IVariable> Mapping);
+        public const this();
 
-        public IReadOnlyDictionary<IVariable, IVariable> Mapping { const get; private set; }
+        protected abstract bool CanSubstituteVariable(IVariable Variable);
+        protected abstract IVariable SubstituteVariable(IVariable Variable);
 
-        protected override bool Matches(IExpression Value)
+        public override virtual bool Matches(IExpression Value)
         {
             return Value is IVariableNode;
         }
-        protected override bool Matches(IStatement Value)
+        public override virtual bool Matches(IStatement Value)
         {
             return Value is IVariableNode;
         }
 
-        protected override IExpression Transform(IExpression Expression)
+        protected override virtual IExpression Transform(IExpression Expression)
         {
             var node = (IVariableNode)Expression;
             var variable = node.GetVariable();
 
-            if (Mapping.ContainsKey(variable))
+            if (CanSubstituteVariable(variable))
             {
-                var targetVariable = Mapping[variable];
+                var targetVariable = SubstituteVariable(variable);
                 if (node.Action == VariableNodeAction.AddressOf)
                 {
                     return ((IUnmanagedVariable)targetVariable).CreateAddressOfExpression();
@@ -36,17 +37,17 @@ namespace Flame.Compiler.Visitors
                     return targetVariable.CreateGetExpression();
                 }
             }
-            return Expression;
+            return Expression.Accept(this);
         }
 
-        protected override IStatement Transform(IStatement Statement)
+        protected override virtual IStatement Transform(IStatement Statement)
         {
             var node = (IVariableNode)Statement;
             var variable = node.GetVariable();
 
-            if (Mapping.ContainsKey(variable))
+            if (CanSubstituteVariable(variable))
             {
-                var targetVariable = Mapping[variable];
+                var targetVariable = SubstituteVariable(variable);
                 if (node.Action == VariableNodeAction.Set)
                 {
                     return targetVariable.CreateSetStatement(((ISetVariableNode)node).Value);
@@ -56,7 +57,23 @@ namespace Flame.Compiler.Visitors
                     return targetVariable.CreateReleaseStatement();
                 }
             }
-            return Statement;
+            return Statement.Accept(this);
+        }
+    }
+
+    public class VariableSubsitutingVisitor : VariableSubsitutingVisitorBase
+    {
+        public const this(set IReadOnlyDictionary<IVariable, IVariable> Mapping);
+
+        public IReadOnlyDictionary<IVariable, IVariable> Mapping { const get; private set; }
+
+        protected override bool CanSubstituteVariable(IVariable Variable)
+        {
+            return Mapping.ContainsKey(Variable);
+        }
+        protected override IVariable SubstituteVariable(IVariable Variable)
+        {
+            return Mapping[Variable];
         }
     }
 }

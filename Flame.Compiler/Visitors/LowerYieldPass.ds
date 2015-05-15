@@ -1,0 +1,235 @@
+using System;
+using System.Collections.Generic;
+using Flame.Build;
+using Flame.Compiler.Build;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// A pass that reduces methods with yield return/yield break statements to
+    /// enumerable/enumerator implementations.
+    ///
+    /// Requirements for this pass to run:
+    ///  * The enclosing type of the method must be a namespace builder (implements INamespaceBuilder).
+    ///  * The environment must be an IEnumerableEnvironment.
+    ///  * The output assembly's code generators must support labels.
+    /// </summary>
+    public static class LowerYieldPass : BodyPassBase
+    {
+        /// <summary>
+        /// Applies this pass to the given method, method body, type builder and environment.
+        /// </summary>
+        public override IStatement Apply(IEnvironment Environment, ITypeBuilder Type, IMethodBuilder Method, IStatement Body)
+        {
+            if (!Method.ReturnType.IsEnumerableType || !YieldNodeFindingVisitor.UsesYield(Body))
+            {
+                return Body;
+            }
+
+            var nsBuilder = (INamespaceBuilder)Type;
+            var enumerableEnvironment = (IEnumerableEnvironment)Environment;
+
+            var descNestedType = new DescribedType("__" + Method.Name + "_enumerator", nsBuilder);
+            descNestedType.AddAttribute(new AccessAttribute(AccessModifier.Private));
+            descNestedType.AddAttribute(PrimitiveAttributes.HiddenAttribute);
+            descNestedType.AddBaseType(Method.ReturnType);
+
+            var elemType = Method.ReturnType.GetEnumerableElementType();
+
+            descNestedType.AddBaseType(Environment.EnumeratorType.MakeGenericType(new IType[] { elemType }));
+
+            var nestedType = nsBuilder.DeclareType(descNestedType);
+
+            var descStateField = new DescribedField("__enumerator_state", PrimitiveTypes.Int32, false);
+            descStateField.AddAttribute(new AccessAttribute(AccessModifier.Private));
+            descStateField.AddAttribute(PrimitiveAttributes.HiddenAttribute);
+            descStateField.DeclaringType = nestedType;
+
+            var descValField = new DescribedField("__enumerator_value", elemType, false);
+            descValField.AddAttribute(new AccessAttribute(AccessModifier.Private));
+            descValField.AddAttribute(PrimitiveAttributes.HiddenAttribute);
+            descValField.DeclaringType = nestedType;
+
+            var stateField = nestedType.DeclareField(descStateField);
+            var valueField = nestedType.DeclareField(descValField);
+
+            var enumeratorThisVariable = new ThisVariable(nestedType);
+            var stateVar = new FieldVariable(stateField, enumeratorThisVariable.CreateGetExpression());
+            var valueVar = new FieldVariable(valueField, enumeratorThisVariable.CreateGetExpression());
+
+            var currentBody = new ReturnStatement(valueVar.CreateGetExpression());
+
+            var visitor = new LowerYieldNodeVisitor(nestedType, enumeratorThisVariable,
+                                                    stateVar, valueVar);
+            var moveBody = visitor.CreateBody(visitor.Visit(Body));
+
+            enumerableEnvironment.ImplementEnumerator(nestedType, elemType,
+                                                      moveBody, currentBody);
+            enumerableEnvironment.ImplementEnumerable(nestedType, elemType,
+                new ReturnStatement(enumeratorThisVariable.CreateGetExpression()));
+
+            var descCtor = new DescribedBodyMethod("this", nestedType, PrimitiveTypes.Void, false);
+            descCtor.AddAttribute(new AccessAttribute(AccessModifier.Public));
+            descCtor.IsConstructor = true;
+
+            var initExprs = new List<IExpression>();
+            var initStatements = new List<IStatement>();
+
+            int argCount = 0;
+            foreach (var item in visitor.CapturedArguments)
+            {
+                var descParam = new DescribedParameter("arg" + argCount, item.Value.Type);
+                descCtor.AddParameter(descParam);
+                initStatements.Add(item.Value.CreateSetStatement(new ArgumentVariable(descParam, argCount).CreateGetExpression()));
+                initExprs.Add(item.Key.CreateGetExpression());
+                argCount++;
+            }
+
+            var enumCtor = nestedType.DeclareMethod(descCtor);
+            var ctorCodeGen = enumCtor.GetBodyGenerator();
+            var ctorBody = new BlockStatement(initStatements).Emit(ctorCodeGen);
+            enumCtor.SetMethodBody(ctorBody);
+
+            return new ReturnStatement(new InvocationExpression(enumCtor, null, initExprs));
+        }
+    }
+
+    public class YieldNodeFindingVisitor : StatementVisitorBase
+    {
+        public const this();
+
+        /// <summary>
+        /// Gets a boolean value that tells whether the given nodes
+        /// use yield return/yield break.
+        /// </summary>
+        public bool YieldFound { const get; private set; }
+
+        /// <summary>
+        /// Finds out whether the given statement uses yield break or yield return.
+        /// </summary>
+        public static const bool UsesYield(IStatement Statement)
+        {
+            var visitor = new YieldNodeFindingVisitor();
+            visitor.Visit(Statement);
+            return visitor.YieldFound;
+        }
+
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is YieldBreakStatement || Value is YieldReturnStatement;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            YieldFound = true;
+            return Statement;
+        }
+    }
+
+    public class LowerYieldNodeVisitor : NodeVisitorBase
+    {
+        public const this(set ITypeBuilder Type, set IVariable EnumeratorThisVariable,
+                          set IVariable StateVariable, set IVariable ValueVariable)
+        {
+            this.variableVisitor = new VariableCapturingVisitor(Type);
+            this.states = new List<LateBoundLabel>();
+        }
+
+        public ITypeBuilder Type { const get; private set; }
+        public IVariable EnumeratorThisVariable { const get; private set; }
+        public IVariable StateVariable { const get; private set; }
+        public IVariable ValueVariable { const get; private set; }
+        public IReadOnlyDictionary<IVariable, IVariable> CapturedArguments { const get return variableVisitor.CapturedArguments; }
+
+        private VariableCapturingVisitor variableVisitor;
+        private List<LateBoundLabel> states;
+
+        public const IStatement CreatePrologue()
+        {
+            var results = new List<IStatement>();
+
+            var getStateExpr = StateVariable.CreateGetExpression();
+
+            // State values:
+            //  * -1: iteration is over
+            //  *  0: initial state
+            //  *  n where n > 0: any other state
+
+            // if (state == -1) return false; <-- iteration is over
+            results.Add(new IfElseStatement(
+                new EqualityExpression(getStateExpr, new Int32Expression(-1)),
+                new ReturnStatement(new BooleanExpression(false))));
+
+            // Otherwise, branch to an appropriate location
+            for (int i = 0; i < states.Count; i++)
+            {
+                var stateExpr = new Int32Expression(i + 1);
+                results.Add(states[i].CreateBranchStatement(
+                    new EqualityExpression(getStateExpr, stateExpr)));
+            }
+
+            // State zero is essentially the fall-through value.
+            // This is convenient, because int32 fields are zero-initialized.
+
+            results.Add(new ReturnStatement(new BooleanExpression(false))); // This amounts to a yield break
+
+            return new BlockStatement(results);
+        }
+
+        public const IStatement CreateBody(IStatement Body)
+        {
+            return new BlockStatement(new IStatement[] { CreatePrologue(), Body });
+        }
+
+        public override bool Matches(IExpression Value)
+        {
+            return variableVisitor.Matches(Value);
+        }
+        public override bool Matches(IStatement Value)
+        {
+            return Value is YieldBreakStatement || Value is YieldReturnStatement ||
+                   variableVisitor.Matches(Value);
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            return variableVisitor.Visit(Expression);
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            if (Statement is YieldBreakStatement)
+            {
+                var zeroExpr = new Int32Expression(0); // Makes sure we don't iterate any further beyond this point.
+                return new BlockStatement(new IStatement[]
+                {
+                    StateVariable.CreateSetStatement(zeroExpr),
+                    new ReturnStatement(new BooleanExpression(false)) // Nec plus ulta.
+                });
+            }
+            else if (Statement is YieldReturnStatement)
+            {
+                var newLabel = new LateBoundLabel();
+                states.Add(newLabel);
+
+                var yieldVal = variableVisitor.Visit(((YieldReturnStatement)Statement).Value);
+
+                var stateExpr = new Int32Expression(states.Count);
+                return new BlockStatement(new IStatement[]
+                {
+                    StateVariable.CreateSetStatement(stateExpr), // Update the current state
+                    ValueVariable.CreateSetStatement(yieldVal), // Update the return value
+                    new ReturnStatement(new BooleanExpression(true)), // More where this came from.
+                    newLabel.CreateMarkStatement() // Mark the resumption point
+                });
+            }
+            else
+            {
+                return variableVisitor.Visit(Statement);
+            }
+        }
+    }
+}

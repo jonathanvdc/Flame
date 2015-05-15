@@ -36,6 +36,19 @@ namespace Flame.Compiler.Variables
         {
             return new ArgumentAddressOfExpression(this);
         }
+
+        public override const int GetHashCode()
+        {
+            return Index;
+        }
+        public const bool Equals(ArgumentVariable Other)
+        {
+            return Index == Other.Index;
+        }
+        public override const bool Equals(object Other)
+        {
+            return Other is ArgumentVariable && Equals((ArgumentVariable)Other);
+        }
     }
     public class ArgumentGetExpression : VariableGetExpressionBase<ArgumentVariable>
     {
