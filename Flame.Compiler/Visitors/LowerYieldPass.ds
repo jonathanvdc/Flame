@@ -174,14 +174,17 @@ namespace Flame.Compiler.Visitors
             // State zero is essentially the fall-through value.
             // This is convenient, because int32 fields are zero-initialized.
 
-            results.Add(new ReturnStatement(new BooleanExpression(false))); // This amounts to a yield break
-
             return new BlockStatement(results);
         }
 
         public const IStatement CreateBody(IStatement Body)
         {
-            return new BlockStatement(new IStatement[] { CreatePrologue(), Body });
+            return new BlockStatement(new IStatement[]
+            {
+                CreatePrologue(),
+                Body,
+                new ReturnStatement(new BooleanExpression(false)) // This amounts to a yield break
+            });
         }
 
         public override bool Matches(IExpression Value)
