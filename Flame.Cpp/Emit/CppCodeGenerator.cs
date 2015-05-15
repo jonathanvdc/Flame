@@ -409,6 +409,11 @@ namespace Flame.Cpp.Emit
             return LocalManager.DeclareNew(this.ConvertVariableMember(VariableMember));
         }
 
+        public OwnedCppLocal DeclareOwnedVariable(IVariableMember VariableMember)
+        {
+            return LocalManager.DeclareOwned(this.ConvertVariableMember(VariableMember));
+        }
+
         #endregion
 
         public IEmitVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
