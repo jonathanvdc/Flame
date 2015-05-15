@@ -10,7 +10,7 @@ namespace Flame.Compiler.Variables
         public const this(set IType DeclaringType);
 
         public IType DeclaringType { const get; private set; }
-        
+
         private IType exprType;
         public IType Type : IVariable.Type
         {
@@ -28,7 +28,7 @@ namespace Flame.Compiler.Variables
         {
             return new ThisAddressOfExpression(Type.MakePointerType(PointerKind.ReferencePointer));
         }
-		
+
         public const IExpression CreateGetExpression() : IVariable.CreateGetExpression
         {
         	return new ThisGetExpression(Type);
@@ -44,7 +44,16 @@ namespace Flame.Compiler.Variables
             //return new ThisReleaseStatement(this);
             return new EmptyStatement();
         }
-        
+
+        public override const int GetHashCode()
+        {
+            return 0;
+        }
+        public override const bool Equals(object Other)
+        {
+            return Other is ThisVariable;
+        }
+
         public static const IType GetThisType(IType CurrentType)
 		{
 			var finalType = CurrentType;
@@ -58,7 +67,7 @@ namespace Flame.Compiler.Variables
 			}
 			return finalType;
 		}
-		
+
 		/// <summary>
 		/// Gets a boolean value that indicates whether the given variable refers directly or indirectly to a ThisVariable reference.
 		/// </summary>

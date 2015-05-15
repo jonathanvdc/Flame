@@ -1,0 +1,31 @@
+using System;
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// Defines a base class for method body passes.
+    /// A method body pass is allowed to create new members within the
+    /// method's declaring type, but cannot remove, rename or otherwise
+    /// modify members.
+    /// </summary>
+    public abstract class BodyPassBase : IPass<Tuple<IEnvironment, ITypeBuilder, IMethodBuilder, IStatement>, IStatement>
+    {
+        /// <summary>
+        /// Creates a new body pass.
+        /// </summary>
+        public const this();
+
+        /// <summary>
+        /// Applies this pass to the given method, method body, type builder and environment.
+        /// </summary>
+        public abstract IStatement Apply(IEnvironment Environment, ITypeBuilder Type, IMethodBuilder Method, IStatement Body);
+
+        /// <summary>
+        /// Applies this pass to the given method, method body, type builder and environment.
+        /// </summary>
+        public IStatement Apply(Tuple<IEnvironment, ITypeBuilder, IMethodBuilder, IStatement> Value)
+        {
+            return Apply(Value.Item1, Value.Item2, Value.Item3, Value.Item4);
+        }
+    }
+}

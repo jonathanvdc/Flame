@@ -186,9 +186,15 @@
 			<Compile Include="Variables\TypedEmitVariable.ds" />
 		</ItemGroup>
 	</ItemGroup>
-	<ItemGroup Name="Expressions">
+	<ItemGroup Name="Visitors">
 		<ItemGroup>
+			<Compile Include="Visitors\BodyPassBase.ds" />
+			<Compile Include="Visitors\IPass.ds" />
+			<Compile Include="Visitors\LowerYieldPass.ds" />
 			<Compile Include="Visitors\NodeVisitorBase.ds" />
+			<Compile Include="Visitors\StatementPass.ds" />
+			<Compile Include="Visitors\StatementVisitorBase.ds" />
+			<Compile Include="Visitors\VariableCapturingVisitor.ds" />
 			<Compile Include="Visitors\VariableSubstitutingVisitor.ds" />
 		</ItemGroup>
 	</ItemGroup>

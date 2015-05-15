@@ -1,0 +1,88 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Build;
+using Flame.Compiler.Build;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Visitors
+{
+    public class VariableCapturingVisitor : VariableSubsitutingVisitorBase
+    {
+        public const this(set ITypeBuilder Type)
+        {
+            this.captArgs = new Dictionary<IVariable, IVariable>();
+            this.capturedVariables = new Dictionary<IVariable, IVariable>();
+            this.thisVariable = ThisReferenceVariable.Create(Type);
+        }
+
+        public ITypeBuilder Type { const get; private set; }
+        public IReadOnlyDictionary<IVariable, IVariable> CapturedArguments { const get return captArgs; }
+
+        private Dictionary<IVariable, IVariable> captArgs;
+        private Dictionary<IVariable, IVariable> capturedVariables;
+        private IVariable thisVariable;
+
+        private IVariable CaptureVariable(IVariable Variable, string Name, bool IsArgument)
+        {
+            var descCaptField = new DescribedField("__captured_" + Name, Variable.Type, false);
+            descCaptField.AddAttribute(new AccessAttribute(AccessModifier.Private));
+            descCaptField.AddAttribute(PrimitiveAttributes.HiddenAttribute);
+            descCaptField.DeclaringType = Type;
+
+            var captField = Type.DeclareField(descCaptField);
+            var captFieldVar = new FieldVariable(captField, thisVariable.CreateGetExpression());
+
+            if (IsArgument)
+            {
+                captArgs[Variable] = captFieldVar;
+            }
+
+            capturedVariables[Variable] = captFieldVar;
+
+            return captFieldVar;
+        }
+
+        public IVariable GetCapturedVariable(IVariable Variable, string Name, bool IsArgument)
+        {
+            if (capturedVariables.ContainsKey(Variable))
+            {
+                return capturedVariables[Variable];
+            }
+
+            return CaptureVariable(Variable, Name, IsArgument);
+        }
+
+        protected override bool CanSubstituteVariable(IVariable Variable)
+        {
+            return Variable is LateBoundVariable || Variable is ArgumentVariable ||
+                   Variable is ThisVariable || capturedVariables.ContainsKey(Variable);
+        }
+        protected override IVariable SubstituteVariable(IVariable Variable)
+        {
+            if (capturedVariables.ContainsKey(Variable))
+            {
+                return capturedVariables[Variable];
+            }
+
+            if (Variable is LateBoundVariable)
+            {
+                return CaptureVariable(Variable, "local_" + ((LateBoundVariable)Variable).Member.Name, false);
+            }
+            else if (Variable is ArgumentVariable)
+            {
+                return CaptureVariable(Variable, "arg_" + ((ArgumentVariable)Variable).Parameter.Name, true);
+            }
+            else if (Variable is ThisVariable)
+            {
+                return CaptureVariable(Variable, "this", true);
+            }
+            else
+            {
+                return null; // Whaaaaaat?
+            }
+        }
+    }
+}

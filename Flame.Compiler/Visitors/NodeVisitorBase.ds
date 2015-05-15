@@ -6,12 +6,12 @@ namespace Flame.Compiler.Visitors
 {
     public abstract class NodeVisitorBase : INodeVisitor
     {
-        protected abstract bool Matches(IExpression Value);
-        protected abstract bool Matches(IStatement Value);
+        public abstract bool Matches(IExpression Value);
+        public abstract bool Matches(IStatement Value);
         protected abstract IExpression Transform(IExpression Expression);
         protected abstract IStatement Transform(IStatement Statement);
 
-        public IExpression Visit(IExpression Value)
+        public virtual IExpression Visit(IExpression Value)
         {
             if (Matches(Value))
             {
@@ -23,7 +23,7 @@ namespace Flame.Compiler.Visitors
             }
         }
 
-        public IStatement Visit(IStatement Value)
+        public virtual IStatement Visit(IStatement Value)
         {
             if (Matches(Value))
             {

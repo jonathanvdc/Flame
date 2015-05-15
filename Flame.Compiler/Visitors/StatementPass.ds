@@ -1,0 +1,27 @@
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// Defines a statement pass based on a node visitor.
+    /// </summary>
+    public class StatementPass : IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// Creates a new statement pass instance based on the given node visitor.
+        /// </summary>
+        public const this(set INodeVisitor Visitor);
+
+        /// <summary>
+        /// Gets the statement pass' node visitor.
+        /// </summary>
+        public INodeVisitor Visitor { const get; private set; }
+
+        /// <summary>
+        /// Applies this pass to the given statement.
+        /// </summary>
+        public IStatement Apply(IStatement Value)
+        {
+            return Visitor.Visit(Value);
+        }
+    }
+}
