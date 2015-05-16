@@ -20,28 +20,30 @@ namespace Flame.Front.State
             this.Arguments = Arguments;
             this.Handler = Handler;
             this.Project = Project;
-            this.baseLog = Log;
+            this.log = new Lazy<ICompilerLog>(() => Log.WithOptions(Options));
+            this.filteredLog = new Lazy<ICompilerLog>(() => new FilteredLog(Arguments.LogFilter, this.Log));
+            this.options = new Lazy<ICompilerOptions>(() =>
+            {
+                var parser = new TransformingOptionParser<string, string[]>(Arguments.OptionParser, item => new string[] { item });
+                return BuildTarget.GetCompilerOptions(Arguments, parser, Project);
+            });
         }
 
-        private ICompilerLog baseLog;
-        private ICompilerLog log;
+        private Lazy<ICompilerLog> log;
         public ICompilerLog Log
         {
             get
             {
-                if (log == null)
-                {
-                    log = baseLog.WithOptions(Options);
-                }
-                return log;
+                return log.Value;
             }
         }
 
+        private Lazy<ICompilerLog> filteredLog;
         public ICompilerLog FilteredLog
         {
             get
             {
-                return new FilteredLog(Arguments.LogFilter, Log);
+                return filteredLog.Value;
             }
         }
 
@@ -51,17 +53,12 @@ namespace Flame.Front.State
         public IProjectHandler Handler { get; private set; }
         public IProject Project { get; private set; }
 
-        private ICompilerOptions options;
+        private Lazy<ICompilerOptions> options;
         public ICompilerOptions Options
         {
             get
             {
-                if (options == null)
-                {
-                    var parser = new TransformingOptionParser<string, string[]>(Arguments.OptionParser, item => new string[] { item });
-                    options = BuildTarget.GetCompilerOptions(Arguments, parser, Project);
-                }
-                return options;
+                return options.Value;
             }
         }
 

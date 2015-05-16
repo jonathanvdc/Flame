@@ -28,11 +28,15 @@ namespace Flame.Front.Target
             return new EmptyAssemblyResolver();
         }
 
-        public BuildTarget CreateBuildTarget(string Identifier, IProject Project, ICompilerLog Log, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
+        public IDependencyBuilder CreateDependencyBuilder(string Identifier, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
         {
-            var targetAsm = new ContractAssembly(Project.AssemblyName, new ContractEnvironment());
-            var depBuilder = new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, targetAsm.CreateBinder().Environment, CurrentPath, OutputDirectory, Log);
-            return new BuildTarget(targetAsm, RuntimeAssemblyResolver, depBuilder, "txt");
+            return new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, ContractEnvironment.Instance, CurrentPath, OutputDirectory, Log);
+        }
+
+        public BuildTarget CreateBuildTarget(string PlatformIdentifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)
+        {
+            var targetAsm = new ContractAssembly(Info.Name, ContractEnvironment.Instance);
+            return new BuildTarget(targetAsm, DependencyBuilder, "txt");
         }
     }
 }

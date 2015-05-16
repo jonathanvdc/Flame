@@ -40,7 +40,7 @@ namespace Flame.MIPS
 
         public IBinder CreateBinder()
         {
-            return new NamespaceTreeBinder(new MarsEnvironment(), MainNamespace);
+            return new NamespaceTreeBinder(MarsEnvironment.Instance, MainNamespace);
         }
 
         public IMethod GetEntryPoint()

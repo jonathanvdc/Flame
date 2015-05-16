@@ -105,7 +105,7 @@ namespace Flame.Python
 
         public IBinder CreateBinder()
         {
-            return new NamespaceTreeBinder(new PythonEnvironment(), RootNamespace);
+            return new NamespaceTreeBinder(PythonEnvironment.Instance, RootNamespace);
         }
     }
 }

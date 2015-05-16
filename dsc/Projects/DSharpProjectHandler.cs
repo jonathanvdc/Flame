@@ -56,7 +56,7 @@ namespace dsc.Projects
             var units = await ParseCompilationUnitsAsync(Project.GetSourceItems(), Parameters);
             var binder = await Parameters.BinderTask;
 
-            var dsAsm = new SyntaxAssembly(DSharpBuildHelpers.Instance.CreatePrimitiveBinder(binder), Project.Name, GetTypeNamer(Parameters.Log.Options));
+            var dsAsm = new SyntaxAssembly(DSharpBuildHelpers.Instance.CreatePrimitiveBinder(binder), Parameters.Log.GetAssemblyName(Project.AssemblyName ?? Project.Name ?? ""), GetTypeNamer(Parameters.Log.Options));
             foreach (var item in units)
             {
                 dsAsm.AddCompilationUnit(item, Parameters.Log);

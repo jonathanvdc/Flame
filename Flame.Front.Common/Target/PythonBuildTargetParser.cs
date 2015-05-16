@@ -28,11 +28,15 @@ namespace Flame.Front.Target
             return new EmptyAssemblyResolver();
         }
 
-        public BuildTarget CreateBuildTarget(string Identifier, IProject Project, ICompilerLog Log, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
+        public IDependencyBuilder CreateDependencyBuilder(string Identifier, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
         {
-            var targetAsm = new PythonAssembly(Project.AssemblyName, new Version(), new PythonifyingMemberNamer());
-            var depBuilder = new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, targetAsm.CreateBinder().Environment, CurrentPath, OutputDirectory, Log);
-            return new BuildTarget(targetAsm, RuntimeAssemblyResolver, depBuilder, "py");
+            return new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, PythonEnvironment.Instance, CurrentPath, OutputDirectory, Log);
+        }
+
+        public BuildTarget CreateBuildTarget(string PlatformIdentifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)
+        {
+            var targetAsm = new PythonAssembly(Info.Name, Info.Version, new PythonifyingMemberNamer());
+            return new BuildTarget(targetAsm, DependencyBuilder, "py");
         }
     }
 }

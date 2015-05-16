@@ -28,11 +28,15 @@ namespace Flame.Front.Target
             return MarsRuntimeLibraries.Resolver;
         }
 
-        public BuildTarget CreateBuildTarget(string Identifier, IProject Project, ICompilerLog Log, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
+        public IDependencyBuilder CreateDependencyBuilder(string Identifier, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
         {
-            var targetAsm = new AssemblerAssembly(Project.AssemblyName, new Version(), new MarsEnvironment());
-            var depBuilder = new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, targetAsm.CreateBinder().Environment, CurrentPath, OutputDirectory, Log);
-            return new BuildTarget(targetAsm, RuntimeAssemblyResolver, depBuilder, "asm");
+            return new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, MarsEnvironment.Instance, CurrentPath, OutputDirectory, Log);
+        }
+
+        public BuildTarget CreateBuildTarget(string PlatformIdentifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)
+        {
+            var targetAsm = new AssemblerAssembly(Info.Name, Info.Version, MarsEnvironment.Instance);
+            return new BuildTarget(targetAsm, DependencyBuilder, "asm");
         }
     }
 }
