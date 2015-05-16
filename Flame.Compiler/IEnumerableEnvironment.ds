@@ -24,7 +24,7 @@ namespace Flame.Compiler
 		/// </summary>
 		void ImplementEnumerator(ITypeBuilder TargetType, IType ElementType, IBodyMethod MoveNextImplementation, IProperty CurrentImplementation);
 	}
-	
+
 	public static class EnumerableEnvironmentExtensions
 	{
 		/// <summary>
@@ -32,13 +32,15 @@ namespace Flame.Compiler
 		/// </summary>
 		public static void ImplementEnumerable(this IEnumerableEnvironment Environment, ITypeBuilder TargetType, IType ElementType, IStatement GetEnumeratorBody)
 		{
-			var descBodyMethod = new DescribedBodyMethod("GetEnumerator", TargetType, ElementType, false);
+			var enumeratorType = Environment.EnumeratorType.MakeGenericType(new IType[] { ElementType });
+
+			var descBodyMethod = new DescribedBodyMethod("GetEnumerator", TargetType, enumeratorType, false);
 			descBodyMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
 			descBodyMethod.Body = GetEnumeratorBody;
-			
+
 			Environment.ImplementEnumerable(TargetType, ElementType, descBodyMethod);
 		}
-		
+
 		/// <summary>
 		/// Implements the enumerator pattern for the given type based on the provided implementations for the move next method and current item property.
 		/// </summary>
@@ -46,13 +48,13 @@ namespace Flame.Compiler
 		{
 			var descMoveNextMethod = new DescribedBodyMethod("MoveNext", TargetType, PrimitiveTypes.Boolean, false);
 			descMoveNextMethod.Body = MoveNextBody;
-			
+
 			var descCurrentProperty = new DescribedProperty("Current", TargetType, ElementType, false);
 			var descGetCurrentAccessor = new DescribedBodyAccessor(AccessorType.GetAccessor, descCurrentProperty, ElementType);
 			descGetCurrentAccessor.AddAttribute(PrimitiveAttributes.ConstantAttribute);
 			descGetCurrentAccessor.Body = GetCurrentBody;
 			descCurrentProperty.AddAccessor(descGetCurrentAccessor);
-			
+
 			Environment.ImplementEnumerator(TargetType, ElementType, descMoveNextMethod, descCurrentProperty);
 		}
 	}

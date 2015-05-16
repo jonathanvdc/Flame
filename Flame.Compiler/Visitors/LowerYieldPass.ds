@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Build;
 using Flame.Compiler.Build;
 using Flame.Compiler.Expressions;
@@ -19,29 +20,43 @@ namespace Flame.Compiler.Visitors
     /// </summary>
     public static class LowerYieldPass : BodyPassBase
     {
+        private const ITypeBuilder CreateNestedType(IEnvironment Environment, INamespaceBuilder DeclaringNamespace,
+                                                    IMethodBuilder Method, IType ElementType)
+        {
+            var descNestedType = new DescribedType("__" + Method.Name + "_enumerator", DeclaringNamespace);
+            descNestedType.AddAttribute(new AccessAttribute(AccessModifier.Private));
+            descNestedType.AddAttribute(PrimitiveAttributes.HiddenAttribute);
+            descNestedType.AddBaseType(Method.ReturnType);
+            foreach (var item in Method.GetGenericParameters())
+            {
+                descNestedType.AddGenericParameter(item);
+            }
+
+            var enumeratorType = Environment.EnumeratorType;
+
+            if (enumeratorType != null)
+                descNestedType.AddBaseType(enumeratorType.MakeGenericType(new IType[] { ElementType }));
+
+            return DeclaringNamespace.DeclareType(descNestedType);
+        }
+
         /// <summary>
         /// Applies this pass to the given method, method body, type builder and environment.
         /// </summary>
-        public override IStatement Apply(IEnvironment Environment, ITypeBuilder Type, IMethodBuilder Method, IStatement Body)
+        public override IStatement Apply(IEnvironment Environment, ITypeBuilder Type,
+                                         IMethodBuilder Method, IStatement Body)
         {
             if (!Method.ReturnType.IsEnumerableType || !YieldNodeFindingVisitor.UsesYield(Body))
             {
                 return Body;
             }
 
-            var nsBuilder = (INamespaceBuilder)Type;
             var enumerableEnvironment = (IEnumerableEnvironment)Environment;
-
-            var descNestedType = new DescribedType("__" + Method.Name + "_enumerator", nsBuilder);
-            descNestedType.AddAttribute(new AccessAttribute(AccessModifier.Private));
-            descNestedType.AddAttribute(PrimitiveAttributes.HiddenAttribute);
-            descNestedType.AddBaseType(Method.ReturnType);
+            var nsBuilder = (INamespaceBuilder)Type;
 
             var elemType = Method.ReturnType.GetEnumerableElementType();
 
-            descNestedType.AddBaseType(Environment.EnumeratorType.MakeGenericType(new IType[] { elemType }));
-
-            var nestedType = nsBuilder.DeclareType(descNestedType);
+            var nestedType = CreateNestedType(enumerableEnvironment, nsBuilder, Method, elemType);
 
             var descStateField = new DescribedField("__enumerator_state", PrimitiveTypes.Int32, false);
             descStateField.AddAttribute(new AccessAttribute(AccessModifier.Private));
@@ -54,7 +69,9 @@ namespace Flame.Compiler.Visitors
             descValField.DeclaringType = nestedType;
 
             var stateField = nestedType.DeclareField(descStateField);
+            stateField.Build();
             var valueField = nestedType.DeclareField(descValField);
+            valueField.Build();
 
             var enumeratorThisVariable = new ThisVariable(nestedType);
             var stateVar = new FieldVariable(stateField, enumeratorThisVariable.CreateGetExpression());
@@ -78,6 +95,14 @@ namespace Flame.Compiler.Visitors
             var initExprs = new List<IExpression>();
             var initStatements = new List<IStatement>();
 
+            if (Environment.RootType != null)
+            {
+                initStatements.Add(new ExpressionStatement(new InvocationExpression(
+                    Environment.RootType.GetConstructor(new IType[] { }, false),
+                    new ThisVariable(nestedType).CreateGetExpression(),
+                    new IExpression[] { })));
+            }
+
             int argCount = 0;
             foreach (var item in visitor.CapturedArguments)
             {
@@ -87,13 +112,24 @@ namespace Flame.Compiler.Visitors
                 initExprs.Add(item.Key.CreateGetExpression());
                 argCount++;
             }
+            initStatements.Add(new ReturnStatement(null));
 
             var enumCtor = nestedType.DeclareMethod(descCtor);
             var ctorCodeGen = enumCtor.GetBodyGenerator();
             var ctorBody = new BlockStatement(initStatements).Emit(ctorCodeGen);
             enumCtor.SetMethodBody(ctorBody);
+            enumCtor.Build();
 
-            return new ReturnStatement(new InvocationExpression(enumCtor, null, initExprs));
+            if (nestedType.IsGeneric)
+            {
+                var inst = nestedType.MakeGenericType(Method.GetGenericParameters());
+                var genCtor = Enumerable.Single<IMethod>(inst.GetConstructors());
+                return new ReturnStatement(new InvocationExpression(genCtor, null, initExprs));
+            }
+            else
+            {
+                return new ReturnStatement(new InvocationExpression(enumCtor, null, initExprs));
+            }
         }
     }
 

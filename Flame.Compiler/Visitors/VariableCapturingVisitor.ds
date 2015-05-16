@@ -33,6 +33,7 @@ namespace Flame.Compiler.Visitors
             descCaptField.DeclaringType = Type;
 
             var captField = Type.DeclareField(descCaptField);
+            captField.Build();
             var captFieldVar = new FieldVariable(captField, thisVariable.CreateGetExpression());
 
             if (IsArgument)

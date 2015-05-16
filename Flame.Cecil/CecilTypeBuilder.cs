@@ -88,7 +88,7 @@ namespace Flame.Cecil
         {
             var isNested = CecilNamespace is ICecilType;
             var typeAttrs = ExtractTypeAttributes(Template.GetAttributes());
-            if (isNested && (typeAttrs & TypeAttributes.Public) == TypeAttributes.Public)
+            if (isNested && (typeAttrs & TypeAttributes.VisibilityMask) == TypeAttributes.Public)
             {
                 typeAttrs &= ~TypeAttributes.Public;
                 typeAttrs |= TypeAttributes.NestedPublic;
@@ -226,6 +226,21 @@ namespace Flame.Cecil
         public void AddEvent(EventDefinition Event)
         {
             GetResolvedType().Events.Add(Event);
+        }
+
+        public void DeclareBaseType(ICecilType Type)
+        {
+            var resolvedType = GetResolvedType();
+            var importedRef = Type.GetImportedReference(Module, resolvedType);
+            if (Type.get_IsInterface())
+            {
+                resolvedType.Interfaces.Add(importedRef);
+            }
+            else
+            {
+                resolvedType.BaseType = importedRef;
+            }
+            ClearBaseTypeCache();
         }
 
         private static IExpression CreateSingletonCall(IExpression GetSingletonExpression, IMethod Method)

@@ -12,6 +12,11 @@ namespace Flame.Cecil
         public CecilResolvedTypeBase(CecilModule Module)
             : base(Module)
         {
+            ClearBaseTypeCache();
+        }
+
+        protected void ClearBaseTypeCache()
+        {
             this.cachedBaseTypes = new Lazy<IType[]>(GetBaseTypesCore);
         }
 

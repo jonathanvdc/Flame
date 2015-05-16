@@ -47,8 +47,7 @@ namespace Flame.Recompilation
 
         public bool RecompileBodies { [Pure] get { return Settings.RecompileBodies; } }
         public bool LogRecompilation { [Pure] get { return Settings.LogRecompilation; } }
-
-        public IEnvironment Environment { [Pure] get; private set; }
+        public IEnvironment Environment { [Pure] get { return cachedEnvironment.Value; } }
 
         #region Cache
 
