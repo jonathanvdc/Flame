@@ -8,6 +8,15 @@ namespace Flame.TextContract
 {
     public class ContractEnvironment : IEnvironment
     {
+        private ContractEnvironment() { }
+
+        static ContractEnvironment()
+        {
+            Instance = new ContractEnvironment();
+        }
+
+        public static ContractEnvironment Instance { get; private set; }
+
         public IType EnumerableType
         {
             get { return ContractIterableType.Instance; }

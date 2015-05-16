@@ -70,7 +70,7 @@ namespace Flame.Cecil
         {
             get
             {
-                return Modules.First(item => item.IsMain);
+                return new CecilModule(this, Assembly.MainModule, AncestryGraph);
             }
         }
 

@@ -80,6 +80,7 @@
     <Compile Include="Cli\IConsole.cs" />
     <Compile Include="MultiBinder.cs" />
     <Compile Include="Cli\INodeWriter.cs" />
+    <Compile Include="LogExtensions.cs" />
     <Compile Include="Options\TransformingOptionParser.cs" />
     <Compile Include="Options\MergedOptions.cs" />
     <Compile Include="PathIdentifier.cs" />
@@ -110,6 +111,7 @@
     <Compile Include="ReferenceDependency.cs" />
     <Compile Include="MultiAssemblyResolver.cs" />
     <Compile Include="State\CompilerEnvironment.cs" />
+    <Compile Include="Target\AssemblyCreationInfo.cs" />
     <Compile Include="Target\BuildTarget.cs" />
     <Compile Include="Target\DependencyBuilder.cs" />
     <Compile Include="Target\IBuildTargetParser.cs" />

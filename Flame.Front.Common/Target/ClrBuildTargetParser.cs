@@ -28,27 +28,51 @@ namespace Flame.Front.Target
             return CecilRuntimeLibraries.Resolver;
         }
 
-        public BuildTarget CreateBuildTarget(string Identifier, IProject Project, ICompilerLog Log, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
+        public IDependencyBuilder CreateDependencyBuilder(string Identifier, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, 
+                                                          ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
         {
             var resolver = new Flame.Cecil.SpecificAssemblyResolver();
-            Mono.Cecil.ModuleKind moduleKind;
-            string extension;
+
+            var mscorlib = Mono.Cecil.ModuleDefinition.ReadModule(typeof(object).Module.FullyQualifiedName, new Mono.Cecil.ReaderParameters() { AssemblyResolver = resolver });
+            var mscorlibAsm = new CecilAssembly(mscorlib.Assembly, Log, CecilReferenceResolver.ConversionCache);
+            var env = new CecilEnvironment(mscorlibAsm.MainModule);
+
+            var cecilDepBuilder = new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, env, CurrentPath, OutputDirectory, Log);
+            cecilDepBuilder.SetCecilResolver(resolver);
+            return cecilDepBuilder;
+        }
+
+        private static Mono.Cecil.ModuleKind GetModuleKind(string Identifier, AssemblyCreationInfo Info)
+        {
             switch (Identifier.Substring(3))
             {
                 case "/release-console":
-                    moduleKind = Mono.Cecil.ModuleKind.Console;
-                    extension = "exe";
-                    break;
+                case "/console":
+                    return Mono.Cecil.ModuleKind.Console;
+
+                case "/release-library":
+                case "/release-dll":
+                case "/library":
+                case "/dll":
+                    return Mono.Cecil.ModuleKind.Dll;
+
                 case "/release":
                 default:
-                    moduleKind = Mono.Cecil.ModuleKind.Dll;
-                    extension = "dll";
-                    break;
+                    return Info.IsExecutable ? Mono.Cecil.ModuleKind.Console : Mono.Cecil.ModuleKind.Dll;
             }
-            var asm = new CecilAssembly(Project.AssemblyName, new Version(), moduleKind, resolver, Log, CecilReferenceResolver.ConversionCache);
-            var cecilDepBuilder = new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, asm.CreateBinder().Environment, CurrentPath, OutputDirectory, Log);
-            cecilDepBuilder.SetCecilResolver(resolver);
-            return new BuildTarget(asm, RuntimeAssemblyResolver, cecilDepBuilder, extension);
+        }
+
+
+        public BuildTarget CreateBuildTarget(string Identifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)
+        {
+            var moduleKind = GetModuleKind(Identifier, Info);
+            string extension = moduleKind == Mono.Cecil.ModuleKind.Dll ? "dll" : "exe";
+
+            var resolver = DependencyBuilder.GetCecilResolver();
+
+            var asm = new CecilAssembly(Info.Name, Info.Version, moduleKind, resolver, DependencyBuilder.Log, CecilReferenceResolver.ConversionCache);
+
+            return new BuildTarget(asm, DependencyBuilder, extension);
         }
     }
 }

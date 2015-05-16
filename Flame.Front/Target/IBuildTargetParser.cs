@@ -14,7 +14,10 @@ namespace Flame.Front.Target
 
         bool MatchesPlatformIdentifier(string Identifier);
         IAssemblyResolver GetRuntimeAssemblyResolver(string Identifier);
-        BuildTarget CreateBuildTarget(string Identifier, IProject Project, ICompilerLog Log, IAssemblyResolver RuntimeAssemblyResolver,
-                                      IAssemblyResolver ExternalResolver, PathIdentifier CurrentPath, PathIdentifier OutputDirectory);
+
+        IDependencyBuilder CreateDependencyBuilder(string Identifier, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, 
+                                                   ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory);
+
+        BuildTarget CreateBuildTarget(string PlatformIdentifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder);
     }
 }

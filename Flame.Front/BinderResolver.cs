@@ -13,17 +13,17 @@ namespace Flame.Front
 
         public IProject Project { get; private set; }
 
-        public async Task<IBinder> CreateBinderAsync(BuildTarget Target)
+        public async Task<IBinder> CreateBinderAsync(IDependencyBuilder DependencyBuilder)
         {
             foreach (var item in Project.GetRuntimeLibraryReferences())
             {
-                await Target.DependencyBuilder.AddRuntimeLibraryAsync(item);
+                await DependencyBuilder.AddRuntimeLibraryAsync(item);
             } 
             foreach (var item in Project.GetProjectReferences())
             {
-                await Target.DependencyBuilder.AddReferenceAsync(new ReferenceDependency(item, true));
+                await DependencyBuilder.AddReferenceAsync(new ReferenceDependency(item, true));
             }
-            return Target.DependencyBuilder.CreateBinder();
+            return DependencyBuilder.CreateBinder();
         }
     }
 }

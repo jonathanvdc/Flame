@@ -151,10 +151,14 @@ namespace Flame.Front.Cli
         {
             var dirName = State.Arguments.GetTargetPathWithoutExtension(State.ParentPath, Project).Parent;
 
-            var target = BuildTargetParsers.CreateBuildTarget(Project, State.FilteredLog, State.Arguments.GetTargetPlatform(Project), State.CurrentPath, dirName);
+            string targetIdent = State.Arguments.GetTargetPlatform(Project);
+
+            var targetParser = BuildTargetParsers.GetParserOrThrow(State.FilteredLog, targetIdent, State.CurrentPath);
+
+            var dependencyBuilder = BuildTargetParsers.CreateDependencyBuilder(targetParser, targetIdent, State.FilteredLog, State.CurrentPath, dirName);
 
             var binderResolver = new BinderResolver(Project);
-            var binderTask = binderResolver.CreateBinderAsync(target);
+            var binderTask = binderResolver.CreateBinderAsync(dependencyBuilder);
 
             var projAsm = await State.CompileAsync(binderTask);
 
@@ -164,6 +168,8 @@ namespace Flame.Front.Cli
                 VerificationExtensions.VerifyAssembly(projAsm, State.Log);
                 State.FilteredLog.LogEvent(new LogEntry("Status", "Verified"));
             }
+
+            var target = BuildTargetParsers.CreateBuildTarget(targetParser, targetIdent, dependencyBuilder, projAsm);
 
             State.FilteredLog.LogEvent(new LogEntry("Status", "Recompiling..."));
 

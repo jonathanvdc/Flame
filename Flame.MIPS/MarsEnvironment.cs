@@ -8,8 +8,15 @@ namespace Flame.MIPS
 {
     public class MarsEnvironment : IEnvironment
     {
-        public MarsEnvironment()
+        private MarsEnvironment()
         { }
+
+        static MarsEnvironment()
+        {
+            Instance = new MarsEnvironment();
+        }
+
+        public static MarsEnvironment Instance { get; private set; }
 
         public IType EnumerableType
         {
