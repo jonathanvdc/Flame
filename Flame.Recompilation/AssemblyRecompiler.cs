@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Visitors;
 using Flame.Recompilation.Emit;
 using System;
 using System.Collections.Generic;
@@ -12,25 +13,25 @@ namespace Flame.Recompilation
 {
     public class AssemblyRecompiler : IAssemblyRecompiler
     {
-        public AssemblyRecompiler(IAssemblyBuilder TargetAssembly, ICompilerLog Log, IAsyncTaskManager TaskManager, IMethodOptimizer Optimizer, RecompilationSettings Settings)
+        public AssemblyRecompiler(IAssemblyBuilder TargetAssembly, ICompilerLog Log, IAsyncTaskManager TaskManager, PassSuite Passes, RecompilationSettings Settings)
         {
             this.TargetAssembly = TargetAssembly;
             this.Log = Log;
             this.TaskManager = TaskManager;
             this.Settings = Settings;
-            this.Optimizer = Optimizer;
+            this.Passes = Passes;
             InitCache();
         }
-        public AssemblyRecompiler(IAssemblyBuilder TargetAssembly, ICompilerLog Log, IAsyncTaskManager TaskManager, IMethodOptimizer Optimizer)
-            : this(TargetAssembly, Log, TaskManager, Optimizer, new RecompilationSettings(true, false))
+        public AssemblyRecompiler(IAssemblyBuilder TargetAssembly, ICompilerLog Log, IAsyncTaskManager TaskManager, PassSuite Passes)
+            : this(TargetAssembly, Log, TaskManager, Passes, new RecompilationSettings(true, false))
         {
         }
         public AssemblyRecompiler(IAssemblyBuilder TargetAssembly, ICompilerLog Log, IAsyncTaskManager TaskManager, RecompilationSettings Settings)
-            : this(TargetAssembly, Log, TaskManager, new DefaultOptimizer(), Settings)
+            : this(TargetAssembly, Log, TaskManager, PassSuite.Default, Settings)
         {
         }
         public AssemblyRecompiler(IAssemblyBuilder TargetAssembly, ICompilerLog Log, IAsyncTaskManager TaskManager)
-            : this(TargetAssembly, Log, TaskManager, new DefaultOptimizer(), new RecompilationSettings(true, false))
+            : this(TargetAssembly, Log, TaskManager, PassSuite.Default, new RecompilationSettings(true, false))
         {
         }
         public AssemblyRecompiler(IAssemblyBuilder TargetAssembly, ICompilerLog Log)
@@ -42,9 +43,12 @@ namespace Flame.Recompilation
         public ICompilerLog Log { [Pure] get; private set; }
         public IAsyncTaskManager TaskManager { [Pure] get; private set; }
         public RecompilationSettings Settings { [Pure] get; private set; }
-        public IMethodOptimizer Optimizer { [Pure] get; private set; }
+        public PassSuite Passes { [Pure] get; private set; }
+
         public bool RecompileBodies { [Pure] get { return Settings.RecompileBodies; } }
         public bool LogRecompilation { [Pure] get { return Settings.LogRecompilation; } }
+
+        public IEnvironment Environment { [Pure] get; private set; }
 
         #region Cache
 
@@ -56,6 +60,7 @@ namespace Flame.Recompilation
             this.MethodCache = new CompilationCache<IMethod>(GetNewMethod, TaskManager);
             this.NamespaceCache = new CompilationCache<INamespace>(GetNewNamespace, TaskManager);
             this.recompiledAssemblies = new List<IAssembly>();
+            this.cachedEnvironment = new Lazy<IEnvironment>(() => TargetAssembly.CreateBinder().Environment);
         }
 
         public CompilationCache<IType> TypeCache { [Pure] get; private set; }
@@ -64,6 +69,7 @@ namespace Flame.Recompilation
         public CompilationCache<IMethod> MethodCache { [Pure] get; private set; }
         public CompilationCache<INamespace> NamespaceCache { [Pure] get; private set; }
         private List<IAssembly> recompiledAssemblies;
+        private Lazy<IEnvironment> cachedEnvironment;
 
         #endregion
 
@@ -904,11 +910,7 @@ namespace Flame.Recompilation
             }
             try
             {
-                var optBody = Optimizer.GetOptimizedBody(bodyMethod);
-                var bodyStatement = GetStatement(optBody, TargetMethod);
-                var targetBody = TargetMethod.GetBodyGenerator();
-                var block = bodyStatement.Emit(targetBody);
-                TargetMethod.SetMethodBody(block);
+                Passes.RecompileBody(this, Environment, (ITypeBuilder)TargetMethod.DeclaringType, TargetMethod, bodyMethod);
                 TargetMethod.Build();
             }
             catch (Exception ex)
@@ -995,16 +997,9 @@ namespace Flame.Recompilation
 
         public IStatement GetStatement(IStatement SourceStatement, IMethod Method)
         {
-            try
-            {
-                var codeGen = new RecompiledCodeGenerator(this, Method);
-                var block = SourceStatement.Emit(codeGen);
-                return RecompiledCodeGenerator.GetStatement(block);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            var codeGen = new RecompiledCodeGenerator(this, Method);
+            var block = SourceStatement.Emit(codeGen);
+            return RecompiledCodeGenerator.GetStatement(block);
         }
 
         #endregion

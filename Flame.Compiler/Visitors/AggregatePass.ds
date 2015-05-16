@@ -1,0 +1,31 @@
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// Defines an aggregate pass, which applies two passes in sequence.
+    /// </summary>
+    public class AggregatePass<T> : IPass<T, T>
+    {
+        /// <summary>
+        /// Creates a new aggregate pass from the given passes.
+        /// </summary>
+        public const this(set IPass<T, T> First, set IPass<T, T> Second);
+
+        /// <summary>
+        /// Gets the first pass to apply to the input.
+        /// </summary>
+        public IPass<T, T> First { const get; private set; }
+        /// <summary>
+        /// Gets the second pass to apply to the input.
+        /// </summary>
+        public IPass<T, T> Second { const get; private set; }
+
+        /// <summary>
+        /// Applies this pass to the given value.
+        /// </summary>
+        public const T Apply(T Value)
+        {
+            return Second.Apply(First.Apply(Value));
+        }
+    }
+}

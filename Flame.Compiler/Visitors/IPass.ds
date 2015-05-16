@@ -12,4 +12,33 @@ namespace Flame.Compiler.Visitors
         /// </summary>
         TOut Apply(TIn Value);
     }
+
+    public static class PassExtensions
+    {
+        /// <summary>
+        /// Creates the aggregate of the given sequence of passes.
+        /// </summary>
+        public static const IPass<T, T> Aggregate<T>(this [IPass<T, T>] Passes)
+        {
+            IPass<T, T> result = new EmptyPass<T>();
+            foreach (var item in Passes)
+            {
+                result = new AggregatePass<T>(result, item);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Creates the aggregate of the given sequence of passes.
+        /// </summary>
+        public static const IPass<BodyPassArgument, IStatement> Aggregate(this [IPass<BodyPassArgument, IStatement>] Passes)
+        {
+            IPass<BodyPassArgument, IStatement> result = new SlimBodyPass(new EmptyPass<BodyPassArgument>());
+            foreach (var item in Passes)
+            {
+                result = new AggregateBodyPass(result, item);
+            }
+            return result;
+        }
+    }
 }
