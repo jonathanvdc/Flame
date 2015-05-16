@@ -8,22 +8,28 @@ using Flame.Compiler.Visitors;
 
 namespace Flame.Recompilation
 {
-    using IMethodPass = IPass<BodyPassArgument, IStatement>;
+    using IMethodPass    = IPass<BodyPassArgument, IStatement>;
     using IStatementPass = IPass<IStatement, IStatement>;
 
     public class PassSuite
     {
-        public PassSuite(IMethodOptimizer Optimizer, IMethodPass MethodPass, IStatementPass StatementPass)
-        {
-            this.Optimizer = Optimizer;
-            this.MethodPass = MethodPass;
-            this.StatementPass = StatementPass;
-        }
         public PassSuite(IMethodOptimizer Optimizer)
         {
             this.Optimizer = Optimizer;
             this.MethodPass = new SlimBodyPass(new EmptyPass<BodyPassArgument>());
             this.StatementPass = new EmptyPass<IStatement>();
+        }
+        public PassSuite(IMethodOptimizer Optimizer, IMethodPass MethodPass)
+        {
+            this.Optimizer = Optimizer;
+            this.MethodPass = MethodPass;
+            this.StatementPass = new EmptyPass<IStatement>();
+        }
+        public PassSuite(IMethodOptimizer Optimizer, IMethodPass MethodPass, IStatementPass StatementPass)
+        {
+            this.Optimizer = Optimizer;
+            this.MethodPass = MethodPass;
+            this.StatementPass = StatementPass;
         }
 
         public IMethodOptimizer Optimizer { get; private set; }
