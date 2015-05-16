@@ -25,6 +25,8 @@ namespace Flame.Compiler.Expressions
 
 		public IExpression Accept(INodeVisitor Visitor)
 		{
+			if (Caller == null) return this;
+
 			var transCaller = Visitor.Visit(Caller);
 
 			if (transCaller == Caller)

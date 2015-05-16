@@ -62,6 +62,7 @@ namespace Flame.Front.Target
             }
         }
 
+        public static readonly string[] PreferredPasses = { PassExtensions.LowerYieldPassName };
 
         public BuildTarget CreateBuildTarget(string Identifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)
         {
@@ -72,7 +73,7 @@ namespace Flame.Front.Target
 
             var asm = new CecilAssembly(Info.Name, Info.Version, moduleKind, resolver, DependencyBuilder.Log, CecilReferenceResolver.ConversionCache);
 
-            return new BuildTarget(asm, DependencyBuilder, extension);
+            return new BuildTarget(asm, DependencyBuilder, extension, PreferredPasses);
         }
     }
 }

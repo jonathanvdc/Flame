@@ -14,6 +14,8 @@ namespace Flame.Compiler.Statements
 
 		public IStatement Accept(INodeVisitor Visitor)
 		{
+			if (Value == null) return this;
+
 			var expr = Visitor.Visit(Value);
 
 			if (expr == Value)
