@@ -188,7 +188,9 @@
 	</ItemGroup>
 	<ItemGroup Name="Visitors">
 		<ItemGroup>
+			<Compile Include="Visitors\AggregatePass.ds" />
 			<Compile Include="Visitors\BodyPassBase.ds" />
+			<Compile Include="Visitors\EmptyPass.ds" />
 			<Compile Include="Visitors\IPass.ds" />
 			<Compile Include="Visitors\LowerYieldPass.ds" />
 			<Compile Include="Visitors\NodeVisitorBase.ds" />

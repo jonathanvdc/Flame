@@ -60,10 +60,13 @@ namespace Flame.Front
                     case "analysis":
                         return new AnalyzingOptimizer();*/
 
+                    case "none":
+                        return new DefaultOptimizer(false);
+
                     case "default":
                     case "conservative":
                     default:
-                        return new DefaultOptimizer();
+                        return new DefaultOptimizer(true);
                 }
             });
             return options;

@@ -3,12 +3,52 @@ using System;
 namespace Flame.Compiler.Visitors
 {
     /// <summary>
+    /// Contains a body pass' arguments.
+    /// </summary>
+    public struct BodyPassArgument
+    {
+        /// <summary>
+        /// Creates a new body pass argument from the given values.
+        /// </summary>
+        public const this(set IEnvironment Environment, set ITypeBuilder Type,
+                          set IMethodBuilder Method, set IStatement Body);
+
+        /// <summary>
+        /// Creates a new body pass argument from the given previous body
+        /// pass argument and new method body.
+        /// </summary>
+        public const this(BodyPassArgument Previous, set IStatement Body)
+        {
+            this.Environment = Previous.Environment;
+            this.Type = Previous.Type;
+            this.Method = Previous.Method;
+        }
+
+        /// <summary>
+        /// The target method's environment.
+        /// </summary>
+        public IEnvironment Environment { const get; private set; }
+        /// <summary>
+        /// The target method's declaring type.
+        /// </summary>
+        public ITypeBuilder Type { const get; private set; }
+        /// <summary>
+        /// The target method.
+        /// </summary>
+        public IMethodBuilder Method { const get; private set; }
+        /// <summary>
+        /// The target method's body statement.
+        /// </summary>
+        public IStatement Body { const get; private set; }
+    }
+
+    /// <summary>
     /// Defines a base class for method body passes.
     /// A method body pass is allowed to create new members within the
     /// method's declaring type, but cannot remove, rename or otherwise
     /// modify members.
     /// </summary>
-    public abstract class BodyPassBase : IPass<Tuple<IEnvironment, ITypeBuilder, IMethodBuilder, IStatement>, IStatement>
+    public abstract class BodyPassBase : IPass<BodyPassArgument, IStatement>
     {
         /// <summary>
         /// Creates a new body pass.
@@ -23,9 +63,82 @@ namespace Flame.Compiler.Visitors
         /// <summary>
         /// Applies this pass to the given method, method body, type builder and environment.
         /// </summary>
-        public IStatement Apply(Tuple<IEnvironment, ITypeBuilder, IMethodBuilder, IStatement> Value)
+        public IStatement Apply(BodyPassArgument Value)
         {
-            return Apply(Value.Item1, Value.Item2, Value.Item3, Value.Item4);
+            return Apply(Value.Environment, Value.Type, Value.Method, Value.Body);
+        }
+    }
+
+    /// <summary>
+    /// Defines a "fat" body pass: a pass that executes a body pass, and subsequently
+    /// combines the pass' output statement with the pass' other arguments.
+    /// </summary>
+    public class FatBodyPass : IPass<BodyPassArgument, BodyPassArgument>
+    {
+        /// <summary>
+        /// Creates a new fat bpdy pass based on the given body pass.
+        /// </summary>
+        public const this(set IPass<BodyPassArgument, IStatement> Pass);
+
+        /// <summary>
+        /// Gets the fat body pass' inner body pass.
+        /// </summary>
+        public IPass<BodyPassArgument, IStatement> Pass { const get; private set; }
+
+        public BodyPassArgument Apply(BodyPassArgument Value)
+        {
+            return new BodyPassArgument(Value, Pass.Apply(Value));
+        }
+    }
+
+    /// <summary>
+    /// Defines a "slim" body pass: a body pass that uses a "fat" body
+    /// pass under the hood.
+    /// </summary>
+    public class SlimBodyPass : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// Creates a new slim body pass based on the given fat body pass.
+        /// </summary>
+        public const this(set IPass<BodyPassArgument, BodyPassArgument> Pass);
+
+        /// <summary>
+        /// Gets the slim body pass' inner fat body pass.
+        /// </summary>
+        public IPass<BodyPassArgument, BodyPassArgument> Pass { const get; private set; }
+
+        public IStatement Apply(BodyPassArgument Value)
+        {
+            return Pass.Apply(Value).Body;
+        }
+    }
+
+    /// <summary>
+    /// Defines an aggregate body pass.
+    /// </summary>
+    public class AggregateBodyPass : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// Creates a new aggregate pass from the given passes.
+        /// </summary>
+        public const this(set IPass<BodyPassArgument, IStatement> First,
+                          set IPass<BodyPassArgument, IStatement> Second);
+
+        /// <summary>
+        /// Gets the first body pass to apply to the input.
+        /// </summary>
+        public IPass<BodyPassArgument, IStatement> First { const get; private set; }
+        /// <summary>
+        /// Gets the second body pass to apply to the input.
+        /// </summary>
+        public IPass<BodyPassArgument, IStatement> Second { const get; private set; }
+
+        /// <summary>
+        /// Applies this pass to the given value.
+        /// </summary>
+        public const IStatement Apply(BodyPassArgument Value)
+        {
+            return Second.Apply(new BodyPassArgument(Value, First.Apply(Value)));
         }
     }
 }

@@ -86,7 +86,7 @@ namespace Flame.Recompilation
 
         public override IEnumerable<IAttribute> GetAttributes()
         {
-            return base.GetAttributes().Concat(Recompiler.Optimizer.InferAttributes(SourceMethod));
+            return base.GetAttributes().Concat(Recompiler.Passes.Optimizer.InferAttributes(SourceMethod));
         }
 
         #region Static

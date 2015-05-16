@@ -1,0 +1,17 @@
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// Defines a generic empty pass, which merely returns its input argument.
+    /// </summary>
+    public class EmptyPass<T> : IPass<T, T>
+    {
+        /// <summary>
+        /// Applies this pass to the given value.
+        /// </summary>
+        public const T Apply(T Value)
+        {
+            return Value;
+        }
+    }
+}

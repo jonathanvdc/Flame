@@ -153,13 +153,6 @@ namespace Flame.Front.Cli
 
             var target = BuildTargetParsers.CreateBuildTarget(Project, State.FilteredLog, State.Arguments.GetTargetPlatform(Project), State.CurrentPath, dirName);
 
-            var targetPath = State.Arguments.GetTargetPath(State.ParentPath, Project, target);
-
-            if (target.TargetAssembly is Flame.TextContract.ContractAssembly)
-            {
-                dirName = dirName.Combine(targetPath.NameWithoutExtension);
-            }
-
             var binderResolver = new BinderResolver(Project);
             var binderTask = binderResolver.CreateBinderAsync(target);
 
@@ -176,12 +169,19 @@ namespace Flame.Front.Cli
 
             var recompSettings = new RecompilationSettings(!(target.TargetAssembly is Flame.TextContract.ContractAssembly), true);
 
-            var asmRecompiler = new AssemblyRecompiler(target.TargetAssembly, State.FilteredLog, new SingleThreadedTaskManager(), State.Arguments.Optimizer, recompSettings);
+            var asmRecompiler = new AssemblyRecompiler(target.TargetAssembly, State.FilteredLog, new SingleThreadedTaskManager(), new PassSuite(State.Arguments.Optimizer), recompSettings);
             await asmRecompiler.RecompileAsync(projAsm, new RecompilationOptions(State.Arguments.CompileAll, true));
 
             State.FilteredLog.LogEvent(new LogEntry("Status", "Done recompiling"));
 
             target.TargetAssembly.Build();
+
+            var targetPath = State.Arguments.GetTargetPath(State.ParentPath, Project, target);
+
+            if (target.TargetAssembly is Flame.TextContract.ContractAssembly)
+            {
+                dirName = dirName.Combine(targetPath.NameWithoutExtension);
+            }
 
             using (var outputProvider = new FileOutputProvider(dirName, targetPath))
             {
