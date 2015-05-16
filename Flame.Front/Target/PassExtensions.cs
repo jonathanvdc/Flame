@@ -37,7 +37,7 @@ namespace Flame.Front.Target
         public static List<PassInfo<BodyPassArgument, IStatement>> MethodPasses { get; private set; }
         public static List<PassInfo<IStatement, IStatement>> StatementPasses { get; private set; }
 
-        public static string LowerYieldPassName = "lower-yield";
+        public const string LowerYieldPassName = "lower-yield";
 
         private static void AddPass<TIn, TOut>(List<IPass<TIn, TOut>> Passes, PassInfo<TIn, TOut> Info, ICompilerLog Log, HashSet<string> PreferredPasses)
         {

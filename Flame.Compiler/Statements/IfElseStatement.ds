@@ -16,7 +16,12 @@ namespace Flame.Compiler.Statements
 		{
 			var transCond = Visitor.Visit(Condition);
 			var transIf = Visitor.Visit(IfBody);
-			var transElse = Visitor.Visit(ElseBody);
+
+			IStatement transElse;
+			if (ElseBody == null)
+				transElse = null;
+			else
+				transElse = Visitor.Visit(ElseBody);
 
 			if (transCond == Condition && transIf == IfBody &&
 				transElse == ElseBody)
