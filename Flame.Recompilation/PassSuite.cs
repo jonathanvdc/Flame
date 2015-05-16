@@ -14,16 +14,12 @@ namespace Flame.Recompilation
     public class PassSuite
     {
         public PassSuite(IMethodOptimizer Optimizer)
+            : this(Optimizer, new SlimBodyPass(new EmptyPass<BodyPassArgument>()))
         {
-            this.Optimizer = Optimizer;
-            this.MethodPass = new SlimBodyPass(new EmptyPass<BodyPassArgument>());
-            this.StatementPass = new EmptyPass<IStatement>();
         }
         public PassSuite(IMethodOptimizer Optimizer, IMethodPass MethodPass)
+            : this(Optimizer, MethodPass, new EmptyPass<IStatement>())
         {
-            this.Optimizer = Optimizer;
-            this.MethodPass = MethodPass;
-            this.StatementPass = new EmptyPass<IStatement>();
         }
         public PassSuite(IMethodOptimizer Optimizer, IMethodPass MethodPass, IStatementPass StatementPass)
         {
