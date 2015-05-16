@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Visitors
 {
@@ -20,14 +21,35 @@ namespace Flame.Compiler.Visitors
             return Value is IVariableNode;
         }
 
+        protected virtual T ApplyRecursively<T>(IVariable Variable, T(IVariable) Function)
+        {
+            if (Variable is LateBoundVariable)
+            {
+                var innerVal = ((LateBoundVariable)Variable).BoundVariable;
+                if (innerVal != null)
+                    return ApplyRecursively<T>(innerVal, Function);
+            }
+            return Function(Variable);
+        }
+
+        protected bool CanSubstituteVariableRecursively(IVariable Variable)
+        {
+            return ApplyRecursively<bool>(Variable, CanSubstituteVariable);
+        }
+
+        protected IVariable SubstituteVariableRecursively(IVariable Variable)
+        {
+            return ApplyRecursively<IVariable>(Variable, SubstituteVariable);
+        }
+
         protected override virtual IExpression Transform(IExpression Expression)
         {
             var node = (IVariableNode)Expression;
             var variable = node.GetVariable();
 
-            if (CanSubstituteVariable(variable))
+            if (CanSubstituteVariableRecursively(variable))
             {
-                var targetVariable = SubstituteVariable(variable);
+                var targetVariable = SubstituteVariableRecursively(variable);
                 if (node.Action == VariableNodeAction.AddressOf)
                 {
                     return ((IUnmanagedVariable)targetVariable).CreateAddressOfExpression();
@@ -45,12 +67,12 @@ namespace Flame.Compiler.Visitors
             var node = (IVariableNode)Statement;
             var variable = node.GetVariable();
 
-            if (CanSubstituteVariable(variable))
+            if (CanSubstituteVariableRecursively(variable))
             {
-                var targetVariable = SubstituteVariable(variable);
+                var targetVariable = SubstituteVariableRecursively(variable);
                 if (node.Action == VariableNodeAction.Set)
                 {
-                    return targetVariable.CreateSetStatement(((ISetVariableNode)node).Value);
+                    return targetVariable.CreateSetStatement(Visit(((ISetVariableNode)node).Value));
                 }
                 else if (node.Action == VariableNodeAction.Release)
                 {

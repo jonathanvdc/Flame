@@ -11,13 +11,21 @@ namespace Flame.Compiler.Visitors
 {
     public class VariableCapturingVisitor : VariableSubsitutingVisitorBase
     {
-        public const this(set ITypeBuilder Type)
+        public const this(set string FieldPrefix, set ITypeBuilder Type)
         {
             this.captArgs = new Dictionary<IVariable, IVariable>();
             this.capturedVariables = new Dictionary<IVariable, IVariable>();
             this.thisVariable = ThisReferenceVariable.Create(Type);
         }
+        public const this(set ITypeBuilder Type)
+        {
+            this.FieldPrefix = "captured";
+            this.captArgs = new Dictionary<IVariable, IVariable>();
+            this.capturedVariables = new Dictionary<IVariable, IVariable>();
+            this.thisVariable = ThisReferenceVariable.Create(Type);
+        }
 
+        public string FieldPrefix { const get; private set; }
         public ITypeBuilder Type { const get; private set; }
         public IReadOnlyDictionary<IVariable, IVariable> CapturedArguments { const get return captArgs; }
 
@@ -25,9 +33,30 @@ namespace Flame.Compiler.Visitors
         private Dictionary<IVariable, IVariable> capturedVariables;
         private IVariable thisVariable;
 
+        private const string CreateFieldName(string Name)
+        {
+            string prefix;
+            if (string.IsNullOrWhiteSpace(Name))
+            {
+                prefix = FieldPrefix + "_temp";
+            }
+            else
+            {
+                prefix = (FieldPrefix + "_" + Name).TrimEnd(new char[] { '_' });
+            }
+            string result = prefix;
+
+            for (int i = 1; Type.GetField(result, false) != null; i++)
+            {
+                result = prefix + i;
+            }
+
+            return result;
+        }
+
         private IVariable CaptureVariable(IVariable Variable, string Name, bool IsArgument)
         {
-            var descCaptField = new DescribedField("__captured_" + Name, Variable.Type, false);
+            var descCaptField = new DescribedField(CreateFieldName(Name), Variable.Type, false);
             descCaptField.AddAttribute(new AccessAttribute(AccessModifier.Private));
             descCaptField.AddAttribute(PrimitiveAttributes.HiddenAttribute);
             descCaptField.DeclaringType = Type;

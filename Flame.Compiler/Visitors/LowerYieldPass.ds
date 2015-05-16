@@ -58,12 +58,12 @@ namespace Flame.Compiler.Visitors
 
             var nestedType = CreateNestedType(enumerableEnvironment, nsBuilder, Method, elemType);
 
-            var descStateField = new DescribedField("__enumerator_state", PrimitiveTypes.Int32, false);
+            var descStateField = new DescribedField("enumerator_state", PrimitiveTypes.Int32, false);
             descStateField.AddAttribute(new AccessAttribute(AccessModifier.Private));
             descStateField.AddAttribute(PrimitiveAttributes.HiddenAttribute);
             descStateField.DeclaringType = nestedType;
 
-            var descValField = new DescribedField("__enumerator_value", elemType, false);
+            var descValField = new DescribedField("enumerator_value", elemType, false);
             descValField.AddAttribute(new AccessAttribute(AccessModifier.Private));
             descValField.AddAttribute(PrimitiveAttributes.HiddenAttribute);
             descValField.DeclaringType = nestedType;
@@ -215,11 +215,14 @@ namespace Flame.Compiler.Visitors
 
         public const IStatement CreateBody(IStatement Body)
         {
+            var mOneExpr = new Int32Expression(-1);
+
             return new BlockStatement(new IStatement[]
             {
                 CreatePrologue(),
                 Body,
-                new ReturnStatement(new BooleanExpression(false)) // This amounts to a yield break
+                StateVariable.CreateSetStatement(mOneExpr), // This amounts to a yield break
+                new ReturnStatement(new BooleanExpression(false))
             });
         }
 
@@ -230,7 +233,7 @@ namespace Flame.Compiler.Visitors
         public override bool Matches(IStatement Value)
         {
             return Value is YieldBreakStatement || Value is YieldReturnStatement ||
-                   variableVisitor.Matches(Value);
+                   Value is ForeachStatement || variableVisitor.Matches(Value);
         }
 
         protected override IExpression Transform(IExpression Expression)
@@ -240,12 +243,16 @@ namespace Flame.Compiler.Visitors
 
         protected override IStatement Transform(IStatement Statement)
         {
-            if (Statement is YieldBreakStatement)
+            if (Statement is ForeachStatement)
             {
-                var zeroExpr = new Int32Expression(0); // Makes sure we don't iterate any further beyond this point.
+                return Visit(((ForeachStatement)Statement).Lower());
+            }
+            else if (Statement is YieldBreakStatement)
+            {
+                var mOneExpr = new Int32Expression(-1); // Makes sure we don't iterate any further beyond this point.
                 return new BlockStatement(new IStatement[]
                 {
-                    StateVariable.CreateSetStatement(zeroExpr),
+                    StateVariable.CreateSetStatement(mOneExpr),
                     new ReturnStatement(new BooleanExpression(false)) // Nec plus ulta.
                 });
             }
