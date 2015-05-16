@@ -154,14 +154,6 @@ namespace Flame.Front.Options
             }
         }
 
-        public IMethodOptimizer Optimizer
-        {
-            get
-            {
-                return GetOption<IMethodOptimizer>("optimize", null) ?? new DefaultOptimizer();
-            }
-        }
-
         public ILogFilter LogFilter
         {
             get

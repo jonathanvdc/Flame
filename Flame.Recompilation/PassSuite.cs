@@ -44,12 +44,9 @@ namespace Flame.Recompilation
             Method.SetMethodBody(block);
         }
 
-        public static PassSuite Default
+        public static PassSuite CreateDefault(ICompilerLog Log)
         {
-            get
-            {
-                return new PassSuite(new DefaultOptimizer(), new SlimBodyPass(new EmptyPass<BodyPassArgument>()), new EmptyPass<IStatement>());
-            }
+            return new PassSuite(Log.GetMethodOptimizer(), new SlimBodyPass(new EmptyPass<BodyPassArgument>()), new EmptyPass<IStatement>()); 
         }
     }
 }
