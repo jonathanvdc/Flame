@@ -14,8 +14,8 @@ namespace Flame.Front.Target
 {
     public class BuildTarget
     {
-        public BuildTarget(IAssemblyBuilder TargetAssembly, IDependencyBuilder DependencyBuilder, string Extension)
-            : this(TargetAssembly, DependencyBuilder, Extension, PassSuite.CreateDefault(DependencyBuilder.Log))
+        public BuildTarget(IAssemblyBuilder TargetAssembly, IDependencyBuilder DependencyBuilder, string Extension, params string[] PreferredPasses)
+            : this(TargetAssembly, DependencyBuilder, Extension, PassExtensions.CreateSuite(DependencyBuilder.Log, PreferredPasses))
         {
         }
         public BuildTarget(IAssemblyBuilder TargetAssembly, IDependencyBuilder DependencyBuilder, string Extension, PassSuite Passes)
