@@ -13,8 +13,11 @@ public static class LowerYieldTest
         }
     }*/
 
-    public static [int] Test()
+    public static [double] Multiply([double] First, [double] Second)
     {
-        yield return 0;
+        foreach (var item1 in First, var item2 in Second)
+        {
+            yield return item1 * item2;
+        }
     }
 }
