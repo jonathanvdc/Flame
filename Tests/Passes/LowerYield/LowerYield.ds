@@ -1,0 +1,20 @@
+using System;
+using System.Collections.Generic;
+
+public static class LowerYieldTest
+{
+    /*public static [KeyValuePair<T, V>] Zip<T, V>([T] First, [V] Second)
+    {
+        var enum1 = First.GetEnumerator();
+        var enum2 = Second.GetEnumerator();
+        while (enum1.MoveNext() && enum2.MoveNext())
+        {
+            yield return new KeyValuePair<T, V>(enum1.Current, enum2.Current);
+        }
+    }*/
+
+    public static [int] Test()
+    {
+        yield return 0;
+    }
+}

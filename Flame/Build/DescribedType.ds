@@ -13,25 +13,32 @@ namespace Flame.Build
 			this.methods = new List<IMethod>();
 			this.fields = new List<IField>();
 			this.properties = new List<IProperty>();
+			this.typeParams = new List<IGenericParameter>();
 		}
-		
+
 		public INamespace DeclaringNamespace { const get; private set; }
-		
+
 		private List<IType> baseTypes;
 		private List<IMethod> ctors;
 		private List<IMethod> methods;
 		private List<IField> fields;
 		private List<IProperty> properties;
-		
+		private List<IGenericParameter> typeParams;
+
 		public const IType[] GetBaseTypes()
         {
             return baseTypes.ToArray();
         }
-        
+
         public void AddBaseType(IType BaseType)
         {
         	this.baseTypes.Add(BaseType);
         }
+
+		public void AddGenericParameter(IGenericParameter Value)
+		{
+			this.typeParams.Add(Value);
+		}
 
         public const ITypeMember[] GetMembers()
         {
@@ -47,7 +54,7 @@ namespace Flame.Build
         {
             return methods.ToArray();
         }
-        
+
         public void AddMethod(IMethod Method)
         {
         	if (Method.IsConstructor)
@@ -60,7 +67,7 @@ namespace Flame.Build
         {
             return properties.ToArray();
         }
-        
+
         public void AddProperty(IProperty Property)
         {
         	this.properties.Add(Property);
@@ -75,7 +82,7 @@ namespace Flame.Build
         {
             return fields.ToArray();
         }
-        
+
         public void AddField(IField Field)
         {
         	this.fields.Add(Field);
@@ -103,7 +110,7 @@ namespace Flame.Build
         {
             return null;
         }
-        
+
         public IArrayType MakeArrayType(int Rank)
         {
             return new DescribedArrayType(this, Rank);
@@ -121,24 +128,25 @@ namespace Flame.Build
 
         public IType MakeGenericType([IType] TypeArguments)
         {
-            return new DescribedGenericTypeInstance(this, TypeArguments);
+			if (typeParams.Count == 0) return this;
+            else return new DescribedGenericTypeInstance(this, TypeArguments);
         }
 
-        public IEnumerable<IGenericParameter> GetGenericParameters()
+        public [IGenericParameter] GetGenericParameters()
         {
-            return (IEnumerable<IGenericParameter>)new IGenericParameter[0];
+            return typeParams;
         }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public [IType] GetGenericArguments()
         {
-            return (IEnumerable<IType>)new IType[0];
+            return new IType[0];
         }
 
         public IType GetGenericDeclaration()
         {
             return this;
         }
-        
+
         public override string ToString()
         {
             return FullName;
