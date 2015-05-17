@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
+using System.Linq;
 
 public static class LowerYieldTest
 {
@@ -13,11 +15,60 @@ public static class LowerYieldTest
         }
     }*/
 
-    public static [double] Multiply([double] First, [double] Second)
+    public const [double] Fibonnaci()
+    {
+        double val1 = 0.0;
+        double val2 = 1.0;
+        yield return val1;
+        yield return val2;
+        while (true)
+        {
+            double nextValue = val1 + val2;
+            val1 = val2;
+            val2 = nextValue;
+            yield return val2;
+        }
+    }
+
+    public const [double] Linear()
+    {
+        double val = 0.0;
+        while (true)
+        {
+            yield return val;
+            val++;
+        }
+    }
+
+    public const [double] Multiply([double] First, [double] Second)
     {
         foreach (var item1 in First, var item2 in Second)
         {
             yield return item1 * item2;
         }
+    }
+
+    private string PrintSequence<T>([T] Values)
+        where T : object
+    {
+        var result = new StringBuilder();
+        result.Append("{");
+        bool isFirst = true;
+        foreach (var item in Values)
+        {
+            if (isFirst) { result.Append(" "); isFirst = false; }
+            else result.Append(", ");
+
+            result.Append(item);
+        }
+        result.Append(" }");
+        return (string)result;
+    }
+
+    public void Main(string[] Args)
+    {
+        var results = Multiply(Fibonnaci(), Enumerable.Take<double>(Linear(), 5));
+        Console.WriteLine("Results: " + PrintSequence<double>(results));
+        Console.WriteLine("Expected: " + PrintSequence<double>(new double[] { 0, 2, 3, 6, 12 }));
     }
 }
