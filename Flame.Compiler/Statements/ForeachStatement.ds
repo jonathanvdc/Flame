@@ -18,7 +18,7 @@ namespace Flame.Compiler.Statements
 		public List<ManuallyBoundVariable> ElementVariables { const get; private set; }
 	}
 
-	public class ForeachStatement : IStatement
+	public class ForeachStatement : IStatement, IPredicateNode
 	{
 		public const this(set [CollectionElement] Collections, set IStatement Body, set ForeachElementCache elemCache);
 		public const this(set [CollectionElement] Collections)
@@ -44,6 +44,15 @@ namespace Flame.Compiler.Statements
 			{
 				return Body.IsEmpty;
 			}
+		}
+
+		public void AcceptPredicate(INodeVisitor Visitor)
+		{
+			foreach (var item in Collections)
+			{
+				item.AcceptPredicate(Visitor);
+			}
+			Visitor.Visit(Body);
 		}
 
 		public IStatement Accept(INodeVisitor Visitor)

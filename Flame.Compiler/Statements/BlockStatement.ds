@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Flame.Compiler.Statements
 {
-    public class BlockStatement : IStatement
+    public class BlockStatement : IStatement, IPredicateNode
     {
     	public const this(IStatement Child)
     	{
@@ -13,6 +13,11 @@ namespace Flame.Compiler.Statements
         public const this(set [IStatement] Children);
 
         public [IStatement] Children { const get; private set; }
+
+        public void AcceptPredicate(INodeVisitor Visitor)
+        {
+            Visitor.VisitAll(Children);
+        }
 
         public IStatement Accept(INodeVisitor Visitor)
         {

@@ -34,6 +34,29 @@ namespace Flame.Compiler
         IStatement Visit(IStatement Value);
     }
 
+    /// <summary>
+    /// Defines a node that provides a fast path for predicate visitors, i.e.
+    /// visitors that retrieve some of the node's properties, but do not
+    /// in any way modify the node itself.
+    /// </summary>
+    /// <remarks>
+    /// Implementing this interface is especially useful for nodes with a variable
+    /// amount of children, which may thus have to perform complex logic or allocate
+    /// a new block on every call to 'Accept', even though the nature of the
+    /// node visitor makes this unnecessary.
+    /// </remarks>
+    public interface IPredicateNode : INode
+    {
+        /// <summary>
+        /// Accepts the predicate node visitor.
+        /// Said visitor promises not to modify this node or any of its contents.
+        /// Furthermore, calling 'AcceptPredicate' must always produce the same state changes
+        /// as calling 'Accept' when using the same visitor, but may do so
+        /// more efficiently.
+        /// </summary>
+        void AcceptPredicate(INodeVisitor Visitor);
+    }
+
     public static class VisitorExtensions
     {
         public static IExpression[] VisitAll(this INodeVisitor Visitor, IExpression[] Values)

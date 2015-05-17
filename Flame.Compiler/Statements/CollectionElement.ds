@@ -24,6 +24,11 @@ namespace Flame.Compiler.Statements
             return new InvocationExpression(Method, Caller.CreateGetExpression(), new IExpression[0]);
         }
 
+		public void AcceptPredicate(INodeVisitor Visitor)
+		{
+			Visitor.Visit(Collection);
+		}
+
 		public CollectionElement Accept(INodeVisitor Visitor)
 		{
 			var transColl = Visitor.Visit(Collection);

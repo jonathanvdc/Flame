@@ -12,11 +12,11 @@ namespace Flame.Compiler.Visitors
         protected abstract bool CanSubstituteVariable(IVariable Variable);
         protected abstract IVariable SubstituteVariable(IVariable Variable);
 
-        public override virtual bool Matches(IExpression Value)
+        public override virtual const bool Matches(IExpression Value)
         {
             return Value is IVariableNode;
         }
-        public override virtual bool Matches(IStatement Value)
+        public override virtual const bool Matches(IStatement Value)
         {
             return Value is IVariableNode;
         }
