@@ -271,12 +271,12 @@ namespace Flame.Front.Options
 
         private static bool IsOption(string Argument)
         {
-            return !string.IsNullOrEmpty(Argument) && Argument[0] == '-';
+            return !string.IsNullOrEmpty(Argument) && (Argument[0] == '-' || Argument[0] == '/');
         }
 
         private static string GetOptionParameterName(string Argument)
         {
-            return Argument.TrimStart('-');
+            return Argument.TrimStart('-', '/');
         }
 
         private static string[] ParseArguments(ArgumentStream<string> ArgStream)
