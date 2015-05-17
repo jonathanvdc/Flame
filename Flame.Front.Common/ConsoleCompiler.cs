@@ -35,13 +35,6 @@ namespace Flame.Front.Cli
         public void Compile(string[] args)
         {
             var log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(), new StringCompilerOptions());
-            if (args.Length == 0)
-            {
-                Console.WriteLine("Welcome to " + FullName + ".");
-                Console.WriteLine("Please state your build arguments.");
-                args = Console.ReadLine().Split(' ');
-            }
-
             var buildArgs = BuildArguments.Parse(CompilerOptionExtensions.CreateOptionParser(), log, args);
 
             log.Dispose();
@@ -62,7 +55,7 @@ namespace Flame.Front.Cli
 
             if (buildArgs.PrintVersion)
             {
-                CompilerVersion.PrintVersion(Name, ReleasesSite, log);
+                CompilerVersion.PrintVersion(Name, FullName, ReleasesSite, log);
             }
             if (!buildArgs.CanCompile)
             {

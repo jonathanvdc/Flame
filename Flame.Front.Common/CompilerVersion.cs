@@ -31,14 +31,14 @@ namespace Flame.Front
             }
         }
 
-        public static void PrintVersion(string CompilerName, string CompilerReleasesSite, ICompilerLog Log)
+        public static void PrintVersion(string CompilerName, string FullName, string CompilerReleasesSite, ICompilerLog Log)
         {
             StringBuilder msg = new StringBuilder();
             WriteVariable(CompilerName + "'s current version number is", CurrentVersion.ToString(), msg);
             WriteVariable("Platform", ConsoleEnvironment.OSVersionString, msg);
             WriteVariable("Console", ConsoleEnvironment.TerminalIdentifier, msg);
             msg.AppendLine("You can check for new releases at " + CompilerReleasesSite + ".");
-            msg.Append("Thanks for using " + CompilerName + "! Have fun writing code.");
+            msg.Append("Thanks for using " + FullName + "! Have fun writing code.");
             Log.LogMessage(new LogEntry("Current version", msg.ToString()));
         }
     }
