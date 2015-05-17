@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Flame.Compiler.Expressions
 {
-	public class IntersectionExpression : IExpression
+	public class IntersectionExpression : IExpression, IPredicateNode
 	{
 		public const this(set IExpression First, set IExpression Second);
 
@@ -84,6 +84,12 @@ namespace Flame.Compiler.Expressions
                          // but dealing with bound intersection *objects* seems tricky.
                          // It probably exceeds the current scope of this expression type at this time.
         }
+
+		public void AcceptPredicate(INodeVisitor Visitor)
+		{
+			Visitor.Visit(First);
+			Visitor.Visit(Second);
+		}
 
         public IExpression Accept(INodeVisitor Visitor)
         {

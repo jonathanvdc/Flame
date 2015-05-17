@@ -10,7 +10,7 @@ namespace Flame.Compiler.Visitors
     /// </summary>
     public abstract class StatementVisitorBase : NodeVisitorBase
     {
-        public override bool Matches(IExpression Value)
+        public override const bool Matches(IExpression Value)
         {
             return false;
         }

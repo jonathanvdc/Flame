@@ -133,15 +133,9 @@ namespace Flame.Compiler.Visitors
         }
     }
 
-    public class YieldNodeFindingVisitor : StatementVisitorBase
+    public class YieldNodeFindingVisitor : AnyPredicateVisitorBase
     {
         public const this();
-
-        /// <summary>
-        /// Gets a boolean value that tells whether the given nodes
-        /// use yield return/yield break.
-        /// </summary>
-        public bool YieldFound { const get; private set; }
 
         /// <summary>
         /// Finds out whether the given statement uses yield break or yield return.
@@ -150,18 +144,15 @@ namespace Flame.Compiler.Visitors
         {
             var visitor = new YieldNodeFindingVisitor();
             visitor.Visit(Statement);
-            return visitor.YieldFound;
+            return visitor.IsSatisfied;
         }
 
-        public override const bool Matches(IStatement Value)
+        /// <summary>
+        /// Finds out whether the given node satisfies the predicate.
+        /// </summary>
+        protected override const bool Satisfies(INode Node)
         {
-            return Value is YieldBreakStatement || Value is YieldReturnStatement;
-        }
-
-        protected override IStatement Transform(IStatement Statement)
-        {
-            YieldFound = true;
-            return Statement;
+            return Node is YieldBreakStatement || Node is YieldReturnStatement;
         }
     }
 
@@ -226,11 +217,11 @@ namespace Flame.Compiler.Visitors
             });
         }
 
-        public override bool Matches(IExpression Value)
+        public override const bool Matches(IExpression Value)
         {
             return variableVisitor.Matches(Value);
         }
-        public override bool Matches(IStatement Value)
+        public override const bool Matches(IStatement Value)
         {
             return Value is YieldBreakStatement || Value is YieldReturnStatement ||
                    Value is ForeachStatement || variableVisitor.Matches(Value);

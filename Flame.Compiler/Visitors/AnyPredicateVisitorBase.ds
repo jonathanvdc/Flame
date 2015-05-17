@@ -1,0 +1,77 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// Provides a base class for node visitors that check whether
+    /// a node visitor satisfies a condition. Once said condition has been
+    /// satisfied, the visitor will ignore future nodes and try to
+    /// return as quickly as possible. Basically, it will say that the predicate
+    /// has been satisfied if a single node does.
+    /// </summary>
+    /// <remarks>
+    /// This class inherits from 'NodeVisitorBase' to provide a common 'Matches' API,
+    /// which is a useful property when aggregating visitors.
+    /// </remarks>
+    public abstract class AnyPredicateVisitorBase : NodeVisitorBase
+    {
+        /// <summary>
+        /// Gets a boolean value that indicates whether the predicate has been
+        /// satisfied.
+        /// </summary>
+        public bool IsSatisfied { const get; private set; }
+
+        /// <summary>
+        /// Finds out whether the given node satisfies the predicate.
+        /// </summary>
+        protected abstract const bool Satisfies(INode Node);
+
+        private const bool MatchesNode(INode Node)
+        {
+            return IsSatisfied || Node is IPredicateNode || Satisfies(Node);
+            // We were either done already or we are now.
+            // Either way, we do not want to traverse all nodes, so
+            // we'll say we want to give this node special treatment
+            // by ignoring it entirely. If the node is a predicate node,
+            // we may want to use said node's more efficient 'AcceptPredicate'
+            // method.
+        }
+
+        private T VisitNode<T>(T Node)
+            where T : INode
+        {
+            // This method getting called means that the conditition has either
+            // been satisfied by a previous node or is satisfied by this node,
+            // or the node is a predicate node.
+
+            if (!IsSatisfied && Node is IPredicateNode && !Satisfies(Node))
+            {
+                ((IPredicateNode)Node).AcceptPredicate(this);
+            }
+            else
+            {
+                this.IsSatisfied = true;
+            }
+            return Node;
+        }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return MatchesNode(Value);
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return MatchesNode(Value);
+        }
+        protected override IExpression Transform(IExpression Expression)
+        {
+            return VisitNode<IExpression>(Expression);
+        }
+        protected override IStatement Transform(IStatement Statement)
+        {
+            return VisitNode<IStatement>(Statement);
+        }
+    }
+}
