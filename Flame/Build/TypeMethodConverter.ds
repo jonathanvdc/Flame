@@ -73,7 +73,7 @@ namespace Flame.Build
             var declType = Method.DeclaringType;
             var convDeclType = TypeConverter.Convert(declType);
 
-            if (declType == convDeclType)
+            if (object.ReferenceEquals(declType, convDeclType))
                 return Method;
             else if (Method.IsConstructor)
                 return GetTypeInstanceConstructor(Method, convDeclType);

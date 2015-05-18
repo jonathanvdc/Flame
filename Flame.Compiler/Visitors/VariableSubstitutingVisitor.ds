@@ -38,7 +38,7 @@ namespace Flame.Compiler.Visitors
             return ApplyRecursively<bool>(Variable, CanSubstituteVariable);
         }
 
-        protected IVariable SubstituteVariableRecursively(IVariable Variable)
+        protected virtual IVariable SubstituteVariableRecursively(IVariable Variable)
         {
             return ApplyRecursively<IVariable>(Variable, SubstituteVariable);
         }

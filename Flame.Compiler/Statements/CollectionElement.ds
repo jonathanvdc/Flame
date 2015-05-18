@@ -24,6 +24,19 @@ namespace Flame.Compiler.Statements
             return new InvocationExpression(Method, Caller.CreateGetExpression(), new IExpression[0]);
         }
 
+		public CollectionElement ConvertType(MemberConverter Converter)
+		{
+			var convType = Converter.Convert(Member.VariableType);
+			if (object.ReferenceEquals(convType, Member.VariableType))
+			{
+				return this;
+			}
+			else
+			{
+				return new CollectionElement(new RetypedVariableMember(Member, convType), Collection);
+			}
+		}
+
 		public void AcceptPredicate(INodeVisitor Visitor)
 		{
 			Visitor.Visit(Collection);
