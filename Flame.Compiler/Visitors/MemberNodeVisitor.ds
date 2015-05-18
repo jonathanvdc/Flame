@@ -27,11 +27,28 @@ namespace Flame.Compiler.Visitors
             return visitor.Visit(Statement);
         }
 
+        public static const IExpression ConvertMembers(MemberConverter Converter, IExpression Expression)
+        {
+            var visitor = new MemberNodeVisitor(Converter);
+            return visitor.Visit(Expression);
+        }
+
+        public static const IStatement ConvertMembers(MemberConverter Converter, IStatement Statement)
+        {
+            var visitor = new MemberNodeVisitor(Converter);
+            return visitor.Visit(Statement);
+        }
+
+        public static const MemberConverter CreateMemberConverter(IConverter<IType, IType> Converter)
+        {
+            return new MemberConverter(Converter,
+                                       new TypeMethodConverter(Converter),
+                                       new TypeFieldConverter(Converter));
+        }
+
         public static const MemberNodeVisitor CreateTypeNodeVisitor(IConverter<IType, IType> Converter)
         {
-            return new MemberNodeVisitor(new MemberConverter(Converter,
-                                                             new TypeMethodConverter(Converter),
-                                                             new TypeFieldConverter(Converter)));
+            return new MemberNodeVisitor(CreateMemberConverter(Converter));
         }
 
         public override const bool Matches(IExpression Value)

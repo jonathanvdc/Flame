@@ -20,17 +20,22 @@ namespace Flame.Compiler.Visitors
     /// </summary>
     public static class LowerYieldPass : BodyPassBase
     {
-        private const ITypeBuilder CreateNestedType(IEnvironment Environment, INamespaceBuilder DeclaringNamespace,
+        private const ITypeBuilder CreateNestedType(IEnvironment Environment,
+                                                    INamespaceBuilder DeclaringNamespace,
                                                     IMethodBuilder Method, IType ElementType)
         {
             var descNestedType = new DescribedType("__" + Method.Name + "_enumerator", DeclaringNamespace);
             descNestedType.AddAttribute(new AccessAttribute(AccessModifier.Private));
             descNestedType.AddAttribute(PrimitiveAttributes.HiddenAttribute);
-            descNestedType.AddBaseType(Method.ReturnType);
             foreach (var item in Method.GetGenericParameters())
             {
                 descNestedType.AddGenericParameter(item);
             }
+
+            var enumerableType = Environment.EnumerableType;
+
+            if (enumerableType != null)
+                descNestedType.AddBaseType(enumerableType.MakeGenericType(new IType[] { ElementType }));
 
             var enumeratorType = Environment.EnumeratorType;
 
@@ -54,9 +59,26 @@ namespace Flame.Compiler.Visitors
             var enumerableEnvironment = (IEnumerableEnvironment)Environment;
             var nsBuilder = (INamespaceBuilder)Type;
 
-            var elemType = Method.ReturnType.GetEnumerableElementType();
+            var oldElemType = Method.ReturnType.GetEnumerableElementType();
 
-            var nestedType = CreateNestedType(enumerableEnvironment, nsBuilder, Method, elemType);
+            var nestedType = CreateNestedType(enumerableEnvironment, nsBuilder, Method, oldElemType);
+
+            MemberConverter typeConv;
+            IStatement oldMoveBody;
+            if (!nestedType.IsGeneric)
+            {
+                typeConv = new MemberConverter(new EmptyConverter<IType>(),
+                                               new EmptyConverter<IMethod>(),
+                                               new EmptyConverter<IField>());
+                oldMoveBody = Body;
+            }
+            else
+            {
+                typeConv = MemberNodeVisitor.CreateMemberConverter(new TypeParameterConverter(nestedType));
+                oldMoveBody = MemberNodeVisitor.ConvertMembers(typeConv, Body);
+            }
+
+            var elemType = typeConv.Convert(oldElemType);
 
             var descStateField = new DescribedField("enumerator_state", PrimitiveTypes.Int32, false);
             descStateField.AddAttribute(new AccessAttribute(AccessModifier.Private));
@@ -73,24 +95,13 @@ namespace Flame.Compiler.Visitors
             var valueField = nestedType.DeclareField(descValField);
             valueField.Build();
 
-            var enumeratorThisVariable = new ThisVariable(nestedType);
-            var stateVar = new FieldVariable(stateField, enumeratorThisVariable.CreateGetExpression());
-            var valueVar = new FieldVariable(valueField, enumeratorThisVariable.CreateGetExpression());
+            var enumeratorThisVariable = ThisReferenceVariable.Create(nestedType);
+            var stateVar = new FieldVariable(enumeratorThisVariable.Type.GetField(stateField.Name, stateField.IsStatic),
+                                             enumeratorThisVariable.CreateGetExpression());
+            var valueVar = new FieldVariable(enumeratorThisVariable.Type.GetField(valueField.Name, valueField.IsStatic),
+                                             enumeratorThisVariable.CreateGetExpression());
 
             var currentBody = new ReturnStatement(valueVar.CreateGetExpression());
-
-            IConverter<IType, IType> typeConv;
-            IStatement oldMoveBody;
-            if (!nestedType.IsGeneric)
-            {
-                typeConv = new EmptyConverter<IType>();
-                oldMoveBody = Body;
-            }
-            else
-            {
-                typeConv = new TypeParameterConverter(nestedType);
-                oldMoveBody = MemberNodeVisitor.ConvertTypes(typeConv, Body);
-            }
 
             var visitor = new LowerYieldNodeVisitor(nestedType, enumeratorThisVariable,
                                                     stateVar, valueVar, typeConv);
@@ -112,7 +123,7 @@ namespace Flame.Compiler.Visitors
             {
                 initStatements.Add(new ExpressionStatement(new InvocationExpression(
                     Environment.RootType.GetConstructor(new IType[] { }, false),
-                    new ThisVariable(nestedType).CreateGetExpression(),
+                    enumeratorThisVariable.CreateGetExpression(),
                     new IExpression[] { })));
             }
 
@@ -173,9 +184,9 @@ namespace Flame.Compiler.Visitors
     {
         public const this(set ITypeBuilder Type, set IVariable EnumeratorThisVariable,
                           set IVariable StateVariable, set IVariable ValueVariable,
-                          IConverter<IType, IType> TypeConverter)
+                          MemberConverter Converter)
         {
-            this.variableVisitor = new VariableCapturingVisitor(Type, TypeConverter);
+            this.variableVisitor = new VariableCapturingVisitor(Type, Converter);
             this.states = new List<LateBoundLabel>();
         }
 
@@ -250,7 +261,7 @@ namespace Flame.Compiler.Visitors
         {
             if (Statement is ForeachStatement)
             {
-                return Visit(((ForeachStatement)Statement).Lower());
+                return Visit(((ForeachStatement)Statement).AcceptCollections(this).Lower());
             }
             else if (Statement is YieldBreakStatement)
             {

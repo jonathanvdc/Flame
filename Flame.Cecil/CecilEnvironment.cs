@@ -2,6 +2,7 @@
 using Flame.Compiler;
 using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
+using Flame.Compiler.Variables;
 using Mono.Cecil;
 using System;
 using System.Collections.Generic;
@@ -40,16 +41,29 @@ namespace Flame.Cecil
             get { return Module.ConvertStrict(typeof(IEnumerator<>)); }
         }
 
-        private static void ForwardCall(IMethodBuilder Source, IMethod Target)
+        private static void ForwardCall(IMethodBuilder Source, IMethod SourceMethod, IMethod TargetMethod)
         {
+            var dict = new Dictionary<IType, IType>();
+            foreach (var item in SourceMethod.DeclaringType.GetGenericParameters())
+            {
+                dict[item] = item;
+            }
+            dict[Source.DeclaringType] = ThisVariable.GetThisType(SourceMethod.DeclaringType);
+
+            var converter = new TypeMappingConverter(dict);
+            var methodConverter = new TypeMethodConverter(converter);
+
+            var convTarget = methodConverter.Convert(TargetMethod);
+            var convSource = methodConverter.Convert(SourceMethod);
+
             var bodyGen = Source.GetBodyGenerator();
 
-            var invocation = bodyGen.EmitInvocation(Target,
+            var invocation = bodyGen.EmitInvocation(convTarget,
                                                     bodyGen.GetThis().EmitGet(),
                                                     new ICodeBlock[] { });
-            if (ConversionExpression.RequiresConversion(Target.ReturnType, Source.ReturnType))
+            if (ConversionExpression.RequiresConversion(convTarget.ReturnType, convSource.ReturnType))
             {
-                Source.SetMethodBody(bodyGen.EmitReturn(bodyGen.EmitConversion(invocation, Source.ReturnType)));
+                Source.SetMethodBody(bodyGen.EmitReturn(bodyGen.EmitConversion(invocation, convSource.ReturnType)));
             }
             else
             {
@@ -101,7 +115,7 @@ namespace Flame.Cecil
             descGetEnumeratorMethod.AddBaseMethod(oldEnumerable.GetMethod("GetEnumerator", false, oldEnumerator, new IType[] { }));
 
             var oldGetEnumeratorMethod = TargetType.DeclareMethod(descGetEnumeratorMethod);
-            ForwardCall(oldGetEnumeratorMethod, getEnumeratorMethod);
+            ForwardCall(oldGetEnumeratorMethod, oldGetEnumeratorMethod, getEnumeratorMethod);
             oldGetEnumeratorMethod.Build();
         }
 
@@ -179,7 +193,7 @@ namespace Flame.Cecil
             descOldCurrentGetter.AddBaseMethod(oldEnumerator.GetProperties().GetProperty("Current", false).GetGetAccessor());
 
             var oldCurrentGetter = oldCurrentProperty.DeclareAccessor(descOldCurrentGetter);
-            ForwardCall(oldCurrentGetter, genericCurrentAccessor);
+            ForwardCall(oldCurrentGetter, oldCurrentProperty.GetGetAccessor(), genericCurrentProperty.GetGetAccessor());
             oldCurrentGetter.Build();
             oldCurrentProperty.Build();
 

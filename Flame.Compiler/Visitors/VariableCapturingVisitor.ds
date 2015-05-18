@@ -11,13 +11,13 @@ namespace Flame.Compiler.Visitors
 {
     public class VariableCapturingVisitor : VariableSubstitutingVisitorBase
     {
-        public const this(set string FieldPrefix, set ITypeBuilder Type, set IConverter<IType, IType> TypeConverter)
+        public const this(set string FieldPrefix, set ITypeBuilder Type, set MemberConverter Converter)
         {
             this.captArgs = new Dictionary<IVariable, IVariable>();
             this.capturedVariables = new Dictionary<IVariable, IVariable>();
             this.thisVariable = ThisReferenceVariable.Create(Type);
         }
-        public const this(set ITypeBuilder Type, set IConverter<IType, IType> TypeConverter)
+        public const this(set ITypeBuilder Type, set MemberConverter Converter)
         {
             this.FieldPrefix = "captured";
             this.captArgs = new Dictionary<IVariable, IVariable>();
@@ -27,7 +27,7 @@ namespace Flame.Compiler.Visitors
 
         public string FieldPrefix { const get; private set; }
         public ITypeBuilder Type { const get; private set; }
-        public IConverter<IType, IType> TypeConverter { const get; private set; }
+        public MemberConverter Converter { const get; private set; }
 
         public IReadOnlyDictionary<IVariable, IVariable> CapturedArguments { const get return captArgs; }
 
@@ -58,14 +58,15 @@ namespace Flame.Compiler.Visitors
 
         private IVariable CaptureVariable(IVariable Variable, string Name, bool IsArgument)
         {
-            var descCaptField = new DescribedField(CreateFieldName(Name), TypeConverter.Convert(Variable.Type), false);
+            var descCaptField = new DescribedField(CreateFieldName(Name), Converter.Convert(Variable.Type), false);
             descCaptField.AddAttribute(new AccessAttribute(AccessModifier.Private));
             descCaptField.AddAttribute(PrimitiveAttributes.HiddenAttribute);
             descCaptField.DeclaringType = Type;
 
             var captField = Type.DeclareField(descCaptField);
             captField.Build();
-            var captFieldVar = new FieldVariable(captField, thisVariable.CreateGetExpression());
+            var captFieldVar = new FieldVariable(ThisVariable.GetThisType(Type).GetField(captField.Name, captField.IsStatic),
+                                                 thisVariable.CreateGetExpression());
 
             if (IsArgument)
             {
@@ -85,6 +86,35 @@ namespace Flame.Compiler.Visitors
             }
 
             return CaptureVariable(Variable, Name, IsArgument);
+        }
+
+        protected override IVariable SubstituteVariableRecursively(IVariable Variable)
+        {
+            if (Variable is LateBoundVariable)
+            {
+                var innerVal = ((LateBoundVariable)Variable).BoundVariable;
+                if (innerVal != null)
+                {
+                    if (capturedVariables.ContainsKey(Variable)) // Variables pushed down
+                    {
+                        capturedVariables[innerVal] = capturedVariables[Variable];
+                    }
+
+                    var result = SubstituteVariableRecursively(innerVal);
+                    if (!capturedVariables.ContainsKey(result)) // Variables bubble up
+                    {
+                        capturedVariables[Variable] = result;
+                    }
+                    return result;
+                }
+            }
+
+            return SubstituteVariable(Variable);
+        }
+
+        public override virtual const bool Matches(IStatement Value)
+        {
+            return Value is IVariableNode && ((IVariableNode)Value).Action != VariableNodeAction.Release;
         }
 
         protected override bool CanSubstituteVariable(IVariable Variable)
@@ -109,7 +139,10 @@ namespace Flame.Compiler.Visitors
             }
             else if (Variable is ThisVariable)
             {
-                return CaptureVariable(Variable, "this", true);
+                if (thisVariable.Type.Equals(Variable.Type))
+                    return thisVariable;
+                else
+                    return CaptureVariable(Variable, "this", true);
             }
             else
             {

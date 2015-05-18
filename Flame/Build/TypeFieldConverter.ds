@@ -16,7 +16,7 @@ namespace Flame.Build
             var declType = Field.DeclaringType;
             var convDeclType = TypeConverter.Convert(declType);
 
-            if (declType == convDeclType)
+            if (object.ReferenceEquals(declType, convDeclType))
                 return Field;
             else
                 return declType.GetField(Field.Name, Field.IsStatic);
