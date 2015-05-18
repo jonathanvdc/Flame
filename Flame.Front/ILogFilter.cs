@@ -17,14 +17,20 @@ namespace Flame.Front
 
     public class FilteredLog : ICompilerLog
     {
-        public FilteredLog(ILogFilter Filter, ICompilerLog Log)
+        public FilteredLog(ILogFilter Filter, ICompilerLog Log, bool LogWarningsAsErrors)
         {
             this.Filter = Filter;
             this.Log = Log;
+            this.LogWarningsAsErrors = LogWarningsAsErrors;
+        }
+        public FilteredLog(ILogFilter Filter, ICompilerLog Log)
+            : this(Filter, Log, Log.Options.GetOption<bool>("Werror", false))
+        {
         }
 
         public ILogFilter Filter { get; private set; }
         public ICompilerLog Log { get; private set; }
+        public bool LogWarningsAsErrors { get; private set; }
 
         public void LogError(LogEntry Entry)
         {
@@ -52,7 +58,11 @@ namespace Flame.Front
 
         public void LogWarning(LogEntry Entry)
         {
-            if (Filter.ShouldLogWarning(Entry))
+            if (LogWarningsAsErrors)
+            {
+                LogError(Entry);
+            }
+            else if (Filter.ShouldLogWarning(Entry))
             {
                 Log.LogWarning(Entry);
             }
