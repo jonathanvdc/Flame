@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Expressions
 {
-    public class DefaultValueExpression : IExpression
+    public class DefaultValueExpression : IExpression, IMemberNode
     {
         public this(set IType Type);
 
@@ -15,6 +15,16 @@ namespace Flame.Compiler.Expressions
             {
                 return Type.IsPrimitiveExpressionType();
             }
+        }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var elemType = Converter.Convert(Type);
+            if (object.ReferenceEquals(elemType, Type))
+            {
+                return this;
+            }
+            else return new DefaultValueExpression(elemType);
         }
 
         public IExpression Accept(INodeVisitor Visitor)

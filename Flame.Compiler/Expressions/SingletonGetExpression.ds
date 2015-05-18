@@ -5,7 +5,7 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Expressions
 {
-    public class SingletonGetExpression : IExpression
+    public class SingletonGetExpression : IExpression, IMemberNode
     {
     	private const this(set SingletonVariable Variable, set IExpression getExpr);
         public const this(set SingletonVariable Variable);
@@ -26,6 +26,16 @@ namespace Flame.Compiler.Expressions
 				return getExpr;
 			}
 		}
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convVar = Variable.ConvertType(Converter);
+            if (object.ReferenceEquals(convVar, Variable))
+            {
+                return this;
+            }
+            else return new SingletonGetExpression(convVar);
+        }
 
         public IExpression Accept(INodeVisitor Visitor)
         {

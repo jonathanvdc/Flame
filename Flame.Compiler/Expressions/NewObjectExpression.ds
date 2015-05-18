@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Flame.Compiler.Expressions
 {
-    public class NewObjectExpression : IExpression
+    public class NewObjectExpression : IExpression, IMemberNode
     {
         public const this(IType ConstructedType)
         {
@@ -19,6 +19,16 @@ namespace Flame.Compiler.Expressions
 
         public [IExpression] Arguments { const get; private set; }
         public IType Type { const get; private set; }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var elemType = Converter.Convert(Type);
+            if (object.ReferenceEquals(elemType, Type))
+            {
+                return this;
+            }
+            else return new NewObjectExpression(elemType, Arguments);
+        }
 
         public IExpression Accept(INodeVisitor Visitor)
         {

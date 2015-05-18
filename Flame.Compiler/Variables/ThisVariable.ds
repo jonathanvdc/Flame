@@ -24,6 +24,16 @@ namespace Flame.Compiler.Variables
             }
         }
 
+        public ThisVariable ConvertType(MemberConverter Converter)
+        {
+            var resultType = Converter.Convert(DeclaringType);
+            if (object.ReferenceEquals(resultType, DeclaringType))
+            {
+                return this;
+            }
+            else return new ThisVariable(resultType);
+        }
+
         public const IExpression CreateAddressOfExpression() : IUnmanagedVariable.CreateAddressOfExpression
         {
             return new ThisAddressOfExpression(Type.MakePointerType(PointerKind.ReferencePointer));

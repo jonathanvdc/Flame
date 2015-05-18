@@ -9,13 +9,23 @@ namespace Flame.Compiler.Expressions
 	/// <summary>
 	/// An invocation that invokes a method based on a sequence of arguments that may include the method's caller.
 	/// </summary>
-	public class RelaxedInvocation : ComplexExpressionBase
+	public class RelaxedInvocation : ComplexExpressionBase, IMemberNode
 	{
 		public const this(set IMethod Method, set [IExpression] Arguments);
-		
+
 		public IMethod Method { const get; private set; }
 		public [IExpression] Arguments { const get; private set; }
-	
+
+		public IMemberNode ConvertMembers(MemberConverter Converter)
+		{
+			var convMethod = Converter.Convert(Method);
+			if (object.ReferenceEquals(convMethod, Method))
+			{
+				return this;
+			}
+			else return new RelaxedInvocation(convMethod, Arguments);
+		}
+
 		protected override IExpression Lower()
 		{
 			var parameters = Method.GetParameters();

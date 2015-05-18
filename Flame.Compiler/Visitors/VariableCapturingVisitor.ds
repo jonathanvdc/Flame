@@ -9,7 +9,7 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Visitors
 {
-    public class VariableCapturingVisitor : VariableSubsitutingVisitorBase
+    public class VariableCapturingVisitor : VariableSubstitutingVisitorBase
     {
         public const this(set string FieldPrefix, set ITypeBuilder Type)
         {

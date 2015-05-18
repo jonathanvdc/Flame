@@ -6,13 +6,20 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler.Statements
 {
-	public class ContractBodyStatement : IStatement
+	public class ContractBodyStatement : IStatement, IPredicateNode
 	{
 		public const this(set IStatement Body, set [IExpression] Preconditions, set [IExpression] Postconditions);
 
 		public IStatement Body { const get; private set; }
 		public [IExpression] Preconditions { const get; private set; }
 		public [IExpression] Postconditions { const get; private set; }
+
+		public void AcceptPredicate(INodeVisitor Visitor)
+		{
+			Visitor.Visit(Body);
+			Visitor.VisitAll(Preconditions);
+			Visitor.VisitAll(Postconditions);
+		}
 
 		public IStatement Accept(INodeVisitor Visitor)
 		{

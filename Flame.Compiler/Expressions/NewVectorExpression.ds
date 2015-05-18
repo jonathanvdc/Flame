@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-    public class NewVectorExpression : IExpression
+    public class NewVectorExpression : IExpression, IMemberNode
     {
         public const this(IType VectorType)
         {
@@ -28,6 +28,16 @@ namespace Flame.Compiler.Expressions
             {
                 return Type.AsContainerType().AsVectorType().GetDimensions();
             }
+        }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var elemType = Converter.Convert(ElementType);
+            if (object.ReferenceEquals(elemType, ElementType))
+            {
+                return this;
+            }
+            else return new NewVectorExpression(elemType, Dimensions);
         }
 
         public IExpression Accept(INodeVisitor Visitor)

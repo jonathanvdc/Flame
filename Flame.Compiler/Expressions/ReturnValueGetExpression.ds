@@ -6,11 +6,21 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Expressions
 {
-	public class ReturnValueGetExpression : IExpression
+	public class ReturnValueGetExpression : IExpression, IMemberNode
     {
         public const this(set IType Type);
 
         public IType Type { const get; private set; }
+
+		public IMemberNode ConvertMembers(MemberConverter Converter)
+		{
+			var convType = Converter.Convert(Type);
+			if (object.ReferenceEquals(Type, convType))
+			{
+				return this;
+			}
+			else return new ReturnValueGetExpression(convType);
+		}
 
 		public IExpression Accept(INodeVisitor Visitor)
 		{

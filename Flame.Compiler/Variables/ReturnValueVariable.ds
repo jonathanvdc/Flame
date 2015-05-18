@@ -13,6 +13,16 @@ namespace Flame.Compiler.Variables
 
 		public IType Type { const get; private set; }
 
+		public ReturnValueVariable ConvertType(MemberConverter Converter)
+		{
+			var resultType = Converter.Convert(Type);
+			if (object.ReferenceEquals(resultType, Type))
+			{
+				return this;
+			}
+			else return new ReturnValueVariable(resultType);
+		}
+
 		public const IExpression CreateGetExpression()
 		{
 			return new ReturnValueGetExpression(Type);

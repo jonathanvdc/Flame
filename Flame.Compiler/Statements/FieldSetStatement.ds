@@ -4,13 +4,29 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Statements
 {
-    public class FieldSetStatement : IStatement, IVariableNode
+    public class FieldSetStatement : IStatement, IVariableNode, IMemberNode
     {
         public const this(set IField Field, set IExpression Target, set IExpression Value);
 
         public IField Field { const get; private set; }
         public IExpression Target { const get; private set; }
         public IExpression Value { const get; private set; }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var resultField = Converter.Convert(Field);
+            if (object.ReferenceEquals(Field, resultField))
+            {
+                return this;
+            }
+            else return new FieldSetStatement(resultField, Target, Value);
+        }
+
+        public void AcceptPredicate(INodeVisitor Visitor)
+        {
+            Visitor.Visit(Target);
+            Visitor.Visit(Value);
+        }
 
         public IStatement Accept(INodeVisitor Visitor)
         {

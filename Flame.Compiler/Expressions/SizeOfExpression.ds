@@ -5,7 +5,7 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler.Expressions
 {
-	public class SizeOfExpression : IExpression
+	public class SizeOfExpression : IExpression, IMemberNode
 	{
 		public const this(set IType Target);
 
@@ -20,6 +20,16 @@ namespace Flame.Compiler.Expressions
         {
             const get { return false; }
         }
+
+		public IMemberNode ConvertMembers(MemberConverter Converter)
+		{
+			var elemType = Converter.Convert(Target);
+			if (object.ReferenceEquals(elemType, Target))
+			{
+				return this;
+			}
+			else return new SizeOfExpression(elemType);
+		}
 
 		public IExpression Accept(INodeVisitor Visitor)
 		{

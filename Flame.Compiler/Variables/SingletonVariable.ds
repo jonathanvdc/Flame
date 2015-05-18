@@ -13,9 +13,9 @@ namespace Flame.Compiler.Variables
 		{
 			this.instVar = null;
 		}
-	
+
 		public IType Type { const get; private set; }
-		
+
 		private IVariable instVar;
 		public IVariable InstanceVariable
 		{
@@ -36,22 +36,32 @@ namespace Flame.Compiler.Variables
 				return instVar;
 			}
 		}
-		
+
+		public SingletonVariable ConvertType(MemberConverter Converter)
+		{
+			var resultType = Converter.Convert(Type);
+			if (object.ReferenceEquals(resultType, Type))
+			{
+				return this;
+			}
+			else return new SingletonVariable(resultType);
+		}
+
 		public const IExpression CreateGetExpression()
 		{
 			return new SingletonGetExpression(this);
 		}
-		
+
 		public const IStatement CreateSetStatement(IExpression Value)
 		{
 			return null;
 		}
-		
+
 		public const IStatement CreateReleaseStatement()
 		{
 			return new EmptyStatement();
 		}
-		
+
 		public static const IVariable GetSingletonVariable(IType SingletonType, IType CurrentType)
 		{
 			if (ThisVariable.GetThisType(CurrentType).Is(ThisVariable.GetThisType(SingletonType)))

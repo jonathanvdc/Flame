@@ -6,9 +6,15 @@ using Flame.Compiler.Expressions;
 
 namespace Flame.Compiler.Statements
 {
-    public class ContainerElementSetStatement : VariableSetStatementBase<ElementVariable>
+    public class ContainerElementSetStatement : VariableSetStatementBase<ElementVariable>, IPredicateNode
     {
         public this(set ElementVariable Variable, set IExpression Value);
+
+        public void AcceptPredicate(INodeVisitor Visitor)
+        {
+            Variable.AcceptPredicate(Visitor);
+            Visitor.Visit(Value);
+        }
 
         public override IStatement Accept(INodeVisitor Visitor)
         {

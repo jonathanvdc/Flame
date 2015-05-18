@@ -27,6 +27,16 @@ namespace Flame.Compiler.Expressions
             return new GetExtensionMethodExpression(Target.MakeGenericMethod(TypeArguments), Caller);
         }
 
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convMethod = Converter.Convert(Target);
+            if (object.ReferenceEquals(Target, convMethod))
+            {
+                return this;
+            }
+            else return new GetExtensionMethodExpression(convMethod, Caller);
+        }
+
 		public IExpression Accept(INodeVisitor Visitor)
 		{
 			var transCaller = Visitor.Visit(Caller);

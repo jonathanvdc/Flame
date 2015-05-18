@@ -6,7 +6,7 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler.Expressions
 {
-	public class ContainerElementAddressOfExpression : IExpression, IVariableNode
+	public class ContainerElementAddressOfExpression : IExpression, IVariableNode, IPredicateNode
     {
         public const this(set IExpression Target, set [IExpression] IndexArguments);
 
@@ -24,6 +24,12 @@ namespace Flame.Compiler.Expressions
         {
             const get { return false; }
         }
+
+		public void AcceptPredicate(INodeVisitor Visitor)
+		{
+			Visitor.Visit(Target);
+			Visitor.VisitAll(IndexArguments);
+		}
 
 		public IExpression Accept(INodeVisitor Visitor)
 		{

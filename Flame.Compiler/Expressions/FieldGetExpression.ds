@@ -4,12 +4,27 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Expressions
 {
-	public class FieldGetExpression : IExpression, IVariableNode
+	public class FieldGetExpression : IExpression, IVariableNode, IMemberNode, IPredicateNode
     {
         public const this(set IField Field, set IExpression Target);
 
         public IField Field { const get; private set; }
         public IExpression Target { const get; private set; }
+
+		public IMemberNode ConvertMembers(MemberConverter Converter)
+		{
+			var resultField = Converter.Convert(Field);
+            if (object.ReferenceEquals(Field, resultField))
+            {
+                return this;
+            }
+        	else return new FieldGetExpression(resultField, Target);
+		}
+
+		public void AcceptPredicate(INodeVisitor Visitor)
+		{
+			Visitor.Visit(Target);
+		}
 
 		public IExpression Accept(INodeVisitor Visitor)
 		{

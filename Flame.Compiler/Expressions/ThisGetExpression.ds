@@ -4,7 +4,7 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Expressions
 {
-    public class ThisGetExpression : IExpression, IVariableNode
+    public class ThisGetExpression : IExpression, IVariableNode, IMemberNode
     {
         public const this(set IType Type);
 
@@ -23,6 +23,16 @@ namespace Flame.Compiler.Expressions
         public VariableNodeAction Action
         {
             const get return VariableNodeAction.Get;
+        }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convType = Converter.Convert(Type);
+            if (object.ReferenceEquals(convType, Type))
+            {
+                return this;
+            }
+            else return new ThisGetExpression(Type);
         }
 
         public IExpression Accept(INodeVisitor Visitor)

@@ -1,0 +1,34 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Compiler.Visitors
+{
+    public class MemberNodeVisitor : NodeVisitorBase
+    {
+        public const this(set MemberConverter Converter);
+
+        public MemberConverter Converter { const get; private set; }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is IMemberNode;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is IMemberNode;
+        }
+        protected override IExpression Transform(IExpression Expression)
+        {
+            var memberNode = (IMemberNode)Expression;
+            var memberExpr = (IExpression)memberNode.ConvertMembers(Converter);
+            return memberExpr.Accept(this);
+        }
+        protected override IStatement Transform(IStatement Statement)
+        {
+            var memberNode = (IMemberNode)Statement;
+            var memberStmt = (IStatement)memberNode.ConvertMembers(Converter);
+            return memberStmt.Accept(this);
+        }
+    }
+}
