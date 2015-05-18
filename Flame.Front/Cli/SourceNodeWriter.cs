@@ -97,9 +97,17 @@ namespace Flame.Front.Cli
         private bool FlushLine(char Value, int CharacterWidth)
         {
             FlushLine(false);
-            bool result = PrepareWrite(Value);
-            width = CharacterWidth;
-            return result;
+            if (char.IsWhiteSpace(Value))
+            {
+                return false;
+            }
+            else
+            {
+                Console.WriteLine();
+                Console.Write(Indentation);
+                width = CharacterWidth;
+                return true;
+            }
         }
 
         private bool PrepareWrite(char Value)
