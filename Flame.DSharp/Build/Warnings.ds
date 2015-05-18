@@ -147,6 +147,30 @@ namespace Flame.DSharp.Build
         public const string HiddenNullCheck = "hidden-null-check";
 
         /// <summary>
+        /// The warning name for incomplete initialization of container types.
+        /// </summary>
+        /// <example>
+        /// public static int[] Herp(int First, int Second)
+        /// {
+        ///     return new int[2] { First };
+        ///                       ^~~~~~~~~
+        /// }
+        /// </example>
+        public const string IncompleteInitialization = "incomplete-initialization";
+
+        /// <summary>
+        /// The warning name for constant initialization of variable-length container types.
+        /// </summary>
+        /// <example>
+        /// public static int[] Derp(int Size, int First)
+        /// {
+        ///     return new int[Size] { First };
+        ///                          ^~~~~~~~~
+        /// }
+        /// </example>
+        public const string VariableLengthInitialization = "variable-length-initialization";
+
+        /// <summary>
         /// Gets a warning's "official name", which the log maps to an on/off boolean.
         /// </summary>
         public static const string GetWarningName(string Name)
@@ -277,6 +301,14 @@ namespace Flame.DSharp.Build
         public static bool ShowHiddenNullCheckWarnings[this ICompilerLog Log]
         {
             const get return Log.UsePedanticWarnings(HiddenNullCheck);
+        }
+        public static bool ShowIncompleteInitializationWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UsePedanticWarnings(IncompleteInitialization);
+        }
+        public static bool ShowVariableLengthInitializationWarnings[this ICompilerLog Log]
+        {
+            const get return Log.UsePedanticWarnings(VariableLengthInitialization);
         }
     }
 }
