@@ -1,50 +1,74 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Expressions
 {
-	public class PropertyGetExpression : VariableGetExpressionBase<PropertyVariable>
+	public class PropertyGetExpression : ComplexExpressionBase, IVariableNode,
+										 IMemberNode, IPredicateNode
 	{
-		public const this(set PropertyVariable Variable);
-
-		private const InvocationExpression CreateExpression()
+		public const this(PropertyVariable Variable)
 		{
-			return new InvocationExpression(Variable.Property.GetGetAccessor(), Variable.Caller, Variable.IndexerArguments);
+			this.Accessor = Variable.Property.GetGetAccessor();
+			this.Caller = Variable.Caller;
+			this.IndexerArguments = Variable.IndexerArguments;
+		}
+		public const this(set IAccessor Accessor, set IExpression Caller, set [IExpression] IndexerArguments);
+
+		public IExpression Caller { const get; private set; }
+		public [IExpression] IndexerArguments { const get; private set; }
+		public IAccessor Accessor { const get; private set; }
+
+		public VariableNodeAction Action { const get return VariableNodeAction.Get; }
+
+		public const IVariable GetVariable()
+		{
+			return new PropertyVariable(Accessor.DeclaringProperty, Caller, IndexerArguments);
 		}
 
-		public override bool IsConstant
+		protected override const IExpression Lower()
 		{
-			const get return CreateExpression().IsConstant;
+			return new InvocationExpression(Accessor, Caller, IndexerArguments);
+		}
+
+		public IMemberNode ConvertMembers(MemberConverter Converter)
+		{
+			var convAcc = Converter.Convert(Accessor);
+			if (object.ReferenceEquals(convAcc, Accessor))
+			{
+				return this;
+			}
+			else if (convAcc is IAccessor)
+			{
+				return new PropertyGetExpression((IAccessor)convAcc, Caller, IndexerArguments);
+			}
+			else
+			{
+				return new MemberlessExpression(new InvocationExpression(convAcc, Caller, IndexerArguments));
+			}
+		}
+
+		public void AcceptPredicate(INodeVisitor Visitor)
+		{
+			Visitor.Visit(Caller);
+			Visitor.VisitAll(IndexerArguments);
 		}
 
 		public override IExpression Accept(INodeVisitor Visitor)
 		{
-			var propVar = Variable.Accept(Visitor);
-			if (propVar == Variable)
+			var transCaller = Visitor.Visit(Caller);
+			var transArgs = Visitor.VisitAll(IndexerArguments);
+
+			if (transCaller == Caller && Enumerable.SequenceEqual<IExpression>(IndexerArguments, transArgs))
 			{
 				return this;
 			}
 			else
 			{
-				return propVar.CreateGetExpression();
+				return new PropertyGetExpression(Accessor, transCaller, transArgs);
 			}
-		}
-
-		public override const IBoundObject Evaluate()
-		{
-			return CreateExpression().Evaluate();
-		}
-
-		public override const IExpression Optimize()
-		{
-			return CreateExpression().Optimize();
-		}
-
-		public override const ICodeBlock Emit(ICodeGenerator Generator)
-		{
-			return CreateExpression().Emit(Generator);
 		}
 	}
 }

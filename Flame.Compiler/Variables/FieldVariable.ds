@@ -12,6 +12,16 @@ namespace Flame.Compiler.Variables
         public IExpression Target { const get; private set; }
         public IField Field { const get; private set; }
 
+        public FieldVariable ConvertField(MemberConverter Converter)
+        {
+            var resultField = Converter.Convert(Field);
+            if (object.ReferenceEquals(Field, resultField))
+            {
+                return this;
+            }
+            else return new FieldVariable(resultField, Target);
+        }
+
         public IType Type
         {
             const get { return Field.FieldType; }
@@ -43,6 +53,16 @@ namespace Flame.Compiler.Variables
 
         public IVariable Target { const get; private set; }
         public IField Field { const get; private set; }
+
+        public ValueTypeFieldVariable ConvertType(MemberConverter Converter)
+        {
+            var resultField = Converter.Convert(Field);
+            if (object.ReferenceEquals(Field, resultField))
+            {
+                return this;
+            }
+            else return new ValueTypeFieldVariable(resultField, Target);
+        }
 
         public IType Type
         {

@@ -4,6 +4,7 @@ using System.Text;
 using System.Linq;
 using Flame.Compiler.Emit;
 using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Statements
 {
@@ -24,6 +25,30 @@ namespace Flame.Compiler.Statements
 
 		public IVariable ExceptionVariable { const get return exVariable; }
 		public IStatement Body { const get; set; }
+
+		public CatchClause ConvertType(MemberConverter Converter)
+		{
+			if (exVariable.IsBound)
+			{
+				return this; // Too bad. We can't safely convert this exception variable's type.
+			}
+
+			var exType = exVariable.Type;
+			var convExType = Converter.Convert(exType);
+			if (object.ReferenceEquals(exType, convExType))
+			{
+				return this;
+			}
+			else
+			{
+				var convExVariable = new ManuallyBoundVariable(new RetypedVariableMember(exVariable.Member, convExType));
+				var convMapping = new Dictionary<IVariable, IVariable>();
+				convMapping[exVariable] = convExVariable;
+				var variableSubst = new VariableSubstitutingVisitor(convMapping);
+				var visitedBody = variableSubst.Visit(Body);
+				return new CatchClause(convExVariable, visitedBody);
+			}
+		}
 
 		public void AcceptPredicate(INodeVisitor Visitor)
 		{
@@ -58,7 +83,7 @@ namespace Flame.Compiler.Statements
 		}
 	}
 
-	public class TryStatement : IStatement, IPredicateNode
+	public class TryStatement : IStatement, IPredicateNode, IMemberNode
 	{
 		public const this(set IStatement TryBody, set IStatement FinallyBody)
 		{
@@ -73,6 +98,23 @@ namespace Flame.Compiler.Statements
 		public IStatement TryBody { const get; private set; }
 		public IStatement FinallyBody { const get; private set; }
 		public [CatchClause] CatchClauses { const get; private set; }
+
+		public IMemberNode ConvertMembers(MemberConverter Converter)
+		{
+			var convCatches = new List<CatchClause>();
+			bool sameStatement = true;
+			foreach (var item in CatchClauses)
+			{
+				var visitedClause = item.ConvertType(Converter);
+				if (visitedClause != item)
+				{
+					sameStatement = false;
+				}
+				convCatches.Add(visitedClause);
+			}
+			if (sameStatement) return this;
+			else return new TryStatement(TryBody, FinallyBody, convCatches);
+		}
 
 		public void AcceptPredicate(INodeVisitor Visitor)
 		{

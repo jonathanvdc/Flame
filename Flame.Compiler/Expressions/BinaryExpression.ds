@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Expressions
 {
-	public abstract class BinaryExpression : IExpression
+	public abstract class BinaryExpression : IExpression, IPredicateNode
 	{
 		public const this();
 		public const this(set IExpression LeftOperand, set IExpression RightOperand);
@@ -34,6 +34,12 @@ namespace Flame.Compiler.Expressions
 			}
 		}
 
+		public void AcceptPredicate(INodeVisitor Visitor)
+		{
+			Visitor.Visit(LeftOperand);
+			Visitor.Visit(RightOperand);
+		}
+
 		public IExpression Accept(INodeVisitor Visitor)
 		{
 			var transLeft = Visitor.Visit(LeftOperand);
@@ -55,13 +61,28 @@ namespace Flame.Compiler.Expressions
 		public abstract const ICodeBlock Emit(ICodeGenerator Generator);
 	}
 
-	public abstract class BinaryOperatorExpression : BinaryExpression
+	public abstract class BinaryOperatorExpression : BinaryExpression, IMemberNode
 	{
 		public const this();
 		public const this(set IExpression LeftOperand, set IExpression RightOperand);
 
 		protected abstract Operator GetOperator();
 		public Operator Op { const get return GetOperator(); }
+
+		public IMemberNode ConvertMembers(MemberConverter Converter)
+		{
+			if (OperatorOverload != null)
+			{
+				Converter.Convert(OperatorOverload); // We are really just doing the
+													 // member converter a favor here.
+													 // Visiting the operator overload
+													 // should not and cannot change
+													 // the binary expression.
+													 // It is, however, useful for
+													 // recompilation.
+			}
+			return this;
+		}
 
 		/// <summary>
 		/// Gets the operator overload for this binary expression if an overload exists. Otherwise, null.

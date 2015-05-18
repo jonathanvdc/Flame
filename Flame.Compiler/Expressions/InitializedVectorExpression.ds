@@ -8,7 +8,7 @@ using Flame.Compiler.Statements;
 
 namespace Flame.Compiler.Expressions
 {
-	public class InitializedVectorExpression : IExpression
+	public class InitializedVectorExpression : IExpression, IPredicateNode, IMemberNode
 	{
 		public const this(set IType ElementType, set IExpression[] Elements);
 
@@ -18,6 +18,21 @@ namespace Flame.Compiler.Expressions
 		public IType Type : IExpression.Type
 		{
 			const get return ElementType.MakeVectorType(new int[] { Elements.Length });
+		}
+
+		public IMemberNode ConvertMembers(MemberConverter Converter)
+		{
+			var convElemType = Converter.Convert(ElementType);
+			if (object.ReferenceEquals(convElemType, ElementType))
+			{
+				return this;
+			}
+			else return new InitializedVectorExpression(convElemType, Elements);
+		}
+
+		public void AcceptPredicate(INodeVisitor Visitor)
+		{
+			Visitor.VisitAll(Elements);
 		}
 
 		public IExpression Accept(INodeVisitor Visitor) : IExpression.Accept

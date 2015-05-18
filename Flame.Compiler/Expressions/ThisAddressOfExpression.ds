@@ -6,7 +6,7 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Expressions
 {
-    public class ThisAddressOfExpression : IExpression, IVariableNode
+    public class ThisAddressOfExpression : IExpression, IVariableNode, IMemberNode
     {
         public const this(set IType Type);
 
@@ -35,6 +35,16 @@ namespace Flame.Compiler.Expressions
         public bool IsConstant
         {
             const get { return false; }
+        }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convType = Converter.Convert(Type);
+            if (object.ReferenceEquals(convType, Type))
+            {
+                return this;
+            }
+            else return new ThisAddressOfExpression(Type);
         }
 
         public IExpression Accept(INodeVisitor Visitor)

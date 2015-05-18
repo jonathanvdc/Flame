@@ -23,6 +23,16 @@ namespace Flame.Compiler.Expressions
 			return new GetMethodExpression(Target.MakeGenericMethod(TypeArguments), Caller);
 		}
 
+		public IMemberNode ConvertMembers(MemberConverter Converter)
+		{
+			var convMethod = Converter.Convert(Target);
+			if (object.ReferenceEquals(Target, convMethod))
+			{
+				return this;
+			}
+			else return new GetMethodExpression(convMethod, Caller);
+		}
+
 		public IExpression Accept(INodeVisitor Visitor)
 		{
 			if (Caller == null) return this;

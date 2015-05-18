@@ -7,26 +7,39 @@ namespace Flame.Compiler.Statements
     {
     	public const this();
 
-        public abstract IStatement Lower();
+        protected abstract const IStatement Lower();
+
+        private IStatement lowered;
+        public const IStatement LoweredStatement
+        {
+            const get
+            {
+                if (lowered == null)
+                {
+                    lowered = Lower();
+                }
+                return lowered;
+            }
+        }
 
         public virtual IStatement Accept(INodeVisitor Visitor)
         {
-            return Visitor.Visit(Lower());
+            return Visitor.Visit(LoweredStatement);
         }
 
         public virtual bool IsEmpty
         {
-            const get { return Lower().IsEmpty; }
+            const get { return LoweredStatement.IsEmpty; }
         }
 
         public virtual IStatement Optimize()
         {
-            return Lower().Optimize();
+            return LoweredStatement.Optimize();
         }
 
         public virtual ICodeBlock Emit(ICodeGenerator Generator)
         {
-            return Lower().Emit(Generator);
+            return LoweredStatement.Emit(Generator);
         }
     }
 }

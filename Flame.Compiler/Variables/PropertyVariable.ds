@@ -23,6 +23,12 @@ namespace Flame.Compiler.Variables
         public IProperty Property { const get; private set; }
         public [IExpression] IndexerArguments { const get; private set; }
 
+        public void AcceptPredicate(INodeVisitor Visitor)
+        {
+            Visitor.Visit(Caller);
+            Visitor.VisitAll(IndexerArguments);
+        }
+
         public PropertyVariable Accept(INodeVisitor Visitor)
         {
             var transCaller = Visitor.Visit(Caller);

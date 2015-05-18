@@ -1,8 +1,8 @@
 <Project Name="Flame.Compiler">
 	<Setter Property="TargetPlatform" Value="CLR/Release" />
-        <Option Key="invariant-culture" Value="true" />
-        <Option Key="generate-static" Value="true" />
-        <Option Key="docs" Value="xml" />
+    <Option Key="invariant-culture" Value="true" />
+    <Option Key="generate-static" Value="true" />
+    <Option Key="docs" Value="xml" />
 	<ItemGroup>
 		<RuntimeLibrary Include="PortableRT" />
 		<RuntimeLibrary Include="System" />
@@ -13,6 +13,7 @@
 		<Reference Include="../Pixie/bin/Pixie.dll" />
 	</ItemGroup>
 	<ItemGroup>
+		<Compile Include="IMemberNode.ds" />
 		<Compile Include="INode.ds" />
 		<Compile Include="IExpression.ds" />
 		<Compile Include="IStatement.ds" />
@@ -56,6 +57,7 @@
 			<Compile Include="Emit\ILabel.ds" />
 			<Compile Include="Emit\CodeGeneratorExtensions.ds" />
 			<Compile Include="Emit\IVariableMember.ds" />
+			<Compile Include="Emit\RetypedVariableMember.ds" />
 			<Compile Include="Emit\TypeVariableMember.ds" />
 			<Compile Include="Emit\DescribedVariableMember.ds" />
 			<Compile Include="Emit\IYieldCodeGenerator.ds" />
@@ -98,6 +100,7 @@
 			<Compile Include="Expressions\NotExpression.ds" />
 			<Compile Include="Expressions\AddExpression.ds" />
 			<Compile Include="Expressions\SubtractExpression.ds" />
+			<Compile Include="Expressions\MemberlessExpression.ds" />
 			<Compile Include="Expressions\MultiplyExpression.ds" />
 			<Compile Include="Expressions\DivideExpression.ds" />
 			<Compile Include="Expressions\ConditionalExpression.ds" />
@@ -194,6 +197,7 @@
 			<Compile Include="Visitors\EmptyPass.ds" />
 			<Compile Include="Visitors\IPass.ds" />
 			<Compile Include="Visitors\LowerYieldPass.ds" />
+			<Compile Include="Visitors\MemberNodeVisitor.ds" />
 			<Compile Include="Visitors\NodeVisitorBase.ds" />
 			<Compile Include="Visitors\StatementPass.ds" />
 			<Compile Include="Visitors\StatementVisitorBase.ds" />

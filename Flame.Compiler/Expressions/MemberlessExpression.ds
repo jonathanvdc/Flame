@@ -1,0 +1,24 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler.Expressions
+{
+	public class MemberlessExpression : ComplexExpressionBase, IMemberNode
+	{
+		public const this(set IExpression Expression);
+
+        public IExpression Expression { const get; private set; }
+
+		protected override const IExpression Lower()
+        {
+            return Expression;
+        }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            return this;
+        }
+	}
+}

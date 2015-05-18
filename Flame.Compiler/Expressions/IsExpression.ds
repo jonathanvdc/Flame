@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-    public class IsExpression : IExpression
+    public class IsExpression : IExpression, IMemberNode, IPredicateNode
     {
         public const this(set IExpression Target, set IType TestType);
 
@@ -13,6 +13,21 @@ namespace Flame.Compiler.Expressions
         /// Gets the type to test against.
         /// </summary>
         public IType TestType { const get; private set; }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convType = Converter.Convert(TestType);
+            if (object.ReferenceEquals(convType, TestType))
+            {
+                return this;
+            }
+            else return new IsExpression(Target, convType);
+        }
+
+        public void AcceptPredicate(INodeVisitor Visitor)
+        {
+            Visitor.Visit(Target);
+        }
 
         public IExpression Accept(INodeVisitor Visitor)
         {

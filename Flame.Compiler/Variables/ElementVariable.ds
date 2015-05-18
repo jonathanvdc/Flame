@@ -14,6 +14,12 @@ namespace Flame.Compiler.Variables
         public IExpression Target { const get; private set; }
         public [IExpression] IndexArguments { const get; private set; }
 
+		public void AcceptPredicate(INodeVisitor Visitor)
+		{
+			Visitor.Visit(Target);
+			Visitor.VisitAll(IndexArguments);
+		}
+
 		public ElementVariable Accept(INodeVisitor Visitor)
 		{
 			var transTarget = Visitor.Visit(Target);
@@ -36,7 +42,7 @@ namespace Flame.Compiler.Variables
         	{
         		if (indexerArgTypes == null)
         		{
-	        		List<IType> types = new List<IType>();
+	        		var types = new List<IType>();
 	        		foreach (var item in IndexArguments)
 	        		{
 	        			types.Add(item.Type);

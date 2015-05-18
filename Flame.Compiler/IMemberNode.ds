@@ -1,0 +1,43 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler
+{
+    public struct MemberConverter
+    {
+        public const this(set IConverter<IType, IType> TypeConverter,
+                          set IConverter<IMethod, IMethod> MethodConverter,
+                          set IConverter<IField, IField> FieldConverter);
+
+        public IConverter<IType, IType> TypeConverter { const get; private set; }
+        public IConverter<IMethod, IMethod> MethodConverter { const get; private set; }
+        public IConverter<IField, IField> FieldConverter { const get; private set; }
+
+        public IType Convert(IType Type)
+        {
+            return TypeConverter.Convert(Type);
+        }
+        public IMethod Convert(IMethod Method)
+        {
+            return MethodConverter.Convert(Method);
+        }
+        public IField Convert(IField Field)
+        {
+            return FieldConverter.Convert(Field);
+        }
+    }
+
+    /// <summary>
+    /// Defines a node that directly contains one or more members.
+    /// Such a node may have its members converted to other members.
+    /// </summary>
+    public interface IMemberNode : INode
+    {
+        /// <summary>
+        /// Converts the node's members with the given member converter.
+        /// </summary>
+        IMemberNode ConvertMembers(MemberConverter Converter);
+    }
+}

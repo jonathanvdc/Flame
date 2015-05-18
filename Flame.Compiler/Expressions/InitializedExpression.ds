@@ -4,7 +4,7 @@ using Flame.Compiler.Statements;
 
 namespace Flame.Compiler.Expressions
 {
-	public class InitializedExpression : IExpression
+	public class InitializedExpression : IExpression, IPredicateNode
 	{
 		public const this(set IStatement Initialization, set IExpression Value)
 		{
@@ -17,6 +17,13 @@ namespace Flame.Compiler.Expressions
 		public IStatement Finalization { const get; private set; }
 
 		public IType Type : IExpression.Type { const get return Value.Type; }
+
+		public void AcceptPredicate(INodeVisitor Visitor) : IPredicateNode.AcceptPredicate
+		{
+			Visitor.Visit(Initialization);
+			Visitor.Visit(Value);
+			Visitor.Visit(Finalization);
+		}
 
 		public IExpression Accept(INodeVisitor Visitor) : IExpression.Accept
 		{

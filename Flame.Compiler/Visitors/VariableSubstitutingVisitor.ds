@@ -5,7 +5,7 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Visitors
 {
-    public abstract class VariableSubsitutingVisitorBase : NodeVisitorBase
+    public abstract class VariableSubstitutingVisitorBase : NodeVisitorBase
     {
         public const this();
 
@@ -83,7 +83,7 @@ namespace Flame.Compiler.Visitors
         }
     }
 
-    public class VariableSubsitutingVisitor : VariableSubsitutingVisitorBase
+    public class VariableSubstitutingVisitor : VariableSubstitutingVisitorBase
     {
         public const this(set IReadOnlyDictionary<IVariable, IVariable> Mapping);
 

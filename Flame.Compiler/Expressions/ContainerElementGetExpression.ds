@@ -5,7 +5,7 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Expressions
 {
-	public class ContainerElementGetExpression : IExpression, IVariableNode
+	public class ContainerElementGetExpression : IExpression, IVariableNode, IPredicateNode
     {
         public const this(set IExpression Target, set [IExpression] IndexArguments);
 
@@ -17,6 +17,12 @@ namespace Flame.Compiler.Expressions
 			{
 				return Target.Type.AsContainerType().GetElementType();
 			}
+		}
+
+		public void AcceptPredicate(INodeVisitor Visitor)
+		{
+			Visitor.Visit(Target);
+			Visitor.VisitAll(IndexArguments);
 		}
 
 		public IExpression Accept(INodeVisitor Visitor)

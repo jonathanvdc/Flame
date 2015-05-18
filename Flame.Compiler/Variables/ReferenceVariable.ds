@@ -6,7 +6,7 @@ namespace Flame.Compiler
 {
     /// <summary>
     /// Accesses the underlying value of a pointer.
-    /// It acts like a reference ('ref' in C#, 'T&' in C++, 'ByRef' in VB) by using
+    /// It acts like a reference ('ref' in C#, 'T&amp;' in C++, 'ByRef' in VB) by using
     /// pointer indirection to modify a variable.
     /// </summary>
     public class ReferenceVariable : IUnmanagedVariable
@@ -19,7 +19,7 @@ namespace Flame.Compiler
         }
 
         public IExpression Pointer { const get; private set; }
-        
+
         public const IExpression CreateAddressOfExpression()
         {
         	return Pointer;
