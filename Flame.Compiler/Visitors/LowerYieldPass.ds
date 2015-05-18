@@ -79,9 +79,22 @@ namespace Flame.Compiler.Visitors
 
             var currentBody = new ReturnStatement(valueVar.CreateGetExpression());
 
+            IConverter<IType, IType> typeConv;
+            IStatement oldMoveBody;
+            if (!nestedType.IsGeneric)
+            {
+                typeConv = new EmptyConverter<IType>();
+                oldMoveBody = Body;
+            }
+            else
+            {
+                typeConv = new TypeParameterConverter(nestedType);
+                oldMoveBody = MemberNodeVisitor.ConvertTypes(typeConv, Body);
+            }
+
             var visitor = new LowerYieldNodeVisitor(nestedType, enumeratorThisVariable,
-                                                    stateVar, valueVar);
-            var moveBody = visitor.CreateBody(visitor.Visit(Body));
+                                                    stateVar, valueVar, typeConv);
+            var moveBody = visitor.CreateBody(visitor.Visit(oldMoveBody));
 
             enumerableEnvironment.ImplementEnumerator(nestedType, elemType,
                                                       moveBody, currentBody);
@@ -159,9 +172,10 @@ namespace Flame.Compiler.Visitors
     public class LowerYieldNodeVisitor : NodeVisitorBase
     {
         public const this(set ITypeBuilder Type, set IVariable EnumeratorThisVariable,
-                          set IVariable StateVariable, set IVariable ValueVariable)
+                          set IVariable StateVariable, set IVariable ValueVariable,
+                          IConverter<IType, IType> TypeConverter)
         {
-            this.variableVisitor = new VariableCapturingVisitor(Type);
+            this.variableVisitor = new VariableCapturingVisitor(Type, TypeConverter);
             this.states = new List<LateBoundLabel>();
         }
 

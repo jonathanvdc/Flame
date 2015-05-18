@@ -11,13 +11,13 @@ namespace Flame.Compiler.Visitors
 {
     public class VariableCapturingVisitor : VariableSubstitutingVisitorBase
     {
-        public const this(set string FieldPrefix, set ITypeBuilder Type)
+        public const this(set string FieldPrefix, set ITypeBuilder Type, set IConverter<IType, IType> TypeConverter)
         {
             this.captArgs = new Dictionary<IVariable, IVariable>();
             this.capturedVariables = new Dictionary<IVariable, IVariable>();
             this.thisVariable = ThisReferenceVariable.Create(Type);
         }
-        public const this(set ITypeBuilder Type)
+        public const this(set ITypeBuilder Type, set IConverter<IType, IType> TypeConverter)
         {
             this.FieldPrefix = "captured";
             this.captArgs = new Dictionary<IVariable, IVariable>();
@@ -27,6 +27,8 @@ namespace Flame.Compiler.Visitors
 
         public string FieldPrefix { const get; private set; }
         public ITypeBuilder Type { const get; private set; }
+        public IConverter<IType, IType> TypeConverter { const get; private set; }
+
         public IReadOnlyDictionary<IVariable, IVariable> CapturedArguments { const get return captArgs; }
 
         private Dictionary<IVariable, IVariable> captArgs;
@@ -56,7 +58,7 @@ namespace Flame.Compiler.Visitors
 
         private IVariable CaptureVariable(IVariable Variable, string Name, bool IsArgument)
         {
-            var descCaptField = new DescribedField(CreateFieldName(Name), Variable.Type, false);
+            var descCaptField = new DescribedField(CreateFieldName(Name), TypeConverter.Convert(Variable.Type), false);
             descCaptField.AddAttribute(new AccessAttribute(AccessModifier.Private));
             descCaptField.AddAttribute(PrimitiveAttributes.HiddenAttribute);
             descCaptField.DeclaringType = Type;

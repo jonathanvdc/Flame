@@ -1,34 +1,72 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Build;
 
 namespace Flame.Compiler.Visitors
 {
     public class MemberNodeVisitor : NodeVisitorBase
     {
-        public const this(set MemberConverter Converter);
+        public const this(set MemberConverter Converter)
+        {
+            this.localVisitor = new LocalTypeSubstitutingVisitor(Converter.TypeConverter);
+        }
 
         public MemberConverter Converter { const get; private set; }
+        private LocalTypeSubstitutingVisitor localVisitor;
+
+        public static const IExpression ConvertTypes(IConverter<IType, IType> Converter, IExpression Expression)
+        {
+            var visitor = CreateTypeNodeVisitor(Converter);
+            return visitor.Visit(Expression);
+        }
+
+        public static const IStatement ConvertTypes(IConverter<IType, IType> Converter, IStatement Statement)
+        {
+            var visitor = CreateTypeNodeVisitor(Converter);
+            return visitor.Visit(Statement);
+        }
+
+        public static const MemberNodeVisitor CreateTypeNodeVisitor(IConverter<IType, IType> Converter)
+        {
+            return new MemberNodeVisitor(new MemberConverter(Converter,
+                                                             new TypeMethodConverter(Converter),
+                                                             new TypeFieldConverter(Converter)));
+        }
 
         public override const bool Matches(IExpression Value)
         {
-            return Value is IMemberNode;
+            return Value is IMemberNode || localVisitor.Matches(Value);
         }
         public override const bool Matches(IStatement Value)
         {
-            return Value is IMemberNode;
+            return Value is IMemberNode || localVisitor.Matches(Value);
         }
         protected override IExpression Transform(IExpression Expression)
         {
-            var memberNode = (IMemberNode)Expression;
-            var memberExpr = (IExpression)memberNode.ConvertMembers(Converter);
-            return memberExpr.Accept(this);
+            if (Expression is IMemberNode)
+            {
+                var memberNode = (IMemberNode)Expression;
+                var memberExpr = (IExpression)memberNode.ConvertMembers(Converter);
+                return memberExpr.Accept(this);
+            }
+            else
+            {
+                return localVisitor.Visit(Expression);
+            }
         }
         protected override IStatement Transform(IStatement Statement)
         {
-            var memberNode = (IMemberNode)Statement;
-            var memberStmt = (IStatement)memberNode.ConvertMembers(Converter);
-            return memberStmt.Accept(this);
+            if (Statement is IMemberNode)
+            {
+                var memberNode = (IMemberNode)Statement;
+                var memberStmt = (IStatement)memberNode.ConvertMembers(Converter);
+                return memberStmt.Accept(this);
+            }
+            else
+            {
+                return localVisitor.Visit(Statement);
+            }
         }
     }
 }
