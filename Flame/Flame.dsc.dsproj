@@ -140,6 +140,7 @@
 			<Compile Include="Build\EmptyGenericResolver.ds" />
 			<Compile Include="Build\TypeComparerBase.ds" />
 			<Compile Include="Build\TypeEqualityComparer.ds" />
+            <Compile Include="Build\TypeFieldConverter.ds" />
             <Compile Include="Build\TypeMethodConverter.ds" />
 			<Compile Include="Build\GenericInstanceComparer.ds" />
 			<Compile Include="Build\TypeMappingConverter.ds" />

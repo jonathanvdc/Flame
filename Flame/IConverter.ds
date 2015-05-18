@@ -7,4 +7,14 @@ namespace Flame
 	{
 		TTarget Convert(TSource Value);
 	}
+
+	public class EmptyConverter<T> : IConverter<T, T>
+	{
+		public const this();
+
+		public const T Convert(T Value)
+		{
+			return Value;
+		}
+	}
 }

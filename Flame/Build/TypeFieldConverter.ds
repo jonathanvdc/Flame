@@ -1,0 +1,25 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Build
+{
+	public class TypeFieldConverter : IConverter<IField, IField>
+	{
+        public const this(set IConverter<IType, IType> TypeConverter);
+
+        public IConverter<IType, IType> TypeConverter { const get; private set; }
+
+        public IField Convert(IField Field)
+        {
+            var declType = Field.DeclaringType;
+            var convDeclType = TypeConverter.Convert(declType);
+
+            if (declType == convDeclType)
+                return Field;
+            else
+                return declType.GetField(Field.Name, Field.IsStatic);
+        }
+    }
+}

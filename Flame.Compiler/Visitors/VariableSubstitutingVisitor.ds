@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler.Variables;
+using Flame.Compiler.Emit;
 
 namespace Flame.Compiler.Visitors
 {
@@ -96,6 +97,46 @@ namespace Flame.Compiler.Visitors
         protected override IVariable SubstituteVariable(IVariable Variable)
         {
             return Mapping[Variable];
+        }
+    }
+
+    public class LocalTypeSubstitutingVisitor : VariableSubstitutingVisitorBase
+    {
+        public const this(set IConverter<IType, IType> TypeConverter)
+        {
+            this.substVariables = new Dictionary<IVariable, IVariable>();
+        }
+
+        public IConverter<IType, IType> TypeConverter { const get; private set; }
+
+        private Dictionary<IVariable, IVariable> substVariables;
+
+        protected override bool CanSubstituteVariable(IVariable Variable)
+        {
+            return Variable is LateBoundVariable && !(Variable is ManuallyBoundVariable);
+        }
+        protected override IVariable SubstituteVariable(IVariable Variable)
+        {
+            if (substVariables.ContainsKey(Variable))
+            {
+                return substVariables[Variable];
+            }
+            else
+            {
+                var lbVar = (LateBoundVariable)Variable;
+                var varType = lbVar.Type;
+                var convType = TypeConverter.Convert(varType);
+                if (varType == convType)
+                {
+                    substVariables[Variable] = lbVar;
+                }
+                else
+                {
+                    var newLbVar = new LateBoundVariable(new RetypedVariableMember(lbVar.Member, convType));
+                    substVariables[Variable] = newLbVar;
+                    return newLbVar;
+                }
+            }
         }
     }
 }
