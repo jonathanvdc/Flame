@@ -64,66 +64,22 @@ namespace Flame.Build
 			return converter.Convert(Types);
         }
 
-		private static const IMethod ResolveGenericInstanceMethod(IGenericResolver Resolver, IMethod Method)
-		{
-			var declType = Method.DeclaringType;
-			var resolvedDeclType = Resolver.ResolveType(declType);
-			if (!resolvedDeclType.Equals(declType))
-			{
-				var resolvedParamTypes = Resolver.ResolveTypes(Method.GetParameters().GetTypes());
-				var comparer = new ScopedTypeEqualityComparer();
-
-				if (Method.IsConstructor)
-				{
-					foreach (var item in resolvedDeclType.GetConstructors())
-						if (item.IsStatic == Method.IsStatic)
-						if (comparer.CompareAll(resolvedParamTypes,
-							Resolver.ResolveTypes(item.GetParameters().GetTypes())))
-					{
-						return item;
-					}
-				}
-				else
-				{
-					var resolvedRetType = Resolver.ResolveType(Method.ReturnType);
-
-					foreach (var item in resolvedDeclType.GetMethods())
-						if (item.Name.Equals(Method.Name))
-						if (item.IsStatic == Method.IsStatic)
-						if (comparer.Compare(resolvedRetType,
-							Resolver.ResolveType(item.ReturnType)))
-						if (comparer.CompareAll(resolvedParamTypes,
-							Resolver.ResolveTypes(item.GetParameters().GetTypes())))
-					{
-						return item;
-					}
-				}
-
-				return null; // Failure
-			}
-			else return Method;
-		}
-
         public static const IMethod ResolveMethod(this IGenericResolver Resolver, IMethod Method)
         {
-			var instMethod = ResolveGenericInstanceMethod(Resolver, Method);
+			var typeConv = new GenericResolvingConverter(Resolver);
+			var methodConv = new TypeMethodConverter(typeConv);
 
-            if (instMethod.IsGenericInstance)
-            {
-                var resolvedArgs = Resolver.ResolveTypes(instMethod.GetGenericArguments());
-                return instMethod.MakeGenericMethod(resolvedArgs);
-            }
-            else
-            {
-                return instMethod;
-            }
+			return methodConv.Convert(Method);
         }
         public static const IMethod[] ResolveMethods(this IGenericResolver Resolver, IMethod[] Methods)
         {
+			var typeConv = new GenericResolvingConverter(Resolver);
+			var methodConv = new TypeMethodConverter(typeConv);
+
         	var results = new IMethod[Methods.Length];
         	foreach (var item in Methods, var output in results)
         	{
-        		output = Resolver.ResolveMethod(item);
+        		output = methodConv.Convert(item);
         	}
         	return results;
         }

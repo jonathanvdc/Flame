@@ -136,7 +136,7 @@ namespace Flame.Build
 
 		public const virtual [TTarget] Convert([IType] Values)
 		{
-			List<TTarget> types = new List<TTarget>();
+			var types = new List<TTarget>();
 			foreach (var item in Values)
 			{
 				types.Add(Convert(item));

@@ -1,0 +1,111 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Build
+{
+	public class TypeMethodConverter : IConverter<IMethod, IMethod>
+	{
+        public const this(set IConverter<IType, IType> TypeConverter);
+
+        public IConverter<IType, IType> TypeConverter { const get; private set; }
+
+        private IMethod GetTypeInstanceConstructor(IMethod Method, IType ConvertedType)
+        {
+            var resolvedParamTypes = ConvertTypes(Method.GetParameters().GetTypes());
+            var comparer = new ScopedTypeEqualityComparer();
+
+            foreach (var item in ConvertedType.GetConstructors())
+                if (item.IsStatic == Method.IsStatic)
+                if (comparer.CompareAll(resolvedParamTypes,
+                    ConvertTypes(item.GetParameters().GetTypes())))
+            {
+                return item;
+            }
+            return null;
+        }
+
+        private IMethod GetTypeInstanceMethod(IMethod Method, IType ConvertedType)
+        {
+            var resolvedParamTypes = ConvertTypes(Method.GetParameters().GetTypes());
+            var resolvedRetType = TypeConverter.Convert(Method.ReturnType);
+            var comparer = new ScopedTypeEqualityComparer();
+
+            foreach (var item in ConvertedType.GetMethods())
+                if (item.Name.Equals(Method.Name))
+                if (item.IsStatic == Method.IsStatic)
+                if (comparer.Compare(resolvedRetType,
+                    TypeConverter.Convert(item.ReturnType)))
+                if (comparer.CompareAll(resolvedParamTypes,
+                    ConvertTypes(item.GetParameters().GetTypes())))
+            {
+                return item;
+            }
+            return null;
+        }
+
+        private IAccessor GetTypeInstanceAccessor(IAccessor Method, IType ConvertedType)
+        {
+            var declProp = Method.DeclaringProperty;
+            var resolvedParamTypes = ConvertTypes(declProp.GetIndexerParameters().GetTypes());
+            var resolvedRetType = TypeConverter.Convert(declProp.PropertyType);
+            var comparer = new ScopedTypeEqualityComparer();
+
+            foreach (var item in ConvertedType.GetProperties())
+                if (item.Name.Equals(declProp.Name))
+                if (item.IsStatic == declProp.IsStatic)
+                if (comparer.Compare(resolvedRetType,
+                    TypeConverter.Convert(item.PropertyType)))
+                if (comparer.CompareAll(resolvedParamTypes,
+                    ConvertTypes(item.GetIndexerParameters().GetTypes())))
+            {
+                var acc = item.GetAccessor(Method.AccessorType);
+
+                if (acc != null)
+                    return acc;
+            }
+            return null;
+        }
+
+        private IMethod ConvertTypeInstanceMethod(IMethod Method)
+        {
+            var declType = Method.DeclaringType;
+            var convDeclType = TypeConverter.Convert(declType);
+
+            if (declType == convDeclType)
+                return Method;
+            else if (Method.IsConstructor)
+                return GetTypeInstanceConstructor(Method, convDeclType);
+            else if (Method is IAccessor)
+                return GetTypeInstanceAccessor((IAccessor)Method, convDeclType);
+            else
+                return GetTypeInstanceMethod(Method, convDeclType);
+        }
+
+        private IType[] ConvertTypes([IType] Types)
+        {
+            return Enumerable.ToArray<IType>(Enumerable.Select<IType, IType>(Types, TypeConverter.Convert));
+        }
+
+        private IMethod ConvertGenericInstance(IMethod Method)
+        {
+            var resolvedArgs = ConvertTypes(Method.GetGenericArguments());
+            return Method.MakeGenericMethod(resolvedArgs);
+        }
+
+        public IMethod Convert(IMethod Method)
+        {
+            var instMethod = ConvertTypeInstanceMethod(Method);
+
+            if (instMethod.IsGenericInstance)
+            {
+                return ConvertGenericInstance(instMethod);
+            }
+            else
+            {
+                return instMethod;
+            }
+        }
+    }
+}
