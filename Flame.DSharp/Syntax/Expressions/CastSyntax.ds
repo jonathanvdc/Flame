@@ -93,6 +93,16 @@ namespace Flame.Syntax.DSharp
 
         #region Static
 
+        public static const IExpression[] CreateImplicitCast(ISyntaxState State, [IExpressionSyntax] Values, IType TargetType)
+        {
+            var results = new List<IExpression>();
+            foreach (var item in Values)
+            {
+                results.Add(CreateImplicitCast(State, item, TargetType));
+            }
+            return results.ToArray();
+        }
+
         public static const IExpression CreateImplicitCast(ISyntaxState State, IExpressionSyntax Value, IType TargetType)
         {
         	var expr = Value.CreateVerifiedExpression(State);

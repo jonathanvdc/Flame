@@ -6,45 +6,118 @@ using Flame.Compiler;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
+using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class InitializedListSyntax : IExpressionSyntax
+    public class InitializedListSyntax : IExpressionSyntax, ISourceSyntax
     {
         public const this(set IExpressionSyntax List, set DelimitedList<IExpressionSyntax> Elements);
 
         public IExpressionSyntax List { const get; private set; }
         public DelimitedList<IExpressionSyntax> Elements { const get; private set; }
 
+        public SourceLocation Location
+        {
+            const get return List.GetSourceLocation().Concat(Elements.Location);
+        }
+
+        private void LogInvalidInitialization(ICompilerLog Log, string Name,
+                                              IExpression ContainerLength)
+        {
+            if (ContainerLength.IsConstant)
+            {
+                int expectedLength = ContainerLength.Evaluate().GetInt32Value();
+
+                if (expectedLength < Elements.Count)
+                {
+                    Log.LogError(new LogEntry("Invalid " + Name + " initialization",
+                                "Initialized " + Name + " expression '" +
+                                (string)this.GetCode().Trim() +
+                                "' has length " + expectedLength +
+                                ", but was initialized with " + Elements.Count +
+                                " values.",
+                                Elements.Location));
+                }
+                else if (Log.ShowIncompleteInitializationWarnings)
+                {
+                    Log.LogWarning(new LogEntry("Incomplete " + Name + " initialization",
+                                   "Initialized " + Name + " expression '" +
+                                   (string)this.GetCode().Trim() +
+                                   "' has length " + expectedLength +
+                                   ", but was initialized with only " + Elements.Count +
+                                   " values. " + Warnings.GetWarningNameMessage(Warnings.IncompleteInitialization),
+                                   Elements.Location));
+                }
+            }
+            else if (Log.ShowVariableLengthInitializationWarnings)
+            {
+                Log.LogWarning(new LogEntry("Variable-length " + Name + " initialization",
+                               "Initialized " + Name + " expression '" +
+                               (string)this.GetCode().Trim() +
+                               "' has a variable length, but was initialized with " +
+                               "a constant number (" + Elements.Count +
+                               ") of values. " + Warnings.GetWarningNameMessage(Warnings.VariableLengthInitialization),
+                               Elements.Location));
+            }
+        }
+
         public const IExpression CreateExpression(ISyntaxState State)
         {
-            var elemExprs = Enumerable.ToArray<IExpression>(Elements.CreateVerifiedExpressions(State));
-
             var enumExpr = List.CreateVerifiedExpression(State);
             if (enumExpr is NewArrayExpression)
             {
             	var newArrExpr = (NewArrayExpression)enumExpr;
-            	if (Enumerable.Count<IExpression>(newArrExpr.Dimensions) == 1 && Enumerable.First<IExpression>(newArrExpr.Dimensions) == null)
+            	if (Enumerable.Count<IExpression>(newArrExpr.Dimensions) == 1)
             	{
-                	//enumExpr = new NewArrayExpression(newArrExpr.ElementType, new IExpression[] { new Int32Expression(elemExprs.Length) });
-                	return new InitializedArrayExpression(newArrExpr.ElementType, elemExprs);
+                    var firstDim = Enumerable.First<IExpression>(newArrExpr.Dimensions);
+
+                    if (firstDim == null || firstDim.EvaluatesTo<int>(Elements.Count))
+                    {
+                        var elemExprs = CastSyntax.CreateImplicitCast(State, Elements, newArrExpr.ElementType);
+                        return new InitializedArrayExpression(newArrExpr.ElementType, elemExprs);
+                    }
+                    else
+                    {
+                        LogInvalidInitialization(State.Log, "array", firstDim);
+                    }
+                }
+            }
+            else if (enumExpr is NewVectorExpression)
+            {
+                var newVectorExpr = (NewVectorExpression)enumExpr;
+                if (newVectorExpr.Dimensions.Length == 1)
+            	{
+                    int firstDim = newVectorExpr.Dimensions[0];
+
+                    if (firstDim == Elements.Count)
+                    {
+                        var elemExprs = CastSyntax.CreateImplicitCast(State, Elements, newVectorExpr.ElementType);
+                        return new InitializedVectorExpression(newVectorExpr.ElementType, elemExprs);
+                    }
+                    else
+                    {
+                        LogInvalidInitialization(State.Log, "vector", new Int32Expression(firstDim));
+                    }
                 }
             }
 
             var localVar = new LateBoundVariable(enumExpr.Type);
 
-			List<IStatement> initStatements = new List<IStatement>();
-            initStatements.Add(localVar.CreateSetStatement(enumExpr));
-            for (int i = 0; i < elemExprs.Length; i++)
+			var initStatements = new IStatement[Elements.Count + 1];
+            initStatements[0] = localVar.CreateSetStatement(enumExpr);
+            for (int i = 0; i < initStatements.Length - 1; i++)
             {
-                var elemVar = new ElementVariable(localVar.CreateGetExpression(), new IExpression[] { new Int32Expression(i) });
-                initStatements.Add(elemVar.CreateSetStatement(elemExprs[i]));
+                var elemVar = new ElementVariable(localVar.CreateGetExpression(),
+                                                  new IExpression[] { new Int32Expression(i) });
+                var convVal = CastSyntax.CreateImplicitCast(State, Elements[i], elemVar.Type);
+                initStatements[i + 1] = elemVar.CreateSetStatement(convVal);
             }
 
-            InitializedExpression expr = new InitializedExpression(new BlockStatement(initStatements.ToArray()),
-                localVar.CreateGetExpression(),
-                localVar.CreateReleaseStatement());
+            var expr = new InitializedExpression(new BlockStatement(initStatements),
+                                                 localVar.CreateGetExpression(),
+                                                 localVar.CreateReleaseStatement());
 
             return expr;
         }
