@@ -43,9 +43,9 @@ namespace dsc.Projects
 
         public IProject MakeProject(IProject Project, ProjectPath Path, ICompilerLog Log)
         {
-            var newPath = Path.ChangeExtension("dsproj");
-            var dsp = DSProject.FromProject(Project, newPath.Path.AbsolutePath.Path);
-            dsp.WriteTo(newPath.Path.Path);
+            var newPath = Path.Path.Parent.Combine(Project.Name).ChangeExtension("dsproj");
+            var dsp = DSProject.FromProject(Project, newPath.AbsolutePath.Path);
+            dsp.WriteTo(newPath.Path);
             return dsp;
         }
 

@@ -12,13 +12,22 @@ namespace Flame.Front
         public static string AssemblyNameKey = "asm-name";
         public static string AssemblyVersionKey = "asm-version";
 
+        public static string GetAssemblyName(this ICompilerOptions Options, string DefaultName)
+        {
+            return Options.GetOption<string>(AssemblyNameKey, DefaultName);
+        }
+        public static Version GetAssemblyVersion(this ICompilerOptions Options, Version DefaultVersion)
+        {
+            return Options.GetOption<Version>(AssemblyVersionKey, DefaultVersion);
+        }
+
         public static string GetAssemblyName(this ICompilerLog Log, string DefaultName)
         {
-            return Log.Options.GetOption<string>(AssemblyNameKey, DefaultName);
+            return Log.Options.GetAssemblyName(DefaultName);
         }
         public static Version GetAssemblyVersion(this ICompilerLog Log, Version DefaultVersion)
         {
-            return Log.Options.GetOption<Version>(AssemblyVersionKey, DefaultVersion);
+            return Log.Options.GetAssemblyVersion(DefaultVersion);
         }
     }
 }

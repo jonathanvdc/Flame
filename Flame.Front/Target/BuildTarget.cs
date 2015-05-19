@@ -34,7 +34,7 @@ namespace Flame.Front.Target
         public static ICompilerOptions GetCompilerOptions(ICompilerOptions Options, IOptionParser<string> OptionParser, IProject Project)
         {
             var projOptions = Project.GetOptions();
-            if (!string.IsNullOrWhiteSpace(Project.AssemblyName))
+            if (!string.IsNullOrWhiteSpace(Project.AssemblyName) && !projOptions.ContainsKey(LogExtensions.AssemblyNameKey))
             {
                 projOptions.Add(LogExtensions.AssemblyNameKey, Project.AssemblyName);
             }
