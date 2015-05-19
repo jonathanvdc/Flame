@@ -7,6 +7,7 @@ using Flame.DSharp.Parser;
 using Flame.DSProject;
 using Flame.Front;
 using Flame.Front.Projects;
+using Flame.Front.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,23 +33,20 @@ namespace dsc.Projects
         {
             if (Path.HasExtension("ds"))
             {
-                var sfp = new SingleFileProject(Path);
-                if (Path.MakeProject)
-                {
-                    var newPath = Path.ChangeExtension("dsproj");
-                    var dsp = DSProject.FromProject(sfp, newPath.Path.AbsolutePath.Path);
-                    dsp.WriteTo(newPath.Path.Path);
-                    return dsp;
-                }
-                else
-                {
-                    return sfp;
-                }
+                return new SingleFileProject(Path, Log.Options.GetTargetPlatform());
             }
             else
             {
                 return DSProject.ReadProject(Path.Path.Path);
             }
+        }
+
+        public IProject MakeProject(IProject Project, ProjectPath Path, ICompilerLog Log)
+        {
+            var newPath = Path.ChangeExtension("dsproj");
+            var dsp = DSProject.FromProject(Project, newPath.Path.AbsolutePath.Path);
+            dsp.WriteTo(newPath.Path.Path);
+            return dsp;
         }
 
         public async Task<IAssembly> CompileAsync(IProject Project, CompilationParameters Parameters)

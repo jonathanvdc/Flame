@@ -3,6 +3,7 @@ using Flame.Compiler.Projects;
 using Flame.Front.Cli;
 using Flame.Front.Options;
 using Flame.Front.Plugs;
+using Flame.Front.Preferences;
 using Flame.Front.Projects;
 using Flame.Front.State;
 using Flame.Front.Target;
@@ -34,32 +35,38 @@ namespace Flame.Front.Cli
 
         public void Compile(string[] args)
         {
-            var log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(), new StringCompilerOptions());
-            var buildArgs = BuildArguments.Parse(CompilerOptionExtensions.CreateOptionParser(), log, args);
+            var optParser = CompilerOptionExtensions.CreateOptionParser();
+
+            var prefs = PreferenceFile.ReadPreferences(optParser);
+
+            var log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(prefs), prefs);
+            var buildArgs = BuildArguments.Parse(optParser, log, args);
+
+            var mergedArgs = new MergedOptions(buildArgs, prefs);
 
             log.Dispose();
-            log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(buildArgs), buildArgs);
+            log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(mergedArgs), mergedArgs);
 
-            if (buildArgs.GetOption<bool>("repeat-command", false))
+            if (mergedArgs.GetOption<bool>("repeat-command", false))
             {
                 log.Console.WriteLine(Name + " " + string.Join(" ", args));
                 log.Console.WriteSeparator(1);
             }
 
-            var timer = buildArgs.TimeCompilation ? new Stopwatch() : null;
+            var timer = mergedArgs.MustTimeCompilation() ? new Stopwatch() : null;
             var startTime = DateTime.Now;
             if (timer != null)
             {
                 timer.Start();
             }
 
-            if (buildArgs.PrintVersion)
+            if (mergedArgs.MustPrintVersion())
             {
                 CompilerVersion.PrintVersion(Name, FullName, ReleasesSite, log);
             }
             if (!buildArgs.CanCompile)
             {
-                if (buildArgs.ShouldCopyRuntimeLibraries())
+                if (mergedArgs.ShouldCopyRuntimeLibraries())
                 {
                     var curPath = new PathIdentifier(Directory.GetCurrentDirectory());
                     var targetPath = curPath.GetAbsolutePath(buildArgs.TargetPath);
@@ -79,11 +86,17 @@ namespace Flame.Front.Cli
             try
             {
                 var allTasks = new List<Task>();
-                foreach (var item in LoadProjects(buildArgs, new FilteredLog(buildArgs.LogFilter, log)))
+                foreach (var item in LoadProjects(buildArgs, new FilteredLog(mergedArgs.GetLogFilter(), log)))
                 {
                     foreach (var proj in item.Value)
                     {
-                        allTasks.Add(Compile(proj.Project, new CompilerEnvironment(proj.CurrentPath, buildArgs, item.Key, proj.Project, log)));
+                        var realProj = proj.Project;
+                        if (buildArgs.MakeProject)
+                        {
+                            realProj = item.Key.MakeProject(proj.Project, new ProjectPath(proj.CurrentPath, buildArgs), log);
+                        }
+
+                        allTasks.Add(Compile(realProj, new CompilerEnvironment(proj.CurrentPath, buildArgs, item.Key, realProj, log)));
                     }
                 }
                 Task.WhenAll(allTasks).Wait();
@@ -92,7 +105,7 @@ namespace Flame.Front.Cli
             {
                 log.LogError(new LogEntry("Compilation terminated", "Compilation has been terminated due to a fatal error."));
                 var entry = new LogEntry("Exception", ex.ToString());
-                if (buildArgs.LogFilter.ShouldLogEvent(entry))
+                if (mergedArgs.GetLogFilter().ShouldLogEvent(entry))
                 {
                     log.LogError(entry);
                 }
@@ -167,7 +180,7 @@ namespace Flame.Front.Cli
         {
             var dirName = State.Arguments.GetTargetPathWithoutExtension(State.ParentPath, Project).Parent;
 
-            string targetIdent = State.Arguments.GetTargetPlatform(Project);
+            string targetIdent = Project.GetTargetPlatform(State.Options);
 
             var targetParser = BuildTargetParsers.GetParserOrThrow(State.FilteredLog, targetIdent, State.CurrentPath);
 
@@ -178,7 +191,7 @@ namespace Flame.Front.Cli
 
             var projAsm = await State.CompileAsync(binderTask);
 
-            if (State.Arguments.VerifyAssembly)
+            if (State.Options.MustVerifyAssembly())
             {
                 State.FilteredLog.LogEvent(new LogEntry("Status", "Verifying..."));
                 VerificationExtensions.VerifyAssembly(projAsm, State.Log);
@@ -192,7 +205,7 @@ namespace Flame.Front.Cli
             var recompSettings = new RecompilationSettings(!(target.TargetAssembly is Flame.TextContract.ContractAssembly), true);
 
             var asmRecompiler = new AssemblyRecompiler(target.TargetAssembly, State.FilteredLog, new SingleThreadedTaskManager(), target.Passes, recompSettings);
-            await asmRecompiler.RecompileAsync(projAsm, new RecompilationOptions(State.Arguments.CompileAll, true));
+            await asmRecompiler.RecompileAsync(projAsm, new RecompilationOptions(State.Options.MustCompileAll(), true));
 
             State.FilteredLog.LogEvent(new LogEntry("Status", "Done recompiling"));
 
