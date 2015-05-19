@@ -33,7 +33,7 @@ namespace Flame.Front.Projects
             if (projChildren == null)
             {
                 List<IProjectItem> items = new List<IProjectItem>();
-                string[] excluded = new[] { "source", "make-project" };
+                string[] excluded = new[] { "source", "make-project", "asm-name" };
                 foreach (var item in Path.Arguments.Where(item => !excluded.Contains(item.Key)))
                 {
                     items.Add(new ProjectOption(item.Key, item.Value.Length == 0 ? "true" : item.Value[0]));
@@ -55,7 +55,7 @@ namespace Flame.Front.Projects
 
         public string Name
         {
-            get { return FilePath.NameWithoutExtension; }
+            get { return Path.Arguments.GetAssemblyName(null) ?? FilePath.NameWithoutExtension; }
         }
     }
 }
