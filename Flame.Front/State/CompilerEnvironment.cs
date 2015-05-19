@@ -21,7 +21,7 @@ namespace Flame.Front.State
             this.Handler = Handler;
             this.Project = Project;
             this.log = new Lazy<ICompilerLog>(() => Log.WithOptions(Options));
-            this.filteredLog = new Lazy<ICompilerLog>(() => new FilteredLog(Arguments.LogFilter, this.Log));
+            this.filteredLog = new Lazy<ICompilerLog>(() => new FilteredLog(Options.GetLogFilter(), this.Log));
             this.options = new Lazy<ICompilerOptions>(() =>
             {
                 var parser = new TransformingOptionParser<string, string[]>(Arguments.OptionParser, item => new string[] { item });

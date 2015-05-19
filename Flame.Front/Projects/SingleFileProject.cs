@@ -1,5 +1,6 @@
 ﻿using Flame.Compiler;
 using Flame.Compiler.Projects;
+using Flame.Front.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,23 +11,20 @@ namespace Flame.Front.Projects
 {
     public class SingleFileProject : IProject
     {
-        public SingleFileProject(ProjectPath Path)
+        public SingleFileProject(ProjectPath Path, string BuildTargetIdentifier)
         {
             this.Path = Path;
+            this.BuildTargetIdentifier = BuildTargetIdentifier;
         }
 
         public ProjectPath Path { get; private set; }
+        public string BuildTargetIdentifier { get; private set; }
 
         public PathIdentifier FilePath { get { return Path.Path; } }
 
         public string AssemblyName
         {
             get { return Name; }
-        }
-
-        public string BuildTargetIdentifier
-        {
-            get { return Path.Arguments.TargetPlatform; }
         }
 
         private IProjectItem[] projChildren;

@@ -35,5 +35,7 @@ namespace Flame.Front.Projects
         IEnumerable<ParsedProject> Partition(IEnumerable<ParsedProject> Projects);
 
         Task<IAssembly> CompileAsync(IProject Project, CompilationParameters Parameters);
+
+        IProject MakeProject(IProject Project, ProjectPath Path, ICompilerLog Log);
     }
 }

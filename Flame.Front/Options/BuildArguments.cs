@@ -117,59 +117,11 @@ namespace Flame.Front.Options
                 return !CompileSingleFile;
             }
         }
-        public string TargetPlatform
-        {
-            get
-            {
-                return GetOption<string>("platform", "");
-            }
-        }
-        public bool CompileAll
-        {
-            get
-            {
-                return GetOption<bool>("compileall", true);
-            }
-        }
         public bool MakeProject
         {
             get
             {
                 return GetOption<bool>("make-project", false);
-            }
-        }
-        public bool VerifyAssembly
-        {
-            get
-            {
-                return GetOption<bool>("verify", true);
-            }
-        }
-
-        public bool TimeCompilation
-        {
-            get
-            {
-                return GetOption<bool>("time", false);
-            }
-        }
-
-        public ILogFilter LogFilter
-        {
-            get
-            {
-                return GetOption<ILogFilter>("chat", null) ?? new ChatLogFilter(ChatLevel.Silent);
-            }
-        }
-
-        /// <summary>
-        /// Gets a boolean value that tells if the compiler should print its version number.
-        /// </summary>
-        public bool PrintVersion
-        {
-            get
-            {
-                return GetOption<bool>("version", false);
             }
         }
 
@@ -226,19 +178,6 @@ namespace Flame.Front.Options
                 relUri = new PathIdentifier("bin", Project.Name).AppendExtension(Target.Extension);
             }
             return CurrentPath.GetAbsolutePath(relUri);
-        }
-
-        public string GetTargetPlatform(IProject Project)
-        {
-            string platform = TargetPlatform;
-            if (string.IsNullOrWhiteSpace(platform))
-            {
-                return Project.BuildTargetIdentifier;
-            }
-            else
-            {
-                return platform;
-            }
         }
 
         #endregion
