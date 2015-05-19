@@ -61,6 +61,8 @@ namespace Flame.Front.Cli
             this.caretConsole = new IndirectConsole(Console.Description);
             this.Palette = Palette;
             this.width = 0;
+            this.CaretCharacter = GetStyleCharacter(CaretStyle, "caret-character", '^');
+            this.UnderlineCharacter = GetStyleCharacter(HighlightStyle, "highlight-character", '~');
         }
 
         public IConsole Console { get; private set; }
@@ -69,6 +71,21 @@ namespace Flame.Front.Cli
         public Style CaretStyle { get; private set; }
         public Style HighlightStyle { get; private set; }
         public IStylePalette Palette { get; private set; }
+
+        public char CaretCharacter { get; private set; }
+        public char UnderlineCharacter { get; private set; }
+
+        private static char GetStyleCharacter(Style Style, string Name, char Default)
+        {
+            foreach (var item in Style.Preferences)
+            {
+                if (item.StartsWith(Name + ":") && item.Length > Name.Length + 1)
+                {
+                    return item[Name.Length + 1];
+                }
+            }
+            return Default;
+        }
 
         private IndirectConsole caretConsole;
         private int width;
@@ -155,16 +172,16 @@ namespace Flame.Front.Cli
 
                 if (!CaretStarted && UseCaret)
                 {
-                    caretConsole.Write("^", CaretStyle);
+                    caretConsole.Write(CaretCharacter.ToString(), CaretStyle);
                     if (item == '\t')
                     {
-                        caretConsole.Write(new string('~', 3));
+                        caretConsole.Write(new string(UnderlineCharacter, 3));
                     }
                     CaretStarted = true;
                 }
                 else if (UseCaret)
                 {
-                    caretConsole.Write(item != '\t' ? "~" : new string('~', 4));
+                    caretConsole.Write(new string(UnderlineCharacter, item != '\t' ? 1 : 4));
                 }
                 else
                 {
