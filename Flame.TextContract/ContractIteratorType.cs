@@ -27,7 +27,12 @@ namespace Flame.TextContract
 
         public override IEnumerable<IAttribute> GetAttributes()
         {
-            return new IAttribute[] { new EnumerableAttribute(ContractObjectType.Instance), PrimitiveAttributes.Instance.ReferenceTypeAttribute };
+            return new IAttribute[]
+            { 
+                new EnumerableAttribute(ContractObjectType.Instance),
+                PrimitiveAttributes.Instance.ReferenceTypeAttribute,
+                PrimitiveAttributes.Instance.VirtualAttribute 
+            };
         }
 
         public override IType MakeGenericType(IEnumerable<IType> TypeArguments)
@@ -88,7 +93,12 @@ namespace Flame.TextContract
 
         public override IEnumerable<IAttribute> GetAttributes()
         {
-            return new IAttribute[] { new EnumerableAttribute(ElementType), PrimitiveAttributes.Instance.ReferenceTypeAttribute };
+            return new IAttribute[] 
+            { 
+                new EnumerableAttribute(ElementType),
+                PrimitiveAttributes.Instance.ReferenceTypeAttribute,
+                PrimitiveAttributes.Instance.VirtualAttribute 
+            };
         }
 
         public override IEnumerable<IType> GetGenericArguments()
