@@ -74,11 +74,11 @@ namespace Flame.Front.Options
             }
         }
 
-        public PathIdentifier SourcePath
+        public PathIdentifier[] SourcePaths
         {
             get
             {
-                return GetOption<PathIdentifier>("source", new PathIdentifier(""));
+                return GetOption<PathIdentifier[]>("source", new PathIdentifier[] { });
             }
         }
         public PathIdentifier TargetPath
@@ -180,7 +180,7 @@ namespace Flame.Front.Options
         {
             get
             {
-                return !SourcePath.IsEmpty;
+                return SourcePaths.Length > 0;
             }
         }
 
@@ -281,7 +281,7 @@ namespace Flame.Front.Options
 
         private static string[] ParseArguments(ArgumentStream<string> ArgStream)
         {
-            List<string> results = new List<string>();
+            var results = new List<string>();
             string peek = ArgStream.Peek();
             while (peek != null && !IsOption(peek))
             {
@@ -300,14 +300,8 @@ namespace Flame.Front.Options
         public static BuildArguments Parse(IOptionParser<string[]> OptionParser, ICompilerLog Log, params string[] Arguments)
         {
             BuildArguments result = new BuildArguments(OptionParser);
-            string[] defaultParameters = new string[]
-            {
-                "source",
-                "target",
-                "platform"
-            };
+            const string defaultParameter = "source";
 
-            int defaultIndex = 0;
             var argStream = new ArgumentStream<string>(Arguments);
             while (argStream.MoveNext())
             {
@@ -315,18 +309,8 @@ namespace Flame.Front.Options
                 string param;
                 if (!IsOption(item))
                 {
-                    if (defaultIndex < defaultParameters.Length)
-                    {
-                        param = defaultParameters[defaultIndex];
-                        defaultIndex++;
-                        argStream.Move(-1);
-                    }
-                    else
-                    {
-                        Log.LogWarning(new LogEntry("Build parameter mismatch", "Could not guess the meaning of default build parameter #" + defaultIndex + ": '" + item + "'."));
-                        param = null;
-                        continue;
-                    }
+                    param = defaultParameter;
+                    argStream.Move(-1);
                 }
                 else
                 {

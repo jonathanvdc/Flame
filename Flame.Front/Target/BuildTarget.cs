@@ -39,7 +39,7 @@ namespace Flame.Front.Target
                 projOptions.Add(LogExtensions.AssemblyNameKey, Project.AssemblyName);
             }
             var result = new StringCompilerOptions(projOptions, OptionParser);
-            return new MergedOptions(Options, result);
+            return new CachedOptions(new MergedOptions(Options, result));
         }
     }
 }
