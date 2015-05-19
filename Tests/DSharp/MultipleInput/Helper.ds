@@ -1,0 +1,12 @@
+using System;
+
+public static class Helper
+{
+    public static void WriteLines(string[] Args)
+    {
+        foreach (var item in Args)
+        {
+            Console.WriteLine(item);
+        }
+    }
+}

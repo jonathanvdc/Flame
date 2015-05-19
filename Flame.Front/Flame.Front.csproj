@@ -81,6 +81,7 @@
     <Compile Include="MultiBinder.cs" />
     <Compile Include="Cli\INodeWriter.cs" />
     <Compile Include="LogExtensions.cs" />
+    <Compile Include="Options\CachedOptions.cs" />
     <Compile Include="Options\TransformingOptionParser.cs" />
     <Compile Include="Options\MergedOptions.cs" />
     <Compile Include="PathIdentifier.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="Projects\ProjectRuntimeLibrary.cs" />
     <Compile Include="Projects\ProjectSource.cs" />
     <Compile Include="Projects\SingleFileProject.cs" />
+    <Compile Include="Projects\UnionProject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReferenceDependency.cs" />
     <Compile Include="MultiAssemblyResolver.cs" />

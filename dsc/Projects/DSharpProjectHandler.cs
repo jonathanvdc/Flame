@@ -114,5 +114,10 @@ namespace dsc.Projects
             DSharpSyntaxParser syntaxParser = new DSharpSyntaxParser(Log);
             return syntaxParser.ParseCompilationUnit(TokenParser);
         }
+
+        public IEnumerable<ParsedProject> Partition(IEnumerable<ParsedProject> Projects)
+        {
+            return new ParsedProject[] { new ParsedProject(Projects.First().CurrentPath, new UnionProject(Projects.Select(item => item.Project).ToArray())) };
+        }
     }
 }

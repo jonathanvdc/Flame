@@ -78,12 +78,15 @@ namespace Flame.Front.Cli
 
             try
             {
-                var projPath = new ProjectPath(buildArgs.SourcePath, buildArgs);
-                var handler = ProjectHandlers.GetProjectHandler(projPath, log);
-                var project = LoadProject(projPath, handler, new FilteredLog(buildArgs.LogFilter, log));
-                var currentPath = GetAbsolutePath(buildArgs.SourcePath);
-
-                Compile(project, new CompilerEnvironment(currentPath, buildArgs, handler, project, log)).Wait();
+                var allTasks = new List<Task>();
+                foreach (var item in LoadProjects(buildArgs, new FilteredLog(buildArgs.LogFilter, log)))
+                {
+                    foreach (var proj in item.Value)
+                    {
+                        allTasks.Add(Compile(proj.Project, new CompilerEnvironment(proj.CurrentPath, buildArgs, item.Key, proj.Project, log)));
+                    }
+                }
+                Task.WhenAll(allTasks).Wait();
             }
             catch (Exception ex)
             {
@@ -104,11 +107,31 @@ namespace Flame.Front.Cli
                     listItems.Add(new MarkupNode(NodeConstants.ListItemNodeType, "End time: " + DateTime.Now.TimeOfDay));
                     listItems.Add(new MarkupNode(NodeConstants.ListItemNodeType, "Elapsed time: " + timer.Elapsed));
                     var listNode = ListExtensions.Instance.CreateList(listItems);
-                    log.WriteBlockEntry(new LogEntry("Timing report", listNode));                    
+                    log.WriteBlockEntry(new LogEntry("Timing report", listNode));
                 }
                 log.Console.WriteSeparator(1);
                 log.Dispose();
             }
+        }
+
+        public IReadOnlyDictionary<IProjectHandler, IEnumerable<ParsedProject>> LoadProjects(BuildArguments Args, ICompilerLog Log)
+        {
+            var parsedProjects = new Dictionary<IProjectHandler, List<ParsedProject>>();
+
+            foreach (var item in Args.SourcePaths)
+            {
+                var projPath = new ProjectPath(item, Args);
+                var handler = ProjectHandlers.GetProjectHandler(projPath, Log);
+                var project = LoadProject(projPath, handler, Log);
+                var currentPath = GetAbsolutePath(item);
+                if (!parsedProjects.ContainsKey(handler))
+                {
+                    parsedProjects[handler] = new List<ParsedProject>();
+                }
+                parsedProjects[handler].Add(new ParsedProject(currentPath, project));
+            }
+
+            return parsedProjects.ToDictionary(pair => pair.Key, pair => pair.Key.Partition(pair.Value));
         }
 
         public static IProject LoadProject(ProjectPath Path, IProjectHandler Handler, ICompilerLog Log)
