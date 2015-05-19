@@ -24,7 +24,7 @@ namespace Flame.TextContract
 
         public IType EnumeratorType
         {
-            get { return ContractIterableType.Instance; }
+            get { return ContractIteratorType.Instance; }
         }
 
         public string Name

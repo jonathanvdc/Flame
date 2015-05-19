@@ -21,7 +21,12 @@ namespace Flame.TextContract
 
         public override IEnumerable<IAttribute> GetAttributes()
         {
-            return new IAttribute[] { PrimitiveAttributes.Instance.RootTypeAttribute, PrimitiveAttributes.Instance.ReferenceTypeAttribute };
+            return new IAttribute[] 
+            { 
+                PrimitiveAttributes.Instance.RootTypeAttribute, 
+                PrimitiveAttributes.Instance.ReferenceTypeAttribute,
+                PrimitiveAttributes.Instance.VirtualAttribute
+            };
         }
 
         public override string Name
