@@ -29,6 +29,11 @@ namespace Flame.Syntax.DSharp
         public [GenericConstraintSyntax] GenericConstraints { const get; private set; }
         public bool IsOperator { const get return false; }
 
+        public SourceLocation NameLocation
+        {
+            const get return SignatureSyntax.NameToken.Location;
+        }
+
         public SourceLocation HeaderLocation
         {
             const get return SignatureSyntax.GetSourceLocation();

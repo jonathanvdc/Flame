@@ -22,6 +22,11 @@ namespace Flame.Syntax.DSharp
 
         #region Location
 
+        public SourceLocation NameLocation
+        {
+            const get return Signature.NameLocation;
+        }
+
         public SourceLocation HeaderLocation
         {
             const get return Signature.HeaderLocation;

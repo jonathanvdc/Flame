@@ -27,6 +27,11 @@ namespace Flame.Syntax.DSharp
             }
         }
 
+        public SourceLocation NameLocation
+        {
+            const get return Signature.NameToken.Location;
+        }
+
         public ISignatureSyntax Signature { const get; private set; }
         public MethodContract Contract { const get; private set; }
         public IStatementSyntax Body { const get; private set; }
