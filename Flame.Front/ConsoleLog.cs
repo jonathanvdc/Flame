@@ -309,12 +309,40 @@ namespace Flame.Front
         private void WriteNodeCore(IMarkupNode Node, Color CaretColor, Color HighlightColor)
         {
             var dependentStyles = new List<Style>();
-            dependentStyles.Add(new Style(StyleConstants.CaretMarkerStyleName, CaretColor, new Color()));
-            dependentStyles.Add(new Style(StyleConstants.CaretHighlightStyleName, HighlightColor, new Color()));
+            dependentStyles.Add(new Style(StyleConstants.CaretMarkerStyleName, CaretColor, new Color(), GetDiagnosticsCharacterPreferences("caret-character")));
+            dependentStyles.Add(new Style(StyleConstants.CaretHighlightStyleName, HighlightColor, new Color(), GetDiagnosticsCharacterPreferences("highlight-character")));
 
             var extPalette = new ExtendedPalette(Palette, dependentStyles);
 
             NodeWriter.Write(Node, Console, extPalette);
+        }
+
+        private string[] GetDiagnosticsCharacterPreferences(string Name)
+        {
+            string option = Options.GetOption<string>("diagnostics-" + Name, "default");
+
+            switch (option)
+            {
+                case "dash":
+                    return new string[] { Name + ":-" };
+                case "caret":
+                    return new string[] { Name + ":^" };
+                case "tilde":
+                    return new string[] { Name + ":~" };
+                case "slash":
+                    return new string[] { Name + ":/" };
+                case "backslash":
+                    return new string[] { Name + ":\\" };
+                default:
+                    if (option != null && option.Length == 1)
+                    {
+                        return new string[] { Name + ":" + option[0] };
+                    }
+                    else
+                    {
+                        return new string[0];
+                    }
+            }
         }
 
         #endregion
