@@ -11,6 +11,11 @@ namespace Flame.Syntax.DSharp
     	public const this();
         public const this(set ISignatureSyntax Signature);
 
+        public SourceLocation NameLocation
+        {
+            const get return Signature.NameToken.Location;
+        }
+
         public ISignatureSyntax Signature { const get; protected set; }
         public string Name
         {

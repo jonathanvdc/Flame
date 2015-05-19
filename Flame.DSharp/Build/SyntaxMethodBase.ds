@@ -43,7 +43,7 @@ namespace Flame.DSharp.Build
 
         public SourceLocation Location
         {
-            const get return Syntax.Location;
+            const get return Syntax.NameLocation;
         }
 
         #endregion
