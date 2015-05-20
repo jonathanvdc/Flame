@@ -35,5 +35,11 @@ namespace Flame.Front.Projects
         {
             get { return Projects.First().Name; }
         }
+
+        public static IProject CreateUnion(IEnumerable<IProject> Projects)
+        {
+            var visitor = new ProjectTrimmingVisitor();
+            return (IProject)visitor.Visit(new UnionProject(Projects));
+        }
     }
 }

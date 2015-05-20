@@ -66,9 +66,11 @@ namespace Flame.DSProject
         public void WriteXml(XmlWriter writer)
         {
             foreach (var child in Nodes)
-            {
-                XmlSerializer xmlSerializer = new XmlSerializer(child.GetType());
-                xmlSerializer.Serialize(writer, child);
+            {                
+                var xmlSerializer = new XmlSerializer(child.GetType());
+                var xns = new XmlSerializerNamespaces();
+                xns.Add(string.Empty, string.Empty);
+                xmlSerializer.Serialize(writer, child, xns);
             }
         }
 

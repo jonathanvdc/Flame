@@ -92,8 +92,10 @@ namespace Flame.DSProject
         }
         public static DSProject ReadProject(Stream Source)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(DSProject));
-            return (DSProject)serializer.Deserialize(Source);
+            var xns = new XmlSerializerNamespaces();
+            var xmlSerializer = new XmlSerializer(typeof(DSProject));
+            xns.Add(string.Empty, string.Empty);
+            return (DSProject)xmlSerializer.Deserialize(Source);
         }
 
         public void WriteTo(string Path)
@@ -105,10 +107,10 @@ namespace Flame.DSProject
         }
         public void WriteTo(Stream Target)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(DSProject));
-            var ns = new XmlSerializerNamespaces();
-            ns.Add("", "");
-            serializer.Serialize(Target, this);
+            var xmlSerializer = new XmlSerializer(typeof(DSProject));
+            var xns = new XmlSerializerNamespaces();
+            xns.Add(string.Empty, string.Empty);
+            xmlSerializer.Serialize(Target, this, xns);
         }
 
         #region FromProject

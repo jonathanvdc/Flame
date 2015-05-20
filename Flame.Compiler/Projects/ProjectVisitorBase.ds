@@ -1,0 +1,111 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Compiler.Projects
+{
+	public abstract class ProjectVisitorBase
+	{
+        protected const bool IsNotNull(IProjectItem Item)
+        {
+            return Item != null;
+        }
+
+        protected virtual IProjectNode CreateNode(string Name, [IProjectItem] Items)
+        {
+            return new ProjectNode(Name, Enumerable.ToArray<IProjectItem>(Items));
+        }
+
+        protected virtual IProject CreateProject(string Name, string AssemblyName,
+                                                 string BuildTargetIdentifier,
+                                                 [IProjectItem] Items)
+        {
+            return new Project(Name, AssemblyName,
+                               BuildTargetIdentifier,
+                               Enumerable.ToArray<IProjectItem>(Items));
+        }
+
+        protected virtual IProjectItem VisitDefault(IProjectItem Item)
+        {
+            return Item;
+        }
+
+        protected virtual IProjectItem VisitNode(IProjectNode Node)
+        {
+            return CreateNode(Node.Name,
+                Enumerable.Where<IProjectItem>(VisitAll(Node.GetChildren()), IsNotNull));
+        }
+
+        protected virtual IProjectItem VisitOptionItem(IProjectOptionItem Item)
+        {
+            return VisitDefault(Item);
+        }
+
+        protected virtual IProjectItem VisitRuntimeLibraryItem(IProjectReferenceItem Item)
+        {
+            return VisitDefault(Item);
+        }
+
+        protected virtual IProjectItem VisitLibraryReferenceItem(IProjectReferenceItem Item)
+        {
+            return VisitDefault(Item);
+        }
+
+        protected virtual IProjectItem VisitReferenceItem(IProjectReferenceItem Item)
+        {
+            if (Item.IsRuntimeLibrary)
+            {
+                return VisitRuntimeLibraryItem(Item);
+            }
+            else
+            {
+                return VisitLibraryReferenceItem(Item);
+            }
+        }
+
+        protected virtual IProjectItem VisitSourceItem(IProjectSourceItem Item)
+        {
+            return VisitDefault(Item);
+        }
+
+        protected virtual IProjectItem VisitProject(IProject Node)
+        {
+            return CreateProject(Node.Name, Node.AssemblyName, Node.BuildTargetIdentifier,
+                Enumerable.Where<IProjectItem>(VisitAll(Node.GetChildren()), IsNotNull));
+        }
+
+        public virtual IProjectItem Visit(IProjectItem Item)
+        {
+            if (Item is IProject)
+            {
+                return VisitProject((IProject)Item);
+            }
+            else if (Item is IProjectNode)
+            {
+                return VisitNode((IProjectNode)Item);
+            }
+            else if (Item is IProjectOptionItem)
+            {
+                return VisitOptionItem((IProjectOptionItem)Item);
+            }
+            else if (Item is IProjectReferenceItem)
+            {
+                return VisitReferenceItem((IProjectReferenceItem)Item);
+            }
+            else if (Item is IProjectSourceItem)
+            {
+                return VisitSourceItem((IProjectSourceItem)Item);
+            }
+            else
+            {
+                return VisitDefault(Item);
+            }
+        }
+
+        public virtual [IProjectItem] VisitAll([IProjectItem] Items)
+        {
+            return Enumerable.Select<IProjectItem, IProjectItem>(Items, Visit);
+        }
+	}
+}

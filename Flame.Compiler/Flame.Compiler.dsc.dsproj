@@ -247,6 +247,9 @@
 			<Compile Include="Projects\IMutableProjectNode.ds" />
 			<Compile Include="Projects\IMutableProject.ds" />
 			<Compile Include="Projects\IProjectOptionItem.ds" />
+			<Compile Include="Projects\ProjectNode.ds" />
+			<Compile Include="Projects\ProjectTrimmingVisitor.ds" />
+			<Compile Include="Projects\ProjectVisitorBase.ds" />
 		</ItemGroup>
 	</ItemGroup>
 </Project>
