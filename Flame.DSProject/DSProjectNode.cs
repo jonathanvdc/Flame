@@ -27,8 +27,28 @@ namespace Flame.DSProject
             this.Children = new NodeList(Children);
         }
 
+        [XmlIgnore]
+        public string Name { get; private set; }
+
         [XmlAttribute("Name")]
-        public string Name { get; set; }
+        public string XmlName
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(Name))
+                {
+                    return null;
+                }
+                else
+                {
+                    return Name;
+                }
+            }
+            set
+            {
+                Name = value;
+            }
+        }
         [XmlAnyElement]
         public NodeList Children { get; set; }
 

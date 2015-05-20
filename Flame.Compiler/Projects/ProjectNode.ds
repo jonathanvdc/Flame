@@ -1,0 +1,30 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Projects
+{
+	public virtual class ProjectNode : IProjectNode
+	{
+        public const this(set string Name, set IProjectItem[] Children);
+
+        public string Name { const get; private set; }
+        public IProjectItem[] Children { const get; private set; }
+
+		public const IProjectItem[] GetChildren()
+        {
+            return Children;
+        }
+	}
+
+    public virtual class Project : ProjectNode, IProject
+    {
+        public const this(string Name, set string AssemblyName,
+                          set string BuildTargetIdentifier,
+                          IProjectItem[] Children)
+            : base(Name, Children);
+
+        public string AssemblyName { const get; private set; }
+        public string BuildTargetIdentifier { const get; private set; }
+    }
+}

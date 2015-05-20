@@ -115,7 +115,7 @@ namespace dsc.Projects
 
         public IEnumerable<ParsedProject> Partition(IEnumerable<ParsedProject> Projects)
         {
-            return new ParsedProject[] { new ParsedProject(Projects.First().CurrentPath, new UnionProject(Projects.Select(item => item.Project).ToArray())) };
+            return new ParsedProject[] { new ParsedProject(Projects.First().CurrentPath, UnionProject.CreateUnion(Projects.Select(item => item.Project).ToArray())) };
         }
     }
 }

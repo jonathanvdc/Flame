@@ -1,0 +1,60 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Compiler.Projects
+{
+	public virtual class ProjectTrimmingVisitor : ProjectVisitorBase
+	{
+        public const this()
+        {
+            this.SourceLocations = new HashSet<string>();
+            this.RuntimeLibraries = new HashSet<string>();
+            this.LibraryReferences = new HashSet<string>();
+        }
+
+        public HashSet<string> SourceLocations { const get; private set; }
+        public HashSet<string> RuntimeLibraries { const get; private set; }
+        public HashSet<string> LibraryReferences { const get; private set; }
+
+        protected virtual IProjectNode CreateNode(string Name, [IProjectItem] Items)
+        {
+            var arr = Enumerable.ToArray<IProjectItem>(Items);
+            if (arr.Length == 0)
+                return null;
+
+            return new ProjectNode(Name, arr);
+        }
+
+        protected virtual IProjectItem VisitRuntimeLibraryItem(IProjectReferenceItem Item)
+        {
+            if (!RuntimeLibraries.Contains(Item.ReferenceIdentifier))
+            {
+                RuntimeLibraries.Add(Item.ReferenceIdentifier);
+                return Item;
+            }
+            else return null;
+        }
+
+        protected virtual IProjectItem VisitLibraryReferenceItem(IProjectReferenceItem Item)
+        {
+            if (!LibraryReferences.Contains(Item.ReferenceIdentifier))
+            {
+                LibraryReferences.Add(Item.ReferenceIdentifier);
+                return Item;
+            }
+            else return null;
+        }
+
+        protected virtual IProjectItem VisitSourceItem(IProjectSourceItem Item)
+        {
+            if (!SourceLocations.Contains(Item.SourceIdentifier))
+            {
+                SourceLocations.Add(Item.SourceIdentifier);
+                return Item;
+            }
+            else return null;
+        }
+	}
+}
