@@ -13,18 +13,23 @@ namespace Flame.Compiler.Statements
 
 		public bool IsEmpty { const get return false; }
 
-		public IStatement Accept(INodeVisitor Visitor)
+		private const ThrowStatement CreateThrow(IExpression NewValue)
 		{
-			var transVal = Visitor.Visit(Exception);
-
-			if (transVal == Exception)
+			if (Exception == NewValue)
 			{
 				return this;
 			}
 			else
 			{
-				return new ThrowStatement(transVal);
+				return new ThrowStatement(NewValue);
 			}
+		}
+
+		public IStatement Accept(INodeVisitor Visitor)
+		{
+			var transVal = Visitor.Visit(Exception);
+
+			return CreateThrow(transVal);
 		}
 
 		public const IStatement Optimize()

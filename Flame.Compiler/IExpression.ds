@@ -16,7 +16,7 @@ namespace Flame.Compiler
 
         /// <summary>
         /// Gets a boolean value that indicates if the expression is a constant expression.
-        /// A constant expression has no side-effects, and depends soley on
+        /// A constant expression has no side-effects, and depends solely on
         /// information that is known at compile-time.
         /// </summary>
         /// <remarks>

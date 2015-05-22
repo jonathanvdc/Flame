@@ -23,11 +23,14 @@ namespace Flame.Compiler.Expressions
 
 		public void AcceptPredicate(INodeVisitor Visitor)
 		{
-			Visitor.Visit(Target);
+			if (Target != null)
+				Visitor.Visit(Target);
 		}
 
 		public IExpression Accept(INodeVisitor Visitor)
 		{
+			if (Target == null) return this;
+
 			var transTarget = Visitor.Visit(Target);
 
 			if (transTarget == Target)
@@ -126,7 +129,7 @@ namespace Flame.Compiler.Expressions
         	return Generator.EmitGetField(Field, targetBlock);
         }
     }
-    public class FieldGetPointerExpression : IExpression, IVariableNode
+    public class FieldGetPointerExpression : IExpression, IVariableNode, IPredicateNode
     {
         public const this(set IField Field, set IExpression Target);
 
@@ -138,8 +141,16 @@ namespace Flame.Compiler.Expressions
             const get { return Field.FieldType.MakePointerType(PointerKind.ReferencePointer); }
         }
 
+		public void AcceptPredicate(INodeVisitor Visitor)
+		{
+			if (Target != null)
+				Visitor.Visit(Target);
+		}
+
 		public IExpression Accept(INodeVisitor Visitor)
 		{
+			if (Target == null) return this;
+
 			var transTarget = Visitor.Visit(Target);
 
 			if (transTarget == Target)

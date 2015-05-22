@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Statements
 {
-	public class IfElseStatement : IStatement
+	public class IfElseStatement : IStatement, IFlowStatement
 	{
 		public this(set IExpression Condition, set IStatement IfBody);
 		public this(set IExpression Condition, set IStatement IfBody, set IStatement ElseBody);
@@ -12,7 +12,43 @@ namespace Flame.Compiler.Statements
 		public IStatement IfBody { const get; private set; }
 		public IStatement ElseBody { const get; private set; }
 
-		public override IStatement Accept(INodeVisitor Visitor)
+		private const IfElseStatement CreateIfElse(IExpression NewCond, IStatement NewIf, IStatement NewElse)
+		{
+			if (this.Condition == NewCond && this.IfBody == NewIf &&
+				this.ElseBody == NewElse)
+			{
+				return this;
+			}
+			else
+			{
+				return new IfElseStatement(NewCond, NewIf, NewElse);
+			}
+		}
+
+		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+			: IFlowStatement.AcceptFlow<TState, TFlow>
+		{
+			var transCond = Visitor.Visit(Condition);
+			var startState = Visitor.CurrentFlow;
+
+			var transIf = Visitor.Visit(IfBody);
+			var ifFlow = Visitor.CreateDeltaFlow(startState, Visitor.CurrentFlow);
+
+			Visitor.CurrentFlow = startState; // Reset flow to create else flow
+			IStatement transElse;
+			if (ElseBody == null)
+				transElse = null;
+			else
+				transElse = Visitor.Visit(ElseBody);
+
+			var elseFlow = Visitor.CreateDeltaFlow(startState, Visitor.CurrentFlow);
+
+			Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(startState, Visitor.CreateSelectFlow(ifFlow, elseFlow));
+
+			return CreateIfElse(transCond, transIf, transElse);
+		}
+
+		public IStatement Accept(INodeVisitor Visitor)
 		{
 			var transCond = Visitor.Visit(Condition);
 			var transIf = Visitor.Visit(IfBody);
@@ -23,15 +59,7 @@ namespace Flame.Compiler.Statements
 			else
 				transElse = Visitor.Visit(ElseBody);
 
-			if (transCond == Condition && transIf == IfBody &&
-				transElse == ElseBody)
-			{
-				return this;
-			}
-			else
-			{
-				return new IfElseStatement(transCond, transIf, transElse);
-			}
+			return CreateIfElse(transCond, transIf, transElse);
 		}
 
 		public bool IsEmpty : IStatement.IsEmpty

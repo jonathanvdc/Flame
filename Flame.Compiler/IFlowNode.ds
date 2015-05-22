@@ -1,0 +1,72 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Compiler
+{
+    /// <summary>
+    /// Defines a control flow expression: an expression that interacts with a control flow
+    /// visitor.
+    /// </summary>
+    public interface IFlowExpression : IExpression
+    {
+        /// <summary>
+        /// Accepts and interacts with a flow visitor.
+        /// </summary>
+        IExpression AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor);
+    }
+
+    /// <summary>
+    /// Defines a control flow statement: a statement that interacts with a control flow
+    /// visitor.
+    /// </summary>
+    public interface IFlowStatement : IStatement
+    {
+        /// <summary>
+        /// Accepts and interacts with a flow visitor.
+        /// </summary>
+        IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor);
+    }
+
+    /// <summary>
+    /// Defines a flow visitor: a node visitor that flow nodes can interact with.
+    /// </summary>
+    public interface IFlowVisitor<TState, TDelta> : INodeVisitor
+    {
+        /// <summary>
+        /// Gets or sets the current flow state.
+        /// </summary>
+        TState CurrentFlow { const get; set; }
+
+        /// <summary>
+        /// Computes the "sum" of a flow state and a control flow delta.
+        /// </summary>
+        const TState CreateCollapsedFlow(TState First, TDelta Second);
+
+        /// <summary>
+        /// Computes the "difference" between two flow states, such that
+        /// the "sum" of the first flow state and the result of this operation
+        /// results in the second state.
+        /// </summary>
+        const TDelta CreateDeltaFlow(TState First, TState Second);
+
+        /// <summary>
+        /// Creates a flow delta that represents the sequential execution of
+        /// two flow deltas.
+        /// </summary>
+        const TDelta CreateSequenceFlow(TDelta First, TDelta Second);
+
+        /// <summary>
+        /// Creates a flow delta that represents selecting precisely one of two
+        /// flow deltas.
+        /// </summary>
+        const TDelta CreateSelectFlow(TDelta First, TDelta Second);
+
+        /// <summary>
+        /// Creates a flow delta that will be executed zero or more
+        /// times.
+        /// </summary>
+        const TDelta CreateLoopFlow(TDelta Flow);
+    }
+}

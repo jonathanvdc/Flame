@@ -15,10 +15,10 @@ namespace Flame.Front.Target
     public class BuildTarget
     {
         public BuildTarget(IAssemblyBuilder TargetAssembly, IDependencyBuilder DependencyBuilder, string Extension, params string[] PreferredPasses)
-            : this(TargetAssembly, DependencyBuilder, Extension, PassExtensions.CreateSuite(DependencyBuilder.Log, PreferredPasses))
+            : this(TargetAssembly, DependencyBuilder, Extension, new PassPreferences(PreferredPasses))
         {
         }
-        public BuildTarget(IAssemblyBuilder TargetAssembly, IDependencyBuilder DependencyBuilder, string Extension, PassSuite Passes)
+        public BuildTarget(IAssemblyBuilder TargetAssembly, IDependencyBuilder DependencyBuilder, string Extension, PassPreferences Passes)
         {
             this.TargetAssembly = TargetAssembly;
             this.DependencyBuilder = DependencyBuilder;
@@ -29,7 +29,7 @@ namespace Flame.Front.Target
         public IAssemblyBuilder TargetAssembly { get; private set; }
         public IDependencyBuilder DependencyBuilder { get; private set; }        
         public string Extension { get; private set; }
-        public PassSuite Passes { get; private set; }
+        public PassPreferences Passes { get; private set; }
 
         public static ICompilerOptions GetCompilerOptions(ICompilerOptions Options, IOptionParser<string> OptionParser, IProject Project)
         {

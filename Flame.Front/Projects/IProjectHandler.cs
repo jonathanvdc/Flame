@@ -1,6 +1,7 @@
 ﻿using Flame;
 using Flame.Compiler;
 using Flame.Compiler.Projects;
+using Flame.Front.Target;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,5 +38,10 @@ namespace Flame.Front.Projects
         Task<IAssembly> CompileAsync(IProject Project, CompilationParameters Parameters);
 
         IProject MakeProject(IProject Project, ProjectPath Path, ICompilerLog Log);
+
+        /// <summary>
+        /// Gets the project handler's pass preferences.
+        /// </summary>
+        PassPreferences GetPassPreferences(ICompilerLog Log);
     }
 }

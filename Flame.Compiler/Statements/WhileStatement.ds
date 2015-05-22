@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Statements
 {
-	public class WhileStatement : IStatement
+	public class WhileStatement : IStatement, IFlowStatement
 	{
 		public const this(set IExpression Condition, set IStatement Body);
 
@@ -18,19 +18,39 @@ namespace Flame.Compiler.Statements
 			}
 		}
 
-		public IStatement Accept(INodeVisitor Visitor)
+		private const WhileStatement CreateWhile(IExpression NewCondition, IStatement NewBody)
 		{
-			var transCond = Visitor.Visit(Condition);
-			var transBody = Visitor.Visit(Body);
-
-			if (transCond == Condition && transBody == Body)
+			if (NewCondition == Condition && NewBody == Body)
 			{
 				return this;
 			}
 			else
 			{
-				return new WhileStatement(transCond, transBody);
+				return new WhileStatement(NewCondition, NewBody);
 			}
+		}
+
+		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+			: IFlowStatement.AcceptFlow<TState, TFlow>
+		{
+			var startFlow = Visitor.CurrentFlow;
+
+			var transCond = Visitor.Visit(Condition);
+
+			var transBody = Visitor.Visit(Body);
+			var bodyFlow = Visitor.CreateDeltaFlow(startFlow, Visitor.CurrentFlow);
+
+			Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(startFlow, Visitor.CreateLoopFlow(bodyFlow));
+
+			return CreateWhile(transCond, transBody);
+		}
+
+		public IStatement Accept(INodeVisitor Visitor)
+		{
+			var transCond = Visitor.Visit(Condition);
+			var transBody = Visitor.Visit(Body);
+
+			return CreateWhile(transCond, transBody);
 		}
 
 		public IStatement Optimize() : IStatement.Optimize

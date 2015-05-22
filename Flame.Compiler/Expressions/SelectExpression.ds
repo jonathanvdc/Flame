@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Expressions
 {
-	public class SelectExpression : IExpression
+	public class SelectExpression : IExpression, IFlowExpression
 	{
 		public this(set IExpression Condition, set IExpression TrueValue, set IExpression FalseValue);
 
@@ -16,20 +16,45 @@ namespace Flame.Compiler.Expressions
             const get return TrueValue.Type;
         }
 
+		private const SelectExpression CreateSelect(IExpression NewCond, IExpression NewIf, IExpression NewElse)
+		{
+			if (this.Condition == NewCond && this.TrueValue == NewIf &&
+				this.FalseValue == NewElse)
+			{
+				return this;
+			}
+			else
+			{
+				return new SelectExpression(NewCond, NewIf, NewElse);
+			}
+		}
+
+		public IExpression AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+			: IFlowExpression.AcceptFlow<TState, TFlow>
+		{
+			var transCond = Visitor.Visit(Condition);
+			var startState = Visitor.CurrentFlow;
+
+			var transIf = Visitor.Visit(TrueValue);
+			var ifFlow = Visitor.CreateDeltaFlow(startState, Visitor.CurrentFlow);
+
+			Visitor.CurrentFlow = startState; // Reset flow to create else flow
+			var transElse = Visitor.Visit(FalseValue);
+
+			var elseFlow = Visitor.CreateDeltaFlow(startState, Visitor.CurrentFlow);
+
+			Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(startState, Visitor.CreateSelectFlow(ifFlow, elseFlow));
+
+			return CreateSelect(transCond, transIf, transElse);
+		}
+
 		public IExpression Accept(INodeVisitor Visitor)
 		{
 			var cond = Visitor.Visit(Condition);
 			var trueVal = Visitor.Visit(TrueValue);
 			var falseVal = Visitor.Visit(FalseValue);
 
-			if (cond == Condition && trueVal == TrueValue && falseVal == FalseValue)
-			{
-				return this;
-			}
-			else
-			{
-				return new SelectExpression(cond, trueVal, falseVal);
-			}
+			return CreateSelect(cond, trueVal, falseVal);
 		}
 
         public bool IsConstant

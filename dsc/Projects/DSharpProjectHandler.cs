@@ -14,6 +14,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flame.Front.Target;
+using Flame.Verification;
 
 namespace dsc.Projects
 {
@@ -116,6 +118,21 @@ namespace dsc.Projects
         public IEnumerable<ParsedProject> Partition(IEnumerable<ParsedProject> Projects)
         {
             return new ParsedProject[] { new ParsedProject(Projects.First().CurrentPath, UnionProject.CreateUnion(Projects.Select(item => item.Project).ToArray())) };
+        }
+
+        public PassPreferences GetPassPreferences(ICompilerLog Log)
+        {
+            return new PassPreferences(new string[] { },
+                new PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>[] 
+                { 
+                    new PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>(new VerifyingDeadCodePass(Log, 
+                        "This method may not always return or throw. " + Warnings.GetWarningNameMessage("missing-return"), 
+                        Log.UseDefaultWarnings("missing-return"),
+                        "This method contains unreachable code. " + Warnings.GetWarningNameMessage("dead-code"),
+                        Log.UsePedanticWarnings("dead-code")),
+                        PassExtensions.EliminateDeadCodePassName, 
+                        true)
+                });
         }
     }
 }

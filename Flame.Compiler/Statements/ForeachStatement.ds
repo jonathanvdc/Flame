@@ -19,7 +19,7 @@ namespace Flame.Compiler.Statements
 		public List<ManuallyBoundVariable> ElementVariables { const get; private set; }
 	}
 
-	public class ForeachStatement : IStatement, IPredicateNode, IMemberNode
+	public class ForeachStatement : IStatement, IPredicateNode, IMemberNode, IFlowStatement
 	{
 		public const this(set [CollectionElement] Collections, set IStatement Body, set ForeachElementCache elemCache);
 		public const this(set [CollectionElement] Collections)
@@ -80,16 +80,35 @@ namespace Flame.Compiler.Statements
 			return newForeachStmt;
 		}
 
-		public void AcceptPredicate(INodeVisitor Visitor)
+		private const ForeachStatement CreateForeach([CollectionElement] NewCollections, IStatement NewBody)
 		{
-			foreach (var item in Collections)
+			if (NewCollections == Collections)
 			{
-				item.AcceptPredicate(Visitor);
+				if (NewBody == Body)
+				{
+					return this;
+				}
+				else
+				{
+					return new ForeachStatement(Collections, NewBody, elemCache);
+				}
 			}
-			Visitor.Visit(Body);
+			else
+			{
+				var newForeachStmt = new ForeachStatement(NewCollections);
+				foreach (var item in newForeachStmt.elemCache.ElementVariables,
+					     var elem in elemCache.ElementVariables)
+				{
+					elem.BindVariable(item);
+				}
+
+				newForeachStmt.Body = NewBody;
+
+				return newForeachStmt;
+			}
 		}
 
-		private ForeachStatement Accept(INodeVisitor Visitor, bool ApplyToBody)
+		private [CollectionElement] AcceptCollectionElements(INodeVisitor Visitor)
 		{
 			bool sameElems = true;
 
@@ -106,34 +125,41 @@ namespace Flame.Compiler.Statements
 
 			if (sameElems)
 			{
-				if (ApplyToBody)
-					return new ForeachStatement(Collections, Visitor.Visit(Body), elemCache);
-				else
-					return this;
+				return Collections;
 			}
+			else return newCollectionElements;
+		}
 
-			var newForeachStmt = new ForeachStatement(newCollectionElements);
-			foreach (var item in newForeachStmt.elemCache.ElementVariables, var elem in elemCache.ElementVariables)
+		public void AcceptPredicate(INodeVisitor Visitor)
+		{
+			foreach (var item in Collections)
 			{
-				elem.BindVariable(item);
+				item.AcceptPredicate(Visitor);
 			}
+			Visitor.Visit(Body);
+		}
 
-			if (ApplyToBody)
-				newForeachStmt.Body = Visitor.Visit(Body);
-			else
-				newForeachStmt.Body = Body;
-
-			return newForeachStmt;
+		public IStatement AcceptFlow<TState, TDelta>(IFlowVisitor<TState, TDelta> Visitor)
+			: IFlowStatement.AcceptFlow<TState, TDelta>
+		{
+			var newCollectionElements = AcceptCollectionElements(Visitor);
+			var bodyStartState = Visitor.CurrentFlow;
+			var newBody = Visitor.Visit(Body);
+			var bodyFlow = Visitor.CreateLoopFlow(Visitor.CreateDeltaFlow(bodyStartState, Visitor.CurrentFlow));
+			Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(bodyStartState, bodyFlow);
+			return CreateForeach(newCollectionElements, newBody);
 		}
 
 		public ForeachStatement AcceptCollections(INodeVisitor Visitor)
 		{
-			return Accept(Visitor, false);
+			var newCollectionElements = AcceptCollectionElements(Visitor);
+			return CreateForeach(newCollectionElements, Body);
 		}
 
 		public IStatement Accept(INodeVisitor Visitor)
 		{
-			return Accept(Visitor, true);
+			var newCollectionElements = AcceptCollectionElements(Visitor);
+			return CreateForeach(newCollectionElements, Visitor.Visit(Body));
 		}
 
 		public IStatement Optimize() : IStatement.Optimize

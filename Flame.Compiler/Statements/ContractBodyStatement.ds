@@ -16,16 +16,19 @@ namespace Flame.Compiler.Statements
 
 		public void AcceptPredicate(INodeVisitor Visitor)
 		{
-			Visitor.Visit(Body);
 			Visitor.VisitAll(Preconditions);
 			Visitor.VisitAll(Postconditions);
+			Visitor.Visit(Body);
 		}
 
 		public IStatement Accept(INodeVisitor Visitor)
 		{
+			var precond = Visitor.VisitAll(Preconditions);
+			var postcond = Visitor.VisitAll(Postconditions);
+
 			return new ContractBodyStatement(Visitor.Visit(Body),
-				Visitor.VisitAll(Preconditions),
-				Visitor.VisitAll(Postconditions));
+				precond,
+				postcond);
 		}
 
 		public const IStatement Optimize()
