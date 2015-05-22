@@ -24,13 +24,19 @@ namespace Flame.Compiler.Statements
 
         public void AcceptPredicate(INodeVisitor Visitor)
         {
-            Visitor.Visit(Target);
+            if (Target != null)
+                Visitor.Visit(Target);
             Visitor.Visit(Value);
         }
 
         public IStatement Accept(INodeVisitor Visitor)
         {
-            var transTarget = Visitor.Visit(Target);
+            IExpression transTarget;
+            if (Target != null)
+                transTarget = Visitor.Visit(Target);
+            else
+                transTarget = null;
+
             var transVal = Visitor.Visit(Value);
 
             if (transTarget == Target && transVal == Value)

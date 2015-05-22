@@ -1,0 +1,71 @@
+
+public class DeadCodeTest
+{
+    public double GetLengthSqr(double x1, double y1, double x2, double y2)
+    {
+        double x = x2 - x1;
+        double y = y2 - y1;
+        return x * x + y * y; // Should not raise any red (okay, yellow) flags.
+    }
+
+    public const int SimpleEliminationTest()
+    {
+        return 5;
+        int x = 3;
+        return x;
+    }
+
+    public const int BreakEliminationTest(int Value)
+    {
+        int i = 0;
+        while (i < Value)
+        {
+            if (i > 3)
+            {
+                break;
+            }
+            else
+            {
+                i++;
+                next;
+            }
+            i = 300000; // All of this is dead code.
+            while (true)
+            {
+                i = 0;
+            }
+            if (Value < 0)
+                return 0;
+            else
+                return Value;
+        }
+        return i;
+    }
+
+    public const int EliminationTest(int Value)
+    {
+        while (Value > 9)
+        {
+            return 3;
+        }
+        if (Value > 7) // Should not be eliminated
+        {
+            return 5;
+        }
+        else // Should not be eliminated
+        {
+            return 3;
+        }
+        return EliminationTest(Value); // Should be eliminated
+    }
+
+    public const int MissingReturnTest(int Value)
+    {
+        int result = 0;
+        for (int i = 0; i < Value; i++)
+        {
+            result += (result + 1) % Value;
+        }
+        // Should raise a warning
+    }
+}

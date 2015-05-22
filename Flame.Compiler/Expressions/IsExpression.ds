@@ -39,7 +39,7 @@ namespace Flame.Compiler.Expressions
             }
             else
             {
-                return new IsExpression(transVal, Type);
+                return new IsExpression(transVal, TestType);
             }
         }
 

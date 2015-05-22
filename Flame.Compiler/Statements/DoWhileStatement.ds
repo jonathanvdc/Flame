@@ -4,26 +4,53 @@ using System.Text;
 
 namespace Flame.Compiler.Statements
 {
-	public class DoWhileStatement : IStatement
+	public class DoWhileStatement : IStatement, IFlowStatement
 	{
 		public this(set IStatement Body, set IExpression Condition);
 
 		public IExpression Condition { const get; private set; }
 		public IStatement Body { const get; private set; }
 
-		public IStatement Accept(INodeVisitor Visitor)
+		private const DoWhileStatement CreateDoWhile(IStatement NewBody, IExpression NewCondition)
 		{
-			var transCond = Visitor.Visit(Condition);
-			var transBody = Visitor.Visit(Body);
-
-			if (transCond == Condition && transBody == Body)
+			if (NewCondition == Condition && NewBody == Body)
 			{
 				return this;
 			}
 			else
 			{
-				return new DoWhileStatement(transBody, transCond);
+				return new DoWhileStatement(NewBody, NewCondition);
 			}
+		}
+
+		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+			: IFlowStatement.AcceptFlow<TState, TFlow>
+		{
+			var startFlow = Visitor.CurrentFlow;
+
+			var transBody = Visitor.Visit(Body);
+
+			var transCond = Visitor.Visit(Condition);
+			var bodyFlow = Visitor.CreateDeltaFlow(startFlow, Visitor.CurrentFlow);
+
+			var loopFlow = Visitor.CreateLoopFlow(bodyFlow);
+			// var doWhileFlow = Visitor.CreateSequenceFlow(bodyFlow, loopFlow);
+			// NOTE: 'doWhileFlow' is a more accurate description than 'loopFlow',
+			//       however, continue/break statements are said to terminate (local) flow.
+			//       Stating that the body and the looped body are executed in sequence
+			//       would mean that global flow could be terminated.
+
+			Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(startFlow, loopFlow);
+
+			return CreateDoWhile(transBody, transCond);
+		}
+
+		public IStatement Accept(INodeVisitor Visitor)
+		{
+			var transCond = Visitor.Visit(Condition);
+			var transBody = Visitor.Visit(Body);
+
+			return CreateDoWhile(transBody, transCond);
 		}
 
 		public bool IsEmpty : IStatement.IsEmpty

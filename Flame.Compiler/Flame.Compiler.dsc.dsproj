@@ -31,6 +31,7 @@
 		<Compile Include="EmptyCompilerOptions.ds" />
 		<Compile Include="EmptyCompilerLog.ds" />
 		<Compile Include="IEnumerableEnvironment.ds" />
+		<Compile Include="IFlowNode.ds" />
 		<Compile Include="OperatorExtensions.ds" />
 		<Compile Include="OperatorCache.ds" />
 		<Compile Include="StaticInitializationExtensions.ds" />
@@ -194,6 +195,7 @@
 			<Compile Include="Visitors\AggregatePass.ds" />
 			<Compile Include="Visitors\AnyPredicateVisitorBase.ds" />
 			<Compile Include="Visitors\BodyPassBase.ds" />
+			<Compile Include="Visitors\DeadCodeVisitor.ds" />
 			<Compile Include="Visitors\EmptyPass.ds" />
 			<Compile Include="Visitors\IPass.ds" />
 			<Compile Include="Visitors\LowerYieldPass.ds" />

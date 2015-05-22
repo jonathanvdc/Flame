@@ -204,7 +204,9 @@ namespace Flame.Front.Cli
 
             var recompSettings = new RecompilationSettings(!(target.TargetAssembly is Flame.TextContract.ContractAssembly), true);
 
-            var asmRecompiler = new AssemblyRecompiler(target.TargetAssembly, State.FilteredLog, new SingleThreadedTaskManager(), target.Passes, recompSettings);
+            var passSuite = PassExtensions.CreateSuite(State.FilteredLog, State.Handler.GetPassPreferences(State.FilteredLog).Union(target.Passes));
+
+            var asmRecompiler = new AssemblyRecompiler(target.TargetAssembly, State.FilteredLog, new SingleThreadedTaskManager(), passSuite, recompSettings);
             await asmRecompiler.RecompileAsync(projAsm, new RecompilationOptions(State.Options.MustCompileAll(), true));
 
             State.FilteredLog.LogEvent(new LogEntry("Status", "Done recompiling"));

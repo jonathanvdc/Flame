@@ -129,6 +129,7 @@ namespace Flame.Compiler.Visitors
                 if (varType == convType)
                 {
                     substVariables[Variable] = lbVar;
+                    return lbVar;
                 }
                 else
                 {
