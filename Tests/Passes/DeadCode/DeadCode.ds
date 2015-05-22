@@ -1,7 +1,7 @@
 
 public class DeadCodeTest
 {
-    public double GetLengthSqr(double x1, double y1, double x2, double y2)
+    public const double GetLengthSqr(double x1, double y1, double x2, double y2)
     {
         double x = x2 - x1;
         double y = y2 - y1;
