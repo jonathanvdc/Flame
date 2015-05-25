@@ -45,6 +45,10 @@ namespace Flame.Front.Target
 
     public class PassPreferences
     {
+        public PassPreferences()
+            : this(Enumerable.Empty<string>())
+        {
+        }
         public PassPreferences(params string[] PreferredPasses)
             : this((IEnumerable<string>)PreferredPasses)
         {
