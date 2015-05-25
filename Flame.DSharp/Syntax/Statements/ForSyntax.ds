@@ -55,7 +55,7 @@ namespace Flame.Syntax.DSharp
             var change = DeltaStatement.CreateStatement(State);
             var body = Body.CreateStatement(State);
             var cleanup = State.PopScope();
-            return new ForStatement(setup, condExpr, change, body, cleanup);
+            return SourceStatement.Create(new ForStatement(setup, condExpr, change, body, cleanup), Location);
         }
 
         public override string ToString()

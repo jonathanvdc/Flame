@@ -76,7 +76,7 @@ namespace Flame.Syntax.DSharp
             {
                 children.Add(item.CreateStatement(Type, State, TypeHint));
             }
-            return new BlockStatement(children);
+            return SourceStatement.Create(new BlockStatement(children), Location);
         }
 
         protected override CodeBuilder GetStatementCode()

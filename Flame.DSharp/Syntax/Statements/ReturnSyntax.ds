@@ -53,11 +53,11 @@ namespace Flame.Syntax.DSharp
         {
             if (Expression == null)
             {
-                return new ReturnStatement();
+                return SourceStatement.Create(new ReturnStatement(), Location);
             }
             else
             {
-                return new ReturnStatement(CastSyntax.CreateImplicitCast(State, Expression, State.ReturnType));
+                return SourceStatement.Create(new ReturnStatement(CastSyntax.CreateImplicitCast(State, Expression, State.ReturnType)), Location);
             }
         }
 

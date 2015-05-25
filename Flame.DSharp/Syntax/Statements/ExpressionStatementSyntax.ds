@@ -43,7 +43,7 @@ namespace Flame.Syntax.DSharp
                     Warnings.GetWarningNameMessage(Warnings.ConstantDiscarded),
                     Location));
         	}
-            return new ExpressionStatement(expr);
+            return SourceStatement.Create(new ExpressionStatement(expr), Location);
         }
 
         protected override CodeBuilder GetStatementCode()

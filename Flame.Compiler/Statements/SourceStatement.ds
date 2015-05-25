@@ -1,0 +1,65 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Statements
+{
+    /// <summary>
+    /// A statement that contains a location in the source document, for diagnostics
+    /// and debugging purposes.
+    /// </summary>
+	public class SourceStatement : IStatement, IPredicateNode
+	{
+        /// <summary>
+        /// Creates a new source statement from the given statement and location.
+        /// </summary>
+		public const this(set IStatement Statement, set SourceLocation Location);
+
+        /// <summary>
+        /// Creates a source statement based on the given statement and location.
+        /// If the statement argument is null, null is returned.
+        /// </summary>
+        public static const SourceStatement Create(IStatement Statement, SourceLocation Location)
+        {
+            if (Statement == null)
+                return null;
+            else
+                return new SourceStatement(Statement, Location);
+        }
+
+        /// <summary>
+        /// Gets the source statement's inner statement.
+        /// </summary>
+		public IStatement Statement { const get; private set; }
+        /// <summary>
+        /// Gets the source statement's location.
+        /// </summary>
+        public SourceLocation Location { const get; private set; }
+
+		public bool IsEmpty { const get return Statement.IsEmpty; }
+
+        public void AcceptPredicate(INodeVisitor Visitor)
+        {
+            Visitor.Visit(Statement);
+        }
+
+		public IStatement Accept(INodeVisitor Visitor)
+		{
+            var contents = Visitor.Visit(Statement);
+
+            if (contents == Statement)
+                return this;
+
+            return new SourceStatement(contents, Location);
+		}
+
+		public IStatement Optimize()
+		{
+			return new SourceStatement(Statement.Optimize(), Location);
+		}
+
+		public ICodeBlock Emit(ICodeGenerator Generator)
+		{
+			return Statement.Emit(Generator);
+		}
+	}
+}

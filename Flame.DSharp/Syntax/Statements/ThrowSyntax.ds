@@ -39,7 +39,7 @@ namespace Flame.Syntax.DSharp
 
         public override IStatement CreateStatement(ISyntaxState State)
         {
-        	return new ThrowStatement(Expression.CreateVerifiedExpression(State));
+        	return SourceStatement.Create(new ThrowStatement(Expression.CreateVerifiedExpression(State)), Location);
         }
 
         protected override CodeBuilder GetStatementCode()

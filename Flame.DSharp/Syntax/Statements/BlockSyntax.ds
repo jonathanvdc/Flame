@@ -42,7 +42,7 @@ namespace Flame.Syntax.DSharp
                 children.Add(item.CreateStatement(State));
             }
             children.Add(State.PopScope());
-            return new BlockStatement(children);
+            return SourceStatement.Create(new BlockStatement(children), Location);
         }
 
         public override string ToString()

@@ -51,7 +51,7 @@ namespace Flame.Syntax.DSharp
         {
         	var desiredType = GetYieldReturnType(State);
         	IExpression expr = CastSyntax.CreateImplicitCast(State, Return.Expression, desiredType);
-            return new YieldReturnStatement(expr);
+            return SourceStatement.Create(new YieldReturnStatement(expr), Location);
         }
 
         public override const string ToString()
@@ -61,7 +61,7 @@ namespace Flame.Syntax.DSharp
 
         public const CodeBuilder GetCode()
         {
-        	CodeBuilder cb = new CodeBuilder();
+        	var cb = new CodeBuilder();
         	cb.Append(YieldKeyword.ToString());
         	cb.Append(Return.GetCode());
         	return cb;

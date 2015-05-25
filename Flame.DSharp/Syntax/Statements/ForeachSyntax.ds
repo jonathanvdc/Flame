@@ -81,7 +81,11 @@ namespace Flame.Syntax.DSharp
 
         	var cleanup = State.PopScope();
 
-        	return new BlockStatement(new IStatement[] { loop, cleanup });
+        	return new BlockStatement(new IStatement[]
+            {
+                SourceStatement.Create(loop, Location),
+                cleanup
+             });
         }
 
         public CodeBuilder GetCode()

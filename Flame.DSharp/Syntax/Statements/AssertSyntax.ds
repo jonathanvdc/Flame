@@ -104,7 +104,7 @@ namespace Flame.Syntax.DSharp
 						AssertKeyword.Location));
 				}
 			}
-			return new AssertStatement(innerExpr);
+			return SourceStatement.Create(new AssertStatement(innerExpr), Location);
 		}
 
 		protected override CodeBuilder GetStatementCode()

@@ -80,7 +80,7 @@ namespace Flame.Syntax.DSharp
         	}
         	if (FinallyClause == null)
         	{
-        		return new TryStatement(tryClause, catchClauses);
+        		return SourceStatement.Create(new TryStatement(tryClause, catchClauses), Location);
         	}
         	else
         	{
@@ -95,7 +95,7 @@ namespace Flame.Syntax.DSharp
 						FinallyClause.Location));
 				}
 
-        		return new TryStatement(tryClause, finallyClause, catchClauses);
+        		return SourceStatement.Create(new TryStatement(tryClause, finallyClause, catchClauses), Location);
         	}
         }
 

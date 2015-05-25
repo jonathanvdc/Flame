@@ -77,7 +77,11 @@ namespace Flame.Syntax.DSharp
             IStatement[] statements;
             if (ElseBody == null)
             {
-            	statements = new IStatement[] { new IfElseStatement(cond, ifBody), cleanup };
+            	statements = new IStatement[]
+                {
+                    SourceStatement.Create(new IfElseStatement(cond, ifBody), Location),
+                    cleanup
+                };
             }
             else
             {
@@ -91,7 +95,11 @@ namespace Flame.Syntax.DSharp
                         Warnings.GetWarningNameMessage(Warnings.EmptyBody),
                         ElseBody.GetSourceLocation()));
                 }
-                statements = new IStatement[] { new IfElseStatement(cond, ifBody, elseBody), cleanup };
+                statements = new IStatement[]
+                {
+                    SourceStatement.Create(new IfElseStatement(cond, ifBody, elseBody), Location), 
+                    cleanup
+                };
             }
             return new BlockStatement(statements);
         }

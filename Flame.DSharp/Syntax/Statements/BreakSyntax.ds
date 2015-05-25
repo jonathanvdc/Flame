@@ -30,7 +30,7 @@ namespace Flame.Syntax.DSharp
 
         public override IStatement CreateStatement(ISyntaxState State)
         {
-            return new BreakStatement();
+            return SourceStatement.Create(new BreakStatement(), Location);
         }
 
         protected override CodeBuilder GetStatementCode()

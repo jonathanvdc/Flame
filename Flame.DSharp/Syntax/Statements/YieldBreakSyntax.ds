@@ -32,7 +32,7 @@ namespace Flame.Syntax.DSharp
 
         public IStatement CreateStatement(ISyntaxState State)
         {
-        	return new YieldBreakStatement();
+        	return SourceStatement.Create(new YieldBreakStatement(), Location);
         }
 
         public override const string ToString()
