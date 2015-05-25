@@ -21,7 +21,7 @@ namespace Flame.Syntax.DSharp
 
         public override IStatement CreateStatement(ISyntaxState State)
         {
-            return StoreSyntax.CreateSetStatement(State);
+            return SourceStatement.Create(StoreSyntax.CreateSetStatement(State), Location);
         }
 
         protected override const CodeBuilder GetStatementCode()

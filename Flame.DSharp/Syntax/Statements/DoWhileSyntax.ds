@@ -51,7 +51,7 @@ namespace Flame.Syntax.DSharp
             var cleanup = State.PopScope();
             var whileLoop = new DoWhileStatement(body, cond);
             IStatement[] statements = new IStatement[] { whileLoop, cleanup };
-            return new BlockStatement(statements);
+            return SourceStatement.Create(new BlockStatement(statements), Location);
         }
 
         public const CodeBuilder GetCode() : IStatementSyntax.GetCode

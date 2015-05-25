@@ -14,10 +14,13 @@ namespace Flame.Compiler.Visitors
         public const this()
         {
             this.CurrentFlow = true;
+            this.deadCodeStmts = new List<SourceStatement>();
         }
 
+        private List<SourceStatement> deadCodeStmts;
+
         public bool CurrentFlow { const get; private set; }
-        public bool RemovedDeadCode { const get; private set; }
+        public [SourceStatement] DeadCodeStatements { const get return deadCodeStmts; }
 
         /// <summary>
         /// Computes the "sum" of a flow state and a control flow delta.
@@ -80,16 +83,15 @@ namespace Flame.Compiler.Visitors
                                                    // occur within the context of a loop.
         }
 
-        private const bool IsTrivial(IStatement Statement)
-        {
-            return Statement.IsEmpty || (Statement is IVariableNode && ((IVariableNode)Statement).Action == VariableNodeAction.Release);
-        }
-
         private IStatement EliminateDeadStatement(IStatement Statement)
         {
-            if (!IsTrivial(Statement))
+            if (Statement is SourceStatement)
             {
-                RemovedDeadCode = true;
+                deadCodeStmts.Add((SourceStatement)Statement);
+            }
+            else
+            {
+                Statement.Accept(this); // Try to find dead code source statements.
             }
 
             return new EmptyStatement();

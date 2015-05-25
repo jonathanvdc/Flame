@@ -1,6 +1,8 @@
 ﻿using Flame.Compiler;
 using Flame.Compiler.Build;
 using Flame.Compiler.Visitors;
+using Flame.Syntax;
+using Pixie;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,9 +39,35 @@ namespace Flame.Verification
             {
                 Log.LogWarning(new LogEntry("Missing return statement?", ReturnWarningMessage, method.GetSourceLocation()));
             }
-            if (visitor.RemovedDeadCode && ShowUnreachableWarning)
+            if (ShowUnreachableWarning && visitor.DeadCodeStatements.Any())
             {
-                Log.LogWarning(new LogEntry("Removed dead code", UnreachableWarningMessage, method.GetSourceLocation()));
+                var first = visitor.DeadCodeStatements.FirstOrDefault(item => item.Location != null);
+                if (first == null)
+                {
+                    first = visitor.DeadCodeStatements.First();
+                }
+
+                IMarkupNode node = new MarkupNode(NodeConstants.TextNodeType, UnreachableWarningMessage);
+
+                if (first.Location != null)
+                {
+                    node = new MarkupNode("entry", new IMarkupNode[]
+                    { 
+                        node, 
+                        first.Location.CreateDiagnosticsNode(),
+                        RedefinitionHelpers.Instance.CreateNeutralDiagnosticsNode("In method: ", method.GetSourceLocation())
+                    });
+                }
+                else
+                {
+                    node = new MarkupNode("entry", new IMarkupNode[]
+                    { 
+                        node, 
+                        method.GetSourceLocation().CreateDiagnosticsNode(),
+                    });
+                }
+
+                Log.LogWarning(new LogEntry("Removed dead code", node));
             }
             return new Tuple<IStatement, IMethod>(optStmt, method);
         }
