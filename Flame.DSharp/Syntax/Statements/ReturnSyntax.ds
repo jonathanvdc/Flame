@@ -18,12 +18,13 @@ namespace Flame.Syntax.DSharp
         {
             this.ReturnKeyword = new Token(TokenType.ReturnKeyword, "return");
         }
-        public const this(set IExpressionSyntax Expression, set Token ReturnKeyword);
-        public const this(set Token ReturnKeyword, set Token SemicolonToken)
+        public const this(set Token ReturnKeyword, Token SemicolonToken)
+            : base(SemicolonToken)
         {
             this.Expression = null;
         }
-        public const this(set IExpressionSyntax Expression, set Token ReturnKeyword, set Token SemicolonToken);
+        public const this(set Token ReturnKeyword, set IExpressionSyntax Expression, Token SemicolonToken)
+            : base(SemicolonToken);
 
         public Token ReturnKeyword { const get; private set; }
         public IExpressionSyntax Expression { const get; private set; }
@@ -32,9 +33,10 @@ namespace Flame.Syntax.DSharp
         {
             const get
                 if (Expression == null)
-                    return ReturnKeyword.Location;
+                    return ReturnKeyword.Location.Concat(SemicolonToken.Location);
                 else
-                    return ReturnKeyword.Location.Concat(Expression.GetSourceLocation());
+                    return ReturnKeyword.Location.Concat(Expression.GetSourceLocation())
+                                                 .Concat(SemicolonToken.Location);
         }
 
         public IReadOnlyList<Token> Tokens
