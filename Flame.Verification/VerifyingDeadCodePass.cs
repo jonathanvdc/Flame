@@ -39,35 +39,21 @@ namespace Flame.Verification
             {
                 Log.LogWarning(new LogEntry("Missing return statement?", ReturnWarningMessage, method.GetSourceLocation()));
             }
-            if (ShowUnreachableWarning && visitor.DeadCodeStatements.Any())
+            if (ShowUnreachableWarning)
             {
-                var first = visitor.DeadCodeStatements.FirstOrDefault(item => item.Location != null);
-                if (first == null)
-                {
-                    first = visitor.DeadCodeStatements.First();
-                }
+                var first = visitor.DeadCodeStatements.FirstOrDefault();
 
-                IMarkupNode node = new MarkupNode(NodeConstants.TextNodeType, UnreachableWarningMessage);
-
-                if (first.Location != null)
+                if (first != null)
                 {
-                    node = new MarkupNode("entry", new IMarkupNode[]
+                    var node = new MarkupNode("entry", new IMarkupNode[]
                     { 
-                        node, 
+                        new MarkupNode(NodeConstants.TextNodeType, UnreachableWarningMessage),
                         first.Location.CreateDiagnosticsNode(),
                         RedefinitionHelpers.Instance.CreateNeutralDiagnosticsNode("In method: ", method.GetSourceLocation())
                     });
-                }
-                else
-                {
-                    node = new MarkupNode("entry", new IMarkupNode[]
-                    { 
-                        node, 
-                        method.GetSourceLocation().CreateDiagnosticsNode(),
-                    });
-                }
 
-                Log.LogWarning(new LogEntry("Removed dead code", node));
+                    Log.LogWarning(new LogEntry("Removed dead code", node));
+                }
             }
             return new Tuple<IStatement, IMethod>(optStmt, method);
         }
