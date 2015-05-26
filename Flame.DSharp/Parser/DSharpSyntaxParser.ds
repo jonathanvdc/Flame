@@ -1480,7 +1480,7 @@ namespace Flame.DSharp.Parser
             {
                 var expr = ParseExpression(Tokens);
                 var semicolon = Tokens.NextNoTrivia(TokenType.Semicolon, Log);
-                return new ReturnSyntax(expr, keyword, semicolon);
+                return new ReturnSyntax(keyword, expr, semicolon);
             }
         }
 
@@ -1528,7 +1528,7 @@ namespace Flame.DSharp.Parser
         		var returnKeyword = Tokens.NextNoTrivia(TokenType.ReturnKeyword, Log);
         		var expr = ParseExpression(Tokens);
         		var semicolon = Tokens.NextNoTrivia(TokenType.Semicolon, Log);
-        		return new YieldReturnSyntax(yieldKeyword, new ReturnSyntax(expr, returnKeyword, semicolon));
+        		return new YieldReturnSyntax(yieldKeyword, new ReturnSyntax(returnKeyword, expr, semicolon));
         	}
         }
 
