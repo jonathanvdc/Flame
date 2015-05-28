@@ -28,7 +28,7 @@ namespace Flame.Build
 		public bool IsConstructor { const get; set; }
 
 		private List<IParameter> parameters;
-		public void AddParameter(IParameter Parameter)
+		public virtual void AddParameter(IParameter Parameter)
 		{
 			parameters.Add(Parameter);
 		}
@@ -38,7 +38,7 @@ namespace Flame.Build
 		}
 
 		private List<IMethod> baseMethods;
-		public void AddBaseMethod(IMethod Method)
+		public virtual void AddBaseMethod(IMethod Method)
 		{
 			baseMethods.Add(Method);
 		}
@@ -47,7 +47,7 @@ namespace Flame.Build
 			return baseMethods.ToArray();
 		}
 
-		public IMethod MakeGenericMethod([IType] TypeArguments) : IMethod.MakeGenericMethod
+		public virtual IMethod MakeGenericMethod([IType] TypeArguments) : IMethod.MakeGenericMethod
 		{
 			return new DescribedGenericMethodInstance(this, new EmptyGenericResolver(), DeclaringType, TypeArguments);
 		}
@@ -57,7 +57,7 @@ namespace Flame.Build
 		}
 
 		private List<IGenericParameter> genericParams;
-		public void AddGenericParameter(IGenericParameter Parameter)
+		public virtual void AddGenericParameter(IGenericParameter Parameter)
 		{
 			genericParams.Add(Parameter);
 		}
@@ -78,12 +78,12 @@ namespace Flame.Build
         	return new IType[0];
         }
 
-        public const IBoundObject Invoke(IBoundObject Target, IEnumerable<IBoundObject> Arguments)
+        public virtual const IBoundObject Invoke(IBoundObject Target, [IBoundObject] Arguments)
         {
         	return null;
         }
 
-        public override int32 GetHashCode()
+        public override virtual int32 GetHashCode()
 		{
 			return Name.GetHashCode();
 		}
