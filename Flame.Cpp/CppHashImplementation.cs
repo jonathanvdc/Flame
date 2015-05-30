@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Variables;
 using Flame.Cpp.Emit;
 using System;
 using System.Collections.Generic;
@@ -40,13 +41,15 @@ namespace Flame.Cpp
 
         public CodeBuilder GetHeaderCode()
         {
+            var argType = Environment.TypeConverter.Convert(ArgumentType.get_IsGeneric() ? ArgumentType.MakeGenericType(ArgumentType.GetGenericParameters()) : ArgumentType);
+
             var cb = new CodeBuilder();
             cb.AddLine("namespace std");
             cb.AddLine("{");
             cb.IncreaseIndentation();
             cb.AddCodeBuilder(Templates.GetImplementationCode());
             cb.AddLine();
-            string tName = Environment.TypeNamer.Name(ArgumentType, Plugs.StdNamespace.Instance);
+            string tName = Environment.TypeNamer.Name(argType, Plugs.StdNamespace.Instance);
             cb.AddLine("struct hash<");
             cb.Append(tName);
             cb.Append(">");
