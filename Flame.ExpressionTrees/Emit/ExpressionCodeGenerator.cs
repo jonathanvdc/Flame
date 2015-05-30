@@ -62,7 +62,7 @@ namespace Flame.ExpressionTrees.Emit
         {
             var ifExpr = (IExpressionBlock)IfBody;
 
-            return new ParentBlock(this, new IExpressionBlock[] { (IExpressionBlock)Condition, ifExpr, (IExpressionBlock)ElseBody }, ifExpr.Type, (exprs, flow) => Expression.IfThenElse(exprs[0], exprs[1], exprs[2]));
+            return new ParentBlock(this, new IExpressionBlock[] { (IExpressionBlock)Condition, ifExpr, (IExpressionBlock)ElseBody }, ifExpr.Type, (exprs, flow) => Expression.Condition(exprs[0], exprs[1], exprs[2]));
         }
 
         public ICodeBlock EmitDoWhile(ICodeBlock Body, ICodeBlock Condition)
@@ -354,12 +354,10 @@ namespace Flame.ExpressionTrees.Emit
                 return null;
             }
 
-            var exprType = unaryExpressions[Op];
-
             return new ParentBlock(this,
                 new[] { val },
-                booleanBinaryExprs.Contains(exprType) ? PrimitiveTypes.Boolean : val.Type,
-                (exprs, flow) => Expression.MakeBinary(exprType, exprs[0], exprs[1]));
+                val.Type,
+                (exprs, flow) => Expression.MakeUnary(unaryExpressions[Op], exprs[0], exprs[0].Type));
         }
 
         public ICodeBlock EmitBinary(ICodeBlock A, ICodeBlock B, Operator Op)
@@ -372,10 +370,13 @@ namespace Flame.ExpressionTrees.Emit
                 return null;
             }
 
+            var exprType = binaryExpressions[Op];
+
             return new ParentBlock(this,
                 new[] { left, right },
-                left.Type,
-                (exprs, flow) => Expression.MakeUnary(unaryExpressions[Op], exprs[0], exprs[0].Type));
+                booleanBinaryExprs.Contains(exprType) ? PrimitiveTypes.Boolean : left.Type,
+                (exprs, flow) => Expression.MakeBinary(exprType, exprs[0], exprs[1]));
+
         }
 
         #endregion
@@ -506,8 +507,8 @@ namespace Flame.ExpressionTrees.Emit
             return Expression.Lambda(
                         Expression.Block(
                             localVariables,
-                            ((IExpressionBlock)Body).CreateExpression(new FlowStructure()),
-                            Expression.Label(retLabel)),
+                            Body,
+                            Expression.Label(retLabel, Expression.Default(retLabel.Type))),
                         Method.ExpressionParameters);
         }
 
