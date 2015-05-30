@@ -26,6 +26,8 @@ namespace Flame.ExpressionTrees
         public LambdaExpression Body { get; private set; }
         public ExpressionCodeGenerator CodeGenerator { get; private set; }
 
+        private Lazy<Delegate> deleg;
+
         public Type ExpressionReturnType
         {
             get
@@ -51,7 +53,9 @@ namespace Flame.ExpressionTrees
             }
             else
             {
-                return BoxHelpers.AutoBox(Body.Compile().DynamicInvoke(BoxHelpers.AutoUnbox(new IBoundObject[] { Target }.Concat(Arguments)).ToArray()), ReturnType);
+                var args = IsStatic ? BoxHelpers.AutoUnbox(Arguments).ToArray() : BoxHelpers.AutoUnbox(new IBoundObject[] { Target }.Concat(Arguments)).ToArray();
+
+                return BoxHelpers.AutoBox(deleg.Value.DynamicInvoke(args), ReturnType);
             }
         }
 
@@ -84,6 +88,7 @@ namespace Flame.ExpressionTrees
         public void SetMethodBody(ICodeBlock Body)
         {
             this.Body = CodeGenerator.EmitLambda((IExpressionBlock)Body);
+            deleg = new Lazy<Delegate>(() => this.Body.Compile());
         }
 
         public IMethod Build()

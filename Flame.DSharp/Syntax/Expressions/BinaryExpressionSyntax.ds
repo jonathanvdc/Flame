@@ -132,7 +132,7 @@ namespace Flame.Syntax.DSharp
 
             if (overload == null)
             {
-			    var tType = GetBinaryExpressionType(State, leftExpr.Type, rightExpr.Type);
+			    var tType = GetBinaryExpressionType(State, lType, rType);
 
 		    	var lExpr = CastLeftOperand(State, tType, leftExpr, Left, Op);
 		    	var rExpr = CastRightOperand(State, tType, rightExpr, Right, Op);
