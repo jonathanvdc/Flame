@@ -2075,7 +2075,7 @@ namespace Flame.DSharp.Parser
                 var name = Tokens.NextNoTrivia();
                 if (name.Type == TokenType.OperatorKeyword)
                 {
-                	var op = Tokens.NextNoTrivia();
+                	var op = ParseOperator(Tokens);
                 	return new OperatorSignatureSyntax(attrs, modifierTokens, type, name, op);
                 }
                 else
