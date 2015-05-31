@@ -1,0 +1,60 @@
+using Flame.RT;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text;
+
+namespace std
+{
+    [Header("istream")]
+    [ReferencePointer("&")]
+    public abstract class istream
+    {
+        public abstract int get();
+
+        public virtual istream operator>>(string Value)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual istream operator>>(double Value)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual ostream operator>>(float Value)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual ostream operator>>(int Value)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual ostream operator>>(long Value)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual ostream operator>>(short Value)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual ostream operator>>(sbyte Value)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual ostream operator>>(uint Value)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual ostream operator>>(ulong Value)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual ostream operator>>(ushort Value)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual ostream operator>>(byte Value)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
