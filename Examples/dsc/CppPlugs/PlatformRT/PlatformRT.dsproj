@@ -17,6 +17,7 @@
     <Compile Include="Math.ds" />
     <Compile Include="Pair.ds" />
     <Compile Include="OStream.ds" />
+    <Compile Include="IStream.ds" />
     <Compile Include="UnorderedMap.ds" />
     <Compile Include="UnorderedSet.ds" />
     <Compile Include="Vector.ds" />
