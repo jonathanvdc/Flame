@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-    public abstract class UnaryExpression : IExpression
+    public abstract class UnaryExpression : IExpression, IPredicateNode
     {
         public const this(set IExpression Value);
 
@@ -21,6 +21,11 @@ namespace Flame.Compiler.Expressions
         public bool IsConstant
         {
             const get { return Value.IsConstant; }
+        }
+
+        public void AcceptPredicate(INodeVisitor Visitor)
+        {
+            Visitor.Visit(Value);
         }
 
         public IExpression Accept(INodeVisitor Visitor)
