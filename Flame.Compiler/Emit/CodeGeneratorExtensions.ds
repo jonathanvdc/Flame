@@ -118,6 +118,11 @@ namespace Flame.Compiler
 			return CodeGenerator.EmitUnary(Value, Operator.Not);
 		}
 
+		public static ICodeBlock EmitNegate(this ICodeGenerator CodeGenerator, ICodeBlock Value)
+		{
+			return CodeGenerator.EmitUnary(Value, Operator.Subtract);
+		}
+
 		public static ICodeBlock EmitLogicalAnd(this ICodeGenerator CodeGenerator, ICodeBlock Left, ICodeBlock Right)
 		{
 			var block = CodeGenerator.EmitBinary(Left, Right, Operator.LogicalAnd);

@@ -98,6 +98,7 @@
 			<Compile Include="Expressions\CharExpression.ds" />
 			<Compile Include="Expressions\CodeBlockExpression.ds" />
 			<Compile Include="Expressions\UnaryExpression.ds" />
+			<Compile Include="Expressions\NegateExpression.ds" />
 			<Compile Include="Expressions\NotExpression.ds" />
 			<Compile Include="Expressions\AddExpression.ds" />
 			<Compile Include="Expressions\SubtractExpression.ds" />
