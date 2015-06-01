@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Expressions
 {
-    public class ConversionExpression : IExpression, IMemberNode
+    public class ConversionExpression : IExpression, IMemberNode, IPredicateNode
     {
         public const this(set IExpression Value)
         {
@@ -22,6 +22,11 @@ namespace Flame.Compiler.Expressions
                 return this;
             }
             else return new ConversionExpression(Value, elemType);
+        }
+
+        public void AcceptPredicate(INodeVisitor Visitor)
+        {
+            Visitor.Visit(Value);
         }
 
         public IExpression Accept(INodeVisitor Visitor)
