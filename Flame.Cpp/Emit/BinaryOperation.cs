@@ -91,24 +91,32 @@ namespace Flame.Cpp.Emit
             return actualOperand.GetCode();
         }
 
-        public CodeBuilder GetCode()
+        public CodeBuilder GetCode(bool IncreaseIndentation)
         {
-            CodeBuilder cb = GetBinaryOperandCodeBuilder(Left, Right.Type, Type);
+            var cb = GetBinaryOperandCodeBuilder(Left, Right.Type, Type);
             cb.Append(" ");
             cb.Append(GetOperatorString());
             cb.Append(" ");
 
             var rCode = GetBinaryOperandCodeBuilder(Right, Left.Type, Type);
 
-            var lLength = cb.LastCodeLine.Length;
-            var rLength = rCode.FirstCodeLine.Length;
+            int lLength = cb.LastCodeLine.Length;
+            int rLength = rCode.FirstCodeLine.Length;
 
             int maxLength = CodeGenerator.GetOptions().get_MaxLineLength();
 
             if (lLength <= maxLength && rLength <= maxLength && lLength + rLength > maxLength)
             {
+                if (IncreaseIndentation)
+                {
+                    cb.IncreaseIndentation();
+                }
                 cb.AppendLine();
                 cb.Append(rCode);
+                if (IncreaseIndentation)
+                {
+                    cb.DecreaseIndentation();
+                }
             }
             else
             {
@@ -116,6 +124,11 @@ namespace Flame.Cpp.Emit
             }
 
             return cb;
+        }
+
+        public CodeBuilder GetCode()
+        {
+            return GetCode(false);
         }
 
         public static string GetOperatorString(Operator Op)
