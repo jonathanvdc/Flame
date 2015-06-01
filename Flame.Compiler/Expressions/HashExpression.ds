@@ -4,14 +4,10 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-    public class HashExpression : UnaryExpression
+    public class HashExpression : UnaryOperatorExpression
     {
-        public const this(set IExpression Value);
-
-        public override IType Type
-        {
-            override const get { return PrimitiveTypes.Int32; }
-        }
+        public const this(IExpression Value)
+            : base(Value);
 
         protected override const IExpression Create(IExpression Operand)
         {
@@ -28,20 +24,17 @@ namespace Flame.Compiler.Expressions
         	return new HashExpression(Value.Optimize());
         }
 
-        public ICodeBlock Emit(ICodeGenerator Generator)
+        public override Operator Op { const get return Operator.Hash; }
+
+        /// <summary>
+        /// Gets the operator overload for this unary expression if an overload exists. Otherwise, null.
+        /// </summary>
+        protected override IMethod GetOpOverload()
         {
-        	var valBlock = Value.Emit(Generator);
-        	var hashBlock = Generator.EmitUnary(valBlock, Operator.Hash);
-        	if (hashBlock == null)
-        	{
-        		var method = PrimitiveMethods.GetHashCode.GetImplementation(Value.Type);
-        		var methodBlock = Generator.EmitMethod(method, valBlock);
-        		return Generator.EmitInvocation(methodBlock, (IEnumerable<ICodeBlock>)new ICodeBlock[0]);
-        	}
-        	else
-        	{
-        		return hashBlock;
-        	}
+            var overrideOverload = PrimitiveMethods.GetHashCode.GetImplementation(Value.Type);
+            if (overrideOverload != null)
+                return overrideOverload;
+            return Op.GetOperatorOverload(new IExpression[] { Value });
         }
     }
 }

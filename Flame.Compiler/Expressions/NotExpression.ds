@@ -4,9 +4,12 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-    public class NotExpression : UnaryExpression
+    public class NotExpression : UnaryOperatorExpression
     {
-        public const this(set IExpression Value);
+        public const this(IExpression Value)
+            : base(Value);
+
+        public override Operator Op { const get return Operator.Not; }
 
         protected override IExpression Create(IExpression Operand)
         {
@@ -122,11 +125,6 @@ namespace Flame.Compiler.Expressions
             {
                 return optExpr;
             }
-        }
-
-        public override ICodeBlock Emit(ICodeGenerator Generator)
-        {
-            return Generator.EmitNot(Value.Emit(Generator));
         }
     }
 }

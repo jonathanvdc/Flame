@@ -1,0 +1,78 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Expressions
+{
+    public class NegateExpression : UnaryOperatorExpression
+    {
+        public const this(IExpression Value)
+            : base(Value);
+
+        public override Operator Op { const get return Operator.Subtract; }
+
+        protected override IExpression Create(IExpression Operand)
+        {
+            return new NegateExpression(Operand);
+        }
+
+        private const IExpression LowerPrimitive()
+        {
+            // Rewrite this as '(decltype(Value))0 - Value'
+            return new SubtractExpression(new ConversionExpression(
+                                             new Int32Expression(0), Value.Type).Optimize(),
+                                          Value);
+        }
+
+        public override IBoundObject Evaluate()
+        {
+            if (Value.Type.Equals(PrimitiveTypes.Boolean))
+            {
+                var boundObject = Value.Evaluate();
+                return new BooleanExpression(!boundObject.GetPrimitiveValue<bool>());
+            }
+            else
+            {
+                return LowerPrimitive().Evaluate();
+            }
+        }
+
+        public override IExpression Optimize()
+        {
+            var optVal = Value.Optimize();
+            var optExpr = new NegateExpression(optVal);
+            if (optExpr.IsConstant && optExpr.Type.IsPrimitiveExpressionType())
+            {
+                var evalExpr = optExpr.Evaluate();
+                if (evalExpr != null)
+                   return evalExpr.ToExpression();
+            }
+            if (optVal is NegateExpression)
+            {
+                return ((NegateExpression)optVal).Value;
+            }
+            else
+            {
+                return optExpr;
+            }
+        }
+
+        public override ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            var innerBlock = Value.Emit(Generator);
+            var primBlock = EmitPrimitive(innerBlock, Generator);
+            if (primBlock != null)
+            {
+                return primBlock;
+            }
+            else if (OperatorOverload != null)
+            {
+                return OverloadInvocation.Emit(Generator);
+            }
+            else
+            {
+                return LowerPrimitive().Emit(Generator);
+            }
+        }
+    }
+}

@@ -6,16 +6,12 @@ namespace Flame.Compiler.Expressions
 {
     public abstract class UnaryExpression : IExpression
     {
-        protected const this();
-        public const this(IExpression Value)
-        {
-            this.Value = Value;
-        }
+        public const this(set IExpression Value);
 
         /// <summary>
         /// The value the unary expression will be performed on.
         /// </summary>
-        public IExpression Value { const get; protected set; }
+        public IExpression Value { const get; private set; }
 
         public virtual IType Type
         {
@@ -45,5 +41,88 @@ namespace Flame.Compiler.Expressions
         public const abstract IBoundObject Evaluate();
         public const abstract IExpression Optimize();
         public abstract ICodeBlock Emit(ICodeGenerator Generator);
+    }
+
+    public abstract class UnaryOperatorExpression : UnaryExpression
+    {
+        public const this(IExpression Value)
+            : base(Value);
+
+        public abstract Operator Op { const get; }
+
+        private IType cachedType;
+        public virtual override IType Type
+        {
+            virtual override const get
+            {
+                if (cachedType == null)
+                {
+                    cachedType = GetExpressionType();
+                }
+                return cachedType;
+            }
+        }
+
+        /// <summary>
+        /// Gets the operator overload for this unary expression if an overload exists. Otherwise, null.
+        /// </summary>
+        protected virtual IMethod GetOpOverload()
+        {
+            return Op.GetOperatorOverload(new IExpression[] { Value });
+        }
+
+        private IMethod opOverload;
+        /// <summary>
+        /// Gets the operator overload for this unary expression if an overload exists. Otherwise, null.
+        /// </summary>
+        public IMethod OperatorOverload
+        {
+            const get
+            {
+                if (opOverload == null)
+                {
+                    opOverload = GetOpOverload();
+                }
+                return opOverload;
+            }
+        }
+
+        protected IExpression OverloadInvocation
+        {
+            const get
+            {
+                if (OperatorOverload == null) return null;
+                else return new RelaxedInvocation(OperatorOverload, new IExpression[] { Value });
+            }
+        }
+
+        protected virtual IType GetExpressionType()
+        {
+            if (OperatorOverload != null) return OperatorOverload.ReturnType;
+            else return Value.Type;
+        }
+
+        protected virtual const ICodeBlock EmitPrimitive(ICodeBlock Block, ICodeGenerator Generator)
+        {
+            return Generator.EmitUnary(Block, Op);
+        }
+
+        public virtual override ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            var innerBlock = Value.Emit(Generator);
+            var primBlock = EmitPrimitive(innerBlock, Generator);
+            if (primBlock != null)
+            {
+                return primBlock;
+            }
+            else if (OperatorOverload != null)
+            {
+                return OverloadInvocation.Emit(Generator);
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

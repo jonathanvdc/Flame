@@ -15,7 +15,7 @@ namespace Flame.Syntax.DSharp
         {
             var expr = Operand.CreateVerifiedExpression(State);
 
-            return new SubtractExpression(new ConversionExpression(new Int32Expression(0), expr.Type).Optimize(), expr);
+            return new NegateExpression(expr);
         }
     }
 }
