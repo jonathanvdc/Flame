@@ -40,7 +40,7 @@ namespace Flame.Syntax.DSharp
                 var declType = Method.DeclaringType;
                 if (declType.IsGeneric && declType.IsGenericDeclaration)
                 {
-                	return declType.MakeGenericType((IEnumerable<IType>)declType.GetGenericParameters());
+                	return declType.MakeGenericType(declType.GetGenericParameters());
                 }
                 else
                 {
