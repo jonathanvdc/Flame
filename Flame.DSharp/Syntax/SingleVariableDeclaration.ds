@@ -60,7 +60,7 @@ namespace Flame.Syntax.DSharp
         	}
         	else
         	{
-        		return new EmptyStatement();
+        		return EmptyStatement;
         	}
         }
 

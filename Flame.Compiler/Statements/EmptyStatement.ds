@@ -3,10 +3,8 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Statements
 {
-    public class EmptyStatement : IStatement
+    public static class EmptyStatement : IStatement
     {
-    	public const this();
-
         public bool IsEmpty
         {
             const get { return true; }

@@ -135,7 +135,7 @@ namespace Flame.Recompilation.Emit
 
         public ICodeBlock EmitVoid()
         {
-            return new StatementBlock(this, new EmptyStatement());
+            return new StatementBlock(this, EmptyStatement.Instance);
         }
 
         public ICodeBlock EmitWhile(ICodeBlock Condition, ICodeBlock Body)

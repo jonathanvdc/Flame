@@ -101,7 +101,7 @@ namespace Flame.DSharp.Build
             	}
             }
             // If all else fails, return an empty statement
-            return new EmptyStatement();
+            return EmptyStatement;
 	    }
 
 	    public static IBodyMethod CreateParameterlessConstructor(ISyntaxState State)
@@ -133,7 +133,7 @@ namespace Flame.DSharp.Build
         	}
         	else
         	{
-        		defaultCtor.Body = new EmptyStatement();
+        		defaultCtor.Body = EmptyStatement;
         		defaultCtor.AddAttribute(PrimitiveAttributes.ConstantAttribute);
         	}
         	defaultCtor.Body = new BlockStatement((IEnumerable<IStatement>)new IStatement[] { defaultCtor.Body, new ReturnStatement() });

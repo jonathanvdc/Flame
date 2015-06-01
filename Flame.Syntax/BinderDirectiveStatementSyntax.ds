@@ -21,7 +21,7 @@ namespace Flame.Syntax
         public IStatement CreateStatement(ISyntaxState State)
         {
             Syntax.ApplyDirective(State.Binder);
-            return new EmptyStatement();
+            return EmptyStatement;
         }
 
         public const CodeBuilder GetCode()

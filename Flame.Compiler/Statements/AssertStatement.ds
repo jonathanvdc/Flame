@@ -35,7 +35,7 @@ namespace Flame.Compiler.Statements
 			var optAssert = new AssertStatement(Expression.Optimize());
 			if (optAssert.IsEmpty)
 			{
-				return new EmptyStatement();
+				return EmptyStatement;
 			}
 			return optAssert;
 		}

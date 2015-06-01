@@ -49,7 +49,7 @@ namespace Flame.Syntax.DSharp
 			var cleanup = State.PopScope();
 
 			if (cleanup.IsEmpty) return condExpr;
-			else return new InitializedExpression(new EmptyStatement(), condExpr, cleanup);
+			else return new InitializedExpression(EmptyStatement, condExpr, cleanup);
 		}
 
 		public const CodeBuilder GetCode()

@@ -27,7 +27,7 @@ namespace Flame.Compiler
 			var method = Type.GetStaticInitializationMethod();
 			if (method == null)
 			{
-				return new EmptyStatement();
+				return EmptyStatement;
 			}
 			else
 			{

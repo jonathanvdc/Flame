@@ -97,7 +97,7 @@ namespace Flame.DSharp.Build
 	        	}
 	        	else
 	        	{
-	        		baseCall = new EmptyStatement();
+	        		baseCall = EmptyStatement;
 	        	}
 	        	var newObjExpr = new NewObjectExpression(BackingField.FieldType); // <field> = new <type>();
 	        	var fieldVar = new FieldVariable(BackingField, null);

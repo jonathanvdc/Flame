@@ -18,7 +18,7 @@ namespace Flame.Compiler.Statements
 		public const this(IVariableMember Member)
 		{
 			this.exVariable = new ManuallyBoundVariable(Member);
-			this.Body = new EmptyStatement();
+			this.Body = EmptyStatement;
 		}
 
 		private ManuallyBoundVariable exVariable;
@@ -65,7 +65,7 @@ namespace Flame.Compiler.Statements
 			}
 			else
 			{
-				return new CatchClause(exVariable, new EmptyStatement());
+				return new CatchClause(exVariable, EmptyStatement);
 			}
 		}
 
@@ -91,7 +91,7 @@ namespace Flame.Compiler.Statements
 		}
 		public const this(set IStatement TryBody, set [CatchClause] CatchClauses)
 		{
-			this.FinallyBody = new EmptyStatement();
+			this.FinallyBody = EmptyStatement;
 		}
 		public const this(set IStatement TryBody, set IStatement FinallyBody, set [CatchClause] CatchClauses);
 

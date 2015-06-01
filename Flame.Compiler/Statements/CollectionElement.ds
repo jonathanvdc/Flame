@@ -105,7 +105,7 @@ namespace Flame.Compiler.Statements
             else
             {
                 index = IndexVariable;
-                delta = new EmptyStatement();
+                delta = EmptyStatement;
             }
 
             IExpression condition = new LessThanExpression(index.CreateGetExpression(), lengthExpr);
@@ -125,7 +125,7 @@ namespace Flame.Compiler.Statements
             var initStatement = new BlockStatement(initStatements.ToArray());
             var finalStatement = new BlockStatement(finalStatements.ToArray());
 
-            return new ElementInCollection(iteratingVariable, initStatement, condition, new EmptyStatement(), delta, finalStatement, index);
+            return new ElementInCollection(iteratingVariable, initStatement, condition, EmptyStatement, delta, finalStatement, index);
         }
 
         #endregion
@@ -191,7 +191,7 @@ namespace Flame.Compiler.Statements
             finishStatements.Add(enumeratorVariable.CreateReleaseStatement());
             IStatement finish = new BlockStatement(finishStatements.ToArray());
 
-            return new ElementInCollection(iteratingVariable, enumeratorInitStatement, condition, delta, new EmptyStatement(), finish);
+            return new ElementInCollection(iteratingVariable, enumeratorInitStatement, condition, delta, EmptyStatement, finish);
         }
 
         #endregion
