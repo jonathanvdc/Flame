@@ -319,7 +319,7 @@ namespace Flame.DSharp.Build
         	var definedFieldProps = (IEnumerable<FieldProperty>)CreateTypeMembers<FieldProperty>(Syntax.FieldProperties, "FieldProperties");
         	if (this.IsSingleton)
         	{
-        		return Enumerable.Concat<FieldProperty>(definedFieldProps, (IEnumerable<FieldProperty>)new FieldProperty[] { GetSingletonInstanceProperty() });
+        		return Enumerable.Concat<FieldProperty>(definedFieldProps, new FieldProperty[] { GetSingletonInstanceProperty() });
         	}
         	else
         	{

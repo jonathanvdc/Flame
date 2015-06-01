@@ -154,6 +154,11 @@ namespace Flame.Cpp
                 return cb;
             }
 
+            if (DeclaringType.get_IsGeneric())
+            {
+                cb.Append(DeclaringType.GetFullTemplateDefinition().GetHeaderCode());
+                cb.AppendLine();
+            }
             cb.Append(TypeNamer.Name(FieldType, this));
             cb.Append(' '); 
             var genDeclType = (IGenericResolverType)DeclaringType.MakeGenericType(DeclaringType.GetGenericParameters());
