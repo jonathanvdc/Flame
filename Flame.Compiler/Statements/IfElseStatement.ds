@@ -87,7 +87,7 @@ namespace Flame.Compiler.Statements
 			{
 				if (condVal.EvaluatesTo<bool>(false))
 				{
-					return new EmptyStatement();
+					return EmptyStatement;
 				}
 				else return new IfElseStatement(optCond, IfBody.Optimize());
 			}

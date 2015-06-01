@@ -29,7 +29,7 @@ namespace Flame.Compiler.Variables
 
         public const IStatement CreateReleaseStatement()
         {
-            return new EmptyStatement();
+            return EmptyStatement;
         }
 
         public const IExpression CreateAddressOfExpression()

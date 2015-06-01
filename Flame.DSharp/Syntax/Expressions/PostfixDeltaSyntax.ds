@@ -53,7 +53,7 @@ namespace Flame.Syntax.DSharp
         {
             var variable = Variable.CreateVariable(State);
             IStatement setStatement = PrefixDeltaSyntax.CreateSetStatement(variable, Operator, State.Log);
-            return new InitializedExpression(new EmptyStatement(), variable.CreateGetExpression(), setStatement);
+            return new InitializedExpression(EmptyStatement, variable.CreateGetExpression(), setStatement);
         }
 
         public override const string ToString()

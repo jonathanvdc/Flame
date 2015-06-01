@@ -37,7 +37,7 @@ namespace Flame.Compiler.Statements
         	var optExpr = Expression.Optimize();
         	if (optExpr.IsConstant)
         	{
-        		return new EmptyStatement();
+        		return EmptyStatement;
         	}
         	else
         	{

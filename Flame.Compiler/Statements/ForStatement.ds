@@ -10,20 +10,20 @@ namespace Flame.Compiler.Statements
     	public const this(set IStatement Setup, set IExpression Condition, set IStatement Change, set IStatement Body, set IStatement End);
     	public const this(set IStatement Setup, set IExpression Condition, set IStatement Change, set IStatement Body)
         {
-        	this.End = new EmptyStatement();
+        	this.End = EmptyStatement;
         }
         public const this(set IExpression Condition, set IStatement Change, set IStatement Body)
         {
-        	this.Setup = new EmptyStatement();
-        	this.End = new EmptyStatement();
+        	this.Setup = EmptyStatement;
+        	this.End = EmptyStatement;
         }
         public const this()
         {
-            this.Setup = new EmptyStatement();
+            this.Setup = EmptyStatement;
             this.Condition = new BooleanExpression(false);
-            this.Body = new EmptyStatement();
-            this.Change = new EmptyStatement();
-            this.End = new EmptyStatement();
+            this.Body = EmptyStatement;
+            this.Change = EmptyStatement;
+            this.End = EmptyStatement;
         }
 
         public IStatement Setup { const get; private set; }
@@ -43,7 +43,7 @@ namespace Flame.Compiler.Statements
             var stmt = new ForStatement(optSetup, optCond, Change.Optimize(), Body.Optimize(), End.Optimize());
             if (stmt.IsEmpty)
             {
-            	return new EmptyStatement();
+            	return EmptyStatement;
             }
             return stmt;
         }

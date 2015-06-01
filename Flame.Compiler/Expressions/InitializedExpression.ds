@@ -8,7 +8,7 @@ namespace Flame.Compiler.Expressions
 	{
 		public const this(set IStatement Initialization, set IExpression Value)
 		{
-			this.Finalization = new EmptyStatement();
+			this.Finalization = EmptyStatement;
 		}
 		public const this(set IStatement Initialization, set IExpression Value, set IStatement Finalization);
 

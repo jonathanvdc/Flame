@@ -59,7 +59,7 @@ namespace Flame.Compiler.Variables
 
 		public const IStatement CreateReleaseStatement()
 		{
-			return new EmptyStatement();
+			return EmptyStatement;
 		}
 
 		public static const IVariable GetSingletonVariable(IType SingletonType, IType CurrentType)

@@ -58,7 +58,7 @@ namespace Flame.Compiler.Statements
 			var optCond = Condition.Optimize();
 			if (optCond.EvaluatesTo<bool>(false))
 			{
-				return new EmptyStatement();
+				return EmptyStatement;
 			}
 
 			var optBody = Body.Optimize();

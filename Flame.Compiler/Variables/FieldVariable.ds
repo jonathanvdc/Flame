@@ -44,7 +44,7 @@ namespace Flame.Compiler.Variables
 
         public const IStatement CreateReleaseStatement()
         {
-            return new EmptyStatement();
+            return EmptyStatement;
         }
     }
     public class ValueTypeFieldVariable : IUnmanagedVariable
@@ -111,7 +111,7 @@ namespace Flame.Compiler.Variables
 
         public const IStatement CreateReleaseStatement()
         {
-            return new EmptyStatement();
+            return EmptyStatement;
         }
     }
 }

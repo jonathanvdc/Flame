@@ -94,7 +94,7 @@ namespace Flame.Compiler.Visitors
                 Statement.Accept(this); // Try to find dead code source statements.
             }
 
-            return new EmptyStatement();
+            return EmptyStatement;
         }
 
         protected override IExpression Transform(IExpression Expression)

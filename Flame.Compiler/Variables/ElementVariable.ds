@@ -161,7 +161,7 @@ namespace Flame.Compiler.Variables
 
         public IStatement CreateReleaseStatement()
         {
-        	return new EmptyStatement();
+        	return EmptyStatement;
         }
 	}
 }

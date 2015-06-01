@@ -22,7 +22,7 @@ namespace Flame.Syntax.DSharp
 
 		public override IStatement CreateStatement(ISyntaxState State)
 		{
-			return SourceStatement.Create(new EmptyStatement(), Location);
+			return SourceStatement.Create(EmptyStatement, Location);
 		}
 
 		protected override CodeBuilder GetStatementCode()

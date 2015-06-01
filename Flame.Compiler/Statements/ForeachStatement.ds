@@ -24,7 +24,7 @@ namespace Flame.Compiler.Statements
 		public const this(set [CollectionElement] Collections, set IStatement Body, set ForeachElementCache elemCache);
 		public const this(set [CollectionElement] Collections)
 		{
-			this.Body = new EmptyStatement();
+			this.Body = EmptyStatement;
 			this.elemCache = new ForeachElementCache();
 			foreach (var item in Collections)
 			{

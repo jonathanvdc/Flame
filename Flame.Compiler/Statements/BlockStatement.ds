@@ -84,7 +84,7 @@ namespace Flame.Compiler.Statements
             }
             else
             {
-                return new EmptyStatement();
+                return EmptyStatement;
             }
         }
     }

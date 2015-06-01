@@ -52,7 +52,7 @@ namespace Flame.Compiler.Variables
         public const IStatement CreateReleaseStatement() : IVariable.CreateReleaseStatement
         {
             //return new ThisReleaseStatement(this);
-            return new EmptyStatement();
+            return EmptyStatement;
         }
 
         public override const int GetHashCode()

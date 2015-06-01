@@ -37,7 +37,7 @@ namespace Flame.Compiler
 
         public const IStatement CreateReleaseStatement()
         {
-            return new EmptyStatement();
+            return EmptyStatement;
         }
     }
 }
