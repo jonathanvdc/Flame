@@ -79,8 +79,19 @@ namespace Flame.DSharp.Build
         	// }
         	// return <field>;
 
-    		var newObjExpr = new NewObjectExpression(BackingField.FieldType); // new <type>();
-        	var fieldVar = new FieldVariable(BackingField, null);
+			var singletonField = BackingField;
+			if (singletonField.DeclaringType.IsGeneric)
+			{
+				var resolver = new DescribedGenericTypeInstance(singletonField.DeclaringType,
+																ReturnType.GetGenericArguments());
+
+				singletonField = new DescribedGenericFieldInstance(singletonField,
+																   resolver,
+																   ReturnType);
+			}
+
+    		var newObjExpr = new NewObjectExpression(singletonField.FieldType); // new <type>();
+        	var fieldVar = new FieldVariable(singletonField, null);
         	var fieldGetExpr = fieldVar.CreateGetExpression();
         	var eqExpr = new EqualityExpression(fieldGetExpr, new NullExpression()); // <field> == null
         	var setStmt = fieldVar.CreateSetStatement(newObjExpr); // <field> = new <type>();
