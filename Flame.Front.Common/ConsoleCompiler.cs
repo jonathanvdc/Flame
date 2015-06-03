@@ -220,7 +220,9 @@ namespace Flame.Front.Cli
                 dirName = dirName.Combine(targetPath.NameWithoutExtension);
             }
 
-            using (var outputProvider = new FileOutputProvider(dirName, targetPath))
+            bool forceWrite = State.FilteredLog.Options.GetOption<bool>("force-write", false);
+
+            using (var outputProvider = new FileOutputProvider(dirName, targetPath, forceWrite))
             {
                 target.TargetAssembly.Save(outputProvider);
             }
@@ -232,7 +234,7 @@ namespace Flame.Front.Cli
             if (docBuilder != null)
             {
                 var docTargetPath = targetPath.ChangeExtension(docBuilder.Extension);
-                using (var docOutput = new FileOutputProvider(dirName, docTargetPath))
+                using (var docOutput = new FileOutputProvider(dirName, docTargetPath, forceWrite))
                 {
                     docBuilder.Save(docOutput);
                     State.Log.LogEvent(new LogEntry("Status", "Documentation saved to: '" + docTargetPath + "'"));
