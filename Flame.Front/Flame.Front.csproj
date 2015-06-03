@@ -100,6 +100,7 @@
     <Compile Include="Plugs\FlameAssemblies.cs" />
     <Compile Include="Plugs\PlugHandler.cs" />
     <Compile Include="Plugs\RuntimeAssemblyResolver.cs" />
+    <Compile Include="PreservingFileStream.cs" />
     <Compile Include="Projects\CompilationParameters.cs" />
     <Compile Include="Projects\IProjectHandler.cs" />
     <Compile Include="Projects\ProjectHandlerHelpers.cs" />

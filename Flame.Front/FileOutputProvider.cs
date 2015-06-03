@@ -10,15 +10,18 @@ namespace Flame.Front
 {
     public class FileOutputProvider : IOutputProvider, IDisposable
     {
-        public FileOutputProvider(PathIdentifier DirectoryName, PathIdentifier FileName)
+        public FileOutputProvider(PathIdentifier DirectoryName, PathIdentifier FileName, bool ForceWrite)
         {
             this.FileName = FileName;
             this.DirectoryName = DirectoryName;
+            this.ForceWrite = ForceWrite;
             this.files = new HashSet<PathOutputFile>();
         }
 
         public PathIdentifier FileName { get; private set; }
         public PathIdentifier DirectoryName { get; private set; }
+        public bool ForceWrite { get; private set; }
+
         private HashSet<PathOutputFile> files;
 
         private PathIdentifier GetPath(string Name, string Extension)
@@ -37,7 +40,7 @@ namespace Flame.Front
         public IOutputFile Create()
         {
             Directory.CreateDirectory(DirectoryName.Path);
-            var file = new PathOutputFile(FileName);
+            var file = new PathOutputFile(FileName, ForceWrite);
             files.Add(file);
             return file;
         }
@@ -46,7 +49,7 @@ namespace Flame.Front
         {
             var fileName = GetPath(Name, Extension);
             Directory.CreateDirectory(fileName.Parent.Path);
-            var file = new PathOutputFile(fileName);
+            var file = new PathOutputFile(fileName, ForceWrite);
             files.Add(file);
             return file;
         }
@@ -66,23 +69,26 @@ namespace Flame.Front
 
         public bool Exists(string Name, string Extension)
         {
-            return files.Contains(new PathOutputFile(GetPath(Name, Extension)));
+            return files.Contains(new PathOutputFile(GetPath(Name, Extension), ForceWrite));
         }
     }
 
     public class PathOutputFile : IOutputFile, IDisposable, IEquatable<PathOutputFile>
     {
-        public PathOutputFile(PathIdentifier Path)
+        public PathOutputFile(PathIdentifier Path, bool ForceWrite)
         {
             this.Path = Path;
+            this.ForceWrite = ForceWrite;
         }
 
         public PathIdentifier Path { get; private set; }
-        private FileStream stream;
+        public bool ForceWrite { get; private set; }
+
+        private Stream stream;
 
         public Stream OpenOutput()
         {
-            stream = new FileStream(Path.Path, FileMode.Create);
+            stream = ForceWrite ? new FileStream(Path.Path, FileMode.Create) : (Stream)new PreservingFileStream(Path.Path);
             return stream;
         }
 
