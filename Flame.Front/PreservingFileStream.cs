@@ -15,10 +15,12 @@ namespace Flame.Front
         public PreservingFileStream(string Path)
         {
             this.Path = Path;
+            this.FileOverwritten = false;
             this.Buffer = new MemoryStream();
         }
 
         public string Path { get; private set; }
+        public bool FileOverwritten { get; private set; }
         public MemoryStream Buffer { get; private set; }
 
         public override bool CanRead
@@ -46,6 +48,7 @@ namespace Flame.Front
                 {
                     Buffer.CopyTo(fs);
                 }
+                FileOverwritten = true;
             }
         }
 
@@ -95,7 +98,7 @@ namespace Flame.Front
                 return false;
             }
 
-            using (var fs = Info.OpenRead())
+            using (var fs = Info.Open(FileMode.Open, FileAccess.Read))
             {
                 Data.Seek(0, SeekOrigin.Begin);
                 return StreamEquals(fs, Data);

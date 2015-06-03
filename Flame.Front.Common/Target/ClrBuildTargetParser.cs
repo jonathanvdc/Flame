@@ -73,7 +73,7 @@ namespace Flame.Front.Target
 
             var asm = new CecilAssembly(Info.Name, Info.Version, moduleKind, resolver, DependencyBuilder.Log, CecilReferenceResolver.ConversionCache);
 
-            return new BuildTarget(asm, DependencyBuilder, extension, PreferredPasses);
+            return new BuildTarget(asm, DependencyBuilder, extension, false, PreferredPasses);
         }
     }
 }
