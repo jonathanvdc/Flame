@@ -36,7 +36,7 @@ namespace Flame.Front.Target
         public BuildTarget CreateBuildTarget(string PlatformIdentifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)
         {
             var targetAsm = new AssemblerAssembly(Info.Name, Info.Version, MarsEnvironment.Instance);
-            return new BuildTarget(targetAsm, DependencyBuilder, "asm");
+            return new BuildTarget(targetAsm, DependencyBuilder, "asm", true);
         }
     }
 }

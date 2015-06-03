@@ -220,25 +220,54 @@ namespace Flame.Front.Cli
                 dirName = dirName.Combine(targetPath.NameWithoutExtension);
             }
 
-            bool forceWrite = State.FilteredLog.Options.GetOption<bool>("force-write", false);
+            bool forceWrite = State.FilteredLog.Options.GetOption<bool>("force-write", !target.PreferPreserve);
+            bool anyChanges = false;
 
-            using (var outputProvider = new FileOutputProvider(dirName, targetPath, forceWrite))
+            var outputProvider = new FileOutputProvider(dirName, targetPath, forceWrite);
+            target.TargetAssembly.Save(outputProvider);
+            outputProvider.Dispose();
+            if (outputProvider.AnyFilesOverwritten)
             {
-                target.TargetAssembly.Save(outputProvider);
+                anyChanges = true;
             }
-
-            State.Log.LogEvent(new LogEntry("Status", "Assembly saved to: '" + targetPath + "'"));
 
             var docBuilder = State.Options.CreateDocumentationBuilder(projAsm);
 
             if (docBuilder != null)
             {
                 var docTargetPath = targetPath.ChangeExtension(docBuilder.Extension);
-                using (var docOutput = new FileOutputProvider(dirName, docTargetPath, forceWrite))
+                var docOutput = new FileOutputProvider(dirName, docTargetPath, forceWrite);
+                docBuilder.Save(docOutput);
+                docOutput.Dispose();
+                if (docOutput.AnyFilesOverwritten)
                 {
-                    docBuilder.Save(docOutput);
-                    State.Log.LogEvent(new LogEntry("Status", "Documentation saved to: '" + docTargetPath + "'"));
+                    anyChanges = true;
                 }
+            }
+
+            if (!anyChanges)
+            {
+                NotifyUpToDate(State.FilteredLog);
+            }
+        }
+
+        private static void NotifyUpToDate(ICompilerLog Log)
+        {
+            const string warningName = "Wup-to-date";
+            bool showWarning = false;
+
+            if (Log.Options.HasOption(warningName))
+            {
+                showWarning = Log.Options.GetOption<bool>(warningName, false);
+            }
+            else
+            {
+                showWarning = Log.Options.GetOption<bool>("pedantic", false);
+            }
+
+            if (showWarning)
+            {
+                Log.LogWarning(new LogEntry("No changes", "The output assembly and documentation were already up-to-date. [-" + warningName + "]"));
             }
         }
     }

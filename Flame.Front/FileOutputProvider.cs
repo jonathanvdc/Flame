@@ -21,6 +21,7 @@ namespace Flame.Front
         public PathIdentifier FileName { get; private set; }
         public PathIdentifier DirectoryName { get; private set; }
         public bool ForceWrite { get; private set; }
+        public bool AnyFilesOverwritten { get { return files.Any(item => item.FileOverwritten); } }
 
         private HashSet<PathOutputFile> files;
 
@@ -79,16 +80,19 @@ namespace Flame.Front
         {
             this.Path = Path;
             this.ForceWrite = ForceWrite;
+            this.FileOverwritten = false;
         }
 
         public PathIdentifier Path { get; private set; }
         public bool ForceWrite { get; private set; }
+        public bool FileOverwritten { get; private set; }
 
         private Stream stream;
 
         public Stream OpenOutput()
         {
-            stream = ForceWrite ? new FileStream(Path.Path, FileMode.Create) : (Stream)new PreservingFileStream(Path.Path);
+            string fileName = Path.Path;
+            stream = ForceWrite || !File.Exists(fileName) ? new FileStream(fileName, FileMode.Create) : (Stream)new PreservingFileStream(fileName);
             return stream;
         }
 
@@ -97,6 +101,15 @@ namespace Flame.Front
             if (stream != null)
             {
                 stream.Dispose();
+
+                if (stream is PreservingFileStream)
+                {
+                    FileOverwritten = ((PreservingFileStream)stream).FileOverwritten;
+                }
+                else
+                {
+                    FileOverwritten = true;
+                }
             }
         }
 
