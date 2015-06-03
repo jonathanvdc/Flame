@@ -15,12 +15,10 @@ namespace Flame.Front
         public PreservingFileStream(string Path)
         {
             this.Path = Path;
-            this.FileOverwritten = false;
             this.Buffer = new MemoryStream();
         }
 
         public string Path { get; private set; }
-        public bool FileOverwritten { get; private set; }
         public MemoryStream Buffer { get; private set; }
 
         public override bool CanRead
@@ -40,16 +38,7 @@ namespace Flame.Front
 
         public override void Flush()
         {
-            var info = new FileInfo(Path);
-            if (!FileEquals(info, Buffer))
-            {
-                Buffer.Seek(0, SeekOrigin.Begin);
-                using (var fs = info.Open(FileMode.Create, FileAccess.Write))
-                {
-                    Buffer.CopyTo(fs);
-                }
-                FileOverwritten = true;
-            }
+            Buffer.Flush();
         }
 
         public override long Length
@@ -89,6 +78,24 @@ namespace Flame.Front
             Buffer.Write(buffer, offset, count);
         }
 
+        public bool WriteToFile()
+        {
+            var info = new FileInfo(Path);
+            if (!FileEquals(info, Buffer))
+            {
+                Buffer.Seek(0, SeekOrigin.Begin);
+                using (var fs = new FileStream(Path, FileMode.Create, FileAccess.Write))
+                {
+                    Buffer.CopyTo(fs);
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         #region Static
 
         public static bool FileEquals(FileInfo Info, Stream Data)
@@ -98,7 +105,7 @@ namespace Flame.Front
                 return false;
             }
 
-            using (var fs = Info.Open(FileMode.Open, FileAccess.Read))
+            using (var fs = new FileStream(Info.FullName, FileMode.Open, FileAccess.Read))
             {
                 Data.Seek(0, SeekOrigin.Begin);
                 return StreamEquals(fs, Data);

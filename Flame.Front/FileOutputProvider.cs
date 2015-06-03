@@ -104,7 +104,7 @@ namespace Flame.Front
 
                 if (stream is PreservingFileStream)
                 {
-                    FileOverwritten = ((PreservingFileStream)stream).FileOverwritten;
+                    FileOverwritten = ((PreservingFileStream)stream).WriteToFile();
                 }
                 else
                 {
