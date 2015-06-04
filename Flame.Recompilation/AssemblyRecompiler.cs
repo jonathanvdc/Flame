@@ -23,7 +23,7 @@ namespace Flame.Recompilation
             InitCache();
         }
         public AssemblyRecompiler(IAssemblyBuilder TargetAssembly, ICompilerLog Log, IAsyncTaskManager TaskManager, PassSuite Passes)
-            : this(TargetAssembly, Log, TaskManager, Passes, new RecompilationSettings(true, false))
+            : this(TargetAssembly, Log, TaskManager, Passes, new RecompilationSettings())
         {
         }
         public AssemblyRecompiler(IAssemblyBuilder TargetAssembly, ICompilerLog Log, IAsyncTaskManager TaskManager, RecompilationSettings Settings)
@@ -31,7 +31,7 @@ namespace Flame.Recompilation
         {
         }
         public AssemblyRecompiler(IAssemblyBuilder TargetAssembly, ICompilerLog Log, IAsyncTaskManager TaskManager)
-            : this(TargetAssembly, Log, TaskManager, PassSuite.CreateDefault(Log), new RecompilationSettings(true, false))
+            : this(TargetAssembly, Log, TaskManager, PassSuite.CreateDefault(Log), new RecompilationSettings())
         {
         }
         public AssemblyRecompiler(IAssemblyBuilder TargetAssembly, ICompilerLog Log)
@@ -985,9 +985,7 @@ namespace Flame.Recompilation
 
         public IExpression GetExpression(IExpression SourceExpression, IMethod Method)
         {
-            var codeGen = new RecompiledCodeGenerator(this, Method);
-            var block = SourceExpression.Emit(codeGen);
-            return RecompiledCodeGenerator.GetExpression(block);
+            return (IExpression)Settings.RecompilationPass.Apply(new RecompilationPassArguments(this, Method, SourceExpression));
         }
 
         #endregion
@@ -996,9 +994,7 @@ namespace Flame.Recompilation
 
         public IStatement GetStatement(IStatement SourceStatement, IMethod Method)
         {
-            var codeGen = new RecompiledCodeGenerator(this, Method);
-            var block = SourceStatement.Emit(codeGen);
-            return RecompiledCodeGenerator.GetStatement(block);
+            return (IStatement)Settings.RecompilationPass.Apply(new RecompilationPassArguments(this, Method, SourceStatement));
         }
 
         #endregion
