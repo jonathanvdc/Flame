@@ -160,7 +160,14 @@ namespace Flame.Cecil
 
         public override bool Equals(ICecilMethod other)
         {
-            return GenericDeclaration.Equals(other.GetGenericDeclaration()) && TypeArguments.AreEqual(other.GetGenericArguments().ToArray());
+            if (other is CecilGenericInstanceMethod)
+            {
+                return GenericDeclaration.Equals(other.GetGenericDeclaration()) && TypeArguments.AreEqual(other.GetGenericArguments().ToArray());
+            }
+            else
+            {
+                return false;
+            }
         }
 
         #endregion

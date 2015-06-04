@@ -289,5 +289,27 @@ namespace Flame.Cecil
         }
 
         #endregion
+
+        public override bool Equals(ICecilType other)
+        {
+            if (object.ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            if (other is CecilResolvedTypeBase)
+	        {
+                return base.Equals(other);
+	        }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

@@ -215,7 +215,7 @@ namespace Flame.Cecil
         }
         public override int GetHashCode()
         {
-            return GenericDefinition.GetHashCode() ^ GetGenericArguments().Aggregate(0, (val, item) => val ^ item.GetHashCode());
+            return GenericDefinition.GetHashCode() ^ (GetGenericArguments().Aggregate(0, (val, item) => val ^ item.GetHashCode()) << 16);
         }
         public bool Equals(ICecilMember other)
         {
@@ -237,10 +237,6 @@ namespace Flame.Cecil
             if (other is CecilGenericTypeBase)
             {
                 return Equals((CecilGenericTypeBase)other);
-            }
-            else if (DeclaringNamespace.Equals(other.DeclaringNamespace) && this.Name == other.Name)
-            {
-                return this.GetAllGenericArguments().SequenceEqual(other.GetAllGenericArguments());
             }
             else
             {
