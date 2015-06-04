@@ -17,9 +17,14 @@ namespace Flame.Front
             this.Path = Path;
             this.Buffer = new MemoryStream();
         }
+        public PreservingFileStream(string Path, Stream Buffer)
+        {
+            this.Path = Path;
+            this.Buffer = Buffer;
+        }
 
         public string Path { get; private set; }
-        public MemoryStream Buffer { get; private set; }
+        public Stream Buffer { get; private set; }
 
         public override bool CanRead
         {
@@ -88,10 +93,12 @@ namespace Flame.Front
                 {
                     Buffer.CopyTo(fs);
                 }
+                Buffer.Dispose();
                 return true;
             }
             else
             {
+                Buffer.Dispose();
                 return false;
             }
         }
