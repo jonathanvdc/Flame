@@ -6,20 +6,43 @@ using System.Threading.Tasks;
 
 namespace Flame.Recompilation
 {
+    public struct MemberCreationResult<T>
+    {
+        public MemberCreationResult(T Member)
+        {
+            this = default(MemberCreationResult<T>);
+            this.Member = Member;
+        }
+        public MemberCreationResult(T Member, Action<T, T> Continuation)
+        {
+            this = default(MemberCreationResult<T>);
+            this.Member = Member;
+            this.Continuation = Continuation;
+        }
+
+        public T Member { get; private set; }
+        public Action<T, T> Continuation { get; private set; }
+
+        public static implicit operator MemberCreationResult<T>(T Value)
+        {
+            return new MemberCreationResult<T>(Value);
+        }
+    }
+
     /// <summary>
     /// Represents a thread-safe compilation cache.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class CompilationCache<T>
     {
-        public CompilationCache(Func<T, T> GetNew, IAsyncTaskManager TaskManager)
+        public CompilationCache(Func<T, MemberCreationResult<T>> GetNew, IAsyncTaskManager TaskManager)
         {
             this.getNew = GetNew;
             this.cache = new Dictionary<T, T>();
             this.TaskManager = TaskManager;
         }
 
-        private Func<T, T> getNew;
+        private Func<T, MemberCreationResult<T>> getNew;
         private Dictionary<T, T> cache;
         public IAsyncTaskManager TaskManager { get; private set; }
 
@@ -32,8 +55,12 @@ namespace Flame.Recompilation
             else
             {
                 var result = getNew(Source);
-                cache[Source] = result;
-                return result;
+                cache[Source] = result.Member;
+                if (result.Continuation != null)
+                {
+                    result.Continuation(result.Member, Source);
+                }
+                return result.Member;
             }
         }
 
