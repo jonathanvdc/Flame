@@ -227,7 +227,7 @@ namespace Flame.Cecil
             {
                 var thisDef = thisRef.Resolve();
                 var otherDef = otherRef.Resolve();
-                return thisDef.Module.Name == otherDef.Module.Name && thisDef.MetadataToken == otherDef.MetadataToken;
+                return thisDef.Module.Mvid == otherDef.Module.Mvid && thisDef.MetadataToken == otherDef.MetadataToken;
             }
             return false;
         }

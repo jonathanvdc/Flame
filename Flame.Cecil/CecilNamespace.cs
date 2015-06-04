@@ -100,7 +100,7 @@ namespace Flame.Cecil
 
         public override int GetHashCode()
         {
-            return Assembly.GetHashCode() ^ FullName.GetHashCode();
+            return FullName.GetHashCode();
         }
 
         #endregion
