@@ -176,6 +176,13 @@ namespace Flame.Front.Cli
             return resultUri.AbsolutePath;
         }
 
+        private static Flame.Compiler.Visitors.IPass<RecompilationPassArguments, INode> GetRecompilationPass(ICompilerLog Log)
+        {
+            return Log.Options.GetOption<string>("recompilation-technique", "codegen") == "visitor" ?
+                (Flame.Compiler.Visitors.IPass<RecompilationPassArguments, INode>)VisitorRecompilationPass.Instance :
+                (Flame.Compiler.Visitors.IPass<RecompilationPassArguments, INode>)CodeGeneratorRecompilationPass.Instance;
+        }
+
         public static async Task Compile(IProject Project, CompilerEnvironment State)
         {
             var dirName = State.Arguments.GetTargetPathWithoutExtension(State.ParentPath, Project).Parent;
@@ -202,7 +209,7 @@ namespace Flame.Front.Cli
 
             State.FilteredLog.LogEvent(new LogEntry("Status", "Recompiling..."));
 
-            var recompSettings = new RecompilationSettings(!(target.TargetAssembly is Flame.TextContract.ContractAssembly), true);
+            var recompSettings = new RecompilationSettings(GetRecompilationPass(State.FilteredLog), !(target.TargetAssembly is Flame.TextContract.ContractAssembly), true);
 
             var passSuite = PassExtensions.CreateSuite(State.FilteredLog, State.Handler.GetPassPreferences(State.FilteredLog).Union(target.Passes));
 
