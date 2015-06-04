@@ -25,13 +25,17 @@ namespace Flame.Compiler.Variables
 
         public void AcceptPredicate(INodeVisitor Visitor)
         {
-            Visitor.Visit(Caller);
+            if (Caller != null)
+                Visitor.Visit(Caller);
             Visitor.VisitAll(IndexerArguments);
         }
 
         public PropertyVariable Accept(INodeVisitor Visitor)
         {
-            var transCaller = Visitor.Visit(Caller);
+            var transCaller = Caller;
+            if (Caller != null)
+                transCaller = Visitor.Visit(transCaller);
+
             var transArgs = Visitor.VisitAll(IndexerArguments);
 
             if (transCaller == Caller && Enumerable.SequenceEqual<IExpression>(IndexerArguments, transArgs))

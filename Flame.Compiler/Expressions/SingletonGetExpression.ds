@@ -5,7 +5,7 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Expressions
 {
-    public class SingletonGetExpression : IExpression, IMemberNode
+    public class SingletonGetExpression : IExpression, IMemberNode, IPredicateNode
     {
     	private const this(set SingletonVariable Variable, set IExpression getExpr);
         public const this(set SingletonVariable Variable);
@@ -34,12 +34,23 @@ namespace Flame.Compiler.Expressions
             {
                 return this;
             }
-            else return new SingletonGetExpression(convVar);
+            else
+            {
+                if (getExpr == null)
+                    return new SingletonGetExpression(convVar);
+                else
+                    return new SingletonGetExpression(convVar, InstanceGetExpression);
+            }
+        }
+
+        public void AcceptPredicate(INodeVisitor Visitor)
+        {
+            Visitor.Visit(InstanceGetExpression);
         }
 
         public IExpression Accept(INodeVisitor Visitor)
         {
-            return this;
+            return new SingletonGetExpression(Variable, Visitor.Visit(InstanceGetExpression));
         }
 
         public bool IsConstant
