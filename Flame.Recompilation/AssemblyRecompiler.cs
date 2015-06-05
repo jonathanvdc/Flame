@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Recompilation
 {
-    public class AssemblyRecompiler : IAssemblyRecompiler
+    public class AssemblyRecompiler : IAssemblyRecompiler, IBodyPassEnvironment
     {
         public AssemblyRecompiler(IAssemblyBuilder TargetAssembly, ICompilerLog Log, IAsyncTaskManager TaskManager, PassSuite Passes, RecompilationSettings Settings)
         {
@@ -53,13 +53,14 @@ namespace Flame.Recompilation
 
         private void InitCache()
         {
-            this.TypeCache = new CompilationCache<IType>(GetNewType, TaskManager);
-            this.FieldCache = new CompilationCache<IField>(GetNewField, TaskManager);
-            this.PropertyCache = new CompilationCache<IProperty>(GetNewProperty, TaskManager);
-            this.MethodCache = new CompilationCache<IMethod>(GetNewMethod, TaskManager);
-            this.NamespaceCache = new CompilationCache<INamespace>(GetNewNamespace, TaskManager);
+            this.TypeCache = new CompilationCache<IType>(GetNewType);
+            this.FieldCache = new CompilationCache<IField>(GetNewField);
+            this.PropertyCache = new CompilationCache<IProperty>(GetNewProperty);
+            this.MethodCache = new CompilationCache<IMethod>(GetNewMethod);
+            this.NamespaceCache = new CompilationCache<INamespace>(GetNewNamespace);
             this.recompiledAssemblies = new List<IAssembly>();
             this.cachedEnvironment = new Lazy<IEnvironment>(() => TargetAssembly.CreateBinder().Environment);
+            this.methodBodies = new AsyncDictionary<IMethod, IStatement>();
         }
 
         public CompilationCache<IType> TypeCache { [Pure] get; private set; }
@@ -67,8 +68,10 @@ namespace Flame.Recompilation
         public CompilationCache<IProperty> PropertyCache { [Pure] get; private set; }
         public CompilationCache<IMethod> MethodCache { [Pure] get; private set; }
         public CompilationCache<INamespace> NamespaceCache { [Pure] get; private set; }
+
         private List<IAssembly> recompiledAssemblies;
         private Lazy<IEnvironment> cachedEnvironment;
+        private AsyncDictionary<IMethod, IStatement> methodBodies;
 
         #endregion
 
@@ -634,31 +637,26 @@ namespace Flame.Recompilation
 
         #endregion
 
-        private IMethod GetNewAccessor(IAccessor SourceAccessor)
+        private MemberCreationResult<IMethod> GetNewAccessor(IAccessor SourceAccessor)
         {
-            IMethod result;
             if (SourceAccessor.DeclaringType.get_IsRecursiveGenericInstance())
             {
                 var genericProperty = GetGenericTypeProperty(SourceAccessor.DeclaringProperty);
                 var genericAccessor = genericProperty.GetAccessor(SourceAccessor.AccessorType);
                 var recompDeclProperty = GetProperty(SourceAccessor.DeclaringProperty);
                 var recompGenericAccessor = GetMethod(genericAccessor);
-                result = recompDeclProperty.GetAccessor(SourceAccessor.AccessorType);
-                System.Diagnostics.Debug.Assert(result != null);
+                return new MemberCreationResult<IMethod>(recompDeclProperty.GetAccessor(SourceAccessor.AccessorType));
             }
             else if (IsExternalStrict(SourceAccessor.DeclaringType))
             {
                 var declProperty = GetProperty(SourceAccessor.DeclaringProperty);
-                result = declProperty.GetAccessor(SourceAccessor.AccessorType);
-                System.Diagnostics.Debug.Assert(result != null);
+                return new MemberCreationResult<IMethod>(declProperty.GetAccessor(SourceAccessor.AccessorType));
             }
             else
             {
                 var recompiledProperty = GetPropertyBuilder(SourceAccessor.DeclaringProperty);
-                result = RecompileAccessor(recompiledProperty, SourceAccessor);
-                System.Diagnostics.Debug.Assert(result != null);
+                return RecompileAccessor(recompiledProperty, SourceAccessor);
             }
-            return result;
         }
 
         private MemberCreationResult<IMethod> GetNewMethod(IMethod SourceMethod)
@@ -682,7 +680,7 @@ namespace Flame.Recompilation
 
             if (SourceMethod is IAccessor)
             {
-                return new MemberCreationResult<IMethod>(GetNewAccessor((IAccessor)SourceMethod));
+                return GetNewAccessor((IAccessor)SourceMethod);
             }
 
             if (SourceMethod.DeclaringType.get_IsRecursiveGenericInstance())
@@ -878,11 +876,9 @@ namespace Flame.Recompilation
         {
             return DeclaringType.DeclareMethod(RecompiledMethodTemplate.GetRecompilerTemplate(this, SourceMethod));
         }
-        private IMethodBuilder RecompileAccessor(IPropertyBuilder DeclaringProperty, IAccessor SourceAccessor)
+        private MemberCreationResult<IMethod> RecompileAccessor(IPropertyBuilder DeclaringProperty, IAccessor SourceAccessor)
         {
-            var header = RecompileAccessorHeader(DeclaringProperty, SourceAccessor);
-            RecompileMethodBody(header, SourceAccessor);
-            return header;
+            return new MemberCreationResult<IMethod>(RecompileAccessorHeader(DeclaringProperty, SourceAccessor), (tgt, src) => RecompileMethodBody((IMethodBuilder)tgt, src));
         }
         private IMethodBuilder RecompileAccessorHeader(IPropertyBuilder DeclaringProperty, IAccessor SourceAccessor)
         {
@@ -902,7 +898,7 @@ namespace Flame.Recompilation
             }
             try
             {
-                Passes.RecompileBody(this, Environment, (ITypeBuilder)TargetMethod.DeclaringType, TargetMethod, bodyMethod);
+                Passes.RecompileBody(this, (ITypeBuilder)TargetMethod.DeclaringType, TargetMethod, bodyMethod);
                 TargetMethod.Build();
             }
             catch (Exception ex)
@@ -916,7 +912,7 @@ namespace Flame.Recompilation
         {
             if (RecompileBodies)
             {
-                TaskManager.QueueAction(() => RecompileMethodBodyCore(TargetMethod, SourceMethod));
+                TaskManager.RunAsync(() => RecompileMethodBodyCore(TargetMethod, SourceMethod));
             }
         }
 
@@ -961,7 +957,7 @@ namespace Flame.Recompilation
         {
             if (RecompileBodies && !Log.Options.GetOption<bool>("omit-invariants", false))
             {
-                TaskManager.QueueAction(() => RecompileInvariantsCore(TargetType, SourceType));
+                TaskManager.RunAsync(() => RecompileInvariantsCore(TargetType, SourceType));
             }
         }
 
@@ -1053,6 +1049,25 @@ namespace Flame.Recompilation
                     ((INamespaceBuilder)item).Build();
                 }
             }
+        }
+
+        #endregion
+
+        #region IBodyPassEnvironment Implementation
+        
+        /// <summary>
+        /// Tries to retrieve the method body of the given method. If this cannot be
+        /// done, null is returned.
+        /// </summary>
+        /// <param name="Method"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// This method should only be used by method body passes.
+        /// </remarks>
+        public IStatement GetMethodBody(IMethod Method)
+        {
+
+            throw new NotImplementedException();
         }
 
         #endregion

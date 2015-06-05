@@ -50,7 +50,7 @@ namespace Flame.Recompilation
                 new AggregatePass<IStatement>(StatementPass, Suite.StatementPass));
         }
 
-        public void RecompileBody(AssemblyRecompiler Recompiler, IEnvironment Environment, ITypeBuilder DeclaringType, 
+        public void RecompileBody(AssemblyRecompiler Recompiler, ITypeBuilder DeclaringType, 
                                   IMethodBuilder Method, IBodyMethod SourceMethod)
         {
             var initBody = Optimizer.GetOptimizedBody(SourceMethod);
@@ -58,7 +58,7 @@ namespace Flame.Recompilation
 
             var bodyStatement = Recompiler.GetStatement(preOptBody, Method);
 
-            var optBody = StatementPass.Apply(MethodPass.Apply(new BodyPassArgument(Environment, DeclaringType, Method, bodyStatement)));
+            var optBody = StatementPass.Apply(MethodPass.Apply(new BodyPassArgument(Recompiler, DeclaringType, Method, bodyStatement)));
 
             var targetBody = Method.GetBodyGenerator();
             var block = optBody.Emit(targetBody);

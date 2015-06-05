@@ -11,19 +11,16 @@ namespace Flame.Recompilation
         public AsyncTaskManager()
         {
             this.tasks = new List<Task>();
-            this.actions = new Queue<Action>();
             this.MillisecondsDelay = 100;
         }
         public AsyncTaskManager(int MillisecondsDelay)
         {
             this.tasks = new List<Task>();
-            this.actions = new Queue<Action>();
             this.MillisecondsDelay = MillisecondsDelay;
         }
 
         public int MillisecondsDelay { get; private set; }
 
-        private Queue<Action> actions;
         private List<Task> tasks;
 
         public event EventHandler TasksDone;
@@ -40,16 +37,16 @@ namespace Flame.Recompilation
         {
             get
             {
-                lock (actions)
+                lock (tasks)
                 {
-                    return actions.Count == 0 && tasks.Count == 0;
+                    return tasks.Count == 0;
                 }
             }
         }
 
         private void CleanTasks()
         {
-            lock (actions)
+            lock (tasks)
             {
                 for (int i = 0; i < tasks.Count; )
                 {
@@ -69,23 +66,6 @@ namespace Flame.Recompilation
             }
         }
 
-        public async Task RunQueued()
-        {
-            Task[] currentTasks;
-            lock (actions)
-            {
-                currentTasks = new Task[actions.Count];
-                for (int i = 0; i < currentTasks.Length; i++)
-                {
-                    var task = Task.Run(actions.Dequeue());
-                    tasks.Add(task);
-                    currentTasks[i] = task;
-                }
-            }
-            await Task.WhenAll(currentTasks);
-            CleanTasks();
-        }
-
         public Task WhenDoneAsync()
         {
             var task = new TaskCompletionSource<bool>();
@@ -93,11 +73,13 @@ namespace Flame.Recompilation
             return task.Task;
         }
 
-        public void QueueAction(Action Method)
+        public Task RunAsync(Action Method)
         {
-            lock (actions)
+            lock (tasks)
             {
-                actions.Enqueue(Method);
+                var task = Task.Run(Method);
+                tasks.Add(task);
+                return task;
             }
         }
     }

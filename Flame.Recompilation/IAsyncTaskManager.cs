@@ -8,8 +8,7 @@ namespace Flame.Recompilation
 {
     public interface IAsyncTaskManager
     {
-        Task RunQueued();
-        void QueueAction(Action Method);
+        Task RunAsync(Action Method);
         Task WhenDoneAsync();
     }
 }

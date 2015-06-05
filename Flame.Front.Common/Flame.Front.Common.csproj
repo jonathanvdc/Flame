@@ -79,6 +79,7 @@
     <Compile Include="Target\CppBuildTargetParser.cs" />
     <Compile Include="Target\CppDependencyBuilderExtensions.cs" />
     <Compile Include="Target\MipsBuildTargetParser.cs" />
+    <Compile Include="Target\PassExtensions.cs" />
     <Compile Include="Target\PythonBuildTargetParser.cs" />
   </ItemGroup>
   <ItemGroup>

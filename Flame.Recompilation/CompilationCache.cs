@@ -35,16 +35,14 @@ namespace Flame.Recompilation
     /// <typeparam name="T"></typeparam>
     public class CompilationCache<T>
     {
-        public CompilationCache(Func<T, MemberCreationResult<T>> GetNew, IAsyncTaskManager TaskManager)
+        public CompilationCache(Func<T, MemberCreationResult<T>> GetNew)
         {
             this.getNew = GetNew;
             this.cache = new Dictionary<T, T>();
-            this.TaskManager = TaskManager;
         }
 
         private Func<T, MemberCreationResult<T>> getNew;
         private Dictionary<T, T> cache;
-        public IAsyncTaskManager TaskManager { get; private set; }
 
         private T GetCore(T Source)
         {
@@ -94,7 +92,6 @@ namespace Flame.Recompilation
             {
                 result = GetCore(Source);
             }
-            TaskManager.RunQueued();
             return result;
         }
         public T[] GetMany(params T[] Source)
@@ -107,7 +104,6 @@ namespace Flame.Recompilation
                     results[i] = GetCore(Source[i]);
                 }
             }
-            TaskManager.RunQueued();
             return results;
         }
         public T[] GetMany(IEnumerable<T> Source)
