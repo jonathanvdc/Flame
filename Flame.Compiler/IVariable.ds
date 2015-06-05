@@ -3,13 +3,32 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler
 {
+    /// <summary>
+    /// Defines a common interface for variables.
+    /// </summary>
     public interface IVariable
     {
+        /// <summary>
+        /// Gets the variable's type.
+        /// </summary>
         IType Type { const get; }
 
+        /// <summary>
+        /// Creates an expression that returns this variable's value.
+        /// </summary>
         IExpression CreateGetExpression();
+
+        /// <summary>
+        /// Creates a statement that assigns the given value to this variable.
+        /// </summary>
         IStatement CreateSetStatement(IExpression Value);
 
+        /// <summary>
+        /// Creates a release statement for this variable. Release statements
+        /// flag this variable for re-use within the scope of the current method.
+        /// The actual re-use of the variable is the variable and the code generator's
+        /// prerogative.
+        /// </summary>
         IStatement CreateReleaseStatement();
     }
 }

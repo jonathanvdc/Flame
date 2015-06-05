@@ -5,10 +5,22 @@ using Flame.Compiler.Statements;
 
 namespace Flame.Compiler.Variables
 {
+    /// <summary>
+    /// Defines a variable that supports creating a get-expression, which returns
+    /// the expression variable's underlying expression.
+    /// set-statements and release-statements can be created by this expression variables,
+    /// but they will always be empty.
+    /// </summary>
     public class ExpressionVariable : IVariable
     {
+        /// <summary>
+        /// Creates an expression variable from the given underlying expression.
+        /// </summary>
         public const this(set IExpression Expression);
 
+        /// <summary>
+        /// Gets the expression variable's underlying expression.
+        /// </summary>
         public IExpression Expression { const get; private set; }
 
         public IType Type
@@ -21,14 +33,51 @@ namespace Flame.Compiler.Variables
             return Expression;
         }
 
+        /// <summary>
+        /// Returns an empty statement.
+        /// </summary>
+        /// <remarks>
+        /// Returning an empty statement is useful in some cases.
+        /// For example, an inlining visitor may replace the 'this' argument of a
+        /// value type method with a value type value - not a pointer to a value type -
+        /// in which case changing the 'this' argument would've been a nop anyway.
+        /// </remarks>
         public IStatement CreateSetStatement(IExpression Value)
         {
-            return null;
+            return EmptyStatement;
         }
 
+        /// <summary>
+        /// Returns an empty statement.
+        /// </summary>
+        /// <remarks>
+        /// Returning an empty statement is the right thing to do here. We don't
+        /// want to generate null statements simply because somebody tried to
+        /// release an expression variable. release-statements are mostly a performance
+        /// thing anyway, and have no guarantee of succeeding.
+        /// </remarks>
         public IStatement CreateReleaseStatement()
         {
             return EmptyStatement;
+        }
+
+        /// <summary>
+        /// Creates a variable that corresponds to the given expression.
+        /// If said expression itself refers to a variable, said underlying
+        /// variable is returned. Otherwise, an expression variable containing
+        /// the given expression is returned.
+        /// </summary>
+        public static const IVariable Create(IExpression Value)
+        {
+            if (Value is IVariableNode)
+            {
+                var varNode = (IVariableNode)Value;
+                return varNode.GetVariable();
+            }
+            else
+            {
+                return new ExpressionVariable(Value);
+            }
         }
     }
 }
