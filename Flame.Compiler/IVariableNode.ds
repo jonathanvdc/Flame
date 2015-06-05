@@ -13,14 +13,30 @@ namespace Flame.Compiler
 		Other = 4
 	}
 
+	/// <summary>
+	/// Defines a common interface for nodes that represent variable access.
+	/// </summary>
 	public interface IVariableNode : INode
 	{
+		/// <summary>
+		/// Gets the variable node's underlying variable.
+		/// </summary>
 		const IVariable GetVariable();
+
+		/// <summary>
+		/// Gets the action associated with this variable node.
+		/// </summary>
 		VariableNodeAction Action { const get; }
 	}
 
+	/// <summary>
+	/// Defines a variable node that performs an assignment operation.
+	/// </summary>
 	public interface ISetVariableNode : IVariableNode
 	{
+		/// <summary>
+		/// Gets the value this node assigns to the underlying variable.
+		/// </summary>
 		IExpression Value { const get; }
 	}
 }

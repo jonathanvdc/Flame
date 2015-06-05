@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler
 {
+	/// <summary>
+	/// Defines an unmanaged variable: a variable whose address can be taken.
+	/// </summary>
 	public interface IUnmanagedVariable : IVariable
 	{
 		/// <summary>

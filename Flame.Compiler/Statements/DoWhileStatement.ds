@@ -6,7 +6,7 @@ namespace Flame.Compiler.Statements
 {
 	public class DoWhileStatement : IStatement, IFlowStatement
 	{
-		public this(set IStatement Body, set IExpression Condition);
+		public const this(set IStatement Body, set IExpression Condition);
 
 		public IExpression Condition { const get; private set; }
 		public IStatement Body { const get; private set; }
@@ -66,10 +66,11 @@ namespace Flame.Compiler.Statements
 			var optCond = Condition.Optimize();
 			var optBody = Body.Optimize();
 
-			if (optCond.EvaluatesTo<bool>(false))
+			/*if (optCond.EvaluatesTo<bool>(false))
 			{
-				return optBody;
-			}
+				return optBody; // This may not be applicable if the body Statement
+								// contains a break statement.
+			}*/
 
 			return new DoWhileStatement(optBody, optCond);
 		}
