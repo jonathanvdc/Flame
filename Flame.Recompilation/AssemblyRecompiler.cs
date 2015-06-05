@@ -53,11 +53,11 @@ namespace Flame.Recompilation
 
         private void InitCache()
         {
-            this.TypeCache = new CompilationCache<IType>(GetNewType);
-            this.FieldCache = new CompilationCache<IField>(GetNewField);
-            this.PropertyCache = new CompilationCache<IProperty>(GetNewProperty);
-            this.MethodCache = new CompilationCache<IMethod>(GetNewMethod);
-            this.NamespaceCache = new CompilationCache<INamespace>(GetNewNamespace);
+            this.TypeCache = new CompilationCache<IType>(GetNewType, TaskManager);
+            this.FieldCache = new CompilationCache<IField>(GetNewField, TaskManager);
+            this.PropertyCache = new CompilationCache<IProperty>(GetNewProperty, TaskManager);
+            this.MethodCache = new CompilationCache<IMethod>(GetNewMethod, TaskManager);
+            this.NamespaceCache = new CompilationCache<INamespace>(GetNewNamespace, TaskManager);
             this.recompiledAssemblies = new List<IAssembly>();
             this.cachedEnvironment = new Lazy<IEnvironment>(() => TargetAssembly.CreateBinder().Environment);
             this.methodBodies = new AsyncDictionary<IMethod, IStatement>();
@@ -850,7 +850,7 @@ namespace Flame.Recompilation
                     {
                         try
                         {
-                            TargetField.SetValue(GetExpression(expr, CreateEmptyMethod(TargetField)));
+                            TaskManager.RunSequential(TargetField.SetValue, GetExpression(expr, CreateEmptyMethod(TargetField)));
                         }
                         catch (Exception ex)
                         {
@@ -860,7 +860,7 @@ namespace Flame.Recompilation
                         }
                     }
                 }
-                TargetField.Build();
+                TaskManager.RunSequential<IField>(TargetField.Build);
             }
         }
 
@@ -884,11 +884,11 @@ namespace Flame.Recompilation
         {
             return DeclaringProperty.DeclareAccessor(RecompiledAccessorTemplate.GetRecompilerTemplate(this, DeclaringProperty, SourceAccessor));
         }
-        private void RecompileMethodBodyCore(IMethodBuilder TargetMethod, IMethod SourceMethod)
+        private IStatement RecompileMethodBodyCore(IMethodBuilder TargetMethod, IMethod SourceMethod)
         {
             if (SourceMethod.get_IsAbstract() || SourceMethod.DeclaringType.get_IsInterface())
             {
-                return;
+                return null;
             }
 
             var bodyMethod = SourceMethod as IBodyMethod;
@@ -898,8 +898,9 @@ namespace Flame.Recompilation
             }
             try
             {
-                Passes.RecompileBody(this, (ITypeBuilder)TargetMethod.DeclaringType, TargetMethod, bodyMethod);
-                TargetMethod.Build();
+                var result = Passes.RecompileBody(this, (ITypeBuilder)TargetMethod.DeclaringType, TargetMethod, bodyMethod);
+                TaskManager.RunSequential<IMethod>(TargetMethod.Build);
+                return result;
             }
             catch (Exception ex)
             {
@@ -912,7 +913,11 @@ namespace Flame.Recompilation
         {
             if (RecompileBodies)
             {
-                TaskManager.RunAsync(() => RecompileMethodBodyCore(TargetMethod, SourceMethod));
+                var task = TaskManager.RunAsync(() => RecompileMethodBodyCore(TargetMethod, SourceMethod));
+                if (Settings.RememberBodies)
+                {
+                    methodBodies.Add(TargetMethod, task);
+                }
             }
         }
 
@@ -1028,27 +1033,30 @@ namespace Flame.Recompilation
             RecompileAssemblyCore(Source, Options);
 
             await TaskManager.WhenDoneAsync();
-            foreach (var item in PropertyCache.GetAll())
+            TaskManager.RunSequential(() =>
             {
-                if (item is IPropertyBuilder)
+                foreach (var item in PropertyCache.GetAll())
                 {
-                    ((IPropertyBuilder)item).Build();
+                    if (item is IPropertyBuilder)
+                    {
+                        ((IPropertyBuilder)item).Build();
+                    }
                 }
-            }
-            foreach (var item in TypeCache.GetAll())
-            {
-                if (item is ITypeBuilder)
+                foreach (var item in TypeCache.GetAll())
                 {
-                    ((ITypeBuilder)item).Build();
+                    if (item is ITypeBuilder)
+                    {
+                        ((ITypeBuilder)item).Build();
+                    }
                 }
-            }
-            foreach (var item in NamespaceCache.GetAll())
-            {
-                if (item is INamespaceBuilder)
+                foreach (var item in NamespaceCache.GetAll())
                 {
-                    ((INamespaceBuilder)item).Build();
+                    if (item is INamespaceBuilder)
+                    {
+                        ((INamespaceBuilder)item).Build();
+                    }
                 }
-            }
+            });
         }
 
         #endregion

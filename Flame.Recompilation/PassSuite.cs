@@ -50,8 +50,8 @@ namespace Flame.Recompilation
                 new AggregatePass<IStatement>(StatementPass, Suite.StatementPass));
         }
 
-        public void RecompileBody(AssemblyRecompiler Recompiler, ITypeBuilder DeclaringType, 
-                                  IMethodBuilder Method, IBodyMethod SourceMethod)
+        public IStatement RecompileBody(AssemblyRecompiler Recompiler, ITypeBuilder DeclaringType, 
+                                        IMethodBuilder Method, IBodyMethod SourceMethod)
         {
             var initBody = Optimizer.GetOptimizedBody(SourceMethod);
             var preOptBody = PreStatementPass.Apply(new Tuple<IStatement, IMethod>(initBody, SourceMethod)).Item1;
@@ -62,7 +62,9 @@ namespace Flame.Recompilation
 
             var targetBody = Method.GetBodyGenerator();
             var block = optBody.Emit(targetBody);
-            Method.SetMethodBody(block);
+            Recompiler.TaskManager.RunSequential(Method.SetMethodBody, block);
+
+            return optBody;
         }
 
         public static PassSuite CreateDefault(ICompilerLog Log)
