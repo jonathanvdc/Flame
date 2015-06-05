@@ -36,6 +36,9 @@
     <Reference Include="Flame.Compiler">
       <HintPath>..\Flame.Compiler\bin\Flame.Compiler.dll</HintPath>
     </Reference>
+    <Reference Include="Flame.Optimization">
+      <HintPath>..\Flame.Optimization\bin\Flame.Optimization.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>..\Flame.Cecil\bin\Release\Mono.Cecil.dll</HintPath>
     </Reference>
@@ -78,6 +81,7 @@
     <Compile Include="Target\ContractBuildTarget.cs" />
     <Compile Include="Target\CppBuildTargetParser.cs" />
     <Compile Include="Target\CppDependencyBuilderExtensions.cs" />
+    <Compile Include="Target\InliningPass.cs" />
     <Compile Include="Target\MipsBuildTargetParser.cs" />
     <Compile Include="Target\PassExtensions.cs" />
     <Compile Include="Target\PythonBuildTargetParser.cs" />
