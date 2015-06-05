@@ -1,0 +1,20 @@
+using System;
+using Flame.Compiler;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    public static class InliningExtensions
+    {
+        /// <summary>
+        /// Finds out whether a call to the given method can be inlined.
+        /// </summary>
+        public static const bool CanInline(this IMethod Method, IType ThisType)
+        {
+            if (ThisType == null)
+                return Method.IsStatic;
+            else
+                return Method.DeclaringType.Equals(ThisType) && !Method.DeclaringType.IsVirtual;
+        }
+    }
+}
