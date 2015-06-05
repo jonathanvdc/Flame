@@ -1,0 +1,167 @@
+using System;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    public class DissectedCall
+    {
+        public const this(set IExpression ThisValue, set IMethod Method, set [IExpression] Arguments);
+
+        public IExpression ThisValue { const get; private set; }
+        public IMethod Method { const get; private set; }
+        public [IExpression] Arguments { const get; private set; }
+    }
+
+    public class InliningVisitor : NodeVisitorBase
+    {
+        public const this(set IMethod CurrentMethod, set bool(IMethod) ShouldInline,
+                          set IStatement(IMethod) GetMethodBody);
+
+        public IMethod CurrentMethod { const get; private set; }
+        public bool(IMethod) ShouldInline { const get; private set; }
+        public IStatement(IMethod) GetMethodBody { const get; private set; }
+        public bool HasInlined { const get; private set; }
+
+        public override const bool Matches(IStatement Statement)
+        {
+            return false;
+        }
+
+        private const DissectedCall DissectCall(IExpression Expression)
+        {
+            if (Expression is InvocationExpression)
+            {
+                var invExpr = (InvocationExpression)Expression;
+                if (invExpr.Target is GetMethodExpression)
+                {
+                    var target = (GetMethodExpression)invExpr.Target;
+                    return new DissectedCall(target.Caller, target.Target, invExpr.Arguments);
+                }
+            }
+            return null;
+        }
+
+        public override const bool Matches(IExpression Expression)
+        {
+            var result = this.DissectCall(Expression);
+            if (result == null)
+            {
+                return false;
+            }
+            return InliningExtensions.CanInline(result.Method, result.ThisValue.Type) &&
+                   this.ShouldInline(result.Method);
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            this.HasInlined = true;
+
+            // We know we *should* inline this because it survived the "match"
+            // step.
+            var dissected = DissectCall((InvocationExpression)Expression);
+
+            var body = GetMethodBody(dissected.Method);
+            var lbVariable = new LateBoundVariable(dissected.Method.ReturnType);
+
+            var visitor = new InliningVariableVisitor(dissected.ThisValue,
+                                                      Enumerable.ToArray<IExpression>(dissected.Arguments));
+
+            var visitedBody = InliningReturnVisitor.InlineReturns(visitor.Visit(body),
+                                                                  lbVariable);
+            if (lbVariable.Type.Equals(PrimitiveTypes.Void))
+            {
+                return new InitializedExpression(visitedBody,
+                                                 VoidExpression);
+            }
+            else
+            {
+                return new InitializedExpression(visitedBody,
+                                                 lbVariable.CreateGetExpression(),
+                                                 lbVariable.CreateReleaseStatement());
+            }
+        }
+        protected override IStatement Transform(IStatement Statement)
+        {
+            return Statement;
+        }
+    }
+
+    public class InliningVariableVisitor : VariableSubstitutingVisitorBase
+    {
+        public const this(set IExpression ThisArgument, set IExpression[] Arguments);
+
+        public IExpression ThisArgument { const get; private set; }
+        public IExpression[] Arguments { const get; private set; }
+
+        protected override bool CanSubstituteVariable(IVariable Variable)
+        {
+            return Variable is ArgumentVariable || Variable is ThisVariable;
+        }
+        protected override IVariable SubstituteVariable(IVariable Variable)
+        {
+            if (Variable is ThisVariable)
+            {
+                return new ExpressionVariable(ThisArgument);
+            }
+            else
+            {
+                var argVar = (ArgumentVariable)Variable;
+                return new ExpressionVariable(Arguments[argVar.Index]);
+            }
+        }
+    }
+
+    public class InliningReturnVisitor : NodeVisitorBase
+    {
+        public const this(set IVariable ReturnVariable, set LateBoundLabel ReturnLabel);
+
+        public IVariable ReturnVariable { const get; private set; }
+        public LateBoundLabel ReturnLabel { const get; private set; }
+
+        public static const IStatement InlineReturns(IStatement Statement, IVariable ReturnVariable)
+        {
+            var label = new LateBoundLabel();
+            var visitor = new InliningReturnVisitor(ReturnVariable, label);
+            var body = visitor.Visit(Statement);
+            return new BlockStatement(new IStatement[]
+            {
+                body,
+                label.CreateMarkStatement()
+            });
+        }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return false;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is ReturnStatement;
+        }
+        protected const override IExpression Transform(IExpression Expression)
+        {
+            return Expression;
+        }
+        protected const override IStatement Transform(IStatement Statement)
+        {
+            var retStmt = (ReturnStatement)Statement;
+            if (retStmt.Value == null || ReturnVariable.Type == null)
+            {
+                return ReturnLabel.CreateBranchStatement();
+            }
+            else
+            {
+                return new BlockStatement(new IStatement[]
+                {
+                    ReturnVariable.CreateSetStatement(retStmt.Value),
+                    ReturnLabel.CreateBranchStatement()
+                });
+            }
+        }
+    }
+}

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<Project Name="Flame.Optimization">
+  <Setter Property="TargetPlatform" Value="clr" />
+  <Setter Property="AssemblyName" Value="Flame.Optimization" />
+  <ItemGroup>
+    <RuntimeLibrary Include="PortableRT" />
+    <RuntimeLibrary Include="System" />
+    <RuntimeLibrary Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="../Flame.Compiler/bin/Flame.dll" />
+    <Reference Include="../Flame.Compiler/bin/Flame.Compiler.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="InliningExtensions.ds" />
+    <Compile Include="InliningVisitor.ds" />
+    <Compile Include="SizeVisitor.ds" />
+  </ItemGroup>
+</Project>
