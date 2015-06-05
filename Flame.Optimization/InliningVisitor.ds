@@ -19,11 +19,11 @@ namespace Flame.Optimization
 
     public class InliningVisitor : NodeVisitorBase
     {
-        public const this(set IMethod CurrentMethod, set bool(IMethod) ShouldInline,
+        public const this(set IMethod CurrentMethod, set bool(DissectedCall) ShouldInline,
                           set IStatement(IMethod) GetMethodBody);
 
         public IMethod CurrentMethod { const get; private set; }
-        public bool(IMethod) ShouldInline { const get; private set; }
+        public bool(DissectedCall) ShouldInline { const get; private set; }
         public IStatement(IMethod) GetMethodBody { const get; private set; }
         public bool HasInlined { const get; private set; }
 
@@ -54,7 +54,7 @@ namespace Flame.Optimization
                 return false;
             }
             return InliningExtensions.CanInline(result.Method, result.ThisValue.Type) &&
-                   this.ShouldInline(result.Method);
+                   this.ShouldInline(result);
         }
 
         protected override IExpression Transform(IExpression Expression)
