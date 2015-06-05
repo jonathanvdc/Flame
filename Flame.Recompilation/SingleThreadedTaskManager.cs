@@ -8,13 +8,25 @@ namespace Flame.Recompilation
 {
     public class SingleThreadedTaskManager : IAsyncTaskManager
     {
-        public async Task RunAsync(Action Method)
+        public Task RunAsync(Action Method)
         {
             Method();
+            return Task.FromResult(true);
         }
 
-        public async Task WhenDoneAsync()
+        public Task WhenDoneAsync()
         {
+            return Task.FromResult(true);
+        }
+
+        public void RunSequential(Action Delegate)
+        {
+            Delegate();
+        }
+
+        public Task<T> RunAsync<T>(Func<T> Delegate)
+        {
+            return Task.FromResult<T>(Delegate());
         }
     }
 }

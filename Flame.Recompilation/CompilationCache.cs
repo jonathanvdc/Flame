@@ -35,14 +35,16 @@ namespace Flame.Recompilation
     /// <typeparam name="T"></typeparam>
     public class CompilationCache<T>
     {
-        public CompilationCache(Func<T, MemberCreationResult<T>> GetNew)
+        public CompilationCache(Func<T, MemberCreationResult<T>> GetNew, IAsyncTaskManager TaskManager)
         {
             this.getNew = GetNew;
             this.cache = new Dictionary<T, T>();
+            this.TaskManager = TaskManager;
         }
 
         private Func<T, MemberCreationResult<T>> getNew;
         private Dictionary<T, T> cache;
+        public IAsyncTaskManager TaskManager { get; private set; }
 
         private T GetCore(T Source)
         {
@@ -52,7 +54,7 @@ namespace Flame.Recompilation
             }
             else
             {
-                var result = getNew(Source);
+                var result = TaskManager.RunSequential(getNew, Source);
                 cache[Source] = result.Member;
                 if (result.Continuation != null)
                 {

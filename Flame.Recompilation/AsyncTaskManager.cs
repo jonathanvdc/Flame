@@ -11,17 +11,11 @@ namespace Flame.Recompilation
         public AsyncTaskManager()
         {
             this.tasks = new List<Task>();
-            this.MillisecondsDelay = 100;
+            this.sequentialLock = new object();
         }
-        public AsyncTaskManager(int MillisecondsDelay)
-        {
-            this.tasks = new List<Task>();
-            this.MillisecondsDelay = MillisecondsDelay;
-        }
-
-        public int MillisecondsDelay { get; private set; }
 
         private List<Task> tasks;
+        private object sequentialLock;
 
         public event EventHandler TasksDone;
 
@@ -73,11 +67,29 @@ namespace Flame.Recompilation
             return task.Task;
         }
 
-        public Task RunAsync(Action Method)
+        public Task RunAsync(Action Delegate)
         {
             lock (tasks)
             {
-                var task = Task.Run(Method);
+                var task = Task.Run(Delegate);
+                tasks.Add(task);
+                return task;
+            }
+        }
+
+        public void RunSequential(Action Delegate)
+        {
+            lock (sequentialLock)
+            {
+                Delegate();
+            }
+        }
+
+        public Task<T> RunAsync<T>(Func<T> Delegate)
+        {
+            lock (tasks)
+            {
+                var task = Task.Run(Delegate);
                 tasks.Add(task);
                 return task;
             }
