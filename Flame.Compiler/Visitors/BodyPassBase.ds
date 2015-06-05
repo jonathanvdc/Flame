@@ -3,14 +3,31 @@ using System;
 namespace Flame.Compiler.Visitors
 {
     /// <summary>
+    /// Describes an environment for body passes.
+    /// </summary>
+    public interface IBodyPassEnvironment
+    {
+        /// <summary>
+        /// Gets the target environment.
+        /// </summary>
+        IEnvironment Environment { const get; }
+
+        /// <summary>
+        /// Tries to retrieve the method body of the given method.
+        /// If this cannot be done, null is returned.
+        /// </summary>
+        IStatement GetMethodBody(IMethod Method);
+    }
+
+    /// <summary>
     /// Contains a body pass' arguments.
     /// </summary>
-    public struct BodyPassArgument
+    public class BodyPassArgument
     {
         /// <summary>
         /// Creates a new body pass argument from the given values.
         /// </summary>
-        public const this(set IEnvironment Environment, set ITypeBuilder Type,
+        public const this(set IBodyPassEnvironment PassEnvironment, set ITypeBuilder Type,
                           set IMethodBuilder Method, set IStatement Body);
 
         /// <summary>
@@ -19,25 +36,29 @@ namespace Flame.Compiler.Visitors
         /// </summary>
         public const this(BodyPassArgument Previous, set IStatement Body)
         {
-            this.Environment = Previous.Environment;
+            this.PassEnvironment = Previous.PassEnvironment;
             this.Type = Previous.Type;
             this.Method = Previous.Method;
         }
 
         /// <summary>
-        /// The target method's environment.
+        /// Gets the body pass' environment.
         /// </summary>
-        public IEnvironment Environment { const get; private set; }
+        public IBodyPassEnvironment PassEnvironment { const get; private set; }
         /// <summary>
-        /// The target method's declaring type.
+        /// Gets the target method's environment.
+        /// </summary>
+        public IEnvironment Environment { const get return PassEnvironment.Environment; }
+        /// <summary>
+        /// Gets the target method's declaring type.
         /// </summary>
         public ITypeBuilder Type { const get; private set; }
         /// <summary>
-        /// The target method.
+        /// Gets the target method.
         /// </summary>
         public IMethodBuilder Method { const get; private set; }
         /// <summary>
-        /// The target method's body statement.
+        /// Gets the target method's body statement.
         /// </summary>
         public IStatement Body { const get; private set; }
     }

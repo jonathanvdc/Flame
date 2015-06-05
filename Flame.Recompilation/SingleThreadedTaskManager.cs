@@ -8,28 +8,13 @@ namespace Flame.Recompilation
 {
     public class SingleThreadedTaskManager : IAsyncTaskManager
     {
-        public SingleThreadedTaskManager()
+        public async Task RunAsync(Action Method)
         {
-            this.actions = new Queue<Action>();
-        }
-
-        private Queue<Action> actions;
-
-        public void QueueAction(Action Method)
-        {
-            actions.Enqueue(Method);
+            Method();
         }
 
         public async Task WhenDoneAsync()
         {
-        }
-
-        public async Task RunQueued()
-        {
-            while (actions.Count > 0)
-            {
-                actions.Dequeue()();
-            }
         }
     }
 }
