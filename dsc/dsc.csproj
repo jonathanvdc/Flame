@@ -56,6 +56,9 @@
     <Reference Include="Flame.DSharp">
       <HintPath>..\Flame.DSharp\bin\Flame.DSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Flame.Optimization">
+      <HintPath>..\Flame.Optimization\bin\Flame.Optimization.dll</HintPath>
+    </Reference>
     <Reference Include="Flame.Syntax">
       <HintPath>..\Flame.DSharp\bin\Flame.Syntax.dll</HintPath>
     </Reference>

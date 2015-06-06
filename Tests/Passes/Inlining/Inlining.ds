@@ -1,0 +1,25 @@
+
+public static class InliningTest
+{
+    public const int Fibonacci(int n)
+    {
+        if (n < 1)
+            return 0;
+        else if (n == 1)
+            return 1;
+        else
+            return Fibonacci(n - 2) + Fibonacci(n - 1);
+    }
+
+    public const int Factorial(int n)
+    {
+        if (n <= 0)
+            return 1;
+        else return Factorial(n - 1) * n;
+    }
+
+    public const int Test()
+    {
+        return Fibonacci(2) * Factorial(3);
+    }
+}

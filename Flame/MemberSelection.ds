@@ -46,15 +46,15 @@ namespace Flame
             	var parameterTypes = elem.GetIndexerParameters().GetTypes();
                 if (elem.IsExtension && CallerType != null)
                 {
-                    dict.Add(elem, parameterTypes);
+                    dict[elem] = parameterTypes;
                 }
                 else if (elem.IsStatic)
                 {
-                	dict.Add(elem, MemberSelection.Concat<IType>(null, parameterTypes));
+					dict[elem] = MemberSelection.Concat<IType>(null, parameterTypes);
                 }
                 else
                 {
-                    dict.Add(elem, MemberSelection.Concat<IType>(elem.DeclaringType, parameterTypes));
+					dict[elem] = MemberSelection.Concat<IType>(elem.DeclaringType, parameterTypes);
                 }
             }
             return SortByParameterMatch<IProperty>(paramTypes, dict).ToArray();
@@ -72,7 +72,7 @@ namespace Flame
         /// <param name="IsStatic"></param>
         /// <param name="ParameterTypes"></param>
         /// <returns></returns>
-        public const static IMethod[] GetBestMethods(this IEnumerable<IMethod> Candidates, IType CallerType, IType[] ParameterTypes)
+        public const static IMethod[] GetBestMethods(this [IMethod] Candidates, IType CallerType, IType[] ParameterTypes)
         {
             var paramTypes = MemberSelection.Concat<IType>(CallerType, ParameterTypes);
             var dict = new Dictionary<IMethod, IType[]>();
@@ -81,15 +81,15 @@ namespace Flame
             	var parameterTypes = elem.GetParameters().GetTypes();
                 if (elem.IsExtension && CallerType != null)
                 {
-                    dict.Add(elem, parameterTypes);
+					dict[elem] = parameterTypes;
                 }
                 else if (elem.IsStatic)
                 {
-                	dict.Add(elem, MemberSelection.Concat<IType>(null, parameterTypes));
+					dict[elem] = MemberSelection.Concat<IType>(null, parameterTypes);
                 }
                 else
                 {
-                    dict.Add(elem, MemberSelection.Concat<IType>(elem.DeclaringType, parameterTypes));
+					dict[elem] = MemberSelection.Concat<IType>(elem.DeclaringType, parameterTypes);
                 }
             }
             List<IMethod> sortedMethodList = SortByParameterMatch<IMethod>(paramTypes, dict);
@@ -104,7 +104,7 @@ namespace Flame
         /// <param name="IsStatic"></param>
         /// <param name="ParameterTypes"></param>
         /// <returns></returns>
-        public const static IMethod[] GetBestMethods(this IEnumerable<IMethod> Candidates, IType[] ParameterTypes)
+        public const static IMethod[] GetBestMethods(this [IMethod] Candidates, IType[] ParameterTypes)
         {
             var dict = new Dictionary<IMethod, IType[]>();
             foreach (var elem in Candidates)
@@ -112,9 +112,12 @@ namespace Flame
             	var parameterTypes = elem.GetParameters().GetTypes();
                 if (elem.IsExtension)
                 {
-                    dict.Add(elem, Enumerable.ToArray<IType>(Enumerable.Skip<IType>((IEnumerable<IType>)parameterTypes, 1)));
+					dict[elem] = Enumerable.ToArray<IType>(Enumerable.Skip<IType>(parameterTypes, 1));
                 }
-                dict.Add(elem, parameterTypes);
+				else
+				{
+					dict[elem] = parameterTypes;
+				}
             }
             List<IMethod> sortedMethodList = SortByParameterMatch<IMethod>(ParameterTypes, dict);
             return sortedMethodList.ToArray().FilterBaseMethods();

@@ -13,6 +13,11 @@ namespace Flame.Compiler.Visitors
         IEnvironment Environment { const get; }
 
         /// <summary>
+        /// Gets the body pass environment's log.
+        /// </summary>
+        ICompilerLog Log { const get; }
+
+        /// <summary>
         /// Tries to retrieve the method body of the given method.
         /// If this cannot be done, null is returned.
         /// </summary>

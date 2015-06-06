@@ -914,7 +914,7 @@ namespace Flame.Recompilation
             if (RecompileBodies)
             {
                 var task = TaskManager.RunAsync(() => RecompileMethodBodyCore(TargetMethod, SourceMethod));
-                if (Settings.RememberBodies)
+                if (Settings.RememberBodies && !methodBodies.ContainsKey(TargetMethod))
                 {
                     methodBodies.Add(TargetMethod, task);
                 }
@@ -1074,8 +1074,14 @@ namespace Flame.Recompilation
         /// </remarks>
         public IStatement GetMethodBody(IMethod Method)
         {
-
-            throw new NotImplementedException();
+            if (methodBodies.ContainsKey(Method))
+            {
+                return methodBodies[Method];
+            }
+            else
+            {
+                return null;
+            }
         }
 
         #endregion

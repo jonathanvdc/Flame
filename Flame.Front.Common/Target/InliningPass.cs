@@ -23,21 +23,70 @@ namespace Flame.Front.Target
 
         public static InliningPass Instance { get; private set; }
 
-        public bool ShouldInline(IBodyPassEnvironment PassEnvironment, DissectedCall Call)
+        private static int ApproximateSize(IType Type)
         {
-            var body = PassEnvironment.GetMethodBody(Call.Method);
+            int primSize = Type.GetPrimitiveSize();
+            if (primSize > 0)
+            {
+                return primSize;
+            }
+
+            if (Type.get_IsReferenceType() || Type.get_IsPointer() || Type.get_IsArray())
+            {
+                return 4;
+            }
+
+            if (Type.get_IsVector())
+            {
+                return ApproximateSize(Type.GetEnumerableElementType()) * Type.AsContainerType().AsVectorType().GetDimensions().Aggregate(1, (aggr, val) => aggr * val);
+            }
+
+            return Type.GetFields().Aggregate(0, (aggr, field) => aggr + ApproximateSize(field.FieldType));
+        }
+
+        private static int RateArgument(IType ParameterType, IExpression Argument)
+        {
+            var argType = Argument.Type;
+
+            int inheritanceBoost = !argType.Equals(ParameterType) ? 4 : 0;  // This is interesting, because it may allow us to
+                                                                            // replace indirect calls with direct calls
+
+            int constantBoost = Argument.IsConstant ? 4 : 0;                // Constants may allow us to eliminate branches
+
+            return ApproximateSize(argType) + inheritanceBoost + constantBoost;
+        }
+
+        public bool ShouldInline(BodyPassArgument Args, DissectedCall Call, int Tolerance)
+        {
+            var body = Args.PassEnvironment.GetMethodBody(Call.Method);
             if (body == null)
             {
                 return false;
             }
 
-            return true;
+            int pro = Call.ThisValue != null ? RateArgument(Call.Method.DeclaringType, Call.ThisValue) : 0;
+            foreach (var item in Call.Method.GetParameters().Zip(Call.Arguments, (first, second) => Tuple.Create(first, second)))
+            {
+                pro += RateArgument(item.Item1.ParameterType, item.Item2);
+            }
+
+            int con = SizeVisitor.Static_Singleton.Instance.ApproximateSize(body, true, 2);
+
+            return pro - con > Tolerance;
         }
 
         public IStatement Apply(BodyPassArgument Value)
         {
-            var inliner = new InliningVisitor(Value.Method, call => ShouldInline(Value.PassEnvironment, call), Value.PassEnvironment.GetMethodBody);
-            return inliner.Visit(Value.Body);
+            int maxRecursion = Value.PassEnvironment.Log.Options.GetOption<int>("max-inline-recursion", 3);
+            int inlineTolerance = Value.PassEnvironment.Log.Options.GetOption<int>("inline-tolerance", 0);
+
+            var inliner = new InliningVisitor(Value.Method, call => ShouldInline(Value, call, inlineTolerance), Value.PassEnvironment.GetMethodBody, maxRecursion);
+            var result = inliner.Visit(Value.Body);
+            if (inliner.HasInlined)
+            {
+                result = result.Optimize();
+            }
+            return result;
         }
     }
 }

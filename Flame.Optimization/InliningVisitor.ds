@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
@@ -20,12 +21,20 @@ namespace Flame.Optimization
     public class InliningVisitor : NodeVisitorBase
     {
         public const this(set IMethod CurrentMethod, set bool(DissectedCall) ShouldInline,
-                          set IStatement(IMethod) GetMethodBody);
+                          set IStatement(IMethod) GetMethodBody, set int MaxRecursion)
+        {
+            this.inlineCount = new Dictionary<IMethod, int>();
+        }
 
         public IMethod CurrentMethod { const get; private set; }
         public bool(DissectedCall) ShouldInline { const get; private set; }
         public IStatement(IMethod) GetMethodBody { const get; private set; }
-        public bool HasInlined { const get; private set; }
+        public int MaxRecursion { const get; private set; }
+
+        public bool HasInlined { const get return inlineCount.Count != 0; }
+        public IReadOnlyDictionary<IMethod, int> InlinedCount { const get return inlineCount; }
+
+        private Dictionary<IMethod, int> inlineCount;
 
         public override const bool Matches(IStatement Statement)
         {
@@ -46,30 +55,20 @@ namespace Flame.Optimization
             return null;
         }
 
-        public override const bool Matches(IExpression Expression)
+        public const IExpression Inline(DissectedCall Call)
         {
-            var result = this.DissectCall(Expression);
-            if (result == null)
+            int preCount = 0;
+            if (inlineCount.ContainsKey(Call.Method))
             {
-                return false;
+                preCount = inlineCount[Call.Method];
             }
-            return InliningExtensions.CanInline(result.Method, result.ThisValue.Type) &&
-                   this.ShouldInline(result);
-        }
+            inlineCount[Call.Method] = preCount + 1;
 
-        protected override IExpression Transform(IExpression Expression)
-        {
-            this.HasInlined = true;
+            var body = GetMethodBody(Call.Method);
+            var lbVariable = new LateBoundVariable(Call.Method.ReturnType);
 
-            // We know we *should* inline this because it survived the "match"
-            // step.
-            var dissected = DissectCall((InvocationExpression)Expression);
-
-            var body = GetMethodBody(dissected.Method);
-            var lbVariable = new LateBoundVariable(dissected.Method.ReturnType);
-
-            var visitor = new InliningVariableVisitor(dissected.ThisValue,
-                                                      Enumerable.ToArray<IExpression>(dissected.Arguments));
+            var visitor = new InliningVariableVisitor(Call.ThisValue,
+                                                      Enumerable.ToArray<IExpression>(Call.Arguments));
 
             var visitedBody = InliningReturnVisitor.InlineReturns(visitor.Visit(body),
                                                                   lbVariable);
@@ -84,6 +83,34 @@ namespace Flame.Optimization
                                                  lbVariable.CreateGetExpression(),
                                                  lbVariable.CreateReleaseStatement());
             }
+        }
+
+        public override const bool Matches(IExpression Expression)
+        {
+            var result = this.DissectCall(Expression);
+            if (result == null)
+            {
+                return false;
+            }
+
+            int preCount = 0;
+            if (inlineCount.ContainsKey(result.Method))
+            {
+                preCount = inlineCount[result.Method];
+            }
+
+            return preCount < MaxRecursion &&
+                   InliningExtensions.CanInline(result.Method, result.ThisValue) &&
+                   this.ShouldInline(result);
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            // We know we *should* inline this because it survived the "match"
+            // step.
+            var dissected = DissectCall((InvocationExpression)Expression);
+
+            return Visit(Inline(dissected));
         }
         protected override IStatement Transform(IStatement Statement)
         {
