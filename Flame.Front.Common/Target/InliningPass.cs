@@ -53,7 +53,9 @@ namespace Flame.Front.Target
 
             int constantBoost = Argument.IsConstant ? 4 : 0;                // Constants may allow us to eliminate branches
 
-            return ApproximateSize(argType) + inheritanceBoost + constantBoost;
+            int delegateBoost = ParameterType.get_IsDelegate() ? 4 : 0;     // Delegates can be sometimes be replaced with direct or indirect calls.
+
+            return ApproximateSize(argType) + inheritanceBoost + constantBoost + delegateBoost;
         }
 
         public bool ShouldInline(BodyPassArgument Args, DissectedCall Call, int Tolerance)
@@ -80,7 +82,8 @@ namespace Flame.Front.Target
             int maxRecursion = Value.PassEnvironment.Log.Options.GetOption<int>("max-inline-recursion", 3);
             int inlineTolerance = Value.PassEnvironment.Log.Options.GetOption<int>("inline-tolerance", 0);
 
-            var inliner = new InliningVisitor(Value.Method, call => ShouldInline(Value, call, inlineTolerance), Value.PassEnvironment.GetMethodBody, maxRecursion);
+            var inliner = new InliningVisitor(Value.Method, call => ShouldInline(Value, call, inlineTolerance), 
+                                              Value.PassEnvironment.GetMethodBody, stmt => stmt.Optimize(), maxRecursion);
             var result = inliner.Visit(Value.Body);
             if (inliner.HasInlined)
             {

@@ -18,8 +18,13 @@ public static class InliningTest
         else return Factorial(n - 1) * n;
     }
 
+    public const int Multiply(int(int) First, int(int) Second, int Arg)
+    {
+        return First(Arg) * Second(Arg);
+    }
+
     public const int Test()
     {
-        return Fibonacci(2) * Factorial(3);
+        return Multiply(Fibonacci, Factorial, 3);
     }
 }
