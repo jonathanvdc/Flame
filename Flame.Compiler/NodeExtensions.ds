@@ -41,9 +41,9 @@ namespace Flame.Compiler
 
 		#region Optimize
 
-		public static IEnumerable<IExpression> OptimizeAll(this IEnumerable<IExpression> Expressions)
+		public static [IExpression] OptimizeAll(this [IExpression] Expressions)
 		{
-			List<IExpression> exprs = new List<IExpression>();
+			var exprs = new List<IExpression>();
 			foreach (var item in Expressions)
 			{
 				exprs.Add(item.Optimize());
@@ -90,9 +90,9 @@ namespace Flame.Compiler
 			}
 		}
 
-		public static IEnumerable<IBoundObject> EvaluateAll(this IEnumerable<IExpression> Expressions)
+		public static [IBoundObject] EvaluateAll(this [IExpression] Expressions)
 		{
-			List<IBoundObject> exprs = new List<IBoundObject>();
+			var exprs = new List<IBoundObject>();
 			foreach (var item in Expressions)
 			{
 				exprs.Add(item.Evaluate());
@@ -116,9 +116,9 @@ namespace Flame.Compiler
 			}
 		}
 
-		public static IEnumerable<ICodeBlock> EmitAll(this IEnumerable<IExpression> Expressions, ICodeGenerator Generator)
+		public static [ICodeBlock] EmitAll(this [IExpression] Expressions, ICodeGenerator Generator)
 		{
-			List<ICodeBlock> exprs = new List<ICodeBlock>();
+			var exprs = new List<ICodeBlock>();
 			foreach (var item in Expressions)
 			{
 				exprs.Add(item.Emit(Generator));
@@ -174,6 +174,21 @@ namespace Flame.Compiler
 				return BoundObject.GetValue<T>().Equals(Value);
 			}
 			return false;
+		}
+
+		#endregion
+
+		#region TypeOrNull
+
+		public static const IType TypeOrNull[this IExpression Expression]
+		{
+			const get
+			{
+				if (Expression == null)
+					return null;
+				else
+					return Expression.Type;
+			}
 		}
 
 		#endregion

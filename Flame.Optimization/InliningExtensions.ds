@@ -14,7 +14,15 @@ namespace Flame.Optimization
             if (ThisType == null)
                 return Method.IsStatic;
             else
-                return Method.DeclaringType.Equals(ThisType) && !Method.DeclaringType.IsVirtual;
+                return !Method.IsVirtual;
+        }
+
+        /// <summary>
+        /// Finds out whether a call to the given method can be inlined.
+        /// </summary>
+        public static const bool CanInline(this IMethod Method, IExpression ThisExpression)
+        {
+            return Method.CanInline(ThisExpression.TypeOrNull);
         }
     }
 }

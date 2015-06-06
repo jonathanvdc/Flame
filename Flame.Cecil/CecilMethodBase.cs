@@ -217,17 +217,22 @@ namespace Flame.Cecil
 
         public virtual bool Equals(ICecilMethod other)
         {
-            if (other.get_IsGenericInstance())
+            if (object.ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            if (!(other is CecilMethodBase) || other.get_IsGenericInstance())
             {
                 return false;
             }
+
             var thisRef = GetMethodReference();
             var otherRef = other.GetMethodReference();
-            if (thisRef.GenericParameters.Count == otherRef.GenericParameters.Count && this.DeclaringType.Equals(other.DeclaringType))
+            if (thisRef.Name == otherRef.Name && thisRef.GenericParameters.Count == otherRef.GenericParameters.Count && this.DeclaringType.Equals(other.DeclaringType))
             {
                 var thisDef = thisRef.Resolve();
                 var otherDef = otherRef.Resolve();
-                return thisDef.Module.Mvid == otherDef.Module.Mvid && thisDef.MetadataToken == otherDef.MetadataToken;
+                return thisDef == otherDef;
             }
             return false;
         }
