@@ -74,7 +74,7 @@ namespace Flame.Front.Target
 
             int con = SizeVisitor.Static_Singleton.Instance.ApproximateSize(body, true, 2);
 
-            return pro - con > Tolerance;
+            return con - pro < Tolerance;
         }
 
         public IStatement Apply(BodyPassArgument Value)

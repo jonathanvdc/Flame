@@ -1,4 +1,17 @@
 
+public struct Vector2
+{
+    public const this(set double X, set double Y);
+
+    public double X { const get; private set; }
+    public double Y { const get; private set; }
+
+    public double LengthSquared
+    {
+        const get return X * X + Y * Y;
+    }
+}
+
 public static class InliningTest
 {
     public const int Fibonacci(int n)
@@ -26,5 +39,11 @@ public static class InliningTest
     public const int Test()
     {
         return Multiply(Fibonacci, Factorial, 3);
+    }
+
+    public const double LengthTest()
+    {
+        var vec = new Vector2(5, 5);
+        return vec.LengthSquared;
     }
 }

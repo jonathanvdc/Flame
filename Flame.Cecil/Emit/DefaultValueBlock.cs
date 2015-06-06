@@ -62,8 +62,10 @@ namespace Flame.Cecil.Emit
                     var variable = ((IUnmanagedCodeGenerator)CodeGenerator).DeclareUnmanagedVariable(Type);
 
                     ((ICecilBlock)variable.EmitAddressOf()).Emit(Context);
+                    Context.Stack.Pop();
                     Context.Emit(OpCodes.Initobj, Type);
                     ((ICecilBlock)variable.EmitGet()).Emit(Context);
+                    Context.Stack.Pop();
                     ((ICecilBlock)variable.EmitRelease()).Emit(Context);
                 }
                 else
