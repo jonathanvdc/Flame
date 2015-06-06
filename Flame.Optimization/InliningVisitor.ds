@@ -21,7 +21,8 @@ namespace Flame.Optimization
     public class InliningVisitor : NodeVisitorBase
     {
         public const this(set IMethod CurrentMethod, set bool(DissectedCall) ShouldInline,
-                          set IStatement(IMethod) GetMethodBody, set int MaxRecursion)
+                          set IStatement(IMethod) GetMethodBody, set IStatement(IStatement) Optimize,
+                          set int MaxRecursion)
         {
             this.inlineCount = new Dictionary<IMethod, int>();
         }
@@ -29,6 +30,7 @@ namespace Flame.Optimization
         public IMethod CurrentMethod { const get; private set; }
         public bool(DissectedCall) ShouldInline { const get; private set; }
         public IStatement(IMethod) GetMethodBody { const get; private set; }
+        public IStatement(IStatement) Optimize { const get; private set; }
         public int MaxRecursion { const get; private set; }
 
         public bool HasInlined { const get return inlineCount.Count != 0; }
@@ -67,19 +69,22 @@ namespace Flame.Optimization
             var body = GetMethodBody(Call.Method);
             var lbVariable = new LateBoundVariable(Call.Method.ReturnType);
 
-            var visitor = new InliningVariableVisitor(Call.ThisValue,
-                                                      Enumerable.ToArray<IExpression>(Call.Arguments));
+            var visitedBody = InliningReturnVisitor.InlineReturns(
+                                InliningVariableVisitor.InlineVariables(body,
+                                    Call.ThisValue,
+                                    Enumerable.ToArray<IExpression>(Call.Arguments)),
+                                lbVariable);
 
-            var visitedBody = InliningReturnVisitor.InlineReturns(visitor.Visit(body),
-                                                                  lbVariable);
+            var optBody = Optimize(visitedBody);
+
             if (lbVariable.Type.Equals(PrimitiveTypes.Void))
             {
-                return new InitializedExpression(visitedBody,
+                return new InitializedExpression(optBody,
                                                  VoidExpression);
             }
             else
             {
-                return new InitializedExpression(visitedBody,
+                return new InitializedExpression(optBody,
                                                  lbVariable.CreateGetExpression(),
                                                  lbVariable.CreateReleaseStatement());
             }
@@ -120,10 +125,41 @@ namespace Flame.Optimization
 
     public class InliningVariableVisitor : VariableSubstitutingVisitorBase
     {
-        public const this(set IExpression ThisArgument, set IExpression[] Arguments);
+        public const this(set IVariable ThisArgument, set IVariable[] Arguments);
 
-        public IExpression ThisArgument { const get; private set; }
-        public IExpression[] Arguments { const get; private set; }
+        public IVariable ThisArgument { const get; private set; }
+        public IVariable[] Arguments { const get; private set; }
+
+        public static IStatement InlineVariables(IStatement Target, IExpression ThisArgument, IExpression[] Arguments)
+        {
+            var results = new List<IStatement>();
+            var cleanup = new List<IStatement>();
+
+            IVariable thisVar;
+            if (ThisArgument == null)
+                thisVar = null;
+            else
+            {
+                thisVar = new LateBoundVariable(ThisArgument.Type);
+                results.Add(thisVar.CreateSetStatement(ThisArgument));
+                cleanup.Add(thisVar.CreateReleaseStatement());
+            }
+
+            var argVars = new IVariable[Arguments.Length];
+            foreach (var input in Arguments, var output in argVars)
+            {
+                output = new LateBoundVariable(input.Type);
+                results.Add(output.CreateSetStatement(input));
+                cleanup.Add(output.CreateReleaseStatement());
+            }
+
+            var visitor = new InliningVariableVisitor(thisVar, argVars);
+
+            results.Add(visitor.Visit(Target));
+            results.AddRange(cleanup);
+
+            return new BlockStatement(results);
+        }
 
         protected override bool CanSubstituteVariable(IVariable Variable)
         {
@@ -133,12 +169,12 @@ namespace Flame.Optimization
         {
             if (Variable is ThisVariable)
             {
-                return new ExpressionVariable(ThisArgument);
+                return ThisArgument;
             }
             else
             {
                 var argVar = (ArgumentVariable)Variable;
-                return new ExpressionVariable(Arguments[argVar.Index]);
+                return Arguments[argVar.Index];
             }
         }
     }

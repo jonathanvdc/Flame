@@ -73,10 +73,28 @@ namespace Flame.Compiler.Expressions
 			return ((IBoundMethod)targetObj).Invoke(allArgs);
 		}
 
+		private const IExpression GetInnerExpression(IExpression Expression)
+		{
+			if (Expression is ConversionExpression)
+				return GetInnerExpression(((ConversionExpression)Expression).Value);
+			else
+				return Expression;
+		}
+
+		private const IExpression RemoveRedundantConversions(IExpression Expression)
+		{
+			var innerExpr = GetInnerExpression(Expression);
+			if (innerExpr is IDelegateExpression)
+				return innerExpr;
+			else
+				return Expression;
+		}
+
 		public IExpression Optimize()
 		{
-			var targetExpr = Target.Optimize();
+			var targetExpr = RemoveRedundantConversions(Target.Optimize());
 			var argExprs = Arguments.OptimizeAll();
+
 			return new InvocationExpression(targetExpr, argExprs);
 		}
 

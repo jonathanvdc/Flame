@@ -68,7 +68,7 @@ namespace Flame.Cecil.Emit
             {
                 // Call delegate
                 Method.Emit(Context);
-                var type = Context.Stack.Pop();
+                var type = CecilDelegateType.Create(Context.Stack.Pop(), CodeGenerator);
                 var invokeMethod = CecilDelegateType.GetInvokeMethod(type);
                 ILCodeGenerator.EmitArguments(Arguments, invokeMethod, Context);
                 Context.Emit(OpCodes.Callvirt, invokeMethod);

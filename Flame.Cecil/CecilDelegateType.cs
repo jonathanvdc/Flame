@@ -1,4 +1,6 @@
-﻿using Mono.Cecil;
+﻿using Flame.Cecil.Emit;
+using Flame.Compiler;
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +30,18 @@ namespace Flame.Cecil
             else
             {
                 return Type.GetMethods().Single(item => item.Name == "Invoke" && !item.IsStatic);
+            }
+        }
+
+        public static ICecilType Create(IType Type, ICodeGenerator CodeGenerator)
+        {
+            if (Type is CecilDelegateType)
+            {
+                return (CecilDelegateType)Type;
+            }
+            else
+            {
+                return CodeGenerator.GetModule().TypeSystem.GetCanonicalDelegate(MethodType.GetMethod(Type));
             }
         }
 
