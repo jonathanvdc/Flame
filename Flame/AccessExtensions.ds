@@ -1,0 +1,177 @@
+using System;
+
+namespace Flame
+{
+    /// <summary>
+    /// Extensions for access modifiers.
+    /// </summary>
+    public static class AccessExtensions
+    {
+        /// <summary>
+        /// Returns a boolean that tells whether the given types share their
+        /// declaring assemblies.
+        /// </summary>
+        public static const bool SharesDeclaringAssembly(this IType First, IType Second)
+        {
+            var targetNs = First.DeclaringNamespace;
+            var sourceNs = Second.DeclaringNamespace;
+            if (targetNs == sourceNs)
+                return true;
+            else if (targetNs == null || sourceNs == null)
+                return false;
+            else
+                return targetNs.DeclaringAssembly == sourceNs.DeclaringAssembly;
+        }
+
+        /// <summary>
+        /// Gets a boolean value that tells if this type is publically visible from
+        /// the global scope.
+        /// </summary>
+        public static const bool IsGlobalPublic[this IType Value]
+        {
+            const get
+            {
+                if (Value == null)
+                    return true;
+
+                if (Value.Access == AccessModifier.Public)
+                {
+                    if (Value.DeclaringNamespace is IType)
+                    {
+                        return ((IType)Value.DeclaringNamespace).IsGlobalPublic;
+                    }
+                    else return true;
+                }
+                else return false;
+            }
+        }
+
+        /// <summary>
+        /// Gets a boolean value that tells if this type member is publically visible from
+        /// the global scope.
+        /// </summary>
+        public static const bool IsGlobalPublic[this ITypeMember Value]
+        {
+            const get
+            {
+                if (Value == null)
+                    return true;
+
+                if (Value.Access == AccessModifier.Public)
+                {
+                    return Value.DeclaringType.IsGlobalPublic;
+                }
+                else return false;
+            }
+        }
+
+        /// <summary>
+        /// Gets a boolean value that indicates if the given type can access
+        /// a member of the given declaring type with the given member access modifier,
+        /// assuming that said declaring type can be accessed.
+        /// </summary>
+        public static const bool CanAccessMember(this IType SourceType, IType DeclaringType,
+                                                 AccessModifier MemberAccess)
+        {
+            if (DeclaringType == null || MemberAccess == AccessModifier.Public)
+                return true;
+
+            var srcDecl = SourceType.GetRecursiveGenericDeclaration();
+            var tgtDecl = DeclaringType.GetRecursiveGenericDeclaration();
+
+            if (srcDecl.Equals(tgtDecl))
+            {
+                return true;
+            }
+            else if (MemberAccess == AccessModifier.ProtectedOrAssembly)
+            {
+                return srcDecl.CanAccessMember(tgtDecl, AccessModifier.Assembly) ||
+                       srcDecl.CanAccessMember(tgtDecl, AccessModifier.Protected);
+            }
+            else if (MemberAccess == AccessModifier.ProtectedAndAssembly)
+            {
+                return srcDecl.CanAccessMember(tgtDecl, AccessModifier.Assembly) &&
+                       srcDecl.CanAccessMember(tgtDecl, AccessModifier.Protected);
+            }
+            else if (MemberAccess == AccessModifier.Assembly)
+            {
+                return srcDecl.SharesDeclaringAssembly(tgtDecl);
+            }
+            else if (MemberAccess == AccessModifier.Protected)
+            {
+                return srcDecl.Is(tgtDecl);
+            }
+            else // Private
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Gets a boolean value that indicates whether the given type can
+        /// access the given other type or not.
+        /// </summary>
+        public static const bool CanAccess(this IType SourceType, IType TargetType)
+        {
+            if (TargetType == null)
+                return true;
+
+            var srcDecl = SourceType.GetRecursiveGenericDeclaration();
+            var tgtDecl = TargetType.GetRecursiveGenericDeclaration();
+
+            var targetAccess = tgtDecl.Access;
+
+            if (tgtDecl.DeclaringNamespace is IType &&
+                !srcDecl.CanAccess((IType)tgtDecl.DeclaringNamespace))
+            {
+                return false;
+            }
+
+            if (targetAccess == AccessModifier.Public || srcDecl.Equals(tgtDecl))
+            {
+                return true;
+            }
+            else if (targetAccess == AccessModifier.Assembly)
+            {
+                return srcDecl.SharesDeclaringAssembly(tgtDecl);
+            }
+            else if (TargetType.DeclaringNamespace is IType)
+            {
+                return srcDecl.CanAccessMember((IType)tgtDecl.DeclaringNamespace, targetAccess);
+            }
+            else return false;
+        }
+
+        /// <summary>
+        /// Gets a boolean value that indicates whether the given type can
+        /// access the given type member or not.
+        /// </summary>
+        public static const bool CanAccess(this IType SourceType, ITypeMember Member)
+        {
+            var declType = Member.DeclaringType;
+            if (declType == null)
+            {
+                return true;
+            }
+            else
+            {
+                return SourceType.CanAccess(declType) &&
+                       SourceType.CanAccessMember(declType, Member.Access);
+            }
+        }
+
+        /// <summary>
+        /// Gets a boolean value that indicates whether this type member can
+        /// access the given other type member or not.
+        /// </summary>
+        public static const bool CanAccess(this ITypeMember SourceMember, ITypeMember TargetMember)
+        {
+            var srcDecl = SourceMember.DeclaringType;
+
+            if (srcDecl == null)
+                return TargetMember.IsGlobalPublic;
+            else
+                return srcDecl.CanAccess(TargetMember);
+        }
+    }
+}
