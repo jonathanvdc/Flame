@@ -256,7 +256,10 @@ namespace Flame.Syntax.DSharp
 
         public static IVariable CreateVariable(IVariable Caller, IType CallerType, string MemberName, ISyntaxState State)
         {
-        	var members = State.MemberProvider.GetMembers(CallerType, MemberName);
+        	var members = AccessExtensions.FilterAccessible<ITypeMember>(
+                            State.DeclaringType,
+                            State.MemberProvider.GetMembers(CallerType, MemberName));
+
             var fieldVar = CreateFieldVariable(members, Caller, CallerType, MemberName, State);
             if (fieldVar != null)
             {
