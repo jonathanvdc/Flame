@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Flame
 {
@@ -172,6 +173,21 @@ namespace Flame
                 return TargetMember.IsGlobalPublic;
             else
                 return srcDecl.CanAccess(TargetMember);
+        }
+
+        /// <summary>
+        /// Filters out all inaccessible members in the given list of values.
+        /// </summary>
+        public static const [T] FilterAccessible<T>(IType SourceType, [T] Values)
+            where T : ITypeMember
+        {
+            var results = new List<T>();
+            foreach (var item in Values)
+                if (SourceType.CanAccess(item))
+            {
+                results.Add(item);
+            }
+            return results;
         }
     }
 }
