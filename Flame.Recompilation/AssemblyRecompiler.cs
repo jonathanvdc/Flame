@@ -952,9 +952,9 @@ namespace Flame.Recompilation
 
         private void RecompileInvariants(ITypeBuilder TargetType, IType SourceType)
         {
-            if (SourceType is IInvariantTypeBuilder && SourceType is IInvariantType)
+            if (TargetType is IInvariantTypeBuilder && SourceType is IInvariantType)
             {
-                RecompileInvariants((IInvariantTypeBuilder)SourceType, (IInvariantType)SourceType);
+                RecompileInvariants((IInvariantTypeBuilder)TargetType, (IInvariantType)SourceType);
             }
         }
 
