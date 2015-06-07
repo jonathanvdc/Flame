@@ -9,6 +9,7 @@
 		<RuntimeLibrary Include="System.Core" />
 	</ItemGroup>
 	<ItemGroup>
+        <Compile Include="AccessExtensions.ds" />
 		<Compile Include="IMember.ds" />
 		<Compile Include="ITypeMember.ds" />
 		<Compile Include="IType.ds" />
