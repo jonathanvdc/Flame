@@ -21,15 +21,11 @@ namespace Flame.Cecil.Emit
 
         public void Emit(IEmitContext Context)
         {
-            int preDepth = Context.Stack.Count;
             Value.Emit(Context);
-            if (preDepth > Context.Stack.Count)
+            var top = Context.Stack.Pop();
+            if (!top.Equals(PrimitiveTypes.Void))
             {
-                var top = Context.Stack.Pop();
-                if (!top.Equals(PrimitiveTypes.Void))
-                {
-                    Context.Emit(OpCodes.Pop);
-                }
+                Context.Emit(OpCodes.Pop);
             }
         }
 
