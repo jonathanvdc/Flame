@@ -36,6 +36,10 @@
     <Reference Include="Flame.Compiler">
       <HintPath>..\Flame.Compiler\bin\Flame.Compiler.dll</HintPath>
     </Reference>
+    <Reference Include="Pixie, Version=0.0.65535.65535, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Pixie\bin\Pixie.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />

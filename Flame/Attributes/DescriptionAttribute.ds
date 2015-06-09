@@ -2,36 +2,86 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Flame.Primitives;
+using Pixie;
 
 namespace Flame
 {
+	/// <summary>
+	/// Defines an attribute that captures a description or documentation,
+	/// such as this comment.
+	/// </summary>
 	public class DescriptionAttribute : IAttribute
 	{
 		static this()
 		{
 			attrType = new PrimitiveType<IAttribute>("DescriptionAttribute", 0, null);
 		}
-		
+
 		private static IType attrType;
 		public static IType DescriptionAttributeType { const get return attrType; }
-	
-		public const this(set string Description)
+
+		/// <summary>
+		/// Creates a new description attribute from the given markup node.
+		/// </summary>
+		public const this(set IMarkupNode Contents);
+
+		/// <summary>
+		/// Creates a new description attribute from the given tag and
+		/// description body.
+		/// </summary>
+		public const this(string Tag, IMarkupNode Contents)
 		{
-			this.Tag = "summary";
-			this.Attributes = new Dictionary<string, string>();
+			this.Contents = new MarkupNode(Tag, new IMarkupNode[] { Contents });
 		}
-		public const this(set string Tag, set string Description)
+
+		/// <summary>
+		/// Creates a new 'summary' description attribute from the given
+		/// description body.
+		/// </summary>
+		public const this(string Description)
 		{
-			this.Attributes = new Dictionary<string, string>();
+			this.Contents = new MarkupNode("summary",
+								new IMarkupNode[]
+								{
+									new MarkupNode(NodeConstants.TextNodeType, Description)
+								});
 		}
-		public const this(set string Tag, set string Description, set IReadOnlyDictionary<string, string> Attributes);
-		
-		public string Tag { const get; private set; }
-		public IReadOnlyDictionary<string, string> Attributes { const get; private set; }
-		public string Description { const get; private set; }
-		
+
+		/// <summary>
+		/// Creates a new description attribute from the given tag and
+		/// description body.
+		/// </summary>
+		public const this(string Tag, string Description)
+		{
+			this.Contents = new MarkupNode(Tag,
+								new IMarkupNode[]
+								{
+									new MarkupNode(NodeConstants.TextNodeType, Description)
+								});
+		}
+
+		/// <summary>
+		/// Gets the description attribute as a markup node.
+		/// </summary>
+		public IMarkupNode Contents { const get; private set; }
+
+		/// <summary>
+		/// Gets this description's tag, which identifies the type of description.
+		/// </summary>
+		public string Tag { const get return Contents.Type; }
+
+		/// <summary>
+		/// Gets this description's attributes.
+		/// </summary>
+		public IAttributes Attributes { const get return Contents.Attributes; }
+
+		/// <summary>
+		/// Gets the actual description.
+		/// </summary>
+		public string Description { const get return Contents.GetAllText(); }
+
 		public IType AttributeType { const get return attrType; }
-		
+
 		public IBoundObject Value
 		{
 			const get

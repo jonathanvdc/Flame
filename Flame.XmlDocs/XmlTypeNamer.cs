@@ -29,16 +29,33 @@ namespace Flame.XmlDocs
             return MakeArrayType(ElementType, Dimensions.Length);
         }
 
-        protected override string ConvertTypeDefault(IType Type)
+        private string ConvertName(string Name, IEnumerable<IGenericParameter> Parameters)
         {
-            if (Type.get_IsGeneric())
+            if (!Parameters.Any())
             {
-                return Type.GetGenericFreeFullName() + "`" + Type.GetGenericParameters().Count();
+                return Name;
             }
             else
             {
-                return Type.FullName;
+                return GenericNameExtensions.TrimGenerics(Name) + "`" + Parameters.Count();
             }
+        }
+
+        private string ConvertNamespace(INamespace Namespace)
+        {
+            if (Namespace is IType)
+            {
+                return Convert(((IType)Namespace).GetGenericDeclaration());
+            }
+            else
+            {
+                return Namespace.FullName;
+            }
+        }
+
+        protected override string ConvertTypeDefault(IType Type)
+        {
+            return MemberExtensions.CombineNames(ConvertNamespace(Type.DeclaringNamespace), ConvertName(Type.Name, Type.GetGenericParameters()));
         }
 
         protected override string MakeGenericType(string GenericDeclaration, IEnumerable<string> TypeArguments)

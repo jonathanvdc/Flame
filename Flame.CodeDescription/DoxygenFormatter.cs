@@ -94,7 +94,7 @@ namespace Flame.CodeDescription
                 {
                     defaultArgumentMapVal = new Dictionary<string, Func<DescriptionAttribute, string>>(StringComparer.InvariantCultureIgnoreCase)
                     {
-                        { "param", (attr) => attr.Attributes.ContainsKey("name") ? attr.Attributes["name"] : "" }
+                        { "param", attr => attr.Attributes.Get<string>("name", "") }
                     };
                 }
                 return defaultArgumentMapVal;

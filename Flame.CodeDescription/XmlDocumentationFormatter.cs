@@ -33,13 +33,21 @@ namespace Flame.CodeDescription
             {
                 sb.Append('<');
                 sb.Append(item.Tag.ToLower());
-                foreach (var attr in item.Attributes)
+
+                var attrs = item.Attributes;
+
+                foreach (var attr in attrs.Keys)
                 {
-                    sb.Append(' ');
-                    sb.Append(attr.Key);
-                    sb.Append("=\"");
-                    sb.Append(attr.Value);
-                    sb.Append('"');
+                    var val = attrs.Get<string>(attr, "");
+
+                    if (!string.IsNullOrEmpty(val))
+                    {
+                        sb.Append(' ');
+                        sb.Append(attr);
+                        sb.Append("=\"");
+                        sb.Append(val);
+                        sb.Append('"');
+                    }
                 }
                 sb.Append('>');
                 sb.AppendLine();
