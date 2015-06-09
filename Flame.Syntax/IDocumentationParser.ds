@@ -71,9 +71,14 @@ namespace Flame.Syntax
 
     public static class DocumentationParserExtensions
     {
-        public static const IDocumentationParser GetDocumentationParser(ICompilerLog Log)
+        public static const IDocumentationParser GetDocumentationParser(this ICompilerOptions Options)
         {
-            return Log.Options.GetOption<IDocumentationParser>("docs-format", EmptyDocumentationParser);
+            return Options.GetOption<IDocumentationParser>("docs-format", HardwiredXmlDocumentationParser);
+        }
+
+        public static const IDocumentationParser GetDocumentationParser(this ICompilerLog Log)
+        {
+            return Log.Options.GetDocumentationParser();
         }
     }
 }
