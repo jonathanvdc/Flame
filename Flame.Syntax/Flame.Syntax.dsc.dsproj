@@ -37,6 +37,7 @@
 		<Compile Include="ICodeMember.ds" />
 		<Compile Include="INamespaceSyntax.ds" />
 		<Compile Include="ICompilationUnit.ds" />
+		<Compile Include="IDocumentationParser.ds" />
 		<Compile Include="ISyntaxAssembly.ds" />
 		<Compile Include="IScopedBinder.ds" />
 		<Compile Include="INamespaceBranchBuilder.ds" />
