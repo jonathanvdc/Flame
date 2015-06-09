@@ -9,7 +9,7 @@ namespace Flame.Syntax.DSharp
 {
 	public static class RelevantSyntaxExtensions
 	{
-		public static const IEnumerable<Token> GetAllTrivia(this ISyntaxNode Syntax)
+		public static const [Token] GetAllTrivia(this ISyntaxNode Syntax)
 		{
 			if (Syntax is IRelevantSyntax<Token>)
 			{
@@ -18,12 +18,12 @@ namespace Flame.Syntax.DSharp
 			}
 			else
 			{
-				return (IEnumerable<Token>)new Token[0];
+				return Enumerable.Empty<Token>();
 			}
 		}
 		public static const [Token] GetDescriptionComments(this IRelevantSyntax<Token> Syntax)
 		{
-			List<Token> tokens = new List<Token>();
+			var tokens = new List<Token>();
 			foreach (var item in Syntax.LeadingTrivia)
 				if (item.Type == TokenType.DescriptionComment)
 					tokens.Add(item);
@@ -31,7 +31,7 @@ namespace Flame.Syntax.DSharp
 		}
 		public static const string GetDescription(this IRelevantSyntax<Token> Syntax)
 		{
-			StringBuilder desc = new StringBuilder();
+			var desc = new StringBuilder();
 			foreach (var item in Syntax.GetDescriptionComments())
 			{
 				desc.Append(item.ToString().Substring(3));

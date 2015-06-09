@@ -1,0 +1,79 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+
+namespace Flame.Syntax
+{
+    /// <summary>
+    /// Defines a common interface for objects that parse textual documentation
+    /// and return description attributes.
+    /// </summary>
+    public interface IDocumentationParser
+    {
+        /// <summary>
+        /// Parses the given textual documentation into description attributes.
+        /// </summary>
+        const [IAttribute] Parse(string Documentation, SourceLocation Location, ICompilerLog Log);
+    }
+
+    /// <summary>
+    /// A documentation parser that does not really parse anything: it always
+    /// returns an empty sequence.
+    /// </summary>
+    public static class EmptyDocumentationParser : IDocumentationParser
+    {
+        public const [IAttribute] Parse(string Documentation, SourceLocation Location, ICompilerLog Log)
+        {
+            return Enumerable.Empty<IAttribute>();
+        }
+    }
+
+    /// <summary>
+    /// A documentation parser that tries to match a few hardwired XML constructs.
+    /// This is *not* an XML parser, and it's certainly not a good documentation
+    /// parser, either. It does, however, provide a fallback if everything else fails.
+    /// </summary>
+    public static class HardwiredXmlDocumentationParser : IDocumentationParser
+    {
+        private void ParseDescriptionTag(string desc, string TagName, List<IAttribute> attrs, SourceLocation Location, ICompilerLog Log)
+		{
+			string startTag = "<" + TagName + ">";
+			int summaryIndex = desc.IndexOf(startTag);
+			if (summaryIndex > -1)
+			{
+				int summaryStart = summaryIndex + startTag.Length;
+				string endTag = "</" + TagName + ">";
+				int summaryEnd = desc.IndexOf(endTag);
+				if (summaryEnd < 0)
+				{
+					summaryEnd = desc.Length;
+                    Log.LogWarning(new LogEntry("Mismatched XML comment",
+						"Could not find closing tag for '" + startTag +
+						"' in description '" + desc + "'",
+                        Location));
+				}
+				string summary = desc.Substring(summaryStart, summaryEnd - summaryStart);
+				attrs.Add(new DescriptionAttribute(TagName, summary));
+			}
+		}
+
+		public const [IAttribute] Parse(string Documentation, SourceLocation Location, ICompilerLog Log)
+		{
+			var attrs = new List<IAttribute>();
+			foreach (var tag in new string[] { "summary", "pre", "post", "remarks" })
+			{
+				ParseDescriptionTag(Documentation, tag, attrs, Location, Log);
+			}
+			return attrs;
+		}
+    }
+
+    public static class DocumentationParserExtensions
+    {
+        public static const IDocumentationParser GetDocumentationParser(ICompilerLog Log)
+        {
+            return Log.Options.GetOption<IDocumentationParser>("docs-format", EmptyDocumentationParser);
+        }
+    }
+}
