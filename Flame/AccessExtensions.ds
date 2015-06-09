@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Flame
 {
@@ -8,6 +9,26 @@ namespace Flame
     /// </summary>
     public static class AccessExtensions
     {
+        /// <summary>
+        /// Gets a boolean that indicates whether the given type is equal to
+        /// or defines the given type as a nested type, either directly or indirectly.
+        /// </summary>
+        public static const bool DefinesType(this IType SourceType, IType TargetType)
+        {
+            if (SourceType == null || TargetType == null)
+                return false;
+
+            if (SourceType.Equals(TargetType))
+            {
+                return true;
+            }
+            else if (TargetType.DeclaringNamespace is IType)
+            {
+                return SourceType.DefinesType((IType)TargetType.DeclaringNamespace);
+            }
+            else return false;
+        }
+
         /// <summary>
         /// Returns a boolean that tells whether the given types share their
         /// declaring assemblies.
@@ -77,10 +98,10 @@ namespace Flame
             if (DeclaringType == null || MemberAccess == AccessModifier.Public)
                 return true;
 
-            var srcDecl = SourceType.GetRecursiveGenericDeclaration();
-            var tgtDecl = DeclaringType.GetRecursiveGenericDeclaration();
+            var srcDecl = SourceType;
+            var tgtDecl = DeclaringType;
 
-            if (srcDecl.Equals(tgtDecl))
+            if (tgtDecl.DefinesType(srcDecl))
             {
                 return true;
             }
@@ -117,8 +138,8 @@ namespace Flame
             if (TargetType == null)
                 return true;
 
-            var srcDecl = SourceType.GetRecursiveGenericDeclaration();
-            var tgtDecl = TargetType.GetRecursiveGenericDeclaration();
+            var srcDecl = SourceType;
+            var tgtDecl = TargetType;
 
             var targetAccess = tgtDecl.Access;
 
@@ -128,7 +149,7 @@ namespace Flame
                 return false;
             }
 
-            if (targetAccess == AccessModifier.Public || srcDecl.Equals(tgtDecl))
+            if (targetAccess == AccessModifier.Public || tgtDecl.DefinesType(srcDecl))
             {
                 return true;
             }
