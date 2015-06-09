@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pixie;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,12 +14,10 @@ namespace Flame.XmlDocs
     {
         public DocumentationElement()
         {
-            this.Attributes = new Dictionary<string, string>();
+            this.Contents = new MarkupNode("summary");
         }
-        public DocumentationElement(string Tag, string Contents)
+        public DocumentationElement(IMarkupNode Contents)
         {
-            this.Tag = Tag;
-            this.Attributes = new Dictionary<string, string>();
             this.Contents = Contents;
         }
         public DocumentationElement(DescriptionAttribute Description)
@@ -26,18 +25,12 @@ namespace Flame.XmlDocs
             this.Description = Description;
         }
 
-        /// <summary>
-        /// Gets or sets the documentation element's tag.
-        /// </summary>
-        public string Tag { get; set; }
-        /// <summary>
-        /// Gets or sets a dictionary describing the documentation element's attributes.
-        /// </summary>
-        public Dictionary<string, string> Attributes { get; set; }
+        public string Tag { get { return Contents.Type; } }
+
         /// <summary>
         /// Gets or sets the documentation element's contents.
         /// </summary>
-        public string Contents { get; set; }
+        public IMarkupNode Contents { get; set; }
 
         /// <summary>
         /// Gets or sets the documentation element's value as a description attribute.
@@ -46,17 +39,11 @@ namespace Flame.XmlDocs
         {
             get
             {
-                return new DescriptionAttribute(Tag, Contents, Attributes);
+                return new DescriptionAttribute(Contents);
             }
             set
             {
-                this.Tag = value.Tag;
-                this.Contents = value.Description;
-                this.Attributes = new Dictionary<string, string>();
-                foreach (var item in value.Attributes)
-                {
-                    this.Attributes[item.Key] = item.Value;
-                }
+                this.Contents = value.Contents;
             }
         }
 
@@ -67,24 +54,12 @@ namespace Flame.XmlDocs
 
         public void ReadXml(XmlReader reader)
         {
-            Tag = reader.Name;
-            while (reader.Read() && reader.NodeType == XmlNodeType.Attribute)
-            {
-                string key = reader.LocalName;
-                string val = reader.Value;
-            }
-            Contents = reader.ReadInnerXml();
+            Contents = MarkupNodeSerializer.ReadMarkupNode(reader);
         }
 
         public void WriteXml(XmlWriter writer)
         {
-            writer.WriteStartElement(Tag);
-            foreach (var item in this.Attributes)
-            {
-                writer.WriteAttributeString(item.Key, item.Value);
-            }
-            writer.WriteRaw(Contents);
-            writer.WriteEndElement();
+            MarkupNodeSerializer.WriteMarkupNode(writer, Contents);
         }
     }
 }

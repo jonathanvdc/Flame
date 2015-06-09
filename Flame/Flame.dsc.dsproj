@@ -8,6 +8,9 @@
 		<RuntimeLibrary Include="System" />
 		<RuntimeLibrary Include="System.Core" />
 	</ItemGroup>
+    <ItemGroup>
+        <Reference Include="../Pixie/bin/Pixie.dll" />
+    </ItemGroup>
 	<ItemGroup>
         <Compile Include="AccessExtensions.ds" />
 		<Compile Include="IMember.ds" />
