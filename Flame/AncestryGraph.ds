@@ -1,42 +1,45 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Flame
 {
+	public class MemoizedFunc<TArg, TResult>
+	{
+		public const this(set TResult(TArg) func)
+		{
+			this.cache = new ConcurrentDictionary<TArg, TResult>();
+		}
+
+		private TResult(TArg) func;
+		private ConcurrentDictionary<TArg, TResult> cache;
+
+		public const bool HasComputed(TArg Arg)
+		{
+			return cache.ContainsKey(Arg);
+		}
+
+		public const TResult Apply(TArg Arg)
+		{
+			return cache.GetOrAdd(Arg, func);
+		}
+	}
+
 	public class AncestryGraph
 	{
 		public const this()
 		{
-			this.caches = new Dictionary<IType, TypeAncestryCache>();
+			this.ancestryFunc = new MemoizedFunc<Tuple<IType, IType>, int>(ComputeAncestry);
 			this.Operators = new OperatorCache();
 		}
 
-		private Dictionary<IType, TypeAncestryCache> caches;
+		private MemoizedFunc<Tuple<IType, IType>, int> ancestryFunc;
 		public OperatorCache Operators { const get; private set; }
-
-		private const TypeAncestryCache GetCache(IType Target)
-		{
-			if (caches.ContainsKey(Target))
-			{
-				return caches[Target];
-			}
-			else
-			{
-				var newCache = new TypeAncestryCache();
-				caches[Target] = newCache;
-				return newCache;
-			}
-		}
 
 		public const int GetAncestryDegree(IType Target, IType Other)
 		{
-			var cache = GetCache(Target);
-			if (cache.ContainsAncestry(Other))
-			{
-				return cache[Other];
-			}
-			return ComputeAncestry(cache, Target, Other);
+			return ancestryFunc.Apply(new Tuple<IType, IType>(Target, Other));
 		}
 
 		public const bool Is(IType Target, IType Other)
@@ -44,28 +47,26 @@ namespace Flame
 			return GetAncestryDegree(Target, Other) >= 0;
 		}
 
-		private int ComputeAncestry(TypeAncestryCache TargetCache, IType Target, IType Other)
+		private const int ComputeAncestry(Tuple<IType, IType> Pair)
 		{
-			int degree = ComputeAncestry(Target, Other);
-			TargetCache[Other] = degree;
-			if (degree >= 0)
+			var invPair = new Tuple<IType, IType>(Pair.Item2, Pair.Item1);
+
+			if (ancestryFunc.HasComputed(invPair))
 			{
-				var otherCache = GetCache(Other);
-				if (degree == 0)
-				{
-					otherCache[Target] = 0;
-				}
-				else
-				{
-					otherCache[Target] = -1;
-				}
+				int invAncestry = ancestryFunc.Apply(invPair);
+				if (invAncestry == 0)
+					return 0;
+				else if (invAncestry > 0)
+					return -1;
 			}
-			return degree;
+
+			return ComputeAncestry(Pair.Item1, Pair.Item2);
 		}
 
 		private const int ComputeElementAncestry(IType Type, IType Other)
 		{
-			return GetAncestryDegree(Type.AsContainerType().GetElementType(), Other.AsContainerType().GetElementType());
+			return GetAncestryDegree(Type.AsContainerType().GetElementType(),
+									 Other.AsContainerType().GetElementType());
 		}
 
 		private const int ComputeGenericVarianceAncestry(IType Type, IType Other)
@@ -237,27 +238,6 @@ namespace Flame
             	return varianceAncestry;
             }
             return ComputeInheritanceAncestry(Type, Other);
-		}
-	}
-
-	public class TypeAncestryCache
-	{
-		public const this()
-		{
-			this.ancestries = new Dictionary<IType, int>();
-		}
-
-		private Dictionary<IType, int> ancestries;
-
-		public const bool ContainsAncestry(IType Other)
-		{
-			return ancestries.ContainsKey(Other);
-		}
-
-		public const int this[IType Other]
-		{
-			const get return ancestries[Other];
-			set ancestries[Other] = value;
 		}
 	}
 }
