@@ -50,22 +50,13 @@ namespace Flame
             }
         }
 
-        /*public static bool operator ==(PointerKind A, PointerKind B)
-        {
-            return A.typeIndex == B.typeIndex;
-        }
-        public static bool operator !=(PointerKind A, PointerKind B)
-        {
-            return A.typeIndex != B.typeIndex;
-        }*/
-
         #endregion
 
         #region ToString
 
         public override string ToString()
         {
-            return typeNames[typeIndex];
+            return Name;
         }
 
         #endregion
