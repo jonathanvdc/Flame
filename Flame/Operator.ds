@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,21 +14,21 @@ namespace Flame
         }
 
         private int32 typeIndex;
-        
+
         public bool IsDefined
         {
         	const get return typeIndex > -1;
         }
 
-        public string Name 
-        { 
-	        const get 
+        public string Name
+        {
+	        const get
 	        {
 	        	if (typeIndex >= 0)
-	        		return typeNames[typeIndex]; 
+	        		return typeNames[typeIndex];
 	        	else
 	        		return null;
-	        } 
+	        }
         }
 
         #region Equality
@@ -76,6 +77,7 @@ namespace Flame
         static this()
         {
             typeNames = new List<string>();
+            operatorDict = new ConcurrentDictionary<string, Operator>();
             RegisterAll(new Operator[]
             {
             	Operator.Add, Operator.Subtract,
@@ -91,18 +93,19 @@ namespace Flame
         }
 
         private static List<string> typeNames;
-        
+        private static ConcurrentDictionary<string, Operator> operatorDict;
+
         private static void RegisterAll(Operator[] Operators); // Does nothing. 'Operator' values are already registered.
+
+        private static Operator RegisterNew(string Name)
+        {
+            typeNames.Add(Name);
+            return new Operator(typeNames.Count - 1);
+        }
 
         public static Operator Register(string Name)
         {
-        	int32 index = typeNames.IndexOf(Name);
-        	if (index < 0)
-        	{
-        		typeNames.Add(Name);
-        		index = typeNames.Count - 1;
-        	}
-            return new Operator(index);
+            return operatorDict.GetOrAdd(Name, RegisterNew);
         }
 
         public static bool IsOperator(string Operator)
@@ -111,22 +114,20 @@ namespace Flame
         }
         public static bool TryGetOperator(string OperatorName, out Operator^ Result)
         {
-        	int32 index = typeNames.IndexOf(OperatorName);
-        	if (index < 0)
-        	{
-	            *Result = new Operator(-1);
-	            return false;
-        	}
-        	*Result = new Operator(index);
-            return true;
+            return operatorDict.TryGetValue(OperatorName, Result);
         }
         public static Operator GetOperator(string OperatorName)
         {
-        	Operator result;
-        	TryGetOperator(OperatorName, &result);
-            return result;
+        	if (TryGetOperator(OperatorName, &Operator result))
+            {
+                return result;
+            }
+            else
+            {
+                return Undefined;
+            }
         }
-        
+
         public static const bool IsComparisonOperator(Operator Op)
         {
         	int tIndex = Op.typeIndex;
@@ -143,7 +144,7 @@ namespace Flame
 		{
 			const get
 			{
-				return new Operator(-1);			
+				return new Operator(-1);
 			}
 		}
 
@@ -162,7 +163,7 @@ namespace Flame
                 return Register("-");
             }
         }
-        
+
         public static Operator Multiply
         {
             const get
@@ -170,7 +171,7 @@ namespace Flame
                 return Register("*");
             }
         }
-        
+
         public static Operator Divide
         {
             const get
@@ -178,7 +179,7 @@ namespace Flame
                 return Register("/");
             }
         }
-        
+
         public static Operator Remainder
         {
             const get
@@ -186,7 +187,7 @@ namespace Flame
                 return Register("%");
             }
         }
-        
+
         public static Operator CheckEquality
         {
             const get
@@ -194,7 +195,7 @@ namespace Flame
                 return Register("==");
             }
         }
-        
+
         public static Operator CheckInequality
         {
             const get
@@ -202,7 +203,7 @@ namespace Flame
                 return Register("!=");
             }
         }
-        
+
         public static Operator CheckGreaterThan
         {
             const get
@@ -210,7 +211,7 @@ namespace Flame
                 return Register(">");
             }
         }
-        
+
         public static Operator CheckLessThan
         {
             const get
@@ -218,7 +219,7 @@ namespace Flame
                 return Register("<");
             }
         }
-        
+
         public static Operator CheckGreaterThanOrEqual
         {
             const get
@@ -226,7 +227,7 @@ namespace Flame
                 return Register(">=");
             }
         }
-        
+
         public static Operator CheckLessThanOrEqual
         {
             const get
@@ -234,7 +235,7 @@ namespace Flame
                 return Register("<=");
             }
         }
-        
+
         public static Operator Not
         {
             const get
@@ -242,7 +243,7 @@ namespace Flame
                 return Register("!");
             }
         }
-        
+
         public static Operator Or
         {
             const get
@@ -257,7 +258,7 @@ namespace Flame
                 return Register("||");
             }
         }
-        
+
         public static Operator And
         {
             const get
@@ -272,7 +273,7 @@ namespace Flame
                 return Register("&&");
             }
         }
-        
+
         public static Operator Xor
         {
             const get
@@ -280,7 +281,7 @@ namespace Flame
                 return Register("^");
             }
         }
-        
+
         public static Operator LeftShift
         {
             const get
@@ -299,14 +300,14 @@ namespace Flame
         {
         	const get
         	{
-        		return Register("hash");	
+        		return Register("hash");
         	}
         }
         public static Operator Concat
         {
         	const get
         	{
-        		return Register("++");	
+        		return Register("++");
         	}
         }
 
