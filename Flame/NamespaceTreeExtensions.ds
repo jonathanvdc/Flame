@@ -13,20 +13,19 @@ namespace Flame
 			else
 				return Value.Length <= 0;
 		}
-		
-		public static List<IType> GetAllTypes(this INamespaceTree Tree)
+
+		public static const IReadOnlyList<IType> GetAllTypes(this INamespaceTree Tree)
 		{
-			List<IType> types = new List<IType>();
+			var types = new List<IType>();
 			if (Tree is INamespace)
 			{
-				foreach (var item in ((INamespace)Tree).GetTypes())
-					types.Add(item);
+				types.AddRange(((INamespace)Tree).GetTypes());
 			}
 			foreach (var item in Tree.GetNamespaces())
 				types.AddRange(item.GetAllTypes());
 			return types;
 		}
-	
+
 		#region General Search
 
         public static IType FindType(this INamespaceTree Tree, string Name)
