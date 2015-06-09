@@ -36,6 +36,9 @@
     <Reference Include="Flame.Compiler">
       <HintPath>..\Flame.Compiler\bin\Flame.Compiler.dll</HintPath>
     </Reference>
+    <Reference Include="Flame.Syntax">
+      <HintPath>..\Flame.Syntax\bin\Flame.Syntax.dll</HintPath>
+    </Reference>
     <Reference Include="Pixie, Version=0.0.65535.65535, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Pixie\bin\Pixie.dll</HintPath>
@@ -55,6 +58,7 @@
     <Compile Include="MarkupNodeSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XmlDocumentationExtensions.cs" />
+    <Compile Include="XmlDocumentationParser.cs" />
     <Compile Include="XmlDocumentationProvider.cs" />
     <Compile Include="MemberDocumentation.cs" />
     <Compile Include="XmlTypeNamer.cs" />

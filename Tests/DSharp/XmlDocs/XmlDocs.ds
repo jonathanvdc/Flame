@@ -1,0 +1,29 @@
+
+/// <summary>
+/// This class is documented.
+/// </summary>
+public static class XmlDocsTest
+{
+
+    /// <summary>
+    /// Multiplies the given arguments.
+    /// </summary>
+    /// <param name="a">The first argument.</param>
+    public const int Multiply(int a, int b)
+    {
+        return a * b;
+    }
+
+    /// This is a very simple summary comment.
+    public const int Add(int a, int b)
+    {
+        return a + b;
+    }
+
+    /// <summary>
+    /// Oops. I forgot to close this comment.
+    public const int Subtract(int a, int b)
+    {
+        return a - b;
+    }
+}

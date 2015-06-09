@@ -29,47 +29,27 @@ namespace Flame.Syntax.DSharp
 					tokens.Add(item);
 			return tokens;
 		}
-		public static const string GetDescription(this IRelevantSyntax<Token> Syntax)
+		public static const Tuple<string, SourceLocation> GetDescription(this IRelevantSyntax<Token> Syntax)
 		{
+			var descComments = Syntax.GetDescriptionComments();
 			var desc = new StringBuilder();
-			foreach (var item in Syntax.GetDescriptionComments())
+			SourceLocation loc = null;
+			foreach (var item in descComments)
 			{
+				loc = loc.Concat(item.Location);
 				desc.Append(item.ToString().Substring(3));
 			}
 			desc.Replace("\n", "");
 			desc.Replace("\r", "");
 			desc.Replace("\t", " ");
-			return desc.ToString();
+			return new Tuple<string, SourceLocation>(desc.ToString(), loc);
 		}
-		private static void ParseDescriptionTag(string desc, string TagName, List<IAttribute> attrs, ISyntaxState State)
-		{
-			string startTag = "<" + TagName + ">";
-			int summaryIndex = desc.IndexOf(startTag);
-			if (summaryIndex > -1)
-			{
-				int summaryStart = summaryIndex + startTag.Length;
-				string endTag = "</" + TagName + ">";
-				int summaryEnd = desc.IndexOf(endTag);
-				if (summaryEnd < 0)
-				{
-					summaryEnd = desc.Length;
-					State.Log.LogWarning(new LogEntry("Mismatched XML comment",
-						"Could not find closing tag for '" + startTag +
-						"' in description '" + desc + "'"));
-				}
-				string summary = desc.Substring(summaryStart, summaryEnd - summaryStart);
-				attrs.Add(new DescriptionAttribute(TagName, summary));
-			}
-		}
+
 		public static const [IAttribute] GetDescriptionAttributes(this IRelevantSyntax<Token> Syntax, ISyntaxState State)
 		{
-			string desc = Syntax.GetDescription();
-			List<IAttribute> attrs = new List<IAttribute>();
-			foreach (var tag in new string[] { "summary", "pre", "post", "remarks" })
-			{
-				ParseDescriptionTag(desc, tag, attrs, State);
-			}
-			return attrs;
+			Tuple<string, SourceLocation> desc = Syntax.GetDescription();
+			var parser = State.Log.GetDocumentationParser();
+			return parser.Parse(desc.Item1, desc.Item2, State.Log);
 		}
 	}
 }

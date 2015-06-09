@@ -40,7 +40,7 @@ namespace Flame.Front
         public static IOptionParser<string> CreateOptionParser()
         {
             var options = StringOptionParser.CreateDefault();
-            options.RegisterParser<Flame.CodeDescription.IDocumentationFormatter>((item) =>
+            options.RegisterParser<Flame.CodeDescription.IDocumentationFormatter>(item =>
             {
                 switch (item.ToLower())
                 {
@@ -50,6 +50,21 @@ namespace Flame.Front
                         return Flame.CodeDescription.XmlDocumentationFormatter.Instance;
                     default:
                         return Flame.CodeDescription.PunctuationDocumentationFormatter.Instance;
+                }
+            });
+            options.RegisterParser<Flame.Syntax.IDocumentationParser>(item =>
+            {
+                switch (item.ToLower())
+                {
+                    case "none":
+                        return Flame.Syntax.EmptyDocumentationParser.Instance;
+
+                    case "hardwired-xml":
+                        return Flame.Syntax.HardwiredXmlDocumentationParser.Instance;
+
+                    case "xml":
+                    default:
+                        return Flame.XmlDocs.XmlDocumentationParser.Instance;
                 }
             });
             options.RegisterParser<Flame.Recompilation.IMethodOptimizer>(item =>
