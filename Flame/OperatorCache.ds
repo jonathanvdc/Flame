@@ -18,9 +18,11 @@ namespace Flame
 		private const int hashImpl()
 		{
 			int result = 0;
+			int index = 0;
 			foreach (var item in Types)
 			{
-				result ^= item.GetHashCode();
+				result ^= (item.GetHashCode() << index);
+				index++;
 			}
 			return result;
 		}
@@ -46,21 +48,12 @@ namespace Flame
 	{
 		public const this()
 		{
-			this.cachedBestOperators = new Dictionary<Operator, Dictionary<TypeSequence, IMethod>>();
+			this.bestOperatorFunc = new MemoizedFunc<Tuple<Operator, TypeSequence>, IMethod>(GetBestOperatorOverloadImpl);
 		}
 
-		private Dictionary<Operator, Dictionary<TypeSequence, IMethod>> cachedBestOperators;
+		private MemoizedFunc<Tuple<Operator, TypeSequence>, IMethod> bestOperatorFunc;
 
-		private Dictionary<TypeSequence, IMethod> GetOrCreate(Operator Op)
-		{
-			if (!cachedBestOperators.ContainsKey(Op))
-			{
-				cachedBestOperators[Op] = new Dictionary<TypeSequence, IMethod>();
-			}
-			return cachedBestOperators[Op];
-		}
-
-		private IMethod GetBestOperatorOverloadImpl(Operator Op, TypeSequence Types)
+		private const IMethod GetBestOperatorOverloadImpl(Operator Op, TypeSequence Types)
 		{
 			var argTypes = Types.Types;
 
@@ -76,19 +69,14 @@ namespace Flame
 				   // Try instance methods
 		}
 
+		private const IMethod GetBestOperatorOverloadImpl(Tuple<Operator, TypeSequence> Pair)
+		{
+			return GetBestOperatorOverloadImpl(Pair.Item1, Pair.Item2);
+		}
+
 		public const IMethod GetBestOperatorMethod(Operator Op, TypeSequence Types)
 		{
-			var dict = GetOrCreate(Op);
-			if (dict.ContainsKey(Types))
-			{
-				return dict[Types];
-			}
-			else
-			{
-				var result = GetBestOperatorOverloadImpl(Op, Types);
-				dict[Types] = result;
-				return result;
-			}
+			return bestOperatorFunc.Apply(new Tuple<Operator, TypeSequence>(Op, Types));
 		}
 
 		public const IMethod GetBestOperatorMethod(Operator Op, [IType] Types)
