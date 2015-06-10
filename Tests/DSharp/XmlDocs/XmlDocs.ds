@@ -26,4 +26,13 @@ public static class XmlDocsTest
     {
         return a - b;
     }
+
+    /// <summary>
+    /// This is some weird XML right here.
+    /// <remarks>
+    /// What?
+    public const int Divide(int a, int b)
+    {
+        return a / b;
+    }
 }
