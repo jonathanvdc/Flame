@@ -38,11 +38,33 @@ namespace Flame.Syntax.DSharp
 			{
 				loc = loc.Concat(item.Location);
 				desc.Append(item.ToString().Substring(3));
+				TrimEnd(desc);
+				desc.AppendLine();
 			}
-			desc.Replace("\n", "");
-			desc.Replace("\r", "");
-			desc.Replace("\t", " ");
+			TrimEnd(desc);
+			desc.Replace("\t", "    ");
 			return new Tuple<string, SourceLocation>(desc.ToString(), loc);
+		}
+
+		/// <summary>
+		/// Trims whitespace from the end of a StringBuilder instance.
+		/// </summary>
+		/// <remarks>
+		/// Thanks, http://stackoverflow.com/questions/24769701/trim-whitespace-from-the-end-of-a-stringbuilder-without-calling-tostring-trim !
+		/// </remarks>
+		private static StringBuilder TrimEnd(StringBuilder sb)
+		{
+			if (sb == null || sb.Length == 0) return sb;
+
+			int i = sb.Length - 1;
+			for (; i >= 0; i--)
+				if (!char.IsWhiteSpace(sb[i]))
+					break;
+
+			if (i < sb.Length - 1)
+				sb.Length = i + 1;
+
+			return sb;
 		}
 
 		public static const [IAttribute] GetDescriptionAttributes(this IRelevantSyntax<Token> Syntax, ISyntaxState State)
