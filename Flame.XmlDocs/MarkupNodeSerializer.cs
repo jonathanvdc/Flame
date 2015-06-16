@@ -92,6 +92,13 @@ namespace Flame.XmlDocs
             {
                 Writer.WriteString(Node.GetText());
             }
+            else if (Node.Type == "#group")
+            {
+                foreach (var item in Node.Children)
+                {
+                    WriteMarkupNode(Writer, item);
+                }
+            }
             else
             {
                 Writer.WriteStartElement(Node.Type);

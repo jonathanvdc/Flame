@@ -58,6 +58,9 @@
     <Reference Include="Flame.DSharp">
       <HintPath>..\Flame.DSharp\bin\Flame.DSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Flame.Markdown">
+      <HintPath>..\Flame.Markdown\bin\Flame.Markdown.dll</HintPath>
+    </Reference>
     <Reference Include="Flame.Optimization">
       <HintPath>..\Flame.Optimization\bin\Flame.Optimization.dll</HintPath>
     </Reference>

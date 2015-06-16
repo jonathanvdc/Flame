@@ -1,0 +1,448 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Flame.Compiler;
+using Flame.Syntax;
+using Pixie;
+
+namespace Flame.Markdown
+{
+    /// #summary
+    /// A markdown parser for code documentation.
+    public static class MarkdownParser
+    {
+        /// #summary
+        /// Figures out whether the given node is an attribute title.
+        /// If so, said title is returned. Otherwise, null.
+        ///
+        /// #remarks
+        /// Top-level titles that look like this:
+        ///
+        ///     #title
+        ///     # title
+        ///
+        /// are converted to named attributes.
+        /// These are not:
+        ///
+        ///     #title with whitespace
+        ///
+        private const string GetAttributeTitle(IMarkupNode Node)
+        {
+            if (Node.Type == NodeConstants.TitleNodeType)
+            {
+                string headerText = Node.GetAllText().Trim(null);
+
+                if (!ContainsWhitespace(headerText))
+                {
+                    return headerText;
+                }
+            }
+
+            return null;
+        }
+
+        /// #summary
+        /// Creates description attributes that represent the given list of
+        /// nodes.
+        public const IReadOnlyList<DescriptionAttribute> ToAttributes(IReadOnlyList<IMarkupNode> Nodes)
+        {
+            var attrs = new List<DescriptionAttribute>();
+
+            int i = 0;
+
+            string attrTitle = "summary";
+
+            while (i < Nodes.Count)
+            {
+                var elems = new List<IMarkupNode>();
+
+                string headerTitle;
+
+                while (i < Nodes.Count && object.ReferenceEquals(headerTitle = GetAttributeTitle(Nodes[i]), null))
+                {
+                    elems.Add(Nodes[i]);
+                    i++;
+                }
+                i++;
+
+                if (elems.Count > 0)
+                {
+                    attrs.Add(new DescriptionAttribute(attrTitle, new MarkupNode(GroupNodeType, elems)));
+                }
+
+                attrTitle = headerTitle;
+            }
+
+            return attrs;
+        }
+
+        /// #summary
+        /// Parses a top-level markdown code node.
+        public IMarkupNode Parse(Tokenizer Tokens, int LeadingWhitespace)
+        {
+            int leadingWs = ParseLeadingWhitespace(Tokens);
+
+            if (leadingWs - LeadingWhitespace > MinCodeBlockIndent)
+            {
+                return ParseCodeBlock(Tokens, leadingWs);
+            }
+
+            var first = Tokens.Current;
+
+            if (first.Type == TokenType.Hash)
+            {
+                return ParseTitle(Tokens, leadingWs);
+            }
+            else
+            {
+                return ParseParagraph(Tokens, leadingWs);
+            }
+        }
+
+        /// #summary
+        /// Parses top-level markdown nodes until the token stream is empty.
+        public IReadOnlyList<IMarkupNode> ParseAll(Tokenizer Tokens, int LeadingWhitespace)
+        {
+            var results = new List<IMarkupNode>();
+            while (Tokens.Current.Type != TokenType.EndOfStream)
+            {
+                results.Add(Parse(Tokens, LeadingWhitespace));
+            }
+            return results;
+        }
+
+        /// The minimally required indent for a code block.
+        private const int MinCodeBlockIndent = 3;
+
+        /// The node type for "groups": markup nodes which contain only children,
+        /// and are logically equivalent to a list of these children.
+        public const string GroupNodeType = "#group";
+
+        /// #summary
+        /// Parses the token stream's leading whitespace, and returns its length.
+        private int ParseLeadingWhitespace(Tokenizer Tokens)
+        {
+            var first = Tokens.Current;
+
+            int wsCount = 0;
+            while (first.Type == TokenType.Newline || first.Type == TokenType.Whitespace)
+            {
+                if (first.Type == TokenType.Whitespace)
+                {
+                    wsCount = first.Contents.Length;
+                }
+                else if (first.Type == TokenType.Newline)
+                {
+                    wsCount = 0;
+                }
+                first = Tokens.Next();
+            }
+
+            return wsCount;
+        }
+
+        /// #summary
+        /// Discovers whether this sequence of tokens terminates a paragraph, i.e.
+        /// it may contain some whitespace and at least one newline or an end-of-stream token.
+        private const bool EndsParagraph(Tokenizer Tokens)
+        {
+            int index = Tokens.CurrentIndex;
+
+            // Peek some tokens ahead. This does *not* change the global state.
+            while (Tokens.GetToken(index).Type == TokenType.Whitespace)
+            {
+                index++;
+            }
+
+            var tokenType = Tokens.GetToken(index).Type;
+
+            return tokenType == TokenType.Newline ||
+                   tokenType == TokenType.EndOfStream;
+        }
+
+        /// #summary
+        /// Finds out if the given string contains any whitespace characters.
+        private bool ContainsWhitespace(string Value)
+        {
+            for (int i = 0; i < Value.Length; i++)
+                if (char.IsWhiteSpace(Value[i]))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        /// #summary
+        /// Parses a markdown title, which may be interpreted as a node type.
+        private IMarkupNode ParseTitle(Tokenizer Tokens, int LeadingWhitespace)
+        {
+            int hashCount = 0;
+            while (Tokens.Current.Type == TokenType.Hash)
+            {
+                hashCount++;
+                Tokens.Next();
+            }
+
+            var header = ParseLineContents(Tokens);
+
+            return new MarkupNode(NodeConstants.TitleNodeType, new IMarkupNode[] { header });
+        }
+
+        /// #summary
+        /// Parses a markdown paragraph.
+        private IMarkupNode ParseParagraph(Tokenizer Tokens, int LeadingWhitespace)
+        {
+            var contents = new List<IMarkupNode>();
+
+            while (!EndsParagraph(Tokens))
+            {
+                int leadingWs = ParseLeadingWhitespace(Tokens);
+
+                contents.Add(ParseParagraphItem(Tokens, leadingWs));
+            }
+
+            return new MarkupNode("para", contents);
+        }
+
+        /// #summary
+        /// Parses a markdown preformatted code block.
+        private IMarkupNode ParseCodeBlock(Tokenizer Tokens, int LeadingWhitespace)
+        {
+            var contents = new StringBuilder();
+
+            while (!EndsParagraph(Tokens))
+            {
+                int leadingWs = ParseLeadingWhitespace(Tokens);
+
+                int endIndex = Tokens.FindNext(TokenType.Newline);
+
+                if (endIndex < 0)
+                    endIndex = Tokens.FindEnd();
+
+                contents.AppendLine(ParseCode(Tokens, endIndex));
+
+                Tokens.Next(); // Skip the trailing newline
+            }
+
+            return ToCodeNode("code", (string)contents);
+        }
+
+        /// #summary
+        /// Parses a markdown list, which may or may not be numbered.
+        private IMarkupNode ParseList(Tokenizer Tokens, int LeadingWhitespace, bool IsNumbered)
+        {
+            var items = new List<IMarkupNode>();
+            var curItems = new List<IMarkupNode>();
+
+            var listItemType = Tokens.Current.Type;
+
+            while (!EndsParagraph(Tokens))
+            {
+                int leadingWs = ParseLeadingWhitespace(Tokens);
+                int wsDiff = leadingWs - LeadingWhitespace;
+
+                if (wsDiff > 0) // Sub-paragraph
+                {
+                    return ParseParagraph(Tokens, LeadingWhitespace);
+                }
+                else if (wsDiff < 0) // End of sub-paragraph
+                {
+                    break; // We're done here
+                }
+
+                if (Tokens.Current.Type == listItemType)
+                {
+                    if (curItems.Count > 0)
+                    {
+                        items.Add(new MarkupNode(NodeConstants.ListItemNodeType, curItems));
+                        curItems = new List<IMarkupNode>();
+                    }
+
+                    Tokens.Next(); // Skip the bullet
+                }
+
+                curItems.Add(ParseParagraphItem(Tokens, leadingWs));
+            }
+            if (curItems.Count > 0)
+            {
+                items.Add(new MarkupNode(NodeConstants.ListItemNodeType, curItems));
+            }
+
+            return new MarkupNode(NodeConstants.ListNodeType, items);
+        }
+
+        /// #summary
+        /// Parses a markdown paragraph item.
+        private IMarkupNode ParseParagraphItem(Tokenizer Tokens, int LeadingWhitespace)
+        {
+            var firstType = Tokens.Current.Type;
+
+            if (firstType == TokenType.Asterisk ||
+                firstType == TokenType.Plus ||
+                firstType == TokenType.Minus)
+            {
+                return ParseList(Tokens, LeadingWhitespace, false);
+            }
+            else if (firstType == TokenType.Hash)
+            {
+                return ParseList(Tokens, LeadingWhitespace, true);
+            }
+            else
+            {
+                return ParseLineContents(Tokens);
+            }
+        }
+
+        /// #summary
+        /// Parses the contents of a line of markdown code, up to and including
+        /// the trailing newline or end-of-stream token.
+        private IMarkupNode ParseLineContents(Tokenizer Tokens)
+        {
+            int endIndex = Tokens.FindNext(TokenType.Newline);
+
+            if (endIndex < 0)
+                endIndex = Tokens.FindEnd();
+
+            var frag = ParseFragment(Tokens, endIndex);
+            var body = new MarkupNode(GroupNodeType, new IMarkupNode[]
+            {
+                frag,
+                new MarkupNode(NodeConstants.TextNodeType, " ")
+            });
+            Tokens.Next(); // Skip the newline (doesn't matter for end-of-stream)
+
+            return body;
+        }
+
+        /// #summary
+        /// Parses a fragment of markup code, which extends no further than the
+        /// given end index.
+        private IMarkupNode ParseFragment(Tokenizer Tokens, int ParentEndIndex)
+        {
+            var sb = new StringBuilder();
+
+            var peek = Tokens.Current;
+            while (Tokens.CurrentIndex < ParentEndIndex)
+            {
+                if (peek.Type == TokenType.Asterisk ||
+                    peek.Type == TokenType.Underscore)
+                {
+                    return ParseInterruptedFragment(sb, Tokens, "i", ParentEndIndex);
+                }
+                else if (peek.Type == TokenType.DoubleAsterisk ||
+                         peek.Type == TokenType.DoubleUnderscore)
+                {
+                    return ParseInterruptedFragment(sb, Tokens, "b", ParentEndIndex);
+                }
+                else if (peek.Type == TokenType.Backtick)
+                {
+                    return ParseInlineCode(sb, Tokens, ParentEndIndex);
+                }
+                else if (peek.Type == TokenType.Whitespace)
+                {
+                    if (sb.Length == 0 || sb[sb.Length - 1] != ' ')
+                        sb.Append(' ');
+                }
+                else
+                {
+                    sb.Append(peek.Contents);
+
+                }
+                peek = Tokens.Next();
+            }
+
+            return new MarkupNode(NodeConstants.TextNodeType, (string)sb);
+        }
+
+        /// #summary
+        /// Parses a fragment that was interrupted by a region.
+        private IMarkupNode ParseInterruptedFragment(StringBuilder Left, Tokenizer Tokens,
+                                                     string RegionType, int ParentEndIndex)
+        {
+            var leftNode  = new MarkupNode(NodeConstants.TextNodeType, (string)Left);
+            var innerNode = ParseRegion(Tokens, Tokens.Current.Type, RegionType, ParentEndIndex);
+            var rightNode = ParseFragment(Tokens, ParentEndIndex);
+
+            return new MarkupNode(GroupNodeType, new IMarkupNode[] { leftNode, innerNode, rightNode });
+        }
+
+        /// #summary
+        /// Creates a node that represents the given string as preformatted code.
+        private IMarkupNode ToCodeNode(string NodeType, string Code)
+        {
+            return new MarkupNode(NodeType, new IMarkupNode[]
+            {
+                new MarkupNode(NodeConstants.TextNodeType, Code)
+            });
+        }
+
+        /// #summary
+        /// Parses a fragment that was interrupted by inline preformatted code.
+        private IMarkupNode ParseInlineCode(StringBuilder Left, Tokenizer Tokens,
+                                            int ParentEndIndex)
+        {
+            var leftNode  = new MarkupNode(NodeConstants.TextNodeType, (string)Left);
+            var lbacktick = Tokens.Current;
+            Tokens.Next();
+
+            int endIndex = Tokens.FindNext(lbacktick.Type);
+
+            IMarkupNode innerNode;
+            if (endIndex >= 0 && endIndex < ParentEndIndex)
+            {
+                innerNode = ParseCodeNode(Tokens, endIndex);
+                Tokens.Next();
+            }
+            else
+            {
+                innerNode = new MarkupNode(NodeConstants.TextNodeType, lbacktick.Contents);
+            }
+
+            var rightNode = ParseFragment(Tokens, ParentEndIndex);
+
+            return new MarkupNode(GroupNodeType, new IMarkupNode[] { leftNode, innerNode, rightNode });
+        }
+
+        private IMarkupNode ParseCodeNode(Tokenizer Tokens, int EndIndex)
+        {
+            return ToCodeNode("c", ParseCode(Tokens, EndIndex));
+        }
+
+        /// #summary
+        /// Parses preformatted markdown code until the given end index.
+        private string ParseCode(Tokenizer Tokens, int EndIndex)
+        {
+            var sb = new StringBuilder();
+            while (Tokens.CurrentIndex < EndIndex)
+            {
+                sb.Append(Tokens.Current.Contents);
+                Tokens.Next();
+            }
+            return (string)sb;
+        }
+
+        /// #summary
+        /// Parses a markdown 'region', such as `Why, *hello*, there, random citizen.`
+        /// If the region's starting tag does not match an ending tag, a text node is
+        /// returned.
+        private IMarkupNode ParseRegion(Tokenizer Tokens, TokenType DelimiterType,
+                                        string RegionType, int ParentEndIndex)
+        {
+            var leadingDelim = Tokens.Current; // Parse leading delimiter
+            Tokens.Next();
+            int endIndex = Tokens.FindNext(DelimiterType);
+
+            if (endIndex == -1 && endIndex >= ParentEndIndex)
+            {
+                return new MarkupNode(NodeConstants.TextNodeType, leadingDelim.Contents);
+            }
+            else
+            {
+                var body = ParseFragment(Tokens, endIndex); // Parse body
+                Tokens.Next();                              // Parse trailing delimiter
+                return new MarkupNode(RegionType, new IMarkupNode[] { body });
+            }
+        }
+    }
+}

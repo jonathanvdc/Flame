@@ -62,6 +62,9 @@ namespace Flame.Front
                     case "hardwired-xml":
                         return Flame.Syntax.HardwiredXmlDocumentationParser.Instance;
 
+                    case "markdown":
+                        return Flame.Markdown.MarkdownDocumentationParser.Instance;
+
                     case "xml":
                     default:
                         return Flame.XmlDocs.XmlDocumentationParser.Instance;

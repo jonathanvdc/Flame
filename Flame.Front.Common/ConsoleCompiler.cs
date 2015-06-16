@@ -23,24 +23,42 @@ namespace Flame.Front.Cli
     public class ConsoleCompiler
     {
         public ConsoleCompiler(string Name, string FullName, string ReleasesSite)
+            : this(Name, FullName, ReleasesSite, CompilerOptionExtensions.CreateOptionParser())
+        {
+        }
+
+        public ConsoleCompiler(string Name, string FullName, string ReleasesSite, IOptionParser<string> OptionParser)
+            : this(Name, FullName, ReleasesSite, OptionParser, CreateDefaultOptions(OptionParser))
+        {
+        }
+
+        public ConsoleCompiler(string Name, string FullName, string ReleasesSite, IOptionParser<string> OptionParser, ICompilerOptions DefaultOptions)
         {
             this.Name = Name;
             this.FullName = FullName;
             this.ReleasesSite = ReleasesSite;
+            this.DefaultOptions = DefaultOptions;
+            this.OptionParser = OptionParser;
         }
 
         public string Name { get; private set; }
         public string FullName { get; private set; }
         public string ReleasesSite { get; private set; }
+        public ICompilerOptions DefaultOptions { get; private set; }
+        public IOptionParser<string> OptionParser { get; private set; }
+
+        public static ICompilerOptions CreateDefaultOptions(IOptionParser<string> OptionParser)
+        {
+            var dict = new Dictionary<string, string>() { { "docs-format", "xml"} };
+            return new StringCompilerOptions(dict, OptionParser);
+        }
 
         public void Compile(string[] args)
         {
-            var optParser = CompilerOptionExtensions.CreateOptionParser();
-
-            var prefs = PreferenceFile.ReadPreferences(optParser);
+            var prefs = new MergedOptions(PreferenceFile.ReadPreferences(OptionParser), DefaultOptions);
 
             var log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(prefs), prefs);
-            var buildArgs = BuildArguments.Parse(optParser, log, args);
+            var buildArgs = BuildArguments.Parse(OptionParser, log, args);
 
             var mergedArgs = new MergedOptions(buildArgs, prefs);
 

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<Project Name="Flame.Markdown">
+  <Setter Property="TargetPlatform" Value="clr" />
+  <Setter Property="AssemblyName" Value="Flame.Markdown" />
+  <Option Key="platform" Value="clr" />
+  <Option Key="docs-format" Value="markdown" />
+  <Option Key="docs" Value="xml" />
+  <ItemGroup>
+    <RuntimeLibrary Include="PortableRT" />
+    <RuntimeLibrary Include="System" />
+    <RuntimeLibrary Include="System.Core" />
+    <RuntimeLibrary Include="../Flame/bin/Flame.dll" />
+    <RuntimeLibrary Include="../Flame.Compiler/bin/Flame.Compiler.dll" />
+    <RuntimeLibrary Include="../Flame.Syntax/bin/Flame.Syntax.dll" />
+    <RuntimeLibrary Include="../Pixie/bin/Pixie.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MarkdownDocumentationParser.ds" />
+    <Compile Include="MarkdownParser.ds" />
+    <Compile Include="Token.ds" />
+    <Compile Include="Tokenizer.ds" />
+  </ItemGroup>
+</Project>
