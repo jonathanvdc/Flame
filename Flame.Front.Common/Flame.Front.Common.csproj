@@ -36,6 +36,9 @@
     <Reference Include="Flame.Compiler">
       <HintPath>..\Flame.Compiler\bin\Flame.Compiler.dll</HintPath>
     </Reference>
+    <Reference Include="Flame.Markdown">
+      <HintPath>..\Flame.Markdown\bin\Flame.Markdown.dll</HintPath>
+    </Reference>
     <Reference Include="Flame.Optimization">
       <HintPath>..\Flame.Optimization\bin\Flame.Optimization.dll</HintPath>
     </Reference>

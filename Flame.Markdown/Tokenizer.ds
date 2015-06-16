@@ -1,0 +1,263 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Syntax;
+using Pixie;
+
+namespace Flame.Markdown
+{
+    /// #summary
+    /// A markdown tokenizer.
+    public class Tokenizer
+    {
+        /// #summary
+        /// Creates a new tokenizer that tokenizes the given
+        /// string.
+        public const this(set string Text)
+        {
+            this.offset = 0;
+            this.tokenIndex = 0;
+            this.allTokens = new List<Token>();
+        }
+
+        /// #summary
+        /// The string to tokenize.
+        public string Text { const get; private set; }
+
+        private int offset;
+
+        private List<Token> allTokens;
+        private int tokenIndex;
+
+        /// #summary
+        /// Gets the current token.
+        public Token Current { const get return GetToken(tokenIndex); }
+
+        /// #summary
+        /// Gets the index of the current token in the token stream.
+        public int CurrentIndex { const get return tokenIndex; }
+
+        /// #summary
+        /// Gets a boolean value that tells if the tokenizer stream
+        /// is empty.
+        private bool IsEmpty { const get return offset >= Text.Length; }
+
+        /// #summary
+        /// Gets the current character in the tokenizer stream.
+        private char CurrentCharacter
+        {
+            const get return Text[offset];
+        }
+
+        /// #summary
+        /// Tests whether the given character is a newline character or not.
+        private const bool IsNewline(char Value)
+        {
+            return Value == '\r' || Value == '\n';
+        }
+
+        /// #summary
+        /// Finds out if the given character is strictly whitespace, i.e.
+        /// whitespace but not a newline character.
+        private const bool IsWhitespace(char Value)
+        {
+            return char.IsWhiteSpace(Value) &&
+                   !IsNewline(Value);
+        }
+
+        /// #summary
+        /// Parses a non-newline whitespace token.
+        private Token ParseWhitespace()
+        {
+            int start = offset;
+            int length = 0;
+            while (start + length < Text.Length &&
+                   IsWhitespace(Text[start + length]))
+            {
+                length++;
+            }
+            offset += length;
+            return new Token(Text.Substring(start, length), TokenType.Whitespace);
+        }
+
+        /// #summary
+        /// Parses a token that is exactly one character long.
+        private Token ParseSingleCharacter(TokenType Type)
+        {
+            int oldOffset = offset;
+            offset++;
+            return new Token(Text.Substring(oldOffset, 1), Type);
+        }
+
+        /// #summary
+        /// Parses a token that may be either one or two characters long, depending
+        /// on the character that immediately trails the first character.
+        private Token ParseExtendedCharacter(TokenType SingleType, TokenType ExtendedType,
+                                             char Extension)
+        {
+            var first = ParseSingleCharacter(SingleType);
+            if (!IsEmpty && CurrentCharacter == Extension)
+                return first.Concat(ParseSingleCharacter(SingleType), ExtendedType);
+            else
+                return first;
+        }
+
+        /// #summary
+        /// Parses a text token.
+        private Token ParseText()
+        {
+            int oldOffset = offset;
+            offset++;
+
+            while (!IsEmpty && (char.IsLetter(CurrentCharacter) || char.IsDigit(CurrentCharacter)))
+            {
+                offset++;
+            }
+            return new Token(Text.Substring(oldOffset, offset - oldOffset), TokenType.Text);
+        }
+
+        /// #summary
+        /// Parses an escaped character.
+        private Token ParseEscaped()
+        {
+            int oldOffset = offset;
+            offset += 2;
+            return new Token(Text.Substring(oldOffset + 1, 1), TokenType.Text);
+        }
+
+        private Token ParseNext()
+        {
+            if (IsEmpty)
+            {
+                return new Token("", TokenType.EndOfStream);
+            }
+
+            char curChar = CurrentCharacter;
+
+            if (curChar == '\n')
+            {
+                return ParseExtendedCharacter(TokenType.Newline, TokenType.Newline, '\r');
+            }
+            else if (curChar == '\r')
+            {
+                return ParseExtendedCharacter(TokenType.Newline, TokenType.Newline, '\n');
+            }
+            else if (char.IsWhiteSpace(curChar))
+            {
+                return ParseWhitespace();
+            }
+            else if (curChar == '\\')
+            {
+                return ParseEscaped();
+            }
+            else if (curChar == '*')
+            {
+                return ParseExtendedCharacter(TokenType.Asterisk, TokenType.DoubleAsterisk, '*');
+            }
+            else if (curChar == '+')
+            {
+                return ParseSingleCharacter(TokenType.Plus);
+            }
+            else if (curChar == '-')
+            {
+                return ParseSingleCharacter(TokenType.Minus);
+            }
+            else if (curChar == '_')
+            {
+                return ParseExtendedCharacter(TokenType.Underscore, TokenType.DoubleUnderscore, '_');
+            }
+            else if (curChar == '#')
+            {
+                return ParseSingleCharacter(TokenType.Hash);
+            }
+            else if (curChar == '`')
+            {
+                return ParseSingleCharacter(TokenType.Backtick);
+            }
+            else
+            {
+                return ParseText();
+            }
+        }
+
+        /// #summary
+        /// Gets the token with the given index.
+        public const Token GetToken(int Index)
+        {
+            if (Index < 0)
+                throw new ArgumentException("Index");
+
+            while (Index >= allTokens.Count)
+            {
+                var nextToken = ParseNext();
+
+                if (nextToken.Type == TokenType.EndOfStream)
+                    return nextToken;
+
+                allTokens.Add(nextToken);
+            }
+
+            return allTokens[Index];
+        }
+
+        /// #summary
+        /// Peeks ahead by one token.
+        public const Token Peek()
+        {
+            return GetToken(tokenIndex + 1);
+        }
+
+        /// #summary
+        /// Finds the index of the next token with the given type.
+        /// `-1` is returned if no token of said type could be found.
+        public const int FindNext(TokenType Type)
+        {
+            int index = tokenIndex;
+            var peek = GetToken(index);
+            while (peek.Type != TokenType.EndOfStream)
+            {
+                if (peek.Type == Type)
+                {
+                    return index;
+                }
+
+                index++;
+                peek = GetToken(index);
+            }
+            return -1;
+        }
+
+        /// #summary
+        /// Finds the end of the token stream.
+        public const int FindEnd()
+        {
+            int index = allTokens.Count;
+            while (GetToken(index).Type != TokenType.EndOfStream)
+            {
+                index++;
+            }
+            return index;
+        }
+
+        /// #summary
+        /// Advances the token stream's position by the given number of tokens.
+        public void Seek(int Offset)
+        {
+            int newIndex = tokenIndex + Offset;
+
+            if (newIndex < 0)
+                throw new InvalidOperationException("Cannot seek outside the tokenizer's bounds.");
+
+            tokenIndex = newIndex;
+        }
+
+        /// #summary
+        /// Parses the next token.
+        public Token Next()
+        {
+            Seek(1);
+            return Current;
+        }
+    }
+}

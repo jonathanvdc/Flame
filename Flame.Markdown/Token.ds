@@ -1,0 +1,38 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Syntax;
+using Pixie;
+
+namespace Flame.Markdown
+{
+    public enum TokenType : int
+    {
+        EndOfStream      = -1,
+        Text             = 0,
+        Hash             = 1,
+        Asterisk         = 2,
+        Plus             = 3,
+        Minus            = 4,
+        Underscore       = 5,
+        Backtick         = 6,
+        Whitespace       = 7,
+        DoubleAsterisk   = 8,
+        DoubleUnderscore = 9,
+        Newline          = 10
+    }
+
+    public struct Token
+    {
+        public const this(set string Contents, set TokenType Type);
+
+        public string Contents { const get; private set; }
+        public TokenType Type { const get; private set; }
+
+        public const Token Concat(Token Other, TokenType Type)
+        {
+            return new Token(Contents + Other.Contents, Type);
+        }
+    }
+}

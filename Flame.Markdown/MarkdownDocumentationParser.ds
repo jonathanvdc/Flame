@@ -1,0 +1,26 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Syntax;
+using Pixie;
+
+namespace Flame.Markdown
+{
+    /// #summary
+    /// A documentation parser that parses markdown docs.
+    public static class MarkdownDocumentationParser : IDocumentationParser
+    {
+        /// The initial indentation level.
+        /// This is set to one instead of zero
+        /// because documentation comments usually start with a space.
+        private const int InitialIndentation = 1;
+
+        public const [IAttribute] Parse(string Documentation, SourceLocation Location, ICompilerLog Log)
+        {
+            var lexer = new Tokenizer(Documentation);
+
+            return MarkdownParser.ToAttributes(MarkdownParser.ParseAll(lexer, InitialIndentation));
+        }
+    }
+}
