@@ -25,7 +25,7 @@ namespace Flame.Front.State
             this.options = new Lazy<ICompilerOptions>(() =>
             {
                 var parser = new TransformingOptionParser<string, string[]>(Arguments.OptionParser, item => new string[] { item });
-                return BuildTarget.GetCompilerOptions(Arguments, parser, Project);
+                return BuildTarget.GetCompilerOptions(Log.Options, parser, Project);
             });
         }
 

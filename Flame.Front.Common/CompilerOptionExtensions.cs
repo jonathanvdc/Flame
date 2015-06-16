@@ -56,18 +56,15 @@ namespace Flame.Front
             {
                 switch (item.ToLower())
                 {
-                    case "none":
-                        return Flame.Syntax.EmptyDocumentationParser.Instance;
-
-                    case "hardwired-xml":
-                        return Flame.Syntax.HardwiredXmlDocumentationParser.Instance;
+                    case "xml":
+                        return Flame.XmlDocs.XmlDocumentationParser.Instance;
 
                     case "markdown":
                         return Flame.Markdown.MarkdownDocumentationParser.Instance;
 
-                    case "xml":
+                    case "none":
                     default:
-                        return Flame.XmlDocs.XmlDocumentationParser.Instance;
+                        return Flame.Syntax.EmptyDocumentationParser.Instance;
                 }
             });
             options.RegisterParser<Flame.Recompilation.IMethodOptimizer>(item =>
