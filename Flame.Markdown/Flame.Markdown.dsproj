@@ -9,10 +9,10 @@
     <RuntimeLibrary Include="PortableRT" />
     <RuntimeLibrary Include="System" />
     <RuntimeLibrary Include="System.Core" />
-    <RuntimeLibrary Include="../Flame/bin/Flame.dll" />
-    <RuntimeLibrary Include="../Flame.Compiler/bin/Flame.Compiler.dll" />
-    <RuntimeLibrary Include="../Flame.Syntax/bin/Flame.Syntax.dll" />
-    <RuntimeLibrary Include="../Pixie/bin/Pixie.dll" />
+    <Reference Include="../Flame/bin/Flame.dll" />
+    <Reference Include="../Flame.Compiler/bin/Flame.Compiler.dll" />
+    <Reference Include="../Flame.Syntax/bin/Flame.Syntax.dll" />
+    <Reference Include="../Pixie/bin/Pixie.dll" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MarkdownDocumentationParser.ds" />
