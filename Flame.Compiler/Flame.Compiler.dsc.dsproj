@@ -44,6 +44,7 @@
 		<Compile Include="MethodDiffComparer.ds" />
 		<Compile Include="SilentLog.ds" />
 		<Compile Include="MethodGroupExtensions.ds" />
+		<Compile Include="Warnings.ds" />
 	</ItemGroup>
 	<ItemGroup Name="Emit">
 		<ItemGroup>
