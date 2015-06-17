@@ -126,9 +126,9 @@ namespace dsc.Projects
                 new PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>[] 
                 { 
                     new PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>(new VerifyingDeadCodePass(Log, 
-                        "This method may not always return or throw. " + Warnings.GetWarningNameMessage("missing-return"), 
+                        "This method may not always return or throw. " + Warnings.Instance.GetWarningNameMessage("missing-return"), 
                         Log.UseDefaultWarnings("missing-return"),
-                        "Unreachable code detected and removed. " + Warnings.GetWarningNameMessage("dead-code"),
+                        "Unreachable code detected and removed. " + Warnings.Instance.GetWarningNameMessage("dead-code"),
                         Log.UsePedanticWarnings("dead-code")),
                         PassExtensions.EliminateDeadCodePassName, 
                         true)

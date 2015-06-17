@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Flame.Compiler;
+using Pixie;
 
-namespace Flame.DSharp.Build
+namespace Flame.Compiler
 {
     public static class Warnings
     {
@@ -196,7 +196,10 @@ namespace Flame.DSharp.Build
         {
             return "[-" + GetWarningName(Name) + "]";
         }
+    }
 
+    public static class WarningExtensions
+    {
         /// <summary>
         /// Finds out whether the given log instance is in pedantic mode.
         /// </summary>
@@ -204,24 +207,25 @@ namespace Flame.DSharp.Build
         {
             const get
             {
-                if (Log.Options.HasOption(Pedantic))
+                if (Log.Options.HasOption(Warnings.Pedantic))
                 {
-                    return Log.Options.GetOption<bool>(Pedantic, false);
+                    return Log.Options.GetOption<bool>(Warnings.Pedantic, false);
                 }
-                else return Log.UseDefaultWarnings(Pedantic, false);
+                else return Log.UseDefaultWarnings(Warnings.Pedantic, false);
             }
         }
 
-        private static const bool UseWarnings(this ICompilerLog Log, string Name, bool IsPedantic, bool DefaultValue)
+        private static const bool UseWarnings(ICompilerLog Log, string Name,
+                                              bool IsPedantic, bool DefaultValue)
         {
-            string warningName = GetWarningName(Name);
+            string warningName = Warnings.GetWarningName(Name);
             if (Log.Options.HasOption(warningName))
             {
                 return Log.Options.GetOption<bool>(warningName, false);
             }
             else
             {
-                string relaxName = GetRelaxWarningName(Name);
+                string relaxName = Warnings.GetRelaxWarningName(Name);
                 if (Log.Options.HasOption(relaxName))
                 {
                     return !Log.Options.GetOption<bool>(relaxName, true);
@@ -236,12 +240,12 @@ namespace Flame.DSharp.Build
 
         public static const bool UsePedanticWarnings(this ICompilerLog Log, string Name)
         {
-            return Log.UseWarnings(Name, true, false);
+            return UseWarnings(Log, Name, true, false);
         }
 
         public static const bool UseDefaultWarnings(this ICompilerLog Log, string Name, bool DefaultValue)
         {
-            return Log.UseWarnings(Name, false, DefaultValue);
+            return UseWarnings(Log, Name, false, DefaultValue);
         }
         public static const bool UseDefaultWarnings(this ICompilerLog Log, string Name)
         {
@@ -251,65 +255,65 @@ namespace Flame.DSharp.Build
         // Default warnings
         public static bool ShowOperatorWarnings[this ICompilerLog Log]
         {
-            const get return Log.UseDefaultWarnings(Operators);
+            const get return Log.UseDefaultWarnings(Warnings.Operators);
         }
         public static bool ShowGenericOperatorWarnings[this ICompilerLog Log]
         {
-            const get return Log.UseDefaultWarnings(GenericOperators);
+            const get return Log.UseDefaultWarnings(Warnings.GenericOperators);
         }
         public static bool ShowConstantAssertWarnings[this ICompilerLog Log]
         {
-            const get return Log.UseDefaultWarnings(ConstantAssert);
+            const get return Log.UseDefaultWarnings(Warnings.ConstantAssert);
         }
 
         // Pedantic warnings
         public static bool ShowShadowWarnings[this ICompilerLog Log]
         {
-            const get return Log.UsePedanticWarnings(Shadow);
+            const get return Log.UsePedanticWarnings(Warnings.Shadow);
         }
         public static bool ShowBitcastWarnings[this ICompilerLog Log]
         {
-            const get return Log.UsePedanticWarnings(Bitcast);
+            const get return Log.UsePedanticWarnings(Warnings.Bitcast);
         }
         public static bool ShowConstantDiscardedWarnings[this ICompilerLog Log]
         {
-            const get return Log.UsePedanticWarnings(ConstantDiscarded);
+            const get return Log.UsePedanticWarnings(Warnings.ConstantDiscarded);
         }
         public static bool ShowMeaninglessCastWarnings[this ICompilerLog Log]
         {
-            const get return Log.UsePedanticWarnings(MeaninglessCast);
+            const get return Log.UsePedanticWarnings(Warnings.MeaninglessCast);
         }
         public static bool ShowBadAliasWarnings[this ICompilerLog Log]
         {
-            const get return Log.UsePedanticWarnings(BadAlias);
+            const get return Log.UsePedanticWarnings(Warnings.BadAlias);
         }
         public static bool ShowCppUsingNamespaceWarnings[this ICompilerLog Log]
         {
-            const get return Log.UsePedanticWarnings(BadAlias);
+            const get return Log.UsePedanticWarnings(Warnings.BadAlias);
         }
         public static bool ShowEmptyBodyWarnings[this ICompilerLog Log]
         {
-            const get return Log.UsePedanticWarnings(EmptyBody);
+            const get return Log.UsePedanticWarnings(Warnings.EmptyBody);
         }
         public static bool ShowDanglingElseWarnings[this ICompilerLog Log]
         {
-            const get return Log.UsePedanticWarnings(DanglingElse);
+            const get return Log.UsePedanticWarnings(Warnings.DanglingElse);
         }
         public static bool ShowLonelyTryWarnings[this ICompilerLog Log]
         {
-            const get return Log.UsePedanticWarnings(LonelyTry);
+            const get return Log.UsePedanticWarnings(Warnings.LonelyTry);
         }
         public static bool ShowHiddenNullCheckWarnings[this ICompilerLog Log]
         {
-            const get return Log.UsePedanticWarnings(HiddenNullCheck);
+            const get return Log.UsePedanticWarnings(Warnings.HiddenNullCheck);
         }
         public static bool ShowIncompleteInitializationWarnings[this ICompilerLog Log]
         {
-            const get return Log.UsePedanticWarnings(IncompleteInitialization);
+            const get return Log.UsePedanticWarnings(Warnings.IncompleteInitialization);
         }
         public static bool ShowVariableLengthInitializationWarnings[this ICompilerLog Log]
         {
-            const get return Log.UsePedanticWarnings(VariableLengthInitialization);
+            const get return Log.UsePedanticWarnings(Warnings.VariableLengthInitialization);
         }
     }
 }
