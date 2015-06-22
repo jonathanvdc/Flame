@@ -63,6 +63,7 @@
     <Compile Include="Emit\IExpressionBlock.cs" />
     <Compile Include="Emit\ParentBlock.cs" />
     <Compile Include="Emit\ReturnBlock.cs" />
+    <Compile Include="Emit\SequenceBlock.cs" />
     <Compile Include="Emit\WhileBlock.cs" />
     <Compile Include="ExpressionMethod.cs" />
     <Compile Include="ExpressionObject.cs" />

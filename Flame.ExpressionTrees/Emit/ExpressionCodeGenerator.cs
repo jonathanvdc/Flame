@@ -53,9 +53,7 @@ namespace Flame.ExpressionTrees.Emit
 
         public ICodeBlock EmitSequence(ICodeBlock First, ICodeBlock Second)
         {
-            var secondExpr = (IExpressionBlock)Second;
-
-            return new ParentBlock(this, new IExpressionBlock[] { (IExpressionBlock)First, secondExpr }, secondExpr.Type, (exprs, flow) => Expression.Block(exprs));
+            return new SequenceBlock(this, (IExpressionBlock)First, (IExpressionBlock)Second);
         }
 
         public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)

@@ -43,25 +43,58 @@ namespace Flame.Compiler.Expressions
 
 		public bool IsConstant : IExpression.IsConstant
 		{
-			const get return false;
+			const get return Initialization.IsEmpty &&
+							 Value.IsConstant &&
+							 Finalization.IsEmpty;
 		}
 
 		public IBoundObject Evaluate() : IExpression.Evaluate
 		{
-			return null;
+			return Value.Evaluate();
 		}
 
 		public IExpression Optimize() : IExpression.Optimize
 		{
-			return new InitializedExpression(Initialization.Optimize(), Value.Optimize(), Finalization.Optimize());
+			var optInit = Initialization.Optimize();
+			var optVal  = Value.Optimize();
+			var optFin  = Finalization.Optimize();
+
+			if (optInit.IsEmpty && optFin.IsEmpty)
+			{
+				return optVal;
+			}
+			else
+			{
+				return new InitializedExpression(optInit, optVal, optFin);
+			}
 		}
 
 		public ICodeBlock Emit(ICodeGenerator Generator) : IExpression.Emit
 		{
-			var initBlock = Initialization.Emit(Generator);
 			var expr = Value.Emit(Generator);
-			var finalBlock = Finalization.Emit(Generator);
-			return Generator.EmitSequence(Generator.EmitSequence(initBlock, expr), finalBlock);
+
+			bool initEmpty = Initialization.IsEmpty;
+			bool finalEmpty = Finalization.IsEmpty;
+			if (initEmpty && finalEmpty)
+			{
+				return expr;
+			}
+			else if (finalEmpty)
+			{
+				var initBlock = Initialization.Emit(Generator);
+				return Generator.EmitSequence(initBlock, expr);
+			}
+			else if (initEmpty)
+			{
+				var finalBlock = Finalization.Emit(Generator);
+				return Generator.EmitSequence(expr, finalBlock);
+			}
+			else
+			{
+				var initBlock = Initialization.Emit(Generator);
+				var finalBlock = Finalization.Emit(Generator);
+				return Generator.EmitSequence(Generator.EmitSequence(initBlock, expr), finalBlock);
+			}
 		}
 	}
 }

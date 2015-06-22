@@ -37,7 +37,7 @@ namespace Flame.ExpressionTrees.Emit
 
         public ICodeBlock EmitSet(ICodeBlock Value)
         {
-            return new ParentBlock(CodeGenerator, new IExpressionBlock[] { Variable, (IExpressionBlock)Value }, Variable.Type, (exprs, flow) => Expression.Assign(exprs[0], exprs[1]));
+            return new ParentBlock(CodeGenerator, new IExpressionBlock[] { Variable, (IExpressionBlock)Value }, PrimitiveTypes.Void, (exprs, flow) => Expression.Assign(exprs[0], exprs[1]));
         }
     }
 }

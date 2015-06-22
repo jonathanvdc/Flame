@@ -28,7 +28,15 @@ namespace Flame.ExpressionTrees.Emit
 
         public Expression CreateExpression(FlowStructure Flow)
         {
-            return Value == null ? Expression.Return(ReturnLabel) : Expression.Return(ReturnLabel, Value.CreateExpression(Flow));
+            if (Value == null)
+            {
+                return Expression.Return(ReturnLabel);
+            }
+            else
+            {
+                var genExpr = Value.CreateExpression(Flow);
+                return Expression.Return(ReturnLabel, genExpr);
+            }
         }
 
         public IType Type
