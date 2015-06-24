@@ -1,0 +1,99 @@
+namespace Flame.Compiler.Expressions
+{
+    /// <summary>
+    /// A base class for expression that contain log entries.
+    /// </summary>
+    public abstract class LogEntryExpression : IExpression, IPredicateNode
+    {
+        /// <summary>
+        /// Creates a new log entry expression from the given value and message.
+        /// </summary>
+        public const this(set IExpression Value, set LogEntry Message);
+
+        /// <summary>
+        /// Creates a new instance of this expression type.
+        /// </summary>
+        protected abstract IExpression Create(IExpression NewValue, LogEntry NewMessage);
+
+        /// <summary>
+        /// Gets the message associated with this expression.
+        /// </summary>
+        public LogEntry Message { const get; private set; }
+        /// <summary>
+        /// Gets this expression's inner expression.
+        /// </summary>
+        public IExpression Value { const get; private set; }
+
+        public IType Type { const get return Value.Type; }
+
+        public bool IsConstant { const get return Value.IsConstant; }
+
+        public virtual IBoundObject Evaluate()
+        {
+            return Value.Evaluate();
+        }
+
+        public virtual ICodeBlock Emit(ICodeGenerator CodeGenerator)
+        {
+            return Value.Emit(CodeGenerator);
+        }
+
+        public virtual IExpression Optimize()
+        {
+            return Create(Value.Optimize(), Message);
+        }
+
+        public virtual void AcceptPredicate(INodeVisitor Visitor)
+        {
+            Visitor.Visit(Value);
+        }
+
+        public virtual IExpression Accept(INodeVisitor Visitor)
+        {
+            var visitedExpr = Visitor.Visit(Value);
+
+            if (visitedExpr == Value)
+                return this;
+            else
+                return Create(visitedExpr, Message);
+        }
+    }
+
+    /// <summary>
+    /// A class for expressions that represent an invalid expression node, which
+    /// contain an error message.
+    /// An inner expression is provided to make instances of this type "play nice"
+    /// with other nodes, but said expression may not be semantically valid.
+    /// </summary>
+    public class ErrorExpression : LogEntryExpression
+    {
+        /// <summary>
+        /// Creates a new error expression from the given value and error message.
+        /// </summary>
+        public const this(IExpression Value, LogEntry Message)
+            : base(Value, Message);
+
+        protected override IExpression Create(IExpression NewValue, LogEntry NewMessage)
+        {
+            return new ErrorExpression(NewValue, NewMessage);
+        }
+    }
+
+    /// <summary>
+    /// A class for expressions that represent a semantically valid, but somewhat
+    /// fishy expression, which contains a warning message.
+    /// </summary>
+    public class WarningExpression : LogEntryExpression
+    {
+        /// <summary>
+        /// Creates a new warning expression from the given value and warning message.
+        /// </summary>
+        public const this(IExpression Value, LogEntry Message)
+            : base(Value, Message);
+
+        protected override IExpression Create(IExpression NewValue, LogEntry NewMessage)
+        {
+            return new WarningExpression(NewValue, NewMessage);
+        }
+    }
+}

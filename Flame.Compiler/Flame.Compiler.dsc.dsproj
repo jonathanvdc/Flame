@@ -110,6 +110,7 @@
 			<Compile Include="Expressions\LessThanExpression.ds" />
 			<Compile Include="Expressions\GreaterThanExpression.ds" />
 			<Compile Include="Expressions\EqualityExpression.ds" />
+			<Compile Include="Expressions\ErrorExpression.ds" />
 			<Compile Include="Expressions\AndExpression.ds" />
 			<Compile Include="Expressions\OrExpression.ds" />
 			<Compile Include="Expressions\XorExpression.ds" />
@@ -201,6 +202,7 @@
 			<Compile Include="Visitors\DeadCodeVisitor.ds" />
 			<Compile Include="Visitors\EmptyPass.ds" />
 			<Compile Include="Visitors\IPass.ds" />
+			<Compile Include="Visitors\LoggingVisitor.ds" />
 			<Compile Include="Visitors\LowerYieldPass.ds" />
 			<Compile Include="Visitors\MemberNodeVisitor.ds" />
 			<Compile Include="Visitors\NodeVisitorBase.ds" />
