@@ -49,13 +49,13 @@ dsc uses this library to reference and generate .Net assemblies.
 Flame.Cecil is written in C#.
 
 ## Flame.Cpp
-Flame.Cpp is an experimental C++ back-end, which can be used by stating "-platform C++" when compiling with dsc.
+Flame.Cpp is an experimental C++ back-end, which can be used by stating `-platform C++` when compiling with dsc.
 Since Flame.Cpp cannot parse C++ itself, dsc "plugs" are used to allow the programmer to interact with the standard library from managed code.
 Plugs for PlatformRT and PortableRT can be found in the "Examples" folder.  
 Flame.Cpp is written in C#.
 
 ## Flame.Python
-Flame.Python is an experimental Python back-end, accessible through "-platform Python" when compiling with dsc.  
+Flame.Python is an experimental Python back-end, accessible through `-platform Python` when compiling with dsc.  
 Flame.Python is written in C#.
 
 ## Flame.Recompilation
