@@ -1,0 +1,64 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler.Expressions;
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// A node visitor that visits all error and warning nodes, and logs their
+    /// contents.
+    /// Said nodes are optionally simplified to their inner nodes.
+    /// </summary>
+    public class LoggingVisitor : NodeVisitorBase
+    {
+        /// <summary>
+        /// Creates a new logging visitor from the given compiler log and a
+        /// flag that tells if error and warning nodes are to be
+        /// simplified to their inner nodes.
+        /// </summary>
+        public const this(set ICompilerLog Log, set bool Simplify);
+
+        /// <summary>
+        /// Gets the compiler log that is used to write errors and warnings to.
+        /// </summary>
+        public ICompilerLog Log { const get; private set; }
+
+        /// <summary>
+        /// Gets a boolean value that tells if error and warning nodes are to be
+        /// simplified to their inner nodes.
+        /// </summary>
+        public bool Simplify { const get; private set; }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is ErrorExpression || Value is WarningExpression;
+        }
+
+        public override const bool Matches(IStatement Value)
+        {
+            return false;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            var expr = (LogEntryExpression)Expression;
+            var message = expr.Message;
+
+            if (expr is ErrorExpression)
+                Log.LogError(message);
+            else
+                Log.LogWarning(message);
+
+            if (Simplify)
+                return Visit(expr.Value);
+            else
+                return expr.Accept(this);
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            return Statement;
+        }
+    }
+}
