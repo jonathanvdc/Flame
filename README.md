@@ -30,7 +30,7 @@ Both statements and expressions have an "Optimize" method, which is intended to 
 Flame.Compiler also includes some simple interfaces that define common project behavior to make project file format interoperation easier.
 
 ### Textual code generation
-CodeBuilder and CodeLine ease the process generating well-formatted textual code.
+CodeBuilder and CodeLine ease the process of generating well-formatted textual code.
 
 ### Assembly creation
 IAssemblyBuilder, INamespaceBuilder, ITypeBuilder, etc function as a portable interface for any back-end.
