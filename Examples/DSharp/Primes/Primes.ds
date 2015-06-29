@@ -15,7 +15,7 @@ namespace Primes
         /// <summary>
         /// Tests if the given integer is prime relative to the given set of primes.
         /// </summary>
-        public static const bool IsPrime(long Value, List<long> Primes)
+        public const bool IsPrime(long Value, List<long> Primes)
         {
             // Iterate over all values in the list of primes, and
             // tests whether this given number is divisible by any of these
@@ -34,7 +34,7 @@ namespace Primes
         /// <summary>
         /// Computes the sum of all primes lower than the given integer.
         /// </summary>
-        public static const long SumOfPrimes(long Value)
+        public const long SumOfPrimes(long Value)
         {
             // Maintain a list of primes and a counter.
             var primes = new List<long>();
@@ -62,7 +62,7 @@ namespace Primes
             if (Args.Length > 0) arg = int.Parse(Args[0]);
             else arg = 10;
 
-            // Provide input.
+            // Provide output.
             Console.WriteLine(SumOfPrimes(arg));
         }
     }
