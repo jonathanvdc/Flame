@@ -1,0 +1,69 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Primes
+{
+    /// <summary>
+    /// A simple D# example that computes the sum of all primes lower than a given number.
+    /// </summary>
+    public static class Program
+    {
+        // Note: `long` is used as integer type instead of `int`, because
+        //       input could get somewhat long.
+
+        /// <summary>
+        /// Tests if the given integer is prime relative to the given set of primes.
+        /// </summary>
+        public static const bool IsPrime(long Value, List<long> Primes)
+        {
+            // Iterate over all values in the list of primes, and
+            // tests whether this given number is divisible by any of these
+            // integers.
+            foreach (var item in Primes)
+                if (Value % item == 0) // Computes the remainder of the given integer
+                                       // and prime. If the remainder is zero,
+                                       // the given integer is not prime.
+            {
+                // The given integer was divisible by a prime.
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Computes the sum of all primes lower than the given integer.
+        /// </summary>
+        public static const long SumOfPrimes(long Value)
+        {
+            // Maintain a list of primes and a counter.
+            var primes = new List<long>();
+            long result = 0;
+            // Iterate over all numbers between one and the given integer.
+            for (long i = 2; i < Value; i++)
+                if (IsPrime(i, primes)) // Test if `i` is prime relative to
+                                        // the set of known primes.
+            {
+                // Add `i` to the result counter, and insert it into the set of primes.
+                result += i;
+                primes.Add(i);
+            }
+            // Looks like we're done.
+            return result;
+        }
+
+        /// <summary>
+        /// The application's entry point.
+        /// </summary>
+        public static void Main(string[] Args)
+        {
+            // Parse input.
+            int arg;
+            if (Args.Length > 0) arg = int.Parse(Args[0]);
+            else arg = 10;
+
+            // Provide input.
+            Console.WriteLine(SumOfPrimes(arg));
+        }
+    }
+}
