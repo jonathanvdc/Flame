@@ -26,7 +26,12 @@ namespace Flame.Compiler.Expressions
 
         public IType Type { const get return Value.Type; }
 
-        public bool IsConstant { const get return Value.IsConstant; }
+        /// <summary>
+        /// This property always returns false because otherwise people could get the
+        /// wrong idea and constant-fold this object into oblivion, based on the (invalid)
+        /// assumption that this expression is perfectly legal.
+        /// </summary>
+        public bool IsConstant { virtual const get return false; }
 
         public virtual IBoundObject Evaluate()
         {
