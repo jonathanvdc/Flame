@@ -213,6 +213,11 @@ namespace Flame.Front.Options
             return !string.IsNullOrEmpty(Argument) && (Argument[0] == '-' || Argument[0] == '/');
         }
 
+        private static bool IsSplitOption(string Option)
+        {
+            return Option.Contains('=') || Option.Contains(':');
+        }
+
         private static string GetOptionParameterName(string Argument)
         {
             return Argument.TrimStart('-', '/');
@@ -245,20 +250,30 @@ namespace Flame.Front.Options
             while (argStream.MoveNext())
             {
                 string item = argStream.Current;
-                string param;
                 if (!IsOption(item))
                 {
-                    param = defaultParameter;
+                    // Parse a sequence of raw arguments.
                     argStream.Move(-1);
+                    string[] args = ParseArguments(argStream);
+                    result.AddBuildArgument(defaultParameter, args);
                 }
                 else
                 {
-                    param = item;
+                    string param = GetOptionParameterName(item);
+                    if (IsSplitOption(param))
+                    {
+                        string[] splitOption = GetOptionParameterName(param).Split(new char[] { '=', ':' }, 2, StringSplitOptions.RemoveEmptyEntries);
+                        string key = splitOption[0];
+                        string value = splitOption[1];
+                        result.AddBuildArgument(key, value);
+                    }
+                    else
+                    {
+                        // Parse arguments
+                        string[] args = ParseArguments(argStream);
+                        result.AddBuildArgument(GetOptionParameterName(param), args);
+                    }
                 }
-
-                // Parse arguments
-                string[] args = ParseArguments(argStream);
-                result.AddBuildArgument(GetOptionParameterName(param), args);
             }
 
             return result;
