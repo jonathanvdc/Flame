@@ -44,7 +44,9 @@ namespace Flame
             var results = new List<IMethod>();
             foreach (var item in IntersectionType.GetIntersectedTypes(Type))
             {
-                results.Add(GetMethod(item));
+                var method = GetMethod(item);
+                if (method != null)
+                    results.Add(method);
             }
             return results;
         }
