@@ -262,7 +262,7 @@ namespace Flame.Front.Options
                     string param = GetOptionParameterName(item);
                     if (IsSplitOption(param))
                     {
-                        string[] splitOption = GetOptionParameterName(param).Split(new char[] { '=', ':' }, 2, StringSplitOptions.RemoveEmptyEntries);
+                        string[] splitOption = param.Split(new char[] { '=', ':' }, 2, StringSplitOptions.RemoveEmptyEntries);
                         string key = splitOption[0];
                         string value = splitOption[1];
                         result.AddBuildArgument(key, value);
@@ -271,7 +271,7 @@ namespace Flame.Front.Options
                     {
                         // Parse arguments
                         string[] args = ParseArguments(argStream);
-                        result.AddBuildArgument(GetOptionParameterName(param), args);
+                        result.AddBuildArgument(param, args);
                     }
                 }
             }
