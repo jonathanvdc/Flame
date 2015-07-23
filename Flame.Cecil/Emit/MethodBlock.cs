@@ -78,12 +78,9 @@ namespace Flame.Cecil.Emit
             Context.Stack.Push(DelegateType);
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get 
-            {
-                return new SinglePushBehavior(DelegateType);
-            }
+            get { return DelegateType; }
         }
     }
 }

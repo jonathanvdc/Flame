@@ -437,7 +437,7 @@ namespace Flame
         {
         	const get
         	{
-        		return Parameter.HasAttribute(PrimitiveAttributes.SetsMemberAttribute.AttributeType);
+        		return Parameter.HasAttribute(SetsMemberAttribute.SetsMemberAttributeType);
         	}
         }
 

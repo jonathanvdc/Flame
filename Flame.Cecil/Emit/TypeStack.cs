@@ -31,6 +31,13 @@ namespace Flame.Cecil.Emit
         {
             stack.Push(Type);
         }
+        public void PushValue(IType Type)
+        {
+            if (!Type.Equals(PrimitiveTypes.Void))
+            {
+                Push(Type);
+            }
+        }
         public IType Peek()
         {
             return stack.Peek();

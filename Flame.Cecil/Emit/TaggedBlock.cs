@@ -7,46 +7,39 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
-    public class DoWhileBlock : ICecilBlock
+    public class TaggedBlock : ICecilBlock
     {
-        public DoWhileBlock(ICodeGenerator CodeGenerator, BlockTag Tag, ICecilBlock Condition, ICecilBlock Body)
+        public TaggedBlock(ICodeGenerator CodeGenerator, BlockTag Tag, ICecilBlock Body)
         {
             this.CodeGenerator = CodeGenerator;
             this.Tag = Tag;
-            this.Condition = Condition;
             this.Body = Body;
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
         public BlockTag Tag { get; private set; }
-        public ICecilBlock Condition { get; private set; }
         public ICecilBlock Body { get; private set; }
 
         public void Emit(IEmitContext Context)
         {
             var brCg = (IBranchingCodeGenerator)CodeGenerator;
             var start = brCg.CreateLabel();
-            var body = brCg.CreateLabel();
             var end = brCg.CreateLabel();
 
             var flowStruct = new BranchFlowStructure(CodeGenerator, Tag, start, end);
 
-            ((ICecilBlock)body.EmitMark()).Emit(Context);
-
             Context.PushFlowControl(flowStruct);
 
+            ((ICecilBlock)start.EmitMark()).Emit(Context);
             Body.Emit(Context);
+            ((ICecilBlock)end.EmitMark()).Emit(Context);
 
             Context.PopFlowControl();
-
-            ((ICecilBlock)start.EmitMark()).Emit(Context);
-            ((ICecilBlock)body.EmitBranch(Condition)).Emit(Context);
-            ((ICecilBlock)end.EmitMark()).Emit(Context);
         }
 
         public IType BlockType
         {
-            get { return PrimitiveTypes.Void; }
+            get { return Body.BlockType; }
         }
     }
 }

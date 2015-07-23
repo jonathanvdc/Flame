@@ -13,7 +13,7 @@ namespace Flame.Recompilation.Emit
 {
     public class RecompiledCodeGenerator : IUnmanagedCodeGenerator, IYieldCodeGenerator, 
         IInitializingCodeGenerator, IForeachCodeGenerator, IExceptionCodeGenerator,
-        IForCodeGenerator, IContractCodeGenerator
+        IForCodeGenerator, IContractCodeGenerator, IWhileCodeGenerator
     {
         public RecompiledCodeGenerator(AssemblyRecompiler Recompiler, IMethod Method)
         {
@@ -98,19 +98,24 @@ namespace Flame.Recompilation.Emit
 
         #region Blocks
 
-        public ICodeBlock EmitBreak()
+        public ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents)
         {
-            return new StatementBlock(this, new BreakStatement());
+            return new StatementBlock(this, new TaggedStatement(Tag, GetStatement(Contents)));
         }
 
-        public ICodeBlock EmitContinue()
+        public ICodeBlock EmitBreak(BlockTag Tag)
         {
-            return new StatementBlock(this, new ContinueStatement());
+            return new StatementBlock(this, new BreakStatement(Tag));
         }
 
-        public ICodeBlock EmitDoWhile(ICodeBlock Body, ICodeBlock Condition)
+        public ICodeBlock EmitContinue(BlockTag Tag)
         {
-            return new StatementBlock(this, new DoWhileStatement(GetStatement(Body), GetExpression(Condition)));
+            return new StatementBlock(this, new ContinueStatement(Tag));
+        }
+
+        public ICodeBlock EmitDoWhile(BlockTag Tag, ICodeBlock Body, ICodeBlock Condition)
+        {
+            return new StatementBlock(this, new DoWhileStatement(Tag, GetStatement(Body), GetExpression(Condition)));
         }
 
         public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
@@ -138,9 +143,9 @@ namespace Flame.Recompilation.Emit
             return new StatementBlock(this, EmptyStatement.Instance);
         }
 
-        public ICodeBlock EmitWhile(ICodeBlock Condition, ICodeBlock Body)
+        public ICodeBlock EmitWhile(BlockTag Tag, ICodeBlock Condition, ICodeBlock Body)
         {
-            return new StatementBlock(this, new WhileStatement(GetExpression(Condition), GetStatement(Body)));
+            return new StatementBlock(this, new WhileStatement(Tag, GetExpression(Condition), GetStatement(Body)));
         }
 
         #endregion
@@ -414,9 +419,9 @@ namespace Flame.Recompilation.Emit
             return new StatementBlock(this, ((ForeachBlockHeader)Header).ToForeachStatement(GetStatement(Body)));
         }
 
-        public IForeachBlockHeader EmitForeachHeader(IEnumerable<ICollectionBlock> Collections)
+        public IForeachBlockHeader EmitForeachHeader(BlockTag Tag, IEnumerable<ICollectionBlock> Collections)
         {
-            return new ForeachBlockHeader(this, Collections.Cast<CollectionBlock>());
+            return new ForeachBlockHeader(this, Tag, Collections.Cast<CollectionBlock>());
         }
 
         #endregion
@@ -454,9 +459,9 @@ namespace Flame.Recompilation.Emit
 
         #region IForCodeGenerator
 
-        public ICodeBlock EmitForBlock(ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body)
+        public ICodeBlock EmitForBlock(BlockTag Tag, ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body)
         {
-            return new StatementBlock(this, new ForStatement(GetStatement(Initialization), GetExpression(Condition), GetStatement(Delta), GetStatement(Body)));
+            return new StatementBlock(this, new ForStatement(Tag, GetStatement(Initialization), GetExpression(Condition), GetStatement(Delta), GetStatement(Body), EmptyStatement.Instance));
         }
 
         #endregion

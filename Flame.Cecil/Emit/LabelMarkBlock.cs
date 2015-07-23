@@ -21,9 +21,9 @@ namespace Flame.Cecil.Emit
             Context.MarkLabel(Label.GetEmitLabel(Context));
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get { return new PopStackBehavior(0); }
+            get { return PrimitiveTypes.Void; }
         }
 
         public ICodeGenerator CodeGenerator

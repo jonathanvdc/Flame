@@ -294,9 +294,17 @@ namespace Flame.Cecil.Emit
         protected abstract bool IsBranchTarget(Instruction Target);
 
         private Stack<IFlowControlStructure> flowControls;
-        public IFlowControlStructure FlowControl
+
+        public IFlowControlStructure GetFlowControl(BlockTag Tag)
         {
-            get { return flowControls.Peek(); }
+            foreach (var item in flowControls)
+            {
+                if (item.Tag == Tag)
+                {
+                    return item;
+                }
+            }
+            return null;
         }
 
         public void PushFlowControl(IFlowControlStructure Value)

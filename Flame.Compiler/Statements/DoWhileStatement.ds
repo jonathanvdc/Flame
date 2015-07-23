@@ -6,8 +6,13 @@ namespace Flame.Compiler.Statements
 {
 	public class DoWhileStatement : IStatement, IFlowStatement
 	{
-		public const this(set IStatement Body, set IExpression Condition);
+		public const this(set IStatement Body, set IExpression Condition)
+		{
+			this.Tag = new BlockTag();
+		}
+		public const this(set BlockTag Tag, set IStatement Body, set IExpression Condition);
 
+		public BlockTag Tag { const get; private set; }
 		public IExpression Condition { const get; private set; }
 		public IStatement Body { const get; private set; }
 
@@ -19,7 +24,7 @@ namespace Flame.Compiler.Statements
 			}
 			else
 			{
-				return new DoWhileStatement(NewBody, NewCondition);
+				return new DoWhileStatement(Tag, NewBody, NewCondition);
 			}
 		}
 
@@ -72,14 +77,39 @@ namespace Flame.Compiler.Statements
 								// contains a break statement.
 			}*/
 
-			return new DoWhileStatement(optBody, optCond);
+			return CreateDoWhile(optBody, optCond);
 		}
 
 		public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
 		{
 			var body = Body.Emit(Generator);
 			var conditionBlock = Condition.Emit(Generator);
-			return Generator.EmitDoWhile(body, conditionBlock);
+
+			if (Generator is IWhileCodeGenerator)
+			{
+				var whileCg = (IWhileCodeGenerator)Generator;
+				return whileCg.EmitDoWhile(Tag, body, conditionBlock);
+			}
+			else
+			{
+				// "Lower" a do-while block like this:
+				//
+				// do stmt; while (cond)
+				//
+				// ==>
+				//
+				// block:
+				// {
+				//     stmt;
+				//     if (cond) continue block;
+				// }
+
+				var continueBlock = Generator.EmitIfElse(conditionBlock,
+														 Generator.EmitContinue(Tag),
+													     Generator.EmitVoid());
+				var seqBlock = Generator.EmitSequence(body, continueBlock);
+				return Generator.EmitTagged(Tag, seqBlock);
+			}
 		}
 	}
 }

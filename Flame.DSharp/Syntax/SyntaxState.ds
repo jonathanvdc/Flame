@@ -17,6 +17,7 @@ namespace Flame.Syntax.DSharp
         {
             this.MemberProvider = new MemberProvider(Binder);
             this.declaredVariables = new Stack<Dictionary<string, DeclaredVariable>>();
+            this.tags = new List<BlockTag>();
             PushScope();
         }
         public const this(set IMethod Method, IBinder OuterBinder, set ICompilerLog Log, set IConverter<IType, string> TypeNamer)
@@ -24,12 +25,14 @@ namespace Flame.Syntax.DSharp
             this.Binder = new ScopedBinder(OuterBinder, this);
             this.MemberProvider = new MemberProvider(Binder);
             this.declaredVariables = new Stack<Dictionary<string, DeclaredVariable>>();
+            this.tags = new List<BlockTag>();
             PushScope();
         }
         public const this(set IMethod Method, IBinder OuterBinder, set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer)
         {
             this.Binder = new ScopedBinder(OuterBinder, this);
             this.declaredVariables = new Stack<Dictionary<string, DeclaredVariable>>();
+            this.tags = new List<BlockTag>();
             PushScope();
         }
 
@@ -54,7 +57,21 @@ namespace Flame.Syntax.DSharp
         public IConverter<IType, string> TypeNamer { const get; private set; }
         public IMemberProvider MemberProvider { const get; private set; }
 
+        public BlockTag Tag
+        {
+            const get
+            {
+                for (int i = tags.Count - 1; i >= 0; i--)
+                    if (tags[i] != null)
+                {
+                    return tags[i];
+                }
+                throw new InvalidOperationException("Could not get the local block's tag, because a control flow block was needed, but absent.");
+            }
+        }
+
         private Stack<Dictionary<string, DeclaredVariable>> declaredVariables;
+        private List<BlockTag> tags;
         public Dictionary<string, DeclaredVariable> Locals
         {
             const get
@@ -146,13 +163,21 @@ namespace Flame.Syntax.DSharp
 
         public void PushScope()
         {
+            PushScope(null);
+        }
+
+        public void PushScope(BlockTag Tag)
+        {
             Binder = Binder.PushScope();
             this.declaredVariables.Push(new Dictionary<string, DeclaredVariable>());
+            this.tags.Add(Tag);
         }
 
         public IStatement PopScope()
         {
-            List<IStatement> statements = new List<IStatement>();
+            this.tags.RemoveAt(this.tags.Count - 1);
+
+            var statements = new List<IStatement>();
             var scopeVars = declaredVariables.Pop();
             foreach (var item in scopeVars)
             {

@@ -73,12 +73,12 @@ namespace Flame.Cecil.Emit
                     Context.Emit(OpCodes.Ldnull);
                 }
             }
-            StackBehavior.Apply(Context.Stack);
+            Context.Stack.Push(Type);
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get { return new SinglePushBehavior(Type); }
+            get { return Type; }
         }
     }
 }

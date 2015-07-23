@@ -7,7 +7,9 @@ namespace Flame.Compiler.Statements
 {
     public class BreakStatement : IStatement
     {
-        public const this();
+        public const this(set BlockTag Target);
+
+        public BlockTag Target { const get; private set; }
 
         public IStatement Accept(INodeVisitor Visitor)
         {
@@ -16,7 +18,7 @@ namespace Flame.Compiler.Statements
 
         public ICodeBlock Emit(ICodeGenerator Generator)
         {
-            return Generator.EmitBreak();
+            return Generator.EmitBreak(Target);
         }
 
         public bool IsEmpty

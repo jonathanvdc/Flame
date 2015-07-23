@@ -25,5 +25,10 @@ namespace Flame.Cecil.Emit
         {
             throw new NotImplementedException();
         }
+
+        public BlockTag Tag
+        {
+            get { return null; }
+        }
     }
 }

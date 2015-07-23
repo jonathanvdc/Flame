@@ -49,9 +49,9 @@ namespace Flame.Cecil.Emit
             Context.Stack.Push(ArrayType);
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get { return new SinglePushBehavior(ArrayType); }
+            get { return ArrayType; }
         }
     }
 }

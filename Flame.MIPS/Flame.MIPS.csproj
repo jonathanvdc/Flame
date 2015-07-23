@@ -103,6 +103,7 @@
     <Compile Include="Emit\StackFrameManager.cs" />
     <Compile Include="AssemblerState.cs" />
     <Compile Include="Emit\StaticStorage.cs" />
+    <Compile Include="Emit\TaggedBlock.cs" />
     <Compile Include="IAssemblerType.cs" />
     <Compile Include="Static\IStaticDataItem.cs" />
     <Compile Include="Static\StaticInstanceItem.cs" />
