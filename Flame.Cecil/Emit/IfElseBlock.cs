@@ -38,9 +38,9 @@ namespace Flame.Cecil.Emit
             ((ICecilBlock)end.EmitMark()).Emit(Context);
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get { return new IfElseStackBehavior(((ICecilBlock)IfBlock).StackBehavior, ((ICecilBlock)ElseBlock).StackBehavior); }
+            get { return IfBlock.BlockType; }
         }
     }
 }

@@ -22,16 +22,16 @@ namespace Flame.Cecil.Emit
         public void Emit(IEmitContext Context)
         {
             Value.Emit(Context);
-            var top = Context.Stack.Pop();
-            if (!top.Equals(PrimitiveTypes.Void))
+            if (!Value.BlockType.Equals(PrimitiveTypes.Void))
             {
+                Context.Stack.Pop();
                 Context.Emit(OpCodes.Pop);
             }
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get { return new PopStackBehavior(1); }
+            get { return PrimitiveTypes.Void; }
         }
     }
 }

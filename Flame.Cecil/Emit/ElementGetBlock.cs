@@ -49,14 +49,14 @@ namespace Flame.Cecil.Emit
             Context.Stack.Push(elemType);
         }
 
-        public IStackBehavior StackBehavior
-        {
-            get { return new SinglePushBehavior(Variable.Type); }
-        }
-
         public ICodeGenerator CodeGenerator
         {
             get { return Variable.CodeGenerator; }
+        }
+
+        public IType BlockType
+        {
+            get { return Variable.Type; }
         }
     }
 }

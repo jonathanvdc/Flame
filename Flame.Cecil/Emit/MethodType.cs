@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
-    public class MethodType : IType, IMethod
+    /*public class MethodType : IType, IMethod
     {
         protected MethodType(IMethod Method)
         {
@@ -202,5 +202,5 @@ namespace Flame.Cecil.Emit
         {
             return Method.ToString();
         }
-    }
+    }*/
 }

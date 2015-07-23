@@ -56,9 +56,9 @@ namespace Flame.Cecil.Emit
             Context.MarkLabel(blockEndLabel);
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get { return TryBody.StackBehavior; }
+            get { return TryBody.BlockType; }
         }
 
         public ICodeGenerator CodeGenerator

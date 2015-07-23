@@ -10,14 +10,16 @@ namespace Flame.Cecil.Emit
 {
     public class WhileBlock : ICecilBlock
     {
-        public WhileBlock(ICodeGenerator CodeGenerator, ICecilBlock Condition, ICecilBlock Body)
+        public WhileBlock(ICodeGenerator CodeGenerator, BlockTag Tag, ICecilBlock Condition, ICecilBlock Body)
         {
             this.CodeGenerator = CodeGenerator;
+            this.Tag = Tag;
             this.Condition = Condition;
             this.Body = Body;
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
+        public BlockTag Tag { get; private set; }
         public ICecilBlock Condition { get; private set; }
         public ICecilBlock Body { get; private set; }
 
@@ -28,7 +30,7 @@ namespace Flame.Cecil.Emit
             var body = brCg.CreateLabel();
             var end = brCg.CreateLabel();
 
-            var flowStruct = new BranchFlowStructure(CodeGenerator, start, end);
+            var flowStruct = new BranchFlowStructure(CodeGenerator, Tag, start, end);
 
             flowStruct.CreateContinue().Emit(Context);
             ((ICecilBlock)body.EmitMark()).Emit(Context);
@@ -44,21 +46,25 @@ namespace Flame.Cecil.Emit
             ((ICecilBlock)end.EmitMark()).Emit(Context);
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get { return new PopStackBehavior(0); }
+            get { return PrimitiveTypes.Void; }
         }
     }
+
     public class BranchFlowStructure : IFlowControlStructure
     {
-        public BranchFlowStructure(ICodeGenerator CodeGenerator, ILabel Start, ILabel End)
+        public BranchFlowStructure(ICodeGenerator CodeGenerator, BlockTag Tag, ILabel Start, ILabel End)
         {
             this.CodeGenerator = CodeGenerator;
             this.Start = Start;
             this.End = End;
+            this.Tag = Tag;
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
+
+        public BlockTag Tag { get; private set; }
         public ILabel Start { get; private set; }
         public ILabel End { get; private set; }
 
@@ -70,6 +76,6 @@ namespace Flame.Cecil.Emit
         public ICecilBlock CreateContinue()
         {
             return (ICecilBlock)Start.EmitBranch(CodeGenerator.EmitBoolean(true));
-        }
+        }        
     }
 }

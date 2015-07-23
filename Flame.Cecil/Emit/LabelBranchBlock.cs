@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
-    public class LabelBranchBlock: ICecilBlock
+    public class LabelBranchBlock : ICecilBlock
     {
         public LabelBranchBlock(ILLabel Label, ICecilBlock Condition)
         {
@@ -51,9 +51,9 @@ namespace Flame.Cecil.Emit
             }
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get { return new PopStackBehavior(0); }
+            get { return PrimitiveTypes.Void; }
         }
 
         public ICodeGenerator CodeGenerator

@@ -35,12 +35,12 @@ namespace Flame.Cecil.Emit
             {
                 Context.Emit(OpCodes.Ldsfld, fld);
             }
-            StackBehavior.Apply(Context.Stack);
+            Context.Stack.Push(BlockType);
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get { return new SinglePushBehavior(FieldVariable.Type); }
+            get { return FieldVariable.Type; }
         }
     }
 }

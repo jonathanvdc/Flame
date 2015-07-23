@@ -26,9 +26,21 @@ namespace Flame.Cecil.Emit
             Second.Emit(Context);
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get { return new BlockStackBehavior(First.StackBehavior, Second.StackBehavior); }
+            get
+            {
+                var secondType = Second.BlockType;
+
+                if (!secondType.Equals(PrimitiveTypes.Void))
+                {
+                    return secondType;
+                }
+                else
+                {
+                    return First.BlockType;
+                }
+            }
         }
     }
 }
