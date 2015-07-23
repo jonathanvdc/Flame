@@ -15,11 +15,13 @@ namespace Flame.Syntax
         IMemberProvider MemberProvider { const get; }
         ICompilerLog Log { const get; }
         IConverter<IType, string> TypeNamer { const get; }
+        BlockTag Tag { const get; }
 
         IVariable DeclareVariable(string Name, IVariable Variable, SourceLocation Location);
         const DeclaredVariable GetDeclaredVariable(string Name);
 
     	void PushScope();
+        void PushScope(BlockTag Tag);
     	IStatement PopScope();
     }
 

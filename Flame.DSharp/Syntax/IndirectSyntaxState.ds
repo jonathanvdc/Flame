@@ -24,6 +24,7 @@ namespace Flame.Syntax.DSharp
         public ISyntaxState State { const get; private set; }
         public IScopedBinder Binder { const get; private set; }
         public IMemberProvider MemberProvider { const get; private set; }
+        public BlockTag Tag { const get return State.Tag; }
 
         public IConverter<IType, string> TypeNamer { const get return State.TypeNamer; }
 
@@ -69,6 +70,12 @@ namespace Flame.Syntax.DSharp
         {
             Binder = Binder.PushScope();
             State.PushScope();
+        }
+
+        public void PushScope(BlockTag Tag) : ISyntaxState.PushScope
+        {
+            Binder = Binder.PushScope();
+            State.PushScope(Tag);
         }
 
         public IStatement PopScope() : ISyntaxState.PopScope

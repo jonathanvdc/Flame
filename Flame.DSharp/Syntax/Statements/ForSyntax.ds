@@ -35,7 +35,7 @@ namespace Flame.Syntax.DSharp
         {
         	const get
         	{
-        		List<Token> results = new List<Token>();
+        		var results = new List<Token>();
 				results.Add(ForKeyword);
 				results.Add(LeadingParentheses);
 				results.AddRange(Initialization.GetTokens());
@@ -49,13 +49,15 @@ namespace Flame.Syntax.DSharp
 
         public IStatement CreateStatement(ISyntaxState State) : IStatementSyntax.CreateStatement
         {
-        	State.PushScope();
+            var tag = new BlockTag();
+
+        	State.PushScope(tag);
             var setup = Initialization.CreateStatement(State);
             var condExpr = Condition.CreateExpression(State);
             var change = DeltaStatement.CreateStatement(State);
             var body = Body.CreateStatement(State);
             var cleanup = State.PopScope();
-            return SourceStatement.Create(new ForStatement(setup, condExpr, change, body, cleanup), Location);
+            return SourceStatement.Create(new ForStatement(tag, setup, condExpr, change, body, cleanup), Location);
         }
 
         public override string ToString()
