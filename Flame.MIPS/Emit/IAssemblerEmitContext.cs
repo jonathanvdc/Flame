@@ -84,6 +84,7 @@ namespace Flame.MIPS.Emit
 
     public interface IFlowControlStructure
     {
+        BlockTag Tag { get; }
         IAssemblerBlock EmitBreak();
         IAssemblerBlock EmitContinue();
     }

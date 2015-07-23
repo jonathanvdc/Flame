@@ -47,9 +47,9 @@ namespace Flame.Cecil.Emit
             }
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get { return new SinglePushBehavior(PrimitiveTypes.Boolean); }
+            get { return PrimitiveTypes.Boolean; }
         }
     }
 }

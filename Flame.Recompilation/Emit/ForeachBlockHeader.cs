@@ -12,10 +12,10 @@ namespace Flame.Recompilation.Emit
 {
     public class ForeachBlockHeader : IForeachBlockHeader
     {
-        public ForeachBlockHeader(RecompiledCodeGenerator CodeGenerator, IEnumerable<CollectionBlock> Collections)
+        public ForeachBlockHeader(RecompiledCodeGenerator CodeGenerator, BlockTag Tag, IEnumerable<CollectionBlock> Collections)
         {
             var collElems = Collections.Select(item => new CollectionElement(item.Member, item.Collection)).ToArray();
-            this.foreachStatement = new ForeachStatement(collElems);
+            this.foreachStatement = new ForeachStatement(Tag, collElems);
         }
 
         public RecompiledCodeGenerator CodeGenerator { get; private set; }
@@ -24,7 +24,7 @@ namespace Flame.Recompilation.Emit
 
         public IReadOnlyList<IEmitVariable> Elements
         {
-            get 
+            get
             {
                 if (elems == null)
                 {
@@ -35,7 +35,7 @@ namespace Flame.Recompilation.Emit
                     }
                     elems = foreachElems;
                 }
-                return elems; 
+                return elems;
             }
         }
 

@@ -7,18 +7,29 @@ namespace Flame.Compiler.Statements
 {
     public class ForStatement : ComplexStatement, IPredicateNode, IFlowStatement
     {
-    	public const this(set IStatement Setup, set IExpression Condition, set IStatement Change, set IStatement Body, set IStatement End);
+    	public const this(set BlockTag Tag, set IStatement Setup,
+                          set IExpression Condition, set IStatement Change,
+                          set IStatement Body, set IStatement End);
+        public const this(set IStatement Setup,set IExpression Condition,
+                          set IStatement Change, set IStatement Body,
+                          set IStatement End)
+        {
+            this.Tag = new BlockTag();
+        }
     	public const this(set IStatement Setup, set IExpression Condition, set IStatement Change, set IStatement Body)
         {
+            this.Tag = new BlockTag();
         	this.End = EmptyStatement;
         }
         public const this(set IExpression Condition, set IStatement Change, set IStatement Body)
         {
+            this.Tag = new BlockTag();
         	this.Setup = EmptyStatement;
         	this.End = EmptyStatement;
         }
         public const this()
         {
+            this.Tag = new BlockTag();
             this.Setup = EmptyStatement;
             this.Condition = new BooleanExpression(false);
             this.Body = EmptyStatement;
@@ -26,27 +37,12 @@ namespace Flame.Compiler.Statements
             this.End = EmptyStatement;
         }
 
+        public BlockTag Tag { const get; private set; }
         public IStatement Setup { const get; private set; }
         public IExpression Condition { const get; private set; }
         public IStatement Body { const get; private set; }
         public IStatement Change { const get; private set; }
         public IStatement End { const get; private set; }
-
-        public override IStatement Optimize()
-        {
-            var optSetup = Setup.Optimize();
-            var optCond = Condition.Optimize();
-
-            if (optCond.EvaluatesTo<bool>(false))
-                return optSetup;
-
-            var stmt = new ForStatement(optSetup, optCond, Change.Optimize(), Body.Optimize(), End.Optimize());
-            if (stmt.IsEmpty)
-            {
-            	return EmptyStatement;
-            }
-            return stmt;
-        }
 
         private const ForStatement CreateFor(IStatement NewSetup, IExpression NewCondition,
                                              IStatement NewChange, IStatement NewBody,
@@ -60,8 +56,24 @@ namespace Flame.Compiler.Statements
             }
             else
             {
-                return new ForStatement(NewSetup, NewCondition, NewChange, NewBody, NewEnd);
+                return new ForStatement(Tag, NewSetup, NewCondition, NewChange, NewBody, NewEnd);
             }
+        }
+
+        public override IStatement Optimize()
+        {
+            var optSetup = Setup.Optimize();
+            var optCond = Condition.Optimize();
+
+            if (optCond.EvaluatesTo<bool>(false))
+                return optSetup;
+
+            var stmt = CreateFor(optSetup, optCond, Change.Optimize(), Body.Optimize(), End.Optimize());
+            if (stmt.IsEmpty)
+            {
+            	return EmptyStatement;
+            }
+            return stmt;
         }
 
         public void AcceptPredicate(INodeVisitor Visitor)
@@ -111,7 +123,7 @@ namespace Flame.Compiler.Statements
         		var condBlock = Condition.Emit(cg);
         		var deltaBlock = Change.Emit(cg);
                 var bodyBlock = Body.Emit(cg);
-        		var forBlock = cg.EmitForBlock(setupBlock, condBlock, deltaBlock, bodyBlock);
+        		var forBlock = cg.EmitForBlock(Tag, setupBlock, condBlock, deltaBlock, bodyBlock);
         		if (forBlock != null) // Code generator may choose to refuse our
                                       // painstakingly constructed for block if it so chooses
         		{
@@ -137,7 +149,7 @@ namespace Flame.Compiler.Statements
             var loopBody = new List<IStatement>();
             loopBody.Add(Body);
             loopBody.Add(Change);
-            WhileStatement loop = new WhileStatement(Condition, new BlockStatement(loopBody));
+            var loop = new WhileStatement(Tag, Condition, new BlockStatement(loopBody));
             list.Add(loop);
 
             list.Add(End);

@@ -23,20 +23,12 @@ namespace Flame.Cecil.Emit
         {
             Value.Emit(Context);
             Context.Emit(OpCodes.Throw);
-            InstructionStackBehavior.Apply(Context.Stack);
+            Context.Stack.Pop();
         }
 
-        private IStackBehavior InstructionStackBehavior
+        public IType BlockType
         {
-            get
-            {
-                return new PopStackBehavior(1);
-            }
-        }
-
-        public IStackBehavior StackBehavior
-        {
-            get { return new PopStackBehavior(0); }
+            get { return PrimitiveTypes.Void; }
         }
     }
 }

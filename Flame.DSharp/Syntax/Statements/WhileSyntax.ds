@@ -42,7 +42,9 @@ namespace Flame.Syntax.DSharp
 
         public const IStatement CreateStatement(ISyntaxState State) : IStatementSyntax.CreateStatement
         {
-        	State.PushScope();
+            var tag = new BlockTag();
+
+        	State.PushScope(tag);
             var cond = Condition.CreateExpression(State);
             var body = Body.CreateStatement(State);
 
@@ -56,10 +58,10 @@ namespace Flame.Syntax.DSharp
             }
 
             var cleanup = State.PopScope();
-            var whileLoop = new WhileStatement(cond, body);
+            var whileLoop = new WhileStatement(tag, cond, body);
             IStatement[] statements = new IStatement[]
             {
-                SourceStatement.Create(whileLoop, Location), 
+                SourceStatement.Create(whileLoop, Location),
                 cleanup
             };
             return new BlockStatement(statements);

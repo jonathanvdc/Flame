@@ -62,7 +62,8 @@ namespace Flame.Cecil.Emit
                 {
                     ILCodeGenerator.EmitCall(Context, method, callerType);
                 }
-                Context.Stack.Push(method.ReturnType);
+
+                Context.Stack.PushValue(method.ReturnType);
             }
             else
             {
@@ -88,22 +89,22 @@ namespace Flame.Cecil.Emit
                 ILCodeGenerator.EmitArguments(Arguments, method, Context);
                 Context.Emit(OpCodes.Calli, callSite); */
 
-                Context.Stack.Push(invokeMethod.ReturnType);
+                Context.Stack.PushValue(invokeMethod.ReturnType);
                
-            }
-        }
-
-        public IStackBehavior StackBehavior
-        {
-            get 
-            {
-                return new InvocationStackBehavior(Method.StackBehavior, Arguments.Select((item) => item.StackBehavior));
             }
         }
 
         public ICodeGenerator CodeGenerator
         {
             get { return Method.CodeGenerator; }
+        }
+
+        public IType BlockType
+        {
+            get 
+            {
+                return MethodType.GetMethod(Method.BlockType).ReturnType;
+            }
         }
     }
 }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
-    public class ILCodeGenerator : IBranchingCodeGenerator, IUnmanagedCodeGenerator, IExceptionCodeGenerator
+    public class ILCodeGenerator : IBranchingCodeGenerator, IUnmanagedCodeGenerator, IExceptionCodeGenerator, IWhileCodeGenerator
     {
         public ILCodeGenerator(IMethod Method)
         {
@@ -24,13 +24,15 @@ namespace Flame.Cecil.Emit
         {
             var ilLeft = (ICecilBlock)A;
             var ilRight = (ICecilBlock)B;
+
+            // Optimize `0 - x` to `-x`
+            // TODO: Maybe get rid of this. 
+            //       This is really something that should be done elsewhere.
             if (Op.Equals(Operator.Subtract) && ilLeft.IsInt32Literal() && ilLeft.GetInt32Literal() == 0)
             {
                 if (ilRight.IsInt32Literal())
                 {
-                    var tStack = new TypeStack();
-                    ilRight.StackBehavior.Apply(tStack);
-                    return new RetypedBlock((ICecilBlock)EmitInt32(-ilRight.GetInt32Literal()), tStack.Pop());
+                    return new RetypedBlock((ICecilBlock)EmitInt32(-ilRight.GetInt32Literal()), ilRight.BlockType);
                 }
                 else
                 {
@@ -53,26 +55,34 @@ namespace Flame.Cecil.Emit
 
         public ICodeBlock EmitUnary(ICodeBlock Value, Operator Op)
         {
-            return new UnaryOpBlock(this, (ICecilBlock)Value, Op);
+            var val = (ICecilBlock)Value;
+            if (UnaryOpBlock.Supports(Op, val.BlockType))
+            {
+                return new UnaryOpBlock(this, val, Op);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         #endregion
 
         #region Blocks
 
-        public ICodeBlock EmitBreak()
+        public ICodeBlock EmitBreak(BlockTag Target)
         {
-            return new BreakBlock(this);
+            return new BreakBlock(this, Target);
         }
 
-        public ICodeBlock EmitContinue()
+        public ICodeBlock EmitContinue(BlockTag Target)
         {
-            return new ContinueBlock(this);
+            return new ContinueBlock(this, Target);
         }
 
-        public ICodeBlock EmitDoWhile(ICodeBlock Body, ICodeBlock Condition)
+        public ICodeBlock EmitDoWhile(BlockTag Tag, ICodeBlock Body, ICodeBlock Condition)
         {
-            return new DoWhileBlock(this, (ICecilBlock)Condition, (ICecilBlock)Body);
+            return new DoWhileBlock(this, Tag, (ICecilBlock)Condition, (ICecilBlock)Body);
         }
 
         public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
@@ -100,9 +110,14 @@ namespace Flame.Cecil.Emit
             return new EmptyBlock(this);
         }
 
-        public ICodeBlock EmitWhile(ICodeBlock Condition, ICodeBlock Body)
+        public ICodeBlock EmitWhile(BlockTag Tag, ICodeBlock Condition, ICodeBlock Body)
         {
-            return new WhileBlock(this, (ICecilBlock)Condition, (ICecilBlock)Body);
+            return new WhileBlock(this, Tag, (ICecilBlock)Condition, (ICecilBlock)Body);
+        }
+
+        public ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents)
+        {
+            return new TaggedBlock(this, Tag, (ICecilBlock)Contents);
         }
 
         #endregion

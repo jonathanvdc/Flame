@@ -27,16 +27,11 @@ namespace Flame.Compiler
 		ICodeBlock EmitSequence(ICodeBlock First, ICodeBlock Second);
 
 		/// <summary>
-		/// Creates a block that repeats the given body as long as the given condition
-		/// block evaluates to true.
+		/// Creates a tagged block: a block that supports "break" and "continue".
+		/// "break" means: jump to the end of this block; "continue" means:
+		/// jump to the start of this block.
 		/// </summary>
-		ICodeBlock EmitWhile(ICodeBlock Condition, ICodeBlock Body);
-
-		/// <summary>
-		/// Creates a block that executes the given body once, and then keeps on executing
-		/// it as long as the given condition block evaluates to true.
-		/// </summary>
-		ICodeBlock EmitDoWhile(ICodeBlock Body, ICodeBlock Condition);
+		ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents);
 
 		/// <summary>
 		/// Creates a block that executes and returns the given if body if the
@@ -58,16 +53,16 @@ namespace Flame.Compiler
 		ICodeBlock EmitReturn(ICodeBlock Value);
 
 		/// <summary>
-		/// Creates a break block: a block that 'breaks' out of the enclosing loop block:
+		/// Creates a break block: a block that 'breaks' out of the given enclosing block:
 		/// control is transferred to the block that trails said block.
 		/// </summary>
-		ICodeBlock EmitBreak();
+		ICodeBlock EmitBreak(BlockTag Target);
 
 		/// <summary>
 		/// Creates a continue block: a block that stops the execution of the
-		/// enclosing loop block's body, and starts the next iteration.
+		/// given enclosing block's body, and starts the next iteration.
 		/// </summary>
-		ICodeBlock EmitContinue();
+		ICodeBlock EmitContinue(BlockTag Target);
 
 		#region Constants
 
@@ -209,5 +204,20 @@ namespace Flame.Compiler
 		IEmitVariable GetField(IField Field, ICodeBlock Target);
 
 		#endregion
+	}
+
+	public interface IWhileCodeGenerator : ICodeGenerator
+	{
+		/// <summary>
+		/// Creates a block that repeats the given body as long as the given condition
+		/// block evaluates to true.
+		/// </summary>
+		ICodeBlock EmitWhile(BlockTag Tag, ICodeBlock Condition, ICodeBlock Body);
+
+		/// <summary>
+		/// Creates a block that executes the given body once, and then keeps on executing
+		/// it as long as the given condition block evaluates to true.
+		/// </summary>
+		ICodeBlock EmitDoWhile(BlockTag Tag, ICodeBlock Body, ICodeBlock Condition);
 	}
 }

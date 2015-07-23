@@ -83,6 +83,8 @@
     <Compile Include="CecilTypeMemberImporterBase.cs" />
     <Compile Include="CecilTypeSystem.cs" />
     <Compile Include="ConverterCache.cs" />
+    <Compile Include="Emit\DereferenceBlock.cs" />
+    <Compile Include="Emit\TaggedBlock.cs" />
     <Compile Include="Emit\TryCatchBlock.cs" />
     <Compile Include="Emit\CatchClause.cs" />
     <Compile Include="Emit\LoadFieldIndirectionOptimization.cs" />
@@ -160,7 +162,6 @@
     <Compile Include="CecilTypeMemberBase.cs" />
     <Compile Include="CecilVectorType.cs" />
     <Compile Include="Emit\BinaryOpBlock.cs" />
-    <Compile Include="Emit\BinaryStackBehavior.cs" />
     <Compile Include="Emit\BlockBuilder.cs" />
     <Compile Include="Emit\BlockStackBehavior.cs" />
     <Compile Include="Emit\BreakBlock.cs" />
@@ -176,11 +177,9 @@
     <Compile Include="Emit\IPeepholeOptimization.cs" />
     <Compile Include="Emit\ITypedInstructionEmitter.cs" />
     <Compile Include="Emit\MethodBlock.cs" />
-    <Compile Include="Emit\MethodType.cs" />
     <Compile Include="Emit\NewArrayBlock.cs" />
     <Compile Include="Emit\NotOptimization.cs" />
     <Compile Include="Emit\OpCodeBlock.cs" />
-    <Compile Include="Emit\CheckBinaryStackBehavior.cs" />
     <Compile Include="Emit\ILCodeGenerator.cs" />
     <Compile Include="Emit\DoWhileBlock.cs" />
     <Compile Include="Emit\IfElseBlock.cs" />
@@ -219,7 +218,6 @@
     <Compile Include="ICecilTypeMember.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Emit\TypeStack.cs" />
-    <Compile Include="Emit\UnaryStackBehavior.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FlameRT\FlameRT.csproj">

@@ -24,24 +24,16 @@ namespace Flame.Cecil.Emit
             if (Value != null)
                 Value.Emit(Context);
             Context.Emit(OpCodes.Ret);
-            /*if (((PopStackBehavior)InstructionStackBehavior).PopCount > 0 && Context.Stack.Count == 0) // Tests for stack underflow
-            {
-                System.Diagnostics.Debugger.Break();
-            }*/
-            InstructionStackBehavior.Apply(Context.Stack);
-        }
 
-        private IStackBehavior InstructionStackBehavior
-        {
-            get
+            if (CodeGenerator.Method.get_HasReturnValue())
             {
-                return new PopStackBehavior(CodeGenerator.Method.get_HasReturnValue() ? 1 : 0);
+                Context.Stack.Pop();
             }
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get { return new PopStackBehavior(0); }
+            get { return PrimitiveTypes.Void; }
         }
     }
 }

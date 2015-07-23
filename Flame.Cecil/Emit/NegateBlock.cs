@@ -22,9 +22,9 @@ namespace Flame.Cecil.Emit
             Context.Emit(Mono.Cecil.Cil.OpCodes.Neg);
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get { return Value.StackBehavior; }
+            get { return Value.BlockType; }
         }
 
         public ICodeGenerator CodeGenerator

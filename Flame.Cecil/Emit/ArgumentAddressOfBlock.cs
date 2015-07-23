@@ -29,12 +29,12 @@ namespace Flame.Cecil.Emit
             {
                 Context.Emit(OpCodes.Ldarga, Index);
             }
-            StackBehavior.Apply(Context.Stack);
+            Context.Stack.Push(BlockType);
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get { return new SinglePushBehavior(ILCodeGenerator.GetExtendedParameterTypes(CodeGenerator)[Index].MakePointerType(PointerKind.ReferencePointer)); }
+            get { return ILCodeGenerator.GetExtendedParameterTypes(CodeGenerator)[Index].MakePointerType(PointerKind.ReferencePointer); }
         }
     }
 }

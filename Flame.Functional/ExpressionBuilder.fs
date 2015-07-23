@@ -83,29 +83,35 @@ module ExpressionBuilder =
 
     /// Creates a while loop expression,
     /// which has type void.
-    let While condition body =
-        ToExpression(new WhileStatement(condition, ToStatement body))
+    let While tag condition body =
+        ToExpression(new WhileStatement(tag, condition, ToStatement body))
 
     /// Creates a do-while loop expression,
     /// which has type void.
-    let DoWhile body condition =
-        ToExpression(new DoWhileStatement(ToStatement body, condition))
+    let DoWhile tag body condition =
+        ToExpression(new DoWhileStatement(tag, ToStatement body, condition))
+
+    /// Creates a new tagged block expression.
+    let Tagged tag body =
+        ToExpression(new TaggedStatement(tag, ToStatement body))
 
     /// Creates a for loop expression,
     /// which has type void.
-    let For initialization condition delta body =
-        ToExpression(new ForStatement(ToStatement initialization, 
-                                                        condition, 
-                                                        ToStatement delta, 
-                                                        ToStatement body))
+    let For tag initialization condition delta body =
+        ToExpression(new ForStatement(tag, 
+                                      ToStatement initialization, 
+                                      condition, 
+                                      ToStatement delta, 
+                                      ToStatement body,
+                                      EmptyStatement.Instance))
 
     /// Creates a break expression.
-    let Break =
-        ToExpression(new BreakStatement())
+    let Break (scope : LocalScope) =
+        ToExpression(new BreakStatement(scope.ControlTag))
 
     /// Creates a continue expression.
-    let Continue =
-        ToExpression(new ContinueStatement())
+    let Continue (scope : LocalScope) =
+        ToExpression(new ContinueStatement(scope.ControlTag))
 
     /// Discards this expression's value.
     /// The resulting expression is of type void.

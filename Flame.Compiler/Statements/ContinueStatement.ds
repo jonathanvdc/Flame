@@ -7,7 +7,9 @@ namespace Flame.Compiler.Statements
 {
     public class ContinueStatement : IStatement
     {
-        public const this();
+        public const this(set BlockTag Target);
+
+        public BlockTag Target { const get; private set; }
 
         public IStatement Accept(INodeVisitor Visitor)
         {
@@ -16,7 +18,7 @@ namespace Flame.Compiler.Statements
 
         public ICodeBlock Emit(ICodeGenerator Generator)
         {
-            return Generator.EmitContinue();
+            return Generator.EmitContinue(Target);
         }
 
         public bool IsEmpty
@@ -26,7 +28,7 @@ namespace Flame.Compiler.Statements
 
         public const IStatement Optimize()
         {
-            return new ContinueStatement();
+            return this;
         }
     }
 }

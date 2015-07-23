@@ -20,12 +20,12 @@ namespace Flame.Cecil.Emit
 
         public void Emit(IEmitContext Context)
         {
-            StackBehavior.Apply(Context.Stack);
+            Context.Stack.Push(Type);
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get { return new SinglePushBehavior(Type); }
-        }        
+            get { return Type; }
+        }
     }
 }

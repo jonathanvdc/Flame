@@ -10,7 +10,7 @@ namespace Flame.Cpp.Emit
 {
     public class CppCodeGenerator : IUnmanagedCodeGenerator, IForeachCodeGenerator,
         IExceptionCodeGenerator, IForCodeGenerator, IInitializingCodeGenerator,
-        IContractCodeGenerator
+        IContractCodeGenerator, IWhileCodeGenerator
     {
         public CppCodeGenerator(IMethod Method, ICppEnvironment Environment)
         {
@@ -44,14 +44,19 @@ namespace Flame.Cpp.Emit
 
         #region Block Generators
 
-        public ICodeBlock EmitBreak()
+        public ICodeBlock EmitBreak(BlockTag Tag)
         {
             return new KeywordStatementBlock(this, "break");
         }
 
-        public ICodeBlock EmitContinue()
+        public ICodeBlock EmitContinue(BlockTag Tag)
         {
             return new KeywordStatementBlock(this, "continue");
+        }
+
+        public ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents)
+        {
+            return null;
         }
 
         private ICodeBlock EmitUnionBlock(ICppBlock UnionBlock, params ICppBlock[] UnionItems)
@@ -67,7 +72,7 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        public ICodeBlock EmitDoWhile(ICodeBlock Body, ICodeBlock Condition)
+        public ICodeBlock EmitDoWhile(BlockTag Tag, ICodeBlock Body, ICodeBlock Condition)
         {
             var cond = (ICppBlock)Condition;
             var body = (ICppBlock)Body;
@@ -106,7 +111,7 @@ namespace Flame.Cpp.Emit
             return new EmptyBlock(this);
         }
 
-        public ICodeBlock EmitWhile(ICodeBlock Condition, ICodeBlock Body)
+        public ICodeBlock EmitWhile(BlockTag Tag, ICodeBlock Condition, ICodeBlock Body)
         {
             var cond = (ICppBlock)Condition;
             var body = (ICppBlock)Body;
@@ -493,7 +498,7 @@ namespace Flame.Cpp.Emit
             return new ForeachBlock(header, body);
         }
 
-        public IForeachBlockHeader EmitForeachHeader(IEnumerable<ICollectionBlock> Collections)
+        public IForeachBlockHeader EmitForeachHeader(BlockTag Tag, IEnumerable<ICollectionBlock> Collections)
         {
             if (Collections.Any() && !Collections.Skip(1).Any()) // == (Collections.Count() == 1)
             {
@@ -540,7 +545,7 @@ namespace Flame.Cpp.Emit
 
         #region IForCodeGenerator
 
-        public ICodeBlock EmitForBlock(ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body)
+        public ICodeBlock EmitForBlock(BlockTag Tag, ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body)
         {
             var cppInit = (ICppBlock)Initialization;
             var cppCond = (ICppBlock)Condition;

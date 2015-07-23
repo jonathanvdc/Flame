@@ -1,0 +1,69 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler.Statements
+{
+    /// <summary>
+    /// Defines a tagged statement: the statement equivalent of a
+    /// code generator's tagged block.
+    /// Tagged statements are potential targets for "break" and "continue"
+    /// statements.
+    /// </summary>
+	public class TaggedStatement : IStatement, IFlowStatement
+	{
+		public const this(set BlockTag Tag, set IStatement Body);
+
+		public BlockTag Tag { const get; private set; }
+		public IStatement Body { const get; private set; }
+
+		private const TaggedStatement CreateTagged(IStatement NewBody)
+		{
+			if (NewBody == Body)
+			{
+				return this;
+			}
+			else
+			{
+				return new TaggedStatement(Tag, NewBody);
+			}
+		}
+
+		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+			: IFlowStatement.AcceptFlow<TState, TFlow>
+		{
+			var startFlow = Visitor.CurrentFlow;
+
+			var transBody = Visitor.Visit(Body);
+
+			var bodyFlow = Visitor.CreateDeltaFlow(startFlow, Visitor.CurrentFlow);
+
+			var loopFlow = Visitor.CreateLoopFlow(bodyFlow);
+
+			Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(startFlow, loopFlow);
+
+			return CreateTagged(transBody);
+		}
+
+		public IStatement Accept(INodeVisitor Visitor)
+		{
+			return CreateTagged(Visitor.Visit(Body));
+		}
+
+		public bool IsEmpty : IStatement.IsEmpty
+		{
+			const get return Body.IsEmpty;
+		}
+
+		public IStatement Optimize() : IStatement.Optimize
+		{
+            return CreateTagged(Body.Optimize());
+		}
+
+		public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
+		{
+			var body = Body.Emit(Generator);
+			return Generator.EmitTagged(Tag, body);
+		}
+	}
+}

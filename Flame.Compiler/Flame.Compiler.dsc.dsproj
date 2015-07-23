@@ -13,6 +13,7 @@
 		<Reference Include="../Pixie/bin/Pixie.dll" />
 	</ItemGroup>
 	<ItemGroup>
+		<Compile Include="BlockTag.ds" />
 		<Compile Include="IMemberNode.ds" />
 		<Compile Include="INode.ds" />
 		<Compile Include="IExpression.ds" />
@@ -159,6 +160,7 @@
 			<Compile Include="Statements\BreakStatement.ds" />
 			<Compile Include="Statements\ContinueStatement.ds" />
 			<Compile Include="Statements\DoWhileStatement.ds" />
+			<Compile Include="Statements\TaggedStatement.ds" />
 			<Compile Include="Statements\YieldReturnStatement.ds" />
 			<Compile Include="Statements\YieldBreakStatement.ds" />
 			<Compile Include="Statements\ForeachStatement.ds" />

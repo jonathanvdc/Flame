@@ -49,14 +49,15 @@ namespace Flame.Cecil.Emit
             Context.Stack.Push(elemType.MakePointerType(PointerKind.ReferencePointer));
         }
 
-        public IStackBehavior StackBehavior
-        {
-            get { return new SinglePushBehavior(Variable.Type.MakePointerType(PointerKind.ReferencePointer)); }
-        }
-
         public ICodeGenerator CodeGenerator
         {
             get { return Variable.CodeGenerator; }
+        }
+
+
+        public IType BlockType
+        {
+            get { return Variable.Type.MakePointerType(PointerKind.ReferencePointer); }
         }
     }
 }

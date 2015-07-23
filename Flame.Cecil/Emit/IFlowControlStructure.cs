@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Flame.Compiler;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace Flame.Cecil.Emit
 {
     public interface IFlowControlStructure
     {
+        BlockTag Tag { get; }
         ICecilBlock CreateBreak();
         ICecilBlock CreateContinue();
     }

@@ -6,7 +6,7 @@ namespace Flame
 	public static class PrimitiveAttributes
 	{
 		#region Static
-		
+
 		static this()
 		{
 			PrimitiveAttributes.InterfaceAttribute = new FlagAttribute("InterfaceAttribute");
@@ -24,11 +24,10 @@ namespace Flame
 			PrimitiveAttributes.InlineAttribute = new FlagAttribute("InlineAttribute");
 			PrimitiveAttributes.OutAttribute = new FlagAttribute("OutAttribute");
 			PrimitiveAttributes.InAttribute = new FlagAttribute("InAttribute");
-			PrimitiveAttributes.SetsMemberAttribute = new FlagAttribute("SetsMemberAttribute");
 			PrimitiveAttributes.StaticTypeAttribute = new FlagAttribute("StaticTypeAttribute");
 			PrimitiveAttributes.CastAttribute = new FlagAttribute("CastAttribute");
 		}
-		
+
 		public static IAttribute InterfaceAttribute { const get; private set; }
 		public static IAttribute ValueTypeAttribute { const get; private set; }
 		public static IAttribute ReferenceTypeAttribute { const get; private set; }
@@ -44,10 +43,9 @@ namespace Flame
 		public static IAttribute InlineAttribute { const get; private set; }
 		public static IAttribute OutAttribute { const get; private set; }
 		public static IAttribute InAttribute { const get; private set; }
-		public static IAttribute SetsMemberAttribute { const get; private set; }
 		public static IAttribute StaticTypeAttribute { const get; private set; }
 		public static IAttribute CastAttribute { const get; private set; }
-		
+
 		#endregion
 	}
 }

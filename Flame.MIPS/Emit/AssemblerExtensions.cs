@@ -226,5 +226,17 @@ namespace Flame.MIPS.Emit
         {
             return new StaticStorage(CodeGenerator, DataItem);
         }
+
+        public static IFlowControlStructure GetFlowControl(this IAssemblerEmitContext Context, BlockTag Tag)
+        {
+            foreach (var item in Context.FlowControl)
+            {
+                if (item.Tag == Tag)
+                {
+                    return item;
+                }
+            }
+            return null;
+        }
     }
 }

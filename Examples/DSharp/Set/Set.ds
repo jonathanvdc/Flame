@@ -1,0 +1,40 @@
+
+/// <summary>
+/// Defines a generic two-dimensional point.
+/// </summary>
+public struct Point2<T>
+{
+    /// <summary>
+    /// Creates a new point based on the given X and Y coordinates.
+    /// </summary>
+    /// <remarks>
+    /// The `set` keyword is shorthand for storing an argument's value in this type's
+    /// field or property of the same name and type.
+    /// The one-liner below is semantically equivalent to:
+    ///
+    /// public const this(T X, T Y)
+    /// {
+    ///     this.X = X;
+    ///     this.Y = Y;
+    /// }
+    /// </remarks>
+    public const this(set T X, set T Y);
+
+    /// <summary>
+    /// Sets this point's X and Y coordinates.
+    /// </summary>
+    /// <remarks>
+    /// The `set` keyword can be used in "normal" methods (i.e., not constructors)
+    /// as well, but this is uncommon.
+    /// </remarks>
+    public void Mutate(set T X, set T Y);
+
+    /// <summary>
+    /// Gets or sets the two-dimensional point's X-coordinate.
+    /// </summary>
+    public T X { const get; set; }
+    /// <summary>
+    /// Gets or sets the two-dimensional point's Y-coordinate.
+    /// </summary>
+    public T Y { const get; set; }
+}

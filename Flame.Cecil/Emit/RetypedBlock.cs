@@ -25,9 +25,9 @@ namespace Flame.Cecil.Emit
             Context.Stack.Push(Type);
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get { return new SinglePushBehavior(Type); }
+            get { return Type; }
         }
 
         public ICodeGenerator CodeGenerator

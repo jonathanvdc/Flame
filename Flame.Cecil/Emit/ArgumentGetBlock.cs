@@ -45,12 +45,12 @@ namespace Flame.Cecil.Emit
             {
                 Context.Emit(OpCodes.Ldarg, Index);
             }
-            StackBehavior.Apply(Context.Stack);
+            Context.Stack.Push(BlockType);
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get { return new SinglePushBehavior(ILCodeGenerator.GetExtendedParameterTypes(CodeGenerator)[Index]); }
+            get { return ILCodeGenerator.GetExtendedParameterTypes(CodeGenerator)[Index];  }
         }
     }
 }
