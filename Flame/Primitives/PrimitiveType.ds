@@ -26,20 +26,20 @@ namespace Flame.Primitives
 
         public virtual ITypeMember[] GetMembers()
         {
-            List<ITypeMember> members = new List<ITypeMember>();
-            members.AddRange((IEnumerable<ITypeMember>)GetMethods());
-            members.AddRange((IEnumerable<ITypeMember>)GetProperties());
-            members.AddRange((IEnumerable<ITypeMember>)GetFields());
-            members.AddRange((IEnumerable<ITypeMember>)GetConstructors());
+            var members = new List<ITypeMember>();
+            members.AddRange(([ITypeMember])GetMethods());
+            members.AddRange(([ITypeMember])GetProperties());
+            members.AddRange(([ITypeMember])GetFields());
+            members.AddRange(([ITypeMember])GetConstructors());
             return members.ToArray();
         }
-        
+
         protected IMethod[] GetCommonPrimitiveMethods()
         {
         	var parseMethod = new DescribedMethod("Parse", this, this, true); // static const T Parse(string Value); where T is the current type
         	parseMethod.AddParameter(new DescribedParameter("Value", PrimitiveTypes.String));
         	parseMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	
+
             return new IMethod[]
             {
                 new PrimitiveMethod(this, "ToString", false, PrimitiveTypes.String, new IParameter[0]),
@@ -115,45 +115,31 @@ namespace Flame.Primitives
 
         public string FullName
         {
-            const get 
+            const get
             {
             	return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
             }
         }
 
-        public const IEnumerable<IAttribute> GetAttributes()
+        public const [IAttribute] GetAttributes()
         {
             /*return new IAttribute[] { new ValueTypeAttribute() };*/
-            return (IEnumerable<IAttribute>)new IAttribute[0];
-        }
-
-        public override int GetHashCode()
-        {
-            return Name.GetHashCode();
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is PrimitiveType<T>)
-            {
-                return ((PrimitiveType<T>)obj).Name.Equals(this.Name);
-            }
-            return false;
+            return new IAttribute[0];
         }
 
         #region Generics
 
-        public IType MakeGenericType(IEnumerable<IType> TypeArguments) : IType.MakeGenericType
+        public IType MakeGenericType([IType] TypeArguments) : IType.MakeGenericType
         {
         	return this;
         }
 
-        public IEnumerable<IGenericParameter> GetGenericParameters() : IGenericMember.GetGenericParameters
+        public [IGenericParameter] GetGenericParameters() : IGenericMember.GetGenericParameters
         {
             return new IGenericParameter[0];
         }
 
-        public IEnumerable<IType> GetGenericArguments() : IGenericMember.GetGenericArguments
+        public [IType] GetGenericArguments() : IGenericMember.GetGenericArguments
         {
             return new IType[0];
         }

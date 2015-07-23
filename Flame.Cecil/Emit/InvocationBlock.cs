@@ -62,7 +62,8 @@ namespace Flame.Cecil.Emit
                 {
                     ILCodeGenerator.EmitCall(Context, method, callerType);
                 }
-                Context.Stack.Push(method.ReturnType);
+
+                Context.Stack.PushValue(method.ReturnType);
             }
             else
             {
@@ -88,7 +89,7 @@ namespace Flame.Cecil.Emit
                 ILCodeGenerator.EmitArguments(Arguments, method, Context);
                 Context.Emit(OpCodes.Calli, callSite); */
 
-                Context.Stack.Push(invokeMethod.ReturnType);
+                Context.Stack.PushValue(invokeMethod.ReturnType);
                
             }
         }

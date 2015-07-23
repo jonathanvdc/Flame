@@ -177,7 +177,6 @@
     <Compile Include="Emit\IPeepholeOptimization.cs" />
     <Compile Include="Emit\ITypedInstructionEmitter.cs" />
     <Compile Include="Emit\MethodBlock.cs" />
-    <Compile Include="Emit\MethodType.cs" />
     <Compile Include="Emit\NewArrayBlock.cs" />
     <Compile Include="Emit\NotOptimization.cs" />
     <Compile Include="Emit\OpCodeBlock.cs" />
