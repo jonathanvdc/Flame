@@ -5,8 +5,13 @@ namespace Flame.Compiler.Statements
 {
 	public class WhileStatement : IStatement, IFlowStatement
 	{
-		public const this(set IExpression Condition, set IStatement Body);
+		public const this(set IExpression Condition, set IStatement Body)
+		{
+			this.Tag = new BlockTag();
+		}
+		public const this(set BlockTag Tag, set IExpression Condition, set IStatement Body);
 
+		public BlockTag Tag { const get; private set; }
 		public IExpression Condition { const get; private set; }
 		public IStatement Body { const get; private set; }
 
@@ -14,7 +19,7 @@ namespace Flame.Compiler.Statements
 		{
 			const get
 			{
-				return Body.IsEmpty || Condition.EvaluatesTo<bool>(false);
+				return Condition.EvaluatesTo<bool>(false);
 			}
 		}
 
@@ -26,7 +31,7 @@ namespace Flame.Compiler.Statements
 			}
 			else
 			{
-				return new WhileStatement(NewCondition, NewBody);
+				return new WhileStatement(Tag, NewCondition, NewBody);
 			}
 		}
 
@@ -62,14 +67,40 @@ namespace Flame.Compiler.Statements
 			}
 
 			var optBody = Body.Optimize();
-			return new WhileStatement(optCond, optBody);
+			return CreateWhile(optCond, optBody);
 		}
 
 		public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
 		{
 			var conditionBlock = Condition.Emit(Generator);
 			var bodyBlock = Body.Emit(Generator);
-			return Generator.EmitWhile(conditionBlock, bodyBlock);
+			if (Generator is IWhileCodeGenerator)
+			{
+				var whileCg = (IWhileCodeGenerator)Generator;
+				return whileCg.EmitWhile(Tag, conditionBlock, bodyBlock);
+			}
+			else
+			{
+				// "Lower" a while block like this:
+				//
+				// while (cond) stmt;
+				//
+				// ==>
+				//
+				// block:
+				// {
+				//     if (!cond) break block;
+				//     stmt;
+				//     continue block;
+				// }
+
+				var breakBlock = Generator.EmitIfElse(Generator.EmitNot(conditionBlock),
+												      Generator.EmitBreak(Tag),
+													  Generator.EmitVoid());
+				var continueBlock = Generator.EmitContinue(Tag);
+				var seqBlock = Generator.EmitSequence(Generator.EmitSequence(breakBlock, bodyBlock), continueBlock);
+				return Generator.EmitTagged(Tag, seqBlock);
+			}
 		}
 	}
 }

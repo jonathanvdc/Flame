@@ -21,8 +21,9 @@ namespace Flame.Compiler.Statements
 
 	public class ForeachStatement : IStatement, IPredicateNode, IMemberNode, IFlowStatement
 	{
-		public const this(set [CollectionElement] Collections, set IStatement Body, set ForeachElementCache elemCache);
-		public const this(set [CollectionElement] Collections)
+		public const this(set BlockTag Tag, set [CollectionElement] Collections,
+						  set IStatement Body, set ForeachElementCache elemCache);
+		public const this(set BlockTag Tag, set [CollectionElement] Collections)
 		{
 			this.Body = EmptyStatement;
 			this.elemCache = new ForeachElementCache();
@@ -32,6 +33,7 @@ namespace Flame.Compiler.Statements
 			}
 		}
 
+		public BlockTag Tag { const get; private set; }
 		public [CollectionElement] Collections { const get; private set; }
 		public IStatement Body { const get; set; }
 
@@ -66,7 +68,7 @@ namespace Flame.Compiler.Statements
 				return this;
 			}
 
-			var newForeachStmt = new ForeachStatement(newCollectionElements);
+			var newForeachStmt = new ForeachStatement(Tag, newCollectionElements);
 
 			var substDict = new Dictionary<IVariable, IVariable>();
 			foreach (var item in newForeachStmt.elemCache.ElementVariables, var elem in elemCache.ElementVariables)
@@ -90,12 +92,12 @@ namespace Flame.Compiler.Statements
 				}
 				else
 				{
-					return new ForeachStatement(Collections, NewBody, elemCache);
+					return new ForeachStatement(Tag, Collections, NewBody, elemCache);
 				}
 			}
 			else
 			{
-				var newForeachStmt = new ForeachStatement(NewCollections);
+				var newForeachStmt = new ForeachStatement(Tag, NewCollections);
 				foreach (var item in newForeachStmt.elemCache.ElementVariables,
 					     var elem in elemCache.ElementVariables)
 				{
@@ -170,7 +172,7 @@ namespace Flame.Compiler.Statements
 				optColl.Add(new CollectionElement(item.Member, item.Collection.Optimize()));
 			}
 			var optBody = Body.Optimize();
-			return new ForeachStatement(optColl, optBody, elemCache);
+			return new ForeachStatement(Tag, optColl, optBody, elemCache);
 		}
 
 		public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
@@ -178,13 +180,13 @@ namespace Flame.Compiler.Statements
 			if (Generator is IForeachCodeGenerator)
 			{
 				var cg = (IForeachCodeGenerator)Generator;
-				List<ICollectionBlock> collectionBlocks = new List<ICollectionBlock>();
+				var collectionBlocks = new List<ICollectionBlock>();
 				foreach (var item in Collections)
 				{
 					collectionBlocks.Add(cg.EmitCollectionBlock(item.Member, item.Collection.Emit(cg)));
 				}
 
-				var loopHeader = cg.EmitForeachHeader(collectionBlocks);
+				var loopHeader = cg.EmitForeachHeader(Tag, collectionBlocks);
 
 				if (loopHeader != null)
 				{
@@ -242,7 +244,7 @@ namespace Flame.Compiler.Statements
 
             var final = new BlockStatement(finalStatements.ToArray());
 
-            return new ForStatement(init, cond, delta, body, final);
+            return new ForStatement(Tag, init, cond, delta, body, final);
 		}
 	}
 }
