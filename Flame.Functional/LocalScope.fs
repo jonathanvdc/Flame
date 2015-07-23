@@ -10,16 +10,16 @@ open System.Collections.Generic
 
 /// Defines a scope within a function.
 /// Note: a local scope's variables are stored as an immutable dictionary.
-type LocalScope private(parentScope : LocalScope option, funcScope : FunctionScope, locals : Map<string, IVariable>) =
+type LocalScope private(parentScope : LocalScope option, funcScope : FunctionScope, locals : Map<string, IVariable>, tag : BlockTag) =
 
-    new(parentScope, funcScope) =
-        LocalScope(parentScope, funcScope, Map.empty)
+    new(parentScope, funcScope, tag : BlockTag) =
+        LocalScope(parentScope, funcScope, Map.empty, tag)
 
-    new(funcScope : FunctionScope) =
-        LocalScope(None, funcScope)
+    new(funcScope : FunctionScope, tag : BlockTag) =
+        LocalScope(None, funcScope, tag)
 
-    new(globalScope : GlobalScope) =
-        LocalScope(new FunctionScope(globalScope))
+    new(globalScope : GlobalScope, tag : BlockTag) =
+        LocalScope(new FunctionScope(globalScope), tag)
 
     /// Gets this local scope's parent scope.
     member this.Parent =
@@ -37,6 +37,10 @@ type LocalScope private(parentScope : LocalScope option, funcScope : FunctionSco
     member this.Locals = 
         locals
 
+    /// Gets the enclosing control flow block's tag.
+    member this.ControlTag =
+        tag
+
     /// Gets a boolean value that tells if this local scope is the root local scope.
     member this.IsRoot = 
         parentScope.IsNone
@@ -49,7 +53,7 @@ type LocalScope private(parentScope : LocalScope option, funcScope : FunctionSco
     /// Declares a variable of the given type and name.
     member this.DeclareVariable varType name =
         let lbVar = new LateBoundVariable(name, varType) :> IVariable
-        new LocalScope(parentScope, funcScope, locals |> Map.add name lbVar), lbVar
+        new LocalScope(parentScope, funcScope, locals |> Map.add name lbVar, tag), lbVar
 
     /// Gets the variable with the given name.
     member this.GetVariable name =
@@ -62,7 +66,11 @@ type LocalScope private(parentScope : LocalScope option, funcScope : FunctionSco
 
     /// Creates a child scope.
     member this.ChildScope =
-        new LocalScope(Some this, funcScope)
+        new LocalScope(Some this, funcScope, tag)
+
+    /// Creates a child scope with the given control flow tag.
+    member this.FlowChildScope flowTag =
+        new LocalScope(Some this, funcScope, flowTag)
 
     /// Creates a release statement for this local scope.
     member this.ReleaseStatement =
