@@ -15,11 +15,17 @@ type LocalScope private(parentScope : LocalScope option, funcScope : FunctionSco
     new(parentScope, funcScope, tag : BlockTag) =
         LocalScope(parentScope, funcScope, Map.empty, tag)
 
+    new(funcScope : FunctionScope) =
+        LocalScope(funcScope, null)
+
     new(funcScope : FunctionScope, tag : BlockTag) =
         LocalScope(None, funcScope, tag)
 
     new(globalScope : GlobalScope, tag : BlockTag) =
         LocalScope(new FunctionScope(globalScope), tag)
+
+    new(globalScope : GlobalScope) =
+        LocalScope(globalScope, null)
 
     /// Gets this local scope's parent scope.
     member this.Parent =
