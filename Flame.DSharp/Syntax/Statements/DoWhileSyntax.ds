@@ -32,7 +32,7 @@ namespace Flame.Syntax.DSharp
         {
         	const get
         	{
-        		List<Token> results = new List<Token>();
+        		var results = new List<Token>();
 				results.Add(DoKeyword);
 				results.AddRange(Body.GetTokens());
 				results.Add(WhileKeyword);
@@ -45,11 +45,13 @@ namespace Flame.Syntax.DSharp
 
         public const IStatement CreateStatement(ISyntaxState State) : IStatementSyntax.CreateStatement
         {
-            State.PushScope();
+            var tag = new BlockTag();
+
+            State.PushScope(tag);
             var cond = Condition.CreateExpression(State);
             var body = Body.CreateStatement(State);
             var cleanup = State.PopScope();
-            var whileLoop = new DoWhileStatement(body, cond);
+            var whileLoop = new DoWhileStatement(tag, body, cond);
             IStatement[] statements = new IStatement[] { whileLoop, cleanup };
             return SourceStatement.Create(new BlockStatement(statements), Location);
         }
