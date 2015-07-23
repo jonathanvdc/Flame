@@ -160,6 +160,7 @@
 			<Compile Include="Statements\BreakStatement.ds" />
 			<Compile Include="Statements\ContinueStatement.ds" />
 			<Compile Include="Statements\DoWhileStatement.ds" />
+			<Compile Include="Statements\TaggedStatement.ds" />
 			<Compile Include="Statements\YieldReturnStatement.ds" />
 			<Compile Include="Statements\YieldBreakStatement.ds" />
 			<Compile Include="Statements\ForeachStatement.ds" />
