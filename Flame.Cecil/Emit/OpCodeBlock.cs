@@ -33,7 +33,7 @@ namespace Flame.Cecil.Emit
             {
                 var tStack = new TypeStack();
                 StackBehavior.Apply(tStack);
-                return tStack.Pop();
+                return tStack.Count == 0 ? PrimitiveTypes.Void : tStack.Pop();
             }
         }
     }
