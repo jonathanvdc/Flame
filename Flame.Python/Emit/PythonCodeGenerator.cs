@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Python.Emit
 {
-    public class PythonCodeGenerator : ICodeGenerator, IYieldCodeGenerator, IInitializingCodeGenerator, IForeachCodeGenerator
+    public class PythonCodeGenerator : ICodeGenerator, IYieldCodeGenerator, IInitializingCodeGenerator, IForeachCodeGenerator, IWhileCodeGenerator
     {
         public PythonCodeGenerator(IMethod Method)
         {
@@ -20,19 +20,24 @@ namespace Flame.Python.Emit
 
         #region Blocks
 
-        public ICodeBlock EmitBreak()
+        public ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents)
+        {
+            return null;
+        }
+
+        public ICodeBlock EmitBreak(BlockTag Tag)
         {
             return new KeywordBlock(this, "break", PrimitiveTypes.Void);
         }
 
-        public ICodeBlock EmitContinue()
+        public ICodeBlock EmitContinue(BlockTag Tag)
         {
             return new KeywordBlock(this, "continue", PrimitiveTypes.Void);
         }
 
-        public ICodeBlock EmitDoWhile(ICodeBlock Body, ICodeBlock Condition)
+        public ICodeBlock EmitDoWhile(BlockTag Tag, ICodeBlock Body, ICodeBlock Condition)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
@@ -60,7 +65,7 @@ namespace Flame.Python.Emit
             return new EmptyBlock(this);
         }
 
-        public ICodeBlock EmitWhile(ICodeBlock Condition, ICodeBlock Body)
+        public ICodeBlock EmitWhile(BlockTag Tag, ICodeBlock Condition, ICodeBlock Body)
         {
             return new WhileBlock(this, (IPythonBlock)Condition, (IPythonBlock)Body);
         }
@@ -87,7 +92,7 @@ namespace Flame.Python.Emit
             return new ForeachBlock((ForeachBlockHeader)Header, (IPythonBlock)Body);
         }
 
-        public IForeachBlockHeader EmitForeachHeader(IEnumerable<ICollectionBlock> Collections)
+        public IForeachBlockHeader EmitForeachHeader(BlockTag Tag, IEnumerable<ICollectionBlock> Collections)
         {
             return new ForeachBlockHeader(this, Collections.Cast<IPythonCollectionBlock>());
         }
@@ -530,6 +535,5 @@ namespace Flame.Python.Emit
         }
 
         #endregion
-
     }
 }

@@ -9,12 +9,14 @@ namespace Flame.MIPS.Emit
 {
     public class BreakBlock : IAssemblerBlock
     {
-        public BreakBlock(ICodeGenerator CodeGenerator)
+        public BreakBlock(ICodeGenerator CodeGenerator, BlockTag Target)
         {
             this.CodeGenerator = CodeGenerator;
+            this.Target = Target;
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
+        public BlockTag Target { get; private set; }
 
         public IType Type
         {
@@ -23,18 +25,20 @@ namespace Flame.MIPS.Emit
 
         public IEnumerable<IStorageLocation> Emit(IAssemblerEmitContext Context)
         {
-            return Context.FlowControl.Peek().EmitBreak().Emit(Context);
+            return Context.GetFlowControl(Target).EmitBreak().Emit(Context);
         }
     }
 
     public class ContinueBlock : IAssemblerBlock
     {
-        public ContinueBlock(ICodeGenerator CodeGenerator)
+        public ContinueBlock(ICodeGenerator CodeGenerator, BlockTag Target)
         {
             this.CodeGenerator = CodeGenerator;
+            this.Target = Target;
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
+        public BlockTag Target { get; private set; }
 
         public IType Type
         {
@@ -43,7 +47,7 @@ namespace Flame.MIPS.Emit
 
         public IEnumerable<IStorageLocation> Emit(IAssemblerEmitContext Context)
         {
-            return Context.FlowControl.Peek().EmitContinue().Emit(Context);
+            return Context.GetFlowControl(Target).EmitContinue().Emit(Context);
         }
     }
 }

@@ -9,14 +9,16 @@ namespace Flame.MIPS.Emit
 {
     public class WhileBlock : IAssemblerBlock
     {
-        public WhileBlock(ICodeGenerator CodeGenerator, IAssemblerBlock Condition, IAssemblerBlock Body)
+        public WhileBlock(ICodeGenerator CodeGenerator, BlockTag Tag, IAssemblerBlock Condition, IAssemblerBlock Body)
         {
             this.CodeGenerator = CodeGenerator;
+            this.Tag = Tag;
             this.Condition = Condition;
             this.Body = Body;
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
+        public BlockTag Tag { get; private set; }
         public IAssemblerBlock Condition { get; private set; }
         public IAssemblerBlock Body { get; private set; }
 
@@ -27,7 +29,7 @@ namespace Flame.MIPS.Emit
             var body = brCg.CreateLabel();
             var end = brCg.CreateLabel();
 
-            var flowStruct = new BranchFlowStructure(CodeGenerator, start, end);
+            var flowStruct = new BranchFlowStructure(CodeGenerator, Tag, start, end);
 
             flowStruct.EmitContinue().Emit(Context);
             ((IAssemblerBlock)body.EmitMark()).Emit(Context);
@@ -52,14 +54,16 @@ namespace Flame.MIPS.Emit
     }
     public class BranchFlowStructure : IFlowControlStructure
     {
-        public BranchFlowStructure(ICodeGenerator CodeGenerator, ILabel Start, ILabel End)
+        public BranchFlowStructure(ICodeGenerator CodeGenerator, BlockTag Tag, ILabel Start, ILabel End)
         {
             this.CodeGenerator = CodeGenerator;
+            this.Tag = Tag;
             this.Start = Start;
             this.End = End;
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
+        public BlockTag Tag { get; private set; }
         public ILabel Start { get; private set; }
         public ILabel End { get; private set; }
 
