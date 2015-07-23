@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.MIPS.Emit
 {
-    public class AssemblerCodeGenerator : ICodeGenerator, IBranchingCodeGenerator, IUnmanagedCodeGenerator
+    public class AssemblerCodeGenerator : ICodeGenerator, IBranchingCodeGenerator, IUnmanagedCodeGenerator, IWhileCodeGenerator
     {
         public AssemblerCodeGenerator(IMethod Method)
         {
@@ -33,19 +33,24 @@ namespace Flame.MIPS.Emit
 
         #region Blocks
 
-        public ICodeBlock EmitBreak()
+        public ICodeBlock EmitBreak(BlockTag Tag)
         {
-            return new BreakBlock(this);
+            return new BreakBlock(this, Tag);
         }
 
-        public ICodeBlock EmitContinue()
+        public ICodeBlock EmitContinue(BlockTag Tag)
         {
-            return new ContinueBlock(this);
+            return new ContinueBlock(this, Tag);
         }
 
-        public ICodeBlock EmitDoWhile(ICodeBlock Body, ICodeBlock Condition)
+        public ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents)
         {
-            return new DoWhileBlock(this, (IAssemblerBlock)Condition, (IAssemblerBlock)Body);
+            return new TaggedBlock(this, Tag, (IAssemblerBlock)Contents);
+        }
+
+        public ICodeBlock EmitDoWhile(BlockTag Tag, ICodeBlock Body, ICodeBlock Condition)
+        {
+            return new DoWhileBlock(this, Tag, (IAssemblerBlock)Condition, (IAssemblerBlock)Body);
         }
 
         public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
@@ -73,9 +78,9 @@ namespace Flame.MIPS.Emit
             return new EmptyBlock(this);
         }
 
-        public ICodeBlock EmitWhile(ICodeBlock Condition, ICodeBlock Body)
+        public ICodeBlock EmitWhile(BlockTag Tag, ICodeBlock Condition, ICodeBlock Body)
         {
-            return new WhileBlock(this, (IAssemblerBlock)Condition, (IAssemblerBlock)Body);
+            return new WhileBlock(this, Tag, (IAssemblerBlock)Condition, (IAssemblerBlock)Body);
         }
 
         #endregion
@@ -359,6 +364,5 @@ namespace Flame.MIPS.Emit
         }
 
         #endregion
-
     }
 }
