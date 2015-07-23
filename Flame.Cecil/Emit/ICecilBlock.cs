@@ -11,6 +11,6 @@ namespace Flame.Cecil.Emit
     public interface ICecilBlock : ICodeBlock
     {
         void Emit(IEmitContext Context);
-        IStackBehavior StackBehavior { get; }
+        IType BlockType { get; }
     }
 }

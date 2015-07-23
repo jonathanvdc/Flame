@@ -57,12 +57,9 @@ namespace Flame.Cecil.Emit
             }
         }
 
-        public IStackBehavior StackBehavior
+        public IType BlockType
         {
-            get
-            {
-                return new UnaryStackBehavior();
-            }
+            get { return Value.BlockType; }
         }
 
         #region GetOpCode
@@ -84,6 +81,12 @@ namespace Flame.Cecil.Emit
                 Result = default(OpCode);
                 return false;
             }
+        }
+
+        public static bool Supports(Operator Op, IType Type)
+        {
+            OpCode result;
+            return (Op.Equals(Operator.Not) && Type.Equals(PrimitiveTypes.Boolean)) || TryGetOpCode(Op, Type, out result);
         }
 
         #endregion

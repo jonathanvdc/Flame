@@ -25,11 +25,8 @@ namespace Flame.Cecil.Emit
 
         public void Emit(IEmitContext Context)
         {
-            var tStack = new TypeStack(Context.Stack);
-            Left.StackBehavior.Apply(tStack);
-            Right.StackBehavior.Apply(tStack);
-            var bType = tStack.Pop();
-            var aType = tStack.Pop();
+            var aType = Left.BlockType;
+            var bType = Right.BlockType;
 
             if (IsIntrinsicType(aType) && IsIntrinsicType(bType))
             {
@@ -56,7 +53,10 @@ namespace Flame.Cecil.Emit
 
         private void EmitInstrinsic(IType aType, IType bType, IEmitContext Context)
         {
-            OpStackBehavior.Apply(Context.Stack);
+            Context.Stack.Pop();
+            Context.Stack.Pop();
+            Context.Stack.Push(BlockType);
+
             OpCode opCode;
             if (TryGetOpCode(Operator, aType, bType, out opCode))
             {
@@ -80,26 +80,18 @@ namespace Flame.Cecil.Emit
             }
         }
 
-        private IStackBehavior OpStackBehavior
+        public IType BlockType
         {
             get
             {
                 if (IsCheck(Operator))
                 {
-                    return new CheckBinaryStackBehavior();
+                    return PrimitiveTypes.Boolean;
                 }
                 else
                 {
-                    return new BinaryStackBehavior();
+                    return Left.BlockType;
                 }
-            }
-        }
-
-        public IStackBehavior StackBehavior
-        {
-            get
-            {
-                return new BlockStackBehavior(Left.StackBehavior, Right.StackBehavior, OpStackBehavior);
             }
         }
 
@@ -273,5 +265,6 @@ namespace Flame.Cecil.Emit
         }
 
         #endregion
+
     }
 }

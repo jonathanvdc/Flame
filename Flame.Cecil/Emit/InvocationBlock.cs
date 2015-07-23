@@ -93,17 +93,17 @@ namespace Flame.Cecil.Emit
             }
         }
 
-        public IStackBehavior StackBehavior
-        {
-            get 
-            {
-                return new InvocationStackBehavior(Method.StackBehavior, Arguments.Select((item) => item.StackBehavior));
-            }
-        }
-
         public ICodeGenerator CodeGenerator
         {
             get { return Method.CodeGenerator; }
+        }
+
+        public IType BlockType
+        {
+            get 
+            {
+                return MethodType.GetMethod(Method.BlockType).ReturnType;
+            }
         }
     }
 }

@@ -26,5 +26,15 @@ namespace Flame.Cecil.Emit
             StackBehavior.Apply(Context.Stack);
             Context.Emit(Value);
         }
+
+        public IType BlockType
+        {
+            get
+            {
+                var tStack = new TypeStack();
+                StackBehavior.Apply(tStack);
+                return tStack.Pop();
+            }
+        }
     }
 }

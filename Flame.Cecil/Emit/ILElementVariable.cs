@@ -27,9 +27,7 @@ namespace Flame.Cecil.Emit
         {
             get 
             {
-                var typeStack = new TypeStack();
-                Container.StackBehavior.Apply(typeStack);
-                return typeStack.Pop();
+                return Container.BlockType.AsContainerType().GetElementType();
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using Flame.Compiler;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System;
 using System.Collections.Generic;
@@ -11,10 +12,10 @@ namespace Flame.Cecil.Emit
     public interface IEmitContext
     {
         TypeStack Stack { get; }
-        IFlowControlStructure FlowControl { get; }
 
         ILProcessor Processor { get; }
 
+        IFlowControlStructure GetFlowControl(BlockTag Tag);
         void PushFlowControl(IFlowControlStructure Value);
         void PopFlowControl();
 
