@@ -5,6 +5,12 @@ using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Statements
 {
+	/// <summary>
+	/// Describes a control-flow statement that executes a statement once,
+	/// and in successive iterations, executes it only if a condition evaluates
+	/// to `true`. This is equivalent to a `do...while` statement in the C family
+	/// of languages.
+	/// </summary>
 	public class DoWhileStatement : IStatement, IFlowStatement
 	{
 		public const this(set IStatement Body, set IExpression Condition)
@@ -13,8 +19,19 @@ namespace Flame.Compiler.Statements
 		}
 		public const this(set BlockTag Tag, set IStatement Body, set IExpression Condition);
 
+		/// <summary>
+		/// Gets the do...while statement's block tag.
+		/// </summary>
 		public BlockTag Tag { const get; private set; }
+		/// <summary>
+		/// Gets the do...while statement's condition. After the initial iteration,
+		/// the loop's body will be executed as long as this condition evaluates to
+		/// true.
+		/// </summary>
 		public IExpression Condition { const get; private set; }
+		/// <summary>
+		/// Gets the do...while statement's body.
+		/// </summary>
 		public IStatement Body { const get; private set; }
 
 		private const DoWhileStatement CreateDoWhile(IStatement NewBody, IExpression NewCondition)
@@ -72,14 +89,19 @@ namespace Flame.Compiler.Statements
 		/// with `break` statements to an outer tagged statement, which has the
 		/// given tag.
 		/// </summary>
-		private IStatement RewriteContinueToBreak(BlockTag ContinueTag)
+		private IStatement RewriteContinueToBreak(BlockTag ContinueTag, bool ForceEnclose)
 		{
-			var rewritten = ContinueRewriter.RewriteContinue(
-				Tag,
-				new BreakStatement(ContinueTag),
-				Body);
+			var rewriter = new ContinueRewriter(Tag, new BreakStatement(ContinueTag));
+			var rewritten = rewriter.Visit(Body);
 
-			return new TaggedStatement(ContinueTag, rewritten);
+			if (ForceEnclose || rewriter.HasRewritten)
+			{
+				return new TaggedStatement(ContinueTag, rewritten);
+			}
+			else
+			{
+				return rewritten;
+			}
 		}
 
 		public IStatement Optimize() : IStatement.Optimize
@@ -88,7 +110,7 @@ namespace Flame.Compiler.Statements
 
 			if (optCond.EvaluatesTo<bool>(false))
 			{
-				return RewriteContinueToBreak(Tag).Optimize();
+				return RewriteContinueToBreak(Tag, true).Optimize();
 			}
 
 			return CreateDoWhile(Body.Optimize(), optCond);
@@ -105,23 +127,33 @@ namespace Flame.Compiler.Statements
 			}
 			else
 			{
-				// "Lower" a do-while block like this:
+				// "Lower" a do...while block like this:
 				//
 				// do stmt; while (cond)
 				//
 				// ==>
 				//
-				// outer:
+				// Case #1: no `continue`
+				//
+ 				// loop:
+				// {
+				//     stmt;
+				//     if (cond) continue loop;
+				// }
+				//
+				// Case #2: at least one `continue`
+				//
+				// loop:
 				// {
 				//     inner:
 				//     {
-				//         rewrittenStmt; // <-- `continue outer;` in `stmt;`
+				//         rewrittenStmt; // <-- `continue loop;` in `stmt;`
 				//						  // is rewritten as `break inner;`
 				//     }
-				//     if (cond) continue outer;
+				//     if (cond) continue loop;
 				// }
 
-				var body = RewriteContinueToBreak(new BlockTag()).Emit(Generator);
+				var body = RewriteContinueToBreak(new BlockTag(), false).Emit(Generator);
 				var conditionBlock = Condition.Emit(Generator);
 
 				var continueBlock = Generator.EmitIfElse(conditionBlock,

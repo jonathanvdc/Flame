@@ -29,6 +29,12 @@ namespace Flame.Compiler.Visitors
         public IStatement RewrittenContinue { const get; private set; }
 
         /// <summary>
+        /// Gets a boolean value that tells whether at least one `continue` statement
+        /// has been rewritten or not.
+        /// </summary>
+        public bool HasRewritten { const get; private set; }
+
+        /// <summary>
         /// Rewrites the given statement by replacing every `continue` to a given specific block
         /// by another statement.
         /// </summary>
@@ -61,6 +67,7 @@ namespace Flame.Compiler.Visitors
 
         protected override IStatement Transform(IStatement Statement)
         {
+            HasRewritten = true;
             return RewrittenContinue;
         }
     }
