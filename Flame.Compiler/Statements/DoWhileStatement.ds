@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Statements
 {
@@ -66,27 +67,39 @@ namespace Flame.Compiler.Statements
 			}
 		}
 
+		/// <summary>
+		/// Rewrites the do...while statement's body by replacing `continue` statements
+		/// with `break` statements to an outer tagged statement, which has the
+		/// given tag.
+		/// </summary>
+		private IStatement RewriteContinueToBreak(BlockTag ContinueTag)
+		{
+			var rewritten = ContinueRewriter.RewriteContinue(
+				Tag,
+				new BreakStatement(ContinueTag),
+				Body);
+
+			return new TaggedStatement(ContinueTag, rewritten);
+		}
+
 		public IStatement Optimize() : IStatement.Optimize
 		{
 			var optCond = Condition.Optimize();
-			var optBody = Body.Optimize();
 
-			/*if (optCond.EvaluatesTo<bool>(false))
+			if (optCond.EvaluatesTo<bool>(false))
 			{
-				return optBody; // This may not be applicable if the body Statement
-								// contains a break statement.
-			}*/
+				return RewriteContinueToBreak(Tag).Optimize();
+			}
 
-			return CreateDoWhile(optBody, optCond);
+			return CreateDoWhile(Body.Optimize(), optCond);
 		}
 
 		public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
 		{
-			var body = Body.Emit(Generator);
-			var conditionBlock = Condition.Emit(Generator);
-
 			if (Generator is IDoWhileCodeGenerator)
 			{
+				var body = Body.Emit(Generator);
+				var conditionBlock = Condition.Emit(Generator);
 				var whileCg = (IDoWhileCodeGenerator)Generator;
 				return whileCg.EmitDoWhile(Tag, body, conditionBlock);
 			}
@@ -98,11 +111,18 @@ namespace Flame.Compiler.Statements
 				//
 				// ==>
 				//
-				// block:
+				// outer:
 				// {
-				//     stmt;
-				//     if (cond) continue block;
+				//     inner:
+				//     {
+				//         rewrittenStmt; // <-- `continue outer;` in `stmt;`
+				//						  // is rewritten as `break inner;`
+				//     }
+				//     if (cond) continue outer;
 				// }
+
+				var body = RewriteContinueToBreak(new BlockTag()).Emit(Generator);
+				var conditionBlock = Condition.Emit(Generator);
 
 				var continueBlock = Generator.EmitIfElse(conditionBlock,
 														 Generator.EmitContinue(Tag),
