@@ -83,6 +83,7 @@
     <Compile Include="CecilTypeMemberImporterBase.cs" />
     <Compile Include="CecilTypeSystem.cs" />
     <Compile Include="ConverterCache.cs" />
+    <Compile Include="Emit\BranchFlowStructure.cs" />
     <Compile Include="Emit\DereferenceBlock.cs" />
     <Compile Include="Emit\TaggedBlock.cs" />
     <Compile Include="Emit\TryCatchBlock.cs" />
@@ -128,7 +129,6 @@
     <Compile Include="Emit\NegateBlock.cs" />
     <Compile Include="Emit\NotComparisonBranchOptimization.cs" />
     <Compile Include="Emit\OptimizationExtensions.cs" />
-    <Compile Include="Emit\PushElementBehavior.cs" />
     <Compile Include="Emit\ILArgumentVariable.cs" />
     <Compile Include="CecilAccessor.cs" />
     <Compile Include="CecilArrayType.cs" />
@@ -163,7 +163,6 @@
     <Compile Include="CecilVectorType.cs" />
     <Compile Include="Emit\BinaryOpBlock.cs" />
     <Compile Include="Emit\BlockBuilder.cs" />
-    <Compile Include="Emit\BlockStackBehavior.cs" />
     <Compile Include="Emit\BreakBlock.cs" />
     <Compile Include="Emit\CecilCommandEmitContext.cs" />
     <Compile Include="Emit\CecilCommandEmitContextBase.cs" />
@@ -173,7 +172,6 @@
     <Compile Include="Emit\DereferencePointerEmitter.cs" />
     <Compile Include="Emit\GlobalFlowControlStructure.cs" />
     <Compile Include="Emit\InvocationBlock.cs" />
-    <Compile Include="Emit\InvocationStackBehavior.cs" />
     <Compile Include="Emit\IPeepholeOptimization.cs" />
     <Compile Include="Emit\ITypedInstructionEmitter.cs" />
     <Compile Include="Emit\MethodBlock.cs" />
@@ -181,9 +179,7 @@
     <Compile Include="Emit\NotOptimization.cs" />
     <Compile Include="Emit\OpCodeBlock.cs" />
     <Compile Include="Emit\ILCodeGenerator.cs" />
-    <Compile Include="Emit\DoWhileBlock.cs" />
     <Compile Include="Emit\IfElseBlock.cs" />
-    <Compile Include="Emit\IfElseStackBehavior.cs" />
     <Compile Include="Emit\OpCodeExtensions.cs" />
     <Compile Include="Emit\OpCodeInt32Block.cs" />
     <Compile Include="Emit\PushPointerOptimization.cs" />
@@ -200,11 +196,9 @@
     <Compile Include="Emit\StoreAtAddressBlock.cs" />
     <Compile Include="Emit\StoreAtAddressEmitter.cs" />
     <Compile Include="Emit\TypeCheckBlock.cs" />
-    <Compile Include="Emit\DereferenceEmitterBlock.cs" />
     <Compile Include="Emit\TypedInstructionEmitterBase.cs" />
     <Compile Include="Emit\UnaryOpBlock.cs" />
     <Compile Include="Emit\VirtualPushBlock.cs" />
-    <Compile Include="Emit\WhileBlock.cs" />
     <Compile Include="EmptyCompilerOptions.cs" />
     <Compile Include="ExpressionExtensions.cs" />
     <Compile Include="GenericResolverMap.cs" />

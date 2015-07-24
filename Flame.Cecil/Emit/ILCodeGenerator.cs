@@ -10,8 +10,7 @@ using System.Threading.Tasks;
 namespace Flame.Cecil.Emit
 {
     public class ILCodeGenerator : IBranchingCodeGenerator, IUnmanagedCodeGenerator, 
-                                   IExceptionCodeGenerator, IWhileCodeGenerator,
-                                   IDoWhileCodeGenerator
+                                   IExceptionCodeGenerator
     {
         public ILCodeGenerator(IMethod Method)
         {
@@ -82,11 +81,6 @@ namespace Flame.Cecil.Emit
             return new ContinueBlock(this, Target);
         }
 
-        public ICodeBlock EmitDoWhile(BlockTag Tag, ICodeBlock Body, ICodeBlock Condition)
-        {
-            return new DoWhileBlock(this, Tag, (ICecilBlock)Condition, (ICecilBlock)Body);
-        }
-
         public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
         {
             return new IfElseBlock(this, (ICecilBlock)Condition, (ICecilBlock)IfBody, (ICecilBlock)ElseBody);
@@ -110,11 +104,6 @@ namespace Flame.Cecil.Emit
         public ICodeBlock EmitVoid()
         {
             return new EmptyBlock(this);
-        }
-
-        public ICodeBlock EmitWhile(BlockTag Tag, ICodeBlock Condition, ICodeBlock Body)
-        {
-            return new WhileBlock(this, Tag, (ICecilBlock)Condition, (ICecilBlock)Body);
         }
 
         public ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents)
@@ -444,7 +433,7 @@ namespace Flame.Cecil.Emit
 
         public ICodeBlock EmitDereferencePointer(ICodeBlock Pointer)
         {
-            return EmitSequence(Pointer, new DereferenceEmitterBlock(this));
+            return new DereferenceBlock(this, (ICecilBlock)Pointer, new DereferencePointerEmitter());
         }
 
         public ICodeBlock EmitStoreAtAddress(ICodeBlock Pointer, ICodeBlock Value)
