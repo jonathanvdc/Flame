@@ -52,6 +52,7 @@
     <Compile Include="AssemblerMethod.cs" />
     <Compile Include="AssemblerNamespace.cs" />
     <Compile Include="AssemblerType.cs" />
+    <Compile Include="Emit\BranchFlowStructure.cs" />
     <Compile Include="Emit\DereferenceBlock.cs" />
     <Compile Include="Emit\LabelStorage.cs" />
     <Compile Include="Emit\AssemblerArgument.cs" />
@@ -68,7 +69,6 @@
     <Compile Include="Emit\BreakBlock.cs" />
     <Compile Include="Emit\ConstantStorage.cs" />
     <Compile Include="Emit\ConversionBlock.cs" />
-    <Compile Include="Emit\DoWhileBlock.cs" />
     <Compile Include="Emit\EmptyBlock.cs" />
     <Compile Include="Emit\FunctionAssemblerBlock.cs" />
     <Compile Include="Emit\IAssemblerCode.cs" />
@@ -124,7 +124,6 @@
     <Compile Include="Emit\OpCode.cs" />
     <Compile Include="Emit\OpCodes.cs" />
     <Compile Include="Emit\RegisterInstructionArgument.cs" />
-    <Compile Include="Emit\WhileBlock.cs" />
     <Compile Include="IAssemblerField.cs" />
     <Compile Include="IAssemblerMethod.cs" />
     <Compile Include="MarsPlatformRT.cs" />
