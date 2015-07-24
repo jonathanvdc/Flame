@@ -10,12 +10,14 @@ namespace Flame.ExpressionTrees.Emit
 {
     public class ContinueBlock : IExpressionBlock
     {
-        public ContinueBlock(ExpressionCodeGenerator CodeGenerator)
+        public ContinueBlock(ExpressionCodeGenerator CodeGenerator, BlockTag Target)
         {
             this.CodeGenerator = CodeGenerator;
+            this.Target = Target;
         }
 
         public ExpressionCodeGenerator CodeGenerator { get; private set; }
+        public BlockTag Target { get; private set; }
 
         ICodeGenerator ICodeBlock.CodeGenerator
         {
@@ -24,7 +26,7 @@ namespace Flame.ExpressionTrees.Emit
 
         public Expression CreateExpression(FlowStructure Flow)
         {
-            return Flow.CreateContinue();
+            return Flow.GetFlow(Target).CreateContinue();
         }
 
         public IType Type

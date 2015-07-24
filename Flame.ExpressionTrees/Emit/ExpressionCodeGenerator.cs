@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Flame.ExpressionTrees.Emit
 {
-    public class ExpressionCodeGenerator : ICodeGenerator, IInitializingCodeGenerator
+    public class ExpressionCodeGenerator : ICodeGenerator, IInitializingCodeGenerator, IWhileCodeGenerator
     {
         public ExpressionCodeGenerator(ExpressionMethod Method)
         {
@@ -31,14 +31,19 @@ namespace Flame.ExpressionTrees.Emit
 
         #region Flow
 
-        public ICodeBlock EmitBreak()
+        public ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents)
         {
-            return new BreakBlock(this);
+            return new TaggedBlock(this, Tag, (IExpressionBlock)Contents);
         }
 
-        public ICodeBlock EmitContinue()
+        public ICodeBlock EmitBreak(BlockTag Target)
         {
-            return new ContinueBlock(this);
+            return new BreakBlock(this, Target);
+        }
+
+        public ICodeBlock EmitContinue(BlockTag Target)
+        {
+            return new ContinueBlock(this, Target);
         }
 
         public ICodeBlock EmitReturn(ICodeBlock Value)
@@ -63,14 +68,14 @@ namespace Flame.ExpressionTrees.Emit
             return new ParentBlock(this, new IExpressionBlock[] { (IExpressionBlock)Condition, ifExpr, (IExpressionBlock)ElseBody }, ifExpr.Type, (exprs, flow) => Expression.Condition(exprs[0], exprs[1], exprs[2]));
         }
 
-        public ICodeBlock EmitDoWhile(ICodeBlock Body, ICodeBlock Condition)
+        public ICodeBlock EmitDoWhile(BlockTag Tag, ICodeBlock Body, ICodeBlock Condition)
         {
-            return new DoWhileBlock(this, (IExpressionBlock)Condition, (IExpressionBlock)Body);
+            return new DoWhileBlock(this, Tag, (IExpressionBlock)Condition, (IExpressionBlock)Body);
         }
 
-        public ICodeBlock EmitWhile(ICodeBlock Condition, ICodeBlock Body)
+        public ICodeBlock EmitWhile(BlockTag Tag, ICodeBlock Condition, ICodeBlock Body)
         {
-            return new WhileBlock(this, (IExpressionBlock)Condition, (IExpressionBlock)Body);
+            return new WhileBlock(this, Tag, (IExpressionBlock)Condition, (IExpressionBlock)Body);
         }
 
         #endregion
@@ -512,7 +517,7 @@ namespace Flame.ExpressionTrees.Emit
 
         public LambdaExpression EmitLambda(IExpressionBlock Body)
         {
-            return EmitLambda(Body.CreateExpression(new FlowStructure()));
+            return EmitLambda(Body.CreateExpression(FlowStructure.Root));
         }
 
         #endregion
