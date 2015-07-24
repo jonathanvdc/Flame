@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace Flame.MIPS.Emit
 {
-    public class AssemblerCodeGenerator : ICodeGenerator, IBranchingCodeGenerator, IUnmanagedCodeGenerator, IWhileCodeGenerator
+    public class AssemblerCodeGenerator : ICodeGenerator, IBranchingCodeGenerator, IUnmanagedCodeGenerator, 
+                                          IWhileCodeGenerator, IDoWhileCodeGenerator
     {
         public AssemblerCodeGenerator(IMethod Method)
         {

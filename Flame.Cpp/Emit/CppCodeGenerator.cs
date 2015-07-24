@@ -10,7 +10,7 @@ namespace Flame.Cpp.Emit
 {
     public class CppCodeGenerator : IUnmanagedCodeGenerator, IForeachCodeGenerator,
         IExceptionCodeGenerator, IForCodeGenerator, IInitializingCodeGenerator,
-        IContractCodeGenerator, IWhileCodeGenerator
+        IContractCodeGenerator, IWhileCodeGenerator, IDoWhileCodeGenerator
     {
         public CppCodeGenerator(IMethod Method, ICppEnvironment Environment)
         {

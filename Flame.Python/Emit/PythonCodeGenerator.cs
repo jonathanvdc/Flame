@@ -35,11 +35,6 @@ namespace Flame.Python.Emit
             return new KeywordBlock(this, "continue", PrimitiveTypes.Void);
         }
 
-        public ICodeBlock EmitDoWhile(BlockTag Tag, ICodeBlock Body, ICodeBlock Condition)
-        {
-            return null;
-        }
-
         public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
         {
             return new IfElseBlock(this, (IPythonBlock)Condition, (IPythonBlock)IfBody, (IPythonBlock)ElseBody);

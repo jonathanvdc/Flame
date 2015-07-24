@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
-    public class ILCodeGenerator : IBranchingCodeGenerator, IUnmanagedCodeGenerator, IExceptionCodeGenerator, IWhileCodeGenerator
+    public class ILCodeGenerator : IBranchingCodeGenerator, IUnmanagedCodeGenerator, 
+                                   IExceptionCodeGenerator, IWhileCodeGenerator,
+                                   IDoWhileCodeGenerator
     {
         public ILCodeGenerator(IMethod Method)
         {
