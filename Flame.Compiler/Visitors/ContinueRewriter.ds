@@ -1,0 +1,67 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler.Statements;
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// A node visitor that replaces all `continue` statements to a specific block
+    /// with a given statement.
+    /// </summary>
+    public class ContinueRewriter : NodeVisitorBase
+    {
+        /// <summary>
+        /// Creates a continue rewriter that replaces all `continue` statements to the given block
+        /// with the given statement.
+        /// </summary>
+        public const this(set BlockTag Target, set IStatement RewrittenContinue);
+
+        /// <summary>
+        /// Gets the block target of all `continue` statements that are to be rewritten.
+        /// </summary>
+        public BlockTag Target { const get; private set; }
+
+        /// <summary>
+        /// Gets the statement every `continue` statement to the block target
+        /// is replaced with.
+        /// </summary>
+        public IStatement RewrittenContinue { const get; private set; }
+
+        /// <summary>
+        /// Rewrites the given statement by replacing every `continue` to a given specific block
+        /// by another statement.
+        /// </summary>
+        public static IStatement RewriteContinue(BlockTag Target, IStatement RewrittenContinue,
+                                                 IStatement Statement)
+        {
+            var rewriter = new ContinueRewriter(Target, RewrittenContinue);
+            return rewriter.Visit(Statement);
+        }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return false;
+        }
+
+        public override const bool Matches(IStatement Value)
+        {
+            if (Value is ContinueStatement)
+            {
+                var contStmt = (ContinueStatement)Value;
+                return contStmt.Target == Target;
+            }
+            else return false;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            return Expression;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            return RewrittenContinue;
+        }
+    }
+}

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Statements
 {
@@ -16,6 +17,21 @@ namespace Flame.Compiler.Statements
 
 		public BlockTag Tag { const get; private set; }
 		public IStatement Body { const get; private set; }
+
+		private const bool BranchesTo(INode Node)
+		{
+			if (Node is ContinueStatement)
+			{
+				var contStmt = (ContinueStatement)Node;
+				return contStmt.Target == Tag;
+			}
+			else if (Node is BreakStatement)
+			{
+				var brStatement = (BreakStatement)Node;
+				return brStatement.Target == Tag;
+			}
+			else return false;
+		}
 
 		private const TaggedStatement CreateTagged(IStatement NewBody)
 		{
@@ -57,7 +73,13 @@ namespace Flame.Compiler.Statements
 
 		public IStatement Optimize() : IStatement.Optimize
 		{
-            return CreateTagged(Body.Optimize());
+			var optBody = Body.Optimize();
+
+			if (!FunctionPredicateVisitor.AnySatisfies(BranchesTo, optBody))
+				return optBody; // No `break` or `continue` statements to this
+								// tagged statement. Assume sequential flow.
+            else
+				return CreateTagged(optBody);
 		}
 
 		public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit

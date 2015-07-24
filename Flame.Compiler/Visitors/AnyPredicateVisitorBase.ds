@@ -74,4 +74,26 @@ namespace Flame.Compiler.Visitors
             return VisitNode<IStatement>(Statement);
         }
     }
+
+    /// <summary>
+    /// Defines a predicate visitor based on a function/delegate.
+    /// </summary>
+    public class FunctionPredicateVisitor : AnyPredicateVisitorBase
+    {
+        public const this(set bool(INode) SatisfiesFunction);
+
+        public bool(INode) SatisfiesFunction { const get; private set; }
+
+        public override const bool Satisfies(INode Value)
+        {
+            return SatisfiesFunction(Value);
+        }
+
+        public static bool AnySatisfies(bool(INode) Predicate, IStatement Statement)
+        {
+            var visitor = new FunctionPredicateVisitor(Predicate);
+            visitor.Visit(Statement);
+            return visitor.IsSatisfied;
+        }
+    }
 }
