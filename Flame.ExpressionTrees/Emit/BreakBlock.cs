@@ -10,12 +10,14 @@ namespace Flame.ExpressionTrees.Emit
 {
     public class BreakBlock : IExpressionBlock
     {
-        public BreakBlock(ExpressionCodeGenerator CodeGenerator)
+        public BreakBlock(ExpressionCodeGenerator CodeGenerator, BlockTag Target)
         {
             this.CodeGenerator = CodeGenerator;
+            this.Target = Target;
         }
 
         public ExpressionCodeGenerator CodeGenerator { get; private set; }
+        public BlockTag Target { get; private set; }
 
         ICodeGenerator ICodeBlock.CodeGenerator
         {
@@ -24,7 +26,7 @@ namespace Flame.ExpressionTrees.Emit
 
         public Expression CreateExpression(FlowStructure Flow)
         {
-            return Flow.CreateBreak();
+            return Flow.GetFlow(Target).CreateBreak();
         }
 
         public IType Type

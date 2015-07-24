@@ -10,14 +10,16 @@ namespace Flame.ExpressionTrees.Emit
 {
     public class DoWhileBlock : IExpressionBlock
     {
-        public DoWhileBlock(ExpressionCodeGenerator CodeGenerator, IExpressionBlock Condition, IExpressionBlock Body)
+        public DoWhileBlock(ExpressionCodeGenerator CodeGenerator, BlockTag Tag, IExpressionBlock Condition, IExpressionBlock Body)
         {
             this.CodeGenerator = CodeGenerator;
+            this.Tag = Tag;
             this.Condition = Condition;
             this.Body = Body;
         }
 
         public ExpressionCodeGenerator CodeGenerator { get; private set; }
+        public BlockTag Tag { get; private set; }
         public IExpressionBlock Condition { get; private set; }
         public IExpressionBlock Body { get; private set; }
 
@@ -36,14 +38,14 @@ namespace Flame.ExpressionTrees.Emit
             var breakLabel = Expression.Label();
             var continueLabel = Expression.Label();
 
-            var doWhileFlow = new FlowStructure(() => Expression.Break(breakLabel), () => Expression.Continue(continueLabel));
+            var doWhileFlow = Flow.PushFlow(Tag, () => Expression.Break(breakLabel), () => Expression.Continue(continueLabel));
 
             var cond = Condition.CreateExpression(Flow);
             var body = Body.CreateExpression(doWhileFlow);
 
             return Expression.Block(Expression.Label(continueLabel),
                                     body,
-                                    Expression.IfThen(cond, doWhileFlow.CreateContinue()),
+                                    Expression.IfThen(cond, doWhileFlow.Flow.CreateContinue()),
                                     Expression.Label(breakLabel));
         }
     }

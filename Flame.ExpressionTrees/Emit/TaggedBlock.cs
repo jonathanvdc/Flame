@@ -8,19 +8,17 @@ using System.Threading.Tasks;
 
 namespace Flame.ExpressionTrees.Emit
 {
-    public class WhileBlock : IExpressionBlock
+    public class TaggedBlock : IExpressionBlock
     {
-        public WhileBlock(ExpressionCodeGenerator CodeGenerator, BlockTag Tag, IExpressionBlock Condition, IExpressionBlock Body)
+        public TaggedBlock(ExpressionCodeGenerator CodeGenerator, BlockTag Tag, IExpressionBlock Body)
         {
             this.CodeGenerator = CodeGenerator;
             this.Tag = Tag;
-            this.Condition = Condition;
             this.Body = Body;
         }
 
         public ExpressionCodeGenerator CodeGenerator { get; private set; }
         public BlockTag Tag { get; private set; }
-        public IExpressionBlock Condition { get; private set; }
         public IExpressionBlock Body { get; private set; }
 
         ICodeGenerator ICodeBlock.CodeGenerator
@@ -30,7 +28,7 @@ namespace Flame.ExpressionTrees.Emit
 
         public IType Type
         {
-            get { return PrimitiveTypes.Void; }
+            get { return Body.Type; }
         }
 
         public Expression CreateExpression(FlowStructure Flow)
@@ -38,14 +36,13 @@ namespace Flame.ExpressionTrees.Emit
             var breakLabel = Expression.Label();
             var continueLabel = Expression.Label();
 
-            var whileFlow = Flow.PushFlow(Tag, () => Expression.Goto(breakLabel), () => Expression.Goto(continueLabel));
+            var taggedFlow = Flow.PushFlow(Tag, () => Expression.Goto(breakLabel), () => Expression.Goto(continueLabel));
 
-            var cond = Condition.CreateExpression(Flow);
-            var body = Body.CreateExpression(whileFlow);
+            var body = Body.CreateExpression(taggedFlow);
 
-            return Expression.Loop(
-                Expression.Block(Expression.IfThen(Expression.Not(cond), Expression.Break(breakLabel)), body),
-                breakLabel, continueLabel);
+            return Expression.Block(Expression.Label(continueLabel),
+                                    body,
+                                    Expression.Label(breakLabel));
         }
     }
 }
