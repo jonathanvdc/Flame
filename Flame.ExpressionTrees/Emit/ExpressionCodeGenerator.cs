@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Flame.ExpressionTrees.Emit
 {
-    public class ExpressionCodeGenerator : ICodeGenerator, IInitializingCodeGenerator, IWhileCodeGenerator
+    public class ExpressionCodeGenerator : ICodeGenerator, IInitializingCodeGenerator, IWhileCodeGenerator, IDoWhileCodeGenerator
     {
         public ExpressionCodeGenerator(ExpressionMethod Method)
         {

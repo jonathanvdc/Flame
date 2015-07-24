@@ -13,7 +13,7 @@ namespace Flame.Recompilation.Emit
 {
     public class RecompiledCodeGenerator : IUnmanagedCodeGenerator, IYieldCodeGenerator, 
         IInitializingCodeGenerator, IForeachCodeGenerator, IExceptionCodeGenerator,
-        IForCodeGenerator, IContractCodeGenerator, IWhileCodeGenerator
+        IForCodeGenerator, IContractCodeGenerator, IWhileCodeGenerator, IDoWhileCodeGenerator
     {
         public RecompiledCodeGenerator(AssemblyRecompiler Recompiler, IMethod Method)
         {

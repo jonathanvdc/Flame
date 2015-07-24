@@ -206,6 +206,9 @@ namespace Flame.Compiler
 		#endregion
 	}
 
+	/// <summary>
+	/// A code generator that supports creating 'while' blocks.
+	/// </summary>
 	public interface IWhileCodeGenerator : ICodeGenerator
 	{
 		/// <summary>
@@ -213,7 +216,13 @@ namespace Flame.Compiler
 		/// block evaluates to true.
 		/// </summary>
 		ICodeBlock EmitWhile(BlockTag Tag, ICodeBlock Condition, ICodeBlock Body);
+	}
 
+	/// <summary>
+	/// A code generator that supports creating 'do...while' blocks.
+	/// </summary>
+	public interface IDoWhileCodeGenerator : ICodeGenerator
+	{
 		/// <summary>
 		/// Creates a block that executes the given body once, and then keeps on executing
 		/// it as long as the given condition block evaluates to true.

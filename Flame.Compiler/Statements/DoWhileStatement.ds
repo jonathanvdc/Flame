@@ -85,9 +85,9 @@ namespace Flame.Compiler.Statements
 			var body = Body.Emit(Generator);
 			var conditionBlock = Condition.Emit(Generator);
 
-			if (Generator is IWhileCodeGenerator)
+			if (Generator is IDoWhileCodeGenerator)
 			{
-				var whileCg = (IWhileCodeGenerator)Generator;
+				var whileCg = (IDoWhileCodeGenerator)Generator;
 				return whileCg.EmitDoWhile(Tag, body, conditionBlock);
 			}
 			else
