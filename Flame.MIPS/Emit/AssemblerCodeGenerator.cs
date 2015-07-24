@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace Flame.MIPS.Emit
 {
-    public class AssemblerCodeGenerator : ICodeGenerator, IBranchingCodeGenerator, IUnmanagedCodeGenerator, 
-                                          IWhileCodeGenerator, IDoWhileCodeGenerator
+    public class AssemblerCodeGenerator : ICodeGenerator, IBranchingCodeGenerator, 
+                                          IUnmanagedCodeGenerator
     {
         public AssemblerCodeGenerator(IMethod Method)
         {
@@ -49,11 +49,6 @@ namespace Flame.MIPS.Emit
             return new TaggedBlock(this, Tag, (IAssemblerBlock)Contents);
         }
 
-        public ICodeBlock EmitDoWhile(BlockTag Tag, ICodeBlock Body, ICodeBlock Condition)
-        {
-            return new DoWhileBlock(this, Tag, (IAssemblerBlock)Condition, (IAssemblerBlock)Body);
-        }
-
         public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
         {
             return new IfElseBlock(this, (IAssemblerBlock)Condition, (IAssemblerBlock)IfBody, (IAssemblerBlock)ElseBody);
@@ -77,11 +72,6 @@ namespace Flame.MIPS.Emit
         public ICodeBlock EmitVoid()
         {
             return new EmptyBlock(this);
-        }
-
-        public ICodeBlock EmitWhile(BlockTag Tag, ICodeBlock Condition, ICodeBlock Body)
-        {
-            return new WhileBlock(this, Tag, (IAssemblerBlock)Condition, (IAssemblerBlock)Body);
         }
 
         #endregion
