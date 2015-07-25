@@ -13,7 +13,7 @@ namespace Flame.Compiler.Visitors
     /// </summary>
     /// <remarks>
     /// This class inherits from 'NodeVisitorBase' to provide a common 'Matches' API,
-    /// which is a useful property when aggregating visitors.
+    /// which is a useful property creating an aggregate visitor.
     /// </remarks>
     public abstract class AnyPredicateVisitorBase : NodeVisitorBase
     {
@@ -32,11 +32,12 @@ namespace Flame.Compiler.Visitors
         {
             return IsSatisfied || Node is IPredicateNode || Satisfies(Node);
             // We were either done already or we are now.
-            // Either way, we do not want to traverse all nodes, so
-            // we'll say we want to give this node special treatment
-            // by ignoring it entirely. If the node is a predicate node,
+            // If the predicate has already been satisfied, then we do not want
+            // to traverse any more nodes, so we'll give this
+            // node special treatment by matching it and then ignoring it entirely.
+            // Otherwise, if the node is a predicate node,
             // we may want to use said node's more efficient 'AcceptPredicate'
-            // method.
+            // method, before checking satisfaction here.
         }
 
         private T VisitNode<T>(T Node)
