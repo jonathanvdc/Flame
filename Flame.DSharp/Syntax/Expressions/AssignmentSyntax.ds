@@ -10,7 +10,9 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class AssignmentSyntax : VariableSyntaxBase, ISetVariableExpressionSyntax, ITokenNode, IRelevantSyntax<Token>
+	public class AssignmentSyntax : VariableSyntaxBase, ISetVariableExpressionSyntax,
+									ITokenNode, IRelevantSyntax<Token>,
+									ISourceSyntax
     {
         public const this(set IVariableSyntax Variable, set IExpressionSyntax Value)
         {
@@ -21,17 +23,17 @@ namespace Flame.Syntax.DSharp
         public IVariableSyntax Variable { const get; private set; }
         public Token Operator { const get; private set; }
         public IExpressionSyntax Value { const get; private set; }
-        
+
         public [Token] LeadingTrivia
         {
         	const get return Operator.GetAllTrivia();
         }
-        
+
         public [Token] TrailingTrivia
         {
         	const get return Enumerable.Empty<Token>();
         }
-        
+
         public IReadOnlyList<Token> Tokens
         {
         	const get
@@ -43,7 +45,13 @@ namespace Flame.Syntax.DSharp
 				return tks;
         	}
         }
-        
+
+		public SourceLocation Location
+		{
+			const get return Variable.GetSourceLocation().Concat(Operator.Location)
+														 .Concat(Value.GetSourceLocation());
+		}
+
         public static const AssignedVariable CreateStoreVariable(ISyntaxState State, IVariable TargetVariable, Token Operator, IExpressionSyntax Value)
         {
         	var SourceVariable = SyntaxExtensions.CreateVerifiedVariable(Value, State);
@@ -93,7 +101,7 @@ namespace Flame.Syntax.DSharp
         	}
         	return new AssignedVariable(TargetVariable, val);
         }
-        
+
         public AssignedVariable CreateStoreVariable(ISyntaxState State)
         {
             return CreateStoreVariable(State, Variable.CreateVerifiedVariable(State), Operator, Value);

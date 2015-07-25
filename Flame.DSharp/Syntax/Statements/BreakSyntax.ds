@@ -20,7 +20,7 @@ namespace Flame.Syntax.DSharp
 
 		public SourceLocation Location
 		{
-			const get return BreakKeyword.Location;
+			const get return BreakKeyword.Location.Concat(SemicolonToken.Location);
 		}
 
         public IReadOnlyList<Token> Tokens

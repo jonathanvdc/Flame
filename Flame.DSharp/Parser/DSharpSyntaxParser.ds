@@ -1329,17 +1329,24 @@ namespace Flame.DSharp.Parser
              	else
              	{
                		var expr = ParseExpression(Tokens);
+
+					Token semicolon;
                		if (Tokens.PeekNoTrivia().Type == TokenType.Semicolon)
                    	{
-                 		Tokens.NextNoTrivia(TokenType.Semicolon, Log);
+                 		semicolon = Tokens.NextNoTrivia(TokenType.Semicolon, Log);
                    	}
+					else
+					{
+						semicolon = new Token(TokenType.Semicolon, ";");
+					}
+					
                   	if (expr is ISetVariableExpressionSyntax)
                    	{
-                    	return new SetVariableStatementSyntax((ISetVariableExpressionSyntax)expr);
+                    	return new SetVariableStatementSyntax((ISetVariableExpressionSyntax)expr, semicolon);
                    	}
                     else
                     {
-                    	return new ExpressionStatementSyntax(expr);
+                    	return new ExpressionStatementSyntax(expr, semicolon);
                 	}
             	}
             }
