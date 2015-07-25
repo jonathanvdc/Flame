@@ -1,0 +1,62 @@
+using System;
+using Flame.Compiler;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// Defines access checking techniques.
+    /// </summary>
+    public class AccessChecker
+    {
+        private const this(set IType currentType);
+
+        /// <summary>
+        /// The current type, which is used to access other types, fields and methods.
+        /// </summary>
+        private IType currentType;
+
+        /// <summary>
+        /// Tells if invalid access has been detected.
+        /// </summary>
+        private bool invalidAccess;
+
+        private IType CheckTypeAccess(IType Target)
+        {
+            if (!invalidAccess && !currentType.CanAccess(Target))
+            {
+                invalidAccess = true;
+            }
+            return Target;
+        }
+
+        private T CheckMemberAccess<T>(T Target)
+            where T : ITypeMember
+        {
+            if (!invalidAccess && !currentType.CanAccess(Target))
+            {
+                invalidAccess = true;
+            }
+            return Target;
+        }
+
+        /// <summary>
+        /// Determines whether the given type can access all types and members
+        /// that are referenced by the given statement.
+        /// </summary>
+        public static const bool CanAccess(IType CurrentType, IStatement Statement)
+        {
+            var checker = new AccessChecker(CurrentType);
+            var memberConv = new MemberConverter(
+                new DelegateConverter<IType, IType>(checker.CheckTypeAccess),
+                new DelegateConverter<IMethod, IMethod>(checker.CheckMemberAccess<IMethod>),
+                new DelegateConverter<IField, IField>(checker.CheckMemberAccess<IField>));
+
+            var visitor = new PredicateMemberNodeVisitor(memberConv);
+
+            visitor.Visit(Statement);
+
+            return !checker.invalidAccess;
+        }
+    }
+}

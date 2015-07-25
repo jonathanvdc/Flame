@@ -2,6 +2,8 @@
 <Project Name="Flame.Optimization">
   <Setter Property="TargetPlatform" Value="clr" />
   <Setter Property="AssemblyName" Value="Flame.Optimization" />
+  <Option Key="generate-static" Value="true" />
+  <Option Key="docs" Value="xml" />
   <ItemGroup>
     <RuntimeLibrary Include="PortableRT" />
     <RuntimeLibrary Include="System" />
@@ -12,8 +14,10 @@
     <Reference Include="../Flame.Compiler/bin/Flame.Compiler.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccessChecker.ds" />
     <Compile Include="InliningExtensions.ds" />
     <Compile Include="InliningVisitor.ds" />
+    <Compile Include="PredicateMemberNodeVisitor.ds" />
     <Compile Include="SizeVisitor.ds" />
   </ItemGroup>
 </Project>
