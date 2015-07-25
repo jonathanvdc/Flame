@@ -76,7 +76,7 @@ namespace PassTests
         {
             // if (false) break; else { }
             //
-            // Need not break.
+            // Verify that this if/else statement does not (always) break.
 
             var breakStmt = new BreakStatement(new BlockTag());
             var bodyStmt = new IfElseStatement(new BooleanExpression(false), breakStmt, EmptyStatement.Instance);
