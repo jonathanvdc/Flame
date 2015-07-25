@@ -1,0 +1,84 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// Defines a node visitor that applies two visitors in sequence.
+    /// </summary>
+    public class AggregateVisitor : INodeVisitor
+    {
+        /// <summary>
+        /// Creates a new aggregate visitor from the given visitors.
+        /// </summary>
+        public const this(set INodeVisitor First, set INodeVisitor Second);
+
+        /// <summary>
+        /// Gets the first visitor to apply to the input.
+        /// </summary>
+        public INodeVisitor First { const get; private set; }
+        /// <summary>
+        /// Gets the second visitor to apply to the input.
+        /// </summary>
+        public INodeVisitor Second { const get; private set; }
+
+        /// <summary>
+        /// "Visits" an expression: an expression is taken as input and transformed into another expression.
+        /// </summary>
+        public IExpression Visit(IExpression Value)
+        {
+            return Second.Visit(First.Visit(Value));
+        }
+
+        /// <summary>
+        /// "Visits" a statement: an statement is taken as input and transformed into another statement.
+        /// </summary>
+        public IStatement Visit(IStatement Value)
+        {
+            return Second.Visit(First.Visit(Value));
+        }
+    }
+
+    /// <summary>
+    /// Defines a node visitor that applies two visitors in sequence.
+    /// These two visitors must be `NodeVisitorBase` visitors, as their
+    /// `Matches` method is used when visiting nodes.
+    /// </summary>
+    public class AggregateMatchVisitor : NodeVisitorBase
+    {
+        /// <summary>
+        /// Creates a new aggregate visitor from the given visitors.
+        /// </summary>
+        public const this(set NodeVisitorBase First, set NodeVisitorBase Second);
+
+        /// <summary>
+        /// Gets the first visitor to apply to the input.
+        /// </summary>
+        public NodeVisitorBase First { const get; private set; }
+        /// <summary>
+        /// Gets the second visitor to apply to the input.
+        /// </summary>
+        public NodeVisitorBase Second { const get; private set; }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return First.Matches(Value) || Second.Matches(Value);
+        }
+
+        public override const bool Matches(IStatement Value)
+        {
+            return First.Matches(Value) || Second.Matches(Value);
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            return Second.Visit(First.Visit(Expression));
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            return Second.Visit(First.Visit(Statement));
+        }
+    }
+}
