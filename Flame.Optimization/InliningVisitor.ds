@@ -191,7 +191,7 @@ namespace Flame.Optimization
             var label = new BlockTag();
             var visitor = new InliningReturnVisitor(ReturnVariable, label);
             var body = visitor.Visit(Statement);
-            return new TaggedStatement(label, body);
+            return SimplifyFlowPass.TaggedBreakVisitor.Visit(new TaggedStatement(label, body));
         }
 
         public override const bool Matches(IExpression Value)
