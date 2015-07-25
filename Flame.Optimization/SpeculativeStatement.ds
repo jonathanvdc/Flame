@@ -1,0 +1,70 @@
+using System;
+using Flame.Compiler;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// Defines a speculative statement: a statement that can first be defined
+    /// and inserted into the node tree, and later be marked "alive" or "dead".
+    /// "Dead" speculative statements are equivalent to the empty statement.
+    /// "Alive" speculative statements are equivalent to the statement they contain.
+    /// </summary>
+    public class SpeculativeStatement : IStatement
+    {
+        /// <summary>
+        /// Creates a speculative statement that corresponds to the given
+        /// inner statement, and is marked "alive".
+        /// </summary>
+        public const this(set IStatement Contents)
+        {
+            this.IsAlive = true;
+        }
+
+        /// <summary>
+        /// Creates a speculative statement from the given inner statement and
+        /// a boolean that determines whether it is alive or dead.
+        /// </summary>
+        public const this(set IStatement Contents, set bool IsAlive);
+
+        /// <summary>
+        /// Gets the speculative statement's inner statement.
+        /// </summary>
+        public IStatement Contents { const get; private set; }
+
+        /// <summary>
+        /// Gets or sets a boolean flag that tells if this speculative statement
+        /// is "alive" or "dead".
+        /// </summary>
+        public bool IsAlive { const get; set; }
+
+        public bool IsEmpty
+        {
+            const get return !IsAlive || Contents.IsEmpty;
+        }
+
+        public IStatement Unwrap()
+        {
+            if (IsAlive)
+                return Contents;
+            else
+                return EmptyStatement;
+        }
+
+        public IStatement Optimize()
+        {
+            return Unwrap().Optimize();
+        }
+
+        public IStatement Accept(INodeVisitor Visitor)
+        {
+            return Visitor.Visit(Unwrap());
+        }
+
+        public ICodeBlock Emit(ICodeGenerator CodeGenerator)
+        {
+            return Unwrap().Emit(CodeGenerator);
+        }
+    }
+}
