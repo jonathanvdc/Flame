@@ -17,7 +17,7 @@ namespace Flame.Bytecode.Stack
             return new CachedExpression()
             {
                 InitializedCacheStatement = Variable.CreateSetStatement(Expression),
-                RetrieveExpression = new InitializedExpression(new EmptyStatement(), Variable.CreateGetExpression(), Variable.CreateReleaseStatement())
+                RetrieveExpression = new InitializedExpression(EmptyStatement.Instance, Variable.CreateGetExpression(), Variable.CreateReleaseStatement())
             };
         }
         public static CachedExpression Cache(this IExpression Expression)
