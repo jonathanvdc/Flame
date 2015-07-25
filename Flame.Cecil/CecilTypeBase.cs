@@ -207,7 +207,14 @@ namespace Flame.Cecil
 
         public IType MakeGenericType(IEnumerable<IType> TypeArguments)
         {
-            return new CecilGenericType(this, TypeArguments);
+            if (!TypeArguments.Any())
+            {
+                return this;
+            }
+            else
+            {
+                return new CecilGenericType(this, TypeArguments);
+            }
         }
 
         protected virtual string GetName()
