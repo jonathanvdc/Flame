@@ -5,7 +5,7 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler.Statements
 {
-	public class YieldBreakStatement : IStatement
+	public class YieldBreakStatement : IFlowStatement
 	{
 		public const this();
 
@@ -25,6 +25,16 @@ namespace Flame.Compiler.Statements
 		{
 			var cg = (IYieldCodeGenerator)Generator;
 			return cg.EmitYieldBreak();
+		}
+
+		/// <summary>
+		/// Accepts and interacts with a flow visitor.
+		/// </summary>
+		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+			: IFlowStatement.AcceptFlow<TState, TFlow>
+		{
+			Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(Visitor.CurrentFlow, Visitor.TerminatedFlow);
+			return this;
 		}
 	}
 }
