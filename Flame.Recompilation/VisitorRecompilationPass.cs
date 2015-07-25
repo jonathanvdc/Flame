@@ -35,21 +35,6 @@ namespace Flame.Recompilation
         }
     }
 
-    public class DelegateConverter<TIn, TOut> : IConverter<TIn, TOut>
-    {
-        public DelegateConverter(Func<TIn, TOut> Delegate)
-        {
-            this.Delegate = Delegate;
-        }
-
-        public Func<TIn, TOut> Delegate { get; private set; }
-
-        public TOut Convert(TIn Value)
-        {
-            return Delegate(Value);
-        }
-    }
-
     public class RecompilingVisitor : VariableSubstitutingVisitorBase
     {
         public RecompilingVisitor(AssemblyRecompiler Recompiler)
