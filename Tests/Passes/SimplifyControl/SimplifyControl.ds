@@ -1,0 +1,36 @@
+
+public static class Tests
+{
+    public void Once(void() Action)
+    {
+        while (true)
+        {
+            Action();
+            break;
+        }
+
+        // -fsimplify-control should optimize this to:
+        //
+        // Action();
+    }
+
+    public void Forever(bool() Condition)
+    {
+        do
+        {
+            if (Condition())
+            {
+                next;
+            }
+            if (Condition())
+            {
+                return;
+            }
+            else break;
+        } while (true);
+
+        // -fsimplify-control should optimize this to something that resembles:
+        //
+        // while (Condition()) { }
+    }
+}
