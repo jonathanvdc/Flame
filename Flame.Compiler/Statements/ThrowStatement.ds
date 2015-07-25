@@ -5,7 +5,7 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler.Statements
 {
-	public class ThrowStatement : IStatement
+	public class ThrowStatement : IFlowStatement
 	{
 		public const this(set IExpression Exception);
 
@@ -42,6 +42,17 @@ namespace Flame.Compiler.Statements
 			var cg = (IExceptionCodeGenerator)Generator;
 			var ex = Exception.Emit(cg);
 			return cg.EmitThrow(ex);
+		}
+
+		/// <summary>
+		/// Accepts and interacts with a flow visitor.
+		/// </summary>
+		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+			: IFlowStatement.AcceptFlow<TState, TFlow>
+		{
+			var result = Accept(Visitor);
+			Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(Visitor.CurrentFlow, Visitor.TerminatedFlow);
+			return result;
 		}
 	}
 }

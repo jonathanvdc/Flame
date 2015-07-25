@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Statements
 {
-	public class ReturnStatement : IStatement
+	public class ReturnStatement : IFlowStatement
 	{
 		public const this();
 		public const this(set IExpression Value);
@@ -55,6 +55,17 @@ namespace Flame.Compiler.Statements
 			{
 				return Generator.EmitReturn(null);
 			}
+		}
+
+		/// <summary>
+		/// Accepts and interacts with a flow visitor.
+		/// </summary>
+		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+			: IFlowStatement.AcceptFlow<TState, TFlow>
+		{
+			var result = Accept(Visitor);
+			Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(Visitor.CurrentFlow, Visitor.TerminatedFlow);
+			return result;
 		}
 	}
 }

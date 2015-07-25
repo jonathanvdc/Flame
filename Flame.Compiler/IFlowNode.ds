@@ -40,6 +40,12 @@ namespace Flame.Compiler
         TState CurrentFlow { const get; set; }
 
         /// <summary>
+        /// Gets a flow delta that represents flow termination:
+        /// sequential flow that succeeds it will never be executed.
+        /// </summary>
+        TDelta TerminatedFlow { const get; }
+
+        /// <summary>
         /// Computes the "sum" of a flow state and a control flow delta.
         /// </summary>
         const TState CreateCollapsedFlow(TState First, TDelta Second);

@@ -23,6 +23,12 @@ namespace Flame.Compiler.Visitors
         public [SourceStatement] DeadCodeStatements { const get return deadCodeStmts; }
 
         /// <summary>
+        /// Gets a flow delta that represents flow termination:
+        /// sequential flow that succeeds it will never be executed.
+        /// </summary>
+        public bool TerminatedFlow { const get return false; }
+
+        /// <summary>
         /// Computes the "sum" of a flow state and a control flow delta.
         /// </summary>
         public const bool CreateCollapsedFlow(bool First, bool Second)
@@ -72,15 +78,7 @@ namespace Flame.Compiler.Visitors
         }
         public override const bool Matches(IStatement Value)
         {
-            return !CurrentFlow || Value is IFlowStatement || TerminatesFlow(Value);
-        }
-
-        protected const bool TerminatesFlow(IStatement Statement)
-        {
-            return Statement is ReturnStatement || Statement is ThrowStatement ||
-                   Statement is YieldBreakStatement || Statement is BreakStatement ||
-                   Statement is ContinueStatement; // Break and continue should always
-                                                   // occur within the context of a loop.
+            return !CurrentFlow || Value is IFlowStatement;
         }
 
         private IStatement EliminateDeadStatement(IStatement Statement)
@@ -113,7 +111,7 @@ namespace Flame.Compiler.Visitors
                 }
                 return result;
             }
-            else if (!CurrentFlow)
+            else
             {
                 var result = Statement.Accept(this);
                 if (!CurrentFlow)
@@ -121,11 +119,6 @@ namespace Flame.Compiler.Visitors
                     return EliminateDeadStatement(result); // Don't restart the flow now.
                 }
                 return result;
-            }
-            else // This must mean that this statement is a flow terminating statement.
-            {
-                CurrentFlow = false;
-                return Statement;
             }
         }
     }

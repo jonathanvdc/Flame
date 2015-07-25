@@ -18,6 +18,8 @@ namespace Flame.Optimization
         public bool IsOptimistic { const get; private set; }
         public int LoopWeight { const get; private set; }
 
+        public int TerminatedFlow { const get return 0; }
+
         /// <summary>
         /// Approximates the given statement's size, based on the given parameters.
         /// </summary>
