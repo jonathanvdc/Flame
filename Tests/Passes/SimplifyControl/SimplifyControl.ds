@@ -22,11 +22,7 @@ public static class Tests
             {
                 next;
             }
-            if (Condition())
-            {
-                return;
-            }
-            else break;
+            break;
         } while (true);
 
         // -fsimplify-control should optimize this to something that resembles:
