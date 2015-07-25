@@ -60,19 +60,24 @@ namespace Flame.Front.Target
 
         public bool ShouldInline(BodyPassArgument Args, DissectedCall Call, int Tolerance)
         {
+            if (Call.Method.get_IsVirtual() || (Call.Method.IsConstructor && !Call.Method.DeclaringType.get_IsValueType()))
+            {
+                return false;
+            }
+
             var body = Args.PassEnvironment.GetMethodBody(Call.Method);
-            if (body == null)
+            if (body == null || !AccessChecker.CanAccess(Args.Type, body))
             {
                 return false;
             }
 
             int pro = Call.ThisValue != null ? RateArgument(Call.Method.DeclaringType, Call.ThisValue) : 0;
-            foreach (var item in Call.Method.GetParameters().Zip(Call.Arguments, (first, second) => Tuple.Create(first, second)))
+            foreach (var item in Call.Method.GetParameters().Zip(Call.Arguments, Tuple.Create))
             {
                 pro += RateArgument(item.Item1.ParameterType, item.Item2);
             }
 
-            int con = SizeVisitor.Static_Singleton.Instance.ApproximateSize(body, true, 2);
+            int con = SizeVisitor.ApproximateSize(body, true, 2);
 
             return con - pro < Tolerance;
         }
