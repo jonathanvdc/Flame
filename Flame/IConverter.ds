@@ -17,4 +17,16 @@ namespace Flame
 			return Value;
 		}
 	}
+
+	public class DelegateConverter<TIn, TOut> : IConverter<TIn, TOut>
+	{
+		public const this(set TOut(TIn) Delegate);
+
+		public TOut(TIn) Delegate { const get; private set; }
+
+		public const TOut Convert(TIn Value)
+		{
+			return Delegate(Value);
+		}
+	}
 }
