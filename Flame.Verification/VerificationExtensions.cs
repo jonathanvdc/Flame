@@ -12,6 +12,26 @@ namespace Flame.Verification
 {
     public static class VerificationExtensions
     {
+        public static string GetAccessModifierName(this AccessModifier Modifier)
+        {
+            switch (Modifier)
+            {
+                case AccessModifier.Assembly:
+                    return "assembly";
+                case AccessModifier.Private:
+                    return "private";
+                case AccessModifier.Protected:
+                    return "protected";
+                case AccessModifier.ProtectedAndAssembly:
+                    return "protected and assembly";
+                case AccessModifier.ProtectedOrAssembly:
+                    return "protected or assembly";
+                case AccessModifier.Public:
+                default:
+                    return "public";
+            }
+        }
+
         public static bool VerifyAttribute<T>(this IAttribute Attribute, T Member, IEnumerable<IAttributeVerifier<T>> Verifiers, ICompilerLog Log)
             where T : IMember
         {
