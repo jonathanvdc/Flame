@@ -36,13 +36,9 @@ namespace Flame.Compiler.Statements
 		private const TaggedStatement CreateTagged(IStatement NewBody)
 		{
 			if (NewBody == Body)
-			{
 				return this;
-			}
 			else
-			{
 				return new TaggedStatement(Tag, NewBody);
-			}
 		}
 
 		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
@@ -71,15 +67,24 @@ namespace Flame.Compiler.Statements
 			const get return Body.IsEmpty;
 		}
 
+		/// <summary>
+		/// Tries to simplify this tagged statement into sequential flow.
+		/// If there are no 'break' and 'continue' statements to this tagged statement,
+		/// it is converted into sequenial flow. Otherwise, this tagged statement
+		/// is returned unchanged.
+		/// </summary>
+		public IStatement Simplify()
+		{
+			if (!FunctionPredicateVisitor.AnySatisfies(BranchesTo, Body))
+				return Body; // No `break` or `continue` statements to this
+							 // tagged statement. Assume sequential flow.
+			else
+				return this;
+		}
+
 		public IStatement Optimize() : IStatement.Optimize
 		{
-			var optBody = Body.Optimize();
-
-			if (!FunctionPredicateVisitor.AnySatisfies(BranchesTo, optBody))
-				return optBody; // No `break` or `continue` statements to this
-								// tagged statement. Assume sequential flow.
-            else
-				return CreateTagged(optBody);
+			return CreateTagged(Body.Optimize()).Simplify();
 		}
 
 		public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
