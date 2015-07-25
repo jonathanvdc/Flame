@@ -14,4 +14,27 @@ namespace Flame.Compiler.Visitors
             return Value;
         }
     }
+
+    /// <summary>
+    /// Defines an empty visitor, which does not in any way modify its input.
+    /// </summary>
+    public static class EmptyVisitor : NodeVisitorBase
+    {
+        public override const bool Matches(IExpression Value)
+        {
+            return true; // Match it, then ignore it.
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return true; // Match it, then ignore it.
+        }
+        protected override IExpression Transform(IExpression Expression)
+        {
+            return Expression; // Just ignore.
+        }
+        protected override IStatement Transform(IStatement Statement)
+        {
+            return Statement; // Just ignore.
+        }
+    }
 }

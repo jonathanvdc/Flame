@@ -199,6 +199,7 @@
 	<ItemGroup Name="Visitors">
 		<ItemGroup>
 			<Compile Include="Visitors\AggregatePass.ds" />
+			<Compile Include="Visitors\AggregateVisitor.ds" />
 			<Compile Include="Visitors\AnyPredicateVisitorBase.ds" />
 			<Compile Include="Visitors\BodyPassBase.ds" />
 			<Compile Include="Visitors\ContinueRewriter.ds" />

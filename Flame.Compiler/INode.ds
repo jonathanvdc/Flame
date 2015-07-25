@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler.Emit;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler
 {
@@ -24,12 +25,12 @@ namespace Flame.Compiler
     public interface INodeVisitor
     {
         /// <summary>
-        /// "Visits" an expression: an expression is taken as input and transformed another expression.
+        /// "Visits" an expression: an expression is taken as input and transformed into another expression.
         /// </summary>
         IExpression Visit(IExpression Value);
 
         /// <summary>
-        /// "Visits" a statement: an statement is taken as input and transformed another statement.
+        /// "Visits" a statement: an statement is taken as input and transformed into another statement.
         /// </summary>
         IStatement Visit(IStatement Value);
     }
@@ -87,6 +88,37 @@ namespace Flame.Compiler
         public static IStatement[] VisitAll(this INodeVisitor Visitor, [IStatement] Values)
         {
             return Visitor.VisitAll(Enumerable.ToArray<IStatement>(Values));
+        }
+
+        /// <summary>
+        /// Creates a node visitor that applies the given node visitors in sequence.
+        /// </summary>
+        public static const INodeVisitor Aggregate(this INodeVisitor First, INodeVisitor Second)
+        {
+            if (First is NodeVisitorBase && Second is NodeVisitorBase)
+                return new AggregateMatchVisitor((NodeVisitorBase)First, (NodeVisitorBase)Second);
+            else
+                return new AggregateVisitor(First, Second);
+        }
+
+        /// <summary>
+        /// Creates a node visitor that applies the given node visitors in sequence.
+        /// </summary>
+        public static const INodeVisitor Aggregate(this [INodeVisitor] Visitors)
+        {
+            if (!Enumerable.Any<INodeVisitor>(Visitors))
+            {
+                return EmptyVisitor;
+            }
+            else
+            {
+                INodeVisitor result = Enumerable.First<INodeVisitor>(Visitors);
+                foreach (var item in Enumerable.Skip<INodeVisitor>(Visitors, 1))
+                {
+                    result = result.Aggregate(item);
+                }
+                return result;
+            }
         }
     }
 }
