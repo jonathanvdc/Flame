@@ -10,13 +10,13 @@ namespace Flame.Syntax.DSharp
 {
     public class SetVariableStatementSyntax : LineStatementSyntax, ISourceSyntax
     {
-        public const this(set ISetVariableExpressionSyntax StoreSyntax);
+        public const this(set ISetVariableExpressionSyntax StoreSyntax, set Token SemicolonToken);
 
         public ISetVariableExpressionSyntax StoreSyntax { const get; private set; }
 
         public SourceLocation Location
         {
-            const get return StoreSyntax.GetSourceLocation();
+            const get return StoreSyntax.GetSourceLocation().Concat(SemicolonToken.Location);
         }
 
         public override IStatement CreateStatement(ISyntaxState State)
