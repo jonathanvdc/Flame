@@ -181,21 +181,17 @@ namespace Flame.Optimization
 
     public class InliningReturnVisitor : NodeVisitorBase
     {
-        public const this(set IVariable ReturnVariable, set LateBoundLabel ReturnLabel);
+        public const this(set IVariable ReturnVariable, set BlockTag ReturnTag);
 
         public IVariable ReturnVariable { const get; private set; }
-        public LateBoundLabel ReturnLabel { const get; private set; }
+        public BlockTag ReturnTag { const get; private set; }
 
         public static const IStatement InlineReturns(IStatement Statement, IVariable ReturnVariable)
         {
-            var label = new LateBoundLabel();
+            var label = new BlockTag();
             var visitor = new InliningReturnVisitor(ReturnVariable, label);
             var body = visitor.Visit(Statement);
-            return new BlockStatement(new IStatement[]
-            {
-                body,
-                label.CreateMarkStatement()
-            });
+            return new TaggedStatement(label, body);
         }
 
         public override const bool Matches(IExpression Value)
@@ -215,14 +211,14 @@ namespace Flame.Optimization
             var retStmt = (ReturnStatement)Statement;
             if (retStmt.Value == null || ReturnVariable.Type == null)
             {
-                return ReturnLabel.CreateBranchStatement();
+                return new BreakStatement(ReturnTag);
             }
             else
             {
                 return new BlockStatement(new IStatement[]
                 {
                     ReturnVariable.CreateSetStatement(retStmt.Value),
-                    ReturnLabel.CreateBranchStatement()
+                    new BreakStatement(ReturnTag)
                 });
             }
         }
