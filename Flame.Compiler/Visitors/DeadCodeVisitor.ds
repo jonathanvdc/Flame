@@ -19,7 +19,7 @@ namespace Flame.Compiler.Visitors
 
         private List<SourceStatement> deadCodeStmts;
 
-        public bool CurrentFlow { const get; private set; }
+        public bool CurrentFlow { const get; set; }
         public [SourceStatement] DeadCodeStatements { const get return deadCodeStmts; }
 
         /// <summary>

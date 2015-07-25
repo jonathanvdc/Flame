@@ -14,7 +14,7 @@ namespace Flame.Optimization
             this.CurrentFlow = 0;
         }
 
-        public int CurrentFlow { const get; private set; }
+        public int CurrentFlow { const get; set; }
         public bool IsOptimistic { const get; private set; }
         public int LoopWeight { const get; private set; }
 

@@ -85,7 +85,7 @@ namespace Flame.Compiler.Visitors
 
         public bool(INode) SatisfiesFunction { const get; private set; }
 
-        public override const bool Satisfies(INode Value)
+        protected override const bool Satisfies(INode Value)
         {
             return SatisfiesFunction(Value);
         }

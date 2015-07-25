@@ -58,7 +58,7 @@ namespace Flame.Compiler.Expressions
             return expr;
         }
 
-        public override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
+        protected override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
         {
             return Generator.EmitEquals(Left, Right);
         }
