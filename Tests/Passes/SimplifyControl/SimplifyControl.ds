@@ -9,7 +9,7 @@ public static class Tests
             break;
         }
 
-        // -fsimplify-control should optimize this to:
+        // -fsimplify-flow should optimize this to:
         //
         // Action();
     }
@@ -21,7 +21,7 @@ public static class Tests
             Action();
         }
 
-        // This should always be optimized away, -fsimplify-control or no.
+        // This should always be optimized away, -fsimplify-flow or no.
     }
 
     public void Forever(bool() Condition)
@@ -35,7 +35,7 @@ public static class Tests
             break;
         } while (true);
 
-        // -fsimplify-control should optimize this to:
+        // -fsimplify-flow should optimize this to:
         //
         // tag: { if (Condition()) continue tag; }
         //

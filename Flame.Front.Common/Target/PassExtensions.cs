@@ -30,7 +30,7 @@ namespace Flame.Front.Target
         public const string EliminateDeadCodePassName = "dead-code-elimination";
         public const string LowerYieldPassName = "lower-yield";
         public const string InliningPassName = "inline";
-        public const string SimplifyFlowPassName = "simplify-control";
+        public const string SimplifyFlowPassName = "simplify-flow";
 
         private static void AddPass<TIn, TOut>(List<IPass<TIn, TOut>> Passes, PassInfo<TIn, TOut> Info, ICompilerLog Log, HashSet<string> PreferredPasses)
         {

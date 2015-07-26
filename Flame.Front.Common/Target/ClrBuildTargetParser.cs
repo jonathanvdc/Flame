@@ -62,7 +62,7 @@ namespace Flame.Front.Target
             }
         }
 
-        public static readonly string[] PreferredPasses = { PassExtensions.LowerYieldPassName };
+        public static readonly string[] PreferredPasses = { PassExtensions.LowerYieldPassName, PassExtensions.SimplifyFlowPassName };
 
         public BuildTarget CreateBuildTarget(string Identifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)
         {
