@@ -83,6 +83,7 @@
     <Compile Include="CecilTypeMemberImporterBase.cs" />
     <Compile Include="CecilTypeSystem.cs" />
     <Compile Include="ConverterCache.cs" />
+    <Compile Include="Emit\BlockExtensions.cs" />
     <Compile Include="Emit\BranchFlowStructure.cs" />
     <Compile Include="Emit\DereferenceBlock.cs" />
     <Compile Include="Emit\TaggedBlock.cs" />
