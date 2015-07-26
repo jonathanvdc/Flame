@@ -229,7 +229,14 @@ namespace Flame.Front.Cli
 
             var recompSettings = new RecompilationSettings(GetRecompilationPass(State.FilteredLog), !(target.TargetAssembly is Flame.TextContract.ContractAssembly), true);
 
-            var passSuite = PassExtensions.CreateSuite(State.FilteredLog, State.Handler.GetPassPreferences(State.FilteredLog).Union(target.Passes));
+            var passPrefs = State.Handler.GetPassPreferences(State.FilteredLog).Union(target.Passes);
+
+            if (State.FilteredLog.Options.GetOption("print-passes", false))
+            {
+                PrintPasses(State.FilteredLog, passPrefs);
+            }
+
+            var passSuite = PassExtensions.CreateSuite(State.FilteredLog, passPrefs);
 
             var asmRecompiler = new AssemblyRecompiler(target.TargetAssembly, State.FilteredLog, new SingleThreadedTaskManager(), passSuite, recompSettings);
             await asmRecompiler.RecompileAsync(projAsm, new RecompilationOptions(State.Options.MustCompileAll(), true));
@@ -294,6 +301,15 @@ namespace Flame.Front.Cli
             {
                 Log.LogWarning(new LogEntry("No changes", "The output assembly and documentation were already up-to-date. [-" + warningName + "]"));
             }
+        }
+
+        private static void PrintPasses(ICompilerLog Log, PassPreferences Preferences)
+        {
+            var names = PassExtensions.GetSelectedPassNames(Log, Preferences);
+
+            var resultNode = ListExtensions.Instance.CreateList(
+                                names.Select(item => new MarkupNode(NodeConstants.TextNodeType, "-f" + item)));
+            Log.LogMessage(new LogEntry("Passes in use (in order of application)", resultNode));
         }
     }
 }

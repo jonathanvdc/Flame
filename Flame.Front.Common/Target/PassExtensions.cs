@@ -40,6 +40,38 @@ namespace Flame.Front.Target
             }
         }
 
+        private static void AddPassName<TIn, TOut>(List<string> Passes, PassInfo<TIn, TOut> Info, ICompilerLog Log, HashSet<string> PreferredPasses)
+        {
+            if (Log.Options.GetOption<bool>("f" + Info.Name, Info.IsDefault || PreferredPasses.Contains(Info.Name)))
+            {
+                Passes.Add(Info.Name);
+            }
+        }
+
+        public static IEnumerable<string> GetSelectedPassNames(ICompilerLog Log, PassPreferences Preferences)
+        {
+            var names = new List<string>();
+
+            var preferredPassSet = new HashSet<string>(Preferences.PreferredPasses);
+
+            foreach (var item in Preferences.AdditionalPrePasses.Union(PreStatementPasses))
+            {
+                AddPassName(names, item, Log, preferredPassSet);
+            }
+
+            foreach (var item in Preferences.AdditionalMethodPasses.Union(MethodPasses))
+            {
+                AddPassName(names, item, Log, preferredPassSet);
+            }
+
+            foreach (var item in Preferences.AdditionalPasses.Union(StatementPasses))
+            {
+                AddPassName(names, item, Log, preferredPassSet);
+            }
+
+            return names;
+        }
+
         public static PassSuite CreateSuite(ICompilerLog Log, PassPreferences Preferences)
         {
             var preferredPassSet = new HashSet<string>(Preferences.PreferredPasses);

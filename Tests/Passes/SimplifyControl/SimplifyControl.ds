@@ -43,4 +43,20 @@ public static class Tests
         //
         // do { } while (Condition());
     }
+
+    public void Iterate<T>(void(T) Action, [T] Values)
+    {
+        foreach (var item in Values)
+        {
+            while (true)
+            {
+                Action(item);
+                break;
+            }
+        }
+
+        // -fsimplify-flow should optimize this to:
+        //
+        // foreach (var item in Values) Action(item);
+    }
 }
