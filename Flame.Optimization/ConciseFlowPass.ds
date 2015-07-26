@@ -1,0 +1,82 @@
+using System;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// Defines a pass that makes control flow more concise.
+    /// This pass will convert low-level constructs (tagged statements) to their
+    /// high-level equivalents, such as 'while' and 'do...while' loops, where
+    /// doing so is the 'natural' thing to do: i.e. it does not change the semantics
+    /// of the original node tree, and encapsulates things like loop conditions
+    /// in their 'logical' positions.
+    /// </summary>
+    /// <remarks>
+    /// Currently, this pass does the following:
+    ///   * Convert tagged statements that end in `continue;` into
+    ///     `while (true) { ... }` loops.
+    /// TODO:
+    ///   * Convert tagged statements that end in `if (Condition) { continue; }`
+    ///     into 'do...while' loops.
+    ///   * Convert `while (Condition1) { ... }` loops that start with `if (Condition2) { break; }`
+    ///     into `while (Condition1 &amp;&amp; !Condition2) { ... }` loops.
+    /// </remarks>
+    public static class ConciseFlowPass : IPass<IStatement, IStatement>
+    {
+        private const bool MatchesTagged(IStatement Value)
+        {
+            return Value is TaggedStatement;
+        }
+        /*private const bool MatchesWhile(IStatement Value)
+        {
+            return Value is WhileStatement;
+        }*/
+
+        private const IStatement GetTaggedBody(IStatement Value)
+        {
+            return ((TaggedStatement)Value).Body;
+        }
+
+        /*private const IStatement GetWhileBody(IStatement Value)
+        {
+            return ((WhileStatement)Value).Body;
+        }
+
+        private const IStatement GetDoWhileBody(IStatement Value)
+        {
+            return ((DoWhileStatement)Value).Body;
+        }*/
+
+        private const bool MatchesFinalTaggedContinue(IStatement Flow, IStatement Final)
+        {
+            if (Final is ContinueStatement)
+            {
+                return ((TaggedStatement)Flow).Tag == ((ContinueStatement)Final).Target;
+            }
+            else return false;
+        }
+
+        private const IStatement TransformFinalTaggedContinue(IStatement Enclosing, IStatement Body)
+        {
+            var tagged = (TaggedStatement)Enclosing;
+            return new WhileStatement(new BooleanExpression(true), Body);
+        }
+
+        public INodeVisitor TaggedContinueVisitor
+        {
+            const get return StatementRewriter.CreateFinalFlowRewriter(
+                MatchesTagged,
+                GetTaggedBody,
+                MatchesFinalTaggedContinue,
+                TransformFinalTaggedContinue);
+        }
+
+        public IStatement Apply(IStatement Statement)
+        {
+            return TaggedContinueVisitor.Visit(Statement);
+        }
+    }
+}

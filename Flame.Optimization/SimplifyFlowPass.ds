@@ -101,26 +101,29 @@ namespace Flame.Optimization
 
         public INodeVisitor TaggedBreakVisitor
         {
-            const get return new FinalFlowVisitor(MatchesTagged,
-                                                  GetTaggedBody,
-                                                  MatchesFinalTaggedBreak,
-                                                  TransformEnclosingTagged);
+            const get return StatementRewriter.CreateFinalFlowRewriter(
+                MatchesTagged,
+                GetTaggedBody,
+                MatchesFinalTaggedBreak,
+                TransformEnclosingTagged);
         }
 
         public INodeVisitor WhileBreakVisitor
         {
-            const get return new FinalFlowVisitor(MatchesWhile,
-                                                  GetWhileBody,
-                                                  MatchesFinalWhileBreak,
-                                                  TransformEnclosingWhile);
+            const get return StatementRewriter.CreateFinalFlowRewriter(
+                MatchesWhile,
+                GetWhileBody,
+                MatchesFinalWhileBreak,
+                TransformEnclosingWhile);
         }
 
         public INodeVisitor DoWhileBreakVisitor
         {
-            const get return new FinalFlowVisitor(MatchesDoWhile,
-                                                  GetDoWhileBody,
-                                                  MatchesFinalDoWhileBreak,
-                                                  TransformEnclosingDoWhile);
+            const get return StatementRewriter.CreateFinalFlowRewriter(
+                MatchesDoWhile,
+                GetDoWhileBody,
+                MatchesFinalDoWhileBreak,
+                TransformEnclosingDoWhile);
         }
 
         public IStatement Apply(IStatement Statement)

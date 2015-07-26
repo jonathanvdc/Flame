@@ -67,7 +67,7 @@ namespace PassTests
         {
             var remover = BuildFinalBreakRemover();
             remover.Visit(Statement);
-            return remover.CurrentFlow.HasFinalStatements;
+            return remover.CurrentFlow.HasSpeculativeStatements;
         }
 
         [TestMethod]

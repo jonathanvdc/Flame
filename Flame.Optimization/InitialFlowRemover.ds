@@ -1,0 +1,244 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    public class InitialFlowState
+    {
+        public const this(set SpeculativeFlowState SpeculativeState, set bool IsInitial);
+
+        public SpeculativeFlowState SpeculativeState { const get; private set; }
+        /// <summary>
+        /// Determines whether this state is "initial": it succeeds the initial
+        /// state directly.
+        /// </summary>
+        public bool IsInitial { const get; private set; }
+        public bool IsTerminated { const get return SpeculativeState.IsTerminated; }
+
+        public InitialFlowState WithStatement(SpeculativeStatement Statement)
+        {
+            return new InitialFlowState(SpeculativeState.WithStatement(Statement),
+                                        IsInitial);
+        }
+
+        public InitialFlowState Sequence(InitialFlowState Other)
+        {
+            if (this.IsTerminated)
+            {
+                return this;
+            }
+            else if (Other.IsInitial)
+            {
+                return new InitialFlowState(Other.SpeculativeState, this.IsInitial);
+            }
+            else
+            {
+                var innerState = new SpeculativeFlowState(
+                    this.SpeculativeState.SpeculativeStatements,
+                    Other.SpeculativeState.IsTerminated);
+
+                return new InitialFlowState(innerState, false);
+            }
+        }
+
+        public InitialFlowState Select(InitialFlowState Other)
+        {
+            return new InitialFlowState(this.SpeculativeState.Select(Other.SpeculativeState),
+                                        this.IsInitial && Other.IsInitial);
+        }
+
+        /// <summary>
+        /// Gets an initial flow state that represents terminated flow.
+        /// </summary>
+        public static InitialFlowState TerminatedFlow
+        {
+            const get return new InitialFlowState(SpeculativeFlowState.TerminatedFlow, true);
+        }
+
+        /// <summary>
+        /// Gets an initial flow state that represents initial flow.
+        /// </summary>
+        public static InitialFlowState InitialFlow
+        {
+            const get return new InitialFlowState(SpeculativeFlowState.InitialFlow, true);
+        }
+
+        /// <summary>
+        /// Gets an initial flow state that represents non-initial flow.
+        /// </summary>
+        public static InitialFlowState NonInitialFlow
+        {
+            const get return new InitialFlowState(SpeculativeFlowState.InitialFlow, false);
+        }
+    }
+
+    /// <summary>
+    /// A visitor that matches control flow statements, such as `break` and `continue`
+    /// at the start of an enclosing control flow statement such as a tagged block, a
+    /// `while` loop, a `do...while` loop or a `for` loop.
+    /// Said enclosing statement is then transformed.
+    /// </summary>
+    public class InitialFlowRemover : NodeVisitorBase, IFlowVisitor<InitialFlowState, InitialFlowState>
+    {
+        /// <summary>
+        /// Creates a new final flow remover from the given enclosing flow
+        /// and a function that matches final flow.
+        /// </summary>
+        public const this(set IStatement EnclosingFlow,
+                          set bool(IStatement, IStatement) MatchesInnerFlow)
+        {
+            this.CurrentFlow = InitialFlowState.InitialFlow;
+        }
+
+        /// <summary>
+        /// Gets the final flow remover's enclosing flow statement.
+        /// </summary>
+        public IStatement EnclosingFlow { const get; private set; }
+
+        /// <summary>
+        /// Matches the final flow statement.
+        /// This delegate's first argument represents the enclosing statement,
+        /// whereas the second argument represents the potential final flow statement.
+        /// </summary>
+        public bool(IStatement, IStatement) MatchesInnerFlow { const get; private set; }
+
+        /// <summary>
+        /// Gets or sets the current flow state.
+        /// </summary>
+        public InitialFlowState CurrentFlow { const get; set; }
+
+        /// <summary>
+        /// Gets a flow delta that represents flow termination:
+        /// sequential flow that succeeds it will never be executed.
+        /// </summary>
+        public InitialFlowState TerminatedFlow { const get return InitialFlowState.TerminatedFlow; }
+
+        /// <summary>
+        /// Computes the "sum" of a flow state and a control flow delta.
+        /// </summary>
+        public const InitialFlowState CreateCollapsedFlow(InitialFlowState First, InitialFlowState Second)
+        {
+            return First.Sequence(Second);
+        }
+
+        /// <summary>
+        /// Computes the "difference" between two flow states, such that
+        /// the "sum" of the first flow state and the result of this operation
+        /// results in the second state.
+        /// </summary>
+        public const InitialFlowState CreateDeltaFlow(InitialFlowState First, InitialFlowState Second)
+        {
+            return Second;
+        }
+
+        /// <summary>
+        /// Creates a flow delta that represents the sequential execution of
+        /// two flow deltas.
+        /// </summary>
+        public const InitialFlowState CreateSequenceFlow(InitialFlowState First, InitialFlowState Second)
+        {
+            return First.Sequence(Second);
+        }
+
+        /// <summary>
+        /// Creates a flow delta that represents selecting precisely one of two
+        /// flow deltas.
+        /// </summary>
+        public const InitialFlowState CreateSelectFlow(InitialFlowState First, InitialFlowState Second)
+        {
+            return First.Select(Second);
+        }
+
+        /// <summary>
+        /// Creates a flow delta that will be executed zero or more
+        /// times.
+        /// </summary>
+        public const InitialFlowState CreateLoopFlow(InitialFlowState Flow)
+        {
+            return InitialFlowState.NonInitialFlow;
+        }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return true;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return CurrentFlow.IsTerminated || Value is IFlowStatement;
+        }
+
+        private IStatement VisitStmt(IStatement Statement)
+        {
+            if (Statement is IFlowStatement)
+            {
+                return ((IFlowStatement)Statement).AcceptFlow<InitialFlowState, InitialFlowState>(this);
+            }
+            else
+            {
+                return Statement.Accept(this);
+            }
+        }
+
+        private IExpression VisitExpr(IExpression Expression)
+        {
+            if (Expression is IFlowExpression)
+            {
+                return ((IFlowExpression)Expression).AcceptFlow<InitialFlowState, InitialFlowState>(this);
+            }
+            else
+            {
+                return Expression.Accept(this);
+            }
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            var result = VisitExpr(Expression);
+
+            // Make the current flow non-initial.
+            CurrentFlow = CurrentFlow.Sequence(InitialFlowState.NonInitialFlow);
+
+            return result;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            if (CurrentFlow.IsTerminated || Statement.IsEmpty)
+            {
+                return EmptyStatement; // Do some basic DCE here.
+            }
+
+            if (!CurrentFlow.IsInitial)
+            {
+                return Statement; // We're done here. Get out as soon as we can.
+            }
+
+            // `CurrentFlow.IsInitial` is checked above because visiting this statement
+            // could change its value.
+            var visitedStmt = VisitStmt(Statement);
+
+            // Make the current flow non-initial.
+            CurrentFlow = CurrentFlow.Sequence(InitialFlowState.NonInitialFlow);
+
+            // If we were dealing with initial flow, and this statement happens
+            // to be what we were looking for, we can conclude that the first statement
+            // does match the given criteria.
+            if (MatchesInnerFlow(EnclosingFlow, visitedStmt))
+            {
+                var speculativeStmt = new SpeculativeStatement(visitedStmt);
+                CurrentFlow = CurrentFlow.WithStatement(speculativeStmt);
+                return speculativeStmt;
+            }
+            else
+            {
+                return visitedStmt;
+            }
+        }
+    }
+}
