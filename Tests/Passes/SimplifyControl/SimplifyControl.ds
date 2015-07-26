@@ -14,6 +14,16 @@ public static class Tests
         // Action();
     }
 
+    public void Never(void() Action)
+    {
+        while (false)
+        {
+            Action();
+        }
+
+        // This should always be optimized away, -fsimplify-control or no.
+    }
+
     public void Forever(bool() Condition)
     {
         do
@@ -25,7 +35,11 @@ public static class Tests
             break;
         } while (true);
 
-        // -fsimplify-control should optimize this to something that resembles:
+        // -fsimplify-control should optimize this to:
+        //
+        // tag: { if (Condition()) continue tag; }
+        //
+        // which is approximately the same as:
         //
         // while (Condition()) { }
     }
