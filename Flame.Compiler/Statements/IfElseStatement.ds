@@ -135,8 +135,21 @@ namespace Flame.Compiler.Statements
 			}
 			else
 			{
-				// Condition could not be evaluated at compile-time. Nothing to simplify.
-				return CreateIfElse(optCond, IfBody.Optimize(), ElseBody.Optimize());
+				var optIf = IfBody.Optimize();
+				var optElse = ElseBody.Optimize();
+
+				if (optIf.IsEmpty && optElse.IsEmpty)
+				{
+					// If body and else body were both empty, so we really only
+					// want to keep the side-effects (if any) from the condition.
+
+					return new ExpressionStatement(optCond).Simplify();
+				}
+				else
+				{
+					// Condition could not be evaluated at compile-time. Nothing to simplify.
+					return CreateIfElse(optCond, optIf, optElse);
+				}
 			}
 		}
 
