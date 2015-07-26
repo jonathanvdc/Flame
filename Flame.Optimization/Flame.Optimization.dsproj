@@ -15,13 +15,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccessChecker.ds" />
+    <Compile Include="ConciseFlowPass.ds" />
     <Compile Include="FinalFlowRemover.ds" />
-    <Compile Include="FinalFlowVisitor.ds" />
+    <Compile Include="InitialFlowRemover.ds" />
     <Compile Include="InliningExtensions.ds" />
     <Compile Include="InliningVisitor.ds" />
     <Compile Include="PredicateMemberNodeVisitor.ds" />
     <Compile Include="SimplifyFlowPass.ds" />
     <Compile Include="SizeVisitor.ds" />
     <Compile Include="SpeculativeStatement.ds" />
+    <Compile Include="StatementRewriter.ds" />
   </ItemGroup>
 </Project>

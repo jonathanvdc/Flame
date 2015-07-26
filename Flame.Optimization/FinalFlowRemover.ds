@@ -12,42 +12,42 @@ namespace Flame.Optimization
     /// <summary>
     /// A state for the `FinalFlowRemover` node visitor.
     /// </summary>
-    public class FinalFlowState
+    public class SpeculativeFlowState
     {
         /// <summary>
-        /// Creates a new final flow state from the given speculative final statements
+        /// Creates a new speculative flow state from the given speculative final statements
         /// and a boolean that signals flow termination.
         /// </summary>
-        public const this(set [SpeculativeStatement] FinalStatements, set bool IsTerminated);
+        public const this(set [SpeculativeStatement] SpeculativeStatements, set bool IsTerminated);
 
         /// <summary>
         /// Gets the speculative final statements for this state.
         /// </summary>
-        public [SpeculativeStatement] FinalStatements { const get; private set; }
+        public [SpeculativeStatement] SpeculativeStatements { const get; private set; }
         /// <summary>
-        /// Finds out if this final flow state has been terminated.
+        /// Finds out if this speculative flow state has been terminated.
         /// </summary>
         public bool IsTerminated { const get; private set; }
 
         /// <summary>
-        /// Determines whether this final flow state has any final statements.
+        /// Determines whether this speculative flow state has any final statements.
         /// </summary>
-        public bool HasFinalStatements
+        public bool HasSpeculativeStatements
         {
-            const get return Enumerable.Any<SpeculativeStatement>(FinalStatements);
+            const get return Enumerable.Any<SpeculativeStatement>(SpeculativeStatements);
         }
 
         /// <summary>
-        /// Creates a new final flow state that represents the current state with
+        /// Creates a new speculative flow state that represents the current state with
         /// the addition of a speculative statement.
         /// </summary>
-        public const FinalFlowState WithStatement(SpeculativeStatement Value)
+        public const SpeculativeFlowState WithStatement(SpeculativeStatement Value)
         {
             var concatStmts = Enumerable.Concat<SpeculativeStatement>(
-                this.FinalStatements,
+                this.SpeculativeStatements,
                 new SpeculativeStatement[] { Value });
 
-            return new FinalFlowState(concatStmts, this.IsTerminated);
+            return new SpeculativeFlowState(concatStmts, this.IsTerminated);
         }
 
         /// <summary>
@@ -55,15 +55,15 @@ namespace Flame.Optimization
         /// `false` is returned if no speculative final statements were removed
         /// (because this state didn't have any), otherwise `true`.
         /// </summary>
-        public bool RemoveFinalStatements()
+        public bool RemoveSpeculativeStatements()
         {
-            if (!this.HasFinalStatements)
+            if (!this.HasSpeculativeStatements)
             {
                 return false;
             }
             else
             {
-                foreach (var item in FinalStatements)
+                foreach (var item in SpeculativeStatements)
                 {
                     item.IsAlive = false;
                 }
@@ -72,10 +72,10 @@ namespace Flame.Optimization
         }
 
         /// <summary>
-        /// Creates a final flow state that represents the sequence of the
+        /// Creates a speculative flow state that represents the sequence of the
         /// this flow state followed by the give state.
         /// </summary>
-        public FinalFlowState Sequence(FinalFlowState Second)
+        public SpeculativeFlowState Sequence(SpeculativeFlowState Second)
         {
             if (this.IsTerminated)
             {
@@ -87,39 +87,39 @@ namespace Flame.Optimization
             }
         }
 
-        public FinalFlowState Select(FinalFlowState Other)
+        public SpeculativeFlowState Select(SpeculativeFlowState Other)
         {
             bool isTerminated = this.IsTerminated && Other.IsTerminated;
 
-            if (!this.HasFinalStatements || !Other.HasFinalStatements)
+            if (!this.HasSpeculativeStatements || !Other.HasSpeculativeStatements)
             {
-                return new FinalFlowState(Enumerable.Empty<SpeculativeStatement>(),
+                return new SpeculativeFlowState(Enumerable.Empty<SpeculativeStatement>(),
                                           isTerminated);
             }
             else
             {
                 var finalStmts = Enumerable.Concat<SpeculativeStatement>(
-                    this.FinalStatements,
-                    Other.FinalStatements);
+                    this.SpeculativeStatements,
+                    Other.SpeculativeStatements);
 
-                return new FinalFlowState(finalStmts, isTerminated);
+                return new SpeculativeFlowState(finalStmts, isTerminated);
             }
         }
 
         /// <summary>
-        /// Gets a final flow state that represents terminated flow.
+        /// Gets a speculative flow state that represents terminated flow.
         /// </summary>
-        public static FinalFlowState TerminatedFlow
+        public static SpeculativeFlowState TerminatedFlow
         {
-            const get return new FinalFlowState(Enumerable.Empty<SpeculativeStatement>(), true);
+            const get return new SpeculativeFlowState(Enumerable.Empty<SpeculativeStatement>(), true);
         }
 
         /// <summary>
-        /// Gets a final flow state that represents initial flow.
+        /// Gets a speculative flow state that represents initial flow.
         /// </summary>
-        public static FinalFlowState InitialFlow
+        public static SpeculativeFlowState InitialFlow
         {
-            const get return new FinalFlowState(Enumerable.Empty<SpeculativeStatement>(), false);
+            const get return new SpeculativeFlowState(Enumerable.Empty<SpeculativeStatement>(), false);
         }
     }
 
@@ -129,16 +129,16 @@ namespace Flame.Optimization
     /// `while` loop, a `do...while` loop or a `for` loop.
     /// Said enclosing statement is then transformed.
     /// </summary>
-    public class FinalFlowRemover : NodeVisitorBase, IFlowVisitor<FinalFlowState, FinalFlowState>
+    public class FinalFlowRemover : NodeVisitorBase, IFlowVisitor<SpeculativeFlowState, SpeculativeFlowState>
     {
         /// <summary>
         /// Creates a new final flow remover from the given enclosing flow
         /// and a function that matches final flow.
         /// </summary>
         public const this(set IStatement EnclosingFlow,
-                          set bool(IStatement, IStatement) MatchesFinalFlow)
+                          set bool(IStatement, IStatement) MatchesInnerFlow)
         {
-            this.CurrentFlow = FinalFlowState.InitialFlow;
+            this.CurrentFlow = SpeculativeFlowState.InitialFlow;
         }
 
         /// <summary>
@@ -147,27 +147,27 @@ namespace Flame.Optimization
         public IStatement EnclosingFlow { const get; private set; }
 
         /// <summary>
-        /// Matches the final flow statement.
+        /// Matches the speculative flow statement.
         /// This delegate's first argument represents the enclosing statement,
-        /// whereas the second argument represents the potential final flow statement.
+        /// whereas the second argument represents the potential speculative flow statement.
         /// </summary>
-        public bool(IStatement, IStatement) MatchesFinalFlow { const get; private set; }
+        public bool(IStatement, IStatement) MatchesInnerFlow { const get; private set; }
 
         /// <summary>
         /// Gets or sets the current flow state.
         /// </summary>
-        public FinalFlowState CurrentFlow { const get; set; }
+        public SpeculativeFlowState CurrentFlow { const get; set; }
 
         /// <summary>
         /// Gets a flow delta that represents flow termination:
         /// sequential flow that succeeds it will never be executed.
         /// </summary>
-        public FinalFlowState TerminatedFlow { const get return FinalFlowState.TerminatedFlow; }
+        public SpeculativeFlowState TerminatedFlow { const get return SpeculativeFlowState.TerminatedFlow; }
 
         /// <summary>
         /// Computes the "sum" of a flow state and a control flow delta.
         /// </summary>
-        public const FinalFlowState CreateCollapsedFlow(FinalFlowState First, FinalFlowState Second)
+        public const SpeculativeFlowState CreateCollapsedFlow(SpeculativeFlowState First, SpeculativeFlowState Second)
         {
             return First.Sequence(Second);
         }
@@ -177,7 +177,7 @@ namespace Flame.Optimization
         /// the "sum" of the first flow state and the result of this operation
         /// results in the second state.
         /// </summary>
-        public const FinalFlowState CreateDeltaFlow(FinalFlowState First, FinalFlowState Second)
+        public const SpeculativeFlowState CreateDeltaFlow(SpeculativeFlowState First, SpeculativeFlowState Second)
         {
             return Second;
         }
@@ -186,7 +186,7 @@ namespace Flame.Optimization
         /// Creates a flow delta that represents the sequential execution of
         /// two flow deltas.
         /// </summary>
-        public const FinalFlowState CreateSequenceFlow(FinalFlowState First, FinalFlowState Second)
+        public const SpeculativeFlowState CreateSequenceFlow(SpeculativeFlowState First, SpeculativeFlowState Second)
         {
             return First.Sequence(Second);
         }
@@ -195,7 +195,7 @@ namespace Flame.Optimization
         /// Creates a flow delta that represents selecting precisely one of two
         /// flow deltas.
         /// </summary>
-        public const FinalFlowState CreateSelectFlow(FinalFlowState First, FinalFlowState Second)
+        public const SpeculativeFlowState CreateSelectFlow(SpeculativeFlowState First, SpeculativeFlowState Second)
         {
             return First.Select(Second);
         }
@@ -204,11 +204,11 @@ namespace Flame.Optimization
         /// Creates a flow delta that will be executed zero or more
         /// times.
         /// </summary>
-        public const FinalFlowState CreateLoopFlow(FinalFlowState Flow)
+        public const SpeculativeFlowState CreateLoopFlow(SpeculativeFlowState Flow)
         {
-            return FinalFlowState.InitialFlow; // Loops really just aren't constructs
-                                               // we can easily make smart predictions
-                                               // about.
+            return SpeculativeFlowState.InitialFlow; // Loops really just aren't constructs
+                                                     // we can easily make smart predictions
+                                                     // about.
         }
 
         public override const bool Matches(IExpression Value)
@@ -224,7 +224,7 @@ namespace Flame.Optimization
         {
             if (Statement is IFlowStatement)
             {
-                return ((IFlowStatement)Statement).AcceptFlow<FinalFlowState, FinalFlowState>(this);
+                return ((IFlowStatement)Statement).AcceptFlow<SpeculativeFlowState, SpeculativeFlowState>(this);
             }
             else
             {
@@ -234,14 +234,19 @@ namespace Flame.Optimization
 
         protected override IExpression Transform(IExpression Expression)
         {
-            return ((IFlowExpression)Expression).AcceptFlow<FinalFlowState, FinalFlowState>(this);
+            return ((IFlowExpression)Expression).AcceptFlow<SpeculativeFlowState, SpeculativeFlowState>(this);
         }
 
         protected override IStatement Transform(IStatement Statement)
         {
+            if (CurrentFlow.IsTerminated)
+            {
+                return EmptyStatement; // Do some basic DCE here.
+            }
+
             var visitedStmt = VisitStmt(Statement);
 
-            if (MatchesFinalFlow(EnclosingFlow, visitedStmt))
+            if (MatchesInnerFlow(EnclosingFlow, visitedStmt))
             {
                 var speculativeStmt = new SpeculativeStatement(visitedStmt);
                 CurrentFlow = CurrentFlow.WithStatement(speculativeStmt);

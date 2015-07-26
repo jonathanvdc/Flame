@@ -41,6 +41,6 @@ public static class Tests
         //
         // which is approximately the same as:
         //
-        // while (Condition()) { }
+        // do { } while (Condition());
     }
 }

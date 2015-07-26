@@ -1,0 +1,123 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A visitor that matches and then rewrites statements.
+    /// </summary>
+    public class StatementRewriter : StatementVisitorBase
+    {
+        /// <summary>
+        /// Creates a final flow visitor from the given delegates.
+        /// </summary>
+        public const this(set bool(IStatement) MatchesStatement,
+                          set IStatement(IStatement) TransformStatement);
+
+        /// <summary>
+        /// Finds out whether a given statement matches a set of criteria.
+        /// </summary>
+        public bool(IStatement) MatchesStatement { const get; private set; }
+
+        /// <summary>
+        /// Transforms a matched statement.
+        /// </summary>
+        public IStatement(IStatement) TransformStatement { const get; private set; }
+
+        public const bool Matches(IStatement Value)
+        {
+            return MatchesStatement(Value);
+        }
+
+        protected IStatement Transform(IStatement Value)
+        {
+            return TransformStatement(Value);
+        }
+
+        public static const StatementRewriter CreateFinalFlowRewriter(
+            bool(IStatement) MatchesOuterFlow,
+            IStatement(IStatement) GetEnclosingFlowBody,
+            bool(IStatement, IStatement) MatchesInnerFlow,
+            IStatement(IStatement, IStatement) TransformEnclosingFlow)
+        {
+            var trans = new FinalFlowRewriterTransform(GetEnclosingFlowBody,
+                                                       MatchesInnerFlow,
+                                                       TransformEnclosingFlow);
+
+            return new StatementRewriter(MatchesOuterFlow, trans.Transform);
+        }
+
+        public static const StatementRewriter CreateInitialFlowRewriter(
+            bool(IStatement) MatchesOuterFlow,
+            IStatement(IStatement) GetEnclosingFlowBody,
+            bool(IStatement, IStatement) MatchesInnerFlow,
+            IStatement(IStatement, IStatement) TransformEnclosingFlow)
+        {
+            var trans = new InitialFlowRewriterTransform(GetEnclosingFlowBody,
+                                                       MatchesInnerFlow,
+                                                       TransformEnclosingFlow);
+
+            return new StatementRewriter(MatchesOuterFlow, trans.Transform);
+        }
+    }
+
+    public class FinalFlowRewriterTransform
+    {
+        public const this(set IStatement(IStatement) GetEnclosingFlowBody,
+                          set bool(IStatement, IStatement) MatchesInnerFlow,
+                          set IStatement(IStatement, IStatement) TransformEnclosingFlow);
+
+        public IStatement(IStatement) GetEnclosingFlowBody { const get; private set; }
+        public bool(IStatement, IStatement) MatchesInnerFlow { const get; private set; }
+        public IStatement(IStatement, IStatement) TransformEnclosingFlow { const get; private set; }
+
+        public IStatement Transform(IStatement Value)
+        {
+            var remover = new FinalFlowRemover(Value, MatchesInnerFlow);
+
+            var transBody = remover.Visit(GetEnclosingFlowBody(Value));
+            if (!remover.CurrentFlow.RemoveSpeculativeStatements())
+            {
+                // No final statements were removed. Do nothing.
+                return Value;
+            }
+
+            // We got rid of the final statements. Now do something interesting with
+            // the enclosing statement.
+            return TransformEnclosingFlow(Value, transBody);
+        }
+    }
+
+    public class InitialFlowRewriterTransform
+    {
+        public const this(set IStatement(IStatement) GetEnclosingFlowBody,
+                          set bool(IStatement, IStatement) MatchesInnerFlow,
+                          set IStatement(IStatement, IStatement) TransformEnclosingFlow);
+
+        public IStatement(IStatement) GetEnclosingFlowBody { const get; private set; }
+        public bool(IStatement, IStatement) MatchesInnerFlow { const get; private set; }
+        public IStatement(IStatement, IStatement) TransformEnclosingFlow { const get; private set; }
+
+        public IStatement Transform(IStatement Value)
+        {
+            var remover = new InitialFlowRemover(Value, MatchesInnerFlow);
+
+            var transBody = remover.Visit(GetEnclosingFlowBody(Value));
+            if (!remover.CurrentFlow.SpeculativeState.RemoveSpeculativeStatements())
+            {
+                // No initial statement was removed. Do nothing.
+                return Value;
+            }
+
+            // We got rid of the initial statement. Now do something interesting with
+            // the enclosing statement.
+            return TransformEnclosingFlow(Value, transBody);
+        }
+    }
+}
