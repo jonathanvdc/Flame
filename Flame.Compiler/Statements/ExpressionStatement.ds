@@ -32,6 +32,18 @@ namespace Flame.Compiler.Statements
             }
         }
 
+        public const IStatement Simplify()
+        {
+            if (Expression.IsConstant)
+            {
+                return EmptyStatement;
+            }
+            else
+            {
+                return this;
+            }
+        }
+
         public const IStatement Optimize() : IStatement.Optimize
         {
         	var optExpr = Expression.Optimize();
