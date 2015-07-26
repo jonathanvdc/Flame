@@ -27,15 +27,36 @@ namespace Flame.Cecil.Emit
         public void Emit(IEmitContext Context)
         {
             var brCg = (IBranchingCodeGenerator)CodeGenerator;
-            var elseBlock = brCg.CreateLabel();
-            var end = brCg.CreateLabel();
 
-            ((ICecilBlock)elseBlock.EmitBranch(CodeGenerator.EmitNot(Condition))).Emit(Context);
-            ((ICecilBlock)IfBlock).Emit(Context);
-            ((ICecilBlock)end.EmitBranch(CodeGenerator.EmitBoolean(true))).Emit(Context);
-            ((ICecilBlock)elseBlock.EmitMark()).Emit(Context);
-            ((ICecilBlock)ElseBlock).Emit(Context);
-            ((ICecilBlock)end.EmitMark()).Emit(Context);
+            if (ElseBlock.IsEmpty()) // Optimize for this case, as it is quite common.
+            {
+                var end = brCg.CreateLabel();
+
+                ((ICecilBlock)end.EmitBranch(CodeGenerator.EmitNot(Condition))).Emit(Context);
+                ((ICecilBlock)IfBlock).Emit(Context);
+                ((ICecilBlock)end.EmitMark()).Emit(Context);
+            }
+            else if (IfBlock.IsEmpty()) // This case is not quite as common, but we might as well optimize
+                                        // for the sake symmetry.
+            {
+                var end = brCg.CreateLabel();
+
+                ((ICecilBlock)end.EmitBranch(Condition)).Emit(Context);
+                ((ICecilBlock)ElseBlock).Emit(Context);
+                ((ICecilBlock)end.EmitMark()).Emit(Context);
+            }
+            else
+            {
+                var elseBlock = brCg.CreateLabel();
+                var end = brCg.CreateLabel();
+
+                ((ICecilBlock)elseBlock.EmitBranch(CodeGenerator.EmitNot(Condition))).Emit(Context);
+                ((ICecilBlock)IfBlock).Emit(Context);
+                ((ICecilBlock)end.EmitBranch(CodeGenerator.EmitBoolean(true))).Emit(Context);
+                ((ICecilBlock)elseBlock.EmitMark()).Emit(Context);
+                ((ICecilBlock)ElseBlock).Emit(Context);
+                ((ICecilBlock)end.EmitMark()).Emit(Context);
+            }
         }
 
         public IType BlockType
