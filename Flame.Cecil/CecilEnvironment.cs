@@ -28,17 +28,17 @@ namespace Flame.Cecil
 
         public IType RootType
         {
-            get { return Module.ConvertStrict(Module.Module.TypeSystem.Object); }
+            get { return Module.TypeSystem.Object; }
         }
 
         public IType EnumerableType
         {
-            get { return Module.ConvertStrict(typeof(IEnumerable<>)); }
+            get { return Module.TypeSystem.Enumerable; }
         }
 
         public IType EnumeratorType
         {
-            get { return Module.ConvertStrict(typeof(IEnumerator<>)); }
+            get { return Module.TypeSystem.Enumerator; }
         }
 
         private static void ForwardCall(IMethodBuilder Source, IMethod SourceMethod, IMethod TargetMethod)

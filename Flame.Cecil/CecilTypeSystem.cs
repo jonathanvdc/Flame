@@ -12,15 +12,25 @@ namespace Flame.Cecil
         {
             this.Module = Module;
             this.multicastDelegate = new Lazy<ICecilType>(() => CecilType.ImportCecil<MulticastDelegate>(Module));
+            this.objectType = new Lazy<ICecilType>(() => Module.ConvertStrict(Module.Module.TypeSystem.Object));
+            this.enumerableType = new Lazy<ICecilType>(() => Module.ConvertStrict(typeof(IEnumerable<>)));
+            this.enumeratorType = new Lazy<ICecilType>(() => Module.ConvertStrict(typeof(IEnumerator<>)));
             this.funcDelegates = new Dictionary<int, ICecilType>();
             this.actionDelegates = new Dictionary<int, ICecilType>();
-            this.canonicalDelegates = new Dictionary<DelegateSignature, ICecilType>();
+            this.canonicalDelegates = new Dictionary<DelegateSignature, ICecilType>();            
         }
 
         public CecilModule Module { get; private set; }
 
         private Lazy<ICecilType> multicastDelegate;
+        private Lazy<ICecilType> objectType;
+        private Lazy<ICecilType> enumerableType;
+        private Lazy<ICecilType> enumeratorType;
+
         public ICecilType MulticastDelegate { get { return multicastDelegate.Value; } }
+        public ICecilType Object { get { return objectType.Value; } }
+        public ICecilType Enumerable { get { return enumerableType.Value; } }
+        public ICecilType Enumerator { get { return enumeratorType.Value; } }
 
         private Dictionary<int, ICecilType> funcDelegates;
         private Dictionary<int, ICecilType> actionDelegates;
