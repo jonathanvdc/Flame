@@ -1,0 +1,42 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+using Flame.Compiler.Statements;
+
+namespace Flame.Optimization.Variables
+{
+    public class ReleaseDefinitionStatement : IStatement
+    {
+        public const this(set VariableDefinitionChain Chain);
+
+        public VariableDefinitionChain Chain { const get; private set; }
+
+        public IStatement Unwrap()
+        {
+            var results = new List<IStatement>();
+            foreach (var item in Chain.UsedVariables)
+                results.Add(item.CreateReleaseStatement());
+            return new BlockStatement(results);
+        }
+
+        public bool IsEmpty
+        {
+            const get return Unwrap().IsEmpty;
+        }
+
+        public IStatement Optimize()
+        {
+            return Unwrap().Optimize();
+        }
+
+        public IStatement Accept(INodeVisitor Visitor)
+        {
+            return Visitor.Visit(Unwrap());
+        }
+
+        public ICodeBlock Emit(ICodeGenerator CodeGenerator)
+        {
+            return Unwrap().Emit(CodeGenerator);
+        }
+    }
+}

@@ -1,0 +1,82 @@
+using Flame.Compiler;
+using Flame.Compiler.Variables;
+
+namespace Flame.Optimization.Variables
+{
+    /// <summary>
+    /// Defines a uniquely identified local variable.
+    /// </summary>
+    public class LocalVariableDescription
+    {
+        /// <summary>
+        /// Creates a new local variable description from the given variable and index.
+        /// </summary>
+        public const this(set IVariable Variable);
+
+        /// <summary>
+        /// Gets the unerlying local variable.
+        /// </summary>
+        public IVariable Variable { const get; private set; }
+
+        /// <summary>
+        /// Gets the local variable's type.
+        /// </summary>
+        public IType Type { const get return Variable.Type; }
+
+        /// <summary>
+        /// Figures out whether this local variable is an argument.
+        /// </summary>
+        public bool IsArgument { const get return Variable is ArgumentVariable; }
+
+        /// <summary>
+        /// Figures out whether this local variable is a `this` pointer.
+        /// </summary>
+        public bool IsThis { const get return Variable is ThisVariable; }
+
+        /// <summary>
+        /// Figures out whether this local variable is a plain local, rather
+        /// than an argument or `this` pointer.
+        /// </summary>
+        public bool IsLocal { const get return !IsArgument && !IsThis; }
+
+        public override const int GetHashCode()
+        {
+            if (IsThis)
+            {
+                return 1;
+            }
+            else if (IsArgument)
+            {
+                return ((ArgumentVariable)Variable).Index << 1;
+            }
+            else
+            {
+                return Variable.GetHashCode();
+            }
+        }
+
+        public override const bool Equals(object Other)
+        {
+            if (Other is LocalVariableDescription)
+            {
+                var otherDesc = (LocalVariableDescription)Other;
+                if (IsThis && otherDesc.IsThis)
+                {
+                    return true;
+                }
+                else if (IsArgument && otherDesc.IsArgument)
+                {
+                    return ((ArgumentVariable)Variable).Index == ((ArgumentVariable)otherDesc).Index;
+                }
+                else
+                {
+                    return Variable == otherDesc.Variable;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+}

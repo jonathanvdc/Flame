@@ -1,0 +1,71 @@
+
+namespace Flame.Optimization.Variables
+{
+    /// <summary>
+    /// A unique identifier that represents a single variable access.
+    /// </summary>
+    public interface IDefinitionAccess
+    {
+        /// <summary>
+        /// Determines whether this definition access is live.
+        /// </summary>
+        bool IsLive { const get; }
+
+        /// <summary>
+        /// Tells if this definition access is volatile.
+        /// </summary>
+        bool IsVolatile { const get; }
+    }
+
+    /// <summary>
+    /// Represents unconditional variable access.
+    /// </summary>
+    public class UnconditionalAccess : IDefinitionAccess
+    {
+        /// <summary>
+        /// Creates a new unique access identifier.
+        /// </summary>
+        public const this();
+
+        public bool IsLive { const get return true; }
+
+        public bool IsVolatile { const get return false; }
+    }
+
+    /// <summary>
+    /// Represents unconditional volatile variable access.
+    /// </summary>
+    public class VolatileAccess : IDefinitionAccess
+    {
+        /// <summary>
+        /// Creates a new unique access identifier.
+        /// </summary>
+        public const this();
+
+        public bool IsLive { const get return true; }
+
+        public bool IsVolatile { const get return true; }
+    }
+
+    /// <summary>
+    /// Defines variable access that is live only if an associated variable
+    /// definition is, too.
+    /// </summary>
+    public class ReachDependentAccess : IDefinitionAccess
+    {
+        /// <summary>
+        /// Creates a variable access identifier based on the given reach.
+        /// </summary>
+        public const this(set VariableDefinitionReach Reach);
+
+        /// <summary>
+        /// Gets the variable definition reach whose liveliness this definition
+        /// access depends on.
+        /// </summary>
+        public VariableDefinitionReach Reach { const get; private set; }
+
+        public bool IsLive { const get return Reach.IsLive; }
+
+        public bool IsVolatile { const get return false; }
+    }
+}

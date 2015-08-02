@@ -1,0 +1,73 @@
+using System;
+using Flame.Compiler;
+using Flame.Compiler.Variables;
+
+namespace Flame.Optimization.Variables
+{
+    /// <summary>
+    /// Defines common functionality for variable flow structures.
+    /// </summary>
+    public interface IVariableFlow
+    {
+        /// <summary>
+        /// Updates the given variable reach, possibly using a pre-insert point.
+        /// </summary>
+        VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach);
+    }
+
+    public static class EmptyVariableFlow : IVariableFlow
+    {
+        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach)
+        {
+            return Reach;
+        }
+    }
+
+    public class VariableDefinitionFlow : IVariableFlow
+    {
+        public const this(set InsertStatement PreInsert, set VariableDefinitionReach Definition);
+
+        public InsertStatement PreInsert { const get; private set; }
+        public VariableDefinitionReach Definition { const get; private set; }
+
+        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach)
+        {
+            if (Definition.MappedLocal == Reach.MappedLocal)
+                return VariableFlowHelpers.Succeed(Reach, Definition, PreInsert);
+            else
+                return Reach;
+        }
+    }
+
+    public class VariableAccessFlow : IVariableFlow
+    {
+        public const this(set VariableDefinitionChain Chain, set IDefinitionAccess Access);
+
+        public VariableDefinitionChain Chain { const get; private set; }
+        public IDefinitionAccess Access { const get; private set; }
+
+        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach)
+        {
+            if (Chain.MappedLocal == Reach.MappedLocal)
+            {
+                Chain.AddDefinition(Reach);
+                Reach.Add(Access);
+            }
+            return Reach;
+        }
+    }
+
+    public class SequenceVariableFlow : IVariableFlow
+    {
+        public const this(set IVariableFlow First, set IVariableFlow Second);
+
+        public IVariableFlow First { const get; private set; }
+        public IVariableFlow Second { const get; private set; }
+
+        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach)
+        {
+            var newReach = First.UpdateReach(Reach);
+            return Second.UpdateReach(newReach);
+        }
+    }
+}

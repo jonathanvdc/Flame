@@ -1,0 +1,42 @@
+using System;
+using Flame.Compiler;
+using Flame.Compiler.Variables;
+
+namespace Flame.Optimization.Variables
+{
+    public class SelectVariableFlow : IVariableFlow
+    {
+        public const this(set InsertStatement PreInsert, set IVariableFlow First,
+                          set InsertStatement FirstPostInsert, set IVariableFlow Second,
+                          set InsertStatement SecondPostInsert);
+
+        public InsertStatement PreInsert { const get; private set; }
+        public IVariableFlow First { const get; private set; }
+        public InsertStatement FirstPostInsert { const get; private set; }
+        public IVariableFlow Second { const get; private set; }
+        public InsertStatement SecondPostInsert { const get; private set; }
+
+        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach)
+        {
+            var newReach1 = First.UpdateReach(Reach);
+            var newReach2 = Second.UpdateReach(Reach);
+
+            if (newReach1 == newReach2) // Unmodified.
+            {
+                return newReach1;
+            }
+            else if (newReach1 == Reach) // First path does not modify, second path does.
+            {
+                return VariableFlowHelpers.Phi(Reach, PreInsert, newReach2, SecondPostInsert);
+            }
+            else if (newReach2 == Reach)  // First path does not modify, second path does.
+            {
+                return VariableFlowHelpers.Phi(newReach1, FirstPostInsert, Reach, PreInsert);
+            }
+            else // Symmetric reach.
+            {
+                return VariableFlowHelpers.Phi(newReach1, FirstPostInsert, newReach2, SecondPostInsert);
+            }
+        }
+    }
+}
