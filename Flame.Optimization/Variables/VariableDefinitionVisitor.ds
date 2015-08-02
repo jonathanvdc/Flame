@@ -299,47 +299,32 @@ namespace Flame.Optimization.Variables
             return Value.IsConstant && IsPropagateAlwaysType(Value.Type) && Value.Evaluate() != null;
         }
 
-        private IVariable GetCopiedVariable(IExpression Value)
+        private bool IsCopyValue(IExpression Value)
         {
             if (Value is IVariableNode)
             {
                 var node = (IVariableNode)Value;
-                var variable = node.GetVariable();
-                if (node.Action == VariableNodeAction.Get && IsLocal(variable))
-                {
-                    return variable;
-                }
+                return node.Action == VariableNodeAction.Get && IsLocal(node.GetVariable());
             }
-            return null;
+            return false;
         }
 
         private VariableDefinitionReach CreateDefinition(VariableDefinitionChain Chain,
             IExpression Value, InsertStatement InsertPoint)
         {
-            if (IsLiteralValue(Value)) // Propagate constants (literals, usually).
+            if (IsLiteralValue(Value) || IsCopyValue(Value)) // Propagate constants and copies.
             {
                 return new VariableDefinitionReach(
-                    new ConstantVariableDefinition(Value),
+                    new ConstantVariableDefinition(Visit(Value)),
                     Chain.MappedLocal);
             }
-            else
+            else // Don't propagate anything else.
             {
-                var copyVar = GetCopiedVariable(Value); // Propagate copies.
-                if (copyVar != null)
-                {
-                    var copiedChain = MapLocal(copyVar);
-                    return new VariableDefinitionReach(
-                        new CopyVariableDefinition(copiedChain),
-                        Chain.MappedLocal);
-                }
-                else // Don't propagate everything else.
-                {
-                    var local = Chain.MappedLocal;
-                    var defin = new LocalVariableDefinition(VariableFlowHelpers.CreateLocal(local));
-                    var reach = new VariableDefinitionReach(defin, local);
-                    InsertPoint.Insert(new VariableDefinitionStatement(reach, Visit(Value)));
-                    return reach;
-                }
+                var local = Chain.MappedLocal;
+                var defin = new LocalVariableDefinition(VariableFlowHelpers.CreateLocal(local));
+                var reach = new VariableDefinitionReach(defin, local);
+                InsertPoint.Insert(new VariableDefinitionStatement(reach, Visit(Value)));
+                return reach;
             }
         }
 
