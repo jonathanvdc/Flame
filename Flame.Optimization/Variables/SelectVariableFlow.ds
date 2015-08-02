@@ -16,26 +16,32 @@ namespace Flame.Optimization.Variables
         public IVariableFlow Second { const get; private set; }
         public InsertStatement SecondPostInsert { const get; private set; }
 
-        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach)
+        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach, VariableDefinitionChain Chain)
         {
-            var newReach1 = First.UpdateReach(Reach);
-            var newReach2 = Second.UpdateReach(Reach);
+            var newReach1 = First.UpdateReach(Reach, Chain);
+            var newReach2 = Second.UpdateReach(Reach, Chain);
 
             if (newReach1 == newReach2) // Unmodified.
             {
                 return newReach1;
             }
-            else if (newReach1 == Reach) // First path does not modify, second path does.
+            else
             {
-                return VariableFlowHelpers.Phi(Reach, PreInsert, newReach2, SecondPostInsert);
-            }
-            else if (newReach2 == Reach)  // First path does not modify, second path does.
-            {
-                return VariableFlowHelpers.Phi(newReach1, FirstPostInsert, Reach, PreInsert);
-            }
-            else // Symmetric reach.
-            {
-                return VariableFlowHelpers.Phi(newReach1, FirstPostInsert, newReach2, SecondPostInsert);
+                VariableDefinitionReach result;
+                if (newReach1 == Reach) // First path does not modify, second path does.
+                {
+                    result = VariableFlowHelpers.Phi(Reach, PreInsert, newReach2, SecondPostInsert);
+                }
+                else if (newReach2 == Reach)  // First path does not modify, second path does.
+                {
+                    result = VariableFlowHelpers.Phi(newReach1, FirstPostInsert, Reach, PreInsert);
+                }
+                else // Symmetric reach.
+                {
+                    result = VariableFlowHelpers.Phi(newReach1, FirstPostInsert, newReach2, SecondPostInsert);
+                }
+                Chain.AddDefinition(result);
+                return result;
             }
         }
     }

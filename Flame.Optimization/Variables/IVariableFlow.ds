@@ -12,12 +12,12 @@ namespace Flame.Optimization.Variables
         /// <summary>
         /// Updates the given variable reach, possibly using a pre-insert point.
         /// </summary>
-        VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach);
+        VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach, VariableDefinitionChain Chain);
     }
 
     public static class EmptyVariableFlow : IVariableFlow
     {
-        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach)
+        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach, VariableDefinitionChain Chain)
         {
             return Reach;
         }
@@ -30,7 +30,7 @@ namespace Flame.Optimization.Variables
         public InsertStatement PreInsert { const get; private set; }
         public VariableDefinitionReach Definition { const get; private set; }
 
-        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach)
+        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach, VariableDefinitionChain Chain)
         {
             if (Definition.MappedLocal == Reach.MappedLocal)
                 return VariableFlowHelpers.Succeed(Reach, Definition, PreInsert);
@@ -41,14 +41,14 @@ namespace Flame.Optimization.Variables
 
     public class VariableAccessFlow : IVariableFlow
     {
-        public const this(set VariableDefinitionChain Chain, set IDefinitionAccess Access);
+        public const this(set VariableDefinitionChain AccessedChain, set IDefinitionAccess Access);
 
-        public VariableDefinitionChain Chain { const get; private set; }
+        public VariableDefinitionChain AccessedChain { const get; private set; }
         public IDefinitionAccess Access { const get; private set; }
 
-        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach)
+        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach, VariableDefinitionChain Chain)
         {
-            if (Chain.MappedLocal == Reach.MappedLocal)
+            if (AccessedChain == Chain)
             {
                 Chain.AddDefinition(Reach);
                 Reach.Add(Access);
@@ -64,10 +64,10 @@ namespace Flame.Optimization.Variables
         public IVariableFlow First { const get; private set; }
         public IVariableFlow Second { const get; private set; }
 
-        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach)
+        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach, VariableDefinitionChain Chain)
         {
-            var newReach = First.UpdateReach(Reach);
-            return Second.UpdateReach(newReach);
+            var newReach = First.UpdateReach(Reach, Chain);
+            return Second.UpdateReach(newReach, Chain);
         }
     }
 }
