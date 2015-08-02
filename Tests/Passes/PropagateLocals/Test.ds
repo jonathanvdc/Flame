@@ -1,0 +1,30 @@
+
+public static class Test
+{
+    public const int AddOne(int Value)
+    {
+        int one = 1;
+        return Value + one;
+    }
+
+    public const int DeadStore()
+    {
+        int x = 3;
+        return 5;
+    }
+
+    public const int Select(int X, int Y)
+    {
+        int z = 5;
+        if (X > Y)
+        {
+            int w = z + X;
+            z = w;
+            return w;
+        }
+        else
+        {
+            return Y;
+        }
+    }
+}
