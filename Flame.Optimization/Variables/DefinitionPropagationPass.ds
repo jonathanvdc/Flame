@@ -1,0 +1,34 @@
+using Flame.Compiler;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization.Variables
+{
+    /// <summary>
+    /// A pass that applies constant and copy propagation to statements.
+    /// </summary>
+    public static class DefinitionPropagationPass : IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// Applies this pass to the given value.
+        /// </summary>
+        public IStatement Apply(IStatement Value)
+        {
+            var visitor = new VariableDefinitionVisitor();
+            var newTree = visitor.Visit(Value);
+            if (visitor.CurrentFlow == null)
+                return newTree.Optimize(); // No point in updating definition reaches
+                                           // if there aren't any.
+
+            var flow = visitor.CurrentFlow.ToFlow();
+            foreach (var item in visitor.DefinitionChains)
+            {
+                var initialReach = new VariableDefinitionReach(
+                    new LocalVariableDefinition(VariableFlowHelpers.CreateLocal(item.MappedLocal)),
+                    item.MappedLocal);
+                flow.UpdateReach(initialReach); // Update the reach, and update the
+                                                // chain in doing so.
+            }
+            return newTree.Optimize();
+        }
+    }
+}

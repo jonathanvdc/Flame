@@ -1,0 +1,22 @@
+using Flame.Compiler;
+using Flame.Compiler.Variables;
+
+namespace Flame.Optimization.Variables
+{
+    /// <summary>
+    /// Defines common functionality for variable definitions.
+    /// </summary>
+    public interface IVariableDefinition
+    {
+        /// <summary>
+        /// Gets this variable definition's underlying variable, if any.
+        /// Otherwise, null.
+        /// </summary>
+        IUnmanagedVariable Variable { const get; }
+
+        /// <summary>
+        /// Creates a get-expression for this variable definition.
+        /// </summary>
+        IExpression CreateGetExpression();
+    }
+}

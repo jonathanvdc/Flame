@@ -1,0 +1,29 @@
+using Flame.Compiler;
+using Flame.Compiler.Variables;
+
+namespace Flame.Optimization.Variables
+{
+    /// <summary>
+    /// Defines common functionality for variable definitions.
+    /// </summary>
+    public class LocalVariableDefinition : IVariableDefinition
+    {
+        /// <summary>
+        /// Creates a new local variable definition from the given variable.
+        /// </summary>
+        public const this(set IUnmanagedVariable Variable);
+
+        /// <summary>
+        /// Gets this variable definition's underlying variable.
+        /// </summary>
+        public IUnmanagedVariable Variable { const get; private set; }
+
+        /// <summary>
+        /// Creates a get-expression for this local variable definition.
+        /// </summary>
+        public IExpression CreateGetExpression()
+        {
+            return Variable.CreateGetExpression();
+        }
+    }
+}

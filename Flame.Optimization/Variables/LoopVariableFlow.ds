@@ -1,0 +1,42 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Variables;
+
+namespace Flame.Optimization.Variables
+{
+    public class LoopVariableFlow : IVariableFlow
+    {
+        public const this(set InsertStatement PreInsert, set IVariableFlow LoopBody,
+                          set InsertStatement LoopPostInsert);
+
+        public InsertStatement PreInsert { const get; private set; }
+        public IVariableFlow LoopBody { const get; private set; }
+        public InsertStatement LoopPostInsert { const get; private set; }
+
+        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach)
+        {
+            var oldAccess = new HashSet<IDefinitionAccess>(Reach.Reach);
+
+            var loopReach = LoopBody.UpdateReach(Reach);
+
+            if (loopReach == Reach)
+                return loopReach;
+
+            var newAccess = new HashSet<IDefinitionAccess>(Reach.Reach);
+            newAccess.ExceptWith(oldAccess);
+
+            if (newAccess.Count > 0)
+            {
+                var matReach = VariableFlowHelpers.Materialize(Reach, PreInsert);
+                Reach.Transfer(matReach, newAccess);
+                return VariableFlowHelpers.Phi(matReach, PreInsert, loopReach, LoopPostInsert);
+            }
+            else
+            {
+                return VariableFlowHelpers.Phi(Reach, PreInsert, loopReach, LoopPostInsert);
+            }
+        }
+    }
+}

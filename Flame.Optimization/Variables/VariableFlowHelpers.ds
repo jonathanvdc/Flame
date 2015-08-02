@@ -1,0 +1,132 @@
+using Flame.Compiler;
+using Flame.Compiler.Variables;
+
+namespace Flame.Optimization.Variables
+{
+    public static class VariableFlowHelpers
+    {
+        /// <summary>
+        /// Creates a variable definition that "succeeds" the old variable definition.
+        /// </summary>
+        public VariableDefinitionReach Succeed(VariableDefinitionReach OldReach, VariableDefinitionReach NewReach, InsertStatement InsertionPoint)
+        {
+            if (OldReach.IsVolatile)
+                return MakeVolatile(NewReach, InsertionPoint);
+            else
+                return NewReach;
+        }
+
+        /// <summary>
+        /// "Transfers" the old variable definition's value to the new one.
+        /// </summary>
+        public void Transfer(VariableDefinitionReach OldReach, VariableDefinitionReach NewReach, InsertStatement InsertionPoint)
+        {
+            if (OldReach.Definition.Variable != NewReach.Definition.Variable)
+            {
+                var stmt = new VariableDefinitionStatement(NewReach, OldReach.Definition.CreateGetExpression());
+                InsertionPoint.Insert(stmt);
+            }
+            if (OldReach.IsVolatile)
+            {
+                NewReach.Add(new VolatileAccess());
+            }
+            OldReach.Add(new ReachDependentAccess(NewReach));
+        }
+
+        /// <summary>
+        /// "Materializes" the given variable definition, using an insertion point.
+        /// If the given variable definition has an underlying variable, it
+        /// is returned unchanged. Otherwise, a new variable definition is returned that
+        /// does contain an underlying variable, with the previous definition's
+        /// value.
+        /// </summary>
+        public VariableDefinitionReach Materialize(VariableDefinitionReach Reach, InsertStatement InsertionPoint)
+        {
+            if (Reach.Definition.Variable == null)
+            {
+                // Create a new variable definition and a reach to go along with it.
+                var newDef = new LocalVariableDefinition(CreateLocal(Reach));
+                var newReach = new VariableDefinitionReach(newDef, Reach.MappedLocal);
+
+                // Transfer the old definition to the new one.
+                Transfer(Reach, newReach, InsertionPoint);
+                return newReach;
+            }
+            else
+            {
+                return Reach;
+            }
+        }
+
+        /// <summary>
+        /// Marks the given variable definition as volatile.
+        /// This will disable most, if not all, optimizations.
+        /// </summary>
+        public VariableDefinitionReach MakeVolatile(VariableDefinitionReach Reach, InsertStatement InsertionPoint)
+        {
+            var newReach = Materialize(Reach, InsertionPoint);
+            newReach.Add(new VolatileAccess());
+            return newReach;
+        }
+
+        /// <summary>
+        /// Selects one of two variable definitions. If the given variable definitions
+        /// are the same definition, said variable definition is returned.
+        /// Otherwise, a both are assigned to a variable, and a variable definition
+        /// is returned that wraps that variable.
+        /// </summary>
+        public VariableDefinitionReach Phi(VariableDefinitionReach First, InsertStatement FirstPostInsert,
+                                           VariableDefinitionReach Second, InsertStatement SecondPostInsert)
+        {
+            if (First == Second)
+                return First;
+
+            var phiDef = new LocalVariableDefinition(CreatePhiLocal(First, Second));
+            var phiReach = new VariableDefinitionReach(phiDef, First.MappedLocal);
+
+            // Transfer both variable definitions to the phi variable definition.
+            Transfer(First, phiReach, FirstPostInsert);
+            Transfer(Second, phiReach, SecondPostInsert);
+
+            return phiReach;
+        }
+
+        /// <summary>
+        /// Creates or retrieves a local variable to use as this variable definition
+        /// reach's backing storage.
+        /// </summary>
+        public const IUnmanagedVariable CreateLocal(VariableDefinitionReach Reach)
+        {
+            // Just create a local for the phi of itself.
+            return CreatePhiLocal(Reach, Reach);
+        }
+
+        /// <summary>
+        /// Creates or retrieves a local variable that is equal to or of the
+        /// same type as the given described local variable.
+        /// </summary>
+        public const IUnmanagedVariable CreateLocal(LocalVariableDescription Local)
+        {
+            if (Local.Variable is IUnmanagedVariable)
+                return (IUnmanagedVariable)Local.Variable;
+            else
+                return new LateBoundVariable(Local.Variable.Type);
+        }
+
+        /// <summary>
+        /// Creates or retrieves a local variable to use as the backing storage for
+        /// the new phi definition for these variables.
+        /// These definitions should represent the same original local variable.
+        /// </summary>
+        public const IUnmanagedVariable CreatePhiLocal(VariableDefinitionReach First,
+                                                       VariableDefinitionReach Second)
+        {
+            if (First.Definition.Variable != null)
+                return First.Definition.Variable;
+            else if (Second.Definition.Variable != null)
+                return Second.Definition.Variable;
+            else
+                return CreateLocal(First.MappedLocal);
+        }
+    }
+}

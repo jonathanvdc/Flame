@@ -1,0 +1,81 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Statements;
+
+namespace Flame.Optimization.Variables
+{
+    /// <summary>
+    /// Defines a variable definition chain: a list of variable definitions
+    /// and their reach.
+    /// </summary>
+    public class VariableDefinitionChain
+    {
+        public const this(set LocalVariableDescription MappedLocal)
+        {
+            this.defs = new HashSet<VariableDefinitionReach>();
+        }
+
+        private HashSet<VariableDefinitionReach> defs;
+
+        /// <summary>
+        /// Gets the original local this definition chain is mapped to.
+        /// This need not correspond to the variable this definition chain is currently
+        /// associated with.
+        /// </summary>
+        public LocalVariableDescription MappedLocal { const get; private set; }
+
+        /// <summary>
+        /// Gets this variable definition chain's type.
+        /// </summary>
+        public IType Type { const get return MappedLocal.Type; }
+
+        /// <summary>
+        /// Gets a sequence representing the definitions that belong to this
+        /// variable definition chain, as well as their range.
+        /// </summary>
+        public [VariableDefinitionReach] Definitions { const get return defs; }
+
+        /// <summary>
+        /// Adds a variable definition - and its reach - to this chain.
+        /// </summary>
+        public void AddDefinition(VariableDefinitionReach Definition)
+        {
+            defs.Add(Definition);
+        }
+
+        /// <summary>
+        /// Gets the set of all used variables in this chain.
+        /// </summary>
+        public [IVariable] UsedVariables
+        {
+            const get
+            {
+                var results = new HashSet<IVariable>();
+                foreach (var item in Definitions)
+                    if (item.Definition.Variable != null)
+                {
+                    results.Add(item.Definition.Variable);
+                }
+                return results;
+            }
+        }
+
+        /// <summary>
+        /// Gets the variable definition that is associated with the given access
+        /// identifier, if any. Otherwise, null.
+        /// </summary>
+        public const IVariableDefinition GetDefinition(IDefinitionAccess Identifier)
+        {
+            foreach (var item in Definitions)
+            {
+                if (item.Contains(Identifier))
+                    return item.Definition;
+            }
+            return null;
+        }
+    }
+}

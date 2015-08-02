@@ -1,0 +1,430 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using Flame.Compiler.Statements;
+
+namespace Flame.Optimization.Variables
+{
+    public class VariableConcatStateBuilder
+    {
+        public const this(set VariableFlowState Delta);
+
+        public VariableFlowState Delta { const get; private set; }
+
+        public const VariableFlowState Create(VariableFlowState Tail)
+        {
+            return Tail.Concat(Delta);
+        }
+    }
+
+    public class VariableSequenceStateBuilder
+    {
+        public const this(set VariableFlowState(VariableFlowState) First,
+                          set VariableFlowState(VariableFlowState) Second);
+
+        public VariableFlowState(VariableFlowState) First { const get; private set; }
+        public VariableFlowState(VariableFlowState) Second { const get; private set; }
+
+        public const VariableFlowState Create(VariableFlowState Tail)
+        {
+            return Second(First(Tail));
+        }
+    }
+
+    public class VariableSelectStateBuilder
+    {
+        public const this(set VariableFlowState(VariableFlowState) First,
+                          set VariableFlowState(VariableFlowState) Second);
+
+        public VariableFlowState(VariableFlowState) First { const get; private set; }
+        public VariableFlowState(VariableFlowState) Second { const get; private set; }
+
+        public const VariableFlowState Create(VariableFlowState Tail)
+        {
+            var nil = new NilVariableFlowState(Tail.PostInsert);
+
+            return Tail.Select(First(nil), Second(nil));
+        }
+    }
+
+    public class VariableLoopStateBuilder
+    {
+        public const this(set VariableFlowState(VariableFlowState) Body);
+
+        public VariableFlowState(VariableFlowState) Body { const get; private set; }
+
+        public const VariableFlowState Create(VariableFlowState Tail)
+        {
+            var nil = new NilVariableFlowState(Tail.PostInsert);
+
+            return Tail.Loop(Body(nil));
+        }
+    }
+
+    public class VariableDefinitionVisitor : NodeVisitorBase, IFlowVisitor<VariableFlowState, VariableFlowState(VariableFlowState)>
+    {
+        alias State = VariableFlowState;
+        alias Delta = VariableFlowState(VariableFlowState);
+
+        /// <summary>
+        /// Creates a new final flow remover from the given enclosing flow
+        /// and a function that matches final flow.
+        /// </summary>
+        public const this()
+        {
+            this.CurrentFlow = null;
+            this.mappedLocals = new Dictionary<LocalVariableDescription, VariableDefinitionChain>();
+            this.propTypes = new Dictionary<IType, bool>();
+        }
+
+        private Dictionary<LocalVariableDescription, VariableDefinitionChain> mappedLocals;
+        private Dictionary<IType, bool> propTypes;
+
+        public [VariableDefinitionChain] DefinitionChains { const get return mappedLocals.Values; }
+
+        private VariableDefinitionChain MapLocal(LocalVariableDescription Description)
+        {
+            if (mappedLocals.ContainsKey(Description))
+            {
+                return mappedLocals[Description];
+            }
+            else
+            {
+                var chain = new VariableDefinitionChain(Description);
+                mappedLocals[Description] = chain;
+                return chain;
+            }
+        }
+
+        private VariableDefinitionChain MapLocal(IVariable Variable)
+        {
+            var desc = new LocalVariableDescription(Variable);
+            return MapLocal(desc);
+        }
+
+        private const bool IsLocal(IVariable Variable)
+        {
+            return Variable is ThisVariable || Variable is ArgumentVariable ||
+                   (Variable is LateBoundVariable && !(Variable is ManuallyBoundVariable));
+        }
+
+        /// <summary>
+        /// Identity helper function. For use as a delegate.
+        /// </summary>
+        private const T Id<T>(T Value)
+        {
+            return Value;
+        }
+
+        /// <summary>
+        /// Checks if the given type is a propagate-always type, which can
+        /// safely be propagated anywhere.
+        /// </summary>
+        private bool IsPropagateAlwaysTypeCore(IType Type)
+        {
+            if (Type.IsPrimitive || Type.IsDelegate)
+            {
+                return true;
+            }
+            else if (Type.IsValueType)
+            {
+                foreach (var item in Type.GetFields())
+                    if (!IsPropagateAlwaysType(item.FieldType))
+                {
+                    return false;
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Checks if the given type is a propagate-always type, which can
+        /// safely be propagated anywhere.
+        /// </summary>
+        public bool IsPropagateAlwaysType(IType Type)
+        {
+            if (propTypes.ContainsKey(Type))
+            {
+                return propTypes[Type];
+            }
+            else
+            {
+                bool result = IsPropagateAlwaysTypeCore(Type);
+                propTypes[Type] = result;
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the current flow state.
+        /// </summary>
+        public State CurrentFlow { const get; set; }
+
+        /// <summary>
+        /// Gets a flow delta that represents flow termination:
+        /// sequential flow that succeeds it will never be executed.
+        /// </summary>
+        /// <remarks>
+        /// Just ignore this for now.
+        /// </remarks>
+        public Delta TerminatedFlow { const get return Id<State>; }
+
+        /// <summary>
+        /// Computes the "sum" of a flow state and a control flow delta.
+        /// </summary>
+        public const State CreateCollapsedFlow(State First, Delta Second)
+        {
+            return Second(First);
+        }
+
+        /// <summary>
+        /// Computes the "difference" between two flow states, such that
+        /// the "sum" of the first flow state and the result of this operation
+        /// results in the second state.
+        /// </summary>
+        public const Delta CreateDeltaFlow(State First, State Second)
+        {
+            return new VariableConcatStateBuilder(First.Delta(Second)).Create;
+        }
+
+        /// <summary>
+        /// Creates a flow delta that represents the sequential execution of
+        /// two flow deltas.
+        /// </summary>
+        public const Delta CreateSequenceFlow(Delta First, Delta Second)
+        {
+            return new VariableSequenceStateBuilder(First, Second).Create;
+        }
+
+        /// <summary>
+        /// Creates a flow delta that represents selecting precisely one of two
+        /// flow deltas.
+        /// </summary>
+        public const Delta CreateSelectFlow(Delta First, Delta Second)
+        {
+            return new VariableSelectStateBuilder(First, Second).Create;
+        }
+
+        /// <summary>
+        /// Creates a flow delta that will be executed zero or more
+        /// times.
+        /// </summary>
+        public const Delta CreateLoopFlow(Delta Flow)
+        {
+            return new VariableLoopStateBuilder(Flow).Create;
+        }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is IVariableNode || Value is IFlowExpression ||
+                   Value is LoadDefinitionExpression || Value is AddressOfDefinitionExpression;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is IVariableNode || Value is IFlowStatement;
+        }
+
+        private IVariable GetInnerVariable(IVariable Variable)
+        {
+            if (Variable is LateBoundVariable)
+            {
+                var innerVal = ((LateBoundVariable)Variable).BoundVariable;
+                if (innerVal != null)
+                    return GetInnerVariable(Variable);
+            }
+            return Variable;
+        }
+
+        private IStatement VisitFlowStmt(IStatement Statement)
+        {
+            if (Statement is IFlowStatement)
+            {
+                return ((IFlowStatement)Statement).AcceptFlow<State, Delta>(this);
+            }
+            else
+            {
+                return Statement.Accept(this);
+            }
+        }
+
+        private IExpression VisitFlowExpr(IExpression Expression)
+        {
+            if (Expression is IFlowExpression)
+            {
+                return ((IFlowExpression)Expression).AcceptFlow<State, Delta>(this);
+            }
+            else
+            {
+                return Expression.Accept(this);
+            }
+        }
+
+        private IExpression WrapAccessExpression(IExpression Expr, VariableDefinitionChain Chain, IDefinitionAccess Access)
+        {
+            var insertPoint = new InsertStatement();
+            var flow        = new VariableAccessFlow(Chain, Access);
+            CurrentFlow     = CurrentFlow.Cons(new VariableFlowNode(flow, insertPoint));
+            return new InitializedExpression(EmptyStatement, Expr, insertPoint);
+        }
+
+        private IExpression TransformVariableAccess(IExpression Expression)
+        {
+            var node = (IVariableNode)Expression;
+            var variable = GetInnerVariable(node.GetVariable());
+
+            if (IsLocal(variable))
+            {
+                var chain = MapLocal(variable);
+                if (node.Action == VariableNodeAction.AddressOf)
+                {
+                    return Visit(new AddressOfDefinitionExpression(chain));
+                }
+                else if (node.Action == VariableNodeAction.Get)
+                {
+                    return Visit(new LoadDefinitionExpression(chain));
+                }
+            }
+            return VisitFlowExpr(Expression);
+        }
+
+        private bool IsLiteralValue(IExpression Value)
+        {
+            return Value.IsConstant && IsPropagateAlwaysType(Value.Type) && Value.Evaluate() != null;
+        }
+
+        private IVariable GetCopiedVariable(IExpression Value)
+        {
+            if (Value is IVariableNode)
+            {
+                var node = (IVariableNode)Value;
+                var variable = node.GetVariable();
+                if (node.Action == VariableNodeAction.Get && IsLocal(variable))
+                {
+                    return variable;
+                }
+            }
+            return null;
+        }
+
+        private VariableDefinitionReach CreateDefinition(VariableDefinitionChain Chain,
+            IExpression Value, InsertStatement InsertPoint)
+        {
+            if (IsLiteralValue(Value)) // Propagate constants (literals, usually).
+            {
+                return new VariableDefinitionReach(
+                    new ConstantVariableDefinition(Value),
+                    Chain.MappedLocal);
+            }
+            else
+            {
+                var copyVar = GetCopiedVariable(Value); // Propagate copies.
+                if (copyVar != null)
+                {
+                    var copiedChain = MapLocal(copyVar);
+                    return new VariableDefinitionReach(
+                        new CopyVariableDefinition(copiedChain),
+                        Chain.MappedLocal);
+                }
+                else // Don't propagate everything else.
+                {
+                    var local = Chain.MappedLocal;
+                    var defin = new LocalVariableDefinition(VariableFlowHelpers.CreateLocal(local));
+                    var reach = new VariableDefinitionReach(defin, local);
+                    InsertPoint.Insert(new VariableDefinitionStatement(reach, Visit(Value)));
+                    return reach;
+                }
+            }
+        }
+
+        private IStatement TransformVariableAccess(IStatement Statement)
+        {
+            var node = (IVariableNode)Statement;
+            var variable = GetInnerVariable(node.GetVariable());
+
+            if (IsLocal(variable))
+            {
+                var chain = MapLocal(variable);
+                if (node.Action == VariableNodeAction.Set)
+                {
+                    var insertPoint = new InsertStatement();
+                    var defVal      = ((ISetVariableNode)node).Value;
+                    var varDef      = CreateDefinition(chain, defVal, insertPoint);
+                    var defFlow     = new VariableDefinitionFlow(insertPoint, varDef);
+                    CurrentFlow     = CurrentFlow.Cons(new VariableFlowNode(defFlow, insertPoint));
+                    return insertPoint;
+                }
+                else if (node.Action == VariableNodeAction.Release)
+                {
+                    return new ReleaseDefinitionStatement(chain);
+                }
+            }
+            return VisitFlowStmt(Statement);
+        }
+
+        private InsertStatement EmitInsertionPoint()
+        {
+            var point = new InsertStatement();
+            if (CurrentFlow == null)
+            {
+                CurrentFlow = new NilVariableFlowState(point);
+            }
+            else
+            {
+                CurrentFlow = CurrentFlow.Cons(new VariableFlowNode(EmptyVariableFlow, point));
+            }
+            return point;
+        }
+
+        private IExpression TransformCore(IExpression Expression)
+        {
+            if (Expression is IVariableNode)
+                return TransformVariableAccess(Expression);
+            else
+                return VisitFlowExpr(Expression);
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            if (Expression is LoadDefinitionExpression)
+            {
+                var expr = (LoadDefinitionExpression)Expression;
+                return WrapAccessExpression(expr, expr.Chain, expr.Access);
+            }
+            else if (Expression is AddressOfDefinitionExpression)
+            {
+                var expr = (AddressOfDefinitionExpression)Expression;
+                return WrapAccessExpression(expr, expr.Chain, expr.Access);
+            }
+            else
+            {
+                var prePt = EmitInsertionPoint();
+                var result = TransformCore(Expression);
+                var postPt = EmitInsertionPoint();
+                return new InitializedExpression(prePt, result, postPt);
+            }
+        }
+
+        private IStatement TransformCore(IStatement Statement)
+        {
+            if (Statement is IVariableNode)
+                return TransformVariableAccess(Statement);
+            else
+                return VisitFlowStmt(Statement);
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            var prePt  = EmitInsertionPoint();
+            var result = TransformCore(Statement);
+            var postPt = EmitInsertionPoint();
+            return new BlockStatement(new IStatement[] { prePt, result, postPt });
+        }
+    }
+}

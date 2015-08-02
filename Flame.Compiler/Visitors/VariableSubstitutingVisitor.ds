@@ -43,7 +43,7 @@ namespace Flame.Compiler.Visitors
             return ApplyRecursively<IVariable>(Variable, SubstituteVariable);
         }
 
-        protected override virtual IExpression Transform(IExpression Expression)
+        protected virtual IExpression TransformVariableAccess(IExpression Expression)
         {
             var node = (IVariableNode)Expression;
             var variable = node.GetVariable();
@@ -63,7 +63,7 @@ namespace Flame.Compiler.Visitors
             return Expression.Accept(this);
         }
 
-        protected override virtual IStatement Transform(IStatement Statement)
+        protected virtual IStatement TransformVariableAccess(IStatement Statement)
         {
             var node = (IVariableNode)Statement;
             var variable = node.GetVariable();
@@ -81,6 +81,16 @@ namespace Flame.Compiler.Visitors
                 }
             }
             return Statement.Accept(this);
+        }
+
+        protected override virtual IExpression Transform(IExpression Expression)
+        {
+            return TransformVariableAccess(Expression);
+        }
+
+        protected override virtual IStatement Transform(IStatement Statement)
+        {
+            return TransformVariableAccess(Statement);
         }
     }
 
