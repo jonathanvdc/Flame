@@ -25,10 +25,10 @@ namespace Flame.Optimization.Variables
                 var initialReach = new VariableDefinitionReach(
                     new LocalVariableDefinition(VariableFlowHelpers.CreateLocal(item.MappedLocal)),
                     item.MappedLocal);
-                flow.UpdateReach(initialReach); // Update the reach, and update the
-                                                // chain in doing so.
+                flow.UpdateReach(initialReach, item); // Update the reach and chain.
             }
-            return newTree.Optimize();
+
+            return new DeadCodeVisitor().Visit(newTree.Optimize());
         }
     }
 }

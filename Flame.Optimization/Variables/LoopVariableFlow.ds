@@ -15,11 +15,11 @@ namespace Flame.Optimization.Variables
         public IVariableFlow LoopBody { const get; private set; }
         public InsertStatement LoopPostInsert { const get; private set; }
 
-        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach)
+        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach, VariableDefinitionChain Chain)
         {
             var oldAccess = new HashSet<IDefinitionAccess>(Reach.Reach);
 
-            var loopReach = LoopBody.UpdateReach(Reach);
+            var loopReach = LoopBody.UpdateReach(Reach, Chain);
 
             if (loopReach == Reach)
                 return loopReach;
@@ -27,16 +27,19 @@ namespace Flame.Optimization.Variables
             var newAccess = new HashSet<IDefinitionAccess>(Reach.Reach);
             newAccess.ExceptWith(oldAccess);
 
+            VariableDefinitionReach result;
             if (newAccess.Count > 0)
             {
                 var matReach = VariableFlowHelpers.Materialize(Reach, PreInsert);
                 Reach.Transfer(matReach, newAccess);
-                return VariableFlowHelpers.Phi(matReach, PreInsert, loopReach, LoopPostInsert);
+                result = VariableFlowHelpers.Phi(matReach, PreInsert, loopReach, LoopPostInsert);
             }
             else
             {
-                return VariableFlowHelpers.Phi(Reach, PreInsert, loopReach, LoopPostInsert);
+                result = VariableFlowHelpers.Phi(Reach, PreInsert, loopReach, LoopPostInsert);
             }
+            Chain.AddDefinition(result);
+            return result;
         }
     }
 }

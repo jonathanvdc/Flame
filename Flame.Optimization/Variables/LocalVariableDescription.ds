@@ -66,7 +66,7 @@ namespace Flame.Optimization.Variables
                 }
                 else if (IsArgument && otherDesc.IsArgument)
                 {
-                    return ((ArgumentVariable)Variable).Index == ((ArgumentVariable)otherDesc).Index;
+                    return ((ArgumentVariable)Variable).Index == ((ArgumentVariable)otherDesc.Variable).Index;
                 }
                 else
                 {
