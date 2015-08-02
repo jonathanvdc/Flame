@@ -13,13 +13,19 @@ public static class Test
         return 5;
     }
 
+    public const int PropagateCopy(int X)
+    {
+        int y = X;
+        return y;
+    }
+
     public const int Select(int X, int Y)
     {
         int z = 5;
         if (X > Y)
         {
             int w = z + X;
-            z = w;
+            // z = w;
             return w;
         }
         else
