@@ -21,6 +21,7 @@ namespace Flame.Front.Target
             MethodPasses.Add(new PassInfo<BodyPassArgument, IStatement>(LowerYieldPass.Instance, LowerYieldPassName, false));
             MethodPasses.Add(new PassInfo<BodyPassArgument, IStatement>(InliningPass.Instance, InliningPassName, false));
             StatementPasses.Add(new PassInfo<IStatement, IStatement>(SimplifyFlowPass.Instance, SimplifyFlowPassName, false));
+            StatementPasses.Add(new PassInfo<IStatement, IStatement>(Flame.Optimization.Variables.DefinitionPropagationPass.Instance, PropagateLocalsName, false));
         }
 
         public static List<PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>> PreStatementPasses { get; private set; }
@@ -31,6 +32,7 @@ namespace Flame.Front.Target
         public const string LowerYieldPassName = "lower-yield";
         public const string InliningPassName = "inline";
         public const string SimplifyFlowPassName = "simplify-flow";
+        public const string PropagateLocalsName = "propagate-locals";
 
         private static void AddPass<TIn, TOut>(List<IPass<TIn, TOut>> Passes, PassInfo<TIn, TOut> Info, ICompilerLog Log, HashSet<string> PreferredPasses)
         {
