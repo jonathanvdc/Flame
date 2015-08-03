@@ -8,18 +8,19 @@ namespace Flame.Optimization.Variables
         /// <summary>
         /// Creates a variable definition that "succeeds" the old variable definition.
         /// </summary>
-        public VariableDefinitionReach Succeed(VariableDefinitionReach OldReach, VariableDefinitionReach NewReach, InsertStatement InsertionPoint)
+        public VariableDefinitionReach Succeed(VariableDefinitionChain Chain, VariableDefinitionReach OldReach, VariableDefinitionReach NewReach, InsertStatement InsertionPoint)
         {
             if (OldReach.IsVolatile)
-                return MakeVolatile(NewReach, InsertionPoint);
+                return MakeVolatile(Chain, NewReach, InsertionPoint);
             else
                 return NewReach;
         }
 
         /// <summary>
         /// "Transfers" the old variable definition's value to the new one.
+        /// The new reach is also registered with the definition chain.
         /// </summary>
-        public void Transfer(VariableDefinitionReach OldReach, VariableDefinitionReach NewReach, InsertStatement InsertionPoint)
+        public void Transfer(VariableDefinitionChain Chain, VariableDefinitionReach OldReach, VariableDefinitionReach NewReach, InsertStatement InsertionPoint)
         {
             if (OldReach.Definition.Variable != NewReach.Definition.Variable)
             {
@@ -31,6 +32,7 @@ namespace Flame.Optimization.Variables
                 NewReach.Add(new VolatileAccess());
             }
             OldReach.Add(new ReachDependentAccess(NewReach));
+            Chain.AddDefinition(NewReach);
         }
 
         /// <summary>
@@ -40,7 +42,7 @@ namespace Flame.Optimization.Variables
         /// does contain an underlying variable, with the previous definition's
         /// value.
         /// </summary>
-        public VariableDefinitionReach Materialize(VariableDefinitionReach Reach, InsertStatement InsertionPoint)
+        public VariableDefinitionReach Materialize(VariableDefinitionChain Chain, VariableDefinitionReach Reach, InsertStatement InsertionPoint)
         {
             if (Reach.Definition.Variable == null)
             {
@@ -49,7 +51,7 @@ namespace Flame.Optimization.Variables
                 var newReach = new VariableDefinitionReach(newDef, Reach.MappedLocal);
 
                 // Transfer the old definition to the new one.
-                Transfer(Reach, newReach, InsertionPoint);
+                Transfer(Chain, Reach, newReach, InsertionPoint);
                 return newReach;
             }
             else
@@ -62,9 +64,9 @@ namespace Flame.Optimization.Variables
         /// Marks the given variable definition as volatile.
         /// This will disable most, if not all, optimizations.
         /// </summary>
-        public VariableDefinitionReach MakeVolatile(VariableDefinitionReach Reach, InsertStatement InsertionPoint)
+        public VariableDefinitionReach MakeVolatile(VariableDefinitionChain Chain, VariableDefinitionReach Reach, InsertStatement InsertionPoint)
         {
-            var newReach = Materialize(Reach, InsertionPoint);
+            var newReach = Materialize(Chain, Reach, InsertionPoint);
             newReach.Add(new VolatileAccess());
             return newReach;
         }
@@ -75,7 +77,8 @@ namespace Flame.Optimization.Variables
         /// Otherwise, a both are assigned to a variable, and a variable definition
         /// is returned that wraps that variable.
         /// </summary>
-        public VariableDefinitionReach Phi(VariableDefinitionReach First, InsertStatement FirstPostInsert,
+        public VariableDefinitionReach Phi(VariableDefinitionChain Chain,
+                                           VariableDefinitionReach First, InsertStatement FirstPostInsert,
                                            VariableDefinitionReach Second, InsertStatement SecondPostInsert)
         {
             if (First == Second)
@@ -85,8 +88,8 @@ namespace Flame.Optimization.Variables
             var phiReach = new VariableDefinitionReach(phiDef, First.MappedLocal);
 
             // Transfer both variable definitions to the phi variable definition.
-            Transfer(First, phiReach, FirstPostInsert);
-            Transfer(Second, phiReach, SecondPostInsert);
+            Transfer(Chain, First, phiReach, FirstPostInsert);
+            Transfer(Chain, Second, phiReach, SecondPostInsert);
 
             return phiReach;
         }

@@ -33,4 +33,14 @@ public static class Test
             return Y;
         }
     }
+
+    public const int Sum(int N, int(int) Func)
+    {
+        int result = 0;
+        for (int i = 0; i < N; i++)
+        {
+            result += Func(i);
+        }
+        return result;
+    }
 }

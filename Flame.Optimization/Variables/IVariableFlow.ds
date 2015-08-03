@@ -33,7 +33,7 @@ namespace Flame.Optimization.Variables
         public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach, VariableDefinitionChain Chain)
         {
             if (Definition.MappedLocal == Reach.MappedLocal)
-                return VariableFlowHelpers.Succeed(Reach, Definition, PreInsert);
+                return VariableFlowHelpers.Succeed(Chain, Reach, Definition, PreInsert);
             else
                 return Reach;
         }
