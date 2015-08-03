@@ -35,6 +35,9 @@ namespace Flame.Compiler.Expressions
 
 		public static const string ToLiteral(string Source, string Quote)
 		{
+			if (Source == null)
+				return "null";
+
 			var result = new StringBuilder(Source.Length + 2 * Quote.Length);
 			result.Append(Quote);
 			for (int i = 0; i < Source.Length; i++)
