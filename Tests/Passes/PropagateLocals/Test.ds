@@ -1,3 +1,4 @@
+using System;
 
 public static class Test
 {
@@ -42,5 +43,29 @@ public static class Test
             result += Func(i);
         }
         return result;
+    }
+
+    public const int InlineSum(int N)
+    {
+        var thisCopy = this;
+        int nCopy = N;
+        int result = 0;
+        int(int) Func = thisCopy.PropagateCopy;
+        for (int i = 0; i < nCopy; i++)
+        {
+            result += Func(i);
+        }
+        return result;
+    }
+
+    public int MaterializeCopy(int X)
+    {
+        // -fpropagate-locals should not propagate `int z = X;` here,
+        // as doing so would change the program's meaning.
+
+        int z = X;
+        X = z + 5;
+        Console.WriteLine(z + " -> " + X);
+        return X;
     }
 }

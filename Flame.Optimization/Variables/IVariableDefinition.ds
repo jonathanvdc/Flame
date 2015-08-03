@@ -18,5 +18,14 @@ namespace Flame.Optimization.Variables
         /// Creates a get-expression for this variable definition.
         /// </summary>
         IExpression CreateGetExpression();
+
+        /// <summary>
+        /// Has this variable definition "react" to a change in another definition's chain:
+        /// it gets an opportunity to use the other variable's previous value.
+        /// Either this variable definition reach or a newly created one is then returned.
+        /// </summary>
+        VariableDefinitionReach ReactTo(VariableDefinitionReach ReactingReach,
+                                        VariableDefinitionReach ActingDefinition,
+                                        InsertStatement PreInsert);
     }
 }

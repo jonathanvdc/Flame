@@ -30,6 +30,7 @@
   <ItemGroup Name="Variables">
     <Compile Include="Variables/AddressOfDefinitionExpression.ds" />
     <Compile Include="Variables/ConstantVariableDefinition.ds" />
+    <Compile Include="Variables/CopyVariableDefinition.ds" />
     <Compile Include="Variables/DefinitionPropagationPass.ds" />
     <Compile Include="Variables/IDefinitionAccess.ds" />
     <Compile Include="Variables/IVariableDefinition.ds" />
