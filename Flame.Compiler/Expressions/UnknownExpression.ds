@@ -1,0 +1,60 @@
+
+namespace Flame.Compiler.Expressions
+{
+    /// <summary>
+    /// Defines an unknown expression: an expression that cannot be represented by
+    /// a code sequence, and thus does not support `Emit`. Instead, it acts
+    /// as a non-constant expression that can be used to stop certain optimizations
+    /// from performing their task overly aggressively.
+    /// </summary>
+    public class UnknownExpression : IExpression, IMemberNode
+    {
+        /// <summary>
+        /// Creates an unknown expression with the given type.
+        /// </summary>
+        public const this(set IType Type);
+
+        /// <summary>
+        /// Gets the unknown expression's type.
+        /// </summary>
+        public IType Type { const get; private set; }
+
+        public bool IsConstant { const get return false; }
+        public const IBoundObject Evaluate()
+        {
+            return null;
+        }
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convType = Converter.Convert(Type);
+            if (object.ReferenceEquals(convType, Type)) // Test for reference equality
+                                                        // for performance reasons.
+                return this;
+            else
+                return new UnknownExpression(Type);
+        }
+
+        public const IExpression Optimize()
+        {
+            return this;
+        }
+
+        public ICodeBlock Emit(ICodeGenerator CodeGenerator)
+        {
+            string message = "Called `Emit` on an unknown-expression." +
+                             "An unknown-expression cannot be represented by a code sequence.";
+            throw new InvalidOperationException(message);
+        }
+
+        public override const string ToString()
+        {
+            return "unknown-expression(" + Type.FullName + ")";
+        }
+    }
+}
