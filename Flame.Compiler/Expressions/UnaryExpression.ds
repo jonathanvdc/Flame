@@ -129,5 +129,10 @@ namespace Flame.Compiler.Expressions
                 return null;
             }
         }
+
+        public override const string ToString()
+        {
+            return "unary(" + Op + ", " + Value + ")";
+        }
     }
 }

@@ -6,12 +6,20 @@ namespace Flame.Compiler.Expressions
 	public class BooleanExpression : ConstantExpression<bool>
 	{
 		public this(set bool Value);
-		
+
 		public IType Type { const get return PrimitiveTypes.Boolean; }
-		
+
 		public ICodeBlock Emit(ICodeGenerator Generator)
 		{
 			return Generator.EmitBoolean(Value);
+		}
+
+		public override const string ToString()
+		{
+			if (Value)
+				return "true";
+			else
+				return "false";
 		}
 	}
 }

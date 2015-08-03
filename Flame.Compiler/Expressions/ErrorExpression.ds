@@ -82,6 +82,11 @@ namespace Flame.Compiler.Expressions
         {
             return new ErrorExpression(NewValue, NewMessage);
         }
+
+        public override const string ToString()
+        {
+            return "error(" + Value + ", " + Message + ")";
+        }
     }
 
     /// <summary>
@@ -99,6 +104,11 @@ namespace Flame.Compiler.Expressions
         protected override IExpression Create(IExpression NewValue, LogEntry NewMessage)
         {
             return new WarningExpression(NewValue, NewMessage);
+        }
+
+        public override const string ToString()
+        {
+            return "warning(" + Value + ", " + Message + ")";
         }
     }
 }

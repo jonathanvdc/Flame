@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace Flame.Compiler.Expressions
 {
     public abstract class ConstantExpression<T> : IExpression, Flame.IBoundPrimitive<T>
+        where T : object
     {
         public const this()
         {
@@ -44,5 +45,10 @@ namespace Flame.Compiler.Expressions
         }
 
         public abstract ICodeBlock Emit(ICodeGenerator Generator);
+
+        public override virtual const string ToString()
+        {
+            return Value.ToString();
+        }
     }
 }

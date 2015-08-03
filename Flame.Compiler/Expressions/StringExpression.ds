@@ -1,17 +1,57 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
 	public class StringExpression : ConstantExpression<string>
 	{
 		public this(set string Value);
-		
+
 		public IType Type { const get return PrimitiveTypes.String; }
-		
+
 		public ICodeBlock Emit(ICodeGenerator Generator)
 		{
 			return Generator.EmitString(Value);
+		}
+
+		static this()
+		{
+			replDict = new Dictionary<char, string>();
+			replDict.Add('\'', "\\\'");
+			replDict.Add('\"', "\\\"");
+			replDict.Add('\\', "\\\\");
+			replDict.Add('\0', "\\0");
+			replDict.Add('\a', "\\a");
+			replDict.Add('\b', "\\b");
+			replDict.Add('\f', "\\f");
+			replDict.Add('\n', "\\n");
+			replDict.Add('\r', "\\r");
+			replDict.Add('\t', "\\t");
+			replDict.Add('\v', "\\v");
+		}
+
+		private static Dictionary<char, string> replDict;
+
+		public static const string ToLiteral(string Source, string Quote)
+		{
+			var result = new StringBuilder(Source.Length + 2 * Quote.Length);
+			result.Append(Quote);
+			for (int i = 0; i < Source.Length; i++)
+			{
+				char c = Source[i];
+				if (replDict.ContainsKey(c))
+					result.Append(replDict[c]);
+				else
+					result.Append(c);
+			}
+			result.Append(Quote);
+			return result.ToString();
+		}
+
+		public override const string ToString()
+		{
+			return ToLiteral(Value, "\"");
 		}
 	}
 }

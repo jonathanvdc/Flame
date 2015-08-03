@@ -66,5 +66,10 @@ namespace Flame.Compiler.Expressions
         {
             return Generator.EmitDefaultValue(Type);
         }
+
+        public override const string ToString()
+        {
+            return "default(" + Type.FullName + ")";
+        }
     }
 }
