@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Mono.Cecil.Cil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,18 @@ namespace Flame.Cecil.Emit
 
         public void Emit(IEmitContext Context)
         {
+            if (Value is DefaultValueBlock)
+            {
+                var defaultValBlock = (DefaultValueBlock)Value;
+
+                if (DefaultValueBlock.PreferInitobj(defaultValBlock.Type)) // We can (and should!) optimize that `initobj` sequence.
+                {
+                    Address.Emit(Context);
+                    Context.Stack.Pop();
+                    Context.Emit(OpCodes.Initobj, defaultValBlock.Type);
+                    return;
+                }
+            }
             Address.Emit(Context);
             var ptrType = Context.Stack.Pop().AsContainerType().GetElementType();
             Value.Emit(Context);
