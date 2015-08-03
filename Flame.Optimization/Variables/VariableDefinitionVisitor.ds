@@ -299,32 +299,50 @@ namespace Flame.Optimization.Variables
             return Value.IsConstant && IsPropagateAlwaysType(Value.Type) && Value.Evaluate() != null;
         }
 
-        private bool IsCopyValue(IExpression Value)
+        private IVariable GetCopiedVariable(IExpression Value)
         {
             if (Value is IVariableNode)
             {
                 var node = (IVariableNode)Value;
-                return node.Action == VariableNodeAction.Get && IsLocal(node.GetVariable());
+                if (node.Action == VariableNodeAction.Get)
+                {
+                    var variable = node.GetVariable();
+                    if (IsLocal(variable))
+                        return variable;
+                }
             }
-            return false;
+            return null;
         }
 
         private VariableDefinitionReach CreateDefinition(VariableDefinitionChain Chain,
             IExpression Value, InsertStatement InsertPoint)
         {
-            if (IsLiteralValue(Value) || IsCopyValue(Value)) // Propagate constants and copies.
+            if (IsLiteralValue(Value)) // Propagate constants.
             {
                 return new VariableDefinitionReach(
                     new ConstantVariableDefinition(Visit(Value)),
                     Chain.MappedLocal);
             }
-            else // Don't propagate anything else.
+            else
             {
-                var local = Chain.MappedLocal;
-                var defin = new LocalVariableDefinition(VariableFlowHelpers.CreateLocal(local));
-                var reach = new VariableDefinitionReach(defin, local);
-                InsertPoint.Insert(new VariableDefinitionStatement(reach, Visit(Value)));
-                return reach;
+                var copyVar = GetCopiedVariable(Value);
+                if (copyVar != null) // Propagate copies.
+                {
+                    var copiedChain = MapLocal(copyVar);
+                    var access      = new UnconditionalAccess();
+                    var getExpr     = Visit(new LoadDefinitionExpression(copiedChain, access));
+                    return new VariableDefinitionReach(
+                        new CopyVariableDefinition(Chain, copiedChain, access, getExpr),
+                        Chain.MappedLocal);
+                }
+                else // Don't propagate anything else.
+                {
+                    var local    = Chain.MappedLocal;
+                    var defin    = new LocalVariableDefinition(VariableFlowHelpers.CreateLocal(local));
+                    var reach    = new VariableDefinitionReach(defin, local);
+                    InsertPoint.Insert(new VariableDefinitionStatement(reach, Visit(Value)));
+                    return reach;
+                }
             }
         }
 
@@ -339,9 +357,11 @@ namespace Flame.Optimization.Variables
                 if (node.Action == VariableNodeAction.Set)
                 {
                     var insertPoint = new InsertStatement();
+                    var preInsrt    = EmitInsertionPoint();
+                    insertPoint.Insert(preInsrt);
                     var defVal      = ((ISetVariableNode)node).Value;
                     var varDef      = CreateDefinition(chain, defVal, insertPoint);
-                    var defFlow     = new VariableDefinitionFlow(insertPoint, varDef);
+                    var defFlow     = new VariableDefinitionFlow(preInsrt, varDef);
                     CurrentFlow     = CurrentFlow.Cons(new VariableFlowNode(defFlow, insertPoint));
                     return insertPoint;
                 }

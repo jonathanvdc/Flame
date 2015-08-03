@@ -1,0 +1,63 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+
+namespace Flame.Optimization.Variables
+{
+    /// <summary>
+    /// A variable definition that propagates a copy of another variable definition.
+    /// </summary>
+    public class CopyVariableDefinition : IVariableDefinition
+    {
+        /// <summary>
+        /// Creates a new copy variable definition from the given arguments.
+        /// </summary>
+        public const this(set VariableDefinitionChain CopyChain,
+                          set VariableDefinitionChain TargetChain,
+                          set IDefinitionAccess TargetAccess,
+                          set IExpression Value);
+
+        public VariableDefinitionChain CopyChain { const get; private set; }
+        public VariableDefinitionChain TargetChain { const get; private set; }
+        public IDefinitionAccess TargetAccess { const get; private set; }
+        public IExpression Value { const get; private set; }
+
+        /// <summary>
+        /// Gets this variable definition's underlying variable.
+        /// </summary>
+        public IUnmanagedVariable Variable { const get return null; }
+
+        /// <summary>
+        /// Creates a get-expression for this copy variable definition.
+        /// </summary>
+        public IExpression CreateGetExpression()
+        {
+            return Value;
+        }
+
+        /// <summary>
+        /// Has this variable definition "react" to a change in another definition's chain:
+        /// it gets an opportunity to use the other variable's previous value.
+        /// Either this variable definition reach or a newly created one is then returned.
+        /// </summary>
+        public VariableDefinitionReach ReactTo(VariableDefinitionReach ReactingReach,
+                                               VariableDefinitionReach ActingDefinition,
+                                               InsertStatement PreInsert)
+        {
+            // Check that the acting chain is the target chain.
+            // We know that this definition is live, because that's kind of
+            // a precondition.
+            if (TargetChain.MappedLocal == ActingDefinition.MappedLocal)
+            {
+                // We must materialize the reacting reach to avoid propagating
+                // an alias where a true copy is needed.
+                return VariableFlowHelpers.Materialize(CopyChain, ReactingReach, PreInsert);
+            }
+            else
+            {
+                // No need to take action.
+                return ReactingReach;
+            }
+        }
+    }
+}

@@ -8,7 +8,9 @@ namespace Flame.Optimization.Variables
         /// <summary>
         /// Creates a variable definition that "succeeds" the old variable definition.
         /// </summary>
-        public VariableDefinitionReach Succeed(VariableDefinitionChain Chain, VariableDefinitionReach OldReach, VariableDefinitionReach NewReach, InsertStatement InsertionPoint)
+        public VariableDefinitionReach Succeed(VariableDefinitionChain Chain,
+            VariableDefinitionReach OldReach, VariableDefinitionReach NewReach,
+            InsertStatement InsertionPoint)
         {
             if (OldReach.IsVolatile)
                 return MakeVolatile(Chain, NewReach, InsertionPoint);
@@ -20,11 +22,15 @@ namespace Flame.Optimization.Variables
         /// "Transfers" the old variable definition's value to the new one.
         /// The new reach is also registered with the definition chain.
         /// </summary>
-        public void Transfer(VariableDefinitionChain Chain, VariableDefinitionReach OldReach, VariableDefinitionReach NewReach, InsertStatement InsertionPoint)
+        public void Transfer(VariableDefinitionChain Chain,
+            VariableDefinitionReach OldReach, VariableDefinitionReach NewReach,
+            InsertStatement InsertionPoint)
         {
             if (OldReach.Definition.Variable != NewReach.Definition.Variable)
             {
-                var stmt = new VariableDefinitionStatement(NewReach, OldReach.Definition.CreateGetExpression());
+                var stmt = new VariableDefinitionStatement(
+                    NewReach,
+                    OldReach.Definition.CreateGetExpression());
                 InsertionPoint.Insert(stmt);
             }
             if (OldReach.IsVolatile)
@@ -42,7 +48,8 @@ namespace Flame.Optimization.Variables
         /// does contain an underlying variable, with the previous definition's
         /// value.
         /// </summary>
-        public VariableDefinitionReach Materialize(VariableDefinitionChain Chain, VariableDefinitionReach Reach, InsertStatement InsertionPoint)
+        public VariableDefinitionReach Materialize(VariableDefinitionChain Chain,
+            VariableDefinitionReach Reach, InsertStatement InsertionPoint)
         {
             if (Reach.Definition.Variable == null)
             {
@@ -64,7 +71,8 @@ namespace Flame.Optimization.Variables
         /// Marks the given variable definition as volatile.
         /// This will disable most, if not all, optimizations.
         /// </summary>
-        public VariableDefinitionReach MakeVolatile(VariableDefinitionChain Chain, VariableDefinitionReach Reach, InsertStatement InsertionPoint)
+        public VariableDefinitionReach MakeVolatile(VariableDefinitionChain Chain,
+            VariableDefinitionReach Reach, InsertStatement InsertionPoint)
         {
             var newReach = Materialize(Chain, Reach, InsertionPoint);
             newReach.Add(new VolatileAccess());
