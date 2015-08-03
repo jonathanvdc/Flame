@@ -235,9 +235,9 @@ namespace Flame.Optimization.Variables
         {
             if (Variable is LateBoundVariable)
             {
-                var innerVal = ((LateBoundVariable)Variable).BoundVariable;
-                if (innerVal != null)
-                    return GetInnerVariable(Variable);
+                var innerVar = ((LateBoundVariable)Variable).BoundVariable;
+                if (innerVar != null)
+                    return GetInnerVariable(innerVar);
             }
             return Variable;
         }

@@ -68,4 +68,15 @@ public static class Test
         Console.WriteLine(z + " -> " + X);
         return X;
     }
+
+    public int Sum([int] Values)
+    {
+        int result = 0;
+        foreach (var item in Values)
+        {
+            int x = result + item;
+            result = x;
+        }
+        return result;
+    }
 }
