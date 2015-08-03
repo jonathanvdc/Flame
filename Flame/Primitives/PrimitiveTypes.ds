@@ -9,11 +9,11 @@ namespace Flame
 	namespace Primitives
 	{
 		#region PrimitivesNamespace
-	
+
 		public class PrimitivesNamespace : INamespace
 		{
 			public const this();
-	
+
             public const IType[] GetTypes()
             {
                 return PrimitiveTypes.GetPrimitives();
@@ -38,13 +38,13 @@ namespace Flame
             {
                 return (IEnumerable<IAttribute>)new IAttribute[0];
             }
-            
+
 	    	public override const bool Equals(object Other)
 	    	{
 	    		return Other is PrimitivesNamespace;
 	    	}
 		}
-		
+
 		#endregion
 	}
 
@@ -77,10 +77,10 @@ namespace Flame
     		PrimitiveTypes.IHashCodeProvider = new HashCodeProviderType();
     		PrimitiveTypes.IEquatable = new EquatableType();
     	}
-    	
+
     	private static IType int32Type;
     	public static IType Int32 { const get return int32Type; }
-    	
+
     	public static IType Int8 { const get; private set; }
     	public static IType Int16 { const get; private set; }
     	public static IType Int64 { const get; private set; }
@@ -95,18 +95,18 @@ namespace Flame
     	public static IType Float32 { const get; private set; }
     	public static IType Float64 { const get; private set; }
     	public static IType Char { const get; private set; }
-    	
+
     	private static IType booleanType;
     	public static IType Boolean { const get return booleanType; }
-    	
+
     	private static IType stringType;
     	public static IType String { const get return stringType; }
-    	
-    	public static IType Null { const get; private set; } 
-    	public static IType Void { const get; private set; } 
+
+    	public static IType Null { const get; private set; }
+    	public static IType Void { const get; private set; }
     	public static IType IHashCodeProvider { const get; private set; }
     	public static IType IEquatable { const get; private set; }
-    
+
 		public static IType[] GetPrimitives()
 		{
 			var types = new IType[]
@@ -132,7 +132,7 @@ namespace Flame
 			};
 			return types;
 		}
-		
+
 		public static bool IsBit[this IType Type]
         {
         	const get
@@ -147,7 +147,7 @@ namespace Flame
 	            }
             }
         }
-        
+
         public static bool IsFloatingPoint[this IType Type]
         {
         	const get
@@ -162,7 +162,7 @@ namespace Flame
 	            }
             }
         }
-        
+
         public static bool IsUnsignedInteger[this IType Type]
         {
         	const get
@@ -177,7 +177,7 @@ namespace Flame
 	            }
             }
         }
-        
+
        	public static bool IsSignedInteger[this IType Type]
         {
         	const get
@@ -192,15 +192,15 @@ namespace Flame
 	            }
             }
         }
-        
+
         public static bool IsInteger[this IType Type]
         {
         	const get
         	{
-        		return Type.IsSignedInteger || Type.IsUnsignedInteger;	
+        		return Type.IsSignedInteger || Type.IsUnsignedInteger;
         	}
         }
-		
+
 		public static bool IsPrimitive[this IType Type]
 		{
 			const get
@@ -216,8 +216,17 @@ namespace Flame
 				return false;
 			}
 		}
-		
-		public static int GetPrimitiveMagnitude(this IType Type)
+
+		/// <summary>
+		/// Gets the given type's primitive magnitude. The following table
+		/// maps primitive magnitudes to primitives:
+		/// * 4 - 64-bit primitives: float64, int64, uint64, bit64.
+		/// * 3 - 32-bit primitives: float32, int32, uint32, bit32.
+		/// * 2 - 16-bit primitives: int16, uint16, bit16, char.
+		/// * 1 - 8-bit primitives: int8, uint8, bit8, bool.
+		/// * 0 - everything else.
+		/// </summary>
+		public static const int GetPrimitiveMagnitude(this IType Type)
         {
             if (Type.Equals(PrimitiveTypes.Float64) || Type.Equals(PrimitiveTypes.Int64) || Type.Equals(PrimitiveTypes.UInt64) || Type.Equals(PrimitiveTypes.Bit64))
             {
@@ -240,7 +249,7 @@ namespace Flame
                 return 0;
             }
         }
-        
+
         public static int GetPrimitiveSize(this IType Type)
         {
             int magnitude = Type.GetPrimitiveMagnitude();
