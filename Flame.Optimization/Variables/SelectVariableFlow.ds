@@ -25,23 +25,17 @@ namespace Flame.Optimization.Variables
             {
                 return newReach1;
             }
-            else
+            else if (newReach1 == Reach) // First path does not modify, second path does.
             {
-                VariableDefinitionReach result;
-                if (newReach1 == Reach) // First path does not modify, second path does.
-                {
-                    result = VariableFlowHelpers.Phi(Reach, PreInsert, newReach2, SecondPostInsert);
-                }
-                else if (newReach2 == Reach)  // First path does not modify, second path does.
-                {
-                    result = VariableFlowHelpers.Phi(newReach1, FirstPostInsert, Reach, PreInsert);
-                }
-                else // Symmetric reach.
-                {
-                    result = VariableFlowHelpers.Phi(newReach1, FirstPostInsert, newReach2, SecondPostInsert);
-                }
-                Chain.AddDefinition(result);
-                return result;
+                return VariableFlowHelpers.Phi(Chain, Reach, PreInsert, newReach2, SecondPostInsert);
+            }
+            else if (newReach2 == Reach)  // First path does not modify, second path does.
+            {
+                return VariableFlowHelpers.Phi(Chain, newReach1, FirstPostInsert, Reach, PreInsert);
+            }
+            else // Symmetric reach.
+            {
+                return VariableFlowHelpers.Phi(Chain, newReach1, FirstPostInsert, newReach2, SecondPostInsert);
             }
         }
     }

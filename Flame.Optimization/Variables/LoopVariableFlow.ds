@@ -27,19 +27,17 @@ namespace Flame.Optimization.Variables
             var newAccess = new HashSet<IDefinitionAccess>(Reach.Reach);
             newAccess.ExceptWith(oldAccess);
 
-            VariableDefinitionReach result;
             if (newAccess.Count > 0)
             {
-                var matReach = VariableFlowHelpers.Materialize(Reach, PreInsert);
-                Reach.Transfer(matReach, newAccess);
-                result = VariableFlowHelpers.Phi(matReach, PreInsert, loopReach, LoopPostInsert);
+                var matReach = VariableFlowHelpers.Materialize(Chain, Reach, PreInsert);
+                var phiReach = VariableFlowHelpers.Phi(Chain, matReach, PreInsert, loopReach, LoopPostInsert);
+                Reach.Transfer(phiReach, newAccess);
+                return phiReach;
             }
             else
             {
-                result = VariableFlowHelpers.Phi(Reach, PreInsert, loopReach, LoopPostInsert);
+                return VariableFlowHelpers.Phi(Chain, Reach, PreInsert, loopReach, LoopPostInsert);
             }
-            Chain.AddDefinition(result);
-            return result;
         }
     }
 }
