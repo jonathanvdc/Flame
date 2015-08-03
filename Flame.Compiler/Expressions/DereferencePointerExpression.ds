@@ -58,5 +58,10 @@ namespace Flame.Compiler.Expressions
         {
             return ((IUnmanagedCodeGenerator)Generator).EmitDereferencePointer(Expression.Emit(Generator));
         }
+
+        public override const string ToString()
+        {
+            return "*(" + Expression + ")";
+        }
     }
 }

@@ -54,5 +54,10 @@ namespace Flame.Compiler.Expressions
         {
             return Generator.GetThis().EmitGet();
         }
+
+        public override const string ToString()
+        {
+            return "this(" + Type.FullName + ")";
+        }
     }
 }

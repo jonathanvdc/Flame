@@ -87,5 +87,10 @@ namespace Flame.Compiler.Expressions
             var targetBlock = Target.Emit(Generator);
             return Generator.EmitIsOfType(TestType, targetBlock);
         }
+
+        public override const string ToString()
+        {
+            return "isinstance(" + Target + ", " + TestType + ")";
+        }
     }
 }
