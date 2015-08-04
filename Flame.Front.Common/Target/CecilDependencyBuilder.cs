@@ -44,7 +44,7 @@ namespace Flame.Front.Target
         {
             if (!DependencyBuilder.HasCecilResolver())
             {
-                DependencyBuilder.SetCecilResolver(new Flame.Cecil.SpecificAssemblyResolver());
+                DependencyBuilder.SetCecilResolver(ClrBuildTargetParser.CreateCecilAssemblyResolver());
             }
         }
 
