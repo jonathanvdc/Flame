@@ -14,17 +14,22 @@ namespace Flame.Front
 {
     public static class CecilRuntimeLibraries
     {
+        static CecilRuntimeLibraries()
+        {
+            resolver = new CecilRTLibraryResolver();
+            asmResolver = new SpecificAssemblyResolver();
+        }
+
         private static IAssemblyResolver resolver;
         public static IAssemblyResolver Resolver
         {
-            get 
-            {
-                if (resolver == null)
-                {
-                    resolver = new CecilRTLibraryResolver();
-                }
-                return resolver;
-            }
+            get { return resolver; }
+        }
+
+        private static SpecificAssemblyResolver asmResolver;
+        public static SpecificAssemblyResolver CecilResolver
+        {
+            get { return asmResolver; }
         }
 
         public static IAssembly RevolveRuntimeLibrary(string Identifier)
@@ -49,7 +54,11 @@ namespace Flame.Front
                 default:
                     return null;
             }
-            return new CecilAssembly(Mono.Cecil.AssemblyDefinition.ReadAssembly(loadedAsm.Location), CecilReferenceResolver.ConversionCache);
+            var asmDef = Mono.Cecil.AssemblyDefinition.ReadAssembly(loadedAsm.Location, new Mono.Cecil.ReaderParameters() 
+            { 
+                AssemblyResolver = CecilResolver 
+            });
+            return new CecilAssembly(asmDef, CecilReferenceResolver.ConversionCache);
         }
 
         private class CecilRTLibraryResolver : IAssemblyResolver

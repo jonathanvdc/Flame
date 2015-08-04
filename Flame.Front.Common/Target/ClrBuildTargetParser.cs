@@ -28,10 +28,15 @@ namespace Flame.Front.Target
             return CecilRuntimeLibraries.Resolver;
         }
 
+        public static Mono.Cecil.IAssemblyResolver CreateCecilAssemblyResolver()
+        {
+            return new SpecificAssemblyResolver(CecilRuntimeLibraries.CecilResolver);
+        }
+
         public IDependencyBuilder CreateDependencyBuilder(string Identifier, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, 
                                                           ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
         {
-            var resolver = new Flame.Cecil.SpecificAssemblyResolver();
+            var resolver = CreateCecilAssemblyResolver();
 
             var mscorlib = Mono.Cecil.ModuleDefinition.ReadModule(typeof(object).Module.FullyQualifiedName, new Mono.Cecil.ReaderParameters() { AssemblyResolver = resolver });
             var mscorlibAsm = new CecilAssembly(mscorlib.Assembly, Log, CecilReferenceResolver.ConversionCache);
