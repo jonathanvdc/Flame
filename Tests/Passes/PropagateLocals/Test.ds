@@ -1,4 +1,15 @@
 using System;
+using System.Collections.Generic;
+
+public class Method
+{
+    public HashSet<Method> Implementations { const get; private set; }
+
+    public const bool IsImplementationOf(Method Other)
+    {
+        return Implementations.Contains(Other);
+    }
+}
 
 public static class Test
 {
@@ -78,5 +89,35 @@ public static class Test
             result = x;
         }
         return result;
+    }
+
+    public const Method[] FilterBaseMethods(this Method[] Methods)
+    {
+        var results = new List<Method>();
+        foreach (var item in Methods)
+        {
+            bool inserted = false;
+
+            for (int i = 0; i < results.Count; i++)
+            {
+                if (item.IsImplementationOf(results[i]))
+                {
+                    results[i] = item;
+                    inserted = true;
+                    break;
+                }
+                else if (results[i].IsImplementationOf(item))
+                {
+                    inserted = true;
+                    break;
+                }
+            }
+
+            if (!inserted)
+            {
+                results.Add(item);
+            }
+        }
+        return results.ToArray();
     }
 }
