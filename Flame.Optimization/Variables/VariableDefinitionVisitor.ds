@@ -119,6 +119,11 @@ namespace Flame.Optimization.Variables
             return Value;
         }
 
+        private const State CreateTerminatedFlow(State Tail)
+        {
+            return Tail.Cons(new VariableFlowNode(new TerminatedVariableFlow(Tail.PostInsert), Tail.PostInsert));
+        }
+
         /// <summary>
         /// Checks if the given type is a propagate-always type, which can
         /// safely be propagated anywhere.
@@ -172,9 +177,9 @@ namespace Flame.Optimization.Variables
         /// sequential flow that succeeds it will never be executed.
         /// </summary>
         /// <remarks>
-        /// Just ignore this for now.
+        /// Terminated flow basically materializes everything.
         /// </remarks>
-        public Delta TerminatedFlow { const get return Id<State>; }
+        public Delta TerminatedFlow { const get return CreateTerminatedFlow; }
 
         /// <summary>
         /// Computes the "sum" of a flow state and a control flow delta.
@@ -242,9 +247,17 @@ namespace Flame.Optimization.Variables
             return Variable;
         }
 
+        private const bool IsLocalFlow(IStatement Statement)
+        {
+            // Throw and return should really just be treated as normal flow,
+            // because terminated flow materializes everything.
+            return Statement is IFlowStatement && !(Statement is ReturnStatement) &&
+                   !(Statement is ThrowStatement);
+        }
+
         private IStatement VisitFlowStmt(IStatement Statement)
         {
-            if (Statement is IFlowStatement)
+            if (IsLocalFlow(Statement))
             {
                 return ((IFlowStatement)Statement).AcceptFlow<State, Delta>(this);
             }
