@@ -96,7 +96,6 @@ public static class Test
             if (Pred(i))
             {
                 inserted = true; // inserted1 := true
-                break;
             }
             // inserted2 := phi(inserted3, inserted1)
             // ^~~~~~~~~ depends on `inserted3`
@@ -119,5 +118,23 @@ public static class Test
         }
 
         return inserted;
+    }
+
+    public const int FirstOrZero([int] Values)
+    {
+        int result = 0;
+        foreach (var item in Values)
+        {
+            // -fpropagate-locals cannot always just assign variables at the last
+            // possible instance, because a `break;` or `continue;` could turn
+            // said assignment into dead code.
+
+            int x = item;
+            result = x; // <-- -fpropagate-locals should propagate this copy
+                        //     under normal circumstances. It should not, however,
+                        //     delay the assignment until after the `break;` statement.
+            break;
+        }
+        return result;
     }
 }
