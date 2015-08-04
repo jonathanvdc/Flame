@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Flame.Optimization.Variables
 {
@@ -41,10 +42,31 @@ namespace Flame.Optimization.Variables
                 foreach (var item in Reach)
                     if (item.IsVolatile)
                 {
-                        return true;
+                    return true;
                 }
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Determines this definition' liveliness, based on a set of
+        /// variable definitions whose liveliness depend on the outcome of this method.
+        /// Said set is used to deal with cyclic variable definition dependencies.
+        /// </summary>
+        public const bool GetLiveliness([VariableDefinitionReach] Dependencies)
+        {
+            if (Reach.Count > 0)
+            {
+                var newSet = new HashSet<VariableDefinitionReach>(Dependencies);
+                newSet.Add(this);
+
+                foreach (var item in Reach)
+                    if (item.GetLiveliness(newSet))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>
@@ -52,15 +74,7 @@ namespace Flame.Optimization.Variables
         /// </summary>
         public bool IsLive
         {
-            const get
-            {
-                foreach (var item in Reach)
-                    if (item.IsLive)
-                {
-                        return true;
-                }
-                return false;
-            }
+            const get return GetLiveliness(Enumerable.Empty<VariableDefinitionReach>());
         }
 
         /// <summary>

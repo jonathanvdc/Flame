@@ -83,14 +83,39 @@ public static class Test
 
     public const bool AnyInRange(int N, bool(int) Pred)
     {
-        bool inserted = false;
+        // Analysis of what -fpropagate-locals does (roughly), and why
+        // cyclic variable definition dependencies matter.
+
+        bool inserted = false; // inserted0 := false
 
         for (int i = 0; i < N; i++)
         {
+            // inserted3 := phi(inserted0, inserted2)
+            // ^~~~~~~~~ depends on `inserted2`
+
             if (Pred(i))
             {
-                inserted = true;
+                inserted = true; // inserted1 := true
+                break;
             }
+            // inserted2 := phi(inserted3, inserted1)
+            // ^~~~~~~~~ depends on `inserted3`
+            //
+            // Old method:
+            //     Liveliness analysis does not take any parameters. If a definition's
+            //     liveliness depends on that of another, the other definition's liveliness
+            //     is determined first.
+            //
+            //     Therefore, to determine either `inserted2`/`inserter3`'s liveliness,
+            //     we must first know if the other definition is live,
+            //     which is done by making the exact same function call as before.
+            // ==> Infinite recursion
+            // ==> Cyclic dependencies must be handled properly by -fpropagate-locals
+
+            // New method:
+            //     Cyclic dependencies do not result in infinite recursion.
+            //     Instead, variable definitions that depend solely on a cyclic
+            //     dependency to determine their liveliness are assumed to be dead.
         }
 
         return inserted;

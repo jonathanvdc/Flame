@@ -1,3 +1,4 @@
+using System;
 using Flame.Compiler;
 using Flame.Compiler.Variables;
 
@@ -26,6 +27,14 @@ namespace Flame.Optimization.Variables
             VariableDefinitionReach OldReach, VariableDefinitionReach NewReach,
             InsertStatement InsertionPoint)
         {
+            if (OldReach == NewReach)
+            {
+                Chain.AddDefinition(NewReach); // Add the reach's definition
+                                               // to the chain to preserve
+                                               // "transfer" semantics,
+                                               // but don't do anything else.
+            }
+
             if (OldReach.Definition.Variable != NewReach.Definition.Variable)
             {
                 var stmt = new VariableDefinitionStatement(

@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Flame.Optimization.Variables
 {
@@ -7,9 +10,11 @@ namespace Flame.Optimization.Variables
     public interface IDefinitionAccess
     {
         /// <summary>
-        /// Determines whether this definition access is live.
+        /// Determines this definition access' liveliness, based on a set of
+        /// variable definitions whose liveliness depend on the outcome of this method.
+        /// Said set can is to deal with cyclic variable definition dependencies.
         /// </summary>
-        bool IsLive { const get; }
+        const bool GetLiveliness(HashSet<VariableDefinitionReach> Dependencies);
 
         /// <summary>
         /// Tells if this definition access is volatile.
@@ -27,7 +32,10 @@ namespace Flame.Optimization.Variables
         /// </summary>
         public const this();
 
-        public bool IsLive { const get return true; }
+        public const bool GetLiveliness(HashSet<VariableDefinitionReach> Dependencies)
+        {
+            return true;
+        }
 
         public bool IsVolatile { const get return false; }
     }
@@ -42,7 +50,10 @@ namespace Flame.Optimization.Variables
         /// </summary>
         public const this();
 
-        public bool IsLive { const get return true; }
+        public const bool GetLiveliness(HashSet<VariableDefinitionReach> Dependencies)
+        {
+            return true;
+        }
 
         public bool IsVolatile { const get return true; }
     }
@@ -67,5 +78,13 @@ namespace Flame.Optimization.Variables
         public bool IsLive { const get return Reach.IsLive; }
 
         public bool IsVolatile { const get return false; }
+
+        public const bool GetLiveliness(HashSet<VariableDefinitionReach> Dependencies)
+        {
+            if (Dependencies.Contains(Reach))
+                return false;
+            else
+                return Reach.GetLiveliness(Dependencies);
+        }
     }
 }
