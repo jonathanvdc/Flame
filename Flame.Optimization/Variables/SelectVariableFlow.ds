@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Flame.Compiler;
 using Flame.Compiler.Variables;
 
@@ -15,6 +17,13 @@ namespace Flame.Optimization.Variables
         public InsertStatement FirstPostInsert { const get; private set; }
         public IVariableFlow Second { const get; private set; }
         public InsertStatement SecondPostInsert { const get; private set; }
+
+        public const [BlockTerminationPoint] GetTerminationPoints(VariableDefinitionChain Chain, BlockTag Tag)
+        {
+            return Enumerable.Concat<BlockTerminationPoint>(
+                First.GetTerminationPoints(Chain, Tag),
+                Second.GetTerminationPoints(Chain, Tag));
+        }
 
         public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach, VariableDefinitionChain Chain)
         {

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Flame.Compiler;
 using Flame.Compiler.Variables;
 
@@ -6,10 +8,8 @@ namespace Flame.Optimization.Variables
 {
     /// <summary>
     /// Defines terminated variable flow: a flow state that represents terminated flow.
-    /// Note that this flow state is not necessary for flow statements that
-    /// terminate a function's execution, such as "return" and "throw". Instead,
-    /// it targets flow statements which terminate local flow, such as "break"
-    /// and "continue".
+    /// This is mainly intended for unknown flow termination types, as it enforces
+    /// extremely conservative behavior.
     /// </summary>
     public class TerminatedVariableFlow : IVariableFlow
     {
@@ -17,10 +17,45 @@ namespace Flame.Optimization.Variables
 
         public InsertStatement PreInsert { const get; private set; }
 
+        public const [BlockTerminationPoint] GetTerminationPoints(VariableDefinitionChain Chain, BlockTag Tag)
+        {
+            return Enumerable.Empty<BlockTerminationPoint>();
+        }
+
         public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach, VariableDefinitionChain Chain)
         {
             // Materialize to stay on the safe side.
             return VariableFlowHelpers.Materialize(Chain, Reach, PreInsert);
+        }
+    }
+
+    /// <summary>
+    /// Defines terminated block variable flow: a "break" or "continue" statement.
+    /// </summary>
+    public class TerminatedBlockVariableFlow : IVariableFlow
+    {
+        public const this(set InsertStatement PreInsert, set BlockTag Target)
+        {
+            this.terminationPoints = new Dictionary<VariableDefinitionChain, BlockTerminationPoint>();
+        }
+
+        public InsertStatement PreInsert { const get; private set; }
+        public BlockTag Target { const get; private set; }
+
+        private Dictionary<VariableDefinitionChain, BlockTerminationPoint> terminationPoints;
+
+        public const [BlockTerminationPoint] GetTerminationPoints(VariableDefinitionChain Chain, BlockTag Tag)
+        {
+            if (Tag == Target && terminationPoints.ContainsKey(Chain))
+                return new BlockTerminationPoint[] { terminationPoints[Chain] };
+            else
+                return Enumerable.Empty<BlockTerminationPoint>();
+        }
+
+        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach, VariableDefinitionChain Chain)
+        {
+            this.terminationPoints[Chain] = new BlockTerminationPoint(Reach, PreInsert);
+            return Reach;
         }
     }
 }

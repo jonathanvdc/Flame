@@ -15,7 +15,7 @@ namespace Flame.Compiler
         {
             this.Name = "";
         }
-        
+
         /// <summary>
         /// Creates a new block tag and assigns it the given name.
         /// </summary>
