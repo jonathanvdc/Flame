@@ -147,7 +147,7 @@ namespace Flame.Compiler.Statements
 			var newCollectionElements = AcceptCollectionElements(Visitor);
 			var bodyStartState = Visitor.CurrentFlow;
 			var newBody = Visitor.Visit(Body);
-			var bodyFlow = Visitor.CreateLoopFlow(Visitor.CreateDeltaFlow(bodyStartState, Visitor.CurrentFlow));
+			var bodyFlow = Visitor.CreateLoopFlow(Tag, Visitor.CreateDeltaFlow(bodyStartState, Visitor.CurrentFlow));
 			Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(bodyStartState, bodyFlow);
 			return CreateForeach(newCollectionElements, newBody);
 		}

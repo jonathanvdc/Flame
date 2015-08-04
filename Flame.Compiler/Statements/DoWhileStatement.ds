@@ -56,7 +56,7 @@ namespace Flame.Compiler.Statements
 			var transCond = Visitor.Visit(Condition);
 			var bodyFlow = Visitor.CreateDeltaFlow(startFlow, Visitor.CurrentFlow);
 
-			var loopFlow = Visitor.CreateLoopFlow(bodyFlow);
+			var loopFlow = Visitor.CreateLoopFlow(Tag, bodyFlow);
 			// var doWhileFlow = Visitor.CreateSequenceFlow(bodyFlow, loopFlow);
 			// NOTE: 'doWhileFlow' is a more accurate description than 'loopFlow',
 			//       however, continue/break statements are said to terminate (local) flow.

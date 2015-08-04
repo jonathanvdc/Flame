@@ -111,9 +111,9 @@ namespace Flame.Optimization.Variables
             return this.Cons(new VariableFlowNode(flow, this.PostInsert));
         }
 
-        public const VariableFlowState Loop(VariableFlowState Body)
+        public const VariableFlowState Loop(BlockTag Tag, VariableFlowState Body)
         {
-            var flow = new LoopVariableFlow(this.PostInsert, Body.ToFlow(), Body.PostInsert);
+            var flow = new LoopVariableFlow(Tag, this.PostInsert, Body.ToFlow(), Body.PostInsert);
 
             // Make the cons' post-insert statement the same as the loop's post-insert
             // statement. This doesn't feel right, but I can't come up with

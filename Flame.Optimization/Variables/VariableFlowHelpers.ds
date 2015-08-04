@@ -149,5 +149,21 @@ namespace Flame.Optimization.Variables
             else
                 return CreateLocal(First.MappedLocal);
         }
+
+        /// <summary>
+        /// Creates or retrieves a local variable to use as the backing storage for
+        /// the new phi definition for these variables.
+        /// These definitions should represent the same original local variable.
+        /// </summary>
+        public const IUnmanagedVariable CreatePhiLocal(LocalVariableDescription MappedLocal,
+                                                       [VariableDefinitionReach] Reaches)
+        {
+            foreach (var item in Reaches)
+                if (item.Definition.Variable != null)
+            {
+                return item.Definition.Variable;
+            }
+            return CreateLocal(MappedLocal);
+        }
     }
 }

@@ -1,14 +1,34 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Flame.Compiler;
 using Flame.Compiler.Variables;
 
 namespace Flame.Optimization.Variables
 {
     /// <summary>
+    /// Defines a termination point for a block, which ends the current iteration.
+    /// </summary>
+    public struct BlockTerminationPoint
+    {
+        public const this(set VariableDefinitionReach Reach, set InsertStatement PreInsert);
+
+        public VariableDefinitionReach Reach { const get; private set; }
+        public InsertStatement PreInsert { const get; private set; }
+    }
+
+    /// <summary>
     /// Defines common functionality for variable flow structures.
     /// </summary>
     public interface IVariableFlow
     {
+        /// <summary>
+        /// Gets all termination points for the given chain and tagged block.
+        /// This method must be called after updating the chain's reach
+        /// with this block.
+        /// </summary>
+        const [BlockTerminationPoint] GetTerminationPoints(VariableDefinitionChain Chain, BlockTag Tag);
+
         /// <summary>
         /// Updates the given variable reach, possibly using a pre-insert point.
         /// </summary>
@@ -17,6 +37,11 @@ namespace Flame.Optimization.Variables
 
     public static class EmptyVariableFlow : IVariableFlow
     {
+        public const [BlockTerminationPoint] GetTerminationPoints(VariableDefinitionChain Chain, BlockTag Tag)
+        {
+            return Enumerable.Empty<BlockTerminationPoint>();
+        }
+
         public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach, VariableDefinitionChain Chain)
         {
             return Reach;
@@ -29,6 +54,11 @@ namespace Flame.Optimization.Variables
 
         public InsertStatement PreInsert { const get; private set; }
         public VariableDefinitionReach Definition { const get; private set; }
+
+        public const [BlockTerminationPoint] GetTerminationPoints(VariableDefinitionChain Chain, BlockTag Tag)
+        {
+            return Enumerable.Empty<BlockTerminationPoint>();
+        }
 
         public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach, VariableDefinitionChain Chain)
         {
@@ -45,6 +75,11 @@ namespace Flame.Optimization.Variables
 
         public VariableDefinitionChain AccessedChain { const get; private set; }
         public IDefinitionAccess Access { const get; private set; }
+
+        public const [BlockTerminationPoint] GetTerminationPoints(VariableDefinitionChain Chain, BlockTag Tag)
+        {
+            return Enumerable.Empty<BlockTerminationPoint>();
+        }
 
         public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach, VariableDefinitionChain Chain)
         {
@@ -63,6 +98,13 @@ namespace Flame.Optimization.Variables
 
         public IVariableFlow First { const get; private set; }
         public IVariableFlow Second { const get; private set; }
+
+        public const [BlockTerminationPoint] GetTerminationPoints(VariableDefinitionChain Chain, BlockTag Tag)
+        {
+            return Enumerable.Concat<BlockTerminationPoint>(
+                First.GetTerminationPoints(Chain, Tag),
+                Second.GetTerminationPoints(Chain, Tag));
+        }
 
         public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach, VariableDefinitionChain Chain)
         {

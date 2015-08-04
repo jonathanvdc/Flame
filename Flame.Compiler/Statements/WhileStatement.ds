@@ -45,7 +45,7 @@ namespace Flame.Compiler.Statements
 			var transBody = Visitor.Visit(Body);
 			var bodyFlow = Visitor.CreateDeltaFlow(startFlow, Visitor.CurrentFlow);
 
-			Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(startFlow, Visitor.CreateLoopFlow(bodyFlow));
+			Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(startFlow, Visitor.CreateLoopFlow(Tag, bodyFlow));
 
 			return CreateWhile(transCond, transBody);
 		}
