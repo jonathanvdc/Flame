@@ -1,0 +1,26 @@
+using System;
+using Flame.Compiler;
+using Flame.Compiler.Variables;
+
+namespace Flame.Optimization.Variables
+{
+    /// <summary>
+    /// Defines terminated variable flow: a flow state that represents terminated flow.
+    /// Note that this flow state is not necessary for flow statements that
+    /// terminate a function's execution, such as "return" and "throw". Instead,
+    /// it targets flow statements which terminate local flow, such as "break"
+    /// and "continue".
+    /// </summary>
+    public class TerminatedVariableFlow : IVariableFlow
+    {
+        public const this(set InsertStatement PreInsert);
+
+        public InsertStatement PreInsert { const get; private set; }
+
+        public VariableDefinitionReach UpdateReach(VariableDefinitionReach Reach, VariableDefinitionChain Chain)
+        {
+            // Materialize to stay on the safe side.
+            return VariableFlowHelpers.Materialize(Chain, Reach, PreInsert);
+        }
+    }
+}

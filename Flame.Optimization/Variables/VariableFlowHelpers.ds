@@ -21,7 +21,7 @@ namespace Flame.Optimization.Variables
 
         /// <summary>
         /// "Transfers" the old variable definition's value to the new one.
-        /// The new reach is also registered with the definition chain.
+        /// Both definition reaches are registered with the definition chain.
         /// </summary>
         public void Transfer(VariableDefinitionChain Chain,
             VariableDefinitionReach OldReach, VariableDefinitionReach NewReach,
@@ -35,18 +35,19 @@ namespace Flame.Optimization.Variables
                                                // but don't do anything else.
             }
 
+            var access = new ReachDependentAccess(NewReach);
             if (OldReach.Definition.Variable != NewReach.Definition.Variable)
             {
-                var stmt = new VariableDefinitionStatement(
-                    NewReach,
-                    OldReach.Definition.CreateGetExpression());
+                var expr = new LoadDefinitionExpression(Chain, access);
+                var stmt = new VariableDefinitionStatement(NewReach, expr);
                 InsertionPoint.Insert(stmt);
             }
             if (OldReach.IsVolatile)
             {
                 NewReach.Add(new VolatileAccess());
             }
-            OldReach.Add(new ReachDependentAccess(NewReach));
+            OldReach.Add(access);
+            Chain.AddDefinition(OldReach);
             Chain.AddDefinition(NewReach);
         }
 

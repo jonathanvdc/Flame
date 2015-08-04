@@ -96,6 +96,7 @@ public static class Test
             if (Pred(i))
             {
                 inserted = true; // inserted1 := true
+                break;
             }
             // inserted2 := phi(inserted3, inserted1)
             // ^~~~~~~~~ depends on `inserted3`
