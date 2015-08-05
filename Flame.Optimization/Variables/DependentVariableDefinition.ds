@@ -1,29 +1,48 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Compiler;
 
 namespace Flame.Optimization.Variables
 {
     /// <summary>
-    /// A variable definition that propagates a copy of another variable definition.
+    /// A variable definition that propagates an expression provided that none of
+    /// its dependencies have changed, and that the definition is propagated exactly
+    /// once.
     /// </summary>
-    public class CopyVariableDefinition : IVariableDefinition
+    public class DependentVariableDefinition : IVariableDefinition
     {
         /// <summary>
-        /// Creates a new copy variable definition from the given arguments.
+        /// Creates a new dependent variable definition from the given arguments.
         /// </summary>
-        public const this(set VariableDefinitionChain CopyChain,
-                          set VariableDefinitionChain TargetChain,
-                          set IExpression Value);
+        public const this(set VariableDefinitionChain TargetChain,
+                          [LocalVariableDescription] Dependencies,
+                          set IExpression Value,
+                          set InsertStatement InsertPoint)
+        {
+            this.depends = new HashSet<LocalVariableDescription>(Dependencies);
+        }
 
-        public VariableDefinitionChain CopyChain { const get; private set; }
+        private HashSet<LocalVariableDescription> depends;
+
         public VariableDefinitionChain TargetChain { const get; private set; }
+        public [LocalVariableDescription] Dependencies { const get return depends; }
         public IExpression Value { const get; private set; }
+        public InsertStatement InsertPoint { const get; private set; }
 
         /// <summary>
         /// Gets this variable definition's underlying variable.
         /// </summary>
-        public IUnmanagedVariable Variable { const get return null; }
+        public IUnmanagedVariable Variable { const get; private set; }
+
+        public bool HasMaterialized { const get return Variable != null; }
+
+        public VariableDefinitionReach Materialize(VariableDefinitionReach Reach)
+        {
+            var matReach = VariableFlowHelpers.Materialize(TargetChain, Reach, InsertPoint);
+            Reach.Transfer(matReach, Reach.Reach);
+            return matReach;
+        }
 
         /// <summary>
         /// Creates a get-expression for this copy variable definition.
@@ -39,8 +58,14 @@ namespace Flame.Optimization.Variables
         public VariableDefinitionReach UseMetrics(VariableDefinitionReach ReactingReach,
                                                   AccessBounds Bounds)
         {
-            return ReactingReach; // Copy variable definitions are not interested
-                                  // in access metrics.
+            if (Bounds.MaxAccess.IsGreaterThanOrEquals(new AccessCount(2)))
+            {
+                return Materialize(ReactingReach);
+            }
+            else
+            {
+                return ReactingReach;
+            }
         }
 
         /// <summary>
@@ -55,11 +80,9 @@ namespace Flame.Optimization.Variables
             // Check that the acting chain is the target chain.
             // We know that this definition is live, because that's kind of
             // a precondition.
-            if (TargetChain.MappedLocal == ActingDefinition.MappedLocal)
+            if (depends.Contains(ActingDefinition.MappedLocal))
             {
-                // We must materialize the reacting reach to avoid propagating
-                // an alias where a true copy is needed.
-                return VariableFlowHelpers.Materialize(CopyChain, ReactingReach, PreInsert);
+                return Materialize(ReactingReach);
             }
             else
             {

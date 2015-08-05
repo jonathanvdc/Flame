@@ -367,7 +367,7 @@ namespace Flame.Optimization.Variables
                     var access      = new UnconditionalAccess();
                     var getExpr     = Visit(new LoadDefinitionExpression(copiedChain, access));
                     return new VariableDefinitionReach(
-                        new CopyVariableDefinition(Chain, copiedChain, access, getExpr),
+                        new CopyVariableDefinition(Chain, copiedChain, getExpr),
                         Chain.MappedLocal);
                 }
                 else // Don't propagate anything else.

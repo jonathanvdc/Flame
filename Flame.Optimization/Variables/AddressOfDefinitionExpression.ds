@@ -4,7 +4,7 @@ using Flame.Compiler.Expressions;
 
 namespace Flame.Optimization.Variables
 {
-    public class AddressOfDefinitionExpression : IExpression
+    public class AddressOfDefinitionExpression : IExpression, IDefinitionAccessNode
     {
         public const this(set VariableDefinitionChain Chain, set IDefinitionAccess Access);
         public const this(set VariableDefinitionChain Chain)
