@@ -65,7 +65,20 @@ namespace Flame.Optimization.Variables
         }
     }
 
-    public class VariableDefinitionVisitor : NodeVisitorBase, IFlowVisitor<VariableFlowState, VariableFlowState(VariableFlowState)>
+    public class TerminatedLocalFlowBuilder
+    {
+        public const this(set BlockTag Tag);
+
+        public BlockTag Tag { const get; private set; }
+
+        public const VariableFlowState Create(VariableFlowState Tail)
+        {
+            return Tail.Cons(new VariableFlowNode(
+                new TerminatedBlockVariableFlow(Tail.PostInsert, Tag), Tail.PostInsert));
+        }
+    }
+
+    public class VariableDefinitionVisitor : NodeVisitorBase, ILocalFlowVisitor<VariableFlowState, VariableFlowState(VariableFlowState)>
     {
         alias State = VariableFlowState;
         alias Delta = VariableFlowState(VariableFlowState);
@@ -122,7 +135,8 @@ namespace Flame.Optimization.Variables
 
         private const State CreateTerminatedFlow(State Tail)
         {
-            return Tail.Cons(new VariableFlowNode(new TerminatedVariableFlow(Tail.PostInsert), Tail.PostInsert));
+            return Tail.Cons(new VariableFlowNode(
+                new TerminatedVariableFlow(Tail.PostInsert), Tail.PostInsert));
         }
 
         /// <summary>
@@ -183,6 +197,16 @@ namespace Flame.Optimization.Variables
         public Delta TerminatedFlow { const get return CreateTerminatedFlow; }
 
         /// <summary>
+        /// Gets a flow delta that represents global flow termination:
+        /// this signifies the end of this function call.
+        /// </summary>
+        /// <remarks>
+        /// This really just does nothing at all, because we really don't
+        /// care about what happens after this.
+        /// </remarks>
+        public Delta TerminatedGlobalFlow { const get return Id<State>; }
+
+        /// <summary>
         /// Computes the "sum" of a flow state and a control flow delta.
         /// </summary>
         public const State CreateCollapsedFlow(State First, Delta Second)
@@ -227,6 +251,11 @@ namespace Flame.Optimization.Variables
             return new VariableLoopStateBuilder(Tag, Flow).Create;
         }
 
+        public const Delta CreateTerminatedLocalFlow(BlockTag Tag)
+        {
+            return new TerminatedLocalFlowBuilder(Tag).Create;
+        }
+
         public override const bool Matches(IExpression Value)
         {
             return Value is IVariableNode || Value is IFlowExpression ||
@@ -248,17 +277,9 @@ namespace Flame.Optimization.Variables
             return Variable;
         }
 
-        private const bool IsLocalFlow(IStatement Statement)
-        {
-            // Throw and return should really just be treated as normal flow,
-            // because terminated flow materializes everything.
-            return Statement is IFlowStatement && !(Statement is ReturnStatement) &&
-                   !(Statement is ThrowStatement);
-        }
-
         private IStatement VisitFlowStmt(IStatement Statement)
         {
-            if (IsLocalFlow(Statement))
+            if (Statement is IFlowStatement)
             {
                 return ((IFlowStatement)Statement).AcceptFlow<State, Delta>(this);
             }

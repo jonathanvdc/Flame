@@ -5,13 +5,11 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler.Statements
 {
-	public class ThrowStatement : IFlowStatement
+	public class ThrowStatement : GlobalFlowStatementBase
 	{
 		public const this(set IExpression Exception);
 
 		public IExpression Exception { const get; private set; }
-
-		public bool IsEmpty { const get return false; }
 
 		private const ThrowStatement CreateThrow(IExpression NewValue)
 		{
@@ -25,34 +23,23 @@ namespace Flame.Compiler.Statements
 			}
 		}
 
-		public IStatement Accept(INodeVisitor Visitor)
+		public override IStatement Accept(INodeVisitor Visitor)
 		{
 			var transVal = Visitor.Visit(Exception);
 
 			return CreateThrow(transVal);
 		}
 
-		public const IStatement Optimize()
+		public override IStatement Optimize()
 		{
 			return new ThrowStatement(Exception.Optimize());
 		}
 
-		public ICodeBlock Emit(ICodeGenerator Generator)
+		public override ICodeBlock Emit(ICodeGenerator Generator)
 		{
 			var cg = (IExceptionCodeGenerator)Generator;
 			var ex = Exception.Emit(cg);
 			return cg.EmitThrow(ex);
-		}
-
-		/// <summary>
-		/// Accepts and interacts with a flow visitor.
-		/// </summary>
-		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
-			: IFlowStatement.AcceptFlow<TState, TFlow>
-		{
-			var result = Accept(Visitor);
-			Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(Visitor.CurrentFlow, Visitor.TerminatedFlow);
-			return result;
 		}
 	}
 }

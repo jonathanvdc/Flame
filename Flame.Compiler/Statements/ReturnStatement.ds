@@ -3,14 +3,41 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Statements
 {
-	public class ReturnStatement : IFlowStatement
+	/// <summary>
+	/// Defines common functionality for statements that end a function call.
+	/// </summary>
+	public abstract class GlobalFlowStatementBase : IFlowStatement
+	{
+		public bool IsEmpty { const get return false; }
+		public abstract IStatement Accept(INodeVisitor Visitor);
+		public abstract IStatement Optimize();
+		public abstract ICodeBlock Emit(ICodeGenerator Generator);
+
+		/// <summary>
+		/// Accepts and interacts with a flow visitor.
+		/// </summary>
+		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+			: IFlowStatement.AcceptFlow<TState, TFlow>
+		{
+			var result = Accept(Visitor);
+
+			TFlow termFlow;
+            if (Visitor is ILocalFlowVisitor<TState, TFlow>)
+                termFlow = ((ILocalFlowVisitor<TState, TFlow>)Visitor).TerminatedGlobalFlow;
+            else
+                termFlow = Visitor.TerminatedFlow;
+
+			Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(Visitor.CurrentFlow, termFlow);
+			return result;
+		}
+	}
+
+	public class ReturnStatement : GlobalFlowStatementBase, IFlowStatement
 	{
 		public const this();
 		public const this(set IExpression Value);
 
 		public IExpression Value { const get; private set; }
-
-		public bool IsEmpty { const get return false; }
 
 		private const ReturnStatement CreateReturn(IExpression NewValue)
 		{
@@ -24,7 +51,7 @@ namespace Flame.Compiler.Statements
 			}
 		}
 
-		public IStatement Accept(INodeVisitor Visitor)
+		public override IStatement Accept(INodeVisitor Visitor)
 		{
 			if (Value == null) return this;
 
@@ -33,7 +60,7 @@ namespace Flame.Compiler.Statements
 			return CreateReturn(expr);
 		}
 
-		public IStatement Optimize()
+		public override IStatement Optimize()
 		{
 			if (Value != null)
 			{
@@ -45,7 +72,7 @@ namespace Flame.Compiler.Statements
 			}
 		}
 
-		public ICodeBlock Emit(ICodeGenerator Generator)
+		public override ICodeBlock Emit(ICodeGenerator Generator)
 		{
 			if (Value != null)
 			{
@@ -55,17 +82,6 @@ namespace Flame.Compiler.Statements
 			{
 				return Generator.EmitReturn(null);
 			}
-		}
-
-		/// <summary>
-		/// Accepts and interacts with a flow visitor.
-		/// </summary>
-		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
-			: IFlowStatement.AcceptFlow<TState, TFlow>
-		{
-			var result = Accept(Visitor);
-			Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(Visitor.CurrentFlow, Visitor.TerminatedFlow);
-			return result;
 		}
 	}
 }

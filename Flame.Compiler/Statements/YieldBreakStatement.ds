@@ -5,36 +5,24 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler.Statements
 {
-	public class YieldBreakStatement : IFlowStatement
+	public class YieldBreakStatement : GlobalFlowStatementBase
 	{
 		public const this();
 
-		public bool IsEmpty { const get return false; }
-
-		public IStatement Accept(INodeVisitor Visitor)
+		public override IStatement Accept(INodeVisitor Visitor)
 		{
 			return this;
 		}
 
-		public const IStatement Optimize()
+		public override const IStatement Optimize()
 		{
 			return this;
 		}
 
-		public ICodeBlock Emit(ICodeGenerator Generator)
+		public override ICodeBlock Emit(ICodeGenerator Generator)
 		{
 			var cg = (IYieldCodeGenerator)Generator;
 			return cg.EmitYieldBreak();
-		}
-
-		/// <summary>
-		/// Accepts and interacts with a flow visitor.
-		/// </summary>
-		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
-			: IFlowStatement.AcceptFlow<TState, TFlow>
-		{
-			Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(Visitor.CurrentFlow, Visitor.TerminatedFlow);
-			return this;
 		}
 	}
 }

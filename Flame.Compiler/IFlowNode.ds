@@ -75,4 +75,23 @@ namespace Flame.Compiler
         /// </summary>
         const TDelta CreateLoopFlow(BlockTag Tag, TDelta Body);
     }
+
+    /// <summary>
+    /// Defines common functionality for flow visitors with a specific intrest
+    /// in local flow.
+    /// </summary>
+    public interface ILocalFlowVisitor<TState, TDelta> : IFlowVisitor<TState, TDelta>
+    {
+        /// <summary>
+        /// Gets a flow delta that represents global flow termination:
+        /// this signifies the end of this function call.
+        /// </summary>
+        TDelta TerminatedGlobalFlow { const get; }
+
+        /// <summary>
+        /// Creates a terminated local flow delta, which terminates the current
+        /// iteration of the given block, but does not end the function's execution.
+        /// </summary>
+        const TDelta CreateTerminatedLocalFlow(BlockTag Tag);
+    }
 }

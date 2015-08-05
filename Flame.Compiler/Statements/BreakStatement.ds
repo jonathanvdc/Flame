@@ -5,20 +5,24 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler.Statements
 {
-    public class BreakStatement : IFlowStatement
+    /// <summary>
+    /// Defines common functionality for statements that terminate the current
+    /// iteration of a tagged local flow block.
+    /// </summary>
+    public abstract class LocalFlowStatementBase : IFlowStatement
     {
         public const this(set BlockTag Target);
 
+        /// <summary>
+        /// Gets the tag of the tagged block whose iteration is to be terminated.
+        /// </summary>
         public BlockTag Target { const get; private set; }
+
+        public abstract ICodeBlock Emit(ICodeGenerator Generator);
 
         public IStatement Accept(INodeVisitor Visitor)
         {
             return this;
-        }
-
-        public ICodeBlock Emit(ICodeGenerator Generator)
-        {
-            return Generator.EmitBreak(Target);
         }
 
         public bool IsEmpty
@@ -37,8 +41,25 @@ namespace Flame.Compiler.Statements
         public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
             : IFlowStatement.AcceptFlow<TState, TFlow>
         {
-            Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(Visitor.CurrentFlow, Visitor.TerminatedFlow);
+            TFlow termFlow;
+            if (Visitor is ILocalFlowVisitor<TState, TFlow>)
+                termFlow = ((ILocalFlowVisitor<TState, TFlow>)Visitor).CreateTerminatedLocalFlow(Target);
+            else
+                termFlow = Visitor.TerminatedFlow;
+
+            Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(Visitor.CurrentFlow, termFlow);
             return this;
+        }
+    }
+
+    public class BreakStatement : LocalFlowStatementBase
+    {
+        public const this(BlockTag Target)
+            : base(Target);
+
+        public override ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Generator.EmitBreak(Target);
         }
     }
 }
