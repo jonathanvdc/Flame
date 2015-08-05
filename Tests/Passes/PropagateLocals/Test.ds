@@ -21,6 +21,12 @@ public static class Test
         return y;
     }
 
+    public const int SelfAssign(int X)
+    {
+        X = X; // Eliminating this is a cool side-effect of copy propagation
+        return X;
+    }
+
     public const int Select(int X, int Y)
     {
         int z = 5;
