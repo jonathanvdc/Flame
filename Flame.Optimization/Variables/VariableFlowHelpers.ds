@@ -38,8 +38,7 @@ namespace Flame.Optimization.Variables
             var access = new ReachDependentAccess(NewReach);
             if (OldReach.Definition.Variable != NewReach.Definition.Variable)
             {
-                var expr = new LoadDefinitionExpression(Chain, access);
-                var stmt = new VariableDefinitionStatement(NewReach, expr);
+                var stmt = new TransferDefinitionStatement(Chain, access, NewReach);
                 InsertionPoint.Insert(stmt);
             }
             if (OldReach.IsVolatile)

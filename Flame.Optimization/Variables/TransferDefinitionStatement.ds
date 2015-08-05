@@ -1,0 +1,75 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+
+namespace Flame.Optimization.Variables
+{
+    /// <summary>
+    /// A type of statement that represents a transfer of a chain's current definition to the
+    /// backing variable of another. If both use the same backing variable,
+    /// no action is taken.
+    /// </summary>
+    public class TransferDefinitionStatement : IStatement
+    {
+        /// <summary>
+        /// Creates a new variable definition transfer statement.
+        /// </summary>
+        public const this(set VariableDefinitionChain Chain,
+                          set IDefinitionAccess Access,
+                          set VariableDefinitionReach Target);
+
+        /// <summary>
+        /// Gets the variable definition chain whose value is taken.
+        /// </summary>
+        public VariableDefinitionChain Chain { const get; private set; }
+
+        /// <summary>
+        /// Gets the definition access that represents taking the chain's value.
+        /// </summary>
+        public IDefinitionAccess Access { const get; private set; }
+
+        /// <summary>
+        /// Gets the variable definition reach this statement depends on.
+        /// If this reach is live, the assignment is performed.
+        /// Otherwise, nothing happens.
+        /// </summary>
+        public VariableDefinitionReach Target { const get; private set; }
+
+        public bool IsEmpty
+        {
+            const get return Unwrap().IsEmpty;
+        }
+
+        public IStatement Unwrap()
+        {
+            if (Target.IsLive)
+            {
+                var srcDef = Chain.GetDefinition(Access);
+                var tgtDef = Target.Definition;
+
+                if (srcDef.Variable != tgtDef.Variable)
+                {
+                    return tgtDef.Variable.CreateSetStatement(srcDef.CreateGetExpression());
+                }
+            }
+            return EmptyStatement;
+        }
+
+        public IStatement Optimize()
+        {
+            return Unwrap().Optimize();
+        }
+
+        public IStatement Accept(INodeVisitor Visitor)
+        {
+            return Visitor.Visit(Unwrap());
+        }
+
+        public ICodeBlock Emit(ICodeGenerator CodeGenerator)
+        {
+            return Unwrap().Emit(CodeGenerator);
+        }
+    }
+}
