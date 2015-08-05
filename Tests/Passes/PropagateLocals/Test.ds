@@ -144,4 +144,16 @@ public static class Test
         }
         return result;
     }
+
+    public const int DelayAssignment(int N)
+    {
+        int i = 0;
+        while (true)
+        {
+            i = 3; // -fpropagate-locals will first delay this assignment until after `return N;`,
+                   // and the associated dce pass will take care of the rest.
+            return N;
+        }
+        return i;
+    }
 }
