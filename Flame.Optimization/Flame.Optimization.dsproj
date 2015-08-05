@@ -42,6 +42,7 @@
     <Compile Include="Variables/ReleaseChainStatement.ds" />
     <Compile Include="Variables/SelectVariableFlow.ds" />
     <Compile Include="Variables/TerminatedVariableFlow.ds" />
+    <Compile Include="Variables/TransferDefinitionStatement.ds" />
     <Compile Include="Variables/VariableDefinitionChain.ds" />
     <Compile Include="Variables/VariableDefinitionReach.ds" />
     <Compile Include="Variables/VariableDefinitionStatement.ds" />
