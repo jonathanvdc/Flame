@@ -1,0 +1,17 @@
+
+namespace Flame.Optimization.Variables
+{
+    public class AccessBounds
+    {
+        public const this();
+        public const this(AccessCount Access)
+        {
+            this.MinAccess = Access;
+            this.MaxAccess = Access;
+        }
+        public const this(set AccessCount MinAccess, set AccessCount MaxAccess);
+
+        public AccessCount MinAccess { const get; private set; }
+        public AccessCount MaxAccess { const get; private set; }
+    }
+}

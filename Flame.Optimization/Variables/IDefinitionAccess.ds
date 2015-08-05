@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Compiler;
 
 namespace Flame.Optimization.Variables
 {
@@ -20,6 +21,22 @@ namespace Flame.Optimization.Variables
         /// Tells if this definition access is volatile.
         /// </summary>
         bool IsVolatile { const get; }
+    }
+
+    /// <summary>
+    /// Defines common functionality for nodes that access definitions.
+    /// </summary>
+    public interface IDefinitionAccessNode : INode
+    {
+        /// <summary>
+        /// Gets the definition chain that is being accessed.
+        /// </summary>
+        VariableDefinitionChain Chain { const get; }
+
+        /// <summary>
+        /// Gets this node's definition access.
+        /// </summary>
+        IDefinitionAccess Access { const get; }
     }
 
     /// <summary>

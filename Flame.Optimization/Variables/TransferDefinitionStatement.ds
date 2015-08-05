@@ -11,7 +11,7 @@ namespace Flame.Optimization.Variables
     /// backing variable of another. If both use the same backing variable,
     /// no action is taken.
     /// </summary>
-    public class TransferDefinitionStatement : IStatement
+    public class TransferDefinitionStatement : IStatement, IDefinitionAccessNode
     {
         /// <summary>
         /// Creates a new variable definition transfer statement.

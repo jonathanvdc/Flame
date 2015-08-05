@@ -1,0 +1,221 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization.Variables
+{
+    public class AccessSelectFlow
+    {
+        public const this(set AccessBounds(IVariableDefinition) First,
+                          set AccessBounds(IVariableDefinition) Second);
+
+        public AccessBounds(IVariableDefinition) First { const get; private set; }
+        public AccessBounds(IVariableDefinition) Second { const get; private set; }
+
+        public const AccessBounds GetAccess(IVariableDefinition Def)
+        {
+            var fstAccess = First(Def);
+            var sndAccess = Second(Def);
+
+            return new AccessBounds(fstAccess.MinAccess.Min(sndAccess.MinAccess),
+                                    fstAccess.MaxAccess.Max(sndAccess.MaxAccess));
+        }
+    }
+
+    public class FlattenedAccessFlow
+    {
+        public const this(set List<Func<IVariableDefinition, AccessBounds>> Values);
+
+        public List<Func<IVariableDefinition, AccessBounds>> Values { const get; private set; }
+
+        public const AccessBounds GetAccess(IVariableDefinition Def)
+        {
+            var result = new AccessBounds();
+            foreach (var item in Values)
+            {
+                var access = item(Def);
+                result = new AccessBounds(result.MinAccess.Add(access.MinAccess),
+                                          result.MaxAccess.Add(access.MaxAccess));
+            }
+            return result;
+        }
+    }
+
+    public class AccessLoopFlow
+    {
+        public const this(set AccessBounds(IVariableDefinition) Body);
+
+        public AccessBounds(IVariableDefinition) Body { const get; private set; }
+
+        public const AccessBounds GetAccess(IVariableDefinition Def)
+        {
+            var bodyAccess = Body(Def);
+
+            return new AccessBounds(new AccessCount(0),
+                                    bodyAccess.MaxAccess.Multiply(AccessCount.Infinity));
+        }
+    }
+
+    public class AccessDefinitionFlow
+    {
+        public const this(set IDefinitionAccessNode Node);
+
+        public IDefinitionAccessNode Node { const get; private set; }
+
+        public const AccessBounds GetAccess(IVariableDefinition Def)
+        {
+            var accessDef = Node.Chain.GetDefinition(Node.Access);
+
+            if (accessDef == Def)
+                return new AccessBounds(new AccessCount(1));
+            else
+                return new AccessBounds();
+        }
+    }
+
+    public class AccessVisitor : INodeVisitor,
+        IFlowVisitor<List<Func<IVariableDefinition, AccessBounds>>,
+                     List<Func<IVariableDefinition, AccessBounds>>>
+    {
+        alias StateItem = Func<IVariableDefinition, AccessBounds>;
+        alias State = List<StateItem>;
+        alias Delta = State;
+
+        public const this()
+        {
+            CurrentFlow = new State();
+        }
+
+        private const State AppendFlow(State Source, StateItem Item)
+        {
+            var result = new State(Source);
+            result.Add(Item);
+            return result;
+        }
+
+        private const State ConcatFlow(State First, State Second)
+        {
+            var result = new State(First);
+            result.AddRange(Second);
+            return result;
+        }
+
+        private const State SliceFlow(State First, State Second)
+        {
+            return new State(Enumerable.Skip<StateItem>(Second, First.Count));
+        }
+
+        private const StateItem FlattenFlow(State Flow)
+        {
+            return new FlattenedAccessFlow(Flow).GetAccess;
+        }
+
+        public State CurrentFlow { const get; set; }
+        public StateItem FlattenedFlow { const get return FlattenFlow(CurrentFlow); }
+
+        public Delta TerminatedFlow { const get return new State(); }
+
+        /// <summary>
+        /// Computes the "sum" of a flow state and a control flow delta.
+        /// </summary>
+        public const State CreateCollapsedFlow(State First, Delta Second)
+        {
+            return ConcatFlow(First, Second);
+        }
+
+        /// <summary>
+        /// Computes the "difference" between two flow states, such that
+        /// the "sum" of the first flow state and the result of this operation
+        /// results in the second state.
+        /// </summary>
+        public const Delta CreateDeltaFlow(State First, State Second)
+        {
+            return SliceFlow(First, Second);
+        }
+
+        /// <summary>
+        /// Creates a flow delta that represents the sequential execution of
+        /// two flow deltas.
+        /// </summary>
+        public const Delta CreateSequenceFlow(Delta First, Delta Second)
+        {
+            return ConcatFlow(First, Second);
+        }
+
+        /// <summary>
+        /// Creates a flow delta that represents selecting precisely one of two
+        /// flow deltas.
+        /// </summary>
+        public const Delta CreateSelectFlow(Delta First, Delta Second)
+        {
+            var result = new State();
+            result.Add(new AccessSelectFlow(FlattenFlow(First), FlattenFlow(Second)).GetAccess);
+            return result;
+        }
+
+        /// <summary>
+        /// Creates a flow delta that will be executed zero or more
+        /// times.
+        /// </summary>
+        public const Delta CreateLoopFlow(BlockTag Tag, Delta Flow)
+        {
+            var result = new State();
+            result.Add(new AccessLoopFlow(FlattenFlow(Flow)).GetAccess);
+            return result;
+        }
+
+        /// <summary>
+        /// "Visits" an expression: an expression is taken as input and transformed into another expression.
+        /// </summary>
+        public IExpression Visit(IExpression Value)
+        {
+            if (Value is IDefinitionAccessNode)
+            {
+                var defAccess = (IDefinitionAccessNode)Value;
+                CurrentFlow = AppendFlow(CurrentFlow, new AccessDefinitionFlow(defAccess).GetAccess);
+            }
+
+            if (Value is IFlowExpression)
+            {
+                return ((IFlowExpression)Value).AcceptFlow<State, Delta>(this);
+            }
+            else if (Value is IPredicateNode)
+            {
+                ((IPredicateNode)Value).AcceptPredicate(this);
+                return Value;
+            }
+            else
+            {
+                return Value.Accept(this);
+            }
+        }
+
+        /// <summary>
+        /// "Visits" a statement: an statement is taken as input and transformed into another statement.
+        /// </summary>
+        public IStatement Visit(IStatement Value)
+        {
+            if (Value is IDefinitionAccessNode)
+            {
+                var defAccess = (IDefinitionAccessNode)Value;
+                CurrentFlow = AppendFlow(CurrentFlow, new AccessDefinitionFlow(defAccess).GetAccess);
+            }
+
+            if (Value is IFlowStatement)
+            {
+                return ((IFlowStatement)Value).AcceptFlow<State, Delta>(this);
+            }
+            else if (Value is IPredicateNode)
+            {
+                ((IPredicateNode)Value).AcceptPredicate(this);
+                return Value;
+            }
+            else
+            {
+                return Value.Accept(this);
+            }
+        }
+    }
+}

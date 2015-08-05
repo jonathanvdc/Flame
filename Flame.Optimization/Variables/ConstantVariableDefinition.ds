@@ -29,6 +29,16 @@ namespace Flame.Optimization.Variables
         }
 
         /// <summary>
+        /// Has this variable definition "react" to definition access metrics.
+        /// </summary>
+        public VariableDefinitionReach UseMetrics(VariableDefinitionReach ReactingReach,
+                                                  AccessBounds Bounds)
+        {
+            return ReactingReach; // Copy variable definitions are not interested
+                                  // in access metrics.
+        }
+
+        /// <summary>
         /// Has this variable definition "react" to a change in another definition's chain:
         /// it gets an opportunity to use the other variable's previous value.
         /// Either this variable definition reach or a newly created one is then returned.

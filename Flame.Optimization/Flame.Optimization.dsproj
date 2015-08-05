@@ -28,10 +28,14 @@
     <Compile Include="InsertStatement.ds" />
   </ItemGroup>
   <ItemGroup Name="Variables">
+    <Compile Include="Variables/AccessBounds.ds" />
+    <Compile Include="Variables/AccessCount.ds" />
+    <Compile Include="Variables/AccessVisitor.ds" />
     <Compile Include="Variables/AddressOfDefinitionExpression.ds" />
     <Compile Include="Variables/ConstantVariableDefinition.ds" />
     <Compile Include="Variables/CopyVariableDefinition.ds" />
     <Compile Include="Variables/DefinitionPropagationPass.ds" />
+    <Compile Include="Variables/DependentVariableDefinition.ds" />
     <Compile Include="Variables/IDefinitionAccess.ds" />
     <Compile Include="Variables/IVariableDefinition.ds" />
     <Compile Include="Variables/IVariableFlow.ds" />
