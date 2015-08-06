@@ -129,7 +129,7 @@ namespace Flame.Optimization.Variables
         /// </summary>
         public static AccessCount Infinity
         {
-            const get return new AccessCount(true, 0);
+            const get return new AccessCount(true, 1);
         }
     }
 }
