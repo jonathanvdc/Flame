@@ -23,7 +23,7 @@ namespace Flame.Optimization.Variables
         /// Has this variable definition make use of definition access metrics.
         /// </summary>
         VariableDefinitionReach UseMetrics(VariableDefinitionReach ReactingReach,
-                                           AccessBounds Bounds);
+                                           AccessMetrics Bounds);
 
         /// <summary>
         /// Has this variable definition "react" to a change in another definition's chain:
@@ -33,5 +33,16 @@ namespace Flame.Optimization.Variables
         VariableDefinitionReach ReactTo(VariableDefinitionReach ReactingReach,
                                         VariableDefinitionReach ActingDefinition,
                                         InsertStatement PreInsert);
+    }
+
+    /// <summary>
+    /// Defines common functionality for statements that define a variable.
+    /// </summary>
+    public interface IVariableDefinitionStatement : IStatement
+    {
+        /// <summary>
+        /// Gets the definition reach associated with this node.
+        /// </summary>
+        VariableDefinitionReach Definition { const get; }
     }
 }

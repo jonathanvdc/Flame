@@ -11,7 +11,7 @@ namespace Flame.Optimization.Variables
     /// variable definition.
     /// The assignment remains live as long as the definition is live.
     /// </summary>
-    public class VariableDefinitionStatement : IStatement
+    public class VariableDefinitionStatement : IStatement, IVariableDefinitionStatement
     {
         /// <summary>
         /// Creates a new variable definition statement from the given parameters.
@@ -57,6 +57,43 @@ namespace Flame.Optimization.Variables
         public ICodeBlock Emit(ICodeGenerator CodeGenerator)
         {
             return Unwrap().Emit(CodeGenerator);
+        }
+    }
+
+    /// <summary>
+    /// A type of statement that marks a variable's definition, but does not
+    /// do anything beyond that.
+    /// </summary>
+    public class VariableDefinitionMarker : IStatement, IVariableDefinitionStatement
+    {
+        /// <summary>
+        /// Creates a new variable definition marker statement.
+        /// </summary>
+        public const this(set VariableDefinitionReach Definition);
+
+        /// <summary>
+        /// Gets the variable definition that is marked here.
+        /// </summary>
+        public VariableDefinitionReach Definition { const get; private set; }
+
+        public bool IsEmpty
+        {
+            const get return true;
+        }
+
+        public IStatement Optimize()
+        {
+            return this;
+        }
+
+        public IStatement Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
+        public ICodeBlock Emit(ICodeGenerator CodeGenerator)
+        {
+            return EmptyStatement.Emit(CodeGenerator);
         }
     }
 }

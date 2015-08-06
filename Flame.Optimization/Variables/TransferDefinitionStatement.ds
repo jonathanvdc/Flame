@@ -11,14 +11,15 @@ namespace Flame.Optimization.Variables
     /// backing variable of another. If both use the same backing variable,
     /// no action is taken.
     /// </summary>
-    public class TransferDefinitionStatement : IStatement, IDefinitionAccessNode
+    public class TransferDefinitionStatement : IStatement, IDefinitionAccessNode,
+                                               IVariableDefinitionStatement
     {
         /// <summary>
         /// Creates a new variable definition transfer statement.
         /// </summary>
         public const this(set VariableDefinitionChain Chain,
                           set IDefinitionAccess Access,
-                          set VariableDefinitionReach Target);
+                          set VariableDefinitionReach Definition);
 
         /// <summary>
         /// Gets the variable definition chain whose value is taken.
@@ -35,7 +36,7 @@ namespace Flame.Optimization.Variables
         /// If this reach is live, the assignment is performed.
         /// Otherwise, nothing happens.
         /// </summary>
-        public VariableDefinitionReach Target { const get; private set; }
+        public VariableDefinitionReach Definition { const get; private set; }
 
         public bool IsEmpty
         {
@@ -44,10 +45,10 @@ namespace Flame.Optimization.Variables
 
         public IStatement Unwrap()
         {
-            if (Target.IsLive)
+            if (Definition.IsLive)
             {
                 var srcDef = Chain.GetDefinition(Access);
-                var tgtDef = Target.Definition;
+                var tgtDef = Definition.Definition;
 
                 if (srcDef.Variable != tgtDef.Variable)
                 {

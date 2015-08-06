@@ -1,0 +1,158 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+
+namespace Flame.Optimization.Variables
+{
+    /// <summary>
+    /// An enumeration of different propagation schemes.
+    /// </summary>
+    public enum PropagationMode : int
+    {
+        /// <summary>
+        /// Never propagate a value.
+        /// </summary>
+        Never = 0,
+        /// <summary>
+        /// Propagate a value exactly once.
+        /// </summary>
+        Once = 1,
+        /// <summary>
+        /// Always propagate a value.
+        /// </summary>
+        Always = 2
+    }
+
+    /// <summary>
+    /// Defines a set of dependencies that can be used to decide whether
+    /// a value should be propagated or not.
+    /// </summary>
+    public class PropagationDependencies
+    {
+        /// <summary>
+        /// Creates propagation dependencies from the given propagation scheme
+        /// and a set of dependencies.
+        /// </summary>
+        public const this(set PropagationMode Mode, [LocalVariableDescription] Dependencies)
+        {
+            this.depends = new HashSet<LocalVariableDescription>(Dependencies);
+        }
+
+        private HashSet<LocalVariableDescription> depends;
+
+        /// <summary>
+        /// Gets these propagation dependencies' contents.
+        /// </summary>
+        public [LocalVariableDescription] Dependencies { const get return depends; }
+
+        /// <summary>
+        /// Gets these propagation dependencies' propagation scheme.
+        /// </summary>
+        public PropagationMode Mode { const get; private set; }
+
+        /// <summary>
+        /// Checks if these propagation dependencies include the given local.
+        /// </summary>
+        public const bool DependsOn(LocalVariableDescription Local)
+        {
+            return depends.Contains(Local);
+        }
+
+        /// <summary>
+        /// Determines whether these propagation dependencies should be
+        /// propagated, based on the propagation rules.
+        /// </summary>
+        public const bool ShouldMaterialize(AccessCount MaxAccess)
+        {
+            if (Mode == PropagationMode.Never)
+                return true;
+            else if (Mode == PropagationMode.Once)
+                return MaxAccess.IsGreaterThanOrEquals(new AccessCount(2));
+            else
+                return false;
+        }
+
+        private const PropagationMode UnionModes(PropagationMode First, PropagationMode Second)
+        {
+            if (First == PropagationMode.Never || Second == PropagationMode.Never)
+                return PropagationMode.Never;
+            else if (First == PropagationMode.Once || Second == PropagationMode.Once)
+                return PropagationMode.Once;
+            else
+                return PropagationMode.Always;
+        }
+
+        /// <summary>
+        /// Takes the union of these dependencies with the given dependencies.
+        /// </summary>
+        public const PropagationDependencies Union(PropagationDependencies Other)
+        {
+            var dependsSet = new HashSet<LocalVariableDescription>(depends);
+            dependsSet.UnionWith(Other.Dependencies);
+            return new PropagationDependencies(UnionModes(Mode, Other.Mode), dependsSet);
+        }
+
+        /// <summary>
+        /// Gets propagation dependencies that depend on a single local,
+        /// propagated as per the given propagation scheme.
+        /// </summary>
+        public static const PropagationDependencies Single(PropagationMode Mode, LocalVariableDescription Local)
+        {
+            return new PropagationDependencies(Mode, new LocalVariableDescription[] { Local });
+        }
+
+        /// <summary>
+        /// Gets propagation "dependencies" that do not depend on any locals,
+        /// but do use the given dependency scheme.
+        /// </summary>
+        public static const PropagationDependencies None(PropagationMode Mode)
+        {
+            return new PropagationDependencies(Mode, Enumerable.Empty<LocalVariableDescription>());
+        }
+
+        /// <summary>
+        /// Gets propagation dependencies that represent the perpetual propagation
+        /// of a value, given that the the argument's definition does not change.
+        /// </summary>
+        public static const PropagationDependencies Always(LocalVariableDescription Local)
+        {
+            return Single(PropagationMode.Always, Local);
+        }
+
+        /// <summary>
+        /// Gets propagation dependencies that represent the perpetual propagation
+        /// of a value, irrespective of changes to variables.
+        /// </summary>
+        public static const PropagationDependencies Always()
+        {
+            return None(PropagationMode.Always);
+        }
+
+        /// <summary>
+        /// Gets propagation dependencies that represent a single propagation
+        /// of a value, given that the the argument's definition does not change.
+        /// </summary>
+        public static const PropagationDependencies Once(LocalVariableDescription Local)
+        {
+            return Single(PropagationMode.Once, Local);
+        }
+
+        /// <summary>
+        /// Gets propagation dependencies that represent a single propagation
+        /// of a value, irrespective of changes to variables.
+        /// </summary>
+        public static const PropagationDependencies Once()
+        {
+            return None(PropagationMode.Once);
+        }
+
+        /// <summary>
+        /// Gets propagation dependencies that bar any form of propagation.
+        /// </summary>
+        public static const PropagationDependencies Never()
+        {
+            return None(PropagationMode.Never);
+        }
+    }
+}

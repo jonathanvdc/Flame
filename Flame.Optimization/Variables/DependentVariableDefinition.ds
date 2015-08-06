@@ -16,17 +16,12 @@ namespace Flame.Optimization.Variables
         /// Creates a new dependent variable definition from the given arguments.
         /// </summary>
         public const this(set VariableDefinitionChain TargetChain,
-                          [LocalVariableDescription] Dependencies,
+                          set PropagationDependencies Dependencies,
                           set IExpression Value,
-                          set InsertStatement InsertPoint)
-        {
-            this.depends = new HashSet<LocalVariableDescription>(Dependencies);
-        }
-
-        private HashSet<LocalVariableDescription> depends;
+                          set InsertStatement InsertPoint);
 
         public VariableDefinitionChain TargetChain { const get; private set; }
-        public [LocalVariableDescription] Dependencies { const get return depends; }
+        public PropagationDependencies Dependencies { const get; private set; }
         public IExpression Value { const get; private set; }
         public InsertStatement InsertPoint { const get; private set; }
 
@@ -68,9 +63,9 @@ namespace Flame.Optimization.Variables
         /// Has this variable definition "react" to definition access metrics.
         /// </summary>
         public VariableDefinitionReach UseMetrics(VariableDefinitionReach ReactingReach,
-                                                  AccessBounds Bounds)
+                                                  AccessMetrics Bounds)
         {
-            if (Bounds.MaxAccess.IsGreaterThanOrEquals(new AccessCount(2)))
+            if (Dependencies.ShouldMaterialize(Bounds.MaxAccess))
             {
                 return Materialize(ReactingReach);
             }
@@ -92,7 +87,7 @@ namespace Flame.Optimization.Variables
             // Check that the acting chain is the target chain.
             // We know that this definition is live, because that's kind of
             // a precondition.
-            if (depends.Contains(ActingDefinition.MappedLocal))
+            if (Dependencies.DependsOn(ActingDefinition.MappedLocal))
             {
                 return Materialize(ReactingReach);
             }
