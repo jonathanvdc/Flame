@@ -33,19 +33,30 @@ namespace Flame.Optimization.Variables
         /// <summary>
         /// Gets this variable definition's underlying variable.
         /// </summary>
-        public IUnmanagedVariable Variable { const get; private set; }
+        public IUnmanagedVariable Variable { const get return null; }
 
-        public bool HasMaterialized { const get return Variable != null; }
+        public bool HasMaterialized { const get; private set; }
 
         public VariableDefinitionReach Materialize(VariableDefinitionReach Reach)
         {
-            var matReach = VariableFlowHelpers.Materialize(TargetChain, Reach, InsertPoint);
-            Reach.Transfer(matReach, Reach.Reach);
-            return matReach;
+            if (!HasMaterialized)
+            {
+                HasMaterialized = true;
+
+                var allAccess = new HashSet<IDefinitionAccess>(Reach.Reach);
+
+                var matReach = VariableFlowHelpers.Materialize(TargetChain, Reach, InsertPoint);
+                Reach.Transfer(matReach, allAccess);
+                return matReach;
+            }
+            else
+            {
+                return Reach;
+            }
         }
 
         /// <summary>
-        /// Creates a get-expression for this copy variable definition.
+        /// Creates a get-expression for this dependent variable definition.
         /// </summary>
         public IExpression CreateGetExpression()
         {
