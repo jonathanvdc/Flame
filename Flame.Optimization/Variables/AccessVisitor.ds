@@ -8,36 +8,38 @@ namespace Flame.Optimization.Variables
 {
     public class AccessSelectFlow
     {
-        public const this(set AccessBounds(IVariableDefinition) First,
-                          set AccessBounds(IVariableDefinition) Second);
+        public const this(set AccessMetrics(IVariableDefinition, bool) First,
+                          set AccessMetrics(IVariableDefinition, bool) Second);
 
-        public AccessBounds(IVariableDefinition) First { const get; private set; }
-        public AccessBounds(IVariableDefinition) Second { const get; private set; }
+        public AccessMetrics(IVariableDefinition, bool) First { const get; private set; }
+        public AccessMetrics(IVariableDefinition, bool) Second { const get; private set; }
 
-        public const AccessBounds GetAccess(IVariableDefinition Def)
+        public const AccessMetrics GetAccess(IVariableDefinition Def, bool IsDefined)
         {
-            var fstAccess = First(Def);
-            var sndAccess = Second(Def);
+            var fstAccess = First(Def, IsDefined);
+            var sndAccess = Second(Def, IsDefined);
 
-            return new AccessBounds(fstAccess.MinAccess.Min(sndAccess.MinAccess),
-                                    fstAccess.MaxAccess.Max(sndAccess.MaxAccess));
+            return new AccessMetrics(fstAccess.MinAccess.Min(sndAccess.MinAccess),
+                                     fstAccess.MaxAccess.Max(sndAccess.MaxAccess),
+                                     fstAccess.IsDefined && sndAccess.IsDefined);
         }
     }
 
     public class FlattenedAccessFlow
     {
-        public const this(set List<Func<IVariableDefinition, AccessBounds>> Values);
+        public const this(set List<Func<IVariableDefinition, bool, AccessMetrics>> Values);
 
-        public List<Func<IVariableDefinition, AccessBounds>> Values { const get; private set; }
+        public List<Func<IVariableDefinition, bool, AccessMetrics>> Values { const get; private set; }
 
-        public const AccessBounds GetAccess(IVariableDefinition Def)
+        public const AccessMetrics GetAccess(IVariableDefinition Def, bool IsDefined)
         {
-            var result = new AccessBounds();
+            var result = new AccessMetrics(IsDefined);
             foreach (var item in Values)
             {
-                var access = item(Def);
-                result = new AccessBounds(result.MinAccess.Add(access.MinAccess),
-                                          result.MaxAccess.Add(access.MaxAccess));
+                var access = item(Def, result.IsDefined);
+                result = new AccessMetrics(result.MinAccess.Add(access.MinAccess),
+                                           result.MaxAccess.Add(access.MaxAccess),
+                                           access.IsDefined);
             }
             return result;
         }
@@ -45,41 +47,60 @@ namespace Flame.Optimization.Variables
 
     public class AccessLoopFlow
     {
-        public const this(set AccessBounds(IVariableDefinition) Body);
+        public const this(set AccessMetrics(IVariableDefinition, bool) Body);
 
-        public AccessBounds(IVariableDefinition) Body { const get; private set; }
+        public AccessMetrics(IVariableDefinition, bool) Body { const get; private set; }
 
-        public const AccessBounds GetAccess(IVariableDefinition Def)
+        public const AccessMetrics GetAccess(IVariableDefinition Def, bool IsDefined)
         {
-            var bodyAccess = Body(Def);
+            var bodyAccess = Body(Def, IsDefined);
 
-            return new AccessBounds(new AccessCount(0),
-                                    bodyAccess.MaxAccess.Multiply(AccessCount.Infinity));
+            if (!IsDefined)
+                return bodyAccess;
+            else
+                return new AccessMetrics(new AccessCount(0),
+                                         bodyAccess.MaxAccess.Multiply(AccessCount.Infinity),
+                                         true);
         }
     }
 
-    public class AccessDefinitionFlow
+    public class AccessLoadFlow
     {
         public const this(set IDefinitionAccessNode Node);
 
         public IDefinitionAccessNode Node { const get; private set; }
 
-        public const AccessBounds GetAccess(IVariableDefinition Def)
+        public const AccessMetrics GetAccess(IVariableDefinition Def, bool IsDefined)
         {
+            if (!IsDefined)
+                return new AccessMetrics();
+
             var accessDef = Node.Chain.GetDefinition(Node.Access);
 
             if (accessDef == Def)
-                return new AccessBounds(new AccessCount(1));
+                return new AccessMetrics(new AccessCount(1), true);
             else
-                return new AccessBounds();
+                return new AccessMetrics(true);
+        }
+    }
+
+    public class AccessDefinitionFlow
+    {
+        public const this(set IVariableDefinition Definition);
+
+        public IVariableDefinition Definition { const get; private set; }
+
+        public const AccessMetrics GetAccess(IVariableDefinition Def, bool IsDefined)
+        {
+            return new AccessMetrics(Def == Definition || IsDefined);
         }
     }
 
     public class AccessVisitor : INodeVisitor,
-        IFlowVisitor<List<Func<IVariableDefinition, AccessBounds>>,
-                     List<Func<IVariableDefinition, AccessBounds>>>
+        IFlowVisitor<List<Func<IVariableDefinition, bool, AccessMetrics>>,
+                     List<Func<IVariableDefinition, bool, AccessMetrics>>>
     {
-        alias StateItem = Func<IVariableDefinition, AccessBounds>;
+        alias StateItem = Func<IVariableDefinition, bool, AccessMetrics>;
         alias State = List<StateItem>;
         alias Delta = State;
 
@@ -174,7 +195,7 @@ namespace Flame.Optimization.Variables
             if (Value is IDefinitionAccessNode)
             {
                 var defAccess = (IDefinitionAccessNode)Value;
-                CurrentFlow = AppendFlow(CurrentFlow, new AccessDefinitionFlow(defAccess).GetAccess);
+                CurrentFlow = AppendFlow(CurrentFlow, new AccessLoadFlow(defAccess).GetAccess);
             }
 
             if (Value is IFlowExpression)
@@ -200,7 +221,12 @@ namespace Flame.Optimization.Variables
             if (Value is IDefinitionAccessNode)
             {
                 var defAccess = (IDefinitionAccessNode)Value;
-                CurrentFlow = AppendFlow(CurrentFlow, new AccessDefinitionFlow(defAccess).GetAccess);
+                CurrentFlow = AppendFlow(CurrentFlow, new AccessLoadFlow(defAccess).GetAccess);
+            }
+            else if (Value is IVariableDefinitionStatement)
+            {
+                var defStmt = (IVariableDefinitionStatement)Value;
+                CurrentFlow = AppendFlow(CurrentFlow, new AccessDefinitionFlow(defStmt.Definition.Definition).GetAccess);
             }
 
             if (Value is IFlowStatement)

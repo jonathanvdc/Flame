@@ -350,40 +350,31 @@ namespace Flame.Optimization.Variables
             return null;
         }
 
-        private const [LocalVariableDescription] NullConcat([LocalVariableDescription] First, [LocalVariableDescription] Second)
-        {
-            if (First == null || Second == null)
-                return null;
-            else
-                return Enumerable.Concat<LocalVariableDescription>(First, Second);
-        }
-
         /// <summary>
-        /// Extracts a sequence of dependencies from this value.
-        /// A null return value indicates failure to do so.
+        /// Extracts propagation dependencies from this value.
         /// </summary>
-        private [LocalVariableDescription] GetDependencies(IExpression Value)
+        private PropagationDependencies GetDependencies(IExpression Value)
         {
             if (IsLiteralValue(Value))
             {
-                return Enumerable.Empty<LocalVariableDescription>();
+                return PropagationDependencies.Always();
             }
             else if (Value is UnaryOperatorExpression)
             {
                 var opExpr = (UnaryOperatorExpression)Value;
                 if (opExpr.OperatorOverload == null || opExpr.OperatorOverload.IsConstant)
-                    return GetDependencies(opExpr.Value);
+                    return GetDependencies(opExpr.Value).Union(PropagationDependencies.Once());
                 else
-                    return null;
+                    return PropagationDependencies.Never();
             }
             else if (Value is BinaryOperatorExpression)
             {
                 var opExpr = (BinaryOperatorExpression)Value;
                 if (opExpr.OperatorOverload == null || opExpr.OperatorOverload.IsConstant)
-                    return NullConcat(GetDependencies(opExpr.LeftOperand),
-                                      GetDependencies(opExpr.RightOperand));
+                    return GetDependencies(opExpr.LeftOperand).Union(
+                           GetDependencies(opExpr.RightOperand)).Union(PropagationDependencies.Once());
                 else
-                    return null;
+                    return PropagationDependencies.Never();
             }
             else if (Value is ConversionExpression)
             {
@@ -397,18 +388,15 @@ namespace Flame.Optimization.Variables
             else if (Value is FieldGetExpression)
             {
                 var fieldExpr = (FieldGetExpression)Value;
-                return GetDependencies(fieldExpr.Target);
+                return GetDependencies(fieldExpr.Target).Union(PropagationDependencies.Once());
             }
             else
             {
                 var copiedVar = GetCopiedVariable(Value);
                 if (copiedVar == null)
-                    return null; // Null means failure.
+                    return PropagationDependencies.Never();
                 else
-                    return new LocalVariableDescription[]
-                    {
-                        new LocalVariableDescription(copiedVar)
-                    };
+                    return PropagationDependencies.Always(new LocalVariableDescription(copiedVar));
             }
         }
 
@@ -435,7 +423,7 @@ namespace Flame.Optimization.Variables
                 }
 
                 var depends = GetDependencies(Value);
-                if (depends != null)
+                if (depends.Mode != PropagationMode.Never)
                 {
                     return new VariableDefinitionReach(
                         new DependentVariableDefinition(Chain, depends, Visit(Value), InsertPoint),
@@ -467,6 +455,7 @@ namespace Flame.Optimization.Variables
                     insertPoint.Insert(preInsrt);
                     var defVal      = ((ISetVariableNode)node).Value;
                     var varDef      = CreateDefinition(chain, defVal, insertPoint);
+                    insertPoint.Insert(new VariableDefinitionMarker(varDef));
                     var defFlow     = new VariableDefinitionFlow(preInsrt, varDef);
                     CurrentFlow     = CurrentFlow.Cons(new VariableFlowNode(defFlow, insertPoint));
                     return insertPoint;

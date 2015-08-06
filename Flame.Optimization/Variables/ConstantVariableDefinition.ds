@@ -32,7 +32,7 @@ namespace Flame.Optimization.Variables
         /// Has this variable definition "react" to definition access metrics.
         /// </summary>
         public VariableDefinitionReach UseMetrics(VariableDefinitionReach ReactingReach,
-                                                  AccessBounds Bounds)
+                                                  AccessMetrics Bounds)
         {
             return ReactingReach; // Copy variable definitions are not interested
                                   // in access metrics.

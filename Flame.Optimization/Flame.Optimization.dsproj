@@ -28,8 +28,8 @@
     <Compile Include="InsertStatement.ds" />
   </ItemGroup>
   <ItemGroup Name="Variables">
-    <Compile Include="Variables/AccessBounds.ds" />
     <Compile Include="Variables/AccessCount.ds" />
+    <Compile Include="Variables/AccessMetrics.ds" />
     <Compile Include="Variables/AccessVisitor.ds" />
     <Compile Include="Variables/AddressOfDefinitionExpression.ds" />
     <Compile Include="Variables/ConstantVariableDefinition.ds" />
@@ -43,6 +43,7 @@
     <Compile Include="Variables/LocalVariableDefinition.ds" />
     <Compile Include="Variables/LocalVariableDescription.ds" />
     <Compile Include="Variables/LoopVariableFlow.ds" />
+    <Compile Include="Variables/PropagationDependencies.ds" />
     <Compile Include="Variables/ReleaseChainStatement.ds" />
     <Compile Include="Variables/SelectVariableFlow.ds" />
     <Compile Include="Variables/TerminatedVariableFlow.ds" />

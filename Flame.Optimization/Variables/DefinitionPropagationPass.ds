@@ -34,7 +34,7 @@ namespace Flame.Optimization.Variables
             // Invent some access metrics.
             var accessCounter = new AccessVisitor();
             accessCounter.Visit(newTree);
-            AccessBounds(IVariableDefinition) accessFunc = accessCounter.FlattenedFlow;
+            AccessMetrics(IVariableDefinition, bool) accessFunc = accessCounter.FlattenedFlow;
 
             foreach (var chain in visitor.DefinitionChains)
             {
@@ -43,7 +43,7 @@ namespace Flame.Optimization.Variables
                 var defsCopy = Enumerable.ToArray<VariableDefinitionReach>(chain.Definitions);
                 foreach (var item in defsCopy)
                 {
-                    var bounds = accessFunc(item.Definition);
+                    var bounds = accessFunc(item.Definition, false);
                     var newReach = item.Definition.UseMetrics(item, bounds);
                     chain.AddDefinition(newReach);
                 }
