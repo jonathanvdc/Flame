@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Variables;
@@ -349,6 +350,68 @@ namespace Flame.Optimization.Variables
             return null;
         }
 
+        private const [LocalVariableDescription] NullConcat([LocalVariableDescription] First, [LocalVariableDescription] Second)
+        {
+            if (First == null || Second == null)
+                return null;
+            else
+                return Enumerable.Concat<LocalVariableDescription>(First, Second);
+        }
+
+        /// <summary>
+        /// Extracts a sequence of dependencies from this value.
+        /// A null return value indicates failure to do so.
+        /// </summary>
+        private [LocalVariableDescription] GetDependencies(IExpression Value)
+        {
+            if (IsLiteralValue(Value))
+            {
+                return Enumerable.Empty<LocalVariableDescription>();
+            }
+            else if (Value is UnaryOperatorExpression)
+            {
+                var opExpr = (UnaryOperatorExpression)Value;
+                if (opExpr.OperatorOverload == null || opExpr.OperatorOverload.IsConstant)
+                    return GetDependencies(opExpr.Value);
+                else
+                    return null;
+            }
+            else if (Value is BinaryOperatorExpression)
+            {
+                var opExpr = (BinaryOperatorExpression)Value;
+                if (opExpr.OperatorOverload == null || opExpr.OperatorOverload.IsConstant)
+                    return NullConcat(GetDependencies(opExpr.LeftOperand),
+                                      GetDependencies(opExpr.RightOperand));
+                else
+                    return null;
+            }
+            else if (Value is ConversionExpression)
+            {
+                return GetDependencies(((ConversionExpression)Value).Value);
+            }
+            else if (Value is GetMethodExpression)
+            {
+                var getMethodExpr = (GetMethodExpression)Value;
+                return GetDependencies(getMethodExpr.Caller);
+            }
+            else if (Value is FieldGetExpression)
+            {
+                var fieldExpr = (FieldGetExpression)Value;
+                return GetDependencies(fieldExpr.Target);
+            }
+            else
+            {
+                var copiedVar = GetCopiedVariable(Value);
+                if (copiedVar == null)
+                    return null; // Null means failure.
+                else
+                    return new LocalVariableDescription[]
+                    {
+                        new LocalVariableDescription(copiedVar)
+                    };
+            }
+        }
+
         private VariableDefinitionReach CreateDefinition(VariableDefinitionChain Chain,
             IExpression Value, InsertStatement InsertPoint)
         {
@@ -368,6 +431,14 @@ namespace Flame.Optimization.Variables
                     var getExpr     = Visit(new LoadDefinitionExpression(copiedChain, access));
                     return new VariableDefinitionReach(
                         new CopyVariableDefinition(Chain, copiedChain, getExpr),
+                        Chain.MappedLocal);
+                }
+
+                var depends = GetDependencies(Value);
+                if (depends != null)
+                {
+                    return new VariableDefinitionReach(
+                        new DependentVariableDefinition(Chain, depends, Visit(Value), InsertPoint),
                         Chain.MappedLocal);
                 }
                 else // Don't propagate anything else.

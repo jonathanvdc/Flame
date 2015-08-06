@@ -9,6 +9,22 @@ public static class Test
         return Value + one;
     }
 
+    public const int AddFive(int Value)
+    {
+        int one   = 1;
+        int two   = one + one;
+        int three = two + one;
+        int five  = three + two;
+        return Value + five;
+    }
+
+    public const int AddTen(int Value)
+    {
+        int(int) func = AddFive;
+
+        return func(func(Value));
+    }
+
     public const int DeadStore()
     {
         int x = 3;
