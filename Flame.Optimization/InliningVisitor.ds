@@ -57,6 +57,25 @@ namespace Flame.Optimization
             return null;
         }
 
+        private const IExpression OptimizeExpr(IExpression Value)
+        {
+            var rawExprStmt = new RawExpressionStatement(Value);
+            var optStmt = Optimize(rawExprStmt);
+            if (optStmt.IsEmpty)
+            {
+                return VoidExpression;
+            }
+            else if (optStmt is RawExpressionStatement)
+            {
+                return ((RawExpressionStatement)optStmt).Expression;
+            }
+            else
+            {
+                throw new Exception("The inlining pass' optimizer may not optimize away a " +
+                                    "RawExpressionStatement.");
+            }
+        }
+
         public const IExpression Inline(DissectedCall Call)
         {
             int preCount = 0;
@@ -66,27 +85,29 @@ namespace Flame.Optimization
             }
             inlineCount[Call.Method] = preCount + 1;
 
-            var body = GetMethodBody(Call.Method);
+            // Acquire and copy the method body.
+            var body = CloningVisitor.Visit(GetMethodBody(Call.Method));
+            // Create a variable for the return value.
             var lbVariable = new LateBoundVariable(Call.Method.ReturnType);
 
+            // Transforms the copied body to match our needs.
             var visitedBody = InliningReturnVisitor.InlineReturns(
                                 InliningVariableVisitor.InlineVariables(body,
                                     Call.ThisValue,
                                     Enumerable.ToArray<IExpression>(Call.Arguments)),
                                 lbVariable);
 
-            var optBody = Optimize(visitedBody);
-
             if (lbVariable.Type.Equals(PrimitiveTypes.Void))
             {
-                return new InitializedExpression(optBody,
-                                                 VoidExpression);
+                return OptimizeExpr(new InitializedExpression(visitedBody,
+                                                              VoidExpression));
             }
             else
             {
-                return new InitializedExpression(optBody,
-                                                 lbVariable.CreateGetExpression(),
-                                                 lbVariable.CreateReleaseStatement());
+                return OptimizeExpr(new InitializedExpression(
+                    visitedBody,
+                    lbVariable.CreateGetExpression(),
+                    lbVariable.CreateReleaseStatement()));
             }
         }
 
