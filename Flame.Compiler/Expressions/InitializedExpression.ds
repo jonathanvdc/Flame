@@ -96,5 +96,10 @@ namespace Flame.Compiler.Expressions
 				return Generator.EmitSequence(Generator.EmitSequence(initBlock, expr), finalBlock);
 			}
 		}
+
+		public override const string ToString()
+		{
+			return "init-expr(" + Initialization + ", " + Value + ", " + Finalization + ")";
+		}
 	}
 }
