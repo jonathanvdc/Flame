@@ -178,7 +178,6 @@ namespace Flame.Optimization
             {
                 cleanup.Add(item.Value.CreateReleaseStatement());
             }
-            Console.WriteLine(visitor.locals.Count + " locals");
 
             results.AddRange(cleanup);
 
