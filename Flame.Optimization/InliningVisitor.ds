@@ -127,22 +127,19 @@ namespace Flame.Optimization
     {
         public const this(set IVariable ThisArgument, set IVariable[] Arguments)
         {
-            this.locals = new Dictionary<IVariable, LateBoundVariable>();
+            this.locals = new Dictionary<LateBoundVariable, LateBoundVariable>();
         }
 
         public IVariable ThisArgument { const get; private set; }
         public IVariable[] Arguments { const get; private set; }
 
-        private Dictionary<IVariable, LateBoundVariable> locals;
+        private Dictionary<LateBoundVariable, LateBoundVariable> locals;
 
-        private LateBoundVariable GetLocal(IVariable Variable)
+        private LateBoundVariable GetLocal(LateBoundVariable Variable)
         {
             if (!locals.ContainsKey(Variable))
             {
-                if (Variable is LateBoundVariable)
-                    locals[Variable] = new LateBoundVariable(((LateBoundVariable)Variable).Member);
-                else
-                    locals[Variable] = new LateBoundVariable(Variable.Type);
+                locals[Variable] = new LateBoundVariable(Variable.Member);
             }
             return locals[Variable];
         }
@@ -187,8 +184,7 @@ namespace Flame.Optimization
         protected override bool CanSubstituteVariable(IVariable Variable)
         {
             return Variable is ArgumentVariable || Variable is ThisVariable ||
-                   (Variable is LateBoundVariable && !(Variable is ManuallyBoundVariable)) ||
-                   Variable is TypedEmitVariable;
+                   (Variable is LateBoundVariable && !(Variable is ManuallyBoundVariable));
         }
         protected override IVariable SubstituteVariable(IVariable Variable)
         {
@@ -203,7 +199,7 @@ namespace Flame.Optimization
             }
             else
             {
-                return GetLocal(Variable);
+                return GetLocal((LateBoundVariable)Variable);
             }
         }
     }

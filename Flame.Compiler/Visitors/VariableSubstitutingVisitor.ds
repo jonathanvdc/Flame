@@ -6,11 +6,24 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler.Visitors
 {
+    /// <summary>
+    /// Defines a base class for node visitors that substitute variable nodes.
+    /// </summary>
     public abstract class VariableSubstitutingVisitorBase : NodeVisitorBase
     {
         public const this();
 
+        /// <summary>
+        /// Determines whether the given variable can be substituted or not.
+        /// </summary>
         protected abstract bool CanSubstituteVariable(IVariable Variable);
+
+        /// <summary>
+        /// Substitutes the given variable.
+        /// </summary>
+        /// <pre>
+        /// CanSubstituteVariable(Variable) == true
+        /// </pre>
         protected abstract IVariable SubstituteVariable(IVariable Variable);
 
         public override virtual const bool Matches(IExpression Value)
@@ -22,25 +35,59 @@ namespace Flame.Compiler.Visitors
             return Value is IVariableNode;
         }
 
-        protected virtual T ApplyRecursively<T>(IVariable Variable, T(IVariable) Function)
+        /// <summary>
+        /// Tries to substitute the given variable. If this cannot be done,
+        /// null is returned.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Default substitution behavior is as follows: first, the visitor will try to
+        /// chase late-bound variable indirection: if a late-bound variable
+        /// is bound to another variable and said other variable can be substituted,
+        /// the result of that substitution is returned. Otherwise,
+        /// the variable's candidacy for substitution is considered. If
+        /// `CanSubstituteVariable(Variable) == true`, `SubstituteVariable(Variable)`
+        /// is returned.
+        /// </para>
+        ///
+        /// <para>
+        /// This has the following implications:
+        /// <list>
+        ///     <item>
+        ///     A late-bound variable that is bound to another variable which
+        ///     cannot be substituted, but is itself a candidate for substitution,
+        ///     will indeed be substituted.
+        ///     </item>
+        ///     <item>
+        ///     A manually-bound variable that is bound to a variable which can
+        ///     be substituted, will be substituted, as manually-bound variables are
+        ///     themselves late-bound variables.
+        ///     </item>
+        /// </list>
+        /// </para>
+        /// </remarks>
+        protected virtual IVariable SubstituteVariableRecursivelyOrNull(IVariable Variable)
         {
+            // First, try to use late-bound variable indirection.
             if (Variable is LateBoundVariable)
             {
                 var innerVal = ((LateBoundVariable)Variable).BoundVariable;
                 if (innerVal != null)
-                    return ApplyRecursively<T>(innerVal, Function);
+                {
+                    // If we can substitute the late-bound variable's bound variable,
+                    // we'll return that result.
+                    var result = SubstituteVariableRecursivelyOrNull(innerVal);
+                    if (result != null)
+                        return result;
+                }
             }
-            return Function(Variable);
-        }
-
-        protected bool CanSubstituteVariableRecursively(IVariable Variable)
-        {
-            return ApplyRecursively<bool>(Variable, CanSubstituteVariable);
-        }
-
-        protected virtual IVariable SubstituteVariableRecursively(IVariable Variable)
-        {
-            return ApplyRecursively<IVariable>(Variable, SubstituteVariable);
+            // The given variable was either not a late-bound variable, or its
+            // bound variable couldn't be substituted. Either way, we'll try
+            // to replace the variable itself now.
+            if (CanSubstituteVariable(Variable))
+                return SubstituteVariable(Variable);
+            else
+                return null;
         }
 
         protected virtual IExpression TransformVariableAccess(IExpression Expression)
@@ -48,9 +95,9 @@ namespace Flame.Compiler.Visitors
             var node = (IVariableNode)Expression;
             var variable = node.GetVariable();
 
-            if (CanSubstituteVariableRecursively(variable))
+            var targetVariable = SubstituteVariableRecursivelyOrNull(variable);
+            if (targetVariable != null)
             {
-                var targetVariable = SubstituteVariableRecursively(variable);
                 if (node.Action == VariableNodeAction.AddressOf)
                 {
                     return ((IUnmanagedVariable)targetVariable).CreateAddressOfExpression();
@@ -68,9 +115,9 @@ namespace Flame.Compiler.Visitors
             var node = (IVariableNode)Statement;
             var variable = node.GetVariable();
 
-            if (CanSubstituteVariableRecursively(variable))
+            var targetVariable = SubstituteVariableRecursivelyOrNull(variable);
+            if (targetVariable != null)
             {
-                var targetVariable = SubstituteVariableRecursively(variable);
                 if (node.Action == VariableNodeAction.Set)
                 {
                     return targetVariable.CreateSetStatement(Visit(((ISetVariableNode)node).Value));

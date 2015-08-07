@@ -88,6 +88,8 @@ public static class Test
 
     public const int InlineSum(int N)
     {
+        // Compile with `-fpropagate-locals -finline -inline-tolerance 50`
+        // to see `Sum` inlined here, with `PropagateCopy` as a direct call.
         return Sum(N, PropagateCopy);
     }
 
