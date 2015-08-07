@@ -1,12 +1,30 @@
 using System;
 using System.Collections.Generic;
 
+public class Vector2
+{
+    public const this(set double X, set double Y);
+
+    public double X { const get; private set; }
+    public double Y { const get; private set; }
+
+    public double LengthSquared
+    {
+        const get return X * X + Y * Y;
+    }
+}
+
 public static class Test
 {
     public const int AddOne(int Value)
     {
         int one = 1;
         return Value + one;
+    }
+
+    public const int AddOneAlias(int Value)
+    {
+        return AddOne(Value) * AddOne(Value);
     }
 
     public const int AddFive(int Value)

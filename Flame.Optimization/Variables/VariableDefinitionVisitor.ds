@@ -390,6 +390,14 @@ namespace Flame.Optimization.Variables
                 var fieldExpr = (FieldGetExpression)Value;
                 return GetDependencies(fieldExpr.Target).Union(PropagationDependencies.Once());
             }
+            else if (Value is InitializedExpression)
+            {
+                var initExpr = (InitializedExpression)Value;
+                if (initExpr.Initialization.IsEmpty && initExpr.Finalization.IsEmpty)
+                    return GetDependencies(initExpr.Value);
+                else
+                    return PropagationDependencies.Never();
+            }
             else
             {
                 var copiedVar = GetCopiedVariable(Value);
@@ -398,6 +406,20 @@ namespace Flame.Optimization.Variables
                 else
                     return PropagationDependencies.Always(new LocalVariableDescription(copiedVar));
             }
+        }
+
+        private IExpression HoistInitialization(IExpression Value, InsertStatement InsertPoint)
+        {
+            if (Value is InitializedExpression)
+            {
+                var initExpr = (InitializedExpression)Value;
+                if (initExpr.Finalization.IsEmpty)
+                {
+                    InsertPoint.Insert(Visit(initExpr.Initialization));
+                    return HoistInitialization(initExpr.Value, InsertPoint);
+                }
+            }
+            return Value;
         }
 
         private VariableDefinitionReach CreateDefinition(VariableDefinitionChain Chain,
@@ -453,7 +475,7 @@ namespace Flame.Optimization.Variables
                     var insertPoint = new InsertStatement();
                     var preInsrt    = EmitInsertionPoint();
                     insertPoint.Insert(preInsrt);
-                    var defVal      = ((ISetVariableNode)node).Value;
+                    var defVal      = HoistInitialization(((ISetVariableNode)node).Value, preInsrt);
                     var varDef      = CreateDefinition(chain, defVal, insertPoint);
                     insertPoint.Insert(new VariableDefinitionMarker(varDef));
                     var defFlow     = new VariableDefinitionFlow(preInsrt, varDef);
