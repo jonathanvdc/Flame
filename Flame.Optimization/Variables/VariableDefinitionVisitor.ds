@@ -385,6 +385,20 @@ namespace Flame.Optimization.Variables
                 var getMethodExpr = (GetMethodExpression)Value;
                 return GetDependencies(getMethodExpr.Caller);
             }
+            else if (Value is InvocationExpression)
+            {
+                var callExpr = (InvocationExpression)Value;
+                if (!callExpr.Method.IsConstant)
+                    return PropagationDependencies.Never();
+                var callDepends = GetDependencies(callExpr.Target);
+                foreach (var arg in callExpr.Arguments)
+                {
+                    if (callDepends.Mode == PropagationMode.Never)
+                        return PropagationDependencies.Never();
+                    callDepends = callDepends.Union(GetDependencies(arg));
+                }
+                return callDepends.Union(PropagationDependencies.Once());
+            }
             else if (Value is FieldGetExpression)
             {
                 var fieldExpr = (FieldGetExpression)Value;
