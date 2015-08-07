@@ -88,15 +88,7 @@ public static class Test
 
     public const int InlineSum(int N)
     {
-        var thisCopy = this;
-        int nCopy = N;
-        int result = 0;
-        int(int) Func = thisCopy.PropagateCopy;
-        for (int i = 0; i < nCopy; i++)
-        {
-            result += Func(i);
-        }
-        return result;
+        return Sum(N, PropagateCopy);
     }
 
     public int MaterializeCopy(int X)

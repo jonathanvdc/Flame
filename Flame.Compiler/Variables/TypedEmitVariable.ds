@@ -42,5 +42,27 @@ namespace Flame.Compiler.Variables
         {
             return new CodeBlockStatement(Variable.EmitRelease());
         }
+
+        public override const int GetHashCode()
+        {
+            return Variable.GetHashCode();
+        }
+        public override const bool Equals(object Other)
+        {
+            if (Other is TypedEmitVariable)
+            {
+                var otherEmitVar = (TypedEmitVariable)Other;
+                return Variable == otherEmitVar.Variable;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override const string ToString()
+        {
+            return "emit-var(" + Variable + ", " + Type.FullName + ")";
+        }
     }
 }
