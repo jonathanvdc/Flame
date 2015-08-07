@@ -24,5 +24,10 @@ namespace Flame.Compiler.Statements
         {
             return Generator.EmitVoid();
         }
+
+        public override const string ToString()
+        {
+            return "{}";
+        }
     }
 }

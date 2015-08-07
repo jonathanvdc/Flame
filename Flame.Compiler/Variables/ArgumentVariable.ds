@@ -49,6 +49,11 @@ namespace Flame.Compiler.Variables
         {
             return Other is ArgumentVariable && Equals((ArgumentVariable)Other);
         }
+
+        public override const string ToString()
+        {
+            return "arg(" + Index + ", " + Parameter.Name + ")";
+        }
     }
     public class ArgumentGetExpression : VariableGetExpressionBase<ArgumentVariable>
     {
@@ -63,6 +68,11 @@ namespace Flame.Compiler.Variables
         {
             var variable = Generator.GetArgument(Variable.Index);
             return variable.EmitGet();
+        }
+
+        public override const string ToString()
+        {
+            return (string)Variable;
         }
     }
     public class ArgumentAddressOfExpression : VariableGetExpressionBase<ArgumentVariable>
@@ -87,6 +97,11 @@ namespace Flame.Compiler.Variables
             var variable = ((IUnmanagedCodeGenerator)Generator).GetUnmanagedArgument(Variable.Index);
             return variable.EmitAddressOf();
         }
+
+        public override const string ToString()
+        {
+            return "&" + (string)Variable;
+        }
     }
     public class ArgumentSetStatement : VariableSetStatementBase<ArgumentVariable>
     {
@@ -110,6 +125,11 @@ namespace Flame.Compiler.Variables
         {
             var variable = Generator.GetArgument(Variable.Index);
             return variable.EmitSet(Value.Emit(Generator));
+        }
+
+        public override const string ToString()
+        {
+            return (string)Variable + " = " + Value;
         }
     }
 }
