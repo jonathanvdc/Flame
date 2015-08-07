@@ -1,6 +1,7 @@
 ﻿using Flame.Compiler;
 using Flame.Compiler.Visitors;
 using Flame.Optimization;
+using Flame.Optimization.Variables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -82,13 +83,27 @@ namespace Flame.Front.Target
             return con - pro < Tolerance;
         }
 
+        private IStatement OptimizeSimple(IStatement Value)
+        {
+            return Value.Optimize();
+        }
+
+        private IStatement OptimizeAdvanced(IStatement Value)
+        {
+            return DefinitionPropagationPass.Instance.Apply(Value.Optimize()).Optimize();
+        }
+
         public IStatement Apply(BodyPassArgument Value)
         {
             int maxRecursion = Value.PassEnvironment.Log.Options.GetOption<int>("max-inline-recursion", 3);
             int inlineTolerance = Value.PassEnvironment.Log.Options.GetOption<int>("inline-tolerance", 0);
+            bool propInline = Value.PassEnvironment.Log.Options.GetOption<bool>("inline-propagate-locals", true);
 
-            var inliner = new InliningVisitor(Value.Method, call => ShouldInline(Value, call, inlineTolerance), 
-                                              Value.PassEnvironment.GetMethodBody, stmt => stmt.Optimize(), maxRecursion);
+            var inliner = new InliningVisitor(Value.Method, call => ShouldInline(Value, call, inlineTolerance),
+                                              Value.PassEnvironment.GetMethodBody, 
+                                              propInline ? new Func<IStatement, IStatement>(OptimizeAdvanced) 
+                                                         : new Func<IStatement, IStatement>(OptimizeSimple),
+                                              maxRecursion);
             var result = inliner.Visit(Value.Body);
             if (inliner.HasInlined)
             {
