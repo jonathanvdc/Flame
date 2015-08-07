@@ -20,6 +20,28 @@ namespace Flame.Compiler
     }
 
     /// <summary>
+    /// Defines a node that can be copied, thereby removing any dependencies
+    /// on the original node.
+    /// This is a useful interface for nodes that change their internal
+    /// representation when they encounter a code generator, and can thus not
+    /// be shared safely.
+    /// </summary>
+    public interface ICopyableNode<out T> : INode
+        where T : INode
+    {
+        /// <summary>
+        /// Copies this node. A new node is returned that does not depend
+        /// on this node.
+        /// </summary>
+        /// <remarks>
+        /// Note that this method creates neither a deep nor a shallow clone.
+        /// Instead, it creates a new node that does not depend on this
+        /// node's internals.
+        /// </remarks>
+        T Copy();
+    }
+
+    /// <summary>
     /// Defines a node visitor: an object that transforms code nodes.
     /// </summary>
     public interface INodeVisitor

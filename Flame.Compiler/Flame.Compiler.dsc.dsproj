@@ -202,6 +202,7 @@
 			<Compile Include="Visitors\AggregateVisitor.ds" />
 			<Compile Include="Visitors\AnyPredicateVisitorBase.ds" />
 			<Compile Include="Visitors\BodyPassBase.ds" />
+			<Compile Include="Visitors\CloningVisitor.ds" />
 			<Compile Include="Visitors\ContinueRewriter.ds" />
 			<Compile Include="Visitors\DeadCodeVisitor.ds" />
 			<Compile Include="Visitors\EmptyPass.ds" />

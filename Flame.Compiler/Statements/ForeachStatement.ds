@@ -15,11 +15,16 @@ namespace Flame.Compiler.Statements
 		{
 			this.ElementVariables = new List<ManuallyBoundVariable>();
 		}
+		public const this([ManuallyBoundVariable] Items)
+		{
+			this.ElementVariables = new List<ManuallyBoundVariable>(Items);
+		}
 
 		public List<ManuallyBoundVariable> ElementVariables { const get; private set; }
 	}
 
-	public class ForeachStatement : IStatement, IPredicateNode, IMemberNode, IFlowStatement
+	public class ForeachStatement : IStatement, IPredicateNode, IMemberNode,
+									IFlowStatement, ICopyableNode<IStatement>
 	{
 		public const this(set BlockTag Tag, set [CollectionElement] Collections,
 						  set IStatement Body, set ForeachElementCache elemCache);
@@ -47,6 +52,24 @@ namespace Flame.Compiler.Statements
 			{
 				return Body.IsEmpty;
 			}
+		}
+
+		public IStatement Copy() : ICopyableNode<IStatement>.Copy
+		{
+			var substDict = new Dictionary<IVariable, IVariable>();
+			var newElems  = new List<ManuallyBoundVariable>();
+			foreach (var item in elemCache.ElementVariables)
+			{
+				var newVar = new ManuallyBoundVariable(item.Member);
+				substDict[item] = newVar;
+				newElems.Add(newVar);
+			}
+
+			var substVisitor = new VariableSubstitutingVisitor(substDict);
+			var newCache = new ForeachElementCache(newElems);
+			var newBody = substVisitor.Visit(Body);
+
+			return new ForeachStatement(Tag, Collections, newBody, newCache);
 		}
 
 		public IMemberNode ConvertMembers(MemberConverter Converter)

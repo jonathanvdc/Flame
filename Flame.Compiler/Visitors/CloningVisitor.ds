@@ -1,0 +1,30 @@
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// Defines a visitor that creates a copy, recursively removing any dependencies
+    /// on the original node tree.
+    /// </summary>
+    public static class CloningVisitor : NodeVisitorBase
+    {
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is ICopyableNode<IExpression>;
+        }
+
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is ICopyableNode<IStatement>;
+        }
+
+        protected override IExpression Transform(IExpression Value)
+        {
+            return ((ICopyableNode<IExpression>)Value).Copy().Accept(this);
+        }
+
+        protected override IStatement Transform(IStatement Value)
+        {
+            return ((ICopyableNode<IStatement>)Value).Copy().Accept(this);
+        }
+    }
+}
