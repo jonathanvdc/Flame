@@ -88,7 +88,7 @@ namespace Flame.Compiler.Visitors
             return CaptureVariable(Variable, Name, IsArgument);
         }
 
-        protected override IVariable SubstituteVariableRecursively(IVariable Variable)
+        protected override IVariable SubstituteVariableRecursivelyOrNull(IVariable Variable)
         {
             if (Variable is LateBoundVariable)
             {
@@ -100,16 +100,25 @@ namespace Flame.Compiler.Visitors
                         capturedVariables[innerVal] = capturedVariables[Variable];
                     }
 
-                    var result = SubstituteVariableRecursively(innerVal);
-                    if (!capturedVariables.ContainsKey(result)) // Variables bubble up
+                    var result = SubstituteVariableRecursivelyOrNull(innerVal);
+                    if (result != null)
                     {
-                        capturedVariables[Variable] = result;
+                        if (!capturedVariables.ContainsKey(result)) // Variables bubble up
+                        {
+                            capturedVariables[Variable] = result;
+                        }
+                        return result;
                     }
-                    return result;
                 }
             }
 
-            return SubstituteVariable(Variable);
+            // The given variable was either not a late-bound variable, or its
+            // bound variable couldn't be substituted. Either way, we'll try
+            // to replace the variable itself now.
+            if (CanSubstituteVariable(Variable))
+                return SubstituteVariable(Variable);
+            else
+                return null;
         }
 
         public override virtual const bool Matches(IStatement Value)
