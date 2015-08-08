@@ -9,12 +9,17 @@ namespace Flame.Compiler.Visitors
     /// <summary>
     /// Defines a flow visitor that trims dead code.
     /// </summary>
-    public class DeadCodeVisitor : NodeVisitorBase, IFlowVisitor<bool, bool>
+    public class DeadCodeVisitor : NodeVisitorBase, IFlowVisitor<bool, bool>,
+                                   ILambdaVisitor
     {
         public const this()
         {
             this.CurrentFlow = true;
             this.deadCodeStmts = new List<SourceStatement>();
+        }
+        private const this(set List<SourceStatement> deadCodeStmts)
+        {
+            this.CurrentFlow = true;
         }
 
         private List<SourceStatement> deadCodeStmts;
@@ -120,6 +125,18 @@ namespace Flame.Compiler.Visitors
                 }
                 return result;
             }
+        }
+
+        public IExpression VisitBody(IExpression Value, IMethod OwningMember)
+        {
+            var newVisitor = new DeadCodeVisitor(deadCodeStmts);
+            return newVisitor.Visit(Value);
+        }
+
+        public IStatement VisitBody(IStatement Value, IMethod OwningMember)
+        {
+            var newVisitor = new DeadCodeVisitor(deadCodeStmts);
+            return newVisitor.Visit(Value);
         }
     }
 }

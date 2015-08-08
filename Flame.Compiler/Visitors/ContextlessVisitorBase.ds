@@ -1,0 +1,20 @@
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// A visitor base class for visitors that do not in any way depend on
+    /// the context, i.e. which method owns the nodes being visited.
+    /// </summary>
+    public abstract class ContextlessVisitorBase : NodeVisitorBase, ILambdaVisitor
+    {
+        public IExpression VisitBody(IExpression Value, IMethod OwningMember)
+        {
+            return Visit(Value);
+        }
+
+        public IStatement VisitBody(IStatement Value, IMethod OwningMember)
+        {
+            return Visit(Value);
+        }
+    }
+}
