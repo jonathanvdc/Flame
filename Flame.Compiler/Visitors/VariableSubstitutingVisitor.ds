@@ -157,7 +157,8 @@ namespace Flame.Compiler.Visitors
         }
     }
 
-    public class LocalTypeSubstitutingVisitor : VariableSubstitutingVisitorBase
+    public class LocalTypeSubstitutingVisitor : VariableSubstitutingVisitorBase,
+                                                ILambdaVisitor
     {
         public const this(set IConverter<IType, IType> TypeConverter)
         {
@@ -195,6 +196,26 @@ namespace Flame.Compiler.Visitors
                     return newLbVar;
                 }
             }
+        }
+
+        /// <summary>
+        /// Visits the given expression, which logically belongs to the given method.
+        /// </summary>
+        public IExpression VisitBody(IExpression Value, IMethod OwningMember)
+        {
+            return Visit(Value); // We really don't care about who owns this expression.
+                                 // All that matters here is that the local variables'
+                                 // types get replaced.
+        }
+
+        /// <summary>
+        /// Visits the given statement, which logically belongs to the given method.
+        /// </summary>
+        public IStatement VisitBody(IStatement Value, IMethod OwningMember)
+        {
+            return Visit(Value); // We really don't care about who owns this expression.
+                                 // All that matters here is that the local variables'
+                                 // types get replaced.
         }
     }
 }
