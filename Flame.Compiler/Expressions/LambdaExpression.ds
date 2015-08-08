@@ -114,8 +114,12 @@ namespace Flame.Compiler.Expressions
         }
     }
 
+    /// <summary>
+    /// A type of expression that describes an anonymous function with explicit,
+    /// by-value capture: variables outside the lambda are not permitted within.
+    /// </summary>
     public class LambdaExpression : IExpression, ICopyableNode<IExpression>,
-                                    IMemberNode
+                                    IMemberNode, IFlowExpression
     {
         public const this(set LambdaHeader Header, set IStatement Body)
         {
@@ -186,6 +190,16 @@ namespace Flame.Compiler.Expressions
             return CreateLambda(Header.Accept(Visitor), Visitor.Visit(Body), BoundHeaderBlock);
         }
 
+        /// <summary>
+        /// Accepts and interacts with a flow visitor.
+        /// </summary>
+        public IExpression AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+            : IFlowExpression.AcceptFlow<TState, TFlow>
+        {
+            // Right now, we just don't visit the lambda's body.
+            return CreateLambda(Header.Accept(Visitor), Body, BoundHeaderBlock);
+        }
+
         private const bool MatchGetValueExpr(IExpression Value)
         {
             if (Value is LambdaCapturedValueExpression)
@@ -230,7 +244,7 @@ namespace Flame.Compiler.Expressions
             var lambdaGen   = (ILambdaCodeGenerator)Generator;
 
             var headerBlock = BoundHeaderBlock.Bind(Header.Emit(lambdaGen));
-            var bodyBlock   = Body.Emit(lambdaGen);
+            var bodyBlock   = Body.Emit(headerBlock.LambdaCodeGenerator);
 
             var result = lambdaGen.EmitLambda(headerBlock, bodyBlock);
 
