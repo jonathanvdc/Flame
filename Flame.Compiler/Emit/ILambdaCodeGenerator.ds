@@ -1,0 +1,27 @@
+using System;
+
+namespace Flame.Compiler.Emit
+{
+    public interface ILambdaCodeGenerator : ICodeGenerator
+    {
+        /// <summary>
+        /// Creates a lambda header block for a lambda that has the given
+        /// method signature and sequence of captured values.
+        /// </summary>
+        ILambdaHeaderBlock EmitLambdaHeader(IMethod Member, [ICodeBlock] CapturedValues);
+
+        /// <summary>
+        /// Creates a lambda from the given header and body block.
+        /// </summary>
+        ICodeBlock EmitLambda(ILambdaHeaderBlock Header, ICodeBlock Body);
+    }
+
+    public interface ILambdaHeaderBlock
+    {
+        /// <summary>
+        /// Creates a code block that gets the lambda's captured value with
+        /// the given index.
+        /// </summary>
+        ICodeBlock GetCapturedValue(int Index);
+    }
+}

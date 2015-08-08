@@ -1,0 +1,280 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Compiler.Expressions
+{
+    /// <summary>
+    /// Represents a lambda's "header": its signature and capture list.
+    /// </summary>
+    public struct LambdaHeader
+    {
+        public const this(set IMethod Member, set IReadOnlyList<IExpression> CaptureList);
+
+        /// <summary>
+        /// Gets this lambda expression's signature.
+        /// </summary>
+        public IMethod Member { const get; private set; }
+
+        /// <summary>
+        /// Gets the lambda expression's list of captured variables.
+        /// </summary>
+        public IReadOnlyList<IExpression> CaptureList { const get; private set; }
+
+        public LambdaHeader Apply(IExpression(IExpression) Func)
+        {
+            bool changes = false;
+            var newCaptures = new IExpression[CaptureList.Count];
+            foreach (var from in CaptureList, var to in newCaptures)
+            {
+                to = Func(from);
+                if (to != from)
+                    changes = true;
+            }
+
+            if (changes)
+                return new LambdaHeader(Member, (IReadOnlyList<IExpression>)newCaptures);
+            else
+                return this;
+        }
+
+        private IExpression OptimizeExpr(IExpression Value)
+        {
+            return Value.Optimize();
+        }
+
+        public LambdaHeader Optimize()
+        {
+            return Apply(OptimizeExpr);
+        }
+
+        public LambdaHeader Accept(INodeVisitor Visitor)
+        {
+            return Apply(Visitor.Visit);
+        }
+
+        public LambdaHeader ConvertMembers(MemberConverter Converter)
+        {
+            var newMethod = Converter.Convert(Member);
+            if (Member == newMethod)
+                return this;
+            else
+                return new LambdaHeader(newMethod, CaptureList);
+        }
+
+        public ILambdaHeaderBlock Emit(ILambdaCodeGenerator Generator)
+        {
+            return Generator.EmitLambdaHeader(Member, CaptureList.EmitAll(Generator));
+        }
+    }
+
+    /// <summary>
+    /// A type that contains a bound emit lambda header block.
+    /// </summary>
+    public class LambdaBoundHeaderBlock
+    {
+        /// <summary>
+        /// Creates a bound header block that has not been bound to any block.
+        /// </summary>
+        public const this();
+
+        /// <summary>
+        /// Creates a bound header block that is already bound to the given block.
+        /// </summary>
+        public const this(set ILambdaHeaderBlock BoundBlock);
+
+        /// <summary>
+        /// Gets this lambda expression's bound header block, which is non-null
+        /// only during a call to `Emit`.
+        /// </summary>
+        public ILambdaHeaderBlock BoundBlock { const get; set; }
+
+        /// <summary>
+        /// Tests if an emit lambda header block has been bound to this instance.
+        /// </summary>
+        public bool IsBound { const get return BoundBlock != null; }
+
+        /// <summary>
+        /// Binds the given emit lambda header block to this instance.
+        /// </summary>
+        public ILambdaHeaderBlock Bind(ILambdaHeaderBlock Block)
+        {
+            this.BoundBlock = Block;
+            return Block;
+        }
+
+        /// <summary>
+        /// Releases the bound emit lambda header block.
+        /// </summary>
+        public void Release()
+        {
+            this.BoundBlock = null;
+        }
+    }
+
+    public class LambdaExpression : IExpression, ICopyableNode<IExpression>,
+                                    IMemberNode
+    {
+        public const this(set LambdaHeader Header, set IStatement Body)
+        {
+            this.BoundHeaderBlock = new LambdaBoundHeaderBlock();
+        }
+        public const this(set LambdaHeader Header, set IStatement Body, set LambdaBoundHeaderBlock BoundHeaderBlock);
+
+        /// <summary>
+        /// Gets the lambda expression's header.
+        /// </summary>
+        public LambdaHeader Header { const get; private set; }
+
+        /// <summary>
+        /// Gets the lambda expression's body.
+        /// </summary>
+        public IStatement Body { const get; private set; }
+
+        /// <summary>
+        /// Gets this lambda expression's bound header block, which is non-null
+        /// only during a call to `Emit`.
+        /// </summary>
+        public LambdaBoundHeaderBlock BoundHeaderBlock { const get; private set; }
+
+        /// <summary>
+        /// Creates an expression that represents the captured value with the
+        /// given index.
+        /// </summary>
+        public const IExpression GetCapturedValue(int Index)
+        {
+            return new LambdaCapturedValueExpression(Header, BoundHeaderBlock, Index);
+        }
+
+        public bool IsConstant
+        {
+            const get return Header.CaptureList.AreConstant;
+        }
+
+        public IType Type
+        {
+            const get return MethodType.Create(Header.Member);
+        }
+
+        public const IBoundObject Evaluate()
+        {
+            return null;
+        }
+
+        private const LambdaExpression CreateLambda(LambdaHeader NewHeader,
+            IStatement NewBody, LambdaBoundHeaderBlock NewBoundHeader)
+        {
+            if (Header == NewHeader && Body == NewBody && BoundHeaderBlock == NewBoundHeader)
+            {
+                return this;
+            }
+            else
+            {
+                return new LambdaExpression(NewHeader, NewBody, NewBoundHeader);
+            }
+        }
+
+        public IExpression Optimize()
+        {
+            return CreateLambda(Header.Optimize(), Body.Optimize(), BoundHeaderBlock);
+        }
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            return CreateLambda(Header.Accept(Visitor), Visitor.Visit(Body), BoundHeaderBlock);
+        }
+
+        private const bool MatchGetValueExpr(IExpression Value)
+        {
+            if (Value is LambdaCapturedValueExpression)
+            {
+                var captValExpr = (LambdaCapturedValueExpression)Value;
+                return captValExpr.BoundHeaderBlock == BoundHeaderBlock;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private const IExpression TransformGetValueExpr(IExpression Value)
+        {
+            var captValExpr = (LambdaCapturedValueExpression)Value;
+            return new LambdaCapturedValueExpression(captValExpr.Header, BoundHeaderBlock, captValExpr.Index);
+        }
+
+        public IExpression Copy()
+        {
+            var newLambda = new LambdaExpression(Header, Body);
+
+            if (Header.CaptureList.Count == 0)
+                return newLambda; // No dependencies to get rid of in the body.
+
+            var rewriter = new ExpressionRewriter(this.MatchGetValueExpr, newLambda.TransformGetValueExpr);
+            newLambda.Body = rewriter.Visit(Body);
+            return newLambda;
+        }
+
+        /// <summary>
+        /// Converts the node's members with the given member converter.
+        /// </summary>
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            return CreateLambda(Header.ConvertMembers(Converter), Body, BoundHeaderBlock);
+        }
+
+        public ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            var lambdaGen   = (ILambdaCodeGenerator)Generator;
+
+            var headerBlock = BoundHeaderBlock.Bind(Header.Emit(lambdaGen));
+            var bodyBlock   = Body.Emit(lambdaGen);
+
+            var result = lambdaGen.EmitLambda(headerBlock, bodyBlock);
+
+            BoundHeaderBlock.Release();
+
+            return result;
+        }
+    }
+
+    public class LambdaCapturedValueExpression : IExpression
+    {
+        public const this(set LambdaHeader Header,
+                          set LambdaBoundHeaderBlock BoundHeaderBlock,
+                          set int Index);
+
+        public LambdaHeader Header { const get; private set; }
+        public LambdaBoundHeaderBlock BoundHeaderBlock { const get; private set; }
+        public int Index { const get; private set; }
+
+        public IExpression CapturedValue { const get return Header.CaptureList[Index]; }
+
+        public bool IsConstant { const get return CapturedValue.IsConstant; }
+        public IType Type { const get return CapturedValue.Type; }
+        public IBoundObject Evaluate()
+        {
+            return CapturedValue.Evaluate();
+        }
+
+        public IExpression Optimize()
+        {
+            if (CapturedValue.IsConstant)
+                return CapturedValue.Optimize();
+            else
+                return this;
+        }
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
+        public ICodeBlock Emit(ICodeGenerator CodeGenerator)
+        {
+            return BoundHeaderBlock.BoundBlock.GetCapturedValue(Index);
+        }
+    }
+}

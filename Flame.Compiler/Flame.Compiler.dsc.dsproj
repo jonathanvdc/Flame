@@ -58,6 +58,7 @@
 			<Compile Include="Emit\IBranchingCodeGenerator.ds" />
 			<Compile Include="Emit\IEmitVariable.ds" />
 			<Compile Include="Emit\ILabel.ds" />
+			<Compile Include="Emit\ILambdaCodeGenerator.ds" />
 			<Compile Include="Emit\CodeGeneratorExtensions.ds" />
 			<Compile Include="Emit\IVariableMember.ds" />
 			<Compile Include="Emit\RetypedVariableMember.ds" />
@@ -97,6 +98,7 @@
 			<Compile Include="Expressions\NewVectorExpression.ds" />
 			<Compile Include="Expressions\NewObjectExpression.ds" />
 			<Compile Include="Expressions\IsExpression.ds" />
+			<Compile Include="Expressions\LambdaExpression.ds" />
 			<Compile Include="Expressions\CharExpression.ds" />
 			<Compile Include="Expressions\CodeBlockExpression.ds" />
 			<Compile Include="Expressions\UnaryExpression.ds" />
@@ -206,6 +208,7 @@
 			<Compile Include="Visitors\ContinueRewriter.ds" />
 			<Compile Include="Visitors\DeadCodeVisitor.ds" />
 			<Compile Include="Visitors\EmptyPass.ds" />
+			<Compile Include="Visitors\ExpressionRewriter.ds" />
 			<Compile Include="Visitors\IPass.ds" />
 			<Compile Include="Visitors\LoggingVisitor.ds" />
 			<Compile Include="Visitors\LowerYieldPass.ds" />

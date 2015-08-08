@@ -1,0 +1,45 @@
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// A node visitor that matches and then replaces expressions.
+    /// </summary>
+    public class ExpressionRewriter : NodeVisitorBase
+    {
+        /// <summary>
+        /// Creates a final flow visitor from the given delegates.
+        /// </summary>
+        public const this(set bool(IExpression) MatchesExpression,
+                          set IExpression(IExpression) TransformExpression);
+
+        /// <summary>
+        /// Finds out whether a given statement matches a set of criteria.
+        /// </summary>
+        public bool(IExpression) MatchesExpression { const get; private set; }
+
+        /// <summary>
+        /// Transforms a matched statement.
+        /// </summary>
+        public IExpression(IExpression) TransformExpression { const get; private set; }
+
+        public const bool Matches(IExpression Value)
+        {
+            return MatchesExpression(Value);
+        }
+
+        public const bool Matches(IStatement Value)
+        {
+            return false;
+        }
+
+        protected IExpression Transform(IExpression Value)
+        {
+            return TransformExpression(Value);
+        }
+
+        protected IStatement Transform(IStatement Value)
+        {
+            return Value.Accept(this);
+        }
+    }
+}
