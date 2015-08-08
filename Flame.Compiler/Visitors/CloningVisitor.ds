@@ -5,7 +5,7 @@ namespace Flame.Compiler.Visitors
     /// Defines a visitor that creates a copy, recursively removing any dependencies
     /// on the original node tree.
     /// </summary>
-    public static class CloningVisitor : NodeVisitorBase
+    public static class CloningVisitor : ContextlessVisitorBase, ILambdaVisitor
     {
         public override const bool Matches(IExpression Value)
         {
