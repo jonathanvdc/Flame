@@ -188,14 +188,21 @@ namespace Flame.Compiler.Expressions
             return CreateLambda(Header.Optimize(), Body.Optimize(), BoundHeaderBlock);
         }
 
-        public IExpression Accept(INodeVisitor Visitor)
+        private IStatement VisitBody(INodeVisitor Visitor)
         {
-            return CreateLambda(Header.Accept(Visitor), Body, BoundHeaderBlock);
+            if (Visitor is ILambdaVisitor)
+            {
+                return ((ILambdaVisitor)Visitor).Visit(Body);
+            }
+            else
+            {
+                return Body;
+            }
         }
 
-        public IExpression AcceptLambda(ILambdaVisitor Visitor)
+        public IExpression Accept(INodeVisitor Visitor)
         {
-            return CreateLambda(Header.Accept(Visitor), Visitor.VisitBody(Body, Signature), BoundHeaderBlock);
+            return CreateLambda(Header.Accept(Visitor), VisitBody(Visitor), BoundHeaderBlock);
         }
 
         /// <summary>
@@ -204,8 +211,7 @@ namespace Flame.Compiler.Expressions
         public IExpression AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
             : IFlowExpression.AcceptFlow<TState, TFlow>
         {
-            // Right now, we just don't visit the lambda's body.
-            return CreateLambda(Header.Accept(Visitor), Body, BoundHeaderBlock);
+            return CreateLambda(Header.Accept(Visitor), VisitBody(Visitor), BoundHeaderBlock);
         }
 
         private const bool MatchGetValueExpr(IExpression Value)

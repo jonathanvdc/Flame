@@ -5,7 +5,7 @@ using Flame.Build;
 
 namespace Flame.Compiler.Visitors
 {
-    public class MemberNodeVisitor : NodeVisitorBase
+    public class MemberNodeVisitor : NodeVisitorBase, ILambdaVisitor
     {
         public const this(set MemberConverter Converter)
         {
@@ -84,6 +84,22 @@ namespace Flame.Compiler.Visitors
             {
                 return localVisitor.Visit(Statement);
             }
+        }
+
+        /// <summary>
+        /// Visits the given expression, which logically belongs to the given method.
+        /// </summary>
+        public IExpression VisitBody(IExpression Value, IMethod OwningMember)
+        {
+            return Visit(Value);
+        }
+
+        /// <summary>
+        /// Visits the given statement, which logically belongs to the given method.
+        /// </summary>
+        public IStatement VisitBody(IStatement Value, IMethod OwningMember)
+        {
+            return Visit(Value);
         }
     }
 }
