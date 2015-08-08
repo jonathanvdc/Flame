@@ -23,5 +23,11 @@ namespace Flame.Compiler.Emit
         /// the given index.
         /// </summary>
         ICodeBlock GetCapturedValue(int Index);
+
+        /// <summary>
+        /// Gets a code generator that should be used to construct the lambda's
+        /// body.
+        /// </summary>
+        ICodeGenerator LambdaCodeGenerator { const get; }
     }
 }
