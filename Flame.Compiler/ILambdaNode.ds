@@ -1,0 +1,37 @@
+
+namespace Flame.Compiler
+{
+    /// <summary>
+    /// Defines common functionality for lambda nodes: nodes that
+    /// contain nodes that belong to a different method than the outer method.
+    /// </summary>
+    public interface ILambdaNode<T> : INode
+        where T : INode
+    {
+        /// <summary>
+        /// Gets the lambda expression's method signature.
+        /// </summary>
+        IMethod Signature { const get; }
+
+        /// <summary>
+        /// Accepts the given lambda visitor.
+        /// </summary>
+        T AcceptLambda(ILambdaVisitor Visitor);
+    }
+
+    /// <summary>
+    /// Defines common functionality for node visitors that can deal with lambdas.
+    /// </summary>
+    public interface ILambdaVisitor : INodeVisitor
+    {
+        /// <summary>
+        /// Visits the given expression, which logically belongs to the given method.
+        /// </summary>
+        IExpression VisitBody(IExpression Value, IMethod OwningMember);
+
+        /// <summary>
+        /// Visits the given statement, which logically belongs to the given method.
+        /// </summary>
+        IStatement VisitBody(IStatement Value, IMethod OwningMember);
+    }
+}

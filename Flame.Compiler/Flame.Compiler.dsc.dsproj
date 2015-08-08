@@ -25,6 +25,7 @@
 		<Compile Include="ParameterExtensions.ds" />
 		<Compile Include="IVariableNode.ds" />
 		<Compile Include="IInitializedField.ds" />
+		<Compile Include="ILambdaNode.ds" />
 		<Compile Include="IBodyMethod.ds" />
 		<Compile Include="IDynamicEnvironment.ds" />
 		<Compile Include="PrimitiveExpressionExtensions.ds" />
