@@ -11,12 +11,12 @@ namespace Flame.Compiler.Expressions
     /// </summary>
     public struct LambdaHeader
     {
-        public const this(set IMethod Member, set IReadOnlyList<IExpression> CaptureList);
+        public const this(set IMethod Signature, set IReadOnlyList<IExpression> CaptureList);
 
         /// <summary>
         /// Gets this lambda expression's signature.
         /// </summary>
-        public IMethod Member { const get; private set; }
+        public IMethod Signature { const get; private set; }
 
         /// <summary>
         /// Gets the lambda expression's list of captured variables.
@@ -35,7 +35,7 @@ namespace Flame.Compiler.Expressions
             }
 
             if (changes)
-                return new LambdaHeader(Member, (IReadOnlyList<IExpression>)newCaptures);
+                return new LambdaHeader(Signature, (IReadOnlyList<IExpression>)newCaptures);
             else
                 return this;
         }
@@ -57,8 +57,8 @@ namespace Flame.Compiler.Expressions
 
         public LambdaHeader ConvertMembers(MemberConverter Converter)
         {
-            var newMethod = Converter.Convert(Member);
-            if (Member == newMethod)
+            var newMethod = Converter.Convert(Signature);
+            if (Signature == newMethod)
                 return this;
             else
                 return new LambdaHeader(newMethod, CaptureList);
@@ -66,7 +66,7 @@ namespace Flame.Compiler.Expressions
 
         public ILambdaHeaderBlock Emit(ILambdaCodeGenerator Generator)
         {
-            return Generator.EmitLambdaHeader(Member, CaptureList.EmitAll(Generator));
+            return Generator.EmitLambdaHeader(Signature, CaptureList.EmitAll(Generator));
         }
     }
 
@@ -119,7 +119,8 @@ namespace Flame.Compiler.Expressions
     /// by-value capture: variables outside the lambda are not permitted within.
     /// </summary>
     public class LambdaExpression : IExpression, ICopyableNode<IExpression>,
-                                    IMemberNode, IFlowExpression
+                                    IMemberNode, IFlowExpression,
+                                    ILambdaNode<IExpression>
     {
         public const this(set LambdaHeader Header, set IStatement Body)
         {
@@ -143,6 +144,8 @@ namespace Flame.Compiler.Expressions
         /// </summary>
         public LambdaBoundHeaderBlock BoundHeaderBlock { const get; private set; }
 
+        public IMethod Signature { const get return Header.Signature; }
+
         /// <summary>
         /// Creates an expression that represents the captured value with the
         /// given index.
@@ -159,7 +162,7 @@ namespace Flame.Compiler.Expressions
 
         public IType Type
         {
-            const get return MethodType.Create(Header.Member);
+            const get return MethodType.Create(Header.Signature);
         }
 
         public const IBoundObject Evaluate()
@@ -187,7 +190,12 @@ namespace Flame.Compiler.Expressions
 
         public IExpression Accept(INodeVisitor Visitor)
         {
-            return CreateLambda(Header.Accept(Visitor), Visitor.Visit(Body), BoundHeaderBlock);
+            return CreateLambda(Header.Accept(Visitor), Body, BoundHeaderBlock);
+        }
+
+        public IExpression AcceptLambda(ILambdaVisitor Visitor)
+        {
+            return CreateLambda(Header.Accept(Visitor), Visitor.VisitBody(Body, Signature), BoundHeaderBlock);
         }
 
         /// <summary>
