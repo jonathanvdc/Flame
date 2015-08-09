@@ -11,15 +11,15 @@ namespace Flame.Syntax.DSharp
     public class DelegateTypeSyntax : ITokenTypeSyntax, IRelevantSyntax<Token>, ISourceSyntax
 	{
 		public const this(set ITokenTypeSyntax ElementType,
-                          set DelimitedList<ITokenTypeSyntax> ParameterTypes);
+                          set DelimitedList<IMemberSyntax<IParameter>> Parameters);
 
 		public ITokenTypeSyntax ElementType { const get; private set; }
-		public DelimitedList<ITokenTypeSyntax> ParameterTypes { const get; private set; }
+		public DelimitedList<IMemberSyntax<IParameter>> Parameters { const get; private set; }
 
 		public SourceLocation Location
 		{
 			const get return ElementType.GetSourceLocation()
-                                        .Concat(ParameterTypes.Location);
+                                        .Concat(Parameters.Location);
 		}
 
 		public [Token] LeadingTrivia
@@ -28,7 +28,7 @@ namespace Flame.Syntax.DSharp
         	{
         		List<Token> trivia = new List<Token>();
         		trivia.AddRange(ElementType.GetAllTrivia());
-        		trivia.AddRange(ParameterTypes.GetAllTrivia());
+        		trivia.AddRange(Parameters.GetAllTrivia());
 				return trivia;
         	}
         }
@@ -44,30 +44,34 @@ namespace Flame.Syntax.DSharp
         	{
         		var list = new List<Token>();
 				list.AddRange(ElementType.Tokens);
-                list.AddRange(ParameterTypes.Tokens);
+                list.AddRange(Parameters.Tokens);
 				return list;
         	}
-        }
-
-        public IType[] CreateParameterTypes(ISyntaxState State)
-        {
-        	IType[] args = new IType[ParameterTypes.Count];
-        	foreach (var item in ParameterTypes, var output in args)
-        	{
-        		output = item.CreateVerifiedType(State);
-        	}
-        	return args;
         }
 
         public IType CreateType(ISyntaxState State)
         {
         	var elemType = ElementType.CreateVerifiedType(State);
-        	var typeArgs = CreateParameterTypes(State);
 
             var descMethod = new DescribedMethod("", null, elemType, true);
-            for (int i = 0; i < typeArgs.Length; i++)
+            foreach (var item in Parameters)
             {
-                descMethod.AddParameter(new DescribedParameter("param" + i, typeArgs[i]));
+                var paramMember = item.CreateMember(State);
+
+                if (string.IsNullOrEmpty(paramMember.Name))
+                {
+                    var descParam = new DescribedParameter("__param" + descMethod.GetParameters().Length,
+                                                           paramMember.ParameterType);
+                    foreach (var attr in paramMember.GetAttributes())
+                    {
+                        descParam.AddAttribute(attr);
+                    }
+                    descMethod.AddParameter(descParam);
+                }
+                else
+                {
+                    descMethod.AddParameter(paramMember);
+                }
             }
             return MethodType.Create(descMethod);
         }
@@ -79,9 +83,9 @@ namespace Flame.Syntax.DSharp
 
         public const CodeBuilder GetCode()
         {
-            CodeBuilder cb = new CodeBuilder();
+            var cb = new CodeBuilder();
             cb.Append(ElementType.GetCode());
-            cb.Append(ParameterTypes.GetCode());
+            cb.Append(Parameters.GetCode());
             return cb;
         }
 
