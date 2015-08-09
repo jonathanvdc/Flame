@@ -485,7 +485,7 @@ namespace Flame.Recompilation.Emit
 
         public ILambdaHeaderBlock EmitLambdaHeader(IMethod Member, IEnumerable<ICodeBlock> CapturedValues)
         {
-            return new LambdaHeaderBlock(Recompiler, new LambdaHeader(Member, GetExpressions(CapturedValues).ToArray());
+            return new LambdaHeaderBlock(Recompiler, new LambdaHeader(Member, GetExpressions(CapturedValues).ToArray()));
         }
 
         #endregion
