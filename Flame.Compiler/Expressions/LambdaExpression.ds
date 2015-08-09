@@ -146,15 +146,6 @@ namespace Flame.Compiler.Expressions
 
         public IMethod Signature { const get return Header.Signature; }
 
-        /// <summary>
-        /// Creates an expression that represents the captured value with the
-        /// given index.
-        /// </summary>
-        public const IExpression GetCapturedValue(int Index)
-        {
-            return new LambdaCapturedValueExpression(Header, BoundHeaderBlock, Index);
-        }
-
         public bool IsConstant
         {
             const get return Header.CaptureList.AreConstant;
