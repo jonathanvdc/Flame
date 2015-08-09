@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Flame.Build;
 using Flame.Compiler;
 using Flame.DSharp;
@@ -9,7 +10,8 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-    public class ParameterSyntax : IMemberSyntax<IParameter>, ISourceSyntax
+    public class ParameterSyntax : IMemberSyntax<IParameter>, ISourceSyntax,
+                                   ITokenNode
     {
         public const this(ISignatureSyntax Signature)
         {
@@ -18,6 +20,10 @@ namespace Flame.Syntax.DSharp
             this.NameToken = Signature.NameToken;
         }
         public const this(set [Token] ModifierTokens, set ITypeSyntax TypeSyntax, set Token NameToken);
+        public const this(set ITypeSyntax TypeSyntax, set Token NameToken)
+        {
+            this.ModifierTokens = Enumerable.Empty<Token>();
+        }
 
         public [Token] ModifierTokens { const get; private set; }
         public ITypeSyntax TypeSyntax { const get; private set; }
@@ -27,6 +33,17 @@ namespace Flame.Syntax.DSharp
             const get
             {
                 return NameToken.TokenValue;
+            }
+        }
+
+        public IReadOnlyList<Token> Tokens
+        {
+            const get
+            {
+                var results = new List<Token>(ModifierTokens);
+                results.AddRange(TypeSyntax.GetTokens());
+                results.Add(NameToken);
+                return results;
             }
         }
 
@@ -87,6 +104,49 @@ namespace Flame.Syntax.DSharp
         public bool IsSingletonMember
         {
         	const get return false;
+        }
+    }
+
+    public class AnonymousParameterSyntax : IMemberSyntax<IParameter>, ISourceSyntax,
+                                            ITokenNode
+    {
+        public const this(set ITypeSyntax TypeSyntax);
+
+        public ITypeSyntax TypeSyntax { const get; private set; }
+
+        public IReadOnlyList<Token> Tokens
+        {
+            const get return TypeSyntax.GetTokens();
+        }
+
+        public SourceLocation Location
+        {
+            const get return TypeSyntax.GetSourceLocation();
+        }
+
+        public IParameter CreateMember(ISyntaxState State)
+        {
+            return new DescribedParameter("", TypeSyntax.CreateVerifiedType(State));
+        }
+
+        public override const string ToString()
+        {
+            return GetCode().ToString();
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            return TypeSyntax.GetCode();
+        }
+
+        public bool IsExtensionMember
+        {
+            const get return false;
+        }
+
+        public bool IsSingletonMember
+        {
+            const get return false;
         }
     }
 }

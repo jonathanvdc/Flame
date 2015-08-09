@@ -1,0 +1,20 @@
+
+namespace Flame.DSharp
+{
+    /// <summary>
+    /// Wraps a read-write reference to a value.
+    /// </summary>
+    public class Box<T>
+    {
+        /// <summary>
+        /// Creates a new box containing the default value of `T`.
+        /// </summary>
+        public const this();
+        /// <summary>
+        /// Creates a new box from the given value of `T`.
+        /// </summary>
+        public const this(set T Value);
+
+        public T Value;
+    }
+}

@@ -182,10 +182,13 @@ namespace Flame.DSharp.Parser
 
         #endregion
 
-        #region Peek Generic Type Shred
+		#region PeekDelimitedList
 
-		protected virtual DelimitedList<ITokenTypeSyntax> PeekTypeList(ITokenStream Tokens,
-			TokenType LeftDelimiter, TokenType RightDelimiter, TokenIdentifier^ Position)
+		protected virtual DelimitedList<T> PeekDelimitedList<T>(
+			T(ITokenStream, Box<TokenIdentifier>) PeekItem,
+			ITokenStream Tokens, TokenType LeftDelimiter,
+			TokenType RightDelimiter, TokenIdentifier^ Position)
+			where T : ISyntaxNode, object
 		{
 			var leading = Tokens.PeekNoTrivia(*Position);
 			if (leading.Type != LeftDelimiter)
@@ -197,21 +200,23 @@ namespace Flame.DSharp.Parser
 				*Position = leading.Identifier;
 
 				var peek = Tokens.PeekNoTrivia(leading);
-				var typeArgs = new List<SeparatedItem<ITokenTypeSyntax>>();
+				var typeArgs = new List<SeparatedItem<T>>();
 				while (peek.Type != RightDelimiter && peek.Type != TokenType.EndOfFile && peek.Type != TokenType.UNDEFINED)
 				{
-					var arg = PeekEntireType(Tokens, true, Position);
+					var posBox = new Box<TokenIdentifier>(*Position);
+					var arg = PeekItem(Tokens, posBox);
+					*Position = posBox.Value;
 					if (arg == null)
 					{
 						return null;
 					}
 					if (peek.Type == TokenType.Comma)
 					{
-						typeArgs.Add(new SeparatedItem<ITokenTypeSyntax>(peek.TokenPeek, arg));
+						typeArgs.Add(new SeparatedItem<T>(peek.TokenPeek, arg));
 					}
 					else
 					{
-						typeArgs.Add(new SeparatedItem<ITokenTypeSyntax>(arg));
+						typeArgs.Add(new SeparatedItem<T>(arg));
 					}
 					peek = Tokens.PeekNoTrivia(*Position);
 					*Position = peek.Identifier;
@@ -223,13 +228,24 @@ namespace Flame.DSharp.Parser
 				{
 					*Position = peek.Identifier;
 
-					return new DelimitedList<ITokenTypeSyntax>(leading.TokenPeek, new SeparatedList<ITokenTypeSyntax>(typeArgs), peek.TokenPeek);
+					return new DelimitedList<T>(leading.TokenPeek, new SeparatedList<T>(typeArgs), peek.TokenPeek);
 				}
 				else
 				{
 					return null;
 				}
 			}
+		}
+
+		#endregion
+
+        #region Peek Generic Type Shred
+
+		protected virtual DelimitedList<ITokenTypeSyntax> PeekTypeList(ITokenStream Tokens,
+			TokenType LeftDelimiter, TokenType RightDelimiter, TokenIdentifier^ Position)
+		{
+			return PeekDelimitedList<ITokenTypeSyntax>(PeekEntireTypeWithDelegates,
+				Tokens, LeftDelimiter, RightDelimiter, Position);
 		}
 
         protected virtual ITokenTypeSyntax PeekGenericTypeShred(ITokenStream Tokens,
@@ -244,9 +260,39 @@ namespace Flame.DSharp.Parser
 			return PeekTypeShred(Tokens, type, AllowDelegates, Position);
         }
 
+		#endregion
+
+		#region Deleate type shred
+
+		protected virtual IMemberSyntax<IParameter> PeekDelegateParameter(
+			ITokenStream Tokens, Box<TokenIdentifier> Position)
+		{
+			var type = PeekEntireTypeWithDelegates(Tokens, Position);
+			if (type == null)
+				return null;
+			var peek = Tokens.PeekNoTrivia(Position.Value);
+			if (peek.Type == TokenType.Identifier)
+			{
+				Position.Value = peek.Identifier;
+
+				return new ParameterSyntax(type, peek.TokenPeek);
+			}
+			else
+			{
+				return new AnonymousParameterSyntax(type);
+			}
+		}
+
+		protected virtual DelimitedList<IMemberSyntax<IParameter>> PeekDelegateParameterList(ITokenStream Tokens,
+			TokenType LeftDelimiter, TokenType RightDelimiter, TokenIdentifier^ Position)
+		{
+			return PeekDelimitedList<IMemberSyntax<IParameter>>(PeekDelegateParameter,
+				Tokens, LeftDelimiter, RightDelimiter, Position);
+		}
+
 		protected virtual ITokenTypeSyntax PeekDelegateTypeShred(ITokenStream Tokens, ITokenTypeSyntax ElementType, TokenIdentifier^ Position)
 		{
-			var tList = PeekTypeList(Tokens, TokenType.RParen, TokenType.LParen, Position);
+			var tList = PeekDelegateParameterList(Tokens, TokenType.RParen, TokenType.LParen, Position);
 
 			if (tList == null) return null;
 
@@ -369,6 +415,14 @@ namespace Flame.DSharp.Parser
             TokenIdentifier pos = Tokens.CurrentPosition;
             return PeekEntireType(Tokens, AllowDelegates, &pos);
         }
+
+		protected ITokenTypeSyntax PeekEntireTypeWithDelegates(ITokenStream Tokens, Box<TokenIdentifier> Position)
+		{
+			var pos = Position.Value;
+			var result = PeekEntireType(Tokens, true, &pos);
+			Position.Value = pos;
+			return result;
+		}
 
         #endregion
 
@@ -1339,7 +1393,7 @@ namespace Flame.DSharp.Parser
 					{
 						semicolon = new Token(TokenType.Semicolon, ";");
 					}
-					
+
                   	if (expr is ISetVariableExpressionSyntax)
                    	{
                     	return new SetVariableStatementSyntax((ISetVariableExpressionSyntax)expr, semicolon);
