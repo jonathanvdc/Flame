@@ -241,7 +241,12 @@ namespace Flame.Compiler.Expressions
         /// </summary>
         public IMemberNode ConvertMembers(MemberConverter Converter)
         {
-            return CreateLambda(Header.ConvertMembers(Converter), Body, BoundHeaderBlock);
+            var newLambda = CreateLambda(Header.ConvertMembers(Converter), Body, BoundHeaderBlock);
+            if (newLambda == this)
+                return newLambda;
+            else
+                return (IMemberNode)newLambda.Copy(); // Copy the lambda to remove dependencies on
+                                                      // the previous lambda header.
         }
 
         public ICodeBlock Emit(ICodeGenerator Generator)
