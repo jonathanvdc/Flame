@@ -505,7 +505,7 @@ namespace Flame.ExpressionTrees.Emit
 
         #region EmitLambda
 
-        public LambdaExpression EmitLambda(Expression Body)
+        public System.Linq.Expressions.LambdaExpression EmitLambda(Expression Body)
         {
             return Expression.Lambda(
                         Expression.Block(
@@ -515,7 +515,7 @@ namespace Flame.ExpressionTrees.Emit
                         Method.ExpressionParameters);
         }
 
-        public LambdaExpression EmitLambda(IExpressionBlock Body)
+        public System.Linq.Expressions.LambdaExpression EmitLambda(IExpressionBlock Body)
         {
             return EmitLambda(Body.CreateExpression(FlowStructure.Root));
         }
