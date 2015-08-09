@@ -58,6 +58,7 @@
     <Compile Include="Emit\IfElseBlock.cs" />
     <Compile Include="Emit\IStatementBlock.cs" />
     <Compile Include="Emit\ForeachBlockHeader.cs" />
+    <Compile Include="Emit\LambdaHeaderBlock.cs" />
     <Compile Include="Emit\RecompiledVariable.cs" />
     <Compile Include="Emit\SequenceBlock.cs" />
     <Compile Include="Emit\StatementBlock.cs" />
