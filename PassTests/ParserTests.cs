@@ -43,6 +43,9 @@ namespace PassTests
             Assert.IsTrue(result is DelegateTypeSyntax);
             var peek = lexer.PeekNoTrivia(pos);
             Assert.IsTrue(peek.Type == TokenType.Identifier);
+            lexer.Seek(pos);
+            var next = lexer.NextNoTrivia();
+            Assert.IsTrue(next.Type == TokenType.Identifier);
         }
 
         [TestMethod]
