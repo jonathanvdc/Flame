@@ -13,7 +13,8 @@ namespace Flame.Recompilation.Emit
 {
     public class RecompiledCodeGenerator : IUnmanagedCodeGenerator, IYieldCodeGenerator, 
         IInitializingCodeGenerator, IForeachCodeGenerator, IExceptionCodeGenerator,
-        IForCodeGenerator, IContractCodeGenerator, IWhileCodeGenerator, IDoWhileCodeGenerator
+        IForCodeGenerator, IContractCodeGenerator, IWhileCodeGenerator, IDoWhileCodeGenerator,
+        ILambdaCodeGenerator
     {
         public RecompiledCodeGenerator(AssemblyRecompiler Recompiler, IMethod Method)
         {
@@ -471,6 +472,20 @@ namespace Flame.Recompilation.Emit
         public ICodeBlock EmitContractBlock(IEnumerable<ICodeBlock> Preconditions, IEnumerable<ICodeBlock> Postconditions, ICodeBlock Body)
         {
             return new StatementBlock(this, new ContractBodyStatement(GetStatement(Body), GetExpressions(Preconditions), GetExpressions(Postconditions)));
+        }
+
+        #endregion
+
+        #region Lambdas
+
+        public ICodeBlock EmitLambda(ILambdaHeaderBlock Header, ICodeBlock Body)
+        {
+            return new ExpressionBlock(this, ((LambdaHeaderBlock)Header).CreateLambda(GetStatement(Body)));
+        }
+
+        public ILambdaHeaderBlock EmitLambdaHeader(IMethod Member, IEnumerable<ICodeBlock> CapturedValues)
+        {
+            return new LambdaHeaderBlock(Recompiler, new LambdaHeader(Member, GetExpressions(CapturedValues).ToArray());
         }
 
         #endregion
