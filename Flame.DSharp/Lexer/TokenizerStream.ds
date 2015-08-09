@@ -102,6 +102,7 @@ namespace Flame.DSharp.Lexer
 			this.operators2 = new Dictionary<string, TokenType>();
 			this.operators2["::"] = TokenType.ColonColon;
 			this.operators2["->"] = TokenType.RArrow;
+			this.operators2["=>"] = TokenType.RFatArrow;
 			this.operators2["&&"] = TokenType.AndAnd;
 			this.operators2["&="] = TokenType.AndEquals;
 			this.operators2["||"] = TokenType.BarBar;

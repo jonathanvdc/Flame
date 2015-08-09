@@ -80,6 +80,7 @@ namespace Flame.DSharp.Lexer
 
 			RegisterExample(TokenType.ColonColon, "::");
 			RegisterExample(TokenType.RArrow, "->");
+			RegisterExample(TokenType.RFatArrow, "=>");
 			RegisterExample(TokenType.AndAnd, "&&");
 			RegisterExample(TokenType.AndEquals, "&=");
 			RegisterExample(TokenType.BarBar, "||");
