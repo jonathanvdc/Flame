@@ -1,0 +1,202 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Build;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// Lowers `LambdaExpression`s to closure classes.
+    /// </summary>
+    public static class LowerLambdaPass : IPass<BodyPassArgument, IStatement>
+    {
+        // Lower `[cap_type0 cap_var0, ...] ret_type(args) => stmt` to:
+        //
+        //       private class __lambda_closure$xxx
+        //       {
+        //            public const this(capture_list);
+        //            private cap_type0 cap_var0;
+        //            ...
+        //            public lambda_invoke(args) stmt;
+        //       }
+        //
+        // and lower the special case of `[] ret_type(args) => stmt` to
+        //
+        //       private __lambda_invoke$xxx(args) stmt;
+
+        public override IStatement Apply(BodyPassArgument Args)
+        {
+            var visitor = new LowerLambdaVisitor(Args.Environment, Args.Type);
+            return visitor.Visit(Args.Body);
+        }
+    }
+
+    public class LowerLambdaVisitor : NodeVisitorBase
+    {
+        public const this(set IEnvironment Environment, set ITypeBuilder DeclaringType);
+
+        public IEnvironment Environment { const get; private set; }
+        public ITypeBuilder DeclaringType { const get; private set; }
+        private int nameCounter;
+
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is LambdaExpression;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return false;
+        }
+
+        private string GenerateName(string Prefix)
+        {
+            string result = Prefix + "$" + nameCounter;
+            nameCounter++;
+            return result;
+        }
+
+        private DescribedMethod CopySignature(IMethod Signature, string Name, IType DeclType, bool IsStatic)
+        {
+            var descMethod = new DescribedMethod(Name, DeclType, Signature.ReturnType, IsStatic);
+            foreach (var item in Signature.GetParameters())
+                descMethod.AddParameter(item);
+            foreach (var item in Signature.GetAttributes())
+                descMethod.AddAttribute(item);
+            descMethod.AddAttribute(new AccessAttribute(AccessModifier.Private));
+
+            return descMethod;
+        }
+
+        private IExpression LowerCapturelessLambda(LambdaExpression Lambda)
+        {
+            // Special case where capture list is empty.
+
+            string name    = GenerateName("__lambda_invoke");
+            var descMethod = CopySignature(Lambda.Signature, name, DeclaringType, true);
+
+            var lambdaMethod = DeclaringType.DeclareMethod(descMethod);
+            var lambdaHeader = new EmptyCaptureLambdaHeaderBlock(lambdaMethod.GetBodyGenerator());
+            Lambda.BoundHeaderBlock.Bind(lambdaHeader);
+            var lambdaBody   = Lambda.Body.Emit(lambdaHeader.LambdaCodeGenerator);
+            Lambda.BoundHeaderBlock.Release();
+            lambdaMethod.SetMethodBody(lambdaBody);
+            lambdaMethod.Build();
+
+            return new GetMethodExpression(lambdaMethod, null);
+        }
+
+        private IExpression LowerCapturingLambda(LambdaExpression Lambda)
+        {
+            var nsBuilder = (INamespaceBuilder)DeclaringType;
+            string name = GenerateName("__lambda_closure");
+            var descType = new DescribedType(name, nsBuilder);
+            descType.AddAttribute(new AccessAttribute(AccessModifier.Private));
+            if (Environment.RootType != null)
+            {
+                descType.AddBaseType(Environment.RootType);
+            }
+
+            var closureType = nsBuilder.DeclareType(descType);
+
+            var descCtor = new DescribedMethod("this", closureType, PrimitiveTypes.Void, false);
+            descCtor.IsConstructor = true;
+
+            var closureThis = ThisReferenceVariable.Create(closureType).CreateGetExpression();
+
+            var ctorBody = new List<IStatement>();
+            if (Environment.RootType != null)
+            {
+                var rootCtor = Environment.RootType.GetConstructor(new IType[] { }, false);
+                ctorBody.Add(new ExpressionStatement(
+                    new InvocationExpression(rootCtor, closureThis, Enumerable.Empty<IExpression>())));
+            }
+
+            var capturedValues = new List<IExpression>();
+
+            foreach (var item in Lambda.Header.CaptureList)
+            {
+                var descField = new DescribedField("captured_" + capturedValues.Count, item.Type, false);
+                descField.DeclaringType = closureType;
+                descField.AddAttribute(new AccessAttribute(AccessModifier.Private));
+
+                var captField = closureType.DeclareField(descField);
+                captField.Build();
+                var ctorParam = new DescribedParameter(descField.Name, descField.FieldType);
+                var ctorArg   = new ArgumentVariable(ctorParam, capturedValues.Count);
+
+                var captVal = new FieldVariable(captField, closureThis);
+
+                descCtor.AddParameter(ctorParam);
+                capturedValues.Add(captVal.CreateGetExpression());
+                ctorBody.Add(captVal.CreateSetStatement(ctorArg.CreateGetExpression()));
+            }
+
+            var ctorBodyStatement = new BlockStatement(ctorBody);
+            var closureCtor  = closureType.DeclareMethod(descCtor);
+            closureCtor.SetMethodBody(ctorBodyStatement.Emit(closureCtor.GetBodyGenerator()));
+            closureCtor.Build();
+
+            var descInvoke   = CopySignature(Lambda.Signature, "lambda_invoke", closureType, false);
+            var invokeMethod = closureType.DeclareMethod(descInvoke);
+
+            var lambdaHeader = new ExpressionCaptureLambdaHeaderBlock(invokeMethod.GetBodyGenerator(), capturedValues);
+            Lambda.BoundHeaderBlock.Bind(lambdaHeader);
+            var lambdaBody   = Lambda.Body.Emit(lambdaHeader.LambdaCodeGenerator);
+            Lambda.BoundHeaderBlock.Release();
+            invokeMethod.SetMethodBody(lambdaBody);
+            invokeMethod.Build();
+            closureType.Build();
+
+            return new GetMethodExpression(invokeMethod, new InvocationExpression(closureCtor, null, Lambda.Header.CaptureList));
+        }
+
+        private IExpression LowerLambda(LambdaExpression Lambda)
+        {
+            // Lower nested lambdas first
+            var newBody = Visit(Lambda.Body);
+            if (Lambda.Header.CaptureList.Count == 0)
+                return LowerCapturelessLambda(Lambda);
+            else
+                return LowerCapturingLambda(Lambda);
+        }
+
+        protected override IExpression Transform(IExpression Value)
+        {
+            return LowerLambda((LambdaExpression)Value);
+        }
+
+        protected override IStatement Transform(IStatement Value)
+        {
+            return Value.Accept(this);
+        }
+    }
+
+    public class EmptyCaptureLambdaHeaderBlock : ILambdaHeaderBlock
+    {
+        public const this(set ICodeGenerator LambdaCodeGenerator);
+
+        public ICodeGenerator LambdaCodeGenerator { const get; private set; }
+
+        public ICodeBlock GetCapturedValue(int Index)
+        {
+            throw new InvalidOperationException("Cannot get a captured value belonging to a lambda header with an empty capture list.");
+        }
+    }
+
+    public class ExpressionCaptureLambdaHeaderBlock : ILambdaHeaderBlock
+    {
+        public const this(set ICodeGenerator LambdaCodeGenerator, set IReadOnlyList<IExpression> CapturedValues);
+
+        public ICodeGenerator LambdaCodeGenerator { const get; private set; }
+        public IReadOnlyList<IExpression> CapturedValues { const get; private set; }
+
+        public ICodeBlock GetCapturedValue(int Index)
+        {
+            return CapturedValues[Index].Emit(LambdaCodeGenerator);
+        }
+    }
+}
