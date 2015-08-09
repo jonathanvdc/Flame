@@ -559,14 +559,15 @@ namespace Flame.DSharp.Parser
 
         public virtual ITypeSyntax ParseType(ITokenStream Tokens, bool AllowDelegates)
         {
-            var type = PeekEntireType(Tokens, AllowDelegates);
+			var pos = Tokens.CurrentPosition;
+            var type = PeekEntireType(Tokens, AllowDelegates, &pos);
 
             if (type == null) // No type was parsed. So be it.
             {
             	return null;
             }
 
-			SkipTypeTokens(Tokens, type);
+			Tokens.Seek(pos);
 
             return type;
         }
@@ -574,30 +575,6 @@ namespace Flame.DSharp.Parser
 		public virtual ITypeSyntax ParseType(ITokenStream Tokens)
 		{
 			return ParseType(Tokens, true);
-		}
-
-		protected virtual void SkipTypeTokens(ITokenStream Tokens, ITokenTypeSyntax Syntax)
-		{
-			int parseCount = Syntax.Tokens.Count;
-
-			for (int i = 0; i < parseCount; i++)
-			{
-				Tokens.NextNoTrivia();
-			}
-		}
-
-		protected virtual PeekToken PeekTypeTokens(ITokenStream Tokens, ITokenTypeSyntax Syntax)
-		{
-			var peek = Tokens.PeekNoTrivia();
-
-			int parseCount = Syntax.Tokens.Count;
-
-			for (int i = 0; i < parseCount; i++)
-			{
-				peek = Tokens.PeekNoTrivia(peek);
-			}
-
-			return peek;
 		}
 
         #endregion
@@ -1481,7 +1458,7 @@ namespace Flame.DSharp.Parser
 				return null;
 			}
 
-			SkipTypeTokens(Tokens, type);
+			Tokens.Seek(pos);
 
             var decl = ParseSingleVariableDeclarationList(Tokens);
 
@@ -1513,12 +1490,12 @@ namespace Flame.DSharp.Parser
 			if (type == null || IsAmbiguousType(type))
 				return null;
 
-			var peek = PeekTypeTokens(Tokens, type);
+			var peek = Tokens.PeekNoTrivia(pos);
 
 			if (peek.Type != TokenType.Identifier)
 				return null;
 
-			SkipTypeTokens(Tokens, type);
+			Tokens.Seek(pos);
 
             var decl = ParseSingleVariableDeclaration(Tokens);
 
