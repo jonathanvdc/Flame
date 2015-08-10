@@ -132,7 +132,7 @@ namespace Flame.Compiler.Expressions
 
         public override const string ToString()
         {
-            return "unary(" + Op + ", " + Value + ")";
+            return "unary(\"" + Op + "\", " + Value + ")";
         }
     }
 }

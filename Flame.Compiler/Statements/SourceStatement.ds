@@ -64,5 +64,12 @@ namespace Flame.Compiler.Statements
 		{
 			return Statement.Emit(Generator);
 		}
+
+		public override const string ToString()
+		{
+			return "src-statement(" + Statement + ", \"" + Location.Document.Identifier + "\", " +
+				   					  Location.Position + ", " + Location.Length + ")";
+
+		}
 	}
 }
