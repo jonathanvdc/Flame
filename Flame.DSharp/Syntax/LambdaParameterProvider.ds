@@ -1,0 +1,73 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+
+namespace Flame.Syntax.DSharp
+{
+    public class LambdaParameterProvider : IVariableProvider
+    {
+        public const this(set ISyntaxState Parent, IMethod Signature)
+        {
+            this.captVars = new List<IExpression>();
+            this.captIndices = new Dictionary<string, int>();
+            this.Header = new LambdaHeader(Signature, captVars);
+            this.BoundHeaderBlock = new LambdaBoundHeaderBlock();
+        }
+
+        public ISyntaxState Parent { const get; private set; }
+        public LambdaHeader Header { const get; private set; }
+        public LambdaBoundHeaderBlock BoundHeaderBlock { const get; private set; }
+
+        public LambdaExpression CreateLambda(IStatement Body)
+        {
+            return new LambdaExpression(Header, Body, BoundHeaderBlock);
+        }
+
+        private List<IExpression> captVars;
+        private Dictionary<string, int> captIndices;
+
+        private IExpression CaptureVariable(string Name, IVariable Variable)
+        {
+            if (!captIndices.ContainsKey(Name))
+            {
+                captIndices[Name] = captVars.Count;
+                captVars.Add(Variable.CreateGetExpression());
+            }
+            return new LambdaCapturedValueExpression(
+                Header, BoundHeaderBlock, captIndices[Name]);
+        }
+
+        public const IVariable GetVariable(string Name)
+        {
+            var parameters = Header.Signature.GetParameters();
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                if (parameters[i].Name.Equals(Name))
+                {
+                    return new ArgumentVariable(parameters[i], i);
+                }
+            }
+            var parentVar = Parent.GetVariable(Name);
+            if (parentVar == null)
+                return null;
+            else
+                return new ExpressionVariable(CaptureVariable(Name, parentVar));
+        }
+
+        public const bool VariableExists(string Name)
+        {
+            foreach (var item in Header.Signature.GetParameters())
+            {
+                if (item.Name.Equals(Name))
+                {
+                    return true;
+                }
+            }
+            return Parent.VariableExists(Name);
+        }
+    }
+}

@@ -75,4 +75,31 @@ namespace Flame.Syntax.DSharp
             return cb;
         }
     }
+
+    public class ImplicitReturnSyntax : IStatementSyntax, ITokenNode, ISourceSyntax
+    {
+        public const this(set IExpressionSyntax Expression);
+
+        public IExpressionSyntax Expression { const get; private set; }
+
+        public SourceLocation Location
+        {
+            const get return Expression.GetSourceLocation();
+        }
+
+        public IReadOnlyList<Token> Tokens
+        {
+        	const get return Expression.GetTokens();
+        }
+
+        public IStatement CreateStatement(ISyntaxState State)
+        {
+            return SourceStatement.Create(new ReturnStatement(CastSyntax.CreateImplicitCast(State, Expression, State.ReturnType)), Location);
+        }
+
+        public CodeBuilder GetCode()
+        {
+            return Expression.GetCode();
+        }
+    }
 }

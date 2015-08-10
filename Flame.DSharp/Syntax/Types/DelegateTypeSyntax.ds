@@ -49,9 +49,9 @@ namespace Flame.Syntax.DSharp
         	}
         }
 
-        public IType CreateType(ISyntaxState State)
+        public IMethod CreateSignature(ISyntaxState State)
         {
-        	var elemType = ElementType.CreateVerifiedType(State);
+            var elemType = ElementType.CreateVerifiedType(State);
 
             var descMethod = new DescribedMethod("", null, elemType, true);
             foreach (var item in Parameters)
@@ -73,7 +73,12 @@ namespace Flame.Syntax.DSharp
                     descMethod.AddParameter(paramMember);
                 }
             }
-            return MethodType.Create(descMethod);
+            return descMethod;
+        }
+
+        public IType CreateType(ISyntaxState State)
+        {
+            return MethodType.Create(CreateSignature(State));
         }
 
         public override string ToString()

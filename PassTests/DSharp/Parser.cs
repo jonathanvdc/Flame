@@ -71,5 +71,13 @@ namespace PassTests
             var expr = ParseExpression("x(y, z)");
             Assert.IsTrue(expr is InvocationSyntax);
         }
+
+        [TestMethod]
+        [TestCategory("D# - Parser")]
+        public void ParseLambda()
+        {
+            var expr = ParseExpression("bool(int x, int y) => x == y");
+            Assert.IsTrue(expr is LambdaSyntax);
+        }
     }
 }

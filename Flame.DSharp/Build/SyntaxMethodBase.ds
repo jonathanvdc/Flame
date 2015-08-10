@@ -95,7 +95,10 @@ namespace Flame.DSharp.Build
                 	if (setStatement == null)
                 	{
                 		state.Log.LogError(new LogEntry("Invalid 'set' modifier",
-                            "'set' modifier on parameter '" + parameters[i].Name + "' in '" + this.GetHeaderString() + "' could not be mapped to a field or property of type '" + this.DeclaringType.FullName + "'."));
+                            "'set' modifier on parameter '" + parameters[i].Name +
+                            "' could not be mapped to a field or property of type '" +
+                            this.DeclaringType.FullName + "'.",
+                            parameters[i].GetSourceLocation()));
                 	}
                 	else
                 	{

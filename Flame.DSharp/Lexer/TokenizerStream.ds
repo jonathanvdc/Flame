@@ -193,13 +193,9 @@ namespace Flame.DSharp.Lexer
 		{
 			int startPos = pos;
 			pos++;
-			char nextChar = Code[pos];
-			while (pos < Code.Length && IsIdentifierElement(nextChar))
+			while (pos < Code.Length && IsIdentifierElement(Code[pos]))
 			{
 				pos++;
-				if (pos >= Code.Length)
-					break;
-				nextChar = Code[pos];
 			}
 			return Code.Substring(startPos, pos - startPos);
 		}

@@ -34,17 +34,15 @@ namespace Flame.Compiler.Variables
         }
 
         /// <summary>
-        /// Returns an empty statement.
+        /// Returns an error expression.
         /// </summary>
-        /// <remarks>
-        /// Returning an empty statement is useful in some cases.
-        /// For example, an inlining visitor may replace the 'this' argument of a
-        /// value type method with a value type value - not a pointer to a value type -
-        /// in which case changing the 'this' argument would've been a nop anyway.
-        /// </remarks>
         public IStatement CreateSetStatement(IExpression Value)
         {
-            return EmptyStatement;
+            return new ExpressionStatement(new ErrorExpression(
+                new InitializedExpression(new ExpressionStatement(Value), VoidExpression),
+                new LogEntry("Expression variable cannot be set",
+                    "An attempt was made to assign a value to an expression variable, " +
+                    "i.e. a variable that has no backing storage. This cannot be done.")));
         }
 
         /// <summary>
