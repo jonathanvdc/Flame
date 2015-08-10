@@ -71,6 +71,7 @@
     <Compile Include="IAsyncTaskManager.cs" />
     <Compile Include="IMethodOptimizer.cs" />
     <Compile Include="PassSuite.cs" />
+    <Compile Include="RandomAccessOptions.cs" />
     <Compile Include="RecompilationExtensions.cs" />
     <Compile Include="RecompilationPassArguments.cs" />
     <Compile Include="TypeNameComparer.cs" />

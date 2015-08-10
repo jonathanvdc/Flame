@@ -53,12 +53,14 @@ namespace Flame.Recompilation
         public IStatement RecompileBody(AssemblyRecompiler Recompiler, ITypeBuilder DeclaringType, 
                                         IMethodBuilder Method, IBodyMethod SourceMethod)
         {
+            var metadata = new PassMetadata(Recompiler.GlobalMetdata, Recompiler.GetTypeMetadata(DeclaringType), new RandomAccessOptions());
+
             var initBody = Optimizer.GetOptimizedBody(SourceMethod);
             var preOptBody = PreStatementPass.Apply(new Tuple<IStatement, IMethod>(initBody, SourceMethod)).Item1;
 
             var bodyStatement = Recompiler.GetStatement(preOptBody, Method);
 
-            var optBody = StatementPass.Apply(MethodPass.Apply(new BodyPassArgument(Recompiler, DeclaringType, Method, bodyStatement)));
+            var optBody = StatementPass.Apply(MethodPass.Apply(new BodyPassArgument(Recompiler, metadata, DeclaringType, Method, bodyStatement)));
 
             var targetBody = Method.GetBodyGenerator();
             var block = optBody.Emit(targetBody);
