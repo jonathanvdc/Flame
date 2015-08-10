@@ -183,7 +183,7 @@ namespace Flame.Compiler.Expressions
         {
             if (Visitor is ILambdaVisitor)
             {
-                return ((ILambdaVisitor)Visitor).Visit(Body);
+                return ((ILambdaVisitor)Visitor).VisitBody(Body, Header.Signature);
             }
             else
             {
