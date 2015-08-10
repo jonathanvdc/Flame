@@ -17,22 +17,22 @@ namespace Flame.Syntax.DSharp
         public const this(set Token ThisKeyword);
 
         public Token ThisKeyword { const get; private set; }
-        
+
         public SourceLocation Location
         {
         	const get return ThisKeyword.Location;
         }
-        
+
         public [Token] LeadingTrivia
         {
         	const get return ThisKeyword.GetAllTrivia();
         }
-        
+
         public [Token] TrailingTrivia
         {
         	const get return Enumerable.Empty<Token>();
         }
-        
+
         public IReadOnlyList<Token> Tokens
         {
         	const get return (IReadOnlyList<Token>)new Token[] { ThisKeyword };
@@ -40,7 +40,7 @@ namespace Flame.Syntax.DSharp
 
         public override const IVariable CreateVariable(ISyntaxState State)
         {
-            return ThisReferenceVariable.Create(State.CurrentType);
+            return State.GetVariable("this");
         }
 
         public override const CodeBuilder GetCode()

@@ -66,6 +66,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="DSharp\Lexer.cs" />
+    <Compile Include="DSharp\Semantics.cs" />
     <Compile Include="EmptyCompilerOptions.cs" />
     <Compile Include="DSharp\Parser.cs" />
     <Compile Include="SimplifyFlow.cs" />

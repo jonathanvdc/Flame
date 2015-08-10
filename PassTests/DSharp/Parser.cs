@@ -15,7 +15,15 @@ namespace PassTests
     [TestClass]
     public class ParserTests
     {
-        private IExpressionSyntax ParseExpression(string Code)
+        public static IStatementSyntax ParseStatement(string Code)
+        {
+            var lexer = new TokenizerStream(new SourceDocument(Code, "test"));
+            var log = new TestLog(EmptyCompilerOptions.Instance);
+            var parser = new DSharpSyntaxParser(log);
+            return parser.ParseStatement(lexer);
+        }
+
+        public static IExpressionSyntax ParseExpression(string Code)
         {
             var lexer = new TokenizerStream(new SourceDocument(Code, "test"));
             var log = new TestLog(EmptyCompilerOptions.Instance);
@@ -23,7 +31,7 @@ namespace PassTests
             return parser.ParseExpression(lexer);
         }
 
-        private ITypeSyntax ParseType(string Code)
+        public static ITypeSyntax ParseType(string Code)
         {
             var lexer = new TokenizerStream(new SourceDocument(Code, "test"));
             var log = new TestLog(EmptyCompilerOptions.Instance);

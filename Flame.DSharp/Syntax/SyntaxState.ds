@@ -53,7 +53,11 @@ namespace Flame.Syntax.DSharp
             const get
             {
                 var declType = Method.DeclaringType;
-                if (declType.IsGeneric && declType.IsGenericDeclaration)
+                if (declType == null)
+                {
+                    return null;
+                }
+                else if (declType.IsGeneric && declType.IsGenericDeclaration)
                 {
                 	return declType.MakeGenericType(declType.GetGenericParameters());
                 }
@@ -146,6 +150,10 @@ namespace Flame.Syntax.DSharp
             else if (ParameterProvider != null && ParameterProvider.VariableExists(Name))
             {
                 return new DeclaredVariable(ParameterProvider.GetVariable(Name), null);
+            }
+            else if (Name.Equals("this") && CurrentType != null)
+            {
+                return new DeclaredVariable(ThisReferenceVariable.Create(CurrentType), null);
             }
             return default(DeclaredVariable);
         }
