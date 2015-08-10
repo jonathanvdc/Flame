@@ -16,6 +16,7 @@ namespace Flame.Syntax.DSharp
         public const this(set IMethod Method, set IScopedBinder Binder, set ICompilerLog Log, set IConverter<IType, string> TypeNamer)
         {
             this.MemberProvider = new MemberProvider(Binder);
+            this.ParameterProvider = new MethodParameterProvider(Method);
             this.declaredVariables = new Stack<Dictionary<string, DeclaredVariable>>();
             this.tags = new List<BlockTag>();
             PushScope();
@@ -23,12 +24,23 @@ namespace Flame.Syntax.DSharp
         public const this(set IMethod Method, IBinder OuterBinder, set ICompilerLog Log, set IConverter<IType, string> TypeNamer)
         {
             this.Binder = new ScopedBinder(OuterBinder, this);
+            this.ParameterProvider = new MethodParameterProvider(Method);
             this.MemberProvider = new MemberProvider(Binder);
             this.declaredVariables = new Stack<Dictionary<string, DeclaredVariable>>();
             this.tags = new List<BlockTag>();
             PushScope();
         }
         public const this(set IMethod Method, IBinder OuterBinder, set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer)
+        {
+            this.Binder = new ScopedBinder(OuterBinder, this);
+            this.ParameterProvider = new MethodParameterProvider(Method);
+            this.declaredVariables = new Stack<Dictionary<string, DeclaredVariable>>();
+            this.tags = new List<BlockTag>();
+            PushScope();
+        }
+        public const this(set IMethod Method, IBinder OuterBinder, set ICompilerLog Log,
+            set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer,
+            set IVariableProvider ParameterProvider)
         {
             this.Binder = new ScopedBinder(OuterBinder, this);
             this.declaredVariables = new Stack<Dictionary<string, DeclaredVariable>>();
@@ -66,7 +78,7 @@ namespace Flame.Syntax.DSharp
                 {
                     return tags[i];
                 }
-                throw new InvalidOperationException("Could not get the local block's tag, because a control flow block was needed, but absent.");
+                throw new InvalidOperationException("Could not get the local block's tag, because the syntax state is not inside a control flow block.");
             }
         }
 
@@ -76,7 +88,7 @@ namespace Flame.Syntax.DSharp
         {
             const get
             {
-            	Dictionary<string, DeclaredVariable> dict = new Dictionary<string, DeclaredVariable>();
+            	var dict = new Dictionary<string, DeclaredVariable>();
             	foreach (var map in declaredVariables)
             	foreach (var item in map)
             	{
@@ -87,19 +99,8 @@ namespace Flame.Syntax.DSharp
         }
 
         public IMethod Method { const get; private set; }
+        public IVariableProvider ParameterProvider { const get; private set; }
 
-		private IVariableProvider paramProvider;
-        public IVariableProvider ParameterProvider
-        {
-            const get
-            {
-            	if (paramProvider == null)
-            	{
-            		paramProvider = new MethodParameterProvider(Method);
-            	}
-                return paramProvider;
-            }
-        }
         public IType ReturnType
         {
             const get

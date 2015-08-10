@@ -59,7 +59,7 @@ namespace Flame.DSharp.Parser
 
         protected virtual IExpressionSyntax ParseSingleExpression(ITokenStream Parser)
         {
-			var inlineDecl = ParseInlineDeclarationSyntax(Parser);
+			var inlineDecl = ParseLambdaOrInlineDeclarationSyntax(Parser);
         	if (!object.ReferenceEquals(inlineDecl, null))
         	{
         		return inlineDecl;
@@ -1482,7 +1482,21 @@ namespace Flame.DSharp.Parser
             return new VariableDeclarationSyntax(type, decl, semicolon);
         }
 
-        protected virtual InlineVariableDeclarationSyntax ParseInlineDeclarationSyntax(ITokenStream Tokens)
+		protected virtual IStatementSyntax ParseLambdaBody(ITokenStream Tokens)
+		{
+			var peek = Tokens.PeekNoTrivia();
+
+			if (peek.Type == TokenType.RBraces)
+			{
+				return ParseStatement(Tokens);
+			}
+			else
+			{
+				return new ImplicitReturnSyntax(ParseExpression(Tokens));
+			}
+		}
+
+        protected virtual IExpressionSyntax ParseLambdaOrInlineDeclarationSyntax(ITokenStream Tokens)
         {
 			var pos = Tokens.CurrentPosition;
             var type = PeekEntireType(Tokens, true, &pos);
@@ -1491,6 +1505,14 @@ namespace Flame.DSharp.Parser
 				return null;
 
 			var peek = Tokens.PeekNoTrivia(pos);
+
+			if (type is DelegateTypeSyntax && peek.Type == TokenType.RFatArrow)
+			{
+				Tokens.Seek(peek.Identifier);
+
+				var body = ParseLambdaBody(Tokens);
+				return new LambdaSyntax((DelegateTypeSyntax)type, peek.TokenPeek, body);
+			}
 
 			if (peek.Type != TokenType.Identifier)
 				return null;

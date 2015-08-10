@@ -46,6 +46,7 @@
 				<Compile Include="Syntax\Expressions\InvocationSyntax.ds" />
 				<Compile Include="Syntax\Expressions\NewArraySyntax.ds" />
 				<Compile Include="Syntax\Expressions\IsSyntax.ds" />
+				<Compile Include="Syntax\Expressions\LambdaSyntax.ds" />
 				<Compile Include="Syntax\Expressions\CastSyntax.ds" />
 				<Compile Include="Syntax\Expressions\CharSyntax.ds" />
 				<Compile Include="Syntax\Expressions\StringSyntax.ds" />
@@ -118,6 +119,7 @@
 			<Compile Include="Syntax\SeparatedList.ds" />
 			<Compile Include="Syntax\SeparatedItem.ds" />
 			<Compile Include="Syntax\ITokenNode.ds" />
+			<Compile Include="Syntax\LambdaParameterProvider.ds" />
 			<Compile Include="Syntax\SyntaxVisitorBase.ds" />
 			<Compile Include="Syntax\DelimitedList.ds" />
 		</ItemGroup>

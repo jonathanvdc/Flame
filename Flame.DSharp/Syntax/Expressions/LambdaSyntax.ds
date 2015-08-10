@@ -1,0 +1,44 @@
+using System;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class LambdaSyntax : IExpressionSyntax, ISourceSyntax
+    {
+        public const this(set DelegateTypeSyntax Header, set Token Arrow, set IStatementSyntax Body);
+
+        public DelegateTypeSyntax Header { const get; private set; }
+        public Token Arrow { const get; private set; }
+        public IStatementSyntax Body { const get; private set; }
+
+        public SourceLocation Location
+        {
+            const get return Header.Location.Concat(Arrow.Location)
+                                            .Concat(Body.GetSourceLocation());
+        }
+
+        public const IExpression CreateExpression(ISyntaxState State)
+        {
+            var signature     = Header.CreateSignature(State);
+            var paramProvider = new LambdaParameterProvider(State, signature);
+            var childState    = new SyntaxState(signature, State.Binder, State.Log,
+                                                State.MemberProvider, State.TypeNamer,
+                                                paramProvider);
+            var bodyStmt      = Body.CreateVerifiedStatement(childState);
+            return paramProvider.CreateLambda(bodyStmt);
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            var cb = new CodeBuilder();
+            cb.Append(Header.GetCode());
+            cb.Append(Arrow.TokenValue);
+            cb.Append(Body.GetCode());
+            return cb;
+        }
+    }
+}
