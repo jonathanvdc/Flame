@@ -19,7 +19,9 @@ namespace Flame.Front.Target
             PreStatementPasses = new List<PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>>();
 
             MethodPasses.Add(new PassInfo<BodyPassArgument, IStatement>(LowerYieldPass.Instance, LowerYieldPassName, false));
-            MethodPasses.Add(new PassInfo<BodyPassArgument, IStatement>(InliningPass.Instance, InliningPassName, false));
+            MethodPasses.Add(new PassInfo<BodyPassArgument, IStatement>(LowerLambdaPass.Instance, LowerLambdaPassName, false));
+
+            MethodPasses.Add(new PassInfo<BodyPassArgument, IStatement>(InliningPass.Instance, InliningPassName, false));            
             StatementPasses.Add(new PassInfo<IStatement, IStatement>(SimplifyFlowPass.Instance, SimplifyFlowPassName, false));
             StatementPasses.Add(new PassInfo<IStatement, IStatement>(Flame.Optimization.Variables.DefinitionPropagationPass.Instance, PropagateLocalsName, false));
         }
@@ -30,6 +32,7 @@ namespace Flame.Front.Target
 
         public const string EliminateDeadCodePassName = "dead-code-elimination";
         public const string LowerYieldPassName = "lower-yield";
+        public const string LowerLambdaPassName = "lower-lambda";
         public const string InliningPassName = "inline";
         public const string SimplifyFlowPassName = "simplify-flow";
         public const string PropagateLocalsName = "propagate-locals";
