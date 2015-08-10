@@ -1,0 +1,52 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+public static class Program
+{
+    public TOut[] Map<TIn, TOut>(TOut(TIn) Function, TIn[] Values)
+    {
+        var results = new TOut[Values.Length];
+        foreach (var input in Values, var output in results)
+        {
+            output = Function(input);
+        }
+        return results;
+    }
+
+    public int[] DoubleAll(int[] Args)
+    {
+        var f = int(int x) => x * 2;
+        return Map<int, int>(f, Args);
+    }
+
+    public string PrintAll(int[] Args)
+    {
+        var print = string(int x) => (string)x;
+        var vals = Map<int, string>(print, Args);
+        return PrintArray(vals);
+    }
+
+    public string PrintArray(string[] Values)
+    {
+        var result = new StringBuilder();
+        result.Append('{');
+        bool first = true;
+        foreach (var item in Values)
+        {
+            result.Append(' ');
+            if (first)
+                first = false;
+            else
+                result.Append(',');
+            result.Append(item);
+        }
+        result.Append('}');
+        return (string)result;
+    }
+
+    public void Main(string[] Input)
+    {
+        Console.WriteLine(PrintAll(new int[] { 1, 2, 3 }));
+    }
+}
