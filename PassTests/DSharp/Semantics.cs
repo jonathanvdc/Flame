@@ -2,6 +2,7 @@
 using Flame.Build;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
 using Flame.DSharp.Build;
 using Flame.Syntax;
 using Flame.Syntax.DSharp;
@@ -65,8 +66,7 @@ namespace PassTests.DSharp
         [TestCategory("D# - Semantics")]
         public void ParseLiteral()
         {
-            var expr = CreateExpression<int>("1");
-            Assert.IsTrue(expr.EvaluatesTo<int>(1));
+            Assert.IsTrue(EvaluatesTo<int>("1", 1));
         }
 
         [TestMethod]
@@ -74,6 +74,33 @@ namespace PassTests.DSharp
         public void ParseSum()
         {
             Assert.IsTrue(EvaluatesTo<int>("1 + 2", 3));
+        }
+
+        [TestMethod]
+        [TestCategory("D# - Semantics")]
+        public void ParseExpressionLambda()
+        {
+            var expr = CreateExpression("int(int x) => x * 2");
+            Assert.IsTrue(expr is LambdaExpression);
+            var lambdaExpr = (LambdaExpression)expr;
+            Assert.IsTrue(lambdaExpr.Header.CaptureList.Count == 0);
+        }
+
+        [TestMethod]
+        [TestCategory("D# - Semantics")]
+        public void ParseStatementLambda()
+        {
+            var expr = CreateExpression("int(int x) => { return x * 2; }");
+            Assert.IsTrue(expr is LambdaExpression);
+            var lambdaExpr = (LambdaExpression)expr;
+            Assert.IsTrue(lambdaExpr.Header.CaptureList.Count == 0);
+        }
+
+        [TestMethod]
+        [TestCategory("D# - Semantics")]
+        public void ParseCapturingLambda()
+        {
+            CreateStatement("{ int x = 1; var f = int() => { return x * 2; }; }");
         }
     }
 }
