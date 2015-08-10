@@ -45,6 +45,11 @@ public static class Program
         return (string)result;
     }
 
+    public int(int) Partial(int(int, int) Function, int Arg)
+    {
+        return int(int x) => Function(Arg, x);
+    }
+
     public void Main(string[] Input)
     {
         Console.WriteLine(PrintAll(new int[] { 1, 2, 3 }));
