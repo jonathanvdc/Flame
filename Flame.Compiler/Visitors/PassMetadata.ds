@@ -1,0 +1,31 @@
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// Defines metadata for a pass.
+    /// </summary>
+    public class PassMetadata
+    {
+        /// <summary>
+        /// Creates a new pass metadata object.
+        /// </summary>
+        public const this(set IRandomAccessOptions GlobalMetadata,
+                          set IRandomAccessOptions TypeMetadata,
+                          set IRandomAccessOptions MethodMetadata);
+
+        /// <summary>
+        /// Gets pass metadata that is associated with the current compilation unit.
+        /// </summary>
+        public IRandomAccessOptions GlobalMetadata { const get; private set; }
+
+        /// <summary>
+        /// Gets pass metadata that is local to the current type.
+        /// </summary>
+        public IRandomAccessOptions TypeMetadata { const get; private set; }
+
+        /// <summary>
+        /// Gets pass metadata that is local to the current method.
+        /// </summary>
+        public IRandomAccessOptions MethodMetadata { const get; private set; }
+    }
+}

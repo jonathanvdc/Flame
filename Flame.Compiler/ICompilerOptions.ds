@@ -30,4 +30,16 @@ namespace Flame.Compiler
 		/// </summary>
 		[string] GetOptions();
 	}
+
+	/// <summary>
+	/// Defines common functionality for random-access options. These options
+	/// can be manipulated and retrieved.
+	/// </summary>
+	public interface IRandomAccessOptions : ICompilerOptions
+	{
+		/// <summary>
+		/// Sets the option witht the given key to the given value.
+		/// </summary>
+		void SetOption<T>(string Key, T Value);
+	}
 }

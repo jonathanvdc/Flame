@@ -61,6 +61,9 @@ namespace Flame.Recompilation
             this.recompiledAssemblies = new List<IAssembly>();
             this.cachedEnvironment = new Lazy<IEnvironment>(() => TargetAssembly.CreateBinder().Environment);
             this.methodBodies = new AsyncDictionary<IMethod, IStatement>();
+
+            this.GlobalMetdata = new RandomAccessOptions();
+            this.typeMetadata = new Dictionary<IType, RandomAccessOptions>();
         }
 
         public CompilationCache<IType> TypeCache { [Pure] get; private set; }
@@ -69,9 +72,17 @@ namespace Flame.Recompilation
         public CompilationCache<IMethod> MethodCache { [Pure] get; private set; }
         public CompilationCache<INamespace> NamespaceCache { [Pure] get; private set; }
 
+        public RandomAccessOptions GlobalMetdata { [Pure] get; private set; }
+        private Dictionary<IType, RandomAccessOptions> typeMetadata;
+
         private List<IAssembly> recompiledAssemblies;
         private Lazy<IEnvironment> cachedEnvironment;
         private AsyncDictionary<IMethod, IStatement> methodBodies;
+
+        public RandomAccessOptions GetTypeMetadata(IType Type)
+        {
+            return typeMetadata[Type];
+        }
 
         #endregion
 
@@ -796,7 +807,11 @@ namespace Flame.Recompilation
             }
             var typeTemplate = RecompiledTypeTemplate.GetRecompilerTemplate(this, SourceType);
             var type = DeclaringNamespace.DeclareType(typeTemplate);
-            return new MemberCreationResult<IType>(type, (tgt, src) => RecompileInvariants((ITypeBuilder)tgt, src));
+            return new MemberCreationResult<IType>(type, (tgt, src) => 
+            { 
+                typeMetadata[tgt] = new RandomAccessOptions(); 
+                RecompileInvariants((ITypeBuilder)tgt, src); 
+            });
         }
 
         private void RecompileEntireType(IType Type)
@@ -1044,6 +1059,7 @@ namespace Flame.Recompilation
                 }
                 foreach (var item in TypeCache.GetAll())
                 {
+                    typeMetadata.Remove(item);
                     if (item is ITypeBuilder)
                     {
                         ((ITypeBuilder)item).Build();

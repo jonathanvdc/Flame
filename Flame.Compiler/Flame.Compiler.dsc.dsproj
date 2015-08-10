@@ -217,6 +217,7 @@
 			<Compile Include="Visitors\LowerLambdaPass.ds" />
 			<Compile Include="Visitors\MemberNodeVisitor.ds" />
 			<Compile Include="Visitors\NodeVisitorBase.ds" />
+			<Compile Include="Visitors\PassMetadata.ds" />
 			<Compile Include="Visitors\StatementPass.ds" />
 			<Compile Include="Visitors\StatementVisitorBase.ds" />
 			<Compile Include="Visitors\VariableCapturingVisitor.ds" />

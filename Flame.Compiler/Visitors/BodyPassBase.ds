@@ -32,7 +32,8 @@ namespace Flame.Compiler.Visitors
         /// <summary>
         /// Creates a new body pass argument from the given values.
         /// </summary>
-        public const this(set IBodyPassEnvironment PassEnvironment, set ITypeBuilder Type,
+        public const this(set IBodyPassEnvironment PassEnvironment,
+                          set PassMetadata Metadata, set ITypeBuilder Type,
                           set IMethodBuilder Method, set IStatement Body);
 
         /// <summary>
@@ -41,6 +42,7 @@ namespace Flame.Compiler.Visitors
         /// </summary>
         public const this(BodyPassArgument Previous, set IStatement Body)
         {
+            this.Metadata = Previous.Metadata;
             this.PassEnvironment = Previous.PassEnvironment;
             this.Type = Previous.Type;
             this.Method = Previous.Method;
@@ -50,18 +52,27 @@ namespace Flame.Compiler.Visitors
         /// Gets the body pass' environment.
         /// </summary>
         public IBodyPassEnvironment PassEnvironment { const get; private set; }
+
+        /// <summary>
+        /// Gets the pass' metadata.
+        /// </summary>
+        public PassMetadata Metadata { const get; private set; }
+
         /// <summary>
         /// Gets the target method's environment.
         /// </summary>
         public IEnvironment Environment { const get return PassEnvironment.Environment; }
+
         /// <summary>
         /// Gets the target method's declaring type.
         /// </summary>
         public ITypeBuilder Type { const get; private set; }
+
         /// <summary>
         /// Gets the target method.
         /// </summary>
         public IMethodBuilder Method { const get; private set; }
+
         /// <summary>
         /// Gets the target method's body statement.
         /// </summary>
