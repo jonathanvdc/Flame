@@ -143,6 +143,8 @@ namespace Flame.Compiler.Visitors
                 ctorBody.Add(captVal.CreateSetStatement(ctorArg.CreateGetExpression()));
             }
 
+            ctorBody.Add(new ReturnStatement());
+
             var ctorBodyStatement = new BlockStatement(ctorBody);
             var closureCtor  = closureType.DeclareMethod(descCtor);
             closureCtor.SetMethodBody(ctorBodyStatement.Emit(closureCtor.GetBodyGenerator()));
