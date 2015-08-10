@@ -83,5 +83,13 @@ namespace Flame.Compiler.Statements
 				return Generator.EmitReturn(null);
 			}
 		}
+
+		public override const string ToString()
+		{
+			if (Value == null)
+				return "return(void)";
+			else
+				return "return(" + Value + ")";
+		}
 	}
 }

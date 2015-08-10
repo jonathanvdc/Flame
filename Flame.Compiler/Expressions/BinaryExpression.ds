@@ -151,6 +151,11 @@ namespace Flame.Compiler.Expressions
 				return null;
 			}
 		}
+
+		public override const string ToString()
+		{
+			return "binary(\"" + Op + "\", " + LeftOperand + ", " + RightOperand + ")"; 
+		}
 	}
 
 	public class PrimitiveBinaryExpression : BinaryExpression
@@ -195,13 +200,17 @@ namespace Flame.Compiler.Expressions
 		}
 	}
 
+	/// <summary>
+	/// Defines a binary expression that selects the most appropriate operator
+	/// or overload for the given arguments, and will try to lower itself to
+	/// a more primitive expression if possible.
+	/// </summary>
 	public class DirectBinaryExpression : BinaryOperatorExpression
 	{
 		public const this(set IExpression LeftOperand, Operator Op, set IExpression RightOperand)
 		{
 			this.oper = Op;
 		}
-
 
 		private Operator oper;
 		protected override Operator GetOperator() { return oper; }
