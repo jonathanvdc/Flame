@@ -6,16 +6,16 @@ namespace Flame.Compiler.Expressions
     /// An expression that contains a location in a source document, for diagnostics
     /// and debugging purposes.
     /// </summary>
-    public class SourceExpression : IExpression, IPredicateNode
+    public class SourceExpression : IExpression, IPredicateNode, IMetadataNode<IExpression>
     {
         /// <summary>
         /// Creates a new source expression from the given statement and location.
         /// </summary>
-        private const this(set IExpression Expression, set SourceLocation Location);
+        private const this(set IExpression Value, set SourceLocation Location);
 
         /// <summary>
         /// Creates a source expression based on the given expression and location.
-        /// If the statement argument is null, null is returned.
+        /// If the expression argument is null, null is returned.
         /// If the source location is null, the statement is returned.
         /// </summary>
         public static const IExpression Create(IExpression Expression, SourceLocation Location)
@@ -31,30 +31,30 @@ namespace Flame.Compiler.Expressions
         /// <summary>
         /// Gets the source expression's inner expression.
         /// </summary>
-        public IExpression Expression { const get; private set; }
+        public IExpression Value { const get; private set; }
         /// <summary>
         /// Gets the source statement's location.
         /// </summary>
         public SourceLocation Location { const get; private set; }
 
-        public IType Type { const get return Expression.Type; }
-        public bool IsConstant { const get return Expression.IsConstant; }
+        public IType Type { const get return Value.Type; }
+        public bool IsConstant { const get return Value.IsConstant; }
 
         public IBoundObject Evaluate()
         {
-            return Expression.Evaluate();
+            return Value.Evaluate();
         }
 
         public void AcceptPredicate(INodeVisitor Visitor)
         {
-            Visitor.Visit(Expression);
+            Visitor.Visit(Value);
         }
 
         public IExpression Accept(INodeVisitor Visitor)
         {
-            var contents = Visitor.Visit(Expression);
+            var contents = Visitor.Visit(Value);
 
-            if (contents == Expression)
+            if (contents == Value)
                 return this;
 
             return new SourceExpression(contents, Location);
@@ -62,17 +62,17 @@ namespace Flame.Compiler.Expressions
 
         public IExpression Optimize()
         {
-            return new SourceExpression(Expression.Optimize(), Location);
+            return new SourceExpression(Value.Optimize(), Location);
         }
 
         public ICodeBlock Emit(ICodeGenerator Generator)
         {
-            return Expression.Emit(Generator);
+            return Value.Emit(Generator);
         }
 
         public override const string ToString()
         {
-            return "src-expression(" + Expression + ", \"" + Location.Document.Identifier + "\", " +
+            return "src-expression(" + Value + ", \"" + Location.Document.Identifier + "\", " +
                                        Location.Position + ", " + Location.Length + ")";
 
         }

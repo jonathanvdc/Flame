@@ -104,6 +104,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Flame.Analysis\Flame.Analysis.csproj">
+      <Project>{f998b4b6-9c78-4451-9c48-0467549adebf}</Project>
+      <Name>Flame.Analysis</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Flame.Cecil\Flame.Cecil.csproj">
       <Project>{4a1d02a2-22df-4355-8edc-9e47db1979c3}</Project>
       <Name>Flame.Cecil</Name>

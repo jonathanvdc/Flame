@@ -16,6 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Flame.Front.Target;
 using Flame.Verification;
+using Flame.Analysis;
 
 namespace dsc.Projects
 {
@@ -125,13 +126,18 @@ namespace dsc.Projects
             return new PassPreferences(new string[] { },
                 new PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>[] 
                 { 
+                    new PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>(
+                        AnalysisPasses.CreateValueTypeDelegatePass(Log),
+                        ValueTypeDelegateVisitor.ValueTypeDelegateWarningName,
+                        (optInfo, isPref) => optInfo.Log.UsePedanticWarnings(ValueTypeDelegateVisitor.ValueTypeDelegateWarningName)),
+
                     new PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>(new VerifyingDeadCodePass(Log, 
                         "This method may not always return or throw. " + Warnings.Instance.GetWarningNameMessage("missing-return"), 
                         Log.UseDefaultWarnings("missing-return"),
                         "Unreachable code detected and removed. " + Warnings.Instance.GetWarningNameMessage("dead-code"),
                         Log.UsePedanticWarnings("dead-code")),
                         PassExtensions.EliminateDeadCodePassName, 
-                        true)
+                        (optInfo, isPref) => optInfo.OptimizeMinimal || optInfo.OptimizeDebug)
                 });
         }
     }

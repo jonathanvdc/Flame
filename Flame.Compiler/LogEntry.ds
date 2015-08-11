@@ -60,5 +60,14 @@ namespace Flame.Compiler
         /// Gets the log entry's entire error message.
         /// </summary>
         public string Message { const get return Contents.GetAllText(); }
+
+        /// <summary>
+        /// Creates a new log entry that includes diagnostics information for
+        /// the given source location.
+        /// </summary>
+        public const LogEntry WithLocation(SourceLocation Location)
+        {
+            return new LogEntry(Name, Contents, Location);
+        }
     }
 }

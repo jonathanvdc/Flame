@@ -1,0 +1,15 @@
+
+namespace Flame.Compiler
+{
+    /// <summary>
+    /// Defines a metadata node: a node that contains an essential node, and
+    /// some non-essential metadata.
+    /// </summary>
+    public interface IMetadataNode<T> : INode
+    {
+        /// <summary>
+        /// Gets this metadata node's inner node.
+        /// </summary>
+        T Value { const get; }
+    }
+}
