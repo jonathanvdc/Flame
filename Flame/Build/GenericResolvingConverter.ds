@@ -90,7 +90,7 @@ namespace Flame.Build
 
         public static const IParameter ResolveParameter(this IGenericResolver Resolver, IParameter Parameter)
         {
-        	return new DescribedRetypedParameter(Parameter, Resolver.ResolveType(Parameter.ParameterType));
+        	return new RetypedParameter(Parameter, Resolver.ResolveType(Parameter.ParameterType));
         }
         public static const IParameter[] ResolveParameters(this IGenericResolver Resolver, IParameter[] Parameters)
         {
