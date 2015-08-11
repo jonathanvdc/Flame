@@ -355,7 +355,7 @@ namespace Flame.Optimization.Variables
         /// </summary>
         private PropagationDependencies GetDependencies(IExpression Value)
         {
-            if (IsLiteralValue(Value))
+            if (Value == null || IsLiteralValue(Value))
             {
                 return PropagationDependencies.Always();
             }
