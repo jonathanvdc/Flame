@@ -1,0 +1,25 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Statements;
+
+namespace Flame.Compiler.Expressions
+{
+    public abstract class VariableAddressOfExpressionBase<T> : VariableGetExpressionBase<T>
+        where T : IVariable
+    {
+    	public const this();
+    	public const this(T Variable)
+            : base(Variable);
+
+        public virtual override VariableNodeAction Action
+        {
+            virtual override const get { return VariableNodeAction.AddressOf; }
+        }
+
+        public virtual override IType Type
+        {
+            virtual override const get { return Variable.Type.MakePointerType(PointerKind.ReferencePointer); }
+        }
+    }
+}

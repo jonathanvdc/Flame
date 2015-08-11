@@ -15,10 +15,9 @@ namespace Flame.Compiler.Expressions
 		{
 			var resultField = Converter.Convert(Field);
             if (object.ReferenceEquals(Field, resultField))
-            {
                 return this;
-            }
-        	else return new FieldGetExpression(resultField, Target);
+        	else
+				return new FieldGetExpression(resultField, Target);
 		}
 
 		public void AcceptPredicate(INodeVisitor Visitor)
@@ -137,7 +136,7 @@ namespace Flame.Compiler.Expressions
 				return "field(" + Target + ", " + Field.FullName + ")";
 		}
     }
-    public class FieldGetPointerExpression : IExpression, IVariableNode, IPredicateNode
+    public class FieldGetPointerExpression : IExpression, IVariableNode, IPredicateNode, IMemberNode
     {
         public const this(set IField Field, set IExpression Target);
 
@@ -148,6 +147,15 @@ namespace Flame.Compiler.Expressions
         {
             const get { return Field.FieldType.MakePointerType(PointerKind.ReferencePointer); }
         }
+
+		public IMemberNode ConvertMembers(MemberConverter Converter)
+		{
+			var resultField = Converter.Convert(Field);
+			if (object.ReferenceEquals(Field, resultField))
+				return this;
+			else
+				return new FieldGetPointerExpression(resultField, Target);
+		}
 
 		public void AcceptPredicate(INodeVisitor Visitor)
 		{

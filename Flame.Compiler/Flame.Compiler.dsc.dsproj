@@ -89,6 +89,7 @@
 			<Compile Include="Expressions\DereferencePointerExpression.ds" />
 			<Compile Include="Expressions\ThisGetExpression.ds" />
 			<Compile Include="Expressions\ConversionExpression.ds" />
+			<Compile Include="Expressions\VariableAddressOfExpressionBase.ds" />
 			<Compile Include="Expressions\VariableGetExpressionBase.ds" />
 			<Compile Include="Expressions\LateBoundVariableGetExpression.ds" />
 			<Compile Include="Expressions\FieldGetExpression.ds" />

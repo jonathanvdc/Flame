@@ -13,7 +13,7 @@ namespace Flame.Compiler.Expressions
 
         public T Variable { const get; protected set; }
 
-        public VariableNodeAction Action { const get return VariableNodeAction.Get; }
+        public virtual VariableNodeAction Action { virtual const get return VariableNodeAction.Get; }
 
         public const IVariable GetVariable() : IVariableNode.GetVariable
         {
@@ -22,7 +22,7 @@ namespace Flame.Compiler.Expressions
 
         public virtual IType Type
         {
-            const get { return Variable.Type; }
+            virtual const get { return Variable.Type; }
         }
 
         public virtual bool IsConstant

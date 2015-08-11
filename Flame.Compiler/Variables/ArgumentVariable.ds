@@ -110,7 +110,7 @@ namespace Flame.Compiler.Variables
             return (string)Variable;
         }
     }
-    public class ArgumentAddressOfExpression : VariableGetExpressionBase<ArgumentVariable>,
+    public class ArgumentAddressOfExpression : VariableAddressOfExpressionBase<ArgumentVariable>,
                                                IMemberNode
     {
         public const this(set ArgumentVariable Variable);
@@ -127,14 +127,6 @@ namespace Flame.Compiler.Variables
                 return this;
             else
                 return new ArgumentAddressOfExpression(convArg);
-        }
-
-        public override IType Type
-        {
-            const get
-            {
-                return Variable.Type.MakePointerType(PointerKind.ReferencePointer);
-            }
         }
 
         public override const ICodeBlock Emit(ICodeGenerator Generator)
