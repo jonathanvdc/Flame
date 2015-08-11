@@ -1,0 +1,80 @@
+using System;
+
+namespace Flame.Compiler.Expressions
+{
+    /// <summary>
+    /// An expression that contains a location in a source document, for diagnostics
+    /// and debugging purposes.
+    /// </summary>
+    public class SourceExpression : IExpression, IPredicateNode
+    {
+        /// <summary>
+        /// Creates a new source expression from the given statement and location.
+        /// </summary>
+        private const this(set IExpression Expression, set SourceLocation Location);
+
+        /// <summary>
+        /// Creates a source expression based on the given expression and location.
+        /// If the statement argument is null, null is returned.
+        /// If the source location is null, the statement is returned.
+        /// </summary>
+        public static const IExpression Create(IExpression Expression, SourceLocation Location)
+        {
+            if (Location == null)
+                return Expression;
+            else if (Expression == null)
+                return null;
+            else
+                return new SourceExpression(Expression, Location);
+        }
+
+        /// <summary>
+        /// Gets the source expression's inner expression.
+        /// </summary>
+        public IExpression Expression { const get; private set; }
+        /// <summary>
+        /// Gets the source statement's location.
+        /// </summary>
+        public SourceLocation Location { const get; private set; }
+
+        public IType Type { const get return Expression.Type; }
+        public bool IsConstant { const get return Expression.IsConstant; }
+
+        public IBoundObject Evaluate()
+        {
+            return Expression.Evaluate();
+        }
+
+        public void AcceptPredicate(INodeVisitor Visitor)
+        {
+            Visitor.Visit(Expression);
+        }
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            var contents = Visitor.Visit(Expression);
+
+            if (contents == Expression)
+                return this;
+
+            return new SourceExpression(contents, Location);
+        }
+
+        public IExpression Optimize()
+        {
+            return new SourceExpression(Expression.Optimize(), Location);
+        }
+
+        public ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Expression.Emit(Generator);
+        }
+
+        public override const string ToString()
+        {
+            return "src-expression(" + Expression + ", \"" + Location.Document.Identifier + "\", " +
+                                       Location.Position + ", " + Location.Length + ")";
+
+        }
+    }
+}

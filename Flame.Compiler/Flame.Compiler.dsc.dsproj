@@ -125,6 +125,7 @@
 			<Compile Include="Expressions\GetExtensionMethodExpression.ds" />
 			<Compile Include="Expressions\GetMethodExpression.ds" />
 			<Compile Include="Expressions\SizeOfExpression.ds" />
+			<Compile Include="Expressions\SourceExpression.ds" />
 			<Compile Include="Expressions\InequalityExpression.ds" />
 			<Compile Include="Expressions\RemainderExpression.ds" />
 			<Compile Include="Expressions\HashExpression.ds" />
