@@ -5,6 +5,32 @@ namespace Flame.Compiler
 {
 	public static class NodeExtensions
 	{
+		private static T GetEssentialNode<T>(this T Node)
+		{
+			if (Node is IMetadataNode<T>)
+				return GetEssentialNode<T>(((IMetadataNode<T>)Node).Value);
+			else
+				return Node;
+		}
+
+		/// <summary>
+		/// Gets this expression's "essential" inner expression, i.e. its inner
+		/// non-metadata expression.
+		/// </summary>
+		public static IExpression GetEssentialExpression(this IExpression Expression)
+		{
+			return GetEssentialNode<IExpression>(Expression);
+		}
+
+		/// <summary>
+		/// Gets this statement's "essential" inner statement, i.e. its inner
+		/// non-metadata statement.
+		/// </summary>
+		public static IStatement GetEssentialStatement(this IStatement Statement)
+		{
+			return GetEssentialNode<IStatement>(Statement);
+		}
+
 		#region IsConstant
 
 		public static bool AreConstant[this IEnumerable<IExpression> Expressions]

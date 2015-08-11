@@ -82,32 +82,6 @@ namespace Flame.Compiler
 
     public static class VisitorExtensions
     {
-        private static T GetEssentialNode<T>(this T Node)
-        {
-            if (Node is IMetadataNode<T>)
-                return GetEssentialNode<T>(((IMetadataNode<T>)Node).Value);
-            else
-                return Node;
-        }
-
-        /// <summary>
-        /// Gets this expression's "essential" inner expression, i.e. its inner
-        /// non-metadata expression.
-        /// </summary>
-        public static IExpression GetEssentialExpression(this IExpression Expression)
-        {
-            return GetEssentialNode<IExpression>(Expression);
-        }
-
-        /// <summary>
-        /// Gets this statement's "essential" inner statement, i.e. its inner
-        /// non-metadata statement.
-        /// </summary>
-        public static IStatement GetEssentialStatement(this IStatement Statement)
-        {
-            return GetEssentialNode<IStatement>(Statement);
-        }
-
         public static IExpression[] VisitAll(this INodeVisitor Visitor, IExpression[] Values)
         {
             var results = new IExpression[Values.Length];

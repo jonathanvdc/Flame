@@ -9,7 +9,7 @@ namespace Flame.Compiler.Expressions
     /// <summary>
     /// Represents a lambda's "header": its signature and capture list.
     /// </summary>
-    public struct LambdaHeader
+    public class LambdaHeader
     {
         public const this(set IMethod Signature, set IReadOnlyList<IExpression> CaptureList);
 
