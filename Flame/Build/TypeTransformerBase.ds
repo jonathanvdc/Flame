@@ -58,7 +58,7 @@ namespace Flame.Build
 
 			foreach (var type in convTypes, var item in parameters)
 			{
-				descMethod.AddParameter(new DescribedRetypedParameter(item, type));
+				descMethod.AddParameter(new RetypedParameter(item, type));
 			}
 			foreach (var attr in method.GetAttributes())
 			{
