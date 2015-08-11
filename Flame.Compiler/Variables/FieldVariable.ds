@@ -5,6 +5,11 @@ using Flame.Compiler.Statements;
 
 namespace Flame.Compiler.Variables
 {
+    /// <summary>
+    /// A type of variable that represents a field of a target value. This value can
+    /// be either a value or reference type. If said target value is a value type,
+    /// however, setting the field's value will be a no-op.
+    /// </summary>
     public class FieldVariable : IUnmanagedVariable
     {
         public const this(set IField Field, set IExpression Target);
@@ -16,10 +21,9 @@ namespace Flame.Compiler.Variables
         {
             var resultField = Converter.Convert(Field);
             if (object.ReferenceEquals(Field, resultField))
-            {
                 return this;
-            }
-            else return new FieldVariable(resultField, Target);
+            else
+                return new FieldVariable(resultField, Target);
         }
 
         public IType Type
@@ -47,8 +51,20 @@ namespace Flame.Compiler.Variables
             return EmptyStatement;
         }
     }
+
+    /// <summary>
+    /// A type of variable that represents a field of a target variable, which
+    /// is a value type. If one requests to set the field's value, the target
+    /// variable's address is loaded, and said address is used when addressing
+    /// the field, as opposed to using the target's value. What this means is
+    /// that the field's value will actually change when a set-statement is executed.
+    /// </summary>
     public class ValueTypeFieldVariable : IUnmanagedVariable
     {
+        /// <summary>
+        /// Creates a new value type field variable from the given field
+        /// and target variable.
+        /// </summary>
         public const this(set IField Field, set IVariable Target);
 
         public IVariable Target { const get; private set; }
@@ -58,10 +74,9 @@ namespace Flame.Compiler.Variables
         {
             var resultField = Converter.Convert(Field);
             if (object.ReferenceEquals(Field, resultField))
-            {
                 return this;
-            }
-            else return new ValueTypeFieldVariable(resultField, Target);
+            else
+                return new ValueTypeFieldVariable(resultField, Target);
         }
 
         public IType Type

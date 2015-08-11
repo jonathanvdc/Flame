@@ -1,20 +1,45 @@
 using System;
 using System.Collections.Generic;
+using Flame.Build;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
 
 namespace Flame.Compiler.Variables
 {
+    /// <summary>
+    /// A type of variable that represents an argument to a function.
+    /// </summary>
     public class ArgumentVariable : IVariable, IUnmanagedVariable
     {
+        /// <summary>
+        /// Creates a new argument variable from the given parameter and index.
+        /// </summary>
         public const this(set IParameter Parameter, set int Index);
 
+        /// <summary>
+        /// Gets this argument variable's associated parameter.
+        /// </summary>
         public IParameter Parameter { const get; private set; }
+
+        /// <summary>
+        /// Gets the zero-based index of this variable's associated parameter in
+        /// the parameter list.
+        /// </summary>
         public int Index { const get; private set; }
 
         public IType Type
         {
             const get { return Parameter.ParameterType; }
+        }
+
+        public ArgumentVariable ConvertType(MemberConverter Converter)
+        {
+            var oldType = Type;
+            var resultType = Converter.Convert(oldType);
+            if (object.ReferenceEquals(resultType, oldType))
+                return this;
+            else
+                return new ArgumentVariable(new RetypedParameter(Parameter, resultType), Index);
         }
 
         public const IExpression CreateGetExpression()
@@ -52,10 +77,11 @@ namespace Flame.Compiler.Variables
 
         public override const string ToString()
         {
-            return "arg(" + Index + ", " + Parameter.Name + ")";
+            return "arg(" + Index + ", \"" + Parameter.Name + "\")";
         }
     }
-    public class ArgumentGetExpression : VariableGetExpressionBase<ArgumentVariable>
+    public class ArgumentGetExpression : VariableGetExpressionBase<ArgumentVariable>,
+                                         IMemberNode
     {
         public const this(set ArgumentVariable Variable);
 
@@ -70,18 +96,37 @@ namespace Flame.Compiler.Variables
             return variable.EmitGet();
         }
 
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convArg = Variable.ConvertType(Converter);
+            if (object.ReferenceEquals(convArg, Variable))
+                return this;
+            else
+                return new ArgumentGetExpression(convArg);
+        }
+
         public override const string ToString()
         {
             return (string)Variable;
         }
     }
-    public class ArgumentAddressOfExpression : VariableGetExpressionBase<ArgumentVariable>
+    public class ArgumentAddressOfExpression : VariableGetExpressionBase<ArgumentVariable>,
+                                               IMemberNode
     {
         public const this(set ArgumentVariable Variable);
 
         public override IExpression Accept(INodeVisitor Visitor)
         {
             return this;
+        }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convArg = Variable.ConvertType(Converter);
+            if (object.ReferenceEquals(convArg, Variable))
+                return this;
+            else
+                return new ArgumentAddressOfExpression(convArg);
         }
 
         public override IType Type
@@ -103,7 +148,8 @@ namespace Flame.Compiler.Variables
             return "&" + (string)Variable;
         }
     }
-    public class ArgumentSetStatement : VariableSetStatementBase<ArgumentVariable>
+    public class ArgumentSetStatement : VariableSetStatementBase<ArgumentVariable>,
+                                        IMemberNode
     {
         public const this(set ArgumentVariable Variable, set IExpression Value);
 
@@ -119,6 +165,15 @@ namespace Flame.Compiler.Variables
             {
                 return new ArgumentSetStatement(Variable, transVal);
             }
+        }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convArg = Variable.ConvertType(Converter);
+            if (object.ReferenceEquals(convArg, Variable))
+                return this;
+            else
+                return new ArgumentSetStatement(convArg, Value);
         }
 
         public override ICodeBlock Emit(ICodeGenerator Generator)
