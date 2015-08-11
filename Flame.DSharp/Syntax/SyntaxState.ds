@@ -160,7 +160,7 @@ namespace Flame.Syntax.DSharp
         public const bool VariableExists(string Name)
         {
             var localDict = Locals;
-            if (localDict.ContainsKey(Name))
+            if (localDict.ContainsKey(Name) || (Name.Equals("this") && CurrentType != null))
             {
                 return true;
             }
