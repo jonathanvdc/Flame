@@ -35,7 +35,13 @@ namespace Flame.Front.Target
         /// Perform optimizations that do not
         /// affect the debugging experience.
         /// </summary>
-        Debug = 16
+        Debug = 16,
+        /// <summary>
+        /// Perform optimizations that make 
+        /// assumptions which may not always turn out
+        /// to be true, thus creating invalid code.
+        /// </summary>
+        Dangerous = 32
     }
 
     /// <summary>
@@ -102,7 +108,7 @@ namespace Flame.Front.Target
                 { "O2", OptimizationMode.Minimal | OptimizationMode.Normal },
                 { "O3", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental },
                 { "O4", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental },
-                { "Ofast", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental },
+                { "Ofast", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental | OptimizationMode.Dangerous },
                 { "Os", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Size },
                 { "Oz", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental | OptimizationMode.Size },
                 { "Og", OptimizationMode.Minimal | OptimizationMode.Debug }
