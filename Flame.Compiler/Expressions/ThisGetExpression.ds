@@ -29,10 +29,9 @@ namespace Flame.Compiler.Expressions
         {
             var convType = Converter.Convert(Type);
             if (object.ReferenceEquals(convType, Type))
-            {
                 return this;
-            }
-            else return new ThisGetExpression(Type);
+            else 
+                return new ThisGetExpression(convType);
         }
 
         public IExpression Accept(INodeVisitor Visitor)
