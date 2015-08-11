@@ -10,17 +10,25 @@ namespace Flame.Front.Target
 {
     public struct PassInfo<TIn, TOut> : IEquatable<PassInfo<TIn, TOut>>
     {
-        public PassInfo(IPass<TIn, TOut> Pass, string Name, bool IsDefault)
+        public PassInfo(IPass<TIn, TOut> Pass, string Name, Func<OptimizationInfo, bool, bool> UsePass)
         {
             this = default(PassInfo<TIn, TOut>);
             this.Pass = Pass;
             this.Name = Name;
-            this.IsDefault = IsDefault;
+            this.UsePass = UsePass;
+        }
+        public PassInfo(IPass<TIn, TOut> Pass, string Name, bool IsDefault)
+            : this(Pass, Name, (optInfo, preferred) => IsDefault)
+        {
+        }
+        public PassInfo(IPass<TIn, TOut> Pass, string Name)
+            : this(Pass, Name, (optInfo, preferred) => preferred)
+        {
         }
 
         public IPass<TIn, TOut> Pass { get; private set; }
         public string Name { get; private set; }
-        public bool IsDefault { get; private set; }
+        public Func<OptimizationInfo, bool, bool> UsePass { get; private set; }
 
         public override int GetHashCode()
         {

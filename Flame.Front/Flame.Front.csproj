@@ -120,6 +120,7 @@
     <Compile Include="Target\DependencyBuilder.cs" />
     <Compile Include="Target\IBuildTargetParser.cs" />
     <Compile Include="Target\MultiBuildTargetParser.cs" />
+    <Compile Include="Target\OptimizationInfo.cs" />
     <Compile Include="Target\PassPreferences.cs" />
     <Compile Include="TypedDictionary.cs" />
   </ItemGroup>

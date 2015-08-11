@@ -82,6 +82,32 @@ namespace Flame.Compiler
 
     public static class VisitorExtensions
     {
+        private static T GetEssentialNode<T>(this T Node)
+        {
+            if (Node is IMetadataNode<T>)
+                return GetEssentialNode<T>(((IMetadataNode<T>)Node).Value);
+            else
+                return Node;
+        }
+
+        /// <summary>
+        /// Gets this expression's "essential" inner expression, i.e. its inner
+        /// non-metadata expression.
+        /// </summary>
+        public static IExpression GetEssentialExpression(this IExpression Expression)
+        {
+            return GetEssentialNode<IExpression>(Expression);
+        }
+
+        /// <summary>
+        /// Gets this statement's "essential" inner statement, i.e. its inner
+        /// non-metadata statement.
+        /// </summary>
+        public static IStatement GetEssentialStatement(this IStatement Statement)
+        {
+            return GetEssentialNode<IStatement>(Statement);
+        }
+
         public static IExpression[] VisitAll(this INodeVisitor Visitor, IExpression[] Values)
         {
             var results = new IExpression[Values.Length];
@@ -117,7 +143,8 @@ namespace Flame.Compiler
         /// </summary>
         public static const INodeVisitor Aggregate(this INodeVisitor First, INodeVisitor Second)
         {
-            if (First is NodeVisitorBase && Second is NodeVisitorBase)
+            if (First is NodeVisitorBase && !(First is ILambdaVisitor) &&
+                Second is NodeVisitorBase && !(Second is ILambdaVisitor))
                 return new AggregateMatchVisitor((NodeVisitorBase)First, (NodeVisitorBase)Second);
             else
                 return new AggregateVisitor(First, Second);

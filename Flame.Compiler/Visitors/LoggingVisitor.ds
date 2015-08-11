@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
 
 namespace Flame.Compiler.Visitors
 {
@@ -10,14 +11,16 @@ namespace Flame.Compiler.Visitors
     /// contents.
     /// Said nodes are optionally simplified to their inner nodes.
     /// </summary>
-    public class LoggingVisitor : NodeVisitorBase
+    public class LoggingVisitor : ContextlessVisitorBase
     {
         /// <summary>
         /// Creates a new logging visitor from the given compiler log and a
         /// flag that tells if error and warning nodes are to be
-        /// simplified to their inner nodes.
+        /// simplified to their inner nodes, and another that determines whether
+        /// source nodes are to be reduced to their contents, as well.
         /// </summary>
-        public const this(set ICompilerLog Log, set bool Simplify);
+        public const this(set ICompilerLog Log, set bool StripMessages,
+                          set bool StripSource);
 
         /// <summary>
         /// Gets the compiler log that is used to write errors and warnings to.
@@ -26,39 +29,91 @@ namespace Flame.Compiler.Visitors
 
         /// <summary>
         /// Gets a boolean value that tells if error and warning nodes are to be
-        /// simplified to their inner nodes.
+        /// stripped away, replaced by their inner nodes.
         /// </summary>
-        public bool Simplify { const get; private set; }
+        public bool StripMessages { const get; private set; }
+
+        /// <summary>
+        /// Gets a boolean value that tells if source nodes are to be removed,
+        /// and replaced by their inner nodes.
+        /// </summary>
+        public bool StripSource { const get; private set; }
+
+        /// <summary>
+        /// The logging visitor's current location, obtained from source statements
+        /// and expressions.
+        /// </summary>
+        private SourceLocation currentLocation;
 
         public override const bool Matches(IExpression Value)
         {
-            return Value is ErrorExpression || Value is WarningExpression;
+            return Value is ErrorExpression || Value is WarningExpression ||
+                   Value is SourceExpression;
         }
 
         public override const bool Matches(IStatement Value)
         {
-            return false;
+            return Value is SourceStatement;
+        }
+
+        private IExpression Transform(LogEntryExpression Expression)
+        {
+            var message = Expression.Message;
+
+            if (Expression is ErrorExpression)
+                Log.LogError(message.WithLocation(currentLocation));
+            else
+                Log.LogWarning(message.WithLocation(currentLocation));
+
+            if (StripMessages)
+                return Visit(Expression.Value);
+            else
+                return Expression.Accept(this);
+        }
+
+        private IExpression Transform(SourceExpression Expression)
+        {
+            var oldLoc = currentLocation;
+            if (Expression.Location != null)
+            {
+                currentLocation = Expression.Location;
+            }
+
+            IExpression result;
+            if (StripSource)
+                result = Expression.Accept(this);
+            else
+                result = Visit(Expression.Value);
+
+            currentLocation = oldLoc;
+            return result;
         }
 
         protected override IExpression Transform(IExpression Expression)
         {
-            var expr = (LogEntryExpression)Expression;
-            var message = expr.Message;
-
-            if (expr is ErrorExpression)
-                Log.LogError(message);
+            if (Expression is SourceExpression)
+                return Transform((SourceExpression)Expression);
             else
-                Log.LogWarning(message);
-
-            if (Simplify)
-                return Visit(expr.Value);
-            else
-                return expr.Accept(this);
+                return Transform((LogEntryExpression)Expression);
         }
 
         protected override IStatement Transform(IStatement Statement)
         {
-            return Statement;
+            var srcStmt = (SourceStatement)Statement;
+            var oldLoc = currentLocation;
+            if (srcStmt.Location != null)
+            {
+                currentLocation = srcStmt.Location;
+            }
+
+            IStatement result;
+            if (StripSource)
+                result = srcStmt.Accept(this);
+            else
+                result = Visit(srcStmt.Value);
+
+            currentLocation = oldLoc;
+            return result;
         }
     }
 }

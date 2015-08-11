@@ -3,7 +3,7 @@ namespace Flame.Compiler.Expressions
     /// <summary>
     /// A base class for expression that contain log entries.
     /// </summary>
-    public abstract class LogEntryExpression : IExpression, IPredicateNode
+    public abstract class LogEntryExpression : IExpression, IPredicateNode, IMetadataNode<IExpression>
     {
         /// <summary>
         /// Creates a new log entry expression from the given value and message.
