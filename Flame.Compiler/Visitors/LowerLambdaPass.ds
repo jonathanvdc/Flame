@@ -42,6 +42,7 @@ namespace Flame.Compiler.Visitors
         public BodyPassArgument Args { const get; private set; }
         public IEnvironment Environment { const get return Args.Environment; }
         public ITypeBuilder DeclaringType { const get return Args.Type; }
+        public IMethodBuilder DeclaringMethod { const get return Args.Method; }
         public IRandomAccessOptions TypeMetadata { const get return Args.Metadata.TypeMetadata; }
 
         private int nameCounter
@@ -67,37 +68,109 @@ namespace Flame.Compiler.Visitors
             return result;
         }
 
-        private DescribedMethod CopySignature(IMethod Signature, string Name, IType DeclType, bool IsStatic)
+        private DescribedMethod CopySignature(IMethod Signature, string Name, IType DeclType, bool IsStatic, bool IsPrivate, MemberConverter Converter)
         {
-            var descMethod = new DescribedMethod(Name, DeclType, Signature.ReturnType, IsStatic);
+            var descMethod = new DescribedMethod(Name, DeclType, Converter.Convert(Signature.ReturnType), IsStatic);
             foreach (var item in Signature.GetParameters())
-                descMethod.AddParameter(item);
+            {
+                var convParam = new DescribedParameter(item.Name, Converter.Convert(item.ParameterType));
+                foreach (var attr in item.GetAttributes())
+                {
+                    convParam.AddAttribute(attr);
+                }
+                descMethod.AddParameter(convParam);
+            }
+
             foreach (var item in Signature.GetAttributes())
                 descMethod.AddAttribute(item);
-            descMethod.AddAttribute(new AccessAttribute(AccessModifier.Private));
+
+            if (IsPrivate)
+                descMethod.AddAttribute(new AccessAttribute(AccessModifier.Private));
+            else
+                descMethod.AddAttribute(new AccessAttribute(AccessModifier.Public));
 
             return descMethod;
         }
 
-        private IExpression LowerCapturelessLambda(LambdaExpression Lambda)
+        private DescribedMethod CopySignature(IMethod Signature, string Name, IType DeclType, bool IsStatic)
+        {
+            var typeConv = new MemberConverter(new EmptyConverter<IType>(),
+                                               new EmptyConverter<IMethod>(),
+                                               new EmptyConverter<IField>());
+            return CopySignature(Signature, Name, DeclType, IsStatic, true, typeConv);
+        }
+
+        private Tuple<MemberConverter, IStatement> ConvertGenerics(IGenericMember Owner, IStatement Body)
+        {
+            if (!Owner.IsGeneric)
+            {
+                var typeConv = new MemberConverter(new EmptyConverter<IType>(),
+                                                   new EmptyConverter<IMethod>(),
+                                                   new EmptyConverter<IField>());
+                return Tuple.Create<MemberConverter, IStatement>(typeConv, Body);
+            }
+            else
+            {
+                var typeConv = MemberNodeVisitor.CreateMemberConverter(new TypeParameterConverter(Owner));
+                var newBody = MemberNodeVisitor.ConvertMembers(typeConv, Body);
+                return Tuple.Create<MemberConverter, IStatement>(typeConv, newBody);
+            }
+        }
+
+        private IExpression LowerCapturelessLambda(LambdaExpression Lambda, IStatement LambdaBody)
         {
             // Special case where capture list is empty.
 
             string name    = GenerateName("__lambda_invoke");
             var descMethod = CopySignature(Lambda.Signature, name, DeclaringType, true);
+            foreach (var item in DeclaringMethod.GetGenericParameters())
+            {
+                descMethod.AddGenericParameter(item);
+            }
 
             var lambdaMethod = DeclaringType.DeclareMethod(descMethod);
+            var convGenerics = ConvertGenerics(lambdaMethod, LambdaBody);
+
             var lambdaHeader = new EmptyCaptureLambdaHeaderBlock(lambdaMethod.GetBodyGenerator());
             Lambda.BoundHeaderBlock.Bind(lambdaHeader);
-            var lambdaBody   = Lambda.Body.Emit(lambdaHeader.LambdaCodeGenerator);
+            var lambdaBody   = convGenerics.Item2.Emit(lambdaHeader.LambdaCodeGenerator);
             Lambda.BoundHeaderBlock.Release();
             lambdaMethod.SetMethodBody(lambdaBody);
             lambdaMethod.Build();
 
-            return new GetMethodExpression(lambdaMethod, null);
+            if (lambdaMethod.IsGeneric)
+                return new GetMethodExpression(lambdaMethod.MakeGenericMethod(lambdaMethod.GetGenericParameters()), null);
+            else
+                return new GetMethodExpression(lambdaMethod, null);
         }
 
-        private IExpression LowerCapturingLambda(LambdaExpression Lambda)
+        private IMethod GetGenericConstructor(IType Type, IMethod Ctor)
+        {
+            if (!Type.IsGeneric)
+            {
+                return Ctor;
+            }
+            else
+            {
+                var inst = Type.MakeGenericType(DeclaringMethod.GetGenericParameters());
+                return Enumerable.Single<IMethod>(inst.GetConstructors());
+            }
+        }
+
+        private IMethod GetGenericInvokeMethod(IType Type, IMethod InvokeMethod)
+        {
+            if (!Type.IsGeneric)
+            {
+                return InvokeMethod;
+            }
+            else
+            {
+                var inst = Type.MakeGenericType(DeclaringMethod.GetGenericParameters());
+                return Enumerable.Single<IMethod>(inst.GetMethods());
+            }
+        }
+
+        private IExpression LowerCapturingLambda(LambdaExpression Lambda, IStatement LambdaBody)
         {
             var nsBuilder = (INamespaceBuilder)DeclaringType;
             string name = GenerateName("__lambda_closure");
@@ -107,8 +180,14 @@ namespace Flame.Compiler.Visitors
             {
                 descType.AddBaseType(Environment.RootType);
             }
+            foreach (var item in DeclaringMethod.GetGenericParameters())
+            {
+                descType.AddGenericParameter(item);
+            }
 
-            var closureType = nsBuilder.DeclareType(descType);
+            var closureType  = nsBuilder.DeclareType(descType);
+            var convGenerics  = ConvertGenerics(closureType, LambdaBody);
+            var typeConverter = convGenerics.Item1;
 
             var descCtor = new DescribedMethod("this", closureType, PrimitiveTypes.Void, false);
             descCtor.IsConstructor = true;
@@ -127,7 +206,7 @@ namespace Flame.Compiler.Visitors
 
             foreach (var item in Lambda.Header.CaptureList)
             {
-                var descField = new DescribedField("captured_" + capturedValues.Count, item.Type, false);
+                var descField = new DescribedField("captured_" + capturedValues.Count, typeConverter.Convert(item.Type), false);
                 descField.DeclaringType = closureType;
                 descField.AddAttribute(new AccessAttribute(AccessModifier.Private));
 
@@ -136,7 +215,8 @@ namespace Flame.Compiler.Visitors
                 var ctorParam = new DescribedParameter(descField.Name, descField.FieldType);
                 var ctorArg   = new ArgumentVariable(ctorParam, capturedValues.Count);
 
-                var captVal = new FieldVariable(captField, closureThis);
+                var genCaptField = ThisVariable.GetThisType(closureType).GetField(captField.Name, captField.IsStatic);
+                var captVal = new FieldVariable(genCaptField, closureThis);
 
                 descCtor.AddParameter(ctorParam);
                 capturedValues.Add(captVal.CreateGetExpression());
@@ -146,22 +226,25 @@ namespace Flame.Compiler.Visitors
             ctorBody.Add(new ReturnStatement());
 
             var ctorBodyStatement = new BlockStatement(ctorBody);
-            var closureCtor  = closureType.DeclareMethod(descCtor);
+            var closureCtor       = closureType.DeclareMethod(descCtor);
             closureCtor.SetMethodBody(ctorBodyStatement.Emit(closureCtor.GetBodyGenerator()));
             closureCtor.Build();
 
-            var descInvoke   = CopySignature(Lambda.Signature, "lambda_invoke", closureType, false);
+            var descInvoke   = CopySignature(Lambda.Signature, "lambda_invoke", closureType, false, false, typeConverter);
             var invokeMethod = closureType.DeclareMethod(descInvoke);
 
             var lambdaHeader = new ExpressionCaptureLambdaHeaderBlock(invokeMethod.GetBodyGenerator(), capturedValues);
             Lambda.BoundHeaderBlock.Bind(lambdaHeader);
-            var lambdaBody   = Lambda.Body.Emit(lambdaHeader.LambdaCodeGenerator);
+            var lambdaBody   = convGenerics.Item2.Emit(lambdaHeader.LambdaCodeGenerator);
             Lambda.BoundHeaderBlock.Release();
             invokeMethod.SetMethodBody(lambdaBody);
             invokeMethod.Build();
             closureType.Build();
 
-            return new GetMethodExpression(invokeMethod, new InvocationExpression(closureCtor, null, Lambda.Header.CaptureList));
+            var genericCtor = GetGenericConstructor(closureType, closureCtor);
+            var genericInv  = GetGenericInvokeMethod(closureType, invokeMethod);
+
+            return new GetMethodExpression(genericInv, new InvocationExpression(genericCtor, null, Lambda.Header.CaptureList));
         }
 
         private IExpression LowerLambda(LambdaExpression Lambda)
@@ -169,9 +252,9 @@ namespace Flame.Compiler.Visitors
             // Lower nested lambdas first
             var newBody = Visit(Lambda.Body);
             if (Lambda.Header.CaptureList.Count == 0)
-                return LowerCapturelessLambda(Lambda);
+                return LowerCapturelessLambda(Lambda, newBody);
             else
-                return LowerCapturingLambda(Lambda);
+                return LowerCapturingLambda(Lambda, newBody);
         }
 
         protected override IExpression Transform(IExpression Value)
