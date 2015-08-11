@@ -14,10 +14,29 @@ public static class Program
         return results;
     }
 
-    public int[] DoubleAll(int[] Args)
+    /// <summary>
+    /// Defines partial application for functions that take two arguments.
+    /// </summary>
+    public T3(T2) Partial<T1, T2, T3>(T3(T1, T2) Function, T1 Arg)
     {
-        var f = int(int x) => x * 2;
-        return Map<int, int>(f, Args);
+        return T3(T2 x) => Function(Arg, x);
+    }
+
+    public T1(T2) Constant<T1, T2>(T1 Value)
+    {
+        return T1(T2) => Value;
+    }
+
+    public TOut[](TIn[]) PartialMap<TIn, TOut>(TOut(TIn) Function)
+    {
+        alias funcType = TOut(TIn);
+
+        return Partial<funcType, TIn[], TOut[]>(Map<TIn, TOut>, Function);
+    }
+
+    public int[](int[]) DoubleAll
+    {
+        const get return PartialMap<int, int>(int(int x) => x * 2);
     }
 
     public string PrintAll(int[] Args)
@@ -43,11 +62,6 @@ public static class Program
         }
         result.Append('}');
         return (string)result;
-    }
-
-    public int(int) Partial(int(int, int) Function, int Arg)
-    {
-        return int(int x) => Function(Arg, x);
     }
 
     public void Main(string[] Input)
