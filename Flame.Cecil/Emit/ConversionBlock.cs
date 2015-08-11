@@ -278,6 +278,10 @@ namespace Flame.Cecil.Emit
             else if (ILCodeGenerator.IsPossibleValueType(exprType) && !ILCodeGenerator.IsCLRValueType(targetType)) // Boxing second
             {
                 Context.Emit(OpCodes.Box, exprType);
+                if (!exprType.Is(targetType))
+                {
+                    Context.Emit(OpCodes.Castclass, targetType);
+                }
             }
             else if (IsPrimitiveType(exprType) && IsPrimitiveType(targetType)) // Primitive conversions
             {
@@ -292,7 +296,7 @@ namespace Flame.Cecil.Emit
             }
             else if (TargetType.get_IsReferenceType() && exprType.get_IsReferenceType()) // Castclass, then
             {
-                if (!exprType.Is(TargetType))
+                if (!exprType.Is(targetType))
                 {
                     Context.Emit(OpCodes.Castclass, targetType);
                 }
