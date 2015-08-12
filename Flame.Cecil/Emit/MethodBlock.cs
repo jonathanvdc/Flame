@@ -60,7 +60,12 @@ namespace Flame.Cecil.Emit
             else
             {
                 EmitCaller(Caller, Method, Context);
-                Context.Stack.Pop();
+                var callerType = Context.Stack.Pop();
+                if (callerType.get_IsValueType())
+                {
+                    // Box value types
+                    Context.Emit(OpCodes.Box, callerType);
+                }
             }
             // Push a function pointer on the stack.
             if (ILCodeGenerator.UseVirtualCall(Method))
