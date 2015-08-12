@@ -285,21 +285,10 @@ namespace Flame.Front.Cli
 
         private static void NotifyUpToDate(ICompilerLog Log)
         {
-            const string warningName = "Wup-to-date";
-            bool showWarning = false;
-
-            if (Log.Options.HasOption(warningName))
+            const string warningName = "up-to-date";
+            if (Log.UsePedanticWarnings(warningName))
             {
-                showWarning = Log.Options.GetOption<bool>(warningName, false);
-            }
-            else
-            {
-                showWarning = Log.Options.GetOption<bool>("pedantic", false);
-            }
-
-            if (showWarning)
-            {
-                Log.LogWarning(new LogEntry("No changes", "The output assembly and documentation were already up-to-date. [-" + warningName + "]"));
+                Log.LogWarning(new LogEntry("No changes", "The output assembly and documentation were already up-to-date. " + Warnings.Instance.GetWarningNameMessage(warningName)));
             }
         }
 
