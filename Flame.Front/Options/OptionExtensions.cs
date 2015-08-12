@@ -33,6 +33,10 @@ namespace Flame.Front.Options
         {
             return Options.GetOption<string>("platform", "");
         }
+        public static string GetDefaultTargetPlatform(this ICompilerOptions Options)
+        {
+            return Options.GetOption<string>("default-platform", "");
+        }
         public static ILogFilter GetLogFilter(this ICompilerOptions Options)
         {
             return Options.GetOption<ILogFilter>("chat", null) ?? new ChatLogFilter(ChatLevel.Silent);
@@ -42,7 +46,14 @@ namespace Flame.Front.Options
             string platform = Options.GetTargetPlatform();
             if (string.IsNullOrWhiteSpace(platform))
             {
-                return Project.BuildTargetIdentifier;
+                if (string.IsNullOrWhiteSpace(Project.BuildTargetIdentifier))
+                {
+                    return Options.GetDefaultTargetPlatform();
+                }
+                else
+                {
+                    return Project.BuildTargetIdentifier;
+                }                
             }
             else
             {
