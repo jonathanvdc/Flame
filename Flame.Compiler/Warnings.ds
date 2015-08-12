@@ -172,6 +172,15 @@ namespace Flame.Compiler
         public const string VariableLengthInitialization = "variable-length-initialization";
 
         /// <summary>
+        /// A warning name for unused Compiler options.
+        /// </summary>
+        /// <example>
+        /// compiler File.src -unknown-option
+        ///                   ^~~~~~~~~~~~~~~
+        /// </example>
+        public const string UnusedOption = "unused-option";
+
+        /// <summary>
         /// Gets a warning's "official name", which the log maps to an on/off boolean.
         /// </summary>
         public static const string GetWarningName(string Name)
