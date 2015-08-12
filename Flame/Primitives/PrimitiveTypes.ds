@@ -55,7 +55,7 @@ namespace Flame
     		int32Type = new PrimitiveNumberType<int32>("Int32", 3, default(int32), int32.MinValue, int32.MaxValue);
     		booleanType = new PrimitiveType<bool>("Boolean", 1, default(bool));
     		//stringType = new PrimitiveType<string>("String", 0 , null);
-    		stringType = new StringPrimitiveType();
+    		stringType = StringPrimitiveType;
     		PrimitiveTypes.Int8 = new PrimitiveNumberType<int8>("Int8", 1, default(int8), int8.MinValue, int8.MaxValue);
     		PrimitiveTypes.Int16 = new PrimitiveNumberType<int16>("Int16", 2, default(int16), int16.MinValue, int16.MaxValue);
     		PrimitiveTypes.Int64 = new PrimitiveNumberType<int64>("Int64", 4, default(int64), int64.MinValue, int64.MaxValue);
