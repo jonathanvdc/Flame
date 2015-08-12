@@ -124,6 +124,12 @@ namespace Flame.Primitives
         	trimMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
         	trimMethod.AddParameter(new DescribedParameter("Elements", PrimitiveTypes.Char.MakeArrayType(1)));
 
+			var staticEqMethod = new DescribedMethod("Equals", this, PrimitiveTypes.Boolean, true); // static const bool Equals(string Left, string Right);
+			staticEqMethod.AddParameter(new DescribedParameter("Left", this));
+			staticEqMethod.AddParameter(new DescribedParameter("Right", this));
+        	staticEqMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+			staticEqMethod.AddAttribute(new OperatorAttribute(Operator.CheckEquality));
+
             return new IMethod[]
             {
                 new PrimitiveMethod(this, "ToString", false, this, new IParameter[0]),
@@ -144,6 +150,7 @@ namespace Flame.Primitives
                 trimEndMethod,
                 trimStartMethod,
                 trimMethod,
+				staticEqMethod,
                 new GetHashCodeImplementation<string>(this),
                 new EqualsImplementation<string>(this)
             };
