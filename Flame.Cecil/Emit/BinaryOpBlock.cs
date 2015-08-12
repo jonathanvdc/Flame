@@ -30,54 +30,72 @@ namespace Flame.Cecil.Emit
 
             if (IsIntrinsicType(aType) && IsIntrinsicType(bType))
             {
-                Left.Emit(Context);
-                Right.Emit(Context);
-                EmitInstrinsic(aType, bType, Context);
+                EmitInstrinsicOp(aType, bType, Context);
             }
             else
             {
-                var overload = GetBinaryOverload(aType, Operator, bType);
-                if (overload != null)
+                EmitCallOp(aType, bType, Context);
+            }
+        }
+
+        private void EmitCallOp(IType aType, IType bType, IEmitContext Context)
+        {
+            var overload = GetBinaryOverload(aType, Operator, bType);
+            if (overload != null)
+            {
+                var call = (ICecilBlock)CodeGenerator.EmitOperatorCall(overload, Left, Right);
+                call.Emit(Context);
+            }
+            else
+            {
+                Operator negOp;
+                if (TryGetNegatedOperator(Operator, out negOp))
                 {
-                    var call = (ICecilBlock)CodeGenerator.EmitOperatorCall(overload, Left, Right);
-                    call.Emit(Context);
+                    var negOverload = GetBinaryOverload(aType, negOp, bType);
+                    if (negOverload != null)
+                    {
+                        var call = (ICecilBlock)CodeGenerator.EmitOperatorCall(negOverload, Left, Right);
+                        call.Emit(Context);
+                        UnaryOpBlock.EmitBooleanNot(Context);
+                        return;
+                    }
                 }
+                EmitInstrinsicOp(aType, bType, Context);
+            }
+        }
+
+        private static void EmitInstrinsicCode(IType aType, IType bType, Operator Op, IEmitContext Context)
+        {
+            OpCode opCode;
+            if (TryGetOpCode(Op, aType, bType, out opCode))
+            {
+                Context.Emit(opCode);
+            }
+            else // Special cases - no direct mapping to IL
+            {
+                Operator negOp;
+                if (TryGetNegatedOperator(Op, out negOp))
+	            {
+                    Context.Emit(GetOpCode(negOp, aType, bType));
+                    UnaryOpBlock.EmitBooleanNot(Context);
+	            }
                 else
                 {
-                    Left.Emit(Context);
-                    Right.Emit(Context);
-                    EmitInstrinsic(aType, bType, Context);
+                    throw new NotImplementedException("THe IL back-end does not support binary operator '" + Op + "' for '" + aType.FullName + "' and '" + bType.FullName + "'.");
                 }
             }
         }
 
-        private void EmitInstrinsic(IType aType, IType bType, IEmitContext Context)
+        private void EmitInstrinsicOp(IType aType, IType bType, IEmitContext Context)
         {
+            Left.Emit(Context);
+            Right.Emit(Context);
+
             Context.Stack.Pop();
             Context.Stack.Pop();
             Context.Stack.Push(BlockType);
 
-            OpCode opCode;
-            if (TryGetOpCode(Operator, aType, bType, out opCode))
-            {
-                Context.Emit(opCode);
-            }
-            else if (Operator.Equals(Operator.CheckInequality)) // Special cases - no direct mapping to IL
-            {
-                ((ICecilBlock)CodeGenerator.EmitNot(new OpCodeBlock(CodeGenerator, GetOpCode(Operator.CheckEquality, aType, bType), new PopStackBehavior(0)))).Emit(Context);
-            }
-            else if (Operator.Equals(Operator.CheckGreaterThanOrEqual))
-            {
-                ((ICecilBlock)CodeGenerator.EmitNot(new OpCodeBlock(CodeGenerator, GetOpCode(Operator.CheckLessThan, aType, bType), new PopStackBehavior(0)))).Emit(Context);
-            }
-            else if (Operator.Equals(Operator.CheckLessThanOrEqual))
-            {
-                ((ICecilBlock)CodeGenerator.EmitNot(new OpCodeBlock(CodeGenerator, GetOpCode(Operator.CheckGreaterThan, aType, bType), new PopStackBehavior(0)))).Emit(Context);
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
+            EmitInstrinsicCode(aType, bType, Operator, Context);
         }
 
         public IType BlockType
@@ -216,25 +234,11 @@ namespace Flame.Cecil.Emit
 
         #endregion
 
-        #region IsCheck
-
-        public static bool IsCheck(Operator Op)
-        {
-            return Op.Equals(Operator.CheckEquality) ||
-                Op.Equals(Operator.CheckGreaterThan) ||
-                Op.Equals(Operator.CheckGreaterThanOrEqual) ||
-                Op.Equals(Operator.CheckInequality) ||
-                Op.Equals(Operator.CheckLessThan) ||
-                Op.Equals(Operator.CheckLessThanOrEqual);
-        }
-
-        #endregion
-
         #region IsIntrinsicType
 
         public static bool IsIntrinsicType(IType Type)
         {
-            return Type.get_IsPrimitive() || Type.get_IsEnum();
+            return (Type.get_IsPrimitive() && !Type.Equals(PrimitiveTypes.String)) || Type.get_IsEnum();
         }
 
         #endregion
@@ -244,7 +248,15 @@ namespace Flame.Cecil.Emit
         private static IMethod GetEqualsOverload(IType LeftType, IType RightType)
         {
             var eqMethods = LeftType.GetAllMethods().Where((item) => item.Name == "Equals");
-            return eqMethods.GetBestMethod(false, LeftType, new IType[] { RightType });
+            var staticEq = eqMethods.GetBestMethod(true, null, new IType[] { LeftType, RightType });
+            if (staticEq != null)
+            {
+                return staticEq;
+            }
+            else
+            {
+                return eqMethods.GetBestMethod(false, LeftType, new IType[] { RightType });
+            }
         }
 
         private static IMethod GetBinaryOverload(IType LeftType, Operator Op, IType RightType)
@@ -266,5 +278,41 @@ namespace Flame.Cecil.Emit
 
         #endregion
 
+        #region Operator negation
+
+        #region IsCheck
+
+        public static bool IsCheck(Operator Op)
+        {
+            return operatorNegationDict.ContainsKey(Op);
+        }
+
+        #endregion
+
+        private static Dictionary<Operator, Operator> operatorNegationDict = new Dictionary<Operator, Operator>()
+        {
+            { Operator.CheckEquality, Operator.CheckInequality },
+            { Operator.CheckInequality, Operator.CheckEquality },
+            { Operator.CheckLessThanOrEqual, Operator.CheckGreaterThan },
+            { Operator.CheckGreaterThan, Operator.CheckLessThanOrEqual },
+            { Operator.CheckGreaterThanOrEqual, Operator.CheckLessThan },
+            { Operator.CheckLessThan, Operator.CheckGreaterThanOrEqual }
+        };
+
+        public static bool TryGetNegatedOperator(Operator Value, out Operator Result)
+        {
+            if (operatorNegationDict.ContainsKey(Value))
+            {
+                Result = operatorNegationDict[Value];
+                return true;
+            }
+            else
+            {
+                Result = Operator.Undefined;
+                return false;
+            }
+        }
+
+        #endregion
     }
 }
