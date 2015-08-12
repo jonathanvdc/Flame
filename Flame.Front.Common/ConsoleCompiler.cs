@@ -299,21 +299,11 @@ namespace Flame.Front.Cli
             var resultNode = ListExtensions.Instance.CreateList(
                                 names.Select(item => new MarkupNode(NodeConstants.TextNodeType, "-f" + item)));
             Log.LogMessage(new LogEntry("Passes in use (in order of application)", resultNode));
-
+            
             var optLevel = OptimizationInfo.GetOptimizationLevel(Log);
-            var optDirs = new Dictionary<OptimizationMode, string>()
-            {
-                { OptimizationMode.Minimal, "minimal (-O1)" },
-                { OptimizationMode.Normal, "normal (-O2)" },
-                { OptimizationMode.Experimental, "experimental (-O3)" },
-                { OptimizationMode.Size, "size (-Os)" },
-                { OptimizationMode.Debug, "debug (-Og)" },
-                { OptimizationMode.Dangerous, "dangerous (-Ofast)" },
-            };
             var optList = ListExtensions.Instance.CreateList(
-                            optDirs.Where(item => optLevel.HasFlag(item.Key))
-                                   .Select(item => new MarkupNode(NodeConstants.TextNodeType, item.Value))
-                                   .DefaultIfEmpty(new MarkupNode(NodeConstants.TextNodeType, "none (-O0)")));
+                            OptimizationInfo.GetOptimizationDirectives(optLevel)
+                                            .Select(item => new MarkupNode(NodeConstants.TextNodeType, item)));
             Log.LogMessage(new LogEntry("Optimization directives", optList));
         }
     }
