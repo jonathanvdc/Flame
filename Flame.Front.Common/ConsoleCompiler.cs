@@ -118,6 +118,7 @@ namespace Flame.Front.Cli
                     }
                 }
                 Task.WhenAll(allTasks).Wait();
+                ReportUnusedOptions(buildArgs, log);
             }
             catch (Exception ex)
             {
@@ -289,6 +290,20 @@ namespace Flame.Front.Cli
             if (Log.UsePedanticWarnings(warningName))
             {
                 Log.LogWarning(new LogEntry("No changes", "The output assembly and documentation were already up-to-date. " + Warnings.Instance.GetWarningNameMessage(warningName)));
+            }
+        }
+
+        private static void ReportUnusedOptions(BuildArguments Args, ICompilerLog Log)
+        {
+            if (Log.UseDefaultWarnings(Warnings.UnusedOption))
+            {
+                foreach (var item in Args.UnusedOptions)
+                {
+                    Log.LogWarning(new LogEntry(
+                        "Unused option", 
+                        "Option unused during compilation: '-" + item + "'. " + 
+                        Warnings.Instance.GetWarningNameMessage(Warnings.UnusedOption)));
+                }
             }
         }
 

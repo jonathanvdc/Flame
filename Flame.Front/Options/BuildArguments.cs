@@ -17,9 +17,25 @@ namespace Flame.Front.Options
         {
             this.OptionParser = OptionParser;
             this.args = new Dictionary<string, string[]>();
+            this.accOptions = new HashSet<string>();
         }
 
         public IOptionParser<string[]> OptionParser { get; private set; }
+
+        /// <summary>
+        /// Gets a sequence of all options.
+        /// </summary>
+        public IEnumerable<string> Options { get { return this.args.Keys; } }
+
+        /// <summary>
+        /// Gets all options that have been accessed so far.
+        /// </summary>
+        public IEnumerable<string> AccessedOptions { get { return accOptions; } }
+
+        /// <summary>
+        /// Gets all options that have not been accessed so far.
+        /// </summary>
+        public IEnumerable<string> UnusedOptions { get { return Options.Except(AccessedOptions); } }
 
         #region ICompilerOptions Implementation
 
@@ -27,6 +43,7 @@ namespace Flame.Front.Options
         {
             if (args.ContainsKey(Key) && OptionParser.CanParse<T>())
             {
+                accOptions.Add(Key);
                 return OptionParser.ParseValue<T>(args[Key]);
             }
             else
@@ -184,6 +201,7 @@ namespace Flame.Front.Options
 
         #region Build Arguments
 
+        private HashSet<string> accOptions;
         private Dictionary<string, string[]> args;
 
         public T? GetOptionOrNull<T>(string Name)
