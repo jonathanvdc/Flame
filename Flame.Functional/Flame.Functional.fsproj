@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="FunctionConverter.fs" />
     <Compile Include="IConversionRules.fs" />
+    <Compile Include="IMemberProvider.fs" />
     <Compile Include="LazyHelpers.fs" />
     <Compile Include="GlobalScope.fs" />
     <Compile Include="FunctionScope.fs" />
