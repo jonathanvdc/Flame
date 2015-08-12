@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Pixie;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -123,6 +124,29 @@ namespace Flame.Front.Target
             {
                 return selectedOptions.Aggregate(OptimizationMode.None, (fst, snd) => fst | snd);
             }
+        }
+
+        private static Dictionary<OptimizationMode, string> optDirs = new Dictionary<OptimizationMode, string>()
+        {
+            { OptimizationMode.Minimal, "minimal (-O1)" },
+            { OptimizationMode.Normal, "normal (-O2)" },
+            { OptimizationMode.Experimental, "experimental (-O3)" },
+            { OptimizationMode.Size, "size (-Os)" },
+            { OptimizationMode.Debug, "debug (-Og)" },
+            { OptimizationMode.Dangerous, "dangerous (-Ofast)" },
+        };
+
+        /// <summary>
+        /// Gets a sequence of strings that describe which flags of the
+        /// optimization mode are on.
+        /// </summary>
+        /// <param name="Mode"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> GetOptimizationDirectives(OptimizationMode Mode)
+        {
+            return optDirs.Where(item => (item.Key & Mode) == item.Key)
+                          .Select(item => item.Value)
+                          .DefaultIfEmpty("none (-O0)");
         }
     }
 }
