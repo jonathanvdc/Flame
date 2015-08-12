@@ -196,7 +196,7 @@ namespace Flame.Front.Cli
 
         private static Flame.Compiler.Visitors.IPass<RecompilationPassArguments, INode> GetRecompilationPass(ICompilerLog Log)
         {
-            return Log.Options.GetOption<string>("recompilation-technique", "codegen") == "visitor" ?
+            return Log.Options.GetOption<string>("recompilation-technique", "visitor") == "visitor" ?
                 (Flame.Compiler.Visitors.IPass<RecompilationPassArguments, INode>)VisitorRecompilationPass.Instance :
                 (Flame.Compiler.Visitors.IPass<RecompilationPassArguments, INode>)CodeGeneratorRecompilationPass.Instance;
         }
