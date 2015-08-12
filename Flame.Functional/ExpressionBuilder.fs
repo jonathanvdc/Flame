@@ -293,12 +293,21 @@ module ExpressionBuilder =
             declVar.CreateGetExpression(), scope
 
     /// Tries to get the variable captured by the given expression.
-    /// This function will reach across log node boundaries. 
+    /// This function will reach across metadata node boundaries. 
     let rec GetVariable (expression : IExpression) =
         match expression with
-        | :? IVariableNode      as varExpr -> Some(varExpr.GetVariable())
-        | :? LogEntryExpression as logNode -> GetVariable(logNode.Value)
-        | _                                -> None
+        | :? IVariableNode              as varExpr -> Some(varExpr.GetVariable())
+        | :? IMetadataNode<IExpression> as logNode -> GetVariable(logNode.Value)
+        | _                                        -> None
+
+    /// Gets the variable captured by the given expression.
+    /// If this cannot be done, an expression variable
+    /// is created that wraps the given expression. 
+    let GetVariableOrExpressionVariable (expression : IExpression) =
+        let result = GetVariable expression
+        match result with
+        | Some x -> x
+        | None   -> new ExpressionVariable(expression) :> IVariable
 
     /// Assigns the given right hand side to the left hand side.
     let rec Assign (context : LocalScope) (left : IExpression) (right : IExpression) : IExpression =
@@ -476,3 +485,37 @@ module ExpressionBuilder =
             let callArgs = Seq.zip args delegateParams |> Seq.map convMapping
 
             resolvedDelegate.CreateDelegateInvocationExpression(callArgs)
+
+    /// Analyzes the given expression as the target of a member access operation.
+    let GetAccessedExpression (target : IExpression) : AccessedExpression =
+        if target = null then
+            Global
+        else
+            let targetType = target.Type
+            if targetType.get_IsValueType() then
+                Value target
+            else if targetType.get_IsReferenceType() || targetType.get_IsPointer() then
+                Reference target
+            else
+                Generic target
+
+    /// Analyzes the given expression as the type member in a member access operation.
+    let GetAccessedMember<'a when 'a :> ITypeMember> (targetMember : 'a) (targetType : IType option) : AccessedMember<'a> =
+        if targetMember.get_IsExtension() && targetType.IsSome && not(targetMember.DeclaringType.Equals(targetType.Value)) then
+            Extension targetMember
+        else if targetMember.IsStatic then
+            Static targetMember
+        else
+            Instance targetMember
+
+    /// Accesses a field on a target expression, within the local scope.
+    let AccessField (scope : LocalScope) (targetField : IField) (accessedExpr : AccessedExpression) : IExpression =
+        let accessedField = GetAccessedMember targetField accessedExpr.Type
+        match (accessedField, accessedExpr) with
+        | (Static field, _) | (Extension field, _) -> (new FieldVariable(field, null)).CreateGetExpression()
+        | (Instance field, Value target)           -> (new ValueTypeFieldVariable(field, GetVariableOrExpressionVariable target)).CreateGetExpression()
+        | (Instance field, Reference target)       -> (new FieldVariable(field, target)).CreateGetExpression()
+        | (_, _)                                   -> 
+            let message = "Could not access " + accessedField.MemberPrefix + " field of " + 
+                          (accessedExpr.Describe scope.Global.TypeNamer) + "."
+            Error (new LogEntry("Invalid field access", message)) (new UnknownExpression(accessedField.Member.FieldType))
