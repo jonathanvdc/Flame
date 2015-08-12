@@ -2,6 +2,11 @@ public class StringEqualityTest
 {
     public const bool CheckEquality(string Left, string Right)
     {
-        return Left.Equals(Right);
+        return Left == Right;
+    }
+
+    public const bool CheckInequality(string Left, string Right)
+    {
+        return Left != Right;
     }
 }
