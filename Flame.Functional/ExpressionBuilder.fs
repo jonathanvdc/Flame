@@ -271,6 +271,13 @@ module ExpressionBuilder =
     let Error entry value = 
         new ErrorExpression(value, entry) :> IExpression
 
+    /// Determines if the given expression is an error expression.
+    let rec IsError (expr : IExpression) =
+        match expr with
+        | :? ErrorExpression                 -> true
+        | :? IMetadataNode<IExpression> as x -> IsError x.Value
+        | _                                  -> false
+
     /// Creates an expression that represents an erroneous node, 
     /// and contains the given error message.
     /// The resulting expression's type is void.
@@ -326,6 +333,13 @@ module ExpressionBuilder =
             Void
         else
             context.Global.ConversionRules.ConvertExplicit left right
+
+    // Casts an expression to a type implicitly, based on the conversion rules given by the local scope.
+    let CastImplicit (context : LocalScope) (left : IExpression) (right : IType) : IExpression =
+        if right.Equals(PrimitiveTypes.Void) then
+            Void
+        else
+            context.Global.ConversionRules.ConvertImplicit left right
 
     /// Declares and binds an expression to a variable.
     let Quickbind (context : LocalScope) (value : IExpression) (name : string) =
@@ -488,29 +502,26 @@ module ExpressionBuilder =
 
     /// Analyzes the given expression as the target of a member access operation.
     let GetAccessedExpression (target : IExpression) : AccessedExpression =
-        if target = null then
-            Global
+        let targetType = target.Type
+        if targetType.get_IsValueType() then
+            Value target
+        else if targetType.get_IsReferenceType() || targetType.get_IsPointer() then
+            Reference target
         else
-            let targetType = target.Type
-            if targetType.get_IsValueType() then
-                Value target
-            else if targetType.get_IsReferenceType() || targetType.get_IsPointer() then
-                Reference target
-            else
-                Generic target
+            Generic target
 
     /// Analyzes the given expression as the type member in a member access operation.
-    let GetAccessedMember<'a when 'a :> ITypeMember> (targetMember : 'a) (targetType : IType option) : AccessedMember<'a> =
-        if targetMember.get_IsExtension() && targetType.IsSome && not(targetMember.DeclaringType.Equals(targetType.Value)) then
+    let GetAccessedMember<'a when 'a :> ITypeMember> (targetMember : 'a) : AccessedMember<'a> =
+        if targetMember.get_IsExtension() then
             Extension targetMember
         else if targetMember.IsStatic then
             Static targetMember
         else
             Instance targetMember
 
-    /// Accesses a field on a target expression, within the local scope.
+    /// Accesses a field on a target expression, within the given local scope.
     let AccessField (scope : LocalScope) (targetField : IField) (accessedExpr : AccessedExpression) : IExpression =
-        let accessedField = GetAccessedMember targetField accessedExpr.Type
+        let accessedField = GetAccessedMember targetField
         match (accessedField, accessedExpr) with
         | (Static field, _) | (Extension field, _) -> (new FieldVariable(field, null)).CreateGetExpression()
         | (Instance field, Value target)           -> (new ValueTypeFieldVariable(field, GetVariableOrExpressionVariable target)).CreateGetExpression()
@@ -519,3 +530,91 @@ module ExpressionBuilder =
             let message = "Could not access " + accessedField.MemberPrefix + " field of " + 
                           (accessedExpr.Describe scope.Global.TypeNamer) + "."
             Error (new LogEntry("Invalid field access", message)) (new UnknownExpression(accessedField.Member.FieldType))
+
+    /// Gets the address of the given expression, or creates a copy
+    /// of said expression, and creates the address of a temporary backing variable.
+    let GetAddress (expr : IExpression) : IExpression =
+        let variable = GetVariable expr
+        if variable.IsSome && variable.Value :? IUnmanagedVariable then
+             (variable.Value :?> IUnmanagedVariable).CreateAddressOfExpression()
+        else
+            let temp = new LateBoundVariable(expr.Type)
+
+            // This may not be the best place to release the temporary variable. Ideally, it would be released after usage.
+            new Expressions.InitializedExpression(temp.CreateSetStatement(expr),
+                temp.CreateAddressOfExpression(),
+                temp.CreateReleaseStatement()) :> IExpression
+
+    /// Accesses a method on a target expression, within the given local scope.
+    let AccessMethod (scope : LocalScope) (targetMethod : IMethod) (accessedExpr : AccessedExpression) : IExpression =
+        let accessedMethod = GetAccessedMember targetMethod
+        match (accessedMethod, accessedExpr) with
+        | (Static tgt, _) | (Extension tgt, Global _) -> new GetMethodExpression(tgt, null) :> IExpression
+        | (Instance tgt, Reference expr)              -> new GetMethodExpression(tgt, expr) :> IExpression
+        | (Instance tgt, Generic expr) 
+        | (Instance tgt, Value expr)                  -> new GetMethodExpression(tgt, GetAddress expr) :> IExpression
+        | (Extension tgt, Generic expr)
+        | (Extension tgt, Reference expr)
+        | (Extension tgt, Value expr)                 -> new GetExtensionMethodExpression(tgt, CastImplicit scope expr (tgt.GetParameters().[0].ParameterType)) :> IExpression
+        | (Instance tgt, Global _)                    ->
+            let message = "Could not access instance method '" + tgt.Name + "' of type '" + 
+                          (scope.Global.TypeNamer tgt.DeclaringType) + " without an instance."
+            Error (new LogEntry("Invalid method access", message)) (new UnknownExpression(MethodType.Create tgt))
+
+    /// Accesses a property on a target expression with the given index arguments, within the given local scope. 
+    let AccessIndexedProperty (scope : LocalScope) (targetProperty : IProperty) (accessedExpr : AccessedExpression) (indexArgs : IExpression seq) : IExpression =
+        let accessedProperty = GetAccessedMember targetProperty
+        match (accessedProperty, accessedExpr) with
+        | (Static tgt, _) | (Extension tgt, Global _) -> (new PropertyVariable(tgt, null, indexArgs)).CreateGetExpression()
+        | (Instance tgt, Reference expr)              -> (new PropertyVariable(tgt, expr, indexArgs)).CreateGetExpression()
+        | (Instance tgt, Value expr)
+        | (Instance tgt, Generic expr)                -> (new PropertyVariable(tgt, GetAddress expr, indexArgs)).CreateGetExpression()
+        | (Extension tgt, Generic expr)
+        | (Extension tgt, Reference expr)
+        | (Extension tgt, Value expr)                 -> 
+            let castExpr = CastImplicit scope expr (tgt.GetIndexerParameters().[0].ParameterType)
+            (new PropertyVariable(tgt, null, (Seq.singleton castExpr, indexArgs) ||> Seq.append)).CreateGetExpression()
+        | (Instance tgt, Global _)                    ->
+            let message = "Could not access instance property '" + tgt.Name + "' of type '" + 
+                          (scope.Global.TypeNamer tgt.DeclaringType) + " without an instance."
+            Error (new LogEntry("Invalid property access", message)) (new UnknownExpression(tgt.PropertyType))
+
+    /// Accesses a property on a target expression with no index arguments, within the given local scope. 
+    let AccessProperty scope targetProperty accessedExpr = AccessIndexedProperty scope targetProperty accessedExpr Seq.empty
+
+    /// Gets the intersection expression of the given sequence of expressions.
+    /// An intersection expression may be used when resolving overloads, but 
+    /// code generators do not support them.
+    let Intersection (exprs : IExpression seq) : IExpression = IntersectionExpression.Create exprs
+
+    /// Accesses a single type member on the given expression.
+    let AccessMember (scope : LocalScope) (targetMember : ITypeMember) (accessedExpr : AccessedExpression) : IExpression =
+        match targetMember with
+        | :? IField    as fld -> AccessField scope fld accessedExpr
+        | :? IMethod   as mtd -> AccessMethod scope mtd accessedExpr
+        | :? IProperty as prp -> AccessProperty scope prp accessedExpr
+        | _                   -> 
+            let message = "Could not access type member '" + targetMember.Name + "' belonging to type '" + 
+                          (scope.Global.TypeNamer targetMember.DeclaringType) + " because it could not be identified as a field, method or property."
+            Error (new LogEntry("Unknown type member access", message)) Void
+
+    /// Accesses the given sequence of type members on the given expression, and computes their intersection.
+    let AccessMembers (scope : LocalScope) (targetMembers : ITypeMember seq) (accessedExpr : AccessedExpression) : IExpression =
+        let errors, results = targetMembers |> Seq.map (fun x -> AccessMember scope x accessedExpr)
+                                            |> List.ofSeq
+                                            |> List.partition IsError
+        if Seq.isEmpty results && not(Seq.isEmpty errors) then
+            Seq.head errors
+        else
+            Intersection results
+
+    /// Accesses all type members with the given name on the given expression.
+    let AccessNamedMembers (scope : LocalScope) (memberName : string) (accessedExpr : AccessedExpression) : IExpression =
+        let allMembers = scope.Global.GetAllMembers accessedExpr.Type |> Seq.filter (fun x -> x.Name = memberName)
+        if Seq.isEmpty allMembers then
+            Error (new LogEntry("Missing type members", 
+                                "No type member named '" + memberName + "' could be found for type '" + 
+                                (scope.Global.TypeNamer accessedExpr.Type) + "'.")) 
+                  Void
+        else
+            AccessMembers scope allMembers accessedExpr

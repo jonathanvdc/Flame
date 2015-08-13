@@ -34,15 +34,15 @@ type AccessedExpression =
     | Value of IExpression
     /// The accessed type is generic.
     | Generic of IExpression
-    /// No type is accessed: the type member is static.
-    | Global
+    /// No expression is accessed: the type member is static.
+    | Global of IType
 
     member this.Type =
         match this with
-        | Reference  x -> Some x.Type
-        | Value      x -> Some x.Type
-        | Generic    x -> Some x.Type
-        | Global       -> None
+        | Reference  x -> x.Type
+        | Value      x -> x.Type
+        | Generic    x -> x.Type
+        | Global     x -> x
 
     /// Gets a user-friendly member prefix for this accessed member.
     member this.Describe (namer : IType -> string) =
@@ -50,4 +50,4 @@ type AccessedExpression =
         | Reference  x -> "a reference type ('" + (namer x.Type) + "')"
         | Value      x -> "a value type ('" + (namer x.Type) + "')"
         | Generic    x -> "a type parameter ('" + (namer x.Type) + "')"
-        | Global       -> "the global scope"
+        | Global     x -> "a type name ('" + (namer x) + "')"
