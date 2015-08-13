@@ -1,0 +1,35 @@
+using System;
+
+public interface IFactory<T>
+{
+    T Create();
+}
+
+public struct IntFactory : IFactory<int>
+{
+    public const this(set int counter);
+
+    private int counter;
+
+    public int Create()
+    {
+        return counter++;
+    }
+}
+
+public static class Program
+{
+    public void PrintThings<T>(T Factory)
+        where T : IFactory<int>
+    {
+        // Because `IntFactory` is a value type, these calls
+        // need a `constrained. !!T` prefix.
+        Console.WriteLine(Factory.Create());
+        Console.WriteLine(Factory.Create());
+    }
+
+    public void Main(string[] Input)
+    {
+        PrintThings<IntFactory>(new IntFactory(0));
+    }
+}
