@@ -54,6 +54,7 @@
     <Compile Include="FunctionConverter.fs" />
     <Compile Include="IConversionRules.fs" />
     <Compile Include="LazyHelpers.fs" />
+    <Compile Include="FunctionalBinder.fs" />
     <Compile Include="GlobalScope.fs" />
     <Compile Include="FunctionScope.fs" />
     <Compile Include="LocalScope.fs" />
