@@ -62,6 +62,8 @@
     <Compile Include="FunctionalType.fs" />
     <Compile Include="FunctionalMethod.fs" />
     <Compile Include="FunctionalField.fs" />
+    <Compile Include="FunctionalProperty.fs" />
+    <Compile Include="FunctionalAccessor.fs" />
     <Compile Include="FunctionalNamespace.fs" />
     <Compile Include="DescribedAssembly.fs" />
     <Compile Include="VariableExpression.fs" />
