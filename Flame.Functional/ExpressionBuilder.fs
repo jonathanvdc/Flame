@@ -495,7 +495,8 @@ module ExpressionBuilder =
             else
                 Error (new LogEntry("Method resolution error", 
                                     "Method call could not be resolved because the invocation's target was not recognized as a function. " +
-                                    "Expected signature compatible with '" + expectedSignature.ToString() + "'."))
+                                    "Expected signature compatible with '" + expectedSignature.ToString() + 
+                                    "', got an expression of type '" + (scope.Global.TypeNamer target.Type) + "'."))
                       target
         | resolvedDelegate ->
             let delegateParams = resolvedDelegate.GetDelegateParameterTypes()
