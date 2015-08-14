@@ -66,7 +66,7 @@ type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
     member this.WithGenericParameter value =
         new FunctionalMethod(header, declType, isStatic, isCtor, genericParameters.Append value, baseMethods, returnType, parameters, body)
 
-    /// Adds this parameter to this function method.
+    /// Adds this parameter to this functional method.
     member this.WithParameter value =
         new FunctionalMethod(header, declType, isStatic, isCtor, genericParameters, baseMethods, returnType, parameters.Append value, body)
 
