@@ -49,7 +49,8 @@ module ExpressionBuilder =
 
             | :? ResultExpression as resultExpr    ->
                 ToStatement resultExpr.Expression
-
+            | :? SourceExpression as srcExpr       ->
+                SourceStatement.Create(ToStatement srcExpr.Value, srcExpr.Location)
             | _                                    ->
                 new ExpressionStatement(expression) :> IStatement
 
@@ -271,6 +272,10 @@ module ExpressionBuilder =
     let Error entry value = 
         new ErrorExpression(value, entry) :> IExpression
 
+    /// Tags the given expression with the given source code location.
+    let Source location value =
+        SourceExpression.Create(value, location)
+
     /// Determines if the given expression is an error expression.
     let rec IsError (expr : IExpression) =
         match expr with
@@ -482,15 +487,16 @@ module ExpressionBuilder =
 
                 let explanationNode = new MarkupNode(NodeConstants.TextNodeType,
                                                      "Method call could not be resolved. " +
-                                                     "Expected signature compatible with " + expectedSignature.ToString() +
-                                                     ". Incompatible or ambiguous matches:") :> IMarkupNode
+                                                     "Expected signature compatible with '" + expectedSignature.ToString() +
+                                                     "'. Incompatible or ambiguous matches:") :> IMarkupNode
                 let failedMatchesNode = new MarkupNode("list", failedMatchesList) :> IMarkupNode
                 let messageNode = new MarkupNode("entry", Seq.ofArray [| explanationNode; failedMatchesNode |])
-                VoidError (new LogEntry("Method resolution error", messageNode))
+                Error (new LogEntry("Method resolution error", messageNode)) target
             else
-                VoidError (new LogEntry("Method resolution error", 
-                                        "Method call could not be resolved because the invocation's target was not recognized as a function. " +
-                                        "Expected signature compatible with " + expectedSignature.ToString() + "."))
+                Error (new LogEntry("Method resolution error", 
+                                    "Method call could not be resolved because the invocation's target was not recognized as a function. " +
+                                    "Expected signature compatible with '" + expectedSignature.ToString() + "'."))
+                      target
         | resolvedDelegate ->
             let delegateParams = resolvedDelegate.GetDelegateParameterTypes()
 
@@ -612,9 +618,13 @@ module ExpressionBuilder =
     let AccessNamedMembers (scope : LocalScope) (memberName : string) (accessedExpr : AccessedExpression) : IExpression =
         let allMembers = scope.Global.GetAllMembers accessedExpr.Type |> Seq.filter (fun x -> x.Name = memberName)
         if Seq.isEmpty allMembers then
+            let innerExpr = match accessedExpr with
+                            | Global _                          -> Void
+                            | Reference x | Value x | Generic x -> x
             Error (new LogEntry("Missing type members", 
-                                "No type member named '" + memberName + "' could be found for type '" + 
+                                "No instance, static or extension members named '" + memberName + 
+                                "' could be found for type '" + 
                                 (scope.Global.TypeNamer accessedExpr.Type) + "'.")) 
-                  Void
+                  innerExpr
         else
             AccessMembers scope allMembers accessedExpr

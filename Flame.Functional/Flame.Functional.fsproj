@@ -53,7 +53,6 @@
   <ItemGroup>
     <Compile Include="FunctionConverter.fs" />
     <Compile Include="IConversionRules.fs" />
-    <Compile Include="IMemberProvider.fs" />
     <Compile Include="LazyHelpers.fs" />
     <Compile Include="GlobalScope.fs" />
     <Compile Include="FunctionScope.fs" />
@@ -67,6 +66,7 @@
     <Compile Include="DescribedAssembly.fs" />
     <Compile Include="VariableExpression.fs" />
     <Compile Include="ResultExpression.fs" />
+    <Compile Include="AccessedMember.fs" />
     <Compile Include="ExpressionBuilder.fs" />
     <Compile Include="DefaultConversionRules.fs" />
   </ItemGroup>
