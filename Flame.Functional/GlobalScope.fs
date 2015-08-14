@@ -14,6 +14,10 @@ type GlobalScope(binder : FunctionalBinder, conversionRules : IConversionRules, 
     member this.Binder =
         binder
 
+    /// Creates a new global scope with the given binder.
+    member this.WithBinder value =
+        new GlobalScope(value, conversionRules, log, namer, memberProvider)
+
     /// Gets all instance, static and extension
     /// type members for the given type.
     member this.GetAllMembers =
