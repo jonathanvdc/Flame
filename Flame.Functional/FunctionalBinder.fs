@@ -29,15 +29,6 @@ type TypeName(path : string[]) =
     member this.Append (other : TypeName) =
         new TypeName(Array.append this.Path other.Path)
 
-    /// Gets all possible partitions for this type name.
-    member this.AllPartitions =
-        let _, _, output = path |> Seq.fold (fun (fstList, sndList, results) _ -> 
-                                                 List.append fstList [List.head sndList], 
-                                                 List.tail sndList, 
-                                                 List.append results [new TypeName(Array.ofList fstList), new TypeName(Array.ofList sndList)]) 
-                                            (List.empty, List.ofArray path, [])
-        output
-
     member first.Equals (second : TypeName) =
         first.Path.Length = second.Path.Length && 
         Seq.zip first.Path second.Path |> Seq.exists (fun (x, y) -> x <> y)
@@ -90,14 +81,13 @@ type FunctionalBinder(innerBinder : IBinder,
         else if mappedNamespaces.ContainsKey name.Head then
             mappedNamespaces.[name.Head].Append name.Tail |> this.Bind
         else
-            let matches = name.AllPartitions |> Seq.filter (fun (_, y) -> not(y.IsEmpty))
-                                             |> Seq.filter (fun (x, _) -> x.IsEmpty || usingNamespaces.Contains x)
-                                             |> Seq.map (fun (_, x) -> innerBinder.BindType x.Name)
-                                             |> Array.ofSeq
-            if matches.Length = 0 then
-                null
-            else
-                matches.[0]
+            let tyMatch = usingNamespaces |> Seq.append (Seq.singleton (new TypeName([||])))
+                                          |> Seq.map (fun x -> x.Append name)
+                                          |> Seq.map (fun x -> innerBinder.BindType x.Name)
+                                          |> Seq.tryFind ((<>) null)
+            match tyMatch with
+            | None   -> null
+            | Some x -> x
 
     /// Binds the given name to a type.
     member this.Bind (name : string) : IType =
