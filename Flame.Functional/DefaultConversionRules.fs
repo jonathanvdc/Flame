@@ -3,14 +3,14 @@
 open Flame
 open Flame.Compiler
 open Flame.Compiler.Expressions
+open System
 open System.Linq
 
 /// Defines a set of default conversion rules.
-type DefaultConversionRules private() = 
-    static let instance = 
-        DefaultConversionRules()
-    static member Instance = 
-        instance
+type DefaultConversionRules(nameType : IType -> string) = 
+
+    static member Create (nameType : Func<IType, string>) =
+        new DefaultConversionRules(nameType.Invoke)
 
     interface IConversionRules with
         /// Finds out whether a value of the given source type
@@ -64,7 +64,7 @@ type DefaultConversionRules private() =
                 ConversionExpression.Create(value, targetType)
             else
                 let message = new LogEntry("Missing implicit conversion",
-                                           "An expression of type '" + valType.FullName + "' could not be converted implicitly to an expression of type '" + targetType.FullName + "'")
+                                           "An expression of type '" + (nameType valType) + "' could not be converted implicitly to an expression of type '" + (nameType targetType) + "'.")
                 ConversionExpression.Create(value, targetType) |> ExpressionBuilder.Error message
 
         /// Converts the given expression to the given type explicitly.
