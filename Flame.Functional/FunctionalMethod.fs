@@ -47,6 +47,9 @@ type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
     /// Gets this functional-style method's body statement.
     member this.Body = evalLazy appliedBody
 
+    /// Gets this functional-style method's body-generating function.
+    member this.CreateBody = body
+
     /// Gets this functional-style method's base methods.
     member this.BaseMethods = baseMethods.Value
 
