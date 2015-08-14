@@ -45,7 +45,14 @@ type TypeName(path : string[]) =
     override this.ToString() = this.Name
 
     member first.CompareTo (second : TypeName) = 
-        Seq.zip first.Path second.Path |> Seq.fold (fun result (x, y) -> if result = 0 then x.CompareTo(y) else result) 0
+        let longest   = max first.Path.Length second.Path.Length
+        let extend (path : string[]) =
+            path |> Seq.append (Seq.init (longest - path.Length) (fun _ -> ""))
+        let newFirst  = extend first.Path
+        let newSecond = extend second.Path
+        let compare result (x : string, y) = 
+            if result = 0 then x.CompareTo(y) else result
+        Seq.zip newFirst newSecond |> Seq.fold compare 0
 
     interface IComparable<TypeName> with
         member first.CompareTo second = first.CompareTo second
@@ -61,11 +68,18 @@ type FunctionalBinder(innerBinder : IBinder,
                       usingNamespaces : Set<TypeName>,
                       mappedNamespaces : Map<string, TypeName>) =
     new (innerBinder : IBinder) =
-        FunctionalBinder(innerBinder, Set.empty, Map.empty)
+        FunctionalBinder(innerBinder, Set.singleton (new TypeName([||])), Map.empty)
 
-    /// Uses the given namespace.
+    /// Uses the given namespace when resolving names.
     member this.UseNamespace (ns : TypeName) =
         new FunctionalBinder(innerBinder, usingNamespaces.Add ns, mappedNamespaces)
+
+    /// Uses the given namespace, and all enclosing namespaces, when resolving names.
+    member this.UseNamespace (ns : INamespace) =
+        let fullName  = new TypeName(ns.FullName)
+        let newUsings = fullName.Path |> Seq.fold (fun (name : TypeName, results) _ -> name.Tail, Set.add name results) (fullName, usingNamespaces)
+                                      |> snd
+        new FunctionalBinder(innerBinder, newUsings, mappedNamespaces)
 
     /// Maps the given name to the given namespace.
     member this.MapNamespace (name : string) (ns : TypeName) =
@@ -81,8 +95,7 @@ type FunctionalBinder(innerBinder : IBinder,
         else if mappedNamespaces.ContainsKey name.Head then
             mappedNamespaces.[name.Head].Append name.Tail |> this.Bind
         else
-            let tyMatch = usingNamespaces |> Seq.append (Seq.singleton (new TypeName([||])))
-                                          |> Seq.map (fun x -> x.Append name)
+            let tyMatch = usingNamespaces |> Seq.map (fun x -> x.Append name)
                                           |> Seq.map (fun x -> innerBinder.BindType x.Name)
                                           |> Seq.tryFind ((<>) null)
             match tyMatch with
