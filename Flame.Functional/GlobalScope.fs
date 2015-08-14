@@ -5,7 +5,7 @@ open Flame
 open Flame.Compiler
 
 /// Defines a "global scope", i.e. a scope outside function.
-type GlobalScope(binder : IBinder, conversionRules : IConversionRules, log : ICompilerLog, namer : IType -> string, memberProvider : IType -> ITypeMember seq) =
+type GlobalScope(binder : FunctionalBinder, conversionRules : IConversionRules, log : ICompilerLog, namer : IType -> string, memberProvider : IType -> ITypeMember seq) =
 
     new(binder, conversionRules, log, namer : IConverter<IType, string>, memberProvider : Func<IType, ITypeMember seq>) =
         GlobalScope(binder, conversionRules, log, namer.Convert, memberProvider.Invoke)
@@ -32,7 +32,4 @@ type GlobalScope(binder : IBinder, conversionRules : IConversionRules, log : ICo
         log
 
     /// Gets this global scope's environment.
-    member this.Environment =
-        match binder with
-        | null -> null
-        | _    -> binder.Environment
+    member this.Environment = binder.Environment
