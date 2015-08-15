@@ -12,10 +12,8 @@ open LazyHelpers
 
 /// Defines a scope as declared by a function.
 type FunctionScope private(globalScope : GlobalScope, func : IMethod option) =
-    let parameters = match func with
-                     | Some parent -> lazy (parent.GetParameters() |> Seq.mapi (fun i x -> x.Name, new ArgumentVariable(x, i))
-                                                                   |> Map.ofSeq)
-                     | None        -> lazy Map.empty
+
+    let parameters = lazy (globalScope.GetParameters func)
 
     new(globalScope) =
         new FunctionScope(globalScope, None)
