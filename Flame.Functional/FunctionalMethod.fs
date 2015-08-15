@@ -3,6 +3,7 @@
 open Flame
 open Flame.Build
 open Flame.Compiler
+open Flame.Compiler.Build
 open Flame.Compiler.Statements
 open LazyHelpers
 
@@ -27,7 +28,7 @@ type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
                          new LazyArrayBuilder<IMethod>(),
                          new Lazy<IType>(fun _ -> PrimitiveTypes.Void),
                          new LazyArrayBuilder<IParameter>(),
-                         fun _ -> null)
+                         (fun _ -> null))
 
     /// Gets this functional-style method's return type.
     member this.ReturnType = returnType.Value
@@ -96,3 +97,4 @@ type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
 
     interface IBodyMethod with
         member this.GetMethodBody() = this.Body
+        

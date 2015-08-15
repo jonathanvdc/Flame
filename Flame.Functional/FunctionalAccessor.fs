@@ -28,7 +28,7 @@ type FunctionalAccessor private(header : FunctionalMemberHeader,
                            new LazyArrayBuilder<IMethod>(),
                            retType,
                            new LazyArrayBuilder<IParameter>(),
-                           fun _ -> null)
+                           (fun _ -> null))
 
     /// Gets this functional-style accessor's return type.
     member this.ReturnType = returnType.Value

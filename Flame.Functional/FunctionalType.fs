@@ -3,27 +3,35 @@
 open Flame
 open Flame.Build
 open Flame.Compiler
+open Flame.Compiler.Build
 open LazyHelpers
 
 /// A header for function members.
-type FunctionalMemberHeader(name : string, attrs : IAttribute LazyArrayBuilder) =
+type FunctionalMemberHeader(name : string, attrs : IAttribute LazyArrayBuilder, srcLocation : SourceLocation) =
     new(name) =
-        FunctionalMemberHeader(name, new LazyArrayBuilder<IAttribute>())
+        FunctionalMemberHeader(name, new LazyArrayBuilder<IAttribute>(), null)
     new(name, attrs : seq<IAttribute>) =
-        FunctionalMemberHeader(name, new LazyArrayBuilder<IAttribute>(attrs))
+        FunctionalMemberHeader(name, attrs, null)
+    new(name, attrs : seq<IAttribute>, srcLocation : SourceLocation) =
+        FunctionalMemberHeader(name, new LazyArrayBuilder<IAttribute>(attrs), srcLocation)
 
     /// Gets this functional-style member header's name.
     member this.Name = name
     /// Gets this functional-style member header's attributes.
     member this.Attributes = Seq.ofArray attrs.Value
 
+    member this.Location = srcLocation
+
     /// Adds an attribute to this functional-style member header.
     member this.WithAttribute value =
-        new FunctionalMemberHeader(name, attrs.Append value)
+        new FunctionalMemberHeader(name, attrs.Append value, srcLocation)
+
+    member this.WithLocation value =
+        new FunctionalMemberHeader(name, attrs, value)
 
 /// Provides common functionality for objects that support
 /// constructing types in a functional fashion.
-type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace, 
+type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace,
                             baseTypes : IType LazyArrayBuilder, nestedTypes : LazyApplicationArray<INamespace, IType>, 
                             genericParams : LazyApplicationArray<IGenericMember, IGenericParameter>,
                             methods : LazyApplicationArray<IType, IMethod>, properties : LazyApplicationArray<IType, IProperty>, 
@@ -63,6 +71,7 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
     /// Gets this functional type's members.
     member this.Members           = Seq.concat [ Seq.cast<ITypeMember> appliedMethods.Value; Seq.cast<ITypeMember> this.Properties; Seq.cast<ITypeMember> this.Fields ]
                                                |> Array.ofSeq
+    member this.Location          = header.Location
 
     /// Gets this functional type's nested namespaces.
     member this.NestedNamespaces  = evalLazy appliedNs
@@ -147,6 +156,9 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
     interface INamespaceBranch with
         member this.GetNamespaces() = Seq.ofArray this.NestedNamespaces
 
+    interface ISourceMember with
+        member this.Location = this.Location
+
 /// Defines a base class for functional-style members.
 [<AbstractClass>]
 type FunctionalMemberBase(header : FunctionalMemberHeader, declType : IType,
@@ -158,6 +170,8 @@ type FunctionalMemberBase(header : FunctionalMemberHeader, declType : IType,
     /// Figures out whether this functional-style member is static.
     member this.IsStatic       = isStatic
 
+    member this.Location       = header.Location
+
     interface IMember with
         member this.Name = header.Name
         member this.FullName = MemberExtensions.CombineNames(declType.FullName, header.Name)
@@ -166,3 +180,6 @@ type FunctionalMemberBase(header : FunctionalMemberHeader, declType : IType,
     interface ITypeMember with
         member this.DeclaringType = declType
         member this.IsStatic = isStatic
+
+    interface ISourceMember with
+        member this.Location = this.Location
