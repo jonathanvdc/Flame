@@ -28,6 +28,15 @@ type FunctionScope private(globalScope : GlobalScope, func : IMethod option) =
     member this.Function = 
         func
 
+    /// Gets the enclosing type of the function associated with this function scope.
+    member this.Type =
+        match func with
+        | None   -> None
+        | Some f ->
+            match f.DeclaringType with
+            | null -> None
+            | ty   -> Some ty
+
     /// Gets this function scope's parameters.
     member this.Parameters = evalLazy parameters
 
@@ -40,6 +49,6 @@ type FunctionScope private(globalScope : GlobalScope, func : IMethod option) =
     member this.GetVariable name =
         let thisParams = this.Parameters
         if thisParams.ContainsKey(name) then
-            Some (thisParams.Item name :> IVariable)
+            Some (thisParams.Item name)
         else
             None
