@@ -469,14 +469,15 @@ module ExpressionBuilder =
     /// Creates an expression that represents the invocation of the given function on the
     /// given sequence of arguments. The scope provided is used to apply conversion rules.
     let Invoke (scope : LocalScope) (target : IExpression) (args : IExpression seq) : IExpression =
-        let delegates = IntersectionExpression.GetIntersectedExpressions target
+        let innerTgt  = target.GetEssentialExpression()
+        let delegates = IntersectionExpression.GetIntersectedExpressions innerTgt
 
         let argTypes  = args |> Seq.map (fun x -> x.Type)
                              |> Array.ofSeq
 
         match delegates.GetBestDelegate argTypes with
         | null ->
-            let matches = target.GetMethodGroup()
+            let matches = innerTgt.GetMethodGroup()
 
             let namer = scope.Global.TypeNamer
             let retType = if Seq.isEmpty matches then PrimitiveTypes.Void else (Seq.head matches).ReturnType
