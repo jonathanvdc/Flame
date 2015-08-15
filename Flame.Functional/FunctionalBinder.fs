@@ -16,7 +16,7 @@ type TypeName(path : string[]) =
     /// Checks if this type name is empty.
     member this.IsEmpty = path.Length = 0
 
-    /// Gets this type name's "head".
+    /// Gets this type name's "head" element.
     member this.Head = path.[0]
 
     /// Gets this type name's "tail" type name.
@@ -24,6 +24,11 @@ type TypeName(path : string[]) =
         new TypeName(path |> List.ofArray
                           |> List.tail
                           |> Array.ofList)
+
+    /// Gets this type name, without the last element.
+    member this.Start =
+        new TypeName(path |> Seq.take (path.Length - 1)
+                          |> Array.ofSeq)
 
     /// Appends the given type name to this type name, and returns the result.
     member this.Append (other : TypeName) =
@@ -77,7 +82,7 @@ type FunctionalBinder(innerBinder : IBinder,
     /// Uses the given namespace, and all enclosing namespaces, when resolving names.
     member this.UseNamespace (ns : INamespace) =
         let fullName  = new TypeName(ns.FullName)
-        let newUsings = fullName.Path |> Seq.fold (fun (name : TypeName, results) _ -> name.Tail, Set.add name results) (fullName, usingNamespaces)
+        let newUsings = fullName.Path |> Seq.fold (fun (name : TypeName, results) _ -> name.Start, Set.add name results) (fullName, usingNamespaces)
                                       |> snd
         new FunctionalBinder(innerBinder, newUsings, mappedNamespaces)
 
