@@ -10,13 +10,14 @@ open LazyHelpers
 type FunctionalAccessor private(header : FunctionalMemberHeader,
                                 declProp : IProperty,
                                 accType : AccessorType,
-                                baseMethods : IMethod LazyArrayBuilder,
+                                baseMethods : IMethod -> IMethod seq,
                                 returnType : IType Lazy, 
                                 parameters : IParameter LazyArrayBuilder,
                                 body : IMethod -> IStatement) as this =
 
     inherit FunctionalMemberBase(header, declProp.DeclaringType, declProp.IsStatic)
 
+    let appliedBaseMethods = lazy (baseMethods this |> Seq.toArray)
     let appliedBody = lazy (body this)
 
     new(header : FunctionalMemberHeader, declProp : IProperty, accType : AccessorType) =
@@ -25,7 +26,7 @@ type FunctionalAccessor private(header : FunctionalMemberHeader,
                       else 
                           lazy (PrimitiveTypes.Void)
         FunctionalAccessor(header, declProp, accType,
-                           new LazyArrayBuilder<IMethod>(),
+                           (fun _ -> Seq.empty),
                            retType,
                            new LazyArrayBuilder<IParameter>(),
                            (fun _ -> null))
@@ -48,8 +49,12 @@ type FunctionalAccessor private(header : FunctionalMemberHeader,
     /// Gets this functional-style accessor's body statement.
     member this.Body = evalLazy appliedBody
 
+    /// Gets this functional-style accessor's base methods, 
+    /// with a lazy evaluation scheme.
+    member this.LazyBaseMethods = appliedBaseMethods
+
     /// Gets this functional-style accessor's base methods.
-    member this.BaseMethods = baseMethods.Value
+    member this.BaseMethods = appliedBaseMethods.Value
 
     /// Sets this functional accessor's return type.
     member this.WithReturnType value =
@@ -59,13 +64,13 @@ type FunctionalAccessor private(header : FunctionalMemberHeader,
     member this.WithParameter value =
         new FunctionalAccessor(header, declProp, accType, baseMethods, returnType, parameters.Append value, body)
 
-    /// Sets this functional-style method's body.
+    /// Sets this functional-style accessor's body.
     member this.WithBody value =
         new FunctionalAccessor(header, declProp, accType, baseMethods, returnType, parameters, value)
 
-    /// Adds a base method to this functional-style method.
-    member this.WithBaseMethod value =
-        new FunctionalAccessor(header, declProp, accType, baseMethods.Append value, returnType, parameters, body)
+    /// Sets this functional-style accessor's base methods.
+    member this.WithBaseMethods value =
+        new FunctionalAccessor(header, declProp, accType, value, returnType, parameters, body)
 
     interface IAccessor with
         member this.AccessorType = this.AccessorType

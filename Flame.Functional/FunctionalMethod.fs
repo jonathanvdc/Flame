@@ -11,7 +11,7 @@ open LazyHelpers
 type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
                               isStatic : bool, isCtor : bool,
                               genericParameters : LazyApplicationArray<IGenericMember, IGenericParameter>,
-                              baseMethods : IMethod LazyArrayBuilder,
+                              baseMethods : IMethod -> IMethod seq,
                               returnType : IType Lazy, 
                               parameters : IParameter LazyArrayBuilder,
                               body : IMethod -> IStatement) as this =
@@ -19,13 +19,14 @@ type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
     inherit FunctionalMemberBase(header, declType, isStatic)
 
     let appliedGenericParams = genericParameters.ApplyLazy this
+    let appliedBaseMethods = lazy (baseMethods this |> Seq.toArray)
     let appliedBody = lazy (body this)
 
     new(header : FunctionalMemberHeader, declType : IType,
         isStatic : bool) =
         FunctionalMethod(header, declType, isStatic, false, 
                          new LazyApplicationArray<IGenericMember, IGenericParameter>(),
-                         new LazyArrayBuilder<IMethod>(),
+                         (fun _ -> Seq.empty),
                          new Lazy<IType>(fun _ -> PrimitiveTypes.Void),
                          new LazyArrayBuilder<IParameter>(),
                          (fun _ -> null))
@@ -51,8 +52,12 @@ type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
     /// Gets this functional-style method's body-generating function.
     member this.CreateBody = body
 
+    /// Gets this functional-style method's base methods, 
+    /// with a lazy evaluation scheme.
+    member this.LazyBaseMethods = appliedBaseMethods
+
     /// Gets this functional-style method's base methods.
-    member this.BaseMethods = baseMethods.Value
+    member this.BaseMethods = appliedBaseMethods.Value
 
     /// Gets this functional method as a constructor.
     member this.AsConstructor =
@@ -78,9 +83,9 @@ type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
     member this.WithBody value =
         new FunctionalMethod(header, declType, isStatic, isCtor, genericParameters, baseMethods, returnType, parameters, value)
 
-    /// Adds a base method to this functional-style method.
-    member this.WithBaseMethod value =
-        new FunctionalMethod(header, declType, isStatic, isCtor, genericParameters, baseMethods.Append value, returnType, parameters, body)
+    /// Sets this functional-style method's base method function.
+    member this.WithBaseMethods value =
+        new FunctionalMethod(header, declType, isStatic, isCtor, genericParameters, value, returnType, parameters, body)
 
     interface IMethod with
         member this.ReturnType = returnType.Value
