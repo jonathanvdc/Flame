@@ -88,7 +88,7 @@ namespace Flame.Compiler.Statements
             else
             {
                 var lengthPropertyVariable = new PropertyVariable(collectionVariable.CreateGetExpression().Type.GetAllProperties().GetProperty("Length", false), collectionVariable.CreateGetExpression());
-                var cachedLengthVariable = new LateBoundVariable(lengthPropertyVariable.Property.PropertyType);
+                var cachedLengthVariable = new LateBoundVariable(lengthPropertyVariable.Type);
                 initStatements.Add(cachedLengthVariable.CreateSetStatement(lengthPropertyVariable.CreateGetExpression()));
                 finalStatements.Add(cachedLengthVariable.CreateReleaseStatement());
                 lengthExpr = cachedLengthVariable.CreateGetExpression();
