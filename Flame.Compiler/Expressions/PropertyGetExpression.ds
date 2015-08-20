@@ -7,72 +7,26 @@ using Flame.Compiler.Variables;
 namespace Flame.Compiler.Expressions
 {
 	public class PropertyGetExpression : ComplexExpressionBase, IVariableNode,
-										 IMemberNode, IPredicateNode
+										 IPredicateNode
 	{
-		public const this(PropertyVariable Variable)
-		{
-			this.Accessor = Variable.Property.GetGetAccessor();
-			this.Caller = Variable.Caller;
-			this.IndexerArguments = Variable.IndexerArguments;
-		}
-		public const this(set IAccessor Accessor, set IExpression Caller, set [IExpression] IndexerArguments);
+		public const this(set PropertyVariable Variable);
 
-		public IExpression Caller { const get; private set; }
-		public [IExpression] IndexerArguments { const get; private set; }
-		public IAccessor Accessor { const get; private set; }
-
+		public PropertyVariable Variable { const get; private set; }
 		public VariableNodeAction Action { const get return VariableNodeAction.Get; }
 
 		public const IVariable GetVariable()
 		{
-			return new PropertyVariable(Accessor.DeclaringProperty, Caller, IndexerArguments);
+			return Variable;
 		}
 
 		protected override const IExpression Lower()
 		{
-			return new InvocationExpression(Accessor, Caller, IndexerArguments);
-		}
-
-		public IMemberNode ConvertMembers(MemberConverter Converter)
-		{
-			var convAcc = Converter.Convert(Accessor);
-			if (object.ReferenceEquals(convAcc, Accessor))
-			{
-				return this;
-			}
-			else if (convAcc is IAccessor)
-			{
-				return new PropertyGetExpression((IAccessor)convAcc, Caller, IndexerArguments);
-			}
-			else
-			{
-				return new MemberlessExpression(new InvocationExpression(convAcc, Caller, IndexerArguments));
-			}
+			return new InvocationExpression(Variable.GetAccessor, Variable.Caller, Variable.IndexerArguments);
 		}
 
 		public void AcceptPredicate(INodeVisitor Visitor)
 		{
-			if (Caller != null)
-				Visitor.Visit(Caller);
-			Visitor.VisitAll(IndexerArguments);
-		}
-
-		public override IExpression Accept(INodeVisitor Visitor)
-		{
-			var transCaller = Caller;
-			if (Caller != null)
-				transCaller = Visitor.Visit(transCaller);
-
-			var transArgs = Visitor.VisitAll(IndexerArguments);
-
-			if (transCaller == Caller && Enumerable.SequenceEqual<IExpression>(IndexerArguments, transArgs))
-			{
-				return this;
-			}
-			else
-			{
-				return new PropertyGetExpression(Accessor, transCaller, transArgs);
-			}
+			Variable.AcceptPredicate(Visitor);
 		}
 	}
 }

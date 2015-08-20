@@ -8,19 +8,39 @@ namespace Flame.Compiler.Variables
 {
     public class PropertyVariable : IVariable
     {
-        public const this(set IProperty Property)
+        public const this(IProperty Property)
         {
         	this.Caller = null;
         	this.IndexerArguments = Enumerable.Empty<IExpression>();
+            this.GetAccessor = Property.GetGetAccessor();
+            this.SetAccessor = Property.GetSetAccessor();
         }
-        public const this(set IProperty Property, set IExpression Caller)
+        public const this(IProperty Property, set IExpression Caller)
         {
         	this.IndexerArguments = Enumerable.Empty<IExpression>();
+            this.GetAccessor = Property.GetGetAccessor();
+            this.SetAccessor = Property.GetSetAccessor();
         }
-        public const this(set IProperty Property, set IExpression Caller, set [IExpression] IndexerArguments);
+        public const this(IProperty Property, set IExpression Caller,
+                          set [IExpression] IndexerArguments)
+        {
+            this.GetAccessor = Property.GetGetAccessor();
+            this.SetAccessor = Property.GetSetAccessor();
+        }
+        public const this(set IMethod GetAccessor, set IMethod SetAccessor,
+                          set IExpression Caller, set [IExpression] IndexerArguments);
+
+        /// <summary>
+        /// Gets the property variable's 'get' accessor.
+        /// </summary>
+        public IMethod GetAccessor { const get; private set; }
+
+        /// <summary>
+        /// Gets the property variable's 'set' accessor.
+        /// </summary>
+        public IMethod SetAccessor { const get; private set; }
 
         public IExpression Caller { const get; private set; }
-        public IProperty Property { const get; private set; }
         public [IExpression] IndexerArguments { const get; private set; }
 
         public void AcceptPredicate(INodeVisitor Visitor)
@@ -30,39 +50,26 @@ namespace Flame.Compiler.Variables
             Visitor.VisitAll(IndexerArguments);
         }
 
-        public PropertyVariable Accept(INodeVisitor Visitor)
-        {
-            var transCaller = Caller;
-            if (Caller != null)
-                transCaller = Visitor.Visit(transCaller);
-
-            var transArgs = Visitor.VisitAll(IndexerArguments);
-
-            if (transCaller == Caller && Enumerable.SequenceEqual<IExpression>(IndexerArguments, transArgs))
-            {
-                return this;
-            }
-            else
-            {
-                return new PropertyVariable(Property, transCaller, transArgs);
-            }
-        }
-
         public IType Type
         {
-            const get { return Property.PropertyType; }
+            const get
+            {
+                if (GetAccessor == null)
+                    return SetAccessor.GetParameters()[0].ParameterType;
+                else
+                    return GetAccessor.ReturnType;
+            }
         }
 
         public IExpression CreateGetExpression()
         {
-            //return new InvocationExpression(Property.GetGetAccessor(), Caller, IndexerArguments);
             return new PropertyGetExpression(this);
         }
 
         public IStatement CreateSetStatement(IExpression Value)
         {
         	var args = Enumerable.Concat<IExpression>(IndexerArguments, new IExpression[] { Value });
-        	return new ExpressionStatement(new InvocationExpression(Property.GetSetAccessor(), Caller, args));
+        	return new ExpressionStatement(new InvocationExpression(SetAccessor, Caller, args));
         }
 
         public IStatement CreateReleaseStatement()
