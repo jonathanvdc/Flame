@@ -51,6 +51,8 @@
     <Compile Include="AnalysisPass.cs" />
     <Compile Include="AnalysisPasses.cs" />
     <Compile Include="AnalysisVisitorBase.cs" />
+    <Compile Include="InfiniteInt32.cs" />
+    <Compile Include="NodeCountVisitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ValueTypeDelegateVisitor.cs" />
   </ItemGroup>

@@ -137,7 +137,11 @@ namespace dsc.Projects
                         "Unreachable code detected and removed. " + Warnings.Instance.GetWarningNameMessage("dead-code"),
                         Log.UsePedanticWarnings("dead-code")),
                         PassExtensions.EliminateDeadCodePassName, 
-                        (optInfo, isPref) => optInfo.OptimizeMinimal || optInfo.OptimizeDebug)
+                        (optInfo, isPref) => optInfo.OptimizeMinimal || optInfo.OptimizeDebug),
+
+                    new PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>(new InitializationCountPass(Log),
+                        PassExtensions.InitializationPassName,
+                        (optInfo, isPref) => InitializationCountPass.IsUseful(Log))
                 });
         }
     }

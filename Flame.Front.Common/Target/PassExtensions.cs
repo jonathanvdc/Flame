@@ -31,6 +31,7 @@ namespace Flame.Front.Target
         public static List<PassInfo<IStatement, IStatement>> StatementPasses { get; private set; }
 
         public const string EliminateDeadCodePassName = "dead-code-elimination";
+        public const string InitializationPassName = "initialization";
         public const string LowerYieldPassName = "lower-yield";
         public const string LowerLambdaPassName = "lower-lambda";
         public const string InliningPassName = "inline";
