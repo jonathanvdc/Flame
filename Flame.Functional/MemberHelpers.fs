@@ -16,9 +16,13 @@ module MemberHelpers =
     let OfType<'Source, 'Result> (values : seq<'Source>) : 'Result seq =
         Enumerable.OfType<'Result> values
 
-    /// Tells if the first method method implements the second.
-    let IsImplementationOf (first : #IMethod) (right : #IMethod) = 
-        first.IsImplementationOf right
+    /// Tells if the first method implements the second.
+    let IsImplementationOf (first : #IMethod) (second : #IMethod) = 
+        first.IsImplementationOf second
+
+    /// Tells if the first method shadows the second.
+    let IsShadowed (first : #IMethod) (second : #IMethod) =
+        second.Shadows first
 
     /// Gets all members defined by the given type's base types for the given member-getting function.
     let GetAllBaseMembers<'a when 'a : equality> (getAllMembers : IType -> 'a seq) (target : IType) =
