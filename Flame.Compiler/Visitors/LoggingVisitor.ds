@@ -80,7 +80,7 @@ namespace Flame.Compiler.Visitors
             }
 
             IExpression result;
-            if (StripSource)
+            if (!StripSource)
                 result = Expression.Accept(this);
             else
                 result = Visit(Expression.Value);
@@ -107,7 +107,7 @@ namespace Flame.Compiler.Visitors
             }
 
             IStatement result;
-            if (StripSource)
+            if (!StripSource)
                 result = srcStmt.Accept(this);
             else
                 result = Visit(srcStmt.Value);
