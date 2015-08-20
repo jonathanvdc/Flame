@@ -232,6 +232,20 @@ namespace Flame
         	}
         }
 
+		private static bool IsPureInterfaceCore(IType Type)
+		{
+			return Type.IsInterface && Enumerable.All<IType>(Type.GetBaseTypes(), IsPureInterfaceCore);
+		}
+
+		/// <summary>
+		/// Determines if this type is a "pure interface", i.e. an interface whose
+		/// base types are all pure interfaces.
+		/// </summary>
+		public static bool IsPureInterface[this IType Type]
+		{
+			const get return IsPureInterfaceCore(Type);
+		}
+
         #endregion
 
         #region IsValueType

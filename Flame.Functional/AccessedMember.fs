@@ -22,7 +22,7 @@ type AccessedMember<'a> =
     member this.MemberPrefix =
         match this with
         | Instance  _ -> "an instance"
-        | Extension _ -> "a reference"
+        | Extension _ -> "an extension"
         | Static    _ -> "a static"
 
 /// Defines a number of categories for types

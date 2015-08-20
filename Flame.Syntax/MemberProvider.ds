@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
@@ -11,12 +12,12 @@ namespace Flame.Syntax
         public const this(IExtensionTypeProvider GlobalExtensionTypeProvider, set IBinder Binder)
         {
             this.ExtensionTypeProvider = new LocalExtensionTypeProvider(GlobalExtensionTypeProvider, Binder);
-            this.memberMapping = new Dictionary<IType, ITypeMember[]>();
+            this.memberMapping = new ConcurrentDictionary<IType, ITypeMember[]>();
         }
         public const this(set IBinder Binder)
         {
             this.ExtensionTypeProvider = new LocalExtensionTypeProvider(Binder);
-            this.memberMapping = new Dictionary<IType, ITypeMember[]>();
+            this.memberMapping = new ConcurrentDictionary<IType, ITypeMember[]>();
         }
 
         public IExtensionTypeProvider ExtensionTypeProvider { const get; private set; }
@@ -28,72 +29,53 @@ namespace Flame.Syntax
                 return ExtensionTypeProvider.ExtensionTypes;
             }
         }
-        private Dictionary<IType, ITypeMember[]> memberMapping;
+        private ConcurrentDictionary<IType, ITypeMember[]> memberMapping;
 
         public IBinder Binder { const get; private set; }
 
+        private ITypeMember[] GetMembersCore(IType Type)
+        {
+            var members = new HashSet<ITypeMember>();
+            members.UnionWith(Type.GetAllMembers());
+
+            if (Type.IsPureInterface)
+            {
+                var rootType = Binder.RootType;
+                if (rootType != null)
+                {
+                    members.UnionWith(GetMembers(rootType));
+                }
+            }
+
+            foreach (var related in Type.GetAssociatedTypes())
+            {
+                members.UnionWith(related.GetAllMembers());
+            }
+
+            foreach (var item in ExtensionTypes)
+            {
+                foreach (var method in item.GetMethods())
+                {
+                    if (method.IsExtension && method.GetParameters()[0].IsAssignable(Type))
+                    {
+                        members.Add(method);
+                    }
+                }
+                foreach (var prop in item.GetProperties())
+                {
+                    if (prop.IsExtension && prop.GetIndexerParameters()[0].IsAssignable(Type))
+                    {
+                        members.Add(prop);
+                    }
+                }
+            }
+
+            return Enumerable.ToArray<ITypeMember>(members);
+        }
+
         public [ITypeMember] GetMembers(IType Type)
         {
-            if (memberMapping.ContainsKey(Type))
-            {
-                return memberMapping[Type];
-            }
-            else
-            {
-                List<ITypeMember> members = new List<ITypeMember>();
-                members.AddRange(Type.GetAllMembers());
-                
-                if (Type.IsInterface)
-                {
-                	bool pureInterface = true;
-                	foreach (var item in Type.GetBaseTypes())
-                	{
-                		if (!item.IsInterface)
-                		{
-                			pureInterface = false;
-                			break;
-                		}
-                	}
-                	if (pureInterface)
-                	{
-                		var rootType = Binder.RootType;
-                		if (rootType != null)
-             			{
-                			members.AddRange(rootType.GetMembers());
-                		}
-                	}
-                }
-                
-                foreach (var related in Type.GetAssociatedTypes())
-                {
-                	members.AddRange(related.GetAllMembers());
-                }
-                
-                var extensionTypes = ExtensionTypes;
-                foreach (var item in extensionTypes)
-                {
-                	foreach (var method in item.GetMethods())
-                	{
-                		if (method.IsExtension)
-                		if (method.GetParameters()[0].IsAssignable(Type))
-                		{
-                			members.Add(method);
-                		}
-                	}
-                	foreach (var prop in item.GetProperties())
-                	{
-                		if (prop.IsExtension)
-                		if (prop.GetIndexerParameters()[0].IsAssignable(Type))
-                		{
-                			members.Add(prop);
-                		}
-                	}
-                }
-                
-                var memberArray = Enumerable.ToArray<ITypeMember>(Enumerable.Distinct<ITypeMember>(members));
-                memberMapping[Type] = memberArray;
-                return memberArray;
-            }
+            return memberMapping.GetOrAdd(Type, GetMembersCore);
         }
     }
 }
