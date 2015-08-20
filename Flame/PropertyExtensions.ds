@@ -6,6 +6,16 @@ namespace Flame
 {
 	public static class PropertyExtensions
 	{
+		/// <summary>
+		/// Tests if the given properties have the same signature.
+		/// </summary>
+		public static const bool HasSameSignature(this IProperty Left, IProperty Right)
+		{
+			return Left.IsStatic == Right.IsStatic && Left.Name == Right.Name &&
+				   Left.PropertyType == Right.PropertyType &&
+				   Left.GetIndexerParameters().GetTypes().AreEqual(Right.GetIndexerParameters().GetTypes());
+		}
+
         #region Accessors
 
         /// <summary>
@@ -60,7 +70,7 @@ namespace Flame
         {
             return Property.GetAccessor(AccessorType.RemoveAccessor);
         }
-        
+
         public static const bool IsGetAccessor[this IAccessor Accessor]
         {
         	const get return Accessor.AccessorType == AccessorType.GetAccessor;
@@ -71,9 +81,9 @@ namespace Flame
         }
 
         #endregion
-        
+
         #region GetIndexerParameterTypes
-        
+
         public const static IType[] GetIndexerParameterTypes(this IProperty Property)
         {
         	var indexerParameters = Property.GetIndexerParameters();
@@ -84,22 +94,22 @@ namespace Flame
         	}
         	return types;
         }
-        
+
         #endregion
-        
+
         #region Indexers
-        
+
         public static bool IsIndexer[this IProperty Property]
         {
         	const get
         	{
-        		return Property.HasAttribute(PrimitiveAttributes.IndexerAttribute.AttributeType);	
+        		return Property.HasAttribute(PrimitiveAttributes.IndexerAttribute.AttributeType);
         	}
         }
-        
-        public static IEnumerable<IProperty> GetIndexers(this IType Type)
+
+        public static [IProperty] GetIndexers(this IType Type)
         {
-        	List<IProperty> indexers = new List<IProperty>();
+        	var indexers = new List<IProperty>();
         	foreach (var item in Type.GetProperties())
         	{
         		if (item.IsIndexer)
@@ -109,10 +119,10 @@ namespace Flame
         	}
         	return indexers;
         }
-        
-        public static IEnumerable<IProperty> GetAllIndexers(this IType Type)
+
+        public static [IProperty] GetAllIndexers(this IType Type)
         {
-        	List<IProperty> indexers = new List<IProperty>();
+        	var indexers = new List<IProperty>();
         	foreach (var item in Type.GetAllProperties())
         	{
         		if (item.IsIndexer)
@@ -122,17 +132,17 @@ namespace Flame
         	}
         	return indexers;
         }
-        
-        public static IEnumerable<IProperty> GetIndexers(this IType Type, bool IsStatic, IEnumerable<IType> IndexerArguments)
+
+        public static [IProperty] GetIndexers(this IType Type, bool IsStatic, [IType] IndexerArguments)
         {
         	return MemberSelection.FilterByStatic<IProperty>(Type.GetIndexers(), IsStatic).FilterByIndexerParameters(IndexerArguments);
         }
-        public static IProperty GetIndexer(this IType Type, bool IsStatic, IEnumerable<IType> IndexerArguments)
+        public static IProperty GetIndexer(this IType Type, bool IsStatic, [IType] IndexerArguments)
         {
         	return Enumerable.SingleOrDefault<IProperty>(Type.GetIndexers(IsStatic, IndexerArguments));
         }
-        
-        public static IEnumerable<IProperty> GetBestIndexers(this IType Type, bool IsStatic, IEnumerable<IType> IndexerArguments)
+
+        public static [IProperty] GetBestIndexers(this IType Type, bool IsStatic, [IType] IndexerArguments)
         {
         	IType callerType;
         	if (IsStatic)
@@ -145,19 +155,19 @@ namespace Flame
         	}
         	return Type.GetIndexers().GetBestProperties(callerType, IndexerArguments);
         }
-        public static IProperty GetBestIndexer(this IType Type, bool IsStatic, IEnumerable<IType> IndexerArguments)
+        public static IProperty GetBestIndexer(this IType Type, bool IsStatic, [IType] IndexerArguments)
         {
         	return Enumerable.SingleOrDefault<IProperty>(Type.GetBestIndexers(IsStatic, IndexerArguments));
         }
-        
+
         #endregion
-        
+
         #region Filtering
-        
-        public static IEnumerable<IProperty> FilterByIndexerParameters(this IEnumerable<IProperty> Candidates, IEnumerable<IType> IndexerArguments)
+
+        public static [IProperty] FilterByIndexerParameters(this [IProperty] Candidates, [IType] IndexerArguments)
         {
         	var indexArgs = Enumerable.ToArray<IType>(IndexerArguments);
-        	List<IProperty> props = new List<IProperty>();
+        	var props = new List<IProperty>();
         	foreach (var item in Candidates)
         	{
         		var indexParams = item.GetIndexerParameters().GetTypes();
@@ -168,10 +178,10 @@ namespace Flame
         	}
         	return props;
         }
-        
+
         #endregion
-        
-        public static IProperty GetProperty(this IEnumerable<IProperty> Candidates, string Name, bool IsStatic)
+
+        public static IProperty GetProperty(this [IProperty] Candidates, string Name, bool IsStatic)
         {
         	foreach (var method in Candidates)
 			{
@@ -181,7 +191,7 @@ namespace Flame
 			}
 			return null;
         }
-        public static IProperty GetProperty(this IEnumerable<IProperty> Candidates, bool IsStatic, IType PropertyType, IType[] IndexerParameters)
+        public static IProperty GetProperty(this [IProperty] Candidates, bool IsStatic, IType PropertyType, IType[] IndexerParameters)
         {
         	foreach (var method in Candidates)
 			{
@@ -192,7 +202,7 @@ namespace Flame
 			}
 			return null;
         }
-        public static IProperty GetProperty(this IEnumerable<IProperty> Candidates, string Name, bool IsStatic, IType PropertyType, IType[] IndexerParameters)
+        public static IProperty GetProperty(this [IProperty] Candidates, string Name, bool IsStatic, IType PropertyType, IType[] IndexerParameters)
         {
         	foreach (var method in Candidates)
 			{
