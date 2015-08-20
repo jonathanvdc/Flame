@@ -69,6 +69,7 @@
     <Compile Include="DSharp\Semantics.cs" />
     <Compile Include="EmptyCompilerOptions.cs" />
     <Compile Include="DSharp\Parser.cs" />
+    <Compile Include="Sets.cs" />
     <Compile Include="SimplifyFlow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestLog.cs" />

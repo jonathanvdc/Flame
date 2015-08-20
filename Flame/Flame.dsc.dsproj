@@ -35,6 +35,7 @@
 		<Compile Include="MemberLookup.ds" />
 		<Compile Include="MemberSelection.ds" />
 		<Compile Include="PropertyExtensions.ds" />
+        <Compile Include="SetExtensions.ds" />
 		<Compile Include="FieldExtensions.ds" />
 		<Compile Include="IEnvironment.ds" />
 		<Compile Include="MethodExtensions.ds" />
