@@ -38,61 +38,70 @@ namespace Flame.Compiler.Variables
     {
         public const this(IProperty Property)
         {
-        	this.Caller = null;
         	this.IndexerArguments = Enumerable.Empty<IExpression>();
-            this.GetAccessor = Property.GetGetAccessor();
-            this.SetAccessor = Property.GetSetAccessor();
+            Initialize(Property.GetGetAccessor(), Property.GetSetAccessor(), null);
         }
-        public const this(IProperty Property, set IExpression Caller)
+        public const this(IProperty Property, IExpression Target)
         {
         	this.IndexerArguments = Enumerable.Empty<IExpression>();
-            this.GetAccessor = Property.GetGetAccessor();
-            this.SetAccessor = Property.GetSetAccessor();
+            Initialize(Property.GetGetAccessor(), Property.GetSetAccessor(), Target);
         }
-        public const this(IProperty Property, set IExpression Caller,
+        public const this(IProperty Property, IExpression Target,
                           set [IExpression] IndexerArguments)
         {
-            this.GetAccessor = Property.GetGetAccessor();
-            this.SetAccessor = Property.GetSetAccessor();
+            Initialize(Property.GetGetAccessor(), Property.GetSetAccessor(), Target);
         }
-        public const this(set IMethod GetAccessor, set IMethod SetAccessor,
-                          set IExpression Caller, set [IExpression] IndexerArguments);
+        public const this(IMethod GetAccessor, IMethod SetAccessor,
+                          IExpression Target, set [IExpression] IndexerArguments)
+        {
+            Initialize(GetAccessor, SetAccessor, Target);
+        }
+        public const this(set IDelegateExpression Getter, set IDelegateExpression Setter,
+                          set [IExpression] IndexerArguments);
+
+        private void Initialize(IMethod GetAccessor, IMethod SetAccessor, IExpression Target)
+        {
+            if (GetAccessor != null)
+                this.Getter = new GetMethodExpression(GetAccessor, Target);
+            if (SetAccessor != null)
+                this.Setter = new GetMethodExpression(SetAccessor, Target);
+        }
 
         /// <summary>
         /// Gets the property variable's 'get' accessor.
         /// </summary>
-        public IMethod GetAccessor { const get; private set; }
+        public IDelegateExpression Getter { const get; private set; }
+
+        /// <summary>
+        /// Gets a boolean flag that indicates whether this property variable has a
+        /// getter.
+        /// </summary>
+        public const bool HasGetter { const get return Getter != null; }
 
         /// <summary>
         /// Gets the property variable's 'set' accessor.
         /// </summary>
-        public IMethod SetAccessor { const get; private set; }
+        public IDelegateExpression Setter { const get; private set; }
 
         /// <summary>
-        /// Gets the instance the property operates on.
+        /// Gets a boolean flag that indicates whether this property variable has a
+        /// setter.
         /// </summary>
-        public IExpression Caller { const get; private set; }
+        public const bool HasSetter { const get return Setter != null; }
 
         /// <summary>
         /// Gets the property's indexer arguments.
         /// </summary>
         public [IExpression] IndexerArguments { const get; private set; }
 
-        public void AcceptPredicate(INodeVisitor Visitor)
-        {
-            if (Caller != null)
-                Visitor.Visit(Caller);
-            Visitor.VisitAll(IndexerArguments);
-        }
-
         public IType Type
         {
             const get
             {
-                if (GetAccessor == null)
-                    return SetAccessor.GetParameters()[0].ParameterType;
+                if (Getter == null)
+                    return Enumerable.First<IType>(Setter.ParameterTypes);
                 else
-                    return GetAccessor.ReturnType;
+                    return Getter.ReturnType;
             }
         }
 
@@ -104,7 +113,7 @@ namespace Flame.Compiler.Variables
         public IStatement CreateSetStatement(IExpression Value)
         {
         	var args = Enumerable.Concat<IExpression>(IndexerArguments, new IExpression[] { Value });
-        	return new ExpressionStatement(new InvocationExpression(SetAccessor, Caller, args));
+        	return new ExpressionStatement(Setter.CreateInvocationExpression(args));
         }
 
         public IStatement CreateReleaseStatement()
