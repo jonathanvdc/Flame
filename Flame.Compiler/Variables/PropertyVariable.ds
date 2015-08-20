@@ -6,6 +6,34 @@ using Flame.Compiler.Statements;
 
 namespace Flame.Compiler.Variables
 {
+    /// <summary>
+    /// Defines a type of variable that operates analogously to a property:
+    /// get-expressions call the 'get' accessor, and set-statements call the
+    /// 'set' accessor.
+    /// </summary>
+    /// <remarks>
+    /// In the past, property variables were actually associated with a single
+    /// property, but this doesn't work well with asymmetric property overrides.
+    /// Consider the following snippet of code:
+    /// <code>
+    /// public abstract VectorBase
+    /// {
+    ///     double Length { virtual get { ... } virtual set { ... } }
+    /// }
+    ///
+    /// public class Vector
+    /// {
+    ///     public double Length { override get { ... } }
+    ///     public double LengthSquared { get { return Length * Length; } }
+    ///                                                ^~~~~~ refers to `Vector.Length`
+    ///     public void SetLength(double Value)
+    ///     {
+    ///         Length = Value;
+    ///         ^~~~~~ refers to `VectorBase.Length`
+    ///     }
+    /// }
+    /// </code>
+    /// </remarks>
     public class PropertyVariable : IVariable
     {
         public const this(IProperty Property)
@@ -40,7 +68,14 @@ namespace Flame.Compiler.Variables
         /// </summary>
         public IMethod SetAccessor { const get; private set; }
 
+        /// <summary>
+        /// Gets the instance the property operates on.
+        /// </summary>
         public IExpression Caller { const get; private set; }
+
+        /// <summary>
+        /// Gets the property's indexer arguments.
+        /// </summary>
         public [IExpression] IndexerArguments { const get; private set; }
 
         public void AcceptPredicate(INodeVisitor Visitor)
