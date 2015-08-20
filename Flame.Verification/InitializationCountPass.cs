@@ -62,7 +62,7 @@ namespace Flame.Verification
                     if (Log.UsePedanticWarnings(UninitializedWarningName))
                     {
                         var msg = new LogEntry("Instance possibly uninitialized", 
-                                               "Not all control flow paths may initialize the constructed instance. " + 
+                                               "Some control flow paths may not initialize the constructed instance. " + 
                                                Warnings.Instance.GetWarningNameMessage(UninitializedWarningName),
                                                Value.Item2.GetSourceLocation());
                         Log.LogWarning(AppendInitialization(msg, visitor));
