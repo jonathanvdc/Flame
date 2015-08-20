@@ -25,14 +25,24 @@ namespace Flame.Verification
         public ICompilerLog Log { get; private set; }
 
         /// <summary>
-        /// A warning name for potentially uninitialized values.
+        /// A warning name for uninitialized values.
         /// </summary>
         public const string UninitializedWarningName = "uninitialized";
 
         /// <summary>
-        /// A warning name for potentially multiply initialized values.
+        /// A warning name for potentially uninitialized values.
+        /// </summary>
+        public const string MaybeUninitializedWarningName = "maybe-uninitialized";
+
+        /// <summary>
+        /// A warning name for multiply initialized values.
         /// </summary>
         public const string MultipleInitializationWarningName = "multiple-initialization";
+
+        /// <summary>
+        /// A warning name for potentially multiply initialized values.
+        /// </summary>
+        public const string MaybeMultipleInitializationWarningName = "maybe-multiple-initialization";
 
         /// <summary>
         /// Gets a boolean value that tells if this pass is useful for the given log,
@@ -42,13 +52,15 @@ namespace Flame.Verification
         /// <returns></returns>
         public static bool IsUseful(ICompilerLog Log)
         {
-            return Log.UsePedanticWarnings(UninitializedWarningName) || Log.UsePedanticWarnings(MultipleInitializationWarningName);
+            return Log.UseDefaultWarnings(UninitializedWarningName) || Log.UseDefaultWarnings(MultipleInitializationWarningName) ||
+                   Log.UsePedanticWarnings(MaybeUninitializedWarningName) || Log.UsePedanticWarnings(MaybeMultipleInitializationWarningName);
         }
 
         private static LogEntry AppendInitialization(LogEntry Entry, NodeCountVisitor Visitor)
         {
-            var nodes = Visitor.MatchLocations.Select(item => RedefinitionHelpers.Instance.CreateNeutralDiagnosticsNode("Initialization at: ", item));
-            return new LogEntry(Entry.Name, new MarkupNode("entry", new IMarkupNode[] { Entry.Contents }.Concat(nodes)));
+            var newContents = Visitor.MatchLocations.Aggregate(Entry.Contents, 
+                (state, item) => RedefinitionHelpers.Instance.AppendDiagnosticsRemark(state, "Initialization: ", item));
+            return new LogEntry(Entry.Name, newContents);
         }
 
         public Tuple<IStatement, IMethod> Apply(Tuple<IStatement, IMethod> Value)
@@ -59,22 +71,38 @@ namespace Flame.Verification
                 visitor.Visit(Value.Item1);
                 if (visitor.CurrentFlow.Min == 0)
                 {
-                    if (Log.UsePedanticWarnings(UninitializedWarningName))
+                    if (visitor.CurrentFlow.Max == 0)
+                    {
+                        var msg = new LogEntry("Instance uninitialized",
+                                               "The constructed instance is never initialized by this constructor. " +
+                                               Warnings.Instance.GetWarningNameMessage(UninitializedWarningName),
+                                               Value.Item2.GetSourceLocation());
+                        Log.LogWarning(AppendInitialization(msg, visitor));
+                    }
+                    else if (Log.UsePedanticWarnings(MaybeUninitializedWarningName))
                     {
                         var msg = new LogEntry("Instance possibly uninitialized", 
                                                "Some control flow paths may not initialize the constructed instance. " + 
-                                               Warnings.Instance.GetWarningNameMessage(UninitializedWarningName),
+                                               Warnings.Instance.GetWarningNameMessage(MaybeUninitializedWarningName),
                                                Value.Item2.GetSourceLocation());
                         Log.LogWarning(AppendInitialization(msg, visitor));
                     }
                 }
                 else if (visitor.CurrentFlow.Max > 1)
                 {
-                    if (Log.UsePedanticWarnings(MultipleInitializationWarningName))
+                    if (visitor.CurrentFlow.Min > 1 && Log.UseDefaultWarnings(MultipleInitializationWarningName))
+                    {
+                        var msg = new LogEntry("Instance initialized more than once",
+                                               "The constructed instance is initialized more than once by this constructor. " +
+                                               Warnings.Instance.GetWarningNameMessage(MultipleInitializationWarningName),
+                                               Value.Item2.GetSourceLocation());
+                        Log.LogWarning(AppendInitialization(msg, visitor));
+                    }
+                    else if (Log.UsePedanticWarnings(MaybeMultipleInitializationWarningName))
                     {
                         var msg = new LogEntry("Instance possibly initialized more than once",
-                                               "The constructed instance may be initialized more than once in some control flow paths. " +
-                                               Warnings.Instance.GetWarningNameMessage(MultipleInitializationWarningName),
+                                               "The constructed instance may be initialized more than once in some control flow paths in this constructor. " +
+                                               Warnings.Instance.GetWarningNameMessage(MaybeMultipleInitializationWarningName),
                                                Value.Item2.GetSourceLocation());
                         Log.LogWarning(AppendInitialization(msg, visitor));
                     }
