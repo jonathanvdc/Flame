@@ -9,6 +9,7 @@ open Pixie
 open System
 open System.Collections.Generic
 open System.Linq
+open MemberHelpers
 
 module ExpressionBuilder =
 
@@ -271,6 +272,11 @@ module ExpressionBuilder =
     /// and contains the given error message.
     let Error entry value = 
         new ErrorExpression(value, entry) :> IExpression
+
+    /// Creates an expression that represents an node with
+    /// zero or more error messages attached to it.
+    let Errors value entries =
+        entries |> Seq.fold (fun state entry -> Error entry state) value
 
     /// Tags the given expression with the given source code location.
     let Source location value =
@@ -554,41 +560,32 @@ module ExpressionBuilder =
                 temp.CreateReleaseStatement()) :> IExpression
 
     /// Accesses a method on a target expression, within the given local scope.
-    let AccessMethod (scope : LocalScope) (targetMethod : IMethod) (accessedExpr : AccessedExpression) : IExpression =
+    let AccessMethod (scope : LocalScope) (targetMethod : IMethod) (accessedExpr : AccessedExpression) : IDelegateExpression =
         let accessedMethod = GetAccessedMember targetMethod
         match (accessedMethod, accessedExpr) with
-        | (Static tgt, _) | (Extension tgt, Global _) -> new GetMethodExpression(tgt, null) :> IExpression
-        | (Instance tgt, Reference expr)              -> new GetMethodExpression(tgt, expr) :> IExpression
+        | (Static tgt, _) | (Extension tgt, Global _) -> new GetMethodExpression(tgt, null) :> IDelegateExpression
+        | (Instance tgt, Reference expr)              -> new GetMethodExpression(tgt, expr) :> IDelegateExpression
         | (Instance tgt, Generic expr) 
-        | (Instance tgt, Value expr)                  -> new GetMethodExpression(tgt, GetAddress expr) :> IExpression
+        | (Instance tgt, Value expr)                  -> new GetMethodExpression(tgt, GetAddress expr) :> IDelegateExpression
         | (Extension tgt, Generic expr)
         | (Extension tgt, Reference expr)
-        | (Extension tgt, Value expr)                 -> new GetExtensionMethodExpression(tgt, CastImplicit scope expr (tgt.GetParameters().[0].ParameterType)) :> IExpression
+        | (Extension tgt, Value expr)                 -> new GetExtensionMethodExpression(tgt, CastImplicit scope expr (tgt.GetParameters().[0].ParameterType)) :> IDelegateExpression
         | (Instance tgt, Global _)                    ->
             let message = "Could not access instance method '" + tgt.Name + "' of type '" + 
                           (scope.Global.TypeNamer tgt.DeclaringType) + " without an instance."
-            Error (new LogEntry("Invalid method access", message)) (new UnknownExpression(MethodType.Create tgt))
+            new DelegateInstanceExpression (Error (new LogEntry("Invalid method access", message)) (new UnknownExpression(MethodType.Create tgt))) :> IDelegateExpression
 
     /// Accesses a property on a target expression with the given index arguments, within the given local scope. 
-    let AccessIndexedProperty (scope : LocalScope) (targetProperty : IProperty) (accessedExpr : AccessedExpression) (indexArgs : IExpression seq) : IExpression =
-        let accessedProperty = GetAccessedMember targetProperty
-        match (accessedProperty, accessedExpr) with
-        | (Static tgt, _) | (Extension tgt, Global _) -> (new PropertyVariable(tgt, null, indexArgs)).CreateGetExpression()
-        | (Instance tgt, Reference expr)              -> (new PropertyVariable(tgt, expr, indexArgs)).CreateGetExpression()
-        | (Instance tgt, Value expr)
-        | (Instance tgt, Generic expr)                -> (new PropertyVariable(tgt, GetAddress expr, indexArgs)).CreateGetExpression()
-        | (Extension tgt, Generic expr)
-        | (Extension tgt, Reference expr)
-        | (Extension tgt, Value expr)                 -> 
-            let castExpr = CastImplicit scope expr (tgt.GetIndexerParameters().[0].ParameterType)
-            (new PropertyVariable(tgt, null, (Seq.singleton castExpr, indexArgs) ||> Seq.append)).CreateGetExpression()
-        | (Instance tgt, Global _)                    ->
-            let message = "Could not access instance property '" + tgt.Name + "' of type '" + 
-                          (scope.Global.TypeNamer tgt.DeclaringType) + " without an instance."
-            Error (new LogEntry("Invalid property access", message)) (new UnknownExpression(tgt.PropertyType))
+    let AccessIndexedProperty (scope : LocalScope) (getter : IMethod) (setter : IMethod) (accessedExpr : AccessedExpression) (indexArgs : IExpression seq) : IExpression =
+        let accessOrNull acc = 
+            match acc with
+            | null -> null
+            | _    -> AccessMethod scope acc accessedExpr
+
+        (new PropertyVariable(accessOrNull getter, accessOrNull setter, indexArgs)).CreateGetExpression()
 
     /// Accesses a property on a target expression with no index arguments, within the given local scope. 
-    let AccessProperty scope targetProperty accessedExpr = AccessIndexedProperty scope targetProperty accessedExpr Seq.empty
+    let AccessProperty scope getter setter accessedExpr = AccessIndexedProperty scope getter setter accessedExpr Seq.empty
 
     /// Gets the intersection expression of the given sequence of expressions.
     /// An intersection expression may be used when resolving overloads, but 
@@ -599,15 +596,20 @@ module ExpressionBuilder =
     let AccessMember (scope : LocalScope) (targetMember : ITypeMember) (accessedExpr : AccessedExpression) : IExpression =
         match targetMember with
         | :? IField    as fld -> AccessField scope fld accessedExpr
-        | :? IMethod   as mtd -> AccessMethod scope mtd accessedExpr
-        | :? IProperty as prp -> AccessProperty scope prp accessedExpr
+        | :? IMethod   as mtd -> AccessMethod scope mtd accessedExpr :> IExpression
+        | :? IProperty as prp -> AccessProperty scope (prp.GetGetAccessor()) (prp.GetSetAccessor()) accessedExpr
         | _                   -> 
             let message = "Could not access type member '" + targetMember.Name + "' belonging to type '" + 
                           (scope.Global.TypeNamer targetMember.DeclaringType) + " because it could not be identified as a field, method or property."
             Error (new LogEntry("Unknown type member access", message)) Void
 
+    let AllOfType<'a, 'b> (values : 'a seq) =
+        values.All (fun x -> match box x with 
+                             | :? 'b -> true 
+                             | _     -> false)
+
     /// Accesses the given sequence of type members on the given expression, and computes their intersection.
-    let AccessMembers (scope : LocalScope) (targetMembers : ITypeMember seq) (accessedExpr : AccessedExpression) : IExpression =
+    let IntersectedMemberAccess (scope : LocalScope) (targetMembers : ITypeMember seq) (accessedExpr : AccessedExpression) : IExpression =
         let errors, results = targetMembers |> Seq.map (fun x -> AccessMember scope x accessedExpr)
                                             |> List.ofSeq
                                             |> List.partition IsError
@@ -615,6 +617,48 @@ module ExpressionBuilder =
             Seq.head errors
         else
             Intersection results
+
+    /// Accesses the given sequence of type members on the given expression.
+    let AccessMembers (scope : LocalScope) (targetMembers : ITypeMember seq) (accessedExpr : AccessedExpression) : IExpression =
+        if AllOfType<ITypeMember, IMethod> targetMembers then
+            IntersectedMemberAccess scope targetMembers accessedExpr
+        else if AllOfType<ITypeMember, IField> targetMembers then
+            let vals = IntersectedMemberAccess scope targetMembers accessedExpr
+            if IntersectionExpression.GetIntersectedExpressions vals |> Seq.skip 1 |> Seq.isEmpty then
+                vals
+            else
+                let message = "Field access expressions must refer to exactly one field."
+                Error (new LogEntry("Ambiguous field access", message)) (IntersectedMemberAccess scope targetMembers accessedExpr)
+        else if AllOfType<ITypeMember, IProperty> targetMembers then
+            let props : IProperty seq = OfType targetMembers
+
+            let getUpperAccessor accType =
+                let result = props |> Seq.map (fun x -> x.GetAccessor accType)
+                                   |> Seq.filter ((<>) null)
+                                   |> UpperBounds IsShadowed
+                if Seq.isEmpty result then
+                    null, None
+                else if result |> Seq.skip 1 |> Seq.isEmpty then
+                    Seq.exactlyOne result, None
+                else
+                    let picked = Seq.nth 1 result
+                    let msg    = new LogEntry("Ambiguous property access", 
+                                               "The '" + accType.ToString() + "' accessor of property '" + picked.DeclaringProperty.Name + "' could not be resolved unambiguously.")
+                    picked, Some msg
+
+            let getter, getterError = getUpperAccessor AccessorType.GetAccessor
+            let setter, setterError = getUpperAccessor AccessorType.SetAccessor
+
+            let accessExpr = AccessProperty scope getter setter accessedExpr
+
+            [getterError; setterError] |> Seq.filter (fun x -> x.IsSome)
+                                       |> Seq.map    (fun x -> x.Value)
+                                       |> Errors accessExpr
+            
+        else
+            let message = "The type member access expression was ambiguous, because the given sequence of type members did either " + 
+                          "fail to exclusively contain fields, properties or methods; or because these kinds of type members were mixed."
+            Error (new LogEntry("Mixed type member access", message)) (IntersectedMemberAccess scope targetMembers accessedExpr)
 
     /// Accesses all type members with the given name on the given expression.
     let AccessNamedMembers (scope : LocalScope) (memberName : string) (accessedExpr : AccessedExpression) : IExpression =
