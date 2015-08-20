@@ -16,10 +16,7 @@ namespace Flame.Compiler.Expressions
 
 		public IMethod Method
 		{
-			const get
-			{
-				return (IMethod)Target.Type;
-			}
+			const get return MethodType.GetMethod(Target.Type);
 		}
 
 		public void AcceptPredicate(INodeVisitor Visitor)
