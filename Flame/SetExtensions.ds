@@ -1,0 +1,49 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame
+{
+    /// <summary>
+    /// Defines operations on generic sets.
+    /// </summary>
+    public static class SetExtensions
+    {
+        /// <summary>
+        /// Gets the finite set of upper bounds for the given finite set,
+        /// based on the given less-than function.
+        /// </summary>
+        public static const [T] GetUpperBounds<T>(this [T] Values, bool(T, T) IsLessThan)
+            where T : object
+        {
+            var results = new List<T>();
+            foreach (var item in Values)
+            {
+                // Iterate over all items `x` in the given sequence.
+                bool lessThanAll = true;
+                int i = 0;
+                while (i < results.Count)
+                {
+                    if (IsLessThan(results[i], item))
+                    {
+                        // Remove all items `y` from the result list where `y < x`.
+                        results.RemoveAt(i);
+                        next;
+                    }
+                    else if (item == results[i] || IsLessThan(item, results[i]))
+                    {
+                        // Do not add `x` to the results list if there is an item
+                        // `y` in said list such that `x <= y`.
+                        lessThanAll = false;
+                    }
+                    i++;
+                }
+                if (lessThanAll)
+                {
+                    results.Add(item);
+                }
+            }
+            return results;
+        }
+    }
+}
