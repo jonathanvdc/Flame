@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Flame.Compiler.Expressions
 {
-    public class GetExtensionMethodExpression : IDelegateExpression
+    public class GetExtensionMethodExpression : IDelegateExpression, IMemberNode
     {
         public const this(set IMethod Target, set IExpression Caller);
 
@@ -79,7 +79,7 @@ namespace Flame.Compiler.Expressions
 
 		public ICodeBlock Emit(ICodeGenerator Generator)
 		{
-			return null; // Emitting extension method delegates is not supported at this time.
+            throw new NotSupportedException("Emitting extension method delegates is not supported at this time.");
 		}
     }
 }

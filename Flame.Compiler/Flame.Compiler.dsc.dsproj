@@ -88,6 +88,7 @@
 			<Compile Include="Expressions\BinaryExpression.ds" />
 			<Compile Include="Expressions\InitializedExpression.ds" />
 			<Compile Include="Expressions\DereferencePointerExpression.ds" />
+			<Compile Include="Expressions\DelegateInstanceExpression.ds" />
 			<Compile Include="Expressions\ThisGetExpression.ds" />
 			<Compile Include="Expressions\ConversionExpression.ds" />
 			<Compile Include="Expressions\VariableAddressOfExpressionBase.ds" />

@@ -1,0 +1,66 @@
+using System;
+
+namespace Flame.Compiler.Expressions
+{
+    /// <summary>
+    /// Defines an expression type that provides delegate expression functionality
+    /// to a normal expression that yields a delegate instance.
+    /// Delegate instance expressions cannot be used to create generic instance delegates.
+    /// </summary>
+    public class DelegateInstanceExpression : ComplexExpressionBase, IDelegateExpression
+    {
+        /// <summary>
+        /// Creates a new delegate instance expression from the given delegate.
+        /// </summary>
+        public const this(set IExpression Delegate);
+
+        /// <summary>
+        /// Gets the delegate instance expression's delegate instance expression.
+        /// </summary>
+        public IExpression Delegate { const get; private set; }
+
+        /// <summary>
+        /// Gets the delegate signature of the delegate instance expression.
+        /// </summary>
+        public IMethod Signature { const get return MethodType.GetMethod(Delegate.Type); }
+
+        protected override const IExpression Lower()
+        {
+            return Delegate;
+        }
+
+        /// <summary>
+        /// Gets the delegate expression's parameter types.
+        /// </summary>
+        public [IType] ParameterTypes
+        {
+            const get return Signature.GetParameters().GetTypes();
+        }
+
+        /// <summary>
+        /// Gets the return type of the delegate expression's delegate.
+        /// </summary>
+        public IType ReturnType
+        {
+            const get return Signature.ReturnType;
+        }
+
+        /// <summary>
+        /// Creates an invocation expression based on this delegate expression and
+        /// the given arguments.
+        /// </summary>
+        public IExpression CreateInvocationExpression([IExpression] Arguments)
+        {
+            return new InvocationExpression(Delegate, Arguments);
+        }
+
+        /// <summary>
+        /// Creates a generic delegate instantiation.
+        /// </summary>
+        public IDelegateExpression MakeGenericExpression([IType] TypeArguments)
+        {
+            throw new InvalidOperationException("A delegate instance expression cannot be used " +
+                                                "to create a generic instance expression.");
+        }
+    }
+}

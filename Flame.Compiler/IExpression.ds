@@ -54,7 +54,7 @@ namespace Flame.Compiler
     /// Defines common behavior for delegate expressions, i.e. expressions
     /// that can support creating invocation.
     /// </summary>
-    public interface IDelegateExpression : IExpression, IMemberNode
+    public interface IDelegateExpression : IExpression
     {
         /// <summary>
         /// Gets the delegate expression's parameter types.

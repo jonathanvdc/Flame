@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-	public class GetMethodExpression : IDelegateExpression
+	public class GetMethodExpression : IDelegateExpression, IMemberNode
 	{
 		public const this(set IMethod Target, set IExpression Caller);
 
