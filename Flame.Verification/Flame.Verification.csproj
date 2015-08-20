@@ -53,6 +53,8 @@
   <ItemGroup>
     <Compile Include="AccessorVerifier.cs" />
     <Compile Include="AssemblyVerifier.cs" />
+    <Compile Include="InitializationCountHelpers.cs" />
+    <Compile Include="InitializationCountPass.cs" />
     <Compile Include="MethodVerifierBase.cs" />
     <Compile Include="NamespaceVerifier.cs" />
     <Compile Include="TypeVerifier.cs" />
@@ -65,6 +67,12 @@
     <Compile Include="PropertyVerifier.cs" />
     <Compile Include="VerificationExtensions.cs" />
     <Compile Include="VerifyingDeadCodePass.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Flame.Analysis\Flame.Analysis.csproj">
+      <Project>{f998b4b6-9c78-4451-9c48-0467549adebf}</Project>
+      <Name>Flame.Analysis</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
