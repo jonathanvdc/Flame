@@ -13,7 +13,7 @@ namespace Flame
         /// Gets the finite set of upper bounds for the given finite set,
         /// based on the given less-than function.
         /// </summary>
-        public static const [T] GetUpperBounds<T>(this [T] Values, bool(T, T) IsLessThan)
+        public static const [T] UpperBounds<T>(this [T] Values, bool(T, T) IsLessThan)
             where T : object
         {
             var results = new List<T>();

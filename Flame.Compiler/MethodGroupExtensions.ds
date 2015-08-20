@@ -69,6 +69,25 @@ namespace Flame.Compiler
         /// </summary>
         public static const IExpression[] FilterBaseDelegates(this [IExpression] Methods)
         {
+            /*
+            // This *should* compile, but doesn't. :(
+
+            alias DelegPair = Tuple<IExpression, IMethod>;
+
+            var tupleMethods   = Enumerable.Select<IExpression, DelegPair>(Methods,
+                DelegPair(IExpression x) => new DelegPair(x, MethodType.GetMethod(x.Type)));
+
+            var filteredTuples = Enumerable.Where<DelegPair>(
+                bool(DelegPair x) => x.Item2 != null);
+
+            var upper          = SetExtensions.UpperBounds<DelegPair>(filteredTuples,
+                bool(DelegPair x, DelegPair y) => y.Item2.Shadows(x.Item1));
+
+            return Enumerable.ToArray<IExpression>(
+                    Enumerable.Select<DelegPair, IExpression>(upper,
+                        IExpression(DelegPair x) => x.Item1));
+            */
+
             var results = new List<IExpression>();
             var resultMethods = new List<IMethod>();
             foreach (var elem in Methods)
