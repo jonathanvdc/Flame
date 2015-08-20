@@ -79,31 +79,47 @@ namespace Flame
 			return Enumerable.SingleOrDefault<IMethod>(Methods);
 		}
 
+		private static const bool ShadowsMethod(IMethod Method, IMethod Other)
+		{
+			return Method.Name.Equals(Other.Name) &&
+				   Method.IsStatic == Other.IsStatic &&
+				   !Method.Equals(Other) &&
+				   Method.DeclaringType.Is(Other.DeclaringType) &&
+				   new ScopedTypeEqualityComparer().CompareAll(
+				       Method.GetParameters().GetTypes(),
+				       Other.GetParameters().GetTypes());
+		}
+
+		private static const bool ShadowsAccessorCore(IAccessor Top, IAccessor Bottom)
+		{
+			return Top.AccessorType == Bottom.AccessorType &&
+				   Top.DeclaringProperty.Shadows(Bottom.DeclaringProperty);
+		}
+
+		private static const bool ShadowsAccessor(IMethod Method, IMethod Other)
+		{
+			return Method is IAccessor && Other is IAccessor &&
+				   ShadowsAccessorCore((IAccessor)Method, (IAccessor)Other);
+		}
+
+		/// <summary>
+		/// Tells if the first method "shadows" the second, i.e. it has the
+		/// same name, staticness and parameter list, but its declaring type
+		/// is more derived than the second method's derived type.
+		/// </summary>
 		public static const bool Shadows(this IMethod Method, IMethod Other)
 		{
-			if (Method.Name.Equals(Other.Name) &&
-				Method.IsStatic == Other.IsStatic &&
-				!Method.Equals(Other) &&
-				Method.DeclaringType.Is(Other.DeclaringType))
-			{
-				return new ScopedTypeEqualityComparer().CompareAll(
-					Method.GetParameters().GetTypes(),
-				 	Other.GetParameters().GetTypes());
-			}
-			else return false;
+			return ShadowsMethod(Method, Other) || ShadowsAccessor(Method, Other);
 		}
 
 		public static const bool HasSameSignature(this IMethod Method, IMethod Other)
 		{
 			var comparer = new ScopedTypeEqualityComparer();
 
-			if (Method.Name.Equals(Other.Name))
-			if (Method.IsStatic == Other.IsStatic)
-			if (comparer.Compare(Method.ReturnType, Other.ReturnType))
-			if (comparer.CompareAll(Method.GetParameters().GetTypes(), Other.GetParameters().GetTypes()))
-				return true;
-
-			return false;
+			return Method.Name.Equals(Other.Name) &&
+			       Method.IsStatic == Other.IsStatic &&
+			       comparer.Compare(Method.ReturnType, Other.ReturnType) &&
+			       comparer.CompareAll(Method.GetParameters().GetTypes(), Other.GetParameters().GetTypes());
 		}
 
 		public static const IMethod GetBestMethod(this [IMethod] Candidates, IType[] ParameterTypes)
