@@ -13,6 +13,11 @@ namespace Flame.Compiler.Expressions
 
 		public [IType] ParameterTypes { const get return Target.GetParameters().GetTypes(); }
 
+		public IType ReturnType
+		{
+			const get return Target.ReturnType;
+		}
+
 		public const IExpression CreateInvocationExpression([IExpression] Arguments)
 		{
 			return new InvocationExpression(this, Arguments);

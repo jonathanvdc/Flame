@@ -62,6 +62,11 @@ namespace Flame.Compiler
         [IType] ParameterTypes { const get; }
 
         /// <summary>
+        /// Gets the return type of the delegate expression's delegate.
+        /// </summary>
+        IType ReturnType { const get; }
+
+        /// <summary>
         /// Creates an invocation expression based on this delegate expression and
         /// the given arguments.
         /// </summary>

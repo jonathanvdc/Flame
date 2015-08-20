@@ -21,12 +21,13 @@ namespace Flame.Compiler.Expressions
 
 		protected override const IExpression Lower()
 		{
-			return new InvocationExpression(Variable.GetAccessor, Variable.Caller, Variable.IndexerArguments);
+			return Variable.Getter.CreateInvocationExpression(Variable.IndexerArguments);
 		}
 
 		public void AcceptPredicate(INodeVisitor Visitor)
 		{
-			Variable.AcceptPredicate(Visitor);
+			Visitor.Visit(Variable.Getter);
+			Visitor.VisitAll(Variable.IndexerArguments);
 		}
 	}
 }

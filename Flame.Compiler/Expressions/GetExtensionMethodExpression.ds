@@ -16,6 +16,11 @@ namespace Flame.Compiler.Expressions
             const get return Enumerable.Skip<IType>(Target.GetParameters().GetTypes(), 1);
         }
 
+        public IType ReturnType
+        {
+            const get return Target.ReturnType;
+        }
+
         public const IExpression CreateInvocationExpression([IExpression] Arguments)
         {
             return new InvocationExpression(Target, null,
