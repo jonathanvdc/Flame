@@ -1,19 +1,40 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Build;
 
 namespace Flame
 {
 	public static class PropertyExtensions
 	{
 		/// <summary>
+		/// Tells if the first property "shadows" the second, i.e. it has the
+		/// same name, staticness and indexer parameter list, but its declaring type
+		/// is more derived than the second method's derived type.
+		/// </summary>
+		public static const bool Shadows(this IProperty Top, IProperty Bottom)
+		{
+			bool isIndexer = Top.IsIndexer;
+			return isIndexer == Bottom.IsIndexer &&
+				   (isIndexer || Top.Name == Bottom.Name) &&
+				   Top.IsStatic == Bottom.IsStatic &&
+			       !Top.Equals(Bottom) &&
+				   Top.DeclaringType.Is(Bottom.DeclaringType) &&
+				   new ScopedTypeEqualityComparer().CompareAll(
+				       Top.GetIndexerParameters().GetTypes(),
+				       Bottom.GetIndexerParameters().GetTypes());
+		}
+
+		/// <summary>
 		/// Tests if the given properties have the same signature.
 		/// </summary>
 		public static const bool HasSameSignature(this IProperty Left, IProperty Right)
 		{
+			var comparer = new ScopedTypeEqualityComparer();
+
 			return Left.IsStatic == Right.IsStatic && Left.Name == Right.Name &&
-				   Left.PropertyType == Right.PropertyType &&
-				   Left.GetIndexerParameters().GetTypes().AreEqual(Right.GetIndexerParameters().GetTypes());
+				   comparer.Compare(Left.PropertyType, Right.PropertyType) &&
+				   comparer.CompareAll(Left.GetIndexerParameters().GetTypes(), Right.GetIndexerParameters().GetTypes());
 		}
 
         #region Accessors
