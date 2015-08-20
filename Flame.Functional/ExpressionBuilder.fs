@@ -268,6 +268,11 @@ module ExpressionBuilder =
     let Void =
         VoidExpression.Instance :> IExpression
 
+    /// Creates an expression that represents the default value of the 
+    /// given type.
+    let Default exprType =
+        new DefaultValueExpression(exprType) :> IExpression
+
     /// Creates an expression that represents an erroneous node, 
     /// and contains the given error message.
     let Error entry value = 
@@ -408,7 +413,7 @@ module ExpressionBuilder =
         let local = new LateBoundVariable(lhs.Type)
         new InitializedExpression(
             local.CreateSetStatement(lhs),
-            new SelectExpression(new EqualityExpression(local.CreateGetExpression(), new DefaultValueExpression(local.Type)), rhs, local.CreateGetExpression()),
+            new SelectExpression(new EqualityExpression(local.CreateGetExpression(), Default local.Type), rhs, local.CreateGetExpression()),
             local.CreateReleaseStatement()) :> IExpression
 
     let Not expression =
