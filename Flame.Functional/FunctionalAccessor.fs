@@ -10,7 +10,7 @@ open LazyHelpers
 type FunctionalAccessor private(header : FunctionalMemberHeader,
                                 declProp : IProperty,
                                 accType : AccessorType,
-                                baseMethods : IMethod -> IMethod seq,
+                                baseMethods : IAccessor -> IMethod seq,
                                 returnType : IType Lazy, 
                                 parameters : IParameter LazyArrayBuilder,
                                 body : IMethod -> IStatement) as this =
