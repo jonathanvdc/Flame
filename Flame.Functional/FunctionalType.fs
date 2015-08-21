@@ -32,7 +32,8 @@ type FunctionalMemberHeader(name : string, attrs : IAttribute LazyArrayBuilder, 
 /// Provides common functionality for objects that support
 /// constructing types in a functional fashion.
 type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace,
-                            baseTypes : IType LazyArrayBuilder, nestedTypes : LazyApplicationArray<INamespace, IType>, 
+                            baseTypes : IType -> IType seq, 
+                            nestedTypes : LazyApplicationArray<INamespace, IType>, 
                             genericParams : LazyApplicationArray<IGenericMember, IGenericParameter>,
                             methods : LazyApplicationArray<IType, IMethod>, properties : LazyApplicationArray<IType, IProperty>, 
                             fields : LazyApplicationArray<IType, IField>, ns : LazyApplicationArray<INamespaceBranch, INamespaceBranch>) as this =
@@ -42,12 +43,13 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
     let appliedMethods = methods.ApplyLazy this
     let appliedProperties = properties.ApplyLazy this
     let appliedFields = fields.ApplyLazy this
+    let appliedBaseTypes = lazy (baseTypes this |> Array.ofSeq)
     let appliedNs = ns.ApplyLazy this
     let ctorPartition = appliedMethods |~ Array.partition (fun x -> x.IsConstructor)
 
     new(header, declNs) =
         FunctionalType(header, declNs,
-                       new LazyArrayBuilder<IType>(), new LazyApplicationArray<INamespace, IType>(),
+                       (fun _ -> Seq.empty), new LazyApplicationArray<INamespace, IType>(),
                        new LazyApplicationArray<IGenericMember, IGenericParameter>(),
                        new LazyApplicationArray<IType, IMethod>(), new LazyApplicationArray<IType, IProperty>(),
                        new LazyApplicationArray<IType, IField>(), new LazyApplicationArray<INamespaceBranch, INamespaceBranch>())
@@ -55,7 +57,7 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
         FunctionalType(new FunctionalMemberHeader(name), declNs)
     
     /// Gets this functional type's base types.
-    member this.BaseTypes         = baseTypes.Value
+    member this.BaseTypes         = appliedBaseTypes.Value
     /// Gets this functional type's nested types.
     member this.NestedTypes       = evalLazy appliedNestedTypes
     /// Gets this functional type's generic parameters.
@@ -84,9 +86,9 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
     member this.WithAttribute attr =
         new FunctionalType(header.WithAttribute attr, declNs, baseTypes, nestedTypes, genericParams, methods, properties, fields, ns)
 
-    /// Adds a base type to this functional-style type.
-    member this.WithBaseType baseType =
-        new FunctionalType(header, declNs, baseTypes.Append baseType, nestedTypes, genericParams, methods, properties, fields, ns)
+    /// Sets this this functional-style type's base types.
+    member this.WithBaseTypes baseTypes =
+        new FunctionalType(header, declNs, baseTypes, nestedTypes, genericParams, methods, properties, fields, ns)
 
     /// Adds a nested type to this functional-style type.
     member this.WithNestedType nestedType =
