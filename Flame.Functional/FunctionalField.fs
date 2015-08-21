@@ -13,7 +13,7 @@ type FunctionalField(header : FunctionalMemberHeader, declType : IType,
     inherit FunctionalMemberBase(header, declType, isStatic)
 
     new(header, declType, isStatic, fieldType) =
-        FunctionalField(header, declType, isStatic, fieldType, null)
+        FunctionalField(header, declType, isStatic, fieldType, lazy null)
 
     /// Gets this functional-style field's field type.
     member this.FieldType     = fieldType.Value

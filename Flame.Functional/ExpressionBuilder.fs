@@ -272,6 +272,13 @@ module ExpressionBuilder =
     /// given type.
     let Default exprType =
         new DefaultValueExpression(exprType) :> IExpression
+        
+    /// Creates an unknown expression: an expression that cannot be represented by any code sequence,
+    /// which will therefore throw when calling its `Emit` implementation. Instead, it acts like
+    /// a non-constant expression which can be used to create a well-typed node tree, for debugging
+    /// or optimization purposes.
+    let Unknown exprType =
+        new UnknownExpression(exprType) :> IExpression
 
     /// Creates an expression that represents an erroneous node, 
     /// and contains the given error message.
