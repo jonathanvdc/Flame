@@ -52,3 +52,15 @@ module MemberHelpers =
     let InferBaseAccessors (getAllProperties : IType -> IProperty seq) (target : IAccessor) = 
         let baseProps = InferBaseProperties getAllProperties target.DeclaringProperty
         FilterBaseAccessors baseProps target
+
+    /// Tests if the given member is either abstract or an interface member.
+    let IsAbstractOrInterface (item : #ITypeMember) =
+        item.get_IsAbstract() || item.DeclaringType.get_IsInterface()
+    
+    /// Inherits all attributes of the given types from the declaring member that are not present in the
+    /// sequence of pre-existing attributes, and concatenates these attributes with said pre-existing attributes.
+    let InheritAttributes (attributeTypes : IType seq) (declMember : #IMember) (accAttrs : IAttribute seq) : IAttribute seq =
+        attributeTypes |> Seq.filter (accAttrs.HasAttribute >> not)
+                       |> Seq.map declMember.GetAttributes
+                       |> Seq.concat
+                       |> Seq.append accAttrs
