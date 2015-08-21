@@ -615,6 +615,8 @@ module ExpressionBuilder =
                           (scope.Global.TypeNamer targetMember.DeclaringType) + " because it could not be identified as a field, method or property."
             Error (new LogEntry("Unknown type member access", message)) Void
 
+    /// Checks if all elements of the given sequence are of a 
+    /// specific type.
     let AllOfType<'a, 'b> (values : 'a seq) =
         values.All (fun x -> match box x with 
                              | :? 'b -> true 
@@ -629,6 +631,23 @@ module ExpressionBuilder =
             Seq.head errors
         else
             Intersection results
+
+    /// Computes the intersection expression of the new type instance  
+    /// delegates for the given type.
+    let NewInstanceDelegates (scope : LocalScope) (instanceType : IType) = 
+        instanceType.GetConstructors().FilterByStatic(false)
+            |> Seq.map (fun x -> new GetMethodExpression(x, null) :> IExpression)
+            |> Intersection
+
+    /// Computes the intersection expression of the constructor delegates
+    /// for the given type and constructed instance expression.
+    let ConstructorDelegates (scope : LocalScope) (declaringType : IType) (constructedInstance : AccessedExpression) =
+        match constructedInstance with
+        | Global _ -> NewInstanceDelegates scope declaringType
+        | _        -> 
+            declaringType.GetConstructors().FilterByStatic(false)
+                |> Seq.map (fun x -> AccessMethod scope x constructedInstance :> IExpression)
+                |> Intersection
 
     /// Accesses the given sequence of type members on the given expression.
     let AccessMembers (scope : LocalScope) (targetMembers : ITypeMember seq) (accessedExpr : AccessedExpression) : IExpression =
