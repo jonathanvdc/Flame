@@ -359,6 +359,10 @@ namespace Flame.Optimization.Variables
             {
                 return PropagationDependencies.Always();
             }
+            else if (Value is IMetadataNode<IExpression>)
+            {
+                return GetDependencies(((IMetadataNode<IExpression>)Value).Value);
+            }
             else if (Value is UnaryOperatorExpression)
             {
                 var opExpr = (UnaryOperatorExpression)Value;
