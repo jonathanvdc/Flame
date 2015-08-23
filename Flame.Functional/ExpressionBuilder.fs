@@ -171,7 +171,7 @@ module ExpressionBuilder =
     /// Creates an imperative block expression: said expression will
     /// always return void, unless it contains a `ResultExpression`.
     let VoidBlock elements =
-        Block elements (fun item -> item :? ResultExpression)
+        Block elements (fun item -> item.GetEssentialExpression() :? ResultExpression)
 
     /// Creates a comma expression.
     let Comma (elements : seq<IExpression>) =
