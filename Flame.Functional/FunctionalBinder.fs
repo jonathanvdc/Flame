@@ -71,7 +71,13 @@ type TypeName(path : string[]) =
 /// Defines a functional binder type.
 type FunctionalBinder(innerBinder : IBinder,
                       usingNamespaces : Set<TypeName>,
-                      mappedNamespaces : Map<string, TypeName>) =
+                      mappedNamespaces : Map<string, TypeName>,
+                      aliasedTypes : Map<TypeName, Lazy<IType>>) =
+    new (innerBinder : IBinder,
+         usingNamespaces : Set<TypeName>,
+         mappedNamespaces : Map<string, TypeName>) =
+        FunctionalBinder(innerBinder, usingNamespaces, mappedNamespaces, Map.empty)
+
     new (innerBinder : IBinder) =
         FunctionalBinder(innerBinder, Set.singleton (new TypeName([||])), Map.empty)
 
@@ -84,11 +90,15 @@ type FunctionalBinder(innerBinder : IBinder,
         let fullName  = new TypeName(ns.FullName)
         let newUsings = fullName.Path |> Seq.fold (fun (name : TypeName, results) _ -> name.Start, Set.add name results) (fullName, usingNamespaces)
                                       |> snd
-        new FunctionalBinder(innerBinder, newUsings, mappedNamespaces)
+        new FunctionalBinder(innerBinder, newUsings, mappedNamespaces, aliasedTypes)
 
     /// Maps the given name to the given namespace.
     member this.MapNamespace (name : string) (ns : TypeName) =
-        new FunctionalBinder(innerBinder, usingNamespaces, mappedNamespaces.Add(name, ns))
+        new FunctionalBinder(innerBinder, usingNamespaces, mappedNamespaces.Add(name, ns), aliasedTypes)
+
+    /// Aliases the given type to the given type name.
+    member this.AliasType (name : TypeName) (target : IType Lazy) =
+        new FunctionalBinder(innerBinder, usingNamespaces, mappedNamespaces, aliasedTypes.Add(name, target))
 
     /// Gets this binder's environment.
     member this.Environment = innerBinder.Environment
@@ -97,6 +107,8 @@ type FunctionalBinder(innerBinder : IBinder,
     member this.Bind (name : TypeName) : IType = 
         if name.IsEmpty then
             null
+        else if aliasedTypes.ContainsKey name then
+            aliasedTypes.[name].Value
         else if mappedNamespaces.ContainsKey name.Head then
             mappedNamespaces.[name.Head].Append name.Tail |> this.Bind
         else
