@@ -59,10 +59,16 @@ module ExpressionBuilder =
     let ToExpression statement : IExpression =
         new InitializedExpression(statement, VoidExpression.Instance) :> IExpression
 
+    /// Creates a return expression that returns the given value, without
+    /// inserting an implicit conversion to the declaring method's return type.
+    /// Return expressions are of type void.
+    let ReturnUnchecked value = 
+        ToExpression(new ReturnStatement(value))
+
     /// Creates a return expression that returns the given value.
     /// Return expressions are of type void.
-    let Return value =
-        ToExpression(new ReturnStatement(value))
+    let Return (scope : LocalScope) value =
+        scope.Global.ConversionRules.ConvertImplicit value scope.Function.Function.Value.ReturnType |> ReturnUnchecked
 
     /// Creates a return expression that returns void.
     /// The return expression is of type void, as well.
