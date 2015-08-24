@@ -34,12 +34,12 @@ type FunctionalMemberHeader(name : string, attrs : IAttribute LazyArrayBuilder, 
 type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace,
                             baseTypes : IType -> IType seq, 
                             nestedTypes : LazyApplicationArray<INamespace, IType>, 
-                            genericParams : LazyApplicationArray<IGenericMember, IGenericParameter>,
+                            genericParams : IGenericMember -> IGenericParameter seq,
                             methods : LazyApplicationArray<IType, IMethod>, properties : LazyApplicationArray<IType, IProperty>, 
                             fields : LazyApplicationArray<IType, IField>, ns : LazyApplicationArray<INamespaceBranch, INamespaceBranch>) as this =
 
     let appliedNestedTypes = nestedTypes.ApplyLazy this
-    let appliedGenericParams = genericParams.ApplyLazy this
+    let appliedGenericParams = lazy genericParams this
     let appliedMethods = methods.ApplyLazy this
     let appliedProperties = properties.ApplyLazy this
     let appliedFields = fields.ApplyLazy this
@@ -50,7 +50,7 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
     new(header, declNs) =
         FunctionalType(header, declNs,
                        (fun _ -> Seq.empty), new LazyApplicationArray<INamespace, IType>(),
-                       new LazyApplicationArray<IGenericMember, IGenericParameter>(),
+                       (fun _ -> Seq.empty),
                        new LazyApplicationArray<IType, IMethod>(), new LazyApplicationArray<IType, IProperty>(),
                        new LazyApplicationArray<IType, IField>(), new LazyApplicationArray<INamespaceBranch, INamespaceBranch>())
     new(name, declNs) =
@@ -98,9 +98,9 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
     member this.WithNestedNamespace value =
         new FunctionalType(header, declNs, baseTypes, nestedTypes, genericParams, methods, properties, fields, ns.Append value)
 
-    /// Adds a generic parameter to this functional-style type.
-    member this.WithGenericParameter value =
-        new FunctionalType(header, declNs, baseTypes, nestedTypes, genericParams.Append value, methods, properties, fields, ns)
+    /// Sets this functional-style type's generic parameters.
+    member this.WithGenericParameters value =
+        new FunctionalType(header, declNs, baseTypes, nestedTypes, value, methods, properties, fields, ns)
 
     /// Adds a method to this functional-style type.
     member this.WithMethod value =
@@ -140,7 +140,7 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
         member this.GetGenericDeclaration() = this :> IType
         member this.MakeGenericType tArgs = new DescribedGenericTypeInstance(this :> IType, tArgs) :> IType
         member this.GetGenericArguments() = Seq.empty
-        member this.GetGenericParameters() = Seq.ofArray this.GenericParameters
+        member this.GetGenericParameters() = this.GenericParameters
 
         member this.GetBaseTypes() = this.BaseTypes
         member this.GetMethods() = this.Methods
