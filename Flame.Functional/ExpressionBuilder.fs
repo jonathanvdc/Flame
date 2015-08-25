@@ -367,15 +367,15 @@ module ExpressionBuilder =
         | Some variable -> 
             match variable with
             | :? IUnmanagedVariable as variable -> variable.CreateAddressOfExpression()
-            | _                                 -> VoidError (new LogEntry("Bad address-of operation", "The target of an address-of operation is a variable whose address cannot be taken."))
-        | None          -> VoidError (new LogEntry("Bad address-of operation", "Could not take the address of a non-variable expression."))
+            | _                                 -> Error (new LogEntry("Bad address-of operation", "The target of an address-of operation is a variable whose address cannot be taken.")) target
+        | None          -> Error (new LogEntry("Bad address-of operation", "Could not take the address of a non-variable expression.")) target
             
     /// Dereferences the given pointer.
     let Dereference (context : LocalScope) (target : IExpression) : IExpression =
         if target.Type.get_IsPointer() then
             new DereferencePointerExpression(target) :> IExpression
         else
-            VoidError (new LogEntry("Non-pointer expression dereferenced", "A non-pointer expression cannot be dereferenced. The given expression was of type '" + (context.Global.TypeNamer target.Type) + "', which is no pointer type."))
+            Error (new LogEntry("Non-pointer expression dereferenced", "A non-pointer expression cannot be dereferenced. The given expression was of type '" + (context.Global.TypeNamer target.Type) + "', which is no pointer type.")) target
 
     /// Casts an expression to a type, based on the conversion rules given by the local scope.
     let Cast (context : LocalScope) (left : IExpression) (right : IType) : IExpression =
@@ -542,6 +542,10 @@ module ExpressionBuilder =
             let retType = if Seq.isEmpty matches then PrimitiveTypes.Void else (Seq.head matches).ReturnType
             let expectedSignature = createExpectedSignatureDescription namer retType argTypes
 
+            // Create an inner expression that consists of the invocation's target and arguments,
+            // whose values are calculated and then popped.
+            let innerExpr = Block (Seq.append (Seq.singleton target) args) (fun _ -> false)
+
             if not (Seq.isEmpty matches) then
                 let failedMatchesList = Seq.map (createSignatureDiff namer argTypes) matches
 
@@ -551,13 +555,13 @@ module ExpressionBuilder =
                                                      "'. Incompatible or ambiguous matches:") :> IMarkupNode
                 let failedMatchesNode = new MarkupNode("list", failedMatchesList) :> IMarkupNode
                 let messageNode = new MarkupNode("entry", Seq.ofArray [| explanationNode; failedMatchesNode |])
-                Error (new LogEntry("Method resolution error", messageNode)) target
+                Error (new LogEntry("Method resolution error", messageNode)) innerExpr
             else
                 Error (new LogEntry("Method resolution error", 
                                     "Method call could not be resolved because the invocation's target was not recognized as a function. " +
                                     "Expected signature compatible with '" + expectedSignature.ToString() + 
                                     "', got an expression of type '" + (scope.Global.TypeNamer target.Type) + "'."))
-                      target
+                      innerExpr
         | resolvedDelegate ->
             let delegateParams = resolvedDelegate.GetDelegateParameterTypes()
 
