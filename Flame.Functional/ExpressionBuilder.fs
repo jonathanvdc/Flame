@@ -351,7 +351,7 @@ module ExpressionBuilder =
         | None   -> new ExpressionVariable(expression) :> IVariable
 
     /// Assigns the given right hand side to the left hand side.
-    let rec Assign (context : LocalScope) (left : IExpression) (right : IExpression) : IExpression =
+    let Assign (context : LocalScope) (left : IExpression) (right : IExpression) : IExpression =
         match GetVariable left with
         | Some variable ->
             let value    = context.Global.ConversionRules.ConvertImplicit right variable.Type 
@@ -360,6 +360,22 @@ module ExpressionBuilder =
         | None          ->
             let message = new LogEntry("Expression assignment", "Could not assign an expression to a non-variable expression.")
             VoidError message
+
+    /// Gets the address of the given expression, as a reference pointer. 
+    let AddressOf (target : IExpression) : IExpression =
+        match GetVariable target with
+        | Some variable -> 
+            match variable with
+            | :? IUnmanagedVariable as variable -> variable.CreateAddressOfExpression()
+            | _                                 -> VoidError (new LogEntry("Bad address-of operation", "The target of an address-of operation is a variable whose address cannot be taken."))
+        | None          -> VoidError (new LogEntry("Bad address-of operation", "Could not take the address of a non-variable expression."))
+            
+    /// Dereferences the given pointer.
+    let Dereference (context : LocalScope) (target : IExpression) : IExpression =
+        if target.Type.get_IsPointer() then
+            new DereferencePointerExpression(target) :> IExpression
+        else
+            VoidError (new LogEntry("Non-pointer expression dereferenced", "A non-pointer expression cannot be dereferenced. The given expression was of type '" + (context.Global.TypeNamer target.Type) + "', which is no pointer type."))
 
     /// Casts an expression to a type, based on the conversion rules given by the local scope.
     let Cast (context : LocalScope) (left : IExpression) (right : IType) : IExpression =
