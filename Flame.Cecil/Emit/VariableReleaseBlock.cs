@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
-    public class LocalVariableReleaseBlock : ICecilBlock
+    public class VariableReleaseBlock : ICecilBlock
     {
-        public LocalVariableReleaseBlock(ILLocalVariable LocalVariable)
+        public VariableReleaseBlock(VariableBase Variable)
         {
-            this.LocalVariable = LocalVariable;
+            this.Variable = Variable;
         }
 
-        public ILLocalVariable LocalVariable { get; private set; }
+        public VariableBase Variable { get; private set; }
 
         public void Emit(IEmitContext Context)
         {
-            LocalVariable.Release(Context);
+            Variable.EmitRelease(Context);
         }
 
         public IType BlockType
@@ -28,7 +28,7 @@ namespace Flame.Cecil.Emit
 
         public ICodeGenerator CodeGenerator
         {
-            get { return LocalVariable.CodeGenerator; }
+            get { return Variable.CodeGenerator; }
         }
     }
 }
