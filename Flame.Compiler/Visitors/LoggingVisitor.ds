@@ -58,6 +58,12 @@ namespace Flame.Compiler.Visitors
 
         private IExpression Transform(LogEntryExpression Expression)
         {
+            IExpression result;
+            if (StripMessages)
+                result = Visit(Expression.Value);
+            else
+                result = Expression.Accept(this);
+
             var message = Expression.Message;
 
             if (Expression is ErrorExpression)
@@ -65,10 +71,7 @@ namespace Flame.Compiler.Visitors
             else
                 Log.LogWarning(message.WithLocation(currentLocation));
 
-            if (StripMessages)
-                return Visit(Expression.Value);
-            else
-                return Expression.Accept(this);
+            return result;
         }
 
         private IExpression Transform(SourceExpression Expression)
