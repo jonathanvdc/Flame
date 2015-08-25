@@ -300,6 +300,11 @@ module ExpressionBuilder =
     let Source location value =
         SourceExpression.Create(value, location)
 
+    /// Gets the intersection expression of the given sequence of expressions.
+    /// An intersection expression may be used when resolving overloads, but 
+    /// code generators do not support them.
+    let Intersection (exprs : IExpression seq) : IExpression = IntersectionExpression.Create exprs
+
     /// Determines if the given expression is an error expression.
     let rec IsError (expr : IExpression) =
         match expr with
@@ -490,6 +495,20 @@ module ExpressionBuilder =
         let nodes = methodDiffBuilder.CompareArguments(argTypes, target) :: nodes
         new MarkupNode("node", nodes |> List.rev |> Seq.ofList) :> IMarkupNode
 
+    /// Instatiates the given generic delegates expression with the given type arguments.
+    let InstantiateGenericDelegates (scope : LocalScope) (target : IExpression) (typeArgs : IType seq) : IExpression =
+        let tArgs     = Array.ofSeq typeArgs
+        let innerTgt  = target.GetEssentialExpression()
+        let delegates = Enumerable.OfType<IDelegateExpression>(IntersectionExpression.GetIntersectedExpressions innerTgt) 
+                            |> Seq.filter (fun x -> let tgtMethod = MethodType.GetMethod(x.Type) in tArgs.Length = Seq.length (tgtMethod.GetGenericParameters()) && tgtMethod.get_IsGenericDeclaration())
+                            |> Seq.map (fun x -> x.MakeGenericExpression tArgs)
+                            |> Seq.cast
+                            |> Seq.toArray
+
+        match delegates with
+        | [||] -> VoidError (new LogEntry("Invalid generic instance", "Generic instantiation could not be performed because the type of the target expression was '" + (scope.Global.TypeNamer target.Type) + "', which is not a delegate with " + string(tArgs.Length) + " type " + (if tArgs.Length = 1 then "parameter." else "parameters.")))
+        | _    -> Intersection delegates        
+
     /// Creates an expression that represents the invocation of the given function on the
     /// given sequence of arguments. The scope provided is used to apply conversion rules.
     let Invoke (scope : LocalScope) (target : IExpression) (args : IExpression seq) : IExpression =
@@ -604,11 +623,6 @@ module ExpressionBuilder =
 
     /// Accesses a property on a target expression with no index arguments, within the given local scope. 
     let AccessProperty scope getter setter accessedExpr = AccessIndexedProperty scope getter setter accessedExpr Seq.empty
-
-    /// Gets the intersection expression of the given sequence of expressions.
-    /// An intersection expression may be used when resolving overloads, but 
-    /// code generators do not support them.
-    let Intersection (exprs : IExpression seq) : IExpression = IntersectionExpression.Create exprs
 
     /// Accesses a single type member on the given expression.
     let AccessMember (scope : LocalScope) (targetMember : ITypeMember) (accessedExpr : AccessedExpression) : IExpression =
