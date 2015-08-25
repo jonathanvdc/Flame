@@ -362,7 +362,7 @@ namespace Flame.Cecil.Emit
 
         public IUnmanagedEmitVariable GetUnmanagedArgument(int Index)
         {
-            return new ILArgumentVariable(this, Method.IsStatic ? Index : Index + 1);
+            return new ArgumentVariable(this, Method.IsStatic ? Index : Index + 1);
         }
 
         #endregion
@@ -375,7 +375,7 @@ namespace Flame.Cecil.Emit
             {
                 throw new InvalidOperationException("Static methods do not have a 'this' variable.");
             }
-            return new ILArgumentVariable(this, 0);
+            return new ArgumentVariable(this, 0);
         }
 
         public IEmitVariable GetThis()
@@ -389,7 +389,7 @@ namespace Flame.Cecil.Emit
 
         public IUnmanagedEmitVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
         {
-            return new ILLocalVariable(this, VariableMember);
+            return new LocalVariable(this, VariableMember);
         }
 
         public IEmitVariable DeclareVariable(IVariableMember VariableMember)
@@ -408,7 +408,7 @@ namespace Flame.Cecil.Emit
 
         public IUnmanagedEmitVariable GetUnmanagedField(IField Field, ICodeBlock Target)
         {
-            return new ILFieldVariable(this, (ICecilBlock)Target, Field);
+            return new FieldVariable(this, (ICecilBlock)Target, Field);
         }
 
         #endregion
@@ -422,7 +422,7 @@ namespace Flame.Cecil.Emit
 
         public IUnmanagedEmitVariable GetUnmanagedElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
         {
-            return new ILElementVariable(this, (ICecilBlock)Value, Index.Cast<ICecilBlock>().ToArray());
+            return new ElementVariable(this, (ICecilBlock)Value, Index.Cast<ICecilBlock>().ToArray());
         }
 
         #endregion
@@ -433,12 +433,12 @@ namespace Flame.Cecil.Emit
 
         public ICodeBlock EmitDereferencePointer(ICodeBlock Pointer)
         {
-            return new DereferenceBlock(this, (ICecilBlock)Pointer, new DereferencePointerEmitter());
+            return new IndirectVariable(this, (ICecilBlock)Pointer).EmitGet();
         }
 
         public ICodeBlock EmitStoreAtAddress(ICodeBlock Pointer, ICodeBlock Value)
         {
-            return new StoreAtAddressBlock(this, (ICecilBlock)Pointer, (ICecilBlock)Value);
+            return new IndirectVariable(this, (ICecilBlock)Pointer).EmitSet((ICecilBlock)Value);
         }
 
         public ICodeBlock EmitSizeOf(IType Type)
