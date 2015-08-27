@@ -7,11 +7,32 @@ using Flame.Compiler.Statements;
 
 namespace Flame.Compiler.Variables
 {
+	/// <summary>
+	/// A type of variable that represents an expression indexed by a sequence
+	/// of arguments. Said expression's type can be either a container type, or
+	/// a type with a user-defined indexer.
+	/// </summary>
 	public class ElementVariable : IUnmanagedVariable
 	{
-        public const this(set IExpression Target, set [IExpression] IndexArguments);
+		/// <summary>
+		/// Creates a new element variable from the given target and argument
+		/// expressions.
+		/// </summary>
+        public const this(set IExpression Target, set [IExpression] IndexArguments)
+		{
+			this.indexerProp = new Lazy<IProperty>(getIndexerProperty);
+			this.indexerArgTypes = new Lazy<IType[]>(getIndexerArgTypes);
+		}
 
+		/// <summary>
+		/// Gets the expression that is indexed.
+		/// </summary>
         public IExpression Target { const get; private set; }
+
+		/// <summary>
+		/// Gets the sequence of arguments that is used to index the target
+		/// variable.
+		/// </summary>
         public [IExpression] IndexArguments { const get; private set; }
 
 		public void AcceptPredicate(INodeVisitor Visitor)
@@ -35,40 +56,44 @@ namespace Flame.Compiler.Variables
 			}
 		}
 
-        private IType[] indexerArgTypes;
+        private Lazy<IType[]> indexerArgTypes;
+		/// <summary>
+		/// Gets the types of the index arguments, as an array.
+		/// </summary>
         protected IType[] IndexArgumentTypes
         {
-        	const get
-        	{
-        		if (indexerArgTypes == null)
-        		{
-	        		var types = new List<IType>();
-	        		foreach (var item in IndexArguments)
-	        		{
-	        			types.Add(item.Type);
-	               	}
-	               	indexerArgTypes = types.ToArray();
-               	}
-               	return indexerArgTypes;
-        	}
+        	const get return indexerArgTypes.Value;
         }
 
-		private bool indexerFound;
-		private IProperty indexerProp;
+		private IType[] getIndexerArgTypes()
+		{
+			var types = new List<IType>();
+			foreach (var item in IndexArguments)
+			{
+				types.Add(item.Type);
+			}
+			return types.ToArray();
+		}
+
+		private Lazy<IProperty> indexerProp;
+		/// <summary>
+		/// Gets the user-defined indexer property this element variable relies on.
+		/// </summary>
         protected IProperty IndexerProperty
         {
-            const get
-            {
-            	if (!indexerFound)
-            	{
-                	indexerProp = Target.Type.GetBestIndexer(false, (IEnumerable<IType>)IndexArgumentTypes);
-                	indexerFound = true;
-                }
-                return indexerProp;
-            }
+            const get return indexerProp.Value;
         }
 
-        public static IType GetElementType(IType TargetType, IEnumerable<IType> ArgumentTypes)
+		private IProperty getIndexerProperty()
+		{
+			return Target.Type.GetBestIndexer(false, IndexArgumentTypes);
+		}
+
+		/// <summary>
+		/// Gets the return type of an indexing operation on the given
+		/// target type with the given sequence of argument types.
+		/// </summary>
+        public static IType GetElementType(IType TargetType, [IType] ArgumentTypes)
         {
             if (TargetType.IsContainerType)
            	{
@@ -81,27 +106,22 @@ namespace Flame.Compiler.Variables
           	}
         }
 
+		/// <summary>
+		/// Gets a boolean value that tells if this element variable could be
+		/// resolved, i.e., is well-formed.
+		/// </summary>
         public bool CanResolve
         {
-        	const get
-        	{
-        		if (IsContainerElement)
-				{
-					return true;
-				}
-				else
-				{
-					return IndexerProperty != null;
-				}
-        	}
+        	const get return IsContainerElement || IndexerProperty != null;
         }
 
+		/// <summary>
+		/// Gets a boolean flag that indicates whether this element variable's
+		/// target is a container element.
+		/// </summary>
         public bool IsContainerElement
         {
-        	const get
-        	{
-        		return Target.Type.IsContainerType;
-        	}
+        	const get return Target.Type.IsContainerType;
         }
 
         public IType Type
