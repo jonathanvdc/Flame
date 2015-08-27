@@ -359,7 +359,7 @@ module ExpressionBuilder =
                                    variable, VariableNodeAction.Set) :> IExpression
         | None          ->
             let message = new LogEntry("Expression assignment", "Could not assign an expression to a non-variable expression.")
-            VoidError message
+            Finalize left right |> Error message
 
     /// Gets the address of the given expression, as a reference pointer. 
     let AddressOf (target : IExpression) : IExpression =
