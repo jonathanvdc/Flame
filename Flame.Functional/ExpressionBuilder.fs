@@ -586,6 +586,11 @@ module ExpressionBuilder =
     /// Creates a new array of the given element types and dimensions.
     let NewArray (elemType : IType) (dimensions : IExpression seq) : IExpression =  
         new NewArrayExpression(elemType, dimensions) :> IExpression
+
+    /// Creates a new array of the given element type, and initializes it with
+    /// the given sequence of expressions, which represent the array's items.
+    let NewInitializedArray (elemType : IType) (items : IExpression seq) : IExpression =    
+        new InitializedArrayExpression(elemType, Array.ofSeq items) :> IExpression
             
     /// Analyzes the given expression as the target of a member access operation.
     let GetAccessedExpression (target : IExpression) : AccessedExpression =
