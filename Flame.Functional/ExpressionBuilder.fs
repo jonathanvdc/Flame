@@ -571,6 +571,22 @@ module ExpressionBuilder =
 
             resolvedDelegate.CreateDelegateInvocationExpression(callArgs)
 
+    /// Indexes the given expression with the given arguments.
+    let Index (scope : LocalScope) (target : IExpression) (args : IExpression seq) : IExpression =
+        let elemVar = new ElementVariable(target, args)
+        if elemVar.CanResolve then
+            elemVar.CreateGetExpression()
+        else
+            // Create an inner expression that consists of the invocation's target and arguments,
+            // whose values are calculated and then popped.
+            let innerExpr = Block (Seq.append (Seq.singleton target) args) (fun _ -> false)
+            let entry = new LogEntry("Unresolved indexer", "Indexing operation could not be resolved.")
+            Error entry innerExpr
+
+    /// Creates a new array of the given element types and dimensions.
+    let NewArray (elemType : IType) (dimensions : IExpression seq) : IExpression =  
+        new NewArrayExpression(elemType, dimensions) :> IExpression
+            
     /// Analyzes the given expression as the target of a member access operation.
     let GetAccessedExpression (target : IExpression) : AccessedExpression =
         let targetType = target.Type
