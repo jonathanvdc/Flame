@@ -115,5 +115,10 @@ namespace Pixie
         /// A markup node type for list items.
         /// </summary>
         public const string ListItemNodeType = "list-item";
+
+        /// <summary>
+        /// A markup node type for paragraphs.
+        /// </summary>
+        public const string ParagraphNodeType = "para";
     }
 }
