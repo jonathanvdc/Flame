@@ -20,7 +20,7 @@ namespace Pixie
             }
 
             var headerNode = new MarkupNode(NodeConstants.TextNodeType, Header);
-            return new MarkupNode("node", Attributes, new IMarkupNode[] { headerNode, listNode });
+            return new MarkupNode(NodeConstants.ParagraphNodeType, Attributes, new IMarkupNode[] { headerNode, listNode });
         }
 
         /// <summary>
