@@ -65,6 +65,7 @@
     <Compile Include="Cli\NeutralDiagnosticsWriter.cs" />
     <Compile Include="Cli\NodeWriter.cs" />
     <Compile Include="Cli\ParagraphConsole.cs" />
+    <Compile Include="Cli\ParagraphWriter.cs" />
     <Compile Include="Cli\RemarksNodeWriter.cs" />
     <Compile Include="Cli\SourceQuoteNodeWriter.cs" />
     <Compile Include="Cli\StyleConstants.cs" />
