@@ -52,8 +52,15 @@ namespace Flame.Compiler.Statements
         }
     }
 
+    /// <summary>
+    /// A statement type that represents the notion of a "break" statement that
+    /// targets a specific tagged block.
+    /// </summary>
     public class BreakStatement : LocalFlowStatementBase
     {
+        /// <summary>
+        /// Creates a "break" statement that targets the given block tag.
+        /// </summary>
         public const this(BlockTag Target)
             : base(Target);
 

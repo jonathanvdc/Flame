@@ -5,10 +5,20 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler.Statements
 {
+	/// <summary>
+	/// Defines a statement that checks if an expression evaluates to `true`.
+	/// If not, the user is notified in an implementation-defined manner.
+	/// </summary>
 	public class AssertStatement : IStatement
 	{
+		/// <summary>
+		/// Creates an assertion statement from the given expression.
+		/// </summary>
 		public const this(set IExpression Expression);
 
+		/// <summary>
+		/// Gets the expression that is tested for equality to `true`.
+		/// </summary>
 		public IExpression Expression { const get; private set; }
 
 		public bool IsEmpty
@@ -34,10 +44,9 @@ namespace Flame.Compiler.Statements
 		{
 			var optAssert = new AssertStatement(Expression.Optimize());
 			if (optAssert.IsEmpty)
-			{
 				return EmptyStatement;
-			}
-			return optAssert;
+			else
+				return optAssert;
 		}
 
 		public ICodeBlock Emit(ICodeGenerator Generator)

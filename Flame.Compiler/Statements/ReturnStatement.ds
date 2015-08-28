@@ -32,11 +32,24 @@ namespace Flame.Compiler.Statements
 		}
 	}
 
+	/// <summary>
+	/// Defines a statement that sets the function's return value,
+	/// and then terminates the function's execution.
+	/// </summary>
 	public class ReturnStatement : GlobalFlowStatementBase, IFlowStatement
 	{
+		/// <summary>
+		/// Creates a return statement that returns `void`.
+		/// </summary>
 		public const this();
+		/// <summary>
+		/// Creates a return statement that returns the given value.
+		/// </summary>
 		public const this(set IExpression Value);
 
+		/// <summary>
+		/// Gets the value that is returned by this statement.
+		/// </summary>
 		public IExpression Value { const get; private set; }
 
 		private const ReturnStatement CreateReturn(IExpression NewValue)
