@@ -4,10 +4,20 @@ using System.Text;
 
 namespace Flame.Compiler.Statements
 {
+	/// <summary>
+	/// Defines a type of statement that wraps a code block directly, which is
+	/// returned when calling `Emit`.
+	/// </summary>
 	public class CodeBlockStatement : IStatement
 	{
+		/// <summary>
+		/// Creates a code block statement from the given code block.
+		/// </summary>
 		public const this(set ICodeBlock Block);
 
+		/// <summary>
+		/// Gets the code block that is wrapped by this code block statement.
+		/// </summary>
 		public ICodeBlock Block { const get; private set; }
 
 		public IStatement Accept(INodeVisitor Visitor)

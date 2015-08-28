@@ -5,8 +5,15 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler.Statements
 {
+    /// <summary>
+    /// A statement type that represents the notion of a "continue" statement that
+    /// targets a specific tagged block.
+    /// </summary>
     public class ContinueStatement : LocalFlowStatementBase
     {
+        /// <summary>
+        /// Creates a "continue" statement that targets the given block tag.
+        /// </summary>
         public const this(BlockTag Target)
             : base(Target);
 

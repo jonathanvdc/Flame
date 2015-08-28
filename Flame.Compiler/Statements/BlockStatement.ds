@@ -5,14 +5,27 @@ using System.Text;
 
 namespace Flame.Compiler.Statements
 {
+    /// <summary>
+    /// Defines block statements, i.e. statements which execute a number of child
+    /// statements in sequence.
+    /// </summary>
     public class BlockStatement : IStatement, IPredicateNode
     {
+        /// <summary>
+        /// Creates a new block statement from the given child statement.
+        /// </summary>
     	public const this(IStatement Child)
     	{
     		this.Children = new IStatement[] { Child };
     	}
+        /// <summary>
+        /// Creates a block statement from the given sequence of child statements.
+        /// </summary>
         public const this(set [IStatement] Children);
 
+        /// <summary>
+        /// Gets this block statement's sequence of child statements.
+        /// </summary>
         public [IStatement] Children { const get; private set; }
 
         public void AcceptPredicate(INodeVisitor Visitor)

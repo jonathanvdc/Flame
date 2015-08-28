@@ -5,10 +5,20 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler.Statements
 {
+	/// <summary>
+	/// Defines a type of statement that throws the given exception expression.
+	/// </summary>
 	public class ThrowStatement : GlobalFlowStatementBase
 	{
+		/// <summary>
+		/// Creates a new throw statement from the given exception expression.
+		/// </summary>
 		public const this(set IExpression Exception);
 
+		/// <summary>
+		/// Gets the expression that creates the exception object this statement
+		/// throws.
+		/// </summary>
 		public IExpression Exception { const get; private set; }
 
 		private const ThrowStatement CreateThrow(IExpression NewValue)
