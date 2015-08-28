@@ -10,12 +10,13 @@ namespace Flame.Front.Cli
 {
     public class HtmlConsole : IConsole
     {
-        public HtmlConsole(ConsoleDescription Description, bool OverrideDefaultStyle)
+        public HtmlConsole(ConsoleDescription Description, bool OverrideDefaultStyle, bool EmbedStyle)
         {
             this.Description = new ConsoleDescription(Description.Name, Description.BufferWidth, 
                 Description.ForegroundColor.Over(new Color(0.0)), 
                 Description.BackgroundColor.Over(new Color(1.0)));
             this.OverrideDefaultStyle = OverrideDefaultStyle;
+            this.EmbedStyle = EmbedStyle;
             this.styles = new List<HtmlStyle>();
             this.nodeStack = new Stack<string>();
             this.body = new StringBuilder();
@@ -26,6 +27,11 @@ namespace Flame.Front.Cli
         private StringBuilder body;
 
         public bool OverrideDefaultStyle { get; private set; }
+        /// <summary>
+        /// Gets a boolean value that tells if the HTML console's output style is embedded
+        /// in the body, instead of in the `head` node.
+        /// </summary>
+        public bool EmbedStyle { get; private set; }
         public ConsoleDescription Description { get; private set; }
 
         private HtmlStyle GetStyle(Style Value)
@@ -69,16 +75,16 @@ namespace Flame.Front.Cli
             Console.WriteLine(ToHtmlDocument());
         }
 
-        public string ToHtmlDocument()
+        private void WriteStyle(CodeBuilder header)
         {
-            var header = new CodeBuilder();
-            header.IndentationString = new string(' ', 4);
-            header.AddLine("<!DOCTYPE html>");
-            header.AddLine("<html>");
-            header.AddLine("<title>Console output</title>");
-            header.AddLine("<head>");
-            header.IncreaseIndentation();
-            header.AddLine("<style>");
+            if (EmbedStyle)
+            {
+                header.AddLine("<style type=\"text/css\" scoped>");
+            }
+            else
+            {
+                header.AddLine("<style type=\"text/css\">");
+            }
             header.IncreaseIndentation();
             if (OverrideDefaultStyle)
             {
@@ -90,9 +96,31 @@ namespace Flame.Front.Cli
             }
             header.DecreaseIndentation();
             header.AddLine("</style>");
-            header.DecreaseIndentation();
+            
+        }
+
+        public string ToHtmlDocument()
+        {
+            var header = new CodeBuilder();
+            header.IndentationString = new string(' ', 4);
+            header.AddLine("<!DOCTYPE html>");
+            header.AddLine("<html>");
+            header.AddLine("<title>Console output</title>");
+            header.AddLine("<head>");
+            if (!EmbedStyle)
+            {
+                header.IncreaseIndentation();
+                WriteStyle(header);
+                header.DecreaseIndentation();
+            }
             header.AddLine("</head>");
             header.AddLine("<body>");
+            if (EmbedStyle)
+            {
+                header.IncreaseIndentation();
+                WriteStyle(header);
+                header.DecreaseIndentation();
+            }
             header.AddLine("<pre>");
             header.AddLine(body.ToString());
             header.AddLine("</pre>");
