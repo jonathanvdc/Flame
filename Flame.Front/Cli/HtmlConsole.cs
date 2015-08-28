@@ -10,13 +10,14 @@ namespace Flame.Front.Cli
 {
     public class HtmlConsole : IConsole
     {
-        public HtmlConsole(ConsoleDescription Description, bool OverrideDefaultStyle, bool EmbedStyle)
+        public HtmlConsole(ConsoleDescription Description, bool OverrideDefaultStyle, bool EmbedStyle, bool IndentHtml)
         {
             this.Description = new ConsoleDescription(Description.Name, Description.BufferWidth, 
                 Description.ForegroundColor.Over(new Color(0.0)), 
                 Description.BackgroundColor.Over(new Color(1.0)));
             this.OverrideDefaultStyle = OverrideDefaultStyle;
             this.EmbedStyle = EmbedStyle;
+            this.IndentHtml = IndentHtml;
             this.styles = new List<HtmlStyle>();
             this.nodeStack = new Stack<string>();
             this.body = new StringBuilder();
@@ -32,6 +33,10 @@ namespace Flame.Front.Cli
         /// in the body, instead of in the `head` node.
         /// </summary>
         public bool EmbedStyle { get; private set; }
+        /// <summary>
+        /// Gets a boolean flag that indicates whether the generated HTML should be indented whenever possible.
+        /// </summary>
+        public bool IndentHtml { get; private set; }
         public ConsoleDescription Description { get; private set; }
 
         private HtmlStyle GetStyle(Style Value)
@@ -102,7 +107,7 @@ namespace Flame.Front.Cli
         public string ToHtmlDocument()
         {
             var header = new CodeBuilder();
-            header.IndentationString = new string(' ', 4);
+            header.IndentationString = IndentHtml ? new string(' ', 4) : "";
             header.AddLine("<!DOCTYPE html>");
             header.AddLine("<html>");
             header.AddLine("<title>Console output</title>");
