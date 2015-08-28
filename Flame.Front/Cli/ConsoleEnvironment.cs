@@ -72,7 +72,7 @@ namespace Flame.Front.Cli
             RegisterConsole(name => IsXTerminalIdentifier(name) || IsVTerminal(name),
                 (name, ops) => new AnsiConsole(name, DefaultConsole.GetBufferWidth(), GetForegroundColor(ops), GetBackgroundColor(ops)));
             RegisterConsole(name => name != null && name.Equals(HtmlIdentifier, StringComparison.OrdinalIgnoreCase),
-                (name, ops) => new HtmlConsole(new ConsoleDescription(name, 80, GetForegroundColor(ops), GetBackgroundColor(ops)), OverridesDefaultStyle(ops)));
+                (name, ops) => new HtmlConsole(new ConsoleDescription(name, 80, GetForegroundColor(ops), GetBackgroundColor(ops)), OverridesDefaultStyle(ops), EmbedHtmlStyle(ops)));
         }
 
         private static List<KeyValuePair<Func<string, bool>, Func<string, ICompilerOptions, IConsole>>> registeredConsoles;
@@ -93,6 +93,10 @@ namespace Flame.Front.Cli
         private static bool OverridesDefaultStyle(ICompilerOptions Options)
         {
             return Options.GetOption<bool>("override-style", false);
+        }
+        private static bool EmbedHtmlStyle(ICompilerOptions Options)
+        {
+            return Options.GetOption<bool>("embed-html-style", false);
         }
 
         public static IConsole AcquireConsole(string Identifier, ICompilerOptions Options)
