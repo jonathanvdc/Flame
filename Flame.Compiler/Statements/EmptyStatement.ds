@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Statements
 {
+    /// <summary>
+    /// The empty statement singleton, which compiles down to the same code block
+    /// as a void expression. It does not have any side-effects.
+    /// </summary>
     public static class EmptyStatement : IStatement
     {
         public bool IsEmpty

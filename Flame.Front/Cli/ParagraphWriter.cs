@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pixie;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +16,7 @@ namespace Flame.Front.Cli
 
         public INodeWriter MainWriter { get; private set; }
 
-        public void Write(Pixie.IMarkupNode Node, IConsole Console, IStylePalette Palette)
+        public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
         {
             Console.WriteLine();
             NodeWriter.WriteDefault(Node, Console, Palette, MainWriter);

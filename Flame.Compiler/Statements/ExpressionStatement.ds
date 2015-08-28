@@ -4,10 +4,20 @@ using Flame.Compiler.Expressions;
 
 namespace Flame.Compiler.Statements
 {
+    /// <summary>
+    /// Defines a type of statement that evaluates its inner expression, and then
+    /// discards its value.
+    /// </summary>
     public class ExpressionStatement : IStatement
     {
+        /// <summary>
+        /// Creates an expression statement that wraps the given expression.
+        /// </summary>
         public const this(set IExpression Expression);
 
+        /// <summary>
+        /// Gets the expression statement's inner expression.
+        /// </summary>
         public IExpression Expression { const get; private set; }
 
         public IStatement Accept(INodeVisitor Visitor)
@@ -61,6 +71,11 @@ namespace Flame.Compiler.Statements
         {
             var block = Expression.Emit(Generator);
             return Generator.EmitPop(block);
+        }
+
+        public override string ToString()
+        {
+            return "pop-stmt(" + (string)Expression + ")";
         }
     }
 }

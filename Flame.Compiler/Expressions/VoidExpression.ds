@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace Flame.Compiler.Expressions
 {
+	/// <summary>
+	/// The void expression singleton, which is a constant expression of type `void`.
+	/// </summary>
 	public static class VoidExpression : IExpression, IBoundObject
 	{
 		public IType Type
