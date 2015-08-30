@@ -119,31 +119,30 @@
 	</ItemGroup>
 	<ItemGroup Name="Build">
 		<ItemGroup>
+            <Compile Include="Build\ArrayType.ds" />
+            <Compile Include="Build\BoundMethod.ds" />
+            <Compile Include="Build\ContainerTypeBase.ds" />
+            <Compile Include="Build\DescribedAccessor.ds" />
             <Compile Include="Build\DescribedAssembly.ds" />
+            <Compile Include="Build\DescribedField.ds" />
+            <Compile Include="Build\DescribedGenericParameter.ds" />
+            <Compile Include="Build\DescribedLiteralField.ds" />
+            <Compile Include="Build\DescribedMember.ds" />
 			<Compile Include="Build\DescribedMethod.ds" />
 			<Compile Include="Build\DescribedParameter.ds" />
-			<Compile Include="Build\DescribedMember.ds" />
-			<Compile Include="Build\DescribedContainerType.ds" />
-			<Compile Include="Build\DescribedArrayType.ds" />
 			<Compile Include="Build\DescribedProperty.ds" />
+            <Compile Include="Build\DescribedType.ds" />
 			<Compile Include="Build\DescribedTypeMember.ds" />
-			<Compile Include="Build\DescribedAccessor.ds" />
-			<Compile Include="Build\DescribedVectorType.ds" />
-			<Compile Include="Build\DescribedPointerType.ds" />
-			<Compile Include="Build\DescribedField.ds" />
-			<Compile Include="Build\DescribedGenericParameter.ds" />
+            <Compile Include="Build\EmptyGenericResolver.ds" />
 			<Compile Include="Build\IGenericParameterBuilder.ds" />
             <Compile Include="Build\IntersectionType.ds" />
 			<Compile Include="Build\MethodType.ds" />
-			<Compile Include="Build\BoundMethod.ds" />
-			<Compile Include="Build\DescribedType.ds" />
-			<Compile Include="Build\DescribedLiteralField.ds" />
+            <Compile Include="Build\PointerType.ds" />
 			<Compile Include="Build\TypeConverterBase.ds" />
 			<Compile Include="Build\IGenericResolver.ds" />
 			<Compile Include="Build\GenericResolvingConverter.ds" />
 			<Compile Include="Build\TypeTransformerBase.ds" />
 			<Compile Include="Build\TypeNamerBase.ds" />
-			<Compile Include="Build\EmptyGenericResolver.ds" />
 			<Compile Include="Build\TypeComparerBase.ds" />
 			<Compile Include="Build\TypeEqualityComparer.ds" />
             <Compile Include="Build\TypeFieldConverter.ds" />
@@ -152,6 +151,7 @@
 			<Compile Include="Build\TypeMappingConverter.ds" />
 			<Compile Include="Build\CompositeConverter.ds" />
 			<Compile Include="Build\RetypedParameter.ds" />
+            <Compile Include="Build\VectorType.ds" />
 		</ItemGroup>
 	</ItemGroup>
 </Project>

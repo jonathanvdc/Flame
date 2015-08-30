@@ -1,0 +1,72 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Build
+{
+	public class ArrayType : ContainerTypeBase, IArrayType, IGenericResolverType
+	{
+        public const this(IType ElementType, set int ArrayRank)
+			: base(ElementType);
+
+        public int ArrayRank { const get; private set; }
+
+		#region Static
+
+		static this()
+		{
+			var descProp = new DescribedProperty("Length", null, PrimitiveTypes.Int32, false);
+			var getter = new DescribedAccessor(AccessorType.GetAccessor, descProp, PrimitiveTypes.Int32);
+			descProp.AddAccessor(getter);
+			lengthProperty = descProp;
+		}
+
+		private static IProperty lengthProperty;
+
+		#endregion
+
+		public const IType ResolveTypeParameter(IGenericParameter TypeParameter)
+		{
+			// Don't "resolve" anything. This behavior is useful when creating
+			// generic property instances.
+			return TypeParameter;
+		}
+
+        public override [IType] BaseTypes
+        {
+            const get { return new IType[] { PrimitiveTypes.IHashable }; }
+        }
+
+		public override [IProperty] Properties
+		{
+			const get
+			{
+				return new IProperty[] { new GenericInstanceProperty(lengthProperty, this) };
+			}
+		}
+
+        protected override string GetName(string ElementName)
+        {
+			return GenericNameExtensions.AppendArraySuffix(ElementName, ArrayRank);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is IArrayType)
+            {
+                var arrType = (IArrayType)obj;
+                if (arrType.IsArray)
+                {
+                    return ArrayRank == arrType.ArrayRank &&
+						   ElementType.Equals(arrType.ElementType);
+                }
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return ElementType.GetHashCode() + ArrayRank;
+        }
+    }
+}

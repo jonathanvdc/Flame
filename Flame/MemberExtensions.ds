@@ -509,16 +509,32 @@ namespace Flame
 
 		#endregion
 
+		#region IsContainerType
+
+		public static bool IsContainerType[this IType Type]
+		{
+			const get return Type is IContainerType;
+		}
+
+		#endregion
+
+		#region AsContainerType
+
+		public static const IContainerType AsContainerType(this IType Type)
+		{
+			if (Type is IContainerType)
+				return (IContainerType)Type;
+			else
+				return null;
+		}
+
+		#endregion
+
 		#region IsPointer
 
         public static bool IsPointer[this IType Type]
         {
-        	const get
-        	{
-        		if (!Type.IsContainerType)
-	        		return false;
-	        	return Type.AsContainerType().ContainerKind == ContainerTypeKind.Pointer;
-        	}
+        	const get return Type is IPointerType;
         }
 
         #endregion
@@ -527,12 +543,7 @@ namespace Flame
 
         public static bool IsArray[this IType Type]
         {
-        	const get
-        	{
-        		if (!Type.IsContainerType)
-	        		return false;
-	        	return Type.AsContainerType().ContainerKind == ContainerTypeKind.Array;
-        	}
+        	const get return Type is IArrayType;
         }
 
         #endregion
@@ -541,12 +552,7 @@ namespace Flame
 
         public static bool IsVector[this IType Type]
         {
-        	const get
-        	{
-        		if (!Type.IsContainerType)
-	        		return false;
-	        	return Type.AsContainerType().ContainerKind == ContainerTypeKind.Vector;
-        	}
+        	const get return Type is IVectorType;
         }
 
         #endregion
