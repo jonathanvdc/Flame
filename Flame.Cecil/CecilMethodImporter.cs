@@ -60,7 +60,7 @@ namespace Flame.Cecil
 
         private IType NormalizeType(IType Type)
         {
-            if (Type.Equals(PrimitiveTypes.IHashCodeProvider) || Type.Equals(PrimitiveTypes.IEquatable))
+            if (Type.Equals(PrimitiveTypes.IHashable) || Type.Equals(PrimitiveTypes.IEquatable))
             {
                 return Module.Convert(Module.Module.TypeSystem.Object);
             }

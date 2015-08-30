@@ -1,0 +1,19 @@
+using System;
+using System.Collections.Generic;
+using Flame.Build;
+
+namespace Flame.Primitives
+{
+	/// <summary>
+	/// An interface for hashable types.
+	/// </summary>
+	public static class HashableType : MethodRootPrimitiveType
+	{
+		public override string Name { const get return "IHashable"; }
+
+		protected override const IMethod[] CreateMethods()
+		{
+			return new IMethod[] { PrimitiveMethods.GetHashCode };
+		}
+	}
+}

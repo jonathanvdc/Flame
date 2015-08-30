@@ -9,30 +9,25 @@ namespace Flame.Primitives
 
 	public virtual class PrimitiveType<T> : IType
 	{
-		protected const this();
-        public const this(set string Name, set int32 Magnitude, set T DefaultValue);
+        public const this(set string Name, set int32 Magnitude, set T DefaultValue)
+		{
+			this.cachedMethods    = new Lazy<IMethod[]>(CreateMethods);
+			this.cachedProperties = new Lazy<IProperty[]>(CreateProperties);
+			this.cachedFields     = new Lazy<IField[]>(CreateFields);
+		}
 
-        public int32 Magnitude { const get; protected set; }
-        public T DefaultValue { const get; protected set; }
-        public string Name { const get; protected set; }
+        public int32 Magnitude { const get; private set; }
+        public T DefaultValue { const get; private set; }
+        public string Name { const get; private set; }
 
         public INamespace DeclaringNamespace
         {
-            const get
-            {
-                return new PrimitivesNamespace();
-            }
+            const get return PrimitivesNamespace;
         }
 
-        public virtual ITypeMember[] GetMembers()
-        {
-            var members = new List<ITypeMember>();
-            members.AddRange(([ITypeMember])GetMethods());
-            members.AddRange(([ITypeMember])GetProperties());
-            members.AddRange(([ITypeMember])GetFields());
-            members.AddRange(([ITypeMember])GetConstructors());
-            return members.ToArray();
-        }
+		private Lazy<IMethod[]> cachedMethods;
+		private Lazy<IProperty[]> cachedProperties;
+		private Lazy<IField[]> cachedFields;
 
         protected IMethod[] GetCommonPrimitiveMethods()
         {
@@ -49,24 +44,32 @@ namespace Flame.Primitives
             };
         }
 
-        public virtual IMethod[] GetMethods()
+		public [IMethod] Methods
+		{
+			const get return cachedMethods.Value;
+		}
+		public [IField] Fields
+		{
+			const get return cachedFields.Value;
+		}
+		public [IProperty] Properties
+		{
+			const get return cachedProperties.Value;
+		}
+
+        protected virtual [IMethod] CreateMethods()
         {
 			return GetCommonPrimitiveMethods();
         }
 
-        public virtual IProperty[] GetProperties()
+        protected virtual [IProperty] CreateProperties()
         {
             return new IProperty[0];
         }
 
-        public virtual IField[] GetFields()
+        protected virtual [IField] CreateFields()
         {
             return new IField[0];
-        }
-
-        public virtual IMethod[] GetConstructors()
-        {
-            return new IMethod[0];
         }
 
         public IBoundObject GetDefaultValue()
@@ -74,77 +77,29 @@ namespace Flame.Primitives
             return new BoundPrimitive<T>(this, DefaultValue);
         }
 
-        public bool IsContainerType
+        public [IType] BaseTypes
         {
-            get { return false; }
-        }
-
-        public IContainerType AsContainerType()
-        {
-            return null;
-        }
-
-        public IArrayType MakeArrayType(int Rank)
-        {
-        	return new DescribedArrayType(this, Rank);
-        }
-
-        public IPointerType MakePointerType(PointerKind PointerKind)
-        {
-        	return new DescribedPointerType(this, PointerKind);
-        }
-
-        public IVectorType MakeVectorType(int[] Dimensions)
-        {
-        	return new DescribedVectorType(this, Dimensions);
-        }
-
-        public IType[] GetBaseTypes()
-        {
-            return new IType[]
+            const get return new IType[]
             {
-            	PrimitiveTypes.IHashCodeProvider,
+            	PrimitiveTypes.IHashable,
             	PrimitiveTypes.IEquatable
             };
         }
 
-        public IType GetGenericDeclaration()
-        {
-            return this;
-        }
-
         public string FullName
         {
-            const get
-            {
-            	return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
-            }
+            const get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
         }
 
-        public const [IAttribute] GetAttributes()
+        public [IAttribute] Attributes
         {
-            /*return new IAttribute[] { new ValueTypeAttribute() };*/
-            return new IAttribute[0];
+            const get return new IAttribute[0];
         }
 
-        #region Generics
-
-        public IType MakeGenericType([IType] TypeArguments) : IType.MakeGenericType
+        public [IGenericParameter] GenericParameters
         {
-        	return this;
+            const get return new IGenericParameter[0];
         }
-
-        public [IGenericParameter] GetGenericParameters() : IGenericMember.GetGenericParameters
-        {
-            return new IGenericParameter[0];
-        }
-
-        public [IType] GetGenericArguments() : IGenericMember.GetGenericArguments
-        {
-            return new IType[0];
-        }
-
-        #endregion
     }
 
     #endregion

@@ -3,15 +3,19 @@ using System.Collections.Generic;
 
 namespace Flame
 {
+    /// <summary>
+    /// Defines an interface for namespaces.
+    /// </summary>
     public interface INamespace : IMember
     {
         /// <summary>
         /// Gets the types that are declared in this namespace.
         /// </summary>
-        IType[] GetTypes();
+        [IType] Types { get; }
+
         /// <summary>
         /// Gets the assembly that declares this namespace.
         /// </summary>
-        IAssembly DeclaringAssembly { const get; }
+        IAssembly DeclaringAssembly { get; }
     }
 }

@@ -56,7 +56,7 @@ namespace Flame.Cecil
             else if (type.FullName == "System.Object")
             {
                 baseTypes.Add(PrimitiveTypes.IEquatable);
-                baseTypes.Add(PrimitiveTypes.IHashCodeProvider);
+                baseTypes.Add(PrimitiveTypes.IHashable);
             }
             foreach (var item in type.Interfaces)
             {

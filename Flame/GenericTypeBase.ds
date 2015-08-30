@@ -1,0 +1,147 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Build;
+
+namespace Flame
+{
+    /// <summary>
+    /// A base class for generic type instances.
+    /// </summary>
+    public abstract class GenericTypeBase : IType, INamespace
+    {
+        /// <summary>
+        /// Creates a new generic type base from the given type.
+        /// </summary>
+        public const this(set IType Type)
+        {
+            cachedMethods = new Lazy<IField[]>(createMethods);
+            cachedProperties = new Lazy<IProperty[]>(createProperties);
+            cachedBaseTypes = new Lazy<IType[]>(createBaseTypes);
+            cachedNestedTypes = new Lazy<IType[]>(createNestedTypes);
+        }
+
+        /// <summary>
+        /// Gets the type definition this generic type is based on.
+        /// </summary>
+        public IType Type { const get; private set; }
+
+        /// <summary>
+        /// Gets this generic type's resolver.
+        /// </summary>
+        public abstract IGenericResolver Resolver { get; }
+
+        /// <summary>
+        /// Gets this generic type's declaring namespace.
+        /// </summary>
+        public abstract INamespace DeclaringNamespace { get; }
+
+        /// <summary>
+        /// Gets this generic type's name.
+        /// </summary>
+        public abstract string Name { get; }
+
+        /// <summary>
+        /// Gets the generic type's ancestry rules.
+        /// </summary>
+        public abstract IAncestryRules AncestryRules { get; }
+
+        public IAssembly DeclaringAssembly
+        {
+            get { return DeclaringNamespace.DeclaringAssembly; }
+        }
+
+        public string FullName
+        {
+            const get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
+        }
+
+        public [IAttribute] Attributes
+        {
+            const get { return Type.Attributes; }
+        }
+
+        public [IGenericParameter] GenericParameters
+        {
+            const get { return Type.GenericParameters; }
+        }
+
+        public const IBoundObject GetDefaultValue()
+        {
+            return null;
+        }
+
+        public [IMethod] Methods
+        {
+            get { return cachedMethods.Value; }
+        }
+        public [IField] Fields
+        {
+            get { return cachedFields.Value; }
+        }
+        public [IProperty] Properties
+        {
+            get { return cachedProperties.Value; }
+        }
+        public [IType] BaseTypes
+        {
+            get { return cachedBaseTypes.Value; }
+        }
+        public [IType] Types
+        {
+            get { return cachedNestedTypes.Value; }
+        }
+
+        private Lazy<IMethod[]> cachedMethods;
+        private Lazy<IField[]> cachedFields;
+        private Lazy<IProperty[]> cachedProperties;
+        private Lazy<IType[]> cachedBaseTypes;
+        private Lazy<IType[]> cachedNestedTypes;
+
+        private IMethod[] createMethods()
+        {
+            var results = new List<IMethod>();
+            foreach (var item in Type.Methods)
+            {
+                results.Add(new GenericInstanceMethod(item, Resolver, this));
+            }
+            return results.ToArray();
+        }
+        private IField[] createFields()
+        {
+            var results = new List<IField>();
+            foreach (var item in Type.Fields)
+            {
+                results.Add(new GenericInstanceField(item, Resolver, this));
+            }
+            return results.ToArray();
+        }
+        private IProperty[] createProperties()
+        {
+            var results = new List<IProperty>();
+            foreach (var item in Type.Fields)
+            {
+                results.Add(new GenericInstanceProperty(item, Resolver, this));
+            }
+            return results.ToArray();
+        }
+        private IType[] createBaseTypes()
+        {
+            return Enumerable.ToArray<IType>(Type.BaseTypes, Resolver.ResolveType);
+        }
+        private IType[] createNestedTypes()
+        {
+            if (Type is INamespace)
+            {
+                var genNs = (INamespace)Type;
+                var results = new List<IType>();
+                foreach (var input in genNs.Types)
+                {
+                    results.Add(new GenericInstanceType(input, Resolver, this));
+                }
+                return results.ToArray();
+            }
+            else return new IType[0];
+        }
+    }
+}

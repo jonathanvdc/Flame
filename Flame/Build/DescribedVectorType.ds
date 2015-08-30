@@ -35,7 +35,7 @@ namespace Flame.Build
         
         public virtual IType[] GetBaseTypes()
         {
-            return new IType[] { PrimitiveTypes.IHashCodeProvider };
+            return new IType[] { PrimitiveTypes.IHashable };
         }
 
         private int[] dims;

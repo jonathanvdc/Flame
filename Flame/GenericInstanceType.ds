@@ -1,0 +1,74 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Build;
+
+namespace Flame
+{
+    /// <summary>
+    /// Defines a type belonging to a generic type instantiation.
+    /// </summary>
+	public virtual class GenericInstanceType : GenericTypeBase, IEquatable<IType>
+	{
+        /// <summary>
+        /// Creates a generic type instantiation from the given type,
+        /// resolver and declaring type.
+        /// </summary>
+		public const this(IType Type, set IGenericResolver resolver, set IType declaringType)
+            : base(Type);
+
+        /// <summary>
+        /// Creates a generic type instantiation from the given type and
+        /// declaring type.
+        /// </summary>
+		public const this(IType Type, IGenericResolverType DeclaringType)
+            : base(Type)
+		{
+            this.resolver = DeclaringType;
+			this.declaringType = DeclaringType;
+		}
+
+        private IGenericResolver resolver;
+        private IType declaringType;
+
+		public override IGenericResolver Resolver { const get { return resolver; } }
+		public override IType DeclaringType { const get { return declaringType; } }
+
+		public override string Name
+        {
+            const get { return Type.Name; }
+        }
+
+        #region Equality
+
+        public override const bool Equals(object Other)
+        {
+        	if (Other is IType)
+        		return Equals((IType)Other);
+        	else
+                return false;
+        }
+
+        public const bool Equals(IMethod Other)
+        {
+        	if (Other is GenericInstanceType)
+        		return Equals((GenericInstanceType)Other);
+            else
+        	   return false;
+        }
+
+        public const bool Equals(GenericInstanceType Other)
+        {
+        	return this.Type == Other.Type &&
+                   this.DeclaringType == Other.DeclaringType;
+        }
+
+        public override const int GetHashCode()
+        {
+        	return DeclaringType.GetHashCode() ^ Type.GetHashCode();
+        }
+
+        #endregion
+	}
+}
