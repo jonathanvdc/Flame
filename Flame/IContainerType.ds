@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Flame
 {
@@ -38,6 +39,6 @@ namespace Flame
         /// <summary>
         /// Gets the vector's dimensions.
         /// </summary>
-        int[] GetDimensions();
+        IReadOnlyList<int> Dimensions { get; }
     }
 }

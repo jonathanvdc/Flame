@@ -4,9 +4,10 @@ using System.Text;
 
 namespace Flame.Build
 {
-    public class DescribedPointerType : DescribedContainerType, IPointerType
+    public class PointerType : ContainerTypeBase, IPointerType
     {
-        public this(set IType ElementType, set PointerKind PointerKind);
+        public const this(IType ElementType, set PointerKind PointerKind)
+            : base(ElementType);
 
         public PointerKind PointerKind { const get; private set; }
 
