@@ -1,0 +1,96 @@
+using System;
+using Flame.Build;
+
+namespace Flame
+{
+    /// <summary>
+    /// Defines a base class for generic method instances.
+    /// </summary>
+    public abstract class GenericMethodBase : IMethod
+    {
+        public const this(set IMethod Method)
+        {
+            this.cachedRetType = new Lazy<IType>(createReturnType);
+            this.cachedParameters = new Lazy<IParameter[]>(createParameters);
+            this.cachedBaseTypes = new Lazy<IMethod[]>(createBaseMethods);
+        }
+
+        /// <summary>
+        /// Gets the method definition this generic instance is based on.
+        /// </summary>
+        public IMethod Method { const get; private set; }
+
+        /// <summary>
+        /// Gets the generic resolver that belongs to this generic method.
+        /// </summary>
+        public abstract IGenericResolver Resolver { get; }
+
+        /// <summary>
+        /// Gets name of this generic method.
+        /// </summary>
+        public abstract string Name { get; }
+
+        /// <summary>
+        /// Gets this generic method's declaring type.
+        /// </summary>
+        public abstract IType DeclaringType { get; }
+
+        public bool IsStatic { get return Method.IsStatic; }
+        public bool IsConstructor { get return Method.IsConstructor; }
+
+        public string FullName
+        {
+            get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+        }
+
+        public [IAttribute] Attributes
+        {
+            get { return Method.Attributes; }
+        }
+
+        public [IGenericParameter] GenericParameters
+        {
+            const get { return Method.GenericParameters; }
+        }
+
+        private Lazy<IType> cachedRetType;
+        public IType ReturnType
+        {
+            get { return cachedRetType.Value; }
+        }
+        private IType createReturnType()
+        {
+            return Resolver.ResolveType(Method.ReturnType);
+        }
+
+        private Lazy<IParameter[]> cachedParameters;
+        public [IParameter] Parameters
+        {
+            get { return cachedParameters.Value; }
+        }
+        private IParameter[] createParameters()
+        {
+            return Resolver.ResolveParameters(Method.Parameters);
+        }
+
+        private Lazy<IMethod[]> cachedBaseTypes;
+        public [IMethod] BaseMethods
+        {
+            const get { return cachedBaseTypes.Value; }
+        }
+        private IMethod[] createBaseMethods()
+        {
+            return Resolver.ResolveMethods(Method.BaseMethods);
+        }
+
+        public IBoundObject Invoke(IBoundObject Caller, [IBoundObject] Arguments)
+        {
+            return null;
+        }
+
+        public override string ToString()
+        {
+            return FullName;
+        }
+    }
+}

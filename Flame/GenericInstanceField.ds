@@ -3,20 +3,30 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 
-namespace Flame.Build
+namespace Flame
 {
-	public virtual class DescribedGenericFieldInstance : IField, IEquatable<IField>
+	public class GenericInstanceField : IField, IEquatable<IField>
 	{
-		protected const this();
 		public const this(set IField Field, set IGenericResolverType Parent)
 		{
 			this.DeclaringType = Parent;
 		}
 		public const this(set IField Field, set IGenericResolver Parent, set IType DeclaringType);
 
-        public IField Field { const get; protected set; }
-        public IGenericResolver Parent { const get; protected set; }
-        public IType DeclaringType { const get; protected set; }
+        /// <summary>
+        /// Gets the generic instance field's original definition.
+        /// </summary>
+        public IField Field { const get; private set; }
+
+        /// <summary>
+        /// Gets the generic instance field's generic resolver.
+        /// </summary>
+        public IGenericResolver Parent { const get; private set; }
+
+        /// <summary>
+        /// Gets the generic instance field's declaring type.
+        /// </summary>
+        public IType DeclaringType { const get; private set; }
 
         public IType FieldType
         {
@@ -32,46 +42,49 @@ namespace Flame.Build
             const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Field.Name); }
         }
 
-        public const [IAttribute] GetAttributes()
+        public [IAttribute] Attributes
         {
-            return Field.GetAttributes();
+            const get { return Field.Attributes; }
         }
 
         public string Name
         {
             const get { return Field.Name; }
         }
-        
+
+        public override string ToString()
+        {
+            return FullName;
+        }
+
         #region Equality
-        
+
         public override const bool Equals(object Other)
         {
         	if (Other is IField)
-        	{
         		return Equals((IField)Other);
-        	}
-        	else return false;
+        	else
+				return false;
         }
-        
+
         public const bool Equals(IField Other)
         {
         	if (Other is DescribedGenericFieldInstance)
-        	{
         		return Equals((DescribedGenericFieldInstance)Other);
-        	}
-        	return this.Parent.Equals(Other.DeclaringType) && this.Field.Equals(Other);
+        	else
+				return false;
         }
-        
+
         public const bool Equals(DescribedGenericFieldInstance Other)
         {
-        	return this.Parent.Equals(Other.Parent) && this.Field.Equals(Other.Field);
+        	return this.DeclaringType == Other.DeclaringType && this.Field == Other.Field;
         }
-        
+
         public override const int GetHashCode()
         {
-        	return Field.GetHashCode();
+        	return this.DeclaringType.GetHashCode() ^ Field.GetHashCode();
         }
-        
+
         #endregion
 	}
 }

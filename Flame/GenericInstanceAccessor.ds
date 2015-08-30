@@ -1,0 +1,33 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame
+{
+    /// <summary>
+    /// A property accessor belonging to a generic type instantiation.
+    /// </summary>
+	public virtual class GenericInstanceAccessor : GenericInstanceMethod, IAccessor
+    {
+        /// <summary>
+        /// Creates a new generic type instance accessor from the given accessor,
+        /// resolver and declaring property.
+        /// </summary>
+        public const this(IAccessor Accessor, IGenericResolver Resolver, set IProperty DeclaringProperty)
+            : base(Accessor, Resolver, DeclaringProperty.DeclaringType);
+
+        /// <summary>
+        /// Gets the property's accessor type.
+        /// </summary>
+        public AccessorType AccessorType
+        {
+            const get { return ((IAccessor)Method).AccessorType; }
+        }
+
+        /// <summary>
+        /// Gets the generic type instance accessor's declaring property.
+        /// </summary>
+        public IProperty DeclaringProperty { const get; private set; }
+    }
+}

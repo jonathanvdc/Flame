@@ -7,13 +7,13 @@ namespace Flame.Primitives
 {
 	public virtual class PrimitiveNumberType<T> : PrimitiveType<T>
 	{
-		public const this();
-		public const this(set string Name, set int32 Magnitude, set T DefaultValue, set T MinValue, set T MaxValue);
-		
-		public T MinValue { const get; protected set; }
-		public T MaxValue { const get; protected set; }
-		
-		public virtual override IField[] GetFields()
+		public const this(string Name, int32 Magnitude, T DefaultValue, set T MinValue, set T MaxValue)
+			: base(Name, Magnitude, DefaultValue);
+
+		public T MinValue { const get; private set; }
+		public T MaxValue { const get; private set; }
+
+		protected virtual override IField[] CreateFields()
 		{
 			var minField = new DescribedLiteralField<T>("MinValue", this, MinValue);
 			minField.DeclaringType = this;
@@ -22,16 +22,17 @@ namespace Flame.Primitives
 			return new IField[] { minField, maxField };
 		}
 	}
-	
+
 	public class PrimitiveFloatType<T> : PrimitiveNumberType<T>
 	{
-		public const this(set string Name, set int32 Magnitude, set T DefaultValue,
-						  set T MinValue, set T MaxValue, set T PositiveInfinity, set T NegativeInfinity);
-		
+		public const this(string Name, int32 Magnitude, T DefaultValue,
+						  T MinValue, T MaxValue, set T PositiveInfinity, set T NegativeInfinity)
+		    : base(Name, Magnitude, DefaultValue, MinValue, MaxValue);
+
 		public T PositiveInfinity { const get; private set; }
 		public T NegativeInfinity { const get; private set; }
-		
-		public override IField[] GetFields()
+
+		protected override IField[] CreateFields()
 		{
 			var minField = new DescribedLiteralField<T>("MinValue", this, MinValue);
 			minField.DeclaringType = this;

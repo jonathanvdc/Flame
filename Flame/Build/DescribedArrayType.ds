@@ -9,10 +9,10 @@ namespace Flame.Build
         public this(set IType ElementType, set int ArrayRank);
 
         public int ArrayRank { public get; private set; }
-        
-        public virtual IType[] GetBaseTypes()
+
+        public virtual [IType] BaseTypes
         {
-            return new IType[] { PrimitiveTypes.IHashCodeProvider };
+            const get { return new IType[] { PrimitiveTypes.IHashable }; }
         }
 
         public override IProperty[] GetProperties()
@@ -21,11 +21,6 @@ namespace Flame.Build
             var getter = new DescribedAccessor(AccessorType.GetAccessor, descProp, PrimitiveTypes.Int32);
             descProp.AddAccessor(getter);
             return new IProperty[] { descProp };
-        }
-
-        public override ContainerTypeKind ContainerKind
-        {
-            const get { return ContainerTypeKind.Array; }
         }
 
         protected override string GetName(string ElementName)
@@ -38,7 +33,7 @@ namespace Flame.Build
                 sb.Append(',');
             }
             sb.Append(']');
-            return sb.ToString(); 
+            return sb.ToString();
         }
 
         public override bool Equals(object obj)

@@ -13,7 +13,6 @@ namespace Flame.Primitives
 			cachedMethods    = new Lazy<IMethod[]>(CreateMethods);
 			cachedFields     = new Lazy<IField[]>(CreateFields);
 			cachedProperties = new Lazy<IProperty[]>(CreateProperties);
-			cachedMembers    = new Lazy<ITypeMember[]>(CreateMembers);
 		}
 
         public int32 Magnitude { const get return 0; }
@@ -22,50 +21,26 @@ namespace Flame.Primitives
 
         public INamespace DeclaringNamespace
         {
-            const get
-            {
-                return new PrimitivesNamespace();
-            }
+            const get return PrimitivesNamespace;
         }
 
 		private Lazy<IMethod[]> cachedMethods;
-		public IMethod[] GetMethods()
+		public [IMethod] Methods
 		{
-			return cachedMethods.Value;
+			const get return cachedMethods.Value;
 		}
 
 		private Lazy<IField[]> cachedFields;
-		public IField[] GetFields()
+		public [IField] Fields
 		{
-			return cachedFields.Value;
+			const get return cachedFields.Value;
 		}
 
 		private Lazy<IProperty[]> cachedProperties;
-		public IProperty[] GetProperties()
+		public [IProperty] Properties
 		{
-			return cachedProperties.Value;
+			const get return cachedProperties.Value;
 		}
-
-		private Lazy<ITypeMember[]> cachedMembers;
-		public ITypeMember[] GetMembers()
-		{
-			return cachedMembers.Value;
-		}
-
-		public IMethod[] GetConstructors()
-		{
-			return new IMethod[0];
-		}
-
-        private ITypeMember[] CreateMembers()
-        {
-            var members = new List<ITypeMember>();
-            members.AddRange((IEnumerable<ITypeMember>)GetMethods());
-            members.AddRange((IEnumerable<ITypeMember>)GetProperties());
-            members.AddRange((IEnumerable<ITypeMember>)GetFields());
-            members.AddRange((IEnumerable<ITypeMember>)GetConstructors());
-            return members.ToArray();
-        }
 
 		private IMethod[] CreateMethods()
 		{
@@ -187,85 +162,28 @@ namespace Flame.Primitives
             return new BoundPrimitive<string>(this, DefaultValue);
         }
 
-        public bool IsContainerType
+        public [IType] BaseTypes
         {
-            get { return false; }
-        }
-
-        public IContainerType AsContainerType()
-        {
-            return null;
-        }
-
-        public IArrayType MakeArrayType(int Rank)
-        {
-        	return new DescribedArrayType(this, Rank);
-        }
-
-        public IPointerType MakePointerType(PointerKind PointerKind)
-        {
-        	return new DescribedPointerType(this, PointerKind);
-        }
-
-        public IVectorType MakeVectorType(int[] Dimensions)
-        {
-        	return new DescribedVectorType(this, Dimensions);
-        }
-
-        public IType[] GetBaseTypes()
-        {
-            return new IType[]
+            const get return new IType[]
             {
-            	PrimitiveTypes.IHashCodeProvider,
+            	PrimitiveTypes.IHashable,
             	PrimitiveTypes.IEquatable
             };
         }
 
-        public IType GetGenericDeclaration()
-        {
-            return this;
-        }
-
         public string FullName
         {
-            const get
-            {
-            	return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
-            }
+            const get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
         }
 
-        public const [IAttribute] GetAttributes()
+        public [IAttribute] Attributes
         {
-            return new IAttribute[] { PrimitiveAttributes.ReferenceTypeAttribute };
+            const get return new IAttribute[] { PrimitiveAttributes.ReferenceTypeAttribute };
         }
 
-        public override int GetHashCode()
+        public [IGenericParameter] GenericParameters
         {
-            return Name.GetHashCode();
+            const get return new IGenericParameter[0];
         }
-
-        public override bool Equals(object obj)
-        {
-        	return obj is StringPrimitiveType;
-        }
-
-        #region Generics
-
-        public IType MakeGenericType(IEnumerable<IType> TypeArguments) : IType.MakeGenericType
-        {
-        	return this;
-        }
-
-        public [IGenericParameter] GetGenericParameters() : IGenericMember.GetGenericParameters
-        {
-            return new IGenericParameter[0];
-        }
-
-        public [IType] GetGenericArguments() : IGenericMember.GetGenericArguments
-        {
-            return new IType[0];
-        }
-
-        #endregion
     }
 }

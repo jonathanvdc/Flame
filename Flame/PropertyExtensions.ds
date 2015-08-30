@@ -46,7 +46,7 @@ namespace Flame
         /// <returns></returns>
         public static IAccessor GetAccessor(this IProperty Property, AccessorType Type)
         {
-        	foreach (var item in Property.GetAccessors())
+        	foreach (var item in Property.Accessors)
         	{
         		if (item.AccessorType.Equals(Type))
         		{
@@ -103,55 +103,26 @@ namespace Flame
 
         #endregion
 
-        #region GetIndexerParameterTypes
-
-        public const static IType[] GetIndexerParameterTypes(this IProperty Property)
-        {
-        	var indexerParameters = Property.GetIndexerParameters();
-        	IType[] types = new IType[indexerParameters.Length];
-        	for (int i = 0; i < types.Length; ++i)
-        	{
-        		types[i] = indexerParameters[i].ParameterType;
-        	}
-        	return types;
-        }
-
-        #endregion
-
         #region Indexers
+
+		private static bool isIndexerImpl(IProperty Property)
+		{
+			return Property.HasAttribute(PrimitiveAttributes.IndexerAttribute.AttributeType);
+		}
 
         public static bool IsIndexer[this IProperty Property]
         {
-        	const get
-        	{
-        		return Property.HasAttribute(PrimitiveAttributes.IndexerAttribute.AttributeType);
-        	}
+        	const get return isIndexerImpl(Property);
         }
 
         public static [IProperty] GetIndexers(this IType Type)
         {
-        	var indexers = new List<IProperty>();
-        	foreach (var item in Type.GetProperties())
-        	{
-        		if (item.IsIndexer)
-        		{
-        			indexers.Add(item);
-        		}
-        	}
-        	return indexers;
+			return Enumerable.Where<IProperty>(Type.GetProperties(), isIndexerImpl);
         }
 
         public static [IProperty] GetAllIndexers(this IType Type)
         {
-        	var indexers = new List<IProperty>();
-        	foreach (var item in Type.GetAllProperties())
-        	{
-        		if (item.IsIndexer)
-        		{
-        			indexers.Add(item);
-        		}
-        	}
-        	return indexers;
+			return Enumerable.Where<IProperty>(Type.GetAllProperties(), isIndexerImpl);
         }
 
         public static [IProperty] GetIndexers(this IType Type, bool IsStatic, [IType] IndexerArguments)

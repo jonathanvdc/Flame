@@ -419,10 +419,11 @@ namespace Flame
     		{
     			return ((OperatorAttribute)Method.GetAttribute(OperatorAttribute.OperatorAttributeType)).Operator;
     		}
-    		foreach (var item in Method.GetBaseMethods())
+    		foreach (var item in Method.BaseMethods)
     		{
     			var result = item.GetOperator();
-    			if (result.IsDefined) return result;
+    			if (result.IsDefined)
+					return result;
     		}
         	return Operator.Undefined;
         }
@@ -680,16 +681,20 @@ namespace Flame
         {
         	foreach (var item in Type.GetBaseTypes())
         		if (!item.IsInterface)
-        			return item;
+			{
+				return item;
+			}
         	return null;
         }
 
-        public const static IList<IType> GetInterfaces(this IType Type)
+        public const static [IType] GetInterfaces(this IType Type)
         {
         	var interfs = new List<IType>();
         	foreach (var item in Type.GetBaseTypes())
         		if (item.IsInterface)
-        			interfs.Add(item);
+			{
+				interfs.Add(item);
+			}
         	return interfs;
         }
 
@@ -699,15 +704,10 @@ namespace Flame
 
         public const static [IType] GetAllBaseTypes(this IType Type)
         {
-        	var baseTypes = Type.GetBaseTypes();
-        	var allTypes = new HashSet<IType>();
-        	foreach (var item in baseTypes)
+        	var allTypes = new HashSet<IType>(Type.BaseTypes);
+        	foreach (var item in Type.BaseTypes)
         	{
-				allTypes.Add(item);
-        		foreach (var type in item.GetAllBaseTypes())
-        		{
-					allTypes.Add(type);
-        		}
+				allTypes.UnionWith(item.GetAllBaseTypes());
         	}
             return allTypes;
         }

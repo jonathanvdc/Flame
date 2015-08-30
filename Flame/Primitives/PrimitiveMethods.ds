@@ -8,22 +8,24 @@ namespace Flame
 	{
 		static this()
 		{
-			var getHashCodeTemplate = new DescribedMethod("GetHashCode", PrimitiveTypes.IHashCodeProvider);
+			var getHashCodeTemplate = new DescribedMethod("GetHashCode", PrimitiveTypes.IHashable);
 			getHashCodeTemplate.ReturnType = PrimitiveTypes.Int32;
 			getHashCodeTemplate.IsStatic = false;
 			getHashCodeTemplate.IsConstructor = false;
 			getHashCodeTemplate.AddAttribute(new OperatorAttribute(Operator.Hash));
-			PrimitiveMethods.GetHashCode = new AbstractMethod(getHashCodeTemplate);
-			
+			getHashCodeTemplate.AddAttribute(PrimitiveAttributes.AbstractAttribute);
+			PrimitiveMethods.GetHashCode = getHashCodeTemplate;
+
 			var equalsTemplate = new DescribedMethod("Equals", PrimitiveTypes.IEquatable);
 			equalsTemplate.ReturnType = PrimitiveTypes.Boolean;
 			equalsTemplate.IsStatic = false;
 			equalsTemplate.IsConstructor = false;
 			equalsTemplate.AddParameter(new DescribedParameter("Other", PrimitiveTypes.IEquatable));
 			equalsTemplate.AddAttribute(new OperatorAttribute(Operator.CheckEquality));
-			PrimitiveMethods.Equals = new AbstractMethod(equalsTemplate);
+			equalsTemplate.AddAttribute(PrimitiveAttributes.AbstractAttribute);
+			PrimitiveMethods.Equals = equalsTemplate;
 		}
-		
+
 		public static IMethod GetHashCode { const get; private set; }
 		public static IMethod Equals { const get; private set; }
 	}

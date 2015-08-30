@@ -55,49 +55,34 @@ namespace Flame
 
         public string FullName
         {
-            const get { return First.FullName + "&" + Second.FullName; }
+            get { return First.FullName + "&" + Second.FullName; }
         }
 
-        public const [IAttribute] GetAttributes()
+        public [IAttribute] Attributes
         {
-            return Enumerable.Empty<IAttribute>();
+            const get { return Enumerable.Empty<IAttribute>(); }
         }
 
         public string Name
         {
-            const get { return First.Name + "&" + Second.Name; }
+            get { return First.Name + "&" + Second.Name; }
         }
 
-        public [IType] GetGenericArguments()
+        public [IGenericParameter] GenericParameters
         {
-            return Enumerable.Empty<IType>();
-        }
-
-        public [IGenericParameter] GetGenericParameters()
-        {
-            return Enumerable.Empty<IGenericParameter>();
+            get { return Enumerable.Empty<IGenericParameter>(); }
         }
 
         #region IType Implementation
-
-        public IContainerType AsContainerType()
-        {
-            return null;
-        }
 
         public INamespace DeclaringNamespace
         {
             const get { return null; }
         }
 
-        public IType[] GetBaseTypes()
+        public [IType] BaseTypes
         {
-            return new IType[0];
-        }
-
-        public IMethod[] GetConstructors()
-        {
-            return new IMethod[0];
+            const get { return new IType[0]; }
         }
 
         public IBoundObject GetDefaultValue()
@@ -105,54 +90,19 @@ namespace Flame
             return null;
         }
 
-        public IField[] GetFields()
+        public [IField] Fields
         {
-            return new IField[0];
+            const get { return new IField[0]; }
         }
 
-        public IType GetGenericTypeDeclaration() : IType.GetGenericDeclaration
+        public [IMethod] Methods
         {
-            return this;
+            const get { return new IMethod[0]; }
         }
 
-        public ITypeMember[] GetMembers()
+        public [IProperty] Properties
         {
-            return new ITypeMember[0];
-        }
-
-        public IMethod[] GetMethods()
-        {
-            return new IMethod[0];
-        }
-
-        public IProperty[] GetProperties()
-        {
-            return new IProperty[0];
-        }
-
-        public bool IsContainerType
-        {
-            const get { return false; }
-        }
-
-        public IArrayType MakeArrayType(int Rank)
-        {
-            return new DescribedArrayType(this, Rank);
-        }
-
-        public IType MakeGenericType([IType] TypeArguments)
-        {
-            return this;
-        }
-
-        public IPointerType MakePointerType(PointerKind PointerKind)
-        {
-            return new DescribedPointerType(this, PointerKind);
-        }
-
-        public IVectorType MakeVectorType(int[] Dimensions)
-        {
-            return new DescribedVectorType(this, Dimensions);
+            const get { return new IProperty[0]; }
         }
 
         #endregion

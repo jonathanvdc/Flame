@@ -162,9 +162,23 @@ namespace Flame
 
         #endregion
 
+		public static const [T] FilterByName<T>(this [T] Candidates, string Name)
+			where T : ITypeMember
+		{
+			var results = new List<T>();
+        	foreach (var item in Candidates)
+        	{
+        		if (item.Name == Name)
+        		{
+        			results.Add(item);
+        		}
+        	}
+        	return results;
+		}
+
         public static const [T] FilterByStatic<T>(this [T] Candidates, bool IsStatic) where T : ITypeMember
         {
-        	List<T> props = new List<T>();
+        	var props = new List<T>();
         	foreach (var item in Candidates)
         	{
         		if (item.IsStatic == IsStatic)
