@@ -9,9 +9,13 @@ namespace Flame.Build
     {
         public int GetAncestryDegree(IType First, IType Second)
         {
-            if (First == Second || (First.IsEquivalent(PrimitiveTypes.Null) && Second.IsReferenceType))
+            if (First == Second)
             {
                 return 0; // They are equivalent. Return zero to signal this.
+            }
+            else if (First.IsEquivalent(PrimitiveTypes.Null) && Second.IsReferenceType)
+            {
+                return 1; // Null is a direct subtype of all reference types.
             }
             else
             {
