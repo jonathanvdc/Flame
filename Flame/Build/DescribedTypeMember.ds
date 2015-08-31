@@ -5,8 +5,8 @@ namespace Flame.Build
 {
 	public virtual class DescribedTypeMember : DescribedMember, ITypeMember
 	{
-		protected this();
-		public this(set string Name, set IType DeclaringType);
+		public const this(string Name, set IType DeclaringType)
+			: base(Name);
 
 		public IType DeclaringType { const get; set; }
 		public bool IsStatic { const get; set; }
@@ -18,38 +18,6 @@ namespace Flame.Build
 				if (DeclaringType == null) return Name;
 				else return MemberExtensions.CombineNames(DeclaringType.FullName, Name);
 			}
-		}
-
-		public const bool NameEqual(string OtherName)
-		{
-			if (string.IsNullOrEmpty(Name))
-				return string.IsNullOrEmpty(OtherName);
-			else
-				return Name.Equals(OtherName);
-		}
-		public const bool DeclaringTypeEqual(IType OtherDeclaringType)
-		{
-			if (DeclaringType == null)
-				return OtherDeclaringType == null;
-			else
-				return DeclaringType.Equals(OtherDeclaringType);
-		}
-
-		public override virtual const bool Equals(object Other)
-		{
-			if (Other is ITypeMember)
-			{
-				var otherMember = (ITypeMember)Other;
-				return NameEqual(otherMember.Name) && DeclaringTypeEqual(otherMember.DeclaringType);
-			}
-			else
-			{
-				return false;
-			}
-		}
-		public override virtual const int GetHashCode()
-		{
-			return Name.GetHashCode() ^ DeclaringType.GetHashCode();
 		}
 
 		public virtual override const string ToString()

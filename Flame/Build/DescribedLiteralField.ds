@@ -6,27 +6,17 @@ namespace Flame.Build
 {
     public class DescribedLiteralField<T> : DescribedField, ILiteralField
 	{
-        public const this()
+        public const this(string Name, IType DeclaringType, IType FieldType)
+            : base(Name, DeclaringType, FieldType, true)
         {
-        	this.IsStatic = true;
         	this.AddAttribute(PrimitiveAttributes.ConstantAttribute);
         }
-        public const this(set string Name)
+        public const this(string Name, IType DeclaringType, IType FieldType, T Literal)
+            : base(Name, DeclaringType, FieldType, true)
         {
-        	this.IsStatic = true;
         	this.AddAttribute(PrimitiveAttributes.ConstantAttribute);
         }
-        public const this(set string Name, set IType FieldType)
-        {
-        	this.IsStatic = true;
-        	this.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        }
-        public const this(set string Name, set IType FieldType, set T Literal)
-        {
-        	this.IsStatic = true;
-        	this.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        }
-        
+
         public T Literal { const get; set; }
         public IBoundObject Value { const get return new BoundPrimitive<T>(FieldType, Literal); }
 	}
