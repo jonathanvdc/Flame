@@ -720,11 +720,12 @@ namespace Flame
 
 		/// <summary>
 		/// Tests if the given type is equivalent with the given other type, i.e.
-		/// it has ancestry degree zero.
+		/// it has ancestry degree zero. This method also has an equality fast-path,
+		/// as equality implies equivalence.
 		/// </summary>
 		public const static bool IsEquivalent(this IType Type, IType Other)
 		{
-			return Type.GetAncestryDegree(Other) == 0;
+			return Type == Other || Type.GetAncestryDegree(Other) == 0;
 		}
 
         #endregion

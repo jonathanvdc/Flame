@@ -50,6 +50,8 @@ namespace Flame.Build
             get { return new IGenericParameter[0]; }
         }
 
+        public abstract IAncestryRules AncestryRules { get; }
+
         protected abstract string GetName(string ElementName);
 
         public string Name
