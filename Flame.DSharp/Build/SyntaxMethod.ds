@@ -38,7 +38,7 @@ namespace Flame.DSharp.Build
         {
             var genericBinder = new PredefinedBinder(Binder);
 
-            var genericParams = this.GetGenericParameters();
+            var genericParams = this.GenericParameters;
             var genericArgs = this.GetGenericArguments();
 
             bool empty = true;

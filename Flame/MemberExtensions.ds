@@ -611,67 +611,6 @@ namespace Flame
 
 		#endregion
 
-        #region IsGenericParameter
-
-        /// <summary>
-        /// Gets a boolean value that indicates if the given type is a generic parameter.
-        /// </summary>
-        /// <param name="Type"></param>
-        /// <returns></returns>
-        public static bool IsGenericParameter[this IType Type]
-        {
-        	const get
-        	{
-        		if (Type is IGenericParameter)
-        		{
-        			var genericParam = (IGenericParameter)Type;
-        			return genericParam.DeclaringMember != null;
-        		}
-        		else
-        		{
-        			return false;
-        		}
-            }
-        }
-
-        #endregion
-
-        #region IsGeneric
-
-        public static bool IsGeneric[this IGenericMember Member]
-        {
-        	const get
-        	{
-        		return Enumerable.Any<IGenericParameter>(Member.GetGenericParameters());
-        	}
-        }
-
-        #endregion
-
-        #region IsGenericDeclaration
-
-        public static bool IsGenericDeclaration[this IGenericMember Member]
-        {
-        	const get
-        	{
-        		return !Enumerable.Any<IType>(Member.GetGenericArguments());
-        	}
-        }
-
-        #endregion
-
-        #region IsGenericInstance
-
-        public static bool IsGenericInstance[this IGenericMember Member]
-        {
-        	const get
-        	{
-        		return Enumerable.Any<IType>(Member.GetGenericArguments());
-        	}
-        }
-
-        #endregion
-
         #region GetAncestryDegree
 
         public static const int GetAncestryDegree(this IType Type, IType Other)

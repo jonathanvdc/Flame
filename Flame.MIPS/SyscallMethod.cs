@@ -95,7 +95,7 @@ namespace Flame.MIPS
 
         public virtual IEnumerable<IGenericParameter> GetGenericParameters()
         {
-            return Template.GetGenericParameters();
+            return Template.GenericParameters;
         }
     }
 }

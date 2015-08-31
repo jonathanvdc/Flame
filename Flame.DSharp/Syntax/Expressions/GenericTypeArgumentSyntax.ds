@@ -99,7 +99,7 @@ namespace Flame.Syntax.DSharp
             	if (item is IGenericMember)
             	{
             		var genericItem = (IGenericMember)item;
-            		var genericParams = Enumerable.ToArray<IGenericParameter>(genericItem.GetGenericParameters());
+            		var genericParams = Enumerable.ToArray<IGenericParameter>(genericItem.GenericParameters);
 	                if (genericParams.Length != genericArgs.Length)
 	                {
 	                    break;
@@ -140,7 +140,7 @@ namespace Flame.Syntax.DSharp
                 var method = MethodType.GetMethod(item.Type);
                 if (method != null)
                 {
-                    var typeParams = Enumerable.ToArray<IGenericParameter>(method.GetGenericParameters());
+                    var typeParams = Enumerable.ToArray<IGenericParameter>(method.GenericParameters);
                     if (typeParams.Length == genericArgs.Length)
                     {
                         var genDeleg = item.MakeGenericDelegateExpression(genericArgs);

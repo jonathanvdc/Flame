@@ -446,7 +446,7 @@ namespace Flame.Cpp
         {
             if (Type is IGenericParameter && GenericMember.get_IsGenericInstance())
             {
-                var seq = GenericMember.GetGenericParameters().Zip(GenericMember.GetGenericArguments(), (a, b) => new KeyValuePair<IGenericParameter, IType>(a, b));
+                var seq = GenericMember.GenericParameters.Zip(GenericMember.GetGenericArguments(), (a, b) => new KeyValuePair<IGenericParameter, IType>(a, b));
                 foreach (var item in seq)
                 {
                     if (Type.Equals(item.Key))

@@ -9,14 +9,15 @@ namespace Flame
     /// <summary>
     /// Defines a generic type instantiation.
     /// </summary>
-	public virtual class GenericType : GenericTypeBase, IGenericResolver, IEquatable<IType>
+	public virtual class GenericType : GenericTypeBase, IGenericMemberInstance,
+									   IGenericResolver, IEquatable<IType>
 	{
         /// <summary>
         /// Creates a generic instantiation of the given type with the given
         /// type arguments.
         /// </summary>
-		public const this(IType Type, set [IType] TypeArguments)
-            : base(Type);
+		public const this(IType Declaration, set [IType] TypeArguments)
+            : base(Declaration);
 
         /// <summary>
         /// Gets this generic instantiation's type arguments.
@@ -28,7 +29,7 @@ namespace Flame
 
         public override string Name
         {
-			const get { return GenericNameExtensions.AppendTypeArguments(Type.GetGenericFreeName(), TypeArguments.Names); }
+			const get { return GenericNameExtensions.AppendTypeArguments(Declaration.GetGenericFreeName(), TypeArguments.Names); }
         }
 
         public const IType ResolveTypeParameter(IGenericParameter TypeParameter)
@@ -63,7 +64,7 @@ namespace Flame
 
         public const bool Equals(GenericType Other)
         {
-        	return this.Type == Other.Type &&
+        	return this.Declaration == Other.Declaration &&
                    this.TypeArguments.AreEqual(Other.TypeArguments);
         }
 

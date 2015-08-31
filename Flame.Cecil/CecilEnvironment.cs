@@ -44,7 +44,7 @@ namespace Flame.Cecil
         private static void ForwardCall(IMethodBuilder Source, IMethod SourceMethod, IMethod TargetMethod)
         {
             var dict = new Dictionary<IType, IType>();
-            foreach (var item in SourceMethod.DeclaringType.GetGenericParameters())
+            foreach (var item in SourceMethod.DeclaringType.GenericParameters)
             {
                 dict[item] = item;
             }

@@ -81,7 +81,7 @@ namespace Flame.Recompilation
 
         public IEnumerable<IGenericParameter> GetGenericParameters()
         {
-            return RecompiledGenericParameterTemplate.GetRecompilerTemplates(Recompiler, this, SourceMethod.GetGenericParameters());
+            return RecompiledGenericParameterTemplate.GetRecompilerTemplates(Recompiler, this, SourceMethod.GenericParameters);
         }
 
         public override IEnumerable<IAttribute> GetAttributes()

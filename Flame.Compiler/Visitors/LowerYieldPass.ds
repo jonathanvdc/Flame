@@ -27,7 +27,7 @@ namespace Flame.Compiler.Visitors
             var descNestedType = new DescribedType("__" + Method.Name + "_enumerator", DeclaringNamespace);
             descNestedType.AddAttribute(new AccessAttribute(AccessModifier.Private));
             descNestedType.AddAttribute(PrimitiveAttributes.HiddenAttribute);
-            foreach (var item in Method.GetGenericParameters())
+            foreach (var item in Method.GenericParameters)
             {
                 descNestedType.AddGenericParameter(item);
             }
@@ -146,7 +146,7 @@ namespace Flame.Compiler.Visitors
 
             if (nestedType.IsGeneric)
             {
-                var inst = nestedType.MakeGenericType(Method.GetGenericParameters());
+                var inst = nestedType.MakeGenericType(Method.GenericParameters);
                 var genCtor = Enumerable.Single<IMethod>(inst.GetConstructors());
                 return new ReturnStatement(new InvocationExpression(genCtor, null, initExprs));
             }

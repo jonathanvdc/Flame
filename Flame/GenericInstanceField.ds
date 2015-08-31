@@ -7,16 +7,16 @@ namespace Flame
 {
 	public class GenericInstanceField : IField, IEquatable<IField>
 	{
-		public const this(set IField Field, set IGenericResolverType Parent)
+		public const this(set IField Declaration, set IGenericResolverType Parent)
 		{
 			this.DeclaringType = Parent;
 		}
-		public const this(set IField Field, set IGenericResolver Parent, set IType DeclaringType);
+		public const this(set IField Declaration, set IGenericResolver Parent, set IType DeclaringType);
 
         /// <summary>
         /// Gets the generic instance field's original definition.
         /// </summary>
-        public IField Field { const get; private set; }
+        public IField Declaration { const get; private set; }
 
         /// <summary>
         /// Gets the generic instance field's generic resolver.
@@ -30,26 +30,26 @@ namespace Flame
 
         public IType FieldType
         {
-            const get { return Parent.ResolveType(Field.FieldType); }
+            const get { return Parent.ResolveType(Declaration.FieldType); }
         }
         public bool IsStatic
         {
-            const get { return Field.IsStatic; }
+            const get { return Declaration.IsStatic; }
         }
 
         public string FullName
         {
-            const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Field.Name); }
+            const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Declaration.Name); }
         }
 
         public [IAttribute] Attributes
         {
-            const get { return Field.Attributes; }
+            const get { return Declaration.Attributes; }
         }
 
         public string Name
         {
-            const get { return Field.Name; }
+            const get { return Declaration.Name; }
         }
 
         public override string ToString()
@@ -77,12 +77,12 @@ namespace Flame
 
         public const bool Equals(DescribedGenericFieldInstance Other)
         {
-        	return this.DeclaringType == Other.DeclaringType && this.Field == Other.Field;
+        	return this.DeclaringType == Other.DeclaringType && this.Declaration == Other.Declaration;
         }
 
         public override const int GetHashCode()
         {
-        	return this.DeclaringType.GetHashCode() ^ Field.GetHashCode();
+        	return this.DeclaringType.GetHashCode() ^ Declaration.GetHashCode();
         }
 
         #endregion

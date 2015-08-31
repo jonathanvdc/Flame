@@ -14,8 +14,8 @@ namespace Flame
         /// Creates a new generic type instance accessor from the given accessor,
         /// resolver and declaring property.
         /// </summary>
-        public const this(IAccessor Accessor, IGenericResolver Resolver, set IProperty DeclaringProperty)
-            : base(Accessor, Resolver, DeclaringProperty.DeclaringType);
+        public const this(IAccessor Declaration, IGenericResolver Resolver, set IProperty DeclaringProperty)
+            : base(Declaration, Resolver, DeclaringProperty.DeclaringType);
 
         /// <summary>
         /// Gets the property's accessor type.

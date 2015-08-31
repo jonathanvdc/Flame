@@ -132,7 +132,7 @@ namespace Flame.Python
 
         public IEnumerable<IGenericParameter> GetGenericParameters()
         {
-            return Template.GetGenericParameters();
+            return Template.GenericParameters;
         }
 
         #endregion

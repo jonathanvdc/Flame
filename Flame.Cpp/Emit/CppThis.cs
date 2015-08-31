@@ -23,7 +23,7 @@ namespace Flame.Cpp.Emit
             get
             {
                 var declType = CodeGenerator.Method.DeclaringType;
-                return declType.MakeGenericType(declType.GetGenericParameters()).MakePointerType(PointerKind.TransientPointer);
+                return declType.MakeGenericType(declType.GenericParameters).MakePointerType(PointerKind.TransientPointer);
             }
         }
     }
@@ -38,7 +38,7 @@ namespace Flame.Cpp.Emit
         public ICodeGenerator CodeGenerator { get; private set; }
         public IType Type
         {
-            get { return CodeGenerator.Method.DeclaringType.MakeGenericType(CodeGenerator.Method.DeclaringType.GetGenericParameters()).MakePointerType(PointerKind.TransientPointer); }
+            get { return CodeGenerator.Method.DeclaringType.MakeGenericType(CodeGenerator.Method.DeclaringType.GenericParameters).MakePointerType(PointerKind.TransientPointer); }
         }
 
         public IEnumerable<IHeaderDependency> Dependencies

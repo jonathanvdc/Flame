@@ -55,7 +55,7 @@ namespace Flame.XmlDocs
 
         protected override string ConvertTypeDefault(IType Type)
         {
-            return MemberExtensions.CombineNames(ConvertNamespace(Type.DeclaringNamespace), ConvertName(Type.Name, Type.GetGenericParameters()));
+            return MemberExtensions.CombineNames(ConvertNamespace(Type.DeclaringNamespace), ConvertName(Type.Name, Type.GenericParameters));
         }
 
         protected override string MakeGenericType(string GenericDeclaration, IEnumerable<string> TypeArguments)

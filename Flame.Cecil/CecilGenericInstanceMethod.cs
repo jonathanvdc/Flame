@@ -97,7 +97,7 @@ namespace Flame.Cecil
 
         public override IEnumerable<IGenericParameter> GetGenericParameters()
         {
-            return Method.GetGenericParameters();
+            return Method.GenericParameters;
         }
     }
 }

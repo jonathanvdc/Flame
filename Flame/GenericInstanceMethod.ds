@@ -15,15 +15,15 @@ namespace Flame
         /// Creates a generic type method instantiation from the given method,
         /// resolver and declaring type.
         /// </summary>
-		public const this(IMethod Method, set IGenericResolver resolver, set IType declaringType)
-            : base(Method);
+		public const this(IMethod Declaration, set IGenericResolver resolver, set IType declaringType)
+            : base(Declaration);
 
         /// <summary>
         /// Creates a generic type method instantiation from the given method and
         /// declaring type.
         /// </summary>
-		public const this(IMethod Method, IGenericResolverType DeclaringType)
-            : base(Method)
+		public const this(IMethod Declaration, IGenericResolverType DeclaringType)
+            : base(Declaration)
 		{
             this.resolver = DeclaringType;
 			this.declaringType = DeclaringType;
@@ -37,7 +37,7 @@ namespace Flame
 
 		public override string Name
         {
-            const get { return Method.Name; }
+            const get { return Declaration.Name; }
         }
 
         #region Equality
@@ -60,13 +60,13 @@ namespace Flame
 
         public const bool Equals(GenericInstanceMethod Other)
         {
-        	return this.Method == Other.Method &&
+        	return this.Declaration == Other.Declaration &&
                    this.DeclaringType == Other.DeclaringType;
         }
 
         public override const int GetHashCode()
         {
-        	return DeclaringType.GetHashCode() ^ Method.GetHashCode();
+        	return DeclaringType.GetHashCode() ^ Declaration.GetHashCode();
         }
 
         #endregion

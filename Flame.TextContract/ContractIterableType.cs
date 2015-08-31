@@ -108,7 +108,7 @@ namespace Flame.TextContract
 
         public override IEnumerable<IGenericParameter> GetGenericParameters()
         {
-            return GetGenericDeclaration().GetGenericParameters();
+            return GetGenericDeclaration().GenericParameters;
         }
 
         public override IType MakeGenericType(IEnumerable<IType> TypeArguments)

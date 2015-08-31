@@ -8,44 +8,44 @@ namespace Flame
 {
 	public class GenericInstanceProperty : IProperty, IEquatable<IProperty>
     {
-    	public const this(set IProperty Property, set IGenericResolver Resolver, set IType DeclaringType)
+    	public const this(set IProperty Declaration, set IGenericResolver Resolver, set IType DeclaringType)
         {
             this.cachedAccessors = new Lazy<IAccessor>(createAccessors);
             this.cachedIndexerParameters = new Lazy<IParameter>(createIndexerParameters);
         }
-        public const this(set IProperty Property, set IGenericResolverType Resolver)
+        public const this(set IProperty Declaration, set IGenericResolverType Resolver)
         {
         	this.DeclaringType = Resolver;
             this.cachedAccessors = new Lazy<IAccessor>(createAccessors);
             this.cachedIndexerParameters = new Lazy<IParameter>(createIndexerParameters);
         }
 
-        public IProperty Property { const get; private set; }
+        public IProperty Declaration { const get; private set; }
         public IGenericResolver Resolver { const get; private set; }
         public IType DeclaringType { const get; private set; }
 
         public IType PropertyType
         {
-            const get { return Resolver.ResolveType(Property.PropertyType); }
+            const get { return Resolver.ResolveType(Declaration.PropertyType); }
         }
         public bool IsStatic
         {
-            const get { return Property.IsStatic; }
+            const get { return Declaration.IsStatic; }
         }
 
         public string FullName
         {
-            const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Property.Name); }
+            const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Declaration.Name); }
         }
 
         public string Name
         {
-            const get { return Property.Name; }
+            const get { return Declaration.Name; }
         }
 
         public [IAttribute] Attributes
         {
-            const get { return Property.Attributes; }
+            const get { return Declaration.Attributes; }
         }
 
         private Lazy<IAccessor[]> cachedAccessors;
@@ -57,7 +57,7 @@ namespace Flame
         private IAccessor[] createAccessors()
         {
         	var results = new List<IAccessor>();
-        	foreach (var input in Property.Accessors)
+        	foreach (var input in Declaration.Accessors)
         	{
         		results.Add(new GenericInstanceAccessor(input, Resolver, this));
         	}
@@ -71,7 +71,7 @@ namespace Flame
         }
         private IParameter[] createIndexerParameters()
         {
-            return Enumerable.ToArray<IParameter>(Resolver.ResolveParameters(Property.IndexerParameters));
+            return Enumerable.ToArray<IParameter>(Resolver.ResolveParameters(Declaration.IndexerParameters));
         }
 
         #region Equality
@@ -94,12 +94,12 @@ namespace Flame
 
         public const bool Equals(DescribedGenericPropertyInstance Other)
         {
-        	return this.DeclaringType == Other.DeclaringType && this.Property == Other.Property;
+        	return this.DeclaringType == Other.DeclaringType && this.Declaration == Other.Declaration;
         }
 
         public override const int GetHashCode()
         {
-        	return DeclaringType.GetHashCode() ^ Property.GetHashCode();
+        	return DeclaringType.GetHashCode() ^ Declaration.GetHashCode();
         }
 
         #endregion

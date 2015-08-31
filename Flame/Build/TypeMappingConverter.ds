@@ -37,7 +37,7 @@ namespace Flame.Build
 		
 		protected override const IType ConvertGenericParameter(IGenericParameter Type)
 		{
-			foreach (var item in DeclaringMember.GetGenericParameters())
+			foreach (var item in DeclaringMember.GenericParameters)
 				if (item.Name.Equals(Type.Name))
 			{
 				return item;

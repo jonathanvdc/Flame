@@ -20,10 +20,10 @@ namespace Flame.Build
 			var convDeclNs = (INamespace)convDeclType;
 
 			string tName = Type.Name;
-			int genParamCount = Enumerable.Count<IGenericParameter>(Type.GetGenericParameters());
+			int genParamCount = Enumerable.Count<IGenericParameter>(Type.GenericParameters);
 
 			foreach (var item in convDeclNs.GetTypes())
-				if (item.Name == tName && Enumerable.Count<IGenericParameter>(item.GetGenericParameters()) == genParamCount)
+				if (item.Name == tName && Enumerable.Count<IGenericParameter>(item.GenericParameters) == genParamCount)
 			{
 				return item;
 			}

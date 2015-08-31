@@ -216,7 +216,7 @@ namespace Flame.Recompilation
 
         public IEnumerable<IGenericParameter> GetGenericParameters()
         {
-            return RecompiledGenericParameterTemplate.GetRecompilerTemplates(Recompiler, this, SourceType.GetGenericParameters());
+            return RecompiledGenericParameterTemplate.GetRecompilerTemplates(Recompiler, this, SourceType.GenericParameters);
         }
 
         #endregion

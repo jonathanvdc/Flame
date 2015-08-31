@@ -172,7 +172,7 @@ namespace Flame.TextContract
 
         public IEnumerable<IGenericParameter> GetGenericParameters()
         {
-            return Template.GetGenericParameters();
+            return Template.GenericParameters;
         }
 
         public CodeBuilder GetCode()

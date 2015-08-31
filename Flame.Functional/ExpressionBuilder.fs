@@ -516,7 +516,7 @@ module ExpressionBuilder =
         let tArgs     = Array.ofSeq typeArgs
         let innerTgt  = target.GetEssentialExpression()
         let delegates = Enumerable.OfType<IDelegateExpression>(IntersectionExpression.GetIntersectedExpressions innerTgt) 
-                            |> Seq.filter (fun x -> let tgtMethod = MethodType.GetMethod(x.Type) in tArgs.Length = Seq.length (tgtMethod.GetGenericParameters()) && tgtMethod.get_IsGenericDeclaration())
+                            |> Seq.filter (fun x -> let tgtMethod = MethodType.GetMethod(x.Type) in tArgs.Length = Seq.length (tgtMethod.GenericParameters) && tgtMethod.get_IsGenericDeclaration())
                             |> Seq.map (fun x -> x.MakeGenericExpression tArgs)
                             |> Seq.cast
                             |> Seq.toArray

@@ -35,7 +35,7 @@ namespace Flame.Cecil
 
         public IEnumerable<IGenericParameter> GetGenericParameters()
         {
-            return GenericDefinition.GetGenericParameters();
+            return GenericDefinition.GenericParameters;
         }
 
         public IContainerType AsContainerType()
