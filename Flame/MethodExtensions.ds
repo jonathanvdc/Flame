@@ -281,6 +281,14 @@ namespace Flame
 		}
 
 		/// <summary>
+		/// Gets a read-only array containing the given method's parameter list.
+		/// </summary>
+		public static IParameter[] GetParameters(this IMethod Method)
+		{
+			return Enumerable.ToArray<IParameter>(Method.Parameters);
+		}
+
+		/// <summary>
 		/// Gets a boolean value that indicates whether the given method has a
 		/// non-null, non-void return value.
 		/// </summary>
