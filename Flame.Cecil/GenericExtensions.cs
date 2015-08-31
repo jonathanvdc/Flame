@@ -57,11 +57,11 @@ namespace Flame.Cecil
         }
         public static IEnumerable<IGenericParameter> GetAllGenericParameters(this IMethod Method)
         {
-            return Method.DeclaringType.GetAllGenericParameters().Concat(Method.GetGenericParameters());
+            return Method.DeclaringType.GetAllGenericParameters().Concat(Method.GenericParameters);
         }
         public static IEnumerable<IGenericParameter> GetAllGenericParameters(this IType Type)
         {
-            var tparams = Type.GetGenericParameters();
+            var tparams = Type.GenericParameters;
             if (Type.DeclaringNamespace is IGenericMember)
             {
                 return ((IGenericMember)Type.DeclaringNamespace).GetAllGenericParameters().Concat(tparams);

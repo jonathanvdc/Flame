@@ -134,7 +134,7 @@ namespace Flame.TextContract
 
         public IEnumerable<IGenericParameter> GetGenericParameters()
         {
-            return GenericDeclaration.GetGenericParameters();
+            return GenericDeclaration.GenericParameters;
         }
     }
 }

@@ -69,7 +69,7 @@ namespace Flame.Cecil
                 StringBuilder sb = new StringBuilder();
                 sb.Append(Template.GetGenericFreeName());
                 sb.Append('`');
-                sb.Append(Template.GetGenericParameters().Count());
+                sb.Append(Template.GenericParameters.Count());
                 return sb.ToString();
             }
         }
@@ -99,7 +99,7 @@ namespace Flame.Cecil
             CecilTypeBuilder cecilType;
             IGenericResolver genericResolver;
             bool isEnum = Template.get_IsEnum();
-            //IGenericResolver resolver = isEnum || !Template.GetGenericParameters().Any() ? 
+            //IGenericResolver resolver = isEnum || !Template.GenericParameters.Any() ? 
             if (isEnum)
             {
                 cecilType = new CecilEnumBuilder(reference, CecilNamespace, CecilNamespace.Module);
@@ -110,7 +110,7 @@ namespace Flame.Cecil
                 var declType = (ICecilType)CecilNamespace;
                 var mapResolver = new GenericResolverMap(declType);
                 cecilType = new CecilTypeBuilder(reference, CecilNamespace, mapResolver, CecilNamespace.Module);
-                var declGenerics = declType.GetGenericParameters().ToArray();
+                var declGenerics = declType.GenericParameters.ToArray();
                 var inheritedGenerics = CecilGenericParameter.DeclareGenericParameters(reference, declGenerics, cecilType.Module, cecilType);
                 mapResolver.Map(declGenerics, inheritedGenerics);
                 genericResolver = mapResolver;
@@ -126,7 +126,7 @@ namespace Flame.Cecil
             var module = CecilNamespace.Module.Module;
 
             // generics
-            var genericTemplates = Template.GetGenericParameters().ToArray();
+            var genericTemplates = Template.GenericParameters.ToArray();
 
             var genericParams = CecilGenericParameter.DeclareGenericParameters(reference, genericTemplates, cecilType.Module, cecilType);
 

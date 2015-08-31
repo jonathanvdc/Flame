@@ -133,7 +133,7 @@ namespace Flame.Cecil
 
         public IEnumerable<IGenericParameter> GetGenericParameters()
         {
-            return Type.GetGenericParameters();
+            return Type.GenericParameters;
         }
 
         public IContainerType AsContainerType()

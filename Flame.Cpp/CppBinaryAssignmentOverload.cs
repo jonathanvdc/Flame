@@ -55,7 +55,7 @@ namespace Flame.Cpp
 
         public IType ReturnType
         {
-            get { return DeclaringType.MakeGenericType(DeclaringType.GetGenericParameters()).MakePointerType(CppPointerExtensions.AtAddressPointer); }
+            get { return DeclaringType.MakeGenericType(DeclaringType.GenericParameters).MakePointerType(CppPointerExtensions.AtAddressPointer); }
         }
 
         public bool IsStatic
@@ -123,7 +123,7 @@ namespace Flame.Cpp
             cb.Append(' ');
             if (PrefixName)
             {
-                var genDeclType = DeclaringType.MakeGenericType(DeclaringType.GetGenericParameters());
+                var genDeclType = DeclaringType.MakeGenericType(DeclaringType.GenericParameters);
                 cb.Append(envir.TypeNamer.Name(genDeclType, this));
                 cb.Append("::");
             }

@@ -16,6 +16,17 @@ namespace Flame
     }
 
     /// <summary>
+    /// A common interface for generic member instances.
+    /// </summary>
+    public interface IGenericMemberInstance : IGenericMember
+    {
+        /// <summary>
+        /// Gets this generic member instance's type arguments.
+        /// </summary>
+        [IType] TypeArguments { get; }
+    }
+
+    /// <summary>
     /// Defines a generic parameter's interface.
     /// </summary>
     public interface IGenericParameter : IType

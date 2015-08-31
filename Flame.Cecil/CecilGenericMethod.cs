@@ -120,7 +120,7 @@ namespace Flame.Cecil
 
         protected override IType ResolveLocalTypeParameter(IGenericParameter TypeParameter)
         {
-            var genericParams = GenericDeclaration.GetGenericParameters().ToArray();
+            var genericParams = GenericDeclaration.GenericParameters.ToArray();
             for (int i = 0; i < genericParams.Length; i++)
             {
                 if (genericParams[i].Equals(TypeParameter))

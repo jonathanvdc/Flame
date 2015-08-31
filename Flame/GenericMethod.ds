@@ -9,14 +9,15 @@ namespace Flame
     /// <summary>
     /// Defines a generic method instantiation.
     /// </summary>
-	public virtual class GenericMethod : GenericMethodBase, IGenericResolver, IEquatable<IMethod>
+	public virtual class GenericMethod : GenericMethodBase, IGenericMemberInstance,
+									     IGenericResolver, IEquatable<IMethod>
 	{
         /// <summary>
         /// Creates a generic instantiation of the given method with the given
         /// type arguments.
         /// </summary>
-		public const this(IMethod Method, set [IType] TypeArguments)
-            : base(Method);
+		public const this(IMethod Declaration, set [IType] TypeArguments)
+            : base(Declaration);
 
         /// <summary>
         /// Gets this generic method's type arguments.
@@ -24,11 +25,11 @@ namespace Flame
         public [IType] TypeArguments { const get; private set; }
 
 		public override IGenericResolver Resolver { const get { return this; } }
-		public override IType DeclaringType { const get { return Method.DeclaringType; } }
+		public override IType DeclaringType { const get { return Declaration.DeclaringType; } }
 
 		public override string Name
         {
-			const get { return GenericNameExtensions.AppendTypeArguments(Method.GetGenericFreeName(), TypeArguments.Names); }
+			const get { return GenericNameExtensions.AppendTypeArguments(Declaration.GetGenericFreeName(), TypeArguments.Names); }
         }
 
         public const IType ResolveTypeParameter(IGenericParameter TypeParameter)
@@ -63,7 +64,7 @@ namespace Flame
 
         public const bool Equals(GenericMethod Other)
         {
-        	return this.Method == Other.Method &&
+        	return this.Declaration == Other.Declaration &&
                    this.TypeArguments.AreEqual(Other.TypeArguments);
         }
 

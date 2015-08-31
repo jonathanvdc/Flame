@@ -161,7 +161,7 @@ namespace Flame.Cpp
             }
             cb.Append(TypeNamer.Name(FieldType, this));
             cb.Append(' '); 
-            var genDeclType = (IGenericResolverType)DeclaringType.MakeGenericType(DeclaringType.GetGenericParameters());
+            var genDeclType = (IGenericResolverType)DeclaringType.MakeGenericType(DeclaringType.GenericParameters);
             cb.Append(TypeNamer.Name(genDeclType, this));
             cb.Append("::");
             cb.Append(Name);

@@ -7,33 +7,155 @@ namespace Flame
 {
 	public static class GenericExtensions
 	{
-		public static bool IsRecursiveGenericInstance[this IType Type]
+		#region IsGenericParameter
+
+		/// <summary>
+		/// Gets a boolean value that indicates if the given type is a generic parameter.
+		/// </summary>
+		/// <param name="Type"></param>
+		/// <returns></returns>
+		public static bool IsGenericParameter[this IType Type]
 		{
 			const get
 			{
-				if (Type.IsGenericInstance)
+				if (Type is IGenericParameter)
 				{
-					return true;
+					var genericParam = (IGenericParameter)Type;
+					return genericParam.DeclaringMember != null;
 				}
-				else if (Type.DeclaringNamespace is IType)
+				else
 				{
-					var nsType = (IType)Type.DeclaringNamespace;
-					return !Enumerable.SequenceEqual<IType>(([IType])nsType.GetRecursiveGenericParameters(),
-														   nsType.GetRecursiveGenericArguments());
+					return false;
 				}
-				else return false;
 			}
 		}
 
+		#endregion
+
+		#region Predicates
+
+		public static bool IsGeneric[this IGenericMember Member]
+		{
+			const get { return Enumerable.Any<IGenericParameter>(Member.GenericParameters); }
+		}
+
+		public static bool IsGenericDeclaration[this IGenericMember Member]
+		{
+			const get { return !Member.IsGenericInstance; }
+		}
+
+		public static bool IsGenericInstance[this IGenericMember Member]
+		{
+			const get { return Type is IGenericMemberInstance; }
+		}
+
+		public static bool IsRecursiveGenericInstance[this IType Type]
+		{
+			const get { return Type is GenericTypeBase; }
+		}
+
+		#endregion
+
+		#region GetGenericDeclaration
+
+		public static IMethod GetGenericDeclaration(this IMethod Member)
+		{
+			if (Member is GenericMethod)
+			{
+				return ((GenericMethod)Member).Declaration;
+			}
+			else
+			{
+				return Member;
+			}
+		}
+
+		public static IType GetGenericDeclaration(this IType Member)
+		{
+			if (Member is GenericType)
+			{
+				return ((GenericType)Member).Declaration;
+			}
+			else
+			{
+				return Member;
+			}
+		}
+
+		#endregion
+
+		#region MakeGeneric
+
+		public static IType MakeGenericType(this IType GenericDeclaration, [IType] TypeArguments)
+		{
+			var argArr = Enumerable.ToArray<IType>(TypeArguments);
+			int genParamCount = Enumerable.Count<IGenericParameter>(GenericDeclaration.GenericParameters);
+			if (argArr.Length != genParamCount)
+			{
+				throw new InvalidOperationException("Type '" + GenericDeclaration.FullName +
+					"' with " + genParamCount + " generic parameters, cannot be instantiated with " +
+					argArr.Length + " type arguments.");
+			}
+			else if (argArr == 0)
+			{
+				return GenericDeclaration;
+			}
+			else
+			{
+				return new GenericType(GenericDeclaration.GetGenericDeclaration(), argArr);
+			}
+		}
+
+		public static IMethod MakeGenericMethod(this IMethod GenericDeclaration, [IType] TypeArguments)
+		{
+			var argArr = Enumerable.ToArray<IType>(TypeArguments);
+			int genParamCount = Enumerable.Count<IGenericParameter>(GenericDeclaration.GenericParameters);
+			if (argArr.Length != genParamCount)
+			{
+				throw new InvalidOperationException("Method '" + GenericDeclaration.FullName +
+					"' with " + genParamCount + " generic parameters, cannot be instantiated with " +
+					argArr.Length + " type arguments.");
+			}
+			else if (argArr == 0)
+			{
+				return GenericDeclaration;
+			}
+			else
+			{
+				return new GenericMethod(GenericDeclaration.GetGenericDeclaration(), argArr);
+			}
+		}
+
+		#endregion
+
+		#region GetGenericArguments
+
+		public static [IType] GetGenericArguments(this IGenericMember Member)
+		{
+			if (Type is IGenericMemberInstance)
+			{
+				return ((IGenericMemberInstance)Type).TypeArguments;
+			}
+			else
+			{
+				return Enumerable.Empty<IType>();
+			}
+		}
+
+		#endregion
+
 		public static const [IGenericParameter] GetRecursiveGenericParameters(this IType Type)
 		{
-			var typeParams = Type.GetGenericParameters();
+			var typeParams = Type.GenericParameters;
 			if (Type.DeclaringNamespace is IType)
 			{
 				return Enumerable.Concat<IGenericParameter>(((IType)Type.DeclaringNamespace).GetRecursiveGenericParameters(),
 						typeParams);
 			}
-			else return typeParams;
+			else
+			{
+				return typeParams;
+			}
 		}
 
 		public static const [IType] GetRecursiveGenericArguments(this IType Type)
@@ -42,18 +164,20 @@ namespace Flame
 			if (Type.DeclaringNamespace is IType)
 			{
 				return Enumerable.Concat<IType>(((IType)Type.DeclaringNamespace).GetRecursiveGenericArguments(),
-					genArgs);
+					                            genArgs);
 			}
-			else return genArgs;
+			else
+			{
+				return genArgs;
+			}
 		}
 
 		private static const IType GetChildType(INamespace Namespace, IType Type)
 		{
-			var types = Namespace.GetTypes();
-			int genParamCount = Enumerable.Count<IGenericParameter>(Type.GetGenericParameters());
-			foreach (var item in types)
+			int genParamCount = Enumerable.Count<IGenericParameter>(Type.GenericParameters);
+			foreach (var item in Namespace.Types)
 				if (item.Name == Type.Name)
-				if (Enumerable.Count<IGenericParameter>(item.GetGenericParameters()) == genParamCount)
+				if (Enumerable.Count<IGenericParameter>(item.GenericParameters) == genParamCount)
 			{
 				return item;
 			}
@@ -71,7 +195,10 @@ namespace Flame
 			{
 				return Type.GetGenericDeclaration();
 			}
-			else return Type;
+			else
+			{
+				return Type;
+			}
 		}
 
 		public static const IType MakeRecursiveGenericType(this IType Type, [IType] TypeArguments)
@@ -90,7 +217,10 @@ namespace Flame
 					{
 						return decl.MakeGenericType(actualArgs);
 					}
-					else return decl;
+					else
+					{
+						return decl;
+					}
 				}
 			}
 			return Type.MakeGenericType(TypeArguments);

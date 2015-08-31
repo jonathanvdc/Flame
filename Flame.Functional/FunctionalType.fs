@@ -147,7 +147,7 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
         member this.GetGenericDeclaration() = this :> IType
         member this.MakeGenericType tArgs = new DescribedGenericTypeInstance(this :> IType, tArgs) :> IType
         member this.GetGenericArguments() = Seq.empty
-        member this.GetGenericParameters() = this.GenericParameters
+        member this.GenericParameters = this.GenericParameters
 
         member this.GetBaseTypes() = this.BaseTypes
         member this.GetMethods() = this.Methods

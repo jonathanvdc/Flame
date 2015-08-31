@@ -76,7 +76,7 @@ namespace Flame
             	if (Type.GetGenericDeclaration().Equals(Other.GetGenericDeclaration()))
             	{
             		int totalAncestry = 0;
-	            	foreach (var genParam in Type.GetGenericParameters(),
+	            	foreach (var genParam in Type.GenericParameters,
 							 var genArg1 in Type.GetGenericArguments(),
 							 var genArg2 in Other.GetGenericArguments())
 	            	{

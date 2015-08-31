@@ -173,7 +173,7 @@ namespace Flame.Cecil
 
             AddMethod(methodDef);
 
-            var cecilGenericParams = CecilGenericParameter.DeclareGenericParameters(methodDef, Template.GetGenericParameters().ToArray(), module);
+            var cecilGenericParams = CecilGenericParameter.DeclareGenericParameters(methodDef, Template.GenericParameters.ToArray(), module);
 
             var cecilMethod = new CecilMethodBuilder(DeclaringType, methodDef);
             var genericParams = cecilGenericParams.Select((item) => new CecilGenericParameter(item, cecilMethod.Module, cecilMethod)).ToArray();

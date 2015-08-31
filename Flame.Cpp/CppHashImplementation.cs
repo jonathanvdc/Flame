@@ -41,7 +41,7 @@ namespace Flame.Cpp
 
         public CodeBuilder GetHeaderCode()
         {
-            var argType = Environment.TypeConverter.Convert(ArgumentType.get_IsGeneric() ? ArgumentType.MakeGenericType(ArgumentType.GetGenericParameters()) : ArgumentType);
+            var argType = Environment.TypeConverter.Convert(ArgumentType.get_IsGeneric() ? ArgumentType.MakeGenericType(ArgumentType.GenericParameters) : ArgumentType);
 
             var cb = new CodeBuilder();
             cb.AddLine("namespace std");

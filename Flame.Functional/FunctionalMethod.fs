@@ -97,7 +97,7 @@ type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
 
         member this.Invoke(target : IBoundObject, args : IBoundObject seq) = null // We don't do that yet.
 
-        member this.GetGenericParameters() = this.GenericParameters
+        member this.GenericParameters = this.GenericParameters
         member this.GetGenericArguments() = Seq.empty
         member this.GetGenericDeclaration() = this :> IMethod
         member this.MakeGenericMethod tArgs = new DescribedGenericMethodInstance(this :> IMethod, new EmptyGenericResolver(), this.DeclaringType, tArgs) :> IMethod

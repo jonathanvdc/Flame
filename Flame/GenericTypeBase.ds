@@ -13,7 +13,7 @@ namespace Flame
         /// <summary>
         /// Creates a new generic type base from the given type.
         /// </summary>
-        public const this(set IType Type)
+        public const this(set IType Declaration)
         {
             cachedMethods = new Lazy<IField[]>(createMethods);
             cachedProperties = new Lazy<IProperty[]>(createProperties);
@@ -24,7 +24,7 @@ namespace Flame
         /// <summary>
         /// Gets the type definition this generic type is based on.
         /// </summary>
-        public IType Type { const get; private set; }
+        public IType Declaration { const get; private set; }
 
         /// <summary>
         /// Gets this generic type's resolver.
@@ -58,12 +58,12 @@ namespace Flame
 
         public [IAttribute] Attributes
         {
-            const get { return Type.Attributes; }
+            const get { return Declaration.Attributes; }
         }
 
         public [IGenericParameter] GenericParameters
         {
-            const get { return Type.GenericParameters; }
+            const get { return Declaration.GenericParameters; }
         }
 
         public const IBoundObject GetDefaultValue()
@@ -101,7 +101,7 @@ namespace Flame
         private IMethod[] createMethods()
         {
             var results = new List<IMethod>();
-            foreach (var item in Type.Methods)
+            foreach (var item in Declaration.Methods)
             {
                 results.Add(new GenericInstanceMethod(item, Resolver, this));
             }
@@ -110,7 +110,7 @@ namespace Flame
         private IField[] createFields()
         {
             var results = new List<IField>();
-            foreach (var item in Type.Fields)
+            foreach (var item in Declaration.Fields)
             {
                 results.Add(new GenericInstanceField(item, Resolver, this));
             }
@@ -119,7 +119,7 @@ namespace Flame
         private IProperty[] createProperties()
         {
             var results = new List<IProperty>();
-            foreach (var item in Type.Fields)
+            foreach (var item in Declaration.Fields)
             {
                 results.Add(new GenericInstanceProperty(item, Resolver, this));
             }
@@ -127,13 +127,13 @@ namespace Flame
         }
         private IType[] createBaseTypes()
         {
-            return Enumerable.ToArray<IType>(Type.BaseTypes, Resolver.ResolveType);
+            return Enumerable.ToArray<IType>(Declaration.BaseTypes, Resolver.ResolveType);
         }
         private IType[] createNestedTypes()
         {
-            if (Type is INamespace)
+            if (Declaration is INamespace)
             {
-                var genNs = (INamespace)Type;
+                var genNs = (INamespace)Declaration;
                 var results = new List<IType>();
                 foreach (var input in genNs.Types)
                 {

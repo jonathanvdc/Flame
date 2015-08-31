@@ -8,7 +8,7 @@ namespace Flame
     /// </summary>
     public abstract class GenericMethodBase : IMethod
     {
-        public const this(set IMethod Method)
+        public const this(set IMethod Declaration)
         {
             this.cachedRetType = new Lazy<IType>(createReturnType);
             this.cachedParameters = new Lazy<IParameter[]>(createParameters);
@@ -18,7 +18,7 @@ namespace Flame
         /// <summary>
         /// Gets the method definition this generic instance is based on.
         /// </summary>
-        public IMethod Method { const get; private set; }
+        public IMethod Declaration { const get; private set; }
 
         /// <summary>
         /// Gets the generic resolver that belongs to this generic method.
@@ -35,8 +35,8 @@ namespace Flame
         /// </summary>
         public abstract IType DeclaringType { get; }
 
-        public bool IsStatic { get return Method.IsStatic; }
-        public bool IsConstructor { get return Method.IsConstructor; }
+        public bool IsStatic { get return Declaration.IsStatic; }
+        public bool IsConstructor { get return Declaration.IsConstructor; }
 
         public string FullName
         {
@@ -45,12 +45,12 @@ namespace Flame
 
         public [IAttribute] Attributes
         {
-            get { return Method.Attributes; }
+            get { return Declaration.Attributes; }
         }
 
         public [IGenericParameter] GenericParameters
         {
-            const get { return Method.GenericParameters; }
+            const get { return Declaration.GenericParameters; }
         }
 
         private Lazy<IType> cachedRetType;
@@ -60,7 +60,7 @@ namespace Flame
         }
         private IType createReturnType()
         {
-            return Resolver.ResolveType(Method.ReturnType);
+            return Resolver.ResolveType(Declaration.ReturnType);
         }
 
         private Lazy<IParameter[]> cachedParameters;
@@ -70,7 +70,7 @@ namespace Flame
         }
         private IParameter[] createParameters()
         {
-            return Resolver.ResolveParameters(Method.Parameters);
+            return Resolver.ResolveParameters(Declaration.Parameters);
         }
 
         private Lazy<IMethod[]> cachedBaseTypes;
@@ -80,7 +80,7 @@ namespace Flame
         }
         private IMethod[] createBaseMethods()
         {
-            return Resolver.ResolveMethods(Method.BaseMethods);
+            return Resolver.ResolveMethods(Declaration.BaseMethods);
         }
 
         public IBoundObject Invoke(IBoundObject Caller, [IBoundObject] Arguments)

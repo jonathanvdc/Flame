@@ -239,7 +239,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IGenericParameter> GetGenericParameters()
         {
-            return this.Templates.GetGenericParameters();
+            return this.Templates.GenericParameters;
         }
 
         #region GetCode
@@ -258,7 +258,7 @@ namespace Flame.Cpp
             }
             if (PrefixName)
             {
-                var genDeclType = (IGenericResolverType)DeclaringType.MakeGenericType(DeclaringType.GetGenericParameters());
+                var genDeclType = (IGenericResolverType)DeclaringType.MakeGenericType(DeclaringType.GenericParameters);
                 cb.Append(TypeNamer.Name(genDeclType, this));
                 cb.Append("::");
             }

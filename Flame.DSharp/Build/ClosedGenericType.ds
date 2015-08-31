@@ -78,7 +78,7 @@ namespace Flame.DSharp.Build
 
         protected override [IGenericParameter] CreateGenericParameters()
         {
-        	return GetGenericDeclaration().GetGenericParameters();
+        	return GetGenericDeclaration().GenericParameters;
         }
     }
 }

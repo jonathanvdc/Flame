@@ -326,7 +326,7 @@ namespace Flame.Cpp
 
         public ITypeBuilder DeclareType(IType Template)
         {
-            var type = new CppType((INamespace)this.MakeGenericType(this.GetGenericParameters()), Template, Environment);
+            var type = new CppType((INamespace)this.MakeGenericType(this.GenericParameters), Template, Environment);
             types.Add(type);
             return type;
         }
@@ -347,7 +347,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IGenericParameter> GetGenericParameters()
         {
-            return this.Templates.GetGenericParameters();
+            return this.Templates.GenericParameters;
         }
 
         public IType MakeGenericType(IEnumerable<IType> TypeArguments)

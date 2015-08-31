@@ -84,7 +84,7 @@ type FunctionalAccessor private(header : FunctionalMemberHeader,
 
         member this.Invoke(target : IBoundObject, args : IBoundObject seq) = null // We don't do that yet.
 
-        member this.GetGenericParameters() = Seq.empty
+        member this.GenericParameters = Seq.empty
         member this.GetGenericArguments() = Seq.empty
         member this.GetGenericDeclaration() = this :> IMethod
         member this.MakeGenericMethod tArgs = this :> IMethod

@@ -379,7 +379,7 @@ namespace Flame.Recompilation
             {
                 var declType = ((IGenericParameter)SourceType).DeclaringMember;
                 var recompiledDeclType = (IGenericMember)GetMember(declType);
-                return new MemberCreationResult<IType>(recompiledDeclType.GetGenericParameters().Single((item) => item.Name == SourceType.Name));
+                return new MemberCreationResult<IType>(recompiledDeclType.GenericParameters.Single((item) => item.Name == SourceType.Name));
             }
             else
             {
@@ -580,7 +580,7 @@ namespace Flame.Recompilation
 
         private static IConverter<IType, IType> CreateGenericParameterConverter(IType GenericType, IType SpecificType)
         {
-            /*var genMap = GenericType.GetGenericParameters()
+            /*var genMap = GenericType.GenericParameters
                 .Zip(SpecificType.GetGenericArguments(), (a, b) => new KeyValuePair<IType, IType>(a, b))
                 .ToDictionary(item => item.Key, item => item.Value);
 

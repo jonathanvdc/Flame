@@ -100,7 +100,7 @@ namespace Flame.Cecil
             IGenericParameterProvider context;
             if (Member is IGenericMember)
             {
-                paramType = CecilTypeBuilder.GetGenericType(paramType, ((IGenericMember)Member).GetGenericParameters().ToArray());
+                paramType = CecilTypeBuilder.GetGenericType(paramType, ((IGenericMember)Member).GenericParameters.ToArray());
                 context = Member.GetMemberReference() as IGenericParameterProvider;
             }
             else
