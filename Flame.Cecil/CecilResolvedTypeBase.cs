@@ -74,7 +74,7 @@ namespace Flame.Cecil
             var type = GetResolvedType();
             if (type.IsGenericInstance)
             {
-                return Module.ConvertStrict(type.GetElementType());
+                return Module.ConvertStrict(type.ElementType);
             }
             else
             {

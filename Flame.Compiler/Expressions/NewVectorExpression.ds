@@ -19,7 +19,7 @@ namespace Flame.Compiler.Expressions
         {
             const get
             {
-                return Type.AsContainerType().AsVectorType().GetElementType();
+                return Type.AsContainerType().AsVectorType().ElementType;
             }
         }
         public int[] Dimensions

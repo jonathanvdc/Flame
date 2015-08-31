@@ -33,7 +33,7 @@ namespace Flame.Cpp
             else if (Type.IsContainerType)
             {
                 var container = Type.AsContainerType();
-                var elemType = container.GetElementType();
+                var elemType = container.ElementType;
                 if (container.get_IsPointer())
                 {
                     return Resolver.ResolveType(elemType).MakePointerType(container.AsPointerType().PointerKind);

@@ -120,7 +120,7 @@ namespace Flame.Cecil
             }
             else if (Left.IsContainerType)
             {
-                return Right.IsContainerType && Left.AsContainerType().ContainerKind == Right.AsContainerType().ContainerKind && ComparePossibleGenericParameters(Left.AsContainerType().GetElementType(), Right.AsContainerType().GetElementType());
+                return Right.IsContainerType && Left.AsContainerType().ContainerKind == Right.AsContainerType().ContainerKind && ComparePossibleGenericParameters(Left.AsContainerType().ElementType, Right.AsContainerType().ElementType);
             }
             else if (Left.get_IsGenericInstance())
             {

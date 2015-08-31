@@ -33,7 +33,7 @@ namespace Flame.Syntax.DSharp
 	    	}
 	    	else if (TargetType.IsPointer && !valType.IsPointer)
 	      	{
-	         	if (TargetType.AsContainerType().GetElementType().IsValueType)
+	         	if (TargetType.AsContainerType().ElementType.IsValueType)
 	       			return MemberAccessSyntaxBase.CreateAddressToValueExpression(callerInst);
 	     	}
 	       	if (CastSyntax.UseImplicitCast(State, valType, TargetType))

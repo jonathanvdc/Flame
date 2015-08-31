@@ -18,7 +18,7 @@ namespace Flame.Cpp.Emit
 
         public IType Type
         {
-            get { return Value.Type.AsContainerType().GetElementType(); }
+            get { return Value.Type.AsContainerType().ElementType; }
         }
 
         public IEnumerable<IHeaderDependency> Dependencies

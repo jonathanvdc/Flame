@@ -148,8 +148,8 @@ namespace Flame.Syntax.DSharp
         	}
         	else if (SourceType.IsVector && TargetType.IsArray)
         	{
-        		return SourceType.AsContainerType().GetElementType().Is(
-                            TargetType.AsContainerType().GetElementType()) &&
+        		return SourceType.AsContainerType().ElementType.Is(
+                            TargetType.AsContainerType().ElementType) &&
                        SourceType.AsContainerType().AsVectorType().GetDimensions().Length ==
                             TargetType.AsContainerType().AsArrayType().ArrayRank;
         	}
@@ -195,7 +195,7 @@ namespace Flame.Syntax.DSharp
         	{
         		if (!TargetType.IsGeneric)
         			return true;
-        		return SourceType.AsContainerType().GetElementType().Is(Enumerable.First<IType>(TargetType.GetGenericArguments()));
+        		return SourceType.AsContainerType().ElementType.Is(Enumerable.First<IType>(TargetType.GetGenericArguments()));
         	}
         	return false;
         }

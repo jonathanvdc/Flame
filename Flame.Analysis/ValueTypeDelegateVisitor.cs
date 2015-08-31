@@ -33,7 +33,7 @@ namespace Flame.Analysis
             }
 
             var callerType = Expression.Caller.Type;
-            if (callerType.get_IsPointer() && callerType.AsContainerType().GetElementType().get_IsValueType())
+            if (callerType.get_IsPointer() && callerType.AsContainerType().ElementType.get_IsValueType())
             {
                 // There's some shady business going on right here.
 

@@ -18,7 +18,7 @@ namespace Flame.Cpp.Emit
 
         public override IType Type
         {
-            get { return Target.Type.AsContainerType().GetElementType().MakePointerType(PointerKind.ReferencePointer); }
+            get { return Target.Type.AsContainerType().ElementType.MakePointerType(PointerKind.ReferencePointer); }
         }
 
         public override IEnumerable<IHeaderDependency> Dependencies
@@ -47,7 +47,7 @@ namespace Flame.Cpp.Emit
                     {
                         // Make sure that the ctor std::make_shared<T> is calling is public.
                         var innerCtor = (INewObjectBlock)Target;
-                        var ctor = Target.Type.AsContainerType().GetElementType().GetConstructor(innerCtor.Arguments.Select(item => item.Type).ToArray());
+                        var ctor = Target.Type.AsContainerType().ElementType.GetConstructor(innerCtor.Arguments.Select(item => item.Type).ToArray());
                         return ctor != null && ctor.get_Access() == AccessModifier.Public; // Must be public.
                     }
                     else
@@ -64,13 +64,13 @@ namespace Flame.Cpp.Emit
             if (CanUseMakeShared)
             {
                 var innerCtor = (INewObjectBlock)Target;
-                var method = CppPrimitives.GetMakeSharedPointerMethod(Target.Type.AsContainerType().GetElementType(), innerCtor.Arguments.Select((item) => item.Type));
+                var method = CppPrimitives.GetMakeSharedPointerMethod(Target.Type.AsContainerType().ElementType, innerCtor.Arguments.Select((item) => item.Type));
                 var methodBlock = CodeGenerator.EmitMethod(method, null);
                 return (ICppBlock)CodeGenerator.EmitInvocation(methodBlock, innerCtor.Arguments);
             }
             else
             {
-                var method = CppPrimitives.CreateSharedPointer.MakeGenericMethod(new IType[] { Target.Type.AsContainerType().GetElementType() });
+                var method = CppPrimitives.CreateSharedPointer.MakeGenericMethod(new IType[] { Target.Type.AsContainerType().ElementType });
                 var methodBlock = CodeGenerator.EmitMethod(method, null);
                 return (ICppBlock)CodeGenerator.EmitInvocation(methodBlock, new ICodeBlock[] { Target });
             }

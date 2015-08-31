@@ -342,7 +342,7 @@ namespace Flame
         {
         	if (Type.IsContainerType)
         	{
-        		return Type.AsContainerType().GetElementType();
+        		return Type.AsContainerType().ElementType;
         	}
         	else
         	{
@@ -520,12 +520,33 @@ namespace Flame
 
 		#region AsContainerType
 
-		public static const IContainerType AsContainerType(this IType Type)
+		private static const T AsTypeInstance<T>(IType Value)
+			where T : object
 		{
-			if (Type is IContainerType)
-				return (IContainerType)Type;
+			if (Type is T)
+				return (T)Type;
 			else
 				return null;
+		}
+
+		public static const IContainerType AsContainerType(this IType Type)
+		{
+			return AsTypeInstance<IContainerType>(Type);
+		}
+
+		public static const IArrayType AsArrayType(this IType Type)
+		{
+			return AsTypeInstance<IArrayType>(Type);
+		}
+
+		public static const IPointerType AsPointerType(this IType Type)
+		{
+			return AsTypeInstance<IPointerType>(Type);
+		}
+
+		public static const IVectorType AsVectorType(this IType Type)
+		{
+			return AsTypeInstance<IVectorType>(Type);
 		}
 
 		#endregion
@@ -659,6 +680,29 @@ namespace Flame
             return graph.GetAncestryDegree(Type, Other);
         }
 
+		/// <summary>
+		/// Gets the lowest non-zero ancestry degree between the given set
+		/// of type and right-hand type operand.
+		/// </summary>
+		public static const int GetLowestAncestryDegree(this [IType] Types, IType Other)
+		{
+			var graph = GetAncestryGraph(Type, Other);
+			int bestAncestry = -1;
+			foreach (var item in Types)
+			{
+				int degree = graph.GetAncestryDegree(item, Other);
+				if (degree > -1 && (degree <= bestAncestry || bestAncestry == -1))
+				{
+					if (degree == 0) // Early-out for zero ancestry degrees.
+					{
+						return 0;
+					}
+					bestAncestry = degree;
+				}
+			}
+			return bestAncestry;
+		}
+
         #endregion
 
         #region Is
@@ -673,6 +717,15 @@ namespace Flame
             var graph = GetAncestryGraph(Type, Other);
             return graph.Is(Type, Other);
         }
+
+		/// <summary>
+		/// Tests if the given type is equivalent with the given other type, i.e.
+		/// it has ancestry degree zero.
+		/// </summary>
+		public const static bool IsEquivalent(this IType Type, IType Other)
+		{
+			return Type.GetAncestryDegree(Other) == 0;
+		}
 
         #endregion
 

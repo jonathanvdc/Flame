@@ -45,6 +45,11 @@ namespace Flame.Build
 			}
 		}
 
+		public override IAncestryRules AncestryRules
+		{
+			const get { return ArrayAncestryRules; }
+		}
+
         protected override string GetName(string ElementName)
         {
 			return GenericNameExtensions.AppendArraySuffix(ElementName, ArrayRank);
@@ -52,16 +57,16 @@ namespace Flame.Build
 
         public override bool Equals(object obj)
         {
-            if (obj is IArrayType)
+            if (obj is ArrayType)
             {
-                var arrType = (IArrayType)obj;
-                if (arrType.IsArray)
-                {
-                    return ArrayRank == arrType.ArrayRank &&
-						   ElementType.Equals(arrType.ElementType);
-                }
+                var arrType = (ArrayType)obj;
+                return ArrayRank == arrType.ArrayRank &&
+					   ElementType.Equals(arrType.ElementType);
             }
-            return false;
+            else
+			{
+				return false;
+			}
         }
 
         public override int GetHashCode()
@@ -69,4 +74,25 @@ namespace Flame.Build
             return ElementType.GetHashCode() + ArrayRank;
         }
     }
+
+	/// <summary>
+	/// A set of ancestry rules for non-covariant arrays:
+	/// only arrays with the same rank and element type are interchangeable.
+	/// </summary>
+	public static class ArrayAncestryRules : IAncestryRules
+	{
+		public int GetAncestryDegree(IType First, IType Second)
+		{
+			if (Type.IsArray && Other.IsArray &&
+				Type.AsArrayType().ArrayRank == Other.AsArrayType().ArrayRank &&
+				Type.AsContainerType().ElementType.IsEquivalent(Type.AsContainerType().ElementType))
+            {
+				return 0;
+            }
+			else
+			{
+				return -1;
+			}
+		}
+	}
 }

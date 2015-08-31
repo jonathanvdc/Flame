@@ -26,7 +26,7 @@ namespace Flame.Compiler.Expressions
 
         public IType Type
         {
-            const get { return Expression.Type.AsContainerType().GetElementType(); }
+            const get { return Expression.Type.AsContainerType().ElementType; }
         }
 
         public bool IsConstant

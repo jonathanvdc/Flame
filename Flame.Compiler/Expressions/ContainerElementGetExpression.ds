@@ -15,7 +15,7 @@ namespace Flame.Compiler.Expressions
         {
 	        const get
 			{
-				return Target.Type.AsContainerType().GetElementType();
+				return Target.Type.AsContainerType().ElementType;
 			}
 		}
 

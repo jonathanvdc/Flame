@@ -111,7 +111,7 @@ namespace Flame.Cecil
         {
             if (ContainerEquals(other))
             {
-                return GetElementType().Equals(other.GetElementType());
+                return GetElementType().Equals(other.ElementType);
             }
             else
             {

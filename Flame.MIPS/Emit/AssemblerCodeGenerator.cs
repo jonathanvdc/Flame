@@ -86,11 +86,11 @@ namespace Flame.MIPS.Emit
 	        {
                 if (left.Type.get_IsPointer() && right.Type.get_IsInteger())
                 {
-                    return new BinaryOpBlock(this, left, Op, (IAssemblerBlock)EmitBinary(right, EmitInt32(left.Type.AsContainerType().GetElementType().GetSize()), Operator.Multiply));
+                    return new BinaryOpBlock(this, left, Op, (IAssemblerBlock)EmitBinary(right, EmitInt32(left.Type.AsContainerType().ElementType.GetSize()), Operator.Multiply));
                 }
                 else if (right.Type.get_IsPointer() && left.Type.get_IsInteger())
                 {
-                    return new BinaryOpBlock(this, (IAssemblerBlock)EmitBinary(left, EmitInt32(right.Type.AsContainerType().GetElementType().GetSize()), Operator.Multiply), Op, right);
+                    return new BinaryOpBlock(this, (IAssemblerBlock)EmitBinary(left, EmitInt32(right.Type.AsContainerType().ElementType.GetSize()), Operator.Multiply), Op, right);
                 }
                 return new BinaryOpBlock(this, left, Op, right);
 	        }

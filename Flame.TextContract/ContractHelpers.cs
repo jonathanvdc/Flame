@@ -39,7 +39,7 @@ namespace Flame.TextContract
             else if (Type.get_IsArray())
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append(GetTypeName(Type.AsContainerType().GetElementType()));
+                sb.Append(GetTypeName(Type.AsContainerType().ElementType));
                 sb.Append('[');
                 int len = Type.AsContainerType().AsArrayType().ArrayRank;
                 for (int i = 1; i < len; i++)
@@ -52,7 +52,7 @@ namespace Flame.TextContract
             else if (Type.get_IsVector())
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append(GetTypeName(Type.AsContainerType().GetElementType()));
+                sb.Append(GetTypeName(Type.AsContainerType().ElementType));
                 sb.Append('[');
                 int[] dims = Type.AsContainerType().AsVectorType().GetDimensions();
                 sb.Append(dims[0]);
@@ -66,7 +66,7 @@ namespace Flame.TextContract
             }
             else if (Type.get_IsPointer())
             {
-                return Type.AsContainerType().GetElementType() + Type.AsContainerType().AsPointerType().PointerKind.Extension;
+                return Type.AsContainerType().ElementType + Type.AsContainerType().AsPointerType().PointerKind.Extension;
             }
             else if (Type.get_IsGenericInstance())
             {

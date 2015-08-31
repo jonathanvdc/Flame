@@ -101,7 +101,7 @@ namespace Flame.Build
 
 		protected override virtual const IType ConvertPointerType(IPointerType Type)
 		{
-			var elemType = Type.GetElementType();
+			var elemType = Type.ElementType;
 			var convElem = Convert(elemType);
 
 			if (object.ReferenceEquals(convElem, elemType))
@@ -114,7 +114,7 @@ namespace Flame.Build
 
 		protected override virtual const IType ConvertArrayType(IArrayType Type)
 		{
-			var elemType = Type.GetElementType();
+			var elemType = Type.ElementType;
 			var convElem = Convert(elemType);
 
 			if (object.ReferenceEquals(convElem, elemType))
@@ -127,7 +127,7 @@ namespace Flame.Build
 
 		protected override virtual const IType ConvertVectorType(IVectorType Type)
 		{
-			var elemType = Type.GetElementType();
+			var elemType = Type.ElementType;
 			var convElem = Convert(elemType);
 
 			if (object.ReferenceEquals(convElem, elemType))

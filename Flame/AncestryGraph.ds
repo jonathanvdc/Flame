@@ -65,8 +65,8 @@ namespace Flame
 
 		private const int ComputeElementAncestry(IType Type, IType Other)
 		{
-			return GetAncestryDegree(Type.AsContainerType().GetElementType(),
-									 Other.AsContainerType().GetElementType());
+			return GetAncestryDegree(Type.AsContainerType().ElementType,
+									 Other.AsContainerType().ElementType);
 		}
 
 		private const int ComputeGenericVarianceAncestry(IType Type, IType Other)

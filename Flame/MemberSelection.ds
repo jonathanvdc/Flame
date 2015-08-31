@@ -263,7 +263,7 @@ namespace Flame
         {
         	if (SourceType.IsVector && TargetType.IsArray)
         	{
-        		return SourceType.AsContainerType().GetElementType().Is(TargetType.AsContainerType().GetElementType()) && SourceType.AsContainerType().AsVectorType().GetDimensions().Length == TargetType.AsContainerType().AsArrayType().ArrayRank;
+        		return SourceType.AsContainerType().ElementType.Is(TargetType.AsContainerType().ElementType) && SourceType.AsContainerType().AsVectorType().GetDimensions().Length == TargetType.AsContainerType().AsArrayType().ArrayRank;
         	}
         	if (SourceType.IsPrimitive && TargetType.IsPrimitive)
         	{
@@ -298,7 +298,7 @@ namespace Flame
         	}
         	else if ((SourceType.IsArray || SourceType.IsVector) && TargetType.IsEnumerableType)
         	{
-        		return SourceType.AsContainerType().GetElementType().Is(TargetType.GetEnumerableElementType());
+        		return SourceType.AsContainerType().ElementType.Is(TargetType.GetEnumerableElementType());
         	}
         	return false;
         }

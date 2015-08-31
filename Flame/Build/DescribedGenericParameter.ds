@@ -134,6 +134,11 @@ namespace Flame.Build
             const get { return new IGenericParameter[0]; }
         }
 
+        public IAncestryRules AncestryRules
+        {
+            const get { return DefinitionAncestryRules; }
+        }
+
         private [IMethod] createMethods()
         {
             var results = new HashSet<IMethod>();

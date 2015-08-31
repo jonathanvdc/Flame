@@ -128,7 +128,7 @@ namespace Flame.Recompilation
             }
             else if (Type.IsContainerType)
             {
-                return IsExternal(Type.AsContainerType().GetElementType());
+                return IsExternal(Type.AsContainerType().ElementType);
             }
             else if (Type.get_IsGenericParameter())
             {
@@ -349,7 +349,7 @@ namespace Flame.Recompilation
             else if (SourceType.IsContainerType)
             {
                 var containerType = SourceType.AsContainerType();
-                var recompiledElemType = GetType(containerType.GetElementType());
+                var recompiledElemType = GetType(containerType.ElementType);
                 if (SourceType.get_IsVector())
                 {
                     return new MemberCreationResult<IType>(recompiledElemType.MakeVectorType(containerType.AsVectorType().GetDimensions()));

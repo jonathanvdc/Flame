@@ -13,24 +13,12 @@ namespace Flame.Build
 
         protected override const string GetName(string ElementName)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(ElementName);
-            sb.Append('[');
-            for (int i = 0; i < dims.Length; i++)
-            {
-                if (i > 0)
-                {
-                    sb.Append(", ");
-                }
-                sb.Append(dims[i].ToString());
-            }
-            sb.Append(']');
-            return sb.ToString();
+            return GenericNameExtensions.AppendVectorSuffix(ElementName, Dimensions);
         }
 
-        public override ContainerTypeKind ContainerKind
+        public override IAncestryRules AncestryRules
         {
-            const get { return ContainerTypeKind.Vector; }
+            const get { return VectorAncestryRules; }
         }
 
         public virtual IType[] GetBaseTypes()
@@ -60,6 +48,28 @@ namespace Flame.Build
         		result += item.GetHashCode();
         	}
             return result;
+        }
+    }
+
+    /// <summary>
+    /// A set of ancestry rules for non-covariant vectors:
+    /// only vectors with the same dimensions and element types are interchangeable.
+    /// </summary>
+    public static class VectorAncestryRules : IAncestryRules
+    {
+        public int GetAncestryDegree(IType First, IType Second)
+        {
+            if (Type.IsVector && Other.IsVector &&
+                Enumerable.SequenceEqual<int>(Type.AsVectorType().Dimensions,
+                                              Other.AsVectorType().Dimensions) &&
+                Type.AsContainerType().ElementType.IsEquivalent(Type.AsContainerType().ElementType))
+            {
+                return 0;
+            }
+            else
+            {
+                return -1;
+            }
         }
     }
 }

@@ -78,17 +78,17 @@ namespace Flame.Build
 
 		protected virtual const T ComparePointerTypes(IPointerType First, IPointerType Second)
 		{
-			return MakePointerComparison(Compare(First.GetElementType(), Second.GetElementType()), First.PointerKind, Second.PointerKind);
+			return MakePointerComparison(Compare(First.ElementType, Second.ElementType), First.PointerKind, Second.PointerKind);
 		}
 
 		protected virtual const T CompareArrayTypes(IArrayType First, IArrayType Second)
 		{
-			return MakeArrayComparison(Compare(First.GetElementType(), Second.GetElementType()), First.ArrayRank, Second.ArrayRank);
+			return MakeArrayComparison(Compare(First.ElementType, Second.ElementType), First.ArrayRank, Second.ArrayRank);
 		}
 
 		protected virtual const T CompareVectorTypes(IVectorType First, IVectorType Second)
 		{
-			return MakeVectorComparison(Compare(First.GetElementType(), Second.GetElementType()), First.GetDimensions(), Second.GetDimensions());
+			return MakeVectorComparison(Compare(First.ElementType, Second.ElementType), First.GetDimensions(), Second.GetDimensions());
 		}
 
 		protected virtual const T CompareGenericParameters(IGenericParameter Left, IGenericParameter Right)

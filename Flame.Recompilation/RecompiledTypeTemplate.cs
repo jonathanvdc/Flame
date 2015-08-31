@@ -30,7 +30,7 @@ namespace Flame.Recompilation
             else if (SourceType.IsContainerType)
             {
                 var container = SourceType.AsContainerType();
-                var elem = new RecompiledTypeTemplate(Recompiler, container.GetElementType());
+                var elem = new RecompiledTypeTemplate(Recompiler, container.ElementType);
                 if (elem.get_IsVector())
                 {
                     return elem.MakeVectorType(container.AsVectorType().GetDimensions());
@@ -165,7 +165,7 @@ namespace Flame.Recompilation
             else if (SourceType.IsContainerType)
             {
                 var containerType = SourceType.AsContainerType();
-                var recompiledElemType = GetWeakRecompiledType(containerType.GetElementType(), Recompiler, DeclaringMember);
+                var recompiledElemType = GetWeakRecompiledType(containerType.ElementType, Recompiler, DeclaringMember);
                 if (SourceType.get_IsVector())
                 {
                     return recompiledElemType.MakeVectorType(containerType.AsVectorType().GetDimensions());
