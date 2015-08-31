@@ -28,9 +28,9 @@ namespace Flame.Build
 
         public override bool Equals(object obj)
         {
-            if (obj is IVectorType)
+            if (obj is VectorType)
             {
-                var vectType = (IVectorType)obj;
+                var vectType = (VectorType)obj;
                 return ElementType == vectType.ElementType &&
                        Enumerable.SequenceEqual<int>(Dimensions, vectType.Dimensions);
             }

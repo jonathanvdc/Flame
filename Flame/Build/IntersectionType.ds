@@ -105,6 +105,11 @@ namespace Flame
             const get { return new IProperty[0]; }
         }
 
+        public IAncestryRules AncestryRules
+        {
+            const get { return IntersectionAncestryRules; }
+         }
+
         #endregion
 
         public override const bool Equals(object obj)
@@ -128,6 +133,27 @@ namespace Flame
         public override const string ToString()
         {
             return First.ToString() + "&" + Second.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Defines ancestry rules for intersection types.
+    /// </summary>
+    public static class IntersectionAncestryRules : IAncestryRules
+    {
+        public int GetAncestryDegree(IType First, IType Second)
+        {
+            var leftInter = IntersectionType.GetIntersectedTypes(First);
+            var rightInter = IntersectionType.GetIntersectedTypes(Second);
+
+            int result = 0;
+            foreach (var item in rightInter)
+            {
+                int bestAncestry = ComputeLowestAncestry(leftInter, item);
+                if (bestAncestry < 0) return -1;
+                result += bestAncestry;
+            }
+            return result;
         }
     }
 }
