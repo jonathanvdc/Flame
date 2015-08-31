@@ -6,12 +6,13 @@ namespace Flame.Build
     public class DescribedAccessor : DescribedMethod, IAccessor
     {
     	public const this(set AccessorType AccessorType, set IProperty DeclaringProperty, set IType ReturnType)
+            : base(AccessorType.ToString().ToLower() + "_" + DeclaringProperty.Name)
         {
-        	this.Name = AccessorType.ToString().ToLower() + "_" + DeclaringProperty.Name;
         	this.DeclaringType = DeclaringProperty.DeclaringType;
         	this.IsStatic = DeclaringProperty.IsStatic;
         }
-        public const this(set string Name, set AccessorType AccessorType, set IProperty DeclaringProperty, set IType ReturnType)
+        public const this(string Name, set AccessorType AccessorType, set IProperty DeclaringProperty, set IType ReturnType)
+            : base(Name)
         {
         	this.DeclaringType = DeclaringProperty.DeclaringType;
         	this.IsStatic = DeclaringProperty.IsStatic;

@@ -18,7 +18,7 @@ namespace Flame
     /// <summary>
     /// Defines a generic parameter's interface.
     /// </summary>
-    public interface IGenericParameter : IType, IParameter
+    public interface IGenericParameter : IType
     {
         /// <summary>
         /// Gets the generic member that declared this parameter.

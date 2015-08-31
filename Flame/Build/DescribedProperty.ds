@@ -5,19 +5,21 @@ namespace Flame.Build
 {
 	public class DescribedProperty : DescribedTypeMember, IProperty
 	{
-		public const this(set string Name, set IType DeclaringType, set IType PropertyType, set bool IsStatic)
+		public const this(string Name, IType DeclaringType, set IType PropertyType, set bool IsStatic)
+			: base(Name, DeclaringType)
 		{
 			this.indexerParameters = new List<IParameter>();
 			this.accessors = new List<IAccessor>();
 		}
-		public const this(set string Name, set IType DeclaringType)
+		public const this(string Name, IType DeclaringType)
+			: base(Name, DeclaringType)
 		{
 			this.indexerParameters = new List<IParameter>();
 			this.accessors = new List<IAccessor>();
 		}
-	
+
 		public IType PropertyType { const get; set; }
-		
+
 		private List<IParameter> indexerParameters;
 		public void AddIndexerParameter(IParameter Parameter)
 		{
@@ -30,14 +32,14 @@ namespace Flame.Build
             this.accessors.Add(Accessor);
         }
 
-        public IAccessor[] GetAccessors()
+        public [IAccessor] Accessors
         {
-            return this.accessors.ToArray();
+            const get { return this.accessors; }
         }
 
-        public IParameter[] GetIndexerParameters()
+        public [IParameter] IndexerParameters
         {
-            return this.indexerParameters.ToArray();
+            const get { return this.indexerParameters; }
         }
 	}
 }

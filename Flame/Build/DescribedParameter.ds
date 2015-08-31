@@ -5,18 +5,14 @@ namespace Flame.Build
 {
 	public class DescribedParameter : DescribedMember, IParameter
 	{
-		public this(set string Name, set IType ParameterType);
-		
+		public const this(string Name, set IType ParameterType)
+			: base(Name);
+
 		public override string FullName : DescribedMember.FullName { const get return Name; }
-		
+
 		/// <summary>
         /// Gets the parameter's (default) type.
         /// </summary>
         public IType ParameterType { const get; private set; }
-        
-        public const bool IsAssignable(IType Type) : IParameter.IsAssignable
-        {
-        	return Type.Is(ParameterType);
-        }
 	}
 }
