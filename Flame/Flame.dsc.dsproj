@@ -123,6 +123,7 @@
             <Compile Include="Build\BoundMethod.ds" />
             <Compile Include="Build\CompositeConverter.ds" />
             <Compile Include="Build\ContainerTypeBase.ds" />
+            <Compile Include="Build\DefinitionAncestryRules.ds" />
             <Compile Include="Build\DescribedAccessor.ds" />
             <Compile Include="Build\DescribedAssembly.ds" />
             <Compile Include="Build\DescribedField.ds" />
