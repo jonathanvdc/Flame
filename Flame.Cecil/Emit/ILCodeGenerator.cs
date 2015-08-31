@@ -572,7 +572,7 @@ namespace Flame.Cecil.Emit
         {
             if (Type.get_IsPointer())
             {
-                return Type.AsContainerType().GetElementType().Is(Method.DeclaringType);
+                return Type.AsContainerType().ElementType.Is(Method.DeclaringType);
             }
             else
             {
@@ -586,7 +586,7 @@ namespace Flame.Cecil.Emit
             {
                 if (CallerType != null && CallerType.get_IsPointer())
                 {
-                    Context.Emit(OpCodes.Constrained, CallerType.AsContainerType().GetElementType());
+                    Context.Emit(OpCodes.Constrained, CallerType.AsContainerType().ElementType);
                 }
                 Context.Emit(OpCodes.Callvirt, Method);
             }

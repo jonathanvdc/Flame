@@ -27,7 +27,7 @@ namespace Flame.MIPS.Emit
             else if (Type.get_IsVector())
             {
                 var vectType = Type.AsContainerType().AsVectorType();
-                return vectType.GetElementType().GetSize() * vectType.GetDimensions().Aggregate(1, (a, b) => a * b);
+                return vectType.ElementType.GetSize() * vectType.GetDimensions().Aggregate(1, (a, b) => a * b);
             }
             else
             {

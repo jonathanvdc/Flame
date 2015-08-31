@@ -16,20 +16,19 @@ namespace Flame.Build
             return ElementName + PointerKind.Extension;
         }
 
-        public override ContainerTypeKind ContainerKind
+        public override IAncestryRules AncestryRules
         {
-            const get { return ContainerTypeKind.Pointer; }
+            const get { return PointerAncestryRules; }
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is IPointerType)
+            if (obj is PointerType)
             {
-                var ptrType = (IPointerType)obj;
+                var ptrType = (PointerType)obj;
                 if (ptrType.IsPointer && ptrType.PointerKind == PointerKind)
                 {
-                    var elemType = ptrType.GetElementType();
-                    return ElementType.Equals(elemType);
+                    return ElementType == ptrType.ElementType;
                 }
             }
             return false;
@@ -38,6 +37,33 @@ namespace Flame.Build
         public override int GetHashCode()
         {
             return ElementType.GetHashCode() + PointerKind.GetHashCode();
+        }
+    }
+
+    /// <summary>
+    /// Represents the following set of ancestry rules for pointers:
+    ///  * Null is a pointer type
+    ///  * Two pointer type of the same pointer kind have the same ancestry degree
+    ///    as their elements.
+    /// </summary>
+    public static class PointerAncestryRules : IAncestryRules
+    {
+        public int GetAncestryDegree(IType First, IType Second)
+        {
+            if (First.Is(PrimitiveTypes.Null) && Second.IsPointer)
+            {
+                return 0;
+            }
+            else if (First.IsPointer && Second.IsPointer)
+            {
+                var firstPtrTy = First.AsPointerType();
+                var secondPtrTy = Second.AsPointerType();
+                return Type.GetAncestryDegree(firstPtrTy.ElementType, secondPtrTy.ElementType)
+            }
+            else
+            {
+                return -1;
+            }
         }
     }
 }

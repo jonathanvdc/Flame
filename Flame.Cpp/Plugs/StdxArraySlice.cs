@@ -468,7 +468,7 @@ typename ArraySlice<T>::const_iterator ArraySlice<T>::cend() const
         {
             if (other is StdxArraySliceInstance)
             {
-                return GetElementType().Equals(((StdxArraySliceInstance)other).GetElementType());
+                return GetElementType().Equals(((StdxArraySliceInstance)other).ElementType);
             }
             else
             {

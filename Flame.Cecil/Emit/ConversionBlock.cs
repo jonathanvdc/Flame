@@ -238,9 +238,9 @@ namespace Flame.Cecil.Emit
             }
             else if (targIsPtr)
             {
-                if (!exprType.get_IsValueType() && targetType.AsContainerType().AsPointerType().GetElementType().get_IsValueType())
+                if (!exprType.get_IsValueType() && targetType.AsContainerType().AsPointerType().ElementType.get_IsValueType())
                 {
-                    Context.Emit(OpCodes.Unbox, targetType.AsContainerType().AsPointerType().GetElementType());
+                    Context.Emit(OpCodes.Unbox, targetType.AsContainerType().AsPointerType().ElementType);
                     if (!targetType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer))
                     {
                         Context.Emit(OpCodes.Conv_U);
@@ -259,7 +259,7 @@ namespace Flame.Cecil.Emit
             {
                 if (targetType.get_IsArray() || targetType.get_IsVector())
                 {
-                    if (!exprType.AsContainerType().GetElementType().Is(targetType.AsContainerType().GetElementType()))
+                    if (!exprType.AsContainerType().ElementType.Is(targetType.AsContainerType().ElementType))
                     {
                         Context.Emit(OpCodes.Castclass, targetType);
                     }

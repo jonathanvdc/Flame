@@ -20,8 +20,8 @@ type DefaultConversionRules(nameType : IType -> string) =
                 true
 
             else if sourceType.get_IsVector() && targetType.get_IsArray() then
-                sourceType.AsContainerType().GetElementType().Is(
-                    targetType.AsContainerType().GetElementType()) &&
+                sourceType.AsContainerType().ElementType.Is(
+                    targetType.AsContainerType().ElementType) &&
                 sourceType.AsContainerType().AsVectorType().GetDimensions().Length =
                     targetType.AsContainerType().AsArrayType().ArrayRank
 
@@ -52,7 +52,7 @@ type DefaultConversionRules(nameType : IType -> string) =
             else if (sourceType.get_IsArray() || sourceType.get_IsVector()) && targetType.GetGenericDeclaration().get_IsEnumerableType() then
                 if not(targetType.get_IsGeneric()) then
                     true
-                else sourceType.AsContainerType().GetElementType().Is(Enumerable.First<IType>(targetType.GetGenericArguments()));
+                else sourceType.AsContainerType().ElementType.Is(Enumerable.First<IType>(targetType.GetGenericArguments()));
             else false
 
         /// Converts the given expression to the given type implicitly.

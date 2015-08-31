@@ -15,7 +15,7 @@ namespace Flame.Compiler
 
         public IType Type
         {
-            const get { return Pointer.Type.AsContainerType().AsPointerType().GetElementType(); }
+            const get { return Pointer.Type.AsContainerType().AsPointerType().ElementType; }
         }
 
         public IExpression Pointer { const get; private set; }

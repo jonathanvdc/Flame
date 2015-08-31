@@ -31,7 +31,7 @@ namespace Flame.Python.Emit
                 }
                 else if (targetType.IsContainerType)
                 {
-                    return targetType.AsContainerType().GetElementType();
+                    return targetType.AsContainerType().ElementType;
                 }
                 else
                 {

@@ -69,6 +69,11 @@ namespace Flame.Build
         	this.fields.Add(Field);
         }
 
+		public IAncestryRules AncestryRules
+		{
+			const get { return DefinitionAncestryRules; }
+		}
+
         public string FullName
         {
             get

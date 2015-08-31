@@ -39,7 +39,7 @@ namespace Flame.Cpp.Emit
             if (Type.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer))
             {
                 cb.Append("std::dynamic_pointer_cast<");
-                cb.Append(Type.AsContainerType().GetElementType().CreateBlock(CodeGenerator).GetCode());
+                cb.Append(Type.AsContainerType().ElementType.CreateBlock(CodeGenerator).GetCode());
                 cb.Append(">(");
                 cb.AppendAligned(Value.GetCode());
                 cb.Append(")");

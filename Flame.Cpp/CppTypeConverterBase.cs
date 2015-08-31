@@ -21,7 +21,7 @@ namespace Flame.Cpp
 
         protected override IType ConvertPointerType(IPointerType Type)
         {
-            return MakePointerType(ConvertWithValueSemantics(Type.GetElementType()), Type.PointerKind);
+            return MakePointerType(ConvertWithValueSemantics(Type.ElementType), Type.PointerKind);
         }
 
         protected virtual IType ConvertValueGenericInstance(IType Type)

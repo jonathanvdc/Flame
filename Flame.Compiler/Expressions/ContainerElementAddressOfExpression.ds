@@ -16,7 +16,7 @@ namespace Flame.Compiler.Expressions
         {
 	        const get
 			{
-				return Target.Type.AsContainerType().GetElementType().MakePointerType(PointerKind.ReferencePointer);
+				return Target.Type.AsContainerType().ElementType.MakePointerType(PointerKind.ReferencePointer);
 			}
 		}
 

@@ -110,7 +110,7 @@ namespace Flame.Cpp
             }
             else if (Type.get_IsPointer())
             {
-                var depends = Type.AsContainerType().GetElementType().GetDependencies();
+                var depends = Type.AsContainerType().ElementType.GetDependencies();
                 if (Type.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer))
                 {
                     return depends.MergeDependencies(new IHeaderDependency[] { StandardDependency.Memory });

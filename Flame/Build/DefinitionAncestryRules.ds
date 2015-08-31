@@ -1,0 +1,30 @@
+using System;
+
+namespace Flame.Build
+{
+    /// <summary>
+    /// Ancestry rules for type definitions.
+    /// </summary>
+    public static class DefinitionAncestryRules : IAncestryRules
+    {
+        public int GetAncestryDegree(IType First, IType Second)
+        {
+            if (First == Second)
+            {
+                return 0; // They are equal. Return zero to signal this.
+            }
+            else
+            {
+                int lowest = First.BaseTypes.GetLowestAncestryDegree(Second);
+                if (lowest >= 0)
+                {
+                    return lowest + 1;
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+        }
+    }
+}

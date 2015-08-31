@@ -16,17 +16,17 @@ namespace Flame.Build
 
 		protected virtual const TTarget ConvertPointerType(IPointerType Type)
 		{
-			return MakePointerType(Convert(Type.GetElementType()), Type.PointerKind);
+			return MakePointerType(Convert(Type.ElementType), Type.PointerKind);
 		}
 
 		protected virtual const TTarget ConvertArrayType(IArrayType Type)
 		{
-			return MakeArrayType(Convert(Type.GetElementType()), Type.ArrayRank);
+			return MakeArrayType(Convert(Type.ElementType), Type.ArrayRank);
 		}
 
 		protected virtual const TTarget ConvertVectorType(IVectorType Type)
 		{
-			return MakeVectorType(Convert(Type.GetElementType()), Type.GetDimensions());
+			return MakeVectorType(Convert(Type.ElementType), Type.GetDimensions());
 		}
 
 		protected virtual const TTarget ConvertGenericParameter(IGenericParameter Type)

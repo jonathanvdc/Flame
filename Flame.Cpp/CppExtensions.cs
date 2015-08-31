@@ -433,7 +433,7 @@ namespace Flame.Cpp
             while (t.get_IsPointer())
             {
                 depth++;
-                t = t.AsContainerType().GetElementType();
+                t = t.AsContainerType().ElementType;
             }
             return depth;
         }
@@ -458,17 +458,17 @@ namespace Flame.Cpp
             if (Type.get_IsArray())
             {
                 var tArr = Type.AsContainerType().AsArrayType();
-                return tArr.GetElementType().ResolveGenericInstance(GenericMember).MakeArrayType(tArr.ArrayRank);
+                return tArr.ElementType.ResolveGenericInstance(GenericMember).MakeArrayType(tArr.ArrayRank);
             }
             else if (Type.get_IsPointer())
             {
                 var tPtr = Type.AsContainerType().AsPointerType();
-                return tPtr.GetElementType().ResolveGenericInstance(GenericMember).MakePointerType(tPtr.PointerKind);
+                return tPtr.ElementType.ResolveGenericInstance(GenericMember).MakePointerType(tPtr.PointerKind);
             }
             else if (Type.get_IsVector())
             {
                 var tPtr = Type.AsContainerType().AsVectorType();
-                return tPtr.GetElementType().ResolveGenericInstance(GenericMember).MakeVectorType(tPtr.GetDimensions());
+                return tPtr.ElementType.ResolveGenericInstance(GenericMember).MakeVectorType(tPtr.GetDimensions());
             }
             else if (Type.get_IsGenericInstance())
             {
