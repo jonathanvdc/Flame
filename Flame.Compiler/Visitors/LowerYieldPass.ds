@@ -80,15 +80,13 @@ namespace Flame.Compiler.Visitors
 
             var elemType = typeConv.Convert(oldElemType);
 
-            var descStateField = new DescribedField("enumerator_state", PrimitiveTypes.Int32, false);
+            var descStateField = new DescribedField("enumerator_state", nestedType, PrimitiveTypes.Int32, false);
             descStateField.AddAttribute(new AccessAttribute(AccessModifier.Private));
             descStateField.AddAttribute(PrimitiveAttributes.HiddenAttribute);
-            descStateField.DeclaringType = nestedType;
 
-            var descValField = new DescribedField("enumerator_value", elemType, false);
+            var descValField = new DescribedField("enumerator_value", nestedType, elemType, false);
             descValField.AddAttribute(new AccessAttribute(AccessModifier.Private));
             descValField.AddAttribute(PrimitiveAttributes.HiddenAttribute);
-            descValField.DeclaringType = nestedType;
 
             var stateField = nestedType.DeclareField(descStateField);
             stateField.Build();

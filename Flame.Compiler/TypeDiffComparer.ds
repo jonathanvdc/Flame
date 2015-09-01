@@ -116,18 +116,19 @@ namespace Flame.Compiler
                 nodes.Add(ToTextNode("]"));
             return new MarkupNode("node", nodes);
         }
-        protected override const IMarkupNode MakeVectorComparison(IMarkupNode ElementComparison, int[] FirstDimensions, int[] SecondDimensions)
+        protected override const IMarkupNode MakeVectorComparison(IMarkupNode ElementComparison,
+            IReadOnlyList<int> FirstDimensions, IReadOnlyList<int> SecondDimensions)
         {
             var nodes = new List<IMarkupNode>();
             nodes.Add(ElementComparison);
             nodes.Add(ToTextNode("["));
-            for (int i = 0; i < SecondDimensions.Length; i++)
+            for (int i = 0; i < SecondDimensions.Count; i++)
             {
                 if (i > 0)
                 {
                     nodes.Add(ToTextNode(", "));
                 }
-                if (i < FirstDimensions.Length)
+                if (i < FirstDimensions.Count)
                 {
                     if (FirstDimensions[i] == SecondDimensions[i])
                     {
@@ -140,7 +141,7 @@ namespace Flame.Compiler
                     nodes.Add(HighlightMissingNode(SecondDimensions[i].ToString()));
                 }
             }
-            if (SecondDimensions.Length < FirstDimensions.Length)
+            if (SecondDimensions.Count < FirstDimensions.Count)
             {
                 nodes.Add(HighlightExtraNode("]"));
             }

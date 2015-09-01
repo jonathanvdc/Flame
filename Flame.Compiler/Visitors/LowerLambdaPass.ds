@@ -206,8 +206,10 @@ namespace Flame.Compiler.Visitors
 
             foreach (var item in Lambda.Header.CaptureList)
             {
-                var descField = new DescribedField("captured_" + capturedValues.Count, typeConverter.Convert(item.Type), false);
-                descField.DeclaringType = closureType;
+                var descField = new DescribedField("captured_" + capturedValues.Count,
+                                                   closureType,
+                                                   typeConverter.Convert(item.Type),
+                                                   false);
                 descField.AddAttribute(new AccessAttribute(AccessModifier.Private));
 
                 var captField = closureType.DeclareField(descField);

@@ -198,7 +198,7 @@ namespace Flame.Compiler
         /// </summary>
         /// <param name="ElementType"></param>
         /// <param name="Dimensions"></param>
-        ICodeBlock EmitNewVector(IType ElementType, int[] Dimensions);
+        ICodeBlock EmitNewVector(IType ElementType, IReadOnlyList<int> Dimensions);
 
 		IEmitVariable GetElement(ICodeBlock Value, [ICodeBlock] Index);
 		IEmitVariable GetField(IField Field, ICodeBlock Target);

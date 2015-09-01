@@ -15,7 +15,8 @@ namespace Flame.Compiler.Emit
 		/// Creates a new described variable member from the given name and variable
 		/// type.
 		/// </summary>
-		public const this(set string Name, set IType VariableType);
+		public const this(string Name, set IType VariableType)
+			: base(Name);
 
 		/// <summary>
 		/// Gets the variable member's variable type.

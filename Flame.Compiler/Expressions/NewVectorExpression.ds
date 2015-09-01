@@ -10,6 +10,10 @@ namespace Flame.Compiler.Expressions
         {
             this.Type = VectorType;
         }
+        public const this(IType ElementType, IReadOnlyList<int> Dimensions)
+        {
+            this.Type = ElementType.MakeVectorType(Dimensions);
+        }
         public const this(IType ElementType, int[] Dimensions)
         {
             this.Type = ElementType.MakeVectorType(Dimensions);
@@ -17,17 +21,11 @@ namespace Flame.Compiler.Expressions
 
         public IType ElementType
         {
-            const get
-            {
-                return Type.AsContainerType().AsVectorType().ElementType;
-            }
+            const get { return Type.AsVectorType().ElementType; }
         }
-        public int[] Dimensions
+        public IReadOnlyList<int> Dimensions
         {
-            const get
-            {
-                return Type.AsContainerType().AsVectorType().Dimensions;
-            }
+            const get { return Type.AsVectorType().Dimensions; }
         }
 
         public IMemberNode ConvertMembers(MemberConverter Converter)
