@@ -712,5 +712,36 @@ namespace Flame
         }
 
         #endregion
+
+		#region Make*Type
+
+		/// <summary>
+		/// Creates an array type based on the given element type and
+		/// array rank.
+		/// </summary>
+		public const static IArrayType MakeArrayType(this IType ElementType, int ArrayRank)
+		{
+			return new ArrayType(ElementType, ArrayRank);
+		}
+
+		/// <summary>
+		/// Creates a pointer type that points to an object of the given type
+		/// and is of the given pointer kind.
+		/// </summary>
+		public const static IPointerType MakePointerType(this IType ElementType, PointerKind Kind)
+		{
+			return new PointerType(ElementType, Kind);
+		}
+
+		/// <summary>
+		/// Creates a vector type that contains objects of the given type
+		/// and has the given dimensions.
+		/// </summary>
+		public const static IVectorType MakeVectorType(this IType ElementType, IReadOnlyList<int> Dimensions)
+		{
+			return new VectorType(ElementType, Dimensions);
+		}
+
+		#endregion
 	}
 }
