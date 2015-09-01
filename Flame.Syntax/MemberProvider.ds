@@ -56,14 +56,14 @@ namespace Flame.Syntax
             {
                 foreach (var method in item.GetMethods())
                 {
-                    if (method.IsExtension && method.GetParameters()[0].IsAssignable(Type))
+                    if (method.IsExtension && Type.Is(method.GetParameters()[0].ParameterType))
                     {
                         members.Add(method);
                     }
                 }
                 foreach (var prop in item.Properties)
                 {
-                    if (prop.IsExtension && prop.IndexerParameters[0].IsAssignable(Type))
+                    if (prop.IsExtension && Type.Is(prop.GetIndexerParameters()[0].ParameterType))
                     {
                         members.Add(prop);
                     }

@@ -20,9 +20,9 @@ namespace Flame.Syntax
             const get { return Name; }
         }
 
-        public [IAttribute] GetAttributes()
+        public [IAttribute] Attributes
         {
-            return Enumerable.Empty<IAttribute>();
+            const get { return Enumerable.Empty<IAttribute>(); }
         }
     }
 }
