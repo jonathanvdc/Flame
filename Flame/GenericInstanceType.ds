@@ -26,13 +26,14 @@ namespace Flame
             : base(Declaration)
 		{
             this.resolver = DeclaringType;
-			this.declaringType = (INamespace)DeclaringType;
+			this.declaringType = DeclaringType;
 		}
 
         private IGenericResolver resolver;
         private IType declaringType;
 
 		public override IGenericResolver Resolver { const get { return resolver; } }
+		public IType DeclaringType { const get { return declaringType; } }
 		public override INamespace DeclaringNamespace { const get { return (INamespace)declaringType; } }
 
 		public override string Name
@@ -55,7 +56,7 @@ namespace Flame
                 return false;
         }
 
-        public const bool Equals(IMethod Other)
+        public const bool Equals(IType Other)
         {
         	if (Other is GenericInstanceType)
         		return Equals((GenericInstanceType)Other);

@@ -64,7 +64,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IAttribute> GetAttributes()
         {
-            return Template.GetAttributes();
+            return Template.Attributes;
         }
 
         public string Name
@@ -101,7 +101,7 @@ namespace Flame.Cpp
 
         public IParameter[] GetIndexerParameters()
         {
-            return Template.GetIndexerParameters();
+            return Template.IndexerParameters;
         }
 
         public IType PropertyType

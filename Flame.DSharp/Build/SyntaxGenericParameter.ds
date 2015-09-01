@@ -30,7 +30,7 @@ namespace Flame.DSharp.Build
 		
 		public const [IAttribute] GetAttributes()
 		{
-			return backingType.GetAttributes();
+			return backingType.Attributes;
 		}
 		
 		public IGenericConstraint Constraint
@@ -44,7 +44,7 @@ namespace Flame.DSharp.Build
 		public const IField[] GetFields() { return backingType.GetFields(); }
 		public const IMethod[] GetMethods() { return backingType.GetMethods(); }
 		public const IMethod[] GetConstructors() { return backingType.GetConstructors(); }
-		public const IProperty[] GetProperties() { return backingType.GetProperties(); }
+		public const IProperty[] GetProperties() { return backingType.Properties; }
 		public const ITypeMember[] GetMembers() { return backingType.GetMembers(); }
 		
 		public void AddConstraint(IGenericConstraint Constraint)
@@ -74,7 +74,7 @@ namespace Flame.DSharp.Build
 
         public IType[] GetBaseTypes()
         {
-            return backingType.GetBaseTypes();
+            return backingType.BaseTypes;
         }
 
         public IType ParameterType

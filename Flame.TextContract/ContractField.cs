@@ -35,7 +35,7 @@ namespace Flame.TextContract
 
         public IEnumerable<IAttribute> GetAttributes()
         {
-            return Template.GetAttributes();
+            return Template.Attributes;
         }
 
         public string Name

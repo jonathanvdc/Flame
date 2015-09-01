@@ -133,7 +133,7 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
     interface IMember with
         member this.Name = this.Name
         member this.FullName = MemberExtensions.CombineNames(declNs.FullName, this.Name)
-        member this.GetAttributes() = header.Attributes
+        member this.Attributes = header.Attributes
 
     interface IType with
         member this.AsContainerType() = null
@@ -149,10 +149,10 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
         member this.GetGenericArguments() = Seq.empty
         member this.GenericParameters = this.GenericParameters
 
-        member this.GetBaseTypes() = this.BaseTypes
+        member this.BaseTypes = this.BaseTypes
         member this.GetMethods() = this.Methods
         member this.GetConstructors() = this.Constructors
-        member this.GetProperties() = this.Properties
+        member this.Properties = this.Properties
         member this.GetFields() = this.Fields
         member this.GetMembers() = this.Members
 
@@ -184,7 +184,7 @@ type FunctionalMemberBase(header : FunctionalMemberHeader, declType : IType,
     interface IMember with
         member this.Name = header.Name
         member this.FullName = MemberExtensions.CombineNames(declType.FullName, header.Name)
-        member this.GetAttributes() = header.Attributes
+        member this.Attributes = header.Attributes
 
     interface ITypeMember with
         member this.DeclaringType = declType

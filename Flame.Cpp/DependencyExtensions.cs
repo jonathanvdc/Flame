@@ -58,10 +58,10 @@ namespace Flame.Cpp
             }
             return Type.GetMethods().GetDeclarationDependencies(Exclude)
                                     .Union(Type.GetConstructors().GetDeclarationDependencies(Exclude))
-                                    .Union(Type.GetProperties().GetDeclarationDependencies(Exclude))
+                                    .Union(Type.Properties.GetDeclarationDependencies(Exclude))
                                     .Union(Type.GetFields().GetDeclarationDependencies(Exclude))
-                                    .Union(Type.GetProperties().GetDeclarationDependencies(Exclude))
-                                    .Union(Type.GetBaseTypes().GetDependencies(Exclude))
+                                    .Union(Type.Properties.GetDeclarationDependencies(Exclude))
+                                    .Union(Type.BaseTypes.GetDependencies(Exclude))
                                     .Union(Type is INamespace ? ((INamespace)Type).GetDeclarationDependencies(Exclude) : Enumerable.Empty<IHeaderDependency>());
         }
 

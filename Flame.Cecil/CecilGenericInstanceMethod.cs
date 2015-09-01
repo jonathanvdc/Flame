@@ -40,7 +40,7 @@ namespace Flame.Cecil
 
         public override IMethod[] GetBaseMethods()
         {
-            var results = Method.GetBaseMethods().Select(DeclaringType.ResolveMethod).ToArray();
+            var results = Method.BaseMethods.Select(DeclaringType.ResolveMethod).ToArray();
             return results;
         }
 
@@ -66,7 +66,7 @@ namespace Flame.Cecil
 
         public override IEnumerable<IAttribute> GetAttributes()
         {
-            return Method.GetAttributes();
+            return Method.Attributes;
         }
 
         public override string Name

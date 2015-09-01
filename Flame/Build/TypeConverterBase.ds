@@ -10,7 +10,7 @@ namespace Flame.Build
 
 		protected abstract const TTarget MakePointerType(TTarget ElementType, PointerKind Kind);
 		protected abstract const TTarget MakeArrayType(TTarget ElementType, int ArrayRank);
-		protected abstract const TTarget MakeVectorType(TTarget ElementType, int[] Dimensions);
+		protected abstract const TTarget MakeVectorType(TTarget ElementType, IReadOnlyList<int> Dimensions);
 		protected abstract const TTarget MakeGenericType(TTarget GenericDeclaration, [TTarget] TypeArguments);
 		protected abstract const TTarget ConvertTypeDefault(IType Type);
 
@@ -26,7 +26,7 @@ namespace Flame.Build
 
 		protected virtual const TTarget ConvertVectorType(IVectorType Type)
 		{
-			return MakeVectorType(Convert(Type.ElementType), Type.GetDimensions());
+			return MakeVectorType(Convert(Type.ElementType), Type.Dimensions);
 		}
 
 		protected virtual const TTarget ConvertGenericParameter(IGenericParameter Type)

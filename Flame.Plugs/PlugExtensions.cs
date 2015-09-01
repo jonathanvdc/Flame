@@ -22,7 +22,7 @@ namespace Flame.Plugs
 
         public static IEnumerable<PlugAttribute> GetPlugAttributes(this IMember Member)
         {
-            return Member.GetAttributes().Where((item) => item != null && item.Value != null).Select((item) => item.Value.GetObjectValue()).OfType<PlugAttribute>();
+            return Member.Attributes.Where((item) => item != null && item.Value != null).Select((item) => item.Value.GetObjectValue()).OfType<PlugAttribute>();
         }
 
         public static IReadOnlyDictionary<string, string> GetNameMappingFromProject(IProject Project)

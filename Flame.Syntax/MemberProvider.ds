@@ -61,9 +61,9 @@ namespace Flame.Syntax
                         members.Add(method);
                     }
                 }
-                foreach (var prop in item.GetProperties())
+                foreach (var prop in item.Properties)
                 {
-                    if (prop.IsExtension && prop.GetIndexerParameters()[0].IsAssignable(Type))
+                    if (prop.IsExtension && prop.IndexerParameters[0].IsAssignable(Type))
                     {
                         members.Add(prop);
                     }

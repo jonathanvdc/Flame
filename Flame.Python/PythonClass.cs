@@ -37,7 +37,7 @@ namespace Flame.Python
 
         public IType[] GetBaseTypes()
         {
-            return Template.GetBaseTypes();
+            return Template.BaseTypes;
         }
 
         private List<IPythonMethod> ctors;
@@ -112,7 +112,7 @@ namespace Flame.Python
 
         public IEnumerable<IAttribute> GetAttributes()
         {
-            return Template.GetAttributes();
+            return Template.Attributes;
         }
 
         protected IMemberNamer GetMemberNamer()

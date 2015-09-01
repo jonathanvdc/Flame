@@ -54,7 +54,7 @@ namespace Flame.Build
             {
                 var firstPtrTy = First.AsPointerType();
                 var secondPtrTy = Second.AsPointerType();
-                return Type.GetAncestryDegree(firstPtrTy.ElementType, secondPtrTy.ElementType)
+                return firstPtrTy.ElementType.GetAncestryDegree(secondPtrTy.ElementType);
             }
             else
             {

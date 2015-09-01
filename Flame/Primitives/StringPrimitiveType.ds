@@ -152,8 +152,7 @@ namespace Flame.Primitives
 
         private IField[] CreateFields()
         {
-            var emptyField = new DescribedLiteralField<string>("Empty", this, string.Empty); // static const string Empty = "";
-			emptyField.DeclaringType = this;
+            var emptyField = new DescribedLiteralField<string>("Empty", this, this, string.Empty); // static const string Empty = "";
 			return new IField[] { emptyField };
         }
 

@@ -25,7 +25,7 @@ namespace Flame.Cpp
 
         private static IEnumerable<HeaderAttribute> GetHeaderAttributes(this IMember Member)
         {
-            foreach (var item in Member.GetAttributes())
+            foreach (var item in Member.Attributes)
             {
                 if (item != null && item.AttributeType.FullName == typeof(HeaderAttribute).FullName)
                 {
@@ -52,7 +52,7 @@ namespace Flame.Cpp
 
         private static IEnumerable<HeaderDependencyAttribute> GetHeaderDependencyAttributes(this IMember Member)
         {
-            return Member.GetAttributes().OfType<HeaderDependencyAttribute>();
+            return Member.Attributes.OfType<HeaderDependencyAttribute>();
         }
 
         public static IEnumerable<IHeaderDependency> GetAttributeDependencies(this IMember Member)
@@ -70,7 +70,7 @@ namespace Flame.Cpp
 
         public static bool IsGlobalType(this IType Member)
         {
-            foreach (var item in Member.GetAttributes())
+            foreach (var item in Member.Attributes)
             {
                 if (item != null && item.AttributeType.FullName == typeof(GlobalTypeAttribute).FullName)
                 {
@@ -86,7 +86,7 @@ namespace Flame.Cpp
 
         private static ReferencePointerAttribute GetReferencePointerAttribute(this IMember Member)
         {
-            foreach (var item in Member.GetAttributes())
+            foreach (var item in Member.Attributes)
             {
                 if (item != null && item.AttributeType.FullName == typeof(ReferencePointerAttribute).FullName)
                 {
@@ -306,7 +306,7 @@ namespace Flame.Cpp
         public static IVariableMember ConvertVariableMember(this ICodeGenerator CodeGenerator, IVariableMember Member)
         {
             var descMember = new DescribedVariableMember(Member.Name, CodeGenerator.ConvertType(Member.VariableType));
-            foreach (var attr in Member.GetAttributes())
+            foreach (var attr in Member.Attributes)
             {
                 descMember.AddAttribute(attr);
             } 
@@ -468,7 +468,7 @@ namespace Flame.Cpp
             else if (Type.get_IsVector())
             {
                 var tPtr = Type.AsContainerType().AsVectorType();
-                return tPtr.ElementType.ResolveGenericInstance(GenericMember).MakeVectorType(tPtr.GetDimensions());
+                return tPtr.ElementType.ResolveGenericInstance(GenericMember).MakeVectorType(tPtr.Dimensions);
             }
             else if (Type.get_IsGenericInstance())
             {

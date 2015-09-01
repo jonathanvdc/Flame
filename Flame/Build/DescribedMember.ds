@@ -7,22 +7,22 @@ namespace Flame.Build
 	{
 		public const this(set string Name)
 		{
-			this.attrs = new List<IAttribute>();
+			this.attributeList = new List<IAttribute>();
 		}
 
 		public string Name { const get; private set; }
 		public abstract string FullName { get; }
 
-		private List<IAttribute> attrs;
+		protected List<IAttribute> attributeList;
 
 		public virtual void AddAttribute(IAttribute Attribute)
 		{
-			attrs.Add(Attribute);
+			attributeList.Add(Attribute);
 		}
 
 		public [IAttribute] Attributes
 		{
-			const get { return attrs; }
+			const get { return attributeList; }
 		}
 	}
 }

@@ -119,7 +119,7 @@ namespace Flame
 					dict[elem] = parameterTypes;
 				}
             }
-            List<IMethod> sortedMethodList = SortByParameterMatch<IMethod>(ParameterTypes, dict);
+            var sortedMethodList = SortByParameterMatch<IMethod>(ParameterTypes, dict);
             return sortedMethodList.ToArray().FilterBaseMethods();
         }
 
@@ -263,7 +263,7 @@ namespace Flame
         {
         	if (SourceType.IsVector && TargetType.IsArray)
         	{
-        		return SourceType.AsContainerType().ElementType.Is(TargetType.AsContainerType().ElementType) && SourceType.AsContainerType().AsVectorType().GetDimensions().Length == TargetType.AsContainerType().AsArrayType().ArrayRank;
+        		return SourceType.AsContainerType().ElementType.Is(TargetType.AsContainerType().ElementType) && SourceType.AsContainerType().AsVectorType().Dimensions.Count == TargetType.AsContainerType().AsArrayType().ArrayRank;
         	}
         	if (SourceType.IsPrimitive && TargetType.IsPrimitive)
         	{

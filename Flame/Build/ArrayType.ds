@@ -83,9 +83,9 @@ namespace Flame.Build
 	{
 		public int GetAncestryDegree(IType First, IType Second)
 		{
-			if (Type.IsArray && Other.IsArray &&
-				Type.AsArrayType().ArrayRank == Other.AsArrayType().ArrayRank &&
-				Type.AsContainerType().ElementType.IsEquivalent(Type.AsContainerType().ElementType))
+			if (First.IsArray && Second.IsArray &&
+				First.AsArrayType().ArrayRank == Second.AsArrayType().ArrayRank &&
+				First.AsContainerType().ElementType.IsEquivalent(Second.AsContainerType().ElementType))
             {
 				return 0;
             }

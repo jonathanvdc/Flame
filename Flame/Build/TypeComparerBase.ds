@@ -15,7 +15,7 @@ namespace Flame.Build
 		protected abstract const T MakeGenericInstanceComparison(T DeclarationComparison, [T] TypeArgumentComparisons);
 		protected abstract const T MakePointerComparison(T ElementComparison, PointerKind FirstKind, PointerKind SecondKind);
 		protected abstract const T MakeArrayComparison(T ElementComparison, int FirstRank, int SecondRank);
-		protected abstract const T MakeVectorComparison(T ElementComparison, int[] FirstDimensions, int[] SecondDimensions);
+		protected abstract const T MakeVectorComparison(T ElementComparison, IReadOnlyList<int> FirstDimensions, IReadOnlyList<int> SecondDimensions);
 		protected abstract const T MakeDelegateComparison(T ReturnTypeComparison, [T] ParameterTypesComparison);
 
 		/// <summary>
@@ -88,7 +88,7 @@ namespace Flame.Build
 
 		protected virtual const T CompareVectorTypes(IVectorType First, IVectorType Second)
 		{
-			return MakeVectorComparison(Compare(First.ElementType, Second.ElementType), First.GetDimensions(), Second.GetDimensions());
+			return MakeVectorComparison(Compare(First.ElementType, Second.ElementType), First.Dimensions, Second.Dimensions);
 		}
 
 		protected virtual const T CompareGenericParameters(IGenericParameter Left, IGenericParameter Right)

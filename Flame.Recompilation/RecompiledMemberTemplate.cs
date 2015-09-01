@@ -24,7 +24,7 @@ namespace Flame.Recompilation
 
         public virtual IEnumerable<IAttribute> GetAttributes()
         {
-            return GetSourceMember().GetAttributes().Select(Recompiler.GetAttribute);
+            return GetSourceMember().Attributes.Select(Recompiler.GetAttribute);
         }
 
         public string Name

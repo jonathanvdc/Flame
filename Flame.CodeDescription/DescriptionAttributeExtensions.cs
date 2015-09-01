@@ -55,10 +55,10 @@ namespace Flame.CodeDescription
 
         public static IEnumerable<DescriptionAttribute> GetDescriptionAttributes(this IMember Member)
         {
-            var attrs = Member.GetAttributes().OfType<DescriptionAttribute>();
+            var attrs = Member.Attributes.OfType<DescriptionAttribute>();
             if (Member is IMethod)
             {
-                var baseMethods = ((IMethod)Member).GetBaseMethods();
+                var baseMethods = ((IMethod)Member).BaseMethods;
                 foreach (var item in baseMethods)
                 {
                     attrs = attrs.Merge(item.GetDescriptionAttributes().ExcludeTag("remarks"));

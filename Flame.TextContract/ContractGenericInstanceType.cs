@@ -64,7 +64,7 @@ namespace Flame.TextContract
 
         public IType[] GetBaseTypes()
         {
-            return GenericDeclaration.GetBaseTypes();
+            return GenericDeclaration.BaseTypes;
         }
 
         public IMethod[] GetConstructors()
@@ -94,7 +94,7 @@ namespace Flame.TextContract
 
         public IProperty[] GetProperties()
         {
-            return GenericDeclaration.GetProperties();
+            return GenericDeclaration.Properties;
         }
 
         public bool IsContainerType
@@ -129,7 +129,7 @@ namespace Flame.TextContract
 
         public IEnumerable<IAttribute> GetAttributes()
         {
-            return GenericDeclaration.GetAttributes();
+            return GenericDeclaration.Attributes;
         }
 
         public IEnumerable<IGenericParameter> GetGenericParameters()

@@ -28,7 +28,7 @@ namespace Flame.Python
 
         public IParameter[] GetIndexerParameters()
         {
-            return Template.GetIndexerParameters();
+            return Template.IndexerParameters;
         }
 
         public IType PropertyType
@@ -48,7 +48,7 @@ namespace Flame.Python
 
         public IEnumerable<IAttribute> GetAttributes()
         {
-            return Template.GetAttributes();
+            return Template.Attributes;
         }
 
         protected IMemberNamer GetMemberNamer()

@@ -80,7 +80,7 @@ type FunctionalAccessor private(header : FunctionalMemberHeader,
         member this.ReturnType = this.ReturnType
         member this.GetParameters() = this.Parameters
         member this.IsConstructor = false
-        member this.GetBaseMethods() = this.BaseMethods
+        member this.BaseMethods = this.BaseMethods
 
         member this.Invoke(target : IBoundObject, args : IBoundObject seq) = null // We don't do that yet.
 

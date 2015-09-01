@@ -112,7 +112,7 @@ namespace Flame.DSharp.Build
 
         public const IParameter[] GetParameters()
         {
-            var indexerParams = DeclaringProperty.GetIndexerParameters();
+            var indexerParams = DeclaringProperty.IndexerParameters;
             if (this.IsGetAccessor)
             {
                 return indexerParams;
@@ -148,7 +148,7 @@ namespace Flame.DSharp.Build
 	            {
 	            	attrs.Add(new FieldAccessorAttribute(FieldPropertySyntax.GetBackingFieldName(ParentProperty.Name)));
 	            }
-	            foreach (var item in DeclaringProperty.GetAttributes())
+	            foreach (var item in DeclaringProperty.Attributes)
 	            {
 	            	var attrType = item.AttributeType;
 	            	if (attrType.Equals(DescriptionAttribute.DescriptionAttributeType))

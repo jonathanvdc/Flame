@@ -63,7 +63,7 @@ namespace Flame.Cecil
 
         public override IMethod[] GetBaseMethods()
         {
-            return GenericDeclaration.GetBaseMethods();
+            return GenericDeclaration.BaseMethods;
         }
 
         public override bool IsConstructor
@@ -151,7 +151,7 @@ namespace Flame.Cecil
 
         public override IEnumerable<IAttribute> GetAttributes()
         {
-            return GenericDeclaration.GetAttributes();
+            return GenericDeclaration.Attributes;
         }
 
         #endregion

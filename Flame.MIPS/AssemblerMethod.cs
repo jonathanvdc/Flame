@@ -73,7 +73,7 @@ namespace Flame.MIPS
 
         public IMethod[] GetBaseMethods()
         {
-            return Template.GetBaseMethods();
+            return Template.BaseMethods;
         }
 
         public IMethod GetGenericDeclaration()
@@ -118,7 +118,7 @@ namespace Flame.MIPS
 
         public IEnumerable<IAttribute> GetAttributes()
         {
-            return Template.GetAttributes();
+            return Template.Attributes;
         }
 
         public string Name

@@ -87,7 +87,7 @@ namespace Flame.Cecil
         public static CecilTypeBuilder DeclareType(ICecilNamespace CecilNamespace, IType Template)
         {
             var isNested = CecilNamespace is ICecilType;
-            var typeAttrs = ExtractTypeAttributes(Template.GetAttributes());
+            var typeAttrs = ExtractTypeAttributes(Template.Attributes);
             if (isNested && (typeAttrs & TypeAttributes.VisibilityMask) == TypeAttributes.Public)
             {
                 typeAttrs &= ~TypeAttributes.Public;
@@ -130,7 +130,7 @@ namespace Flame.Cecil
 
             var genericParams = CecilGenericParameter.DeclareGenericParameters(reference, genericTemplates, cecilType.Module, cecilType);
 
-            var baseTypes = genericResolver.ResolveTypes(GetGenericTypes(Template.GetBaseTypes(), genericParams));
+            var baseTypes = genericResolver.ResolveTypes(GetGenericTypes(Template.BaseTypes, genericParams));
 
             if (!Template.get_IsInterface())
             {
@@ -160,7 +160,7 @@ namespace Flame.Cecil
                 reference.Interfaces.Add(item.GetImportedReference(CecilNamespace.Module, reference));
             }
 
-            CecilAttribute.DeclareAttributes(reference, cecilType, Template.GetAttributes());
+            CecilAttribute.DeclareAttributes(reference, cecilType, Template.Attributes);
 
             if (Template.get_IsExtension() && !cecilType.get_IsExtension())
             {
@@ -257,7 +257,7 @@ namespace Flame.Cecil
         private static void CreateStaticSingletonMethod(IExpression GetSingletonExpression, ITypeBuilder DeclaringType, IMethod Method)
         {
             var descMethod = new DescribedMethod(Method.Name, DeclaringType, Method.ReturnType, true);
-            foreach (var attr in Method.GetAttributes())
+            foreach (var attr in Method.Attributes)
             {
                 descMethod.AddAttribute(attr);
             }
@@ -276,7 +276,7 @@ namespace Flame.Cecil
         {
             var descMethod = new DescribedAccessor(Accessor.AccessorType, DeclaringProperty, Accessor.ReturnType);
             descMethod.IsStatic = true;
-            foreach (var attr in Accessor.GetAttributes())
+            foreach (var attr in Accessor.Attributes)
             {
                 descMethod.AddAttribute(attr);
             }
@@ -294,11 +294,11 @@ namespace Flame.Cecil
         private static void CreateStaticSingletonProperty(IExpression GetSingletonExpression, ITypeBuilder DeclaringType, IProperty Property)
         {
             var descProp = new DescribedProperty(Property.Name, DeclaringType, Property.PropertyType, true);
-            foreach (var attr in Property.GetAttributes())
+            foreach (var attr in Property.Attributes)
             {
                 descProp.AddAttribute(attr);
             }
-            foreach (var param in Property.GetIndexerParameters())
+            foreach (var param in Property.IndexerParameters)
             {
                 descProp.AddIndexerParameter(param);
             }
@@ -316,7 +316,7 @@ namespace Flame.Cecil
             if (this.Name == StaticSingletonName)
             {
                 var declTypeBuilder = this.DeclaringGenericMember as ITypeBuilder;
-                var singletonProp = this.GetProperties().GetProperty(this.GetSingletonMemberName(), true);
+                var singletonProp = this.Properties.GetProperty(this.GetSingletonMemberName(), true);
                 // Generate static members for C# compatibility if "-generate-static" was specified
                 if (declTypeBuilder != null && singletonProp != null && declTypeBuilder.GetLog().Options.GenerateStaticMembers())
                 {
@@ -327,7 +327,7 @@ namespace Flame.Cecil
                     {
                         CreateStaticSingletonMethod(getSingletonExpr, declTypeBuilder, item);
                     }
-                    foreach (var item in this.GetProperties())
+                    foreach (var item in this.Properties)
                         if (item.get_Access() == AccessModifier.Public)
                         if (!item.IsStatic)
                     {

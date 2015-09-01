@@ -62,7 +62,7 @@ namespace Flame.Cecil
 
         public override IEnumerable<IAttribute> GetAttributes()
         {
-            return Field.GetAttributes();
+            return Field.Attributes;
         }
     }
 }

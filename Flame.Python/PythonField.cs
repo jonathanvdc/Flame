@@ -48,7 +48,7 @@ namespace Flame.Python
 
         public IEnumerable<IAttribute> GetAttributes()
         {
-            return Template.GetAttributes();
+            return Template.Attributes;
         }
 
         protected IMemberNamer GetMemberNamer()

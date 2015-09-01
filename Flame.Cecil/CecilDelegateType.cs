@@ -114,7 +114,7 @@ namespace Flame.Cecil
 
         public IEnumerable<IAttribute> GetAttributes()
         {
-            return Type.GetAttributes();
+            return Type.Attributes;
         }
 
         public string Name
@@ -148,7 +148,7 @@ namespace Flame.Cecil
 
         public IType[] GetBaseTypes()
         {
-            return Type.GetBaseTypes();
+            return Type.BaseTypes;
         }
 
         public IMethod[] GetConstructors()
@@ -183,7 +183,7 @@ namespace Flame.Cecil
 
         public IProperty[] GetProperties()
         {
-            return Type.GetProperties();
+            return Type.Properties;
         }
 
         public bool IsContainerType

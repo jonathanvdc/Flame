@@ -40,7 +40,7 @@ namespace Flame.Cpp
                 }
                 else if (container.get_IsVector())
                 {
-                    return Resolver.ResolveType(elemType).MakeVectorType(container.AsVectorType().GetDimensions());
+                    return Resolver.ResolveType(elemType).MakeVectorType(container.AsVectorType().Dimensions);
                 }
                 else
                 {
@@ -96,7 +96,7 @@ namespace Flame.Cpp
         public static IParameter ResolveParameter(this IGenericResolver Resolver, IParameter Parameter)
         {
             var descParam = new DescribedParameter(Parameter.Name, Resolver.ResolveType(Parameter.ParameterType));
-            foreach (var item in Parameter.GetAttributes())
+            foreach (var item in Parameter.Attributes)
             {
                 descParam.AddAttribute(item);
             }

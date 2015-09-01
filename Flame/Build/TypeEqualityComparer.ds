@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Flame.Build
 {
@@ -48,20 +49,10 @@ namespace Flame.Build
 			return ElementComparison && FirstRank == SecondRank;
 		}
 
-		protected virtual override const bool MakeVectorComparison(bool ElementComparison, int[] FirstDimensions, int[] SecondDimensions)
+		protected virtual override const bool MakeVectorComparison(bool ElementComparison, IReadOnlyList<int> FirstDimensions, IReadOnlyList<int> SecondDimensions)
 		{
-			if (!ElementComparison)
-				return false;
-
-			if (FirstDimensions.Length != SecondDimensions.Length) return false;
-
-			foreach (var dim1 in FirstDimensions, var dim2 in SecondDimensions)
-				if (dim1 != dim2)
-			{
-				return false;
-			}
-
-			return true;
+			return ElementComparison &&
+				   Enumerable.SequenceEqual<int>(FirstDimensions, SecondDimensions);
 		}
 
 		protected virtual override const bool CompareIntersectionTypes(IntersectionType First, IntersectionType Second)
@@ -83,6 +74,12 @@ namespace Flame.Build
 				return false;
 			}
 			return true;
+		}
+
+		public const bool CompareAll([IType] First, [IType] Second)
+		{
+			return CompareAll(Enumerable.ToArray<IType>(First),
+							  Enumerable.ToArray<IType>(Second));
 		}
 
 		public const bool Equals(IType First, IType Second)

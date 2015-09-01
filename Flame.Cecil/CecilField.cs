@@ -42,7 +42,7 @@ namespace Flame.Cecil
             var fieldRef = new FieldDefinition(Template.Name, attrs, fieldTypeRef);
             DeclaringType.AddField(fieldRef);
             var cecilField = new CecilField(DeclaringType, fieldRef);
-            CecilAttribute.DeclareAttributes(fieldRef, cecilField, Template.GetAttributes());
+            CecilAttribute.DeclareAttributes(fieldRef, cecilField, Template.Attributes);
             if (fieldRef.IsPrivate && Template.get_IsHidden())
             {
                 fieldRef.CustomAttributes.Add(CecilAttribute.CreateCecil<System.Runtime.CompilerServices.CompilerGeneratedAttribute>(cecilField).Attribute);
@@ -62,7 +62,7 @@ namespace Flame.Cecil
             var fieldRef = new FieldDefinition(Template.Name, attrs, fieldTypeRef);
             DeclaringType.AddField(fieldRef);
             var cecilField = new CecilField(DeclaringType, fieldRef);
-            CecilAttribute.DeclareAttributes(fieldRef, cecilField, Template.GetAttributes());
+            CecilAttribute.DeclareAttributes(fieldRef, cecilField, Template.Attributes);
 
             if (Template is IInitializedField)
             {

@@ -186,7 +186,7 @@ namespace Flame.Syntax.DSharp
                 IExpression callerExpr;
                 if (Caller != null && property.IsExtension)
                 {
-                    callerExpr = CreateExtensionCallerExpression(State, Caller, Enumerable.First<IParameter>(property.GetIndexerParameters()).ParameterType);
+                    callerExpr = CreateExtensionCallerExpression(State, Caller, Enumerable.First<IParameter>(property.IndexerParameters).ParameterType);
                     return new PropertyVariable(property, null, new IExpression[] { callerExpr });
                 }
                 else

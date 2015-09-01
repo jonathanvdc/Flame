@@ -165,7 +165,7 @@ namespace Flame.DSharp.Build
 					descMethod.AddParameter(targetParams[i]);
 					args[i] = new ArgumentVariable(targetParams[i], i).CreateGetExpression();
 				}
-				foreach (var item in target.GetAttributes())
+				foreach (var item in target.Attributes)
 				{
 					descMethod.AddAttribute(item);
 				}

@@ -47,7 +47,7 @@ namespace Flame.Cecil
 
         private IType[] GetBaseTypesCore()
         {
-            return this.ResolveTypes(GenericDefinition.GetBaseTypes());
+            return this.ResolveTypes(GenericDefinition.BaseTypes);
         }
 
         public IType[] GetBaseTypes()
@@ -119,7 +119,7 @@ namespace Flame.Cecil
 
         private IProperty[] GetPropertiesCore()
         {
-            return this.GenericDefinition.GetProperties().Select(item => new CecilGenericInstanceProperty(this, (ICecilProperty)item)).ToArray();
+            return this.GenericDefinition.Properties.Select(item => new CecilGenericInstanceProperty(this, (ICecilProperty)item)).ToArray();
         }
 
         private IType[] GetTypesCore()
@@ -154,7 +154,7 @@ namespace Flame.Cecil
         {
             if (cachedAttrs == null)
             {
-                cachedAttrs = GenericDefinition.GetAttributes().Select(CompleteAttribute).ToArray();
+                cachedAttrs = GenericDefinition.Attributes.Select(CompleteAttribute).ToArray();
             }
             return cachedAttrs;
         }

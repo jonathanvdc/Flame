@@ -20,7 +20,7 @@ namespace Flame.Cpp
 
         public IMethod[] GetBaseMethods()
         {
-            return DeclaringType.GetBaseTypes()
+            return DeclaringType.BaseTypes
                 .Select(item => item.GetMethod(Name, IsStatic, ReturnType, GetParameters().GetTypes()))
                 .Where(item => item != null)
                 .ToArray();

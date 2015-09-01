@@ -24,9 +24,9 @@ namespace Flame.Build
 		private List<IProperty> properties;
 		private List<IGenericParameter> typeParams;
 
-		public const IType[] GetBaseTypes()
+		public [IType] BaseTypes
         {
-            return baseTypes.ToArray();
+            const get { return baseTypes; }
         }
 
         public void AddBaseType(IType BaseType)

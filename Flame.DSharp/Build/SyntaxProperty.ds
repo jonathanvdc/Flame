@@ -150,7 +150,7 @@ namespace Flame.DSharp.Build
         	{
 	        	var state = GetSyntaxState();
 	        	var baseMethods = new HashSet<IProperty>();
-	        	var paramTypes = this.GetIndexerParameters().GetTypes();
+	        	var paramTypes = this.IndexerParameters.GetTypes();
 	        	foreach (var item in Syntax.ImplementedProperties)
 	            {
 	                var member = Enumerable.OfType<IProperty>(item.GetAccessedMembers(state)).GetProperty(this.IsStatic, this.PropertyType, paramTypes);
@@ -160,7 +160,7 @@ namespace Flame.DSharp.Build
 	            {
 	            	foreach (var item in DeclaringType.GetAllBaseTypes())
 	            	{
-	            		var match = item.GetProperties().GetProperty(this.Name, this.IsStatic, this.PropertyType, paramTypes);
+	            		var match = item.Properties.GetProperty(this.Name, this.IsStatic, this.PropertyType, paramTypes);
 	            		if (match != null)
 	            		{
 	            			baseMethods.Add(match);

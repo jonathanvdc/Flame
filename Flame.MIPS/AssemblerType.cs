@@ -33,7 +33,7 @@ namespace Flame.MIPS
 
         public IType[] GetBaseTypes()
         {
-            return Template.GetBaseTypes();
+            return Template.BaseTypes;
         }
 
         #region Members
@@ -172,11 +172,11 @@ namespace Flame.MIPS
         {
             if (Template.get_IsSingleton())
             {
-                return Template.GetAttributes().Where((item) => !(item is SingletonAttribute)).Concat(new IAttribute[] { PrimitiveAttributes.Instance.StaticTypeAttribute });
+                return Template.Attributes.Where((item) => !(item is SingletonAttribute)).Concat(new IAttribute[] { PrimitiveAttributes.Instance.StaticTypeAttribute });
             }
             else
             {
-                return Template.GetAttributes();
+                return Template.Attributes;
             }
         }
 

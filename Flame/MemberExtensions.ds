@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Flame.Build;
 
 namespace Flame
 {
@@ -89,14 +90,14 @@ namespace Flame
 
 		#region Attributes
 
-		public const static IEnumerable<IAttribute> GetAttributes(this IMember Member, IType Type)
+		public const static [IAttribute] GetAttributes(this IMember Member, IType Type)
         {
-        	return Member.GetAttributes().GetAttributes(Type);
+        	return Member.Attributes.GetAttributes(Type);
         }
 
         public const static IAttribute GetAttribute(this IMember Member, IType Type)
         {
-        	return Member.GetAttributes().GetAttribute(Type);
+        	return Member.Attributes.GetAttribute(Type);
         }
 
         public const static IAttribute GetAttribute(this IEnumerable<IAttribute> Attributes, IType Type)
@@ -234,7 +235,7 @@ namespace Flame
 
 		private static bool IsPureInterfaceCore(IType Type)
 		{
-			return Type.IsInterface && Enumerable.All<IType>(Type.GetBaseTypes(), IsPureInterfaceCore);
+			return Type.IsInterface && Enumerable.All<IType>(Type.BaseTypes, IsPureInterfaceCore);
 		}
 
 		/// <summary>
@@ -350,7 +351,7 @@ namespace Flame
         		if (attr == null)
         		{
         			IType result = null;
-        			foreach (var bType in Type.GetBaseTypes())
+        			foreach (var bType in Type.BaseTypes)
         			{
         				var elemType = bType.GetEnumerableElementType();
         				if (elemType != null)
@@ -405,7 +406,7 @@ namespace Flame
         		{
         			return true;
         		}
-        		foreach (var item in Method.GetBaseMethods())
+        		foreach (var item in Method.BaseMethods)
         		{
         			if (item.IsOperator) return true;
         		}
@@ -460,11 +461,12 @@ namespace Flame
 
         #region IsExtension
 
-        private static bool AreExtensionParameters(IParameter[] Parameters)
+        private static bool AreExtensionParameters([IParameter] Parameters)
         {
-        	if (Parameters.Length > 0)
+			var first = Enumerable.FirstOrDefault<IParameter>(Parameters);
+        	if (first != null)
         	{
-        		return Parameters[0].IsExtension;
+        		return first.IsExtension;
         	}
         	else
         	{
@@ -487,7 +489,7 @@ namespace Flame
         		}
         		else if (Member is IProperty)
         		{
-        			return AreExtensionParameters(((IProperty)Member).GetIndexerParameters());
+        			return AreExtensionParameters(((IProperty)Member).IndexerParameters);
         		}
         		return false;
         	}
@@ -521,12 +523,11 @@ namespace Flame
 		#region AsContainerType
 
 		private static const T AsTypeInstance<T>(IType Value)
-			where T : object
 		{
-			if (Type is T)
-				return (T)Type;
+			if (Value is T)
+				return (T)Value;
 			else
-				return null;
+				return default(T);
 		}
 
 		public static const IContainerType AsContainerType(this IType Type)
@@ -625,11 +626,10 @@ namespace Flame
 		/// </summary>
 		public static const int GetLowestAncestryDegree(this [IType] Types, IType Other)
 		{
-			var graph = GetAncestryGraph(Type, Other);
 			int bestAncestry = -1;
 			foreach (var item in Types)
 			{
-				int degree = graph.GetAncestryDegree(item, Other);
+				int degree = item.GetAncestryDegree(Other);
 				if (degree > -1 && (degree <= bestAncestry || bestAncestry == -1))
 				{
 					if (degree == 0) // Early-out for zero ancestry degrees.
@@ -678,7 +678,7 @@ namespace Flame
         /// <returns></returns>
         public const static IType GetParent(this IType Type)
         {
-        	foreach (var item in Type.GetBaseTypes())
+        	foreach (var item in Type.BaseTypes)
         		if (!item.IsInterface)
 			{
 				return item;
@@ -689,7 +689,7 @@ namespace Flame
         public const static [IType] GetInterfaces(this IType Type)
         {
         	var interfs = new List<IType>();
-        	foreach (var item in Type.GetBaseTypes())
+        	foreach (var item in Type.BaseTypes)
         		if (item.IsInterface)
 			{
 				interfs.Add(item);
@@ -740,6 +740,15 @@ namespace Flame
 		public const static IVectorType MakeVectorType(this IType ElementType, IReadOnlyList<int> Dimensions)
 		{
 			return new VectorType(ElementType, Dimensions);
+		}
+
+		/// <summary>
+		/// Creates a vector type that contains objects of the given type
+		/// and has the given dimensions.
+		/// </summary>
+		public const static IVectorType MakeVectorType(this IType ElementType, int[] Dimensions)
+		{
+			return ElementType.MakeVectorType((IReadOnlyList<int>)Dimensions);
 		}
 
 		#endregion

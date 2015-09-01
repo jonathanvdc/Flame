@@ -59,7 +59,7 @@ namespace Flame.Cecil
             {
                 if (indParams == null)
                 {
-                    indParams = DeclaringType.ResolveParameters(Property.GetIndexerParameters());
+                    indParams = DeclaringType.ResolveParameters(Property.IndexerParameters);
                 }
                 return indParams;
             }
@@ -71,7 +71,7 @@ namespace Flame.Cecil
 
         public override IEnumerable<IAttribute> GetAttributes()
         {
-            return Property.GetAttributes();
+            return Property.Attributes;
         }
 
         private IAccessor ConvertAccessor(IAccessor Item)

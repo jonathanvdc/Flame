@@ -60,7 +60,7 @@ namespace Flame.TextContract
 
         public IEnumerable<IAttribute> GetAttributes()
         {
-            return Template.GetAttributes();
+            return Template.Attributes;
         }
 
         public virtual string Name
@@ -102,7 +102,7 @@ namespace Flame.TextContract
 
         public IType[] GetBaseTypes()
         {
-            return Template.GetBaseTypes();
+            return Template.BaseTypes;
         }
 
         public IMethod[] GetConstructors()

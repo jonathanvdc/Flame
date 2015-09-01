@@ -107,7 +107,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IAttribute> GetAttributes()
         {
-            return Template.GetAttributes();
+            return Template.Attributes;
         }
 
         public CodeBuilder GetDocumentationComments()
@@ -135,7 +135,7 @@ namespace Flame.Cpp
 
         public IMethod[] GetBaseMethods()
         {
-            return Template.GetBaseMethods();
+            return Template.BaseMethods;
         }
 
         public IMethod GetGenericDeclaration()
@@ -150,7 +150,7 @@ namespace Flame.Cpp
             for (int i = 0; i < templParams.Length; i++)
             {
                 newParams[i] = new DescribedParameter(templParams[i].Name, Environment.TypeConverter.Convert(templParams[i].ParameterType));
-                foreach (var item in templParams[i].GetAttributes())
+                foreach (var item in templParams[i].Attributes)
                 {
                     newParams[i].AddAttribute(item);
                 }

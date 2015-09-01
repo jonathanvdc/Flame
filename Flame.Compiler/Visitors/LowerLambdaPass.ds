@@ -74,14 +74,14 @@ namespace Flame.Compiler.Visitors
             foreach (var item in Signature.GetParameters())
             {
                 var convParam = new DescribedParameter(item.Name, Converter.Convert(item.ParameterType));
-                foreach (var attr in item.GetAttributes())
+                foreach (var attr in item.Attributes)
                 {
                     convParam.AddAttribute(attr);
                 }
                 descMethod.AddParameter(convParam);
             }
 
-            foreach (var item in Signature.GetAttributes())
+            foreach (var item in Signature.Attributes)
                 descMethod.AddAttribute(item);
 
             if (IsPrivate)

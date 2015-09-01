@@ -77,6 +77,11 @@ namespace Flame
             get { return Method.GenericParameters; }
         }
 
+        public IType DeclaringType
+        {
+            const get { return Method.DeclaringType; }
+        }
+
         public INamespace DeclaringNamespace
         {
             const get
@@ -150,8 +155,8 @@ namespace Flame
     {
         public int GetAncestryDegree(IType First, IType Second)
         {
-            var firstMethod = MethodType.GetMethod(Type);
-            var secondMethod = MethodType.GetMethod(Other);
+            var firstMethod = MethodType.GetMethod(First);
+            var secondMethod = MethodType.GetMethod(Second);
 
             if (firstMethod == null || secondMethod == null)
             {
