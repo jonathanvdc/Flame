@@ -23,9 +23,9 @@ namespace Flame.Compiler.Emit
         /// Gets the member's attributes.
         /// </summary>
         /// <returns></returns>
-        public const [IAttribute] GetAttributes()
+        public [IAttribute] Attributes
         {
-        	return Enumerable.Empty<IAttribute>();
+        	const get { return Enumerable.Empty<IAttribute>(); }
         }
 	}
 }

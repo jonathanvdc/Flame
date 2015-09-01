@@ -11,7 +11,7 @@ namespace Flame.Compiler.Expressions
 		public IExpression Caller { const get; private set; }
 		public IMethod Target { const get; private set; }
 
-		public [IType] ParameterTypes { const get return Target.GetParameters().GetTypes(); }
+		public [IType] ParameterTypes { const get return Target.Parameters.GetTypes(); }
 
 		public IType ReturnType
 		{

@@ -12,15 +12,15 @@ namespace Flame.Compiler
 	/// </summary>
 	public class DescribedInvariant : DescribedTypeMember, IInvariant
 	{
-		public const this(set string Name, set IType DeclaringType, set IExpression Invariant);
-		public const this(set IType DeclaringType, set IExpression Invariant)
-		{
-			this.Name = "invariant";
-		}
-		
-		
+		public const this(string Name, IType DeclaringType, set IExpression Invariant)
+			: base(Name, DeclaringType);
+			
+		public const this(IType DeclaringType, set IExpression Invariant)
+			: base("invariant", DeclaringType);
+
+
 		public IExpression Invariant { const get; private set; }
-		
+
 		public override const bool Equals(object Other)
 		{
 			return object.ReferenceEquals(this, Other);
