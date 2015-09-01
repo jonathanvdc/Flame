@@ -26,14 +26,14 @@ namespace Flame
             : base(Declaration)
 		{
             this.resolver = DeclaringType;
-			this.declaringType = DeclaringType;
+			this.declaringType = (INamespace)DeclaringType;
 		}
 
         private IGenericResolver resolver;
         private IType declaringType;
 
 		public override IGenericResolver Resolver { const get { return resolver; } }
-		public override IType DeclaringType { const get { return declaringType; } }
+		public override INamespace DeclaringNamespace { const get { return (INamespace)declaringType; } }
 
 		public override string Name
         {
