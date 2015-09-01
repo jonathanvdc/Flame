@@ -17,7 +17,10 @@ namespace Flame
         /// type arguments.
         /// </summary>
 		public const this(IType Declaration, set [IType] TypeArguments)
-            : base(Declaration);
+            : base(Declaration)
+		{
+			this.ancestryRules = new GenericAncestryRules(Declaration.AncestryRules);
+		}
 
         /// <summary>
         /// Gets this generic instantiation's type arguments.
@@ -31,6 +34,12 @@ namespace Flame
         {
 			const get { return GenericNameExtensions.AppendTypeArguments(Declaration.GetGenericFreeName(), TypeArguments.Names); }
         }
+
+		private IAncestryRules ancestryRules;
+		public override IAncestryRules AncestryRules
+		{
+			const get { return ancestryRules; }
+		}
 
         public const IType ResolveTypeParameter(IGenericParameter TypeParameter)
         {

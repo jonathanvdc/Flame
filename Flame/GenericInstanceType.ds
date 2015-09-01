@@ -40,6 +40,11 @@ namespace Flame
             const get { return Declaration.Name; }
         }
 
+		public override IAncestryRules AncestryRules
+		{
+			const get { return Declaration.AncestryRules; }
+		}
+
         #region Equality
 
         public override const bool Equals(object Other)
