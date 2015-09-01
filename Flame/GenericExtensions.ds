@@ -34,21 +34,36 @@ namespace Flame
 
 		#region Predicates
 
+		/// <summary>
+		/// Tests if the given (potentially) generic member has any
+		/// generic parameters.
+		/// </summary>
 		public static bool IsGeneric[this IGenericMember Member]
 		{
 			const get { return Enumerable.Any<IGenericParameter>(Member.GenericParameters); }
 		}
 
+		/// <summary>
+		/// Finds out if this generic member is a generic declaration, i.e.
+		/// not a generic instance.
+		/// </summary>
 		public static bool IsGenericDeclaration[this IGenericMember Member]
 		{
 			const get { return !Member.IsGenericInstance; }
 		}
 
+		/// <summary>
+		/// Determines whether the given member is a generic instance or not.
+		/// </summary>
 		public static bool IsGenericInstance[this IGenericMember Member]
 		{
 			const get { return Type is IGenericMemberInstance; }
 		}
 
+		/// <summary>
+		/// Tells if the given type is a recursive generic instance: a generic instance
+		/// or a nested type of a generic instance.
+		/// </summary>
 		public static bool IsRecursiveGenericInstance[this IType Type]
 		{
 			const get { return Type is GenericTypeBase; }
@@ -58,6 +73,10 @@ namespace Flame
 
 		#region GetGenericDeclaration
 
+		/// <summary>
+		/// Gets this method's generic declaration if it is a generic instance.
+		/// Otherwise, the given method is returned.
+		/// </summary>
 		public static IMethod GetGenericDeclaration(this IMethod Member)
 		{
 			if (Member is GenericMethod)
@@ -70,6 +89,10 @@ namespace Flame
 			}
 		}
 
+		/// <summary>
+		/// Gets this type's generic declaration if it is a generic instance.
+		/// Otherwise, the given type is returned.
+		/// </summary>
 		public static IType GetGenericDeclaration(this IType Member)
 		{
 			if (Member is GenericType)
@@ -86,6 +109,10 @@ namespace Flame
 
 		#region MakeGeneric
 
+		/// <summary>
+		/// Instantiates the given generic type with the given sequence of type
+		/// arguments.
+		/// </summary>
 		public static IType MakeGenericType(this IType GenericDeclaration, [IType] TypeArguments)
 		{
 			var argArr = Enumerable.ToArray<IType>(TypeArguments);
@@ -106,6 +133,10 @@ namespace Flame
 			}
 		}
 
+		/// <summary>
+		/// Instantiates the given generic method with the given sequence of type
+		/// arguments.
+		/// </summary>
 		public static IMethod MakeGenericMethod(this IMethod GenericDeclaration, [IType] TypeArguments)
 		{
 			var argArr = Enumerable.ToArray<IType>(TypeArguments);
@@ -130,11 +161,15 @@ namespace Flame
 
 		#region GetGenericArguments
 
+		/// <summary>
+		/// Gets the generic member's generic arguments if it is a generic instance.
+		/// Otherwise, the empty sequence is returned.
+		/// </summary>
 		public static [IType] GetGenericArguments(this IGenericMember Member)
 		{
 			if (Type is IGenericMemberInstance)
 			{
-				return ((IGenericMemberInstance)Type).TypeArguments;
+				return ((IGenericMemberInstance)Type).GenericArguments;
 			}
 			else
 			{

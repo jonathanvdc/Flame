@@ -23,7 +23,7 @@ namespace Flame
         /// <summary>
         /// Gets this generic member instance's type arguments.
         /// </summary>
-        [IType] TypeArguments { get; }
+        [IType] GenericArguments { get; }
     }
 
     /// <summary>
