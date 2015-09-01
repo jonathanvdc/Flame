@@ -90,7 +90,7 @@ namespace Flame.Recompilation
 
         private static bool HasExternalAttribute(IMember Member)
         {
-            return Member.GetAttributes().Any(item => item.AttributeType.FullName == "Flame.RT.ExternalAttribute");
+            return Member.Attributes.Any(item => item.AttributeType.FullName == "Flame.RT.ExternalAttribute");
         }
 
         public bool IsExternal(IAssembly Assembly)
@@ -352,7 +352,7 @@ namespace Flame.Recompilation
                 var recompiledElemType = GetType(containerType.ElementType);
                 if (SourceType.get_IsVector())
                 {
-                    return new MemberCreationResult<IType>(recompiledElemType.MakeVectorType(containerType.AsVectorType().GetDimensions()));
+                    return new MemberCreationResult<IType>(recompiledElemType.MakeVectorType(containerType.AsVectorType().Dimensions));
                 }
                 else if (SourceType.get_IsPointer())
                 {
@@ -492,15 +492,15 @@ namespace Flame.Recompilation
         private static IProperty GetGenericTypeProperty(IProperty SourceProperty)
         {
             var genericDeclType = SourceProperty.DeclaringType.GetRecursiveGenericDeclaration();
-            var indexParams = SourceProperty.GetIndexerParameters();
+            var indexParams = SourceProperty.IndexerParameters;
             var converter = CreateGenericParameterConverter(genericDeclType, SourceProperty.DeclaringType);
             if (SourceProperty.get_IsIndexer())
             {
-                return genericDeclType.GetProperties().Single((item) => item.get_IsIndexer() && CompareGenericMethodParameters(item.GetIndexerParameters(), indexParams, converter));
+                return genericDeclType.Properties.Single((item) => item.get_IsIndexer() && CompareGenericMethodParameters(item.IndexerParameters, indexParams, converter));
             }
             else
             {
-                return genericDeclType.GetProperties().Single((item) => item.Name == SourceProperty.Name && item.IsStatic == SourceProperty.IsStatic && CompareGenericMethodParameters(item.GetIndexerParameters(), indexParams, converter));
+                return genericDeclType.Properties.Single((item) => item.Name == SourceProperty.Name && item.IsStatic == SourceProperty.IsStatic && CompareGenericMethodParameters(item.IndexerParameters, indexParams, converter));
             }
         }
 
@@ -510,16 +510,16 @@ namespace Flame.Recompilation
 
         private static IProperty GetSpecificTypeProperty(IType SpecificType, IProperty GenericProperty)
         {
-            var indexParams = GenericProperty.GetIndexerParameters();
-            var properties = SpecificType.GetProperties();
+            var indexParams = GenericProperty.IndexerParameters;
+            var properties = SpecificType.Properties;
             var converter = CreateGenericParameterConverter(GenericProperty.DeclaringType, SpecificType);
             if (GenericProperty.get_IsIndexer())
             {
-                return properties.Single((item) => item.get_IsIndexer() && CompareGenericMethodParameters(indexParams, item.GetIndexerParameters(), converter));
+                return properties.Single((item) => item.get_IsIndexer() && CompareGenericMethodParameters(indexParams, item.IndexerParameters, converter));
             }
             else
             {
-                return properties.Single((item) => item.Name == GenericProperty.Name && item.IsStatic == GenericProperty.IsStatic && CompareGenericMethodParameters(indexParams, item.GetIndexerParameters(), converter));
+                return properties.Single((item) => item.Name == GenericProperty.Name && item.IsStatic == GenericProperty.IsStatic && CompareGenericMethodParameters(indexParams, item.IndexerParameters, converter));
             }
         }
 
@@ -555,11 +555,11 @@ namespace Flame.Recompilation
                     IProperty result;
                     if (SourceProperty.get_IsIndexer())
                     {
-                        result = recompDeclType.GetIndexer(SourceProperty.IsStatic, GetTypes(SourceProperty.GetIndexerParameters().GetTypes()));
+                        result = recompDeclType.GetIndexer(SourceProperty.IsStatic, GetTypes(SourceProperty.IndexerParameters.GetTypes()));
                     }
                     else
                     {
-                        result = recompDeclType.GetProperties().GetProperty(SourceProperty.Name, SourceProperty.IsStatic, GetType(SourceProperty.PropertyType), GetTypes(SourceProperty.GetIndexerParameters().GetTypes()));
+                        result = recompDeclType.Properties.GetProperty(SourceProperty.Name, SourceProperty.IsStatic, GetType(SourceProperty.PropertyType), GetTypes(SourceProperty.IndexerParameters.GetTypes()));
                     }
                     System.Diagnostics.Debug.Assert(result != null);
                     return new MemberCreationResult<IProperty>(result);
@@ -821,7 +821,7 @@ namespace Flame.Recompilation
             {
                 GetMember(item);
             }
-            foreach (var item in Type.GetProperties())
+            foreach (var item in Type.Properties)
             {
                 GetProperty(item);
                 foreach (var accessor in item.GetAccessors())

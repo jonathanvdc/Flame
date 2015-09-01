@@ -150,7 +150,7 @@ namespace Flame.Syntax.DSharp
         	{
         		return SourceType.AsContainerType().ElementType.Is(
                             TargetType.AsContainerType().ElementType) &&
-                       SourceType.AsContainerType().AsVectorType().GetDimensions().Length ==
+                       SourceType.AsContainerType().AsVectorType().Dimensions.Count ==
                             TargetType.AsContainerType().AsArrayType().ArrayRank;
         	}
         	if (SourceType.IsPointer && TargetType.IsPointer)

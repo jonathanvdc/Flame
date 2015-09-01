@@ -109,7 +109,7 @@ namespace Flame.Cecil
 	        }
             paramDef = new ParameterDefinition(Template.Name, ParameterAttributes.None, paramType.GetImportedReference(module, context));
             var cecilParam = new CecilParameter(Member, paramDef);
-            var attrs = Template.GetAttributes();
+            var attrs = Template.Attributes;
             if (attrs.Any((item) => item.AttributeType.Equals(PrimitiveAttributes.Instance.OutAttribute.AttributeType)))
             {
                 paramDef.IsOut = true;

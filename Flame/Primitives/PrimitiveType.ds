@@ -57,17 +57,17 @@ namespace Flame.Primitives
 			const get return cachedProperties.Value;
 		}
 
-        protected virtual [IMethod] CreateMethods()
+        protected virtual IMethod[] CreateMethods()
         {
 			return GetCommonPrimitiveMethods();
         }
 
-        protected virtual [IProperty] CreateProperties()
+        protected virtual IProperty[] CreateProperties()
         {
             return new IProperty[0];
         }
 
-        protected virtual [IField] CreateFields()
+        protected virtual IField[] CreateFields()
         {
             return new IField[0];
         }

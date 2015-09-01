@@ -25,7 +25,7 @@ namespace Flame.Python
 
         public IMethod[] GetBaseMethods()
         {
-            return Methods.SelectMany((item) => item.GetBaseMethods()).Distinct().ToArray();
+            return Methods.SelectMany((item) => item.BaseMethods).Distinct().ToArray();
         }
 
         public IMethod GetGenericDeclaration()
@@ -75,7 +75,7 @@ namespace Flame.Python
 
         public IEnumerable<IAttribute> GetAttributes()
         {
-            return Methods.SelectMany((item) => item.GetAttributes()).Distinct();
+            return Methods.SelectMany((item) => item.Attributes).Distinct();
         }
 
         public string Name

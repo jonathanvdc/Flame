@@ -19,9 +19,9 @@ namespace Flame
 			var types = new List<IType>();
 			if (Tree is INamespace)
 			{
-				types.AddRange(((INamespace)Tree).GetTypes());
+				types.AddRange(((INamespace)Tree).Types);
 			}
-			foreach (var item in Tree.GetNamespaces())
+			foreach (var item in Tree.Namespaces)
 				types.AddRange(item.GetAllTypes());
 			return types;
 		}
@@ -52,7 +52,7 @@ namespace Flame
 
         private static IType FindTypeInChildren(this INamespaceTree Tree, string[] NameElements, int Index)
         {
-            foreach (var item in Tree.GetNamespaces())
+            foreach (var item in Tree.Namespaces)
             {
                 string[] itemName = item.FullName.Split(new char[] { '.' });
 
@@ -82,7 +82,7 @@ namespace Flame
 
         private static IType FindTypeInBranch(this INamespaceBranch Namespace, string[] NameElements, int Index)
         {
-            foreach (var item in Namespace.GetTypes())
+            foreach (var item in Namespace.Types)
             {
                 if (NameElements[Index].Equals(item.Name))
                 {

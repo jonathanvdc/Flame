@@ -10,10 +10,10 @@ namespace Flame.Python
     public class PythonParameter : IParameter
     {
         public PythonParameter(IParameter Template)
-            : this(Template.Name, Template.ParameterType, Template.GetAttributes())
+            : this(Template.Name, Template.ParameterType, Template.Attributes)
         { }
         public PythonParameter(IParameter Template, IExpression DefaultValue)
-            : this(Template.Name, Template.ParameterType, Template.GetAttributes(), DefaultValue)
+            : this(Template.Name, Template.ParameterType, Template.Attributes, DefaultValue)
         { }
         public PythonParameter(string Name, IType ParameterType, params IAttribute[] Attributes)
             : this(Name, ParameterType, (IEnumerable<IAttribute>)Attributes)

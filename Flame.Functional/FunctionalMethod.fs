@@ -93,7 +93,7 @@ type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
         member this.ReturnType = this.ReturnType
         member this.GetParameters() = this.Parameters
         member this.IsConstructor = isCtor
-        member this.GetBaseMethods() = this.BaseMethods
+        member this.BaseMethods = this.BaseMethods
 
         member this.Invoke(target : IBoundObject, args : IBoundObject seq) = null // We don't do that yet.
 

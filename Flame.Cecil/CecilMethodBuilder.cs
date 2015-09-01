@@ -118,9 +118,9 @@ namespace Flame.Cecil
         {
             var module = DeclaringType.Module;
 
-            var attrs = ExtractMethodAttributes(Template.GetAttributes());
+            var attrs = ExtractMethodAttributes(Template.Attributes);
 
-            var baseMethods = Template.GetBaseMethods().Distinct().ToArray();
+            var baseMethods = Template.BaseMethods.Distinct().ToArray();
 
             var simpleBaseMethod = baseMethods.FirstOrDefault((item) => !item.DeclaringType.get_IsInterface());
             if (baseMethods.Length > 0 && ((attrs & MethodAttributes.Virtual) != MethodAttributes.Virtual))
@@ -182,7 +182,7 @@ namespace Flame.Cecil
                 methodDef.ReturnType = DeclaringType.ResolveType(CecilTypeBuilder.GetGenericType(Template.ReturnType, genericParams)).GetImportedReference(module, methodDef);
             }
 
-            CecilAttribute.DeclareAttributes(methodDef, cecilMethod, Template.GetAttributes());
+            CecilAttribute.DeclareAttributes(methodDef, cecilMethod, Template.Attributes);
             if (Template.get_IsExtension() && !cecilMethod.get_IsExtension())
             {
                 CecilAttribute.DeclareAttributeOrDefault(methodDef, cecilMethod, PrimitiveAttributes.Instance.ExtensionAttribute);

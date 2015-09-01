@@ -78,11 +78,11 @@ namespace Flame.Cecil
             var propDef = new PropertyDefinition(Template.get_IsIndexer() ? "Item" : Template.Name, Mono.Cecil.PropertyAttributes.None, propTypeRef);
             DeclaringType.AddProperty(propDef);
             var cecilProp = new CecilPropertyBuilder(DeclaringType, propDef, Template.IsStatic);
-            foreach (var item in Template.GetIndexerParameters())
+            foreach (var item in Template.IndexerParameters)
             {
                 CecilParameter.DeclareParameter(cecilProp, item);
             }
-            CecilAttribute.DeclareAttributes(propDef, cecilProp, Template.GetAttributes());
+            CecilAttribute.DeclareAttributes(propDef, cecilProp, Template.Attributes);
             if (Template.get_IsExtension() && !cecilProp.get_IsExtension())
             {
                 CecilAttribute.DeclareAttributeOrDefault(propDef, cecilProp, PrimitiveAttributes.Instance.ExtensionAttribute);

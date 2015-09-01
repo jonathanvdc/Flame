@@ -26,7 +26,7 @@ module MemberHelpers =
 
     /// Gets all members defined by the given type's base types for the given member-getting function.
     let GetAllBaseMembers<'a when 'a : equality> (getAllMembers : IType -> 'a seq) (target : IType) =
-        target.GetBaseTypes() |> Seq.map getAllMembers
+        target.BaseTypes |> Seq.map getAllMembers
                               |> Seq.concat
                               |> Seq.distinct
 

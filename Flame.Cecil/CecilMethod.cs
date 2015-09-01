@@ -116,7 +116,7 @@ namespace Flame.Cecil
             {
                 overrides.Add(Module.Convert(cecilOverrides[i]));
             }
-            foreach (var bType in DeclaringType.GetBaseTypes())
+            foreach (var bType in DeclaringType.BaseTypes)
             {
                 foreach (var item in bType.GetAllMethods())
                 {

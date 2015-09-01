@@ -52,5 +52,5 @@ type FunctionalProperty(header : FunctionalMemberHeader,
 
     interface IProperty with
         member this.PropertyType = propertyType.Value
-        member this.GetIndexerParameters() = this.IndexerParameters
+        member this.IndexerParameters = this.IndexerParameters
         member this.GetAccessors() = this.Accessors

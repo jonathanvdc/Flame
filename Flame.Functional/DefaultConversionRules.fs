@@ -22,7 +22,7 @@ type DefaultConversionRules(nameType : IType -> string) =
             else if sourceType.get_IsVector() && targetType.get_IsArray() then
                 sourceType.AsContainerType().ElementType.Is(
                     targetType.AsContainerType().ElementType) &&
-                sourceType.AsContainerType().AsVectorType().GetDimensions().Length =
+                sourceType.AsContainerType().AsVectorType().Dimensions.Count =
                     targetType.AsContainerType().AsArrayType().ArrayRank
 
             else if sourceType.get_IsPointer() && targetType.get_IsPointer() then

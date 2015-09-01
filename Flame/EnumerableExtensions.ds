@@ -11,6 +11,11 @@ namespace Flame
 			return parameter.ParameterType;
 		}
 
+		public static const IType[] GetTypes(this IParameter[] Parameters)
+		{
+			return Enumerable.ToArray<IType>((([IParameter])Parameters).GetTypes());
+		}
+
 		public static const [IType] GetTypes(this [IParameter] Parameters)
 		{
 			return Enumerable.Select<IParameter, IType>(Parameters, getParameterType);

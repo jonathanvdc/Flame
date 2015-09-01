@@ -31,7 +31,7 @@ namespace Flame.MIPS
         public IType FieldType { get { return Template.FieldType; } }
         public IEnumerable<IAttribute> GetAttributes()
         {
-            return Template.GetAttributes();
+            return Template.Attributes;
         }
 
         public void SetValue(IExpression Value)

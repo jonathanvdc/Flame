@@ -97,7 +97,7 @@ namespace Flame.XmlDocs
             foreach (var item in Assembly.CreateBinder().GetTypes())
             {
                 provider.AddDescription(item);
-                foreach (var typeMember in item.GetMethods().Concat<ITypeMember>(item.GetProperties()).Concat<ITypeMember>(item.GetFields()))
+                foreach (var typeMember in item.GetMethods().Concat<ITypeMember>(item.Properties).Concat<ITypeMember>(item.GetFields()))
                 {
                     provider.AddDescription(typeMember);
                 }

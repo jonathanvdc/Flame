@@ -18,7 +18,7 @@ namespace Flame.Build
 			return GenericNameExtensions.AppendArraySuffix(ElementType, ArrayRank);
 		}
 
-		protected override virtual const string MakeVectorType(string ElementType, int[] Dimensions)
+		protected override virtual const string MakeVectorType(string ElementType, IReadOnlyList<int> Dimensions)
 		{
 			return GenericNameExtensions.AppendVectorSuffix(ElementType, Dimensions);
 		}

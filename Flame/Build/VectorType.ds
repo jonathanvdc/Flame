@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Flame.Build
 {
@@ -59,10 +60,10 @@ namespace Flame.Build
     {
         public int GetAncestryDegree(IType First, IType Second)
         {
-            if (Type.IsVector && Other.IsVector &&
-                Enumerable.SequenceEqual<int>(Type.AsVectorType().Dimensions,
-                                              Other.AsVectorType().Dimensions) &&
-                Type.AsContainerType().ElementType.IsEquivalent(Type.AsContainerType().ElementType))
+            if (First.IsVector && Second.IsVector &&
+                Enumerable.SequenceEqual<int>(First.AsVectorType().Dimensions,
+                                              Second.AsVectorType().Dimensions) &&
+                First.AsContainerType().ElementType.IsEquivalent(Second.AsContainerType().ElementType))
             {
                 return 0;
             }

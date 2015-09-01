@@ -57,7 +57,7 @@ namespace Flame
 		/// </summary>
 		public static bool IsGenericInstance[this IGenericMember Member]
 		{
-			const get { return Type is IGenericMemberInstance; }
+			const get { return Member is IGenericMemberInstance; }
 		}
 
 		/// <summary>
@@ -167,9 +167,9 @@ namespace Flame
 		/// </summary>
 		public static [IType] GetGenericArguments(this IGenericMember Member)
 		{
-			if (Type is IGenericMemberInstance)
+			if (Member is IGenericMemberInstance)
 			{
-				return ((IGenericMemberInstance)Type).GenericArguments;
+				return ((IGenericMemberInstance)Member).GenericArguments;
 			}
 			else
 			{

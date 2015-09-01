@@ -10,7 +10,7 @@ namespace Flame
 
         public const static [IField] GetAllFields(this IType Type, string Name)
         {
-            return MemberSelection.FilterByName<IField>(Type.GetAllFields());
+            return MemberSelection.FilterByName<IField>(Type.GetAllFields(), Name);
         }
 
         /// <summary>
@@ -22,11 +22,11 @@ namespace Flame
         public static const [IField] GetAllFields(this IType Type)
         {
         	var results = new HashSet<IField>(Type.Fields);
-        	foreach (var item in Type.GetBaseTypes())
+        	foreach (var item in Type.BaseTypes)
         	{
 				results.UnionWith(item.GetAllFields());
         	}
-        	return list;
+        	return results;
         }
 
         #endregion
@@ -50,7 +50,7 @@ namespace Flame
         public const static [IProperty] GetAllProperties(this IType Type)
         {
             var props = new HashSet<IProperty>(Type.Properties);
-            foreach (var baseType in Type.GetBaseTypes())
+            foreach (var baseType in Type.BaseTypes)
             {
             	foreach (var property in baseType.GetAllProperties())
             	{
@@ -72,7 +72,7 @@ namespace Flame
         public const static [IMethod] GetAllMethods(this IType Type)
         {
             var methods = new HashSet<IMethod>(Type.Methods);
-            foreach (var baseType in Type.GetBaseTypes())
+            foreach (var baseType in Type.BaseTypes)
             {
             	foreach (var method in baseType.GetAllMethods())
             	{

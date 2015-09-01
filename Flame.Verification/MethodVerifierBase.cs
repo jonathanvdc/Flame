@@ -94,7 +94,7 @@ namespace Flame.Verification
             }
 
             bool success = true;
-            foreach (var item in Member.GetBaseMethods())
+            foreach (var item in Member.BaseMethods)
             {
                 if (!item.get_IsVirtual() && !item.get_IsAbstract() && !item.DeclaringType.get_IsInterface())
                 {

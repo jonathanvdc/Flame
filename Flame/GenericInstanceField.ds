@@ -2,16 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Flame.Build;
 
 namespace Flame
 {
 	public class GenericInstanceField : IField, IEquatable<IField>
 	{
-		public const this(set IField Declaration, set IGenericResolverType Parent)
+		public const this(set IField Declaration, set IGenericResolverType Resolver)
 		{
-			this.DeclaringType = Parent;
+			this.DeclaringType = Resolver;
 		}
-		public const this(set IField Declaration, set IGenericResolver Parent, set IType DeclaringType);
+		public const this(set IField Declaration, set IGenericResolver Resolver, set IType DeclaringType);
 
         /// <summary>
         /// Gets the generic instance field's original definition.
@@ -21,7 +22,7 @@ namespace Flame
         /// <summary>
         /// Gets the generic instance field's generic resolver.
         /// </summary>
-        public IGenericResolver Parent { const get; private set; }
+        public IGenericResolver Resolver { const get; private set; }
 
         /// <summary>
         /// Gets the generic instance field's declaring type.
@@ -30,7 +31,7 @@ namespace Flame
 
         public IType FieldType
         {
-            const get { return Parent.ResolveType(Declaration.FieldType); }
+            const get { return Resolver.ResolveType(Declaration.FieldType); }
         }
         public bool IsStatic
         {
@@ -69,20 +70,20 @@ namespace Flame
 
         public const bool Equals(IField Other)
         {
-        	if (Other is DescribedGenericFieldInstance)
-        		return Equals((DescribedGenericFieldInstance)Other);
+        	if (Other is GenericInstanceField)
+        		return Equals((GenericInstanceField)Other);
         	else
 				return false;
         }
 
-        public const bool Equals(DescribedGenericFieldInstance Other)
+        public const bool Equals(GenericInstanceField Other)
         {
         	return this.DeclaringType == Other.DeclaringType && this.Declaration == Other.Declaration;
         }
 
         public override const int GetHashCode()
         {
-        	return this.DeclaringType.GetHashCode() ^ Declaration.GetHashCode();
+        	return DeclaringType.GetHashCode() ^ Declaration.GetHashCode();
         }
 
         #endregion

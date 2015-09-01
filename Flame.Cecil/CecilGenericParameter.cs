@@ -299,7 +299,7 @@ namespace Flame.Cecil
             }
             for (int i = 0; i < parameters.Length; i++)
             {
-                foreach (var item in Templates[i].GetBaseTypes())
+                foreach (var item in Templates[i].BaseTypes)
                 {
                     parameters[i].Constraints.Add(item.GetImportedReference(Module, ParameterProvider));
                 }
@@ -315,7 +315,7 @@ namespace Flame.Cecil
                     genericParamAttrs |= GenericParameterAttributes.NotNullableValueTypeConstraint;
                 }
 
-                foreach (var item in Templates[i].GetAttributes())
+                foreach (var item in Templates[i].Attributes)
                 {
                     if (item.AttributeType.Equals(PrimitiveAttributes.Instance.OutAttribute.AttributeType) && SupportsGenericVariance(ParameterProvider))
                     {

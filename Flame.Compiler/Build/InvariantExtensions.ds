@@ -25,7 +25,7 @@ namespace Flame.Compiler
 		/// </summary>
 		public static const [IInvariant] GetAllInvariants(this IType Type)
 		{
-			var baseInvariants = Type.GetBaseTypes().GetAllInvariants();
+			var baseInvariants = Type.BaseTypes.GetAllInvariants();
 			if (Type is IInvariantType)
 			{
 				var typeInvariants = ((IInvariantType)Type).GetInvariants();

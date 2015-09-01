@@ -22,7 +22,7 @@ namespace Flame
         /// </summary>
         public AccessorType AccessorType
         {
-            const get { return ((IAccessor)Method).AccessorType; }
+            const get { return ((IAccessor)Declaration).AccessorType; }
         }
 
         /// <summary>

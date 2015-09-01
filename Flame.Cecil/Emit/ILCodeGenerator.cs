@@ -633,7 +633,7 @@ namespace Flame.Cecil.Emit
             else
             {
                 var cultureInfoType = CecilType.ImportCecil(typeof(System.Globalization.CultureInfo), Module);
-                var invariantCultureProperty = cultureInfoType.GetProperties().GetProperty("InvariantCulture", true);
+                var invariantCultureProperty = cultureInfoType.Properties.GetProperty("InvariantCulture", true);
                 // Pushes System.Globalization.CultureInfo.InvariantCulture on the stack
                 EmitCall(Context, invariantCultureProperty.GetGetAccessor(), null);
                 // Makes the invariant call

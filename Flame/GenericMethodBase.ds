@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Flame.Build;
 
 namespace Flame
@@ -70,7 +72,7 @@ namespace Flame
         }
         private IParameter[] createParameters()
         {
-            return Resolver.ResolveParameters(Declaration.Parameters);
+            return Enumerable.ToArray<IParameter>(Resolver.ResolveParameters(Declaration.Parameters));
         }
 
         private Lazy<IMethod[]> cachedBaseTypes;
@@ -80,7 +82,7 @@ namespace Flame
         }
         private IMethod[] createBaseMethods()
         {
-            return Resolver.ResolveMethods(Declaration.BaseMethods);
+            return Enumerable.ToArray<IMethod>(Resolver.ResolveMethods(Declaration.BaseMethods));
         }
 
         public IBoundObject Invoke(IBoundObject Caller, [IBoundObject] Arguments)

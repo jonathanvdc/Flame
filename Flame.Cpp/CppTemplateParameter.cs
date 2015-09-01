@@ -38,7 +38,7 @@ namespace Flame.Cpp
 
         public IType[] GetBaseTypes()
         {
-            return Template.GetBaseTypes();
+            return Template.BaseTypes;
         }
 
         public IBoundObject GetDefaultValue()
@@ -108,7 +108,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IAttribute> GetAttributes()
         {
-            return Template.GetAttributes();
+            return Template.Attributes;
         }
 
         public string Name

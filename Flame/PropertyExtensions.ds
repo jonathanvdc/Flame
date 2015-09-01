@@ -21,8 +21,8 @@ namespace Flame
 			       !Top.Equals(Bottom) &&
 				   Top.DeclaringType.Is(Bottom.DeclaringType) &&
 				   new ScopedTypeEqualityComparer().CompareAll(
-				       Top.GetIndexerParameters().GetTypes(),
-				       Bottom.GetIndexerParameters().GetTypes());
+				       Top.IndexerParameters.GetTypes(),
+				       Bottom.IndexerParameters.GetTypes());
 		}
 
 		/// <summary>
@@ -34,7 +34,8 @@ namespace Flame
 
 			return Left.IsStatic == Right.IsStatic && Left.Name == Right.Name &&
 				   comparer.Compare(Left.PropertyType, Right.PropertyType) &&
-				   comparer.CompareAll(Left.GetIndexerParameters().GetTypes(), Right.GetIndexerParameters().GetTypes());
+				   comparer.CompareAll(Left.IndexerParameters.GetTypes(),
+				   					   Right.IndexerParameters.GetTypes());
 		}
 
         #region Accessors
@@ -117,7 +118,7 @@ namespace Flame
 
         public static [IProperty] GetIndexers(this IType Type)
         {
-			return Enumerable.Where<IProperty>(Type.GetProperties(), isIndexerImpl);
+			return Enumerable.Where<IProperty>(Type.Properties, isIndexerImpl);
         }
 
         public static [IProperty] GetAllIndexers(this IType Type)
@@ -162,7 +163,7 @@ namespace Flame
         	var props = new List<IProperty>();
         	foreach (var item in Candidates)
         	{
-        		var indexParams = item.GetIndexerParameters().GetTypes();
+        		var indexParams = item.IndexerParameters.GetTypes();
         		if (indexParams.AreEqual(indexArgs))
         		{
         			props.Add(item);
@@ -189,7 +190,7 @@ namespace Flame
 			{
 				if (method.IsStatic == IsStatic)
 				if (method.PropertyType.Equals(PropertyType))
-				if (method.GetIndexerParameters().GetTypes().AreEqual(IndexerParameters))
+				if (method.IndexerParameters.GetTypes().AreEqual(IndexerParameters))
 					return method;
 			}
 			return null;
@@ -201,10 +202,18 @@ namespace Flame
 				if (method.Name.Equals(Name))
 				if (method.IsStatic == IsStatic)
 				if (method.PropertyType.Equals(PropertyType))
-				if (method.GetIndexerParameters().GetTypes().AreEqual(IndexerParameters))
+				if (method.IndexerParameters.GetTypes().AreEqual(IndexerParameters))
 					return method;
 			}
 			return null;
         }
+
+		/// <summary>
+		/// Gets a read-only array containing the given property's indexer parameter list.
+		/// </summary>
+		public static IParameter[] GetIndexerParameters(this IProperty Property)
+		{
+			return Enumerable.ToArray<IParameter>(Property.IndexerParameters);
+		}
 	}
 }

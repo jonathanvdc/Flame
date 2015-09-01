@@ -41,7 +41,7 @@ namespace Flame.Verification
         protected override bool VerifyMemberCore(IType Member, ICompilerLog Log)
         {
             bool success = true;
-            foreach (var item in Member.GetBaseTypes())
+            foreach (var item in Member.BaseTypes)
             {
                 if (Member.get_IsEnum())
                 {
@@ -61,7 +61,7 @@ namespace Flame.Verification
             }
             if (!Member.get_IsAbstract() && !Member.get_IsInterface())
             {
-                foreach (var item in Member.GetBaseTypes())
+                foreach (var item in Member.BaseTypes)
                 {
                     if (!item.VerifyImplementation(Member, Log)) success = false;
                 }
@@ -70,7 +70,7 @@ namespace Flame.Verification
             {
                 if (!FieldVerifier.Verify(item, Log)) success = false;
             }
-            foreach (var item in Member.GetProperties())
+            foreach (var item in Member.Properties)
             {
                 if (!PropertyVerifier.Verify(item, Log)) success = false;
             }

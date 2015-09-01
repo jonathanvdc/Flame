@@ -77,7 +77,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IAttribute> GetAttributes()
         {
-            return Template.GetAttributes();
+            return Template.Attributes;
         }
 
         private string cachedName;
@@ -106,7 +106,7 @@ namespace Flame.Cpp
         public IType[] BaseTypes { get { return GetBaseTypes(); } }
         public IType[] GetBaseTypes()
         {
-            return Template.GetBaseTypes().Select(this.ConvertValueType).ToArray();
+            return Template.BaseTypes.Select(this.ConvertValueType).ToArray();
         }
 
         public IBoundObject GetDefaultValue()

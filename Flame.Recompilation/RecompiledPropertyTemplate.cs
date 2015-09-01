@@ -39,7 +39,7 @@ namespace Flame.Recompilation
 
         public IParameter[] GetIndexerParameters()
         {
-            return RecompiledParameterTemplate.GetParameterTemplates(Recompiler, SourceProperty.GetIndexerParameters());
+            return RecompiledParameterTemplate.GetParameterTemplates(Recompiler, SourceProperty.IndexerParameters);
         }
 
         public IType PropertyType

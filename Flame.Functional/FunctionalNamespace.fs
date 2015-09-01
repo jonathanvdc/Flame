@@ -55,4 +55,4 @@ type FunctionalNamespace private(header : FunctionalMemberHeader, declAsm : IAss
     interface IMember with
         member this.Name = header.Name
         member this.FullName = header.Name
-        member this.GetAttributes() = header.Attributes
+        member this.Attributes = header.Attributes

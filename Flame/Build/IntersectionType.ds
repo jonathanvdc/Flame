@@ -149,7 +149,7 @@ namespace Flame
             int result = 0;
             foreach (var item in rightInter)
             {
-                int bestAncestry = ComputeLowestAncestry(leftInter, item);
+                int bestAncestry = leftInter.GetLowestAncestryDegree(item);
                 if (bestAncestry < 0) return -1;
                 result += bestAncestry;
             }

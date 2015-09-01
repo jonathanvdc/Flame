@@ -30,7 +30,7 @@ namespace Flame.Verification
             {
                 success = false;
             }
-            foreach (var attr in Member.GetAttributes())
+            foreach (var attr in Member.Attributes)
             {
                 if (!attr.VerifyAttribute<T>(Member, AttributeVerifiers, Log))
                 {

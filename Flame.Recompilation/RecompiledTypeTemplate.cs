@@ -33,7 +33,7 @@ namespace Flame.Recompilation
                 var elem = new RecompiledTypeTemplate(Recompiler, container.ElementType);
                 if (elem.get_IsVector())
                 {
-                    return elem.MakeVectorType(container.AsVectorType().GetDimensions());
+                    return elem.MakeVectorType(container.AsVectorType().Dimensions);
                 }
                 else if (elem.get_IsArray())
                 {
@@ -104,7 +104,7 @@ namespace Flame.Recompilation
 
         public IProperty[] GetProperties()
         {
-            return Recompiler.PropertyCache.GetMany(SourceType.GetProperties());
+            return Recompiler.PropertyCache.GetMany(SourceType.Properties);
         }
 
         #endregion
@@ -116,7 +116,7 @@ namespace Flame.Recompilation
 
         public IType[] GetBaseTypes()
         {
-            return GetWeakRecompiledTypes(SourceType.GetBaseTypes(), Recompiler, SourceType);
+            return GetWeakRecompiledTypes(SourceType.BaseTypes, Recompiler, SourceType);
         }
 
         public IBoundObject GetDefaultValue()
@@ -168,7 +168,7 @@ namespace Flame.Recompilation
                 var recompiledElemType = GetWeakRecompiledType(containerType.ElementType, Recompiler, DeclaringMember);
                 if (SourceType.get_IsVector())
                 {
-                    return recompiledElemType.MakeVectorType(containerType.AsVectorType().GetDimensions());
+                    return recompiledElemType.MakeVectorType(containerType.AsVectorType().Dimensions);
                 }
                 else if (SourceType.get_IsPointer())
                 {

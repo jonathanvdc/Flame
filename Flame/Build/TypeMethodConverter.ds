@@ -48,17 +48,17 @@ namespace Flame.Build
         private IAccessor GetTypeInstanceAccessor(IAccessor Method, IType ConvertedType)
         {
             var declProp = Method.DeclaringProperty;
-            var resolvedParamTypes = ConvertTypes(declProp.GetIndexerParameters().GetTypes());
+            var resolvedParamTypes = ConvertTypes(declProp.IndexerParameters.GetTypes());
             var resolvedRetType = TypeConverter.Convert(declProp.PropertyType);
             var comparer = new ScopedTypeEqualityComparer();
 
-            foreach (var item in ConvertedType.GetProperties())
+            foreach (var item in ConvertedType.Properties)
                 if (item.Name.Equals(declProp.Name))
                 if (item.IsStatic == declProp.IsStatic)
                 if (comparer.Compare(resolvedRetType,
                     TypeConverter.Convert(item.PropertyType)))
                 if (comparer.CompareAll(resolvedParamTypes,
-                    ConvertTypes(item.GetIndexerParameters().GetTypes())))
+                    ConvertTypes(item.IndexerParameters.GetTypes())))
             {
                 var acc = item.GetAccessor(Method.AccessorType);
 

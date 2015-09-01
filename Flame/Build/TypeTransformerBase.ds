@@ -29,7 +29,7 @@ namespace Flame.Build
 			return ElementType.MakeArrayType(ArrayRank);
 		}
 
-		protected override virtual const IType MakeVectorType(IType ElementType, int[] Dimensions)
+		protected override virtual const IType MakeVectorType(IType ElementType, IReadOnlyList<int> Dimensions)
 		{
 			return ElementType.MakeVectorType(Dimensions);
 		}
@@ -60,7 +60,7 @@ namespace Flame.Build
 			{
 				descMethod.AddParameter(new RetypedParameter(item, type));
 			}
-			foreach (var attr in method.GetAttributes())
+			foreach (var attr in method.Attributes)
 			{
 				descMethod.AddAttribute(attr);
 			}
@@ -135,7 +135,7 @@ namespace Flame.Build
 				return Type;
 			}
 
-			return MakeVectorType(convElem, Type.GetDimensions());
+			return MakeVectorType(convElem, Type.Dimensions);
 		}
 
 		protected override virtual const IType ConvertTypeDefault(IType Type)

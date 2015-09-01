@@ -27,14 +27,14 @@ namespace Flame.Cpp
         {
             return Type.GetMethods().SelectMany(GetDirectTypeDependencies)
                 .Concat(Type.GetFields().SelectMany(GetDirectTypeDependencies))
-                .Concat(Type.GetProperties().SelectMany(GetDirectTypeDependencies))
+                .Concat(Type.Properties.SelectMany(GetDirectTypeDependencies))
                 .Concat(Type.GetConstructors().SelectMany(GetDirectTypeDependencies))
                 .Distinct();
         }
 
         public static IEnumerable<IType> GetCyclicDependencies(this CppType Type)
         {
-            return Type.Environment.DependencyCache.GetCyclicDependencies(Type).Except(Type.GetBaseTypes());
+            return Type.Environment.DependencyCache.GetCyclicDependencies(Type).Except(Type.BaseTypes);
         }
 
         public static IEnumerable<IType> GetCyclicDependencies(this IEnumerable<CppType> Types)

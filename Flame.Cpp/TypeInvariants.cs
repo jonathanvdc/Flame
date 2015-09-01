@@ -20,7 +20,7 @@ namespace Flame.Cpp
             this.CodeGenerator = new CppCodeGenerator(CheckInvariantsImplementationMethod, Environment);
             this.invariants = new List<ICppBlock>();
 
-            if (CheckInvariantsImplementationMethod.GetBaseMethods().Length == 0)
+            if (CheckInvariantsImplementationMethod.BaseMethods.Length == 0)
             {
                 this.CheckInvariantsMethod = new InvariantMethod(this);
                 var descField = new DescribedField("isCheckingInvariants", PrimitiveTypes.Boolean, false);
@@ -52,13 +52,13 @@ namespace Flame.Cpp
         public bool HasInvariants { get { return InvariantCount > 0; } }
         public int InvariantCount { get { return invariants.Count; } }
         public bool HasAnyInvariants { get { return HasInvariants || InheritsInvariants; } }
-        public bool InheritsInvariants { get { return CheckInvariantsImplementationMethod.GetBaseMethods().Any(); } }
+        public bool InheritsInvariants { get { return CheckInvariantsImplementationMethod.BaseMethods.Any(); } }
 
         public IEnumerable<ICppBlock> GetInheritedInvariants()
         {
             List<ICodeBlock> results = new List<ICodeBlock>();
             var cg = CodeGenerator;
-            foreach (var item in CheckInvariantsImplementationMethod.GetBaseMethods())
+            foreach (var item in CheckInvariantsImplementationMethod.BaseMethods)
             {
                 results.Add(cg.EmitInvocation(item, cg.GetThis().EmitGet(), Enumerable.Empty<ICodeBlock>()));
             }

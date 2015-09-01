@@ -51,7 +51,7 @@ namespace Flame.Recompilation
 
         public IMethod[] GetBaseMethods()
         {
-            return GetWeakRecompiledMethods(SourceMethod.GetBaseMethods(), Recompiler, SourceMethod);
+            return GetWeakRecompiledMethods(SourceMethod.BaseMethods, Recompiler, SourceMethod);
         }
 
         public IMethod GetGenericDeclaration()
@@ -86,7 +86,7 @@ namespace Flame.Recompilation
 
         public override IEnumerable<IAttribute> GetAttributes()
         {
-            return base.GetAttributes().Concat(Recompiler.Passes.Optimizer.InferAttributes(SourceMethod));
+            return base.Attributes.Concat(Recompiler.Passes.Optimizer.InferAttributes(SourceMethod));
         }
 
         #region Static
@@ -113,7 +113,7 @@ namespace Flame.Recompilation
                 {
                     descMethod.AddParameter(item);
                 }
-                foreach (var item in SourceMethod.GetAttributes().Select(Recompiler.GetAttribute))
+                foreach (var item in SourceMethod.Attributes.Select(Recompiler.GetAttribute))
                 {
                     descMethod.AddAttribute(item);
                 }

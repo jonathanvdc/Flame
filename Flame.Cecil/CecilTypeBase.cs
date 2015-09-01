@@ -71,7 +71,7 @@ namespace Flame.Cecil
 
         public static ITypeMember[] GetMembers(ICecilType DeclaringType)
         {
-            return DeclaringType.GetMethods().Concat<ITypeMember>(DeclaringType.GetConstructors()).Concat(DeclaringType.GetFields()).Concat(DeclaringType.GetProperties()).ToArray();
+            return DeclaringType.GetMethods().Concat<ITypeMember>(DeclaringType.GetConstructors()).Concat(DeclaringType.GetFields()).Concat(DeclaringType.Properties).ToArray();
         }
         public static IMethod[] ConvertMethodDefinitions(ICecilType DeclaringType, IList<MethodDefinition> MethodDefinitions, bool IsConstructor)
         {

@@ -68,7 +68,7 @@ namespace Flame.Cecil
 
         protected override IEnumerable<IAttribute> GetMemberAttributes()
         {
-            return CecilTypeBase.Import<Array>(this).GetAttributes();
+            return CecilTypeBase.Import<Array>(this).Attributes;
         }
 
         protected override IList<CustomAttribute> GetCustomAttributes()
@@ -118,7 +118,7 @@ namespace Flame.Cecil
 
         protected override bool ContainerEquals(IContainerType other)
         {
-            return (other.get_IsArray() && other.AsArrayType().ArrayRank == GetArrayRank()) || (other.get_IsVector() && other.AsVectorType().GetDimensions().Length == GetArrayRank());
+            return (other.get_IsArray() && other.AsArrayType().ArrayRank == GetArrayRank()) || (other.get_IsVector() && other.AsVectorType().Dimensions.Count == GetArrayRank());
         }
 
         private string AppendArraySuffix(string Name)

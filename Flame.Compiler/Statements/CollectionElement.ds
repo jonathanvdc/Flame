@@ -83,7 +83,7 @@ namespace Flame.Compiler.Statements
             IExpression lengthExpr;
             if (collectionVariable.Type.IsVector)
             {
-                lengthExpr = new Int32Expression(Enumerable.Single<int32>(collectionVariable.CreateGetExpression().Type.AsContainerType().AsVectorType().GetDimensions()));
+                lengthExpr = new Int32Expression(Enumerable.Single<int32>(collectionVariable.CreateGetExpression().Type.AsContainerType().AsVectorType().Dimensions));
             }
             else
             {

@@ -15,7 +15,8 @@ namespace Flame
         /// </summary>
         public const this(set IType Declaration)
         {
-            cachedMethods = new Lazy<IField[]>(createMethods);
+            cachedMethods = new Lazy<IMethod[]>(createMethods);
+            cachedFields = new Lazy<IField[]>(createFields);
             cachedProperties = new Lazy<IProperty[]>(createProperties);
             cachedBaseTypes = new Lazy<IType[]>(createBaseTypes);
             cachedNestedTypes = new Lazy<IType[]>(createNestedTypes);
@@ -119,7 +120,7 @@ namespace Flame
         private IProperty[] createProperties()
         {
             var results = new List<IProperty>();
-            foreach (var item in Declaration.Fields)
+            foreach (var item in Declaration.Properties)
             {
                 results.Add(new GenericInstanceProperty(item, Resolver, this));
             }
@@ -127,7 +128,7 @@ namespace Flame
         }
         private IType[] createBaseTypes()
         {
-            return Enumerable.ToArray<IType>(Declaration.BaseTypes, Resolver.ResolveType);
+            return Resolver.ResolveTypes(Enumerable.ToArray<IType>(Declaration.BaseTypes));
         }
         private IType[] createNestedTypes()
         {

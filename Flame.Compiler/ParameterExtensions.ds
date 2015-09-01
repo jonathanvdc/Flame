@@ -50,7 +50,7 @@ namespace Flame.Compiler
             }
             else
             {
-            	var properties = ParentType.GetProperties();
+            	var properties = ParentType.Properties;
             	IProperty result;
                 if (string.IsNullOrWhiteSpace(attr.TargetName))
                 {
@@ -62,7 +62,7 @@ namespace Flame.Compiler
                 }
                 if (result == null)
                 {
-                	foreach (var baseType in ParentType.GetBaseTypes())
+                	foreach (var baseType in ParentType.BaseTypes)
                 	{
                 		result = Parameter.GetSetProperty(baseType, IsStatic);
                 		if (result != null)

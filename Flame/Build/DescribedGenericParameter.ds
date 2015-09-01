@@ -8,11 +8,13 @@ namespace Flame.Build
 {
     public class DescribedGenericParameter : DescribedMember, IGenericParameterBuilder
     {
-        public const this(set string Name, set IGenericMember DeclaringMember)
+        public const this(string Name, set IGenericMember DeclaringMember)
+            : base(Name)
         {
             this.constraints = new List<IGenericConstraint>();
         }
-        public const this(set string Name, set IGenericMember DeclaringMember, [IGenericConstraint] Constraints)
+        public const this(string Name, set IGenericMember DeclaringMember, [IGenericConstraint] Constraints)
+            : base(Name)
         {
         	this.constraints = new List<IGenericConstraint>(Constraints);
         }
@@ -28,10 +30,10 @@ namespace Flame.Build
 
 		private void ClearCache()
 		{
-			this.cachedMethods = new Lazy<IType[]>(createMethods);
+            this.cachedTypeConstraints = new Lazy<IType[]>(createTypeConstraints);
+			this.cachedMethods = new Lazy<[IMethod]>(createMethods);
 			this.cachedFields = new Lazy<[IField]>(createFields);
 			this.cachedProperties = new Lazy<[IProperty]>(createProperties);
-			this.cachedTypeConstraints = new Lazy<[IType]>(createTypeConstraints);
 		}
 
         public IGenericConstraint Constraint
@@ -68,7 +70,7 @@ namespace Flame.Build
 
         private void AddAttributeCore(IAttribute Attribute)
 		{
-			this.Attributes.Add(Attribute);
+			this.attributeList.Add(Attribute);
 		}
 
         public override void AddAttribute(IAttribute Attribute)
@@ -126,7 +128,7 @@ namespace Flame.Build
 
         public [IType] BaseTypes
         {
-            return TypeConstraints;
+            get { return TypeConstraints; }
         }
 
         public [IGenericParameter] GenericParameters

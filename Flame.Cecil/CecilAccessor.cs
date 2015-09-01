@@ -95,7 +95,7 @@ namespace Flame.Cecil
 
         public override IEnumerable<IAttribute> GetAttributes()
         {
-            return Method.GetAttributes();
+            return Method.Attributes;
         }
 
         protected override IEnumerable<IAttribute> GetMemberAttributes()
@@ -110,7 +110,7 @@ namespace Flame.Cecil
 
         public override IMethod[] GetBaseMethods()
         {
-            return Method.GetBaseMethods();
+            return Method.BaseMethods;
         }
     }
 }

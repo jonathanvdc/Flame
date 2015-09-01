@@ -86,7 +86,7 @@ namespace Flame
 
         public override const int GetHashCode()
         {
-            int result = DeclaringType.GetHashCode();
+            int result = Declaration.GetHashCode();
             foreach (var item in GenericArguments)
             {
                 result = (result << 1) ^ item.GetHashCode();

@@ -10,14 +10,14 @@ namespace Flame
     {
     	public const this(set IProperty Declaration, set IGenericResolver Resolver, set IType DeclaringType)
         {
-            this.cachedAccessors = new Lazy<IAccessor>(createAccessors);
-            this.cachedIndexerParameters = new Lazy<IParameter>(createIndexerParameters);
+            this.cachedAccessors = new Lazy<IAccessor[]>(createAccessors);
+            this.cachedIndexerParameters = new Lazy<IParameter[]>(createIndexerParameters);
         }
         public const this(set IProperty Declaration, set IGenericResolverType Resolver)
         {
         	this.DeclaringType = Resolver;
-            this.cachedAccessors = new Lazy<IAccessor>(createAccessors);
-            this.cachedIndexerParameters = new Lazy<IParameter>(createIndexerParameters);
+            this.cachedAccessors = new Lazy<IAccessor[]>(createAccessors);
+            this.cachedIndexerParameters = new Lazy<IParameter[]>(createIndexerParameters);
         }
 
         public IProperty Declaration { const get; private set; }
@@ -61,10 +61,10 @@ namespace Flame
         	{
         		results.Add(new GenericInstanceAccessor(input, Resolver, this));
         	}
-            return results;
+            return results.ToArray();
         }
 
-        private IParameter[] cachedIndexerParameters;
+        private Lazy<IParameter[]> cachedIndexerParameters;
         public [IParameter] IndexerParameters
         {
             const get { return cachedIndexerParameters.Value; }
@@ -92,7 +92,7 @@ namespace Flame
                 return false;
         }
 
-        public const bool Equals(DescribedGenericPropertyInstance Other)
+        public const bool Equals(GenericInstanceProperty Other)
         {
         	return this.DeclaringType == Other.DeclaringType && this.Declaration == Other.Declaration;
         }

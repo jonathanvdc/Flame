@@ -349,7 +349,7 @@ namespace Flame.Cpp.Emit
                     var declProp = accessor.DeclaringProperty;
                     if (cppCaller.Type.get_IsArray())
                     {
-                        var arrSliceProp = cppCaller.Type.GetProperties().FirstOrDefault((item) => item.Name == declProp.Name && item.IsStatic == declProp.IsStatic);
+                        var arrSliceProp = cppCaller.Type.Properties.FirstOrDefault((item) => item.Name == declProp.Name && item.IsStatic == declProp.IsStatic);
                         if (arrSliceProp != null)
                         {
                             var arrSliceAccessor = arrSliceProp.GetAccessor(accessor.AccessorType);
@@ -359,7 +359,7 @@ namespace Flame.Cpp.Emit
                             }
                         }
                     }
-                    else if (declProp.get_IsIndexer() && Method.DeclaringType.IsForeign() && declProp.GetIndexerParameters().Length == 1)
+                    else if (declProp.get_IsIndexer() && Method.DeclaringType.IsForeign() && declProp.IndexerParameters.Length == 1)
                     {
                         if (accessor.get_IsGetAccessor())
                         {
