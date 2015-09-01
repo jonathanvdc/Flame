@@ -13,10 +13,6 @@ namespace Flame.Build
             {
                 return 0; // They are equivalent. Return zero to signal this.
             }
-            else if (First.IsEquivalent(PrimitiveTypes.Null) && Second.IsReferenceType)
-            {
-                return 1; // Null is a direct subtype of all reference types.
-            }
             else
             {
                 // Try to find the shortest ancestry path from the left-hand operand
@@ -37,6 +33,30 @@ namespace Flame.Build
                 {
                     return -1;
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Defines ancestry rules for the `null` type. These rules state that
+    /// null is equivalent to itself and that null is a direct subtype of
+    /// every reference and pointer type.
+    /// </summary>
+    public static class NullAncestryRules : IAncestryRules
+    {
+        public int GetAncestryDegree(IType First, IType Second)
+        {
+            if (First == Second)
+            {
+                return 0; // They are equivalent. Return zero to signal this.
+            }
+            else if (First.IsEquivalent(PrimitiveTypes.Null) && (Second.IsReferenceType || Second.IsPointer))
+            {
+                return 1; // Null is a direct subtype of all reference and pointer types.
+            }
+            else
+            {
+                return -1;
             }
         }
     }

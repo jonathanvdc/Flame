@@ -50,11 +50,7 @@ namespace Flame.Build
     {
         public int GetAncestryDegree(IType First, IType Second)
         {
-            if (First.IsEquivalent(PrimitiveTypes.Null) && Second.IsPointer)
-            {
-                return 1;
-            }
-            else if (First.IsPointer && Second.IsPointer)
+            if (First.IsPointer && Second.IsPointer)
             {
                 var firstPtrTy = First.AsPointerType();
                 var secondPtrTy = Second.AsPointerType();
