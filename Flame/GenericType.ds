@@ -28,7 +28,7 @@ namespace Flame
         public [IType] GenericArguments { const get; private set; }
 
 		public override IGenericResolver Resolver { const get { return this; } }
-		public override IType DeclaringType { const get { return Method.DeclaringType; } }
+		public override INamespace DeclaringNamespace { const get { return Declaration.DeclaringNamespace; } }
 
         public override string Name
         {
@@ -50,7 +50,14 @@ namespace Flame
                     return arg;
                 }
             }
-            return TypeParameter;
+			if (Declaration is GenericTypeBase)
+			{
+				return ((GenericTypeBase)Declaration).Resolver.ResolveTypeParameter(TypeParameter);
+			}
+            else
+			{
+				return TypeParameter;
+			}
         }
 
         #region Equality
