@@ -57,6 +57,11 @@ namespace Flame.Primitives
 		{
 			const get return new IGenericParameter[0];
 		}
+		
+		public IAncestryRules AncestryRules
+		{
+			const get { return DefinitionAncestryRules; }
+		}
 
 		public const IBoundObject GetDefaultValue() : IType.GetDefaultValue
 		{
