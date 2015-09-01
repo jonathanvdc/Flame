@@ -136,6 +136,7 @@
             <Compile Include="Build\DescribedType.ds" />
 			<Compile Include="Build\DescribedTypeMember.ds" />
             <Compile Include="Build\EmptyGenericResolver.ds" />
+            <Compile Include="Build\GenericAncestryRules.ds" />
             <Compile Include="Build\GenericInstanceComparer.ds" />
             <Compile Include="Build\GenericResolvingConverter.ds" />
 			<Compile Include="Build\IGenericParameterBuilder.ds" />
