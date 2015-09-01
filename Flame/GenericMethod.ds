@@ -16,25 +16,25 @@ namespace Flame
         /// Creates a generic instantiation of the given method with the given
         /// type arguments.
         /// </summary>
-		public const this(IMethod Declaration, set [IType] TypeArguments)
+		public const this(IMethod Declaration, set [IType] GenericArguments)
             : base(Declaration);
 
         /// <summary>
         /// Gets this generic method's type arguments.
         /// </summary>
-        public [IType] TypeArguments { const get; private set; }
+        public [IType] GenericArguments { const get; private set; }
 
 		public override IGenericResolver Resolver { const get { return this; } }
 		public override IType DeclaringType { const get { return Declaration.DeclaringType; } }
 
 		public override string Name
         {
-			const get { return GenericNameExtensions.AppendTypeArguments(Declaration.GetGenericFreeName(), TypeArguments.Names); }
+			const get { return GenericNameExtensions.AppendTypeArguments(Declaration.GetGenericFreeName(), GenericArguments.Names); }
         }
 
         public const IType ResolveTypeParameter(IGenericParameter TypeParameter)
         {
-            foreach (var param in GenericParameters, var arg in TypeArguments)
+            foreach (var param in GenericParameters, var arg in GenericArguments)
             {
                 if (TypeParameter.Equals(param))
                 {
@@ -65,13 +65,13 @@ namespace Flame
         public const bool Equals(GenericMethod Other)
         {
         	return this.Declaration == Other.Declaration &&
-                   this.TypeArguments.AreEqual(Other.TypeArguments);
+                   this.GenericArguments.AreEqual(Other.GenericArguments);
         }
 
         public override const int GetHashCode()
         {
             int result = DeclaringType.GetHashCode();
-            foreach (var item in TypeArguments)
+            foreach (var item in GenericArguments)
             {
                 result = (result << 1) ^ item.GetHashCode();
             }
