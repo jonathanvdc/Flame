@@ -60,7 +60,7 @@ namespace Flame.Syntax.DSharp
 
         public const IMethod CreateMember(ISyntaxState State)
         {
-            return new OpenGenericMethod(this, State);
+            return new SyntaxMethod(this, State);
         }
 
         #region ToString/GetCode

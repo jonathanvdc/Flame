@@ -104,15 +104,15 @@ namespace Flame.Syntax.DSharp
 	                {
 	                    break;
 	                }
-	                bool assignable = true;
-	                for (int i = 0; i < genericParams.Length; i++)
+	                bool assignable = genericItem is IMethod;
+	                for (int i = 0; i < genericParams.Length && assignable; i++)
 	                {
-	                    if (!genericParams[i].IsAssignable(genericArgs[i]))
+	                    if (!genericParams[i].Constraint.Satisfies(genericArgs[i]))
 	                    {
 	                        assignable = false;
 	                    }
 	                }
-	                if (assignable && genericItem is IMethod)
+	                if (assignable)
 	                {
 	                	filteredMembers.Add(((IMethod)genericItem).MakeGenericMethod(genericArgs));
 	                }

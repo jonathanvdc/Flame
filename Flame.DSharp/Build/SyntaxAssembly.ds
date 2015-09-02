@@ -56,9 +56,9 @@ namespace Flame.DSharp.Build
         public AncestryGraph Graph { const get; private set; }
 		public IConverter<IType, string> TypeNamer { const get; private set; }
 
-        public const [IAttribute] GetAttributes()
+        public [IAttribute] Attributes
         {
-        	return new IAttribute[] { new AncestryGraphAttribute(Graph) };
+        	const get { return new IAttribute[] { new AncestryGraphAttribute(Graph) }; }
         }
 
         /// <summary>

@@ -69,9 +69,9 @@ namespace Flame.DSharp.Build
 			const get return MemberExtensions.CombineNames(DeclaringType.FullName, Name);
 		}
 
-		public const [IAttribute] GetAttributes()
+		public [IAttribute] Attributes
         {
-        	return Enumerable.Empty<IAttribute>();
+        	const get { return Enumerable.Empty<IAttribute>(); }
         }
 
         #endregion

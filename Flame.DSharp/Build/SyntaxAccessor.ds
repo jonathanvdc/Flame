@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Flame.Build;
 using Flame.Compiler;
 using Flame.Compiler.Build;
@@ -17,7 +18,10 @@ namespace Flame.DSharp.Build
 {
     public class SyntaxAccessor : CodeMember, IDSharpMethod, IAccessor, ISyntaxNode
     {
-        public const this(set AccessorSyntax Syntax, set SyntaxProperty ParentProperty, set IBinder Binder);
+        public const this(set AccessorSyntax Syntax, set SyntaxProperty ParentProperty, set IBinder Binder)
+        {
+            this.parameterCache = new Lazy<IParameter[]>(CreateParameters);
+        }
 
         public AccessorSyntax Syntax { const get; private set; }
         public SyntaxProperty ParentProperty { const get; private set; }
@@ -110,9 +114,13 @@ namespace Flame.DSharp.Build
             }
         }
 
-        public const IParameter[] GetParameters()
+        private Lazy<IParameter[]> parameterCache;
+
+        public [IParameter] Parameters { get { return parameterCache.Value; } }
+
+        private IParameter[] CreateParameters()
         {
-            var indexerParams = DeclaringProperty.IndexerParameters;
+            var indexerParams = Enumerable.ToArray<IParameter>(DeclaringProperty.IndexerParameters);
             if (this.IsGetAccessor)
             {
                 return indexerParams;
@@ -133,8 +141,10 @@ namespace Flame.DSharp.Build
             return null;
         }
 
+        public [IAttribute] Attributes { get { return GetAttributes(); } }
+
 		private IAttribute[] attrCache;
-        public const IEnumerable<IAttribute> GetAttributes()
+        public const [IAttribute] GetAttributes()
         {
         	if (attrCache == null)
         	{
@@ -238,6 +248,8 @@ namespace Flame.DSharp.Build
 
         #region GetBaseMethods
 
+        public [IMethod] BaseMethods { get { return GetBaseMethods(); }}
+
         private IMethod[] baseMethodCache;
         public virtual IMethod[] GetBaseMethods()
         {
@@ -263,24 +275,9 @@ namespace Flame.DSharp.Build
 
         #region Generics
 
-        public IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
+        public [IGenericParameter] GenericParameters
         {
-            return this;
-        }
-
-        public IMethod GetGenericDeclaration()
-        {
-            return this;
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return new IGenericParameter[0];
-        }
-
-        public IEnumerable<IType> GetGenericArguments()
-        {
-            return new IType[0];
+            const get { return new IGenericParameter[0]; }
         }
 
         #endregion

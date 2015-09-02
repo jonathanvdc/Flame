@@ -111,12 +111,12 @@ namespace Flame.Syntax.DSharp
 
         public IType CreateType(INamespace Namespace, IBinder Binder, ICompilerLog Log, IExtensionTypeProvider ExtensionTypeProvider, IConverter<IType, string> TypeNamer)
         {
-            return new OpenGenericType(this, Namespace, Binder, Log, ExtensionTypeProvider, TypeNamer);
+            return new SyntaxType(this, Namespace, Binder, Log, ExtensionTypeProvider, TypeNamer);
         }
 
         public IType CreateMember(ISyntaxState State)
         {
-            return new OpenGenericType(this, (INamespace)State.DeclaringType, State.Binder, State.Log, State.MemberProvider, State.TypeNamer);
+            return new SyntaxType(this, (INamespace)State.DeclaringType, State.Binder, State.Log, State.MemberProvider, State.TypeNamer);
         }
 
         public override const string ToString()

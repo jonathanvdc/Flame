@@ -119,6 +119,7 @@ namespace Flame.DSharp.Build
             const get { return (Syntax.Signature.ModifierTokens.IsStatic && !DeclaringType.IsSingleton) || this.IsConstant; }
         }
 
+		public [IAttribute] Attributes { get { return GetAttributes(); } }
 
 		private IAttribute[] attrCache;
         public const [IAttribute] GetAttributes()

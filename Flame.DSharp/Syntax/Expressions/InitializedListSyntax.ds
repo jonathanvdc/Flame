@@ -87,7 +87,7 @@ namespace Flame.Syntax.DSharp
             else if (enumExpr is NewVectorExpression)
             {
                 var newVectorExpr = (NewVectorExpression)enumExpr;
-                if (newVectorExpr.Dimensions.Length == 1)
+                if (newVectorExpr.Dimensions.Count == 1)
             	{
                     int firstDim = newVectorExpr.Dimensions[0];
 
