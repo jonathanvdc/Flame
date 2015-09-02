@@ -311,7 +311,7 @@ namespace Flame.Cecil.Emit
             return new NewArrayBlock(this, ElementType, Dimensions.Cast<ICecilBlock>().ToArray());
         }
 
-        public ICodeBlock EmitNewVector(IType ElementType, int[] Dimensions)
+        public ICodeBlock EmitNewVector(IType ElementType, IReadOnlyList<int> Dimensions)
         {
             return EmitNewArray(ElementType, Dimensions.Select((item) => EmitInt32(item)));
         }

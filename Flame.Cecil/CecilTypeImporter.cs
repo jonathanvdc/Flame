@@ -129,11 +129,11 @@ namespace Flame.Cecil
             }
             if (ArrayRank == 1)
             {
-                return new ArrayType(ElementType);
+                return new Mono.Cecil.ArrayType(ElementType);
             }
             else
             {
-                return new ArrayType(ElementType, ArrayRank);
+                return new Mono.Cecil.ArrayType(ElementType, ArrayRank);
             }
         }
 
@@ -148,7 +148,7 @@ namespace Flame.Cecil
             IEnumerable<TypeReference> genArgs;
             if (GenericDeclaration.IsGenericInstance)
             {
-                var declInst = ((GenericInstanceType)GenericDeclaration);
+                var declInst = ((Mono.Cecil.GenericInstanceType)GenericDeclaration);
                 genArgs = declInst.GenericArguments.Concat(TypeArguments);
                 genericDecl = declInst.ElementType;
             }
@@ -157,7 +157,7 @@ namespace Flame.Cecil
                 genericDecl = GenericDeclaration;
                 genArgs = TypeArguments;
             }
-            var instance = new GenericInstanceType(GenericDeclaration);
+            var instance = new Mono.Cecil.GenericInstanceType(GenericDeclaration);
             foreach (var item in genArgs)
             {
                 instance.GenericArguments.Add(item);
@@ -173,13 +173,13 @@ namespace Flame.Cecil
             }
             else
             {
-                return new PointerType(ElementType);
+                return new Mono.Cecil.PointerType(ElementType);
             }
         }
 
-        protected override TypeReference MakeVectorType(TypeReference ElementType, int[] Dimensions)
+        protected override TypeReference MakeVectorType(TypeReference ElementType, IReadOnlyList<int> Dimensions)
         {
-            return MakeArrayType(ElementType, Dimensions.Length);
+            return MakeArrayType(ElementType, Dimensions.Count);
         }
     }
 }

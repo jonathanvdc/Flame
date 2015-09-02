@@ -31,11 +31,6 @@ namespace Flame.Cecil
             return Method.Resolve();
         }
 
-        public override IMethod GetGenericDeclaration()
-        {
-            return this;
-        }
-
         public override bool IsStatic
         {
             get { return GetResolvedMethod().IsStatic; }
@@ -142,14 +137,9 @@ namespace Flame.Cecil
         }
 
         private Lazy<IMethod[]> baseMethods;
-        public override IMethod[] GetBaseMethods()
+        public override IEnumerable<IMethod> BaseMethods
         {
-            return baseMethods.Value;
-        }
-
-        public override IEnumerable<IType> GetGenericArguments()
-        {
-            return Enumerable.Empty<IType>();
+            get { return baseMethods.Value; }
         }
     }
 }

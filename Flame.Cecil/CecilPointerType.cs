@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using Flame.Build;
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Flame.Cecil
 {
     public class CecilPointerType : CecilContainerTypeBase, IPointerType
     {
-        public CecilPointerType(PointerType PointerType, CecilModule Module)
+        public CecilPointerType(Mono.Cecil.PointerType PointerType, CecilModule Module)
             : this(Module.ConvertStrict(PointerType.ElementType), PointerKind.TransientPointer, Module)
         {
         }
@@ -32,7 +33,7 @@ namespace Flame.Cecil
         {
             if (PointerKind.Equals(PointerKind.TransientPointer))
             {
-                return new PointerType(ElementType);
+                return new Mono.Cecil.PointerType(ElementType);
             }
             else
             {
@@ -47,14 +48,9 @@ namespace Flame.Cecil
 
         public PointerKind PointerKind { get; private set; }
 
-        public override ContainerTypeKind ContainerKind
+        public override IEnumerable<IType> BaseTypes
         {
-            get { return ContainerTypeKind.Pointer; }
-        }
-
-        public override IType[] GetBaseTypes()
-        {
-            return new IType[0];
+            get { return new IType[0]; }
         }
 
         protected override IEnumerable<IAttribute> GetMemberAttributes()
@@ -94,6 +90,11 @@ namespace Flame.Cecil
         protected override IList<EventDefinition> GetCecilEvents()
         {
             return new EventDefinition[0];
+        }
+
+        public override IAncestryRules AncestryRules
+        {
+            get { return PointerAncestryRules.Instance; }
         }
 
         protected override bool ContainerEquals(IContainerType other)

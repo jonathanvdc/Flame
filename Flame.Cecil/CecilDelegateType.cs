@@ -47,14 +47,14 @@ namespace Flame.Cecil
 
         #region IMethod Implementation
 
-        public IMethod[] GetBaseMethods()
+        public IEnumerable<IMethod> BaseMethods
         {
-            return new IMethod[] { };
+            get { return new IMethod[] { }; }
         }
 
-        public IParameter[] GetParameters()
+        public IEnumerable<IParameter> Parameters
         {
-            return InvokeMethod.GetParameters();
+            get { return InvokeMethod.Parameters; }
         }
 
         public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
@@ -65,16 +65,6 @@ namespace Flame.Cecil
         public bool IsConstructor
         {
             get { return false; }
-        }
-
-        public IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
-        {
-            return new CecilDelegateType((ICecilType)Type.MakeGenericType(TypeArguments));
-        }
-
-        public IMethod GetGenericDeclaration()
-        {
-            return new CecilDelegateType((ICecilType)Type.GetGenericDeclaration());
         }
 
         public IType ReturnType
@@ -112,9 +102,9 @@ namespace Flame.Cecil
             get { return Type.FullName; }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Type.Attributes;
+            get { return Type.Attributes; }
         }
 
         public string Name
@@ -126,19 +116,9 @@ namespace Flame.Cecil
 
         #region IType Implementation
 
-        public IEnumerable<IType> GetGenericArguments()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return Type.GetGenericArguments();
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return Type.GenericParameters;
-        }
-
-        public IContainerType AsContainerType()
-        {
-            return null;
+            get { return Type.GenericParameters; }
         }
 
         public INamespace DeclaringNamespace
@@ -146,14 +126,9 @@ namespace Flame.Cecil
             get { return Type.DeclaringNamespace; }
         }
 
-        public IType[] GetBaseTypes()
+        public IEnumerable<IType> BaseTypes
         {
-            return Type.BaseTypes;
-        }
-
-        public IMethod[] GetConstructors()
-        {
-            return Type.GetConstructors();
+            get { return Type.BaseTypes; }
         }
 
         public IBoundObject GetDefaultValue()
@@ -161,54 +136,19 @@ namespace Flame.Cecil
             return Type.GetDefaultValue();
         }
 
-        public IField[] GetFields()
+        public IEnumerable<IField> Fields
         {
-            return Type.GetFields();
+            get { return Type.Fields; }
         }
 
-        IType IType.GetGenericDeclaration()
+        public IEnumerable<IMethod> Methods
         {
-            return (IType)GetGenericDeclaration();
+            get { return Type.Methods; }
         }
 
-        public ITypeMember[] GetMembers()
+        public IEnumerable<IProperty> Properties
         {
-            return Type.GetMembers();
-        }
-
-        public IMethod[] GetMethods()
-        {
-            return Type.GetMethods();
-        }
-
-        public IProperty[] GetProperties()
-        {
-            return Type.Properties;
-        }
-
-        public bool IsContainerType
-        {
-            get { return false; }
-        }
-
-        public IArrayType MakeArrayType(int Rank)
-        {
-            return new CecilArrayType(this, Rank);
-        }
-
-        public IType MakeGenericType(IEnumerable<IType> TypeArguments)
-        {
-            return (IType)MakeGenericMethod(TypeArguments);
-        }
-
-        public IPointerType MakePointerType(PointerKind PointerKind)
-        {
-            return new CecilPointerType(this, PointerKind);
-        }
-
-        public IVectorType MakeVectorType(int[] Dimensions)
-        {
-            return new CecilVectorType(this, Dimensions); 
+            get { return Type.Properties; }
         }
 
         public IType ResolveTypeParameter(IGenericParameter TypeParameter)
@@ -221,9 +161,14 @@ namespace Flame.Cecil
             get { return Type.DeclaringAssembly; }
         }
 
-        public IType[] GetTypes()
+        public IEnumerable<IType> Types
         {
-            return Type.GetTypes();
+            get { return Type.Types; }
+        }
+
+        public IAncestryRules AncestryRules
+        {
+            get { return MethodTypeAncestryRules.Instance; }
         }
 
         #endregion

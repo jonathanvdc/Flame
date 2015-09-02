@@ -39,7 +39,7 @@ namespace Flame.Cecil
         protected virtual MethodReference ConvertGenericInstance(IMethod Method)
         {
             var genElem = Convert(Method.GetGenericDeclaration());
-            var genInst = new GenericInstanceMethod(genElem);
+            var genInst = new Mono.Cecil.GenericInstanceMethod(genElem);
             foreach (var item in Method.GetGenericArguments().Select(TypeImporter.Convert))
             {
                 genInst.GenericArguments.Add(item);
@@ -84,8 +84,7 @@ namespace Flame.Cecil
                 {
                     if (item.IsStatic == declProp.IsStatic && ((item.get_IsIndexer() && declProp.get_IsIndexer()) || item.Name == declProp.Name) && item.PropertyType.Equals(propType))
                     {
-                        var indexerParams = item.GetIndexerParameterTypes();
-                        return indexerTypes.AreEqual(indexerParams);
+                        return indexerTypes.AreEqual(item.IndexerParameters.GetTypes());
                     }
                     return false;
                 });

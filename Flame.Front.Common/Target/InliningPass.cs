@@ -42,7 +42,7 @@ namespace Flame.Front.Target
                 return ApproximateSize(Type.GetEnumerableElementType()) * Type.AsContainerType().AsVectorType().Dimensions.Aggregate(1, (aggr, val) => aggr * val);
             }
 
-            return Type.GetFields().Aggregate(0, (aggr, field) => aggr + ApproximateSize(field.FieldType));
+            return Type.Fields.Aggregate(0, (aggr, field) => aggr + ApproximateSize(field.FieldType));
         }
 
         private static int RateArgument(IType ParameterType, IExpression Argument)

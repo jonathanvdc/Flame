@@ -30,13 +30,9 @@ namespace Flame.Cecil
 
         #region Abstract
 
-        public abstract IType[] GetBaseTypes();
-        public abstract IType GetGenericDeclaration();
+        public abstract IEnumerable<IType> BaseTypes { get; }
         protected abstract override IEnumerable<IAttribute> GetMemberAttributes();
         protected abstract override IList<CustomAttribute> GetCustomAttributes();
-        public abstract bool IsContainerType { get; }
-        public abstract IContainerType AsContainerType();
-
 
         public abstract IBoundObject GetDefaultValue();
 
@@ -44,6 +40,8 @@ namespace Flame.Cecil
         protected abstract IList<PropertyDefinition> GetCecilProperties();
         protected abstract IList<FieldDefinition> GetCecilFields();
         protected abstract IList<EventDefinition> GetCecilEvents();
+
+        public abstract IAncestryRules AncestryRules { get; }
 
         #endregion
 
@@ -71,15 +69,15 @@ namespace Flame.Cecil
 
         public static ITypeMember[] GetMembers(ICecilType DeclaringType)
         {
-            return DeclaringType.GetMethods().Concat<ITypeMember>(DeclaringType.GetConstructors()).Concat(DeclaringType.GetFields()).Concat(DeclaringType.Properties).ToArray();
+            return DeclaringType.Methods.Concat<ITypeMember>(DeclaringType.Fields).Concat(DeclaringType.Properties).ToArray();
         }
-        public static IMethod[] ConvertMethodDefinitions(ICecilType DeclaringType, IList<MethodDefinition> MethodDefinitions, bool IsConstructor)
+        public static IMethod[] ConvertMethodDefinitions(ICecilType DeclaringType, IList<MethodDefinition> MethodDefinitions)
         {
             List<IMethod> methods = new List<IMethod>();
             var declRef = DeclaringType.GetTypeReference();
             foreach (var item in MethodDefinitions)
             {
-                if (item.IsConstructor == IsConstructor && (item.IsConstructor || !item.IsSpecialName))
+                if (item.IsConstructor || !item.IsSpecialName)
                 {
                     methods.Add(new CecilMethod(DeclaringType, item));
                 }
@@ -112,12 +110,11 @@ namespace Flame.Cecil
             ClearMethodCache();
             ClearPropertyCache();
             ClearFieldCache();
-            ClearConstructorCache();
         }
 
         protected void ClearMethodCache()
         {
-            lazyMethods = new Lazy<IMethod[]>(new Func<IMethod[]>(() => ConvertMethodDefinitions(this, GetCecilMethods(), false)));
+            lazyMethods = new Lazy<IMethod[]>(new Func<IMethod[]>(() => ConvertMethodDefinitions(this, GetCecilMethods())));
         }
         protected void ClearPropertyCache()
         {
@@ -126,10 +123,6 @@ namespace Flame.Cecil
         protected void ClearFieldCache()
         {
             lazyFields = new Lazy<IField[]>(new Func<IField[]>(() => ConvertFieldDefinitions(this, GetCecilFields())));
-        }
-        protected void ClearConstructorCache()
-        {
-            lazyCtors = new Lazy<IMethod[]>(new Func<IMethod[]>(() => ConvertMethodDefinitions(this, GetCecilMethods(), true)));
         }
 
         public ITypeMember[] GetMembers()
@@ -142,35 +135,27 @@ namespace Flame.Cecil
         {
             return lazyMethods.Value;
         }
-        public IMethod[] Methods { get { return GetMethods(); } }
+        public IEnumerable<IMethod> Methods { get { return GetMethods(); } }
 
         private Lazy<IProperty[]> lazyProperties;
         public IProperty[] GetProperties()
         {
             return lazyProperties.Value;
         }
-        public IProperty[] Properties { get { return GetProperties(); } }
+        public IEnumerable<IProperty> Properties { get { return GetProperties(); } }
 
         private Lazy<IField[]> lazyFields;
         public IField[] GetFields()
         {
             return lazyFields.Value;
         }
-        public IField[] Fields { get { return GetFields(); } }
-
-        private Lazy<IMethod[]> lazyCtors;
-        public IMethod[] GetConstructors()
-        {
-            return lazyCtors.Value;
-        }
-        public IMethod[] Constructors { get { return GetConstructors(); } }
+        public IEnumerable<IField> Fields { get { return GetFields(); } }
 
         #endregion
 
         #region Generics
 
-        public abstract IEnumerable<IType> GetGenericArguments();
-        public abstract IEnumerable<IGenericParameter> GetGenericParameters();
+        public abstract IEnumerable<IGenericParameter> GenericParameters { get; }
 
         #endregion
 
@@ -190,33 +175,6 @@ namespace Flame.Cecil
             }
         }
 
-        public IArrayType MakeArrayType(int Rank)
-        {
-            return new CecilArrayType(this, Rank);
-        }
-
-        public IPointerType MakePointerType(PointerKind PointerKind)
-        {
-            return new CecilPointerType(this, PointerKind);
-        }
-
-        public IVectorType MakeVectorType(int[] Dimensions)
-        {
-            return new CecilVectorType(this, Dimensions);
-        }
-
-        public IType MakeGenericType(IEnumerable<IType> TypeArguments)
-        {
-            if (!TypeArguments.Any())
-            {
-                return this;
-            }
-            else
-            {
-                return new CecilGenericType(this, TypeArguments);
-            }
-        }
-
         protected virtual string GetName()
         {
             var tRef = GetTypeReference();
@@ -224,7 +182,7 @@ namespace Flame.Cecil
             {
                 if (tRef.IsNested)
                 {
-                    return CecilExtensions.GetFlameGenericName(tRef.Name, GetGenericParameters().Count());
+                    return CecilExtensions.GetFlameGenericName(tRef.Name, GenericParameters.Count());
                 }
                 else
                 {
@@ -374,15 +332,18 @@ namespace Flame.Cecil
 
         #region Nested Types
 
-        public IType[] GetTypes()
+        public IEnumerable<IType> Types
         {
-            var nestedTypes = GetTypeReference().Resolve().NestedTypes;
-            IType[] results = new IType[nestedTypes.Count];
-            for (int i = 0; i < nestedTypes.Count; i++)
+            get
             {
-                results[i] = Module.Convert(nestedTypes[i]);
+                var nestedTypes = GetTypeReference().Resolve().NestedTypes;
+                IType[] results = new IType[nestedTypes.Count];
+                for (int i = 0; i < nestedTypes.Count; i++)
+                {
+                    results[i] = Module.Convert(nestedTypes[i]);
+                }
+                return results;
             }
-            return results;
         }
 
         public IAssembly DeclaringAssembly
