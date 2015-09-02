@@ -49,7 +49,7 @@ namespace Flame.Build
         public int GetAncestryDegree(IType First, IType Second)
         {
             int varianceAncestry = ComputeGenericVarianceAncestry(First, Second);
-            if (varianceAncestry > 0)
+            if (varianceAncestry >= 0)
             {
                 return varianceAncestry;
             }
