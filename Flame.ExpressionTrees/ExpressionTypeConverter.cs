@@ -111,9 +111,9 @@ namespace Flame.ExpressionTrees
             }
         }
 
-        protected override Type MakeVectorType(Type ElementType, int[] Dimensions)
+        protected override Type MakeVectorType(Type ElementType, IReadOnlyList<int> Dimensions)
         {
-            return MakeArrayType(ElementType, Dimensions.Length);
+            return MakeArrayType(ElementType, Dimensions.Count);
         }
     }
 }

@@ -461,7 +461,7 @@ namespace Flame.DSharp.Build
         #endregion
     }
 
-    assembly class CreateTypeMembersClosure<T>
+    public class CreateTypeMembersClosure<T>
         where T : ITypeMember
     {
         public const this(set SyntaxTypeBase Type, set [IMemberSyntax<T>] Syntax);

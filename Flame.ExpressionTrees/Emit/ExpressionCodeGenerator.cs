@@ -430,7 +430,7 @@ namespace Flame.ExpressionTrees.Emit
                 (exprs, flow) => Expression.NewArrayBounds(ExpressionTypeConverter.Instance.Convert(ElementType), exprs.ToArray()));
         }
 
-        public ICodeBlock EmitNewVector(IType ElementType, int[] Dimensions)
+        public ICodeBlock EmitNewVector(IType ElementType, IReadOnlyList<int> Dimensions)
         {
             return new ExpressionBlock(this,
                 Expression.NewArrayBounds(ExpressionTypeConverter.Instance.Convert(ElementType), Dimensions.Select(item => Expression.Constant(item)).ToArray()),
