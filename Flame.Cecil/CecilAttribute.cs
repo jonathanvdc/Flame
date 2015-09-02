@@ -55,7 +55,7 @@ namespace Flame.Cecil
                         var property = clrType.GetProperty(item.Name);
                         property.SetValue(clrType, item.Argument);
                     }
-                    return new CecilBoundObject(instance, importingModule.ConvertStrict(clrType));
+                    return new CecilBoundObject(instance, importingModule.ConvertStrict(clrType), importingModule);
                 }
             }
         }

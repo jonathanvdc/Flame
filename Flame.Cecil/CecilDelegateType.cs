@@ -11,15 +11,17 @@ namespace Flame.Cecil
 {
     public class CecilDelegateType : ICecilType, IMethod, IEquatable<IMethod>
     {
-        public CecilDelegateType(ICecilType Type)
+        public CecilDelegateType(IType Type, CecilModule Module)
         {
             this.Type = Type;
             this.invMethod = new Lazy<IMethod>(() => this.GetMethods().Single(item => item.Name == "Invoke" && !item.IsStatic));
         }
 
-        public ICecilType Type { get; private set; }
+        public IType Type { get; private set; }
         private Lazy<IMethod> invMethod;
         public IMethod InvokeMethod { get { return invMethod.Value; } }
+
+        public CecilModule Module { get; private set; }
 
         public static IMethod GetInvokeMethod(IType Type)
         {
@@ -33,7 +35,7 @@ namespace Flame.Cecil
             }
         }
 
-        public static ICecilType Create(IType Type, ICodeGenerator CodeGenerator)
+        public static IType Create(IType Type, ICodeGenerator CodeGenerator)
         {
             if (Type is CecilDelegateType)
             {
@@ -84,17 +86,12 @@ namespace Flame.Cecil
 
         public TypeReference GetTypeReference()
         {
-            return Type.GetTypeReference();
+            return CecilTypeImporter.Import(Module, Type);
         }
 
         public MemberReference GetMemberReference()
         {
-            return Type.GetMemberReference();
-        }
-
-        public CecilModule Module
-        {
-            get { return Type.Module; }
+            return GetTypeReference();
         }
 
         public string FullName
@@ -153,17 +150,17 @@ namespace Flame.Cecil
 
         public IType ResolveTypeParameter(IGenericParameter TypeParameter)
         {
-            return Type.ResolveTypeParameter(TypeParameter);
+            return TypeParameter;
         }
 
         public IAssembly DeclaringAssembly
         {
-            get { return Type.DeclaringAssembly; }
+            get { return Type is INamespace ? ((INamespace)Type).DeclaringAssembly : Type.DeclaringNamespace.DeclaringAssembly; }
         }
 
         public IEnumerable<IType> Types
         {
-            get { return Type.Types; }
+            get { return Type is INamespace ? ((INamespace)Type).Types : Enumerable.Empty<IType>(); }
         }
 
         public IAncestryRules AncestryRules

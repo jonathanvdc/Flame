@@ -18,7 +18,7 @@ namespace Flame.Cecil
             : this(Module.ConvertStrict(ByReferenceType.ElementType), PointerKind.ReferencePointer, Module)
         {
         }
-        public CecilPointerType(ICecilType ElementType, PointerKind PointerKind, CecilModule Module)
+        public CecilPointerType(IType ElementType, PointerKind PointerKind, CecilModule Module)
             : base(ElementType, Module)
         {
             this.PointerKind = PointerKind;
@@ -43,7 +43,7 @@ namespace Flame.Cecil
 
         public override TypeReference GetTypeReference()
         {
-            return CreatePointerReference(ElementType.GetTypeReference(), PointerKind);
+            return CreatePointerReference(CecilTypeImporter.Import(Module, ElementType), PointerKind);
         }
 
         public PointerKind PointerKind { get; private set; }

@@ -14,7 +14,7 @@ namespace Flame.Cecil
             : base(ElementType)
         {
         }
-        public CecilArrayTypeBase(ICecilType ElementType, CecilModule Module)
+        public CecilArrayTypeBase(IType ElementType, CecilModule Module)
             : base(ElementType, Module)
         {
         }
@@ -28,14 +28,14 @@ namespace Flame.Cecil
 
         public override TypeReference GetTypeReference()
         {
-            return CreateArrayReference(ElementType.GetTypeReference(), GetArrayRank());
+            return CreateArrayReference(CecilTypeImporter.Import(Module, ElementType), GetArrayRank());
         }
 
         public ICecilType ArrayType
         {
             get
             {
-                return CecilTypeBase.ImportCecil<Array>(this);
+                return (ICecilType)CecilTypeBase.ImportCecil<Array>(this);
             }
         }
 

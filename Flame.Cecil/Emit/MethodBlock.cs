@@ -17,7 +17,7 @@ namespace Flame.Cecil.Emit
             this.CodeGenerator = CodeGenerator;
             this.Method = Method;
             this.Caller = Caller;
-            this.delegateType = new Lazy<ICecilType>(() => DelegateType);
+            this.delegateType = new Lazy<IType>(() => DelegateType);
         }
         public MethodBlock(ICodeGenerator CodeGenerator, IMethod Method, ICecilBlock Caller)
         {
@@ -26,15 +26,15 @@ namespace Flame.Cecil.Emit
             this.CodeGenerator = CodeGenerator;
             this.Method = Method;
             this.Caller = Caller;
-            this.delegateType = new Lazy<ICecilType>(() => CodeGenerator.GetModule().TypeSystem.GetCanonicalDelegate(Method));
+            this.delegateType = new Lazy<IType>(() => CodeGenerator.GetModule().TypeSystem.GetCanonicalDelegate(Method));
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
         public IMethod Method { get; private set; }
         public ICecilBlock Caller { get; private set; }
 
-        private Lazy<ICecilType> delegateType;
-        public ICecilType DelegateType { get { return delegateType.Value; } }
+        private Lazy<IType> delegateType;
+        public IType DelegateType { get { return delegateType.Value; } }
 
         public MethodBlock ChangeDelegateType(ICecilType NewDelegateType)
         {

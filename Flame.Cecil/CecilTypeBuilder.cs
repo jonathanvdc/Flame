@@ -222,10 +222,10 @@ namespace Flame.Cecil
             GetResolvedType().Events.Add(Event);
         }
 
-        public void DeclareBaseType(ICecilType Type)
+        public void DeclareBaseType(IType Type)
         {
             var resolvedType = GetResolvedType();
-            var importedRef = Type.GetImportedReference(Module, resolvedType);
+            var importedRef = CecilTypeImporter.Import(Module, Type);
             if (Type.get_IsInterface())
             {
                 resolvedType.Interfaces.Add(importedRef);

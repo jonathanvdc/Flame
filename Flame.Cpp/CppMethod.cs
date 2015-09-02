@@ -245,7 +245,7 @@ namespace Flame.Cpp
             }
             if (PrefixName)
             {
-                var genDeclType = (IGenericResolverType)DeclaringType.MakeGenericType(DeclaringType.GenericParameters);
+                var genDeclType = DeclaringType.MakeGenericType(DeclaringType.GenericParameters);
                 cb.Append(TypeNamer.Name(genDeclType, this));
                 cb.Append("::");
             }
