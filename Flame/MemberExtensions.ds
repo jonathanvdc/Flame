@@ -366,6 +366,10 @@ namespace Flame
         			}
         			return result;
         		}
+				else if (Type.IsRecursiveGenericInstance)
+				{
+					return ((GenericTypeBase)Type).Resolver.ResolveType(attr.ElementType);
+				}
         		else
         		{
         			return attr.ElementType;
