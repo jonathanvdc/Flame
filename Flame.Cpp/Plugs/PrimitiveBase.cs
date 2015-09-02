@@ -11,18 +11,16 @@ namespace Flame.Cpp.Plugs
     {
         public PrimitiveBase()
         {
-
+            this.cachedFields = new Lazy<IField[]>(CreateFields);
+            this.cachedMethods = new Lazy<IMethod[]>(CreateMethods);
+            this.cachedProperties = new Lazy<IProperty[]>(CreateProperties);
         }
 
         #region Abstract
 
         public abstract string Name { get; }
-        public abstract IEnumerable<IAttribute> GetAttributes();
+        public abstract IEnumerable<IAttribute> Attributes { get; }
         public abstract INamespace DeclaringNamespace { get; }
-        public abstract IMethod[] GetConstructors();
-        public abstract IField[] GetFields();
-        public abstract IMethod[] GetMethods();
-        public abstract IProperty[] GetProperties();
 
         #endregion
 
@@ -33,9 +31,9 @@ namespace Flame.Cpp.Plugs
             get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
         }
 
-        public virtual IType[] GetBaseTypes()
+        public virtual IEnumerable<IType> BaseTypes
         {
-            return new IType[0];
+            get { return new IType[0]; }
         }
 
         public virtual IBoundObject GetDefaultValue()
@@ -47,68 +45,50 @@ namespace Flame.Cpp.Plugs
 
         #region Members
 
-        public virtual ITypeMember[] GetMembers()
+        protected virtual IField[] CreateFields()
         {
-            return GetMethods().Concat<ITypeMember>(GetConstructors()).Concat(GetProperties()).Concat(GetFields()).ToArray();
+            return new IField[0];
+        }
+        protected virtual IMethod[] CreateMethods()
+        {
+            return new IMethod[0];
+        }
+        protected virtual IProperty[] CreateProperties()
+        {
+            return new IProperty[0];
         }
 
-        #endregion
+        private Lazy<IField[]> cachedFields;
+        private Lazy<IMethod[]> cachedMethods;
+        private Lazy<IProperty[]> cachedProperties;
 
-        #region Container Types
-
-        public virtual IContainerType AsContainerType()
+        public IAncestryRules AncestryRules
         {
-            return this as IContainerType;
-        }
-        public virtual bool IsContainerType
-        {
-            get { return this is IContainerType; }
+            get { return DefinitionAncestryRules.Instance; }
         }
 
-        public virtual IArrayType MakeArrayType(int Rank)
+        public IEnumerable<IField> Fields
         {
-            return new DescribedArrayType(this, Rank);
+            get { return cachedFields.Value; }
         }
 
-        public virtual IPointerType MakePointerType(PointerKind PointerKind)
+        public IEnumerable<IMethod> Methods
         {
-            return new DescribedPointerType(this, PointerKind);
+            get { return cachedMethods.Value; }
         }
 
-        public virtual IVectorType MakeVectorType(int[] Dimensions)
+        public IEnumerable<IProperty> Properties
         {
-            return new DescribedVectorType(this, Dimensions);
+            get { return cachedProperties.Value; }
         }
 
         #endregion
 
         #region Generics
 
-        public virtual IType GetGenericDeclaration()
+        public virtual IEnumerable<IGenericParameter> GenericParameters
         {
-            return this;
-        }
-
-        public virtual IType MakeGenericType(IEnumerable<IType> TypeArguments)
-        {
-            if (!TypeArguments.Any())
-            {
-                return this;
-            }
-            else
-            {
-                return new DescribedGenericTypeInstance(this, TypeArguments);
-            }
-        }
-
-        public virtual IEnumerable<IType> GetGenericArguments()
-        {
-            return Enumerable.Empty<IType>();
-        }
-
-        public virtual IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return Enumerable.Empty<IGenericParameter>();
+            get { return Enumerable.Empty<IGenericParameter>(); }
         }
 
         #endregion

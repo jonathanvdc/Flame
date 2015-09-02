@@ -19,9 +19,9 @@ namespace Flame.Cpp.Plugs
         public StdxNamespace Namespace { get; private set; }
         public ICppEnvironment Environment { get { return Namespace.Environment; } }
         public IGenericParameter ElementType { get; private set; }
-        public override IEnumerable<IGenericParameter> GetGenericParameters()
+        public override IEnumerable<IGenericParameter> GenericParameters
         {
-            return new IGenericParameter[] { ElementType };
+            get { return new IGenericParameter[] { ElementType }; }
         }
 
         public override string Name
@@ -29,9 +29,9 @@ namespace Flame.Cpp.Plugs
             get { return "ArraySlice"; }
         }
 
-        public override IEnumerable<IAttribute> GetAttributes()
+        public override IEnumerable<IAttribute> Attributes
         {
-            return new IAttribute[] { PrimitiveAttributes.Instance.ValueTypeAttribute, new AccessAttribute(AccessModifier.Public) };
+            get { return new IAttribute[] { PrimitiveAttributes.Instance.ValueTypeAttribute, new AccessAttribute(AccessModifier.Public) }; }
         }
 
         public override INamespace DeclaringNamespace
@@ -39,107 +39,58 @@ namespace Flame.Cpp.Plugs
             get { return Namespace; }
         }
 
-
-        private IMethod[] ctorCache;
-        public override IMethod[] GetConstructors()
+        protected override IMethod[] CreateMethods()
         {
-            if (ctorCache == null)
-            {
-                List<IMethod> ctors = new List<IMethod>();
+            var results = new List<IMethod>();
 
-                var lenCtor = new DescribedMethod("ArraySlice", this, PrimitiveTypes.Void, false);
-                lenCtor.IsConstructor = true;
-                lenCtor.AddParameter(new DescribedParameter("Length", PrimitiveTypes.Int32));
-                lenCtor.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
-                ctors.Add(lenCtor);
+            var lenCtor = new DescribedMethod("ArraySlice", this, PrimitiveTypes.Void, false);
+            lenCtor.IsConstructor = true;
+            lenCtor.AddParameter(new DescribedParameter("Length", PrimitiveTypes.Int32));
+            lenCtor.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+            results.Add(lenCtor);
 
-                var ptrCtor = new DescribedMethod("ArraySlice", this, PrimitiveTypes.Void, false);
-                ptrCtor.IsConstructor = true;
-                ptrCtor.AddParameter(new DescribedParameter("Pointer", ElementType.MakePointerType(PointerKind.TransientPointer)));
-                ptrCtor.AddParameter(new DescribedParameter("Length", PrimitiveTypes.Int32));
-                ptrCtor.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
-                ctors.Add(ptrCtor);
+            var ptrCtor = new DescribedMethod("ArraySlice", this, PrimitiveTypes.Void, false);
+            ptrCtor.IsConstructor = true;
+            ptrCtor.AddParameter(new DescribedParameter("Pointer", ElementType.MakePointerType(PointerKind.TransientPointer)));
+            ptrCtor.AddParameter(new DescribedParameter("Length", PrimitiveTypes.Int32));
+            ptrCtor.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+            results.Add(ptrCtor);
 
-                var initListCtor = new DescribedMethod("ArraySlice", this, PrimitiveTypes.Void, false);
-                initListCtor.IsConstructor = true;
-                initListCtor.AddParameter(new DescribedParameter("Values", StdInitializerList.Instance.MakeGenericType(new IType[] { ElementType })));
-                initListCtor.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
-                ctors.Add(initListCtor);
+            var initListCtor = new DescribedMethod("ArraySlice", this, PrimitiveTypes.Void, false);
+            initListCtor.IsConstructor = true;
+            initListCtor.AddParameter(new DescribedParameter("Values", StdInitializerList.Instance.MakeGenericType(new IType[] { ElementType })));
+            initListCtor.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+            results.Add(initListCtor);
 
-                ctorCache = ctors.ToArray();
-            }
-            return ctorCache;
+            var sliceCountMethod = new DescribedMethod("Slice", this, this.MakeGenericType(new IType[] { ElementType }), false);
+            sliceCountMethod.AddParameter(new DescribedParameter("Offset", PrimitiveTypes.Int32));
+            sliceCountMethod.AddParameter(new DescribedParameter("Count", PrimitiveTypes.Int32));
+            sliceCountMethod.AddAttribute(new AccessAttribute(AccessModifier.Public));
+            sliceCountMethod.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+            results.Add(sliceCountMethod);
+
+            var sliceOffsetMethod = new DescribedMethod("Slice", this, this.MakeGenericType(new IType[] { ElementType }), false);
+            sliceOffsetMethod.AddParameter(new DescribedParameter("Offset", PrimitiveTypes.Int32));
+            sliceOffsetMethod.AddAttribute(new AccessAttribute(AccessModifier.Public));
+            sliceOffsetMethod.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+            results.Add(sliceOffsetMethod);
+
+            return results.ToArray();
         }
 
-        public override IField[] GetFields()
+        protected override IProperty[] CreateProperties()
         {
-            return new IField[0];
+            var props = new List<IProperty>();
+
+            var lenProp = new DescribedProperty("Length", this, PrimitiveTypes.Int32, false);
+            var getLenAccessor = new DescribedAccessor("GetLength", AccessorType.GetAccessor, lenProp, PrimitiveTypes.Int32);
+            getLenAccessor.AddAttribute(new AccessAttribute(AccessModifier.Public));
+            getLenAccessor.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
+            lenProp.AddAccessor(getLenAccessor);
+            props.Add(lenProp);
+
+            return props.ToArray();
         }
-
-        private IMethod[] methodCache;
-        public override IMethod[] GetMethods()
-        {
-            if (methodCache == null)
-            {
-                List<IMethod> methods = new List<IMethod>();
-
-                var sliceCountMethod = new DescribedMethod("Slice", this, this.MakeGenericType(new IType[] { ElementType }), false);
-                sliceCountMethod.AddParameter(new DescribedParameter("Offset", PrimitiveTypes.Int32));
-                sliceCountMethod.AddParameter(new DescribedParameter("Count", PrimitiveTypes.Int32));
-                sliceCountMethod.AddAttribute(new AccessAttribute(AccessModifier.Public));
-                sliceCountMethod.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
-                methods.Add(sliceCountMethod);
-
-                var sliceOffsetMethod = new DescribedMethod("Slice", this, this.MakeGenericType(new IType[] { ElementType }), false);
-                sliceOffsetMethod.AddParameter(new DescribedParameter("Offset", PrimitiveTypes.Int32));
-                sliceOffsetMethod.AddAttribute(new AccessAttribute(AccessModifier.Public));
-                sliceOffsetMethod.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
-                methods.Add(sliceOffsetMethod);
-
-                methodCache = methods.ToArray();
-            }
-            return methodCache;
-        }
-
-        private IProperty[] propertyCache;
-        public override IProperty[] GetProperties()
-        {
-            if (propertyCache == null)
-            {
-                List<IProperty> props = new List<IProperty>();
-
-                var lenProp = new DescribedProperty("Length", this, PrimitiveTypes.Int32, false);
-                var getLenAccessor = new DescribedAccessor("GetLength", AccessorType.GetAccessor, lenProp, PrimitiveTypes.Int32);
-                getLenAccessor.AddAttribute(new AccessAttribute(AccessModifier.Public));
-                getLenAccessor.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
-                lenProp.AddAccessor(getLenAccessor);
-                props.Add(lenProp);
-
-                propertyCache = props.ToArray();
-            }
-            return propertyCache;
-        }
-
-        #region Make<Container>Type
-
-        public override IType MakeGenericType(IEnumerable<IType> TypeArguments)
-        {
-            return new StdxArraySliceInstance(this, TypeArguments.Single());
-        }
-
-        public override IArrayType MakeArrayType(int Rank)
-        {
-            if (Rank == 1)
-            {
-                return new StdxArraySliceInstance(this, this);
-            }
-            else
-            {
-                return base.MakeArrayType(Rank);
-            }
-        }
-
-        #endregion
 
         #region Source
 
@@ -411,69 +362,5 @@ typename ArraySlice<T>::const_iterator ArraySlice<T>::cend() const
         }
 
         #endregion
-    }
-
-    public class StdxArraySliceInstance : DescribedGenericTypeInstance, IArrayType
-    {
-        public StdxArraySliceInstance(IType GenericDeclaration, IType ElementType)
-            : base(GenericDeclaration, new IType[] { ElementType })
-        {
-
-        }
-
-        public override bool IsContainerType
-        {
-            get
-            {
-                return true;
-            }
-        }
-
-        public override IContainerType AsContainerType()
-        {
-            return this;
-        }
-
-        public int ArrayRank
-        {
-            get { return 1; }
-        }
-
-        public IArrayType AsArrayType()
-        {
-            return this;
-        }
-
-        public IPointerType AsPointerType()
-        {
-            return null;
-        }
-
-        public IVectorType AsVectorType()
-        {
-            return null;
-        }
-
-        public ContainerTypeKind ContainerKind
-        {
-            get { return ContainerTypeKind.Array; }
-        }
-
-        public IType GetElementType()
-        {
-            return TypeArguments.First();
-        }
-
-        public override bool Equals(IType other)
-        {
-            if (other is StdxArraySliceInstance)
-            {
-                return GetElementType().Equals(((StdxArraySliceInstance)other).ElementType);
-            }
-            else
-            {
-                return false;
-            }
-        }
     }
 }

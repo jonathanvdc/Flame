@@ -41,9 +41,9 @@ namespace Flame.Cpp
             get { return Name; }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return new IAttribute[0];
+            get { return new IAttribute[0]; }
         }
 
         #region GetCppTypes

@@ -75,9 +75,9 @@ namespace Flame.Cpp
             }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Template.Attributes;
+            get { return Template.Attributes; }
         }
 
         private string cachedName;
@@ -93,17 +93,7 @@ namespace Flame.Cpp
             }
         }
 
-        public IContainerType AsContainerType()
-        {
-            return null;
-        }
-
-        public bool IsContainerType
-        {
-            get { return false; }
-        }
-
-        public IType[] BaseTypes { get { return GetBaseTypes(); } }
+        public IEnumerable<IType> BaseTypes { get { return GetBaseTypes(); } }
         public IType[] GetBaseTypes()
         {
             return Template.BaseTypes.Select(this.ConvertValueType).ToArray();
@@ -112,21 +102,6 @@ namespace Flame.Cpp
         public IBoundObject GetDefaultValue()
         {
             throw new NotImplementedException();
-        }
-
-        public IArrayType MakeArrayType(int Rank)
-        {
-            return new DescribedArrayType(this, Rank);
-        }
-
-        public IPointerType MakePointerType(PointerKind PointerKind)
-        {
-            return new DescribedPointerType(this, PointerKind);
-        }
-
-        public IVectorType MakeVectorType(int[] Dimensions)
-        {
-            return new DescribedVectorType(this, Dimensions);
         }
 
         #endregion
@@ -240,41 +215,44 @@ namespace Flame.Cpp
             return property;
         }
 
-        public IField[] GetFields()
+        public IEnumerable<IField> Fields
         {
-            IEnumerable<IField> results = fields;
-            if (Invariants.HasInvariants && !Invariants.InheritsInvariants)
+            get
             {
-                results = results.With(Invariants.IsCheckingInvariantsField);
-            }
-            return results.ToArray();
-        }
-
-        public IMethod[] GetConstructors()
-        {
-            return methods.Where((item) => item.IsConstructor).With<IMethod>(new ImplicitCopyConstructor(this)).ToArray();
-        }
-
-        public IMethod[] GetMethods()
-        {
-            IEnumerable<IMethod> results = methods.Concat(globalFriends.OfType<IMethod>()).Where((item) => !item.IsConstructor);
-            if (Invariants.HasInvariants)
-            {
-                if (!Invariants.InheritsInvariants)
+                if (Invariants.HasInvariants && !Invariants.InheritsInvariants)
                 {
-                    results = results.With(Invariants.CheckInvariantsMethod);
+                    return fields.With(Invariants.IsCheckingInvariantsField);
                 }
-                if (!Invariants.CheckInvariantsImplementationMethod.InlineTestBlock)
+                else
                 {
-                    results = results.With(Invariants.CheckInvariantsImplementationMethod.ToCppMethod());
+                    return fields;
                 }
             }
-            return results.ToArray();
         }
 
-        public IProperty[] GetProperties()
+        public IEnumerable<IMethod> Methods
         {
-            return properties.ToArray();
+            get
+            {
+                var results = methods.Concat(globalFriends.OfType<IMethod>()).With<IMethod>(new ImplicitCopyConstructor(this));
+                if (Invariants.HasInvariants)
+                {
+                    if (!Invariants.InheritsInvariants)
+                    {
+                        results = results.With(Invariants.CheckInvariantsMethod);
+                    }
+                    if (!Invariants.CheckInvariantsImplementationMethod.InlineTestBlock)
+                    {
+                        results = results.With(Invariants.CheckInvariantsImplementationMethod.ToCppMethod());
+                    }
+                }
+                return results;
+            }
+        }
+
+        public IEnumerable<IProperty> Properties
+        {
+            get { return properties; }
         }
 
         public ITypeMember[] GetMembers()
@@ -304,9 +282,9 @@ namespace Flame.Cpp
 
         #region Nested types
 
-        public IEnumerable<INamespaceBranch> GetNamespaces()
+        public IEnumerable<INamespaceBranch> Namespaces
         {
-            return types;
+            get { return types; }
         }
 
         public IAssembly DeclaringAssembly
@@ -314,9 +292,9 @@ namespace Flame.Cpp
             get { return DeclaringNamespace.DeclaringAssembly; }
         }
 
-        public IType[] GetTypes()
+        public IEnumerable<IType> Types
         {
-            return types.ToArray();
+            get { return types; }
         }
 
         public INamespaceBuilder DeclareNamespace(string Name)
@@ -335,28 +313,9 @@ namespace Flame.Cpp
 
         #region Generics
 
-        public IType GetGenericDeclaration()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return this;
-        }
-
-        public IEnumerable<IType> GetGenericArguments()
-        {
-            return new IType[0];
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return this.Templates.GenericParameters;
-        }
-
-        public IType MakeGenericType(IEnumerable<IType> TypeArguments)
-        {
-            if (!TypeArguments.Any())
-            {
-                return this;
-            }
-            return new DescribedGenericTypeInstance(this, TypeArguments);
+            get { return this.Templates.GetGenericParameters(); }
         }
 
         #endregion
@@ -387,7 +346,7 @@ namespace Flame.Cpp
                 var prop = (IProperty)Member;
                 if (!prop.HasUniformAccess())
                 {
-                    foreach (var item in prop.GetAccessors())
+                    foreach (var item in prop.Accessors)
                     {
                         MemberToAccessGroup((ICppMember)item, AccessGroups);
                     }
@@ -553,6 +512,11 @@ namespace Flame.Cpp
         public IEnumerable<ICppMember> AssociatedMembers
         {
             get { return globalFriends; }
+        }
+
+        public IAncestryRules AncestryRules
+        {
+            get { return DefinitionAncestryRules.Instance; }
         }
     }
 }

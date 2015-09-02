@@ -46,7 +46,7 @@ namespace Flame.Cpp
             return ElementType;
         }
 
-        protected override IEnumerable<IType> MakeVectorType(IEnumerable<IType> ElementType, int[] Dimensions)
+        protected override IEnumerable<IType> MakeVectorType(IEnumerable<IType> ElementType, IReadOnlyList<int> Dimensions)
         {
             return ElementType;
         }

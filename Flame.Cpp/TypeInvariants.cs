@@ -20,11 +20,10 @@ namespace Flame.Cpp
             this.CodeGenerator = new CppCodeGenerator(CheckInvariantsImplementationMethod, Environment);
             this.invariants = new List<ICppBlock>();
 
-            if (CheckInvariantsImplementationMethod.BaseMethods.Length == 0)
+            if (!CheckInvariantsImplementationMethod.BaseMethods.Any())
             {
                 this.CheckInvariantsMethod = new InvariantMethod(this);
-                var descField = new DescribedField("isCheckingInvariants", PrimitiveTypes.Boolean, false);
-                descField.DeclaringType = DeclaringType;
+                var descField = new DescribedField("isCheckingInvariants", DeclaringType, PrimitiveTypes.Boolean, false);
                 descField.AddAttribute(new AccessAttribute(AccessModifier.Private));
                 this.IsCheckingInvariantsField = new CppField(DeclaringType, descField, Environment);
                 this.IsCheckingInvariantsField.SetValue(new BooleanExpression(false));
