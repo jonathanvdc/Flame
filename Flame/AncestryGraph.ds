@@ -70,10 +70,11 @@ namespace Flame
 			//   their ancestry degree.
 			// * Select the "best" result: i.e. the least non-zero value.
 
-			int leftAncestry = Type.AncestryRules.GetAncestryDegree(Type, Other);
+			var firstRules = Type.AncestryRules;
+			int leftAncestry = firstRules.GetAncestryDegree(Type, Other);
 
-			if (leftAncestry == 0)
-				return 0;
+			if (leftAncestry == 0 || firstRules == Other.AncestryRules)
+				return leftAncestry;
 
 			int rightAncestry = Other.AncestryRules.GetAncestryDegree(Type, Other);
 
