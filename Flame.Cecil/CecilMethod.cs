@@ -10,7 +10,7 @@ namespace Flame.Cecil
     public class CecilMethod : CecilMethodBase, ICecilMethod
     {
         public CecilMethod(MethodReference Method, CecilModule Module)
-            : this(Module.ConvertStrict(Method.DeclaringType), Method)
+            : this((ICecilType)Module.ConvertStrict(Method.DeclaringType), Method)
         {
         }
         public CecilMethod(ICecilType DeclaringType, MethodReference Method)

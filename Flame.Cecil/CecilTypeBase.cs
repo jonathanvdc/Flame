@@ -259,20 +259,20 @@ namespace Flame.Cecil
             return ImportingModule.Convert(ImportingModule.Module.Import(ImportedType));
         }
 
-        public static ICecilType ImportCecil(Type ImportedType, ICecilMember ImportingMember)
+        public static IType ImportCecil(Type ImportedType, ICecilMember ImportingMember)
         {
             return ImportCecil(ImportedType, ImportingMember.Module);
         }
-        public static ICecilType ImportCecil(Type ImportedType, CecilModule ImportingModule)
+        public static IType ImportCecil(Type ImportedType, CecilModule ImportingModule)
         {
             return ImportingModule.ConvertStrict(ImportingModule.Module.Import(ImportedType));
         }
 
-        public static ICecilType ImportCecil<T>(ICecilMember ImportingMember)
+        public static IType ImportCecil<T>(ICecilMember ImportingMember)
         {
             return ImportCecil(typeof(T), ImportingMember);
         }
-        public static ICecilType ImportCecil<T>(CecilModule ImportingModule)
+        public static IType ImportCecil<T>(CecilModule ImportingModule)
         {
             return ImportCecil(typeof(T), ImportingModule);
         }

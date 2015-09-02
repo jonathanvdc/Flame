@@ -53,11 +53,11 @@ namespace Flame.Cecil
         {
             return typeConverter.Convert(Reference);
         }
-        public ICecilType ConvertStrict(TypeReference Reference)
+        public IType ConvertStrict(TypeReference Reference)
         {
-            return (ICecilType)strictTypeConverter.Convert(Reference);
+            return strictTypeConverter.Convert(Reference);
         }
-        public ICecilType ConvertStrict(Type Value)
+        public IType ConvertStrict(Type Value)
         {
             return ConvertStrict(Module.Import(Value));
         }

@@ -14,13 +14,13 @@ namespace Flame.Cecil
         {
             this.ElementType = ElementType;
         }
-        public CecilContainerTypeBase(ICecilType ElementType, CecilModule Module)
+        public CecilContainerTypeBase(IType ElementType, CecilModule Module)
             : base(Module)
         {
             this.ElementType = ElementType;
         }
 
-        public ICecilType ElementType { get; private set; }
+        public IType ElementType { get; private set; }
 
         public override IEnumerable<IGenericParameter> GenericParameters
         {

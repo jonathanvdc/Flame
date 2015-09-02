@@ -14,7 +14,7 @@ namespace Flame.Cecil
             : this(Module.ConvertStrict(ArrayType.ElementType), ArrayType.Rank, Module)
         {
         }
-        public CecilArrayType(ICecilType ElementType, int ArrayRank, CecilModule Module)
+        public CecilArrayType(IType ElementType, int ArrayRank, CecilModule Module)
             : base(ElementType, Module)
         {
             this.ArrayRank = ArrayRank;
