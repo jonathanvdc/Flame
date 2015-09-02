@@ -16,8 +16,14 @@ namespace Flame.DSharp.Build
 {
     public abstract class SyntaxMethodBase : CodeMember, IDSharpSyntaxMethod, ISyntaxNode
     {
-   		public const this();
-        public const this(set IType DeclaringType, set ICompilerLog Log);
+        public const this(set IType DeclaringType, set ICompilerLog Log)
+        {
+            this.genericParams = new Lazy<IGenericParameter[]>(CreateGenericParameters);
+            this.returnTypeVal = new Lazy<IType>(CreateReturnType);
+            this.parameterVals = new Lazy<IParameter[]>(CreateParameters);
+            this.baseMethodVals = new Lazy<IMethod[]>(CreateBaseMethods);
+            this.attributeVals = new Lazy<IAttribute[]>(CreateAttributes);
+        }
 
         public IType DeclaringType { const get; protected set; }
         public ICompilerLog Log { const get; protected set; }
@@ -29,13 +35,11 @@ namespace Flame.DSharp.Build
             return Syntax;
         }
 
-
 		public abstract const MethodSyntax GetMethodSyntax();
 
         public MethodSyntax Syntax { const get return GetMethodSyntax(); }
         public abstract ISyntaxState GetSyntaxState();
         public abstract ISyntaxState GetDeclaringSyntaxState();
-        public abstract [IType] GetGenericArguments();
 
         #endregion
 
@@ -83,7 +87,7 @@ namespace Flame.DSharp.Build
 	            }
 				if (!hasBaseCtor && !this.IsStatic)
 				{
-					blockStatements.Add(DSharpTypeExtensions.CreateBaseConstructorCall(state));
+					blockStatements.Add(DSharpTypeExtensions.CreateBaseConstructorCall(state, this));
 				}
 			}
 
@@ -117,33 +121,28 @@ namespace Flame.DSharp.Build
             return Syntax.Contract.CreateContractBody(new BlockStatement(blockStatements.ToArray()), state);
         }
 
-        private IType returnTypeVal;
+        private Lazy<IType> returnTypeVal;
         public IType ReturnType
         {
-            const get
-            {
-                if (returnTypeVal == null)
-                {
-                    returnTypeVal = Syntax.Signature.TypeSyntax.CreateVerifiedType(GetSyntaxState());
-                }
-                return returnTypeVal;
-            }
+            const get { return returnTypeVal.Value; }
+        }
+        private IType CreateReturnType()
+        {
+            return Syntax.Signature.TypeSyntax.CreateVerifiedType(GetSyntaxState());
         }
 
-        private IParameter[] parameterVals;
-        public const IParameter[] GetParameters()
+        public [IParameter] Parameters { get { return parameterVals.Value; } }
+
+        private Lazy<IParameter[]> parameterVals;
+        public IParameter[] CreateParameters()
         {
-            if (parameterVals == null)
+            var state = GetSyntaxState();
+            var paramList = new List<IParameter>();
+            foreach (var item in Syntax.Parameters)
             {
-                var state = GetSyntaxState();
-                var paramList = new List<IParameter>();
-                foreach (var item in Syntax.Parameters)
-                {
-                	paramList.Add(item.CreateMember(state));
-                }
-                parameterVals = paramList.ToArray();
+            	paramList.Add(item.CreateMember(state));
             }
-            return parameterVals;
+            return paramList.ToArray();
         }
 
         public bool IsConstructor
@@ -204,191 +203,143 @@ namespace Flame.DSharp.Build
             const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-		private IAttribute[] attrCache;
-		public [IAttribute] Attributes { const get return GetAttributes(); }
+		private Lazy<IAttribute[]> attributeVals;
+		public [IAttribute] Attributes { get { return attributeVals.Value; } }
 
-        public const [IAttribute] GetAttributes()
+        protected virtual const IAttribute[] CreateAttributes()
         {
-        	if (attrCache == null)
-        	{
-	            var state = GetSyntaxState();
+            var state = GetSyntaxState();
 
-	            var modifierAttrs = Syntax.Signature.ModifierTokens.GetModifiers();
-	            var extraAttrs = new List<IAttribute>();
-	            // Singleton constructor handling
-	            bool singletonCtor = DeclaringType.IsSingleton && this.IsConstructor;
-	            if (!modifierAttrs.HasAccessAttribute && !singletonCtor)
-	            {
-	                extraAttrs.Add(new AccessAttribute(AccessModifier.Public));
-	            }
-	            else if (singletonCtor)
-	            {
-	            	AccessModifier accessMod;
-	            	if (DeclaringType.IsVirtual || DeclaringType.IsAbstract)
-	            	{
-	            		accessMod = AccessModifier.Protected;
-	            	}
-	            	else
-	            	{
-	            		accessMod = AccessModifier.Private;
-	            	}
-	            	int i = 0;
-	            	while (i < extraAttrs.Count)
-	            	{
-	            		if (extraAttrs[i] is AccessAttribute)
-	            	  	{
-	            	  		var providedAccess = ((AccessAttribute)extraAttrs[i]).Access;
-	            	  		if (providedAccess != accessMod)
-	            	  		{
-	            	  			state.Log.LogWarning(new LogEntry("Invalid access modifier", "Invalid explicit access modifier at '" + this.GetHeaderString() + "' in singleton '" + DeclaringType.FullName + "': expected '" + accessMod + "', got '" + providedAccess + "'"));
-	            	  		}
-	            	  		extraAttrs.RemoveAt(i);
-	            		}
-	            		else
-	            		{
-	            			i++;
-	            		}
-	            	}
-	            	extraAttrs.Add(new AccessAttribute(accessMod));
-	            }
+            var modifierAttrs = Syntax.Signature.ModifierTokens.GetModifiers();
+            var extraAttrs = new List<IAttribute>();
+            // Singleton constructor handling
+            bool singletonCtor = DeclaringType.IsSingleton && this.IsConstructor;
+            if (!modifierAttrs.HasAccessAttribute && !singletonCtor)
+            {
+                extraAttrs.Add(new AccessAttribute(AccessModifier.Public));
+            }
+            else if (singletonCtor)
+            {
+            	AccessModifier accessMod;
+            	if (DeclaringType.IsVirtual || DeclaringType.IsAbstract)
+            	{
+            		accessMod = AccessModifier.Protected;
+            	}
+            	else
+            	{
+            		accessMod = AccessModifier.Private;
+            	}
+            	int i = 0;
+            	while (i < extraAttrs.Count)
+            	{
+            		if (extraAttrs[i] is AccessAttribute)
+            	  	{
+            	  		var providedAccess = ((AccessAttribute)extraAttrs[i]).Access;
+            	  		if (providedAccess != accessMod)
+            	  		{
+            	  			state.Log.LogWarning(new LogEntry("Invalid access modifier", "Invalid explicit access modifier at '" + this.GetHeaderString() + "' in singleton '" + DeclaringType.FullName + "': expected '" + accessMod + "', got '" + providedAccess + "'"));
+            	  		}
+            	  		extraAttrs.RemoveAt(i);
+            		}
+            		else
+            		{
+            			i++;
+            		}
+            	}
+            	extraAttrs.Add(new AccessAttribute(accessMod));
+            }
 
-	            foreach (var item in modifierAttrs)
-		            extraAttrs.Add(item);
-		        foreach (var item in Syntax.Signature.Attributes)
-		        	extraAttrs.Add(item.CreateAttribute(state, this));
+            foreach (var item in modifierAttrs)
+	            extraAttrs.Add(item);
+	        foreach (var item in Syntax.Signature.Attributes)
+	        	extraAttrs.Add(item.CreateAttribute(state, this));
 
-		        if (Syntax.Signature.IsOperator)
-		        {
-		        	string opName = Syntax.Signature.NameToken.TokenValue;
-		        	if (opName.Equals("cast"))
-		        	{
-		        		extraAttrs.Add(PrimitiveAttributes.CastAttribute);
-		        	}
-		        	else
-		        	{
-		        		var op = Operator.GetOperator(Syntax.Signature.NameToken.TokenValue);
-		        		if (!op.IsDefined)
-		        		{
-		        			state.Log.LogError(new LogEntry("Unknown operator overload", "Overloaded operator '" + opName + "' in '" + this.FullName + "' is not a known operator."));
-		        		}
-		        		extraAttrs.Add(new OperatorAttribute(op));
-		        	}
-		        }
+	        if (Syntax.Signature.IsOperator)
+	        {
+	        	string opName = Syntax.Signature.NameToken.TokenValue;
+	        	if (opName.Equals("cast"))
+	        	{
+	        		extraAttrs.Add(PrimitiveAttributes.CastAttribute);
+	        	}
+	        	else
+	        	{
+	        		var op = Operator.GetOperator(Syntax.Signature.NameToken.TokenValue);
+	        		if (!op.IsDefined)
+	        		{
+	        			state.Log.LogError(new LogEntry("Unknown operator overload", "Overloaded operator '" + opName + "' in '" + this.FullName + "' is not a known operator."));
+	        		}
+	        		extraAttrs.Add(new OperatorAttribute(op));
+	        	}
+	        }
 
-		       	extraAttrs.AddRange(Syntax.GetDescriptionAttributes(GetDeclaringSyntaxState()));
+	       	extraAttrs.AddRange(Syntax.GetDescriptionAttributes(GetDeclaringSyntaxState()));
 
-	            attrCache = extraAttrs.ToArray();
-	    	}
-	    	return ([IAttribute])attrCache;
+            return extraAttrs.ToArray();
         }
 
         #endregion
 
         #region Base Methods
 
-        private IMethod[] baseMethodCache;
-        public IMethod[] BaseMethods { const get return GetBaseMethods(); }
+        private Lazy<IMethod[]> baseMethodVals;
+        public [IMethod] BaseMethods { const get return baseMethodVals.Value; }
 
-        public virtual IMethod[] GetBaseMethods()
+        protected virtual IMethod[] CreateBaseMethods()
         {
-        	if (baseMethodCache == null)
-        	{
-                if (IsConstructor) // Constructors can't have base methods.
-                                   // (base method syntax has a different meaning for them)
-                {
-                    baseMethodCache = new IMethod[0];
-                    return baseMethodCache;
-                }
-
-	        	var state = GetSyntaxState();
-	        	var baseMethods = new List<IMethod>();
-	        	var paramTypes = this.GetParameters().GetTypes();
-	        	foreach (var item in Syntax.ImplementedMethods)
-	            {
-	                var member = Enumerable.OfType<IMethod>(item.GetAccessedMembers(state)).GetMethod(this.IsStatic, this.ReturnType, paramTypes);
-	                if (member == null)
-	                {
-	                	state.Log.LogError(new LogEntry("Base method resolution error", "Could not resolve base method '" + item.GetCode().Trim().ToString() + "'.", item.GetSourceLocation()));
-	                }
-	                baseMethods.Add(member);
-	            }
-	            if (baseMethods.Count == 0)
-	            {
-	            	foreach (var item in DeclaringType.GetAllBaseTypes())
-	            	{
-	            		var match = item.GetMethods().GetMethod(this.Name, this.IsStatic, this.ReturnType, paramTypes);
-	            		if (match != null)
-	            		if (match.IsVirtual)
-	            		if (!baseMethods.Contains(match))
-	            		{
-	            			baseMethods.Add(match);
-	            		}
-	            	}
-	            	if (baseMethods.Count == 0 && Syntax.Signature.ModifierTokens.IsOverride)
-	            	{
-	            		state.Log.LogError(new LogEntry("Base method missing",
-                            "Override method '" + FullName + "' could not find any suitable base methods to override.",
-                            Location));
-	            	}
-	            }
-	            baseMethodCache = baseMethods.ToArray();
+            if (IsConstructor) // Constructors can't have base methods.
+                               // (base method syntax has a different meaning for them)
+            {
+                return new IMethod[0];
             }
-            return baseMethodCache;
+
+        	var state = GetSyntaxState();
+        	var baseMethods = new List<IMethod>();
+        	var paramTypes = Enumerable.ToArray<IType>(this.Parameters.GetTypes());
+        	foreach (var item in Syntax.ImplementedMethods)
+            {
+                var member = Enumerable.OfType<IMethod>(item.GetAccessedMembers(state)).GetMethod(this.IsStatic, this.ReturnType, paramTypes);
+                if (member == null)
+                {
+                	state.Log.LogError(new LogEntry("Base method resolution error", "Could not resolve base method '" + item.GetCode().Trim().ToString() + "'.", item.GetSourceLocation()));
+                }
+                baseMethods.Add(member);
+            }
+            if (baseMethods.Count == 0)
+            {
+            	foreach (var item in DeclaringType.GetAllBaseTypes())
+            	{
+            		var match = item.GetMethods().GetMethod(this.Name, this.IsStatic, this.ReturnType, paramTypes);
+            		if (match != null)
+            		if (match.IsVirtual)
+            		if (!baseMethods.Contains(match))
+            		{
+            			baseMethods.Add(match);
+            		}
+            	}
+            	if (baseMethods.Count == 0 && Syntax.Signature.ModifierTokens.IsOverride)
+            	{
+            		state.Log.LogError(new LogEntry("Base method missing",
+                        "Override method '" + FullName + "' could not find any suitable base methods to override.",
+                        Location));
+            	}
+            }
+            return baseMethods.ToArray();
         }
 
         #endregion
 
         #region Generics
 
-        public virtual [IGenericParameter] GetGenericParameters()
+        private Lazy<IGenericParameter[]> genericParams;
+        public [IGenericParameter] GenericParameters { get { return genericParams.Value; } }
+
+        protected virtual IGenericParameter[] CreateGenericParameters()
         {
-            return DSharpTypeExtensions.CreateConstrainedGenericParameters(GetDeclaringSyntaxState(), this, Syntax.Signature.GenericDeclarations, Syntax.GenericConstraints);
-        }
-
-        public virtual IMethod MakeGenericMethod([IType] TypeArguments)
-        {
-            var state = GetSyntaxState();
-            return new ClosedGenericMethod(Syntax, DeclaringType, state.Binder,
-                state.Log, state.MemberProvider, state.TypeNamer, TypeArguments);
-        }
-
-        public virtual IMethod GetGenericDeclaration()
-        {
-            var state = GetSyntaxState();
-            return new OpenGenericMethod(Syntax, DeclaringType, state.Binder,
-                state.Log, state.MemberProvider, state.TypeNamer);
-        }
-
-        #endregion
-
-        #region Equality
-
-        public override int GetHashCode()
-        {
-            return Syntax.GetHashCode();
-        }
-
-        public override virtual bool Equals(object obj)
-        {
-            if (obj is OpenGenericMethod)
-            {
-            	var otherMethod = (SyntaxMethodBase)obj;
-                return (this is OpenGenericMethod) && this.Syntax.Equals(otherMethod.Syntax) && this.DeclaringType.Equals(otherMethod.DeclaringType);
-            }
-            else if (obj is SyntaxMethodBase)
-            {
-                var otherMethod = (SyntaxMethodBase)obj;
-                if (!this.Syntax.Equals(otherMethod.Syntax) || !this.DeclaringType.Equals(otherMethod.DeclaringType))
-                {
-                    return false;
-                }
-
-                var genArgs1 = Enumerable.ToArray<IType>(GetGenericArguments());
-                var genArgs2 = Enumerable.ToArray<IType>(otherMethod.GetGenericArguments());
-
-				return genArgs1.AreEqual(genArgs2);
-            }
-            return false;
+            return Enumerable.ToArray<IGenericParameter>(
+                       DSharpTypeExtensions.CreateConstrainedGenericParameters(
+                           GetDeclaringSyntaxState(), this,
+                           Syntax.Signature.GenericDeclarations,
+                           Syntax.GenericConstraints));
         }
 
         #endregion

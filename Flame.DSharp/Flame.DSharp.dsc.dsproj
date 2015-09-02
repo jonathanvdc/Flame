@@ -182,8 +182,6 @@
 			<Compile Include="Build\IDSharpSyntaxMethod.ds" />
 			<Compile Include="Build\SyntaxMethodBase.ds" />
 			<Compile Include="Build\SyntaxMethod.ds" />
-			<Compile Include="Build\OpenGenericMethod.ds" />
-			<Compile Include="Build\ClosedGenericMethod.ds" />
 			<Compile Include="Build\DSharpTypeExtensions.ds" />
 			<Compile Include="Build\SyntaxProperty.ds" />
 			<Compile Include="Build\SyntaxAccessor.ds" />
@@ -192,8 +190,6 @@
 			<Compile Include="Build\SyntaxTypeBase.ds" />
 			<Compile Include="Build\IDSharpSyntaxType.ds" />
 			<Compile Include="Build\SyntaxType.ds" />
-			<Compile Include="Build\OpenGenericType.ds" />
-			<Compile Include="Build\ClosedGenericType.ds" />
 			<Compile Include="Build\CompilationUnit.ds" />
 			<Compile Include="Build\SyntaxNamespace.ds" />
 			<Compile Include="Build\NamespaceCompilationUnit.ds" />

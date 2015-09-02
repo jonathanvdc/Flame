@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
@@ -17,13 +18,12 @@ namespace Flame.DSharp.Build
 {
     public abstract class SyntaxTypeBase : CodeMember, IDSharpSyntaxType, IInvariantType
     {
-    	public const this()
-    	{
-    		this.AllowMemberCaching = true;
-    	}
         public const this(set INamespace DeclaringNamespace)
         {
-            this.AllowMemberCaching = true;
+            this.typeMemberCache = new ConcurrentDictionary<string, object>();
+            this.attrCache = new Lazy<IAttribute[]>(CreateAttributes);
+            this.methodCache = new Lazy<IMethod[]>(CreateMethods);
+            this.cachedNestedTypes = new Lazy<IType[]>(CreateNestedTypes);
         }
 
         public const ITypeDeclarationSyntax GetSyntax() : IDSharpSyntaxType.GetSyntax
@@ -111,92 +111,71 @@ namespace Flame.DSharp.Build
 			}
 		}
 
-		private IAttribute[] attrCache;
-		public [IAttribute] Attributes { const get return GetAttributes(); }
+		private Lazy<IAttribute[]> attrCache;
+		public [IAttribute] Attributes { const get return attrCache.Value; }
 
-        public virtual [IAttribute] GetAttributes()
+        protected virtual IAttribute[] CreateAttributes()
         {
-        	if (attrCache == null)
-        	{
-	            var state = GetSyntaxState();
-	            var modifiers = Syntax.Signature.ModifierTokens;
-	            List<IAttribute> attrs = new List<IAttribute>();
-	            attrs.Add(new AncestryGraphAttribute(RetrieveAncestryGraph()));
-	            attrs.AddRange(modifiers.GetModifiers());
-	            if (IsExtensionType)
-	            {
-	            	attrs.Add(PrimitiveAttributes.ExtensionAttribute);
-	            	if (modifiers.IsStatic)
-	            	{
-	            		attrs.Add(PrimitiveAttributes.StaticTypeAttribute);
-	            	}
-	            }
-	            else if (modifiers.IsStatic)
-	            {
-	            	attrs.Add(new SingletonAttribute("Instance"));
-	            }
-
-	            foreach (var item in Syntax.Signature.Attributes)
-	            {
-	            	attrs.Add(item.CreateAttribute(state, this));
-	            }
-
-	            foreach (var related in AssociatedTypes)
-	            {
-	            	attrs.Add(new AssociatedTypeAttribute(related));
-	            }
-
-	            attrs.AddRange(Syntax.Signature.GetDescriptionAttributes(GetNamespaceSyntaxState()));
-
-	            if (this.AllowMemberCaching)
-	            	this.attrCache = attrs.ToArray();
-	            return attrs;
+            var state = GetSyntaxState();
+            var modifiers = Syntax.Signature.ModifierTokens;
+            var attrs = new List<IAttribute>();
+            attrs.Add(new AncestryGraphAttribute(RetrieveAncestryGraph()));
+            attrs.AddRange(modifiers.GetModifiers());
+            if (IsExtensionType)
+            {
+            	attrs.Add(PrimitiveAttributes.ExtensionAttribute);
+            	if (modifiers.IsStatic)
+            	{
+            		attrs.Add(PrimitiveAttributes.StaticTypeAttribute);
+            	}
             }
-            return this.attrCache;
+            else if (modifiers.IsStatic)
+            {
+            	attrs.Add(new SingletonAttribute("Instance"));
+            }
+
+            foreach (var item in Syntax.Signature.Attributes)
+            {
+            	attrs.Add(item.CreateAttribute(state, this));
+            }
+
+            foreach (var related in AssociatedTypes)
+            {
+            	attrs.Add(new AssociatedTypeAttribute(related));
+            }
+
+            attrs.AddRange(Syntax.Signature.GetDescriptionAttributes(GetNamespaceSyntaxState()));
+
+            return attrs.ToArray();
         }
 
         #endregion
 
         #region INamespace
 
-		private IType[] nestedTypeCache;
-		public IType[] NestedTypes { const get return GetTypes(); }
+		private Lazy<IType[]> cachedNestedTypes;
+		public [IType] Types { const get return cachedNestedTypes.Value; }
 
-        public const IType[] GetTypes()
-        {
-        	if (nestedTypeCache == null)
-        	{
-	            var state = GetSyntaxState();
-	            var types = new List<IType>();
-	            foreach (var item in Syntax.Types)
-	            {
-	            	types.Add(item.CreateMember(state));
-	            }
-	            foreach (var item in AssociatedTypes)
-	            if (item.DeclaringNamespace is IType)
-	            if (((IType)item.DeclaringNamespace).GetGenericDeclaration().Equals(this))
-	            {
-	            	types.Add(item);
-	            }
-	            nestedTypeCache = types.ToArray();
-            }
-            return nestedTypeCache;
-        }
-
-		public [INamespaceBranch] NestedNamespaces { const get return GetNamespaces(); }
-        public const [INamespaceBranch] GetNamespaces()
+        protected virtual IType[] CreateNestedTypes()
         {
             var state = GetSyntaxState();
-            List<INamespaceBranch> branches = new List<INamespaceBranch>();
+            var types = new List<IType>();
             foreach (var item in Syntax.Types)
             {
-            	var member = item.CreateMember(state);
-            	if (member is INamespaceBranch)
-            	{
-            		branches.Add(member);
-            	}
+            	types.Add(item.CreateMember(state));
             }
-            return branches;
+            foreach (var item in AssociatedTypes)
+                if (item.DeclaringNamespace is IType &&
+                    this == ((IType)item.DeclaringNamespace).GetGenericDeclaration())
+            {
+            	types.Add(item);
+            }
+            return types.ToArray();
+        }
+
+        public [INamespaceBranch] Namespaces
+        {
+            get { return Enumerable.OfType<INamespaceBranch>(Types); }
         }
 
         public IAssembly DeclaringAssembly
@@ -214,109 +193,65 @@ namespace Flame.DSharp.Build
         public IType[] AssociatedTypes
         {
         	const get
-        	{
-        		if (AllowMemberCaching && typeMemberCache.ContainsKey("AssociatedTypes"))
-        		{
-        			return (IType[])typeMemberCache["AssociatedTypes"];
-        		}
-        		else
-        		{
-        			var related = new List<IType>();
-        			if (HasAssociatedSingleton)
-        			{
-        				related.Add(new AssociatedSingletonSyntaxType(GetSyntaxState(), Syntax));
-        			}
-        			var relatedArr = related.ToArray();
+            {
+                return (IType[])typeMemberCache.GetOrAdd("AssociatedTypes", createAssociatedTypesProxy);
+            }
+        }
 
-        			if (AllowMemberCaching)
-        				typeMemberCache["AssociatedTypes"] = relatedArr;
+        protected virtual IType[] CreateAssociatedTypes()
+        {
+            var related = new List<IType>();
+            if (HasAssociatedSingleton)
+            {
+                related.Add(new AssociatedSingletonSyntaxType(GetSyntaxState(), Syntax));
+            }
+            return related.ToArray();
+        }
 
-        			return relatedArr;
-        		}
-        	}
+        private object createAssociatedTypesProxy(string Key)
+        {
+            return CreateAssociatedTypes();
         }
 
         #endregion
 
         #region IType
 
-        private Dictionary<string, object> typeMemberCache;
+        private ConcurrentDictionary<string, object> typeMemberCache;
 
-        protected bool AllowMemberCaching
-        {
-            const get
-            {
-                return typeMemberCache != null;
-            }
-            set
-            {
-                if (!value)
-                {
-                    typeMemberCache = (Dictionary<string, object>)null;
-                    attrCache = null;
-                }
-                else if (typeMemberCache == null)
-                {
-                    typeMemberCache = new Dictionary<string, object>();
-                }
-            }
-        }
-
-        protected T[] CreateTypeMembers<T>([IMemberSyntax<T>] Syntax, string CacheKey) where T : ITypeMember
-        {
-            if (AllowMemberCaching && typeMemberCache.ContainsKey(CacheKey))
-            {
-                return (T[])typeMemberCache[CacheKey];
-            }
-            else
-            {
-                var value = CreateTypeMembers<T>(Syntax);
-                if (AllowMemberCaching)
-                {
-                    typeMemberCache[CacheKey] = value;
-                }
-                return value;
-            }
-        }
-        protected T[] CreateTypeMembers<T>([IMemberSyntax<T>] Syntax)
+        protected T[] CreateTypeMembers<T>([IMemberSyntax<T>] Syntax, string CacheKey)
             where T : ITypeMember
         {
-            var state = GetSyntaxState();
-            List<T> members = new List<T>();
+            return (T[])typeMemberCache.GetOrAdd(CacheKey, new CreateTypeMembersClosure<T>(this, Syntax).Invoke);
+        }
+
+        public T[] CreateTypeMembers<T>([IMemberSyntax<T>] Syntax)
+            where T : ITypeMember
+        {
+            var state = this.GetSyntaxState();
+            var members = new List<T>();
             bool isStaticType = this.IsSingleton || this.IsExtensionType;
             foreach (var item in Syntax)
                 if (isStaticType || !item.IsSingletonMember)
             {
-            	members.Add(item.CreateMember(state));
+                members.Add(item.CreateMember(state));
             }
             return members.ToArray();
         }
 
-        public virtual ITypeMember[] GetMembers()
-        {
-            return CreateTypeMembers<ITypeMember>(Syntax.GetMembersOfType<ITypeMember>());
-        }
-
         protected FieldProperty GetSingletonInstanceProperty()
         {
-        	if (AllowMemberCaching && typeMemberCache.ContainsKey("Instance"))
-        	{
-        		return (FieldProperty)typeMemberCache["Instance"];
-        	}
-        	else
-        	{
-        		var instProp = SingletonInstanceAccessor.CreateAccessorProperty(GetSyntaxState());
-        		if (AllowMemberCaching)
-        		{
-        			typeMemberCache["Instance"] = instProp;
-        		}
-        		return instProp;
-        	}
+            return (FieldProperty)typeMemberCache.GetOrAdd("Instance", createSingletonInstanceProperty);
         }
 
-        protected IEnumerable<FieldProperty> GetFieldProperties()
+        private object createSingletonInstanceProperty(string Key)
         {
-        	var definedFieldProps = (IEnumerable<FieldProperty>)CreateTypeMembers<FieldProperty>(Syntax.FieldProperties, "FieldProperties");
+            return SingletonInstanceAccessor.CreateAccessorProperty(GetSyntaxState());
+        }
+
+        protected [FieldProperty] GetFieldProperties()
+        {
+        	var definedFieldProps = CreateTypeMembers<FieldProperty>(Syntax.FieldProperties, "FieldProperties");
         	if (this.IsSingleton)
         	{
         		return Enumerable.Concat<FieldProperty>(definedFieldProps, new FieldProperty[] { GetSingletonInstanceProperty() });
@@ -349,81 +284,70 @@ namespace Flame.DSharp.Build
     		return bodyMethod;
         }
 
-		private IMethod[] methodCache;
-        public virtual IMethod[] GetMethods()
+		private Lazy<IMethod[]> methodCache;
+        public [IMethod] Methods { const get return methodCache.Value; }
+
+        protected virtual IMethod[] CreateMethods()
         {
-        	if (methodCache == null)
+            bool hasInstanceCtors = false;
+        	var methods = new List<IMethod>();
+        	foreach (var item in CreateTypeMembers<IMethod>(Syntax.Methods))
         	{
-	        	var methods = new List<IMethod>();
-	        	foreach (var item in CreateTypeMembers<IMethod>(Syntax.Methods, "Methods"))
-	        	{
-	        		if (!item.IsConstructor)
-	        			methods.Add(item);
-	        	}
-
-	        	var state = GetSyntaxState();
-
-	        	methods.AddRange(DSharpTypeExtensions.GenerateOperators(methods, state));
-
-	            methodCache = methods.ToArray();
-            }
-            return methodCache;
-        }
-        public IMethod[] Methods { const get return GetMethods(); }
-
-        public virtual IProperty[] GetProperties()
-        {
-        	var properties = new List<IProperty>(CreateTypeMembers<IProperty>(Syntax.Properties, "Properties"));
-        	foreach (var item in GetFieldProperties())
-        	{
-        		properties.Add(item.Property);
+                methods.Add(item);
+                if (item.IsConstructor && !item.IsStatic)
+                {
+                    hasInstanceCtors = true;
+                }
         	}
-        	return properties.ToArray();
-        }
-        public IProperty[] Properties { const get return GetProperties(); }
 
-        public virtual IField[] GetFields()
-        {
-            var normalTypeMembers = CreateTypeMembers<IField>(Syntax.Fields, "Fields");
-            if (!this.IsInterface)
+        	var state = GetSyntaxState();
+
+            if (!hasInstanceCtors && !this.IsInterface && !this.IsValueType &&
+                !this.IsEnum && (this.IsSingleton || !this.HasStaticModifier))
             {
-            	var allFields = new List<IField>(normalTypeMembers);
-            	foreach (var item in GetFieldProperties())
-            	{
-            		allFields.Add(item.Field);
-            	}
-            	return allFields.ToArray();
+                // Create a default constructor if necessary.
+                methods.Add(DSharpTypeExtensions.CreateParameterlessConstructor(state));
             }
-            else
-            {
-                return normalTypeMembers;
-            }
-        }
-        public IField[] Fields { const get return GetFields(); }
 
-        public virtual IMethod[] GetConstructors()
-        {
-        	bool hasInstanceCtors = false;
-            var methods = new List<IMethod>();
-        	foreach (var item in CreateTypeMembers<IMethod>(Syntax.Methods, "Methods"))
-        	{
-        		if (item.IsConstructor)
-        		{
-        			methods.Add(item);
-        			if (!item.IsStatic)
-        			{
-        				hasInstanceCtors = true;
-        			}
-        		}
-        	}
-        	if (!hasInstanceCtors && !this.IsInterface && !this.IsValueType && !this.IsEnum && (this.IsSingleton || !this.HasStaticModifier))
-        	{
-        		var defaultCtor = DSharpTypeExtensions.CreateParameterlessConstructor(GetSyntaxState());
-            	methods.Add(defaultCtor);
-        	}
+            // Generate operators if necessary.
+        	methods.AddRange(DSharpTypeExtensions.GenerateOperators(methods, state));
+
             return methods.ToArray();
         }
-        public IMethod[] Constructors { const get return GetConstructors(); }
+
+        public [IProperty] Properties
+        {
+            const get
+            {
+                var properties = new List<IProperty>(CreateTypeMembers<IProperty>(Syntax.Properties, "Properties"));
+                foreach (var item in GetFieldProperties())
+                {
+                    properties.Add(item.Property);
+                }
+                return properties.ToArray();
+            }
+        }
+
+        public [IField] Fields
+        {
+            const get
+            {
+                var normalTypeMembers = CreateTypeMembers<IField>(Syntax.Fields, "Fields");
+                if (!this.IsInterface)
+                {
+                    var allFields = new List<IField>(normalTypeMembers);
+                    foreach (var item in GetFieldProperties())
+                    {
+                        allFields.Add(item.Field);
+                    }
+                    return allFields;
+                }
+                else
+                {
+                    return normalTypeMembers;
+                }
+            }
+        }
 
         public virtual [IInvariant] GetInvariants()
         {
@@ -436,14 +360,10 @@ namespace Flame.DSharp.Build
             return null;
         }
 
-        public virtual IType[] GetBaseTypes()
+        protected virtual IType[] CreateBaseTypes()
         {
-            if (AllowMemberCaching && typeMemberCache.ContainsKey("BaseTypes"))
-            {
-                return (IType[])typeMemberCache["BaseTypes"];
-            }
             var state = GetSyntaxState();
-            List<IType> bTypes = new List<IType>();
+            var bTypes = new List<IType>();
             bool allInterfaces = true;
             foreach (var item in Syntax.Signature.BaseTypes)
             {
@@ -462,116 +382,48 @@ namespace Flame.DSharp.Build
             		bTypes.Add(rootType);
             }
 
-            var baseTypes = bTypes.ToArray();
-
-            if (AllowMemberCaching)
-            {
-                typeMemberCache["BaseTypes"] = baseTypes;
-            }
-            return baseTypes;
+            return bTypes.ToArray();
         }
-        public IType[] BaseTypes { const get return GetBaseTypes(); }
 
-        #region Container Type Functionality
-
-        public bool IsContainerType
+        private object createBaseTypesProxy(string Key)
         {
-            const get { return false; }
+            return CreateBaseTypes();
         }
 
-        public IContainerType AsContainerType()
+        public [IType] BaseTypes
         {
-            return null;
+            const get return (IType[])typeMemberCache.GetOrAdd("BaseTypes", createBaseTypesProxy);
         }
-
-        public IArrayType MakeArrayType(int Rank)
-        {
-            return new DescribedArrayType(this, Rank);
-        }
-
-        public IPointerType MakePointerType(PointerKind PointerKind)
-        {
-            return new DescribedPointerType(this, PointerKind);
-        }
-
-        public IVectorType MakeVectorType(int[] Dimensions)
-        {
-            return new DescribedVectorType(this, Dimensions);
-        }
-
-        #endregion
 
         #endregion
 
         #region Generics
 
-        public virtual IType MakeGenericType([IType] TypeArguments)
+		public [IGenericParameter] GenericParameters
         {
-            var state = GetSyntaxState();
-            return new ClosedGenericType(Syntax, DeclaringNamespace, state.Binder,
-                state.Log, state.MemberProvider, state.TypeNamer, TypeArguments);
+            const get
+            {
+                return ([IGenericParameter])typeMemberCache.GetOrAdd("GenericParameters", createGenericParametersProxy);
+            }
         }
-
-        public virtual IType GetGenericDeclaration()
-        {
-            var state = GetNamespaceSyntaxState();
-            return new OpenGenericType(Syntax, DeclaringNamespace, state.Binder,
-                state.Log, state.MemberProvider, state.TypeNamer);
-        }
-
-		public [IGenericParameter] GenericParameters { const get return GetGenericParameters(); }
 
 		protected virtual [IGenericParameter] CreateGenericParameters()
 		{
 			return DSharpTypeExtensions.CreateConstrainedGenericParameters(GetNamespaceSyntaxState(), this, Syntax.Signature.GenericDeclarations, Syntax.Signature.GenericConstraints);
 		}
 
-        public virtual [IGenericParameter] GetGenericParameters()
+        private object createGenericParametersProxy(string Key)
         {
-            if (AllowMemberCaching && typeMemberCache.ContainsKey("GenericParameters"))
-            {
-                return ([IGenericParameter])typeMemberCache["GenericParameters"];
-            }
-
-            var genericParams = CreateGenericParameters();
-
-        	if (AllowMemberCaching)
-        	{
-            	typeMemberCache["GenericParameters"] = genericParams;
-        	}
-
-        	return genericParams;
+            return CreateGenericParameters();
         }
-
-        public abstract [IType] GetGenericArguments();
 
         #endregion
 
-        #region Equality
+        #region Ancestry Rules
 
-        public override int GetHashCode()
+        public IAncestryRules AncestryRules
         {
-            return Syntax.GetHashCode();
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is OpenGenericType)
-            {
-                return (this is OpenGenericType) && this.Syntax.Equals(((SyntaxTypeBase)obj).Syntax);
-            }
-            else if (obj is SyntaxTypeBase)
-            {
-                bool syntaxSame = this.Syntax.Equals(((SyntaxTypeBase)obj).Syntax);
-                if (syntaxSame)
-                {
-                    var genArgs1 = Enumerable.ToArray<IType>(GetGenericArguments());
-                    var genArgs2 = Enumerable.ToArray<IType>(((SyntaxTypeBase)obj).GetGenericArguments());
-
-					return genArgs1.AreEqual(genArgs2);
-                }
-            }
-            return false;
+            const get { return DefinitionAncestryRules; }
         }
 
         #endregion
@@ -607,5 +459,19 @@ namespace Flame.DSharp.Build
         }
 
         #endregion
+    }
+
+    assembly class CreateTypeMembersClosure<T>
+        where T : ITypeMember
+    {
+        public const this(set SyntaxTypeBase Type, set [IMemberSyntax<T>] Syntax);
+
+        public SyntaxTypeBase Type { const get; private set; }
+        public [IMemberSyntax<T>] Syntax { const get; private set; }
+
+        public object Invoke(string Key)
+        {
+            return Type.CreateTypeMembers<T>(Syntax);
+        }
     }
 }

@@ -63,6 +63,8 @@ namespace Flame.DSharp.Build
             const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
+        public [IAttribute] Attributes { get { return GetAttributes(); }}
+
 		private IAttribute[] cachedAttrs;
         public const [IAttribute] GetAttributes()
         {

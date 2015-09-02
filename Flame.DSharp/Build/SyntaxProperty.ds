@@ -18,7 +18,10 @@ namespace Flame.DSharp.Build
     public class SyntaxProperty : CodeMember, IProperty, ISyntaxNode, ISourceMember
     {
         public const this(set PropertySyntax Syntax, set IType DeclaringType, set IBinder Binder,
-            set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer);
+            set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer)
+        {
+            this.indexerParams = new Lazy<IParameter[]>(CreateIndexerParameters);
+        }
 
         public PropertySyntax Syntax { const get; private set; }
         public IType DeclaringType { const get; private set; }
@@ -31,8 +34,7 @@ namespace Flame.DSharp.Build
 
         public virtual const ISyntaxState GetSyntaxState()
         {
-        	var descMethod = new DescribedMethod();
-			descMethod.DeclaringType = DeclaringType;
+        	var descMethod = new DescribedMethod("", DeclaringType);
             return new SyntaxState(descMethod, Binder, Log, MemberProvider, TypeNamer);
         }
 
@@ -55,7 +57,7 @@ namespace Flame.DSharp.Build
         }
 
 		private IAccessor[] accessorVals;
-		public IAccessor[] Accessors { const get return GetAccessors(); }
+		public [IAccessor] Accessors { const get return GetAccessors(); }
 
         public const IAccessor[] GetAccessors()
         {
@@ -71,21 +73,17 @@ namespace Flame.DSharp.Build
             return accessorVals;
         }
 
-		private IParameter[] indexerParams;
-		public IParameter[] IndexerParameters { const get return GetIndexerParameters(); }
+		private Lazy<IParameter[]> indexerParams;
+		public [IParameter] IndexerParameters { const get return indexerParams.Value; }
 
-        public const IParameter[] GetIndexerParameters()
+        private IParameter[] CreateIndexerParameters()
         {
-        	if (indexerParams == null)
-        	{
-        		var indexParams = new List<IParameter>();
-        		foreach (var item in Syntax.IndexerParameters)
-        		{
-        			indexParams.Add(item.CreateMember(GetSyntaxState()));
-        		}
-        		indexerParams = indexParams.ToArray();
-        	}
-        	return indexerParams;
+    		var indexParams = new List<IParameter>();
+    		foreach (var item in Syntax.IndexerParameters)
+    		{
+    			indexParams.Add(item.CreateMember(GetSyntaxState()));
+    		}
+    		return indexParams.ToArray();
         }
 
         public bool IsStatic
@@ -119,7 +117,7 @@ namespace Flame.DSharp.Build
 	                var member = item.GetAccessedMembers(state).First();
 	                extraAttributes.Add(new OverrideAttribute(member.Name, member.DeclaringType.FullName));
 	            }*/
-	            if (Syntax.Signature.NameToken.Type == TokenType.ThisKeyword && GetIndexerParameters().Length > 0)
+	            if (Syntax.Signature.NameToken.Type == TokenType.ThisKeyword && indexerParams.Value.Length > 0)
 	            {
 	                extraAttributes.Add(PrimitiveAttributes.IndexerAttribute);
 	            }
@@ -150,7 +148,7 @@ namespace Flame.DSharp.Build
         	{
 	        	var state = GetSyntaxState();
 	        	var baseMethods = new HashSet<IProperty>();
-	        	var paramTypes = this.IndexerParameters.GetTypes();
+	        	var paramTypes = Enumerable.ToArray<IType>(this.IndexerParameters.GetTypes());
 	        	foreach (var item in Syntax.ImplementedProperties)
 	            {
 	                var member = Enumerable.OfType<IProperty>(item.GetAccessedMembers(state)).GetProperty(this.IsStatic, this.PropertyType, paramTypes);
