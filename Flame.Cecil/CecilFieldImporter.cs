@@ -34,7 +34,7 @@ namespace Flame.Cecil
 
         protected override FieldReference ConvertInstanceGeneric(TypeReference DeclaringType, IField Member)
         {
-            var decl = ConvertDeclaration(Member);
+            var decl = ConvertDeclaration(Member.GetRecursiveGenericDeclaration());
             return Module.Module.Import(DeclaringType.ReferenceField(decl.Resolve()), DeclaringType);
         }
     }
