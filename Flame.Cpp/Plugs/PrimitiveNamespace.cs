@@ -25,16 +25,16 @@ namespace Flame.Cpp.Plugs
             get { return Name; }
         }
 
-        public virtual IEnumerable<IAttribute> GetAttributes()
+        public virtual IEnumerable<IAttribute> Attributes
         {
-            return Enumerable.Empty<IAttribute>();
+            get { return Enumerable.Empty<IAttribute>(); }
         }
 
         #region Types
 
-        public IType[] GetTypes()
+        public IEnumerable<IType> Types
         {
-            return types.ToArray();
+            get { return types; }
         }
 
         private List<IType> types;

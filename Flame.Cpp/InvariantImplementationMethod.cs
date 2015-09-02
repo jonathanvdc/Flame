@@ -18,22 +18,19 @@ namespace Flame.Cpp
         public TypeInvariants Invariants { get; private set; }
         public IType DeclaringType { get { return Invariants.DeclaringType; } }
 
-        public IMethod[] GetBaseMethods()
+        public IEnumerable<IMethod> BaseMethods
         {
-            return DeclaringType.BaseTypes
-                .Select(item => item.GetMethod(Name, IsStatic, ReturnType, GetParameters().GetTypes()))
-                .Where(item => item != null)
-                .ToArray();
+            get
+            {
+                return DeclaringType.BaseTypes
+                                    .Select(item => item.GetMethod(Name, IsStatic, ReturnType, Parameters.GetTypes().ToArray()))
+                                    .Where(item => item != null);
+            }
         }
 
-        public IMethod GetGenericDeclaration()
+        public IEnumerable<IParameter> Parameters
         {
-            return this;
-        }
-
-        public IParameter[] GetParameters()
-        {
-            return new IParameter[0];
+            get { return new IParameter[0]; }
         }
 
         public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
@@ -76,21 +73,24 @@ namespace Flame.Cpp
             return new DescriptionAttribute("remarks", "This method should not be called directly. It should only be called from '" + Invariants.CheckInvariantsMethod.Name + "'.");
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            var baseAttrs = new IAttribute[] 
+            get
             {
-                PrimitiveAttributes.Instance.ConstantAttribute,
-                CreateSummary(),
-                CreateRemarks()
-            };
-            if (DeclaringType.get_IsVirtual() || DeclaringType.get_IsInterface())
-            {
-                return baseAttrs.With(new AccessAttribute(AccessModifier.Protected)).With(PrimitiveAttributes.Instance.VirtualAttribute);
-            }
-            else
-            {
-                return baseAttrs.With(new AccessAttribute(AccessModifier.Private));
+                var baseAttrs = new IAttribute[] 
+                {
+                    PrimitiveAttributes.Instance.ConstantAttribute,
+                    CreateSummary(),
+                    CreateRemarks()
+                };
+                if (DeclaringType.get_IsVirtual() || DeclaringType.get_IsInterface())
+                {
+                    return baseAttrs.With(new AccessAttribute(AccessModifier.Protected)).With(PrimitiveAttributes.Instance.VirtualAttribute);
+                }
+                else
+                {
+                    return baseAttrs.With(new AccessAttribute(AccessModifier.Private));
+                }
             }
         }
 
@@ -99,14 +99,9 @@ namespace Flame.Cpp
             get { return "CheckInvariantsCore"; }
         }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return Enumerable.Empty<IType>();
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return Enumerable.Empty<IGenericParameter>();
+            get { return Enumerable.Empty<IGenericParameter>(); }
         }
 
         #region ICppMember Implementation
@@ -115,7 +110,7 @@ namespace Flame.Cpp
         {
             get
             {
-                return !this.get_IsVirtual() && GetBaseMethods().Length == 0;
+                return !this.get_IsVirtual() && !BaseMethods.Any();
             }
         }
 

@@ -15,19 +15,14 @@ namespace Flame.Cpp
 
         public IType DeclaringType { get; private set; }
 
-        public IMethod[] GetBaseMethods()
+        public IEnumerable<IMethod> BaseMethods
         {
-            return new IMethod[0];
+            get { return new IMethod[0]; }
         }
 
-        public IMethod GetGenericDeclaration()
+        public IEnumerable<IParameter> Parameters
         {
-            return this;
-        }
-
-        public IParameter[] GetParameters()
-        {
-            return new IParameter[0];
+            get { return new IParameter[0]; }
         }
 
         public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
@@ -38,11 +33,6 @@ namespace Flame.Cpp
         public bool IsConstructor
         {
             get { return true; }
-        }
-
-        public IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
-        {
-            return this;
         }
 
         public IType ReturnType
@@ -60,9 +50,9 @@ namespace Flame.Cpp
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return new IAttribute[] { new AccessAttribute(AccessModifier.Public), PrimitiveAttributes.Instance.ConstantAttribute };
+            get { return new IAttribute[] { new AccessAttribute(AccessModifier.Public), PrimitiveAttributes.Instance.ConstantAttribute }; }
         }
 
         public string Name
@@ -70,14 +60,9 @@ namespace Flame.Cpp
             get { return DeclaringType.Name; }
         }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return Enumerable.Empty<IType>();
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return Enumerable.Empty<IGenericParameter>();
+            get { return Enumerable.Empty<IGenericParameter>(); }
         }
     }
 }

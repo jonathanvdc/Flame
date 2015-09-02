@@ -359,7 +359,7 @@ namespace Flame.Cpp.Emit
                             }
                         }
                     }
-                    else if (declProp.get_IsIndexer() && Method.DeclaringType.IsForeign() && declProp.IndexerParameters.Length == 1)
+                    else if (declProp.get_IsIndexer() && Method.DeclaringType.IsForeign() && declProp.IndexerParameters.Count() == 1)
                     {
                         if (accessor.get_IsGetAccessor())
                         {
@@ -381,7 +381,7 @@ namespace Flame.Cpp.Emit
             return EmitInvocation(EmitMethod(ctor, null), Dimensions);
         }
 
-        public ICodeBlock EmitNewVector(IType ElementType, int[] Dimensions)
+        public ICodeBlock EmitNewVector(IType ElementType, IReadOnlyList<int> Dimensions)
         {
             throw new NotImplementedException();
         }

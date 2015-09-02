@@ -29,7 +29,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get { return this.PropertyType.GetDependencies().MergeDependencies(GetIndexerParameters().GetDependencies()).MergeDependencies(accessors.SelectMany((item) => item.Dependencies)); }
+            get { return this.PropertyType.GetDependencies().MergeDependencies(IndexerParameters.GetDependencies()).MergeDependencies(accessors.SelectMany((item) => item.Dependencies)); }
         }
 
         public CodeBuilder GetHeaderCode()
@@ -62,9 +62,9 @@ namespace Flame.Cpp
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Template.Attributes;
+            get { return Template.Attributes; }
         }
 
         public string Name
@@ -94,14 +94,14 @@ namespace Flame.Cpp
             return this;
         }
 
-        public IAccessor[] GetAccessors()
+        public IEnumerable<IAccessor> Accessors
         {
-            return accessors.ToArray();
+            get { return accessors; }
         }
 
-        public IParameter[] GetIndexerParameters()
+        public IEnumerable<IParameter> IndexerParameters
         {
-            return Template.IndexerParameters;
+            get { return Template.IndexerParameters; }
         }
 
         public IType PropertyType

@@ -574,7 +574,7 @@ namespace Flame.Cpp
             }
             if (Member is INamespace)
             {
-                if (((INamespace)Member).GetTypes().Any(ContainsTemplates)) return true;
+                if (((INamespace)Member).Types.Any(ContainsTemplates)) return true;
             }
             return false;
         }
@@ -586,7 +586,7 @@ namespace Flame.Cpp
         public static bool HasUniformAccess(this IProperty Property)
         {
             var propAccess = Property.get_Access();
-            return Property.GetAccessors().All(item => item.get_Access() == propAccess);
+            return Property.Accessors.All(item => item.get_Access() == propAccess);
         }
 
         #endregion

@@ -105,9 +105,9 @@ namespace Flame.Cpp
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Template.Attributes;
+            get { return Template.Attributes; }
         }
 
         public CodeBuilder GetDocumentationComments()
@@ -133,15 +133,12 @@ namespace Flame.Cpp
             }
         }
 
-        public IMethod[] GetBaseMethods()
+        public IEnumerable<IMethod> BaseMethods
         {
-            return Template.BaseMethods;
+            get { return Template.BaseMethods; }
         }
 
-        public IMethod GetGenericDeclaration()
-        {
-            return this;
-        }
+        public IEnumerable<IParameter> Parameters { get { return GetParameters(); } }
 
         public IParameter[] GetParameters()
         {
@@ -216,12 +213,7 @@ namespace Flame.Cpp
 
         public bool IsOverride
         {
-            get { return GetBaseMethods().Length > 0; }
-        }
-
-        public IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
-        {
-            return new DescribedGenericMethodInstance(this, (IGenericResolverType)DeclaringType, TypeArguments);
+            get { return BaseMethods.Any(); }
         }
 
         public IType ReturnType
@@ -232,14 +224,9 @@ namespace Flame.Cpp
             }
         }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return new IType[0];
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return this.Templates.GenericParameters;
+            get { return this.Templates.GetGenericParameters(); }
         }
 
         #region GetCode

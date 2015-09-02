@@ -44,7 +44,7 @@ namespace Flame.Cpp
             IEnumerable<ICppMember> methods = Members.OfType<IMethod>().Where(item => !item.IsConstructor && !item.get_IsOperator() && !item.get_IsCast()).Cast<ICppMember>();
             IEnumerable<ICppMember> operators = Members.OfType<IMethod>().Where(item => !item.IsConstructor && (item.get_IsOperator() || item.get_IsCast())).Cast<ICppMember>();
 
-            var accessorPacks = props.Select(item => new CppMemberPack(item.GetAccessors().OfType<ICppMember>()));
+            var accessorPacks = props.Select(item => new CppMemberPack(item.Accessors.OfType<ICppMember>()));
             var methodPacks = PackSortedMethods(methods);
             var opPacks = PackSortedMethods(operators);
             var typePacks = PackIndividually(Members.OfType<IType>().Cast<ICppMember>());

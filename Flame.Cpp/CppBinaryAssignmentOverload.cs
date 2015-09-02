@@ -23,19 +23,14 @@ namespace Flame.Cpp
         public IMethod BinaryOverload { get; private set; }
         public CppTemplateDefinition Templates { get; private set; }
 
-        public IMethod[] GetBaseMethods()
+        public IEnumerable<IMethod> BaseMethods
         {
-            return new IMethod[] { };
+            get { return new IMethod[] { }; }
         }
 
-        public IMethod GetGenericDeclaration()
+        public IEnumerable<IParameter> Parameters
         {
-            return this;
-        }
-
-        public IParameter[] GetParameters()
-        {
-            return BinaryOverload.IsStatic ? BinaryOverload.GetParameters().Skip(1).ToArray() : BinaryOverload.GetParameters();
+            get { return BinaryOverload.IsStatic ? BinaryOverload.Parameters.Skip(1).ToArray() : BinaryOverload.Parameters; }
         }
 
         public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
@@ -46,11 +41,6 @@ namespace Flame.Cpp
         public bool IsConstructor
         {
             get { return false; }
-        }
-
-        public IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
-        {
-            return this;
         }
 
         public IType ReturnType
@@ -68,9 +58,16 @@ namespace Flame.Cpp
             get { return BinaryOverload.FullName + "="; }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return new IAttribute[] { new AccessAttribute(AccessModifier.Public), new OperatorAttribute(Operator.Register(BinaryOverload.GetOperator().Name + "=")) };
+            get
+            {
+                return new IAttribute[] 
+                { 
+                    new AccessAttribute(AccessModifier.Public), 
+                    new OperatorAttribute(Operator.Register(BinaryOverload.GetOperator().Name + "=")) 
+                };
+            }
         }
 
         public string Name
@@ -78,14 +75,9 @@ namespace Flame.Cpp
             get { return BinaryOverload.Name + "="; }
         }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return Enumerable.Empty<IType>();
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return Enumerable.Empty<IGenericParameter>();
+            get { return Enumerable.Empty<IGenericParameter>(); }
         }
 
         IType ITypeMember.DeclaringType
@@ -129,7 +121,7 @@ namespace Flame.Cpp
             }
             cb.Append(this.Name);
             cb.Append('(');
-            var parameters = GetParameters();
+            var parameters = this.GetParameters();
             for (int i = 0; i < parameters.Length; i++)
             {
                 if (i > 0)

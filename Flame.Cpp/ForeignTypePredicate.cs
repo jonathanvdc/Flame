@@ -48,7 +48,7 @@ namespace Flame.Cpp
             return ElementType;
         }
 
-        protected override bool MakeVectorType(bool ElementType, int[] Dimensions)
+        protected override bool MakeVectorType(bool ElementType, IReadOnlyList<int> Dimensions)
         {
             return ElementType;
         }

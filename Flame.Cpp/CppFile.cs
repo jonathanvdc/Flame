@@ -145,7 +145,7 @@ namespace Flame.Cpp
             {
                 if (localTypes == null)
                 {
-                    localTypes = Members.SelectMany(item => (item is INamespace ? ((INamespace)item).GetTypes() : Enumerable.Empty<IType>())
+                    localTypes = Members.SelectMany(item => (item is INamespace ? ((INamespace)item).Types : Enumerable.Empty<IType>())
                         .Concat(item is IType ? new IType[] { (IType)item } : Enumerable.Empty<IType>())).ToArray();
                 }
                 return localTypes;
