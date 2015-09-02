@@ -24,14 +24,17 @@ namespace Flame.Python
             get { return "iterable"; }
         }
 
-        public override IEnumerable<IAttribute> GetAttributes()
+        public override IEnumerable<IAttribute> Attributes
         {
-            return new IAttribute[] 
-            { 
-                new EnumerableAttribute(PythonObjectType.Instance), 
-                PrimitiveAttributes.Instance.ReferenceTypeAttribute,
-                PrimitiveAttributes.Instance.VirtualAttribute
-            };
+            get
+            {
+                return new IAttribute[] 
+                { 
+                    new EnumerableAttribute(PythonObjectType.Instance), 
+                    PrimitiveAttributes.Instance.ReferenceTypeAttribute,
+                    PrimitiveAttributes.Instance.VirtualAttribute
+                };
+            }
         }
     }
 }

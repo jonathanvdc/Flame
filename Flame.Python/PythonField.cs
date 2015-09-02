@@ -46,9 +46,9 @@ namespace Flame.Python
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Template.Attributes;
+            get { return Template.Attributes; }
         }
 
         protected IMemberNamer GetMemberNamer()
