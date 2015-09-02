@@ -232,6 +232,30 @@ namespace Flame
 			}
 		}
 
+		public static const IField GetRecursiveGenericDeclaration(this IField Field)
+		{
+			if (Field is GenericInstanceField)
+			{
+				return ((GenericInstanceField)Field).Declaration.GetRecursiveGenericDeclaration();
+			}
+			else
+			{
+				return Field;
+			}
+		}
+
+		public static const IProperty GetRecursiveGenericDeclaration(this IProperty Property)
+		{
+			if (Property is GenericInstanceProperty)
+			{
+				return ((GenericInstanceProperty)Property).Declaration.GetRecursiveGenericDeclaration();
+			}
+			else
+			{
+				return Property;
+			}
+		}
+
 		public static const IType MakeRecursiveGenericType(this IType Type, [IType] TypeArguments)
 		{
 			if (Type.DeclaringNamespace is IType)
