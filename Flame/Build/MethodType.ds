@@ -163,7 +163,7 @@ namespace Flame
                 return -1;
             }
 
-            int totalAncestry = GetAncestryDegree(firstMethod.ReturnType, secondMethod.ReturnType);
+            int totalAncestry = firstMethod.ReturnType.GetAncestryDegree(secondMethod.ReturnType);
 			if (totalAncestry < 0)
 				return -1;
 
@@ -175,7 +175,7 @@ namespace Flame
 
 			foreach (var first in firstParams, var second in secondParams)
 			{
-				int argAncestry = GetAncestryDegree(second.ParameterType, first.ParameterType);
+				int argAncestry = second.ParameterType.GetAncestryDegree(first.ParameterType);
 
 				if (argAncestry < 0)
 					return -1;

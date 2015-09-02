@@ -147,11 +147,27 @@ namespace Flame
             var rightInter = IntersectionType.GetIntersectedTypes(Second);
 
             int result = 0;
+            // First, iterate over all items in the right-hand set, and find out
+            // if they can all be matched to a (sub)type in the left-hand set.
+            // This ensures that `int&double` is `double`, but
+            //                   `int&double` is not `string`.
             foreach (var item in rightInter)
             {
                 int bestAncestry = leftInter.GetLowestAncestryDegree(item);
-                if (bestAncestry < 0) return -1;
+                if (bestAncestry < 0)
+                    return -1;
                 result += bestAncestry;
+            }
+            // Now, iterate over all items in the left-hand set. All types
+            // in this set that do not have a subtype in the right-hand set
+            // make the subtype hierarchy between the intersection types longer
+            // by one item.
+            // This ensures that  `int&double` is not equivalent to `int`,
+            // and therefore that `int` is not equivalent to `int&double`.
+            foreach (var item in leftInter)
+            {
+                if (rightInter.GetLowestAncestryDegree(item) < 0)
+                    result++;
             }
             return result;
         }

@@ -50,8 +50,11 @@ namespace Flame.Build
             {
                 return 0; // They are equivalent. Return zero to signal this.
             }
-            else if (First.IsEquivalent(PrimitiveTypes.Null) && (Second.IsReferenceType || Second.IsPointer))
+            else if (First.Equals(PrimitiveTypes.Null) && (Second.IsReferenceType || Second.IsPointer))
             {
+                // NOTE: the above condition assumes that null does not have any equivalent types.
+                //       That's not entirely unreasonable, though.
+
                 return 1; // Null is a direct subtype of all reference and pointer types.
             }
             else
