@@ -8,7 +8,7 @@ namespace Flame.Build
     {
         public const this(string Name, IType DeclaringType, set IType FieldType)
             : base(Name, DeclaringType);
-        public const this(string Name, IType DeclaringType, IType FieldType, set bool IsStatic)
+        public const this(string Name, IType DeclaringType, set IType FieldType, set bool IsStatic)
             : base(Name, DeclaringType);
 
         public IType FieldType { const get; set; }
