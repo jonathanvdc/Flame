@@ -58,9 +58,9 @@ namespace Flame.TextContract
             get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Template.Attributes;
+            get { return Template.Attributes; }
         }
 
         public virtual string Name
@@ -73,7 +73,7 @@ namespace Flame.TextContract
                     StringBuilder sb = new StringBuilder(genericFreeName);
                     sb.Append('<');
                     bool first = true;
-                    foreach (var item in GetGenericParameters())
+                    foreach (var item in GenericParameters)
                     {
                         if (first)
                         {
@@ -100,14 +100,9 @@ namespace Flame.TextContract
             return null;
         }
 
-        public IType[] GetBaseTypes()
+        public IEnumerable<IType> BaseTypes
         {
-            return Template.BaseTypes;
-        }
-
-        public IMethod[] GetConstructors()
-        {
-            return methodBuilders.Where((item) => item.IsConstructor).ToArray();
+            get { return Template.BaseTypes; }
         }
 
         public IBoundObject GetDefaultValue()
@@ -115,64 +110,24 @@ namespace Flame.TextContract
             return Template.GetDefaultValue();
         }
 
-        public IField[] GetFields()
+        public IEnumerable<IField> Fields
         {
-            return fieldBuilders.ToArray();
+            get { return fieldBuilders; }
         }
 
-        public virtual IType GetGenericDeclaration()
+        public IEnumerable<IMethod> Methods
         {
-            return new ContractType(DeclaringNamespace, Template);
+            get { return methodBuilders; }
         }
 
-        public ITypeMember[] GetMembers()
+        public IEnumerable<IProperty> Properties
         {
-            return methodBuilders.Concat<ITypeMember>(fieldBuilders).Concat(propertyBuilders).ToArray();
+            get { return propertyBuilders; }
         }
 
-        public IMethod[] GetMethods()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return methodBuilders.Where((item) => !item.IsConstructor).ToArray();
-        }
-
-        public IProperty[] GetProperties()
-        {
-            return propertyBuilders.ToArray();
-        }
-
-        public bool IsContainerType
-        {
-            get { return false; }
-        }
-
-        public IArrayType MakeArrayType(int Rank)
-        {
-            return new DescribedArrayType(this, Rank);
-        }
-
-        public IType MakeGenericType(IEnumerable<IType> TypeArguments)
-        {
-            return new ContractGenericInstanceType(this, TypeArguments);
-        }
-
-        public IPointerType MakePointerType(PointerKind PointerKind)
-        {
-            return new DescribedPointerType(this, PointerKind);
-        }
-
-        public IVectorType MakeVectorType(int[] Dimensions)
-        {
-            return new DescribedVectorType(this, Dimensions);
-        }
-
-        public virtual IEnumerable<IType> GetGenericArguments()
-        {
-            return Template.GetGenericArguments();
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return Template.GenericParameters;
+            get { return Template.GenericParameters; }
         }
 
         public CodeBuilder GetCode()
@@ -180,7 +135,7 @@ namespace Flame.TextContract
             CodeBuilder cb = new CodeBuilder();
             cb.Append("class ");
             cb.Append(Name);
-            var baseTypes = GetBaseTypes().Where((item) => !item.get_IsRootType()).ToArray();
+            var baseTypes = BaseTypes.Where((item) => !item.get_IsRootType()).ToArray();
             if (baseTypes.Length > 0)
             {
                 cb.Append(" : ");
@@ -220,6 +175,11 @@ namespace Flame.TextContract
             cb.AddLine("}");
 
             return cb;
+        }
+
+        public IAncestryRules AncestryRules
+        {
+            get { return DefinitionAncestryRules.Instance; }
         }
     }
 }

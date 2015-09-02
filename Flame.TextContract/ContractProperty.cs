@@ -39,9 +39,9 @@ namespace Flame.TextContract
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Template.Attributes;
+            get { return Template.Attributes; }
         }
 
         public string Name
@@ -52,14 +52,14 @@ namespace Flame.TextContract
             }
         }
 
-        public IAccessor[] GetAccessors()
+        public IEnumerable<IAccessor> Accessors
         {
-            return accessors.ToArray();
+            get { return accessors; }
         }
 
-        public IParameter[] GetIndexerParameters()
+        public IEnumerable<IParameter> IndexerParameters
         {
-            return Template.IndexerParameters;
+            get { return Template.IndexerParameters; }
         }
 
         public IType PropertyType

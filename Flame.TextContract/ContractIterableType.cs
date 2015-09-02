@@ -11,109 +11,39 @@ namespace Flame.TextContract
     {
         static ContractIterableType()
         {
-            Instance = new ContractIterableType();
+            Instance = new ContractIterableType();            
         }
 
         protected ContractIterableType()
         {
+            typeParam = new DescribedGenericParameter("T", this);
         }
 
         public static ContractIterableType Instance { get; private set; }
 
         public override string Name
         {
-            get { return "iterable"; }
+            get { return "iterable<>"; }
         }
 
-        public override IEnumerable<IAttribute> GetAttributes()
-        {
-            return new IAttribute[] 
-            { 
-                new EnumerableAttribute(ContractObjectType.Instance), 
-                PrimitiveAttributes.Instance.ReferenceTypeAttribute,
-                PrimitiveAttributes.Instance.VirtualAttribute
-            };
-        }
+        private IGenericParameter typeParam;
 
-        public override IType MakeGenericType(IEnumerable<IType> TypeArguments)
-        {
-            return new ContractIterableTypeInstance(TypeArguments.Single());
-        }
-
-        public override IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            var descParam = new DescribedGenericParameter("T", this);
-            return new IGenericParameter[] { descParam };
-        }
-    }
-
-    public class ContractIterableTypeInstance : ContractPrimitiveType
-    {
-        public ContractIterableTypeInstance(IType ElementType)
-        {
-            this.ElementType = ElementType;
-        }
-
-        public IType ElementType { get; private set; }
-
-        public override IType GetGenericDeclaration()
-        {
-            return ContractIterableType.Instance;
-        }
-
-        public override string Name
-        {
-            get { return GetGenericDeclaration().Name + "<" + ElementType.Name + ">"; }
-        }
-
-        public override string FullName
+        public override IEnumerable<IAttribute> Attributes
         {
             get
             {
-                return GetGenericDeclaration().FullName + "<" + ElementType.FullName + ">";
+                return new IAttribute[] 
+                { 
+                    new EnumerableAttribute(typeParam), 
+                    PrimitiveAttributes.Instance.ReferenceTypeAttribute,
+                    PrimitiveAttributes.Instance.VirtualAttribute
+                };
             }
         }
 
-        public override bool Equals(object obj)
+        public override IEnumerable<IGenericParameter> GenericParameters
         {
-            if (obj is ContractIterableTypeInstance)
-            {
-                return ElementType.Equals(((ContractIterableTypeInstance)obj).ElementType);
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public override int GetHashCode()
-        {
-            return GetGenericDeclaration().GetHashCode() ^ ElementType.GetHashCode();
-        }
-
-        public override IEnumerable<IAttribute> GetAttributes()
-        {
-            return new IAttribute[] 
-            { 
-                new EnumerableAttribute(ElementType), 
-                PrimitiveAttributes.Instance.ReferenceTypeAttribute,
-                PrimitiveAttributes.Instance.VirtualAttribute
-            };
-        }
-
-        public override IEnumerable<IType> GetGenericArguments()
-        {
-            return new IType[] { ElementType };
-        }
-
-        public override IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return GetGenericDeclaration().GenericParameters;
-        }
-
-        public override IType MakeGenericType(IEnumerable<IType> TypeArguments)
-        {
-            return GetGenericDeclaration().MakeGenericType(TypeArguments);
+            get { return new IGenericParameter[] { typeParam }; }
         }
     }
 }
