@@ -274,7 +274,7 @@ namespace Flame.MIPS.Emit
             throw new NotImplementedException();
         }
 
-        public ICodeBlock EmitNewVector(IType ElementType, int[] Dimensions)
+        public ICodeBlock EmitNewVector(IType ElementType, IReadOnlyList<int> Dimensions)
         {
             throw new NotImplementedException();
         }
