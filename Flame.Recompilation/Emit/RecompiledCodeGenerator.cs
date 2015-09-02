@@ -298,7 +298,7 @@ namespace Flame.Recompilation.Emit
             return new ExpressionBlock(this, new NewArrayExpression(Recompiler.GetType(ElementType), GetExpressions(Dimensions)));
         }
 
-        public ICodeBlock EmitNewVector(IType ElementType, int[] Dimensions)
+        public ICodeBlock EmitNewVector(IType ElementType, IReadOnlyList<int> Dimensions)
         {
             return new ExpressionBlock(this, new NewVectorExpression(Recompiler.GetType(ElementType), Dimensions));
         }

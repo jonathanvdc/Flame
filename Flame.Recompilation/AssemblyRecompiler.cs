@@ -126,7 +126,7 @@ namespace Flame.Recompilation
             {
                 return false;
             }
-            else if (Type.IsContainerType)
+            else if (Type.get_IsContainerType())
             {
                 return IsExternal(Type.AsContainerType().ElementType);
             }
@@ -221,7 +221,7 @@ namespace Flame.Recompilation
             {
                 return false;
             }
-            else if (HasExternalAttribute(Type) || Type.IsContainerType)
+            else if (HasExternalAttribute(Type) || Type.get_IsContainerType())
             {
                 return true;
             }
@@ -346,7 +346,7 @@ namespace Flame.Recompilation
             {
                 return new MemberCreationResult<IType>(SourceType);
             }
-            else if (SourceType.IsContainerType)
+            else if (SourceType.get_IsContainerType())
             {
                 var containerType = SourceType.AsContainerType();
                 var recompiledElemType = GetType(containerType.ElementType);
@@ -492,15 +492,15 @@ namespace Flame.Recompilation
         private static IProperty GetGenericTypeProperty(IProperty SourceProperty)
         {
             var genericDeclType = SourceProperty.DeclaringType.GetRecursiveGenericDeclaration();
-            var indexParams = SourceProperty.IndexerParameters;
+            var indexParams = SourceProperty.IndexerParameters.ToArray();
             var converter = CreateGenericParameterConverter(genericDeclType, SourceProperty.DeclaringType);
             if (SourceProperty.get_IsIndexer())
             {
-                return genericDeclType.Properties.Single((item) => item.get_IsIndexer() && CompareGenericMethodParameters(item.IndexerParameters, indexParams, converter));
+                return genericDeclType.Properties.Single((item) => item.get_IsIndexer() && CompareGenericMethodParameters(item.IndexerParameters.ToArray(), indexParams, converter));
             }
             else
             {
-                return genericDeclType.Properties.Single((item) => item.Name == SourceProperty.Name && item.IsStatic == SourceProperty.IsStatic && CompareGenericMethodParameters(item.IndexerParameters, indexParams, converter));
+                return genericDeclType.Properties.Single((item) => item.Name == SourceProperty.Name && item.IsStatic == SourceProperty.IsStatic && CompareGenericMethodParameters(item.IndexerParameters.ToArray(), indexParams, converter));
             }
         }
 
@@ -510,16 +510,16 @@ namespace Flame.Recompilation
 
         private static IProperty GetSpecificTypeProperty(IType SpecificType, IProperty GenericProperty)
         {
-            var indexParams = GenericProperty.IndexerParameters;
+            var indexParams = GenericProperty.IndexerParameters.ToArray();
             var properties = SpecificType.Properties;
             var converter = CreateGenericParameterConverter(GenericProperty.DeclaringType, SpecificType);
             if (GenericProperty.get_IsIndexer())
             {
-                return properties.Single((item) => item.get_IsIndexer() && CompareGenericMethodParameters(indexParams, item.IndexerParameters, converter));
+                return properties.Single((item) => item.get_IsIndexer() && CompareGenericMethodParameters(indexParams, item.IndexerParameters.ToArray(), converter));
             }
             else
             {
-                return properties.Single((item) => item.Name == GenericProperty.Name && item.IsStatic == GenericProperty.IsStatic && CompareGenericMethodParameters(indexParams, item.IndexerParameters, converter));
+                return properties.Single((item) => item.Name == GenericProperty.Name && item.IsStatic == GenericProperty.IsStatic && CompareGenericMethodParameters(indexParams, item.IndexerParameters.ToArray(), converter));
             }
         }
 
@@ -634,16 +634,7 @@ namespace Flame.Recompilation
         private IMethod GetGenericTypeMethod(IMethod SourceMethod)
         {
             var genericDeclType = SourceMethod.DeclaringType.GetRecursiveGenericDeclaration();
-            IMethod[] methods;
-            if (SourceMethod.IsConstructor)
-            {
-                methods = genericDeclType.GetConstructors();
-            }
-            else
-            {
-                methods = genericDeclType.GetMethods();
-            }
-            return methods.Single((item) => CompareGenericTypeMethods(item, SourceMethod));
+            return genericDeclType.Methods.Single((item) => CompareGenericTypeMethods(item, SourceMethod));
         }
 
         #endregion
@@ -817,21 +808,21 @@ namespace Flame.Recompilation
         private void RecompileEntireType(IType Type)
         {
             var recompType = GetType(Type);
-            foreach (var item in Type.GetFields().Concat<ITypeMember>(Type.GetMethods()).Concat(Type.GetConstructors()))
+            foreach (var item in Type.Fields.Concat<ITypeMember>(Type.Methods))
             {
                 GetMember(item);
             }
             foreach (var item in Type.Properties)
             {
                 GetProperty(item);
-                foreach (var accessor in item.GetAccessors())
+                foreach (var accessor in item.Accessors)
                 {
                     GetMethod(accessor);
                 }
             }
             if (Type is INamespace)
             {
-                foreach (var item in ((INamespace)Type).GetTypes())
+                foreach (var item in ((INamespace)Type).Types)
                 {
                     RecompileEntireType(item);
                 }
