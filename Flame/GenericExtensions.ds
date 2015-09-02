@@ -184,7 +184,8 @@ namespace Flame
 			var typeParams = Type.GenericParameters;
 			if (Type.DeclaringNamespace is IType)
 			{
-				return Enumerable.Concat<IGenericParameter>(((IType)Type.DeclaringNamespace).GetRecursiveGenericParameters(),
+				return Enumerable.Concat<IGenericParameter>(
+					    ((IType)Type.DeclaringNamespace).GetRecursiveGenericParameters(),
 						typeParams);
 			}
 			else
@@ -207,32 +208,27 @@ namespace Flame
 			}
 		}
 
-		private static const IType GetChildType(INamespace Namespace, IType Type)
-		{
-			int genParamCount = Enumerable.Count<IGenericParameter>(Type.GenericParameters);
-			foreach (var item in Namespace.Types)
-				if (item.Name == Type.Name)
-				if (Enumerable.Count<IGenericParameter>(item.GenericParameters) == genParamCount)
-			{
-				return item;
-			}
-			return null;
-		}
-
 		public static const IType GetRecursiveGenericDeclaration(this IType Type)
 		{
-			if (Type.DeclaringNamespace is IType && ((IType)Type.DeclaringNamespace).IsRecursiveGenericInstance)
+			if (Type is GenericTypeBase)
 			{
-				var genDecl = (INamespace)((IType)Type.DeclaringNamespace).GetRecursiveGenericDeclaration();
-				return GetChildType(genDecl, Type);
-			}
-			else if (Type.IsGenericInstance)
-			{
-				return Type.GetGenericDeclaration();
+				return ((GenericTypeBase)Type).Declaration.GetRecursiveGenericDeclaration();
 			}
 			else
 			{
 				return Type;
+			}
+		}
+
+		public static const IMethod GetRecursiveGenericDeclaration(this IMethod Method)
+		{
+			if (Method is GenericMethodBase)
+			{
+				return ((GenericMethodBase)Method).Declaration.GetRecursiveGenericDeclaration();
+			}
+			else
+			{
+				return Method;
 			}
 		}
 
@@ -247,7 +243,7 @@ namespace Flame
 					var parentArgs = Enumerable.Take<IType>(TypeArguments, paramCount);
 					var actualArgs = Enumerable.Skip<IType>(TypeArguments, paramCount);
 					var parentType = nsType.MakeRecursiveGenericType(parentArgs);
-					var decl = GetChildType((INamespace)nsType, Type);
+					var decl = new GenericInstanceType(Type, ((GenericTypeBase)parentType).Resolver, parentType);
 					if (Enumerable.Any<IType>(actualArgs))
 					{
 						return decl.MakeGenericType(actualArgs);

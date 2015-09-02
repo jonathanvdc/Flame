@@ -49,7 +49,7 @@ namespace Flame.Cecil
 
         protected override MethodReference ConvertInstanceGeneric(TypeReference DeclaringType, IMethod Member)
         {
-            var decl = ConvertDeclaration(Member);
+            var decl = ConvertDeclaration(Member.GetRecursiveGenericDeclaration());
             return Module.Module.Import(DeclaringType.ReferenceMethod(decl.Resolve()), DeclaringType);
         }
 
