@@ -74,6 +74,11 @@ namespace Flame
             return Enumerable.ToArray<IParameter>(Resolver.ResolveParameters(Declaration.IndexerParameters));
         }
 
+		public override string ToString()
+		{
+			return FullName;
+		}
+
         #region Equality
 
         public override const bool Equals(object Other)
