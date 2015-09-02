@@ -24,9 +24,9 @@ namespace Flame.XmlDocs
             return ElementType + "[" + new string(',', ArrayRank - 1) + "]";
         }
 
-        protected override string MakeVectorType(string ElementType, int[] Dimensions)
+        protected override string MakeVectorType(string ElementType, IReadOnlyList<int> Dimensions)
         {
-            return MakeArrayType(ElementType, Dimensions.Length);
+            return MakeArrayType(ElementType, Dimensions.Count);
         }
 
         private string ConvertName(string Name, IEnumerable<IGenericParameter> Parameters)

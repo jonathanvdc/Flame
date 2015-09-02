@@ -11,42 +11,24 @@ namespace Flame.MIPS
 {
     public sealed class AllocateSyscallMethod : ISyscallMethod
     {
-        // static T^ Allocate<T>(int Count);
+        // static void* Allocate(int Size);
         private AllocateSyscallMethod()
         {
             this.CallConvention = new AutoCallConvention(this, false, true);
         }
-        private AllocateSyscallMethod(IType TypeArgument)
-        {
-            this.CallConvention = new AutoCallConvention(this, false, true);
-            this.typeArg = TypeArgument;
-        }
 
         #region Static
 
-        private static AllocateSyscallMethod genericInst;
-        public static AllocateSyscallMethod GenericInstance
+        private static AllocateSyscallMethod inst;
+        public static AllocateSyscallMethod Instance
         {
             get
             {
-                if (genericInst == null)
+                if (inst == null)
                 {
-                    genericInst = new AllocateSyscallMethod();
+                    inst = new AllocateSyscallMethod();
                 }
-                return genericInst;
-            }
-        }
-
-        private static IGenericParameter genericParam;
-        public static IGenericParameter GenericParameterInstance
-        {
-            get
-            {
-                if (genericParam == null)
-                {
-                    genericParam = new DescribedGenericParameter("T", GenericInstance);
-                }
-                return genericParam;
+                return inst;
             }
         }
 
@@ -54,14 +36,6 @@ namespace Flame.MIPS
 
         public int ServiceIndex { get { return 9; } }
         public ICallConvention CallConvention { get; private set; }
-        private IType typeArg;
-        public IType TypeArgument
-        {
-            get
-            {
-                return typeArg == null ? GenericParameterInstance : typeArg;
-            }
-        }
 
         public IType DeclaringType { get { return MemorySystemType.Instance; } }
         public string Name { get { return "Allocate"; } }
@@ -81,25 +55,23 @@ namespace Flame.MIPS
 
         public IAssemblerBlock CreateCallBlock(ICodeGenerator CodeGenerator)
         {
-            int size = TypeArgument.GetSize();
+            /*
             var lbReg = new LateBoundRegister(CodeGenerator, new RegisterData(RegisterType.Argument, 0), PrimitiveTypes.Int32);
             var val = (IAssemblerBlock)CodeGenerator.EmitBinary(new LocationBlock(CodeGenerator, lbReg), CodeGenerator.EmitInt32(size), Operator.Multiply);
             return (IAssemblerBlock)CodeGenerator.EmitSequence(new StoreToBlock(val, lbReg), CodeGenerator.EmitSequence(lbReg.EmitRelease(), new SyscallBlock(CodeGenerator, this)));
+            */
+
+            return new SyscallBlock(CodeGenerator, this);
         }
 
-        public IMethod[] GetBaseMethods()
+        public IEnumerable<IMethod> BaseMethods
         {
-            return new IMethod[0];
+            get { return new IMethod[0]; }
         }
 
-        public IMethod GetGenericDeclaration()
+        public IEnumerable<IParameter> Parameters
         {
-            return GenericInstance;
-        }
-
-        public IParameter[] GetParameters()
-        {
-            return new IParameter[] { new DescribedParameter("Count", PrimitiveTypes.Int32) };
+            get { return new IParameter[] { new DescribedParameter("Count", PrimitiveTypes.Int32) }; }
         }
 
         public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
@@ -112,14 +84,9 @@ namespace Flame.MIPS
             get { return false; }
         }
 
-        public IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
-        {
-            return new AllocateSyscallMethod(TypeArguments.Single());
-        }
-
         public IType ReturnType
         {
-            get { return TypeArgument.MakePointerType(PointerKind.ReferencePointer); }
+            get { return PrimitiveTypes.Void.MakePointerType(PointerKind.TransientPointer); }
         }
 
         public bool IsStatic
@@ -127,38 +94,9 @@ namespace Flame.MIPS
             get { return true; }
         }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            if (typeArg == null)
-            {
-                return new IType[0];
-            }
-            else
-            {
-                return new IType[] { TypeArgument };
-            }
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return new IGenericParameter[] { GenericParameterInstance };
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is AllocateSyscallMethod)
-            {
-                return TypeArgument.Equals(((AllocateSyscallMethod)obj).TypeArgument);
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public override int GetHashCode()
-        {
-            return Name.GetHashCode() ^ TypeArgument.GetHashCode();
+            get { return new IGenericParameter[0]; }
         }
     }
 }
