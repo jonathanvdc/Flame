@@ -12,11 +12,13 @@ namespace Flame.Build
             : base(Name)
         {
             this.constraints = new List<IGenericConstraint>();
+            ClearCache();
         }
         public const this(string Name, set IGenericMember DeclaringMember, [IGenericConstraint] Constraints)
             : base(Name)
         {
         	this.constraints = new List<IGenericConstraint>(Constraints);
+            ClearCache();
         }
 
         public IGenericMember DeclaringMember { const get; set; }
