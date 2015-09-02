@@ -43,7 +43,7 @@ module MemberHelpers =
 
     /// Selects the given accessor's base accessors from a sequence of potential base properties.
     let FilterBaseAccessors (baseProps : IProperty seq) (target : IAccessor) =
-        baseProps |> Seq.map (fun x -> x.GetAccessors())
+        baseProps |> Seq.map (fun x -> x.Accessors)
                   |> Seq.concat
                   |> Seq.filter (fun x -> x.AccessorType = target.AccessorType)
                   |> UpperBounds IsImplementationOf
