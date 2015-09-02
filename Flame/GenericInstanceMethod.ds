@@ -60,8 +60,8 @@ namespace Flame
 
         public const bool Equals(GenericInstanceMethod Other)
         {
-        	return this.Declaration == Other.Declaration &&
-                   this.DeclaringType == Other.DeclaringType;
+        	return this.Declaration.Equals(Other.Declaration) &&
+                   this.DeclaringType.Equals(Other.DeclaringType);
         }
 
         public override const int GetHashCode()

@@ -668,7 +668,7 @@ namespace Flame
 		/// </summary>
 		public const static bool IsEquivalent(this IType Type, IType Other)
 		{
-			return Type == Other || Type.GetAncestryDegree(Other) == 0;
+			return Type.Equals(Other) || Type.GetAncestryDegree(Other) == 0;
 		}
 
         #endregion
