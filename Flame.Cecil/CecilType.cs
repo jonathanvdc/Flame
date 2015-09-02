@@ -52,7 +52,7 @@ namespace Flame.Cecil
 
         public override IAncestryRules AncestryRules
         {
-            get { return DefinitionAncestryRules.Instance; }
+            get { return CecilAncestryRules.Instance; }
         }
     }
 }

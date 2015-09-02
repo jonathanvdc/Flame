@@ -78,7 +78,10 @@ namespace Flame.Build
         {
             get
             {
-                return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
+				if (DeclaringNamespace == null)
+					return Name;
+                else
+					return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
             }
         }
 
