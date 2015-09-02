@@ -51,9 +51,9 @@ namespace Flame.TextContract
             get { return Name; }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return new IAttribute[0];
+            get { return new IAttribute[0]; }
         }
 
         public string Name { get; private set; }

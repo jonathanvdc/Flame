@@ -52,7 +52,6 @@
     <Compile Include="ContractAssembly.cs" />
     <Compile Include="ContractEnvironment.cs" />
     <Compile Include="ContractField.cs" />
-    <Compile Include="ContractGenericInstanceType.cs" />
     <Compile Include="ContractHelpers.cs" />
     <Compile Include="ContractIterableType.cs" />
     <Compile Include="ContractIteratorType.cs" />

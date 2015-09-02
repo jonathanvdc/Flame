@@ -54,9 +54,9 @@ namespace Flame.TextContract
                 StringBuilder sb = new StringBuilder();
                 sb.Append(GetTypeName(Type.AsContainerType().ElementType));
                 sb.Append('[');
-                int[] dims = Type.AsContainerType().AsVectorType().Dimensions;
+                var dims = Type.AsContainerType().AsVectorType().Dimensions;
                 sb.Append(dims[0]);
-                for (int i = 1; i < dims.Length; i++)
+                for (int i = 1; i < dims.Count; i++)
                 {
                     sb.Append(", ");
                     sb.Append(dims[i]);

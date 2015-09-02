@@ -19,14 +19,17 @@ namespace Flame.TextContract
 
         public static ContractObjectType Instance { get; private set; }
 
-        public override IEnumerable<IAttribute> GetAttributes()
+        public override IEnumerable<IAttribute> Attributes
         {
-            return new IAttribute[] 
-            { 
-                PrimitiveAttributes.Instance.RootTypeAttribute, 
-                PrimitiveAttributes.Instance.ReferenceTypeAttribute,
-                PrimitiveAttributes.Instance.VirtualAttribute
-            };
+            get
+            {
+                return new IAttribute[] 
+                { 
+                    PrimitiveAttributes.Instance.RootTypeAttribute, 
+                    PrimitiveAttributes.Instance.ReferenceTypeAttribute,
+                    PrimitiveAttributes.Instance.VirtualAttribute
+                };
+            }
         }
 
         public override string Name
