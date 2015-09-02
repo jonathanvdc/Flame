@@ -61,6 +61,13 @@ namespace Flame.Cecil
                 var typeRef = ((ICecilType)Type).GetTypeReference();
                 return Module.Module.Import(typeRef, Context);
             }
+            else if (Type is GenericInstanceType)
+            {
+                var genInst = (GenericInstanceType)Type;
+                var decl = Convert(genInst.GetRecursiveGenericDeclaration());
+                var tArgs = genInst.GetRecursiveGenericArguments().Select(Convert).ToArray();
+                return MakeGenericType(decl, tArgs);
+            }
             else if (Type.get_IsDelegate())
             {
                 return Convert(Module.TypeSystem.GetCanonicalDelegate(MethodType.GetMethod(Type)));
