@@ -66,7 +66,7 @@ namespace Flame.Verification
                     if (!item.VerifyImplementation(Member, Log)) success = false;
                 }
             }
-            foreach (var item in Member.GetFields())
+            foreach (var item in Member.Fields)
             {
                 if (!FieldVerifier.Verify(item, Log)) success = false;
             }
@@ -74,7 +74,7 @@ namespace Flame.Verification
             {
                 if (!PropertyVerifier.Verify(item, Log)) success = false;
             }
-            foreach (var item in Member.GetMethods())
+            foreach (var item in Member.Methods)
             {
                 if (!MethodVerifier.Verify(item, Log)) success = false;
             }

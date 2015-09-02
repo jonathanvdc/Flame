@@ -30,8 +30,7 @@ namespace Flame.Verification
         protected override bool VerifyMemberCore(IProperty Member, ICompilerLog Log)
         {
             bool success = true;
-            var accessors = Member.GetAccessors();
-            foreach (var item in accessors)
+            foreach (var item in Member.Accessors)
             {
                 if (!AccessorVerifier.Verify(item, Log))
                 {
