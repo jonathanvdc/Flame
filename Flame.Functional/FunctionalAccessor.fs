@@ -41,7 +41,7 @@ type FunctionalAccessor private(header : FunctionalMemberHeader,
     member this.AccessorType = accType
 
     /// Gets this functional-style accessor's parameters.
-    member this.Parameters = parameters.Value
+    member this.Parameters = Seq.ofArray parameters.Value
 
     /// Gets this functional-style accessor's body statement, with lazy evaluation.
     member this.LazyBody = appliedBody
@@ -54,7 +54,7 @@ type FunctionalAccessor private(header : FunctionalMemberHeader,
     member this.LazyBaseMethods = appliedBaseMethods
 
     /// Gets this functional-style accessor's base methods.
-    member this.BaseMethods = appliedBaseMethods.Value
+    member this.BaseMethods = Seq.ofArray appliedBaseMethods.Value
 
     /// Sets this functional accessor's return type.
     member this.WithReturnType value =
@@ -78,16 +78,13 @@ type FunctionalAccessor private(header : FunctionalMemberHeader,
 
     interface IMethod with
         member this.ReturnType = this.ReturnType
-        member this.GetParameters() = this.Parameters
+        member this.Parameters = this.Parameters
         member this.IsConstructor = false
         member this.BaseMethods = this.BaseMethods
 
         member this.Invoke(target : IBoundObject, args : IBoundObject seq) = null // We don't do that yet.
 
         member this.GenericParameters = Seq.empty
-        member this.GetGenericArguments() = Seq.empty
-        member this.GetGenericDeclaration() = this :> IMethod
-        member this.MakeGenericMethod tArgs = this :> IMethod
 
     interface IBodyMethod with
         member this.GetMethodBody() = this.Body

@@ -19,10 +19,10 @@ type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
     inherit FunctionalMemberBase(header, declType, isStatic)
 
     let appliedGenericParams = lazy genericParameters this
-    let appliedBaseMethods = lazy (baseMethods this |> Seq.toArray)
+    let appliedBaseMethods = lazy (baseMethods this |> Seq.cache)
     let appliedBody = lazy body this
     let appliedRetType = lazy returnType this
-    let appliedParameters = lazy (parameters this |> Seq.toArray)
+    let appliedParameters = lazy (parameters this |> Seq.cache)
 
     new(header : FunctionalMemberHeader, declType : IType,
         isStatic : bool) =
@@ -91,16 +91,13 @@ type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
 
     interface IMethod with
         member this.ReturnType = this.ReturnType
-        member this.GetParameters() = this.Parameters
+        member this.Parameters = this.Parameters
         member this.IsConstructor = isCtor
         member this.BaseMethods = this.BaseMethods
 
         member this.Invoke(target : IBoundObject, args : IBoundObject seq) = null // We don't do that yet.
 
         member this.GenericParameters = this.GenericParameters
-        member this.GetGenericArguments() = Seq.empty
-        member this.GetGenericDeclaration() = this :> IMethod
-        member this.MakeGenericMethod tArgs = new DescribedGenericMethodInstance(this :> IMethod, new EmptyGenericResolver(), this.DeclaringType, tArgs) :> IMethod
 
     interface IBodyMethod with
         member this.GetMethodBody() = this.Body
