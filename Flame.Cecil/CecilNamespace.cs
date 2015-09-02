@@ -27,17 +27,13 @@ namespace Flame.Cecil
             get { return Name; }
         }
 
-        public IType[] GetTypes()
+        public IEnumerable<IType> Types
         {
-            List<IType> types = new List<IType>();
-            foreach (var item in Assembly.Assembly.MainModule.Types)
+            get
             {
-                if (item.Namespace == Name)
-                {
-                    types.Add(Module.Convert(item));
-                }
+                return Assembly.Assembly.MainModule.Types.Where(item => item.Namespace == Name)
+                                                         .Select(Module.Convert);
             }
-            return types.ToArray();
         }
 
         public IAssembly DeclaringAssembly
@@ -45,9 +41,9 @@ namespace Flame.Cecil
             get { return Assembly; }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return new IAttribute[] { new AncestryGraphAttribute(AncestryGraph) };
+            get { return new IAttribute[] { new AncestryGraphAttribute(AncestryGraph) }; }
         }
 
         #region INamespaceBuilder Implementation

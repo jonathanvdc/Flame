@@ -32,6 +32,8 @@ namespace Flame.Cecil
             }
         }
 
+        public IEnumerable<IAccessor> Accessors { get { return GetAccessors(); } }
+
         public virtual IAccessor[] GetAccessors()
         {
             var resolved = GetResolvedProperty();
@@ -82,6 +84,8 @@ namespace Flame.Cecil
                 }
             }
         }
+
+        public IEnumerable<IParameter> IndexerParameters { get { return GetIndexerParameters(); } }
 
         public virtual IParameter[] GetIndexerParameters()
         {

@@ -8,36 +8,36 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil
 {
-    public sealed class CecilMethodConverter : CecilTypeMemberConverterBase<MethodReference, ICecilMethod>
+    public sealed class CecilMethodConverter : CecilTypeMemberConverterBase<MethodReference, IMethod>
     {
-        public CecilMethodConverter(CecilModule Module, IDictionary<MethodReference, ICecilMethod> Cache)
+        public CecilMethodConverter(CecilModule Module, IDictionary<MethodReference, IMethod> Cache)
             : base(Module, Cache)
         {
         }
 
-        protected override ICecilMethod ConvertMemberDeclaration(ICecilType DeclaringType, MethodReference Reference)
+        protected override IMethod ConvertMemberDeclaration(ICecilType DeclaringType, MethodReference Reference)
         {
             return new CecilMethod(DeclaringType, Reference);
         }
 
-        protected override ICecilMethod ConvertGenericInstanceMember(ICecilType DeclaringType, MethodReference Value)
+        protected override IMethod ConvertGenericInstanceMember(GenericTypeBase DeclaringType, MethodReference Value)
         {
-            var elemMethod = ConvertMemberDeclaration(DeclaringType, Value);
-            return new CecilGenericInstanceMethod(DeclaringType, elemMethod);
+            var inner = ConvertMemberDeclaration((ICecilType)DeclaringType.GetRecursiveGenericDeclaration(), Value);
+            return new Flame.GenericInstanceMethod(inner, DeclaringType.Resolver, DeclaringType);
         }
 
-        private ICecilMethod ConvertGenericMethodInstance(GenericInstanceMethod Instance)
+        private ICecilMethod ConvertGenericMethodInstance(Mono.Cecil.GenericInstanceMethod Instance)
         {
             var elemMethod = Convert(Instance.ElementMethod);
             var genArgs = Instance.GenericArguments.Select(Module.Convert).ToArray();
             return (ICecilMethod)elemMethod.MakeGenericMethod(genArgs);
         }
 
-        public override ICecilMethod Convert(MethodReference Value)
+        public override IMethod Convert(MethodReference Value)
         {
             if (Value.IsGenericInstance)
             {
-                return ConvertGenericMethodInstance((GenericInstanceMethod)Value);
+                return ConvertGenericMethodInstance((Mono.Cecil.GenericInstanceMethod)Value);
             }
             else
             {

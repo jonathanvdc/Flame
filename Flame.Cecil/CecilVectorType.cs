@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using Flame.Build;
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,31 +10,26 @@ namespace Flame.Cecil
 {
     public class CecilVectorType : CecilArrayTypeBase, IVectorType
     {
-        public CecilVectorType(ICecilType ElementType, int[] Dimensions)
+        public CecilVectorType(ICecilType ElementType, IReadOnlyList<int> Dimensions)
             : base(ElementType)
         {
             this.Dimensions = Dimensions;
         }
 
-        public static TypeReference CreateVectorReference(TypeReference ElementType, int[] Dimensions)
+        public static TypeReference CreateVectorReference(TypeReference ElementType, IReadOnlyList<int> Dimensions)
         {
-            return CreateArrayReference(ElementType, Dimensions.Length);
+            return CreateArrayReference(ElementType, Dimensions.Count);
         }
 
-        public int[] Dimensions { get; private set; }
+        public IReadOnlyList<int> Dimensions { get; private set; }
         public override int GetArrayRank()
         {
-            return Dimensions.Length;
+            return Dimensions.Count;
         }
 
-        public int[] GetDimensions()
+        public override IAncestryRules AncestryRules
         {
-            return Dimensions;
-        }
-
-        public override ContainerTypeKind ContainerKind
-        {
-            get { return ContainerTypeKind.Vector; }
+            get { return VectorAncestryRules.Instance; }
         }
 
         private string AppendVectorSuffix(string Name)

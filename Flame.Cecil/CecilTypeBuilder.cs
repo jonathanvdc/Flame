@@ -28,11 +28,6 @@ namespace Flame.Cecil
         {
         }
 
-        public override IType GetGenericDeclaration()
-        {
-            return this;
-        }
-
         #region Declaring Namespace
 
         private INamespace declNs;
@@ -130,7 +125,7 @@ namespace Flame.Cecil
 
             var genericParams = CecilGenericParameter.DeclareGenericParameters(reference, genericTemplates, cecilType.Module, cecilType);
 
-            var baseTypes = genericResolver.ResolveTypes(GetGenericTypes(Template.BaseTypes, genericParams));
+            var baseTypes = genericResolver.ResolveTypes(GetGenericTypes(Template.BaseTypes.ToArray(), genericParams));
 
             if (!Template.get_IsInterface())
             {
@@ -186,7 +181,6 @@ namespace Flame.Cecil
         {
             var method = CecilMethodBuilder.DeclareMethod(this, Template);
             ClearMethodCache();
-            ClearConstructorCache();
             return method;
         }
 
@@ -303,7 +297,7 @@ namespace Flame.Cecil
                 descProp.AddIndexerParameter(param);
             }
             var staticProp = DeclaringType.DeclareProperty(descProp);
-            foreach (var item in Property.GetAccessors())
+            foreach (var item in Property.Accessors)
             {
                 CreateStaticSingletonAccessor(GetSingletonExpression, staticProp, item);
             }

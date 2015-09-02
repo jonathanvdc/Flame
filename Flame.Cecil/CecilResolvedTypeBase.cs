@@ -64,22 +64,9 @@ namespace Flame.Cecil
             }
             return baseTypes.ToArray();
         }
-        public sealed override IType[] GetBaseTypes()
+        public sealed override IEnumerable<IType> BaseTypes
         {
-            return cachedBaseTypes.Value;
-        }
-
-        public override IType GetGenericDeclaration()
-        {
-            var type = GetResolvedType();
-            if (type.IsGenericInstance)
-            {
-                return Module.ConvertStrict(type.ElementType);
-            }
-            else
-            {
-                return Module.Convert(type);
-            }
+            get { return cachedBaseTypes.Value; }
         }
 
         protected const string StaticSingletonName = "Static_Singleton";
@@ -105,7 +92,7 @@ namespace Flame.Cecil
 
         protected IType GetAssociatedSingleton()
         {
-            foreach (var item in GetTypes())
+            foreach (var item in Types)
             {
                 if (item.Name == StaticSingletonName && item.get_IsSingleton())
                 {
@@ -170,14 +157,7 @@ namespace Flame.Cecil
             }
             else if (tName.StartsWith("System.Collections.Generic.IEnumerable") && this.GetGenericDeclaration().Equals(ImportCecil(typeof(IEnumerable<>), this)))
             {
-                if (this.get_IsGenericInstance())
-                {
-                    attrs.Add(new EnumerableAttribute(GetGenericArguments().First()));
-                }
-                else
-                {
-                    attrs.Add(new EnumerableAttribute(GetGenericParameters().First()));
-                }
+                attrs.Add(new EnumerableAttribute(GenericParameters.First()));
             }
             else if (tName.StartsWith("System.Collections.IEnumerable") && this.Equals(ImportCecil<System.Collections.IEnumerable>(this)))
             {
@@ -204,29 +184,10 @@ namespace Flame.Cecil
             return GetResolvedType().CustomAttributes;
         }
 
-        public override bool IsContainerType
-        {
-            get { return false; }
-        }
-
-        public override IContainerType AsContainerType()
-        {
-            return null;
-        }
-
         public override IType ResolveTypeParameter(IGenericParameter TypeParameter)
         {
             return null;
         }
-
-        #region Generics
-
-        public override IEnumerable<IType> GetGenericArguments()
-        {
-            return new IType[0];
-        }
-
-        #endregion
 
         #region Type Members
 
@@ -274,17 +235,20 @@ namespace Flame.Cecil
             return ConvertGenericParameters(typeRef, typeRef.Resolve, this, Module);
         }
 
-        public override IEnumerable<IGenericParameter> GetGenericParameters()
+        public override IEnumerable<IGenericParameter> GenericParameters
         {
-            var genParams = GetCecilGenericParameters();
-            var declType = DeclaringGenericMember;
-            if (declType == null)
+            get
             {
-                return genParams;
-            }
-            else
-            {
-                return genParams.Skip(declType.GetAllGenericParameters().Count());
+                var genParams = GetCecilGenericParameters();
+                var declType = DeclaringGenericMember;
+                if (declType == null)
+                {
+                    return genParams;
+                }
+                else
+                {
+                    return genParams.Skip(declType.GetAllGenericParameters().Count());
+                }
             }
         }
 

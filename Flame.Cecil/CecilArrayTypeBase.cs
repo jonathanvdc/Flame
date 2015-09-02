@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using Flame.Build;
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace Flame.Cecil
 
         public static TypeReference CreateArrayReference(TypeReference ElementType, int ArrayRank)
         {
-            return new ArrayType(ElementType, ArrayRank);
+            return new Mono.Cecil.ArrayType(ElementType, ArrayRank);
         }
 
         public abstract int GetArrayRank();
@@ -43,26 +44,29 @@ namespace Flame.Cecil
             return CecilTypeBase.ImportCecil(type, this).MakeGenericType(new IType[] { ElementType });
         }
 
-        public override IType[] GetBaseTypes()
+        public override IEnumerable<IType> BaseTypes
         {
-            if (GetArrayRank() == 1)
+            get
             {
-                return new IType[]
-                { 
-                    ArrayType,
-                    CreateGenericBaseInterface(typeof(System.Collections.Generic.IList<>)),
-                    CreateGenericBaseInterface(typeof(System.Collections.Generic.ICollection<>)),
-                    CreateGenericBaseInterface(typeof(System.Collections.Generic.IEnumerable<>)),
-                    CreateGenericBaseInterface(typeof(System.Collections.Generic.IReadOnlyList<>)),
-                    CreateGenericBaseInterface(typeof(System.Collections.Generic.IReadOnlyCollection<>))
-                };
-            }
-            else
-            {
-                return new IType[]
+                if (GetArrayRank() == 1)
                 {
-                    ArrayType
-                };
+                    return new IType[]
+                    { 
+                        ArrayType,
+                        CreateGenericBaseInterface(typeof(System.Collections.Generic.IList<>)),
+                        CreateGenericBaseInterface(typeof(System.Collections.Generic.ICollection<>)),
+                        CreateGenericBaseInterface(typeof(System.Collections.Generic.IEnumerable<>)),
+                        CreateGenericBaseInterface(typeof(System.Collections.Generic.IReadOnlyList<>)),
+                        CreateGenericBaseInterface(typeof(System.Collections.Generic.IReadOnlyCollection<>))
+                    };
+                }
+                else
+                {
+                    return new IType[]
+                    {
+                        ArrayType
+                    };
+                }
             }
         }
 
@@ -74,21 +78,6 @@ namespace Flame.Cecil
         protected override IList<CustomAttribute> GetCustomAttributes()
         {
             return new CustomAttribute[0];
-        }
-
-        public override ContainerTypeKind ContainerKind
-        {
-            get
-            {
-                if (this is IVectorType)
-                {
-                    return ContainerTypeKind.Vector;
-                }
-                else
-                {
-                    return ContainerTypeKind.Array;
-                }
-            }
         }
 
         public override IBoundObject GetDefaultValue()

@@ -34,21 +34,6 @@ namespace Flame.Cecil
             return Method.GetMethodReference();
         }
 
-        public override IEnumerable<IType> GetGenericArguments()
-        {
-            return Method.GetGenericArguments();
-        }
-
-        public override IMethod GetGenericDeclaration()
-        {
-            return new CecilAccessor(DeclaringProperty, (ICecilMethod)Method.GetGenericDeclaration(), AccessorType);
-        }
-
-        public override IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
-        {
-            return new CecilAccessor(DeclaringProperty, (ICecilMethod)Method.MakeGenericMethod(TypeArguments), AccessorType);
-        }
-
         public override bool IsConstructor
         {
             get { return Method.IsConstructor; }
@@ -93,7 +78,7 @@ namespace Flame.Cecil
             return Method.ResolveTypeParameter(TypeParameter);
         }
 
-        public override IEnumerable<IAttribute> GetAttributes()
+        protected override IEnumerable<IAttribute> GetAttributes()
         {
             return Method.Attributes;
         }
@@ -108,9 +93,9 @@ namespace Flame.Cecil
             return new CustomAttribute[0];
         }
 
-        public override IMethod[] GetBaseMethods()
+        public override IEnumerable<IMethod> BaseMethods
         {
-            return Method.BaseMethods;
+            get { return Method.BaseMethods; }
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Flame.Front.Options
             if (typeof(T).IsArray)
             {
                 var optParserType = typeof(IOptionParser<string>);
-                var elemType = typeof(T).ElementType;
+                var elemType = typeof(T).GetElementType();
                 var genericMethod = optParserType.GetMethod("ParseValue").MakeGenericMethod(elemType);
                 Array results = (Array)Activator.CreateInstance(typeof(T), Value.Length);
                 for (int i = 0; i < results.Length; i++)
@@ -50,7 +50,7 @@ namespace Flame.Front.Options
         {
             return Parser.CanParse<T>() || 
                 (typeof(T).IsArray && 
-                (bool)typeof(IOptionParser<string>).GetMethod("CanParse").MakeGenericMethod(typeof(T).ElementType).Invoke(Parser, new object[0]));
+                (bool)typeof(IOptionParser<string>).GetMethod("CanParse").MakeGenericMethod(typeof(T).GetElementType()).Invoke(Parser, new object[0]));
         }
     }
 }

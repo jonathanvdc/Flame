@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using Flame.Build;
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -159,13 +160,16 @@ namespace Flame.Cecil
 
         private IType[] cachedBaseTypes;
         // Note that these "base types" are really the type constraints.
-        public override IType[] GetBaseTypes()
+        public override IEnumerable<IType> BaseTypes
         {
-            if (cachedBaseTypes == null)
+            get
             {
-                cachedBaseTypes = Constraint.ExtractBaseTypes().ToArray();
+                if (cachedBaseTypes == null)
+                {
+                    cachedBaseTypes = Constraint.ExtractBaseTypes().ToArray();
+                }
+                return cachedBaseTypes;
             }
-            return cachedBaseTypes;
         }
 
         protected override IEnumerable<IAttribute> GetMemberAttributes()
@@ -195,31 +199,16 @@ namespace Flame.Cecil
             return genericParam.CustomAttributes;
         }
 
-        public override bool IsContainerType
-        {
-            get { return false; }
-        }
-
-        public override IContainerType AsContainerType()
-        {
-            return null;
-        }
-
         #endregion
 
-        public override IEnumerable<IType> GetGenericArguments()
+        public override IEnumerable<IGenericParameter> GenericParameters
         {
-            return new IType[0];
+            get { return Enumerable.Empty<IGenericParameter>(); }
         }
 
-        public override IType GetGenericDeclaration()
+        public override IAncestryRules AncestryRules
         {
-            return this;
-        }
-
-        public override IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return Enumerable.Empty<IGenericParameter>();
+            get { return DefinitionAncestryRules.Instance; }
         }
 
         public override IBoundObject GetDefaultValue()

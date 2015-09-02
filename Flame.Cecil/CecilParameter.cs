@@ -40,15 +40,15 @@ namespace Flame.Cecil
             return CecilAttribute.GetAttributes(Parameter.CustomAttributes, DeclaringMember);
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            var resolvedParam = GetResolvedParameter();
-            var memberAttrs = GetMemberAttributes(resolvedParam);
-            var customAttrs = GetCustomAttributes(resolvedParam);
-            var attrs = new IAttribute[memberAttrs.Count + customAttrs.Count];
-            memberAttrs.CopyTo(attrs, 0);
-            customAttrs.CopyTo(attrs, memberAttrs.Count);
-            return attrs;
+            get
+            {
+                var resolvedParam = GetResolvedParameter();
+                var memberAttrs = GetMemberAttributes(resolvedParam);
+                var customAttrs = GetCustomAttributes(resolvedParam);
+                return memberAttrs.Concat(customAttrs);
+            }
         }
 
         public string Name
@@ -74,11 +74,6 @@ namespace Flame.Cecil
         public IType ParameterType
         {
             get { return Module.Convert(Parameter.ParameterType); }
-        }
-
-        public bool IsAssignable(IType Type)
-        {
-            return Type.Is(ParameterType);
         }
 
         #region Static
