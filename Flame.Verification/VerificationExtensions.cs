@@ -97,7 +97,7 @@ namespace Flame.Verification
                 if (!item.VerifyImplementation(ImplementationType, Log)) success = false;
             }
             foreach (var prop in DefinitionType.GetAllProperties())
-            foreach (var item in prop.GetAccessors())
+            foreach (var item in prop.Accessors)
             {
                 if (!item.VerifyImplementation(ImplementationType, Log)) success = false;
             }

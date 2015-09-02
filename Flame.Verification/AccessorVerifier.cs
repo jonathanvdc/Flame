@@ -34,7 +34,7 @@ namespace Flame.Verification
 
         protected override IEnumerable<IAccessor> GetDuplicates(IAccessor Member, ICompilerLog Log)
         {
-            return Member.DeclaringProperty.GetAccessors()
+            return Member.DeclaringProperty.Accessors
                 .Where(item => !Member.Equals(item) && Member.AccessorType.Equals(item.AccessorType) && Member.HasSameSignature(item));
         }
     }
