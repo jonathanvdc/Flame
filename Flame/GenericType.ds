@@ -80,7 +80,7 @@ namespace Flame
 
         public const bool Equals(GenericType Other)
         {
-        	return this.Declaration == Other.Declaration &&
+        	return this.Declaration.Equals(Other.Declaration) &&
                    this.GenericArguments.AreEqual(Other.GenericArguments);
         }
 

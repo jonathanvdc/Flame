@@ -99,7 +99,8 @@ namespace Flame
 
         public const bool Equals(GenericInstanceProperty Other)
         {
-        	return this.DeclaringType == Other.DeclaringType && this.Declaration == Other.Declaration;
+        	return this.DeclaringType.Equals(Other.DeclaringType) &&
+			       this.Declaration.Equals(Other.Declaration);
         }
 
         public override const int GetHashCode()

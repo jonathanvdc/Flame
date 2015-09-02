@@ -9,7 +9,7 @@ namespace Flame.Build
     {
         public int GetAncestryDegree(IType First, IType Second)
         {
-            if (First == Second)
+            if (First.Equals(Second))
             {
                 return 0; // They are equivalent. Return zero to signal this.
             }
@@ -46,7 +46,7 @@ namespace Flame.Build
     {
         public int GetAncestryDegree(IType First, IType Second)
         {
-            if (First == Second)
+            if (First.Equals(Second))
             {
                 return 0; // They are equivalent. Return zero to signal this.
             }
