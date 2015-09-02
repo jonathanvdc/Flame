@@ -24,5 +24,19 @@ namespace PassTests
 
             Assert.IsTrue(descType.GetConstructors().Count() == 1);
         }
+
+        [TestMethod]
+        [TestCategory("Generics - equality")]
+        public void GenericsEquality()
+        {
+            var descGenericType = new DescribedType("G", null);
+            var typeParam = new DescribedGenericParameter("T", descGenericType);
+            descGenericType.AddGenericParameter(typeParam);
+            var inst1 = descGenericType.MakeGenericType(new IType[] { PrimitiveTypes.Int32 });
+            var inst2 = descGenericType.MakeGenericType(new IType[] { PrimitiveTypes.Int32 });
+
+            Assert.IsTrue(inst1.Equals(inst2));
+            Assert.IsTrue(inst1.GetAncestryDegree(inst2) == 0);
+        }
     }
 }
