@@ -54,7 +54,13 @@ namespace Flame
 
         public string FullName
         {
-            const get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
+            const get
+            {
+                if (DeclaringNamespace == null)
+                    return Name;
+                else
+                    return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); 
+            }
         }
 
         public [IAttribute] Attributes
