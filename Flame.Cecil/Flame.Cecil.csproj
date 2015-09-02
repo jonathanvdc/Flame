@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AncestryGraphCacheBase.cs" />
+    <Compile Include="CecilAccessorBuilder.cs" />
     <Compile Include="CecilAncestryRules.cs" />
     <Compile Include="CecilDelegateType.cs" />
     <Compile Include="CecilFieldBase.cs" />

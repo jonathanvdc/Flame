@@ -114,7 +114,8 @@ namespace Flame.Cecil
 
         #endregion
 
-        private static CecilMethodBuilder DeclareMethod(ICecilType DeclaringType, IMethod Template, Action<MethodDefinition> AddMethod)
+        private static T DeclareMethod<T>(ICecilType DeclaringType, IMethod Template, Action<MethodDefinition> AddMethod, Func<MethodDefinition, T> CreateMethodBuilder)
+            where T : CecilMethodBuilder
         {
             var module = DeclaringType.Module;
 
@@ -175,7 +176,7 @@ namespace Flame.Cecil
 
             var cecilGenericParams = CecilGenericParameter.DeclareGenericParameters(methodDef, Template.GenericParameters.ToArray(), module);
 
-            var cecilMethod = new CecilMethodBuilder(DeclaringType, methodDef);
+            var cecilMethod = CreateMethodBuilder(methodDef);
             var genericParams = cecilGenericParams.Select((item) => new CecilGenericParameter(item, cecilMethod.Module, cecilMethod)).ToArray();
             if (!methodDef.IsConstructor)
             {
@@ -215,16 +216,14 @@ namespace Flame.Cecil
 
         public static CecilMethodBuilder DeclareMethod(ICecilTypeBuilder DeclaringType, IMethod Template)
         {
-            var method = DeclareMethod((ICecilType)DeclaringType, Template, DeclaringType.AddMethod);
-            return method;
+            return DeclareMethod(DeclaringType, Template, DeclaringType.AddMethod, def => new CecilMethodBuilder(DeclaringType, def));
         }
-        public static CecilMethodBuilder DeclareAccessor(ICecilPropertyBuilder DeclaringProperty, IAccessor Template)
+        public static CecilAccessorBuilder DeclareAccessor(ICecilPropertyBuilder DeclaringProperty, IAccessor Template)
         {
-            var method = DeclareMethod((ICecilType)DeclaringProperty.DeclaringType, Template, (item) =>
+            return DeclareMethod((ICecilType)DeclaringProperty.DeclaringType, Template, (item) =>
             {
                 DeclaringProperty.AddAccessor(item, Template.AccessorType);
-            });
-            return method;
+            }, def => new CecilAccessorBuilder(DeclaringProperty, def, Template.AccessorType));
         }
 
         protected static MethodAttributes ExtractMethodAttributes(IEnumerable<IAttribute> Attributes)
