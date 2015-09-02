@@ -21,14 +21,9 @@ namespace Flame.Python
         public IProperty Template { get; private set; }
         public List<IPythonAccessor> Accessors { get; private set; }
 
-        public IAccessor[] GetAccessors()
+        public IEnumerable<IParameter> IndexerParameters
         {
-            return Accessors.ToArray();
-        }
-
-        public IParameter[] GetIndexerParameters()
-        {
-            return Template.IndexerParameters;
+            get { return Template.IndexerParameters; }
         }
 
         public IType PropertyType
@@ -46,9 +41,9 @@ namespace Flame.Python
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Template.Attributes;
+            get { return Template.Attributes; }
         }
 
         protected IMemberNamer GetMemberNamer()
@@ -103,10 +98,15 @@ namespace Flame.Python
                 // All Python properties have getters, so that's definitely a requirement.
                 // Also, indexers get special treatment, so they shouldn't be included here.
                 // In addition, property names should not overlap with attribute names, because that's common decency.
-                return DeclaringType.GetField(Name) == null && !this.get_IsIndexer() && GetAccessors().Any((item) => item.AccessorType.Equals(AccessorType.GetAccessor));
+                return DeclaringType.GetField(Name) == null && !this.get_IsIndexer() && Accessors.Any((item) => item.AccessorType.Equals(AccessorType.GetAccessor));
             }
         }
 
         #endregion
+
+        IEnumerable<IAccessor> IProperty.Accessors
+        {
+            get { return Accessors; }
+        }
     }
 }

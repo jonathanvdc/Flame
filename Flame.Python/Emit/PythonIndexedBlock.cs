@@ -29,7 +29,7 @@ namespace Flame.Python.Emit
                 {
                     return PrimitiveTypes.Char;
                 }
-                else if (targetType.IsContainerType)
+                else if (targetType.get_IsContainerType())
                 {
                     return targetType.AsContainerType().ElementType;
                 }

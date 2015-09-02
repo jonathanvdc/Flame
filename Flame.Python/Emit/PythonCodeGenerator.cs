@@ -72,7 +72,7 @@ namespace Flame.Python.Emit
         public ICollectionBlock EmitCollectionBlock(IVariableMember Member, ICodeBlock Collection)
         {
             var pyColl = (IPythonBlock)Collection;
-            if (pyColl.Type.IsContainerType)
+            if (pyColl.Type.get_IsContainerType())
             {
                 return new ListCollectionBlock(this, pyColl);
             }
@@ -398,7 +398,7 @@ namespace Flame.Python.Emit
             }
         }
 
-        public ICodeBlock EmitNewVector(IType ElementType, int[] Dimensions)
+        public ICodeBlock EmitNewVector(IType ElementType, IReadOnlyList<int> Dimensions)
         {
             return EmitNewArray(ElementType, Dimensions.Select((item) => EmitInt32(item)));
         }

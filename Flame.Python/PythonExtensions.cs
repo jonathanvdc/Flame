@@ -143,7 +143,7 @@ namespace Flame.Python
 
         public static IPythonBlock CreatePythonFieldInitBlock(this IType Type, ICodeGenerator CodeGenerator)
         {
-            var instanceFields = Type.GetFields().OfType<PythonField>().Where((item) => !item.IsStatic);
+            var instanceFields = Type.Fields.OfType<PythonField>().Where((item) => !item.IsStatic);
             var initBlock = CodeGenerator.EmitVoid();
             foreach (var item in instanceFields)
             {

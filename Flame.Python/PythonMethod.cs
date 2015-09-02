@@ -150,19 +150,14 @@ namespace Flame.Python
 
         #region IMethod Implementation
 
-        public IMethod[] GetBaseMethods()
+        public IEnumerable<IMethod> BaseMethods
         {
-            return Template.BaseMethods;
+            get { return Template.BaseMethods; }
         }
 
-        public IMethod GetGenericDeclaration()
+        public IEnumerable<IParameter> Parameters
         {
-            return this;
-        }
-
-        public IParameter[] GetParameters()
-        {
-            return Template.GetParameters();
+            get { return Template.Parameters; }
         }
 
         public IParameter[] GetPythonParameters()
@@ -187,11 +182,6 @@ namespace Flame.Python
             get { return Name == "__init__"; }
         }
 
-        public IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
-        {
-            return this;
-        }
-
         public IType ReturnType
         {
             get { return Template.ReturnType; }
@@ -207,19 +197,14 @@ namespace Flame.Python
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Template.Attributes;
+            get { return Template.Attributes; }
         }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return Template.GetGenericArguments();
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return Template.GenericParameters;
+            get { return Template.GenericParameters; }
         }
 
         #endregion
