@@ -42,7 +42,7 @@ namespace Flame.Cecil
             var cg = GetBodyGenerator();
             if (IsConstructor && DeclaringType is ICecilTypeBuilder)
             {
-                foreach (var item in ((ICecilTypeBuilder)DeclaringType).GetFieldInitStatements())
+                foreach (var item in ((ICecilTypeBuilder)DeclaringType).CreateFieldInitStatements())
                 {
                     ((ICecilBlock)item.Emit(cg)).Emit(context);
                 }

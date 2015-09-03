@@ -332,19 +332,19 @@ namespace Flame.Cecil
             return this;
         }
 
-        private Dictionary<ICecilField, IExpression> initialValues;
-        public void SetInitialValue(ICecilField Field, IExpression Value)
+        private Dictionary<IField, IExpression> initialValues;
+        public void SetInitialValue(IField Field, IExpression Value)
         {
             if (initialValues == null)
             {
-                initialValues = new Dictionary<ICecilField, IExpression>();
+                initialValues = new Dictionary<IField, IExpression>();
             }
             initialValues[Field] = Value;
         }
 
-        public IList<IStatement> GetFieldInitStatements()
+        public IEnumerable<IStatement> CreateFieldInitStatements()
         {
-            List<IStatement> statements = new List<IStatement>();
+            var statements = new List<IStatement>();
             if (initialValues == null)
             {
                 return statements;
