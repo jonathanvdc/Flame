@@ -14,6 +14,7 @@ namespace Flame.Cecil
         public CecilDelegateType(IType Type, CecilModule Module)
         {
             this.Type = Type;
+            this.Module = Module;
             this.invMethod = new Lazy<IMethod>(() => this.GetMethods().Single(item => item.Name == "Invoke" && !item.IsStatic));
         }
 
