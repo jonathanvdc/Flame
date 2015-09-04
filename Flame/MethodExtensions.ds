@@ -112,6 +112,9 @@ namespace Flame
 			return ShadowsMethod(Method, Other) || ShadowsAccessor(Method, Other);
 		}
 
+		/// <summary>
+		/// Determines whether the given methods have the same signature or not.
+		/// </summary>
 		public static bool HasSameSignature(this IMethod Method, IMethod Other)
 		{
 			var comparer = ScopedTypeEqualityComparer;
@@ -141,42 +144,81 @@ namespace Flame
 			return matches.ConcatMethods();
 		}
 
+		/// <summary>
+		/// Gets all methods - directly declared and inherited - in the given
+		/// declaring type with the given name, staticness and parameter types.
+		/// </summary>
 		public static [IMethod] GetAllMethods(this IType DeclaringType, string Name, bool IsStatic, IType[] ParameterTypes)
 		{
 			var methods = new List<IMethod>();
 			foreach (var method in DeclaringType.GetAllMethods())
 			{
-				if (method.Name.Equals(Name))
-				if (method.IsStatic == IsStatic)
-				if (method.Parameters.GetTypes().AreEqual(ParameterTypes))
+				if (method.Name == Name &&
+				    method.IsStatic == IsStatic &&
+				    method.Parameters.GetTypes().AreEqual(ParameterTypes))
+				{
 					methods.Add(method);
+				}
 			}
 			return methods;
 		}
 
+		/// <summary>
+		/// Gets the first method in the given sequence of candidate methods
+		/// with the given staticness, return type and parameter types.
+		/// </summary>
 		public static IMethod GetMethod(this [IMethod] Candidates, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
 		{
 			foreach (var method in Candidates)
 			{
-				if (method.IsStatic == IsStatic)
-				if (method.ReturnType.Equals(ReturnType))
-				if (method.Parameters.GetTypes().AreEqual(ParameterTypes))
+				if (method.IsStatic == IsStatic &&
+				    method.ReturnType.Equals(ReturnType) &&
+				    method.Parameters.GetTypes().AreEqual(ParameterTypes))
+				{
 					return method;
+				}
 			}
 			return null;
 		}
+
+		/// <summary>
+		/// Gets the first method in the given sequence of candidate methods
+		/// with the given name, staticness, return type and parameter types.
+		/// </summary>
 		public static IMethod GetMethod(this [IMethod] Candidates, string Name, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
 		{
 			foreach (var method in Candidates)
 			{
-				if (method.Name.Equals(Name))
-				if (method.IsStatic == IsStatic)
-				if (method.ReturnType.Equals(ReturnType))
-				if (method.Parameters.GetTypes().AreEqual(ParameterTypes))
+				if (method.Name == Name &&
+					method.IsStatic == IsStatic &&
+				    method.ReturnType.Equals(ReturnType) &&
+					method.Parameters.GetTypes().AreEqual(ParameterTypes))
+				{
 					return method;
+				}
 			}
 			return null;
 		}
+
+		/// <summary>
+		/// Gets the first method in the given sequence of candidate methods that
+		/// has the same signature as the given method.
+		/// </summary>
+		/// <remarks>
+		/// This differs from the
+		/// <code>GetMethod(this [IMethod], string, bool, IType, IType[])</code>
+		/// overload in that generic parameters are also considered here.
+		/// </remarks>
+		public static IMethod GetMethod(this [IMethod] Candidates, IMethod Signature)
+		{
+			foreach (var item in Candidates)
+			{
+				if (item.HasSameSignature(Signature))
+					return item;
+			}
+			return null;
+		}
+
 		public static IMethod GetMethod(this IType DeclaringType, string Name, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
 		{
 			return DeclaringType.GetAllMethods().GetMethod(Name, IsStatic, ReturnType, ParameterTypes);
@@ -185,9 +227,11 @@ namespace Flame
 		{
 			foreach (var method in DeclaringType.GetAllMethods())
 			{
-				if (method.IsStatic == IsStatic)
-				if (method.Parameters.GetTypes().AreEqual(ParameterTypes))
+				if (method.IsStatic == IsStatic &&
+				    method.Parameters.GetTypes().AreEqual(ParameterTypes))
+				{
 					return method;
+				}
 			}
 			return null;
 		}
@@ -196,10 +240,12 @@ namespace Flame
 		{
 			foreach (var method in DeclaringType.GetConstructors())
 			{
-				if (method.IsConstructor)
-				if (method.IsStatic == IsStatic)
-				if (method.Parameters.GetTypes().AreEqual(ParameterTypes))
+				if (method.IsConstructor &&
+				    method.IsStatic == IsStatic &&
+				    method.Parameters.GetTypes().AreEqual(ParameterTypes))
+				{
 					return method;
+				}
 			}
 			return null;
 		}
