@@ -11,7 +11,7 @@ namespace Flame.Build
         {
         	this.AddAttribute(PrimitiveAttributes.ConstantAttribute);
         }
-        public const this(string Name, IType DeclaringType, IType FieldType, T Literal)
+        public const this(string Name, IType DeclaringType, IType FieldType, set T Literal)
             : base(Name, DeclaringType, FieldType, true)
         {
         	this.AddAttribute(PrimitiveAttributes.ConstantAttribute);
