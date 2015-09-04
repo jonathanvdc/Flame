@@ -203,7 +203,7 @@ namespace Flame.Cpp
         /// <summary>
         /// Gets a boolean value that, if true, explains that
         /// a commented version of the method's body will be emitted
-        /// in the header file, even though the method is technically 
+        /// in the header file, even though the method is technically
         /// defined in the source file.
         /// </summary>
         public bool HasPublicBody
@@ -420,7 +420,7 @@ namespace Flame.Cpp
             }
             if (First.Name == Other.Name && Other.IsStatic == First.IsStatic && (First.DeclaringType == null || First.DeclaringType.Equals(Other.DeclaringType)))
             {
-                var tComparer = new ScopedTypeEqualityComparer();
+                var tComparer = ScopedTypeEqualityComparer.Instance;
 
                 if (!tComparer.Compare(Other.ReturnType, First.ReturnType))
                     return false;

@@ -309,9 +309,7 @@ namespace Flame.DSharp.Build
             	foreach (var item in DeclaringType.GetAllBaseTypes())
             	{
             		var match = item.GetMethods().GetMethod(this.Name, this.IsStatic, this.ReturnType, paramTypes);
-            		if (match != null)
-            		if (match.IsVirtual)
-            		if (!baseMethods.Contains(match))
+            		if (match != null && match.IsVirtual && !baseMethods.Contains(match))
             		{
             			baseMethods.Add(match);
             		}
