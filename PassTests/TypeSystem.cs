@@ -91,5 +91,69 @@ namespace PassTests
             // Derp is Herp ==> Herp(Derp, Derp) is not Derp(Herp, Herp)
             Assert.IsFalse(MethodType.Create(descMethod2).Is(MethodType.Create(descMethod)));
         }
+
+        private static IType CreateDelegateType(IType ResultType, params IType[] ArgumentTypes)
+        {
+            var argMethod = new DescribedMethod("", null, ResultType, true);
+            foreach (var item in ArgumentTypes)
+            {
+                argMethod.AddParameter(new DescribedParameter("", item));
+            }
+            return MethodType.Create(argMethod);
+        }
+
+        [TestMethod]
+        [TestCategory("Methods - signature equivalence")]
+        public void MethodSignatureEquivalence()
+        {
+            // bit64(float64)
+            var argType = CreateDelegateType(PrimitiveTypes.Bit64, PrimitiveTypes.Float64);
+
+            // bit64 apply(bit64(float64) f, float64 arg)
+            var firstMethod = new DescribedMethod("apply", null, PrimitiveTypes.Bit64, true);
+            firstMethod.AddParameter(new DescribedParameter("f", argType));
+            firstMethod.AddParameter(new DescribedParameter("arg", PrimitiveTypes.Float64));
+
+            // bit64 apply(bit64(float64) f, float64 arg)
+            var secondMethod = new DescribedMethod("apply", null, PrimitiveTypes.Bit64, true);
+            secondMethod.AddParameter(new DescribedParameter("f", argType));
+            secondMethod.AddParameter(new DescribedParameter("arg", PrimitiveTypes.Float64));
+
+            Assert.IsTrue(argType.IsEquivalent(argType));
+            Assert.IsTrue(MethodType.Create(firstMethod).IsEquivalent(MethodType.Create(secondMethod)));
+            Assert.IsTrue(firstMethod.HasSameSignature(secondMethod));
+        }
+
+        [TestMethod]
+        [TestCategory("Methods - generic signature equivalence")]
+        public void MethodGenericSignatureEquivalence()
+        {
+            // TResult apply<TResult, TArg>(TResult(TArg) f, TArg arg)
+            var firstMethod = new DescribedMethod("apply", null);
+            firstMethod.IsStatic = true;
+            var firstResultParam = new DescribedGenericParameter("TResult", firstMethod);
+            firstMethod.AddGenericParameter(firstResultParam);
+            var firstArgParam = new DescribedGenericParameter("TArg", firstMethod);
+            firstMethod.AddGenericParameter(firstArgParam);
+            firstMethod.AddParameter(new DescribedParameter("f", CreateDelegateType(firstResultParam, firstArgParam)));
+            firstMethod.AddParameter(new DescribedParameter("arg", firstResultParam));
+            firstMethod.ReturnType = firstResultParam;
+
+            // TResult apply<TResult, TArg>(TResult(TArg) f, TArg arg)
+            var secondMethod = new DescribedMethod("apply", null);
+            secondMethod.IsStatic = true;
+            var secondResultParam = new DescribedGenericParameter("TResult", secondMethod);
+            secondMethod.AddGenericParameter(secondResultParam);
+            var secondArgParam = new DescribedGenericParameter("TArg", secondMethod);
+            secondMethod.AddGenericParameter(secondArgParam);
+            secondMethod.AddParameter(new DescribedParameter("f", CreateDelegateType(secondResultParam, secondArgParam)));
+            secondMethod.AddParameter(new DescribedParameter("arg", secondResultParam));
+            secondMethod.ReturnType = secondResultParam;
+
+            Assert.IsFalse(MethodType.Create(firstMethod).IsEquivalent(MethodType.Create(secondMethod)));
+            Assert.IsTrue(firstMethod.HasSameSignature(secondMethod));
+
+
+        }
     }
 }
