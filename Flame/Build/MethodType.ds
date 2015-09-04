@@ -153,37 +153,39 @@ namespace Flame
     /// </summary>
     public static class MethodTypeAncestryRules : IAncestryRules
     {
-        public int GetAncestryDegree(IType First, IType Second)
+        public int GetAncestryDegree(IMethod firstMethod, IMethod secondMethod)
         {
-            var firstMethod = MethodType.GetMethod(First);
-            var secondMethod = MethodType.GetMethod(Second);
-
             if (firstMethod == null || secondMethod == null)
             {
                 return -1;
             }
 
             int totalAncestry = firstMethod.ReturnType.GetAncestryDegree(secondMethod.ReturnType);
-			if (totalAncestry < 0)
-				return -1;
+            if (totalAncestry < 0)
+                return -1;
 
-			var firstParams = firstMethod.GetParameters();
-			var secondParams = secondMethod.GetParameters();
+            var firstParams = firstMethod.GetParameters();
+            var secondParams = secondMethod.GetParameters();
 
-			if (firstParams.Length != secondParams.Length)
-				return -1;
+            if (firstParams.Length != secondParams.Length)
+                return -1;
 
-			foreach (var first in firstParams, var second in secondParams)
-			{
-				int argAncestry = second.ParameterType.GetAncestryDegree(first.ParameterType);
+            foreach (var first in firstParams, var second in secondParams)
+            {
+                int argAncestry = second.ParameterType.GetAncestryDegree(first.ParameterType);
 
-				if (argAncestry < 0)
-					return -1;
-				else
-					totalAncestry += argAncestry;
-			}
+                if (argAncestry < 0)
+                    return -1;
+                else
+                    totalAncestry += argAncestry;
+            }
 
-			return totalAncestry;
+            return totalAncestry;
+        }
+
+        public int GetAncestryDegree(IType First, IType Second)
+        {
+            return GetAncestryDegree(MethodType.GetMethod(First), MethodType.GetMethod(Second));
         }
     }
 }

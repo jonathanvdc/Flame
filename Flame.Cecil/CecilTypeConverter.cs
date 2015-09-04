@@ -102,16 +102,7 @@ namespace Flame.Cecil
 
             var resolvedDecl = Declaration.Resolve();
 
-            var result = new CecilType(resolvedDecl, Module);
-
-            if (!resolvedDecl.HasGenericParameters && resolvedDecl.IsDelegate())
-            {
-                return new CecilDelegateType(result, Module);
-            }
-            else
-            {
-                return result;
-            }
+            return new CecilType(resolvedDecl, Module);
         }
 
         private IType ConvertGenericInstance(TypeReference ElementType, IEnumerable<IType> TypeArguments)
@@ -138,15 +129,7 @@ namespace Flame.Cecil
 
         private IType ConvertGenericInstanceType(Mono.Cecil.GenericInstanceType Type)
         {
-            var result = ConvertGenericInstance(Type.ElementType, Type.GenericArguments.Select(Convert));
-            if (result.get_IsDelegate())
-            {
-                return new CecilDelegateType(result, Module);
-            }
-            else
-            {
-                return result;
-            }
+            return ConvertGenericInstance(Type.ElementType, Type.GenericArguments.Select(Convert));
         }
 
         private IType ConvertGenericParameter(GenericParameter Type, TypeReference DeclaringType)

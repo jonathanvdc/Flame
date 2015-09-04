@@ -47,6 +47,15 @@ namespace Flame.Cecil
                     return 0;
                 }
             }
+
+            var leftMethod = CecilDelegateType.GetDelegateMethod(First);
+            var rightMethod = CecilDelegateType.GetDelegateMethod(Second);
+
+            if (leftMethod != null && rightMethod != null)
+            {
+                return MethodTypeAncestryRules.Instance.GetAncestryDegree(leftMethod, rightMethod);
+            }
+
             return DefinitionAncestryRules.Instance.GetAncestryDegree(First, Second);
         }
     }

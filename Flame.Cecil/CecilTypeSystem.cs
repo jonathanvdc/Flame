@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +18,7 @@ namespace Flame.Cecil
             this.enumeratorType = new Lazy<IType>(() => Module.ConvertStrict(typeof(IEnumerator<>)));
             this.funcDelegates = new Dictionary<int, IType>();
             this.actionDelegates = new Dictionary<int, IType>();
-            this.canonicalDelegates = new Dictionary<DelegateSignature, IType>();            
+            this.canonicalDelegates = new ConcurrentDictionary<DelegateSignature, IType>();            
         }
 
         public CecilModule Module { get; private set; }
@@ -34,18 +35,12 @@ namespace Flame.Cecil
 
         private Dictionary<int, IType> funcDelegates;
         private Dictionary<int, IType> actionDelegates;
-        private Dictionary<DelegateSignature, IType> canonicalDelegates;
+        private ConcurrentDictionary<DelegateSignature, IType> canonicalDelegates;
 
         public IType GetCanonicalDelegate(IMethod Signature)
         {
             var sig = new DelegateSignature(Signature.ReturnType, Signature.GetParameters().GetTypes());
-            if (!canonicalDelegates.ContainsKey(sig))
-            {
-                var deleg = new CecilDelegateType(GetCanonicalDelegateCore(sig), Module);
-                canonicalDelegates[sig] = deleg;
-                return deleg;
-            }
-            return canonicalDelegates[sig];
+            return canonicalDelegates.GetOrAdd(sig, GetCanonicalDelegateCore);
         }
 
         private IType GetCanonicalDelegateCore(DelegateSignature Signature)

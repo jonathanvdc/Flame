@@ -103,7 +103,7 @@ namespace Flame.Cecil.Emit
         {
             get 
             {
-                return MethodType.GetMethod(Method.BlockType).ReturnType;
+                return CecilDelegateType.GetDelegateMethod(Method.BlockType).ReturnType;
             }
         }
     }
