@@ -27,9 +27,9 @@ namespace Flame.Optimization.Variables
 
     public class FlattenedAccessFlow
     {
-        public const this(set List<Func<IVariableDefinition, bool, AccessMetrics>> Values);
+        public const this(set List<AccessMetrics(IVariableDefinition, bool)> Values);
 
-        public List<Func<IVariableDefinition, bool, AccessMetrics>> Values { const get; private set; }
+        public List<AccessMetrics(IVariableDefinition, bool)> Values { const get; private set; }
 
         public const AccessMetrics GetAccess(IVariableDefinition Def, bool IsDefined)
         {
