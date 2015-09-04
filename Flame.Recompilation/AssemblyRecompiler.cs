@@ -135,11 +135,16 @@ namespace Flame.Recompilation
                 var declMember = ((IGenericParameter)Type).DeclaringMember;
                 return IsExternal(declMember);
             }
-            if (Type.get_IsGenericInstance())
+            else if (Type.get_IsGenericInstance())
             {
                 return IsExternal(Type.GetGenericDeclaration()) && Type.GetGenericArguments().All(IsExternal);
             }
-            if (HasExternalAttribute(Type))
+            else if (Type.get_IsDelegate())
+            {
+                var method = MethodType.GetMethod(Type);
+                return IsExternal(method.ReturnType) && method.Parameters.GetTypes().All(IsExternal);
+            }
+            else if (HasExternalAttribute(Type))
             {
                 return true;
             }
@@ -332,7 +337,7 @@ namespace Flame.Recompilation
 
         private MemberCreationResult<IType> GetNewType(IType SourceType)
         {
-            if (SourceType.get_IsDelegate() && !SourceType.get_IsGenericInstance())
+            if (SourceType.get_IsDelegate())
             {
                 return new MemberCreationResult<IType>(MethodType.Create(GetMethod(MethodType.GetMethod(SourceType))));
             }
