@@ -294,9 +294,9 @@ namespace Flame.DSharp.Build
 
         	var state = GetSyntaxState();
         	var baseMethods = new List<IMethod>();
-        	var paramTypes = Enumerable.ToArray<IType>(this.Parameters.GetTypes());
         	foreach (var item in Syntax.ImplementedMethods)
             {
+                var paramTypes = Enumerable.ToArray<IType>(this.Parameters.GetTypes());
                 var member = Enumerable.OfType<IMethod>(item.GetAccessedMembers(state)).GetMethod(this.IsStatic, this.ReturnType, paramTypes);
                 if (member == null)
                 {
@@ -308,7 +308,7 @@ namespace Flame.DSharp.Build
             {
             	foreach (var item in DeclaringType.GetAllBaseTypes())
             	{
-            		var match = item.GetMethods().GetMethod(this.Name, this.IsStatic, this.ReturnType, paramTypes);
+            		var match = item.GetMethods().GetMethod(this);
             		if (match != null && match.IsVirtual && !baseMethods.Contains(match))
             		{
             			baseMethods.Add(match);
