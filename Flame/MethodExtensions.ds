@@ -85,7 +85,7 @@ namespace Flame
 				   Method.IsStatic == Other.IsStatic &&
 				   !Method.Equals(Other) &&
 				   Method.DeclaringType.Is(Other.DeclaringType) &&
-				   new ScopedTypeEqualityComparer().CompareAll(
+				   ScopedTypeEqualityComparer.CompareAll(
 				       Method.Parameters.GetTypes(),
 				       Other.Parameters.GetTypes());
 		}
@@ -114,7 +114,7 @@ namespace Flame
 
 		public static bool HasSameSignature(this IMethod Method, IMethod Other)
 		{
-			var comparer = new ScopedTypeEqualityComparer();
+			var comparer = ScopedTypeEqualityComparer;
 
 			return Method.Name.Equals(Other.Name) &&
 			       Method.IsStatic == Other.IsStatic &&

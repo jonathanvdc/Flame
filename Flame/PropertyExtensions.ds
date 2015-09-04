@@ -20,7 +20,7 @@ namespace Flame
 				   Top.IsStatic == Bottom.IsStatic &&
 			       !Top.Equals(Bottom) &&
 				   Top.DeclaringType.Is(Bottom.DeclaringType) &&
-				   new ScopedTypeEqualityComparer().CompareAll(
+				   ScopedTypeEqualityComparer.CompareAll(
 				       Top.IndexerParameters.GetTypes(),
 				       Bottom.IndexerParameters.GetTypes());
 		}
@@ -30,7 +30,7 @@ namespace Flame
 		/// </summary>
 		public static const bool HasSameSignature(this IProperty Left, IProperty Right)
 		{
-			var comparer = new ScopedTypeEqualityComparer();
+			var comparer = ScopedTypeEqualityComparer;
 
 			return Left.IsStatic == Right.IsStatic && Left.Name == Right.Name &&
 				   comparer.Compare(Left.PropertyType, Right.PropertyType) &&
