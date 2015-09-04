@@ -21,6 +21,8 @@ namespace Flame.DSharp.Build
         public const this(set AccessorSyntax Syntax, set SyntaxProperty ParentProperty, set IBinder Binder)
         {
             this.parameterCache = new Lazy<IParameter[]>(CreateParameters);
+            this.baseMethodCache = new Lazy<IMethod[]>(CreateBaseMethods);
+            this.attrCache = new Lazy<IAttribute[]>(CreateAttributes);
         }
 
         public AccessorSyntax Syntax { const get; private set; }
@@ -141,58 +143,54 @@ namespace Flame.DSharp.Build
             return null;
         }
 
-        public [IAttribute] Attributes { get { return GetAttributes(); } }
+        public [IAttribute] Attributes { get { return attrCache.Value; } }
 
-		private IAttribute[] attrCache;
-        public const [IAttribute] GetAttributes()
+		private Lazy<IAttribute[]> attrCache;
+        private IAttribute[] CreateAttributes()
         {
-        	if (attrCache == null)
-        	{
-	            List<IAttribute> attrs = new List<IAttribute>();
-	            foreach (var item in Syntax.Signature.ModifierTokens.GetModifiers())
-	            {
-	            	attrs.Add(item);
-	            }
-	            attrs.AddRange(Syntax.GetDescriptionAttributes(GetSyntaxState()));
-	            if (IsAutoProperty)
-	            {
-	            	attrs.Add(new FieldAccessorAttribute(FieldPropertySyntax.GetBackingFieldName(ParentProperty.Name)));
-	            }
-	            foreach (var item in DeclaringProperty.Attributes)
-	            {
-	            	var attrType = item.AttributeType;
-	            	if (attrType.Equals(DescriptionAttribute.DescriptionAttributeType))
-	            	{
-	            		var desc = (DescriptionAttribute)item;
-	            		string tag = desc.Tag;
-
-	            		if (!tag.Equals("remarks"))
-	            		{
-		            		var localDescAttrs = attrs.GetAttributes(attrType);
-		            		bool containsTag = false;
-		            		foreach (var localAttr in localDescAttrs)
-		            			if (((DescriptionAttribute)localAttr).Tag.Equals(tag))
-		            			{
-		            				containsTag = true;
-		            				break;
-		            			}
-		            		if (!containsTag)
-		            		{
-		            			attrs.Add(desc);
-		            		}
-	            		}
-	            	}
-	                if (attrType.Equals(AccessAttribute.AccessAttributeType) || attrType.Equals(PrimitiveAttributes.VirtualAttribute.AttributeType) || attrType.Equals(PrimitiveAttributes.AbstractAttribute.AttributeType) || attrType.Equals(PrimitiveAttributes.InlineAttribute.AttributeType))
-	                {
-	                    if (!attrs.HasAttribute(attrType))
-	                    {
-	                        attrs.Add(item);
-	                    }
-	                }
-	            }
-	            attrCache = attrs.ToArray();
+            var attrs = new List<IAttribute>();
+            foreach (var item in Syntax.Signature.ModifierTokens.GetModifiers())
+            {
+            	attrs.Add(item);
             }
-            return attrCache;
+            attrs.AddRange(Syntax.GetDescriptionAttributes(GetSyntaxState()));
+            if (IsAutoProperty)
+            {
+            	attrs.Add(new FieldAccessorAttribute(FieldPropertySyntax.GetBackingFieldName(ParentProperty.Name)));
+            }
+            foreach (var item in DeclaringProperty.Attributes)
+            {
+            	var attrType = item.AttributeType;
+            	if (attrType.Equals(DescriptionAttribute.DescriptionAttributeType))
+            	{
+            		var desc = (DescriptionAttribute)item;
+            		string tag = desc.Tag;
+
+            		if (!tag.Equals("remarks"))
+            		{
+	            		var localDescAttrs = attrs.GetAttributes(attrType);
+	            		bool containsTag = false;
+	            		foreach (var localAttr in localDescAttrs)
+	            			if (((DescriptionAttribute)localAttr).Tag.Equals(tag))
+	            			{
+	            				containsTag = true;
+	            				break;
+	            			}
+	            		if (!containsTag)
+	            		{
+	            			attrs.Add(desc);
+	            		}
+            		}
+            	}
+                if (attrType.Equals(AccessAttribute.AccessAttributeType) || attrType.Equals(PrimitiveAttributes.VirtualAttribute.AttributeType) || attrType.Equals(PrimitiveAttributes.AbstractAttribute.AttributeType) || attrType.Equals(PrimitiveAttributes.InlineAttribute.AttributeType))
+                {
+                    if (!attrs.HasAttribute(attrType))
+                    {
+                        attrs.Add(item);
+                    }
+                }
+            }
+            return attrs.ToArray();
         }
 
         public static const IField GetBackingField(IType CurrentType, string PropertyName)
@@ -248,27 +246,23 @@ namespace Flame.DSharp.Build
 
         #region GetBaseMethods
 
-        public [IMethod] BaseMethods { get { return GetBaseMethods(); }}
+        public [IMethod] BaseMethods { get { return baseMethodCache.Value; } }
 
-        private IMethod[] baseMethodCache;
-        public virtual IMethod[] GetBaseMethods()
+        private Lazy<IMethod[]> baseMethodCache;
+        private IMethod[] CreateBaseMethods()
         {
-        	if (baseMethodCache == null)
+        	var state = GetSyntaxState();
+        	var baseMethods = new List<IMethod>();
+        	foreach (var item in ParentProperty.BaseProperties)
         	{
-	        	var state = GetSyntaxState();
-	        	var baseMethods = new List<IMethod>();
-	        	foreach (var item in ParentProperty.GetBaseProperties())
-	        	{
-	        		var accessor = item.GetAccessor(AccessorType);
-	        		if (accessor != null)
-	        		if (accessor.IsVirtual)
-	        		{
-	        			baseMethods.Add(accessor);
-	        		}
-	        	}
-	        	baseMethodCache = baseMethods.ToArray();
+        		var accessor = item.GetAccessor(AccessorType);
+        		if (accessor != null)
+        		if (accessor.IsVirtual)
+        		{
+        			baseMethods.Add(accessor);
+        		}
         	}
-        	return baseMethodCache;
+        	return baseMethods.ToArray();
         }
 
         #endregion

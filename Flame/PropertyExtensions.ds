@@ -174,39 +174,75 @@ namespace Flame
 
         #endregion
 
+		/// <summary>
+		/// Gets the first property in the given sequence of properties
+		/// that has the given name and staticness.
+		/// </summary>
         public static IProperty GetProperty(this [IProperty] Candidates, string Name, bool IsStatic)
         {
         	foreach (var method in Candidates)
 			{
-				if (method.Name.Equals(Name))
-				if (method.IsStatic == IsStatic)
+				if (method.Name == Name &&
+				    method.IsStatic == IsStatic)
+				{
 					return method;
+				}
 			}
 			return null;
         }
+
+		/// <summary>
+		/// Gets the first property in the given sequence of properties
+		/// that has the given staticness, property type and indexer parameters.
+		/// </summary>
         public static IProperty GetProperty(this [IProperty] Candidates, bool IsStatic, IType PropertyType, IType[] IndexerParameters)
         {
         	foreach (var method in Candidates)
 			{
-				if (method.IsStatic == IsStatic)
-				if (method.PropertyType.Equals(PropertyType))
-				if (method.IndexerParameters.GetTypes().AreEqual(IndexerParameters))
+				if (method.IsStatic == IsStatic &&
+				    method.PropertyType.Equals(PropertyType) &&
+				    method.IndexerParameters.GetTypes().AreEqual(IndexerParameters))
+				{
 					return method;
+				}
 			}
 			return null;
         }
+
+		/// <summary>
+		/// Gets the first property in the given sequence of properties
+		/// that has the given name, staticness, property type and indexer parameters.
+		/// </summary>
         public static IProperty GetProperty(this [IProperty] Candidates, string Name, bool IsStatic, IType PropertyType, IType[] IndexerParameters)
         {
         	foreach (var method in Candidates)
 			{
-				if (method.Name.Equals(Name))
-				if (method.IsStatic == IsStatic)
-				if (method.PropertyType.Equals(PropertyType))
-				if (method.IndexerParameters.GetTypes().AreEqual(IndexerParameters))
+				if (method.Name == Name &&
+				    method.IsStatic == IsStatic &&
+				    method.PropertyType.Equals(PropertyType) &&
+				    method.IndexerParameters.GetTypes().AreEqual(IndexerParameters))
+				{
 					return method;
+				}
 			}
 			return null;
         }
+
+		/// <summary>
+		/// Gets the first property in the given sequence of properties that has
+		/// the same signature as the given property.
+		/// </summary>
+		public static IProperty GetProperty(this [IProperty] Candidates, IProperty Signature)
+		{
+			foreach (var item in Candidates)
+			{
+				if (item.HasSameSignature(Signature))
+				{
+					return item;
+				}
+			}
+			return null;
+		}
 
 		/// <summary>
 		/// Gets a read-only array containing the given property's indexer parameter list.
