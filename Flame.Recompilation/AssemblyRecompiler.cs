@@ -447,6 +447,34 @@ namespace Flame.Recompilation
 
         #endregion
 
+        #region GetGenericResolver
+
+        /// <summary>
+        /// Gets a generic type resolver for the given type, which
+        /// must either be a generic resolver itself, or a generic type
+        /// instance.
+        /// </summary>
+        /// <param name="Type"></param>
+        /// <returns></returns>
+        private static IGenericResolver GetGenericResolver(IType Type)
+        {
+            if (Type is IGenericResolver)
+            {
+                return (IGenericResolver)Type;
+            }
+            else if (Type is GenericTypeBase)
+            {
+                return ((GenericTypeBase)Type).Resolver;
+            }
+            else
+            {
+                throw new InvalidOperationException("Could not get a generic type resolver for type '" + Type.FullName + 
+                                                    "' because it is neither a generic resolver nor a generic instance type.");
+            }
+        }
+
+        #endregion
+
         #region Fields
 
         public IField GetField(IField SourceField)
@@ -465,8 +493,8 @@ namespace Flame.Recompilation
                 if (SourceField is GenericInstanceField)
                 {
                     var recompGenericField = GetField(SourceField.GetRecursiveGenericDeclaration());
-                    var recompDeclType = (GenericTypeBase)GetType(SourceField.DeclaringType);
-                    return new MemberCreationResult<IField>(new GenericInstanceField(recompGenericField, recompDeclType.Resolver, recompDeclType));
+                    var recompDeclType = GetType(SourceField.DeclaringType);
+                    return new MemberCreationResult<IField>(new GenericInstanceField(recompGenericField, GetGenericResolver(recompDeclType), recompDeclType));
                 }
                 else if (IsExternalStrict(SourceField))
                 {
@@ -506,8 +534,8 @@ namespace Flame.Recompilation
                 if (SourceProperty is GenericInstanceProperty)
                 {
                     var recompGenericProperty = GetProperty(SourceProperty.GetRecursiveGenericDeclaration());
-                    var recompDeclType = (GenericTypeBase)GetType(SourceProperty.DeclaringType);
-                    return new MemberCreationResult<IProperty>(new GenericInstanceProperty(recompGenericProperty, recompDeclType.Resolver, recompDeclType));
+                    var recompDeclType = GetType(SourceProperty.DeclaringType);
+                    return new MemberCreationResult<IProperty>(new GenericInstanceProperty(recompGenericProperty, GetGenericResolver(recompDeclType), recompDeclType));
                 }
                 else if (IsExternalStrict(SourceProperty))
                 {
@@ -580,8 +608,8 @@ namespace Flame.Recompilation
             else if (SourceMethod is GenericInstanceMethod)
             {
                 var recompGenericMethod = GetMethod(SourceMethod.GetRecursiveGenericDeclaration());
-                var recompDeclType = (GenericTypeBase)GetType(SourceMethod.DeclaringType);
-                return new MemberCreationResult<IMethod>(new GenericInstanceMethod(recompGenericMethod, recompDeclType.Resolver, recompDeclType));
+                var recompDeclType = GetType(SourceMethod.DeclaringType);
+                return new MemberCreationResult<IMethod>(new GenericInstanceMethod(recompGenericMethod, GetGenericResolver(recompDeclType), recompDeclType));
             }
             else if (IsExternalStrict(SourceMethod))
             {
