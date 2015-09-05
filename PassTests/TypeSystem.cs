@@ -152,8 +152,6 @@ namespace PassTests
 
             Assert.IsFalse(MethodType.Create(firstMethod).IsEquivalent(MethodType.Create(secondMethod)));
             Assert.IsTrue(firstMethod.HasSameSignature(secondMethod));
-
-
         }
     }
 }

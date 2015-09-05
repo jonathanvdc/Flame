@@ -8,21 +8,79 @@ namespace Flame
 	public static class PropertyExtensions
 	{
 		/// <summary>
+		/// Gets the given property's declaring type.
+		/// </summary>
+		public static IType GetDeclaringType(IProperty Member)
+		{
+			return Member.DeclaringType;
+		}
+
+		/// <summary>
+		/// Gets the given property's parameter types.
+		/// </summary>
+		public static [IType] GetIndexerParameterTypes(IProperty Property)
+		{
+			return Property.IndexerParameters.GetTypes();
+		}
+
+		/// <summary>
+		/// Gets the given method's parameter types. If it is an extension parameter,
+		/// the first parameter is omitted.
+		/// </summary>
+		public static [IType] GetExtensionIndexerParameterTypes(IProperty Property)
+		{
+			if (Property.IsExtension)
+				return Enumerable.Skip<IParameter>(Property.IndexerParameters, 1).GetTypes();
+			else
+				return GetIndexerParameterTypes(Property);
+		}
+
+		/// <summary>
+		/// Gets the "this" type of a property, which may be an extension property.
+		/// If so, the "this" type is assumed to be the type of the first parameter.
+		/// Otherwise, the declaring type is the "this" type.
+		/// </summary>
+		public static IType GetExtensionThisType(IProperty Member)
+		{
+			if (Member.IsExtension)
+				return Enumerable.First<IParameter>(Member.IndexerParameters).ParameterType;
+			else
+				return GetDeclaringType(Member);
+		}
+
+		/// <summary>
+		/// Tells if the first property "shadows" the second, i.e. it has the
+		/// same name, staticness and indexer parameter list, but its "this" type
+		/// is more derived than the second property's "this" type.
+		/// </summary>
+		public static const bool Shadows(this IProperty Top, IProperty Bottom,
+			IType(IProperty) GetThisType, IEnumerable<IType>(IProperty) GetPropertyParameterTypes)
+		{
+			return Top.HasSameCallSignature(Bottom, GetPropertyParameterTypes) &&
+			       !Top.Equals(Bottom) &&
+				   GetThisType(Top).Is(GetThisType(Bottom));
+		}
+
+		/// <summary>
 		/// Tells if the first property "shadows" the second, i.e. it has the
 		/// same name, staticness and indexer parameter list, but its declaring type
-		/// is more derived than the second method's derived type.
+		/// is more derived than the second property's declaring type.
 		/// </summary>
 		public static const bool Shadows(this IProperty Top, IProperty Bottom)
 		{
-			bool isIndexer = Top.IsIndexer;
-			return isIndexer == Bottom.IsIndexer &&
-				   (isIndexer || Top.Name == Bottom.Name) &&
-				   Top.IsStatic == Bottom.IsStatic &&
-			       !Top.Equals(Bottom) &&
-				   Top.DeclaringType.Is(Bottom.DeclaringType) &&
-				   ScopedTypeEqualityComparer.CompareAll(
-				       Top.IndexerParameters.GetTypes(),
-				       Bottom.IndexerParameters.GetTypes());
+			return Shadows(Top, Bottom, GetDeclaringType, GetIndexerParameterTypes);
+		}
+
+		/// <summary>
+		/// Tells if the first property "shadows" the second, i.e. it has the
+		/// same name, staticness and indexer parameter list, but its "this" type
+		/// is more derived than the second property's "this" type.
+		/// For extension methods, the "this" type is assumed to be the type
+		/// of the first parameter.
+		/// </summary>
+		public static const bool ShadowsExtension(this IProperty Top, IProperty Bottom)
+		{
+			return Shadows(Top, Bottom, GetExtensionThisType, GetExtensionIndexerParameterTypes);
 		}
 
 		/// <summary>
@@ -30,12 +88,32 @@ namespace Flame
 		/// </summary>
 		public static const bool HasSameSignature(this IProperty Left, IProperty Right)
 		{
-			var comparer = ScopedTypeEqualityComparer;
+			return Left.HasSameCallSignature(Right) &&
+				   ScopedTypeEqualityComparer.Compare(Left.PropertyType, Right.PropertyType);
+		}
 
-			return Left.IsStatic == Right.IsStatic && Left.Name == Right.Name &&
-				   comparer.Compare(Left.PropertyType, Right.PropertyType) &&
-				   comparer.CompareAll(Left.IndexerParameters.GetTypes(),
-				   					   Right.IndexerParameters.GetTypes());
+		/// <summary>
+		/// Tests if the given properties have the same call signature, which is
+		/// defined as the property signature, without the property type.
+		/// </summary>
+		public static const bool HasSameCallSignature(this IProperty Left, IProperty Right)
+		{
+			return Left.HasSameCallSignature(Right, GetIndexerParameterTypes);
+		}
+
+		/// <summary>
+		/// Tests if the given properties have the same call signature, which is
+		/// defined as the property signature, without the property type.
+		/// </summary>
+		public static const bool HasSameCallSignature(this IProperty Left, IProperty Right,
+													  IEnumerable<IType>(IProperty) GetPropertyParameterTypes)
+		{
+			bool isIndexer = Left.IsIndexer;
+			return isIndexer == Right.IsIndexer &&
+			       Left.IsStatic == Right.IsStatic &&
+				   (isIndexer || Left.Name == Right.Name) &&
+				   ScopedTypeEqualityComparer.CompareAll(GetPropertyParameterTypes(Left),
+									   					 GetPropertyParameterTypes(Right));
 		}
 
         #region Accessors
