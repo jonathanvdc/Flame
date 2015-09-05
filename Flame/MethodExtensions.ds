@@ -79,27 +79,87 @@ namespace Flame
 			return Enumerable.SingleOrDefault<IMethod>(Methods);
 		}
 
-		private static bool ShadowsMethod(IMethod Method, IMethod Other)
+		/// <summary>
+		/// Gets the given method's declaring type.
+		/// </summary>
+		public static IType GetDeclaringType(IMethod Member)
 		{
-			return Method.Name.Equals(Other.Name) &&
-				   Method.IsStatic == Other.IsStatic &&
+			return Member.DeclaringType;
+		}
+
+		/// <summary>
+		/// Gets the given method's parameter types.
+		/// </summary>
+		public static [IType] GetParameterTypes(IMethod Method)
+		{
+			return Method.Parameters.GetTypes();
+		}
+
+		/// <summary>
+		/// Gets the given method's parameter types. If it is an extension parameter,
+		/// the first parameter is omitted.
+		/// </summary>
+		public static [IType] GetExtensionParameterTypes(IMethod Method)
+		{
+			if (Method.IsExtension)
+				return Enumerable.Skip<IParameter>(Method.Parameters, 1).GetTypes();
+			else
+				return GetParameterTypes(Method);
+		}
+
+		/// <summary>
+		/// Gets the "this" type of a method, which may be an extension method.
+		/// If so, the "this" type is assumed to be the type of the first parameter.
+		/// Otherwise, the declaring type is the "this" type.
+		/// </summary>
+		public static IType GetExtensionThisType(IMethod Member)
+		{
+			if (Member.IsExtension)
+				return Enumerable.First<IParameter>(Member.Parameters).ParameterType;
+			else
+				return Member.DeclaringType;
+		}
+
+		private static bool ShadowsMethod(IMethod Method, IMethod Other,
+			IType(IMethod) GetThisType, IEnumerable<IType>(IMethod) GetMethodParameterTypes)
+		{
+			return Method.HasSameCallSignature(Other, GetMethodParameterTypes) &&
 				   !Method.Equals(Other) &&
-				   Method.DeclaringType.Is(Other.DeclaringType) &&
-				   ScopedTypeEqualityComparer.CompareAll(
-				       Method.Parameters.GetTypes(),
-				       Other.Parameters.GetTypes());
+				   GetThisType(Method).Is(GetThisType(Other));
 		}
 
-		private static bool ShadowsAccessorCore(IAccessor Top, IAccessor Bottom)
+		private static bool ShadowsAccessorCore(IAccessor Top, IAccessor Bottom,
+			IType(IMethod) GetThisType, IEnumerable<IType>(IMethod) GetMethodParameterTypes)
 		{
-			return Top.AccessorType == Bottom.AccessorType &&
-				   Top.DeclaringProperty.Shadows(Bottom.DeclaringProperty);
+			return !Top.Equals(Bottom) &&
+			       Top.AccessorType == Bottom.AccessorType &&
+			       Top.DeclaringProperty.Name == Bottom.DeclaringProperty.Name &&
+				   Top.DeclaringProperty.IsStatic == Bottom.DeclaringProperty.IsStatic &&
+				   GetThisType(Top).Is(GetThisType(Bottom)) &&
+				   ScopedTypeEqualityComparer.CompareAll(
+					   GetMethodParameterTypes(Top),
+					   GetMethodParameterTypes(Bottom));
 		}
 
-		private static bool ShadowsAccessor(IMethod Method, IMethod Other)
+		private static bool ShadowsAccessor(IMethod Method, IMethod Other,
+       		IType(IMethod) GetThisType, IEnumerable<IType>(IMethod) GetMethodParameterTypes)
 		{
 			return Method is IAccessor && Other is IAccessor &&
-				   ShadowsAccessorCore((IAccessor)Method, (IAccessor)Other);
+				   ShadowsAccessorCore((IAccessor)Method, (IAccessor)Other,
+				                       GetThisType, GetMethodParameterTypes);
+		}
+
+		/// <summary>
+		/// Tells if the first method "shadows" the second, i.e. it has the
+		/// same name, staticness and parameter list, but its "this" type
+		/// is more derived than the second method's "this" type. A delegate
+		/// is given that figures out what the "this" type of a given type member is.
+		/// </summary>
+		public static bool Shadows(this IMethod Method, IMethod Other,
+			IType(IMethod) GetThisType, IEnumerable<IType>(IMethod) GetMethodParameterTypes)
+		{
+			return ShadowsMethod(Method, Other, GetThisType, GetMethodParameterTypes) ||
+			       ShadowsAccessor(Method, Other, GetThisType, GetMethodParameterTypes);
 		}
 
 		/// <summary>
@@ -109,7 +169,19 @@ namespace Flame
 		/// </summary>
 		public static bool Shadows(this IMethod Method, IMethod Other)
 		{
-			return ShadowsMethod(Method, Other) || ShadowsAccessor(Method, Other);
+			return Shadows(Method, Other, GetDeclaringType, GetParameterTypes);
+		}
+
+		/// <summary>
+		/// Tells if the first method "shadows" the second, i.e. it has the
+		/// same name, staticness and parameter list, but its "this" type
+		/// is more derived than the second method's "this" type.
+		/// For extension methods, the "this" type is assumed to be the type
+		/// of the first parameter.
+		/// </summary>
+		public static bool ShadowsExtension(this IMethod Method, IMethod Other)
+		{
+			return Shadows(Method, Other, GetExtensionThisType, GetExtensionParameterTypes);
 		}
 
 		/// <summary>
@@ -117,12 +189,33 @@ namespace Flame
 		/// </summary>
 		public static bool HasSameSignature(this IMethod Method, IMethod Other)
 		{
-			var comparer = ScopedTypeEqualityComparer;
+			return Method.HasSameCallSignature(Other) &&
+				   ScopedTypeEqualityComparer.Compare(Method.ReturnType, Other.ReturnType);
+		}
 
-			return Method.Name.Equals(Other.Name) &&
-			       Method.IsStatic == Other.IsStatic &&
-			       comparer.Compare(Method.ReturnType, Other.ReturnType) &&
-			       comparer.CompareAll(Method.Parameters.GetTypes(), Other.Parameters.GetTypes());
+		/// <summary>
+		/// Determines whether the given methods have the same call signature or not.
+		/// A call signature is defined as the method's signature, minus the
+		/// return type.
+		/// </summary>
+		public static bool HasSameCallSignature(this IMethod Method, IMethod Other)
+		{
+			return Method.HasSameCallSignature(Other, GetParameterTypes);
+		}
+
+		/// <summary>
+		/// Determines whether the given methods have the same call signature or not.
+		/// A call signature is defined as the method's signature, minus the
+		/// return type.
+		/// </summary>
+		public static bool HasSameCallSignature(this IMethod Method, IMethod Other,
+			IEnumerable<IType>(IMethod) GetMethodParameterTypes)
+		{
+			return Method.Name == Other.Name &&
+				   Method.IsStatic == Other.IsStatic &&
+				   ScopedTypeEqualityComparer.CompareAll(
+					   GetMethodParameterTypes(Method),
+					   GetMethodParameterTypes(Other));
 		}
 
 		public static IMethod GetBestMethod(this [IMethod] Candidates, IType[] ParameterTypes)

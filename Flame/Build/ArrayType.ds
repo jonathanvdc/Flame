@@ -89,10 +89,14 @@ namespace Flame.Build
             {
 				return 0;
             }
-			else
+			else if (First.IsArray && Second.IsEnumerableType) // Arrays are direct subtypes of enumerables.
 			{
-				return -1;
+				var elemDegree = First.AsContainerType().ElementType.GetAncestryDegree(
+									Second.GetEnumerableElementType());
+				if (elemDegree >= 0)
+					return elemDegree + 1;
 			}
+			return -1;
 		}
 	}
 }
