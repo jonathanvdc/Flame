@@ -40,15 +40,15 @@ namespace Flame.Cecil
             return CecilAttribute.GetAttributes(Parameter.CustomAttributes, DeclaringMember);
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            var resolvedParam = GetResolvedParameter();
-            var memberAttrs = GetMemberAttributes(resolvedParam);
-            var customAttrs = GetCustomAttributes(resolvedParam);
-            var attrs = new IAttribute[memberAttrs.Count + customAttrs.Count];
-            memberAttrs.CopyTo(attrs, 0);
-            customAttrs.CopyTo(attrs, memberAttrs.Count);
-            return attrs;
+            get
+            {
+                var resolvedParam = GetResolvedParameter();
+                var memberAttrs = GetMemberAttributes(resolvedParam);
+                var customAttrs = GetCustomAttributes(resolvedParam);
+                return memberAttrs.Concat(customAttrs);
+            }
         }
 
         public string Name
@@ -76,11 +76,6 @@ namespace Flame.Cecil
             get { return Module.Convert(Parameter.ParameterType); }
         }
 
-        public bool IsAssignable(IType Type)
-        {
-            return Type.Is(ParameterType);
-        }
-
         #region Static
 
         public static IParameter[] GetParameters(ICecilTypeMember Resolver, IList<ParameterDefinition> Parameters)
@@ -100,7 +95,7 @@ namespace Flame.Cecil
             IGenericParameterProvider context;
             if (Member is IGenericMember)
             {
-                paramType = CecilTypeBuilder.GetGenericType(paramType, ((IGenericMember)Member).GetGenericParameters().ToArray());
+                paramType = CecilTypeBuilder.GetGenericType(paramType, ((IGenericMember)Member).GenericParameters.ToArray());
                 context = Member.GetMemberReference() as IGenericParameterProvider;
             }
             else
@@ -109,7 +104,7 @@ namespace Flame.Cecil
 	        }
             paramDef = new ParameterDefinition(Template.Name, ParameterAttributes.None, paramType.GetImportedReference(module, context));
             var cecilParam = new CecilParameter(Member, paramDef);
-            var attrs = Template.GetAttributes();
+            var attrs = Template.Attributes;
             if (attrs.Any((item) => item.AttributeType.Equals(PrimitiveAttributes.Instance.OutAttribute.AttributeType)))
             {
                 paramDef.IsOut = true;

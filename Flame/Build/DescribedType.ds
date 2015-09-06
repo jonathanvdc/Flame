@@ -6,10 +6,10 @@ namespace Flame.Build
 {
 	public class DescribedType : DescribedMember, IType
 	{
-		public const this(set string Name, set INamespace DeclaringNamespace)
+		public const this(string Name, set INamespace DeclaringNamespace)
+			: base(Name)
 		{
 			this.baseTypes = new List<IType>();
-			this.ctors = new List<IMethod>();
 			this.methods = new List<IMethod>();
 			this.fields = new List<IField>();
 			this.properties = new List<IProperty>();
@@ -19,15 +19,14 @@ namespace Flame.Build
 		public INamespace DeclaringNamespace { const get; private set; }
 
 		private List<IType> baseTypes;
-		private List<IMethod> ctors;
 		private List<IMethod> methods;
 		private List<IField> fields;
 		private List<IProperty> properties;
 		private List<IGenericParameter> typeParams;
 
-		public const IType[] GetBaseTypes()
+		public [IType] BaseTypes
         {
-            return baseTypes.ToArray();
+            const get { return baseTypes; }
         }
 
         public void AddBaseType(IType BaseType)
@@ -40,32 +39,19 @@ namespace Flame.Build
 			this.typeParams.Add(Value);
 		}
 
-        public const ITypeMember[] GetMembers()
+        public [IMethod] Methods
         {
-            List<ITypeMember> members = new List<ITypeMember>();
-            foreach (var method in methods) members.Add(method);
-            foreach (var prop in properties) members.Add(prop);
-            foreach (var ctor in ctors) members.Add(ctor);
-            foreach (var field in fields) members.Add(field);
-            return members.ToArray();
-        }
-
-        public const IMethod[] GetMethods()
-        {
-            return methods.ToArray();
+            const get { return methods; }
         }
 
         public void AddMethod(IMethod Method)
         {
-        	if (Method.IsConstructor)
-        		this.ctors.Add(Method);
-        	else
-        		this.methods.Add(Method);
+    		this.methods.Add(Method);
         }
 
-        public const IProperty[] GetProperties()
+        public [IProperty] Properties
         {
-            return properties.ToArray();
+            const get { return properties; }
         }
 
         public void AddProperty(IProperty Property)
@@ -73,14 +59,9 @@ namespace Flame.Build
         	this.properties.Add(Property);
         }
 
-        public const IMethod[] GetConstructors()
+        public [IField] Fields
         {
-            return ctors.ToArray();
-        }
-
-        public const IField[] GetFields()
-        {
-            return fields.ToArray();
+            const get { return fields; }
         }
 
         public void AddField(IField Field)
@@ -88,11 +69,19 @@ namespace Flame.Build
         	this.fields.Add(Field);
         }
 
+		public IAncestryRules AncestryRules
+		{
+			const get { return DefinitionAncestryRules; }
+		}
+
         public string FullName
         {
             get
             {
-                return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
+				if (DeclaringNamespace == null)
+					return Name;
+                else
+					return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
             }
         }
 
@@ -101,50 +90,9 @@ namespace Flame.Build
             return null;
         }
 
-        public bool IsContainerType
+        public [IGenericParameter] GenericParameters
         {
-            const get { return false; }
-        }
-
-        public const IContainerType AsContainerType()
-        {
-            return null;
-        }
-
-        public IArrayType MakeArrayType(int Rank)
-        {
-            return new DescribedArrayType(this, Rank);
-        }
-
-        public IPointerType MakePointerType(PointerKind PointerKind)
-        {
-            return new DescribedPointerType(this, PointerKind);
-        }
-
-        public IVectorType MakeVectorType(int[] Dimensions)
-        {
-            return new DescribedVectorType(this, Dimensions);
-        }
-
-        public IType MakeGenericType([IType] TypeArguments)
-        {
-			if (typeParams.Count == 0) return this;
-            else return new DescribedGenericTypeInstance(this, TypeArguments);
-        }
-
-        public [IGenericParameter] GetGenericParameters()
-        {
-            return typeParams;
-        }
-
-        public [IType] GetGenericArguments()
-        {
-            return new IType[0];
-        }
-
-        public IType GetGenericDeclaration()
-        {
-            return this;
+            const get { return typeParams; }
         }
 
         public override string ToString()

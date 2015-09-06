@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -38,79 +39,53 @@ namespace Flame.Recompilation
         public CompilationCache(Func<T, MemberCreationResult<T>> GetNew, IAsyncTaskManager TaskManager)
         {
             this.getNew = GetNew;
-            this.cache = new Dictionary<T, T>();
+            this.cache = new ConcurrentDictionary<T, T>();
             this.TaskManager = TaskManager;
         }
 
         private Func<T, MemberCreationResult<T>> getNew;
-        private Dictionary<T, T> cache;
+        private ConcurrentDictionary<T, T> cache;
         public IAsyncTaskManager TaskManager { get; private set; }
 
         private T GetCore(T Source)
         {
-            if (cache.ContainsKey(Source))
+            var result = TaskManager.RunSequential(getNew, Source);
+            cache[Source] = result.Member;
+            if (result.Continuation != null)
             {
-                return cache[Source];
+                result.Continuation(result.Member, Source);
             }
-            else
-            {
-                var result = TaskManager.RunSequential(getNew, Source);
-                cache[Source] = result.Member;
-                if (result.Continuation != null)
-                {
-                    result.Continuation(result.Member, Source);
-                }
-                return result.Member;
-            }
+            return result.Member;
         }
 
         public T GetOriginal(T Value)
         {
-            lock (cache)
+            foreach (var item in cache)
             {
-                foreach (var item in cache)
+                if (Value.Equals(item.Value))
                 {
-                    if (Value.Equals(item.Value))
-                    {
-                        return item.Key;
-                    }
+                    return item.Key;
                 }
-                return default(T);
             }
+            return default(T);
         }
 
-        public T[] GetAll()
+        public IEnumerable<T> GetAll()
         {
-            lock (cache)
-            {
-                return cache.Values.ToArray();
-            }
+            return cache.Values;
         }
 
         public T Get(T Source)
         {
-            T result;
-            lock (cache)
-            {
-                result = GetCore(Source);
-            }
-            return result;
+            return cache.GetOrAdd(Source, GetCore);
         }
         public T[] GetMany(params T[] Source)
         {
-            T[] results = new T[Source.Length];
-            lock (cache)
-            {
-                for (int i = 0; i < results.Length; i++)
-                {
-                    results[i] = GetCore(Source[i]);
-                }
-            }
-            return results;
+            return Source.Select(Get).ToArray();
         }
-        public T[] GetMany(IEnumerable<T> Source)
+        public IEnumerable<T> GetMany(IEnumerable<T> Source)
         {
-            return GetMany(Source.ToArray());
+            return Source.Select(Get);
         }
 
         public T FirstOrDefault(Func<T, bool> Query)
@@ -120,15 +95,12 @@ namespace Flame.Recompilation
         }
         public T First(Func<T, bool> Query, out bool Success)
         {
-            lock (cache)
+            foreach (var item in cache.Values)
             {
-                foreach (var item in cache.Values)
+                if (Query(item))
                 {
-                    if (Query(item))
-                    {
-                        Success = true;
-                        return item;
-                    }
+                    Success = true;
+                    return item;
                 }
             }
             Success = false;

@@ -3,20 +3,25 @@ using System.Collections.Generic;
 
 namespace Flame
 {
+	/// <summary>
+	/// A root interface for members: objects that have a name, a full name,
+	/// and a set of attributes.
+	/// </summary>
 	public interface IMember
 	{
 		/// <summary>
         /// Gets the member's name.
         /// </summary>
-        string Name { const get; }
+        string Name { get; }
+
         /// <summary>
         /// Gets the member's full name.
         /// </summary>
-        string FullName { const get; }
+        string FullName { get; }
+
         /// <summary>
         /// Gets the member's attributes.
         /// </summary>
-        /// <returns></returns>
-        const IEnumerable<IAttribute> GetAttributes();
+        [IAttribute] Attributes { get; }
 	}
 }

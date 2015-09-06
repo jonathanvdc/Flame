@@ -1,0 +1,76 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Build
+{
+    public class VectorType : ContainerTypeBase, IVectorType
+    {
+        public const this(IType ElementType, set IReadOnlyList<int> Dimensions)
+            : base(ElementType);
+
+        public IReadOnlyList<int> Dimensions { const get; private set; }
+
+        protected override const string GetName(string ElementName)
+        {
+            return GenericNameExtensions.AppendVectorSuffix(ElementName, Dimensions);
+        }
+
+        public override IAncestryRules AncestryRules
+        {
+            const get { return VectorAncestryRules; }
+        }
+
+        public virtual IType[] GetBaseTypes()
+        {
+            return new IType[] { PrimitiveTypes.IHashable };
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is VectorType)
+            {
+                var vectType = (VectorType)obj;
+                return ElementType == vectType.ElementType &&
+                       Enumerable.SequenceEqual<int>(Dimensions, vectType.Dimensions);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+        	int result = ElementType.GetHashCode();
+        	foreach (var item in Dimensions)
+        	{
+        		result += item.GetHashCode();
+        	}
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// A set of ancestry rules for non-covariant vectors:
+    /// only vectors with the same dimensions and element types are interchangeable.
+    /// </summary>
+    public static class VectorAncestryRules : IAncestryRules
+    {
+        public int GetAncestryDegree(IType First, IType Second)
+        {
+            if (First.IsVector && Second.IsVector &&
+                Enumerable.SequenceEqual<int>(First.AsVectorType().Dimensions,
+                                              Second.AsVectorType().Dimensions) &&
+                First.AsContainerType().ElementType.IsEquivalent(Second.AsContainerType().ElementType))
+            {
+                return 0;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+    }
+}

@@ -38,7 +38,7 @@ namespace Flame.Cpp
             }
         }
 
-        protected override IType MakeVectorType(IType Type, int[] Dimensions)
+        protected override IType MakeVectorType(IType Type, IReadOnlyList<int> Dimensions)
         {
             throw new NotImplementedException();
         }

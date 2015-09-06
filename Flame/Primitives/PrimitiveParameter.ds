@@ -8,13 +8,10 @@ namespace Flame.Primitives
 	{
 		public const this(set string Name, set IType ParameterType)
 		{
-			this.attributes = new IAttribute[0];
+			this.Attributes = new IAttribute[0];
 		}
-		public const this(set string Name, set IType ParameterType, IEnumerable<IAttribute> Attributes)
-		{
-			this.attributes = Attributes;
-		}
-	
+		public const this(set string Name, set IType ParameterType, set [IAttribute] Attributes);
+
 		/// <summary>
         /// Gets the member's name.
         /// </summary>
@@ -23,29 +20,16 @@ namespace Flame.Primitives
         /// Gets the member's full name.
         /// </summary>
         public string FullName { const get return Name; }
-        
-        private IEnumerable<IAttribute> attributes;
+
         /// <summary>
         /// Gets the member's attributes.
         /// </summary>
         /// <returns></returns>
-        public const IEnumerable<IAttribute> GetAttributes()
-        {
-        	return attributes;
-        }
-	
+        public [IAttribute] Attributes { const get; private set; }
+
 		/// <summary>
-        /// Gets the parameter's (default) type.
+        /// Gets the parameter's type.
         /// </summary>
         public IType ParameterType { const get; private set; }
-        /// <summary>
-        /// Gets a boolean value that indicates if an argument of the specified type can be assigned to the current parameter.
-        /// </summary>
-        /// <param name="Type">The potential argument's type.</param>
-        /// <returns></returns>
-        public const bool IsAssignable(IType Type)
-        {
-        	return Type.Is(ParameterType);
-        }
 	}
 }

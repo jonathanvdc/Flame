@@ -93,13 +93,13 @@ namespace Flame.Cecil
         {
             get
             {
-                return GetTypes();
+                return Types.ToArray();
             }
         }
 
-        public IType[] GetTypes()
+        public IEnumerable<IType> Types
         {
-            return Modules.Aggregate(Enumerable.Empty<IType>(), (acc, module) => acc.Concat(module.Types)).ToArray();
+            get { return Modules.Aggregate(Enumerable.Empty<IType>(), (acc, module) => acc.Concat(module.Types)); }
         }
 
         public IType GetType(string Name)
@@ -117,9 +117,9 @@ namespace Flame.Cecil
             get { return Assembly.FullName; }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return CecilAttribute.GetAttributes(Assembly.CustomAttributes, MainModule);
+            get { return CecilAttribute.GetAttributes(Assembly.CustomAttributes, MainModule); }
         }
 
         #region IAssemblyBuilder Implementation

@@ -33,7 +33,7 @@ namespace Flame.Cpp.Emit
             get
             {
                 var type = Constructor.Type;
-                return (IMethod)type;
+                return MethodType.GetMethod(type);
             }
         }
 

@@ -8,21 +8,79 @@ namespace Flame
 	public static class PropertyExtensions
 	{
 		/// <summary>
+		/// Gets the given property's declaring type.
+		/// </summary>
+		public static IType GetDeclaringType(IProperty Member)
+		{
+			return Member.DeclaringType;
+		}
+
+		/// <summary>
+		/// Gets the given property's parameter types.
+		/// </summary>
+		public static [IType] GetIndexerParameterTypes(IProperty Property)
+		{
+			return Property.IndexerParameters.GetTypes();
+		}
+
+		/// <summary>
+		/// Gets the given method's parameter types. If it is an extension parameter,
+		/// the first parameter is omitted.
+		/// </summary>
+		public static [IType] GetExtensionIndexerParameterTypes(IProperty Property)
+		{
+			if (Property.IsExtension)
+				return Enumerable.Skip<IParameter>(Property.IndexerParameters, 1).GetTypes();
+			else
+				return GetIndexerParameterTypes(Property);
+		}
+
+		/// <summary>
+		/// Gets the "this" type of a property, which may be an extension property.
+		/// If so, the "this" type is assumed to be the type of the first parameter.
+		/// Otherwise, the declaring type is the "this" type.
+		/// </summary>
+		public static IType GetExtensionThisType(IProperty Member)
+		{
+			if (Member.IsExtension)
+				return Enumerable.First<IParameter>(Member.IndexerParameters).ParameterType;
+			else
+				return GetDeclaringType(Member);
+		}
+
+		/// <summary>
+		/// Tells if the first property "shadows" the second, i.e. it has the
+		/// same name, staticness and indexer parameter list, but its "this" type
+		/// is more derived than the second property's "this" type.
+		/// </summary>
+		public static const bool Shadows(this IProperty Top, IProperty Bottom,
+			IType(IProperty) GetThisType, IEnumerable<IType>(IProperty) GetPropertyParameterTypes)
+		{
+			return Top.HasSameCallSignature(Bottom, GetPropertyParameterTypes) &&
+			       !Top.Equals(Bottom) &&
+				   GetThisType(Top).Is(GetThisType(Bottom));
+		}
+
+		/// <summary>
 		/// Tells if the first property "shadows" the second, i.e. it has the
 		/// same name, staticness and indexer parameter list, but its declaring type
-		/// is more derived than the second method's derived type.
+		/// is more derived than the second property's declaring type.
 		/// </summary>
 		public static const bool Shadows(this IProperty Top, IProperty Bottom)
 		{
-			bool isIndexer = Top.IsIndexer;
-			return isIndexer == Bottom.IsIndexer &&
-				   (isIndexer || Top.Name == Bottom.Name) &&
-				   Top.IsStatic == Bottom.IsStatic &&
-			       !Top.Equals(Bottom) &&
-				   Top.DeclaringType.Is(Bottom.DeclaringType) &&
-				   new ScopedTypeEqualityComparer().CompareAll(
-				       Top.GetIndexerParameters().GetTypes(),
-				       Bottom.GetIndexerParameters().GetTypes());
+			return Shadows(Top, Bottom, GetDeclaringType, GetIndexerParameterTypes);
+		}
+
+		/// <summary>
+		/// Tells if the first property "shadows" the second, i.e. it has the
+		/// same name, staticness and indexer parameter list, but its "this" type
+		/// is more derived than the second property's "this" type.
+		/// For extension methods, the "this" type is assumed to be the type
+		/// of the first parameter.
+		/// </summary>
+		public static const bool ShadowsExtension(this IProperty Top, IProperty Bottom)
+		{
+			return Shadows(Top, Bottom, GetExtensionThisType, GetExtensionIndexerParameterTypes);
 		}
 
 		/// <summary>
@@ -30,11 +88,32 @@ namespace Flame
 		/// </summary>
 		public static const bool HasSameSignature(this IProperty Left, IProperty Right)
 		{
-			var comparer = new ScopedTypeEqualityComparer();
+			return Left.HasSameCallSignature(Right) &&
+				   ScopedTypeEqualityComparer.Compare(Left.PropertyType, Right.PropertyType);
+		}
 
-			return Left.IsStatic == Right.IsStatic && Left.Name == Right.Name &&
-				   comparer.Compare(Left.PropertyType, Right.PropertyType) &&
-				   comparer.CompareAll(Left.GetIndexerParameters().GetTypes(), Right.GetIndexerParameters().GetTypes());
+		/// <summary>
+		/// Tests if the given properties have the same call signature, which is
+		/// defined as the property signature, without the property type.
+		/// </summary>
+		public static const bool HasSameCallSignature(this IProperty Left, IProperty Right)
+		{
+			return Left.HasSameCallSignature(Right, GetIndexerParameterTypes);
+		}
+
+		/// <summary>
+		/// Tests if the given properties have the same call signature, which is
+		/// defined as the property signature, without the property type.
+		/// </summary>
+		public static const bool HasSameCallSignature(this IProperty Left, IProperty Right,
+													  IEnumerable<IType>(IProperty) GetPropertyParameterTypes)
+		{
+			bool isIndexer = Left.IsIndexer;
+			return isIndexer == Right.IsIndexer &&
+			       Left.IsStatic == Right.IsStatic &&
+				   (isIndexer || Left.Name == Right.Name) &&
+				   ScopedTypeEqualityComparer.CompareAll(GetPropertyParameterTypes(Left),
+									   					 GetPropertyParameterTypes(Right));
 		}
 
         #region Accessors
@@ -46,7 +125,7 @@ namespace Flame
         /// <returns></returns>
         public static IAccessor GetAccessor(this IProperty Property, AccessorType Type)
         {
-        	foreach (var item in Property.GetAccessors())
+        	foreach (var item in Property.Accessors)
         	{
         		if (item.AccessorType.Equals(Type))
         		{
@@ -103,55 +182,26 @@ namespace Flame
 
         #endregion
 
-        #region GetIndexerParameterTypes
-
-        public const static IType[] GetIndexerParameterTypes(this IProperty Property)
-        {
-        	var indexerParameters = Property.GetIndexerParameters();
-        	IType[] types = new IType[indexerParameters.Length];
-        	for (int i = 0; i < types.Length; ++i)
-        	{
-        		types[i] = indexerParameters[i].ParameterType;
-        	}
-        	return types;
-        }
-
-        #endregion
-
         #region Indexers
+
+		private static bool isIndexerImpl(IProperty Property)
+		{
+			return Property.HasAttribute(PrimitiveAttributes.IndexerAttribute.AttributeType);
+		}
 
         public static bool IsIndexer[this IProperty Property]
         {
-        	const get
-        	{
-        		return Property.HasAttribute(PrimitiveAttributes.IndexerAttribute.AttributeType);
-        	}
+        	const get return isIndexerImpl(Property);
         }
 
         public static [IProperty] GetIndexers(this IType Type)
         {
-        	var indexers = new List<IProperty>();
-        	foreach (var item in Type.GetProperties())
-        	{
-        		if (item.IsIndexer)
-        		{
-        			indexers.Add(item);
-        		}
-        	}
-        	return indexers;
+			return Enumerable.Where<IProperty>(Type.Properties, isIndexerImpl);
         }
 
         public static [IProperty] GetAllIndexers(this IType Type)
         {
-        	var indexers = new List<IProperty>();
-        	foreach (var item in Type.GetAllProperties())
-        	{
-        		if (item.IsIndexer)
-        		{
-        			indexers.Add(item);
-        		}
-        	}
-        	return indexers;
+			return Enumerable.Where<IProperty>(Type.GetAllProperties(), isIndexerImpl);
         }
 
         public static [IProperty] GetIndexers(this IType Type, bool IsStatic, [IType] IndexerArguments)
@@ -191,7 +241,7 @@ namespace Flame
         	var props = new List<IProperty>();
         	foreach (var item in Candidates)
         	{
-        		var indexParams = item.GetIndexerParameters().GetTypes();
+        		var indexParams = item.IndexerParameters.GetTypes();
         		if (indexParams.AreEqual(indexArgs))
         		{
         			props.Add(item);
@@ -202,38 +252,82 @@ namespace Flame
 
         #endregion
 
+		/// <summary>
+		/// Gets the first property in the given sequence of properties
+		/// that has the given name and staticness.
+		/// </summary>
         public static IProperty GetProperty(this [IProperty] Candidates, string Name, bool IsStatic)
         {
         	foreach (var method in Candidates)
 			{
-				if (method.Name.Equals(Name))
-				if (method.IsStatic == IsStatic)
+				if (method.Name == Name &&
+				    method.IsStatic == IsStatic)
+				{
 					return method;
+				}
 			}
 			return null;
         }
+
+		/// <summary>
+		/// Gets the first property in the given sequence of properties
+		/// that has the given staticness, property type and indexer parameters.
+		/// </summary>
         public static IProperty GetProperty(this [IProperty] Candidates, bool IsStatic, IType PropertyType, IType[] IndexerParameters)
         {
         	foreach (var method in Candidates)
 			{
-				if (method.IsStatic == IsStatic)
-				if (method.PropertyType.Equals(PropertyType))
-				if (method.GetIndexerParameters().GetTypes().AreEqual(IndexerParameters))
+				if (method.IsStatic == IsStatic &&
+				    method.PropertyType.Equals(PropertyType) &&
+				    method.IndexerParameters.GetTypes().AreEqual(IndexerParameters))
+				{
 					return method;
+				}
 			}
 			return null;
         }
+
+		/// <summary>
+		/// Gets the first property in the given sequence of properties
+		/// that has the given name, staticness, property type and indexer parameters.
+		/// </summary>
         public static IProperty GetProperty(this [IProperty] Candidates, string Name, bool IsStatic, IType PropertyType, IType[] IndexerParameters)
         {
         	foreach (var method in Candidates)
 			{
-				if (method.Name.Equals(Name))
-				if (method.IsStatic == IsStatic)
-				if (method.PropertyType.Equals(PropertyType))
-				if (method.GetIndexerParameters().GetTypes().AreEqual(IndexerParameters))
+				if (method.Name == Name &&
+				    method.IsStatic == IsStatic &&
+				    method.PropertyType.Equals(PropertyType) &&
+				    method.IndexerParameters.GetTypes().AreEqual(IndexerParameters))
+				{
 					return method;
+				}
 			}
 			return null;
         }
+
+		/// <summary>
+		/// Gets the first property in the given sequence of properties that has
+		/// the same signature as the given property.
+		/// </summary>
+		public static IProperty GetProperty(this [IProperty] Candidates, IProperty Signature)
+		{
+			foreach (var item in Candidates)
+			{
+				if (item.HasSameSignature(Signature))
+				{
+					return item;
+				}
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// Gets a read-only array containing the given property's indexer parameter list.
+		/// </summary>
+		public static IParameter[] GetIndexerParameters(this IProperty Property)
+		{
+			return Enumerable.ToArray<IParameter>(Property.IndexerParameters);
+		}
 	}
 }

@@ -59,21 +59,6 @@ namespace Flame.ExpressionTrees
             }
         }
 
-        public override bool Equals(IMethod Other)
-        {
-            return object.ReferenceEquals(this, Other);
-        }
-
-        public override bool Equals(object Other)
-        {
-            return object.ReferenceEquals(this, Other);
-        }
-
-        public override int GetHashCode()
-        {
-            return Name.GetHashCode();
-        }
-
         public override void AddParameter(IParameter Parameter)
         {
             base.AddParameter(Parameter);

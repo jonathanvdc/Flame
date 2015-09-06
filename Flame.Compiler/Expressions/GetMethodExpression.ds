@@ -4,14 +4,46 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
+	/// <summary>
+	/// A type of expression that creates a delegate that wraps a method and its
+	/// calling expression.
+	/// </summary>
 	public class GetMethodExpression : IDelegateExpression, IMemberNode
 	{
-		public const this(set IMethod Target, set IExpression Caller);
+		/// <summary>
+		/// Creates a get-method expression from the given method and calling expression.
+		/// The resulting delegate is created by the given operator.
+		/// </summary>
+		public const this(set IMethod Target, set IExpression Caller, set Operator Op);
 
+		/// <summary>
+		/// Creates a get-method expression from the given method and calling
+		/// expression.
+		/// </summary>
+		public const this(set IMethod Target, set IExpression Caller)
+		{
+			if (!Target.IsConstructor && Target.IsVirtual)
+				Op = Operator.GetVirtualDelegate;
+			else
+				Op = Operator.GetDelegate;
+		}
+
+		/// <summary>
+		/// Gets the get-method expression's calling expression.
+		/// </summary>
 		public IExpression Caller { const get; private set; }
+
+		/// <summary>
+		/// Gets the method that is wrapped in a delegate.
+		/// </summary>
 		public IMethod Target { const get; private set; }
 
-		public [IType] ParameterTypes { const get return Target.GetParameters().GetTypes(); }
+		/// <summary>
+		/// Gets the operator that creates the resulting delegate.
+		/// </summary>
+		public Operator Op { const get; private set; }
+
+		public [IType] ParameterTypes { const get return Target.Parameters.GetTypes(); }
 
 		public IType ReturnType
 		{
@@ -83,7 +115,7 @@ namespace Flame.Compiler.Expressions
 
 		public ICodeBlock Emit(ICodeGenerator Generator)
 		{
-			return Generator.EmitMethod(Target, Caller.EmitOrNull(Generator));
+			return Generator.EmitMethod(Target, Caller.EmitOrNull(Generator), Op);
 		}
 	}
 }

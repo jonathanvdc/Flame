@@ -102,7 +102,7 @@ namespace Flame.DSharp.Build
 	        	var newObjExpr = new NewObjectExpression(BackingField.FieldType); // <field> = new <type>();
 	        	var fieldVar = new FieldVariable(BackingField, null);
 	        	var fieldGetExpr = fieldVar.CreateGetExpression();
-	        	var eqExpr = new EqualityExpression(fieldGetExpr, new NullExpression()); // <field> == null
+	        	var eqExpr = new EqualityExpression(fieldGetExpr, NullExpression); // <field> == null
 	        	var initStatements = new List<IStatement>(); // {
 	        	initStatements.Add(fieldVar.CreateSetStatement(newObjExpr)); // <field> = new <type>();
 	        	if (ConstructorSyntax != null)

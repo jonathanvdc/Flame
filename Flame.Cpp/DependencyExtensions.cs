@@ -47,7 +47,7 @@ namespace Flame.Cpp
 
         public static IEnumerable<IHeaderDependency> GetDeclarationDependencies(this INamespace Namespace, IEnumerable<IMember> Exclude)
         {
-            return Namespace.GetTypes().Aggregate(Enumerable.Empty<IHeaderDependency>(), (a, b) => a.Union(b.GetDeclarationDependencies(Exclude)));
+            return Namespace.Types.Aggregate(Enumerable.Empty<IHeaderDependency>(), (a, b) => a.Union(b.GetDeclarationDependencies(Exclude)));
         }
 
         public static IEnumerable<IHeaderDependency> GetDeclarationDependencies(this IType Type, IEnumerable<IMember> Exclude)
@@ -57,11 +57,10 @@ namespace Flame.Cpp
                 return ((IDeclarationDependencyMember)Type).DeclarationDependencies;
             }
             return Type.GetMethods().GetDeclarationDependencies(Exclude)
-                                    .Union(Type.GetConstructors().GetDeclarationDependencies(Exclude))
-                                    .Union(Type.GetProperties().GetDeclarationDependencies(Exclude))
-                                    .Union(Type.GetFields().GetDeclarationDependencies(Exclude))
-                                    .Union(Type.GetProperties().GetDeclarationDependencies(Exclude))
-                                    .Union(Type.GetBaseTypes().GetDependencies(Exclude))
+                                    .Union(Type.Methods.GetDeclarationDependencies(Exclude))
+                                    .Union(Type.Properties.GetDeclarationDependencies(Exclude))
+                                    .Union(Type.Fields.GetDeclarationDependencies(Exclude))
+                                    .Union(Type.BaseTypes.GetDependencies(Exclude))
                                     .Union(Type is INamespace ? ((INamespace)Type).GetDeclarationDependencies(Exclude) : Enumerable.Empty<IHeaderDependency>());
         }
 
@@ -110,7 +109,7 @@ namespace Flame.Cpp
             }
             else if (Type.get_IsPointer())
             {
-                var depends = Type.AsContainerType().GetElementType().GetDependencies();
+                var depends = Type.AsContainerType().ElementType.GetDependencies();
                 if (Type.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer))
                 {
                     return depends.MergeDependencies(new IHeaderDependency[] { StandardDependency.Memory });

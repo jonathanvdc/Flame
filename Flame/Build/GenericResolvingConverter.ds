@@ -17,18 +17,15 @@ namespace Flame.Build
 		protected override const IType ConvertNestedType(IType Type, IType DeclaringType)
 		{
 			var convDeclType = Convert(DeclaringType);
-			var convDeclNs = (INamespace)convDeclType;
 
-			string tName = Type.Name;
-			int genParamCount = Enumerable.Count<IGenericParameter>(Type.GetGenericParameters());
-
-			foreach (var item in convDeclNs.GetTypes())
-				if (item.Name == tName && Enumerable.Count<IGenericParameter>(item.GetGenericParameters()) == genParamCount)
+			if (convDeclType.IsRecursiveGenericInstance)
 			{
-				return item;
+				return new GenericInstanceType(Type, ((GenericTypeBase)convDeclType).Resolver, convDeclType);
 			}
-
-			return null; // Failure
+			else
+			{
+				return Type;
+			}
 		}
 
 		protected override const IType ConvertGenericParameter(IGenericParameter Type)

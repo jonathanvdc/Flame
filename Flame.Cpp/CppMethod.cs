@@ -105,9 +105,9 @@ namespace Flame.Cpp
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Template.GetAttributes();
+            get { return Template.Attributes; }
         }
 
         public CodeBuilder GetDocumentationComments()
@@ -133,15 +133,12 @@ namespace Flame.Cpp
             }
         }
 
-        public IMethod[] GetBaseMethods()
+        public IEnumerable<IMethod> BaseMethods
         {
-            return Template.GetBaseMethods();
+            get { return Template.BaseMethods; }
         }
 
-        public IMethod GetGenericDeclaration()
-        {
-            return this;
-        }
+        public IEnumerable<IParameter> Parameters { get { return GetParameters(); } }
 
         public IParameter[] GetParameters()
         {
@@ -150,7 +147,7 @@ namespace Flame.Cpp
             for (int i = 0; i < templParams.Length; i++)
             {
                 newParams[i] = new DescribedParameter(templParams[i].Name, Environment.TypeConverter.Convert(templParams[i].ParameterType));
-                foreach (var item in templParams[i].GetAttributes())
+                foreach (var item in templParams[i].Attributes)
                 {
                     newParams[i].AddAttribute(item);
                 }
@@ -206,7 +203,7 @@ namespace Flame.Cpp
         /// <summary>
         /// Gets a boolean value that, if true, explains that
         /// a commented version of the method's body will be emitted
-        /// in the header file, even though the method is technically 
+        /// in the header file, even though the method is technically
         /// defined in the source file.
         /// </summary>
         public bool HasPublicBody
@@ -216,12 +213,7 @@ namespace Flame.Cpp
 
         public bool IsOverride
         {
-            get { return GetBaseMethods().Length > 0; }
-        }
-
-        public IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
-        {
-            return new DescribedGenericMethodInstance(this, (IGenericResolverType)DeclaringType, TypeArguments);
+            get { return BaseMethods.Any(); }
         }
 
         public IType ReturnType
@@ -232,14 +224,9 @@ namespace Flame.Cpp
             }
         }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return new IType[0];
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return this.Templates.GetGenericParameters();
+            get { return this.Templates.GetGenericParameters(); }
         }
 
         #region GetCode
@@ -258,7 +245,7 @@ namespace Flame.Cpp
             }
             if (PrefixName)
             {
-                var genDeclType = (IGenericResolverType)DeclaringType.MakeGenericType(DeclaringType.GetGenericParameters());
+                var genDeclType = DeclaringType.MakeGenericType(DeclaringType.GenericParameters);
                 cb.Append(TypeNamer.Name(genDeclType, this));
                 cb.Append("::");
             }
@@ -433,7 +420,7 @@ namespace Flame.Cpp
             }
             if (First.Name == Other.Name && Other.IsStatic == First.IsStatic && (First.DeclaringType == null || First.DeclaringType.Equals(Other.DeclaringType)))
             {
-                var tComparer = new ScopedTypeEqualityComparer();
+                var tComparer = ScopedTypeEqualityComparer.Instance;
 
                 if (!tComparer.Compare(Other.ReturnType, First.ReturnType))
                     return false;

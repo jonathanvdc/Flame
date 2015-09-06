@@ -30,13 +30,13 @@ type FunctionalProperty(header : FunctionalMemberHeader,
     member this.PropertyType = propertyType.Value
 
     /// Gets this functional-style property's indexer parameters.
-    member this.IndexerParameters = parameters.Value
+    member this.IndexerParameters = parameters.Value |> Seq.ofArray
 
     /// Gets this functional-style property's accessors, with lazy evaluation.
     member this.LazyAccessors = appliedAccessors
 
     /// Gets this functional-style property's accessors, with lazy evaluation.
-    member this.Accessors = evalLazy appliedAccessors
+    member this.Accessors = evalLazy appliedAccessors |> Seq.ofArray
 
     /// Sets this functional property's type.
     member this.WithPropertyType value =
@@ -52,5 +52,5 @@ type FunctionalProperty(header : FunctionalMemberHeader,
 
     interface IProperty with
         member this.PropertyType = propertyType.Value
-        member this.GetIndexerParameters() = this.IndexerParameters
-        member this.GetAccessors() = this.Accessors
+        member this.IndexerParameters = this.IndexerParameters
+        member this.Accessors = this.Accessors

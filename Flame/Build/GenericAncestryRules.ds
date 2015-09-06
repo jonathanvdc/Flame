@@ -1,0 +1,59 @@
+
+namespace Flame.Build
+{
+    /// <summary>
+    /// Defines ancestry rules for generic type instances.
+    /// </summary>
+    public class GenericAncestryRules : IAncestryRules
+    {
+        public const this(set IAncestryRules DefinitionRules);
+
+        public IAncestryRules DefinitionRules { const get; private set; }
+
+        private int ComputeGenericVarianceAncestry(IType Type, IType Other)
+        {
+            if (Type.IsGenericInstance && Other.IsGenericInstance &&
+                Type.GetGenericDeclaration().IsEquivalent(Other.GetGenericDeclaration()))
+            {
+                int totalAncestry = 0;
+                foreach (var genParam in Type.GetGenericDeclaration().GenericParameters,
+                         var genArg1 in Type.GetGenericArguments(),
+                         var genArg2 in Other.GetGenericArguments())
+                {
+                    int argAncestry = 0;
+                    if (genParam.IsCovariant) // [int] is [object]
+                    {
+                        argAncestry = genArg1.GetAncestryDegree(genArg2);
+                    }
+                    else if (genParam.IsContravariant) // '(object) => void is (int) => void',
+                                                       // so if 'T is V', '(V) => void is (T) => void'
+                    {
+                        argAncestry = genArg2.GetAncestryDegree(genArg1);
+                    }
+                    else if (!genArg1.IsEquivalent(genArg2))
+                    {
+                        return -1;
+                    }
+
+                    if (argAncestry < 0) return -1;
+                    else totalAncestry += argAncestry;
+                }
+                return totalAncestry;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
+        public int GetAncestryDegree(IType First, IType Second)
+        {
+            int varianceAncestry = ComputeGenericVarianceAncestry(First, Second);
+            if (varianceAncestry >= 0)
+            {
+                return varianceAncestry;
+            }
+            return DefinitionRules.GetAncestryDegree(First, Second);
+        }
+    }
+}

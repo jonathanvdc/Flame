@@ -1,0 +1,92 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Build;
+
+namespace Flame
+{
+	public class GenericInstanceField : IField, IEquatable<IField>
+	{
+		public const this(set IField Declaration, set IGenericResolverType Resolver)
+		{
+			this.DeclaringType = Resolver;
+		}
+		public const this(set IField Declaration, set IGenericResolver Resolver, set IType DeclaringType);
+
+        /// <summary>
+        /// Gets the generic instance field's original definition.
+        /// </summary>
+        public IField Declaration { const get; private set; }
+
+        /// <summary>
+        /// Gets the generic instance field's generic resolver.
+        /// </summary>
+        public IGenericResolver Resolver { const get; private set; }
+
+        /// <summary>
+        /// Gets the generic instance field's declaring type.
+        /// </summary>
+        public IType DeclaringType { const get; private set; }
+
+        public IType FieldType
+        {
+            const get { return Resolver.ResolveType(Declaration.FieldType); }
+        }
+        public bool IsStatic
+        {
+            const get { return Declaration.IsStatic; }
+        }
+
+        public string FullName
+        {
+            const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Declaration.Name); }
+        }
+
+        public [IAttribute] Attributes
+        {
+            const get { return Declaration.Attributes; }
+        }
+
+        public string Name
+        {
+            const get { return Declaration.Name; }
+        }
+
+        public override string ToString()
+        {
+            return FullName;
+        }
+
+        #region Equality
+
+        public override const bool Equals(object Other)
+        {
+        	if (Other is IField)
+        		return Equals((IField)Other);
+        	else
+				return false;
+        }
+
+        public const bool Equals(IField Other)
+        {
+        	if (Other is GenericInstanceField)
+        		return Equals((GenericInstanceField)Other);
+        	else
+				return false;
+        }
+
+        public const bool Equals(GenericInstanceField Other)
+        {
+        	return this.DeclaringType.Equals(Other.DeclaringType) && 
+			       this.Declaration.Equals(Other.Declaration);
+        }
+
+        public override const int GetHashCode()
+        {
+        	return DeclaringType.GetHashCode() ^ Declaration.GetHashCode();
+        }
+
+        #endregion
+	}
+}

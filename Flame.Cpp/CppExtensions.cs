@@ -25,7 +25,7 @@ namespace Flame.Cpp
 
         private static IEnumerable<HeaderAttribute> GetHeaderAttributes(this IMember Member)
         {
-            foreach (var item in Member.GetAttributes())
+            foreach (var item in Member.Attributes)
             {
                 if (item != null && item.AttributeType.FullName == typeof(HeaderAttribute).FullName)
                 {
@@ -52,7 +52,7 @@ namespace Flame.Cpp
 
         private static IEnumerable<HeaderDependencyAttribute> GetHeaderDependencyAttributes(this IMember Member)
         {
-            return Member.GetAttributes().OfType<HeaderDependencyAttribute>();
+            return Member.Attributes.OfType<HeaderDependencyAttribute>();
         }
 
         public static IEnumerable<IHeaderDependency> GetAttributeDependencies(this IMember Member)
@@ -70,7 +70,7 @@ namespace Flame.Cpp
 
         public static bool IsGlobalType(this IType Member)
         {
-            foreach (var item in Member.GetAttributes())
+            foreach (var item in Member.Attributes)
             {
                 if (item != null && item.AttributeType.FullName == typeof(GlobalTypeAttribute).FullName)
                 {
@@ -86,7 +86,7 @@ namespace Flame.Cpp
 
         private static ReferencePointerAttribute GetReferencePointerAttribute(this IMember Member)
         {
-            foreach (var item in Member.GetAttributes())
+            foreach (var item in Member.Attributes)
             {
                 if (item != null && item.AttributeType.FullName == typeof(ReferencePointerAttribute).FullName)
                 {
@@ -306,7 +306,7 @@ namespace Flame.Cpp
         public static IVariableMember ConvertVariableMember(this ICodeGenerator CodeGenerator, IVariableMember Member)
         {
             var descMember = new DescribedVariableMember(Member.Name, CodeGenerator.ConvertType(Member.VariableType));
-            foreach (var attr in Member.GetAttributes())
+            foreach (var attr in Member.Attributes)
             {
                 descMember.AddAttribute(attr);
             } 
@@ -433,7 +433,7 @@ namespace Flame.Cpp
             while (t.get_IsPointer())
             {
                 depth++;
-                t = t.AsContainerType().GetElementType();
+                t = t.AsContainerType().ElementType;
             }
             return depth;
         }
@@ -446,7 +446,7 @@ namespace Flame.Cpp
         {
             if (Type is IGenericParameter && GenericMember.get_IsGenericInstance())
             {
-                var seq = GenericMember.GetGenericParameters().Zip(GenericMember.GetGenericArguments(), (a, b) => new KeyValuePair<IGenericParameter, IType>(a, b));
+                var seq = GenericMember.GenericParameters.Zip(GenericMember.GetGenericArguments(), (a, b) => new KeyValuePair<IGenericParameter, IType>(a, b));
                 foreach (var item in seq)
                 {
                     if (Type.Equals(item.Key))
@@ -458,17 +458,17 @@ namespace Flame.Cpp
             if (Type.get_IsArray())
             {
                 var tArr = Type.AsContainerType().AsArrayType();
-                return tArr.GetElementType().ResolveGenericInstance(GenericMember).MakeArrayType(tArr.ArrayRank);
+                return tArr.ElementType.ResolveGenericInstance(GenericMember).MakeArrayType(tArr.ArrayRank);
             }
             else if (Type.get_IsPointer())
             {
                 var tPtr = Type.AsContainerType().AsPointerType();
-                return tPtr.GetElementType().ResolveGenericInstance(GenericMember).MakePointerType(tPtr.PointerKind);
+                return tPtr.ElementType.ResolveGenericInstance(GenericMember).MakePointerType(tPtr.PointerKind);
             }
             else if (Type.get_IsVector())
             {
                 var tPtr = Type.AsContainerType().AsVectorType();
-                return tPtr.GetElementType().ResolveGenericInstance(GenericMember).MakeVectorType(tPtr.GetDimensions());
+                return tPtr.ElementType.ResolveGenericInstance(GenericMember).MakeVectorType(tPtr.Dimensions);
             }
             else if (Type.get_IsGenericInstance())
             {
@@ -574,7 +574,7 @@ namespace Flame.Cpp
             }
             if (Member is INamespace)
             {
-                if (((INamespace)Member).GetTypes().Any(ContainsTemplates)) return true;
+                if (((INamespace)Member).Types.Any(ContainsTemplates)) return true;
             }
             return false;
         }
@@ -586,7 +586,7 @@ namespace Flame.Cpp
         public static bool HasUniformAccess(this IProperty Property)
         {
             var propAccess = Property.get_Access();
-            return Property.GetAccessors().All(item => item.get_Access() == propAccess);
+            return Property.Accessors.All(item => item.get_Access() == propAccess);
         }
 
         #endregion

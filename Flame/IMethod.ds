@@ -3,26 +3,30 @@ using System.Collections.Generic;
 
 namespace Flame
 {
+    /// <summary>
+    /// Defines a common interface for methods.
+    /// </summary>
     public interface IMethod : ITypeMember, IGenericMember
     {
         /// <summary>
+        /// Gets a boolean value that indicates if this method is a constructor.
+        /// </summary>
+        bool IsConstructor { get; }
+
+        /// <summary>
         /// Gets the method's return type.
         /// </summary>
-        IType ReturnType { const get; }
+        IType ReturnType { get; }
+
         /// <summary>
         /// Gets the method's parameters.
         /// </summary>
-        const IParameter[] GetParameters();
+        [IParameter] Parameters { get; }
 
-        /// <summary>
-        /// Gets a boolean value that indicates if this method is a constructor.
-        /// </summary>
-        bool IsConstructor { const get; }
-        
         /// <summary>
         /// Gets the method's base methods.
         /// </summary>
-        const IMethod[] GetBaseMethods();
+        [IMethod] BaseMethods { get; }
 
         /// <summary>
         /// Invokes the method with the provided caller and arguments.
@@ -31,19 +35,6 @@ namespace Flame
         /// <param name="Arguments"></param>
         /// <returns></returns>
         IBoundObject Invoke(IBoundObject Caller, [IBoundObject] Arguments);
-
-        /// <summary>
-        /// Gets a generic method of this type with the provided type arguments.
-        /// </summary>
-        /// <param name="TypeArguments"></param>
-        /// <returns></returns>
-        IMethod MakeGenericMethod([IType] TypeArguments);
-
-        /// <summary>
-        /// Gets the method's generic declaration.
-        /// </summary>
-        /// <returns></returns>
-        IMethod GetGenericDeclaration();
     }
     public interface IAccessor : IMethod
     {
@@ -51,6 +42,7 @@ namespace Flame
         /// Gets the accessor's type.
         /// </summary>
         AccessorType AccessorType { get; }
+
         /// <summary>
         /// Gets the property this accessor belongs to.
         /// </summary>

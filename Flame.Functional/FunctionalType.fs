@@ -43,9 +43,8 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
     let appliedMethods = methods.ApplyLazy this
     let appliedProperties = properties.ApplyLazy this
     let appliedFields = fields.ApplyLazy this
-    let appliedBaseTypes = lazy (baseTypes this |> Array.ofSeq)
+    let appliedBaseTypes = lazy (baseTypes this |> Seq.cache)
     let appliedNs = ns.ApplyLazy this
-    let ctorPartition = appliedMethods |~ Array.partition (fun x -> x.IsConstructor)
 
     new(header, declNs) =
         FunctionalType(header, declNs,
@@ -66,24 +65,22 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
     /// Gets this functional type's base types.
     member this.BaseTypes         = appliedBaseTypes.Value
     /// Gets this functional type's nested types.
-    member this.NestedTypes       = evalLazy appliedNestedTypes
+    member this.NestedTypes       = evalLazy appliedNestedTypes |> Seq.ofArray
     /// Gets this functional type's generic parameters.
     member this.GenericParameters = evalLazy appliedGenericParams
     /// Gets this functional type's methods.
-    member this.Methods           = snd ctorPartition.Value
-    /// Gets this functional type's constructors.
-    member this.Constructors      = fst ctorPartition.Value
+    member this.Methods           = evalLazy appliedMethods |> Seq.ofArray
     /// Gets this functional type's properties.
-    member this.Properties        = evalLazy appliedProperties
+    member this.Properties        = evalLazy appliedProperties |> Seq.ofArray
     /// Gets this functional type's fields.
-    member this.Fields            = evalLazy appliedFields
+    member this.Fields            = evalLazy appliedFields |> Seq.ofArray
     /// Gets this functional type's members.
     member this.Members           = Seq.concat [ Seq.cast<ITypeMember> appliedMethods.Value; Seq.cast<ITypeMember> this.Properties; Seq.cast<ITypeMember> this.Fields ]
                                                |> Array.ofSeq
     member this.Location          = header.Location
 
     /// Gets this functional type's nested namespaces.
-    member this.NestedNamespaces  = evalLazy appliedNs
+    member this.NestedNamespaces  = evalLazy appliedNs |> Seq.ofArray
 
     /// Sets this type's header.
     member this.WithHeader newHeader = 
@@ -133,37 +130,27 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
     interface IMember with
         member this.Name = this.Name
         member this.FullName = MemberExtensions.CombineNames(declNs.FullName, this.Name)
-        member this.GetAttributes() = header.Attributes
+        member this.Attributes = header.Attributes
 
     interface IType with
-        member this.AsContainerType() = null
-        member this.IsContainerType = false
         member this.DeclaringNamespace = declNs
-        
-        member this.MakeArrayType rank = new DescribedArrayType(this :> IType, rank) :> IArrayType
-        member this.MakePointerType kind = new DescribedPointerType(this :> IType, kind) :> IPointerType
-        member this.MakeVectorType dims = new DescribedVectorType(this :> IType, dims) :> IVectorType
 
-        member this.GetGenericDeclaration() = this :> IType
-        member this.MakeGenericType tArgs = new DescribedGenericTypeInstance(this :> IType, tArgs) :> IType
-        member this.GetGenericArguments() = Seq.empty
-        member this.GetGenericParameters() = this.GenericParameters
+        member this.GenericParameters = this.GenericParameters
 
-        member this.GetBaseTypes() = this.BaseTypes
-        member this.GetMethods() = this.Methods
-        member this.GetConstructors() = this.Constructors
-        member this.GetProperties() = this.Properties
-        member this.GetFields() = this.Fields
-        member this.GetMembers() = this.Members
+        member this.BaseTypes = this.BaseTypes
+        member this.Methods = this.Methods
+        member this.Properties = this.Properties
+        member this.Fields = this.Fields
 
         member this.GetDefaultValue() = null
+        member this.AncestryRules = DefinitionAncestryRules.Instance :> IAncestryRules
 
     interface INamespace with
         member this.DeclaringAssembly = declNs.DeclaringAssembly
-        member this.GetTypes() = this.NestedTypes
+        member this.Types = this.NestedTypes
 
     interface INamespaceBranch with
-        member this.GetNamespaces() = Seq.ofArray this.NestedNamespaces
+        member this.Namespaces = this.NestedNamespaces
 
     interface ISourceMember with
         member this.Location = this.Location
@@ -184,7 +171,7 @@ type FunctionalMemberBase(header : FunctionalMemberHeader, declType : IType,
     interface IMember with
         member this.Name = header.Name
         member this.FullName = MemberExtensions.CombineNames(declType.FullName, header.Name)
-        member this.GetAttributes() = header.Attributes
+        member this.Attributes = header.Attributes
 
     interface ITypeMember with
         member this.DeclaringType = declType

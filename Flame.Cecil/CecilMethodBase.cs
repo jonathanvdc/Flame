@@ -16,15 +16,16 @@ namespace Flame.Cecil
         }
 
         public abstract MethodReference GetMethodReference();
-        public abstract IMethod GetGenericDeclaration();
         public abstract bool IsConstructor { get; }
-        public abstract IMethod[] GetBaseMethods();
-        public abstract IEnumerable<IType> GetGenericArguments();
+        public abstract IEnumerable<IMethod> BaseMethods { get; }
 
-        public virtual IEnumerable<IGenericParameter> GetGenericParameters()
+        public virtual IEnumerable<IGenericParameter> GenericParameters
         {
-            var methodRef = GetMethodReference();
-            return CecilTypeBase.ConvertGenericParameters(methodRef, methodRef.Resolve, this, Module);
+            get
+            {
+                var methodRef = GetMethodReference();
+                return CecilTypeBase.ConvertGenericParameters(methodRef, methodRef.Resolve, this, Module);
+            }
         }
 
         public virtual IType ReturnType
@@ -40,16 +41,11 @@ namespace Flame.Cecil
             return CecilParameter.GetParameters(this, GetMethodReference().Parameters);
         }
 
-        public IParameter[] Parameters { get { return GetParameters(); } }
+        public IEnumerable<IParameter> Parameters { get { return GetParameters(); } }
 
         public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
         {
             return null;
-        }
-
-        public virtual IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
-        {
-            return new CecilGenericMethod(DeclaringType, this, TypeArguments);
         }
 
         #region CecilTypeMemberBase Implementation
@@ -63,138 +59,23 @@ namespace Flame.Cecil
 
         #region Static
 
-        #region Method Selection
-
-        private static bool CompareEnumerables<T>(IEnumerable<T> Left, IEnumerable<T> Right, Func<T, T, bool> Comparer)
-        {
-            var A = Left.GetEnumerator();
-            var B = Right.GetEnumerator();
-            bool goodA, goodB;
-            while (true)
-            {
-                goodA = A.MoveNext();
-                goodB = B.MoveNext();
-                if (goodA && goodB)
-                {
-                    if (!Comparer(A.Current, B.Current))
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-            return goodA == goodB;
-        }
-
-        private static bool CompareEnumerables<T>(T[] Left, T[] Right, Func<T, T, bool> Comparer)
-        {
-            if (Left.Length != Right.Length)
-            {
-                return false;
-            }
-            for (int i = 0; i < Left.Length; i++)
-            {
-                if (!Comparer(Left[i], Right[i]))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        private static bool ComparePossibleGenericParameters(IType Left, IType Right)
-        {
-            if (Left.get_IsGenericParameter())
-            {
-                if (Right.get_IsGenericParameter())
-                {
-                    return Left.Name == Right.Name;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            else if (Left.IsContainerType)
-            {
-                return Right.IsContainerType && Left.AsContainerType().ContainerKind == Right.AsContainerType().ContainerKind && ComparePossibleGenericParameters(Left.AsContainerType().GetElementType(), Right.AsContainerType().GetElementType());
-            }
-            else if (Left.get_IsGenericInstance())
-            {
-                if (Right.GetGenericDeclaration().Equals(Left.GetGenericDeclaration()))
-                {
-                    var largs = Left.GetGenericArguments();
-                    var rargs = Right.GetGenericArguments();
-                    return CompareEnumerables(largs, rargs, ComparePossibleGenericParameters);
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                return Left.Equals(Right);
-            }
-        }
-
-        private static IMethod GetCorrespondingMethod(IEnumerable<IMethod> Candidates, IMethod Target)
-        {
-            string name = Target.Name;
-            bool isStatic = Target.IsStatic;
-            bool isGenericDecl = Target.get_IsGenericDeclaration();
-            bool isGeneric = Target.get_IsGeneric();
-            IType[] paramTypes = Target.GetParameters().GetTypes();
-            IType retType = Target.ReturnType;
-            foreach (var item in Candidates)
-            {
-                if (item.Name == name && item.IsStatic == isStatic)
-                {
-                    bool itemIsGenericDecl = item.get_IsGenericDeclaration();
-                    if (itemIsGenericDecl == isGenericDecl)
-                    {
-                        var itemParamTypes = item.GetParameters().GetTypes();
-                        bool success;
-                        if (itemIsGenericDecl && isGeneric) // Generic and declaration
-                        {
-                            success = ComparePossibleGenericParameters(item.ReturnType, retType) && CompareEnumerables(paramTypes, itemParamTypes, ComparePossibleGenericParameters);
-                        }
-                        else
-                        {
-                            success = item.ReturnType.Equals(retType) && itemParamTypes.AreEqual(paramTypes);
-                        }
-                        if (success)
-                        {
-                            return item;
-                        }
-                    }
-                }
-            }
-            return null;
-        }
-
-        #endregion
-
-        public static ICecilMethod Create(MethodReference Method, CecilModule Module)
+        public static IMethod Create(MethodReference Method, CecilModule Module)
         {
             return Module.Convert(Method);
         }
-        public static ICecilMethod ImportCecil(System.Reflection.MethodInfo Method, ICecilMember CecilMember)
+        public static IMethod ImportCecil(System.Reflection.MethodInfo Method, ICecilMember CecilMember)
         {
             return ImportCecil(Method, CecilMember.Module);
         }
-        public static ICecilMethod ImportCecil(System.Reflection.ConstructorInfo Method, ICecilMember CecilMember)
+        public static IMethod ImportCecil(System.Reflection.ConstructorInfo Method, ICecilMember CecilMember)
         {
             return ImportCecil(Method, CecilMember.Module);
         }
-        public static ICecilMethod ImportCecil(System.Reflection.MethodInfo Method, CecilModule Module)
+        public static IMethod ImportCecil(System.Reflection.MethodInfo Method, CecilModule Module)
         {
             return Module.Convert(Module.Module.Import(Method));
         }
-        public static ICecilMethod ImportCecil(System.Reflection.ConstructorInfo Method, CecilModule Module)
+        public static IMethod ImportCecil(System.Reflection.ConstructorInfo Method, CecilModule Module)
         {
             return Module.Convert(Module.Module.Import(Method));
         }

@@ -255,6 +255,35 @@ namespace Flame.Cecil.Emit
 
         #region Object Model
 
+        public ICodeBlock EmitTypeBinary(ICodeBlock Value, IType Type, Operator Op)
+        {
+            var val = (ICecilBlock)Value;
+            if (Op.Equals(Operator.IsInstance))
+            {
+                return new TypeCheckBlock(val, Type);
+            }
+            else if (Op.Equals(Operator.AsInstance))
+            {
+                return new AsInstanceBlock(val, Type);
+            }
+            else if (Op.Equals(Operator.ReinterpretCast))
+            {
+                return new RetypedBlock(val, Type);
+            }
+            else if (Op.Equals(Operator.DynamicCast))
+            {
+                return new DynamicCastBlock(val, Type);
+            }
+            else if (Op.Equals(Operator.StaticCast))
+            {
+                return new ConversionBlock(this, val, Type);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         #region Default Value
 
         public ICodeBlock EmitDefaultValue(IType Type)
@@ -266,9 +295,9 @@ namespace Flame.Cecil.Emit
 
         #region Method Calls
 
-        public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller)
+        public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller, Operator Op)
         {
-            return new MethodBlock(this, Method, (ICecilBlock)Caller);
+            return new MethodBlock(this, Method, (ICecilBlock)Caller, Op.Equals(Operator.GetVirtualDelegate));
         }
 
         public ICodeBlock EmitInvocation(ICodeBlock Method, IEnumerable<ICodeBlock> Arguments)
@@ -295,15 +324,6 @@ namespace Flame.Cecil.Emit
 
         #endregion
 
-        #region EmitIsOfType
-
-        public ICodeBlock EmitIsOfType(IType Type, ICodeBlock Value)
-        {
-            return new TypeCheckBlock(this, (ICecilBlock)Value, Type);
-        }
-
-        #endregion
-
         #region EmitNewArray/EmitNewVector
 
         public ICodeBlock EmitNewArray(IType ElementType, IEnumerable<ICodeBlock> Dimensions)
@@ -311,7 +331,7 @@ namespace Flame.Cecil.Emit
             return new NewArrayBlock(this, ElementType, Dimensions.Cast<ICecilBlock>().ToArray());
         }
 
-        public ICodeBlock EmitNewVector(IType ElementType, int[] Dimensions)
+        public ICodeBlock EmitNewVector(IType ElementType, IReadOnlyList<int> Dimensions)
         {
             return EmitNewArray(ElementType, Dimensions.Select((item) => EmitInt32(item)));
         }
@@ -326,7 +346,7 @@ namespace Flame.Cecil.Emit
         {
             var method = CecilMethod.ImportCecil(typeof(System.Diagnostics.Debug).GetMethod("Assert", new Type[] { typeof(bool) }), (ICecilMember)Method);
 
-            return EmitInvocation(EmitMethod(method, null), new ICodeBlock[] { Condition });
+            return EmitInvocation(EmitMethod(method, null, Operator.GetDelegate), new ICodeBlock[] { Condition });
         }
 
         public ICatchClause EmitCatchClause(ICatchHeader Header, ICodeBlock Body)
@@ -464,15 +484,6 @@ namespace Flame.Cecil.Emit
 
         #endregion
 
-        #region UseVirtualCall
-
-        public static bool UseVirtualCall(IMethod Method)
-        {
-            return !Method.IsStatic && (Method.get_IsVirtual() || (Method.DeclaringType != null && Method.DeclaringType.get_IsInterface()));
-        }
-
-        #endregion
-
         #region IsPossibleValueType
 
         public static bool IsPossibleValueType(IType Type)
@@ -498,7 +509,7 @@ namespace Flame.Cecil.Emit
             if (instance)
             {
                 var declType = Method.DeclaringType;
-                var genInst = declType.get_IsGeneric() ? declType.MakeGenericType(declType.GetGenericParameters()) : declType;
+                var genInst = declType.get_IsGeneric() ? declType.MakeGenericType(declType.GenericParameters) : declType;
                 if (declType.get_IsValueType())
                 {
                     parameterTypes[0] = genInst.MakePointerType(PointerKind.ReferencePointer);
@@ -572,7 +583,7 @@ namespace Flame.Cecil.Emit
         {
             if (Type.get_IsPointer())
             {
-                return Type.AsContainerType().GetElementType().Is(Method.DeclaringType);
+                return Type.AsContainerType().ElementType.Is(Method.DeclaringType);
             }
             else
             {
@@ -580,13 +591,13 @@ namespace Flame.Cecil.Emit
             }
         }
 
-        public static void EmitCall(IEmitContext Context, IMethod Method, IType CallerType)
+        public static void EmitCall(IEmitContext Context, IMethod Method, IType CallerType, bool IsVirtual)
         {
-            if (UseVirtualCall(Method))
+            if (IsVirtual)
             {
                 if (CallerType != null && CallerType.get_IsPointer())
                 {
-                    Context.Emit(OpCodes.Constrained, CallerType.AsContainerType().GetElementType());
+                    Context.Emit(OpCodes.Constrained, CallerType.AsContainerType().ElementType);
                 }
                 Context.Emit(OpCodes.Callvirt, Method);
             }
@@ -621,23 +632,23 @@ namespace Flame.Cecil.Emit
             return false;
         }
 
-        public static void EmitCultureInvariantCall(IEmitContext Context, IMethod Method, IType CallerType, CecilModule Module)
+        public static void EmitCultureInvariantCall(IEmitContext Context, IMethod Method, IType CallerType, bool IsVirtual, CecilModule Module)
         {
             var cecilDeclType = Module.ConvertStrict(CecilTypeImporter.Import(Module, Context.Processor.Body.Method, Method.DeclaringType));
             var paramTypes = Method.GetParameters().GetTypes().Concat(new IType[] { CecilType.ImportCecil(typeof(System.IFormatProvider), Module) }).ToArray();
             var newMethod = cecilDeclType.GetMethod(Method.Name, Method.IsStatic, Method.ReturnType, paramTypes);
             if (newMethod == null)
             {
-                EmitCall(Context, Method, CallerType);
+                EmitCall(Context, Method, CallerType, IsVirtual);
             }
             else
             {
                 var cultureInfoType = CecilType.ImportCecil(typeof(System.Globalization.CultureInfo), Module);
-                var invariantCultureProperty = cultureInfoType.GetProperties().GetProperty("InvariantCulture", true);
+                var invariantCultureProperty = cultureInfoType.Properties.GetProperty("InvariantCulture", true);
                 // Pushes System.Globalization.CultureInfo.InvariantCulture on the stack
-                EmitCall(Context, invariantCultureProperty.GetGetAccessor(), null);
+                EmitCall(Context, invariantCultureProperty.GetGetAccessor(), null, false);
                 // Makes the invariant call
-                EmitCall(Context, newMethod, CallerType);
+                EmitCall(Context, newMethod, CallerType, newMethod.get_IsVirtual());
             }
         }
 

@@ -27,13 +27,13 @@ namespace Flame.Recompilation
             {
                 return new RecompiledTypeTemplate(Recompiler, SourceType.GetGenericDeclaration()).MakeGenericType(GetRecompilerTemplates(Recompiler, SourceType.GetGenericArguments()));
             }
-            else if (SourceType.IsContainerType)
+            else if (SourceType.get_IsContainerType())
             {
                 var container = SourceType.AsContainerType();
-                var elem = new RecompiledTypeTemplate(Recompiler, container.GetElementType());
+                var elem = new RecompiledTypeTemplate(Recompiler, container.ElementType);
                 if (elem.get_IsVector())
                 {
-                    return elem.MakeVectorType(container.AsVectorType().GetDimensions());
+                    return elem.MakeVectorType(container.AsVectorType().Dimensions);
                 }
                 else if (elem.get_IsArray())
                 {
@@ -82,29 +82,19 @@ namespace Flame.Recompilation
 
         #region Members
 
-        public ITypeMember[] GetMembers()
+        public IEnumerable<IField> Fields
         {
-            return Recompiler.GetTypeMembers(SourceType.GetMembers());
+            get { return Recompiler.FieldCache.GetMany(SourceType.Fields); }
         }
 
-        public IMethod[] GetConstructors()
+        public IEnumerable<IMethod> Methods
         {
-            return Recompiler.MethodCache.GetMany(SourceType.GetConstructors());
+            get { return Recompiler.MethodCache.GetMany(SourceType.Methods); }
         }
 
-        public IField[] GetFields()
+        public IEnumerable<IProperty> Properties
         {
-            return Recompiler.FieldCache.GetMany(SourceType.GetFields());
-        }
-
-        public IMethod[] GetMethods()
-        {
-            return Recompiler.MethodCache.GetMany(SourceType.GetMethods());
-        }
-
-        public IProperty[] GetProperties()
-        {
-            return Recompiler.PropertyCache.GetMany(SourceType.GetProperties());
+            get { return Recompiler.PropertyCache.GetMany(SourceType.Properties); }
         }
 
         #endregion
@@ -114,9 +104,9 @@ namespace Flame.Recompilation
             get { return Recompiler.NamespaceCache.Get(SourceType.DeclaringNamespace); }
         }
 
-        public IType[] GetBaseTypes()
+        public IEnumerable<IType> BaseTypes
         {
-            return GetWeakRecompiledTypes(SourceType.GetBaseTypes(), Recompiler, SourceType);
+            get { return GetWeakRecompiledTypes(SourceType.BaseTypes.ToArray(), Recompiler, SourceType); }
         }
 
         public IBoundObject GetDefaultValue()
@@ -162,13 +152,13 @@ namespace Flame.Recompilation
                 return new IntersectionType(GetWeakRecompiledType(interType.First, Recompiler, DeclaringMember),
                                             GetWeakRecompiledType(interType.Second, Recompiler, DeclaringMember));
             }
-            else if (SourceType.IsContainerType)
+            else if (SourceType.get_IsContainerType())
             {
                 var containerType = SourceType.AsContainerType();
-                var recompiledElemType = GetWeakRecompiledType(containerType.GetElementType(), Recompiler, DeclaringMember);
+                var recompiledElemType = GetWeakRecompiledType(containerType.ElementType, Recompiler, DeclaringMember);
                 if (SourceType.get_IsVector())
                 {
-                    return recompiledElemType.MakeVectorType(containerType.AsVectorType().GetDimensions());
+                    return recompiledElemType.MakeVectorType(containerType.AsVectorType().Dimensions);
                 }
                 else if (SourceType.get_IsPointer())
                 {
@@ -199,55 +189,16 @@ namespace Flame.Recompilation
 
         #endregion
 
-        public IType GetGenericDeclaration()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return this;
-        }
-
-        public IType MakeGenericType(IEnumerable<IType> TypeArguments)
-        {
-            return Recompiler.GetType(SourceType).MakeGenericType(TypeArguments);
-        }
-
-        public IEnumerable<IType> GetGenericArguments()
-        {
-            return SourceType.GetGenericArguments();
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return RecompiledGenericParameterTemplate.GetRecompilerTemplates(Recompiler, this, SourceType.GetGenericParameters());
+            get { return RecompiledGenericParameterTemplate.GetRecompilerTemplates(Recompiler, this, SourceType.GenericParameters); }
         }
 
         #endregion
 
-        #region Container Types
-
-        public bool IsContainerType
+        public IAncestryRules AncestryRules
         {
-            get { return false; }
+            get { return DefinitionAncestryRules.Instance; }
         }
-
-        public IContainerType AsContainerType()
-        {
-            return null;
-        }
-
-        public IArrayType MakeArrayType(int Rank)
-        {
-            return new DescribedArrayType(this, Rank);
-        }
-
-        public IPointerType MakePointerType(PointerKind PointerKind)
-        {
-            return new DescribedPointerType(this, PointerKind);
-        }
-
-        public IVectorType MakeVectorType(int[] Dimensions)
-        {
-            return new DescribedVectorType(this, Dimensions);
-        }
-
-        #endregion
     }
 }

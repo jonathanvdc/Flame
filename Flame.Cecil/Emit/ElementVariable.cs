@@ -30,14 +30,14 @@ namespace Flame.Cecil.Emit
 
         public override IType Type
         {
-            get { return ContainerType.GetElementType(); }
+            get { return ContainerType.ElementType; }
         }
 
         private Tuple<IContainerType, IType, IType[]> EmitContainerAndArguments(IEmitContext Context)
         {
             Container.Emit(Context);
             var containerType = Context.Stack.Pop().AsContainerType();
-            var elementType = containerType.GetElementType();
+            var elementType = containerType.ElementType;
             var argumentTypes = new IType[Arguments.Length];
             for (int i = 0; i < Arguments.Length; i++)
             {

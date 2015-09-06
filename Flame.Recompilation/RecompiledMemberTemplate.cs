@@ -22,9 +22,9 @@ namespace Flame.Recompilation
             get { return GetSourceMember().FullName; }
         }
 
-        public virtual IEnumerable<IAttribute> GetAttributes()
+        public virtual IEnumerable<IAttribute> Attributes
         {
-            return GetSourceMember().GetAttributes().Select(Recompiler.GetAttribute);
+            get { return GetSourceMember().Attributes.Select(Recompiler.GetAttribute); }
         }
 
         public string Name

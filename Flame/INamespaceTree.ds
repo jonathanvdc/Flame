@@ -6,7 +6,10 @@ namespace Flame
 {
     public interface INamespaceTree : IMember
     {
-        const IEnumerable<INamespaceBranch> GetNamespaces();
+        /// <summary>
+        /// Gets this namespace tree's nested namespaces.
+        /// </summary>
+        [INamespaceBranch] Namespaces { get; }
     }
     public interface INamespaceBranch : INamespaceTree, INamespace
     {

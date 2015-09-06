@@ -18,7 +18,7 @@ namespace Flame.Cpp.Emit
 
         public IType Type
         {
-            get { return Target.Type.AsContainerType().GetElementType().MakePointerType(PointerKind.TransientPointer); }
+            get { return Target.Type.AsContainerType().ElementType.MakePointerType(PointerKind.TransientPointer); }
         }
 
         public IEnumerable<IHeaderDependency> Dependencies

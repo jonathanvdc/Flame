@@ -50,7 +50,7 @@ namespace Flame.MIPS
         {
             return new IMethod[]
             {
-                AllocateSyscallMethod.GenericInstance
+                AllocateSyscallMethod.Instance
             };
         }
     }

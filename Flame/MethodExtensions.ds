@@ -11,9 +11,9 @@ namespace Flame
 		/// Gets a boolean value that tells if this method implements
 		/// the given base method.
 		/// </summary>
-		public static const bool IsImplementationOf(this IMethod Method, IMethod BaseMethod)
+		public static bool IsImplementationOf(this IMethod Method, IMethod BaseMethod)
 		{
-			foreach (var item in Method.GetBaseMethods())
+			foreach (var item in Method.BaseMethods)
 			{
 				var decl = item.GetGenericDeclaration();
 				if (decl.Equals(BaseMethod))
@@ -37,7 +37,7 @@ namespace Flame
 		/// arguably be considered its own, albeit trivial, implementation.
 		/// This method still returns null in that case, however.
 		/// </remarks>
-		public static const IMethod GetImplementation(this IMethod Method, IType Target)
+		public static IMethod GetImplementation(this IMethod Method, IType Target)
 		{
 			if (Method is IAccessor)
 			{
@@ -79,27 +79,87 @@ namespace Flame
 			return Enumerable.SingleOrDefault<IMethod>(Methods);
 		}
 
-		private static const bool ShadowsMethod(IMethod Method, IMethod Other)
+		/// <summary>
+		/// Gets the given method's declaring type.
+		/// </summary>
+		public static IType GetDeclaringType(IMethod Member)
 		{
-			return Method.Name.Equals(Other.Name) &&
-				   Method.IsStatic == Other.IsStatic &&
+			return Member.DeclaringType;
+		}
+
+		/// <summary>
+		/// Gets the given method's parameter types.
+		/// </summary>
+		public static [IType] GetParameterTypes(IMethod Method)
+		{
+			return Method.Parameters.GetTypes();
+		}
+
+		/// <summary>
+		/// Gets the given method's parameter types. If it is an extension parameter,
+		/// the first parameter is omitted.
+		/// </summary>
+		public static [IType] GetExtensionParameterTypes(IMethod Method)
+		{
+			if (Method.IsExtension)
+				return Enumerable.Skip<IParameter>(Method.Parameters, 1).GetTypes();
+			else
+				return GetParameterTypes(Method);
+		}
+
+		/// <summary>
+		/// Gets the "this" type of a method, which may be an extension method.
+		/// If so, the "this" type is assumed to be the type of the first parameter.
+		/// Otherwise, the declaring type is the "this" type.
+		/// </summary>
+		public static IType GetExtensionThisType(IMethod Member)
+		{
+			if (Member.IsExtension)
+				return Enumerable.First<IParameter>(Member.Parameters).ParameterType;
+			else
+				return Member.DeclaringType;
+		}
+
+		private static bool ShadowsMethod(IMethod Method, IMethod Other,
+			IType(IMethod) GetThisType, IEnumerable<IType>(IMethod) GetMethodParameterTypes)
+		{
+			return Method.HasSameCallSignature(Other, GetMethodParameterTypes) &&
 				   !Method.Equals(Other) &&
-				   Method.DeclaringType.Is(Other.DeclaringType) &&
-				   new ScopedTypeEqualityComparer().CompareAll(
-				       Method.GetParameters().GetTypes(),
-				       Other.GetParameters().GetTypes());
+				   GetThisType(Method).Is(GetThisType(Other));
 		}
 
-		private static const bool ShadowsAccessorCore(IAccessor Top, IAccessor Bottom)
+		private static bool ShadowsAccessorCore(IAccessor Top, IAccessor Bottom,
+			IType(IMethod) GetThisType, IEnumerable<IType>(IMethod) GetMethodParameterTypes)
 		{
-			return Top.AccessorType == Bottom.AccessorType &&
-				   Top.DeclaringProperty.Shadows(Bottom.DeclaringProperty);
+			return !Top.Equals(Bottom) &&
+			       Top.AccessorType == Bottom.AccessorType &&
+			       Top.DeclaringProperty.Name == Bottom.DeclaringProperty.Name &&
+				   Top.DeclaringProperty.IsStatic == Bottom.DeclaringProperty.IsStatic &&
+				   GetThisType(Top).Is(GetThisType(Bottom)) &&
+				   ScopedTypeEqualityComparer.CompareAll(
+					   GetMethodParameterTypes(Top),
+					   GetMethodParameterTypes(Bottom));
 		}
 
-		private static const bool ShadowsAccessor(IMethod Method, IMethod Other)
+		private static bool ShadowsAccessor(IMethod Method, IMethod Other,
+       		IType(IMethod) GetThisType, IEnumerable<IType>(IMethod) GetMethodParameterTypes)
 		{
 			return Method is IAccessor && Other is IAccessor &&
-				   ShadowsAccessorCore((IAccessor)Method, (IAccessor)Other);
+				   ShadowsAccessorCore((IAccessor)Method, (IAccessor)Other,
+				                       GetThisType, GetMethodParameterTypes);
+		}
+
+		/// <summary>
+		/// Tells if the first method "shadows" the second, i.e. it has the
+		/// same name, staticness and parameter list, but its "this" type
+		/// is more derived than the second method's "this" type. A delegate
+		/// is given that figures out what the "this" type of a given type member is.
+		/// </summary>
+		public static bool Shadows(this IMethod Method, IMethod Other,
+			IType(IMethod) GetThisType, IEnumerable<IType>(IMethod) GetMethodParameterTypes)
+		{
+			return ShadowsMethod(Method, Other, GetThisType, GetMethodParameterTypes) ||
+			       ShadowsAccessor(Method, Other, GetThisType, GetMethodParameterTypes);
 		}
 
 		/// <summary>
@@ -107,32 +167,68 @@ namespace Flame
 		/// same name, staticness and parameter list, but its declaring type
 		/// is more derived than the second method's derived type.
 		/// </summary>
-		public static const bool Shadows(this IMethod Method, IMethod Other)
+		public static bool Shadows(this IMethod Method, IMethod Other)
 		{
-			return ShadowsMethod(Method, Other) || ShadowsAccessor(Method, Other);
+			return Shadows(Method, Other, GetDeclaringType, GetParameterTypes);
 		}
 
-		public static const bool HasSameSignature(this IMethod Method, IMethod Other)
+		/// <summary>
+		/// Tells if the first method "shadows" the second, i.e. it has the
+		/// same name, staticness and parameter list, but its "this" type
+		/// is more derived than the second method's "this" type.
+		/// For extension methods, the "this" type is assumed to be the type
+		/// of the first parameter.
+		/// </summary>
+		public static bool ShadowsExtension(this IMethod Method, IMethod Other)
 		{
-			var comparer = new ScopedTypeEqualityComparer();
-
-			return Method.Name.Equals(Other.Name) &&
-			       Method.IsStatic == Other.IsStatic &&
-			       comparer.Compare(Method.ReturnType, Other.ReturnType) &&
-			       comparer.CompareAll(Method.GetParameters().GetTypes(), Other.GetParameters().GetTypes());
+			return Shadows(Method, Other, GetExtensionThisType, GetExtensionParameterTypes);
 		}
 
-		public static const IMethod GetBestMethod(this [IMethod] Candidates, IType[] ParameterTypes)
+		/// <summary>
+		/// Determines whether the given methods have the same signature or not.
+		/// </summary>
+		public static bool HasSameSignature(this IMethod Method, IMethod Other)
+		{
+			return Method.HasSameCallSignature(Other) &&
+				   ScopedTypeEqualityComparer.Compare(Method.ReturnType, Other.ReturnType);
+		}
+
+		/// <summary>
+		/// Determines whether the given methods have the same call signature or not.
+		/// A call signature is defined as the method's signature, minus the
+		/// return type.
+		/// </summary>
+		public static bool HasSameCallSignature(this IMethod Method, IMethod Other)
+		{
+			return Method.HasSameCallSignature(Other, GetParameterTypes);
+		}
+
+		/// <summary>
+		/// Determines whether the given methods have the same call signature or not.
+		/// A call signature is defined as the method's signature, minus the
+		/// return type.
+		/// </summary>
+		public static bool HasSameCallSignature(this IMethod Method, IMethod Other,
+			IEnumerable<IType>(IMethod) GetMethodParameterTypes)
+		{
+			return Method.Name == Other.Name &&
+				   Method.IsStatic == Other.IsStatic &&
+				   ScopedTypeEqualityComparer.CompareAll(
+					   GetMethodParameterTypes(Method),
+					   GetMethodParameterTypes(Other));
+		}
+
+		public static IMethod GetBestMethod(this [IMethod] Candidates, IType[] ParameterTypes)
 		{
 			return (([IMethod])Candidates.GetBestMethods(ParameterTypes)).ConcatMethods();
 		}
-		public static const IMethod GetBestMethod(this [IMethod] Candidates, IType CallerType, IType[] ParameterTypes)
+		public static IMethod GetBestMethod(this [IMethod] Candidates, IType CallerType, IType[] ParameterTypes)
 		{
 			return (([IMethod])Candidates.GetBestMethods(CallerType, ParameterTypes)).ConcatMethods();
 		}
-		public static const IMethod GetBestMethod(this [IMethod] Candidates, bool IsStatic, IType CallerType, IType[] ParameterTypes)
+		public static IMethod GetBestMethod(this [IMethod] Candidates, bool IsStatic, IType CallerType, IType[] ParameterTypes)
 		{
-			List<IMethod> matches = new List<IMethod>();
+			var matches = new List<IMethod>();
 			foreach (var method in Candidates.GetBestMethods(CallerType, ParameterTypes))
 			{
 				if (method.IsStatic == IsStatic)
@@ -141,87 +237,130 @@ namespace Flame
 			return matches.ConcatMethods();
 		}
 
-		public static const [IMethod] GetAllMethods(this IType DeclaringType, string Name, bool IsStatic, IType[] ParameterTypes)
+		/// <summary>
+		/// Gets all methods - directly declared and inherited - in the given
+		/// declaring type with the given name, staticness and parameter types.
+		/// </summary>
+		public static [IMethod] GetAllMethods(this IType DeclaringType, string Name, bool IsStatic, IType[] ParameterTypes)
 		{
-			List<IMethod> methods = new List<IMethod>();
+			var methods = new List<IMethod>();
 			foreach (var method in DeclaringType.GetAllMethods())
 			{
-				if (method.Name.Equals(Name))
-				if (method.IsStatic == IsStatic)
-				if (method.GetParameters().GetTypes().AreEqual(ParameterTypes))
+				if (method.Name == Name &&
+				    method.IsStatic == IsStatic &&
+				    method.Parameters.GetTypes().AreEqual(ParameterTypes))
+				{
 					methods.Add(method);
+				}
 			}
 			return methods;
 		}
 
-		public static const IMethod GetMethod(this [IMethod] Candidates, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
+		/// <summary>
+		/// Gets the first method in the given sequence of candidate methods
+		/// with the given staticness, return type and parameter types.
+		/// </summary>
+		public static IMethod GetMethod(this [IMethod] Candidates, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
 		{
 			foreach (var method in Candidates)
 			{
-				if (method.IsStatic == IsStatic)
-				if (method.ReturnType.Equals(ReturnType))
-				if (method.GetParameters().GetTypes().AreEqual(ParameterTypes))
+				if (method.IsStatic == IsStatic &&
+				    method.ReturnType.Equals(ReturnType) &&
+				    method.Parameters.GetTypes().AreEqual(ParameterTypes))
+				{
 					return method;
+				}
 			}
 			return null;
 		}
-		public static const IMethod GetMethod(this [IMethod] Candidates, string Name, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
+
+		/// <summary>
+		/// Gets the first method in the given sequence of candidate methods
+		/// with the given name, staticness, return type and parameter types.
+		/// </summary>
+		public static IMethod GetMethod(this [IMethod] Candidates, string Name, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
 		{
 			foreach (var method in Candidates)
 			{
-				if (method.Name.Equals(Name))
-				if (method.IsStatic == IsStatic)
-				if (method.ReturnType.Equals(ReturnType))
-				if (method.GetParameters().GetTypes().AreEqual(ParameterTypes))
+				if (method.Name == Name &&
+					method.IsStatic == IsStatic &&
+				    method.ReturnType.Equals(ReturnType) &&
+					method.Parameters.GetTypes().AreEqual(ParameterTypes))
+				{
 					return method;
+				}
 			}
 			return null;
 		}
-		public static const IMethod GetMethod(this IType DeclaringType, string Name, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
+
+		/// <summary>
+		/// Gets the first method in the given sequence of candidate methods that
+		/// has the same signature as the given method.
+		/// </summary>
+		/// <remarks>
+		/// This differs from the
+		/// <code>GetMethod(this [IMethod], string, bool, IType, IType[])</code>
+		/// overload in that generic parameters are also considered here.
+		/// </remarks>
+		public static IMethod GetMethod(this [IMethod] Candidates, IMethod Signature)
+		{
+			foreach (var item in Candidates)
+			{
+				if (item.HasSameSignature(Signature))
+					return item;
+			}
+			return null;
+		}
+
+		public static IMethod GetMethod(this IType DeclaringType, string Name, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
 		{
 			return DeclaringType.GetAllMethods().GetMethod(Name, IsStatic, ReturnType, ParameterTypes);
 		}
-		public static const IMethod GetMethod(this IType DeclaringType, bool IsStatic, IType[] ParameterTypes)
+		public static IMethod GetMethod(this IType DeclaringType, bool IsStatic, IType[] ParameterTypes)
 		{
 			foreach (var method in DeclaringType.GetAllMethods())
 			{
-				if (method.IsStatic == IsStatic)
-				if (method.GetParameters().GetTypes().AreEqual(ParameterTypes))
+				if (method.IsStatic == IsStatic &&
+				    method.Parameters.GetTypes().AreEqual(ParameterTypes))
+				{
 					return method;
+				}
 			}
 			return null;
 		}
 
-		public static const IMethod GetConstructor(this IType DeclaringType, IType[] ParameterTypes, bool IsStatic)
+		public static IMethod GetConstructor(this IType DeclaringType, IType[] ParameterTypes, bool IsStatic)
 		{
 			foreach (var method in DeclaringType.GetConstructors())
 			{
-				if (method.IsConstructor)
-				if (method.IsStatic == IsStatic)
-				if (method.GetParameters().GetTypes().AreEqual(ParameterTypes))
+				if (method.IsConstructor &&
+				    method.IsStatic == IsStatic &&
+				    method.Parameters.GetTypes().AreEqual(ParameterTypes))
+				{
 					return method;
+				}
 			}
 			return null;
 		}
 
-		public static const IMethod GetConstructor(this IType DeclaringType, IType[] ParameterTypes)
+		public static IMethod GetConstructor(this IType DeclaringType, IType[] ParameterTypes)
 		{
 			return DeclaringType.GetConstructor(ParameterTypes, false);
 		}
 
-		public static const [IMethod] GetOperatorMethods(this IType Type)
+		public static [IMethod] GetOperatorMethods(this IType Type)
 		{
 			return Type.GetAllMethods().GetOperatorMethods();
 		}
 
-		public static const [IMethod] GetOperatorMethods(this IType Type, Operator Op)
+		public static [IMethod] GetOperatorMethods(this IType Type, Operator Op)
 		{
 			return Type.GetAllMethods().GetOperatorMethods(Op);
 		}
 
-		public static const [IMethod] GetOperatorMethods(this [IMethod] Candidates)
+		public static [IMethod] GetOperatorMethods(this [IMethod] Candidates)
 		{
-			List<IMethod> methods = new List<IMethod>();
+			var methods = new List<IMethod>();
 			foreach (var item in Candidates)
 			{
 				if (item.IsOperator)
@@ -230,9 +369,9 @@ namespace Flame
 			return methods;
 		}
 
-		public static const [IMethod] GetOperatorMethods(this [IMethod] Candidates, Operator Op)
+		public static [IMethod] GetOperatorMethods(this [IMethod] Candidates, Operator Op)
 		{
-			List<IMethod> methods = new List<IMethod>();
+			var methods = new List<IMethod>();
 			foreach (var item in Candidates)
 			{
 				if (item.IsOperator)
@@ -242,7 +381,7 @@ namespace Flame
 			return methods;
 		}
 
-		public static const IMethod GetOperatorMethod(this [IMethod] Candidates, Operator Op)
+		public static IMethod GetOperatorMethod(this [IMethod] Candidates, Operator Op)
 		{
 			foreach (var item in Candidates)
 			{
@@ -250,6 +389,42 @@ namespace Flame
 					return item;
 			}
 			return null;
+		}
+
+		/// <summary>
+		/// Gets all non-constructor methods declared by this type.
+		/// </summary>
+		public static [IMethod] GetMethods(this IType Type)
+		{
+			var results = new List<IMethod>();
+			foreach (var item in Type.Methods)
+				if (!item.IsConstructor)
+			{
+				results.Add(item);
+			}
+			return results;
+		}
+
+		/// <summary>
+		/// Gets this type's constructors.
+		/// </summary>
+		public static [IMethod] GetConstructors(this IType Type)
+		{
+			var results = new List<IMethod>();
+			foreach (var item in Type.Methods)
+				if (item.IsConstructor)
+			{
+				results.Add(item);
+			}
+			return results;
+		}
+
+		/// <summary>
+		/// Gets a read-only array containing the given method's parameter list.
+		/// </summary>
+		public static IParameter[] GetParameters(this IMethod Method)
+		{
+			return Enumerable.ToArray<IParameter>(Method.Parameters);
 		}
 
 		/// <summary>

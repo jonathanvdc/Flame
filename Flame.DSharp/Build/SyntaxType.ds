@@ -15,16 +15,23 @@ using Flame.Syntax.DSharp;
 
 namespace Flame.DSharp.Build
 {
-    public abstract class SyntaxType : SyntaxTypeBase
+    public class SyntaxType : SyntaxTypeBase
     {
-    	public const this();
-        public const this(set TypeDeclarationSyntax syntax, set INamespace DeclaringNamespace, set IBinder Binder,
+        public const this(set TypeDeclarationSyntax syntax, INamespace DeclaringNamespace, set IBinder Binder,
             set ICompilerLog Log, set IConverter<IType, string> TypeNamer)
+            : base(DeclaringNamespace)
         {
         	this.MemberProvider = new MemberProvider(Binder);
         }
-        public const this(set TypeDeclarationSyntax syntax, set INamespace DeclaringNamespace, set IBinder Binder,
-            set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer);
+        public const this(set TypeDeclarationSyntax syntax, INamespace DeclaringNamespace,
+            set IBinder Binder, set ICompilerLog Log, IExtensionTypeProvider ExtensionTypeProvider, set IConverter<IType, string> TypeNamer)
+            : base(DeclaringNamespace)
+        {
+            this.MemberProvider = new MemberProvider(ExtensionTypeProvider, Binder);
+        }
+        public const this(set TypeDeclarationSyntax syntax, INamespace DeclaringNamespace, set IBinder Binder,
+            set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer)
+            : base(DeclaringNamespace);
 
         protected TypeDeclarationSyntax syntax;
         public override TypeDeclarationSyntax GetTypeSyntax()
@@ -37,6 +44,30 @@ namespace Flame.DSharp.Build
         public IMemberProvider MemberProvider { const get; protected set; }
         public IConverter<IType, string> TypeNamer { const get; protected set; }
 
+        public override string Name
+        {
+            const get
+            {
+                int genericCount = Enumerable.Count<IGenericParameter>(this.GenericParameters);
+                if (genericCount == 0)
+                {
+                    return Syntax.Signature.NameToken.TokenValue;
+                }
+                else
+                {
+                    var sb = new StringBuilder();
+                    sb.Append(Syntax.Signature.NameToken.TokenValue);
+                    sb.Append('<');
+                    for (int i = 0; i < genericCount - 1; i++)
+                    {
+                        sb.Append(',');
+                    }
+                    sb.Append('>');
+                    return sb.ToString();
+                }
+            }
+        }
+
         private ISyntaxState currentState;
         public override ISyntaxState GetSyntaxState()
         {
@@ -44,25 +75,12 @@ namespace Flame.DSharp.Build
             {
                 var genericBinder = new PredefinedBinder(Binder);
 
-                var genericParams = this.GetGenericParameters();
-                var genericArgs = this.GetGenericArguments();
+            	foreach (var param in this.GenericParameters)
+	            {
+	            	genericBinder.MapType(param.Name, param);
+	            }
 
-                bool empty = true;
-                foreach (var param in genericParams, var arg in genericArgs)
-                {
-                	genericBinder.MapType(param.Name, arg);
-                	empty = false;
-                }
-                if (empty)
-                {
-                	foreach (var param in genericParams)
-    	            {
-    	            	genericBinder.MapType(param.Name, param);
-    	            }
-                }
-
-    			var descMethod = new DescribedMethod();
-    			descMethod.DeclaringType = this;
+    			var descMethod = new DescribedMethod("", this, PrimitiveTypes.Void, false);
 
                 currentState = new SyntaxState(descMethod, genericBinder, Log, MemberProvider, TypeNamer);
 
@@ -77,10 +95,29 @@ namespace Flame.DSharp.Build
 
         protected override ISyntaxState GetNamespaceSyntaxState()
         {
-        	var descMethod = new DescribedMethod();
-			descMethod.DeclaringType = this;
-
+        	var descMethod = new DescribedMethod("", this, PrimitiveTypes.Void, false);
             return new SyntaxState(descMethod, Binder, Log, MemberProvider, TypeNamer);
         }
+
+        #region Equality
+
+        public override int GetHashCode()
+        {
+            return Syntax.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is SyntaxType)
+            {
+                return this.Syntax == ((SyntaxType)obj).Syntax;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        #endregion
     }
 }

@@ -19,7 +19,7 @@ namespace Flame.Cecil.Emit
 
         public override IType Type
         {
-            get { return Pointer.BlockType.AsContainerType().GetElementType(); }
+            get { return Pointer.BlockType.AsContainerType().ElementType; }
         }
 
         public override void EmitAddress(IEmitContext Context)

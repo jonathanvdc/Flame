@@ -39,7 +39,7 @@ namespace Flame.Cecil
         protected virtual MethodReference ConvertGenericInstance(IMethod Method)
         {
             var genElem = Convert(Method.GetGenericDeclaration());
-            var genInst = new GenericInstanceMethod(genElem);
+            var genInst = new Mono.Cecil.GenericInstanceMethod(genElem);
             foreach (var item in Method.GetGenericArguments().Select(TypeImporter.Convert))
             {
                 genInst.GenericArguments.Add(item);
@@ -49,7 +49,7 @@ namespace Flame.Cecil
 
         protected override MethodReference ConvertInstanceGeneric(TypeReference DeclaringType, IMethod Member)
         {
-            var decl = ConvertDeclaration(Member);
+            var decl = ConvertDeclaration(Member.GetRecursiveGenericDeclaration());
             return Module.Module.Import(DeclaringType.ReferenceMethod(decl.Resolve()), DeclaringType);
         }
 
@@ -60,7 +60,7 @@ namespace Flame.Cecil
 
         private IType NormalizeType(IType Type)
         {
-            if (Type.Equals(PrimitiveTypes.IHashCodeProvider) || Type.Equals(PrimitiveTypes.IEquatable))
+            if (Type.Equals(PrimitiveTypes.IHashable) || Type.Equals(PrimitiveTypes.IEquatable))
             {
                 return Module.Convert(Module.Module.TypeSystem.Object);
             }
@@ -78,14 +78,13 @@ namespace Flame.Cecil
             {
                 var declProp = ((IAccessor)Member).DeclaringProperty;
                 var propType = declProp.PropertyType;
-                var indexerTypes = declProp.GetIndexerParameters().GetTypes();
-                var cecilProperties = type.GetProperties();
+                var indexerTypes = declProp.IndexerParameters.GetTypes();
+                var cecilProperties = type.Properties;
                 var cecilProp = cecilProperties.Single((item) =>
                 {
                     if (item.IsStatic == declProp.IsStatic && ((item.get_IsIndexer() && declProp.get_IsIndexer()) || item.Name == declProp.Name) && item.PropertyType.Equals(propType))
                     {
-                        var indexerParams = item.GetIndexerParameterTypes();
-                        return indexerTypes.AreEqual(indexerParams);
+                        return indexerTypes.AreEqual(item.IndexerParameters.GetTypes());
                     }
                     return false;
                 });

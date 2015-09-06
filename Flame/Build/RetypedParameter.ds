@@ -18,14 +18,9 @@ namespace Flame.Build
         /// </summary>
         public IType ParameterType { const get; private set; }
 
-        public const [IAttribute] GetAttributes()
+        public [IAttribute] Attributes
         {
-        	return Declaration.GetAttributes();
-        }
-
-        public const bool IsAssignable(IType Type) : IParameter.IsAssignable
-        {
-        	return Type.Is(ParameterType);
+        	get { return Declaration.Attributes; }
         }
 	}
 }

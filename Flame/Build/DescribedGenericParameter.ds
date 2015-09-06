@@ -8,45 +8,41 @@ namespace Flame.Build
 {
     public class DescribedGenericParameter : DescribedMember, IGenericParameterBuilder
     {
-        public const this(set string Name, set IGenericMember DeclaringMember)
+        public const this(string Name, set IGenericMember DeclaringMember)
+            : base(Name)
         {
             this.constraints = new List<IGenericConstraint>();
+            ClearCache();
         }
-        public const this(set string Name, set IGenericMember DeclaringMember, [IGenericConstraint] Constraints)
+        public const this(string Name, set IGenericMember DeclaringMember, [IGenericConstraint] Constraints)
+            : base(Name)
         {
         	this.constraints = new List<IGenericConstraint>(Constraints);
+            ClearCache();
         }
 
-        public IType TypeArgument { const get; set; }
         public IGenericMember DeclaringMember { const get; set; }
 
 		private List<IGenericConstraint> constraints;
-		
-		private IType[] cachedTypeConstraints;
-		private ITypeMember[] cachedMembers;
-		private IMethod[] cachedMethods;
-		private IMethod[] cachedCtors;
-		private IField[] cachedFields;
-		private IProperty[] cachedProperties;
-		
+
+		private Lazy<IType[]> cachedTypeConstraints;
+		private Lazy<[IMethod]> cachedMethods;
+		private Lazy<[IField]> cachedFields;
+		private Lazy<[IProperty]> cachedProperties;
+
 		private void ClearCache()
 		{
-			this.cachedMembers = null;
-			this.cachedMethods = null;
-			this.cachedCtors = null;
-			this.cachedFields = null;
-			this.cachedProperties = null;
-			this.cachedTypeConstraints = null;
+            this.cachedTypeConstraints = new Lazy<IType[]>(createTypeConstraints);
+			this.cachedMethods = new Lazy<[IMethod]>(createMethods);
+			this.cachedFields = new Lazy<[IField]>(createFields);
+			this.cachedProperties = new Lazy<[IProperty]>(createProperties);
 		}
 
         public IGenericConstraint Constraint
         {
-	        const get
-			{
-				return new AndConstraint(constraints);
-			}
+	        const get { return new AndConstraint(constraints); }
 		}
-		
+
 		public void AddConstraint(IGenericConstraint Constraint)
 		{
 			ClearCache();
@@ -73,17 +69,12 @@ namespace Flame.Build
 			}
 			constraints.Add(Constraint);
 		}
-		
-		/*public void AddTypeConstraint(IType TypeConstraint)
-        {
-            AddConstraint(new TypeConstraint(TypeConstraint));
-        }*/
-        
+
         private void AddAttributeCore(IAttribute Attribute)
 		{
-			this.Attributes.Add(Attribute);
+			this.attributeList.Add(Attribute);
 		}
-        
+
         public override void AddAttribute(IAttribute Attribute)
         {
         	if (Attribute.AttributeType.Equals(PrimitiveAttributes.ValueTypeAttribute.AttributeType))
@@ -103,148 +94,18 @@ namespace Flame.Build
         		AddAttributeCore(Attribute);
         	}
         }
-        
+
         public override string FullName
         {
         	const get
         	{
-        		return MemberExtensions.CombineNames(DeclaringMember.FullName, Name);	
+        		return MemberExtensions.CombineNames(DeclaringMember.FullName, Name);
         	}
         }
 
-        public const IEnumerable<IType> GetTypeConstraints()
+        public [IType] TypeConstraints
         {
-            return (IEnumerable<IType>)TypeConstraints;
-        }
-        
-        public IType[] TypeConstraints
-        {
-        	const get
-        	{
-	        	if (cachedTypeConstraints == null)
-	        	{
-	            	cachedTypeConstraints = Enumerable.ToArray<IType>(constraints.ExtractBaseTypes());
-	            }
-	            return cachedTypeConstraints;
-        	}
-        }
-
-        public const ITypeMember[] GetMembers()
-        {
-            if (TypeArgument == null)
-            {
-            	if (cachedMembers == null)
-            	{
-	            	var members = new List<ITypeMember>();
-	            	foreach (var type in TypeConstraints)
-	            	foreach (var item in type.GetMembers())
-	            	{
-	            		members.Add(item);
-	            	}
-	                cachedMembers = members.ToArray();
-                }
-                return cachedMembers;
-            }
-            else
-            {
-                return TypeArgument.GetMembers();
-            }
-        }
-
-        public const IMethod[] GetMethods()
-        {
-            if (TypeArgument == null)
-            {
-            	if (cachedMethods == null)
-            	{
-	                var members = new List<IMethod>();
-	            	foreach (var type in TypeConstraints)
-	            	foreach (var item in type.GetMethods())
-	            	{
-	            		members.Add(item);
-	            	}
-	                cachedMethods = members.ToArray();
-                }
-                return cachedMethods;
-            }
-            else
-            {
-                return TypeArgument.GetMethods();
-            }
-        }
-
-        public const IProperty[] GetProperties()
-        {
-            if (TypeArgument == null)
-            {
-                if (cachedProperties == null)
-            	{
-	                var members = new List<IProperty>();
-	            	foreach (var type in TypeConstraints)
-	            	foreach (var item in type.GetProperties())
-	            	{
-	            		members.Add(item);
-	            	}
-	                cachedProperties = members.ToArray();
-                }
-                return cachedProperties;
-            }
-            else
-            {
-                return TypeArgument.GetProperties();
-            }
-        }
-
-        public const IField[] GetFields()
-        {
-            if (TypeArgument == null)
-            {
-                if (cachedFields == null)
-            	{
-	                var members = new List<IField>();
-	            	foreach (var type in TypeConstraints)
-	            	foreach (var item in type.GetFields())
-	            	{
-	            		members.Add(item);
-	            	}
-	                cachedFields = members.ToArray();
-	            }
-	            return cachedFields;
-            }
-            else
-            {
-                return TypeArgument.GetFields();
-            }
-        }
-
-        public const IMethod[] GetConstructors()
-        {
-            if (TypeArgument == null)
-            {
-            	if (cachedCtors == null)
-            	{
-	                var members = new List<IMethod>();
-	            	foreach (var type in TypeConstraints)
-	            	foreach (var item in type.GetConstructors())
-	            	{
-	            		members.Add(item);
-	            	}
-	                cachedCtors = members.ToArray();
-                }
-                return cachedCtors;
-            }
-            else
-            {
-                return TypeArgument.GetConstructors();
-            }
-        }
-
-        public const IBoundObject GetDefaultValue()
-        {
-        	if (TypeArgument == null)
-        		return null;
-        	else
-            	return TypeArgument.GetDefaultValue();
+        	const get { return cachedTypeConstraints.Value; }
         }
 
         public INamespace DeclaringNamespace
@@ -252,78 +113,76 @@ namespace Flame.Build
             const get { return null; }
         }
 
-        public bool IsContainerType
+        public [IMethod] Methods
         {
-            const get { return false; }
+            get { return cachedMethods.Value; }
         }
 
-        public IContainerType AsContainerType()
+        public [IProperty] Properties
         {
-            return null;
+            get { return cachedProperties.Value; }
         }
 
-        public IArrayType MakeArrayType(int Rank)
+        public [IField] Fields
         {
-            return new DescribedArrayType(this, Rank);
+            get { return cachedFields.Value; }
         }
 
-        public IPointerType MakePointerType(PointerKind PointerKind)
+        public [IType] BaseTypes
         {
-            return new DescribedPointerType(this, PointerKind);
+            get { return TypeConstraints; }
         }
 
-        public IVectorType MakeVectorType(int[] Dimensions)
+        public [IGenericParameter] GenericParameters
         {
-            return new DescribedVectorType(this, Dimensions);
+            const get { return new IGenericParameter[0]; }
         }
 
-        public IType[] GetBaseTypes()
+        public IAncestryRules AncestryRules
         {
-            return TypeConstraints;
+            const get { return DefinitionAncestryRules; }
         }
 
-        public IType MakeGenericType(IEnumerable<IType> TypeArguments)
+        private [IMethod] createMethods()
         {
-            return this;
-        }
-
-        public const IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return new IGenericParameter[0];
-        }
-
-        public const IEnumerable<IType> GetGenericArguments()
-        {
-            return new IType[0];
-        }
-
-        public const IType GetGenericDeclaration()
-        {
-            return this;
-        }
-
-        public IType ParameterType
-        {
-            const get { return TypeArgument; }
-        }
-
-        public const bool IsAssignable(IType Type)
-        {
-        	return Constraint.Satisfies(Type);
-        }
-
-        public override const bool Equals(object obj)
-        {
-            if (obj is IGenericParameter)
+            var results = new HashSet<IMethod>();
+            foreach (var item in TypeConstraints)
             {
-                return DeclaringMember.Equals(((IGenericParameter)obj).DeclaringMember) && Name.Equals(((IGenericParameter)obj).Name);
+                results.UnionWith(item.Methods);
             }
-            else
-            {
-                return false;
-            }
+            return results;
         }
-        
+
+        private [IProperty] createProperties()
+        {
+            var results = new HashSet<IProperty>();
+            foreach (var item in TypeConstraints)
+            {
+                results.UnionWith(item.Properties);
+            }
+            return results;
+        }
+
+        private [IField] createFields()
+        {
+            var results = new HashSet<IField>();
+            foreach (var item in TypeConstraints)
+            {
+                results.UnionWith(item.Fields);
+            }
+            return results;
+        }
+
+        private IType[] createTypeConstraints()
+        {
+            return Enumerable.ToArray<IType>(constraints.ExtractBaseTypes());
+        }
+
+        public const IBoundObject GetDefaultValue()
+        {
+        	return null;
+        }
+
         public override const string ToString()
         {
         	return FullName;

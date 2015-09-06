@@ -14,7 +14,9 @@ namespace Flame.DSharp.Build
 
 		public ISyntaxNode[] Children { const get; private set; }
 		public const [ISyntaxNode] GetChildren()
+		{
 			return this.Children;
+		}
 
 		public virtual void CompileNamespace(INamespaceSyntax Node, INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log)
 		{
@@ -66,9 +68,9 @@ namespace Flame.DSharp.Build
 		{
 			const get
 			{
-				int32 nameCount = NameTokens.Length / 2 + 1;
+				int nameCount = NameTokens.Length / 2 + 1;
 				string[] split = new string[nameCount];
-				for (int32 i = 0; i < nameCount; i++)
+				for (int i = 0; i < nameCount; i++)
 				{
 					split[i] = NameTokens[i * 2].TokenValue;
 				}
@@ -78,9 +80,9 @@ namespace Flame.DSharp.Build
 
 		public static INamespaceBranchBuilder CreateNamespaceBuilder(string Name, INamespaceBranchBuilder DeclaringNamespace)
 		{
-			foreach (var item in DeclaringNamespace.GetNamespaces())
+			foreach (var item in DeclaringNamespace.Namespaces)
 			{
-				if (Name.Equals(item.Name) && item is INamespaceBranchBuilder)
+				if (Name == item.Name && item is INamespaceBranchBuilder)
 				{
 					return (INamespaceBranchBuilder)item;
 				}
@@ -94,7 +96,7 @@ namespace Flame.DSharp.Build
 		{
 			var splitName = this.SplitName;
 			INamespaceBranchBuilder ns = NamespaceCompilationUnit.CreateNamespaceBuilder(splitName[0], DeclaringNamespace);
-			for (int32 i = 1; i < splitName.Length; i++)
+			for (int i = 1; i < splitName.Length; i++)
 			{
 				Binder = Binder.PushScope(ns.Name);
 				ns = NamespaceCompilationUnit.CreateNamespaceBuilder(splitName[i], ns);
@@ -105,7 +107,7 @@ namespace Flame.DSharp.Build
 
 		public const CodeBuilder GetCode()
 		{
-			CodeBuilder cb = new CodeBuilder();
+			var cb = new CodeBuilder();
 			cb.Append(NamepaceKeyword.TokenValue);
 			cb.Append(" ");
 			foreach (var item in NameTokens)
@@ -125,7 +127,7 @@ namespace Flame.DSharp.Build
 
 		public virtual override const string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			sb.Append(NamepaceKeyword.TokenValue);
 			sb.Append(' ');
 			foreach (var item in NameTokens)

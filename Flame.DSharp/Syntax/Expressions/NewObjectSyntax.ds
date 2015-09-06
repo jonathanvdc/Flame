@@ -98,11 +98,11 @@ namespace Flame.Syntax.DSharp
             if (args.Length == 0 && realType.IsVector)
             {
             	var vectType = realType.AsContainerType().AsVectorType();
-                return new NewVectorExpression(vectType.GetElementType(), vectType.GetDimensions());
+                return new NewVectorExpression(vectType.ElementType, vectType.Dimensions);
             }
             else if (args.Length == 0 && realType.IsArray) // special case to support initialized arrays
             {
-                return new NewArrayExpression(realType.AsContainerType().GetElementType(), (IReadOnlyList<IExpression>)new IExpression[] { null });
+                return new NewArrayExpression(realType.AsContainerType().ElementType, (IReadOnlyList<IExpression>)new IExpression[] { null });
             }
             else
             {

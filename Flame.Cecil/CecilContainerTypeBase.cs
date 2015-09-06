@@ -14,39 +14,17 @@ namespace Flame.Cecil
         {
             this.ElementType = ElementType;
         }
-        public CecilContainerTypeBase(ICecilType ElementType, CecilModule Module)
+        public CecilContainerTypeBase(IType ElementType, CecilModule Module)
             : base(Module)
         {
             this.ElementType = ElementType;
         }
 
-        public ICecilType ElementType { get; private set; }
+        public IType ElementType { get; private set; }
 
-        public override bool IsContainerType
+        public override IEnumerable<IGenericParameter> GenericParameters
         {
-            get { return true; }
-        }
-
-        public override IContainerType AsContainerType()
-        {
-            return this;
-        }
-
-        public abstract ContainerTypeKind ContainerKind { get; }
-
-        public IType GetElementType()
-        {
-            return ElementType;
-        }
-
-        public override IType GetGenericDeclaration()
-        {
-            return this;
-        }
-
-        public override IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return Enumerable.Empty<IGenericParameter>();
+            get { return Enumerable.Empty<IGenericParameter>(); }
         }
 
         protected override IList<CustomAttribute> GetCustomAttributes()
@@ -54,29 +32,9 @@ namespace Flame.Cecil
             return new CustomAttribute[0];
         }
 
-        public virtual IArrayType AsArrayType()
-        {
-            return this as IArrayType;
-        }
-
-        public virtual IPointerType AsPointerType()
-        {
-            return this as IPointerType;
-        }
-
-        public virtual IVectorType AsVectorType()
-        {
-            return this as IVectorType;
-        }
-
         public override IType ResolveTypeParameter(IGenericParameter TypeParameter)
         {
             return null;
-        }
-
-        public override IEnumerable<IType> GetGenericArguments()
-        {
-            return new IType[0];
         }
 
         #region Equality
@@ -111,7 +69,7 @@ namespace Flame.Cecil
         {
             if (ContainerEquals(other))
             {
-                return GetElementType().Equals(other.GetElementType());
+                return ElementType.Equals(other.ElementType);
             }
             else
             {
@@ -121,9 +79,14 @@ namespace Flame.Cecil
 
         public override int GetHashCode()
         {
-            return ContainerKind.GetHashCode() ^ GetElementType().GetHashCode();
+            return this.GetType().GetHashCode() ^ ElementType.GetHashCode();
         }
 
         #endregion
+
+        IType IContainerType.ElementType
+        {
+            get { return ElementType; }
+        }
     }
 }

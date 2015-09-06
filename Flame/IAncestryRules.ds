@@ -1,0 +1,20 @@
+
+namespace Flame
+{
+    /// <summary>
+    /// A set of rules that determine whether one type is a subtype of another,
+    /// and how close it is to the parent type.
+    /// </summary>
+    public interface IAncestryRules
+    {
+        /// <summary>
+        /// Determines whether the second type is a subtype of the first.
+        /// An ancestry degree of zero means that the two types are equivalent,
+        /// an ancestry degree greater than zero means that the second type
+        /// is a subtype of the first, and any other value means that - according
+        /// to this set of rules - there is neither an equivalence, nor a subtype
+        /// relationship.
+        /// </summary>
+        int GetAncestryDegree(IType First, IType Second);
+    }
+}

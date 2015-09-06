@@ -9,10 +9,10 @@ namespace Flame
 	/// </summary>
 	public class AndConstraint : IGenericConstraint
 	{
-		public const this(set IEnumerable<IGenericConstraint> Constraints);
-		
-		public IEnumerable<IGenericConstraint> Constraints { const get; private set; }
-		
+		public const this(set [IGenericConstraint] Constraints);
+
+		public [IGenericConstraint] Constraints { const get; private set; }
+
 		public const bool Satisfies(IType TypeArgument)
 		{
 			foreach (var item in Constraints)

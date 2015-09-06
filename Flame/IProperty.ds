@@ -3,20 +3,24 @@ using System.Collections.Generic;
 
 namespace Flame
 {
+    /// <summary>
+    /// Defines a common interface for properties.
+    /// </summary>
     public interface IProperty : ITypeMember
     {
         /// <summary>
         /// Gets the property's type.
         /// </summary>
-        IType PropertyType { const get; }
+        IType PropertyType { get; }
+
         /// <summary>
         /// Gets the property's accessors.
         /// </summary>
-        /// <returns></returns>
-        const IAccessor[] GetAccessors();
+        [IAccessor] Accessors { get; }
+
         /// <summary>
         /// Gets the indexer's parameters, if any.
         /// </summary>
-        const IParameter[] GetIndexerParameters();
+        [IParameter] IndexerParameters { get; }
     }
 }

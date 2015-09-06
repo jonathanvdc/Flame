@@ -27,14 +27,14 @@ namespace Flame.Cpp
 
         #region INamespaceBranch Implementation
 
-        public IEnumerable<INamespaceBranch> GetNamespaces()
+        public IEnumerable<INamespaceBranch> Namespaces
         {
-            return ns;
+            get { return ns; }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return new IAttribute[0];
+            get { return new IAttribute[0]; }
         }
 
         public string Name
@@ -42,9 +42,9 @@ namespace Flame.Cpp
             get { return FullName; }
         }
 
-        public IType[] GetTypes()
+        public IEnumerable<IType> Types
         {
-            return types.ToArray();
+            get { return types; }
         }
 
         #endregion

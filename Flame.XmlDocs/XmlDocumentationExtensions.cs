@@ -56,7 +56,7 @@ namespace Flame.XmlDocs
             if (Method.get_IsGeneric())
             {
                 sb.Append("``");
-                sb.Append(Method.GetGenericParameters().Count());
+                sb.Append(Method.GenericParameters.Count());
             }
             var paramTypes = Method.GetParameters().GetTypes();
             if (paramTypes.Length > 0)

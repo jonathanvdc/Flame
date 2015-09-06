@@ -23,19 +23,14 @@ namespace Flame.Python
 
         public List<IPythonMethod> Methods { get; private set; }
 
-        public IMethod[] GetBaseMethods()
+        public IEnumerable<IMethod> BaseMethods
         {
-            return Methods.SelectMany((item) => item.GetBaseMethods()).Distinct().ToArray();
+            get { return Methods.SelectMany((item) => item.BaseMethods).Distinct(); }
         }
 
-        public IMethod GetGenericDeclaration()
+        public IEnumerable<IParameter> Parameters
         {
-            return new PythonOverloadedMethod(Methods.Select((item) => (IPythonMethod)item.GetGenericDeclaration()));
-        }
-
-        public IParameter[] GetParameters()
-        {
-            return GetPythonParameters();
+            get { return GetPythonParameters(); }
         }
 
         public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
@@ -46,11 +41,6 @@ namespace Flame.Python
         public bool IsConstructor
         {
             get { return Methods.All((item) => item.IsConstructor); }
-        }
-
-        public IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
-        {
-            throw new NotSupportedException();
         }
 
         public IType ReturnType
@@ -73,9 +63,9 @@ namespace Flame.Python
             get { return Methods.First().FullName; }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Methods.SelectMany((item) => item.GetAttributes()).Distinct();
+            get { return Methods.SelectMany((item) => item.Attributes).Distinct(); }
         }
 
         public string Name
@@ -83,14 +73,9 @@ namespace Flame.Python
             get { return Methods.First().Name; }
         }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            throw new NotSupportedException();
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            throw new NotSupportedException();
+            get { throw new NotSupportedException(); }
         }
 
         #region IPythonMethod Implementation
@@ -165,7 +150,7 @@ namespace Flame.Python
             }
             for (int i = smallestParams.Length; i < fattestParams.Length; i++)
             {
-                parameters[i + offset] = new PythonParameter(fattestParams[i], new NullExpression());
+                parameters[i + offset] = new PythonParameter(fattestParams[i], NullExpression.Instance);
             }
             return parameters;
         }

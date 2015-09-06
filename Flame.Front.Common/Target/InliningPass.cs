@@ -39,10 +39,10 @@ namespace Flame.Front.Target
 
             if (Type.get_IsVector())
             {
-                return ApproximateSize(Type.GetEnumerableElementType()) * Type.AsContainerType().AsVectorType().GetDimensions().Aggregate(1, (aggr, val) => aggr * val);
+                return ApproximateSize(Type.GetEnumerableElementType()) * Type.AsContainerType().AsVectorType().Dimensions.Aggregate(1, (aggr, val) => aggr * val);
             }
 
-            return Type.GetFields().Aggregate(0, (aggr, field) => aggr + ApproximateSize(field.FieldType));
+            return Type.Fields.Aggregate(0, (aggr, field) => aggr + ApproximateSize(field.FieldType));
         }
 
         private static int RateArgument(IType ParameterType, IExpression Argument)

@@ -19,15 +19,20 @@ namespace Flame.Syntax.DSharp
         public SourceLocation Location { const get return PropertySyntax.Location; }
 
         public static const string GetBackingFieldName(string PropertyName)
-        	return PropertyName + "_value";
+        {
+            return PropertyName + "_value";
+        }
 
         public FieldProperty CreateMember(ISyntaxState State)
         {
             var property = PropertySyntax.CreateMember(State);
-            var field = new DescribedField(GetBackingFieldName(property.Name), property.PropertyType, property.IsStatic);
+            var field = new DescribedField(
+                GetBackingFieldName(property.Name),
+                State.DeclaringType,
+                property.PropertyType, 
+                property.IsStatic);
             field.AddAttribute(new AccessAttribute(AccessModifier.Private));
             field.AddAttribute(PrimitiveAttributes.HiddenAttribute);
-            field.DeclaringType = State.DeclaringType;
             return new FieldProperty(property, field);
         }
 

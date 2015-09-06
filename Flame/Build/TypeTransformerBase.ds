@@ -29,7 +29,7 @@ namespace Flame.Build
 			return ElementType.MakeArrayType(ArrayRank);
 		}
 
-		protected override virtual const IType MakeVectorType(IType ElementType, int[] Dimensions)
+		protected override virtual const IType MakeVectorType(IType ElementType, IReadOnlyList<int> Dimensions)
 		{
 			return ElementType.MakeVectorType(Dimensions);
 		}
@@ -60,7 +60,7 @@ namespace Flame.Build
 			{
 				descMethod.AddParameter(new RetypedParameter(item, type));
 			}
-			foreach (var attr in method.GetAttributes())
+			foreach (var attr in method.Attributes)
 			{
 				descMethod.AddAttribute(attr);
 			}
@@ -101,7 +101,7 @@ namespace Flame.Build
 
 		protected override virtual const IType ConvertPointerType(IPointerType Type)
 		{
-			var elemType = Type.GetElementType();
+			var elemType = Type.ElementType;
 			var convElem = Convert(elemType);
 
 			if (object.ReferenceEquals(convElem, elemType))
@@ -114,7 +114,7 @@ namespace Flame.Build
 
 		protected override virtual const IType ConvertArrayType(IArrayType Type)
 		{
-			var elemType = Type.GetElementType();
+			var elemType = Type.ElementType;
 			var convElem = Convert(elemType);
 
 			if (object.ReferenceEquals(convElem, elemType))
@@ -127,7 +127,7 @@ namespace Flame.Build
 
 		protected override virtual const IType ConvertVectorType(IVectorType Type)
 		{
-			var elemType = Type.GetElementType();
+			var elemType = Type.ElementType;
 			var convElem = Convert(elemType);
 
 			if (object.ReferenceEquals(convElem, elemType))
@@ -135,7 +135,7 @@ namespace Flame.Build
 				return Type;
 			}
 
-			return MakeVectorType(convElem, Type.GetDimensions());
+			return MakeVectorType(convElem, Type.Dimensions);
 		}
 
 		protected override virtual const IType ConvertTypeDefault(IType Type)

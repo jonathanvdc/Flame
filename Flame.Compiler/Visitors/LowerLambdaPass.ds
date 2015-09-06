@@ -74,14 +74,14 @@ namespace Flame.Compiler.Visitors
             foreach (var item in Signature.GetParameters())
             {
                 var convParam = new DescribedParameter(item.Name, Converter.Convert(item.ParameterType));
-                foreach (var attr in item.GetAttributes())
+                foreach (var attr in item.Attributes)
                 {
                     convParam.AddAttribute(attr);
                 }
                 descMethod.AddParameter(convParam);
             }
 
-            foreach (var item in Signature.GetAttributes())
+            foreach (var item in Signature.Attributes)
                 descMethod.AddAttribute(item);
 
             if (IsPrivate)
@@ -123,7 +123,7 @@ namespace Flame.Compiler.Visitors
 
             string name    = GenerateName("__lambda_invoke");
             var descMethod = CopySignature(Lambda.Signature, name, DeclaringType, true);
-            foreach (var item in DeclaringMethod.GetGenericParameters())
+            foreach (var item in DeclaringMethod.GenericParameters)
             {
                 descMethod.AddGenericParameter(item);
             }
@@ -139,7 +139,7 @@ namespace Flame.Compiler.Visitors
             lambdaMethod.Build();
 
             if (lambdaMethod.IsGeneric)
-                return new GetMethodExpression(lambdaMethod.MakeGenericMethod(lambdaMethod.GetGenericParameters()), null);
+                return new GetMethodExpression(lambdaMethod.MakeGenericMethod(lambdaMethod.GenericParameters), null);
             else
                 return new GetMethodExpression(lambdaMethod, null);
         }
@@ -152,7 +152,7 @@ namespace Flame.Compiler.Visitors
             }
             else
             {
-                var inst = Type.MakeGenericType(DeclaringMethod.GetGenericParameters());
+                var inst = Type.MakeGenericType(DeclaringMethod.GenericParameters);
                 return Enumerable.Single<IMethod>(inst.GetConstructors());
             }
         }
@@ -165,7 +165,7 @@ namespace Flame.Compiler.Visitors
             }
             else
             {
-                var inst = Type.MakeGenericType(DeclaringMethod.GetGenericParameters());
+                var inst = Type.MakeGenericType(DeclaringMethod.GenericParameters);
                 return Enumerable.Single<IMethod>(inst.GetMethods());
             }
         }
@@ -180,7 +180,7 @@ namespace Flame.Compiler.Visitors
             {
                 descType.AddBaseType(Environment.RootType);
             }
-            foreach (var item in DeclaringMethod.GetGenericParameters())
+            foreach (var item in DeclaringMethod.GenericParameters)
             {
                 descType.AddGenericParameter(item);
             }
@@ -206,8 +206,10 @@ namespace Flame.Compiler.Visitors
 
             foreach (var item in Lambda.Header.CaptureList)
             {
-                var descField = new DescribedField("captured_" + capturedValues.Count, typeConverter.Convert(item.Type), false);
-                descField.DeclaringType = closureType;
+                var descField = new DescribedField("captured_" + capturedValues.Count,
+                                                   closureType,
+                                                   typeConverter.Convert(item.Type),
+                                                   false);
                 descField.AddAttribute(new AccessAttribute(AccessModifier.Private));
 
                 var captField = closureType.DeclareField(descField);

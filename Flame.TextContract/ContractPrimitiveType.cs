@@ -27,74 +27,37 @@ namespace Flame.TextContract
             }
         }
 
-        public IType[] GetBaseTypes()
+        public IEnumerable<IType> BaseTypes
         {
-            return new IType[0];
-        }
-
-        public IMethod[] GetConstructors()
-        {
-            var paramlessCtor = new DescribedMethod("Create" + char.ToUpper(Name[0]).ToString() + Name.Substring(1), this);
-            paramlessCtor.IsConstructor = true;
-            return new IMethod[]
-            {
-                paramlessCtor
-            };
+            get { return new IType[0]; }
         }
 
         public IBoundObject GetDefaultValue()
         {
-            return new NullExpression();
+            return NullExpression.Instance;
         }
 
-        public IField[] GetFields()
+        public IEnumerable<IField> Fields
         {
-            return new IField[0];
+            get { return new IField[0]; }
         }
 
-        public virtual IType GetGenericDeclaration()
+        public IEnumerable<IMethod> Methods
         {
-            return this;
+            get
+            {
+                var paramlessCtor = new DescribedMethod("Create" + char.ToUpper(Name[0]).ToString() + Name.Substring(1), this);
+                paramlessCtor.IsConstructor = true;
+                return new IMethod[]
+                {
+                    paramlessCtor
+                };
+            }
         }
 
-        public ITypeMember[] GetMembers()
+        public IEnumerable<IProperty> Properties
         {
-            return GetConstructors();
-        }
-
-        public IMethod[] GetMethods()
-        {
-            return new IMethod[0];
-        }
-
-        public IProperty[] GetProperties()
-        {
-            return new IProperty[0];
-        }
-
-        public bool IsContainerType
-        {
-            get { return false; }
-        }
-
-        public IArrayType MakeArrayType(int Rank)
-        {
-            return new DescribedArrayType(this, Rank);
-        }
-
-        public virtual IType MakeGenericType(IEnumerable<IType> TypeArguments)
-        {
-            return this;
-        }
-
-        public IPointerType MakePointerType(PointerKind PointerKind)
-        {
-            return new DescribedPointerType(this, PointerKind);
-        }
-
-        public IVectorType MakeVectorType(int[] Dimensions)
-        {
-            return new DescribedVectorType(this, Dimensions);
+            get { return new IProperty[0]; }
         }
 
         public virtual string FullName
@@ -102,27 +65,26 @@ namespace Flame.TextContract
             get { return Name; }
         }
 
-        public virtual IEnumerable<IAttribute> GetAttributes()
+        public virtual IEnumerable<IAttribute> Attributes
         {
-            //return new IAttribute[] { PrimitiveAttributes.RootTypeAttribute };
-            return new IAttribute[0];
+            get { return new IAttribute[0]; }
         }
 
         public abstract string Name { get; }
 
-        public virtual IEnumerable<IType> GetGenericArguments()
+        public virtual IEnumerable<IGenericParameter> GenericParameters
         {
-            return new IType[0];
-        }
-
-        public virtual IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return new IGenericParameter[0];
+            get { return new IGenericParameter[0]; }
         }
 
         public override string ToString()
         {
             return Name;
+        }
+
+        public IAncestryRules AncestryRules
+        {
+            get { return DefinitionAncestryRules.Instance; }
         }
     }
 }

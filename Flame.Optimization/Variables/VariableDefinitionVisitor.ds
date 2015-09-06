@@ -152,7 +152,7 @@ namespace Flame.Optimization.Variables
             }
             else if (Type.IsValueType)
             {
-                foreach (var item in Type.GetFields())
+                foreach (var item in Type.Fields)
                     if (!IsPropagateAlwaysType(item.FieldType))
                 {
                     return false;
@@ -380,9 +380,9 @@ namespace Flame.Optimization.Variables
                 else
                     return PropagationDependencies.Never();
             }
-            else if (Value is ConversionExpression)
+            else if (Value is ConversionExpressionBase)
             {
-                return GetDependencies(((ConversionExpression)Value).Value);
+                return GetDependencies(((ConversionExpressionBase)Value).Value);
             }
             else if (Value is GetMethodExpression)
             {

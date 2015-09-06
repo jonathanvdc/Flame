@@ -26,14 +26,9 @@ namespace Flame.MIPS
         public IType Template { get; private set; }
         public IAssemblerState GlobalState { get; private set; }
 
-        public IContainerType AsContainerType()
+        public IEnumerable<IType> BaseTypes
         {
-            return null;
-        }
-
-        public IType[] GetBaseTypes()
-        {
-            return Template.GetBaseTypes();
+            get { return Template.BaseTypes; }
         }
 
         #region Members
@@ -42,29 +37,19 @@ namespace Flame.MIPS
         private List<AssemblerField> instanceFields;
         private List<AssemblerField> staticFields;
 
-        public IMethod[] GetConstructors()
+        public IEnumerable<IField> Fields
         {
-            return methods.Where((item) => item.IsConstructor).ToArray();
+            get { return instanceFields.Concat(staticFields); }
         }
 
-        public IField[] GetFields()
+        public IEnumerable<IMethod> Methods
         {
-            return instanceFields.ToArray();
+            get { return methods; }
         }
 
-        public ITypeMember[] GetMembers()
+        public IEnumerable<IProperty> Properties
         {
-            return GetFields().Concat<ITypeMember>(methods).ToArray();
-        }
-
-        public IMethod[] GetMethods()
-        {
-            return methods.Where((item) => !item.IsConstructor).ToArray();
-        }
-
-        public IProperty[] GetProperties()
-        {
-            return new IProperty[0];
+            get { return new IProperty[0]; }
         }
 
         private static int GetSize(List<AssemblerField> Target)
@@ -128,39 +113,9 @@ namespace Flame.MIPS
         {
             if (this.get_IsReferenceType())
             {
-                return new Flame.Compiler.Expressions.NullExpression();
+                return Flame.Compiler.Expressions.NullExpression.Instance;
             }
             throw new NotImplementedException();
-        }
-
-        public IType GetGenericDeclaration()
-        {
-            return this;
-        }
-
-        public bool IsContainerType
-        {
-            get { return false; }
-        }
-
-        public IArrayType MakeArrayType(int Rank)
-        {
-            return new DescribedArrayType(this, Rank);
-        }
-
-        public IType MakeGenericType(IEnumerable<IType> TypeArguments)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IPointerType MakePointerType(PointerKind PointerKind)
-        {
-            return new DescribedPointerType(this, PointerKind);
-        }
-
-        public IVectorType MakeVectorType(int[] Dimensions)
-        {
-            return new DescribedVectorType(this, Dimensions);
         }
 
         public string FullName
@@ -168,15 +123,18 @@ namespace Flame.MIPS
             get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            if (Template.get_IsSingleton())
+            get
             {
-                return Template.GetAttributes().Where((item) => !(item is SingletonAttribute)).Concat(new IAttribute[] { PrimitiveAttributes.Instance.StaticTypeAttribute });
-            }
-            else
-            {
-                return Template.GetAttributes();
+                if (Template.get_IsSingleton())
+                {
+                    return Template.Attributes.Where((item) => !(item is SingletonAttribute)).Concat(new IAttribute[] { PrimitiveAttributes.Instance.StaticTypeAttribute });
+                }
+                else
+                {
+                    return Template.Attributes;
+                }
             }
         }
 
@@ -185,19 +143,19 @@ namespace Flame.MIPS
             get { return Template.Name; }
         }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return new IType[0];
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return new IGenericParameter[0];
+            get { return new IGenericParameter[0]; }
         }
 
         public IType Build()
         {
             return this;
+        }
+
+        public IAncestryRules AncestryRules
+        {
+            get { return DefinitionAncestryRules.Instance; }
         }
     }
 }

@@ -41,7 +41,7 @@ namespace Flame.Cpp
 
         public CodeBuilder GetHeaderCode()
         {
-            var argType = Environment.TypeConverter.Convert(ArgumentType.get_IsGeneric() ? ArgumentType.MakeGenericType(ArgumentType.GetGenericParameters()) : ArgumentType);
+            var argType = Environment.TypeConverter.Convert(ArgumentType.get_IsGeneric() ? ArgumentType.MakeGenericType(ArgumentType.GenericParameters) : ArgumentType);
 
             var cb = new CodeBuilder();
             cb.AddLine("namespace std");
@@ -90,9 +90,9 @@ namespace Flame.Cpp
             get { return GenericNameExtensions.ChangeTypeArguments("std.hash", new string[] { ArgumentType.FullName }); }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return new IAttribute[] { PrimitiveAttributes.Instance.ValueTypeAttribute };
+            get { return new IAttribute[] { PrimitiveAttributes.Instance.ValueTypeAttribute }; }
         }
 
         public string Name

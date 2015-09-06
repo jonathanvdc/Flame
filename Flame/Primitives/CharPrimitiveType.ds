@@ -1,18 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Flame.Build;
 
 namespace Flame.Primitives
 {
 	public class CharPrimitiveType : PrimitiveType<char>
 	{
-		public const this(set string Name, set int32 Magnitude)
-		{
-			this.DefaultValue = default(char);
-		}
+		public const this(string Name, int32 Magnitude)
+			: base(Name, Magnitude, default(char));
 
-		private IMethod[] getExtraCharMethods()
+		private IMethod[] createExtraCharMethods()
 		{
 			var isDigitMethod = new DescribedMethod("IsDigit", this, PrimitiveTypes.Boolean, true); // static const bool IsDigit(char Value);
         	isDigitMethod.AddParameter(new DescribedParameter("Value", PrimitiveTypes.Char));
@@ -52,16 +51,11 @@ namespace Flame.Primitives
 			};
 		}
 
-		public override IMethod[] GetMethods()
+		protected override IMethod[] CreateMethods()
 		{
 			var commonMethods = this.GetCommonPrimitiveMethods();
-			var extraMethods = this.getExtraCharMethods();
-			var allMethods = new IMethod[commonMethods.Length + extraMethods.Length];
-			foreach (var item in commonMethods, var output in allMethods)
-				output = item;
-			for (int i = 0; i < extraMethods.Length; i++)
-				allMethods[commonMethods.Length + i] = extraMethods[i];
-			return allMethods;
+			var extraMethods = this.createExtraCharMethods();
+			return Enumerable.ToArray<IMethod>(Enumerable.Concat<IMethod>(commonMethods, extraMethods));
 		}
 	}
 }

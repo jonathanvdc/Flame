@@ -34,7 +34,7 @@ namespace Flame.Compiler.Expressions
         /// </summary>
         public [IType] ParameterTypes
         {
-            const get return Signature.GetParameters().GetTypes();
+            const get return Signature.Parameters.GetTypes();
         }
 
         /// <summary>

@@ -12,7 +12,7 @@ namespace Flame.Compiler
 		{
 			const get
 			{
-				return new PrimitiveType("InterfaceAttribute", 0, new NullExpression());
+				return new PrimitiveType("InterfaceAttribute", 0, NullExpression);
 			}
 		}
 	

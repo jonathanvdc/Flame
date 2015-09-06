@@ -30,7 +30,7 @@ namespace Flame.Verification
         protected override bool VerifyMemberCore(INamespace Member, ICompilerLog Log)
         {
             bool success = true;
-            foreach (var item in Member.GetTypes())
+            foreach (var item in Member.Types)
             {
                 if (!TypeVerifier.Verify(item, Log))
                 {

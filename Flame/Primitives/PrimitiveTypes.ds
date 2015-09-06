@@ -10,13 +10,11 @@ namespace Flame
 	{
 		#region PrimitivesNamespace
 
-		public class PrimitivesNamespace : INamespace
+		public static class PrimitivesNamespace : INamespace
 		{
-			public const this();
-
-            public const IType[] GetTypes()
+            public [IType] Types
             {
-                return PrimitiveTypes.GetPrimitives();
+                get { return PrimitiveTypes.GetPrimitives(); }
             }
 
             public IAssembly DeclaringAssembly
@@ -34,9 +32,9 @@ namespace Flame
                 const get { return "System"; }
             }
 
-            public const IEnumerable<IAttribute> GetAttributes()
+            public [IAttribute] Attributes
             {
-                return (IEnumerable<IAttribute>)new IAttribute[0];
+                get { return new IAttribute[0]; }
             }
 
 	    	public override const bool Equals(object Other)
@@ -72,10 +70,10 @@ namespace Flame
     		//PrimitiveTypes.Char = new PrimitiveType<char>("Char", 2, default(char));
     		PrimitiveTypes.Char = new CharPrimitiveType("Char", 2);
     		//PrimitiveTypes.Null = new PrimitiveType<object>("Null", 0, null);
-    		PrimitiveTypes.Null = new NullPrimitiveType();
+    		PrimitiveTypes.Null = NullPrimitiveType;
     		PrimitiveTypes.Void = new PrimitiveType<object>("Void", 0, null);
-    		PrimitiveTypes.IHashCodeProvider = new HashCodeProviderType();
-    		PrimitiveTypes.IEquatable = new EquatableType();
+    		PrimitiveTypes.IHashable = HashableType;
+    		PrimitiveTypes.IEquatable = EquatableType;
     	}
 
     	private static IType int32Type;
@@ -104,7 +102,7 @@ namespace Flame
 
     	public static IType Null { const get; private set; }
     	public static IType Void { const get; private set; }
-    	public static IType IHashCodeProvider { const get; private set; }
+    	public static IType IHashable { const get; private set; }
     	public static IType IEquatable { const get; private set; }
 
 		public static IType[] GetPrimitives()

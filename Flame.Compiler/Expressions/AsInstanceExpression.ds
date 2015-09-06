@@ -1,0 +1,55 @@
+using System;
+
+namespace Flame.Compiler.Expressions
+{
+    /// <summary>
+    /// An expression that represents an as-instance expression.
+    /// </summary>
+    public class AsInstanceExpression : ConversionExpressionBase
+    {
+        /// <summary>
+        /// Creates an as-instance expression from the given value and type.
+        /// </summary>
+        public const this(IExpression Value, IType TargetType)
+            : base(Value, TargetType);
+
+        /// <summary>
+        /// Creates a new conversion expression that converts the given
+        /// value to the given type.
+        /// </summary>
+        protected override ConversionExpressionBase Create(IExpression NewValue, IType NewType)
+        {
+            return new AsInstanceExpression(NewValue, NewType);
+        }
+
+        /// <summary>
+        /// Tells if this conversion expression is a compile-time constant.
+        /// </summary>
+        public override bool IsConstant { get { return Value.IsConstant; } }
+
+        /// <summary>
+        /// Evaluates this conversion expression at compile-time.
+        /// </summary>
+        public override IBoundObject Evaluate()
+        {
+            var evalVal = Value.Evaluate();
+            if (evalVal == null)
+                return null;
+            else if (!Value.Type.Is(TargetType))
+                return NullExpression;
+            else
+                return evalVal;
+        }
+
+        public override ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            var valueBlock = Value.Emit(Generator);
+            return Generator.EmitTypeBinary(valueBlock, TargetType, Operator.AsInstance);
+        }
+
+        public override string ToString()
+        {
+            return "as_instance(" + Value + ", " + TargetType.FullName + ")";
+        }
+    }
+}

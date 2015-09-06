@@ -27,75 +27,38 @@ namespace Flame.Python
             }
         }
 
-        public IType[] GetBaseTypes()
+        public IEnumerable<IType> BaseTypes
         {
-            return new IType[0];
-        }
-
-        public IMethod[] GetConstructors()
-        {
-            var paramlessCtor = new DescribedMethod("__init__", this);
-            paramlessCtor.ReturnType = PrimitiveTypes.Void;
-            paramlessCtor.IsConstructor = true;
-            return new IMethod[]
-            {
-                paramlessCtor
-            };
+            get { return new IType[0]; }
         }
 
         public IBoundObject GetDefaultValue()
         {
-            return new NullExpression();
+            return NullExpression.Instance;
         }
 
-        public virtual IField[] GetFields()
+        public virtual IEnumerable<IField> Fields
         {
-            return new IField[0];
+            get { return new IField[0]; }
         }
 
-        public IType GetGenericDeclaration()
+        public virtual IEnumerable<IMethod> Methods
         {
-            return this;
+            get
+            {
+                var paramlessCtor = new DescribedMethod("__init__", this);
+                paramlessCtor.ReturnType = PrimitiveTypes.Void;
+                paramlessCtor.IsConstructor = true;
+                return new IMethod[]
+                {
+                    paramlessCtor
+                };
+            }
         }
 
-        public virtual ITypeMember[] GetMembers()
+        public virtual IEnumerable<IProperty> Properties
         {
-            return GetConstructors().Concat<ITypeMember>(GetMethods()).Concat(GetProperties()).Concat(GetFields()).ToArray();
-        }
-
-        public virtual IMethod[] GetMethods()
-        {
-            return new IMethod[0];
-        }
-
-        public virtual IProperty[] GetProperties()
-        {
-            return new IProperty[0];
-        }
-
-        public bool IsContainerType
-        {
-            get { return false; }
-        }
-
-        public IArrayType MakeArrayType(int Rank)
-        {
-            return new DescribedArrayType(this, Rank);
-        }
-
-        public IType MakeGenericType(IEnumerable<IType> TypeArguments)
-        {
-            return this;
-        }
-
-        public IPointerType MakePointerType(PointerKind PointerKind)
-        {
-            return new DescribedPointerType(this, PointerKind);
-        }
-
-        public IVectorType MakeVectorType(int[] Dimensions)
-        {
-            return new DescribedVectorType(this, Dimensions);
+            get { return new IProperty[0]; }
         }
 
         public string FullName
@@ -103,27 +66,26 @@ namespace Flame.Python
             get { return Name; }
         }
 
-        public virtual IEnumerable<IAttribute> GetAttributes()
+        public virtual IEnumerable<IAttribute> Attributes
         {
-            //return new IAttribute[] { PrimitiveAttributes.RootTypeAttribute };
-            return new IAttribute[0];
+            get { return new IAttribute[0]; }
         }
 
         public abstract string Name { get; }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return new IType[0];
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return new IGenericParameter[0];
+            get { return new IGenericParameter[0]; }
         }
 
         public override string ToString()
         {
             return Name;
+        }
+
+        public IAncestryRules AncestryRules
+        {
+            get { return DefinitionAncestryRules.Instance; }
         }
     }
 }

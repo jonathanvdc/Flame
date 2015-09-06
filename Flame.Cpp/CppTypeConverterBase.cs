@@ -17,11 +17,11 @@ namespace Flame.Cpp
         protected abstract override IType MakePointerType(IType Type, PointerKind Kind);
         protected abstract IType MakeReferenceType(IType Type);
         protected abstract override IType MakeArrayType(IType Type, int ArrayRank);
-        protected abstract override IType MakeVectorType(IType Type, int[] Dimensions);
+        protected abstract override IType MakeVectorType(IType Type, IReadOnlyList<int> Dimensions);
 
         protected override IType ConvertPointerType(IPointerType Type)
         {
-            return MakePointerType(ConvertWithValueSemantics(Type.GetElementType()), Type.PointerKind);
+            return MakePointerType(ConvertWithValueSemantics(Type.ElementType), Type.PointerKind);
         }
 
         protected virtual IType ConvertValueGenericInstance(IType Type)
@@ -62,7 +62,7 @@ namespace Flame.Cpp
             {
                 return ConvertValueGenericInstance(Type);
             }
-            else if (Type.get_IsReferenceType() && !Type.IsContainerType)
+            else if (Type.get_IsReferenceType() && !Type.get_IsContainerType())
             {
                 return ConvertValueType(Type);
             }

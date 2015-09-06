@@ -34,11 +34,18 @@ namespace Flame.Cpp.Plugs
             get { return "initializer_list<>"; }
         }
 
-        public override IEnumerable<IAttribute> GetAttributes()
+        public override IEnumerable<IAttribute> Attributes
         {
-            return new IAttribute[] { new AccessAttribute(AccessModifier.Public), 
-                PrimitiveAttributes.Instance.ValueTypeAttribute, 
-                new HeaderDependencyAttribute(StandardDependency.InitializerList) };
+            get
+            {
+                return new IAttribute[] 
+                { 
+                    new AccessAttribute(AccessModifier.Public), 
+                    PrimitiveAttributes.Instance.ValueTypeAttribute, 
+                    new HeaderDependencyAttribute(StandardDependency.InitializerList) 
+                };
+            }
+
         }
 
         public override INamespace DeclaringNamespace
@@ -46,34 +53,9 @@ namespace Flame.Cpp.Plugs
             get { return StdNamespace.Instance; }
         }
 
-        public override IMethod[] GetConstructors()
+        public override IEnumerable<IGenericParameter> GenericParameters
         {
-            return new IMethod[0];
-        }
-
-        public override IField[] GetFields()
-        {
-            return new IField[0];
-        }
-
-        public override IMethod[] GetMethods()
-        {
-            return new IMethod[0];
-        }
-
-        public override IProperty[] GetProperties()
-        {
-            return new IProperty[0];
-        }
-
-        public override IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return new IGenericParameter[] { ElementType };
-        }
-
-        public override IType GetGenericDeclaration()
-        {
-            return this;
+            get { return new IGenericParameter[] { ElementType }; }
         }
     }
 }

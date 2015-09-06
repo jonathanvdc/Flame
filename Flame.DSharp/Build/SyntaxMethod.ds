@@ -13,11 +13,26 @@ using Flame.Syntax.DSharp;
 
 namespace Flame.DSharp.Build
 {
-    public abstract class SyntaxMethod : SyntaxMethodBase
+    public virtual class SyntaxMethod : SyntaxMethodBase
     {
-    	public const this();
-        public const this(set MethodSyntax syntax, set IType DeclaringType, set IBinder Binder,
-            set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer);
+        public const this(set MethodSyntax syntax, IType DeclaringType, set IBinder Binder,
+            ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer)
+            : base(DeclaringType, Log);
+
+        public const this(set MethodSyntax syntax, IType DeclaringType, set IBinder Binder,
+            ICompilerLog Log, set IConverter<IType, string> TypeNamer)
+            : base(DeclaringType, Log)
+        {
+        	this.MemberProvider = new MemberProvider(Binder);
+        }
+
+        public const this(set MethodSyntax syntax, ISyntaxState State)
+            : base(State.DeclaringType, State.Log)
+        {
+        	this.Binder = State.Binder;
+        	this.MemberProvider = State.MemberProvider;
+            this.TypeNamer = State.TypeNamer;
+        }
 
         public IBinder Binder { const get; protected set; }
         public IMemberProvider MemberProvider { const get; protected set; }
@@ -38,24 +53,35 @@ namespace Flame.DSharp.Build
         {
             var genericBinder = new PredefinedBinder(Binder);
 
-            var genericParams = this.GetGenericParameters();
-            var genericArgs = this.GetGenericArguments();
-
-            bool empty = true;
-            foreach (var param in genericParams, var arg in genericArgs)
+        	foreach (var param in this.GenericParameters)
             {
-            	genericBinder.MapType(param.Name, arg);
-            	empty = false;
-            }
-            if (empty)
-            {
-            	foreach (var param in genericParams)
-	            {
-	            	genericBinder.MapType(param.Name, param);
-	            }
+            	genericBinder.MapType(param.Name, param);
             }
 
             return new SyntaxState(this, genericBinder, Log, MemberProvider, TypeNamer);
         }
+
+        #region Equality
+
+        public override int GetHashCode()
+        {
+            return Syntax.GetHashCode();
+        }
+
+        public override virtual bool Equals(object obj)
+        {
+            if (obj is SyntaxMethod)
+            {
+                var otherMethod = (SyntaxMethod)obj;
+                return this.Syntax == otherMethod.Syntax &&
+                       this.DeclaringType == otherMethod.DeclaringType;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        #endregion
     }
 }

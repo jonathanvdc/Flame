@@ -59,7 +59,7 @@ namespace Flame.Syntax.DSharp
                 }
                 else if (declType.IsGeneric && declType.IsGenericDeclaration)
                 {
-                	return declType.MakeGenericType(declType.GetGenericParameters());
+                	return declType.MakeGenericType(declType.GenericParameters);
                 }
                 else
                 {

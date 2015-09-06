@@ -9,15 +9,16 @@ namespace Flame.Cecil
 {
     public class CecilBoundObject : IBoundPrimitive<object>
     {
-        public CecilBoundObject(object Value, ICecilType Type)
+        public CecilBoundObject(object Value, IType Type, CecilModule Module)
         {
             this.Value = Value;
-            this.type = Type;
+            this.Type = Type;
+            this.Module = Module;
         }
 
         public object Value { get; private set; }
-        private ICecilType type;
-        public IType Type { get { return type; } }
+        public IType Type { get; private set; }
+        public CecilModule Module { get; private set; }
 
         public IBoundObject GetField(IField Field)
         {
@@ -31,8 +32,8 @@ namespace Flame.Cecil
             {
                 return new StringExpression((string)val);
             }
-            var fieldType = type.Module.ConvertStrict(type.GetModule().Import(clrField.FieldType));
-            return new CecilBoundObject(val, type);
+            var fieldType = Module.ConvertStrict(Module.Module.Import(clrField.FieldType));
+            return new CecilBoundObject(val, fieldType, Module);
         }
 
         public void SetField(IField Field, IBoundObject Value)

@@ -9,10 +9,7 @@ namespace Flame
 	{
 		public static bool IsSingleton[this IType Type]
 		{
-			const get
-			{
-				return Type.HasAttribute(SingletonAttribute.SingletonAttributeType);
-			}
+			const get return Type.HasAttribute(SingletonAttribute.SingletonAttributeType);
 		}
 
 		public static const ITypeMember GetSingletonMember(this IType Type)
@@ -31,7 +28,7 @@ namespace Flame
 			}
 		}
 
-		public static const IEnumerable<IType> GetAssociatedTypes(this IType Type)
+		public static const [IType] GetAssociatedTypes(this IType Type)
 		{
 			var attrs = Type.GetAttributes(AssociatedTypeAttribute.AssociatedTypeAttributeType);
 			var results = new List<IType>();
@@ -42,7 +39,7 @@ namespace Flame
 			return results;
 		}
 
-		public static const IEnumerable<IType> GetAssociatedSingletons(this IType Type)
+		public static const [IType] GetAssociatedSingletons(this IType Type)
 		{
 			var attrs = Type.GetAttributes(AssociatedTypeAttribute.AssociatedTypeAttributeType);
 			var results = new List<IType>();

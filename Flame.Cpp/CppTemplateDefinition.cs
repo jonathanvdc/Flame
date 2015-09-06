@@ -45,7 +45,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IGenericParameter> DeclareGenericParameters(IGenericMember Template)
         {
-            return Template.GetGenericParameters().Select(DeclareGenericParameter).ToArray();
+            return Template.GenericParameters.Select(DeclareGenericParameter).ToArray();
         }
 
         public IEnumerable<IGenericParameter> GetGenericParameters()

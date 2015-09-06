@@ -1,74 +1,82 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Flame.Binding;
 using Flame.Compiler;
 using Flame.Syntax;
 
 namespace Flame.DSharp.Build
 {
-	public class SyntaxNamespace : INamespaceBranchBuilder, ISyntaxNode
+	public abstract class SyntaxNamespaceBase : INamespaceBranchBuilder
 	{
-		public const this(set string Name, set INamespaceBranchBuilder DeclaringNamespace)
+		public const this()
 		{
-			this.Namespaces = new List<INamespace>();
-			this.Types = new List<IType>();
+			this.namespaceList = new List<INamespace>();
+			this.typeList = new List<IType>();
+			this.cachedGraph = new Lazy<AncestryGraph>(RetrieveAncestryGraph);
 		}
 
-		public string FullName { const get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
-		public string Name { const get; private set; }
-		public IAssembly DeclaringAssembly { const get return DeclaringNamespace.DeclaringAssembly; }
-		public INamespaceBranchBuilder DeclaringNamespace { const get; private set; }
-		public IExtensionTypeProvider ExtensionTypeProvider { const get return DeclaringNamespace.ExtensionTypeProvider; }
-		public IConverter<IType, string> TypeNamer { const get return DeclaringNamespace.TypeNamer; }
+		public abstract string FullName { get; }
+		public abstract string Name { get; }
+		public abstract IAssembly DeclaringAssembly { get; }
+		public abstract IExtensionTypeProvider ExtensionTypeProvider { get; }
+		public abstract IConverter<IType, string> TypeNamer { get; }
 
-		public List<INamespace> Namespaces { const get; private set; }
-		public List<IType> Types { const get; private set; }
+		private List<INamespace> namespaceList;
+		private List<IType> typeList;
 
-		private AncestryGraph cachedGraph;
+		public [INamespace] NestedNamespaces { const get { return namespaceList; } }
+		public [IType] Types { const get { return typeList; } }
+
+		private Lazy<AncestryGraph> cachedGraph;
 		public AncestryGraph Graph
+		{
+			const get { return cachedGraph.Value; }
+		}
+
+		private AncestryGraph RetrieveAncestryGraph()
+		{
+			return DeclaringAssembly.GetAncestryGraph();
+		}
+
+		public [IAttribute] Attributes
+		{
+			const get { return new IAttribute[] { new AncestryGraphAttribute(Graph) }; }
+		}
+
+		public [INamespaceBranch] Namespaces
 		{
 			const get
 			{
-				if (cachedGraph == null)
-				{
-					cachedGraph = DeclaringAssembly.GetAncestryGraph();
-				}
-
-				return cachedGraph;
+				return Enumerable.Concat<INamespaceBranch>(
+						   Enumerable.OfType<INamespaceBranch>(NestedNamespaces),
+						   Enumerable.OfType<INamespaceBranch>(Types));
 			}
-		}
-
-		public const [IAttribute] GetAttributes()
-		{
-			return new IAttribute[] { new AncestryGraphAttribute(Graph) };
-		}
-
-		public const [INamespaceBranch] GetNamespaces()
-		{
-			List<INamespaceBranch> branches = new List<INamespaceBranch>();
-			foreach (var item in Namespaces)
-				if (item is INamespaceBranch)
-					branches.Add((INamespaceBranch)item);
-			foreach (var item in Types)
-				if (item is INamespaceBranch)
-					branches.Add((INamespaceBranch)item);
-			return branches;
-		}
-
-		public const IType[] GetTypes()
-		{
-			return Types.ToArray();
 		}
 
 		public void AddNamespace(INamespace Namespace)
 		{
-			this.Namespaces.Add(Namespace);
+			this.namespaceList.Add(Namespace);
 		}
 		public void AddType(IType Type)
 		{
-			this.Types.Add(Type);
+			this.typeList.Add(Type);
 		}
+	}
+
+	public class SyntaxNamespace : SyntaxNamespaceBase, ISyntaxNode
+	{
+		public const this(set string name, set INamespaceBranchBuilder DeclaringNamespace);
+
+		private string name;
+		public INamespaceBranchBuilder DeclaringNamespace { const get; private set; }
+
+		public override string FullName { const get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
+		public override string Name { const get return name; }
+		public override IAssembly DeclaringAssembly { const get return DeclaringNamespace.DeclaringAssembly; }
+		public override IExtensionTypeProvider ExtensionTypeProvider { const get return DeclaringNamespace.ExtensionTypeProvider; }
+		public override IConverter<IType, string> TypeNamer { const get return DeclaringNamespace.TypeNamer; }
 
 		public const CodeBuilder GetCode()
 		{

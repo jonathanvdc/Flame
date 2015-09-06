@@ -26,7 +26,7 @@ module MemberHelpers =
 
     /// Gets all members defined by the given type's base types for the given member-getting function.
     let GetAllBaseMembers<'a when 'a : equality> (getAllMembers : IType -> 'a seq) (target : IType) =
-        target.GetBaseTypes() |> Seq.map getAllMembers
+        target.BaseTypes |> Seq.map getAllMembers
                               |> Seq.concat
                               |> Seq.distinct
 
@@ -43,7 +43,7 @@ module MemberHelpers =
 
     /// Selects the given accessor's base accessors from a sequence of potential base properties.
     let FilterBaseAccessors (baseProps : IProperty seq) (target : IAccessor) =
-        baseProps |> Seq.map (fun x -> x.GetAccessors())
+        baseProps |> Seq.map (fun x -> x.Accessors)
                   |> Seq.concat
                   |> Seq.filter (fun x -> x.AccessorType = target.AccessorType)
                   |> UpperBounds IsImplementationOf

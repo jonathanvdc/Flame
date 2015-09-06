@@ -26,7 +26,7 @@ namespace Flame.Cpp.Emit
 
         public override IType Type
         {
-            get { return Target.Type.AsContainerType().GetElementType(); }
+            get { return Target.Type.AsContainerType().ElementType; }
         }
     }
 }

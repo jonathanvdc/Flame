@@ -20,36 +20,21 @@ namespace Flame.Cpp.Plugs
             get { return "finally"; }
         }
 
-        public override IEnumerable<IAttribute> GetAttributes()
+        public override IEnumerable<IAttribute> Attributes
         {
-            return new IAttribute[] { new AccessAttribute(AccessModifier.Public), PrimitiveAttributes.Instance.ValueTypeAttribute };
+            get { return new IAttribute[] { new AccessAttribute(AccessModifier.Public), PrimitiveAttributes.Instance.ValueTypeAttribute }; }
         }
 
         private StdxNamespace declNs;
         public override INamespace DeclaringNamespace { get { return declNs; } }
 
-        public override IMethod[] GetConstructors()
+        protected override IMethod[] CreateMethods()
         {
             var descCtor = new DescribedMethod("finally", this, PrimitiveTypes.Void, false);
             descCtor.IsConstructor = true;
             var descLambda = new DescribedMethod("<lambda>", null, PrimitiveTypes.Void, true);
             descCtor.AddParameter(new DescribedParameter("functor", MethodType.Create(descLambda)));
             return new IMethod[] { descCtor };
-        }
-
-        public override IField[] GetFields()
-        {
-            return new IField[0];
-        }
-
-        public override IMethod[] GetMethods()
-        {
-            return new IMethod[0];
-        }
-
-        public override IProperty[] GetProperties()
-        {
-            return new IProperty[0];
         }
 
         #region C++ specific

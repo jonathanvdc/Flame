@@ -1,0 +1,77 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Build
+{
+    /// <summary>
+    /// Defines a base type for container types.
+    /// </summary>
+    public abstract class ContainerTypeBase : IContainerType
+    {
+        /// <summary>
+        /// Creates a container type from the given element type.
+        /// </summary>
+        public const this(set IType ElementType);
+
+        /// <summary>
+        /// Gets this container type's element type.
+        /// </summary>
+        public IType ElementType { const get; private set; }
+
+        public INamespace DeclaringNamespace { const get { return null; } }
+
+        public virtual [IAttribute] Attributes
+        {
+            get { return new IAttribute[0]; }
+        }
+
+        public virtual [IMethod] Methods
+        {
+            get { return new IMethod[0]; }
+        }
+
+        public virtual [IProperty] Properties
+        {
+            get { return new IProperty[0]; }
+        }
+
+        public virtual [IField] Fields
+        {
+            get { return new IField[0]; }
+        }
+
+        public virtual [IType] BaseTypes
+        {
+            get { return new IType[0]; }
+        }
+
+        public [IGenericParameter] GenericParameters
+        {
+            get { return new IGenericParameter[0]; }
+        }
+
+        public abstract IAncestryRules AncestryRules { get; }
+
+        protected abstract string GetName(string ElementName);
+
+        public string Name
+        {
+            get { return GetName(ElementType.Name); }
+        }
+
+        public string FullName
+        {
+            get { return GetName(ElementType.FullName); }
+        }
+
+        public override string ToString()
+        {
+            return FullName;
+        }
+
+        public IBoundObject GetDefaultValue()
+        {
+            return null;
+        }
+    }
+}

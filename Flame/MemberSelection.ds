@@ -119,7 +119,7 @@ namespace Flame
 					dict[elem] = parameterTypes;
 				}
             }
-            List<IMethod> sortedMethodList = SortByParameterMatch<IMethod>(ParameterTypes, dict);
+            var sortedMethodList = SortByParameterMatch<IMethod>(ParameterTypes, dict);
             return sortedMethodList.ToArray().FilterBaseMethods();
         }
 
@@ -162,9 +162,23 @@ namespace Flame
 
         #endregion
 
+		public static const [T] FilterByName<T>(this [T] Candidates, string Name)
+			where T : ITypeMember
+		{
+			var results = new List<T>();
+        	foreach (var item in Candidates)
+        	{
+        		if (item.Name == Name)
+        		{
+        			results.Add(item);
+        		}
+        	}
+        	return results;
+		}
+
         public static const [T] FilterByStatic<T>(this [T] Candidates, bool IsStatic) where T : ITypeMember
         {
-        	List<T> props = new List<T>();
+        	var props = new List<T>();
         	foreach (var item in Candidates)
         	{
         		if (item.IsStatic == IsStatic)
@@ -249,7 +263,7 @@ namespace Flame
         {
         	if (SourceType.IsVector && TargetType.IsArray)
         	{
-        		return SourceType.AsContainerType().GetElementType().Is(TargetType.AsContainerType().GetElementType()) && SourceType.AsContainerType().AsVectorType().GetDimensions().Length == TargetType.AsContainerType().AsArrayType().ArrayRank;
+        		return SourceType.AsContainerType().ElementType.Is(TargetType.AsContainerType().ElementType) && SourceType.AsContainerType().AsVectorType().Dimensions.Count == TargetType.AsContainerType().AsArrayType().ArrayRank;
         	}
         	if (SourceType.IsPrimitive && TargetType.IsPrimitive)
         	{
@@ -284,7 +298,7 @@ namespace Flame
         	}
         	else if ((SourceType.IsArray || SourceType.IsVector) && TargetType.IsEnumerableType)
         	{
-        		return SourceType.AsContainerType().GetElementType().Is(TargetType.GetEnumerableElementType());
+        		return SourceType.AsContainerType().ElementType.Is(TargetType.GetEnumerableElementType());
         	}
         	return false;
         }

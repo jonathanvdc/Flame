@@ -53,7 +53,7 @@ namespace PassTests.DSharp
 
         public static IExpression CreateExpression<T>(string Code)
         {
-            return ConversionExpression.Create(CreateExpression(Code), GetType<T>());
+            return ConversionExpression.Instance.Create(CreateExpression(Code), GetType<T>());
         }
 
         public static bool EvaluatesTo<T>(string Code, T Value)

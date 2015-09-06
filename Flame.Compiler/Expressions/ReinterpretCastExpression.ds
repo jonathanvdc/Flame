@@ -1,0 +1,63 @@
+using System;
+
+namespace Flame.Compiler.Expressions
+{
+    /// <summary>
+    /// An expression that represents a reinterpret cast, which is a cast that
+    /// returns a reference or pointer of a given type based on a pointer or
+    /// reference of any other type. The cast is assumed to always succeed,
+    /// and does not mandate a runtime check.
+    /// </summary>
+    public class ReinterpretCastExpression : ConversionExpressionBase
+    {
+        /// <summary>
+        /// Creates a reinterpret cast from the given value and type.
+        /// </summary>
+        public const this(IExpression Value, IType TargetType)
+            : base(Value, TargetType);
+
+        /// <summary>
+        /// Creates a new conversion expression that converts the given
+        /// value to the given type.
+        /// </summary>
+        protected override ConversionExpressionBase Create(IExpression NewValue, IType NewType)
+        {
+            return new ReinterpretCastExpression(NewValue, NewType);
+        }
+
+        /// <summary>
+        /// Tells if this conversion expression is a compile-time constant.
+        /// </summary>
+        public override bool IsConstant { get { return Value.IsConstant; } }
+
+        /// <summary>
+        /// Evaluates this conversion expression at compile-time.
+        /// </summary>
+        public override IBoundObject Evaluate()
+        {
+            return Value.Evaluate();
+        }
+
+        public override ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            var valueBlock = Value.Emit(Generator);
+            var resultBlock = Generator.EmitTypeBinary(valueBlock, TargetType, Operator.ReinterpretCast);
+            // If the code generator refuses to create a reinterpret_cast block,
+            // then just return the given value. This is exactly what machine code
+            // and bytecode generator want us to do.
+            if (resultBlock != null)
+            {
+                return resultBlock;
+            }
+            else
+            {
+                return valueBlock;
+            }
+        }
+
+        public override string ToString()
+        {
+            return "reinterpret_cast(" + Value + ", " + TargetType.FullName + ")";
+        }
+    }
+}

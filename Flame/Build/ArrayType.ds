@@ -1,0 +1,102 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Build
+{
+	public class ArrayType : ContainerTypeBase, IArrayType, IGenericResolverType
+	{
+        public const this(IType ElementType, set int ArrayRank)
+			: base(ElementType);
+
+        public int ArrayRank { const get; private set; }
+
+		#region Static
+
+		static this()
+		{
+			var descProp = new DescribedProperty("Length", null, PrimitiveTypes.Int32, false);
+			var getter = new DescribedAccessor(AccessorType.GetAccessor, descProp, PrimitiveTypes.Int32);
+			descProp.AddAccessor(getter);
+			lengthProperty = descProp;
+		}
+
+		private static IProperty lengthProperty;
+
+		#endregion
+
+		public const IType ResolveTypeParameter(IGenericParameter TypeParameter)
+		{
+			// Don't "resolve" anything. This behavior is useful when creating
+			// generic property instances.
+			return TypeParameter;
+		}
+
+        public override [IType] BaseTypes
+        {
+            const get { return new IType[] { PrimitiveTypes.IHashable }; }
+        }
+
+		public override [IProperty] Properties
+		{
+			const get
+			{
+				return new IProperty[] { new GenericInstanceProperty(lengthProperty, this) };
+			}
+		}
+
+		public override IAncestryRules AncestryRules
+		{
+			const get { return ArrayAncestryRules; }
+		}
+
+        protected override string GetName(string ElementName)
+        {
+			return GenericNameExtensions.AppendArraySuffix(ElementName, ArrayRank);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ArrayType)
+            {
+                var arrType = (ArrayType)obj;
+                return ArrayRank == arrType.ArrayRank &&
+					   ElementType.Equals(arrType.ElementType);
+            }
+            else
+			{
+				return false;
+			}
+        }
+
+        public override int GetHashCode()
+        {
+            return ElementType.GetHashCode() + ArrayRank;
+        }
+    }
+
+	/// <summary>
+	/// A set of ancestry rules for non-covariant arrays:
+	/// only arrays with the same rank and element type are interchangeable.
+	/// </summary>
+	public static class ArrayAncestryRules : IAncestryRules
+	{
+		public int GetAncestryDegree(IType First, IType Second)
+		{
+			if (First.IsArray && Second.IsArray &&
+				First.AsArrayType().ArrayRank == Second.AsArrayType().ArrayRank &&
+				First.AsContainerType().ElementType.IsEquivalent(Second.AsContainerType().ElementType))
+            {
+				return 0;
+            }
+			else if (First.IsArray && Second.IsEnumerableType) // Arrays are direct subtypes of enumerables.
+			{
+				int elemDegree = First.AsContainerType().ElementType.GetAncestryDegree(
+									Second.GetEnumerableElementType());
+				if (elemDegree >= 0)
+					return elemDegree + 1;
+			}
+			return -1;
+		}
+	}
+}

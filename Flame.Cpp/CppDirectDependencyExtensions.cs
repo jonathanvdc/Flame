@@ -20,21 +20,20 @@ namespace Flame.Cpp
 
         public static IEnumerable<IType> GetDirectTypeDependencies(this IProperty Property)
         {
-            return TypeDependencyConverter.Instance.GetAllDependencies(Property.GetIndexerParameterTypes().With(Property.PropertyType));
+            return TypeDependencyConverter.Instance.GetAllDependencies(Property.IndexerParameters.GetTypes().With(Property.PropertyType));
         }
 
         public static IEnumerable<IType> GetDirectTypeDependencies(this IType Type)
         {
-            return Type.GetMethods().SelectMany(GetDirectTypeDependencies)
-                .Concat(Type.GetFields().SelectMany(GetDirectTypeDependencies))
-                .Concat(Type.GetProperties().SelectMany(GetDirectTypeDependencies))
-                .Concat(Type.GetConstructors().SelectMany(GetDirectTypeDependencies))
+            return Type.Methods.SelectMany(GetDirectTypeDependencies)
+                .Concat(Type.Fields.SelectMany(GetDirectTypeDependencies))
+                .Concat(Type.Properties.SelectMany(GetDirectTypeDependencies))
                 .Distinct();
         }
 
         public static IEnumerable<IType> GetCyclicDependencies(this CppType Type)
         {
-            return Type.Environment.DependencyCache.GetCyclicDependencies(Type).Except(Type.GetBaseTypes());
+            return Type.Environment.DependencyCache.GetCyclicDependencies(Type).Except(Type.BaseTypes);
         }
 
         public static IEnumerable<IType> GetCyclicDependencies(this IEnumerable<CppType> Types)
