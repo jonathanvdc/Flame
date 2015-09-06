@@ -34,7 +34,7 @@ namespace Flame.Python
 
         public IBoundObject GetDefaultValue()
         {
-            return new NullExpression();
+            return NullExpression.Instance;
         }
 
         public virtual IEnumerable<IField> Fields

@@ -79,7 +79,12 @@ namespace Flame
             	Operator.CheckEquality, Operator.CheckInequality,
             	Operator.CheckLessThan, Operator.CheckLessThanOrEqual,
             	Operator.CheckGreaterThan, Operator.CheckGreaterThanOrEqual,
-            	Operator.Not, Operator.Hash, Operator.Concat
+            	Operator.Not, Operator.Hash, Operator.Concat,
+                Operator.IsInstance, Operator.AsInstance,
+                Operator.StaticCast, Operator.DynamicCast,
+                Operator.ReinterpretCast,
+                Operator.GetDelegate, Operator.GetVirtualDelegate,
+                Operator.GetCurriedDelegate
             });
         }
 
@@ -300,6 +305,119 @@ namespace Flame
         	{
         		return Register("++");
         	}
+        }
+
+        /// <summary>
+        /// An operator that tests if a given reference or pointer is of a specific type,
+        /// and returns a boolean.
+        /// This is equivalent to the C# `is` operator.
+        /// </summary>
+        public static Operator IsInstance
+        {
+            const get
+            {
+                return Register("is_instance");
+            }
+        }
+
+        /// <summary>
+        /// An operator that returns the given given reference or pointer if it is
+        /// of the given type. Otherwise, null is returned.
+        /// This is equivalent to the C# `as` operator.
+        /// </summary>
+        public static Operator AsInstance
+        {
+            const get
+            {
+                return Register("as_instance");
+            }
+        }
+
+        /// <summary>
+        /// A conversion operator that converts a given value to an equivalent value
+        /// of a different type. User-defined conversions overload this operator.
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// double x = 3.0;
+        /// double i = (int)x;
+        ///            ^~~~~
+        /// </code>
+        /// </example>
+        public static Operator StaticCast
+        {
+            const get
+            {
+                return Register("static_cast");
+            }
+        }
+
+        /// <summary>
+        /// Defines a dynamic cast operator, which performs a runtime check to
+        /// determine if a given reference or pointer is of a given type.
+        /// The given reference or pointer is returned if this is the case.
+        /// Otherwise, an exception is thrown at runtime.
+        /// </summary>
+        public static Operator DynamicCast
+        {
+            const get
+            {
+                return Register("dynamic_cast");
+            }
+        }
+
+        /// <summary>
+        /// Defines a reinterpret cast operator, which converts a reference or
+        /// pointer type to another reference or pointer type. The operation is
+        /// assumed to always succeed, and does not require a runtime check.
+        /// </summary>
+        public static Operator ReinterpretCast
+        {
+            const get
+            {
+                return Register("reinterpret_cast");
+            }
+        }
+
+        /// <summary>
+        /// Creates a non-virtual delegate from a method and a closure value.
+        /// Said closure value's type must be a subtype of the given method's
+        /// declaring type.
+        /// </summary>
+        public static Operator GetDelegate
+        {
+            const get
+            {
+                return Register("get_delegate");
+            }
+        }
+
+        /// <summary>
+        /// Creates a virtual delegate from a method and a closure value.
+        /// Said closure value's type must be a subtype of the given method's
+        /// declaring type.
+        /// </summary>
+        public static Operator GetVirtualDelegate
+        {
+            const get
+            {
+                return Register("get_virtual_delegate");
+            }
+        }
+
+        /// <summary>
+        /// Creates a non-virtual delegate from a static method and a closure value,
+        /// which is the method's first parameter. Said closure value's type need not
+        /// be a subtype of the given method's declaring type. The resulting delegate
+        /// will have one parameter fewer than the number of parameters the
+        /// method it is based on.
+        /// </summary>
+        public static Operator GetCurriedDelegate
+        {
+            const get
+            {
+                return Register("get_curried_delegate");
+            }
         }
 
         #endregion

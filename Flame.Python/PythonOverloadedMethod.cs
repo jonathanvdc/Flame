@@ -150,7 +150,7 @@ namespace Flame.Python
             }
             for (int i = smallestParams.Length; i < fattestParams.Length; i++)
             {
-                parameters[i + offset] = new PythonParameter(fattestParams[i], new NullExpression());
+                parameters[i + offset] = new PythonParameter(fattestParams[i], NullExpression.Instance);
             }
             return parameters;
         }

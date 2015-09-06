@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Recompilation.Emit
 {
-    public class RecompiledCodeGenerator : IUnmanagedCodeGenerator, IYieldCodeGenerator, 
+    public class RecompiledCodeGenerator : IUnmanagedCodeGenerator, IYieldCodeGenerator,
         IInitializingCodeGenerator, IForeachCodeGenerator, IExceptionCodeGenerator,
         IForCodeGenerator, IContractCodeGenerator, IWhileCodeGenerator, IDoWhileCodeGenerator,
         ILambdaCodeGenerator
@@ -155,7 +155,7 @@ namespace Flame.Recompilation.Emit
 
         public ICodeBlock EmitNull()
         {
-            return new ExpressionBlock(this, new NullExpression());
+            return new ExpressionBlock(this, NullExpression.Instance);
         }
 
         public ICodeBlock EmitString(string Value)
@@ -268,9 +268,34 @@ namespace Flame.Recompilation.Emit
 
         #region Object Model
 
-        public ICodeBlock EmitConversion(ICodeBlock Value, IType Type)
+        public ICodeBlock EmitTypeBinary(ICodeBlock Value, IType Type, Operator Op)
         {
-            return new ExpressionBlock(this, new ConversionExpression(GetExpression(Value), Recompiler.GetType(Type)));
+            var lhs = GetExpression(Value);
+            var rhs = Recompiler.GetType(Type);
+            if (Op.Equals(Operator.IsInstance))
+            {
+                return new ExpressionBlock(this, new IsExpression(lhs, rhs));
+            }
+            else if (Op.Equals(Operator.AsInstance))
+            {
+                return new ExpressionBlock(this, new AsInstanceExpression(lhs, rhs));
+            }
+            else if (Op.Equals(Operator.StaticCast))
+            {
+                return new ExpressionBlock(this, new StaticCastExpression(lhs, rhs));
+            }
+            else if (Op.Equals(Operator.DynamicCast))
+            {
+                return new ExpressionBlock(this, new DynamicCastExpression(lhs, rhs));
+            }
+            else if (Op.Equals(Operator.ReinterpretCast))
+            {
+                return new ExpressionBlock(this, new ReinterpretCastExpression(lhs, rhs));
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public ICodeBlock EmitDefaultValue(IType Type)
@@ -283,14 +308,16 @@ namespace Flame.Recompilation.Emit
             return new ExpressionBlock(this, new InvocationExpression(GetExpression(Method), GetExpressions(Arguments)));
         }
 
-        public ICodeBlock EmitIsOfType(IType Type, ICodeBlock Value)
+        public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller, Operator Op)
         {
-            return new ExpressionBlock(this, new IsExpression(GetExpression(Value), Recompiler.GetType(Type)));
-        }
-
-        public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller)
-        {
-            return new ExpressionBlock(this, new GetMethodExpression(Recompiler.GetMethod(Method), GetExpression(Caller)));
+            if (Op.Equals(Operator.GetCurriedDelegate))
+            {
+                return new ExpressionBlock(this, new GetExtensionMethodExpression(Recompiler.GetMethod(Method), GetExpression(Caller)));
+            }
+            else
+            {
+                return new ExpressionBlock(this, new GetMethodExpression(Recompiler.GetMethod(Method), GetExpression(Caller), Op));
+            }
         }
 
         public ICodeBlock EmitNewArray(IType ElementType, IEnumerable<ICodeBlock> Dimensions)

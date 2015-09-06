@@ -19,7 +19,7 @@ namespace Flame.Compiler.Expressions
         private const IExpression LowerPrimitive()
         {
             // Rewrite this as '(decltype(Value))0 - Value'
-            return new SubtractExpression(new ConversionExpression(
+            return new SubtractExpression(ConversionExpression.Create(
                                              new Int32Expression(0), Value.Type).Optimize(),
                                           Value);
         }

@@ -36,7 +36,7 @@ namespace Flame.DSharp.Build
         {
             if (Syntax.LiteralValueSyntax == null)
             {
-                return new NullExpression();
+                return NullExpression;
             }
             else
             {

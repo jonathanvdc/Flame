@@ -56,11 +56,11 @@ namespace Flame.Cecil.Emit
                 else if (log.Options.UseInvariantCulture() && ILCodeGenerator.IsCultureSpecific(method))
                     // Fix culture-specific calls if necessary
                 {
-                    ILCodeGenerator.EmitCultureInvariantCall(Context, method, callerType, CodeGenerator.GetModule());
+                    ILCodeGenerator.EmitCultureInvariantCall(Context, method, callerType, mBlock.IsVirtual, CodeGenerator.GetModule());
                 }
                 else
                 {
-                    ILCodeGenerator.EmitCall(Context, method, callerType);
+                    ILCodeGenerator.EmitCall(Context, method, callerType, mBlock.IsVirtual);
                 }
 
                 Context.Stack.PushValue(method.ReturnType);
@@ -103,6 +103,14 @@ namespace Flame.Cecil.Emit
         {
             get 
             {
+                if (Method is MethodBlock)
+                {
+                    var method = (MethodBlock)Method;
+                    if (method.Caller == null && method.Method.IsConstructor)
+                    {
+                        return method.Method.DeclaringType;
+                    }
+                }
                 return CecilDelegateType.GetDelegateMethod(Method.BlockType).ReturnType;
             }
         }

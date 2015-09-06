@@ -1,0 +1,129 @@
+using System;
+
+namespace Flame.Compiler.Expressions
+{
+    /// <summary>
+    /// An expression that represents a static cast.
+    /// </summary>
+    public class StaticCastExpression : ConversionExpressionBase
+    {
+        /// <summary>
+        /// Creates a static cast from the given value and type.
+        /// </summary>
+        public const this(IExpression Value, IType TargetType)
+            : base(Value, TargetType);
+
+        /// <summary>
+        /// Creates a new conversion expression that converts the given
+        /// value to the given type.
+        /// </summary>
+        protected override ConversionExpressionBase Create(IExpression NewValue, IType NewType)
+        {
+            return new StaticCastExpression(NewValue, NewType);
+        }
+
+        public override bool IsConstant
+        {
+            get
+            {
+            	return Value.IsConstant &&
+                       Value.Type.IsPrimitiveExpressionType() &&
+                       TargetType.IsPrimitiveExpressionType();
+           	}
+        }
+
+        /// <summary>
+        /// Evaluates this conversion expression at compile-time.
+        /// </summary>
+        public override IBoundObject Evaluate()
+        {
+            var normalVal = Value.Evaluate();
+            if (normalVal == null)
+                return null;
+
+            object objVal = normalVal.GetObjectValue();
+            if (TargetType.Equals(PrimitiveTypes.UInt8))
+            {
+                return new UInt8Expression(Convert.ToByte(objVal));
+            }
+            else if (TargetType.Equals(PrimitiveTypes.Int8))
+            {
+                return new Int8Expression(Convert.ToSByte(objVal));
+            }
+            else if (TargetType.Equals(PrimitiveTypes.Bit8))
+            {
+                return new Bit8Expression((bit8)Convert.ToByte(objVal));
+            }
+            else if (TargetType.Equals(PrimitiveTypes.UInt16))
+            {
+                return new UInt16Expression(Convert.ToUInt16(objVal));
+            }
+            else if (TargetType.Equals(PrimitiveTypes.Int16))
+            {
+                return new Int16Expression(Convert.ToInt16(objVal));
+            }
+            else if (TargetType.Equals(PrimitiveTypes.Bit16))
+            {
+                return new Bit16Expression((bit16)Convert.ToUInt16(objVal));
+            }
+            else if (TargetType.Equals(PrimitiveTypes.UInt32))
+            {
+                return new UInt32Expression(Convert.ToUInt32(objVal));
+            }
+            else if (TargetType.Equals(PrimitiveTypes.Int32))
+            {
+                return new Int32Expression(Convert.ToInt32(objVal));
+            }
+            else if (TargetType.Equals(PrimitiveTypes.Bit32))
+            {
+                return new Bit32Expression((bit32)Convert.ToUInt32(objVal));
+            }
+            else if (TargetType.Equals(PrimitiveTypes.UInt64))
+            {
+                return new UInt64Expression(Convert.ToUInt64(objVal));
+            }
+            else if (TargetType.Equals(PrimitiveTypes.Int64))
+            {
+                return new Int64Expression(Convert.ToInt64(objVal));
+            }
+            else if (TargetType.Equals(PrimitiveTypes.Bit64))
+            {
+                return new Bit64Expression((bit64)Convert.ToUInt64(objVal));
+            }
+            else if (TargetType.Equals(PrimitiveTypes.Float32))
+            {
+                return new Float32Expression(Convert.ToSingle(objVal));
+            }
+            else if (TargetType.Equals(PrimitiveTypes.Float64))
+            {
+                return new Float64Expression(Convert.ToDouble(objVal));
+            }
+            else if (TargetType.Equals(PrimitiveTypes.Boolean))
+            {
+                return new BooleanExpression(Convert.ToBoolean(objVal));
+            }
+            else if (TargetType.Equals(PrimitiveTypes.Char))
+            {
+                return new CharExpression(Convert.ToChar(objVal));
+            }
+            else if (TargetType.Equals(PrimitiveTypes.String))
+            {
+                return new StringExpression(objVal.ToString());
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public override ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Generator.EmitTypeBinary(Value.Emit(Generator), TargetType, Operator.StaticCast);
+        }
+
+        public override string ToString()
+        {
+            return "static_cast(" + Value + ", " + TargetType.FullName + ")";
+        }
+    }
+}

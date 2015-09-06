@@ -112,11 +112,7 @@ namespace Flame.Syntax.DSharp
         public static const IExpression CreateImplicitCast(ISyntaxState State, IExpression expr, ISyntaxNode Value, IType TargetType)
         {
         	var valType = expr.Type;
-        	if (!ConversionExpression.RequiresConversion(valType, TargetType))
-        	{
-        		return expr;
-        	}
-        	else if (CastSyntax.UseImplicitCast(State, valType, TargetType))
+        	if (CastSyntax.UseImplicitCast(State, valType, TargetType))
         	{
         		return ConversionExpression.Create(expr, TargetType);
         	}

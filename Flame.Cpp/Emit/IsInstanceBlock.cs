@@ -99,7 +99,7 @@ namespace Flame.Cpp.Emit
             }
             else if (UseVerboseCheck)
             {
-                return (ICppBlock)CppCodeGenerator.EmitBinary(CppCodeGenerator.EmitConversion(Value, TestType), CppCodeGenerator.EmitNull(), Operator.CheckInequality);
+                return (ICppBlock)CppCodeGenerator.EmitBinary(CppCodeGenerator.EmitTypeBinary(Value, TestType, Operator.AsInstance), CppCodeGenerator.EmitNull(), Operator.CheckInequality);
             }
             else
             {

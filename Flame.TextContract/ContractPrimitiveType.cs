@@ -34,7 +34,7 @@ namespace Flame.TextContract
 
         public IBoundObject GetDefaultValue()
         {
-            return new NullExpression();
+            return NullExpression.Instance;
         }
 
         public IEnumerable<IField> Fields

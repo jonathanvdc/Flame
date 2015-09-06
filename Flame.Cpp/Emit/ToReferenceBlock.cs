@@ -65,13 +65,13 @@ namespace Flame.Cpp.Emit
             {
                 var innerCtor = (INewObjectBlock)Target;
                 var method = CppPrimitives.GetMakeSharedPointerMethod(Target.Type.AsContainerType().ElementType, innerCtor.Arguments.Select((item) => item.Type));
-                var methodBlock = CodeGenerator.EmitMethod(method, null);
+                var methodBlock = CodeGenerator.EmitMethod(method, null, Operator.GetDelegate);
                 return (ICppBlock)CodeGenerator.EmitInvocation(methodBlock, innerCtor.Arguments);
             }
             else
             {
                 var method = CppPrimitives.CreateSharedPointer.MakeGenericMethod(new IType[] { Target.Type.AsContainerType().ElementType });
-                var methodBlock = CodeGenerator.EmitMethod(method, null);
+                var methodBlock = CodeGenerator.EmitMethod(method, null, Operator.GetDelegate);
                 return (ICppBlock)CodeGenerator.EmitInvocation(methodBlock, new ICodeBlock[] { Target });
             }
         }

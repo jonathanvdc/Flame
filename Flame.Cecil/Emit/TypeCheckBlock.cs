@@ -10,16 +10,16 @@ namespace Flame.Cecil.Emit
 {
     public class TypeCheckBlock : ICecilBlock
     {
-        public TypeCheckBlock(ICodeGenerator CodeGenerator, ICecilBlock Value, IType TargetType)
+        public TypeCheckBlock(ICecilBlock Value, IType TargetType)
         {
             this.Value = Value;
-            this.CodeGenerator = CodeGenerator;
             this.TargetType = TargetType;
         }
 
         public ICecilBlock Value { get; private set; }
         public IType TargetType { get; private set; }
-        public ICodeGenerator CodeGenerator { get; private set; }
+
+        public ICodeGenerator CodeGenerator { get { return Value.CodeGenerator; } }
 
         public void Emit(IEmitContext Context)
         {

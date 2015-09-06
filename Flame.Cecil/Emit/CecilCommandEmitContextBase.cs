@@ -279,7 +279,8 @@ namespace Flame.Cecil.Emit
 
         public void Emit(OpCode OpCode, IType Type)
         {
-            EmitInstruction(Processor.Create(OpCode, GetTypeReference(Type)));
+            var typeRef = GetTypeReference(Type);
+            EmitInstruction(Processor.Create(OpCode, typeRef));
         }
 
         public void Emit(OpCode OpCode, IField Field)

@@ -61,9 +61,9 @@ namespace Flame.Cecil
             var invocation = bodyGen.EmitInvocation(convTarget,
                                                     bodyGen.GetThis().EmitGet(),
                                                     new ICodeBlock[] { });
-            if (ConversionExpression.RequiresConversion(convTarget.ReturnType, convSource.ReturnType))
+            if (ConversionExpression.Instance.UseReinterpretCast(convTarget.ReturnType, convSource.ReturnType))
             {
-                Source.SetMethodBody(bodyGen.EmitReturn(bodyGen.EmitConversion(invocation, convSource.ReturnType)));
+                Source.SetMethodBody(bodyGen.EmitReturn(bodyGen.EmitTypeBinary(invocation, convSource.ReturnType, Operator.ReinterpretCast)));
             }
             else
             {

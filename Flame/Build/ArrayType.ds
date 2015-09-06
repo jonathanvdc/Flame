@@ -91,7 +91,7 @@ namespace Flame.Build
             }
 			else if (First.IsArray && Second.IsEnumerableType) // Arrays are direct subtypes of enumerables.
 			{
-				var elemDegree = First.AsContainerType().ElementType.GetAncestryDegree(
+				int elemDegree = First.AsContainerType().ElementType.GetAncestryDegree(
 									Second.GetEnumerableElementType());
 				if (elemDegree >= 0)
 					return elemDegree + 1;

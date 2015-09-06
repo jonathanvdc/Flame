@@ -99,8 +99,8 @@ namespace Flame.Compiler.Statements
             if (IndexVariable == null)
             {
                 index = new LateBoundVariable(lengthExpr.Type);
-                initStatements.Add(index.CreateSetStatement(new ConversionExpression(new Int32Expression(0), index.Type)));
-                delta = index.CreateSetStatement(new AddExpression(index.CreateGetExpression(), new ConversionExpression(new Int32Expression(1), index.Type)));
+                initStatements.Add(index.CreateSetStatement(ConversionExpression.Create(new Int32Expression(0), index.Type)));
+                delta = index.CreateSetStatement(new AddExpression(index.CreateGetExpression(), ConversionExpression.Create(new Int32Expression(1), index.Type)));
             }
             else
             {
