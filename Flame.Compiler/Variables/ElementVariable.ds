@@ -97,7 +97,7 @@ namespace Flame.Compiler.Variables
         {
             if (TargetType.IsContainerType)
            	{
-           		return TargetType.AsContainerType().GetElementType();
+           		return TargetType.AsContainerType().ElementType;
            	}
            	else
           	{
@@ -131,7 +131,7 @@ namespace Flame.Compiler.Variables
             	var targetType = Target.Type;
 	            if (targetType.IsContainerType)
 	           	{
-	           		return targetType.AsContainerType().GetElementType();
+	           		return targetType.AsContainerType().ElementType;
 	           	}
 	           	else
 	          	{

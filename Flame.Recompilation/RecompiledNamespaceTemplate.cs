@@ -26,9 +26,9 @@ namespace Flame.Recompilation
             get { return Recompiler.TargetAssembly; }
         }
 
-        public IType[] GetTypes()
+        public IEnumerable<IType> Types
         {
-            return Recompiler.GetTypes(SourceNamespace.GetTypes());
+            get { return Recompiler.GetTypes(SourceNamespace.Types); }
         }
     }
 }

@@ -5,10 +5,16 @@ using Flame.Build;
 
 namespace Flame
 {
-    public class MethodType : IType, IMethod
+    /// <summary>
+    /// The type of a delegate expression.
+    /// </summary>
+    public class MethodType : IType
     {
         protected const this(set IMethod Method);
 
+        /// <summary>
+        /// Gets the method this method type is based on.
+        /// </summary>
         public IMethod Method { const get; private set; }
 
         public static const IType Create(IMethod Method)
@@ -51,85 +57,29 @@ namespace Flame
             return results;
         }
 
-        #region IMethod Implementation
-
-        public IMethod[] GetBaseMethods()
+        public string FullName
         {
-            return Method.GetBaseMethods();
+            get { return Method.FullName; }
         }
 
-        public IMethod GetGenericMethodDeclaration() : IMethod.GetGenericDeclaration
+        public [IAttribute] Attributes
         {
-            return new MethodType(Method.GetGenericDeclaration());
+            get { return Method.Attributes; }
         }
 
-        public IParameter[] GetParameters()
+        public string Name
         {
-            return Method.GetParameters();
+            get { return Method.Name; }
         }
 
-        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
+        public [IGenericParameter] GenericParameters
         {
-            return Method.Invoke(Caller, Arguments);
-        }
-
-        public bool IsConstructor
-        {
-            const get { return Method.IsConstructor; }
-        }
-
-        public IMethod MakeGenericMethod([IType] TypeArguments)
-        {
-            return new MethodType(Method.MakeGenericMethod(TypeArguments));
-        }
-
-        public IType ReturnType
-        {
-            const get { return Method.ReturnType; }
+            get { return Method.GenericParameters; }
         }
 
         public IType DeclaringType
         {
             const get { return Method.DeclaringType; }
-        }
-
-        public bool IsStatic
-        {
-            const get { return Method.IsStatic; }
-        }
-
-        public string FullName
-        {
-            const get { return Method.FullName; }
-        }
-
-        public const [IAttribute] GetAttributes()
-        {
-            return Method.GetAttributes();
-        }
-
-        public string Name
-        {
-            const get { return Method.Name; }
-        }
-
-        public [IType] GetGenericArguments()
-        {
-            return Method.GetGenericArguments();
-        }
-
-        public [IGenericParameter] GetGenericParameters()
-        {
-            return Method.GetGenericParameters();
-        }
-
-        #endregion
-
-        #region IType Implementation
-
-        public IContainerType AsContainerType()
-        {
-            return null;
         }
 
         public INamespace DeclaringNamespace
@@ -145,14 +95,9 @@ namespace Flame
             }
         }
 
-        public IType[] GetBaseTypes()
+        public [IType] BaseTypes
         {
-            return new IType[0];
-        }
-
-        public IMethod[] GetConstructors()
-        {
-            return new IMethod[0];
+            get { return new IType[0]; }
         }
 
         public IBoundObject GetDefaultValue()
@@ -160,54 +105,24 @@ namespace Flame
             return null;
         }
 
-        public IField[] GetFields()
+        public [IField] Fields
         {
-            return new IField[0];
+            get { return new IField[0]; }
         }
 
-        public IType GetGenericTypeDeclaration() : IType.GetGenericDeclaration
+        public [IMethod] Methods
         {
-            return new MethodType(Method.GetGenericDeclaration());
+            get { return new IMethod[0]; }
         }
 
-        public ITypeMember[] GetMembers()
+        public [IProperty] Properties
         {
-            return new ITypeMember[0];
+            get { return new IProperty[0]; }
         }
 
-        public IMethod[] GetMethods()
+        public IAncestryRules AncestryRules
         {
-            return new IMethod[0];
-        }
-
-        public IProperty[] GetProperties()
-        {
-            return new IProperty[0];
-        }
-
-        public bool IsContainerType
-        {
-            const get { return false; }
-        }
-
-        public IArrayType MakeArrayType(int Rank)
-        {
-            return new DescribedArrayType(this, Rank);
-        }
-
-        public IType MakeGenericType([IType] TypeArguments)
-        {
-            return new MethodType(Method.MakeGenericMethod(TypeArguments));
-        }
-
-        public IPointerType MakePointerType(PointerKind PointerKind)
-        {
-            return new DescribedPointerType(this, PointerKind);
-        }
-
-        public IVectorType MakeVectorType(int[] Dimensions)
-        {
-            return new DescribedVectorType(this, Dimensions);
+            const get { return MethodTypeAncestryRules; }
         }
 
         #endregion
@@ -216,11 +131,11 @@ namespace Flame
         {
             if (obj is MethodType)
             {
-                return Method.Equals(((MethodType)obj).Method);
+                return Method == ((MethodType)obj).Method;
             }
             else
             {
-                return Method.Equals(obj);
+                return false;
             }
         }
         public override const int GetHashCode()
@@ -230,6 +145,47 @@ namespace Flame
         public override const string ToString()
         {
             return Method.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Ancestry rules for delegates.
+    /// </summary>
+    public static class MethodTypeAncestryRules : IAncestryRules
+    {
+        public int GetAncestryDegree(IMethod firstMethod, IMethod secondMethod)
+        {
+            if (firstMethod == null || secondMethod == null)
+            {
+                return -1;
+            }
+
+            int totalAncestry = firstMethod.ReturnType.GetAncestryDegree(secondMethod.ReturnType);
+            if (totalAncestry < 0)
+                return -1;
+
+            var firstParams = firstMethod.GetParameters();
+            var secondParams = secondMethod.GetParameters();
+
+            if (firstParams.Length != secondParams.Length)
+                return -1;
+
+            foreach (var first in firstParams, var second in secondParams)
+            {
+                int argAncestry = second.ParameterType.GetAncestryDegree(first.ParameterType);
+
+                if (argAncestry < 0)
+                    return -1;
+                else
+                    totalAncestry += argAncestry;
+            }
+
+            return totalAncestry;
+        }
+
+        public int GetAncestryDegree(IType First, IType Second)
+        {
+            return GetAncestryDegree(MethodType.GetMethod(First), MethodType.GetMethod(Second));
         }
     }
 }

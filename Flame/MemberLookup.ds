@@ -8,37 +8,9 @@ namespace Flame
 	{
 		#region GetAllFields
 
-        /*public const static IEnumerable<IField> GetAllFields(this IType Type)
-        {
-            List<IField> fields = new List<IField>();
-            fields.AddRange((IEnumerable<IField>)Type.GetFields());
-            foreach (var baseType in Type.GetBaseTypes())
-            {
-                foreach (var field in baseType.GetAllFields())
-            	{
-            		if (!fields.Contains(field))
-            		{
-            			fields.Add(field);
-            		}
-            	}
-            }
-            return fields;
-        }*/
-
         public const static [IField] GetAllFields(this IType Type, string Name)
         {
-            var fields = new HashSet<IField>(Type.GetFields());
-            foreach (var baseType in Type.GetBaseTypes())
-            {
-                foreach (var field in baseType.GetAllFields(Name))
-            	{
-            		if (field.Name == Name)
-            		{
-            			fields.Add(field);
-            		}
-            	}
-            }
-            return fields;
+            return MemberSelection.FilterByName<IField>(Type.GetAllFields(), Name);
         }
 
         /// <summary>
@@ -49,21 +21,12 @@ namespace Flame
         /// </remarks>
         public static const [IField] GetAllFields(this IType Type)
         {
-        	var list = new List<IField>();
-        	foreach (var item in Type.GetBaseTypes())
+        	var results = new HashSet<IField>(Type.Fields);
+        	foreach (var item in Type.BaseTypes)
         	{
-        		foreach (var field in item.GetAllFields())
-        		{
-        			if (list.GetField(field.Name, field.IsStatic) == null)
-        				list.Add(field);
-        		}
+				results.UnionWith(item.GetAllFields());
         	}
-        	foreach (var field in Type.GetFields())
-        	{
-    			if (list.GetField(field.Name, field.IsStatic) == null)
-    				list.Add(field);
-        	}
-        	return list;
+        	return results;
         }
 
         #endregion
@@ -77,14 +40,7 @@ namespace Flame
 
         public const static IField GetField(this [IField] Fields, string Name)
         {
-        	foreach (var field in Fields)
-        	{
-        		if (field.Name.Equals(Name))
-        		{
-        			return field;
-        		}
-        	}
-        	return null;
+			return Enumerable.FirstOrDefault<IField>(MemberSelection.FilterByName<IField>(Fields, Name));
         }
 
         #endregion
@@ -93,8 +49,8 @@ namespace Flame
 
         public const static [IProperty] GetAllProperties(this IType Type)
         {
-            var props = new HashSet<IProperty>(Type.GetProperties());
-            foreach (var baseType in Type.GetBaseTypes())
+            var props = new HashSet<IProperty>(Type.Properties);
+            foreach (var baseType in Type.BaseTypes)
             {
             	foreach (var property in baseType.GetAllProperties())
             	{
@@ -106,18 +62,7 @@ namespace Flame
 
         public const static [IProperty] GetAllProperties(this IType Type, string Name)
         {
-            var props = new HashSet<IProperty>(Type.GetProperties());
-            foreach (var baseType in Type.GetBaseTypes())
-            {
-            	foreach (var property in baseType.GetAllProperties(Name))
-            	{
-            		if (property.Name == Name)
-            		{
-            			props.Add(property);
-            		}
-            	}
-            }
-            return props;
+            return MemberSelection.FilterByName<IProperty>(Type.GetAllProperties(), Name);
         }
 
         #endregion
@@ -126,12 +71,13 @@ namespace Flame
 
         public const static [IMethod] GetAllMethods(this IType Type)
         {
-            var methods = new HashSet<IMethod>(Type.GetMethods());
-            foreach (var baseType in Type.GetBaseTypes())
+            var methods = new HashSet<IMethod>(Type.Methods);
+            foreach (var baseType in Type.BaseTypes)
             {
             	foreach (var method in baseType.GetAllMethods())
             	{
-        			methods.Add(method);
+					if (!method.IsConstructor)
+        				methods.Add(method);
             	}
             }
             return methods;
@@ -139,18 +85,7 @@ namespace Flame
 
         public const static [IMethod] GetAllMethods(this IType Type, string Name)
         {
-            var methods = new HashSet<IMethod>(Type.GetMethods());
-            foreach (var baseType in Type.GetBaseTypes())
-            {
-            	foreach (var method in baseType.GetAllMethods(Name))
-            	{
-            		if (method.Name == Name)
-            		{
-            			methods.Add(method);
-            		}
-            	}
-            }
-            return methods;
+            return MemberSelection.FilterByName<IMethod>(Type.GetAllMethods(), Name);
         }
 
         #endregion
@@ -161,8 +96,7 @@ namespace Flame
         {
 			return Enumerable.Concat<ITypeMember>(Type.GetAllFields(),
 				   Enumerable.Concat<ITypeMember>(Type.GetAllMethods(),
-				   Enumerable.Concat<ITypeMember>(Type.GetAllProperties(),
-				                                  Type.GetConstructors())));
+							   					  Type.GetAllProperties()));
         }
 
         #endregion

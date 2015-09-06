@@ -14,28 +14,28 @@ namespace Flame.Syntax.DSharp
 
         public Token Operator { const get; private set; }
         public IVariableSyntax Variable { const get; private set; }
-        
+
         public SourceLocation Location
         {
         	const get return Operator.Location.Concat(Variable.GetSourceLocation());
         }
-        
+
         public IReadOnlyList<Token> Tokens
         {
         	const get
         	{
         		var tks = new List<Token>();
         		tks.Add(Operator);
-				tks.AddRange(Variable.GetTokens());				
+				tks.AddRange(Variable.GetTokens());
 				return tks;
         	}
         }
-        
+
         public [Token] LeadingTrivia
         {
         	const get return Operator.GetAllTrivia();
         }
-        
+
         public [Token] TrailingTrivia
         {
         	const get return Enumerable.Empty<Token>();
@@ -47,11 +47,11 @@ namespace Flame.Syntax.DSharp
             IExpression val;
             if (Operator.Type == TokenType.PlusPlus)
             {
-            	val = new AddExpression(getExpr, new ConversionExpression(new Int32Expression(1), Variable.Type));
+            	val = new AddExpression(getExpr, ConversionExpression.Create(new Int32Expression(1), Variable.Type));
             }
             else if (Operator.Type == TokenType.MinusMinus)
             {
-            	val = new SubtractExpression(getExpr, new ConversionExpression(new Int32Expression(1), Variable.Type));
+            	val = new SubtractExpression(getExpr, ConversionExpression.Create(new Int32Expression(1), Variable.Type));
             }
             else
             {

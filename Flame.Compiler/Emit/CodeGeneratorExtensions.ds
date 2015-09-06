@@ -168,9 +168,27 @@ namespace Flame.Compiler
 			return CodeGenerator.GetField(Field, Target).EmitSet(Value);
 		}
 
-		public static ICodeBlock EmitInvocation(this ICodeGenerator CodeGenerator, IMethod Method, ICodeBlock Caller, IEnumerable<ICodeBlock> Arguments)
+		/// <summary>
+		/// Creates a block that invokes the given method on the given
+		/// calling block. Virtual methods are called virtually, nonvirtual methods
+		/// are called directly.
+		/// </summary>
+		public static ICodeBlock EmitInvocation(this ICodeGenerator CodeGenerator, IMethod Method, ICodeBlock Caller, [ICodeBlock] Arguments)
 		{
-			return CodeGenerator.EmitInvocation(CodeGenerator.EmitMethod(Method, Caller), Arguments);
+			if (!Method.IsConstructor && Method.IsVirtual)
+				return CodeGenerator.EmitInvocation(Method, Caller, Operator.GetVirtualDelegate, Arguments);
+			else
+				return CodeGenerator.EmitInvocation(Method, Caller, Operator.GetDelegate, Arguments);
+		}
+
+		/// <summary>
+		/// Creates a block that invokes the given method on the given
+		/// calling block and arguments. An operator is given that tells
+		/// how the calling block is used.
+		/// </summary>
+		public static ICodeBlock EmitInvocation(this ICodeGenerator CodeGenerator, IMethod Method, ICodeBlock Caller, Operator DelegateOperator, [ICodeBlock] Arguments)
+		{
+			return CodeGenerator.EmitInvocation(CodeGenerator.EmitMethod(Method, Caller, DelegateOperator), Arguments);
 		}
 
 		public static IEmitVariable DeclareVariable(this IMethodStructureGenerator Generator, IType Type)

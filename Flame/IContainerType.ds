@@ -1,37 +1,17 @@
 using System;
+using System.Collections.Generic;
 
 namespace Flame
 {
 	public interface IContainerType : IType
     {
         /// <summary>
-        /// Gets the kind of container this type represents.
-        /// </summary>
-        ContainerTypeKind ContainerKind { get; }
-
-        /// <summary>
-        /// Gets the type of the object encompassed or referred to by the current container type.
+        /// Gets the type referred to by the current container type.
         /// </summary>
         /// <returns></returns>
-        IType GetElementType();
-
-        /// <summary>
-        /// Returns this type as an array type.
-        /// </summary>
-        /// <returns></returns>
-        IArrayType AsArrayType();
-        /// <summary>
-        /// Returns this type as a pointer type.
-        /// </summary>
-        /// <returns></returns>
-        IPointerType AsPointerType();
-        /// <summary>
-        /// Returns this type as a vector type.
-        /// </summary>
-        /// <returns></returns>
-        IVectorType AsVectorType();
+        IType ElementType { get; }
     }
-    
+
     public interface IArrayType : IContainerType
     {
         /// <summary>
@@ -39,15 +19,18 @@ namespace Flame
         /// </summary>
         int ArrayRank { get; }
     }
-    
+
     /// <summary>
-    /// Represents a pointer type: an integer that points to the location in memory of an object.
+    /// Represents a pointer type: a value that points to the location in memory of an object.
     /// </summary>
     public interface IPointerType : IContainerType
     {
+		/// <summary>
+		/// Gets the pointer's "kind".
+		/// </summary>
         PointerKind PointerKind { get; }
     }
-    
+
     /// <summary>
     /// Represents a vector type: an array with fixed dimensions.
     /// </summary>
@@ -56,6 +39,6 @@ namespace Flame
         /// <summary>
         /// Gets the vector's dimensions.
         /// </summary>
-        int[] GetDimensions();
+        IReadOnlyList<int> Dimensions { get; }
     }
 }

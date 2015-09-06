@@ -1,0 +1,113 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Build;
+
+namespace Flame
+{
+	public class GenericInstanceProperty : IProperty, IEquatable<IProperty>
+    {
+    	public const this(set IProperty Declaration, set IGenericResolver Resolver, set IType DeclaringType)
+        {
+            this.cachedAccessors = new Lazy<IAccessor[]>(createAccessors);
+            this.cachedIndexerParameters = new Lazy<IParameter[]>(createIndexerParameters);
+        }
+        public const this(set IProperty Declaration, set IGenericResolverType Resolver)
+        {
+        	this.DeclaringType = Resolver;
+            this.cachedAccessors = new Lazy<IAccessor[]>(createAccessors);
+            this.cachedIndexerParameters = new Lazy<IParameter[]>(createIndexerParameters);
+        }
+
+        public IProperty Declaration { const get; private set; }
+        public IGenericResolver Resolver { const get; private set; }
+        public IType DeclaringType { const get; private set; }
+
+        public IType PropertyType
+        {
+            const get { return Resolver.ResolveType(Declaration.PropertyType); }
+        }
+        public bool IsStatic
+        {
+            const get { return Declaration.IsStatic; }
+        }
+
+        public string FullName
+        {
+            const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Declaration.Name); }
+        }
+
+        public string Name
+        {
+            const get { return Declaration.Name; }
+        }
+
+        public [IAttribute] Attributes
+        {
+            const get { return Declaration.Attributes; }
+        }
+
+        private Lazy<IAccessor[]> cachedAccessors;
+        public [IAccessor] Accessors
+        {
+            const get { return cachedAccessors.Value; }
+        }
+
+        private IAccessor[] createAccessors()
+        {
+        	var results = new List<IAccessor>();
+        	foreach (var input in Declaration.Accessors)
+        	{
+        		results.Add(new GenericInstanceAccessor(input, Resolver, this));
+        	}
+            return results.ToArray();
+        }
+
+        private Lazy<IParameter[]> cachedIndexerParameters;
+        public [IParameter] IndexerParameters
+        {
+            const get { return cachedIndexerParameters.Value; }
+        }
+        private IParameter[] createIndexerParameters()
+        {
+            return Enumerable.ToArray<IParameter>(Resolver.ResolveParameters(Declaration.IndexerParameters));
+        }
+
+		public override string ToString()
+		{
+			return FullName;
+		}
+
+        #region Equality
+
+        public override const bool Equals(object Other)
+        {
+        	if (Other is IProperty)
+        		return Equals((IProperty)Other);
+        	else
+                return false;
+        }
+
+        public const bool Equals(IProperty Other)
+        {
+        	if (Other is GenericInstanceProperty)
+        		return Equals((GenericInstanceProperty)Other);
+        	else
+                return false;
+        }
+
+        public const bool Equals(GenericInstanceProperty Other)
+        {
+        	return this.DeclaringType.Equals(Other.DeclaringType) &&
+			       this.Declaration.Equals(Other.Declaration);
+        }
+
+        public override const int GetHashCode()
+        {
+        	return DeclaringType.GetHashCode() ^ Declaration.GetHashCode();
+        }
+
+        #endregion
+	}
+}

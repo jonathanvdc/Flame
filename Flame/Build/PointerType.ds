@@ -1,0 +1,65 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Build
+{
+    public class PointerType : ContainerTypeBase, IPointerType
+    {
+        public const this(IType ElementType, set PointerKind PointerKind)
+            : base(ElementType);
+
+        public PointerKind PointerKind { const get; private set; }
+
+        protected override string GetName(string ElementName)
+        {
+            return ElementName + PointerKind.Extension;
+        }
+
+        public override IAncestryRules AncestryRules
+        {
+            const get { return PointerAncestryRules; }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is PointerType)
+            {
+                var ptrType = (PointerType)obj;
+                if (ptrType.IsPointer && ptrType.PointerKind == PointerKind)
+                {
+                    return ElementType == ptrType.ElementType;
+                }
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return ElementType.GetHashCode() + PointerKind.GetHashCode();
+        }
+    }
+
+    /// <summary>
+    /// Represents the following set of ancestry rules for pointers:
+    ///  * Null is a pointer type
+    ///  * Two pointer type of the same pointer kind have the same ancestry degree
+    ///    as their elements.
+    /// </summary>
+    public static class PointerAncestryRules : IAncestryRules
+    {
+        public int GetAncestryDegree(IType First, IType Second)
+        {
+            if (First.IsPointer && Second.IsPointer)
+            {
+                var firstPtrTy = First.AsPointerType();
+                var secondPtrTy = Second.AsPointerType();
+                return firstPtrTy.ElementType.GetAncestryDegree(secondPtrTy.ElementType);
+            }
+            else
+            {
+                return -1;
+            }
+        }
+    }
+}

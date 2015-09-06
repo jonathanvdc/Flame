@@ -42,7 +42,7 @@ namespace Flame.Cecil
             var cg = GetBodyGenerator();
             if (IsConstructor && DeclaringType is ICecilTypeBuilder)
             {
-                foreach (var item in ((ICecilTypeBuilder)DeclaringType).GetFieldInitStatements())
+                foreach (var item in ((ICecilTypeBuilder)DeclaringType).CreateFieldInitStatements())
                 {
                     ((ICecilBlock)item.Emit(cg)).Emit(context);
                 }
@@ -114,13 +114,14 @@ namespace Flame.Cecil
 
         #endregion
 
-        private static CecilMethodBuilder DeclareMethod(ICecilType DeclaringType, IMethod Template, Action<MethodDefinition> AddMethod)
+        private static T DeclareMethod<T>(ICecilType DeclaringType, IMethod Template, Action<MethodDefinition> AddMethod, Func<MethodDefinition, T> CreateMethodBuilder)
+            where T : CecilMethodBuilder
         {
             var module = DeclaringType.Module;
 
-            var attrs = ExtractMethodAttributes(Template.GetAttributes());
+            var attrs = ExtractMethodAttributes(Template.Attributes);
 
-            var baseMethods = Template.GetBaseMethods().Distinct().ToArray();
+            var baseMethods = Template.BaseMethods.Distinct().ToArray();
 
             var simpleBaseMethod = baseMethods.FirstOrDefault((item) => !item.DeclaringType.get_IsInterface());
             if (baseMethods.Length > 0 && ((attrs & MethodAttributes.Virtual) != MethodAttributes.Virtual))
@@ -173,16 +174,16 @@ namespace Flame.Cecil
 
             AddMethod(methodDef);
 
-            var cecilGenericParams = CecilGenericParameter.DeclareGenericParameters(methodDef, Template.GetGenericParameters().ToArray(), module);
+            var cecilGenericParams = CecilGenericParameter.DeclareGenericParameters(methodDef, Template.GenericParameters.ToArray(), module);
 
-            var cecilMethod = new CecilMethodBuilder(DeclaringType, methodDef);
+            var cecilMethod = CreateMethodBuilder(methodDef);
             var genericParams = cecilGenericParams.Select((item) => new CecilGenericParameter(item, cecilMethod.Module, cecilMethod)).ToArray();
             if (!methodDef.IsConstructor)
             {
                 methodDef.ReturnType = DeclaringType.ResolveType(CecilTypeBuilder.GetGenericType(Template.ReturnType, genericParams)).GetImportedReference(module, methodDef);
             }
 
-            CecilAttribute.DeclareAttributes(methodDef, cecilMethod, Template.GetAttributes());
+            CecilAttribute.DeclareAttributes(methodDef, cecilMethod, Template.Attributes);
             if (Template.get_IsExtension() && !cecilMethod.get_IsExtension())
             {
                 CecilAttribute.DeclareAttributeOrDefault(methodDef, cecilMethod, PrimitiveAttributes.Instance.ExtensionAttribute);
@@ -215,16 +216,14 @@ namespace Flame.Cecil
 
         public static CecilMethodBuilder DeclareMethod(ICecilTypeBuilder DeclaringType, IMethod Template)
         {
-            var method = DeclareMethod((ICecilType)DeclaringType, Template, DeclaringType.AddMethod);
-            return method;
+            return DeclareMethod(DeclaringType, Template, DeclaringType.AddMethod, def => new CecilMethodBuilder(DeclaringType, def));
         }
-        public static CecilMethodBuilder DeclareAccessor(ICecilPropertyBuilder DeclaringProperty, IAccessor Template)
+        public static CecilAccessorBuilder DeclareAccessor(ICecilPropertyBuilder DeclaringProperty, IAccessor Template)
         {
-            var method = DeclareMethod((ICecilType)DeclaringProperty.DeclaringType, Template, (item) =>
+            return DeclareMethod((ICecilType)DeclaringProperty.DeclaringType, Template, (item) =>
             {
                 DeclaringProperty.AddAccessor(item, Template.AccessorType);
-            });
-            return method;
+            }, def => new CecilAccessorBuilder(DeclaringProperty, def, Template.AccessorType));
         }
 
         protected static MethodAttributes ExtractMethodAttributes(IEnumerable<IAttribute> Attributes)

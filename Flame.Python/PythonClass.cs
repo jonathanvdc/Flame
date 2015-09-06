@@ -15,7 +15,6 @@ namespace Flame.Python
         public PythonClass(IType Template)
         {
             this.Template = Template;
-            this.ctors = new List<IPythonMethod>();
             this.fields = new List<IField>();
             this.methods = new List<IPythonMethod>();
             this.properties = new List<PythonProperty>();
@@ -35,74 +34,33 @@ namespace Flame.Python
             get { return Template.DeclaringNamespace; }
         }
 
-        public IType[] GetBaseTypes()
+        public IEnumerable<IType> BaseTypes
         {
-            return Template.GetBaseTypes();
+            get { return Template.BaseTypes; }
         }
 
-        private List<IPythonMethod> ctors;
         private List<IField> fields;
         private List<IPythonMethod> methods;
         private List<PythonProperty> properties;
 
-        public IMethod[] GetConstructors()
-        {
-            return ctors.ToArray();
-        }
-
         public IBoundObject GetDefaultValue()
         {
-            return new NullExpression();
+            return NullExpression.Instance;
         }
 
-        public IField[] GetFields()
+        public IEnumerable<IField> Fields
         {
-            return fields.ToArray();
+            get { return fields; }
         }
 
-        public IType GetGenericDeclaration()
+        public IEnumerable<IMethod> Methods
         {
-            return this;
+            get { return methods; }
         }
 
-        public ITypeMember[] GetMembers()
+        public IEnumerable<IProperty> Properties
         {
-            return ctors.Concat<ITypeMember>(fields).Concat(methods).Concat(properties).ToArray();
-        }
-
-        public IMethod[] GetMethods()
-        {
-            return methods.ToArray();
-        }
-
-        public IProperty[] GetProperties()
-        {
-            return properties.ToArray();
-        }
-
-        public bool IsContainerType
-        {
-            get { return false; }
-        }
-
-        public IArrayType MakeArrayType(int Rank)
-        {
-            return new DescribedArrayType(this, Rank);
-        }
-
-        public IType MakeGenericType(IEnumerable<IType> TypeArguments)
-        {
-            return this;
-        }
-
-        public IPointerType MakePointerType(PointerKind PointerKind)
-        {
-            return new DescribedPointerType(this, PointerKind);
-        }
-
-        public IVectorType MakeVectorType(int[] Dimensions)
-        {
-            return new DescribedVectorType(this, Dimensions);
+            get { return properties; }
         }
 
         public string FullName
@@ -110,9 +68,9 @@ namespace Flame.Python
             get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Template.GetAttributes();
+            get { return Template.Attributes; }
         }
 
         protected IMemberNamer GetMemberNamer()
@@ -125,14 +83,9 @@ namespace Flame.Python
             get { return GetMemberNamer().Name(Template); }
         }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return Template.GetGenericArguments();
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return Template.GetGenericParameters();
+            get { return Template.GenericParameters; }
         }
 
         #endregion
@@ -143,7 +96,7 @@ namespace Flame.Python
         {
             Dictionary<string, PythonOverloadedMethod> overloaded = new Dictionary<string, PythonOverloadedMethod>();
             Dictionary<string, IPythonMethod> simple = new Dictionary<string, IPythonMethod>();
-            foreach (var item in this.ctors.Concat(this.methods))
+            foreach (var item in this.methods)
             {
                 if (overloaded.ContainsKey(item.Name))
                 {
@@ -174,7 +127,7 @@ namespace Flame.Python
             cb.Append("class ");
             cb.Append(Name);
             var namer = GetMemberNamer();
-            var baseTypeNames = GetBaseTypes().Where((item) => !(item is PythonPrimitiveType)).Select(namer.Name).ToArray();
+            var baseTypeNames = BaseTypes.Where((item) => !(item is PythonPrimitiveType)).Select(namer.Name).ToArray();
             if (baseTypeNames.Length > 0)
             {
                 cb.Append('(');
@@ -222,14 +175,7 @@ namespace Flame.Python
         public IMethodBuilder DeclareMethod(IMethod Template)
         {
             var method = new PythonMethod(this, Template);
-            if (Template.IsConstructor)
-            {
-                ctors.Add(method);
-            }
-            else
-            {
-                methods.Add(method);
-            }
+            methods.Add(method);
             return method;
         }
 
@@ -249,8 +195,13 @@ namespace Flame.Python
 
         public IEnumerable<ModuleDependency> GetDependencies()
         {
-            var bDepends = GetBaseTypes().OfType<IType>().Aggregate(Enumerable.Empty<ModuleDependency>(), (a, b) => a.Union(ModuleDependency.FromType(b)));
-            return methods.Concat(ctors).GetDependencies().Union(bDepends);
+            var bDepends = BaseTypes.OfType<IType>().Aggregate(Enumerable.Empty<ModuleDependency>(), (a, b) => a.Union(ModuleDependency.FromType(b)));
+            return methods.GetDependencies().Union(bDepends);
+        }
+
+        public IAncestryRules AncestryRules
+        {
+            get { return DefinitionAncestryRules.Instance; }
         }
     }
 }

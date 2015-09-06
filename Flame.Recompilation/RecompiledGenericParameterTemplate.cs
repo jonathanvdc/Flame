@@ -34,16 +34,6 @@ namespace Flame.Recompilation
 
         public IGenericMember DeclaringMember { get; private set; }
 
-        public bool IsAssignable(IType Type)
-        {
-            return Type.Is(ParameterType);
-        }
-
-        public IType ParameterType
-        {
-            get { return Recompiler.GetType((IGenericParameter)SourceType); }
-        }
-
         private IGenericConstraint constrnt;
         public IGenericConstraint Constraint
         {

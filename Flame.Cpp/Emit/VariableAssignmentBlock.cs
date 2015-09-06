@@ -76,7 +76,7 @@ namespace Flame.Cpp.Emit
             }
             else
             {
-                cb.AppendAligned(((ICppBlock)CodeGenerator.EmitConversion(Value, Target.Type)).GetCode());
+                cb.AppendAligned(new ConversionBlock(CodeGenerator, Value, Target.Type).GetCode());
             }
             return cb;
         }

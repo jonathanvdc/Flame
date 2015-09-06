@@ -37,7 +37,7 @@ namespace Flame.Recompilation
             return SourceMethod;
         }
 
-        public IParameter[] Parameters { get { return GetParameters(); } }
+        public IEnumerable<IParameter> Parameters { get { return GetParameters(); } }
 
         public IParameter[] GetParameters()
         {
@@ -49,14 +49,9 @@ namespace Flame.Recompilation
             get { return RecompiledTypeTemplate.GetWeakRecompiledType(SourceMethod.ReturnType, Recompiler, SourceMethod); }
         }
 
-        public IMethod[] GetBaseMethods()
+        public IEnumerable<IMethod> BaseMethods
         {
-            return GetWeakRecompiledMethods(SourceMethod.GetBaseMethods(), Recompiler, SourceMethod);
-        }
-
-        public IMethod GetGenericDeclaration()
-        {
-            return this;
+            get { return GetWeakRecompiledMethods(SourceMethod.BaseMethods.ToArray(), Recompiler, SourceMethod); }
         }
 
         public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
@@ -69,24 +64,14 @@ namespace Flame.Recompilation
             get { return SourceMethod.IsConstructor; }
         }
 
-        public IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return Recompiler.GetMethod(SourceMethod).MakeGenericMethod(TypeArguments);
+            get { return RecompiledGenericParameterTemplate.GetRecompilerTemplates(Recompiler, this, SourceMethod.GenericParameters); }
         }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public override IEnumerable<IAttribute> Attributes
         {
-            return Recompiler.GetTypes(SourceMethod.GetGenericArguments());
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return RecompiledGenericParameterTemplate.GetRecompilerTemplates(Recompiler, this, SourceMethod.GetGenericParameters());
-        }
-
-        public override IEnumerable<IAttribute> GetAttributes()
-        {
-            return base.GetAttributes().Concat(Recompiler.Passes.Optimizer.InferAttributes(SourceMethod));
+            get { return base.Attributes.Concat(Recompiler.Passes.Optimizer.InferAttributes(SourceMethod)); }
         }
 
         #region Static
@@ -113,7 +98,7 @@ namespace Flame.Recompilation
                 {
                     descMethod.AddParameter(item);
                 }
-                foreach (var item in SourceMethod.GetAttributes().Select(Recompiler.GetAttribute))
+                foreach (var item in SourceMethod.Attributes.Select(Recompiler.GetAttribute))
                 {
                     descMethod.AddAttribute(item);
                 }

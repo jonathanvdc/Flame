@@ -32,9 +32,9 @@ namespace Flame.Python
 
         public static PythonConsoleType Instance { get; private set; }
 
-        public override IEnumerable<IAttribute> GetAttributes()
+        public override IEnumerable<IAttribute> Attributes
         {
-            return new IAttribute[] { PrimitiveAttributes.Instance.StaticTypeAttribute };
+            get { return new IAttribute[] { PrimitiveAttributes.Instance.StaticTypeAttribute }; }
         }
 
         public override string Name
@@ -42,13 +42,16 @@ namespace Flame.Python
             get { return "Console"; }
         }
 
-        public override IMethod[] GetMethods()
+        public override IEnumerable<IMethod> Methods
         {
-            return new IMethod[]
+            get
             {
-                writelnStringMethod,
-                readlnMethod
-            };
+                return Enumerable.Concat(base.Methods, new IMethod[]
+                {
+                    writelnStringMethod,
+                    readlnMethod
+                });
+            }
         }
     }
 }

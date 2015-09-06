@@ -30,7 +30,7 @@ namespace Flame.Cpp.Emit
             get { return Value.LocalsUsed; }
         }
 
-        public bool UseImplicitCast(IType SourceType, IType TargetType)
+        public static bool UseImplicitCast(IType SourceType, IType TargetType)
         {
             if (SourceType.Is(TargetType))
             {
@@ -38,7 +38,7 @@ namespace Flame.Cpp.Emit
             }
             else if (SourceType.get_IsPointer() && TargetType.get_IsPointer() && SourceType.AsContainerType().AsPointerType().PointerKind.Equals(TargetType.AsContainerType().AsPointerType().PointerKind))
             {
-                return SourceType.AsContainerType().GetElementType().Is(TargetType.AsContainerType().GetElementType());
+                return SourceType.AsContainerType().ElementType.Is(TargetType.AsContainerType().ElementType);
             }
             else if (TargetType.get_IsBit())
             {
@@ -79,7 +79,7 @@ namespace Flame.Cpp.Emit
 
         public static bool UseBoxConversion(IType SourceType, IType TargetType)
         {
-            return TargetType.get_IsPointer() && TargetType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer) && SourceType.Is(TargetType.AsContainerType().GetElementType());
+            return TargetType.get_IsPointer() && TargetType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer) && SourceType.Is(TargetType.AsContainerType().ElementType);
         }
 
         public static bool UseDynamicCast(IType SourceType, IType TargetType)

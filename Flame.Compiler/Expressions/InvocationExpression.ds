@@ -72,8 +72,8 @@ namespace Flame.Compiler.Expressions
 
 		private const IExpression GetInnerExpression(IExpression Expression)
 		{
-			if (Expression is ConversionExpression)
-				return GetInnerExpression(((ConversionExpression)Expression).Value);
+			if (Expression is ConversionExpressionBase)
+				return GetInnerExpression(((ConversionExpressionBase)Expression).Value);
 			else
 				return Expression;
 		}

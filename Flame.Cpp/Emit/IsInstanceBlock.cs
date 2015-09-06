@@ -31,7 +31,7 @@ namespace Flame.Cpp.Emit
         {
             get
             {
-                return Value.Type.AsContainerType().AsPointerType().GetElementType();
+                return Value.Type.AsContainerType().AsPointerType().ElementType;
             }
         }
         public IType TestElementType
@@ -40,7 +40,7 @@ namespace Flame.Cpp.Emit
             {
                 if (TestType.get_IsPointer())
                 {
-                    return TestType.AsContainerType().AsPointerType().GetElementType();
+                    return TestType.AsContainerType().AsPointerType().ElementType;
                 }
                 else
                 {
@@ -99,7 +99,7 @@ namespace Flame.Cpp.Emit
             }
             else if (UseVerboseCheck)
             {
-                return (ICppBlock)CppCodeGenerator.EmitBinary(CppCodeGenerator.EmitConversion(Value, TestType), CppCodeGenerator.EmitNull(), Operator.CheckInequality);
+                return (ICppBlock)CppCodeGenerator.EmitBinary(CppCodeGenerator.EmitTypeBinary(Value, TestType, Operator.AsInstance), CppCodeGenerator.EmitNull(), Operator.CheckInequality);
             }
             else
             {

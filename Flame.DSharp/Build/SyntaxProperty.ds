@@ -18,7 +18,13 @@ namespace Flame.DSharp.Build
     public class SyntaxProperty : CodeMember, IProperty, ISyntaxNode, ISourceMember
     {
         public const this(set PropertySyntax Syntax, set IType DeclaringType, set IBinder Binder,
-            set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer);
+            set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer)
+        {
+            this.indexerParams = new Lazy<IParameter[]>(CreateIndexerParameters);
+            this.accessorVals = new Lazy<IAccessor[]>(CreateAccessors);
+            this.basePropertyCache = new Lazy<IProperty[]>(CreateBaseProperties);
+            this.attrCache = new Lazy<IAttribute[]>(CreateAttributes);
+        }
 
         public PropertySyntax Syntax { const get; private set; }
         public IType DeclaringType { const get; private set; }
@@ -31,8 +37,7 @@ namespace Flame.DSharp.Build
 
         public virtual const ISyntaxState GetSyntaxState()
         {
-        	var descMethod = new DescribedMethod();
-			descMethod.DeclaringType = DeclaringType;
+        	var descMethod = new DescribedMethod("", DeclaringType);
             return new SyntaxState(descMethod, Binder, Log, MemberProvider, TypeNamer);
         }
 
@@ -54,38 +59,30 @@ namespace Flame.DSharp.Build
             const get { return Syntax.Signature.TypeSyntax.CreateVerifiedType(GetSyntaxState()); }
         }
 
-		private IAccessor[] accessorVals;
-		public IAccessor[] Accessors { const get return GetAccessors(); }
+		private Lazy<IAccessor[]> accessorVals;
+		public [IAccessor] Accessors { get { return accessorVals.Value; } }
 
-        public const IAccessor[] GetAccessors()
+        private IAccessor[] CreateAccessors()
         {
-        	if (accessorVals == null)
+        	var accessors = new List<IAccessor>();
+        	foreach (var item in Syntax.Accessors)
         	{
-	        	List<IAccessor> accessors = new List<IAccessor>();
-	        	foreach (var item in Syntax.Accessors)
-	        	{
-	        		accessors.Add(item.CreateAccessor(this, Binder));
-	        	}
-	        	accessorVals = accessors.ToArray();
-            }
-            return accessorVals;
+        		accessors.Add(item.CreateAccessor(this, Binder));
+        	}
+        	return accessors.ToArray();
         }
 
-		private IParameter[] indexerParams;
-		public IParameter[] IndexerParameters { const get return GetIndexerParameters(); }
+		private Lazy<IParameter[]> indexerParams;
+		public [IParameter] IndexerParameters { const get return indexerParams.Value; }
 
-        public const IParameter[] GetIndexerParameters()
+        private IParameter[] CreateIndexerParameters()
         {
-        	if (indexerParams == null)
-        	{
-        		var indexParams = new List<IParameter>();
-        		foreach (var item in Syntax.IndexerParameters)
-        		{
-        			indexParams.Add(item.CreateMember(GetSyntaxState()));
-        		}
-        		indexerParams = indexParams.ToArray();
-        	}
-        	return indexerParams;
+    		var indexParams = new List<IParameter>();
+    		foreach (var item in Syntax.IndexerParameters)
+    		{
+    			indexParams.Add(item.CreateMember(GetSyntaxState()));
+    		}
+    		return indexParams.ToArray();
         }
 
         public bool IsStatic
@@ -103,79 +100,71 @@ namespace Flame.DSharp.Build
             const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-		private IAttribute[] attrCache;
-		public [IAttribute] Attributes { const get return GetAttributes(); }
+		private Lazy<IAttribute[]> attrCache;
+		public [IAttribute] Attributes { get { return attrCache.Value; } }
 
-        public const [IAttribute] GetAttributes()
+        private IAttribute[] CreateAttributes()
         {
-        	if (attrCache == null)
-        	{
-	            var state = GetSyntaxState();
+            var state = GetSyntaxState();
 
-	            var modifierAttrs = Syntax.Signature.ModifierTokens.GetModifiers();
-	            var extraAttributes = new List<IAttribute>();
-	            /*foreach (var item in Syntax.ImplementedProperties)
-	            {
-	                var member = item.GetAccessedMembers(state).First();
-	                extraAttributes.Add(new OverrideAttribute(member.Name, member.DeclaringType.FullName));
-	            }*/
-	            if (Syntax.Signature.NameToken.Type == TokenType.ThisKeyword && GetIndexerParameters().Length > 0)
-	            {
-	                extraAttributes.Add(PrimitiveAttributes.IndexerAttribute);
-	            }
-	            if (!modifierAttrs.HasAccessAttribute)
-	            {
-	                extraAttributes.Add(DeclaringType.GetAccessAttribute());
-	            }
-	            foreach (var item in modifierAttrs)
-	            	extraAttributes.Add(item);
-	            foreach (var item in Syntax.Signature.Attributes)
-	            	extraAttributes.Add(item.CreateAttribute(state, this));
-
-	            extraAttributes.AddRange(Syntax.GetDescriptionAttributes(GetSyntaxState()));
-
-	            attrCache = extraAttributes.ToArray();
+            var modifierAttrs = Syntax.Signature.ModifierTokens.GetModifiers();
+            var extraAttributes = new List<IAttribute>();
+            /*foreach (var item in Syntax.ImplementedProperties)
+            {
+                var member = item.GetAccessedMembers(state).First();
+                extraAttributes.Add(new OverrideAttribute(member.Name, member.DeclaringType.FullName));
+            }*/
+            if (Syntax.Signature.NameToken.Type == TokenType.ThisKeyword && indexerParams.Value.Length > 0)
+            {
+                extraAttributes.Add(PrimitiveAttributes.IndexerAttribute);
             }
-            return attrCache;
+            if (!modifierAttrs.HasAccessAttribute)
+            {
+                extraAttributes.Add(DeclaringType.GetAccessAttribute());
+            }
+            foreach (var item in modifierAttrs)
+            	extraAttributes.Add(item);
+            foreach (var item in Syntax.Signature.Attributes)
+            	extraAttributes.Add(item.CreateAttribute(state, this));
+
+            extraAttributes.AddRange(Syntax.GetDescriptionAttributes(GetSyntaxState()));
+
+            return extraAttributes.ToArray();
         }
 
         #endregion GetBaseProperties
 
-        private IProperty[] basePropertyCache;
-        public [IProperty] BaseProperties { const get return GetBaseProperties(); }
+        private Lazy<IProperty[]> basePropertyCache;
+        public [IProperty] BaseProperties { get { return basePropertyCache.Value; } }
 
-        public virtual [IProperty] GetBaseProperties()
+        private IProperty[] CreateBaseProperties()
         {
-        	if (basePropertyCache == null)
-        	{
-	        	var state = GetSyntaxState();
-	        	var baseMethods = new HashSet<IProperty>();
-	        	var paramTypes = this.GetIndexerParameters().GetTypes();
-	        	foreach (var item in Syntax.ImplementedProperties)
-	            {
-	                var member = Enumerable.OfType<IProperty>(item.GetAccessedMembers(state)).GetProperty(this.IsStatic, this.PropertyType, paramTypes);
-	                baseMethods.Add(member);
-	            }
-	            if (baseMethods.Count == 0)
-	            {
-	            	foreach (var item in DeclaringType.GetAllBaseTypes())
-	            	{
-	            		var match = item.GetProperties().GetProperty(this.Name, this.IsStatic, this.PropertyType, paramTypes);
-	            		if (match != null)
-	            		{
-	            			baseMethods.Add(match);
-	            		}
-	            	}
-	            	if (baseMethods.Count == 0 && Syntax.Signature.ModifierTokens.IsOverride)
-	            	{
-	            		state.Log.LogError(new LogEntry("Base property missing",
-                            "Override property '" + FullName + "' could not find any suitable base properties to override.",
-                            Location));
-	            	}
-	            }
-	            basePropertyCache = Enumerable.ToArray<IProperty>(baseMethods);
+        	var state = GetSyntaxState();
+        	var baseMethods = new HashSet<IProperty>();
+        	foreach (var item in Syntax.ImplementedProperties)
+            {
+                var paramTypes = Enumerable.ToArray<IType>(this.IndexerParameters.GetTypes());
+                var member = Enumerable.OfType<IProperty>(item.GetAccessedMembers(state)).GetProperty(this.IsStatic, this.PropertyType, paramTypes);
+                baseMethods.Add(member);
             }
-            return basePropertyCache;
+            if (baseMethods.Count == 0)
+            {
+            	foreach (var item in DeclaringType.GetAllBaseTypes())
+            	{
+            		var match = item.Properties.GetProperty(this);
+            		if (match != null)
+            		{
+            			baseMethods.Add(match);
+            		}
+            	}
+            	if (baseMethods.Count == 0 && Syntax.Signature.ModifierTokens.IsOverride)
+            	{
+            		state.Log.LogError(new LogEntry("Base property missing",
+                        "Override property '" + FullName + "' could not find any suitable base properties to override.",
+                        Location));
+            	}
+            }
+            return Enumerable.ToArray<IProperty>(baseMethods);
         }
 
         #region

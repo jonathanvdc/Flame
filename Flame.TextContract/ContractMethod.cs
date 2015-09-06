@@ -19,19 +19,14 @@ namespace Flame.TextContract
         public IType DeclaringType { get; private set; }
         public IMethod Template { get; private set; }
 
-        public IMethod[] GetBaseMethods()
+        public IEnumerable<IMethod> BaseMethods
         {
-            return Template.GetBaseMethods();
+            get { return Template.BaseMethods; }
         }
 
-        public IMethod GetGenericDeclaration()
+        public IEnumerable<IParameter> Parameters
         {
-            return new ContractMethod(DeclaringType, Template.GetGenericDeclaration());
-        }
-
-        public IParameter[] GetParameters()
-        {
-            return Template.GetParameters();
+            get { return Template.Parameters; }
         }
 
         public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
@@ -42,11 +37,6 @@ namespace Flame.TextContract
         public bool IsConstructor
         {
             get { return Template.IsConstructor; }
-        }
-
-        public IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
-        {
-            return new ContractMethod(DeclaringType, Template.MakeGenericMethod(TypeArguments));
         }
 
         public IType ReturnType
@@ -64,9 +54,9 @@ namespace Flame.TextContract
             get { return Template.FullName; }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Template.GetAttributes();
+            get { return Template.Attributes; }
         }
 
         public virtual string Name
@@ -81,7 +71,7 @@ namespace Flame.TextContract
                     StringBuilder sb = new StringBuilder(genericFreeName);
                     sb.Append('<');
                     bool first = true;
-                    foreach (var item in GetGenericParameters())
+                    foreach (var item in GenericParameters)
                     {
                         if (first)
                         {
@@ -103,14 +93,9 @@ namespace Flame.TextContract
             }
         }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return Template.GetGenericArguments();
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return Template.GetGenericParameters();
+            get { return Template.GenericParameters; }
         }
 
         public CodeBuilder GetCode()
@@ -120,7 +105,7 @@ namespace Flame.TextContract
             cb.Append(Name);
             cb.Append("(");
             bool first = true;
-            foreach (var item in GetParameters())
+            foreach (var item in Parameters)
             {
                 if (first)
                 {

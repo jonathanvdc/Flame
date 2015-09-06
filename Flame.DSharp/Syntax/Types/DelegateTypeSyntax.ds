@@ -62,7 +62,7 @@ namespace Flame.Syntax.DSharp
                 {
                     var descParam = new DescribedParameter("__param" + descMethod.GetParameters().Length,
                                                            paramMember.ParameterType);
-                    foreach (var attr in paramMember.GetAttributes())
+                    foreach (var attr in paramMember.Attributes)
                     {
                         descParam.AddAttribute(attr);
                     }

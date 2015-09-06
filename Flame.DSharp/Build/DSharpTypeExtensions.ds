@@ -57,8 +57,7 @@ namespace Flame.DSharp.Build
 	    	descType.AddAttribute(new AccessAttribute(AccessModifier.Public));
 	    	descType.AddAttribute(PrimitiveAttributes.StaticTypeAttribute);
 
-	    	var descMethod = new DescribedMethod();
-			descMethod.DeclaringType = (IType)Namespace;
+	    	var descMethod = new DescribedMethod("", (IType)Namespace, PrimitiveTypes.Void, false);
 
             var state = new SyntaxState(descMethod, State.Binder, State.Log, State.MemberProvider, State.TypeNamer);
 
@@ -74,7 +73,7 @@ namespace Flame.DSharp.Build
 	    	return descType;
 	    }
 
-	    public static const IStatement CreateBaseConstructorCall(ISyntaxState State)
+	    public static const IStatement CreateBaseConstructorCall(ISyntaxState State, IMethod Caller)
 	    {
 	    	var currentType = State.CurrentType;
             if (currentType.IsValueType)
@@ -91,8 +90,9 @@ namespace Flame.DSharp.Build
                     {
                     	State.Log.LogError(new LogEntry("Parameterless constructor missing",
 							"No appropriate parameterless constructor could be found for type '" +
-							State.TypeNamer.Convert(parent) + "'. '" +
-							State.TypeNamer.Convert(currentType) + "' requires one, though."));
+							State.TypeNamer.Convert(parent) + "'. One of '" +
+							State.TypeNamer.Convert(currentType) + "'s constructors requires one, though.",
+							Caller.GetSourceLocation()));
                     }
                     else
                     {

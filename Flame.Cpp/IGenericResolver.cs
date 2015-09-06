@@ -33,14 +33,14 @@ namespace Flame.Cpp
             else if (Type.IsContainerType)
             {
                 var container = Type.AsContainerType();
-                var elemType = container.GetElementType();
+                var elemType = container.ElementType;
                 if (container.get_IsPointer())
                 {
                     return Resolver.ResolveType(elemType).MakePointerType(container.AsPointerType().PointerKind);
                 }
                 else if (container.get_IsVector())
                 {
-                    return Resolver.ResolveType(elemType).MakeVectorType(container.AsVectorType().GetDimensions());
+                    return Resolver.ResolveType(elemType).MakeVectorType(container.AsVectorType().Dimensions);
                 }
                 else
                 {
@@ -96,7 +96,7 @@ namespace Flame.Cpp
         public static IParameter ResolveParameter(this IGenericResolver Resolver, IParameter Parameter)
         {
             var descParam = new DescribedParameter(Parameter.Name, Resolver.ResolveType(Parameter.ParameterType));
-            foreach (var item in Parameter.GetAttributes())
+            foreach (var item in Parameter.Attributes)
             {
                 descParam.AddAttribute(item);
             }

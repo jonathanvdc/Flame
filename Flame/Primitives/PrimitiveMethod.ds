@@ -11,37 +11,29 @@ namespace Flame
         	{
         	    this.Attributes = new IAttribute[0];
         	}
-            public const this(set IType DeclaringType, set string Name, set bool IsConstructor, set IType ReturnType, set IParameter[] Parameters)
+            public const this(set IType DeclaringType, set string Name, set bool IsConstructor, set IType ReturnType, set [IParameter] Parameters)
             {
             	this.BaseMethods = new IMethod[0];
             	this.Attributes = new IAttribute[0];
             }
-            public const this(set IType DeclaringType, set string Name, set bool IsConstructor, set IType ReturnType, set IParameter[] Parameters, set IMethod[] BaseMethods)
+            public const this(set IType DeclaringType, set string Name, set bool IsConstructor, set IType ReturnType, set [IParameter] Parameters, set [IMethod] BaseMethods)
             {
             	this.Attributes = new IAttribute[0];
             }
 
             public string Name { const get; protected set; }
-            public IParameter[] Parameters { const get; protected set; }
-            public IType ReturnType { const get; protected set; }
-            public IType DeclaringType { const get; protected set; }
+            public [IAttribute] Attributes { get; protected set; }
             public bool IsConstructor { const get; protected set; }
-            public IMethod[] BaseMethods { const get; protected set; }
 
-            public IParameter[] GetParameters()
-            {
-                return Parameters;
-            }
+            public IType DeclaringType { const get; protected set; }
 
-            public virtual IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments) : IMethod.Invoke
+            public IType ReturnType { const get; protected set; }
+            public [IParameter] Parameters { const get; protected set; }
+            public [IMethod] BaseMethods { const get; protected set; }
+
+            public virtual IBoundObject Invoke(IBoundObject Caller, [IBoundObject] Arguments) : IMethod.Invoke
             {
             	return null;
-                //throw new NotImplementedException();
-            }
-            
-            public const IMethod[] GetBaseMethods() : IMethod.GetBaseMethods
-            {
-            	return BaseMethods;
             }
 
             public bool IsStatic
@@ -54,41 +46,11 @@ namespace Flame
                 get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
             }
 
-			protected IAttribute[] Attributes;
-
-            public IEnumerable<IAttribute> GetAttributes()
-            {
-            	return (IEnumerable<IAttribute>)Attributes;
-            }
-
             #region Generics
 
-            public IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
+            public [IGenericParameter] GenericParameters
             {
-                /*if (TypeArguments.Count() == 0)
-                {*/
-                    return this;
-                /*}
-                else
-                {
-                	return null;
-                    //throw new InvalidOperationException();
-                }*/
-            }
-
-            public IMethod GetGenericDeclaration()
-            {
-                return this;
-            }
-
-            public IEnumerable<IGenericParameter> GetGenericParameters()
-            {
-                return new IGenericParameter[0];
-            }
-
-            public IEnumerable<IType> GetGenericArguments()
-            {
-                return new IType[0];
+                get { return new IGenericParameter[0]; }
             }
 
             #endregion

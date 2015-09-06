@@ -9,15 +9,15 @@ namespace Flame.Cecil
 {
     public static class CecilOperatorExtensions
     {
-        public static ICodeBlock EmitOperatorCall(this ICodeGenerator CodeGenerator, IMethod Operator, params ICodeBlock[] Arguments)
+        public static ICodeBlock EmitOperatorCall(this ICodeGenerator CodeGenerator, IMethod OperatorMethod, params ICodeBlock[] Arguments)
         {
-            if (Operator.GetParameters().Length == Arguments.Length)
+            if (OperatorMethod.GetParameters().Length == Arguments.Length)
             {
-                return CodeGenerator.EmitInvocation(CodeGenerator.EmitMethod(Operator, null), Arguments);
+                return CodeGenerator.EmitInvocation(CodeGenerator.EmitMethod(OperatorMethod, null, Operator.GetDelegate), Arguments);
             }
             else
             {
-                return CodeGenerator.EmitInvocation(CodeGenerator.EmitMethod(Operator, Arguments[0]), Arguments.Skip(1));
+                return CodeGenerator.EmitInvocation(CodeGenerator.EmitMethod(OperatorMethod, Arguments[0], OperatorMethod.get_IsVirtual() ? Operator.GetVirtualDelegate : Operator.GetDelegate), Arguments.Skip(1));
             }
         }
     }

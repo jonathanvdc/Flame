@@ -90,7 +90,7 @@ namespace Flame.Recompilation
 
         private static bool HasExternalAttribute(IMember Member)
         {
-            return Member.GetAttributes().Any(item => item.AttributeType.FullName == "Flame.RT.ExternalAttribute");
+            return Member.Attributes.Any(item => item.AttributeType.FullName == "Flame.RT.ExternalAttribute");
         }
 
         public bool IsExternal(IAssembly Assembly)
@@ -126,20 +126,25 @@ namespace Flame.Recompilation
             {
                 return false;
             }
-            else if (Type.IsContainerType)
+            else if (Type.get_IsContainerType())
             {
-                return IsExternal(Type.AsContainerType().GetElementType());
+                return IsExternal(Type.AsContainerType().ElementType);
             }
             else if (Type.get_IsGenericParameter())
             {
                 var declMember = ((IGenericParameter)Type).DeclaringMember;
                 return IsExternal(declMember);
             }
-            if (Type.get_IsGenericInstance())
+            else if (Type.get_IsGenericInstance())
             {
                 return IsExternal(Type.GetGenericDeclaration()) && Type.GetGenericArguments().All(IsExternal);
             }
-            if (HasExternalAttribute(Type))
+            else if (Type.get_IsDelegate())
+            {
+                var method = MethodType.GetMethod(Type);
+                return IsExternal(method.ReturnType) && method.Parameters.GetTypes().All(IsExternal);
+            }
+            else if (HasExternalAttribute(Type))
             {
                 return true;
             }
@@ -221,7 +226,7 @@ namespace Flame.Recompilation
             {
                 return false;
             }
-            else if (HasExternalAttribute(Type) || Type.IsContainerType)
+            else if (HasExternalAttribute(Type) || Type.get_IsContainerType())
             {
                 return true;
             }
@@ -332,7 +337,7 @@ namespace Flame.Recompilation
 
         private MemberCreationResult<IType> GetNewType(IType SourceType)
         {
-            if (SourceType.get_IsDelegate() && !SourceType.get_IsGenericInstance())
+            if (SourceType.get_IsDelegate())
             {
                 return new MemberCreationResult<IType>(MethodType.Create(GetMethod(MethodType.GetMethod(SourceType))));
             }
@@ -346,13 +351,13 @@ namespace Flame.Recompilation
             {
                 return new MemberCreationResult<IType>(SourceType);
             }
-            else if (SourceType.IsContainerType)
+            else if (SourceType.get_IsContainerType())
             {
                 var containerType = SourceType.AsContainerType();
-                var recompiledElemType = GetType(containerType.GetElementType());
+                var recompiledElemType = GetType(containerType.ElementType);
                 if (SourceType.get_IsVector())
                 {
-                    return new MemberCreationResult<IType>(recompiledElemType.MakeVectorType(containerType.AsVectorType().GetDimensions()));
+                    return new MemberCreationResult<IType>(recompiledElemType.MakeVectorType(containerType.AsVectorType().Dimensions));
                 }
                 else if (SourceType.get_IsPointer())
                 {
@@ -369,17 +374,15 @@ namespace Flame.Recompilation
             }
             else if (SourceType.get_IsRecursiveGenericInstance())
             {
-                var genericDecl = SourceType.GetRecursiveGenericDeclaration();
-                var recompiledGenericDecl = GetType(genericDecl);
-                var genericArgs = SourceType.GetRecursiveGenericArguments();
-                var recompiledGenericArgs = GetTypes(genericArgs);
+                var recompiledGenericDecl = GetType(SourceType.GetRecursiveGenericDeclaration());
+                var recompiledGenericArgs = GetTypes(SourceType.GetRecursiveGenericArguments());
                 return new MemberCreationResult<IType>(recompiledGenericDecl.MakeRecursiveGenericType(recompiledGenericArgs));
             }
             else if (SourceType.get_IsGenericParameter())
             {
                 var declType = ((IGenericParameter)SourceType).DeclaringMember;
                 var recompiledDeclType = (IGenericMember)GetMember(declType);
-                return new MemberCreationResult<IType>(recompiledDeclType.GetGenericParameters().Single((item) => item.Name == SourceType.Name));
+                return new MemberCreationResult<IType>(recompiledDeclType.GenericParameters.Single((item) => item.Name == SourceType.Name));
             }
             else
             {
@@ -408,7 +411,7 @@ namespace Flame.Recompilation
         {
             return TypeCache.Get(SourceType);
         }
-        public IType[] GetTypes(IEnumerable<IType> SourceTypes)
+        public IEnumerable<IType> GetTypes(IEnumerable<IType> SourceTypes)
         {
             return TypeCache.GetMany(SourceTypes);
         }
@@ -449,6 +452,34 @@ namespace Flame.Recompilation
 
         #endregion
 
+        #region GetGenericResolver
+
+        /// <summary>
+        /// Gets a generic type resolver for the given type, which
+        /// must either be a generic resolver itself, or a generic type
+        /// instance.
+        /// </summary>
+        /// <param name="Type"></param>
+        /// <returns></returns>
+        private static IGenericResolver GetGenericResolver(IType Type)
+        {
+            if (Type is IGenericResolver)
+            {
+                return (IGenericResolver)Type;
+            }
+            else if (Type is GenericTypeBase)
+            {
+                return ((GenericTypeBase)Type).Resolver;
+            }
+            else
+            {
+                throw new InvalidOperationException("Could not get a generic type resolver for type '" + Type.FullName + 
+                                                    "' because it is neither a generic resolver nor a generic instance type.");
+            }
+        }
+
+        #endregion
+
         #region Fields
 
         public IField GetField(IField SourceField)
@@ -464,11 +495,11 @@ namespace Flame.Recompilation
             }
             else
             {
-                if (SourceField.DeclaringType.get_IsRecursiveGenericInstance())
+                if (SourceField is GenericInstanceField)
                 {
-                    var recompGenericField = GetField(SourceField.DeclaringType.GetRecursiveGenericDeclaration().GetField(SourceField.Name, SourceField.IsStatic));
-                    var recompDeclType = recompGenericField.DeclaringType.MakeRecursiveGenericType(GetTypes(SourceField.DeclaringType.GetRecursiveGenericArguments()));
-                    return new MemberCreationResult<IField>(recompDeclType.GetField(recompGenericField.Name, recompGenericField.IsStatic));
+                    var recompGenericField = GetField(SourceField.GetRecursiveGenericDeclaration());
+                    var recompDeclType = GetType(SourceField.DeclaringType);
+                    return new MemberCreationResult<IField>(new GenericInstanceField(recompGenericField, GetGenericResolver(recompDeclType), recompDeclType));
                 }
                 else if (IsExternalStrict(SourceField))
                 {
@@ -486,44 +517,6 @@ namespace Flame.Recompilation
         #endregion
 
         #region Properties
-
-        #region GetGenericTypeProperty
-
-        private static IProperty GetGenericTypeProperty(IProperty SourceProperty)
-        {
-            var genericDeclType = SourceProperty.DeclaringType.GetRecursiveGenericDeclaration();
-            var indexParams = SourceProperty.GetIndexerParameters();
-            var converter = CreateGenericParameterConverter(genericDeclType, SourceProperty.DeclaringType);
-            if (SourceProperty.get_IsIndexer())
-            {
-                return genericDeclType.GetProperties().Single((item) => item.get_IsIndexer() && CompareGenericMethodParameters(item.GetIndexerParameters(), indexParams, converter));
-            }
-            else
-            {
-                return genericDeclType.GetProperties().Single((item) => item.Name == SourceProperty.Name && item.IsStatic == SourceProperty.IsStatic && CompareGenericMethodParameters(item.GetIndexerParameters(), indexParams, converter));
-            }
-        }
-
-        #endregion
-
-        #region GetSpecificTypeProperty
-
-        private static IProperty GetSpecificTypeProperty(IType SpecificType, IProperty GenericProperty)
-        {
-            var indexParams = GenericProperty.GetIndexerParameters();
-            var properties = SpecificType.GetProperties();
-            var converter = CreateGenericParameterConverter(GenericProperty.DeclaringType, SpecificType);
-            if (GenericProperty.get_IsIndexer())
-            {
-                return properties.Single((item) => item.get_IsIndexer() && CompareGenericMethodParameters(indexParams, item.GetIndexerParameters(), converter));
-            }
-            else
-            {
-                return properties.Single((item) => item.Name == GenericProperty.Name && item.IsStatic == GenericProperty.IsStatic && CompareGenericMethodParameters(indexParams, item.GetIndexerParameters(), converter));
-            }
-        }
-
-        #endregion
 
         public IProperty GetProperty(IProperty SourceProperty)
         {
@@ -543,11 +536,11 @@ namespace Flame.Recompilation
             }
             else
             {
-                if (SourceProperty.DeclaringType.get_IsRecursiveGenericInstance())
+                if (SourceProperty is GenericInstanceProperty)
                 {
-                    var recompGenericProperty = GetProperty(GetGenericTypeProperty(SourceProperty));
-                    var recompDeclType = recompGenericProperty.DeclaringType.MakeRecursiveGenericType(GetTypes(SourceProperty.DeclaringType.GetRecursiveGenericArguments()));
-                    return new MemberCreationResult<IProperty>(GetSpecificTypeProperty(recompDeclType, recompGenericProperty));
+                    var recompGenericProperty = GetProperty(SourceProperty.GetRecursiveGenericDeclaration());
+                    var recompDeclType = GetType(SourceProperty.DeclaringType);
+                    return new MemberCreationResult<IProperty>(new GenericInstanceProperty(recompGenericProperty, GetGenericResolver(recompDeclType), recompDeclType));
                 }
                 else if (IsExternalStrict(SourceProperty))
                 {
@@ -555,11 +548,11 @@ namespace Flame.Recompilation
                     IProperty result;
                     if (SourceProperty.get_IsIndexer())
                     {
-                        result = recompDeclType.GetIndexer(SourceProperty.IsStatic, GetTypes(SourceProperty.GetIndexerParameters().GetTypes()));
+                        result = recompDeclType.GetIndexer(SourceProperty.IsStatic, GetTypes(SourceProperty.IndexerParameters.GetTypes()));
                     }
                     else
                     {
-                        result = recompDeclType.GetProperties().GetProperty(SourceProperty.Name, SourceProperty.IsStatic, GetType(SourceProperty.PropertyType), GetTypes(SourceProperty.GetIndexerParameters().GetTypes()));
+                        result = recompDeclType.Properties.GetProperty(SourceProperty.Name, SourceProperty.IsStatic, GetType(SourceProperty.PropertyType), GetTypes(SourceProperty.IndexerParameters.GetTypes()).ToArray());
                     }
                     System.Diagnostics.Debug.Assert(result != null);
                     return new MemberCreationResult<IProperty>(result);
@@ -576,87 +569,14 @@ namespace Flame.Recompilation
 
         #region Methods
 
-        #region CreateGenericParameterConverter
-
-        private static IConverter<IType, IType> CreateGenericParameterConverter(IType GenericType, IType SpecificType)
-        {
-            /*var genMap = GenericType.GetGenericParameters()
-                .Zip(SpecificType.GetGenericArguments(), (a, b) => new KeyValuePair<IType, IType>(a, b))
-                .ToDictionary(item => item.Key, item => item.Value);
-
-            return new TypeMappingConverter(genMap);*/
-            return new GenericSubstitutionConverter(GenericType, SpecificType);
-        }
-
-        #endregion
-
-        #region CompareGenericTypeMethods
-
-        private static bool CompareGenericTypeMethods(IMethod GenericMethod, IMethod SpecificMethod)
-        {
-            if (SpecificMethod.IsConstructor == GenericMethod.IsConstructor && (SpecificMethod.IsConstructor || SpecificMethod.Name == GenericMethod.Name) && SpecificMethod.IsStatic == GenericMethod.IsStatic)
-            {
-                var genericParams = GenericMethod.GetParameters();
-                var specificParams = SpecificMethod.GetParameters();
-
-                var typeConv = CreateGenericParameterConverter(GenericMethod.DeclaringType, SpecificMethod.DeclaringType);
-
-                return CompareGenericMethodParameters(genericParams, specificParams, typeConv);
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        private static bool CompareGenericMethodParameters(IParameter[] genericParams, IParameter[] specificParams, IConverter<IType, IType> TypeConverter)
-        {
-            if (genericParams.Length != specificParams.Length)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < genericParams.Length; i++)
-            {
-                var converted = TypeConverter.Convert(genericParams[i].ParameterType);
-                if (!converted.Equals(specificParams[i].ParameterType))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        #endregion
-
-        #region GetGenericTypeMethod
-
-        private IMethod GetGenericTypeMethod(IMethod SourceMethod)
-        {
-            var genericDeclType = SourceMethod.DeclaringType.GetRecursiveGenericDeclaration();
-            IMethod[] methods;
-            if (SourceMethod.IsConstructor)
-            {
-                methods = genericDeclType.GetConstructors();
-            }
-            else
-            {
-                methods = genericDeclType.GetMethods();
-            }
-            return methods.Single((item) => CompareGenericTypeMethods(item, SourceMethod));
-        }
-
-        #endregion
-
         private MemberCreationResult<IMethod> GetNewAccessor(IAccessor SourceAccessor)
         {
-            if (SourceAccessor.DeclaringType.get_IsRecursiveGenericInstance())
+            if (SourceAccessor is GenericInstanceAccessor)
             {
-                var genericProperty = GetGenericTypeProperty(SourceAccessor.DeclaringProperty);
-                var genericAccessor = genericProperty.GetAccessor(SourceAccessor.AccessorType);
-                var recompDeclProperty = GetProperty(SourceAccessor.DeclaringProperty);
-                var recompGenericAccessor = GetMethod(genericAccessor);
-                return new MemberCreationResult<IMethod>(recompDeclProperty.GetAccessor(SourceAccessor.AccessorType));
+                var recompAccessor = GetAccessor((IAccessor)SourceAccessor.GetRecursiveGenericDeclaration());
+                var recompProperty = (GenericInstanceProperty)GetProperty(SourceAccessor.DeclaringProperty);
+
+                return new MemberCreationResult<IMethod>(new GenericInstanceAccessor(recompAccessor, recompProperty.Resolver, recompProperty));
             }
             else if (IsExternalStrict(SourceAccessor.DeclaringType))
             {
@@ -676,39 +596,35 @@ namespace Flame.Recompilation
             {
                 return new RecompiledMethodTemplate(this, SourceMethod);
             }
-
-            if (IsExternal(SourceMethod))
+            else if (IsExternal(SourceMethod))
             {
                 return new MemberCreationResult<IMethod>(SourceMethod);
             }
-
-            if (SourceMethod.get_IsGenericInstance())
+            else if (SourceMethod.get_IsGenericInstance())
             {
                 var recompiledGeneric = GetMethod(SourceMethod.GetGenericDeclaration());
                 var recompiledGenArgs = GetTypes(SourceMethod.GetGenericArguments());
                 return new MemberCreationResult<IMethod>(recompiledGeneric.MakeGenericMethod(recompiledGenArgs));
             }
-
-            if (SourceMethod is IAccessor)
+            else if (SourceMethod is IAccessor)
             {
                 return GetNewAccessor((IAccessor)SourceMethod);
             }
-
-            if (SourceMethod.DeclaringType.get_IsRecursiveGenericInstance())
+            else if (SourceMethod is GenericInstanceMethod)
             {
-                var recompGenericMethod = GetMethod(GetGenericTypeMethod(SourceMethod));
-                var recompDeclType = recompGenericMethod.DeclaringType.MakeRecursiveGenericType(GetTypes(SourceMethod.DeclaringType.GetRecursiveGenericArguments()));
-                var recompMethods = recompDeclType.GetMethods().Concat(recompDeclType.GetConstructors());
-                return new MemberCreationResult<IMethod>(recompMethods.Single((item) => CompareGenericTypeMethods(recompGenericMethod, item)));
+                var recompGenericMethod = GetMethod(SourceMethod.GetRecursiveGenericDeclaration());
+                var recompDeclType = GetType(SourceMethod.DeclaringType);
+                return new MemberCreationResult<IMethod>(new GenericInstanceMethod(recompGenericMethod, GetGenericResolver(recompDeclType), recompDeclType));
             }
-
-            if (IsExternalStrict(SourceMethod))
+            else if (IsExternalStrict(SourceMethod))
             {
                 var recompDeclType = GetType(SourceMethod.DeclaringType);
                 return new MemberCreationResult<IMethod>(recompDeclType.GetMethod(SourceMethod.Name, SourceMethod.IsStatic, GetType(SourceMethod.ReturnType), GetTypes(SourceMethod.GetParameters().GetTypes())));
             }
-
-            return RecompileMethod(GetTypeBuilder(SourceMethod.DeclaringType), SourceMethod);
+            else
+            {
+                return RecompileMethod(GetTypeBuilder(SourceMethod.DeclaringType), SourceMethod);
+            }
         }
 
         public IMethod GetMethod(IMethod SourceMethod)
@@ -719,6 +635,11 @@ namespace Flame.Recompilation
         public IMethod[] GetMethods(IMethod[] SourceMethods)
         {
             return MethodCache.GetMany(SourceMethods);
+        }
+
+        public IAccessor GetAccessor(IAccessor SourceAccessor)
+        {
+            return (IAccessor)GetMethod(SourceAccessor);
         }
 
         public IAccessor[] GetAccessors(IAccessor[] SourceAccessors)
@@ -807,31 +728,31 @@ namespace Flame.Recompilation
             }
             var typeTemplate = RecompiledTypeTemplate.GetRecompilerTemplate(this, SourceType);
             var type = DeclaringNamespace.DeclareType(typeTemplate);
-            return new MemberCreationResult<IType>(type, (tgt, src) => 
-            { 
-                typeMetadata[tgt] = new RandomAccessOptions(); 
-                RecompileInvariants((ITypeBuilder)tgt, src); 
+            return new MemberCreationResult<IType>(type, (tgt, src) =>
+            {
+                typeMetadata[tgt] = new RandomAccessOptions();
+                RecompileInvariants((ITypeBuilder)tgt, src);
             });
         }
 
         private void RecompileEntireType(IType Type)
         {
             var recompType = GetType(Type);
-            foreach (var item in Type.GetFields().Concat<ITypeMember>(Type.GetMethods()).Concat(Type.GetConstructors()))
+            foreach (var item in Type.Fields.Concat<ITypeMember>(Type.Methods))
             {
                 GetMember(item);
             }
-            foreach (var item in Type.GetProperties())
+            foreach (var item in Type.Properties)
             {
                 GetProperty(item);
-                foreach (var accessor in item.GetAccessors())
+                foreach (var accessor in item.Accessors)
                 {
                     GetMethod(accessor);
                 }
             }
             if (Type is INamespace)
             {
-                foreach (var item in ((INamespace)Type).GetTypes())
+                foreach (var item in ((INamespace)Type).Types)
                 {
                     RecompileEntireType(item);
                 }
@@ -1078,7 +999,7 @@ namespace Flame.Recompilation
         #endregion
 
         #region IBodyPassEnvironment Implementation
-        
+
         /// <summary>
         /// Tries to retrieve the method body of the given method. If this cannot be
         /// done, null is returned.

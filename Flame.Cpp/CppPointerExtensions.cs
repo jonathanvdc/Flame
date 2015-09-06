@@ -25,7 +25,7 @@ namespace Flame.Cpp
         {
             if (Type.IsAtAddressPointer())
             {
-                return Type.AsContainerType().GetElementType().RemoveAtAddressPointers();
+                return Type.AsContainerType().ElementType.RemoveAtAddressPointers();
             }
             else
             {

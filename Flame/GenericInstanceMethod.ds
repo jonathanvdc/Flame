@@ -1,0 +1,74 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Build;
+
+namespace Flame
+{
+    /// <summary>
+    /// Defines a method belonging to a generic type instantiation.
+    /// </summary>
+	public virtual class GenericInstanceMethod : GenericMethodBase, IEquatable<IMethod>
+	{
+        /// <summary>
+        /// Creates a generic type method instantiation from the given method,
+        /// resolver and declaring type.
+        /// </summary>
+		public const this(IMethod Declaration, set IGenericResolver resolver, set IType declaringType)
+            : base(Declaration);
+
+        /// <summary>
+        /// Creates a generic type method instantiation from the given method and
+        /// declaring type.
+        /// </summary>
+		public const this(IMethod Declaration, IGenericResolverType DeclaringType)
+            : base(Declaration)
+		{
+            this.resolver = DeclaringType;
+			this.declaringType = DeclaringType;
+		}
+
+        private IGenericResolver resolver;
+        private IType declaringType;
+
+		public override IGenericResolver Resolver { const get { return resolver; } }
+		public override IType DeclaringType { const get { return declaringType; } }
+
+		public override string Name
+        {
+            const get { return Declaration.Name; }
+        }
+
+        #region Equality
+
+        public override const bool Equals(object Other)
+        {
+        	if (Other is IMethod)
+        		return Equals((IMethod)Other);
+        	else
+                return false;
+        }
+
+        public const bool Equals(IMethod Other)
+        {
+        	if (Other is GenericInstanceMethod)
+        		return Equals((GenericInstanceMethod)Other);
+            else
+        	   return false;
+        }
+
+        public const bool Equals(GenericInstanceMethod Other)
+        {
+        	return this.Declaration.Equals(Other.Declaration) &&
+                   this.DeclaringType.Equals(Other.DeclaringType);
+        }
+
+        public override const int GetHashCode()
+        {
+        	return DeclaringType.GetHashCode() ^ Declaration.GetHashCode();
+        }
+
+        #endregion
+	}
+}

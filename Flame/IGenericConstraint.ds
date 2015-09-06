@@ -15,17 +15,17 @@ namespace Flame
 		/// </summary>
 		const bool Satisfies(IType TypeArgument);
 	}
-	
+
 	public static class GenericConstraintExtensions
-	{	
+	{
 		/// <summary>
 		/// Extracts all required base types from this generic constraint.
 		/// </summary>
-		public static const IEnumerable<IType> ExtractBaseTypes(this IGenericConstraint Constraint)
+		public static const [IType] ExtractBaseTypes(this IGenericConstraint Constraint)
 		{
 			if (Constraint is TypeConstraint)
 			{
-				return (IEnumerable<IType>)new IType[] { ((TypeConstraint)Constraint).Type };
+				return new IType[] { ((TypeConstraint)Constraint).Type };
 			}
 			else if (Constraint is AndConstraint)
 			{
@@ -36,43 +36,35 @@ namespace Flame
 				return Enumerable.Empty<IType>();
 			}
 		}
-		
+
 		/// <summary>
 		/// Extracts all required base types from these generic constraints.
 		/// </summary>
-		public static const IEnumerable<IType> ExtractBaseTypes(this IEnumerable<IGenericConstraint> Constraints)
+		public static const [IType] ExtractBaseTypes(this [IGenericConstraint] Constraints)
 		{
-			List<IType> results = new List<IType>();
-			foreach (var item in Constraints)
-			{
-				results.AddRange(item.ExtractBaseTypes());
-			}
-			return results;
+			return Enumerable.Distinct<IType>(
+				       Enumerable.SelectMany<IGenericConstraint, IType>(
+					       Constraints,
+					       ExtractBaseTypes));
 		}
-		
+
 		/// <summary>
 		/// Gets a boolean value that indicates if the generic constraint requires a constraint of type 'T' to be met.
 		/// </summary>
 		public static bool HasConstraint<T>(this IGenericConstraint Constraint)
 		{
 			if (Constraint is AndConstraint)
-			{
 				return ((AndConstraint)Constraint).Constraints.HasConstraint<T>();
-			}
-			else return Constraint is T;
+			else
+				return Constraint is T;
 		}
-		
+
 		/// <summary>
 		/// Gets a boolean value that indicates if any of the given generic constraints require a constraint of type 'T' to be met.
 		/// </summary>
-		public static bool HasConstraint<T>(this IEnumerable<IGenericConstraint> Constraints)
+		public static bool HasConstraint<T>(this [IGenericConstraint] Constraints)
 		{
-			foreach (var item in Constraints)
-				if (item.HasConstraint<T>())
-			{
-				return true;
-			}
-			return false;
+			return Enumerable.Any<IGenericConstraint>(Constraints, HasConstraint<T>);
 		}
 	}
 }

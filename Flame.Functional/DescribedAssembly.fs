@@ -32,7 +32,7 @@ type DescribedAssembly(name : string, env : IEnvironment) as this =
     interface IAssembly with
         member this.Name = name
         member this.FullName = name
-        member this.GetAttributes() = this.Attributes
+        member this.Attributes = this.Attributes
 
         member this.AssemblyVersion = this.Version
         member this.CreateBinder() = this.Binder

@@ -58,10 +58,11 @@ namespace Flame.Compiler.Visitors
 
         private IVariable CaptureVariable(IVariable Variable, string Name, bool IsArgument)
         {
-            var descCaptField = new DescribedField(CreateFieldName(Name), Converter.Convert(Variable.Type), false);
+            var descCaptField = new DescribedField(CreateFieldName(Name), Type,
+                                                   Converter.Convert(Variable.Type),
+                                                   false);
             descCaptField.AddAttribute(new AccessAttribute(AccessModifier.Private));
             descCaptField.AddAttribute(PrimitiveAttributes.HiddenAttribute);
-            descCaptField.DeclaringType = Type;
 
             var captField = Type.DeclareField(descCaptField);
             captField.Build();

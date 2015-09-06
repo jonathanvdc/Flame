@@ -1,0 +1,66 @@
+using System;
+
+namespace Flame.Build
+{
+    /// <summary>
+    /// Ancestry rules for type definitions.
+    /// </summary>
+    public static class DefinitionAncestryRules : IAncestryRules
+    {
+        public int GetAncestryDegree(IType First, IType Second)
+        {
+            if (First.Equals(Second))
+            {
+                return 0; // They are equivalent. Return zero to signal this.
+            }
+            else
+            {
+                // Try to find the shortest ancestry path from the left-hand operand
+                // to the right-hand operand.
+                int lowest = First.BaseTypes.GetLowestAncestryDegree(Second);
+                if (lowest >= 0)
+                {
+                    return lowest + 1;
+                }
+                else if (Second.IsRootType)
+                {
+                    // All types that do not have a root type in their
+                    // inheritance hierarchy are implicitly direct subtypes of
+                    // said root type.
+                    return 1;
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Defines ancestry rules for the `null` type. These rules state that
+    /// null is equivalent to itself and that null is a direct subtype of
+    /// every reference and pointer type.
+    /// </summary>
+    public static class NullAncestryRules : IAncestryRules
+    {
+        public int GetAncestryDegree(IType First, IType Second)
+        {
+            if (First.Equals(Second))
+            {
+                return 0; // They are equivalent. Return zero to signal this.
+            }
+            else if (First.Equals(PrimitiveTypes.Null) && (Second.IsReferenceType || Second.IsPointer))
+            {
+                // NOTE: the above condition assumes that null does not have any equivalent types.
+                //       That's not entirely unreasonable, though.
+
+                return 1; // Null is a direct subtype of all reference and pointer types.
+            }
+            else
+            {
+                return -1;
+            }
+        }
+    }
+}

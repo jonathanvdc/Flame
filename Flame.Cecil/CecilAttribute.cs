@@ -55,7 +55,7 @@ namespace Flame.Cecil
                         var property = clrType.GetProperty(item.Name);
                         property.SetValue(clrType, item.Argument);
                     }
-                    return new CecilBoundObject(instance, importingModule.ConvertStrict(clrType));
+                    return new CecilBoundObject(instance, importingModule.ConvertStrict(clrType), importingModule);
                 }
             }
         }
@@ -148,15 +148,15 @@ namespace Flame.Cecil
             }
             else if (Template.AttributeType.Equals(PrimitiveAttributes.Instance.ConstantAttribute.AttributeType))
             {
-                attrDef = new CustomAttribute(CecilMethodBase.ImportCecil(typeof(System.Diagnostics.Contracts.PureAttribute).GetConstructor(new Type[0]), ImportingMember).GetMethodReference());
+                attrDef = new CustomAttribute(((ICecilMethod)CecilMethodBase.ImportCecil(typeof(System.Diagnostics.Contracts.PureAttribute).GetConstructor(new Type[0]), ImportingMember)).GetMethodReference());
             }
             else if (Template.AttributeType.Equals(PrimitiveAttributes.Instance.ExtensionAttribute.AttributeType))
             {
-                attrDef = new CustomAttribute(CecilMethodBase.ImportCecil(typeof(System.Runtime.CompilerServices.ExtensionAttribute).GetConstructor(new Type[0]), ImportingMember).GetMethodReference());
+                attrDef = new CustomAttribute(((ICecilMethod)CecilMethodBase.ImportCecil(typeof(System.Runtime.CompilerServices.ExtensionAttribute).GetConstructor(new Type[0]), ImportingMember)).GetMethodReference());
             }
             else if (Template.AttributeType.Equals(PrimitiveAttributes.Instance.RecompileAttribute.AttributeType))
             {
-                attrDef = new CustomAttribute(CecilMethodBase.ImportCecil(typeof(Flame.RT.IncludeAttribute).GetConstructor(new Type[0]), ImportingMember).GetMethodReference());
+                attrDef = new CustomAttribute(((ICecilMethod)CecilMethodBase.ImportCecil(typeof(Flame.RT.IncludeAttribute).GetConstructor(new Type[0]), ImportingMember)).GetMethodReference());
             }
             else
             {
@@ -178,11 +178,11 @@ namespace Flame.Cecil
             CustomAttribute attrDef;
             if (Template.AttributeType.Equals(PrimitiveAttributes.Instance.ConstantAttribute.AttributeType))
             {
-                attrDef = new CustomAttribute(CecilMethodBase.ImportCecil(typeof(System.Diagnostics.Contracts.PureAttribute).GetConstructor(new Type[0]), Member).GetMethodReference());
+                attrDef = new CustomAttribute(((ICecilMethod)CecilMethodBase.ImportCecil(typeof(System.Diagnostics.Contracts.PureAttribute).GetConstructor(new Type[0]), Member)).GetMethodReference());
             }
             else if (Template.AttributeType.Equals(PrimitiveAttributes.Instance.ExtensionAttribute.AttributeType))
             {
-                attrDef = new CustomAttribute(CecilMethodBase.ImportCecil(typeof(System.Runtime.CompilerServices.ExtensionAttribute).GetConstructor(new Type[0]), Member).GetMethodReference());
+                attrDef = new CustomAttribute(((ICecilMethod)CecilMethodBase.ImportCecil(typeof(System.Runtime.CompilerServices.ExtensionAttribute).GetConstructor(new Type[0]), Member)).GetMethodReference());
             }
             else
             {

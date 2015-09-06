@@ -33,19 +33,14 @@ namespace Flame.MIPS
             return new SyscallBlock(CodeGenerator, this);
         }
 
-        public IMethod[] GetBaseMethods()
+        public IEnumerable<IMethod> BaseMethods
         {
-            return Template.GetBaseMethods();
+            get { return Template.BaseMethods; }
         }
 
-        public virtual IMethod GetGenericDeclaration()
+        public IEnumerable<IParameter> Parameters
         {
-            return this;
-        }
-
-        public IParameter[] GetParameters()
-        {
-            return Template.GetParameters();
+            get { return Template.Parameters; }
         }
 
         public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
@@ -56,11 +51,6 @@ namespace Flame.MIPS
         public bool IsConstructor
         {
             get { return Template.IsConstructor; }
-        }
-
-        public virtual IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
-        {
-            return this;
         }
 
         public IType ReturnType
@@ -78,9 +68,9 @@ namespace Flame.MIPS
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Template.GetAttributes();
+            get { return Template.Attributes; }
         }
 
         public string Name
@@ -88,14 +78,9 @@ namespace Flame.MIPS
             get { return Template.Name; }
         }
 
-        public virtual IEnumerable<IType> GetGenericArguments()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return Template.GetGenericArguments();
-        }
-
-        public virtual IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return Template.GetGenericParameters();
+            get { return Template.GenericParameters; }
         }
     }
 }

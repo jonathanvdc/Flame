@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Flame.Build
 {
@@ -10,7 +11,7 @@ namespace Flame.Build
 
 		protected virtual override const bool CompareDefault(IType First, IType Second)
 		{
-			return First.Equals(Second);
+			return First.IsEquivalent(Second);
 		}
 
 		protected const bool All([bool] Values)
@@ -48,19 +49,30 @@ namespace Flame.Build
 			return ElementComparison && FirstRank == SecondRank;
 		}
 
-		protected virtual override const bool MakeVectorComparison(bool ElementComparison, int[] FirstDimensions, int[] SecondDimensions)
+		protected virtual override const bool MakeVectorComparison(bool ElementComparison, IReadOnlyList<int> FirstDimensions, IReadOnlyList<int> SecondDimensions)
 		{
-			if (!ElementComparison)
-				return false;
+			return ElementComparison &&
+				   Enumerable.SequenceEqual<int>(FirstDimensions, SecondDimensions);
+		}
 
-			if (FirstDimensions.Length != SecondDimensions.Length) return false;
-
-			foreach (var dim1 in FirstDimensions, var dim2 in SecondDimensions)
-				if (dim1 != dim2)
+		protected bool IsSubset([IType] Left, [IType] Right)
+		{
+			// Try to find an equivalent item in the right-hand set for every item
+			// in the left-hand set.
+			foreach (var src in Left)
 			{
-				return false;
+				bool found = false;
+				foreach (var tgt in Right)
+				{
+					if (Compare(src, tgt))
+					{
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+					return false;
 			}
-
 			return true;
 		}
 
@@ -69,7 +81,8 @@ namespace Flame.Build
             var firstInter = IntersectionType.GetIntersectedTypeSet(First, this);
             var otherInter = IntersectionType.GetIntersectedTypeSet(Second, this);
 
-            return firstInter.SetEquals(otherInter);
+			// Make sure these sets are equal.
+			return IsSubset(firstInter, otherInter) && IsSubset(otherInter, firstInter);
 		}
 
 		public const bool CompareAll(IType[] First, IType[] Second)
@@ -83,6 +96,12 @@ namespace Flame.Build
 				return false;
 			}
 			return true;
+		}
+
+		public const bool CompareAll([IType] First, [IType] Second)
+		{
+			return CompareAll(Enumerable.ToArray<IType>(First),
+							  Enumerable.ToArray<IType>(Second));
 		}
 
 		public const bool Equals(IType First, IType Second)
@@ -99,10 +118,8 @@ namespace Flame.Build
 	/// <summary>
 	/// A type equality comparer that assumes that type parameters with equal names are equal.
 	/// </summary>
-	public virtual class ScopedTypeEqualityComparer : TypeEqualityComparer
+	public static class ScopedTypeEqualityComparer : TypeEqualityComparer
 	{
-		public const this();
-
 		protected virtual override const bool CompareGenericParameters(IGenericParameter Left, IGenericParameter Right)
 		{
 			return Left.Name.Equals(Right.Name);

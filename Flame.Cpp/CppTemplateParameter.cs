@@ -25,20 +25,15 @@ namespace Flame.Cpp
         {
             get { return Template.Constraint; }
         }
-        
-        public IContainerType AsContainerType()
-        {
-            return null;
-        }
 
         public INamespace DeclaringNamespace
         {
             get { return null; }
         }
 
-        public IType[] GetBaseTypes()
+        public IEnumerable<IType> BaseTypes
         {
-            return Template.GetBaseTypes();
+            get { return Template.BaseTypes; }
         }
 
         public IBoundObject GetDefaultValue()
@@ -46,59 +41,19 @@ namespace Flame.Cpp
             return null;
         }
 
-        public IMethod[] GetConstructors()
+        public IEnumerable<IField> Fields
         {
-            return new IMethod[0];
+            get { return new IField[0]; }
         }
 
-        public IField[] GetFields()
+        public IEnumerable<IMethod> Methods
         {
-            return new IField[0];
+            get { return new IMethod[0]; }
         }
 
-        public IType GetGenericDeclaration()
+        public IEnumerable<IProperty> Properties
         {
-            return this;
-        }
-
-        public ITypeMember[] GetMembers()
-        {
-            return new ITypeMember[0];
-        }
-
-        public IMethod[] GetMethods()
-        {
-            return new IMethod[0];
-        }
-
-        public IProperty[] GetProperties()
-        {
-            return new IProperty[0];
-        }
-
-        public bool IsContainerType
-        {
-            get { return false; }
-        }
-
-        public IArrayType MakeArrayType(int Rank)
-        {
-            return new DescribedArrayType(this, Rank);
-        }
-
-        public IType MakeGenericType(IEnumerable<IType> TypeArguments)
-        {
-            return null;
-        }
-
-        public IPointerType MakePointerType(PointerKind PointerKind)
-        {
-            return new DescribedPointerType(this, PointerKind);
-        }
-
-        public IVectorType MakeVectorType(int[] Dimensions)
-        {
-            return new DescribedVectorType(this, Dimensions);
+            get { return new IProperty[0]; }
         }
 
         public string FullName
@@ -106,9 +61,9 @@ namespace Flame.Cpp
             get { return MemberExtensions.CombineNames(DeclaringMember.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Template.GetAttributes();
+            get { return Template.Attributes; }
         }
 
         public string Name
@@ -116,31 +71,16 @@ namespace Flame.Cpp
             get { return Template.Name; }
         }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return new IType[0];
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return new IGenericParameter[0];
-        }
-
-        public bool IsAssignable(IType Type)
-        {
-            return Template.IsAssignable(Type);
-        }
-
-        public IType ParameterType
-        {
-            get { return null; }
+            get { return Enumerable.Empty<IGenericParameter>(); }
         }
 
         #region ICppMember Implementation
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get { return GetBaseTypes().GetDependencies(this, DeclaringMember); }
+            get { return BaseTypes.GetDependencies(this, DeclaringMember); }
         }
 
         public CodeBuilder GetHeaderCode()
@@ -162,5 +102,10 @@ namespace Flame.Cpp
         }
 
         #endregion
+
+        public IAncestryRules AncestryRules
+        {
+            get { return DefinitionAncestryRules.Instance; }
+        }
     }
 }

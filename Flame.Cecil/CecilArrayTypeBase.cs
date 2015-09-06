@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using Flame.Build;
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,28 +14,28 @@ namespace Flame.Cecil
             : base(ElementType)
         {
         }
-        public CecilArrayTypeBase(ICecilType ElementType, CecilModule Module)
+        public CecilArrayTypeBase(IType ElementType, CecilModule Module)
             : base(ElementType, Module)
         {
         }
 
         public static TypeReference CreateArrayReference(TypeReference ElementType, int ArrayRank)
         {
-            return new ArrayType(ElementType, ArrayRank);
+            return new Mono.Cecil.ArrayType(ElementType, ArrayRank);
         }
 
         public abstract int GetArrayRank();
 
         public override TypeReference GetTypeReference()
         {
-            return CreateArrayReference(ElementType.GetTypeReference(), GetArrayRank());
+            return CreateArrayReference(CecilTypeImporter.Import(Module, ElementType), GetArrayRank());
         }
 
         public ICecilType ArrayType
         {
             get
             {
-                return CecilTypeBase.ImportCecil<Array>(this);
+                return (ICecilType)CecilTypeBase.ImportCecil<Array>(this);
             }
         }
 
@@ -43,52 +44,40 @@ namespace Flame.Cecil
             return CecilTypeBase.ImportCecil(type, this).MakeGenericType(new IType[] { ElementType });
         }
 
-        public override IType[] GetBaseTypes()
+        public override IEnumerable<IType> BaseTypes
         {
-            if (GetArrayRank() == 1)
+            get
             {
-                return new IType[]
-                { 
-                    ArrayType,
-                    CreateGenericBaseInterface(typeof(System.Collections.Generic.IList<>)),
-                    CreateGenericBaseInterface(typeof(System.Collections.Generic.ICollection<>)),
-                    CreateGenericBaseInterface(typeof(System.Collections.Generic.IEnumerable<>)),
-                    CreateGenericBaseInterface(typeof(System.Collections.Generic.IReadOnlyList<>)),
-                    CreateGenericBaseInterface(typeof(System.Collections.Generic.IReadOnlyCollection<>))
-                };
-            }
-            else
-            {
-                return new IType[]
+                if (GetArrayRank() == 1)
                 {
-                    ArrayType
-                };
+                    return new IType[]
+                    { 
+                        ArrayType,
+                        CreateGenericBaseInterface(typeof(System.Collections.Generic.IList<>)),
+                        CreateGenericBaseInterface(typeof(System.Collections.Generic.ICollection<>)),
+                        CreateGenericBaseInterface(typeof(System.Collections.Generic.IEnumerable<>)),
+                        CreateGenericBaseInterface(typeof(System.Collections.Generic.IReadOnlyList<>)),
+                        CreateGenericBaseInterface(typeof(System.Collections.Generic.IReadOnlyCollection<>))
+                    };
+                }
+                else
+                {
+                    return new IType[]
+                    {
+                        ArrayType
+                    };
+                }
             }
         }
 
         protected override IEnumerable<IAttribute> GetMemberAttributes()
         {
-            return CecilTypeBase.Import<Array>(this).GetAttributes();
+            return CecilTypeBase.Import<Array>(this).Attributes;
         }
 
         protected override IList<CustomAttribute> GetCustomAttributes()
         {
             return new CustomAttribute[0];
-        }
-
-        public override ContainerTypeKind ContainerKind
-        {
-            get
-            {
-                if (this is IVectorType)
-                {
-                    return ContainerTypeKind.Vector;
-                }
-                else
-                {
-                    return ContainerTypeKind.Array;
-                }
-            }
         }
 
         public override IBoundObject GetDefaultValue()
@@ -118,7 +107,7 @@ namespace Flame.Cecil
 
         protected override bool ContainerEquals(IContainerType other)
         {
-            return (other.get_IsArray() && other.AsArrayType().ArrayRank == GetArrayRank()) || (other.get_IsVector() && other.AsVectorType().GetDimensions().Length == GetArrayRank());
+            return (other.get_IsArray() && other.AsArrayType().ArrayRank == GetArrayRank()) || (other.get_IsVector() && other.AsVectorType().Dimensions.Count == GetArrayRank());
         }
 
         private string AppendArraySuffix(string Name)

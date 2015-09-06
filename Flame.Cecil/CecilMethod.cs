@@ -10,7 +10,7 @@ namespace Flame.Cecil
     public class CecilMethod : CecilMethodBase, ICecilMethod
     {
         public CecilMethod(MethodReference Method, CecilModule Module)
-            : this(Module.ConvertStrict(Method.DeclaringType), Method)
+            : this((ICecilType)Module.ConvertStrict(Method.DeclaringType), Method)
         {
         }
         public CecilMethod(ICecilType DeclaringType, MethodReference Method)
@@ -29,11 +29,6 @@ namespace Flame.Cecil
         public MethodDefinition GetResolvedMethod()
         {
             return Method.Resolve();
-        }
-
-        public override IMethod GetGenericDeclaration()
-        {
-            return this;
         }
 
         public override bool IsStatic
@@ -116,7 +111,7 @@ namespace Flame.Cecil
             {
                 overrides.Add(Module.Convert(cecilOverrides[i]));
             }
-            foreach (var bType in DeclaringType.GetBaseTypes())
+            foreach (var bType in DeclaringType.BaseTypes)
             {
                 foreach (var item in bType.GetAllMethods())
                 {
@@ -142,14 +137,9 @@ namespace Flame.Cecil
         }
 
         private Lazy<IMethod[]> baseMethods;
-        public override IMethod[] GetBaseMethods()
+        public override IEnumerable<IMethod> BaseMethods
         {
-            return baseMethods.Value;
-        }
-
-        public override IEnumerable<IType> GetGenericArguments()
-        {
-            return Enumerable.Empty<IType>();
+            get { return baseMethods.Value; }
         }
     }
 }

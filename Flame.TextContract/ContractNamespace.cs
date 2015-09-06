@@ -26,19 +26,19 @@ namespace Flame.TextContract
         private List<ContractNamespace> namespaces;
         private List<ContractType> types;
 
-        public IEnumerable<INamespaceBranch> GetNamespaces()
+        public IEnumerable<INamespaceBranch> Namespaces
         {
-            return namespaces;
+            get { return namespaces; }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return new IAttribute[0];
+            get { return new IAttribute[0]; }
         }
 
-        public IType[] GetTypes()
+        public IEnumerable<IType> Types
         {
-            return types.ToArray();
+            get { return types; }
         }
 
         public INamespaceBuilder DeclareNamespace(string Name)

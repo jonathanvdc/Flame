@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,52 +12,46 @@ namespace Flame.Cecil
         public CecilTypeSystem(CecilModule Module)
         {
             this.Module = Module;
-            this.multicastDelegate = new Lazy<ICecilType>(() => CecilType.ImportCecil<MulticastDelegate>(Module));
-            this.objectType = new Lazy<ICecilType>(() => Module.ConvertStrict(Module.Module.TypeSystem.Object));
-            this.enumerableType = new Lazy<ICecilType>(() => Module.ConvertStrict(typeof(IEnumerable<>)));
-            this.enumeratorType = new Lazy<ICecilType>(() => Module.ConvertStrict(typeof(IEnumerator<>)));
-            this.funcDelegates = new Dictionary<int, ICecilType>();
-            this.actionDelegates = new Dictionary<int, ICecilType>();
-            this.canonicalDelegates = new Dictionary<DelegateSignature, ICecilType>();            
+            this.multicastDelegate = new Lazy<IType>(() => CecilType.ImportCecil<MulticastDelegate>(Module));
+            this.objectType = new Lazy<IType>(() => Module.ConvertStrict(Module.Module.TypeSystem.Object));
+            this.enumerableType = new Lazy<IType>(() => Module.ConvertStrict(typeof(IEnumerable<>)));
+            this.enumeratorType = new Lazy<IType>(() => Module.ConvertStrict(typeof(IEnumerator<>)));
+            this.funcDelegates = new Dictionary<int, IType>();
+            this.actionDelegates = new Dictionary<int, IType>();
+            this.canonicalDelegates = new ConcurrentDictionary<DelegateSignature, IType>();            
         }
 
         public CecilModule Module { get; private set; }
 
-        private Lazy<ICecilType> multicastDelegate;
-        private Lazy<ICecilType> objectType;
-        private Lazy<ICecilType> enumerableType;
-        private Lazy<ICecilType> enumeratorType;
+        private Lazy<IType> multicastDelegate;
+        private Lazy<IType> objectType;
+        private Lazy<IType> enumerableType;
+        private Lazy<IType> enumeratorType;
 
-        public ICecilType MulticastDelegate { get { return multicastDelegate.Value; } }
-        public ICecilType Object { get { return objectType.Value; } }
-        public ICecilType Enumerable { get { return enumerableType.Value; } }
-        public ICecilType Enumerator { get { return enumeratorType.Value; } }
+        public IType MulticastDelegate { get { return multicastDelegate.Value; } }
+        public IType Object { get { return objectType.Value; } }
+        public IType Enumerable { get { return enumerableType.Value; } }
+        public IType Enumerator { get { return enumeratorType.Value; } }
 
-        private Dictionary<int, ICecilType> funcDelegates;
-        private Dictionary<int, ICecilType> actionDelegates;
-        private Dictionary<DelegateSignature, ICecilType> canonicalDelegates;
+        private Dictionary<int, IType> funcDelegates;
+        private Dictionary<int, IType> actionDelegates;
+        private ConcurrentDictionary<DelegateSignature, IType> canonicalDelegates;
 
-        public ICecilType GetCanonicalDelegate(IMethod Signature)
+        public IType GetCanonicalDelegate(IMethod Signature)
         {
             var sig = new DelegateSignature(Signature.ReturnType, Signature.GetParameters().GetTypes());
-            if (!canonicalDelegates.ContainsKey(sig))
-            {
-                var deleg = GetCanonicalDelegateCore(sig);
-                canonicalDelegates[sig] = deleg;
-                return deleg;
-            }
-            return canonicalDelegates[sig];
+            return canonicalDelegates.GetOrAdd(sig, GetCanonicalDelegateCore);
         }
 
-        private ICecilType GetCanonicalDelegateCore(DelegateSignature Signature)
+        private IType GetCanonicalDelegateCore(DelegateSignature Signature)
         {
             if (Signature.ReturnType == null || Signature.ReturnType.Equals(PrimitiveTypes.Void))
             {
-                return (ICecilType)GetActionDelegate(Signature.ParameterTypes.Length).MakeGenericType(Signature.ParameterTypes);
+                return GetActionDelegate(Signature.ParameterTypes.Length).MakeGenericType(Signature.ParameterTypes);
             }
             else
             {
-                return (ICecilType)GetFuncDelegate(Signature.ParameterTypes.Length).MakeGenericType(Signature.ParameterTypes.Concat(new IType[] { Signature.ReturnType }));
+                return GetFuncDelegate(Signature.ParameterTypes.Length).MakeGenericType(Signature.ParameterTypes.Concat(new IType[] { Signature.ReturnType }));
             }
         }
 
@@ -154,7 +149,7 @@ namespace Flame.Cecil
 
         #endregion
 
-        private ICecilType GetActionDelegate(int ParameterCount)
+        private IType GetActionDelegate(int ParameterCount)
         {
             if (actionDelegates.ContainsKey(ParameterCount))
             {
@@ -168,7 +163,7 @@ namespace Flame.Cecil
             }
         }
 
-        private ICecilType GetFuncDelegate(int ParameterCount)
+        private IType GetFuncDelegate(int ParameterCount)
         {
             if (funcDelegates.ContainsKey(ParameterCount))
             {

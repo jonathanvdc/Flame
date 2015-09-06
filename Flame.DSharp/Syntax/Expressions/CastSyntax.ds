@@ -112,11 +112,7 @@ namespace Flame.Syntax.DSharp
         public static const IExpression CreateImplicitCast(ISyntaxState State, IExpression expr, ISyntaxNode Value, IType TargetType)
         {
         	var valType = expr.Type;
-        	if (!ConversionExpression.RequiresConversion(valType, TargetType))
-        	{
-        		return expr;
-        	}
-        	else if (CastSyntax.UseImplicitCast(State, valType, TargetType))
+        	if (CastSyntax.UseImplicitCast(State, valType, TargetType))
         	{
         		return ConversionExpression.Create(expr, TargetType);
         	}
@@ -148,9 +144,9 @@ namespace Flame.Syntax.DSharp
         	}
         	else if (SourceType.IsVector && TargetType.IsArray)
         	{
-        		return SourceType.AsContainerType().GetElementType().Is(
-                            TargetType.AsContainerType().GetElementType()) &&
-                       SourceType.AsContainerType().AsVectorType().GetDimensions().Length ==
+        		return SourceType.AsContainerType().ElementType.Is(
+                            TargetType.AsContainerType().ElementType) &&
+                       SourceType.AsContainerType().AsVectorType().Dimensions.Count ==
                             TargetType.AsContainerType().AsArrayType().ArrayRank;
         	}
         	if (SourceType.IsPointer && TargetType.IsPointer)
@@ -195,7 +191,7 @@ namespace Flame.Syntax.DSharp
         	{
         		if (!TargetType.IsGeneric)
         			return true;
-        		return SourceType.AsContainerType().GetElementType().Is(Enumerable.First<IType>(TargetType.GetGenericArguments()));
+        		return SourceType.AsContainerType().ElementType.Is(Enumerable.First<IType>(TargetType.GetGenericArguments()));
         	}
         	return false;
         }

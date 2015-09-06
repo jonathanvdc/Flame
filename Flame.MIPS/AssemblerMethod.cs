@@ -51,7 +51,7 @@ namespace Flame.MIPS
             cb.Append(" ");
             cb.Append(Name);
             cb.Append("(");
-            var parameters = GetParameters();
+            var parameters = this.GetParameters();
             for (int i = 0; i < parameters.Length; i++)
             {
                 if (i > 0)
@@ -71,9 +71,9 @@ namespace Flame.MIPS
 
         #region IMethod Implementation
 
-        public IMethod[] GetBaseMethods()
+        public IEnumerable<IMethod> BaseMethods
         {
-            return Template.GetBaseMethods();
+            get { return Template.BaseMethods; }
         }
 
         public IMethod GetGenericDeclaration()
@@ -81,9 +81,9 @@ namespace Flame.MIPS
             return this;
         }
 
-        public IParameter[] GetParameters()
+        public IEnumerable<IParameter> Parameters
         {
-            return Template.GetParameters();
+            get { return Template.Parameters; }
         }
 
         public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
@@ -94,11 +94,6 @@ namespace Flame.MIPS
         public bool IsConstructor
         {
             get { return Template.IsConstructor; }
-        }
-
-        public IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
-        {
-            throw new InvalidOperationException();
         }
 
         public IType ReturnType
@@ -116,9 +111,9 @@ namespace Flame.MIPS
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Template.GetAttributes();
+            get { return Template.Attributes; }
         }
 
         public string Name
@@ -126,14 +121,9 @@ namespace Flame.MIPS
             get { return Template.Name; }
         }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return new IType[0];
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return new IGenericParameter[0];
+            get { return new IGenericParameter[0]; }
         }
 
         #endregion

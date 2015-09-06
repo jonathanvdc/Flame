@@ -15,8 +15,8 @@ namespace Flame.Primitives
 			this.BaseMethods = new IMethod[] { PrimitiveMethods.GetHashCode };
 			this.Attributes = new IAttribute[] { PrimitiveAttributes.RecompileAttribute, new OperatorAttribute(Operator.Hash) };
 		}
-		
-		public override const IBoundObject Invoke(IBoundObject Target, IEnumerable<IBoundObject> Arguments) : PrimitiveMethod.Invoke
+
+		public override const IBoundObject Invoke(IBoundObject Target, [IBoundObject] Arguments) : PrimitiveMethod.Invoke
 		{
 			var primitive = (IBoundPrimitive<T>)Target;
 			return new BoundPrimitive<int32>(PrimitiveTypes.Int32, primitive.Value.GetHashCode());

@@ -21,22 +21,19 @@ namespace Flame.Cpp
         public TypeInvariants Invariants { get; private set; }
         public IType DeclaringType { get { return Invariants.DeclaringType; } }
 
-        public IMethod[] GetBaseMethods()
+        public IEnumerable<IMethod> BaseMethods
         {
-            return DeclaringType.GetBaseTypes()
-                .Select(item => item.GetMethod(Name, IsStatic, ReturnType, GetParameters().GetTypes()))
-                .Where(item => item != null)
-                .ToArray();
+            get
+            {
+                return DeclaringType.BaseTypes
+                                    .Select(item => item.GetMethod(Name, IsStatic, ReturnType, Parameters.GetTypes().ToArray()))
+                                    .Where(item => item != null);
+            }
         }
 
-        public IMethod GetGenericDeclaration()
+        public IEnumerable<IParameter> Parameters
         {
-            return this;
-        }
-
-        public IParameter[] GetParameters()
-        {
-            return new IParameter[0];
+            get { return new IParameter[0]; }
         }
 
         public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
@@ -47,11 +44,6 @@ namespace Flame.Cpp
         public bool IsConstructor
         {
             get { return false; }
-        }
-
-        public IMethod MakeGenericMethod(IEnumerable<IType> TypeArguments)
-        {
-            return this;
         }
 
         public IType ReturnType
@@ -74,14 +66,17 @@ namespace Flame.Cpp
             return new DescriptionAttribute("summary", "Checks if this type's invariants are being respected. A boolean value is returned that indicates whether this is indeed the case. This method is publically visible, and can be used to verify an instance's state.");
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return new IAttribute[] 
-            { 
-                new AccessAttribute(AccessModifier.Public),
-                PrimitiveAttributes.Instance.ConstantAttribute,
-                CreateSummary()
-            };
+            get
+            {
+                return new IAttribute[] 
+                { 
+                    new AccessAttribute(AccessModifier.Public),
+                    PrimitiveAttributes.Instance.ConstantAttribute,
+                    CreateSummary()
+                };
+            }
         }
 
         public string Name
@@ -89,14 +84,9 @@ namespace Flame.Cpp
             get { return "CheckInvariants"; }
         }
 
-        public IEnumerable<IType> GetGenericArguments()
+        public IEnumerable<IGenericParameter> GenericParameters
         {
-            return Enumerable.Empty<IType>();
-        }
-
-        public IEnumerable<IGenericParameter> GetGenericParameters()
-        {
-            return Enumerable.Empty<IGenericParameter>();
+            get { return Enumerable.Empty<IGenericParameter>(); }
         }
 
         #region ICppMember Implementation
@@ -126,7 +116,7 @@ namespace Flame.Cpp
                     var setBool = fieldVar.EmitSet(codeGen.EmitBoolean(true)); // isCheckingInvariants = true;
                     var resultVariable = codeGen.DeclareVariable(new DescribedVariableMember("result", PrimitiveTypes.Boolean));
                     var checkImpl = Invariants.CheckInvariantsImplementationMethod;
-                    var test = checkImpl.InlineTestBlock  ? checkImpl.CreateTestBlock(codeGen) : codeGen.EmitInvocation(checkImpl, codeGen.GetThis().EmitGet(), Enumerable.Empty<ICodeBlock>());
+                    var test = checkImpl.InlineTestBlock ? checkImpl.CreateTestBlock(codeGen) : codeGen.EmitInvocation(checkImpl, codeGen.GetThis().EmitGet(), Enumerable.Empty<ICodeBlock>());
                     var setResult = resultVariable.EmitSet(test); // bool result = <condition>;
                     var resetBool = fieldVar.EmitSet(codeGen.EmitBoolean(false)); // isCheckingInvariants = false;
                     var returnResult = codeGen.EmitReturn(resultVariable.EmitGet()); // return result;

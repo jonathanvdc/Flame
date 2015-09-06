@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using Flame.Build;
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +10,11 @@ namespace Flame.Cecil
 {
     public class CecilArrayType : CecilArrayTypeBase, IArrayType
     {
-        public CecilArrayType(ArrayType ArrayType, CecilModule Module)
+        public CecilArrayType(Mono.Cecil.ArrayType ArrayType, CecilModule Module)
             : this(Module.ConvertStrict(ArrayType.ElementType), ArrayType.Rank, Module)
         {
         }
-        public CecilArrayType(ICecilType ElementType, int ArrayRank, CecilModule Module)
+        public CecilArrayType(IType ElementType, int ArrayRank, CecilModule Module)
             : base(ElementType, Module)
         {
             this.ArrayRank = ArrayRank;
@@ -28,6 +29,11 @@ namespace Flame.Cecil
         public override int GetArrayRank()
         {
             return ArrayRank;
+        }
+
+        public override IAncestryRules AncestryRules
+        {
+            get { return ArrayAncestryRules.Instance; }
         }
     }
 }

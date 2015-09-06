@@ -25,10 +25,10 @@ type FunctionalNamespace private(header : FunctionalMemberHeader, declAsm : IAss
     member this.Name = header.Name
 
     /// Gets all child namespaces this functional-style namespace contains directly.
-    member this.Namespaces = evalLazy appliedNs
+    member this.Namespaces = evalLazy appliedNs |> Seq.ofArray
 
     /// Gets all types this functional-style namespace contains directly.
-    member this.Types = evalLazy appliedTypes
+    member this.Types = evalLazy appliedTypes |> Seq.ofArray
 
     /// Sets this functional-style field's field type.
     member this.WithNamespace value =
@@ -40,7 +40,7 @@ type FunctionalNamespace private(header : FunctionalMemberHeader, declAsm : IAss
 
     interface INamespace with
         member this.DeclaringAssembly = declAsm
-        member this.GetTypes() = this.Types
+        member this.Types = this.Types
 
     interface IFunctionalNamespace with
         member this.WithType value =
@@ -50,9 +50,9 @@ type FunctionalNamespace private(header : FunctionalMemberHeader, declAsm : IAss
             (this.WithNamespace value) :> IFunctionalNamespace
 
     interface INamespaceBranch with
-        member this.GetNamespaces() = Seq.ofArray this.Namespaces
+        member this.Namespaces = this.Namespaces
 
     interface IMember with
         member this.Name = header.Name
         member this.FullName = header.Name
-        member this.GetAttributes() = header.Attributes
+        member this.Attributes = header.Attributes

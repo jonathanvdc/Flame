@@ -27,7 +27,7 @@ namespace Flame.Cpp.Emit
             get
             {
                 var type = Member.Type;
-                return (IMethod)type;
+                return MethodType.GetMethod(type);
             }
         }
 

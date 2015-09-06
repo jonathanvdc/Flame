@@ -1,0 +1,99 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Build;
+
+namespace Flame
+{
+    /// <summary>
+    /// Defines a generic type instantiation.
+    /// </summary>
+	public virtual class GenericType : GenericTypeBase, IGenericMemberInstance,
+									   IGenericResolver, IEquatable<IType>
+	{
+        /// <summary>
+        /// Creates a generic instantiation of the given type with the given
+        /// type arguments.
+        /// </summary>
+		public const this(IType Declaration, set [IType] GenericArguments)
+            : base(Declaration)
+		{
+			this.ancestryRules = new GenericAncestryRules(Declaration.AncestryRules);
+		}
+
+        /// <summary>
+        /// Gets this generic instantiation's type arguments.
+        /// </summary>
+        public [IType] GenericArguments { const get; private set; }
+
+		public override IGenericResolver Resolver { const get { return this; } }
+		public override INamespace DeclaringNamespace { const get { return Declaration.DeclaringNamespace; } }
+
+        public override string Name
+        {
+			const get { return GenericNameExtensions.AppendTypeArguments(Declaration.GetGenericFreeName(), GenericArguments.Names); }
+        }
+
+		private IAncestryRules ancestryRules;
+		public override IAncestryRules AncestryRules
+		{
+			const get { return ancestryRules; }
+		}
+
+        public const IType ResolveTypeParameter(IGenericParameter TypeParameter)
+        {
+            foreach (var param in GenericParameters, var arg in GenericArguments)
+            {
+                if (TypeParameter.Equals(param))
+                {
+                    return arg;
+                }
+            }
+			if (Declaration is GenericTypeBase)
+			{
+				return ((GenericTypeBase)Declaration).Resolver.ResolveTypeParameter(TypeParameter);
+			}
+            else
+			{
+				return TypeParameter;
+			}
+        }
+
+        #region Equality
+
+        public override const bool Equals(object Other)
+        {
+        	if (Other is IType)
+        		return Equals((IType)Other);
+        	else
+                return false;
+        }
+
+        public const bool Equals(IType Other)
+        {
+        	if (Other is GenericType)
+        		return Equals((GenericType)Other);
+            else
+        	   return false;
+        }
+
+        public const bool Equals(GenericType Other)
+        {
+        	return this.Declaration.Equals(Other.Declaration) &&
+                   this.GenericArguments.AreEqual(Other.GenericArguments);
+        }
+
+        public override const int GetHashCode()
+        {
+            int result = Declaration.GetHashCode();
+            foreach (var item in GenericArguments)
+            {
+                result = (result << 1) ^ item.GetHashCode();
+            }
+        	return result;
+        }
+
+        #endregion
+	}
+}

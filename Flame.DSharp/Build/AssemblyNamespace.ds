@@ -15,22 +15,16 @@ using Flame.Syntax.DSharp;
 
 namespace Flame.DSharp.Build
 {
-	public class AssemblyNamespace : INamespaceBranchBuilder, ISyntaxNode
+	public class AssemblyNamespace : SyntaxNamespaceBase, ISyntaxNode
 	{
-		public const this(set SyntaxAssembly Assembly)
-		{
-			this.Namespaces = new List<INamespace>();
-			this.Types = new List<IType>();
-		}
+		public const this(set SyntaxAssembly Assembly);
 
-		public List<INamespace> Namespaces { const get; private set; }
-		public List<IType> Types { const get; private set; }
-		public IConverter<IType, string> TypeNamer { const get return Assembly.TypeNamer; }
+		public override IConverter<IType, string> TypeNamer { const get return Assembly.TypeNamer; }
 
 		public SyntaxAssembly Assembly { const get; private set; }
-		public IAssembly DeclaringAssembly { const get return Assembly; }
+		public override IAssembly DeclaringAssembly { const get return Assembly; }
 		private GlobalExtensionTypeProvider extTypeProvider;
-		public IExtensionTypeProvider ExtensionTypeProvider
+		public override IExtensionTypeProvider ExtensionTypeProvider
 		{
 			const get
 			{
@@ -48,38 +42,8 @@ namespace Flame.DSharp.Build
 				this.extTypeProvider.ClearCache();
 		}
 
-		public string Name { const get return ""; }
-		public string FullName { const get return Name; }
-		public const [IAttribute] GetAttributes()
-		{
-			return new IAttribute[] { new AncestryGraphAttribute(Assembly.Graph) };
-		}
-
-		public const [INamespaceBranch] GetNamespaces()
-		{
-			List<INamespaceBranch> branches = new List<INamespaceBranch>();
-			foreach (var item in Namespaces)
-				if (item is INamespaceBranch)
-					branches.Add((INamespaceBranch)item);
-			foreach (var item in Types)
-				if (item is INamespaceBranch)
-					branches.Add((INamespaceBranch)item);
-			return branches;
-		}
-
-		public const IType[] GetTypes()
-		{
-			return Types.ToArray();
-		}
-
-		public void AddNamespace(INamespace Namespace)
-		{
-			this.Namespaces.Add(Namespace);
-		}
-		public void AddType(IType Type)
-		{
-			this.Types.Add(Type);
-		}
+		public override string Name { const get return ""; }
+		public override string FullName { const get return Name; }
 
 		public const CodeBuilder GetCode()
 		{

@@ -3,10 +3,8 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Expressions
 {
-    public class NullExpression : IExpression, IBoundPrimitive<object>
+    public static class NullExpression : IExpression, IBoundPrimitive<object>
     {
-        public const this();
-
         public IType Type
         {
             const get { return PrimitiveTypes.Null; }

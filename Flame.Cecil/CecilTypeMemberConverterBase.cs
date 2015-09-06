@@ -20,12 +20,12 @@ namespace Flame.Cecil
 
         public CecilModule Module { get; private set; }
 
-        protected ICecilType ConvertType(TypeReference Reference)
+        protected IType ConvertType(TypeReference Reference)
         {
             return Module.ConvertStrict(Reference);
         }
         protected abstract TMember ConvertMemberDeclaration(ICecilType DeclaringType, TReference Reference);
-        protected abstract TMember ConvertGenericInstanceMember(ICecilType DeclaringType, TReference Reference);
+        protected abstract TMember ConvertGenericInstanceMember(GenericTypeBase DeclaringType, TReference Reference);
 
         public virtual TMember Convert(TReference Value)
         {
@@ -38,11 +38,11 @@ namespace Flame.Cecil
             var convDeclRef = ConvertType(declRef);
             if (declRef.IsGenericInstance)
             {
-                return ConvertGenericInstanceMember(convDeclRef, Value);
+                return ConvertGenericInstanceMember((GenericTypeBase)convDeclRef, Value);
             }
             else
             {
-                return ConvertMemberDeclaration(convDeclRef, Value);
+                return ConvertMemberDeclaration((ICecilType)convDeclRef, Value);
             }
         }
     }

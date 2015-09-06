@@ -8,6 +8,7 @@ namespace Flame
         /// Gets the attribute's type.
         /// </summary>
         IType AttributeType { const get; }
+		
         /// <summary>
         /// Gets the attribute's value.
         /// </summary>

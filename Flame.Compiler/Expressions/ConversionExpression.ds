@@ -3,25 +3,61 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Expressions
 {
-    public class ConversionExpression : IExpression, IMemberNode, IPredicateNode
+    /// <summary>
+    /// A base class for conversion expressions.
+    /// </summary>
+    public abstract class ConversionExpressionBase : IExpression, IMemberNode, IPredicateNode
     {
-        public const this(set IExpression Value)
-        {
-            this.Type = Value.Type;
-        }
-        public const this(set IExpression Value, set IType Type);
+        /// <summary>
+        /// Creates a conversion expression that converts the given value
+        /// to the given type.
+        /// </summary>
+        public const this(set IExpression Value, set IType TargetType);
 
+        /// <summary>
+        /// Gets the value that is to be converted to the given type.
+        /// </summary>
         public IExpression Value { const get; private set; }
-        public IType Type { const get; private set; }
+
+        /// <summary>
+        /// Gets the type the value is to be converted to.
+        /// </summary>
+        public IType TargetType { const get; private set; }
+
+        /// <summary>
+        /// Gets the conversion expression's type, which is the same as its
+        /// target type.
+        /// </summary>
+        public IType Type { const get { return TargetType; } }
+
+        /// <summary>
+        /// Creates a new conversion expression that converts the given
+        /// value to the given type.
+        /// </summary>
+        protected abstract ConversionExpressionBase Create(IExpression NewValue, IType NewType);
+
+        /// <summary>
+        /// Tells if this conversion expression is a compile-time constant.
+        /// </summary>
+        public abstract bool IsConstant { get; }
+
+        /// <summary>
+        /// Evaluates this conversion expression at compile-time.
+        /// </summary>
+        public abstract IBoundObject Evaluate();
+
+        /// <summary>
+        /// Creates a code block for this conversion expression.
+        /// </summary>
+        public abstract ICodeBlock Emit(ICodeGenerator CodeGenerator);
 
         public IMemberNode ConvertMembers(MemberConverter Converter)
         {
             var elemType = Converter.Convert(Type);
             if (object.ReferenceEquals(elemType, Type))
-            {
                 return this;
-            }
-            else return new ConversionExpression(Value, elemType);
+            else
+                return Create(Value, elemType);
         }
 
         public void AcceptPredicate(INodeVisitor Visitor)
@@ -34,194 +70,85 @@ namespace Flame.Compiler.Expressions
             var transVal = Visitor.Visit(Value);
 
             if (transVal == Value)
-            {
                 return this;
-            }
             else
-            {
-                return new ConversionExpression(transVal, Type);
-            }
-        }
-
-        public static const IExpression Create(IExpression Value, IType Type)
-        {
-            var interExpr = IntersectionExpression.FilterIntersection(Value, Type);
-
-            if (!RequiresConversion(interExpr.Type, Type))
-            {
-                return interExpr;
-            }
-            else
-            {
-                return new ConversionExpression(interExpr, Type);
-            }
-        }
-
-        public bool IsConstant
-        {
-            const get
-            {
-            	if (!ConversionNeeded)
-            		return Value.IsConstant;
-            	else
-            		return Value.IsConstant && Value.Type.IsPrimitiveExpressionType() && Type.IsPrimitiveExpressionType();
-           	}
+                return Create(transVal, TargetType);
         }
 
         /// <summary>
-        /// Gets a boolean value that indicates whether the given source type must be converted to legally be assigned to a variable of the target type.
+        /// Optimizes this conversion expression.
         /// </summary>
-        public static const bool RequiresConversion(IType SourceType, IType TargetType)
+        public virtual IExpression Optimize()
         {
-        	if (SourceType.Equals(TargetType) || (SourceType.Equals(PrimitiveTypes.Null) && (TargetType.IsReferenceType || TargetType.IsPointer)))
-        	{
-        		return false;
-        	}
-        	else if (SourceType.IsValueType || TargetType.IsValueType ||
-        		    SourceType.IsGenericParameter || TargetType.IsGenericParameter ||
-        		    SourceType.IsPrimitive || TargetType.IsPrimitive ||
-                    SourceType.IsDelegate && TargetType.IsDelegate ||
-                    SourceType.IsIntersectionType)
-        	{
-        		return true;
-        	}
-        	else
-        	{
-        		return !SourceType.Is(TargetType);
-        	}
-        }
+            var optVal = Value.Optimize();
+            if (optVal.Type.IsEquivalent(TargetType))
+                return optVal;
 
-        private bool ConversionNeeded
-        {
-        	const get
-            {
-            	if (Type == null)
-            	{
-            		return false;
-            	}
-            	else
-            	{
-            		return RequiresConversion(Value.Type, Type);
-            	}
-        	}
-        }
-
-        public IBoundObject Evaluate()
-        {
-            var normalVal = Value.Evaluate();
-            if (!ConversionNeeded)
-            {
-                return normalVal;
-            }
-            else
-            {
-            	object objVal = normalVal.GetObjectValue();
-            	if (Type.Equals(PrimitiveTypes.UInt8))
-	            {
-	            	return new UInt8Expression(Convert.ToByte(objVal));
-	            }
-	            else if (Type.Equals(PrimitiveTypes.Int8))
-	            {
-	            	return new Int8Expression(Convert.ToSByte(objVal));
-	            }
-	            else if (Type.Equals(PrimitiveTypes.Bit8))
-	            {
-	            	return new Bit8Expression((bit8)Convert.ToByte(objVal));
-	            }
-            	else if (Type.Equals(PrimitiveTypes.UInt16))
-	            {
-	            	return new UInt16Expression(Convert.ToUInt16(objVal));
-	            }
-	            else if (Type.Equals(PrimitiveTypes.Int16))
-	            {
-	            	return new Int16Expression(Convert.ToInt16(objVal));
-	            }
-	            else if (Type.Equals(PrimitiveTypes.Bit16))
-	            {
-	            	return new Bit16Expression((bit16)Convert.ToUInt16(objVal));
-	            }
-	            else if (Type.Equals(PrimitiveTypes.UInt32))
-	            {
-	            	return new UInt32Expression(Convert.ToUInt32(objVal));
-	            }
-	            else if (Type.Equals(PrimitiveTypes.Int32))
-	            {
-	            	return new Int32Expression(Convert.ToInt32(objVal));
-	            }
-	            else if (Type.Equals(PrimitiveTypes.Bit32))
-	            {
-	            	return new Bit32Expression((bit32)Convert.ToUInt32(objVal));
-	            }
-	            else if (Type.Equals(PrimitiveTypes.UInt64))
-	            {
-	            	return new UInt64Expression(Convert.ToUInt64(objVal));
-	            }
-	            else if (Type.Equals(PrimitiveTypes.Int64))
-	            {
-	            	return new Int64Expression(Convert.ToInt64(objVal));
-	            }
-	            else if (Type.Equals(PrimitiveTypes.Bit64))
-	            {
-	            	return new Bit64Expression((bit64)Convert.ToUInt64(objVal));
-	            }
-	            else if (Type.Equals(PrimitiveTypes.Float32))
-	            {
-	            	return new Float32Expression(Convert.ToSingle(objVal));
-	            }
-	            else if (Type.Equals(PrimitiveTypes.Float64))
-	            {
-	            	return new Float64Expression(Convert.ToDouble(objVal));
-	            }
-	            else if (Type.Equals(PrimitiveTypes.Boolean))
-	            {
-	            	return new BooleanExpression(Convert.ToBoolean(objVal));
-	            }
-	            else if (Type.Equals(PrimitiveTypes.Char))
-	            {
-	            	return new CharExpression(Convert.ToChar(objVal));
-	            }
-	            else if (Type.Equals(PrimitiveTypes.String))
-	            {
-	            	return new StringExpression(objVal.ToString());
-	            }
-	            else
-	            {
-	            	return null;
-	            }
-            }
-        }
-
-        public const IExpression Optimize()
-        {
-            var optVar = Value.Optimize();
-            if (!ConversionNeeded)
-            {
-                return optVar;
-            }
-            var optExpr = new ConversionExpression(optVar, Type);
+            var optExpr = Create(optVal, Type);
             if (optExpr.IsConstant)
             {
-            	return optExpr.Evaluate().ToExpression();
+                var evalExpr = optExpr.Evaluate();
+                if (evalExpr != null)
+                    return evalExpr.ToExpression();
             }
+
             return optExpr;
         }
+    }
 
-        public ICodeBlock Emit(ICodeGenerator Generator)
+    /// <summary>
+    /// A helper class that creates conversion expressions.
+    /// </summary>
+    public static class ConversionExpression
+    {
+        /// <summary>
+        /// Creates an expression that converts the given value to the given type.
+        /// </summary>
+        public IExpression Create(IExpression Value, IType Type)
         {
-            var valueBlock = Value.Emit(Generator);
-            if (!ConversionNeeded)
+            var interExpr = IntersectionExpression.FilterIntersection(Value, Type);
+            var interType = interExpr.Type;
+            if (interType.IsEquivalent(Type))
             {
-                return valueBlock;
+                return interExpr;
+            }
+            else if (UseDynamicCast(interType, Type))
+            {
+                if (interType.Is(Type))
+                {
+                    return new ReinterpretCastExpression(interExpr, Type);
+                }
+                else
+                {
+                    return new DynamicCastExpression(interExpr, Type);
+                }
             }
             else
             {
-                return Generator.EmitConversion(valueBlock, Type);
+                return new StaticCastExpression(interExpr, Type);
             }
         }
 
-        public override const string ToString()
+        /// <summary>
+        /// Tests if a value of the given source type can be cast dynamically to a value
+        /// of the given target type.
+        /// </summary>
+        public bool UseDynamicCast(IType SourceType, IType TargetType)
         {
-            return "cast(" + Value + ", " + Type.FullName + ")";
+            return (SourceType.Equals(PrimitiveTypes.Null) || SourceType.IsReferenceType || SourceType.IsPointer) &&
+                   (TargetType.IsReferenceType || TargetType.IsPointer) &&
+                   !SourceType.IsDelegate && !TargetType.IsDelegate &&
+                   !SourceType.IsPrimitive && !TargetType.IsPrimitive &&
+                   !SourceType.IsIntersectionType && !TargetType.IsIntersectionType;
+        }
+
+        /// <summary>
+        /// Tests if a value of the given source type can safely be cast to a value
+        /// of the given target type using a reinterpret cast.
+        /// </summary>
+        public bool UseReinterpretCast(IType SourceType, IType TargetType)
+        {
+            return UseDynamicCast(SourceType, TargetType) && SourceType.Is(TargetType);
         }
     }
 }

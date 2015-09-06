@@ -11,7 +11,7 @@ namespace Flame.Cecil
     public class CecilProperty : CecilPropertyBase
     {
         public CecilProperty(PropertyReference Property, CecilModule Module)
-            : base(Module.ConvertStrict(Property.DeclaringType))
+            : base((ICecilType)Module.ConvertStrict(Property.DeclaringType))
         {
             this.Property = Property;
         }

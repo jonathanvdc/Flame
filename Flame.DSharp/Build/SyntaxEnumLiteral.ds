@@ -15,7 +15,10 @@ namespace Flame.DSharp.Build
 {
     public class SyntaxEnumLiteral : CodeMember, IDSharpField, ISyntaxNode
     {
-        public const this(set EnumLiteralSyntax Syntax, set ISyntaxState State);
+        public const this(set EnumLiteralSyntax Syntax, set ISyntaxState State)
+        {
+            this.cachedAttrs = new Lazy<IAttribute[]>(CreateAttributes);
+        }
 
         public EnumLiteralSyntax Syntax { const get; private set; }
         public ISyntaxState State { const get; private set; }
@@ -33,7 +36,7 @@ namespace Flame.DSharp.Build
         {
             if (Syntax.LiteralValueSyntax == null)
             {
-                return new NullExpression();
+                return NullExpression;
             }
             else
             {
@@ -63,17 +66,15 @@ namespace Flame.DSharp.Build
             const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-		private IAttribute[] cachedAttrs;
-        public const [IAttribute] GetAttributes()
+        public [IAttribute] Attributes { get { return cachedAttrs.Value; } }
+
+		private Lazy<IAttribute[]> cachedAttrs;
+        private IAttribute[] CreateAttributes()
         {
-        	if (this.cachedAttrs == null)
-        	{
-	        	List<IAttribute> attrs = new List<IAttribute>();
-	        	attrs.Add(PrimitiveAttributes.ConstantAttribute);
-	        	attrs.AddRange(Syntax.GetDescriptionAttributes(State));
-	        	this.cachedAttrs = attrs.ToArray();
-        	}
-        	return this.cachedAttrs;
+        	var attrs = new List<IAttribute>();
+        	attrs.Add(PrimitiveAttributes.ConstantAttribute);
+        	attrs.AddRange(Syntax.GetDescriptionAttributes(State));
+        	return attrs.ToArray();
         }
 
         public override const string GetHeaderString()

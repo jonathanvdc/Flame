@@ -1,0 +1,83 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Build;
+
+namespace Flame
+{
+    /// <summary>
+    /// Defines a generic method instantiation.
+    /// </summary>
+	public virtual class GenericMethod : GenericMethodBase, IGenericMemberInstance,
+									     IGenericResolver, IEquatable<IMethod>
+	{
+        /// <summary>
+        /// Creates a generic instantiation of the given method with the given
+        /// type arguments.
+        /// </summary>
+		public const this(IMethod Declaration, set [IType] GenericArguments)
+            : base(Declaration);
+
+        /// <summary>
+        /// Gets this generic method's type arguments.
+        /// </summary>
+        public [IType] GenericArguments { const get; private set; }
+
+		public override IGenericResolver Resolver { const get { return this; } }
+		public override IType DeclaringType { const get { return Declaration.DeclaringType; } }
+
+		public override string Name
+        {
+			const get { return GenericNameExtensions.AppendTypeArguments(Declaration.GetGenericFreeName(), GenericArguments.Names); }
+        }
+
+        public const IType ResolveTypeParameter(IGenericParameter TypeParameter)
+        {
+            foreach (var param in GenericParameters, var arg in GenericArguments)
+            {
+                if (TypeParameter.Equals(param))
+                {
+                    return arg;
+                }
+            }
+            return TypeParameter;
+        }
+
+        #region Equality
+
+        public override const bool Equals(object Other)
+        {
+        	if (Other is IMethod)
+        		return Equals((IMethod)Other);
+        	else
+                return false;
+        }
+
+        public const bool Equals(IMethod Other)
+        {
+        	if (Other is GenericMethod)
+        		return Equals((GenericMethod)Other);
+            else
+        	   return false;
+        }
+
+        public const bool Equals(GenericMethod Other)
+        {
+        	return this.Declaration == Other.Declaration &&
+                   this.GenericArguments.AreEqual(Other.GenericArguments);
+        }
+
+        public override const int GetHashCode()
+        {
+            int result = DeclaringType.GetHashCode();
+            foreach (var item in GenericArguments)
+            {
+                result = (result << 1) ^ item.GetHashCode();
+            }
+        	return result;
+        }
+
+        #endregion
+	}
+}

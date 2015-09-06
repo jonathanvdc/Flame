@@ -169,7 +169,7 @@ namespace Flame.Cpp.Emit
             else
             {
                 var descVarMember = new DescribedVariableMember(GenerateIdentifier(VariableMember), VariableMember.VariableType);
-                foreach (var item in VariableMember.GetAttributes())
+                foreach (var item in VariableMember.Attributes)
                 {
                     descVarMember.AddAttribute(item);
                 }

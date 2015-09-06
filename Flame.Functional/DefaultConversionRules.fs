@@ -7,7 +7,7 @@ open System
 open System.Linq
 
 /// Defines a set of default conversion rules.
-type DefaultConversionRules(nameType : IType -> string) = 
+type DefaultConversionRules(nameType : IType -> string) =
 
     static member Create (nameType : Func<IType, string>) =
         new DefaultConversionRules(nameType.Invoke)
@@ -20,9 +20,9 @@ type DefaultConversionRules(nameType : IType -> string) =
                 true
 
             else if sourceType.get_IsVector() && targetType.get_IsArray() then
-                sourceType.AsContainerType().GetElementType().Is(
-                    targetType.AsContainerType().GetElementType()) &&
-                sourceType.AsContainerType().AsVectorType().GetDimensions().Length =
+                sourceType.AsContainerType().ElementType.Is(
+                    targetType.AsContainerType().ElementType) &&
+                sourceType.AsContainerType().AsVectorType().Dimensions.Count =
                     targetType.AsContainerType().AsArrayType().ArrayRank
 
             else if sourceType.get_IsPointer() && targetType.get_IsPointer() then
@@ -44,7 +44,7 @@ type DefaultConversionRules(nameType : IType -> string) =
                         else
                             false
                     else
-                        sourceType.get_IsBit() && targetType.get_IsBit() || 
+                        sourceType.get_IsBit() && targetType.get_IsBit() ||
                             sourceType.get_IsFloatingPoint() && targetType.get_IsFloatingPoint()
                 else
                     false
@@ -52,25 +52,19 @@ type DefaultConversionRules(nameType : IType -> string) =
             else if (sourceType.get_IsArray() || sourceType.get_IsVector()) && targetType.GetGenericDeclaration().get_IsEnumerableType() then
                 if not(targetType.get_IsGeneric()) then
                     true
-                else sourceType.AsContainerType().GetElementType().Is(Enumerable.First<IType>(targetType.GetGenericArguments()));
+                else sourceType.AsContainerType().ElementType.Is(Enumerable.First<IType>(targetType.GetGenericArguments()));
             else false
 
         /// Converts the given expression to the given type implicitly.
         member this.ConvertImplicit value targetType =
             let valType = value.Type
-            if not(ConversionExpression.RequiresConversion(valType, targetType)) then
-                value
-            else if (this :> IConversionRules).HasImplicitConversion valType targetType then
-                ConversionExpression.Create(value, targetType)
+            if (this :> IConversionRules).HasImplicitConversion valType targetType then
+                ConversionExpression.Instance.Create(value, targetType)
             else
                 let message = new LogEntry("Missing implicit conversion",
                                            "An expression of type '" + (nameType valType) + "' could not be converted implicitly to an expression of type '" + (nameType targetType) + "'.")
-                ConversionExpression.Create(value, targetType) |> ExpressionBuilder.Error message
+                ConversionExpression.Instance.Create(value, targetType) |> ExpressionBuilder.Error message
 
         /// Converts the given expression to the given type explicitly.
         member this.ConvertExplicit value targetType =
-            let valType = value.Type
-            if not(ConversionExpression.RequiresConversion(valType, targetType)) then
-                value
-            else
-                ConversionExpression.Create(value, targetType)
+            ConversionExpression.Instance.Create(value, targetType)

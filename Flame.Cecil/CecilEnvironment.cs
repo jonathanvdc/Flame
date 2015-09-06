@@ -44,7 +44,7 @@ namespace Flame.Cecil
         private static void ForwardCall(IMethodBuilder Source, IMethod SourceMethod, IMethod TargetMethod)
         {
             var dict = new Dictionary<IType, IType>();
-            foreach (var item in SourceMethod.DeclaringType.GetGenericParameters())
+            foreach (var item in SourceMethod.DeclaringType.GenericParameters)
             {
                 dict[item] = item;
             }
@@ -61,9 +61,9 @@ namespace Flame.Cecil
             var invocation = bodyGen.EmitInvocation(convTarget,
                                                     bodyGen.GetThis().EmitGet(),
                                                     new ICodeBlock[] { });
-            if (ConversionExpression.RequiresConversion(convTarget.ReturnType, convSource.ReturnType))
+            if (ConversionExpression.Instance.UseReinterpretCast(convTarget.ReturnType, convSource.ReturnType))
             {
-                Source.SetMethodBody(bodyGen.EmitReturn(bodyGen.EmitConversion(invocation, convSource.ReturnType)));
+                Source.SetMethodBody(bodyGen.EmitReturn(bodyGen.EmitTypeBinary(invocation, convSource.ReturnType, Operator.ReinterpretCast)));
             }
             else
             {
@@ -80,7 +80,7 @@ namespace Flame.Cecil
 
             var cecilType = (CecilTypeBuilder)TargetType;
 
-            var bTypes = cecilType.GetBaseTypes();
+            var bTypes = cecilType.BaseTypes;
             if (!bTypes.Contains(baseType))
             {
                 cecilType.DeclareBaseType(baseType);
@@ -97,7 +97,7 @@ namespace Flame.Cecil
             // Implement IEnumerable<T>.GetEnumerator()
 
             var descGenericGetEnumeratorMethod = new DescribedMethod(GetEnumeratorImplementation.Name, TargetType, GetEnumeratorImplementation.ReturnType, GetEnumeratorImplementation.IsStatic);
-            foreach (var item in GetEnumeratorImplementation.GetAttributes())
+            foreach (var item in GetEnumeratorImplementation.Attributes)
             {
                 descGenericGetEnumeratorMethod.AddAttribute(item);
             }
@@ -126,7 +126,7 @@ namespace Flame.Cecil
 
             var cecilType = (CecilTypeBuilder)TargetType;
 
-            var bTypes = cecilType.GetBaseTypes();
+            var bTypes = cecilType.BaseTypes;
             if (!bTypes.Contains(baseType))
             {
                 cecilType.DeclareBaseType(baseType);
@@ -153,7 +153,7 @@ namespace Flame.Cecil
             // Implement IEnumerator.MoveNext()
 
             var descMoveNextMethod = new DescribedMethod(MoveNextImplementation.Name, TargetType, MoveNextImplementation.ReturnType, MoveNextImplementation.IsStatic);
-            foreach (var item in MoveNextImplementation.GetAttributes())
+            foreach (var item in MoveNextImplementation.Attributes)
             {
                 descMoveNextMethod.AddAttribute(item);
             }
@@ -168,11 +168,11 @@ namespace Flame.Cecil
             var genericCurrentProperty = TargetType.DeclareProperty(CurrentImplementation);
             var getCurrentImpl = CurrentImplementation.GetGetAccessor();
             var descGetCurrentImpl = new DescribedAccessor(getCurrentImpl.AccessorType, genericCurrentProperty, getCurrentImpl.ReturnType);
-            foreach (var item in getCurrentImpl.GetAttributes())
+            foreach (var item in getCurrentImpl.Attributes)
             {
                 descGetCurrentImpl.AddAttribute(item);
             }
-            descGetCurrentImpl.AddBaseMethod(baseType.GetProperties().GetProperty("Current", false).GetGetAccessor());
+            descGetCurrentImpl.AddBaseMethod(baseType.Properties.GetProperty("Current", false).GetGetAccessor());
             var genericCurrentAccessor = genericCurrentProperty.DeclareAccessor(descGetCurrentImpl);
             var getCurrentMethodBody = ((IBodyMethod)getCurrentImpl).GetMethodBody().Emit(genericCurrentAccessor.GetBodyGenerator());
             genericCurrentAccessor.SetMethodBody(getCurrentMethodBody);
@@ -190,7 +190,7 @@ namespace Flame.Cecil
             descOldCurrentGetter.IsStatic = false;
             descOldCurrentGetter.AddAttribute(new AccessAttribute(AccessModifier.Private));
             descOldCurrentGetter.AddAttribute(PrimitiveAttributes.Instance.ConstantAttribute);
-            descOldCurrentGetter.AddBaseMethod(oldEnumerator.GetProperties().GetProperty("Current", false).GetGetAccessor());
+            descOldCurrentGetter.AddBaseMethod(oldEnumerator.Properties.GetProperty("Current", false).GetGetAccessor());
 
             var oldCurrentGetter = oldCurrentProperty.DeclareAccessor(descOldCurrentGetter);
             ForwardCall(oldCurrentGetter, oldCurrentProperty.GetGetAccessor(), genericCurrentProperty.GetGetAccessor());

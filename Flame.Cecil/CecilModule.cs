@@ -53,19 +53,19 @@ namespace Flame.Cecil
         {
             return typeConverter.Convert(Reference);
         }
-        public ICecilType ConvertStrict(TypeReference Reference)
+        public IType ConvertStrict(TypeReference Reference)
         {
-            return (ICecilType)strictTypeConverter.Convert(Reference);
+            return strictTypeConverter.Convert(Reference);
         }
-        public ICecilType ConvertStrict(Type Value)
+        public IType ConvertStrict(Type Value)
         {
             return ConvertStrict(Module.Import(Value));
         }
-        public ICecilMethod Convert(MethodReference Method)
+        public IMethod Convert(MethodReference Method)
         {
             return methodConverter.Convert(Method);
         }
-        public ICecilField Convert(FieldReference Field)
+        public IField Convert(FieldReference Field)
         {
             return fieldConverter.Convert(Field);
         }
@@ -92,9 +92,9 @@ namespace Flame.Cecil
             get { return Module.Name; }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return CecilAttribute.GetAttributes(Module.CustomAttributes, this);
+            get { return CecilAttribute.GetAttributes(Module.CustomAttributes, this); }
         }
 
         public string Name

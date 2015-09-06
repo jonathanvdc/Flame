@@ -69,7 +69,7 @@ namespace Flame.Compiler.Variables
 			var finalType = CurrentType;
 			if (finalType.IsGeneric && finalType.IsGenericDeclaration)
 			{
-				finalType = finalType.MakeGenericType((IEnumerable<IType>)finalType.GetGenericParameters());
+				finalType = finalType.MakeGenericType((IEnumerable<IType>)finalType.GenericParameters);
 			}
 			if (finalType.IsValueType && !finalType.IsPointer)
 			{

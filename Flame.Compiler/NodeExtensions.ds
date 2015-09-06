@@ -156,7 +156,7 @@ namespace Flame.Compiler
 
 		#region Types
 
-		public static IType[] Types[this IEnumerable<IExpression> Expressions]
+		public static IType[] Types[this [IExpression] Expressions]
 		{
 			const get
 			{

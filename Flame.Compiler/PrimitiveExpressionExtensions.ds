@@ -16,7 +16,7 @@ namespace Flame.Compiler
 			}
 			else if (valType.Equals(PrimitiveTypes.Null))
 			{
-				return new NullExpression();
+				return NullExpression;
 			}
 			else if (valType.Equals(PrimitiveTypes.Int64))
 			{

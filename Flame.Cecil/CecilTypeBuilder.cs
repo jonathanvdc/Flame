@@ -28,11 +28,6 @@ namespace Flame.Cecil
         {
         }
 
-        public override IType GetGenericDeclaration()
-        {
-            return this;
-        }
-
         #region Declaring Namespace
 
         private INamespace declNs;
@@ -69,7 +64,7 @@ namespace Flame.Cecil
                 StringBuilder sb = new StringBuilder();
                 sb.Append(Template.GetGenericFreeName());
                 sb.Append('`');
-                sb.Append(Template.GetGenericParameters().Count());
+                sb.Append(Template.GenericParameters.Count());
                 return sb.ToString();
             }
         }
@@ -87,7 +82,7 @@ namespace Flame.Cecil
         public static CecilTypeBuilder DeclareType(ICecilNamespace CecilNamespace, IType Template)
         {
             var isNested = CecilNamespace is ICecilType;
-            var typeAttrs = ExtractTypeAttributes(Template.GetAttributes());
+            var typeAttrs = ExtractTypeAttributes(Template.Attributes);
             if (isNested && (typeAttrs & TypeAttributes.VisibilityMask) == TypeAttributes.Public)
             {
                 typeAttrs &= ~TypeAttributes.Public;
@@ -99,7 +94,7 @@ namespace Flame.Cecil
             CecilTypeBuilder cecilType;
             IGenericResolver genericResolver;
             bool isEnum = Template.get_IsEnum();
-            //IGenericResolver resolver = isEnum || !Template.GetGenericParameters().Any() ? 
+            //IGenericResolver resolver = isEnum || !Template.GenericParameters.Any() ? 
             if (isEnum)
             {
                 cecilType = new CecilEnumBuilder(reference, CecilNamespace, CecilNamespace.Module);
@@ -110,7 +105,7 @@ namespace Flame.Cecil
                 var declType = (ICecilType)CecilNamespace;
                 var mapResolver = new GenericResolverMap(declType);
                 cecilType = new CecilTypeBuilder(reference, CecilNamespace, mapResolver, CecilNamespace.Module);
-                var declGenerics = declType.GetGenericParameters().ToArray();
+                var declGenerics = declType.GenericParameters.ToArray();
                 var inheritedGenerics = CecilGenericParameter.DeclareGenericParameters(reference, declGenerics, cecilType.Module, cecilType);
                 mapResolver.Map(declGenerics, inheritedGenerics);
                 genericResolver = mapResolver;
@@ -126,11 +121,11 @@ namespace Flame.Cecil
             var module = CecilNamespace.Module.Module;
 
             // generics
-            var genericTemplates = Template.GetGenericParameters().ToArray();
+            var genericTemplates = Template.GenericParameters.ToArray();
 
             var genericParams = CecilGenericParameter.DeclareGenericParameters(reference, genericTemplates, cecilType.Module, cecilType);
 
-            var baseTypes = genericResolver.ResolveTypes(GetGenericTypes(Template.GetBaseTypes(), genericParams));
+            var baseTypes = genericResolver.ResolveTypes(GetGenericTypes(Template.BaseTypes.ToArray(), genericParams));
 
             if (!Template.get_IsInterface())
             {
@@ -160,7 +155,7 @@ namespace Flame.Cecil
                 reference.Interfaces.Add(item.GetImportedReference(CecilNamespace.Module, reference));
             }
 
-            CecilAttribute.DeclareAttributes(reference, cecilType, Template.GetAttributes());
+            CecilAttribute.DeclareAttributes(reference, cecilType, Template.Attributes);
 
             if (Template.get_IsExtension() && !cecilType.get_IsExtension())
             {
@@ -186,7 +181,6 @@ namespace Flame.Cecil
         {
             var method = CecilMethodBuilder.DeclareMethod(this, Template);
             ClearMethodCache();
-            ClearConstructorCache();
             return method;
         }
 
@@ -228,10 +222,10 @@ namespace Flame.Cecil
             GetResolvedType().Events.Add(Event);
         }
 
-        public void DeclareBaseType(ICecilType Type)
+        public void DeclareBaseType(IType Type)
         {
             var resolvedType = GetResolvedType();
-            var importedRef = Type.GetImportedReference(Module, resolvedType);
+            var importedRef = CecilTypeImporter.Import(Module, Type);
             if (Type.get_IsInterface())
             {
                 resolvedType.Interfaces.Add(importedRef);
@@ -257,7 +251,7 @@ namespace Flame.Cecil
         private static void CreateStaticSingletonMethod(IExpression GetSingletonExpression, ITypeBuilder DeclaringType, IMethod Method)
         {
             var descMethod = new DescribedMethod(Method.Name, DeclaringType, Method.ReturnType, true);
-            foreach (var attr in Method.GetAttributes())
+            foreach (var attr in Method.Attributes)
             {
                 descMethod.AddAttribute(attr);
             }
@@ -276,7 +270,7 @@ namespace Flame.Cecil
         {
             var descMethod = new DescribedAccessor(Accessor.AccessorType, DeclaringProperty, Accessor.ReturnType);
             descMethod.IsStatic = true;
-            foreach (var attr in Accessor.GetAttributes())
+            foreach (var attr in Accessor.Attributes)
             {
                 descMethod.AddAttribute(attr);
             }
@@ -294,16 +288,16 @@ namespace Flame.Cecil
         private static void CreateStaticSingletonProperty(IExpression GetSingletonExpression, ITypeBuilder DeclaringType, IProperty Property)
         {
             var descProp = new DescribedProperty(Property.Name, DeclaringType, Property.PropertyType, true);
-            foreach (var attr in Property.GetAttributes())
+            foreach (var attr in Property.Attributes)
             {
                 descProp.AddAttribute(attr);
             }
-            foreach (var param in Property.GetIndexerParameters())
+            foreach (var param in Property.IndexerParameters)
             {
                 descProp.AddIndexerParameter(param);
             }
             var staticProp = DeclaringType.DeclareProperty(descProp);
-            foreach (var item in Property.GetAccessors())
+            foreach (var item in Property.Accessors)
             {
                 CreateStaticSingletonAccessor(GetSingletonExpression, staticProp, item);
             }
@@ -316,7 +310,7 @@ namespace Flame.Cecil
             if (this.Name == StaticSingletonName)
             {
                 var declTypeBuilder = this.DeclaringGenericMember as ITypeBuilder;
-                var singletonProp = this.GetProperties().GetProperty(this.GetSingletonMemberName(), true);
+                var singletonProp = this.Properties.GetProperty(this.GetSingletonMemberName(), true);
                 // Generate static members for C# compatibility if "-generate-static" was specified
                 if (declTypeBuilder != null && singletonProp != null && declTypeBuilder.GetLog().Options.GenerateStaticMembers())
                 {
@@ -327,7 +321,7 @@ namespace Flame.Cecil
                     {
                         CreateStaticSingletonMethod(getSingletonExpr, declTypeBuilder, item);
                     }
-                    foreach (var item in this.GetProperties())
+                    foreach (var item in this.Properties)
                         if (item.get_Access() == AccessModifier.Public)
                         if (!item.IsStatic)
                     {
@@ -338,19 +332,19 @@ namespace Flame.Cecil
             return this;
         }
 
-        private Dictionary<ICecilField, IExpression> initialValues;
-        public void SetInitialValue(ICecilField Field, IExpression Value)
+        private Dictionary<IField, IExpression> initialValues;
+        public void SetInitialValue(IField Field, IExpression Value)
         {
             if (initialValues == null)
             {
-                initialValues = new Dictionary<ICecilField, IExpression>();
+                initialValues = new Dictionary<IField, IExpression>();
             }
             initialValues[Field] = Value;
         }
 
-        public IList<IStatement> GetFieldInitStatements()
+        public IEnumerable<IStatement> CreateFieldInitStatements()
         {
-            List<IStatement> statements = new List<IStatement>();
+            var statements = new List<IStatement>();
             if (initialValues == null)
             {
                 return statements;

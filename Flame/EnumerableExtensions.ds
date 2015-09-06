@@ -6,30 +6,25 @@ namespace Flame
 {
 	public static class EnumerableExtensions
 	{
+		private static const IType getParameterType(IParameter parameter)
+		{
+			return parameter.ParameterType;
+		}
+
 		public static const IType[] GetTypes(this IParameter[] Parameters)
 		{
-			IType[] types = new IType[Parameters.Length];
-			foreach (var param in Parameters, var output in types)
-			{
-				output = param.ParameterType;
-			}
-			return types;
+			[IParameter] enumerable = Parameters;
+			return Enumerable.ToArray<IType>(enumerable.GetTypes());
 		}
-		
-		public static const bool AreEqual(this IType[] Types, IType[] Others)
+
+		public static const [IType] GetTypes(this [IParameter] Parameters)
 		{
-			if (Types.Length != Others.Length)
-			{
-				return false;
-			}
-			foreach (var type in Types, var other in Others)
-			{
-				if (!type.Equals(other))
-				{
-					return false;
-				}
-			}
-			return true;
+			return Enumerable.Select<IParameter, IType>(Parameters, getParameterType);
+		}
+
+		public static const bool AreEqual(this [IType] Types, [IType] Others)
+		{
+			return Enumerable.SequenceEqual<IType>(Types, Others);
 		}
 	}
 }

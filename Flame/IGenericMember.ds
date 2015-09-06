@@ -3,26 +3,39 @@ using System.Collections.Generic;
 
 namespace Flame
 {
+    /// <summary>
+    /// An interface for generic members, which are members that have
+    /// a list of generic parameters.
+    /// </summary>
     public interface IGenericMember : IMember
     {
         /// <summary>
         /// Gets this method's generic parameters.
         /// </summary>
-        /// <returns></returns>
-        [IGenericParameter] GetGenericParameters();
-        /// <summary>
-        /// Gets the method's generic arguments.
-        /// </summary>
-        /// <returns></returns>
-        [IType] GetGenericArguments();
+        [IGenericParameter] GenericParameters { get; }
     }
-    public interface IGenericParameter : IType, IParameter
+
+    /// <summary>
+    /// A common interface for generic member instances.
+    /// </summary>
+    public interface IGenericMemberInstance : IGenericMember
+    {
+        /// <summary>
+        /// Gets this generic member instance's type arguments.
+        /// </summary>
+        [IType] GenericArguments { get; }
+    }
+
+    /// <summary>
+    /// Defines a generic parameter's interface.
+    /// </summary>
+    public interface IGenericParameter : IType
     {
         /// <summary>
         /// Gets the generic member that declared this parameter.
         /// </summary>
         IGenericMember DeclaringMember { const get; }
-        
+
         /// <summary>
         /// Gets the generic parameter's constraint.
         /// </summary>

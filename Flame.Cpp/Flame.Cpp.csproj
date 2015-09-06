@@ -92,6 +92,7 @@
     <Compile Include="CppNameExtensions.cs" />
     <Compile Include="CppOptionExtensions.cs" />
     <Compile Include="CppPointerExtensions.cs" />
+    <Compile Include="Plugs\StdInitializerList.cs" />
     <Compile Include="TypeInvariants.cs" />
     <Compile Include="DefaultTypeDefinitionPacker.cs" />
     <Compile Include="Emit\BodyStatementType.cs" />
@@ -131,7 +132,6 @@
     <Compile Include="Plugs\ContractsHeader.cs" />
     <Compile Include="Plugs\IsInstanceHeader.cs" />
     <Compile Include="Plugs\PrimitiveNamespace.cs" />
-    <Compile Include="Plugs\StdInitializerList.cs" />
     <Compile Include="Plugs\StdNamespace.cs" />
     <Compile Include="Plugs\PrimitiveBase.cs" />
     <Compile Include="DefaultCppTypeConverter.cs" />
@@ -193,10 +193,6 @@
     <Compile Include="IHeaderDependency.cs" />
     <Compile Include="ImplicitCopyConstructor.cs" />
     <Compile Include="IncludePath.cs" />
-    <Compile Include="Plugs\StdSharedPointer.cs" />
-    <Compile Include="Plugs\StdString.cs" />
-    <Compile Include="Plugs\StdTemplatedTypeBase.cs" />
-    <Compile Include="Plugs\StdVectorType.cs" />
     <Compile Include="Plugs\StdxArraySlice.cs" />
     <Compile Include="Plugs\StdxFinally.cs" />
     <Compile Include="Plugs\StdxNamespace.cs" />

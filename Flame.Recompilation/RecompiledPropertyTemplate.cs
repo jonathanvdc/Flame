@@ -32,14 +32,14 @@ namespace Flame.Recompilation
             return SourceProperty;
         }
 
-        public IAccessor[] GetAccessors()
+        public IEnumerable<IAccessor> Accessors
         {
-            return Recompiler.GetAccessors(SourceProperty.GetAccessors());
+            get { return Recompiler.GetAccessors(SourceProperty.Accessors.ToArray()); }
         }
 
-        public IParameter[] GetIndexerParameters()
+        public IEnumerable<IParameter> IndexerParameters
         {
-            return RecompiledParameterTemplate.GetParameterTemplates(Recompiler, SourceProperty.GetIndexerParameters());
+            get { return RecompiledParameterTemplate.GetParameterTemplates(Recompiler, SourceProperty.IndexerParameters.ToArray()); }
         }
 
         public IType PropertyType

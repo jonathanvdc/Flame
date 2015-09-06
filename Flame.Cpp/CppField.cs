@@ -52,9 +52,9 @@ namespace Flame.Cpp
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Template.GetAttributes();
+            get { return Template.Attributes; }
         }
 
         public string Name
@@ -161,7 +161,7 @@ namespace Flame.Cpp
             }
             cb.Append(TypeNamer.Name(FieldType, this));
             cb.Append(' '); 
-            var genDeclType = (IGenericResolverType)DeclaringType.MakeGenericType(DeclaringType.GetGenericParameters());
+            var genDeclType = DeclaringType.MakeGenericType(DeclaringType.GenericParameters);
             cb.Append(TypeNamer.Name(genDeclType, this));
             cb.Append("::");
             cb.Append(Name);

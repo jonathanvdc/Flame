@@ -59,7 +59,10 @@ namespace Flame.Compiler
                 {
                     return null;
                 }
-                else return method.GetParameters().GetTypes();
+                else
+                {
+                    return method.Parameters.GetTypes();
+                }
             }
         }
 

@@ -10,8 +10,8 @@ namespace Flame.Cecil
 {
     public interface ICecilTypeBuilder : ICecilType, ITypeBuilder, INamespaceBuilder, ICecilNamespace
     {
-        void SetInitialValue(ICecilField Field, IExpression Value);
-        IList<IStatement> GetFieldInitStatements();
+        void SetInitialValue(IField Field, IExpression Value);
+        IEnumerable<IStatement> CreateFieldInitStatements();
 
         void AddField(FieldDefinition Field);
         void AddMethod(MethodDefinition Method);

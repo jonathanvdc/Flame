@@ -7,16 +7,19 @@ namespace Flame.Build
 {
     public class DescribedAssembly : DescribedMember, IAssembly, INamespaceBranch
     {
-        public const this(set string Name)
+        public const this(string Name)
+            : base(Name)
         {
             this.types = new List<IType>();
             this.Environment = EmptyEnvironment;
         }
-        public const this(set string Name, set IEnvironment Environment)
+        public const this(string Name, set IEnvironment Environment)
+            : base(Name)
         {
             this.types = new List<IType>();
         }
-        public const this(set string Name, set Version AssemblyVersion, set IEnvironment Environment)
+        public const this(string Name, set Version AssemblyVersion, set IEnvironment Environment)
+            : base(Name)
         {
             this.types = new List<IType>();
         }
@@ -35,9 +38,9 @@ namespace Flame.Build
             types.Add(Type);
         }
 
-        public const IType[] GetTypes()
+        public [IType] Types
         {
-            return types.ToArray();
+            const get { return types; }
         }
 
         public const IBinder CreateBinder()
@@ -55,9 +58,9 @@ namespace Flame.Build
             const get { return this; }
         }
 
-        public const [INamespaceBranch] GetNamespaces()
+        public [INamespaceBranch] Namespaces
         {
-            return new INamespaceBranch[] { };
+            const get { return new INamespaceBranch[] { }; }
         }
     }
 }

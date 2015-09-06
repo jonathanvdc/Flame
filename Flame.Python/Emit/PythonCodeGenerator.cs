@@ -72,7 +72,7 @@ namespace Flame.Python.Emit
         public ICollectionBlock EmitCollectionBlock(IVariableMember Member, ICodeBlock Collection)
         {
             var pyColl = (IPythonBlock)Collection;
-            if (pyColl.Type.IsContainerType)
+            if (pyColl.Type.get_IsContainerType())
             {
                 return new ListCollectionBlock(this, pyColl);
             }
@@ -224,50 +224,86 @@ namespace Flame.Python.Emit
             }
         }
 
-        public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller)
+        public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller, Operator Op)
+        {
+            if (Op.Equals(Operator.GetDelegate))
+            {
+                return EmitDirectDelegate(Method, Caller);
+            }
+            else
+            {
+                return EmitDelegate(Method, Caller);
+            }
+        }
+
+        public ICodeBlock EmitTypeBinary(ICodeBlock Value, IType Type, Operator Op)
+        {
+            if (Op.Equals(Operator.IsInstance))
+            {
+                return EmitIsOfType(Type, Value);
+            }
+            else if (Op.Equals(Operator.StaticCast))
+            {
+                return EmitStaticCast(Value, Type);
+            }
+            else if (Op.Equals(Operator.DynamicCast) || Op.Equals(Operator.ReinterpretCast) || Op.Equals(Operator.AsInstance))
+            {
+                return EmitReinterpretCast(Value, Type);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private ICodeBlock EmitDirectDelegate(IMethod Method, ICodeBlock Caller)
         {
             if (Method.Equals(PythonObjectType.Instance.GetConstructor(new IType[0])))
             {
                 return new PythonNonexistantBlock(this);
             }
-            if (PythonPrimitiveMap.IsPrimitiveMethod(Method))
+            else if (Method.IsConstructor)
             {
-                return PythonPrimitiveMap.CreatePrimitiveMethodAccess(this, Caller as IPythonBlock, Method);
-            }
-            if (Caller == null)
-            {
-                if (Method.IsConstructor)
+                if (Caller == null)
                 {
                     return new PythonIdentifierBlock(this, GetName(Method.DeclaringType), MethodType.Create(Method), ModuleDependency.FromType(Method.DeclaringType));
                 }
                 else
                 {
-                    return new PythonIdentifierBlock(this, GetName(Method), MethodType.Create(Method));
+                    var ctorName = new MemberAccessBlock(this, new PythonIdentifierBlock(this, GetName(Method.DeclaringType), MethodType.Create(Method), ModuleDependency.FromType(Method.DeclaringType)), "__init__", PrimitiveTypes.Void);
+                    return new PartialInvocationBlock(this, ctorName, PrimitiveTypes.Void, (IPythonBlock)Caller);
                 }
             }
             else
             {
-                if (Method is IAccessor)
+                return EmitDelegate(Method, Caller);
+            }
+        }
+
+        private ICodeBlock EmitDelegate(IMethod Method, ICodeBlock Caller)
+        {
+            if (PythonPrimitiveMap.IsPrimitiveMethod(Method))
+            {
+                return PythonPrimitiveMap.CreatePrimitiveMethodAccess(this, Caller as IPythonBlock, Method);
+            }
+            else if (Method is IAccessor)
+            {
+                var acc = (IAccessor)Method;
+                if ((Method.DeclaringType.get_IsArray() || Method.DeclaringType.get_IsVector() || Method.DeclaringType.Equals(PrimitiveTypes.String)) && acc.DeclaringProperty.Name == "Length")
                 {
-                    var acc = (IAccessor)Method;
-                    if ((Method.DeclaringType.get_IsArray() || Method.DeclaringType.get_IsVector() || Method.DeclaringType.Equals(PrimitiveTypes.String)) && acc.DeclaringProperty.Name == "Length")
-                    {
-                        return new PartialInvocationBlock(this, new PythonIdentifierBlock(this, "len", PythonObjectType.Instance), Method.ReturnType, (IPythonBlock)Caller);
-                    }
-                    else if (acc.DeclaringProperty.get_IsIndexer() && acc.DeclaringProperty.Name == "this")
-                    {
-                        return new PartialIndexedBlock(this, (IPythonBlock)Caller, acc.AccessorType, Method.ReturnType);
-                    }
-                    else
-                    {
-                        return new PartialPropertyAccess(this, (IPythonBlock)Caller, acc);
-                    }
+                    return new PartialInvocationBlock(this, new PythonIdentifierBlock(this, "len", PythonObjectType.Instance), Method.ReturnType, (IPythonBlock)Caller);
                 }
-                else if (Method.IsConstructor)
+                else if (acc.DeclaringProperty.get_IsIndexer() && acc.DeclaringProperty.Name == "this")
                 {
-                    var ctorName = new MemberAccessBlock(this, new PythonIdentifierBlock(this, GetName(Method.DeclaringType), MethodType.Create(Method), ModuleDependency.FromType(Method.DeclaringType)), "__init__", PrimitiveTypes.Void);
-                    return new PartialInvocationBlock(this, ctorName, PrimitiveTypes.Void, (IPythonBlock)Caller);
+                    return new PartialIndexedBlock(this, (IPythonBlock)Caller, acc.AccessorType, Method.ReturnType);
                 }
+                else
+                {
+                    return new PartialPropertyAccess(this, (IPythonBlock)Caller, acc);
+                }
+            }
+            else
+            {
                 return new MemberAccessBlock(this, (IPythonBlock)Caller, GetName(Method), MethodType.Create(Method));
             }
         }
@@ -323,7 +359,12 @@ namespace Flame.Python.Emit
             }
         }
 
-        public ICodeBlock EmitConversion(ICodeBlock Value, IType Type)
+        private ICodeBlock EmitReinterpretCast(ICodeBlock Value, IType Type)
+        {
+            return new ImplicitlyConvertedBlock(this, (IPythonBlock)Value, Type); // No conversion necessary
+        }
+
+        private ICodeBlock EmitStaticCast(ICodeBlock Value, IType Type)
         {
             var pythonVal = (IPythonBlock)Value;
             var tVal = pythonVal.Type;
@@ -398,7 +439,7 @@ namespace Flame.Python.Emit
             }
         }
 
-        public ICodeBlock EmitNewVector(IType ElementType, int[] Dimensions)
+        public ICodeBlock EmitNewVector(IType ElementType, IReadOnlyList<int> Dimensions)
         {
             return EmitNewArray(ElementType, Dimensions.Select((item) => EmitInt32(item)));
         }
@@ -530,5 +571,6 @@ namespace Flame.Python.Emit
         }
 
         #endregion
+
     }
 }

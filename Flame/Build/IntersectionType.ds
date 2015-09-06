@@ -55,49 +55,34 @@ namespace Flame
 
         public string FullName
         {
-            const get { return First.FullName + "&" + Second.FullName; }
+            get { return First.FullName + "&" + Second.FullName; }
         }
 
-        public const [IAttribute] GetAttributes()
+        public [IAttribute] Attributes
         {
-            return Enumerable.Empty<IAttribute>();
+            const get { return Enumerable.Empty<IAttribute>(); }
         }
 
         public string Name
         {
-            const get { return First.Name + "&" + Second.Name; }
+            get { return First.Name + "&" + Second.Name; }
         }
 
-        public [IType] GetGenericArguments()
+        public [IGenericParameter] GenericParameters
         {
-            return Enumerable.Empty<IType>();
-        }
-
-        public [IGenericParameter] GetGenericParameters()
-        {
-            return Enumerable.Empty<IGenericParameter>();
+            get { return Enumerable.Empty<IGenericParameter>(); }
         }
 
         #region IType Implementation
-
-        public IContainerType AsContainerType()
-        {
-            return null;
-        }
 
         public INamespace DeclaringNamespace
         {
             const get { return null; }
         }
 
-        public IType[] GetBaseTypes()
+        public [IType] BaseTypes
         {
-            return new IType[0];
-        }
-
-        public IMethod[] GetConstructors()
-        {
-            return new IMethod[0];
+            const get { return new IType[0]; }
         }
 
         public IBoundObject GetDefaultValue()
@@ -105,55 +90,25 @@ namespace Flame
             return null;
         }
 
-        public IField[] GetFields()
+        public [IField] Fields
         {
-            return new IField[0];
+            const get { return new IField[0]; }
         }
 
-        public IType GetGenericTypeDeclaration() : IType.GetGenericDeclaration
+        public [IMethod] Methods
         {
-            return this;
+            const get { return new IMethod[0]; }
         }
 
-        public ITypeMember[] GetMembers()
+        public [IProperty] Properties
         {
-            return new ITypeMember[0];
+            const get { return new IProperty[0]; }
         }
 
-        public IMethod[] GetMethods()
+        public IAncestryRules AncestryRules
         {
-            return new IMethod[0];
-        }
-
-        public IProperty[] GetProperties()
-        {
-            return new IProperty[0];
-        }
-
-        public bool IsContainerType
-        {
-            const get { return false; }
-        }
-
-        public IArrayType MakeArrayType(int Rank)
-        {
-            return new DescribedArrayType(this, Rank);
-        }
-
-        public IType MakeGenericType([IType] TypeArguments)
-        {
-            return this;
-        }
-
-        public IPointerType MakePointerType(PointerKind PointerKind)
-        {
-            return new DescribedPointerType(this, PointerKind);
-        }
-
-        public IVectorType MakeVectorType(int[] Dimensions)
-        {
-            return new DescribedVectorType(this, Dimensions);
-        }
+            const get { return IntersectionAncestryRules; }
+         }
 
         #endregion
 
@@ -178,6 +133,43 @@ namespace Flame
         public override const string ToString()
         {
             return First.ToString() + "&" + Second.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Defines ancestry rules for intersection types.
+    /// </summary>
+    public static class IntersectionAncestryRules : IAncestryRules
+    {
+        public int GetAncestryDegree(IType First, IType Second)
+        {
+            var leftInter = IntersectionType.GetIntersectedTypes(First);
+            var rightInter = IntersectionType.GetIntersectedTypes(Second);
+
+            int result = 0;
+            // First, iterate over all items in the right-hand set, and find out
+            // if they can all be matched to a (sub)type in the left-hand set.
+            // This ensures that `int&double` is `double`, but
+            //                   `int&double` is not `string`.
+            foreach (var item in rightInter)
+            {
+                int bestAncestry = leftInter.GetLowestAncestryDegree(item);
+                if (bestAncestry < 0)
+                    return -1;
+                result += bestAncestry;
+            }
+            // Now, iterate over all items in the left-hand set. All types
+            // in this set that do not have a subtype in the right-hand set
+            // make the subtype hierarchy between the intersection types longer
+            // by one item.
+            // This ensures that  `int&double` is not equivalent to `int`,
+            // and therefore that `int` is not equivalent to `int&double`.
+            foreach (var item in leftInter)
+            {
+                if (rightInter.GetLowestAncestryDegree(item) < 0)
+                    result++;
+            }
+            return result;
         }
     }
 }

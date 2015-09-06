@@ -29,9 +29,9 @@ namespace Flame.MIPS
         public string FullName { get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); } }
         public bool IsStatic { get { return Template.IsStatic; } }
         public IType FieldType { get { return Template.FieldType; } }
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return Template.GetAttributes();
+            get { return Template.Attributes; }
         }
 
         public void SetValue(IExpression Value)

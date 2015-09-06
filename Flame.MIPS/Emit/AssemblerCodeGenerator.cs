@@ -86,11 +86,11 @@ namespace Flame.MIPS.Emit
 	        {
                 if (left.Type.get_IsPointer() && right.Type.get_IsInteger())
                 {
-                    return new BinaryOpBlock(this, left, Op, (IAssemblerBlock)EmitBinary(right, EmitInt32(left.Type.AsContainerType().GetElementType().GetSize()), Operator.Multiply));
+                    return new BinaryOpBlock(this, left, Op, (IAssemblerBlock)EmitBinary(right, EmitInt32(left.Type.AsContainerType().ElementType.GetSize()), Operator.Multiply));
                 }
                 else if (right.Type.get_IsPointer() && left.Type.get_IsInteger())
                 {
-                    return new BinaryOpBlock(this, (IAssemblerBlock)EmitBinary(left, EmitInt32(right.Type.AsContainerType().GetElementType().GetSize()), Operator.Multiply), Op, right);
+                    return new BinaryOpBlock(this, (IAssemblerBlock)EmitBinary(left, EmitInt32(right.Type.AsContainerType().ElementType.GetSize()), Operator.Multiply), Op, right);
                 }
                 return new BinaryOpBlock(this, left, Op, right);
 	        }
@@ -253,20 +253,39 @@ namespace Flame.MIPS.Emit
             return new InvocationBlock(this, (IAssemblerBlock)Method, Arguments.Cast<IAssemblerBlock>());
         }
 
-        public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller)
+        public ICodeBlock EmitDirectMethod(IMethod Method, ICodeBlock Caller)
         {
             if (Caller != null)
             {
-                throw new NotSupportedException("Function calls to non-empty callers are not supported.");
+                throw new NotSupportedException("Function calls with non-empty callers are not supported.");
             }
             return new MethodBlock(Method, this);
         }
 
         #endregion
 
-        public ICodeBlock EmitIsOfType(IType Type, ICodeBlock Value)
+        public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller, Operator Op)
         {
-            throw new NotImplementedException();
+            if (Op.Equals(Operator.GetDelegate))
+            {
+                return EmitDirectMethod(Method, Caller);
+            }
+            else
+            {
+                return null; // Indirect function calls are not supported.
+            }
+        }
+
+        public ICodeBlock EmitTypeBinary(ICodeBlock Value, IType Type, Operator Op)
+        {
+            if (Op.Equals(Operator.StaticCast) || Op.Equals(Operator.ReinterpretCast))
+            {
+                return EmitConversion(Value, Type);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public ICodeBlock EmitNewArray(IType ElementType, IEnumerable<ICodeBlock> Dimensions)
@@ -274,7 +293,7 @@ namespace Flame.MIPS.Emit
             throw new NotImplementedException();
         }
 
-        public ICodeBlock EmitNewVector(IType ElementType, int[] Dimensions)
+        public ICodeBlock EmitNewVector(IType ElementType, IReadOnlyList<int> Dimensions)
         {
             throw new NotImplementedException();
         }
@@ -355,5 +374,6 @@ namespace Flame.MIPS.Emit
         }
 
         #endregion
+
     }
 }

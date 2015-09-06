@@ -64,14 +64,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AncestryGraphCacheBase.cs" />
+    <Compile Include="CecilAccessorBuilder.cs" />
+    <Compile Include="CecilAncestryRules.cs" />
     <Compile Include="CecilDelegateType.cs" />
     <Compile Include="CecilFieldBase.cs" />
     <Compile Include="CecilFieldConverter.cs" />
     <Compile Include="CecilFieldImporter.cs" />
-    <Compile Include="CecilGenericInstanceMethod.cs" />
-    <Compile Include="CecilGenericInstanceProperty.cs" />
-    <Compile Include="CecilGenericInstanceType.cs" />
-    <Compile Include="CecilGenericTypeBase.cs" />
     <Compile Include="CecilMethodConverter.cs" />
     <Compile Include="CecilMethodImporter.cs" />
     <Compile Include="CecilModule.cs" />
@@ -85,7 +83,9 @@
     <Compile Include="ConverterCache.cs" />
     <Compile Include="Emit\BlockExtensions.cs" />
     <Compile Include="Emit\BranchFlowStructure.cs" />
+    <Compile Include="Emit\DynamicCastBlock.cs" />
     <Compile Include="Emit\IndirectVariable.cs" />
+    <Compile Include="Emit\AsInstanceBlock.cs" />
     <Compile Include="Emit\VariableAddressBlock.cs" />
     <Compile Include="Emit\VariableBase.cs" />
     <Compile Include="Emit\TaggedBlock.cs" />
@@ -96,7 +96,6 @@
     <Compile Include="Emit\ThrowBlock.cs" />
     <Compile Include="Emit\TryFinallyBlock.cs" />
     <Compile Include="Emit\UnboxAnyToPointerOptimization.cs" />
-    <Compile Include="CecilGenericInstanceField.cs" />
     <Compile Include="Emit\VariableLoadBlock.cs" />
     <Compile Include="Emit\VariableReleaseBlock.cs" />
     <Compile Include="Emit\VariableStoreBlock.cs" />
@@ -134,9 +133,7 @@
     <Compile Include="CecilEnvironment.cs" />
     <Compile Include="CecilExtensions.cs" />
     <Compile Include="CecilField.cs" />
-    <Compile Include="CecilGenericMethod.cs" />
     <Compile Include="CecilGenericParameter.cs" />
-    <Compile Include="CecilGenericType.cs" />
     <Compile Include="CecilMember.cs" />
     <Compile Include="CecilMemberExtensions.cs" />
     <Compile Include="CecilMethod.cs" />

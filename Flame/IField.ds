@@ -3,16 +3,26 @@ using System.Collections.Generic;
 
 namespace Flame
 {
+    /// <summary>
+    /// Defines a common interface for fields.
+    /// </summary>
     public interface IField : ITypeMember
     {
         /// <summary>
         /// Gets the field's type.
         /// </summary>
-        IType FieldType { const get; }
+        IType FieldType { get; }
     }
-    
+
+    /// <summary>
+    /// Defines common functionality for fields that contain an immutable literal
+    /// value.
+    /// </summary>
     public interface ILiteralField : IField
     {
-    	IBoundObject Value { const get; }
+        /// <summary>
+        /// Gets this literal field's immutable literal value.
+        /// </summary>
+    	IBoundObject Value { get; }
     }
 }

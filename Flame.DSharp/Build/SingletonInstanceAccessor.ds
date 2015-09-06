@@ -29,44 +29,29 @@ namespace Flame.DSharp.Build
 
 		public IType ReturnType { const get return DeclaringProperty.PropertyType; }
 		public bool IsStatic { const get return true; }
-		public const IParameter[] GetParameters()
+		public [IParameter] Parameters
 		{
-			return new IParameter[0];
+			const get { return new IParameter[0]; }
 		}
 		public bool IsConstructor { const get return false; }
-		public const IMethod[] GetBaseMethods()
+		public [IMethod] BaseMethods
 		{
-			return new IMethod[0];
+			const get { return new IMethod[0]; }
 		}
 
-		public const [IAttribute] GetAttributes()
+		public const [IAttribute] Attributes
 		{
-			return new IAttribute[] { new AccessAttribute(AccessModifier.Public) };
+			const get { return new IAttribute[] { new AccessAttribute(AccessModifier.Public) }; }
+		}
+
+		public [IGenericParameter] GenericParameters
+		{
+			const get { return new IGenericParameter[0]; }
 		}
 
 		public const IBoundObject Invoke(IBoundObject Target, [IBoundObject] Arguments)
 		{
 			return null;
-		}
-
-		public const IMethod GetGenericDeclaration()
-		{
-			return this;
-		}
-
-		public const IMethod MakeGenericMethod([IType] Arguments)
-		{
-			return null;
-		}
-
-		public const [IType] GetGenericArguments()
-		{
-			return new IType[0];
-		}
-
-		public const [IGenericParameter] GetGenericParameters()
-		{
-			return new IGenericParameter[0];
 		}
 
 		public const IStatement GetMethodBody()
@@ -82,18 +67,18 @@ namespace Flame.DSharp.Build
 			var singletonField = BackingField;
 			if (singletonField.DeclaringType.IsGeneric)
 			{
-				var resolver = new DescribedGenericTypeInstance(singletonField.DeclaringType,
-																ReturnType.GetGenericArguments());
+				var resolver = new GenericType(singletonField.DeclaringType,
+											   ReturnType.GetGenericArguments());
 
-				singletonField = new DescribedGenericFieldInstance(singletonField,
-																   resolver,
-																   ReturnType);
+				singletonField = new GenericInstanceField(singletonField,
+														  resolver,
+														  ReturnType);
 			}
 
     		var newObjExpr = new NewObjectExpression(singletonField.FieldType); // new <type>();
         	var fieldVar = new FieldVariable(singletonField, null);
         	var fieldGetExpr = fieldVar.CreateGetExpression();
-        	var eqExpr = new EqualityExpression(fieldGetExpr, new NullExpression()); // <field> == null
+        	var eqExpr = new EqualityExpression(fieldGetExpr, NullExpression); // <field> == null
         	var setStmt = fieldVar.CreateSetStatement(newObjExpr); // <field> = new <type>();
         	var ifStmt = new IfElseStatement(eqExpr, setStmt); // if (<field> == null)
         	var retStmt = new ReturnStatement(fieldGetExpr); // return <field>;
@@ -107,8 +92,9 @@ namespace Flame.DSharp.Build
 
         public static const FieldProperty CreateAccessorProperty(ISyntaxState State)
         {
-        	var field = new DescribedField(GetSingletonInstanceFieldName(State.DeclaringType), State.CurrentType, true);
-        	field.DeclaringType = State.DeclaringType;
+        	var field = new DescribedField(
+				GetSingletonInstanceFieldName(State.DeclaringType),
+				State.DeclaringType, State.CurrentType, true);
         	field.AddAttribute(PrimitiveAttributes.HiddenAttribute);
         	field.AddAttribute(new AccessAttribute(AccessModifier.Private));
         	var property = new DescribedProperty("Instance", State.DeclaringType, State.CurrentType, true);

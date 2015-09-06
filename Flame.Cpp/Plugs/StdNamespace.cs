@@ -23,9 +23,6 @@ namespace Flame.Cpp.Plugs
         {
             inst = new StdNamespace();
 
-            inst.Register(StdVectorType.Instance);
-            inst.Register(StdSharedPointer.Instance);
-            inst.Register(StdString.Instance);
             inst.Register(StdInitializerList.Instance);
         }
 

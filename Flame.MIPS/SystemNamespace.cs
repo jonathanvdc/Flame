@@ -24,12 +24,15 @@ namespace Flame.MIPS
             }
         }
 
-        public IType[] GetTypes()
+        public IEnumerable<IType> Types
         {
-            return new IType[]
+            get
             {
-                MemorySystemType.Instance
-            };
+                return new IType[]
+                {
+                    MemorySystemType.Instance
+                };
+            }
         }
 
         public IAssembly DeclaringAssembly
@@ -42,9 +45,9 @@ namespace Flame.MIPS
             get { return Name; }
         }
 
-        public IEnumerable<IAttribute> GetAttributes()
+        public IEnumerable<IAttribute> Attributes
         {
-            return new IAttribute[0];
+            get { return new IAttribute[0]; }
         }
 
         public string Name
@@ -52,9 +55,9 @@ namespace Flame.MIPS
             get { return "System"; }
         }
 
-        public IEnumerable<INamespaceBranch> GetNamespaces()
+        public IEnumerable<INamespaceBranch> Namespaces
         {
-            return new INamespaceBranch[0];
+            get { return new INamespaceBranch[0]; }
         }
     }
 }
