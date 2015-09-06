@@ -69,7 +69,7 @@
     <Compile Include="DSharp\Semantics.cs" />
     <Compile Include="EmptyCompilerOptions.cs" />
     <Compile Include="DSharp\Parser.cs" />
-    <Compile Include="Extensions.cs" />
+    <Compile Include="Shadowing.cs" />
     <Compile Include="TypeSystem.cs" />
     <Compile Include="Sets.cs" />
     <Compile Include="SimplifyFlow.cs" />

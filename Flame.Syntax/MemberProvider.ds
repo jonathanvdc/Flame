@@ -7,19 +7,6 @@ using Flame.Syntax;
 
 namespace Flame.Syntax
 {
-    public class CurriedClosure<T1, T2, T3, T4>
-    {
-        public const this(set T4(T1, T2, T3) Delegate, set T1 Arg0);
-
-        public T4(T1, T2, T3) Delegate { const get; private set; }
-        public T1 Arg0 { const get; private set; }
-
-        public T4 Invoke(T2 Arg1, T3 Arg2)
-        {
-            return Delegate(Arg0, Arg1, Arg2);
-        }
-    }
-
     public class MemberProvider : IMemberProvider
     {
         public const this(IExtensionTypeProvider GlobalExtensionTypeProvider, set IBinder Binder)
@@ -46,34 +33,9 @@ namespace Flame.Syntax
 
         public IBinder Binder { const get; private set; }
 
-        private bool IsShadowed(IType Type, IMethod Bottom, IMethod Top)
-        {
-            if (Bottom.IsExtension && Bottom.DeclaringType.Equals(Type))
-            {
-                return false;
-            }
-            else
-            {
-                return Top.ShadowsExtension(Bottom);
-            }
-        }
-
-        private bool IsShadowed(IType Type, IProperty Bottom, IProperty Top)
-        {
-            if (Bottom.IsExtension && Bottom.DeclaringType.Equals(Type))
-            {
-                return false;
-            }
-            else
-            {
-                return Top.ShadowsExtension(Bottom);
-            }
-        }
-
         private ITypeMember[] GetMembersCore(IType Type)
         {
-            var members = new HashSet<ITypeMember>();
-            members.UnionWith(Type.GetAllMembers());
+            var members = new HashSet<ITypeMember>(Type.GetAllMembers());
 
             if (Type.IsPureInterface)
             {
@@ -89,33 +51,23 @@ namespace Flame.Syntax
                 members.UnionWith(related.GetAllMembers());
             }
 
-            var methods = new HashSet<IMethod>(Enumerable.OfType<IMethod>(members));
-            members.ExceptWith(methods);
-            var properties = new HashSet<IProperty>(Enumerable.OfType<IProperty>(members));
-            members.ExceptWith(properties);
-
             foreach (var item in ExtensionTypes)
             {
                 foreach (var method in item.GetMethods())
                 {
                     if (method.IsExtension && Type.Is(method.GetParameters()[0].ParameterType))
                     {
-                        methods.Add(method);
+                        members.Add(method);
                     }
                 }
                 foreach (var prop in item.Properties)
                 {
                     if (prop.IsExtension && Type.Is(prop.GetIndexerParameters()[0].ParameterType))
                     {
-                        properties.Add(prop);
+                        members.Add(prop);
                     }
                 }
             }
-
-            members.UnionWith(SetExtensions.UpperBounds<IMethod>(methods,
-                new CurriedClosure<IType, IMethod, IMethod, bool>(IsShadowed, Type).Invoke));
-            members.UnionWith(SetExtensions.UpperBounds<IProperty>(properties,
-                new CurriedClosure<IType, IProperty, IProperty, bool>(IsShadowed, Type).Invoke));
 
             return Enumerable.ToArray<ITypeMember>(members);
         }

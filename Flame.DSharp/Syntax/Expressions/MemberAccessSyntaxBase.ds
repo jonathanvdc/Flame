@@ -10,6 +10,19 @@ using Flame.DSharp.Parser;
 
 namespace Flame.Syntax.DSharp
 {
+    public class CurriedClosure<T1, T2, T3, T4>
+    {
+        public const this(set T4(T1, T2, T3) Delegate, set T1 Arg0);
+
+        public T4(T1, T2, T3) Delegate { const get; private set; }
+        public T1 Arg0 { const get; private set; }
+
+        public T4 Invoke(T2 Arg1, T3 Arg2)
+        {
+            return Delegate(Arg0, Arg1, Arg2);
+        }
+    }
+
     public abstract class MemberAccessSyntaxBase : VariableSyntaxBase, ITypeMemberAccessSyntax, ISourceSyntax
     {
     	public const this();
@@ -148,18 +161,54 @@ namespace Flame.Syntax.DSharp
             return null;
         }
 
-        private static const List<T> GroupTypeMembers<T>([ITypeMember] Members,
+        private static const [T] GroupTypeMembers<T>([ITypeMember] Members,
                                     string MemberName)
             where T : ITypeMember
         {
             var results = new List<T>();
             var possibleResults = Enumerable.OfType<T>(Members);
             foreach (var item in possibleResults)
-                if (!item.IsHidden && item.Name.Equals(MemberName))
+                if (!item.IsHidden && item.Name == MemberName)
             {
                 results.Add(item);
             }
             return results;
+        }
+
+        private static bool IsShadowed(IType Type, IMethod Bottom, IMethod Top)
+        {
+            if (Bottom.IsExtension && Bottom.DeclaringType.Equals(Type))
+            {
+                return false;
+            }
+            else
+            {
+                return Top.ShadowsExtension(Bottom);
+            }
+        }
+
+        private static bool IsShadowed(IType Type, IProperty Bottom, IProperty Top)
+        {
+            if (Bottom.IsExtension && Bottom.DeclaringType.Equals(Type))
+            {
+                return false;
+            }
+            else
+            {
+                return Top.ShadowsExtension(Bottom);
+            }
+        }
+
+        private static [IProperty] ExceptShadowed([IProperty] Values, IType ThisType)
+        {
+            return SetExtensions.UpperBounds<IProperty>(Values,
+                       new CurriedClosure<IType, IProperty, IProperty, bool>(IsShadowed, ThisType).Invoke);
+        }
+
+        private static [IMethod] ExceptShadowed([IMethod] Values, IType ThisType)
+        {
+            return SetExtensions.UpperBounds<IMethod>(Values,
+                       new CurriedClosure<IType, IMethod, IMethod, bool>(IsShadowed, ThisType).Invoke);
         }
 
         private static const IType GetNullableType(IVariable Target)
@@ -176,7 +225,7 @@ namespace Flame.Syntax.DSharp
         {
             bool callerNull = Caller == null;
             bool singletonCaller = CallerType.IsSingleton && Caller != null;
-            var properties = GroupTypeMembers<IProperty>(members, MemberName);
+            var properties = ExceptShadowed(GroupTypeMembers<IProperty>(members, MemberName), CallerType);
 
             var propertyTargetType = GetNullableType(Caller);
 
@@ -233,7 +282,7 @@ namespace Flame.Syntax.DSharp
             IVariable Caller, IType CallerType,
             string MemberName, ISyntaxState State)
         {
-            var methods = GroupTypeMembers<IMethod>(members, MemberName);
+            var methods = ExceptShadowed(GroupTypeMembers<IMethod>(members, MemberName), CallerType);
 
             var methodTargetType = GetNullableType(Caller);
 
