@@ -92,6 +92,23 @@ namespace PassTests
             Assert.IsFalse(MethodType.Create(descMethod2).Is(MethodType.Create(descMethod)));
         }
 
+        [TestMethod]
+        [TestCategory("Ancestry - array type")]
+        public void ArrayAncestry()
+        {
+            var descEnumerable = new DescribedType("IEnumerable<>", null);
+            var genParam = new DescribedGenericParameter("T", descEnumerable);
+            genParam.AddAttribute(PrimitiveAttributes.Instance.OutAttribute);
+            descEnumerable.AddGenericParameter(genParam);
+            descEnumerable.AddAttribute(new EnumerableAttribute(genParam));
+
+            var intEnumerable = descEnumerable.MakeGenericType(new IType[] { PrimitiveTypes.Int32 });
+            var intArray = PrimitiveTypes.Int32.MakeArrayType(1);
+
+            Assert.IsTrue(intArray.Is(intEnumerable));
+            Assert.IsFalse(intEnumerable.Is(intArray));
+        }
+
         private static IType CreateDelegateType(IType ResultType, params IType[] ArgumentTypes)
         {
             var argMethod = new DescribedMethod("", null, ResultType, true);

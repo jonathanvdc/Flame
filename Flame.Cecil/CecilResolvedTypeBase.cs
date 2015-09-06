@@ -222,7 +222,7 @@ namespace Flame.Cecil
             }
             else if (this.get_IsReferenceType())
             {
-                return new Flame.Compiler.Expressions.NullExpression();
+                return Flame.Compiler.Expressions.NullExpression.Instance;
             }
             throw new NotImplementedException();
         }

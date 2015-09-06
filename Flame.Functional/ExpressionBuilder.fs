@@ -268,7 +268,7 @@ module ExpressionBuilder =
 
     /// Creates a null expression.
     let Null = 
-        new NullExpression() :> IExpression
+        NullExpression.Instance :> IExpression
 
     /// Creates a void expression.
     let Void =

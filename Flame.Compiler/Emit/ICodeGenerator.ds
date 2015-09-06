@@ -164,23 +164,24 @@ namespace Flame.Compiler
 		#region Object Model
 
 		/// <summary>
-        /// Checks if it is of the provided type.
-        /// </summary>
-        /// <param name="Type"></param>
-        ICodeBlock EmitIsOfType(IType Type, ICodeBlock Value);
+		/// Emits a binary operation that takes a value and a type as arguments.
+		/// Casts, conversions and isinstance tests all use this format.
+		/// </summary>
+		ICodeBlock EmitTypeBinary(ICodeBlock Value, IType Type, Operator Op);
+
 		/// <summary>
 		/// Creates a block that contains the default value for the given type.
 		/// </summary>
 		ICodeBlock EmitDefaultValue(IType Type);
-		/// <summary>
-		/// Creates a block that converts the given value to the given type.
-		/// </summary>
-		ICodeBlock EmitConversion(ICodeBlock Value, IType Type);
+
 		/// <summary>
 		/// Creates a block that contains a delegate to the given method with the given caller.
-		/// Said caller may be null, if the method is static.
+		/// Said caller may be null, if the method is static. The given operator
+		/// is used to create the method with, which may encode information such
+		/// as virtualness.
 		/// </summary>
-		ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller);
+		ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller, Operator Op);
+
 		/// <summary>
 		/// Creates a block that invokes the given method with the given
 		/// arguments.

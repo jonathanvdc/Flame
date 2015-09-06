@@ -220,24 +220,19 @@ namespace Flame.Cecil.Emit
             Value.Emit(Context);
             var exprType = Context.Stack.Pop();
             var targetType = TargetType;
-            bool exprIsPtr = exprType.get_IsPointer();
-            bool targIsPtr = targetType.get_IsPointer();
 
             if (targetType.get_IsGeneric() && targetType.get_IsGenericDeclaration())
             {
                 throw new Exception("Type casts to open generic types are not allowed.");
             }
 
-            if (exprIsPtr && targIsPtr)
+            if (targetType.get_IsPointer())
             {
-                if (exprType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer) && !targetType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer))
+                if (exprType.get_IsPointer())
                 {
-                    Context.Emit(OpCodes.Conv_U);
+                    throw new InvalidOperationException("static_cast cannot be used to convert between pointer or reference types. Use reinterpret_cast or dynamic_cast instead.");
                 }
-                // Else, do absolutely nothing
-            }
-            else if (targIsPtr)
-            {
+
                 if (!exprType.get_IsValueType() && targetType.AsContainerType().AsPointerType().ElementType.get_IsValueType())
                 {
                     Context.Emit(OpCodes.Unbox, targetType.AsContainerType().AsPointerType().ElementType);
@@ -292,13 +287,6 @@ namespace Flame.Cecil.Emit
                 if (TargetType is ICecilType)
                 {
                     EmitDelegateConversion((ICecilType)exprType, (ICecilType)targetType, Context);
-                }
-            }
-            else if (TargetType.get_IsReferenceType() && exprType.get_IsReferenceType()) // Castclass, then
-            {
-                if (!exprType.Is(targetType))
-                {
-                    Context.Emit(OpCodes.Castclass, targetType);
                 }
             }
             else  // Unbox.Any as last resort

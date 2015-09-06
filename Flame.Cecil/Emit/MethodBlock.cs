@@ -10,35 +10,38 @@ namespace Flame.Cecil.Emit
 {
     public class MethodBlock : ICecilBlock
     {
-        public MethodBlock(ICodeGenerator CodeGenerator, IMethod Method, ICecilBlock Caller, ICecilType DelegateType)
+        public MethodBlock(ICodeGenerator CodeGenerator, IMethod Method, ICecilBlock Caller, bool IsVirtual, ICecilType DelegateType)
         {
             System.Diagnostics.Debug.Assert(CodeGenerator != null);
             System.Diagnostics.Debug.Assert(Method != null);
             this.CodeGenerator = CodeGenerator;
             this.Method = Method;
             this.Caller = Caller;
+            this.IsVirtual = IsVirtual;
             this.delegateType = new Lazy<IType>(() => DelegateType);
         }
-        public MethodBlock(ICodeGenerator CodeGenerator, IMethod Method, ICecilBlock Caller)
+        public MethodBlock(ICodeGenerator CodeGenerator, IMethod Method, ICecilBlock Caller, bool IsVirtual)
         {
             System.Diagnostics.Debug.Assert(CodeGenerator != null);
             System.Diagnostics.Debug.Assert(Method != null);
             this.CodeGenerator = CodeGenerator;
             this.Method = Method;
             this.Caller = Caller;
+            this.IsVirtual = IsVirtual;
             this.delegateType = new Lazy<IType>(() => CodeGenerator.GetModule().TypeSystem.GetCanonicalDelegate(Method));
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
         public IMethod Method { get; private set; }
         public ICecilBlock Caller { get; private set; }
+        public bool IsVirtual { get; private set; }
 
         private Lazy<IType> delegateType;
         public IType DelegateType { get { return delegateType.Value; } }
 
         public MethodBlock ChangeDelegateType(ICecilType NewDelegateType)
         {
-            return new MethodBlock(CodeGenerator, Method, Caller, NewDelegateType);
+            return new MethodBlock(CodeGenerator, Method, Caller, IsVirtual, NewDelegateType);
         }
 
         public static void EmitCaller(ICecilBlock Caller, IMethod Target, IEmitContext Context)
@@ -68,7 +71,7 @@ namespace Flame.Cecil.Emit
                 }
             }
             // Push a function pointer on the stack.
-            if (ILCodeGenerator.UseVirtualCall(Method))
+            if (IsVirtual)
             {
                 Context.Emit(OpCodes.Dup);
                 Context.Emit(OpCodes.Ldvirtftn, Method);

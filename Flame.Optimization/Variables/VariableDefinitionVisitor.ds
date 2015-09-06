@@ -380,9 +380,9 @@ namespace Flame.Optimization.Variables
                 else
                     return PropagationDependencies.Never();
             }
-            else if (Value is ConversionExpression)
+            else if (Value is ConversionExpressionBase)
             {
-                return GetDependencies(((ConversionExpression)Value).Value);
+                return GetDependencies(((ConversionExpressionBase)Value).Value);
             }
             else if (Value is GetMethodExpression)
             {

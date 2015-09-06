@@ -4,11 +4,22 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
+    /// <summary>
+    /// Defines an is-expression, which is an expression that tests if a value
+    /// is an instance of a given type.
+    /// </summary>
     public class IsExpression : IExpression, IMemberNode, IPredicateNode
     {
+        /// <summary>
+        /// Creates an is-expression from the given expression and type.
+        /// </summary>
         public const this(set IExpression Target, set IType TestType);
 
+        /// <summary>
+        /// Gets the value that is tested against the given type.
+        /// </summary>
         public IExpression Target { const get; private set; }
+
         /// <summary>
         /// Gets the type to test against.
         /// </summary>
@@ -72,25 +83,37 @@ namespace Flame.Compiler.Expressions
 
         public const IExpression Optimize()
         {
-            if (IsConstant)
+            var optTarget = Target.Optimize();
+            if (optTarget.IsConstant)
             {
-                return new BooleanExpression(Target.Evaluate().Type.Is(TestType));
+                var evalTarget = optTarget.Evaluate();
+                if (evalTarget != null)
+                    return new BooleanExpression(evalTarget.Type.Is(TestType));
             }
-            else
-            {
-                return new IsExpression(Target.Optimize(), TestType);
-            }
+            return new IsExpression(optTarget, TestType);
         }
 
         public const ICodeBlock Emit(ICodeGenerator Generator)
         {
             var targetBlock = Target.Emit(Generator);
-            return Generator.EmitIsOfType(TestType, targetBlock);
+            var isInst = Generator.EmitTypeBinary(targetBlock, TestType, Operator.IsInstance);
+            if (isInst == null)
+            {
+                // We can always try to create an `as_instance(value, type) != null` block
+                // if the code generator refuses to create an
+                // `is_instance(value, type)` block.
+                var asInst = Generator.EmitTypeBinary(targetBlock, TestType, Operator.AsInstance);
+                if (asInst != null)
+                {
+                    return Generator.EmitNotEquals(asInst, Generator.EmitNull());
+                }
+            }
+            return isInst;
         }
 
         public override const string ToString()
         {
-            return "isinstance(" + Target + ", " + TestType + ")";
+            return "is_instance(" + Target + ", " + TestType + ")";
         }
     }
 }

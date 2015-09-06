@@ -230,35 +230,81 @@ namespace Flame.Cpp.Emit
 
         public ICodeBlock EmitBit16(ushort Value)
         {
-            return EmitConversion(EmitUInt16(Value), PrimitiveTypes.Bit16);
+            return EmitTypeBinary(EmitUInt16(Value), PrimitiveTypes.Bit16, Operator.StaticCast);
         }
 
         public ICodeBlock EmitBit32(uint Value)
         {
-            return EmitConversion(EmitUInt32(Value), PrimitiveTypes.Bit32);
+            return EmitTypeBinary(EmitUInt32(Value), PrimitiveTypes.Bit32, Operator.StaticCast);
         }
 
         public ICodeBlock EmitBit64(ulong Value)
         {
-            return EmitConversion(EmitUInt64(Value), PrimitiveTypes.Bit64);
+            return EmitTypeBinary(EmitUInt64(Value), PrimitiveTypes.Bit64, Operator.StaticCast);
         }
 
         public ICodeBlock EmitBit8(byte Value)
         {
-            return EmitConversion(EmitUInt8(Value), PrimitiveTypes.Bit8);
+            return EmitTypeBinary(EmitUInt8(Value), PrimitiveTypes.Bit8, Operator.StaticCast);
         }
 
         #endregion
 
         #region Object Model
 
-        #region Conversions
-
-        public ICodeBlock EmitConversion(ICodeBlock Value, IType Type)
+        public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller, Operator Op)
         {
-            var cppVal = (ICppBlock)Value;
-            return new ConversionBlock(this, cppVal, Environment.TypeConverter.Convert(Type));
+            return EmitMethod(Method, Caller); // TODO: rewrite direct/virtual call logic to use
+                                               //       information embedded in the operator.
         }
+
+        private ICppBlock EmitTypeBinaryCore(ICppBlock Value, IType Type, Operator Op)
+        {
+            if (Op.Equals(Operator.StaticCast))
+            {
+                return new ConversionBlock(this, Value, Type);
+            }
+            else if (Op.Equals(Operator.ReinterpretCast))
+            {
+                var srcType = Value.Type;
+                if (ConversionBlock.UseImplicitCast(srcType, Type))
+                {
+                    return new ConversionBlock(this, Value, Type);
+                }
+                else if (ConversionBlock.UseConvertToSharedPtr(srcType, Type))
+                {
+                    return new ToReferenceBlock(Value);
+                }
+                else if (ConversionBlock.UseConvertToTransientPtr(srcType, Type))
+                {
+                    return new ToAddressBlock(Value);
+                }
+                else
+                {
+                    return new ConversionBlock(this, Value, Type); // C-style cast for now.
+                    // TODO: make this an actual reinterpret_cast
+                }
+            }
+            else if (Op.Equals(Operator.AsInstance) || Op.Equals(Operator.DynamicCast)) // TODO: throw an exception if a dynamic_cast fails
+            {
+                return new DynamicCastBlock(Value, Type);
+            }
+            else if (Op.Equals(Operator.IsInstance))
+            {
+                return new IsInstanceBlock(this, Value, Type);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public ICodeBlock EmitTypeBinary(ICodeBlock Value, IType Type, Operator Op)
+        {
+            return EmitTypeBinaryCore((ICppBlock)Value, Environment.TypeConverter.Convert(Type), Op);
+        }
+
+        #region Conversions
 
         #endregion
 
@@ -308,11 +354,6 @@ namespace Flame.Cpp.Emit
             {
                 return new InvocationBlock((ICppBlock)Method, cppArgs);
             }
-        }
-
-        public ICodeBlock EmitIsOfType(IType Type, ICodeBlock Value)
-        {
-            return new IsInstanceBlock(this, (ICppBlock)Value, Environment.TypeConverter.Convert(Type));
         }
 
         public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller)

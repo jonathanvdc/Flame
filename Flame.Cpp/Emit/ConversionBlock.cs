@@ -30,7 +30,7 @@ namespace Flame.Cpp.Emit
             get { return Value.LocalsUsed; }
         }
 
-        public bool UseImplicitCast(IType SourceType, IType TargetType)
+        public static bool UseImplicitCast(IType SourceType, IType TargetType)
         {
             if (SourceType.Is(TargetType))
             {

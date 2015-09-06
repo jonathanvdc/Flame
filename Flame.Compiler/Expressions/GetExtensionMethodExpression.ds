@@ -79,7 +79,11 @@ namespace Flame.Compiler.Expressions
 
 		public ICodeBlock Emit(ICodeGenerator Generator)
 		{
-            throw new NotSupportedException("Emitting extension method delegates is not supported at this time.");
-		}
+            var block = Generator.EmitMethod(Target, Caller.EmitOrNull(Generator), Operator.GetCurriedDelegate);
+            if (block == null)
+                throw new NotSupportedException("Emitting extension method delegates is not supported at this time.");
+            else
+                return block;
+        }
     }
 }

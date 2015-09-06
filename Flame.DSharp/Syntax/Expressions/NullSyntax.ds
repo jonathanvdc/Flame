@@ -41,7 +41,7 @@ namespace Flame.Syntax.DSharp
 
         public IExpression CreateExpression(ISyntaxState State) : IExpressionSyntax.CreateExpression
         {
-        	return new NullExpression();
+        	return NullExpression;
         }
 
         public override const string ToString()

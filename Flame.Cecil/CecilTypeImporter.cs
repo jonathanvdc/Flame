@@ -72,6 +72,10 @@ namespace Flame.Cecil
             {
                 return Convert(Module.TypeSystem.GetCanonicalDelegate(MethodType.GetMethod(Type)));
             }
+            if (Type.get_IsRootType())
+            {
+                return Module.Module.TypeSystem.Object;
+            }
             else
             {
                 return null; // Null is a signaling value

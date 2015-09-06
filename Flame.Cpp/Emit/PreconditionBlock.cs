@@ -38,7 +38,7 @@ namespace Flame.Cpp.Emit
 
         public CodeBuilder GetCode()
         {
-            var method = CodeGenerator.EmitMethod(CppPrimitives.RequireMethod, null);
+            var method = CodeGenerator.EmitMethod(CppPrimitives.RequireMethod, null, Operator.GetDelegate);
             var cppExpr = (ICppBlock)CodeGenerator.EmitInvocation(method, new ICodeBlock[] { Precondition });
             return new ExpressionStatementBlock(cppExpr).GetCode();
         }

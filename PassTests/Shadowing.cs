@@ -74,8 +74,8 @@ namespace PassTests
 
             Assert.IsTrue(derivedMethod.Shadows(baseMethod));
             Assert.IsTrue(derivedMethod.ShadowsExtension(baseMethod));
-
-
+            Assert.IsFalse(baseMethod.Shadows(derivedMethod));
+            Assert.IsFalse(baseMethod.ShadowsExtension(derivedMethod));
         }
     }
 }

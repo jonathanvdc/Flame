@@ -83,7 +83,9 @@
     <Compile Include="ConverterCache.cs" />
     <Compile Include="Emit\BlockExtensions.cs" />
     <Compile Include="Emit\BranchFlowStructure.cs" />
+    <Compile Include="Emit\DynamicCastBlock.cs" />
     <Compile Include="Emit\IndirectVariable.cs" />
+    <Compile Include="Emit\AsInstanceBlock.cs" />
     <Compile Include="Emit\VariableAddressBlock.cs" />
     <Compile Include="Emit\VariableBase.cs" />
     <Compile Include="Emit\TaggedBlock.cs" />

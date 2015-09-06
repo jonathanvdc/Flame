@@ -78,7 +78,7 @@ namespace Flame.DSharp.Build
     		var newObjExpr = new NewObjectExpression(singletonField.FieldType); // new <type>();
         	var fieldVar = new FieldVariable(singletonField, null);
         	var fieldGetExpr = fieldVar.CreateGetExpression();
-        	var eqExpr = new EqualityExpression(fieldGetExpr, new NullExpression()); // <field> == null
+        	var eqExpr = new EqualityExpression(fieldGetExpr, NullExpression); // <field> == null
         	var setStmt = fieldVar.CreateSetStatement(newObjExpr); // <field> = new <type>();
         	var ifStmt = new IfElseStatement(eqExpr, setStmt); // if (<field> == null)
         	var retStmt = new ReturnStatement(fieldGetExpr); // return <field>;

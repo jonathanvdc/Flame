@@ -183,7 +183,7 @@ namespace Flame.ExpressionTrees.Emit
 
         public ICodeBlock EmitNull()
         {
-            return EmitConstant(new NullExpression());
+            return EmitConstant(NullExpression);
         }
 
         public ICodeBlock EmitDefaultValue(IType Type)
