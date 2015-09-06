@@ -411,7 +411,7 @@ namespace Flame.Recompilation
         {
             return TypeCache.Get(SourceType);
         }
-        public IType[] GetTypes(IEnumerable<IType> SourceTypes)
+        public IEnumerable<IType> GetTypes(IEnumerable<IType> SourceTypes)
         {
             return TypeCache.GetMany(SourceTypes);
         }
@@ -552,7 +552,7 @@ namespace Flame.Recompilation
                     }
                     else
                     {
-                        result = recompDeclType.Properties.GetProperty(SourceProperty.Name, SourceProperty.IsStatic, GetType(SourceProperty.PropertyType), GetTypes(SourceProperty.IndexerParameters.GetTypes()));
+                        result = recompDeclType.Properties.GetProperty(SourceProperty.Name, SourceProperty.IsStatic, GetType(SourceProperty.PropertyType), GetTypes(SourceProperty.IndexerParameters.GetTypes()).ToArray());
                     }
                     System.Diagnostics.Debug.Assert(result != null);
                     return new MemberCreationResult<IProperty>(result);
