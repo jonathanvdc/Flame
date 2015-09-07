@@ -281,8 +281,7 @@ namespace Flame.Cpp.Emit
                 }
                 else
                 {
-                    return new ConversionBlock(this, Value, Type); // C-style cast for now.
-                    // TODO: make this an actual reinterpret_cast
+                    return new ReinterpretCastBlock(Value, Type);
                 }
             }
             else if (Op.Equals(Operator.AsInstance) || Op.Equals(Operator.DynamicCast)) // TODO: throw an exception if a dynamic_cast fails
