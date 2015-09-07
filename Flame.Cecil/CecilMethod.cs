@@ -115,7 +115,7 @@ namespace Flame.Cecil
             {
                 foreach (var item in bType.GetAllMethods())
                 {
-                    if (item.HasSameSignature(this))
+                    if (item.HasSameSignature(this) && item.get_IsVirtual())
                     {
                         overrides.Add(item);
                     }
