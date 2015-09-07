@@ -1,0 +1,11 @@
+
+namespace Library
+{
+    public struct Vector
+    {
+        public double X;
+        public double Y;
+
+        public double LengthSquared { get { return X * X + Y * Y; } }
+    }
+}
