@@ -58,6 +58,20 @@ namespace Flame.Verification
 
         /// <summary>
         /// Appends the node count visitor's locations to the given entry as
+        /// neutral diagnostic remarks with the given title.
+        /// </summary>
+        /// <param name="Entry"></param>
+        /// <param name="Visitor"></param>
+        /// <returns></returns>
+        public static LogEntry AppendNeutralLocations(LogEntry Entry, NodeCountVisitor Visitor, string Title)
+        {
+            var newContents = Visitor.MatchLocations.Aggregate(Entry.Contents,
+                (state, item) => RedefinitionHelpers.Instance.AppendDiagnosticsRemark(state, Title, item));
+            return new LogEntry(Entry.Name, newContents);
+        }
+
+        /// <summary>
+        /// Appends the node count visitor's locations to the given entry as
         /// initialization diagnostic remarks.
         /// </summary>
         /// <param name="Entry"></param>
@@ -65,9 +79,7 @@ namespace Flame.Verification
         /// <returns></returns>
         public static LogEntry AppendInitializationLocations(LogEntry Entry, NodeCountVisitor Visitor)
         {
-            var newContents = Visitor.MatchLocations.Aggregate(Entry.Contents, 
-                (state, item) => RedefinitionHelpers.Instance.AppendDiagnosticsRemark(state, "Initialization: ", item));
-            return new LogEntry(Entry.Name, newContents);
+            return AppendNeutralLocations(Entry, Visitor, "Initialization: ");
         }
 
         /// <summary>

@@ -43,6 +43,15 @@ namespace Flame.Analysis
         private HashSet<SourceLocation> locs;
         public IEnumerable<SourceLocation> MatchLocations { get { return locs; } }
 
+        public static Func<INode, bool> MatchCalls(Func<DissectedCall, bool> Matches)
+        {
+            return new Func<INode, bool>(node =>
+            {
+                var call = AnalysisHelpers.DissectCall(node as IExpression);
+                return call != null && Matches(call);
+            });
+        }
+
         public Bounds<InfiniteInt32> CreateCollapsedFlow(Bounds<InfiniteInt32> First, Bounds<InfiniteInt32> Second)
         {
             return CreateSequenceFlow(First, Second);
