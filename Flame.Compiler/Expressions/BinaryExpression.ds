@@ -40,7 +40,7 @@ namespace Flame.Compiler.Expressions
 			Visitor.Visit(RightOperand);
 		}
 
-		public IExpression Accept(INodeVisitor Visitor)
+		public virtual IExpression Accept(INodeVisitor Visitor)
 		{
 			var transLeft = Visitor.Visit(LeftOperand);
 			var transRight = Visitor.Visit(RightOperand);
@@ -154,7 +154,7 @@ namespace Flame.Compiler.Expressions
 
 		public override const string ToString()
 		{
-			return "binary(\"" + Op + "\", " + LeftOperand + ", " + RightOperand + ")"; 
+			return "binary(" + Op + ", " + LeftOperand + ", " + RightOperand + ")";
 		}
 	}
 
@@ -300,11 +300,28 @@ namespace Flame.Compiler.Expressions
 				return OverloadInvocation.Evaluate();
 			}
 		}
+
 		public override const IExpression Optimize()
 		{
 			if (CanLower) return LoweredExpression.Optimize();
 			else return new DirectBinaryExpression(LeftOperand.Optimize(), Op, RightOperand.Optimize());
 		}
+
+		public override IExpression Accept(INodeVisitor Visitor)
+		{
+			if (LoweredExpression != null)
+			{
+				return Visitor.Visit(LoweredExpression);
+			}
+
+			var transLeft = Visitor.Visit(LeftOperand);
+			var transRight = Visitor.Visit(RightOperand);
+			if (transLeft == LeftOperand && transRight == RightOperand)
+				return this;
+			else
+				return Create(transLeft, transRight);
+		}
+
 		public override const ICodeBlock Emit(ICodeGenerator Generator)
 		{
 			if (CanLower) return LoweredExpression.Emit(Generator);
