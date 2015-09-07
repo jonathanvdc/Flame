@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="AccessorVerifier.cs" />
     <Compile Include="AssemblyVerifier.cs" />
+    <Compile Include="InfiniteRecursionPass.cs" />
     <Compile Include="InitializationCountHelpers.cs" />
     <Compile Include="InitializationCountPass.cs" />
     <Compile Include="MethodVerifierBase.cs" />
