@@ -15,6 +15,7 @@ namespace Flame.Compiler.Expressions
         /// Accepts and interacts with a flow visitor.
         /// </summary>
         public IExpression AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+            : IFlowExpression.AcceptFlow<TState, TFlow>
         {
             // Represents the following flow:
             //
@@ -39,7 +40,7 @@ namespace Flame.Compiler.Expressions
             if (transLhs == LeftOperand && transRhs == RightOperand)
                 return this;
             else
-                return new LazyAndExpression(transLhs, transRhs);
+                return Create(transLhs, transRhs);
         }
     }
 
