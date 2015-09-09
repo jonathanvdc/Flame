@@ -11,9 +11,16 @@ namespace Flame
 	public interface IGenericConstraint
 	{
 		/// <summary>
-		/// Gets a boolean value that indicates whether the given type argument satisfies the generic constraint.
+		/// Transforms the types in this generic constraint using the
+		/// given type converter.
 		/// </summary>
-		const bool Satisfies(IType TypeArgument);
+		IGenericConstraint Transform(IConverter<IType, IType> Converter);
+
+		/// <summary>
+		/// Gets a boolean value that indicates whether the given type argument
+		/// satisfies the generic constraint.
+		/// </summary>
+		bool Satisfies(IType TypeArgument);
 	}
 
 	public static class GenericConstraintExtensions

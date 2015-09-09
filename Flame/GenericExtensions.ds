@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Flame.Build;
 
 namespace Flame
 {
@@ -280,5 +281,37 @@ namespace Flame
 			}
 			return Type.MakeGenericType(TypeArguments);
 		}
+
+		#region Generic Parameter Cloning
+
+		/// <summary>
+		/// "Clones" the given sequence of generic parameters: their names,
+		/// attributes and generic constraints are preserved, but they are
+		/// assigned to a new parent member.
+		/// </summary>
+		public static [IGenericParameter] CloneGenericParameters(
+			[IGenericParameter] Items, IGenericMember NewParent)
+		{
+			var results = new List<DescribedGenericParameter>();
+			var mapping = new Dictionary<IType, IType>();
+			foreach (var item in Items)
+			{
+				var genParam = new DescribedGenericParameter(item.Name, NewParent);
+				foreach (var attr in item.Attributes)
+				{
+					genParam.AddAttribute(attr);
+				}
+				results.Add(genParam);
+				mapping[item] = genParam;
+			}
+			var converter = new TypeMappingConverter(mapping);
+			foreach (var oldItem in Items, var newItem in results)
+			{
+				newItem.AddConstraint(oldItem.Constraint.Transform(converter));
+			}
+			return results;
+		}
+
+		#endregion
 	}
 }

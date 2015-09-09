@@ -9,10 +9,25 @@ namespace Flame
 	/// </summary>
 	public class TypeConstraint : IGenericConstraint
 	{
+		/// <summary>
+		/// Creates a new type constraint based on the given type.
+		/// </summary>
 		public const this(set IType Type);
-		
+
+		/// <summary>
+		/// Gets the type that type arguments have to derive from.
+		/// </summary>
 		public IType Type { const get; private set; }
-		
+
+		/// <summary>
+		/// Transforms the types in this generic constraint using the
+		/// given type converter.
+		/// </summary>
+		public IGenericConstraint Transform(IConverter<IType, IType> Converter)
+		{
+			return new TypeConstraint(Converter.Convert(Type));
+		}
+
 		public const bool Satisfies(IType TypeArgument)
 		{
 			return TypeArgument.Is(Type);

@@ -34,8 +34,8 @@ namespace Flame.Compiler.Visitors
         /// Creates a new body pass argument from the given values.
         /// </summary>
         public const this(set IBodyPassEnvironment PassEnvironment,
-                          set PassMetadata Metadata, set ITypeBuilder Type,
-                          set IMethodBuilder Method, set IStatement Body);
+                          set PassMetadata Metadata, set IMethod DeclaringMethod,
+                          set IStatement Body);
 
         /// <summary>
         /// Creates a new body pass argument from the given previous body
@@ -45,8 +45,7 @@ namespace Flame.Compiler.Visitors
         {
             this.Metadata = Previous.Metadata;
             this.PassEnvironment = Previous.PassEnvironment;
-            this.Type = Previous.Type;
-            this.Method = Previous.Method;
+            this.DeclaringMethod = Previous.DeclaringMethod;
         }
 
         /// <summary>
@@ -65,14 +64,14 @@ namespace Flame.Compiler.Visitors
         public IEnvironment Environment { const get return PassEnvironment.Environment; }
 
         /// <summary>
-        /// Gets the target method's declaring type.
+        /// Gets the declaring method's declaring type.
         /// </summary>
-        public ITypeBuilder Type { const get; private set; }
+        public IType DeclaringType { const get { return DeclaringMethod.DeclaringType; } }
 
         /// <summary>
-        /// Gets the target method.
+        /// Gets the declaring method.
         /// </summary>
-        public IMethodBuilder Method { const get; private set; }
+        public IMethod DeclaringMethod { const get; private set; }
 
         /// <summary>
         /// Gets the target method's body statement.
@@ -96,14 +95,14 @@ namespace Flame.Compiler.Visitors
         /// <summary>
         /// Applies this pass to the given method, method body, type builder and environment.
         /// </summary>
-        public abstract IStatement Apply(IEnvironment Environment, ITypeBuilder Type, IMethodBuilder Method, IStatement Body);
+        public abstract IStatement Apply(IEnvironment Environment, IMethod Method, IStatement Body);
 
         /// <summary>
         /// Applies this pass to the given method, method body, type builder and environment.
         /// </summary>
         public IStatement Apply(BodyPassArgument Value)
         {
-            return Apply(Value.Environment, Value.Type, Value.Method, Value.Body);
+            return Apply(Value.Environment, Value.DeclaringMethod, Value.Body);
         }
     }
 
@@ -114,7 +113,7 @@ namespace Flame.Compiler.Visitors
     public class FatBodyPass : IPass<BodyPassArgument, BodyPassArgument>
     {
         /// <summary>
-        /// Creates a new fat bpdy pass based on the given body pass.
+        /// Creates a new fat body pass based on the given body pass.
         /// </summary>
         public const this(set IPass<BodyPassArgument, IStatement> Pass);
 
