@@ -1,0 +1,103 @@
+using System;
+
+namespace Flame.Compiler.Build
+{
+    /// <summary>
+    /// An instantiation of a method signature template.
+    /// </summary>
+    public class MethodSignatureInstance
+    {
+        /// <summary>
+        /// Instantiates the given method signature template with the given method.
+        /// </summary>
+        public const this(set IMethodSignatureTemplate Template, set IMethod Method)
+        {
+            this.Attributes = new Lazy<[IAttribute]>(createAttributes);
+            this.GenericParameters = new Lazy<[IGenericParameter]>(createGenericParameters);
+            this.BaseMethods = new Lazy<[IMethod]>(createBaseMethods);
+            this.ReturnType = new Lazy<IType>(createReturnType);
+            this.Parameters = new Lazy<[IParameter]>(createParameters);
+        }
+
+        /// <summary>
+        /// Gets the method signature template this instance is based on.
+        /// </summary>
+        public IMethodSignatureTemplate Template { const get; private set; }
+
+        /// <summary>
+        /// Gets the method the signature template is instantiated with.
+        /// </summary>
+        public IMethod Method { const get; private set; }
+
+        /// <summary>
+        /// Gets the method signature instance's name.
+        /// </summary>
+        public string Name { const get { return Template.Name; } }
+
+        /// <summary>
+        /// Gets a boolean value that tells if this method signature instance is a constructor.
+        /// </summary>
+        public bool IsConstructor { const get { return Template.IsConstructor; } }
+
+        /// <summary>
+        /// Gets the method signature instance's attributes.
+        /// These should be evaluated lazily. Specifically, they cannot be
+        /// evaluated during the creation of a new method builder based on this
+        /// template. Doing so anyway will result in undefined behavior.
+        /// </summary>
+        public Lazy<[IAttribute]> Attributes { const get; private set; }
+
+        /// <summary>
+        /// Gets the method signature instance's generic parameters.
+        /// These should be evaluated lazily. Specifically, they cannot be
+        /// evaluated during the creation of a new method builder based on this
+        /// template. Doing so anyway will result in undefined behavior.
+        /// </summary>
+        public Lazy<[IGenericParameter]> GenericParameters { const get; private set; }
+
+        /// <summary>
+        /// Gets the method signature instance's base methods.
+        /// These should be evaluated lazily. Specifically, they cannot be
+        /// evaluated during the creation of a new method builder based on this
+        /// template. Doing so anyway will result in undefined behavior.
+        /// </summary>
+        public Lazy<[IMethod]> BaseMethods { const get; private set; }
+
+        /// <summary>
+        /// Gets the method signature instance's return type.
+        /// These should be evaluated lazily. Specifically, they cannot be
+        /// evaluated during the creation of a new method builder based on this
+        /// template. Doing so anyway will result in undefined behavior.
+        /// </summary>
+        public Lazy<IType> ReturnType { const get; private set; }
+
+        /// <summary>
+        /// Gets the method signature instance's parameters.
+        /// These should be evaluated lazily. Specifically, they cannot be
+        /// evaluated during the creation of a new method builder based on this
+        /// template. Doing so anyway will result in undefined behavior.
+        /// </summary>
+        public Lazy<[IParameter]> Parameters { const get; private set; }
+
+        private [IAttribute] createAttributes()
+        {
+            return Template.CreateAttributes(Method);
+        }
+        private [IGenericParameter] createGenericParameters()
+        {
+            return Template.CreateGenericParameters(Method);
+        }
+        private [IMethod] createBaseMethods()
+        {
+            return Template.CreateBaseMethods(Method);
+        }
+        private IType createReturnType()
+        {
+            return Template.CreateReturnType(Method);
+        }
+        private [IParameter] createParameters()
+        {
+            return Template.CreateParameters(Method);
+        }
+    }
+}

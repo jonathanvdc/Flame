@@ -1,0 +1,33 @@
+using System;
+
+namespace Flame.Compiler.Build
+{
+    /// <summary>
+    /// Defines a template for member signatures, which can be instantiated.
+    /// </summary>
+    public interface IMemberSignatureTemplate<T>
+        where T : IMember
+    {
+        /// <summary>
+        /// Gets the member signature's name.
+        /// </summary>
+        string Name { const get; }
+
+        /// <summary>
+        /// Creates the member signature's attributes.
+        /// </summary>
+        [IAttribute] CreateAttributes(T Type);
+    }
+
+    /// <summary>
+    /// Defines a template for type member signatures, which can be instantiated.
+    /// </summary>
+    public interface ITypeMemberSignatureTemplate<T> : IMemberSignatureTemplate<T>
+        where T : ITypeMember
+    {
+        /// <summary>
+        /// Gets a boolean flag that determines whether this type member is static.
+        /// </summary>
+        bool IsStatic { const get; }
+    }
+}

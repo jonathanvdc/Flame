@@ -1,0 +1,15 @@
+using System;
+
+namespace Flame.Compiler.Build
+{
+    /// <summary>
+    /// Defines a template for field signatures, which can be instantiated.
+    /// </summary>
+    public interface IFieldSignatureTemplate : ITypeMemberSignatureTemplate<IField>
+    {
+        /// <summary>
+        /// Creates the field signature's field type.
+        /// </summary>
+        IType CreateFieldType(IField Field);
+    }
+}

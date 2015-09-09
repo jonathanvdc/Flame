@@ -1,0 +1,72 @@
+using System;
+
+namespace Flame.Compiler.Build
+{
+    /// <summary>
+    /// An instantiation of a type signature template.
+    /// </summary>
+    public class TypeSignatureInstance
+    {
+        /// <summary>
+        /// Instantiates the given type signature template with the given type.
+        /// </summary>
+        public const this(set ITypeSignatureTemplate Template, set IType Type)
+        {
+            this.Attributes = new Lazy<[IAttribute]>(createAttributes);
+            this.GenericParameters = new Lazy<[IGenericParameter]>(createGenericParameters);
+            this.BaseTypes = new Lazy<[IType]>(createBaseTypes);
+        }
+
+        /// <summary>
+        /// Gets the type signature template this instance is based on.
+        /// </summary>
+        public ITypeSignatureTemplate Template { const get; private set; }
+
+        /// <summary>
+        /// Gets the type the signature template is instantiated with.
+        /// </summary>
+        public IType Type { const get; private set; }
+
+        /// <summary>
+        /// Gets the type signature instance's name.
+        /// </summary>
+        public string Name { const get { return Template.Name; } }
+
+        /// <summary>
+        /// Gets the type signature instance's attributes.
+        /// These should be evaluated lazily. Specifically, they cannot be
+        /// evaluated during the creation of a new type builder based on this
+        /// template. Doing so anyway will result in undefined behavior.
+        /// </summary>
+        public Lazy<[IAttribute]> Attributes { const get; private set; }
+
+        /// <summary>
+        /// Gets the type signature instance's generic parameters.
+        /// These should be evaluated lazily. Specifically, they cannot be
+        /// evaluated during the creation of a new type builder based on this
+        /// template. Doing so anyway will result in undefined behavior.
+        /// </summary>
+        public Lazy<[IGenericParameter]> GenericParameters { const get; private set; }
+
+        /// <summary>
+        /// Gets the type signature instance's base types.
+        /// These should be evaluated lazily. Specifically, they cannot be
+        /// evaluated during the creation of a new type builder based on this
+        /// template. Doing so anyway will result in undefined behavior.
+        /// </summary>
+        public Lazy<[IType]> BaseTypes { const get; private set; }
+
+        private [IAttribute] createAttributes()
+        {
+            return Template.CreateAttributes(Type);
+        }
+        private [IGenericParameter] createGenericParameters()
+        {
+            return Template.CreateGenericParameters(Type);
+        }
+        private [IType] createBaseTypes()
+        {
+            return Template.CreateBaseTypes(Type);
+        }
+    }
+}

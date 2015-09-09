@@ -2,10 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Flame.Compiler
+namespace Flame.Compiler.Build
 {
-    public interface IMemberBuilder<T> : IMember where T : IMember
+    /// <summary>
+    /// Defines a base interface for member builders.
+    /// </summary>
+    public interface IMemberBuilder<T> : IMember
+        where T : IMember
     {
+        /// <summary>
+        /// "Builds" this member builder. This signifies the end of interaction
+        /// with the member builder interaction, and allows the member builder
+        /// to store all the data it has acquired.
+        /// </summary>
         T Build();
     }
 }
