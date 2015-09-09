@@ -4,9 +4,13 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-    public class LazyOrExpression : BinaryOperatorExpression
+    /// <summary>
+    /// Defines a short-circuiting boolean 'or' operator.
+    /// </summary>
+    public class LazyOrExpression : ShortCircuitBinaryExpression
     {
-        public const this(set IExpression LeftOperand, set IExpression RightOperand);
+        public const this(IExpression LeftOperand, IExpression RightOperand)
+            : base(LeftOperand, RightOperand);
 
         protected override Operator GetOperator() { return Operator.LogicalOr; }
 

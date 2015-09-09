@@ -48,9 +48,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnalysisHelpers.cs" />
     <Compile Include="AnalysisPass.cs" />
     <Compile Include="AnalysisPasses.cs" />
     <Compile Include="AnalysisVisitorBase.cs" />
+    <Compile Include="CallAnalysisVisitorBase.cs" />
+    <Compile Include="DissectedCall.cs" />
     <Compile Include="InfiniteInt32.cs" />
     <Compile Include="NodeCountVisitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

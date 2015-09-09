@@ -13,12 +13,6 @@ namespace Flame.Verification
 {
     public static class InitializationCountHelpers
     {
-        private static bool IsThisVariable(IExpression Value)
-        {
-            var innerNode = Value.GetEssentialExpression();
-            return innerNode is IVariableNode && ((IVariableNode)innerNode).GetVariable() is ThisVariable;
-        }
-
         public static bool IsInitializationNode(INode Value)
         {
             if (Value is ISetVariableNode)
@@ -29,12 +23,12 @@ namespace Flame.Verification
             else if (Value is StoreAtAddressStatement)
             {
                 var stmt = (StoreAtAddressStatement)Value;
-                return IsThisVariable(stmt.Pointer);
+                return AnalysisHelpers.IsThisVariable(stmt.Pointer);
             }
             else if (Value is GetMethodExpression)
             {
                 var getMethod = (GetMethodExpression)Value;
-                return getMethod.Target.IsConstructor && IsThisVariable(getMethod.Caller);
+                return getMethod.Target.IsConstructor && AnalysisHelpers.IsThisVariable(getMethod.Caller);
             }
             else
             {

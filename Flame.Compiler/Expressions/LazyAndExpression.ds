@@ -4,9 +4,53 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-    public class LazyAndExpression : BinaryOperatorExpression
+    /// <summary>
+    /// A base class for short-circuiting binary expressions.
+    /// </summary>
+    public abstract class ShortCircuitBinaryExpression : BinaryOperatorExpression, IFlowExpression
     {
         public const this(set IExpression LeftOperand, set IExpression RightOperand);
+
+        /// <summary>
+        /// Accepts and interacts with a flow visitor.
+        /// </summary>
+        public IExpression AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+            : IFlowExpression.AcceptFlow<TState, TFlow>
+        {
+            // Represents the following flow:
+            //
+            //             lhs
+            //           /     \
+            //          /       \
+            //        rhs      empty
+            //          \       /
+            //           \     /
+
+            var transLhs = Visitor.Visit(LeftOperand);
+
+            var startState = Visitor.CurrentFlow;
+            var transRhs = Visitor.Visit(RightOperand);
+            var nonEmptyFlow = Visitor.CreateDeltaFlow(startState, Visitor.CurrentFlow);
+
+            Visitor.CurrentFlow = startState; // Reset flow to create empty flow flow
+            var emptyFlow = Visitor.CreateDeltaFlow(Visitor.CurrentFlow, Visitor.CurrentFlow);
+
+            Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(startState, Visitor.CreateSelectFlow(nonEmptyFlow, emptyFlow));
+
+            if (transLhs == LeftOperand && transRhs == RightOperand)
+                return this;
+            else
+                return Create(transLhs, transRhs);
+        }
+    }
+
+    /// <summary>
+    /// Defines a short-circuiting boolean 'and' operator.
+    /// </summary>
+    public class LazyAndExpression : ShortCircuitBinaryExpression
+    {
+        public const this(IExpression LeftOperand, IExpression RightOperand)
+            : base(LeftOperand, RightOperand);
 
         protected override Operator GetOperator() { return Operator.LogicalAnd; }
 
