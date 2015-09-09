@@ -48,9 +48,10 @@ namespace Flame.Optimization
             if (Expression is InvocationExpression)
             {
                 var invExpr = (InvocationExpression)Expression;
-                if (invExpr.Target is GetMethodExpression)
+                var invTrgt = invExpr.Target.GetEssentialExpression();
+                if (invTrgt is GetMethodExpression)
                 {
-                    var target = (GetMethodExpression)invExpr.Target;
+                    var target = (GetMethodExpression)invTrgt;
                     return new DissectedCall(target.Caller, target.Target, invExpr.Arguments);
                 }
             }

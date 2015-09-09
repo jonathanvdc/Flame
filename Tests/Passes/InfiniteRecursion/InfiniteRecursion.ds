@@ -1,0 +1,22 @@
+
+public static class TestClass
+{
+    public int BrokenFib(int n)
+    {
+        return BrokenFib(n - 1) + BrokenFib(n - 2);
+    }
+
+    public int FiniteRecursion(int n)
+    {
+        // This function terminates all right.
+        // The compiler shouldn't emit a warning.
+        if (n > 0 && FiniteRecursion(n - 1) > 0)
+        {
+            return n - 1;
+        }
+        else
+        {
+            return n;
+        }
+    }
+}
