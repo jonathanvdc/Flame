@@ -11,13 +11,13 @@ namespace Flame.Compiler.Visitors
 {
     public class VariableCapturingVisitor : VariableSubstitutingVisitorBase
     {
-        public const this(set string FieldPrefix, set ITypeBuilder Type, set MemberConverter Converter)
+        public const this(set string FieldPrefix, set DescribedType Type, set MemberConverter Converter)
         {
             this.captArgs = new Dictionary<IVariable, IVariable>();
             this.capturedVariables = new Dictionary<IVariable, IVariable>();
             this.thisVariable = ThisReferenceVariable.Create(Type);
         }
-        public const this(set ITypeBuilder Type, set MemberConverter Converter)
+        public const this(set DescribedType Type, set MemberConverter Converter)
         {
             this.FieldPrefix = "captured";
             this.captArgs = new Dictionary<IVariable, IVariable>();
@@ -26,7 +26,7 @@ namespace Flame.Compiler.Visitors
         }
 
         public string FieldPrefix { const get; private set; }
-        public ITypeBuilder Type { const get; private set; }
+        public DescribedType Type { const get; private set; }
         public MemberConverter Converter { const get; private set; }
 
         public IReadOnlyDictionary<IVariable, IVariable> CapturedArguments { const get return captArgs; }
@@ -56,17 +56,29 @@ namespace Flame.Compiler.Visitors
             return result;
         }
 
+        private IField GetGenericField(IField Field)
+        {
+            if (Type.IsGeneric)
+            {
+                var genThis = new GenericType(Type, Type.GenericParameters);
+                return new GenericInstanceField(Field, genThis);
+            }
+            else
+            {
+                return Field;
+            }
+        }
+
         private IVariable CaptureVariable(IVariable Variable, string Name, bool IsArgument)
         {
-            var descCaptField = new DescribedField(CreateFieldName(Name), Type,
-                                                   Converter.Convert(Variable.Type),
-                                                   false);
-            descCaptField.AddAttribute(new AccessAttribute(AccessModifier.Private));
-            descCaptField.AddAttribute(PrimitiveAttributes.HiddenAttribute);
+            var captField = new DescribedField(CreateFieldName(Name), Type,
+                                               Converter.Convert(Variable.Type),
+                                               false);
+            captField.AddAttribute(new AccessAttribute(AccessModifier.Private));
+            captField.AddAttribute(PrimitiveAttributes.HiddenAttribute);
 
-            var captField = Type.DeclareField(descCaptField);
-            captField.Build();
-            var captFieldVar = new FieldVariable(ThisVariable.GetThisType(Type).GetField(captField.Name, captField.IsStatic),
+            Type.AddField(captField);
+            var captFieldVar = new FieldVariable(GetGenericField(captField),
                                                  thisVariable.CreateGetExpression());
 
             if (IsArgument)

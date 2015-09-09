@@ -125,11 +125,11 @@ namespace Flame.Cecil
             }
             if (HasReferenceTypeConstraint)
             {
-                results.Add(new ReferenceTypeConstraint());
+                results.Add(ReferenceTypeConstraint.Instance);
             }
             if (HasValueTypeConstraint)
             {
-                results.Add(new ValueTypeConstraint());
+                results.Add(ValueTypeConstraint.Instance);
             }
             return results;
         }

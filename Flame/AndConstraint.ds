@@ -13,7 +13,21 @@ namespace Flame
 
 		public [IGenericConstraint] Constraints { const get; private set; }
 
-		public const bool Satisfies(IType TypeArgument)
+		/// <summary>
+		/// Transforms the types in this generic constraint using the
+		/// given type converter.
+		/// </summary>
+		public IGenericConstraint Transform(IConverter<IType, IType> Converter)
+		{
+			var results = new List<IGenericConstraint>();
+			foreach (var item in Constraints)
+			{
+				results.Add(item.Transform(Converter));
+			}
+			return new AndConstraint(results);
+		}
+
+		public bool Satisfies(IType TypeArgument)
 		{
 			foreach (var item in Constraints)
 			{
