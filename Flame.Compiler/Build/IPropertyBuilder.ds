@@ -2,10 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Flame.Compiler
+namespace Flame.Compiler.Build
 {
+    /// <summary>
+    /// Defines a common interface for properties that can declare new accessors.
+    /// </summary>
     public interface IPropertyBuilder : IMemberBuilder<IProperty>, IProperty
     {
-        IMethodBuilder DeclareAccessor(IAccessor Template);
+        /// <summary>
+        /// Declares an accessor based on the given accessor kind and method signature template.
+        /// </summary>
+        IMethodBuilder DeclareAccessor(AccessorType Type, IMethodSignatureTemplate Template);
     }
 }

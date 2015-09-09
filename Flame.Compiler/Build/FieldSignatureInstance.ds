@@ -1,0 +1,58 @@
+using System;
+
+namespace Flame.Compiler.Build
+{
+    /// <summary>
+    /// An instantiation of a field signature template.
+    /// </summary>
+    public class FieldSignatureInstance
+    {
+        /// <summary>
+        /// Instantiates the given field signature template with the given field.
+        /// </summary>
+        public const this(set IFieldSignatureTemplate Template, set IField Field)
+        {
+            this.Attributes = new Lazy<[IAttribute]>(createAttributes);
+            this.FieldType = new Lazy<IType>(createFieldType);
+        }
+
+        /// <summary>
+        /// Gets the field signature template this instance is based on.
+        /// </summary>
+        public IFieldSignatureTemplate Template { const get; private set; }
+
+        /// <summary>
+        /// Gets the field the signature template is instantiated with.
+        /// </summary>
+        public IField Field { const get; private set; }
+
+        /// <summary>
+        /// Gets the field signature instance's name.
+        /// </summary>
+        public string Name { const get { return Template.Name; } }
+
+        /// <summary>
+        /// Gets a boolean value that tells if this type member template is static.
+        /// </summary>
+        public bool IsStatic { const get { return Template.IsStatic; } }
+
+        /// <summary>
+        /// Gets the field signature instance's attributes.
+        /// </summary>
+        public Lazy<[IAttribute]> Attributes { const get; private set; }
+
+        /// <summary>
+        /// Gets the field signature instance's field type.
+        /// </summary>
+        public Lazy<IType> FieldType { const get; private set; }
+
+        private [IAttribute] createAttributes()
+        {
+            return Template.CreateAttributes(Field);
+        }
+        private IType createFieldType()
+        {
+            return Template.CreateFieldType(Field);
+        }
+    }
+}
