@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Build;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,9 +29,9 @@ namespace Flame.Python
             return ns;
         }
 
-        public ITypeBuilder DeclareType(IType Template)
+        public ITypeBuilder DeclareType(ITypeSignatureTemplate Template)
         {
-            var type = new PythonClass(Template);
+            var type = new PythonClass(Template, this);
             classes.Add(type);
             return type;
         }
@@ -74,6 +75,11 @@ namespace Flame.Python
                 cb.AddEmptyLine();
             }
             return cb;
+        }
+
+        public void Initialize()
+        {
+            // Do nothing. This back-end does not need `Initialize` to get things done.
         }
     }
 }
