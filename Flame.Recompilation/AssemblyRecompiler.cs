@@ -661,36 +661,51 @@ namespace Flame.Recompilation
             }
             else
             {
-                return new MemberCreationResult<INamespace>(DeclareNewNamespace(SourceNamespace.FullName));
+                return DeclareNamespaceBuilder(SourceNamespace.FullName);
             }
         }
 
-        private INamespaceBuilder DeclareNewNamespace(string Name)
+        private MemberCreationResult<INamespace> DeclareNamespaceBuilder(string FullName)
         {
-            string[] splitName = Name.Split('.');
-            if (splitName.Length <= 1)
+            // Look for a pre-existing namespace first.
+            var preNs = NamespaceCache.FirstOrDefault(item => item is INamespaceBuilder && item.FullName == FullName);
+            if (preNs != null)
             {
-                return TargetAssembly.DeclareNamespace(Name);
+                return new MemberCreationResult<INamespace>(preNs);
             }
             else
             {
-                string parentName = string.Join(".", splitName.Take(splitName.Length - 1));
-                return GetNamespaceBuilder(parentName).DeclareNamespace(splitName[splitName.Length - 1]);
-            }
-        }
-
-        private INamespaceBuilder GetNamespaceBuilder(string FullName)
-        {
-            var ns = NamespaceCache.FirstOrDefault((item) => item.FullName == FullName) as INamespaceBuilder;
-            if (ns == null)
-            {
+                // Couldn't find an existing namespace with the given name,
+                // so create a shiny new namespace instead.
                 return DeclareNewNamespace(FullName);
             }
+        }
+
+        private MemberCreationResult<INamespace> DeclareNewNamespace(string Name)
+        {
+            int lastDotIndex = Name.LastIndexOf('.');
+            if (lastDotIndex < 0)
+            {
+                return new MemberCreationResult<INamespace>(TargetAssembly.DeclareNamespace(Name), (tgt, src) =>
+                {
+                    ((INamespaceBuilder)tgt).Initialize();
+                });
+            }
             else
             {
-                return ns;
+                string parentName = Name.Substring(0, lastDotIndex);
+                string thisName = Name.Substring(lastDotIndex + 1);
+                var parent = DeclareNamespaceBuilder(parentName);
+                var parentNs = (INamespaceBuilder)parent.Member;
+
+                return new MemberCreationResult<INamespace>(parentNs.DeclareNamespace(thisName), (tgt, src) =>
+                {
+                    parent.Continuation(parentNs, null);
+                    ((INamespaceBuilder)tgt).Initialize();
+                });
             }
         }
+
         private INamespaceBuilder GetNamespaceBuilder(INamespace SourceNamespace)
         {
             if (SourceNamespace is IType)
@@ -724,7 +739,9 @@ namespace Flame.Recompilation
             return new MemberCreationResult<IType>(type, (tgt, src) =>
             {
                 typeMetadata[tgt] = new RandomAccessOptions();
-                RecompileInvariants((ITypeBuilder)tgt, src);
+                var typeBuilder = (ITypeBuilder)tgt;
+                typeBuilder.Initialize();
+                RecompileInvariants(typeBuilder, src);
             });
         }
 
@@ -759,7 +776,12 @@ namespace Flame.Recompilation
         private MemberCreationResult<IField> RecompileField(ITypeBuilder DeclaringType, IField SourceField)
         {
             var header = RecompileFieldHeader(DeclaringType, SourceField);
-            return new MemberCreationResult<IField>(header, (tgt, src) => RecompileFieldBody((IFieldBuilder)tgt, src));
+            return new MemberCreationResult<IField>(header, (tgt, src) => 
+            {
+                var fieldBuilder = (IFieldBuilder)tgt;
+                fieldBuilder.Initialize();
+                RecompileFieldBody(fieldBuilder, src);
+            });
         }
 
         private IFieldBuilder RecompileFieldHeader(ITypeBuilder DeclaringType, IField SourceField)
@@ -799,7 +821,7 @@ namespace Flame.Recompilation
 
         private MemberCreationResult<IMethod> RecompileMethod(ITypeBuilder DeclaringType, IMethod SourceMethod)
         {
-            return new MemberCreationResult<IMethod>(RecompileMethodHeader(DeclaringType, SourceMethod), (tgt, src) => RecompileMethodBody((IMethodBuilder)tgt, src));
+            return new MemberCreationResult<IMethod>(RecompileMethodHeader(DeclaringType, SourceMethod), RecompileMethodContinuation);
         }
         private IMethodBuilder RecompileMethodHeader(ITypeBuilder DeclaringType, IMethod SourceMethod)
         {
@@ -807,11 +829,17 @@ namespace Flame.Recompilation
         }
         private MemberCreationResult<IMethod> RecompileAccessor(IPropertyBuilder DeclaringProperty, IAccessor SourceAccessor)
         {
-            return new MemberCreationResult<IMethod>(RecompileAccessorHeader(DeclaringProperty, SourceAccessor), (tgt, src) => RecompileMethodBody((IMethodBuilder)tgt, src));
+            return new MemberCreationResult<IMethod>(RecompileAccessorHeader(DeclaringProperty, SourceAccessor), RecompileMethodContinuation);
         }
         private IMethodBuilder RecompileAccessorHeader(IPropertyBuilder DeclaringProperty, IAccessor SourceAccessor)
         {
             return DeclaringProperty.DeclareAccessor(SourceAccessor.AccessorType, RecompiledMethodTemplate.GetRecompilerTemplate(this, SourceAccessor));
+        }
+        private void RecompileMethodContinuation(IMethod Target, IMethod Source)
+        {
+            var methodBuilder = (IMethodBuilder)Target;
+            methodBuilder.Initialize();
+            RecompileMethodBody(methodBuilder, Source);
         }
         private IStatement RecompileMethodBodyCore(IMethodBuilder TargetMethod, IMethod SourceMethod)
         {
@@ -856,7 +884,9 @@ namespace Flame.Recompilation
 
         private MemberCreationResult<IProperty> RecompilePropertyHeader(ITypeBuilder DeclaringType, IProperty SourceProperty)
         {
-            return new MemberCreationResult<IProperty>(DeclaringType.DeclareProperty(RecompiledPropertyTemplate.GetRecompilerTemplate(this, SourceProperty)));
+            return new MemberCreationResult<IProperty>(
+                DeclaringType.DeclareProperty(RecompiledPropertyTemplate.GetRecompilerTemplate(this, SourceProperty)), 
+                (tgt, src) => ((IPropertyBuilder)tgt).Initialize());
         }
 
         #endregion
