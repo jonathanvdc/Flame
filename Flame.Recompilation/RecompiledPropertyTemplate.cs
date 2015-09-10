@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Flame.Compiler.Build;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Recompilation
 {
-    public class RecompiledPropertyTemplate : RecompiledTypeMemberTemplate, IProperty
+    public class RecompiledPropertyTemplate : RecompiledTypeMemberTemplate<IProperty>, IPropertySignatureTemplate
     {
         public RecompiledPropertyTemplate(AssemblyRecompiler Recompiler, IProperty SourceProperty)
             : base(Recompiler)
@@ -14,37 +15,25 @@ namespace Flame.Recompilation
             this.SourceProperty = SourceProperty;
         }
 
-        public static IProperty GetRecompilerTemplate(AssemblyRecompiler Recompiler, IProperty SourceProperty)
+        public static RecompiledPropertyTemplate GetRecompilerTemplate(AssemblyRecompiler Recompiler, IProperty SourceProperty)
         {
-            if (Recompiler.IsExternal(SourceProperty))
-            {
-                return SourceProperty;
-            }
-            else
-            {
-                return new RecompiledPropertyTemplate(Recompiler, SourceProperty);
-            }
+            return new RecompiledPropertyTemplate(Recompiler, SourceProperty);
         }
 
         public IProperty SourceProperty { get; private set; }
-        public override ITypeMember GetSourceTypeMember()
+        public override IProperty GetSourceMember()
         {
             return SourceProperty;
         }
 
-        public IEnumerable<IAccessor> Accessors
+        public IEnumerable<IParameter> CreateIndexerParameters(IProperty Property)
         {
-            get { return Recompiler.GetAccessors(SourceProperty.Accessors.ToArray()); }
+            return RecompiledParameterTemplate.GetParameterTemplates(Recompiler, Property.GetIndexerParameters());
         }
 
-        public IEnumerable<IParameter> IndexerParameters
+        public IType CreatePropertyType(IProperty Property)
         {
-            get { return RecompiledParameterTemplate.GetParameterTemplates(Recompiler, SourceProperty.IndexerParameters.ToArray()); }
-        }
-
-        public IType PropertyType
-        {
-            get { return Recompiler.GetType(SourceProperty.PropertyType); }
+            return Recompiler.GetType(Property.PropertyType);
         }
     }
 }

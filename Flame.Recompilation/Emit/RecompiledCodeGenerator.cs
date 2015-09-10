@@ -371,7 +371,7 @@ namespace Flame.Recompilation.Emit
 
         public IUnmanagedEmitVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
         {
-            return new RecompiledVariable(this, new LateBoundVariable(new RecompiledVariableMember(Recompiler, VariableMember)));
+            return new RecompiledVariable(this, new LateBoundVariable(new RetypedVariableMember(VariableMember, Recompiler.GetType(VariableMember.VariableType))));
         }
 
         public IUnmanagedEmitVariable GetUnmanagedArgument(int Index)
@@ -439,7 +439,7 @@ namespace Flame.Recompilation.Emit
 
         public ICollectionBlock EmitCollectionBlock(IVariableMember Member, ICodeBlock Collection)
         {
-            return new CollectionBlock(this, new RecompiledVariableMember(Recompiler, Member), GetExpression(Collection));
+            return new CollectionBlock(this, new RetypedVariableMember(Member, Recompiler.GetType(Member.VariableType)), GetExpression(Collection));
         }
 
         public ICodeBlock EmitForeachBlock(IForeachBlockHeader Header, ICodeBlock Body)

@@ -1,4 +1,5 @@
 ﻿using Flame.Build;
+using Flame.Compiler.Build;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Recompilation
 {
-    public class RecompiledMethodTemplate : RecompiledTypeMemberTemplate, IMethod
+    public class RecompiledMethodTemplate : RecompiledTypeMemberTemplate<IMethod>, IMethodSignatureTemplate
     {
         public RecompiledMethodTemplate(AssemblyRecompiler Recompiler, IMethod SourceMethod)
             : base(Recompiler)
@@ -15,48 +16,15 @@ namespace Flame.Recompilation
             this.SourceMethod = SourceMethod;
         }
 
-        public static IMethod GetRecompilerTemplate(AssemblyRecompiler Recompiler, IMethod SourceMethod)
+        public static RecompiledMethodTemplate GetRecompilerTemplate(AssemblyRecompiler Recompiler, IMethod SourceMethod)
         {
-            if (Recompiler.IsExternal(SourceMethod))
-            {
-                return SourceMethod;
-            }
-            else if (SourceMethod.get_IsGenericInstance())
-            {
-                return Recompiler.GetMethod(SourceMethod);
-            }
-            else
-            {
-                return new RecompiledMethodTemplate(Recompiler, SourceMethod);
-            }
+            return new RecompiledMethodTemplate(Recompiler, SourceMethod);
         }
 
         public IMethod SourceMethod { get; private set; }
-        public override ITypeMember GetSourceTypeMember()
+        public override IMethod GetSourceMember()
         {
             return SourceMethod;
-        }
-
-        public IEnumerable<IParameter> Parameters { get { return GetParameters(); } }
-
-        public IParameter[] GetParameters()
-        {
-            return RecompiledParameterTemplate.GetParameterTemplates(Recompiler, SourceMethod.GetParameters(), SourceMethod);
-        }
-
-        public IType ReturnType
-        {
-            get { return RecompiledTypeTemplate.GetWeakRecompiledType(SourceMethod.ReturnType, Recompiler, SourceMethod); }
-        }
-
-        public IEnumerable<IMethod> BaseMethods
-        {
-            get { return GetWeakRecompiledMethods(SourceMethod.BaseMethods.ToArray(), Recompiler, SourceMethod); }
-        }
-
-        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
-        {
-            return SourceMethod.Invoke(Caller, Arguments);
         }
 
         public bool IsConstructor
@@ -64,52 +32,24 @@ namespace Flame.Recompilation
             get { return SourceMethod.IsConstructor; }
         }
 
-        public IEnumerable<IGenericParameter> GenericParameters
+        public IEnumerable<IMethod> CreateBaseMethods(IMethod Method)
         {
-            get { return RecompiledGenericParameterTemplate.GetRecompilerTemplates(Recompiler, this, SourceMethod.GenericParameters); }
+            return Recompiler.GetMethods(Method.BaseMethods.ToArray());
         }
 
-        public override IEnumerable<IAttribute> Attributes
+        public IEnumerable<IGenericParameter> CreateGenericParameters(IMethod Method)
         {
-            get { return base.Attributes.Concat(Recompiler.Passes.Optimizer.InferAttributes(SourceMethod)); }
+            return GenericExtensions.CloneGenericParameters(SourceMethod.GenericParameters, SourceMethod, new WeakTypeRecompilingVisitor(Recompiler, SourceMethod));
         }
 
-        #region Static
-
-        public static IMethod[] GetWeakRecompiledMethods(IMethod[] SourceMethods, AssemblyRecompiler Recompiler, IGenericMember DeclaringMember)
+        public IEnumerable<IParameter> CreateParameters(IMethod Method)
         {
-            return SourceMethods.Select(item => GetWeakRecompiledMethod(item, Recompiler, DeclaringMember)).ToArray();
+            return Method.Parameters.Select(item => new RetypedParameter(item, Recompiler.GetType(item.ParameterType))).ToArray();
         }
 
-        public static IMethod GetWeakRecompiledMethod(IMethod SourceMethod, AssemblyRecompiler Recompiler, IGenericMember DeclaringMember)
+        public IType CreateReturnType(IMethod Method)
         {
-            if (SourceMethod.get_IsGenericInstance())
-            {
-                var genDecl = Recompiler.GetMethod(SourceMethod.GetGenericDeclaration());
-                var genArgs = SourceMethod.GetGenericArguments().Select(item => RecompiledTypeTemplate.GetWeakRecompiledType(item, Recompiler, DeclaringMember));
-                return genDecl.MakeGenericMethod(genArgs.ToArray());
-            }
-            else if (SourceMethod.get_IsAnonymous())
-            {
-                var recompRetType = RecompiledTypeTemplate.GetWeakRecompiledType(SourceMethod.ReturnType, Recompiler, DeclaringMember);
-                var recompParams = RecompiledParameterTemplate.GetParameterTemplates(Recompiler, SourceMethod.GetParameters(), DeclaringMember);
-                var descMethod = new DescribedMethod(SourceMethod.Name, SourceMethod.DeclaringType, recompRetType, SourceMethod.IsStatic);
-                foreach (var item in recompParams)
-                {
-                    descMethod.AddParameter(item);
-                }
-                foreach (var item in SourceMethod.Attributes.Select(Recompiler.GetAttribute))
-                {
-                    descMethod.AddAttribute(item);
-                }
-                return descMethod;
-            }
-            else
-            {
-                return Recompiler.GetMethod(SourceMethod);
-            }
+            return Recompiler.GetType(SourceMethod.ReturnType);
         }
-
-        #endregion
     }
 }

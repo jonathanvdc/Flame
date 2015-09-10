@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Flame.Build;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -7,56 +8,16 @@ using System.Threading.Tasks;
 
 namespace Flame.Recompilation
 {
-    public class RecompiledParameterTemplate : RecompiledMemberTemplate, IParameter
+    public static class RecompiledParameterTemplate
     {
-        public RecompiledParameterTemplate(AssemblyRecompiler Recompiler, IParameter Parameter, IGenericMember DeclaringMember)
-            : base(Recompiler)
+        public static IParameter GetParameterTemplate(AssemblyRecompiler Recompiler, IParameter SourceParameter)
         {
-            this.SourceParameter = Parameter;
-            this.declMember = DeclaringMember;
+            return new RetypedParameter(SourceParameter, Recompiler.GetType(SourceParameter.ParameterType));
         }
 
         public static IParameter[] GetParameterTemplates(AssemblyRecompiler Recompiler, IParameter[] SourceParameters)
         {
-            return GetParameterTemplates(Recompiler, SourceParameters, null);
-        }
-        public static IParameter[] GetParameterTemplates(AssemblyRecompiler Recompiler, IParameter[] SourceParameters, IGenericMember DeclaringMember)
-        {
-            IParameter[] results = new IParameter[SourceParameters.Length];
-            for (int i = 0; i < results.Length; i++)
-            {
-                results[i] = new RecompiledParameterTemplate(Recompiler, SourceParameters[i], DeclaringMember);
-            }
-            return results;
-        }
-
-        private IGenericMember declMember;
-        public IParameter SourceParameter { [Pure] get; private set; }
-
-        public override IMember GetSourceMember()
-        {
-            return SourceParameter;
-        }
-
-        public bool IsAssignable(IType Type)
-        {
-            return Type.Is(ParameterType);
-        }
-
-        public IType ParameterType
-        {
-            [Pure]
-            get 
-            {
-                if (declMember == null)
-                {
-                    return Recompiler.GetType(SourceParameter.ParameterType);
-                }
-                else
-                {
-                    return RecompiledTypeTemplate.GetWeakRecompiledType(SourceParameter.ParameterType, Recompiler, declMember);
-                }
-            }
+            return SourceParameters.Select(item => GetParameterTemplate(Recompiler, item)).ToArray();
         }
     }
 }
