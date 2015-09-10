@@ -1,5 +1,6 @@
 ﻿using Flame.Binding;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,6 +78,11 @@ namespace Flame.MIPS
         public IAssembly Build()
         {
             return this;
+        }
+
+        public void Initialize()
+        {
+            // Do nothing. This back-end does not need `Initialize` to get things done.
         }
     }
 }

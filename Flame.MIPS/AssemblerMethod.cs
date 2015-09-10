@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.MIPS.Emit;
 using System;
 using System.Collections.Generic;
@@ -10,10 +11,10 @@ namespace Flame.MIPS
 {
     public class AssemblerMethod : IAssemblerMethod, IMethodBuilder
     {
-        public AssemblerMethod(IType DeclaringType, IMethod Template, IAssemblerState GlobalState)
+        public AssemblerMethod(IType DeclaringType, IMethodSignatureTemplate Template, IAssemblerState GlobalState)
         {
             this.DeclaringType = DeclaringType;
-            this.Template = Template;
+            this.Template = new MethodSignatureInstance(Template, this);
             this.GlobalState = GlobalState;
             this.Label = GlobalState.Labels.DeclareLabel(this);
             this.CallConvention = new AutoCallConvention(this);
@@ -22,7 +23,7 @@ namespace Flame.MIPS
         }
 
         public IType DeclaringType { get; private set; }
-        public IMethod Template { get; private set; }
+        public MethodSignatureInstance Template { get; private set; }
         public IAssemblerState GlobalState { get; private set; }
 
         public IAssemblerLabel Label { get; private set; }
@@ -73,22 +74,17 @@ namespace Flame.MIPS
 
         public IEnumerable<IMethod> BaseMethods
         {
-            get { return Template.BaseMethods; }
-        }
-
-        public IMethod GetGenericDeclaration()
-        {
-            return this;
+            get { return Template.BaseMethods.Value; }
         }
 
         public IEnumerable<IParameter> Parameters
         {
-            get { return Template.Parameters; }
+            get { return Template.Parameters.Value; }
         }
 
         public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public bool IsConstructor
@@ -98,12 +94,12 @@ namespace Flame.MIPS
 
         public IType ReturnType
         {
-            get { return Template.ReturnType; }
+            get { return Template.ReturnType.Value; }
         }
 
         public bool IsStatic
         {
-            get { return Template.IsStatic; }
+            get { return Template.Template.IsStatic; }
         }
 
         public string FullName
@@ -113,7 +109,7 @@ namespace Flame.MIPS
 
         public IEnumerable<IAttribute> Attributes
         {
-            get { return Template.Attributes; }
+            get { return Template.Attributes.Value; }
         }
 
         public string Name
@@ -123,7 +119,7 @@ namespace Flame.MIPS
 
         public IEnumerable<IGenericParameter> GenericParameters
         {
-            get { return new IGenericParameter[0]; }
+            get { return Template.GenericParameters.Value; }
         }
 
         #endregion
@@ -145,6 +141,11 @@ namespace Flame.MIPS
         public IMethod Build()
         {            
             return this;
+        }
+
+        public void Initialize()
+        {
+            // Do nothing. This back-end does not need `Initialize` to get things done.
         }
 
         #endregion
