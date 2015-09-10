@@ -855,7 +855,13 @@ namespace Flame.Recompilation
             }
             try
             {
-                var result = Passes.RecompileBody(this, SourceMethod, TargetMethod, bodyMethod);
+                var result = Passes.OptimizeBody(this, bodyMethod);
+                var bodyStatement = GetStatement(result, TargetMethod);
+
+                var targetBody = TargetMethod.GetBodyGenerator();
+                var block = bodyStatement.Emit(targetBody);
+                TaskManager.RunSequential(TargetMethod.SetMethodBody, block);
+
                 TaskManager.RunSequential<IMethod>(TargetMethod.Build);
                 return result;
             }

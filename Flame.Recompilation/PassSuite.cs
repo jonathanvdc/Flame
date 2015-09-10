@@ -35,21 +35,13 @@ namespace Flame.Recompilation
             return new PassSuite(Optimizer, new AggregateBodyPass(MethodPass, Pass));
         }
 
-        public IStatement RecompileBody(AssemblyRecompiler Recompiler, IMethod InputMethod, IMethodBuilder OutputMethod, IBodyMethod SourceMethod)
+        public IStatement OptimizeBody(AssemblyRecompiler Recompiler, IBodyMethod SourceMethod)
         {
-            var metadata = new PassMetadata(Recompiler.GlobalMetdata, Recompiler.GetTypeMetadata(InputMethod.DeclaringType), new RandomAccessOptions());
+            var metadata = new PassMetadata(Recompiler.GlobalMetdata, Recompiler.GetTypeMetadata(SourceMethod.DeclaringType), new RandomAccessOptions());
 
             var initBody = Optimizer.GetOptimizedBody(SourceMethod);
 
-            var optBody = MethodPass.Apply(new BodyPassArgument(Recompiler, metadata, InputMethod, initBody));
-
-            var bodyStatement = Recompiler.GetStatement(optBody, InputMethod);
-
-            var targetBody = OutputMethod.GetBodyGenerator();
-            var block = optBody.Emit(targetBody);
-            Recompiler.TaskManager.RunSequential(OutputMethod.SetMethodBody, block);
-
-            return optBody;
+            return MethodPass.Apply(new BodyPassArgument(Recompiler, metadata, SourceMethod, initBody));
         }
 
         public static PassSuite CreateDefault(ICompilerLog Log)
