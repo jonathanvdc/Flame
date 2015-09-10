@@ -10,16 +10,18 @@ namespace Flame.ExpressionTrees.Emit
 {
     public class MethodBlock : IExpressionBlock
     {
-        public MethodBlock(ExpressionCodeGenerator CodeGenerator, IExpressionBlock Target, IMethod Member)
+        public MethodBlock(ExpressionCodeGenerator CodeGenerator, IExpressionBlock Target, IMethod Member, bool IsVirtual)
         {
             this.CodeGenerator = CodeGenerator;
             this.Target = Target;
             this.Member = Member;
+            this.IsVirtual = IsVirtual;
         }
 
         public ExpressionCodeGenerator CodeGenerator { get; private set; }
         public IExpressionBlock Target { get; private set; }
         public IMethod Member { get; private set; }
+        public bool IsVirtual { get; private set; }
 
         public IType Type
         {
@@ -40,7 +42,7 @@ namespace Flame.ExpressionTrees.Emit
 
         public Expression CreateExpression(FlowStructure Flow)
         {
-            if (Member.get_IsVirtual())
+            if (IsVirtual)
             {
                 return CreateIndirectCall(Flow);
             }

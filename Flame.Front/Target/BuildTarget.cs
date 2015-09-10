@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Flame.Recompilation;
+using Flame.Compiler.Build;
 
 namespace Flame.Front.Target
 {
