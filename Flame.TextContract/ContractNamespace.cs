@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Syntax;
 using System;
 using System.Collections.Generic;
@@ -48,7 +49,7 @@ namespace Flame.TextContract
             return ns;
         }
 
-        public ITypeBuilder DeclareType(IType Template)
+        public ITypeBuilder DeclareType(ITypeSignatureTemplate Template)
         {
             var type = new ContractType(this, Template);
             types.Add(type);
@@ -58,6 +59,11 @@ namespace Flame.TextContract
         public INamespace Build()
         {
             return this;
+        }
+
+        public void Initialize()
+        {
+            // Do nothing. This back-end does not need `Initialize` to get things done.
         }
 
         public CodeBuilder GetCode()

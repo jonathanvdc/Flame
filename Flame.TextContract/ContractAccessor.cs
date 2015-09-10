@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Flame.Compiler.Build;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,17 +9,14 @@ namespace Flame.TextContract
 {
     public class ContractAccessor : ContractMethod, IAccessor
     {
-        public ContractAccessor(IProperty DeclaringProperty, IAccessor Template)
+        public ContractAccessor(IProperty DeclaringProperty, AccessorType Kind, IMethodSignatureTemplate Template)
             : base(DeclaringProperty.DeclaringType, Template)
         {
+            this.AccessorType = Kind;
             this.DeclaringProperty = DeclaringProperty;
         }
 
-        public AccessorType AccessorType
-        {
-            get { return ((IAccessor)Template).AccessorType; }
-        }
-
+        public AccessorType AccessorType { get; private set; }
         public IProperty DeclaringProperty { get; private set; }
 
         public override string Name
@@ -35,7 +33,7 @@ namespace Flame.TextContract
                 }
                 else
                 {
-                    throw new NotImplementedException();
+                    return AccessorType.ToString().ToLower();
                 }
             }
         }
