@@ -1,0 +1,38 @@
+
+namespace Flame.Compiler.Build
+{
+    /// <summary>
+    /// Defines a method signature template that is based on a prototype method.
+    /// </summary>
+    public class MethodPrototypeTemplate : TypeMemberPrototypeTemplate<IMethod>,
+        IMethodSignatureTemplate
+    {
+        /// <summary>
+        /// Creates a method prototype template from the given prototype.
+        /// </summary>
+        public const this(IMethod Prototype)
+            : base(Prototype);
+
+        public bool IsConstructor { const get { return Prototype.IsConstructor; } }
+
+        public [IGenericParameter] CreateGenericParameters(IMethod Method)
+        {
+            return Prototype.GenericParameters;
+        }
+
+        public [IMethod] CreateBaseMethods(IMethod Method)
+        {
+            return Prototype.BaseMethods;
+        }
+
+        public IType CreateReturnType(IMethod Method)
+        {
+            return Prototype.ReturnType;
+        }
+
+        public [IParameter] CreateParameters(IMethod Method)
+        {
+            return Prototype.Parameters;
+        }
+    }
+}

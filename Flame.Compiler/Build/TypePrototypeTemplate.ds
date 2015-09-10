@@ -1,0 +1,25 @@
+
+namespace Flame.Compiler.Build
+{
+    /// <summary>
+    /// Defines a type signature template that is based on a prototype type.
+    /// </summary>
+    public class TypePrototypeTemplate : MemberPrototypeTemplate<IType>, ITypeSignatureTemplate
+    {
+        /// <summary>
+        /// Creates a type prototype template from the given prototype.
+        /// </summary>
+        public const this(IType Prototype)
+            : base(Prototype);
+
+        public [IGenericParameter] CreateGenericParameters(IType Type)
+        {
+            return Prototype.GenericParameters;
+        }
+
+        public [IType] CreateBaseTypes(IType Type)
+        {
+            return Prototype.BaseTypes;
+        }
+    }
+}
