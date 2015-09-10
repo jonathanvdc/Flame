@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Build;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,13 +10,13 @@ namespace Flame.TextContract
 {
     public class ContractField : IFieldBuilder
     {
-        public ContractField(IType DeclaringType, IField Template)
+        public ContractField(IType DeclaringType, IFieldSignatureTemplate Template)
         {
             this.DeclaringType = DeclaringType;
-            this.Template = Template;
+            this.Template = new FieldSignatureInstance(Template, this);
         }
 
-        public IField Template { get; private set; }
+        public FieldSignatureInstance Template { get; private set; }
         public IType DeclaringType { get; private set; }
 
         public void SetValue(IExpression Value)
@@ -28,6 +29,11 @@ namespace Flame.TextContract
             return this;
         }
 
+        public void Initialize()
+        {
+            // Do nothing. This back-end does not need `Initialize` to get things done.
+        }
+
         public string FullName
         {
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
@@ -35,7 +41,7 @@ namespace Flame.TextContract
 
         public IEnumerable<IAttribute> Attributes
         {
-            get { return Template.Attributes; }
+            get { return Template.Attributes.Value; }
         }
 
         public string Name
@@ -45,7 +51,7 @@ namespace Flame.TextContract
 
         public IType FieldType
         {
-            get { return Template.FieldType; }
+            get { return Template.FieldType.Value; }
         }
 
         public bool IsStatic
