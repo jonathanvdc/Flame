@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.ExpressionTrees.Emit;
 using System;
 using System.Collections.Generic;
@@ -79,6 +80,11 @@ namespace Flame.ExpressionTrees
         public IMethod Build()
         {
             return this;
+        }
+
+        public void Initialize()
+        {
+            // No need to take action.
         }
     }
 }
