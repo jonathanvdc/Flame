@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Build;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,7 +59,7 @@ namespace Flame.Cpp
             return namesp;
         }
 
-        public ITypeBuilder DeclareType(IType Template)
+        public ITypeBuilder DeclareType(ITypeSignatureTemplate Template)
         {
             var type = new CppType(this, Template, Environment);
             types.Add(type);
@@ -68,6 +69,11 @@ namespace Flame.Cpp
         public INamespace Build()
         {
             return this;
+        }
+
+        public void Initialize()
+        {
+            // There's really just nothing to initialize here.
         }
 
         #endregion

@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Cpp.Emit;
 using System;
 using System.Collections.Generic;
@@ -131,7 +132,7 @@ namespace Flame.Cpp
         {
             if (cppMethod == null || invariantCount != Invariants.InvariantCount)
             {
-                var method = new CppMethod(Invariants.DeclaringType, this, Environment);
+                var method = new CppMethod(Invariants.DeclaringType, new MethodPrototypeTemplate(this), Environment);
                 if (Invariants.HasInvariants)
                 {
                     var codeGen = method.GetBodyGenerator();
