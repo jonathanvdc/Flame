@@ -8,19 +8,19 @@ namespace Flame.Recompilation
 {
     public struct RecompilationOptions
     {
-        public RecompilationOptions(bool RecompileAll)
+        public RecompilationOptions(IRecompilationStrategy RecompilationStrategy)
         {
             this = new RecompilationOptions();
-            this.RecompileAll = RecompileAll;
+            this.RecompilationStrategy = RecompilationStrategy;
         }
-        public RecompilationOptions(bool RecompileAll, bool IsMainModule)
+        public RecompilationOptions(IRecompilationStrategy RecompilationStrategy, bool IsMainModule)
         {
             this = new RecompilationOptions();
-            this.RecompileAll = RecompileAll;
+            this.RecompilationStrategy = RecompilationStrategy;
             this.IsMainModule = IsMainModule;
         }
 
-        public bool RecompileAll { get; private set; }
+        public IRecompilationStrategy RecompilationStrategy { get; private set; }
         public bool IsMainModule { get; private set; }
     }
 }

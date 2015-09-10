@@ -8,63 +8,46 @@ using Flame.Compiler.Visitors;
 
 namespace Flame.Recompilation
 {
-    using IPreStatementPass = IPass<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>;
-    using IMethodPass       = IPass<BodyPassArgument, IStatement>;
-    using IStatementPass    = IPass<IStatement, IStatement>;
+    using IMethodPass = IPass<BodyPassArgument, IStatement>;
+    using Flame.Compiler.Build;
 
     public class PassSuite
     {
         public PassSuite(IMethodOptimizer Optimizer)
-            : this(Optimizer, new EmptyPass<Tuple<IStatement, IMethod>>(), new SlimBodyPass(new EmptyPass<BodyPassArgument>()))
+            : this(Optimizer, new SlimBodyPass(new EmptyPass<BodyPassArgument>()))
         {
         }
-        public PassSuite(IMethodOptimizer Optimizer, IPreStatementPass PreStatementPass, IMethodPass MethodPass)
-            : this(Optimizer, new EmptyPass<Tuple<IStatement, IMethod>>(), MethodPass, new EmptyPass<IStatement>())
-        {
-        }
-        public PassSuite(IMethodOptimizer Optimizer, IPreStatementPass PreStatementPass, IMethodPass MethodPass, IStatementPass StatementPass)
+        public PassSuite(IMethodOptimizer Optimizer, IMethodPass MethodPass)
         {
             this.Optimizer = Optimizer;
-            this.PreStatementPass = PreStatementPass;
             this.MethodPass = MethodPass;
-            this.StatementPass = StatementPass;
         }
 
         public IMethodOptimizer Optimizer { get; private set; }
-        public IPreStatementPass PreStatementPass { get; private set; }
         public IMethodPass MethodPass { get; private set; }
-        public IStatementPass StatementPass { get; private set; }
 
-        public PassSuite PrependSuite(PassSuite Suite)
+        public PassSuite PrependPass(IMethodPass Pass)
         {
-            return new PassSuite(Optimizer,
-                new AggregatePass<Tuple<IStatement, IMethod>>(Suite.PreStatementPass, PreStatementPass), 
-                new AggregateBodyPass(Suite.MethodPass, MethodPass),
-                new AggregatePass<IStatement>(Suite.StatementPass, StatementPass));
+            return new PassSuite(Optimizer, new AggregateBodyPass(Pass, MethodPass));
         }
-        public PassSuite AppendSuite(PassSuite Suite)
+        public PassSuite AppendPass(IMethodPass Pass)
         {
-            return new PassSuite(Optimizer,
-                new AggregatePass<Tuple<IStatement, IMethod>>(PreStatementPass, Suite.PreStatementPass),
-                new AggregateBodyPass(MethodPass, Suite.MethodPass),
-                new AggregatePass<IStatement>(StatementPass, Suite.StatementPass));
+            return new PassSuite(Optimizer, new AggregateBodyPass(MethodPass, Pass));
         }
 
-        public IStatement RecompileBody(AssemblyRecompiler Recompiler, ITypeBuilder DeclaringType, 
-                                        IMethodBuilder Method, IBodyMethod SourceMethod)
+        public IStatement RecompileBody(AssemblyRecompiler Recompiler, IMethod InputMethod, IMethodBuilder OutputMethod, IBodyMethod SourceMethod)
         {
-            var metadata = new PassMetadata(Recompiler.GlobalMetdata, Recompiler.GetTypeMetadata(DeclaringType), new RandomAccessOptions());
+            var metadata = new PassMetadata(Recompiler.GlobalMetdata, Recompiler.GetTypeMetadata(InputMethod.DeclaringType), new RandomAccessOptions());
 
             var initBody = Optimizer.GetOptimizedBody(SourceMethod);
-            var preOptBody = PreStatementPass.Apply(new Tuple<IStatement, IMethod>(initBody, SourceMethod)).Item1;
 
-            var bodyStatement = Recompiler.GetStatement(preOptBody, Method);
+            var optBody = MethodPass.Apply(new BodyPassArgument(Recompiler, metadata, InputMethod, initBody));
 
-            var optBody = StatementPass.Apply(MethodPass.Apply(new BodyPassArgument(Recompiler, metadata, DeclaringType, Method, bodyStatement)));
+            var bodyStatement = Recompiler.GetStatement(optBody, InputMethod);
 
-            var targetBody = Method.GetBodyGenerator();
+            var targetBody = OutputMethod.GetBodyGenerator();
             var block = optBody.Emit(targetBody);
-            Recompiler.TaskManager.RunSequential(Method.SetMethodBody, block);
+            Recompiler.TaskManager.RunSequential(OutputMethod.SetMethodBody, block);
 
             return optBody;
         }
@@ -72,9 +55,7 @@ namespace Flame.Recompilation
         public static PassSuite CreateDefault(ICompilerLog Log)
         {
             return new PassSuite(Log.GetMethodOptimizer(), 
-                new EmptyPass<Tuple<IStatement, IMethod>>(), 
-                new SlimBodyPass(new EmptyPass<BodyPassArgument>()), 
-                new EmptyPass<IStatement>()); 
+                new SlimBodyPass(new EmptyPass<BodyPassArgument>())); 
         }
     }
 }

@@ -11,6 +11,14 @@ namespace Flame.Compiler.Build
         where T : IMember
     {
         /// <summary>
+        /// "Initializes" this instance. This is method is typically
+        /// added after declaring and registering the member builder,
+        /// and gives it the opportunity to perform eager evaluation of
+        /// its signature template.
+        /// </summary>
+        void Initialize();
+
+        /// <summary>
         /// "Builds" this member builder. This signifies the end of interaction
         /// with the member builder interaction, and allows the member builder
         /// to store all the data it has acquired.

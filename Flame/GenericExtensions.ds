@@ -292,6 +292,19 @@ namespace Flame
 		public static [IGenericParameter] CloneGenericParameters(
 			[IGenericParameter] Items, IGenericMember NewParent)
 		{
+			return CloneGenericParameters(Items, NewParent, new EmptyConverter<IType>());
+		}
+
+		/// <summary>
+		/// "Clones" the given sequence of generic parameters: their names,
+		/// attributes and generic constraints are preserved, but they are
+		/// assigned to a new parent member. The generic parameters' constraint
+		/// types may also be modified.
+		/// </summary>
+		public static [IGenericParameter] CloneGenericParameters(
+			[IGenericParameter] Items, IGenericMember NewParent,
+			IConverter<IType, IType> Converter)
+		{
 			var results = new List<DescribedGenericParameter>();
 			var mapping = new Dictionary<IType, IType>();
 			foreach (var item in Items)
@@ -304,7 +317,8 @@ namespace Flame
 				results.Add(genParam);
 				mapping[item] = genParam;
 			}
-			var converter = new TypeMappingConverter(mapping);
+			var converter = new CompositeConverter<IType, IType, IType>(
+				                Converter, new TypeMappingConverter(mapping));
 			foreach (var oldItem in Items, var newItem in results)
 			{
 				newItem.AddConstraint(oldItem.Constraint.Transform(converter));

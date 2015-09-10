@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Compiler.Visitors;
 using Flame.Recompilation.Emit;
 using System;
@@ -594,7 +595,8 @@ namespace Flame.Recompilation
         {
             if (SourceMethod.get_IsAnonymous())
             {
-                return new RecompiledMethodTemplate(this, SourceMethod);
+                var visitor = new RecompilingTypeVisitor(this);
+                return new MemberCreationResult<IMethod>(MethodType.GetMethod(visitor.Convert(MethodType.Create(SourceMethod))));
             }
             else if (IsExternal(SourceMethod))
             {
@@ -704,15 +706,6 @@ namespace Flame.Recompilation
 
         #endregion
 
-        #region Attributes
-
-        public virtual IAttribute GetAttribute(IAttribute Attribute)
-        {
-            return Attribute;
-        }
-
-        #endregion
-
         #region Type Recompilation
 
         private MemberCreationResult<IType> RecompileTypeHeader(IType SourceType)
@@ -818,7 +811,7 @@ namespace Flame.Recompilation
         }
         private IMethodBuilder RecompileAccessorHeader(IPropertyBuilder DeclaringProperty, IAccessor SourceAccessor)
         {
-            return DeclaringProperty.DeclareAccessor(RecompiledAccessorTemplate.GetRecompilerTemplate(this, DeclaringProperty, SourceAccessor));
+            return DeclaringProperty.DeclareAccessor(SourceAccessor.AccessorType, RecompiledMethodTemplate.GetRecompilerTemplate(this, SourceAccessor));
         }
         private IStatement RecompileMethodBodyCore(IMethodBuilder TargetMethod, IMethod SourceMethod)
         {
@@ -834,7 +827,7 @@ namespace Flame.Recompilation
             }
             try
             {
-                var result = Passes.RecompileBody(this, (ITypeBuilder)TargetMethod.DeclaringType, TargetMethod, bodyMethod);
+                var result = Passes.RecompileBody(this, SourceMethod, TargetMethod, bodyMethod);
                 TaskManager.RunSequential<IMethod>(TargetMethod.Build);
                 return result;
             }
@@ -947,12 +940,9 @@ namespace Flame.Recompilation
             {
                 recompiledAssemblies.Add(Source);
             }
-            if (Options.RecompileAll)
+            foreach (var item in Options.RecompilationStrategy.GetRoots(Source))
             {
-                foreach (var item in Source.CreateBinder().GetTypes())
-                {
-                    RecompileEntireType(item);
-                }
+                GetMember(item);
             }
             if (Options.IsMainModule)
             {
