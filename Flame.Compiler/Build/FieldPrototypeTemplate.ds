@@ -1,0 +1,21 @@
+
+namespace Flame.Compiler.Build
+{
+    /// <summary>
+    /// Defines a field signature template that is based on a prototype field.
+    /// </summary>
+    public class FieldPrototypeTemplate : TypeMemberPrototypeTemplate<IField>,
+        IFieldSignatureTemplate
+    {
+        /// <summary>
+        /// Creates a field prototype template from the given prototype.
+        /// </summary>
+        public const this(IField Prototype)
+            : base(Prototype);
+
+        public IType CreateFieldType(IField Field)
+        {
+            return Prototype.FieldType;
+        }
+    }
+}
