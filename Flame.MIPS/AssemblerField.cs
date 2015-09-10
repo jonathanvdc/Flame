@@ -6,21 +6,21 @@ using System.Threading.Tasks;
 using Flame.MIPS.Emit;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
+using Flame.Compiler.Build;
 
 namespace Flame.MIPS
 {
     public class AssemblerField : IAssemblerField, IFieldBuilder, IInitializedField
     {
-        public AssemblerField(IType DeclaringType, IField Template, int Offset)
+        public AssemblerField(IType DeclaringType, IFieldSignatureTemplate Template, int Offset)
         {
             this.DeclaringType = DeclaringType;
-            this.Template = Template;
+            this.Template = new FieldSignatureInstance(Template, this);
             this.Offset = Offset;
-            this.InitialValue = new DefaultValueExpression(Template.FieldType);
         }
 
         public IType DeclaringType { get; private set; }
-        public IField Template { get; private set; }
+        public FieldSignatureInstance Template { get; private set; }
         public int Offset { get; private set; }
         public int Size { get { return FieldType.GetSize(); } }
         public IExpression InitialValue { get; private set; }
@@ -28,10 +28,10 @@ namespace Flame.MIPS
         public string Name { get { return Template.Name; } }
         public string FullName { get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); } }
         public bool IsStatic { get { return Template.IsStatic; } }
-        public IType FieldType { get { return Template.FieldType; } }
+        public IType FieldType { get { return Template.FieldType.Value; } }
         public IEnumerable<IAttribute> Attributes
         {
-            get { return Template.Attributes; }
+            get { return Template.Attributes.Value; }
         }
 
         public void SetValue(IExpression Value)
@@ -47,6 +47,14 @@ namespace Flame.MIPS
         public IField Build()
         {
             return this;
+        }
+        
+        public void Initialize()
+        {
+            if (this.InitialValue == null)
+            {
+                this.InitialValue = new DefaultValueExpression(FieldType);
+            }            
         }
     }
 }
