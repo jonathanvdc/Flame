@@ -700,7 +700,10 @@ namespace Flame.Recompilation
 
                 return new MemberCreationResult<INamespace>(parentNs.DeclareNamespace(thisName), (tgt, src) =>
                 {
-                    parent.Continuation(parentNs, null);
+                    if (parent.Continuation != null)
+                    {
+                        parent.Continuation(parentNs, null);
+                    }
                     ((INamespaceBuilder)tgt).Initialize();
                 });
             }
