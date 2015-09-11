@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Compiler.Expressions;
 using Mono.Cecil;
 using System;
@@ -34,35 +35,43 @@ namespace Flame.Cecil
 
         #region Static
 
-        public static CecilField DeclareField(ICecilTypeBuilder DeclaringType, IField Template)
+        public static CecilField DeclareField(ICecilTypeBuilder DeclaringType, IFieldSignatureTemplate Template)
         {
-            var attrs = GetFieldAttributes(Template);
-            var module = DeclaringType.GetModule();
-            var fieldTypeRef = Template.FieldType.GetImportedReference(DeclaringType.Module, DeclaringType.GetTypeReference());
-            var fieldRef = new FieldDefinition(Template.Name, attrs, fieldTypeRef);
-            DeclaringType.AddField(fieldRef);
+            var module = DeclaringType.Module;
+            var fieldRef = new FieldDefinition(Template.Name, (FieldAttributes)0, module.Module.TypeSystem.Object);
             var cecilField = new CecilField(DeclaringType, fieldRef);
-            CecilAttribute.DeclareAttributes(fieldRef, cecilField, Template.Attributes);
-            if (fieldRef.IsPrivate && Template.get_IsHidden())
+            var inst = new FieldSignatureInstance(Template, cecilField);
+
+            fieldRef.Attributes = GetFieldAttributes(inst);
+            fieldRef.FieldType = inst.FieldType.Value.GetImportedReference(DeclaringType.Module, DeclaringType.GetTypeReference());
+            
+            DeclaringType.AddField(fieldRef);
+
+            CecilAttribute.DeclareAttributes(fieldRef, cecilField, inst.Attributes.Value);
+            if (fieldRef.IsPrivate && inst.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.HiddenAttribute.AttributeType))
             {
                 fieldRef.CustomAttributes.Add(CecilAttribute.CreateCecil<System.Runtime.CompilerServices.CompilerGeneratedAttribute>(cecilField).Attribute);
             }
-            if ((attrs & FieldAttributes.Literal) == FieldAttributes.Literal)
+            if (fieldRef.IsLiteral)
             {
-                cecilField.SetValue(new DefaultValueExpression(Template.FieldType));
+                cecilField.SetValue(new DefaultValueExpression(inst.FieldType.Value));
             }
             return cecilField;
         }
 
-        public static CecilField DeclareEnumField(ICecilTypeBuilder DeclaringType, IField Template)
+        public static CecilField DeclareEnumField(ICecilTypeBuilder DeclaringType, IFieldSignatureTemplate Template)
         {
-            var attrs = GetFieldAttributes(Template) | FieldAttributes.Literal | FieldAttributes.HasDefault | FieldAttributes.Static;
-            var module = DeclaringType.GetModule();
-            var fieldTypeRef = Template.FieldType.GetImportedReference(DeclaringType.Module, DeclaringType.GetTypeReference());
-            var fieldRef = new FieldDefinition(Template.Name, attrs, fieldTypeRef);
-            DeclaringType.AddField(fieldRef);
+            var module = DeclaringType.Module;
+            var fieldRef = new FieldDefinition(Template.Name, (FieldAttributes)0, module.Module.TypeSystem.Object);
             var cecilField = new CecilField(DeclaringType, fieldRef);
-            CecilAttribute.DeclareAttributes(fieldRef, cecilField, Template.Attributes);
+            var inst = new FieldSignatureInstance(Template, cecilField);
+
+            fieldRef.Attributes = GetFieldAttributes(inst) | FieldAttributes.Literal | FieldAttributes.HasDefault | FieldAttributes.Static;
+            fieldRef.FieldType = inst.FieldType.Value.GetImportedReference(DeclaringType.Module, DeclaringType.GetTypeReference());
+
+            DeclaringType.AddField(fieldRef);
+
+            CecilAttribute.DeclareAttributes(fieldRef, cecilField, inst.Attributes.Value);
 
             if (Template is IInitializedField)
             {
@@ -73,13 +82,15 @@ namespace Flame.Cecil
             {
                 cecilField.SetValue(new DefaultValueExpression(DeclaringType.GetParent()));
             }
+
             return cecilField;
         }
 
-        public static FieldAttributes GetFieldAttributes(IField Template)
+        public static FieldAttributes GetFieldAttributes(FieldSignatureInstance Template)
         {
             FieldAttributes attrs;
-            switch (Template.get_Access())
+            var accAttr = Template.Attributes.Value.GetAttribute(AccessAttribute.AccessAttributeType) as AccessAttribute;
+            switch (accAttr != null ? accAttr.Access : AccessModifier.Public)
             {
                 case AccessModifier.Protected:
                     attrs = FieldAttributes.Family;
@@ -100,7 +111,8 @@ namespace Flame.Cecil
                     attrs = FieldAttributes.Public;
                     break;
             }
-            if (Template.get_IsConstant() && Template.FieldType.get_IsPrimitive())
+            if (Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.ConstantAttribute.AttributeType) && 
+                Template.FieldType.Value.get_IsPrimitive())
             {
                 attrs |= FieldAttributes.Literal | FieldAttributes.HasDefault | FieldAttributes.Static;
             }
@@ -142,6 +154,11 @@ namespace Flame.Cecil
         public IField Build()
         {
             return this;
+        }
+
+        public void Initialize()
+        {
+            // Do nothing.
         }
 
         #endregion

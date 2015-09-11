@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Build;
 using Mono.Cecil;
 using System;
 using System.Collections.Generic;

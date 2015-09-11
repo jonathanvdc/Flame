@@ -79,11 +79,6 @@ namespace Flame.Cecil
 
         #endregion
 
-        protected override IType ResolveLocalTypeParameter(IGenericParameter TypeParameter)
-        {
-            return null;
-        }
-
         #region IInitializedField Implementation
 
         public IExpression GetValue()

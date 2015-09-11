@@ -73,11 +73,6 @@ namespace Flame.Cecil
             }
         }
 
-        protected override IType ResolveLocalTypeParameter(IGenericParameter TypeParameter)
-        {
-            return Method.ResolveTypeParameter(TypeParameter);
-        }
-
         protected override IEnumerable<IAttribute> GetAttributes()
         {
             return Method.Attributes;

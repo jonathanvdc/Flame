@@ -99,24 +99,12 @@ namespace Flame.Cecil
 
         #region Member Attributes
 
-        protected bool HasStaticAttribute()
-        {
-            return GetResolvedProperty().CustomAttributes.Any((item) => item.AttributeType.FullName == typeof(ThreadStaticAttribute).FullName);
-        }
-
         public override bool IsStatic
         {
             get
             {
-                var accessors = GetAccessors();
-                if (accessors.Any())
-                {
-                    return GetAccessors().All((item) => item.IsStatic);
-                }
-                else
-                {
-                    return HasStaticAttribute();
-                }
+                var acc = GetAccessors();
+                return acc.Any() && acc.All(item => item.IsStatic);
             }
         }
 
@@ -179,11 +167,6 @@ namespace Flame.Cecil
 
         #endregion
 
-        protected override IType ResolveLocalTypeParameter(IGenericParameter TypeParameter)
-        {
-            return null;
-        }
-
         public virtual bool IsAbstract
         {
             get { return GetAccessors().Any((item) => item.get_IsAbstract()); }
@@ -218,7 +201,7 @@ namespace Flame.Cecil
 
         protected override IList<CustomAttribute> GetCustomAttributes()
         {
-            return GetResolvedProperty().CustomAttributes.Where((item) => item.AttributeType.FullName != typeof(ThreadStaticAttribute).FullName).ToArray();
+            return GetResolvedProperty().CustomAttributes;
         }
 
         #region Equality

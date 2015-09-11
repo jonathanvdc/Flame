@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil
 {
-    public interface ICecilType : ICecilGenericMember, IType, IGenericResolver, INamespace
+    public interface ICecilType : ICecilGenericMember, IType, INamespace
     {
         TypeReference GetTypeReference();
     }

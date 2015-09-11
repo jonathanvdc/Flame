@@ -184,11 +184,6 @@ namespace Flame.Cecil
             return GetResolvedType().CustomAttributes;
         }
 
-        public override IType ResolveTypeParameter(IGenericParameter TypeParameter)
-        {
-            return null;
-        }
-
         #region Type Members
 
         protected override IList<MethodDefinition> GetCecilMethods()

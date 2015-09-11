@@ -19,7 +19,6 @@ namespace Flame.Cecil
         #region ICecilType Implementation
 
         public abstract TypeReference GetTypeReference();
-        public abstract IType ResolveTypeParameter(IGenericParameter TypeParameter);
 
         public override MemberReference GetMemberReference()
         {

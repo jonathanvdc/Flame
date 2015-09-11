@@ -41,11 +41,6 @@ namespace Flame.Cecil
             get { return GetResolvedMethod().IsConstructor; }
         }
 
-        protected override IType ResolveLocalTypeParameter(IGenericParameter TypeParameter)
-        {
-            return null;
-        }
-
         public AccessModifier Access
         {
             get

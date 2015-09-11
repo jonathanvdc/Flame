@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Build;
 using Mono.Cecil;
 using System;
 using System.Collections.Generic;
@@ -58,7 +59,7 @@ namespace Flame.Cecil
             return new CecilNamespace(Module, MemberExtensions.CombineNames(FullName, Name));
         }
 
-        public ITypeBuilder DeclareType(IType Template)
+        public ITypeBuilder DeclareType(ITypeSignatureTemplate Template)
         {
             return CecilTypeBuilder.DeclareType(this, Template);
         }
@@ -66,6 +67,11 @@ namespace Flame.Cecil
         public INamespace Build()
         {
             return this;
+        }
+
+        public void Initialize()
+        {
+            // Do nothing.
         }
 
         #endregion

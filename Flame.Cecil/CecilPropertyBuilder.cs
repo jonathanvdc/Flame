@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Build;
 using Mono.Cecil;
 using System;
 using System.Collections.Generic;
@@ -10,26 +11,53 @@ namespace Flame.Cecil
 {
     public class CecilPropertyBuilder : CecilProperty, ICecilPropertyBuilder
     {
-        public CecilPropertyBuilder(ICecilType DeclaringType, PropertyReference Property, bool IsStatic)
+        public CecilPropertyBuilder(ICecilType DeclaringType, PropertyReference Property, IPropertySignatureTemplate Template)
             : base(DeclaringType, Property)
         {
-            this.isStatic = IsStatic;
+            this.Template = new PropertySignatureInstance(Template, this);
         }
 
-        private bool isStatic;
+        public PropertySignatureInstance Template { get; private set; }
+
         public override bool IsStatic
         {
             get
             {
-                return isStatic;
+                return Template.Template.IsStatic;
             }
         }
 
+        #region Initialize
+
+        public void Initialize()
+        {
+            var propDef = GetResolvedProperty();
+            propDef.PropertyType = Template.PropertyType.Value.GetImportedReference(Module, DeclaringType.GetTypeReference());
+
+            foreach (var item in Template.IndexerParameters.Value)
+            {
+                CecilParameter.DeclareParameter(this, item);
+            }
+            CecilAttribute.DeclareAttributes(propDef, this, Template.Attributes.Value);
+            if (!Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.ExtensionAttribute.AttributeType) &&
+                Template.IndexerParameters.Value.Any(MemberExtensions.get_IsExtension))
+            {
+                CecilAttribute.DeclareAttributeOrDefault(propDef, this, PrimitiveAttributes.Instance.ExtensionAttribute);
+            }
+            if (Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.IndexerAttribute.AttributeType))
+            {
+                propDef.Name = "Item";
+                DeclaringType.GetTypeReference().Resolve().SetDefaultMember(Name);
+            }
+        }
+
+        #endregion
+
         #region ICecilPropertyBuilder Implementation
 
-        public IMethodBuilder DeclareAccessor(IAccessor Template)
+        public IMethodBuilder DeclareAccessor(AccessorType Kind, IMethodSignatureTemplate Template)
         {
-            return CecilMethodBuilder.DeclareAccessor(this, Template);
+            return CecilMethodBuilder.DeclareAccessor(this, Kind, Template);
         }
 
         public IProperty Build()
@@ -71,27 +99,11 @@ namespace Flame.Cecil
 
         #region Static
 
-        public static CecilPropertyBuilder DeclareProperty(ICecilTypeBuilder DeclaringType, IProperty Template)
+        public static CecilPropertyBuilder DeclareProperty(ICecilTypeBuilder DeclaringType, IPropertySignatureTemplate Template)
         {
-            var module = DeclaringType.Module;
-            var propTypeRef = Template.PropertyType.GetImportedReference(module, null);
-            var propDef = new PropertyDefinition(Template.get_IsIndexer() ? "Item" : Template.Name, Mono.Cecil.PropertyAttributes.None, propTypeRef);
+            var propDef = new PropertyDefinition(Template.Name, PropertyAttributes.None, DeclaringType.Module.Module.TypeSystem.Object);
             DeclaringType.AddProperty(propDef);
-            var cecilProp = new CecilPropertyBuilder(DeclaringType, propDef, Template.IsStatic);
-            foreach (var item in Template.IndexerParameters)
-            {
-                CecilParameter.DeclareParameter(cecilProp, item);
-            }
-            CecilAttribute.DeclareAttributes(propDef, cecilProp, Template.Attributes);
-            if (Template.get_IsExtension() && !cecilProp.get_IsExtension())
-            {
-                CecilAttribute.DeclareAttributeOrDefault(propDef, cecilProp, PrimitiveAttributes.Instance.ExtensionAttribute);
-            }
-            if (Template.IsStatic)
-            {
-                propDef.CustomAttributes.Add(CecilAttribute.CreateCecil<ThreadStaticAttribute>(cecilProp).Attribute);
-            }
-            return cecilProp;
+            return new CecilPropertyBuilder(DeclaringType, propDef, Template);
         }
 
         #endregion

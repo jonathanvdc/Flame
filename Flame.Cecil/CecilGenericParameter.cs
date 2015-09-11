@@ -153,11 +153,6 @@ namespace Flame.Cecil
 
         #region CecilTypeBase Implementation
 
-        public override IType ResolveTypeParameter(IGenericParameter TypeParameter)
-        {
-            return null;
-        }
-
         private IType[] cachedBaseTypes;
         // Note that these "base types" are really the type constraints.
         public override IEnumerable<IType> BaseTypes
@@ -274,7 +269,7 @@ namespace Flame.Cecil
 
         public static CecilGenericParameter[] DeclareGenericParameters(IGenericParameterProvider ParameterProvider, IGenericParameter[] Templates, CecilModule Module, IGenericMember DeclaringMember)
         {
-            return DeclareGenericParameters(ParameterProvider, Templates, Module).Select((item) => new CecilGenericParameter(item, Module, DeclaringMember)).ToArray();
+            return DeclareGenericParameters(ParameterProvider, Templates, Module).Select(item => new CecilGenericParameter(item, Module, DeclaringMember)).ToArray();
         }
 
         public static GenericParameter[] DeclareGenericParameters(IGenericParameterProvider ParameterProvider, IGenericParameter[] Templates, CecilModule Module)
