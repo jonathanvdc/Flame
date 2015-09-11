@@ -112,6 +112,7 @@ namespace Flame.Front.Target
                 { "Ofast", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental | OptimizationMode.Dangerous },
                 { "Os", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Size },
                 { "Oz", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental | OptimizationMode.Size },
+                { "g", OptimizationMode.Debug },
                 { "Og", OptimizationMode.Minimal | OptimizationMode.Debug }
             };
 
@@ -132,7 +133,7 @@ namespace Flame.Front.Target
             { OptimizationMode.Normal, "normal (-O2)" },
             { OptimizationMode.Experimental, "experimental (-O3)" },
             { OptimizationMode.Size, "size (-Os)" },
-            { OptimizationMode.Debug, "debug (-Og)" },
+            { OptimizationMode.Debug, "debug (-g)" },
             { OptimizationMode.Dangerous, "dangerous (-Ofast)" },
         };
 
