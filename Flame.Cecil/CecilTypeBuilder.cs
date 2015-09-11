@@ -120,7 +120,7 @@ namespace Flame.Cecil
             }
         }
 
-        public bool IsInterface
+        public override bool IsInterface
         {
             get
             {
@@ -128,7 +128,7 @@ namespace Flame.Cecil
             }
         }
 
-        public bool IsValueType
+        public override bool IsValueType
         {
             get
             {

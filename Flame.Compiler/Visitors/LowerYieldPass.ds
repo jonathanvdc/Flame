@@ -23,15 +23,16 @@ namespace Flame.Compiler.Visitors
         /// Implements the enumerable pattern for the given type based on the
         /// given implementation for the get enumerator method.
         /// </summary>
-        public abstract void ImplementEnumerable(DescribedType TargetType,
-            IType ElementType, IStatement GetEnumeratorBody);
+        public abstract void ImplementEnumerable(IEnvironment Environment,
+            DescribedType TargetType, IType ElementType, IStatement GetEnumeratorBody);
 
         /// <summary>
 		/// Implements the enumerator pattern for the given type based on the
         /// provided implementations for the move next method and current item property.
 		/// </summary>
-        public abstract void ImplementEnumerator(DescribedType TargetType,
-            IType ElementType, IStatement MoveNextBody, IStatement GetCurrentBody);
+        public abstract void ImplementEnumerator(IEnvironment Environment,
+            DescribedType TargetType, IType ElementType, IStatement MoveNextBody,
+            IStatement GetCurrentBody);
 
         private DescribedType CreateNestedType(INamespace DeclaringNamespace,
                                                IMethod Method)
@@ -111,8 +112,8 @@ namespace Flame.Compiler.Visitors
                                                     stateVar, valueVar, typeConv);
             var moveBody = visitor.CreateBody(visitor.Visit(oldMoveBody));
 
-            ImplementEnumerator(nestedType, elemType, moveBody, currentBody);
-            ImplementEnumerable(nestedType, elemType,
+            ImplementEnumerator(Environment, nestedType, elemType, moveBody, currentBody);
+            ImplementEnumerable(Environment, nestedType, elemType,
                 new ReturnStatement(enumeratorThisVariable.CreateGetExpression()));
 
             var enumCtor = new DescribedBodyMethod("this", nestedType, PrimitiveTypes.Void, false);

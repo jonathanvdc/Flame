@@ -54,7 +54,7 @@ namespace Flame.Front.Target
 
             int constantBoost = Argument.IsConstant ? 4 : 0;                // Constants may allow us to eliminate branches
 
-            int delegateBoost = ParameterType.get_IsDelegate() ? 4 : 0;     // Delegates can be sometimes be replaced with direct or indirect calls.
+            int delegateBoost = ParameterType.get_IsDelegate() ? 4 : 0;     // Delegates can be sometimes be replaced with direct or virtual calls.
 
             return ApproximateSize(argType) + inheritanceBoost + constantBoost + delegateBoost;
         }
@@ -99,7 +99,7 @@ namespace Flame.Front.Target
             int inlineTolerance = Value.PassEnvironment.Log.Options.GetOption<int>("inline-tolerance", 0);
             bool propInline = Value.PassEnvironment.Log.Options.GetOption<bool>("inline-propagate-locals", true);
 
-            var inliner = new InliningVisitor(Value.Method, call => ShouldInline(Value, call, inlineTolerance),
+            var inliner = new InliningVisitor(Value.DeclaringMethod, call => ShouldInline(Value, call, inlineTolerance),
                                               Value.PassEnvironment.GetMethodBody, 
                                               propInline ? new Func<IStatement, IStatement>(OptimizeAdvanced) 
                                                          : new Func<IStatement, IStatement>(OptimizeSimple),
