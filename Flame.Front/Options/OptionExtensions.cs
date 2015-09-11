@@ -1,5 +1,6 @@
 ﻿using Flame.Compiler;
 using Flame.Compiler.Projects;
+using Flame.Recompilation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +11,23 @@ namespace Flame.Front.Options
 {
     public static class OptionExtensions
     {
-        public static bool MustCompileAll(this ICompilerOptions Options)
+        public static IRecompilationStrategy GetRecompilationStrategy(this ICompilerOptions Options)
         {
-            return Options.GetOption<bool>("compileall", true);
+            switch (Options.GetOption<string>("recompilation-strategy", "library").ToLower())
+            {
+                case "executable":
+                case "entry-point":
+                    return EmptyRecompilationStrategy.Instance;
+
+                case "library":
+                case "visible":
+                    return ConditionalRecompilationStrategy.ExternallyVisibleRecompilationStrategy;
+
+                case "conservative":
+                case "total":
+                default:
+                    return ConditionalRecompilationStrategy.TotalRecompilationStrategy;
+            }
         }
         public static bool MustVerifyAssembly(this ICompilerOptions Options)
         {

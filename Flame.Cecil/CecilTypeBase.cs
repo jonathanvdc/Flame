@@ -46,7 +46,7 @@ namespace Flame.Cecil
 
         #region Properties
 
-        public bool IsValueType
+        public virtual bool IsValueType
         {
             get
             {
@@ -54,7 +54,7 @@ namespace Flame.Cecil
             }
         }
 
-        public bool IsInterface
+        public virtual bool IsInterface
         {
             get
             {

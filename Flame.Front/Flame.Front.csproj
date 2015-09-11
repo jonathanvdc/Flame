@@ -51,6 +51,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinderResolver.cs" />
+    <Compile Include="Target\BodyAnalysisPass.cs" />
+    <Compile Include="Target\BodyStatementPass.cs" />
     <Compile Include="Cli\AnsiConsole.cs" />
     <Compile Include="Cli\AnsiConsoleStyle.cs" />
     <Compile Include="Cli\ConsoleBase.cs" />

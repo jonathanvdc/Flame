@@ -70,6 +70,7 @@
     <Compile Include="CecilFieldBase.cs" />
     <Compile Include="CecilFieldConverter.cs" />
     <Compile Include="CecilFieldImporter.cs" />
+    <Compile Include="CecilLowerYieldPass.cs" />
     <Compile Include="CecilMethodConverter.cs" />
     <Compile Include="CecilMethodImporter.cs" />
     <Compile Include="CecilModule.cs" />
