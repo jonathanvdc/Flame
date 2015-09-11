@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Variables;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil
 {
-    public class CecilEnvironment : IEnvironment, IEnumerableEnvironment
+    public class CecilEnvironment : IEnvironment //, IEnumerableEnvironment
     {
         public CecilEnvironment(CecilModule Module)
         {
@@ -41,7 +42,7 @@ namespace Flame.Cecil
             get { return Module.TypeSystem.Enumerator; }
         }
 
-        private static void ForwardCall(IMethodBuilder Source, IMethod SourceMethod, IMethod TargetMethod)
+        /*private static void ForwardCall(IMethodBuilder Source, IMethod SourceMethod, IMethod TargetMethod)
         {
             var dict = new Dictionary<IType, IType>();
             foreach (var item in SourceMethod.DeclaringType.GenericParameters)
@@ -206,6 +207,6 @@ namespace Flame.Cecil
             var disposeMethod = TargetType.DeclareMethod(descDisposeMethod);
             disposeMethod.SetMethodBody(disposeMethod.GetBodyGenerator().EmitReturn(null));
             disposeMethod.Build();
-        }
+        }*/
     }
 }

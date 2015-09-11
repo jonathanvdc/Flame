@@ -22,7 +22,6 @@ namespace Flame.Cecil
         }
 
         public abstract bool IsStatic { get; }
-        protected abstract IType ResolveLocalTypeParameter(IGenericParameter TypeParameter);
 
         public override string Name
         {
@@ -34,19 +33,6 @@ namespace Flame.Cecil
             get
             {
                 return MemberExtensions.CombineNames(DeclaringType.FullName, Name);
-            }
-        }
-
-        public IType ResolveTypeParameter(IGenericParameter TypeParameter)
-        {
-            var localParam = ResolveLocalTypeParameter(TypeParameter);
-            if (localParam == null)
-            {
-                return DeclaringType.ResolveTypeParameter(TypeParameter);
-            }
-            else
-            {
-                return localParam;
             }
         }
 

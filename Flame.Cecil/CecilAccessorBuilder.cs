@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using Flame.Compiler.Build;
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,8 @@ namespace Flame.Cecil
 {
     public class CecilAccessorBuilder : CecilMethodBuilder, IAccessor
     {
-        public CecilAccessorBuilder(ICecilProperty DeclaringProperty, MethodDefinition Method, AccessorType AccessorType)
-            : base((ICecilType)DeclaringProperty.DeclaringType, Method)
+        public CecilAccessorBuilder(ICecilProperty DeclaringProperty, MethodDefinition Method, IMethodSignatureTemplate Template, AccessorType AccessorType)
+            : base((ICecilType)DeclaringProperty.DeclaringType, Method, Template)
         {
             this.DeclaringProperty = DeclaringProperty;
             this.AccessorType = AccessorType;
