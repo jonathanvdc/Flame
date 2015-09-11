@@ -28,12 +28,12 @@ namespace Flame.Recompilation
 
         public IEnumerable<IParameter> CreateIndexerParameters(IProperty Property)
         {
-            return RecompiledParameterTemplate.GetParameterTemplates(Recompiler, Property.GetIndexerParameters());
+            return RecompiledParameterTemplate.GetParameterTemplates(Recompiler, SourceProperty.GetIndexerParameters());
         }
 
         public IType CreatePropertyType(IProperty Property)
         {
-            return Recompiler.GetType(Property.PropertyType);
+            return Recompiler.GetType(SourceProperty.PropertyType);
         }
     }
 }
