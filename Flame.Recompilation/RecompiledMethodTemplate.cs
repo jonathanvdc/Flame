@@ -34,7 +34,7 @@ namespace Flame.Recompilation
 
         public IEnumerable<IMethod> CreateBaseMethods(IMethod Method)
         {
-            return Recompiler.GetMethods(Method.BaseMethods.ToArray());
+            return Recompiler.GetMethods(SourceMethod.BaseMethods.ToArray());
         }
 
         public IEnumerable<IGenericParameter> CreateGenericParameters(IMethod Method)
@@ -44,7 +44,7 @@ namespace Flame.Recompilation
 
         public IEnumerable<IParameter> CreateParameters(IMethod Method)
         {
-            return Method.Parameters.Select(item => new RetypedParameter(item, Recompiler.GetType(item.ParameterType))).ToArray();
+            return SourceMethod.Parameters.Select(item => new RetypedParameter(item, Recompiler.GetType(item.ParameterType))).ToArray();
         }
 
         public IType CreateReturnType(IMethod Method)
