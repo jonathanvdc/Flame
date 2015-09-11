@@ -92,13 +92,13 @@ namespace Flame.Cecil
                 var imported = ImportMethodOverrides(DeclaringType, Module, baseMethods, genericParams);
                 foreach (var item in imported)
                 {
-                    methodDef.AddOverride(item, log);
+                    methodDef.Overrides.Add(item);
                 }
             }
             else
             {
                 var imported = ImportMethodOverrides(DeclaringType, Module, new[] { simpleBaseMethod }, genericParams);
-                methodDef.AddOverride(imported[0], log);
+                methodDef.Overrides.Add(imported[0]);
             }
         }
 

@@ -255,23 +255,6 @@ namespace Flame.Cecil
             }
         }
 
-        public static void AddOverride(this MethodDefinition Implementation, MethodReference OverriddenReference, ICompilerLog Log)
-        {
-            var overridenResolved = OverriddenReference.Resolve();
-            if (!overridenResolved.IsVirtual && !overridenResolved.IsAbstract)
-            {
-                Log.LogError(new LogEntry("Invalid method override", "Method '" + Implementation.FullName + "' overrides non-virtual method '" + OverriddenReference.FullName + "'"));
-            }
-            foreach (var item in Implementation.Overrides)
-            {
-                if (item.Resolve().Equals(overridenResolved))
-                {
-                    return; // Already overridden
-                }
-            }
-            Implementation.Overrides.Add(OverriddenReference);
-        }
-
         public static string StripCLRGenerics(string Name)
         {
             int index = Name.IndexOf('`');
