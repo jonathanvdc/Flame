@@ -738,7 +738,7 @@ namespace Flame.Recompilation
             var type = DeclaringNamespace.DeclareType(typeTemplate);
             return new MemberCreationResult<IType>(type, (tgt, src) =>
             {
-                typeMetadata[tgt] = new RandomAccessOptions();
+                typeMetadata[src] = new RandomAccessOptions();
                 var typeBuilder = (ITypeBuilder)tgt;
                 typeBuilder.Initialize();
                 RecompileInvariants(typeBuilder, src);
