@@ -500,6 +500,20 @@ namespace Flame.Cecil.Emit
 
         #region GetExtendedParameterTypes
 
+        public static IType GetThisParameterType(IMethod Method)
+        {
+            var declType = Method.DeclaringType;
+            var genInst = declType.get_IsGeneric() ? declType.MakeGenericType(declType.GenericParameters) : declType;
+            if (declType.get_IsValueType())
+            {
+                return genInst.MakePointerType(PointerKind.ReferencePointer);
+            }
+            else
+            {
+                return genInst;
+            }
+        }
+
         public static IType[] GetExtendedParameterTypes(IMethod Method)
         {
             var realParams = Method.GetParameters();
@@ -508,16 +522,7 @@ namespace Flame.Cecil.Emit
             IType[] parameterTypes = new IType[realParams.Length + offset];
             if (instance)
             {
-                var declType = Method.DeclaringType;
-                var genInst = declType.get_IsGeneric() ? declType.MakeGenericType(declType.GenericParameters) : declType;
-                if (declType.get_IsValueType())
-                {
-                    parameterTypes[0] = genInst.MakePointerType(PointerKind.ReferencePointer);
-                }
-                else
-                {
-                    parameterTypes[0] = genInst;
-                }
+                parameterTypes[0] = GetThisParameterType(Method);
             }
             for (int i = 0; i < realParams.Length; i++)
             {
@@ -526,9 +531,29 @@ namespace Flame.Cecil.Emit
             return parameterTypes;
         }
 
+        public static IType GetExtendedParameterType(IMethod Method, int Index)
+        {
+            int offset = Method.IsStatic ? 0 : 1;
+            if (Index == 0 && offset == 1)
+            {
+                // "this" parameter
+                return GetThisParameterType(Method);
+            }
+            else
+            {
+                // Regular parameter
+                return Method.Parameters.ElementAt(Index - offset).ParameterType;
+            }
+        }
+
         public static IType[] GetExtendedParameterTypes(ICodeGenerator CodeGenerator)
         {
             return GetExtendedParameterTypes(CodeGenerator.Method);
+        }
+
+        public static IType GetExtendedParameterType(ICodeGenerator CodeGenerator, int Index)
+        {
+            return GetExtendedParameterType(CodeGenerator.Method, Index);
         }
 
         #endregion
