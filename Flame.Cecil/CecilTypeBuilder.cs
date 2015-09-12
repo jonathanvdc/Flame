@@ -267,6 +267,7 @@ namespace Flame.Cecil
                 descMethod.AddParameter(param);
             }
             var staticMethod = DeclaringType.DeclareMethod(new MethodPrototypeTemplate(descMethod));
+            staticMethod.Initialize();
             var call = CreateSingletonCall(GetSingletonExpression, Method);
             var bodyGen = staticMethod.GetBodyGenerator();
             staticMethod.SetMethodBody(bodyGen.EmitReturn(call.Emit(bodyGen)));
@@ -286,6 +287,7 @@ namespace Flame.Cecil
                 descMethod.AddParameter(param);
             }
             var staticMethod = DeclaringProperty.DeclareAccessor(Accessor.AccessorType, new MethodPrototypeTemplate(descMethod));
+            staticMethod.Initialize();
             var call = CreateSingletonCall(GetSingletonExpression, Accessor);
             var bodyGen = staticMethod.GetBodyGenerator();
             staticMethod.SetMethodBody(bodyGen.EmitReturn(call.Emit(bodyGen)));
@@ -304,6 +306,7 @@ namespace Flame.Cecil
                 descProp.AddIndexerParameter(param);
             }
             var staticProp = DeclaringType.DeclareProperty(new PropertyPrototypeTemplate(descProp));
+            staticProp.Initialize();
             foreach (var item in Property.Accessors)
             {
                 CreateStaticSingletonAccessor(GetSingletonExpression, staticProp, item);
