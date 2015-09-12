@@ -69,7 +69,7 @@ namespace Flame.Front.Target
 
             var preferredPassSet = new HashSet<string>(Preferences.PreferredPasses);
 
-            foreach (var item in Preferences.AdditionalMethodPasses.Union(MethodPasses))
+            foreach (var item in Preferences.AdditionalPasses.Union(MethodPasses))
             {
                 AddPassName(names, item, optInfo, preferredPassSet);
             }
@@ -86,7 +86,7 @@ namespace Flame.Front.Target
             var methodOpt = Log.GetMethodOptimizer();
 
             var selectedMethodPasses = new List<IPass<BodyPassArgument, IStatement>>();
-            foreach (var item in Preferences.AdditionalMethodPasses.Union(MethodPasses))
+            foreach (var item in Preferences.AdditionalPasses.Union(MethodPasses))
             {
                 AddPass(selectedMethodPasses, item, optInfo, preferredPassSet);
             }
