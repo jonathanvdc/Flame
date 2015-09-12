@@ -101,7 +101,7 @@ namespace Flame.Cecil
         private IMethod[] FindBaseMethods()
         {
             var cecilOverrides = GetResolvedMethod().Overrides;
-            List<IMethod> overrides = new List<IMethod>(cecilOverrides.Count);
+            var overrides = new HashSet<IMethod>();
             for (int i = 0; i < cecilOverrides.Count; i++)
             {
                 overrides.Add(Module.Convert(cecilOverrides[i]));
