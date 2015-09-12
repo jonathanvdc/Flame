@@ -33,6 +33,7 @@ namespace Flame.Cecil
             if (Template.Template.IsStatic)
             {
                 attrs |= MethodAttributes.Static;
+                methodDef.HasThis = false;
             }
             else if (IsAbstract)
             {
