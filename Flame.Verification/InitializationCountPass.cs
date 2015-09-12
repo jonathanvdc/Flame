@@ -15,14 +15,17 @@ namespace Flame.Verification
     /// <summary>
     /// A pass that checks initialization counts and reports irregularities.
     /// </summary>
-    public class InitializationCountPass : IPass<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>
+    public class InitializationCountPass : IPass<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>
     {
-        public InitializationCountPass(ICompilerLog Log)
+        private InitializationCountPass()
+        { }
+
+        static InitializationCountPass()
         {
-            this.Log = Log;
+            Instance = new InitializationCountPass(); 
         }
 
-        public ICompilerLog Log { get; private set; }
+        public static InitializationCountPass Instance { get; private set; }
 
         /// <summary>
         /// A warning name for uninitialized values.
@@ -156,18 +159,19 @@ namespace Flame.Verification
             }
         }
 
-        public Tuple<IStatement, IMethod> Apply(Tuple<IStatement, IMethod> Value)
+        public IStatement Apply(Tuple<IStatement, IMethod, ICompilerLog> Value)
         {
+            var log = Value.Item3;
             if (Value.Item2.IsConstructor && !Value.Item2.IsStatic)
             {
                 var visitor = InitializationCountHelpers.CreateVisitor();
                 visitor.Visit(Value.Item1);
-                if (!LogUninitialized(Log, Value.Item2, visitor))
+                if (!LogUninitialized(log, Value.Item2, visitor))
                 {
-                    LogMultipleInitialization(Log, Value.Item2, visitor);
+                    LogMultipleInitialization(log, Value.Item2, visitor);
                 }
             }
-            return Value;
+            return Value.Item1;
         }
     }
 }

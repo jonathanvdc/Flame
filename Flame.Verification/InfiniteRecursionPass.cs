@@ -12,14 +12,17 @@ using System.Threading.Tasks;
 
 namespace Flame.Verification
 {
-    public class InfiniteRecursionPass : IPass<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>
+    public class InfiniteRecursionPass : IPass<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>
     {
-        public InfiniteRecursionPass(ICompilerLog Log)
+        private InfiniteRecursionPass()
+        { }
+
+        static InfiniteRecursionPass()
         {
-            this.Log = Log;
+            Instance = new InfiniteRecursionPass();
         }
 
-        public ICompilerLog Log { get; private set; }
+        public static InfiniteRecursionPass Instance { get; private set; }
 
         public const string InfiniteRecursionWarningName = "infinite-recursion";
 
@@ -34,7 +37,7 @@ namespace Flame.Verification
             return Log.UseDefaultWarnings(InfiniteRecursionWarningName);
         }
 
-        public Tuple<IStatement, IMethod> Apply(Tuple<IStatement, IMethod> Value)
+        public IStatement Apply(Tuple<IStatement, IMethod, ICompilerLog> Value)
         {
             // Count self-calls
             var matchCall = new Func<DissectedCall, bool>(call => 
@@ -54,10 +57,10 @@ namespace Flame.Verification
                                        Warnings.Instance.GetWarningNameMessage(InfiniteRecursionWarningName),
                                        Value.Item2.GetSourceLocation());
 
-                Log.LogWarning(InitializationCountPass.AppendNeutralLocations(msg, visitor, "Self-call: "));
+                Value.Item3.LogWarning(InitializationCountPass.AppendNeutralLocations(msg, visitor, "Self-call: "));
             }
 
-            return Value;
+            return Value.Item1;
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Flame.Front.Projects
             {
                 return Item.GetSource(Parameters.CurrentPath.AbsolutePath.Path);
             }
-            catch (FileNotFoundException ex)
+            catch (FileNotFoundException)
             {
                 Parameters.Log.LogError(new LogEntry("Error getting source code", "File '" + Item.SourceIdentifier + "' was not found"));
                 return null;

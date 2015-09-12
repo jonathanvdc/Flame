@@ -21,5 +21,10 @@ namespace Flame.Front.Target
         {
             return AnalysisPass.Apply(Tuple.Create(Value.Body, Value.DeclaringMethod, Value.PassEnvironment.Log));
         }
+
+        public static PassInfo<BodyPassArgument, IStatement> ToBodyPass(PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement> AnalysisPass)
+        {
+            return new PassInfo<BodyPassArgument, IStatement>(new BodyAnalysisPass(AnalysisPass.Pass), AnalysisPass.Name, AnalysisPass.UsePass);
+        }
     }
 }
