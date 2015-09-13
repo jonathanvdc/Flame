@@ -73,16 +73,16 @@ namespace Flame.Cecil
 
             var simpleBaseMethod = baseMethods.FirstOrDefault(item => !item.DeclaringType.get_IsInterface());
 
+            if ((attrs & MethodAttributes.Virtual) != MethodAttributes.Virtual && baseMethods.Length > 0)
+            {
+                attrs |= MethodAttributes.Virtual | MethodAttributes.Final;
+            }
             if ((attrs & MethodAttributes.Virtual) == MethodAttributes.Virtual)
             {
                 if (simpleBaseMethod == null)
-	            {
+                {
                     attrs |= MethodAttributes.NewSlot;
-	            }
-            }
-            else if (baseMethods.Length > 0)
-            {
-                attrs |= MethodAttributes.Virtual | MethodAttributes.Final;
+                }
             }
 
             methodDef.Attributes = attrs;
