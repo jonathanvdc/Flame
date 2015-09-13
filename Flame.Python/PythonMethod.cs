@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Python.Emit;
 using System;
 using System.Collections.Generic;
@@ -11,18 +12,13 @@ namespace Flame.Python
 {
     public class PythonMethod : IPythonMethod, IMethodBuilder, IDependencyNode 
     {
-        public PythonMethod(IMethod Template)
-        {
-            this.DeclaringType = Template.DeclaringType;
-            this.Template = Template;
-        }
-        public PythonMethod(IType DeclaringType, IMethod Template)
+        public PythonMethod(IType DeclaringType, IMethodSignatureTemplate Template)
         {
             this.DeclaringType = DeclaringType;
-            this.Template = Template;
+            this.Template = new MethodSignatureInstance(Template, this);
         }
 
-        public IMethod Template { get; private set; }
+        public MethodSignatureInstance Template { get; private set; }
         public IType DeclaringType { get; private set; }
 
         protected IMemberNamer GetMemberNamer()
@@ -38,13 +34,13 @@ namespace Flame.Python
                 {
                     return "__init__";
                 }
-                else if (Template.get_IsCast() && Template.ReturnType.Equals(PrimitiveTypes.String))
+                else if (this.get_IsCast() && Template.ReturnType.Equals(PrimitiveTypes.String))
                 {
                     return "__str__";
                 }
-                else if (Template.get_IsOperator())
+                else if (this.get_IsOperator())
                 {
-                    var op = Template.GetOperator();
+                    var op = this.GetOperator();
                     if (op.Equals(Operator.Add))
                     {
                         return "__add__";
@@ -106,7 +102,8 @@ namespace Flame.Python
                         return "__hash__";
                     }
                 }
-                return GetMemberNamer().Name(Template);
+                var descMethod = new DescribedMethod(Template.Name, DeclaringType);
+                return GetMemberNamer().Name(descMethod);
             }
         }
 
@@ -146,35 +143,40 @@ namespace Flame.Python
             return this;
         }
 
+        public void Initialize()
+        {
+            // Do nothing. This back-end does not need `Initialize` to get things done.
+        }
+
         #endregion
 
         #region IMethod Implementation
 
         public IEnumerable<IMethod> BaseMethods
         {
-            get { return Template.BaseMethods; }
+            get { return Template.BaseMethods.Value; }
         }
 
         public IEnumerable<IParameter> Parameters
         {
-            get { return Template.Parameters; }
+            get { return Template.Parameters.Value; }
         }
 
         public IParameter[] GetPythonParameters()
         {
             if (IsStatic)
             {
-                return Template.GetParameters();
+                return this.GetParameters();
             }
             else
             {
-                return MemberSelection.Concat(new DescribedParameter("self", DeclaringType), Template.GetParameters());
+                return MemberSelection.Concat(new DescribedParameter("self", DeclaringType), this.GetParameters());
             }
         }
 
         public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
         {
-            return Template.Invoke(Caller, Arguments);
+            return null;
         }
 
         public bool IsConstructor
@@ -184,12 +186,12 @@ namespace Flame.Python
 
         public IType ReturnType
         {
-            get { return Template.ReturnType; }
+            get { return Template.ReturnType.Value; }
         }
 
         public bool IsStatic
         {
-            get { return Template.IsStatic; }
+            get { return Template.Template.IsStatic; }
         }
 
         public string FullName
@@ -199,12 +201,12 @@ namespace Flame.Python
 
         public IEnumerable<IAttribute> Attributes
         {
-            get { return Template.Attributes; }
+            get { return Template.Attributes.Value; }
         }
 
         public IEnumerable<IGenericParameter> GenericParameters
         {
-            get { return Template.GenericParameters; }
+            get { return Template.GenericParameters.Value; }
         }
 
         #endregion

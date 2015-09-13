@@ -10,7 +10,7 @@ namespace Flame
     /// Defines a generic type instantiation.
     /// </summary>
 	public virtual class GenericType : GenericTypeBase, IGenericMemberInstance,
-									   IGenericResolver, IEquatable<IType>
+									   IGenericResolverType, IEquatable<IType>
 	{
         /// <summary>
         /// Creates a generic instantiation of the given type with the given

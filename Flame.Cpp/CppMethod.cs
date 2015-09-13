@@ -1,6 +1,7 @@
 ﻿using Flame.Build;
 using Flame.CodeDescription;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Cpp.Emit;
 using System;
 using System.Collections.Generic;
@@ -16,23 +17,23 @@ namespace Flame.Cpp
 
     public class CppMethod : IMethodBuilder, ICppMethod, IEquatable<IMethod>
     {
-        public CppMethod(IGenericResolverType DeclaringType, IMethod Template, ICppEnvironment Environment, bool IsStatic, bool IsGlobal)
+        public CppMethod(IGenericResolverType DeclaringType, IMethodSignatureTemplate Template, ICppEnvironment Environment, bool IsStatic, bool IsGlobal)
         {
             this.DeclaringType = DeclaringType;
-            this.Template = Template;
-            this.Templates = new CppTemplateDefinition(this, Template);
+            this.Template = new MethodSignatureInstance(Template, this);
+            this.Templates = new CppTemplateDefinition(this, this.Template.GenericParameters);
             this.Environment = new TemplatedMemberCppEnvironment(Environment, this);
             this.IsStatic = IsStatic;
             this.IsGlobal = IsGlobal;
             this.codeGen = new CppCodeGenerator(this, this.Environment);
             this.built = false;
         }
-        public CppMethod(IGenericResolverType DeclaringType, IMethod Template, ICppEnvironment Environment)
+        public CppMethod(IGenericResolverType DeclaringType, IMethodSignatureTemplate Template, ICppEnvironment Environment)
             : this(DeclaringType, Template, Environment, Template.IsStatic, false)
         { }
 
         public IType DeclaringType { get; private set; }
-        public IMethod Template { get; private set; }
+        public MethodSignatureInstance Template { get; private set; }
         public ICppEnvironment Environment { get; private set; }
         public Func<INamespace, IConverter<IType, string>> TypeNamer { get { return Environment.TypeNamer; } }
         public CppTemplateDefinition Templates { get; private set; }
@@ -46,7 +47,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get { return ReturnType.GetDependencies(DeclaringType).MergeDependencies(GetParameters().GetDependencies(DeclaringType)).MergeDependencies(Body.Dependencies); }
+            get { return ReturnType.GetDependencies(DeclaringType).MergeDependencies(Parameters.GetDependencies(DeclaringType)).MergeDependencies(Body.Dependencies); }
         }
 
         #region Code Generation
@@ -100,6 +101,11 @@ namespace Flame.Cpp
             return this;
         }
 
+        public void Initialize()
+        {
+            // No need for this quite yet.
+        }
+
         public string FullName
         {
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
@@ -107,7 +113,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IAttribute> Attributes
         {
-            get { return Template.Attributes; }
+            get { return Template.Attributes.Value; }
         }
 
         public CodeBuilder GetDocumentationComments()
@@ -135,24 +141,15 @@ namespace Flame.Cpp
 
         public IEnumerable<IMethod> BaseMethods
         {
-            get { return Template.BaseMethods; }
+            get { return Template.BaseMethods.Value; }
         }
 
-        public IEnumerable<IParameter> Parameters { get { return GetParameters(); } }
-
-        public IParameter[] GetParameters()
+        public IEnumerable<IParameter> Parameters
         {
-            var templParams = Template.GetParameters();
-            DescribedParameter[] newParams = new DescribedParameter[templParams.Length];
-            for (int i = 0; i < templParams.Length; i++)
+            get
             {
-                newParams[i] = new DescribedParameter(templParams[i].Name, Environment.TypeConverter.Convert(templParams[i].ParameterType));
-                foreach (var item in templParams[i].Attributes)
-                {
-                    newParams[i].AddAttribute(item);
-                }
+                return Template.Parameters.Value.Select(item => new RetypedParameter(item, Environment.TypeConverter.Convert(item.ParameterType)));
             }
-            return newParams;
         }
 
         public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
@@ -220,7 +217,7 @@ namespace Flame.Cpp
         {
             get
             {
-                return this.ConvertType(Template.ReturnType);
+                return this.ConvertType(Template.ReturnType.Value);
             }
         }
 
@@ -259,7 +256,7 @@ namespace Flame.Cpp
                 cb.Append(this.GetGenericFreeName());
             }
             cb.Append('(');
-            var parameters = GetParameters();
+            var parameters = Parameters.ToArray();
             for (int i = 0; i < parameters.Length; i++)
             {
                 if (i > 0)
@@ -319,10 +316,10 @@ namespace Flame.Cpp
                 {
                     var bodyCode = ProcessedBody.GetCode();
                     for (int i = 0; i < bodyCode.LineCount; i++)
-			        {
+                    {
                         var line = bodyCode[i];
                         cb.AddLine("// " + line.ToString(new string(' ', 4)));
-			        }
+                    }
                 }
             }
             return cb;

@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Build;
 using Mono.Cecil;
 using System;
 using System.Collections.Generic;
@@ -151,6 +152,11 @@ namespace Flame.Cecil
         public IAssembly Build()
         {
             return this;
+        }
+
+        public void Initialize()
+        {
+            // No need to initialize anything here.
         }
 
         #endregion

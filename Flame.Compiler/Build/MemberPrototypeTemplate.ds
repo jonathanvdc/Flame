@@ -1,0 +1,52 @@
+
+namespace Flame.Compiler.Build
+{
+    /// <summary>
+    /// A base class for member signature templates that use a prototype member.
+    /// </summary>
+    public virtual class MemberPrototypeTemplate<T> : IMemberSignatureTemplate<T>
+        where T : IMember
+    {
+        /// <summary>
+        /// Creates a member prototype template from the given prototype member.
+        /// </summary>
+        public const this(set T Prototype);
+
+        /// <summary>
+        /// Gets this member prototype template's prototype member.
+        /// </summary>
+        public T Prototype { const get; private set; }
+
+        /// <summary>
+        /// Gets this member prototype's name.
+        /// </summary>
+        public string Name { const get { return Prototype.Name; } }
+
+        /// <summary>
+        /// Creates this member prototype's attributes.
+        /// </summary>
+        public [IAttribute] CreateAttributes(T Member)
+        {
+            return Prototype.Attributes;
+        }
+    }
+
+    /// <summary>
+    /// A base class for type member signature templates that use a prototype member.
+    /// </summary>
+    public virtual class TypeMemberPrototypeTemplate<T> : MemberPrototypeTemplate<T>,
+        ITypeMemberSignatureTemplate<T>
+        where T : ITypeMember
+    {
+        /// <summary>
+        /// Creates a type member prototype from the given prototype member.
+        /// </summary>
+        public const this(T Prototype)
+            : base(Prototype);
+
+        /// <summary>
+        /// Tells if this type member prototype is static.
+        /// </summary>
+        public bool IsStatic { const get { return Prototype.IsStatic; } }
+    }
+}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,18 +7,29 @@ using System.Threading.Tasks;
 
 namespace Flame.Recompilation
 {
-    public class AsyncDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>
+    public class AsyncDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, Task<TValue>>
     {
         public AsyncDictionary()
         {
-            dict = new Dictionary<TKey, Task<TValue>>();
+            dict = new ConcurrentDictionary<TKey, Task<TValue>>();
         }
 
-        private Dictionary<TKey, Task<TValue>> dict;
+        private ConcurrentDictionary<TKey, Task<TValue>> dict;
 
-        public void Add(TKey Key, Task<TValue> Value)
+        public Task<TValue> GetOrAdd(TKey Key, TValue InitialValue, Func<TKey, Task<TValue>> ValueFactory)
         {
-            dict.Add(Key, Value);
+            return dict.GetOrAdd(Key, key =>
+            {
+                dict[key] = Task.FromResult(InitialValue);
+                var result = ValueFactory(key);
+                dict[key] = result;
+                return result;
+            });
+        }
+
+        public Task<TValue> GetOrAdd(TKey Key, Func<TKey, Task<TValue>> ValueFactory)
+        {
+            return dict.GetOrAdd(Key, ValueFactory);
         }
 
         public bool ContainsKey(TKey key)
@@ -30,37 +42,24 @@ namespace Flame.Recompilation
             get { return dict.Keys; }
         }
 
-        public bool TryGetValue(TKey key, out TValue value)
+        public bool TryGetValue(TKey key, out Task<TValue> value)
         {
-            if (ContainsKey(key))
-            {
-                value = this[key];
-                return true;
-            }
-            else
-            {
-                value = default(TValue);
-                return false;
-            }
+            return dict.TryGetValue(key, out value);
         }
 
-        public IEnumerable<TValue> Values
+        public IEnumerable<Task<TValue>> Values
         {
             get 
             {
-                var task = Task.WhenAll(dict.Values);
-                task.Wait();
-                return task.Result;
+                return dict.Values;
             }
         }
 
-        public TValue this[TKey key]
+        public Task<TValue> this[TKey key]
         {
             get
             {
-                var task = dict[key];
-                task.Wait();
-                return task.Result;
+                return dict[key];
             }
         }
 
@@ -69,11 +68,9 @@ namespace Flame.Recompilation
             get { return dict.Count; }
         }
 
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+        public IEnumerator<KeyValuePair<TKey, Task<TValue>>> GetEnumerator()
         {
-            var task = Task.WhenAll(dict.Select(item => item.Value.ContinueWith(val => new KeyValuePair<TKey, TValue>(item.Key, val.Result))));
-            task.Wait();
-            return task.Result.AsEnumerable().GetEnumerator(); 
+            return dict.GetEnumerator();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()

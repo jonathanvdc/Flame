@@ -2,17 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Flame.Compiler
+namespace Flame.Compiler.Build
 {
+    /// <summary>
+    /// A common interface for namespaces that can declare child namespaces
+    /// and types.
+    /// </summary>
     public interface INamespaceBuilder : IMemberBuilder<INamespace>, INamespace
     {
-        INamespaceBuilder DeclareNamespace(string Name);
-        
         /// <summary>
-        /// Declares a type based on another type. The template's members will be ignored when creating the type.
+        /// Declares a child namespace with the given name.
+        /// </summary>
+        INamespaceBuilder DeclareNamespace(string Name);
+
+        /// <summary>
+        /// Declares a type based on the given type signature template.
         /// </summary>
         /// <param name="Template"></param>
         /// <returns></returns>
-        ITypeBuilder DeclareType(IType Template);
+        ITypeBuilder DeclareType(ITypeSignatureTemplate Template);
     }
 }

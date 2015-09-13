@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Syntax;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace Flame.TextContract
         public void Save(System.IO.Stream Stream)
         {
             var cb = mainNs.GetCode();
-            cb.IndentationString = "    ";
+            cb.IndentationString = new string(' ', 4);
             string code = cb.ToString();
             using (StreamWriter writer = new StreamWriter(Stream))
             {
@@ -44,6 +45,11 @@ namespace Flame.TextContract
         public IAssembly Build()
         {
             return this;
+        }
+
+        public void Initialize()
+        {
+            // Do nothing. This back-end does not need `Initialize` to get things done.
         }
 
         public string FullName

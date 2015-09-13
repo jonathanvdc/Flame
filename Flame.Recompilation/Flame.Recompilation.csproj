@@ -66,19 +66,20 @@
     <Compile Include="Emit\ThisAddressOfExpression.cs" />
     <Compile Include="Emit\TryBlockGenerator.cs" />
     <Compile Include="Emit\UnaryExpression.cs" />
-    <Compile Include="GenericConstraintExtensions.cs" />
+    <Compile Include="EmptyRecompilationStrategy.cs" />
     <Compile Include="GenericSubstitutionConverter.cs" />
     <Compile Include="IAsyncTaskManager.cs" />
     <Compile Include="IMethodOptimizer.cs" />
+    <Compile Include="IRecompilationStrategy.cs" />
     <Compile Include="PassSuite.cs" />
     <Compile Include="RandomAccessOptions.cs" />
     <Compile Include="RecompilationExtensions.cs" />
     <Compile Include="RecompilationPassArguments.cs" />
+    <Compile Include="RecompilingTypeVisitor.cs" />
+    <Compile Include="ConditionalRecompilationStrategy.cs" />
     <Compile Include="TypeNameComparer.cs" />
     <Compile Include="RecompilationOptions.cs" />
     <Compile Include="RecompilationSettings.cs" />
-    <Compile Include="RecompiledAccessorTemplate.cs" />
-    <Compile Include="RecompiledGenericParameterTemplate.cs" />
     <Compile Include="IAssemblyRecompiler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Emit\RecompiledCodeGenerator.cs" />
@@ -86,14 +87,13 @@
     <Compile Include="RecompiledFieldTemplate.cs" />
     <Compile Include="RecompiledMemberTemplate.cs" />
     <Compile Include="RecompiledMethodTemplate.cs" />
-    <Compile Include="RecompiledNamespaceTemplate.cs" />
     <Compile Include="RecompiledParameterTemplate.cs" />
     <Compile Include="RecompiledPropertyTemplate.cs" />
     <Compile Include="RecompiledTypeMemberTemplate.cs" />
     <Compile Include="RecompiledTypeTemplate.cs" />
-    <Compile Include="RecompiledVariableMember.cs" />
     <Compile Include="SingleThreadedTaskManager.cs" />
     <Compile Include="VisitorRecompilationPass.cs" />
+    <Compile Include="WeakTypeRecompilingVisitor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

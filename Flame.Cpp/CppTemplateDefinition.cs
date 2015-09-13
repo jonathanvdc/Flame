@@ -13,27 +13,29 @@ namespace Flame.Cpp
         public CppTemplateDefinition(ICppTemplateMember DeclaringMember)
         {
             this.DeclaringMember = DeclaringMember;
-            this.templParams = new List<CppTemplateParameter>();
+            this.templParams = new Lazy<List<CppTemplateParameter>>(() => new List<CppTemplateParameter>());
         }
-        public CppTemplateDefinition(ICppTemplateMember DeclaringMember, IGenericMember Template)
-            : this(DeclaringMember)
+        public CppTemplateDefinition(ICppTemplateMember DeclaringMember, Lazy<IEnumerable<IGenericParameter>> TemplateParameters)
         {
-            DeclareGenericParameters(Template);
+            this.DeclaringMember = DeclaringMember;
+            this.templParams = new Lazy<List<CppTemplateParameter>>(() => 
+                new List<CppTemplateParameter>(TemplateParameters.Value.Select(item =>
+                    new CppTemplateParameter(DeclaringMember, item, Environment))));
         }
 
-        private List<CppTemplateParameter> templParams;
+        private Lazy<List<CppTemplateParameter>> templParams;
 
         public bool IsEmpty
         {
             get
             {
-                return templParams.Count == 0;
+                return templParams.Value.Count == 0;
             }
         }
 
         private void AddTemplateParameter(CppTemplateParameter Parameter)
         {
-            this.templParams.Add(Parameter);
+            this.templParams.Value.Add(Parameter);
         }
 
         public IGenericParameter DeclareGenericParameter(IGenericParameter Template)
@@ -43,14 +45,9 @@ namespace Flame.Cpp
             return parameter;
         }
 
-        public IEnumerable<IGenericParameter> DeclareGenericParameters(IGenericMember Template)
-        {
-            return Template.GenericParameters.Select(DeclareGenericParameter).ToArray();
-        }
-
         public IEnumerable<IGenericParameter> GetGenericParameters()
         {
-            return templParams;
+            return templParams.Value;
         }
 
         public ICppTemplateMember DeclaringMember { get; private set; }
@@ -58,7 +55,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get { return templParams.GetDependencies(); }
+            get { return templParams.Value.GetDependencies(); }
         }
 
         public CodeBuilder GetImplementationCode()
@@ -81,8 +78,8 @@ namespace Flame.Cpp
             }
             CodeBuilder cb = new CodeBuilder();
             cb.Append("template<");
-            cb.Append(templParams[0].GetHeaderCode());
-            foreach (var item in templParams.Skip(1))
+            cb.Append(templParams.Value[0].GetHeaderCode());
+            foreach (var item in templParams.Value.Skip(1))
             {
                 cb.Append(", ");
                 cb.Append(item.GetHeaderCode());
@@ -104,7 +101,7 @@ namespace Flame.Cpp
         public CppTemplateDefinition Merge(CppTemplateDefinition Other)
         {
             CppTemplateDefinition newDef = new CppTemplateDefinition(Other.DeclaringMember);
-            foreach (var item in this.templParams.Concat(Other.templParams))
+            foreach (var item in this.templParams.Value.Concat(Other.templParams.Value))
             {
                 newDef.AddTemplateParameter(item);
             }

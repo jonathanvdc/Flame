@@ -124,14 +124,14 @@ namespace dsc.Projects
         public PassPreferences GetPassPreferences(ICompilerLog Log)
         {
             return new PassPreferences(new string[] { },
-                new PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>[] 
+                new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>[] 
                 { 
-                    new PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>(
-                        AnalysisPasses.CreateValueTypeDelegatePass(Log),
+                    new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>(
+                        AnalysisPasses.ValueTypeDelegatePass,
                         ValueTypeDelegateVisitor.ValueTypeDelegateWarningName,
                         (optInfo, isPref) => optInfo.Log.UsePedanticWarnings(ValueTypeDelegateVisitor.ValueTypeDelegateWarningName)),
 
-                    new PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>(new VerifyingDeadCodePass(Log, 
+                    new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>(new VerifyingDeadCodePass(
                         "This method may not always return or throw. " + Warnings.Instance.GetWarningNameMessage("missing-return"), 
                         Log.UseDefaultWarnings("missing-return"),
                         "Unreachable code detected and removed. " + Warnings.Instance.GetWarningNameMessage("dead-code"),
@@ -139,11 +139,11 @@ namespace dsc.Projects
                         PassExtensions.EliminateDeadCodePassName, 
                         (optInfo, isPref) => optInfo.OptimizeMinimal || optInfo.OptimizeDebug),
 
-                    new PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>(new InitializationCountPass(Log),
+                    new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>(InitializationCountPass.Instance,
                         PassExtensions.InitializationPassName,
                         (optInfo, isPref) => InitializationCountPass.IsUseful(Log)),
 
-                    new PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>(new InfiniteRecursionPass(Log),
+                    new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>(InfiniteRecursionPass.Instance,
                         InfiniteRecursionPass.InfiniteRecursionWarningName,
                         (optInfo, isPref) => InfiniteRecursionPass.IsUseful(Log))
                 });

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Flame.Compiler.Build;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,18 +9,15 @@ namespace Flame.Python
 {
     public class PythonAccessor : PythonMethod, IPythonAccessor
     {
-        public PythonAccessor(IPythonProperty DeclaringProperty, IAccessor Template)
+        public PythonAccessor(IPythonProperty DeclaringProperty, AccessorType AccessorType, IMethodSignatureTemplate Template)
             : base(DeclaringProperty.DeclaringType, Template)
         {
+            this.AccessorType = AccessorType;
             this.DeclaringProperty = DeclaringProperty;
         }
 
         public IProperty DeclaringProperty { get; private set; }
-
-        public AccessorType AccessorType
-        {
-            get { return ((IAccessor)Template).AccessorType; }
-        }
+        public AccessorType AccessorType { get; private set; }
 
         public override string Name
         {

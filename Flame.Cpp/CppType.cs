@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Compiler.Emit;
 using Flame.Cpp.Emit;
 using System;
@@ -13,18 +14,18 @@ namespace Flame.Cpp
     public class CppType : IInvariantTypeBuilder, ICppTemplateMember, IGenericResolverType,
                            INamespaceBranch, INamespaceBuilder, IEquatable<IType>, IAssociatedMember
     {
-        public CppType(INamespace DeclaringNamespace, IType Template, ICppEnvironment Environment)
+        public CppType(INamespace DeclaringNamespace, ITypeSignatureTemplate Template, ICppEnvironment Environment)
         {
             this.DeclaringNamespace = DeclaringNamespace;
-            this.Template = Template;
-            this.Templates = new CppTemplateDefinition(this, Template);
+            this.Template = new TypeSignatureInstance(Template, this);
+            this.Templates = new CppTemplateDefinition(this, this.Template.GenericParameters);
             this.Environment = new TemplatedMemberCppEnvironment(Environment, this);
             this.Invariants = new TypeInvariants(this, Environment);
             CreateMemberCache();
         }
 
         public INamespace DeclaringNamespace { get; private set; }
-        public IType Template { get; private set; }
+        public TypeSignatureInstance Template { get; private set; }
         public CppTemplateDefinition Templates { get; private set; }
         public ICppEnvironment Environment { get; private set; }
         public TypeInvariants Invariants { get; private set; }
@@ -77,7 +78,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IAttribute> Attributes
         {
-            get { return Template.Attributes; }
+            get { return Template.Attributes.Value; }
         }
 
         private string cachedName;
@@ -87,7 +88,7 @@ namespace Flame.Cpp
             {
                 if (cachedName == null)
                 {
-                    cachedName = Template.GetGenericFreeName();
+                    cachedName = GenericNameExtensions.TrimGenerics(Template.Name);
                 }
                 return cachedName;
             }
@@ -96,7 +97,7 @@ namespace Flame.Cpp
         public IEnumerable<IType> BaseTypes { get { return GetBaseTypes(); } }
         public IType[] GetBaseTypes()
         {
-            return Template.BaseTypes.Select(this.ConvertValueType).ToArray();
+            return Template.BaseTypes.Value.Select(this.ConvertValueType).ToArray();
         }
 
         public IBoundObject GetDefaultValue()
@@ -161,25 +162,25 @@ namespace Flame.Cpp
 
         #region Members
 
-        private bool ShouldCompileToParentFriend(IMethod Method)
+        private bool ShouldCompileToParentFriend(IMethodSignatureTemplate Method)
         {
-            return Method.get_IsOperator() && IsStaticSingleton;
+            return IsStaticSingleton && new CppMethod(this, Method, Environment).get_IsOperator();
         }
 
-        private IMethodBuilder CompileToParentFriend(IMethod Method)
+        private IMethodBuilder CompileToParentFriend(IMethodSignatureTemplate Method)
         {
             var declParent = (CppType)((IType)DeclaringNamespace).GetGenericDeclaration();
             return declParent.DeclareFriendMethod(Method);
         }
 
-        public IFieldBuilder DeclareField(IField Template)
+        public IFieldBuilder DeclareField(IFieldSignatureTemplate Template)
         {
             var field = new CppField(this, Template, Environment);
             fields.Add(field);
             return field;
         }
 
-        public IMethodBuilder DeclareMethod(IMethod Template)
+        public IMethodBuilder DeclareMethod(IMethodSignatureTemplate Template)
         {
             if (ShouldCompileToParentFriend(Template))
             {
@@ -201,14 +202,14 @@ namespace Flame.Cpp
             }
         }
 
-        public IMethodBuilder DeclareFriendMethod(IMethod Template)
+        public IMethodBuilder DeclareFriendMethod(IMethodSignatureTemplate Template)
         {
             var method = new CppMethod(this, Template, Environment, true, true);
             globalFriends.Add(method);
             return method;
         }
 
-        public IPropertyBuilder DeclareProperty(IProperty Template)
+        public IPropertyBuilder DeclareProperty(IPropertySignatureTemplate Template)
         {
             var property = new CppProperty(this, Template, Environment);
             properties.Add(property);
@@ -299,10 +300,10 @@ namespace Flame.Cpp
 
         public INamespaceBuilder DeclareNamespace(string Name)
         {
-            return (INamespaceBuilder)DeclareType(new DescribedType(Name, this));
+            return (INamespaceBuilder)DeclareType(new TypePrototypeTemplate(new DescribedType(Name, this)));
         }
 
-        public ITypeBuilder DeclareType(IType Template)
+        public ITypeBuilder DeclareType(ITypeSignatureTemplate Template)
         {
             var type = new CppType((INamespace)this.MakeGenericType(this.GenericParameters), Template, Environment);
             types.Add(type);
@@ -323,6 +324,11 @@ namespace Flame.Cpp
         public IType Build()
         {
             return this;
+        }
+
+        public void Initialize()
+        {
+
         }
 
         INamespace IMemberBuilder<INamespace>.Build()

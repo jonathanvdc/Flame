@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Compiler.Expressions;
 using Flame.Cpp.Emit;
 using System;
@@ -12,16 +13,16 @@ namespace Flame.Cpp
 {
     public class CppField : IFieldBuilder, IInitializedField, ICppMember
     {
-        public CppField(IType DeclaringType, IField Template, ICppEnvironment Environment)
+        public CppField(IType DeclaringType, IFieldSignatureTemplate Template, ICppEnvironment Environment)
         {
             this.DeclaringType = DeclaringType;
-            this.Template = Template;
+            this.Template = new FieldSignatureInstance(Template, this);
             this.Environment = Environment;
             this.IsMutable = false;
         }
 
         public IType DeclaringType { get; private set; }
-        public IField Template { get; private set; }
+        public FieldSignatureInstance Template { get; private set; }
         public ICppEnvironment Environment { get; private set; }
         public IExpression Value { get; private set; }
         public bool IsMutable { get; set; }
@@ -47,6 +48,11 @@ namespace Flame.Cpp
             return this;
         }
 
+        public void Initialize()
+        {
+            // No initialization logic yet.
+        }
+
         public string FullName
         {
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
@@ -54,7 +60,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IAttribute> Attributes
         {
-            get { return Template.Attributes; }
+            get { return Template.Attributes.Value; }
         }
 
         public string Name
@@ -64,7 +70,7 @@ namespace Flame.Cpp
 
         public IType FieldType
         {
-            get { return this.ConvertType(Template.FieldType); }
+            get { return this.ConvertType(Template.FieldType.Value); }
         }
 
         public bool IsStatic

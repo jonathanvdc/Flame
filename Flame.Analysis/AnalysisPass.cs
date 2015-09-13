@@ -11,19 +11,18 @@ namespace Flame.Analysis
     /// <summary>
     /// A pass that does produces diagnostics, but does not modify its input.
     /// </summary>
-    public class AnalysisPass : IPass<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>
+    public class AnalysisPass : IPass<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>
     {
-        public AnalysisPass(INodeVisitor Visitor)
+        public AnalysisPass(Func<IMethod, ICompilerLog, INodeVisitor> CreateVisitor)
         {
-            this.Visitor = Visitor;
+            this.CreateVisitor = CreateVisitor;
         }
 
-        public INodeVisitor Visitor { get; private set; }
+        public Func<IMethod, ICompilerLog, INodeVisitor> CreateVisitor { get; private set; }
 
-        public Tuple<IStatement, IMethod> Apply(Tuple<IStatement, IMethod> Value)
+        public IStatement Apply(Tuple<IStatement, IMethod, ICompilerLog> Value)
         {
-            Visitor.Visit(Value.Item1);
-            return Value;
+            return CreateVisitor(Value.Item2, Value.Item3).Visit(Value.Item1);
         }
     }
 }

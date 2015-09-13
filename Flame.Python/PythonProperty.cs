@@ -1,4 +1,6 @@
-﻿using Flame.Compiler;
+﻿using Flame.Build;
+using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Syntax;
 using System;
 using System.Collections.Generic;
@@ -10,30 +12,30 @@ namespace Flame.Python
 {
     public class PythonProperty : IPropertyBuilder, IPythonProperty, ISyntaxNode
     {
-        public PythonProperty(IType DeclaringType, IProperty Template)
+        public PythonProperty(IType DeclaringType, IPropertySignatureTemplate Template)
         {
             this.DeclaringType = DeclaringType;
-            this.Template = Template;
+            this.Template = new PropertySignatureInstance(Template, this);
             this.Accessors = new List<IPythonAccessor>();
         }
 
         public IType DeclaringType { get; private set; }
-        public IProperty Template { get; private set; }
+        public PropertySignatureInstance Template { get; private set; }
         public List<IPythonAccessor> Accessors { get; private set; }
 
         public IEnumerable<IParameter> IndexerParameters
         {
-            get { return Template.IndexerParameters; }
+            get { return Template.IndexerParameters.Value; }
         }
 
         public IType PropertyType
         {
-            get { return Template.PropertyType; }
+            get { return Template.PropertyType.Value; }
         }
 
         public bool IsStatic
         {
-            get { return Template.IsStatic; }
+            get { return Template.Template.IsStatic; }
         }
 
         public string FullName
@@ -43,7 +45,7 @@ namespace Flame.Python
 
         public IEnumerable<IAttribute> Attributes
         {
-            get { return Template.Attributes; }
+            get { return Template.Attributes.Value; }
         }
 
         protected IMemberNamer GetMemberNamer()
@@ -53,12 +55,16 @@ namespace Flame.Python
 
         public string Name
         {
-            get { return GetMemberNamer().Name(Template); }
+            get
+            {
+                var descProp = new DescribedProperty(Template.Name, DeclaringType);
+                return GetMemberNamer().Name(descProp);
+            }
         }
 
-        public IMethodBuilder DeclareAccessor(IAccessor Template)
+        public IMethodBuilder DeclareAccessor(AccessorType Type, IMethodSignatureTemplate Template)
         {
-            var accessor = new PythonAccessor(this, Template);
+            var accessor = new PythonAccessor(this, Type, Template);
             this.Accessors.Add(accessor);
             return accessor;
         }
@@ -66,6 +72,11 @@ namespace Flame.Python
         public IProperty Build()
         {
             return this;
+        }
+
+        public void Initialize()
+        {
+            // Do nothing. This back-end does not need `Initialize` to get things done.
         }
 
         public CodeBuilder GetCode()
@@ -93,7 +104,7 @@ namespace Flame.Python
 
         public bool UsesPropertySyntax
         {
-            get 
+            get
             {
                 // All Python properties have getters, so that's definitely a requirement.
                 // Also, indexers get special treatment, so they shouldn't be included here.

@@ -108,7 +108,7 @@ namespace Flame.Cecil
 
         public IEnumerable<IBoundObject> GetArguments()
         {
-            return Attribute.ConstructorArguments.Select((item) => ExpressionExtensions.ToExpression(item.Value).Evaluate());
+            return Attribute.ConstructorArguments.Select(item => ExpressionExtensions.ToExpression(item.Value).Evaluate());
         }
 
         public static void DeclareAttributes(Mono.Cecil.ICustomAttributeProvider AttributeProvider, ICecilMember Member, IEnumerable<IAttribute> Templates)

@@ -1,0 +1,20 @@
+using System;
+
+namespace Flame.Compiler.Build
+{
+    /// <summary>
+    /// Defines a template for property signatures, which can be instantiated.
+    /// </summary>
+    public interface IPropertySignatureTemplate : ITypeMemberSignatureTemplate<IProperty>
+    {
+        /// <summary>
+        /// Creates the property signature's property type.
+        /// </summary>
+        IType CreatePropertyType(IProperty Property);
+
+        /// <summary>
+        /// Creates the property signature's indexer parameters.
+        /// </summary>
+        [IParameter] CreateIndexerParameters(IProperty Property);
+    }
+}

@@ -32,11 +32,6 @@ namespace Flame.Cecil
             return new CustomAttribute[0];
         }
 
-        public override IType ResolveTypeParameter(IGenericParameter TypeParameter)
-        {
-            return null;
-        }
-
         #region Equality
 
         protected abstract bool ContainerEquals(IContainerType other);

@@ -1,0 +1,56 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Build;
+
+namespace Flame.Compiler.Build
+{
+    /// <summary>
+    /// Defines a method signature template that is based on a prototype method.
+    /// </summary>
+    public class MethodPrototypeTemplate : TypeMemberPrototypeTemplate<IMethod>,
+        IMethodSignatureTemplate
+    {
+        /// <summary>
+        /// Creates a method prototype template from the given prototype.
+        /// </summary>
+        public const this(IMethod Prototype)
+            : base(Prototype);
+
+        public bool IsConstructor { const get { return Prototype.IsConstructor; } }
+
+        public [IGenericParameter] CreateGenericParameters(IMethod Method)
+        {
+            return GenericExtensions.CloneGenericParameters(
+                       Prototype.GenericParameters,
+                       Method);
+        }
+
+        private TypeParameterConverter CreateGenericConverter(IMethod Method)
+        {
+            return new TypeParameterConverter(Method);
+        }
+
+        public [IMethod] CreateBaseMethods(IMethod Method)
+        {
+            var conv = new TypeMethodConverter(CreateGenericConverter(Method));
+            return Enumerable.Select<IMethod, IMethod>(Prototype.BaseMethods, conv.Convert);
+        }
+
+        public IType CreateReturnType(IMethod Method)
+        {
+            return CreateGenericConverter(Method).Convert(Prototype.ReturnType);
+        }
+
+        public [IParameter] CreateParameters(IMethod Method)
+        {
+            var results = new List<IParameter>();
+            var conv = CreateGenericConverter(Method);
+            foreach (var item in Prototype.Parameters)
+            {
+                results.Add(new RetypedParameter(item, conv.Convert(item.ParameterType)));
+            }
+            return results;
+        }
+    }
+}

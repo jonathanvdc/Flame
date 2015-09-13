@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Cpp.Plugs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +27,18 @@ namespace Flame.Cpp.Emit
 
         public override IType Type
         {
-            get { return Target.Type.AsContainerType().ElementType; }
+            get 
+            {
+                var targetType = Target.Type;
+                if (targetType.GetGenericDeclaration().FullName == "stdx.ArraySlice")
+                {
+                    return targetType.GetGenericArguments().Single();
+                }
+                else
+                {
+                    return targetType.GetEnumerableElementType();
+                }
+            }
         }
     }
 }

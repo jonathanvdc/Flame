@@ -1,0 +1,35 @@
+using System;
+
+namespace Flame.Compiler.Build
+{
+    /// <summary>
+    /// Defines a template for method signatures, which can be instantiated.
+    /// </summary>
+    public interface IMethodSignatureTemplate : ITypeMemberSignatureTemplate<IMethod>
+    {
+        /// <summary>
+        /// Gets a boolean value that tells if this method template is a constructor.
+        /// </summary>
+        bool IsConstructor { const get; }
+
+        /// <summary>
+        /// Creates the method signature's generic parameters.
+        /// </summary>
+        [IGenericParameter] CreateGenericParameters(IMethod Method);
+
+        /// <summary>
+        /// Creates the method signature's base methods.
+        /// </summary>
+        [IMethod] CreateBaseMethods(IMethod Method);
+
+        /// <summary>
+        /// Creates the method signature's return type.
+        /// </summary>
+        IType CreateReturnType(IMethod Method);
+
+        /// <summary>
+        /// Creates the method signature's parameters.
+        /// </summary>
+        [IParameter] CreateParameters(IMethod Method);
+    }
+}

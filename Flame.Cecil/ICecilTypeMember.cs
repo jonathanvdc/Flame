@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil
 {
-    public interface ICecilTypeMember : ICecilMember, ITypeMember, IGenericResolver
+    public interface ICecilTypeMember : ICecilMember, ITypeMember
     {
     }
 }

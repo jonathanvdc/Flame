@@ -70,6 +70,7 @@
     <Compile Include="CecilFieldBase.cs" />
     <Compile Include="CecilFieldConverter.cs" />
     <Compile Include="CecilFieldImporter.cs" />
+    <Compile Include="CecilLowerYieldPass.cs" />
     <Compile Include="CecilMethodConverter.cs" />
     <Compile Include="CecilMethodImporter.cs" />
     <Compile Include="CecilModule.cs" />
@@ -129,7 +130,6 @@
     <Compile Include="CecilAttribute.cs" />
     <Compile Include="CecilBoundObject.cs" />
     <Compile Include="CecilContainerTypeBase.cs" />
-    <Compile Include="CecilEnumBuilder.cs" />
     <Compile Include="CecilEnvironment.cs" />
     <Compile Include="CecilExtensions.cs" />
     <Compile Include="CecilField.cs" />
@@ -190,7 +190,6 @@
     <Compile Include="Emit\VirtualPushBlock.cs" />
     <Compile Include="EmptyCompilerOptions.cs" />
     <Compile Include="ExpressionExtensions.cs" />
-    <Compile Include="GenericResolverMap.cs" />
     <Compile Include="ICecilField.cs" />
     <Compile Include="ICecilMember.cs" />
     <Compile Include="ICecilMethod.cs" />

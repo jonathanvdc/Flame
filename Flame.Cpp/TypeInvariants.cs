@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Compiler.Expressions;
 using Flame.Cpp.Emit;
 using System;
@@ -25,7 +26,7 @@ namespace Flame.Cpp
                 this.CheckInvariantsMethod = new InvariantMethod(this);
                 var descField = new DescribedField("isCheckingInvariants", DeclaringType, PrimitiveTypes.Boolean, false);
                 descField.AddAttribute(new AccessAttribute(AccessModifier.Private));
-                this.IsCheckingInvariantsField = new CppField(DeclaringType, descField, Environment);
+                this.IsCheckingInvariantsField = new CppField(DeclaringType, new FieldPrototypeTemplate(descField), Environment);
                 this.IsCheckingInvariantsField.SetValue(new BooleanExpression(false));
                 this.IsCheckingInvariantsField.IsMutable = true;
             }

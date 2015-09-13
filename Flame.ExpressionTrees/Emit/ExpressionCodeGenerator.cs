@@ -183,7 +183,7 @@ namespace Flame.ExpressionTrees.Emit
 
         public ICodeBlock EmitNull()
         {
-            return EmitConstant(NullExpression);
+            return EmitConstant(NullExpression.Instance);
         }
 
         public ICodeBlock EmitDefaultValue(IType Type)
@@ -386,6 +386,18 @@ namespace Flame.ExpressionTrees.Emit
 
         #region Object Model
 
+        public ICodeBlock EmitTypeBinary(ICodeBlock Value, IType Type, Operator Op)
+        {
+            if (Op.Equals(Operator.IsInstance))
+            {
+                return EmitIsOfType(Type, Value);
+            }
+            else
+            {
+                return EmitConversion(Value, Type); // TODO: actually look at the conversion operator.
+            }
+        }
+
         public ICodeBlock EmitIsOfType(IType Type, ICodeBlock Value)
         {
             var val = (IExpressionBlock)Value;
@@ -415,9 +427,9 @@ namespace Flame.ExpressionTrees.Emit
             return new InvokeBlock(this, (IExpressionBlock)Method, Arguments.Cast<IExpressionBlock>());
         }
 
-        public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller)
+        public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller, Operator Op)
         {
-            return new MethodBlock(this, (IExpressionBlock)Caller, Method);
+            return new MethodBlock(this, (IExpressionBlock)Caller, Method, Op.Equals(Operator.GetVirtualDelegate));
         }
 
         #endregion

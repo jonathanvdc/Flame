@@ -12,7 +12,7 @@ namespace Flame.Cecil
     {
         #region Referencing
 
-        private static MethodReference CloneMethodWithDeclaringType(MethodDefinition methodDef, TypeReference declaringTypeRef)
+        private static MethodReference CloneMethodWithDeclaringType(MethodReference methodDef, TypeReference declaringTypeRef)
         {
             if (!declaringTypeRef.IsGenericInstance || methodDef == null)
             {
@@ -52,7 +52,7 @@ namespace Flame.Cecil
             return genericParam;
         }
 
-        public static MethodReference ReferenceMethod(this TypeReference typeRef, MethodDefinition MethodDefinition)
+        public static MethodReference ReferenceMethod(this TypeReference typeRef, MethodReference MethodDefinition)
         {
             return CloneMethodWithDeclaringType(MethodDefinition, typeRef);
 
@@ -79,7 +79,7 @@ namespace Flame.Cecil
             return ReferenceMethod(typeRef, m => m.Parameters.Select(p => p.ParameterType).SequenceEqual(parameterTypes));
         }
 
-        public static FieldReference ReferenceField(this TypeReference typeRef, FieldDefinition fieldDef)
+        public static FieldReference ReferenceField(this TypeReference typeRef, FieldReference fieldDef)
         {
             if (!typeRef.IsGenericInstance || fieldDef == null)
             {
@@ -253,23 +253,6 @@ namespace Flame.Cecil
             {
                 return (INamespace)Module.Convert(Reference.DeclaringType);
             }
-        }
-
-        public static void AddOverride(this MethodDefinition Implementation, MethodReference OverriddenReference, ICompilerLog Log)
-        {
-            var overridenResolved = OverriddenReference.Resolve();
-            if (!overridenResolved.IsVirtual && !overridenResolved.IsAbstract)
-            {
-                Log.LogError(new LogEntry("Invalid method override", "Method '" + Implementation.FullName + "' overrides non-virtual method '" + OverriddenReference.FullName + "'"));
-            }
-            foreach (var item in Implementation.Overrides)
-            {
-                if (item.Resolve().Equals(overridenResolved))
-                {
-                    return; // Already overridden
-                }
-            }
-            Implementation.Overrides.Add(OverriddenReference);
         }
 
         public static string StripCLRGenerics(string Name)

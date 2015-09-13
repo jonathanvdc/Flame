@@ -45,6 +45,15 @@ namespace Flame.Build
 
 		public void AddConstraint(IGenericConstraint Constraint)
 		{
+            if (Constraint is AndConstraint)
+            {
+                foreach (var item in ((AndConstraint)Constraint).Constraints)
+                {
+                    AddConstraint(item);
+                }
+                return;
+            }
+
 			ClearCache();
 			if (Constraint.HasConstraint<ValueTypeConstraint>())
 			{
@@ -79,15 +88,15 @@ namespace Flame.Build
         {
         	if (Attribute.AttributeType.Equals(PrimitiveAttributes.ValueTypeAttribute.AttributeType))
         	{
-        		AddConstraint(new ValueTypeConstraint());
+        		AddConstraint(ValueTypeConstraint);
         	}
         	else if (Attribute.AttributeType.Equals(PrimitiveAttributes.ReferenceTypeAttribute.AttributeType))
         	{
-        		AddConstraint(new ReferenceTypeConstraint());
+        		AddConstraint(ReferenceTypeConstraint);
         	}
         	else if (Attribute.AttributeType.Equals(PrimitiveAttributes.EnumAttribute.AttributeType))
         	{
-        		AddConstraint(new EnumConstraint());
+        		AddConstraint(EnumConstraint);
         	}
         	else
         	{

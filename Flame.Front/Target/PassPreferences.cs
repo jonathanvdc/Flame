@@ -62,43 +62,34 @@ namespace Flame.Front.Target
         }
         public PassPreferences(IEnumerable<string> PreferredPasses)
             : this(PreferredPasses,
-                   Enumerable.Empty<PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>>())
-        {
-        }
-        public PassPreferences(IEnumerable<string> PreferredPasses,
-                               IEnumerable<PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>> AdditionalPrePasses)
-            : this(PreferredPasses, AdditionalPrePasses,
                    Enumerable.Empty<PassInfo<BodyPassArgument, IStatement>>())
         {
         }
         public PassPreferences(IEnumerable<string> PreferredPasses,
-                               IEnumerable<PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>> AdditionalPrePasses,
-                               IEnumerable<PassInfo<BodyPassArgument, IStatement>> AdditionalMethodPasses)
-            : this(PreferredPasses, AdditionalPrePasses, AdditionalMethodPasses,
-                   Enumerable.Empty<PassInfo<IStatement, IStatement>>())
+                               IEnumerable<PassInfo<BodyPassArgument, IStatement>> AdditionalPasses)
+        {
+            this.PreferredPasses = PreferredPasses;
+            this.AdditionalPasses = AdditionalPasses;
+        }
+        public PassPreferences(IEnumerable<string> PreferredPasses,
+                               IEnumerable<PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>> AdditionalAnalysisPasses)
+            : this(PreferredPasses, 
+                   AdditionalAnalysisPasses.Select(BodyAnalysisPass.ToBodyPass).ToArray())
         {
         }
         public PassPreferences(IEnumerable<string> PreferredPasses,
-                               IEnumerable<PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>> AdditionalPrePasses,
-                               IEnumerable<PassInfo<BodyPassArgument, IStatement>> AdditionalMethodPasses,
-                               IEnumerable<PassInfo<IStatement, IStatement>> AdditionalPasses)
+                               IEnumerable<PassInfo<IStatement, IStatement>> AdditionalStatementPasses)
+            : this(PreferredPasses,
+                   AdditionalStatementPasses.Select(BodyStatementPass.ToBodyPass).ToArray())
         {
-            this.PreferredPasses = PreferredPasses;
-            this.AdditionalPrePasses = AdditionalPrePasses;
-            this.AdditionalMethodPasses = AdditionalMethodPasses;
-            this.AdditionalPasses = AdditionalPasses;
         }
 
         public IEnumerable<string> PreferredPasses { get; private set; }
-        public IEnumerable<PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>> AdditionalPrePasses { get; private set; }
-        public IEnumerable<PassInfo<BodyPassArgument, IStatement>> AdditionalMethodPasses { get; private set; }
-        public IEnumerable<PassInfo<IStatement, IStatement>> AdditionalPasses { get; private set; }
+        public IEnumerable<PassInfo<BodyPassArgument, IStatement>> AdditionalPasses { get; private set; }
 
         public PassPreferences Union(PassPreferences Other)
         {
             return new PassPreferences(PreferredPasses.Union(Other.PreferredPasses),
-                AdditionalPrePasses.Union(Other.AdditionalPrePasses),
-                AdditionalMethodPasses.Union(Other.AdditionalMethodPasses),
                 AdditionalPasses.Union(Other.AdditionalPasses));
         }
     }

@@ -1,0 +1,33 @@
+using Flame.Build;
+
+namespace Flame.Compiler.Build
+{
+    /// <summary>
+    /// Defines a type signature template that is based on a prototype type.
+    /// </summary>
+    public class TypePrototypeTemplate : MemberPrototypeTemplate<IType>, ITypeSignatureTemplate
+    {
+        /// <summary>
+        /// Creates a type prototype template from the given prototype.
+        /// </summary>
+        public const this(IType Prototype)
+            : base(Prototype);
+
+        public [IGenericParameter] CreateGenericParameters(IType Type)
+        {
+            return GenericExtensions.CloneGenericParameters(
+                       Prototype.GenericParameters,
+                       Type);
+        }
+
+        private TypeParameterConverter CreateGenericConverter(IType Type)
+        {
+            return new TypeParameterConverter(Type);
+        }
+
+        public [IType] CreateBaseTypes(IType Type)
+        {
+            return CreateGenericConverter(Type).Convert(Prototype.BaseTypes);
+        }
+    }
+}

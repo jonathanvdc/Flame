@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.MIPS.Emit;
 using System;
 using System.Collections.Generic;
@@ -11,10 +12,10 @@ namespace Flame.MIPS
 {
     public class AssemblerType : ITypeBuilder, IAssemblerType
     {
-        public AssemblerType(INamespace DeclaringNamespace, IType Template, IAssemblerState GlobalState)
+        public AssemblerType(INamespace DeclaringNamespace, ITypeSignatureTemplate Template, IAssemblerState GlobalState)
         {
             this.DeclaringNamespace = DeclaringNamespace;
-            this.Template = Template;
+            this.Template = new TypeSignatureInstance(Template, this);
             this.GlobalState = GlobalState;
 
             this.methods = new List<AssemblerMethod>();
@@ -23,12 +24,12 @@ namespace Flame.MIPS
         }
 
         public INamespace DeclaringNamespace { get; private set; }
-        public IType Template { get; private set; }
+        public TypeSignatureInstance Template { get; private set; }
         public IAssemblerState GlobalState { get; private set; }
 
         public IEnumerable<IType> BaseTypes
         {
-            get { return Template.BaseTypes; }
+            get { return Template.BaseTypes.Value; }
         }
 
         #region Members
@@ -62,14 +63,14 @@ namespace Flame.MIPS
             return size;
         }
 
-        private AssemblerField DeclareField(IField Template, List<AssemblerField> Target)
+        private AssemblerField DeclareField(IFieldSignatureTemplate Template, List<AssemblerField> Target)
         {
             var field = new AssemblerField(this, Template, GetSize(Target));
             Target.Add(field);
             return field;
         }
 
-        public IFieldBuilder DeclareField(IField Template)
+        public IFieldBuilder DeclareField(IFieldSignatureTemplate Template)
         {
             if (Template.IsStatic)
             {
@@ -81,14 +82,14 @@ namespace Flame.MIPS
             }
         }
 
-        public IMethodBuilder DeclareMethod(IMethod Template)
+        public IMethodBuilder DeclareMethod(IMethodSignatureTemplate Template)
         {
             var method = new AssemblerMethod(this, Template, GlobalState);
             methods.Add(method);
             return method;
         }
 
-        public IPropertyBuilder DeclareProperty(IProperty Template)
+        public IPropertyBuilder DeclareProperty(IPropertySignatureTemplate Template)
         {
             throw new NotImplementedException();
         }
@@ -127,14 +128,7 @@ namespace Flame.MIPS
         {
             get
             {
-                if (Template.get_IsSingleton())
-                {
-                    return Template.Attributes.Where((item) => !(item is SingletonAttribute)).Concat(new IAttribute[] { PrimitiveAttributes.Instance.StaticTypeAttribute });
-                }
-                else
-                {
-                    return Template.Attributes;
-                }
+                return Template.Attributes.Value;
             }
         }
 
@@ -145,12 +139,17 @@ namespace Flame.MIPS
 
         public IEnumerable<IGenericParameter> GenericParameters
         {
-            get { return new IGenericParameter[0]; }
+            get { return Template.GenericParameters.Value; }
         }
 
         public IType Build()
         {
             return this;
+        }
+
+        public void Initialize()
+        {
+            // Do nothing. This back-end does not need `Initialize` to get things done.
         }
 
         public IAncestryRules AncestryRules

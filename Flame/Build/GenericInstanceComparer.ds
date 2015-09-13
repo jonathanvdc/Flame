@@ -10,19 +10,15 @@ namespace Flame.Build
 	public virtual class GenericInstanceComparer : TypeEqualityComparer
 	{
 		public const this();
-		
+
 		protected virtual override const bool CompareIncompatible(IType First, IType Second)
 		{
 			return First.IsGenericParameter;
 		}
-		
+
 		protected virtual override const bool CompareDefault(IType First, IType Second)
 		{
-			if (First.IsGenericParameter)
-			{
-				return true;
-			}
-			else return First.Equals(Second);
+			return First.IsGenericParameter || First.IsEquivalent(Second);
 		}
 	}
 }

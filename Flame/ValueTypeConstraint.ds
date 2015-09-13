@@ -5,38 +5,59 @@ using System.Text;
 namespace Flame
 {
 	/// <summary>
-	/// A constraint that is satisfied by value types.
+	/// A constraint that is satisfied by value types only.
 	/// </summary>
-	public class ValueTypeConstraint : IGenericConstraint
+	public static class ValueTypeConstraint : IGenericConstraint
 	{
-		public const this();
-		
+		/// <summary>
+		/// Transforms the types in this generic constraint using the
+		/// given type converter.
+		/// </summary>
+		public IGenericConstraint Transform(IConverter<IType, IType> Converter)
+		{
+			return this;
+		}
+
 		public const bool Satisfies(IType TypeArgument)
 		{
 			return TypeArgument.IsValueType;
 		}
 	}
-	
+
 	/// <summary>
-	/// A constraint that is satisfied by reference types.
+	/// A constraint that is satisfied by reference types only.
 	/// </summary>
-	public class ReferenceTypeConstraint : IGenericConstraint
+	public static class ReferenceTypeConstraint : IGenericConstraint
 	{
-		public const this();
-		
+		/// <summary>
+		/// Transforms the types in this generic constraint using the
+		/// given type converter.
+		/// </summary>
+		public IGenericConstraint Transform(IConverter<IType, IType> Converter)
+		{
+			return this;
+		}
+
 		public const bool Satisfies(IType TypeArgument)
 		{
 			return TypeArgument.IsReferenceType;
 		}
 	}
-	
+
 	/// <summary>
-	/// A constraint that is satisfied by enum types.
+	/// A constraint that is satisfied by enum types only.
 	/// </summary>
-	public class EnumConstraint : IGenericConstraint
+	public static class EnumConstraint : IGenericConstraint
 	{
-		public const this();
-		
+		/// <summary>
+		/// Transforms the types in this generic constraint using the
+		/// given type converter.
+		/// </summary>
+		public IGenericConstraint Transform(IConverter<IType, IType> Converter)
+		{
+			return this;
+		}
+
 		public const bool Satisfies(IType TypeArgument)
 		{
 			return TypeArgument.IsEnum;

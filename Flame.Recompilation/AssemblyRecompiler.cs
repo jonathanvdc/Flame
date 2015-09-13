@@ -1,8 +1,10 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Compiler.Visitors;
 using Flame.Recompilation.Emit;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -594,7 +596,8 @@ namespace Flame.Recompilation
         {
             if (SourceMethod.get_IsAnonymous())
             {
-                return new RecompiledMethodTemplate(this, SourceMethod);
+                var visitor = new RecompilingTypeVisitor(this);
+                return new MemberCreationResult<IMethod>(MethodType.GetMethod(visitor.Convert(MethodType.Create(SourceMethod))));
             }
             else if (IsExternal(SourceMethod))
             {
@@ -659,36 +662,54 @@ namespace Flame.Recompilation
             }
             else
             {
-                return new MemberCreationResult<INamespace>(DeclareNewNamespace(SourceNamespace.FullName));
+                return DeclareNamespaceBuilder(SourceNamespace.FullName);
             }
         }
 
-        private INamespaceBuilder DeclareNewNamespace(string Name)
+        private MemberCreationResult<INamespace> DeclareNamespaceBuilder(string FullName)
         {
-            string[] splitName = Name.Split('.');
-            if (splitName.Length <= 1)
+            // Look for a pre-existing namespace first.
+            var preNs = NamespaceCache.FirstOrDefault(item => item is INamespaceBuilder && item.FullName == FullName);
+            if (preNs != null)
             {
-                return TargetAssembly.DeclareNamespace(Name);
+                return new MemberCreationResult<INamespace>(preNs);
             }
             else
             {
-                string parentName = string.Join(".", splitName.Take(splitName.Length - 1));
-                return GetNamespaceBuilder(parentName).DeclareNamespace(splitName[splitName.Length - 1]);
-            }
-        }
-
-        private INamespaceBuilder GetNamespaceBuilder(string FullName)
-        {
-            var ns = NamespaceCache.FirstOrDefault((item) => item.FullName == FullName) as INamespaceBuilder;
-            if (ns == null)
-            {
+                // Couldn't find an existing namespace with the given name,
+                // so create a shiny new namespace instead.
                 return DeclareNewNamespace(FullName);
             }
+        }
+
+        private MemberCreationResult<INamespace> DeclareNewNamespace(string Name)
+        {
+            int lastDotIndex = Name.LastIndexOf('.');
+            if (lastDotIndex < 0)
+            {
+                return new MemberCreationResult<INamespace>(TargetAssembly.DeclareNamespace(Name), (tgt, src) =>
+                {
+                    ((INamespaceBuilder)tgt).Initialize();
+                });
+            }
             else
             {
-                return ns;
+                string parentName = Name.Substring(0, lastDotIndex);
+                string thisName = Name.Substring(lastDotIndex + 1);
+                var parent = DeclareNamespaceBuilder(parentName);
+                var parentNs = (INamespaceBuilder)parent.Member;
+
+                return new MemberCreationResult<INamespace>(parentNs.DeclareNamespace(thisName), (tgt, src) =>
+                {
+                    if (parent.Continuation != null)
+                    {
+                        parent.Continuation(parentNs, null);
+                    }
+                    ((INamespaceBuilder)tgt).Initialize();
+                });
             }
         }
+
         private INamespaceBuilder GetNamespaceBuilder(INamespace SourceNamespace)
         {
             if (SourceNamespace is IType)
@@ -700,15 +721,6 @@ namespace Flame.Recompilation
                 }
             }
             return (INamespaceBuilder)NamespaceCache.Get(SourceNamespace);
-        }
-
-        #endregion
-
-        #region Attributes
-
-        public virtual IAttribute GetAttribute(IAttribute Attribute)
-        {
-            return Attribute;
         }
 
         #endregion
@@ -730,8 +742,10 @@ namespace Flame.Recompilation
             var type = DeclaringNamespace.DeclareType(typeTemplate);
             return new MemberCreationResult<IType>(type, (tgt, src) =>
             {
-                typeMetadata[tgt] = new RandomAccessOptions();
-                RecompileInvariants((ITypeBuilder)tgt, src);
+                typeMetadata[src] = new RandomAccessOptions();
+                var typeBuilder = (ITypeBuilder)tgt;
+                typeBuilder.Initialize();
+                RecompileInvariants(typeBuilder, src);
             });
         }
 
@@ -766,7 +780,12 @@ namespace Flame.Recompilation
         private MemberCreationResult<IField> RecompileField(ITypeBuilder DeclaringType, IField SourceField)
         {
             var header = RecompileFieldHeader(DeclaringType, SourceField);
-            return new MemberCreationResult<IField>(header, (tgt, src) => RecompileFieldBody((IFieldBuilder)tgt, src));
+            return new MemberCreationResult<IField>(header, (tgt, src) => 
+            {
+                var fieldBuilder = (IFieldBuilder)tgt;
+                fieldBuilder.Initialize();
+                RecompileFieldBody(fieldBuilder, src);
+            });
         }
 
         private IFieldBuilder RecompileFieldHeader(ITypeBuilder DeclaringType, IField SourceField)
@@ -806,7 +825,7 @@ namespace Flame.Recompilation
 
         private MemberCreationResult<IMethod> RecompileMethod(ITypeBuilder DeclaringType, IMethod SourceMethod)
         {
-            return new MemberCreationResult<IMethod>(RecompileMethodHeader(DeclaringType, SourceMethod), (tgt, src) => RecompileMethodBody((IMethodBuilder)tgt, src));
+            return new MemberCreationResult<IMethod>(RecompileMethodHeader(DeclaringType, SourceMethod), RecompileMethodContinuation);
         }
         private IMethodBuilder RecompileMethodHeader(ITypeBuilder DeclaringType, IMethod SourceMethod)
         {
@@ -814,13 +833,20 @@ namespace Flame.Recompilation
         }
         private MemberCreationResult<IMethod> RecompileAccessor(IPropertyBuilder DeclaringProperty, IAccessor SourceAccessor)
         {
-            return new MemberCreationResult<IMethod>(RecompileAccessorHeader(DeclaringProperty, SourceAccessor), (tgt, src) => RecompileMethodBody((IMethodBuilder)tgt, src));
+            return new MemberCreationResult<IMethod>(RecompileAccessorHeader(DeclaringProperty, SourceAccessor), RecompileMethodContinuation);
         }
         private IMethodBuilder RecompileAccessorHeader(IPropertyBuilder DeclaringProperty, IAccessor SourceAccessor)
         {
-            return DeclaringProperty.DeclareAccessor(RecompiledAccessorTemplate.GetRecompilerTemplate(this, DeclaringProperty, SourceAccessor));
+            return DeclaringProperty.DeclareAccessor(SourceAccessor.AccessorType, RecompiledMethodTemplate.GetRecompilerTemplate(this, SourceAccessor));
         }
-        private IStatement RecompileMethodBodyCore(IMethodBuilder TargetMethod, IMethod SourceMethod)
+        private void RecompileMethodContinuation(IMethod Target, IMethod Source)
+        {
+            var methodBuilder = (IMethodBuilder)Target;
+            methodBuilder.Initialize();
+            RecompileMethodBody(methodBuilder, Source);
+        }
+
+        private IStatement GetMethodBodyCore(IMethod SourceMethod)
         {
             if (SourceMethod.get_IsAbstract() || SourceMethod.DeclaringType.get_IsInterface())
             {
@@ -830,30 +856,51 @@ namespace Flame.Recompilation
             var bodyMethod = SourceMethod as IBodyMethod;
             if (bodyMethod == null)
             {
-                throw new NotSupportedException("Method '" + SourceMethod.FullName + "' is not a body method, and could not be recompiled.");
+                return null;
             }
+
             try
             {
-                var result = Passes.RecompileBody(this, (ITypeBuilder)TargetMethod.DeclaringType, TargetMethod, bodyMethod);
+                return Passes.OptimizeBody(this, bodyMethod);
+            }
+            catch (Exception ex)
+            {
+                Log.LogError(new LogEntry("Unhandled exception while getting method body", "An unhandled exception was thrown while acquiring the method body of '" + SourceMethod.FullName + "'."));
+                Log.LogException(ex);
+                return null;
+            }
+        }
+
+        private void RecompileMethodBodyCore(IMethodBuilder TargetMethod, IMethod SourceMethod)
+        {
+            var body = GetMethodBody(SourceMethod);
+
+            if (body == null)
+            {
+                Log.LogError(new LogEntry("Recompilation error", "Could not find a method body for '" + SourceMethod.FullName + "'."));
+            }
+
+            try
+            {
+                var bodyStatement = GetStatement(body, TargetMethod);
+
+                var targetBody = TargetMethod.GetBodyGenerator();
+                var block = bodyStatement.Emit(targetBody);
+                TaskManager.RunSequential(TargetMethod.SetMethodBody, block);
+
                 TaskManager.RunSequential<IMethod>(TargetMethod.Build);
-                return result;
             }
             catch (Exception ex)
             {
                 Log.LogError(new LogEntry("Unhandled exception while recompiling method", "An unhandled exception was thrown while recompiling method '" + SourceMethod.FullName + "'."));
                 Log.LogException(ex);
-                throw;
             }
         }
         private void RecompileMethodBody(IMethodBuilder TargetMethod, IMethod SourceMethod)
         {
             if (RecompileBodies)
             {
-                var task = TaskManager.RunAsync(() => RecompileMethodBodyCore(TargetMethod, SourceMethod));
-                if (Settings.RememberBodies && !methodBodies.ContainsKey(TargetMethod))
-                {
-                    methodBodies.Add(TargetMethod, task);
-                }
+                TaskManager.RunAsync(() => RecompileMethodBodyCore(TargetMethod, SourceMethod));
             }
         }
 
@@ -863,7 +910,9 @@ namespace Flame.Recompilation
 
         private MemberCreationResult<IProperty> RecompilePropertyHeader(ITypeBuilder DeclaringType, IProperty SourceProperty)
         {
-            return new MemberCreationResult<IProperty>(DeclaringType.DeclareProperty(RecompiledPropertyTemplate.GetRecompilerTemplate(this, SourceProperty)));
+            return new MemberCreationResult<IProperty>(
+                DeclaringType.DeclareProperty(RecompiledPropertyTemplate.GetRecompilerTemplate(this, SourceProperty)), 
+                (tgt, src) => ((IPropertyBuilder)tgt).Initialize());
         }
 
         #endregion
@@ -947,12 +996,9 @@ namespace Flame.Recompilation
             {
                 recompiledAssemblies.Add(Source);
             }
-            if (Options.RecompileAll)
+            foreach (var item in Options.RecompilationStrategy.GetRoots(Source))
             {
-                foreach (var item in Source.CreateBinder().GetTypes())
-                {
-                    RecompileEntireType(item);
-                }
+                GetMember(item);
             }
             if (Options.IsMainModule)
             {
@@ -1006,19 +1052,20 @@ namespace Flame.Recompilation
         /// </summary>
         /// <param name="Method"></param>
         /// <returns></returns>
-        /// <remarks>
-        /// This method should only be used by method body passes.
-        /// </remarks>
         public IStatement GetMethodBody(IMethod Method)
         {
-            if (methodBodies.ContainsKey(Method))
-            {
-                return methodBodies[Method];
-            }
-            else
-            {
-                return null;
-            }
+            return GetMethodBodyAsync(Method).Result;
+        }
+
+        /// <summary>
+        /// Tries to retrieve the method body of the given method. If this cannot be
+        /// done, a task containing a null value is returned. This operation may be performed asynchronously.
+        /// </summary>
+        /// <param name="Method"></param>
+        /// <returns></returns>
+        public Task<IStatement> GetMethodBodyAsync(IMethod Method)
+        {
+            return methodBodies.GetOrAdd(Method, null, method => TaskManager.RunAsync(() => GetMethodBodyCore(method)));
         }
 
         #endregion

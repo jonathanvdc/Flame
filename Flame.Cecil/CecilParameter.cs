@@ -91,25 +91,15 @@ namespace Flame.Cecil
         private static CecilParameter DeclareParameter(ICecilTypeMember Member, IParameter Template, out ParameterDefinition paramDef)
         {
             var module = Member.Module;
-            IType paramType = Member.ResolveType(Template.ParameterType);
-            IGenericParameterProvider context;
-            if (Member is IGenericMember)
-            {
-                paramType = CecilTypeBuilder.GetGenericType(paramType, ((IGenericMember)Member).GenericParameters.ToArray());
-                context = Member.GetMemberReference() as IGenericParameterProvider;
-            }
-            else
-	        {
-                context = null;
-	        }
-            paramDef = new ParameterDefinition(Template.Name, ParameterAttributes.None, paramType.GetImportedReference(module, context));
+            var context = Member.GetMemberReference() as IGenericParameterProvider;
+            paramDef = new ParameterDefinition(Template.Name, ParameterAttributes.None, Template.ParameterType.GetImportedReference(module, context));
             var cecilParam = new CecilParameter(Member, paramDef);
             var attrs = Template.Attributes;
             if (attrs.Any((item) => item.AttributeType.Equals(PrimitiveAttributes.Instance.OutAttribute.AttributeType)))
             {
                 paramDef.IsOut = true;
             }
-            CecilAttribute.DeclareAttributes(paramDef, Member, attrs.Where((item) => item.AttributeType.Equals(PrimitiveAttributes.Instance.OutAttribute.AttributeType)));
+            CecilAttribute.DeclareAttributes(paramDef, Member, attrs.Where(item => item.AttributeType.Equals(PrimitiveAttributes.Instance.OutAttribute.AttributeType)));
             return cecilParam;
         }
 
