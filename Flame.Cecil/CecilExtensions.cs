@@ -12,7 +12,7 @@ namespace Flame.Cecil
     {
         #region Referencing
 
-        private static MethodReference CloneMethodWithDeclaringType(MethodDefinition methodDef, TypeReference declaringTypeRef)
+        private static MethodReference CloneMethodWithDeclaringType(MethodReference methodDef, TypeReference declaringTypeRef)
         {
             if (!declaringTypeRef.IsGenericInstance || methodDef == null)
             {
@@ -52,7 +52,7 @@ namespace Flame.Cecil
             return genericParam;
         }
 
-        public static MethodReference ReferenceMethod(this TypeReference typeRef, MethodDefinition MethodDefinition)
+        public static MethodReference ReferenceMethod(this TypeReference typeRef, MethodReference MethodDefinition)
         {
             return CloneMethodWithDeclaringType(MethodDefinition, typeRef);
 
@@ -79,7 +79,7 @@ namespace Flame.Cecil
             return ReferenceMethod(typeRef, m => m.Parameters.Select(p => p.ParameterType).SequenceEqual(parameterTypes));
         }
 
-        public static FieldReference ReferenceField(this TypeReference typeRef, FieldDefinition fieldDef)
+        public static FieldReference ReferenceField(this TypeReference typeRef, FieldReference fieldDef)
         {
             if (!typeRef.IsGenericInstance || fieldDef == null)
             {

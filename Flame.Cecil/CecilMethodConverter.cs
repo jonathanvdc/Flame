@@ -22,7 +22,8 @@ namespace Flame.Cecil
 
         protected override IMethod ConvertGenericInstanceMember(GenericTypeBase DeclaringType, MethodReference Value)
         {
-            var inner = ConvertMemberDeclaration((ICecilType)DeclaringType.GetRecursiveGenericDeclaration(), Value);
+            var genericDeclType = (ICecilType)DeclaringType.GetRecursiveGenericDeclaration();
+            var inner = ConvertMemberDeclaration(genericDeclType, Value.Resolve());
             return new Flame.GenericInstanceMethod(inner, DeclaringType.Resolver, DeclaringType);
         }
 
