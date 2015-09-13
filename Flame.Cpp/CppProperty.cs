@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Build;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,16 +10,16 @@ namespace Flame.Cpp
 {
     public class CppProperty : IPropertyBuilder, ICppMember
     {
-        public CppProperty(IType DeclaringType, IProperty Template, ICppEnvironment Environment)
+        public CppProperty(IType DeclaringType, IPropertySignatureTemplate Template, ICppEnvironment Environment)
         {
             this.DeclaringType = DeclaringType;
-            this.Template = Template;
+            this.Template = new PropertySignatureInstance(Template, this);
             this.Environment = Environment;
             this.accessors = new List<CppAccessor>();
         }
 
         public IType DeclaringType { get; private set; }
-        public IProperty Template { get; private set; }
+        public PropertySignatureInstance Template { get; private set; }
         public ICppEnvironment Environment { get; private set; }
 
         #region Accessors
@@ -64,7 +65,7 @@ namespace Flame.Cpp
 
         public IEnumerable<IAttribute> Attributes
         {
-            get { return Template.Attributes; }
+            get { return Template.Attributes.Value; }
         }
 
         public string Name
@@ -82,9 +83,9 @@ namespace Flame.Cpp
             }
         }
 
-        public IMethodBuilder DeclareAccessor(IAccessor Template)
+        public IMethodBuilder DeclareAccessor(AccessorType Kind, IMethodSignatureTemplate Template)
         {
-            var accessor = new CppAccessor(this, Template, Environment);
+            var accessor = new CppAccessor(this, Kind, Template, Environment);
             accessors.Add(accessor);
             return accessor;
         }
@@ -94,6 +95,11 @@ namespace Flame.Cpp
             return this;
         }
 
+        public void Initialize()
+        {
+            // There's no need for initialization logic in this member.
+        }
+
         public IEnumerable<IAccessor> Accessors
         {
             get { return accessors; }
@@ -101,17 +107,17 @@ namespace Flame.Cpp
 
         public IEnumerable<IParameter> IndexerParameters
         {
-            get { return Template.IndexerParameters; }
+            get { return Template.IndexerParameters.Value; }
         }
 
         public IType PropertyType
         {
-            get { return Template.PropertyType; }
+            get { return Template.PropertyType.Value; }
         }
 
         public bool IsStatic
         {
-            get { return Template.IsStatic; }
+            get { return Template.Template.IsStatic; }
         }
     }
 }

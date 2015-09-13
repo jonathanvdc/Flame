@@ -9,6 +9,6 @@ namespace Flame.Compiler
 		/// <summary>
 		/// Gets the invariant member's invariant as an expression.
 		/// </summary>
-		public IExpression Invariant { const get; }
+		IExpression Invariant { const get; }
 	}
 }

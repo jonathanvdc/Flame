@@ -1,0 +1,63 @@
+using System;
+
+namespace Flame.Compiler.Build
+{
+    /// <summary>
+    /// An instantiation of a property signature template.
+    /// </summary>
+    public class PropertySignatureInstance
+    {
+        /// <summary>
+        /// Instantiates the given property signature template with the given property.
+        /// </summary>
+        public const this(set IPropertySignatureTemplate Template, set IProperty Property)
+        {
+            this.Attributes = new Lazy<[IAttribute]>(createAttributes);
+            this.PropertyType = new Lazy<IType>(createPropertyType);
+            this.IndexerParameters = new Lazy<[IParameter]>(createIndexerParameters);
+        }
+
+        /// <summary>
+        /// Gets the property signature template this instance is based on.
+        /// </summary>
+        public IPropertySignatureTemplate Template { const get; private set; }
+
+        /// <summary>
+        /// Gets the property the signature template is instantiated with.
+        /// </summary>
+        public IProperty Property { const get; private set; }
+
+        /// <summary>
+        /// Gets the property signature instance's name.
+        /// </summary>
+        public string Name { const get { return Template.Name; } }
+
+        /// <summary>
+        /// Gets the property signature instance's attributes.
+        /// </summary>
+        public Lazy<[IAttribute]> Attributes { const get; private set; }
+
+        /// <summary>
+        /// Gets the property signature instance's property type.
+        /// </summary>
+        public Lazy<IType> PropertyType { const get; private set; }
+
+        /// <summary>
+        /// Gets the property signature instance's indexer parameters.
+        /// </summary>
+        public Lazy<[IParameter]> IndexerParameters { const get; private set; }
+
+        private [IAttribute] createAttributes()
+        {
+            return Template.CreateAttributes(Property);
+        }
+        private IType createPropertyType()
+        {
+            return Template.CreatePropertyType(Property);
+        }
+        private [IParameter] createIndexerParameters()
+        {
+            return Template.CreateIndexerParameters(Property);
+        }
+    }
+}

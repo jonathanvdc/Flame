@@ -1,6 +1,7 @@
 ﻿using Flame.Build;
 using Flame.Cecil.Emit;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using Mono.Cecil;
 using Mono.Cecil.Rocks;
 using System;
@@ -13,10 +14,108 @@ namespace Flame.Cecil
 {
     public class CecilMethodBuilder : CecilMethod, ICecilMethodBuilder
     {
-        public CecilMethodBuilder(ICecilType DeclaringType, MethodDefinition Method)
+        public CecilMethodBuilder(ICecilType DeclaringType, MethodDefinition Method, IMethodSignatureTemplate Template)
             : base(DeclaringType, Method)
         {
+            this.Template = new MethodSignatureInstance(Template, this);
         }
+
+        public MethodSignatureInstance Template { get; private set; }
+
+        #region Initialize
+
+        public virtual void Initialize()
+        {
+            var methodDef = GetResolvedMethod();
+
+            var attrs = methodDef.Attributes | ExtractMethodAttributes(Template.Attributes.Value);
+
+            if (Template.Template.IsStatic)
+            {
+                attrs |= MethodAttributes.Static;
+                methodDef.HasThis = false;
+            }
+            else if (IsAbstract)
+            {
+                attrs &= ~MethodAttributes.Final;
+                attrs |= MethodAttributes.Abstract | MethodAttributes.Virtual;
+            }
+
+            methodDef.Attributes = attrs;
+
+            var cecilGenericParams = CecilGenericParameter.DeclareGenericParameters(methodDef, Template.GenericParameters.Value.ToArray(), Module);
+
+            var genericParams = cecilGenericParams.Select(item => new CecilGenericParameter(item, Module, this)).ToArray();
+            var conv = new GenericParameterTransformer(genericParams);
+            if (!methodDef.IsConstructor)
+            {
+                methodDef.ReturnType = conv.Convert(Template.ReturnType.Value).GetImportedReference(Module, methodDef);
+            }
+            else
+            {
+                methodDef.ReturnType = Module.Module.TypeSystem.Void;
+            }
+
+            foreach (var item in Template.Parameters.Value)
+            {
+                CecilParameter.DeclareParameter(this, new RetypedParameter(item, conv.Convert(item.ParameterType)));
+            }
+
+            CecilAttribute.DeclareAttributes(methodDef, this, Template.Attributes.Value);
+            if (!Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.ExtensionAttribute.AttributeType) &&
+                Template.Parameters.Value.Any(MemberExtensions.get_IsExtension))
+            {
+                CecilAttribute.DeclareAttributeOrDefault(methodDef, this, PrimitiveAttributes.Instance.ExtensionAttribute);
+            }
+
+            var methodConv = new TypeMethodConverter(conv);
+            var baseMethods = Template.BaseMethods.Value.Distinct().Select(methodConv.Convert).ToArray();
+
+            var simpleBaseMethod = baseMethods.FirstOrDefault(item => !item.DeclaringType.get_IsInterface());
+
+            if ((attrs & MethodAttributes.Virtual) != MethodAttributes.Virtual && baseMethods.Length > 0)
+            {
+                attrs |= MethodAttributes.Virtual | MethodAttributes.Final;
+            }
+            if ((attrs & MethodAttributes.Virtual) == MethodAttributes.Virtual)
+            {
+                if (simpleBaseMethod == null)
+                {
+                    attrs |= MethodAttributes.NewSlot;
+                }
+            }
+
+            methodDef.Attributes = attrs;
+
+            var log = ((INamespace)DeclaringType).GetLog();
+            if (simpleBaseMethod == null)
+            {
+                var imported = ImportMethodOverrides(DeclaringType, Module, baseMethods, genericParams);
+                foreach (var item in imported)
+                {
+                    methodDef.Overrides.Add(item);
+                }
+            }
+            else
+            {
+                var imported = ImportMethodOverrides(DeclaringType, Module, new[] { simpleBaseMethod }, genericParams);
+                methodDef.Overrides.Add(imported[0]);
+            }
+        }
+
+        #endregion
+
+        #region Properties
+
+        public bool IsAbstract
+        {
+            get
+            {
+                return DeclaringType.get_IsInterface() || Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.AbstractAttribute.AttributeType);
+            }
+        }
+
+        #endregion
 
         #region ICecilMethodBuilder Implementation
 
@@ -114,54 +213,13 @@ namespace Flame.Cecil
 
         #endregion
 
-        private static T DeclareMethod<T>(ICecilType DeclaringType, IMethod Template, Action<MethodDefinition> AddMethod, Func<MethodDefinition, T> CreateMethodBuilder)
-            where T : CecilMethodBuilder
+        public static CecilMethodBuilder DeclareMethod(ICecilTypeBuilder DeclaringType, IMethodSignatureTemplate Template)
         {
-            var module = DeclaringType.Module;
-
-            var attrs = ExtractMethodAttributes(Template.Attributes);
-
-            var baseMethods = Template.BaseMethods.Distinct().ToArray();
-
-            var simpleBaseMethod = baseMethods.FirstOrDefault((item) => !item.DeclaringType.get_IsInterface());
-            if (baseMethods.Length > 0 && ((attrs & MethodAttributes.Virtual) != MethodAttributes.Virtual))
-            {
-                attrs |= MethodAttributes.Virtual | MethodAttributes.Final;
-            }
-
-            if (simpleBaseMethod == null && ((attrs & MethodAttributes.Virtual) == MethodAttributes.Virtual))
-            {
-                attrs |= MethodAttributes.NewSlot;
-            }
-
-            if (Template.IsStatic)
-            {
-                attrs |= MethodAttributes.Static;
-            }
-            if (DeclaringType.get_IsInterface() || Template.get_IsAbstract())
-            {
-                attrs &= ~MethodAttributes.Final;
-                attrs |= MethodAttributes.Abstract | MethodAttributes.Virtual;
-            }
-
+            MethodAttributes attrs = (MethodAttributes)0;
             string methodName;
-            if (Template is IAccessor)
+            if (Template.IsConstructor)
             {
-                var accessorType = ((IAccessor)Template).AccessorType;
-                var declProp = ((IAccessor)Template).DeclaringProperty;
-                methodName = accessorType.ToString().ToLower() + "_" + declProp.Name;
-                attrs |= MethodAttributes.SpecialName;
-            }
-            else if (Template.IsConstructor)
-            {
-                if (Template.IsStatic)
-                {
-                    methodName = ".cctor";
-                }
-                else
-                {
-                    methodName = ".ctor";
-                }
+                methodName = Template.IsStatic ? ".cctor" : ".ctor";
                 attrs |= MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
             }
             else
@@ -169,61 +227,22 @@ namespace Flame.Cecil
                 methodName = Template.Name;
             }
 
-            var declTypeRef = DeclaringType.GetTypeReference();
-            var methodDef = new MethodDefinition(methodName, attrs, declTypeRef.Module.TypeSystem.Void);
+            var methodDef = new MethodDefinition(methodName, attrs, DeclaringType.Module.Module.TypeSystem.Void);
 
-            AddMethod(methodDef);
+            DeclaringType.AddMethod(methodDef);
 
-            var cecilGenericParams = CecilGenericParameter.DeclareGenericParameters(methodDef, Template.GenericParameters.ToArray(), module);
-
-            var cecilMethod = CreateMethodBuilder(methodDef);
-            var genericParams = cecilGenericParams.Select((item) => new CecilGenericParameter(item, cecilMethod.Module, cecilMethod)).ToArray();
-            if (!methodDef.IsConstructor)
-            {
-                methodDef.ReturnType = DeclaringType.ResolveType(CecilTypeBuilder.GetGenericType(Template.ReturnType, genericParams)).GetImportedReference(module, methodDef);
-            }
-
-            CecilAttribute.DeclareAttributes(methodDef, cecilMethod, Template.Attributes);
-            if (Template.get_IsExtension() && !cecilMethod.get_IsExtension())
-            {
-                CecilAttribute.DeclareAttributeOrDefault(methodDef, cecilMethod, PrimitiveAttributes.Instance.ExtensionAttribute);
-            }
-
-            IParameter[] parameters = Template.GetParameters();
-
-            foreach (var item in parameters)
-            {
-                CecilParameter.DeclareParameter(cecilMethod, item);
-            }
-
-            var log = ((INamespace)DeclaringType).GetLog();
-            if (simpleBaseMethod == null)
-            {
-                var imported = ImportMethodOverrides(DeclaringType, module, baseMethods, genericParams);
-                foreach (var item in imported)
-                {
-                    methodDef.AddOverride(item, log);
-                }
-            }
-            else
-            {
-                var imported = ImportMethodOverrides(DeclaringType, module, new[] { simpleBaseMethod }, genericParams);
-                methodDef.AddOverride(imported[0], log);
-            }
-
-            return cecilMethod;
+            return new CecilMethodBuilder(DeclaringType, methodDef, Template);
         }
+        public static CecilAccessorBuilder DeclareAccessor(ICecilPropertyBuilder DeclaringProperty, AccessorType Kind, IMethodSignatureTemplate Template)
+        {
+            string methodName = Kind.ToString().ToLower() + "_" + DeclaringProperty.Name;
+            var voidTy = ((ICecilType)DeclaringProperty.DeclaringType).Module.Module.TypeSystem.Void;
 
-        public static CecilMethodBuilder DeclareMethod(ICecilTypeBuilder DeclaringType, IMethod Template)
-        {
-            return DeclareMethod(DeclaringType, Template, DeclaringType.AddMethod, def => new CecilMethodBuilder(DeclaringType, def));
-        }
-        public static CecilAccessorBuilder DeclareAccessor(ICecilPropertyBuilder DeclaringProperty, IAccessor Template)
-        {
-            return DeclareMethod((ICecilType)DeclaringProperty.DeclaringType, Template, (item) =>
-            {
-                DeclaringProperty.AddAccessor(item, Template.AccessorType);
-            }, def => new CecilAccessorBuilder(DeclaringProperty, def, Template.AccessorType));
+            var methodDef = new MethodDefinition(methodName, MethodAttributes.SpecialName, voidTy);
+
+            DeclaringProperty.AddAccessor(methodDef, Kind);
+
+            return new CecilAccessorBuilder(DeclaringProperty, methodDef, Template, Kind);
         }
 
         protected static MethodAttributes ExtractMethodAttributes(IEnumerable<IAttribute> Attributes)

@@ -1,6 +1,7 @@
 ﻿using Flame.Cecil;
 using Flame.Compiler;
 using Flame.Compiler.Projects;
+using Flame.Compiler.Visitors;
 using Flame.Front;
 using Flame.Front.Target;
 using System;
@@ -67,12 +68,16 @@ namespace Flame.Front.Target
             }
         }
 
-        public static readonly string[] PreferredPasses = 
-        { 
-            PassExtensions.LowerYieldPassName,
-            PassExtensions.LowerLambdaPassName,
-            PassExtensions.SimplifyFlowPassName 
-        };
+        public static readonly PassPreferences PassPreferences = new PassPreferences(
+            new string[] 
+            {
+                PassExtensions.LowerLambdaPassName,
+                PassExtensions.SimplifyFlowPassName 
+            },
+            new PassInfo<BodyPassArgument, IStatement>[] 
+            { 
+                new PassInfo<BodyPassArgument, IStatement>(CecilLowerYieldPass.Instance, PassExtensions.LowerYieldPassName, true)
+            });
 
         public BuildTarget CreateBuildTarget(string Identifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)
         {
@@ -83,7 +88,7 @@ namespace Flame.Front.Target
 
             var asm = new CecilAssembly(Info.Name, Info.Version, moduleKind, resolver, DependencyBuilder.Log, CecilReferenceResolver.ConversionCache);
 
-            return new BuildTarget(asm, DependencyBuilder, extension, false, PreferredPasses);
+            return new BuildTarget(asm, DependencyBuilder, extension, false, PassPreferences);
         }
     }
 }

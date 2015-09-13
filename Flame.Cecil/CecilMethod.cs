@@ -33,17 +33,16 @@ namespace Flame.Cecil
 
         public override bool IsStatic
         {
-            get { return GetResolvedMethod().IsStatic; }
+            get
+            {
+                var resolved = GetResolvedMethod();
+                return resolved == null ? !Method.HasThis : resolved.IsStatic;
+            }
         }
 
         public override bool IsConstructor
         {
             get { return GetResolvedMethod().IsConstructor; }
-        }
-
-        protected override IType ResolveLocalTypeParameter(IGenericParameter TypeParameter)
-        {
-            return null;
         }
 
         public AccessModifier Access
@@ -106,7 +105,7 @@ namespace Flame.Cecil
         private IMethod[] FindBaseMethods()
         {
             var cecilOverrides = GetResolvedMethod().Overrides;
-            List<IMethod> overrides = new List<IMethod>(cecilOverrides.Count);
+            var overrides = new HashSet<IMethod>();
             for (int i = 0; i < cecilOverrides.Count; i++)
             {
                 overrides.Add(Module.Convert(cecilOverrides[i]));
@@ -133,7 +132,7 @@ namespace Flame.Cecil
                 }
             }
 
-            return overrides.ToArray();         
+            return overrides.ToArray();
         }
 
         private Lazy<IMethod[]> baseMethods;

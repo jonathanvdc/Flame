@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Flame.Compiler.Build;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace Flame.Recompilation
 {
-    public abstract class RecompiledMemberTemplate : IMember
+    public abstract class RecompiledMemberTemplate<T> : IMemberSignatureTemplate<T>
+        where T : IMember
     {
         public RecompiledMemberTemplate(AssemblyRecompiler Recompiler)
         {
@@ -15,42 +17,16 @@ namespace Flame.Recompilation
 
         public AssemblyRecompiler Recompiler { get; private set; }
 
-        public abstract IMember GetSourceMember();
-
-        public string FullName
-        {
-            get { return GetSourceMember().FullName; }
-        }
-
-        public virtual IEnumerable<IAttribute> Attributes
-        {
-            get { return GetSourceMember().Attributes.Select(Recompiler.GetAttribute); }
-        }
+        public abstract T GetSourceMember();
 
         public string Name
         {
             get { return GetSourceMember().Name; }
         }
 
-        public override string ToString()
+        public IEnumerable<IAttribute> CreateAttributes(T Type)
         {
-            return GetSourceMember().ToString();
-        }
-        public override bool Equals(object obj)
-        {
-            if (obj is RecompiledMemberTemplate)
-            {
-                var templ = (RecompiledMemberTemplate)obj;
-                return GetSourceMember().Equals(templ.GetSourceMember());
-            }
-            else
-            {
-                return GetSourceMember().Equals(obj);
-            }
-        }
-        public override int GetHashCode()
-        {
-            return GetSourceMember().GetHashCode();
+            return GetSourceMember().Attributes;
         }
     }
 }

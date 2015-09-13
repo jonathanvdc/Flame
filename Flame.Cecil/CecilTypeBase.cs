@@ -19,7 +19,6 @@ namespace Flame.Cecil
         #region ICecilType Implementation
 
         public abstract TypeReference GetTypeReference();
-        public abstract IType ResolveTypeParameter(IGenericParameter TypeParameter);
 
         public override MemberReference GetMemberReference()
         {
@@ -47,7 +46,7 @@ namespace Flame.Cecil
 
         #region Properties
 
-        public bool IsValueType
+        public virtual bool IsValueType
         {
             get
             {
@@ -55,7 +54,7 @@ namespace Flame.Cecil
             }
         }
 
-        public bool IsInterface
+        public virtual bool IsInterface
         {
             get
             {

@@ -15,20 +15,15 @@ namespace Flame.Front.Target
         static PassExtensions()
         {
             MethodPasses = new List<PassInfo<BodyPassArgument, IStatement>>();
-            StatementPasses = new List<PassInfo<IStatement, IStatement>>();
-            PreStatementPasses = new List<PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>>();
+            
+            RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(LowerLambdaPass.Instance, LowerLambdaPassName));
 
-            MethodPasses.Add(new PassInfo<BodyPassArgument, IStatement>(LowerYieldPass.Instance, LowerYieldPassName));
-            MethodPasses.Add(new PassInfo<BodyPassArgument, IStatement>(LowerLambdaPass.Instance, LowerLambdaPassName));
-
-            MethodPasses.Add(new PassInfo<BodyPassArgument, IStatement>(InliningPass.Instance, InliningPassName, (optInfo, isPref) => optInfo.OptimizeExperimental));
-            StatementPasses.Add(new PassInfo<IStatement, IStatement>(SimplifyFlowPass.Instance, SimplifyFlowPassName, (optInfo, isPref) => (optInfo.OptimizeMinimal && isPref) || optInfo.OptimizeNormal || optInfo.OptimizeSize));
-            StatementPasses.Add(new PassInfo<IStatement, IStatement>(Flame.Optimization.Variables.DefinitionPropagationPass.Instance, PropagateLocalsName, (optInfo, isPref) => optInfo.OptimizeExperimental));
+            RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(InliningPass.Instance, InliningPassName, (optInfo, isPref) => optInfo.OptimizeExperimental));
+            RegisterStatementPass(new PassInfo<IStatement, IStatement>(SimplifyFlowPass.Instance, SimplifyFlowPassName, (optInfo, isPref) => (optInfo.OptimizeMinimal && isPref) || optInfo.OptimizeNormal || optInfo.OptimizeSize));
+            RegisterStatementPass(new PassInfo<IStatement, IStatement>(Flame.Optimization.Variables.DefinitionPropagationPass.Instance, PropagateLocalsName, (optInfo, isPref) => optInfo.OptimizeExperimental));
         }
 
-        public static List<PassInfo<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>> PreStatementPasses { get; private set; }
         public static List<PassInfo<BodyPassArgument, IStatement>> MethodPasses { get; private set; }
-        public static List<PassInfo<IStatement, IStatement>> StatementPasses { get; private set; }
 
         public const string EliminateDeadCodePassName = "dead-code-elimination";
         public const string InitializationPassName = "initialization";
@@ -37,6 +32,19 @@ namespace Flame.Front.Target
         public const string InliningPassName = "inline";
         public const string SimplifyFlowPassName = "simplify-flow";
         public const string PropagateLocalsName = "propagate-locals";
+
+        public static void RegisterAnalysisPass(PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement> Pass)
+        {
+            RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(new BodyAnalysisPass(Pass.Pass), Pass.Name, Pass.UsePass));
+        }
+        public static void RegisterMethodPass(PassInfo<BodyPassArgument, IStatement> Pass)
+        {
+            MethodPasses.Add(Pass);
+        }
+        public static void RegisterStatementPass(PassInfo<IStatement, IStatement> Pass)
+        {
+            RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(new BodyStatementPass(Pass.Pass), Pass.Name, Pass.UsePass));
+        }
 
         private static void AddPass<TIn, TOut>(List<IPass<TIn, TOut>> Passes, PassInfo<TIn, TOut> Info, OptimizationInfo OptInfo, HashSet<string> PreferredPasses)
         {
@@ -61,17 +69,7 @@ namespace Flame.Front.Target
 
             var preferredPassSet = new HashSet<string>(Preferences.PreferredPasses);
 
-            foreach (var item in Preferences.AdditionalPrePasses.Union(PreStatementPasses))
-            {
-                AddPassName(names, item, optInfo, preferredPassSet);
-            }
-
-            foreach (var item in Preferences.AdditionalMethodPasses.Union(MethodPasses))
-            {
-                AddPassName(names, item, optInfo, preferredPassSet);
-            }
-
-            foreach (var item in Preferences.AdditionalPasses.Union(StatementPasses))
+            foreach (var item in Preferences.AdditionalPasses.Union(MethodPasses))
             {
                 AddPassName(names, item, optInfo, preferredPassSet);
             }
@@ -87,25 +85,13 @@ namespace Flame.Front.Target
 
             var methodOpt = Log.GetMethodOptimizer();
 
-            var selectedPreStatementPasses = new List<IPass<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>>();
-            foreach (var item in Preferences.AdditionalPrePasses.Union(PreStatementPasses))
-            {
-                AddPass(selectedPreStatementPasses, item, optInfo, preferredPassSet);
-            }
-
             var selectedMethodPasses = new List<IPass<BodyPassArgument, IStatement>>();
-            foreach (var item in Preferences.AdditionalMethodPasses.Union(MethodPasses))
+            foreach (var item in Preferences.AdditionalPasses.Union(MethodPasses))
             {
                 AddPass(selectedMethodPasses, item, optInfo, preferredPassSet);
             }
 
-            var selectedStatementPassSet = new List<IPass<IStatement, IStatement>>();
-            foreach (var item in Preferences.AdditionalPasses.Union(StatementPasses))
-            {
-                AddPass(selectedStatementPassSet, item, optInfo, preferredPassSet);
-            }
-
-            return new PassSuite(methodOpt, selectedPreStatementPasses.Aggregate(), selectedMethodPasses.Aggregate(), selectedStatementPassSet.Aggregate());
+            return new PassSuite(methodOpt, selectedMethodPasses.Aggregate());
         }
     }
 }

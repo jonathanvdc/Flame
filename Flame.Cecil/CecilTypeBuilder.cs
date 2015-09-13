@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Variables;
 using Mono.Cecil;
@@ -13,24 +14,84 @@ namespace Flame.Cecil
 {
     public class CecilTypeBuilder : CecilType, ICecilTypeBuilder
     {
-        public CecilTypeBuilder(TypeDefinition Definition, INamespace DeclaringNamespace, CecilModule Module)
-            : this(Definition, DeclaringNamespace, new EmptyGenericResolver(), Module)
-        {
-        }
-        public CecilTypeBuilder(TypeDefinition Definition, INamespace DeclaringNamespace, IGenericResolver Resolver, CecilModule Module)
+        public CecilTypeBuilder(TypeDefinition Definition, ITypeSignatureTemplate Template, ICecilNamespace DeclaringNamespace, CecilModule Module)
             : base(Definition, Module)
         {
             this.declNs = DeclaringNamespace;
-            this.Resolver = Resolver;
+            this.Template = new TypeSignatureInstance(Template, this);
         }
-        public CecilTypeBuilder(CecilResolvedTypeBase Type, INamespace DeclaringNamespace, CecilModule Module)
-            : this(Type.GetResolvedType(), DeclaringNamespace, Type, Module)
+
+        public TypeSignatureInstance Template { get; private set; }
+
+        #region Initialize
+
+        public void Initialize()
         {
+            var typeDef = GetResolvedType();
+
+            var typeAttrs = ExtractTypeAttributes(Template.Attributes.Value);
+            if (IsNested && (typeAttrs & TypeAttributes.VisibilityMask) == TypeAttributes.Public)
+            {
+                typeAttrs &= ~TypeAttributes.Public;
+                typeAttrs |= TypeAttributes.NestedPublic;
+            }
+
+            typeDef.Name = CreateCLRName(Template);
+            typeDef.Attributes = typeAttrs;
+
+            // Evaluate generics first
+            var genericTemplates = Template.GenericParameters.Value.ToArray();
+
+            var genParams = CecilGenericParameter.DeclareGenericParameters(typeDef, genericTemplates, Module, this);
+
+            // We should be able to evaluate the base types now.
+            var baseTypes = GetGenericTypes(Template.BaseTypes.Value.ToArray(), genParams);
+
+            if (!IsInterface)
+            {
+                if (IsEnum)
+                {
+                    typeDef.BaseType = Module.Module.Import(typeof(Enum));
+                }
+                else if (IsValueType)
+                {
+                    typeDef.BaseType = Module.Module.Import(typeof(ValueType));
+                }
+                else
+                {
+                    var parentType = baseTypes.SingleOrDefault((item) => !item.get_IsInterface());
+                    if (parentType != null)
+                    {
+                        typeDef.BaseType = parentType.GetImportedReference(Module, typeDef);
+                    }
+                    else
+                    {
+                        typeDef.BaseType = Module.Module.TypeSystem.Object;
+                    }
+                }
+            }
+
+            foreach (var item in baseTypes.Where(item => item.get_IsInterface()))
+            {
+                typeDef.Interfaces.Add(item.GetImportedReference(Module, typeDef));
+            }
+
+            CecilAttribute.DeclareAttributes(typeDef, this, Template.Attributes.Value);
+
+            if (IsEnum)
+            {
+                var field = new FieldDefinition("value__",
+                    FieldAttributes.Public | FieldAttributes.SpecialName | FieldAttributes.RTSpecialName,
+                    baseTypes.SingleOrDefault(item => !item.get_IsInterface()).GetImportedReference(Module, typeDef));
+                AddField(field);
+            }
         }
+
+        #endregion
 
         #region Declaring Namespace
 
-        private INamespace declNs;
+        private ICecilNamespace declNs;
         public override INamespace DeclaringNamespace
         {
             get
@@ -41,32 +102,76 @@ namespace Flame.Cecil
 
         #endregion
 
-        #region Generic Parameter Resolution
+        #region Properties
 
-        public IGenericResolver Resolver { get; private set; }
-        public override IType ResolveTypeParameter(IGenericParameter TypeParameter)
+        public bool IsNested
         {
-            return Resolver.ResolveTypeParameter(TypeParameter);
+            get
+            {
+                return declNs is ICecilType;
+            }
+        }
+
+        public bool IsEnum
+        {
+            get
+            {
+                return Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.EnumAttribute.AttributeType);
+            }
+        }
+
+        public override bool IsInterface
+        {
+            get
+            {
+                return Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.InterfaceAttribute.AttributeType);
+            }
+        }
+
+        public override bool IsValueType
+        {
+            get
+            {
+                return Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.ValueTypeAttribute.AttributeType);
+            }
         }
 
         #endregion
 
         #region Static
 
-        private static string CreateCLRName(IType Template)
+        private static string CreateCLRName(TypeSignatureInstance Template)
         {
-            if (!Template.get_IsGeneric())
+            int genCount = Template.GenericParameters.Value.Count();
+            if (genCount == 0)
             {
                 return Template.Name;
             }
             else
             {
-                StringBuilder sb = new StringBuilder();
-                sb.Append(Template.GetGenericFreeName());
+                var sb = new StringBuilder();
+                sb.Append(GenericNameExtensions.TrimGenerics(Template.Name));
                 sb.Append('`');
-                sb.Append(Template.GenericParameters.Count());
+                sb.Append(genCount);
                 return sb.ToString();
             }
+        }
+
+        public static CecilTypeBuilder DeclareType(ICecilNamespace CecilNamespace, ITypeSignatureTemplate Template)
+        {
+            var reference = new TypeDefinition(CecilNamespace.FullName, Template.Name, (TypeAttributes)0);
+
+            var cecilType = new CecilTypeBuilder(reference, Template, CecilNamespace, CecilNamespace.Module);
+            if (CecilNamespace is ICecilType)
+            {
+                var declType = (ICecilType)CecilNamespace;
+                var declGenerics = declType.GenericParameters.ToArray();
+                CecilGenericParameter.DeclareGenericParameters(reference, declGenerics, cecilType.Module, cecilType);
+            }
+
+            CecilNamespace.AddType(reference);
+
+            return cecilType;
         }
 
         public static IType[] GetGenericTypes(IType[] SourceTypes, IGenericParameter[] GenericParameters)
@@ -79,125 +184,27 @@ namespace Flame.Cecil
             return new GenericParameterTransformer(GenericParameters).Convert(SourceType);
         }
 
-        public static CecilTypeBuilder DeclareType(ICecilNamespace CecilNamespace, IType Template)
-        {
-            var isNested = CecilNamespace is ICecilType;
-            var typeAttrs = ExtractTypeAttributes(Template.Attributes);
-            if (isNested && (typeAttrs & TypeAttributes.VisibilityMask) == TypeAttributes.Public)
-            {
-                typeAttrs &= ~TypeAttributes.Public;
-                typeAttrs |= TypeAttributes.NestedPublic;
-            }
-
-            var reference = new TypeDefinition(CecilNamespace.FullName, CreateCLRName(Template), typeAttrs);
-
-            CecilTypeBuilder cecilType;
-            IGenericResolver genericResolver;
-            bool isEnum = Template.get_IsEnum();
-            //IGenericResolver resolver = isEnum || !Template.GenericParameters.Any() ? 
-            if (isEnum)
-            {
-                cecilType = new CecilEnumBuilder(reference, CecilNamespace, CecilNamespace.Module);
-                genericResolver = new EmptyGenericResolver();
-            }
-            else if (CecilNamespace is ICecilType)
-            {
-                var declType = (ICecilType)CecilNamespace;
-                var mapResolver = new GenericResolverMap(declType);
-                cecilType = new CecilTypeBuilder(reference, CecilNamespace, mapResolver, CecilNamespace.Module);
-                var declGenerics = declType.GenericParameters.ToArray();
-                var inheritedGenerics = CecilGenericParameter.DeclareGenericParameters(reference, declGenerics, cecilType.Module, cecilType);
-                mapResolver.Map(declGenerics, inheritedGenerics);
-                genericResolver = mapResolver;
-            }
-            else
-            {
-                genericResolver = new EmptyGenericResolver();
-                cecilType = new CecilTypeBuilder(reference, CecilNamespace, genericResolver, CecilNamespace.Module);
-            }
-
-            CecilNamespace.AddType(reference);
-
-            var module = CecilNamespace.Module.Module;
-
-            // generics
-            var genericTemplates = Template.GenericParameters.ToArray();
-
-            var genericParams = CecilGenericParameter.DeclareGenericParameters(reference, genericTemplates, cecilType.Module, cecilType);
-
-            var baseTypes = genericResolver.ResolveTypes(GetGenericTypes(Template.BaseTypes.ToArray(), genericParams));
-
-            if (!Template.get_IsInterface())
-            {
-                if (isEnum)
-                {
-                    reference.BaseType = module.Import(typeof(Enum));
-                }
-                else if (Template.get_IsValueType())
-                {
-                    reference.BaseType = module.Import(typeof(ValueType));
-                }
-                else
-                {
-                    var parentType = baseTypes.SingleOrDefault((item) => !item.get_IsInterface());
-                    if (parentType != null)
-                    {
-                        reference.BaseType = parentType.GetImportedReference(CecilNamespace.Module, reference);
-                    }
-                    else
-                    {
-                        reference.BaseType = module.TypeSystem.Object;
-                    }
-                }
-            }
-            foreach (var item in baseTypes.Where((item) => item.get_IsInterface()))
-            {
-                reference.Interfaces.Add(item.GetImportedReference(CecilNamespace.Module, reference));
-            }
-
-            CecilAttribute.DeclareAttributes(reference, cecilType, Template.Attributes);
-
-            if (Template.get_IsExtension() && !cecilType.get_IsExtension())
-            {
-                CecilAttribute.DeclareAttributeOrDefault(reference, cecilType, PrimitiveAttributes.Instance.ExtensionAttribute);
-            }
-
-            if (isEnum)
-            {
-                var field = new FieldDefinition("value__",
-                    FieldAttributes.Public | FieldAttributes.SpecialName | FieldAttributes.RTSpecialName,
-                    baseTypes.SingleOrDefault((item) => !item.get_IsInterface()).GetImportedReference(CecilNamespace.Module, reference));
-                cecilType.AddField(field);
-            }
-
-            return cecilType;
-        }
-
         #endregion
 
         #region ICecilTypeBuilder Implementation
 
-        public virtual IMethodBuilder DeclareMethod(IMethod Template)
+        public virtual IMethodBuilder DeclareMethod(IMethodSignatureTemplate Template)
         {
             var method = CecilMethodBuilder.DeclareMethod(this, Template);
             ClearMethodCache();
             return method;
         }
 
-        public virtual IFieldBuilder DeclareField(IField Template)
+        public virtual IFieldBuilder DeclareField(IFieldSignatureTemplate Template)
         {
-            var field = CecilField.DeclareField(this, Template);
+            var field = IsEnum ? CecilField.DeclareEnumField(this, Template) : CecilField.DeclareField(this, Template);
             ClearFieldCache();
             return field;
         }
 
-        public virtual IPropertyBuilder DeclareProperty(IProperty Template)
+        public virtual IPropertyBuilder DeclareProperty(IPropertySignatureTemplate Template)
         {
             var property = CecilPropertyBuilder.DeclareProperty(this, Template);
-            if (Template.get_IsIndexer())
-            {
-                this.GetResolvedType().SetDefaultMember(property.Name);
-            }
             ClearPropertyCache();
             return property;
         }
@@ -259,7 +266,8 @@ namespace Flame.Cecil
             {
                 descMethod.AddParameter(param);
             }
-            var staticMethod = DeclaringType.DeclareMethod(descMethod);
+            var staticMethod = DeclaringType.DeclareMethod(new MethodPrototypeTemplate(descMethod));
+            staticMethod.Initialize();
             var call = CreateSingletonCall(GetSingletonExpression, Method);
             var bodyGen = staticMethod.GetBodyGenerator();
             staticMethod.SetMethodBody(bodyGen.EmitReturn(call.Emit(bodyGen)));
@@ -278,7 +286,8 @@ namespace Flame.Cecil
             {
                 descMethod.AddParameter(param);
             }
-            var staticMethod = DeclaringProperty.DeclareAccessor(descMethod);
+            var staticMethod = DeclaringProperty.DeclareAccessor(Accessor.AccessorType, new MethodPrototypeTemplate(descMethod));
+            staticMethod.Initialize();
             var call = CreateSingletonCall(GetSingletonExpression, Accessor);
             var bodyGen = staticMethod.GetBodyGenerator();
             staticMethod.SetMethodBody(bodyGen.EmitReturn(call.Emit(bodyGen)));
@@ -296,7 +305,8 @@ namespace Flame.Cecil
             {
                 descProp.AddIndexerParameter(param);
             }
-            var staticProp = DeclaringType.DeclareProperty(descProp);
+            var staticProp = DeclaringType.DeclareProperty(new PropertyPrototypeTemplate(descProp));
+            staticProp.Initialize();
             foreach (var item in Property.Accessors)
             {
                 CreateStaticSingletonAccessor(GetSingletonExpression, staticProp, item);
@@ -316,14 +326,12 @@ namespace Flame.Cecil
                 {
                     var getSingletonExpr = new PropertyVariable(singletonProp).CreateGetExpression();
                     foreach (var item in this.GetMethods())
-                        if (item.get_Access() == AccessModifier.Public)
-                        if (!item.IsStatic)
+                        if (item.get_Access() == AccessModifier.Public && !item.IsStatic && !item.get_IsGeneric())
                     {
                         CreateStaticSingletonMethod(getSingletonExpr, declTypeBuilder, item);
                     }
                     foreach (var item in this.Properties)
-                        if (item.get_Access() == AccessModifier.Public)
-                        if (!item.IsStatic)
+                        if (item.get_Access() == AccessModifier.Public && !item.IsStatic)
                     {
                         CreateStaticSingletonProperty(getSingletonExpr, declTypeBuilder, item);
                     }
@@ -483,10 +491,10 @@ namespace Flame.Cecil
 
         public INamespaceBuilder DeclareNamespace(string Name)
         {
-            return (INamespaceBuilder)DeclareType(new Flame.Build.DescribedType(Name, this));
+            return (INamespaceBuilder)DeclareType(new TypePrototypeTemplate(new Flame.Build.DescribedType(Name, this)));
         }
 
-        public ITypeBuilder DeclareType(IType Template)
+        public ITypeBuilder DeclareType(ITypeSignatureTemplate Template)
         {
             return CecilTypeBuilder.DeclareType(this, Template);
         }

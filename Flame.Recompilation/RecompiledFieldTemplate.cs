@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Flame.Compiler.Build;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Recompilation
 {
-    public class RecompiledFieldTemplate : RecompiledTypeMemberTemplate, IField
+    public class RecompiledFieldTemplate : RecompiledTypeMemberTemplate<IField>, IFieldSignatureTemplate
     {
         protected RecompiledFieldTemplate(AssemblyRecompiler Recompiler, IField SourceField)
             : base(Recompiler)
@@ -14,27 +15,20 @@ namespace Flame.Recompilation
             this.SourceField = SourceField;
         }
 
-        public static IField GetRecompilerTemplate(AssemblyRecompiler Recompiler, IField SourceField)
+        public static RecompiledFieldTemplate GetRecompilerTemplate(AssemblyRecompiler Recompiler, IField SourceField)
         {
-            if (Recompiler.IsExternal(SourceField))
-            {
-                return SourceField;
-            }
-            else
-            {
-                return new RecompiledFieldTemplate(Recompiler, SourceField);
-            }
+            return new RecompiledFieldTemplate(Recompiler, SourceField);
         }
 
         public IField SourceField { get; private set; }
-        public override ITypeMember GetSourceTypeMember()
+        public override IField GetSourceMember()
         {
             return SourceField;
         }
 
-        public IType FieldType
+        public IType CreateFieldType(IField Field)
         {
-            get { return Recompiler.GetType(SourceField.FieldType); }
+            return Recompiler.GetType(SourceField.FieldType);
         }
     }
 }

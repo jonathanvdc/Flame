@@ -1,0 +1,20 @@
+using System;
+
+namespace Flame.Compiler.Build
+{
+    /// <summary>
+    /// Defines a template for type signatures, which can be instantiated.
+    /// </summary>
+    public interface ITypeSignatureTemplate : IMemberSignatureTemplate<IType>
+    {
+        /// <summary>
+        /// Creates the type signature's generic parameters.
+        /// </summary>
+        [IGenericParameter] CreateGenericParameters(IType Type);
+
+        /// <summary>
+        /// Creates the type signature's base types.
+        /// </summary>
+        [IType] CreateBaseTypes(IType Type);
+    }
+}

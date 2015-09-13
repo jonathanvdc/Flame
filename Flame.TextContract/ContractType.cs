@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Syntax;
 using System;
 using System.Collections.Generic;
@@ -11,37 +12,37 @@ namespace Flame.TextContract
 {
     public class ContractType : ITypeBuilder, ISyntaxNode
     {
-        public ContractType(INamespace DeclaringNamespace, IType Template)
+        public ContractType(INamespace DeclaringNamespace, ITypeSignatureTemplate Template)
         {
             this.DeclaringNamespace = DeclaringNamespace;
-            this.Template = Template;
+            this.Template = new TypeSignatureInstance(Template, this);
             this.fieldBuilders = new List<ContractField>();
             this.methodBuilders = new List<ContractMethod>();
             this.propertyBuilders = new List<ContractProperty>();
         }
 
-        public IType Template { get; private set; }
+        public TypeSignatureInstance Template { get; private set; }
         public INamespace DeclaringNamespace { get; private set; }
 
         private List<ContractField> fieldBuilders;
         private List<ContractMethod> methodBuilders;
         private List<ContractProperty> propertyBuilders;
 
-        public IFieldBuilder DeclareField(IField Template)
+        public IFieldBuilder DeclareField(IFieldSignatureTemplate Template)
         {
             var field = new ContractField(this, Template);
             fieldBuilders.Add(field);
             return field;
         }
 
-        public IMethodBuilder DeclareMethod(IMethod Template)
+        public IMethodBuilder DeclareMethod(IMethodSignatureTemplate Template)
         {
             var method = new ContractMethod(this, Template);
             methodBuilders.Add(method);
             return method;
         }
 
-        public IPropertyBuilder DeclareProperty(IProperty Template)
+        public IPropertyBuilder DeclareProperty(IPropertySignatureTemplate Template)
         {
             var property = new ContractProperty(this, Template);
             propertyBuilders.Add(property);
@@ -53,6 +54,11 @@ namespace Flame.TextContract
             return this;
         }
 
+        public void Initialize()
+        {
+            // Do nothing. This back-end does not need `Initialize` to get things done.
+        }
+
         public string FullName
         {
             get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
@@ -60,7 +66,7 @@ namespace Flame.TextContract
 
         public IEnumerable<IAttribute> Attributes
         {
-            get { return Template.Attributes; }
+            get { return Template.Attributes.Value; }
         }
 
         public virtual string Name
@@ -69,7 +75,7 @@ namespace Flame.TextContract
             {
                 if (this.get_IsGeneric())
                 {
-                    var genericFreeName = this.Template.GetGenericDeclaration().GetGenericFreeName();
+                    var genericFreeName = GenericNameExtensions.TrimGenerics(this.Template.Name);
                     StringBuilder sb = new StringBuilder(genericFreeName);
                     sb.Append('<');
                     bool first = true;
@@ -95,19 +101,14 @@ namespace Flame.TextContract
             }
         }
 
-        public IContainerType AsContainerType()
-        {
-            return null;
-        }
-
         public IEnumerable<IType> BaseTypes
         {
-            get { return Template.BaseTypes; }
+            get { return Template.BaseTypes.Value; }
         }
 
         public IBoundObject GetDefaultValue()
         {
-            return Template.GetDefaultValue();
+            return null;
         }
 
         public IEnumerable<IField> Fields
@@ -127,7 +128,7 @@ namespace Flame.TextContract
 
         public IEnumerable<IGenericParameter> GenericParameters
         {
-            get { return Template.GenericParameters; }
+            get { return Template.GenericParameters.Value; }
         }
 
         public CodeBuilder GetCode()

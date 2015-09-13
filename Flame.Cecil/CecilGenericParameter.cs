@@ -125,11 +125,11 @@ namespace Flame.Cecil
             }
             if (HasReferenceTypeConstraint)
             {
-                results.Add(new ReferenceTypeConstraint());
+                results.Add(ReferenceTypeConstraint.Instance);
             }
             if (HasValueTypeConstraint)
             {
-                results.Add(new ValueTypeConstraint());
+                results.Add(ValueTypeConstraint.Instance);
             }
             return results;
         }
@@ -152,11 +152,6 @@ namespace Flame.Cecil
         #endregion
 
         #region CecilTypeBase Implementation
-
-        public override IType ResolveTypeParameter(IGenericParameter TypeParameter)
-        {
-            return null;
-        }
 
         private IType[] cachedBaseTypes;
         // Note that these "base types" are really the type constraints.
@@ -274,7 +269,7 @@ namespace Flame.Cecil
 
         public static CecilGenericParameter[] DeclareGenericParameters(IGenericParameterProvider ParameterProvider, IGenericParameter[] Templates, CecilModule Module, IGenericMember DeclaringMember)
         {
-            return DeclareGenericParameters(ParameterProvider, Templates, Module).Select((item) => new CecilGenericParameter(item, Module, DeclaringMember)).ToArray();
+            return DeclareGenericParameters(ParameterProvider, Templates, Module).Select(item => new CecilGenericParameter(item, Module, DeclaringMember)).ToArray();
         }
 
         public static GenericParameter[] DeclareGenericParameters(IGenericParameterProvider ParameterProvider, IGenericParameter[] Templates, CecilModule Module)

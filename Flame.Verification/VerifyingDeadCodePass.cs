@@ -11,33 +11,32 @@ using System.Threading.Tasks;
 
 namespace Flame.Verification
 {
-    public class VerifyingDeadCodePass : IPass<Tuple<IStatement, IMethod>, Tuple<IStatement, IMethod>>
+    public class VerifyingDeadCodePass : IPass<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>
     {
-        public VerifyingDeadCodePass(ICompilerLog Log, string WarningMessage, bool ShowWarning, string UnreachableWarningMessage, bool ShowUnreachableWarning)
+        public VerifyingDeadCodePass(string WarningMessage, bool ShowWarning, string UnreachableWarningMessage, bool ShowUnreachableWarning)
         {
-            this.Log = Log;
             this.ReturnWarningMessage = WarningMessage;
             this.ShowReturnWarning = ShowWarning;
             this.UnreachableWarningMessage = UnreachableWarningMessage;
             this.ShowUnreachableWarning = ShowUnreachableWarning;
         }
 
-        public ICompilerLog Log { get; private set; }
         public string ReturnWarningMessage { get; private set; }
         public bool ShowReturnWarning { get; private set; }
         public string UnreachableWarningMessage { get; private set; }
         public bool ShowUnreachableWarning { get; private set; }
 
-        public Tuple<IStatement, IMethod> Apply(Tuple<IStatement, IMethod> Value)
+        public IStatement Apply(Tuple<IStatement, IMethod, ICompilerLog> Value)
         {
             var stmt = Value.Item1;
             var method = Value.Item2;
+            var log = Value.Item3;
 
             var visitor = new DeadCodeVisitor();
             var optStmt = visitor.Visit(stmt);
             if (visitor.CurrentFlow && ShowReturnWarning)
             {
-                Log.LogWarning(new LogEntry("Missing return statement?", ReturnWarningMessage, method.GetSourceLocation()));
+                log.LogWarning(new LogEntry("Missing return statement?", ReturnWarningMessage, method.GetSourceLocation()));
             }
             if (ShowUnreachableWarning)
             {
@@ -52,10 +51,10 @@ namespace Flame.Verification
                         RedefinitionHelpers.Instance.CreateNeutralDiagnosticsNode("In method: ", method.GetSourceLocation())
                     });
 
-                    Log.LogWarning(new LogEntry("Removed dead code", node));
+                    log.LogWarning(new LogEntry("Removed dead code", node));
                 }
             }
-            return new Tuple<IStatement, IMethod>(optStmt, method);
+            return optStmt;
         }
     }
 }

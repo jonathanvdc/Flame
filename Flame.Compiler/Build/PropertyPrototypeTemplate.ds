@@ -1,0 +1,26 @@
+
+namespace Flame.Compiler.Build
+{
+    /// <summary>
+    /// Defines a property signature template that is based on a prototype property.
+    /// </summary>
+    public class PropertyPrototypeTemplate : TypeMemberPrototypeTemplate<IProperty>,
+        IPropertySignatureTemplate
+    {
+        /// <summary>
+        /// Creates a property signature template from the given prototype property.
+        /// </summary>
+        public const this(IProperty Prototype)
+            : base(Prototype);
+
+        public IType CreatePropertyType(IProperty Property)
+        {
+            return Prototype.PropertyType;
+        }
+
+        public [IParameter] CreateIndexerParameters(IProperty Property)
+        {
+            return Prototype.IndexerParameters;
+        }
+    }
+}

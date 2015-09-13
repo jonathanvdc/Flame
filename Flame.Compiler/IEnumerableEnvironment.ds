@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Flame.Build;
-
+using Flame.Compiler.Build;
 
 namespace Flame.Compiler
 {
-	/// <summary>
+	/*/// <summary>
 	/// Describes an environment that allows for the implementation the enumerable and enumerator patterns.
 	/// </summary>
 	/// <remarks>
@@ -57,5 +57,5 @@ namespace Flame.Compiler
 
 			Environment.ImplementEnumerator(TargetType, ElementType, descMoveNextMethod, descCurrentProperty);
 		}
-	}
+	}*/
 }

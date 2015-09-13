@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Syntax;
 using System;
 using System.Collections.Generic;
@@ -10,21 +11,21 @@ namespace Flame.TextContract
 {
     public class ContractProperty : IPropertyBuilder, ISyntaxNode
     {
-        public ContractProperty(IType DeclaringType, IProperty Template)
+        public ContractProperty(IType DeclaringType, IPropertySignatureTemplate Template)
         {
             this.DeclaringType = DeclaringType;
-            this.Template = Template;
+            this.Template = new PropertySignatureInstance(Template, this);
             this.accessors = new List<ContractAccessor>();
         }
 
-        public IProperty Template { get; private set; }
+        public PropertySignatureInstance Template { get; private set; }
         public IType DeclaringType { get; private set; }
 
         private List<ContractAccessor> accessors;
 
-        public IMethodBuilder DeclareAccessor(IAccessor Template)
+        public IMethodBuilder DeclareAccessor(AccessorType Type, IMethodSignatureTemplate Template)
         {
-            var method = new ContractAccessor(this, Template);
+            var method = new ContractAccessor(this, Type, Template);
             accessors.Add(method);
             return method;
         }
@@ -34,6 +35,11 @@ namespace Flame.TextContract
             return this;
         }
 
+        public void Initialize()
+        {
+            // Do nothing. This back-end does not need `Initialize` to get things done.
+        }
+
         public string FullName
         {
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
@@ -41,7 +47,7 @@ namespace Flame.TextContract
 
         public IEnumerable<IAttribute> Attributes
         {
-            get { return Template.Attributes; }
+            get { return Template.Attributes.Value; }
         }
 
         public string Name
@@ -59,23 +65,23 @@ namespace Flame.TextContract
 
         public IEnumerable<IParameter> IndexerParameters
         {
-            get { return Template.IndexerParameters; }
+            get { return Template.IndexerParameters.Value; }
         }
 
         public IType PropertyType
         {
-            get { return Template.PropertyType; }
+            get { return Template.PropertyType.Value; }
         }
 
         public bool IsStatic
         {
-            get { return Template.IsStatic; }
+            get { return Template.Template.IsStatic; }
         }
 
         public CodeBuilder GetCode()
         {
             CodeBuilder cb = new CodeBuilder();
-            if (Template.get_IsIndexer() && Template.Name == "this")
+            if (this.get_IsIndexer())
             {
                 cb.Append("indexer");
             }

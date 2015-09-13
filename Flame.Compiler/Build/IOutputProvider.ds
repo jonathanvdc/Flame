@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
-namespace Flame.Compiler
+namespace Flame.Compiler.Build
 {
     /// <summary>
     /// Describes a provider of output streams.
@@ -14,23 +14,23 @@ namespace Flame.Compiler
 	    /// Creates an output file for the specified name.
 	    /// </summary>
 		IOutputFile Create(string Name, string Extension);
-		
+
 		/// <summary>
 		/// Creates the default output file.
 		/// </summary>
 		IOutputFile Create();
-		
+
 		/// <summary>
 		/// Gets a boolean value that indicates whether an output stream with the specified name and extension exists.
 		/// </summary>
 		bool Exists(string Name, string Extension);
-		
+
 		/// <summary>
 		/// Gets a boolean value that indicates if the client prefers a single output over many.
 		/// </summary>
 		bool PreferSingleOutput { const get; }
 	}
-	
+
 	/// <summary>
 	/// Represents a file that can be opened for writing.
 	/// </summary>

@@ -10,9 +10,9 @@ namespace Flame.Build
 	public class TypeMappingConverter : TypeTransformerBase
 	{
 		public const this(set IReadOnlyDictionary<IType, IType> Mapping);
-		
+
 		public IReadOnlyDictionary<IType, IType> Mapping { const get; private set; }
-		
+
 		protected override const IType ConvertTypeDefault(IType Type)
 		{
 			if (Mapping.ContainsKey(Type))
@@ -25,20 +25,20 @@ namespace Flame.Build
 			}
 		}
 	}
-	
+
 	/// <summary>
 	/// A type converter that converts type parameters to a type parameter with the same name of a generic member.
 	/// </summary>
 	public class TypeParameterConverter : TypeTransformerBase
 	{
 		public const this(set IGenericMember DeclaringMember);
-		
+
 		public IGenericMember DeclaringMember { const get; private set; }
-		
+
 		protected override const IType ConvertGenericParameter(IGenericParameter Type)
 		{
 			foreach (var item in DeclaringMember.GenericParameters)
-				if (item.Name.Equals(Type.Name))
+				if (item.Name == Type.Name)
 			{
 				return item;
 			}

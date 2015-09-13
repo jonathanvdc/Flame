@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.MIPS.Emit;
 using System;
 using System.Collections.Generic;
@@ -34,7 +35,7 @@ namespace Flame.MIPS
             return asmNs;
         }
 
-        public ITypeBuilder DeclareType(IType Template)
+        public ITypeBuilder DeclareType(ITypeSignatureTemplate Template)
         {
             var asmType = new AssemblerType(this, Template, GlobalState);
             types.Add(asmType);
@@ -44,6 +45,11 @@ namespace Flame.MIPS
         public INamespace Build()
         {
             return this;
+        }
+
+        public void Initialize()
+        {
+            // Do nothing. This back-end does not need `Initialize` to get things done.
         }
 
         public string FullName

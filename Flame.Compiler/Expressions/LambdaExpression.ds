@@ -205,7 +205,11 @@ namespace Flame.Compiler.Expressions
             return CreateLambda(Header.Accept(Visitor), VisitBody(Visitor), BoundHeaderBlock);
         }
 
-        private const bool MatchGetValueExpr(IExpression Value)
+        /// <summary>
+        /// Tests if the given argument is a captured value expression
+        /// that gets one of this lambda expression's captured values.
+        /// </summary>
+        public const bool IsCapturedValueExpression(IExpression Value)
         {
             if (Value is LambdaCapturedValueExpression)
             {
@@ -224,6 +228,10 @@ namespace Flame.Compiler.Expressions
             return new LambdaCapturedValueExpression(captValExpr.Header, BoundHeaderBlock, captValExpr.Index);
         }
 
+        /// <summary>
+        /// Creates a copy of this lambda expression that is not dependent on
+        /// any of this expression instance's data.
+        /// </summary>
         public IExpression Copy()
         {
             var newLambda = new LambdaExpression(Header, Body);
@@ -231,7 +239,7 @@ namespace Flame.Compiler.Expressions
             if (Header.CaptureList.Count == 0)
                 return newLambda; // No dependencies to get rid of in the body.
 
-            var rewriter = new ExpressionRewriter(this.MatchGetValueExpr, newLambda.TransformGetValueExpr);
+            var rewriter = new ExpressionRewriter(this.IsCapturedValueExpression, newLambda.TransformGetValueExpr);
             newLambda.Body = rewriter.Visit(Body);
             return newLambda;
         }

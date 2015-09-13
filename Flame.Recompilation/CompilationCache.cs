@@ -90,21 +90,22 @@ namespace Flame.Recompilation
 
         public T FirstOrDefault(Func<T, bool> Query)
         {
-            bool success;
-            return First(Query, out success);
+            T result;
+            First(Query, out result);
+            return result;
         }
-        public T First(Func<T, bool> Query, out bool Success)
+        public bool First(Func<T, bool> Query, out T Result)
         {
             foreach (var item in cache.Values)
             {
                 if (Query(item))
                 {
-                    Success = true;
-                    return item;
+                    Result = item;
+                    return true;
                 }
             }
-            Success = false;
-            return default(T);
+            Result = default(T);
+            return false;
         }
     }
 }

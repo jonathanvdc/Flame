@@ -20,7 +20,13 @@ namespace Flame.Cecil.Emit
         }
 
         public int Index { get; private set; }
-        public override IType Type { get { return ILCodeGenerator.GetExtendedParameterTypes(CodeGenerator)[Index]; } }
+        public override IType Type
+        {
+            get
+            {
+                return ILCodeGenerator.GetExtendedParameterType(CodeGenerator, Index);
+            }
+        }
 
         public override void EmitLoad(IEmitContext Context)
         {

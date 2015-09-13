@@ -1,5 +1,6 @@
 ﻿using Flame.Binding;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -86,6 +87,11 @@ namespace Flame.Cpp
         public IAssembly Build()
         {
             return this;
+        }
+
+        public void Initialize()
+        {
+            // There's really just nothing to initialize here.
         }
 
         #endregion

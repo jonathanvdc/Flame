@@ -1,5 +1,6 @@
 ﻿using Flame.Binding;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -106,6 +107,11 @@ namespace Flame.Python
         public IBinder CreateBinder()
         {
             return new NamespaceTreeBinder(PythonEnvironment.Instance, RootNamespace);
+        }
+
+        public void Initialize()
+        {
+            // Do nothing. This back-end does not need `Initialize` to get things done.
         }
     }
 }

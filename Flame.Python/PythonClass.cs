@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Compiler.Expressions;
 using Flame.Syntax;
 using System;
@@ -12,15 +13,17 @@ namespace Flame.Python
 {
     public class PythonClass : ITypeBuilder, ISyntaxNode, IDependencyNode
     {
-        public PythonClass(IType Template)
+        public PythonClass(ITypeSignatureTemplate Template, INamespace DeclaringNamespace)
         {
-            this.Template = Template;
+            this.Template = new TypeSignatureInstance(Template, this);
+            this.DeclaringNamespace = DeclaringNamespace;
             this.fields = new List<IField>();
             this.methods = new List<IPythonMethod>();
             this.properties = new List<PythonProperty>();
         }
 
-        public IType Template { get; private set; }
+        public TypeSignatureInstance Template { get; private set; }
+        public INamespace DeclaringNamespace { get; private set; }
 
         #region IType Implementation
 
@@ -29,14 +32,9 @@ namespace Flame.Python
             return null;
         }
 
-        public INamespace DeclaringNamespace
-        {
-            get { return Template.DeclaringNamespace; }
-        }
-
         public IEnumerable<IType> BaseTypes
         {
-            get { return Template.BaseTypes; }
+            get { return Template.BaseTypes.Value; }
         }
 
         private List<IField> fields;
@@ -70,7 +68,7 @@ namespace Flame.Python
 
         public IEnumerable<IAttribute> Attributes
         {
-            get { return Template.Attributes; }
+            get { return Template.Attributes.Value; }
         }
 
         protected IMemberNamer GetMemberNamer()
@@ -80,12 +78,16 @@ namespace Flame.Python
 
         public string Name
         {
-            get { return GetMemberNamer().Name(Template); }
+            get
+            {
+                var descTy = new DescribedType(Template.Name, DeclaringNamespace);
+                return GetMemberNamer().Name(descTy); 
+            }
         }
 
         public IEnumerable<IGenericParameter> GenericParameters
         {
-            get { return Template.GenericParameters; }
+            get { return Template.GenericParameters.Value; }
         }
 
         #endregion
@@ -165,21 +167,21 @@ namespace Flame.Python
 
         #region ITypeBuilder Implementation
 
-        public IFieldBuilder DeclareField(IField Template)
+        public IFieldBuilder DeclareField(IFieldSignatureTemplate Template)
         {
             var field = new PythonField(this, Template);
             fields.Add(field);
             return field;
         }
 
-        public IMethodBuilder DeclareMethod(IMethod Template)
+        public IMethodBuilder DeclareMethod(IMethodSignatureTemplate Template)
         {
             var method = new PythonMethod(this, Template);
             methods.Add(method);
             return method;
         }
 
-        public IPropertyBuilder DeclareProperty(IProperty Template)
+        public IPropertyBuilder DeclareProperty(IPropertySignatureTemplate Template)
         {
             PythonProperty property = new PythonProperty(this, Template);
             this.properties.Add(property);
@@ -202,6 +204,11 @@ namespace Flame.Python
         public IAncestryRules AncestryRules
         {
             get { return DefinitionAncestryRules.Instance; }
+        }
+
+        public void Initialize()
+        {
+            // Do nothing. This back-end does not need `Initialize` to get things done.
         }
     }
 }
