@@ -4,6 +4,7 @@ using Flame.Compiler.Build;
 using Flame.Compiler.Visitors;
 using Flame.Recompilation.Emit;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -844,7 +845,8 @@ namespace Flame.Recompilation
             methodBuilder.Initialize();
             RecompileMethodBody(methodBuilder, Source);
         }
-        private IStatement RecompileMethodBodyCore(IMethodBuilder TargetMethod, IMethod SourceMethod)
+
+        private IStatement GetMethodBodyCore(IMethod SourceMethod)
         {
             if (SourceMethod.get_IsAbstract() || SourceMethod.DeclaringType.get_IsInterface())
             {
@@ -854,36 +856,51 @@ namespace Flame.Recompilation
             var bodyMethod = SourceMethod as IBodyMethod;
             if (bodyMethod == null)
             {
-                throw new NotSupportedException("Method '" + SourceMethod.FullName + "' is not a body method, and could not be recompiled.");
+                return null;
             }
+
             try
             {
-                var result = Passes.OptimizeBody(this, bodyMethod);
-                var bodyStatement = GetStatement(result, TargetMethod);
+                return Passes.OptimizeBody(this, bodyMethod);
+            }
+            catch (Exception ex)
+            {
+                Log.LogError(new LogEntry("Unhandled exception while getting method body", "An unhandled exception was thrown while acquiring the method body of '" + SourceMethod.FullName + "'."));
+                Log.LogException(ex);
+                return null;
+            }
+        }
+
+        private void RecompileMethodBodyCore(IMethodBuilder TargetMethod, IMethod SourceMethod)
+        {
+            var body = GetMethodBody(SourceMethod);
+
+            if (body == null)
+            {
+                Log.LogError(new LogEntry("Recompilation error", "Could not find a method body for '" + SourceMethod.FullName + "'."));
+            }
+
+            try
+            {
+                var bodyStatement = GetStatement(body, TargetMethod);
 
                 var targetBody = TargetMethod.GetBodyGenerator();
                 var block = bodyStatement.Emit(targetBody);
                 TaskManager.RunSequential(TargetMethod.SetMethodBody, block);
 
                 TaskManager.RunSequential<IMethod>(TargetMethod.Build);
-                return result;
             }
             catch (Exception ex)
             {
                 Log.LogError(new LogEntry("Unhandled exception while recompiling method", "An unhandled exception was thrown while recompiling method '" + SourceMethod.FullName + "'."));
                 Log.LogException(ex);
-                throw;
             }
         }
         private void RecompileMethodBody(IMethodBuilder TargetMethod, IMethod SourceMethod)
         {
             if (RecompileBodies)
             {
-                var task = TaskManager.RunAsync(() => RecompileMethodBodyCore(TargetMethod, SourceMethod));
-                if (Settings.RememberBodies && !methodBodies.ContainsKey(TargetMethod))
-                {
-                    methodBodies.Add(TargetMethod, task);
-                }
+                TaskManager.RunAsync(() => RecompileMethodBodyCore(TargetMethod, SourceMethod));
             }
         }
 
@@ -1035,19 +1052,20 @@ namespace Flame.Recompilation
         /// </summary>
         /// <param name="Method"></param>
         /// <returns></returns>
-        /// <remarks>
-        /// This method should only be used by method body passes.
-        /// </remarks>
         public IStatement GetMethodBody(IMethod Method)
         {
-            if (methodBodies.ContainsKey(Method))
-            {
-                return methodBodies[Method];
-            }
-            else
-            {
-                return null;
-            }
+            return GetMethodBodyAsync(Method).Result;
+        }
+
+        /// <summary>
+        /// Tries to retrieve the method body of the given method. If this cannot be
+        /// done, a task containing a null value is returned. This operation may be performed asynchronously.
+        /// </summary>
+        /// <param name="Method"></param>
+        /// <returns></returns>
+        public Task<IStatement> GetMethodBodyAsync(IMethod Method)
+        {
+            return methodBodies.GetOrAdd(Method, null, method => TaskManager.RunAsync(() => GetMethodBodyCore(method)));
         }
 
         #endregion
