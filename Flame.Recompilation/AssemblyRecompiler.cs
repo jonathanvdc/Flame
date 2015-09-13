@@ -877,7 +877,11 @@ namespace Flame.Recompilation
 
             if (body == null)
             {
-                Log.LogError(new LogEntry("Recompilation error", "Could not find a method body for '" + SourceMethod.FullName + "'."));
+                if (!SourceMethod.get_IsAbstract() && !SourceMethod.DeclaringType.get_IsInterface())
+                {
+                    Log.LogError(new LogEntry("Recompilation error", "Could not find a method body for '" + SourceMethod.FullName + "'."));
+                }
+                return;
             }
 
             try
