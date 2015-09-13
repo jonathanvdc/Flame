@@ -116,6 +116,48 @@ namespace Flame.Compiler.Statements
 			return CreateDoWhile(Body.Optimize(), optCond);
 		}
 
+		/// <summary>
+		/// Lowers this do...while block to an equivalent tagged block IR tree.
+		/// </summary>
+		public IStatement Lower()
+		{
+			// "Lower" a do...while block like this:
+			//
+			// do stmt; while (cond)
+			//
+			// ==>
+			//
+			// Case #1: no `continue`
+			//
+			// loop:
+			// {
+			//     stmt;
+			//     if (cond) continue loop;
+			// }
+			//
+			// Case #2: at least one `continue`
+			//
+			// loop:
+			// {
+			//     inner:
+			//     {
+			//         rewrittenStmt; // <-- `continue loop;` in `stmt;`
+			//						  // is rewritten as `break inner;`
+			//     }
+			//     if (cond) continue loop;
+			// }
+
+			var newBody = RewriteContinueToBreak(new BlockTag(), false);
+			var ifContinue = new IfElseStatement(Condition,
+												 new ContinueStatement(Tag));
+			var outerBody = new BlockStatement(new IStatement[]
+			{
+				newBody,
+				ifContinue.Simplify()
+			});
+			return new TaggedStatement(Tag, outerBody);
+		}
+
 		public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
 		{
 			if (Generator is IDoWhileCodeGenerator)
@@ -127,40 +169,7 @@ namespace Flame.Compiler.Statements
 			}
 			else
 			{
-				// "Lower" a do...while block like this:
-				//
-				// do stmt; while (cond)
-				//
-				// ==>
-				//
-				// Case #1: no `continue`
-				//
- 				// loop:
-				// {
-				//     stmt;
-				//     if (cond) continue loop;
-				// }
-				//
-				// Case #2: at least one `continue`
-				//
-				// loop:
-				// {
-				//     inner:
-				//     {
-				//         rewrittenStmt; // <-- `continue loop;` in `stmt;`
-				//						  // is rewritten as `break inner;`
-				//     }
-				//     if (cond) continue loop;
-				// }
-
-				var body = RewriteContinueToBreak(new BlockTag(), false).Emit(Generator);
-				var conditionBlock = Condition.Emit(Generator);
-
-				var continueBlock = Generator.EmitIfElse(conditionBlock,
-														 Generator.EmitContinue(Tag),
-													     Generator.EmitVoid());
-				var seqBlock = Generator.EmitSequence(body, continueBlock);
-				return Generator.EmitTagged(Tag, seqBlock);
+				return Lower().Emit(Generator);
 			}
 		}
 	}

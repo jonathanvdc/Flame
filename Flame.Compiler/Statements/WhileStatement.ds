@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Flame.Compiler.Expressions;
 
 namespace Flame.Compiler.Statements
 {
@@ -70,36 +71,47 @@ namespace Flame.Compiler.Statements
 			return CreateWhile(optCond, optBody);
 		}
 
+		/// <summary>
+		/// Lowers this while block to an equivalent tagged block IR tree.
+		/// </summary>
+		public IStatement Lower()
+		{
+			// "Lower" a while block like this:
+			//
+			// while (cond) stmt;
+			//
+			// ==>
+			//
+			// block:
+			// {
+			//     if (!cond) break block;
+			//     stmt;
+			//     continue block;
+			// }
+
+			var ifBreak = new IfElseStatement(new NotExpression(Condition),
+										      new BreakStatement(Tag));
+			var loopBody = new BlockStatement(new IStatement[]
+			{
+				ifBreak.Simplify(),
+				Body,
+				new ContinueStatement(Tag)
+			});
+			return new TaggedStatement(Tag, loopBody);
+		}
+
 		public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
 		{
-			var conditionBlock = Condition.Emit(Generator);
-			var bodyBlock = Body.Emit(Generator);
 			if (Generator is IWhileCodeGenerator)
 			{
 				var whileCg = (IWhileCodeGenerator)Generator;
+				var conditionBlock = Condition.Emit(whileCg);
+				var bodyBlock = Body.Emit(whileCg);
 				return whileCg.EmitWhile(Tag, conditionBlock, bodyBlock);
 			}
 			else
 			{
-				// "Lower" a while block like this:
-				//
-				// while (cond) stmt;
-				//
-				// ==>
-				//
-				// block:
-				// {
-				//     if (!cond) break block;
-				//     stmt;
-				//     continue block;
-				// }
-
-				var breakBlock = Generator.EmitIfElse(Generator.EmitNot(conditionBlock),
-												      Generator.EmitBreak(Tag),
-													  Generator.EmitVoid());
-				var continueBlock = Generator.EmitContinue(Tag);
-				var seqBlock = Generator.EmitSequence(Generator.EmitSequence(breakBlock, bodyBlock), continueBlock);
-				return Generator.EmitTagged(Tag, seqBlock);
+				return Lower().Emit(Generator);
 			}
 		}
 	}
