@@ -33,7 +33,11 @@ namespace Flame.Cecil
 
         public override bool IsStatic
         {
-            get { return GetResolvedMethod().IsStatic; }
+            get
+            {
+                var resolved = GetResolvedMethod();
+                return resolved == null ? !Method.HasThis : resolved.IsStatic;
+            }
         }
 
         public override bool IsConstructor
@@ -128,7 +132,7 @@ namespace Flame.Cecil
                 }
             }
 
-            return overrides.ToArray();         
+            return overrides.ToArray();
         }
 
         private Lazy<IMethod[]> baseMethods;
