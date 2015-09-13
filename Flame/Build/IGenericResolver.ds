@@ -6,7 +6,7 @@ namespace Flame
 {
     public interface IGenericResolver
     {
-        const IType ResolveTypeParameter(IGenericParameter TypeParameter);
+        IType ResolveTypeParameter(IGenericParameter TypeParameter);
     }
 
     public interface IGenericResolverType : IGenericResolver, IType
