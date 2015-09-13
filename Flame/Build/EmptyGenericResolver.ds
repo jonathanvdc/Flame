@@ -4,10 +4,8 @@ using System.Text;
 
 namespace Flame.Build
 {
-    public class EmptyGenericResolver : IGenericResolver
+    public static class EmptyGenericResolver : IGenericResolver
     {
-    	public const this();
-    
         public const IType ResolveTypeParameter(IGenericParameter TypeParameter)
         {
         	return TypeParameter;
