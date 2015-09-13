@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Flame.Build
 {
@@ -8,38 +9,38 @@ namespace Flame.Build
 	{
 		public const this();
 
-		protected abstract const TTarget MakePointerType(TTarget ElementType, PointerKind Kind);
-		protected abstract const TTarget MakeArrayType(TTarget ElementType, int ArrayRank);
-		protected abstract const TTarget MakeVectorType(TTarget ElementType, IReadOnlyList<int> Dimensions);
-		protected abstract const TTarget MakeGenericType(TTarget GenericDeclaration, [TTarget] TypeArguments);
-		protected abstract const TTarget ConvertTypeDefault(IType Type);
+		protected abstract TTarget MakePointerType(TTarget ElementType, PointerKind Kind);
+		protected abstract TTarget MakeArrayType(TTarget ElementType, int ArrayRank);
+		protected abstract TTarget MakeVectorType(TTarget ElementType, IReadOnlyList<int> Dimensions);
+		protected abstract TTarget MakeGenericType(TTarget GenericDeclaration, [TTarget] TypeArguments);
+		protected abstract TTarget ConvertTypeDefault(IType Type);
 
-		protected virtual const TTarget ConvertPointerType(IPointerType Type)
+		protected virtual TTarget ConvertPointerType(IPointerType Type)
 		{
 			return MakePointerType(Convert(Type.ElementType), Type.PointerKind);
 		}
 
-		protected virtual const TTarget ConvertArrayType(IArrayType Type)
+		protected virtual TTarget ConvertArrayType(IArrayType Type)
 		{
 			return MakeArrayType(Convert(Type.ElementType), Type.ArrayRank);
 		}
 
-		protected virtual const TTarget ConvertVectorType(IVectorType Type)
+		protected virtual TTarget ConvertVectorType(IVectorType Type)
 		{
 			return MakeVectorType(Convert(Type.ElementType), Type.Dimensions);
 		}
 
-		protected virtual const TTarget ConvertGenericParameter(IGenericParameter Type)
+		protected virtual TTarget ConvertGenericParameter(IGenericParameter Type)
 		{
 			return ConvertTypeDefault(Type);
 		}
 
-		protected virtual const TTarget ConvertGenericInstance(IType Type)
+		protected virtual TTarget ConvertGenericInstance(IType Type)
 		{
 			return MakeGenericType(Convert(Type.GetGenericDeclaration()), Convert(Type.GetGenericArguments()));
 		}
 
-		protected virtual const TTarget ConvertTypeDeclaration(IType Type)
+		protected virtual TTarget ConvertTypeDeclaration(IType Type)
 		{
 			if (Type.IsPrimitive)
 			{
@@ -63,17 +64,17 @@ namespace Flame.Build
 			}
 		}
 
-		protected virtual const TTarget ConvertNestedType(IType Type, IType DeclaringType)
+		protected virtual TTarget ConvertNestedType(IType Type, IType DeclaringType)
 		{
 			return ConvertUserType(Type);
 		}
 
-		protected virtual const TTarget ConvertDelegateType(IType Type)
+		protected virtual TTarget ConvertDelegateType(IType Type)
 		{
 			return ConvertUserType(Type);
 		}
 
-		protected virtual const TTarget ConvertIntersectionType(IntersectionType Type)
+		protected virtual TTarget ConvertIntersectionType(IntersectionType Type)
 		{
 			return ConvertTypeDefault(Type);
 		}
@@ -102,27 +103,27 @@ namespace Flame.Build
 			}
 		}
 
-		protected virtual const TTarget ConvertReferenceType(IType Type)
+		protected virtual TTarget ConvertReferenceType(IType Type)
 		{
 			return ConvertTypeDefault(Type);
 		}
 
-		protected virtual const TTarget ConvertValueType(IType Type)
+		protected virtual TTarget ConvertValueType(IType Type)
 		{
 			return ConvertTypeDefault(Type);
 		}
 
-		protected virtual const TTarget ConvertEnumType(IType Type)
+		protected virtual TTarget ConvertEnumType(IType Type)
 		{
 			return ConvertValueType(Type);
 		}
 
-		protected virtual const TTarget ConvertInterfaceType(IType Type)
+		protected virtual TTarget ConvertInterfaceType(IType Type)
 		{
 			return ConvertReferenceType(Type);
 		}
 
-		protected virtual const TTarget ConvertPrimitiveType(IType Type)
+		protected virtual TTarget ConvertPrimitiveType(IType Type)
 		{
 			if (Type.IsValueType)
 			{
@@ -134,17 +135,12 @@ namespace Flame.Build
 			}
 		}
 
-		public const virtual [TTarget] Convert([IType] Values)
+		public virtual [TTarget] Convert([IType] Values)
 		{
-			var types = new List<TTarget>();
-			foreach (var item in Values)
-			{
-				types.Add(Convert(item));
-			}
-			return types;
+			return Enumerable.Select<IType, TTarget>(Values, Convert);
 		}
 
-		public const virtual TTarget Convert(IType Value)
+		public virtual TTarget Convert(IType Value)
 		{
 			if (Value.IsPointer)
 			{
