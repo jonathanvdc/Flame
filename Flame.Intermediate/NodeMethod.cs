@@ -1,0 +1,122 @@
+﻿using Flame.Compiler;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Flame.Intermediate
+{
+    public class NodeMethod : INodeStructure<IMethod>, IMethod, IBodyMethod
+    {
+        public NodeMethod(IType DeclaringType, NodeSignature Signature, bool IsStatic, bool IsConstructor, INodeStructure<IType> ReturnTypeNode)
+        {
+            this.DeclaringType = DeclaringType;
+            this.Signature = Signature;
+            this.IsStatic = IsStatic;
+            this.IsConstructor = IsConstructor;
+            this.ReturnTypeNode = ReturnTypeNode;
+            this.GenericParameterNodes = EmptyNodeList<IGenericParameter>.Instance;
+            this.ParameterNodes = EmptyNodeList<IParameter>.Instance;
+            this.BaseMethodNodes = EmptyNodeList<IMethod>.Instance;
+        }
+
+        // Format:
+        //
+        // #method(#member(name, attrs...), { generic_parameters... }, is_static, return_type, { parameters... }, { base_methods... })
+        //
+        // --OR--
+        //
+        // #method(#member(name, attrs...), { generic_parameters... }, is_static, return_type, { parameters... }, { base_methods... }, body)
+        //
+        // --OR--
+        //
+        // #ctor(#member(name, attrs...), { generic_parameters... }, is_static, return_type, { parameters... }, { base_methods... }, body)
+
+        public IType DeclaringType { get; private set; }
+        public NodeSignature Signature { get; set; }
+        public bool IsStatic { get; set; }
+        public bool IsConstructor { get; set; }
+        public INodeStructure<IEnumerable<IGenericParameter>> GenericParameterNodes { get; set; }
+        public INodeStructure<IType> ReturnTypeNode { get; set; }
+        public INodeStructure<IEnumerable<IParameter>> ParameterNodes { get; set; }
+        public INodeStructure<IEnumerable<IMethod>> BaseMethodNodes { get; set; }
+        public INodeStructure<IStatement> BodyNode { get; set; }
+
+        public IEnumerable<IMethod> BaseMethods
+        {
+            get { return BaseMethodNodes.Value; }
+        }
+
+        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
+        {
+            return null;
+        }
+
+        public IEnumerable<IParameter> Parameters
+        {
+            get { return ParameterNodes.Value; }
+        }
+
+        public IType ReturnType
+        {
+            get { return ReturnTypeNode.Value; }
+        }
+
+        public IEnumerable<IAttribute> Attributes
+        {
+            get { return Signature.Attributes; }
+        }
+
+        public string FullName
+        {
+            get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+        }
+
+        public string Name
+        {
+            get { return Signature.Name; }
+        }
+
+        public IEnumerable<IGenericParameter> GenericParameters
+        {
+            get { return GenericParameterNodes.Value; }
+        }
+
+        public IStatement GetMethodBody()
+        {
+            return BodyNode != null ? BodyNode.Value : null;
+        }
+
+        public const string MethodNodeName = "#method";
+        public const string ConstructorNodeName = "#ctor";
+
+        public Node Node
+        {
+            get
+            {
+                var args = new List<Node>()
+                {
+                    Signature.Node,
+                    GenericParameterNodes.Node,
+                    NodeFactory.Literal(IsStatic),
+                    ReturnTypeNode.Node,
+                    ParameterNodes.Node,
+                    BaseMethodNodes.Node
+                };
+
+                if (BodyNode != null)
+                {
+                    args.Add(BodyNode.Node);
+                }
+
+                return NodeFactory.Call(IsConstructor ? ConstructorNodeName : MethodNodeName, args);
+            }
+        }
+
+        public IMethod Value
+        {
+            get { return this; }
+        }
+    }
+}
