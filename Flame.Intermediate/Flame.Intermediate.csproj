@@ -56,6 +56,7 @@
     <Compile Include="Node.cs" />
     <Compile Include="NodeField.cs" />
     <Compile Include="NodeFactory.cs" />
+    <Compile Include="NodeList.cs" />
     <Compile Include="NodeMethod.cs" />
     <Compile Include="NodeProperty.cs" />
     <Compile Include="NodeSignature.cs" />
