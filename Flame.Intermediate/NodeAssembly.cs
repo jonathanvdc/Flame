@@ -9,6 +9,18 @@ namespace Flame.Intermediate
 {
     public class NodeAssembly : INodeStructure<IAssembly>, IAssembly
     {
+        public NodeAssembly(NodeSignature Signature, IEnvironment Environment)
+            : this(Signature, Environment, new LiteralNodeStructure<Version>(new Version(1, 0, 0, 0)))
+        { }
+        public NodeAssembly(NodeSignature Signature, IEnvironment Environment, 
+            INodeStructure<Version> VersionNode)
+        {
+            this.Environment = Environment;
+            this.Signature = Signature;
+            this.VersionNode = VersionNode;
+            this.EntryPointNode = new LiteralNodeStructure<IMethod>(null);
+            this.RootNamespace = new NodeRootNamespace(this);
+        }
         public NodeAssembly(NodeSignature Signature, IEnvironment Environment, 
             INodeStructure<Version> VersionNode, INodeStructure<IMethod> EntryPointNode, 
             NodeRootNamespace RootNamespace)
