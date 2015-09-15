@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Loyc.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,7 +19,7 @@ namespace Flame.Intermediate
 
         public static EmptyNodeList<T> Instance { get; private set; }
 
-        public Node Node { get { return NodeFactory.Block(new Node[0]); } }
+        public LNode Node { get { return NodeFactory.Block(new LNode[0]); } }
 
         public IReadOnlyList<T> Value
         {

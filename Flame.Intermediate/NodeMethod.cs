@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Loyc.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -91,11 +92,11 @@ namespace Flame.Intermediate
         public const string MethodNodeName = "#method";
         public const string ConstructorNodeName = "#ctor";
 
-        public Node Node
+        public LNode Node
         {
             get
             {
-                var args = new List<Node>()
+                var args = new List<LNode>()
                 {
                     Signature.Node,
                     GenericParameterNodes.Node,

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Loyc.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,7 +17,7 @@ namespace Flame.Intermediate
 
         public IReadOnlyList<INodeStructure<T>> Items { get; private set; }
 
-        public Node Node
+        public LNode Node
         {
             get { return NodeFactory.Block(Items.Select(item => item.Node).ToArray()); }
         }

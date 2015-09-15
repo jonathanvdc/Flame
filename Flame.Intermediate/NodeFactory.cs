@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Loyc;
+using Loyc.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,31 +10,36 @@ namespace Flame.Intermediate
 {
     public static class NodeFactory
     {
-        public const string BlockNodeName = "{}";
-
-        public static Node Id(string Name)
+        static NodeFactory()
         {
-            return new IdNode(Name);
+            factory = new LNodeFactory(new EmptySourceFile("<synthetic>"));
         }
 
-        public static Node Call(string Target, IReadOnlyList<Node> Arguments)
+        private static LNodeFactory factory;
+
+        public static LNode Id(string Name)
         {
-            return new CallNode(Target, Arguments);
+            return factory.Id(Name);
         }
 
-        public static Node Call(Node Target, IReadOnlyList<Node> Arguments)
+        public static LNode Call(string Target, IEnumerable<LNode> Arguments)
         {
-            return new CallNode(Target, Arguments);
+            return factory.Call(GSymbol.Get(Target), Arguments);
         }
 
-        public static Node Literal(object Value)
+        public static LNode Call(LNode Target, IEnumerable<LNode> Arguments)
         {
-            return new LiteralNode(Value);
+            return factory.Call(Target, Arguments);
         }
 
-        public static Node Block(IReadOnlyList<Node> Arguments)
+        public static LNode Literal(object Value)
         {
-            return Call(BlockNodeName, Arguments);
+            return factory.Literal(Value);
+        }
+
+        public static LNode Block(IEnumerable<LNode> Arguments)
+        {
+            return factory.Braces(Arguments);
         }
     }
 }

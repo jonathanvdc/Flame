@@ -1,4 +1,5 @@
 ﻿using Flame.Binding;
+using Loyc.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,11 +75,11 @@ namespace Flame.Intermediate
 
         public const string AssemblyNodeName = "#assembly";
 
-        public Node Node
+        public LNode Node
         {
             get
             {
-                return NodeFactory.Call(AssemblyNodeName, new Node[]
+                return NodeFactory.Call(AssemblyNodeName, new LNode[]
                 {
                     Signature.Node,
                     VersionNode.Node,

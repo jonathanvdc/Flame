@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Loyc.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace Flame.Intermediate
 {
     public interface INodeStructure<out T>
     {
-        Node Node { get; }
+        LNode Node { get; }
         T Value { get; }
     }
 }
