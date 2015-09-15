@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace Flame.Intermediate
 {
-    public class NodeRootNamespace : INamespaceBranch
+    public class IRRootNamespace : INamespaceBranch
     {
-        public NodeRootNamespace(IAssembly DeclaringAssembly)
+        public IRRootNamespace(IAssembly DeclaringAssembly)
         {
             this.DeclaringAssembly = DeclaringAssembly;
             this.TypeNodes = EmptyNodeList<IType>.Instance;
             this.NamespaceNodes = EmptyNodeList<INamespaceBranch>.Instance;
         }
-        public NodeRootNamespace(IAssembly DeclaringAssembly, INodeStructure<IEnumerable<IType>> TypeNodes, INodeStructure<IEnumerable<INamespaceBranch>> NamespaceNodes)
+        public IRRootNamespace(IAssembly DeclaringAssembly, INodeStructure<IEnumerable<IType>> TypeNodes, INodeStructure<IEnumerable<INamespaceBranch>> NamespaceNodes)
         {
             this.DeclaringAssembly = DeclaringAssembly;
             this.TypeNodes = TypeNodes;

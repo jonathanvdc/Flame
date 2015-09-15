@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Flame.Intermediate
 {
-    public class NodeTypeDefinition : INodeStructure<IType>, IType, IInvariantType, INamespaceBranch
+    public class IRTypeDefinition : INodeStructure<IType>, IType, IInvariantType, INamespaceBranch
     {
-        public NodeTypeDefinition(INamespace DeclaringNamespace, NodeSignature Signature)
+        public IRTypeDefinition(INamespace DeclaringNamespace, IRSignature Signature)
         {
             this.DeclaringNamespace = DeclaringNamespace;
             this.Signature = Signature;
@@ -26,7 +26,7 @@ namespace Flame.Intermediate
         // #type_definition(#member(name, attrs...), { generic_parameters... }, { base_types... }, { nested_types... }, { members... })
 
         public INamespace DeclaringNamespace { get; private set; }
-        public NodeSignature Signature { get; set; }
+        public IRSignature Signature { get; set; }
         public INodeStructure<IEnumerable<IGenericParameter>> GenericParameterNodes { get; set; }
         public INodeStructure<IEnumerable<IType>> BaseTypeNodes { get; set; }
         public INodeStructure<IEnumerable<IType>> NestedTypeNodes { get; set; }

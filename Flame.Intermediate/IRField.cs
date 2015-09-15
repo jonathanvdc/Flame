@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace Flame.Intermediate
 {
-    public class NodeField : INodeStructure<IField>, IField, IInitializedField
+    public class IRField : INodeStructure<IField>, IField, IInitializedField
     {
-        public NodeField(IType DeclaringType, NodeSignature Signature, bool IsStatic, INodeStructure<IType> FieldTypeNode)
+        public IRField(IType DeclaringType, IRSignature Signature, bool IsStatic, INodeStructure<IType> FieldTypeNode)
             : this(DeclaringType, Signature, IsStatic, FieldTypeNode, null)
         {
         }
-        public NodeField(IType DeclaringType, NodeSignature Signature, bool IsStatic, INodeStructure<IType> FieldTypeNode, INodeStructure<IExpression> InitialValueNode)
+        public IRField(IType DeclaringType, IRSignature Signature, bool IsStatic, INodeStructure<IType> FieldTypeNode, INodeStructure<IExpression> InitialValueNode)
         {
             this.DeclaringType = DeclaringType;
             this.Signature = Signature;
@@ -33,7 +33,7 @@ namespace Flame.Intermediate
         // #field(#member(name, attrs...), is_static, field_type, initial_value)
 
         public IType DeclaringType { get; private set; }
-        public NodeSignature Signature { get; set; }
+        public IRSignature Signature { get; set; }
         public bool IsStatic { get; set; }
         public INodeStructure<IType> FieldTypeNode { get; set; }
         public INodeStructure<IExpression> InitialValueNode { get; set; }

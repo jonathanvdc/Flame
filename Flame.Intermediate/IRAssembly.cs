@@ -8,23 +8,23 @@ using System.Threading.Tasks;
 
 namespace Flame.Intermediate
 {
-    public class NodeAssembly : INodeStructure<IAssembly>, IAssembly
+    public class IRAssembly : INodeStructure<IAssembly>, IAssembly
     {
-        public NodeAssembly(NodeSignature Signature, IEnvironment Environment)
+        public IRAssembly(IRSignature Signature, IEnvironment Environment)
             : this(Signature, Environment, new LiteralNodeStructure<Version>(new Version(1, 0, 0, 0)))
         { }
-        public NodeAssembly(NodeSignature Signature, IEnvironment Environment, 
+        public IRAssembly(IRSignature Signature, IEnvironment Environment, 
             INodeStructure<Version> VersionNode)
         {
             this.Environment = Environment;
             this.Signature = Signature;
             this.VersionNode = VersionNode;
             this.EntryPointNode = new LiteralNodeStructure<IMethod>(null);
-            this.RootNamespace = new NodeRootNamespace(this);
+            this.RootNamespace = new IRRootNamespace(this);
         }
-        public NodeAssembly(NodeSignature Signature, IEnvironment Environment, 
+        public IRAssembly(IRSignature Signature, IEnvironment Environment, 
             INodeStructure<Version> VersionNode, INodeStructure<IMethod> EntryPointNode, 
-            NodeRootNamespace RootNamespace)
+            IRRootNamespace RootNamespace)
         {
             this.Environment = Environment;
             this.Signature = Signature;
@@ -37,11 +37,11 @@ namespace Flame.Intermediate
         //
         // #assembly(#member(name, attrs...), environment_name, version, entry_point, { types... }, { namespaces... })
 
-        public NodeSignature Signature { get; set; }
+        public IRSignature Signature { get; set; }
         public IEnvironment Environment { get; private set; }
         public INodeStructure<Version> VersionNode { get; set; }
         public INodeStructure<IMethod> EntryPointNode { get; set; }
-        public NodeRootNamespace RootNamespace { get; set; }
+        public IRRootNamespace RootNamespace { get; set; }
 
         public Version AssemblyVersion
         {

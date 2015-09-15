@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Flame.Intermediate
 {
-    public class NodeSignature
+    public class IRSignature
     {
-        public NodeSignature(string Name, IEnumerable<INodeStructure<IAttribute>> AttributeNodes)
+        public IRSignature(string Name, IEnumerable<INodeStructure<IAttribute>> AttributeNodes)
         {
             this.Name = Name;
             this.AttributeNodes = AttributeNodes;

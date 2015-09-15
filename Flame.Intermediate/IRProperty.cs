@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Flame.Intermediate
 {
-    public class NodeProperty : INodeStructure<IProperty>, IProperty
+    public class IRProperty : INodeStructure<IProperty>, IProperty
     {
-        public NodeProperty(IType DeclaringType, NodeSignature Signature, bool IsStatic, INodeStructure<IType> PropertyTypeNode)
+        public IRProperty(IType DeclaringType, IRSignature Signature, bool IsStatic, INodeStructure<IType> PropertyTypeNode)
         {
             this.DeclaringType = DeclaringType;
             this.Signature = Signature;
@@ -24,7 +24,7 @@ namespace Flame.Intermediate
         // #property(#member(name, attrs...), is_static, property_type, { parameters... }, { accessors... })
 
         public IType DeclaringType { get; private set; }
-        public NodeSignature Signature { get; set; }
+        public IRSignature Signature { get; set; }
         public bool IsStatic { get; set; }
         public INodeStructure<IType> PropertyTypeNode { get; set; }
         public INodeStructure<IEnumerable<IParameter>> IndexerParameterNodes { get; set; }

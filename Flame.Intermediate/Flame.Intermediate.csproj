@@ -63,17 +63,20 @@
     <Compile Include="EmptyNodeList.cs" />
     <Compile Include="INodeStructure.cs" />
     <Compile Include="LiteralNodeStructure.cs" />
-    <Compile Include="NodeAssembly.cs" />
-    <Compile Include="NodeField.cs" />
+    <Compile Include="IRAssembly.cs" />
+    <Compile Include="IRField.cs" />
     <Compile Include="NodeFactory.cs" />
     <Compile Include="NodeList.cs" />
-    <Compile Include="NodeMethod.cs" />
-    <Compile Include="NodeNamespace.cs" />
-    <Compile Include="NodeProperty.cs" />
-    <Compile Include="NodeRootNamespace.cs" />
-    <Compile Include="NodeSignature.cs" />
-    <Compile Include="NodeTypeDefinition.cs" />
+    <Compile Include="IRMethod.cs" />
+    <Compile Include="IRNamespace.cs" />
+    <Compile Include="IRProperty.cs" />
+    <Compile Include="IRRootNamespace.cs" />
+    <Compile Include="IRSignature.cs" />
+    <Compile Include="IRTypeDefinition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Parsing\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
