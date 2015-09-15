@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Flame.Intermediate
 {
-    public class NodeMethod : INodeStructure<IMethod>, IMethod, IBodyMethod
+    public class IRMethod : INodeStructure<IMethod>, IMethod, IBodyMethod
     {
-        public NodeMethod(IType DeclaringType, NodeSignature Signature, bool IsStatic, bool IsConstructor, INodeStructure<IType> ReturnTypeNode)
+        public IRMethod(IType DeclaringType, IRSignature Signature, bool IsStatic, bool IsConstructor, INodeStructure<IType> ReturnTypeNode)
         {
             this.DeclaringType = DeclaringType;
             this.Signature = Signature;
@@ -35,7 +35,7 @@ namespace Flame.Intermediate
         // #ctor(#member(name, attrs...), { generic_parameters... }, is_static, return_type, { parameters... }, { base_methods... }, body)
 
         public IType DeclaringType { get; private set; }
-        public NodeSignature Signature { get; set; }
+        public IRSignature Signature { get; set; }
         public bool IsStatic { get; set; }
         public bool IsConstructor { get; set; }
         public INodeStructure<IEnumerable<IGenericParameter>> GenericParameterNodes { get; set; }

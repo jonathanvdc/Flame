@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace Flame.Intermediate
 {
-    public class NodeNamespace : INodeStructure<INamespaceBranch>, INamespaceBranch
+    public class IRNamespace : INodeStructure<INamespaceBranch>, INamespaceBranch
     {
-        public NodeNamespace(INamespace DeclaringNamespace, NodeSignature Signature)
+        public IRNamespace(INamespace DeclaringNamespace, IRSignature Signature)
         {
             this.DeclaringNamespace = DeclaringNamespace;
             this.Signature = Signature;
             this.TypeNodes = EmptyNodeList<IType>.Instance;
             this.NamespaceNodes = EmptyNodeList<INamespaceBranch>.Instance;
         }
-        public NodeNamespace(INamespace DeclaringNamespace, NodeSignature Signature, INodeStructure<IEnumerable<IType>> TypeNodes, INodeStructure<IEnumerable<INamespaceBranch>> NamespaceNodes)
+        public IRNamespace(INamespace DeclaringNamespace, IRSignature Signature, INodeStructure<IEnumerable<IType>> TypeNodes, INodeStructure<IEnumerable<INamespaceBranch>> NamespaceNodes)
         {
             this.DeclaringNamespace = DeclaringNamespace;
             this.Signature = Signature;
@@ -29,7 +29,7 @@ namespace Flame.Intermediate
         // #namespace(#member(name, attrs...), { types... }, { namespaces... })
 
         public INamespace DeclaringNamespace { get; private set; }
-        public NodeSignature Signature { get; set; }
+        public IRSignature Signature { get; set; }
         public INodeStructure<IEnumerable<IType>> TypeNodes { get; set; }
         public INodeStructure<IEnumerable<INamespaceBranch>> NamespaceNodes { get; set; }
 
