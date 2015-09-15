@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Intermediate
 {
-    public class NodeTypeDefinition : INodeStructure<IType>, IType, IInvariantType
+    public class NodeTypeDefinition : INodeStructure<IType>, IType, IInvariantType, INamespaceBranch
     {
         public NodeTypeDefinition(INamespace DeclaringNamespace, NodeSignature Signature)
         {
@@ -16,17 +16,19 @@ namespace Flame.Intermediate
             this.Signature = Signature;
             this.GenericParameterNodes = EmptyNodeList<IGenericParameter>.Instance;
             this.BaseTypeNodes = EmptyNodeList<IType>.Instance;
+            this.NestedTypeNodes = EmptyNodeList<IType>.Instance;
             this.MemberNodes = EmptyNodeList<ITypeMember>.Instance;
         }
 
         // Format:
         //
-        // #type_definition(#member(name, attrs...), { generic_parameters... }, { base_types... }, { members... })
+        // #type_definition(#member(name, attrs...), { generic_parameters... }, { base_types... }, { nested_types... }, { members... })
 
         public INamespace DeclaringNamespace { get; private set; }
         public NodeSignature Signature { get; set; }
         public INodeStructure<IEnumerable<IGenericParameter>> GenericParameterNodes { get; set; }
         public INodeStructure<IEnumerable<IType>> BaseTypeNodes { get; set; }
+        public INodeStructure<IEnumerable<IType>> NestedTypeNodes { get; set; }
         public INodeStructure<IEnumerable<ITypeMember>> MemberNodes { get; set; }
 
         public IAncestryRules AncestryRules
@@ -84,6 +86,21 @@ namespace Flame.Intermediate
             get { return GenericParameterNodes.Value; }
         }
 
+        public IEnumerable<INamespaceBranch> Namespaces
+        {
+            get { return Enumerable.Empty<INamespaceBranch>(); }
+        }
+
+        public IAssembly DeclaringAssembly
+        {
+            get { return DeclaringNamespace.DeclaringAssembly; }
+        }
+
+        public IEnumerable<IType> Types
+        {
+            get { return NestedTypeNodes.Value; }
+        }
+
         public const string TypeDefinitionNodeName = "#type_definition";
 
         public Node Node
@@ -95,6 +112,7 @@ namespace Flame.Intermediate
                     Signature.Node,
                     GenericParameterNodes.Node,
                     BaseTypeNodes.Node,
+                    NestedTypeNodes.Node,
                     MemberNodes.Node
                 });
             }

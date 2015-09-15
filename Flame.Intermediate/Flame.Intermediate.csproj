@@ -58,6 +58,7 @@
     <Compile Include="NodeFactory.cs" />
     <Compile Include="NodeList.cs" />
     <Compile Include="NodeMethod.cs" />
+    <Compile Include="NodeNamespace.cs" />
     <Compile Include="NodeProperty.cs" />
     <Compile Include="NodeSignature.cs" />
     <Compile Include="NodeTypeDefinition.cs" />
