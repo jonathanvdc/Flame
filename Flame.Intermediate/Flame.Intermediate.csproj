@@ -54,12 +54,14 @@
     <Compile Include="INodeStructure.cs" />
     <Compile Include="LiteralNode.cs" />
     <Compile Include="Node.cs" />
+    <Compile Include="NodeAssembly.cs" />
     <Compile Include="NodeField.cs" />
     <Compile Include="NodeFactory.cs" />
     <Compile Include="NodeList.cs" />
     <Compile Include="NodeMethod.cs" />
     <Compile Include="NodeNamespace.cs" />
     <Compile Include="NodeProperty.cs" />
+    <Compile Include="NodeRootNamespace.cs" />
     <Compile Include="NodeSignature.cs" />
     <Compile Include="NodeTypeDefinition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

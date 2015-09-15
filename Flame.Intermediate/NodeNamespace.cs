@@ -8,6 +8,13 @@ namespace Flame.Intermediate
 {
     public class NodeNamespace : INodeStructure<INamespaceBranch>, INamespaceBranch
     {
+        public NodeNamespace(INamespace DeclaringNamespace, NodeSignature Signature)
+        {
+            this.DeclaringNamespace = DeclaringNamespace;
+            this.Signature = Signature;
+            this.TypeNodes = EmptyNodeList<IType>.Instance;
+            this.NamespaceNodes = EmptyNodeList<INamespaceBranch>.Instance;
+        }
         public NodeNamespace(INamespace DeclaringNamespace, NodeSignature Signature, INodeStructure<IEnumerable<IType>> TypeNodes, INodeStructure<IEnumerable<INamespaceBranch>> NamespaceNodes)
         {
             this.DeclaringNamespace = DeclaringNamespace;
