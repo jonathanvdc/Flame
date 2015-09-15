@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Loyc.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,11 +21,11 @@ namespace Flame.Intermediate
 
         public const string MemberNodeName = "#member";
 
-        public Node Node
+        public LNode Node
         {
             get
             {
-                var args = new List<Node>();
+                var args = new List<LNode>();
                 args.Add(NodeFactory.Id(Name));
                 args.AddRange(AttributeNodes.Select(item => item.Node));
                 return NodeFactory.Call(MemberNodeName, args);

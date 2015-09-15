@@ -1,5 +1,6 @@
 ﻿using Flame.Compiler;
 using Flame.Compiler.Build;
+using Loyc.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,11 +60,11 @@ namespace Flame.Intermediate
 
         public const string FieldNodeName = "#field";
 
-        public Node Node
+        public LNode Node
         {
             get 
             {
-                var args = new List<Node>();
+                var args = new List<LNode>();
                 args.Add(Signature.Node);
                 args.Add(NodeFactory.Literal(IsStatic));
                 args.Add(FieldTypeNode.Node);

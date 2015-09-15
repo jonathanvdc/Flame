@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Loyc.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -103,11 +104,11 @@ namespace Flame.Intermediate
 
         public const string TypeDefinitionNodeName = "#type_definition";
 
-        public Node Node
+        public LNode Node
         {
             get 
             {
-                return NodeFactory.Call(TypeDefinitionNodeName, new Node[]
+                return NodeFactory.Call(TypeDefinitionNodeName, new LNode[]
                 {
                     Signature.Node,
                     GenericParameterNodes.Node,

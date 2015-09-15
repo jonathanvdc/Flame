@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Loyc.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -61,11 +62,11 @@ namespace Flame.Intermediate
 
         public const string PropertyNodeName = "#property";
 
-        public Node Node
+        public LNode Node
         {
             get
             {
-                return NodeFactory.Call(PropertyNodeName, new Node[]
+                return NodeFactory.Call(PropertyNodeName, new LNode[]
                 {
                     Signature.Node,
                     NodeFactory.Literal(IsStatic),
