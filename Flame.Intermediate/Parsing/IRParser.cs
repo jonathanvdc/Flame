@@ -1,4 +1,5 @@
-﻿using Loyc.Syntax;
+﻿using Flame.Build;
+using Loyc.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,23 @@ namespace Flame.Intermediate.Parsing
 
     public class IRParser
     {
+        #region Static
+
         public const string DependencyNodeName = "#external_dependency";
+        public const string TypeTableName = "#type_table";
+        public const string MethodTableName = "#method_table";
+        public const string FieldTableName = "#field_table";
+
+        public const string TypeReferenceName = "#type_reference";
+        public const string FieldReferenceName = "#field_reference";
+        public const string MethodReferenceName = "#method_reference";
+        public const string GenericInstanceName = "#of";
+
+        public const string TypeTableReferenceName = "#type_table_reference";
+        public const string FieldTableReferenceName = "#field_table_reference";
+        public const string MethodTableReferenceName = "#method_table_reference";
+
+        #region Table/Set Parsing
 
         /// <summary>
         /// Searches the given sequence of top-level nodes for the given table type,
@@ -72,5 +89,172 @@ namespace Flame.Intermediate.Parsing
         {
             return ParseSet(Nodes, DependencyNodeName, item => item.Name.Name);
         }
+
+        #endregion
+
+        #region Reference Parsing
+
+        public static INodeStructure<IType> ParseTypeTableReference(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #type_table_reference(index)
+
+            return new LazyNodeStructure<IType>(Node, () => State.Header.TypeTable[Convert.ToInt32(Node.Args.Single().Value)].Value);
+        }
+
+        public static INodeStructure<IType> ParseTypeSignatureReference(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #type_reference("name")
+
+            return new LazyNodeStructure<IType>(Node, () => State.Binder.BindType((string)Node.Args.Single().Value));
+        }
+
+        public static INodeStructure<IType> ParseGenericTypeInstance(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #of(type_definition, type_arguments)
+
+            return new LazyNodeStructure<IType>(Node, () =>
+            {
+                var genDef = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
+                var tyArgs = Node.Args.Skip(1).Select(item => State.Parser.TypeReferenceParser.Parse(State, item).Value);
+                return genDef.MakeGenericType(tyArgs);
+            });
+        }
+
+        public static INodeStructure<IField> ParseFieldTableReference(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #field_table_reference(index)
+
+            return new LazyNodeStructure<IField>(Node, () => State.Header.FieldTable[Convert.ToInt32(Node.Args.Single().Value)].Value);
+        }
+
+        public static INodeStructure<IField> ParseFieldSignatureReference(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #field_reference(declaring_type, name, is_static)
+
+            return new LazyNodeStructure<IField>(Node, () =>
+            {
+                var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
+                string fieldName = (string)Node.Args[1].Value;
+                bool isStatic = (bool)Node.Args[2].Value;
+                return declType.GetField(fieldName, isStatic);
+            });
+        }
+
+        public static INodeStructure<IMethod> ParseMethodTableReference(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #method_table_reference(index)
+
+            return new LazyNodeStructure<IMethod>(Node, () => State.Header.MethodTable[Convert.ToInt32(Node.Args.Single().Value)].Value);
+        }
+
+        public static INodeStructure<IMethod> ParseMethodSignatureReference(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #method_reference(declaring_type, name, is_static, { generic_parameters... }, return_type, { parameter_types... })
+
+            return new LazyNodeStructure<IMethod>(Node, () =>
+            {
+                var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
+                string methodName = (string)Node.Args[1].Value;
+                var descMethod = new DescribedMethod(methodName, declType);
+                descMethod.IsStatic = (bool)Node.Args[2].Value;
+
+                // TODO: implement generic parameter parsing, parse return and parameter types
+                throw new NotImplementedException();
+            });
+        }
+
+        #endregion
+
+        #region Default Parsers
+
+        public static ReferenceParser<IType> DefaultTypeReferenceParser
+        {
+            get
+            {
+                return new ReferenceParser<IType>(new Dictionary<string, Func<ParserState, LNode, INodeStructure<IType>>>()
+                {
+                    { TypeReferenceName, ParseTypeSignatureReference },
+                    { TypeTableReferenceName, ParseTypeTableReference },
+                    { GenericInstanceName, ParseGenericTypeInstance }
+                });
+            }
+        }
+
+        public static ReferenceParser<IField> DefaultFieldReferenceParser
+        {
+            get
+            {
+                return new ReferenceParser<IField>(new Dictionary<string, Func<ParserState, LNode, INodeStructure<IField>>>()
+                {
+                    { FieldReferenceName, ParseFieldSignatureReference },
+                    { FieldTableReferenceName, ParseFieldTableReference }
+                });
+            }
+        }
+
+        public static ReferenceParser<IMethod> DefaultMethodReferenceParser
+        {
+            get
+            {
+                return new ReferenceParser<IMethod>(new Dictionary<string, Func<ParserState, LNode, INodeStructure<IMethod>>>()
+                {
+                    { MethodReferenceName, ParseMethodSignatureReference },
+                    { MethodTableReferenceName, ParseMethodTableReference }
+                });
+            }
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Constructors
+
+        public IRParser(ReferenceParser<IType> TypeReferenceParser, ReferenceParser<IField> FieldReferenceParser, 
+                        ReferenceParser<IMethod> MethodReferenceParser,
+                        DefinitionParser<INamespace, IType> TypeDefinitionParser, DefinitionParser<IType, IField> FieldDefinitionParser, 
+                        DefinitionParser<IType, IMethod> MethodDefinitionParser, DefinitionParser<IType, IProperty> PropertyDefinitionParser)
+        {
+            this.TypeReferenceParser = TypeReferenceParser;
+            this.FieldReferenceParser = FieldReferenceParser;
+            this.MethodReferenceParser = MethodReferenceParser;
+            this.TypeDefinitionParser = TypeDefinitionParser;
+            this.FieldDefinitionParser = FieldDefinitionParser;
+            this.MethodDefinitionParser = MethodDefinitionParser;
+            this.PropertyDefinitionParser = PropertyDefinitionParser;
+        }
+
+        #endregion
+
+        #region Properties
+
+        public ReferenceParser<IType> TypeReferenceParser { get; private set; }
+        public ReferenceParser<IField> FieldReferenceParser { get; private set; }
+        public ReferenceParser<IMethod> MethodReferenceParser { get; private set; }
+
+        public DefinitionParser<INamespace, IType> TypeDefinitionParser { get; private set; }
+        public DefinitionParser<IType, IField> FieldDefinitionParser { get; private set; }
+        public DefinitionParser<IType, IMethod> MethodDefinitionParser { get; private set; }
+        public DefinitionParser<IType, IProperty> PropertyDefinitionParser { get; private set; }
+        
+        #endregion
+
+        #region Methods
+
+        #endregion
     }
 }

@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="EmptyNodeList.cs" />
     <Compile Include="INodeStructure.cs" />
+    <Compile Include="LazyNodeStructure.cs" />
     <Compile Include="LiteralNodeStructure.cs" />
     <Compile Include="IRAssembly.cs" />
     <Compile Include="IRField.cs" />
@@ -73,7 +74,10 @@
     <Compile Include="IRRootNamespace.cs" />
     <Compile Include="IRSignature.cs" />
     <Compile Include="IRTypeDefinition.cs" />
+    <Compile Include="Parsing\DefinitionParser.cs" />
     <Compile Include="Parsing\IRParser.cs" />
+    <Compile Include="Parsing\ImmutableHeader.cs" />
+    <Compile Include="Parsing\ReferenceParser.cs" />
     <Compile Include="Parsing\ParserState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
