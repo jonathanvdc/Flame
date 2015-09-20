@@ -16,7 +16,7 @@ namespace Flame.Intermediate.Parsing
 
     public class IRParser
     {
-        public const string DependencyNodeName = "#external_dependencies";
+        public const string DependencyNodeName = "#external_dependency";
 
         /// <summary>
         /// Searches the given sequence of top-level nodes for the given table type,
