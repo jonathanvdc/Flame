@@ -163,7 +163,7 @@ namespace Flame.Intermediate.Parsing
         {
             // Format:
             //
-            // #method_reference(declaring_type, name, is_static, { generic_parameters... }, return_type, { parameter_types... })
+            // #method_reference(declaring_type, name, is_static, { generic_parameters_names... }, return_type, { parameter_types... })
 
             return new LazyNodeStructure<IMethod>(Node, () =>
             {
@@ -171,9 +171,17 @@ namespace Flame.Intermediate.Parsing
                 string methodName = (string)Node.Args[1].Value;
                 var descMethod = new DescribedMethod(methodName, declType);
                 descMethod.IsStatic = (bool)Node.Args[2].Value;
-
-                // TODO: implement generic parameter parsing, parse return and parameter types
-                throw new NotImplementedException();
+                foreach (var item in Node.Args[3].Args)
+                {
+                    descMethod.AddGenericParameter(new DescribedGenericParameter(item.Name.Name, descMethod));
+                }
+                var genericParser = State.Parser.TypeReferenceParser.WithParser("#generic_parameter", (state, elem) => new LazyNodeStructure<IType>(elem, () => descMethod.GenericParameters.ElementAt(Convert.ToInt32(elem.Args.Single().Value))));
+                descMethod.ReturnType = genericParser.Parse(State, Node.Args[4]).Value;
+                foreach (var item in Node.Args[5].Args.Select((x, i) => new KeyValuePair<int, LNode>(i, x)))
+                {
+                    descMethod.AddParameter(new DescribedParameter("arg" + item.Key, genericParser.Parse(State, item.Value).Value));
+                }
+                return declType.Methods.GetMethod(descMethod);
             });
         }
 
@@ -226,16 +234,13 @@ namespace Flame.Intermediate.Parsing
 
         public IRParser(ReferenceParser<IType> TypeReferenceParser, ReferenceParser<IField> FieldReferenceParser, 
                         ReferenceParser<IMethod> MethodReferenceParser,
-                        DefinitionParser<INamespace, IType> TypeDefinitionParser, DefinitionParser<IType, IField> FieldDefinitionParser, 
-                        DefinitionParser<IType, IMethod> MethodDefinitionParser, DefinitionParser<IType, IProperty> PropertyDefinitionParser)
+                        DefinitionParser<INamespace, IType> TypeDefinitionParser, DefinitionParser<IType, ITypeMember> TypeMemberParser)
         {
             this.TypeReferenceParser = TypeReferenceParser;
             this.FieldReferenceParser = FieldReferenceParser;
             this.MethodReferenceParser = MethodReferenceParser;
             this.TypeDefinitionParser = TypeDefinitionParser;
-            this.FieldDefinitionParser = FieldDefinitionParser;
-            this.MethodDefinitionParser = MethodDefinitionParser;
-            this.PropertyDefinitionParser = PropertyDefinitionParser;
+            this.TypeMemberParser = TypeMemberParser;
         }
 
         #endregion
@@ -247,9 +252,7 @@ namespace Flame.Intermediate.Parsing
         public ReferenceParser<IMethod> MethodReferenceParser { get; private set; }
 
         public DefinitionParser<INamespace, IType> TypeDefinitionParser { get; private set; }
-        public DefinitionParser<IType, IField> FieldDefinitionParser { get; private set; }
-        public DefinitionParser<IType, IMethod> MethodDefinitionParser { get; private set; }
-        public DefinitionParser<IType, IProperty> PropertyDefinitionParser { get; private set; }
+        public DefinitionParser<IType, ITypeMember> TypeMemberParser { get; private set; }
         
         #endregion
 
