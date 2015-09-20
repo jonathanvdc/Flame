@@ -33,6 +33,8 @@ namespace Flame.Intermediate.Parsing
         public const string FieldTableReferenceName = "#field_table_reference";
         public const string MethodTableReferenceName = "#method_table_reference";
 
+        public const string GenericParameterReferenceName = "#generic_parameter_reference";
+
         #region Table/Set Parsing
 
         /// <summary>
@@ -175,13 +177,27 @@ namespace Flame.Intermediate.Parsing
                 {
                     descMethod.AddGenericParameter(new DescribedGenericParameter(item.Name.Name, descMethod));
                 }
-                var genericParser = State.Parser.TypeReferenceParser.WithParser("#generic_parameter", (state, elem) => new LazyNodeStructure<IType>(elem, () => descMethod.GenericParameters.ElementAt(Convert.ToInt32(elem.Args.Single().Value))));
+                var genericParser = State.Parser.TypeReferenceParser.WithParser(GenericParameterReferenceName, (state, elem) => new LazyNodeStructure<IType>(elem, () => descMethod.GenericParameters.ElementAt(Convert.ToInt32(elem.Args.Single().Value))));
                 descMethod.ReturnType = genericParser.Parse(State, Node.Args[4]).Value;
                 foreach (var item in Node.Args[5].Args.Select((x, i) => new KeyValuePair<int, LNode>(i, x)))
                 {
                     descMethod.AddParameter(new DescribedParameter("arg" + item.Key, genericParser.Parse(State, item.Value).Value));
                 }
                 return declType.Methods.GetMethod(descMethod);
+            });
+        }
+
+        public static INodeStructure<IMethod> ParseGenericMethodInstance(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #of(type_definition, type_arguments)
+
+            return new LazyNodeStructure<IMethod>(Node, () =>
+            {
+                var genDef = State.Parser.MethodReferenceParser.Parse(State, Node.Args[0]).Value;
+                var tyArgs = Node.Args.Skip(1).Select(item => State.Parser.TypeReferenceParser.Parse(State, item).Value);
+                return genDef.MakeGenericMethod(tyArgs);
             });
         }
 
@@ -221,7 +237,8 @@ namespace Flame.Intermediate.Parsing
                 return new ReferenceParser<IMethod>(new Dictionary<string, Func<ParserState, LNode, INodeStructure<IMethod>>>()
                 {
                     { MethodReferenceName, ParseMethodSignatureReference },
-                    { MethodTableReferenceName, ParseMethodTableReference }
+                    { MethodTableReferenceName, ParseMethodTableReference },
+                    { GenericInstanceName, ParseGenericMethodInstance }
                 });
             }
         }
