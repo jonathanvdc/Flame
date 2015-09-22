@@ -50,6 +50,11 @@ namespace Flame.Intermediate.Parsing
         public const string PointerTypeName = "#pointer_type";
         public const string VectorTypeName = "#vector_type";
 
+        public const string RootTypeName = "#root_type";
+        public const string IterableTypeName = "#iterable_type";
+        public const string IteratorTypeName = "#iterator_type";
+        public const string PrimitiveTypeName = "#primitive_type";
+
         #region Table/Set Parsing
 
         /// <summary>
@@ -140,7 +145,7 @@ namespace Flame.Intermediate.Parsing
         {
             // Format:
             //
-            // #type_reference("name")
+            // #type_reference("full_name")
 
             return new LazyNodeStructure<IType>(Node, () => State.Binder.BindType((string)Node.Args.Single().Value));
         }
@@ -212,6 +217,23 @@ namespace Flame.Intermediate.Parsing
                 var elemType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 var ptrKind = PointerKind.Register((string)Node.Args[1].Value);
                 return elemType.MakePointerType(ptrKind);
+            });
+        }
+
+        public static INodeStructure<IType> ParsePrimitiveType(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #primitive_type("name")
+
+            return new LazyNodeStructure<IType>(Node, () => PrimitiveTypes.GetPrimitives().First(item => item.Name == (string)Node.Args[0].Value));
+        }
+
+        public static Func<ParserState, LNode, INodeStructure<IType>> CreateEnvironmentTypeParser(Func<IEnvironment, IType> TypeFactory)
+        {
+            return new Func<ParserState, LNode, INodeStructure<IType>>((state, node) =>
+            {
+                return new LazyNodeStructure<IType>(node, () => TypeFactory(state.Environment));
             });
         }
 
@@ -339,6 +361,10 @@ namespace Flame.Intermediate.Parsing
                     { TypeReferenceName, ParseTypeSignatureReference },
                     { TypeTableReferenceName, ParseTypeTableReference },
                     { NestedTypeName, ParseNestedTypeReference },
+                    { RootTypeName, CreateEnvironmentTypeParser(env => env.RootType) },
+                    { IterableTypeName, CreateEnvironmentTypeParser(env => env.EnumerableType) },
+                    { IteratorTypeName, CreateEnvironmentTypeParser(env => env.EnumeratorType) },
+                    { PrimitiveTypeName, ParsePrimitiveType },
                     { GenericInstanceName, ParseGenericTypeInstance },
                     { GenericInstanceMemberName, ParseGenericInstanceType },
                     { ArrayTypeName, ParseArrayType },
