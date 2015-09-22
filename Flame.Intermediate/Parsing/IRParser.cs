@@ -25,6 +25,7 @@ namespace Flame.Intermediate.Parsing
         public const string FieldTableName = "#field_table";
 
         public const string TypeReferenceName = "#type_reference";
+        public const string NestedTypeReferenceName = "#nested_type_reference";
         public const string FieldReferenceName = "#field_reference";
         public const string MethodReferenceName = "#method_reference";
         public const string GenericInstanceName = "#of";
@@ -103,6 +104,20 @@ namespace Flame.Intermediate.Parsing
             // #type_table_reference(index)
 
             return new LazyNodeStructure<IType>(Node, () => State.Header.TypeTable[Convert.ToInt32(Node.Args.Single().Value)].Value);
+        }
+
+        public static INodeStructure<IType> ParseNestedTypeReference(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #nested_type_reference(declaring_type, "name")
+
+            return new LazyNodeStructure<IType>(Node, () =>
+            {
+                var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]);
+                string name = (string)Node.Args[1].Value;
+                return ((INamespace)declType).Types.First(item => item.Name == name);
+            });
         }
 
         public static INodeStructure<IType> ParseTypeSignatureReference(ParserState State, LNode Node)
@@ -213,7 +228,8 @@ namespace Flame.Intermediate.Parsing
                 {
                     { TypeReferenceName, ParseTypeSignatureReference },
                     { TypeTableReferenceName, ParseTypeTableReference },
-                    { GenericInstanceName, ParseGenericTypeInstance }
+                    { GenericInstanceName, ParseGenericTypeInstance },
+                    { NestedTypeReferenceName, ParseNestedTypeReference }
                 });
             }
         }
