@@ -21,6 +21,8 @@ namespace Flame.Intermediate.Parsing
         public ImmutableHeader Header { get; private set; }
         public IRAssembly Assembly { get; private set; }
 
+        public IEnvironment Environment { get { return Assembly.Environment; } }
+
         private Lazy<IBinder> cachedBinder;
         public IBinder Binder { get { return cachedBinder.Value; } }
     }
