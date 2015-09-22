@@ -25,16 +25,30 @@ namespace Flame.Intermediate.Parsing
         public const string FieldTableName = "#field_table";
 
         public const string TypeReferenceName = "#type_reference";
-        public const string NestedTypeReferenceName = "#nested_type_reference";
+        
         public const string FieldReferenceName = "#field_reference";
         public const string MethodReferenceName = "#method_reference";
+
+        /// <summary>
+        /// An identifier for generic instances.
+        /// </summary>
         public const string GenericInstanceName = "#of";
+
+        /// <summary>
+        /// An identifier for members whose declaring member is a generic instance.
+        /// </summary>
+        public const string GenericInstanceMemberName = "#of_member";
 
         public const string TypeTableReferenceName = "#type_table_reference";
         public const string FieldTableReferenceName = "#field_table_reference";
         public const string MethodTableReferenceName = "#method_table_reference";
 
         public const string GenericParameterReferenceName = "#generic_parameter_reference";
+
+        public const string NestedTypeName = "#nested_type";
+        public const string ArrayTypeName = "#array_type";
+        public const string PointerTypeName = "#pointer_type";
+        public const string VectorTypeName = "#vector_type";
 
         #region Table/Set Parsing
 
@@ -97,6 +111,8 @@ namespace Flame.Intermediate.Parsing
 
         #region Reference Parsing
 
+        #region Types
+
         public static INodeStructure<IType> ParseTypeTableReference(ParserState State, LNode Node)
         {
             // Format:
@@ -110,7 +126,7 @@ namespace Flame.Intermediate.Parsing
         {
             // Format:
             //
-            // #nested_type_reference(declaring_type, "name")
+            // #nested_type(declaring_type, "name")
 
             return new LazyNodeStructure<IType>(Node, () =>
             {
@@ -143,6 +159,66 @@ namespace Flame.Intermediate.Parsing
             });
         }
 
+        public static INodeStructure<IType> ParseGenericInstanceType(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #of_member(declaring_type, type_definition)
+
+            return new LazyNodeStructure<IType>(Node, () =>
+            {
+                var declType = (GenericTypeBase)State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
+                var defType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[1]).Value;
+                return new GenericInstanceType(defType, declType.Resolver, declType);
+            });
+        }
+
+        public static INodeStructure<IType> ParseArrayType(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #array_type(element_type, dimensions)
+
+            return new LazyNodeStructure<IType>(Node, () =>
+            {
+                var elemType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
+                int dims = Convert.ToInt32(Node.Args[1].Value);
+                return elemType.MakeArrayType(dims);
+            });
+        }
+
+        public static INodeStructure<IType> ParseVectorType(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #vector_type(element_type, dimensions...)
+
+            return new LazyNodeStructure<IType>(Node, () =>
+            {
+                var elemType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
+                int[] dims = Node.Args.Skip(1).Select(item => Convert.ToInt32(item.Value)).ToArray();
+                return elemType.MakeVectorType(dims);
+            });
+        }
+
+        public static INodeStructure<IType> ParsePointerType(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #pointer_type(element_type, pointer_kind)
+
+            return new LazyNodeStructure<IType>(Node, () =>
+            {
+                var elemType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
+                var ptrKind = PointerKind.Register((string)Node.Args[1].Value);
+                return elemType.MakePointerType(ptrKind);
+            });
+        }
+
+        #endregion
+
+        #region Fields
+
         public static INodeStructure<IField> ParseFieldTableReference(ParserState State, LNode Node)
         {
             // Format:
@@ -166,6 +242,24 @@ namespace Flame.Intermediate.Parsing
                 return declType.GetField(fieldName, isStatic);
             });
         }
+
+        public static INodeStructure<IField> ParseGenericInstanceField(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #of_member(declaring_type, field_definition)
+
+            return new LazyNodeStructure<IField>(Node, () =>
+            {
+                var declType = (GenericTypeBase)State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
+                var defField = State.Parser.FieldReferenceParser.Parse(State, Node.Args[1]).Value;
+                return new GenericInstanceField(defField, declType.Resolver, declType);
+            });
+        }
+
+        #endregion
+
+        #region Methods
 
         public static INodeStructure<IMethod> ParseMethodTableReference(ParserState State, LNode Node)
         {
@@ -216,6 +310,22 @@ namespace Flame.Intermediate.Parsing
             });
         }
 
+        public static INodeStructure<IMethod> ParseGenericInstanceMethod(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #of_member(declaring_type, method_definition)
+
+            return new LazyNodeStructure<IMethod>(Node, () =>
+            {
+                var declType = (GenericTypeBase)State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
+                var defField = State.Parser.MethodReferenceParser.Parse(State, Node.Args[1]).Value;
+                return new GenericInstanceMethod(defField, declType.Resolver, declType);
+            });
+        }
+
+        #endregion
+
         #endregion
 
         #region Default Parsers
@@ -228,8 +338,12 @@ namespace Flame.Intermediate.Parsing
                 {
                     { TypeReferenceName, ParseTypeSignatureReference },
                     { TypeTableReferenceName, ParseTypeTableReference },
+                    { NestedTypeName, ParseNestedTypeReference },
                     { GenericInstanceName, ParseGenericTypeInstance },
-                    { NestedTypeReferenceName, ParseNestedTypeReference }
+                    { GenericInstanceMemberName, ParseGenericInstanceType },
+                    { ArrayTypeName, ParseArrayType },
+                    { PointerTypeName, ParsePointerType },
+                    { VectorTypeName, ParseVectorType }
                 });
             }
         }
@@ -241,7 +355,8 @@ namespace Flame.Intermediate.Parsing
                 return new ReferenceParser<IField>(new Dictionary<string, Func<ParserState, LNode, INodeStructure<IField>>>()
                 {
                     { FieldReferenceName, ParseFieldSignatureReference },
-                    { FieldTableReferenceName, ParseFieldTableReference }
+                    { FieldTableReferenceName, ParseFieldTableReference },
+                    { GenericInstanceMemberName, ParseGenericInstanceField }
                 });
             }
         }
@@ -254,7 +369,8 @@ namespace Flame.Intermediate.Parsing
                 {
                     { MethodReferenceName, ParseMethodSignatureReference },
                     { MethodTableReferenceName, ParseMethodTableReference },
-                    { GenericInstanceName, ParseGenericMethodInstance }
+                    { GenericInstanceName, ParseGenericMethodInstance },
+                    { GenericInstanceMemberName, ParseGenericInstanceMethod }
                 });
             }
         }
