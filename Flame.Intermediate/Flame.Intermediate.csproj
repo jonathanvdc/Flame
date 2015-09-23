@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="EmptyNodeList.cs" />
     <Compile Include="INodeStructure.cs" />
+    <Compile Include="IRGenericParameter.cs" />
     <Compile Include="LazyNodeStructure.cs" />
     <Compile Include="LiteralNodeStructure.cs" />
     <Compile Include="IRAssembly.cs" />

@@ -43,7 +43,9 @@ namespace Flame.Intermediate.Parsing
         public const string FieldTableReferenceName = "#field_table_reference";
         public const string MethodTableReferenceName = "#method_table_reference";
 
-        public const string GenericParameterReferenceName = "#generic_parameter_reference";
+        public const string LocalGenericParameterReferenceName = "#local_generic_parameter";
+        public const string MethodGenericParameterReferenceName = "#method_generic_parameter";
+        public const string TypeGenericParmaterReferenceName = "#type_generic_parameter";
 
         public const string NestedTypeName = "#nested_type";
         public const string ArrayTypeName = "#array_type";
@@ -148,6 +150,32 @@ namespace Flame.Intermediate.Parsing
             // #type_reference("full_name")
 
             return new LazyNodeStructure<IType>(Node, () => State.Binder.BindType((string)Node.Args.Single().Value));
+        }
+
+        public static INodeStructure<IType> ParseMethodGenericParameterReference(ParserState State, LNode Node)
+        {
+            // Format:
+            // 
+            // #method_generic_parameter(declaring_method, index)
+            return new LazyNodeStructure<IType>(Node, () =>
+            {
+                var declMethod = State.Parser.MethodReferenceParser.Parse(State, Node.Args[0]).Value;
+                int index = Convert.ToInt32(Node.Args[1].Value);
+                return declMethod.GenericParameters.ElementAt(index);
+            });
+        }
+
+        public static INodeStructure<IType> ParseTypeGenericParameterReference(ParserState State, LNode Node)
+        {
+            // Format:
+            // 
+            // #type_generic_parameter(declaring_type, index)
+            return new LazyNodeStructure<IType>(Node, () =>
+            {
+                var declMethod = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
+                int index = Convert.ToInt32(Node.Args[1].Value);
+                return declMethod.GenericParameters.ElementAt(index);
+            });
         }
 
         public static INodeStructure<IType> ParseGenericTypeInstance(ParserState State, LNode Node)
@@ -308,7 +336,7 @@ namespace Flame.Intermediate.Parsing
                 {
                     descMethod.AddGenericParameter(new DescribedGenericParameter(item.Name.Name, descMethod));
                 }
-                var genericParser = State.Parser.TypeReferenceParser.WithParser(GenericParameterReferenceName, (state, elem) => new LazyNodeStructure<IType>(elem, () => descMethod.GenericParameters.ElementAt(Convert.ToInt32(elem.Args.Single().Value))));
+                var genericParser = State.Parser.TypeReferenceParser.WithParser(LocalGenericParameterReferenceName, (state, elem) => new LazyNodeStructure<IType>(elem, () => descMethod.GenericParameters.ElementAt(Convert.ToInt32(elem.Args.Single().Value))));
                 descMethod.ReturnType = genericParser.Parse(State, Node.Args[4]).Value;
                 foreach (var item in Node.Args[5].Args.Select((x, i) => new KeyValuePair<int, LNode>(i, x)))
                 {
@@ -350,6 +378,49 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+        #region Definition Parsing
+
+        public static IRSignature ParseSignature(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #member(name, attributes...)
+
+            string name = Node.Args[0].Name.Name;
+            var attrs = Node.Args.Skip(1).Select(item => State.Parser.AttributeParser.Parse(State, item));
+            return new IRSignature(name, attrs);
+        }
+
+        public static INodeStructure<IGenericParameter> ParseGenericParameterDefinition(ParserState State, LNode Node, IGenericMember DeclaringMember)
+        {
+            // Format:
+            //
+            // #generic_parameter(#member(name, attributes...), { generic_parameters... }, { constraints... })
+
+            var signature = ParseSignature(State, Node.Args[0]);
+            var result = new IRGenericParameter(DeclaringMember, signature);
+            result.GenericParameterNodes = new NodeList<IGenericParameter>(Node.Args[1].Args.Select(item => ParseGenericParameterDefinition(State, item, result)));
+            result.ConstraintNodes = new NodeList<IGenericConstraint>(Node.Args[2].Args.Select(item => State.Parser.GenericConstraintParser.Parse(State, item)));
+            return result;
+        }
+
+        public static INodeStructure<IType> ParseUserTypeDefinition(ParserState State, LNode Node, INamespace DeclaringNamespace)
+        {
+            // Format:
+            //
+            // #type_definition(#member(name, attributes...), { generic_parameters... }, { base_types... }, { nested_types... }, { members... })
+
+            var signature = ParseSignature(State, Node.Args[0]);
+            var result = new IRTypeDefinition(DeclaringNamespace, signature);
+            result.GenericParameterNodes = new NodeList<IGenericParameter>(Node.Args[1].Args.Select(item => ParseGenericParameterDefinition(State, item, result)));
+            result.BaseTypeNodes = new NodeList<IType>(Node.Args[2].Args.Select(item => State.Parser.TypeReferenceParser.Parse(State, item)));
+            result.NestedTypeNodes = new NodeList<IType>(Node.Args[3].Args.Select(item => State.Parser.TypeDefinitionParser.Parse(State, item, result)));
+            result.MemberNodes = new NodeList<ITypeMember>(Node.Args[4].Args.Select(item => State.Parser.TypeMemberParser.Parse(State, item, result)));
+            return result;
+        }
+
+        #endregion
+
         #region Default Parsers
 
         public static ReferenceParser<IType> DefaultTypeReferenceParser
@@ -365,6 +436,8 @@ namespace Flame.Intermediate.Parsing
                     { IterableTypeName, CreateEnvironmentTypeParser(env => env.EnumerableType) },
                     { IteratorTypeName, CreateEnvironmentTypeParser(env => env.EnumeratorType) },
                     { PrimitiveTypeName, ParsePrimitiveType },
+                    { MethodGenericParameterReferenceName, ParseMethodGenericParameterReference },
+                    { TypeGenericParmaterReferenceName, ParseTypeGenericParameterReference },
                     { GenericInstanceName, ParseGenericTypeInstance },
                     { GenericInstanceMemberName, ParseGenericInstanceType },
                     { ArrayTypeName, ParseArrayType },
@@ -407,13 +480,19 @@ namespace Flame.Intermediate.Parsing
 
         #region Constructors
 
-        public IRParser(ReferenceParser<IType> TypeReferenceParser, ReferenceParser<IField> FieldReferenceParser, 
+        public IRParser(ReferenceParser<IType> TypeReferenceParser, 
+                        ReferenceParser<IField> FieldReferenceParser, 
                         ReferenceParser<IMethod> MethodReferenceParser,
-                        DefinitionParser<INamespace, IType> TypeDefinitionParser, DefinitionParser<IType, ITypeMember> TypeMemberParser)
+                        ReferenceParser<IAttribute> AttributeParser,
+                        ReferenceParser<IGenericConstraint> GenericConstraintParser,
+                        DefinitionParser<INamespace, IType> TypeDefinitionParser, 
+                        DefinitionParser<IType, ITypeMember> TypeMemberParser)
         {
             this.TypeReferenceParser = TypeReferenceParser;
             this.FieldReferenceParser = FieldReferenceParser;
             this.MethodReferenceParser = MethodReferenceParser;
+            this.AttributeParser = AttributeParser;
+            this.GenericConstraintParser = GenericConstraintParser;
             this.TypeDefinitionParser = TypeDefinitionParser;
             this.TypeMemberParser = TypeMemberParser;
         }
@@ -425,6 +504,8 @@ namespace Flame.Intermediate.Parsing
         public ReferenceParser<IType> TypeReferenceParser { get; private set; }
         public ReferenceParser<IField> FieldReferenceParser { get; private set; }
         public ReferenceParser<IMethod> MethodReferenceParser { get; private set; }
+        public ReferenceParser<IAttribute> AttributeParser { get; private set; }
+        public ReferenceParser<IGenericConstraint> GenericConstraintParser { get; private set; }
 
         public DefinitionParser<INamespace, IType> TypeDefinitionParser { get; private set; }
         public DefinitionParser<IType, ITypeMember> TypeMemberParser { get; private set; }
@@ -432,6 +513,8 @@ namespace Flame.Intermediate.Parsing
         #endregion
 
         #region Methods
+
+        
 
         #endregion
     }
