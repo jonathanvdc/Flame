@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConstantNodeStructure.cs" />
     <Compile Include="EmptyNodeList.cs" />
     <Compile Include="INodeStructure.cs" />
     <Compile Include="IRGenericParameter.cs" />
