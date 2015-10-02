@@ -55,7 +55,14 @@ namespace Flame.Intermediate.Parsing
         public const string RootTypeName = "#root_type";
         public const string IterableTypeName = "#iterable_type";
         public const string IteratorTypeName = "#iterator_type";
-        public const string PrimitiveTypeName = "#primitive_type";
+        public const string UIntTypeNodeName = "#uint";
+        public const string IntTypeNodeName = "#int";
+        public const string BitTypeNodeName = "#bit";
+        public const string FloatTypeNodeName = "#float";
+        public const string CharTypeName = "#char";
+        public const string StringTypeName = "#string";
+        public const string BooleanTypeName = "#bool";
+        public const string VoidTypeName = "#void";
 
         #region Table/Set Parsing
 
@@ -248,13 +255,19 @@ namespace Flame.Intermediate.Parsing
             });
         }
 
-        public static INodeStructure<IType> ParsePrimitiveType(ParserState State, LNode Node)
+        public static Func<ParserState, LNode, INodeStructure<IType>> CreateIndexedTypeParser(Dictionary<int, IType> Types)
         {
-            // Format:
-            //
-            // #primitive_type("name")
+            return new Func<ParserState, LNode, INodeStructure<IType>>((state, node) => new ConstantNodeStructure<IType>(node, Types[Convert.ToInt32(node.Args.Single().Value)]));
+        }
 
-            return new LazyNodeStructure<IType>(Node, () => PrimitiveTypes.GetPrimitives().First(item => item.Name == (string)Node.Args[0].Value));
+        public static Func<ParserState, LNode, INodeStructure<IType>> CreateIndexedTypeParser(params IType[] Types)
+        {
+            return new Func<ParserState, LNode, INodeStructure<IType>>((state, node) => new ConstantNodeStructure<IType>(node, Types[Convert.ToInt32(node.Args.Single().Value) - 1]));
+        }
+
+        public static Func<ParserState, LNode, INodeStructure<IType>> CreatePredefinedTypeParser(IType Value)
+        {
+            return new Func<ParserState, LNode, INodeStructure<IType>>((state, node) => new ConstantNodeStructure<IType>(node, Value));
         }
 
         public static Func<ParserState, LNode, INodeStructure<IType>> CreateEnvironmentTypeParser(Func<IEnvironment, IType> TypeFactory)
@@ -429,20 +442,36 @@ namespace Flame.Intermediate.Parsing
             {
                 return new ReferenceParser<IType>(new Dictionary<string, Func<ParserState, LNode, INodeStructure<IType>>>()
                 {
+                    // References to type definitions
                     { TypeReferenceName, ParseTypeSignatureReference },
                     { TypeTableReferenceName, ParseTypeTableReference },
                     { NestedTypeName, ParseNestedTypeReference },
+
+                    // Environment-dependent types
                     { RootTypeName, CreateEnvironmentTypeParser(env => env.RootType) },
                     { IterableTypeName, CreateEnvironmentTypeParser(env => env.EnumerableType) },
                     { IteratorTypeName, CreateEnvironmentTypeParser(env => env.EnumeratorType) },
-                    { PrimitiveTypeName, ParsePrimitiveType },
+
+                    // Types that have something to do with generics
                     { MethodGenericParameterReferenceName, ParseMethodGenericParameterReference },
                     { TypeGenericParmaterReferenceName, ParseTypeGenericParameterReference },
                     { GenericInstanceName, ParseGenericTypeInstance },
                     { GenericInstanceMemberName, ParseGenericInstanceType },
+
+                    // Container types
                     { ArrayTypeName, ParseArrayType },
                     { PointerTypeName, ParsePointerType },
-                    { VectorTypeName, ParseVectorType }
+                    { VectorTypeName, ParseVectorType },
+
+                    // Primitive types
+                    { IntTypeNodeName, CreateIndexedTypeParser(PrimitiveTypes.Int8, PrimitiveTypes.Int16, PrimitiveTypes.Int32, PrimitiveTypes.Int64) },
+                    { UIntTypeNodeName, CreateIndexedTypeParser(PrimitiveTypes.UInt8, PrimitiveTypes.UInt16, PrimitiveTypes.UInt32, PrimitiveTypes.UInt64) },
+                    { BitTypeNodeName, CreateIndexedTypeParser(PrimitiveTypes.Bit8, PrimitiveTypes.Bit16, PrimitiveTypes.Bit32, PrimitiveTypes.Bit64) },
+                    { FloatTypeNodeName, CreateIndexedTypeParser(new Dictionary<int, IType>() { { 3, PrimitiveTypes.Float32 }, { 4, PrimitiveTypes.Float64 } }) },
+                    { BooleanTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Boolean) },
+                    { CharTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Char) },
+                    { StringTypeName, CreatePredefinedTypeParser(PrimitiveTypes.String) },
+                    { VoidTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Void) },
                 });
             }
         }
