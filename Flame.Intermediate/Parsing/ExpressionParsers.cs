@@ -15,6 +15,14 @@ namespace Flame.Intermediate.Parsing
     /// </summary>
     public static class ExpressionParsers
     {
+        #region Node names
+
+        public const string ReturnNodeName = "#return";
+        public const string ThrowNodeName = "#throw";
+        public const string SelectNodeName = "#select";
+
+        #endregion
+
         #region Parser Helpers
 
         public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateParser(Func<ParserState, LNode, IExpression> ParseExpression)
@@ -50,6 +58,11 @@ namespace Flame.Intermediate.Parsing
             {
                 var initExpr = (InitializedExpression)Expression;
                 return new BlockStatement(new IStatement[] { initExpr.Initialization, ToStatement(initExpr.Value), initExpr.Finalization });
+            }
+            else if (Expression is SelectExpression)
+            {
+                var selectExpr = (SelectExpression)Expression;
+                return new IfElseStatement(selectExpr.Condition, ToStatement(selectExpr.TrueValue), ToStatement(selectExpr.FalseValue));
             }
             else
             {
@@ -89,7 +102,9 @@ namespace Flame.Intermediate.Parsing
                 var result = ToExpression(new ReturnStatement(ParseExpression(State, Node.Args[0])));
                 if (Node.ArgCount > 0)
                 {
-                    return new ErrorExpression(result, new LogEntry("Invalid '#return' node", "'#return' nodes must return zero or one values."));
+                    return new ErrorExpression(result, new LogEntry(
+                        "Invalid '" + ReturnNodeName + "' node",
+                        "'" + ReturnNodeName + "' nodes must return zero or one values."));
                 }
                 else
                 {
@@ -109,12 +124,32 @@ namespace Flame.Intermediate.Parsing
             var result = ToExpression(new ThrowStatement(ParseExpression(State, Node.Args[0])));
             if (Node.ArgCount > 0)
             {
-                return new ErrorExpression(result, new LogEntry("Invalid '#throw' node", "'#throw' nodes must throw exactly one value."));
+                return new ErrorExpression(result, new LogEntry(
+                    "Invalid '" + ThrowNodeName + "' node",
+                    "'" + ThrowNodeName + "' nodes must throw exactly one value."));
             }
             else
             {
                 return result;
             }
+        }
+
+        #endregion
+
+        #region Intraprocedural control flow
+
+        public static IExpression ParseSelect(ParserState State, LNode Node)
+        {
+            if (Node.ArgCount != 3)
+            {
+                return new ErrorExpression(VoidExpression.Instance, new LogEntry(
+                    "Invalid '" + SelectNodeName + "' node",
+                    "'" + SelectNodeName + "' nodes must have exactly three arguments."));
+            }
+
+            return new SelectExpression(ParseExpression(State, Node.Args[0]),
+                                        ParseExpression(State, Node.Args[1]),
+                                        ParseExpression(State, Node.Args[2]));
         }
 
         #endregion
