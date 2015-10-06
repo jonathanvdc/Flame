@@ -1,4 +1,5 @@
 ﻿using Flame.Build;
+using Flame.Compiler;
 using Loyc.Syntax;
 using System;
 using System.Collections.Generic;
@@ -354,7 +355,7 @@ namespace Flame.Intermediate.Parsing
                 {
                     descMethod.AddGenericParameter(new DescribedGenericParameter(item.Name.Name, descMethod));
                 }
-                var genericParser = State.Parser.TypeReferenceParser.WithParser(LocalGenericParameterReferenceName, (state, elem) => new LazyNodeStructure<IType>(elem, () => descMethod.GenericParameters.ElementAt(Convert.ToInt32(elem.Args.Single().Value))));
+                var genericParser = State.Parser.TypeReferenceParser.AddParser(LocalGenericParameterReferenceName, (state, elem) => new LazyNodeStructure<IType>(elem, () => descMethod.GenericParameters.ElementAt(Convert.ToInt32(elem.Args.Single().Value))));
                 descMethod.ReturnType = genericParser.Parse(State, Node.Args[4]).Value;
                 foreach (var item in Node.Args[5].Args.Select((x, i) => new KeyValuePair<int, LNode>(i, x)))
                 {
@@ -398,6 +399,8 @@ namespace Flame.Intermediate.Parsing
 
         #region Definition Parsing
 
+        #region Common
+
         public static IRSignature ParseSignature(ParserState State, LNode Node)
         {
             // Format:
@@ -408,6 +411,10 @@ namespace Flame.Intermediate.Parsing
             var attrs = Node.Args.Skip(1).Select(item => State.Parser.AttributeParser.Parse(State, item));
             return new IRSignature(name, attrs);
         }
+
+        #endregion
+
+        #region Types
 
         public static INodeStructure<IGenericParameter> ParseGenericParameterDefinition(ParserState State, LNode Node, IGenericMember DeclaringMember)
         {
@@ -436,6 +443,14 @@ namespace Flame.Intermediate.Parsing
             result.MemberNodes = new NodeList<ITypeMember>(Node.Args[4].Args.Select(item => State.Parser.TypeMemberParser.Parse(State, item, result)));
             return result;
         }
+
+        #endregion
+
+        #region Fields
+
+
+
+        #endregion
 
         #endregion
 
@@ -476,7 +491,7 @@ namespace Flame.Intermediate.Parsing
                     { BooleanTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Boolean) },
                     { CharTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Char) },
                     { StringTypeName, CreatePredefinedTypeParser(PrimitiveTypes.String) },
-                    { VoidTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Void) },
+                    { VoidTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Void) }
                 });
             }
         }
@@ -519,6 +534,7 @@ namespace Flame.Intermediate.Parsing
                         ReferenceParser<IMethod> MethodReferenceParser,
                         ReferenceParser<IAttribute> AttributeParser,
                         ReferenceParser<IGenericConstraint> GenericConstraintParser,
+                        ReferenceParser<IExpression> ExpressionParser,
                         DefinitionParser<INamespace, IType> TypeDefinitionParser, 
                         DefinitionParser<IType, ITypeMember> TypeMemberParser)
         {
@@ -527,6 +543,7 @@ namespace Flame.Intermediate.Parsing
             this.MethodReferenceParser = MethodReferenceParser;
             this.AttributeParser = AttributeParser;
             this.GenericConstraintParser = GenericConstraintParser;
+            this.ExpressionParser = ExpressionParser;
             this.TypeDefinitionParser = TypeDefinitionParser;
             this.TypeMemberParser = TypeMemberParser;
         }
@@ -540,6 +557,7 @@ namespace Flame.Intermediate.Parsing
         public ReferenceParser<IMethod> MethodReferenceParser { get; private set; }
         public ReferenceParser<IAttribute> AttributeParser { get; private set; }
         public ReferenceParser<IGenericConstraint> GenericConstraintParser { get; private set; }
+        public ReferenceParser<IExpression> ExpressionParser { get; private set; }
 
         public DefinitionParser<INamespace, IType> TypeDefinitionParser { get; private set; }
         public DefinitionParser<IType, ITypeMember> TypeMemberParser { get; private set; }
@@ -548,7 +566,17 @@ namespace Flame.Intermediate.Parsing
 
         #region Methods
 
-        
+        public IRParser WithExpressionParser(ReferenceParser<IExpression> Parser)
+        {
+            return new IRParser(TypeReferenceParser,
+                                FieldReferenceParser,
+                                MethodReferenceParser,
+                                AttributeParser,
+                                GenericConstraintParser,
+                                ExpressionParser,
+                                TypeDefinitionParser,
+                                TypeMemberParser);
+        }
 
         #endregion
     }
