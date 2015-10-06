@@ -76,7 +76,9 @@
     <Compile Include="IRRootNamespace.cs" />
     <Compile Include="IRSignature.cs" />
     <Compile Include="IRTypeDefinition.cs" />
+    <Compile Include="Parsing\AttributeParsers.cs" />
     <Compile Include="Parsing\DefinitionParser.cs" />
+    <Compile Include="Parsing\ExpressionParsers.cs" />
     <Compile Include="Parsing\IRParser.cs" />
     <Compile Include="Parsing\ImmutableHeader.cs" />
     <Compile Include="Parsing\ReferenceParser.cs" />
