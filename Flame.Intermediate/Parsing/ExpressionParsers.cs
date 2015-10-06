@@ -83,6 +83,19 @@ namespace Flame.Intermediate.Parsing
             return State.Parser.ExpressionParser.Parse(State, Node).Value;
         }
 
+        /// <summary>
+        /// Parses the given sequence of nodes as a sequence of expressions,
+        /// using the specified parser state.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Nodes"></param>
+        /// <returns></returns>
+        public static IEnumerable<IExpression> ParseExpressions(ParserState State, IEnumerable<LNode> Nodes)
+        {
+            var parser = State.Parser.ExpressionParser;
+            return Nodes.Select(item => parser.Parse(State, item).Value);
+        }
+
         #endregion
 
         #region Interprocedural control flow
@@ -148,7 +161,7 @@ namespace Flame.Intermediate.Parsing
         /// <returns></returns>
         public static IExpression ParseBlock(ParserState State, LNode Node)
         {
-            var exprs = Node.Args.Select(item => ParseExpression(State, item)).ToArray();
+            var exprs = ParseExpressions(State, Node.Args).ToArray();
             var valueExpr = exprs.Select((item, index) => Tuple.Create(item, index))
                                  .LastOrDefault(item => !object.Equals(item.Item1.Type, PrimitiveTypes.Void));
             if (valueExpr == null)

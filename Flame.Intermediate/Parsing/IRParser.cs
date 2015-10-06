@@ -46,7 +46,7 @@ namespace Flame.Intermediate.Parsing
 
         public const string LocalGenericParameterReferenceName = "#local_generic_parameter";
         public const string MethodGenericParameterReferenceName = "#method_generic_parameter";
-        public const string TypeGenericParmaterReferenceName = "#type_generic_parameter";
+        public const string TypeGenericParamaterReferenceName = "#type_generic_parameter";
 
         public const string NestedTypeName = "#nested_type";
         public const string ArrayTypeName = "#array_type";
@@ -64,6 +64,8 @@ namespace Flame.Intermediate.Parsing
         public const string StringTypeName = "#string";
         public const string BooleanTypeName = "#bool";
         public const string VoidTypeName = "#void";
+
+        public const string TypeConstraintName = "#type_constraint";
 
         #region Table/Set Parsing
 
@@ -446,6 +448,40 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+        #region Generic Constraints
+
+        /// <summary>
+        /// Parses a generic isinstance type constraint.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static INodeStructure<IGenericConstraint> ParseTypeConstraint(ParserState State, LNode Node)
+        {
+            if (Node.ArgCount != 1)
+            {
+                throw new InvalidOperationException(
+                    "Invalid '" + TypeConstraintName + "' node: " + 
+                    "'" + TypeConstraintName + "' nodes take exactly one argument.");
+            }
+
+            return new LazyNodeStructure<IGenericConstraint>(Node, () =>
+                new TypeConstraint(State.Parser.TypeReferenceParser.Parse(State, Node).Value));
+        }
+
+        /// <summary>
+        /// Creates a "parser" for primitive generic constraints.
+        /// </summary>
+        /// <param name="Constraint"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IGenericConstraint>> CreateConstantConstraintParser(IGenericConstraint Constraint)
+        {
+            return new Func<ParserState, LNode, INodeStructure<IGenericConstraint>>((state, node) =>
+                new ConstantNodeStructure<IGenericConstraint>(node, Constraint));
+        }
+
+        #endregion
+
         #region Fields
 
         /// <summary>
@@ -499,7 +535,7 @@ namespace Flame.Intermediate.Parsing
 
                     // Types that have something to do with generics
                     { MethodGenericParameterReferenceName, ParseMethodGenericParameterReference },
-                    { TypeGenericParmaterReferenceName, ParseTypeGenericParameterReference },
+                    { TypeGenericParamaterReferenceName, ParseTypeGenericParameterReference },
                     { GenericInstanceName, ParseGenericTypeInstance },
                     { GenericInstanceMemberName, ParseGenericInstanceType },
 
@@ -544,6 +580,20 @@ namespace Flame.Intermediate.Parsing
                     { MethodTableReferenceName, ParseMethodTableReference },
                     { GenericInstanceName, ParseGenericMethodInstance },
                     { GenericInstanceMemberName, ParseGenericInstanceMethod }
+                });
+            }
+        }
+
+        public static ReferenceParser<IGenericConstraint> DefaultGenericConstraintParser
+        {
+            get
+            {
+                return new ReferenceParser<IGenericConstraint>(new Dictionary<string, Func<ParserState, LNode, INodeStructure<IGenericConstraint>>>()
+                {
+                    { TypeConstraintName, ParseTypeConstraint },
+
+                    { AttributeParsers.ReferenceTypeNodeName, CreateConstantConstraintParser(ReferenceTypeConstraint.Instance) },
+                    { AttributeParsers.ValueTypeNodeName, CreateConstantConstraintParser(ValueTypeConstraint.Instance) }
                 });
             }
         }
@@ -601,6 +651,17 @@ namespace Flame.Intermediate.Parsing
             this.TypeMemberParser = TypeMemberParser;
         }
 
+        public IRParser()
+            : this(DefaultTypeReferenceParser,
+                   DefaultFieldReferenceParser,
+                   DefaultMethodReferenceParser,
+                   AttributeParsers.DefaultAttributeParser,
+                   DefaultGenericConstraintParser,
+                   ExpressionParsers.DefaultExpressionParser,
+                   DefaultTypeDefinitionParser,
+                   DefaultTypeMemberDefinitionParser)
+        { }
+
         #endregion
 
         #region Properties
@@ -619,6 +680,12 @@ namespace Flame.Intermediate.Parsing
 
         #region Methods
 
+        /// <summary>
+        /// Creates a new IR parser whose expression parser is set to
+        /// the given instance.
+        /// </summary>
+        /// <param name="Parser"></param>
+        /// <returns></returns>
         public IRParser WithExpressionParser(ReferenceParser<IExpression> Parser)
         {
             return new IRParser(TypeReferenceParser,
