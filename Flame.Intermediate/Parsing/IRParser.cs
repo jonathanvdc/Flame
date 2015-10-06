@@ -448,7 +448,30 @@ namespace Flame.Intermediate.Parsing
 
         #region Fields
 
+        /// <summary>
+        /// Parses a field definition.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <param name="DeclaringType"></param>
+        /// <returns></returns>
+        public static INodeStructure<IField> ParseFieldDefinition(ParserState State, LNode Node, IType DeclaringType)
+        {
+            if (Node.ArgCount != 3 && Node.ArgCount != 4)
+            {
+                throw new InvalidOperationException("Invalid '#field' node: '#field' nodes must have exactly three or four arguments.");
+            }
 
+            var sig = ParseSignature(State, Node.Args[0]);
+            bool isStatic = Convert.ToBoolean(Node.Args[1].Value);
+            var fieldType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[2]);
+            var result = new IRField(DeclaringType, sig, isStatic, fieldType);
+            if (Node.ArgCount == 4)
+            {
+                result.InitialValueNode = State.Parser.ExpressionParser.Parse(State, Node.Args[3]);
+            }
+            return result;
+        }
 
         #endregion
 
