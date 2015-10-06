@@ -479,6 +479,8 @@ namespace Flame.Intermediate.Parsing
 
         #region Default Parsers
 
+        #region References
+
         public static ReferenceParser<IType> DefaultTypeReferenceParser
         {
             get
@@ -545,6 +547,34 @@ namespace Flame.Intermediate.Parsing
                 });
             }
         }
+
+        #endregion
+
+        #region Definitions
+
+        public static DefinitionParser<INamespace, IType> DefaultTypeDefinitionParser
+        {
+            get
+            {
+                return new DefinitionParser<INamespace, IType>(new Dictionary<string, Func<ParserState, LNode, INamespace, INodeStructure<IType>>>()
+                {
+                    { IRTypeDefinition.TypeDefinitionNodeName, ParseUserTypeDefinition }
+                });
+            }
+        }
+
+        public static DefinitionParser<IType, ITypeMember> DefaultTypeMemberDefinitionParser
+        {
+            get
+            {
+                return new DefinitionParser<IType, ITypeMember>(new Dictionary<string, Func<ParserState, LNode, IType, INodeStructure<ITypeMember>>>()
+                {
+                    { IRField.FieldNodeName, ParseFieldDefinition }
+                });
+            }
+        }
+
+        #endregion
 
         #endregion
 
