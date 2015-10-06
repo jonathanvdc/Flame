@@ -181,5 +181,26 @@ namespace Flame.Intermediate.Parsing
         }
 
         #endregion
+
+        #region Default Parser
+
+        public static ReferenceParser<IExpression> DefaultExpressionParser
+        {
+            get
+            {
+                return new ReferenceParser<IExpression>(new Dictionary<string, Func<ParserState, LNode, INodeStructure<IExpression>>>()
+                {
+                    // Interprocedural control flow
+                    { ReturnNodeName, CreateParser(ParseReturn) },
+                    { ThrowNodeName, CreateParser(ParseThrow) },
+
+                    // Intraprocedural control flow
+                    { BlockNodeName, CreateParser(ParseBlock) },
+                    { SelectNodeName, CreateParser(ParseSelect) }
+                });
+            }
+        }
+
+        #endregion
     }
 }
