@@ -573,7 +573,7 @@ namespace Flame.Intermediate.Parsing
                                 MethodReferenceParser,
                                 AttributeParser,
                                 GenericConstraintParser,
-                                ExpressionParser,
+                                Parser,
                                 TypeDefinitionParser,
                                 TypeMemberParser);
         }
