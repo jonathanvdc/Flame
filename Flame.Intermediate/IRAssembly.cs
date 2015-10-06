@@ -35,7 +35,7 @@ namespace Flame.Intermediate
 
         // Format:
         //
-        // #assembly(#member(name, attrs...), environment_name, version, entry_point, { types... }, { namespaces... })
+        // #assembly(#member(name, attrs...), version, entry_point, { types... }, { namespaces... })
 
         public IRSignature Signature { get; set; }
         public IEnvironment Environment { get; private set; }
@@ -83,7 +83,6 @@ namespace Flame.Intermediate
                 {
                     Signature.Node,
                     VersionNode.Node,
-                    NodeFactory.Literal(Environment.Name),
                     EntryPointNode.Node,
                     RootNamespace.TypeNodes.Node,
                     RootNamespace.NamespaceNodes.Node
