@@ -260,9 +260,14 @@ namespace Flame.Intermediate.Parsing
             return new Func<ParserState, LNode, INodeStructure<IType>>((state, node) => new ConstantNodeStructure<IType>(node, Types[Convert.ToInt32(node.Args.Single().Value)]));
         }
 
-        public static Func<ParserState, LNode, INodeStructure<IType>> CreateIndexedTypeParser(params IType[] Types)
+        public static Func<ParserState, LNode, INodeStructure<IType>> CreatePrimitiveTypeParser(params IType[] Types)
         {
-            return new Func<ParserState, LNode, INodeStructure<IType>>((state, node) => new ConstantNodeStructure<IType>(node, Types[Convert.ToInt32(node.Args.Single().Value) - 1]));
+            var dict = new Dictionary<int, IType>();
+            for (int i = 0; i < Types.Length; i++)
+            {
+                dict[Types[i].GetPrimitiveSize()] = Types[i];
+            }
+            return CreateIndexedTypeParser(dict);
         }
 
         public static Func<ParserState, LNode, INodeStructure<IType>> CreatePredefinedTypeParser(IType Value)
@@ -464,10 +469,10 @@ namespace Flame.Intermediate.Parsing
                     { VectorTypeName, ParseVectorType },
 
                     // Primitive types
-                    { IntTypeNodeName, CreateIndexedTypeParser(PrimitiveTypes.Int8, PrimitiveTypes.Int16, PrimitiveTypes.Int32, PrimitiveTypes.Int64) },
-                    { UIntTypeNodeName, CreateIndexedTypeParser(PrimitiveTypes.UInt8, PrimitiveTypes.UInt16, PrimitiveTypes.UInt32, PrimitiveTypes.UInt64) },
-                    { BitTypeNodeName, CreateIndexedTypeParser(PrimitiveTypes.Bit8, PrimitiveTypes.Bit16, PrimitiveTypes.Bit32, PrimitiveTypes.Bit64) },
-                    { FloatTypeNodeName, CreateIndexedTypeParser(new Dictionary<int, IType>() { { 3, PrimitiveTypes.Float32 }, { 4, PrimitiveTypes.Float64 } }) },
+                    { IntTypeNodeName, CreatePrimitiveTypeParser(PrimitiveTypes.Int8, PrimitiveTypes.Int16, PrimitiveTypes.Int32, PrimitiveTypes.Int64) },
+                    { UIntTypeNodeName, CreatePrimitiveTypeParser(PrimitiveTypes.UInt8, PrimitiveTypes.UInt16, PrimitiveTypes.UInt32, PrimitiveTypes.UInt64) },
+                    { BitTypeNodeName, CreatePrimitiveTypeParser(PrimitiveTypes.Bit8, PrimitiveTypes.Bit16, PrimitiveTypes.Bit32, PrimitiveTypes.Bit64) },
+                    { FloatTypeNodeName, CreatePrimitiveTypeParser(PrimitiveTypes.Float32, PrimitiveTypes.Float64) },
                     { BooleanTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Boolean) },
                     { CharTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Char) },
                     { StringTypeName, CreatePredefinedTypeParser(PrimitiveTypes.String) },
