@@ -1,6 +1,7 @@
 ﻿using Flame.Compiler;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
+using Loyc;
 using Loyc.Syntax;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ namespace Flame.Intermediate.Parsing
         public const string ReturnNodeName = "#return";
         public const string ThrowNodeName = "#throw";
         public const string SelectNodeName = "#select";
+        public static readonly string BlockNodeName = CodeSymbols.Braces.Name;
 
         #endregion
 
@@ -138,6 +140,32 @@ namespace Flame.Intermediate.Parsing
 
         #region Intraprocedural control flow
 
+        /// <summary>
+        /// Parses a block of sequential flow nodes.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseBlock(ParserState State, LNode Node)
+        {
+            var exprs = Node.Args.Select(item => ParseExpression(State, item)).ToArray();
+            var valueExpr = exprs.Select((item, index) => Tuple.Create(item, index))
+                                 .LastOrDefault(item => !object.Equals(item.Item1.Type, PrimitiveTypes.Void));
+            if (valueExpr == null)
+	        {
+                return ToExpression(new BlockStatement(exprs.Select(ToStatement).ToArray()));
+	        }
+            var initStmts = new BlockStatement(exprs.Take(valueExpr.Item2).Select(ToStatement).ToArray());
+            var finalStmts = new BlockStatement(exprs.Skip(valueExpr.Item2 + 1).Select(ToStatement).ToArray());
+            return new InitializedExpression(initStmts, valueExpr.Item1, finalStmts);
+        }
+
+        /// <summary>
+        /// Parses a selection control flow node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
         public static IExpression ParseSelect(ParserState State, LNode Node)
         {
             if (Node.ArgCount != 3)
