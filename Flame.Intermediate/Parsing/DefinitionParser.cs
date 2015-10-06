@@ -16,7 +16,7 @@ namespace Flame.Intermediate.Parsing
 
         public IReadOnlyDictionary<string, Func<ParserState, LNode, TArg, INodeStructure<T>>> Parsers { get; private set; }
 
-        public DefinitionParser<TArg, T> WithParser(string Name, Func<ParserState, LNode, TArg, INodeStructure<T>> Parser)
+        public DefinitionParser<TArg, T> AddParser(string Name, Func<ParserState, LNode, TArg, INodeStructure<T>> Parser)
         {
             var dict = Parsers.ToDictionary(item => item.Key, item => item.Value);
             dict.Add(Name, Parser);

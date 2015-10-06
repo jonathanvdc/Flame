@@ -1,0 +1,122 @@
+﻿using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Loyc.Syntax;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Flame.Intermediate.Parsing
+{
+    /// <summary>
+    /// Defines a number of functions that parse expressions.
+    /// </summary>
+    public static class ExpressionParsers
+    {
+        #region Parser Helpers
+
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateParser(Func<ParserState, LNode, IExpression> ParseExpression)
+        {
+            return new Func<ParserState, LNode, INodeStructure<IExpression>>((state, node) =>
+                new LazyNodeStructure<IExpression>(node, () => ParseExpression(state, node)));
+        }
+
+        #endregion
+
+        #region Expression/Statement Helpers
+
+        /// <summary>
+        /// Wraps the given statement in an expression that 
+        /// yields a value of type void.
+        /// </summary>
+        /// <param name="Statement"></param>
+        /// <returns></returns>
+        public static IExpression ToExpression(IStatement Statement)
+        {
+            return new InitializedExpression(Statement, VoidExpression.Instance);
+        }
+
+        /// <summary>
+        /// Converts the given expression to a statement.
+        /// Any value yielded by said expression will be discarded.
+        /// </summary>
+        /// <param name="Expression"></param>
+        /// <returns></returns>
+        public static IStatement ToStatement(IExpression Expression)
+        {
+            if (Expression is InitializedExpression)
+            {
+                var initExpr = (InitializedExpression)Expression;
+                return new BlockStatement(new IStatement[] { initExpr.Initialization, ToStatement(initExpr.Value), initExpr.Finalization });
+            }
+            else
+            {
+                return new ExpressionStatement(Expression);
+            }
+        }
+
+        /// <summary>
+        /// Parses the given node as an expression using the specified state.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseExpression(ParserState State, LNode Node)
+        {
+            return State.Parser.ExpressionParser.Parse(State, Node).Value;
+        }
+
+        #endregion
+
+        #region Interprocedural control flow
+
+        /// <summary>
+        /// Parses a '#return' expression node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseReturn(ParserState State, LNode Node)
+        {
+            if (Node.ArgCount == 0)
+            {
+                return ToExpression(new ReturnStatement());
+            }
+            else
+            {
+                var result = ToExpression(new ReturnStatement(ParseExpression(State, Node.Args[0])));
+                if (Node.ArgCount > 0)
+                {
+                    return new ErrorExpression(result, new LogEntry("Invalid '#return' node", "'#return' nodes must return zero or one values."));
+                }
+                else
+                {
+                    return result;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Parses a '#throw' expression node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseThrow(ParserState State, LNode Node)
+        {
+            var result = ToExpression(new ThrowStatement(ParseExpression(State, Node.Args[0])));
+            if (Node.ArgCount > 0)
+            {
+                return new ErrorExpression(result, new LogEntry("Invalid '#throw' node", "'#throw' nodes must throw exactly one value."));
+            }
+            else
+            {
+                return result;
+            }
+        }
+
+        #endregion
+    }
+}
