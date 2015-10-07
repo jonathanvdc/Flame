@@ -37,5 +37,7 @@ namespace Flame.Intermediate
         {
             get { return cachedAttrs.Value; }
         }
+
+        public static readonly IRSignature Empty = new IRSignature("", Enumerable.Empty<INodeStructure<IAttribute>>());
     }
 }
