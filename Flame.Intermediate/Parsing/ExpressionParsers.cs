@@ -23,6 +23,29 @@ namespace Flame.Intermediate.Parsing
         public const string SelectNodeName = "#select";
         public static readonly string BlockNodeName = CodeSymbols.Braces.Name;
 
+        public const string ConstantInt8Name = "#const_int8";
+        public const string ConstantInt16Name = "#const_int16";
+        public const string ConstantInt32Name = "#const_int32";
+        public const string ConstantInt64Name = "#const_int64";
+
+        public const string ConstantUInt8Name = "#const_uint8";
+        public const string ConstantUInt16Name = "#const_uint16";
+        public const string ConstantUInt32Name = "#const_uint32";
+        public const string ConstantUInt64Name = "#const_uint64";
+
+        public const string ConstantBit8Name = "#const_bit8";
+        public const string ConstantBit16Name = "#const_bit16";
+        public const string ConstantBit32Name = "#const_bit32";
+        public const string ConstantBit64Name = "#const_bit64";
+
+        public const string ConstantFloat32Name = "#const_float32";
+        public const string ConstantFloat64Name = "#const_float64";
+
+        public const string ConstantBooleanName = "#const_bool";
+        public const string ConstantCharName = "#const_char";
+        public const string ConstantStringName = "#const_string";
+        public const string ConstantVoidName = "#const_void";
+
         #endregion
 
         #region Parser Helpers
@@ -31,6 +54,12 @@ namespace Flame.Intermediate.Parsing
         {
             return new Func<ParserState, LNode, INodeStructure<IExpression>>((state, node) =>
                 new LazyNodeStructure<IExpression>(node, () => ParseExpression(state, node)));
+        }
+
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateLiteralParser(Func<object, IExpression> ParseLiteral)
+        {
+            return new Func<ParserState, LNode, INodeStructure<IExpression>>((state, node) =>
+                new LazyNodeStructure<IExpression>(node, () => ParseLiteral(node.Value)));
         }
 
         #endregion
@@ -209,7 +238,36 @@ namespace Flame.Intermediate.Parsing
 
                     // Intraprocedural control flow
                     { BlockNodeName, CreateParser(ParseBlock) },
-                    { SelectNodeName, CreateParser(ParseSelect) }
+                    { SelectNodeName, CreateParser(ParseSelect) },
+
+                    // Constants
+                    //  - Bit<n>
+                    { ConstantBit8Name, CreateLiteralParser(item => new Bit8Expression(Convert.ToByte(item))) },
+                    { ConstantBit16Name, CreateLiteralParser(item => new Bit16Expression(Convert.ToUInt16(item))) },
+                    { ConstantBit32Name, CreateLiteralParser(item => new Bit32Expression(Convert.ToUInt32(item))) },
+                    { ConstantBit64Name, CreateLiteralParser(item => new Bit64Expression(Convert.ToUInt64(item))) },
+
+                    //  - UInt<n>
+                    { ConstantUInt8Name, CreateLiteralParser(item => new UInt8Expression(Convert.ToByte(item))) },
+                    { ConstantUInt16Name, CreateLiteralParser(item => new UInt16Expression(Convert.ToUInt16(item))) },
+                    { ConstantUInt32Name, CreateLiteralParser(item => new UInt32Expression(Convert.ToUInt32(item))) },
+                    { ConstantUInt64Name, CreateLiteralParser(item => new UInt64Expression(Convert.ToUInt64(item))) },
+
+                    //  - Int<n>
+                    { ConstantInt8Name, CreateLiteralParser(item => new Int8Expression(Convert.ToSByte(item))) },
+                    { ConstantInt16Name, CreateLiteralParser(item => new Int16Expression(Convert.ToInt16(item))) },
+                    { ConstantInt32Name, CreateLiteralParser(item => new Int32Expression(Convert.ToInt32(item))) },
+                    { ConstantInt64Name, CreateLiteralParser(item => new Int64Expression(Convert.ToInt64(item))) },
+
+                    //  - Float<n>
+                    { ConstantFloat32Name, CreateLiteralParser(item => new Float32Expression(Convert.ToSingle(item))) },
+                    { ConstantFloat64Name, CreateLiteralParser(item => new Float64Expression(Convert.ToDouble(item))) },
+
+                    //  - Miscellaneous
+                    { ConstantBooleanName, CreateLiteralParser(item => new BooleanExpression(Convert.ToBoolean(item))) },
+                    { ConstantCharName, CreateLiteralParser(item => new CharExpression(Convert.ToChar(item))) },
+                    { ConstantStringName, CreateLiteralParser(item => new StringExpression(Convert.ToString(item))) },
+                    { ConstantVoidName, CreateParser((state, node) => VoidExpression.Instance) }
                 });
             }
         }
