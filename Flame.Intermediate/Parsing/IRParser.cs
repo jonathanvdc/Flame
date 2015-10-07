@@ -99,6 +99,27 @@ namespace Flame.Intermediate.Parsing
         }
 
         /// <summary>
+        /// Parses a table of some kind. Said table is defined
+        /// by the concatenation of all nodes of a specific type in the given sequence of nodes.
+        /// Each item is parsed by the given parsing function.
+        /// The results of this operation are added to the given output list, which is returned.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Nodes"></param>
+        /// <param name="TableType"></param>
+        /// <param name="ParseEntry"></param>
+        /// <param name="OutputTable"></param>
+        /// <returns></returns>
+        public static IList<T> ParseTable<T>(IEnumerable<LNode> Nodes, string TableType, Func<LNode, T> ParseEntry, IList<T> OutputTable)
+        {
+            foreach (var item in GetTableEntries(Nodes, TableType))
+            {
+                OutputTable.Add(ParseEntry(item));
+            }
+            return OutputTable;
+        }
+
+        /// <summary>
         /// Parses a set of some kind. Said set is defined
         /// by the concatenation of all nodes of a specific type in the given sequence of nodes.
         /// Each item is parsed by the given parsing function.
@@ -448,6 +469,28 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+        #region Namespaces
+
+        /// <summary>
+        /// Parses a namespace definition.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <param name="DeclaringNamespace"></param>
+        /// <returns></returns>
+        public static INodeStructure<INamespaceBranch> ParseNamespace(ParserState State, LNode Node, INamespace DeclaringNamespace)
+        {
+            var sig = ParseSignature(State, Node.Args[0]);
+            var result = new IRNamespace(DeclaringNamespace, sig);
+
+            result.TypeNodes = new NodeList<IType>(Node.Args[1].Args.Select(item => State.Parser.TypeReferenceParser.Parse(State, item)).ToArray());
+            result.NamespaceNodes = new NodeList<INamespaceBranch>(Node.Args[2].Args.Select(item => ParseNamespace(State, item, result)).ToArray());
+
+            return result;
+        }
+
+        #endregion
+
         #region Generic Constraints
 
         /// <summary>
@@ -696,6 +739,54 @@ namespace Flame.Intermediate.Parsing
                                 Parser,
                                 TypeDefinitionParser,
                                 TypeMemberParser);
+        }
+
+        private void ParseAssemblyHeader(ParserState State, LNode AssemblyNode, IRAssembly Assembly)
+        {
+            Assembly.Signature = ParseSignature(State, AssemblyNode.Args[0]);
+            Assembly.VersionNode = new VersionNodeStructure(AssemblyNode.Args[1]);
+        }
+
+        private void ParseAssemblyContents(ParserState State, LNode AssemblyNode, IRAssembly Assembly)
+        {
+            Assembly.EntryPointNode = MethodReferenceParser.Parse(State, AssemblyNode.Args[2]);
+            Assembly.RootNamespace.TypeNodes = new NodeList<IType>(AssemblyNode.Args[3].Args.Select(item => TypeReferenceParser.Parse(State, item)).ToArray());
+            Assembly.RootNamespace.NamespaceNodes = new NodeList<INamespaceBranch>(AssemblyNode.Args[4].Args.Select(item => ParseNamespace(State, item, Assembly.RootNamespace)).ToArray());
+        }
+
+        /// <summary>
+        /// Parses a single IR assembly from the given external reference resolver and 
+        /// set of root nodes.
+        /// </summary>
+        /// <param name="Resolver"></param>
+        /// <param name="RootNodes"></param>
+        /// <returns></returns>
+        public IRAssembly ParseAssembly(Func<IEnumerable<string>, IBinder> Resolver, IEnumerable<LNode> RootNodes)
+        {
+            var extBinder = Resolver(ParseDependencies(RootNodes));
+
+            var tTable = new List<INodeStructure<IType>>();
+            var mTable = new List<INodeStructure<IMethod>>();
+            var fTable = new List<INodeStructure<IField>>();
+
+            var header = new ImmutableHeader(extBinder, tTable, mTable, fTable);
+
+            var asmNode = RootNodes.Single(item => item.Name.Name == IRAssembly.AssemblyNodeName);
+            var asm = new IRAssembly(IRSignature.Empty, extBinder.Environment);
+            var state = new ParserState(this, header, asm);
+
+            // Parse the assembly's header first.
+            ParseAssemblyHeader(state, asmNode, asm);
+            
+            // Next, parse the type, method and field tables.
+            ParseTable(RootNodes, TypeTableName, item => TypeReferenceParser.Parse(state, item), tTable);
+            ParseTable(RootNodes, MethodTableName, item => MethodReferenceParser.Parse(state, item), mTable);
+            ParseTable(RootNodes, FieldTableName, item => FieldReferenceParser.Parse(state, item), fTable);
+
+            // Now parse the assembly's contents.
+            ParseAssemblyContents(state, asmNode, asm);
+
+            return asm;
         }
 
         #endregion

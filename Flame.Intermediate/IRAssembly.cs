@@ -11,7 +11,7 @@ namespace Flame.Intermediate
     public class IRAssembly : INodeStructure<IAssembly>, IAssembly
     {
         public IRAssembly(IRSignature Signature, IEnvironment Environment)
-            : this(Signature, Environment, new LiteralNodeStructure<Version>(new Version(1, 0, 0, 0)))
+            : this(Signature, Environment, new VersionNodeStructure(new Version(1, 0, 0, 0)))
         { }
         public IRAssembly(IRSignature Signature, IEnvironment Environment, 
             INodeStructure<Version> VersionNode)
