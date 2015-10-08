@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 namespace Flame.Intermediate.Parsing
 {
     // IR file contents:
+    // - Runtime library dependency set
     // - Dependency set
     // - Type table
     // - Method table
@@ -20,7 +21,8 @@ namespace Flame.Intermediate.Parsing
     {
         #region Static
 
-        public const string DependencyNodeName = "#external_dependency";
+        public const string RuntimeDependencyNodeName = "#runtime_dependency";
+        public const string LibraryDependencyNodeName = "#external_dependency";
         public const string TypeTableName = "#type_table";
         public const string MethodTableName = "#method_table";
         public const string FieldTableName = "#field_table";
@@ -136,13 +138,35 @@ namespace Flame.Intermediate.Parsing
         }
 
         /// <summary>
-        /// Parses all dependency tables in the given sequence of nodes.
+        /// Parses all dependency tables of the given type in the given sequence of nodes.
         /// </summary>
         /// <param name="Nodes"></param>
         /// <returns></returns>
-        public static IEnumerable<string> ParseDependencies(IEnumerable<LNode> Nodes)
+        public static IEnumerable<string> ParseDependencies(IEnumerable<LNode> Nodes, string TableType)
         {
-            return ParseSet(Nodes, DependencyNodeName, item => item.Name.Name);
+            return ParseSet(Nodes, TableType, item => item.Name.Name);
+        }
+
+        /// <summary>
+        /// Parses all library dependency tables in the given
+        /// sequence of nodes.
+        /// </summary>
+        /// <param name="Nodes"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> ParseLibraryDependencies(IEnumerable<LNode> Nodes)
+        {
+            return ParseDependencies(Nodes, LibraryDependencyNodeName);
+        }
+
+        /// <summary>
+        /// Parses all runtime dependency tables in the given
+        /// sequence of nodes.
+        /// </summary>
+        /// <param name="Nodes"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> ParseRuntimeDependencies(IEnumerable<LNode> Nodes)
+        {
+            return ParseDependencies(Nodes, RuntimeDependencyNodeName);
         }
 
         #endregion
@@ -424,13 +448,35 @@ namespace Flame.Intermediate.Parsing
 
         #region Common
 
+        /// <summary>
+        /// Parses the given signature node's name identifier.
+        /// </summary>
+        /// <param name="SignatureNode"></param>
+        /// <returns></returns>
+        public static string ParseSignatureName(LNode SignatureNode)
+        {
+            // Format:
+            //
+            // #member(name, attributes...)
+            //         ^~~~
+
+            return SignatureNode.Args[0].Name.Name;
+        }
+
+        /// <summary>
+        /// Parses the given signature node within the context
+        /// of the specified state.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
         public static IRSignature ParseSignature(ParserState State, LNode Node)
         {
             // Format:
             //
             // #member(name, attributes...)
 
-            string name = Node.Args[0].Name.Name;
+            string name = ParseSignatureName(Node);
             var attrs = Node.Args.Skip(1).Select(item => State.Parser.AttributeParser.Parse(State, item));
             return new IRSignature(name, attrs);
         }
@@ -550,6 +596,32 @@ namespace Flame.Intermediate.Parsing
                 result.InitialValueNode = State.Parser.ExpressionParser.Parse(State, Node.Args[3]);
             }
             return result;
+        }
+
+        #endregion
+
+        #region Assemblies
+
+        /// <summary>
+        /// Gets the single '#assembly' node in this set of top-level nodes.
+        /// </summary>
+        /// <param name="RootNodes"></param>
+        /// <returns></returns>
+        public static LNode GetAssemblyNode(IEnumerable<LNode> RootNodes)
+        {
+            return RootNodes.Single(item => item.Name.Name == IRAssembly.AssemblyNodeName);
+        }
+
+        /// <summary>
+        /// Given the given set of top-level nodes, extracts the 
+        /// '#assembly' node's name.
+        /// </summary>
+        /// <param name="RootNodes"></param>
+        /// <returns></returns>
+        public static string ParseAssemblyName(IEnumerable<LNode> RootNodes)
+        {
+            var asmNode = GetAssemblyNode(RootNodes);
+            return ParseSignatureName(asmNode.Args[0]);
         }
 
         #endregion
@@ -761,18 +833,16 @@ namespace Flame.Intermediate.Parsing
         /// <param name="Resolver"></param>
         /// <param name="RootNodes"></param>
         /// <returns></returns>
-        public IRAssembly ParseAssembly(Func<IEnumerable<string>, IBinder> Resolver, IEnumerable<LNode> RootNodes)
+        public IRAssembly ParseAssembly(IBinder ExternalBinder, IEnumerable<LNode> RootNodes)
         {
-            var extBinder = Resolver(ParseDependencies(RootNodes));
-
             var tTable = new List<INodeStructure<IType>>();
             var mTable = new List<INodeStructure<IMethod>>();
             var fTable = new List<INodeStructure<IField>>();
 
-            var header = new ImmutableHeader(extBinder, tTable, mTable, fTable);
+            var header = new ImmutableHeader(ExternalBinder, tTable, mTable, fTable);
 
-            var asmNode = RootNodes.Single(item => item.Name.Name == IRAssembly.AssemblyNodeName);
-            var asm = new IRAssembly(IRSignature.Empty, extBinder.Environment);
+            var asmNode = GetAssemblyNode(RootNodes);
+            var asm = new IRAssembly(IRSignature.Empty, ExternalBinder.Environment);
             var state = new ParserState(this, header, asm);
 
             // Parse the assembly's header first.
