@@ -40,17 +40,17 @@ namespace Flame.Front.Projects
             if (Path.HasExtension("flo"))
             {
                 using (var fs = new FileStream(Path.Path.AbsolutePath.Name, FileMode.Open, FileAccess.Read))
-                using (var reader = new StreamReader(fs))
                 {
-                    string text = reader.ReadToEnd();
-                    return Loyc.Syntax.Les.LesLanguageService.Value.Parse((Loyc.UString)text, Path.Path.Name, Loyc.MessageSink.Console);
+                    return Loyc.Binary.LoycBinaryHelpers.ReadFile(fs, Path.Path.Name);
                 }
             }
             else
             {
                 using (var fs = new FileStream(Path.Path.AbsolutePath.Name, FileMode.Open, FileAccess.Read))
+                using (var reader = new StreamReader(fs))
                 {
-                    return Loyc.Binary.LoycBinaryHelpers.ReadFile(fs, Path.Path.Name);
+                    string text = reader.ReadToEnd();
+                    return Loyc.Syntax.Les.LesLanguageService.Value.Parse((Loyc.UString)text, Path.Path.Name, Loyc.MessageSink.Console);
                 }
             }
         }
