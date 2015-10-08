@@ -59,7 +59,7 @@ namespace Flame.Intermediate.Parsing
         public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateLiteralParser(Func<object, IExpression> ParseLiteral)
         {
             return new Func<ParserState, LNode, INodeStructure<IExpression>>((state, node) =>
-                new LazyNodeStructure<IExpression>(node, () => ParseLiteral(node.Value)));
+                new LazyNodeStructure<IExpression>(node, () => ParseLiteral(node.Args[0].Value)));
         }
 
         #endregion
