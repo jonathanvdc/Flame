@@ -37,6 +37,14 @@ namespace Flame.Front.Projects
 
         Task<IAssembly> CompileAsync(IProject Project, CompilationParameters Parameters);
 
+        /// <summary>
+        /// Creates a new project at the given path from the
+        /// specified project.
+        /// </summary>
+        /// <param name="Project"></param>
+        /// <param name="Path"></param>
+        /// <param name="Log"></param>
+        /// <returns></returns>
         IProject MakeProject(IProject Project, ProjectPath Path, ICompilerLog Log);
 
         /// <summary>
