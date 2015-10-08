@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Flame.Front.Target;
 using Flame.Verification;
 using Flame.Intermediate.Parsing;
+using Loyc.Syntax;
 
 namespace Flame.Front.Projects
 {
@@ -29,7 +30,29 @@ namespace Flame.Front.Projects
 
         public IProject Parse(ProjectPath Path, ICompilerLog Log)
         {
-            return new SingleFileProject(Path, Log.Options.GetTargetPlatform());
+            var nodes = ParseFile(Path);
+
+            return new FlameIRProject(Path, nodes, Log);
+        }
+
+        private IEnumerable<LNode> ParseFile(ProjectPath Path)
+        {
+            if (Path.HasExtension("flo"))
+            {
+                using (var fs = new FileStream(Path.Path.AbsolutePath.Name, FileMode.Open, FileAccess.Read))
+                using (var reader = new StreamReader(fs))
+                {
+                    string text = reader.ReadToEnd();
+                    return Loyc.Syntax.Les.LesLanguageService.Value.Parse((Loyc.UString)text, Path.Path.Name, Loyc.MessageSink.Console);
+                }
+            }
+            else
+            {
+                using (var fs = new FileStream(Path.Path.AbsolutePath.Name, FileMode.Open, FileAccess.Read))
+                {
+                    return Loyc.Binary.LoycBinaryHelpers.ReadFile(fs, Path.Path.Name);
+                }
+            }
         }
 
         public IProject MakeProject(IProject Project, ProjectPath Path, ICompilerLog Log)
