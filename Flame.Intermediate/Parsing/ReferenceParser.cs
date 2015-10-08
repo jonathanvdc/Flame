@@ -25,7 +25,15 @@ namespace Flame.Intermediate.Parsing
 
         public INodeStructure<T> Parse(ParserState State, LNode Node)
         {
-            return Parsers[Node.Name.Name](State, Node);
+            Func<ParserState, LNode, INodeStructure<T>> parser;
+            if (Parsers.TryGetValue(Node.Name.Name, out parser))
+            {
+                return parser(State, Node);
+            }
+            else
+            {
+                throw new InvalidOperationException("Could not handle the given '" + Node.Name.Name + "' node because its type was unknown.");
+            }
         }
     }
 }
