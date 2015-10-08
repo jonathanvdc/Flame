@@ -1,11 +1,11 @@
 
 #assembly(
-    #member(Field),
+    #member(InitField),
     #version(1, 0, 0, 0),
     #null,
     {
         #type_definition(
-            #member(Field, #public),
+            #member(InitField, #public),
             { },
             { },
             { },
