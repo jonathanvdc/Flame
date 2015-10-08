@@ -21,6 +21,8 @@ namespace Flame.Intermediate.Parsing
     {
         #region Static
 
+        public const string NullNodeName = "#null";
+
         public const string RuntimeDependencyNodeName = "#runtime_dependency";
         public const string LibraryDependencyNodeName = "#external_dependency";
         public const string TypeTableName = "#type_table";
@@ -169,6 +171,19 @@ namespace Flame.Intermediate.Parsing
             return ParseDependencies(Nodes, RuntimeDependencyNodeName);
         }
 
+        /// <summary>
+        /// Parses the given null node.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static INodeStructure<T> ParseNullNode<T>(ParserState State, LNode Node)
+            where T : class
+        {
+            return new ConstantNodeStructure<T>(Node, null);
+        }
+
         #endregion
 
         #region Reference Parsing
@@ -305,7 +320,19 @@ namespace Flame.Intermediate.Parsing
 
         public static Func<ParserState, LNode, INodeStructure<IType>> CreateIndexedTypeParser(Dictionary<int, IType> Types)
         {
-            return new Func<ParserState, LNode, INodeStructure<IType>>((state, node) => new ConstantNodeStructure<IType>(node, Types[Convert.ToInt32(node.Args.Single().Value)]));
+            return new Func<ParserState, LNode, INodeStructure<IType>>((state, node) => 
+            {
+                IType resultType;
+                int size = Convert.ToInt32(node.Args.Single().Value);
+                if (Types.TryGetValue(size, out resultType))
+                {
+                    return new ConstantNodeStructure<IType>(node, resultType);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Could not create a '" + node.Name + "' type of size " + size + ".");
+                }
+            });
         }
 
         public static Func<ParserState, LNode, INodeStructure<IType>> CreatePrimitiveTypeParser(params IType[] Types)
@@ -313,7 +340,7 @@ namespace Flame.Intermediate.Parsing
             var dict = new Dictionary<int, IType>();
             for (int i = 0; i < Types.Length; i++)
             {
-                dict[Types[i].GetPrimitiveSize()] = Types[i];
+                dict[Types[i].GetPrimitiveSize() * 8] = Types[i];
             }
             return CreateIndexedTypeParser(dict);
         }
@@ -821,8 +848,10 @@ namespace Flame.Intermediate.Parsing
 
         private void ParseAssemblyContents(ParserState State, LNode AssemblyNode, IRAssembly Assembly)
         {
-            Assembly.EntryPointNode = MethodReferenceParser.Parse(State, AssemblyNode.Args[2]);
-            Assembly.RootNamespace.TypeNodes = new NodeList<IType>(AssemblyNode.Args[3].Args.Select(item => TypeReferenceParser.Parse(State, item)).ToArray());
+            var epParser = MethodReferenceParser.AddParser(NullNodeName, ParseNullNode<IMethod>);
+
+            Assembly.EntryPointNode = epParser.Parse(State, AssemblyNode.Args[2]);
+            Assembly.RootNamespace.TypeNodes = new NodeList<IType>(AssemblyNode.Args[3].Args.Select(item => TypeDefinitionParser.Parse(State, item, Assembly.RootNamespace)).ToArray());
             Assembly.RootNamespace.NamespaceNodes = new NodeList<INamespaceBranch>(AssemblyNode.Args[4].Args.Select(item => ParseNamespace(State, item, Assembly.RootNamespace)).ToArray());
         }
 
