@@ -1,10 +1,10 @@
 #type_table(
     #type_reference("Delegate"),
-    #delegate_type(#int(32))
+    #delegate_type(#int(32), #int(32))
 );
 
 #method_table(
-    #method_reference(#type_table_reference(0), "y", 1, { }, #int(32), { });
+    #method_reference(#type_table_reference(0), "y", 1, { }, #int(32), { #int(32) });
 );
 
 #assembly(
@@ -27,7 +27,7 @@
                 );
                 #method(
                     #member(y, #public, #const),
-                    { }, 1, #int(32), { }, { },
+                    { }, 1, #int(32), { #param(#member(a), #int(32)) }, { },
                     {
                         #return(#const_int32(1));
                     }
