@@ -33,6 +33,7 @@ namespace Flame.Intermediate.Parsing
         
         public const string FieldReferenceName = "#field_reference";
         public const string MethodReferenceName = "#method_reference";
+        public const string AccessorReferenceName = "#accessor_reference";
 
         /// <summary>
         /// An identifier for generic instances.
@@ -436,6 +437,26 @@ namespace Flame.Intermediate.Parsing
                     descMethod.AddParameter(new DescribedParameter("arg" + item.Key, genericParser.Parse(State, item.Value).Value));
                 }
                 return declType.Methods.GetMethod(descMethod);
+            });
+        }
+
+        public static INodeStructure<IMethod> ParseAccessorSignatureReference(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #accessor_reference(declaring_type, property_name, property_is_static, property_type, { indexer_parameter_types... }, accessor_type)
+
+            return new LazyNodeStructure<IMethod>(Node, () =>
+            {
+                var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
+                string propertyName = (string)Node.Args[1].Value;
+                bool propIsStatic = Convert.ToBoolean(Node.Args[2].Value);
+                var propType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[3]).Value;
+                var propParamTypes = Node.Args[4].Args.Select(item => State.Parser.TypeReferenceParser.Parse(State, item).Value).ToArray();
+                var prop = declType.Properties.GetProperty(propertyName, propIsStatic, propType, propParamTypes);
+                var accType = AccessorType.Register(Node.Args[5].Name.Name);
+
+                return prop.GetAccessor(accType);
             });
         }
 
@@ -880,6 +901,7 @@ namespace Flame.Intermediate.Parsing
                 return new ReferenceParser<IMethod>(new Dictionary<string, Func<ParserState, LNode, INodeStructure<IMethod>>>()
                 {
                     { MethodReferenceName, ParseMethodSignatureReference },
+                    { AccessorReferenceName, ParseAccessorSignatureReference },
                     { MethodTableReferenceName, ParseMethodTableReference },
                     { GenericInstanceName, ParseGenericMethodInstance },
                     { GenericInstanceMemberName, ParseGenericInstanceMethod }
