@@ -30,6 +30,11 @@ namespace Flame.Intermediate.Parsing
         public const string ContinueNodeName = "#continue";
         public static readonly string BlockNodeName = CodeSymbols.Braces.Name;
 
+        public const string GetDelegateNodeName = "#get_delegate";
+        public const string GetVirtualDelegateNodeName = "#get_virtual_delegate";
+        public const string GetExtensionDelegateNodeName = "#get_extension_delegate";
+        public const string InvocationNodeName = "#invoke";
+
         public const string ConstantInt8Name = "#const_int8";
         public const string ConstantInt16Name = "#const_int16";
         public const string ConstantInt32Name = "#const_int32";
@@ -52,6 +57,7 @@ namespace Flame.Intermediate.Parsing
         public const string ConstantCharName = "#const_char";
         public const string ConstantStringName = "#const_string";
         public const string ConstantVoidName = "#const_void";
+        public const string ConstantNullName = "#const_null";
 
         #region Special
 
@@ -418,6 +424,79 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+        #region OO Model
+
+        /// <summary>
+        /// Parses the given get-delegate node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseGetDelegate(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #get_delegate(target, closure)
+
+            var target = State.Parser.MethodReferenceParser.Parse(State, Node.Args[0]).Value;
+            var closure = ParseExpression(State, Node.Args[1]);
+            return new GetMethodExpression(target, closure, Operator.GetDelegate);
+        }
+
+        /// <summary>
+        /// Parses the given get-virtual-delegate node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseGetVirtualDelegate(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #get_virtual_delegate(target, closure)
+
+            var target = State.Parser.MethodReferenceParser.Parse(State, Node.Args[0]).Value;
+            var closure = ParseExpression(State, Node.Args[1]);
+            return new GetMethodExpression(target, closure, Operator.GetVirtualDelegate);
+        }
+
+        /// <summary>
+        /// Parses the given get-extension-delegate node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseGetExtensionDelegate(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #get_extension_delegate(target, closure)
+
+            var target = State.Parser.MethodReferenceParser.Parse(State, Node.Args[0]).Value;
+            var closure = ParseExpression(State, Node.Args[1]);
+            return new GetExtensionMethodExpression(target, closure);
+        }
+
+        /// <summary>
+        /// Parses the given invocation node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseInvocation(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #invoke(target, args...)
+
+            var target = ParseExpression(State, Node.Args[0]);
+            var args = ParseExpressions(State, Node.Args.Skip(1));
+
+            return new InvocationExpression(target, args);
+        }
+
+        #endregion
+
         #region Default Parser
 
         public static ReferenceParser<IExpression> DefaultExpressionParser
@@ -441,6 +520,14 @@ namespace Flame.Intermediate.Parsing
                     { ContinueNodeName, CreateParser(ParseContinue) },
                     { TagReferenceName, (state, node) => { throw new InvalidOperationException("Unknown block tag '" + node.Args[0].Name.Name + "'."); }  },
                     
+                    // Null expressions
+                    { IRParser.NullNodeName, CreateParser((state, node) => null) },
+
+                    // OO Model
+                    { GetDelegateNodeName, CreateParser(ParseGetDelegate) },
+                    { GetVirtualDelegateNodeName, CreateParser(ParseGetVirtualDelegate) },
+                    { GetExtensionDelegateNodeName, CreateParser(ParseGetExtensionDelegate) },
+
                     // Constants
                     //  - Bit<n>
                     { ConstantBit8Name, CreateLiteralParser(item => new Bit8Expression(Convert.ToByte(item))) },
@@ -468,7 +555,8 @@ namespace Flame.Intermediate.Parsing
                     { ConstantBooleanName, CreateLiteralParser(item => new BooleanExpression(Convert.ToBoolean(item))) },
                     { ConstantCharName, CreateLiteralParser(item => new CharExpression(Convert.ToChar(item))) },
                     { ConstantStringName, CreateLiteralParser(item => new StringExpression(Convert.ToString(item))) },
-                    { ConstantVoidName, CreateParser((state, node) => VoidExpression.Instance) }
+                    { ConstantVoidName, CreateParser((state, node) => VoidExpression.Instance) },
+                    { ConstantNullName, CreateParser((state, node) => NullExpression.Instance) }
                 });
             }
         }
