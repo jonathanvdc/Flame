@@ -22,6 +22,8 @@ namespace Flame.Intermediate.Parsing
         public const string ThrowNodeName = "#throw";
         public const string SelectNodeName = "#select";
         public const string TaggedNodeName = "#tagged";
+        public const string WhileNodeName = "#while";
+        public const string DoWhileNodeName = "#do_while";
         public static readonly string BlockNodeName = CodeSymbols.Braces.Name;
 
         public const string ConstantInt8Name = "#const_int8";
@@ -233,20 +235,6 @@ namespace Flame.Intermediate.Parsing
         }
 
         /// <summary>
-        /// Gets the tag associated with the given tagged block node.
-        /// </summary>
-        /// <param name="Node"></param>
-        /// <returns></returns>
-        public static string GetTaggedNodeTag(LNode Node)
-        {
-            // Format:
-            //
-            // <#tagged_node>(tag, ...)
-
-            return Node.Args[0].Name.Name;
-        }
-
-        /// <summary>
         /// Parses the given tagged statement node.
         /// </summary>
         /// <param name="State"></param>
@@ -259,8 +247,60 @@ namespace Flame.Intermediate.Parsing
             //
             // #tagged(tag, body)
 
-            var body = ParseExpression(State, Node.Args[1]);
-            return ToExpression(new TaggedStatement(Tag, ToStatement(body)));
+            var body = ToStatement(ParseExpression(State, Node.Args[1]));
+            return ToExpression(new TaggedStatement(Tag, body));
+        }
+
+        /// <summary>
+        /// Parses the given while statement node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <param name="Tag"></param>
+        /// <returns></returns>
+        public static IExpression ParseWhile(ParserState State, LNode Node, BlockTag Tag)
+        {
+            // Format:
+            // 
+            // #while(tag, condition, body)
+
+            var cond = ParseExpression(State, Node.Args[1]);
+            var body = ToStatement(ParseExpression(State, Node.Args[2]));
+            return ToExpression(new WhileStatement(Tag, cond, body));
+        }
+
+        /// <summary>
+        /// Parses the given do-while statement node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <param name="Tag"></param>
+        /// <returns></returns>
+        public static IExpression ParseDoWhile(ParserState State, LNode Node, BlockTag Tag)
+        {
+            // Format:
+            //
+            // #do_while(tag, body, condition)
+            
+            var body = ToStatement(ParseExpression(State, Node.Args[1]));
+            var cond = ParseExpression(State, Node.Args[2]);
+            return ToExpression(new DoWhileStatement(Tag, body, cond));
+        }
+
+        #region Tagged Node Helpers
+
+        /// <summary>
+        /// Gets the tag associated with the given tagged block node.
+        /// </summary>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static string GetTaggedNodeTag(LNode Node)
+        {
+            // Format:
+            //
+            // <#tagged_node>(tag, ...)
+
+            return Node.Args[0].Name.Name;
         }
 
         /// <summary>
@@ -300,6 +340,8 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+        #endregion
+
         #region Default Parser
 
         public static ReferenceParser<IExpression> DefaultExpressionParser
@@ -316,6 +358,8 @@ namespace Flame.Intermediate.Parsing
                     { BlockNodeName, CreateParser(ParseBlock) },
                     { SelectNodeName, CreateParser(ParseSelect) },
                     { TaggedNodeName, CreateTaggedNodeParser(GetTaggedNodeTag, ParseTagged) },
+                    { WhileNodeName, CreateTaggedNodeParser(GetTaggedNodeTag, ParseWhile) },
+                    { DoWhileNodeName, CreateTaggedNodeParser(GetTaggedNodeTag, ParseDoWhile) },
                     { TagReferenceName, (state, node) => { throw new InvalidOperationException("Unknown block tag '" + node.Args[0].Name.Name + "'."); }  },
                     
                     // Constants
