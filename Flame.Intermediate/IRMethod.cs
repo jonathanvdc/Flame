@@ -21,6 +21,10 @@ namespace Flame.Intermediate
             this.ParameterNodes = EmptyNodeList<IParameter>.Instance;
             this.BaseMethodNodes = EmptyNodeList<IMethod>.Instance;
         }
+        public IRMethod(IType DeclaringType, IRSignature Signature, bool IsStatic, bool IsConstructor)
+            : this(DeclaringType, Signature, IsStatic, IsConstructor, 
+                   new ConstantNodeStructure<IType>(NodeFactory.Id("#void"), PrimitiveTypes.Void))
+        { }
 
         // Format:
         //
