@@ -38,6 +38,8 @@ namespace Flame.Intermediate.Parsing
         public const string DynamicCastNode = "#dynamic_cast";
         public const string StaticCastNode = "#static_cast";
         public const string ReinterpretCastNode = "#reinterpret_cast";
+        public const string AsInstanceNode = "#as_instance";
+        public const string IsInstanceNode = "#is_instance";
 
         public const string ConstantInt8Name = "#const_int8";
         public const string ConstantInt16Name = "#const_int16";
@@ -501,14 +503,14 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
-        #region Casts
+        #region Type binary
 
         /// <summary>
-        /// Creates a parser delegate that parses cast nodes.
+        /// Creates a parser delegate that parses type binary nodes.
         /// </summary>
         /// <param name="CreateCast"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateCastParser(Func<IExpression, IType, IExpression> CreateCastExpression)
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateTypeBinaryParser(Func<IExpression, IType, IExpression> CreateCastExpression)
         {
             return CreateParser((state, node) =>
             {
@@ -554,9 +556,11 @@ namespace Flame.Intermediate.Parsing
                     { InvocationNodeName, CreateParser(ParseInvocation) },
 
                     // Casts
-                    { StaticCastNode, CreateCastParser((expr, type) => new StaticCastExpression(expr, type)) },
-                    { ReinterpretCastNode, CreateCastParser((expr, type) => new ReinterpretCastExpression(expr, type)) },
-                    { DynamicCastNode, CreateCastParser((expr, type) => new DynamicCastExpression(expr, type)) },
+                    { StaticCastNode, CreateTypeBinaryParser((expr, type) => new StaticCastExpression(expr, type)) },
+                    { ReinterpretCastNode, CreateTypeBinaryParser((expr, type) => new ReinterpretCastExpression(expr, type)) },
+                    { DynamicCastNode, CreateTypeBinaryParser((expr, type) => new DynamicCastExpression(expr, type)) },
+                    { AsInstanceNode, CreateTypeBinaryParser((expr, type) => new AsInstanceExpression(expr, type)) },
+                    { IsInstanceNode, CreateTypeBinaryParser((expr, type) => new IsExpression(expr, type)) },
 
                     // Constants
                     //  - Bit<n>
