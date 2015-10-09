@@ -155,19 +155,17 @@ namespace Flame.Intermediate.Parsing
             {
                 return ToExpression(new ReturnStatement());
             }
+
+            var result = ToExpression(new ReturnStatement(ParseExpression(State, Node.Args[0])));
+            if (Node.ArgCount > 1)
+            {
+                return new ErrorExpression(result, new LogEntry(
+                    "Invalid '" + ReturnNodeName + "' node",
+                    "'" + ReturnNodeName + "' nodes must return zero or one values."));
+            }
             else
             {
-                var result = ToExpression(new ReturnStatement(ParseExpression(State, Node.Args[0])));
-                if (Node.ArgCount > 0)
-                {
-                    return new ErrorExpression(result, new LogEntry(
-                        "Invalid '" + ReturnNodeName + "' node",
-                        "'" + ReturnNodeName + "' nodes must return zero or one values."));
-                }
-                else
-                {
-                    return result;
-                }
+                return result;
             }
         }
 
@@ -179,8 +177,15 @@ namespace Flame.Intermediate.Parsing
         /// <returns></returns>
         public static IExpression ParseThrow(ParserState State, LNode Node)
         {
+            if (Node.ArgCount == 0)
+            {
+                return new ErrorExpression(ToExpression(new AssertStatement(new BooleanExpression(false))), 
+                    new LogEntry("Invalid '" + ThrowNodeName + "' node",
+                    "'" + ThrowNodeName + "' nodes must throw exactly one value."));
+            }
+
             var result = ToExpression(new ThrowStatement(ParseExpression(State, Node.Args[0])));
-            if (Node.ArgCount > 0)
+            if (Node.ArgCount > 1)
             {
                 return new ErrorExpression(result, new LogEntry(
                     "Invalid '" + ThrowNodeName + "' node",
