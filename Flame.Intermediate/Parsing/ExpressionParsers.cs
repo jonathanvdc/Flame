@@ -527,6 +527,7 @@ namespace Flame.Intermediate.Parsing
                     { GetDelegateNodeName, CreateParser(ParseGetDelegate) },
                     { GetVirtualDelegateNodeName, CreateParser(ParseGetVirtualDelegate) },
                     { GetExtensionDelegateNodeName, CreateParser(ParseGetExtensionDelegate) },
+                    { InvocationNodeName, CreateParser(ParseInvocation) },
 
                     // Constants
                     //  - Bit<n>
