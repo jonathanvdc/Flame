@@ -1,5 +1,7 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
 using Loyc.Syntax;
 using System;
@@ -725,7 +727,10 @@ namespace Flame.Intermediate.Parsing
 
                 var exprParser = State.Parser.ExpressionParser
                     .WithParser(ExpressionParsers.GetThisNodeName, ExpressionParsers.CreateGetThisParser(thisType))
-                    .WithParser(ExpressionParsers.AddressOfThisNodeName, ExpressionParsers.CreateAddressOfThisParser(thisType));
+                    .WithParser(ExpressionParsers.AddressOfThisNodeName, ExpressionParsers.CreateAddressOfThisParser(thisType))
+                    .WithParser(ExpressionParsers.SetThisNodeName, ExpressionParsers.CreateParser(ExpressionParsers.ParseSetThis))
+                    // TODO: implement #release_this as an actual release operation, instead of an empty statement.
+                    .WithParser(ExpressionParsers.ReleaseThisNodeName, ExpressionParsers.CreateConstantParser(VoidExpression.Instance));
 
                 var newState = State.WithParser(State.Parser.WithExpressionParser(exprParser));
 

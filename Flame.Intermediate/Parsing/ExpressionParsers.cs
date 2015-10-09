@@ -590,6 +590,19 @@ namespace Flame.Intermediate.Parsing
             return CreateConstantParser(new ThisAddressOfExpression(ThisType.MakePointerType(PointerKind.ReferencePointer)));
         }
 
+        /// <summary>
+        /// Parses the given set-this node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseSetThis(ParserState State, LNode Node)
+        {
+            var value = ParseExpression(State, Node);
+
+            return ToExpression(new ThisSetStatement(value));
+        }
+
         #endregion
 
         #endregion
