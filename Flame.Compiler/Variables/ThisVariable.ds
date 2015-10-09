@@ -64,6 +64,10 @@ namespace Flame.Compiler.Variables
             return Other is ThisVariable;
         }
 
+        /// <summary>
+        /// Gets the type of the 'this' variable, if the given type is the
+        /// declaring type.
+        /// </summary>
         public static const IType GetThisType(IType CurrentType)
 		{
 			var finalType = CurrentType;

@@ -67,6 +67,11 @@ namespace Flame.Intermediate.Parsing
         public const string ConstantVoidName = "#const_void";
         public const string ConstantNullName = "#const_null";
 
+        public const string GetThisNodeName = "#get_this";
+        public const string SetThisNodeName = "#set_this";
+        public const string ReleaseThisNodeName = "#release_this";
+        public const string AddressOfThisNodeName = "#addressof_this";
+
         #region Special
 
         /// <summary>
@@ -546,6 +551,49 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+        #region Constants
+
+        /// <summary>
+        /// Defines a parser that parses constant expressions.
+        /// The same value is returned, regardless of the node provided.
+        /// </summary>
+        /// <param name="Expression"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateConstantParser(IExpression Expression)
+        {
+            return CreateParser((state, node) => Expression);
+        }
+
+        #endregion
+
+        #region Variables
+
+        #region This
+
+        /// <summary>
+        /// Creates a parser that parses get-this expressions.
+        /// </summary>
+        /// <param name="Expression"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateGetThisParser(IType ThisType)
+        {
+            return CreateConstantParser(new ThisGetExpression(ThisType));
+        }
+
+        /// <summary>
+        /// Creates a parser that parses addressof-this expressions.
+        /// </summary>
+        /// <param name="Expression"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateAddressOfThisParser(IType ThisType)
+        {
+            return CreateConstantParser(new ThisAddressOfExpression(ThisType.MakePointerType(PointerKind.ReferencePointer)));
+        }
+
+        #endregion
+
+        #endregion
+
         #region Default Parser
 
         public static ReferenceParser<IExpression> DefaultExpressionParser
@@ -615,8 +663,8 @@ namespace Flame.Intermediate.Parsing
                     { ConstantBooleanName, CreateLiteralParser(item => new BooleanExpression(Convert.ToBoolean(item))) },
                     { ConstantCharName, CreateLiteralParser(item => new CharExpression(Convert.ToChar(item))) },
                     { ConstantStringName, CreateLiteralParser(item => new StringExpression(Convert.ToString(item))) },
-                    { ConstantVoidName, CreateParser((state, node) => VoidExpression.Instance) },
-                    { ConstantNullName, CreateParser((state, node) => NullExpression.Instance) }
+                    { ConstantVoidName, CreateConstantParser(VoidExpression.Instance) },
+                    { ConstantNullName, CreateConstantParser(NullExpression.Instance) }
                 });
             }
         }
