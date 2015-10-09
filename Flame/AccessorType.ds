@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace Flame
 {
+    /// <summary>
+    /// Defines an accessor's "type".
+    /// Each property has zero or one accessors of any given type.
+    /// </summary>
     public struct AccessorType
     {
         private const this(set int32 typeIndex);
@@ -12,6 +16,11 @@ namespace Flame
         }
 
         private int32 typeIndex;
+
+        /// <summary>
+        /// Gets this accessor type's name.
+        /// </summary>
+        public string Name { const get { return typeNames[typeIndex]; } }
 
         #region Equality
 
@@ -70,9 +79,16 @@ namespace Flame
         private static List<string> typeNames;
         private static AccessorType[] predefinedAccessors;
 
-        public static AccessorType Register(string Name)
+        public static AccessorType Register(string AccessorName)
         {
-            typeNames.Add(Name);
+            for (int i = 0; i < typeNames.Count; i++)
+            {
+                if (typeNames[i].Equals(AccessorName))
+                {
+                    return new AccessorType(i);
+                }
+            }
+            typeNames.Add(AccessorName);
             return new AccessorType(typeNames.Count - 1);
         }
 
