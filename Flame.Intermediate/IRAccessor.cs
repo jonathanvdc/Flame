@@ -13,6 +13,7 @@ namespace Flame.Intermediate
         public IRAccessor(IProperty DeclaringProperty, IRSignature Signature, AccessorType AccessorType, bool IsStatic, INodeStructure<IType> ReturnTypeNode)
         {
             this.DeclaringProperty = DeclaringProperty;
+            this.Signature = Signature;
             this.AccessorType = AccessorType;
             this.IsStatic = IsStatic;
             this.ReturnTypeNode = ReturnTypeNode;
