@@ -35,6 +35,8 @@ namespace Flame.Intermediate.Parsing
         public const string GetExtensionDelegateNodeName = "#get_extension_delegate";
         public const string InvocationNodeName = "#invoke";
 
+        public const string BinaryNode = "#binary";
+
         public const string DynamicCastNode = "#dynamic_cast";
         public const string StaticCastNode = "#static_cast";
         public const string ReinterpretCastNode = "#reinterpret_cast";
@@ -503,7 +505,28 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
-        #region Type binary
+        #region Operators
+
+        /// <summary>
+        /// Parses the given binary op node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseBinary(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #binary(left, "@", right)
+            //
+            // where @ is any operator
+
+            var lhs = ParseExpression(State, Node.Args[0]);
+            var op = Operator.Register((string)Node.Args[1].Value);
+            var rhs = ParseExpression(State, Node.Args[2]);
+
+            return new DirectBinaryExpression(lhs, op, rhs);
+        }
 
         /// <summary>
         /// Creates a parser delegate that parses type binary nodes.
@@ -554,6 +577,9 @@ namespace Flame.Intermediate.Parsing
                     { GetVirtualDelegateNodeName, CreateParser(ParseGetVirtualDelegate) },
                     { GetExtensionDelegateNodeName, CreateParser(ParseGetExtensionDelegate) },
                     { InvocationNodeName, CreateParser(ParseInvocation) },
+
+                    // Operators
+                    { BinaryNode, CreateParser(ParseBinary) },
 
                     // Casts
                     { StaticCastNode, CreateTypeBinaryParser((expr, type) => new StaticCastExpression(expr, type)) },
