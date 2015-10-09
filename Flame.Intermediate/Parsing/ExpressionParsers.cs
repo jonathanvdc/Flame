@@ -21,6 +21,7 @@ namespace Flame.Intermediate.Parsing
         public const string ReturnNodeName = "#return";
         public const string ThrowNodeName = "#throw";
         public const string SelectNodeName = "#select";
+        public const string TaggedNodeName = "#tagged";
         public static readonly string BlockNodeName = CodeSymbols.Braces.Name;
 
         public const string ConstantInt8Name = "#const_int8";
@@ -45,6 +46,15 @@ namespace Flame.Intermediate.Parsing
         public const string ConstantCharName = "#const_char";
         public const string ConstantStringName = "#const_string";
         public const string ConstantVoidName = "#const_void";
+
+        #region Special
+
+        /// <summary>
+        /// A node name for expressions that refer to a tag.
+        /// </summary>
+        public const string TagReferenceName = "#tag";
+
+        #endregion
 
         #endregion
 
@@ -194,9 +204,9 @@ namespace Flame.Intermediate.Parsing
             var valueExpr = exprs.Select((item, index) => Tuple.Create(item, index))
                                  .LastOrDefault(item => !object.Equals(item.Item1.Type, PrimitiveTypes.Void));
             if (valueExpr == null)
-	        {
+            {
                 return ToExpression(new BlockStatement(exprs.Select(ToStatement).ToArray()));
-	        }
+            }
             var initStmts = new BlockStatement(exprs.Take(valueExpr.Item2).Select(ToStatement).ToArray());
             var finalStmts = new BlockStatement(exprs.Skip(valueExpr.Item2 + 1).Select(ToStatement).ToArray());
             return new InitializedExpression(initStmts, valueExpr.Item1, finalStmts);
@@ -222,6 +232,72 @@ namespace Flame.Intermediate.Parsing
                                         ParseExpression(State, Node.Args[2]));
         }
 
+        /// <summary>
+        /// Gets the tag associated with the given tagged block node.
+        /// </summary>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static string GetTaggedNodeTag(LNode Node)
+        {
+            // Format:
+            //
+            // <#tagged_node>(tag, ...)
+
+            return Node.Args[0].Name.Name;
+        }
+
+        /// <summary>
+        /// Parses the given tagged statement node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <param name="Tag"></param>
+        /// <returns></returns>
+        public static IExpression ParseTagged(ParserState State, LNode Node, BlockTag Tag)
+        {
+            // Format:
+            //
+            // #tagged(tag, body)
+
+            var body = ParseExpression(State, Node.Args[1]);
+            return ToExpression(new TaggedStatement(Tag, ToStatement(body)));
+        }
+
+        /// <summary>
+        /// Creates a parser for tagged nodes.
+        /// </summary>
+        /// <param name="Parser"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateTaggedNodeParser(Func<LNode, string> GetTag, Func<ParserState, LNode, BlockTag, IExpression> Parse)
+        {
+            var func = new Func<ParserState, LNode, IExpression>((state, node) =>
+            {
+                string tagName = GetTag(node);
+                var tag = new BlockTag(tagName);
+                var oldExprParser = state.Parser.ExpressionParser;
+                var exprParser = oldExprParser.WithParser(TagReferenceName, (s, n) =>
+                {
+                    if (n.ArgCount != 1)
+                    {
+                        throw new InvalidOperationException("'#tag' blocks must always have exactly one argument.");
+                    }
+
+                    if (n.Args[0].Name.Name == tagName)
+                    {
+                        return new ConstantNodeStructure<IExpression>(n, new TagReferenceExpression(tag));
+                    }
+                    else
+                    {
+                        return oldExprParser.Parse(state, n);
+                    }
+                });
+                var newParser = state.Parser.WithExpressionParser(exprParser);
+                var newState = state.WithParser(newParser);
+                return Parse(newState, node, tag);
+            });
+            return CreateParser(func);
+        }
+
         #endregion
 
         #region Default Parser
@@ -239,7 +315,9 @@ namespace Flame.Intermediate.Parsing
                     // Intraprocedural control flow
                     { BlockNodeName, CreateParser(ParseBlock) },
                     { SelectNodeName, CreateParser(ParseSelect) },
-
+                    { TaggedNodeName, CreateTaggedNodeParser(GetTaggedNodeTag, ParseTagged) },
+                    { TagReferenceName, (state, node) => { throw new InvalidOperationException("Unknown block tag '" + node.Args[0].Name.Name + "'."); }  },
+                    
                     // Constants
                     //  - Bit<n>
                     { ConstantBit8Name, CreateLiteralParser(item => new Bit8Expression(Convert.ToByte(item))) },

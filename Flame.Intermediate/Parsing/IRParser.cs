@@ -429,7 +429,7 @@ namespace Flame.Intermediate.Parsing
                 {
                     descMethod.AddGenericParameter(new DescribedGenericParameter(item.Name.Name, descMethod));
                 }
-                var genericParser = State.Parser.TypeReferenceParser.AddParser(LocalGenericParameterReferenceName, (state, elem) => new LazyNodeStructure<IType>(elem, () => descMethod.GenericParameters.ElementAt(Convert.ToInt32(elem.Args.Single().Value))));
+                var genericParser = State.Parser.TypeReferenceParser.WithParser(LocalGenericParameterReferenceName, (state, elem) => new LazyNodeStructure<IType>(elem, () => descMethod.GenericParameters.ElementAt(Convert.ToInt32(elem.Args.Single().Value))));
                 descMethod.ReturnType = genericParser.Parse(State, Node.Args[4]).Value;
                 foreach (var item in Node.Args[5].Args.Select((x, i) => new KeyValuePair<int, LNode>(i, x)))
                 {
@@ -848,7 +848,7 @@ namespace Flame.Intermediate.Parsing
 
         private void ParseAssemblyContents(ParserState State, LNode AssemblyNode, IRAssembly Assembly)
         {
-            var epParser = MethodReferenceParser.AddParser(NullNodeName, ParseNullNode<IMethod>);
+            var epParser = MethodReferenceParser.WithParser(NullNodeName, ParseNullNode<IMethod>);
 
             Assembly.EntryPointNode = epParser.Parse(State, AssemblyNode.Args[2]);
             Assembly.RootNamespace.TypeNodes = new NodeList<IType>(AssemblyNode.Args[3].Args.Select(item => TypeDefinitionParser.Parse(State, item, Assembly.RootNamespace)).ToArray());

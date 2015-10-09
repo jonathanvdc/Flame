@@ -9,13 +9,17 @@ namespace Flame.Intermediate.Parsing
 {
     public class ParserState
     {
-        public ParserState(IRParser Parser, ImmutableHeader Header, IRAssembly Assembly)
+        private ParserState(IRParser Parser, ImmutableHeader Header, IRAssembly Assembly, Lazy<IBinder> Binder)
         {
             this.Parser = Parser;
             this.Header = Header;
             this.Assembly = Assembly;
-            this.cachedBinder = new Lazy<IBinder>(() => new DualBinder(Assembly.CreateBinder(), Header.ExternalBinder));
+            this.cachedBinder = Binder;
         }
+        public ParserState(IRParser Parser, ImmutableHeader Header, IRAssembly Assembly)
+            : this(Parser, Header, Assembly,
+                   new Lazy<IBinder>(() => new DualBinder(Assembly.CreateBinder(), Header.ExternalBinder)))
+        { }
 
         public IRParser Parser { get; private set; }
         public ImmutableHeader Header { get; private set; }
@@ -25,5 +29,10 @@ namespace Flame.Intermediate.Parsing
 
         private Lazy<IBinder> cachedBinder;
         public IBinder Binder { get { return cachedBinder.Value; } }
+
+        public ParserState WithParser(IRParser Parser)
+        {
+            return new ParserState(Parser, Header, Assembly, cachedBinder);
+        }
     }
 }
