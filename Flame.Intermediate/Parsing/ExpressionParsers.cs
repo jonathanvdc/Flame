@@ -20,6 +20,8 @@ namespace Flame.Intermediate.Parsing
 
         public const string ReturnNodeName = "#return";
         public const string ThrowNodeName = "#throw";
+        public const string AssertNodeName = "#assert";
+        
         public const string SelectNodeName = "#select";
         public const string TaggedNodeName = "#tagged";
         public const string WhileNodeName = "#while";
@@ -190,6 +192,34 @@ namespace Flame.Intermediate.Parsing
                 return new ErrorExpression(result, new LogEntry(
                     "Invalid '" + ThrowNodeName + "' node",
                     "'" + ThrowNodeName + "' nodes must throw exactly one value."));
+            }
+            else
+            {
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Parses an '#assert' expression node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseAssert(ParserState State, LNode Node)
+        {
+            if (Node.ArgCount == 0)
+            {
+                return new ErrorExpression(VoidExpression.Instance,
+                    new LogEntry("Invalid '" + AssertNodeName + "' node",
+                    "'" + AssertNodeName + "' nodes take exactly one argument."));
+            }
+
+            var result = ToExpression(new AssertStatement(ParseExpression(State, Node.Args[0])));
+            if (Node.ArgCount > 1)
+            {
+                return new ErrorExpression(result, new LogEntry(
+                    "Invalid '" + AssertNodeName + "' node",
+                    "'" + AssertNodeName + "' nodes take exactly one argument."));
             }
             else
             {
@@ -399,6 +429,7 @@ namespace Flame.Intermediate.Parsing
                     // Interprocedural control flow
                     { ReturnNodeName, CreateParser(ParseReturn) },
                     { ThrowNodeName, CreateParser(ParseThrow) },
+                    { AssertNodeName, CreateParser(ParseAssert) },
 
                     // Intraprocedural control flow
                     { BlockNodeName, CreateParser(ParseBlock) },
