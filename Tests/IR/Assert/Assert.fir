@@ -1,11 +1,11 @@
 
 #assembly(
-    #member(Method),
+    #member(Assert),
     #version(1, 0, 0, 0),
     #null,
     {
         #type_definition(
-            #member(Method, #public),
+            #member(Assert, #public),
             { },
             { },
             { },
