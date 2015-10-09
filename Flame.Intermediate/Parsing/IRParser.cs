@@ -586,7 +586,7 @@ namespace Flame.Intermediate.Parsing
             var sig = ParseSignature(State, Node.Args[0]);
             var result = new IRNamespace(DeclaringNamespace, sig);
 
-            result.TypeNodes = new NodeList<IType>(Node.Args[1].Args.Select(item => State.Parser.TypeReferenceParser.Parse(State, item)).ToArray());
+            result.TypeNodes = new NodeList<IType>(Node.Args[1].Args.Select(item => State.Parser.TypeDefinitionParser.Parse(State, item, result)).ToArray());
             result.NamespaceNodes = new NodeList<INamespaceBranch>(Node.Args[2].Args.Select(item => ParseNamespace(State, item, result)).ToArray());
 
             return result;
