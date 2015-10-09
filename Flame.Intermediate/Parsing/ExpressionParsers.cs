@@ -35,6 +35,10 @@ namespace Flame.Intermediate.Parsing
         public const string GetExtensionDelegateNodeName = "#get_extension_delegate";
         public const string InvocationNodeName = "#invoke";
 
+        public const string DynamicCastNode = "#dynamic_cast";
+        public const string StaticCastNode = "#static_cast";
+        public const string ReinterpretCastNode = "#reinterpret_cast";
+
         public const string ConstantInt8Name = "#const_int8";
         public const string ConstantInt16Name = "#const_int16";
         public const string ConstantInt32Name = "#const_int32";
@@ -424,7 +428,7 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
-        #region OO Model
+        #region Delegates and calls
 
         /// <summary>
         /// Parses the given get-delegate node.
@@ -497,6 +501,26 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+        #region Casts
+
+        /// <summary>
+        /// Creates a parser delegate that parses cast nodes.
+        /// </summary>
+        /// <param name="CreateCast"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateCastParser(Func<IExpression, IType, IExpression> CreateCastExpression)
+        {
+            return CreateParser((state, node) =>
+            {
+                var targetType = state.Parser.TypeReferenceParser.Parse(state, node.Args[0]).Value;
+                var castExpr = ParseExpression(state, node.Args[1]);
+
+                return CreateCastExpression(castExpr, targetType);
+            });
+        }
+
+        #endregion
+
         #region Default Parser
 
         public static ReferenceParser<IExpression> DefaultExpressionParser
@@ -523,11 +547,16 @@ namespace Flame.Intermediate.Parsing
                     // Null expressions
                     { IRParser.NullNodeName, CreateParser((state, node) => null) },
 
-                    // OO Model
+                    // Delegates and invocations
                     { GetDelegateNodeName, CreateParser(ParseGetDelegate) },
                     { GetVirtualDelegateNodeName, CreateParser(ParseGetVirtualDelegate) },
                     { GetExtensionDelegateNodeName, CreateParser(ParseGetExtensionDelegate) },
                     { InvocationNodeName, CreateParser(ParseInvocation) },
+
+                    // Casts
+                    { StaticCastNode, CreateCastParser((expr, type) => new StaticCastExpression(expr, type)) },
+                    { ReinterpretCastNode, CreateCastParser((expr, type) => new ReinterpretCastExpression(expr, type)) },
+                    { DynamicCastNode, CreateCastParser((expr, type) => new DynamicCastExpression(expr, type)) },
 
                     // Constants
                     //  - Bit<n>
