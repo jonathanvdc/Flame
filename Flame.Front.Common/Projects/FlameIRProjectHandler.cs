@@ -39,14 +39,14 @@ namespace Flame.Front.Projects
         {
             if (Path.HasExtension("flo"))
             {
-                using (var fs = new FileStream(Path.Path.AbsolutePath.Name, FileMode.Open, FileAccess.Read))
+                using (var fs = new FileStream(Path.Path.AbsolutePath.Path, FileMode.Open, FileAccess.Read))
                 {
                     return Loyc.Binary.LoycBinaryHelpers.ReadFile(fs, Path.Path.Name);
                 }
             }
             else
             {
-                using (var fs = new FileStream(Path.Path.AbsolutePath.Name, FileMode.Open, FileAccess.Read))
+                using (var fs = new FileStream(Path.Path.AbsolutePath.Path, FileMode.Open, FileAccess.Read))
                 using (var reader = new StreamReader(fs))
                 {
                     string text = reader.ReadToEnd();
