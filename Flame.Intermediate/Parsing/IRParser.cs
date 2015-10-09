@@ -424,7 +424,7 @@ namespace Flame.Intermediate.Parsing
                 var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 string methodName = (string)Node.Args[1].Value;
                 var descMethod = new DescribedMethod(methodName, declType);
-                descMethod.IsStatic = (bool)Node.Args[2].Value;
+                descMethod.IsStatic = Convert.ToBoolean(Node.Args[2].Value);
                 foreach (var item in Node.Args[3].Args)
                 {
                     descMethod.AddGenericParameter(new DescribedGenericParameter(item.Name.Name, descMethod));
