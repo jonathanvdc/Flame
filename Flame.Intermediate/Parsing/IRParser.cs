@@ -54,6 +54,7 @@ namespace Flame.Intermediate.Parsing
         public const string TypeGenericParamaterReferenceName = "#type_generic_parameter";
 
         public const string NestedTypeName = "#nested_type";
+        public const string DelegateTypeName = "#delegate_type";
         public const string ArrayTypeName = "#array_type";
         public const string PointerTypeName = "#pointer_type";
         public const string VectorTypeName = "#vector_type";
@@ -316,6 +317,26 @@ namespace Flame.Intermediate.Parsing
                 var elemType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 var ptrKind = PointerKind.Register((string)Node.Args[1].Value);
                 return elemType.MakePointerType(ptrKind);
+            });
+        }
+
+        public static INodeStructure<IType> ParseDelegateType(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #delegate_type(return_type, parameter_types...)
+
+            return new LazyNodeStructure<IType>(Node, () =>
+            {
+                var descMethod = new DescribedMethod("", null);
+                descMethod.ReturnType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
+                int index = 0;
+                foreach (var item in Node.Args.Skip(1).Select(item => State.Parser.TypeReferenceParser.Parse(State, item).Value))
+	            {
+		            descMethod.AddParameter(new DescribedParameter("param" + index, item));
+                    index++;
+	            }
+                return MethodType.Create(descMethod);
             });
         }
 
@@ -867,6 +888,9 @@ namespace Flame.Intermediate.Parsing
                     { ArrayTypeName, ParseArrayType },
                     { PointerTypeName, ParsePointerType },
                     { VectorTypeName, ParseVectorType },
+
+                    // Delegate types
+                    { DelegateTypeName, ParseDelegateType },
 
                     // Primitive types
                     { IntTypeNodeName, CreatePrimitiveTypeParser(PrimitiveTypes.Int8, PrimitiveTypes.Int16, PrimitiveTypes.Int32, PrimitiveTypes.Int64) },
