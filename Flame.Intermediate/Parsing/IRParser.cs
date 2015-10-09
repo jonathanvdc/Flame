@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler;
+using Flame.Compiler.Variables;
 using Loyc.Syntax;
 using System;
 using System.Collections.Generic;
@@ -710,6 +711,29 @@ namespace Flame.Intermediate.Parsing
         #region Methods
 
         /// <summary>
+        /// Parses the given method body node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <param name="EnclosingMethod"></param>
+        /// <returns></returns>
+        public static INodeStructure<IStatement> ParseMethodBody(ParserState State, LNode Node, IMethod EnclosingMethod)
+        {
+            return new LazyNodeStructure<IStatement>(Node, n => 
+            {
+                var thisType = ThisVariable.GetThisType(EnclosingMethod.DeclaringType);
+
+                var exprParser = State.Parser.ExpressionParser
+                    .WithParser(ExpressionParsers.GetThisNodeName, ExpressionParsers.CreateGetThisParser(thisType))
+                    .WithParser(ExpressionParsers.AddressOfThisNodeName, ExpressionParsers.CreateAddressOfThisParser(thisType));
+
+                var newState = State.WithParser(State.Parser.WithExpressionParser(exprParser));
+
+                return ExpressionParsers.ToStatement(ExpressionParsers.ParseExpression(newState, n));
+            });
+        }
+
+        /// <summary>
         /// Parses a method definition node.
         /// </summary>
         /// <param name="State"></param>
@@ -748,7 +772,7 @@ namespace Flame.Intermediate.Parsing
 
             if (Node.ArgCount > 6)
             {
-                result.BodyNode = new LazyNodeStructure<IStatement>(Node.Args[6], n => ExpressionParsers.ToStatement(ExpressionParsers.ParseExpression(State, n)));
+                result.BodyNode = ParseMethodBody(State, Node.Args[6], result);
             }
 
             return result;
@@ -792,7 +816,7 @@ namespace Flame.Intermediate.Parsing
 
             if (Node.ArgCount > 6)
             {
-                result.BodyNode = new LazyNodeStructure<IStatement>(Node.Args[6], n => ExpressionParsers.ToStatement(ExpressionParsers.ParseExpression(State, n)));
+                result.BodyNode = ParseMethodBody(State, Node.Args[6], result);
             }
 
             return result;
