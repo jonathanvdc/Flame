@@ -24,6 +24,8 @@ namespace Flame.Intermediate.Parsing
         public const string TaggedNodeName = "#tagged";
         public const string WhileNodeName = "#while";
         public const string DoWhileNodeName = "#do_while";
+        public const string BreakNodeName = "#break";
+        public const string ContinueNodeName = "#continue";
         public static readonly string BlockNodeName = CodeSymbols.Braces.Name;
 
         public const string ConstantInt8Name = "#const_int8";
@@ -287,6 +289,28 @@ namespace Flame.Intermediate.Parsing
             return ToExpression(new DoWhileStatement(Tag, body, cond));
         }
 
+        /// <summary>
+        /// Parses the given break node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseBreak(ParserState State, LNode Node)
+        {
+            return ToExpression(new BreakStatement(ParseBlockTag(State, Node.Args[0])));
+        }
+
+        /// <summary>
+        /// Parses the given continue node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseContinue(ParserState State, LNode Node)
+        {
+            return ToExpression(new ContinueStatement(ParseBlockTag(State, Node.Args[0])));
+        }
+
         #region Tagged Node Helpers
 
         /// <summary>
@@ -338,6 +362,23 @@ namespace Flame.Intermediate.Parsing
             return CreateParser(func);
         }
 
+        /// <summary>
+        /// Parses the given block tag node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static BlockTag ParseBlockTag(ParserState State, LNode Node)
+        {
+            var expr = ParseExpression(State, Node) as TagReferenceExpression;
+            if (expr == null)
+            {
+                throw new InvalidOperationException("Node '" + Node.ToString() + "' was expected to be a valid '#tag' node, but it was not.");
+            }
+
+            return expr.Tag;
+        }
+
         #endregion
 
         #endregion
@@ -360,6 +401,8 @@ namespace Flame.Intermediate.Parsing
                     { TaggedNodeName, CreateTaggedNodeParser(GetTaggedNodeTag, ParseTagged) },
                     { WhileNodeName, CreateTaggedNodeParser(GetTaggedNodeTag, ParseWhile) },
                     { DoWhileNodeName, CreateTaggedNodeParser(GetTaggedNodeTag, ParseDoWhile) },
+                    { BreakNodeName, CreateParser(ParseBreak) },
+                    { ContinueNodeName, CreateParser(ParseContinue) },
                     { TagReferenceName, (state, node) => { throw new InvalidOperationException("Unknown block tag '" + node.Args[0].Name.Name + "'."); }  },
                     
                     // Constants
