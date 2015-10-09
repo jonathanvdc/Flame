@@ -381,7 +381,7 @@ namespace Flame.Intermediate.Parsing
             {
                 var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 string fieldName = (string)Node.Args[1].Value;
-                bool isStatic = (bool)Node.Args[2].Value;
+                bool isStatic = Convert.ToBoolean(Node.Args[2].Value);
                 return declType.GetField(fieldName, isStatic);
             });
         }
@@ -714,6 +714,80 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        /// Parses the given accessor definition node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <param name="DeclaringProperty"></param>
+        /// <returns></returns>
+        public static INodeStructure<IAccessor> ParseAccessorDefinition(ParserState State, LNode Node, IProperty DeclaringProperty)
+        {
+            // Format:
+            //
+            // #accessor(#member(name, attrs...), accessor_type, is_static, return_type, { parameters... }, { base_methods... })
+            //
+            // --OR--
+            //
+            // #accessor(#member(name, attrs...), accessor_type, is_static, return_type, { parameters... }, { base_methods... }, body)
+
+            if (Node.ArgCount != 6 && Node.ArgCount != 7)
+            {
+                throw new InvalidOperationException("Invalid '" + Node.Name.Name + "' node: '" + Node.Name.Name + "' nodes must have exactly six or seven arguments.");
+            }
+
+            var sig = ParseSignature(State, Node.Args[0]);
+            var accType = AccessorType.Register(Node.Args[1].Name.Name);
+            bool isStatic = Convert.ToBoolean(Node.Args[2].Value);
+            var retTypeNode = State.Parser.TypeReferenceParser.Parse(State, Node.Args[3]);
+
+            var result = new IRAccessor(DeclaringProperty, sig, accType, isStatic, retTypeNode);
+
+            result.ParameterNodes = ParseParameterList(State, Node.Args[4]);
+            result.BaseMethodNodes = new NodeList<IMethod>(Node.Args[5].Args.Select(item => State.Parser.MethodReferenceParser.Parse(State, item)).ToArray());
+
+            if (Node.ArgCount > 6)
+            {
+                result.BodyNode = new LazyNodeStructure<IStatement>(Node.Args[6], n => ExpressionParsers.ToStatement(ExpressionParsers.ParseExpression(State, n)));
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Parses the given property definition node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <param name="DeclaringType"></param>
+        /// <returns></returns>
+        public static INodeStructure<IProperty> ParsePropertyDefinition(ParserState State, LNode Node, IType DeclaringType)
+        {
+            // Format:
+            //
+            // #property(#member(name, attrs...), is_static, property_type, { parameters... }, { accessors... })
+
+            if (Node.ArgCount != 5)
+            {
+                throw new InvalidOperationException("Invalid '" + Node.Name.Name + "' node: '" + Node.Name.Name + "' nodes must have exactly five arguments.");
+            }
+
+            var sig = ParseSignature(State, Node.Args[0]);
+            bool isStatic = Convert.ToBoolean(Node.Args[1].Value);
+            var propTypeNode = State.Parser.TypeReferenceParser.Parse(State, Node.Args[2]);
+
+            var result = new IRProperty(DeclaringType, sig, isStatic, propTypeNode);
+
+            result.IndexerParameterNodes = ParseParameterList(State, Node.Args[3]);
+            result.AccessorNodes = new NodeList<IAccessor>(Node.Args[4].Args.Select(item => ParseAccessorDefinition(State, item, result)).ToArray());
+
+            return result;
+        }
+
+        #endregion
+
         #region Assemblies
 
         /// <summary>
@@ -850,7 +924,8 @@ namespace Flame.Intermediate.Parsing
                 {
                     { IRField.FieldNodeName, ParseFieldDefinition },
                     { IRMethod.MethodNodeName, ParseMethodDefinition },
-                    { IRMethod.ConstructorNodeName, ParseMethodDefinition }
+                    { IRMethod.ConstructorNodeName, ParseMethodDefinition },
+                    { IRProperty.PropertyNodeName, ParsePropertyDefinition }
                 });
             }
         }
