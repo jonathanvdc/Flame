@@ -16,11 +16,22 @@ namespace Flame.Intermediate.Parsing
 
         public IReadOnlyDictionary<string, Func<ParserState, LNode, INodeStructure<T>>> Parsers { get; private set; }
 
-        public ReferenceParser<T> AddParser(string Name, Func<ParserState, LNode, INodeStructure<T>> Parser)
+        public ReferenceParser<T> WithParser(string Name, Func<ParserState, LNode, INodeStructure<T>> Parser)
         {
             var dict = Parsers.ToDictionary(item => item.Key, item => item.Value);
-            dict.Add(Name, Parser);
+            dict[Name] = Parser;
             return new ReferenceParser<T>(dict);
+        }
+
+        /// <summary>
+        /// Figures out if the given node has a known node type,
+        /// and can therefore be parsed.
+        /// </summary>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public bool CanParse(LNode Node)
+        {
+            return Parsers.ContainsKey(Node.Name.Name);
         }
 
         public INodeStructure<T> Parse(ParserState State, LNode Node)
