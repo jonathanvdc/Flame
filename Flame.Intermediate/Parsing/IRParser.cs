@@ -520,9 +520,18 @@ namespace Flame.Intermediate.Parsing
 
             var signature = ParseSignature(State, Node.Args[0]);
             var result = new IRGenericParameter(DeclaringMember, signature);
-            result.GenericParameterNodes = new NodeList<IGenericParameter>(Node.Args[1].Args.Select(item => ParseGenericParameterDefinition(State, item, result)));
+            result.GenericParameterNodes = ParseGenericParameterList(State, Node.Args[1], result);
             result.ConstraintNodes = new NodeList<IGenericConstraint>(Node.Args[2].Args.Select(item => State.Parser.GenericConstraintParser.Parse(State, item)));
             return result;
+        }
+
+        public static INodeStructure<IEnumerable<IGenericParameter>> ParseGenericParameterList(ParserState State, LNode Node, IGenericMember DeclaringMember)
+        {
+            // Format:
+            //
+            // { generic_parameters... }
+
+            return new NodeList<IGenericParameter>(Node.Args.Select(item => ParseGenericParameterDefinition(State, item, DeclaringMember)).ToArray());
         }
 
         public static INodeStructure<IType> ParseUserTypeDefinition(ParserState State, LNode Node, INamespace DeclaringNamespace)
@@ -533,7 +542,7 @@ namespace Flame.Intermediate.Parsing
 
             var signature = ParseSignature(State, Node.Args[0]);
             var result = new IRTypeDefinition(DeclaringNamespace, signature);
-            result.GenericParameterNodes = new NodeList<IGenericParameter>(Node.Args[1].Args.Select(item => ParseGenericParameterDefinition(State, item, result)));
+            result.GenericParameterNodes = ParseGenericParameterList(State, Node.Args[1], result);
             result.BaseTypeNodes = new NodeList<IType>(Node.Args[2].Args.Select(item => State.Parser.TypeReferenceParser.Parse(State, item)));
             result.NestedTypeNodes = new NodeList<IType>(Node.Args[3].Args.Select(item => State.Parser.TypeDefinitionParser.Parse(State, item, result)));
             result.MemberNodes = new NodeList<ITypeMember>(Node.Args[4].Args.Select(item => State.Parser.TypeMemberParser.Parse(State, item, result)));
@@ -622,6 +631,84 @@ namespace Flame.Intermediate.Parsing
             {
                 result.InitialValueNode = State.Parser.ExpressionParser.Parse(State, Node.Args[3]);
             }
+            return result;
+        }
+
+        #endregion
+
+        #region Parameters
+
+        /// <summary>
+        /// Parses a single parameter definition node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static INodeStructure<IParameter> ParseParameter(ParserState State, LNode Node)
+        {
+            var sig = ParseSignature(State, Node.Args[0]);
+            var type = State.Parser.TypeReferenceParser.Parse(State, Node.Args[1]);
+
+            return new IRParameter(sig, type);
+        }
+
+        /// <summary>
+        /// Parses a list of parameter definition nodes.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static INodeStructure<IEnumerable<IParameter>> ParseParameterList(ParserState State, LNode Node)
+        {
+            return new NodeList<IParameter>(Node.Args.Select(item => ParseParameter(State, item)).ToArray());
+        }
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Parses a method definition node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <param name="DeclaringType"></param>
+        /// <returns></returns>
+        public static INodeStructure<IMethod> ParseMethodDefinition(ParserState State, LNode Node, IType DeclaringType)
+        {
+            // Format:
+            //
+            // #method(#member(name, attrs...), { generic_parameters... }, is_static, return_type, { parameters... }, { base_methods... })
+            //
+            // --OR--
+            //
+            // #method(#member(name, attrs...), { generic_parameters... }, is_static, return_type, { parameters... }, { base_methods... }, body)
+            //
+            // --OR--
+            //
+            // #ctor(#member(name, attrs...), { generic_parameters... }, is_static, return_type, { parameters... }, { base_methods... }, body)
+
+            if (Node.ArgCount != 6 && Node.ArgCount != 7)
+            {
+                throw new InvalidOperationException("Invalid '" + Node.Name.Name + "' node: '" + Node.Name.Name + "' nodes must have exactly six or seven arguments.");
+            }
+
+            var sig = ParseSignature(State, Node.Args[0]);
+            bool isStatic = Convert.ToBoolean(Node.Args[2].Value);
+            bool isCtor = Node.Name.Name == IRMethod.ConstructorNodeName;
+
+            var result = new IRMethod(DeclaringType, sig, isStatic, isCtor);
+
+            result.GenericParameterNodes = ParseGenericParameterList(State, Node.Args[1], result);
+            result.ReturnTypeNode = State.Parser.TypeReferenceParser.Parse(State, Node.Args[3]);
+            result.ParameterNodes = ParseParameterList(State, Node.Args[4]);
+            result.BaseMethodNodes = new NodeList<IMethod>(Node.Args[5].Args.Select(item => State.Parser.MethodReferenceParser.Parse(State, item)).ToArray());
+
+            if (Node.ArgCount > 6)
+            {
+                result.BodyNode = new LazyNodeStructure<IStatement>(Node.Args[6], n => ExpressionParsers.ToStatement(ExpressionParsers.ParseExpression(State, n)));
+            }
+
             return result;
         }
 
@@ -761,7 +848,9 @@ namespace Flame.Intermediate.Parsing
             {
                 return new DefinitionParser<IType, ITypeMember>(new Dictionary<string, Func<ParserState, LNode, IType, INodeStructure<ITypeMember>>>()
                 {
-                    { IRField.FieldNodeName, ParseFieldDefinition }
+                    { IRField.FieldNodeName, ParseFieldDefinition },
+                    { IRMethod.MethodNodeName, ParseMethodDefinition },
+                    { IRMethod.ConstructorNodeName, ParseMethodDefinition }
                 });
             }
         }
@@ -840,18 +929,20 @@ namespace Flame.Intermediate.Parsing
                                 TypeMemberParser);
         }
 
-        private void ParseAssemblyHeader(ParserState State, LNode AssemblyNode, IRAssembly Assembly)
+        #region Assembly Parsing
+
+        private static void ParseAssemblyHeader(ParserState State, LNode AssemblyNode, IRAssembly Assembly)
         {
             Assembly.Signature = ParseSignature(State, AssemblyNode.Args[0]);
             Assembly.VersionNode = new VersionNodeStructure(AssemblyNode.Args[1]);
         }
 
-        private void ParseAssemblyContents(ParserState State, LNode AssemblyNode, IRAssembly Assembly)
+        private static void ParseAssemblyContents(ParserState State, LNode AssemblyNode, IRAssembly Assembly)
         {
-            var epParser = MethodReferenceParser.WithParser(NullNodeName, ParseNullNode<IMethod>);
+            var epParser = State.Parser.MethodReferenceParser.WithParser(NullNodeName, ParseNullNode<IMethod>);
 
             Assembly.EntryPointNode = epParser.Parse(State, AssemblyNode.Args[2]);
-            Assembly.RootNamespace.TypeNodes = new NodeList<IType>(AssemblyNode.Args[3].Args.Select(item => TypeDefinitionParser.Parse(State, item, Assembly.RootNamespace)).ToArray());
+            Assembly.RootNamespace.TypeNodes = new NodeList<IType>(AssemblyNode.Args[3].Args.Select(item => State.Parser.TypeDefinitionParser.Parse(State, item, Assembly.RootNamespace)).ToArray());
             Assembly.RootNamespace.NamespaceNodes = new NodeList<INamespaceBranch>(AssemblyNode.Args[4].Args.Select(item => ParseNamespace(State, item, Assembly.RootNamespace)).ToArray());
         }
 
@@ -887,6 +978,8 @@ namespace Flame.Intermediate.Parsing
 
             return asm;
         }
+
+        #endregion
 
         #endregion
     }
