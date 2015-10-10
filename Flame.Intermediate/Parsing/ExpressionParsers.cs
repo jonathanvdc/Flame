@@ -35,6 +35,7 @@ namespace Flame.Intermediate.Parsing
         public const string GetDelegateNodeName = "#get_delegate";
         public const string GetVirtualDelegateNodeName = "#get_virtual_delegate";
         public const string GetExtensionDelegateNodeName = "#get_extension_delegate";
+        public const string GetCurriedDelegateNodeName = "#get_curried_delegate";
         public const string InvocationNodeName = "#invoke";
 
         public const string BinaryNode = "#binary";
@@ -504,6 +505,23 @@ namespace Flame.Intermediate.Parsing
         }
 
         /// <summary>
+        /// Parses the given get-curried-delegate node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseGetCurriedDelegate(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #get_curried_delegate(target, closure)
+
+            var target = State.Parser.MethodReferenceParser.Parse(State, Node.Args[0]).Value;
+            var closure = ParseExpression(State, Node.Args[1]);
+            return new GetMethodExpression(target, closure, Operator.GetCurriedDelegate);
+        }
+
+        /// <summary>
         /// Parses the given invocation node.
         /// </summary>
         /// <param name="State"></param>
@@ -838,6 +856,7 @@ namespace Flame.Intermediate.Parsing
                     { GetDelegateNodeName, CreateParser(ParseGetDelegate) },
                     { GetVirtualDelegateNodeName, CreateParser(ParseGetVirtualDelegate) },
                     { GetExtensionDelegateNodeName, CreateParser(ParseGetExtensionDelegate) },
+                    { GetCurriedDelegateNodeName, CreateParser(ParseGetCurriedDelegate) },
                     { InvocationNodeName, CreateParser(ParseInvocation) },
 
                     // Operators
