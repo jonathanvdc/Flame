@@ -724,13 +724,18 @@ namespace Flame.Intermediate.Parsing
             return new LazyNodeStructure<IStatement>(Node, n => 
             {
                 var thisType = ThisVariable.GetThisType(EnclosingMethod.DeclaringType);
+                var paramList = EnclosingMethod.GetParameters();
 
                 var exprParser = State.Parser.ExpressionParser
                     .WithParser(ExpressionParsers.GetThisNodeName, ExpressionParsers.CreateGetThisParser(thisType))
                     .WithParser(ExpressionParsers.AddressOfThisNodeName, ExpressionParsers.CreateAddressOfThisParser(thisType))
                     .WithParser(ExpressionParsers.SetThisNodeName, ExpressionParsers.CreateParser(ExpressionParsers.ParseSetThis))
                     // TODO: implement #release_this as an actual release operation, instead of an empty statement.
-                    .WithParser(ExpressionParsers.ReleaseThisNodeName, ExpressionParsers.CreateConstantParser(VoidExpression.Instance));
+                    .WithParser(ExpressionParsers.ReleaseThisNodeName, ExpressionParsers.CreateConstantParser(VoidExpression.Instance))
+                    .WithParser(ExpressionParsers.GetArgumentNodeName, ExpressionParsers.CreateAddressOfArgumentParser(paramList))
+                    .WithParser(ExpressionParsers.AddressOfArgumentNodeName, ExpressionParsers.CreateAddressOfArgumentParser(paramList))
+                    .WithParser(ExpressionParsers.SetArgumentNodeName, ExpressionParsers.CreateSetArgumentParser(paramList))
+                    .WithParser(ExpressionParsers.ReleaseArgumentNodeName, ExpressionParsers.CreateReleaseArgumentParser(paramList));
 
                 var newState = State.WithParser(State.Parser.WithExpressionParser(exprParser));
 

@@ -1,6 +1,7 @@
 ﻿using Flame.Compiler;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
 using Loyc;
 using Loyc.Syntax;
 using System;
@@ -71,6 +72,11 @@ namespace Flame.Intermediate.Parsing
         public const string SetThisNodeName = "#set_this";
         public const string ReleaseThisNodeName = "#release_this";
         public const string AddressOfThisNodeName = "#addressof_this";
+
+        public const string GetArgumentNodeName = "#get_arg";
+        public const string SetArgumentNodeName = "#set_arg";
+        public const string ReleaseArgumentNodeName = "#release_arg";
+        public const string AddressOfArgumentNodeName = "#addressof_arg";
 
         #region Special
 
@@ -601,6 +607,67 @@ namespace Flame.Intermediate.Parsing
             var value = ParseExpression(State, Node);
 
             return ToExpression(new ThisSetStatement(value));
+        }
+
+        #endregion
+
+        #region Arguments
+
+        /// <summary>
+        /// Creates a parser that parses get-argument expressions.
+        /// </summary>
+        /// <param name="Expression"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateGetArgumentParser(IParameter[] Parameters)
+        {
+            return CreateParser((state, item) => 
+            {
+                int index = Convert.ToInt32(item.Args[0].Value);
+                return new ArgumentVariable(Parameters[index], index).CreateGetExpression();
+            });
+        }
+
+        /// <summary>
+        /// Creates a parser that parses addressof-argument expressions.
+        /// </summary>
+        /// <param name="Expression"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateAddressOfArgumentParser(IParameter[] Parameters)
+        {
+            return CreateParser((state, item) =>
+            {
+                int index = Convert.ToInt32(item.Args[0].Value);
+                return new ArgumentVariable(Parameters[index], index).CreateAddressOfExpression();
+            });
+        }
+
+        /// <summary>
+        /// Creates a parser that parses set-argument statements.
+        /// </summary>
+        /// <param name="Expression"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateSetArgumentParser(IParameter[] Parameters)
+        {
+            return CreateParser((state, item) =>
+            {
+                int index = Convert.ToInt32(item.Args[0].Value);
+                var value = ParseExpression(state, item.Args[1]);
+                return ToExpression(new ArgumentVariable(Parameters[index], index).CreateSetStatement(value));
+            });
+        }
+
+        /// <summary>
+        /// Creates a parser that parses release-argument statements.
+        /// </summary>
+        /// <param name="Expression"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateReleaseArgumentParser(IParameter[] Parameters)
+        {
+            return CreateParser((state, item) =>
+            {
+                int index = Convert.ToInt32(item.Args[0].Value);
+                return ToExpression(new ArgumentVariable(Parameters[index], index).CreateReleaseStatement());
+            });
         }
 
         #endregion
