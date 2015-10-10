@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
@@ -77,6 +78,12 @@ namespace Flame.Intermediate.Parsing
         public const string SetArgumentNodeName = "#set_arg";
         public const string ReleaseArgumentNodeName = "#release_arg";
         public const string AddressOfArgumentNodeName = "#addressof_arg";
+
+        public const string GetLocalNodeName = "#get_local";
+        public const string SetLocalNodeName = "#set_local";
+        public const string ReleaseLocalNodeName = "#release_local";
+        public const string AddressOfLocalNodeName = "#addressof_local";
+        public const string DefineLocalNodeName = "#def_local";
 
         #region Special
 
@@ -672,6 +679,126 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+        #region Locals
+
+        /// <summary>
+        /// Creates a parser that parses get-local expressions.
+        /// </summary>
+        /// <param name="Expression"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateGetLocalParser(string Name, LateBoundVariable Variable, ParserState OldState)
+        {
+            return CreateParser((state, node) =>
+            {
+                if (node.Args[0].Name.Name == Name)
+                {
+                    return Variable.CreateGetExpression();
+                }
+                else
+                {
+                    return ParseExpression(OldState, node);
+                }
+            });
+        }
+
+        /// <summary>
+        /// Creates a parser that parses addressof-argument expressions.
+        /// </summary>
+        /// <param name="Expression"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateAddressOfLocalParser(string Name, LateBoundVariable Variable, ParserState OldState)
+        {
+            return CreateParser((state, node) =>
+            {
+                if (node.Args[0].Name.Name == Name)
+                {
+                    return Variable.CreateAddressOfExpression();
+                }
+                else
+                {
+                    return ParseExpression(OldState, node);
+                }
+            });
+        }
+
+        /// <summary>
+        /// Creates a parser that parses set-argument statements.
+        /// </summary>
+        /// <param name="Expression"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateSetLocalParser(string Name, LateBoundVariable Variable, ParserState OldState)
+        {
+            return CreateParser((state, node) =>
+            {
+                if (node.Args[0].Name.Name == Name)
+                {
+                    var value = ParseExpression(state, node.Args[1]);
+                    return ToExpression(Variable.CreateSetStatement(value));
+                }
+                else
+                {
+                    return ParseExpression(OldState, node);
+                }
+            });
+        }
+
+        /// <summary>
+        /// Creates a parser that parses release-argument statements.
+        /// </summary>
+        /// <param name="Expression"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateReleaseLocalParser(string Name, LateBoundVariable Variable, ParserState OldState)
+        {
+            return CreateParser((state, node) =>
+            {
+                if (node.Args[0].Name.Name == Name)
+                {
+                    return ToExpression(Variable.CreateReleaseStatement());
+                }
+                else
+                {
+                    return ParseExpression(OldState, node);
+                }
+            });
+        }
+
+        /// <summary>
+        /// Parses a single local definition block.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseLocalDefinition(ParserState State, LNode Node)
+        {
+            // Format:
+            // 
+            // #def_local(#member(name, attrs...), type, body)
+
+            var sig = IRParser.ParseSignature(State, Node.Args[0]);
+            var ty = State.Parser.TypeReferenceParser.Parse(State, Node.Args[1]).Value;
+            var member = new DescribedVariableMember(sig.Name, ty);
+            foreach (var attr in sig.Attributes)
+            {
+                member.AddAttribute(attr);
+            }
+            var local = new LateBoundVariable(member);
+
+            var exprParser = State.Parser.ExpressionParser.WithParsers(new Dictionary<string, Func<ParserState, LNode, INodeStructure<IExpression>>>()
+            {
+                { GetLocalNodeName, CreateGetLocalParser(sig.Name, local, State) },
+                { AddressOfLocalNodeName, CreateAddressOfLocalParser(sig.Name, local, State) },
+                { SetLocalNodeName, CreateSetLocalParser(sig.Name, local, State) },
+                { ReleaseLocalNodeName, CreateReleaseLocalParser(sig.Name, local, State) }
+            });
+
+            var newParser = State.Parser.WithExpressionParser(exprParser);
+            var newState = State.WithParser(newParser);
+
+            return ParseExpression(newState, Node.Args[2]);
+        }
+
+        #endregion
+
         #endregion
 
         #region Default Parser
@@ -695,8 +822,15 @@ namespace Flame.Intermediate.Parsing
                     { DoWhileNodeName, CreateTaggedNodeParser(GetTaggedNodeTag, ParseDoWhile) },
                     { BreakNodeName, CreateParser(ParseBreak) },
                     { ContinueNodeName, CreateParser(ParseContinue) },
-                    { TagReferenceName, (state, node) => { throw new InvalidOperationException("Unknown block tag '" + node.Args[0].Name.Name + "'."); }  },
+                    { TagReferenceName, (state, node) => { throw new InvalidOperationException("Undefined block tag '" + node.Args[0].Name.Name + "'."); }  },
                     
+                    // Locals
+                    { DefineLocalNodeName, CreateParser(ParseLocalDefinition) },
+                    { GetLocalNodeName, (state, node) => { throw new InvalidOperationException("Undefined local '" + IRParser.ParseSignatureName(node.Args[0]) + "'."); }  },
+                    { AddressOfLocalNodeName, (state, node) => { throw new InvalidOperationException("Undefined local '" + IRParser.ParseSignatureName(node.Args[0]) + "'."); }  },
+                    { SetLocalNodeName, (state, node) => { throw new InvalidOperationException("Undefined local '" + IRParser.ParseSignatureName(node.Args[0]) + "'."); }  },
+                    { ReleaseLocalNodeName, (state, node) => { throw new InvalidOperationException("Undefined local '" + IRParser.ParseSignatureName(node.Args[0]) + "'."); }  },
+
                     // Null expressions
                     { IRParser.NullNodeName, CreateParser((state, node) => null) },
 
