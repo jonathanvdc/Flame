@@ -28,6 +28,7 @@ namespace Flame.Intermediate.Parsing
         public const string TaggedNodeName = "#tagged";
         public const string WhileNodeName = "#while";
         public const string DoWhileNodeName = "#do_while";
+        public const string ForNodeName = "#for";
         public const string BreakNodeName = "#break";
         public const string ContinueNodeName = "#continue";
         public static readonly string BlockNodeName = CodeSymbols.Braces.Name;
@@ -355,6 +356,21 @@ namespace Flame.Intermediate.Parsing
             var body = ToStatement(ParseExpression(State, Node.Args[1]));
             var cond = ParseExpression(State, Node.Args[2]);
             return ToExpression(new DoWhileStatement(Tag, body, cond));
+        }
+
+        public static IExpression ParseFor(ParserState State, LNode Node, BlockTag Tag)
+        {
+            // Format:
+            // 
+            // #for(tag, initialize, condition, delta, body, finalize)
+
+            var init = ToStatement(ParseExpression(State, Node.Args[1]));
+            var cond = ParseExpression(State, Node.Args[2]);
+            var delta = ToStatement(ParseExpression(State, Node.Args[3]));
+            var body = ToStatement(ParseExpression(State, Node.Args[4]));
+            var final = ToStatement(ParseExpression(State, Node.Args[5]));
+
+            return ToExpression(new ForStatement(Tag, init, cond, delta, body, final));
         }
 
         /// <summary>
@@ -838,6 +854,7 @@ namespace Flame.Intermediate.Parsing
                     { TaggedNodeName, CreateTaggedNodeParser(GetTaggedNodeTag, ParseTagged) },
                     { WhileNodeName, CreateTaggedNodeParser(GetTaggedNodeTag, ParseWhile) },
                     { DoWhileNodeName, CreateTaggedNodeParser(GetTaggedNodeTag, ParseDoWhile) },
+                    { ForNodeName, CreateTaggedNodeParser(GetTaggedNodeTag, ParseFor) },
                     { BreakNodeName, CreateParser(ParseBreak) },
                     { ContinueNodeName, CreateParser(ParseContinue) },
                     { TagReferenceName, (state, node) => { throw new InvalidOperationException("Undefined block tag '" + node.Args[0].Name.Name + "'."); }  },
