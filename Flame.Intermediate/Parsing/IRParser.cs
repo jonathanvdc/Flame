@@ -727,15 +727,19 @@ namespace Flame.Intermediate.Parsing
                 var paramList = EnclosingMethod.GetParameters();
 
                 var exprParser = State.Parser.ExpressionParser
-                    .WithParser(ExpressionParsers.GetThisNodeName, ExpressionParsers.CreateGetThisParser(thisType))
-                    .WithParser(ExpressionParsers.AddressOfThisNodeName, ExpressionParsers.CreateAddressOfThisParser(thisType))
-                    .WithParser(ExpressionParsers.SetThisNodeName, ExpressionParsers.CreateParser(ExpressionParsers.ParseSetThis))
-                    // TODO: implement #release_this as an actual release operation, instead of an empty statement.
-                    .WithParser(ExpressionParsers.ReleaseThisNodeName, ExpressionParsers.CreateConstantParser(VoidExpression.Instance))
-                    .WithParser(ExpressionParsers.GetArgumentNodeName, ExpressionParsers.CreateAddressOfArgumentParser(paramList))
-                    .WithParser(ExpressionParsers.AddressOfArgumentNodeName, ExpressionParsers.CreateAddressOfArgumentParser(paramList))
-                    .WithParser(ExpressionParsers.SetArgumentNodeName, ExpressionParsers.CreateSetArgumentParser(paramList))
-                    .WithParser(ExpressionParsers.ReleaseArgumentNodeName, ExpressionParsers.CreateReleaseArgumentParser(paramList));
+                    .WithParsers(new Dictionary<string, Func<ParserState, LNode, INodeStructure<IExpression>>>()
+                    { 
+                        { ExpressionParsers.GetThisNodeName, ExpressionParsers.CreateGetThisParser(thisType) },
+                        { ExpressionParsers.AddressOfThisNodeName, ExpressionParsers.CreateAddressOfThisParser(thisType) },
+                        { ExpressionParsers.SetThisNodeName, ExpressionParsers.CreateParser(ExpressionParsers.ParseSetThis) },
+                        // TODO: implement #release_this as an actual release operation, instead of an empty statement.
+                        { ExpressionParsers.ReleaseThisNodeName, ExpressionParsers.CreateConstantParser(VoidExpression.Instance) },
+
+                        { ExpressionParsers.GetArgumentNodeName, ExpressionParsers.CreateAddressOfArgumentParser(paramList) },
+                        { ExpressionParsers.AddressOfArgumentNodeName, ExpressionParsers.CreateAddressOfArgumentParser(paramList) },
+                        { ExpressionParsers.SetArgumentNodeName, ExpressionParsers.CreateSetArgumentParser(paramList) },
+                        { ExpressionParsers.ReleaseArgumentNodeName, ExpressionParsers.CreateReleaseArgumentParser(paramList) },
+                    });
 
                 var newState = State.WithParser(State.Parser.WithExpressionParser(exprParser));
 

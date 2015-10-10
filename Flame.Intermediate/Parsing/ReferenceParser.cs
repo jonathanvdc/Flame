@@ -23,6 +23,16 @@ namespace Flame.Intermediate.Parsing
             return new ReferenceParser<T>(dict);
         }
 
+        public ReferenceParser<T> WithParsers(IEnumerable<KeyValuePair<string, Func<ParserState, LNode, INodeStructure<T>>>> Parsers)
+        {
+            var dict = this.Parsers.ToDictionary(item => item.Key, item => item.Value);
+            foreach (var item in Parsers)
+            {
+                dict[item.Key] = item.Value;
+            }
+            return new ReferenceParser<T>(dict);
+        }
+
         /// <summary>
         /// Figures out if the given node has a known node type,
         /// and can therefore be parsed.
