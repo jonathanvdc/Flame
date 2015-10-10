@@ -735,7 +735,7 @@ namespace Flame.Intermediate.Parsing
                         // TODO: implement #release_this as an actual release operation, instead of an empty statement.
                         { ExpressionParsers.ReleaseThisNodeName, ExpressionParsers.CreateConstantParser(VoidExpression.Instance) },
 
-                        { ExpressionParsers.GetArgumentNodeName, ExpressionParsers.CreateAddressOfArgumentParser(paramList) },
+                        { ExpressionParsers.GetArgumentNodeName, ExpressionParsers.CreateGetArgumentParser(paramList) },
                         { ExpressionParsers.AddressOfArgumentNodeName, ExpressionParsers.CreateAddressOfArgumentParser(paramList) },
                         { ExpressionParsers.SetArgumentNodeName, ExpressionParsers.CreateSetArgumentParser(paramList) },
                         { ExpressionParsers.ReleaseArgumentNodeName, ExpressionParsers.CreateReleaseArgumentParser(paramList) },
