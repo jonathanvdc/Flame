@@ -76,22 +76,44 @@ namespace Flame.Front.Target
             }
         }
 
-        private void RegisterAssemblySafe(IAssembly Assembly)
+        private bool RegisterAssemblySafe(IAssembly Assembly)
         {
             if (Assembly != null)
             {
                 RegisterAssembly(Assembly);
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
         public async Task AddRuntimeLibraryAsync(ReferenceDependency Reference)
         {
-            RegisterAssemblySafe(await ResolveRuntimeLibraryAsync(Reference));
+            if (!RegisterAssemblySafe(await ResolveRuntimeLibraryAsync(Reference)) &&
+                Log.UseDefaultWarnings(Warnings.MissingDependency))
+            {
+                Log.LogWarning(new LogEntry(
+                    "Missing dependency",
+                    "Could not resolve runtime library '" + Reference.Identifier.ToString() + "'. " +
+                    Warnings.Instance.GetWarningNameMessage(Warnings.MissingDependency)));
+            }
         }
 
         public async Task AddReferenceAsync(ReferenceDependency Reference)
         {
-            RegisterAssemblySafe(await ResolveReferenceAsync(Reference));
+            // Try to add a library dependency first.
+            // If that can't be done, try to create a runtime reference.
+            if (!RegisterAssemblySafe(await ResolveReferenceAsync(Reference)) &&
+                !RegisterAssemblySafe(await ResolveRuntimeLibraryAsync(Reference)) &&
+                Log.UseDefaultWarnings(Warnings.MissingDependency))
+            {
+                Log.LogWarning(new LogEntry(
+                    "Missing dependency", 
+                    "Could not resolve library '" + Reference.Identifier.ToString() + "'. " + 
+                    Warnings.Instance.GetWarningNameMessage(Warnings.MissingDependency)));
+            }
         }
 
         public IBinder CreateBinder()
