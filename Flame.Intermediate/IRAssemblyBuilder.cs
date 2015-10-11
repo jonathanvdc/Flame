@@ -27,15 +27,13 @@ namespace Flame.Intermediate
         {
             this.Encoding = Encoding;
 
-            this.RuntimeDependencies = new IRTableBuilder<IAssembly>(IRParser.RuntimeDependencyNodeName);
-            this.LibraryDependencies = new IRTableBuilder<IAssembly>(IRParser.LibraryDependencyNodeName);
+            this.Dependencies = new IRDependencyBuilder();
             this.TypeTable = new IRTableBuilder<IType>(IRParser.TypeTableName);
             this.MethodTable = new IRTableBuilder<IMethod>(IRParser.MethodTableName);
             this.FieldTable = new IRTableBuilder<IField>(IRParser.FieldTableName);
         }
 
-        public IRTableBuilder<IAssembly> RuntimeDependencies { get; private set; }
-        public IRTableBuilder<IAssembly> LibraryDependencies { get; private set; }
+        public IRDependencyBuilder Dependencies { get; private set; }
         public IRTableBuilder<IType> TypeTable { get; private set; }
         public IRTableBuilder<IMethod> MethodTable { get; private set; }
         public IRTableBuilder<IField> FieldTable { get; private set; }
@@ -44,7 +42,13 @@ namespace Flame.Intermediate
 
         public void Save(IOutputProvider OutputProvider)
         {
-            var nodes = new LNode[] { this.Node };
+            var nodes = Dependencies.DependencyNodes.Concat(new LNode[]
+            { 
+                TypeTable.Node, 
+                MethodTable.Node,
+                FieldTable.Node, 
+                this.Node 
+            }).ToArray();
             using (var fs = OutputProvider.Create().OpenOutput())
             {
                 if (Encoding == IRAssemblyEncoding.Binary)
