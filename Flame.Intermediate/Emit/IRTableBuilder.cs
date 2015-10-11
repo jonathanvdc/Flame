@@ -13,10 +13,11 @@ namespace Flame.Intermediate.Emit
     /// <typeparam name="T"></typeparam>
     public class IRTableBuilder<T> : INodeStructure<IReadOnlyList<T>>
     {
-        public IRTableBuilder(string TableName, Func<T, LNode> CreateNode)
+        public IRTableBuilder(string TableName, Func<T, LNode> CreateNode, Func<int, LNode> CreateReferenceNode)
         {
             this.TableName = TableName;
-            this.CreateNode = CreateNode;
+            this.CreateElementNode = CreateElementNode;
+            this.CreateReferenceNode = CreateReferenceNode;
             this.nodes = new List<LNode>();
             this.items = new List<T>();
             this.mappedItems = new Dictionary<T, int>();
@@ -30,7 +31,13 @@ namespace Flame.Intermediate.Emit
         /// <summary>
         /// Creates a node for the given element.
         /// </summary>
-        public Func<T, LNode> CreateNode { get; private set; }
+        public Func<T, LNode> CreateElementNode { get; private set; }
+
+        /// <summary>
+        /// Creates a node that represents a reference 
+        /// to the nth element in the table.
+        /// </summary>
+        public Func<int, LNode> CreateReferenceNode { get; private set; }
 
         private List<LNode> nodes;
         private List<T> items;
@@ -53,7 +60,6 @@ namespace Flame.Intermediate.Emit
         /// a new node is created and added to the table.
         /// </summary>
         /// <param name="Element"></param>
-        /// <param name="CreateNode"></param>
         /// <returns></returns>
         public int GetIndex(T Element)
         {
@@ -65,11 +71,23 @@ namespace Flame.Intermediate.Emit
             else
             {
                 int index = nodes.Count;
-                nodes.Add(CreateNode(Element));
+                nodes.Add(CreateElementNode(Element));
                 items.Add(Element);
                 mappedItems[Element] = index;
                 return index;
             }
+        }
+
+        /// <summary>
+        /// Gets a reference to the given element in the table.
+        /// If this table contains no entry matching the given element,
+        /// a new node is created and added to the table.
+        /// </summary>
+        /// <param name="Element"></param>
+        /// <returns></returns>
+        public LNode GetReference(T Element)
+        {
+            return CreateReferenceNode(GetIndex(Element));
         }
         
         public LNode Node
