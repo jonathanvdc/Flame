@@ -145,13 +145,24 @@ namespace Flame.Intermediate.Parsing
         }
 
         /// <summary>
+        /// Gets the given node's name if it is an identifier, or
+        /// its string value in any other case.
+        /// </summary>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static string GetIdOrString(LNode Node)
+        {
+            return Node.IsId ? Node.Name.Name : Node.Value.ToString();
+        }
+
+        /// <summary>
         /// Parses all dependency tables of the given type in the given sequence of nodes.
         /// </summary>
         /// <param name="Nodes"></param>
         /// <returns></returns>
         public static IEnumerable<string> ParseDependencies(IEnumerable<LNode> Nodes, string TableType)
         {
-            return ParseSet(Nodes, TableType, item => item.Name.Name);
+            return ParseSet(Nodes, TableType, GetIdOrString);
         }
 
         /// <summary>
