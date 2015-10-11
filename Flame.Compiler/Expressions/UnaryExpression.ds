@@ -4,8 +4,17 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
+    /// <summary>
+    /// Defines a base class for expressions that take a single operand.
+    /// </summary>
+    /// <remarks>
+    /// Not all unary expressions are associated with a specific unary operator.
+    /// </remarks>
     public abstract class UnaryExpression : IExpression, IPredicateNode
     {
+        /// <summary>
+        /// Initializes this unary expression with the given operand.
+        /// </summary>
         public const this(set IExpression Value);
 
         /// <summary>
@@ -48,11 +57,21 @@ namespace Flame.Compiler.Expressions
         public abstract ICodeBlock Emit(ICodeGenerator Generator);
     }
 
+    /// <summary>
+    /// Defines a base class for expressions that apply an operator to a single
+    /// operand.
+    /// </summary>
     public abstract class UnaryOperatorExpression : UnaryExpression
     {
+        /// <summary>
+        /// Initializes this unary operator expression with the given expression.
+        /// </summary>
         public const this(IExpression Value)
             : base(Value);
 
+        /// <summary>
+        /// Gets the unary operator that this expression applies to its operand.
+        /// </summary>
         public abstract Operator Op { const get; }
 
         private IType cachedType;
