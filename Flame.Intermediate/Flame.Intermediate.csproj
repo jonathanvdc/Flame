@@ -65,6 +65,7 @@
     <Compile Include="INodeStructure.cs" />
     <Compile Include="IRAccessor.cs" />
     <Compile Include="IRAssemblyBuilder.cs" />
+    <Compile Include="IRDependencyBuilder.cs" />
     <Compile Include="IRGenericParameter.cs" />
     <Compile Include="IRParameter.cs" />
     <Compile Include="IRTableBuilder.cs" />
