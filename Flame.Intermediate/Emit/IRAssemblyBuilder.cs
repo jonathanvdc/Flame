@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Flame.Intermediate
+namespace Flame.Intermediate.Emit
 {
     public enum IRAssemblyEncoding
     {
@@ -28,7 +28,7 @@ namespace Flame.Intermediate
             this.Encoding = Encoding;
 
             this.Dependencies = new IRDependencyBuilder();
-            this.TypeTable = new IRTableBuilder<IType>(IRParser.TypeTableName);
+            this.TypeTable = new IRTableBuilder<IType>(IRParser.TypeTableName, new IRTypeVisitor(this).Convert);
             this.MethodTable = new IRTableBuilder<IMethod>(IRParser.MethodTableName);
             this.FieldTable = new IRTableBuilder<IField>(IRParser.FieldTableName);
         }
