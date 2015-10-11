@@ -64,8 +64,10 @@
     <Compile Include="EmptyNodeList.cs" />
     <Compile Include="INodeStructure.cs" />
     <Compile Include="IRAccessor.cs" />
+    <Compile Include="IRAssemblyBuilder.cs" />
     <Compile Include="IRGenericParameter.cs" />
     <Compile Include="IRParameter.cs" />
+    <Compile Include="IRTableBuilder.cs" />
     <Compile Include="LazyNodeStructure.cs" />
     <Compile Include="LiteralNodeStructure.cs" />
     <Compile Include="IRAssembly.cs" />
