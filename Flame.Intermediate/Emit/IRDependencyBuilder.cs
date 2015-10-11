@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Flame.Intermediate
+namespace Flame.Intermediate.Emit
 {
     /// <summary>
     /// Defines a mutable view of a dependency set for the Flame IR format.
@@ -95,6 +95,17 @@ namespace Flame.Intermediate
             {
                 libDepends.Add(Name);
             }
+        }
+
+        /// <summary>
+        /// Adds a dependency to the dependency set.
+        /// Unless the given name is a known runtime dependency,
+        /// the given name is registered as a library dependency.
+        /// </summary>
+        /// <param name="Name"></param>
+        public void AddDependency(IAssembly Assembly)
+        {
+            AddDependency(Assembly.FullName);
         }
     }
 }

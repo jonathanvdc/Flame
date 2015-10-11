@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Flame.Intermediate
+namespace Flame.Intermediate.Emit
 {
     /// <summary>
     /// Defines a mutable view of an IR table that behaves like an ordered set.
@@ -13,9 +13,10 @@ namespace Flame.Intermediate
     /// <typeparam name="T"></typeparam>
     public class IRTableBuilder<T> : INodeStructure<IReadOnlyList<T>>
     {
-        public IRTableBuilder(string TableName)
+        public IRTableBuilder(string TableName, Func<T, LNode> CreateNode)
         {
             this.TableName = TableName;
+            this.CreateNode = CreateNode;
             this.nodes = new List<LNode>();
             this.items = new List<T>();
             this.mappedItems = new Dictionary<T, int>();
@@ -26,9 +27,25 @@ namespace Flame.Intermediate
         /// </summary>
         public string TableName { get; private set; }
 
+        /// <summary>
+        /// Creates a node for the given element.
+        /// </summary>
+        public Func<T, LNode> CreateNode { get; private set; }
+
         private List<LNode> nodes;
         private List<T> items;
         private Dictionary<T, int> mappedItems;
+
+        /// <summary>
+        /// Gets a boolean value that indicates whether this table contains
+        /// the given element.
+        /// </summary>
+        /// <param name="Element"></param>
+        /// <returns></returns>
+        public bool Contains(T Element)
+        {
+            return mappedItems.ContainsKey(Element);
+        }
 
         /// <summary>
         /// Gets the given element's index in this table.
@@ -38,7 +55,7 @@ namespace Flame.Intermediate
         /// <param name="Element"></param>
         /// <param name="CreateNode"></param>
         /// <returns></returns>
-        public int GetIndex(T Element, Func<T, LNode> CreateNode)
+        public int GetIndex(T Element)
         {
             int result;
             if (mappedItems.TryGetValue(Element, out result))
