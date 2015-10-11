@@ -3,17 +3,43 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Expressions
 {
+	/// <summary>
+	/// A type of expression that invokes a delegate expression by passing
+	/// it a list of arguments.
+	/// </summary>
 	public class InvocationExpression : IExpression, IPredicateNode
 	{
+		/// <summary>
+		/// Creates an invocation expression that invokes the given delegate
+		/// expression with the given argument list.
+		/// </summary>
 		public const this(set IExpression Target, set [IExpression] Arguments);
+
+		/// <summary>
+		/// Creates an invocation expression that calls the given method
+		/// with the given argument list. Virtual methods will be called
+		/// through dynamic invocation, nonvirtual methods will result in a
+		/// direct call.
+		/// </summary>
 		public const this(IMethod Target, IExpression Caller, set [IExpression] Arguments)
 		{
 			this.Target = new GetMethodExpression(Target, Caller);
 		}
 
+		/// <summary>
+		/// Gets the delegate expression that is invoked by passing it
+		/// an argument list.
+		/// </summary>
 		public IExpression Target { const get; private set; }
+
+		/// <summary>
+		/// Gets the argument list to invoke the delegate with.
+		/// </summary>
 		public [IExpression] Arguments { const get; private set; }
 
+		/// <summary>
+		/// Gets the method signature of the delegate expression to invoke.
+		/// </summary>
 		public IMethod Method
 		{
 			const get return MethodType.GetMethod(Target.Type);
