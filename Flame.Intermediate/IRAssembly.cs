@@ -1,4 +1,5 @@
 ﻿using Flame.Binding;
+using Flame.Compiler.Build;
 using Loyc.Syntax;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,11 @@ namespace Flame.Intermediate
     public class IRAssembly : INodeStructure<IAssembly>, IAssembly
     {
         public IRAssembly(IRSignature Signature, IEnvironment Environment)
-            : this(Signature, Environment, new VersionNodeStructure(new Version(1, 0, 0, 0)))
+            : this(Signature, Environment, new Version(1, 0, 0, 0))
+        { }
+        public IRAssembly(IRSignature Signature, IEnvironment Environment,
+            Version Version)
+            : this(Signature, Environment, new VersionNodeStructure(Version))
         { }
         public IRAssembly(IRSignature Signature, IEnvironment Environment, 
             INodeStructure<Version> VersionNode)
