@@ -27,7 +27,7 @@ namespace Flame.Compiler.Expressions
             virtual const get { return Value.Type; }
         }
 
-        public bool IsConstant
+        public virtual bool IsConstant
         {
             const get { return Value.IsConstant; }
         }
@@ -84,6 +84,15 @@ namespace Flame.Compiler.Expressions
                     cachedType = GetExpressionType();
                 }
                 return cachedType;
+            }
+        }
+
+        public virtual override bool IsConstant
+        {
+            const get
+            {
+                return Value.IsConstant &&
+                       (OperatorOverload == null || OperatorOverload.IsConstant);
             }
         }
 
@@ -152,6 +161,136 @@ namespace Flame.Compiler.Expressions
         public override const string ToString()
         {
             return "unary(\"" + Op + "\", " + Value + ")";
+        }
+    }
+
+    /// <summary>
+    /// A type of unary expressions whose default behavior is to reduce themselves
+    /// to specialized implementations if at all possible. Otherwise,
+    /// a default unary operator code sequence is generated.
+    /// </summary>
+    public class DirectUnaryExpression : UnaryOperatorExpression
+    {
+        /// <summary>
+        /// Creates a unary expression that applies the given
+        /// unary operator to the given operand.
+        /// </summary>
+        public const this(Operator UnaryOp, IExpression Operand)
+            : base(Operand)
+        {
+            this.oper = UnaryOp;
+            this.loweredExpr = new Lazy<IExpression>(lowerThisExpr);
+        }
+
+        private Operator oper;
+        /// <summary>
+        /// Gets the unary operator that this expression applies to its operand.
+        /// </summary>
+        public override Operator Op { const get { return oper; } }
+
+        private Lazy<IExpression> loweredExpr;
+        private IExpression lowerThisExpr()
+        {
+            return CreateUnaryExpression(Op, Value);
+        }
+
+        /// <summary>
+        /// Gets the potentially more specialized expression this unary
+        /// expression is "lowered" to.
+        /// </summary>
+        public IExpression LoweredExpression
+        {
+            const get { return loweredExpr.Value; }
+        }
+
+        /// <summary>
+        /// Gets a boolean value that indicates whether this unary expression
+        /// can be lowered to a specialized unary expression.
+        /// </summary>
+        public bool CanLower
+        {
+            const get { return !(LoweredExpression is DirectUnaryExpression); }
+        }
+
+        protected const override IExpression Create(IExpression Operand)
+        {
+            return CreateUnaryExpression(Op, Operand);
+        }
+
+        /// <summary>
+        /// Creates a unary expression from the given operation and operand.
+        /// </summary>
+        public static const IExpression CreateUnaryExpression(Operator UnaryOp, IExpression Operand)
+        {
+            if (UnaryOp == Operator.Not)
+                return new NotExpression(Operand);
+            else if (UnaryOp == Operator.Subtract)
+                return new NegateExpression(Operand);
+            else if (UnaryOp == Operator.Hash)
+                return new HashExpression(Operand);
+            else
+                return new DirectUnaryExpression(UnaryOp, Operand);
+        }
+
+        public override IBoundObject Evaluate()
+        {
+            if (CanLower)
+                return LoweredExpression.Evaluate();
+            else
+                return null;
+        }
+
+        protected override IType GetExpressionType()
+        {
+            if (CanLower)
+                return LoweredExpression.Type;
+            else if (OperatorOverload != null)
+                return OperatorOverload.ReturnType;
+            else
+                return Value.Type;
+        }
+
+        public override bool IsConstant
+        {
+            const get
+            {
+                if (CanLower)
+                    return LoweredExpression.IsConstant;
+                else
+                    return Value.IsConstant &&
+                           (OperatorOverload == null || OperatorOverload.IsConstant);
+            }
+        }
+
+        public const override IExpression Optimize()
+        {
+            if (CanLower)
+                return LoweredExpression.Optimize();
+            else
+                return new DirectUnaryExpression(Op, Value.Optimize());
+        }
+
+        public override ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            if (CanLower)
+            {
+                return LoweredExpression.Emit(Generator);
+            }
+
+            var innerBlock = Value.Emit(Generator);
+            var primBlock = EmitPrimitive(innerBlock, Generator);
+            if (primBlock != null)
+            {
+                return primBlock;
+            }
+            else if (OperatorOverload != null)
+            {
+                return OverloadInvocation.Emit(Generator);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
