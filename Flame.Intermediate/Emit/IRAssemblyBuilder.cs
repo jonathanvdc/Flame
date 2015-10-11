@@ -28,9 +28,18 @@ namespace Flame.Intermediate.Emit
             this.Encoding = Encoding;
 
             this.Dependencies = new IRDependencyBuilder();
-            this.TypeTable = new IRTableBuilder<IType>(IRParser.TypeTableName, new IRTypeVisitor(this).Convert);
-            this.MethodTable = new IRTableBuilder<IMethod>(IRParser.MethodTableName);
-            this.FieldTable = new IRTableBuilder<IField>(IRParser.FieldTableName);
+            this.TypeTable = new IRTableBuilder<IType>(
+                IRParser.TypeTableName, 
+                new IRTypeVisitor(this).Convert, 
+                index => NodeFactory.Call(IRParser.TypeTableReferenceName, new LNode[] { NodeFactory.Literal(index) }));
+            this.MethodTable = new IRTableBuilder<IMethod>(
+                IRParser.MethodTableName, 
+                new IRMethodVisitor(this).Convert, 
+                index => NodeFactory.Call(IRParser.MethodTableReferenceName, new LNode[] { NodeFactory.Literal(index) }));
+            this.FieldTable = new IRTableBuilder<IField>(
+                IRParser.FieldTableName, 
+                new IRFieldVisitor(this).Convert,
+                index => NodeFactory.Call(IRParser.FieldTableReferenceName, new LNode[] { NodeFactory.Literal(index) }));
         }
 
         public IRDependencyBuilder Dependencies { get; private set; }
