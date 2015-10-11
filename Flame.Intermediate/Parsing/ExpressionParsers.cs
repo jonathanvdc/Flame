@@ -39,6 +39,7 @@ namespace Flame.Intermediate.Parsing
         public const string GetCurriedDelegateNodeName = "#get_curried_delegate";
         public const string InvocationNodeName = "#invoke";
 
+        public const string UnaryNode = "#unary";
         public const string BinaryNode = "#binary";
 
         public const string DynamicCastNode = "#dynamic_cast";
@@ -560,6 +561,24 @@ namespace Flame.Intermediate.Parsing
         #region Operators
 
         /// <summary>
+        /// Parses the given unary op node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseUnary(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #unary("@", operand)
+
+            var op = Operator.Register((string)Node.Args[0].Value);
+            var operand = ParseExpression(State, Node.Args[1]);
+
+            return DirectUnaryExpression.CreateUnaryExpression(op, operand);
+        }
+
+        /// <summary>
         /// Parses the given binary op node.
         /// </summary>
         /// <param name="State"></param>
@@ -878,6 +897,7 @@ namespace Flame.Intermediate.Parsing
 
                     // Operators
                     { BinaryNode, CreateParser(ParseBinary) },
+                    { UnaryNode, CreateParser(ParseUnary) },
 
                     // Casts
                     { StaticCastNode, CreateTypeBinaryParser((expr, type) => new StaticCastExpression(expr, type)) },
