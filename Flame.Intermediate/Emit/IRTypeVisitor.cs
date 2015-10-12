@@ -95,7 +95,31 @@ namespace Flame.Intermediate.Emit
 
         protected override LNode ConvertGenericParameter(IGenericParameter Type)
         {
-            return base.ConvertGenericParameter(Type);
+            int index = 0;
+            foreach (var item in Type.DeclaringMember.GenericParameters)
+	        {
+		        if (Type.Equals(item))
+	            {
+		            break;
+	            }
+                index++;
+	        }
+            if (Type.DeclaringMember is IMethod)
+	        {
+                return NodeFactory.Call(IRParser.MethodGenericParameterReferenceName, new LNode[]
+                {
+                    Assembly.MethodTable.GetReference((IMethod)Type.DeclaringMember),
+                    NodeFactory.Literal(index)
+                });
+	        }
+            else
+            {
+                return NodeFactory.Call(IRParser.TypeGenericParamaterReferenceName, new LNode[]
+                {
+                    GetTypeReference((IType)Type.DeclaringMember),
+                    NodeFactory.Literal(index)
+                });
+            }
         }
 
         protected virtual LNode ConvertGenericNestedType(GenericInstanceType Type)
