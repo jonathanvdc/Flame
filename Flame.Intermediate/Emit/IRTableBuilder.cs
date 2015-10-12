@@ -57,11 +57,13 @@ namespace Flame.Intermediate.Emit
         /// <summary>
         /// Gets the given element's index in this table.
         /// If this table contains no entry matching the given element,
-        /// a new node is created and added to the table.
+        /// a new node is created by the given element creation
+        /// delegate and added to the table.
         /// </summary>
         /// <param name="Element"></param>
+        /// <param name="CreateElementNode"></param>
         /// <returns></returns>
-        public int GetIndex(T Element)
+        public int GetIndex(T Element, Func<T, LNode> CreateElementNode)
         {
             int result;
             if (mappedItems.TryGetValue(Element, out result))
@@ -76,6 +78,18 @@ namespace Flame.Intermediate.Emit
                 mappedItems[Element] = index;
                 return index;
             }
+        }
+
+        /// <summary>
+        /// Gets the given element's index in this table.
+        /// If this table contains no entry matching the given element,
+        /// a new node is created and added to the table.
+        /// </summary>
+        /// <param name="Element"></param>
+        /// <returns></returns>
+        public int GetIndex(T Element)
+        {
+            return GetIndex(Element, CreateElementNode);
         }
 
         /// <summary>

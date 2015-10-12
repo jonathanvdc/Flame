@@ -224,7 +224,7 @@ namespace Flame.Intermediate.Parsing
             return new LazyNodeStructure<IType>(Node, () =>
             {
                 var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]);
-                string name = (string)Node.Args[1].Value;
+                string name = GetIdOrString(Node.Args[1]);
                 return ((INamespace)declType).Types.First(item => item.Name == name);
             });
         }
@@ -235,7 +235,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #type_reference("full_name")
 
-            return new LazyNodeStructure<IType>(Node, () => State.Binder.BindType((string)Node.Args.Single().Value));
+            return new LazyNodeStructure<IType>(Node, () => State.Binder.BindType(GetIdOrString(Node.Args.Single())));
         }
 
         public static INodeStructure<IType> ParseMethodGenericParameterReference(ParserState State, LNode Node)
@@ -543,7 +543,7 @@ namespace Flame.Intermediate.Parsing
             // #member(name, attributes...)
             //         ^~~~
 
-            return SignatureNode.Args[0].Name.Name;
+            return GetIdOrString(SignatureNode.Args[0]);
         }
 
         /// <summary>

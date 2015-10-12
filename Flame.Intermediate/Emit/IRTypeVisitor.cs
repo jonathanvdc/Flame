@@ -18,8 +18,18 @@ namespace Flame.Intermediate.Emit
 
         public IRAssemblyBuilder Assembly { get; private set; }
 
+        public LNode GetTypeReference(IType Type)
+        {
+            return Assembly.TypeTable.GetReference(Type);
+        }
+
         protected override LNode ConvertTypeDefault(IType Type)
         {
+            if (Type is GenericInstanceType)
+            {
+                return ConvertGenericNestedType((GenericInstanceType)Type);
+            }
+
             if (Type.DeclaringNamespace != null && Type.DeclaringNamespace.DeclaringAssembly != null)
             {
                 Assembly.Dependencies.AddDependency(Type.DeclaringNamespace.DeclaringAssembly);
@@ -46,6 +56,114 @@ namespace Flame.Intermediate.Emit
         protected override LNode MakeVectorType(LNode ElementType, IReadOnlyList<int> Dimensions)
         {
             return NodeFactory.Call(IRParser.VectorTypeName, new LNode[] { ElementType }.Concat(Dimensions.Select(item => NodeFactory.Literal(item))));
+        }
+
+        protected virtual LNode MakePrimitiveType(string Name)
+        {
+            return NodeFactory.Id(Name);
+        }
+
+        protected virtual LNode MakePrimitiveType(string Name, int PrimitiveSize)
+        {
+            return NodeFactory.Call(Name, new LNode[] { NodeFactory.Literal(PrimitiveSize * 8) });
+        }
+
+        protected LNode MakePrimitiveType(string Name, IType Primitive)
+        {
+            return MakePrimitiveType(Name, Primitive.GetPrimitiveSize());
+        }
+
+        protected override LNode ConvertArrayType(IArrayType Type)
+        {
+            return MakeArrayType(GetTypeReference(Type.ElementType), Type.ArrayRank);
+        }
+
+        protected override LNode ConvertPointerType(IPointerType Type)
+        {
+            return MakePointerType(GetTypeReference(Type.ElementType), Type.PointerKind);
+        }
+
+        protected override LNode ConvertVectorType(IVectorType Type)
+        {
+            return MakeVectorType(GetTypeReference(Type.ElementType), Type.Dimensions);
+        }
+
+        protected override LNode ConvertGenericInstance(IType Type)
+        {
+            return MakeGenericType(GetTypeReference(Type.GetGenericDeclaration()), Type.GetGenericArguments().Select(GetTypeReference));
+        }
+
+        protected override LNode ConvertGenericParameter(IGenericParameter Type)
+        {
+            return base.ConvertGenericParameter(Type);
+        }
+
+        protected virtual LNode ConvertGenericNestedType(GenericInstanceType Type)
+        {
+            return NodeFactory.Call(IRParser.GenericInstanceMemberName, new LNode[] 
+            { 
+                GetTypeReference(Type.DeclaringType), 
+                GetTypeReference(Type.Declaration) 
+            });
+        }
+
+        protected override LNode ConvertNestedType(IType Type, IType DeclaringType)
+        {
+            return NodeFactory.Call(IRParser.NestedTypeName, new LNode[]
+            {
+                GetTypeReference(DeclaringType),
+                NodeFactory.Literal(Type.Name)
+            });
+        }
+
+        private static readonly Dictionary<IType, string> typeNames = new Dictionary<IType, string>()
+        {
+            { PrimitiveTypes.String, IRParser.StringTypeName },
+            { PrimitiveTypes.Char, IRParser.CharTypeName },
+            { PrimitiveTypes.Void, IRParser.VoidTypeName },
+            { PrimitiveTypes.Boolean, IRParser.BooleanTypeName }
+        };
+
+        protected override LNode ConvertPrimitiveType(IType Type)
+        {
+            if (Type.get_IsSignedInteger())
+            {
+                return MakePrimitiveType(IRParser.IntTypeNodeName, Type);
+            }
+            else if (Type.get_IsUnsignedInteger())
+            {
+                return MakePrimitiveType(IRParser.UIntTypeNodeName, Type);
+            }
+            else if (Type.get_IsBit())
+            {
+                return MakePrimitiveType(IRParser.BitTypeNodeName, Type);
+            }
+            else if (Type.get_IsFloatingPoint())
+            {
+                return MakePrimitiveType(IRParser.FloatTypeNodeName, Type);
+            }
+            else if (typeNames.ContainsKey(Type))
+            {
+                return MakePrimitiveType(typeNames[Type]);
+            }
+            else
+            {
+                return base.ConvertPrimitiveType(Type);
+            }
+        }
+
+        protected override LNode ConvertDelegateType(IType Type)
+        {
+            // Format:
+            //
+            // #delegate_type(return_type, parameter_types...)
+
+            var signature = MethodType.GetMethod(Type);
+
+            var retType = GetTypeReference(signature.ReturnType);
+            var paramTypes = signature.Parameters.Select(item => GetTypeReference(item.ParameterType));
+
+            return NodeFactory.Call(IRParser.DelegateTypeName, new LNode[] { retType }.Concat(paramTypes));
         }
     }
 }
