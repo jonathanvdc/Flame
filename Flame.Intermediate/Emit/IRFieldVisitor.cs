@@ -19,12 +19,12 @@ namespace Flame.Intermediate.Emit
 
         public LNode Convert(IField Value)
         {
-            if (Value.DeclaringType.get_IsRecursiveGenericInstance())
+            if (Value is GenericInstanceField)
             {
                 return NodeFactory.Call(IRParser.GenericInstanceMemberName, new LNode[]
                 { 
                     Assembly.TypeTable.GetReference(Value.DeclaringType), 
-                    Assembly.FieldTable.GetReference(Value.GetRecursiveGenericDeclaration()) 
+                    Assembly.FieldTable.GetReference(((GenericInstanceField)Value).Declaration) 
                 });
             }
             else
