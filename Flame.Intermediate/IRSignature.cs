@@ -15,6 +15,12 @@ namespace Flame.Intermediate
             this.AttributeNodes = AttributeNodes;
             this.cachedAttrs = new Lazy<IAttribute[]>(() => AttributeNodes.Select(item => item.Value).ToArray());
         }
+        public IRSignature(string Name)
+        {
+            this.Name = Name;
+            this.AttributeNodes = Enumerable.Empty<INodeStructure<IAttribute>>();
+            this.cachedAttrs = new Lazy<IAttribute[]>(() => new IAttribute[0]);
+        }
 
         public string Name { get; private set; }
         public IEnumerable<INodeStructure<IAttribute>> AttributeNodes { get; private set; }

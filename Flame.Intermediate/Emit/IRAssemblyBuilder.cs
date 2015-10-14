@@ -52,7 +52,7 @@ namespace Flame.Intermediate.Emit
         public void Save(IOutputProvider OutputProvider)
         {
             var nodes = Dependencies.DependencyNodes.Concat(new LNode[]
-            { 
+            {
                 TypeTable.Node, 
                 MethodTable.Node,
                 FieldTable.Node, 

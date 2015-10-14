@@ -103,6 +103,19 @@ namespace Flame.Intermediate.Emit
         {
             return CreateReferenceNode(GetIndex(Element));
         }
+
+        /// <summary>
+        /// Gets a reference to the given element in the table
+        /// and wraps it in a node structure.
+        /// If this table contains no entry matching the given element,
+        /// a new node is created and added to the table.
+        /// </summary>
+        /// <param name="Element"></param>
+        /// <returns></returns>
+        public INodeStructure<T> GetReferenceStructure(T Element)
+        {
+            return new ConstantNodeStructure<T>(GetReference(Element), Element);
+        }
         
         public LNode Node
         {

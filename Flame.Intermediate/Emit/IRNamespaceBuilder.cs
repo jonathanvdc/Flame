@@ -47,8 +47,9 @@ namespace Flame.Intermediate.Emit
 
         public static ITypeBuilder DeclareType(IRAssemblyBuilder AssemblyBuilder, IRNamespaceBase DeclaringNamespace, ITypeSignatureTemplate Template)
         {
-            // TODO: implement this!
-            throw new NotImplementedException();
+            var ty = new IRTypeBuilder(AssemblyBuilder, DeclaringNamespace, Template);
+            DeclaringNamespace.TypeNodes = new NodeCons<IType>(ty, DeclaringNamespace.TypeNodes);
+            return ty;
         }
 
         public INamespaceBuilder DeclareNamespace(string Name)
