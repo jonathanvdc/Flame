@@ -71,6 +71,7 @@
     <Compile Include="Emit\IRAssemblyBuilder.cs" />
     <Compile Include="Emit\IRDependencyBuilder.cs" />
     <Compile Include="IRGenericParameter.cs" />
+    <Compile Include="IRNamespaceBase.cs" />
     <Compile Include="IRParameter.cs" />
     <Compile Include="Emit\IRTableBuilder.cs" />
     <Compile Include="LazyNodeStructure.cs" />

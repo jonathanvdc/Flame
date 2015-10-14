@@ -7,21 +7,18 @@ using System.Threading.Tasks;
 
 namespace Flame.Intermediate
 {
-    public class IRNamespace : INodeStructure<INamespaceBranch>, INamespaceBranch
+    public class IRNamespace : IRNamespaceBase, INodeStructure<INamespaceBranch>
     {
         public IRNamespace(INamespace DeclaringNamespace, IRSignature Signature)
         {
             this.DeclaringNamespace = DeclaringNamespace;
             this.Signature = Signature;
-            this.TypeNodes = EmptyNodeList<IType>.Instance;
-            this.NamespaceNodes = EmptyNodeList<INamespaceBranch>.Instance;
         }
         public IRNamespace(INamespace DeclaringNamespace, IRSignature Signature, INodeStructure<IEnumerable<IType>> TypeNodes, INodeStructure<IEnumerable<INamespaceBranch>> NamespaceNodes)
+            : base(TypeNodes, NamespaceNodes)
         {
             this.DeclaringNamespace = DeclaringNamespace;
             this.Signature = Signature;
-            this.TypeNodes = TypeNodes;
-            this.NamespaceNodes = NamespaceNodes;
         }
 
         // Format:
@@ -30,37 +27,25 @@ namespace Flame.Intermediate
 
         public INamespace DeclaringNamespace { get; private set; }
         public IRSignature Signature { get; set; }
-        public INodeStructure<IEnumerable<IType>> TypeNodes { get; set; }
-        public INodeStructure<IEnumerable<INamespaceBranch>> NamespaceNodes { get; set; }
 
-        public IAssembly DeclaringAssembly
+        public override IAssembly DeclaringAssembly
         {
             get { return DeclaringNamespace.DeclaringAssembly; }
         }
 
-        public IEnumerable<IType> Types
-        {
-            get { return TypeNodes.Value; }
-        }
-
-        public IEnumerable<IAttribute> Attributes
+        public override IEnumerable<IAttribute> Attributes
         {
             get { return Signature.Attributes; }
         }
 
-        public string FullName
+        public override string FullName
         {
             get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
         }
 
-        public string Name
+        public override string Name
         {
             get { return Signature.Name; }
-        }
-
-        public IEnumerable<INamespaceBranch> Namespaces
-        {
-            get { return NamespaceNodes.Value; }
         }
 
         public const string NamespaceNodeName = "#namespace";
