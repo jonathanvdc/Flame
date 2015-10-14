@@ -74,10 +74,26 @@ namespace Flame.Intermediate.Emit
             }
         }
 
+        private IRRootNamespaceBuilder GetRootNamespaceBuilder()
+        {
+            if (!(this.RootNamespace is IRRootNamespaceBuilder))
+            {
+                this.RootNamespace = new IRRootNamespaceBuilder(this, this.RootNamespace);
+            }
+            return (IRRootNamespaceBuilder)this.RootNamespace;
+        }
+
         public INamespaceBuilder DeclareNamespace(string Name)
         {
-            // TODO: implement this!
-            throw new NotImplementedException();
+            var rootNs = GetRootNamespaceBuilder();
+            if (string.IsNullOrEmpty(Name))
+            {
+                return rootNs;
+            }
+            else
+            {
+                return rootNs.DeclareNamespace(Name);
+            }
         }
 
         public void SetEntryPoint(IMethod Method)
