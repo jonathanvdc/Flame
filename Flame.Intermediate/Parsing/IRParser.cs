@@ -36,6 +36,7 @@ namespace Flame.Intermediate.Parsing
         
         public const string FieldReferenceName = "#field_reference";
         public const string MethodReferenceName = "#method_reference";
+        public const string ConstructorReferenceName = "#ctor_reference";
         public const string AccessorReferenceName = "#accessor_reference";
 
         /// <summary>
@@ -454,6 +455,10 @@ namespace Flame.Intermediate.Parsing
             // Format:
             //
             // #method_reference(declaring_type, name, is_static, { generic_parameters_names... }, return_type, { parameter_types... })
+            //
+            // --OR--
+            //
+            // #ctor_reference(...)
 
             return new LazyNodeStructure<IMethod>(Node, () =>
             {
@@ -461,6 +466,7 @@ namespace Flame.Intermediate.Parsing
                 string methodName = (string)Node.Args[1].Value;
                 var descMethod = new DescribedMethod(methodName, declType);
                 descMethod.IsStatic = Convert.ToBoolean(Node.Args[2].Value);
+                descMethod.IsConstructor = Node.Name.Name == ConstructorReferenceName;
                 foreach (var item in Node.Args[3].Args)
                 {
                     descMethod.AddGenericParameter(new DescribedGenericParameter(item.Name.Name, descMethod));
@@ -974,6 +980,7 @@ namespace Flame.Intermediate.Parsing
                 return new ReferenceParser<IMethod>(new Dictionary<string, Func<ParserState, LNode, INodeStructure<IMethod>>>()
                 {
                     { MethodReferenceName, ParseMethodSignatureReference },
+                    { ConstructorReferenceName, ParseMethodSignatureReference },
                     { AccessorReferenceName, ParseAccessorSignatureReference },
                     { MethodTableReferenceName, ParseMethodTableReference },
                     { GenericInstanceName, ParseGenericMethodInstance },
