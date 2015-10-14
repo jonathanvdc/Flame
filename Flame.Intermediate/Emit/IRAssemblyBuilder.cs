@@ -82,8 +82,7 @@ namespace Flame.Intermediate.Emit
 
         public void SetEntryPoint(IMethod Method)
         {
-            // TODO: implement this!
-            throw new NotImplementedException();
+            this.EntryPointNode = new ConstantNodeStructure<IMethod>(MethodTable.GetReference(Method), Method);
         }
 
         public IAssembly Build()
