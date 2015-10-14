@@ -61,9 +61,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConstantNodeStructure.cs" />
+    <Compile Include="Emit\IREmitHelpers.cs" />
     <Compile Include="Emit\IRFieldVisitor.cs" />
     <Compile Include="Emit\IRGenericMemberTypeVisitor.cs" />
     <Compile Include="Emit\IRMethodVisitor.cs" />
+    <Compile Include="Emit\IRNamespaceBuilder.cs" />
+    <Compile Include="Emit\IRRootNamespaceBuilder.cs" />
+    <Compile Include="Emit\IRTypeBuilder.cs" />
     <Compile Include="Emit\IRTypeVisitor.cs" />
     <Compile Include="EmptyNodeList.cs" />
     <Compile Include="INodeStructure.cs" />
@@ -78,6 +82,7 @@
     <Compile Include="LiteralNodeStructure.cs" />
     <Compile Include="IRAssembly.cs" />
     <Compile Include="IRField.cs" />
+    <Compile Include="NodeCons.cs" />
     <Compile Include="NodeFactory.cs" />
     <Compile Include="NodeList.cs" />
     <Compile Include="IRMethod.cs" />
