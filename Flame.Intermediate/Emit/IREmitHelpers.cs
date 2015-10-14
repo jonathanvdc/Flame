@@ -24,5 +24,11 @@ namespace Flame.Intermediate.Emit
             // TODO: implement this!
             throw new NotImplementedException();
         }
+
+        public static INodeStructure<IParameter> ConvertParameter(IRAssemblyBuilder Assembly, IParameter Parameter)
+        {
+            // TODO: implement this!
+            throw new NotImplementedException();
+        }
     }
 }
