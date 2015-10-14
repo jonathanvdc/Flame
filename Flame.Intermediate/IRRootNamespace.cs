@@ -6,48 +6,40 @@ using System.Threading.Tasks;
 
 namespace Flame.Intermediate
 {
-    public class IRRootNamespace : INamespaceBranch
+    public class IRRootNamespace : IRNamespaceBase
     {
         public IRRootNamespace(IAssembly DeclaringAssembly)
         {
-            this.DeclaringAssembly = DeclaringAssembly;
-            this.TypeNodes = EmptyNodeList<IType>.Instance;
-            this.NamespaceNodes = EmptyNodeList<INamespaceBranch>.Instance;
+            this.declAsm = DeclaringAssembly;
         }
         public IRRootNamespace(IAssembly DeclaringAssembly, INodeStructure<IEnumerable<IType>> TypeNodes, INodeStructure<IEnumerable<INamespaceBranch>> NamespaceNodes)
+            : base(TypeNodes, NamespaceNodes)
         {
-            this.DeclaringAssembly = DeclaringAssembly;
-            this.TypeNodes = TypeNodes;
-            this.NamespaceNodes = NamespaceNodes;
+            this.declAsm = DeclaringAssembly;
         }
 
-        public IAssembly DeclaringAssembly { get; private set; }
-        public INodeStructure<IEnumerable<IType>> TypeNodes { get; set; }
-        public INodeStructure<IEnumerable<INamespaceBranch>> NamespaceNodes { get; set; }
-
-        public IEnumerable<INamespaceBranch> Namespaces
+        private IAssembly declAsm;
+        public override IAssembly DeclaringAssembly
         {
-            get { return NamespaceNodes.Value; }
+            get
+            {
+                return declAsm;
+            }
         }
 
-        public IEnumerable<IAttribute> Attributes
+        public override IEnumerable<IAttribute> Attributes
         {
             get { return DeclaringAssembly.Attributes; }
         }
 
-        public string FullName
+        public override string FullName
         {
             get { return Name; }
         }
 
-        public string Name
+        public override string Name
         {
             get { return ""; }
-        }
-
-        public IEnumerable<IType> Types
-        {
-            get { return TypeNodes.Value; }
         }
     }
 }
