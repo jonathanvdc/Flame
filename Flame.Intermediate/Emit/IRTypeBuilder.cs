@@ -19,6 +19,11 @@ namespace Flame.Intermediate.Emit
         public IRAssemblyBuilder Assembly { get; private set; }
         public TypeSignatureInstance Template { get; private set; }
 
+        private void AddMember(INodeStructure<ITypeMember> Member)
+        {
+            this.MemberNodes = new NodeCons<ITypeMember>(Member, this.MemberNodes);
+        }
+
         public IFieldBuilder DeclareField(IFieldSignatureTemplate Template)
         {
             // TODO: implement this!
@@ -27,8 +32,9 @@ namespace Flame.Intermediate.Emit
 
         public IMethodBuilder DeclareMethod(IMethodSignatureTemplate Template)
         {
-            // TODO: implement this!
-            throw new NotImplementedException();
+            var method = new IRMethodBuilder(Assembly, this, Template);
+            AddMember(method);
+            return method;
         }
 
         public IPropertyBuilder DeclareProperty(IPropertySignatureTemplate Template)
