@@ -17,6 +17,33 @@ namespace Flame.Intermediate.Emit
 
         public IRAssemblyBuilder Assembly { get; private set; }
 
+        private LNode ConvertDefinitionReference(IMethod Value)
+        {
+            // Format:
+            //
+            // #method_reference(declaring_type, name, is_static, { generic_parameters_names... }, return_type, { parameter_types... })
+            //
+            // --OR--
+            //
+            // #ctor_reference(...)
+
+            var declType = Assembly.TypeTable.GetReference(Value.DeclaringType);
+            var genParamNames = NodeFactory.Block(Value.GenericParameters.Select(item => NodeFactory.Literal(item.Name)));
+            var visitor = new IRGenericMemberTypeVisitor(Assembly, Value);
+            var retType = visitor.Convert(Value.ReturnType);
+            var paramTypes = NodeFactory.Block(Value.Parameters.GetTypes().Select(visitor.Convert));
+
+            return NodeFactory.Call(Value.IsConstructor ? IRParser.ConstructorReferenceName : IRParser.MethodReferenceName, new LNode[]
+            {
+                declType,
+                NodeFactory.Id(Value.Name),
+                NodeFactory.Literal(Value.IsStatic),
+                genParamNames,
+                retType,
+                paramTypes
+            });
+        }
+
         public LNode Convert(IMethod Value)
         {
             if (Value is GenericMethod)
@@ -37,7 +64,7 @@ namespace Flame.Intermediate.Emit
             }
             else
             {
-                throw new NotImplementedException();
+                return ConvertDefinitionReference(Value);
             }
         }
     }

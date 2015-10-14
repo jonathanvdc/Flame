@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="ConstantNodeStructure.cs" />
     <Compile Include="Emit\IRFieldVisitor.cs" />
+    <Compile Include="Emit\IRGenericMemberTypeVisitor.cs" />
     <Compile Include="Emit\IRMethodVisitor.cs" />
     <Compile Include="Emit\IRTypeVisitor.cs" />
     <Compile Include="EmptyNodeList.cs" />
