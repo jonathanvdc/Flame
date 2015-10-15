@@ -20,31 +20,31 @@ namespace Flame.Intermediate.Emit
 
         #region Literals
 
-        public INodeBlock EmitLiteral(object Value, string LiteralName, IType Type)
+        public NodeBlock EmitLiteral(object Value, string LiteralName)
         {
-            return new PrimitiveNodeBlock(this, NodeFactory.Literal(Value), Type);
+            return new NodeBlock(this, NodeFactory.Literal(Value));
         }
 
         #region Bit types
 
         public ICodeBlock EmitBit8(byte Value)
         {
-            return EmitLiteral(Value, ExpressionParsers.ConstantBit8Name, PrimitiveTypes.Bit8);
+            return EmitLiteral(Value, ExpressionParsers.ConstantBit8Name);
         }
 
         public ICodeBlock EmitBit16(ushort Value)
         {
-            return EmitLiteral(Value, ExpressionParsers.ConstantBit16Name, PrimitiveTypes.Bit16);
+            return EmitLiteral(Value, ExpressionParsers.ConstantBit16Name);
         }
 
         public ICodeBlock EmitBit32(uint Value)
         {
-            return EmitLiteral(Value, ExpressionParsers.ConstantBit32Name, PrimitiveTypes.Bit32);
+            return EmitLiteral(Value, ExpressionParsers.ConstantBit32Name);
         }
 
         public ICodeBlock EmitBit64(ulong Value)
         {
-            return EmitLiteral(Value, ExpressionParsers.ConstantBit64Name, PrimitiveTypes.Bit64);
+            return EmitLiteral(Value, ExpressionParsers.ConstantBit64Name);
         }
 
         #endregion
@@ -53,22 +53,22 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitInt16(short Value)
         {
-            return EmitLiteral(Value, ExpressionParsers.ConstantInt16Name, PrimitiveTypes.Int16);
+            return EmitLiteral(Value, ExpressionParsers.ConstantInt16Name);
         }
 
         public ICodeBlock EmitInt32(int Value)
         {
-            return EmitLiteral(Value, ExpressionParsers.ConstantInt32Name, PrimitiveTypes.Int32);
+            return EmitLiteral(Value, ExpressionParsers.ConstantInt32Name);
         }
 
         public ICodeBlock EmitInt64(long Value)
         {
-            return EmitLiteral(Value, ExpressionParsers.ConstantInt64Name, PrimitiveTypes.Int64);
+            return EmitLiteral(Value, ExpressionParsers.ConstantInt64Name);
         }
 
         public ICodeBlock EmitInt8(sbyte Value)
         {
-            return EmitLiteral(Value, ExpressionParsers.ConstantInt8Name, PrimitiveTypes.Int8);
+            return EmitLiteral(Value, ExpressionParsers.ConstantInt8Name);
         }
 
         #endregion
@@ -77,22 +77,22 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitUInt16(ushort Value)
         {
-            return EmitLiteral(Value, ExpressionParsers.ConstantUInt16Name, PrimitiveTypes.UInt16);
+            return EmitLiteral(Value, ExpressionParsers.ConstantUInt16Name);
         }
 
         public ICodeBlock EmitUInt32(uint Value)
         {
-            return EmitLiteral(Value, ExpressionParsers.ConstantUInt32Name, PrimitiveTypes.UInt32);
+            return EmitLiteral(Value, ExpressionParsers.ConstantUInt32Name);
         }
 
         public ICodeBlock EmitUInt64(ulong Value)
         {
-            return EmitLiteral(Value, ExpressionParsers.ConstantUInt64Name, PrimitiveTypes.UInt64);
+            return EmitLiteral(Value, ExpressionParsers.ConstantUInt64Name);
         }
 
         public ICodeBlock EmitUInt8(byte Value)
         {
-            return EmitLiteral(Value, ExpressionParsers.ConstantUInt8Name, PrimitiveTypes.UInt8);
+            return EmitLiteral(Value, ExpressionParsers.ConstantUInt8Name);
         }
 
         #endregion
@@ -101,12 +101,12 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitFloat32(float Value)
         {
-            return EmitLiteral(Value, ExpressionParsers.ConstantFloat32Name, PrimitiveTypes.Float32);
+            return EmitLiteral(Value, ExpressionParsers.ConstantFloat32Name);
         }
 
         public ICodeBlock EmitFloat64(double Value)
         {
-            return EmitLiteral(Value, ExpressionParsers.ConstantFloat64Name, PrimitiveTypes.Float64);
+            return EmitLiteral(Value, ExpressionParsers.ConstantFloat64Name);
         }
 
         #endregion
@@ -115,17 +115,17 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitBoolean(bool Value)
         {
-            return EmitLiteral(Value, ExpressionParsers.ConstantBooleanName, PrimitiveTypes.Boolean);
+            return EmitLiteral(Value, ExpressionParsers.ConstantBooleanName);
         }
 
         public ICodeBlock EmitChar(char Value)
         {
-            return EmitLiteral(Value, ExpressionParsers.ConstantCharName, PrimitiveTypes.Char);
+            return EmitLiteral(Value, ExpressionParsers.ConstantCharName);
         }
 
         public ICodeBlock EmitString(string Value)
         {
-            return EmitLiteral(Value, ExpressionParsers.ConstantStringName, PrimitiveTypes.String);
+            return EmitLiteral(Value, ExpressionParsers.ConstantStringName);
         }
 
         #endregion
@@ -134,7 +134,7 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitVoid()
         {
-            return new PrimitiveNodeBlock(this, NodeFactory.Id(ExpressionParsers.ConstantVoidName), PrimitiveTypes.Void);
+            return new NodeBlock(this, NodeFactory.Id(ExpressionParsers.ConstantVoidName));
         }
 
         #endregion
@@ -143,17 +143,48 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitNull()
         {
-            return new PrimitiveNodeBlock(this, NodeFactory.Id(ExpressionParsers.ConstantNullName), PrimitiveTypes.Null);
+            return new NodeBlock(this, NodeFactory.Id(ExpressionParsers.ConstantNullName));
         }
 
         #endregion
 
         #endregion
 
-        public ICodeBlock EmitBinary(ICodeBlock A, ICodeBlock B, Operator Op)
+        #region Operators
+
+        public ICodeBlock EmitPop(ICodeBlock Value)
+        {
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.IgnoreNodeName, new[] 
+            {
+                NodeBlock.ToNode(Value) 
+            }));
+        }
+
+        public ICodeBlock EmitTypeBinary(ICodeBlock Value, IType Type, Operator Op)
         {
             throw new NotImplementedException();
         }
+
+        public ICodeBlock EmitBinary(ICodeBlock A, ICodeBlock B, Operator Op)
+        {
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.BinaryNode, new[] 
+            { 
+                NodeBlock.ToNode(A),
+                NodeFactory.Literal(Op.Name),
+                NodeBlock.ToNode(B)
+            }));
+        }
+
+        public ICodeBlock EmitUnary(ICodeBlock Value, Operator Op)
+        {
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.UnaryNode, new[] 
+            { 
+                NodeFactory.Literal(Op.Name),
+                NodeBlock.ToNode(Value) 
+            }));
+        }
+
+        #endregion
 
         public ICodeBlock EmitBreak(BlockTag Target)
         {
@@ -195,11 +226,6 @@ namespace Flame.Intermediate.Emit
             throw new NotImplementedException();
         }
 
-        public ICodeBlock EmitPop(ICodeBlock Value)
-        {
-            throw new NotImplementedException();
-        }
-
         public ICodeBlock EmitReturn(ICodeBlock Value)
         {
             throw new NotImplementedException();
@@ -211,16 +237,6 @@ namespace Flame.Intermediate.Emit
         }
 
         public ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ICodeBlock EmitTypeBinary(ICodeBlock Value, IType Type, Operator Op)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ICodeBlock EmitUnary(ICodeBlock Value, Operator Op)
         {
             throw new NotImplementedException();
         }
