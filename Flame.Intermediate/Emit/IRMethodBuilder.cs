@@ -16,20 +16,23 @@ namespace Flame.Intermediate.Emit
         {
             this.Assembly = Assembly;
             this.Template = new MethodSignatureInstance(Template, this);
+            this.codeGen = new IRCodeGenerator(Assembly, this);
         }
+
+        private IRCodeGenerator codeGen;
 
         public IRAssemblyBuilder Assembly { get; private set; }
         public MethodSignatureInstance Template { get; private set; }
 
         public ICodeGenerator GetBodyGenerator()
         {
-            throw new NotImplementedException();
+            return codeGen;
         }
 
         public void SetMethodBody(ICodeBlock Body)
         {
-            var irNodeBlock = (NodeBlock)Body;
-            this.BodyNode = new LazyNodeStructure<IStatement>(irNodeBlock.Node, () => { throw new InvalidOperationException("IR method builders cannot be decompiled."); });
+            var processedNode = NodeBlock.ToNode(codeGen.Postprocess(Body));
+            this.BodyNode = new LazyNodeStructure<IStatement>(processedNode, () => { throw new InvalidOperationException("IR method builders cannot be decompiled."); });
         }
 
         public IMethod Build()

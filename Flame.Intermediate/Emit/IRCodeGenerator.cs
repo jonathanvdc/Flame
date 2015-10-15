@@ -17,13 +17,33 @@ namespace Flame.Intermediate.Emit
             this.Assembly = Assembly;
             this.Method = Method;
 
+            this.variableNames = new UniqueNameSet<IVariableMember>(item => item.Name, "%");
             this.tags = new UniqueNameMap<BlockTag>(item => item.Name, "tag_");
+            this.postprocessNode = x => x;
         }
 
         public IRAssemblyBuilder Assembly { get; private set; }
         public IMethod Method { get; private set; }
 
         private UniqueNameMap<BlockTag> tags;
+        private UniqueNameSet<IVariableMember> variableNames;
+        private Func<LNode, LNode> postprocessNode;
+
+        #region Postprocessing
+
+        /// <summary>
+        /// "Postprocesses" the given node: nodes
+        /// for a number of purposes, such as variable declaration,
+        /// may be inserted by this pass.
+        /// </summary>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public ICodeBlock Postprocess(ICodeBlock Block)
+        {
+            return new NodeBlock(this, postprocessNode(NodeBlock.ToNode(Block)));
+        }
+
+        #endregion
 
         #region Literals
 
@@ -344,27 +364,39 @@ namespace Flame.Intermediate.Emit
 
         #region Variables
 
+        public IEmitVariable DeclareVariable(IVariableMember VariableMember)
+        {
+            string name = variableNames.GenerateName(VariableMember);
+            var sig = IREmitHelpers.CreateSignature(Assembly, VariableMember.Name, VariableMember.Attributes);
+            var type = Assembly.TypeTable.GetReference(VariableMember.VariableType);
+
+            var oldPostprocessor = this.postprocessNode;
+            this.postprocessNode = body => NodeFactory.Call(ExpressionParsers.DefineLocalNodeName, new LNode[]
+            {
+                NodeFactory.Id(name),
+                sig.Node,
+                type,
+                oldPostprocessor(body)
+            });
+            return new NodeEmitVariable(this, ExpressionParsers.LocalVariableKindName, NodeFactory.Id(name));
+        }
+
+        public IEmitVariable GetArgument(int Index)
+        {
+            return new NodeEmitVariable(this, ExpressionParsers.ArgumentVariableKindName, NodeFactory.Literal(Index));
+        }
+
+        public IEmitVariable GetThis()
+        {
+            return new NodeEmitVariable(this, ExpressionParsers.ThisVariableKindName);
+        }
+
         public IEmitVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
         {
             throw new NotImplementedException();
         }
 
         public IEmitVariable GetField(IField Field, ICodeBlock Target)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEmitVariable DeclareVariable(IVariableMember VariableMember)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEmitVariable GetArgument(int Index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEmitVariable GetThis()
         {
             throw new NotImplementedException();
         }
