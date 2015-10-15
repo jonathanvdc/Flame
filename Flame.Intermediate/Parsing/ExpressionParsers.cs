@@ -31,6 +31,7 @@ namespace Flame.Intermediate.Parsing
         public const string ForNodeName = "#for";
         public const string BreakNodeName = "#break";
         public const string ContinueNodeName = "#continue";
+        public const string IgnoreNodeName = "#ignore";
         public static readonly string BlockNodeName = CodeSymbols.Braces.Name;
 
         public const string GetDelegateNodeName = "#get_delegate";
@@ -468,6 +469,28 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+        #region Ignore operator
+
+        /// <summary>
+        /// Parses an 'ignore' node, which computes and then 
+        /// discards its body expression.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseIgnore(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #ignore(expression)
+
+            var body = ParseExpression(State, Node.Args.Single());
+
+            return ToExpression(ToStatement(body));
+        }
+
+        #endregion
+
         #region Delegates and calls
 
         /// <summary>
@@ -899,6 +922,7 @@ namespace Flame.Intermediate.Parsing
                     // Operators
                     { BinaryNode, CreateParser(ParseBinary) },
                     { UnaryNode, CreateParser(ParseUnary) },
+                    { IgnoreNodeName, CreateParser(ParseIgnore) },
 
                     // Casts
                     { StaticCastNode, CreateTypeBinaryParser((expr, type) => new StaticCastExpression(expr, type)) },
