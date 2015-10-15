@@ -73,6 +73,14 @@ namespace Flame.Intermediate.Parsing
         public const string ConstantVoidName = "#const_void";
         public const string ConstantNullName = "#const_null";
 
+        /// <summary>
+        /// A constant that represents the default value for any given type.
+        /// </summary>
+        /// <remarks>
+        /// Format:
+        /// 
+        /// #const_default(type)
+        /// </remarks>
         public const string ConstantDefaultName = "#const_default";
 
         public const string GetThisNodeName = "#get_this";
