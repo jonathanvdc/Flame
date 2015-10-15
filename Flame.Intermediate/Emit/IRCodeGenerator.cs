@@ -245,17 +245,27 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents)
         {
-            throw new NotImplementedException();
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.TaggedNodeName, new[]
+            {
+                NodeFactory.Id(tags[Tag]),
+                NodeBlock.ToNode(Contents)
+            }));
         }
 
         public ICodeBlock EmitBreak(BlockTag Target)
         {
-            throw new NotImplementedException();
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.BreakNodeName, new[]
+            {
+                NodeFactory.Call(ExpressionParsers.TagReferenceName, new[] { NodeFactory.Id(tags[Target]) })
+            }));
         }
 
         public ICodeBlock EmitContinue(BlockTag Target)
         {
-            throw new NotImplementedException();
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.ContinueNodeName, new[]
+            {
+                NodeFactory.Call(ExpressionParsers.TagReferenceName, new[] { NodeFactory.Id(tags[Target]) })
+            }));
         }
 
         #endregion
