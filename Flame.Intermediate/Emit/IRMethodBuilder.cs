@@ -1,5 +1,6 @@
 ﻿using Flame.Compiler;
 using Flame.Compiler.Build;
+using Flame.Intermediate.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,8 @@ namespace Flame.Intermediate.Emit
 
         public void SetMethodBody(ICodeBlock Body)
         {
-            throw new NotImplementedException();
+            var irNodeBlock = (INodeBlock)Body;
+            this.BodyNode = new LazyNodeStructure<IStatement>(irNodeBlock.Node, () => { throw new InvalidOperationException("IR method builders cannot be decompiled."); });
         }
 
         public IMethod Build()
@@ -42,6 +44,7 @@ namespace Flame.Intermediate.Emit
                 Template.GenericParameters.Value.Select(item => IREmitHelpers.ConvertGenericParameter(Assembly, item)).ToArray());
             this.ParameterNodes = new NodeList<IParameter>(
                 Template.Parameters.Value.Select(item => IREmitHelpers.ConvertParameter(Assembly, item)).ToArray());
+            this.ReturnTypeNode = Assembly.TypeTable.GetReferenceStructure(Template.ReturnType.Value);
             this.BaseMethodNodes = new NodeList<IMethod>(
                 Template.BaseMethods.Value.Select(Assembly.MethodTable.GetReferenceStructure).ToArray());
         }
