@@ -94,6 +94,11 @@ namespace Flame.Intermediate.Parsing
         /// <summary>
         /// A node name for expressions that refer to a tag.
         /// </summary>
+        /// <remarks>
+        /// Format:
+        /// 
+        /// #tag(tag_identifier)
+        /// </remarks>
         public const string TagReferenceName = "#tag";
 
         #endregion
@@ -410,7 +415,7 @@ namespace Flame.Intermediate.Parsing
             //
             // <#tagged_node>(tag, ...)
 
-            return Node.Args[0].Name.Name;
+            return IRParser.GetIdOrString(Node.Args[0]);
         }
 
         /// <summary>
@@ -432,7 +437,7 @@ namespace Flame.Intermediate.Parsing
                         throw new InvalidOperationException("'#tag' blocks must always have exactly one argument.");
                     }
 
-                    if (n.Args[0].Name.Name == tagName)
+                    if (IRParser.GetIdOrString(n.Args[0]) == tagName)
                     {
                         return new ConstantNodeStructure<IExpression>(n, new TagReferenceExpression(tag));
                     }
