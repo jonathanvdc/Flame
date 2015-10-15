@@ -16,10 +16,14 @@ namespace Flame.Intermediate.Emit
         {
             this.Assembly = Assembly;
             this.Method = Method;
+
+            this.tags = new UniqueNameMap<BlockTag>(item => item.Name, "tag_");
         }
 
         public IRAssemblyBuilder Assembly { get; private set; }
         public IMethod Method { get; private set; }
+
+        private UniqueNameMap<BlockTag> tags;
 
         #region Literals
 
