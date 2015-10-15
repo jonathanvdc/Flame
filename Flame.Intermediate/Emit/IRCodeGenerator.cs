@@ -322,15 +322,27 @@ namespace Flame.Intermediate.Emit
 
         #endregion
 
+        #region Container types
+
         public ICodeBlock EmitNewArray(IType ElementType, IEnumerable<ICodeBlock> Dimensions)
         {
-            throw new NotImplementedException();
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.NewArrayName, new[] 
+            { 
+                Assembly.TypeTable.GetReference(ElementType) 
+            }.Concat(Dimensions.Select(NodeBlock.ToNode))));
         }
 
         public ICodeBlock EmitNewVector(IType ElementType, IReadOnlyList<int> Dimensions)
         {
-            throw new NotImplementedException();
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.NewArrayName, new[] 
+            { 
+                Assembly.TypeTable.GetReference(ElementType) 
+            }.Concat(Dimensions.Select(item => NodeFactory.Literal(item)))));
         }
+
+        #endregion
+
+        #region Variables
 
         public IEmitVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
         {
@@ -356,5 +368,7 @@ namespace Flame.Intermediate.Emit
         {
             throw new NotImplementedException();
         }
+
+        #endregion
     }
 }

@@ -74,7 +74,8 @@ namespace Flame.Intermediate.Parsing
         public const string ConstantNullName = "#const_null";
 
         /// <summary>
-        /// A constant that represents the default value for any given type.
+        /// A name for constant nodes that represent
+        /// the default value for any given type.
         /// </summary>
         /// <remarks>
         /// Format:
@@ -82,6 +83,26 @@ namespace Flame.Intermediate.Parsing
         /// #const_default(type)
         /// </remarks>
         public const string ConstantDefaultName = "#const_default";
+
+        /// <summary>
+        /// A name for nodes that create new arrays.
+        /// </summary>
+        /// <remarks>
+        /// Format:
+        /// 
+        /// #new_array(element_type, dimension_expressions...)
+        /// </remarks>
+        public const string NewArrayName = "#new_array";
+
+        /// <summary>
+        /// A name for nodes that create new vectors.
+        /// </summary>
+        /// <remarks>
+        /// Format:
+        /// 
+        /// #new_vector(element_type, dimension_literals...)
+        /// </remarks>
+        public const string NewVectorName = "#new_vector";
 
         public const string GetThisNodeName = "#get_this";
         public const string SetThisNodeName = "#set_this";
@@ -502,6 +523,36 @@ namespace Flame.Intermediate.Parsing
             var body = ParseExpression(State, Node.Args.Single());
 
             return ToExpression(ToStatement(body));
+        }
+
+        #endregion
+
+        #region Container types
+
+        /// <summary>
+        /// Parses the given new-array expression node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseNewArray(ParserState State, LNode Node)
+        {
+            var elemTy = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
+            var dims = ParseExpressions(State, Node.Args.Slice(1));
+            return new NewArrayExpression(elemTy, dims);
+        }
+
+        /// <summary>
+        /// Parses the given new-vector expression node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseNewVector(ParserState State, LNode Node)
+        {
+            var elemTy = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
+            var dims = Node.Args.Slice(1).Select(item => Convert.ToInt32(item.Value)).ToArray();
+            return new NewVectorExpression(elemTy, dims);
         }
 
         #endregion
@@ -956,6 +1007,10 @@ namespace Flame.Intermediate.Parsing
                     { DynamicCastNode, CreateTypeBinaryParser((expr, type) => new DynamicCastExpression(expr, type)) },
                     { AsInstanceNode, CreateTypeBinaryParser((expr, type) => new AsInstanceExpression(expr, type)) },
                     { IsInstanceNode, CreateTypeBinaryParser((expr, type) => new IsExpression(expr, type)) },
+
+                    // Container types
+                    { NewArrayName, CreateParser(ParseNewArray) },
+                    { NewVectorName, CreateParser(ParseNewVector) },
 
                     // Constants
                     //  - Bit<n>
