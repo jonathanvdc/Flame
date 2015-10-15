@@ -61,14 +61,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConstantNodeStructure.cs" />
+    <Compile Include="Emit\INodeBlock.cs" />
+    <Compile Include="Emit\IRCodeGenerator.cs" />
     <Compile Include="Emit\IREmitHelpers.cs" />
     <Compile Include="Emit\IRFieldVisitor.cs" />
     <Compile Include="Emit\IRGenericMemberTypeVisitor.cs" />
+    <Compile Include="Emit\IRMethodBuilder.cs" />
     <Compile Include="Emit\IRMethodVisitor.cs" />
     <Compile Include="Emit\IRNamespaceBuilder.cs" />
     <Compile Include="Emit\IRRootNamespaceBuilder.cs" />
     <Compile Include="Emit\IRTypeBuilder.cs" />
     <Compile Include="Emit\IRTypeVisitor.cs" />
+    <Compile Include="Emit\PrimitiveNodeBlock.cs" />
     <Compile Include="EmptyNodeList.cs" />
     <Compile Include="INodeStructure.cs" />
     <Compile Include="IRAccessor.cs" />
