@@ -104,21 +104,88 @@ namespace Flame.Intermediate.Parsing
         /// </remarks>
         public const string NewVectorName = "#new_vector";
 
-        public const string GetThisNodeName = "#get_this";
-        public const string SetThisNodeName = "#set_this";
-        public const string ReleaseThisNodeName = "#release_this";
-        public const string AddressOfThisNodeName = "#addressof_this";
+        #region Variables
 
-        public const string GetArgumentNodeName = "#get_arg";
-        public const string SetArgumentNodeName = "#set_arg";
-        public const string ReleaseArgumentNodeName = "#release_arg";
-        public const string AddressOfArgumentNodeName = "#addressof_arg";
+        #region Create*VariableName
 
-        public const string GetLocalNodeName = "#get_local";
-        public const string SetLocalNodeName = "#set_local";
-        public const string ReleaseLocalNodeName = "#release_local";
-        public const string AddressOfLocalNodeName = "#addressof_local";
+        /// <summary>
+        /// Creates a get-variable node name for the given variable
+        /// kind name.
+        /// </summary>
+        /// <param name="VariableTypeName"></param>
+        /// <returns></returns>
+        public static string CreateGetVariableName(string VariableKindName)
+        {
+            return "#get_" + VariableKindName;
+        }
+
+        /// <summary>
+        /// Creates a set-variable node name for the given variable
+        /// kind name.
+        /// </summary>
+        /// <param name="VariableTypeName"></param>
+        /// <returns></returns>
+        public static string CreateSetVariableName(string VariableKindName)
+        {
+            return "#set_" + VariableKindName;
+        }
+
+        /// <summary>
+        /// Creates a release-variable node name for the given variable
+        /// kind name.
+        /// </summary>
+        /// <param name="VariableTypeName"></param>
+        /// <returns></returns>
+        public static string CreateReleaseVariableName(string VariableKindName)
+        {
+            return "#release_" + VariableKindName;
+        }
+
+        /// <summary>
+        /// Creates an addressof-variable node name for the given variable
+        /// kind name.
+        /// </summary>
+        /// <param name="VariableTypeName"></param>
+        /// <returns></returns>
+        public static string CreateAddressOfVariableName(string VariableKindName)
+        {
+            return "#addressof_" + VariableKindName;
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Gets the "this" variable kind name.
+        /// </summary>
+        public const string ThisVariableKindName = "this";
+
+        public static readonly string GetThisNodeName = CreateGetVariableName(ThisVariableKindName);
+        public static readonly string SetThisNodeName = CreateSetVariableName(ThisVariableKindName);
+        public static readonly string ReleaseThisNodeName = CreateReleaseVariableName(ThisVariableKindName);
+        public static readonly string AddressOfThisNodeName = CreateAddressOfVariableName(ThisVariableKindName);
+
+        /// <summary>
+        /// Gets the argument variable kind name.
+        /// </summary>
+        public const string ArgumentVariableKindName = "arg";
+
+        public static readonly string GetArgumentNodeName = CreateGetVariableName(ArgumentVariableKindName);
+        public static readonly string SetArgumentNodeName = CreateSetVariableName(ArgumentVariableKindName);
+        public static readonly string ReleaseArgumentNodeName = CreateReleaseVariableName(ArgumentVariableKindName);
+        public static readonly string AddressOfArgumentNodeName = CreateAddressOfVariableName(ArgumentVariableKindName);
+
+        /// <summary>
+        /// Gets the local variable kind name.
+        /// </summary>
+        public const string LocalVariableKindName = "local";
+
+        public static readonly string GetLocalNodeName = CreateGetVariableName(LocalVariableKindName);
+        public static readonly string SetLocalNodeName = CreateSetVariableName(LocalVariableKindName);
+        public static readonly string ReleaseLocalNodeName = CreateReleaseVariableName(LocalVariableKindName);
+        public static readonly string AddressOfLocalNodeName = CreateAddressOfVariableName(LocalVariableKindName);
         public const string DefineLocalNodeName = "#def_local";
+
+        #endregion
 
         #region Special
 
