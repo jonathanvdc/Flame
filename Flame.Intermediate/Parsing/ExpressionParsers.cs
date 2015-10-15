@@ -591,7 +591,7 @@ namespace Flame.Intermediate.Parsing
             var target = ParseExpression(State, Node.Args[0]);
             var args = ParseExpressions(State, Node.Args.Skip(1));
 
-            return new InvocationExpression(target, args);
+            return target.CreateDelegateInvocationExpression(args);
         }
 
         #endregion

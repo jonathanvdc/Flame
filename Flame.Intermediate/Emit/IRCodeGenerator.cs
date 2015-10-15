@@ -282,15 +282,45 @@ namespace Flame.Intermediate.Emit
 
         #endregion
 
-        public ICodeBlock EmitInvocation(ICodeBlock Method, IEnumerable<ICodeBlock> Arguments)
+        #region Delegates
+
+        private static readonly Dictionary<Operator, string> delegateOperatorNames = new Dictionary<Operator, string>()
         {
-            throw new NotImplementedException();
-        }
+            { Operator.GetDelegate, ExpressionParsers.GetDelegateNodeName },
+            { Operator.GetVirtualDelegate, ExpressionParsers.GetVirtualDelegateNodeName },
+            { Operator.GetCurriedDelegate, ExpressionParsers.GetCurriedDelegateNodeName }
+        };
 
         public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller, Operator Op)
         {
-            throw new NotImplementedException();
+            string opName;
+            if (delegateOperatorNames.TryGetValue(Op, out opName))
+            {
+                return new NodeBlock(this, NodeFactory.Call(opName, new[] 
+                {
+                    Assembly.MethodTable.GetReference(Method),
+                    NodeBlock.ToNode(Caller)
+                }));
+            }
+            else
+            {
+                return null; // Null signals that this can't be done.
+            }
         }
+
+        #endregion
+
+        #region Invocations
+
+        public ICodeBlock EmitInvocation(ICodeBlock Method, IEnumerable<ICodeBlock> Arguments)
+        {
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.InvocationNodeName, new[] 
+            {
+                NodeBlock.ToNode(Method)
+            }.Concat(Arguments.Select(NodeBlock.ToNode))));
+        }
+
+        #endregion
 
         public ICodeBlock EmitNewArray(IType ElementType, IEnumerable<ICodeBlock> Dimensions)
         {
