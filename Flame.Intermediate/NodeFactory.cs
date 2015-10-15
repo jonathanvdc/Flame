@@ -41,5 +41,44 @@ namespace Flame.Intermediate
         {
             return factory.Braces(Arguments);
         }
+
+        public static bool IsBlock(LNode Node)
+        {
+            return Node.Name.Name == CodeSymbols.Braces.Name;
+        }
+
+        /// <summary>
+        /// "Unpacks" the given node:
+        /// if it is a block node, its argument
+        /// list is returned. Otherwise,
+        /// the node itself is returned.
+        /// </summary>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IEnumerable<LNode> UnpackBlock(LNode Node)
+        {
+            if (IsBlock(Node))
+	        {
+		        return Node.Args;
+	        }
+            else
+            {
+                return new LNode[] { Node };
+            }
+        }
+
+        /// <summary>
+        /// Packs the given nodes into a single block node. 
+        /// If one or both of the arguments is a block node, 
+        /// it is unpacked and its contents are added to the 
+        /// resulting block node.
+        /// </summary>
+        /// <param name="Left"></param>
+        /// <param name="Right"></param>
+        /// <returns></returns>
+        public static LNode MergedBlock(LNode Left, LNode Right)
+        {
+            return Block(UnpackBlock(Left).Concat(UnpackBlock(Right)));
+        }
     }
 }
