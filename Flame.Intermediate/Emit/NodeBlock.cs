@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Intermediate.Parsing;
 using Loyc.Syntax;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,14 @@ namespace Flame.Intermediate.Emit
         
         public static LNode ToNode(ICodeBlock Block)
         {
-            return ((NodeBlock)Block).Node;
+            if (Block == null)
+            {
+                return NodeFactory.Id(IRParser.NullNodeName);
+            }
+            else
+            {
+                return ((NodeBlock)Block).Node;
+            }
         }
     }
 }
