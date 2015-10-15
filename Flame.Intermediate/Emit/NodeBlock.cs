@@ -8,17 +8,20 @@ using System.Threading.Tasks;
 
 namespace Flame.Intermediate.Emit
 {
-    public class PrimitiveNodeBlock : INodeBlock
+    public class NodeBlock : ICodeBlock
     {
-        public PrimitiveNodeBlock(ICodeGenerator CodeGenerator, LNode Node, IType Type)
+        public NodeBlock(ICodeGenerator CodeGenerator, LNode Node)
         {
             this.CodeGenerator = CodeGenerator;
             this.Node = Node;
-            this.Type = Type;
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
         public LNode Node { get; private set; }
-        public IType Type { get; private set; }
+        
+        public static LNode ToNode(ICodeBlock Block)
+        {
+            return ((NodeBlock)Block).Node;
+        }
     }
 }

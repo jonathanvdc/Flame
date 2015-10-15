@@ -28,7 +28,7 @@ namespace Flame.Intermediate.Emit
 
         public void SetMethodBody(ICodeBlock Body)
         {
-            var irNodeBlock = (INodeBlock)Body;
+            var irNodeBlock = (NodeBlock)Body;
             this.BodyNode = new LazyNodeStructure<IStatement>(irNodeBlock.Node, () => { throw new InvalidOperationException("IR method builders cannot be decompiled."); });
         }
 
