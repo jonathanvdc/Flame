@@ -825,10 +825,11 @@ namespace Flame.Intermediate.Parsing
         {
             // Format:
             // 
-            // #def_local(#member(name, attrs...), type, body)
+            // #def_local(local_name, #member(name, attrs...), type, body)
 
-            var sig = IRParser.ParseSignature(State, Node.Args[0]);
-            var ty = State.Parser.TypeReferenceParser.Parse(State, Node.Args[1]).Value;
+            string localName = IRParser.GetIdOrString(Node.Args[0]);
+            var sig = IRParser.ParseSignature(State, Node.Args[1]);
+            var ty = State.Parser.TypeReferenceParser.Parse(State, Node.Args[2]).Value;
             var member = new DescribedVariableMember(sig.Name, ty);
             foreach (var attr in sig.Attributes)
             {
@@ -838,16 +839,16 @@ namespace Flame.Intermediate.Parsing
 
             var exprParser = State.Parser.ExpressionParser.WithParsers(new Dictionary<string, Func<ParserState, LNode, INodeStructure<IExpression>>>()
             {
-                { GetLocalNodeName, CreateGetLocalParser(sig.Name, local, State) },
-                { AddressOfLocalNodeName, CreateAddressOfLocalParser(sig.Name, local, State) },
-                { SetLocalNodeName, CreateSetLocalParser(sig.Name, local, State) },
-                { ReleaseLocalNodeName, CreateReleaseLocalParser(sig.Name, local, State) }
+                { GetLocalNodeName, CreateGetLocalParser(localName, local, State) },
+                { AddressOfLocalNodeName, CreateAddressOfLocalParser(localName, local, State) },
+                { SetLocalNodeName, CreateSetLocalParser(localName, local, State) },
+                { ReleaseLocalNodeName, CreateReleaseLocalParser(localName, local, State) }
             });
 
             var newParser = State.Parser.WithExpressionParser(exprParser);
             var newState = State.WithParser(newParser);
 
-            return ParseExpression(newState, Node.Args[2]);
+            return ParseExpression(newState, Node.Args[3]);
         }
 
         #endregion
