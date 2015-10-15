@@ -48,9 +48,12 @@ namespace Flame.Intermediate.Emit
             return name;
         }
 
-        public string GetName(T Element)
+        public string this[T Element]
         {
-            return dict.GetOrAdd(Element, createName);
+            get
+            {
+                return dict.GetOrAdd(Element, createName);
+            }
         }
     }
 }
