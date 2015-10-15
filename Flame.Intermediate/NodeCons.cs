@@ -23,7 +23,7 @@ namespace Flame.Intermediate
             get 
             {
                 var tailNode = Tail.Node;
-                if (tailNode.Name.Name == CodeSymbols.Braces.Name)
+                if (NodeFactory.IsBlock(tailNode))
                 {
                     return NodeFactory.Block(tailNode.Args.Push(Head.Node));
                 }

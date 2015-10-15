@@ -1,6 +1,7 @@
 ﻿using Flame.Compiler;
 using Flame.Compiler.Emit;
 using Flame.Intermediate.Parsing;
+using Loyc.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +12,13 @@ namespace Flame.Intermediate.Emit
 {
     public class IRCodeGenerator : ICodeGenerator
     {
-        public IRCodeGenerator(IMethod Method)
+        public IRCodeGenerator(IRAssemblyBuilder Assembly, IMethod Method)
         {
+            this.Assembly = Assembly;
             this.Method = Method;
         }
 
+        public IRAssemblyBuilder Assembly { get; private set; }
         public IMethod Method { get; private set; }
 
         #region Literals
@@ -152,6 +155,15 @@ namespace Flame.Intermediate.Emit
 
         #region Operators
 
+        private static readonly Dictionary<Operator, string> typeBinaryOpNames = new Dictionary<Operator, string>()
+        {
+            { Operator.DynamicCast, ExpressionParsers.DynamicCastNode },
+            { Operator.StaticCast, ExpressionParsers.StaticCastNode },
+            { Operator.ReinterpretCast, ExpressionParsers.ReinterpretCastNode },
+            { Operator.IsInstance, ExpressionParsers.IsInstanceNode },
+            { Operator.AsInstance, ExpressionParsers.AsInstanceNode }
+        };
+
         public ICodeBlock EmitPop(ICodeBlock Value)
         {
             return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.IgnoreNodeName, new[] 
@@ -162,7 +174,19 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitTypeBinary(ICodeBlock Value, IType Type, Operator Op)
         {
-            throw new NotImplementedException();
+            string opName;
+            if (typeBinaryOpNames.TryGetValue(Op, out opName))
+            {
+                return new NodeBlock(this, NodeFactory.Call(opName, new[] 
+                {
+                    Assembly.TypeTable.GetReference(Type),
+                    NodeBlock.ToNode(Value)
+                }));
+            }
+            else
+            {
+                return null; // Null signals that this can't be done.
+            }
         }
 
         public ICodeBlock EmitBinary(ICodeBlock A, ICodeBlock B, Operator Op)
@@ -186,6 +210,40 @@ namespace Flame.Intermediate.Emit
 
         #endregion
 
+        #region Interprocedural control flow
+
+        public ICodeBlock EmitReturn(ICodeBlock Value)
+        {
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.ReturnNodeName, Value == null ? new LNode[0] : new[] 
+            {
+                NodeBlock.ToNode(Value) 
+            }));
+        }
+
+        #endregion
+
+        #region Intraprocedural control flow
+
+        public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
+        {
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.SelectNodeName, new[] 
+            {
+                NodeBlock.ToNode(Condition),
+                NodeBlock.ToNode(IfBody),
+                NodeBlock.ToNode(ElseBody)
+            }));
+        }
+
+        public ICodeBlock EmitSequence(ICodeBlock First, ICodeBlock Second)
+        {
+            return new NodeBlock(this, NodeFactory.MergedBlock(NodeBlock.ToNode(First), NodeBlock.ToNode(Second)));
+        }
+
+        public ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents)
+        {
+            throw new NotImplementedException();
+        }
+
         public ICodeBlock EmitBreak(BlockTag Target)
         {
             throw new NotImplementedException();
@@ -196,12 +254,9 @@ namespace Flame.Intermediate.Emit
             throw new NotImplementedException();
         }
 
-        public ICodeBlock EmitDefaultValue(IType Type)
-        {
-            throw new NotImplementedException();
-        }
+        #endregion
 
-        public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
+        public ICodeBlock EmitDefaultValue(IType Type)
         {
             throw new NotImplementedException();
         }
@@ -222,21 +277,6 @@ namespace Flame.Intermediate.Emit
         }
 
         public ICodeBlock EmitNewVector(IType ElementType, IReadOnlyList<int> Dimensions)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ICodeBlock EmitReturn(ICodeBlock Value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ICodeBlock EmitSequence(ICodeBlock First, ICodeBlock Second)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents)
         {
             throw new NotImplementedException();
         }
