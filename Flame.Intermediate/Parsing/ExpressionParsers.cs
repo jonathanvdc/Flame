@@ -73,6 +73,8 @@ namespace Flame.Intermediate.Parsing
         public const string ConstantVoidName = "#const_void";
         public const string ConstantNullName = "#const_null";
 
+        public const string ConstantDefaultName = "#const_default";
+
         public const string GetThisNodeName = "#get_this";
         public const string SetThisNodeName = "#set_this";
         public const string ReleaseThisNodeName = "#release_this";
@@ -658,6 +660,17 @@ namespace Flame.Intermediate.Parsing
             return CreateParser((state, node) => Expression);
         }
 
+        /// <summary>
+        /// Parses the given default value constant node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseConstantDefault(ParserState State, LNode Node)
+        {
+            return new DefaultValueExpression(State.Parser.TypeReferenceParser.Parse(State, Node.Args.Single()).Value);
+        }
+
         #endregion
 
         #region Variables
@@ -964,7 +977,10 @@ namespace Flame.Intermediate.Parsing
                     { ConstantCharName, CreateLiteralParser(item => new CharExpression(Convert.ToChar(item))) },
                     { ConstantStringName, CreateLiteralParser(item => new StringExpression(Convert.ToString(item))) },
                     { ConstantVoidName, CreateConstantParser(VoidExpression.Instance) },
-                    { ConstantNullName, CreateConstantParser(NullExpression.Instance) }
+                    { ConstantNullName, CreateConstantParser(NullExpression.Instance) },
+
+                    //  - Default value
+                    { ConstantDefaultName, CreateParser(ParseConstantDefault) }
                 });
             }
         }

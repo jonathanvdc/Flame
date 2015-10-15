@@ -155,6 +155,14 @@ namespace Flame.Intermediate.Emit
 
         #endregion
 
+        public ICodeBlock EmitDefaultValue(IType Type)
+        {
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.ConstantDefaultName, new[] 
+            {
+                Assembly.TypeTable.GetReference(Type) 
+            }));
+        }
+
         #endregion
 
         #region Operators
@@ -269,11 +277,6 @@ namespace Flame.Intermediate.Emit
         }
 
         #endregion
-
-        public ICodeBlock EmitDefaultValue(IType Type)
-        {
-            throw new NotImplementedException();
-        }
 
         public ICodeBlock EmitInvocation(ICodeBlock Method, IEnumerable<ICodeBlock> Arguments)
         {
