@@ -22,7 +22,7 @@ namespace Flame.Intermediate.Emit
 
         public void SetValue(IExpression Value)
         {
-            throw new NotImplementedException();
+            this.InitialValueNode = new ConstantNodeStructure<IExpression>(IREmitHelpers.ConvertExpression(Assembly, Value, DeclaringType), Value);
         }
 
         public IField Build()
