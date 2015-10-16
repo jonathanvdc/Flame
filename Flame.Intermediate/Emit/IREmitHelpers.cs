@@ -27,8 +27,9 @@ namespace Flame.Intermediate.Emit
 
         public static INodeStructure<IParameter> ConvertParameter(IRAssemblyBuilder Assembly, IParameter Parameter)
         {
-            // TODO: implement this!
-            throw new NotImplementedException();
+            return new IRParameter(
+                CreateSignature(Assembly, Parameter.Name, Parameter.Attributes), 
+                Assembly.TypeTable.GetReferenceStructure(Parameter.ParameterType));
         }
     }
 }
