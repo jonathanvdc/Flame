@@ -1,5 +1,6 @@
 ﻿using Flame.Compiler;
 using Flame.Compiler.Build;
+using Flame.Intermediate.Parsing;
 using Loyc.Syntax;
 using System;
 using System.Collections.Generic;
@@ -11,10 +12,12 @@ namespace Flame.Intermediate
 {
     public class IRField : INodeStructure<IField>, IField, IInitializedField
     {
+        public IRField(IType DeclaringType, IRSignature Signature, bool IsStatic)
+            : this(DeclaringType, Signature, IsStatic, new ConstantNodeStructure<IType>(NodeFactory.Id(IRParser.VoidTypeName), PrimitiveTypes.Void))
+        { }
         public IRField(IType DeclaringType, IRSignature Signature, bool IsStatic, INodeStructure<IType> FieldTypeNode)
             : this(DeclaringType, Signature, IsStatic, FieldTypeNode, null)
-        {
-        }
+        { }
         public IRField(IType DeclaringType, IRSignature Signature, bool IsStatic, INodeStructure<IType> FieldTypeNode, INodeStructure<IExpression> InitialValueNode)
         {
             this.DeclaringType = DeclaringType;
