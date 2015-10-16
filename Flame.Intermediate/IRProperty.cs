@@ -18,6 +18,10 @@ namespace Flame.Intermediate
             this.IndexerParameterNodes = EmptyNodeList<IParameter>.Instance;
             this.AccessorNodes = EmptyNodeList<IAccessor>.Instance;
         }
+        public IRProperty(IType DeclaringType, IRSignature Signature, bool IsStatic)
+            : this(DeclaringType, Signature, IsStatic, 
+                   new ConstantNodeStructure<IType>(NodeFactory.Id("#void"), PrimitiveTypes.Void))
+        { }
 
         // Format:
         //

@@ -40,8 +40,9 @@ namespace Flame.Intermediate.Emit
 
         public IPropertyBuilder DeclareProperty(IPropertySignatureTemplate Template)
         {
-            // TODO: implement this!
-            throw new NotImplementedException();
+            var property = new IRPropertyBuilder(Assembly, this, Template);
+            AddMember(property);
+            return property;
         }
 
         public IType Build()

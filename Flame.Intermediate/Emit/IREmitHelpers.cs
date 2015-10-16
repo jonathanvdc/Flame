@@ -146,6 +146,12 @@ namespace Flame.Intermediate.Emit
                 Assembly.TypeTable.GetReferenceStructure(Parameter.ParameterType));
         }
 
+        public static INodeStructure<IEnumerable<IParameter>> ConvertParameters(IRAssemblyBuilder Assembly, IEnumerable<IParameter> Parameter)
+        {
+            return new NodeList<IParameter>(
+                Parameter.Select(item => ConvertParameter(Assembly, item)).ToArray());
+        }
+
         #endregion
 
         #region Expressions
