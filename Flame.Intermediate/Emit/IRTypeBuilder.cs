@@ -26,8 +26,9 @@ namespace Flame.Intermediate.Emit
 
         public IFieldBuilder DeclareField(IFieldSignatureTemplate Template)
         {
-            // TODO: implement this!
-            throw new NotImplementedException();
+            var field = new IRFieldBuilder(Assembly, this, Template);
+            AddMember(field);
+            return field;
         }
 
         public IMethodBuilder DeclareMethod(IMethodSignatureTemplate Template)

@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConstantNodeStructure.cs" />
+    <Compile Include="Emit\IRFieldBuilder.cs" />
     <Compile Include="Emit\NodeBlock.cs" />
     <Compile Include="Emit\IRCodeGenerator.cs" />
     <Compile Include="Emit\IREmitHelpers.cs" />
