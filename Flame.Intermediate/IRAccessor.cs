@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Intermediate.Parsing;
 using Loyc.Syntax;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace Flame.Intermediate
         }
         public IRAccessor(IProperty DeclaringProperty, IRSignature Signature, AccessorType AccessorType, bool IsStatic)
             : this(DeclaringProperty, Signature, AccessorType, IsStatic,
-                   new ConstantNodeStructure<IType>(NodeFactory.Id("#void"), PrimitiveTypes.Void))
+                   new ConstantNodeStructure<IType>(NodeFactory.Id(IRParser.VoidTypeName), PrimitiveTypes.Void))
         { }
 
         // Format:
@@ -107,7 +108,7 @@ namespace Flame.Intermediate
                 var args = new List<LNode>()
                 {
                     Signature.Node,
-                    NodeFactory.Id(AccessorType.ToString()),
+                    NodeFactory.IdOrLiteral(AccessorType.ToString()),
                     NodeFactory.Literal(IsStatic),
                     ReturnTypeNode.Node,
                     ParameterNodes.Node,

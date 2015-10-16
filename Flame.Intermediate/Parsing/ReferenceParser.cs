@@ -51,9 +51,13 @@ namespace Flame.Intermediate.Parsing
             {
                 return parser(State, Node);
             }
+            else if (Node.IsLiteral && Node.Value == null)
+            {
+                return new ConstantNodeStructure<T>(Node, default(T));
+            }
             else
             {
-                throw new InvalidOperationException("Could not handle the given '" + Node.Name.Name + "' node because its type was unknown.");
+                throw new InvalidOperationException("Could not handle the given '" + (Node.IsLiteral ? Node.Print() : Node.Name.Name) + "' node because its type was unknown.");
             }
         }
     }

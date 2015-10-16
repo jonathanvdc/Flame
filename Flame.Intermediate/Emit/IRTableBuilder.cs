@@ -16,7 +16,7 @@ namespace Flame.Intermediate.Emit
         public IRTableBuilder(string TableName, Func<T, LNode> CreateNode, Func<int, LNode> CreateReferenceNode)
         {
             this.TableName = TableName;
-            this.CreateElementNode = CreateElementNode;
+            this.CreateElementNode = CreateNode;
             this.CreateReferenceNode = CreateReferenceNode;
             this.nodes = new List<LNode>();
             this.items = new List<T>();

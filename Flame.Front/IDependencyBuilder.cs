@@ -24,6 +24,11 @@ namespace Flame.Front
         Task AddReferenceAsync(ReferenceDependency Reference);
 
         /// <summary>
+        /// Gets this dependency builder's environment.
+        /// </summary>
+        IEnvironment Environment { get; }
+
+        /// <summary>
         /// Creates a binder for all registered dependencies.
         /// </summary>
         /// <returns></returns>
