@@ -14,7 +14,7 @@ namespace Flame.Intermediate.Emit
     {
         public static IRSignature CreateSignature(IRAssemblyBuilder Assembly, string Name, IEnumerable<IAttribute> Attributes)
         {
-            return new IRSignature(Name, Attributes.Select(item => ConvertAttribute(Assembly, item)));
+            return new IRSignature(Name, ConvertAttributes(Assembly, Attributes));
         }
 
         #region Attributes
