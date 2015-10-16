@@ -165,7 +165,7 @@ namespace Flame.Intermediate.Parsing
         public static readonly string AddressOfThisNodeName = CreateAddressOfVariableName(ThisVariableKindName);
 
         /// <summary>
-        /// Gets the argument variable kind name.
+        /// Gets the argument ("arg") variable kind name.
         /// </summary>
         public const string ArgumentVariableKindName = "arg";
 
@@ -175,7 +175,7 @@ namespace Flame.Intermediate.Parsing
         public static readonly string AddressOfArgumentNodeName = CreateAddressOfVariableName(ArgumentVariableKindName);
 
         /// <summary>
-        /// Gets the local variable kind name.
+        /// Gets the "local" variable kind name.
         /// </summary>
         public const string LocalVariableKindName = "local";
 
@@ -184,6 +184,26 @@ namespace Flame.Intermediate.Parsing
         public static readonly string ReleaseLocalNodeName = CreateReleaseVariableName(LocalVariableKindName);
         public static readonly string AddressOfLocalNodeName = CreateAddressOfVariableName(LocalVariableKindName);
         public const string DefineLocalNodeName = "#def_local";
+
+        /// <summary>
+        /// Gets the "element" variable kind name.
+        /// </summary>
+        public const string ElementVariableKindName = "element";
+
+        public static readonly string GetElementNodeName = CreateGetVariableName(ElementVariableKindName);
+        public static readonly string SetElementNodeName = CreateSetVariableName(ElementVariableKindName);
+        public static readonly string ReleaseElementNodeName = CreateReleaseVariableName(ElementVariableKindName);
+        public static readonly string AddressOfElementNodeName = CreateAddressOfVariableName(ElementVariableKindName);
+
+        /// <summary>
+        /// Gets the "field" variable kind name.
+        /// </summary>
+        public const string FieldVariableKindName = "field";
+
+        public static readonly string GetFieldNodeName = CreateGetVariableName(FieldVariableKindName);
+        public static readonly string SetFieldNodeName = CreateSetVariableName(FieldVariableKindName);
+        public static readonly string ReleaseFieldNodeName = CreateReleaseVariableName(FieldVariableKindName);
+        public static readonly string AddressOfFieldNodeName = CreateAddressOfVariableName(FieldVariableKindName);
 
         #endregion
 
@@ -801,6 +821,99 @@ namespace Flame.Intermediate.Parsing
 
         #region Variables
 
+        #region Generic
+
+        /// <summary>
+        /// Creates a delegate that parses get-variable nodes.
+        /// </summary>
+        /// <param name="ParseVariable"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateGetVariableParser(Func<ParserState, IEnumerable<LNode>, IVariable> ParseVariable)
+        {
+            return CreateParser((state, node) => ParseVariable(state, node.Args).CreateGetExpression());
+        }
+
+        /// <summary>
+        /// Creates a delegate that parses set-variable nodes.
+        /// </summary>
+        /// <param name="ParseVariable"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateSetVariableParser(Func<ParserState, IEnumerable<LNode>, IVariable> ParseVariable)
+        {
+            return CreateParser((state, node) =>
+            {
+                var lhs = ParseVariable(state, node.Args.Slice(0, node.Args.Count - 1));
+                var rhs = ParseExpression(state, node.Args.Last);
+                return ToExpression(lhs.CreateSetStatement(rhs));
+            });
+        }
+
+        /// <summary>
+        /// Creates a delegate that parses release-variable nodes.
+        /// </summary>
+        /// <param name="ParseVariable"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateReleaseVariableParser(Func<ParserState, IEnumerable<LNode>, IVariable> ParseVariable)
+        {
+            return CreateParser((state, node) => ToExpression(ParseVariable(state, node.Args).CreateReleaseStatement()));
+        }
+
+        /// <summary>
+        /// Creates a delegate that parses address-of-variable nodes.
+        /// </summary>
+        /// <param name="ParseVariable"></param>
+        /// <returns></returns>
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateAddressOfVariableParser(Func<ParserState, IEnumerable<LNode>, IUnmanagedVariable> ParseVariable)
+        {
+            return CreateParser((state, node) => ParseVariable(state, node.Args).CreateAddressOfExpression());
+        }
+
+        #endregion
+
+        #region Fields
+
+        /// <summary>
+        /// Parses a field variable node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IUnmanagedVariable ParseFieldVariable(ParserState State, IEnumerable<LNode> Args)
+        {
+            // Format:
+            //
+            // #<op>_field(field_reference, target, ...)
+
+            var fieldRef = State.Parser.FieldReferenceParser.Parse(State, Args.First()).Value;
+            var target = ParseExpression(State, Args.Skip(1).Single());
+
+            return new FieldVariable(fieldRef, target);
+        }
+
+        #endregion
+
+        #region Container elements
+
+        /// <summary>
+        /// Parses a container element variable node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IUnmanagedVariable ParseElementVariable(ParserState State, IEnumerable<LNode> Args)
+        {
+            // Format:
+            //
+            // #<op>_element(target, index..., ...)
+
+            var target = ParseExpression(State, Args.First());
+            var indices = ParseExpressions(State, Args.Skip(1));
+
+            return new ElementVariable(target, indices);
+        }
+
+        #endregion
+
         #region This
 
         /// <summary>
@@ -1078,6 +1191,17 @@ namespace Flame.Intermediate.Parsing
                     // Container types
                     { NewArrayName, CreateParser(ParseNewArray) },
                     { NewVectorName, CreateParser(ParseNewVector) },
+
+                    { GetElementNodeName, CreateGetVariableParser(ParseElementVariable) },
+                    { SetElementNodeName, CreateSetVariableParser(ParseElementVariable) },
+                    { ReleaseElementNodeName, CreateReleaseVariableParser(ParseElementVariable) },
+                    { AddressOfElementNodeName, CreateAddressOfVariableParser(ParseElementVariable) },
+
+                    // Fields
+                    { GetFieldNodeName, CreateGetVariableParser(ParseFieldVariable) },
+                    { SetFieldNodeName, CreateSetVariableParser(ParseFieldVariable) },
+                    { ReleaseFieldNodeName, CreateReleaseVariableParser(ParseFieldVariable) },
+                    { AddressOfFieldNodeName, CreateAddressOfVariableParser(ParseFieldVariable) },
 
                     // Constants
                     //  - Bit<n>
