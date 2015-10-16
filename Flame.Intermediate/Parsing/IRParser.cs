@@ -330,7 +330,7 @@ namespace Flame.Intermediate.Parsing
             return new LazyNodeStructure<IType>(Node, () =>
             {
                 var elemType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
-                var ptrKind = PointerKind.Register((string)Node.Args[1].Value);
+                var ptrKind = PointerKind.Register(GetIdOrString(Node.Args[1]));
                 return elemType.MakePointerType(ptrKind);
             });
         }
@@ -417,7 +417,7 @@ namespace Flame.Intermediate.Parsing
             return new LazyNodeStructure<IField>(Node, () =>
             {
                 var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
-                string fieldName = (string)Node.Args[1].Value;
+                string fieldName = GetIdOrString(Node.Args[1]);
                 bool isStatic = Convert.ToBoolean(Node.Args[2].Value);
                 return declType.GetField(fieldName, isStatic);
             });
@@ -463,7 +463,7 @@ namespace Flame.Intermediate.Parsing
             return new LazyNodeStructure<IMethod>(Node, () =>
             {
                 var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
-                string methodName = (string)Node.Args[1].Value;
+                string methodName = GetIdOrString(Node.Args[1]);
                 var descMethod = new DescribedMethod(methodName, declType);
                 descMethod.IsStatic = Convert.ToBoolean(Node.Args[2].Value);
                 descMethod.IsConstructor = Node.Name.Name == ConstructorReferenceName;
@@ -490,7 +490,7 @@ namespace Flame.Intermediate.Parsing
             return new LazyNodeStructure<IMethod>(Node, () =>
             {
                 var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
-                string propertyName = (string)Node.Args[1].Value;
+                string propertyName = GetIdOrString(Node.Args[1]);
                 bool propIsStatic = Convert.ToBoolean(Node.Args[2].Value);
                 var propType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[3]).Value;
                 var propParamTypes = Node.Args[4].Args.Select(item => State.Parser.TypeReferenceParser.Parse(State, item).Value).ToArray();

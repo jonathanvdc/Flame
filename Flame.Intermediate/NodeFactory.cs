@@ -22,6 +22,18 @@ namespace Flame.Intermediate
             return factory.Id(Name);
         }
 
+        public static LNode IdOrLiteral(string Name)
+        {
+            if (string.IsNullOrEmpty(Name))
+            {
+                return Literal(Name);
+            }
+            else
+            {
+                return Id(Name);
+            }
+        }
+
         public static LNode Call(string Target, IEnumerable<LNode> Arguments)
         {
             return factory.Call(GSymbol.Get(Target), Arguments);
@@ -39,7 +51,15 @@ namespace Flame.Intermediate
 
         public static LNode Block(IEnumerable<LNode> Arguments)
         {
-            return factory.Braces(Arguments);
+            var node = factory.Braces(Arguments);
+            if (node.Args.IsEmpty)
+            {
+                return node;
+            }
+            else
+            {
+                return node.WithStyle(NodeStyle.Statement);
+            }
         }
 
         public static bool IsBlock(LNode Node)

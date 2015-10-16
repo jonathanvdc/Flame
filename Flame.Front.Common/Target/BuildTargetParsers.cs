@@ -23,6 +23,7 @@ namespace Flame.Front.Target
             Parser.RegisterParser(new PythonBuildTargetParser());
             Parser.RegisterParser(new MipsBuildTargetParser());
             Parser.RegisterParser(new ContractBuildTargetParser());
+            Parser.RegisterParser(new FlameIRBuildTargetParser());
         }
 
         public static MultiBuildTargetParser Parser { get; private set; }
@@ -78,7 +79,7 @@ namespace Flame.Front.Target
 
         public static IDependencyBuilder CreateDependencyBuilder(IBuildTargetParser Parser, string BuildTargetIdentifier, ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
         {
-            var rtLibs = Parser.GetRuntimeAssemblyResolver(BuildTargetIdentifier);
+            var rtLibs = Parser.GetRuntimeAssemblyResolver(BuildTargetIdentifier, Log);
             var rtLibResolver = new RuntimeAssemblyResolver(rtLibs, ReferenceResolvers.ReferenceResolver, BuildTargetIdentifier);
 
             return Parser.CreateDependencyBuilder(BuildTargetIdentifier, rtLibResolver, ReferenceResolvers.ReferenceResolver, Log, CurrentPath, OutputDirectory);

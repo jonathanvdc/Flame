@@ -279,7 +279,7 @@ namespace Flame.Intermediate.Emit
         {
             return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.TaggedNodeName, new[]
             {
-                NodeFactory.Id(tags[Tag]),
+                NodeFactory.IdOrLiteral(tags[Tag]),
                 NodeBlock.ToNode(Contents)
             }));
         }
@@ -288,7 +288,7 @@ namespace Flame.Intermediate.Emit
         {
             return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.BreakNodeName, new[]
             {
-                NodeFactory.Call(ExpressionParsers.TagReferenceName, new[] { NodeFactory.Id(tags[Target]) })
+                NodeFactory.Call(ExpressionParsers.TagReferenceName, new[] { NodeFactory.IdOrLiteral(tags[Target]) })
             }));
         }
 
@@ -296,7 +296,7 @@ namespace Flame.Intermediate.Emit
         {
             return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.ContinueNodeName, new[]
             {
-                NodeFactory.Call(ExpressionParsers.TagReferenceName, new[] { NodeFactory.Id(tags[Target]) })
+                NodeFactory.Call(ExpressionParsers.TagReferenceName, new[] { NodeFactory.IdOrLiteral(tags[Target]) })
             }));
         }
 
@@ -373,12 +373,12 @@ namespace Flame.Intermediate.Emit
             var oldPostprocessor = this.postprocessNode;
             this.postprocessNode = body => oldPostprocessor(NodeFactory.Call(ExpressionParsers.DefineLocalNodeName, new LNode[]
             {
-                NodeFactory.Id(name),
+                NodeFactory.IdOrLiteral(name),
                 sig.Node,
                 type,
                 body
             }));
-            return new NodeEmitVariable(this, ExpressionParsers.LocalVariableKindName, NodeFactory.Id(name));
+            return new NodeEmitVariable(this, ExpressionParsers.LocalVariableKindName, NodeFactory.IdOrLiteral(name));
         }
 
         public IEmitVariable GetArgument(int Index)

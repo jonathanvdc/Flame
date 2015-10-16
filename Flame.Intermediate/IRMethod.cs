@@ -1,4 +1,5 @@
 ﻿using Flame.Compiler;
+using Flame.Intermediate.Parsing;
 using Loyc.Syntax;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace Flame.Intermediate
         }
         public IRMethod(IType DeclaringType, IRSignature Signature, bool IsStatic, bool IsConstructor)
             : this(DeclaringType, Signature, IsStatic, IsConstructor, 
-                   new ConstantNodeStructure<IType>(NodeFactory.Id("#void"), PrimitiveTypes.Void))
+                   new ConstantNodeStructure<IType>(NodeFactory.Id(IRParser.VoidTypeName), PrimitiveTypes.Void))
         { }
 
         // Format:

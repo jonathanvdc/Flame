@@ -24,7 +24,7 @@ namespace Flame.Front.Target
             return Identifier.Split('/', '\\').First().Equals("clr", StringComparison.OrdinalIgnoreCase);
         }
 
-        public IAssemblyResolver GetRuntimeAssemblyResolver(string Identifier)
+        public IAssemblyResolver GetRuntimeAssemblyResolver(string Identifier, ICompilerLog Log)
         {
             return CecilRuntimeLibraries.Resolver;
         }

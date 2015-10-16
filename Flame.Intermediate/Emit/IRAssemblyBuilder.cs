@@ -27,7 +27,7 @@ namespace Flame.Intermediate.Emit
         {
             this.Encoding = Encoding;
 
-            this.Dependencies = new IRDependencyBuilder();
+            this.Dependencies = new IRDependencyBuilder(this);
             this.TypeTable = new IRTableBuilder<IType>(
                 IRParser.TypeTableName, 
                 new IRTypeVisitor(this).Convert, 
@@ -68,7 +68,7 @@ namespace Flame.Intermediate.Emit
                 {
                     using (var writer = new StreamWriter(fs))
                     {
-                        Loyc.Syntax.Les.LesLanguageService.Value.PrintMultiple(nodes);
+                        writer.Write(Loyc.Syntax.Les.LesLanguageService.Value.PrintMultiple(nodes));
                     }
                 }
             }

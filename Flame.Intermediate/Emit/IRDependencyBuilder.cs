@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Flame.Intermediate.Emit
@@ -14,13 +15,19 @@ namespace Flame.Intermediate.Emit
     public class IRDependencyBuilder
     {
         /// <summary>
-        /// Creates a new Flame IR dependency builder.
+        /// Creates a new Flame IR dependency builder based on the given associated assembly.
         /// </summary>
-        public IRDependencyBuilder()
+        public IRDependencyBuilder(IRAssemblyBuilder Assembly)
         {
+            this.Assembly = Assembly;
             this.rtDepends = new HashSet<string>();
             this.libDepends = new HashSet<string>();
         }
+
+        /// <summary>
+        /// Gets this dependency builder's associated assembly.
+        /// </summary>
+        public IRAssemblyBuilder Assembly { get; private set; }
 
         private HashSet<string> rtDepends;
         private HashSet<string> libDepends;
@@ -46,7 +53,7 @@ namespace Flame.Intermediate.Emit
         /// </summary>
         public IEnumerable<LNode> RuntimeDependencyNodes
         {
-            get { return RuntimeDependencies.Select(item => NodeFactory.Call(IRParser.RuntimeDependencyNodeName, NodeFactory.Literal(item))); }
+            get { return RuntimeDependencies.Select(item => NodeFactory.Call(IRParser.RuntimeDependencyNodeName, new[] { NodeFactory.IdOrLiteral(item) })); }
         }
 
         /// <summary>
@@ -54,7 +61,7 @@ namespace Flame.Intermediate.Emit
         /// </summary>
         public IEnumerable<LNode> LibraryDependencyNodes
         {
-            get { return LibraryDependencies.Select(item => NodeFactory.Call(IRParser.LibraryDependencyNodeName, NodeFactory.Literal(item))); }
+            get { return LibraryDependencies.Select(item => NodeFactory.Call(IRParser.LibraryDependencyNodeName, new[] { NodeFactory.IdOrLiteral(item) })); }
         }
 
         /// <summary>
@@ -71,7 +78,13 @@ namespace Flame.Intermediate.Emit
         /// <param name="Name"></param>
         public void AddRuntimeDependency(string Name)
         {
-            rtDepends.Add(Name);
+            if (Assembly.Name != Name)
+            {
+                lock (rtDepends)
+                {
+                    rtDepends.Add(Name);
+                }
+            }
         }
 
         /// <summary>
@@ -80,7 +93,13 @@ namespace Flame.Intermediate.Emit
         /// <param name="Name"></param>
         public void AddLibraryDependency(string Name)
         {
-            libDepends.Add(Name);            
+            if (Assembly.Name != Name)
+            {
+                lock (libDepends)
+                {
+                    libDepends.Add(Name);
+                }
+            }
         }
 
         /// <summary>
@@ -91,9 +110,12 @@ namespace Flame.Intermediate.Emit
         /// <param name="Name"></param>
         public void AddDependency(string Name)
         {
-            if (!rtDepends.Contains(Name))
+            lock (rtDepends)
             {
-                libDepends.Add(Name);
+                if (!rtDepends.Contains(Name))
+                {
+                    AddLibraryDependency(Name);                
+                }
             }
         }
 
@@ -105,7 +127,7 @@ namespace Flame.Intermediate.Emit
         /// <param name="Name"></param>
         public void AddDependency(IAssembly Assembly)
         {
-            AddDependency(Assembly.FullName);
+            AddDependency(Assembly.Name);
         }
     }
 }

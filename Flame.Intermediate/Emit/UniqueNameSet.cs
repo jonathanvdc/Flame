@@ -13,6 +13,7 @@ namespace Flame.Intermediate.Emit
     /// associated with the object they originated from:
     /// generating a name for the same object twice
     /// will always result in two different unique names.
+    /// The resulting name will never be null.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class UniqueNameSet<T>
@@ -42,7 +43,7 @@ namespace Flame.Intermediate.Emit
             {
                 string name = getName(Element);
 
-                if (nameSet.Add(name))
+                if (name != null && nameSet.Add(name))
                 {
                     return name;
                 }
