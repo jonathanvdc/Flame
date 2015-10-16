@@ -43,8 +43,8 @@ namespace Flame.Intermediate.Emit
         public void Initialize()
         {
             this.Signature = IREmitHelpers.CreateSignature(Assembly, Template.Name, Template.Attributes.Value);
-            this.GenericParameterNodes = new NodeList<IGenericParameter>(
-                Template.GenericParameters.Value.Select(item => IREmitHelpers.ConvertGenericParameter(Assembly, item)).ToArray());
+            this.GenericParameterNodes = 
+                IREmitHelpers.ConvertGenericParameters(Assembly, this, Template.GenericParameters.Value);
             this.ParameterNodes = new NodeList<IParameter>(
                 Template.Parameters.Value.Select(item => IREmitHelpers.ConvertParameter(Assembly, item)).ToArray());
             this.ReturnTypeNode = Assembly.TypeTable.GetReferenceStructure(Template.ReturnType.Value);

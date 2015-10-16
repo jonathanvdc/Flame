@@ -78,7 +78,7 @@ namespace Flame.Intermediate
 
         public IGenericConstraint Constraint
         {
-            get { return new AndConstraint(InferredConstraints.Concat(ConstraintNodes.Value)); }
+            get { return new AndConstraint(InferredConstraints.Union(ConstraintNodes.Value)); }
         }
 
         public IAncestryRules AncestryRules
