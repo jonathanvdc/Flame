@@ -371,13 +371,13 @@ namespace Flame.Intermediate.Emit
             var type = Assembly.TypeTable.GetReference(VariableMember.VariableType);
 
             var oldPostprocessor = this.postprocessNode;
-            this.postprocessNode = body => NodeFactory.Call(ExpressionParsers.DefineLocalNodeName, new LNode[]
+            this.postprocessNode = body => oldPostprocessor(NodeFactory.Call(ExpressionParsers.DefineLocalNodeName, new LNode[]
             {
                 NodeFactory.Id(name),
                 sig.Node,
                 type,
-                oldPostprocessor(body)
-            });
+                body
+            }));
             return new NodeEmitVariable(this, ExpressionParsers.LocalVariableKindName, NodeFactory.Id(name));
         }
 
