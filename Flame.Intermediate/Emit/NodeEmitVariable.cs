@@ -13,6 +13,9 @@ namespace Flame.Intermediate.Emit
     public class NodeEmitVariable : IUnmanagedEmitVariable
     {
         public NodeEmitVariable(IRCodeGenerator CodeGenerator, string VariableKindName, params LNode[] VariableArguments)
+            : this(CodeGenerator, VariableKindName, (IEnumerable<LNode>)VariableArguments)
+        { }
+        public NodeEmitVariable(IRCodeGenerator CodeGenerator, string VariableKindName, IEnumerable<LNode> VariableArguments)
         {
             this.CodeGenerator = CodeGenerator;
             this.VariableKindName = VariableKindName;
@@ -32,7 +35,7 @@ namespace Flame.Intermediate.Emit
         /// <summary>
         /// Gets the variable's standard node arguments.
         /// </summary>
-        public LNode[] VariableArguments { get; private set; }
+        public IEnumerable<LNode> VariableArguments { get; private set; }
 
         public ICodeBlock EmitGet()
         {

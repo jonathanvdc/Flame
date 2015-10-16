@@ -393,12 +393,16 @@ namespace Flame.Intermediate.Emit
 
         public IEmitVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
         {
-            throw new NotImplementedException();
+            return new NodeEmitVariable(this, ExpressionParsers.ElementVariableKindName, 
+                new[] { NodeBlock.ToNode(Value) }
+                .Concat(Index.Select(NodeBlock.ToNode)));
         }
 
         public IEmitVariable GetField(IField Field, ICodeBlock Target)
         {
-            throw new NotImplementedException();
+            return new NodeEmitVariable(this, ExpressionParsers.FieldVariableKindName,
+                Assembly.FieldTable.GetReference(Field),
+                NodeBlock.ToNode(Target));
         }
 
         #endregion
