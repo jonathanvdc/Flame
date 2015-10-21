@@ -75,6 +75,7 @@
     <Compile Include="Emit\IRRootNamespaceBuilder.cs" />
     <Compile Include="Emit\IRTypeBuilder.cs" />
     <Compile Include="Emit\IRTypeVisitor.cs" />
+    <Compile Include="Emit\NodeCatchClause.cs" />
     <Compile Include="Emit\NodeEmitVariable.cs" />
     <Compile Include="Emit\UniqueNameMap.cs" />
     <Compile Include="Emit\UniqueNameSet.cs" />

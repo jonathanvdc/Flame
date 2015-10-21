@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Intermediate.Emit
 {
-    public class IRCodeGenerator : ICodeGenerator
+    public class IRCodeGenerator : ICodeGenerator, IExceptionCodeGenerator
     {
         public IRCodeGenerator(IRAssemblyBuilder Assembly, IMethod Method)
         {
@@ -403,6 +403,40 @@ namespace Flame.Intermediate.Emit
             return new NodeEmitVariable(this, ExpressionParsers.FieldVariableKindName,
                 Assembly.FieldTable.GetReference(Field),
                 NodeBlock.ToNode(Target));
+        }
+
+        #endregion
+
+        #region Exceptions
+
+        public ICodeBlock EmitAssert(ICodeBlock Condition)
+        {
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.AssertNodeName, new LNode[] { NodeBlock.ToNode(Condition) }));
+        }
+
+        public ICodeBlock EmitThrow(ICodeBlock Exception)
+        {
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.ThrowNodeName, new LNode[] { NodeBlock.ToNode(Exception) }));
+        }
+
+        public ICatchClause EmitCatchClause(ICatchHeader Header, ICodeBlock Body)
+        {
+            return new NodeCatchClause((NodeCatchHeader)Header, NodeBlock.ToNode(Body));
+        }
+
+        public ICatchHeader EmitCatchHeader(IVariableMember ExceptionVariable)
+        {
+            return new NodeCatchHeader(this, variableNames.GenerateName(ExceptionVariable), ExceptionVariable);
+        }
+
+        public ICodeBlock EmitTryBlock(ICodeBlock TryBody, ICodeBlock FinallyBody, IEnumerable<ICatchClause> CatchClauses)
+        {
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.TryNodeName, new LNode[]
+            {
+                NodeBlock.ToNode(TryBody),
+                NodeFactory.Block(CatchClauses.Cast<NodeCatchClause>().Select(item => item.Node)),
+                NodeBlock.ToNode(FinallyBody)
+            }));
         }
 
         #endregion
