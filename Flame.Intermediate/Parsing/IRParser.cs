@@ -495,7 +495,7 @@ namespace Flame.Intermediate.Parsing
                 var propType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[3]).Value;
                 var propParamTypes = Node.Args[4].Args.Select(item => State.Parser.TypeReferenceParser.Parse(State, item).Value).ToArray();
                 var prop = declType.Properties.GetProperty(propertyName, propIsStatic, propType, propParamTypes);
-                var accType = AccessorType.Register(Node.Args[5].Name.Name);
+                var accType = AccessorType.Register(GetIdOrString(Node.Args[5]));
 
                 return prop.GetAccessor(accType);
             });
