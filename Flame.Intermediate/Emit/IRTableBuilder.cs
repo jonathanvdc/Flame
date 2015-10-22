@@ -72,7 +72,7 @@ namespace Flame.Intermediate.Emit
             }
             else
             {
-                // Be careful not to move `CreateElementNode(Element)` below,
+                // Be careful not to move `CreateElementNode(Element)` down below
                 // index's definition, because calling `CreateElementNode` may
                 // add more items to this table.
                 var elem = CreateElementNode(Element);
