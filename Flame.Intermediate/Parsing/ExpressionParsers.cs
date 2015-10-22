@@ -312,6 +312,10 @@ namespace Flame.Intermediate.Parsing
                 var selectExpr = (SelectExpression)Expression;
                 return new IfElseStatement(selectExpr.Condition, ToStatement(selectExpr.TrueValue), ToStatement(selectExpr.FalseValue));
             }
+            else if (Expression is VoidExpression)
+            {
+                return EmptyStatement.Instance;
+            }
             else
             {
                 return new ExpressionStatement(Expression);
