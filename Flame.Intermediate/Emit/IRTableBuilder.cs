@@ -72,8 +72,12 @@ namespace Flame.Intermediate.Emit
             }
             else
             {
+                // Be careful not to move `CreateElementNode(Element)` below,
+                // index's definition, because calling `CreateElementNode` may
+                // add more items to this table.
+                var elem = CreateElementNode(Element);
                 int index = nodes.Count;
-                nodes.Add(CreateElementNode(Element));
+                nodes.Add(elem);
                 items.Add(Element);
                 mappedItems[Element] = index;
                 return index;
