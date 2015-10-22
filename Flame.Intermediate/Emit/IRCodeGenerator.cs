@@ -20,7 +20,7 @@ namespace Flame.Intermediate.Emit
             this.Method = Method;
 
             this.variableNames = new UniqueNameSet<IVariableMember>(item => item.Name, "%");
-            this.tags = new UniqueNameMap<BlockTag>(item => item.Name, "tag_");
+            this.tags = new UniqueNameMap<BlockTag>(item => item.Name, "!");
             this.postprocessNode = x => x;
         }
 
