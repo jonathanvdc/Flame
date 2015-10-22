@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Intermediate.Emit
 {
-    public class IRCodeGenerator : ICodeGenerator, IExceptionCodeGenerator
+    public class IRCodeGenerator : ICodeGenerator, IExceptionCodeGenerator, IUnmanagedCodeGenerator
     {
         public IRCodeGenerator(IRAssemblyBuilder Assembly, IMethod Method)
         {
@@ -364,7 +364,7 @@ namespace Flame.Intermediate.Emit
 
         #region Variables
 
-        public IEmitVariable DeclareVariable(IVariableMember VariableMember)
+        public IUnmanagedEmitVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
         {
             string name = variableNames.GenerateName(VariableMember);
             var sig = IREmitHelpers.CreateSignature(Assembly, VariableMember.Name, VariableMember.Attributes);
@@ -381,28 +381,53 @@ namespace Flame.Intermediate.Emit
             return new NodeEmitVariable(this, ExpressionParsers.LocalVariableKindName, NodeFactory.IdOrLiteral(name));
         }
 
-        public IEmitVariable GetArgument(int Index)
+        public IEmitVariable DeclareVariable(IVariableMember VariableMember)
+        {
+            return DeclareUnmanagedVariable(VariableMember);
+        }
+
+        public IUnmanagedEmitVariable GetUnmanagedArgument(int Index)
         {
             return new NodeEmitVariable(this, ExpressionParsers.ArgumentVariableKindName, NodeFactory.Literal(Index));
         }
 
-        public IEmitVariable GetThis()
+        public IEmitVariable GetArgument(int Index)
+        {
+            return GetUnmanagedArgument(Index);
+        }
+
+        public IUnmanagedEmitVariable GetUnmanagedThis()
         {
             return new NodeEmitVariable(this, ExpressionParsers.ThisVariableKindName);
         }
 
-        public IEmitVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
+        public IEmitVariable GetThis()
         {
-            return new NodeEmitVariable(this, ExpressionParsers.ElementVariableKindName, 
+            return GetUnmanagedThis();
+        }
+
+        public IUnmanagedEmitVariable GetUnmanagedElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
+        {
+            return new NodeEmitVariable(this, ExpressionParsers.ElementVariableKindName,
                 new[] { NodeBlock.ToNode(Value) }
                 .Concat(Index.Select(NodeBlock.ToNode)));
         }
 
-        public IEmitVariable GetField(IField Field, ICodeBlock Target)
+        public IEmitVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
+        {
+            return GetUnmanagedElement(Value, Index);
+        }
+
+        public IUnmanagedEmitVariable GetUnmanagedField(IField Field, ICodeBlock Target)
         {
             return new NodeEmitVariable(this, ExpressionParsers.FieldVariableKindName,
                 Assembly.FieldTable.GetReference(Field),
                 NodeBlock.ToNode(Target));
+        }
+
+        public IEmitVariable GetField(IField Field, ICodeBlock Target)
+        {
+            return GetUnmanagedField(Field, Target);
         }
 
         #endregion
@@ -437,6 +462,25 @@ namespace Flame.Intermediate.Emit
                 NodeFactory.Block(CatchClauses.Cast<NodeCatchClause>().Select(item => item.Node)),
                 NodeBlock.ToNode(FinallyBody)
             }));
+        }
+
+        #endregion
+
+        #region Unmanaged
+
+        public ICodeBlock EmitDereferencePointer(ICodeBlock Pointer)
+        {
+            return NodeBlock.Call(this, ExpressionParsers.DereferenceName, Pointer);
+        }
+
+        public ICodeBlock EmitSizeOf(IType Type)
+        {
+            return NodeBlock.Call(this, ExpressionParsers.SizeOfName, Assembly.TypeTable.GetReference(Type));
+        }
+
+        public ICodeBlock EmitStoreAtAddress(ICodeBlock Pointer, ICodeBlock Value)
+        {
+            return NodeBlock.Call(this, ExpressionParsers.StoreAtName, Pointer, Value);
         }
 
         #endregion

@@ -87,6 +87,8 @@ namespace Flame.Intermediate.Parsing
         /// </remarks>
         public const string ConstantDefaultName = "#const_default";
 
+        #region Container types
+
         /// <summary>
         /// A name for nodes that create new arrays.
         /// </summary>
@@ -106,6 +108,43 @@ namespace Flame.Intermediate.Parsing
         /// #new_vector(element_type, dimension_literals...)
         /// </remarks>
         public const string NewVectorName = "#new_vector";
+
+        #endregion
+
+        #region Unmanaged constructs
+
+        /// <summary>
+        /// Dereferences a pointer expression.
+        /// </summary>
+        /// <remarks>
+        /// Format:
+        /// 
+        /// #dereference(pointer_expression)
+        /// </remarks>
+        public const string DereferenceName = "#dereference";
+
+        /// <summary>
+        /// Stores a value expression at the address 
+        /// specified by a pointer expression.
+        /// </summary>
+        /// <remarks>
+        /// Format:
+        /// 
+        /// #store_at(pointer_expression, value_expression)
+        /// </remarks>
+        public const string StoreAtName = "#store_at";
+
+        /// <summary>
+        /// Gets the size of a type reference.
+        /// </summary>
+        /// <remarks>
+        /// Format:
+        /// 
+        /// #sizeof(type_reference)
+        /// </remarks>
+        public const string SizeOfName = "#sizeof";
+
+        #endregion
 
         #region Variables
 
@@ -873,6 +912,48 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+        #region Unmanaged constructs
+
+        /// <summary>
+        /// Parses the given '#dereference' node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseDereferenceNode(ParserState State, LNode Node)
+        {
+            return new DereferencePointerExpression(ParseExpression(State, Node.Args.Single()));
+        }
+
+        /// <summary>
+        /// Parses the given '#store_at' node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseStoreAtNode(ParserState State, LNode Node)
+        {
+            var pointerExpr = ParseExpression(State, Node.Args[0]);
+            var valueExpr = ParseExpression(State, Node.Args.Skip(1).Single());
+
+            return ToExpression(new StoreAtAddressStatement(pointerExpr, valueExpr));
+        }
+
+        /// <summary>
+        /// Parses the given '#sizeof' node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseSizeOfNode(ParserState State, LNode Node)
+        {
+            var typeRef = State.Parser.TypeReferenceParser.Parse(State, Node.Args.Single()).Value;
+
+            return new SizeOfExpression(typeRef);
+        }
+
+        #endregion
+
         #region Variables
 
         #region Generic
@@ -1289,6 +1370,11 @@ namespace Flame.Intermediate.Parsing
                     { SetFieldNodeName, CreateSetVariableParser(ParseFieldVariable) },
                     { ReleaseFieldNodeName, CreateReleaseVariableParser(ParseFieldVariable) },
                     { AddressOfFieldNodeName, CreateAddressOfVariableParser(ParseFieldVariable) },
+
+                    // Unmanaged stuff
+                    { DereferenceName, CreateParser(ParseDereferenceNode) },
+                    { StoreAtName, CreateParser(ParseStoreAtNode) },
+                    { SizeOfName, CreateParser(ParseSizeOfNode) },
 
                     // Constants
                     //  - Bit<n>
