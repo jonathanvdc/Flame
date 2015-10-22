@@ -10,7 +10,9 @@ using System.Threading.Tasks;
 
 namespace Flame.Intermediate.Emit
 {
-    public class IRCodeGenerator : ICodeGenerator, IExceptionCodeGenerator, IUnmanagedCodeGenerator
+    public class IRCodeGenerator : ICodeGenerator, IExceptionCodeGenerator, 
+                                   IUnmanagedCodeGenerator, IWhileCodeGenerator,
+                                   IDoWhileCodeGenerator, IForCodeGenerator
     {
         public IRCodeGenerator(IRAssemblyBuilder Assembly, IMethod Method)
         {
@@ -260,6 +262,11 @@ namespace Flame.Intermediate.Emit
 
         #region Intraprocedural control flow
 
+        public LNode GetTagNode(BlockTag Tag)
+        {
+            return NodeFactory.IdOrLiteral(tags[Tag]);
+        }
+
         public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
         {
             return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.SelectNodeName, new[] 
@@ -279,7 +286,7 @@ namespace Flame.Intermediate.Emit
         {
             return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.TaggedNodeName, new[]
             {
-                NodeFactory.IdOrLiteral(tags[Tag]),
+                GetTagNode(Tag),
                 NodeBlock.ToNode(Contents)
             }));
         }
@@ -288,7 +295,7 @@ namespace Flame.Intermediate.Emit
         {
             return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.BreakNodeName, new[]
             {
-                NodeFactory.Call(ExpressionParsers.TagReferenceName, new[] { NodeFactory.IdOrLiteral(tags[Target]) })
+                NodeFactory.Call(ExpressionParsers.TagReferenceName, new[] { GetTagNode(Target) })
             }));
         }
 
@@ -296,8 +303,26 @@ namespace Flame.Intermediate.Emit
         {
             return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.ContinueNodeName, new[]
             {
-                NodeFactory.Call(ExpressionParsers.TagReferenceName, new[] { NodeFactory.IdOrLiteral(tags[Target]) })
+                NodeFactory.Call(ExpressionParsers.TagReferenceName, new[] { GetTagNode(Target) })
             }));
+        }
+
+        public ICodeBlock EmitWhile(BlockTag Tag, ICodeBlock Condition, ICodeBlock Body)
+        {
+            return NodeBlock.Call(this, ExpressionParsers.WhileNodeName, GetTagNode(Tag), NodeBlock.ToNode(Condition), NodeBlock.ToNode(Body));
+        }
+
+        public ICodeBlock EmitDoWhile(BlockTag Tag, ICodeBlock Body, ICodeBlock Condition)
+        {
+            return NodeBlock.Call(this, ExpressionParsers.DoWhileNodeName, GetTagNode(Tag), NodeBlock.ToNode(Body), NodeBlock.ToNode(Condition));
+        }
+
+        public ICodeBlock EmitForBlock(BlockTag Tag, ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body)
+        {
+            return NodeBlock.Call(this, ExpressionParsers.ForNodeName, 
+                GetTagNode(Tag), NodeBlock.ToNode(Initialization),
+                NodeBlock.ToNode(Condition), NodeBlock.ToNode(Delta),
+                NodeBlock.ToNode(Body), NodeBlock.ToNode(EmitVoid()));
         }
 
         #endregion
