@@ -477,7 +477,14 @@ namespace Flame.Intermediate.Parsing
                 {
                     descMethod.AddParameter(new DescribedParameter("arg" + item.Key, genericParser.Parse(State, item.Value).Value));
                 }
-                return declType.Methods.GetMethod(descMethod);
+                var result = declType.Methods.GetMethod(descMethod);
+
+                if (result == null)
+                {
+                    throw new InvalidOperationException("Could not resolve '" + Node + "' as a method or constructor reference.");
+                }
+
+                return result;
             });
         }
 
@@ -497,7 +504,14 @@ namespace Flame.Intermediate.Parsing
                 var prop = declType.Properties.GetProperty(propertyName, propIsStatic, propType, propParamTypes);
                 var accType = AccessorType.Register(GetIdOrString(Node.Args[5]));
 
-                return prop.GetAccessor(accType);
+                var result = prop.GetAccessor(accType);
+
+                if (result == null)
+                {
+                    throw new InvalidOperationException("Could not resolve '" + Node + "' as an accessor reference.");
+                }
+
+                return result;
             });
         }
 
