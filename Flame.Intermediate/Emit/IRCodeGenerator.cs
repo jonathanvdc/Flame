@@ -49,7 +49,7 @@ namespace Flame.Intermediate.Emit
 
         public NodeBlock EmitLiteral(object Value, string LiteralName)
         {
-            return new NodeBlock(this, NodeFactory.Literal(Value));
+            return new NodeBlock(this, NodeFactory.Call(LiteralName, new LNode[] { NodeFactory.Literal(Value) }));
         }
 
         #region Bit types
