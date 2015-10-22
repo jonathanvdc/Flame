@@ -44,23 +44,52 @@ namespace Flame.Intermediate.Emit
             });
         }
 
+        private LNode ConvertAccessorDefinitionReference(IAccessor Value)
+        {
+            // Format:
+            //
+            // #accessor_reference(declaring_type, property_name, property_is_static, property_type, { indexer_parameter_types... }, accessor_type)
+
+            var declType = Assembly.TypeTable.GetReference(Value.DeclaringType);
+            var propType = Assembly.TypeTable.GetReference(Value.DeclaringProperty.PropertyType);
+            var paramTypes = NodeFactory.Block(Value.DeclaringProperty.IndexerParameters.GetTypes().Select(Assembly.TypeTable.GetReference));
+            var accType = NodeFactory.IdOrLiteral(Value.AccessorType.Name);
+
+            return NodeFactory.Call(IRParser.AccessorReferenceName, new LNode[]
+            {
+                declType,
+                NodeFactory.IdOrLiteral(Value.DeclaringProperty.Name),
+                NodeFactory.Literal(Value.DeclaringProperty.IsStatic),
+                propType,
+                paramTypes,
+                accType
+            });
+        }
+
         public LNode Convert(IMethod Value)
         {
-            if (Value is GenericMethod)
+            if (!Value.DeclaringType.get_IsContainerType())
             {
-                var genInst = (GenericMethod)Value;
-                return NodeFactory.Call(IRParser.GenericInstanceName, new LNode[]
-                { 
-                    Assembly.MethodTable.GetReference(genInst.Declaration)
-                }.Concat(genInst.GenericArguments.Select(Assembly.TypeTable.GetReference)));
+                if (Value is GenericMethod)
+                {
+                    var genInst = (GenericMethod)Value;
+                    return NodeFactory.Call(IRParser.GenericInstanceName, new LNode[]
+                    { 
+                        Assembly.MethodTable.GetReference(genInst.Declaration)
+                    }.Concat(genInst.GenericArguments.Select(Assembly.TypeTable.GetReference)));
+                }
+                else if (Value is GenericInstanceMethod)
+                {
+                    return NodeFactory.Call(IRParser.GenericInstanceMemberName, new LNode[]
+                    { 
+                        Assembly.TypeTable.GetReference(Value.DeclaringType), 
+                        Assembly.MethodTable.GetReference(((GenericInstanceMethod)Value).Declaration)
+                    });
+                }
             }
-            else if (Value is GenericInstanceMethod)
+            if (Value is IAccessor)
             {
-                return NodeFactory.Call(IRParser.GenericInstanceMemberName, new LNode[]
-                { 
-                    Assembly.TypeTable.GetReference(Value.DeclaringType), 
-                    Assembly.MethodTable.GetReference(((GenericInstanceMethod)Value).Declaration)
-                });
+                return ConvertAccessorDefinitionReference((IAccessor)Value);
             }
             else
             {
