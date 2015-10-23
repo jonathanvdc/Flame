@@ -111,6 +111,16 @@ namespace Flame.Intermediate.Parsing
         /// </remarks>
         public const string ConstantDefaultName = "#const_default";
 
+        /// <summary>
+        /// A node type for comment nodes.
+        /// </summary>
+        /// <remarks>
+        /// Format:
+        /// 
+        /// #comment("text")
+        /// </remarks>
+        public const string CommentNodeName = "#comment";
+
         #region Container types
 
         /// <summary>
@@ -996,6 +1006,23 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+        #region Comments/Debugging
+
+        /// <summary>
+        /// Parses the given '#comment' node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseComment(ParserState State, LNode Node)
+        {
+            string comment = IRParser.GetIdOrString(Node.Args.Single());
+
+            return ToExpression(new CommentedStatement(comment, EmptyStatement.Instance));
+        }
+
+        #endregion
+
         #region Unmanaged constructs
 
         /// <summary>
@@ -1478,6 +1505,9 @@ namespace Flame.Intermediate.Parsing
                     { SetFieldNodeName, CreateSetVariableParser(ParseFieldVariable) },
                     { ReleaseFieldNodeName, CreateReleaseVariableParser(ParseFieldVariable) },
                     { AddressOfFieldNodeName, CreateAddressOfVariableParser(ParseFieldVariable) },
+
+                    // Comments/debugging
+                    { CommentNodeName, CreateParser(ParseComment) },
 
                     // Unmanaged stuff
                     { DereferenceName, CreateParser(ParseDereferenceNode) },
