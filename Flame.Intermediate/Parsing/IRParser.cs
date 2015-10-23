@@ -153,7 +153,7 @@ namespace Flame.Intermediate.Parsing
         /// <returns></returns>
         public static string GetIdOrString(LNode Node)
         {
-            return Node.IsId ? Node.Name.Name : Node.Value.ToString();
+            return Node.IsId ? Node.Name.Name : (Node.Value == null ? null : Node.Value.ToString());
         }
 
         /// <summary>
@@ -224,7 +224,7 @@ namespace Flame.Intermediate.Parsing
 
             return new LazyNodeStructure<IType>(Node, () =>
             {
-                var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]);
+                var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 string name = GetIdOrString(Node.Args[1]);
                 return ((INamespace)declType).Types.First(item => item.Name == name);
             });
