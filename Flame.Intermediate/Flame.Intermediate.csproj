@@ -77,6 +77,7 @@
     <Compile Include="Emit\IRTypeVisitor.cs" />
     <Compile Include="Emit\NodeCatchClause.cs" />
     <Compile Include="Emit\NodeEmitVariable.cs" />
+    <Compile Include="Emit\NodeForeachHeader.cs" />
     <Compile Include="Emit\UniqueNameMap.cs" />
     <Compile Include="Emit\UniqueNameSet.cs" />
     <Compile Include="EmptyNodeList.cs" />
