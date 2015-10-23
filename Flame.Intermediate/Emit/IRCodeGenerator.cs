@@ -10,9 +10,10 @@ using System.Threading.Tasks;
 
 namespace Flame.Intermediate.Emit
 {
-    public class IRCodeGenerator : ICodeGenerator, IExceptionCodeGenerator, 
+    public class IRCodeGenerator : ICodeGenerator, IExceptionCodeGenerator,
                                    IUnmanagedCodeGenerator, IWhileCodeGenerator,
-                                   IDoWhileCodeGenerator, IForCodeGenerator
+                                   IDoWhileCodeGenerator, IForCodeGenerator,
+                                   IForeachCodeGenerator
     {
         public IRCodeGenerator(IRAssemblyBuilder Assembly, IMethod Method)
         {
@@ -262,11 +263,6 @@ namespace Flame.Intermediate.Emit
 
         #region Intraprocedural control flow
 
-        public LNode GetTagNode(BlockTag Tag)
-        {
-            return NodeFactory.IdOrLiteral(tags[Tag]);
-        }
-
         public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
         {
             return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.SelectNodeName, new[] 
@@ -286,7 +282,7 @@ namespace Flame.Intermediate.Emit
         {
             return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.TaggedNodeName, new[]
             {
-                GetTagNode(Tag),
+                EmitTagNode(Tag),
                 NodeBlock.ToNode(Contents)
             }));
         }
@@ -295,7 +291,7 @@ namespace Flame.Intermediate.Emit
         {
             return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.BreakNodeName, new[]
             {
-                NodeFactory.Call(ExpressionParsers.TagReferenceName, new[] { GetTagNode(Target) })
+                NodeFactory.Call(ExpressionParsers.TagReferenceName, new[] { EmitTagNode(Target) })
             }));
         }
 
@@ -303,27 +299,57 @@ namespace Flame.Intermediate.Emit
         {
             return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.ContinueNodeName, new[]
             {
-                NodeFactory.Call(ExpressionParsers.TagReferenceName, new[] { GetTagNode(Target) })
+                NodeFactory.Call(ExpressionParsers.TagReferenceName, new[] { EmitTagNode(Target) })
             }));
         }
 
         public ICodeBlock EmitWhile(BlockTag Tag, ICodeBlock Condition, ICodeBlock Body)
         {
-            return NodeBlock.Call(this, ExpressionParsers.WhileNodeName, GetTagNode(Tag), NodeBlock.ToNode(Condition), NodeBlock.ToNode(Body));
+            return NodeBlock.Call(this, ExpressionParsers.WhileNodeName, EmitTagNode(Tag), NodeBlock.ToNode(Condition), NodeBlock.ToNode(Body));
         }
 
         public ICodeBlock EmitDoWhile(BlockTag Tag, ICodeBlock Body, ICodeBlock Condition)
         {
-            return NodeBlock.Call(this, ExpressionParsers.DoWhileNodeName, GetTagNode(Tag), NodeBlock.ToNode(Body), NodeBlock.ToNode(Condition));
+            return NodeBlock.Call(this, ExpressionParsers.DoWhileNodeName, EmitTagNode(Tag), NodeBlock.ToNode(Body), NodeBlock.ToNode(Condition));
         }
 
         public ICodeBlock EmitForBlock(BlockTag Tag, ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body)
         {
-            return NodeBlock.Call(this, ExpressionParsers.ForNodeName, 
-                GetTagNode(Tag), NodeBlock.ToNode(Initialization),
+            return NodeBlock.Call(this, ExpressionParsers.ForNodeName,
+                EmitTagNode(Tag), NodeBlock.ToNode(Initialization),
                 NodeBlock.ToNode(Condition), NodeBlock.ToNode(Delta),
                 NodeBlock.ToNode(Body), NodeBlock.ToNode(EmitVoid()));
         }
+
+        #region Foreach
+
+        public ICollectionBlock EmitCollectionBlock(IVariableMember Member, ICodeBlock Collection)
+        {
+            return new NodeCollectionBlock(this, Member, NodeBlock.ToNode(Collection));
+        }
+
+        public ICodeBlock EmitForeachBlock(IForeachBlockHeader Header, ICodeBlock Body)
+        {
+            var header = (NodeForeachHeader)Header;
+
+            return NodeBlock.Call(this, ExpressionParsers.ForeachNodeName, 
+                header.TagNode, header.CollectionsNode, NodeBlock.ToNode(Body));
+        }
+
+        public IForeachBlockHeader EmitForeachHeader(BlockTag Tag, IEnumerable<ICollectionBlock> Collections)
+        {
+            var tagNode = EmitTagNode(Tag);
+            var elems = Collections.Cast<NodeCollectionBlock>().Select(item =>
+            {
+                string name = variableNames.GenerateName(item.Member);
+                var localVar = new NodeEmitVariable(this, ExpressionParsers.LocalVariableKindName, NodeFactory.IdOrLiteral(name));
+                return Tuple.Create(name, localVar, item);
+            }).ToArray();
+
+            return new NodeForeachHeader(tagNode, elems);
+        }
+
+        #endregion
 
         #endregion
 
@@ -392,7 +418,7 @@ namespace Flame.Intermediate.Emit
         public IUnmanagedEmitVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
         {
             string name = variableNames.GenerateName(VariableMember);
-            var sig = IREmitHelpers.CreateSignature(Assembly, VariableMember.Name, VariableMember.Attributes);
+            var sig = EmitSignature(VariableMember);
             var type = Assembly.TypeTable.GetReference(VariableMember.VariableType);
 
             var oldPostprocessor = this.postprocessNode;
@@ -506,6 +532,25 @@ namespace Flame.Intermediate.Emit
         public ICodeBlock EmitStoreAtAddress(ICodeBlock Pointer, ICodeBlock Value)
         {
             return NodeBlock.Call(this, ExpressionParsers.StoreAtName, Pointer, Value);
+        }
+
+        #endregion
+
+        #region Helpers
+
+        public LNode EmitTagNode(BlockTag Tag)
+        {
+            return NodeFactory.IdOrLiteral(tags[Tag]);
+        }
+
+        /// <summary>
+        /// Creates an IR signature from the given variable member.
+        /// </summary>
+        /// <param name="Member"></param>
+        /// <returns></returns>
+        public IRSignature EmitSignature(IVariableMember Member)
+        {
+            return IREmitHelpers.CreateSignature(Assembly, Member.Name, Member.Attributes);
         }
 
         #endregion
