@@ -125,7 +125,7 @@ namespace Flame.Intermediate.Emit
         {
             get
             {
-                return NodeFactory.Call(TableName, nodes);
+                return NodeFactory.Call(TableName, new LNode[] { NodeFactory.Block(nodes) });
             }
         }
 
