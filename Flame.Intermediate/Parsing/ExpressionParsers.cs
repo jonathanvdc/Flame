@@ -1162,7 +1162,7 @@ namespace Flame.Intermediate.Parsing
         {
             return CreateParser((state, node) =>
             {
-                if (node.Args[0].Name.Name == Name)
+                if (IRParser.GetIdOrString(node.Args[0]) == Name)
                 {
                     return Variable.CreateGetExpression();
                 }
@@ -1182,7 +1182,7 @@ namespace Flame.Intermediate.Parsing
         {
             return CreateParser((state, node) =>
             {
-                if (node.Args[0].Name.Name == Name)
+                if (IRParser.GetIdOrString(node.Args[0]) == Name)
                 {
                     return Variable.CreateAddressOfExpression();
                 }
@@ -1202,14 +1202,25 @@ namespace Flame.Intermediate.Parsing
         {
             return CreateParser((state, node) =>
             {
-                if (node.Args[0].Name.Name == Name)
+                var value = ParseExpression(state, node.Args[1]);
+                if (IRParser.GetIdOrString(node.Args[0]) == Name)
                 {
-                    var value = ParseExpression(state, node.Args[1]);
                     return ToExpression(Variable.CreateSetStatement(value));
                 }
                 else
                 {
-                    return ParseExpression(OldState, node);
+                    // HACK: create a synthetic #get_local node, parse it, 
+                    //       and extract its variable.
+                    //       This may seem pointless, but it's not:
+                    //       just delegating the parsing of this expression
+                    //       to the old state will also cause the old state
+                    //       to parse the #set_local's value, which breaks
+                    //       scoping rules.
+
+                    var synthNode = NodeFactory.Call(GetLocalNodeName, new LNode[] { node.Args[0] });
+                    var variable = ParseExpression(OldState, synthNode) as IVariableNode;
+                    
+                    return ToExpression(variable.GetVariable().CreateSetStatement(value));
                 }
             });
         }
@@ -1223,7 +1234,7 @@ namespace Flame.Intermediate.Parsing
         {
             return CreateParser((state, node) =>
             {
-                if (node.Args[0].Name.Name == Name)
+                if (IRParser.GetIdOrString(node.Args[0]) == Name)
                 {
                     return ToExpression(Variable.CreateReleaseStatement());
                 }
@@ -1333,10 +1344,10 @@ namespace Flame.Intermediate.Parsing
 
                     // Locals
                     { DefineLocalNodeName, CreateParser(ParseLocalDefinition) },
-                    { GetLocalNodeName, (state, node) => { throw new InvalidOperationException("Undefined local '" + IRParser.ParseSignatureName(node.Args[0]) + "'."); }  },
-                    { AddressOfLocalNodeName, (state, node) => { throw new InvalidOperationException("Undefined local '" + IRParser.ParseSignatureName(node.Args[0]) + "'."); }  },
-                    { SetLocalNodeName, (state, node) => { throw new InvalidOperationException("Undefined local '" + IRParser.ParseSignatureName(node.Args[0]) + "'."); }  },
-                    { ReleaseLocalNodeName, (state, node) => { throw new InvalidOperationException("Undefined local '" + IRParser.ParseSignatureName(node.Args[0]) + "'."); }  },
+                    { GetLocalNodeName, (state, node) => { throw new InvalidOperationException("Undefined local '" + IRParser.GetIdOrString(node.Args[0]) + "'."); }  },
+                    { AddressOfLocalNodeName, (state, node) => { throw new InvalidOperationException("Undefined local '" + IRParser.GetIdOrString(node.Args[0]) + "'."); }  },
+                    { SetLocalNodeName, (state, node) => { throw new InvalidOperationException("Undefined local '" + IRParser.GetIdOrString(node.Args[0]) + "'."); }  },
+                    { ReleaseLocalNodeName, (state, node) => { throw new InvalidOperationException("Undefined local '" + IRParser.GetIdOrString(node.Args[0]) + "'."); }  },
 
                     // Null expressions
                     { IRParser.NullNodeName, CreateParser((state, node) => null) },
