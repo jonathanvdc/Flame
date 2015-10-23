@@ -89,7 +89,8 @@ namespace Flame.Intermediate.Parsing
         public static IEnumerable<LNode> GetTableEntries(IEnumerable<LNode> Nodes, string TableType)
         {
             return Nodes.Where(item => item.Name.Name == TableType)
-                        .SelectMany(item => item.Args);
+                        .SelectMany(item => item.Args)
+                        .SelectMany(NodeFactory.UnpackBlock);
         }
 
         /// <summary>
