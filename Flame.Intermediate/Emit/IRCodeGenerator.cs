@@ -14,7 +14,7 @@ namespace Flame.Intermediate.Emit
                                    IUnmanagedCodeGenerator, IWhileCodeGenerator,
                                    IDoWhileCodeGenerator, IForCodeGenerator,
                                    IForeachCodeGenerator, ICommentedCodeGenerator,
-                                   IYieldCodeGenerator
+                                   IYieldCodeGenerator, ILambdaCodeGenerator
     {
         public IRCodeGenerator(IRAssemblyBuilder Assembly, IMethod Method)
         {
@@ -528,6 +528,20 @@ namespace Flame.Intermediate.Emit
                 NodeFactory.Block(CatchClauses.Cast<NodeCatchClause>().Select(item => item.Node)),
                 NodeBlock.ToNode(FinallyBody)
             }));
+        }
+
+        #endregion
+
+        #region Lambdas
+
+        public ICodeBlock EmitLambda(ILambdaHeaderBlock Header, ICodeBlock Body)
+        {
+            return new NodeBlock(this, ((NodeLambdaHeader)Header).CreateLambdaNode(NodeBlock.ToNode(Body)));
+        }
+
+        public ILambdaHeaderBlock EmitLambdaHeader(IMethod Member, IEnumerable<ICodeBlock> CapturedValues)
+        {
+            return new NodeLambdaHeader(this, Member, CapturedValues.Select(NodeBlock.ToNode).ToArray());
         }
 
         #endregion

@@ -33,7 +33,7 @@ namespace Flame.Intermediate.Parsing
         public const string FieldTableName = "#field_table";
 
         public const string TypeReferenceName = "#type_reference";
-        
+
         public const string FieldReferenceName = "#field_reference";
         public const string MethodReferenceName = "#method_reference";
         public const string ConstructorReferenceName = "#ctor_reference";
@@ -348,17 +348,17 @@ namespace Flame.Intermediate.Parsing
                 descMethod.ReturnType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 int index = 0;
                 foreach (var item in Node.Args.Skip(1).Select(item => State.Parser.TypeReferenceParser.Parse(State, item).Value))
-	            {
-		            descMethod.AddParameter(new DescribedParameter("param" + index, item));
+                {
+                    descMethod.AddParameter(new DescribedParameter("param" + index, item));
                     index++;
-	            }
+                }
                 return MethodType.Create(descMethod);
             });
         }
 
         public static Func<ParserState, LNode, INodeStructure<IType>> CreateIndexedTypeParser(Dictionary<int, IType> Types)
         {
-            return new Func<ParserState, LNode, INodeStructure<IType>>((state, node) => 
+            return new Func<ParserState, LNode, INodeStructure<IType>>((state, node) =>
             {
                 IType resultType;
                 int size = Convert.ToInt32(node.Args.Single().Value);
@@ -664,7 +664,7 @@ namespace Flame.Intermediate.Parsing
             if (Node.ArgCount != 1)
             {
                 throw new InvalidOperationException(
-                    "Invalid '" + TypeConstraintName + "' node: " + 
+                    "Invalid '" + TypeConstraintName + "' node: " +
                     "'" + TypeConstraintName + "' nodes take exactly one argument.");
             }
 
@@ -754,26 +754,30 @@ namespace Flame.Intermediate.Parsing
         /// <returns></returns>
         public static INodeStructure<IStatement> ParseMethodBody(ParserState State, LNode Node, IMethod EnclosingMethod)
         {
-            return new LazyNodeStructure<IStatement>(Node, n => 
+            return new LazyNodeStructure<IStatement>(Node, n =>
             {
-                var thisType = ThisVariable.GetThisType(EnclosingMethod.DeclaringType);
                 var paramList = EnclosingMethod.GetParameters();
 
-                var exprParser = State.Parser.ExpressionParser
-                    .WithParsers(new Dictionary<string, Func<ParserState, LNode, INodeStructure<IExpression>>>()
-                    { 
-                        { ExpressionParsers.GetThisNodeName, ExpressionParsers.CreateGetThisParser(thisType) },
-                        { ExpressionParsers.AddressOfThisNodeName, ExpressionParsers.CreateAddressOfThisParser(thisType) },
-                        { ExpressionParsers.SetThisNodeName, ExpressionParsers.CreateParser(ExpressionParsers.ParseSetThis) },
-                        // TODO: implement #release_this as an actual release operation, instead of an empty statement.
-                        { ExpressionParsers.ReleaseThisNodeName, ExpressionParsers.CreateConstantParser(VoidExpression.Instance) },
+                var parserDict = new Dictionary<string, Func<ParserState, LNode, INodeStructure<IExpression>>>()
+                { 
+                    { ExpressionParsers.GetArgumentNodeName, ExpressionParsers.CreateGetArgumentParser(paramList) },
+                    { ExpressionParsers.AddressOfArgumentNodeName, ExpressionParsers.CreateAddressOfArgumentParser(paramList) },
+                    { ExpressionParsers.SetArgumentNodeName, ExpressionParsers.CreateSetArgumentParser(paramList) },
+                    { ExpressionParsers.ReleaseArgumentNodeName, ExpressionParsers.CreateReleaseArgumentParser(paramList) },
+                };
 
-                        { ExpressionParsers.GetArgumentNodeName, ExpressionParsers.CreateGetArgumentParser(paramList) },
-                        { ExpressionParsers.AddressOfArgumentNodeName, ExpressionParsers.CreateAddressOfArgumentParser(paramList) },
-                        { ExpressionParsers.SetArgumentNodeName, ExpressionParsers.CreateSetArgumentParser(paramList) },
-                        { ExpressionParsers.ReleaseArgumentNodeName, ExpressionParsers.CreateReleaseArgumentParser(paramList) },
-                    });
+                if (!EnclosingMethod.IsStatic && EnclosingMethod.DeclaringType != null)
+                {
+                    var thisType = ThisVariable.GetThisType(EnclosingMethod.DeclaringType);
 
+                    parserDict[ExpressionParsers.GetThisNodeName] = ExpressionParsers.CreateGetThisParser(thisType);
+                    parserDict[ExpressionParsers.AddressOfThisNodeName] = ExpressionParsers.CreateAddressOfThisParser(thisType);
+                    parserDict[ExpressionParsers.SetThisNodeName] = ExpressionParsers.CreateParser(ExpressionParsers.ParseSetThis);
+                    // TODO: implement #release_this as an actual release operation, instead of an empty statement.
+                    parserDict[ExpressionParsers.ReleaseThisNodeName] = ExpressionParsers.CreateConstantParser(VoidExpression.Instance);
+                }
+
+                var exprParser = State.Parser.ExpressionParser.WithParsers(parserDict);
                 var newState = State.WithParser(State.Parser.WithExpressionParser(exprParser));
 
                 return ExpressionParsers.ToStatement(ExpressionParsers.ParseExpression(newState, n));
@@ -1058,13 +1062,13 @@ namespace Flame.Intermediate.Parsing
 
         #region Constructors
 
-        public IRParser(ReferenceParser<IType> TypeReferenceParser, 
-                        ReferenceParser<IField> FieldReferenceParser, 
+        public IRParser(ReferenceParser<IType> TypeReferenceParser,
+                        ReferenceParser<IField> FieldReferenceParser,
                         ReferenceParser<IMethod> MethodReferenceParser,
                         ReferenceParser<IAttribute> AttributeParser,
                         ReferenceParser<IGenericConstraint> GenericConstraintParser,
                         ReferenceParser<IExpression> ExpressionParser,
-                        DefinitionParser<INamespace, IType> TypeDefinitionParser, 
+                        DefinitionParser<INamespace, IType> TypeDefinitionParser,
                         DefinitionParser<IType, ITypeMember> TypeMemberParser)
         {
             this.TypeReferenceParser = TypeReferenceParser;
@@ -1101,7 +1105,7 @@ namespace Flame.Intermediate.Parsing
 
         public DefinitionParser<INamespace, IType> TypeDefinitionParser { get; private set; }
         public DefinitionParser<IType, ITypeMember> TypeMemberParser { get; private set; }
-        
+
         #endregion
 
         #region Methods
@@ -1180,7 +1184,7 @@ namespace Flame.Intermediate.Parsing
 
             // Parse the assembly's header first.
             ParseAssemblyHeader(state, asmNode, asm);
-            
+
             // Next, parse the type, method and field tables.
             ParseTable(RootNodes, TypeTableName, item => TypeReferenceParser.Parse(state, item), tTable);
             ParseTable(RootNodes, MethodTableName, item => MethodReferenceParser.Parse(state, item), mTable);

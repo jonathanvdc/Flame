@@ -1,4 +1,5 @@
-﻿using Flame.Compiler;
+﻿using Flame.Build;
+using Flame.Compiler;
 using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
@@ -201,6 +202,30 @@ namespace Flame.Intermediate.Parsing
         /// #sizeof(type_reference)
         /// </remarks>
         public const string SizeOfName = "#sizeof";
+
+        #endregion
+
+        #region Lambdas
+
+        /// <summary>
+        /// A node name for lambda nodes.
+        /// </summary>
+        /// <remarks>
+        /// Format:
+        /// 
+        /// #lambda(#member(name, attrs...), return_type, { parameter... }, { captured_exprs... }, body)
+        /// </remarks>
+        public const string LambdaNodeName = "#lambda";
+
+        /// <summary>
+        /// A node name for lambda captured value nodes.
+        /// </summary>
+        /// <remarks>
+        /// Format:
+        /// 
+        /// #lambda_captured_value(index)
+        /// </remarks>
+        public const string CapturedValueNodeName = "#lambda_captured_value";
 
         #endregion
 
@@ -1083,6 +1108,57 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+        #region Lambdas
+
+        /// <summary>
+        /// Parses the given '#lambda' node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseLambda(ParserState State, LNode Node)
+        {
+            // Format:
+            // 
+            // #lambda(#member(name, attrs...), return_type, { parameter... }, { captured_exprs... }, body)
+
+            if (Node.ArgCount != 5)
+            {
+                return new ErrorExpression(VoidExpression.Instance, new LogEntry(
+                    "Invalid '" + LambdaNodeName + "' node.",
+                    "'" + LambdaNodeName + "' nodes must have exactly five arguments: " + 
+                    "an IR signature, a return type, a parameter list, a list of captured expressions, " +
+                    "and the lambda expression's body."));
+            }
+
+            var sig = IRParser.ParseSignature(State, Node.Args[0]); 
+            var descMethod = new DescribedMethod(sig.Name, null);
+            descMethod.IsStatic = true;
+            foreach (var item in sig.Attributes)
+            {
+                descMethod.AddAttribute(item);
+            }
+            descMethod.ReturnType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[1]).Value;
+            foreach (var item in IRParser.ParseParameterList(State, Node.Args[2]).Value)
+            {
+                descMethod.AddParameter(item);
+            }
+
+            var captureList = ParseExpressions(State, Node.Args[3].Args).ToArray();
+            var header = new LambdaHeader(descMethod, captureList);
+            var boundHeaderBlock = new LambdaBoundHeaderBlock();
+
+            var exprParser = State.Parser.ExpressionParser.WithParser(CapturedValueNodeName, CreateParser((state, node) => 
+                new LambdaCapturedValueExpression(header, boundHeaderBlock, Convert.ToInt32(node.Args.Single().Value))));
+            var newState = State.WithParser(State.Parser.WithExpressionParser(exprParser));
+
+            var body = IRParser.ParseMethodBody(newState, Node.Args[4], descMethod).Value;
+
+            return new LambdaExpression(header, body, boundHeaderBlock);
+        }
+
+        #endregion
+
         #region Unmanaged constructs
 
         /// <summary>
@@ -1570,6 +1646,9 @@ namespace Flame.Intermediate.Parsing
 
                     // Comments/debugging
                     { CommentNodeName, CreateParser(ParseComment) },
+
+                    // Lambdas
+                    { LambdaNodeName, CreateParser(ParseLambda) },
 
                     // Unmanaged stuff
                     { DereferenceName, CreateParser(ParseDereferenceNode) },
