@@ -60,7 +60,7 @@ namespace Flame.Recompilation
             this.PropertyCache = new CompilationCache<IProperty>(GetNewProperty, TaskManager);
             this.MethodCache = new CompilationCache<IMethod>(GetNewMethod, TaskManager);
             this.NamespaceCache = new CompilationCache<INamespace>(GetNewNamespace, TaskManager);
-            this.recompiledAssemblies = new List<IAssembly>();
+            this.recompiledAssemblies = new Dictionary<IAssembly, RecompilationOptions>();
             this.cachedEnvironment = new Lazy<IEnvironment>(() => TargetAssembly.CreateBinder().Environment);
             this.methodBodies = new AsyncDictionary<IMethod, IStatement>();
 
@@ -77,7 +77,7 @@ namespace Flame.Recompilation
         public RandomAccessOptions GlobalMetdata { [Pure] get; private set; }
         private Dictionary<IType, RandomAccessOptions> typeMetadata;
 
-        private List<IAssembly> recompiledAssemblies;
+        private Dictionary<IAssembly, RecompilationOptions> recompiledAssemblies;
         private Lazy<IEnvironment> cachedEnvironment;
         private AsyncDictionary<IMethod, IStatement> methodBodies;
 
@@ -110,7 +110,7 @@ namespace Flame.Recompilation
             }
             lock (recompiledAssemblies)
             {
-                return !recompiledAssemblies.Contains(Assembly);
+                return !recompiledAssemblies.ContainsKey(Assembly);
             }
         }
         public bool IsExternal(INamespace Namespace)
@@ -994,13 +994,22 @@ namespace Flame.Recompilation
 
         #region Assembly Recompilation
 
-        private void RecompileAssemblyCore(IAssembly Source, RecompilationOptions Options)
+        /// <summary>
+        /// Adds the given assembly to the list of assemblies to recompile,
+        /// with the given recompilation options.
+        /// </summary>
+        /// <param name="Source"></param>
+        public void AddAssembly(IAssembly Source, RecompilationOptions Options)
         {
             lock (recompiledAssemblies)
             {
-                recompiledAssemblies.Add(Source);
+                recompiledAssemblies[Source] = Options;
             }
-            foreach (var item in Options.RecompilationStrategy.GetRoots(Source))
+        }
+
+        private void RecompileAssemblyCore(IAssembly Source, RecompilationOptions Options)
+        {
+            foreach (var item in recompiledAssemblies[Source].RecompilationStrategy.GetRoots(Source))
             {
                 GetMember(item);
             }
@@ -1014,10 +1023,13 @@ namespace Flame.Recompilation
             }
         }
 
-        public async Task RecompileAsync(IAssembly Source, RecompilationOptions Options)
+        public async Task RecompileAsync()
         {
-            RecompileAssemblyCore(Source, Options);
-
+            foreach (var item in recompiledAssemblies)
+            {
+                RecompileAssemblyCore(item.Key, item.Value);
+            }
+            
             await TaskManager.WhenDoneAsync();
             TaskManager.RunSequential(() =>
             {

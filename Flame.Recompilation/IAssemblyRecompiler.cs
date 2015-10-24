@@ -17,10 +17,15 @@ namespace Flame.Recompilation
         IAssemblyBuilder TargetAssembly { [Pure] get; }
 
         /// <summary>
-        /// Compiles a functional equivalent of the source assembly to the target assembly.
+        /// Adds the given assembly to the list of assemblies to recompile,
+        /// with the given recompilation options.
         /// </summary>
         /// <param name="Source"></param>
-        /// <param name="Target"></param>
-        Task RecompileAsync(IAssembly Source, RecompilationOptions Options);
+        void AddAssembly(IAssembly Source, RecompilationOptions Options);
+
+        /// <summary>
+        /// Compiles all included assemblies to the target assembly.
+        /// </summary>
+        Task RecompileAsync();
     }
 }

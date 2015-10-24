@@ -240,7 +240,8 @@ namespace Flame.Front.Cli
             var passSuite = PassExtensions.CreateSuite(State.FilteredLog, passPrefs);
 
             var asmRecompiler = new AssemblyRecompiler(target.TargetAssembly, State.FilteredLog, new SingleThreadedTaskManager(), passSuite, recompSettings);
-            await asmRecompiler.RecompileAsync(projAsm, new RecompilationOptions(State.Options.GetRecompilationStrategy(), true));
+            asmRecompiler.AddAssembly(projAsm, new RecompilationOptions(State.Options.GetRecompilationStrategy(), true));
+            await asmRecompiler.RecompileAsync();
 
             State.FilteredLog.LogEvent(new LogEntry("Status", "Done recompiling"));
 
