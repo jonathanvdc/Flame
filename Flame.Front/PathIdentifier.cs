@@ -160,4 +160,22 @@ namespace Flame.Front
             return new PathIdentifier(Value);
         }
     }
+
+    public class AbsolutePathComparer : IEqualityComparer<PathIdentifier>
+    {
+        private AbsolutePathComparer()
+        { }
+
+        public static readonly AbsolutePathComparer Instance = new AbsolutePathComparer();
+
+        public bool Equals(PathIdentifier x, PathIdentifier y)
+        {
+            return x.AbsolutePath == y.AbsolutePath;
+        }
+
+        public int GetHashCode(PathIdentifier obj)
+        {
+            return obj.AbsolutePath.GetHashCode();
+        }
+    }
 }

@@ -48,12 +48,24 @@ namespace Flame.XmlDocs
             memberDocs.AddDescriptionAttribute(Attribute);
         }
 
-        protected void AddDescription(IMember Member)
+        public void AddDescription(IMember Member)
         {
             var doc = MemberDocumentation.FromMember(Member);
             if (!doc.IsEmpty)
             {
                 this.Members.Add(doc);
+            }
+        }
+
+        public void AddContentDescriptions(IAssembly Assembly)
+        {
+            foreach (var item in Assembly.CreateBinder().GetTypes())
+            {
+                AddDescription(item);
+                foreach (var typeMember in item.Methods.Concat<ITypeMember>(item.Properties).Concat<ITypeMember>(item.Fields))
+                {
+                    AddDescription(typeMember);
+                }
             }
         }
 
@@ -93,16 +105,19 @@ namespace Flame.XmlDocs
 
         public static XmlDocumentationProvider FromAssembly(IAssembly Assembly)
         {
+            return FromAssemblies(Assembly, Enumerable.Empty<IAssembly>());
+        }
+
+        public static XmlDocumentationProvider FromAssemblies(IAssembly MainAssembly, IEnumerable<IAssembly> AuxiliaryAssemblies)
+        {
             XmlDocumentationProvider provider = new XmlDocumentationProvider();
-            provider.Assembly = AssemblyDocumentation.FromAssembly(Assembly);
-            foreach (var item in Assembly.CreateBinder().GetTypes())
+            provider.Assembly = AssemblyDocumentation.FromAssembly(MainAssembly);
+            provider.AddContentDescriptions(MainAssembly);
+            foreach (var asm in AuxiliaryAssemblies)
             {
-                provider.AddDescription(item);
-                foreach (var typeMember in item.Methods.Concat<ITypeMember>(item.Properties).Concat<ITypeMember>(item.Fields))
-                {
-                    provider.AddDescription(typeMember);
-                }
+                provider.AddContentDescriptions(asm);
             }
+
             return provider;
         }
 
