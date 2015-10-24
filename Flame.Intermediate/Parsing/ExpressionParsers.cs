@@ -159,6 +159,16 @@ namespace Flame.Intermediate.Parsing
         public const string NewArrayName = "#new_array";
 
         /// <summary>
+        /// A name for nodes that create fully initialized arrays.
+        /// </summary>
+        /// <remarks>
+        /// Format:
+        /// 
+        /// #new_init_array(element_type, item...)
+        /// </remarks>
+        public const string NewInitializedArrayName = "#new_init_array";
+
+        /// <summary>
         /// A name for nodes that create new vectors.
         /// </summary>
         /// <remarks>
@@ -167,6 +177,16 @@ namespace Flame.Intermediate.Parsing
         /// #new_vector(element_type, dimension_literals...)
         /// </remarks>
         public const string NewVectorName = "#new_vector";
+
+        /// <summary>
+        /// A name for nodes that create fully initialized vectors.
+        /// </summary>
+        /// <remarks>
+        /// Format:
+        /// 
+        /// #new_init_vector(element_type, item...)
+        /// </remarks>
+        public const string NewInitializedVectorName = "#new_init_vector";
 
         #endregion
 
@@ -914,6 +934,32 @@ namespace Flame.Intermediate.Parsing
             return new NewVectorExpression(elemTy, dims);
         }
 
+        /// <summary>
+        /// Parses the given initialized array expression node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseNewInitializedArray(ParserState State, LNode Node)
+        {
+            var elemTy = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
+            var elems = ParseExpressions(State, Node.Args.Slice(1)).ToArray();
+            return new InitializedArrayExpression(elemTy, elems);
+        }
+
+        /// <summary>
+        /// Parses the given initialized vector expression node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseNewInitializedVector(ParserState State, LNode Node)
+        {
+            var elemTy = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
+            var elems = ParseExpressions(State, Node.Args.Slice(1)).ToArray();
+            return new InitializedVectorExpression(elemTy, elems);
+        }
+
         #endregion
 
         #region Delegates and calls
@@ -1632,6 +1678,8 @@ namespace Flame.Intermediate.Parsing
                     // Container types
                     { NewArrayName, CreateParser(ParseNewArray) },
                     { NewVectorName, CreateParser(ParseNewVector) },
+                    { NewInitializedArrayName, CreateParser(ParseNewInitializedArray) },
+                    { NewInitializedVectorName, CreateParser(ParseNewInitializedVector) },
 
                     { GetElementNodeName, CreateGetVariableParser(ParseElementVariable) },
                     { SetElementNodeName, CreateSetVariableParser(ParseElementVariable) },
