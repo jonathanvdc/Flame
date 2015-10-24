@@ -23,6 +23,43 @@ namespace Flame.Front.Projects
         public IProject Project { get; private set; }
     }
 
+    public class ProjectDependency
+    {
+        public ProjectDependency(ParsedProject Project, IProjectHandler Handler)
+        {
+            this.Project = Project;
+            this.LibraryDependencies = new HashSet<PathIdentifier>(Project.Project.GetProjectReferences().Select(PathIdentifier.Parse), AbsolutePathComparer.Instance);
+            this.Handler = Handler;
+        }
+
+        public PathIdentifier Identifier { get { return Project.CurrentPath; } }
+        public ParsedProject Project { get; private set; }
+        public IProjectHandler Handler { get; private set; }
+        public HashSet<PathIdentifier> LibraryDependencies { get; private set; }
+
+        /// <summary>
+        /// Gets a "root" project from the given set
+        /// of project dependencies: a project that
+        /// does not depend on any of the other projects 
+        /// in the dependency set.
+        /// If no such element exists, null is returned.
+        /// </summary>
+        /// <param name="Dependencies"></param>
+        /// <returns></returns>
+        public static ProjectDependency GetRootProject(IEnumerable<ProjectDependency> Dependencies)
+        {
+            var allProjectIdentifiers = new HashSet<PathIdentifier>(Dependencies.Select(item => item.Identifier), AbsolutePathComparer.Instance);
+            foreach (var item in Dependencies)
+            {
+                if (!item.LibraryDependencies.Intersect(allProjectIdentifiers).Except(new PathIdentifier[] { item.Identifier }).Any())
+                {
+                    return item;
+                }
+            }
+            return null;
+        }
+    }
+
     public interface IProjectHandler
     {
         IEnumerable<string> Extensions { get; }

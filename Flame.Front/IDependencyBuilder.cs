@@ -52,10 +52,10 @@ namespace Flame.Front
             return Options.GetOption<bool>("copy-rt", false);
         }
 
-        public static Task AddRuntimeLibraryAsync(this IDependencyBuilder DependencyBuilder, string Identifier)
+        public static Task AddRuntimeLibraryAsync(this IDependencyBuilder DependencyBuilder, PathIdentifier Identifier)
         {
             bool copyRt = DependencyBuilder.Log.Options.ShouldCopyRuntimeLibraries();
-            return DependencyBuilder.AddRuntimeLibraryAsync(new ReferenceDependency(new PathIdentifier(Identifier), copyRt));
+            return DependencyBuilder.AddRuntimeLibraryAsync(new ReferenceDependency(Identifier, copyRt));
         }
 
         public static Action<IAssembly> GetAssemblyRegisteredCallback(this IDependencyBuilder DependencyBuilder)

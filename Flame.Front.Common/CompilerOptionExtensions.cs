@@ -20,7 +20,7 @@ namespace Flame.Front
         /// <param name="CompilerOptions"></param>
         /// <param name="Assembly"></param>
         /// <returns></returns>
-        public static IDocumentationBuilder CreateDocumentationBuilder(this ICompilerOptions CompilerOptions, IAssembly Assembly)
+        public static IDocumentationBuilder CreateDocumentationBuilder(this ICompilerOptions CompilerOptions, IAssembly MainAssembly, IEnumerable<IAssembly> AuxiliaryAssemblies)
         {
             string docsOption = (CompilerOptions.GetOption<string>("docs", "none") ?? "").ToLower();
             switch (docsOption)
@@ -28,7 +28,7 @@ namespace Flame.Front
                 case "xml":
                 case "true":
                 case "":
-                    return XmlDocumentationProvider.FromAssembly(Assembly);
+                    return XmlDocumentationProvider.FromAssemblies(MainAssembly, AuxiliaryAssemblies);
                 case "none":
                 case "false":
                 case "no":
