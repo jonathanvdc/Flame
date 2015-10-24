@@ -139,11 +139,22 @@ namespace Flame.Intermediate.Emit
 
         #region Parameters
 
-        public static INodeStructure<IParameter> ConvertParameter(IRAssemblyBuilder Assembly, IParameter Parameter)
+        public static INodeStructure<IParameter> ConvertParameter(IRAssemblyBuilder Assembly, Func<IType, LNode> GetReference, IParameter Parameter)
         {
             return new IRParameter(
-                CreateSignature(Assembly, Parameter.Name, Parameter.Attributes), 
-                Assembly.TypeTable.GetReferenceStructure(Parameter.ParameterType));
+                CreateSignature(Assembly, Parameter.Name, Parameter.Attributes),
+                new ConstantNodeStructure<IType>(GetReference(Parameter.ParameterType), Parameter.ParameterType));
+        }
+
+        public static INodeStructure<IParameter> ConvertParameter(IRAssemblyBuilder Assembly, IParameter Parameter)
+        {
+            return ConvertParameter(Assembly, Assembly.TypeTable.GetReference, Parameter);
+        }
+
+        public static INodeStructure<IEnumerable<IParameter>> ConvertParameters(IRAssemblyBuilder Assembly, Func<IType, LNode> GetReference, IEnumerable<IParameter> Parameter)
+        {
+            return new NodeList<IParameter>(
+                Parameter.Select(item => ConvertParameter(Assembly, GetReference, item)).ToArray());
         }
 
         public static INodeStructure<IEnumerable<IParameter>> ConvertParameters(IRAssemblyBuilder Assembly, IEnumerable<IParameter> Parameter)

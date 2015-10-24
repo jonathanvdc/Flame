@@ -45,8 +45,9 @@ namespace Flame.Intermediate.Emit
             this.Signature = IREmitHelpers.CreateSignature(Assembly, Template.Name, Template.Attributes.Value);
             this.GenericParameterNodes = 
                 IREmitHelpers.ConvertGenericParameters(Assembly, this, Template.GenericParameters.Value);
-            this.ParameterNodes = IREmitHelpers.ConvertParameters(Assembly, Template.Parameters.Value);
-            this.ReturnTypeNode = Assembly.TypeTable.GetReferenceStructure(Template.ReturnType.Value);
+            var visitor = new IRGenericMemberTypeVisitor(Assembly, this);
+            this.ParameterNodes = IREmitHelpers.ConvertParameters(Assembly, visitor.GetTypeReference, Template.Parameters.Value);
+            this.ReturnTypeNode = new ConstantNodeStructure<IType>(visitor.GetTypeReference(Template.ReturnType.Value), Template.ReturnType.Value);
             this.BaseMethodNodes = new NodeList<IMethod>(
                 Template.BaseMethods.Value.Select(Assembly.MethodTable.GetReferenceStructure).ToArray());
         }

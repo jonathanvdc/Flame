@@ -20,9 +20,33 @@ namespace Flame.Intermediate.Parsing
     {
         #region Node names
 
+        #region Interprocedural control flow
+
         public const string ReturnNodeName = "#return";
         public const string ThrowNodeName = "#throw";
         public const string AssertNodeName = "#assert";
+
+        /// <summary>
+        /// Defines a node type for yield-return nodes.
+        /// </summary>
+        /// <remarks>
+        /// Format:
+        /// 
+        /// #yield_return(expr)
+        /// </remarks>
+        public const string YieldReturnNodeName = "#yield_return";
+
+        /// <summary>
+        /// Defines a node type for yield-break nodes.
+        /// </summary>
+        /// <remarks>
+        /// Format:
+        /// 
+        /// #yield_break
+        /// </remarks>
+        public const string YieldBreakNodeName = "#yield_break";
+
+        #endregion
 
         #region Intraprocedural control flow
 
@@ -515,6 +539,42 @@ namespace Flame.Intermediate.Parsing
             clause.Body = ToStatement(ParseWithLocal(State, localName, clause.ExceptionVariable, Node.Args[3]));
 
             return clause;
+        }
+
+        /// <summary>
+        /// Parses the given '#yield_return' node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseYieldReturn(ParserState State, LNode Node)
+        {
+            if (Node.ArgCount != 1)
+            {
+                return new ErrorExpression(VoidExpression.Instance, new LogEntry(
+                    "Invalid '" + YieldReturnNodeName + "' node",
+                    "'" + YieldReturnNodeName + "' nodes take exactly one argument."));
+            }
+
+            return ToExpression(new YieldReturnStatement(ParseExpression(State, Node.Args[0])));
+        }
+
+        /// <summary>
+        /// Parses the given '#yield_break' node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseYieldBreak(ParserState State, LNode Node)
+        {
+            if (Node.ArgCount != 0)
+            {
+                return new ErrorExpression(VoidExpression.Instance, new LogEntry(
+                    "Invalid '" + YieldBreakNodeName + "' node",
+                    "'" + YieldBreakNodeName + "' nodes take no arguments."));
+            }
+
+            return ToExpression(new YieldBreakStatement());
         }
 
         #endregion
@@ -1449,6 +1509,8 @@ namespace Flame.Intermediate.Parsing
                     { ThrowNodeName, CreateParser(ParseThrow) },
                     { AssertNodeName, CreateParser(ParseAssert) },
                     { TryNodeName, CreateParser(ParseTry) },
+                    { YieldBreakNodeName, CreateParser(ParseYieldBreak) },
+                    { YieldReturnNodeName, CreateParser(ParseYieldReturn) },
 
                     // Intraprocedural control flow
                     { BlockNodeName, CreateParser(ParseBlock) },

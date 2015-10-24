@@ -72,14 +72,29 @@ namespace Flame.Intermediate.Emit
             }
             else
             {
-                // Be careful not to move `CreateElementNode(Element)` down below
-                // index's definition, because calling `CreateElementNode` may
-                // add more items to this table.
-                var elem = CreateElementNode(Element);
+                // First, we'll append a null node to the end of the
+                // list, to reserve space for the actual node, which
+                // hasn't been created yet at this point. Then,
+                // we'll make everything look like the node has already been
+                // computed. This allows us to create nodes that reference
+                // the future node's index in the table.
+
                 int index = nodes.Count;
-                nodes.Add(elem);
+                nodes.Add(null);
                 items.Add(Element);
                 mappedItems[Element] = index;
+
+                // Only now do we compute and store the actual node
+                // to insert into the list. Doing this any earlier
+                // may result in infinite recursion if `CreateElementNode`
+                // requires a reference to itself. This may sound 
+                // strange, but it's not: e.g. a generic parameter references
+                // its declaring method, but said method's return type
+                // could itself depend on the generic parameter.
+                // Thus, the method indirectly requires a reference to itself.
+
+                nodes[index] = CreateElementNode(Element);
+
                 return index;
             }
         }
