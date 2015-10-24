@@ -737,7 +737,7 @@ namespace Flame.Intermediate.Parsing
             var newState = State;
             for (int i = 0; i < collections.Length; i++)
             {
-                newState = ScopeLocal(State, collections[i].Item1, statement.Elements[i]);
+                newState = ScopeLocal(newState, collections[i].Item1, statement.Elements[i]);
             }
 
             statement.Body = ToStatement(ParseExpression(newState, Node.Args[2]));
