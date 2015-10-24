@@ -18,7 +18,7 @@ namespace Flame.Intermediate.Emit
 
         public IRAssemblyBuilder Assembly { get; private set; }
 
-        public LNode GetTypeReference(IType Type)
+        public virtual LNode GetTypeReference(IType Type)
         {
             return Assembly.TypeTable.GetReference(Type);
         }

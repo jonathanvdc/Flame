@@ -811,14 +811,16 @@ namespace Flame.Intermediate.Parsing
 
             var result = new IRMethod(DeclaringType, sig, isStatic, isCtor);
 
-            result.GenericParameterNodes = ParseGenericParameterList(State, Node.Args[1], result);
-            result.ReturnTypeNode = State.Parser.TypeReferenceParser.Parse(State, Node.Args[3]);
-            result.ParameterNodes = ParseParameterList(State, Node.Args[4]);
-            result.BaseMethodNodes = new NodeList<IMethod>(Node.Args[5].Args.Select(item => State.Parser.MethodReferenceParser.Parse(State, item)).ToArray());
+            var genericParser = State.Parser.TypeReferenceParser.WithParser(LocalGenericParameterReferenceName, (state, elem) => new LazyNodeStructure<IType>(elem, () => result.GenericParameters.ElementAt(Convert.ToInt32(elem.Args.Single().Value))));
+            var genericState = State.WithParser(State.Parser.WithTypeReferenceParser(genericParser));
+            result.GenericParameterNodes = ParseGenericParameterList(genericState, Node.Args[1], result);
+            result.ReturnTypeNode = genericParser.Parse(genericState, Node.Args[3]);
+            result.ParameterNodes = ParseParameterList(genericState, Node.Args[4]);
+            result.BaseMethodNodes = new NodeList<IMethod>(Node.Args[5].Args.Select(item => genericState.Parser.MethodReferenceParser.Parse(genericState, item)).ToArray());
 
             if (Node.ArgCount > 6)
             {
-                result.BodyNode = ParseMethodBody(State, Node.Args[6], result);
+                result.BodyNode = ParseMethodBody(genericState, Node.Args[6], result);
             }
 
             return result;
@@ -1102,6 +1104,24 @@ namespace Flame.Intermediate.Parsing
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Creates a new IR parser whose type reference parser is set to
+        /// the given instance.
+        /// </summary>
+        /// <param name="Parser"></param>
+        /// <returns></returns>
+        public IRParser WithTypeReferenceParser(ReferenceParser<IType> Parser)
+        {
+            return new IRParser(Parser,
+                                FieldReferenceParser,
+                                MethodReferenceParser,
+                                AttributeParser,
+                                GenericConstraintParser,
+                                ExpressionParser,
+                                TypeDefinitionParser,
+                                TypeMemberParser);
+        }
 
         /// <summary>
         /// Creates a new IR parser whose expression parser is set to

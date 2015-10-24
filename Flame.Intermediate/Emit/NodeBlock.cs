@@ -20,6 +20,11 @@ namespace Flame.Intermediate.Emit
         public ICodeGenerator CodeGenerator { get; private set; }
         public LNode Node { get; private set; }
 
+        public static NodeBlock Id(IRCodeGenerator CodeGenerator, string NodeName)
+        {
+            return new NodeBlock(CodeGenerator, NodeFactory.Id(NodeName));
+        }
+
         public static NodeBlock Call(IRCodeGenerator CodeGenerator, string NodeName, params ICodeBlock[] Blocks)
         {
             return new NodeBlock(CodeGenerator, NodeFactory.Call(NodeName, Blocks.Select(ToNode)));

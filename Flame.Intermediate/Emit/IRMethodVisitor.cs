@@ -31,7 +31,7 @@ namespace Flame.Intermediate.Emit
             var genParamNames = NodeFactory.Block(Value.GenericParameters.Select(item => NodeFactory.Literal(item.Name)));
             var visitor = new IRGenericMemberTypeVisitor(Assembly, Value);
             var retType = visitor.Convert(Value.ReturnType);
-            var paramTypes = NodeFactory.Block(Value.Parameters.GetTypes().Select(visitor.Convert));
+            var paramTypes = NodeFactory.Block(Value.Parameters.GetTypes().Select(visitor.GetTypeReference));
 
             return NodeFactory.Call(Value.IsConstructor ? IRParser.ConstructorReferenceName : IRParser.MethodReferenceName, new LNode[]
             {

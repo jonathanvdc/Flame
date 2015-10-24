@@ -13,7 +13,8 @@ namespace Flame.Intermediate.Emit
     public class IRCodeGenerator : ICodeGenerator, IExceptionCodeGenerator,
                                    IUnmanagedCodeGenerator, IWhileCodeGenerator,
                                    IDoWhileCodeGenerator, IForCodeGenerator,
-                                   IForeachCodeGenerator, ICommentedCodeGenerator
+                                   IForeachCodeGenerator, ICommentedCodeGenerator,
+                                   IYieldCodeGenerator
     {
         public IRCodeGenerator(IRAssemblyBuilder Assembly, IMethod Method)
         {
@@ -253,11 +254,25 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitReturn(ICodeBlock Value)
         {
-            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.ReturnNodeName, Value == null ? new LNode[0] : new[] 
+            return NodeBlock.Call(this, ExpressionParsers.ReturnNodeName, Value == null ? new LNode[0] : new[] 
             {
                 NodeBlock.ToNode(Value) 
-            }));
+            });
         }
+
+        #region Yield
+
+        public ICodeBlock EmitYieldBreak()
+        {
+            return NodeBlock.Id(this, ExpressionParsers.YieldBreakNodeName);
+        }
+
+        public ICodeBlock EmitYieldReturn(ICodeBlock Value)
+        {
+            return NodeBlock.Call(this, ExpressionParsers.YieldReturnNodeName, Value);
+        }
+
+        #endregion
 
         #endregion
 
