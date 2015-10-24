@@ -470,13 +470,14 @@ namespace Flame.Intermediate.Parsing
                 descMethod.IsConstructor = Node.Name.Name == ConstructorReferenceName;
                 foreach (var item in Node.Args[3].Args)
                 {
-                    descMethod.AddGenericParameter(new DescribedGenericParameter(item.Name.Name, descMethod));
+                    descMethod.AddGenericParameter(new DescribedGenericParameter(GetIdOrString(item), descMethod));
                 }
                 var genericParser = State.Parser.TypeReferenceParser.WithParser(LocalGenericParameterReferenceName, (state, elem) => new LazyNodeStructure<IType>(elem, () => descMethod.GenericParameters.ElementAt(Convert.ToInt32(elem.Args.Single().Value))));
-                descMethod.ReturnType = genericParser.Parse(State, Node.Args[4]).Value;
+                var genericState = State.WithParser(State.Parser.WithTypeReferenceParser(genericParser));
+                descMethod.ReturnType = genericParser.Parse(genericState, Node.Args[4]).Value;
                 foreach (var item in Node.Args[5].Args.Select((x, i) => new KeyValuePair<int, LNode>(i, x)))
                 {
-                    descMethod.AddParameter(new DescribedParameter("arg" + item.Key, genericParser.Parse(State, item.Value).Value));
+                    descMethod.AddParameter(new DescribedParameter("arg" + item.Key, genericParser.Parse(genericState, item.Value).Value));
                 }
                 var result = declType.Methods.GetMethod(descMethod);
 
