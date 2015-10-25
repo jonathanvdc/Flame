@@ -31,7 +31,7 @@ namespace Flame.Front.Target
 
         public static Mono.Cecil.IAssemblyResolver CreateCecilAssemblyResolver()
         {
-            return new SpecificAssemblyResolver(CecilRuntimeLibraries.CecilResolver);
+            return new SpecificAssemblyResolver();
         }
 
         public IDependencyBuilder CreateDependencyBuilder(string Identifier, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, 

@@ -17,7 +17,6 @@ namespace Flame.Front
         static CecilRuntimeLibraries()
         {
             resolver = new CecilRTLibraryResolver();
-            asmResolver = new SpecificAssemblyResolver();
         }
 
         private static IAssemblyResolver resolver;
@@ -26,13 +25,7 @@ namespace Flame.Front
             get { return resolver; }
         }
 
-        private static SpecificAssemblyResolver asmResolver;
-        public static SpecificAssemblyResolver CecilResolver
-        {
-            get { return asmResolver; }
-        }
-
-        public static IAssembly RevolveRuntimeLibrary(string Identifier)
+        public static IAssembly RevolveRuntimeLibrary(string Identifier, IDependencyBuilder DependencyBuilder)
         {
             Assembly loadedAsm;
             switch (Identifier)
@@ -55,8 +48,8 @@ namespace Flame.Front
                     return null;
             }
             var asmDef = Mono.Cecil.AssemblyDefinition.ReadAssembly(loadedAsm.Location, new Mono.Cecil.ReaderParameters() 
-            { 
-                AssemblyResolver = CecilResolver 
+            {
+                AssemblyResolver = DependencyBuilder.GetCecilResolver() 
             });
             return new CecilAssembly(asmDef, CecilReferenceResolver.ConversionCache);
         }
@@ -65,7 +58,7 @@ namespace Flame.Front
         {
             public async Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
             {
-                return RevolveRuntimeLibrary(Identifier.Path);
+                return RevolveRuntimeLibrary(Identifier.Path, DependencyBuilder);
             }
 
             public async Task<PathIdentifier?> CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
