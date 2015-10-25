@@ -47,10 +47,8 @@ namespace Flame.Front
                 default:
                     return null;
             }
-            var asmDef = Mono.Cecil.AssemblyDefinition.ReadAssembly(loadedAsm.Location, new Mono.Cecil.ReaderParameters() 
-            {
-                AssemblyResolver = DependencyBuilder.GetCecilResolver() 
-            });
+            var readerParams = DependencyBuilder.GetCecilReaderParameters();
+            var asmDef = Mono.Cecil.AssemblyDefinition.ReadAssembly(loadedAsm.Location, readerParams);
             return new CecilAssembly(asmDef, CecilReferenceResolver.ConversionCache);
         }
 

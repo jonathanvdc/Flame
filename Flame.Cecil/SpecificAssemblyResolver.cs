@@ -10,6 +10,7 @@ namespace Flame.Cecil
     {
         public SpecificAssemblyResolver()
         {
+            this.metadataResolver = new Mono.Cecil.MetadataResolver(this);
             this.cachedDefs = new Dictionary<string, Mono.Cecil.AssemblyDefinition>();
             foreach (var item in GetSearchDirectories())
             {
@@ -18,6 +19,19 @@ namespace Flame.Cecil
         }
 
         private Dictionary<string, Mono.Cecil.AssemblyDefinition> cachedDefs;
+        private Mono.Cecil.MetadataResolver metadataResolver;
+
+        public Mono.Cecil.ReaderParameters ReaderParameters
+        {
+            get
+            {
+                return new Mono.Cecil.ReaderParameters()
+                {
+                    AssemblyResolver = this,
+                    MetadataResolver = metadataResolver
+                };
+            }
+        }
 
         public void AddAssembly(Mono.Cecil.AssemblyDefinition Definition)
         {
@@ -26,11 +40,7 @@ namespace Flame.Cecil
 
         public override Mono.Cecil.AssemblyDefinition Resolve(Mono.Cecil.AssemblyNameReference name)
         {
-            return Resolve(name, new Mono.Cecil.ReaderParameters() 
-            { 
-                AssemblyResolver = this, 
-                MetadataResolver = new Mono.Cecil.MetadataResolver(this) 
-            });
+            return Resolve(name, ReaderParameters);
         }
 
         public override Mono.Cecil.AssemblyDefinition Resolve(Mono.Cecil.AssemblyNameReference name, Mono.Cecil.ReaderParameters parameters)
