@@ -7,32 +7,67 @@ using System.Threading.Tasks;
 
 namespace Flame.Front
 {
+    public class PotentialRelativePath
+    {
+        public PotentialRelativePath(PathIdentifier BasePath, PathIdentifier RelativePath)
+        {
+            this.BasePath = BasePath;
+            this.RelativePath = RelativePath;
+            this.AbsolutePath = BasePath.GetAbsolutePath(RelativePath);
+        }
+
+        public PathIdentifier BasePath { get; private set; }
+        public PathIdentifier RelativePath { get; private set; }
+        public PathIdentifier AbsolutePath { get; private set; }
+
+        public override int GetHashCode()
+        {
+            return AbsolutePath.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is PotentialRelativePath)
+            {
+                return AbsolutePath == ((PotentialRelativePath)obj).AbsolutePath;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override string ToString()
+        {
+            return "(" + BasePath + ", " + RelativePath + ")";
+        }
+    }
+
     public class BinderResolver
     {
         public BinderResolver()
         {
-            this.projIdentifiers = new HashSet<PathIdentifier>(AbsolutePathComparer.Instance);
-            this.rtLibReferences = new HashSet<PathIdentifier>(AbsolutePathComparer.Instance);
-            this.libReferences = new HashSet<PathIdentifier>(AbsolutePathComparer.Instance);
+            this.projIdentifiers = new HashSet<PathIdentifier>();
+            this.rtLibReferences = new HashSet<PathIdentifier>();
+            this.libReferences = new HashSet<PotentialRelativePath>();
         }
 
         public IEnumerable<PathIdentifier> ProjectIdentifiers { get { return projIdentifiers; } }
         public IEnumerable<PathIdentifier> RuntimeLibraryReferences { get { return rtLibReferences; } }
-        public IEnumerable<PathIdentifier> LibraryReferences { get { return libReferences; } }
+        public IEnumerable<PathIdentifier> LibraryReferences { get { return libReferences.Select(item => item.RelativePath); } }
 
         private HashSet<PathIdentifier> projIdentifiers;
         private HashSet<PathIdentifier> rtLibReferences;
-        private HashSet<PathIdentifier> libReferences;
+        private HashSet<PotentialRelativePath> libReferences;
 
         public void AddProject(IProject Project, PathIdentifier Identifier)
         {
             this.projIdentifiers.Add(Identifier);
 
-            this.libReferences.UnionWith(Project.GetProjectReferences().Select(PathIdentifier.Parse));
+            this.libReferences.UnionWith(Project.GetProjectReferences().Select(item => new PotentialRelativePath(Identifier, new PathIdentifier(item))));
             this.rtLibReferences.UnionWith(Project.GetRuntimeLibraryReferences().Select(PathIdentifier.Parse));
 
-            this.rtLibReferences.ExceptWith(this.projIdentifiers);
-            this.libReferences.ExceptWith(this.projIdentifiers);
+            this.libReferences.ExceptWith(this.projIdentifiers.Select(item => new PotentialRelativePath(item.AbsolutePath, item)));
         }
 
         public void AddProject(ParsedProject Project)

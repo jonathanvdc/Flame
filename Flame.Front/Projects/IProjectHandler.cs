@@ -28,7 +28,9 @@ namespace Flame.Front.Projects
         public ProjectDependency(ParsedProject Project, IProjectHandler Handler)
         {
             this.Project = Project;
-            this.LibraryDependencies = new HashSet<PathIdentifier>(Project.Project.GetProjectReferences().Select(PathIdentifier.Parse), AbsolutePathComparer.Instance);
+            this.LibraryDependencies = new HashSet<PathIdentifier>(
+                Project.Project.GetProjectReferences().Select(Project.CurrentPath.GetAbsolutePath), 
+                AbsolutePathComparer.Instance);
             this.Handler = Handler;
         }
 
