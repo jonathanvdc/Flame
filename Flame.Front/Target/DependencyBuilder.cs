@@ -20,7 +20,7 @@ namespace Flame.Front.Target
             this.Environment = Environment;
             this.Properties = Properties;
             this.Log = Log;
-            this.registeredAssemblies = new List<IAssembly>();
+            this.registeredAssemblies = new HashSet<IAssembly>();
             this.Properties = new TypedDictionary<string>();
         }
 
@@ -40,7 +40,7 @@ namespace Flame.Front.Target
             }
         }
 
-        private List<IAssembly> registeredAssemblies;
+        private HashSet<IAssembly> registeredAssemblies;
 
         protected Task<IAssembly> ResolveRuntimeLibraryAsync(ReferenceDependency Reference)
         {
