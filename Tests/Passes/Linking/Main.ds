@@ -1,0 +1,17 @@
+using System;
+
+// Build instructions:
+//
+// dsc Lib.ds -platform ir/flo -indirect-platform clr
+// dsc Main.dsproj bin/Lib.flo -platform clr
+
+public static class Program
+{
+    public static void Main(string[] Args)
+    {
+        var vec = new Vector2<int>(1, 2);
+
+        Console.WriteLine(vec.X);
+        Console.WriteLine(vec.Y);
+    }
+}

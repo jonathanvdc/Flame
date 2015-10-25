@@ -1,0 +1,8 @@
+
+public class Vector2<T>
+{
+    public const this(set T X, set T Y);
+
+    public T X { get; private set; }
+    public T Y { get; private set; }
+}
