@@ -77,6 +77,35 @@ namespace Flame.Compiler.Statements
             }
         }
 
+        private IStatement createBlock(List<IStatement> itemList)
+        {
+            if (itemList.Count > 1)
+            {
+                return new BlockStatement(itemList);
+            }
+            else if (itemList.Count == 1)
+            {
+                return itemList[0];
+            }
+            else
+            {
+                return EmptyStatement;
+            }
+        }
+
+        public IStatement Simplify()
+        {
+            var newStatements = new List<IStatement>();
+            foreach (var item in Children)
+            {
+                if (!item.IsEmpty)
+                {
+                    newStatements.Add(item);
+                }
+            }
+            return createBlock(newStatements);
+        }
+
         public IStatement Optimize()
         {
             var newStatements = new List<IStatement>();
@@ -88,18 +117,7 @@ namespace Flame.Compiler.Statements
                     newStatements.Add(optimizedChild);
                 }
             }
-            if (newStatements.Count > 1)
-            {
-                return new BlockStatement(newStatements);
-            }
-            else if (newStatements.Count == 1)
-            {
-                return newStatements[0];
-            }
-            else
-            {
-                return EmptyStatement;
-            }
+            return createBlock(newStatements);
         }
 
         public override const string ToString()
