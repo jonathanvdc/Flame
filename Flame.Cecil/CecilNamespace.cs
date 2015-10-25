@@ -51,7 +51,7 @@ namespace Flame.Cecil
 
         public void AddType(TypeDefinition Definition)
         {
-            Module.Module.Types.Add(Definition);
+            Module.AddType(Definition);
         }
 
         public INamespaceBuilder DeclareNamespace(string Name)

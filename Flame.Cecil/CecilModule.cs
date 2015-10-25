@@ -24,12 +24,14 @@ namespace Flame.Cecil
             this.strictTypeConverter = new CecilTypeConverter(this, false, Assembly.ConversionCache.ConvertedStrictTypes);
             this.methodConverter = new CecilMethodConverter(this, Assembly.ConversionCache.ConvertedMethods);
             this.fieldConverter = new CecilFieldConverter(this, Assembly.ConversionCache.ConvertedFields);
+            this.binder = new Lazy<CecilModuleBinder>(() => new CecilModuleBinder(this));
         }
 
         public CecilAssembly Assembly { get; private set; }
         public ModuleDefinition Module { get; private set; }
         public AncestryGraph Graph { get; private set; }
         public CecilTypeSystem TypeSystem { get; private set; }
+        private Lazy<CecilModuleBinder> binder;
 
         public bool IsMain
         {
@@ -70,6 +72,15 @@ namespace Flame.Cecil
             return fieldConverter.Convert(Field);
         }
 
+        public void AddType(TypeDefinition Type)
+        {
+            Module.Types.Add(Type);
+            if (binder.IsValueCreated)
+            {
+                binder.Value.AddType(Convert(Type));
+            }
+        }
+
         #region IAssembly
 
         public Version AssemblyVersion
@@ -79,7 +90,7 @@ namespace Flame.Cecil
 
         public IBinder CreateBinder()
         {
-            return new CecilModuleBinder(this);
+            return binder.Value;
         }
 
         public IMethod GetEntryPoint()
