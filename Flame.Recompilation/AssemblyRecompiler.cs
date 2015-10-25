@@ -846,11 +846,50 @@ namespace Flame.Recompilation
             RecompileMethodBody(methodBuilder, Source);
         }
 
+        private static IConverter<IType, IType> CreateGenericConverter(IEnumerable<IGenericParameter> Parameters, IEnumerable<IType> Arguments)
+        {
+            var tMap = new Dictionary<IType, IType>();
+            foreach (var item in Parameters.Zip(Arguments, Tuple.Create))
+            {
+                tMap[item.Item1] = item.Item2;
+            }
+            return new TypeMappingConverter(tMap);
+        }
+
         private IStatement GetMethodBodyCore(IMethod SourceMethod)
         {
             if (SourceMethod.get_IsAbstract() || SourceMethod.DeclaringType.get_IsInterface())
             {
                 return null;
+            }
+
+            if (SourceMethod is GenericInstanceMethod)
+            {
+                var instMethod = (GenericInstanceMethod)SourceMethod;
+                var genBody = GetMethodBody(instMethod.Declaration);
+                if (genBody == null)
+                {
+                    return null;
+                }
+
+                var genParams = instMethod.DeclaringType.GetRecursiveGenericParameters();
+                var genArgs = instMethod.DeclaringType.GetRecursiveGenericArguments();
+                var conv = CreateGenericConverter(genParams, genArgs);
+                return MemberNodeVisitor.ConvertTypes(conv, genBody);
+            }
+            else if (SourceMethod is GenericMethod)
+            {
+                var instMethod = (GenericMethod)SourceMethod;
+                var genBody = GetMethodBody(instMethod.Declaration);
+                if (genBody == null)
+                {
+                    return null;
+                }
+
+                var genParams = instMethod.Declaration.GenericParameters;
+                var genArgs = instMethod.GenericArguments;
+                var conv = CreateGenericConverter(genParams, genArgs);
+                return MemberNodeVisitor.ConvertTypes(conv, genBody);
             }
 
             var bodyMethod = SourceMethod as IBodyMethod;
