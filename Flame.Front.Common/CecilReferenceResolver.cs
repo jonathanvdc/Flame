@@ -30,8 +30,7 @@ namespace Flame.Front
             {
                 DependencyBuilder.Log.LogError(new LogEntry("File not found", "File '" + Identifier.AbsolutePath + "' could not be found."));
             }
-            var readerParams = new Mono.Cecil.ReaderParameters();
-            readerParams.AssemblyResolver = DependencyBuilder.GetCecilResolver();
+            var readerParams = DependencyBuilder.GetCecilReaderParameters();
             return new CecilAssembly(Mono.Cecil.AssemblyDefinition.ReadAssembly(absPath, readerParams), ConversionCache);
         }
 
