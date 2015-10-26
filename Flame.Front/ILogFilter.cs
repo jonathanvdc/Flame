@@ -23,6 +23,15 @@ namespace Flame.Front
     /// </summary>
     public class FilteredLog : ICompilerLog
     {
+        /// <summary>
+        /// Creates a new filtered log from the given log filter
+        /// and underlying log. Relevant options are provided
+        /// explicitly.
+        /// </summary>
+        /// <param name="Filter"></param>
+        /// <param name="Log"></param>
+        /// <param name="LogWarningsAsErrors"></param>
+        /// <param name="MaxErrorCount"></param>
         public FilteredLog(ILogFilter Filter, ICompilerLog Log, bool LogWarningsAsErrors, int? MaxErrorCount)
         {
             this.Filter = Filter;
@@ -31,6 +40,14 @@ namespace Flame.Front
             this.MaxErrorCount = MaxErrorCount;
             this.errCount = (int)0;
         }
+        /// <summary>
+        /// Creates a new filtered log from the given log filter
+        /// and underlying log. Properties such as whether warnings 
+        /// should be treated as errors and the maximal error count
+        /// are inferred from the compiler log's options.
+        /// </summary>
+        /// <param name="Filter"></param>
+        /// <param name="Log"></param>
         public FilteredLog(ILogFilter Filter, ICompilerLog Log)
             : this(Filter, Log, ShouldTreatWarningsAsErrors(Log.Options), GetMaxErrorCount(Log.Options))
         { }
@@ -52,10 +69,12 @@ namespace Flame.Front
         /// </summary>
         public bool LogWarningsAsErrors { get; private set; }
 
+        /// <summary>
         /// Gets the number of error messages to print before the compiler
         /// bails out. Null means that there is no limit to the 
         /// number of errors to print. Otherwise, an integer value
         /// specifies the maximal number of error messages to print.
+        /// </summary>
         public int? MaxErrorCount { get; private set; }
 
         /// <summary>
