@@ -421,7 +421,7 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitNewVector(IType ElementType, IReadOnlyList<int> Dimensions)
         {
-            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.NewArrayName, new[] 
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.NewVectorName, new[] 
             { 
                 Assembly.TypeTable.GetReference(ElementType) 
             }.Concat(Dimensions.Select(item => NodeFactory.Literal(item)))));
