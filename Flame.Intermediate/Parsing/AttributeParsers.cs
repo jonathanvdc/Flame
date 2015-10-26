@@ -26,6 +26,9 @@ namespace Flame.Intermediate.Parsing
         public const string ConstantNodeName = "#const";
         public const string ExtensionNodeName = "#extension";
         public const string HiddenNodeName = "#hidden";
+        public const string InNodeName = "#in";
+        public const string OutNodeName = "#out";
+        public const string IndexerNodeName = "#indexer";
 
         public const string AbstractNodeName = "#abstract";
         public const string VirtualNodeName = "#virtual";
@@ -35,6 +38,10 @@ namespace Flame.Intermediate.Parsing
         public const string ValueTypeNodeName = "#value_type";
         public const string InterfaceTypeNodeName = "#interface_type";
         public const string EnumTypeNodeName = "#enum_type";
+
+        public const string AssociatedTypeNodeName = "#associated_type";
+        public const string SingletonNodeName = "#singleton";
+        
 
         public const string ConstructedAttributeNodeName = "#attribute";
 
@@ -53,6 +60,28 @@ namespace Flame.Intermediate.Parsing
         {
             return new Func<ParserState, LNode, INodeStructure<IAttribute>>((state, node) =>
                 new ConstantNodeStructure<IAttribute>(node, Attribute));
+        }
+
+        /// <summary>
+        /// Parses the given '#singleton' attribute.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static INodeStructure<IAttribute> ParseSingletonAttribute(ParserState State, LNode Node)
+        {
+            return new ConstantNodeStructure<IAttribute>(Node, new SingletonAttribute(IRParser.GetIdOrString(Node.Args.Single())));
+        }
+
+        /// <summary>
+        /// Parses the given '#associated_type' attribute.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static INodeStructure<IAttribute> ParseAssociatedTypeAttribute(ParserState State, LNode Node)
+        {
+            return new LazyValueStructure<IAttribute>(Node, () => new AssociatedTypeAttribute(State.Parser.TypeReferenceParser.Parse(State, Node.Args.Single()).Value));
         }
 
         /// <summary>
@@ -110,7 +139,11 @@ namespace Flame.Intermediate.Parsing
                     // Constructed attributes:
                     { ConstructedAttributeNodeName, ParseConstructedAttribute },
 
-                    // Primitive attributes:
+                    // Not-so-parameterless primitive attributes:
+                    { SingletonNodeName, ParseSingletonAttribute },
+                    { AssociatedTypeNodeName, ParseAssociatedTypeAttribute },
+
+                    // Parameterless primitive attributes:
                     // Access attributes:
                     { PublicNodeName, CreateConstantAttributeParser(new AccessAttribute(AccessModifier.Public)) },
                     { PrivateNodeName, CreateConstantAttributeParser(new AccessAttribute(AccessModifier.Private)) },
@@ -123,6 +156,9 @@ namespace Flame.Intermediate.Parsing
                     { ConstantNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.ConstantAttribute) },
                     { ExtensionNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.ExtensionAttribute) },
                     { HiddenNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.HiddenAttribute) },
+                    { IndexerNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.IndexerAttribute) },
+                    { InNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.InAttribute) },
+                    { OutNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.OutAttribute) },
 
                     // Inheritance attributes
                     { AbstractNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.AbstractAttribute) },
