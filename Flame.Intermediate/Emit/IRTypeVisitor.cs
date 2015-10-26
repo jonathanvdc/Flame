@@ -29,6 +29,10 @@ namespace Flame.Intermediate.Emit
             {
                 return ConvertGenericNestedType((GenericInstanceType)Type);
             }
+            if (Type.get_IsRootType())
+            {
+                return NodeFactory.Id(IRParser.RootTypeName);
+            }
 
             if (Type.DeclaringNamespace != null && Type.DeclaringNamespace.DeclaringAssembly != null)
             {
