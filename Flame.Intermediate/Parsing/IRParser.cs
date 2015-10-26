@@ -214,7 +214,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #type_table_reference(index)
 
-            return new LazyNodeStructure<IType>(Node, () => State.Header.TypeTable[Convert.ToInt32(Node.Args.Single().Value)].Value);
+            return new LazyValueStructure<IType>(Node, () => State.Header.TypeTable[Convert.ToInt32(Node.Args.Single().Value)].Value);
         }
 
         public static INodeStructure<IType> ParseNestedTypeReference(ParserState State, LNode Node)
@@ -223,7 +223,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #nested_type(declaring_type, "name")
 
-            return new LazyNodeStructure<IType>(Node, () =>
+            return new LazyValueStructure<IType>(Node, () =>
             {
                 var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 string name = GetIdOrString(Node.Args[1]);
@@ -237,7 +237,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #type_reference("full_name")
 
-            return new LazyNodeStructure<IType>(Node, () => State.Binder.BindType(GetIdOrString(Node.Args.Single())));
+            return new LazyValueStructure<IType>(Node, () => State.Binder.BindType(GetIdOrString(Node.Args.Single())));
         }
 
         public static INodeStructure<IType> ParseMethodGenericParameterReference(ParserState State, LNode Node)
@@ -245,7 +245,7 @@ namespace Flame.Intermediate.Parsing
             // Format:
             // 
             // #method_generic_parameter(declaring_method, index)
-            return new LazyNodeStructure<IType>(Node, () =>
+            return new LazyValueStructure<IType>(Node, () =>
             {
                 var declMethod = State.Parser.MethodReferenceParser.Parse(State, Node.Args[0]).Value;
                 int index = Convert.ToInt32(Node.Args[1].Value);
@@ -258,7 +258,7 @@ namespace Flame.Intermediate.Parsing
             // Format:
             // 
             // #type_generic_parameter(declaring_type, index)
-            return new LazyNodeStructure<IType>(Node, () =>
+            return new LazyValueStructure<IType>(Node, () =>
             {
                 var declMethod = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 int index = Convert.ToInt32(Node.Args[1].Value);
@@ -272,7 +272,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #of(type_definition, type_arguments)
 
-            return new LazyNodeStructure<IType>(Node, () =>
+            return new LazyValueStructure<IType>(Node, () =>
             {
                 var genDef = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 var tyArgs = Node.Args.Skip(1).Select(item => State.Parser.TypeReferenceParser.Parse(State, item).Value);
@@ -286,7 +286,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #of_member(declaring_type, type_definition)
 
-            return new LazyNodeStructure<IType>(Node, () =>
+            return new LazyValueStructure<IType>(Node, () =>
             {
                 var declType = (GenericTypeBase)State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 var defType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[1]).Value;
@@ -300,7 +300,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #array_type(element_type, dimensions)
 
-            return new LazyNodeStructure<IType>(Node, () =>
+            return new LazyValueStructure<IType>(Node, () =>
             {
                 var elemType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 int dims = Convert.ToInt32(Node.Args[1].Value);
@@ -314,7 +314,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #vector_type(element_type, dimensions...)
 
-            return new LazyNodeStructure<IType>(Node, () =>
+            return new LazyValueStructure<IType>(Node, () =>
             {
                 var elemType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 int[] dims = Node.Args.Skip(1).Select(item => Convert.ToInt32(item.Value)).ToArray();
@@ -328,7 +328,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #pointer_type(element_type, pointer_kind)
 
-            return new LazyNodeStructure<IType>(Node, () =>
+            return new LazyValueStructure<IType>(Node, () =>
             {
                 var elemType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 var ptrKind = PointerKind.Register(GetIdOrString(Node.Args[1]));
@@ -342,7 +342,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #delegate_type(return_type, parameter_types...)
 
-            return new LazyNodeStructure<IType>(Node, () =>
+            return new LazyValueStructure<IType>(Node, () =>
             {
                 var descMethod = new DescribedMethod("", null);
                 descMethod.ReturnType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
@@ -392,7 +392,7 @@ namespace Flame.Intermediate.Parsing
         {
             return new Func<ParserState, LNode, INodeStructure<IType>>((state, node) =>
             {
-                return new LazyNodeStructure<IType>(node, () => TypeFactory(state.Environment));
+                return new LazyValueStructure<IType>(node, () => TypeFactory(state.Environment));
             });
         }
 
@@ -406,7 +406,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #field_table_reference(index)
 
-            return new LazyNodeStructure<IField>(Node, () => State.Header.FieldTable[Convert.ToInt32(Node.Args.Single().Value)].Value);
+            return new LazyValueStructure<IField>(Node, () => State.Header.FieldTable[Convert.ToInt32(Node.Args.Single().Value)].Value);
         }
 
         public static INodeStructure<IField> ParseFieldSignatureReference(ParserState State, LNode Node)
@@ -415,7 +415,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #field_reference(declaring_type, name, is_static)
 
-            return new LazyNodeStructure<IField>(Node, () =>
+            return new LazyValueStructure<IField>(Node, () =>
             {
                 var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 string fieldName = GetIdOrString(Node.Args[1]);
@@ -430,7 +430,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #of_member(declaring_type, field_definition)
 
-            return new LazyNodeStructure<IField>(Node, () =>
+            return new LazyValueStructure<IField>(Node, () =>
             {
                 var declType = (GenericTypeBase)State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 var defField = State.Parser.FieldReferenceParser.Parse(State, Node.Args[1]).Value;
@@ -448,7 +448,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #method_table_reference(index)
 
-            return new LazyNodeStructure<IMethod>(Node, () => State.Header.MethodTable[Convert.ToInt32(Node.Args.Single().Value)].Value);
+            return new LazyValueStructure<IMethod>(Node, () => State.Header.MethodTable[Convert.ToInt32(Node.Args.Single().Value)].Value);
         }
 
         public static INodeStructure<IMethod> ParseMethodSignatureReference(ParserState State, LNode Node)
@@ -461,7 +461,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #ctor_reference(...)
 
-            return new LazyNodeStructure<IMethod>(Node, () =>
+            return new LazyValueStructure<IMethod>(Node, () =>
             {
                 var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 string methodName = GetIdOrString(Node.Args[1]);
@@ -472,7 +472,7 @@ namespace Flame.Intermediate.Parsing
                 {
                     descMethod.AddGenericParameter(new DescribedGenericParameter(GetIdOrString(item), descMethod));
                 }
-                var genericParser = State.Parser.TypeReferenceParser.WithParser(LocalGenericParameterReferenceName, (state, elem) => new LazyNodeStructure<IType>(elem, () => descMethod.GenericParameters.ElementAt(Convert.ToInt32(elem.Args.Single().Value))));
+                var genericParser = State.Parser.TypeReferenceParser.WithParser(LocalGenericParameterReferenceName, (state, elem) => new LazyValueStructure<IType>(elem, () => descMethod.GenericParameters.ElementAt(Convert.ToInt32(elem.Args.Single().Value))));
                 var genericState = State.WithParser(State.Parser.WithTypeReferenceParser(genericParser));
                 descMethod.ReturnType = genericParser.Parse(genericState, Node.Args[4]).Value;
                 foreach (var item in Node.Args[5].Args.Select((x, i) => new KeyValuePair<int, LNode>(i, x)))
@@ -496,7 +496,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #accessor_reference(declaring_type, property_name, property_is_static, property_type, { indexer_parameter_types... }, accessor_type)
 
-            return new LazyNodeStructure<IMethod>(Node, () =>
+            return new LazyValueStructure<IMethod>(Node, () =>
             {
                 var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 string propertyName = GetIdOrString(Node.Args[1]);
@@ -523,7 +523,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #of(type_definition, type_arguments)
 
-            return new LazyNodeStructure<IMethod>(Node, () =>
+            return new LazyValueStructure<IMethod>(Node, () =>
             {
                 var genDef = State.Parser.MethodReferenceParser.Parse(State, Node.Args[0]).Value;
                 var tyArgs = Node.Args.Skip(1).Select(item => State.Parser.TypeReferenceParser.Parse(State, item).Value);
@@ -537,7 +537,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #of_member(declaring_type, method_definition)
 
-            return new LazyNodeStructure<IMethod>(Node, () =>
+            return new LazyValueStructure<IMethod>(Node, () =>
             {
                 var declType = (GenericTypeBase)State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
                 var defField = State.Parser.MethodReferenceParser.Parse(State, Node.Args[1]).Value;
@@ -668,7 +668,7 @@ namespace Flame.Intermediate.Parsing
                     "'" + TypeConstraintName + "' nodes take exactly one argument.");
             }
 
-            return new LazyNodeStructure<IGenericConstraint>(Node, () =>
+            return new LazyValueStructure<IGenericConstraint>(Node, () =>
                 new TypeConstraint(State.Parser.TypeReferenceParser.Parse(State, Node).Value));
         }
 
@@ -754,7 +754,7 @@ namespace Flame.Intermediate.Parsing
         /// <returns></returns>
         public static INodeStructure<IStatement> ParseMethodBody(ParserState State, LNode Node, IMethod EnclosingMethod)
         {
-            return new LazyNodeStructure<IStatement>(Node, n =>
+            return new LazyValueStructure<IStatement>(Node, n =>
             {
                 var paramList = EnclosingMethod.GetParameters();
 
@@ -816,7 +816,7 @@ namespace Flame.Intermediate.Parsing
 
             var result = new IRMethod(DeclaringType, sig, isStatic, isCtor);
 
-            var genericParser = State.Parser.TypeReferenceParser.WithParser(LocalGenericParameterReferenceName, (state, elem) => new LazyNodeStructure<IType>(elem, () => result.GenericParameters.ElementAt(Convert.ToInt32(elem.Args.Single().Value))));
+            var genericParser = State.Parser.TypeReferenceParser.WithParser(LocalGenericParameterReferenceName, (state, elem) => new LazyValueStructure<IType>(elem, () => result.GenericParameters.ElementAt(Convert.ToInt32(elem.Args.Single().Value))));
             var genericState = State.WithParser(State.Parser.WithTypeReferenceParser(genericParser));
             result.GenericParameterNodes = ParseGenericParameterList(genericState, Node.Args[1], result);
             result.ReturnTypeNode = genericParser.Parse(genericState, Node.Args[3]);

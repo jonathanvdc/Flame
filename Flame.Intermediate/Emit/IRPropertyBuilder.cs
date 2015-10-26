@@ -14,6 +14,14 @@ namespace Flame.Intermediate.Emit
         {
             this.Assembly = Assembly;
             this.Template = new PropertySignatureInstance(Template, this);
+            // Set the property type and indexer parameter nodes to null.
+            // This will result in a NullReferenceException if
+            // either of them are accessed before being initialized.
+            // This is useful for debugging, as neglecting to do this
+            // will make the type report incorrect (but seemingly valid)
+            // values for the field type property.
+            this.PropertyTypeNode = null;
+            this.IndexerParameterNodes = null;
         }
 
         public IRAssemblyBuilder Assembly { get; private set; }
@@ -33,8 +41,8 @@ namespace Flame.Intermediate.Emit
 
         public void Initialize()
         {
-            this.PropertyTypeNode = Assembly.TypeTable.GetReferenceStructure(Template.PropertyType.Value);
             this.Signature = IREmitHelpers.CreateSignature(Assembly, Template.Name, Template.Attributes.Value);
+            this.PropertyTypeNode = Assembly.TypeTable.GetReferenceStructure(Template.PropertyType.Value);            
             this.IndexerParameterNodes = IREmitHelpers.ConvertParameters(Assembly, Template.IndexerParameters.Value);
         }
     }

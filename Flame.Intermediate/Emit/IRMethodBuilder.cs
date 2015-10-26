@@ -17,6 +17,16 @@ namespace Flame.Intermediate.Emit
             this.Assembly = Assembly;
             this.Template = new MethodSignatureInstance(Template, this);
             this.codeGen = new IRCodeGenerator(Assembly, this);
+            // Set various nodes to null.
+            // This will result in a NullReferenceException when
+            // any of them is accessed before it is initialized.
+            // This is useful for debugging, as neglecting to do this
+            // will make the type report incorrect (but seemingly valid)
+            // values for their associated properties.
+            this.ParameterNodes = null;
+            this.ReturnTypeNode = null;
+            this.GenericParameterNodes = null;
+            this.BaseMethodNodes = null;
         }
 
         private IRCodeGenerator codeGen;
@@ -32,7 +42,7 @@ namespace Flame.Intermediate.Emit
         public void SetMethodBody(ICodeBlock Body)
         {
             var processedNode = NodeBlock.ToNode(codeGen.Postprocess(Body));
-            this.BodyNode = new LazyNodeStructure<IStatement>(processedNode, () => { throw new InvalidOperationException("IR method builders cannot be decompiled."); });
+            this.BodyNode = new LazyValueStructure<IStatement>(processedNode, () => { throw new InvalidOperationException("IR method builders cannot be decompiled."); });
         }
 
         public IMethod Build()
@@ -47,7 +57,7 @@ namespace Flame.Intermediate.Emit
                 IREmitHelpers.ConvertGenericParameters(Assembly, this, Template.GenericParameters.Value);
             var visitor = new IRGenericMemberTypeVisitor(Assembly, this);
             this.ParameterNodes = IREmitHelpers.ConvertParameters(Assembly, visitor.GetTypeReference, Template.Parameters.Value);
-            this.ReturnTypeNode = new ConstantNodeStructure<IType>(visitor.GetTypeReference(Template.ReturnType.Value), Template.ReturnType.Value);
+            this.ReturnTypeNode = new LazyNodeStructure<IType>(Template.ReturnType.Value, visitor.GetTypeReference);
             this.BaseMethodNodes = new NodeList<IMethod>(
                 Template.BaseMethods.Value.Select(Assembly.MethodTable.GetReferenceStructure).ToArray());
         }

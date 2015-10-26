@@ -9,24 +9,24 @@ namespace Flame.Intermediate
 {
     public class LazyNodeStructure<T> : INodeStructure<T>
     {
-        public LazyNodeStructure(LNode Node, Func<LNode, T> ValueFactory)
-            : this(Node, () => ValueFactory(Node))
+        public LazyNodeStructure(T Value, Func<T, LNode> NodeFactory)
+            : this(Value, () => NodeFactory(Value))
         { }
-        public LazyNodeStructure(LNode Node, Func<T> ValueFactory)
-            : this(Node, new Lazy<T>(ValueFactory))
+        public LazyNodeStructure(T Value, Func<LNode> NodeFactory)
+            : this(Value, new Lazy<LNode>(NodeFactory))
         { }
-        public LazyNodeStructure(LNode Node, Lazy<T> LazyValue)
+        public LazyNodeStructure(T Value, Lazy<LNode> LazyNode)
         {
-            this.Node = Node;
-            this.LazyValue = LazyValue;
+            this.Value = Value;
+            this.LazyNode = LazyNode;
         }
 
-        public LNode Node { get; private set; }
-
-        public Lazy<T> LazyValue { get; private set; }
-        public T Value
+        public Lazy<LNode> LazyNode { get; private set; }
+        public LNode Node
         {
-            get { return LazyValue.Value; }
+            get { return LazyNode.Value; }
         }
+
+        public T Value { get; private set; }
     }
 }

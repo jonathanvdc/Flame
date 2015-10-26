@@ -63,9 +63,8 @@ namespace Flame.Intermediate.Emit
                 var ctedAttr = (IConstructedAttribute)Attribute;
                 var attrCtor = Assembly.MethodTable.GetReference(ctedAttr.Constructor);
                 var args = ConvertExpressions(Assembly, ctedAttr.GetArguments().Select(PrimitiveExpressionExtensions.ToExpression));
-                return new ConstantNodeStructure<IAttribute>(NodeFactory.Call(AttributeParsers.ConstructedAttributeNodeName,
-                    new[] { attrCtor }.Concat(args)),
-                    Attribute);
+                return new LazyNodeStructure<IAttribute>(Attribute, attr => 
+                    NodeFactory.Call(AttributeParsers.ConstructedAttributeNodeName, new[] { attrCtor }.Concat(args)));
             }
             else
             {
@@ -143,7 +142,7 @@ namespace Flame.Intermediate.Emit
         {
             return new IRParameter(
                 CreateSignature(Assembly, Parameter.Name, Parameter.Attributes),
-                new ConstantNodeStructure<IType>(GetReference(Parameter.ParameterType), Parameter.ParameterType));
+                new LazyNodeStructure<IType>(Parameter.ParameterType, GetReference));
         }
 
         public static INodeStructure<IParameter> ConvertParameter(IRAssemblyBuilder Assembly, IParameter Parameter)
