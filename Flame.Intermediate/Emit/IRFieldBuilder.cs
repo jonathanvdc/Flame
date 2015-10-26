@@ -15,6 +15,13 @@ namespace Flame.Intermediate.Emit
         {
             this.Assembly = Assembly;
             this.Template = new FieldSignatureInstance(Template, this);
+            // Set the field type node to null.
+            // This will result in a NullReferenceException if
+            // it is accessed before it is initialized.
+            // This is useful for debugging, as neglecting to do this
+            // will make the type report incorrect (but seemingly valid)
+            // values for the field type property.
+            this.FieldTypeNode = null;
         }
 
         public IRAssemblyBuilder Assembly { get; private set; }
@@ -22,7 +29,7 @@ namespace Flame.Intermediate.Emit
 
         public void SetValue(IExpression Value)
         {
-            this.InitialValueNode = new ConstantNodeStructure<IExpression>(IREmitHelpers.ConvertExpression(Assembly, Value, DeclaringType), Value);
+            this.InitialValueNode = new LazyNodeStructure<IExpression>(Value, () => IREmitHelpers.ConvertExpression(Assembly, Value, DeclaringType));
         }
 
         public IField Build()

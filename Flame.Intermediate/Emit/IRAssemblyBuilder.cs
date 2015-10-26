@@ -98,7 +98,7 @@ namespace Flame.Intermediate.Emit
 
         public void SetEntryPoint(IMethod Method)
         {
-            this.EntryPointNode = new ConstantNodeStructure<IMethod>(MethodTable.GetReference(Method), Method);
+            this.EntryPointNode = new LazyNodeStructure<IMethod>(Method, MethodTable.GetReference);
         }
 
         public IAssembly Build()

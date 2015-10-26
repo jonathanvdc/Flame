@@ -373,13 +373,13 @@ namespace Flame.Intermediate.Parsing
         public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateParser(Func<ParserState, LNode, IExpression> ParseExpression)
         {
             return new Func<ParserState, LNode, INodeStructure<IExpression>>((state, node) =>
-                new LazyNodeStructure<IExpression>(node, () => ParseExpression(state, node)));
+                new LazyValueStructure<IExpression>(node, () => ParseExpression(state, node)));
         }
 
         public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateLiteralParser(Func<object, IExpression> ParseLiteral)
         {
             return new Func<ParserState, LNode, INodeStructure<IExpression>>((state, node) =>
-                new LazyNodeStructure<IExpression>(node, () => ParseLiteral(node.Args[0].Value)));
+                new LazyValueStructure<IExpression>(node, () => ParseLiteral(node.Args[0].Value)));
         }
 
         #endregion

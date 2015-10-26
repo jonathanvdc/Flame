@@ -15,6 +15,14 @@ namespace Flame.Intermediate.Emit
         {
             this.Assembly = Assembly;
             this.Template = new TypeSignatureInstance(Template, this);
+            // Set the base type and generic parameter nodes to null.
+            // This will result in a NullReferenceException when
+            // either of them is accessed before it is initialized.
+            // This is useful for debugging, as neglecting to do this
+            // will make the type report incorrect (but seemingly valid)
+            // values for their associated properties.
+            this.BaseTypeNodes = null;
+            this.GenericParameterNodes = null;
         }
 
         public IRAssemblyBuilder Assembly { get; private set; }
@@ -80,10 +88,10 @@ namespace Flame.Intermediate.Emit
         public void Initialize()
         {
             this.Signature = IREmitHelpers.CreateSignature(Assembly, Template.Name, Template.Attributes.Value);
+            this.GenericParameterNodes =
+                IREmitHelpers.ConvertGenericParameters(Assembly, this, Template.GenericParameters.Value);
             this.BaseTypeNodes = new NodeList<IType>(
                 Template.BaseTypes.Value.Select(Assembly.TypeTable.GetReferenceStructure).ToArray());
-            this.GenericParameterNodes = 
-                IREmitHelpers.ConvertGenericParameters(Assembly, this, Template.GenericParameters.Value);
         }
     }
 }

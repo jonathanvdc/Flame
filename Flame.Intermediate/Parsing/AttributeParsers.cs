@@ -72,7 +72,7 @@ namespace Flame.Intermediate.Parsing
             }
 
             // Format: #attribute(<attribute_constructor>, <argument_expressions...>)
-            return new LazyNodeStructure<IAttribute>(Node, () =>
+            return new LazyValueStructure<IAttribute>(Node, () =>
             {
                 var attrCtor = State.Parser.MethodReferenceParser.Parse(State, Node.Args[0]).Value;
                 var args = ExpressionParsers.ParseExpressions(State, Node.Args.Skip(1))

@@ -91,6 +91,7 @@
     <Compile Include="IRParameter.cs" />
     <Compile Include="Emit\IRTableBuilder.cs" />
     <Compile Include="LazyNodeStructure.cs" />
+    <Compile Include="LazyValueStructure.cs" />
     <Compile Include="LiteralNodeStructure.cs" />
     <Compile Include="IRAssembly.cs" />
     <Compile Include="IRField.cs" />

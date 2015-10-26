@@ -133,7 +133,7 @@ namespace Flame.Intermediate.Emit
         /// <returns></returns>
         public INodeStructure<T> GetReferenceStructure(T Element)
         {
-            return new ConstantNodeStructure<T>(GetReference(Element), Element);
+            return new LazyNodeStructure<T>(Element, GetReference);
         }
         
         public LNode Node

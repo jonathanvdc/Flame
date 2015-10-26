@@ -16,6 +16,15 @@ namespace Flame.Intermediate.Emit
             this.Assembly = Assembly;
             this.Template = new MethodSignatureInstance(Template, this);
             this.codeGen = new IRCodeGenerator(Assembly, this);
+            // Set various nodes to null.
+            // This will result in a NullReferenceException when
+            // any of them is accessed before it is initialized.
+            // This is useful for debugging, as neglecting to do this
+            // will make the type report incorrect (but seemingly valid)
+            // values for their associated properties.
+            this.ParameterNodes = null;
+            this.ReturnTypeNode = null;
+            this.BaseMethodNodes = null;
         }
 
         private IRCodeGenerator codeGen;
@@ -31,7 +40,7 @@ namespace Flame.Intermediate.Emit
         public void SetMethodBody(ICodeBlock Body)
         {
             var processedNode = NodeBlock.ToNode(codeGen.Postprocess(Body));
-            this.BodyNode = new LazyNodeStructure<IStatement>(processedNode, () => { throw new InvalidOperationException("IR accessor builders cannot be decompiled."); });
+            this.BodyNode = new LazyValueStructure<IStatement>(processedNode, () => { throw new InvalidOperationException("IR accessor builders cannot be decompiled."); });
         }
 
         public IMethod Build()
