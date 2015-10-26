@@ -31,7 +31,18 @@ namespace Flame.Intermediate.Emit
             }
             if (Type.get_IsRootType())
             {
-                return NodeFactory.Id(IRParser.RootTypeName);
+                if (Type.Equals(PrimitiveTypes.IHashable))
+                {
+                    return NodeFactory.Id(IRParser.HashableTypeName);
+                }
+                else if (Type.Equals(PrimitiveTypes.IEquatable))
+                {
+                    return NodeFactory.Id(IRParser.EquatableTypeName);
+                }
+                else
+                {
+                    return NodeFactory.Id(IRParser.RootTypeName);
+                }
             }
 
             if (Type.DeclaringNamespace != null && Type.DeclaringNamespace.DeclaringAssembly != null)

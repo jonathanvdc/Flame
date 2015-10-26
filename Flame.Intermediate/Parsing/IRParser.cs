@@ -66,6 +66,8 @@ namespace Flame.Intermediate.Parsing
         public const string RootTypeName = "#root_type";
         public const string IterableTypeName = "#iterable_type";
         public const string IteratorTypeName = "#iterator_type";
+        public const string HashableTypeName = "#hashable_type";
+        public const string EquatableTypeName = "#equatable_type";
         public const string UIntTypeNodeName = "#uint";
         public const string IntTypeNodeName = "#int";
         public const string BitTypeNodeName = "#bit";
@@ -977,7 +979,9 @@ namespace Flame.Intermediate.Parsing
                     { BooleanTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Boolean) },
                     { CharTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Char) },
                     { StringTypeName, CreatePredefinedTypeParser(PrimitiveTypes.String) },
-                    { VoidTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Void) }
+                    { VoidTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Void) },
+                    { EquatableTypeName, CreatePredefinedTypeParser(PrimitiveTypes.IEquatable) },
+                    { HashableTypeName, CreatePredefinedTypeParser(PrimitiveTypes.IHashable) }
                 });
             }
         }
