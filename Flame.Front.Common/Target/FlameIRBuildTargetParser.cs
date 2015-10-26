@@ -54,23 +54,23 @@ namespace Flame.Front.Target
             if (indirectParser == null)
             {
                 if (!string.IsNullOrWhiteSpace(platformIdent) && Log.UseDefaultWarnings(IndirectPlatformKey))
-	            {
-		            Log.LogWarning(new LogEntry(
-                        "Invalid indirect platform", 
+                {
+                    Log.LogWarning(new LogEntry(
+                        "Invalid indirect platform",
                         "The indirect platform '" + platformIdent + "' " +
                         "was not recognized as a known target platform. " + Warnings.Instance.GetWarningNameMessage(IndirectPlatformKey)));
-	            }
+                }
                 return new EmptyAssemblyResolver();
             }
             else if (indirectParser is FlameIRBuildTargetParser)
             {
                 if (Log.UseDefaultWarnings(IndirectPlatformKey))
-	            {
-		            Log.LogWarning(new LogEntry(
-                        "Invalid indirect platform", 
+                {
+                    Log.LogWarning(new LogEntry(
+                        "Invalid indirect platform",
                         "The indirect platform '" + platformIdent + "' " +
                         "cannot be of the same type as the target platform. " + Warnings.Instance.GetWarningNameMessage(IndirectPlatformKey)));
-	            }
+                }
                 return new EmptyAssemblyResolver();
             }
             else
@@ -106,14 +106,14 @@ namespace Flame.Front.Target
         {
             switch (Identifier.Substring("ir".Length))
             {
-                case "/flo":
-                case "/binary":
-                    return IRAssemblyEncoding.Binary;
-
                 case "/fir":
                 case "/text":
-                default:
                     return IRAssemblyEncoding.Textual;
+
+                case "/flo":
+                case "/binary":
+                default:
+                    return IRAssemblyEncoding.Binary;
             }
         }
 
@@ -124,7 +124,7 @@ namespace Flame.Front.Target
 
             var asm = new IRAssemblyBuilder(new IRSignature(Info.Name), DependencyBuilder.Environment, encoding, Info.Version);
 
-            return new BuildTarget(asm, DependencyBuilder, extension, encoding != IRAssemblyEncoding.Binary);
+            return new BuildTarget(asm, DependencyBuilder, extension, true);
         }
 
         #endregion
