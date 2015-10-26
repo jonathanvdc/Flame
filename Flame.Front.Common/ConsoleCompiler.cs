@@ -52,7 +52,7 @@ namespace Flame.Front.Cli
 
         public static ICompilerOptions CreateDefaultOptions(IOptionParser<string> OptionParser)
         {
-            var dict = new Dictionary<string, string>() { { "docs-format", "xml"} };
+            var dict = new Dictionary<string, string>() { { "docs-format", "xml" } };
             return new StringCompilerOptions(dict, OptionParser);
         }
 

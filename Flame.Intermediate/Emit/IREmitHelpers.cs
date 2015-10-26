@@ -35,6 +35,9 @@ namespace Flame.Intermediate.Emit
             { PrimitiveAttributes.Instance.ConstantAttribute, AttributeParsers.ConstantNodeName },
             { PrimitiveAttributes.Instance.ExtensionAttribute, AttributeParsers.ExtensionNodeName },
             { PrimitiveAttributes.Instance.HiddenAttribute, AttributeParsers.HiddenNodeName },
+            { PrimitiveAttributes.Instance.IndexerAttribute, AttributeParsers.IndexerNodeName },
+            { PrimitiveAttributes.Instance.InAttribute, AttributeParsers.InNodeName },
+            { PrimitiveAttributes.Instance.OutAttribute, AttributeParsers.OutNodeName },
 
             // Inheritance attributes
             { PrimitiveAttributes.Instance.AbstractAttribute, AttributeParsers.AbstractNodeName },
@@ -73,6 +76,24 @@ namespace Flame.Intermediate.Emit
                 if (constantAttributeNames.TryGetValue(Attribute, out attrName))
                 {
                     return new ConstantNodeStructure<IAttribute>(NodeFactory.Id(attrName), Attribute);
+                }
+                else if (Attribute is SingletonAttribute)
+                {
+                    var singletonAttr = (SingletonAttribute)Attribute;
+                    return new ConstantNodeStructure<IAttribute>(
+                        NodeFactory.Call(AttributeParsers.SingletonNodeName, new LNode[] 
+                        { 
+                            NodeFactory.IdOrLiteral(singletonAttr.InstanceMemberName) 
+                        }), singletonAttr);
+                }
+                else if (Attribute is AssociatedTypeAttribute)
+                {
+                    var type = ((AssociatedTypeAttribute)Attribute).AssociatedType;
+                    return new LazyNodeStructure<IAttribute>(Attribute, () =>
+                        NodeFactory.Call(AttributeParsers.AssociatedTypeNodeName, new LNode[] 
+                        { 
+                            Assembly.TypeTable.GetReference(type)
+                        }));
                 }
                 else
                 {
