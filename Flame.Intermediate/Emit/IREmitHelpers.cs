@@ -44,7 +44,8 @@ namespace Flame.Intermediate.Emit
             { PrimitiveAttributes.Instance.StaticTypeAttribute, AttributeParsers.StaticTypeNodeName },
             { PrimitiveAttributes.Instance.ReferenceTypeAttribute, AttributeParsers.ReferenceTypeNodeName },
             { PrimitiveAttributes.Instance.ValueTypeAttribute, AttributeParsers.ValueTypeNodeName },
-            { PrimitiveAttributes.Instance.InterfaceAttribute, AttributeParsers.InterfaceTypeNodeName }
+            { PrimitiveAttributes.Instance.InterfaceAttribute, AttributeParsers.InterfaceTypeNodeName },
+            { PrimitiveAttributes.Instance.EnumAttribute, AttributeParsers.EnumTypeNodeName }
         };
 
         public static INodeStructure<IAttribute> ConvertAttribute(IRAssemblyBuilder Assembly, IAttribute Attribute)
@@ -97,6 +98,9 @@ namespace Flame.Intermediate.Emit
         
             { ValueTypeConstraint.Instance, 
               new ConstantNodeStructure<IGenericConstraint>(NodeFactory.Id(AttributeParsers.ValueTypeNodeName), ValueTypeConstraint.Instance) },
+        
+            { EnumConstraint.Instance,
+              new ConstantNodeStructure<IGenericConstraint>(NodeFactory.Id(AttributeParsers.EnumTypeNodeName), EnumConstraint.Instance) }
         };
 
         public static IEnumerable<INodeStructure<IGenericConstraint>> ConvertConstraint(IRAssemblyBuilder Assembly, IGenericConstraint Constraint)
@@ -104,6 +108,12 @@ namespace Flame.Intermediate.Emit
             if (Constraint is AndConstraint)
             {
                 return ((AndConstraint)Constraint).Constraints.SelectMany(item => ConvertConstraint(Assembly, item));
+            }
+            else if (Constraint is TypeConstraint)
+            {
+                var result = new LazyNodeStructure<IGenericConstraint>(Constraint, item => 
+                    NodeFactory.Call(IRParser.TypeConstraintName, new LNode[] { Assembly.TypeTable.GetReference(((TypeConstraint)item).Type) }));
+                return new INodeStructure<IGenericConstraint>[] { result };
             }
             else
             {

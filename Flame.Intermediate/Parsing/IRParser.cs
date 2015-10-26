@@ -669,7 +669,7 @@ namespace Flame.Intermediate.Parsing
             }
 
             return new LazyValueStructure<IGenericConstraint>(Node, () =>
-                new TypeConstraint(State.Parser.TypeReferenceParser.Parse(State, Node).Value));
+                new TypeConstraint(State.Parser.TypeReferenceParser.Parse(State, Node.Args.Single()).Value));
         }
 
         /// <summary>
@@ -1020,7 +1020,8 @@ namespace Flame.Intermediate.Parsing
                     { TypeConstraintName, ParseTypeConstraint },
 
                     { AttributeParsers.ReferenceTypeNodeName, CreateConstantConstraintParser(ReferenceTypeConstraint.Instance) },
-                    { AttributeParsers.ValueTypeNodeName, CreateConstantConstraintParser(ValueTypeConstraint.Instance) }
+                    { AttributeParsers.ValueTypeNodeName, CreateConstantConstraintParser(ValueTypeConstraint.Instance) },
+                    { AttributeParsers.EnumTypeNodeName, CreateConstantConstraintParser(EnumConstraint.Instance) }
                 });
             }
         }

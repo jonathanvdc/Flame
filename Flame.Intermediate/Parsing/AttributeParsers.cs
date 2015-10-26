@@ -34,6 +34,7 @@ namespace Flame.Intermediate.Parsing
         public const string ReferenceTypeNodeName = "#reference_type";
         public const string ValueTypeNodeName = "#value_type";
         public const string InterfaceTypeNodeName = "#interface_type";
+        public const string EnumTypeNodeName = "#enum_type";
 
         public const string ConstructedAttributeNodeName = "#attribute";
 
@@ -131,7 +132,8 @@ namespace Flame.Intermediate.Parsing
                     { StaticTypeNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.StaticTypeAttribute) },
                     { ReferenceTypeNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.ReferenceTypeAttribute) },
                     { ValueTypeNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.ValueTypeAttribute) },
-                    { InterfaceTypeNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.InterfaceAttribute) }
+                    { InterfaceTypeNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.InterfaceAttribute) },
+                    { EnumTypeNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.EnumAttribute) }
                 });
             }
         }
