@@ -51,12 +51,18 @@ namespace Flame.Intermediate.Emit
 
         public void Save(IOutputProvider OutputProvider)
         {
+            // Create the assembly's node *first* such that
+            // any lazily generated nodes will be computed,
+            // resulting in the type, method and field tables
+            // getting updated just in time.
+            var asmNode = this.Node;
+
             var nodes = Dependencies.DependencyNodes.Concat(new LNode[]
             {
                 TypeTable.Node, 
                 MethodTable.Node,
                 FieldTable.Node, 
-                this.Node 
+                asmNode 
             }).ToArray();
             using (var fs = OutputProvider.Create().OpenOutput())
             {
