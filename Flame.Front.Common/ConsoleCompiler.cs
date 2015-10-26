@@ -144,12 +144,7 @@ namespace Flame.Front.Cli
             }
             catch (Exception ex)
             {
-                log.LogError(new LogEntry("Compilation terminated", "Compilation has been terminated due to a fatal error."));
-                var entry = new LogEntry("Exception", ex.ToString());
-                if (mergedArgs.GetLogFilter().ShouldLogEvent(entry))
-                {
-                    log.LogError(entry);
-                }
+                LogUnhandledException(ex, log, mergedArgs);
             }
             finally
             {
@@ -478,6 +473,27 @@ namespace Flame.Front.Cli
         #endregion
 
         #region Helpers
+
+        private static void LogUnhandledException(Exception ex, ICompilerLog log, MergedOptions mergedArgs)
+        {
+            if (ex is AbortCompilationException)
+            {
+                log.LogError(((AbortCompilationException)ex).Entry);
+            }
+            else if (ex is AggregateException)
+            {
+                LogUnhandledException(ex.InnerException, log, mergedArgs);
+            }
+            else
+            {
+                log.LogError(new LogEntry("Compilation terminated", "Compilation has been terminated due to a fatal error."));
+                var entry = new LogEntry("Exception", ex.ToString());
+                if (mergedArgs.GetLogFilter().ShouldLogEvent(entry))
+                {
+                    log.LogError(entry);
+                }
+            }
+        }
 
         private static PathIdentifier GetAbsolutePath(PathIdentifier RelativePath)
         {

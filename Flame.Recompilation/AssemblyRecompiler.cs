@@ -933,6 +933,10 @@ namespace Flame.Recompilation
 
                 TaskManager.RunSequential<IMethod>(TargetMethod.Build);
             }
+            catch (AbortCompilationException)
+            {
+                throw; // Just let this one fly by.
+            }
             catch (Exception ex)
             {
                 Log.LogError(new LogEntry("Unhandled exception while recompiling method", "An unhandled exception was thrown while recompiling method '" + SourceMethod.FullName + "'."));

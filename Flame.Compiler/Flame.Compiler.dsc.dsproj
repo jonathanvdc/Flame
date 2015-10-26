@@ -13,6 +13,7 @@
 		<Reference Include="../Pixie/bin/Pixie.dll" />
 	</ItemGroup>
 	<ItemGroup>
+		<Compile Include="AbortCompilationException.ds" />
 		<Compile Include="BlockTag.ds" />
 		<Compile Include="IMemberNode.ds" />
 		<Compile Include="IMetadataNode.ds" />
