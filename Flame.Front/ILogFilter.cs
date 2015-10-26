@@ -76,7 +76,12 @@ namespace Flame.Front
                 int maxErrCount = MaxErrorCount.GetValueOrDefault();
                 if (MaxErrorCount.HasValue && maxErrCount > 0 && newCount > maxErrCount)
                 {
-                    throw new AbortCompilationException("Maximal error count exceeded. Aborting compilation. [-" + MaxErrorCountName + "=" + maxErrCount + "]");
+                    // We'll a simple heuristic to determine whether whether
+                    // -ferror-limit or -fmax-errors caused this.
+                    string reason = maxErrCount == Log.Options.GetOption<int>(ErrorLimitName, 0) 
+                        ? ErrorLimitName
+                        : MaxErrorCountName;
+                    throw new AbortCompilationException("Maximal error count exceeded. Aborting compilation. [-" + reason + "=" + maxErrCount + "]");
                 }
                 if (Filter.ShouldLogError(Entry))
                 {
@@ -130,8 +135,9 @@ namespace Flame.Front
 
         #region Static
 
-        // These options should match GCC's (and Clang's) behavior.
+        // These options should mimic GCC's (and Clang's) behavior.
         // GCC docs: https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
+        // Clang docs: http://clang.llvm.org/docs/UsersManual.html
 
         /// <summary>
         /// Make all warnings into errors.
@@ -153,6 +159,12 @@ namespace Flame.Front
         public const string MaxErrorCountName = "fmax-errors";
 
         /// <summary>
+        /// Limits the maximal number of error messages to n.
+        /// This is an alias for -fmax-errors, added for Clang compatibility.
+        /// </summary>
+        public const string ErrorLimitName = "ferror-limit";
+
+        /// <summary>
         /// Gets a boolean value that indicates whether
         /// are warnings are to be made into errors.
         /// </summary>
@@ -168,7 +180,7 @@ namespace Flame.Front
         /// bails out. Null is returned if there is no limit to the 
         /// number of errors to print. Otherwise, an integer value
         /// is returned that specifies the maximal number of error messages to print.
-        /// This is dependent on the -Wfatal-errors and -fmax-errors options.
+        /// This is dependent on the -Wfatal-errors, -fmax-errors and -ferror-limit options.
         /// </summary>
         /// <param name="Options"></param>
         /// <returns></returns>
@@ -183,12 +195,13 @@ namespace Flame.Front
                 int maxErrorCount = Options.GetOption<int>(MaxErrorCountName, 0);
                 if (maxErrorCount == 0)
                 {
-                    return null;
+                    maxErrorCount = Options.GetOption<int>(ErrorLimitName, 0);
+                    if (maxErrorCount == 0)
+                    {
+                        return null;
+                    }
                 }
-                else
-                {
-                    return maxErrorCount;
-                }
+                return maxErrorCount;
             }
         }
 
