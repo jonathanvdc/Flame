@@ -95,7 +95,7 @@
     <Compile Include="ILogFilter.cs" />
     <Compile Include="Options\ArgumentStream.cs" />
     <Compile Include="Options\BuildArguments.cs" />
-    <Compile Include="Options\ChatLogFilter.cs" />
+    <Compile Include="Options\FlagLogFilter.cs" />
     <Compile Include="Options\IOptionParser.cs" />
     <Compile Include="Options\OptionLog.cs" />
     <Compile Include="Options\StringArrayOptionParser.cs" />

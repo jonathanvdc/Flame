@@ -89,28 +89,28 @@ namespace Flame.Front
 
         public void LogError(LogEntry Entry)
         {
-            lock (errCount)
+            if (Filter.ShouldLogError(Entry))
             {
-                int newCount = (int)errCount + 1;
-                int maxErrCount = MaxErrorCount.GetValueOrDefault();
-                if (MaxErrorCount.HasValue && maxErrCount > 0 && newCount > maxErrCount)
+                lock (errCount)
                 {
-                    // We'll a simple heuristic to determine whether whether
-                    // -ferror-limit or -fmax-errors caused this.
-                    string reason = maxErrCount == Log.Options.GetOption<int>(ErrorLimitName, 0) 
-                        ? ErrorLimitName
-                        : MaxErrorCountName;
-                    throw new AbortCompilationException("Maximal error count exceeded. Aborting compilation. [-" + reason + "=" + maxErrCount + "]");
-                }
-                if (Filter.ShouldLogError(Entry))
-                {
+                    int newCount = (int)errCount + 1;
+                    int maxErrCount = MaxErrorCount.GetValueOrDefault();
+                    if (MaxErrorCount.HasValue && maxErrCount > 0 && newCount > maxErrCount)
+                    {
+                        // We'll a simple heuristic to determine whether whether
+                        // -ferror-limit or -fmax-errors caused this.
+                        string reason = maxErrCount == Log.Options.GetOption<int>(ErrorLimitName, 0)
+                            ? ErrorLimitName
+                            : MaxErrorCountName;
+                        throw new AbortCompilationException("Maximal error count exceeded. Aborting compilation. [-" + reason + "=" + maxErrCount + "]");
+                    }
                     Log.LogError(Entry);
+                    if (MaxErrorCount.HasValue && maxErrCount <= 0)
+                    {
+                        throw new AbortCompilationException("Encountered an error. Aborting compilation. [-" + FatalErrorsName + "]");
+                    }
+                    errCount = newCount;
                 }
-                if (MaxErrorCount.HasValue && maxErrCount <= 0)
-                {
-                    throw new AbortCompilationException("Encountered an error. Aborting compilation. [-" + FatalErrorsName + "]");
-                }
-                errCount = newCount;
             }
         }
 
