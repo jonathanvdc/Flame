@@ -19,7 +19,7 @@ A brief list of its functionality is as follows.
 This is achieved by the ICodeGenerator interface, which allows for the creation of ICodeBlocks, which are rather opaque, implementation-defined objects.
 Any ICodeBlock implementation must support yielding zero or one values, like a statement or expression.
 These code blocks need not, however, restrict themselves to this model. 
-The ICodeBlock implementations for the .Net Framework IL, for example, conventiently model a stack, whereas a code block implementation for a register-based architecture may use registers instead.
+The ICodeBlock implementations for the .Net Framework IL, for example, conveniently model a stack, whereas a code block implementation for a register-based architecture may use registers instead.
 
 ### High-level expression-statement trees
 The IExpression and IStatement interfaces are a programmer-friendly abstraction over the lower-level emit API.
