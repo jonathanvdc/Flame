@@ -140,7 +140,7 @@ namespace Flame.Front.Cli
 
                 Save(mainState, buildTarget, docs);
 
-                ReportUnusedOptions(buildArgs, log);
+                ReportUnusedOptions(buildArgs, mainState.FilteredLog);
             }
             catch (Exception ex)
             {
