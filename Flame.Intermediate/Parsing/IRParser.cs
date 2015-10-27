@@ -239,7 +239,16 @@ namespace Flame.Intermediate.Parsing
             //
             // #type_reference("full_name")
 
-            return new LazyValueStructure<IType>(Node, () => State.Binder.BindType(GetIdOrString(Node.Args.Single())));
+            return new LazyValueStructure<IType>(Node, () =>
+            {
+                string name = GetIdOrString(Node.Args.Single());
+                var ty = State.Binder.BindType(name);
+                if (ty == null)
+                {
+                    throw new InvalidOperationException("Could not resolve '" + name + "' as a valid type reference.");
+                }
+                return ty;
+            });
         }
 
         public static INodeStructure<IType> ParseMethodGenericParameterReference(ParserState State, LNode Node)
@@ -481,7 +490,9 @@ namespace Flame.Intermediate.Parsing
                 {
                     descMethod.AddParameter(new DescribedParameter("arg" + item.Key, genericParser.Parse(genericState, item.Value).Value));
                 }
-                var result = declType.Methods.GetMethod(descMethod);
+
+                var result = descMethod.IsConstructor ? declType.GetConstructors().GetMethod(descMethod) 
+                                                      : declType.GetMethods().GetMethod(descMethod);
 
                 if (result == null)
                 {

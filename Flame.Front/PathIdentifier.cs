@@ -178,4 +178,22 @@ namespace Flame.Front
             return obj.AbsolutePath.GetHashCode();
         }
     }
+
+    public class PathNameComparer : IEqualityComparer<PathIdentifier>
+    {
+        private PathNameComparer()
+        { }
+
+        public static readonly PathNameComparer Instance = new PathNameComparer();
+
+        public bool Equals(PathIdentifier x, PathIdentifier y)
+        {
+            return x.Name == y.Name;
+        }
+
+        public int GetHashCode(PathIdentifier obj)
+        {
+            return obj.Name.GetHashCode();
+        }
+    }
 }
