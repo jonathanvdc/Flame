@@ -60,8 +60,6 @@ namespace Flame.Front.Options
 
         public static void RegisterCompilerParsers(StringOptionParser Parser)
         {
-            Parser.RegisterParser<ChatLevel>(ChatLogFilter.ParseChatLevel);
-            Parser.RegisterParser<ILogFilter>(ChatLogFilter.ParseLogFilter);
             Parser.RegisterParser<PathIdentifier>(PathIdentifier.Parse);
             Parser.RegisterParser<Color>(item =>
             {

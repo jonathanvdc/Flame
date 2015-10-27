@@ -54,7 +54,7 @@ namespace Flame.Front.Options
         }
         public static ILogFilter GetLogFilter(this ICompilerOptions Options)
         {
-            return Options.GetOption<ILogFilter>("chat", null) ?? new ChatLogFilter(ChatLevel.Silent);
+            return FlagLogFilter.ParseFilter(Options, FlagLogFilter.DefaultReclassificationRules);
         }
         public static string GetTargetPlatform(this IProject Project, ICompilerOptions Options)
         {
