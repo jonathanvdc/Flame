@@ -67,7 +67,10 @@ namespace Flame.Front.Options
                 {
                     return namedColors[item];
                 }
-                else return Color.Static_Singleton.Instance.Parse(item);
+                else
+                {
+                    return Color.Static_Singleton.Instance.Parse(item);
+                }
             });
         }
 

@@ -100,7 +100,7 @@ namespace Flame.Front.Cli
                     log.LogEvent(new LogEntry("Flame libraries copied", "All Flame libraries included with " + Name + " have been copied to '" + targetPath.ToString() + "'."));
                 }
 
-                log.WriteEntry("Nothing to compile", log.BrightYellow, "No source file or project was given.");
+                log.WriteEntry("Nothing to compile", log.WarningStyle, "No source file or project was given.");
                 return;
             }
 
