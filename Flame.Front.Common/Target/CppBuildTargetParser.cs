@@ -23,7 +23,7 @@ namespace Flame.Front.Target
             return PlatformIdentifiers.Any(item => item.Equals(Identifier, StringComparison.OrdinalIgnoreCase));
         }
 
-        public IAssemblyResolver GetRuntimeAssemblyResolver(string Identifier)
+        public IAssemblyResolver GetRuntimeAssemblyResolver(string Identifier, ICompilerLog Log)
         {
             return new EmptyAssemblyResolver();
         }

@@ -20,7 +20,8 @@ namespace Flame.Front.Target
             this.Environment = Environment;
             this.Properties = Properties;
             this.Log = Log;
-            this.registeredAssemblies = new List<IAssembly>();
+            this.registeredAssemblies = new HashSet<IAssembly>();
+            this.Binder = new DependencyBinder(this);
             this.Properties = new TypedDictionary<string>();
         }
 
@@ -31,6 +32,10 @@ namespace Flame.Front.Target
         public PathIdentifier CurrentPath { get; private set; }
         public PathIdentifier OutputFolder { get; private set; }
         public ITypedDictionary<string> Properties { get; private set; }
+        public IBinder Binder { get; private set; }
+
+        public IEnumerable<IAssembly> RegisteredAssemblies { get { return registeredAssemblies; } }
+        private HashSet<IAssembly> registeredAssemblies;
 
         protected Action<IAssembly> AssemblyRegisteredCallback
         {
@@ -39,8 +44,6 @@ namespace Flame.Front.Target
                 return this.GetAssemblyRegisteredCallback();
             }
         }
-
-        private List<IAssembly> registeredAssemblies;
 
         protected Task<IAssembly> ResolveRuntimeLibraryAsync(ReferenceDependency Reference)
         {
@@ -76,27 +79,44 @@ namespace Flame.Front.Target
             }
         }
 
-        private void RegisterAssemblySafe(IAssembly Assembly)
+        private bool RegisterAssemblySafe(IAssembly Assembly)
         {
             if (Assembly != null)
             {
                 RegisterAssembly(Assembly);
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
         public async Task AddRuntimeLibraryAsync(ReferenceDependency Reference)
         {
-            RegisterAssemblySafe(await ResolveRuntimeLibraryAsync(Reference));
+            if (!RegisterAssemblySafe(await ResolveRuntimeLibraryAsync(Reference)) &&
+                Log.UseDefaultWarnings(Warnings.MissingDependency))
+            {
+                Log.LogWarning(new LogEntry(
+                    "Missing dependency",
+                    "Could not resolve runtime library '" + Reference.Identifier.ToString() + "'. " +
+                    Warnings.Instance.GetWarningNameMessage(Warnings.MissingDependency)));
+            }
         }
 
         public async Task AddReferenceAsync(ReferenceDependency Reference)
         {
-            RegisterAssemblySafe(await ResolveReferenceAsync(Reference));
-        }
-
-        public IBinder CreateBinder()
-        {
-            return new MultiBinder(Environment, registeredAssemblies.Select((item) => item.CreateBinder()).ToArray());
+            // Try to add a library dependency first.
+            // If that can't be done, try to create a runtime reference.
+            if (!RegisterAssemblySafe(await ResolveReferenceAsync(Reference)) &&
+                !RegisterAssemblySafe(await ResolveRuntimeLibraryAsync(Reference)) &&
+                Log.UseDefaultWarnings(Warnings.MissingDependency))
+            {
+                Log.LogWarning(new LogEntry(
+                    "Missing dependency", 
+                    "Could not resolve library '" + Reference.Identifier.ToString() + "'. " + 
+                    Warnings.Instance.GetWarningNameMessage(Warnings.MissingDependency)));
+            }
         }
     }
 }

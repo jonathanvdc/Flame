@@ -34,6 +34,21 @@ namespace Flame.Front.Target
             return DependencyBuilder.Properties.GetValue<Mono.Cecil.IAssemblyResolver>(CecilAssemblyResolverKey);
         }
 
+        public static Mono.Cecil.ReaderParameters GetCecilReaderParameters(this IDependencyBuilder DependencyBuilder)
+        {
+            var resolver = DependencyBuilder.GetCecilResolver();
+            if (resolver is SpecificAssemblyResolver)
+            {
+                return ((SpecificAssemblyResolver)resolver).ReaderParameters;
+            }
+            else
+            {
+                var readerParams = new Mono.Cecil.ReaderParameters();
+                readerParams.AssemblyResolver = resolver;
+                return readerParams;
+            }
+        }
+
         public static void SetCecilResolver(this IDependencyBuilder DependencyBuilder, Mono.Cecil.IAssemblyResolver Resolver)
         {
             DependencyBuilder.AddCecilAssemblyRegisteredCallback();

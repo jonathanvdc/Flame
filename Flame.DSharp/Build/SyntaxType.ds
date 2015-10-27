@@ -48,7 +48,8 @@ namespace Flame.DSharp.Build
         {
             const get
             {
-                int genericCount = Enumerable.Count<IGenericParameter>(this.GenericParameters);
+                int genericCount = Enumerable.Count<IGenericParameterDeclarationSyntax>(
+                    Syntax.Signature.GenericDeclarations);
                 if (genericCount == 0)
                 {
                     return Syntax.Signature.NameToken.TokenValue;

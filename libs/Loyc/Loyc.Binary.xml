@@ -1,0 +1,709 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Loyc.Binary</name>
+    </assembly>
+    <members>
+        <member name="T:Loyc.Binary.AttributeNodeTemplate">
+            <summary>
+            A template for nodes that add a sequence of attributes to an inner node.
+            </summary>
+        </member>
+        <member name="T:Loyc.Binary.NodeTemplate">
+            <summary>
+            A base class for node templates.
+            </summary>
+        </member>
+        <member name="M:Loyc.Binary.NodeTemplate.Instantiate(Loyc.Binary.ReaderState,System.Collections.Generic.IEnumerable{Loyc.Syntax.LNode})">
+            <summary>
+            Instantiates this template.
+            </summary>
+            <param name="Arguments"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.NodeTemplate.Write(Loyc.Binary.LoycBinaryWriter)">
+            <summary>
+            Writes this node template's data to the given writer.
+            </summary>
+            <param name="Writer"></param>
+        </member>
+        <member name="P:Loyc.Binary.NodeTemplate.TemplateType">
+            <summary>
+            Gets this node template's type.
+            </summary>
+        </member>
+        <member name="P:Loyc.Binary.NodeTemplate.ArgumentTypes">
+            <summary>
+            Gets the template's list of argument types.
+            </summary>
+        </member>
+        <member name="P:Loyc.Binary.NodeTemplate.ArgumentCount">
+            <summary>
+            Gets the number of arguments the node template takes.
+            </summary>
+        </member>
+        <member name="M:Loyc.Binary.AttributeNodeTemplate.Read(Loyc.Binary.LoycBinaryReader)">
+            <summary>
+            Reads an attribute list node template definition.
+            </summary>
+            <param name="Reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.AttributeNodeTemplate.Write(Loyc.Binary.LoycBinaryWriter)">
+            <summary>
+            Writes an attribute list node template definition.
+            </summary>
+            <param name="Writer"></param>
+        </member>
+        <member name="T:Loyc.Binary.BinaryNodeEncoder">
+            <summary>
+            Defines a node encoder for the binary loyc tree format.
+            </summary>
+        </member>
+        <member name="M:Loyc.Binary.BinaryNodeEncoder.CreateLiteralEncoder``1(Loyc.Binary.NodeEncodingType,System.Action{System.IO.BinaryWriter,``0})">
+            <summary>
+            Creates a binary node encoder that encodes literals of a specific type.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="Encoding"></param>
+            <param name="ValueEncoder"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.BinaryNodeEncoder.CreateLiteralEncoder``1(Loyc.Binary.NodeEncodingType,System.Action{Loyc.Binary.LoycBinaryWriter,Loyc.Binary.WriterState,``0})">
+            <summary>
+            Creates a binary node encoder that encodes literals of a specific type.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="Encoding"></param>
+            <param name="ValueEncoder"></param>
+            <returns></returns>
+        </member>
+        <member name="F:Loyc.Binary.BinaryNodeEncoder.IdEncoder">
+            <summary>
+            Gets the binary node encoder for id nodes.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.BinaryNodeEncoder.NullEncoder">
+            <summary>
+            Gets the binary node encoder for null literals.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.BinaryNodeEncoder.AttributeEncoder">
+            <summary>
+            Gets the binary node encoder for attribute literals.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.BinaryNodeEncoder.CallEncoder">
+            <summary>
+            Gets the binary node encoder for call nodes whose target is not an id node.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.BinaryNodeEncoder.CallIdEncoder">
+            <summary>
+            Gets the binary node encoder for call nodes whose target is an id node.
+            </summary>
+        </member>
+        <member name="P:Loyc.Binary.BinaryNodeEncoder.EncodingType">
+            <summary>
+            Gets the encoder's encoding type.
+            </summary>
+        </member>
+        <member name="P:Loyc.Binary.BinaryNodeEncoder.Encode">
+            <summary>
+            Encodes a given node.
+            </summary>
+        </member>
+        <member name="T:Loyc.Binary.CallIdNodeTemplate">
+            <summary>
+            A template for calls nodes that have an id node as their target.
+            </summary>
+        </member>
+        <member name="M:Loyc.Binary.CallIdNodeTemplate.Read(Loyc.Binary.LoycBinaryReader)">
+            <summary>
+            Reads a call id node template definition.
+            </summary>
+            <param name="Reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.CallIdNodeTemplate.Write(Loyc.Binary.LoycBinaryWriter)">
+            <summary>
+            Writes a call node template definition.
+            </summary>
+            <param name="Writer"></param>
+        </member>
+        <member name="T:Loyc.Binary.CallNodeTemplate">
+            <summary>
+            A template for a call node.
+            </summary>
+        </member>
+        <member name="M:Loyc.Binary.CallNodeTemplate.Read(Loyc.Binary.LoycBinaryReader)">
+            <summary>
+            Reads a call node template definition.
+            </summary>
+            <param name="Reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.CallNodeTemplate.Write(Loyc.Binary.LoycBinaryWriter)">
+            <summary>
+            Writes a call node template definition.
+            </summary>
+            <param name="Writer"></param>
+        </member>
+        <member name="T:Loyc.Binary.LoycBinaryHelpers">
+            <summary>
+            Contains some helpers functions and constants that
+            may be useful when reading or writing binary
+            encoded loyc trees.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.LoycBinaryHelpers.Magic">
+            <summary>
+            Gets the magic number for binary loyc tree files.
+            </summary>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryHelpers.ReadFile(System.IO.Stream,System.String)">
+            <summary>
+            Reads the given binary loyc tree file.
+            </summary>
+            <param name="InputStream"></param>
+            <param name="Identifier"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryHelpers.WriteFile(System.IO.Stream,System.Collections.Generic.IReadOnlyList{Loyc.Syntax.LNode})">
+            <summary>
+            Writes a binary loyc tree file that contains the given list of nodes to the given output stream.
+            </summary>
+            <param name="OutputStream"></param>
+            <param name="Nodes"></param>
+        </member>
+        <member name="T:Loyc.Binary.LoycBinaryReader">
+            <summary>
+            A type that reads binary encoded loyc trees.
+            </summary>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.#ctor(System.IO.BinaryReader,System.Collections.Generic.IReadOnlyDictionary{Loyc.Binary.NodeEncodingType,System.Func{Loyc.Binary.LoycBinaryReader,Loyc.Binary.ReaderState,Loyc.Syntax.LNode}},System.Collections.Generic.IReadOnlyDictionary{Loyc.Binary.NodeTemplateType,System.Func{Loyc.Binary.LoycBinaryReader,Loyc.Binary.NodeTemplate}})">
+            <summary>
+            Creates a new loyc binary reader from the given 
+            binary reader and set of decoders and template parsers.
+            </summary>
+            <param name="reader"></param>
+            <param name="encodings">A mapping of literal node encodings to decoders.</param>
+            <param name="templateParsers"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.#ctor(System.IO.Stream,System.Collections.Generic.IReadOnlyDictionary{Loyc.Binary.NodeEncodingType,System.Func{Loyc.Binary.LoycBinaryReader,Loyc.Binary.ReaderState,Loyc.Syntax.LNode}},System.Collections.Generic.IReadOnlyDictionary{Loyc.Binary.NodeTemplateType,System.Func{Loyc.Binary.LoycBinaryReader,Loyc.Binary.NodeTemplate}})">
+            <summary>
+            Creates a new loyc binary reader from the given 
+            input stream and set of decoders and template parsers.
+            </summary>
+            <param name="inputStream"></param>
+            <param name="encodings">A mapping of literal node encodings to decoders.</param>
+            <param name="templateParsers"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.#ctor(System.IO.BinaryReader)">
+            <summary>
+            Creates a new loyc binary reader from the given binary reader.
+            The default set of decoders and template parsers are used.
+            </summary>
+            <param name="reader"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.#ctor(System.IO.Stream)">
+            <summary>
+            Creates a new loyc binary reader from the given input stream.
+            The default set of decoders and template parsers are used.
+            </summary>
+            <param name="inputStream"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.CreateLiteralNodeReader``1(System.Func{System.IO.BinaryReader,``0})">
+            <summary>
+            Creates a decoder that creates a literal node based on a literal reader.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="ReadLiteral"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.ReadULeb128">
+            <summary>
+            Reads a LEB128 variable-length unsigned integer from the input stream.
+            </summary>
+            <param name="Value"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.ReadEncodingType">
+            <summary>
+            Reads an encoding type from the stream.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.ReadList``1(System.Func{``0})">
+            <summary>
+            Reads a length-prefixed list of items.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="ReadItem"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.ReadListContents``1(System.Func{``0},System.Int32)">
+            <summary>
+            Reads an unprefixed list of items of the given length.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="ReadItem"></param>
+            <param name="Length"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.ReadSymbol">
+            <summary>
+            Reads a symbol as defined in the symbol table.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.ReadSymbolTable">
+            <summary>
+            Reads the symbol table.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.ReadTemplateTable">
+            <summary>
+            Reads the template definition table.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.ReadTemplateDefinition">
+            <summary>
+            Reads a single template definition.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.ReadHeader(System.String)">
+            <summary>
+            Reads a binary encoded loyc file's header.
+            </summary>
+            <param name="Identifier">A string that identifies the binary tree's source. This is typically the file name.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.ReadSymbolReference(Loyc.Binary.ReaderState)">
+            <summary>
+            Reads a reference to a symbol.
+            </summary>
+            <param name="State"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.ReadStringReference(Loyc.Binary.ReaderState)">
+            <summary>
+            Reads a reference to a string in the symbol table.
+            </summary>
+            <param name="State"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.ReadTemplateReference(Loyc.Binary.ReaderState)">
+            <summary>
+            Reads a reference to a node template.
+            </summary>
+            <param name="State"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.ReadTemplatedNode(Loyc.Binary.ReaderState)">
+            <summary>
+            Reads a template-prefixed templated node.
+            </summary>
+            <param name="State"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.ReadNode(Loyc.Binary.ReaderState,Loyc.Binary.NodeEncodingType)">
+            <summary>
+            Reads a node with the given encoding.
+            </summary>
+            <param name="State"></param>
+            <param name="Encoding"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.CheckMagic">
+            <summary>
+            Reads the file's magic string, and returns a boolean value
+            that tells if it matched the loyc binary tree format's magic string.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.ReadFile(System.String)">
+            <summary>
+            Reads a file encoded in the loyc binary tree format.
+            This checks the magic number first, and then parses the 
+            file's contents.
+            </summary>
+            <param name="Identifier">A string that identifies the binary tree's source. This is typically the file name.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryReader.ReadFileContents(System.String)">
+            <summary>
+            Reads the contents of a file encoded in the loyc binary tree format.
+            </summary>
+            <param name="Identifier">A string that identifies the binary tree's source. This is typically the file name.</param>
+            <returns></returns>
+        </member>
+        <member name="P:Loyc.Binary.LoycBinaryReader.Reader">
+            <summary>
+            Gets the inner binary reader.
+            </summary>
+        </member>
+        <member name="P:Loyc.Binary.LoycBinaryReader.LiteralEncodings">
+            <summary>
+            Gets the mapping of literal encodings to decoders that this binary reader uses.
+            Templated nodes and id nodes are treated as special cases, and are not part of this dictionary.
+            </summary>
+        </member>
+        <member name="P:Loyc.Binary.LoycBinaryReader.TemplateParsers">
+            <summary>
+            Gtes the mapping of node template types to node template parsers that this binary reader uses.
+            </summary>
+        </member>
+        <member name="P:Loyc.Binary.LoycBinaryReader.DefaultEncodings">
+            <summary>
+            Gets the default decoder dictionary.
+            </summary>
+        </member>
+        <member name="P:Loyc.Binary.LoycBinaryReader.DefaultTemplateParsers">
+            <summary>
+            Gets the default template parser dictionary.
+            </summary>
+        </member>
+        <member name="T:Loyc.Binary.LoycBinaryWriter">
+            <summary>
+            A type that writes binary encoded loyc trees.
+            </summary>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.WriteULeb128(System.UInt32)">
+            <summary>
+            Writes a LEB128 variable-length unsigned integer to the output stream.
+            </summary>
+            <param name="Value"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.WriteList``1(System.Collections.Generic.IReadOnlyList{``0},System.Action{``0})">
+            <summary>
+            Writes the given list of items to the output stream.
+            The resulting data is length-prefixed.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="Items"></param>
+            <param name="WriteItem"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.WriteListContents``1(System.Collections.Generic.IReadOnlyList{``0},System.Action{``0})">
+            <summary>
+            Writes the contents of the given list of items to the output stream.
+            The resulting data is unprefixed.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="Items"></param>
+            <param name="WriteItem"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.WriteEncodingType(Loyc.Binary.NodeEncodingType)">
+            <summary>
+            Writes the given encoding type to the output stream.
+            </summary>
+            <param name="Encoding"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.WriteTemplateType(Loyc.Binary.NodeTemplateType)">
+            <summary>
+            Writes the given template type to the output stream.
+            </summary>
+            <param name="Type"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.WriteReference(Loyc.Binary.WriterState,Loyc.Symbol)">
+            <summary>
+            Writes a reference to the given symbol.
+            </summary>
+            <param name="State"></param>
+            <param name="Value"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.WriteReference(Loyc.Binary.WriterState,System.String)">
+            <summary>
+            Writes a reference to the given string.
+            </summary>
+            <param name="State"></param>
+            <param name="Value"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.WriteReference(Loyc.Binary.WriterState,Loyc.Binary.NodeTemplate)">
+            <summary>
+            Writes a reference to the given node template.
+            </summary>
+            <param name="State"></param>
+            <param name="Value"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.GetEncoder(Loyc.Syntax.LNode)">
+            <summary>
+            Gets a node encoder for the given node.
+            </summary>
+            <param name="Node"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.WritePrefixedNode(Loyc.Binary.WriterState,Loyc.Syntax.LNode)">
+            <summary>
+            Writes the given node to the output stream, prefixed by its encoding type.
+            </summary>
+            <param name="State"></param>
+            <param name="Node"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.WriteNode(Loyc.Binary.WriterState,Loyc.Syntax.LNode)">
+            <summary>
+            Writes the given node to the output stream, and returns
+            its encoding type.
+            </summary>
+            <param name="State"></param>
+            <param name="Node"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.WriteSymbol(System.String)">
+            <summary>
+            Writes a symbol to the output stream.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.WriteSymbolTable(System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            Writes the given string table to the output stream.
+            </summary>
+            <param name="Table"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.WriteTemplateDefinition(Loyc.Binary.NodeTemplate)">
+            <summary>
+            Writes the given template definition to the output stream,
+            prefixed by its template type.
+            </summary>
+            <param name="Template"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.WriteTemplateTable(System.Collections.Generic.IReadOnlyList{Loyc.Binary.NodeTemplate})">
+            <summary>
+            Writes the given template table to the output stream.
+            </summary>
+            <param name="Table"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.WriteHeader(Loyc.Binary.WriterState)">
+            <summary>
+            Writes the given header to the output stream.
+            </summary>
+            <param name="Header"></param>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.WriteMagic">
+            <summary>
+            Writes the magic string to the output stream.
+            </summary>
+        </member>
+        <member name="M:Loyc.Binary.LoycBinaryWriter.WriteFileContents(System.Collections.Generic.IReadOnlyList{Loyc.Syntax.LNode})">
+            <summary>
+            Writes the contents of a binary loyc file to the current output stream.
+            </summary>
+            <param name="Nodes"></param>
+        </member>
+        <member name="P:Loyc.Binary.LoycBinaryWriter.Writer">
+            <summary>
+            Gets the writer to the underlying stream of this instance.
+            </summary>
+        </member>
+        <member name="P:Loyc.Binary.LoycBinaryWriter.LiteralEncoders">
+            <summary>
+            Gets the set of literal node encoders this writer uses.
+            </summary>
+        </member>
+        <member name="P:Loyc.Binary.LoycBinaryWriter.DefaultEncoders">
+            <summary>
+            Gets the default set of encoders.
+            </summary>
+        </member>
+        <member name="T:Loyc.Binary.NodeEncodingType">
+            <summary>
+            An enumeration of ways to encode a node.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.TemplatedNode">
+            <summary>
+            A templated node, which is encoded as a template index and inline data.
+            Call nodes and attribute nodes are encoded as templates nodes.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.IdNode">
+            <summary>
+            An id node, which is encoded as an index in the symbol table.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.String">
+            <summary>
+            A string literal, which is encoded as an index in the symbol table.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.Int8">
+            <summary>
+            An 8-bit signed integer literal.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.Int16">
+            <summary>
+            A 16-bit signed integer literal.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.Int32">
+            <summary>
+            A 32-bit signed integer literal.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.Int64">
+            <summary>
+            A 64-bit signed integer literal.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.UInt8">
+            <summary>
+            An 8-bit unsigned integer literal.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.UInt16">
+            <summary>
+            A 16-bit unsigned integer literal.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.UInt32">
+            <summary>
+            A 32-bit unsigned integer literal.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.UInt64">
+            <summary>
+            A 64-bit unsigned integer literal.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.Float32">
+            <summary>
+            A 32-bit single-precision IEEE floating-point literal.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.Float64">
+            <summary>
+            A 64-bit double-precision IEEE floating-point literal.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.Char">
+            <summary>
+            A character literal.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.Boolean">
+            <summary>
+            A boolean literal.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.Void">
+            <summary>
+            The void singleton value.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.Null">
+            <summary>
+            The null singleton value.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeEncodingType.Decimal">
+            <summary>
+            A decimal literal
+            </summary>
+        </member>
+        <member name="T:Loyc.Binary.NodeTemplateType">
+            <summary>
+            An enumeration of node template types.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeTemplateType.CallNode">
+            <summary>
+            A call node template.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeTemplateType.AttributeNode">
+            <summary>
+            An attribute list node template.
+            </summary>
+        </member>
+        <member name="F:Loyc.Binary.NodeTemplateType.CallIdNode">
+            <summary>
+            A template that captures a call to an id node.
+            </summary>
+        </member>
+        <member name="T:Loyc.Binary.ReaderState">
+            <summary>
+            Defines an immutable view of a binary encoded loyc tree's header,
+            as well as a node factory.
+            </summary>
+        </member>
+        <member name="M:Loyc.Binary.ReaderState.#ctor(Loyc.Syntax.LNodeFactory,System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IReadOnlyList{Loyc.Binary.NodeTemplate})">
+            <summary>
+            Creates a new immutable header from the given node factory, symbol table and template table.
+            </summary>
+            <param name="nodeFactory"></param>
+            <param name="symbolTable"></param>
+            <param name="templateTable"></param>
+        </member>
+        <member name="P:Loyc.Binary.ReaderState.NodeFactory">
+            <summary>
+            Gets the reader's node factory.
+            </summary>
+        </member>
+        <member name="P:Loyc.Binary.ReaderState.SymbolPool">
+            <summary>
+            Gets the reader's symbol pool.
+            </summary>
+        </member>
+        <member name="P:Loyc.Binary.ReaderState.SymbolTable">
+            <summary>
+            Gets the reader's symbol table.
+            </summary>
+        </member>
+        <member name="P:Loyc.Binary.ReaderState.TemplateTable">
+            <summary>
+            Gets the reader's template table.
+            </summary>
+        </member>
+        <member name="T:Loyc.Binary.WriterState">
+            <summary>
+            Defines a mutable view of a binary encoded loyc tree's header,
+            </summary>
+        </member>
+        <member name="M:Loyc.Binary.WriterState.#ctor">
+            <summary>
+            Creates a new mutable binary encoded loyc tree header.
+            </summary>
+        </member>
+        <member name="M:Loyc.Binary.WriterState.GetIndex(Loyc.Symbol)">
+            <summary>
+            Gets a symbol's index in the string table.
+            The given value is added to the table
+            if it's not already in there.
+            </summary>
+            <param name="Value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.WriterState.GetIndex(System.String)">
+            <summary>
+            Gets a string's index in the string table.
+            The given value is added to the table
+            if it's not already in there.
+            </summary>
+            <param name="Value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Loyc.Binary.WriterState.GetIndex(Loyc.Binary.NodeTemplate)">
+            <summary>
+            Gets a template's index in the template table.
+            The given value is added to the table
+            if it's not already in there.
+            </summary>
+            <param name="Template"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Loyc.Binary.WriterState.Symbols">
+            <summary>
+            Gets the encoded loyc tree's symbol table.
+            </summary>
+        </member>
+        <member name="P:Loyc.Binary.WriterState.Templates">
+            <summary>
+            Gets the encoded loyc tree's list of templates.
+            </summary>
+        </member>
+    </members>
+</doc>

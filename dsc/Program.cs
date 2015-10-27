@@ -28,6 +28,7 @@ namespace dsc
     {
         public static void Main(string[] args)
         {
+            ProjectHandlers.RegisterHandler(new FlameIRProjectHandler());
             ProjectHandlers.RegisterHandler(new DSharpProjectHandler());
             var compiler = new ConsoleCompiler("dsc", "the glorious D# compiler", "https://github.com/jonathanvdc/Flame/releases");
             compiler.Compile(args);

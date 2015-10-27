@@ -181,6 +181,11 @@ namespace Flame.Compiler
         public const string UnusedOption = "unused-option";
 
         /// <summary>
+        /// A warning name for missing library dependencies.
+        /// </summary>
+        public const string MissingDependency = "missing-dependency";
+
+        /// <summary>
         /// Gets a warning's "official name", which the log maps to an on/off boolean.
         /// </summary>
         public static const string GetWarningName(string Name)

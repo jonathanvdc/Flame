@@ -1,0 +1,64 @@
+using System;
+
+namespace Flame.Compiler
+{
+    /// <summary>
+    /// Defines a type of error that indicates that
+    /// a fatal error has occured, and the compiler
+    /// should abort compilation as soon as possible.
+    /// </summary>
+    [Serializable]
+    public virtual class AbortCompilationException : Exception
+    {
+        public this()
+            : base(FatalErrorEntryMessage)
+        {
+            this.Entry = DefaultFatalErrorEntry;
+        }
+        public this(string message)
+            : base(message)
+        {
+            this.Entry = new LogEntry(FatalErrorEntryTitle, message);
+        }
+        public this(string message, Exception inner)
+            : base(message, inner)
+        {
+            this.Entry = new LogEntry(FatalErrorEntryTitle, message);
+        }
+        public this(set LogEntry Entry)
+            : base(Entry.Message);
+        public this(set LogEntry Entry, Exception inner)
+            : base(Entry.Message, inner);
+        protected this(
+          System.Runtime.Serialization.SerializationInfo info,
+          System.Runtime.Serialization.StreamingContext context)
+            : base(info, context) { }
+
+        /// <summary>
+        /// Gets this fatal error's error message.
+        /// </summary>
+        public LogEntry Entry { get; private set; }
+
+        /// <summary>
+        /// Gets the default entry title for fatal errors.
+        /// </summary>
+        public const string FatalErrorEntryTitle = "Fatal error";
+
+        /// <summary>
+        /// Gets the default entry message for fatal errors.
+        /// </summary>
+        public const string FatalErrorEntryMessage =
+            "A fatal error has occured, which forced compilation to be aborted.";
+
+        /// <summary>
+        /// Gets the default log entry for fatal errors.
+        /// </summary>
+        public static LogEntry DefaultFatalErrorEntry
+        {
+            const get
+            {
+                return new LogEntry(FatalErrorEntryTitle, FatalErrorEntryMessage);
+            }
+        }
+    }
+}
