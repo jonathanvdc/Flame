@@ -308,7 +308,7 @@ namespace Flame.Front.Cli
             var binderResolver = BinderResolver.Create(Projects);
             foreach (var item in State.Options.GetOption<string[]>(AdditionalLibrariesOption, new string[0]))
             {
-                binderResolver.AddLibrary(PathIdentifier.Parse(item));
+                binderResolver.AddLibrary(PathIdentifier.Parse(item).AbsolutePath);
             }
             var binderTask = binderResolver.CreateBinderAsync(dependencyBuilder);
 
