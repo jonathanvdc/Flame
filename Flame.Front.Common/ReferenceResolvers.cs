@@ -1,6 +1,7 @@
 ﻿using Flame;
 using Flame.Compiler;
 using Flame.Front;
+using Flame.Front.Target;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace Flame.Front
         {
             ReferenceResolver = new MultiAssemblyResolver();
             RegisterResolver(new CecilReferenceResolver(), "dll", "exe");
+            RegisterResolver(new FlameIRReferenceResolver(), "flo", "fir");
         }
 
         public static MultiAssemblyResolver ReferenceResolver { get; private set; }

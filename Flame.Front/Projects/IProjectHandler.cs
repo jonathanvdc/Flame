@@ -30,7 +30,7 @@ namespace Flame.Front.Projects
             this.Project = Project;
             this.LibraryDependencies = new HashSet<PathIdentifier>(
                 Project.Project.GetProjectReferences().Select(Project.CurrentPath.GetAbsolutePath), 
-                AbsolutePathComparer.Instance);
+                PathNameComparer.Instance);
             this.Handler = Handler;
         }
 
@@ -50,10 +50,12 @@ namespace Flame.Front.Projects
         /// <returns></returns>
         public static ProjectDependency GetRootProject(IEnumerable<ProjectDependency> Dependencies)
         {
-            var allProjectIdentifiers = new HashSet<PathIdentifier>(Dependencies.Select(item => item.Identifier), AbsolutePathComparer.Instance);
+            var allProjectIdentifiers = new HashSet<PathIdentifier>(Dependencies.Select(item => item.Identifier), PathPossiblyExtendedNameComparer.Instance);
             foreach (var item in Dependencies)
             {
-                if (!item.LibraryDependencies.Intersect(allProjectIdentifiers).Except(new PathIdentifier[] { item.Identifier }).Any())
+                if (!item.LibraryDependencies.Intersect(allProjectIdentifiers, PathPossiblyExtendedNameComparer.Instance)
+                                             .Except(new PathIdentifier[] { item.Identifier }, PathPossiblyExtendedNameComparer.Instance)
+                                             .Any())
                 {
                     return item;
                 }

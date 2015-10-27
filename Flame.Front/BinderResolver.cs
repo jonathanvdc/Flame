@@ -68,7 +68,7 @@ namespace Flame.Front
             {
                 await DependencyBuilder.AddReferenceAsync(new ReferenceDependency(item, true));
             }
-            return DependencyBuilder.CreateBinder();
+            return DependencyBuilder.Binder;
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Flame.Front
 
         private static string[] SecondaryExtensions = new[] { "pdb", "xml" }; // Copy debugging files and xml docs
 
-        public async Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
+        public Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
         {
             var absPath = Identifier.AbsolutePath.Path;
             if (!File.Exists(absPath))
@@ -31,10 +31,15 @@ namespace Flame.Front
                 DependencyBuilder.Log.LogError(new LogEntry("File not found", "File '" + Identifier.AbsolutePath + "' could not be found."));
             }
             var readerParams = DependencyBuilder.GetCecilReaderParameters();
-            return new CecilAssembly(Mono.Cecil.AssemblyDefinition.ReadAssembly(absPath, readerParams), ConversionCache);
+            return Task.FromResult<IAssembly>(new CecilAssembly(Mono.Cecil.AssemblyDefinition.ReadAssembly(absPath, readerParams), ConversionCache));
         }
 
         public Task<PathIdentifier?> CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
+        {
+            return CopyAsync(SourceIdentifier, TargetIdentifier, Log, SecondaryExtensions);
+        }
+
+        public static Task<PathIdentifier?> CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log, string[] SecondaryExtensions)
         {
             var mainTask = CopyFileAsync(SourceIdentifier, TargetIdentifier, Log);
 
@@ -59,7 +64,7 @@ namespace Flame.Front
             return Task.WhenAll(allTasks).ContinueWith(task => mainTask.Result);
         }
 
-        private static async Task<PathIdentifier?> CopyFileAsync(PathIdentifier sourcePath, PathIdentifier destinationPath, ICompilerLog Log)
+        public static async Task<PathIdentifier?> CopyFileAsync(PathIdentifier sourcePath, PathIdentifier destinationPath, ICompilerLog Log)
         {
             var absSourcePath = sourcePath.AbsolutePath.Path;
             var absTargetPath = destinationPath.AbsolutePath.Path;
