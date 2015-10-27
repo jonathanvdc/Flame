@@ -29,10 +29,10 @@ namespace Flame.Front
         IEnvironment Environment { get; }
 
         /// <summary>
-        /// Creates a binder for all registered dependencies.
+        /// Gets a binder for all registered dependencies.
         /// </summary>
         /// <returns></returns>
-        IBinder CreateBinder();
+        IBinder Binder { get; }
 
         /// <summary>
         /// Gets the compiler log associated with this dependency builder.

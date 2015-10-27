@@ -32,7 +32,7 @@ namespace Flame.Front.Projects
 
         public bool HasExtension(string Extension)
         {
-            return Path.Path.EndsWith("." + Extension, StringComparison.OrdinalIgnoreCase);
+            return Path.HasExtension(Extension);
         }
 
         public ProjectPath ChangeExtension(string Extension)

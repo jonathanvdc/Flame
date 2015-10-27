@@ -82,7 +82,7 @@
     <Compile Include="EmptyAssemblyResolver.cs" />
     <Compile Include="FileOutputProvider.cs" />
     <Compile Include="Cli\IConsole.cs" />
-    <Compile Include="MultiBinder.cs" />
+    <Compile Include="Target\DependencyBinder.cs" />
     <Compile Include="Cli\INodeWriter.cs" />
     <Compile Include="LogExtensions.cs" />
     <Compile Include="Options\CachedOptions.cs" />

@@ -30,27 +30,27 @@ namespace Flame.Front.Projects
 
         public IProject Parse(ProjectPath Path, ICompilerLog Log)
         {
-            var nodes = ParseFile(Path);
+            var nodes = ParseFile(Path.Path);
 
             return new FlameIRProject(Path, nodes, Log);
         }
 
-        private IEnumerable<LNode> ParseFile(ProjectPath Path)
+        public static IEnumerable<LNode> ParseFile(PathIdentifier Path)
         {
             if (Path.HasExtension("flo"))
             {
-                using (var fs = new FileStream(Path.Path.AbsolutePath.Path, FileMode.Open, FileAccess.Read))
+                using (var fs = new FileStream(Path.AbsolutePath.Path, FileMode.Open, FileAccess.Read))
                 {
-                    return Loyc.Binary.LoycBinaryHelpers.ReadFile(fs, Path.Path.Name);
+                    return Loyc.Binary.LoycBinaryHelpers.ReadFile(fs, Path.Name);
                 }
             }
             else
             {
-                using (var fs = new FileStream(Path.Path.AbsolutePath.Path, FileMode.Open, FileAccess.Read))
+                using (var fs = new FileStream(Path.AbsolutePath.Path, FileMode.Open, FileAccess.Read))
                 using (var reader = new StreamReader(fs))
                 {
                     string text = reader.ReadToEnd();
-                    return Loyc.Syntax.Les.LesLanguageService.Value.Parse((Loyc.UString)text, Path.Path.Name, Loyc.MessageSink.Console);
+                    return Loyc.Syntax.Les.LesLanguageService.Value.Parse((Loyc.UString)text, Path.Name, Loyc.MessageSink.Console);
                 }
             }
         }

@@ -101,6 +101,7 @@
     <Compile Include="Target\CppBuildTargetParser.cs" />
     <Compile Include="Target\CppDependencyBuilderExtensions.cs" />
     <Compile Include="Target\FlameIRBuildTargetParser.cs" />
+    <Compile Include="Target\FlameIRReferenceResolver.cs" />
     <Compile Include="Target\InliningPass.cs" />
     <Compile Include="Target\MipsBuildTargetParser.cs" />
     <Compile Include="Target\PassExtensions.cs" />

@@ -43,14 +43,14 @@ namespace Flame.Front
 
         private class MarsRTLibraryResolver : IAssemblyResolver
         {
-            public async Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
+            public Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
             {
-                return RevolveRuntimeLibrary(Identifier.Path);
+                return Task.FromResult<IAssembly>(RevolveRuntimeLibrary(Identifier.Path));
             }
 
-            public async Task<PathIdentifier?> CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
+            public Task<PathIdentifier?> CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
             {
-                return null;
+                return Task.FromResult<PathIdentifier?>(null);
             }
         }
     }

@@ -21,6 +21,7 @@ namespace Flame.Front.Target
             this.Properties = Properties;
             this.Log = Log;
             this.registeredAssemblies = new HashSet<IAssembly>();
+            this.Binder = new DependencyBinder(this);
             this.Properties = new TypedDictionary<string>();
         }
 
@@ -31,6 +32,10 @@ namespace Flame.Front.Target
         public PathIdentifier CurrentPath { get; private set; }
         public PathIdentifier OutputFolder { get; private set; }
         public ITypedDictionary<string> Properties { get; private set; }
+        public IBinder Binder { get; private set; }
+
+        public IEnumerable<IAssembly> RegisteredAssemblies { get { return registeredAssemblies; } }
+        private HashSet<IAssembly> registeredAssemblies;
 
         protected Action<IAssembly> AssemblyRegisteredCallback
         {
@@ -39,8 +44,6 @@ namespace Flame.Front.Target
                 return this.GetAssemblyRegisteredCallback();
             }
         }
-
-        private HashSet<IAssembly> registeredAssemblies;
 
         protected Task<IAssembly> ResolveRuntimeLibraryAsync(ReferenceDependency Reference)
         {
@@ -114,11 +117,6 @@ namespace Flame.Front.Target
                     "Could not resolve library '" + Reference.Identifier.ToString() + "'. " + 
                     Warnings.Instance.GetWarningNameMessage(Warnings.MissingDependency)));
             }
-        }
-
-        public IBinder CreateBinder()
-        {
-            return new MultiBinder(Environment, registeredAssemblies.Select((item) => item.CreateBinder()).ToArray());
         }
     }
 }
