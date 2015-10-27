@@ -725,6 +725,36 @@ namespace Flame.Recompilation
 
         #endregion
 
+        #region Attributes
+
+        /// <summary>
+        /// Takes an attribute and produces an equivalent attribute
+        /// whose dependencies have been rewritten to target the 
+        /// output assembly.
+        /// </summary>
+        /// <param name="Value"></param>
+        /// <returns></returns>
+        public IAttribute GetAttribute(IAttribute Value)
+        {
+            if (Value is AssociatedTypeAttribute)
+            {
+                return new AssociatedTypeAttribute(GetType(((AssociatedTypeAttribute)Value).AssociatedType));
+            }
+            else if (Value is IConstructedAttribute)
+            {
+                var ctedAttr = (IConstructedAttribute)Value;
+                var ctor = GetMethod(ctedAttr.Constructor);
+                var args = ctedAttr.GetArguments();
+                return new Flame.Attributes.ConstructedAttribute(ctor, args);
+            }
+            else
+            {
+                return Value;
+            }
+        }
+
+        #endregion
+
         #region Type Recompilation
 
         private MemberCreationResult<IType> RecompileTypeHeader(IType SourceType)
