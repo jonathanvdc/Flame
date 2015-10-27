@@ -1,0 +1,8 @@
+
+public class SimpleGenericsTest
+{
+    public const T Id<T>(T Value)
+    {
+        return Value;
+    }
+}

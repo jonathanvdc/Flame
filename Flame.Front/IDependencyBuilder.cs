@@ -24,10 +24,15 @@ namespace Flame.Front
         Task AddReferenceAsync(ReferenceDependency Reference);
 
         /// <summary>
-        /// Creates a binder for all registered dependencies.
+        /// Gets this dependency builder's environment.
+        /// </summary>
+        IEnvironment Environment { get; }
+
+        /// <summary>
+        /// Gets a binder for all registered dependencies.
         /// </summary>
         /// <returns></returns>
-        IBinder CreateBinder();
+        IBinder Binder { get; }
 
         /// <summary>
         /// Gets the compiler log associated with this dependency builder.
@@ -47,10 +52,10 @@ namespace Flame.Front
             return Options.GetOption<bool>("copy-rt", false);
         }
 
-        public static Task AddRuntimeLibraryAsync(this IDependencyBuilder DependencyBuilder, string Identifier)
+        public static Task AddRuntimeLibraryAsync(this IDependencyBuilder DependencyBuilder, PathIdentifier Identifier)
         {
             bool copyRt = DependencyBuilder.Log.Options.ShouldCopyRuntimeLibraries();
-            return DependencyBuilder.AddRuntimeLibraryAsync(new ReferenceDependency(new PathIdentifier(Identifier), copyRt));
+            return DependencyBuilder.AddRuntimeLibraryAsync(new ReferenceDependency(Identifier, copyRt));
         }
 
         public static Action<IAssembly> GetAssemblyRegisteredCallback(this IDependencyBuilder DependencyBuilder)

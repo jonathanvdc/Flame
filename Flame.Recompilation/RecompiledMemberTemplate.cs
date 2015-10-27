@@ -26,7 +26,7 @@ namespace Flame.Recompilation
 
         public IEnumerable<IAttribute> CreateAttributes(T Type)
         {
-            return GetSourceMember().Attributes;
+            return GetSourceMember().Attributes.Select(Recompiler.GetAttribute);
         }
     }
 }

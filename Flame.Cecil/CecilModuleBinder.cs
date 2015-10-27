@@ -12,13 +12,24 @@ namespace Flame.Cecil
         public CecilModuleBinder(CecilModule Module)
         {
             this.Module = Module;
+            this.types = new Dictionary<string, IType>();
+            foreach (var item in Module.Types)
+            {
+                AddType(item);
+            }
         }
 
         public CecilModule Module { get; private set; }
+        private Dictionary<string, IType> types;
 
         public override IEnumerable<IType> GetTypes()
         {
             return Module.Types;
+        }
+
+        public void AddType(IType Type)
+        {
+            this.types[Type.FullName] = Type;
         }
 
         public override IType BindTypeCore(string Name)
@@ -27,26 +38,16 @@ namespace Flame.Cecil
             {
                 return null;
             }
-            /*string typeName;
-            if (Name.EndsWith(">"))
-            {
-                int start = Name.IndexOf('<');
-                var split = Name.Substring(start + 1, Name.Length - start - 1).Split(',');
 
-                typeName = Name.Substring(0, start) + "`" + split.Length.ToString();
+            IType result;
+            if (types.TryGetValue(Name, out result))
+            {
+                return result;
             }
             else
             {
-                typeName = Name;
-            }*/
-            foreach (var item in Module.Types)
-            {
-                if (item.FullName == Name)
-                {
-                    return item;
-                }
+                return null;
             }
-            return null;
         }
 
         public override IEnvironment Environment

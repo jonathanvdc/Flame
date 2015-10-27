@@ -67,6 +67,18 @@
     <Reference Include="Flame.Syntax">
       <HintPath>..\Flame.DSharp\bin\Flame.Syntax.dll</HintPath>
     </Reference>
+    <Reference Include="Loyc.Binary">
+      <HintPath>..\libs\Loyc\Loyc.Binary.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Collections">
+      <HintPath>..\libs\Loyc\Loyc.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Essentials">
+      <HintPath>..\libs\Loyc\Loyc.Essentials.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Syntax">
+      <HintPath>..\libs\Loyc\Loyc.Syntax.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Cecil, Version=0.9.5.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Flame.Cecil\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.dll</HintPath>
@@ -131,6 +143,10 @@
     <ProjectReference Include="..\Flame.Front\Flame.Front.csproj">
       <Project>{a362bcd9-7b23-45da-99a6-6b995c92480e}</Project>
       <Name>Flame.Front</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Flame.Intermediate\Flame.Intermediate.csproj">
+      <Project>{8fa49fdd-2e4b-4f1b-9dc4-3a0df48ad309}</Project>
+      <Name>Flame.Intermediate</Name>
     </ProjectReference>
     <ProjectReference Include="..\Flame.MIPS\Flame.MIPS.csproj">
       <Project>{0f61b9f7-907b-4b19-8227-55662dc6e70a}</Project>

@@ -34,7 +34,7 @@ namespace Flame.Verification
 
             var visitor = new DeadCodeVisitor();
             var optStmt = visitor.Visit(stmt);
-            if (visitor.CurrentFlow && ShowReturnWarning)
+            if (visitor.CurrentFlow && ShowReturnWarning && !YieldNodeFindingVisitor.UsesYield(stmt))
             {
                 log.LogWarning(new LogEntry("Missing return statement?", ReturnWarningMessage, method.GetSourceLocation()));
             }

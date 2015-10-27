@@ -23,7 +23,7 @@ namespace Flame.Front
         }
 
         public ConsoleLog(IConsole Console, ICompilerOptions Options)
-            : this(Console, Options, CreateDefaultPalette(Console.Description), CreateDefaultNodeWriter(Console.Description.BufferWidth))
+            : this(Console, Options, CreateDefaultPalette(Console.Description, Options), CreateDefaultNodeWriter(Console.Description.BufferWidth))
         {
         }
 
@@ -33,7 +33,7 @@ namespace Flame.Front
         }
 
         public ConsoleLog(IConsole Console, ICompilerOptions Options, INodeWriter NodeWriter)
-            : this(Console, Options, CreateDefaultPalette(Console.Description), NodeWriter)
+            : this(Console, Options, CreateDefaultPalette(Console.Description, Options), NodeWriter)
         {
         }
 
@@ -60,7 +60,7 @@ namespace Flame.Front
             }
         }
 
-        private void WriteEntryInternal(Color PrimaryColor, Color SecondaryColor, LogEntry Entry)
+        private void WriteEntryInternal(Style PrimaryStyle, Style SecondaryStyle, LogEntry Entry)
         {
             string name = Entry.Name;
             if (!string.IsNullOrWhiteSpace(name))
@@ -68,54 +68,58 @@ namespace Flame.Front
                 Console.Write(name, ContrastForegroundColor);
                 Console.Write(": ");
             }
-            WriteNode(Entry.Contents, PrimaryColor, SecondaryColor);
+            WriteNode(Entry.Contents, PrimaryStyle, SecondaryStyle);
             Console.WriteLine();
         }
 
-        public void WriteEntry(string Header, Color HeaderColor, Color PrimaryColor, Color SecondaryColor, LogEntry Entry)
+        public void WriteEntry(string Header, Style HeaderStyle, Style PrimaryStyle, Style SecondaryStyle, LogEntry Entry)
         {
             lock (writeLock)
             {
                 if (!string.IsNullOrWhiteSpace(Header))
                 {
-                    Console.Write(Header + ": ", HeaderColor);
+                    Console.Write(Header + ": ", HeaderStyle);
                 }
-                WriteEntryInternal(PrimaryColor, SecondaryColor, Entry);
+                WriteEntryInternal(PrimaryStyle, SecondaryStyle, Entry);
             }
         }
-        public void WriteEntry(string Header, Color PrimaryColor, Color SecondaryColor, LogEntry Entry)
+        public void WriteEntry(string Header, Style PrimaryStyle, Style SecondaryStyle, LogEntry Entry)
         {
-            WriteEntry(Header, PrimaryColor, PrimaryColor, SecondaryColor, Entry);
+            WriteEntry(Header, PrimaryStyle, PrimaryStyle, SecondaryStyle, Entry);
         }
-        public void WriteEntry(string Header, Color HeaderColor, string Entry)
+        public void WriteEntry(string Header, Style EntryStyle, LogEntry Entry)
         {
-            WriteEntry(Header, HeaderColor, BrightGreen, DimGreen, new LogEntry("", Entry));
+            WriteEntry(Header, MakeBrightStyle(EntryStyle), MakeDimStyle(EntryStyle), Entry);
         }
-        public void WriteEntry(string Header, LogEntry Entry)
+        public void WriteEntry(string Header, Style EntryStyle, string Entry)
         {
-            WriteEntry(Header, new Color(), BrightGreen, DimGreen, Entry);
+            WriteEntry(Header, EntryStyle, new LogEntry("", Entry));
         }
         public void WriteEntry(LogEntry Entry)
         {
-            WriteEntry("", BrightGreen, DimGreen, Entry);
+            WriteEntry("", MessageStyle, Entry);
         }
 
-        public void WriteBlockEntry(string Header, Color HeaderColor, Color PrimaryColor, Color SecondaryColor, LogEntry Entry)
+        public void WriteBlockEntry(string Header, Style HeaderStyle, Style PrimaryStyle, Style SecondaryStyle, LogEntry Entry)
         {
             lock (writeLock)
             {
                 Console.WriteSeparator(2);
-                WriteEntry(Header, HeaderColor, PrimaryColor, SecondaryColor, Entry);
+                WriteEntry(Header, HeaderStyle, PrimaryStyle, SecondaryStyle, Entry);
                 Console.WriteSeparator(2);
             }
         }
-        public void WriteBlockEntry(string Header, Color PrimaryColor, Color SecondaryColor, LogEntry Entry)
+        public void WriteBlockEntry(string Header, Style PrimaryStyle, Style SecondaryStyle, LogEntry Entry)
         {
-            WriteBlockEntry(Header, PrimaryColor, PrimaryColor, SecondaryColor, Entry);
+            WriteBlockEntry(Header, PrimaryStyle, PrimaryStyle, SecondaryStyle, Entry);
+        }
+        public void WriteBlockEntry(string Header, Style EntryStyle, LogEntry Entry)
+        {
+            WriteBlockEntry(Header, MakeBrightStyle(EntryStyle), MakeDimStyle(EntryStyle), Entry);
         }
         public void WriteBlockEntry(LogEntry Entry)
         {
-            WriteBlockEntry("", BrightGreen, DimGreen, Entry);
+            WriteBlockEntry("", MessageStyle, Entry);
         }
 
         #region Defaults
@@ -137,20 +141,108 @@ namespace Flame.Front
 
         #endregion
 
-        #region Palette
+        #region Style customization
 
-        public static IStylePalette CreateDefaultPalette(ConsoleDescription Description)
+        /// <summary>
+        /// The internal style name for warnings.
+        /// </summary>
+        public const string WarningStyleName = "warning-header";
+
+        /// <summary>
+        /// The input option prefix for warning styles.
+        /// </summary>
+        public const string WarningStyleOptionPrefix = "warning";
+
+        /// <summary>
+        /// The internal style name for errors.
+        /// </summary>
+        public const string ErrorStyleName = "error-header";
+
+        /// <summary>
+        /// The input option prefix for error styles.
+        /// </summary>
+        public const string ErrorStyleOptionPrefix = "error";
+
+        /// <summary>
+        /// The internal style name for messages and notes.
+        /// </summary>
+        public const string MessageStyleName = "message-header";
+
+        /// <summary>
+        /// The input option prefix for message/note styles.
+        /// </summary>
+        public const string MessageStyleOptionPrefix = "message";
+        
+        /// <summary>
+        /// The suffix for foreground color options.
+        /// </summary>
+        public const string ForegroundColorOptionSuffix = "-fg-color";       
+
+        /// <summary>
+        /// The suffix for background color options.
+        /// </summary>
+        public const string BackgroundColorOptionSuffix = "-bg-color";
+
+        /// <summary>
+        /// The suffix for style preference options.
+        /// </summary>
+        public const string StylePreferencesOptionSuffix = "-style-prefs";
+
+        /// <summary>
+        /// Creates a style from the given default arguments, 
+        /// and input stored in the set of compiler options.
+        /// </summary>
+        /// <param name="Options"></param>
+        /// <param name="OptionPrefix"></param>
+        /// <param name="Name"></param>
+        /// <param name="DefaultForegroundColor"></param>
+        /// <param name="DefaultBackgroundColor"></param>
+        /// <param name="DefaultPreferences"></param>
+        /// <returns></returns>
+        public static Style GetStyle(ICompilerOptions Options, string OptionPrefix,
+            string Name, Color DefaultForegroundColor, Color DefaultBackgroundColor, params string[] DefaultPreferences)
         {
-            return CreateDefaultPalette(Description.ForegroundColor, Description.BackgroundColor);
+            Color fgColor = Options.GetOption<Color>(OptionPrefix + ForegroundColorOptionSuffix, DefaultForegroundColor);
+            Color bgColor = Options.GetOption<Color>(OptionPrefix + BackgroundColorOptionSuffix, DefaultBackgroundColor);
+            string[] prefs = Options.GetOption<string[]>(OptionPrefix + StylePreferencesOptionSuffix, DefaultPreferences);
+
+            return new Style(Name, fgColor, bgColor, prefs);
         }
 
-        public static IStylePalette CreateDefaultPalette(Color ForegroundColor, Color BackgroundColor)
+        /// <summary>
+        /// Creates a style from the given default arguments, 
+        /// and input stored in the set of compiler options.
+        /// </summary>
+        /// <param name="Options"></param>
+        /// <param name="OptionPrefix"></param>
+        /// <param name="Name"></param>
+        /// <param name="DefaultForegroundColor"></param>
+        /// <returns></returns>
+        public static Style GetStyle(ICompilerOptions Options, string OptionPrefix,
+            string Name, Color DefaultForegroundColor)
+        {
+            return GetStyle(Options, OptionPrefix, Name, DefaultForegroundColor, new Color());
+        }
+
+        #endregion
+
+        #region Palette
+
+        public static IStylePalette CreateDefaultPalette(ConsoleDescription Description, ICompilerOptions Options)
+        {
+            return CreateDefaultPalette(Description.ForegroundColor, Description.BackgroundColor, Options);
+        }
+
+        public static IStylePalette CreateDefaultPalette(Color ForegroundColor, Color BackgroundColor, ICompilerOptions Options)
         {
             var palette = new StylePalette(ForegroundColor, BackgroundColor);
             palette.RegisterStyle(RemarksNodeWriter.GetRemarksStyle(palette));
             palette.RegisterStyle(HighlightingNodeWriter.GetHighlightStyle(palette));
             palette.RegisterStyle(HighlightingNodeWriter.GetHighlightExtraStyle(palette));
             palette.RegisterStyle(HighlightingNodeWriter.GetHighlightMissingStyle(palette));
+            palette.RegisterStyle(GetStyle(Options, ErrorStyleOptionPrefix, ErrorStyleName, DefaultConsole.ToPixieColor(ConsoleColor.Red)));
+            palette.RegisterStyle(GetStyle(Options, WarningStyleOptionPrefix, WarningStyleName, DefaultConsole.ToPixieColor(ConsoleColor.Yellow)));
+            palette.RegisterStyle(GetStyle(Options, MessageStyleOptionPrefix, MessageStyleName, DefaultConsole.ToPixieColor(ConsoleColor.Green)));
             return palette;
         }
 
@@ -159,6 +251,16 @@ namespace Flame.Front
         #endregion
 
         #region Palette
+
+        public Style MakeBrightStyle(Style Input)
+        {
+            return new Style(Input.Name, Palette.MakeBrightColor(Input.ForegroundColor), Input.BackgroundColor, Input.Preferences);
+        }
+
+        public Style MakeDimStyle(Style Input)
+        {
+            return new Style(Input.Name, Palette.MakeDimColor(Input.ForegroundColor), Input.BackgroundColor, Input.Preferences);
+        }
 
         public Color ContrastForegroundColor
         {
@@ -184,115 +286,27 @@ namespace Flame.Front
             }
         }
 
-        public Color BrightRed
+        public Style ErrorStyle
         {
             get
             {
-                return Palette.MakeBrightColor(DefaultConsole.ToPixieColor(ConsoleColor.Red));
+                return Palette.GetNamedStyle(ErrorStyleName);
             }
         }
 
-        public Color DimRed
+        public Style WarningStyle
         {
             get
             {
-                return Palette.MakeDimColor(DefaultConsole.ToPixieColor(ConsoleColor.Red));
+                return Palette.GetNamedStyle(WarningStyleName);
             }
         }
 
-        public Color BrightYellow
+        public Style MessageStyle
         {
             get
             {
-                return Palette.MakeBrightColor(DefaultConsole.ToPixieColor(ConsoleColor.Yellow));
-            }
-        }
-
-        public Color DimYellow
-        {
-            get
-            {
-                return Palette.MakeDimColor(DefaultConsole.ToPixieColor(ConsoleColor.Yellow));
-            }
-        }
-
-        public Color BrightBlue
-        {
-            get
-            {
-                return Palette.MakeBrightColor(DefaultConsole.ToPixieColor(ConsoleColor.Blue));
-            }
-        }
-
-        public Color DimBlue
-        {
-            get
-            {
-                return Palette.MakeDimColor(DefaultConsole.ToPixieColor(ConsoleColor.Blue));
-            }
-        }
-
-        public Color BrightCyan
-        {
-            get
-            {
-                return Palette.MakeBrightColor(DefaultConsole.ToPixieColor(ConsoleColor.Cyan));
-            }
-        }
-
-        public Color DimCyan
-        {
-            get
-            {
-                return Palette.MakeDimColor(DefaultConsole.ToPixieColor(ConsoleColor.Cyan));
-            }
-        }
-
-        public Color BrightMagenta
-        {
-            get
-            {
-                return Palette.MakeBrightColor(DefaultConsole.ToPixieColor(ConsoleColor.Magenta));
-            }
-        }
-
-        public Color DimMagenta
-        {
-            get
-            {
-                return Palette.MakeDimColor(DefaultConsole.ToPixieColor(ConsoleColor.Magenta));
-            }
-        }
-
-        public Color BrightGreen
-        {
-            get
-            {
-                return Palette.MakeBrightColor(DefaultConsole.ToPixieColor(ConsoleColor.Green));
-            }
-        }
-
-        public Color DimGreen
-        {
-            get
-            {
-                return Palette.MakeDimColor(DefaultConsole.ToPixieColor(ConsoleColor.Green));
-            }
-        }
-
-        public Color BrightGray
-        {
-            get
-            {
-                return Palette.MakeBrightColor(DefaultConsole.ToPixieColor(ConsoleColor.Gray));
-            }
-        }
-
-        public Color DimGray
-        {
-            get
-            {
-                return Palette.MakeDimColor(DefaultConsole.ToPixieColor(ConsoleColor.Gray));
+                return Palette.GetNamedStyle(MessageStyleName);
             }
         }
 
@@ -300,28 +314,28 @@ namespace Flame.Front
 
         #region Write*Node
 
-        public void WriteNode(IMarkupNode Node, Color CaretColor, Color HighlightColor)
+        public void WriteNode(IMarkupNode Node, Style CaretStyle, Style HighlightStyle)
         {
             lock (writeLock)
             {
-                WriteNodeCore(Node, CaretColor, HighlightColor);
+                WriteNodeCore(Node, CaretStyle, HighlightStyle);
             }
         }
 
-        private void WriteNodeDefault(IMarkupNode Node, Color CaretColor, Color HighlightColor)
+        private void WriteNodeDefault(IMarkupNode Node, Style CaretStyle, Style HighlightStyle)
         {
             Console.Write(Node.GetText());
             foreach (var item in Node.Children)
             {
-                WriteNodeCore(item, CaretColor, HighlightColor);
+                WriteNodeCore(item, CaretStyle, HighlightStyle);
             }
         }
 
-        private void WriteNodeCore(IMarkupNode Node, Color CaretColor, Color HighlightColor)
+        private void WriteNodeCore(IMarkupNode Node, Style CaretStyle, Style HighlightStyle)
         {
             var dependentStyles = new List<Style>();
-            dependentStyles.Add(new Style(StyleConstants.CaretMarkerStyleName, CaretColor, new Color(), GetDiagnosticsCharacterPreferences("caret-character")));
-            dependentStyles.Add(new Style(StyleConstants.CaretHighlightStyleName, HighlightColor, new Color(), GetDiagnosticsCharacterPreferences("highlight-character")));
+            dependentStyles.Add(new Style(StyleConstants.CaretMarkerStyleName, CaretStyle.ForegroundColor, CaretStyle.BackgroundColor, GetDiagnosticsCharacterPreferences("caret-character")));
+            dependentStyles.Add(new Style(StyleConstants.CaretHighlightStyleName, HighlightStyle.ForegroundColor, HighlightStyle.BackgroundColor, GetDiagnosticsCharacterPreferences("highlight-character")));
 
             var extPalette = new ExtendedPalette(Palette, dependentStyles);
 
@@ -360,7 +374,7 @@ namespace Flame.Front
 
         public void LogError(LogEntry Entry)
         {
-            WriteBlockEntry("Error", BrightRed, DimRed, Entry);
+            WriteBlockEntry("Error", ErrorStyle, Entry);
         }
 
         public void LogEvent(LogEntry Entry)
@@ -375,7 +389,7 @@ namespace Flame.Front
 
         public void LogWarning(LogEntry Entry)
         {
-            WriteBlockEntry("Warning", BrightYellow, DimYellow, Entry);
+            WriteBlockEntry("Warning", WarningStyle, Entry);
         }
 
         public void Dispose()

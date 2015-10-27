@@ -42,7 +42,7 @@ namespace Flame.Front.Projects
                 {
                     new ProjectRuntimeLibrary("PortableRT"),
                     new ProjectRuntimeLibrary("System"),
-                    new ProjectRuntimeLibrary("System.Core"),
+                    new ProjectRuntimeLibrary("System.Core")
                 }));
                 items.Add(new ProjectNode(new IProjectItem[]
                 {

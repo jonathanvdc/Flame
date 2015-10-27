@@ -24,14 +24,14 @@ namespace Flame.Front.Target
             return Identifier.Split('/', '\\').First().Equals("clr", StringComparison.OrdinalIgnoreCase);
         }
 
-        public IAssemblyResolver GetRuntimeAssemblyResolver(string Identifier)
+        public IAssemblyResolver GetRuntimeAssemblyResolver(string Identifier, ICompilerLog Log)
         {
             return CecilRuntimeLibraries.Resolver;
         }
 
         public static Mono.Cecil.IAssemblyResolver CreateCecilAssemblyResolver()
         {
-            return new SpecificAssemblyResolver(CecilRuntimeLibraries.CecilResolver);
+            return new SpecificAssemblyResolver();
         }
 
         public IDependencyBuilder CreateDependencyBuilder(string Identifier, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, 

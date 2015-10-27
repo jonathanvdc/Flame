@@ -23,6 +23,47 @@ namespace Flame.Front.Projects
         public IProject Project { get; private set; }
     }
 
+    public class ProjectDependency
+    {
+        public ProjectDependency(ParsedProject Project, IProjectHandler Handler)
+        {
+            this.Project = Project;
+            this.LibraryDependencies = new HashSet<PathIdentifier>(
+                Project.Project.GetProjectReferences().Select(Project.CurrentPath.GetAbsolutePath), 
+                PathNameComparer.Instance);
+            this.Handler = Handler;
+        }
+
+        public PathIdentifier Identifier { get { return Project.CurrentPath; } }
+        public ParsedProject Project { get; private set; }
+        public IProjectHandler Handler { get; private set; }
+        public HashSet<PathIdentifier> LibraryDependencies { get; private set; }
+
+        /// <summary>
+        /// Gets a "root" project from the given set
+        /// of project dependencies: a project that
+        /// does not depend on any of the other projects 
+        /// in the dependency set.
+        /// If no such element exists, null is returned.
+        /// </summary>
+        /// <param name="Dependencies"></param>
+        /// <returns></returns>
+        public static ProjectDependency GetRootProject(IEnumerable<ProjectDependency> Dependencies)
+        {
+            var allProjectIdentifiers = new HashSet<PathIdentifier>(Dependencies.Select(item => item.Identifier), PathPossiblyExtendedNameComparer.Instance);
+            foreach (var item in Dependencies)
+            {
+                if (!item.LibraryDependencies.Intersect(allProjectIdentifiers, PathPossiblyExtendedNameComparer.Instance)
+                                             .Except(new PathIdentifier[] { item.Identifier }, PathPossiblyExtendedNameComparer.Instance)
+                                             .Any())
+                {
+                    return item;
+                }
+            }
+            return null;
+        }
+    }
+
     public interface IProjectHandler
     {
         IEnumerable<string> Extensions { get; }
@@ -37,6 +78,14 @@ namespace Flame.Front.Projects
 
         Task<IAssembly> CompileAsync(IProject Project, CompilationParameters Parameters);
 
+        /// <summary>
+        /// Creates a new project at the given path from the
+        /// specified project.
+        /// </summary>
+        /// <param name="Project"></param>
+        /// <param name="Path"></param>
+        /// <param name="Log"></param>
+        /// <returns></returns>
         IProject MakeProject(IProject Project, ProjectPath Path, ICompilerLog Log);
 
         /// <summary>

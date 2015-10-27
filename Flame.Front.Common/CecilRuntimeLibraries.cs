@@ -17,7 +17,6 @@ namespace Flame.Front
         static CecilRuntimeLibraries()
         {
             resolver = new CecilRTLibraryResolver();
-            asmResolver = new SpecificAssemblyResolver();
         }
 
         private static IAssemblyResolver resolver;
@@ -26,13 +25,7 @@ namespace Flame.Front
             get { return resolver; }
         }
 
-        private static SpecificAssemblyResolver asmResolver;
-        public static SpecificAssemblyResolver CecilResolver
-        {
-            get { return asmResolver; }
-        }
-
-        public static IAssembly RevolveRuntimeLibrary(string Identifier)
+        public static IAssembly RevolveRuntimeLibrary(string Identifier, IDependencyBuilder DependencyBuilder)
         {
             Assembly loadedAsm;
             switch (Identifier)
@@ -54,23 +47,21 @@ namespace Flame.Front
                 default:
                     return null;
             }
-            var asmDef = Mono.Cecil.AssemblyDefinition.ReadAssembly(loadedAsm.Location, new Mono.Cecil.ReaderParameters() 
-            { 
-                AssemblyResolver = CecilResolver 
-            });
+            var readerParams = DependencyBuilder.GetCecilReaderParameters();
+            var asmDef = Mono.Cecil.AssemblyDefinition.ReadAssembly(loadedAsm.Location, readerParams);
             return new CecilAssembly(asmDef, CecilReferenceResolver.ConversionCache);
         }
 
         private class CecilRTLibraryResolver : IAssemblyResolver
         {
-            public async Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
+            public Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
             {
-                return RevolveRuntimeLibrary(Identifier.Path);
+                return Task.FromResult<IAssembly>(RevolveRuntimeLibrary(Identifier.Path, DependencyBuilder));
             }
 
-            public async Task<PathIdentifier?> CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
+            public Task<PathIdentifier?> CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
             {
-                return null;
+                return Task.FromResult<PathIdentifier?>(null);
             }
         }
     }

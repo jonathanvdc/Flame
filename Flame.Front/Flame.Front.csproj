@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinderResolver.cs" />
+    <Compile Include="Projects\ProjectLibrary.cs" />
     <Compile Include="Target\BodyAnalysisPass.cs" />
     <Compile Include="Target\BodyStatementPass.cs" />
     <Compile Include="Cli\AnsiConsole.cs" />
@@ -81,7 +82,7 @@
     <Compile Include="EmptyAssemblyResolver.cs" />
     <Compile Include="FileOutputProvider.cs" />
     <Compile Include="Cli\IConsole.cs" />
-    <Compile Include="MultiBinder.cs" />
+    <Compile Include="Target\DependencyBinder.cs" />
     <Compile Include="Cli\INodeWriter.cs" />
     <Compile Include="LogExtensions.cs" />
     <Compile Include="Options\CachedOptions.cs" />
@@ -94,7 +95,7 @@
     <Compile Include="ILogFilter.cs" />
     <Compile Include="Options\ArgumentStream.cs" />
     <Compile Include="Options\BuildArguments.cs" />
-    <Compile Include="Options\ChatLogFilter.cs" />
+    <Compile Include="Options\FlagLogFilter.cs" />
     <Compile Include="Options\IOptionParser.cs" />
     <Compile Include="Options\OptionLog.cs" />
     <Compile Include="Options\StringArrayOptionParser.cs" />

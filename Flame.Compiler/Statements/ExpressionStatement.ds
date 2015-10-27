@@ -42,11 +42,21 @@ namespace Flame.Compiler.Statements
             }
         }
 
-        public const IStatement Simplify()
+        public IStatement Simplify()
         {
             if (Expression.IsConstant)
             {
                 return EmptyStatement;
+            }
+            else if (Expression is InitializedExpression)
+            {
+                var initExpr = (InitializedExpression)Expression;
+                return new BlockStatement(new IStatement[]
+                {
+                    initExpr.Initialization,
+                    new ExpressionStatement(initExpr.Value).Simplify(),
+                    initExpr.Finalization
+                }).Simplify();
             }
             else
             {
@@ -57,14 +67,7 @@ namespace Flame.Compiler.Statements
         public const IStatement Optimize() : IStatement.Optimize
         {
         	var optExpr = Expression.Optimize();
-        	if (optExpr.IsConstant)
-        	{
-        		return EmptyStatement;
-        	}
-        	else
-        	{
-            	return new ExpressionStatement(Expression.Optimize());
-            }
+        	return new ExpressionStatement(optExpr).Simplify();
         }
 
         public ICodeBlock Emit(ICodeGenerator Generator) : IStatement.Emit
@@ -75,7 +78,7 @@ namespace Flame.Compiler.Statements
 
         public override string ToString()
         {
-            return "pop-stmt(" + (string)Expression + ")";
+            return "ignore(" + (string)Expression + ")";
         }
     }
 }

@@ -45,6 +45,18 @@
     <Reference Include="Flame.Syntax">
       <HintPath>..\Flame.Syntax\bin\Flame.Syntax.dll</HintPath>
     </Reference>
+    <Reference Include="Loyc.Binary">
+      <HintPath>..\libs\Loyc\Loyc.Binary.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Collections">
+      <HintPath>..\libs\Loyc\Loyc.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Essentials">
+      <HintPath>..\libs\Loyc\Loyc.Essentials.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Syntax">
+      <HintPath>..\libs\Loyc\Loyc.Syntax.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>..\Flame.Cecil\bin\Release\Mono.Cecil.dll</HintPath>
     </Reference>
@@ -70,7 +82,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnalyzingOptimizer.cs" />
     <Compile Include="CecilReferenceResolver.cs" />
     <Compile Include="CecilRuntimeLibraries.cs" />
     <Compile Include="CompilerOptionExtensions.cs" />
@@ -78,6 +89,8 @@
     <Compile Include="ConsoleCompiler.cs" />
     <Compile Include="MarsRuntimeLibraries.cs" />
     <Compile Include="Preferences\PreferenceFile.cs" />
+    <Compile Include="Projects\FlameIRProject.cs" />
+    <Compile Include="Projects\FlameIRProjectHandler.cs" />
     <Compile Include="Projects\ProjectHandlers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReferenceResolvers.cs" />
@@ -87,6 +100,8 @@
     <Compile Include="Target\ContractBuildTarget.cs" />
     <Compile Include="Target\CppBuildTargetParser.cs" />
     <Compile Include="Target\CppDependencyBuilderExtensions.cs" />
+    <Compile Include="Target\FlameIRBuildTargetParser.cs" />
+    <Compile Include="Target\FlameIRReferenceResolver.cs" />
     <Compile Include="Target\InliningPass.cs" />
     <Compile Include="Target\MipsBuildTargetParser.cs" />
     <Compile Include="Target\PassExtensions.cs" />
@@ -108,6 +123,10 @@
     <ProjectReference Include="..\Flame.Front\Flame.Front.csproj">
       <Project>{a362bcd9-7b23-45da-99a6-6b995c92480e}</Project>
       <Name>Flame.Front</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Flame.Intermediate\Flame.Intermediate.csproj">
+      <Project>{8fa49fdd-2e4b-4f1b-9dc4-3a0df48ad309}</Project>
+      <Name>Flame.Intermediate</Name>
     </ProjectReference>
     <ProjectReference Include="..\Flame.MIPS\Flame.MIPS.csproj">
       <Project>{0f61b9f7-907b-4b19-8227-55662dc6e70a}</Project>

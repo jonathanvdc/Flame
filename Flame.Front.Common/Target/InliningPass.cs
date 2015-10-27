@@ -67,7 +67,12 @@ namespace Flame.Front.Target
             }
 
             var body = Args.PassEnvironment.GetMethodBody(Call.Method);
-            if (body == null || !AccessChecker.CanAccess(Args.DeclaringType, body))
+            var thisType = Args.DeclaringType;
+            if (thisType.get_IsGeneric() && thisType.get_IsGenericDeclaration())
+            {
+                thisType = thisType.MakeGenericType(thisType.GenericParameters);
+            }
+            if (body == null || !AccessChecker.CanAccess(thisType, body))
             {
                 return false;
             }

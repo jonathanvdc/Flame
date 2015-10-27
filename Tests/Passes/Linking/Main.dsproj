@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<Project Name="Main">
+  <Setter Property="TargetPlatform" Value="clr" />
+  <Setter Property="AssemblyName" Value="Main" />
+  <ItemGroup>
+    <RuntimeLibrary Include="PortableRT" />
+    <RuntimeLibrary Include="System" />
+    <RuntimeLibrary Include="System.Core" />
+    <Reference Include="bin/Lib.flo" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Main.ds" />
+  </ItemGroup>
+</Project>

@@ -10,14 +10,14 @@ namespace Flame.Front
 {
     public class EmptyAssemblyResolver : IAssemblyResolver
     {
-        public async Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
+        public Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
         {
-            return null;
+            return Task.FromResult<IAssembly>(null);
         }
 
-        public async Task<PathIdentifier?> CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
+        public Task<PathIdentifier?> CopyAsync(PathIdentifier SourceIdentifier, PathIdentifier TargetIdentifier, ICompilerLog Log)
         {
-            return null;
+            return Task.FromResult<PathIdentifier?>(null);
         }
     }
 }

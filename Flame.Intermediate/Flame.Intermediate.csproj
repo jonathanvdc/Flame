@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8FA49FDD-2E4B-4F1B-9DC4-3A0DF48AD309}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Flame.Intermediate</RootNamespace>
+    <AssemblyName>Flame.Intermediate</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Flame">
+      <HintPath>..\Flame.Compiler\bin\Flame.dll</HintPath>
+    </Reference>
+    <Reference Include="Flame.Compiler">
+      <HintPath>..\Flame.Compiler\bin\Flame.Compiler.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Binary">
+      <HintPath>..\libs\Loyc\Loyc.Binary.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Collections">
+      <HintPath>..\libs\Loyc\Loyc.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Essentials">
+      <HintPath>..\libs\Loyc\Loyc.Essentials.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Syntax">
+      <HintPath>..\libs\Loyc\Loyc.Syntax.dll</HintPath>
+    </Reference>
+    <Reference Include="Pixie">
+      <HintPath>..\Flame.Compiler\bin\Pixie.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ConstantNodeStructure.cs" />
+    <Compile Include="Emit\IRAccessorBuilder.cs" />
+    <Compile Include="Emit\IRFieldBuilder.cs" />
+    <Compile Include="Emit\IRPropertyBuilder.cs" />
+    <Compile Include="Emit\NodeBlock.cs" />
+    <Compile Include="Emit\IRCodeGenerator.cs" />
+    <Compile Include="Emit\IREmitHelpers.cs" />
+    <Compile Include="Emit\IRFieldVisitor.cs" />
+    <Compile Include="Emit\IRGenericMemberTypeVisitor.cs" />
+    <Compile Include="Emit\IRMethodBuilder.cs" />
+    <Compile Include="Emit\IRMethodVisitor.cs" />
+    <Compile Include="Emit\IRNamespaceBuilder.cs" />
+    <Compile Include="Emit\IRRootNamespaceBuilder.cs" />
+    <Compile Include="Emit\IRTypeBuilder.cs" />
+    <Compile Include="Emit\IRTypeVisitor.cs" />
+    <Compile Include="Emit\NodeCatchClause.cs" />
+    <Compile Include="Emit\NodeEmitVariable.cs" />
+    <Compile Include="Emit\NodeForeachHeader.cs" />
+    <Compile Include="Emit\NodeLambdaHeader.cs" />
+    <Compile Include="Emit\UniqueNameMap.cs" />
+    <Compile Include="Emit\UniqueNameSet.cs" />
+    <Compile Include="EmptyNodeList.cs" />
+    <Compile Include="INodeStructure.cs" />
+    <Compile Include="IRAccessor.cs" />
+    <Compile Include="Emit\IRAssemblyBuilder.cs" />
+    <Compile Include="Emit\IRDependencyBuilder.cs" />
+    <Compile Include="IRGenericParameter.cs" />
+    <Compile Include="IRNamespaceBase.cs" />
+    <Compile Include="IRParameter.cs" />
+    <Compile Include="Emit\IRTableBuilder.cs" />
+    <Compile Include="LazyNodeStructure.cs" />
+    <Compile Include="LazyValueStructure.cs" />
+    <Compile Include="LiteralNodeStructure.cs" />
+    <Compile Include="IRAssembly.cs" />
+    <Compile Include="IRField.cs" />
+    <Compile Include="NodeCons.cs" />
+    <Compile Include="NodeFactory.cs" />
+    <Compile Include="NodeList.cs" />
+    <Compile Include="IRMethod.cs" />
+    <Compile Include="IRNamespace.cs" />
+    <Compile Include="IRProperty.cs" />
+    <Compile Include="IRRootNamespace.cs" />
+    <Compile Include="IRSignature.cs" />
+    <Compile Include="IRTypeDefinition.cs" />
+    <Compile Include="Parsing\AttributeParsers.cs" />
+    <Compile Include="Parsing\DefinitionParser.cs" />
+    <Compile Include="Parsing\ExpressionParsers.cs" />
+    <Compile Include="Parsing\IRParser.cs" />
+    <Compile Include="Parsing\ImmutableHeader.cs" />
+    <Compile Include="Parsing\ReferenceParser.cs" />
+    <Compile Include="Parsing\ParserState.cs" />
+    <Compile Include="Parsing\TagReferenceExpression.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VersionNodeStructure.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

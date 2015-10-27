@@ -1,4 +1,7 @@
-﻿using Flame.Compiler;
+﻿using Flame.Binding;
+using Flame.CodeDescription;
+using Flame.Compiler;
+using Flame.Compiler.Build;
 using Flame.Compiler.Projects;
 using Flame.Front.Cli;
 using Flame.Front.Options;
@@ -49,7 +52,7 @@ namespace Flame.Front.Cli
 
         public static ICompilerOptions CreateDefaultOptions(IOptionParser<string> OptionParser)
         {
-            var dict = new Dictionary<string, string>() { { "docs-format", "xml"} };
+            var dict = new Dictionary<string, string>() { { "docs-format", "xml" } };
             return new StringCompilerOptions(dict, OptionParser);
         }
 
@@ -97,37 +100,51 @@ namespace Flame.Front.Cli
                     log.LogEvent(new LogEntry("Flame libraries copied", "All Flame libraries included with " + Name + " have been copied to '" + targetPath.ToString() + "'."));
                 }
 
-                log.WriteEntry("Nothing to compile", log.BrightYellow, "No source file or project was given.");
+                log.WriteEntry("Nothing to compile", log.WarningStyle, "No source file or project was given.");
                 return;
             }
 
             try
             {
-                var allTasks = new List<Task>();
-                foreach (var item in LoadProjects(buildArgs, new FilteredLog(mergedArgs.GetLogFilter(), log)))
+                var tempLog = new FilteredLog(mergedArgs.GetLogFilter(), log);
+                var allProjs = LoadProjects(buildArgs, tempLog);
+                var projOrder = GetCompilationOrder(allProjs, tempLog);
+                var fixedProjs = projOrder.Select(proj =>
                 {
-                    foreach (var proj in item.Value)
+                    if (buildArgs.MakeProject)
                     {
-                        var realProj = proj.Project;
-                        if (buildArgs.MakeProject)
-                        {
-                            realProj = item.Key.MakeProject(proj.Project, new ProjectPath(proj.CurrentPath, buildArgs), log);
-                        }
-
-                        allTasks.Add(Compile(realProj, new CompilerEnvironment(proj.CurrentPath, buildArgs, item.Key, realProj, log)));
+                        var innerProj = proj.Handler.MakeProject(proj.Project.Project, new ProjectPath(proj.Project.CurrentPath, buildArgs), tempLog);
+                        return new ProjectDependency(new ParsedProject(proj.Project.CurrentPath, innerProj), proj.Handler);
                     }
-                }
-                Task.WhenAll(allTasks).Wait();
-                ReportUnusedOptions(buildArgs, log);
+                    else
+                    {
+                        return proj;
+                    }
+                }).ToArray();
+
+                var mainProj = fixedProjs.Last();
+                var mainState = new CompilerEnvironment(mainProj.Project.CurrentPath, buildArgs, mainProj.Handler, mainProj.Project.Project, log);
+
+                var resolvedDependencies = ResolveDependencies(fixedProjs.Select(item => item.Project), mainState);
+
+                var allStates = fixedProjs.Select(proj => new CompilerEnvironment(proj.Project.CurrentPath, buildArgs, proj.Handler, proj.Project.Project, log));
+
+                var allAsms = CompileAsync(allStates, resolvedDependencies.Item1).Result;
+
+                var partitionedAsms = GetMainAssembly(allAsms);
+                var mainAsm = partitionedAsms.Item1;
+                var auxAsms = partitionedAsms.Item2;
+
+                var buildTarget = LinkAsync(mainAsm, auxAsms, mainState, resolvedDependencies.Item2).Result;
+                var docs = Document(mainState, mainAsm, auxAsms);
+
+                Save(mainState, buildTarget, docs);
+
+                ReportUnusedOptions(buildArgs, mainState.FilteredLog);
             }
             catch (Exception ex)
             {
-                log.LogError(new LogEntry("Compilation terminated", "Compilation has been terminated due to a fatal error."));
-                var entry = new LogEntry("Exception", ex.ToString());
-                if (mergedArgs.GetLogFilter().ShouldLogEvent(entry))
-                {
-                    log.LogError(entry);
-                }
+                LogUnhandledException(ex, log, mergedArgs);
             }
             finally
             {
@@ -146,10 +163,17 @@ namespace Flame.Front.Cli
             }
         }
 
-        public IReadOnlyDictionary<IProjectHandler, IEnumerable<ParsedProject>> LoadProjects(BuildArguments Args, ICompilerLog Log)
-        {
-            var parsedProjects = new Dictionary<IProjectHandler, List<ParsedProject>>();
+        #region Project loading
 
+        public IReadOnlyList<ProjectDependency> LoadProjects(BuildArguments Args, ICompilerLog Log)
+        {
+            // Maintain a dictionary that maps project handlers to 
+            // the minimal project index in the build argument list for
+            // that type of project and a list of all parsed projects
+            // for said type.
+            var parsedProjects = new Dictionary<IProjectHandler, Tuple<int, List<ParsedProject>>>();
+
+            int index = 0;
             foreach (var item in Args.SourcePaths)
             {
                 var projPath = new ProjectPath(item, Args);
@@ -158,12 +182,17 @@ namespace Flame.Front.Cli
                 var currentPath = GetAbsolutePath(item);
                 if (!parsedProjects.ContainsKey(handler))
                 {
-                    parsedProjects[handler] = new List<ParsedProject>();
+                    parsedProjects[handler] = Tuple.Create(index, new List<ParsedProject>());
                 }
-                parsedProjects[handler].Add(new ParsedProject(currentPath, project));
+                parsedProjects[handler].Item2.Add(new ParsedProject(currentPath, project));
+                index++;
             }
 
-            return parsedProjects.ToDictionary(pair => pair.Key, pair => pair.Key.Partition(pair.Value));
+            var dict = parsedProjects.ToDictionary(
+                pair => pair.Value.Item1, 
+                pair => pair.Key.Partition(pair.Value.Item2).Select(proj => new ProjectDependency(proj, pair.Key)));
+
+            return dict.OrderBy(item => item.Key).SelectMany(item => item.Value).ToArray();
         }
 
         public static IProject LoadProject(ProjectPath Path, IProjectHandler Handler, ICompilerLog Log)
@@ -188,43 +217,164 @@ namespace Flame.Front.Cli
             return proj;
         }
 
-        private static PathIdentifier GetAbsolutePath(PathIdentifier RelativePath)
+        #endregion
+
+        #region Main project/assembly selection
+
+        /// <summary>
+        /// Gets the given sequence of projects' compilation order.
+        /// </summary>
+        /// <param name="Projects"></param>
+        /// <returns></returns>
+        public static IReadOnlyList<ProjectDependency> GetCompilationOrder(IEnumerable<ProjectDependency> Projects, ICompilerLog Log)
         {
-            var currentUri = new PathIdentifier(Directory.GetCurrentDirectory());
-            var resultUri = currentUri.Combine(RelativePath);
-            return resultUri.AbsolutePath;
+            var results = new List<ProjectDependency>();
+            // Do this in reverse such that projects which were specified later
+            // on in the list of command-line arguments are compiled first.
+            // Given no dependencies, this will result in the first
+            // project becoming the main project, which makes sense from a 
+            // user's point of view.
+            var worklist = new List<ProjectDependency>(Projects.Reverse());
+            while (worklist.Count > 0)
+            {
+                var root = ProjectDependency.GetRootProject(worklist);
+
+                if (root == null)
+                {
+                    Log.LogError(new LogEntry(
+                        "Cyclic dependency graph", 
+                        "The given set of projects produces cyclic graph of project dependencies, which cannot be compiled."));
+                    throw new InvalidOperationException("Cannot get the compilation order of a cyclic dependency graph.");
+                }
+
+                results.Add(root);
+                worklist.Remove(root);
+            }
+
+            return results;
         }
 
-        private static Flame.Compiler.Visitors.IPass<RecompilationPassArguments, INode> GetRecompilationPass(ICompilerLog Log)
+        /// <summary>
+        /// Determines the given sequence of assemblies' "main" assembly.
+        /// </summary>
+        /// <param name="Assemblies"></param>
+        /// <returns></returns>
+        public static Tuple<IAssembly, IEnumerable<IAssembly>> GetMainAssembly(IEnumerable<IAssembly> Assemblies)
         {
-            return Log.Options.GetOption<string>("recompilation-technique", "visitor") == "visitor" ?
-                (Flame.Compiler.Visitors.IPass<RecompilationPassArguments, INode>)VisitorRecompilationPass.Instance :
-                (Flame.Compiler.Visitors.IPass<RecompilationPassArguments, INode>)CodeGeneratorRecompilationPass.Instance;
+            var epAsm = Assemblies.FirstOrDefault(item => item.GetEntryPoint() != null);
+            if (epAsm != null)
+            {
+                return Tuple.Create(epAsm, Assemblies.Where(item => item != epAsm));
+            }
+            else
+            {
+                return Tuple.Create(Assemblies.First(), Assemblies.Skip(1));
+            }
         }
 
-        public static async Task Compile(IProject Project, CompilerEnvironment State)
-        {
-            var dirName = State.Arguments.GetTargetPathWithoutExtension(State.ParentPath, Project).Parent;
+        #endregion
 
-            string targetIdent = Project.GetTargetPlatform(State.Options);
+        #region Dependency resolution
+
+        /// <summary>
+        /// Adds the given assembly's binder to the pre-existing binder task.
+        /// </summary>
+        /// <param name="BinderTask"></param>
+        /// <param name="Assembly"></param>
+        /// <returns></returns>
+        public static async Task<IBinder> AddToBinderAsync(Task<IBinder> BinderTask, IAssembly Assembly)
+        {
+            var binder = await BinderTask;
+            return new DualBinder(binder, Assembly.CreateBinder());
+        }
+
+        /// <summary>
+        /// Creates a binder task and a build target building 
+        /// function for the given set of projects and main project state.
+        /// </summary>
+        /// <param name="Projects">The set of all projects to resolve dependencies for.</param>
+        /// <param name="State">The main project's state.</param>
+        /// <returns></returns>
+        public static Tuple<Task<IBinder>, Func<IAssembly, BuildTarget>> ResolveDependencies(IEnumerable<ParsedProject> Projects, CompilerEnvironment State)
+        {
+            var dirName = State.Arguments.GetTargetPathWithoutExtension(State.ParentPath, State.Project).Parent;
+
+            string targetIdent = State.Project.GetTargetPlatform(State.Options);
 
             var targetParser = BuildTargetParsers.GetParserOrThrow(State.FilteredLog, targetIdent, State.CurrentPath);
 
             var dependencyBuilder = BuildTargetParsers.CreateDependencyBuilder(targetParser, targetIdent, State.FilteredLog, State.CurrentPath, dirName);
 
-            var binderResolver = new BinderResolver(Project);
+            var binderResolver = BinderResolver.Create(Projects);
+            foreach (var item in State.Options.GetOption<string[]>(AdditionalLibrariesOption, new string[0]))
+            {
+                binderResolver.AddLibrary(PathIdentifier.Parse(item).AbsolutePath);
+            }
             var binderTask = binderResolver.CreateBinderAsync(dependencyBuilder);
 
-            var projAsm = await State.CompileAsync(binderTask);
+            return Tuple.Create<Task<IBinder>, Func<IAssembly, BuildTarget>>(
+                binderTask, 
+                mainAsm => BuildTargetParsers.CreateBuildTarget(targetParser, targetIdent, dependencyBuilder, mainAsm));
+        }
+
+        #endregion
+
+        #region Compiling
+
+        /// <summary>
+        /// Compiles a single project to a single target assembly, given a binder task.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="BinderTask"></param>
+        /// <returns></returns>
+        public static async Task<IAssembly> CompileAsync(CompilerEnvironment State, Task<IBinder> BinderTask)
+        {
+            var projAsm = await State.CompileAsync(BinderTask);
 
             if (State.Options.MustVerifyAssembly())
             {
-                State.FilteredLog.LogEvent(new LogEntry("Status", "Verifying..."));
+                State.FilteredLog.LogEvent(new LogEntry("Status", "Verifying '" + State.Project.Name + "'..."));
                 VerificationExtensions.VerifyAssembly(projAsm, State.Log);
-                State.FilteredLog.LogEvent(new LogEntry("Status", "Verified"));
+                State.FilteredLog.LogEvent(new LogEntry("Status", "Verified '" + State.Project.Name + "'..."));
             }
 
-            var target = BuildTargetParsers.CreateBuildTarget(targetParser, targetIdent, dependencyBuilder, projAsm);
+            return projAsm;
+        }
+
+        /// <summary>
+        /// Compiles the given sequence of projects in order, given a binder task.
+        /// Successive projects can depend on the previous projects' assemblies.
+        /// </summary>
+        /// <param name="States"></param>
+        /// <param name="BinderTask"></param>
+        /// <returns></returns>
+        public static async Task<IEnumerable<IAssembly>> CompileAsync(IEnumerable<CompilerEnvironment> States, Task<IBinder> BinderTask)
+        {
+            var bindTask = BinderTask;
+            var results = new List<IAssembly>();
+            foreach (var item in States)
+            {
+                var asm = await CompileAsync(item, bindTask);
+                results.Add(asm);
+                bindTask = AddToBinderAsync(bindTask, asm);
+            }
+            return results;
+        }
+
+        #endregion
+
+        #region Linking
+
+        /// <summary>
+        /// Links the given set of source assemblies into a 
+        /// single target assembly. A build target is returned,
+        /// whose target assembly is functionally equivalent to
+        /// the input assemblies linked together.
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<BuildTarget> LinkAsync(IAssembly MainAssembly, IEnumerable<IAssembly> AuxiliaryAssemblies, CompilerEnvironment State, Func<IAssembly, BuildTarget> CreateBuildTarget)
+        {
+            var target = CreateBuildTarget(MainAssembly);
 
             State.FilteredLog.LogEvent(new LogEntry("Status", "Recompiling..."));
 
@@ -238,39 +388,79 @@ namespace Flame.Front.Cli
             }
 
             var passSuite = PassExtensions.CreateSuite(State.FilteredLog, passPrefs);
+            var recompStrategy = State.Options.GetRecompilationStrategy();
 
             var asmRecompiler = new AssemblyRecompiler(target.TargetAssembly, State.FilteredLog, new SingleThreadedTaskManager(), passSuite, recompSettings);
-            await asmRecompiler.RecompileAsync(projAsm, new RecompilationOptions(State.Options.GetRecompilationStrategy(), true));
+            asmRecompiler.AddAssembly(MainAssembly, new RecompilationOptions(recompStrategy, true));
+            foreach (var item in AuxiliaryAssemblies)
+            {
+                asmRecompiler.AddAssembly(item, new RecompilationOptions(recompStrategy, false));
+            }
+            await asmRecompiler.RecompileAsync();
 
             State.FilteredLog.LogEvent(new LogEntry("Status", "Done recompiling"));
 
             target.TargetAssembly.Build();
 
-            var targetPath = State.Arguments.GetTargetPath(State.ParentPath, Project, target);
+            return target;
+        }
 
-            if (target.TargetAssembly is Flame.TextContract.ContractAssembly)
+        #endregion
+
+        #region Documenting
+
+        /// <summary>
+        /// Tries to document the given main and auxiliary source assemblies.
+        /// Returns null on failure.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="MainAssembly"></param>
+        /// <param name="AuxiliaryAssemblies"></param>
+        /// <returns></returns>
+        public static IDocumentationBuilder Document(CompilerEnvironment State, 
+            IAssembly MainAssembly, IEnumerable<IAssembly> AuxiliaryAssemblies)
+        {
+            return State.Options.CreateDocumentationBuilder(MainAssembly, AuxiliaryAssemblies);
+        }
+
+        #endregion
+
+        #region Saving
+
+        /// <summary>
+        /// Saves the output assembly in the build target and the
+        /// docs in the documentation builder as per the
+        /// main project state's instructions.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Target"></param>
+        /// <param name="Documentation"></param>
+        public static void Save(CompilerEnvironment State, BuildTarget Target, IDocumentationBuilder Documentation)
+        {
+            var targetPath = State.Arguments.GetTargetPath(State.ParentPath, State.Project, Target);
+            var dirName = targetPath.Parent;
+
+            if (Target.TargetAssembly is Flame.TextContract.ContractAssembly)
             {
                 dirName = dirName.Combine(targetPath.NameWithoutExtension);
             }
 
-            bool forceWrite = State.FilteredLog.Options.GetOption<bool>("force-write", !target.PreferPreserve);
+            bool forceWrite = State.FilteredLog.Options.GetOption<bool>("force-write", !Target.PreferPreserve);
             bool anyChanges = false;
 
             var outputProvider = new FileOutputProvider(dirName, targetPath, forceWrite);
-            target.TargetAssembly.Save(outputProvider);
+            Target.TargetAssembly.Save(outputProvider);
             outputProvider.Dispose();
             if (outputProvider.AnyFilesOverwritten)
             {
                 anyChanges = true;
             }
 
-            var docBuilder = State.Options.CreateDocumentationBuilder(projAsm);
-
-            if (docBuilder != null)
+            if (Documentation != null)
             {
-                var docTargetPath = targetPath.ChangeExtension(docBuilder.Extension);
+                var docTargetPath = targetPath.ChangeExtension(Documentation.Extension);
                 var docOutput = new FileOutputProvider(dirName, docTargetPath, forceWrite);
-                docBuilder.Save(docOutput);
+                Documentation.Save(docOutput);
                 docOutput.Dispose();
                 if (docOutput.AnyFilesOverwritten)
                 {
@@ -282,6 +472,45 @@ namespace Flame.Front.Cli
             {
                 NotifyUpToDate(State.FilteredLog);
             }
+        }
+
+        #endregion
+
+        #region Helpers
+
+        private static void LogUnhandledException(Exception ex, ICompilerLog log, MergedOptions mergedArgs)
+        {
+            if (ex is AbortCompilationException)
+            {
+                log.LogError(((AbortCompilationException)ex).Entry);
+            }
+            else if (ex is AggregateException)
+            {
+                LogUnhandledException(ex.InnerException, log, mergedArgs);
+            }
+            else
+            {
+                log.LogError(new LogEntry("Compilation terminated", "Compilation has been terminated due to a fatal error."));
+                var entry = new LogEntry("Exception", ex.ToString());
+                if (mergedArgs.GetLogFilter().ShouldLogEvent(entry))
+                {
+                    log.LogError(entry);
+                }
+            }
+        }
+
+        private static PathIdentifier GetAbsolutePath(PathIdentifier RelativePath)
+        {
+            var currentUri = new PathIdentifier(Directory.GetCurrentDirectory());
+            var resultUri = currentUri.Combine(RelativePath);
+            return resultUri.AbsolutePath;
+        }
+
+        private static Flame.Compiler.Visitors.IPass<RecompilationPassArguments, INode> GetRecompilationPass(ICompilerLog Log)
+        {
+            return Log.Options.GetOption<string>("recompilation-technique", "visitor") == "visitor" ?
+                (Flame.Compiler.Visitors.IPass<RecompilationPassArguments, INode>)VisitorRecompilationPass.Instance :
+                (Flame.Compiler.Visitors.IPass<RecompilationPassArguments, INode>)CodeGeneratorRecompilationPass.Instance;
         }
 
         private static void NotifyUpToDate(ICompilerLog Log)
@@ -321,5 +550,13 @@ namespace Flame.Front.Cli
                                             .Select(item => new MarkupNode(NodeConstants.TextNodeType, item)));
             Log.LogMessage(new LogEntry("Optimization directives", optList));
         }
+
+        #endregion
+
+        #region Constants
+
+        public const string AdditionalLibrariesOption = "libs";
+
+        #endregion
     }
 }

@@ -60,7 +60,7 @@ namespace Flame.Recompilation
             this.PropertyCache = new CompilationCache<IProperty>(GetNewProperty, TaskManager);
             this.MethodCache = new CompilationCache<IMethod>(GetNewMethod, TaskManager);
             this.NamespaceCache = new CompilationCache<INamespace>(GetNewNamespace, TaskManager);
-            this.recompiledAssemblies = new List<IAssembly>();
+            this.recompiledAssemblies = new Dictionary<IAssembly, RecompilationOptions>();
             this.cachedEnvironment = new Lazy<IEnvironment>(() => TargetAssembly.CreateBinder().Environment);
             this.methodBodies = new AsyncDictionary<IMethod, IStatement>();
 
@@ -77,7 +77,7 @@ namespace Flame.Recompilation
         public RandomAccessOptions GlobalMetdata { [Pure] get; private set; }
         private Dictionary<IType, RandomAccessOptions> typeMetadata;
 
-        private List<IAssembly> recompiledAssemblies;
+        private Dictionary<IAssembly, RecompilationOptions> recompiledAssemblies;
         private Lazy<IEnvironment> cachedEnvironment;
         private AsyncDictionary<IMethod, IStatement> methodBodies;
 
@@ -110,7 +110,7 @@ namespace Flame.Recompilation
             }
             lock (recompiledAssemblies)
             {
-                return !recompiledAssemblies.Contains(Assembly);
+                return !recompiledAssemblies.ContainsKey(Assembly);
             }
         }
         public bool IsExternal(INamespace Namespace)
@@ -725,6 +725,36 @@ namespace Flame.Recompilation
 
         #endregion
 
+        #region Attributes
+
+        /// <summary>
+        /// Takes an attribute and produces an equivalent attribute
+        /// whose dependencies have been rewritten to target the 
+        /// output assembly.
+        /// </summary>
+        /// <param name="Value"></param>
+        /// <returns></returns>
+        public IAttribute GetAttribute(IAttribute Value)
+        {
+            if (Value is AssociatedTypeAttribute)
+            {
+                return new AssociatedTypeAttribute(GetType(((AssociatedTypeAttribute)Value).AssociatedType));
+            }
+            else if (Value is IConstructedAttribute)
+            {
+                var ctedAttr = (IConstructedAttribute)Value;
+                var ctor = GetMethod(ctedAttr.Constructor);
+                var args = ctedAttr.GetArguments();
+                return new Flame.Attributes.ConstructedAttribute(ctor, args);
+            }
+            else
+            {
+                return Value;
+            }
+        }
+
+        #endregion
+
         #region Type Recompilation
 
         private MemberCreationResult<IType> RecompileTypeHeader(IType SourceType)
@@ -846,11 +876,50 @@ namespace Flame.Recompilation
             RecompileMethodBody(methodBuilder, Source);
         }
 
+        private static IConverter<IType, IType> CreateGenericConverter(IEnumerable<IGenericParameter> Parameters, IEnumerable<IType> Arguments)
+        {
+            var tMap = new Dictionary<IType, IType>();
+            foreach (var item in Parameters.Zip(Arguments, Tuple.Create))
+            {
+                tMap[item.Item1] = item.Item2;
+            }
+            return new TypeMappingConverter(tMap);
+        }
+
         private IStatement GetMethodBodyCore(IMethod SourceMethod)
         {
             if (SourceMethod.get_IsAbstract() || SourceMethod.DeclaringType.get_IsInterface())
             {
                 return null;
+            }
+
+            if (SourceMethod is GenericInstanceMethod)
+            {
+                var instMethod = (GenericInstanceMethod)SourceMethod;
+                var genBody = GetMethodBody(instMethod.Declaration);
+                if (genBody == null)
+                {
+                    return null;
+                }
+
+                var genParams = instMethod.DeclaringType.GetRecursiveGenericParameters();
+                var genArgs = instMethod.DeclaringType.GetRecursiveGenericArguments();
+                var conv = CreateGenericConverter(genParams, genArgs);
+                return MemberNodeVisitor.ConvertTypes(conv, genBody);
+            }
+            else if (SourceMethod is GenericMethod)
+            {
+                var instMethod = (GenericMethod)SourceMethod;
+                var genBody = GetMethodBody(instMethod.Declaration);
+                if (genBody == null)
+                {
+                    return null;
+                }
+
+                var genParams = instMethod.Declaration.GenericParameters;
+                var genArgs = instMethod.GenericArguments;
+                var conv = CreateGenericConverter(genParams, genArgs);
+                return MemberNodeVisitor.ConvertTypes(conv, genBody);
             }
 
             var bodyMethod = SourceMethod as IBodyMethod;
@@ -893,6 +962,10 @@ namespace Flame.Recompilation
                 TaskManager.RunSequential(TargetMethod.SetMethodBody, block);
 
                 TaskManager.RunSequential<IMethod>(TargetMethod.Build);
+            }
+            catch (AbortCompilationException)
+            {
+                throw; // Just let this one fly by.
             }
             catch (Exception ex)
             {
@@ -994,13 +1067,22 @@ namespace Flame.Recompilation
 
         #region Assembly Recompilation
 
-        private void RecompileAssemblyCore(IAssembly Source, RecompilationOptions Options)
+        /// <summary>
+        /// Adds the given assembly to the list of assemblies to recompile,
+        /// with the given recompilation options.
+        /// </summary>
+        /// <param name="Source"></param>
+        public void AddAssembly(IAssembly Source, RecompilationOptions Options)
         {
             lock (recompiledAssemblies)
             {
-                recompiledAssemblies.Add(Source);
+                recompiledAssemblies[Source] = Options;
             }
-            foreach (var item in Options.RecompilationStrategy.GetRoots(Source))
+        }
+
+        private void RecompileAssemblyCore(IAssembly Source, RecompilationOptions Options)
+        {
+            foreach (var item in recompiledAssemblies[Source].RecompilationStrategy.GetRoots(Source))
             {
                 GetMember(item);
             }
@@ -1014,10 +1096,13 @@ namespace Flame.Recompilation
             }
         }
 
-        public async Task RecompileAsync(IAssembly Source, RecompilationOptions Options)
+        public async Task RecompileAsync()
         {
-            RecompileAssemblyCore(Source, Options);
-
+            foreach (var item in recompiledAssemblies)
+            {
+                RecompileAssemblyCore(item.Key, item.Value);
+            }
+            
             await TaskManager.WhenDoneAsync();
             TaskManager.RunSequential(() =>
             {

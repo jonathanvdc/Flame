@@ -99,6 +99,11 @@ namespace Flame.Front
             }
         }
 
+        public bool HasExtension(string Extension)
+        {
+            return Path.EndsWith("." + Extension, StringComparison.OrdinalIgnoreCase);
+        }
+
         public PathIdentifier ChangeExtension(string Extension)
         {
             return new PathIdentifier(System.IO.Path.ChangeExtension(Path, Extension));
@@ -158,6 +163,66 @@ namespace Flame.Front
         public static PathIdentifier Parse(string Value)
         {
             return new PathIdentifier(Value);
+        }
+    }
+
+    public class AbsolutePathComparer : IEqualityComparer<PathIdentifier>
+    {
+        private AbsolutePathComparer()
+        { }
+
+        public static readonly AbsolutePathComparer Instance = new AbsolutePathComparer();
+
+        public bool Equals(PathIdentifier x, PathIdentifier y)
+        {
+            return x.AbsolutePath == y.AbsolutePath;
+        }
+
+        public int GetHashCode(PathIdentifier obj)
+        {
+            return obj.AbsolutePath.GetHashCode();
+        }
+    }
+
+    public class PathNameComparer : IEqualityComparer<PathIdentifier>
+    {
+        private PathNameComparer()
+        { }
+
+        public static readonly PathNameComparer Instance = new PathNameComparer();
+
+        public bool Equals(PathIdentifier x, PathIdentifier y)
+        {
+            return x.Name == y.Name;
+        }
+
+        public int GetHashCode(PathIdentifier obj)
+        {
+            return obj.Name.GetHashCode();
+        }
+    }
+
+    public class PathPossiblyExtendedNameComparer : IEqualityComparer<PathIdentifier>
+    {
+        private PathPossiblyExtendedNameComparer()
+        { }
+
+        public static readonly PathPossiblyExtendedNameComparer Instance = new PathPossiblyExtendedNameComparer();
+
+        public bool Equals(PathIdentifier x, PathIdentifier y)
+        {
+            return x.Name == y.Name || x.NameWithoutExtension == y.Name ||
+                   x.Name == y.NameWithoutExtension ||
+                   x.NameWithoutExtension == y.NameWithoutExtension;
+        }
+
+        public int GetHashCode(PathIdentifier obj)
+        {
+            // HACK: return a zero hash code to force naive 
+            //       equality comparisons. This will result 
+            //       in O(n^2) comparisons, but hopefully,
+            //       n will be low.
+            return 0; 
         }
     }
 }
