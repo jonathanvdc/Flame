@@ -88,5 +88,10 @@ namespace Flame.Intermediate
         {
             return InitialValueNode != null ? InitialValueNode.Value : null;
         }
+
+        public override string ToString()
+        {
+            return FullName;
+        }
     }
 }

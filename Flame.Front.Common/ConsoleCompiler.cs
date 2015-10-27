@@ -306,6 +306,10 @@ namespace Flame.Front.Cli
             var dependencyBuilder = BuildTargetParsers.CreateDependencyBuilder(targetParser, targetIdent, State.FilteredLog, State.CurrentPath, dirName);
 
             var binderResolver = BinderResolver.Create(Projects);
+            foreach (var item in State.Options.GetOption<string[]>(AdditionalLibrariesOption, new string[0]))
+            {
+                binderResolver.AddLibrary(PathIdentifier.Parse(item));
+            }
             var binderTask = binderResolver.CreateBinderAsync(dependencyBuilder);
 
             return Tuple.Create<Task<IBinder>, Func<IAssembly, BuildTarget>>(
@@ -546,6 +550,12 @@ namespace Flame.Front.Cli
                                             .Select(item => new MarkupNode(NodeConstants.TextNodeType, item)));
             Log.LogMessage(new LogEntry("Optimization directives", optList));
         }
+
+        #endregion
+
+        #region Constants
+
+        public const string AdditionalLibrariesOption = "libs";
 
         #endregion
     }

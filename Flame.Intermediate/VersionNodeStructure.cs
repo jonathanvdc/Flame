@@ -32,10 +32,10 @@ namespace Flame.Intermediate
             get
             {
                 return new Version(
-                    Convert.ToInt32(Node.Args[0]),
-                    Convert.ToInt32(Node.Args[1]),
-                    Convert.ToInt32(Node.Args[2]),
-                    Convert.ToInt32(Node.Args[3]));
+                    Convert.ToInt32(Node.Args[0].Value),
+                    Convert.ToInt32(Node.Args[1].Value),
+                    Convert.ToInt32(Node.Args[2].Value),
+                    Convert.ToInt32(Node.Args[3].Value));
             }
         }
     }

@@ -86,5 +86,10 @@ namespace Flame.Intermediate
         {
             get { return this; }
         }
+
+        public override string ToString()
+        {
+            return FullName;
+        }
     }
 }

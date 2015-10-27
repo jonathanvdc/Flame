@@ -207,6 +207,8 @@ namespace Flame
 		/// Determines whether the given methods have the same call signature or not.
 		/// A call signature is defined as the method's signature, minus the
 		/// return type.
+		/// Constructors are treated no differently from regular methods here:
+		/// their constructorness is not considered.
 		/// </summary>
 		public static bool HasSameCallSignature(this IMethod Method, IMethod Other,
 			IEnumerable<IType>(IMethod) GetMethodParameterTypes)
