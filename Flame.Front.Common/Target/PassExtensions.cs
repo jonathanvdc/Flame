@@ -17,6 +17,7 @@ namespace Flame.Front.Target
             MethodPasses = new List<PassInfo<BodyPassArgument, IStatement>>();
             
             RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(LowerLambdaPass.Instance, LowerLambdaPassName));
+            RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(TailRecursionPass.Instance, TailRecursionPassName, (optInfo, isPref) => optInfo.OptimizeExperimental));
 
             RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(InliningPass.Instance, InliningPassName, (optInfo, isPref) => optInfo.OptimizeExperimental));
             RegisterStatementPass(new PassInfo<IStatement, IStatement>(SimplifyFlowPass.Instance, SimplifyFlowPassName, (optInfo, isPref) => (optInfo.OptimizeMinimal && isPref) || optInfo.OptimizeNormal || optInfo.OptimizeSize));
@@ -32,6 +33,7 @@ namespace Flame.Front.Target
         public const string InliningPassName = "inline";
         public const string SimplifyFlowPassName = "simplify-flow";
         public const string PropagateLocalsName = "propagate-locals";
+        public const string TailRecursionPassName = "tail-recursion";
 
         public static void RegisterAnalysisPass(PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement> Pass)
         {

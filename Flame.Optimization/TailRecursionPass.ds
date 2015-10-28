@@ -1,0 +1,182 @@
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A statement visitor that rewrites tail recursion as iteration.
+    /// </summary>
+    /// <remarks>
+    /// Rewrites
+    ///
+    /// return(invoke(get_delegate(this_method, this|null), arg0, arg1...))
+    ///
+    /// as
+    ///
+    /// var temp0 = arg0;
+    /// var temp1 = arg1;
+    /// ...
+    /// var temp(N-1) = arg(N-1);
+    ///
+    /// paramN = argN;
+    ///
+    /// param(N-1) = temp(N-1);
+    /// release temp(N-1);
+    /// ...
+    /// param1 = temp1;
+    /// release temp1;
+    /// param0 = temp0;
+    /// release temp0;
+    /// ...
+    /// continue OuterTag;
+    /// </remarks>
+    public class TailRecursionVisitor : StatementVisitorBase
+    {
+        public const this(set IMethod Method)
+        {
+            this.OuterTag = new BlockTag();
+            this.HasReplaced = false;
+        }
+
+        /// <summary>
+        /// Gets the method the tail recursion visitor is being applied
+        /// to.
+        /// </summary>
+        public IMethod Method { const get; private set; }
+
+        /// <summary>
+        /// Gets the tail recursion visitor's outer block tag.
+        /// </summary>
+        public BlockTag OuterTag { const get; private set; }
+
+        /// <summary>
+        /// Gets a boolean flag that tells if this tail recursion visitor
+        /// has replaced one or more tail recursive calls with `continue`
+        /// statements.
+        /// </summary>
+        public bool HasReplaced { const get; private set; }
+
+        public override const bool Matches(IStatement Value)
+        {
+            // Match nodes that look like this:
+            //
+            // return(invoke(get_delegate(<this_method>, this|null), args...))
+
+            if (Value is ReturnStatement)
+            {
+                var retStmt = (ReturnStatement)Value;
+                if (retStmt.Value is InvocationExpression)
+                {
+                    var invExpr = (InvocationExpression)retStmt.Value;
+                    if (invExpr.Target is GetMethodExpression)
+                    {
+                        var tgt = (GetMethodExpression)invExpr.Target;
+                        return tgt.Op == Operator.GetDelegate &&
+                               (tgt.Caller == null || tgt.Caller is ThisGetExpression) &&
+                               Method.Equals(tgt.Target);
+                    }
+                }
+            }
+            return false;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            // Gets the invocation expression.
+            // return(invoke(get_delegate(<this_method>, this|null), args...))
+            //        ^~~~~~
+            var invExpr = (InvocationExpression)((ReturnStatement)Statement).Value;
+
+            var results = new List<IStatement>();
+            var assignments = new List<IStatement>();
+            var argArr = Enumerable.ToArray<IExpression>(invExpr.Arguments);
+            var paramArr = Enumerable.ToArray<IParameter>(Method.Parameters);
+
+            // Compute the first N-1 arguments, store them in temporaries,
+            // assign them to their corresponding parameters.
+            for (int i = 0; i < paramArr.Length - 1; i++)
+            {
+                var arg = argArr[i];
+                var param = paramArr[i];
+
+                // var temp(i) = arg(i);
+                var tempVar = new LateBoundVariable(arg.Type);
+                results.Add(tempVar.CreateSetStatement(arg));
+
+                // param(i) = temp(i);
+                // release temp(i);
+                // (in reverse order)
+                var argVar = new ArgumentVariable(param, i);
+                assignments.Add(tempVar.CreateReleaseStatement());
+                assignments.Add(argVar.CreateSetStatement(tempVar.CreateGetExpression()));
+            }
+
+            // Take care of the last argument, which need not be stored in a
+            // temporary of its own, because it is assigned to its parameter
+            // immediately.
+            if (paramArr.Length > 0)
+            {
+                int index = paramArr.Length - 1;
+                var lastArgVar = new ArgumentVariable(paramArr[index], index);
+                results.Add(lastArgVar.CreateSetStatement(argArr[index]));
+            }
+
+            results.AddRange(Enumerable.Reverse<IStatement>(assignments));
+            results.Add((IStatement)new ContinueStatement(OuterTag));
+            this.HasReplaced = true;
+            return new BlockStatement(results).Simplify();
+        }
+    }
+
+    /// <summary>
+    /// A pass that rewrites tail recursion as iteration.
+    /// </summary>
+    /// <remarks>
+    /// Rewrites
+    ///
+    /// return(invoke(get_delegate(this_method, this|null), arg0, arg1...))
+    ///
+    /// as
+    ///
+    /// var temp0 = arg0;
+    /// var temp1 = arg1;
+    /// ...
+    /// var temp(N-1) = arg(N-1);
+    ///
+    /// paramN = argN;
+    ///
+    /// param(N-1) = temp(N-1);
+    /// release temp(N-1);
+    /// ...
+    /// param1 = temp1;
+    /// release temp1;
+    /// param0 = temp0;
+    /// release temp0;
+    /// ...
+    /// continue OuterTag;
+    /// </remarks>
+    public static class TailRecursionPass : IPass<BodyPassArgument, IStatement>
+    {
+        public IStatement Apply(BodyPassArgument Arg)
+        {
+            var declMethod = Arg.DeclaringMethod;
+            if (declMethod.IsGeneric && declMethod.IsGenericDeclaration)
+            {
+                declMethod = declMethod.MakeGenericMethod(declMethod.GenericParameters);
+            }
+            var visitor = new TailRecursionVisitor(declMethod);
+            var result = visitor.Visit(Arg.Body);
+            if (visitor.HasReplaced)
+            {
+                result = new TaggedStatement(visitor.OuterTag, result);
+            }
+            return result;
+        }
+    }
+}
