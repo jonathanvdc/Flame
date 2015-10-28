@@ -17,7 +17,7 @@ namespace Flame.Front.Target
             MethodPasses = new List<PassInfo<BodyPassArgument, IStatement>>();
             
             RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(LowerLambdaPass.Instance, LowerLambdaPassName));
-            RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(TailRecursionPass.Instance, TailRecursionPassName, (optInfo, isPref) => optInfo.OptimizeExperimental));
+            RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(TailRecursionPass.Instance, TailRecursionPassName, (optInfo, isPref) => isPref || optInfo.OptimizeMinimal));
 
             RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(InliningPass.Instance, InliningPassName, (optInfo, isPref) => optInfo.OptimizeExperimental));
             RegisterStatementPass(new PassInfo<IStatement, IStatement>(SimplifyFlowPass.Instance, SimplifyFlowPassName, (optInfo, isPref) => (optInfo.OptimizeMinimal && isPref) || optInfo.OptimizeNormal || optInfo.OptimizeSize));
