@@ -163,6 +163,17 @@ namespace Flame.Optimization
     /// </remarks>
     public static class TailRecursionPass : IPass<BodyPassArgument, IStatement>
     {
+        /// <summary>
+        /// The pass name string for the tail recursion pass.
+        /// </summary>
+        public const string TailRecursionPassName = "tail-recursion";
+
+        /// <summary>
+        /// The remarks option for tail recursion: applying this pass to
+        /// a function will emit a message if this is option set to true.
+        /// </summary>
+        public const string TailRecursionRemarksOption = "R" + TailRecursionPassName;
+
         public IStatement Apply(BodyPassArgument Arg)
         {
             var declMethod = Arg.DeclaringMethod;
@@ -175,6 +186,16 @@ namespace Flame.Optimization
             if (visitor.HasReplaced)
             {
                 result = new TaggedStatement(visitor.OuterTag, result);
+                var log = Arg.PassEnvironment.Log;
+                if (log.Options.GetOption<bool>(TailRecursionRemarksOption, false))
+                {
+                    // Maybe also emit a remark.
+                    log.LogMessage(new LogEntry(
+                        "Pass remark",
+                        "Optimized tail call recursion in '" + declMethod.Name +
+                        "'. [-" + TailRecursionRemarksOption + "]",
+                        Arg.DeclaringMethod.GetSourceLocation()));
+                }
             }
             return result;
         }
