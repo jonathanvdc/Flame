@@ -1,0 +1,16 @@
+
+public class Math
+{
+    public int fact(int n)
+    {
+        return fact_tail(n, 1);
+    }
+
+    public int fact_tail(int n, int acc)
+    {
+        if (n <= 1)
+            return acc;
+        else
+            return fact_tail(n - 1, acc * n);
+    }
+}

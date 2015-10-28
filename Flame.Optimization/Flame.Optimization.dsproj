@@ -26,6 +26,7 @@
     <Compile Include="SpeculativeStatement.ds" />
     <Compile Include="StatementRewriter.ds" />
     <Compile Include="InsertStatement.ds" />
+    <Compile Include="TailRecursionPass.ds" />
   </ItemGroup>
   <ItemGroup Name="Variables">
     <Compile Include="Variables/AccessCount.ds" />
