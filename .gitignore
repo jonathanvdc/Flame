@@ -89,6 +89,7 @@ ipch/
 *.psess
 *.vsp
 *.vspx
+*.diagsession
 
 # Guidance Automation Toolkit
 *.gpState
