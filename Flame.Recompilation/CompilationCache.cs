@@ -88,6 +88,16 @@ namespace Flame.Recompilation
             return Source.Select(Get);
         }
 
+        public bool ContainsKey(T Source)
+        {
+            return cache.ContainsKey(Source);
+        }
+
+        public bool TryGet(T Source, out T Result)
+        {
+            return cache.TryGetValue(Source, out Result);
+        }
+
         public T FirstOrDefault(Func<T, bool> Query)
         {
             T result;
