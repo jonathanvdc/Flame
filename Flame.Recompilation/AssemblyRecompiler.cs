@@ -764,6 +764,19 @@ namespace Flame.Recompilation
 
         private MemberCreationResult<IType> RecompileTypeHeader(INamespaceBuilder DeclaringNamespace, IType SourceType)
         {
+            IType preexistingType;
+            if (TypeCache.TryGet(SourceType, out preexistingType))
+            {
+                // The type has already been created. This can happen sometimes.
+                // For example, if a type's attribute refers a nested type, and the
+                // latter's recompilation was started first, then the nested type will
+                // be recompiled by virtue of the attribute access *before* the 
+                // original recompilation request can be processed.
+                // To avoid creating a duplicate type, we can just return the
+                // already recompiled type here.
+                return new MemberCreationResult<IType>(preexistingType);
+            }
+
             if (LogRecompilation)
             {
                 Log.LogEvent(new LogEntry("Status", "Recompiling " + SourceType.FullName));
