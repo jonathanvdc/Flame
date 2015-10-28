@@ -85,6 +85,9 @@ namespace Flame.Front.Cli
             {
                 CompilerVersion.PrintVersion(Name, FullName, ReleasesSite, log);
             }
+
+            var tempLog = new FilteredLog(mergedArgs.GetLogFilter(), log);
+
             if (!buildArgs.CanCompile)
             {
                 if (mergedArgs.ShouldCopyRuntimeLibraries())
@@ -94,11 +97,13 @@ namespace Flame.Front.Cli
                     var allTasks = new List<Task>();
                     foreach (var item in FlameAssemblies.FlameAssemblyPaths)
                     {
-                        allTasks.Add(ReferenceResolvers.ReferenceResolver.CopyAsync(item, targetPath.Combine(item.Name), log));
+                        allTasks.Add(ReferenceResolvers.ReferenceResolver.CopyAsync(item, targetPath.Combine(item.Name), tempLog));
                     }
                     Task.WhenAll(allTasks).Wait();
-                    log.LogEvent(new LogEntry("Flame libraries copied", "All Flame libraries included with " + Name + " have been copied to '" + targetPath.ToString() + "'."));
+                    tempLog.LogMessage(new LogEntry("Flame libraries copied", "All Flame libraries included with " + Name + " have been copied to '" + targetPath.ToString() + "'."));
                 }
+
+                ReportUnusedOptions(buildArgs, tempLog, "Option not relevant");
 
                 log.WriteEntry("Nothing to compile", log.WarningStyle, "No source file or project was given.");
                 return;
@@ -106,7 +111,6 @@ namespace Flame.Front.Cli
 
             try
             {
-                var tempLog = new FilteredLog(mergedArgs.GetLogFilter(), log);
                 var allProjs = LoadProjects(buildArgs, tempLog);
                 var projOrder = GetCompilationOrder(allProjs, tempLog);
                 var fixedProjs = projOrder.Select(proj =>
@@ -522,18 +526,23 @@ namespace Flame.Front.Cli
             }
         }
 
-        private static void ReportUnusedOptions(BuildArguments Args, ICompilerLog Log)
+        private static void ReportUnusedOptions(BuildArguments Args, ICompilerLog Log, string Doc)
         {
             if (Log.UseDefaultWarnings(Warnings.UnusedOption))
             {
                 foreach (var item in Args.UnusedOptions)
                 {
                     Log.LogWarning(new LogEntry(
-                        "Unused option", 
-                        "Option unused during compilation: '-" + item + "'. " + 
+                        "Unused option",
+                        Doc + ": '-" + item + "'. " +
                         Warnings.Instance.GetWarningNameMessage(Warnings.UnusedOption)));
                 }
             }
+        }
+
+        private static void ReportUnusedOptions(BuildArguments Args, ICompilerLog Log)
+        {
+            ReportUnusedOptions(Args, Log, "Option unused during compilation");
         }
 
         private static void PrintPasses(ICompilerLog Log, PassPreferences Preferences)
