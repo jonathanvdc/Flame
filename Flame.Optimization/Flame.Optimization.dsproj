@@ -10,6 +10,7 @@
     <RuntimeLibrary Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="../Flame.Compiler/bin/Pixie.dll" />
     <Reference Include="../Flame.Compiler/bin/Flame.dll" />
     <Reference Include="../Flame.Compiler/bin/Flame.Compiler.dll" />
   </ItemGroup>
