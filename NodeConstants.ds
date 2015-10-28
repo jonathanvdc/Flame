@@ -67,7 +67,7 @@ namespace Pixie
 
         /// <summary>
         /// A highlighting type that indicates additional components.
-        /// </summary> 
+        /// </summary>
         public const string ExtraHighlightingType = "extra";
 
         /// <summary>
@@ -120,5 +120,17 @@ namespace Pixie
         /// A markup node type for paragraphs.
         /// </summary>
         public const string ParagraphNodeType = "para";
+
+        /// <summary>
+        /// A markup node type for nodes whose contents should be printed
+        /// in a bright color.
+        /// </summary>
+        public const string BrightNodeType = "bright";
+
+        /// <summary>
+        /// A markup node type for nodes whose contents should be printed
+        /// in a dim color.
+        /// </summary>
+        public const string DimNodeType = "dim";
     }
 }
