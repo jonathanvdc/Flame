@@ -23,12 +23,12 @@ namespace Flame.Front
         }
 
         public ConsoleLog(IConsole Console, ICompilerOptions Options)
-            : this(Console, Options, CreateDefaultPalette(Console.Description, Options), CreateDefaultNodeWriter(Console.Description.BufferWidth))
+            : this(Console, Options, CreateDefaultPalette(Console.Description, Options))
         {
         }
 
         public ConsoleLog(IConsole Console, ICompilerOptions Options, IStylePalette Palette)
-            : this(Console, Options, Palette, CreateDefaultNodeWriter(Console.Description.BufferWidth))
+            : this(Console, Options, Palette, CreateDefaultNodeWriter(Console.Description, Palette))
         {
         }
 
@@ -126,15 +126,18 @@ namespace Flame.Front
 
         #region Node Writer
 
-        public static INodeWriter CreateDefaultNodeWriter(int BufferWidth)
+        public static INodeWriter CreateDefaultNodeWriter(ConsoleDescription Description, IStylePalette Palette)
         {
             var writer = new NodeWriter();
             writer.Writers[NodeConstants.RemarksNodeType] = new RemarksNodeWriter(writer);
-            writer.Writers[NodeConstants.SourceNodeType] = new SourceNodeWriter(new string(' ', 4), BufferWidth - 8);
+            writer.Writers[NodeConstants.SourceNodeType] = new SourceNodeWriter(new string(' ', 4), Description.BufferWidth - 8);
             writer.Writers[NodeConstants.ListNodeType] = new ListNodeWriter(writer);
             writer.Writers[NodeConstants.HighlightNodeType] = new HighlightingNodeWriter(writer);
             writer.Writers[NodeConstants.SourceQuoteNodeType] = new SourceQuoteNodeWriter(writer);
             writer.Writers[NodeConstants.ParagraphNodeType] = new ParagraphWriter(writer);
+            var contrastColor = StylePalette.MakeContrastColor(Description.ForegroundColor, Description.BackgroundColor);
+            writer.Writers[NodeConstants.BrightNodeType] = new StyleWriter(writer, new Style("bright", contrastColor, new Color()));
+            writer.Writers[NodeConstants.DimNodeType] = new StyleWriter(writer, new Style("dim", Palette.MakeDimColor(contrastColor), new Color()));
             writer.Writers["neutral-diagnostics"] = new NeutralDiagnosticsWriter(writer);
             return writer;
         }

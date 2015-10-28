@@ -45,22 +45,31 @@ namespace Flame.Front.Projects
             var handler = ProjectHandlers.GetHandler(Path);
             if (handler == null)
             {
+                MarkupNode doc;
+
                 if (string.IsNullOrWhiteSpace(Path.Extension))
                 {
-                    Log.LogError(new LogEntry("Invalid extension", "'" + Path.Path.Path + "' does not have an extension."));
+                    doc = new MarkupNode(NodeConstants.TextNodeType,
+                        "'" + Path.Path.Path + "' does not have an extension.");
                 }
                 else
                 {
-                    Log.LogError(new LogEntry("Invalid extension", "Extension '" + Path.Extension + "' in '" + Path.Path.Path + "' was not recognized as a known project extension."));
+                    doc = new MarkupNode(NodeConstants.TextNodeType,
+                        "Extension '" + Path.Extension + "' in '" + Path.Path.Path + "' was not recognized as a known project extension.");
                 }
                 var listItems = new List<IMarkupNode>();
                 foreach (var item in handlers.SelectMany(item => item.Extensions))
                 {
                     listItems.Add(new MarkupNode(NodeConstants.ListItemNodeType, item));
                 }
-                var list = ListExtensions.Instance.CreateList(listItems);
-                Log.LogMessage(new LogEntry("Supported extensions", list));
-                throw new NotSupportedException();
+                var listHeader = new MarkupNode(NodeConstants.BrightNodeType, new IMarkupNode[] 
+                { 
+                    new MarkupNode(NodeConstants.TextNodeType, "Supported extensions:") 
+                });
+                var list = ListExtensions.Instance.CreateList(listHeader, listItems);
+                // Log.LogMessage(new LogEntry("Supported extensions", list));
+                var body = new MarkupNode("entry", new IMarkupNode[] { doc, list });
+                throw new AbortCompilationException(new LogEntry("Invalid extension", body));
             }
             return handler;
         }

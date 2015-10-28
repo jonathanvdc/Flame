@@ -112,7 +112,7 @@ namespace Flame.Front.Cli
             try
             {
                 var allProjs = LoadProjects(buildArgs, tempLog);
-                var projOrder = GetCompilationOrder(allProjs, tempLog);
+                var projOrder = GetCompilationOrder(allProjs);
                 var fixedProjs = projOrder.Select(proj =>
                 {
                     if (buildArgs.MakeProject)
@@ -203,8 +203,7 @@ namespace Flame.Front.Cli
         {
             if (!Path.FileExists)
             {
-                Log.LogError(new LogEntry("File not found", "The file at '" + Path + "' could not be found."));
-                throw new FileNotFoundException("The file at '" + Path + "' could not be found.");
+                throw new AbortCompilationException(new LogEntry("File not found", "The file at '" + Path + "' could not be found."));
             }
             Log.LogEvent(new LogEntry("Status", "Parsing project at '" + Path + "'"));
             IProject proj;
@@ -230,7 +229,7 @@ namespace Flame.Front.Cli
         /// </summary>
         /// <param name="Projects"></param>
         /// <returns></returns>
-        public static IReadOnlyList<ProjectDependency> GetCompilationOrder(IEnumerable<ProjectDependency> Projects, ICompilerLog Log)
+        public static IReadOnlyList<ProjectDependency> GetCompilationOrder(IEnumerable<ProjectDependency> Projects)
         {
             var results = new List<ProjectDependency>();
             // Do this in reverse such that projects which were specified later
@@ -245,10 +244,9 @@ namespace Flame.Front.Cli
 
                 if (root == null)
                 {
-                    Log.LogError(new LogEntry(
-                        "Cyclic dependency graph", 
+                    throw new AbortCompilationException(new LogEntry(
+                        "Cyclic dependency graph",
                         "The given set of projects produces cyclic graph of project dependencies, which cannot be compiled."));
-                    throw new InvalidOperationException("Cannot get the compilation order of a cyclic dependency graph.");
                 }
 
                 results.Add(root);
