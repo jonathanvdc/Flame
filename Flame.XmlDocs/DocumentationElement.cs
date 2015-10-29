@@ -54,12 +54,12 @@ namespace Flame.XmlDocs
 
         public void ReadXml(XmlReader reader)
         {
-            Contents = MarkupNodeSerializer.ReadMarkupNode(reader);
+            Contents = Pixie.Xml.XmlNodeHandler.Instance.ReadMarkupNode(reader);
         }
 
         public void WriteXml(XmlWriter writer)
         {
-            MarkupNodeSerializer.WriteMarkupNode(writer, Contents);
+            Pixie.Xml.XmlNodeHandler.Instance.WriteMarkupNode(writer, Contents);
         }
     }
 }

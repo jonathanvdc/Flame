@@ -71,7 +71,7 @@ namespace Flame.XmlDocs
             {
                 var doc = new XmlDocument();
                 doc.Load(xmlReader);
-                return MarkupNodeSerializer.ToMarkupNodes(doc.DocumentElement.ChildNodes)
+                return Pixie.Xml.XmlNodeHandler.Instance.ToMarkupNodes(doc.DocumentElement.ChildNodes)
                     .Select(item => item.get_IsTextNode() ? new DescriptionAttribute("summary", item) : new DescriptionAttribute(item)).ToArray();
             }
             catch (XmlException ex)
