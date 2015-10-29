@@ -49,7 +49,7 @@ namespace Flame.Front.Target
 
         private static void AddPass<TIn, TOut>(List<IPass<TIn, TOut>> Passes, PassInfo<TIn, TOut> Info, OptimizationInfo OptInfo, HashSet<string> PreferredPasses)
         {
-            if (OptInfo.Log.Options.GetOption<bool>("f" + Info.Name, Info.UsePass(OptInfo, PreferredPasses.Contains(Info.Name))))
+            if (OptInfo.Log.Options.GetFlag(Info.Name, Info.UsePass(OptInfo, PreferredPasses.Contains(Info.Name))))
             {
                 Passes.Add(Info.Pass);
             }
@@ -57,7 +57,7 @@ namespace Flame.Front.Target
 
         private static void AddPassName<TIn, TOut>(List<string> Passes, PassInfo<TIn, TOut> Info, OptimizationInfo OptInfo, HashSet<string> PreferredPasses)
         {
-            if (OptInfo.Log.Options.GetOption<bool>("f" + Info.Name, Info.UsePass(OptInfo, PreferredPasses.Contains(Info.Name))))
+            if (OptInfo.Log.Options.GetFlag(Info.Name, Info.UsePass(OptInfo, PreferredPasses.Contains(Info.Name))))
             {
                 Passes.Add(Info.Name);
             }

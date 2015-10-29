@@ -102,7 +102,7 @@ namespace Flame.Front.Target
 
         #region Build target creation
 
-        private static IRAssemblyEncoding GetEncoding(string Identifier, AssemblyCreationInfo Info)
+        private static IRAssemblyEncoding GetEncoding(string Identifier, AssemblyCreationInfo Info, ICompilerOptions Options)
         {
             switch (Identifier.Substring("ir".Length))
             {
@@ -112,14 +112,18 @@ namespace Flame.Front.Target
 
                 case "/flo":
                 case "/binary":
-                default:
                     return IRAssemblyEncoding.Binary;
+
+                default:
+                    return Options.GetOption<bool>(Flags.EmitAssemblyOptionName, false) 
+                        ? IRAssemblyEncoding.Textual 
+                        : IRAssemblyEncoding.Binary;
             }
         }
 
         public BuildTarget CreateBuildTarget(string PlatformIdentifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)
         {
-            var encoding = GetEncoding(PlatformIdentifier, Info);
+            var encoding = GetEncoding(PlatformIdentifier, Info, DependencyBuilder.Log.Options);
             string extension = encoding == IRAssemblyEncoding.Binary ? "flo" : "fir";
 
             var asm = new IRAssemblyBuilder(new IRSignature(Info.Name), DependencyBuilder.Environment, encoding, Info.Version);

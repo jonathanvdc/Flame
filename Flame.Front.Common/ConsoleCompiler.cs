@@ -564,7 +564,7 @@ namespace Flame.Front.Cli
 
         #endregion
 
-        #region Constants
+        #region Options
 
         public const string AdditionalLibrariesOption = "libs";
         public const string AdditionalRuntimeLibrariesOption = "rt-libs";
