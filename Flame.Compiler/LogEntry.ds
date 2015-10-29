@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Pixie;
 
 namespace Flame.Compiler
@@ -40,10 +41,20 @@ namespace Flame.Compiler
             this.Contents = new MarkupNode("entry", new IMarkupNode[] { messageNode, diagNode });
         }
         public const this(set string Name, set IMarkupNode Contents);
+        public const this(set string Name, [IMarkupNode] Contents)
+        {
+            this.Contents = new MarkupNode("entry", Contents);
+        }
         public const this(set string Name, IMarkupNode Message, SourceLocation Location)
         {
             var diagNode = Location.CreateDiagnosticsNode();
             this.Contents = new MarkupNode("entry", new IMarkupNode[] { Message, diagNode });
+        }
+        public const this(set string Name, [IMarkupNode] Message, SourceLocation Location)
+        {
+            var diagNode = Location.CreateDiagnosticsNode();
+            var diagArr = new IMarkupNode[] { diagNode };
+            this.Contents = new MarkupNode("entry", Enumerable.Concat<IMarkupNode>(Message, diagArr));
         }
 
         /// <summary>

@@ -34,6 +34,7 @@
 		<Compile Include="ICompilerOptions.ds" />
 		<Compile Include="EmptyCompilerOptions.ds" />
 		<Compile Include="EmptyCompilerLog.ds" />
+		<Compile Include="Flags.ds" />
 		<Compile Include="IEnumerableEnvironment.ds" />
 		<Compile Include="IFlowNode.ds" />
 		<Compile Include="OperatorExtensions.ds" />

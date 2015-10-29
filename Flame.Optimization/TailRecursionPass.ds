@@ -1,11 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
 using Flame.Compiler.Visitors;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Pixie;
 
 namespace Flame.Optimization
 {
@@ -172,7 +173,10 @@ namespace Flame.Optimization
         /// The remarks option for tail recursion: applying this pass to
         /// a function will emit a message if this is option set to true.
         /// </summary>
-        public const string TailRecursionRemarksOption = "R" + TailRecursionPassName;
+        public string TailRecursionRemarksOption
+        {
+            const get { return Flags.GetRemarkOptionName(TailRecursionPassName); }
+        }
 
         public IStatement Apply(BodyPassArgument Arg)
         {
@@ -187,14 +191,18 @@ namespace Flame.Optimization
             {
                 result = new TaggedStatement(visitor.OuterTag, result);
                 var log = Arg.PassEnvironment.Log;
-                if (log.Options.GetOption<bool>(TailRecursionRemarksOption, false))
+                if (log.Options.ShouldRemark(TailRecursionPassName))
                 {
                     // Maybe also emit a remark.
                     log.LogMessage(new LogEntry(
                         "Pass remark",
-                        "Optimized tail call recursion in '" + declMethod.Name +
-                        "'. [-" + TailRecursionRemarksOption + "]",
-                        Arg.DeclaringMethod.GetSourceLocation()));
+                        new IMarkupNode[]
+                        {
+                            new MarkupNode(NodeConstants.TextNodeType,
+                                "Optimized tail call recursion in '" + declMethod.Name + "'. "),
+                            Flags.CreateCauseNode(TailRecursionRemarksOption),
+                            Arg.DeclaringMethod.GetSourceLocation().CreateDiagnosticsNode()
+                        }));
                 }
             }
             return result;

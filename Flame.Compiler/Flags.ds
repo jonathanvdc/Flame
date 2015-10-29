@@ -1,0 +1,122 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Pixie;
+
+namespace Flame.Compiler
+{
+    /// <summary>
+    /// Defines a number of compiler option related constants and functions.
+    /// </summary>
+    public static class Flags
+    {
+        /// <summary>
+        /// An option that instructs the compiler to emit assembly
+        /// code instead of one or more binary files.
+        /// </summary>
+        public const string EmitAssemblyOptionName = "S";
+
+        /// <summary>
+        /// An option that requests the compiler to compile its input into binaries,
+        /// but stop before linking said binaries into an executable. This
+        /// may not make much sense on platforms that do not typically use or
+        /// require static linking, such as high-level languages or
+        /// virtual machines.
+        /// </summary>
+        public const string CompileOnlyOptionName = "c";
+
+        /// <summary>
+        /// A flag that requests the compiler to verify that an assembly
+        /// is correct, but not do anything more than that.
+        /// </summary>
+        public const string VerifyOnlyFlagName = "syntax-only";
+
+        /// <summary>
+        /// Gets the given flag's (positive) option name.
+        /// </summary>
+        public const string GetFlagOptionName(string Flag)
+        {
+            return "f" + Flag;
+        }
+
+        /// <summary>
+        /// Gets the given flag's negated option name.
+        /// </summary>
+        public const string GetNegatedFlagOptionName(string Flag)
+        {
+            return "fno-" + Flag;
+        }
+
+        /// <summary>
+        /// Gets the given remark type's option name.
+        /// </summary>
+        public const string GetRemarkOptionName(string RemarkType)
+        {
+            return "R" + RemarkType;
+        }
+
+        /// <summary>
+        /// Creates a markup node that represents the cause of some message,
+        /// which happens to be the given option.
+        /// </summary>
+        public IMarkupNode CreateCauseNode(string OptionName)
+        {
+            return new MarkupNode(NodeConstants.CauseNodeType, OptionName);
+        }
+
+        /// <summary>
+        /// Creates a markup node that represents the cause of some message,
+        /// which happens to be the given value assigned to the given option.
+        /// </summary>
+        public IMarkupNode CreateCauseNode(string OptionName, string Value)
+        {
+            return new MarkupNode(NodeConstants.CauseNodeType, OptionName + "=" + Value);
+        }
+    }
+
+    public static class FlagExtensions
+    {
+        /// <summary>
+        /// Gets the given flag from this compiler options dictionary.
+        /// This differs from 'Options.GetValue&lt;bool&gt;' in that
+        /// it appends an 'f' prefix to the flag's name before calling
+        /// the aforementioned option. If said option does not exist,
+        /// this function also checks if no 'fno-' prefixed
+        /// option has been defined for this flag, in which case its value is
+        /// negated.
+        /// </summary>
+        public static bool GetFlag(this ICompilerOptions Options, string Flag, bool Default)
+        {
+            string optName = Flags.GetFlagOptionName(Flag);
+            if (Options.HasOption(optName))
+            {
+                return Options.GetOption<bool>(optName, Default);
+            }
+            else
+            {
+                optName = Flags.GetNegatedFlagOptionName(Flag);
+                return !Options.GetOption<bool>(optName, !Default);
+            }
+        }
+
+        /// <summary>
+        /// Finds out if remarks of the given remark type should be made, according
+        /// to the given compiler options and default value.
+        /// </summary>
+        public static bool ShouldRemark(this ICompilerOptions Options, string RemarkType, bool Default)
+        {
+            return Options.GetOption<bool>(Flags.GetRemarkOptionName(RemarkType), Default);
+        }
+
+        /// <summary>
+        /// Finds out if remarks of the given remark type should be made, according
+        /// to the given compiler options. Unless the given remark type was
+        /// requested by the options, false will be returned. That is, this function's
+        /// result defaults to false.
+        /// </summary>
+        public static bool ShouldRemark(this ICompilerOptions Options, string RemarkType)
+        {
+            return Options.ShouldRemark(RemarkType, false);
+        }
+    }
+}

@@ -31,7 +31,7 @@ namespace Flame.Front.Options
         }
         public static bool MustVerifyAssembly(this ICompilerOptions Options)
         {
-            return Options.GetOption<bool>("verify", true);
+            return Options.GetFlag("verify", true);
         }
         public static bool MustTimeCompilation(this ICompilerOptions Options)
         {

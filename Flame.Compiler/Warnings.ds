@@ -225,7 +225,10 @@ namespace Flame.Compiler
                 {
                     return Log.Options.GetOption<bool>(Warnings.Pedantic, false);
                 }
-                else return Log.UseDefaultWarnings(Warnings.Pedantic, false);
+                else
+                {
+                    return Log.UseDefaultWarnings(Warnings.Pedantic, false);
+                }
             }
         }
 
