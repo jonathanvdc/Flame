@@ -43,6 +43,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Pixie\bin\Pixie.dll</HintPath>
     </Reference>
+    <Reference Include="Pixie.Xml">
+      <HintPath>..\Pixie\bin\Pixie.Xml.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
