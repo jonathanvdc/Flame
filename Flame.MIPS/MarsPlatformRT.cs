@@ -35,7 +35,7 @@ namespace Flame.MIPS
 
         public Version AssemblyVersion
         {
-            get { return new Version(); }
+            get { return new Version(1, 0, 0, 0); }
         }
 
         public IBinder CreateBinder()
