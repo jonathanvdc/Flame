@@ -1,0 +1,162 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml;
+
+namespace Pixie.Xml
+{
+    /// <summary>
+    /// A helper class that can read and write markup nodes as XML.
+    /// </summary>
+    public static class XmlNodeHandler
+    {
+        #region Reading
+
+        /// <summary>
+        /// Converts the given XML attribute collection to a Pixie attribute
+        /// dictionary.
+        /// </summary>
+        public static IAttributes ToMarkupAttributes(XmlAttributeCollection Attributes)
+        {
+            var dict = new Dictionary<string, object>();
+            foreach (XmlAttribute item in Attributes)
+            {
+                dict[item.Name] = item.Value;
+            }
+            return new PredefinedAttributes(dict);
+        }
+
+        /// <summary>
+        /// Converts the given XML node list to a sequence of markup nodes.
+        /// </summary>
+        public static [IMarkupNode] ToMarkupNodes(XmlNodeList Nodes)
+        {
+            return ToMarkupNodes(Nodes.Cast<XmlNode>());
+        }
+
+        /// <summary>
+        /// Converts the given sequence of XML nodes to a sequence of markup nodes.
+        /// </summary>
+        public static [IMarkupNode] ToMarkupNodes([XmlNode] Nodes)
+        {
+            return Enumerable.Where<IMarkupNode>(
+                       Enumerable.Select<XmlNode, IMarkupNode>(Nodes, ToMarkupNode),
+                       bool(IMarkupNode item) => item != null);
+        }
+
+        /// <summary>
+        /// Creates a markup node from the given tag, XML attribute collection,
+        /// and children (which have already been parsed).
+        /// </summary>
+        public static IMarkupNode CreateMarkupNode(string Tag,
+            XmlAttributeCollection Attributes, [IMarkupNode] Children)
+        {
+            return new MarkupNode(Tag,
+                                  ToMarkupAttributes(Attributes),
+                                  Children);
+        }
+
+        /// <summary>
+        /// Converts the given XML element to a markup node.
+        /// </summary>
+        public static IMarkupNode ToMarkupNode(XmlElement Element)
+        {
+            return CreateMarkupNode(Element.LocalName, Element.Attributes,
+                ToMarkupNodes(Element.ChildNodes));
+        }
+
+        /// <summary>
+        /// Converts the given XML text node to a markup node.
+        /// </summary>
+        public static IMarkupNode ToMarkupNode(XmlText Element)
+        {
+            return new MarkupNode(NodeConstants.TextNodeType, Element.Value);
+        }
+
+        /// <summary>
+        /// Converts an arbitrary XML node to a markup node.
+        /// Null is returned if this cannot be done, or just doesn't make sense.
+        /// </summary>
+        public static IMarkupNode ToMarkupNode(XmlNode Element)
+        {
+            if (Element.NodeType == XmlNodeType.Element)
+            {
+                return ToMarkupNode((XmlElement)Element);
+            }
+            else if (Element.NodeType == XmlNodeType.Text)
+            {
+                return ToMarkupNode((XmlText)Element);
+            }
+            else
+            {
+                var children = ToMarkupNodes(Element.ChildNodes);
+                if (Enumerable.Any<IMarkupNode>(children))
+                {
+                    return CreateMarkupNode(Element.LocalName, Element.Attributes, children);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Reads a markup node from the given XML reader, and returns the
+        /// result.
+        /// </summary>
+        public static IMarkupNode ReadMarkupNode(XmlReader reader)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(reader);
+            XmlElement el = doc.DocumentElement;
+            return ToMarkupNode(el);
+        }
+
+        #endregion
+
+        #region Writing
+
+        /// <summary>
+        /// Writes the given markup node to the given XML writer.
+        /// </summary>
+        public static void WriteMarkupNode(XmlWriter Writer, IMarkupNode Node)
+        {
+            if (Node.IsTextNode)
+            {
+                Writer.WriteString(Node.GetText());
+            }
+            else if ("#group".Equals(Node.Type))
+            {
+                foreach (var item in Node.Children)
+                {
+                    WriteMarkupNode(Writer, item);
+                }
+            }
+            else
+            {
+                Writer.WriteStartElement(Node.Type);
+
+                var attrs = Node.Attributes;
+                foreach (var item in attrs.Keys)
+                {
+                    string val = attrs.Get<string>(item, "");
+
+                    if (!string.IsNullOrEmpty(val))
+                    {
+                        Writer.WriteAttributeString(item, val);
+                    }
+                }
+
+                foreach (var item in Node.Children)
+                {
+                    WriteMarkupNode(Writer, item);
+                }
+
+                Writer.WriteEndElement();
+            }
+        }
+
+        #endregion
+    }
+}
