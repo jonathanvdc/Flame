@@ -312,6 +312,10 @@ namespace Flame.Front.Cli
             {
                 binderResolver.AddLibrary(PathIdentifier.Parse(item).AbsolutePath);
             }
+            foreach (var item in State.Options.GetOption<string[]>(AdditionalRuntimeLibrariesOption, new string[0]))
+            {
+                binderResolver.AddRuntimeLibrary(PathIdentifier.Parse(item));
+            }
             var binderTask = binderResolver.CreateBinderAsync(dependencyBuilder);
 
             return Tuple.Create<Task<IBinder>, Func<IAssembly, BuildTarget>>(
@@ -563,6 +567,7 @@ namespace Flame.Front.Cli
         #region Constants
 
         public const string AdditionalLibrariesOption = "libs";
+        public const string AdditionalRuntimeLibrariesOption = "rt-libs";
 
         #endregion
     }
