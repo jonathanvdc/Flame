@@ -9,9 +9,8 @@ using System.Xml.Serialization;
 
 namespace Flame.DSProject
 {
-    [Serializable]
     [XmlRoot("ItemGroup")]
-    public class DSProjectNode : IMutableProjectNode
+    public class DSProjectNode : IMutableProjectNode, IXmlSerializable
     {
         public DSProjectNode()
         {
@@ -28,7 +27,7 @@ namespace Flame.DSProject
         }
 
         [XmlIgnore]
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         [XmlAttribute("Name")]
         public string XmlName
@@ -49,6 +48,7 @@ namespace Flame.DSProject
                 Name = value;
             }
         }
+
         [XmlAnyElement]
         public NodeList Children { get; set; }
 
@@ -101,6 +101,30 @@ namespace Flame.DSProject
         public IProjectItem[] GetChildren()
         {
             return Children.ToArray();
+        }
+
+        public System.Xml.Schema.XmlSchema GetSchema()
+        {
+            return null;
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            reader.MoveToContent();
+            XmlName = reader.GetAttribute("Name");
+            bool isEmpty = reader.IsEmptyElement;
+            reader.ReadStartElement();
+            if (!isEmpty)
+            {
+                Children.ReadXml(reader);
+                reader.ReadEndElement();
+            }
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            writer.WriteAttributeString("Name", XmlName);
+            Children.WriteXml(writer);
         }
     }
 }
