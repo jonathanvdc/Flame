@@ -22,7 +22,7 @@ type DescribedAssembly(name : string, env : IEnvironment) as this =
     member this.Name = name
     member this.Environment = env
 
-    member val Version = new Version() with get, set
+    member val Version = new Version(1, 0, 0, 0) with get, set
     member val EntryPoint = null with get, set 
     member val Attributes = Seq.empty with get, set
     member val MainNamespace = new FunctionalNamespace(new FunctionalMemberHeader(null), this) :> INamespaceBranch with get, set

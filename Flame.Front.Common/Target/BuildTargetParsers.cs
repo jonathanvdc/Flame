@@ -90,7 +90,7 @@ namespace Flame.Front.Target
             var log = DependencyBuilder.Log;
 
             var info = new AssemblyCreationInfo(log.GetAssemblyName(SourceAssembly.Name),
-                                                log.GetAssemblyVersion(new Version()), 
+                                                log.GetAssemblyVersion(new Version(1, 0, 0, 0)), 
                                                 new Lazy<bool>(() => SourceAssembly.GetEntryPoint() != null));
             return Parser.CreateBuildTarget(BuildTargetIdentifier, info, DependencyBuilder);
         }
