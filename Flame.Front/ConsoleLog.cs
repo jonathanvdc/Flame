@@ -135,6 +135,7 @@ namespace Flame.Front
             writer.Writers[NodeConstants.HighlightNodeType] = new HighlightingNodeWriter(writer);
             writer.Writers[NodeConstants.SourceQuoteNodeType] = new SourceQuoteNodeWriter(writer);
             writer.Writers[NodeConstants.ParagraphNodeType] = new ParagraphWriter(writer);
+            writer.Writers[NodeConstants.CauseNodeType] = new CauseNodeWriter(writer);
             var contrastColor = StylePalette.MakeContrastColor(Description.ForegroundColor, Description.BackgroundColor);
             writer.Writers[NodeConstants.BrightNodeType] = new StyleWriter(writer, new Style("bright", contrastColor, new Color()));
             writer.Writers[NodeConstants.DimNodeType] = new StyleWriter(writer, new Style("dim", Palette.MakeDimColor(contrastColor), new Color()));
