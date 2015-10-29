@@ -132,5 +132,20 @@ namespace Pixie
         /// in a dim color.
         /// </summary>
         public const string DimNodeType = "dim";
+
+        /// <summary>
+        /// A markup node type that contains the superficial cause of why
+        /// something is happening. For example, if a compiler issues a warning,
+        /// then the "cause" of said warning being issued is the warning's
+        /// associated option having been set to 'true'.
+        /// Cause nodes should be as succinct as possible.
+        /// </summary>
+        /// <remarks>
+        /// A console markup renderer could markup nodes such as
+        ///    <code>&lt;cause&gt;Winfinite-recursion&lt;/cause&gt;</code>,
+        /// like so
+        ///    <code>[-Winfinite-recursion]</code>
+        /// </remarks>
+        public const string CauseNodeType = "cause";
     }
 }
