@@ -48,6 +48,11 @@ namespace Flame.Front
             this.libReferences.Add(Identifier);
         }
 
+        public void AddRuntimeLibrary(PathIdentifier Identifier)
+        {
+            this.rtLibReferences.Add(Identifier);
+        }
+
         public static BinderResolver Create(IEnumerable<ParsedProject> Projects)
         {
             var result = new BinderResolver();
