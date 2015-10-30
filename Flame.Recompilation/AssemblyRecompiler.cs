@@ -794,7 +794,7 @@ namespace Flame.Recompilation
 
         private void RecompileEntireType(IType Type)
         {
-            var recompType = GetType(Type);
+            GetType(Type);
             foreach (var item in Type.Fields.Concat<ITypeMember>(Type.Methods))
             {
                 GetMember(item);
