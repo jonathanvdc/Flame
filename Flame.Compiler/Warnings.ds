@@ -194,13 +194,13 @@ namespace Flame.Compiler
         }
 
         /// <summary>
-        /// Gets a warning's "relaxed name", which the log maps to an on/off boolean.
-        /// A warning that is relaxed will not be shown unless the warning is explicitly
-        /// turned on.
+        /// Gets a warning's "negated name", which the log maps to an on/off boolean.
+        /// A warning that is turned off by this will not be shown unless
+        /// the warning is explicitly turned on.
         /// </summary>
-        public static const string GetRelaxWarningName(string Name)
+        public static const string GetNegatedWarningName(string Name)
         {
-            return "Wrelax-" + Name;
+            return "Wno-" + Name;
         }
 
         /// <summary>
@@ -242,7 +242,7 @@ namespace Flame.Compiler
             }
             else
             {
-                string relaxName = Warnings.GetRelaxWarningName(Name);
+                string relaxName = Warnings.GetNegatedWarningName(Name);
                 if (Log.Options.HasOption(relaxName))
                 {
                     return !Log.Options.GetOption<bool>(relaxName, true);
