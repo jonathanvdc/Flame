@@ -40,26 +40,28 @@ namespace Flame.Syntax.DSharp
                                 " values.",
                                 Elements.Location));
                 }
-                else if (Log.ShowIncompleteInitializationWarnings)
+                else if (Warnings.IncompleteInitialization.UseWarning(Log.Options))
                 {
                     Log.LogWarning(new LogEntry("Incomplete " + Name + " initialization",
-                                   "Initialized " + Name + " expression '" +
-                                   (string)this.GetCode().Trim() +
-                                   "' has length " + expectedLength +
-                                   ", but was initialized with only " + Elements.Count +
-                                   " values. " + Warnings.GetWarningNameMessage(Warnings.IncompleteInitialization),
-                                   Elements.Location));
+                        Warnings.IncompleteInitialization.CreateMessage(
+                            "Initialized " + Name + " expression '" +
+                            (string)this.GetCode().Trim() +
+                            "' has length " + expectedLength +
+                            ", but was initialized with only " + Elements.Count +
+                            " values. "),
+                        Elements.Location));
                 }
             }
-            else if (Log.ShowVariableLengthInitializationWarnings)
+            else if (Warnings.VariableLengthInitialization.UseWarning(Log.Options))
             {
                 Log.LogWarning(new LogEntry("Variable-length " + Name + " initialization",
-                               "Initialized " + Name + " expression '" +
-                               (string)this.GetCode().Trim() +
-                               "' has a variable length, but was initialized with " +
-                               "a constant number (" + Elements.Count +
-                               ") of values. " + Warnings.GetWarningNameMessage(Warnings.VariableLengthInitialization),
-                               Elements.Location));
+                    Warnings.VariableLengthInitialization.CreateMessage(
+                    "Initialized " + Name + " expression '" +
+                    (string)this.GetCode().Trim() +
+                    "' has a variable length, but was initialized with " +
+                    "a constant number (" + Elements.Count +
+                    ") of values. "),
+                    Elements.Location));
             }
         }
 

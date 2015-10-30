@@ -18,7 +18,9 @@ namespace Flame.Analysis
 
         public ICompilerLog Log { get; private set; }
 
-        public const string ValueTypeDelegateWarningName = "struct-delegate";
+        public const string ValueTypeDelegatePassName = "struct-delegate";
+
+        public static readonly WarningDescription ValueTypeDelegateWarning = new WarningDescription(ValueTypeDelegatePassName, Warnings.Instance.All);
 
         public override bool Analyze(IStatement Value)
         {
@@ -39,9 +41,9 @@ namespace Flame.Analysis
 
                 Log.LogWarning(new LogEntry(
                     "Delegate to value type pointer",
-                    "A delegate is created that takes a pointer to a value type as its closure. " +
-                    "This is dangerous, because the pointer's target may go out of scope before the delegate does. " +
-                    Warnings.Instance.GetWarningNameMessage(ValueTypeDelegateWarningName),
+                    ValueTypeDelegateWarning.CreateMessage(
+                        "A delegate is created that takes a pointer to a value type as its closure. " +
+                        "This is dangerous, because the pointer's target may go out of scope before the delegate does. "),
                     CurrentLocation));
             }
 

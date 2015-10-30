@@ -17,6 +17,8 @@ namespace Flame.Front.Target
 
         public const string IndirectPlatformKey = "indirect-platform";
 
+        public static readonly WarningDescription IndirectPlatformWarning = new WarningDescription(IndirectPlatformKey, Warnings.Instance.Build);
+
         public static string GetIndirectPlatformIdentifier(ICompilerOptions Options)
         {
             return Options.GetOption<string>(IndirectPlatformKey, "");
@@ -53,23 +55,25 @@ namespace Flame.Front.Target
 
             if (indirectParser == null)
             {
-                if (!string.IsNullOrWhiteSpace(platformIdent) && Log.UseDefaultWarnings(IndirectPlatformKey))
+                if (!string.IsNullOrWhiteSpace(platformIdent) && IndirectPlatformWarning.UseWarning(Log.Options))
                 {
                     Log.LogWarning(new LogEntry(
                         "Invalid indirect platform",
-                        "The indirect platform '" + platformIdent + "' " +
-                        "was not recognized as a known target platform. " + Warnings.Instance.GetWarningNameMessage(IndirectPlatformKey)));
+                        IndirectPlatformWarning.CreateMessage(
+                            "The indirect platform '" + platformIdent + "' " +
+                            "was not recognized as a known target platform. ")));
                 }
                 return new EmptyAssemblyResolver();
             }
             else if (indirectParser is FlameIRBuildTargetParser)
             {
-                if (Log.UseDefaultWarnings(IndirectPlatformKey))
+                if (IndirectPlatformWarning.UseWarning(Log.Options))
                 {
                     Log.LogWarning(new LogEntry(
                         "Invalid indirect platform",
-                        "The indirect platform '" + platformIdent + "' " +
-                        "cannot be of the same type as the target platform. " + Warnings.Instance.GetWarningNameMessage(IndirectPlatformKey)));
+                        IndirectPlatformWarning.CreateMessage(
+                            "The indirect platform '" + platformIdent + "' " +
+                            "cannot be of the same type as the target platform. ")));
                 }
                 return new EmptyAssemblyResolver();
             }

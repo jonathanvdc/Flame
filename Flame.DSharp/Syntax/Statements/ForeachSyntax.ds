@@ -72,12 +72,12 @@ namespace Flame.Syntax.DSharp
 
         	loop.Body = Body.CreateVerifiedStatement(State);
 
-            if (loop.Body.IsEmpty && State.Log.ShowEmptyBodyWarnings)
+            if (loop.Body.IsEmpty && Warnings.EmptyBody.UseWarning(State.Log.Options))
             {
                 State.Log.LogWarning(new LogEntry("Foreach block without body",
-                    "Foreach block '" + this.GetCode().Trim().ToString() +
-                    "' has an empty statement as its body. " +
-                    Warnings.GetWarningNameMessage(Warnings.EmptyBody),
+                    Warnings.EmptyBody.CreateMessage(
+                        "Foreach block '" + this.GetCode().Trim().ToString() +
+                        "' has an empty statement as its body. "),
                     Body.GetSourceLocation()));
             }
 

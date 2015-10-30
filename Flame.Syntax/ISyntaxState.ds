@@ -66,19 +66,25 @@ namespace Flame.Syntax
             });
         }
 
-        public static const IMarkupNode CreateRedefinitionMessageNode(string Message,
+        public static const IMarkupNode CreateRedefinitionMessageNode(IMarkupNode Message,
             SourceLocation NewDefinition, SourceLocation OldDefinition)
         {
-            var firstMessage = new MarkupNode(NodeConstants.TextNodeType, Message);
             var firstDiag = NewDefinition.CreateDiagnosticsNode();
 
             var firstEntry = new MarkupNode("entry", new IMarkupNode[]
             {
-                firstMessage,
+                Message,
                 firstDiag
             });
 
             return AppendDiagnosticsRemark(firstEntry, "Previous definition: ", OldDefinition);
+        }
+
+        public static const IMarkupNode CreateRedefinitionMessageNode(string Message,
+            SourceLocation NewDefinition, SourceLocation OldDefinition)
+        {
+            var firstMessage = new MarkupNode(NodeConstants.TextNodeType, Message);
+            return CreateRedefinitionMessageNode(firstMessage, NewDefinition, OldDefinition);
         }
 
         public static const IMarkupNode CreateRedefinitionNode(string Name,

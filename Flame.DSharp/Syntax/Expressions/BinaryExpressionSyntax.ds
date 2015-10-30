@@ -111,19 +111,21 @@ namespace Flame.Syntax.DSharp
                 {
                     if (lType.IsGenericParameter || rType.IsGenericParameter)
                     {
-                        if (State.Log.ShowGenericOperatorWarnings)
+                        if (Warnings.GenericOperators.UseWarning(State.Log.Options))
                         {
                             State.Log.LogWarning(new LogEntry("Operator overload missing",
-                                "No operator overload could be found for generic parameter operator '" + Op.ToString() + "'. " +
-                                Warnings.GetWarningNameMessage(Warnings.GenericOperators),
+                                Warnings.GenericOperators.CreateMessage(
+                                    "No operator overload could be found for generic parameter operator '" +
+                                    Op.ToString() + "'. "),
                                 Left.GetSourceLocation().Concat(Right.GetSourceLocation())));
                         }
                     }
-                    else if (State.Log.ShowOperatorWarnings)
+                    else if (Warnings.Operators.UseWarning(State.Log.Options))
                     {
                         State.Log.LogWarning(new LogEntry("Operator overload missing",
-                            "No operator overload could be found for operator '" + Op.ToString() + "'. " +
-                            Warnings.GetWarningNameMessage(Warnings.Operators),
+                            Warnings.Operators.CreateMessage(
+                                "No operator overload could be found for operator '" +
+                                Op.ToString() + "'. "),
                             Left.GetSourceLocation().Concat(Right.GetSourceLocation())));
                     }
                 }

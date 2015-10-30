@@ -95,12 +95,12 @@ namespace Flame.Front.Target
         public async Task AddRuntimeLibraryAsync(ReferenceDependency Reference)
         {
             if (!RegisterAssemblySafe(await ResolveRuntimeLibraryAsync(Reference)) &&
-                Log.UseDefaultWarnings(Warnings.MissingDependency))
+                Warnings.Instance.MissingDependency.UseWarning(Log.Options))
             {
                 Log.LogWarning(new LogEntry(
                     "Missing dependency",
-                    "Could not resolve runtime library '" + Reference.Identifier.ToString() + "'. " +
-                    Warnings.Instance.GetWarningNameMessage(Warnings.MissingDependency)));
+                    Warnings.Instance.MissingDependency.CreateMessage(
+                        "Could not resolve runtime library '" + Reference.Identifier.ToString() + "'. ")));
             }
         }
 
@@ -110,12 +110,12 @@ namespace Flame.Front.Target
             // If that can't be done, try to create a runtime reference.
             if (!RegisterAssemblySafe(await ResolveReferenceAsync(Reference)) &&
                 !RegisterAssemblySafe(await ResolveRuntimeLibraryAsync(Reference)) &&
-                Log.UseDefaultWarnings(Warnings.MissingDependency))
+                Warnings.Instance.MissingDependency.UseWarning(Log.Options))
             {
                 Log.LogWarning(new LogEntry(
                     "Missing dependency", 
-                    "Could not resolve library '" + Reference.Identifier.ToString() + "'. " + 
-                    Warnings.Instance.GetWarningNameMessage(Warnings.MissingDependency)));
+                    Warnings.Instance.MissingDependency.CreateMessage(
+                        "Could not resolve library '" + Reference.Identifier.ToString() + "'. ")));
             }
         }
     }
