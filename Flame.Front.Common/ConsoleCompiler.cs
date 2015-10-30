@@ -141,9 +141,14 @@ namespace Flame.Front.Cli
                 var auxAsms = partitionedAsms.Item2;
 
                 var buildTarget = LinkAsync(mainAsm, auxAsms, mainState, resolvedDependencies.Item2).Result;
-                var docs = Document(mainState, mainAsm, auxAsms);
 
-                Save(mainState, buildTarget, docs);
+                // Compile, but do not save if '-fsyntax-only' is set to true.
+                if (!mainState.Options.GetFlag(Flags.VerifyOnlyFlagName, false))
+                {
+                    var docs = Document(mainState, mainAsm, auxAsms);
+
+                    Save(mainState, buildTarget, docs);
+                }
 
                 ReportUnusedOptions(buildArgs, mainState.FilteredLog);
             }
