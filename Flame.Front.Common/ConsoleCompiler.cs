@@ -400,7 +400,7 @@ namespace Flame.Front.Cli
             }
 
             var passSuite = PassExtensions.CreateSuite(State.FilteredLog, passPrefs);
-            var recompStrategy = State.Options.GetRecompilationStrategy();
+            var recompStrategy = State.Options.GetRecompilationStrategy(IsWholeProgram(State.Options, MainAssembly));
 
             var asmRecompiler = new AssemblyRecompiler(target.TargetAssembly, State.FilteredLog, new SingleThreadedTaskManager(), passSuite, recompSettings);
             asmRecompiler.AddAssembly(MainAssembly, new RecompilationOptions(recompStrategy, true));
@@ -569,6 +569,17 @@ namespace Flame.Front.Cli
                             OptimizationInfo.GetOptimizationDirectives(optLevel)
                                             .Select(item => new MarkupNode(NodeConstants.TextNodeType, item)));
             Log.LogMessage(new LogEntry("Optimization directives", optList));
+        }
+
+        /// <summary>
+        /// Determines whether the given program is the whole program or not.
+        /// </summary>
+        /// <param name="Options"></param>
+        /// <param name="MainAssembly"></param>
+        /// <returns></returns>
+        public static bool IsWholeProgram(ICompilerOptions Options, IAssembly MainAssembly)
+        {
+            return Options.GetFlag(Flags.WholeProgramFlagName, MainAssembly.GetEntryPoint() != null);
         }
 
         #endregion
