@@ -1146,6 +1146,83 @@ namespace Flame.Recompilation
 
         #endregion
 
+        #region Eliminated/recompiled members
+
+        /// <summary>
+        /// Gets the set of all source types, recompiled or not.
+        /// </summary>
+        public IEnumerable<IType> AllSourceTypes
+        {
+            get
+            {
+                return recompiledAssemblies.SelectMany(item => item.Key.CreateBinder().GetTypes());
+            }
+        }
+
+        /// <summary>
+        /// Gets the set of all types in the given sequence of types 
+        /// that have not been recompiled so far.
+        /// </summary>
+        public IEnumerable<IType> FilterEliminatedTypes(IEnumerable<IType> SourceTypes)
+        {                
+            return SourceTypes.Except(TypeCache.Keys);
+        }
+
+        /// <summary>
+        /// Gets the set of all types in the given sequence of types
+        /// that have already been recompiled.
+        /// </summary>
+        /// <param name="SourceTypes"></param>
+        /// <returns></returns>
+        public IEnumerable<IType> FilterRecompiledTypes(IEnumerable<IType> SourceTypes)
+        {
+            return SourceTypes.Intersect(TypeCache.Keys);
+        }
+
+        /// <summary>
+        /// Gets the set of all methods in the given sequence of methods
+        /// that have not been recompiled yet.
+        /// </summary>
+        public IEnumerable<IMethod> FilterEliminatedMethods(IEnumerable<IMethod> SourceMethods)
+        {
+            return SourceMethods.Except(MethodCache.Keys.Union(methodBodies.Keys));
+        }
+
+        /// <summary>
+        /// Gets the set of all methods in the give sequence of methods
+        /// that have already been recompiled.
+        /// </summary>
+        /// <param name="SourceMethods"></param>
+        /// <returns></returns>
+        public IEnumerable<IMethod> FilterRecompiledMethods(IEnumerable<IMethod> SourceMethods)
+        {
+            return SourceMethods.Intersect(MethodCache.Keys.Union(methodBodies.Keys));
+        }
+
+        /// <summary>
+        /// Gets the set of all fields in the given sequence of fields
+        /// that have not been recompiled yet.
+        /// </summary>
+        /// <param name="SourceFields"></param>
+        /// <returns></returns>
+        public IEnumerable<IField> FilterEliminatedFields(IEnumerable<IField> SourceFields)
+        {
+            return SourceFields.Except(FieldCache.Keys);
+        }
+
+        /// <summary>
+        /// Gets the set of all fields in the given sequence of fields
+        /// that have already been recompiled.
+        /// </summary>
+        /// <param name="SourceFields"></param>
+        /// <returns></returns>
+        public IEnumerable<IField> FilterRecompiledFields(IEnumerable<IField> SourceFields)
+        {
+            return SourceFields.Except(FieldCache.Keys);
+        }
+
+        #endregion
+
         #region IBodyPassEnvironment Implementation
 
         /// <summary>

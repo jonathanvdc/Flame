@@ -414,6 +414,8 @@ namespace Flame.Front.Cli
 
             target.TargetAssembly.Build();
 
+            UnusedMemberHelpers.WarnUnusedMembers(asmRecompiler, MainAssembly.CreateBinder().GetTypes());
+
             return target;
         }
 
