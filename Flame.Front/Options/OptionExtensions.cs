@@ -11,9 +11,9 @@ namespace Flame.Front.Options
 {
     public static class OptionExtensions
     {
-        public static IRecompilationStrategy GetRecompilationStrategy(this ICompilerOptions Options)
+        public static IRecompilationStrategy GetRecompilationStrategy(this ICompilerOptions Options, bool IsWholeProgram)
         {
-            switch (Options.GetOption<string>("recompilation-strategy", "library").ToLower())
+            switch (Options.GetOption<string>("recompilation-strategy", IsWholeProgram ? "executable" : "library").ToLower())
             {
                 case "executable":
                 case "entry-point":
@@ -29,6 +29,7 @@ namespace Flame.Front.Options
                     return ConditionalRecompilationStrategy.TotalRecompilationStrategy;
             }
         }
+
         public static bool MustVerifyAssembly(this ICompilerOptions Options)
         {
             return Options.GetFlag("verify", true);

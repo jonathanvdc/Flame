@@ -32,6 +32,13 @@ namespace Flame.Compiler
         public const string VerifyOnlyFlagName = "syntax-only";
 
         /// <summary>
+        /// A flag that assures the compiler that the input it has been given
+        /// is indeed the entirety of the program: it can legally optimize
+        /// aggresively. For example, unused public members can be discarded.
+        /// </summary>
+        public const string WholeProgramFlagName = "whole-program";
+
+        /// <summary>
         /// Gets the given flag's (positive) option name.
         /// </summary>
         public const string GetFlagOptionName(string Flag)
