@@ -39,7 +39,7 @@ namespace Flame.Syntax
         {
             var oldSrc = Location.CreateSourceNode();
             var neutralOldSrc = new MarkupNode("neutral-diagnostics", new IMarkupNode[] { oldSrc });
-            var oldTitle = new MarkupNode(NodeConstants.TextNodeType, Title);
+            var oldTitle = new MarkupNode(NodeConstants.BrightNodeType, Title);
             var oldMessage = Location.CreateLineNumberNode(NodeConstants.TextNodeType);
 
             return new MarkupNode(NodeConstants.RemarksNodeType, new IMarkupNode[]
