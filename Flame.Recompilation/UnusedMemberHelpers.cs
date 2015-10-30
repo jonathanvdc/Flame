@@ -11,26 +11,37 @@ namespace Flame.Recompilation
     public static class UnusedMemberHelpers
     {
         /// <summary>
-        /// A warning name for unused types.
+        /// A warning name for types that are never used.
         /// </summary>
         public const string UnusedTypeWarningName = "unused-type";
+
         /// <summary>
-        /// A warning name for unused methods.
+        /// A warning name for methods that are never used.
         /// </summary>
         public const string UnusedMethodWarningName = "unused-method";
+
         /// <summary>
-        /// A warning name for unused fields.
+        /// A warning name for fields that are never used.
         /// </summary>
         public const string UnusedFieldWarningName = "unused-field";
 
         private static void WarnUnused(IMember Member, string MemberType, string WarningName, ICompilerLog Log)
         {
-            string upperMemberType = MemberType.Length > 0 ? MemberType.Substring(0, 1).ToUpper() + MemberType.Substring(1) : MemberType;
+            var srcLoc = Member.GetSourceLocation();
+            if (srcLoc != null)
+            {
+                // Don't issue warnings for members that don't
+                // have source locations, because they could be
+                // be compiler-generated. We don't want to 
+                // confuse people with false positives like those.
 
-            var desc = new MarkupNode(NodeConstants.TextNodeType, upperMemberType + " '" + Member.Name + "' was never used. ");
-            var cause = new MarkupNode(NodeConstants.CauseNodeType, Warnings.Instance.GetWarningName(WarningName));
-            var entry = new LogEntry("Unused " + MemberType, new IMarkupNode[] { desc, cause }, Member.GetSourceLocation());
-            Log.LogWarning(entry);
+                string upperMemberType = MemberType.Length > 0 ? MemberType.Substring(0, 1).ToUpper() + MemberType.Substring(1) : MemberType;
+
+                var desc = new MarkupNode(NodeConstants.TextNodeType, upperMemberType + " '" + Member.Name + "' is never used. ");
+                var cause = new MarkupNode(NodeConstants.CauseNodeType, Warnings.Instance.GetWarningName(WarningName));
+                var entry = new LogEntry("Unused " + MemberType, new IMarkupNode[] { desc, cause }, srcLoc);
+                Log.LogWarning(entry);
+            }
         }
 
         /// <summary>
@@ -57,12 +68,20 @@ namespace Flame.Recompilation
                 {
                     foreach (var item in Recompiler.FilterEliminatedFields(recompSourceTypes.SelectMany(item => item.Fields)))
                     {
-                        WarnUnused(item, "field", UnusedFieldWarningName, Recompiler.Log);
+                        // Don't issue warnings for static constant fields, because
+                        // their values could have just been inlined: we can't
+                        // tell if they haven't been used or not.
+                        if (!(item.IsStatic && item.get_IsConstant()))
+                        {
+                            WarnUnused(item, "field", UnusedFieldWarningName, Recompiler.Log);
+                        }
                     }
                 }
                 if (warnMethods)
                 {
-                    foreach (var item in Recompiler.FilterEliminatedMethods(recompSourceTypes.SelectMany(item => item.Methods)))
+                    foreach (var item in Recompiler.FilterEliminatedMethods(
+                        recompSourceTypes.SelectMany(item => 
+                            item.Methods.Concat(item.Properties.SelectMany(prop => prop.Accessors)))))
                     {
                         string methodType = item.IsConstructor ? "constructor" : item is IAccessor ? "accessor" : "method";
                         WarnUnused(item, methodType, UnusedMethodWarningName, Recompiler.Log);
