@@ -11,6 +11,7 @@
     <Reference Include="bin/Pixie.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Pixie.Xml/PixieXmlSerializable.ds" />
     <Compile Include="Pixie.Xml/XmlNodeHandler.ds" />
   </ItemGroup>
 </Project>
