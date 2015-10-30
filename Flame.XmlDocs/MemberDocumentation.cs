@@ -5,13 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Flame.CodeDescription;
+using Pixie;
+using System.Xml;
+using Pixie.Xml;
 
 namespace Flame.XmlDocs
 {
-    [Serializable]
-    [XmlRoot("member")]
-    [XmlType("member")]
-    public class MemberDocumentation
+    public class MemberDocumentation : PixieXmlSerializable, IXmlSerializable
     {
         protected MemberDocumentation()
         {
@@ -26,14 +26,15 @@ namespace Flame.XmlDocs
             : this(Member.GetXmlDocName())
         {
         }
+        public MemberDocumentation(IMarkupNode Node)
+        {
+            Deserialize(Node);
+        }
 
-        [XmlAttribute("name")]
         public string MemberName { get; set; }
 
-        [XmlAnyElement]
         public DocumentationBucket Bucket { get; set; }
 
-        [XmlIgnore]
         public List<DocumentationElement> Elements
         {
             get
@@ -46,7 +47,6 @@ namespace Flame.XmlDocs
             }
         }
 
-        [XmlIgnore]
         public bool IsEmpty
         {
             get
@@ -85,6 +85,19 @@ namespace Flame.XmlDocs
                 doc.AddDescriptionAttribute(item);
             }
             return doc;
+        }
+
+        public override void Deserialize(IMarkupNode Node)
+        {
+            this.MemberName = Node.Attributes.Get<string>("name", "");
+            this.Bucket = new DocumentationBucket(Node.Children);
+        }
+
+        public override IMarkupNode Serialize()
+        {
+            return new MarkupNode("member",
+                new PredefinedAttributes(new Dictionary<string, object>() { { "name", MemberName } }),
+                Bucket.Nodes);
         }
     }
 }

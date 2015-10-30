@@ -25,7 +25,7 @@ namespace Flame.XmlDocs
         public AssemblyDocumentation Assembly { get; set; }
 
         [XmlArray("members")]
-        [XmlArrayItem(typeof(MemberDocumentation))]
+        [XmlArrayItem("member", typeof(MemberDocumentation))]
         public List<MemberDocumentation> Members { get; set; }
 
         public MemberDocumentation GetMemberDocumentation(IMember Member)
@@ -77,8 +77,6 @@ namespace Flame.XmlDocs
             { 
                 typeof(MemberDocumentation),
                 typeof(AssemblyDocumentation),
-                typeof(DocumentationElement),
-                typeof(DocumentationBucket),
                 typeof(List<MemberDocumentation>)                
             });
             var ns = new XmlSerializerNamespaces();

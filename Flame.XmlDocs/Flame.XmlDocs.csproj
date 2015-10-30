@@ -58,7 +58,6 @@
     <Compile Include="AssemblyDocumentation.cs" />
     <Compile Include="DocumentationBucket.cs" />
     <Compile Include="DocumentationElement.cs" />
-    <Compile Include="MarkupNodeSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XmlDocumentationExtensions.cs" />
     <Compile Include="XmlDocumentationParser.cs" />

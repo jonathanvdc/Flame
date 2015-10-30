@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pixie;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,40 +10,28 @@ using System.Xml.Serialization;
 
 namespace Flame.XmlDocs
 {
-    public class DocumentationBucket : IXmlSerializable
+    public class DocumentationBucket
     {
         public DocumentationBucket()
         {
             this.Elements = new List<DocumentationElement>();
         }
-        public DocumentationBucket(List<DocumentationElement> Elements)
+        public DocumentationBucket(IEnumerable<IMarkupNode> Elements)
         {
-            this.Elements = Elements;
+            this.Elements = new List<DocumentationElement>(Elements.Select(item => new DocumentationElement(item)));
+        }
+        public DocumentationBucket(IEnumerable<DocumentationElement> Elements)
+        {
+            this.Elements = new List<DocumentationElement>(Elements);
         }
 
         public List<DocumentationElement> Elements { get; set; }
 
-        public XmlSchema GetSchema()
+        public IEnumerable<IMarkupNode> Nodes
         {
-            return null;
-        }
-
-        public void ReadXml(XmlReader reader)
-        {
-            Elements = new List<DocumentationElement>();
-            while (reader.IsStartElement())
+            get
             {
-                var elem = new DocumentationElement();
-                elem.ReadXml(reader);
-                Elements.Add(elem);
-            }
-        }
-
-        public void WriteXml(XmlWriter writer)
-        {
-            foreach (var item in Elements)
-            {
-                item.WriteXml(writer);
+                return Elements.Select(item => item.Contents);
             }
         }
     }
