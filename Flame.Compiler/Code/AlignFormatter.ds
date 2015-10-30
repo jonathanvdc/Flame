@@ -47,14 +47,6 @@ namespace Flame.Compiler.Code
 
         public int Offset { const get; private set; }
 
-        private const int GetTotalLength([CodeAtom] Atoms)
-        {
-            int result = Offset;
-            foreach (var item in Atoms)
-                result += item.GetTotalLength(0);
-            return result;
-        }
-
         private const bool CanAlign(CodeAtom[] Atoms, int MaxLength)
         {
             foreach (var item in Atoms)

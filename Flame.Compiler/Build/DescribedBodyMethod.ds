@@ -36,7 +36,10 @@ namespace Flame.Compiler
     {
     	public const this(set AccessorType AccessorType, IProperty DeclaringProperty, IType ReturnType)
 			: base(AccessorType.ToString().ToLower() + "_" + DeclaringProperty.Name,
-				   DeclaringProperty.DeclaringType, ReturnType, DeclaringProperty.IsStatic);
+				   DeclaringProperty.DeclaringType, ReturnType, DeclaringProperty.IsStatic)
+	    {
+			this.DeclaringProperty = DeclaringProperty;
+		}
 
         public AccessorType AccessorType { const get; private set; }
         public IProperty DeclaringProperty { const get; private set; }

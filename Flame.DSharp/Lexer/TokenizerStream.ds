@@ -163,14 +163,6 @@ namespace Flame.DSharp.Lexer
 			return Value[0] == '0' && (Value[1] == 'b' || Value[1] == 'B');
 		}
 
-		private char CharAt(int Position)
-		{
-			if (Position >= 0 && Position < Code.Length)
-				return Code[Position];
-			else
-				return default(char);
-		}
-
 		private string ParseWhitespace()
 		{
 			int startPos = pos;
