@@ -92,6 +92,7 @@
     <Compile Include="RecompiledTypeMemberTemplate.cs" />
     <Compile Include="RecompiledTypeTemplate.cs" />
     <Compile Include="SingleThreadedTaskManager.cs" />
+    <Compile Include="UnusedMemberHelpers.cs" />
     <Compile Include="VisitorRecompilationPass.cs" />
     <Compile Include="WeakTypeRecompilingVisitor.cs" />
   </ItemGroup>

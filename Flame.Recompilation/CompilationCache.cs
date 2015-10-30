@@ -70,6 +70,11 @@ namespace Flame.Recompilation
             return default(T);
         }
 
+        public IEnumerable<T> Keys
+        {
+            get { return cache.Keys; }
+        }
+
         public IEnumerable<T> GetAll()
         {
             return cache.Values;
