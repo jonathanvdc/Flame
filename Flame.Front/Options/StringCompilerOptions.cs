@@ -38,23 +38,11 @@ namespace Flame.Front.Options
             }
         }
 
-        public string this[string Key]
-        {
-            get
-            {
-                return options[Key];
-            }
-            set
-            {
-                this.options[Key] = value;
-            }
-        }
-
         public T GetOption<T>(string Key, T Default)
         {
             if (HasOption(Key) && OptionParser.CanParse<T>())
             {
-                return OptionParser.ParseValue<T>(this[Key]);
+                return OptionParser.ParseValue<T>(options[Key]);
             }
             return Default;
         }
