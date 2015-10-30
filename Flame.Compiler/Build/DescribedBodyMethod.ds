@@ -34,12 +34,9 @@ namespace Flame.Compiler
 
 	public class DescribedBodyAccessor : DescribedBodyMethod, IAccessor
     {
-    	public const this(set AccessorType AccessorType, IProperty DeclaringProperty, IType ReturnType)
+    	public const this(set AccessorType AccessorType, set IProperty DeclaringProperty, IType ReturnType)
 			: base(AccessorType.ToString().ToLower() + "_" + DeclaringProperty.Name,
-				   DeclaringProperty.DeclaringType, ReturnType, DeclaringProperty.IsStatic)
-	    {
-			this.DeclaringProperty = DeclaringProperty;
-		}
+				   DeclaringProperty.DeclaringType, ReturnType, DeclaringProperty.IsStatic);
 
         public AccessorType AccessorType { const get; private set; }
         public IProperty DeclaringProperty { const get; private set; }
