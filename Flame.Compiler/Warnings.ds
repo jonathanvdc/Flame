@@ -32,6 +32,7 @@ namespace Flame.Compiler
             Warnings.HiddenNullCheck = new WarningDescription("hidden-null-check", Warnings.Extra);
             Warnings.MeaninglessCast = new WarningDescription("meaningless-cast", Warnings.Extra);
             Warnings.ConstantAssert = new WarningDescription("constant-assert", Warnings.Extra);
+            Warnings.Unused = new WarningDescription("unused", Warnings.Instance.Extra);
 
             // -Wpedantic warnings
             Warnings.CSharpUsingAlias = new WarningDescription("csharp-using-alias", Warnings.Pedantic);
@@ -242,7 +243,11 @@ namespace Flame.Compiler
         public static WarningDescription VariableLengthInitialization { const get; private set; }
 
         /// <summary>
-        /// A warning name for unused Compiler options.
+        /// A warning name for unused compiler options. Note, however, that
+        /// this warning does not belong to the more general unused member
+        /// warning group for source-level constructs (-Wunused). Instead,
+        /// it belongs to -Wbuild, as this warning concerns the build process,
+        /// rather than the source code.
         /// </summary>
         /// <example>
         /// compiler File.src -unknown-option
@@ -254,5 +259,10 @@ namespace Flame.Compiler
         /// A warning name for missing library dependencies.
         /// </summary>
         public static WarningDescription MissingDependency { const get; private set; }
+
+        /// <summary>
+        /// A warning group for declarations that are never used.
+        /// </summary>
+        public static WarningDescription Unused { const get; private set; }
     }
 }
