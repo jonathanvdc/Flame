@@ -1,5 +1,6 @@
 ﻿using Flame.Compiler;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,47 +13,40 @@ namespace Flame.Front.Options
         public CachedOptions(ICompilerOptions Options)
         {
             this.Options = Options;
-            this.cachedValues = new Dictionary<Type, Dictionary<string, object>>();
+            this.cachedValues = new ConcurrentDictionary<Type, Dictionary<string, object>>();
         }
 
         public ICompilerOptions Options { get; private set; }
 
-        private Dictionary<Type, Dictionary<string, object>> cachedValues;
+        private ConcurrentDictionary<Type, Dictionary<string, object>> cachedValues;
 
         private Dictionary<string, object> GetDictionary<T>()
         {
-            var type = typeof(T);
-            if (cachedValues.ContainsKey(type))
-            {
-                return cachedValues[type];
-            }
-            else
-            {
-                var newDict = new Dictionary<string, object>();
-                cachedValues[type] = newDict;
-                return newDict;
-            }
+            return cachedValues.GetOrAdd(typeof(T), type => new Dictionary<string, object>());
         }
 
         public T GetOption<T>(string Key, T Default)
         {
             var dict = GetDictionary<T>();
-            if (!dict.ContainsKey(Key))
+            lock (dict)
             {
-                if (HasOption(Key))
+                if (!dict.ContainsKey(Key))
                 {
-                    var result = Options.GetOption<T>(Key, Default);
-                    dict[Key] = result;
-                    return result;
+                    if (HasOption(Key))
+                    {
+                        var result = Options.GetOption<T>(Key, Default);
+                        dict[Key] = result;
+                        return result;
+                    }
+                    else
+                    {
+                        return Default;
+                    }
                 }
                 else
                 {
-                    return Default;
+                    return (T)dict[Key];
                 }
-            }
-            else
-            {
-                return (T)dict[Key];
             }
         }
 
