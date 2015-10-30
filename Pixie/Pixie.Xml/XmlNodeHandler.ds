@@ -118,6 +118,30 @@ namespace Pixie.Xml
         #region Writing
 
         /// <summary>
+        /// Writes the given markup node's contents - that is, the
+        /// entire markup node, except from its start and end tag -
+        /// to the given XML writer.
+        /// </summary>
+        public static void WriteMarkupNodeContents(XmlWriter Writer, IMarkupNode Node)
+        {
+            var attrs = Node.Attributes;
+            foreach (var item in attrs.Keys)
+            {
+                string val = attrs.Get<string>(item, "");
+
+                if (!string.IsNullOrEmpty(val))
+                {
+                    Writer.WriteAttributeString(item, val);
+                }
+            }
+
+            foreach (var item in Node.Children)
+            {
+                WriteMarkupNode(Writer, item);
+            }
+        }
+
+        /// <summary>
         /// Writes the given markup node to the given XML writer.
         /// </summary>
         public static void WriteMarkupNode(XmlWriter Writer, IMarkupNode Node)
@@ -137,21 +161,7 @@ namespace Pixie.Xml
             {
                 Writer.WriteStartElement(Node.Type);
 
-                var attrs = Node.Attributes;
-                foreach (var item in attrs.Keys)
-                {
-                    string val = attrs.Get<string>(item, "");
-
-                    if (!string.IsNullOrEmpty(val))
-                    {
-                        Writer.WriteAttributeString(item, val);
-                    }
-                }
-
-                foreach (var item in Node.Children)
-                {
-                    WriteMarkupNode(Writer, item);
-                }
+                WriteMarkupNodeContents(Writer, Node);
 
                 Writer.WriteEndElement();
             }

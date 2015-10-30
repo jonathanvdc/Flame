@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 
 namespace Flame.XmlDocs
 {
-    public class DocumentationElement : IXmlSerializable
+    public class DocumentationElement
     {
         public DocumentationElement()
         {
@@ -45,21 +45,6 @@ namespace Flame.XmlDocs
             {
                 this.Contents = value.Contents;
             }
-        }
-
-        public XmlSchema GetSchema()
-        {
-            return null;
-        }
-
-        public void ReadXml(XmlReader reader)
-        {
-            Contents = Pixie.Xml.XmlNodeHandler.Instance.ReadMarkupNode(reader);
-        }
-
-        public void WriteXml(XmlWriter writer)
-        {
-            Pixie.Xml.XmlNodeHandler.Instance.WriteMarkupNode(writer, Contents);
         }
     }
 }

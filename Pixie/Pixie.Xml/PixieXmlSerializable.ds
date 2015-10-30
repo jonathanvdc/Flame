@@ -1,0 +1,40 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml;
+using System.Xml.Serialization;
+
+namespace Pixie.Xml
+{
+    /// <summary>
+    /// Defines a base class for XML serializable objects that use markup nodes
+    /// as an intermediate representation when serializing.
+    /// </summary>
+    public abstract class PixieXmlSerializable : IXmlSerializable
+    {
+        /// <summary>
+        /// Deserializes the given markup node into this instance.
+        /// </summary>
+        public abstract void Deserialize(IMarkupNode Node);
+
+        /// <summary>
+        /// Serializes this instance into a markup node.
+        /// </summary>
+        public abstract IMarkupNode Serialize();
+
+        public System.Xml.Schema.XmlSchema GetSchema()
+        {
+            return null;
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            Deserialize(XmlNodeHandler.ReadMarkupNode(reader));
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            XmlNodeHandler.WriteMarkupNodeContents(writer, Serialize());
+        }
+    }
+}
