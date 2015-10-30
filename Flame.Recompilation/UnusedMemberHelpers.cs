@@ -11,19 +11,24 @@ namespace Flame.Recompilation
     public static class UnusedMemberHelpers
     {
         /// <summary>
-        /// A warning name for types that are never used.
+        /// A warning group for members that are never used.
         /// </summary>
-        public static readonly WarningDescription UnusedTypeWarning = new WarningDescription("unused-type", Warnings.Instance.Extra);
+        public static readonly WarningDescription UnusedMemberWarningGroup = new WarningDescription("unused", Warnings.Instance.Extra);
 
         /// <summary>
-        /// A warning name for methods that are never used.
+        /// A warning for types that are never used.
         /// </summary>
-        public static readonly WarningDescription UnusedMethodWarning = new WarningDescription("unused-method", Warnings.Instance.Extra);
+        public static readonly WarningDescription UnusedTypeWarning = new WarningDescription("unused-type", UnusedMemberWarningGroup);
 
         /// <summary>
-        /// A warning name for fields that are never used.
+        /// A warning for methods that are never used.
         /// </summary>
-        public static readonly WarningDescription UnusedFieldWarning = new WarningDescription("unused-field", Warnings.Instance.All);
+        public static readonly WarningDescription UnusedMethodWarning = new WarningDescription("unused-method", UnusedMemberWarningGroup);
+
+        /// <summary>
+        /// A warning for fields that are never used.
+        /// </summary>
+        public static readonly WarningDescription UnusedFieldWarning = new WarningDescription("unused-field", UnusedMemberWarningGroup);
 
         private static void WarnUnused(IMember Member, string MemberType, WarningDescription Warning, ICompilerLog Log)
         {
