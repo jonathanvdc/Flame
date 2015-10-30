@@ -262,28 +262,6 @@ namespace Flame.DSharp.Build
             }
         }
 
-        private const IExpression CreateNotThisOp(IMethod Method, Operator Op)
-        {
-        	//return new NotExpression(new InvocationExpression(Method, new ThisVariable(GetSyntaxState().CurrentType).CreateGetExpression(), (IEnumerable<IExpression>)new IExpression[0]));
-        	return new NotExpression(new DirectBinaryExpression(new ThisVariable(GetSyntaxState().CurrentType).CreateGetExpression(), Op, new ArgumentVariable(Method.GetParameters()[0], 0).CreateGetExpression()));
-        }
-
-        private const IMethod CreateNotOperator(IMethod Method, Operator Op)
-        {
-    	    var bodyMethod = new DescribedBodyMethod("operator" + Op.ToString(), this, Method.ReturnType, false);
-    	    foreach (var item in Method.GetParameters())
-    	    {
-    	    	bodyMethod.AddParameter(item);
-    	    }
-    		bodyMethod.AddAttribute(new OperatorAttribute(Op));
-    		if (Method.IsConstant)
-    		{
-    			bodyMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-    		}
-    		bodyMethod.Body = new ReturnStatement(CreateNotThisOp(bodyMethod, Method.GetOperator()));
-    		return bodyMethod;
-        }
-
 		private Lazy<IMethod[]> methodCache;
         public [IMethod] Methods { const get return methodCache.Value; }
 

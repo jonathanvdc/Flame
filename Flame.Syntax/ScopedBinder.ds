@@ -21,7 +21,6 @@ namespace Flame.Syntax
 		public IBinder Binder { const get; private set; }
 		public ISyntaxState State { const get; private set; }
 
-		private Dictionary<string, ITypeSyntax> aliasTypes;
 		private List<NamespaceScope> scopes;
 
 		public NamespaceScope CurrentScope
