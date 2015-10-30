@@ -427,7 +427,10 @@ namespace Flame.Front.Cli
         public static IDocumentationBuilder Document(CompilerEnvironment State, 
             IAssembly MainAssembly, IEnumerable<IAssembly> AuxiliaryAssemblies)
         {
-            return State.Options.CreateDocumentationBuilder(MainAssembly, AuxiliaryAssemblies);
+            State.FilteredLog.LogEvent(new LogEntry("Status", "Generating docs..."));
+            var result = State.Options.CreateDocumentationBuilder(MainAssembly, AuxiliaryAssemblies);
+            State.FilteredLog.LogEvent(new LogEntry("Status", "Done generating docs"));
+            return result;
         }
 
         #endregion
