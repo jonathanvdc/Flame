@@ -7,13 +7,82 @@ namespace Flame.Compiler
 {
     public static class Warnings
     {
-        /// <summary>
-        /// The -pedantic option, which turns on most non-essential warnings.
-        /// </summary>
-        public const string Pedantic = "pedantic";
+        static this()
+        {
+            // Warning groups
+            Warnings.Everything = new WarningDescription("everything", null, false);
+            Warnings.PedanticRoot = new WarningDescription("pedantic", null, Warnings.Everything, false);
+            Warnings.Pedantic = new WarningDescription("pedantic", Warnings.PedanticRoot);
+            Warnings.All = new WarningDescription("all", Warnings.Everything, true);
+            Warnings.Build = new WarningDescription("build", Warnings.Everything, true);
+            Warnings.Extra = new WarningDescription("extra", Warnings.Everything);
+
+            // -Wall warnings
+            Warnings.Shadow = new WarningDescription("shadow", Warnings.All);
+            Warnings.GenericOperators = new WarningDescription("generic-operators", Warnings.All);
+            Warnings.Operators = new WarningDescription("operators", Warnings.All);
+            Warnings.ConstantDiscarded = new WarningDescription("constant-discarded", Warnings.All);
+            Warnings.DanglingElse = new WarningDescription("dangling-else", Warnings.All);
+            Warnings.IncompleteInitialization = new WarningDescription("incomplete-initialization", Warnings.All);
+            Warnings.VariableLengthInitialization = new WarningDescription("variable-length-initialization", Warnings.All);
+
+            // -Wextra warnings
+            Warnings.Bitcast = new WarningDescription("bitcast", Warnings.Extra);
+            Warnings.EmptyBody = new WarningDescription("empty-body", Warnings.Extra);
+            Warnings.HiddenNullCheck = new WarningDescription("hidden-null-check", Warnings.Extra);
+            Warnings.MeaninglessCast = new WarningDescription("meaningless-cast", Warnings.Extra);
+            Warnings.ConstantAssert = new WarningDescription("constant-assert", Warnings.Extra);
+
+            // -Wpedantic warnings
+            Warnings.CSharpUsingAlias = new WarningDescription("csharp-using-alias", Warnings.Pedantic);
+            Warnings.CppUsingNamespace = new WarningDescription("cpp-using-namespace", Warnings.Pedantic);
+            Warnings.LonelyTry = new WarningDescription("lonely-try", Warnings.Pedantic);
+
+            // -Wbuild warnings
+            Warnings.UnusedOption = new WarningDescription("unused-option", Warnings.Build);
+            Warnings.MissingDependency = new WarningDescription("missing-dependency", Warnings.Build);
+        }
 
         /// <summary>
-        /// The warning name for shadowed locals.
+        /// The root warning group, which covers all warnings.
+        /// </summary>
+        public static WarningDescription Everything { const get; private set; }
+
+        /// <summary>
+        /// The "conventional" warning group, which is turned on by default.
+        /// It corresponds to -Wall and -Wno-all.
+        /// </summary>
+        public static WarningDescription All { const get; private set; }
+
+        /// <summary>
+        /// The "build" warning group, which is turned on by default.
+        /// This warning group contains warnings that relate to the build
+        /// process, such as missing dependencies or unused options.
+        /// </summary>
+        public static WarningDescription Build { const get; private set; }
+
+        /// <summary>
+        /// The "extra" warning group, which contains a number of possibly
+        /// useful warnings that are not turned on by default.
+        /// </summary>
+        public static WarningDescription Extra { const get; private set; }
+
+        /// <summary>
+        /// The -pedantic option, which turns on non-essential warnings that typically
+        /// relate to language-level constructs, especially non-standard extensions.
+        /// </summary>
+        public static WarningDescription PedanticRoot { const get; private set; }
+
+        /// <summary>
+        /// The -Wpedantic and -Wno-pedantic options. These two are a sub-warning
+        /// group of -pedantic. If you want to create a warning that fires
+        /// only in pedantic mode, use these as a parent warning description,
+        /// rather than -pedantic.
+        /// </summary>
+        public static WarningDescription Pedantic { const get; private set; }
+
+        /// <summary>
+        /// The warning description for shadowed locals.
         /// </summary>
         /// <example>
         /// for (int i = 0; i &lt; 5; i++)
@@ -25,7 +94,7 @@ namespace Flame.Compiler
         ///     }
         /// }
         /// </example>
-        public const string Shadow = "shadow";
+        public static WarningDescription Shadow { const get; private set; }
 
         /// <summary>
         /// The warning name for undefined operators on generic parameters.
@@ -34,7 +103,7 @@ namespace Flame.Compiler
         /// T z = x + y;
         ///       ^~~~~
         /// </example>
-        public const string GenericOperators = "generic-operators";
+        public static WarningDescription GenericOperators { const get; private set; }
 
         /// <summary>
         /// The warning name for undefined operators.
@@ -44,10 +113,10 @@ namespace Flame.Compiler
         /// bool z = x + y;
         ///          ^~~~~
         /// </example>
-        public const string Operators = "operators";
+        public static WarningDescription Operators { const get; private set; }
 
         /// <summary>
-        /// The warning name for bitcasts.
+        /// The warning description for bitcasts.
         /// </summary>
         /// <example>
         /// int x = -5;
@@ -56,17 +125,17 @@ namespace Flame.Compiler
         ///            ^~~~~
         /// x = (int)(bit32)z;
         /// </example>
-        public const string Bitcast = "bitcast";
+        public static WarningDescription Bitcast { const get; private set; }
 
         /// <summary>
-        /// The warning name for meaningless casts.
+        /// The warning description for meaningless casts.
         /// </summary>
         /// <example>
         /// int x = 5;
         /// int y = (int)x;
         ///          ^~~
         /// </example>
-        public const string MeaninglessCast = "meaningless-cast";
+        public static WarningDescription MeaninglessCast { const get; private set; }
 
         /// <summary>
         /// The warning name for discarded constants.
@@ -75,7 +144,7 @@ namespace Flame.Compiler
         /// 5;
         ///  ^
         /// </example>
-        public const string ConstantDiscarded = "constant-discarded";
+        public static WarningDescription ConstantDiscarded { const get; private set; }
 
         /// <summary>
         /// The warning name for constant assertions.
@@ -84,25 +153,26 @@ namespace Flame.Compiler
         /// assert(true);
         /// ^~~~~~
         /// </example>
-        public const string ConstantAssert = "constant-assert";
+        public static WarningDescription ConstantAssert { const get; private set; }
 
         /// <summary>
-        /// The warning name for C# style alias directives.
+        /// The warning name for C# style alias directives, which are technically
+        /// not legal D#.
         /// </summary>
         /// <example>
         /// using x = y;
         /// ^~~~~
         /// </example>
-        public const string BadAlias = "bad-alias";
+        public static WarningDescription CSharpUsingAlias { const get; private set; }
 
         /// <summary>
-        /// The warning name for (illegal) C++ style directives.
+        /// The warning name for C++ style directives, which are not legal D#.
         /// </summary>
         /// <example>
         /// using namespace x;
         ///       ^~~~~~~~~
         /// </example>
-        public const string CppUsingNamespace = "cpp-using-namespace";
+        public static WarningDescription CppUsingNamespace { const get; private set; }
 
         /// <summary>
         /// The warning name for control flow statements with empty bodies.
@@ -111,7 +181,7 @@ namespace Flame.Compiler
         /// while (flag);
         ///             ^
         /// </example>
-        public const string EmptyBody = "empty-body";
+        public static WarningDescription EmptyBody { const get; private set; }
 
         /// <summary>
         /// The warning name for dangling else statements.
@@ -122,7 +192,7 @@ namespace Flame.Compiler
         /// else return y;
         /// ^~~~
         /// </example>
-        public const string DanglingElse = "dangling-else";
+        public static WarningDescription DanglingElse { const get; private set; }
 
         /// <summary>
         /// The warning name for try statements without associated catch or finally blocks.
@@ -132,7 +202,7 @@ namespace Flame.Compiler
         /// ^~~
         /// return 0;
         /// </example>
-        public const string LonelyTry = "lonely-try";
+        public static WarningDescription LonelyTry { const get; private set; }
 
         /// <summary>
         /// The warning name for hidden or convoluted null checks.
@@ -145,7 +215,7 @@ namespace Flame.Compiler
         ///     else return 1;
         /// }
         /// </example>
-        public const string HiddenNullCheck = "hidden-null-check";
+        public static WarningDescription HiddenNullCheck { const get; private set; }
 
         /// <summary>
         /// The warning name for incomplete initialization of container types.
@@ -157,7 +227,7 @@ namespace Flame.Compiler
         ///                       ^~~~~~~~~
         /// }
         /// </example>
-        public const string IncompleteInitialization = "incomplete-initialization";
+        public static WarningDescription IncompleteInitialization { const get; private set; }
 
         /// <summary>
         /// The warning name for constant initialization of variable-length container types.
@@ -169,7 +239,7 @@ namespace Flame.Compiler
         ///                          ^~~~~~~~~
         /// }
         /// </example>
-        public const string VariableLengthInitialization = "variable-length-initialization";
+        public static WarningDescription VariableLengthInitialization { const get; private set; }
 
         /// <summary>
         /// A warning name for unused Compiler options.
@@ -178,159 +248,11 @@ namespace Flame.Compiler
         /// compiler File.src -unknown-option
         ///                   ^~~~~~~~~~~~~~~
         /// </example>
-        public const string UnusedOption = "unused-option";
+        public static WarningDescription UnusedOption { const get; private set; }
 
         /// <summary>
         /// A warning name for missing library dependencies.
         /// </summary>
-        public const string MissingDependency = "missing-dependency";
-
-        /// <summary>
-        /// Gets a warning's "official name", which the log maps to an on/off boolean.
-        /// </summary>
-        public static const string GetWarningName(string Name)
-        {
-            return "W" + Name;
-        }
-
-        /// <summary>
-        /// Gets a warning's "negated name", which the log maps to an on/off boolean.
-        /// A warning that is turned off by this will not be shown unless
-        /// the warning is explicitly turned on.
-        /// </summary>
-        public static const string GetNegatedWarningName(string Name)
-        {
-            return "Wno-" + Name;
-        }
-
-        /// <summary>
-        /// Gets a "[-W...]" style warning name.
-        /// </summary>
-        public static const string GetWarningNameMessage(string Name)
-        {
-            return "[-" + GetWarningName(Name) + "]";
-        }
-    }
-
-    public static class WarningExtensions
-    {
-        /// <summary>
-        /// Finds out whether the given log instance is in pedantic mode.
-        /// </summary>
-        public static bool IsPedantic[this ICompilerLog Log]
-        {
-            const get
-            {
-                if (Log.Options.HasOption(Warnings.Pedantic))
-                {
-                    return Log.Options.GetOption<bool>(Warnings.Pedantic, false);
-                }
-                else
-                {
-                    return Log.UseDefaultWarnings(Warnings.Pedantic, false);
-                }
-            }
-        }
-
-        private static const bool UseWarnings(ICompilerLog Log, string Name,
-                                              bool IsPedantic, bool DefaultValue)
-        {
-            string warningName = Warnings.GetWarningName(Name);
-            if (Log.Options.HasOption(warningName))
-            {
-                return Log.Options.GetOption<bool>(warningName, false);
-            }
-            else
-            {
-                string relaxName = Warnings.GetNegatedWarningName(Name);
-                if (Log.Options.HasOption(relaxName))
-                {
-                    return !Log.Options.GetOption<bool>(relaxName, true);
-                }
-                else if (IsPedantic)
-                {
-                    return Log.IsPedantic;
-                }
-                else return DefaultValue;
-            }
-        }
-
-        public static const bool UsePedanticWarnings(this ICompilerLog Log, string Name)
-        {
-            return UseWarnings(Log, Name, true, false);
-        }
-
-        public static const bool UseDefaultWarnings(this ICompilerLog Log, string Name, bool DefaultValue)
-        {
-            return UseWarnings(Log, Name, false, DefaultValue);
-        }
-        public static const bool UseDefaultWarnings(this ICompilerLog Log, string Name)
-        {
-            return Log.UseDefaultWarnings(Name, true);
-        }
-
-        // Default warnings
-        public static bool ShowOperatorWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UseDefaultWarnings(Warnings.Operators);
-        }
-        public static bool ShowGenericOperatorWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UseDefaultWarnings(Warnings.GenericOperators);
-        }
-        public static bool ShowConstantAssertWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UseDefaultWarnings(Warnings.ConstantAssert);
-        }
-
-        // Pedantic warnings
-        public static bool ShowShadowWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UsePedanticWarnings(Warnings.Shadow);
-        }
-        public static bool ShowBitcastWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UsePedanticWarnings(Warnings.Bitcast);
-        }
-        public static bool ShowConstantDiscardedWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UsePedanticWarnings(Warnings.ConstantDiscarded);
-        }
-        public static bool ShowMeaninglessCastWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UsePedanticWarnings(Warnings.MeaninglessCast);
-        }
-        public static bool ShowBadAliasWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UsePedanticWarnings(Warnings.BadAlias);
-        }
-        public static bool ShowCppUsingNamespaceWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UsePedanticWarnings(Warnings.BadAlias);
-        }
-        public static bool ShowEmptyBodyWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UsePedanticWarnings(Warnings.EmptyBody);
-        }
-        public static bool ShowDanglingElseWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UsePedanticWarnings(Warnings.DanglingElse);
-        }
-        public static bool ShowLonelyTryWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UsePedanticWarnings(Warnings.LonelyTry);
-        }
-        public static bool ShowHiddenNullCheckWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UsePedanticWarnings(Warnings.HiddenNullCheck);
-        }
-        public static bool ShowIncompleteInitializationWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UsePedanticWarnings(Warnings.IncompleteInitialization);
-        }
-        public static bool ShowVariableLengthInitializationWarnings[this ICompilerLog Log]
-        {
-            const get return Log.UsePedanticWarnings(Warnings.VariableLengthInitialization);
-        }
+        public static WarningDescription MissingDependency { const get; private set; }
     }
 }

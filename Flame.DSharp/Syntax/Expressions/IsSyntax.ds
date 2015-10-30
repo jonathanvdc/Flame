@@ -21,13 +21,15 @@ namespace Flame.Syntax.DSharp
         {
         	var sourceExpr = Target.CreateVerifiedExpression(State);
         	var targetType = Type.CreateVerifiedType(State);
-        	if (targetType != null && sourceExpr != null && State.Log.ShowHiddenNullCheckWarnings && sourceExpr.Type.Is(targetType))
+        	if (targetType != null && sourceExpr != null &&
+                Warnings.HiddenNullCheck.UseWarning(State.Log.Options) &&
+                sourceExpr.Type.Is(targetType))
         	{
         		State.Log.LogWarning(new LogEntry("Constant 'is' expression",
-                    "Expression '" + this.GetCode().ToString() +
-                    "' will always evaluate to true for non-null values of '" +
-                    Target.GetCode().ToString() + ".' An explicit null-check may be clearer. " +
-                    Warnings.GetWarningNameMessage(Warnings.HiddenNullCheck),
+                    Warnings.HiddenNullCheck.CreateMessage(
+                        "Expression '" + this.GetCode().ToString() +
+                        "' will always evaluate to true for non-null values of '" +
+                        Target.GetCode().ToString() + ".' An explicit null-check may be clearer. "),
                     IsKeyword.Location.Concat(Type.GetSourceLocation())));
         	}
             return new IsExpression(sourceExpr, targetType);

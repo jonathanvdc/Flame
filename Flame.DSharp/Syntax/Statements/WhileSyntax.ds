@@ -48,12 +48,12 @@ namespace Flame.Syntax.DSharp
             var cond = Condition.CreateExpression(State);
             var body = Body.CreateStatement(State);
 
-            if (body.IsEmpty && State.Log.ShowEmptyBodyWarnings)
+            if (body.IsEmpty && Warnings.EmptyBody.UseWarning(State.Log.Options))
             {
                 State.Log.LogWarning(new LogEntry("While block without body",
-                    "While block '" + this.GetCode().Trim().ToString() +
-                    "' has an empty statement as its body. " +
-                    Warnings.GetWarningNameMessage(Warnings.EmptyBody),
+                    Warnings.EmptyBody.CreateMessage(
+                        "While block '" + this.GetCode().Trim().ToString() +
+                        "' has an empty statement as its body. "),
                     Body.GetSourceLocation()));
             }
 

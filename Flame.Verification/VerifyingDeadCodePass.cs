@@ -11,20 +11,15 @@ using System.Threading.Tasks;
 
 namespace Flame.Verification
 {
-    public class VerifyingDeadCodePass : IPass<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>
+    public sealed class VerifyingDeadCodePass : IPass<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>
     {
-        public VerifyingDeadCodePass(string WarningMessage, bool ShowWarning, string UnreachableWarningMessage, bool ShowUnreachableWarning)
-        {
-            this.ReturnWarningMessage = WarningMessage;
-            this.ShowReturnWarning = ShowWarning;
-            this.UnreachableWarningMessage = UnreachableWarningMessage;
-            this.ShowUnreachableWarning = ShowUnreachableWarning;
-        }
+        private VerifyingDeadCodePass()
+        { }
 
-        public string ReturnWarningMessage { get; private set; }
-        public bool ShowReturnWarning { get; private set; }
-        public string UnreachableWarningMessage { get; private set; }
-        public bool ShowUnreachableWarning { get; private set; }
+        public static readonly VerifyingDeadCodePass Instance = new VerifyingDeadCodePass();
+
+        public static readonly WarningDescription MissingReturnWarning = new WarningDescription("missing-return", Warnings.Instance.All);
+        public static readonly WarningDescription DeadCodeWarning = new WarningDescription("dead-code", Warnings.Instance.Extra);
 
         public IStatement Apply(Tuple<IStatement, IMethod, ICompilerLog> Value)
         {
@@ -34,25 +29,23 @@ namespace Flame.Verification
 
             var visitor = new DeadCodeVisitor();
             var optStmt = visitor.Visit(stmt);
-            if (visitor.CurrentFlow && ShowReturnWarning && !YieldNodeFindingVisitor.UsesYield(stmt))
+            if (visitor.CurrentFlow && MissingReturnWarning.UseWarning(Value.Item3.Options) && !YieldNodeFindingVisitor.UsesYield(stmt))
             {
-                log.LogWarning(new LogEntry("Missing return statement?", ReturnWarningMessage, method.GetSourceLocation()));
+                log.LogWarning(new LogEntry("Missing return statement?",
+                    MissingReturnWarning.CreateMessage("This method may not always return or throw. "), 
+                    method.GetSourceLocation()));
             }
-            if (ShowUnreachableWarning)
+            var firstUnreachable = visitor.DeadCodeStatements.FirstOrDefault();
+            if (firstUnreachable != null && DeadCodeWarning.UseWarning(Value.Item3.Options))
             {
-                var first = visitor.DeadCodeStatements.FirstOrDefault();
+                var node = new MarkupNode("entry", new IMarkupNode[]
+                { 
+                    DeadCodeWarning.CreateMessage("Unreachable code detected and removed. "),
+                    firstUnreachable.Location.CreateDiagnosticsNode(),
+                    RedefinitionHelpers.Instance.CreateNeutralDiagnosticsNode("In method: ", method.GetSourceLocation())
+                });
 
-                if (first != null)
-                {
-                    var node = new MarkupNode("entry", new IMarkupNode[]
-                    { 
-                        new MarkupNode(NodeConstants.TextNodeType, UnreachableWarningMessage),
-                        first.Location.CreateDiagnosticsNode(),
-                        RedefinitionHelpers.Instance.CreateNeutralDiagnosticsNode("In method: ", method.GetSourceLocation())
-                    });
-
-                    log.LogWarning(new LogEntry("Removed dead code", node));
-                }
+                log.LogWarning(new LogEntry("Removed dead code", node));
             }
             return optStmt;
         }

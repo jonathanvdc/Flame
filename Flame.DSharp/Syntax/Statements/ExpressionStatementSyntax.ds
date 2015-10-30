@@ -34,13 +34,14 @@ namespace Flame.Syntax.DSharp
         public override IStatement CreateStatement(ISyntaxState State)
         {
         	var expr = Expression.CreateVerifiedExpression(State);
-        	if (expr != null && State.Log.ShowConstantDiscardedWarnings && expr.IsConstant)
+        	if (expr != null && Warnings.ConstantDiscarded.UseWarning(State.Log.Options) &&
+                expr.IsConstant)
         	{
         		State.Log.LogWarning(new LogEntry("Value discarded",
-                    "Expression statement '" + this.GetCode().Trim().ToString() +
-                    "' discards a constant value (of type '" +
-                    State.TypeNamer.Convert(expr.Type) + "'). " +
-                    Warnings.GetWarningNameMessage(Warnings.ConstantDiscarded),
+                    Warnings.ConstantDiscarded.CreateMessage(
+                        "Expression statement '" + this.GetCode().Trim().ToString() +
+                        "' discards a constant value (of type '" +
+                        State.TypeNamer.Convert(expr.Type) + "'). "),
                     Location));
         	}
             return SourceStatement.Create(new ExpressionStatement(expr), Location);

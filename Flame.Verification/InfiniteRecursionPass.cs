@@ -24,7 +24,9 @@ namespace Flame.Verification
 
         public static InfiniteRecursionPass Instance { get; private set; }
 
-        public const string InfiniteRecursionWarningName = "infinite-recursion";
+        public const string InfiniteRecursionPassName = "infinite-recursion";
+
+        public static readonly WarningDescription InfiniteRecursionWarning = new WarningDescription(InfiniteRecursionPassName, Warnings.Instance.All);
 
         /// <summary>
         /// Gets a boolean value that tells if this pass is useful for the given log,
@@ -34,7 +36,7 @@ namespace Flame.Verification
         /// <returns></returns>
         public static bool IsUseful(ICompilerLog Log)
         {
-            return Log.UseDefaultWarnings(InfiniteRecursionWarningName);
+            return InfiniteRecursionWarning.UseWarning(Log.Options);
         }
 
         public IStatement Apply(Tuple<IStatement, IMethod, ICompilerLog> Value)
@@ -52,10 +54,10 @@ namespace Flame.Verification
                 // Flag infinite recursion.
 
                 var msg = new LogEntry("Infinite recursion",
-                                       "Every path in this method's control flow graph contains a call to itself. " +
-                                       "Once called, it will never terminate. " +
-                                       Warnings.Instance.GetWarningNameMessage(InfiniteRecursionWarningName),
-                                       Value.Item2.GetSourceLocation());
+                    InfiniteRecursionWarning.CreateMessage(
+                        "Every path in this method's control flow graph contains a call to itself. " +
+                        "Once called, it will never terminate. "),
+                        Value.Item2.GetSourceLocation());
 
                 Value.Item3.LogWarning(InitializationCountPass.AppendNeutralLocations(msg, visitor, "Self-call: "));
             }

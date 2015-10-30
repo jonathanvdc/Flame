@@ -532,23 +532,25 @@ namespace Flame.Front.Cli
 
         private static void NotifyUpToDate(ICompilerLog Log)
         {
-            const string warningName = "up-to-date";
-            if (Log.UsePedanticWarnings(warningName))
+            if (UpToDateWarning.UseWarning(Log.Options))
             {
-                Log.LogWarning(new LogEntry("No changes", "The output assembly and documentation were already up-to-date. " + Warnings.Instance.GetWarningNameMessage(warningName)));
+                Log.LogWarning(new LogEntry(
+                    "No changes", 
+                    UpToDateWarning.CreateMessage(
+                        "The output assembly and documentation were already up-to-date. ")));
             }
         }
 
         private static void ReportUnusedOptions(BuildArguments Args, ICompilerLog Log, string Doc)
         {
-            if (Log.UseDefaultWarnings(Warnings.UnusedOption))
+            if (Warnings.Instance.UnusedOption.UseWarning(Log.Options))
             {
                 foreach (var item in Args.UnusedOptions)
                 {
                     Log.LogWarning(new LogEntry(
                         "Unused option",
-                        Doc + ": '-" + item + "'. " +
-                        Warnings.Instance.GetWarningNameMessage(Warnings.UnusedOption)));
+                        Warnings.Instance.UnusedOption.CreateMessage(
+                            Doc + ": '-" + item + "'. ")));
                 }
             }
         }
@@ -587,6 +589,8 @@ namespace Flame.Front.Cli
         #endregion
 
         #region Options
+
+        public static readonly WarningDescription UpToDateWarning = new WarningDescription("up-to-date", Warnings.Instance.Build);
 
         public const string AdditionalLibrariesOption = "libs";
         public const string AdditionalRuntimeLibrariesOption = "rt-libs";

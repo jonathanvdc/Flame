@@ -22,30 +22,30 @@ namespace Flame.Verification
 
         static InitializationCountPass()
         {
-            Instance = new InitializationCountPass(); 
+            Instance = new InitializationCountPass();
         }
 
         public static InitializationCountPass Instance { get; private set; }
 
         /// <summary>
-        /// A warning name for uninitialized values.
+        /// A warning for uninitialized values.
         /// </summary>
-        public const string UninitializedWarningName = "uninitialized";
+        public static readonly WarningDescription UninitializedWarning = new WarningDescription("uninitialized", Warnings.Instance.All);
 
         /// <summary>
-        /// A warning name for potentially uninitialized values.
+        /// A warning for potentially uninitialized values.
         /// </summary>
-        public const string MaybeUninitializedWarningName = "maybe-uninitialized";
+        public static readonly WarningDescription MaybeUninitializedWarning = new WarningDescription("maybe-uninitialized", Warnings.Instance.Extra);
 
         /// <summary>
-        /// A warning name for multiply initialized values.
+        /// A warning for multiply initialized values.
         /// </summary>
-        public const string MultipleInitializationWarningName = "multiple-initialization";
+        public static readonly WarningDescription MultipleInitializationWarning = new WarningDescription("multiple-initialization", Warnings.Instance.All);
 
         /// <summary>
-        /// A warning name for potentially multiply initialized values.
+        /// A warning for potentially multiply initialized values.
         /// </summary>
-        public const string MaybeMultipleInitializationWarningName = "maybe-multiple-initialization";
+        public static readonly WarningDescription MaybeMultipleInitializationWarning = new WarningDescription("maybe-multiple-initialization", Warnings.Instance.Extra);
 
         /// <summary>
         /// Gets a boolean value that tells if this pass is useful for the given log,
@@ -55,8 +55,8 @@ namespace Flame.Verification
         /// <returns></returns>
         public static bool IsUseful(ICompilerLog Log)
         {
-            return Log.UseDefaultWarnings(UninitializedWarningName) || Log.UseDefaultWarnings(MultipleInitializationWarningName) ||
-                   Log.UsePedanticWarnings(MaybeUninitializedWarningName) || Log.UsePedanticWarnings(MaybeMultipleInitializationWarningName);
+            return UninitializedWarning.UseWarning(Log.Options) || MultipleInitializationWarning.UseWarning(Log.Options) ||
+                   MaybeUninitializedWarning.UseWarning(Log.Options) || MaybeMultipleInitializationWarning.UseWarning(Log.Options);
         }
 
         /// <summary>
@@ -100,18 +100,21 @@ namespace Flame.Verification
             {
                 if (Visitor.CurrentFlow.Max == 0)
                 {
-                    var msg = new LogEntry("Instance uninitialized",
-                                           "The constructed instance is never initialized by this constructor. " +
-                                           Warnings.Instance.GetWarningNameMessage(UninitializedWarningName),
-                                           Target.GetSourceLocation());
-                    Log.LogWarning(AppendInitializationLocations(msg, Visitor));
+                    if (UninitializedWarning.UseWarning(Log.Options))
+                    {
+                        var msg = new LogEntry("Instance uninitialized",
+                            UninitializedWarning.CreateMessage(
+                                "The constructed instance is never initialized by this constructor. "),
+                            Target.GetSourceLocation());
+                        Log.LogWarning(AppendInitializationLocations(msg, Visitor));
+                    }
                 }
-                else if (Log.UsePedanticWarnings(MaybeUninitializedWarningName))
+                else if (MaybeUninitializedWarning.UseWarning(Log.Options))
                 {
                     var msg = new LogEntry("Instance possibly uninitialized",
-                                           "Some control flow paths may not initialize the constructed instance. " +
-                                           Warnings.Instance.GetWarningNameMessage(MaybeUninitializedWarningName),
-                                           Target.GetSourceLocation());
+                        MaybeUninitializedWarning.CreateMessage(
+                        "Some control flow paths may not initialize the constructed instance. "),
+                        Target.GetSourceLocation());
                     Log.LogWarning(AppendInitializationLocations(msg, Visitor));
                 }
                 return true;
@@ -135,20 +138,23 @@ namespace Flame.Verification
         {
             if (Visitor.CurrentFlow.Max > 1)
             {
-                if (Visitor.CurrentFlow.Min > 1 && Log.UseDefaultWarnings(MultipleInitializationWarningName))
+                if (Visitor.CurrentFlow.Min > 1)
                 {
-                    var msg = new LogEntry("Instance initialized more than once",
-                                           "The constructed instance is initialized more than once by this constructor. " +
-                                           Warnings.Instance.GetWarningNameMessage(MultipleInitializationWarningName),
-                                           Target.GetSourceLocation());
-                    Log.LogWarning(AppendInitializationLocations(msg, Visitor));
+                    if (MultipleInitializationWarning.UseWarning(Log.Options))
+	                {
+                        var msg = new LogEntry("Instance initialized more than once",
+                            MultipleInitializationWarning.CreateMessage(
+                                "The constructed instance is initialized more than once by this constructor. "),
+                            Target.GetSourceLocation());
+                        Log.LogWarning(AppendInitializationLocations(msg, Visitor));
+	                }
                 }
-                else if (Log.UsePedanticWarnings(MaybeMultipleInitializationWarningName))
+                else if (MaybeMultipleInitializationWarning.UseWarning(Log.Options))
                 {
                     var msg = new LogEntry("Instance possibly initialized more than once",
-                                           "The constructed instance may be initialized more than once in some control flow paths in this constructor. " +
-                                           Warnings.Instance.GetWarningNameMessage(MaybeMultipleInitializationWarningName),
-                                           Target.GetSourceLocation());
+                        MaybeMultipleInitializationWarning.CreateMessage(
+                            "The constructed instance may be initialized more than once in some control flow paths in this constructor. "),
+                        Target.GetSourceLocation());
                     Log.LogWarning(AppendInitializationLocations(msg, Visitor));
                 }
                 return true;

@@ -127,9 +127,11 @@ namespace Flame.Syntax.DSharp
                 var body = RedefinitionHelpers.CreateRedefinitionNode(Name, Location, localDecls[Name].Location);
                 Log.LogError(new LogEntry("Variable redefinition", body));
             }
-            else if (Log.ShowShadowWarnings && VariableExists(Name))
+            else if (Warnings.Shadow.UseWarning(Log.Options) && VariableExists(Name))
             {
-                var node = RedefinitionHelpers.CreateRedefinitionMessageNode("Variable '" + Name + "' is shadowed. " + Warnings.GetWarningNameMessage(Warnings.Shadow),
+                var node = RedefinitionHelpers.CreateRedefinitionMessageNode(
+                    Warnings.Shadow.CreateMessage(
+                        "Variable '" + Name + "' is shadowed. "),
                     Location, this.GetDeclarationLocation(Name));
                 Log.LogWarning(new LogEntry("Variable shadowed", node));
             }

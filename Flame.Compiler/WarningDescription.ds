@@ -1,0 +1,193 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Pixie;
+
+namespace Flame.Compiler
+{
+    /// <summary>
+    /// Describes a type of warning or warning group.
+    /// </summary>
+    public class WarningDescription
+    {
+        /// <summary>
+        /// Gets the prefix string for warning options.
+        /// </summary>
+        public const string WarningOptionPrefix = "W";
+
+        /// <summary>
+        /// Gets the prefix string for negated warning options.
+        /// </summary>
+        public const string NegatedWarningOptionPrefix = "Wno-";
+
+        /// <summary>
+        /// Creates a warning description with the given name.
+        /// This warning is turned off by default.
+        /// </summary>
+        public const this(string Name)
+        {
+            this.WarningOption = WarningOptionPrefix + Name;
+            this.NegatedWarningOption = NegatedWarningOptionPrefix + Name;
+        }
+
+        /// <summary>
+        /// Creates a warning description with the given name.
+        /// A boolean flag determines whether the warning is turned
+        /// on or off by default.
+        /// </summary>
+        public const this(string Name, set bool IsDefault)
+        {
+            this.WarningOption = WarningOptionPrefix + Name;
+            this.NegatedWarningOption = NegatedWarningOptionPrefix + Name;
+        }
+
+        /// <summary>
+        /// Creates a warning description with the given name and parent
+        /// warning description. Its default behavior is inherited from
+        /// the parent warning description.
+        /// </summary>
+        public const this(string Name, set WarningDescription Parent)
+        {
+            this.WarningOption = WarningOptionPrefix + Name;
+            this.NegatedWarningOption = NegatedWarningOptionPrefix + Name;
+            this.IsDefault = Parent.IsDefault;
+        }
+
+        /// <summary>
+        /// Creates a warning description with the given name and parent
+        /// warning description. A boolean flag determines whether
+        /// the warning is turned on or off by default.
+        /// </summary>
+        public const this(string Name, set WarningDescription Parent, set bool IsDefault)
+        {
+            this.WarningOption = WarningOptionPrefix + Name;
+            this.NegatedWarningOption = NegatedWarningOptionPrefix + Name;
+        }
+
+        /// <summary>
+        /// Creates a warning description with the positive and negative options,
+        /// as well as a parent warning description. A boolean flag determines
+        /// whether the warning is turned on or off by default.
+        /// </summary>
+        public const this(set string WarningOption, set string NegatedWarningOption,
+            set WarningDescription Parent, set bool IsDefault);
+
+        /// <summary>
+        /// Gets this warning's (positive) warning option, which enables
+        /// the warning if it is set to true.
+        /// </summary>
+        public string WarningOption { const get; private set; }
+
+        /// <summary>
+        /// Gets this warning's negated warning option, which disables
+        /// the warning if it is set to true. The positive warning option
+        /// takes precedence over this option.
+        /// </summary>
+        public string NegatedWarningOption { const get; private set; }
+
+        /// <summary>
+        /// Gets this warning or warning group's "parent": if this warning has
+        /// not been explicitly turned on or off, then the parent's value is
+        /// used by this instance.
+        /// </summary>
+        public WarningDescription Parent { const get; private set; }
+
+        /// <summary>
+        /// Checks if this warning is a "root" warning: i.e. it is not
+        /// dependent on any other warnings or warning groups.
+        /// This implies that its "parent" is null.
+        /// </summary>
+        public bool IsRoot
+        {
+            const get { return Parent == null; }
+        }
+
+        /// <summary>
+        /// Gets a boolean value that tells if this warning is turned on by
+        /// default. This behavior can be overriden by the parent warning group.
+        /// </summary>
+        public bool IsDefault { const get; private set; }
+
+        /// <summary>
+        /// Gets a cause node for this warning.
+        /// </summary>
+        public IMarkupNode CauseNode
+        {
+            const get
+            {
+                if (string.IsNullOrWhiteSpace(WarningOption) &&
+                    !string.IsNullOrWhiteSpace(NegatedWarningOption))
+                    return new MarkupNode(NodeConstants.CauseNodeType, NegatedWarningOption);
+                else
+                    return new MarkupNode(NodeConstants.CauseNodeType, WarningOption);
+            }
+        }
+
+        /// <summary>
+        /// Creates a warning message node for this warning, which consists
+        /// of the given message node, and a cause node for this warning.
+        /// </summary>
+        public IMarkupNode CreateMessage(IMarkupNode Message)
+        {
+            return new MarkupNode("entry", new IMarkupNode[] { Message, CauseNode });
+        }
+
+        /// <summary>
+        /// Creates a warning message node this warning, which consists
+        /// of the given message node, and a cause node for this warning.
+        /// </summary>
+        public IMarkupNode CreateMessage(string Message)
+        {
+            return CreateMessage(new MarkupNode(NodeConstants.TextNodeType, Message));
+        }
+
+        /// <summary>
+        /// Tries to find a boolean value that determines whether this
+        /// warning should be used. Returns true if this can be done,
+        /// otherwise false. The result, if any, is stored in a boolean reference.
+        /// </summary>
+        private bool TryUseWarning(ICompilerOptions Options, bool^ Result)
+        {
+            string warnName = WarningOption;
+            if (!string.IsNullOrWhiteSpace(warnName) && Options.HasOption(warnName))
+            {
+                *Result = Options.GetOption<bool>(warnName, IsDefault);
+                return true;
+            }
+            else
+            {
+                warnName = NegatedWarningOption;
+                if (!string.IsNullOrWhiteSpace(warnName) && Options.HasOption(warnName))
+                {
+                    *Result = !Options.GetOption<bool>(warnName, !IsDefault);
+                    return true;
+                }
+                else if (IsRoot)
+                {
+                    return false;
+                }
+                else
+                {
+                    return Parent.TryUseWarning(Options, Result);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determines if this warning should be used according to the
+        /// given set of compiler options.
+        /// </summary>
+        public bool UseWarning(ICompilerOptions Options)
+        {
+            bool result;
+            if (TryUseWarning(Options, &result))
+            {
+                return result;
+            }
+            else
+            {
+                return IsDefault;
+            }
+        }
+    }
+}

@@ -18,9 +18,16 @@ namespace Flame.DSharp.Parser
 	/// </remarks>
 	public virtual class DSharpSyntaxParser
 	{
-		public this(set ICompilerLog Log);
+		public this(set ICompilerLog Log)
+		{
+			this.useCppUsingNamespaceWarning = Warnings.CppUsingNamespace.UseWarning(Log.Options);
+			this.useCSharpAliasWarning = Warnings.CSharpUsingAlias.UseWarning(Log.Options);
+		}
 
 		public ICompilerLog Log { const get; private set; }
+
+		private bool useCppUsingNamespaceWarning;
+		private bool useCSharpAliasWarning;
 
 		#region ParseExpression
 
@@ -1670,16 +1677,15 @@ namespace Flame.DSharp.Parser
             }
             else
             {
-				if (ifBody is IfElseSyntax && Log.ShowDanglingElseWarnings)
+				if (ifBody is IfElseSyntax && Warnings.DanglingElse.UseWarning(Log.Options))
 				{
 					var ifElseBody = (IfElseSyntax)ifBody;
 					if (ifElseBody.ElseBody != null)
 					{
-						var firstMessage = new MarkupNode(NodeConstants.TextNodeType,
+						var firstMessage = Warnings.DanglingElse.CreateMessage(
 							"Nested if statement has a dangling else clause. " +
 							"(A dangling else clause is assumed to belong to the innermost " +
-							"if statement.) " +
-							Warnings.GetWarningNameMessage(Warnings.DanglingElse));
+							"if statement.) ");
 
 						var firstDiag = ifElseBody.ElseKeyword.Location.CreateDiagnosticsNode();
 
@@ -1838,12 +1844,12 @@ namespace Flame.DSharp.Parser
         		peek = Tokens.PeekNoTrivia();
         	}
 
-			if (finallyClause == null && catchClauses.Count == 0 && Log.ShowLonelyTryWarnings)
+			if (finallyClause == null && catchClauses.Count == 0 && Warnings.LonelyTry.UseWarning(Log.Options))
 			{
 				Log.LogWarning(new LogEntry("Lonely try statement",
-					"This try statement does not have an associated catch or finally clause. " +
-					"The 'try' keyword is therefore meaningless here. " +
-					Warnings.GetWarningNameMessage(Warnings.LonelyTry),
+					Warnings.LonelyTry.CreateMessage(
+						"This try statement does not have an associated catch or finally clause. " +
+						"The 'try' keyword is therefore meaningless here. "),
 					tryKeyword.Location));
 			}
 
@@ -2506,12 +2512,12 @@ namespace Flame.DSharp.Parser
 			if (Tokens.PeekNoTrivia().Type == TokenType.NamespaceKeyword)
 			{
 				var nsTok = Tokens.NextNoTrivia();
-				if (Log.ShowCppUsingNamespaceWarnings)
+				if (useCppUsingNamespaceWarning)
 				{
 					Log.LogWarning(new LogEntry("C++ style 'using namespace'",
-						"C++ style 'using namespace' statements are not standard D#. " +
-						"Consider omitting the 'namespace' keyword. " +
-						Warnings.GetWarningNameMessage(Warnings.CppUsingNamespace),
+						Warnings.CppUsingNamespace.CreateMessage(
+							"C++ style 'using namespace' statements are not standard D#. " +
+							"Consider omitting the 'namespace' keyword. "),
 						nsTok.Location));
 				}
 			}
@@ -2536,12 +2542,12 @@ namespace Flame.DSharp.Parser
             if (token.Type == TokenType.Equals)
             {
 				var singleIdentifier = name[0];
-				if (Log.ShowBadAliasWarnings)
+				if (useCSharpAliasWarning)
 				{
 					Log.LogWarning(new LogEntry("C++/C# style alias declaration",
-						"C++/C# style alias declarations are nonstandard in D#. " +
-						"Consider using the 'alias' keyword instead of 'using' when declaring aliases. " +
-						Warnings.GetWarningNameMessage(Warnings.BadAlias),
+						Warnings.CSharpUsingAlias.CreateMessage(
+							"C++/C# style alias declarations are nonstandard in D#. " +
+							"Consider using the 'alias' keyword instead of 'using' when declaring aliases. "),
 						usingKeyword.Location.Concat(token.Location)));
 				}
 				return ParseAliasSyntax(usingKeyword, singleIdentifier, token, Tokens);
