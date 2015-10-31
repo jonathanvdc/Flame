@@ -1,4 +1,6 @@
 ﻿using Flame.Compiler.Projects;
+using Pixie;
+using Pixie.Xml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +12,11 @@ namespace Flame.DSProject
 {
     [Serializable]
     [XmlRoot("RuntimeLibrary")]
-    public class DSProjectRuntimeLibrary : IProjectReferenceItem
+    public class DSProjectRuntimeLibrary : PixieXmlSerializable, IProjectReferenceItem
     {
         public DSProjectRuntimeLibrary()
         {
+            this.ReferenceIdentifier = "";
         }
         public DSProjectRuntimeLibrary(string ReferenceIdentifier)
         {
@@ -28,6 +31,19 @@ namespace Flame.DSProject
         public string Name
         {
             get { return null; }
+        }
+
+        public override void Deserialize(IMarkupNode Node)
+        {
+            ReferenceIdentifier = Node.Attributes.Get<string>("Include", "");
+        }
+
+        public override IMarkupNode Serialize()
+        {
+            return new MarkupNode("RuntimeLibrary", new PredefinedAttributes(new Dictionary<string, object>()
+            {
+                { "Include", ReferenceIdentifier }
+            }));
         }
     }
 }

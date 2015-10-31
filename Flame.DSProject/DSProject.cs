@@ -1,10 +1,13 @@
 ﻿using Flame.Compiler.Projects;
+using Pixie;
+using Pixie.Xml;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace Flame.DSProject
@@ -22,6 +25,10 @@ namespace Flame.DSProject
         }
         public DSProject(DSProjectNode Node)
             : base(Node.Name, Node.Children)
+        {
+        }
+        public DSProject(IMarkupNode Node)
+            : base(Node)
         {
         }
 
@@ -85,17 +92,18 @@ namespace Flame.DSProject
 
         public static DSProject ReadProject(string Path)
         {
-            using (var fs = new FileStream(Path, FileMode.Open))
+            using (var fs = new FileStream(Path, FileMode.Open, FileAccess.Read))
             {
                 return DSProject.ReadProject(fs);
             }
         }
         public static DSProject ReadProject(Stream Source)
         {
-            var xns = new XmlSerializerNamespaces();
-            var xmlSerializer = new XmlSerializer(typeof(DSProject));
-            xns.Add(string.Empty, string.Empty);
-            return (DSProject)xmlSerializer.Deserialize(Source);
+            using (var reader = XmlReader.Create(Source))
+            {
+                var node = XmlNodeHandler.Instance.ReadMarkupNode(reader);
+                return new DSProject(node);
+            }
         }
 
         public void WriteTo(string Path)
@@ -107,10 +115,10 @@ namespace Flame.DSProject
         }
         public void WriteTo(Stream Target)
         {
-            var xmlSerializer = new XmlSerializer(typeof(DSProject));
-            var xns = new XmlSerializerNamespaces();
-            xns.Add(string.Empty, string.Empty);
-            xmlSerializer.Serialize(Target, this, xns);
+            using (var writer = XmlWriter.Create(Target))
+            {
+                XmlNodeHandler.Instance.WriteMarkupNode(writer, Serialize());
+            }
         }
 
         #region FromProject

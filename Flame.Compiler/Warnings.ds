@@ -32,7 +32,7 @@ namespace Flame.Compiler
             Warnings.HiddenNullCheck = new WarningDescription("hidden-null-check", Warnings.Extra);
             Warnings.MeaninglessCast = new WarningDescription("meaningless-cast", Warnings.Extra);
             Warnings.ConstantAssert = new WarningDescription("constant-assert", Warnings.Extra);
-            Warnings.Unused = new WarningDescription("unused", Warnings.Instance.Extra);
+            Warnings.Unused = new WarningDescription("unused", Warnings.Extra);
 
             // -Wpedantic warnings
             Warnings.CSharpUsingAlias = new WarningDescription("csharp-using-alias", Warnings.Pedantic);

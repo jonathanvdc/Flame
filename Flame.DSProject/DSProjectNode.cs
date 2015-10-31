@@ -1,4 +1,6 @@
 ﻿using Flame.Compiler.Projects;
+using Pixie;
+using Pixie.Xml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,20 +12,24 @@ using System.Xml.Serialization;
 namespace Flame.DSProject
 {
     [XmlRoot("ItemGroup")]
-    public class DSProjectNode : IMutableProjectNode, IXmlSerializable
+    public class DSProjectNode : PixieXmlSerializable, IMutableProjectNode
     {
         public DSProjectNode()
         {
-            this.Children = new NodeList();
+            this.Children = new List<IProjectItem>();
         }
         public DSProjectNode(IEnumerable<IProjectItem> Children)
         {
-            this.Children = new NodeList(Children);
+            this.Children = new List<IProjectItem>(Children);
         }
         public DSProjectNode(string Name, IEnumerable<IProjectItem> Children)
         {
             this.Name = Name;
-            this.Children = new NodeList(Children);
+            this.Children = new List<IProjectItem>(Children);
+        }
+        public DSProjectNode(IMarkupNode Node)
+        {
+            Deserialize(Node);
         }
 
         [XmlIgnore]
@@ -49,8 +55,7 @@ namespace Flame.DSProject
             }
         }
 
-        [XmlAnyElement]
-        public NodeList Children { get; set; }
+        public List<IProjectItem> Children { get; set; }
 
         public void SetName(string Name)
         {
@@ -103,28 +108,50 @@ namespace Flame.DSProject
             return Children.ToArray();
         }
 
-        public System.Xml.Schema.XmlSchema GetSchema()
+        public override void Deserialize(IMarkupNode Node)
         {
-            return null;
-        }
-
-        public void ReadXml(XmlReader reader)
-        {
-            reader.MoveToContent();
-            XmlName = reader.GetAttribute("Name");
-            bool isEmpty = reader.IsEmptyElement;
-            reader.ReadStartElement();
-            if (!isEmpty)
+            XmlName = Node.Attributes.Get<string>("Name", "");
+            Children = new List<IProjectItem>();
+            foreach (var item in Node.Children)
             {
-                Children.ReadXml(reader);
-                reader.ReadEndElement();
+                PixieXmlSerializable result;
+                switch (item.Type)
+                {
+                    case "Setter":
+                        result = new DSProjectSetter();
+                        break;
+                    case "Option":
+                        result = new DSProjectOption();
+                        break;
+                    case "RuntimeLibrary": 
+                        result = new DSProjectRuntimeLibrary();
+                        break;
+                    case "Reference":
+                        result = new DSProjectReferenceItem();
+                        break;
+                    case "Compile":
+                        result = new DSProjectSourceItem();
+                        break;
+                    case "ItemGroup":
+                        result = new DSProjectNode();
+                        break;
+                    case "Project":
+                        result = new DSProject();
+                        break;
+                    default:
+                        throw new NotSupportedException("Node type '" + item.Type + "' is not supported.");
+                }
+                result.Deserialize(item);
+                Children.Add((IProjectItem)result);
             }
         }
 
-        public void WriteXml(XmlWriter writer)
+        public override IMarkupNode Serialize()
         {
-            writer.WriteAttributeString("Name", XmlName);
-            Children.WriteXml(writer);
+            return new MarkupNode("ItemGroup", new PredefinedAttributes(new Dictionary<string, object>()
+            {
+                { "Name", "" }
+            }), Children.Cast<PixieXmlSerializable>().Select(item => item.Serialize()).ToArray());
         }
     }
 }
