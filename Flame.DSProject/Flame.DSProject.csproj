@@ -36,6 +36,13 @@
     <Reference Include="Flame.Compiler">
       <HintPath>..\Flame.DSharp\bin\Flame.Compiler.dll</HintPath>
     </Reference>
+    <Reference Include="Pixie, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Pixie\bin\Pixie.dll</HintPath>
+    </Reference>
+    <Reference Include="Pixie.Xml">
+      <HintPath>..\Pixie\bin\Pixie.Xml.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -52,7 +59,6 @@
     <Compile Include="DSProjectSourceItem.cs" />
     <Compile Include="DSProjectReferenceItem.cs" />
     <Compile Include="DSProjectRuntimeLibrary.cs" />
-    <Compile Include="NodeList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

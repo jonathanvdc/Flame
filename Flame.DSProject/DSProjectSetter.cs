@@ -1,4 +1,6 @@
 ﻿using Flame.Compiler.Projects;
+using Pixie;
+using Pixie.Xml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +12,12 @@ namespace Flame.DSProject
 {
     [Serializable]
     [XmlRoot("Setter")]
-    public class DSProjectSetter : IProjectItem
+    public class DSProjectSetter : PixieXmlSerializable, IProjectItem
     {
         public DSProjectSetter()
         {
+            this.Property = "";
+            this.Value = "";
         }
         public DSProjectSetter(string Property, string Value)
         {
@@ -30,5 +34,20 @@ namespace Flame.DSProject
         public string Property { get; set; }
         [XmlAttribute("Value")]
         public string Value { get; set; }
+
+        public override void Deserialize(IMarkupNode Node)
+        {
+            Property = Node.Attributes.Get<string>("Property", "");
+            Value = Node.Attributes.Get<string>("Value", "");
+        }
+
+        public override IMarkupNode Serialize()
+        {
+            return new MarkupNode("Setter", new PredefinedAttributes(new Dictionary<string, object>()
+            {
+                { "Property", Property },
+                { "Value", Value }
+            }));
+        }
     }
 }

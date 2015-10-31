@@ -148,18 +148,17 @@ namespace Flame.Compiler
         /// </summary>
         private bool TryUseWarning(ICompilerOptions Options, bool^ Result)
         {
-            string warnName = WarningOption;
-            if (!string.IsNullOrWhiteSpace(warnName) && Options.HasOption(warnName))
+            if (!string.IsNullOrWhiteSpace(WarningOption) && Options.HasOption(WarningOption))
             {
-                *Result = Options.GetOption<bool>(warnName, IsDefault);
+                *Result = Options.GetOption<bool>(WarningOption, IsDefault);
                 return true;
             }
             else
             {
-                warnName = NegatedWarningOption;
-                if (!string.IsNullOrWhiteSpace(warnName) && Options.HasOption(warnName))
+                if (!string.IsNullOrWhiteSpace(NegatedWarningOption) &&
+                    Options.HasOption(NegatedWarningOption))
                 {
-                    *Result = !Options.GetOption<bool>(warnName, !IsDefault);
+                    *Result = !Options.GetOption<bool>(NegatedWarningOption, !IsDefault);
                     return true;
                 }
                 else if (IsRoot)

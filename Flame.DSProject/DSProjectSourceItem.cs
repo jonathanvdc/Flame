@@ -1,5 +1,7 @@
 ﻿using Flame.Compiler;
 using Flame.Compiler.Projects;
+using Pixie;
+using Pixie.Xml;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,10 +14,11 @@ namespace Flame.DSProject
 {
     [Serializable]
     [XmlRoot("Compile")]
-    public class DSProjectSourceItem : IProjectSourceItem
+    public class DSProjectSourceItem : PixieXmlSerializable, IProjectSourceItem
     {
         public DSProjectSourceItem()
         {
+            this.SourceIdentifier = "";
         }
         public DSProjectSourceItem(string SourceIdentifier, string CurrentPath)
         {
@@ -47,6 +50,19 @@ namespace Flame.DSProject
         public string Name
         {
             get { return null; }
+        }
+
+        public override void Deserialize(IMarkupNode Node)
+        {
+            SourceIdentifier = Node.Attributes.Get<string>("Include", "");
+        }
+
+        public override IMarkupNode Serialize()
+        {
+            return new MarkupNode("Compile", new PredefinedAttributes(new Dictionary<string, object>()
+            {
+                { "Include", SourceIdentifier }
+            }));
         }
     }
 }
