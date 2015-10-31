@@ -109,14 +109,31 @@ namespace Flame.Compiler
         public bool IsDefault { const get; private set; }
 
         /// <summary>
+        /// Gets a boolean flag that tells if this warning has a non-null,
+        /// non-empty (positive) warning option.
+        /// </summary>
+        public bool HasWarningOption
+        {
+            const get { return !string.IsNullOrWhiteSpace(WarningOption); }
+        }
+
+        /// <summary>
+        /// Gets a boolean flag that tells if this warning has a non-null,
+        /// non-empty negated warning option.
+        /// </summary>
+        public bool HasNegatedWarningOption
+        {
+            const get { return !string.IsNullOrWhiteSpace(NegatedWarningOption); }
+        }
+
+        /// <summary>
         /// Gets a cause node for this warning.
         /// </summary>
         public IMarkupNode CauseNode
         {
             const get
             {
-                if (string.IsNullOrWhiteSpace(WarningOption) &&
-                    !string.IsNullOrWhiteSpace(NegatedWarningOption))
+                if (!HasWarningOption && HasNegatedWarningOption)
                     return new MarkupNode(NodeConstants.CauseNodeType, NegatedWarningOption);
                 else
                     return new MarkupNode(NodeConstants.CauseNodeType, WarningOption);
@@ -148,15 +165,14 @@ namespace Flame.Compiler
         /// </summary>
         private bool TryUseWarning(ICompilerOptions Options, bool^ Result)
         {
-            if (!string.IsNullOrWhiteSpace(WarningOption) && Options.HasOption(WarningOption))
+            if (HasWarningOption && Options.HasOption(WarningOption))
             {
                 *Result = Options.GetOption<bool>(WarningOption, IsDefault);
                 return true;
             }
             else
             {
-                if (!string.IsNullOrWhiteSpace(NegatedWarningOption) &&
-                    Options.HasOption(NegatedWarningOption))
+                if (HasNegatedWarningOption && Options.HasOption(NegatedWarningOption))
                 {
                     *Result = !Options.GetOption<bool>(NegatedWarningOption, !IsDefault);
                     return true;
@@ -186,6 +202,29 @@ namespace Flame.Compiler
             else
             {
                 return IsDefault;
+            }
+        }
+
+        public override const string ToString()
+        {
+            bool hasPos = HasWarningOption;
+            bool hasNeg = HasNegatedWarningOption;
+
+            if (hasPos && hasNeg)
+            {
+                return WarningOption + ", " + NegatedWarningOption;
+            }
+            else if (hasPos)
+            {
+                return WarningOption;
+            }
+            else if (hasNeg)
+            {
+                return NegatedWarningOption;
+            }
+            else
+            {
+                return "";
             }
         }
     }
