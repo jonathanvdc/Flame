@@ -13,46 +13,35 @@ namespace Flame.Front.Options
         public CachedOptions(ICompilerOptions Options)
         {
             this.Options = Options;
-            this.cachedValues = new ConcurrentDictionary<Type, Dictionary<string, object>>();
+            this.cachedValues = new ConcurrentDictionary<Type, ConcurrentDictionary<string, object>>();
+            this.presentKeys = new ConcurrentDictionary<string, bool>();
         }
 
         public ICompilerOptions Options { get; private set; }
 
-        private ConcurrentDictionary<Type, Dictionary<string, object>> cachedValues;
+        private ConcurrentDictionary<string, bool> presentKeys;
+        private ConcurrentDictionary<Type, ConcurrentDictionary<string, object>> cachedValues;
 
-        private Dictionary<string, object> GetDictionary<T>()
+        private ConcurrentDictionary<string, object> GetDictionary<T>()
         {
-            return cachedValues.GetOrAdd(typeof(T), type => new Dictionary<string, object>());
+            return cachedValues.GetOrAdd(typeof(T), type => new ConcurrentDictionary<string, object>());
         }
 
         public T GetOption<T>(string Key, T Default)
         {
-            var dict = GetDictionary<T>();
-            lock (dict)
+            if (HasOption(Key))
             {
-                if (!dict.ContainsKey(Key))
-                {
-                    if (HasOption(Key))
-                    {
-                        var result = Options.GetOption<T>(Key, Default);
-                        dict[Key] = result;
-                        return result;
-                    }
-                    else
-                    {
-                        return Default;
-                    }
-                }
-                else
-                {
-                    return (T)dict[Key];
-                }
+                return (T)GetDictionary<T>().GetOrAdd(Key, key => Options.GetOption<T>(key, Default));
+            }
+            else
+            {
+                return Default;
             }
         }
 
         public bool HasOption(string Key)
         {
-            return Options.HasOption(Key);
+            return presentKeys.GetOrAdd(Key, Options.HasOption);
         }
     }
 }
