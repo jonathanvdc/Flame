@@ -59,10 +59,9 @@ namespace Flame.Verification
                         Member.GetSourceLocation()));
                 }
             }
-            if (!Member.get_IsAbstract() && !Member.get_IsInterface() &&
-                (Member.get_IsAbstract() || Member.get_IsInterface()))
+            if (!Member.get_IsAbstract() && !Member.get_IsInterface())
             {
-                foreach (var item in Member.BaseTypes)
+                foreach (var item in Member.BaseTypes.Where(item => item.get_IsAbstract() || item.get_IsInterface()))
                 {
                     if (!item.VerifyImplementation(Member, Log)) success = false;
                 }
