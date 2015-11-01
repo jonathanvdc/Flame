@@ -166,13 +166,20 @@ namespace Flame.Optimization
 
         protected override IStatement Transform(IStatement Statement)
         {
-            if (this.inExpression)
+            if (Statement.IsEmpty)
+            {
+                // Empty statements aren't exactly in the danger zone, because
+                // they are equivalent to void expressions.
+
+                return Statement;
+            }
+            else if (this.inExpression)
             {
                 // This is exactly the kind of construct we want this pass to
                 // get rid of. To perserve the order of side-effects, we'll
                 // spill all unspilled non-constant expressions.
                 // Note that there are no statement predecessors that could
-                // introduce side-effects and must be spilled: if the enclosing,
+                // introduce side-effects and must be spilled: if the enclosing
                 // expression contained any, we would have visited them already.
 
                 // First, we'll spill all effectful predecessor expressions.
