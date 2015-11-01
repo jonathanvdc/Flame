@@ -19,7 +19,7 @@ namespace Flame.Front.Target
             RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(LowerLambdaPass.Instance, LowerLambdaPassName));
             RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(TailRecursionPass.Instance, TailRecursionPass.TailRecursionPassName, (optInfo, isPref) => isPref || optInfo.OptimizeMinimal));
 
-            RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(InliningPass.Instance, InliningPassName, (optInfo, isPref) => optInfo.OptimizeExperimental));
+            RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(InliningPass.Instance, InliningPass.InliningPassName, (optInfo, isPref) => optInfo.OptimizeExperimental));
             RegisterStatementPass(new PassInfo<IStatement, IStatement>(SimplifyFlowPass.Instance, SimplifyFlowPassName, (optInfo, isPref) => (optInfo.OptimizeMinimal && isPref) || optInfo.OptimizeNormal || optInfo.OptimizeSize));
             RegisterStatementPass(new PassInfo<IStatement, IStatement>(Flame.Optimization.Variables.DefinitionPropagationPass.Instance, PropagateLocalsName, (optInfo, isPref) => optInfo.OptimizeExperimental));
         }
@@ -30,7 +30,6 @@ namespace Flame.Front.Target
         public const string InitializationPassName = "initialization";
         public const string LowerYieldPassName = "lower-yield";
         public const string LowerLambdaPassName = "lower-lambda";
-        public const string InliningPassName = "inline";
         public const string SimplifyFlowPassName = "simplify-flow";
         public const string PropagateLocalsName = "propagate-locals";
 

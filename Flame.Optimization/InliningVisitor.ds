@@ -18,13 +18,14 @@ namespace Flame.Optimization
         public [IExpression] Arguments { const get; private set; }
     }
 
-    public class InliningVisitor : NodeVisitorBase
+    public class InliningVisitor : LocationVisitorBase
     {
         public const this(set IMethod CurrentMethod, set bool(DissectedCall) ShouldInline,
                           set IStatement(IMethod) GetMethodBody, set IStatement(IStatement) Optimize,
                           set int MaxRecursion)
         {
             this.inlineCount = new Dictionary<IMethod, int>();
+            this.inlinedCallLocs = new List<KeyValuePair<DissectedCall, SourceLocation>>();
         }
 
         public IMethod CurrentMethod { const get; private set; }
@@ -36,9 +37,15 @@ namespace Flame.Optimization
         public bool HasInlined { const get return inlineCount.Count != 0; }
         public IReadOnlyDictionary<IMethod, int> InlinedCount { const get return inlineCount; }
 
-        private Dictionary<IMethod, int> inlineCount;
+        public IEnumerable<KeyValuePair<DissectedCall, SourceLocation>> InlinedCallLocations
+        {
+            const get return inlinedCallLocs;
+        }
 
-        public override const bool Matches(IStatement Statement)
+        private Dictionary<IMethod, int> inlineCount;
+        private List<KeyValuePair<DissectedCall, SourceLocation>> inlinedCallLocs;
+
+        protected override const bool MatchesCore(IStatement Statement)
         {
             return false;
         }
@@ -112,7 +119,7 @@ namespace Flame.Optimization
             }
         }
 
-        public override const bool Matches(IExpression Expression)
+        protected override const bool MatchesCore(IExpression Expression)
         {
             var result = this.DissectCall(Expression);
             if (result == null)
@@ -131,15 +138,17 @@ namespace Flame.Optimization
                    this.ShouldInline(result);
         }
 
-        protected override IExpression Transform(IExpression Expression)
+        protected override IExpression TransformCore(IExpression Expression)
         {
             // We know we *should* inline this because it survived the "match"
             // step.
             var dissected = DissectCall((InvocationExpression)Expression);
 
+            inlinedCallLocs.Add(new KeyValuePair<DissectedCall, SourceLocation>(dissected, CurrentLocation));
+
             return Visit(Inline(dissected));
         }
-        protected override IStatement Transform(IStatement Statement)
+        protected override IStatement TransformCore(IStatement Statement)
         {
             return Statement;
         }

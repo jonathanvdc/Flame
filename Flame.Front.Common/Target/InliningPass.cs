@@ -2,6 +2,7 @@
 using Flame.Compiler.Visitors;
 using Flame.Optimization;
 using Flame.Optimization.Variables;
+using Pixie;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,16 @@ namespace Flame.Front.Target
         }
 
         public static InliningPass Instance { get; private set; }
+
+        /// <summary>
+        /// The inlining pass' name.
+        /// </summary>
+        public const string InliningPassName = "inline";
+
+        /// <summary>
+        /// The name of the option that enables inlining remarks.
+        /// </summary>
+        public static readonly string InliningRemarksOption = Flags.Instance.GetRemarkOptionName(InliningPassName);
 
         private static int ApproximateSize(IType Type)
         {
@@ -100,9 +111,10 @@ namespace Flame.Front.Target
 
         public IStatement Apply(BodyPassArgument Value)
         {
-            int maxRecursion = Value.PassEnvironment.Log.Options.GetOption<int>("max-inline-recursion", 3);
-            int inlineTolerance = Value.PassEnvironment.Log.Options.GetOption<int>("inline-tolerance", 0);
-            bool propInline = Value.PassEnvironment.Log.Options.GetOption<bool>("inline-propagate-locals", true);
+            var log = Value.PassEnvironment.Log;
+            int maxRecursion = log.Options.GetOption<int>("max-inline-recursion", 3);
+            int inlineTolerance = log.Options.GetOption<int>("inline-tolerance", 0);
+            bool propInline = log.Options.GetOption<bool>("inline-propagate-locals", true);
 
             var inliner = new InliningVisitor(Value.DeclaringMethod, call => ShouldInline(Value, call, inlineTolerance),
                                               Value.PassEnvironment.GetMethodBody, 
@@ -113,6 +125,20 @@ namespace Flame.Front.Target
             if (inliner.HasInlined)
             {
                 result = result.Optimize();
+
+                if (inliner.MatchedLocations.Any() && log.Options.GetOption<bool>(InliningRemarksOption, false))
+                {
+                    foreach (var item in inliner.InlinedCallLocations)
+                    {
+                        log.LogMessage(new LogEntry("Pass remark", new IMarkupNode[]
+                        {
+                            new MarkupNode(
+                                NodeConstants.TextNodeType, 
+                                "Inlined call to '" + item.Key.Method.Name + "' into '" + Value.DeclaringMethod.Name + "'. "),
+                            Flags.Instance.CreateCauseNode(InliningRemarksOption)
+                        }, item.Value));
+                    }
+                }
             }
             return result;
         }
