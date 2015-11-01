@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class VariableAssignmentBlock : ICppBlock
+    public class VariableAssignmentBlock : IOpBlock
     {
         public VariableAssignmentBlock(ICppBlock Target, ICppBlock Value)
         {
@@ -17,6 +17,8 @@ namespace Flame.Cpp.Emit
 
         public ICppBlock Target { get; private set; }
         public ICppBlock Value { get; private set; }
+
+        public int Precedence { get { return 15; } }
 
         public IType Type
         {
@@ -41,11 +43,12 @@ namespace Flame.Cpp.Emit
         public CodeBuilder GetCode()
         {
             CodeBuilder cb = new CodeBuilder();
-            var targetCode = Target.GetCode();
+            var targetCode = Target.GetOperandCode(this);
             if (Value is BinaryOperation)
             {
                 var binOp = (BinaryOperation)Value;
-                if (BinaryOperation.IsAssignableBinaryOperator(binOp.Operator) && binOp.Left.GetCode().ToString() == targetCode.ToString())
+                if (BinaryOperation.IsAssignableBinaryOperator(binOp.Operator) && 
+                    binOp.Left.GetOperandCode(this).ToString() == targetCode.ToString())
                 {
                     if (binOp.Operator.Equals(Operator.Add) && binOp.Right is LiteralBlock && ((LiteralBlock)binOp.Right).Value == "1")
                     {
@@ -72,11 +75,11 @@ namespace Flame.Cpp.Emit
             cb.Append(" = ");
             if (Value.Type.Equals(Target.Type))
             {
-                cb.AppendAligned(Value.GetCode());
+                cb.AppendAligned(Value.GetOperandCode(this));
             }
             else
             {
-                cb.AppendAligned(new ConversionBlock(CodeGenerator, Value, Target.Type).GetCode());
+                cb.AppendAligned(new ConversionBlock(CodeGenerator, Value, Target.Type).GetOperandCode(this));
             }
             return cb;
         }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class MemberAccessBlock : ICppBlock
+    public class MemberAccessBlock : IOpBlock
     {
         public MemberAccessBlock(ICppBlock Target, ITypeMember Member, IType Type)
         {
@@ -19,6 +19,7 @@ namespace Flame.Cpp.Emit
         public ICppBlock Target { get; private set; }
         public ITypeMember Member { get; private set; }
         public IType Type { get; private set; }
+        public int Precedence { get { return 2; } }
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
@@ -95,19 +96,19 @@ namespace Flame.Cpp.Emit
             CodeBuilder cb = new CodeBuilder();
             if (Target is IPointerBlock)
             {
-                cb.Append(((IPointerBlock)Target).StaticDereference().GetCode());
+                cb.Append(((IPointerBlock)Target).StaticDereference().GetOperandCode(this));
                 cb.Append('.');
             }
             else
             {
                 if (Target is DereferenceBlock)
                 {
-                    cb.Append(((DereferenceBlock)Target).Value.GetCode());
+                    cb.Append(((DereferenceBlock)Target).Value.GetOperandCode(this));
                     cb.Append("->");
                 }
                 else
                 {
-                    cb.Append(Target.GetCode());
+                    cb.Append(Target.GetOperandCode(this));
                     if (Target.Type.IsExplicitPointer())
                     {
                         cb.Append("->");

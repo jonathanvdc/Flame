@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class BinaryOperation : ICppBlock
+    public class BinaryOperation : IOpBlock
     {
         public BinaryOperation(ICodeGenerator CodeGenerator, ICppBlock Left, Operator Operator, ICppBlock Right)
         {
@@ -24,53 +24,44 @@ namespace Flame.Cpp.Emit
 
         public ICodeGenerator CodeGenerator { get; private set; }
 
-        public static int GetOperatorPrecedence(Operator Op)
+        public int Precedence { get { return GetBinaryOperatorPrecedence(Operator); } }
+
+        private static readonly Dictionary<Operator, int> binaryOpPrecedence = new Dictionary<Operator, int>()
         {
-            if (Op.Equals(Operator.Multiply) || Op.Equals(Operator.Divide) || Op.Equals(Operator.Remainder))
+            { Operator.Multiply, 5 },
+            { Operator.Divide, 5 },
+            { Operator.Remainder, 5 },
+            { Operator.Add, 6 },
+            { Operator.Subtract, 6 },
+            { Operator.Concat, 6 },
+            { Operator.RightShift, 7 },
+            { Operator.LeftShift, 7 },
+            { Operator.CheckGreaterThan, 8 },
+            { Operator.CheckLessThan, 8 },
+            { Operator.CheckGreaterThanOrEqual, 8 },
+            { Operator.CheckLessThanOrEqual, 8 },
+            { Operator.CheckEquality, 9 },
+            { Operator.CheckInequality, 9 },
+            { Operator.And, 10 },
+            { Operator.Xor, 11 },
+            { Operator.Or, 12 },
+            { Operator.LogicalAnd, 13 },
+            { Operator.LogicalOr, 14 }
+        };
+
+        public static int GetBinaryOperatorPrecedence(Operator Op)
+        {
+            int result;
+            if (binaryOpPrecedence.TryGetValue(Op, out result))
             {
-                return 7;
-            }
-            else if (Op.Equals(Operator.Add) || Op.Equals(Operator.Subtract) || Op.Equals(Operator.Concat))
-            {
-                return 6;
-            }
-            else if (Op.Equals(Operator.RightShift) || Op.Equals(Operator.LeftShift))
-            {
-                return 5;
-            }
-            else if (Op.Equals(Operator.And))
-            {
-                return 4;
-            }
-            else if (Op.Equals(Operator.Or) || Op.Equals(Operator.Xor))
-            {
-                return 3;
-            }
-            else if (Op.Equals(Operator.CheckGreaterThan) || Op.Equals(Operator.CheckLessThan) || Op.Equals(Operator.CheckGreaterThanOrEqual) || Op.Equals(Operator.CheckLessThanOrEqual))
-            {
-                return 2;
-            }
-            else if (Op.Equals(Operator.CheckEquality) || Op.Equals(Operator.CheckInequality))
-            {
-                return 1;
-            }
-            else if (Op.Equals(Operator.LogicalAnd) || Op.Equals(Operator.LogicalOr) || Op.Equals(Operator.Not))
-            {
-                return 0;
+                return result;
             }
             else
             {
-                return -1;
+                return 0;
             }
         }
-        public static CodeBuilder GetEnclosedCode(ICppBlock Operand)
-        {
-            var cb = new CodeBuilder();
-            cb.Append('(');
-            cb.Append(Operand.GetCode());
-            cb.Append(')');
-            return cb;
-        }
+
         private CodeBuilder GetBinaryOperandCodeBuilder(ICppBlock Operand, IType OtherType, IType ReturnType)
         {
             var opType = Operand.Type;
@@ -81,14 +72,7 @@ namespace Flame.Cpp.Emit
                                       OtherType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.TransientPointer) ?
                                       new ConversionBlock(CodeGenerator, Operand, OtherType) : Operand;
 
-            if (Operand is BinaryOperation)
-            {
-                if (GetOperatorPrecedence(Operator) > GetOperatorPrecedence(((BinaryOperation)Operand).Operator))
-                {
-                    return GetEnclosedCode(actualOperand);
-                }
-            }
-            return actualOperand.GetCode();
+            return actualOperand.GetOperandCode(this);
         }
 
         public CodeBuilder GetCode(bool IncreaseIndentation)
@@ -194,7 +178,9 @@ namespace Flame.Cpp.Emit
 
         private static bool IsComparisonOperator(Operator Op)
         {
-            return Op.Equals(Operator.CheckEquality) || Op.Equals(Operator.CheckInequality) || Op.Equals(Operator.CheckGreaterThan) || Op.Equals(Operator.CheckLessThan) || Op.Equals(Operator.CheckGreaterThanOrEqual) || Op.Equals(Operator.CheckGreaterThanOrEqual);
+            return Op.Equals(Operator.CheckEquality) || Op.Equals(Operator.CheckInequality) ||
+                   Op.Equals(Operator.CheckGreaterThan) || Op.Equals(Operator.CheckLessThan) || 
+                   Op.Equals(Operator.CheckGreaterThanOrEqual) || Op.Equals(Operator.CheckGreaterThanOrEqual);
         }
 
         public static IType GetResultType(ICppBlock Left, ICppBlock Right, Operator Operator)

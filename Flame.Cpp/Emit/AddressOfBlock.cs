@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class AddressOfBlock : ICppBlock, IPointerBlock
+    public class AddressOfBlock : IOpBlock, IPointerBlock
     {
         public AddressOfBlock(ICppBlock Target)
         {
@@ -15,6 +15,7 @@ namespace Flame.Cpp.Emit
         }
 
         public ICppBlock Target { get; private set; }
+        public int Precedence { get { return 3; } }
 
         public IType Type
         {
@@ -40,7 +41,7 @@ namespace Flame.Cpp.Emit
         {
             CodeBuilder cb = new CodeBuilder();
             cb.Append('&');
-            cb.AppendAligned(Target.GetCode());
+            cb.AppendAligned(Target.GetOperandCode(this));
             return cb;
         }
 

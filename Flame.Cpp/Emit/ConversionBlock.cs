@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class ConversionBlock : ICppBlock
+    public class ConversionBlock : IOpBlock
     {
         public ConversionBlock(ICodeGenerator CodeGenerator, ICppBlock Value, IType Type)
         {
@@ -19,6 +19,7 @@ namespace Flame.Cpp.Emit
         public ICodeGenerator CodeGenerator { get; private set; }
         public IType Type { get; private set; }
         public ICppBlock Value { get; private set; }
+        public int Precedence { get { return 3; } }
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
@@ -130,14 +131,7 @@ namespace Flame.Cpp.Emit
                 cb.Append('(');
                 cb.Append(CodeGenerator.GetTypeNamer().Name(tType, CodeGenerator));
                 cb.Append(')');
-                if (Value is BinaryOperation)
-                {
-                    cb.AppendAligned(BinaryOperation.GetEnclosedCode(Value));
-                }
-                else
-                {
-                    cb.AppendAligned(Value.GetCode());
-                }
+                cb.AppendAligned(Value.GetOperandCode(this));
                 return cb;
             }
         }
