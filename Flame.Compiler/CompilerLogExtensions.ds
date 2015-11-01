@@ -58,6 +58,30 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Creates a remark node with the given title that contains
+        /// source code diagnostics for this source location.
+        /// </summary>
+        public static IMarkupNode CreateRemarkDiagnosticsNode(this SourceLocation Location, string Title)
+        {
+            if (Location == null)
+            {
+                return new MarkupNode(NodeConstants.TextNodeType, "");
+            }
+
+            var oldSrc = Location.CreateSourceNode();
+            var neutralOldSrc = new MarkupNode("neutral-diagnostics", new IMarkupNode[] { oldSrc });
+            var oldTitle = new MarkupNode(NodeConstants.BrightNodeType, Title);
+            var oldMessage = Location.CreateLineNumberNode(NodeConstants.TextNodeType);
+
+            return new MarkupNode(NodeConstants.RemarksNodeType, new IMarkupNode[]
+            {
+                oldTitle,
+                oldMessage,
+                neutralOldSrc
+            });
+        }
+
+        /// <summary>
         /// Creates a source code diagnostics node.
         /// </summary>
         public static const IMarkupNode CreateDiagnosticsNode(this SourceLocation Location)

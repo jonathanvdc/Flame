@@ -1,0 +1,128 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// A node visitor that takes source location nodes into account when
+    /// visiting a node tree.
+    /// </summary>
+    public abstract class LocationVisitorBase : NodeVisitorBase
+    {
+        /// <summary>
+        /// Creates a new location visitor base.
+        /// </summary>
+        public const this()
+        {
+            this.matchList = new List<SourceLocation>();
+        }
+
+        /// <summary>
+        /// Gets the location visitor's current location, obtained from source statements
+        /// and expressions.
+        /// </summary>
+        public SourceLocation CurrentLocation { const get; private set; }
+
+        private List<SourceLocation> matchList;
+        /// <summary>
+        /// Gets a sequence containing all source locations of nodes that were
+        /// "matched" by the MatchedCore methods.
+        /// </summary>
+        public [SourceLocation] MatchedLocations
+        {
+            const get { return matchList; }
+        }
+
+        protected abstract const bool MatchesCore(IExpression Value);
+        protected abstract const bool MatchesCore(IStatement Value);
+        protected abstract IExpression TransformCore(IExpression Value);
+        protected abstract IStatement TransformCore(IStatement Value);
+
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is SourceExpression || MatchesCore(Value);
+        }
+
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is SourceStatement || MatchesCore(Value);
+        }
+
+        private IExpression TransformMatched(IExpression Expression)
+        {
+            if (CurrentLocation != null)
+                matchList.Add(CurrentLocation);
+            return TransformCore(Expression);
+        }
+
+        private IExpression Transform(SourceExpression Expression)
+        {
+            var oldLoc = CurrentLocation;
+            if (Expression.Location != null)
+            {
+                CurrentLocation = Expression.Location;
+            }
+
+            IExpression result;
+            if (MatchesCore(Expression))
+            {
+                result = TransformMatched(Expression);
+            }
+            else
+            {
+                result = Expression.Accept(this);
+            }
+
+            CurrentLocation = oldLoc;
+            return result;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            if (Expression is SourceExpression)
+                return Transform((SourceExpression)Expression);
+            else
+                return TransformMatched(Expression);
+        }
+
+        private IStatement TransformMatched(IStatement Statement)
+        {
+            if (CurrentLocation != null)
+                matchList.Add(CurrentLocation);
+            return TransformCore(Statement);
+        }
+
+        private IStatement Transform(SourceStatement Statement)
+        {
+            var oldLoc = CurrentLocation;
+            if (Statement.Location != null)
+            {
+                CurrentLocation = Statement.Location;
+            }
+
+            IStatement result;
+            if (MatchesCore(Statement))
+            {
+                result = TransformMatched(Statement);
+            }
+            else
+            {
+                result = Statement.Accept(this);
+            }
+
+            CurrentLocation = oldLoc;
+            return result;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            if (Statement is SourceStatement)
+                return Transform((SourceStatement)Statement);
+            else
+                return TransformMatched(Statement);
+        }
+    }
+}
