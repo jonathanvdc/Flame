@@ -59,6 +59,20 @@ namespace Flame.Compiler.Expressions
 			{
 				return Value;
 			}
+			else if (Value is InitializedExpression)
+			{
+				var innerInitExpr = (InitializedExpression)Value;
+				return new InitializedExpression(new BlockStatement(new IStatement[]
+				{
+					Initialization,
+					innerInitExpr.Initialization
+				}).Simplify(),
+				innerInitExpr.Value, new BlockStatement(new IStatement[]
+				{
+					innerInitExpr.Finalization,
+					Finalization
+				}).Simplify());
+			}
 			else
 			{
 				return this;
@@ -71,14 +85,7 @@ namespace Flame.Compiler.Expressions
 			var optVal  = Value.Optimize();
 			var optFin  = Finalization.Optimize();
 
-			if (optInit.IsEmpty && optFin.IsEmpty)
-			{
-				return optVal;
-			}
-			else
-			{
-				return new InitializedExpression(optInit, optVal, optFin);
-			}
+			return new InitializedExpression(optInit, optVal, optFin).Simplify();
 		}
 
 		public ICodeBlock Emit(ICodeGenerator Generator) : IExpression.Emit
