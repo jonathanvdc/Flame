@@ -72,7 +72,7 @@ namespace Flame.Cecil
             {
                 return Convert(Module.TypeSystem.GetCanonicalDelegate(MethodType.GetMethod(Type)));
             }
-            if (Type.get_IsRootType())
+            if (Type.get_IsRootType() || Type.Equals(PrimitiveTypes.Null))
             {
                 return Module.Module.TypeSystem.Object;
             }
@@ -126,7 +126,7 @@ namespace Flame.Cecil
                 return ts.Char;
             else if (Type.Equals(PrimitiveTypes.String))
                 return ts.String;
-            else if (Type.get_IsRootType())
+            else if (Type.get_IsRootType() || Type.Equals(PrimitiveTypes.Null))
                 return ts.Object;
             else
                 return base.ConvertPrimitiveType(Type);
