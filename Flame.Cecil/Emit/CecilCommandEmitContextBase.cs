@@ -531,6 +531,11 @@ namespace Flame.Cecil.Emit
         {
             var typeRef = GetTypeReference(Type);
 
+            if (typeRef == null)
+            {
+                throw new InvalidOperationException("Type '" + Type.FullName + "' could not be converted to a CLR type.");
+            }
+
             for (int i = 0; i < localVarPool.Count; i++)
             {
                 var local = localVarPool[i];
