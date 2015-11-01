@@ -74,6 +74,28 @@ namespace Flame
     		PrimitiveTypes.Void = new PrimitiveType<object>("Void", 0, null);
     		PrimitiveTypes.IHashable = HashableType;
     		PrimitiveTypes.IEquatable = EquatableType;
+
+			PrimitiveTypes.primTypes = new HashSet<IType>(new IType[]
+			{
+				PrimitiveTypes.Int8,
+				PrimitiveTypes.Int16,
+				PrimitiveTypes.Int32,
+				PrimitiveTypes.Int64,
+				PrimitiveTypes.Bit8,
+				PrimitiveTypes.Bit16,
+				PrimitiveTypes.Bit32,
+				PrimitiveTypes.Bit64,
+				PrimitiveTypes.UInt8,
+				PrimitiveTypes.UInt16,
+				PrimitiveTypes.UInt32,
+				PrimitiveTypes.UInt64,
+				PrimitiveTypes.Float32,
+				PrimitiveTypes.Float64,
+				PrimitiveTypes.Boolean,
+				PrimitiveTypes.String,
+				PrimitiveTypes.Char,
+				PrimitiveTypes.Void
+			});
     	}
 
     	private static IType int32Type;
@@ -105,30 +127,10 @@ namespace Flame
     	public static IType IHashable { const get; private set; }
     	public static IType IEquatable { const get; private set; }
 
-		public static IType[] GetPrimitives()
+		private static HashSet<IType> primTypes;
+		public static [IType] GetPrimitives()
 		{
-			var types = new IType[]
-			{
-				PrimitiveTypes.Int8,
-				PrimitiveTypes.Int16,
-				PrimitiveTypes.Int32,
-				PrimitiveTypes.Int64,
-				PrimitiveTypes.Bit8,
-				PrimitiveTypes.Bit16,
-				PrimitiveTypes.Bit32,
-				PrimitiveTypes.Bit64,
-				PrimitiveTypes.UInt8,
-				PrimitiveTypes.UInt16,
-				PrimitiveTypes.UInt32,
-				PrimitiveTypes.UInt64,
-				PrimitiveTypes.Float32,
-				PrimitiveTypes.Float64,
-				PrimitiveTypes.Boolean,
-				PrimitiveTypes.String,
-				PrimitiveTypes.Char,
-				PrimitiveTypes.Void
-			};
-			return types;
+			return primTypes;
 		}
 
 		public static bool IsBit[this IType Type]
@@ -203,15 +205,7 @@ namespace Flame
 		{
 			const get
 			{
-				var primitives = GetPrimitives();
-				for (int i = 0; i < primitives.Length; ++i)
-				{
-					if (primitives[i].Equals(Type))
-					{
-						return true;
-					}
-				}
-				return false;
+				return primTypes.Contains(Type);
 			}
 		}
 
