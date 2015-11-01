@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class UnaryOperation : ICppBlock
+    public class UnaryOperation : IOpBlock
     {
         public UnaryOperation(ICodeGenerator CodeGenerator, ICppBlock Value, Operator Operator)
         {
@@ -18,6 +18,7 @@ namespace Flame.Cpp.Emit
 
         public ICppBlock Value { get; private set; }
         public Operator Operator { get; private set; }
+        public int Precedence { get { return 3; } }
 
         public ICodeGenerator CodeGenerator { get; private set; }
 
@@ -30,14 +31,7 @@ namespace Flame.Cpp.Emit
             {
                 cb.Append(" ");
             }
-            if (Value is BinaryOperation)
-            {
-                cb.AppendAligned(BinaryOperation.GetEnclosedCode(Value));
-            }
-            else
-            {
-                cb.AppendAligned(Value.GetCode());
-            }
+            cb.AppendAligned(Value.GetOperandCode(Precedence));
             return cb;
         }
 

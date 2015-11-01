@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Flame.Compiler;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,61 @@ namespace Flame.Cpp.Emit
 {
     public static class CppBlockExtensions
     {
+        #region Enclosed code
+
+        /// <summary>
+        /// Gets this C++ block's code, wrapped in parentheses.
+        /// </summary>
+        /// <param name="Operand"></param>
+        /// <returns></returns>
+        public static CodeBuilder GetEnclosedCode(ICppBlock Operand)
+        {
+            var cb = new CodeBuilder();
+            cb.Append('(');
+            cb.Append(Operand.GetCode());
+            cb.Append(')');
+            return cb;
+        }
+
+        /// <summary>
+        /// Gets this C++ block's code, which is
+        /// wrapped in a pair of parentheses if the 
+        /// given outer precedence level is lower than
+        /// the operand block's precedence.
+        /// </summary>
+        /// <param name="Block"></param>
+        /// <param name="OuterPrecedence"></param>
+        /// <returns></returns>
+        public static CodeBuilder GetOperandCode(this ICppBlock Operand, int OuterPrecedence)
+        {
+            if (Operand is IOpBlock && OuterPrecedence < ((IOpBlock)Operand).Precedence)
+            {
+                return GetEnclosedCode(Operand);
+            }
+            else
+            {
+                return Operand.GetCode();
+            }
+        }
+
+        /// <summary>
+        /// Gets this C++ block's code, as an
+        /// operand of the given parent operator
+        /// block. The operand block is
+        /// wrapped in a pair of parentheses if the 
+        /// given outer block's precedence is lower than
+        /// the operand block's precedence.
+        /// </summary>
+        /// <param name="Operand"></param>
+        /// <param name="Parent"></param>
+        /// <returns></returns>
+        public static CodeBuilder GetOperandCode(this ICppBlock Operand, IOpBlock Parent)
+        {
+            return Operand.GetOperandCode(Parent.Precedence);
+        }
+
+        #endregion
+
         #region IsSimple
 
         public static IEnumerable<ICppBlock> Flatten(this ICppBlock Block)

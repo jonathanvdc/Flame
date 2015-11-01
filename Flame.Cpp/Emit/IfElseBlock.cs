@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class IfElseBlock : ICppLocalDeclaringBlock
+    public class IfElseBlock : ICppLocalDeclaringBlock, IOpBlock
     {
         public IfElseBlock(ICodeGenerator CodeGenerator, ICppBlock Condition,
                            ICppBlock IfBlock, ICppBlock ElseBlock)
@@ -22,6 +22,7 @@ namespace Flame.Cpp.Emit
         public ICppBlock Condition { get; private set; }
         public ICppBlock IfBlock { get; private set; }
         public ICppBlock ElseBlock { get; private set; }
+        public int Precedence { get { return 15; } }
 
         public IEnumerable<LocalDeclaration> LocalDeclarations
         {
@@ -38,7 +39,7 @@ namespace Flame.Cpp.Emit
 
         public IType Type
         {
-            get { return IfBlock.Type; }
+            get { return !PrimitiveTypes.Void.Equals(IfBlock.Type) && !PrimitiveTypes.Void.Equals(ElseBlock.Type) ? IfBlock.Type : PrimitiveTypes.Void; }
         }
 
         public IEnumerable<IHeaderDependency> Dependencies
@@ -46,7 +47,7 @@ namespace Flame.Cpp.Emit
             get { return Condition.Dependencies.MergeDependencies(IfBlock.Dependencies.MergeDependencies(ElseBlock.Dependencies)); }
         }
 
-        public CodeBuilder GetCode()
+        private CodeBuilder GetIfCode()
         {
             CodeBuilder cb = new CodeBuilder();
             cb.Append("if (");
@@ -88,6 +89,28 @@ namespace Flame.Cpp.Emit
                 cb.AddEmptyLine(); // Add some space for legibility
             }
             return cb;
+        }
+
+        private CodeBuilder GetTernaryCode()
+        {
+            var result = Condition.GetOperandCode(this);
+            result.Append(" ? ");
+            result.AppendAligned(IfBlock.GetOperandCode(this));
+            result.Append(" : ");
+            result.AppendAligned(ElseBlock.GetOperandCode(this));
+            return result;
+        }
+
+        public CodeBuilder GetCode()
+        {
+            if (PrimitiveTypes.Void.Equals(Type))
+            {
+                return GetIfCode();
+            }
+            else
+            {
+                return GetTernaryCode();
+            }
         }
 
         public IEnumerable<CppLocal> LocalsUsed

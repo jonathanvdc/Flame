@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class DereferenceBlock : ICppBlock
+    public class DereferenceBlock : IOpBlock
     {
         public DereferenceBlock(ICppBlock Value)
         {
@@ -15,6 +15,7 @@ namespace Flame.Cpp.Emit
         }
 
         public ICppBlock Value { get; private set; }
+        public int Precedence { get { return 3; } }
 
         public IType Type
         {
@@ -46,14 +47,7 @@ namespace Flame.Cpp.Emit
             {
                 var cb = new CodeBuilder(); 
                 cb.Append('*');
-                if (Value is BinaryOperation)
-                {
-                    cb.Append(BinaryOperation.GetEnclosedCode(Value));
-                }
-                else
-                {
-                    cb.Append(Value.GetCode());
-                }
+                cb.Append(Value.GetOperandCode(this));
                 return cb;
             }
         }
