@@ -42,7 +42,7 @@ namespace Flame.Optimization
 
         public IStatement Unwrap()
         {
-            return new BlockStatement(Statements);
+            return new BlockStatement(Statements).Simplify();
         }
 
         public IStatement Optimize()

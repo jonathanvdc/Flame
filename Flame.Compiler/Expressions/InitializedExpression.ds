@@ -53,6 +53,18 @@ namespace Flame.Compiler.Expressions
 			return Value.Evaluate();
 		}
 
+		public IExpression Simplify()
+		{
+			if (Initialization.IsEmpty && Finalization.IsEmpty)
+			{
+				return Value;
+			}
+			else
+			{
+				return this;
+			}
+		}
+
 		public IExpression Optimize() : IExpression.Optimize
 		{
 			var optInit = Initialization.Optimize();

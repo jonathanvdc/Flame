@@ -41,7 +41,7 @@ namespace Flame.Front.Target
         public BuildTarget CreateBuildTarget(string PlatformIdentifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)
         {
             var targetAsm = new CppAssembly(Info.Name, Info.Version, DependencyBuilder.GetCppEnvironment());
-            return new BuildTarget(targetAsm, DependencyBuilder, "cpp", true);
+            return new BuildTarget(targetAsm, DependencyBuilder, "cpp", true, Flame.Optimization.ImperativeCodePass.ImperativeCodePassName);
         }
     }
 }

@@ -1,0 +1,246 @@
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// Defines an expression that can be "spilled", i.e. store its value in
+    /// a temporary local, retrieve it, and get rid of the local.
+    /// </summary>
+    public class SpillableExpression : IExpression
+    {
+        public const this(set IExpression Value);
+
+        public IExpression Value { const get; private set; }
+        public IType Type { get { return Value.Type; } }
+        public bool IsConstant { get { return Value.IsConstant; } }
+
+        /// <summary>
+        /// "Spills" this expression to the given initialization and finalization
+        /// statements.
+        /// </summary>
+        public void Spill(InsertStatement Initialization, InsertStatement Finalization)
+        {
+            if (IsConstant)
+            {
+                // Do nothing, really.
+                return;
+            }
+            else if (PrimitiveTypes.Void.Equals(Type))
+            {
+                Initialization.Insert(new ExpressionStatement(Value));
+                Value = VoidExpression;
+            }
+            else
+            {
+                var local = new LateBoundVariable(Value.Type);
+                Initialization.Insert(local.CreateSetStatement(Value));
+                Finalization.Insert(local.CreateReleaseStatement());
+                Value = local.CreateGetExpression();
+            }
+        }
+
+        public IExpression Optimize()
+        {
+            return Value.Optimize();
+        }
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            return Visitor.Visit(Value);
+        }
+
+        public IBoundObject Evaluate()
+        {
+            return Value.Evaluate();
+        }
+
+        public ICodeBlock Emit(ICodeGenerator CodeGenerator)
+        {
+            return Value.Emit(CodeGenerator);
+        }
+    }
+
+    /// <summary>
+    /// A node visitor that rewrites nodes such that they are legal
+    /// for traditional imperative programming languages:
+    /// statements do not appear inside of expressions,
+    /// but expressions may appear inside of statements.
+    /// </summary>
+    public class ImperativeCodeRewriter : NodeVisitorBase
+    {
+        /// <summary>
+        /// Creates a new imperative code rewriter.
+        /// </summary>
+        public const this()
+        {
+            this.initStatement = new InsertStatement();
+            this.finalStatement = new InsertStatement();
+            this.unspilledExpressions = new HashSet<SpillableExpression>();
+        }
+
+        /// <summary>
+        /// Gets this imperative code rewriter's initialization statement.
+        /// From an external perspective, this is only useful when rewriting
+        /// top-level expressions.
+        /// </summary>
+        public IStatement Initialization { const get { return initStatement; } }
+
+        /// <summary>
+        /// Gets this imperative code rewriter's finalization statement.
+        /// From an external perspective, this is only useful when rewriting
+        /// top-level expressions.
+        /// </summary>
+        public IStatement Finalization { const get { return finalStatement; } }
+
+        // Stores the current node's initialization statement.
+        private InsertStatement initStatement;
+        // Stores the current node's finalization statement.
+        private InsertStatement finalStatement;
+
+        // Stores the enclosing statement's set of unspilled expressions.
+        private HashSet<SpillableExpression> unspilledExpressions;
+
+        // Tells if we're in an expression right now.
+        private bool inExpression;
+
+        // Merges all unspilled expressions except for the given excluded set.
+        // They are replaced by a spillable expression, which is added to
+        // the unspilled expressions set.
+        private SpillableExpression MergeExpressions(
+            IExpression MergedExpr, HashSet<SpillableExpression> Excluded)
+        {
+            unspilledExpressions.IntersectWith(Excluded);
+            var result = new SpillableExpression(MergedExpr);
+            unspilledExpressions.Add(result);
+            return result;
+        }
+
+        // Spills all unspilled expressions that belong to the enclosing
+        // statement.
+        private void Spill()
+        {
+            foreach (var item in unspilledExpressions)
+                item.Spill(initStatement, finalStatement);
+
+            unspilledExpressions = new HashSet<SpillableExpression>();
+        }
+
+        public override bool Matches(IExpression Value)
+        {
+            return true;
+        }
+
+        public override bool Matches(IStatement Value)
+        {
+            return true;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            bool oldInExpr = inExpression;
+
+            inExpression = true;
+            var preds = new HashSet<SpillableExpression>(unspilledExpressions);
+            var result = Expression.Accept(this);
+
+            inExpression = oldInExpr;
+
+            // Be sure to simplify initialized expressions.
+            // This step may not be _absolutely essential_, but it does
+            // remove a ton of generated empty statements by having
+            // the initialized expression realize what's going on and
+            // gracefully simplify itself to its value expression.
+            if (result is InitializedExpression)
+            {
+                result = ((InitializedExpression)result).Simplify();
+            }
+
+            return MergeExpressions(result, preds);
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            if (this.inExpression)
+            {
+                // This is exactly the kind of construct we want this pass to
+                // get rid of. To perserve the order of side-effects, we'll
+                // spill all unspilled non-constant expressions.
+                // Note that there are no statement predecessors that could
+                // introduce side-effects and must be spilled: if the enclosing,
+                // expression contained any, we would have visited them already.
+
+                // First, we'll spill all effectful predecessor expressions.
+                Spill();
+
+                // Now, we want to visit this statement recursively, and
+                // append the result to the initialization statement list.
+                // Since the statement will be inserted into the enclosing statement's
+                // initialization list, it is in effect no longer inside of an
+                // expression. Adjusting the is-in-expression flag will do the trick.
+                this.inExpression = false;
+
+                initStatement.Insert(Visit(Statement));
+
+                this.inExpression = true;
+
+                return EmptyStatement;
+            }
+            else
+            {
+                // This is an imperative-style statement. There's nothing wrong
+                // with this node at the top-level, but that doesn't guarantee
+                // that its children behave equally well.
+                // Sets up an environment that facilitates spilling expressions.
+
+                var oldInit = initStatement;
+                var oldFinal = finalStatement;
+                var oldExprs = unspilledExpressions;
+
+                initStatement = new InsertStatement();
+                finalStatement = new InsertStatement();
+                unspilledExpressions = new HashSet<SpillableExpression>();
+
+                var innerResult = Statement.Accept(this);
+
+                var result = new BlockStatement(new IStatement[]
+                {
+                    initStatement.Unwrap(),
+                    innerResult,
+                    finalStatement.Unwrap()
+                }).Simplify();
+
+                initStatement = oldInit;
+                finalStatement = oldFinal;
+                unspilledExpressions = oldExprs;
+
+                return result;
+            }
+        }
+    }
+
+    /// <summary>
+    /// A pass that rewrites statements such that they are legal
+    /// for traditional imperative programming languages:
+    /// statements do not appear inside of expressions,
+    /// but expressions may appear inside of statements.
+    /// </summary>
+    public static class ImperativeCodePass : IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// The imperative code pass' name.
+        /// </summary>
+        public const string ImperativeCodePassName = "imperative-code";
+
+        public IStatement Apply(IStatement Statement)
+        {
+            var visitor = new ImperativeCodeRewriter();
+            return visitor.Visit(Statement);
+        }
+    }
+}
