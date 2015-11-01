@@ -37,7 +37,9 @@ namespace Flame.Recompilation
 
         public IStatement OptimizeBody(AssemblyRecompiler Recompiler, IBodyMethod SourceMethod)
         {
-            var metadata = new PassMetadata(Recompiler.GlobalMetdata, Recompiler.GetTypeMetadata(SourceMethod.DeclaringType), new RandomAccessOptions());
+            var metadata = new PassMetadata(Recompiler.GlobalMetadata,
+                Recompiler.GetTypeMetadata(SourceMethod.DeclaringType), 
+                new RandomAccessOptions());
 
             var initBody = Optimizer.GetOptimizedBody(SourceMethod);
 

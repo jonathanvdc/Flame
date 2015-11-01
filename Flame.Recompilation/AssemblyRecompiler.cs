@@ -64,8 +64,8 @@ namespace Flame.Recompilation
             this.cachedEnvironment = new Lazy<IEnvironment>(() => TargetAssembly.CreateBinder().Environment);
             this.methodBodies = new AsyncDictionary<IMethod, IStatement>();
 
-            this.GlobalMetdata = new RandomAccessOptions();
-            this.typeMetadata = new Dictionary<IType, RandomAccessOptions>();
+            this.GlobalMetadata = new RandomAccessOptions();
+            this.typeMetadata = new ConcurrentDictionary<IType, RandomAccessOptions>();
         }
 
         public CompilationCache<IType> TypeCache { [Pure] get; private set; }
@@ -74,8 +74,8 @@ namespace Flame.Recompilation
         public CompilationCache<IMethod> MethodCache { [Pure] get; private set; }
         public CompilationCache<INamespace> NamespaceCache { [Pure] get; private set; }
 
-        public RandomAccessOptions GlobalMetdata { [Pure] get; private set; }
-        private Dictionary<IType, RandomAccessOptions> typeMetadata;
+        public RandomAccessOptions GlobalMetadata { [Pure] get; private set; }
+        private ConcurrentDictionary<IType, RandomAccessOptions> typeMetadata;
 
         private Dictionary<IAssembly, RecompilationOptions> recompiledAssemblies;
         private Lazy<IEnvironment> cachedEnvironment;
@@ -83,7 +83,7 @@ namespace Flame.Recompilation
 
         public RandomAccessOptions GetTypeMetadata(IType Type)
         {
-            return typeMetadata[Type];
+            return typeMetadata.GetOrAdd(Type, ty => new RandomAccessOptions());
         }
 
         #endregion
@@ -785,7 +785,6 @@ namespace Flame.Recompilation
             var type = DeclaringNamespace.DeclareType(typeTemplate);
             return new MemberCreationResult<IType>(type, (tgt, src) =>
             {
-                typeMetadata[src] = new RandomAccessOptions();
                 var typeBuilder = (ITypeBuilder)tgt;
                 typeBuilder.Initialize();
                 RecompileInvariants(typeBuilder, src);
@@ -899,9 +898,14 @@ namespace Flame.Recompilation
             return new TypeMappingConverter(tMap);
         }
 
+        private static bool IsAbstractOrInterfaceMethod(IMethod SourceMethod)
+        {
+            return SourceMethod.get_IsAbstract() || (SourceMethod.DeclaringType != null && SourceMethod.DeclaringType.get_IsInterface());
+        }
+
         private IStatement GetMethodBodyCore(IMethod SourceMethod)
         {
-            if (SourceMethod.get_IsAbstract() || SourceMethod.DeclaringType.get_IsInterface())
+            if (IsAbstractOrInterfaceMethod(SourceMethod))
             {
                 return null;
             }
@@ -959,7 +963,7 @@ namespace Flame.Recompilation
 
             if (body == null)
             {
-                if (!SourceMethod.get_IsAbstract() && !SourceMethod.DeclaringType.get_IsInterface())
+                if (!IsAbstractOrInterfaceMethod(SourceMethod))
                 {
                     Log.LogError(new LogEntry("Recompilation error", "Could not find a method body for '" + SourceMethod.FullName + "'."));
                 }
@@ -1128,7 +1132,6 @@ namespace Flame.Recompilation
                 }
                 foreach (var item in TypeCache.GetAll())
                 {
-                    typeMetadata.Remove(item);
                     if (item is ITypeBuilder)
                     {
                         ((ITypeBuilder)item).Build();
