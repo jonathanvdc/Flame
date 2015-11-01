@@ -37,7 +37,7 @@ namespace Flame.Optimization
     /// ...
     /// continue OuterTag;
     /// </remarks>
-    public class TailRecursionVisitor : StatementVisitorBase
+    public class TailRecursionVisitor : LocationVisitorBase
     {
         public const this(set IMethod Method)
         {
@@ -63,7 +63,12 @@ namespace Flame.Optimization
         /// </summary>
         public bool HasReplaced { const get; private set; }
 
-        public override const bool Matches(IStatement Value)
+        protected override const bool MatchesCore(IExpression Value)
+        {
+            return false;
+        }
+
+        protected override const bool MatchesCore(IStatement Value)
         {
             // Match nodes that look like this:
             //
@@ -87,7 +92,12 @@ namespace Flame.Optimization
             return false;
         }
 
-        protected override IStatement Transform(IStatement Statement)
+        protected override IExpression TransformCore(IExpression Expression)
+        {
+            return Expression;
+        }
+
+        protected override IStatement TransformCore(IStatement Statement)
         {
             // Gets the invocation expression.
             // return(invoke(get_delegate(<this_method>, this|null), args...))
@@ -178,6 +188,25 @@ namespace Flame.Optimization
             const get { return Flags.GetRemarkOptionName(TailRecursionPassName); }
         }
 
+        private LogEntry CreateTailRecursionMessage(IMethod DeclaringMethod, [SourceLocation] Locations)
+        {
+            var nodes = new List<IMarkupNode>();
+            // Add a description
+            nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
+                "Optimized tail call recursion in '" + DeclaringMethod.Name + "'. "));
+            // Add a cause node ('[-Rtail-recursion]')
+            nodes.Add(Flags.CreateCauseNode(TailRecursionRemarksOption));
+            // Add diagnostics for the tail-recursive function
+            nodes.Add(DeclaringMethod.GetSourceLocation().CreateDiagnosticsNode());
+            foreach (var item in Locations)
+            {
+                // Add remark diagnostics for individual tail-recursive calls.
+                nodes.Add(item.CreateRemarkDiagnosticsNode("Tail-recursive call: "));
+            }
+
+            return new LogEntry("Pass remark", nodes);
+        }
+
         public IStatement Apply(BodyPassArgument Arg)
         {
             var declMethod = Arg.DeclaringMethod;
@@ -191,18 +220,11 @@ namespace Flame.Optimization
             {
                 result = new TaggedStatement(visitor.OuterTag, result);
                 var log = Arg.PassEnvironment.Log;
-                if (log.Options.ShouldRemark(TailRecursionPassName))
+                if (Enumerable.Any<SourceLocation>(visitor.MatchedLocations) &&
+                    log.Options.ShouldRemark(TailRecursionPassName))
                 {
                     // Maybe also emit a remark.
-                    log.LogMessage(new LogEntry(
-                        "Pass remark",
-                        new IMarkupNode[]
-                        {
-                            new MarkupNode(NodeConstants.TextNodeType,
-                                "Optimized tail call recursion in '" + declMethod.Name + "'. "),
-                            Flags.CreateCauseNode(TailRecursionRemarksOption),
-                            Arg.DeclaringMethod.GetSourceLocation().CreateDiagnosticsNode()
-                        }));
+                    log.LogMessage(CreateTailRecursionMessage(Arg.DeclaringMethod, visitor.MatchedLocations));
                 }
             }
             return result;

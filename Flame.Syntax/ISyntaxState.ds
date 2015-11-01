@@ -37,17 +37,7 @@ namespace Flame.Syntax
     {
         public static const IMarkupNode CreateNeutralDiagnosticsNode(string Title, SourceLocation Location)
         {
-            var oldSrc = Location.CreateSourceNode();
-            var neutralOldSrc = new MarkupNode("neutral-diagnostics", new IMarkupNode[] { oldSrc });
-            var oldTitle = new MarkupNode(NodeConstants.BrightNodeType, Title);
-            var oldMessage = Location.CreateLineNumberNode(NodeConstants.TextNodeType);
-
-            return new MarkupNode(NodeConstants.RemarksNodeType, new IMarkupNode[]
-            {
-                oldTitle,
-                oldMessage,
-                neutralOldSrc
-            });
+            return Location.CreateRemarkDiagnosticsNode(Title);
         }
 
         public static const IMarkupNode AppendDiagnosticsRemark(IMarkupNode Node, string Title, SourceLocation Location)
