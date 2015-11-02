@@ -62,6 +62,49 @@ namespace Flame.Cpp.Emit
             return Operand.GetOperandCode(Parent.Precedence);
         }
 
+        /// <summary>
+        /// Gets this C++ block's code, which is
+        /// wrapped in a pair of parentheses if the 
+        /// given outer precedence level is lower than or equal to
+        /// the operand block's precedence.
+        /// This is what you want to get when generating
+        /// code for the right-hand operand of a left-associative
+        /// operator.
+        /// </summary>
+        /// <param name="Block"></param>
+        /// <param name="OuterPrecedence"></param>
+        /// <returns></returns>
+        public static CodeBuilder GetRightOperandCode(this ICppBlock Operand, int OuterPrecedence)
+        {
+            if (Operand is IOpBlock && OuterPrecedence <= ((IOpBlock)Operand).Precedence)
+            {
+                return GetEnclosedCode(Operand);
+            }
+            else
+            {
+                return Operand.GetCode();
+            }
+        }
+
+        /// <summary>
+        /// Gets this C++ block's code, as an
+        /// operand of the given parent operator
+        /// block. The operand block is
+        /// wrapped in a pair of parentheses if the 
+        /// given outer block's precedence is lower than or equal to
+        /// the operand block's precedence.
+        /// This is what you want to get when generating
+        /// code for the right-hand operand of a left-associative
+        /// operator.
+        /// </summary>
+        /// <param name="Operand"></param>
+        /// <param name="Parent"></param>
+        /// <returns></returns>
+        public static CodeBuilder GetRightOperandCode(this ICppBlock Operand, IOpBlock Parent)
+        {
+            return Operand.GetRightOperandCode(Parent.Precedence);
+        }
+
         #endregion
 
         #region IsSimple

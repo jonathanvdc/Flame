@@ -1,0 +1,16 @@
+
+/// <summary>
+/// Tests associativity in generated code.
+/// </summary>
+public class Associativity
+{
+    public const int First(int A, int B, int C)
+    {
+        return (A - B) - C;
+    }
+
+    public const int Second(int A, int B, int C)
+    {
+        return A - (B - C);
+    }
+}
