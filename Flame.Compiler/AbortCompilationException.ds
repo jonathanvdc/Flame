@@ -37,7 +37,7 @@ namespace Flame.Compiler
         /// <summary>
         /// Gets this fatal error's error message.
         /// </summary>
-        public LogEntry Entry { get; private set; }
+        public LogEntry Entry { const get; private set; }
 
         /// <summary>
         /// Gets the default entry title for fatal errors.
