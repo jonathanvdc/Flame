@@ -515,8 +515,8 @@ module ExpressionBuilder =
         let nodes =
             match target.IsStatic, target.IsConstructor with
             | (true, true)   -> [TypeDiffComparer.ToTextNode("static new " + namer target.DeclaringType); argDiff]
-            | (false, true)  -> [TypeDiffComparer.ToTextNode("static " + namer target.ReturnType + " " + target.FullName); argDiff]
-            | (true, false)  -> [TypeDiffComparer.ToTextNode("new " + namer target.DeclaringType); argDiff]
+            | (true, false)  -> [TypeDiffComparer.ToTextNode("static " + namer target.ReturnType + " " + target.FullName); argDiff]
+            | (false, true)  -> [TypeDiffComparer.ToTextNode("new " + namer target.DeclaringType); argDiff]
             | (false, false) -> [TypeDiffComparer.ToTextNode(namer target.ReturnType + " " + target.FullName); argDiff]
   
         new MarkupNode("node", nodes |> Seq.ofList) :> IMarkupNode
