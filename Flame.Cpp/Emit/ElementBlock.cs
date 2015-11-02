@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp.Emit
 {
-    public class ElementBlock : ICppBlock
+    public class ElementBlock : IOpBlock
     {
         public ElementBlock(ICppBlock Target, ICppBlock Index, IType Type)
         {
@@ -19,6 +19,7 @@ namespace Flame.Cpp.Emit
         public ICppBlock Target { get; private set; }
         public ICppBlock Index { get; private set; }
         public IType Type { get; private set; }
+        public int Precedence { get { return 2; } }
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
@@ -37,7 +38,7 @@ namespace Flame.Cpp.Emit
 
         public CodeBuilder GetCode()
         {
-            CodeBuilder cb = Target.GetCode();
+            CodeBuilder cb = Target.GetOperandCode(this);
             cb.Append('[');
             cb.Append(Index.GetCode());
             cb.Append(']');
