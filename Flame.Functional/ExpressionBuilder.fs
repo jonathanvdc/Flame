@@ -520,8 +520,8 @@ module ExpressionBuilder =
                         :: TypeDiffComparer.ToTextNode(target.FullName)
                         :: nodes
         let methodDiffBuilder = new MethodDiffComparer(new FunctionConverter<IType, string>(namer));
-        let nodes = methodDiffBuilder.CompareArguments(argTypes, target) :: nodes
-        new MarkupNode("node", nodes |> List.rev |> Seq.ofList) :> IMarkupNode
+        let nodes = List.append nodes [methodDiffBuilder.CompareArguments(argTypes, target)]
+        new MarkupNode("node", nodes |> Seq.ofList) :> IMarkupNode
 
     /// Instatiates the given generic delegates expression with the given type arguments.
     let InstantiateGenericDelegates (scope : LocalScope) (target : IExpression) (typeArgs : IType seq) : IExpression =
