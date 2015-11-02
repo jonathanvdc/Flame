@@ -39,7 +39,7 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
                             fields : LazyApplicationArray<IType, IField>, ns : LazyApplicationArray<INamespaceBranch, INamespaceBranch>) as this =
 
     let appliedNestedTypes = nestedTypes.ApplyLazy this
-    let appliedGenericParams = lazy genericParams this
+    let appliedGenericParams = lazy (genericParams this |> Seq.cache)
     let appliedMethods = methods.ApplyLazy this
     let appliedProperties = properties.ApplyLazy this
     let appliedFields = fields.ApplyLazy this

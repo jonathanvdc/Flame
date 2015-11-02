@@ -510,17 +510,15 @@ module ExpressionBuilder =
         namer deleg
 
     let private createSignatureDiff (namer : IType -> string) (argTypes : IType[]) (target : IMethod) =
-        let nodes = if target.IsStatic then [TypeDiffComparer.ToTextNode("static ")] else []
-        let nodes = if target.IsConstructor then
-                        TypeDiffComparer.ToTextNode("new ") :: TypeDiffComparer.ToTextNode(namer target.DeclaringType) :: nodes
-                    else
-                        let retType = target.ReturnType
-                        TypeDiffComparer.ToTextNode(namer target.ReturnType) 
-                        :: TypeDiffComparer.ToTextNode(" ") 
-                        :: TypeDiffComparer.ToTextNode(target.FullName)
-                        :: nodes
-        let methodDiffBuilder = new MethodDiffComparer(new FunctionConverter<IType, string>(namer));
-        let nodes = List.append nodes [methodDiffBuilder.CompareArguments(argTypes, target)]
+        let methodDiffBuilder = new MethodDiffComparer(new FunctionConverter<IType, string>(namer))
+        let argDiff = methodDiffBuilder.CompareArguments(argTypes, target)
+        let nodes =
+            match target.IsStatic, target.IsConstructor with
+            | (true, true)   -> [TypeDiffComparer.ToTextNode("static new " + namer target.DeclaringType); argDiff]
+            | (false, true)  -> [TypeDiffComparer.ToTextNode("static " + namer target.ReturnType + " " + target.FullName); argDiff]
+            | (true, false)  -> [TypeDiffComparer.ToTextNode("new " + namer target.DeclaringType); argDiff]
+            | (false, false) -> [TypeDiffComparer.ToTextNode(namer target.ReturnType + " " + target.FullName); argDiff]
+  
         new MarkupNode("node", nodes |> Seq.ofList) :> IMarkupNode
 
     /// Instatiates the given generic delegates expression with the given type arguments.
