@@ -350,6 +350,15 @@ module ExpressionBuilder =
         | Some x -> x
         | None   -> new ExpressionVariable(expression) :> IVariable
 
+    /// Loads the local variable with the given name, if any such
+    /// local exists in the given local scope.
+    let AccessLocal (name : string) (scope : LocalScope) : IExpression =
+        match scope.GetVariable name with
+        | Some variable -> 
+            variable.CreateGetExpression()
+        | None ->
+            new LogEntry("Missing local variable", "Could not find a local variable named '" + name + "' in the current scope.") |> VoidError
+
     /// Assigns the given right hand side to the left hand side.
     let Assign (context : LocalScope) (left : IExpression) (right : IExpression) : IExpression =
         match GetVariable left with
@@ -475,7 +484,11 @@ module ExpressionBuilder =
         let dec = PrefixDecrement scope expression
         Finalize expression dec
 
-    let This (scope : LocalScope) =
+    /// Gets the 'this' parameter in the given scope.
+    /// Note that the 'this' parameter is defined as
+    /// a local variable. Its name is given by the given
+    /// variable identifier string.
+    let This (thisIdentifier : string) (scope : LocalScope) =
         let funcScope = scope.Function
         match funcScope.Function with
         | None ->
@@ -488,8 +501,7 @@ module ExpressionBuilder =
                                            "The 'this' parameter cannot be accessed from within a static method, constructor or accessor.")
                 VoidError message
             else
-                let variable = ThisReferenceVariable.Instance.Create func.DeclaringType
-                variable.CreateGetExpression()
+                AccessLocal thisIdentifier scope
 
     let private createExpectedSignatureDescription (namer : IType -> string) (retType : IType) (argTypes : IType seq) = 
         let descMethod = new Flame.Build.DescribedMethod("", null, retType, true)
