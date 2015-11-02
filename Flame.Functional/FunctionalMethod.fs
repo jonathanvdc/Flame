@@ -18,7 +18,7 @@ type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
 
     inherit FunctionalMemberBase(header, declType, isStatic)
 
-    let appliedGenericParams = lazy genericParameters this
+    let appliedGenericParams = lazy (genericParameters this |> Seq.cache)
     let appliedBaseMethods = lazy (baseMethods this |> Seq.cache)
     let appliedBody = lazy body this
     let appliedRetType = lazy returnType this
