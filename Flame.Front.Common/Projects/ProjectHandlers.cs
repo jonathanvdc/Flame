@@ -17,6 +17,7 @@ namespace Flame.Front.Projects
         static ProjectHandlers()
         {
             handlers = new List<IProjectHandler>();
+            RegisterHandler(new FlameIRProjectHandler());
         }
 
         private static List<IProjectHandler> handlers;
