@@ -15,26 +15,13 @@ namespace Flame.Compiler.Visitors
         /// <summary>
         /// Creates a new location visitor base.
         /// </summary>
-        public const this()
-        {
-            this.matchList = new List<SourceLocation>();
-        }
+        public const this();
 
         /// <summary>
         /// Gets the location visitor's current location, obtained from source statements
         /// and expressions.
         /// </summary>
         public SourceLocation CurrentLocation { const get; private set; }
-
-        private List<SourceLocation> matchList;
-        /// <summary>
-        /// Gets a sequence containing all source locations of nodes that were
-        /// "matched" by the MatchedCore methods.
-        /// </summary>
-        public [SourceLocation] MatchedLocations
-        {
-            const get { return matchList; }
-        }
 
         protected abstract const bool MatchesCore(IExpression Value);
         protected abstract const bool MatchesCore(IStatement Value);
@@ -51,13 +38,6 @@ namespace Flame.Compiler.Visitors
             return Value is SourceStatement || MatchesCore(Value);
         }
 
-        private IExpression TransformMatched(IExpression Expression)
-        {
-            if (CurrentLocation != null)
-                matchList.Add(CurrentLocation);
-            return TransformCore(Expression);
-        }
-
         private IExpression Transform(SourceExpression Expression)
         {
             var oldLoc = CurrentLocation;
@@ -69,7 +49,7 @@ namespace Flame.Compiler.Visitors
             IExpression result;
             if (MatchesCore(Expression))
             {
-                result = TransformMatched(Expression);
+                result = TransformCore(Expression);
             }
             else
             {
@@ -85,14 +65,7 @@ namespace Flame.Compiler.Visitors
             if (Expression is SourceExpression)
                 return Transform((SourceExpression)Expression);
             else
-                return TransformMatched(Expression);
-        }
-
-        private IStatement TransformMatched(IStatement Statement)
-        {
-            if (CurrentLocation != null)
-                matchList.Add(CurrentLocation);
-            return TransformCore(Statement);
+                return TransformCore(Expression);
         }
 
         private IStatement Transform(SourceStatement Statement)
@@ -106,7 +79,7 @@ namespace Flame.Compiler.Visitors
             IStatement result;
             if (MatchesCore(Statement))
             {
-                result = TransformMatched(Statement);
+                result = TransformCore(Statement);
             }
             else
             {
@@ -122,7 +95,7 @@ namespace Flame.Compiler.Visitors
             if (Statement is SourceStatement)
                 return Transform((SourceStatement)Statement);
             else
-                return TransformMatched(Statement);
+                return TransformCore(Statement);
         }
     }
 }

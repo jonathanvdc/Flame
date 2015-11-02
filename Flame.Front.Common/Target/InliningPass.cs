@@ -126,7 +126,7 @@ namespace Flame.Front.Target
             {
                 result = result.Optimize();
 
-                if (inliner.MatchedLocations.Any() && log.Options.GetOption<bool>(InliningRemarksOption, false))
+                if (inliner.InlinedCallLocations.Any() && log.Options.GetOption<bool>(InliningRemarksOption, false))
                 {
                     foreach (var item in inliner.InlinedCallLocations)
                     {

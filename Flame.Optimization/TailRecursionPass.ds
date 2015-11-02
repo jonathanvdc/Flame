@@ -43,6 +43,7 @@ namespace Flame.Optimization
         {
             this.OuterTag = new BlockTag();
             this.HasReplaced = false;
+            this.matchLocations = new List<SourceLocation>();
         }
 
         /// <summary>
@@ -62,6 +63,13 @@ namespace Flame.Optimization
         /// statements.
         /// </summary>
         public bool HasReplaced { const get; private set; }
+
+        private List<SourceLocation> matchLocations;
+        /// <summary>
+        /// Gets a list of all source locations containing tail-recursive calls
+        /// that were optimized.
+        /// </summary>
+        public IReadOnlyList<SourceLocation> MatchedLocations { const get { return matchLocations; } }
 
         protected override const bool MatchesCore(IExpression Value)
         {
@@ -141,6 +149,10 @@ namespace Flame.Optimization
             results.AddRange(Enumerable.Reverse<IStatement>(assignments));
             results.Add((IStatement)new ContinueStatement(OuterTag));
             this.HasReplaced = true;
+
+            if (CurrentLocation != null)
+                matchLocations.Add(CurrentLocation);
+
             return new BlockStatement(results).Simplify();
         }
     }
