@@ -1,0 +1,25 @@
+
+namespace ValueTypeTest
+{
+    public struct Vector2
+    {
+        public const this(set double X, set double Y);
+
+        public double X { const get; private set; }
+        public double Y { const get; private set; }
+
+        public double LengthSquared { const get { return X * X + Y * Y; } }
+
+        public const Vector2 operator+(Vector2 Other)
+        {
+            return new Vector2(X + Other.X, Y + Other.Y);
+        }
+
+        public double SumLengthSquared(Vector2 Other)
+        {
+            // This will not work unless -fimperative-code is enabled.
+            // Fortunately, -platform c++ enables -fimperative-code by default.
+            return (this + Other).LengthSquared;
+        }
+    }
+}
