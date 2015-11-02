@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Compiler.Statements;
 
 namespace Flame.Compiler.Expressions
 {
@@ -58,23 +59,142 @@ namespace Flame.Compiler.Expressions
         {
             override const get
             {
-                return LeftOperand.IsConstant && RightOperand.IsConstant &&
-                    LeftOperand.Type.Equals(PrimitiveTypes.Boolean) &&
-                    RightOperand.Type.Equals(PrimitiveTypes.Boolean);
+                if (LeftOperand.Type.Equals(PrimitiveTypes.Boolean) &&
+                    LeftOperand.EvaluatesTo<bool>(false))
+                    return true;
+                else
+                    return LeftOperand.IsConstant && RightOperand.IsConstant &&
+                           LeftOperand.Type.Equals(PrimitiveTypes.Boolean) &&
+                           RightOperand.Type.Equals(PrimitiveTypes.Boolean);
             }
         }
 
         public override const IBoundObject Evaluate()
         {
-            return new BooleanExpression(LeftOperand.Evaluate().GetValue<bool>() && RightOperand.Evaluate().GetValue<bool>());
+            var lValue = LeftOperand.Evaluate();
+
+            if (lValue.GetValue<bool>())
+                return RightOperand.Evaluate();
+            else
+                return new BooleanExpression(false);
+        }
+
+        /// <summary>
+        /// Gets a "flattened" sequence of operands of this logical and expression and
+        /// its children, if any.
+        /// For example, `a &amp;&amp; b &amp;&amp; c` would return the following
+        /// sequence of operands: [a, b, c].
+        /// </summary>
+        public IReadOnlyList<IExpression> GetFlattenedOperands()
+        {
+            var results = new List<IExpression>();
+            if (LeftOperand is LazyAndExpression)
+            {
+                results.AddRange(((LazyAndExpression)LeftOperand).GetFlattenedOperands());
+            }
+            else
+            {
+                results.Add(LeftOperand);
+            }
+            if (RightOperand is LazyAndExpression)
+            {
+                results.AddRange(((LazyAndExpression)RightOperand).GetFlattenedOperands());
+            }
+            else
+            {
+                results.Add(RightOperand);
+            }
+            return results;
+        }
+
+        /// <summary>
+        /// "Simplifies" this lazy-and expression by applying
+        /// a number of simplification rules. Child nodes are not simplified.
+        /// This is a lot like a non-recursive version of Optimize.
+        /// </summary>
+        public IExpression Simplify()
+        {
+            if (LeftOperand.Type.Equals(PrimitiveTypes.Boolean))
+            {
+                // true && x == x
+                // false && x == false
+
+                var lValue = LeftOperand.EvaluateConstant();
+                if (lValue != null)
+                {
+                    if (lValue.GetValue<bool>())
+                        return RightOperand;
+                    else
+                        return new BooleanExpression(false);
+                }
+            }
+            if (RightOperand.Type.Equals(PrimitiveTypes.Boolean))
+            {
+                // x && true == x
+                // x && false != false // if lhs has side-effects
+                // x && false == (x, false) // always works
+
+                var rValue = LeftOperand.EvaluateConstant();
+                if (rValue != null)
+                {
+                    if (rValue.GetValue<bool>())
+                        return LeftOperand;
+                    else if (LeftOperand.IsConstant)
+                        return new BooleanExpression(false);
+                    else
+                        return new InitializedExpression(
+                            new ExpressionStatement(LeftOperand),
+                            new BooleanExpression(false));
+                }
+            }
+            if (LeftOperand is LazyAndExpression || RightOperand is LazyAndExpression)
+            {
+                // Rewrite `(a && b) && c` as `a && (b && c)` to exploit short-circuiting
+                // behavior: if 'a' happens to be false in either expression,
+                // the entire expression will evaluate to false. However, due to
+                // the way these expression trees are constructed, the former
+                // will have the false value "bubble up" to the top-level node.
+                // The latter will not: it will immediately report a value of false.
+                //
+                // A logical-and tree like this:
+                //
+                //      *
+                //    /   \
+                //   /     \
+                //  *       *
+                //        /   \
+                //       /     \
+                //         ...
+                //
+                // seems to make more sense than:
+                //
+                //           *
+                //         /   \
+                //        /     \
+                //       *       *
+                //     /   \
+                //    /     \
+                //      ...
+
+                var flOps = GetFlattenedOperands();
+
+                var result = flOps[flOps.Count - 1];
+                for (int i = flOps.Count - 2; i >= 0; i--)
+                {
+                    result = new LazyAndExpression(flOps[i], result);
+                }
+
+                return result;
+            }
+            return this;
         }
 
         public override const IExpression Optimize()
         {
             var optA = LeftOperand.Optimize();
             var optB = RightOperand.Optimize();
-            var expr = new LazyAndExpression(optA, optB);
-            if (expr.IsConstant && expr.Type.IsPrimitiveExpressionType())
+            var expr = new LazyAndExpression(optA, optB).Simplify();
+            if (expr.IsConstant)
             {
                 var evalExpr = expr.Evaluate();
                 if (evalExpr != null)
