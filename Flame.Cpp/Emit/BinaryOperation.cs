@@ -26,6 +26,14 @@ namespace Flame.Cpp.Emit
 
         public int Precedence { get { return GetBinaryOperatorPrecedence(Operator); } }
 
+        private static readonly HashSet<Operator> assocOps = new HashSet<Operator>()
+        {
+            Operator.Add, Operator.Multiply, Operator.Concat,
+            Operator.And, Operator.LogicalAnd,
+            Operator.Or, Operator.LogicalOr,
+            Operator.Xor
+        };
+
         private static readonly Dictionary<Operator, int> binaryOpPrecedence = new Dictionary<Operator, int>()
         {
             { Operator.Multiply, 5 },
@@ -62,7 +70,7 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        private CodeBuilder GetBinaryOperandCodeBuilder(ICppBlock Operand, IType OtherType, IType ReturnType)
+        private CodeBuilder GetBinaryOperandCodeBuilder(ICppBlock Operand, IType OtherType, IType ReturnType, bool IsRightOp)
         {
             var opType = Operand.Type;
 
@@ -72,17 +80,17 @@ namespace Flame.Cpp.Emit
                                       OtherType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.TransientPointer) ?
                                       new ConversionBlock(CodeGenerator, Operand, OtherType) : Operand;
 
-            return actualOperand.GetOperandCode(this);
+            return !IsRightOp || assocOps.Contains(Operator) ? actualOperand.GetOperandCode(this) : actualOperand.GetRightOperandCode(this);
         }
 
         public CodeBuilder GetCode(bool IncreaseIndentation)
         {
-            var cb = GetBinaryOperandCodeBuilder(Left, Right.Type, Type);
+            var cb = GetBinaryOperandCodeBuilder(Left, Right.Type, Type, false);
             cb.Append(" ");
             cb.Append(GetOperatorString());
             cb.Append(" ");
 
-            var rCode = GetBinaryOperandCodeBuilder(Right, Left.Type, Type);
+            var rCode = GetBinaryOperandCodeBuilder(Right, Left.Type, Type, true);
 
             int lLength = cb.LastCodeLine.Length;
             int rLength = rCode.FirstCodeLine.Length;
