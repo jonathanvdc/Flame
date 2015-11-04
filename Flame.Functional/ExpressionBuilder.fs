@@ -503,6 +503,42 @@ module ExpressionBuilder =
             else
                 AccessLocal thisIdentifier scope
 
+    /// Creates a capture-by-value lambda that captures all locals based on the given
+    /// body creation function, lambda signature, and enclosing scope.
+    let Lambda (createBody : LocalScope -> IExpression) (signature : IMethod) (scope : LocalScope) =
+        // Gets every local's value.
+        let getAllLocals = scope.AllLocals |> Seq.map (fun x -> x.Key, x.Value.CreateGetExpression())
+                                           |> Array.ofSeq
+        // Store the locals' names in an array.
+        let localNames = getAllLocals |> Array.map fst
+        // Store the locals' values in another array.
+        // We'll use that list as the capture list.
+        let captureList = getAllLocals |> Array.map snd
+
+        // Create the lambda header
+        let lambdaHeader = new LambdaHeader(signature, captureList)
+        // Create a bound header block.
+        let boundLambdaHeader = new LambdaBoundHeaderBlock()
+
+        // Creates a captured expression variable.
+        let createCapturedLocal index name =
+            name, new ExpressionVariable(new LambdaCapturedValueExpression(lambdaHeader, boundLambdaHeader, index) :> IExpression)
+
+        let captLocals = localNames |> Seq.mapi createCapturedLocal
+                                    |> Map.ofSeq
+
+        let getLambdaParameters : IMethod option -> Map<string, IVariable> = function
+        | None -> Map.empty
+        | Some signature ->
+            signature.Parameters |> Seq.mapi (fun i param -> param.Name, new ArgumentVariable(param, i) :> IVariable)
+                                 |> Map.ofSeq
+
+        let newScope = FunctionScope(GlobalScope(scope.Global.Binder, scope.Global.ConversionRules, scope.Global.Log, scope.Global.TypeNamer, scope.Global.GetAllMembers, getLambdaParameters))
+        let body = createBody (LocalScope(newScope))
+
+        new LambdaExpression(lambdaHeader, ToStatement body, boundLambdaHeader)
+
+
     let private createExpectedSignatureDescription (namer : IType -> string) (retType : IType) (argTypes : IType seq) = 
         let descMethod = new Flame.Build.DescribedMethod("", null, retType, true)
         argTypes |> Seq.iteri (fun i x -> descMethod.AddParameter(new Flame.Build.DescribedParameter("param" + string i, x)))

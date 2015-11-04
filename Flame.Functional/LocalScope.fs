@@ -42,7 +42,7 @@ type LocalScope private(parentScope : LocalScope option, funcScope : FunctionSco
     /// Gets this local scope's locals.
     member this.Locals = 
         locals
-
+        
     /// Gets the enclosing control flow block's tag.
     member this.ControlTag =
         tag
@@ -50,6 +50,17 @@ type LocalScope private(parentScope : LocalScope option, funcScope : FunctionSco
     /// Gets a boolean value that tells if this local scope is the root local scope.
     member this.IsRoot = 
         parentScope.IsNone
+
+    /// Gets all local variables and parameters
+    /// that belong to this local scope and
+    /// its parents.
+    member this.AllLocals =
+        match parentScope with
+        | Some scope -> 
+            let parentLocals = scope.AllLocals
+            Map.fold (fun result k v -> Map.add k v result) locals parentLocals
+        | None ->
+            funcScope.Parameters
 
     /// Finds out if this local scope declares a
     /// variable with the given name directly.
