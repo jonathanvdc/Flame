@@ -109,6 +109,18 @@ namespace Flame.Front.Target
             return DefinitionPropagationPass.Instance.Apply(Value.Optimize()).Optimize();
         }
 
+        private IStatement GetMethodBody(BodyPassArgument Value, IMethod Method)
+        {
+            var result = Value.PassEnvironment.GetMethodBody(Method);
+
+            if (result == null)
+            {
+                return null;
+            }
+
+            return CloningVisitor.Instance.Visit(result);
+        }
+
         public IStatement Apply(BodyPassArgument Value)
         {
             var log = Value.PassEnvironment.Log;
@@ -117,7 +129,7 @@ namespace Flame.Front.Target
             bool propInline = log.Options.GetOption<bool>("inline-propagate-locals", true);
 
             var inliner = new InliningVisitor(Value.DeclaringMethod, call => ShouldInline(Value, call, inlineTolerance),
-                                              Value.PassEnvironment.GetMethodBody, 
+                                              item => GetMethodBody(Value, item), 
                                               propInline ? new Func<IStatement, IStatement>(OptimizeAdvanced) 
                                                          : new Func<IStatement, IStatement>(OptimizeSimple),
                                               maxRecursion);
