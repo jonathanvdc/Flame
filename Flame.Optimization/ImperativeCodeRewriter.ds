@@ -175,28 +175,42 @@ namespace Flame.Optimization
             }
             else if (this.inExpression)
             {
-                // This is exactly the kind of construct we want this pass to
-                // get rid of. To perserve the order of side-effects, we'll
-                // spill all unspilled non-constant expressions.
-                // Note that there are no statement predecessors that could
-                // introduce side-effects and must be spilled: if the enclosing
-                // expression contained any, we would have visited them already.
+                if (NodeExtensions.CanDelay(Statement))
+                {
+                    // If a statement can be delayed, then by all means do so.
+                    // Spilling expressions to locals to preserve the execution
+                    // order of a statement that can be delayed will typically
+                    // result in a pessimization.
 
-                // First, we'll spill all effectful predecessor expressions.
-                Spill();
+                    finalStatement.Insert(Statement);
 
-                // Now, we want to visit this statement recursively, and
-                // append the result to the initialization statement list.
-                // Since the statement will be inserted into the enclosing statement's
-                // initialization list, it is in effect no longer inside of an
-                // expression. Adjusting the is-in-expression flag will do the trick.
-                this.inExpression = false;
+                    return EmptyStatement;
+                }
+                else
+                {
+                    // This is exactly the kind of construct we want this pass to
+                    // get rid of. To perserve the order of side-effects, we'll
+                    // spill all unspilled non-constant expressions.
+                    // Note that there are no statement predecessors that could
+                    // introduce side-effects and must be spilled: if the enclosing
+                    // expression contained any, we would have visited them already.
 
-                initStatement.Insert(Visit(Statement));
+                    // First, we'll spill all effectful predecessor expressions.
+                    Spill();
 
-                this.inExpression = true;
+                    // Now, we want to visit this statement recursively, and
+                    // append the result to the initialization statement list.
+                    // Since the statement will be inserted into the enclosing statement's
+                    // initialization list, it is in effect no longer inside of an
+                    // expression. Adjusting the is-in-expression flag will do the trick.
+                    this.inExpression = false;
 
-                return EmptyStatement;
+                    initStatement.Insert(Visit(Statement));
+
+                    this.inExpression = true;
+
+                    return EmptyStatement;
+                }
             }
             else
             {
