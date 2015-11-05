@@ -293,10 +293,17 @@ namespace Flame.Compiler.Expressions
 
         public IExpression Optimize()
         {
-            if (CapturedValue.IsConstant)
-                return CapturedValue.Optimize();
-            else
-                return this;
+            if (CapturedValue.IsConstant &&
+                CapturedValue.Type.IsPrimitiveExpressionType())
+            {
+                var eval = CapturedValue.Evaluate();
+                if (eval != null)
+                {
+                    return eval.ToExpression();
+                }
+            }
+
+            return this;
         }
 
         public IExpression Accept(INodeVisitor Visitor)
