@@ -18,6 +18,10 @@ namespace Flame.Compiler
 			{
 				return NullExpression;
 			}
+			else if (valType.Equals(PrimitiveTypes.Void))
+			{
+				return VoidExpression;
+			}
 			else if (valType.Equals(PrimitiveTypes.Int64))
 			{
 				return new Int64Expression(Value.GetValue<int64>());
@@ -87,7 +91,7 @@ namespace Flame.Compiler
 				return null;
 			}
 		}
-		
+
 		/// <summary>
 		/// Gets a boolean value that indicates if primitive expressions can be created for this type.
 		/// </summary>
