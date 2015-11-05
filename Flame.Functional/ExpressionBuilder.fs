@@ -507,13 +507,13 @@ module ExpressionBuilder =
     /// body creation function, lambda signature, and enclosing scope.
     let Lambda (createBody : LocalScope -> IExpression) (signature : IMethod) (scope : LocalScope) =
         // Gets every local's value.
-        let getAllLocals = scope.AllLocals |> Seq.map (fun x -> x.Key, x.Value.CreateGetExpression())
-                                           |> Array.ofSeq
+        let allLocals = scope.AllLocals |> Seq.map (fun x -> x.Key, x.Value.CreateGetExpression())
+                                        |> Array.ofSeq
         // Store the locals' names in an array.
-        let localNames = getAllLocals |> Array.map fst
+        let localNames = allLocals |> Array.map fst
         // Store the locals' values in another array.
         // We'll use that list as the capture list.
-        let captureList = getAllLocals |> Array.map snd
+        let captureList = allLocals |> Array.map snd
 
         // Create the lambda header
         let lambdaHeader = new LambdaHeader(signature, captureList)
