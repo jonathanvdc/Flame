@@ -51,6 +51,10 @@ namespace Flame.Optimization
         }
     }
 
+    /// <summary>
+    /// A type of node visitor that modifies the capture listindices of
+    /// captured value expressions.
+    /// </summary>
     public class LambdaCapturedValueRewriter : NodeVisitorBase
     {
         /// <summary>
