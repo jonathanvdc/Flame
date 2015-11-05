@@ -38,13 +38,13 @@ namespace Flame.Compiler.Statements
         {
             const get
             {
-            	return Expression.IsConstant;
+            	return !NodeExtensions.IsEffectful(Expression);
             }
         }
 
         public IStatement Simplify()
         {
-            if (Expression.IsConstant)
+            if (IsEmpty)
             {
                 return EmptyStatement;
             }
