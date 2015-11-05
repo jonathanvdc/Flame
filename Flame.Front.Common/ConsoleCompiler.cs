@@ -571,7 +571,12 @@ namespace Flame.Front.Cli
             var optLevel = OptimizationInfo.GetOptimizationLevel(Log);
             var optList = ListExtensions.Instance.CreateList(
                             OptimizationInfo.GetOptimizationDirectives(optLevel)
-                                            .Select(item => new MarkupNode(NodeConstants.TextNodeType, item)));
+                                            .Select(item => 
+                                                new MarkupNode("#group", new IMarkupNode[] 
+                                                {
+                                                    new MarkupNode(NodeConstants.TextNodeType, item.Item1 + " "), 
+                                                    new MarkupNode(NodeConstants.CauseNodeType, item.Item2)
+                                                })));
             Log.LogMessage(new LogEntry("Optimization directives", optList));
         }
 

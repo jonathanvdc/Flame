@@ -127,27 +127,28 @@ namespace Flame.Front.Target
             }
         }
 
-        private static Dictionary<OptimizationMode, string> optDirs = new Dictionary<OptimizationMode, string>()
+        private static Dictionary<OptimizationMode, Tuple<string, string>> optDirs = new Dictionary<OptimizationMode, Tuple<string, string>>()
         {
-            { OptimizationMode.Minimal, "minimal (-O1)" },
-            { OptimizationMode.Normal, "normal (-O2)" },
-            { OptimizationMode.Experimental, "experimental (-O3)" },
-            { OptimizationMode.Size, "size (-Os)" },
-            { OptimizationMode.Debug, "debug (-g)" },
-            { OptimizationMode.Dangerous, "dangerous (-Ofast)" },
+            { OptimizationMode.Minimal, Tuple.Create("minimal", "O1") },
+            { OptimizationMode.Normal, Tuple.Create("normal", "O2") },
+            { OptimizationMode.Experimental, Tuple.Create("experimental", "O3") },
+            { OptimizationMode.Size, Tuple.Create("size", "Os") },
+            { OptimizationMode.Debug, Tuple.Create("debug", "g") },
+            { OptimizationMode.Dangerous, Tuple.Create("dangerous", "Ofast") },
         };
 
         /// <summary>
         /// Gets a sequence of strings that describe which flags of the
-        /// optimization mode are on.
+        /// optimization mode are on, along with their
+        /// corresponding flags.
         /// </summary>
         /// <param name="Mode"></param>
         /// <returns></returns>
-        public static IEnumerable<string> GetOptimizationDirectives(OptimizationMode Mode)
+        public static IEnumerable<Tuple<string, string>> GetOptimizationDirectives(OptimizationMode Mode)
         {
             return optDirs.Where(item => (item.Key & Mode) == item.Key)
                           .Select(item => item.Value)
-                          .DefaultIfEmpty("none (-O0)");
+                          .DefaultIfEmpty(Tuple.Create("none", "O0"));
         }
     }
 }
