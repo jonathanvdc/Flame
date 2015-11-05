@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
 
 namespace Flame.Compiler
 {
@@ -214,6 +217,69 @@ namespace Flame.Compiler
 					return null;
 				else
 					return Expression.Type;
+			}
+		}
+
+		#endregion
+
+		#region IsEffectful
+
+		/// <summary>
+		/// Tries to determine whether the given expression has side effects or not.
+		/// The algorithm will err on the safe side when trying to determine this.
+		/// </summary>
+		public static bool IsEffectful(IExpression Expression)
+		{
+			if (Expression.IsConstant)
+			{
+				return false;
+			}
+			else if (Expression is IVariableNode)
+			{
+				var varNode = (IVariableNode)Expression;
+				return varNode.Action != VariableNodeAction.Get;
+			}
+			else if (Expression is InitializedExpression)
+			{
+				var initExpr = (InitializedExpression)Expression;
+				return !initExpr.Initialization.IsEmpty ||
+					   NodeExtensions.IsEffectful(initExpr.Value) ||
+					   !initExpr.Finalization.IsEmpty;
+			}
+			else
+			{
+				return true;
+			}
+		}
+
+		/// <summary>
+		/// Tries to tell if the given statement's execution can be delayed without
+		/// changing the semantics of the program. Note that performing the
+		/// delaying transformation will not necessarily preserve the performance
+		/// of the program.
+		/// </summary>
+		/// <remarks>
+		/// Release statements can always be delayed.
+		/// </remarks>
+		public static bool CanDelay(IStatement Statement)
+		{
+			if (Statement.IsEmpty)
+			{
+				return true;
+			}
+			else if (Statement is IVariableNode)
+			{
+				var varNode = (IVariableNode)Statement;
+				return varNode.Action == VariableNodeAction.Release;
+			}
+			else if (Statement is BlockStatement)
+			{
+				var block = (BlockStatement)Statement;
+				return Enumerable.All<IStatement>(block.Children, NodeExtensions.CanDelay);
+			}
+			else
+			{
+				return false;
 			}
 		}
 
