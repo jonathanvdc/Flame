@@ -4,30 +4,48 @@ using Flame.Compiler;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Visitors;
+using Pixie;
 
 namespace Flame.Optimization
 {
     /// <summary>
-    /// A pass that attempts that attempts to optimize lambda expressions
+    /// A node visitor that attempts that attempts to optimize lambda expressions
     /// by removing unused expressions from their capture lists.
+    /// Source locations beloning to lambdas that have been optimized are remembered
+    /// by this visitor.
     /// </summary>
-    public static class SlimLambdaPass : IPass<IStatement, IStatement>
+    public class SlimLambdaVisitor : LocationVisitorBase
     {
-        /// <summary>
-        /// This pass' name string.
-        /// </summary>
-        public const string SlimLambdaPassName = "slim-lambdas";
-
-        private const bool matchesLambda(IExpression Expr)
+        public const this()
         {
-            return Expr is LambdaExpression;
+            this.transLocs = new List<SourceLocation>();
+        }
+
+        private List<SourceLocation> transLocs;
+
+        /// <summary>
+        /// Gets the source locations belonging to lambda expressions
+        /// that have been optimized by this visitor.
+        /// </summary>
+        public [SourceLocation] TransformedLocations
+        {
+            const get { return transLocs; }
+        }
+
+        protected override const bool MatchesCore(IExpression Expression)
+        {
+            return Expression is LambdaExpression;
+        }
+        protected override const bool MatchesCore(IStatement Statement)
+        {
+            return false;
         }
 
         private IExpression rewriteLambda(LambdaExpression Lambda)
         {
             var header = Lambda.Header;
-            // Make sure to apply this pass to the lambda's body as well.
-            var body = Apply(Lambda.Body);
+            // Make sure to apply this visitor to the lambda's body as well.
+            var body = Visit(Lambda.Body);
 
             if (header.CaptureList.Count == 0)
                 return Lambda;
@@ -73,19 +91,57 @@ namespace Flame.Optimization
 
             var optBody = rewriter.Visit(body);
 
+            if (CurrentLocation != null)
+                transLocs.Add(CurrentLocation);
+
             var resultLambda = new LambdaExpression(optHeader, optBody, Lambda.BoundHeaderBlock);
             return new InitializedExpression(initialize, resultLambda, finalize);
         }
 
-        private IExpression rewriteExpr(IExpression Expr)
+        protected override IExpression TransformCore(IExpression Expression)
         {
-            return rewriteLambda((LambdaExpression)Expr);
+            return rewriteLambda((LambdaExpression)Expression);
         }
-
-        public IStatement Apply(IStatement Body)
+        protected override IStatement TransformCore(IStatement Statement)
         {
-            var rewriter = new ExpressionRewriter(matchesLambda, rewriteExpr);
-            return rewriter.Visit(Body);
+            return Statement;
+        }
+    }
+
+    /// <summary>
+    /// A pass that attempts that attempts to optimize lambda expressions
+    /// by removing unused expressions from their capture lists.
+    /// </summary>
+    public static class SlimLambdaPass : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// This pass' name string.
+        /// </summary>
+        public const string SlimLambdaPassName = "slim-lambdas";
+
+        public IStatement Apply(BodyPassArgument Args)
+        {
+            var rewriter = new SlimLambdaVisitor();
+            var result = rewriter.Visit(Args.Body);
+
+            // Maybe we can even emit a remark of some kind.
+            var log = Args.PassEnvironment.Log;
+            if (log.Options.ShouldRemark(SlimLambdaPassName, false))
+            {
+                foreach (var item in rewriter.TransformedLocations)
+                {
+                    log.LogMessage(new LogEntry(
+                        "Pass remark",
+                        new IMarkupNode[]
+                        {
+                            new MarkupNode(NodeConstants.TextNodeType, "Reduced lambda capture list."),
+                            Flags.CreateCauseNode(Flags.GetRemarkOptionName(SlimLambdaPassName))
+                        },
+                        item));
+                }
+            }
+
+            return result;
         }
     }
 }
