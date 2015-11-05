@@ -15,7 +15,8 @@ namespace Flame.Front.Target
         static PassExtensions()
         {
             MethodPasses = new List<PassInfo<BodyPassArgument, IStatement>>();
-            
+
+            RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(SlimLambdaPass.Instance, SlimLambdaPass.SlimLambdaPassName));
             RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(LowerLambdaPass.Instance, LowerLambdaPassName));
             RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(TailRecursionPass.Instance, TailRecursionPass.TailRecursionPassName, (optInfo, isPref) => isPref || optInfo.OptimizeMinimal));
 
