@@ -1,0 +1,91 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A pass that attempts that attempts to optimize lambda expressions
+    /// by removing unused expressions from their capture lists.
+    /// </summary>
+    public static class SlimLambdaPass : IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// This pass' name string.
+        /// </summary>
+        public const string SlimLambdaPassName = "slim-lambdas";
+
+        private const bool matchesLambda(IExpression Expr)
+        {
+            return Expr is LambdaExpression;
+        }
+
+        private IExpression rewriteLambda(LambdaExpression Lambda)
+        {
+            var header = Lambda.Header;
+            // Make sure to apply this pass to the lambda's body as well.
+            var body = Apply(Lambda.Body);
+
+            if (header.CaptureList.Count == 0)
+                return Lambda;
+
+            var visitor = new LambdaCapturedValueVisitor();
+            visitor.Visit(body);
+
+            var indexMapping = new Dictionary<int, int>();
+            var initialize = new InsertStatement();
+            var newCaptures = new List<IExpression>();
+            var unspilledExprs = new List<SpillableExpression>();
+            var finalize = new InsertStatement();
+            for (int i = 0; i < header.CaptureList.Count; i++)
+            {
+                if (visitor.UsedCapturedValues.Contains(i))
+                {
+                    indexMapping[i] = newCaptures.Count;
+                    var expr = new SpillableExpression(header.CaptureList[i]);
+                    newCaptures.Add(expr);
+                    unspilledExprs.Add(expr);
+                }
+                else
+                {
+                    var stmt = new ExpressionStatement(header.CaptureList[i]);
+
+                    if (!stmt.IsEmpty)
+                    {
+                        foreach (var item in unspilledExprs)
+                        {
+                            item.Spill(initialize, finalize);
+                        }
+                        unspilledExprs = new List<SpillableExpression>();
+                        initialize.Insert(stmt);
+                    }
+                }
+            }
+
+            if (newCaptures.Count == header.CaptureList.Count)
+                return Lambda;
+
+            var optHeader = new LambdaHeader(header.Signature, newCaptures);
+            var rewriter = new LambdaCapturedValueRewriter(indexMapping);
+
+            var optBody = rewriter.Visit(body);
+
+            var resultLambda = new LambdaExpression(optHeader, optBody, Lambda.BoundHeaderBlock);
+            return new InitializedExpression(initialize, resultLambda, finalize);
+        }
+
+        private IExpression rewriteExpr(IExpression Expr)
+        {
+            return rewriteLambda((LambdaExpression)Expr);
+        }
+
+        public IStatement Apply(IStatement Body)
+        {
+            var rewriter = new ExpressionRewriter(matchesLambda, rewriteExpr);
+            return rewriter.Visit(Body);
+        }
+    }
+}

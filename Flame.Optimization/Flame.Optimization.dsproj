@@ -22,12 +22,14 @@
     <Compile Include="InitialFlowRemover.ds" />
     <Compile Include="InliningExtensions.ds" />
     <Compile Include="InliningVisitor.ds" />
+    <Compile Include="InsertStatement.ds" />
+    <Compile Include="LambdaCapturedValueVisitor.ds" />
     <Compile Include="PredicateMemberNodeVisitor.ds" />
     <Compile Include="SimplifyFlowPass.ds" />
     <Compile Include="SizeVisitor.ds" />
+    <Compile Include="SlimLambdaPass.ds" />
     <Compile Include="SpeculativeStatement.ds" />
     <Compile Include="StatementRewriter.ds" />
-    <Compile Include="InsertStatement.ds" />
     <Compile Include="TailRecursionPass.ds" />
   </ItemGroup>
   <ItemGroup Name="Variables">

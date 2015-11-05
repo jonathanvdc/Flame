@@ -1,0 +1,90 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A node visitor that finds out which elements of the captured value
+    /// list are being used in a node, and which are not.
+    /// </summary>
+    public class LambdaCapturedValueVisitor : NodeVisitorBase
+    {
+        /// <summary>
+        /// Creates a new captured value visitor.
+        /// </summary>
+        public const this()
+        {
+            this.captVals = new HashSet<int>();
+        }
+
+        private HashSet<int> captVals;
+
+        /// <summary>
+        /// Gets the set of used captured value indices.
+        /// </summary>
+        public HashSet<int> UsedCapturedValues { const get { return captVals; } }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is LambdaCapturedValueExpression;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return false;
+        }
+        protected override IExpression Transform(IExpression Expression)
+        {
+            var captVal = (LambdaCapturedValueExpression)Expression;
+
+            captVals.Add(captVal.Index);
+
+            return Expression;
+        }
+        protected override IStatement Transform(IStatement Statement)
+        {
+            return Statement;
+        }
+    }
+
+    public class LambdaCapturedValueRewriter : NodeVisitorBase
+    {
+        /// <summary>
+        /// Creates a new captured value rewriter from the given
+        /// captured value index mapping.
+        /// </summary>
+        public const this(set IReadOnlyDictionary<int, int> CapturedValueMapping);
+
+        /// <summary>
+        /// Gets a mapping of source captured value indices to target captured
+        /// value indices.
+        /// </summary>
+        public IReadOnlyDictionary<int, int> CapturedValueMapping { const get; private set; }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is LambdaCapturedValueExpression;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return false;
+        }
+        protected override IExpression Transform(IExpression Expression)
+        {
+            var captVal = (LambdaCapturedValueExpression)Expression;
+
+            int newIndex = CapturedValueMapping[captVal.Index];
+
+            return new LambdaCapturedValueExpression(
+                captVal.Header, captVal.BoundHeaderBlock, newIndex);
+        }
+        protected override IStatement Transform(IStatement Statement)
+        {
+            return Statement;
+        }
+    }
+}
