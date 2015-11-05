@@ -117,7 +117,7 @@ namespace Flame.Optimization
         /// <summary>
         /// This pass' name string.
         /// </summary>
-        public const string SlimLambdaPassName = "slim-lambdas";
+        public const string SlimLambdaPassName = "slim-lambda";
 
         public IStatement Apply(BodyPassArgument Args)
         {
