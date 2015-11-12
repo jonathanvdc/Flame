@@ -2,16 +2,16 @@
 #runtime_dependency("PlatformRT");
 
 #type_table(
-    // System.Console class
+    // 0: System.Console
     #type_reference("System.Console"),
-    // Program class
+    // 1: Program
     #type_reference("Program")
 );
 
 #method_table(
-    // static void System.Console.WriteLine(string)
+    // 0: static void System.Console.WriteLine(string)
     #method_reference(#type_table_reference(0), "WriteLine", @true, { }, #void, { #string }),
-    // static void Program.Main(string[])
+    // 1: static void Program.Main(string[])
     #method_reference(#type_table_reference(1), "Main", @true, { }, #void, { #array_type(#string, 1) })
 );
 
