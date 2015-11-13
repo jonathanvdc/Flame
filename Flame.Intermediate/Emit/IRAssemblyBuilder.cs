@@ -30,15 +30,15 @@ namespace Flame.Intermediate.Emit
             this.Dependencies = new IRDependencyBuilder(this);
             this.TypeTable = new IRTableBuilder<IType>(
                 IRParser.TypeTableName,
-                createElementNode<IType>(new IRTypeVisitor(this).Convert), 
+                createElementNode<IType>(new IRTypeVisitor(this).Convert, DescribeType), 
                 index => NodeFactory.Call(IRParser.TypeTableReferenceName, new LNode[] { NodeFactory.Literal(index) }));
             this.MethodTable = new IRTableBuilder<IMethod>(
                 IRParser.MethodTableName,
-                createElementNode<IMethod>(new IRMethodVisitor(this).Convert), 
+                createElementNode<IMethod>(new IRMethodVisitor(this).Convert, DescribeMethod), 
                 index => NodeFactory.Call(IRParser.MethodTableReferenceName, new LNode[] { NodeFactory.Literal(index) }));
             this.FieldTable = new IRTableBuilder<IField>(
                 IRParser.FieldTableName, 
-                createElementNode<IField>(new IRFieldVisitor(this).Convert),
+                createElementNode<IField>(new IRFieldVisitor(this).Convert, DescribeField),
                 index => NodeFactory.Call(IRParser.FieldTableReferenceName, new LNode[] { NodeFactory.Literal(index) }));
         }
 
@@ -49,18 +49,58 @@ namespace Flame.Intermediate.Emit
 
         public IRAssemblyEncoding Encoding { get; private set; }
 
-        private Func<T, int, LNode> createElementNode<T>(Func<T, LNode> Converter)
-            where T : IMember
+        private static string DescribeType(IType ty)
+        {
+            return ty.FullName;
+        }
+
+        private static string DescribeField(IField field)
+        {
+            // format fields like so:
+            //
+            // (static) field_type full_field_name
+            return (field.IsStatic ? "static " : "") + DescribeType(field.FieldType) + " " + field.FullName;
+        }
+
+        private static string DescribeMethod(IMethod Method)
+        {
+            // format methods like so:
+            //
+            // (static) return_type full_method_name(param_types...)
+
+            var sb = new StringBuilder();
+            if (Method.IsStatic)
+            {
+                sb.Append("static ");
+            }
+            sb.Append(DescribeType(Method.ReturnType));
+            sb.Append(' ');
+            sb.Append(Method.FullName);
+            sb.Append('(');
+            var parameters = Method.Parameters.ToArray();
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                if (i > 0)
+                {
+                    sb.Append(", ");
+                }
+                sb.Append(DescribeType(parameters[i].ParameterType));
+            }
+            sb.Append(')');
+            return sb.ToString();
+        }
+
+        private Func<T, int, LNode> createElementNode<T>(Func<T, LNode> Convert, Func<T, string> Describe)
         {
             if (Encoding == IRAssemblyEncoding.Textual)
             {
                 return (input, index) => 
-                    Converter(input).PlusAttr(
-                        LNode.Trivia(CodeSymbols.TriviaSLCommentBefore, " " + index + ": " + input.FullName));
+                    Convert(input).PlusAttr(
+                        LNode.Trivia(CodeSymbols.TriviaSLCommentBefore, " " + index + ": " + Describe(input)));
             }
             else
             {
-                return (input, index) => Converter(input);
+                return (input, index) => Convert(input);
             }
         }
 
