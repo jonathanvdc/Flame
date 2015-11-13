@@ -13,7 +13,7 @@ namespace Flame.Intermediate.Emit
     /// <typeparam name="T"></typeparam>
     public class IRTableBuilder<T> : INodeStructure<IReadOnlyList<T>>
     {
-        public IRTableBuilder(string TableName, Func<T, LNode> CreateNode, Func<int, LNode> CreateReferenceNode)
+        public IRTableBuilder(string TableName, Func<T, int, LNode> CreateNode, Func<int, LNode> CreateReferenceNode)
         {
             this.TableName = TableName;
             this.CreateElementNode = CreateNode;
@@ -29,9 +29,9 @@ namespace Flame.Intermediate.Emit
         public string TableName { get; private set; }
 
         /// <summary>
-        /// Creates a node for the given element.
+        /// Creates a node for the given element, which is stored at the given index.
         /// </summary>
-        public Func<T, LNode> CreateElementNode { get; private set; }
+        public Func<T, int, LNode> CreateElementNode { get; private set; }
 
         /// <summary>
         /// Creates a node that represents a reference 
@@ -63,7 +63,7 @@ namespace Flame.Intermediate.Emit
         /// <param name="Element"></param>
         /// <param name="CreateElementNode"></param>
         /// <returns></returns>
-        public int GetIndex(T Element, Func<T, LNode> CreateElementNode)
+        public int GetIndex(T Element, Func<T, int, LNode> CreateElementNode)
         {
             int result;
             if (mappedItems.TryGetValue(Element, out result))
@@ -93,7 +93,7 @@ namespace Flame.Intermediate.Emit
                 // could itself depend on the generic parameter.
                 // Thus, the method indirectly requires a reference to itself.
 
-                nodes[index] = CreateElementNode(Element);
+                nodes[index] = CreateElementNode(Element, index);
 
                 return index;
             }

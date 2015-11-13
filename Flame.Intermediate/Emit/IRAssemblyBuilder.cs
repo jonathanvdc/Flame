@@ -29,16 +29,16 @@ namespace Flame.Intermediate.Emit
 
             this.Dependencies = new IRDependencyBuilder(this);
             this.TypeTable = new IRTableBuilder<IType>(
-                IRParser.TypeTableName, 
-                new IRTypeVisitor(this).Convert, 
+                IRParser.TypeTableName,
+                createElementNode<IType>(new IRTypeVisitor(this).Convert), 
                 index => NodeFactory.Call(IRParser.TypeTableReferenceName, new LNode[] { NodeFactory.Literal(index) }));
             this.MethodTable = new IRTableBuilder<IMethod>(
-                IRParser.MethodTableName, 
-                new IRMethodVisitor(this).Convert, 
+                IRParser.MethodTableName,
+                createElementNode<IMethod>(new IRMethodVisitor(this).Convert), 
                 index => NodeFactory.Call(IRParser.MethodTableReferenceName, new LNode[] { NodeFactory.Literal(index) }));
             this.FieldTable = new IRTableBuilder<IField>(
                 IRParser.FieldTableName, 
-                new IRFieldVisitor(this).Convert,
+                createElementNode<IField>(new IRFieldVisitor(this).Convert),
                 index => NodeFactory.Call(IRParser.FieldTableReferenceName, new LNode[] { NodeFactory.Literal(index) }));
         }
 
@@ -48,6 +48,21 @@ namespace Flame.Intermediate.Emit
         public IRTableBuilder<IField> FieldTable { get; private set; }
 
         public IRAssemblyEncoding Encoding { get; private set; }
+
+        private Func<T, int, LNode> createElementNode<T>(Func<T, LNode> Converter)
+            where T : IMember
+        {
+            if (Encoding == IRAssemblyEncoding.Textual)
+            {
+                return (input, index) => 
+                    Converter(input).PlusAttr(
+                        LNode.Trivia(CodeSymbols.TriviaSLCommentBefore, " " + index + ": " + input.FullName));
+            }
+            else
+            {
+                return (input, index) => Converter(input);
+            }
+        }
 
         public void Save(IOutputProvider OutputProvider)
         {
