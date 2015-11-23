@@ -302,14 +302,36 @@ namespace Flame.MIPS.Emit
 
         #region Locals
 
-        public IEmitVariable DeclareVariable(IVariableMember VariableMember)
+        private Dictionary<UniqueTag, AssemblerLocalVariable> locals = new Dictionary<UniqueTag, AssemblerLocalVariable>();
+
+        public IEmitVariable GetLocal(UniqueTag Tag)
         {
-            return new AssemblerLocalVariable(VariableMember, this);
+            return GetUnmanagedLocal(Tag);
         }
 
-        public IUnmanagedEmitVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
+        public IEmitVariable DeclareLocal(UniqueTag Tag, IVariableMember VariableMember)
         {
-            return new AssemblerLocalVariable(VariableMember, this);
+            return DeclareUnmanagedLocal(Tag, VariableMember);
+        }
+
+        public IUnmanagedEmitVariable GetUnmanagedLocal(UniqueTag Tag)
+        {
+            AssemblerLocalVariable result;
+            if (locals.TryGetValue(Tag, out result))
+            {
+                return result;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public IUnmanagedEmitVariable DeclareUnmanagedLocal(UniqueTag Tag, IVariableMember VariableMember)
+        {
+            var result = new AssemblerLocalVariable(VariableMember, this);
+            locals.Add(Tag, result);
+            return result;
         }
 
         #endregion

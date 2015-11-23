@@ -356,7 +356,7 @@ namespace Flame.Cecil.Emit
 
         public ICatchHeader EmitCatchHeader(IVariableMember ExceptionVariable)
         {
-            return new CatchHeader(ExceptionVariable.VariableType, DeclareVariable(ExceptionVariable));
+            return new CatchHeader(ExceptionVariable.VariableType, DeclareLocal(new UniqueTag(), ExceptionVariable));
         }
 
         public ICodeBlock EmitThrow(ICodeBlock Exception)
@@ -407,14 +407,36 @@ namespace Flame.Cecil.Emit
 
         #region Locals
 
-        public IUnmanagedEmitVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
+        private Dictionary<UniqueTag, LocalVariable> locals = new Dictionary<UniqueTag, LocalVariable>();
+
+        public IUnmanagedEmitVariable GetUnmanagedLocal(UniqueTag Tag)
         {
-            return new LocalVariable(this, VariableMember);
+            LocalVariable result;
+            if (locals.TryGetValue(Tag, out result))
+            {
+                return result;
+            }
+            else
+            {
+                return null;
+            }
         }
 
-        public IEmitVariable DeclareVariable(IVariableMember VariableMember)
+        public IUnmanagedEmitVariable DeclareUnmanagedLocal(UniqueTag Tag, IVariableMember VariableMember)
         {
-            return DeclareUnmanagedVariable(VariableMember);
+            var result = new LocalVariable(this, VariableMember);
+            locals.Add(Tag, result);
+            return result;
+        }
+
+        public IEmitVariable GetLocal(UniqueTag Tag)
+        {
+            return GetUnmanagedLocal(Tag);
+        }
+
+        public IEmitVariable DeclareLocal(UniqueTag Tag, IVariableMember VariableMember)
+        {
+            return DeclareUnmanagedLocal(Tag, VariableMember);
         }
 
         #endregion

@@ -13,7 +13,7 @@ namespace Flame.Cpp.Emit
         public FinallyBlock(ICppBlock Body)
         {
             this.Body = Body;
-            this.FinallyDeclaration = new LocalDeclarationReference((CppLocal)Body.CodeGenerator.DeclareVariable(new DescribedVariableMember("final_action", Body.CodeGenerator.GetEnvironment().GetStdxNamespace().Finally)));
+            this.FinallyDeclaration = new LocalDeclarationReference((CppLocal)Body.CodeGenerator.DeclareLocal(new UniqueTag(), new DescribedVariableMember("final_action", Body.CodeGenerator.GetEnvironment().GetStdxNamespace().Finally)));
         }
 
         public LocalDeclarationReference FinallyDeclaration { get; private set; }

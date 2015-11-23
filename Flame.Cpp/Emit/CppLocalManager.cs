@@ -16,7 +16,7 @@ namespace Flame.Cpp.Emit
         public CppLocalManager(ICodeGenerator CodeGenerator)
         {
             this.CodeGenerator = CodeGenerator;
-            this.locals = new List<CppLocal>();
+            this.locals = new Dictionary<UniqueTag, CppLocal>();
             this.freedLocals = new List<CppLocal>();
         }
 
@@ -25,13 +25,13 @@ namespace Flame.Cpp.Emit
         /// </summary>
         public ICodeGenerator CodeGenerator { get; private set; }
 
-        private List<CppLocal> locals;
+        private Dictionary<UniqueTag, CppLocal> locals;
         private List<CppLocal> freedLocals;
 
         /// <summary>
         /// Gets all locals declared by this local variable manager.
         /// </summary>
-        public IReadOnlyList<CppLocal> Locals { get { return locals; } }
+        public IEnumerable<CppLocal> Locals { get { return locals.Values; } }
 
         /// <summary>
         /// Releases a local variable.
@@ -47,7 +47,7 @@ namespace Flame.Cpp.Emit
         /// </summary>
         /// <param name="VariableType"></param>
         /// <returns></returns>
-        public CppLocal Reuse(IType VariableType)
+        public CppLocal Reuse(UniqueTag Tag, IType VariableType)
         {
             for (int i = 0; i < freedLocals.Count; i++)
             {
@@ -55,6 +55,7 @@ namespace Flame.Cpp.Emit
                 {
                     var item = freedLocals[i];
                     freedLocals.RemoveAt(i);
+                    locals[Tag] = item;
                     return item;
                 }
             }
@@ -155,6 +156,8 @@ namespace Flame.Cpp.Emit
 
         #endregion
 
+        #region Declare
+
         /// <summary>
         /// Generates a valid variable member based on the given variable member.
         /// </summary>
@@ -182,11 +185,11 @@ namespace Flame.Cpp.Emit
         /// </summary>
         /// <param name="VariableMember"></param>
         /// <returns></returns>
-        public CppLocal DeclareNew(IVariableMember VariableMember)
+        public CppLocal DeclareNew(UniqueTag Tag, IVariableMember VariableMember)
         {
             var varMember = GenerateVariableMember(VariableMember);
             var local = new CppLocal(CodeGenerator, locals.Count, varMember);
-            locals.Add(local);
+            locals.Add(Tag, local);
             return local;
         }
 
@@ -195,11 +198,11 @@ namespace Flame.Cpp.Emit
         /// </summary>
         /// <param name="VariableMember"></param>
         /// <returns></returns>
-        public OwnedCppLocal DeclareOwned(IVariableMember VariableMember)
+        public OwnedCppLocal DeclareOwned(UniqueTag Tag, IVariableMember VariableMember)
         {
             var varMember = GenerateVariableMember(VariableMember);
             var local = new OwnedCppLocal(CodeGenerator, locals.Count, varMember);
-            locals.Add(local);
+            locals.Add(Tag, local);
             return local;
         }
 
@@ -208,17 +211,42 @@ namespace Flame.Cpp.Emit
         /// </summary>
         /// <param name="VariableMember"></param>
         /// <returns></returns>
-        public CppLocal Declare(IVariableMember VariableMember)
+        public CppLocal Declare(UniqueTag Tag, IVariableMember VariableMember)
         {
-            var reused = Reuse(VariableMember.VariableType);
+            var reused = Reuse(Tag, VariableMember.VariableType);
             if (reused != null)
             {
                 return reused;
             }
             else
             {
-                return DeclareNew(VariableMember);
+                return DeclareNew(Tag, VariableMember);
             }
         }
+
+        #endregion
+
+        #region Get
+
+        /// <summary>
+        /// Gets the C++ local variable identified by the
+        /// given unique tag.
+        /// </summary>
+        /// <param name="Tag"></param>
+        /// <returns></returns>
+        public CppLocal Get(UniqueTag Tag)
+        {
+            CppLocal result;
+            if (locals.TryGetValue(Tag, out result))
+            {
+                return result;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        #endregion
     }
 }

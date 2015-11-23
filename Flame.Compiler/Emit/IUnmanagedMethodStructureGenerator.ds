@@ -3,10 +3,34 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Emit
 {
+    /// <summary>
+    /// Defines a method structure generator interface that supports creating
+    /// and retrieving unmanaged variables.
+    /// </summary>
     public interface IUnmanagedMethodStructureGenerator : IMethodStructureGenerator
     {
-        IUnmanagedEmitVariable DeclareUnmanagedVariable(IVariableMember VariableMember);
+        /// <summary>
+        /// Gets the local variable with the given unique tag, if there is
+        /// such an unmanaged variable. Otherwise, null is returned.
+        /// </summary>
+        /// <remarks>
+        /// It is up to the implementation to decide if this method returns null
+        /// for locals declared via DeclareLocal instead of DeclareUnmanagedLocal.
+        /// </remarks>
+        IUnmanagedEmitVariable GetUnmanagedLocal(UniqueTag Tag);
+
+        /// <summary>
+        /// Declares an unmanaged local variable with the given unique tag, and
+        /// based on the given variable member. Declaring two variables with the
+        /// same tag results in an exception.
+        /// </summary>
+        IUnmanagedEmitVariable DeclareUnmanagedLocal(UniqueTag Tag, IVariableMember VariableMember);
+
+        /// <summary>
+        /// Gets the nth argument as an unmanaged variable.
+        /// </summary>
         IUnmanagedEmitVariable GetUnmanagedArgument(int Index);
+
         /// <summary>
         /// Gets the "this" argument.
         /// </summary>

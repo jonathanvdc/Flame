@@ -12,7 +12,18 @@ namespace Flame.Compiler.Emit
 
         #region Variables
 
-        IEmitVariable DeclareVariable(IVariableMember VariableMember);
+        /// <summary>
+        /// Gets the local variable with the given unique tag, if there is
+        /// such a variable. Otherwise, null is returned.
+        /// </summary>
+        IEmitVariable GetLocal(UniqueTag Tag);
+
+        /// <summary>
+        /// Declares a new local variable based on the given unique tag and
+        /// variable member. Declaring two variables with the same tag
+        /// results in an exception.
+        /// </summary>
+        IEmitVariable DeclareLocal(UniqueTag Tag, IVariableMember VariableMember);
 
         #endregion
 

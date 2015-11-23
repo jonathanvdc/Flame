@@ -66,7 +66,7 @@ namespace Flame.Cecil.Emit
             }
             else if (RequiresInitobj(Type)) // requires an extra variable, but works every time
             {
-                var variable = ((IUnmanagedCodeGenerator)CodeGenerator).DeclareUnmanagedVariable(Type);
+                var variable = ((IUnmanagedCodeGenerator)CodeGenerator).DeclareUnmanagedLocal(new UniqueTag(), Type);
 
                 ((ICecilBlock)variable.EmitAddressOf()).Emit(Context);
                 Context.Stack.Pop();

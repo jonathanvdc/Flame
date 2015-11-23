@@ -517,6 +517,8 @@ namespace Flame.Python.Emit
 
         #region Variables
 
+        private Dictionary<UniqueTag, PythonLocalVariable> locals = new Dictionary<UniqueTag, PythonLocalVariable>();
+
         public IEmitVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
         {
             return new PythonIndexedVariable(this, (IPythonBlock)Value, Index.Cast<IPythonBlock>().ToArray());
@@ -527,9 +529,24 @@ namespace Flame.Python.Emit
             return new PythonFieldVariable(this, (IPythonBlock)Target, Field);
         }
 
-        public IEmitVariable DeclareVariable(IVariableMember VariableMember)
+        public IEmitVariable GetLocal(UniqueTag Tag)
         {
-            return new PythonLocalVariable(this, VariableMember);
+            PythonLocalVariable result;
+            if (locals.TryGetValue(Tag, out result))
+            {
+                return result;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public IEmitVariable DeclareLocal(UniqueTag Tag, IVariableMember VariableMember)
+        {
+            var result = new PythonLocalVariable(this, VariableMember);
+            locals.Add(Tag, result);
+            return result;
         }
 
         public IEmitVariable GetArgument(int Index)

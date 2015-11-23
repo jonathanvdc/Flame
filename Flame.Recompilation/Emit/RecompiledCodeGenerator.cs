@@ -334,6 +334,8 @@ namespace Flame.Recompilation.Emit
 
         #region Variables
 
+        private Dictionary<UniqueTag, RecompiledVariable> locals = new Dictionary<UniqueTag, RecompiledVariable>();
+
         public IEmitVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
         {
             return GetUnmanagedElement(Value, Index);
@@ -344,9 +346,14 @@ namespace Flame.Recompilation.Emit
             return GetUnmanagedField(Field, Target);
         }
 
-        public IEmitVariable DeclareVariable(IVariableMember VariableMember)
+        public IEmitVariable GetLocal(UniqueTag Tag)
         {
-            return DeclareUnmanagedVariable(VariableMember);
+            return GetUnmanagedLocal(Tag);
+        }
+
+        public IEmitVariable DeclareLocal(UniqueTag Tag, IVariableMember VariableMember)
+        {
+            return DeclareUnmanagedLocal(Tag, VariableMember);
         }
 
         public IEmitVariable GetArgument(int Index)
@@ -369,9 +376,24 @@ namespace Flame.Recompilation.Emit
             return new RecompiledVariable(this, new FieldVariable(Recompiler.GetField(Field), GetExpression(Target)));
         }
 
-        public IUnmanagedEmitVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
+        public IUnmanagedEmitVariable GetUnmanagedLocal(UniqueTag Tag)
         {
-            return new RecompiledVariable(this, new LateBoundVariable(new RetypedVariableMember(VariableMember, Recompiler.GetType(VariableMember.VariableType))));
+            RecompiledVariable result;
+            if (locals.TryGetValue(Tag, out result))
+            {
+                return result;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public IUnmanagedEmitVariable DeclareUnmanagedLocal(UniqueTag Tag, IVariableMember VariableMember)
+        {
+            var result = new RecompiledVariable(this, new LateBoundVariable(new RetypedVariableMember(VariableMember, Recompiler.GetType(VariableMember.VariableType))));
+            locals.Add(Tag, result);
+            return result;
         }
 
         public IUnmanagedEmitVariable GetUnmanagedArgument(int Index)

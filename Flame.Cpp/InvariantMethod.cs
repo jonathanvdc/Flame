@@ -115,7 +115,7 @@ namespace Flame.Cpp
                     var fieldVar = codeGen.GetField(Invariants.IsCheckingInvariantsField, codeGen.GetThis().EmitGet());
 
                     var setBool = fieldVar.EmitSet(codeGen.EmitBoolean(true)); // isCheckingInvariants = true;
-                    var resultVariable = codeGen.DeclareVariable(new DescribedVariableMember("result", PrimitiveTypes.Boolean));
+                    var resultVariable = codeGen.DeclareLocal(new UniqueTag(), new DescribedVariableMember("result", PrimitiveTypes.Boolean));
                     var checkImpl = Invariants.CheckInvariantsImplementationMethod;
                     var test = checkImpl.InlineTestBlock ? checkImpl.CreateTestBlock(codeGen) : codeGen.EmitInvocation(checkImpl, codeGen.GetThis().EmitGet(), Enumerable.Empty<ICodeBlock>());
                     var setResult = resultVariable.EmitSet(test); // bool result = <condition>;

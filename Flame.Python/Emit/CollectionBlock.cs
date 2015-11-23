@@ -28,11 +28,13 @@ namespace Flame.Python.Emit
             this.CodeGenerator = CodeGenerator;
             this.Member = Member;
             this.Collection = Collection;
+            this.elemVar = new Lazy<IEmitVariable>(() => CodeGenerator.DeclareLocal(new UniqueTag(), this.Member));
         }
 
         public IVariableMember Member { get; private set; }
         public IPythonBlock Collection { get; private set; }
         public ICodeGenerator CodeGenerator { get; private set; }
+        private Lazy<IEmitVariable> elemVar;
 
         public IType Type
         {
@@ -50,7 +52,7 @@ namespace Flame.Python.Emit
 
         public IEmitVariable GetElementVariable()
         {
-            return CodeGenerator.DeclareVariable(this.Member);
+            return elemVar.Value;
         }
 
         public IEnumerable<ModuleDependency> GetDependencies()
@@ -74,7 +76,7 @@ namespace Flame.Python.Emit
             {
                 if (indexVariable == null)
                 {
-                    indexVariable = (PythonVariableBase)CodeGenerator.DeclareVariable(PrimitiveTypes.Int32);
+                    indexVariable = (PythonVariableBase)CodeGenerator.DeclareLocal(new UniqueTag(), PrimitiveTypes.Int32);
                 }
                 return indexVariable;
             }
@@ -83,7 +85,7 @@ namespace Flame.Python.Emit
         {
             get
             {
-                return new DescribedVariableMember(indexVariable.GetCode().ToString(), PrimitiveTypes.Int32);
+                return new DescribedVariableMember(IndexVariable.GetCode().ToString(), PrimitiveTypes.Int32);
             }
         }
         public IPythonBlock List { get; private set; }
