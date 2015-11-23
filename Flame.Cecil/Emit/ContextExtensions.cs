@@ -22,7 +22,7 @@ namespace Flame.Cecil.Emit
 
             if (!Context.ApplyOptimization(optimization))
             {
-                var local = CodeGenerator.DeclareUnmanagedVariable(ElementType); // Create temporary
+                var local = CodeGenerator.DeclareUnmanagedLocal(new UniqueTag(), ElementType); // Create temporary
                 ((ICecilBlock)local.EmitSet(CodeGenerator.EmitVoid())).Emit(Context); // Set temporary to value on top of stack
                 ((ICecilBlock)local.EmitAddressOf()).Emit(Context); // Push address on stack
                 ((ICecilBlock)local.EmitRelease()).Emit(Context); // Release temporary

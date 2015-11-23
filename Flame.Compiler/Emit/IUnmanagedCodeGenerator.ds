@@ -4,14 +4,39 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler
 {
+	/// <summary>
+	/// Defines an unmanaged code generator interface: a code generator
+	/// that can also perform a number of low-level tricks.
+	/// </summary>
 	public interface IUnmanagedCodeGenerator : ICodeGenerator, IUnmanagedMethodStructureGenerator
 	{
+		/// <summary>
+		/// Creates a code block that dereferences the given pointer block.
+		/// </summary>
 		ICodeBlock EmitDereferencePointer(ICodeBlock Pointer);
+
+		/// <summary>
+		/// Creates a code block that stores the value in a code block
+		/// in the given pointer block.
+		/// </summary>
 		ICodeBlock EmitStoreAtAddress(ICodeBlock Pointer, ICodeBlock Value);
 
+		/// <summary>
+		/// Gets an unmanaged emit variable that represents an element of
+		/// a container type.
+		/// </summary>
 		IUnmanagedEmitVariable GetUnmanagedElement(ICodeBlock Value, [ICodeBlock] Index);
+
+		/// <summary>
+		/// Gets an unmanaged emit variable that represents the given field
+		/// of the value represented by the given target code block.
+		/// </summary>
 		IUnmanagedEmitVariable GetUnmanagedField(IField Field, ICodeBlock Target);
 
+		/// <summary>
+		/// Creates a block that contains the run-time size of a variable of the
+		/// given type.
+		/// </summary>
 		ICodeBlock EmitSizeOf(IType Type);
 	}
 }

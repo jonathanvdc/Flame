@@ -39,11 +39,11 @@ namespace Flame.Compiler.Variables
         {
             if (Generator is IUnmanagedMethodStructureGenerator)
             {
-                BindVariable(((IUnmanagedMethodStructureGenerator)Generator).DeclareUnmanagedVariable(Member));
+                BindVariable(((IUnmanagedMethodStructureGenerator)Generator).DeclareUnmanagedLocal(new UniqueTag(), Member));
             }
             else
             {
-                BindVariable(Generator.DeclareVariable(Member));
+                BindVariable(Generator.DeclareLocal(new UniqueTag(), Member));
             }
         }
 

@@ -12,7 +12,7 @@ namespace Flame.Cpp.Emit
     {
         public CatchHeader(CppCodeGenerator CodeGenerator, IVariableMember ExceptionVariableMember)
         {
-            this.ExceptionVariableDeclaration = new LocalDeclarationReference((CppLocal)CodeGenerator.DeclareVariable(ExceptionVariableMember));
+            this.ExceptionVariableDeclaration = new LocalDeclarationReference((CppLocal)CodeGenerator.DeclareLocal(new UniqueTag(), ExceptionVariableMember));
         }
 
         public LocalDeclarationReference ExceptionVariableDeclaration { get; private set; }

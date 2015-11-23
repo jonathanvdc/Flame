@@ -17,6 +17,7 @@ namespace Flame.Cpp.Emit
             this.Method = Method;
             this.Environment = Environment;
             this.LocalManager = new CppLocalManager(this);
+            this.retVar = new Lazy<IEmitVariable>(() => LocalManager.DeclareNew(new UniqueTag(), new DescribedVariableMember("result", Method.ReturnType)));
         }
 
         public MethodContract Contract
@@ -434,29 +435,39 @@ namespace Flame.Cpp.Emit
 
         public CppLocalManager LocalManager { get; private set; }
 
-        public IEmitVariable DeclareVariable(IVariableMember VariableMember)
+        public IEmitVariable DeclareLocal(UniqueTag Tag, IVariableMember VariableMember)
         {
-            return DeclareUnmanagedVariable(VariableMember);
+            return DeclareUnmanagedLocal(Tag, VariableMember);
         }
 
-        public IEmitVariable DeclareNewVariable(IVariableMember VariableMember)
+        public IEmitVariable DeclareNewLocal(UniqueTag Tag, IVariableMember VariableMember)
         {
-            return DeclareNewUnmanagedVariable(VariableMember);
+            return DeclareNewUnmanagedLocal(Tag, VariableMember);
         }
 
-        public IUnmanagedEmitVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
+        public IUnmanagedEmitVariable DeclareUnmanagedLocal(UniqueTag Tag, IVariableMember VariableMember)
         {
-            return LocalManager.Declare(this.ConvertVariableMember(VariableMember));
+            return LocalManager.Declare(Tag, this.ConvertVariableMember(VariableMember));
         }
 
-        public IUnmanagedEmitVariable DeclareNewUnmanagedVariable(IVariableMember VariableMember)
+        public IUnmanagedEmitVariable DeclareNewUnmanagedLocal(UniqueTag Tag, IVariableMember VariableMember)
         {
-            return LocalManager.DeclareNew(this.ConvertVariableMember(VariableMember));
+            return LocalManager.DeclareNew(Tag, this.ConvertVariableMember(VariableMember));
+        }
+
+        public IEmitVariable GetLocal(UniqueTag Tag)
+        {
+            return GetUnmanagedLocal(Tag);
+        }
+
+        public IUnmanagedEmitVariable GetUnmanagedLocal(UniqueTag Tag)
+        {
+            return LocalManager.Get(Tag);
         }
 
         public OwnedCppLocal DeclareOwnedVariable(IVariableMember VariableMember)
         {
-            return LocalManager.DeclareOwned(this.ConvertVariableMember(VariableMember));
+            return LocalManager.DeclareOwned(new UniqueTag(), this.ConvertVariableMember(VariableMember));
         }
 
         #endregion
@@ -638,17 +649,13 @@ namespace Flame.Cpp.Emit
 
         #region IContractCodeGenerator
 
-        private IEmitVariable retVar;
+        private Lazy<IEmitVariable> retVar;
 
         public IEmitVariable ReturnVariable
         {
             get
             {
-                if (retVar == null)
-                {
-                    retVar = LocalManager.DeclareNew(new DescribedVariableMember("result", Method.ReturnType));
-                }
-                return retVar;
+                return retVar.Value;
             }
         }
 

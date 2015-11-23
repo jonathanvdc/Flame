@@ -445,7 +445,22 @@ namespace Flame.Intermediate.Emit
 
         #region Variables
 
-        public IUnmanagedEmitVariable DeclareUnmanagedVariable(IVariableMember VariableMember)
+        private Dictionary<UniqueTag, NodeEmitVariable> locals = new Dictionary<UniqueTag, NodeEmitVariable>();
+
+        public IUnmanagedEmitVariable GetUnmanagedLocal(UniqueTag Tag)
+        {
+            NodeEmitVariable result;
+            if (locals.TryGetValue(Tag, out result))
+            {
+                return result;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public IUnmanagedEmitVariable DeclareUnmanagedLocal(UniqueTag Tag, IVariableMember VariableMember)
         {
             string name = variableNames.GenerateName(VariableMember);
             var sig = EmitSignature(VariableMember);
@@ -459,12 +474,19 @@ namespace Flame.Intermediate.Emit
                 type,
                 body
             }));
-            return new NodeEmitVariable(this, ExpressionParsers.LocalVariableKindName, NodeFactory.IdOrLiteral(name));
+            var result = new NodeEmitVariable(this, ExpressionParsers.LocalVariableKindName, NodeFactory.IdOrLiteral(name));
+            locals.Add(Tag, result);
+            return result;
         }
 
-        public IEmitVariable DeclareVariable(IVariableMember VariableMember)
+        public IEmitVariable GetLocal(UniqueTag Tag)
         {
-            return DeclareUnmanagedVariable(VariableMember);
+            return GetUnmanagedLocal(Tag);
+        }
+
+        public IEmitVariable DeclareLocal(UniqueTag Tag, IVariableMember VariableMember)
+        {
+            return DeclareUnmanagedLocal(Tag, VariableMember);
         }
 
         public IUnmanagedEmitVariable GetUnmanagedArgument(int Index)

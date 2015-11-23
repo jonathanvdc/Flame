@@ -191,14 +191,50 @@ namespace Flame.Compiler
 			return CodeGenerator.EmitInvocation(CodeGenerator.EmitMethod(Method, Caller, DelegateOperator), Arguments);
 		}
 
-		public static IEmitVariable DeclareVariable(this IMethodStructureGenerator Generator, IType Type)
+		public static IEmitVariable DeclareLocal(
+			this IMethodStructureGenerator Generator,
+			UniqueTag Tag, IType Type)
 		{
-			return Generator.DeclareVariable(new TypeVariableMember(Type));
+			return Generator.DeclareLocal(Tag, new TypeVariableMember(Type));
 		}
 
-		public static IUnmanagedEmitVariable DeclareUnmanagedVariable(this IUnmanagedMethodStructureGenerator Generator, IType Type)
+		public static IUnmanagedEmitVariable DeclareUnmanagedLocal(
+			this IUnmanagedMethodStructureGenerator Generator,
+			UniqueTag Tag, IType Type)
 		{
-			return Generator.DeclareUnmanagedVariable(new TypeVariableMember(Type));
+			return Generator.DeclareUnmanagedLocal(Tag, new TypeVariableMember(Type));
+		}
+
+		/// <summary>
+		/// Gets the local variable with the given tag if it exists already, or
+		/// creates one with the given tag based on the given variable
+		/// member if it doesn't.
+		/// </summary>
+		public static IEmitVariable GetOrDeclareLocal(
+			this IMethodStructureGenerator Generator,
+			UniqueTag Tag, IVariableMember VariableMember)
+		{
+			var result = Generator.GetLocal(Tag);
+			if (result != null)
+				return result;
+			else
+				return Generator.DeclareLocal(Tag, VariableMember);
+		}
+
+		/// <summary>
+		/// Gets the unmanaged local variable with the given tag if it
+		/// exists already, or creates one with the given tag based on
+		/// the given variable member if it doesn't.
+		/// </summary>
+		public static IUnmanagedEmitVariable GetOrDeclareUnmanagedLocal(
+			this IUnmanagedMethodStructureGenerator Generator,
+			UniqueTag Tag, IVariableMember VariableMember)
+		{
+			var result = Generator.GetUnmanagedLocal(Tag);
+			if (result != null)
+				return result;
+			else
+				return Generator.DeclareUnmanagedLocal(Tag, VariableMember);
 		}
 
 		#endregion
