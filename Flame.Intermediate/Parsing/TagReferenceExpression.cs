@@ -12,7 +12,7 @@ namespace Flame.Intermediate.Parsing
     /// </summary>
     public class TagReferenceExpression : IExpression
     {
-        public TagReferenceExpression(BlockTag Tag)
+        public TagReferenceExpression(UniqueTag Tag)
         {
             this.Tag = Tag;
         }
@@ -20,7 +20,7 @@ namespace Flame.Intermediate.Parsing
         /// <summary>
         /// Gets the tag wrapped by this tag-reference expression.
         /// </summary>
-        public BlockTag Tag { get; private set; }
+        public UniqueTag Tag { get; private set; }
 
         public IExpression Accept(INodeVisitor Visitor)
         {

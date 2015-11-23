@@ -9,7 +9,7 @@ namespace Flame.Cecil.Emit
 {
     public interface IFlowControlStructure
     {
-        BlockTag Tag { get; }
+        UniqueTag Tag { get; }
         ICecilBlock CreateBreak();
         ICecilBlock CreateContinue();
     }

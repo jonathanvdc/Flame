@@ -49,7 +49,7 @@ namespace Flame.Syntax.DSharp
 
         public IStatement CreateStatement(ISyntaxState State) : IStatementSyntax.CreateStatement
         {
-            var tag = new BlockTag();
+            var tag = new UniqueTag();
 
         	State.PushScope(tag);
             var setup = Initialization.CreateStatement(State);

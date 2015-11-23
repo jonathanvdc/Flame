@@ -11,12 +11,12 @@ namespace Flame.Compiler.Statements
     /// </summary>
     public abstract class LocalFlowStatementBase : IFlowStatement
     {
-        public const this(set BlockTag Target);
+        public const this(set UniqueTag Target);
 
         /// <summary>
         /// Gets the tag of the tagged block whose iteration is to be terminated.
         /// </summary>
-        public BlockTag Target { const get; private set; }
+        public UniqueTag Target { const get; private set; }
 
         public abstract ICodeBlock Emit(ICodeGenerator Generator);
 
@@ -61,7 +61,7 @@ namespace Flame.Compiler.Statements
         /// <summary>
         /// Creates a "break" statement that targets the given block tag.
         /// </summary>
-        public const this(BlockTag Target)
+        public const this(UniqueTag Target)
             : base(Target);
 
         public override ICodeBlock Emit(ICodeGenerator Generator)

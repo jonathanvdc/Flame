@@ -9,14 +9,14 @@ namespace Flame.Cecil.Emit
 {
     public class BreakBlock : ICecilBlock
     {
-        public BreakBlock(ICodeGenerator CodeGenerator, BlockTag Tag)
+        public BreakBlock(ICodeGenerator CodeGenerator, UniqueTag Tag)
         {
             this.CodeGenerator = CodeGenerator;
             this.Tag = Tag;
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
-        public BlockTag Tag { get; private set; }
+        public UniqueTag Tag { get; private set; }
 
         public void Emit(IEmitContext Context)
         {
@@ -30,14 +30,14 @@ namespace Flame.Cecil.Emit
     }
     public class ContinueBlock : ICecilBlock
     {
-        public ContinueBlock(ICodeGenerator CodeGenerator, BlockTag Tag)
+        public ContinueBlock(ICodeGenerator CodeGenerator, UniqueTag Tag)
         {
             this.CodeGenerator = CodeGenerator;
             this.Tag = Tag;
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
-        public BlockTag Tag { get; private set; }
+        public UniqueTag Tag { get; private set; }
 
         public void Emit(IEmitContext Context)
         {

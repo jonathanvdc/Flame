@@ -9,7 +9,7 @@ namespace Flame.MIPS.Emit
 {
     public class BranchFlowStructure : IFlowControlStructure
     {
-        public BranchFlowStructure(ICodeGenerator CodeGenerator, BlockTag Tag, ILabel Start, ILabel End)
+        public BranchFlowStructure(ICodeGenerator CodeGenerator, UniqueTag Tag, ILabel Start, ILabel End)
         {
             this.CodeGenerator = CodeGenerator;
             this.Tag = Tag;
@@ -18,7 +18,7 @@ namespace Flame.MIPS.Emit
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
-        public BlockTag Tag { get; private set; }
+        public UniqueTag Tag { get; private set; }
         public ILabel Start { get; private set; }
         public ILabel End { get; private set; }
 

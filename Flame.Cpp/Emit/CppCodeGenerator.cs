@@ -44,17 +44,17 @@ namespace Flame.Cpp.Emit
 
         #region Block Generators
 
-        public ICodeBlock EmitBreak(BlockTag Tag)
+        public ICodeBlock EmitBreak(UniqueTag Tag)
         {
             return new KeywordStatementBlock(this, "break");
         }
 
-        public ICodeBlock EmitContinue(BlockTag Tag)
+        public ICodeBlock EmitContinue(UniqueTag Tag)
         {
             return new KeywordStatementBlock(this, "continue");
         }
 
-        public ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents)
+        public ICodeBlock EmitTagged(UniqueTag Tag, ICodeBlock Contents)
         {
             return null;
         }
@@ -72,7 +72,7 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        public ICodeBlock EmitDoWhile(BlockTag Tag, ICodeBlock Body, ICodeBlock Condition)
+        public ICodeBlock EmitDoWhile(UniqueTag Tag, ICodeBlock Body, ICodeBlock Condition)
         {
             var cond = (ICppBlock)Condition;
             var body = (ICppBlock)Body;
@@ -111,7 +111,7 @@ namespace Flame.Cpp.Emit
             return new EmptyBlock(this);
         }
 
-        public ICodeBlock EmitWhile(BlockTag Tag, ICodeBlock Condition, ICodeBlock Body)
+        public ICodeBlock EmitWhile(UniqueTag Tag, ICodeBlock Condition, ICodeBlock Body)
         {
             var cond = (ICppBlock)Condition;
             var body = (ICppBlock)Body;
@@ -538,7 +538,7 @@ namespace Flame.Cpp.Emit
             return new ForeachBlock(header, body);
         }
 
-        public IForeachBlockHeader EmitForeachHeader(BlockTag Tag, IEnumerable<ICollectionBlock> Collections)
+        public IForeachBlockHeader EmitForeachHeader(UniqueTag Tag, IEnumerable<ICollectionBlock> Collections)
         {
             if (Collections.Any() && !Collections.Skip(1).Any()) // == (Collections.Count() == 1)
             {
@@ -585,7 +585,7 @@ namespace Flame.Cpp.Emit
 
         #region IForCodeGenerator
 
-        public ICodeBlock EmitForBlock(BlockTag Tag, ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body)
+        public ICodeBlock EmitForBlock(UniqueTag Tag, ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body)
         {
             var cppInit = (ICppBlock)Initialization;
             var cppCond = (ICppBlock)Condition;

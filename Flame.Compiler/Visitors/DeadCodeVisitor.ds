@@ -72,7 +72,7 @@ namespace Flame.Compiler.Visitors
         /// Creates a flow state that "loops", i.e. will be executed zero or more
         /// times.
         /// </summary>
-        public const bool CreateLoopFlow(BlockTag Tag, bool Flow)
+        public const bool CreateLoopFlow(UniqueTag Tag, bool Flow)
         {
             return true;
         }

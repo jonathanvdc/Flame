@@ -237,14 +237,14 @@ namespace Flame.Optimization
 
     public class InliningReturnVisitor : NodeVisitorBase
     {
-        public const this(set IVariable ReturnVariable, set BlockTag ReturnTag);
+        public const this(set IVariable ReturnVariable, set UniqueTag ReturnTag);
 
         public IVariable ReturnVariable { const get; private set; }
-        public BlockTag ReturnTag { const get; private set; }
+        public UniqueTag ReturnTag { const get; private set; }
 
         public static const IStatement InlineReturns(IStatement Statement, IVariable ReturnVariable)
         {
-            var label = new BlockTag();
+            var label = new UniqueTag();
             var visitor = new InliningReturnVisitor(ReturnVariable, label);
             var body = visitor.Visit(Statement);
             return SimplifyFlowPass.TaggedBreakVisitor.Visit(new TaggedStatement(label, body));

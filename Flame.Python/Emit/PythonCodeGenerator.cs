@@ -20,17 +20,17 @@ namespace Flame.Python.Emit
 
         #region Blocks
 
-        public ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents)
+        public ICodeBlock EmitTagged(UniqueTag Tag, ICodeBlock Contents)
         {
             return null;
         }
 
-        public ICodeBlock EmitBreak(BlockTag Tag)
+        public ICodeBlock EmitBreak(UniqueTag Tag)
         {
             return new KeywordBlock(this, "break", PrimitiveTypes.Void);
         }
 
-        public ICodeBlock EmitContinue(BlockTag Tag)
+        public ICodeBlock EmitContinue(UniqueTag Tag)
         {
             return new KeywordBlock(this, "continue", PrimitiveTypes.Void);
         }
@@ -60,7 +60,7 @@ namespace Flame.Python.Emit
             return new EmptyBlock(this);
         }
 
-        public ICodeBlock EmitWhile(BlockTag Tag, ICodeBlock Condition, ICodeBlock Body)
+        public ICodeBlock EmitWhile(UniqueTag Tag, ICodeBlock Condition, ICodeBlock Body)
         {
             return new WhileBlock(this, (IPythonBlock)Condition, (IPythonBlock)Body);
         }
@@ -87,7 +87,7 @@ namespace Flame.Python.Emit
             return new ForeachBlock((ForeachBlockHeader)Header, (IPythonBlock)Body);
         }
 
-        public IForeachBlockHeader EmitForeachHeader(BlockTag Tag, IEnumerable<ICollectionBlock> Collections)
+        public IForeachBlockHeader EmitForeachHeader(UniqueTag Tag, IEnumerable<ICollectionBlock> Collections)
         {
             return new ForeachBlockHeader(this, Collections.Cast<IPythonCollectionBlock>());
         }

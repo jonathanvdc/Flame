@@ -10,18 +10,18 @@ open System.Collections.Generic
 
 /// Defines a scope within a function.
 /// Note: a local scope's variables are stored as an immutable dictionary.
-type LocalScope private(parentScope : LocalScope option, funcScope : FunctionScope, locals : Map<string, IVariable>, tag : BlockTag) =
+type LocalScope private(parentScope : LocalScope option, funcScope : FunctionScope, locals : Map<string, IVariable>, tag : UniqueTag) =
 
-    new(parentScope, funcScope, tag : BlockTag) =
+    new(parentScope, funcScope, tag : UniqueTag) =
         LocalScope(parentScope, funcScope, Map.empty, tag)
 
     new(funcScope : FunctionScope) =
         LocalScope(funcScope, null)
 
-    new(funcScope : FunctionScope, tag : BlockTag) =
+    new(funcScope : FunctionScope, tag : UniqueTag) =
         LocalScope(None, funcScope, tag)
 
-    new(globalScope : GlobalScope, tag : BlockTag) =
+    new(globalScope : GlobalScope, tag : UniqueTag) =
         LocalScope(new FunctionScope(globalScope), tag)
 
     new(globalScope : GlobalScope) =

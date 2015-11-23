@@ -18,7 +18,7 @@ namespace Flame.Optimization.Variables
         public IVariableFlow Second { const get; private set; }
         public InsertStatement SecondPostInsert { const get; private set; }
 
-        public const [BlockTerminationPoint] GetTerminationPoints(VariableDefinitionChain Chain, BlockTag Tag)
+        public const [BlockTerminationPoint] GetTerminationPoints(VariableDefinitionChain Chain, UniqueTag Tag)
         {
             return Enumerable.Concat<BlockTerminationPoint>(
                 First.GetTerminationPoints(Chain, Tag),

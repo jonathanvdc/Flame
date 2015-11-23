@@ -31,7 +31,7 @@ namespace Flame.Compiler
 		/// "break" means: jump to the end of this block; "continue" means:
 		/// jump to the start of this block.
 		/// </summary>
-		ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents);
+		ICodeBlock EmitTagged(UniqueTag Tag, ICodeBlock Contents);
 
 		/// <summary>
 		/// Creates a block that executes and returns the given if body if the
@@ -56,13 +56,13 @@ namespace Flame.Compiler
 		/// Creates a break block: a block that 'breaks' out of the given enclosing block:
 		/// control is transferred to the block that trails said block.
 		/// </summary>
-		ICodeBlock EmitBreak(BlockTag Target);
+		ICodeBlock EmitBreak(UniqueTag Target);
 
 		/// <summary>
 		/// Creates a continue block: a block that stops the execution of the
 		/// given enclosing block's body, and starts the next iteration.
 		/// </summary>
-		ICodeBlock EmitContinue(BlockTag Target);
+		ICodeBlock EmitContinue(UniqueTag Target);
 
 		#region Constants
 
@@ -216,7 +216,7 @@ namespace Flame.Compiler
 		/// Creates a block that repeats the given body as long as the given condition
 		/// block evaluates to true.
 		/// </summary>
-		ICodeBlock EmitWhile(BlockTag Tag, ICodeBlock Condition, ICodeBlock Body);
+		ICodeBlock EmitWhile(UniqueTag Tag, ICodeBlock Condition, ICodeBlock Body);
 	}
 
 	/// <summary>
@@ -228,6 +228,6 @@ namespace Flame.Compiler
 		/// Creates a block that executes the given body once, and then keeps on executing
 		/// it as long as the given condition block evaluates to true.
 		/// </summary>
-		ICodeBlock EmitDoWhile(BlockTag Tag, ICodeBlock Body, ICodeBlock Condition);
+		ICodeBlock EmitDoWhile(UniqueTag Tag, ICodeBlock Body, ICodeBlock Condition);
 	}
 }

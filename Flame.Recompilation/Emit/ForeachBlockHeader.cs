@@ -12,7 +12,7 @@ namespace Flame.Recompilation.Emit
 {
     public class ForeachBlockHeader : IForeachBlockHeader
     {
-        public ForeachBlockHeader(RecompiledCodeGenerator CodeGenerator, BlockTag Tag, IEnumerable<CollectionBlock> Collections)
+        public ForeachBlockHeader(RecompiledCodeGenerator CodeGenerator, UniqueTag Tag, IEnumerable<CollectionBlock> Collections)
         {
             var collElems = Collections.Select(item => new CollectionElement(item.Member, item.Collection)).ToArray();
             this.foreachStatement = new ForeachStatement(Tag, collElems);

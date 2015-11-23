@@ -14,7 +14,7 @@ namespace Flame.Compiler.Statements
         /// <summary>
         /// Creates a "continue" statement that targets the given block tag.
         /// </summary>
-        public const this(BlockTag Target)
+        public const this(UniqueTag Target)
             : base(Target);
 
         public override ICodeBlock Emit(ICodeGenerator Generator)

@@ -296,7 +296,7 @@ namespace Flame.Cecil.Emit
 
         private Stack<IFlowControlStructure> flowControls;
 
-        public IFlowControlStructure GetFlowControl(BlockTag Tag)
+        public IFlowControlStructure GetFlowControl(UniqueTag Tag)
         {
             foreach (var item in flowControls)
             {

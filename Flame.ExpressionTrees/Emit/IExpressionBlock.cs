@@ -10,7 +10,7 @@ namespace Flame.ExpressionTrees.Emit
 {
     public struct FlowBlock
     {
-        public FlowBlock(BlockTag Tag, Func<Expression> CreateBreak, Func<Expression> CreateContinue)
+        public FlowBlock(UniqueTag Tag, Func<Expression> CreateBreak, Func<Expression> CreateContinue)
         {
             this = default(FlowBlock);
             this.Tag = Tag;
@@ -18,7 +18,7 @@ namespace Flame.ExpressionTrees.Emit
             this.CreateContinue = CreateContinue;
         }
 
-        public BlockTag Tag { get; private set; }
+        public UniqueTag Tag { get; private set; }
         public Func<Expression> CreateBreak { get; private set; }
         public Func<Expression> CreateContinue { get; private set; }
 
@@ -47,12 +47,12 @@ namespace Flame.ExpressionTrees.Emit
         {
             return new FlowStructure(this, Flow);
         }
-        public FlowStructure PushFlow(BlockTag Tag, Func<Expression> CreateBreak, Func<Expression> CreateContinue)
+        public FlowStructure PushFlow(UniqueTag Tag, Func<Expression> CreateBreak, Func<Expression> CreateContinue)
         {
             return PushFlow(new FlowBlock(Tag, CreateBreak, CreateContinue));
         }
 
-        public FlowBlock GetFlow(BlockTag Tag)
+        public FlowBlock GetFlow(UniqueTag Tag)
         {
             if (Flow.Tag == Tag)
             {
@@ -68,7 +68,7 @@ namespace Flame.ExpressionTrees.Emit
             }
         }
 
-        public BlockTag FlowTag
+        public UniqueTag FlowTag
         {
             get
             {

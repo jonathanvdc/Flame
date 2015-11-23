@@ -23,14 +23,14 @@ namespace Flame.Intermediate.Emit
             this.Method = Method;
 
             this.variableNames = new UniqueNameSet<IVariableMember>(item => item.Name, "%");
-            this.tags = new UniqueNameMap<BlockTag>(item => item.Name, "!");
+            this.tags = new UniqueNameMap<UniqueTag>(item => item.Name, "!");
             this.postprocessNode = x => x;
         }
 
         public IRAssemblyBuilder Assembly { get; private set; }
         public IMethod Method { get; private set; }
 
-        private UniqueNameMap<BlockTag> tags;
+        private UniqueNameMap<UniqueTag> tags;
         private UniqueNameSet<IVariableMember> variableNames;
         private Func<LNode, LNode> postprocessNode;
 
@@ -294,7 +294,7 @@ namespace Flame.Intermediate.Emit
             return new NodeBlock(this, NodeFactory.MergedBlock(NodeBlock.ToNode(First), NodeBlock.ToNode(Second)));
         }
 
-        public ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents)
+        public ICodeBlock EmitTagged(UniqueTag Tag, ICodeBlock Contents)
         {
             return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.TaggedNodeName, new[]
             {
@@ -303,7 +303,7 @@ namespace Flame.Intermediate.Emit
             }));
         }
 
-        public ICodeBlock EmitBreak(BlockTag Target)
+        public ICodeBlock EmitBreak(UniqueTag Target)
         {
             return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.BreakNodeName, new[]
             {
@@ -311,7 +311,7 @@ namespace Flame.Intermediate.Emit
             }));
         }
 
-        public ICodeBlock EmitContinue(BlockTag Target)
+        public ICodeBlock EmitContinue(UniqueTag Target)
         {
             return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.ContinueNodeName, new[]
             {
@@ -319,17 +319,17 @@ namespace Flame.Intermediate.Emit
             }));
         }
 
-        public ICodeBlock EmitWhile(BlockTag Tag, ICodeBlock Condition, ICodeBlock Body)
+        public ICodeBlock EmitWhile(UniqueTag Tag, ICodeBlock Condition, ICodeBlock Body)
         {
             return NodeBlock.Call(this, ExpressionParsers.WhileNodeName, EmitTagNode(Tag), NodeBlock.ToNode(Condition), NodeBlock.ToNode(Body));
         }
 
-        public ICodeBlock EmitDoWhile(BlockTag Tag, ICodeBlock Body, ICodeBlock Condition)
+        public ICodeBlock EmitDoWhile(UniqueTag Tag, ICodeBlock Body, ICodeBlock Condition)
         {
             return NodeBlock.Call(this, ExpressionParsers.DoWhileNodeName, EmitTagNode(Tag), NodeBlock.ToNode(Body), NodeBlock.ToNode(Condition));
         }
 
-        public ICodeBlock EmitForBlock(BlockTag Tag, ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body)
+        public ICodeBlock EmitForBlock(UniqueTag Tag, ICodeBlock Initialization, ICodeBlock Condition, ICodeBlock Delta, ICodeBlock Body)
         {
             return NodeBlock.Call(this, ExpressionParsers.ForNodeName,
                 EmitTagNode(Tag), NodeBlock.ToNode(Initialization),
@@ -352,7 +352,7 @@ namespace Flame.Intermediate.Emit
                 header.TagNode, header.CollectionsNode, NodeBlock.ToNode(Body));
         }
 
-        public IForeachBlockHeader EmitForeachHeader(BlockTag Tag, IEnumerable<ICollectionBlock> Collections)
+        public IForeachBlockHeader EmitForeachHeader(UniqueTag Tag, IEnumerable<ICollectionBlock> Collections)
         {
             var tagNode = EmitTagNode(Tag);
             var elems = Collections.Cast<NodeCollectionBlock>().Select(item =>
@@ -591,7 +591,7 @@ namespace Flame.Intermediate.Emit
 
         #region Helpers
 
-        public LNode EmitTagNode(BlockTag Tag)
+        public LNode EmitTagNode(UniqueTag Tag)
         {
             return NodeFactory.IdOrLiteral(tags[Tag]);
         }

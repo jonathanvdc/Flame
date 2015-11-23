@@ -9,7 +9,7 @@ namespace Flame.Cecil.Emit
 {
     public class TaggedBlock : ICecilBlock
     {
-        public TaggedBlock(ICodeGenerator CodeGenerator, BlockTag Tag, ICecilBlock Body)
+        public TaggedBlock(ICodeGenerator CodeGenerator, UniqueTag Tag, ICecilBlock Body)
         {
             this.CodeGenerator = CodeGenerator;
             this.Tag = Tag;
@@ -17,7 +17,7 @@ namespace Flame.Cecil.Emit
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
-        public BlockTag Tag { get; private set; }
+        public UniqueTag Tag { get; private set; }
         public ICecilBlock Body { get; private set; }
 
         public void Emit(IEmitContext Context)

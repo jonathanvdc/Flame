@@ -71,12 +71,12 @@ namespace Flame.Cecil.Emit
 
         #region Blocks
 
-        public ICodeBlock EmitBreak(BlockTag Target)
+        public ICodeBlock EmitBreak(UniqueTag Target)
         {
             return new BreakBlock(this, Target);
         }
 
-        public ICodeBlock EmitContinue(BlockTag Target)
+        public ICodeBlock EmitContinue(UniqueTag Target)
         {
             return new ContinueBlock(this, Target);
         }
@@ -106,7 +106,7 @@ namespace Flame.Cecil.Emit
             return new EmptyBlock(this);
         }
 
-        public ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents)
+        public ICodeBlock EmitTagged(UniqueTag Tag, ICodeBlock Contents)
         {
             return new TaggedBlock(this, Tag, (ICecilBlock)Contents);
         }

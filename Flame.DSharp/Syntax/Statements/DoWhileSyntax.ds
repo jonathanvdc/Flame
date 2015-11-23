@@ -45,7 +45,7 @@ namespace Flame.Syntax.DSharp
 
         public const IStatement CreateStatement(ISyntaxState State) : IStatementSyntax.CreateStatement
         {
-            var tag = new BlockTag();
+            var tag = new UniqueTag();
 
             State.PushScope(tag);
             var cond = Condition.CreateExpression(State);

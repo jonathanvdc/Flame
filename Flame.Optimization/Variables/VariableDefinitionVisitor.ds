@@ -53,9 +53,9 @@ namespace Flame.Optimization.Variables
 
     public class VariableLoopStateBuilder
     {
-        public const this(set BlockTag Tag, set VariableFlowState(VariableFlowState) Body);
+        public const this(set UniqueTag Tag, set VariableFlowState(VariableFlowState) Body);
 
-        public BlockTag Tag { const get; private set; }
+        public UniqueTag Tag { const get; private set; }
         public VariableFlowState(VariableFlowState) Body { const get; private set; }
 
         public const VariableFlowState Create(VariableFlowState Tail)
@@ -68,9 +68,9 @@ namespace Flame.Optimization.Variables
 
     public class TerminatedLocalFlowBuilder
     {
-        public const this(set BlockTag Tag);
+        public const this(set UniqueTag Tag);
 
-        public BlockTag Tag { const get; private set; }
+        public UniqueTag Tag { const get; private set; }
 
         public const VariableFlowState Create(VariableFlowState Tail)
         {
@@ -247,12 +247,12 @@ namespace Flame.Optimization.Variables
         /// Creates a flow delta that will be executed zero or more
         /// times.
         /// </summary>
-        public const Delta CreateLoopFlow(BlockTag Tag, Delta Flow)
+        public const Delta CreateLoopFlow(UniqueTag Tag, Delta Flow)
         {
             return new VariableLoopStateBuilder(Tag, Flow).Create;
         }
 
-        public const Delta CreateTerminatedLocalFlow(BlockTag Tag)
+        public const Delta CreateTerminatedLocalFlow(UniqueTag Tag)
         {
             return new TerminatedLocalFlowBuilder(Tag).Create;
         }

@@ -62,7 +62,7 @@ namespace Flame.Analysis
             return new Bounds<InfiniteInt32>(Second.Min - First.Min, Second.Max - First.Max);
         }
 
-        public Bounds<InfiniteInt32> CreateLoopFlow(BlockTag Tag, Bounds<InfiniteInt32> Body)
+        public Bounds<InfiniteInt32> CreateLoopFlow(UniqueTag Tag, Bounds<InfiniteInt32> Body)
         {
             return new Bounds<InfiniteInt32>(0, Body.Max * InfiniteInt32.Infinity);
         }

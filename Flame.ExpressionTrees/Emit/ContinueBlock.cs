@@ -10,14 +10,14 @@ namespace Flame.ExpressionTrees.Emit
 {
     public class ContinueBlock : IExpressionBlock
     {
-        public ContinueBlock(ExpressionCodeGenerator CodeGenerator, BlockTag Target)
+        public ContinueBlock(ExpressionCodeGenerator CodeGenerator, UniqueTag Target)
         {
             this.CodeGenerator = CodeGenerator;
             this.Target = Target;
         }
 
         public ExpressionCodeGenerator CodeGenerator { get; private set; }
-        public BlockTag Target { get; private set; }
+        public UniqueTag Target { get; private set; }
 
         ICodeGenerator ICodeBlock.CodeGenerator
         {

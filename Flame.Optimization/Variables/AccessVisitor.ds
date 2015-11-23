@@ -180,7 +180,7 @@ namespace Flame.Optimization.Variables
         /// Creates a flow delta that will be executed zero or more
         /// times.
         /// </summary>
-        public const Delta CreateLoopFlow(BlockTag Tag, Delta Flow)
+        public const Delta CreateLoopFlow(UniqueTag Tag, Delta Flow)
         {
             var result = new State();
             result.Add(new AccessLoopFlow(FlattenFlow(Flow)).GetAccess);

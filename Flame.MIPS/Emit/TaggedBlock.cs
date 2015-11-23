@@ -9,7 +9,7 @@ namespace Flame.MIPS.Emit
 {
     public class TaggedBlock : IAssemblerBlock
     {
-        public TaggedBlock(ICodeGenerator CodeGenerator, BlockTag Tag, IAssemblerBlock Body)
+        public TaggedBlock(ICodeGenerator CodeGenerator, UniqueTag Tag, IAssemblerBlock Body)
         {
             this.CodeGenerator = CodeGenerator;
             this.Tag = Tag;
@@ -17,7 +17,7 @@ namespace Flame.MIPS.Emit
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
-        public BlockTag Tag { get; private set; }
+        public UniqueTag Tag { get; private set; }
         public IAssemblerBlock Body { get; private set; }
 
         public IEnumerable<IStorageLocation> Emit(IAssemblerEmitContext Context)
