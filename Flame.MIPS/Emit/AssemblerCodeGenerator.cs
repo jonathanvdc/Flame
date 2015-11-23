@@ -34,17 +34,17 @@ namespace Flame.MIPS.Emit
 
         #region Blocks
 
-        public ICodeBlock EmitBreak(BlockTag Tag)
+        public ICodeBlock EmitBreak(UniqueTag Tag)
         {
             return new BreakBlock(this, Tag);
         }
 
-        public ICodeBlock EmitContinue(BlockTag Tag)
+        public ICodeBlock EmitContinue(UniqueTag Tag)
         {
             return new ContinueBlock(this, Tag);
         }
 
-        public ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents)
+        public ICodeBlock EmitTagged(UniqueTag Tag, ICodeBlock Contents)
         {
             return new TaggedBlock(this, Tag, (IAssemblerBlock)Contents);
         }

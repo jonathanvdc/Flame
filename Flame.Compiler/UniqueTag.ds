@@ -1,0 +1,31 @@
+using System;
+
+namespace Flame.Compiler
+{
+    /// <summary>
+    /// Defines a unique tag that is associated with some construct, like
+    /// a control-flow block or a variable.
+    /// Such a tag is named, but its name need not be unique, as the name
+    /// has nothing to do with the tag's identity.
+    /// </summary>
+    public class UniqueTag
+    {
+        /// <summary>
+        /// Creates a new unique tag with the empty string as its name.
+        /// </summary>
+        public const this()
+        {
+            this.Name = "";
+        }
+
+        /// <summary>
+        /// Creates a new unique tag and assigns it the given name.
+        /// </summary>
+        public const this(set string Name);
+
+        /// <summary>
+        /// Gets this unique tag's name.
+        /// </summary>
+        public string Name { const get; private set; }
+    }
+}

@@ -8,15 +8,15 @@ namespace Flame.Optimization.Variables
 {
     public class LoopVariableFlow : IVariableFlow
     {
-        public const this(set BlockTag Tag, set InsertStatement PreInsert,
+        public const this(set UniqueTag Tag, set InsertStatement PreInsert,
                           set IVariableFlow LoopBody, set InsertStatement LoopPostInsert);
 
-        public BlockTag Tag { const get; private set; }
+        public UniqueTag Tag { const get; private set; }
         public InsertStatement PreInsert { const get; private set; }
         public IVariableFlow LoopBody { const get; private set; }
         public InsertStatement LoopPostInsert { const get; private set; }
 
-        public const [BlockTerminationPoint] GetTerminationPoints(VariableDefinitionChain Chain, BlockTag Target)
+        public const [BlockTerminationPoint] GetTerminationPoints(VariableDefinitionChain Chain, UniqueTag Target)
         {
             return LoopBody.GetTerminationPoints(Chain, Target);
         }

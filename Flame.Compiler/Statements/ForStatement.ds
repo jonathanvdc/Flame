@@ -7,29 +7,29 @@ namespace Flame.Compiler.Statements
 {
     public class ForStatement : ComplexStatement, IPredicateNode, IFlowStatement
     {
-    	public const this(set BlockTag Tag, set IStatement Setup,
+    	public const this(set UniqueTag Tag, set IStatement Setup,
                           set IExpression Condition, set IStatement Change,
                           set IStatement Body, set IStatement End);
         public const this(set IStatement Setup,set IExpression Condition,
                           set IStatement Change, set IStatement Body,
                           set IStatement End)
         {
-            this.Tag = new BlockTag();
+            this.Tag = new UniqueTag();
         }
     	public const this(set IStatement Setup, set IExpression Condition, set IStatement Change, set IStatement Body)
         {
-            this.Tag = new BlockTag();
+            this.Tag = new UniqueTag();
         	this.End = EmptyStatement;
         }
         public const this(set IExpression Condition, set IStatement Change, set IStatement Body)
         {
-            this.Tag = new BlockTag();
+            this.Tag = new UniqueTag();
         	this.Setup = EmptyStatement;
         	this.End = EmptyStatement;
         }
         public const this()
         {
-            this.Tag = new BlockTag();
+            this.Tag = new UniqueTag();
             this.Setup = EmptyStatement;
             this.Condition = new BooleanExpression(false);
             this.Body = EmptyStatement;
@@ -37,7 +37,7 @@ namespace Flame.Compiler.Statements
             this.End = EmptyStatement;
         }
 
-        public BlockTag Tag { const get; private set; }
+        public UniqueTag Tag { const get; private set; }
         public IStatement Setup { const get; private set; }
         public IExpression Condition { const get; private set; }
         public IStatement Body { const get; private set; }

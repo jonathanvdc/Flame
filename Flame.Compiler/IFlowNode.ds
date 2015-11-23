@@ -73,7 +73,7 @@ namespace Flame.Compiler
         /// Creates a flow delta that will be executed zero or more
         /// times.
         /// </summary>
-        const TDelta CreateLoopFlow(BlockTag Tag, TDelta Body);
+        const TDelta CreateLoopFlow(UniqueTag Tag, TDelta Body);
     }
 
     /// <summary>
@@ -92,6 +92,6 @@ namespace Flame.Compiler
         /// Creates a terminated local flow delta, which terminates the current
         /// iteration of the given block, but does not end the function's execution.
         /// </summary>
-        const TDelta CreateTerminatedLocalFlow(BlockTag Tag);
+        const TDelta CreateTerminatedLocalFlow(UniqueTag Tag);
     }
 }

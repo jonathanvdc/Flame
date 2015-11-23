@@ -16,12 +16,12 @@ namespace Flame.Compiler.Statements
 		/// <summary>
 		/// Creates a new tagged statement from the given tag and body.
 		/// </summary>
-		public const this(set BlockTag Tag, set IStatement Body);
+		public const this(set UniqueTag Tag, set IStatement Body);
 
 		/// <summary>
 		/// Gets the tag that identifies this tagged statement.
 		/// </summary>
-		public BlockTag Tag { const get; private set; }
+		public UniqueTag Tag { const get; private set; }
 		/// <summary>
 		/// Gets this tagged statement's body.
 		/// </summary>

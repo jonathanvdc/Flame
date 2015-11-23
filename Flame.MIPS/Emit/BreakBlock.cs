@@ -9,14 +9,14 @@ namespace Flame.MIPS.Emit
 {
     public class BreakBlock : IAssemblerBlock
     {
-        public BreakBlock(ICodeGenerator CodeGenerator, BlockTag Target)
+        public BreakBlock(ICodeGenerator CodeGenerator, UniqueTag Target)
         {
             this.CodeGenerator = CodeGenerator;
             this.Target = Target;
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
-        public BlockTag Target { get; private set; }
+        public UniqueTag Target { get; private set; }
 
         public IType Type
         {
@@ -31,14 +31,14 @@ namespace Flame.MIPS.Emit
 
     public class ContinueBlock : IAssemblerBlock
     {
-        public ContinueBlock(ICodeGenerator CodeGenerator, BlockTag Target)
+        public ContinueBlock(ICodeGenerator CodeGenerator, UniqueTag Target)
         {
             this.CodeGenerator = CodeGenerator;
             this.Target = Target;
         }
 
         public ICodeGenerator CodeGenerator { get; private set; }
-        public BlockTag Target { get; private set; }
+        public UniqueTag Target { get; private set; }
 
         public IType Type
         {

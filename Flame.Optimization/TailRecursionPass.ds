@@ -41,7 +41,7 @@ namespace Flame.Optimization
     {
         public const this(set IMethod Method)
         {
-            this.OuterTag = new BlockTag();
+            this.OuterTag = new UniqueTag();
             this.HasReplaced = false;
             this.matchLocations = new List<SourceLocation>();
         }
@@ -55,7 +55,7 @@ namespace Flame.Optimization
         /// <summary>
         /// Gets the tail recursion visitor's outer block tag.
         /// </summary>
-        public BlockTag OuterTag { const get; private set; }
+        public UniqueTag OuterTag { const get; private set; }
 
         /// <summary>
         /// Gets a boolean flag that tells if this tail recursion visitor

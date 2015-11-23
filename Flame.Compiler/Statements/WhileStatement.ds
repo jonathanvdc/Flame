@@ -8,11 +8,11 @@ namespace Flame.Compiler.Statements
 	{
 		public const this(set IExpression Condition, set IStatement Body)
 		{
-			this.Tag = new BlockTag();
+			this.Tag = new UniqueTag();
 		}
-		public const this(set BlockTag Tag, set IExpression Condition, set IStatement Body);
+		public const this(set UniqueTag Tag, set IExpression Condition, set IStatement Body);
 
-		public BlockTag Tag { const get; private set; }
+		public UniqueTag Tag { const get; private set; }
 		public IExpression Condition { const get; private set; }
 		public IStatement Body { const get; private set; }
 

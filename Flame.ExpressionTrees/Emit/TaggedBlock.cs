@@ -10,7 +10,7 @@ namespace Flame.ExpressionTrees.Emit
 {
     public class TaggedBlock : IExpressionBlock
     {
-        public TaggedBlock(ExpressionCodeGenerator CodeGenerator, BlockTag Tag, IExpressionBlock Body)
+        public TaggedBlock(ExpressionCodeGenerator CodeGenerator, UniqueTag Tag, IExpressionBlock Body)
         {
             this.CodeGenerator = CodeGenerator;
             this.Tag = Tag;
@@ -18,7 +18,7 @@ namespace Flame.ExpressionTrees.Emit
         }
 
         public ExpressionCodeGenerator CodeGenerator { get; private set; }
-        public BlockTag Tag { get; private set; }
+        public UniqueTag Tag { get; private set; }
         public IExpressionBlock Body { get; private set; }
 
         ICodeGenerator ICodeBlock.CodeGenerator

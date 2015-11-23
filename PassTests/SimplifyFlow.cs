@@ -28,7 +28,7 @@ namespace PassTests
         {
             // tag: { } ==> { }
 
-            var taggedStmt = new TaggedStatement(new BlockTag(), EmptyStatement.Instance);
+            var taggedStmt = new TaggedStatement(new UniqueTag(), EmptyStatement.Instance);
 
             Assert.AreEqual(taggedStmt.Simplify(), EmptyStatement.Instance);
         }
@@ -51,7 +51,7 @@ namespace PassTests
         {
             // while (true) break; ==> { }
 
-            var tag = new BlockTag();
+            var tag = new UniqueTag();
             var breakStmt = new BreakStatement(tag);
             var whileLoop = new WhileStatement(tag, new BooleanExpression(true), breakStmt);
 
@@ -78,7 +78,7 @@ namespace PassTests
             //
             // Verify that this if/else statement does not (always) break.
 
-            var breakStmt = new BreakStatement(new BlockTag());
+            var breakStmt = new BreakStatement(new UniqueTag());
             var bodyStmt = new IfElseStatement(new BooleanExpression(false), breakStmt, EmptyStatement.Instance);
 
             Assert.IsTrue(MustBreak(bodyStmt.IfBody));
@@ -94,7 +94,7 @@ namespace PassTests
             // 
             // Not a candidate for break-simplification!
 
-            var tag = new BlockTag();
+            var tag = new UniqueTag();
             var breakStmt = new BreakStatement(tag);
             var bodyStmt = new IfElseStatement(new BooleanExpression(false), breakStmt, EmptyStatement.Instance);
             var whileLoop = new WhileStatement(tag, new BooleanExpression(true), bodyStmt);

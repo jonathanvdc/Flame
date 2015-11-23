@@ -15,12 +15,12 @@ namespace Flame.Compiler.Visitors
         /// Creates a continue rewriter that replaces all `continue` statements to the given block
         /// with the given statement.
         /// </summary>
-        public const this(set BlockTag Target, set IStatement RewrittenContinue);
+        public const this(set UniqueTag Target, set IStatement RewrittenContinue);
 
         /// <summary>
         /// Gets the block target of all `continue` statements that are to be rewritten.
         /// </summary>
-        public BlockTag Target { const get; private set; }
+        public UniqueTag Target { const get; private set; }
 
         /// <summary>
         /// Gets the statement every `continue` statement to the block target
@@ -38,7 +38,7 @@ namespace Flame.Compiler.Visitors
         /// Rewrites the given statement by replacing every `continue` to a given specific block
         /// by another statement.
         /// </summary>
-        public static IStatement RewriteContinue(BlockTag Target, IStatement RewrittenContinue,
+        public static IStatement RewriteContinue(UniqueTag Target, IStatement RewrittenContinue,
                                                  IStatement Statement)
         {
             var rewriter = new ContinueRewriter(Target, RewrittenContinue);

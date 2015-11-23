@@ -26,9 +26,9 @@ namespace Flame.Compiler.Statements
 	public class ForeachStatement : IStatement, IPredicateNode, IMemberNode,
 									IFlowStatement, ICopyableNode<IStatement>
 	{
-		public const this(set BlockTag Tag, set [CollectionElement] Collections,
+		public const this(set UniqueTag Tag, set [CollectionElement] Collections,
 						  set IStatement Body, set ForeachElementCache elemCache);
-		public const this(set BlockTag Tag, set [CollectionElement] Collections)
+		public const this(set UniqueTag Tag, set [CollectionElement] Collections)
 		{
 			this.Body = EmptyStatement;
 			this.elemCache = new ForeachElementCache();
@@ -38,7 +38,7 @@ namespace Flame.Compiler.Statements
 			}
 		}
 
-		public BlockTag Tag { const get; private set; }
+		public UniqueTag Tag { const get; private set; }
 		public [CollectionElement] Collections { const get; private set; }
 		public IStatement Body { const get; set; }
 

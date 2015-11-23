@@ -18,7 +18,7 @@ namespace Flame.Syntax.DSharp
             this.MemberProvider = new MemberProvider(Binder);
             this.ParameterProvider = new MethodParameterProvider(Method);
             this.declaredVariables = new Stack<Dictionary<string, DeclaredVariable>>();
-            this.tags = new List<BlockTag>();
+            this.tags = new List<UniqueTag>();
             PushScope();
         }
         public const this(set IMethod Method, IBinder OuterBinder, set ICompilerLog Log, set IConverter<IType, string> TypeNamer)
@@ -27,7 +27,7 @@ namespace Flame.Syntax.DSharp
             this.ParameterProvider = new MethodParameterProvider(Method);
             this.MemberProvider = new MemberProvider(Binder);
             this.declaredVariables = new Stack<Dictionary<string, DeclaredVariable>>();
-            this.tags = new List<BlockTag>();
+            this.tags = new List<UniqueTag>();
             PushScope();
         }
         public const this(set IMethod Method, IBinder OuterBinder, set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer)
@@ -35,7 +35,7 @@ namespace Flame.Syntax.DSharp
             this.Binder = new ScopedBinder(OuterBinder, this);
             this.ParameterProvider = new MethodParameterProvider(Method);
             this.declaredVariables = new Stack<Dictionary<string, DeclaredVariable>>();
-            this.tags = new List<BlockTag>();
+            this.tags = new List<UniqueTag>();
             PushScope();
         }
         public const this(set IMethod Method, IBinder OuterBinder, set ICompilerLog Log,
@@ -44,7 +44,7 @@ namespace Flame.Syntax.DSharp
         {
             this.Binder = new ScopedBinder(OuterBinder, this);
             this.declaredVariables = new Stack<Dictionary<string, DeclaredVariable>>();
-            this.tags = new List<BlockTag>();
+            this.tags = new List<UniqueTag>();
             PushScope();
         }
 
@@ -73,7 +73,7 @@ namespace Flame.Syntax.DSharp
         public IConverter<IType, string> TypeNamer { const get; private set; }
         public IMemberProvider MemberProvider { const get; private set; }
 
-        public BlockTag Tag
+        public UniqueTag Tag
         {
             const get
             {
@@ -87,7 +87,7 @@ namespace Flame.Syntax.DSharp
         }
 
         private Stack<Dictionary<string, DeclaredVariable>> declaredVariables;
-        private List<BlockTag> tags;
+        private List<UniqueTag> tags;
         public Dictionary<string, DeclaredVariable> Locals
         {
             const get
@@ -177,7 +177,7 @@ namespace Flame.Syntax.DSharp
             PushScope(null);
         }
 
-        public void PushScope(BlockTag Tag)
+        public void PushScope(UniqueTag Tag)
         {
             Binder = Binder.PushScope();
             this.declaredVariables.Push(new Dictionary<string, DeclaredVariable>());

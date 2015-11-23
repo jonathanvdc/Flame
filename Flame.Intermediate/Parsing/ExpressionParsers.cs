@@ -673,7 +673,7 @@ namespace Flame.Intermediate.Parsing
         /// <param name="Node"></param>
         /// <param name="Tag"></param>
         /// <returns></returns>
-        public static IExpression ParseTagged(ParserState State, LNode Node, BlockTag Tag)
+        public static IExpression ParseTagged(ParserState State, LNode Node, UniqueTag Tag)
         {
             // Format:
             //
@@ -690,7 +690,7 @@ namespace Flame.Intermediate.Parsing
         /// <param name="Node"></param>
         /// <param name="Tag"></param>
         /// <returns></returns>
-        public static IExpression ParseWhile(ParserState State, LNode Node, BlockTag Tag)
+        public static IExpression ParseWhile(ParserState State, LNode Node, UniqueTag Tag)
         {
             // Format:
             // 
@@ -708,7 +708,7 @@ namespace Flame.Intermediate.Parsing
         /// <param name="Node"></param>
         /// <param name="Tag"></param>
         /// <returns></returns>
-        public static IExpression ParseDoWhile(ParserState State, LNode Node, BlockTag Tag)
+        public static IExpression ParseDoWhile(ParserState State, LNode Node, UniqueTag Tag)
         {
             // Format:
             //
@@ -726,7 +726,7 @@ namespace Flame.Intermediate.Parsing
         /// <param name="Node"></param>
         /// <param name="Tag"></param>
         /// <returns></returns>
-        public static IExpression ParseFor(ParserState State, LNode Node, BlockTag Tag)
+        public static IExpression ParseFor(ParserState State, LNode Node, UniqueTag Tag)
         {
             // Format:
             // 
@@ -770,7 +770,7 @@ namespace Flame.Intermediate.Parsing
         /// <param name="Node"></param>
         /// <param name="Tag"></param>
         /// <returns></returns>
-        public static IExpression ParseForeach(ParserState State, LNode Node, BlockTag Tag)
+        public static IExpression ParseForeach(ParserState State, LNode Node, UniqueTag Tag)
         {
             // Format:
             //
@@ -833,12 +833,12 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Parser"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateTaggedNodeParser(Func<LNode, string> GetTag, Func<ParserState, LNode, BlockTag, IExpression> Parse)
+        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateTaggedNodeParser(Func<LNode, string> GetTag, Func<ParserState, LNode, UniqueTag, IExpression> Parse)
         {
             var func = new Func<ParserState, LNode, IExpression>((state, node) =>
             {
                 string tagName = GetTag(node);
-                var tag = new BlockTag(tagName);
+                var tag = new UniqueTag(tagName);
                 var oldExprParser = state.Parser.ExpressionParser;
                 var exprParser = oldExprParser.WithParser(TagReferenceName, (s, n) =>
                 {
@@ -869,7 +869,7 @@ namespace Flame.Intermediate.Parsing
         /// <param name="State"></param>
         /// <param name="Node"></param>
         /// <returns></returns>
-        public static BlockTag ParseBlockTag(ParserState State, LNode Node)
+        public static UniqueTag ParseBlockTag(ParserState State, LNode Node)
         {
             var expr = ParseExpression(State, Node) as TagReferenceExpression;
             if (expr == null)

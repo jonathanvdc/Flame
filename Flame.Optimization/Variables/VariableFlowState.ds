@@ -111,7 +111,7 @@ namespace Flame.Optimization.Variables
             return this.Cons(new VariableFlowNode(flow, this.PostInsert));
         }
 
-        public const VariableFlowState Loop(BlockTag Tag, VariableFlowState Body)
+        public const VariableFlowState Loop(UniqueTag Tag, VariableFlowState Body)
         {
             var flow = new LoopVariableFlow(Tag, this.PostInsert, Body.ToFlow(), Body.PostInsert);
 

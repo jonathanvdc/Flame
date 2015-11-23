@@ -15,7 +15,7 @@ namespace Flame.Cecil.Emit
 
         ILProcessor Processor { get; }
 
-        IFlowControlStructure GetFlowControl(BlockTag Tag);
+        IFlowControlStructure GetFlowControl(UniqueTag Tag);
         void PushFlowControl(IFlowControlStructure Value);
         void PopFlowControl();
 

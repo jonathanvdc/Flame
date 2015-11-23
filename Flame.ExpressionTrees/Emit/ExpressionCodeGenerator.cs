@@ -31,17 +31,17 @@ namespace Flame.ExpressionTrees.Emit
 
         #region Flow
 
-        public ICodeBlock EmitTagged(BlockTag Tag, ICodeBlock Contents)
+        public ICodeBlock EmitTagged(UniqueTag Tag, ICodeBlock Contents)
         {
             return new TaggedBlock(this, Tag, (IExpressionBlock)Contents);
         }
 
-        public ICodeBlock EmitBreak(BlockTag Target)
+        public ICodeBlock EmitBreak(UniqueTag Target)
         {
             return new BreakBlock(this, Target);
         }
 
-        public ICodeBlock EmitContinue(BlockTag Target)
+        public ICodeBlock EmitContinue(UniqueTag Target)
         {
             return new ContinueBlock(this, Target);
         }
@@ -68,12 +68,12 @@ namespace Flame.ExpressionTrees.Emit
             return new ParentBlock(this, new IExpressionBlock[] { (IExpressionBlock)Condition, ifExpr, (IExpressionBlock)ElseBody }, ifExpr.Type, (exprs, flow) => Expression.Condition(exprs[0], exprs[1], exprs[2]));
         }
 
-        public ICodeBlock EmitDoWhile(BlockTag Tag, ICodeBlock Body, ICodeBlock Condition)
+        public ICodeBlock EmitDoWhile(UniqueTag Tag, ICodeBlock Body, ICodeBlock Condition)
         {
             return new DoWhileBlock(this, Tag, (IExpressionBlock)Condition, (IExpressionBlock)Body);
         }
 
-        public ICodeBlock EmitWhile(BlockTag Tag, ICodeBlock Condition, ICodeBlock Body)
+        public ICodeBlock EmitWhile(UniqueTag Tag, ICodeBlock Condition, ICodeBlock Body)
         {
             return new WhileBlock(this, Tag, (IExpressionBlock)Condition, (IExpressionBlock)Body);
         }

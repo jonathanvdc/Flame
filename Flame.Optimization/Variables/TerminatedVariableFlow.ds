@@ -17,7 +17,7 @@ namespace Flame.Optimization.Variables
 
         public InsertStatement PreInsert { const get; private set; }
 
-        public const [BlockTerminationPoint] GetTerminationPoints(VariableDefinitionChain Chain, BlockTag Tag)
+        public const [BlockTerminationPoint] GetTerminationPoints(VariableDefinitionChain Chain, UniqueTag Tag)
         {
             return Enumerable.Empty<BlockTerminationPoint>();
         }
@@ -34,17 +34,17 @@ namespace Flame.Optimization.Variables
     /// </summary>
     public class TerminatedBlockVariableFlow : IVariableFlow
     {
-        public const this(set InsertStatement PreInsert, set BlockTag Target)
+        public const this(set InsertStatement PreInsert, set UniqueTag Target)
         {
             this.terminationPoints = new Dictionary<VariableDefinitionChain, BlockTerminationPoint>();
         }
 
         public InsertStatement PreInsert { const get; private set; }
-        public BlockTag Target { const get; private set; }
+        public UniqueTag Target { const get; private set; }
 
         private Dictionary<VariableDefinitionChain, BlockTerminationPoint> terminationPoints;
 
-        public const [BlockTerminationPoint] GetTerminationPoints(VariableDefinitionChain Chain, BlockTag Tag)
+        public const [BlockTerminationPoint] GetTerminationPoints(VariableDefinitionChain Chain, UniqueTag Tag)
         {
             if (Tag == Target && terminationPoints.ContainsKey(Chain))
                 return new BlockTerminationPoint[] { terminationPoints[Chain] };

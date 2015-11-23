@@ -26,7 +26,7 @@ namespace Flame.Cecil.Emit
             throw new NotImplementedException();
         }
 
-        public BlockTag Tag
+        public UniqueTag Tag
         {
             get { return null; }
         }

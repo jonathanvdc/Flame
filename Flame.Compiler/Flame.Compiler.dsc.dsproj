@@ -14,7 +14,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Include="AbortCompilationException.ds" />
-		<Compile Include="BlockTag.ds" />
+		<Compile Include="UniqueTag.ds" />
 		<Compile Include="IMemberNode.ds" />
 		<Compile Include="IMetadataNode.ds" />
 		<Compile Include="INode.ds" />
