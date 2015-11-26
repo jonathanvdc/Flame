@@ -16,13 +16,13 @@ namespace Flame.ExpressionTrees.Emit
         {
             this.Method = Method;
             this.retLabel = Expression.Label(Method.ExpressionReturnType);
-            this.localVariables = new List<ParameterExpression>();
+            this.localVariables = new LocalManager<ExpressionVariable>(CreateNewLocal);
         }
 
         public ExpressionMethod Method { get; private set; }
 
         private LabelTarget retLabel;
-        private List<ParameterExpression> localVariables;
+        private LocalManager<ExpressionVariable> localVariables;
 
         IMethod IMethodStructureGenerator.Method
         {
@@ -486,15 +486,23 @@ namespace Flame.ExpressionTrees.Emit
             return new ExpressionFieldVariable(this, (IExpressionBlock)Target, Field);
         }
 
-        public IEmitVariable DeclareVariable(IVariableMember VariableMember)
+        private ExpressionVariable CreateNewLocal(IVariableMember Member)
         {
-            var localVar = Expression.Variable(ExpressionTypeConverter.Instance.Convert(VariableMember.VariableType), VariableMember.Name);
-
-            localVariables.Add(localVar);
+            var localVar = Expression.Variable(ExpressionTypeConverter.Instance.Convert(Member.VariableType), Member.Name);
 
             return new ExpressionVariable(this,
                 localVar,
-                VariableMember.VariableType);
+                Member.VariableType);
+        }
+
+        public IEmitVariable GetLocal(UniqueTag Tag)
+        {
+            return localVariables.GetOrDefault(Tag);
+        }
+
+        public IEmitVariable DeclareLocal(UniqueTag Tag, IVariableMember VariableMember)
+        {
+            return localVariables.Declare(Tag, VariableMember);
         }
 
         public IEmitVariable GetArgument(int Index)
@@ -521,7 +529,7 @@ namespace Flame.ExpressionTrees.Emit
         {
             return Expression.Lambda(
                         Expression.Block(
-                            localVariables,
+                            localVariables.Locals.Select(item => item.Variable).Cast<ParameterExpression>(),
                             Body,
                             Expression.Label(retLabel, Expression.Default(retLabel.Type))),
                         Method.ExpressionParameters);
