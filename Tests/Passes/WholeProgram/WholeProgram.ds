@@ -4,13 +4,21 @@ public virtual class A
 {
     public virtual void f()
     {
+        // Virtual call to this method.
+        // Should *not* be eliminated.
         Console.WriteLine("Hi");
+    }
+
+    public virtual void g()
+    {
+        // Should be eliminated.
+        f();
     }
 }
 
 public class B : A
 {
-    public void g()
+    public override void g()
     {
         // Should be eliminated.
         Console.WriteLine("bye!");
@@ -18,6 +26,7 @@ public class B : A
 
     public override void f()
     {
+        // Is called indirectly.
         // Should *not* be eliminated.
         Console.WriteLine("bye!");
     }
