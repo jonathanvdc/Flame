@@ -52,7 +52,21 @@ namespace Flame.XmlDocs
             sb.Append("M:");
             sb.Append(Method.DeclaringType.GetXmlTypeName());
             sb.Append(".");
-            sb.Append(Method.Name);
+            if (Method.IsConstructor)
+            {
+                if (Method.IsStatic)
+                {
+                    sb.Append("#cctor");
+                }
+                else
+                {
+                    sb.Append("#ctor");
+                }
+            }
+            else
+            {
+                sb.Append(Method.Name.Replace('.', '#'));
+            }
             if (Method.get_IsGeneric())
             {
                 sb.Append("``");
