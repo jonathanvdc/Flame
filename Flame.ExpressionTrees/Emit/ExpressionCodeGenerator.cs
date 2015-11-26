@@ -17,11 +17,13 @@ namespace Flame.ExpressionTrees.Emit
             this.Method = Method;
             this.retLabel = Expression.Label(Method.ExpressionReturnType);
             this.localVariables = new LocalManager<ExpressionVariable>(CreateNewLocal);
+            this.localParameters = new List<ParameterExpression>();
         }
 
         public ExpressionMethod Method { get; private set; }
 
         private LabelTarget retLabel;
+        private List<ParameterExpression> localParameters;
         private LocalManager<ExpressionVariable> localVariables;
 
         IMethod IMethodStructureGenerator.Method
@@ -490,6 +492,8 @@ namespace Flame.ExpressionTrees.Emit
         {
             var localVar = Expression.Variable(ExpressionTypeConverter.Instance.Convert(Member.VariableType), Member.Name);
 
+            localParameters.Add(localVar);
+
             return new ExpressionVariable(this,
                 localVar,
                 Member.VariableType);
@@ -529,7 +533,7 @@ namespace Flame.ExpressionTrees.Emit
         {
             return Expression.Lambda(
                         Expression.Block(
-                            localVariables.Locals.Select(item => item.Variable).Cast<ParameterExpression>(),
+                            localParameters,
                             Body,
                             Expression.Label(retLabel, Expression.Default(retLabel.Type))),
                         Method.ExpressionParameters);
