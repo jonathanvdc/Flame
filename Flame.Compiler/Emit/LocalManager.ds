@@ -1,0 +1,105 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Emit
+{
+    /// <summary>
+    /// Defines a base class for objects that manage a code generator's locals.
+    /// </summary>
+    public abstract class LocalManagerBase<T>
+    {
+        public const this()
+        {
+            locals = new Dictionary<UniqueTag, T>();
+        }
+
+        /// <summary>
+        /// A dictionary that stores all locals.
+        /// </summary>
+        private Dictionary<UniqueTag, T> locals;
+
+        /// <summary>
+        /// Gets a sequence of all unique tags that are currently
+        /// associated with variables in this local manager.
+        /// </summary>
+        public [UniqueTag] Tags
+        {
+            const get { return locals.Keys; }
+        }
+
+        /// <summary>
+        /// Gets a sequence containing all locals that are being managed
+        /// by this local manager.
+        /// </summary>
+        public [T] Locals
+        {
+            const get { return locals.Values; }
+        }
+
+        /// <summary>
+        /// Creates a new local variable from the given variable member.
+        /// </summary>
+        protected abstract T CreateLocal(IVariableMember Member);
+
+        /// <summary>
+        /// Tests if a local with the given unique tag exists
+        /// in this local manager.
+        /// </summary>
+        public const bool ContainsLocal(UniqueTag Tag)
+        {
+            return locals.ContainsKey(Tag);
+        }
+
+        /// <summary>
+        /// Gets the local associated with the given tag,
+        /// or returns the default value for locals
+        /// if no such local exists. This is typically null.
+        /// </summary>
+        public const T GetOrDefault(UniqueTag Tag)
+        {
+            if (locals.TryGetValue(Tag, &T result))
+            {
+                return result;
+            }
+            else
+            {
+                return default(T);
+            }
+        }
+
+        /// <summary>
+        /// Declares a new local with the given tag, based on the
+        /// given variable member.
+        /// </summary>
+        public virtual T Declare(UniqueTag Tag, IVariableMember Member)
+        {
+            var result = CreateLocal(Member);
+            locals[Tag] = result;
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// A class for objects that manage a code generator's locals.
+    /// This is a simple and straightforward implementation.
+    /// Locals are never recycled.
+    /// </summary>
+    public class LocalManager<T> : LocalManagerBase<T>
+    {
+        /// <summary>
+        /// Creates a new local manager from the given
+        /// local-creating function.
+        /// </summary>
+        public const this(set T(IVariableMember) createNewLocal);
+
+        /// <summary>
+        /// A function that creates locals from variable members.
+        /// </summary>
+        private T(IVariableMember) createNewLocal;
+
+        protected override T CreateLocal(IVariableMember Member)
+        {
+            return createNewLocal(Member);
+        }
+    }
+}

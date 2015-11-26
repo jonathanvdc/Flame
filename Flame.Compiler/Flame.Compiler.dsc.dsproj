@@ -70,6 +70,7 @@
 			<Compile Include="Emit/TypeVariableMember.ds" />
 			<Compile Include="Emit/DescribedVariableMember.ds" />
 			<Compile Include="Emit/IYieldCodeGenerator.ds" />
+			<Compile Include="Emit/LocalManager.ds" />
 			<Compile Include="Emit/IInitializingCodeGenerator.ds" />
 			<Compile Include="Emit/IForeachCodeGenerator.ds" />
 			<Compile Include="Emit/ICommentedCodeGenerator.ds" />
