@@ -1,0 +1,33 @@
+using System;
+
+public virtual class A
+{
+    public virtual void f()
+    {
+        Console.WriteLine("Hi");
+    }
+}
+
+public class B : A
+{
+    public void g()
+    {
+        // Should be eliminated.
+        Console.WriteLine("bye!");
+    }
+
+    public override void f()
+    {
+        // Should *not* be eliminated.
+        Console.WriteLine("bye!");
+    }
+}
+
+public static class Program
+{
+    public void Main(string[] Args)
+    {
+        A b = new B();
+        b.f();
+    }
+}

@@ -66,6 +66,7 @@ namespace Flame.Recompilation
 
             this.GlobalMetadata = new RandomAccessOptions();
             this.typeMetadata = new ConcurrentDictionary<IType, RandomAccessOptions>();
+            this.implementations = new Dictionary<IMethod, HashSet<IMethod>>();
         }
 
         public CompilationCache<IType> TypeCache { [Pure] get; private set; }
@@ -84,6 +85,87 @@ namespace Flame.Recompilation
         public RandomAccessOptions GetTypeMetadata(IType Type)
         {
             return typeMetadata.GetOrAdd(Type, ty => new RandomAccessOptions());
+        }
+
+        #endregion
+
+        #region Method implementations
+
+        /// <summary>
+        /// Maintains a dictionary of methods that have not been
+        /// recompiled yet, and their implementations.
+        /// </summary>
+        private Dictionary<IMethod, HashSet<IMethod>> implementations;
+
+        /// <summary>
+        /// Recompiles all implementations.
+        /// </summary>
+        private void RecompileImplementations()
+        {
+            bool changed = true;
+            while (changed)
+            {
+                changed = false;
+                var all = implementations.ToArray();
+                foreach (var item in all.Where(pair => MethodCache.ContainsKey(pair.Key)))
+                {
+                    foreach (var impl in item.Value)
+                    {
+                        GetMethod(impl);
+                    }
+                    implementations.Remove(item.Key);
+                    changed = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Registers an implementation of a base method.
+        /// </summary>
+        /// <param name="BaseMethod"></param>
+        /// <param name="ImplementedMethod"></param>
+        private void RegisterImplementation(IMethod BaseMethod, IMethod ImplementationMethod)
+        {
+            while (BaseMethod is GenericMethodBase)
+            {
+                BaseMethod = ((GenericMethodBase)BaseMethod).Declaration;
+            }
+            lock (implementations)
+            {
+                HashSet<IMethod> impls;
+                if (!implementations.TryGetValue(BaseMethod, out impls))
+                {
+                    impls = new HashSet<IMethod>();
+                    implementations[BaseMethod] = impls;
+                }
+                impls.Add(ImplementationMethod);
+            }
+        }
+
+        /// <summary>
+        /// Registers that the given method is an implementation of
+        /// all of its base methods.
+        /// </summary>
+        /// <param name="ImplementationMethod"></param>
+        private void RegisterImplementations(IMethod ImplementationMethod)
+        {
+            foreach (var item in ImplementationMethod.BaseMethods)
+            {
+                RegisterImplementation(item, ImplementationMethod);
+            }
+        }
+
+        /// <summary>
+        /// Registers all methods in the given type as
+        /// implementations of their base methods.
+        /// </summary>
+        /// <param name="Type"></param>
+        private void RegisterImplementations(IType Type)
+        {
+            foreach (var item in Type.Methods)
+            {
+                RegisterImplementations(item);
+            }
         }
 
         #endregion
@@ -781,6 +863,7 @@ namespace Flame.Recompilation
             {
                 Log.LogEvent(new LogEntry("Status", "Recompiling " + SourceType.FullName));
             }
+            
             var typeTemplate = RecompiledTypeTemplate.GetRecompilerTemplate(this, SourceType);
             var type = DeclaringNamespace.DeclareType(typeTemplate);
             return new MemberCreationResult<IType>(type, (tgt, src) =>
@@ -788,6 +871,7 @@ namespace Flame.Recompilation
                 var typeBuilder = (ITypeBuilder)tgt;
                 typeBuilder.Initialize();
                 RecompileInvariants(typeBuilder, src);
+                RegisterImplementations(src);
             });
         }
 
@@ -1099,10 +1183,13 @@ namespace Flame.Recompilation
 
         private void RecompileAssemblyCore(IAssembly Source, RecompilationOptions Options)
         {
+            // First recompile all roots
             foreach (var item in recompiledAssemblies[Source].RecompilationStrategy.GetRoots(Source))
             {
                 GetMember(item);
             }
+            // Then recompile the entry point, if
+            // applicable.
             if (Options.IsMainModule)
             {
                 var entryPoint = Source.GetEntryPoint();
@@ -1111,6 +1198,8 @@ namespace Flame.Recompilation
                     TargetAssembly.SetEntryPoint(GetMethod(entryPoint));
                 }
             }
+
+            RecompileImplementations();
         }
 
         public async Task RecompileAsync()
