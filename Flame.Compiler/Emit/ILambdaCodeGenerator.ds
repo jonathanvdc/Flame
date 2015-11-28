@@ -16,13 +16,22 @@ namespace Flame.Compiler.Emit
         ICodeBlock EmitLambda(ILambdaHeaderBlock Header, ICodeBlock Body);
     }
 
+    /// <summary>
+    /// An common interface for lambda header blocks.
+    /// </summary>
     public interface ILambdaHeaderBlock
     {
         /// <summary>
         /// Creates a code block that gets the lambda's captured value with
         /// the given index.
         /// </summary>
-        ICodeBlock GetCapturedValue(int Index);
+        ICodeBlock EmitGetCapturedValue(int Index);
+
+        /// <summary>
+        /// Gets a code block that represents a delegate for this lambda function.
+        /// This construct is designed to support recursion within a lambda function.
+        /// </summary>
+        ICodeBlock ThisLambdaBlock { const get; }
 
         /// <summary>
         /// Gets a code generator that should be used to construct the lambda's

@@ -222,10 +222,42 @@ namespace Flame.Compiler.Expressions
             }
         }
 
-        private const IExpression TransformGetValueExpr(IExpression Value)
+        /// <summary>
+        /// Tests if the given argument is a lambda delegate expression
+        /// that creates a delegate for this lambda function.
+        /// </summary>
+        public const bool IsThisDelegateExpression(IExpression Value)
         {
-            var captValExpr = (LambdaCapturedValueExpression)Value;
-            return new LambdaCapturedValueExpression(captValExpr.Header, BoundHeaderBlock, captValExpr.Index);
+            if (Value is LambdaDelegateExpression)
+            {
+                var captValExpr = (LambdaDelegateExpression)Value;
+                return captValExpr.BoundHeaderBlock == BoundHeaderBlock;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Checks if the given expression depends on this lambda expression.
+        /// </summary>
+        public const bool IsDependentExpression(IExpression Value)
+        {
+            return IsCapturedValueExpression(Value) || IsThisDelegateExpression(Value);
+        }
+
+        private const IExpression TransformDependentExpr(IExpression Value)
+        {
+            if (Value is LambdaCapturedValueExpression)
+            {
+                var captValExpr = (LambdaCapturedValueExpression)Value;
+                return new LambdaCapturedValueExpression(Header, BoundHeaderBlock, captValExpr.Index);
+            }
+            else // Value is LambdaDelegateExpression
+            {
+                return new LambdaDelegateExpression(Header, BoundHeaderBlock);
+            }
         }
 
         /// <summary>
@@ -239,7 +271,7 @@ namespace Flame.Compiler.Expressions
             if (Header.CaptureList.Count == 0)
                 return newLambda; // No dependencies to get rid of in the body.
 
-            var rewriter = new ExpressionRewriter(this.IsCapturedValueExpression, newLambda.TransformGetValueExpr);
+            var rewriter = new ExpressionRewriter(this.IsDependentExpression, newLambda.TransformDependentExpr);
             newLambda.Body = rewriter.Visit(Body);
             return newLambda;
         }
@@ -272,14 +304,32 @@ namespace Flame.Compiler.Expressions
         }
     }
 
+    /// <summary>
+    /// An expression that accesses one of the values that a lambda
+    /// has captured.
+    /// </summary>
     public class LambdaCapturedValueExpression : IExpression
     {
         public const this(set LambdaHeader Header,
                           set LambdaBoundHeaderBlock BoundHeaderBlock,
                           set int Index);
 
+        /// <summary>
+        /// Gets the lambda header that this captured value
+        /// expression is associated with.
+        /// </summary>
         public LambdaHeader Header { const get; private set; }
+
+        /// <summary>
+        /// Gets the bound lambda header block this captured value expression is
+        /// associated with.
+        /// </summary>
         public LambdaBoundHeaderBlock BoundHeaderBlock { const get; private set; }
+
+        /// <summary>
+        /// Gets the index in the lambda capture list of the captured value
+        /// that is accessed by this expression.
+        /// </summary>
         public int Index { const get; private set; }
 
         public IExpression CapturedValue { const get return Header.CaptureList[Index]; }
@@ -313,7 +363,55 @@ namespace Flame.Compiler.Expressions
 
         public ICodeBlock Emit(ICodeGenerator CodeGenerator)
         {
-            return BoundHeaderBlock.BoundBlock.GetCapturedValue(Index);
+            return BoundHeaderBlock.BoundBlock.EmitGetCapturedValue(Index);
+        }
+    }
+
+    /// <summary>
+    /// An expression that yields a delegate to the enclosing lambda.
+    /// </summary>
+    public class LambdaDelegateExpression : IExpression
+    {
+        /// <summary>
+        /// Creates a new lambda delegate expression from the given lambda header
+        /// and bound header block.
+        /// </summary>
+        public const this(set LambdaHeader Header,
+                          set LambdaBoundHeaderBlock BoundHeaderBlock);
+
+        /// <summary>
+        /// Gets the lambda header that this lambda delegate expression
+        /// is associated with.
+        /// </summary>
+        public LambdaHeader Header { const get; private set; }
+
+        /// <summary>
+        /// Gets the bound lambda header block this lambda delegate expression is
+        /// associated with.
+        /// </summary>
+        public LambdaBoundHeaderBlock BoundHeaderBlock { const get; private set; }
+
+        public bool IsConstant { const get return true; }
+        public IType Type { const get return MethodType.Create(Header.Signature); }
+
+        public IBoundObject Evaluate()
+        {
+            return null;
+        }
+
+        public IExpression Optimize()
+        {
+            return this;
+        }
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
+        public ICodeBlock Emit(ICodeGenerator CodeGenerator)
+        {
+            return BoundHeaderBlock.BoundBlock.ThisLambdaBlock;
         }
     }
 }
