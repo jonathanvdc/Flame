@@ -64,16 +64,21 @@ type LocalScope private(parentScope : LocalScope option, funcScope : FunctionSco
 
     /// Finds out if this local scope declares a
     /// variable with the given name directly.
-    member this.DeclaresDirectly name = 
+    member this.DeclaresDirectly (name : string) : bool = 
         locals.ContainsKey name
 
+    /// Registers the given variable with this
+    /// local scope under the given name.
+    member this.WithVariable (variable : IVariable) (name : string) : LocalScope =
+        new LocalScope(parentScope, funcScope, locals |> Map.add name variable, tag)
+
     /// Declares a variable of the given type and name.
-    member this.DeclareVariable varType name =
+    member this.DeclareVariable (varType : IType) (name : string) : LocalScope * IVariable =
         let lbVar = new LateBoundVariable(name, varType) :> IVariable
-        new LocalScope(parentScope, funcScope, locals |> Map.add name lbVar, tag), lbVar
+        this.WithVariable lbVar name, lbVar
 
     /// Gets the variable with the given name.
-    member this.GetVariable name =
+    member this.GetVariable (name : string) : IVariable option =
         if locals.ContainsKey(name) then
             Some (locals.Item name)
         else
