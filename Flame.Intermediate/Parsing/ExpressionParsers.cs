@@ -247,6 +247,16 @@ namespace Flame.Intermediate.Parsing
         /// </remarks>
         public const string CapturedValueNodeName = "#lambda_captured_value";
 
+        /// <summary>
+        /// A node name for recursive lambda delegates.
+        /// </summary>
+        /// <remarks>
+        /// Format:
+        /// 
+        /// #get_rec_lambda_delegate()
+        /// </remarks>
+        public const string RecursiveLambdaDelegateNodeName = "#get_rec_lambda_delegate";
+
         #endregion
 
         #region Variables
@@ -1194,8 +1204,11 @@ namespace Flame.Intermediate.Parsing
             var header = new LambdaHeader(descMethod, captureList);
             var boundHeaderBlock = new LambdaBoundHeaderBlock();
 
-            var exprParser = State.Parser.ExpressionParser.WithParser(CapturedValueNodeName, CreateParser((state, node) => 
-                new LambdaCapturedValueExpression(header, boundHeaderBlock, Convert.ToInt32(node.Args.Single().Value))));
+            var exprParser = State.Parser.ExpressionParser
+                .WithParser(CapturedValueNodeName, CreateParser((state, node) => 
+                    new LambdaCapturedValueExpression(header, boundHeaderBlock, Convert.ToInt32(node.Args.Single().Value))))
+                .WithParser(RecursiveLambdaDelegateNodeName, CreateParser((state, node) =>
+                    new LambdaDelegateExpression(header, boundHeaderBlock)));
             var newState = State.WithParser(State.Parser.WithExpressionParser(exprParser));
 
             var body = IRParser.ParseMethodBody(newState, Node.Args[4], descMethod).Value;

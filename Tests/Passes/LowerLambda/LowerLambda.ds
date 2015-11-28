@@ -63,11 +63,11 @@ public static class Program
         bool first = true;
         foreach (var item in Values)
         {
-            result.Append(' ');
             if (first)
                 first = false;
             else
                 result.Append(',');
+            result.Append(' ');
             result.Append(item);
         }
         result.Append('}');

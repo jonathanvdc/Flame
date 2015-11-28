@@ -22,7 +22,15 @@ namespace Flame.Recompilation.Emit
         public LambdaBoundHeaderBlock BoundHeaderBlock { get; private set; }
         public ICodeGenerator LambdaCodeGenerator { get; private set; }
 
-        public ICodeBlock GetCapturedValue(int Index)
+        public ICodeBlock ThisLambdaBlock
+        {
+            get
+            {
+                return new ExpressionBlock(LambdaCodeGenerator, new LambdaDelegateExpression(Header, BoundHeaderBlock));
+            }
+        }
+
+        public ICodeBlock EmitGetCapturedValue(int Index)
         {
             return new ExpressionBlock(LambdaCodeGenerator, new LambdaCapturedValueExpression(Header, BoundHeaderBlock, Index));
         }

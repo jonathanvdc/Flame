@@ -27,7 +27,15 @@ namespace Flame.Intermediate.Emit
 
         public IMethod Member { get { return LambdaCodeGenerator.Method; } }
 
-        public ICodeBlock GetCapturedValue(int Index)
+        public ICodeBlock ThisLambdaBlock
+        {
+            get
+            {
+                return NodeBlock.Call(LambdaCodeGenerator, ExpressionParsers.RecursiveLambdaDelegateNodeName, new LNode[0]);
+            }
+        }
+
+        public ICodeBlock EmitGetCapturedValue(int Index)
         {
             return NodeBlock.Call(LambdaCodeGenerator, ExpressionParsers.CapturedValueNodeName, NodeFactory.Literal(Index));
         }

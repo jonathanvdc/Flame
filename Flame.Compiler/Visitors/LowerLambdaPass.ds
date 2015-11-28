@@ -141,15 +141,38 @@ namespace Flame.Compiler.Visitors
             var lambdaMethod = CopySignature(Lambda.Signature, name, DeclaringType, true);
 
             var convGenerics = ConvertGenerics(lambdaMethod, LambdaBody);
-            lambdaMethod.Body = convGenerics.Item2;
 
-            if (lambdaMethod.IsGeneric)
-                return new GetMethodExpression(lambdaMethod.MakeGenericMethod(lambdaMethod.GenericParameters), null);
-            else
-                return new GetMethodExpression(lambdaMethod, null);
+            // Create a recursive delegate expression to substitute
+            // this-delegate expressions with.
+            var recursiveDelegate = new GetMethodExpression(
+                GetGenericFunction(lambdaMethod, lambdaMethod), null);
+
+            // Substitute recursive delegates in the lambda's body now.
+            var substClosure = new SubstituteLambdaDependentExprClosure(
+                recursiveDelegate, (IReadOnlyList<IExpression>)new IExpression[0]);
+            var rewriter = new ExpressionRewriter(
+                Lambda.IsDependentExpression, substClosure.Substitute);
+            lambdaMethod.Body = rewriter.Visit(convGenerics.Item2);
+
+            // Create a delegate expression to insert into the declaring method's
+            // body.
+            return new GetMethodExpression(
+                GetGenericFunction(lambdaMethod, DeclaringMethod), null);
         }
 
-        private IMethod GetGenericMethod(IType Type, IMethod Method)
+        private IMethod GetGenericFunction(IMethod Method, IGenericMember DeclMember)
+        {
+            if (!Method.IsGeneric)
+            {
+                return Method;
+            }
+            else
+            {
+                return Method.MakeGenericMethod(DeclMember.GenericParameters);
+            }
+        }
+
+        private IMethod GetGenericMethod(IType Type, IMethod Method, IGenericMember DeclMember)
         {
             if (!Type.IsGeneric)
             {
@@ -157,13 +180,20 @@ namespace Flame.Compiler.Visitors
             }
             else
             {
-                var inst = new GenericType(Type, DeclaringMethod.GenericParameters);
+                var inst = new GenericType(Type, DeclMember.GenericParameters);
                 return new GenericInstanceMethod(Method, inst);
             }
         }
 
+        private IMethod GetGenericMethod(IType Type, IMethod Method)
+        {
+            return GetGenericMethod(Type, Method, DeclaringMethod);
+        }
+
         private IExpression LowerCapturingLambda(LambdaExpression Lambda, IStatement LambdaBody)
         {
+            // General case where capture list is non-empty.
+
             var nsBuilder = (INamespace)DeclaringType;
             string name = GenerateName("__lambda_closure");
             var closureType = new DescribedType(name, nsBuilder);
@@ -224,8 +254,13 @@ namespace Flame.Compiler.Visitors
 
             var invokeMethod = CopySignature(Lambda.Signature, "lambda_invoke", closureType, false, false, typeConverter.TypeConverter);
 
-            var substClosure = new SubstituteLambdaCapturedValuesClosure(capturedValues);
-            var rewriter = new ExpressionRewriter(Lambda.IsCapturedValueExpression, substClosure.Substitute);
+            var recursiveGenericInv = GetGenericMethod(closureType, invokeMethod, closureType);
+            var recursiveDelegate = new GetMethodExpression(recursiveGenericInv, closureThis);
+
+            var substClosure = new SubstituteLambdaDependentExprClosure(
+                recursiveDelegate, capturedValues);
+            var rewriter = new ExpressionRewriter(
+                Lambda.IsDependentExpression, substClosure.Substitute);
             invokeMethod.Body = rewriter.Visit(convGenerics.Item2);
             closureType.AddMethod(invokeMethod);
 
@@ -256,16 +291,37 @@ namespace Flame.Compiler.Visitors
         }
     }
 
-    public class SubstituteLambdaCapturedValuesClosure
+    public class SubstituteLambdaDependentExprClosure
     {
-        public const this(set IReadOnlyList<IExpression> CapturedValues);
+        public const this(set IExpression ThisDelegate,
+                          set IReadOnlyList<IExpression> CapturedValues);
 
+        /// <summary>
+        /// Gets an expression that creates a delegate for this
+        /// lambda function.
+        /// </summary>
+        public IExpression ThisDelegate { const get; private set; }
+
+        /// <summary>
+        /// Gets the captured value list.
+        /// </summary>
         public IReadOnlyList<IExpression> CapturedValues { const get; private set; }
 
         public IExpression Substitute(IExpression Value)
         {
-            var captValExpr = (LambdaCapturedValueExpression)Value;
-            return CapturedValues[captValExpr.Index];
+            if (Value is LambdaCapturedValueExpression)
+            {
+                var captValExpr = (LambdaCapturedValueExpression)Value;
+                return CapturedValues[captValExpr.Index];
+            }
+            else if (Value is LambdaDelegateExpression)
+            {
+                return ThisDelegate;
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
         }
     }
 }
