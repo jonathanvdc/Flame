@@ -504,8 +504,9 @@ module ExpressionBuilder =
                 AccessLocal thisIdentifier scope
 
     /// Creates a capture-by-value lambda that captures all locals based on the given
-    /// body creation function, lambda signature, and enclosing scope.
-    let Lambda (createBody : LocalScope -> IExpression) (signature : IMethod) (scope : LocalScope) =
+    /// body creation function, lambda signature, and enclosing scope. If a name is provided,
+    /// then a recursive delegate is bound to that name.
+    let private MaybeRecLambda (createBody : LocalScope -> IExpression) (signature : IMethod) (name : string option) (scope : LocalScope) =
         // Gets every local's value.
         let allLocals = scope.AllLocals |> Seq.map (fun x -> x.Key, x.Value.CreateGetExpression())
                                         |> Array.ofSeq
@@ -533,11 +534,30 @@ module ExpressionBuilder =
             signature.Parameters |> Seq.mapi (fun i param -> param.Name, new ArgumentVariable(param, i) :> IVariable)
                                  |> Map.ofSeq
 
-        let newScope = FunctionScope(GlobalScope(scope.Global.Binder, scope.Global.ConversionRules, scope.Global.Log, scope.Global.TypeNamer, scope.Global.GetAllMembers, getLambdaParameters))
-        let body = createBody (LocalScope(newScope))
+        let globalScope = GlobalScope(scope.Global.Binder, scope.Global.ConversionRules, scope.Global.Log, 
+                                      scope.Global.TypeNamer, scope.Global.GetAllMembers, getLambdaParameters)
+        let funcScope = FunctionScope(globalScope, signature)
+        let localScope = LocalScope(funcScope)
+        let localScope = match name with 
+                         | Some ident -> 
+                            let delegExpr = new LambdaDelegateExpression(lambdaHeader, boundLambdaHeader)
+                            localScope.WithVariable (new ExpressionVariable(delegExpr)) ident 
+                         | None -> localScope
+        let body = createBody localScope
 
-        new LambdaExpression(lambdaHeader, ToStatement body, boundLambdaHeader)
+        new LambdaExpression(lambdaHeader, new ReturnStatement(body), boundLambdaHeader)
 
+    /// Creates a capture-by-value lambda that captures all locals based on the given
+    /// body creation function, lambda signature, and enclosing scope.
+    let Lambda (createBody : LocalScope -> IExpression) (signature : IMethod) (scope : LocalScope) =
+        MaybeRecLambda createBody signature None scope
+
+    /// Creates a capture-by-value lambda that captures all locals based on the given
+    /// body creation function, lambda signature, and enclosing scope.
+    /// A recursive delegate for this lambda function is bound to the given
+    /// recursion identifier.
+    let RecursiveLambda (createBody : LocalScope -> IExpression) (signature : IMethod) (recName : string) (scope : LocalScope) =
+        MaybeRecLambda createBody signature (Some recName) scope
 
     let private createExpectedSignatureDescription (namer : IType -> string) (retType : IType) (argTypes : IType seq) = 
         let descMethod = new Flame.Build.DescribedMethod("", null, retType, true)
