@@ -4,7 +4,11 @@ using System.Text;
 
 namespace Flame.Build
 {
-	public class DescribedType : DescribedMember, IType
+	/// <summary>
+	/// Defines a "described type": an IType implementation that makes
+	/// synthesizing types easier.
+	/// </summary>
+	public class DescribedType : DescribedMember, IType, INamespace
 	{
 		public const this(string Name, set INamespace DeclaringNamespace)
 			: base(Name)
@@ -14,8 +18,12 @@ namespace Flame.Build
 			this.fields = new List<IField>();
 			this.properties = new List<IProperty>();
 			this.typeParams = new List<IGenericParameter>();
+			this.nestedTypes = new List<IType>();
 		}
 
+		/// <summary>
+		/// Gets this type's declaring type.
+		/// </summary>
 		public INamespace DeclaringNamespace { const get; private set; }
 
 		private List<IType> baseTypes;
@@ -23,51 +31,111 @@ namespace Flame.Build
 		private List<IField> fields;
 		private List<IProperty> properties;
 		private List<IGenericParameter> typeParams;
+		private List<IType> nestedTypes;
 
+		/// <summary>
+		/// Gets this described type's base types.
+		/// </summary>
 		public [IType] BaseTypes
         {
             const get { return baseTypes; }
         }
 
+		/// <summary>
+		/// Adds the given type to this described type's set of base types.
+		/// </summary>
         public void AddBaseType(IType BaseType)
         {
         	this.baseTypes.Add(BaseType);
         }
 
+		/// <summary>
+		/// Adds the given generic parameter to this described type's
+		/// type parameter list.
+		/// </summary>
 		public void AddGenericParameter(IGenericParameter Value)
 		{
 			this.typeParams.Add(Value);
 		}
 
+		/// <summary>
+		/// Gets all methods stored in this described type.
+		/// </summary>
         public [IMethod] Methods
         {
             const get { return methods; }
         }
 
+		/// <summary>
+		/// Adds the given method to this described type's list of methods.
+		/// </summary>
         public void AddMethod(IMethod Method)
         {
     		this.methods.Add(Method);
         }
 
+		/// <summary>
+		/// Gets all properties stored in this described type.
+		/// </summary>
         public [IProperty] Properties
         {
             const get { return properties; }
         }
 
+		/// <summary>
+		/// Adds the given property to this described type's list of properties.
+		/// </summary>
         public void AddProperty(IProperty Property)
         {
         	this.properties.Add(Property);
         }
 
+		/// <summary>
+		/// Gets all fields stored in this described type.
+		/// </summary>
         public [IField] Fields
         {
             const get { return fields; }
         }
 
+		/// <summary>
+		/// Adds the given field to this described type's list of fields.
+		/// </summary>
         public void AddField(IField Field)
         {
         	this.fields.Add(Field);
         }
+
+		/// <summary>
+		/// Gets all nested types stored in this described type.
+		/// </summary>
+		public [IType] Types
+		{
+			const get { return this.nestedTypes; }
+		}
+
+		/// <summary>
+		/// Adds the given type to this described type's list of nested
+		/// types.
+		/// </summary>
+		public void AddNestedType(IType Type)
+		{
+			this.nestedTypes.Add(Type);
+		}
+
+		/// <summary>
+		/// Gets this described type's declaring assembly, if any.
+		/// </summary>
+		public IAssembly DeclaringAssembly
+		{
+			const get
+			{
+				if (DeclaringNamespace == null)
+				 	return null;
+				else
+					return DeclaringNamespace.DeclaringAssembly;
+			}
+		}
 
 		public IAncestryRules AncestryRules
 		{
