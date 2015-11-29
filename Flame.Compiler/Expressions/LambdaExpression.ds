@@ -268,8 +268,9 @@ namespace Flame.Compiler.Expressions
         {
             var newLambda = new LambdaExpression(Header, Body);
 
-            if (Header.CaptureList.Count == 0)
-                return newLambda; // No dependencies to get rid of in the body.
+            // There are no dependencies to get rid of in the body,
+            // but there could be recursive calls. Rewrite body
+            // to be absolutely sure.
 
             var rewriter = new ExpressionRewriter(this.IsDependentExpression, newLambda.TransformDependentExpr);
             newLambda.Body = rewriter.Visit(Body);
