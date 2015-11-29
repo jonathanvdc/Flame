@@ -29,18 +29,25 @@ namespace Flame.Build
             return convDecl.MakeGenericMethod(convArgs);
         }
 
+		private IMethod ConvertAnonymousMethod(IMethod Method)
+		{
+			// Converting anonymous method signatures is arguably more of
+			// a type problem. Leave it to the type converter.
+			return MethodType.GetMethod(TypeConverter.Convert(MethodType.Create(Method)));
+		}
+
         public IMethod Convert(IMethod Method)
         {
 			if (Method is GenericMethod)
 			{
 				return ConvertGenericInstance(Method);
 			}
+			else if (Method.IsAnonymous)
+			{
+				return ConvertAnonymousMethod(Method);
+			}
 
 			var declType = Method.DeclaringType;
-
-			if (declType == null)
-				return Method;
-
 			var convDeclType = TypeConverter.Convert(declType);
 
 			if (object.ReferenceEquals(declType, convDeclType) || !convDeclType.IsRecursiveGenericInstance)
