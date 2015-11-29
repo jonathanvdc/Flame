@@ -18,16 +18,17 @@ namespace Flame.Optimization
     {
         public const this()
         {
-            this.transLocs = new List<SourceLocation>();
+            this.transLocs = new List<Tuple<SourceLocation, int, int>>();
         }
 
-        private List<SourceLocation> transLocs;
+        private List<Tuple<SourceLocation, int, int>> transLocs;
 
         /// <summary>
         /// Gets the source locations belonging to lambda expressions
-        /// that have been optimized by this visitor.
+        /// that have been optimized by this visitor, followed by their
+        /// old capture list size, and the new capture list size.
         /// </summary>
-        public [SourceLocation] TransformedLocations
+        public [Tuple<SourceLocation, int, int>] TransformedLocations
         {
             const get { return transLocs; }
         }
@@ -83,7 +84,9 @@ namespace Flame.Optimization
                 }
             }
 
-            if (newCaptures.Count == header.CaptureList.Count)
+            int oldCount = header.CaptureList.Count;
+            int newCount = newCaptures.Count;
+            if (newCount == oldCount)
                 return Lambda;
 
             var optHeader = new LambdaHeader(header.Signature, newCaptures);
@@ -92,7 +95,8 @@ namespace Flame.Optimization
             var optBody = rewriter.Visit(body);
 
             if (CurrentLocation != null)
-                transLocs.Add(CurrentLocation);
+                transLocs.Add(new Tuple<SourceLocation, int, int>(
+                    CurrentLocation, oldCount, newCount));
 
             var resultLambda = new LambdaExpression(optHeader, optBody, Lambda.BoundHeaderBlock);
             return new InitializedExpression(initialize, resultLambda, finalize);
@@ -134,10 +138,12 @@ namespace Flame.Optimization
                         "Pass remark",
                         new IMarkupNode[]
                         {
-                            new MarkupNode(NodeConstants.TextNodeType, "Reduced lambda capture list."),
+                            new MarkupNode(NodeConstants.TextNodeType,
+                                "Eliminated " + (item.Item2 - item.Item3) + " out of " +
+                                item.Item2 + " values from this lambda capture list. "),
                             Flags.CreateCauseNode(Flags.GetRemarkOptionName(SlimLambdaPassName))
                         },
-                        item));
+                        item.Item1));
                 }
             }
 
