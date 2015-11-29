@@ -37,6 +37,10 @@ namespace Flame.Build
 			}
 
 			var declType = Method.DeclaringType;
+
+			if (declType == null)
+				return Method;
+
 			var convDeclType = TypeConverter.Convert(declType);
 
 			if (object.ReferenceEquals(declType, convDeclType) || !convDeclType.IsRecursiveGenericInstance)
