@@ -523,16 +523,20 @@ module ExpressionBuilder =
 
         // Creates a captured expression variable.
         let createCapturedLocal index name =
-            name, new ExpressionVariable(new LambdaCapturedValueExpression(lambdaHeader, boundLambdaHeader, index) :> IExpression)
+            name, new ExpressionVariable(new LambdaCapturedValueExpression(lambdaHeader, boundLambdaHeader, index) :> IExpression) :> IVariable
 
+        // Create a map from captured local names to
+        // captured value expression variables.
         let captLocals = localNames |> Seq.mapi createCapturedLocal
                                     |> Map.ofSeq
 
+        // Maps parameter names to lambda parameters, based on
+        // a method signature.
         let getLambdaParameters : IMethod option -> Map<string, IVariable> = function
-        | None -> Map.empty
+        | None -> captLocals
         | Some signature ->
-            signature.Parameters |> Seq.mapi (fun i param -> param.Name, new ArgumentVariable(param, i) :> IVariable)
-                                 |> Map.ofSeq
+            signature.Parameters |> Seq.mapi (fun i param -> param, i)
+                                 |> Seq.fold (fun result (param, i) -> Map.add param.Name (ArgumentVariable(param, i) :> IVariable) result) captLocals
 
         let globalScope = GlobalScope(scope.Global.Binder, scope.Global.ConversionRules, scope.Global.Log, 
                                       scope.Global.TypeNamer, scope.Global.GetAllMembers, getLambdaParameters)
