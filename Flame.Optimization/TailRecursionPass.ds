@@ -81,16 +81,21 @@ namespace Flame.Optimization
             // Match nodes that look like this:
             //
             // return(invoke(get_delegate(<this_method>, this|null), args...))
+            //
+            // It's okay to discard metadata nodes inbetween the
+            // return, invoke, and delegate nodes.
 
             if (Value is ReturnStatement)
             {
                 var retStmt = (ReturnStatement)Value;
-                if (retStmt.Value is InvocationExpression)
+                var retVal = retStmt.Value.GetEssentialExpression();
+                if (retVal is InvocationExpression)
                 {
-                    var invExpr = (InvocationExpression)retStmt.Value;
-                    if (invExpr.Target is GetMethodExpression)
+                    var invExpr = (InvocationExpression)retVal;
+                    var invTarget = invExpr.Target.GetEssentialExpression();
+                    if (invTarget is GetMethodExpression)
                     {
-                        var tgt = (GetMethodExpression)invExpr.Target;
+                        var tgt = (GetMethodExpression)invTarget;
                         return tgt.Op == Operator.GetDelegate &&
                                (tgt.Caller == null || tgt.Caller is ThisGetExpression) &&
                                Method.Equals(tgt.Target);
@@ -110,7 +115,9 @@ namespace Flame.Optimization
             // Gets the invocation expression.
             // return(invoke(get_delegate(<this_method>, this|null), args...))
             //        ^~~~~~
-            var invExpr = (InvocationExpression)((ReturnStatement)Statement).Value;
+            // Note: the invoke node may be surrounded by metadata nodes.
+            var invExpr = (InvocationExpression)
+                ((ReturnStatement)Statement).Value.GetEssentialExpression();
 
             var results = new List<IStatement>();
             var assignments = new List<IStatement>();
