@@ -43,7 +43,7 @@ namespace Flame.Verification
         {
             // Count self-calls
             var matchCall = new Func<DissectedCall, bool>(call => 
-                call.Method.Equals(Value.Item2) && !call.IsVirtual);
+                call.Method.GetGenericDeclaration().Equals(Value.Item2) && !call.IsVirtual);
 
             var visitor = new NodeCountVisitor(NodeCountVisitor.MatchCalls(matchCall));
             visitor.Visit(Value.Item1);
