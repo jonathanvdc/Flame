@@ -1212,26 +1212,17 @@ namespace Flame.Recompilation
             await TaskManager.WhenDoneAsync();
             TaskManager.RunSequential(() =>
             {
-                foreach (var item in PropertyCache.GetAll())
+                foreach (var item in PropertyCache.GetAll().OfType<IPropertyBuilder>().Distinct())
                 {
-                    if (item is IPropertyBuilder)
-                    {
-                        ((IPropertyBuilder)item).Build();
-                    }
+                    item.Build();
                 }
-                foreach (var item in TypeCache.GetAll())
+                foreach (var item in TypeCache.GetAll().OfType<ITypeBuilder>().Distinct())
                 {
-                    if (item is ITypeBuilder)
-                    {
-                        ((ITypeBuilder)item).Build();
-                    }
+                    item.Build();
                 }
-                foreach (var item in NamespaceCache.GetAll())
+                foreach (var item in NamespaceCache.GetAll().OfType<INamespaceBuilder>().Distinct())
                 {
-                    if (item is INamespaceBuilder)
-                    {
-                        ((INamespaceBuilder)item).Build();
-                    }
+                    item.Build();
                 }
             });
         }
