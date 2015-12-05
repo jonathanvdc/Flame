@@ -72,6 +72,18 @@ namespace Flame
             get { return Method.Name; }
         }
 
+        /// <summary>
+        /// Gets a string that describes this method type's signature.
+        /// </summary>
+        public string SignatureName
+        {
+            get
+            {
+                var namer = new TypeNamerBase();
+                return namer.Convert(this);
+            }
+        }
+
         public [IGenericParameter] GenericParameters
         {
             get { return Method.GenericParameters; }
@@ -144,7 +156,10 @@ namespace Flame
         }
         public override const string ToString()
         {
-            return Method.ToString();
+            if (Method.IsAnonymous)
+                return this.SignatureName;
+            else
+                return Method.FullName;
         }
     }
 
