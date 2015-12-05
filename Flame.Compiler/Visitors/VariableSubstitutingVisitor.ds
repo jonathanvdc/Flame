@@ -120,11 +120,11 @@ namespace Flame.Compiler.Visitors
             {
                 if (node.Action == VariableNodeAction.Set)
                 {
-                    return targetVariable.CreateSetStatement(Visit(((ISetVariableNode)node).Value)).Accept(this);
+                    return targetVariable.CreateSetStatement(Visit(((ISetVariableNode)node).Value));
                 }
                 else if (node.Action == VariableNodeAction.Release)
                 {
-                    return targetVariable.CreateReleaseStatement().Accept(this);
+                    return targetVariable.CreateReleaseStatement();
                 }
             }
             return Statement.Accept(this);
