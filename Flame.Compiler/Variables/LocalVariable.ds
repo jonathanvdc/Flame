@@ -1,0 +1,235 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler.Variables
+{
+    /// <summary>
+    /// A type for local variables.
+    /// </summary>
+    /// <remarks>
+    /// This type is intended to someday replace LateBoundVariable.
+    /// </remarks>
+    public class LocalVariable : IUnmanagedVariable
+    {
+        /// <summary>
+        /// Creates a new local variable from the given variable member and
+        /// unique tag.
+        /// </summary>
+    	public const this(set IVariableMember Member, set UniqueTag Tag);
+
+        /// <summary>
+        /// Creates a new local variable from the given variable member.
+        /// </summary>
+        public const this(set IVariableMember Member)
+        {
+            this.Tag = new UniqueTag(Member.Name);
+        }
+
+        /// <summary>
+        /// Creates a new local variable from the given type.
+        /// </summary>
+        public const this(IType Type)
+        {
+        	this.Member = new TypeVariableMember(Type);
+            this.Tag = new UniqueTag();
+        }
+
+        /// <summary>
+        /// Creates a new local variable from the given name and type.
+        /// </summary>
+        public const this(string Name, IType Type)
+        {
+        	this.Member = new DescribedVariableMember(Name, Type);
+            this.Tag = new UniqueTag(Name);
+        }
+
+        /// <summary>
+        /// Gets this local variable's unique tag.
+        /// </summary>
+        public UniqueTag Tag { const get; private set; }
+
+        /// <summary>
+        /// Gets this local variable's associated variable member.
+        /// </summary>
+        public IVariableMember Member { const get; protected set; }
+
+        /// <summary>
+        /// Gets this local variable's type.
+        /// </summary>
+        public IType Type { const get return Member.VariableType; }
+
+        /// <summary>
+        /// Gets the emit variable for this local variable, in
+        /// the given code generator.
+        /// </summary>
+        public IEmitVariable GetEmitVariable(ICodeGenerator CodeGenerator)
+        {
+            // Prefer unmanaged variables.
+            if (CodeGenerator is IUnmanagedMethodStructureGenerator)
+                return ((IUnmanagedMethodStructureGenerator)CodeGenerator)
+                    .GetOrDeclareUnmanagedLocal(Tag, Member);
+            else
+                return CodeGenerator.GetOrDeclareLocal(Tag, Member);
+        }
+
+        /// <summary>
+        /// Converts this local variable's type by applying the given
+        /// member converter.
+        /// </summary>
+        public LocalVariable ConvertType(MemberConverter Converter)
+        {
+            var convType = Converter.Convert(this.Type);
+            if (convType == this.Type)
+                return this;
+            else
+                return new LocalVariable(
+                    new RetypedVariableMember(this.Member, convType),
+                    this.Tag);
+        }
+
+        public const IExpression CreateGetExpression()
+        {
+            return new LocalGetExpression(this);
+        }
+
+        public const IStatement CreateSetStatement(IExpression Value)
+        {
+            return new LocalSetStatement(this, Value);
+        }
+
+        public const IExpression CreateAddressOfExpression()
+        {
+            return new LocalAddressOfExpression(this);
+        }
+
+        public const IStatement CreateReleaseStatement()
+        {
+            return new LocalReleaseStatement(this);
+        }
+    }
+
+    public class LocalGetExpression : VariableGetExpressionBase<LocalVariable>,
+                                         IMemberNode
+    {
+        public const this(set LocalVariable Variable);
+
+        public override IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
+        public override const ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Variable.GetEmitVariable(Generator).EmitGet();
+        }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convArg = Variable.ConvertType(Converter);
+            if (object.ReferenceEquals(convArg, Variable))
+                return this;
+            else
+                return new LocalGetExpression(convArg);
+        }
+
+        public override const string ToString()
+        {
+            return (string)Variable;
+        }
+    }
+    public class LocalAddressOfExpression : VariableAddressOfExpressionBase<LocalVariable>,
+                                               IMemberNode
+    {
+        public const this(set LocalVariable Variable);
+
+        public override IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convArg = Variable.ConvertType(Converter);
+            if (object.ReferenceEquals(convArg, Variable))
+                return this;
+            else
+                return new LocalAddressOfExpression(convArg);
+        }
+
+        public override const ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return ((IUnmanagedEmitVariable)Variable.GetEmitVariable(Generator)).EmitAddressOf();
+        }
+
+        public override const string ToString()
+        {
+            return "&" + (string)Variable;
+        }
+    }
+    public class LocalSetStatement : VariableSetStatementBase<LocalVariable>,
+                                     IMemberNode
+    {
+        public const this(set LocalVariable Variable, set IExpression Value);
+
+        public override IStatement Accept(INodeVisitor Visitor)
+        {
+            var transVal = Visitor.Visit(Value);
+
+            if (transVal == Value)
+            {
+                return this;
+            }
+            else
+            {
+                return new LocalSetStatement(Variable, transVal);
+            }
+        }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convArg = Variable.ConvertType(Converter);
+            if (object.ReferenceEquals(convArg, Variable))
+                return this;
+            else
+                return new LocalSetStatement(convArg, Value);
+        }
+
+        public override ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Variable.GetEmitVariable(Generator).EmitSet(Value.Emit(Generator));
+        }
+
+        public override const string ToString()
+        {
+            return (string)Variable + " = " + Value;
+        }
+    }
+
+    public class LocalReleaseStatement : VariableReleaseStatementBase<LocalVariable>,
+                                         IMemberNode
+    {
+        public const this(set LocalVariable Variable);
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convArg = Variable.ConvertType(Converter);
+            if (object.ReferenceEquals(convArg, Variable))
+                return this;
+            else
+                return new LocalReleaseStatement(convArg);
+        }
+
+        public override ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Variable.GetEmitVariable(Generator).EmitRelease();
+        }
+
+        public override const string ToString()
+        {
+            return "release(" + (string)Variable + ")";
+        }
+    }
+}
