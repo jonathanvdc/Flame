@@ -74,7 +74,7 @@ type LocalScope private(parentScope : LocalScope option, funcScope : FunctionSco
 
     /// Declares a variable of the given type and name.
     member this.DeclareVariable (varType : IType) (name : string) : LocalScope * IVariable =
-        let lbVar = new LateBoundVariable(name, varType) :> IVariable
+        let lbVar = LocalVariable(name, varType) :> IVariable
         this.WithVariable lbVar name, lbVar
 
     /// Gets the variable with the given name.
