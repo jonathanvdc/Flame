@@ -65,7 +65,10 @@ namespace Flame.Compiler.Visitors
             {
                 var memberNode = (IMemberNode)Expression;
                 var memberExpr = (IExpression)memberNode.ConvertMembers(Converter);
-                return memberExpr.Accept(this);
+                if (localVisitor.Matches(memberExpr))
+                    return localVisitor.Visit(memberExpr).Accept(this);
+                else
+                    return memberExpr.Accept(this);
             }
             else
             {
@@ -78,7 +81,10 @@ namespace Flame.Compiler.Visitors
             {
                 var memberNode = (IMemberNode)Statement;
                 var memberStmt = (IStatement)memberNode.ConvertMembers(Converter);
-                return memberStmt.Accept(this);
+                if (localVisitor.Matches(memberStmt))
+                    return localVisitor.Visit(memberStmt).Accept(this);
+                else
+                    return memberStmt.Accept(this);
             }
             else
             {
