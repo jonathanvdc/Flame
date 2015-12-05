@@ -141,7 +141,7 @@ namespace Flame.Compiler.Variables
         }
     }
     public class LocalAddressOfExpression : VariableAddressOfExpressionBase<LocalVariable>,
-                                               IMemberNode
+                                            IMemberNode
     {
         public const this(set LocalVariable Variable);
 

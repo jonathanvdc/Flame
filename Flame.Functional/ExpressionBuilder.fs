@@ -453,7 +453,7 @@ module ExpressionBuilder =
     let CoalesceNull (lhs : IExpression) (rhs : IExpression) =
         // Convert `<lhs> ?? <rhs>` to `{ var local = <lhs>; local == default(decltype(local)) ? rhs : lhs }` 
 
-        let local = new LateBoundVariable(lhs.Type)
+        let local = new LocalVariable(lhs.Type)
         new InitializedExpression(
             local.CreateSetStatement(lhs),
             new SelectExpression(new EqualityExpression(local.CreateGetExpression(), Default local.Type), rhs, local.CreateGetExpression()),
@@ -700,7 +700,7 @@ module ExpressionBuilder =
         if variable.IsSome && variable.Value :? IUnmanagedVariable then
              (variable.Value :?> IUnmanagedVariable).CreateAddressOfExpression()
         else
-            let temp = new LateBoundVariable(expr.Type)
+            let temp = new LocalVariable(expr.Type)
 
             // This may not be the best place to release the temporary variable. Ideally, it would be released after usage.
             new Expressions.InitializedExpression(temp.CreateSetStatement(expr),
