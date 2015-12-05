@@ -18,6 +18,7 @@
     <Compile Include="AccessChecker.ds" />
     <Compile Include="ConciseFlowPass.ds" />
     <Compile Include="FinalFlowRemover.ds" />
+    <Compile Include="FlattenInitializationPass.ds" />
     <Compile Include="ImperativeCodeRewriter.ds" />
     <Compile Include="InitialFlowRemover.ds" />
     <Compile Include="InliningExtensions.ds" />
