@@ -1,4 +1,5 @@
-﻿using Flame.Compiler.Build;
+﻿using Flame.Build;
+using Flame.Compiler.Build;
 using Flame.Intermediate.Parsing;
 using Loyc.Binary;
 using Loyc.Syntax;
@@ -30,7 +31,7 @@ namespace Flame.Intermediate.Emit
             this.Dependencies = new IRDependencyBuilder(this);
             this.TypeTable = new IRTableBuilder<IType>(
                 IRParser.TypeTableName,
-                createElementNode<IType>(new IRTypeVisitor(this).Convert, DescribeType), 
+                createElementNode<IType>(new IRTypeVisitor(this).Convert, CreateTypeNamer().Convert), 
                 index => NodeFactory.Call(IRParser.TypeTableReferenceName, new LNode[] { NodeFactory.Literal(index) }));
             this.MethodTable = new IRTableBuilder<IMethod>(
                 IRParser.MethodTableName,
@@ -49,9 +50,9 @@ namespace Flame.Intermediate.Emit
 
         public IRAssemblyEncoding Encoding { get; private set; }
 
-        private static string DescribeType(IType ty)
+        private static IConverter<IType, string> CreateTypeNamer()
         {
-            return ty.FullName;
+            return new TypeNamerBase();
         }
 
         private static string DescribeField(IField field)
@@ -59,7 +60,9 @@ namespace Flame.Intermediate.Emit
             // format fields like so:
             //
             // (static) field_type full_field_name
-            return (field.IsStatic ? "static " : "") + DescribeType(field.FieldType) + " " + field.FullName;
+            var namer = CreateTypeNamer();
+
+            return (field.IsStatic ? "static " : "") + namer.Convert(field.FieldType) + " " + field.FullName;
         }
 
         private static string DescribeMethod(IMethod Method)
@@ -68,12 +71,14 @@ namespace Flame.Intermediate.Emit
             //
             // (static) return_type full_method_name(param_types...)
 
+            var namer = CreateTypeNamer();
+
             var sb = new StringBuilder();
             if (Method.IsStatic)
             {
                 sb.Append("static ");
             }
-            sb.Append(DescribeType(Method.ReturnType));
+            sb.Append(namer.Convert(Method.ReturnType));
             sb.Append(' ');
             sb.Append(Method.FullName);
             sb.Append('(');
@@ -84,7 +89,7 @@ namespace Flame.Intermediate.Emit
                 {
                     sb.Append(", ");
                 }
-                sb.Append(DescribeType(parameters[i].ParameterType));
+                sb.Append(namer.Convert(parameters[i].ParameterType));
             }
             sb.Append(')');
             return sb.ToString();
