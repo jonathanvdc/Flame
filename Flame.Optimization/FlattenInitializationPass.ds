@@ -1,0 +1,209 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Visitors;
+using Pixie;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A node visitor that attempts to flatten initialization expressions, by
+    /// moving them higher up the node tree.
+    /// </summary>
+    /// <remarks>
+    /// This can benefit node trees such as:
+    ///
+    ///     #invoke({ init; expr }, args...)
+    ///
+    /// which will be transformed into the semantically equivalent:
+    ///
+    ///     { init; #invoke(expr, args) }
+    ///
+    /// In many ways, this visitor is a less demanding version of
+    /// -fimperative-code's visitor.
+    /// </remarks>
+    public class FlattenInitializationVisitor : LocationVisitorBase
+    {
+        public const this()
+        {
+            this.transLocs = new List<SourceLocation>();
+            this.initStatement = null;
+        }
+
+        private List<SourceLocation> transLocs;
+
+        // Stores the current node's initialization statement.
+        private InsertStatement initStatement;
+
+        /// <summary>
+        /// Gets the source locations belonging to initialization expressions
+        /// that have been moved around in the expression tree.
+        /// </summary>
+        public [SourceLocation] TransformedLocations
+        {
+            const get { return transLocs; }
+        }
+
+        protected override const bool MatchesCore(IExpression Expression)
+        {
+            return true;
+        }
+        protected override const bool MatchesCore(IStatement Statement)
+        {
+            return true;
+        }
+
+        private IExpression transformImpl(IExpression Expression, bool HasOuterSite)
+        {
+            if (Expression is InitializedExpression)
+            {
+                // There will *always* be some outer initialization site
+                // by the time we get here.
+                var expr = (InitializedExpression)Expression;
+
+                // Move the initialization logic up the tree.
+                initStatement.Insert(expr.Initialization);
+
+                if (HasOuterSite && CurrentLocation != null)
+                {
+                    // If we have actually moved a statement, then we'll log
+                    // a celebratory source location.
+                    transLocs.Add(CurrentLocation);
+                }
+
+                // Create a new expression that contains the initialization
+                // expression's value and finalization logic.
+                return new InitializedExpression(
+                    EmptyStatement, expr.Value, expr.Finalization).Simplify();
+            }
+            else if (Expression is IFlowExpression)
+            {
+                // I ain't touchin' that.
+
+                initStatement = null;
+                return Expression.Accept(this);
+            }
+            else
+            {
+                return Expression.Accept(this);
+            }
+        }
+
+        protected override IExpression TransformCore(IExpression Expression)
+        {
+            IExpression result;
+            if (initStatement != null)
+            {
+                // Outstanding!
+                // It seems like we have already created an initialization
+                // site outside this scope.
+
+                result = transformImpl(Expression, true);
+            }
+            else
+            {
+                // Too bad. We don't have a pre-existing initialization site
+                // outside of this expression. Time to rectify the situation.
+
+                initStatement = new InsertStatement();
+                result = new InitializedExpression(
+                    initStatement,
+                    transformImpl(Expression, false)).Simplify();
+            }
+
+            // Mark the initialization expression as null, so we don't mess up
+            // the program's semantics by re-ordering operations in a bad way.
+            initStatement = null;
+
+            // Return the result and proceed.
+            return result;
+        }
+
+        private IStatement transformImpl(IStatement Statement)
+        {
+            if (Statement is IFlowStatement)
+            {
+                // I ain't touchin' that.
+
+                initStatement = null;
+                return Statement.Accept(this);
+            }
+            else
+            {
+                return Statement.Accept(this);
+            }
+        }
+
+        protected override IStatement TransformCore(IStatement Statement)
+        {
+            IStatement result;
+            if (initStatement != null)
+            {
+                // Outstanding!
+                // It seems like we have already created an initialization
+                // site outside this scope.
+
+                result = transformImpl(Statement);
+            }
+            else
+            {
+                // Too bad. We don't have a pre-existing initialization site
+                // outside of this statement. Time to rectify the situation.
+
+                initStatement = new InsertStatement();
+                result = new BlockStatement(new IStatement[]
+                {
+                    initStatement,
+                    transformImpl(Statement)
+                }).Simplify();
+            }
+
+            // Mark the initialization expression as null, so we don't mess up
+            // the program's semantics by re-ordering operations in a bad way.
+            initStatement = null;
+
+            // Return the result and proceed.
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// A pass that attempts to flatten initialization expressions, by
+    /// moving them higher up the node tree.
+    /// </summary>
+    public static class FlattenInitializationPass : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// This pass' name string.
+        /// </summary>
+        public const string FlattenInitializationPassName = "flatten-init";
+
+        public IStatement Apply(BodyPassArgument Args)
+        {
+            var rewriter = new FlattenInitializationVisitor();
+            var result = rewriter.Visit(Args.Body);
+
+            // Maybe we can even emit a remark of some kind.
+            var log = Args.PassEnvironment.Log;
+            if (log.Options.ShouldRemark(FlattenInitializationPassName, false))
+            {
+                foreach (var item in rewriter.TransformedLocations)
+                {
+                    log.LogMessage(new LogEntry(
+                        "Pass remark",
+                        new IMarkupNode[]
+                        {
+                            new MarkupNode(NodeConstants.TextNodeType,
+                                "Moved this initialization logic up the tree. "),
+                            Flags.CreateCauseNode(Flags.GetRemarkOptionName(FlattenInitializationPassName))
+                        },
+                        item));
+                }
+            }
+
+            return result;
+        }
+    }
+}

@@ -18,6 +18,7 @@ namespace Flame.Front.Target
 
             RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(SlimLambdaPass.Instance, SlimLambdaPass.SlimLambdaPassName));
             RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(LowerLambdaPass.Instance, LowerLambdaPassName));
+            RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(Flame.Optimization.FlattenInitializationPass.Instance, Flame.Optimization.FlattenInitializationPass.FlattenInitializationPassName));
             RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(TailRecursionPass.Instance, TailRecursionPass.TailRecursionPassName, (optInfo, isPref) => isPref || optInfo.OptimizeMinimal));
 
             RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(InliningPass.Instance, InliningPass.InliningPassName, (optInfo, isPref) => optInfo.OptimizeExperimental));
