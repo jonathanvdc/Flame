@@ -170,7 +170,7 @@ type FunctionalMemberBase(header : FunctionalMemberHeader, declType : IType,
 
     interface IMember with
         member this.Name = header.Name
-        member this.FullName = MemberExtensions.CombineNames(declType.FullName, header.Name)
+        member this.FullName = if declType = null then header.Name else MemberExtensions.CombineNames(declType.FullName, header.Name)
         member this.Attributes = header.Attributes
 
     interface ITypeMember with
