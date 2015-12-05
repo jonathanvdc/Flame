@@ -267,7 +267,9 @@ namespace Flame.Compiler.Visitors
             var genericCtor = GetGenericMethod(closureType, closureCtor);
             var genericInv = GetGenericMethod(closureType, invokeMethod);
 
-            return new GetMethodExpression(genericInv, new InvocationExpression(genericCtor, null, Lambda.Header.CaptureList));
+            var loweredCaptureList = this.VisitAll(Lambda.Header.CaptureList);
+
+            return new GetMethodExpression(genericInv, new InvocationExpression(genericCtor, null, loweredCaptureList));
         }
 
         private IExpression LowerLambda(LambdaExpression Lambda)
