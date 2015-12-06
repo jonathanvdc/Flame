@@ -30,12 +30,33 @@ namespace Flame.Optimization
         {
             this.transLocs = new List<SourceLocation>();
             this.initStatement = null;
+            this.finalStatement = null;
+            this.finalizeStatements = new List<IStatement>();
         }
 
         private List<SourceLocation> transLocs;
 
         // Represents an outer initialization site.
         private InsertStatement initStatement;
+
+        // Represents an inner finalization site.
+        private InsertStatement finalStatement;
+
+        // Stores a list of finalization actions that have yet to be scheduled.
+        private List<IStatement> finalizeStatements;
+
+        /// <summary>
+        /// Spills finalization statements.
+        /// </summary>
+        private void SpillFinalization()
+        {
+            foreach (var item in finalizeStatements)
+            {
+                finalStatement.Insert(item);
+            }
+            finalizeStatements = new List<IStatement>();
+            finalStatement = null;
+        }
 
         /// <summary>
         /// Gets the source locations belonging to initialization expressions
@@ -73,19 +94,37 @@ namespace Flame.Optimization
                     transLocs.Add(CurrentLocation);
                 }
 
-                // Create a new expression that contains the initialization
-                // expression's value and finalization logic.
-                return new InitializedExpression(
-                    EmptyStatement,
-                    Visit(expr.Value),
-                    Visit(expr.Finalization)).Simplify();
+                // Visit the initialization expression's value.
+                var visitedValue = Visit(expr.Value);
+
+                if (NodeExtensions.CanDelay(expr.Finalization))
+                {
+                    // We can delay this finalization statement.
+                    // Append the initialization expression's finalization
+                    // logic to the finalization list.
+                    finalizeStatements.Add(expr.Finalization);
+
+                    // Return the visited value.
+                    return visitedValue;
+                }
+                else
+                {
+                    // Create a new expression that contains the initialization
+                    // expression's value and finalization logic.
+                    return new InitializedExpression(
+                        EmptyStatement,
+                        visitedValue,
+                        expr.Finalization).Simplify();
+                }
             }
             else if (Expression is IFlowExpression)
             {
                 // I ain't touchin' that with a stick.
 
                 initStatement = null;
-                return Expression.Accept(this);
+                var result = Expression.Accept(this);
+                SpillFinalization();
+                return result;
             }
             else
             {
@@ -95,6 +134,9 @@ namespace Flame.Optimization
 
         protected override IExpression TransformCore(IExpression Expression)
         {
+            // Spill finalization logic first.
+            SpillFinalization();
+
             IExpression result;
             if (initStatement != null)
             {
@@ -111,7 +153,7 @@ namespace Flame.Optimization
 
                 initStatement = new InsertStatement();
                 result = new InitializedExpression(
-                    initStatement,
+                    initStatement.Unwrap(),
                     transformImpl(Expression, false)).Simplify();
             }
 
@@ -119,8 +161,14 @@ namespace Flame.Optimization
             // the program's semantics by re-ordering operations in a bad way.
             initStatement = null;
 
-            // Return the result and proceed.
-            return result;
+            // Create a new finalization site.
+            finalStatement = new InsertStatement();
+
+            // Return the result, finalization statement and all.
+            return new InitializedExpression(
+                EmptyStatement,
+                result,
+                finalStatement);
         }
 
         private IStatement transformImpl(IStatement Statement)
@@ -131,7 +179,9 @@ namespace Flame.Optimization
                 // Whitelist return statements, though.
 
                 initStatement = null;
-                return Statement.Accept(this);
+                var result = Statement.Accept(this);
+                SpillFinalization();
+                return result;
             }
             else
             {
@@ -156,9 +206,10 @@ namespace Flame.Optimization
                 // outside of this statement. Time to rectify the situation.
 
                 initStatement = new InsertStatement();
+
                 result = new BlockStatement(new IStatement[]
                 {
-                    initStatement,
+                    initStatement.Unwrap(),
                     transformImpl(Statement)
                 }).Simplify();
             }
@@ -167,8 +218,17 @@ namespace Flame.Optimization
             // the program's semantics by re-ordering operations in a bad way.
             initStatement = null;
 
+            var finalStmt = new InsertStatement();
+            finalStatement = finalStmt;
+            SpillFinalization();
+
             // Return the result and proceed.
-            return result;
+            // Be sure to spill finalization first, though.
+            return new BlockStatement(new IStatement[]
+            {
+                result,
+                finalStmt.Unwrap()
+            }).Simplify();
         }
     }
 
