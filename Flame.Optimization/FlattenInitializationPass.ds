@@ -76,11 +76,13 @@ namespace Flame.Optimization
                 // Create a new expression that contains the initialization
                 // expression's value and finalization logic.
                 return new InitializedExpression(
-                    EmptyStatement, expr.Value, expr.Finalization).Simplify();
+                    EmptyStatement,
+                    Visit(expr.Value),
+                    Visit(expr.Finalization)).Simplify();
             }
             else if (Expression is IFlowExpression)
             {
-                // I ain't touchin' that.
+                // I ain't touchin' that with a stick.
 
                 initStatement = null;
                 return Expression.Accept(this);
@@ -123,9 +125,10 @@ namespace Flame.Optimization
 
         private IStatement transformImpl(IStatement Statement)
         {
-            if (Statement is IFlowStatement)
+            if (Statement is IFlowStatement && !(Statement is ReturnStatement))
             {
-                // I ain't touchin' that.
+                // I ain't touchin' that with a stick.
+                // Whitelist return statements, though.
 
                 initStatement = null;
                 return Statement.Accept(this);
