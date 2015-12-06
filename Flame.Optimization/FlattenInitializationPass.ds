@@ -34,7 +34,7 @@ namespace Flame.Optimization
 
         private List<SourceLocation> transLocs;
 
-        // Stores the current node's initialization statement.
+        // Represents an outer initialization site.
         private InsertStatement initStatement;
 
         /// <summary>
