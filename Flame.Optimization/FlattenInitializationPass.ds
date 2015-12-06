@@ -151,10 +151,12 @@ namespace Flame.Optimization
                 // Too bad. We don't have a pre-existing initialization site
                 // outside of this expression. Time to rectify the situation.
 
-                initStatement = new InsertStatement();
+                var initStmt = new InsertStatement();
+                initStatement = initStmt;
+                var contents = transformImpl(Expression, false);
                 result = new InitializedExpression(
-                    initStatement.Unwrap(),
-                    transformImpl(Expression, false)).Simplify();
+                    initStmt.Unwrap(),
+                    contents).Simplify();
             }
 
             // Mark the initialization expression as null, so we don't mess up
@@ -205,12 +207,14 @@ namespace Flame.Optimization
                 // Too bad. We don't have a pre-existing initialization site
                 // outside of this statement. Time to rectify the situation.
 
-                initStatement = new InsertStatement();
+                var initStmt = new InsertStatement();
+                initStatement = initStmt;
 
+                var contents = transformImpl(Statement);
                 result = new BlockStatement(new IStatement[]
                 {
-                    initStatement.Unwrap(),
-                    transformImpl(Statement)
+                    initStmt.Unwrap(),
+                    contents
                 }).Simplify();
             }
 
