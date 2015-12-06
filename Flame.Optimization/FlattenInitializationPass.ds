@@ -45,6 +45,11 @@ namespace Flame.Optimization
         // Stores a list of finalization actions that have yet to be scheduled.
         private List<IStatement> finalizeStatements;
 
+        // Tells expressions whether they *must* spill finalization logic from
+        // previous expressions. This flag makes sure that flow control
+        // nodes are not tampered with.
+        private bool mustSpillFinalization;
+
         /// <summary>
         /// Spills finalization statements.
         /// </summary>
@@ -122,6 +127,7 @@ namespace Flame.Optimization
                 // I ain't touchin' that with a stick.
 
                 initStatement = null;
+                mustSpillFinalization = true;
                 var result = Expression.Accept(this);
                 SpillFinalization();
                 return result;
@@ -134,8 +140,13 @@ namespace Flame.Optimization
 
         protected override IExpression TransformCore(IExpression Expression)
         {
-            // Spill finalization logic first.
-            SpillFinalization();
+            bool oldSpillFlag = mustSpillFinalization;
+            if (oldSpillFlag)
+            {
+                // Spill finalization logic first.
+                SpillFinalization();
+                mustSpillFinalization = false;
+            }
 
             IExpression result;
             if (initStatement != null)
@@ -159,6 +170,9 @@ namespace Flame.Optimization
                     contents).Simplify();
             }
 
+            // Reset the spilling flag.
+            mustSpillFinalization = oldSpillFlag;
+
             // Mark the initialization expression as null, so we don't mess up
             // the program's semantics by re-ordering operations in a bad way.
             initStatement = null;
@@ -181,6 +195,7 @@ namespace Flame.Optimization
                 // Whitelist return statements, though.
 
                 initStatement = null;
+                mustSpillFinalization = true;
                 var result = Statement.Accept(this);
                 SpillFinalization();
                 return result;
