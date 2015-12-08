@@ -123,28 +123,38 @@ namespace dsc.Projects
 
         public PassPreferences GetPassPreferences(ICompilerLog Log)
         {
-            return new PassPreferences(new string[] { },
+            return new PassPreferences(new PassCondition[] 
+                {
+                    new PassCondition(
+                        ValueTypeDelegateVisitor.ValueTypeDelegatePassName, 
+                        optInfo => ValueTypeDelegateVisitor.ValueTypeDelegateWarning.UseWarning(optInfo.Log.Options)),
+                    new PassCondition(
+                        PassExtensions.EliminateDeadCodePassName, 
+                        optInfo => optInfo.OptimizeMinimal || optInfo.OptimizeDebug),
+                    new PassCondition(
+                        PassExtensions.InitializationPassName, 
+                        optInfo => InitializationCountPass.IsUseful(optInfo.Log)),
+                    new PassCondition(
+                        InfiniteRecursionPass.InfiniteRecursionPassName, 
+                        optInfo => InfiniteRecursionPass.IsUseful(optInfo.Log))
+                },
                 new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>[] 
                 { 
                     new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>(
                         AnalysisPasses.ValueTypeDelegatePass,
-                        ValueTypeDelegateVisitor.ValueTypeDelegatePassName,
-                        (optInfo, isPref) => ValueTypeDelegateVisitor.ValueTypeDelegateWarning.UseWarning(optInfo.Log.Options)),
+                        ValueTypeDelegateVisitor.ValueTypeDelegatePassName),
 
                     new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>(
                         VerifyingDeadCodePass.Instance,
-                        PassExtensions.EliminateDeadCodePassName, 
-                        (optInfo, isPref) => optInfo.OptimizeMinimal || optInfo.OptimizeDebug),
+                        PassExtensions.EliminateDeadCodePassName),
 
                     new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>(
                         InitializationCountPass.Instance,
-                        PassExtensions.InitializationPassName,
-                        (optInfo, isPref) => InitializationCountPass.IsUseful(Log)),
+                        PassExtensions.InitializationPassName),
 
                     new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>(
                         InfiniteRecursionPass.Instance,
-                        InfiniteRecursionPass.InfiniteRecursionPassName,
-                        (optInfo, isPref) => InfiniteRecursionPass.IsUseful(Log))
+                        InfiniteRecursionPass.InfiniteRecursionPassName)
                 });
         }
     }
