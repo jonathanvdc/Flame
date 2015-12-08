@@ -15,8 +15,8 @@ namespace Flame.Front.Target
 {
     public class BuildTarget
     {
-        public BuildTarget(IAssemblyBuilder TargetAssembly, IDependencyBuilder DependencyBuilder, string Extension, bool PreferPreserve, params string[] PreferredPasses)
-            : this(TargetAssembly, DependencyBuilder, Extension, PreferPreserve, new PassPreferences(PreferredPasses))
+        public BuildTarget(IAssemblyBuilder TargetAssembly, IDependencyBuilder DependencyBuilder, string Extension, bool PreferPreserve, params PassCondition[] AdditionalConditions)
+            : this(TargetAssembly, DependencyBuilder, Extension, PreferPreserve, new PassPreferences(AdditionalConditions))
         {
         }
         public BuildTarget(IAssemblyBuilder TargetAssembly, IDependencyBuilder DependencyBuilder, string Extension, bool PreferPreserve, PassPreferences Passes)

@@ -69,14 +69,15 @@ namespace Flame.Front.Target
         }
 
         public static readonly PassPreferences PassPreferences = new PassPreferences(
-            new string[] 
+            new PassCondition[] 
             {
-                PassExtensions.LowerLambdaPassName,
-                PassExtensions.SimplifyFlowPassName 
+                new PassCondition(PassExtensions.LowerLambdaPassName, optInfo => true),
+                new PassCondition(PassExtensions.SimplifyFlowPassName, optInfo => optInfo.OptimizeMinimal),
+                new PassCondition(PassExtensions.LowerYieldPassName, optInfo => true) 
             },
             new PassInfo<BodyPassArgument, IStatement>[] 
             { 
-                new PassInfo<BodyPassArgument, IStatement>(CecilLowerYieldPass.Instance, PassExtensions.LowerYieldPassName, true)
+                new PassInfo<BodyPassArgument, IStatement>(CecilLowerYieldPass.Instance, PassExtensions.LowerYieldPassName)
             });
 
         public BuildTarget CreateBuildTarget(string Identifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)

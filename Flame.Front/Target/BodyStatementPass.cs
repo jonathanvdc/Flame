@@ -24,7 +24,7 @@ namespace Flame.Front.Target
 
         public static PassInfo<BodyPassArgument, IStatement> ToBodyPass(PassInfo<IStatement, IStatement> StatementPass)
         {
-            return new PassInfo<BodyPassArgument, IStatement>(new BodyStatementPass(StatementPass.Pass), StatementPass.Name, StatementPass.UsePass);
+            return new PassInfo<BodyPassArgument, IStatement>(new BodyStatementPass(StatementPass.Pass), StatementPass.Name);
         }
     }
 }
