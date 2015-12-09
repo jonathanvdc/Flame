@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cpp
 {
-    public abstract class CppTypeConverterBase : TypeConverterBase<IType>, ICppTypeConverter
+    public abstract class CppTypeConverterBase : TypeTransformerBase, ICppTypeConverter
     {
         public CppTypeConverterBase()
         {
@@ -62,7 +62,7 @@ namespace Flame.Cpp
             {
                 return ConvertValueGenericInstance(Type);
             }
-            else if (Type.get_IsReferenceType() && !Type.get_IsContainerType())
+            else if (Type.get_IsReferenceType() && !Type.get_IsContainerType() && !Type.get_IsDelegate())
             {
                 return ConvertValueType(Type);
             }

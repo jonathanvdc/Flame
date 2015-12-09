@@ -103,42 +103,7 @@ namespace Flame.Cpp
 
         public static IEnumerable<IHeaderDependency> GetDependencies(this IType Type, IEnumerable<IMember> Exclude)
         {
-            if (Exclude.Contains(Type) || Type.get_IsGenericParameter())
-            {
-                return new IHeaderDependency[0];
-            }
-            else if (Type.get_IsPointer())
-            {
-                var depends = Type.AsContainerType().ElementType.GetDependencies();
-                if (Type.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer))
-                {
-                    return depends.MergeDependencies(new IHeaderDependency[] { StandardDependency.Memory });
-                }
-                else
-                {
-                    return depends;
-                }
-            }
-            else if (Type.get_IsGenericInstance())
-            {
-                return Type.GetGenericDeclaration().GetDependencies(Exclude).MergeDependencies(Type.GetGenericArguments().SelectMany((item) => item.GetDependencies(Exclude)));
-            }
-            else if (Type is ICppMember)
-            {
-                if (Type.DeclaringNamespace is IType)
-                {
-                    return ((IType)Type.DeclaringNamespace).GetDependencies(Exclude);
-                }
-                return new IHeaderDependency[] { new CppFile((ICppMember)Type) };
-            }
-            else if (Type.Equals(PrimitiveTypes.String))
-            {
-                return new IHeaderDependency[] { StandardDependency.String };
-            }
-            else
-            {
-                return Type.GetAttributeDependencies();
-            }
+            return new CppDependencyFinder(Exclude).Convert(Type);
         }
 
         public static IEnumerable<IHeaderDependency> GetDependencies(this IEnumerable<IMember> Members, params IMember[] Exclude)
