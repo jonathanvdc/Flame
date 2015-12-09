@@ -97,6 +97,11 @@ namespace Flame.Cpp
             }
         }
 
+        protected override string ConvertDelegateType(IType Type)
+        {
+            return MakeGenericType("std::function", new string[] { base.ConvertDelegateType(Type) });
+        }
+
         protected override string ConvertGenericParameter(IGenericParameter Type)
         {
             return Type.Name;

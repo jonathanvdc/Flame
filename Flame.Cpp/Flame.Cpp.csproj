@@ -56,6 +56,7 @@
     <Compile Include="CppAccessor.cs" />
     <Compile Include="CppAssembly.cs" />
     <Compile Include="CppBinaryAssignmentOverload.cs" />
+    <Compile Include="CppDependencyFinder.cs" />
     <Compile Include="CppDirectDependencyExtensions.cs" />
     <Compile Include="CppDocumentationExtensions.cs" />
     <Compile Include="CppEnvironment.cs" />

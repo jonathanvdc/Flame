@@ -1,0 +1,8 @@
+
+public class DelegatesTest
+{
+    public int callDelegate(int(int) f, int x)
+    {
+        return f(x);
+    }
+}
