@@ -8,6 +8,11 @@ using System.Threading.Tasks;
 
 namespace Flame.Front.Target
 {
+    using AnalysisPassInfo = PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>;
+    using MethodPassInfo = PassInfo<BodyPassArgument, IStatement>;
+    using StatementPassInfo = PassInfo<IStatement, IStatement>;
+    using RootPassInfo = PassInfo<BodyPassArgument, IEnumerable<IMember>>;
+
     /// <summary>
     /// A data structure that stores information related to some pass.
     /// Passes with equal names are assumed to be equal.
@@ -27,6 +32,7 @@ namespace Flame.Front.Target
         /// Gets the pass this pass info structure describes.
         /// </summary>
         public IPass<TIn, TOut> Pass { get; private set; }
+
         /// <summary>
         /// Gets the pass' name.
         /// </summary>
@@ -97,43 +103,65 @@ namespace Flame.Front.Target
     {
         public PassPreferences()
             : this(Enumerable.Empty<PassCondition>())
-        {
-        }
-        public PassPreferences(params PassCondition[] PreferredPasses)
-            : this((IEnumerable<PassCondition>)PreferredPasses)
-        {
-        }
+        { }
+        public PassPreferences(params PassCondition[] AdditionalConditions)
+            : this((IEnumerable<PassCondition>)AdditionalConditions)
+        { }
         public PassPreferences(IEnumerable<PassCondition> AdditionalConditions)
             : this(AdditionalConditions,
-                   Enumerable.Empty<PassInfo<BodyPassArgument, IStatement>>())
-        {
-        }
+                   Enumerable.Empty<MethodPassInfo>())
+        { }
         public PassPreferences(IEnumerable<PassCondition> AdditionalConditions,
-                               IEnumerable<PassInfo<BodyPassArgument, IStatement>> AdditionalPasses)
-        {
-            this.AdditionalConditions = AdditionalConditions;
-            this.AdditionalPasses = AdditionalPasses;
-        }
+                               IEnumerable<MethodPassInfo> AdditionalMethodPasses)
+            : this(AdditionalConditions, AdditionalMethodPasses, Enumerable.Empty<RootPassInfo>())
+        { }
         public PassPreferences(IEnumerable<PassCondition> AdditionalConditions,
-                               IEnumerable<PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>> AdditionalAnalysisPasses)
+                               IEnumerable<AnalysisPassInfo> AdditionalAnalysisPasses)
             : this(AdditionalConditions, 
                    AdditionalAnalysisPasses.Select(BodyAnalysisPass.ToBodyPass).ToArray())
-        {
-        }
+        { }
         public PassPreferences(IEnumerable<PassCondition> AdditionalConditions,
-                               IEnumerable<PassInfo<IStatement, IStatement>> AdditionalStatementPasses)
+                               IEnumerable<StatementPassInfo> AdditionalStatementPasses)
             : this(AdditionalConditions,
                    AdditionalStatementPasses.Select(BodyStatementPass.ToBodyPass).ToArray())
+        { }
+        public PassPreferences(IEnumerable<PassCondition> AdditionalConditions,
+                               IEnumerable<MethodPassInfo> AdditionalMethodPasses,
+                               IEnumerable<RootPassInfo> AdditionalRootPasses)
         {
+            this.AdditionalConditions = AdditionalConditions;
+            this.AdditionalMethodPasses = AdditionalMethodPasses;
+            this.AdditionalRootPasses = AdditionalRootPasses;
         }
 
+        /// <summary>
+        /// Gets a sequence of additional sufficient conditions for
+        /// passes to run.
+        /// </summary>
         public IEnumerable<PassCondition> AdditionalConditions { get; private set; }
-        public IEnumerable<PassInfo<BodyPassArgument, IStatement>> AdditionalPasses { get; private set; }
 
+        /// <summary>
+        /// Gets a sequence of additional method passes.
+        /// </summary>
+        public IEnumerable<MethodPassInfo> AdditionalMethodPasses { get; private set; }
+
+        /// <summary>
+        /// Gets a sequence of additional root passes.
+        /// </summary>
+        public IEnumerable<RootPassInfo> AdditionalRootPasses { get; private set; } 
+
+        /// <summary>
+        /// Takes the union of these pass
+        /// preferences and the given other 
+        /// pass preferences.
+        /// </summary>
+        /// <param name="Other"></param>
+        /// <returns></returns>
         public PassPreferences Union(PassPreferences Other)
         {
             return new PassPreferences(AdditionalConditions.Concat(Other.AdditionalConditions),
-                AdditionalPasses.Union(Other.AdditionalPasses));
+                AdditionalMethodPasses.Union(Other.AdditionalMethodPasses),
+                AdditionalRootPasses.Union(Other.AdditionalRootPasses));
         }
     }
 }

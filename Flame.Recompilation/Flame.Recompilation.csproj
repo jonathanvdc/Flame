@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AggregateRootPass.cs" />
     <Compile Include="AssemblyRecompiler.cs" />
     <Compile Include="AsyncDictionary.cs" />
     <Compile Include="AsyncTaskManager.cs" />
@@ -67,13 +68,13 @@
     <Compile Include="Emit\TryBlockGenerator.cs" />
     <Compile Include="Emit\UnaryExpression.cs" />
     <Compile Include="EmptyRecompilationStrategy.cs" />
+    <Compile Include="EmptyRootPass.cs" />
     <Compile Include="GenericSubstitutionConverter.cs" />
     <Compile Include="IAsyncTaskManager.cs" />
     <Compile Include="IMethodOptimizer.cs" />
     <Compile Include="IRecompilationStrategy.cs" />
     <Compile Include="PassSuite.cs" />
     <Compile Include="RandomAccessOptions.cs" />
-    <Compile Include="RecompilationExtensions.cs" />
     <Compile Include="RecompilationPassArguments.cs" />
     <Compile Include="RecompilingTypeVisitor.cs" />
     <Compile Include="ConditionalRecompilationStrategy.cs" />

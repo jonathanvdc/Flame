@@ -10,30 +10,48 @@ using System.Threading.Tasks;
 
 namespace Flame.Front.Target
 {
+    using MethodPassInfo = PassInfo<BodyPassArgument, IStatement>;
+    using StatementPassInfo = PassInfo<IStatement, IStatement>;
+    using RootPassInfo = PassInfo<BodyPassArgument, IEnumerable<IMember>>;
+    using IRootPass = IPass<BodyPassArgument, IEnumerable<IMember>>;
+
     public static class PassExtensions
     {
         static PassExtensions()
         {
-            MethodPasses = new List<PassInfo<BodyPassArgument, IStatement>>();
+            MethodPasses = new List<MethodPassInfo>();
+            RootPasses = new List<RootPassInfo>();
             PassConditions = new List<PassCondition>();
 
-            RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(SlimLambdaPass.Instance, SlimLambdaPass.SlimLambdaPassName));
-            RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(LowerLambdaPass.Instance, LowerLambdaPassName));
-            RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(Flame.Optimization.FlattenInitializationPass.Instance, Flame.Optimization.FlattenInitializationPass.FlattenInitializationPassName));
-            RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(TailRecursionPass.Instance, TailRecursionPass.TailRecursionPassName));
+            RegisterMethodPass(new MethodPassInfo(SlimLambdaPass.Instance, SlimLambdaPass.SlimLambdaPassName));
+            RegisterMethodPass(new MethodPassInfo(LowerLambdaPass.Instance, LowerLambdaPassName));
+            RegisterMethodPass(new MethodPassInfo(Flame.Optimization.FlattenInitializationPass.Instance, Flame.Optimization.FlattenInitializationPass.FlattenInitializationPassName));
+            RegisterMethodPass(new MethodPassInfo(TailRecursionPass.Instance, TailRecursionPass.TailRecursionPassName));
             RegisterPassCondition(TailRecursionPass.TailRecursionPassName, optInfo => optInfo.OptimizeNormal);
 
-            RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(InliningPass.Instance, InliningPass.InliningPassName));
+            RegisterMethodPass(new MethodPassInfo(InliningPass.Instance, InliningPass.InliningPassName));
             RegisterPassCondition(InliningPass.InliningPassName, optInfo => optInfo.OptimizeExperimental);
-            RegisterStatementPass(new PassInfo<IStatement, IStatement>(SimplifyFlowPass.Instance, SimplifyFlowPassName));
+            RegisterStatementPass(new StatementPassInfo(SimplifyFlowPass.Instance, SimplifyFlowPassName));
             RegisterPassCondition(SimplifyFlowPassName, optInfo => optInfo.OptimizeNormal);
             RegisterPassCondition(SimplifyFlowPassName, optInfo => optInfo.OptimizeSize);
-            RegisterStatementPass(new PassInfo<IStatement, IStatement>(Flame.Optimization.Variables.DefinitionPropagationPass.Instance, PropagateLocalsName));
+            RegisterStatementPass(new StatementPassInfo(Flame.Optimization.Variables.DefinitionPropagationPass.Instance, PropagateLocalsName));
             RegisterPassCondition(PropagateLocalsName, optInfo => optInfo.OptimizeExperimental);
-            RegisterStatementPass(new PassInfo<IStatement, IStatement>(Flame.Optimization.ImperativeCodePass.Instance, Flame.Optimization.ImperativeCodePass.ImperativeCodePassName));
+            RegisterStatementPass(new StatementPassInfo(Flame.Optimization.ImperativeCodePass.Instance, Flame.Optimization.ImperativeCodePass.ImperativeCodePassName));
         }
 
-        public static List<PassInfo<BodyPassArgument, IStatement>> MethodPasses { get; private set; }
+        /// <summary>
+        /// Gets the list of all globally available method passes.
+        /// </summary>
+        public static List<MethodPassInfo> MethodPasses { get; private set; }
+
+        /// <summary>
+        /// Gets the list of all globally available root passes.
+        /// </summary>
+        public static List<RootPassInfo> RootPasses { get; private set; }
+
+        /// <summary>
+        /// Gets the list of all globally available pass conditions. 
+        /// </summary>
         public static List<PassCondition> PassConditions { get; private set; }
 
         public const string EliminateDeadCodePassName = "dead-code-elimination";
@@ -56,7 +74,7 @@ namespace Flame.Front.Target
         /// Registers the given method body pass.
         /// </summary>
         /// <param name="Pass"></param>
-        public static void RegisterMethodPass(PassInfo<BodyPassArgument, IStatement> Pass)
+        public static void RegisterMethodPass(MethodPassInfo Pass)
         {
             MethodPasses.Add(Pass);
         }
@@ -65,9 +83,9 @@ namespace Flame.Front.Target
         /// Registers the given statement pass.
         /// </summary>
         /// <param name="Pass"></param>
-        public static void RegisterStatementPass(PassInfo<IStatement, IStatement> Pass)
+        public static void RegisterStatementPass(StatementPassInfo Pass)
         {
-            RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(new BodyStatementPass(Pass.Pass), Pass.Name));
+            RegisterMethodPass(new MethodPassInfo(new BodyStatementPass(Pass.Pass), Pass.Name));
         }
 
         /// <summary>
@@ -148,36 +166,70 @@ namespace Flame.Front.Target
         }
 
         /// <summary>
+        /// Creates an aggregate root pass from the given sequence
+        /// of root passes.
+        /// </summary>
+        /// <param name="RootPasses"></param>
+        /// <returns></returns>
+        private static IRootPass Aggregate(IEnumerable<IRootPass> RootPasses)
+        {
+            return RootPasses.Aggregate<IRootPass, IRootPass>(EmptyRootPass.Instance, (result, item) => new AggregateRootPass(result, item));
+        }
+
+        /// <summary>
         /// Gets all passes that are selected by the
-        /// given compiler log and pass preferences.
+        /// given optimization info and pass preferences.
         /// </summary>
         /// <param name="Log"></param>
         /// <param name="Preferences"></param>
         /// <returns></returns>
-        public static IEnumerable<PassInfo<BodyPassArgument, IStatement>> GetSelectedPasses(ICompilerLog Log, PassPreferences Preferences)
+        public static Tuple<IEnumerable<MethodPassInfo>, IEnumerable<RootPassInfo>> GetSelectedPasses(
+            OptimizationInfo OptInfo, PassPreferences Preferences)
         {
-            var optInfo = new OptimizationInfo(Log);
-
             var conditionDict = CreatePassConditionDictionary(PassConditions.Concat(Preferences.AdditionalConditions));
 
-            var selectedPasses = new List<PassInfo<BodyPassArgument, IStatement>>();
-            foreach (var item in Preferences.AdditionalPasses.Union(MethodPasses))
+            var selectedMethodPasses = new List<MethodPassInfo>();
+            foreach (var item in Preferences.AdditionalMethodPasses.Union(MethodPasses))
             {
-                AddPassInfo(selectedPasses, item, optInfo, conditionDict);
+                AddPassInfo(selectedMethodPasses, item, OptInfo, conditionDict);
             }
 
-            return selectedPasses;
+            var selectedRootPasses = new List<RootPassInfo>();
+            foreach (var item in Preferences.AdditionalRootPasses.Union(RootPasses))
+            {
+                AddPassInfo(selectedRootPasses, item, OptInfo, conditionDict);
+            }
+
+            return Tuple.Create<IEnumerable<MethodPassInfo>, IEnumerable<RootPassInfo>>(
+                selectedMethodPasses, selectedRootPasses);
         }
 
         /// <summary>
-        /// Gets the names of all selected passes.
+        /// Gets the names of all passes that are selected by the
+        /// given optimization info and pass preferences.
+        /// </summary>
+        /// <param name="Log"></param>
+        /// <param name="Preferences"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> GetSelectedPassNames(OptimizationInfo OptInfo, PassPreferences Preferences)
+        {
+            var selected = GetSelectedPasses(OptInfo, Preferences);
+
+            return selected.Item1.Select(item => item.Name)
+                .Concat(selected.Item2.Select(item => item.Name));
+        }
+
+
+        /// <summary>
+        /// Gets the names of all passes that are selected by the
+        /// given compiler log and pass preferences.
         /// </summary>
         /// <param name="Log"></param>
         /// <param name="Preferences"></param>
         /// <returns></returns>
         public static IEnumerable<string> GetSelectedPassNames(ICompilerLog Log, PassPreferences Preferences)
         {
-            return GetSelectedPasses(Log, Preferences).Select(item => item.Name);
+            return GetSelectedPassNames(new OptimizationInfo(Log), Preferences);
         }
 
         /// <summary>
@@ -189,11 +241,21 @@ namespace Flame.Front.Target
         /// <returns></returns>
         public static PassSuite CreateSuite(ICompilerLog Log, PassPreferences Preferences)
         {
-            var methodOpt = Log.GetMethodOptimizer();
+            var optInfo = new OptimizationInfo(Log);
 
-            var selectedMethodPasses = GetSelectedPasses(Log, Preferences).Select(item => item.Pass);
+            // Call the `Optimize` method on method body statements
+            // if `-O1` or above is given. (`-Og` == `-O1 -g` is the 
+            // default optimization level. `-O0` should only be used
+            // when hacking the compiler or something)
+            var methodOpt = new DefaultOptimizer(optInfo.OptimizeMinimal);
 
-            return new PassSuite(methodOpt, selectedMethodPasses.Aggregate());
+            // Select passes by relying on the optimization info
+            // and pass preferences.
+            var selectedPasses = GetSelectedPasses(optInfo, Preferences);
+            var selectedMethodPasses = selectedPasses.Item1.Select(item => item.Pass);
+            var selectedRootPasses = selectedPasses.Item2.Select(item => item.Pass);
+
+            return new PassSuite(methodOpt, selectedMethodPasses.Aggregate(), Aggregate(selectedRootPasses));
         }
     }
 }

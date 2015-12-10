@@ -568,7 +568,7 @@ namespace Flame.Front.Cli
                                 names.Select(item => new MarkupNode(NodeConstants.TextNodeType, "-f" + item)));
             Log.LogMessage(new LogEntry("Passes in use (in order of application)", resultNode));
             
-            var optLevel = OptimizationInfo.GetOptimizationLevel(Log);
+            var optLevel = OptimizationInfo.GetOptimizationLevel(Log.Options);
             var optList = ListExtensions.Instance.CreateList(
                             OptimizationInfo.GetOptimizationDirectives(optLevel)
                                             .Select(item => 

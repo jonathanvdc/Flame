@@ -29,11 +29,11 @@ namespace Flame.Recompilation
         {
         }
         public AssemblyRecompiler(IAssemblyBuilder TargetAssembly, ICompilerLog Log, IAsyncTaskManager TaskManager, RecompilationSettings Settings)
-            : this(TargetAssembly, Log, TaskManager, PassSuite.CreateDefault(Log), Settings)
+            : this(TargetAssembly, Log, TaskManager, new PassSuite(), Settings)
         {
         }
         public AssemblyRecompiler(IAssemblyBuilder TargetAssembly, ICompilerLog Log, IAsyncTaskManager TaskManager)
-            : this(TargetAssembly, Log, TaskManager, PassSuite.CreateDefault(Log), new RecompilationSettings())
+            : this(TargetAssembly, Log, TaskManager, new PassSuite(), new RecompilationSettings())
         {
         }
         public AssemblyRecompiler(IAssemblyBuilder TargetAssembly, ICompilerLog Log)
