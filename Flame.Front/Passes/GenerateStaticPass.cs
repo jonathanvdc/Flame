@@ -36,6 +36,12 @@ namespace Flame.Front.Passes
         public const string GenerateStaticPassName = "generate-static";
 
         /// <summary>
+        /// Defines a key that is used to cache the owning associated
+        /// singleton for types.
+        /// </summary>
+        private const string AssociatedSingletonOwnerKey = GenerateStaticPassName + "-associated-singleton-owner";
+
+        /// <summary>
         /// Defines a key that is used to store forwarding properties
         /// in the pass metadata.
         /// </summary>
@@ -52,7 +58,7 @@ namespace Flame.Front.Passes
                 return Enumerable.Empty<IMember>();
 
             var singletonTy = Value.DeclaringType;
-            var ownerTy = singletonTy.GetAssociatedSingletonOwner();
+            var ownerTy = GetAssociatedSingletonOwner(Value.Metadata, singletonTy);
 
             // Only proceed if the declaring type actually
             // is an associated singleton type.
@@ -63,11 +69,11 @@ namespace Flame.Front.Passes
 
             if (declMethod is IAccessor)
             {
-                return new IMember[] { CreateForwardingMethod(getSingletonExpr, ownerTy, declMethod) };
+                return new IMember[] { CreateForwardingAccessor(Value.Metadata, getSingletonExpr, ownerTy, (IAccessor)declMethod) };
             }
             else
             {
-                return new IMember[] { CreateForwardingAccessor(Value.Metadata, getSingletonExpr, ownerTy, (IAccessor)declMethod) };
+                return new IMember[] { CreateForwardingMethod(getSingletonExpr, ownerTy, declMethod) };
             }
         }
 
@@ -141,6 +147,32 @@ namespace Flame.Front.Passes
             descMethod.Body = new ReturnStatement(CreateSingletonCall(GetSingletonExpression, descMethod, Accessor));
 
             return descMethod;
+        }
+
+        /// <summary>
+        /// Gets the owner of this associated singleton type.
+        /// </summary>
+        /// <param name="Metadata"></param>
+        /// <param name="AssociatedSingleton"></param>
+        /// <returns></returns>
+        private static IType GetAssociatedSingletonOwner(PassMetadata Metadata, IType AssociatedSingleton)
+        {
+            var tyMetadata = Metadata.TypeMetadata;
+            // Be careful when it comes to
+            // thread-safety.
+            lock (tyMetadata)
+            {
+                if (!tyMetadata.HasOption(ForwardingPropertiesKey))
+                {
+                    // Seems like this is the first time we're here for this
+                    // type. Let's find out what this type's associated singleton
+                    // owner is.
+                    tyMetadata.SetOption(ForwardingPropertiesKey, AssociatedSingleton.GetAssociatedSingletonOwner());
+                }
+
+                return tyMetadata.GetOption<IType>(
+                    ForwardingPropertiesKey, null);
+            }
         }
 
         /// <summary>
