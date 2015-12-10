@@ -244,99 +244,9 @@ namespace Flame.Cecil
             ClearBaseTypeCache();
         }
 
-        private static IExpression CreateSingletonCall(IExpression GetSingletonExpression, IMethod Method)
-        {
-            var parameters = Method.GetParameters();
-            var args = new IExpression[parameters.Length];
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                args[i] = new ArgumentVariable(parameters[i], i).CreateGetExpression();
-            }
-            return new InvocationExpression(Method, GetSingletonExpression, args);
-        }
-
-        private static void CreateStaticSingletonMethod(IExpression GetSingletonExpression, ITypeBuilder DeclaringType, IMethod Method)
-        {
-            var descMethod = new DescribedMethod(Method.Name, DeclaringType, Method.ReturnType, true);
-            foreach (var attr in Method.Attributes)
-            {
-                descMethod.AddAttribute(attr);
-            }
-            foreach (var param in Method.GetParameters())
-            {
-                descMethod.AddParameter(param);
-            }
-            var staticMethod = DeclaringType.DeclareMethod(new MethodPrototypeTemplate(descMethod));
-            staticMethod.Initialize();
-            var call = CreateSingletonCall(GetSingletonExpression, Method);
-            var bodyGen = staticMethod.GetBodyGenerator();
-            staticMethod.SetMethodBody(bodyGen.EmitReturn(call.Emit(bodyGen)));
-            staticMethod.Build();
-        }
-
-        private static void CreateStaticSingletonAccessor(IExpression GetSingletonExpression, IPropertyBuilder DeclaringProperty, IAccessor Accessor)
-        {
-            var descMethod = new DescribedAccessor(Accessor.AccessorType, DeclaringProperty, Accessor.ReturnType);
-            descMethod.IsStatic = true;
-            foreach (var attr in Accessor.Attributes)
-            {
-                descMethod.AddAttribute(attr);
-            }
-            foreach (var param in Accessor.GetParameters())
-            {
-                descMethod.AddParameter(param);
-            }
-            var staticMethod = DeclaringProperty.DeclareAccessor(Accessor.AccessorType, new MethodPrototypeTemplate(descMethod));
-            staticMethod.Initialize();
-            var call = CreateSingletonCall(GetSingletonExpression, Accessor);
-            var bodyGen = staticMethod.GetBodyGenerator();
-            staticMethod.SetMethodBody(bodyGen.EmitReturn(call.Emit(bodyGen)));
-            staticMethod.Build();
-        }
-
-        private static void CreateStaticSingletonProperty(IExpression GetSingletonExpression, ITypeBuilder DeclaringType, IProperty Property)
-        {
-            var descProp = new DescribedProperty(Property.Name, DeclaringType, Property.PropertyType, true);
-            foreach (var attr in Property.Attributes)
-            {
-                descProp.AddAttribute(attr);
-            }
-            foreach (var param in Property.IndexerParameters)
-            {
-                descProp.AddIndexerParameter(param);
-            }
-            var staticProp = DeclaringType.DeclareProperty(new PropertyPrototypeTemplate(descProp));
-            staticProp.Initialize();
-            foreach (var item in Property.Accessors)
-            {
-                CreateStaticSingletonAccessor(GetSingletonExpression, staticProp, item);
-            }
-            staticProp.Build();
-        }
-
         public IType Build()
         {
             initialValues = null;
-            if (this.Name == StaticSingletonName)
-            {
-                var declTypeBuilder = this.DeclaringGenericMember as ITypeBuilder;
-                var singletonProp = this.Properties.GetProperty(this.GetSingletonMemberName(), true);
-                // Generate static members for C# compatibility if "-generate-static" was specified
-                if (declTypeBuilder != null && singletonProp != null && declTypeBuilder.GetLog().Options.GenerateStaticMembers())
-                {
-                    var getSingletonExpr = new PropertyVariable(singletonProp).CreateGetExpression();
-                    foreach (var item in this.GetMethods())
-                        if (item.get_Access() == AccessModifier.Public && !item.IsStatic && !item.get_IsGeneric())
-                    {
-                        CreateStaticSingletonMethod(getSingletonExpr, declTypeBuilder, item);
-                    }
-                    foreach (var item in this.Properties)
-                        if (item.get_Access() == AccessModifier.Public && !item.IsStatic)
-                    {
-                        CreateStaticSingletonProperty(getSingletonExpr, declTypeBuilder, item);
-                    }
-                }
-            }
             return this;
         }
 
