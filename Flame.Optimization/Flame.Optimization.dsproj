@@ -2,7 +2,7 @@
 <Project Name="Flame.Optimization">
   <Setter Property="TargetPlatform" Value="clr" />
   <Setter Property="AssemblyName" Value="Flame.Optimization" />
-  <Option Key="generate-static" Value="true" />
+  <Option Key="fgenerate-static" Value="true" />
   <Option Key="docs" Value="xml" />
   <ItemGroup>
     <RuntimeLibrary Include="PortableRT" />
