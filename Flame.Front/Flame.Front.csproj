@@ -53,6 +53,7 @@
     <Compile Include="BinderResolver.cs" />
     <Compile Include="Cli\CauseNodeWriter.cs" />
     <Compile Include="Cli\StyleWriter.cs" />
+    <Compile Include="Passes\GenerateStaticPass.cs" />
     <Compile Include="Projects\ProjectLibrary.cs" />
     <Compile Include="Target\BodyAnalysisPass.cs" />
     <Compile Include="Target\BodyStatementPass.cs" />
@@ -136,6 +137,7 @@
       <Name>Flame.Recompilation</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
