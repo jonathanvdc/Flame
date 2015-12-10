@@ -51,18 +51,28 @@ namespace Flame.Front.Target
     public class OptimizationInfo
     {
         public OptimizationInfo(ICompilerLog Log)
-            : this(Log, GetOptimizationLevel(Log))
-        {
-        }
+            : this(Log, GetOptimizationLevel(Log.Options))
+        { }
         public OptimizationInfo(ICompilerLog Log, OptimizationMode OptimizationLevel)
         {
             this.Log = Log;
             this.OptimizationLevel = OptimizationLevel;
         }
 
+        /// <summary>
+        /// Gets the optimization info's associated compiler log.
+        /// </summary>
         public ICompilerLog Log { get; private set; }
+
+        /// <summary>
+        /// Gets the optimization level specified by this
+        /// optimization information instance.
+        /// </summary>
         public OptimizationMode OptimizationLevel { get; private set; }
 
+        /// <summary>
+        /// Checks if minimal optimization (`-O1` or above) is turned on.
+        /// </summary>
         public bool OptimizeMinimal
         {
             get
@@ -70,6 +80,10 @@ namespace Flame.Front.Target
                 return (OptimizationLevel & OptimizationMode.Minimal) == OptimizationMode.Minimal;
             }
         }
+
+        /// <summary>
+        /// Checks if normal optimization (`-O2` or above) is turned on.
+        /// </summary>
         public bool OptimizeNormal
         {
             get
@@ -77,6 +91,10 @@ namespace Flame.Front.Target
                 return (OptimizationLevel & OptimizationMode.Normal) == OptimizationMode.Normal;
             }
         }
+
+        /// <summary>
+        /// Checks if experimental optimization (`-O3` or above) is turned on.
+        /// </summary>
         public bool OptimizeExperimental
         {
             get
@@ -84,6 +102,10 @@ namespace Flame.Front.Target
                 return (OptimizationLevel & OptimizationMode.Experimental) == OptimizationMode.Experimental;
             }
         }
+
+        /// <summary>
+        /// Checks if size optimization (`-Os` or above) is turned on.
+        /// </summary>
         public bool OptimizeSize
         {
             get
@@ -91,6 +113,10 @@ namespace Flame.Front.Target
                 return (OptimizationLevel & OptimizationMode.Size) == OptimizationMode.Size;
             }
         }
+
+        /// <summary>
+        /// Checks if debug optimization (`-g` or above) is turned on.
+        /// </summary>
         public bool OptimizeDebug
         {
             get
@@ -98,28 +124,35 @@ namespace Flame.Front.Target
                 return (OptimizationLevel & OptimizationMode.Debug) == OptimizationMode.Debug;
             }
         }
-
-        public static OptimizationMode GetOptimizationLevel(ICompilerLog Log)
+        
+        private static Dictionary<string, OptimizationMode> allOptions = new Dictionary<string, OptimizationMode>()
         {
-            var allOptions = new Dictionary<string, OptimizationMode>()
-            {
-                { "O0", OptimizationMode.None },
-                { "O", OptimizationMode.Minimal },
-                { "O1", OptimizationMode.Minimal },
-                { "O2", OptimizationMode.Minimal | OptimizationMode.Normal },
-                { "O3", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental },
-                { "O4", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental },
-                { "Ofast", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental | OptimizationMode.Dangerous },
-                { "Os", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Size },
-                { "Oz", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental | OptimizationMode.Size },
-                { "g", OptimizationMode.Debug },
-                { "Og", OptimizationMode.Minimal | OptimizationMode.Debug }
-            };
+            { "O0", OptimizationMode.None },
+            { "O", OptimizationMode.Minimal },
+            { "O1", OptimizationMode.Minimal },
+            { "O2", OptimizationMode.Minimal | OptimizationMode.Normal },
+            { "O3", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental },
+            { "O4", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental },
+            { "Ofast", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental | OptimizationMode.Dangerous },
+            { "Os", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Size },
+            { "Oz", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental | OptimizationMode.Size },
+            { "g", OptimizationMode.Debug },
+            { "Og", OptimizationMode.Minimal | OptimizationMode.Debug }
+        };
 
-            var selectedOptions = allOptions.Where(item => Log.Options.GetOption<bool>(item.Key, false)).Select(item => item.Value);
+        /// <summary>
+        /// Extracts the current optimization level from the given compiler options.
+        /// </summary>
+        /// <param name="Log"></param>
+        /// <returns></returns>
+        public static OptimizationMode GetOptimizationLevel(ICompilerOptions Options)
+        {
+            var selectedOptions = allOptions.Where(item => Options.GetOption<bool>(item.Key, false)).Select(item => item.Value);
             if (!selectedOptions.Any())
             {
-                return OptimizationMode.Minimal | OptimizationMode.Debug; // Enable `-Og` if nothing else is specified
+                // `-Og` is the default optimization level for Flame compilers,
+                // so enable that if nothing else is specified
+                return OptimizationMode.Minimal | OptimizationMode.Debug;
             }
             else
             {

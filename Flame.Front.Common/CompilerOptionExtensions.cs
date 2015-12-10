@@ -67,23 +67,6 @@ namespace Flame.Front
                         return Flame.Syntax.EmptyDocumentationParser.Instance;
                 }
             });
-            options.RegisterParser<Flame.Recompilation.IMethodOptimizer>(item =>
-            {
-                switch (item.ToLower())
-                {
-                    /*case "aggressive":
-                    case "analysis":
-                        return new AnalyzingOptimizer();*/
-
-                    case "none":
-                        return new DefaultOptimizer(false);
-
-                    case "default":
-                    case "conservative":
-                    default:
-                        return new DefaultOptimizer(true);
-                }
-            });
             return options;
         }
     }
