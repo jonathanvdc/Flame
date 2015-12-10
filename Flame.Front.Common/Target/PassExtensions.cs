@@ -37,6 +37,8 @@ namespace Flame.Front.Target
             RegisterStatementPass(new StatementPassInfo(Flame.Optimization.Variables.DefinitionPropagationPass.Instance, PropagateLocalsName));
             RegisterPassCondition(PropagateLocalsName, optInfo => optInfo.OptimizeExperimental);
             RegisterStatementPass(new StatementPassInfo(Flame.Optimization.ImperativeCodePass.Instance, Flame.Optimization.ImperativeCodePass.ImperativeCodePassName));
+
+            RegisterRootPass(new RootPassInfo(Flame.Front.Passes.GenerateStaticPass.Instance, Flame.Front.Passes.GenerateStaticPass.GenerateStaticPassName));
         }
 
         /// <summary>
@@ -86,6 +88,15 @@ namespace Flame.Front.Target
         public static void RegisterStatementPass(StatementPassInfo Pass)
         {
             RegisterMethodPass(new MethodPassInfo(new BodyStatementPass(Pass.Pass), Pass.Name));
+        }
+
+        /// <summary>
+        /// Registers the given root pass.
+        /// </summary>
+        /// <param name="Pass"></param>
+        public static void RegisterRootPass(RootPassInfo Pass)
+        {
+            RootPasses.Add(Pass);
         }
 
         /// <summary>
