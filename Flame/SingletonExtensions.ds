@@ -7,11 +7,18 @@ namespace Flame
 {
 	public static class SingletonExtensions
 	{
+		/// <summary>
+		/// Tests if the given type is a singleton.
+		/// </summary>
 		public static bool IsSingleton[this IType Type]
 		{
 			const get return Type.HasAttribute(SingletonAttribute.SingletonAttributeType);
 		}
 
+		/// <summary>
+		/// Gets the given type's singleton member, which may be either
+		/// a property or a field.
+		/// </summary>
 		public static const ITypeMember GetSingletonMember(this IType Type)
 		{
 			var attr = (SingletonAttribute)Type.GetAttribute(SingletonAttribute.SingletonAttributeType);
@@ -28,6 +35,10 @@ namespace Flame
 			}
 		}
 
+		/// <summary>
+		/// Gets the sequence of all associated types of the given
+		/// type.
+		/// </summary>
 		public static const [IType] GetAssociatedTypes(this IType Type)
 		{
 			var attrs = Type.GetAttributes(AssociatedTypeAttribute.AssociatedTypeAttributeType);
@@ -39,6 +50,10 @@ namespace Flame
 			return results;
 		}
 
+		/// <summary>
+		/// Gets all singleton types that are associated with the
+		/// given type.
+		/// </summary>
 		public static const [IType] GetAssociatedSingletons(this IType Type)
 		{
 			var attrs = Type.GetAttributes(AssociatedTypeAttribute.AssociatedTypeAttributeType);
@@ -52,34 +67,55 @@ namespace Flame
 			return results;
 		}
 
+		/// <summary>
+		/// Gets the given type's single associated singleton type,
+		/// if any. Otherwise, null is returned.
+		/// </summary>
 		public static const IType GetAssociatedSingleton(this IType Type)
 		{
 			var singletons = Type.GetAssociatedSingletons();
 			return Enumerable.SingleOrDefault<IType>(singletons);
 		}
 
+		/// <summary>
+		/// Checks if the first type is an associated singleton
+		/// of the given target type.
+		/// </summary>
 		public static const bool IsAssociatedSingletonOf(this IType Type, IType Target)
 		{
 			return Enumerable.Contains<IType>(Target.GetAssociatedSingletons(), Type);
 		}
 
-		public static const bool IsAssociatedSingleton(this IType Type)
+		/// <summary>
+		/// Gets the "owner" of this associated singleton type.
+		/// Null is returned if no owner could be found.
+		/// </summary>
+		public static const IType GetAssociatedSingletonOwner(this IType Type)
 		{
-			if (!Type.IsSingleton) return false;
+			if (!Type.IsSingleton) return null;
 			if (Type.DeclaringNamespace is IType)
 			{
 				var declType = (IType)Type.DeclaringNamespace;
 				if (Type.IsAssociatedSingletonOf(declType))
 				{
-					return true;
+					return declType;
 				}
 			}
 			foreach (var item in Type.GetAssociatedTypes())
 				if (Type.IsAssociatedSingletonOf(item))
 			{
-				return true;
+				return item;
 			}
-			return false;
+			return null;
+		}
+
+		/// <summary>
+		/// Checks if the given type is the associated singleton of
+		/// some other type.
+		/// </summary>
+		public static const bool IsAssociatedSingleton(this IType Type)
+		{
+			return Type.GetAssociatedSingletonOwner() != null;
 		}
 
 		public static const [IMethod] GetAssociatedOperatorMethods(this IType Type)
