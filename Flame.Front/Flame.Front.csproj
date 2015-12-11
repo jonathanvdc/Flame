@@ -54,6 +54,7 @@
     <Compile Include="Cli\CauseNodeWriter.cs" />
     <Compile Include="Cli\StyleWriter.cs" />
     <Compile Include="Passes\GenerateStaticPass.cs" />
+    <Compile Include="Passes\WrapExtensionPropertiesPass.cs" />
     <Compile Include="Projects\ProjectLibrary.cs" />
     <Compile Include="Target\BodyAnalysisPass.cs" />
     <Compile Include="Target\BodyStatementPass.cs" />
