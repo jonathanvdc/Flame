@@ -11,9 +11,11 @@ using System.Threading.Tasks;
 namespace Flame.Front.Target
 {
     using MethodPassInfo = PassInfo<BodyPassArgument, IStatement>;
+    using SignaturePassInfo = PassInfo<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
     using StatementPassInfo = PassInfo<IStatement, IStatement>;
     using RootPassInfo = PassInfo<BodyPassArgument, IEnumerable<IMember>>;
     using IRootPass = IPass<BodyPassArgument, IEnumerable<IMember>>;
+    using ISignaturePass = IPass<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
 
     public static class PassExtensions
     {
@@ -21,6 +23,7 @@ namespace Flame.Front.Target
         {
             MethodPasses = new List<MethodPassInfo>();
             RootPasses = new List<RootPassInfo>();
+            SignaturePasses = new List<SignaturePassInfo>();
             PassConditions = new List<PassCondition>();
 
             RegisterMethodPass(new MethodPassInfo(SlimLambdaPass.Instance, SlimLambdaPass.SlimLambdaPassName));
@@ -50,6 +53,11 @@ namespace Flame.Front.Target
         /// Gets the list of all globally available root passes.
         /// </summary>
         public static List<RootPassInfo> RootPasses { get; private set; }
+
+        /// <summary>
+        /// Gets the list of all globally available signature passes.
+        /// </summary>
+        public static List<SignaturePassInfo> SignaturePasses { get; private set; }
 
         /// <summary>
         /// Gets the list of all globally available pass conditions. 
@@ -97,6 +105,15 @@ namespace Flame.Front.Target
         public static void RegisterRootPass(RootPassInfo Pass)
         {
             RootPasses.Add(Pass);
+        }
+
+        /// <summary>
+        /// Registers the given signature pass.
+        /// </summary>
+        /// <param name="Pass"></param>
+        public static void RegisterSignaturePass(SignaturePassInfo Pass)
+        {
+            SignaturePasses.Add(Pass);
         }
 
         /// <summary>
@@ -188,13 +205,25 @@ namespace Flame.Front.Target
         }
 
         /// <summary>
+        /// Creates an aggregate signature pass from the given sequence
+        /// of signature passes.
+        /// </summary>
+        /// <param name="RootPasses"></param>
+        /// <returns></returns>
+        private static ISignaturePass Aggregate(IEnumerable<ISignaturePass> RootPasses)
+        {
+            return RootPasses.Aggregate<ISignaturePass, ISignaturePass>(EmptyMemberSignaturePass<IMember>.Instance, 
+                (result, item) => new AggregateMemberSignaturePass<IMember>(result, item));
+        }
+
+        /// <summary>
         /// Gets all passes that are selected by the
         /// given optimization info and pass preferences.
         /// </summary>
         /// <param name="Log"></param>
         /// <param name="Preferences"></param>
         /// <returns></returns>
-        public static Tuple<IEnumerable<MethodPassInfo>, IEnumerable<RootPassInfo>> GetSelectedPasses(
+        public static Tuple<IEnumerable<MethodPassInfo>, IEnumerable<RootPassInfo>, IEnumerable<SignaturePassInfo>> GetSelectedPasses(
             OptimizationInfo OptInfo, PassPreferences Preferences)
         {
             var conditionDict = CreatePassConditionDictionary(PassConditions.Concat(Preferences.AdditionalConditions));
@@ -211,8 +240,14 @@ namespace Flame.Front.Target
                 AddPassInfo(selectedRootPasses, item, OptInfo, conditionDict);
             }
 
-            return Tuple.Create<IEnumerable<MethodPassInfo>, IEnumerable<RootPassInfo>>(
-                selectedMethodPasses, selectedRootPasses);
+            var selectedSignaturePasses = new List<SignaturePassInfo>();
+            foreach (var item in Preferences.AdditionalSignaturePasses.Union(SignaturePasses))
+            {
+                AddPassInfo(selectedSignaturePasses, item, OptInfo, conditionDict);
+            }
+
+            return Tuple.Create<IEnumerable<MethodPassInfo>, IEnumerable<RootPassInfo>, IEnumerable<SignaturePassInfo>>(
+                selectedMethodPasses, selectedRootPasses, selectedSignaturePasses);
         }
 
         /// <summary>
@@ -265,8 +300,9 @@ namespace Flame.Front.Target
             var selectedPasses = GetSelectedPasses(optInfo, Preferences);
             var selectedMethodPasses = selectedPasses.Item1.Select(item => item.Pass);
             var selectedRootPasses = selectedPasses.Item2.Select(item => item.Pass);
+            var selectedSigPasses = selectedPasses.Item3.Select(item => item.Pass);
 
-            return new PassSuite(methodOpt, selectedMethodPasses.Aggregate(), Aggregate(selectedRootPasses));
+            return new PassSuite(methodOpt, selectedMethodPasses.Aggregate(), Aggregate(selectedRootPasses), Aggregate(selectedSigPasses));
         }
     }
 }
