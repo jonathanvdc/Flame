@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flame.Recompilation;
 
 namespace Flame.Front.Target
 {
     using AnalysisPassInfo = PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>;
     using MethodPassInfo = PassInfo<BodyPassArgument, IStatement>;
+    using SignaturePassInfo = PassInfo<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
     using StatementPassInfo = PassInfo<IStatement, IStatement>;
     using RootPassInfo = PassInfo<BodyPassArgument, IEnumerable<IMember>>;
 
@@ -128,10 +130,18 @@ namespace Flame.Front.Target
         public PassPreferences(IEnumerable<PassCondition> AdditionalConditions,
                                IEnumerable<MethodPassInfo> AdditionalMethodPasses,
                                IEnumerable<RootPassInfo> AdditionalRootPasses)
+            : this(AdditionalConditions, AdditionalMethodPasses, AdditionalRootPasses, 
+                   Enumerable.Empty<SignaturePassInfo>())
+        { }
+        public PassPreferences(IEnumerable<PassCondition> AdditionalConditions,
+                               IEnumerable<MethodPassInfo> AdditionalMethodPasses,
+                               IEnumerable<RootPassInfo> AdditionalRootPasses,
+                               IEnumerable<SignaturePassInfo> AdditionalSignaturePasses)
         {
             this.AdditionalConditions = AdditionalConditions;
             this.AdditionalMethodPasses = AdditionalMethodPasses;
             this.AdditionalRootPasses = AdditionalRootPasses;
+            this.AdditionalSignaturePasses = AdditionalSignaturePasses;
         }
 
         /// <summary>
@@ -148,7 +158,12 @@ namespace Flame.Front.Target
         /// <summary>
         /// Gets a sequence of additional root passes.
         /// </summary>
-        public IEnumerable<RootPassInfo> AdditionalRootPasses { get; private set; } 
+        public IEnumerable<RootPassInfo> AdditionalRootPasses { get; private set; }
+
+        /// <summary>
+        /// Gets a sequence of additional signature passes.
+        /// </summary>
+        public IEnumerable<SignaturePassInfo> AdditionalSignaturePasses { get; private set; }
 
         /// <summary>
         /// Takes the union of these pass
@@ -161,7 +176,8 @@ namespace Flame.Front.Target
         {
             return new PassPreferences(AdditionalConditions.Concat(Other.AdditionalConditions),
                 AdditionalMethodPasses.Union(Other.AdditionalMethodPasses),
-                AdditionalRootPasses.Union(Other.AdditionalRootPasses));
+                AdditionalRootPasses.Union(Other.AdditionalRootPasses),
+                AdditionalSignaturePasses.Union(Other.AdditionalSignaturePasses));
         }
     }
 }
