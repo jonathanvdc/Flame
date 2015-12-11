@@ -29,7 +29,7 @@ namespace Flame.Front.Passes
             {
                 if (IsApplicable(Value.DeclaringMethod))
                 {
-                    return new IMember[] { CreateForwardingMethod(Value.DeclaringMethod) };
+                    return new IMember[] { CreateForwardingMethod((IAccessor)Value.DeclaringMethod) };
                 }
                 else
                 {
@@ -45,9 +45,9 @@ namespace Flame.Front.Passes
             /// <param name="OwnerType"></param>
             /// <param name="Method"></param>
             /// <returns></returns>
-            private static IMethod CreateForwardingMethod(IMethod Method)
+            private static IMethod CreateForwardingMethod(IAccessor Method)
             {
-                var descMethod = new DescribedBodyMethod(Method.Name, Method.DeclaringType, Method.ReturnType, true);
+                var descMethod = new DescribedBodyMethod(Rename(Method), Method.DeclaringType, Method.ReturnType, true);
                 foreach (var attr in Method.Attributes)
                 {
                     descMethod.AddAttribute(attr);
@@ -117,6 +117,32 @@ namespace Flame.Front.Passes
             return acc != null && acc.IsStatic && acc.get_IsExtension() && 
                    acc.get_Access() == AccessModifier.Public &&
                    !acc.get_IsGenericInstance() && !acc.get_IsGeneric();
+        }
+
+        /// <summary>
+        /// Converts the first character of the given
+        /// string to upper-case, and converts the rest
+        /// of the string to lower-case.
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <returns></returns>
+        private static string FirstCharToUpper(string Name)
+        {
+            int firstIndex = Name.Length > 0 ? 1 : 0;
+            return Name.Substring(0, firstIndex).ToUpper() + Name.Substring(firstIndex).ToLower();
+        }
+
+        /// <summary>
+        /// Creates a new name for the given 
+        /// static extension property accessor.
+        /// </summary>
+        /// <param name="Accessor"></param>
+        /// <returns></returns>
+        public static string Rename(IAccessor Accessor)
+        {
+            var declProp = Accessor.DeclaringProperty;
+            string accKind = FirstCharToUpper(Accessor.AccessorType.Name);
+            return accKind + declProp.Name;
         }
     }
 }
