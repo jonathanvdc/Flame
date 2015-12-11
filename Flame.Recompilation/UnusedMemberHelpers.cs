@@ -71,7 +71,7 @@ namespace Flame.Recompilation
                         // Don't issue warnings for static constant fields, because
                         // their values could have just been inlined: we can't
                         // tell if they haven't been used or not.
-                        if (!(item.IsStatic && item.get_IsConstant()))
+                        if (!(item.IsStatic && item.GetIsConstant()))
                         {
                             WarnUnused(item, "field", UnusedFieldWarning, Recompiler.Log);
                         }

@@ -206,20 +206,20 @@ namespace Flame.Recompilation
             {
                 return false;
             }
-            else if (Type.get_IsContainerType())
+            else if (Type.GetIsContainerType())
             {
                 return IsExternal(Type.AsContainerType().ElementType);
             }
-            else if (Type.get_IsGenericParameter())
+            else if (Type.GetIsGenericParameter())
             {
                 var declMember = ((IGenericParameter)Type).DeclaringMember;
                 return IsExternal(declMember);
             }
-            else if (Type.get_IsGenericInstance())
+            else if (Type.GetIsGenericInstance())
             {
                 return IsExternal(Type.GetGenericDeclaration()) && Type.GetGenericArguments().All(IsExternal);
             }
-            else if (Type.get_IsDelegate())
+            else if (Type.GetIsDelegate())
             {
                 var method = MethodType.GetMethod(Type);
                 return IsExternal(method.ReturnType) && method.Parameters.GetTypes().All(IsExternal);
@@ -253,7 +253,7 @@ namespace Flame.Recompilation
             if (Member is IGenericMember)
             {
                 var genMember = (IGenericMember)Member;
-                if (genMember.get_IsGenericInstance())
+                if (genMember.GetIsGenericInstance())
                 {
                     var genArgs = genMember.GetGenericArguments();
                     if (!genArgs.All(IsExternal))
@@ -306,11 +306,11 @@ namespace Flame.Recompilation
             {
                 return false;
             }
-            else if (HasExternalAttribute(Type) || Type.get_IsContainerType())
+            else if (HasExternalAttribute(Type) || Type.GetIsContainerType())
             {
                 return true;
             }
-            else if (Type.get_IsGenericParameter())
+            else if (Type.GetIsGenericParameter())
             {
                 var declMember = ((IGenericParameter)Type).DeclaringMember;
                 return IsExternalStrict(declMember);
@@ -417,11 +417,11 @@ namespace Flame.Recompilation
 
         private MemberCreationResult<IType> GetNewType(IType SourceType)
         {
-            if (SourceType.get_IsDelegate())
+            if (SourceType.GetIsDelegate())
             {
                 return new MemberCreationResult<IType>(MethodType.Create(GetMethod(MethodType.GetMethod(SourceType))));
             }
-            else if (SourceType.get_IsIntersectionType())
+            else if (SourceType.GetIsIntersectionType())
             {
                 var interType = (IntersectionType)SourceType;
 
@@ -431,19 +431,19 @@ namespace Flame.Recompilation
             {
                 return new MemberCreationResult<IType>(SourceType);
             }
-            else if (SourceType.get_IsContainerType())
+            else if (SourceType.GetIsContainerType())
             {
                 var containerType = SourceType.AsContainerType();
                 var recompiledElemType = GetType(containerType.ElementType);
-                if (SourceType.get_IsVector())
+                if (SourceType.GetIsVector())
                 {
                     return new MemberCreationResult<IType>(recompiledElemType.MakeVectorType(containerType.AsVectorType().Dimensions));
                 }
-                else if (SourceType.get_IsPointer())
+                else if (SourceType.GetIsPointer())
                 {
                     return new MemberCreationResult<IType>(recompiledElemType.MakePointerType(containerType.AsPointerType().PointerKind));
                 }
-                else if (SourceType.get_IsArray())
+                else if (SourceType.GetIsArray())
                 {
                     return new MemberCreationResult<IType>(recompiledElemType.MakeArrayType(containerType.AsArrayType().ArrayRank));
                 }
@@ -452,13 +452,13 @@ namespace Flame.Recompilation
                     throw new InvalidOperationException();
                 }
             }
-            else if (SourceType.get_IsRecursiveGenericInstance())
+            else if (SourceType.GetIsRecursiveGenericInstance())
             {
                 var recompiledGenericDecl = GetType(SourceType.GetRecursiveGenericDeclaration());
                 var recompiledGenericArgs = GetTypes(SourceType.GetRecursiveGenericArguments());
                 return new MemberCreationResult<IType>(recompiledGenericDecl.MakeRecursiveGenericType(recompiledGenericArgs));
             }
-            else if (SourceType.get_IsGenericParameter())
+            else if (SourceType.GetIsGenericParameter())
             {
                 var declType = ((IGenericParameter)SourceType).DeclaringMember;
                 var recompiledDeclType = (IGenericMember)GetMember(declType);
@@ -472,7 +472,7 @@ namespace Flame.Recompilation
 
         private ITypeBuilder GetTypeBuilder(IType SourceType)
         {
-            if (SourceType.get_IsRecursiveGenericInstance())
+            if (SourceType.GetIsRecursiveGenericInstance())
             {
                 SourceType = SourceType.GetRecursiveGenericDeclaration();
             }
@@ -626,7 +626,7 @@ namespace Flame.Recompilation
                 {
                     var recompDeclType = GetType(SourceProperty.DeclaringType);
                     IProperty result;
-                    if (SourceProperty.get_IsIndexer())
+                    if (SourceProperty.GetIsIndexer())
                     {
                         result = recompDeclType.GetIndexer(SourceProperty.IsStatic, GetTypes(SourceProperty.IndexerParameters.GetTypes()));
                     }
@@ -672,7 +672,7 @@ namespace Flame.Recompilation
 
         private MemberCreationResult<IMethod> GetNewMethod(IMethod SourceMethod)
         {
-            if (SourceMethod.get_IsAnonymous())
+            if (SourceMethod.GetIsAnonymous())
             {
                 var visitor = new RecompilingTypeVisitor(this);
                 return new MemberCreationResult<IMethod>(MethodType.GetMethod(visitor.Convert(MethodType.Create(SourceMethod))));
@@ -681,7 +681,7 @@ namespace Flame.Recompilation
             {
                 return new MemberCreationResult<IMethod>(SourceMethod);
             }
-            else if (SourceMethod.get_IsGenericInstance())
+            else if (SourceMethod.GetIsGenericInstance())
             {
                 var recompiledGeneric = GetMethod(SourceMethod.GetGenericDeclaration());
                 var recompiledGenArgs = GetTypes(SourceMethod.GetGenericArguments());
@@ -980,7 +980,7 @@ namespace Flame.Recompilation
 
         private static bool IsAbstractOrInterfaceMethod(IMethod SourceMethod)
         {
-            return SourceMethod.get_IsAbstract() || (SourceMethod.DeclaringType != null && SourceMethod.DeclaringType.get_IsInterface());
+            return SourceMethod.GetIsAbstract() || (SourceMethod.DeclaringType != null && SourceMethod.DeclaringType.GetIsInterface());
         }
 
         private IStatement GetMethodBodyCore(IMethod SourceMethod)

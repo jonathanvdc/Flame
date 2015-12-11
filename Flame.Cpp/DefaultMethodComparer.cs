@@ -63,15 +63,15 @@ namespace Flame.Cpp
 
         public int Compare(IMethod x, IMethod y)
         {
-            if (x.get_IsOperator() || y.get_IsOperator())
+            if (x.GetIsOperator() || y.GetIsOperator())
             {
-                if (x.get_IsOperator() && y.get_IsOperator())
+                if (x.GetIsOperator() && y.GetIsOperator())
                 {
                     int order1 = GetOperatorOrder(x.GetOperator());
                     int order2 = GetOperatorOrder(y.GetOperator());
                     return order1.CompareTo(order2);
                 }
-                else if (x.get_IsOperator())
+                else if (x.GetIsOperator())
                 {
                     return 1;
                 }
@@ -80,13 +80,13 @@ namespace Flame.Cpp
                     return -1;
                 }
             }
-            else if (x.get_IsCast() || y.get_IsCast())
+            else if (x.GetIsCast() || y.GetIsCast())
             {
-                if (x.get_IsCast() && y.get_IsCast())
+                if (x.GetIsCast() && y.GetIsCast())
                 {
                     return x.ReturnType.Name.CompareTo(y.ReturnType.Name);
                 }
-                else if (x.get_IsCast())
+                else if (x.GetIsCast())
                 {
                     return -1;
                 }

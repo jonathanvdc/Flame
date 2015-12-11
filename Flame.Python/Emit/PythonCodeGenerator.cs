@@ -72,7 +72,7 @@ namespace Flame.Python.Emit
         public ICollectionBlock EmitCollectionBlock(IVariableMember Member, ICodeBlock Collection)
         {
             var pyColl = (IPythonBlock)Collection;
-            if (pyColl.Type.get_IsContainerType())
+            if (pyColl.Type.GetIsContainerType())
             {
                 return new ListCollectionBlock(this, pyColl);
             }
@@ -289,11 +289,11 @@ namespace Flame.Python.Emit
             else if (Method is IAccessor)
             {
                 var acc = (IAccessor)Method;
-                if ((Method.DeclaringType.get_IsArray() || Method.DeclaringType.get_IsVector() || Method.DeclaringType.Equals(PrimitiveTypes.String)) && acc.DeclaringProperty.Name == "Length")
+                if ((Method.DeclaringType.GetIsArray() || Method.DeclaringType.GetIsVector() || Method.DeclaringType.Equals(PrimitiveTypes.String)) && acc.DeclaringProperty.Name == "Length")
                 {
                     return new PartialInvocationBlock(this, new PythonIdentifierBlock(this, "len", PythonObjectType.Instance), Method.ReturnType, (IPythonBlock)Caller);
                 }
-                else if (acc.DeclaringProperty.get_IsIndexer() && acc.DeclaringProperty.Name == "this")
+                else if (acc.DeclaringProperty.GetIsIndexer() && acc.DeclaringProperty.Name == "this")
                 {
                     return new PartialIndexedBlock(this, (IPythonBlock)Caller, acc.AccessorType, Method.ReturnType);
                 }
@@ -337,11 +337,11 @@ namespace Flame.Python.Emit
             {
                 return true;
             }
-            else if ((Source.get_IsBit() || Source.get_IsInteger()) && (Target.get_IsBit() || Target.get_IsInteger()))
+            else if ((Source.GetIsBit() || Source.GetIsInteger()) && (Target.GetIsBit() || Target.GetIsInteger()))
             {
                 return true;
             }
-            else if (Source.get_IsFloatingPoint() && Target.get_IsFloatingPoint())
+            else if (Source.GetIsFloatingPoint() && Target.GetIsFloatingPoint())
             {
                 return true;
             }
@@ -349,7 +349,7 @@ namespace Flame.Python.Emit
             {
                 return false;
             }
-            else if (Source.get_IsReferenceType() && Target.get_IsReferenceType())
+            else if (Source.GetIsReferenceType() && Target.GetIsReferenceType())
             {
                 return true;
             }
@@ -373,15 +373,15 @@ namespace Flame.Python.Emit
             {
                 return new ImplicitlyConvertedBlock(this, pythonVal, Type); // No conversion necessary
             }
-            else if ((tVal.get_IsInteger() || tVal.get_IsBit()) && Type.Equals(PrimitiveTypes.Char))
+            else if ((tVal.GetIsInteger() || tVal.GetIsBit()) && Type.Equals(PrimitiveTypes.Char))
             {
                 name = "chr";
             }
-            else if ((Type.get_IsInteger() || Type.get_IsBit()) && tVal.Equals(PrimitiveTypes.Char))
+            else if ((Type.GetIsInteger() || Type.GetIsBit()) && tVal.Equals(PrimitiveTypes.Char))
             {
                 name = "ord";
             }
-            else if ((tVal.get_IsFloatingPoint() && Type.get_IsBit()) || (tVal.get_IsBit() && Type.get_IsFloatingPoint()))
+            else if ((tVal.GetIsFloatingPoint() && Type.GetIsBit()) || (tVal.GetIsBit() && Type.GetIsFloatingPoint()))
             {
                 return new FloatBitwiseConversionBlock(this, pythonVal, Type);
             }
@@ -398,11 +398,11 @@ namespace Flame.Python.Emit
 
         public ICodeBlock EmitDefaultValue(IType Type)
         {
-            if (Type.get_IsInteger() || Type.get_IsBit())
+            if (Type.GetIsInteger() || Type.GetIsBit())
             {
                 return EmitInt32(0);
             }
-            else if (Type.get_IsFloatingPoint())
+            else if (Type.GetIsFloatingPoint())
             {
                 return EmitFloat64(0);
             }
@@ -410,7 +410,7 @@ namespace Flame.Python.Emit
             {
                 return EmitBoolean(false);
             }
-            else if (Type.get_IsValueType())
+            else if (Type.GetIsValueType())
             {
                 throw new NotImplementedException();
             }
@@ -492,11 +492,11 @@ namespace Flame.Python.Emit
         }
         public string GetLocalName(IType Type)
         {
-            if (Type.get_IsInteger())
+            if (Type.GetIsInteger())
             {
                 return GetIntegerName();
             }
-            else if (Type.get_IsFloatingPoint())
+            else if (Type.GetIsFloatingPoint())
             {
                 return GetFloatName();
             }

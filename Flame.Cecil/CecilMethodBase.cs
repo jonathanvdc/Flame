@@ -102,7 +102,7 @@ namespace Flame.Cecil
             {
                 return true;
             }
-            if (!(other is CecilMethodBase) || other.get_IsGenericInstance())
+            if (!(other is CecilMethodBase) || other.GetIsGenericInstance())
             {
                 return false;
             }

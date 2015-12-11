@@ -95,7 +95,7 @@ namespace Flame.Cpp.Emit
 
         private string GenerateIdentifier(IType Type)
         {
-            if (Type.get_IsBit())
+            if (Type.GetIsBit())
             {
                 return GenerateIdentifier("data", "bits");
             }
@@ -103,11 +103,11 @@ namespace Flame.Cpp.Emit
             {
                 return GenerateIdentifier("flag");
             }
-            else if (Type.get_IsFloatingPoint())
+            else if (Type.GetIsFloatingPoint())
             {
                 return GenerateIdentifier("x", "y", "z", "num");
             }
-            else if (Type.get_IsInteger())
+            else if (Type.GetIsInteger())
             {
                 return GenerateIdentifier("i", "j", "k", "num");
             }
@@ -119,15 +119,15 @@ namespace Flame.Cpp.Emit
             {
                 return GenerateIdentifier("ch", "c", "ch");
             }
-            else if (Type.get_IsArray())
+            else if (Type.GetIsArray())
             {
                 return GenerateIdentifier("arr", "temp");
             }
-            else if (Type.get_IsVector())
+            else if (Type.GetIsVector())
             {
                 return GenerateIdentifier("vec", "temp");
             }
-            else if (Type.get_IsPointer())
+            else if (Type.GetIsPointer())
             {
                 return GenerateIdentifier("ptr");
             }

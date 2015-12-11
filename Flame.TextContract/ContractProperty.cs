@@ -81,7 +81,7 @@ namespace Flame.TextContract
         public CodeBuilder GetCode()
         {
             CodeBuilder cb = new CodeBuilder();
-            if (this.get_IsIndexer())
+            if (this.GetIsIndexer())
             {
                 cb.Append("indexer");
             }

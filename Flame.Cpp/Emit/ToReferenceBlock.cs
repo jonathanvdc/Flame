@@ -48,7 +48,7 @@ namespace Flame.Cpp.Emit
                         // Make sure that the ctor std::make_shared<T> is calling is public.
                         var innerCtor = (INewObjectBlock)Target;
                         var ctor = Target.Type.AsContainerType().ElementType.GetConstructor(innerCtor.Arguments.Select(item => item.Type).ToArray());
-                        return ctor != null && ctor.get_Access() == AccessModifier.Public; // Must be public.
+                        return ctor != null && ctor.GetAccess() == AccessModifier.Public; // Must be public.
                     }
                     else
                     {

@@ -47,7 +47,7 @@ namespace Flame.Cecil
             {
                 return ConvertInstanceGeneric(ConvertType(Value.DeclaringType), Value);
             }
-            else if (Value.DeclaringType.get_IsPrimitive())
+            else if (Value.DeclaringType.GetIsPrimitive())
             {
                 return ConvertPrimitive(Value);
             }

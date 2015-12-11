@@ -141,7 +141,7 @@ namespace Flame.Cpp
 
         public CodeBuilder GetHeaderCode()
         {
-            bool isConst = this.get_IsConstant();
+            bool isConst = this.GetIsConstant();
             CodeBuilder cb = this.GetDocumentationComments();
             cb.AppendLine();
             cb.Append(GetSharedSignature(false));

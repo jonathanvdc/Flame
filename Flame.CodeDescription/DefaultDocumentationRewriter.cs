@@ -45,11 +45,11 @@ namespace Flame.CodeDescription
             {
                 return Summary;
             }
-            if (Accessor.get_IsGetAccessor())
+            if (Accessor.GetIsGetAccessor())
             {
                 return "Gets " + DocumentationExtensions.ChangeFirstCharacter(trimmedDocstr, char.ToLower);
             }
-            else if (Accessor.get_IsSetAccessor())
+            else if (Accessor.GetIsSetAccessor())
             {
                 return "Sets " + DocumentationExtensions.ChangeFirstCharacter(trimmedDocstr, char.ToLower);
             }

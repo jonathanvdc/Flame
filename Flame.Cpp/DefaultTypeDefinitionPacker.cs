@@ -41,8 +41,8 @@ namespace Flame.Cpp
             IEnumerable<ICppMember> ctors = Members.OfType<IMethod>().Where(item => item.IsConstructor).OrderBy(item => item.GetParameters().Length).Cast<ICppMember>();
             IEnumerable<ICppMember> fields = Members.OfType<IField>().OrderBy(item => item.Name).Cast<ICppMember>();
             IEnumerable<IProperty> props = Members.OfType<IProperty>().OrderBy(item => item.Name);
-            IEnumerable<ICppMember> methods = Members.OfType<IMethod>().Where(item => !item.IsConstructor && !item.get_IsOperator() && !item.get_IsCast()).Cast<ICppMember>();
-            IEnumerable<ICppMember> operators = Members.OfType<IMethod>().Where(item => !item.IsConstructor && (item.get_IsOperator() || item.get_IsCast())).Cast<ICppMember>();
+            IEnumerable<ICppMember> methods = Members.OfType<IMethod>().Where(item => !item.IsConstructor && !item.GetIsOperator() && !item.GetIsCast()).Cast<ICppMember>();
+            IEnumerable<ICppMember> operators = Members.OfType<IMethod>().Where(item => !item.IsConstructor && (item.GetIsOperator() || item.GetIsCast())).Cast<ICppMember>();
 
             var accessorPacks = props.Select(item => new CppMemberPack(item.Accessors.OfType<ICppMember>()));
             var methodPacks = PackSortedMethods(methods);

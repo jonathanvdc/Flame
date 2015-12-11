@@ -43,12 +43,12 @@ namespace Flame.Front.Target
                 return primSize;
             }
 
-            if (Type.get_IsReferenceType() || Type.get_IsPointer() || Type.get_IsArray())
+            if (Type.GetIsReferenceType() || Type.GetIsPointer() || Type.GetIsArray())
             {
                 return 4;
             }
 
-            if (Type.get_IsVector())
+            if (Type.GetIsVector())
             {
                 return ApproximateSize(Type.GetEnumerableElementType()) * Type.AsContainerType().AsVectorType().Dimensions.Aggregate(1, (aggr, val) => aggr * val);
             }
@@ -65,21 +65,21 @@ namespace Flame.Front.Target
 
             int constantBoost = Argument.IsConstant ? 4 : 0;                // Constants may allow us to eliminate branches
 
-            int delegateBoost = ParameterType.get_IsDelegate() ? 4 : 0;     // Delegates can be sometimes be replaced with direct or virtual calls.
+            int delegateBoost = ParameterType.GetIsDelegate() ? 4 : 0;     // Delegates can be sometimes be replaced with direct or virtual calls.
 
             return ApproximateSize(argType) + inheritanceBoost + constantBoost + delegateBoost;
         }
 
         public bool ShouldInline(BodyPassArgument Args, DissectedCall Call, int Tolerance)
         {
-            if (Call.Method.get_IsVirtual() || (Call.Method.IsConstructor && !Call.Method.DeclaringType.get_IsValueType()))
+            if (Call.Method.GetIsVirtual() || (Call.Method.IsConstructor && !Call.Method.DeclaringType.GetIsValueType()))
             {
                 return false;
             }
 
             var body = Args.PassEnvironment.GetMethodBody(Call.Method);
             var thisType = Args.DeclaringType;
-            if (thisType.get_IsGeneric() && thisType.get_IsGenericDeclaration())
+            if (thisType.GetIsGeneric() && thisType.GetIsGenericDeclaration())
             {
                 thisType = thisType.MakeGenericType(thisType.GenericParameters);
             }

@@ -40,7 +40,7 @@ namespace Flame.Cecil
             }
             CecilAttribute.DeclareAttributes(propDef, this, Template.Attributes.Value);
             if (!Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.ExtensionAttribute.AttributeType) &&
-                Template.IndexerParameters.Value.Any(MemberExtensions.get_IsExtension))
+                Template.IndexerParameters.Value.Any(MemberExtensions.GetIsExtension))
             {
                 CecilAttribute.DeclareAttributeOrDefault(propDef, this, PrimitiveAttributes.Instance.ExtensionAttribute);
             }

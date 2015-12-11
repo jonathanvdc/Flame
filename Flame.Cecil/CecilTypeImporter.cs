@@ -68,11 +68,11 @@ namespace Flame.Cecil
                 var tArgs = genInst.GetRecursiveGenericArguments().Select(Convert).ToArray();
                 return MakeGenericType(decl, tArgs);
             }
-            else if (Type.get_IsDelegate())
+            else if (Type.GetIsDelegate())
             {
                 return Convert(Module.TypeSystem.GetCanonicalDelegate(MethodType.GetMethod(Type)));
             }
-            if (Type.get_IsRootType() || Type.Equals(PrimitiveTypes.Null))
+            if (Type.GetIsRootType() || Type.Equals(PrimitiveTypes.Null))
             {
                 return Module.Module.TypeSystem.Object;
             }
@@ -126,7 +126,7 @@ namespace Flame.Cecil
                 return ts.Char;
             else if (Type.Equals(PrimitiveTypes.String))
                 return ts.String;
-            else if (Type.get_IsRootType() || Type.Equals(PrimitiveTypes.Null))
+            else if (Type.GetIsRootType() || Type.Equals(PrimitiveTypes.Null))
                 return ts.Object;
             else
                 return base.ConvertPrimitiveType(Type);

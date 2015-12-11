@@ -381,7 +381,7 @@ module ExpressionBuilder =
             
     /// Dereferences the given pointer.
     let Dereference (context : LocalScope) (target : IExpression) : IExpression =
-        if target.Type.get_IsPointer() then
+        if target.Type.GetIsPointer() then
             new DereferencePointerExpression(target) :> IExpression
         else
             Error (new LogEntry("Non-pointer expression dereferenced", "A non-pointer expression cannot be dereferenced. The given expression was of type '" + (context.Global.TypeNamer target.Type) + "', which is no pointer type.")) target
@@ -412,12 +412,12 @@ module ExpressionBuilder =
             left
 
     let private IsPrimitiveOperation (left : IType) (right : IType) (op : Operator) =
-        (left.get_IsEnum() || left.get_IsPrimitive()) && (right.get_IsEnum() || right.get_IsPrimitive())
+        (left.GetIsEnum() || left.GetIsPrimitive()) && (right.GetIsEnum() || right.GetIsPrimitive())
 
     let private IsReferenceComparison (left : IType) (right : IType) (op : Operator) =
         (op.Equals(Operator.CheckEquality) || op.Equals(Operator.CheckInequality))
-            && (left.Equals(PrimitiveTypes.Null) || left.get_IsPointer() || left.get_IsReferenceType())
-            && (right.Equals(PrimitiveTypes.Null) || right.get_IsPointer() || right.get_IsReferenceType())
+            && (left.Equals(PrimitiveTypes.Null) || left.GetIsPointer() || left.GetIsReferenceType())
+            && (right.Equals(PrimitiveTypes.Null) || right.GetIsPointer() || right.GetIsReferenceType())
             && (left.Is(right) || right.Is(left))
 
     /// Creates a binary expression.
@@ -586,7 +586,7 @@ module ExpressionBuilder =
         let tArgs     = Array.ofSeq typeArgs
         let innerTgt  = target.GetEssentialExpression()
         let delegates = Enumerable.OfType<IDelegateExpression>(IntersectionExpression.GetIntersectedExpressions innerTgt) 
-                            |> Seq.filter (fun x -> let tgtMethod = MethodType.GetMethod(x.Type) in tArgs.Length = Seq.length (tgtMethod.GenericParameters) && tgtMethod.get_IsGenericDeclaration())
+                            |> Seq.filter (fun x -> let tgtMethod = MethodType.GetMethod(x.Type) in tArgs.Length = Seq.length (tgtMethod.GenericParameters) && tgtMethod.GetIsGenericDeclaration())
                             |> Seq.map (fun x -> x.MakeGenericExpression tArgs)
                             |> Seq.cast
                             |> Seq.toArray
@@ -665,16 +665,16 @@ module ExpressionBuilder =
     /// Analyzes the given expression as the target of a member access operation.
     let GetAccessedExpression (target : IExpression) : AccessedExpression =
         let targetType = target.Type
-        if targetType.get_IsValueType() then
+        if targetType.GetIsValueType() then
             Value target
-        else if targetType.get_IsReferenceType() || targetType.get_IsPointer() then
+        else if targetType.GetIsReferenceType() || targetType.GetIsPointer() then
             Reference target
         else
             Generic target
 
     /// Analyzes the given expression as the type member in a member access operation.
     let GetAccessedMember<'a when 'a :> ITypeMember> (targetMember : 'a) : AccessedMember<'a> =
-        if targetMember.get_IsExtension() then
+        if targetMember.GetIsExtension() then
             Extension targetMember
         else if targetMember.IsStatic then
             Static targetMember

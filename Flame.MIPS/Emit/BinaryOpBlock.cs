@@ -129,7 +129,7 @@ namespace Flame.MIPS.Emit
             }
             else if (Operator.Equals(Operator.RightShift))
             {
-                if (Type.get_IsSignedInteger())
+                if (Type.GetIsSignedInteger())
                 {
                     OpCode = OpCodes.ShiftRightArithmeticVariable;
                 }

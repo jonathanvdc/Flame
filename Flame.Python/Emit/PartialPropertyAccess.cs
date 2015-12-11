@@ -15,11 +15,11 @@ namespace Flame.Python.Emit
 
         public IPythonBlock Complete(IPythonBlock[] Arguments)
         {
-            if (Arguments.Length == 0 && Accessor.get_IsGetAccessor())
+            if (Arguments.Length == 0 && Accessor.GetIsGetAccessor())
             {
                 return new PropertyGetBlock(CodeGenerator, Target, Accessor);
             }
-            else if (Arguments.Length == 1 && Accessor.get_IsSetAccessor())
+            else if (Arguments.Length == 1 && Accessor.GetIsSetAccessor())
             {
                 return new PropertySetBlock(CodeGenerator, Target, Accessor, Arguments[0]);
             }

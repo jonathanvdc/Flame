@@ -135,7 +135,7 @@ namespace Flame.Cecil
 
         private static IMethod CreateAutoGenericMethod(IMethod Method)
         {
-            if (Method.DeclaringType.get_IsGeneric() && Method.DeclaringType.get_IsGenericInstance())
+            if (Method.DeclaringType.GetIsGeneric() && Method.DeclaringType.GetIsGenericInstance())
             {
                 var genDeclType = new GenericType(Method.DeclaringType, Method.DeclaringType.GenericParameters);
                 return new GenericInstanceMethod(Method, genDeclType);

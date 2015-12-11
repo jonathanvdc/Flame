@@ -11,7 +11,7 @@ namespace Flame.Cecil.Emit
     {
         public void Emit(IEmitContext Context, IType Type)
         {
-            if (Type.get_IsPointer())
+            if (Type.GetIsPointer())
             {
                 Emit(Context, PointerOpCode, Type);
             }
@@ -55,7 +55,7 @@ namespace Flame.Cecil.Emit
             {
                 Emit(Context, Float64OpCode, Type);
             }
-            else if (Type.get_IsRootType())
+            else if (Type.GetIsRootType())
             {
                 Emit(Context, ObjectOpCode, Type);
             }

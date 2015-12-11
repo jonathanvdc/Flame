@@ -25,7 +25,7 @@ namespace Flame.Cecil.Emit
                 Value.Emit(Context);
             Context.Emit(OpCodes.Ret);
 
-            if (CodeGenerator.Method.get_HasReturnValue())
+            if (CodeGenerator.Method.GetHasReturnValue())
             {
                 Context.Stack.Pop();
             }

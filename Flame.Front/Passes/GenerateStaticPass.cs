@@ -53,8 +53,8 @@ namespace Flame.Front.Passes
 
             // Don't even consider static, non-public or generic methods.
             if (declMethod.IsStatic ||
-                declMethod.get_Access() != AccessModifier.Public ||
-                declMethod.get_IsGeneric())
+                declMethod.GetAccess() != AccessModifier.Public ||
+                declMethod.GetIsGeneric())
                 return Enumerable.Empty<IMember>();
 
             var singletonTy = Value.DeclaringType;

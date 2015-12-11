@@ -55,7 +55,7 @@ module MemberHelpers =
 
     /// Tests if the given member is either abstract or an interface member.
     let IsAbstractOrInterface (item : #ITypeMember) =
-        item.get_IsAbstract() || item.DeclaringType.get_IsInterface()
+        item.GetIsAbstract() || item.DeclaringType.GetIsInterface()
     
     /// Inherits all attributes of the given types from the declaring member that are not present in the
     /// sequence of pre-existing attributes, and concatenates these attributes with said pre-existing attributes.

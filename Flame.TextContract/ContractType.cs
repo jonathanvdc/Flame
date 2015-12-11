@@ -73,7 +73,7 @@ namespace Flame.TextContract
         {
             get
             {
-                if (this.get_IsGeneric())
+                if (this.GetIsGeneric())
                 {
                     var genericFreeName = GenericNameExtensions.TrimGenerics(this.Template.Name);
                     StringBuilder sb = new StringBuilder(genericFreeName);
@@ -136,7 +136,7 @@ namespace Flame.TextContract
             CodeBuilder cb = new CodeBuilder();
             cb.Append("class ");
             cb.Append(Name);
-            var baseTypes = BaseTypes.Where((item) => !item.get_IsRootType()).ToArray();
+            var baseTypes = BaseTypes.Where((item) => !item.GetIsRootType()).ToArray();
             if (baseTypes.Length > 0)
             {
                 cb.Append(" : ");

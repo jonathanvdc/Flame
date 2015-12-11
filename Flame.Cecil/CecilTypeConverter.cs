@@ -31,7 +31,7 @@ namespace Flame.Cecil
         private IType ConvertModifierType(IModifierType Type)
         {
             var elemType = Convert(Type.ElementType);
-            if (UsePrimitives && elemType.get_IsPrimitive() && Type.ModifierType.FullName == "System.Runtime.CompilerServices.IsSignUnspecifiedByte")
+            if (UsePrimitives && elemType.GetIsPrimitive() && Type.ModifierType.FullName == "System.Runtime.CompilerServices.IsSignUnspecifiedByte")
             {
                 switch (elemType.GetPrimitiveMagnitude())
                 {

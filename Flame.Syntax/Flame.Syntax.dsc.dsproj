@@ -1,8 +1,9 @@
 <Project Name="Flame.Syntax">
 	<Setter Property="TargetPlatform" Value="CLR/Release" />
-        <Option Key="invariant-culture" Value="true" />
-        <Option Key="fgenerate-static" Value="true" />
-        <Option Key="docs" Value="xml" />
+    <Option Key="invariant-culture" Value="true" />
+    <Option Key="fgenerate-static" Value="true" />
+	<Option Key="fwrap-extension-properties" Value="true" />
+    <Option Key="docs" Value="xml" />
 	<ItemGroup>
 		<RuntimeLibrary Include="PortableRT" />
 		<RuntimeLibrary Include="System" />

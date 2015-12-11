@@ -94,7 +94,7 @@ namespace Flame.Cecil
         {
             foreach (var item in Types)
             {
-                if (item.Name == StaticSingletonName && item.get_IsSingleton())
+                if (item.Name == StaticSingletonName && item.GetIsSingleton())
                 {
                     return item;
                 }
@@ -211,11 +211,11 @@ namespace Flame.Cecil
         public override IBoundObject GetDefaultValue()
         {
             var created = Module.Convert(GetTypeReference());
-            if (created.get_IsPrimitive())
+            if (created.GetIsPrimitive())
             {
                 return created.GetDefaultValue();
             }
-            else if (this.get_IsReferenceType())
+            else if (this.GetIsReferenceType())
             {
                 return Flame.Compiler.Expressions.NullExpression.Instance;
             }

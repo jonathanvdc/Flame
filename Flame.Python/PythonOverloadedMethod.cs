@@ -245,7 +245,7 @@ namespace Flame.Python
                     condition = codeGenerator.EmitLogicalAnd(condition, ceq);
                 }
                 ICodeBlock ifBody = new PythonCodeBlock(codeGenerator, PrimitiveTypes.Void, item.GetBodyCode());
-                if (!item.get_HasReturnValue())
+                if (!item.GetHasReturnValue())
                 {
                     ifBody = codeGenerator.EmitSequence(ifBody, codeGenerator.EmitReturn(null));
                 }

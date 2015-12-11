@@ -29,8 +29,8 @@ namespace Flame.Cecil.Emit
             Value.Emit(Context);
             var exprType = Context.Stack.Pop();
             var targetType = TargetType;
-            bool exprIsPtr = exprType.get_IsPointer();
-            bool targIsPtr = targetType.get_IsPointer();
+            bool exprIsPtr = exprType.GetIsPointer();
+            bool targIsPtr = targetType.GetIsPointer();
 
             if (exprIsPtr && targIsPtr)
             {
@@ -40,7 +40,7 @@ namespace Flame.Cecil.Emit
                 }
                 // Else, do absolutely nothing
             }
-            else if (TargetType.get_IsReferenceType() && exprType.get_IsReferenceType()) // Castclass, then
+            else if (TargetType.GetIsReferenceType() && exprType.GetIsReferenceType()) // Castclass, then
             {
                 if (!exprType.Is(targetType))
                 {

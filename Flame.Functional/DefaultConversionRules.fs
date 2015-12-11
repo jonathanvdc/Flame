@@ -19,38 +19,38 @@ type DefaultConversionRules(nameType : IType -> string) =
             if sourceType.Is(targetType) then
                 true
 
-            else if sourceType.get_IsVector() && targetType.get_IsArray() then
+            else if sourceType.GetIsVector() && targetType.GetIsArray() then
                 sourceType.AsContainerType().ElementType.Is(
                     targetType.AsContainerType().ElementType) &&
                 sourceType.AsContainerType().AsVectorType().Dimensions.Count =
                     targetType.AsContainerType().AsArrayType().ArrayRank
 
-            else if sourceType.get_IsPointer() && targetType.get_IsPointer() then
+            else if sourceType.GetIsPointer() && targetType.GetIsPointer() then
                 let firstPtrType = sourceType.AsContainerType().AsPointerType()
                 let secondPtrType = targetType.AsContainerType().AsPointerType()
                 firstPtrType.PointerKind.Equals(PointerKind.ReferencePointer) &&
                     secondPtrType.PointerKind.Equals(PointerKind.TransientPointer)
 
-            else if sourceType.get_IsPrimitive() && targetType.get_IsPrimitive() then
+            else if sourceType.GetIsPrimitive() && targetType.GetIsPrimitive() then
 
                 if sourceType.GetPrimitiveMagnitude() <= targetType.GetPrimitiveMagnitude() then
-                    if (sourceType.get_IsSignedInteger()) then
-                        targetType.get_IsSignedInteger() || targetType.get_IsFloatingPoint();
-                    else if (sourceType.get_IsUnsignedInteger()) then
-                        if (targetType.get_IsUnsignedInteger() || targetType.get_IsFloatingPoint()) then
+                    if (sourceType.GetIsSignedInteger()) then
+                        targetType.GetIsSignedInteger() || targetType.GetIsFloatingPoint();
+                    else if (sourceType.GetIsUnsignedInteger()) then
+                        if (targetType.GetIsUnsignedInteger() || targetType.GetIsFloatingPoint()) then
                             true
-                        else if (targetType.get_IsSignedInteger()) then
+                        else if (targetType.GetIsSignedInteger()) then
                             sourceType.GetPrimitiveMagnitude() < targetType.GetPrimitiveMagnitude()
                         else
                             false
                     else
-                        sourceType.get_IsBit() && targetType.get_IsBit() ||
-                            sourceType.get_IsFloatingPoint() && targetType.get_IsFloatingPoint()
+                        sourceType.GetIsBit() && targetType.GetIsBit() ||
+                            sourceType.GetIsFloatingPoint() && targetType.GetIsFloatingPoint()
                 else
                     false
 
-            else if (sourceType.get_IsArray() || sourceType.get_IsVector()) && targetType.GetGenericDeclaration().get_IsEnumerableType() then
-                if not(targetType.get_IsGeneric()) then
+            else if (sourceType.GetIsArray() || sourceType.GetIsVector()) && targetType.GetGenericDeclaration().GetIsEnumerableType() then
+                if not(targetType.GetIsGeneric()) then
                     true
                 else sourceType.AsContainerType().ElementType.Is(Enumerable.First<IType>(targetType.GetGenericArguments()));
             else false

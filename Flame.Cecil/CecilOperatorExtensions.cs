@@ -17,7 +17,7 @@ namespace Flame.Cecil
             }
             else
             {
-                return CodeGenerator.EmitInvocation(CodeGenerator.EmitMethod(OperatorMethod, Arguments[0], OperatorMethod.get_IsVirtual() ? Operator.GetVirtualDelegate : Operator.GetDelegate), Arguments.Skip(1));
+                return CodeGenerator.EmitInvocation(CodeGenerator.EmitMethod(OperatorMethod, Arguments[0], OperatorMethod.GetIsVirtual() ? Operator.GetVirtualDelegate : Operator.GetDelegate), Arguments.Skip(1));
             }
         }
     }

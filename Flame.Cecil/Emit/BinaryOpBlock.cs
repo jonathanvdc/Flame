@@ -141,7 +141,7 @@ namespace Flame.Cecil.Emit
             }
             else if (Op.Equals(Operator.Divide))
             {
-                if (A.get_IsUnsignedInteger() && B.get_IsUnsignedInteger())
+                if (A.GetIsUnsignedInteger() && B.GetIsUnsignedInteger())
                 {
                     Result = OpCodes.Div_Un;
                 }
@@ -172,7 +172,7 @@ namespace Flame.Cecil.Emit
             }
             else if (Op.Equals(Operator.Remainder))
             {
-                if (A.get_IsUnsignedInteger() && B.get_IsUnsignedInteger())
+                if (A.GetIsUnsignedInteger() && B.GetIsUnsignedInteger())
                 {
                     Result = OpCodes.Rem_Un;
                 }
@@ -187,7 +187,7 @@ namespace Flame.Cecil.Emit
             }
             else if (Op.Equals(Operator.CheckGreaterThan))
             {
-                if (A.get_IsUnsignedInteger() && B.get_IsUnsignedInteger())
+                if (A.GetIsUnsignedInteger() && B.GetIsUnsignedInteger())
                 {
                     Result = OpCodes.Cgt_Un;
                 }
@@ -198,7 +198,7 @@ namespace Flame.Cecil.Emit
             }
             else if (Op.Equals(Operator.CheckLessThan))
             {
-                if (A.get_IsUnsignedInteger() && B.get_IsUnsignedInteger())
+                if (A.GetIsUnsignedInteger() && B.GetIsUnsignedInteger())
                 {
                     Result = OpCodes.Clt_Un;
                 }
@@ -238,7 +238,7 @@ namespace Flame.Cecil.Emit
 
         public static bool IsIntrinsicType(IType Type)
         {
-            return (Type.get_IsPrimitive() && !Type.Equals(PrimitiveTypes.String)) || Type.get_IsEnum();
+            return (Type.GetIsPrimitive() && !Type.Equals(PrimitiveTypes.String)) || Type.GetIsEnum();
         }
 
         #endregion

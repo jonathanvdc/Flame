@@ -169,32 +169,32 @@ namespace Flame.Cpp
 
         public bool IsCast
         {
-            get { return this.get_IsCast(); }
+            get { return this.GetIsCast(); }
         }
 
         public bool IsOperator
         {
-            get { return this.get_IsOperator() || this.IsCast; }
+            get { return this.GetIsOperator() || this.IsCast; }
         }
 
         public bool IsHashOperator
         {
-            get { return this.get_IsOperator() && this.GetOperator().Equals(Operator.Hash); }
+            get { return this.GetIsOperator() && this.GetOperator().Equals(Operator.Hash); }
         }
 
         public bool IsVirtual
         {
-            get { return this.get_IsVirtual() || this.IsPureVirtual; }
+            get { return this.GetIsVirtual() || this.IsPureVirtual; }
         }
 
         public bool IsPureVirtual
         {
-            get { return this.get_IsAbstract() || this.DeclaringType.get_IsInterface(); }
+            get { return this.GetIsAbstract() || this.DeclaringType.GetIsInterface(); }
         }
 
         public bool EmitInline
         {
-            get { return (this.get_IsGeneric() && this.DeclaringType.get_IsGenericDeclaration()); }
+            get { return (this.GetIsGeneric() && this.DeclaringType.GetIsGenericDeclaration()); }
         }
 
         /// <summary>
@@ -232,7 +232,7 @@ namespace Flame.Cpp
 
         private CodeBuilder GetSharedSignature(bool PrefixName)
         {
-            bool isConst = this.get_IsConstant() && !IsExistential;
+            bool isConst = this.GetIsConstant() && !IsExistential;
             bool isCast = IsCast;
             CodeBuilder cb = new CodeBuilder();
             if (!IsExistential && !isCast)
@@ -264,7 +264,7 @@ namespace Flame.Cpp
                     cb.Append(", ");
                 }
                 var tParam = parameters[i].ParameterType;
-                if (isConst && tParam.get_IsPointer() && tParam.AsContainerType().AsPointerType().IsPrimitivePointer())
+                if (isConst && tParam.GetIsPointer() && tParam.AsContainerType().AsPointerType().IsPrimitivePointer())
                 {
                     cb.Append("const ");
                 }
@@ -284,7 +284,7 @@ namespace Flame.Cpp
 
         public CodeBuilder GetHeaderCode()
         {
-            bool isConst = this.get_IsConstant();
+            bool isConst = this.GetIsConstant();
             CodeBuilder cb = this.GetDocumentationComments();
             cb.AddCodeBuilder(LocalTemplateDefinition.GetHeaderCode());
             cb.AppendLine();
@@ -354,10 +354,10 @@ namespace Flame.Cpp
                 return new CodeBuilder();
             }
 
-            bool isConst = this.get_IsConstant();
+            bool isConst = this.GetIsConstant();
             CodeBuilder cb = this.GetDocumentationComments();
             cb.AppendLine();
-            if (this.get_IsAbstract() || DeclaringType.get_IsInterface())
+            if (this.GetIsAbstract() || DeclaringType.GetIsInterface())
             {
                 return cb;
             }

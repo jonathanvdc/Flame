@@ -63,7 +63,7 @@ namespace Flame.Cecil
 
             CecilAttribute.DeclareAttributes(methodDef, this, Template.Attributes.Value);
             if (!Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.ExtensionAttribute.AttributeType) &&
-                Template.Parameters.Value.Any(MemberExtensions.get_IsExtension))
+                Template.Parameters.Value.Any(MemberExtensions.GetIsExtension))
             {
                 CecilAttribute.DeclareAttributeOrDefault(methodDef, this, PrimitiveAttributes.Instance.ExtensionAttribute);
             }
@@ -71,7 +71,7 @@ namespace Flame.Cecil
             var methodConv = new TypeMethodConverter(conv);
             var baseMethods = Template.BaseMethods.Value.Distinct().Select(methodConv.Convert).ToArray();
 
-            var simpleBaseMethod = baseMethods.FirstOrDefault(item => !item.DeclaringType.get_IsInterface());
+            var simpleBaseMethod = baseMethods.FirstOrDefault(item => !item.DeclaringType.GetIsInterface());
 
             if ((attrs & MethodAttributes.Virtual) != MethodAttributes.Virtual && baseMethods.Length > 0)
             {
@@ -111,7 +111,7 @@ namespace Flame.Cecil
         {
             get
             {
-                return DeclaringType.get_IsInterface() || Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.AbstractAttribute.AttributeType);
+                return DeclaringType.GetIsInterface() || Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.AbstractAttribute.AttributeType);
             }
         }
 
@@ -235,7 +235,7 @@ namespace Flame.Cecil
         }
         public static CecilAccessorBuilder DeclareAccessor(ICecilPropertyBuilder DeclaringProperty, AccessorType Kind, IMethodSignatureTemplate Template)
         {
-            string methodName = DeclaringProperty.get_IsIndexer() ? Kind.ToString().ToLower() + "_" + DeclaringProperty.Name : Template.Name;
+            string methodName = DeclaringProperty.GetIsIndexer() ? Kind.ToString().ToLower() + "_" + DeclaringProperty.Name : Template.Name;
             var voidTy = ((ICecilType)DeclaringProperty.DeclaringType).Module.Module.TypeSystem.Void;
 
             var methodDef = new MethodDefinition(methodName, MethodAttributes.SpecialName, voidTy);

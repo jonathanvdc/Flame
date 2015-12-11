@@ -29,15 +29,15 @@ namespace Flame.Cpp.Emit
 
         private bool EmitInvariantPrecondition
         {
-            get { return !Method.IsConstructor && Method.get_Access() != AccessModifier.Private; }
+            get { return !Method.IsConstructor && Method.GetAccess() != AccessModifier.Private; }
         }
 
         private bool EmitInvariantPostcondition
         {
             get
             {
-                return Method.get_Access() != AccessModifier.Private &&
-                       (!Method.get_IsConstant() || Method.IsConstructor ||
+                return Method.GetAccess() != AccessModifier.Private &&
+                       (!Method.GetIsConstant() || Method.IsConstructor ||
                        CodeGenerator.GetEnvironment().Log.Options.GetOption<bool>("ensure-const-invariants", false));
             }
         }

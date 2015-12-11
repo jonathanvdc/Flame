@@ -27,16 +27,16 @@ namespace Flame.Cecil.Emit
 
         private static bool IsPrimitiveType(IType Type)
         {
-            return Type.get_IsPrimitive();
+            return Type.GetIsPrimitive();
         }
 
         private void EmitPrimitiveConversion(IType Source, IType Target, IEmitContext Context)
         {
-            if (Source.get_IsBit())
+            if (Source.GetIsBit())
             {
                 int sourceMag = Source.GetPrimitiveMagnitude();
                 int targetMag = Target.GetPrimitiveMagnitude();
-                if (Target.get_IsBit())
+                if (Target.GetIsBit())
                 {
                     if (sourceMag < 4 && targetMag == 4)
                     {
@@ -57,7 +57,7 @@ namespace Flame.Cecil.Emit
                 }
                 else if (sourceMag == targetMag)
                 {
-                    if (Target.get_IsFloatingPoint())
+                    if (Target.GetIsFloatingPoint())
                     {
                         Context.Stack.Push(Source);
                         Context.EmitPushPointerCommands((IUnmanagedCodeGenerator)CodeGenerator, Source, true);
@@ -70,11 +70,11 @@ namespace Flame.Cecil.Emit
                     throw new InvalidOperationException("Cannot convert between bit types and types of mismatched size.");
                 }
             }
-            else if (Target.get_IsBit())
+            else if (Target.GetIsBit())
             {
                 if (Source.GetPrimitiveMagnitude() == Target.GetPrimitiveMagnitude())
                 {
-                    if (Source.get_IsFloatingPoint())
+                    if (Source.GetIsFloatingPoint())
                     {
                         Context.Stack.Push(Source);
                         Context.EmitPushPointerCommands((IUnmanagedCodeGenerator)CodeGenerator, Source, true);
@@ -89,7 +89,7 @@ namespace Flame.Cecil.Emit
             }
             else if (Target.Equals(PrimitiveTypes.Float64))
             {
-                if (Source.get_IsUnsignedInteger())
+                if (Source.GetIsUnsignedInteger())
                 {
                     Context.Emit(OpCodes.Conv_R_Un);
                     Context.Emit(OpCodes.Conv_R8);
@@ -101,7 +101,7 @@ namespace Flame.Cecil.Emit
             }
             else if (Target.Equals(PrimitiveTypes.Float32))
             {
-                if (Source.get_IsUnsignedInteger())
+                if (Source.GetIsUnsignedInteger())
                 {
                     Context.Emit(OpCodes.Conv_R_Un);
                     if (Source.GetPrimitiveMagnitude() > 2) // ushort and byte always fit in a float32, so only perform this cast for uint and ulong 
@@ -202,7 +202,7 @@ namespace Flame.Cecil.Emit
 
         public void Emit(IEmitContext Context)
         {
-            bool targetIsDeleg = TargetType.get_IsDelegate();
+            bool targetIsDeleg = TargetType.GetIsDelegate();
 
             if (Value is MethodBlock && targetIsDeleg)
             {
@@ -221,19 +221,19 @@ namespace Flame.Cecil.Emit
             var exprType = Context.Stack.Pop();
             var targetType = TargetType;
 
-            if (targetType.get_IsGeneric() && targetType.get_IsGenericDeclaration())
+            if (targetType.GetIsGeneric() && targetType.GetIsGenericDeclaration())
             {
                 throw new Exception("Type casts to open generic types are not allowed.");
             }
 
-            if (targetType.get_IsPointer())
+            if (targetType.GetIsPointer())
             {
-                if (exprType.get_IsPointer())
+                if (exprType.GetIsPointer())
                 {
                     throw new InvalidOperationException("static_cast cannot be used to convert between pointer or reference types. Use reinterpret_cast or dynamic_cast instead.");
                 }
 
-                if (!exprType.get_IsValueType() && targetType.AsContainerType().AsPointerType().ElementType.get_IsValueType())
+                if (!exprType.GetIsValueType() && targetType.AsContainerType().AsPointerType().ElementType.GetIsValueType())
                 {
                     Context.Emit(OpCodes.Unbox, targetType.AsContainerType().AsPointerType().ElementType);
                     if (!targetType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer))
@@ -241,7 +241,7 @@ namespace Flame.Cecil.Emit
                         Context.Emit(OpCodes.Conv_U);
                     }
                 }
-                else if (exprType.get_IsUnsignedInteger())
+                else if (exprType.GetIsUnsignedInteger())
                 {
                     Context.Emit(OpCodes.Conv_U);
                 }
@@ -250,9 +250,9 @@ namespace Flame.Cecil.Emit
                     Context.Emit(OpCodes.Conv_I);
                 }
             }
-            else if (exprType.get_IsVector() || exprType.get_IsArray())
+            else if (exprType.GetIsVector() || exprType.GetIsArray())
             {
-                if (targetType.get_IsArray() || targetType.get_IsVector())
+                if (targetType.GetIsArray() || targetType.GetIsVector())
                 {
                     if (!exprType.AsContainerType().ElementType.Is(targetType.AsContainerType().ElementType))
                     {
@@ -282,7 +282,7 @@ namespace Flame.Cecil.Emit
             {
                 EmitPrimitiveConversion(exprType, targetType, Context);
             }
-            else if (targetIsDeleg && exprType.get_IsDelegate())
+            else if (targetIsDeleg && exprType.GetIsDelegate())
             {
                 if (TargetType is ICecilType)
                 {

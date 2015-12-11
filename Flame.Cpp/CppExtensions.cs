@@ -123,7 +123,7 @@ namespace Flame.Cpp
 
         public static bool IsExplicitPointer(this IType Type)
         {
-            return Type.get_IsPointer() && !Type.AsContainerType().AsPointerType().PointerKind.Equals(CppPointerExtensions.AtAddressPointer);
+            return Type.GetIsPointer() && !Type.AsContainerType().AsPointerType().PointerKind.Equals(CppPointerExtensions.AtAddressPointer);
         }
 
         #endregion
@@ -188,7 +188,7 @@ namespace Flame.Cpp
 
         private static ICppBlock CreateGenericBlock(ICppBlock Block, IGenericMember Member)
         {
-            if (Member.get_IsGenericInstance())
+            if (Member.GetIsGenericInstance())
             {
                 var cg = Block.CodeGenerator;
                 return new TypeArgumentBlock(Block, Member.GetGenericArguments().Select(item => item.CreateBlock(cg)));
@@ -430,7 +430,7 @@ namespace Flame.Cpp
         {
             int depth = 0;
             var t = Type;
-            while (t.get_IsPointer())
+            while (t.GetIsPointer())
             {
                 depth++;
                 t = t.AsContainerType().ElementType;
@@ -444,7 +444,7 @@ namespace Flame.Cpp
 
         /*public static IType ResolveGenericInstance(this IType Type, IGenericMember GenericMember)
         {
-            if (Type is IGenericParameter && GenericMember.get_IsGenericInstance())
+            if (Type is IGenericParameter && GenericMember.GetIsGenericInstance())
             {
                 var seq = GenericMember.GenericParameters.Zip(GenericMember.GetGenericArguments(), (a, b) => new KeyValuePair<IGenericParameter, IType>(a, b));
                 foreach (var item in seq)
@@ -455,22 +455,22 @@ namespace Flame.Cpp
                     }
                 }
             }
-            if (Type.get_IsArray())
+            if (Type.GetIsArray())
             {
                 var tArr = Type.AsContainerType().AsArrayType();
                 return tArr.ElementType.ResolveGenericInstance(GenericMember).MakeArrayType(tArr.ArrayRank);
             }
-            else if (Type.get_IsPointer())
+            else if (Type.GetIsPointer())
             {
                 var tPtr = Type.AsContainerType().AsPointerType();
                 return tPtr.ElementType.ResolveGenericInstance(GenericMember).MakePointerType(tPtr.PointerKind);
             }
-            else if (Type.get_IsVector())
+            else if (Type.GetIsVector())
             {
                 var tPtr = Type.AsContainerType().AsVectorType();
                 return tPtr.ElementType.ResolveGenericInstance(GenericMember).MakeVectorType(tPtr.Dimensions);
             }
-            else if (Type.get_IsGenericInstance())
+            else if (Type.GetIsGenericInstance())
             {
                 var genericDecl = Type.GetGenericDeclaration();
                 var genericArgs = Type.GetGenericArguments().ResolveGenericInstances(GenericMember);
@@ -504,7 +504,7 @@ namespace Flame.Cpp
             {
                 return ((ICppTemplateMember)Member).Templates;
             }
-            else if (Member.get_IsGenericInstance())
+            else if (Member.GetIsGenericInstance())
             {
                 if (Member is IType)
                 {
@@ -570,7 +570,7 @@ namespace Flame.Cpp
         {
             if (Member is IGenericMember)
             {
-                if (((IGenericMember)Member).get_IsGeneric()) return true;
+                if (((IGenericMember)Member).GetIsGeneric()) return true;
             }
             if (Member is INamespace)
             {
@@ -585,8 +585,8 @@ namespace Flame.Cpp
 
         public static bool HasUniformAccess(this IProperty Property)
         {
-            var propAccess = Property.get_Access();
-            return Property.Accessors.All(item => item.get_Access() == propAccess);
+            var propAccess = Property.GetAccess();
+            return Property.Accessors.All(item => item.GetAccess() == propAccess);
         }
 
         #endregion

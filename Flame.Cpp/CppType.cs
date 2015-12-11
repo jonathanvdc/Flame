@@ -116,7 +116,7 @@ namespace Flame.Cpp
         {
             get
             {
-                return GetMembers().All((item) => item.get_Access() == AccessModifier.Public);
+                return GetMembers().All((item) => item.GetAccess() == AccessModifier.Public);
             }
         }
 
@@ -129,7 +129,7 @@ namespace Flame.Cpp
             {
                 if (DeclaringNamespace is IType)
                 {
-                    return this.get_IsSingleton() && this.Name == "Static_Singleton";
+                    return this.GetIsSingleton() && this.Name == "Static_Singleton";
                 }
                 else
                 {
@@ -164,7 +164,7 @@ namespace Flame.Cpp
 
         private bool ShouldCompileToParentFriend(IMethodSignatureTemplate Method)
         {
-            return IsStaticSingleton && new CppMethod(this, Method, Environment).get_IsOperator();
+            return IsStaticSingleton && new CppMethod(this, Method, Environment).GetIsOperator();
         }
 
         private IMethodBuilder CompileToParentFriend(IMethodSignatureTemplate Method)
@@ -194,7 +194,7 @@ namespace Flame.Cpp
                 {
                     globalFriends.Add(new CppHashImplementation(this, method));
                 }                
-                else if (method.get_IsOperator() && BinaryOperation.IsAssignableBinaryOperator(method.GetOperator()) && method.ReturnType.Equals(this))
+                else if (method.GetIsOperator() && BinaryOperation.IsAssignableBinaryOperator(method.GetOperator()) && method.ReturnType.Equals(this))
                 {
                     methods.Add(new CppBinaryAssignmentOverload(this, method));
                 }
@@ -361,7 +361,7 @@ namespace Flame.Cpp
             }
 
             string modifier;
-            switch (Member.get_Access())
+            switch (Member.GetAccess())
             {
                 case AccessModifier.Private:
                     modifier = "private";
@@ -386,7 +386,7 @@ namespace Flame.Cpp
         private void AppendInheritanceCode(CodeBuilder cb, IType Type)
         {
             cb.Append("public ");
-            if (Type.get_IsInterface())
+            if (Type.GetIsInterface())
             {
                 cb.Append("virtual ");
             }

@@ -51,7 +51,7 @@ namespace Flame.Recompilation
             {
                 return new ConditionalRecompilationStrategy(item =>
                 {
-                    switch (item.get_Access())
+                    switch (item.GetAccess())
                     {
                         case AccessModifier.Assembly:
                         case AccessModifier.Private:

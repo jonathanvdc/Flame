@@ -81,7 +81,7 @@ namespace Flame.Cpp.Emit
 
         public CodeBuilder GetCode()
         {
-            if (Target.Type.get_IsSingleton() && Target.Type.IsGlobalType())
+            if (Target.Type.GetIsSingleton() && Target.Type.IsGlobalType())
             {
                 if (Member is IMethod)
                 {

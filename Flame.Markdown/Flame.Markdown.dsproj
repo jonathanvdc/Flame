@@ -4,6 +4,7 @@
   <Setter Property="AssemblyName" Value="Flame.Markdown" />
   <Option Key="platform" Value="clr" />
   <Option Key="docs-format" Value="markdown" />
+  <Option Key="fwrap-extension-properties" Value="true" />
   <Option Key="docs" Value="xml" />
   <ItemGroup>
     <RuntimeLibrary Include="PortableRT" />

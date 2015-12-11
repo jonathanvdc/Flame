@@ -43,25 +43,25 @@ namespace Flame.Verification
             bool success = true;
             foreach (var item in Member.BaseTypes)
             {
-                if (Member.get_IsEnum())
+                if (Member.GetIsEnum())
                 {
-                    if (!item.get_IsValueType() && !item.get_IsPrimitive())
+                    if (!item.GetIsValueType() && !item.GetIsPrimitive())
                     {
                         Log.LogError(new LogEntry("Invalid enum backing type", 
                             "enum type '" + Member.FullName + "' must be backed by a primitive or value type. '" + item.FullName + "' is neither.",
                             Member.GetSourceLocation()));
                     }
                 }
-                else if (!item.get_IsVirtual() && !item.get_IsAbstract() && !item.get_IsInterface())
+                else if (!item.GetIsVirtual() && !item.GetIsAbstract() && !item.GetIsInterface())
                 {
                     Log.LogError(new LogEntry("Invalid inheritance tree", 
                         "Type '" + Member.FullName + "' cannot derive from non-virtual type '" + item.FullName + "'.",
                         Member.GetSourceLocation()));
                 }
             }
-            if (!Member.get_IsAbstract() && !Member.get_IsInterface())
+            if (!Member.GetIsAbstract() && !Member.GetIsInterface())
             {
-                foreach (var item in Member.BaseTypes.Where(item => item.get_IsAbstract() || item.get_IsInterface()))
+                foreach (var item in Member.BaseTypes.Where(item => item.GetIsAbstract() || item.GetIsInterface()))
                 {
                     if (!item.VerifyImplementation(Member, Log)) success = false;
                 }

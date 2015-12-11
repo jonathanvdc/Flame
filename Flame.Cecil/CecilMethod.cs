@@ -114,13 +114,13 @@ namespace Flame.Cecil
             {
                 foreach (var item in bType.GetAllMethods())
                 {
-                    if (item.HasSameSignature(this) && item.get_IsVirtual())
+                    if (item.HasSameSignature(this) && item.GetIsVirtual())
                     {
                         overrides.Add(item);
                     }
                 }
             }
-            if (this.DeclaringType.get_IsRootType())
+            if (this.DeclaringType.GetIsRootType())
             {
                 if (this.Name == "GetHashCode")
                 {

@@ -65,7 +65,7 @@ namespace Flame.Python
             {
                 if (((IPythonProperty)DeclaringProperty).UsesPropertySyntax)
                 {
-                    string accessorName = this.get_IsGetAccessor() ? "Getter" : this.get_IsSetAccessor() ? "Setter" : null;
+                    string accessorName = this.GetIsGetAccessor() ? "Getter" : this.GetIsSetAccessor() ? "Setter" : null;
                     if (accessorName == null)
                     {
                         return "Property \'" + DeclaringProperty.FullName + "\' was not implemented.";

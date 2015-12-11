@@ -38,7 +38,7 @@ namespace Flame.Cpp.Emit
         {
             get
             {
-                if (TestType.get_IsPointer())
+                if (TestType.GetIsPointer())
                 {
                     return TestType.AsContainerType().AsPointerType().ElementType;
                 }

@@ -41,7 +41,7 @@ namespace Flame.MIPS
 
         public bool IsGlobal
         {
-            get { return this.get_Access() == AccessModifier.Public; }
+            get { return this.GetAccess() == AccessModifier.Public; }
         }
 
         public CodeBuilder GetCode()

@@ -107,7 +107,7 @@ namespace Flame.Cecil
 
         protected override bool ContainerEquals(IContainerType other)
         {
-            return (other.get_IsArray() && other.AsArrayType().ArrayRank == GetArrayRank()) || (other.get_IsVector() && other.AsVectorType().Dimensions.Count == GetArrayRank());
+            return (other.GetIsArray() && other.AsArrayType().ArrayRank == GetArrayRank()) || (other.GetIsVector() && other.AsVectorType().Dimensions.Count == GetArrayRank());
         }
 
         private string AppendArraySuffix(string Name)

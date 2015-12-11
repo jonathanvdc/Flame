@@ -31,7 +31,7 @@ namespace Flame.Cpp.Emit
                 cb.Append('(');
                 if (args.Any())
                 {
-                    int maxLen = Options.get_MaxLineLength() - Offset - 1;
+                    int maxLen = Options.GetMaxLineLength() - Offset - 1;
                     int curLen = 0;
 
                     var argArr = args.ToArray();

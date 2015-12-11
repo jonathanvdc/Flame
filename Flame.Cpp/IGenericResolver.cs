@@ -24,7 +24,7 @@ namespace Flame.Cpp
                     return resolved;
                 }
             }
-            else if (Type.get_IsGenericInstance())
+            else if (Type.GetIsGenericInstance())
             {
                 var genDecl = Resolver.ResolveType(Type.GetGenericDeclaration());
                 var typeArgs = Type.GetGenericArguments().Select((item) => Resolver.ResolveType(item));
@@ -34,11 +34,11 @@ namespace Flame.Cpp
             {
                 var container = Type.AsContainerType();
                 var elemType = container.ElementType;
-                if (container.get_IsPointer())
+                if (container.GetIsPointer())
                 {
                     return Resolver.ResolveType(elemType).MakePointerType(container.AsPointerType().PointerKind);
                 }
-                else if (container.get_IsVector())
+                else if (container.GetIsVector())
                 {
                     return Resolver.ResolveType(elemType).MakeVectorType(container.AsVectorType().Dimensions);
                 }
@@ -67,7 +67,7 @@ namespace Flame.Cpp
 
         public static IMethod ResolveMethod(this IGenericResolver Resolver, IMethod Method)
         {
-            if (Method.get_IsGenericInstance())
+            if (Method.GetIsGenericInstance())
             {
                 var resolvedArgs = Resolver.ResolveTypes(Method.GetGenericArguments());
                 return Method.MakeGenericMethod(resolvedArgs);

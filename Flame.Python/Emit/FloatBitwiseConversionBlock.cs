@@ -26,7 +26,7 @@ namespace Flame.Python.Emit
             string intName = size == 4 ? "l" : "q";
             string floatName = size == 4 ? "f" : "d";
             string targetName, sourceName;
-            if (Type.get_IsBit())
+            if (Type.GetIsBit())
             {
                 targetName = intName;
                 sourceName = floatName;

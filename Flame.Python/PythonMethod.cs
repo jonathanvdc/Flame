@@ -34,11 +34,11 @@ namespace Flame.Python
                 {
                     return "__init__";
                 }
-                else if (this.get_IsCast() && Template.ReturnType.Equals(PrimitiveTypes.String))
+                else if (this.GetIsCast() && Template.ReturnType.Equals(PrimitiveTypes.String))
                 {
                     return "__str__";
                 }
-                else if (this.get_IsOperator())
+                else if (this.GetIsOperator())
                 {
                     var op = this.GetOperator();
                     if (op.Equals(Operator.Add))
@@ -297,7 +297,7 @@ namespace Flame.Python
             }
             if (bodyCode.IsWhitespace)
             {
-                if (DeclaringType.get_IsInterface() || this.get_IsAbstract())
+                if (DeclaringType.GetIsInterface() || this.GetIsAbstract())
                 {
                     bodyCode.AddLine("raise NotImplementedError(\"" + NotImplementedDescription + "\")");
                 }

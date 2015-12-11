@@ -68,7 +68,7 @@ namespace Flame.Intermediate.Emit
 
         public LNode Convert(IMethod Value)
         {
-            if (!Value.DeclaringType.get_IsContainerType())
+            if (!Value.DeclaringType.GetIsContainerType())
             {
                 if (Value is GenericMethod)
                 {

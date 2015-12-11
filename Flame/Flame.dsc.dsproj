@@ -1,8 +1,9 @@
 <Project Name="Flame">
-        <Setter Property="AssemblyName" Value="Flame" />
+    <Setter Property="AssemblyName" Value="Flame" />
 	<Setter Property="TargetPlatform" Value="CLR/Release" />
-        <Option Key="fgenerate-static" Value="true" />
-        <Option Key="docs" Value="xml" />
+    <Option Key="fgenerate-static" Value="true" />
+    <Option Key="fwrap-extension-properties" Value="true" />
+    <Option Key="docs" Value="xml" />
 	<ItemGroup>
 		<RuntimeLibrary Include="PortableRT" />
 		<RuntimeLibrary Include="System" />
