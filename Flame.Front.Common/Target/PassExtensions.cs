@@ -16,6 +16,7 @@ namespace Flame.Front.Target
     using RootPassInfo = PassInfo<BodyPassArgument, IEnumerable<IMember>>;
     using IRootPass = IPass<BodyPassArgument, IEnumerable<IMember>>;
     using ISignaturePass = IPass<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
+    using Flame.Front.Passes;
 
     public static class PassExtensions
     {
@@ -41,7 +42,12 @@ namespace Flame.Front.Target
             RegisterPassCondition(PropagateLocalsName, optInfo => optInfo.OptimizeExperimental);
             RegisterStatementPass(new StatementPassInfo(Flame.Optimization.ImperativeCodePass.Instance, Flame.Optimization.ImperativeCodePass.ImperativeCodePassName));
 
-            RegisterRootPass(new RootPassInfo(Flame.Front.Passes.GenerateStaticPass.Instance, Flame.Front.Passes.GenerateStaticPass.GenerateStaticPassName));
+            RegisterRootPass(new RootPassInfo(GenerateStaticPass.Instance, GenerateStaticPass.GenerateStaticPassName));
+
+            // -fwrap-extension-properties is actually a set of two passes which are
+            // always on or off at the same time.
+            RegisterRootPass(new RootPassInfo(WrapExtensionPropertiesPass.RootPassInstance, WrapExtensionPropertiesPass.WrapExtensionPropertiesPassName));
+            RegisterSignaturePass(new SignaturePassInfo(WrapExtensionPropertiesPass.SignaturePassInstance, WrapExtensionPropertiesPass.WrapExtensionPropertiesPassName));
         }
 
         /// <summary>
@@ -261,7 +267,8 @@ namespace Flame.Front.Target
         {
             var selected = GetSelectedPasses(OptInfo, Preferences);
 
-            return selected.Item1.Select(item => item.Name)
+            return selected.Item3.Select(item => item.Name)
+                .Concat(selected.Item1.Select(item => item.Name))
                 .Concat(selected.Item2.Select(item => item.Name));
         }
 

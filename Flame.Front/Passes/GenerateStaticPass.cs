@@ -78,14 +78,14 @@ namespace Flame.Front.Passes
         }
 
         /// <summary>
-        /// Forwards an associated singleton method call from the given calling
-        /// method to the given target method, which is defined in the associated 
-        /// singleton type.
+        /// Forwards a call from the given calling
+        /// method to the given target method.
         /// </summary>
-        /// <param name="GetSingletonExpression"></param>
-        /// <param name="Method"></param>
+        /// <param name="ThisExpression"></param>
+        /// <param name="CallingMethod"></param>
+        /// <param name="TargetMethod"></param>
         /// <returns></returns>
-        private static IExpression CreateSingletonCall(IExpression GetSingletonExpression, IMethod CallingMethod, IMethod TargetMethod)
+        public static IExpression CreateForwardingCall(IExpression ThisExpression, IMethod CallingMethod, IMethod TargetMethod)
         {
             var parameters = CallingMethod.GetParameters();
             var args = new IExpression[parameters.Length];
@@ -93,7 +93,7 @@ namespace Flame.Front.Passes
             {
                 args[i] = new ArgumentVariable(parameters[i], i).CreateGetExpression();
             }
-            return new InvocationExpression(TargetMethod, GetSingletonExpression, args);
+            return new InvocationExpression(TargetMethod, ThisExpression, args);
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace Flame.Front.Passes
                 descMethod.AddParameter(param);
             }
 
-            descMethod.Body = new ReturnStatement(CreateSingletonCall(GetSingletonExpression, descMethod, Method));
+            descMethod.Body = new ReturnStatement(CreateForwardingCall(GetSingletonExpression, descMethod, Method));
 
             return descMethod;
         }
@@ -144,7 +144,7 @@ namespace Flame.Front.Passes
                 descMethod.AddParameter(param);
             }
 
-            descMethod.Body = new ReturnStatement(CreateSingletonCall(GetSingletonExpression, descMethod, Accessor));
+            descMethod.Body = new ReturnStatement(CreateForwardingCall(GetSingletonExpression, descMethod, Accessor));
 
             return descMethod;
         }
