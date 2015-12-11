@@ -235,10 +235,9 @@ namespace Flame.Cecil
         }
         public static CecilAccessorBuilder DeclareAccessor(ICecilPropertyBuilder DeclaringProperty, AccessorType Kind, IMethodSignatureTemplate Template)
         {
-            string methodName = DeclaringProperty.GetIsIndexer() ? Kind.ToString().ToLower() + "_" + DeclaringProperty.Name : Template.Name;
             var voidTy = ((ICecilType)DeclaringProperty.DeclaringType).Module.Module.TypeSystem.Void;
 
-            var methodDef = new MethodDefinition(methodName, MethodAttributes.SpecialName, voidTy);
+            var methodDef = new MethodDefinition(Template.Name, MethodAttributes.SpecialName, voidTy);
 
             DeclaringProperty.AddAccessor(methodDef, Kind);
 
