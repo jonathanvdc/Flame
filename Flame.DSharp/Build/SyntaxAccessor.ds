@@ -50,12 +50,12 @@ namespace Flame.DSharp.Build
 
         public string Name
         {
-            const get { return ParentProperty.Name + "_" + Syntax.Name; }
+            const get { return Syntax.Name + "_" + ParentProperty.Name; }
         }
 
         public string FullName
         {
-            const get { return ParentProperty.FullName + "_" + Syntax.Name; }
+            const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
         public bool IsConstructor
