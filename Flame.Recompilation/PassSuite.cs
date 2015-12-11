@@ -62,8 +62,9 @@ namespace Flame.Recompilation
         /// passes, as an aggregate pass is itself a pass.
         /// </summary>
         /// <remarks>
-        /// Method passes are fairly broad passes that
-        /// 
+        /// Method passes are fairly broad passes that can be
+        /// used for a variety of purposes, such as optimization
+        /// and diagnostics.
         /// </remarks>
         public IMethodPass MethodPass { get; private set; }
 
