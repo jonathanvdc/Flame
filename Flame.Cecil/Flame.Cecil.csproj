@@ -102,6 +102,7 @@
     <Compile Include="Emit\VariableStoreBlock.cs" />
     <Compile Include="GenericExtensions.cs" />
     <Compile Include="GenericParameterTransformer.cs" />
+    <Compile Include="NormalizeNamesPass.cs" />
     <Compile Include="SpecificAssemblyResolver.cs" />
     <Compile Include="CecilAttributeExtensions.cs" />
     <Compile Include="CecilCompilerOptionExtensions.cs" />
