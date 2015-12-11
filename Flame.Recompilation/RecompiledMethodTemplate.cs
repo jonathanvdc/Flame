@@ -1,5 +1,6 @@
 ﻿using Flame.Build;
 using Flame.Compiler.Build;
+using Flame.Compiler.Visitors;
 using System;
 using System.Collections.Generic;
 using System.Linq;

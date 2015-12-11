@@ -39,7 +39,7 @@ namespace Flame.Recompilation
 
         public MemberSignaturePassResult Apply(MemberSignaturePassArgument<T> Value)
         {
-            return MemberSignaturePassResult.Combine(First.Apply(Value), Second.Apply(Value));
+            return First.Apply(Value).Combine(Second.Apply(Value));
         }
     }
 }

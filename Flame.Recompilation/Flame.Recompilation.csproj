@@ -75,7 +75,6 @@
     <Compile Include="IAsyncTaskManager.cs" />
     <Compile Include="IMethodOptimizer.cs" />
     <Compile Include="IRecompilationStrategy.cs" />
-    <Compile Include="MemberSignaturePassArgument.cs" />
     <Compile Include="MetadataManager.cs" />
     <Compile Include="PassSuite.cs" />
     <Compile Include="RandomAccessOptions.cs" />

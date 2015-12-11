@@ -83,7 +83,7 @@ namespace Flame.Front.Passes
                 }
                 else
                 {
-                    return MemberSignaturePassResult.Empty;
+                    return new MemberSignaturePassResult();
                 }
             }
         }

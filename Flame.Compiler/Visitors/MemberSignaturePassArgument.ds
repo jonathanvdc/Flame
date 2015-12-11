@@ -1,0 +1,102 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// Defines a data structure that holds information
+    /// pertaining to member signature passes.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class MemberSignaturePassArgument<T>
+        where T : IMember
+    {
+        /// <summary>
+        /// Creates a new member signature pass argument
+        /// from the given member and pass environment.
+        /// </summary>
+        /// <param name="Member"></param>
+        /// <param name="PassEnvironment"></param>
+        public const this(set T Member, set IBodyPassEnvironment PassEnvironment);
+
+        /// <summary>
+        /// Gets the member signature this pass is
+        /// being applied to.
+        /// </summary>
+        public T Member { const get; private set; }
+
+        /// <summary>
+        /// Gets the pass environment for this pass.
+        /// </summary>
+        public IBodyPassEnvironment PassEnvironment { const get; private set; }
+
+        /// <summary>
+        /// Gets the compiler log.
+        /// </summary>
+        public ICompilerLog Log { const get { return PassEnvironment.Log; } }
+
+        /// <summary>
+        /// Gets the environment.
+        /// </summary>
+        public IEnvironment Environment { const get { return PassEnvironment.Environment; } }
+    }
+
+    /// <summary>
+    /// Gets the result of a member signature pass.
+    /// </summary>
+    public class MemberSignaturePassResult
+    {
+        /// <summary>
+        /// Creates a member signature pass result with a null name
+        /// and no additional attributes.
+        /// </summary>
+        public const this()
+        {
+            this.Name = null;
+            this.AdditionalAttributes = Enumerable.Empty<IAttribute>();
+        }
+
+        /// <summary>
+        /// Creates a member signature pass result from the given
+        /// name and additional attributes.
+        /// </summary>
+        public const this(set string Name, set [IAttribute] AdditionalAttributes);
+
+        /// <summary>
+        /// Gets the member's (new) name, if any.
+        /// Otherwise, null.
+        /// </summary>
+        public string Name { const get; private set; }
+
+        /// <summary>
+        /// Gets a sequence of additional attributes that have
+        /// been inferred.
+        /// </summary>
+        public [IAttribute] AdditionalAttributes { const get; private set; }
+
+        /// <summary>
+        /// Combines the given member signature pass result with this one.
+        /// The other's name is preferred over this instance's name.
+        /// </summary>
+        /// <param name="Other"></param>
+        /// <returns></returns>
+        public MemberSignaturePassResult Combine(MemberSignaturePassResult Other)
+        {
+            string newName;
+            if (string.IsNullOrEmpty(Other.Name))
+            {
+                newName = this.Name;
+            }
+            else
+            {
+                newName = Other.Name;
+            }
+
+            var attrs = Enumerable.Union<IAttribute>(
+                this.AdditionalAttributes, Other.AdditionalAttributes);
+
+            return new MemberSignaturePassResult(newName, attrs);
+        }
+    }
+}
