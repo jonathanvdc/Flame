@@ -64,8 +64,7 @@ namespace Flame.Recompilation
             this.cachedEnvironment = new Lazy<IEnvironment>(() => TargetAssembly.CreateBinder().Environment);
             this.methodBodies = new AsyncDictionary<IMethod, IStatement>();
 
-            this.GlobalMetadata = new RandomAccessOptions();
-            this.typeMetadata = new ConcurrentDictionary<IType, RandomAccessOptions>();
+            this.MetadataManager = new MetadataManager();
             this.implementations = new Dictionary<IMethod, HashSet<IMethod>>();
         }
 
@@ -75,17 +74,14 @@ namespace Flame.Recompilation
         public CompilationCache<IMethod> MethodCache { [Pure] get; private set; }
         public CompilationCache<INamespace> NamespaceCache { [Pure] get; private set; }
 
-        public RandomAccessOptions GlobalMetadata { [Pure] get; private set; }
-        private ConcurrentDictionary<IType, RandomAccessOptions> typeMetadata;
+        /// <summary>
+        /// Gets this assembly recompiler's metadata manager.
+        /// </summary>
+        public MetadataManager MetadataManager { get; private set; }
 
         private Dictionary<IAssembly, RecompilationOptions> recompiledAssemblies;
         private Lazy<IEnvironment> cachedEnvironment;
         private AsyncDictionary<IMethod, IStatement> methodBodies;
-
-        public RandomAccessOptions GetTypeMetadata(IType Type)
-        {
-            return typeMetadata.GetOrAdd(Type, ty => new RandomAccessOptions());
-        }
 
         #endregion
 
@@ -1035,7 +1031,10 @@ namespace Flame.Recompilation
             }
             catch (Exception ex)
             {
-                Log.LogError(new LogEntry("Unhandled exception while getting method body", "An unhandled exception was thrown while acquiring the method body of '" + SourceMethod.FullName + "'."));
+                Log.LogError(new LogEntry(
+                    "Unhandled exception while getting method body", 
+                    "An unhandled exception was thrown while acquiring the method body of '" + 
+                    SourceMethod.FullName + "'."));
                 Log.LogException(ex);
                 return null;
             }
@@ -1045,6 +1044,7 @@ namespace Flame.Recompilation
         {
             var body = GetMethodBody(SourceMethod);
 
+            // Don't proceed if there is no method body.
             if (body == null)
             {
                 if (!IsAbstractOrInterfaceMethod(SourceMethod))
@@ -1053,6 +1053,10 @@ namespace Flame.Recompilation
                 }
                 return;
             }
+
+            // Recompile all roots that can be derived from 
+            // this source method and body.
+            Passes.RecompileRoots(this, SourceMethod, body);
 
             try
             {
