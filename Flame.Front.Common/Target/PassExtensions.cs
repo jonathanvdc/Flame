@@ -44,6 +44,10 @@ namespace Flame.Front.Target
 
             RegisterRootPass(new RootPassInfo(GenerateStaticPass.Instance, GenerateStaticPass.GenerateStaticPassName));
 
+            // Register -fnormalize-names-clr here, because the IR back-end could also use
+            // this pass when targeting the CLR platform indirectly.
+            RegisterSignaturePass(new SignaturePassInfo(Flame.Cecil.NormalizeNamesPass.Instance, Flame.Cecil.NormalizeNamesPass.NormalizeNamesPassName));
+
             // -fwrap-extension-properties is actually a set of two passes which are
             // always on or off at the same time.
             RegisterRootPass(new RootPassInfo(WrapExtensionPropertiesPass.RootPassInstance, WrapExtensionPropertiesPass.WrapExtensionPropertiesPassName));
