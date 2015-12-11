@@ -19,7 +19,7 @@ namespace Flame.Recompilation
 
         public MemberSignaturePassResult Apply(MemberSignaturePassArgument<T> Value)
         {
-            return MemberSignaturePassResult.Empty;
+            return new MemberSignaturePassResult();
         }
     }
 }
