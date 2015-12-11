@@ -10,15 +10,15 @@ namespace Flame.Recompilation
 {
     public class RecompiledMethodTemplate : RecompiledTypeMemberTemplate<IMethod>, IMethodSignatureTemplate
     {
-        public RecompiledMethodTemplate(AssemblyRecompiler Recompiler, IMethod SourceMethod)
-            : base(Recompiler)
+        public RecompiledMethodTemplate(AssemblyRecompiler Recompiler, IMethod SourceMethod, MemberSignaturePassResult SignaturePassResult)
+            : base(Recompiler, SignaturePassResult)
         {
             this.SourceMethod = SourceMethod;
         }
 
         public static RecompiledMethodTemplate GetRecompilerTemplate(AssemblyRecompiler Recompiler, IMethod SourceMethod)
         {
-            return new RecompiledMethodTemplate(Recompiler, SourceMethod);
+            return new RecompiledMethodTemplate(Recompiler, SourceMethod, Recompiler.Passes.ProcessSignature(Recompiler, SourceMethod));
         }
 
         public IMethod SourceMethod { get; private set; }

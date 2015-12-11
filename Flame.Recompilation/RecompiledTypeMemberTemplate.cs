@@ -10,8 +10,8 @@ namespace Flame.Recompilation
     public abstract class RecompiledTypeMemberTemplate<T> : RecompiledMemberTemplate<T>, ITypeMemberSignatureTemplate<T>
         where T : ITypeMember
     {
-        public RecompiledTypeMemberTemplate(AssemblyRecompiler Recompiler)
-            : base(Recompiler)
+        public RecompiledTypeMemberTemplate(AssemblyRecompiler Recompiler, MemberSignaturePassResult SignaturePassResult)
+            : base(Recompiler, SignaturePassResult)
         { }
 
         public bool IsStatic

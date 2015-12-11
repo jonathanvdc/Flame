@@ -9,15 +9,15 @@ namespace Flame.Recompilation
 {
     public class RecompiledPropertyTemplate : RecompiledTypeMemberTemplate<IProperty>, IPropertySignatureTemplate
     {
-        public RecompiledPropertyTemplate(AssemblyRecompiler Recompiler, IProperty SourceProperty)
-            : base(Recompiler)
+        public RecompiledPropertyTemplate(AssemblyRecompiler Recompiler, IProperty SourceProperty, MemberSignaturePassResult SignaturePassResult)
+            : base(Recompiler, SignaturePassResult)
         {
             this.SourceProperty = SourceProperty;
         }
 
         public static RecompiledPropertyTemplate GetRecompilerTemplate(AssemblyRecompiler Recompiler, IProperty SourceProperty)
         {
-            return new RecompiledPropertyTemplate(Recompiler, SourceProperty);
+            return new RecompiledPropertyTemplate(Recompiler, SourceProperty, Recompiler.Passes.ProcessSignature(Recompiler, SourceProperty));
         }
 
         public IProperty SourceProperty { get; private set; }

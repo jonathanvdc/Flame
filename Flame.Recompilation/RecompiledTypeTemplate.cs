@@ -10,8 +10,8 @@ namespace Flame.Recompilation
 {
     public class RecompiledTypeTemplate : RecompiledMemberTemplate<IType>, ITypeSignatureTemplate
     {
-        protected RecompiledTypeTemplate(AssemblyRecompiler Recompiler, IType SourceType)
-            : base(Recompiler)
+        protected RecompiledTypeTemplate(AssemblyRecompiler Recompiler, IType SourceType, MemberSignaturePassResult SignaturePassResult)
+            : base(Recompiler, SignaturePassResult)
         {
             this.SourceType = SourceType;
         }
@@ -20,7 +20,7 @@ namespace Flame.Recompilation
 
         public static RecompiledTypeTemplate GetRecompilerTemplate(AssemblyRecompiler Recompiler, IType SourceType)
         {
-            return new RecompiledTypeTemplate(Recompiler, SourceType);
+            return new RecompiledTypeTemplate(Recompiler, SourceType, Recompiler.Passes.ProcessSignature(Recompiler, SourceType));
         }
 
         #endregion
