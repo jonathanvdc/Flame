@@ -59,6 +59,15 @@ namespace Flame.Compiler.Visitors
 
         /// <summary>
         /// Creates a member signature pass result from the given
+        /// name.
+        /// </summary>
+        public const this(set string Name)
+        {
+            this.AdditionalAttributes = Enumerable.Empty<IAttribute>();
+        }
+
+        /// <summary>
+        /// Creates a member signature pass result from the given
         /// name and additional attributes.
         /// </summary>
         public const this(set string Name, set [IAttribute] AdditionalAttributes);
