@@ -12,15 +12,15 @@ namespace Flame.TextContract
     {
         public static string GetTypeName(IType Type)
         {
-            if (Type.get_IsInteger())
+            if (Type.GetIsInteger())
             {
                 return "integer";
             }
-            else if (Type.get_IsFloatingPoint())
+            else if (Type.GetIsFloatingPoint())
             {
                 return "float";
             }
-            else if (Type.get_IsBit())
+            else if (Type.GetIsBit())
             {
                 return "bitstring";
             }
@@ -36,7 +36,7 @@ namespace Flame.TextContract
             {
                 return "char";
             }
-            else if (Type.get_IsArray())
+            else if (Type.GetIsArray())
             {
                 StringBuilder sb = new StringBuilder();
                 sb.Append(GetTypeName(Type.AsContainerType().ElementType));
@@ -49,7 +49,7 @@ namespace Flame.TextContract
                 sb.Append(']');
                 return sb.ToString();
             }
-            else if (Type.get_IsVector())
+            else if (Type.GetIsVector())
             {
                 StringBuilder sb = new StringBuilder();
                 sb.Append(GetTypeName(Type.AsContainerType().ElementType));
@@ -64,11 +64,11 @@ namespace Flame.TextContract
                 sb.Append(']');
                 return sb.ToString();
             }
-            else if (Type.get_IsPointer())
+            else if (Type.GetIsPointer())
             {
                 return Type.AsContainerType().ElementType + Type.AsContainerType().AsPointerType().PointerKind.Extension;
             }
-            else if (Type.get_IsGenericInstance())
+            else if (Type.GetIsGenericInstance())
             {
                 var decl = Type.GetGenericDeclaration();
                 var genericFreeName = decl.GetGenericFreeName();
@@ -126,7 +126,7 @@ namespace Flame.TextContract
         public static IReadOnlyList<string> GetModifiers(IMember Member)
         {
             var list = new List<string>();
-            if (Member.get_IsConstant())
+            if (Member.GetIsConstant())
             {
                 list.Add("query");
             }

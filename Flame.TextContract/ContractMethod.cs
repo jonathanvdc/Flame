@@ -66,7 +66,7 @@ namespace Flame.TextContract
             {
                 if (this.IsConstructor)
                     return "Create" + DeclaringType.GetGenericFreeName();
-                else if (this.get_IsGeneric())
+                else if (this.GetIsGeneric())
                 {
                     var genericFreeName = GenericNameExtensions.TrimGenerics(this.Template.Name);
                     StringBuilder sb = new StringBuilder(genericFreeName);
@@ -102,7 +102,7 @@ namespace Flame.TextContract
         public CodeBuilder GetCode()
         {
             var cb = new CodeBuilder();
-            cb.Append(ContractHelpers.GetAccessCode(this.get_Access()));
+            cb.Append(ContractHelpers.GetAccessCode(this.GetAccess()));
             cb.Append(Name);
             cb.Append("(");
             bool first = true;
@@ -129,7 +129,7 @@ namespace Flame.TextContract
                 cb.Append(ContractHelpers.GetTypeName(item.ParameterType));
             }
             cb.Append(")");
-            if (this.get_HasReturnValue())
+            if (this.GetHasReturnValue())
             {
                 cb.Append(" : ");
                 cb.Append(ContractHelpers.GetTypeName(ReturnType));

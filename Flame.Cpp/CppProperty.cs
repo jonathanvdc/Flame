@@ -72,7 +72,7 @@ namespace Flame.Cpp
         {
             get 
             {
-                if (this.get_IsIndexer())
+                if (this.GetIsIndexer())
                 {
                     return "Item";
                 }

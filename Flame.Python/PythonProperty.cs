@@ -109,7 +109,7 @@ namespace Flame.Python
                 // All Python properties have getters, so that's definitely a requirement.
                 // Also, indexers get special treatment, so they shouldn't be included here.
                 // In addition, property names should not overlap with attribute names, because that's common decency.
-                return DeclaringType.GetField(Name) == null && !this.get_IsIndexer() && Accessors.Any((item) => item.AccessorType.Equals(AccessorType.GetAccessor));
+                return DeclaringType.GetField(Name) == null && !this.GetIsIndexer() && Accessors.Any((item) => item.AccessorType.Equals(AccessorType.GetAccessor));
             }
         }
 

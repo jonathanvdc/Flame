@@ -3,6 +3,7 @@
   <Setter Property="TargetPlatform" Value="clr" />
   <Setter Property="AssemblyName" Value="Flame.Optimization" />
   <Option Key="fgenerate-static" Value="true" />
+  <Option Key="fwrap-extension-properties" Value="true" />
   <Option Key="docs" Value="xml" />
   <ItemGroup>
     <RuntimeLibrary Include="PortableRT" />

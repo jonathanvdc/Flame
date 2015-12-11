@@ -49,7 +49,7 @@ namespace Flame.Cecil.Emit
                     Context.Stack.Push(method.DeclaringType);
                     return;
                 }
-                else if ((method.DeclaringType.get_IsArray() || method.DeclaringType.get_IsVector()) && method is IAccessor && (((IAccessor)method).DeclaringProperty).Name == "Length" && ((IAccessor)method).AccessorType.Equals(AccessorType.GetAccessor))
+                else if ((method.DeclaringType.GetIsArray() || method.DeclaringType.GetIsVector()) && method is IAccessor && (((IAccessor)method).DeclaringProperty).Name == "Length" && ((IAccessor)method).AccessorType.Equals(AccessorType.GetAccessor))
                 {
                     Context.Emit(OpCodes.Ldlen);
                 }

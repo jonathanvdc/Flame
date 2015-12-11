@@ -32,7 +32,7 @@ namespace Flame.Cpp
         protected override IType ConvertGenericInstance(IType Type)
         {
             var genDecl = Type.GetGenericDeclaration();
-            if (genDecl.get_IsReferenceType())
+            if (genDecl.GetIsReferenceType())
             {
                 return MakeReferenceType(ConvertValueGenericInstance(Type));
             }
@@ -58,11 +58,11 @@ namespace Flame.Cpp
 
         public virtual IType ConvertWithValueSemantics(IType Type)
         {
-            if (Type.get_IsGenericInstance())
+            if (Type.GetIsGenericInstance())
             {
                 return ConvertValueGenericInstance(Type);
             }
-            else if (Type.get_IsReferenceType() && !Type.get_IsContainerType() && !Type.get_IsDelegate())
+            else if (Type.GetIsReferenceType() && !Type.GetIsContainerType() && !Type.GetIsDelegate())
             {
                 return ConvertValueType(Type);
             }

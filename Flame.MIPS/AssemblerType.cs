@@ -112,7 +112,7 @@ namespace Flame.MIPS
 
         public IBoundObject GetDefaultValue()
         {
-            if (this.get_IsReferenceType())
+            if (this.GetIsReferenceType())
             {
                 return Flame.Compiler.Expressions.NullExpression.Instance;
             }

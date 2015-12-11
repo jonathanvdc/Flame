@@ -190,7 +190,7 @@ namespace Flame.ExpressionTrees.Emit
 
         public ICodeBlock EmitDefaultValue(IType Type)
         {
-            if (Type.get_IsReferenceType())
+            if (Type.GetIsReferenceType())
             {
                 return EmitConversion(EmitNull(), Type);
             }

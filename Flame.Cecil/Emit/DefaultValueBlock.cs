@@ -26,7 +26,7 @@ namespace Flame.Cecil.Emit
         /// <returns></returns>
         public static bool RequiresInitobj(IType Type)
         {
-            return Type.get_IsValueType() || (Type.get_IsGenericParameter() && !Type.get_IsReferenceType());
+            return Type.GetIsValueType() || (Type.GetIsGenericParameter() && !Type.GetIsReferenceType());
         }
 
         /// <summary>
@@ -38,12 +38,12 @@ namespace Flame.Cecil.Emit
         /// <returns></returns>
         public static bool PreferInitobj(IType Type)
         {
-            return RequiresInitobj(Type) || Type.GetPrimitiveMagnitude() > 3 || Type.get_IsFloatingPoint();
+            return RequiresInitobj(Type) || Type.GetPrimitiveMagnitude() > 3 || Type.GetIsFloatingPoint();
         }
 
         public void Emit(IEmitContext Context)
         {
-            if (Type.get_IsInteger() || Type.get_IsBit() || Type.Equals(PrimitiveTypes.Char) || Type.Equals(PrimitiveTypes.Boolean))
+            if (Type.GetIsInteger() || Type.GetIsBit() || Type.Equals(PrimitiveTypes.Char) || Type.Equals(PrimitiveTypes.Boolean))
             {
                 int magnitude = Type.GetPrimitiveMagnitude();
                 switch (magnitude)

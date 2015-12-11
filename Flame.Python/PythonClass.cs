@@ -148,7 +148,7 @@ namespace Flame.Python
             cb.IncreaseIndentation();
             cb.AddCodeBuilder(this.GetDocCode());
             cb.AddEmptyLine();
-            bool isInterface = this.get_IsInterface();
+            bool isInterface = this.GetIsInterface();
             foreach (var item in GetOverloadResolvedMethods())
                 if (!isInterface || !item.IsConstructor)
             {

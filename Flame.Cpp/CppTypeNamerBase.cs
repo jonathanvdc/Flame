@@ -27,15 +27,15 @@ namespace Flame.Cpp
             {
                 return "void";
             }
-            else if (Type.get_IsSignedInteger())
+            else if (Type.GetIsSignedInteger())
             {
                 return NameInt(Type.GetPrimitiveMagnitude());
             }
-            else if (Type.get_IsUnsignedInteger() || Type.get_IsBit())
+            else if (Type.GetIsUnsignedInteger() || Type.GetIsBit())
             {
                 return NameUInt(Type.GetPrimitiveMagnitude());
             }
-            else if (Type.get_IsFloatingPoint())
+            else if (Type.GetIsFloatingPoint())
             {
                 return NameFloat(Type.GetPrimitiveMagnitude());
             }
@@ -75,7 +75,7 @@ namespace Flame.Cpp
 
         protected override string ConvertArrayType(IArrayType Type)
         {
-            if (Type.get_IsGenericInstance())
+            if (Type.GetIsGenericInstance())
             {
                 return ConvertGenericInstance(Type);
             }
@@ -87,7 +87,7 @@ namespace Flame.Cpp
 
         protected override string ConvertVectorType(IVectorType Type)
         {
-            if (Type.get_IsGenericInstance())
+            if (Type.GetIsGenericInstance())
             {
                 return ConvertGenericInstance(Type);
             }

@@ -28,14 +28,14 @@ namespace Flame.Python
 
         public static string GetAccessDescription(this IMember Member)
         {
-            var access = Member.get_Access();
+            var access = Member.GetAccess();
             if (access == AccessModifier.Public)
             {
                 return "";
             }
             else
             {
-                string modifierString = Member.get_IsAbstract() ? "abstract " : string.Empty;
+                string modifierString = Member.GetIsAbstract() ? "abstract " : string.Empty;
                 return "This " + modifierString + Member.GetMemberTypeName() + " is " + access.GetAccessName() + ".";
             }
         }
@@ -52,7 +52,7 @@ namespace Flame.Python
                 {
                     return "constructor";
                 }
-                else if (((IMethod)Member).get_IsOperator())
+                else if (((IMethod)Member).GetIsOperator())
                 {
                     return "operator";
                 }
@@ -116,7 +116,7 @@ namespace Flame.Python
         public static bool SetsField(this IMethod Method, IField Field)
         {
             foreach (var item in Method.GetParameters())
-                if (item.get_SetsMember())
+                if (item.GetSetsMember())
             {
                 var setField = item.GetSetField(Method.DeclaringType, false);
                 if (setField != null)
@@ -128,7 +128,7 @@ namespace Flame.Python
                     var setProperty = item.GetSetProperty(Method.DeclaringType, false);
                     if (setProperty != null)
                     {
-                        if (Field.get_IsHidden() && setProperty.Name.Equals(Field.Name + "_value", StringComparison.InvariantCultureIgnoreCase)) return true;
+                        if (Field.GetIsHidden() && setProperty.Name.Equals(Field.Name + "_value", StringComparison.InvariantCultureIgnoreCase)) return true;
                     }
                 }
 #if AGGRESSIVE // This is a really abgressive optimization, and may well get it wrong sometimes

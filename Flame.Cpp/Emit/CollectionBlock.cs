@@ -25,7 +25,7 @@ namespace Flame.Cpp.Emit
         {
             get
             {
-                return Collection.Type.get_IsArray();
+                return Collection.Type.GetIsArray();
             }
         }
 

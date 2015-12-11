@@ -114,9 +114,9 @@ namespace Flame.Front.Passes
             // non-generic accessors.
 
             var acc = Member as IAccessor;
-            return acc != null && acc.IsStatic && acc.get_IsExtension() && 
-                   acc.get_Access() == AccessModifier.Public &&
-                   !acc.get_IsGenericInstance() && !acc.get_IsGeneric();
+            return acc != null && acc.IsStatic && acc.GetIsExtension() && 
+                   acc.GetAccess() == AccessModifier.Public &&
+                   !acc.GetIsGenericInstance() && !acc.GetIsGeneric();
         }
 
         /// <summary>

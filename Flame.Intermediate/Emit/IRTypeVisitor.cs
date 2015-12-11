@@ -29,7 +29,7 @@ namespace Flame.Intermediate.Emit
             {
                 return ConvertGenericNestedType((GenericInstanceType)Type);
             }
-            if (Type.get_IsRootType())
+            if (Type.GetIsRootType())
             {
                 if (Type.Equals(PrimitiveTypes.IHashable))
                 {
@@ -165,19 +165,19 @@ namespace Flame.Intermediate.Emit
 
         protected override LNode ConvertPrimitiveType(IType Type)
         {
-            if (Type.get_IsSignedInteger())
+            if (Type.GetIsSignedInteger())
             {
                 return MakePrimitiveType(IRParser.IntTypeNodeName, Type);
             }
-            else if (Type.get_IsUnsignedInteger())
+            else if (Type.GetIsUnsignedInteger())
             {
                 return MakePrimitiveType(IRParser.UIntTypeNodeName, Type);
             }
-            else if (Type.get_IsBit())
+            else if (Type.GetIsBit())
             {
                 return MakePrimitiveType(IRParser.BitTypeNodeName, Type);
             }
-            else if (Type.get_IsFloatingPoint())
+            else if (Type.GetIsFloatingPoint())
             {
                 return MakePrimitiveType(IRParser.FloatTypeNodeName, Type);
             }

@@ -59,7 +59,7 @@ namespace Flame.Cecil
                 }
                 else
                 {
-                    var parentType = baseTypes.SingleOrDefault((item) => !item.get_IsInterface());
+                    var parentType = baseTypes.SingleOrDefault((item) => !item.GetIsInterface());
                     if (parentType != null)
                     {
                         typeDef.BaseType = parentType.GetImportedReference(Module, typeDef);
@@ -71,7 +71,7 @@ namespace Flame.Cecil
                 }
             }
 
-            foreach (var item in baseTypes.Where(item => item.get_IsInterface()))
+            foreach (var item in baseTypes.Where(item => item.GetIsInterface()))
             {
                 typeDef.Interfaces.Add(item.GetImportedReference(Module, typeDef));
             }
@@ -82,7 +82,7 @@ namespace Flame.Cecil
             {
                 var field = new FieldDefinition("value__",
                     FieldAttributes.Public | FieldAttributes.SpecialName | FieldAttributes.RTSpecialName,
-                    baseTypes.SingleOrDefault(item => !item.get_IsInterface()).GetImportedReference(Module, typeDef));
+                    baseTypes.SingleOrDefault(item => !item.GetIsInterface()).GetImportedReference(Module, typeDef));
                 AddField(field);
             }
         }
@@ -233,7 +233,7 @@ namespace Flame.Cecil
         {
             var resolvedType = GetResolvedType();
             var importedRef = CecilTypeImporter.Import(Module, Type);
-            if (Type.get_IsInterface())
+            if (Type.GetIsInterface())
             {
                 resolvedType.Interfaces.Add(importedRef);
             }
@@ -275,7 +275,7 @@ namespace Flame.Cecil
                     bool setField = false;
                     if (item.Value.IsConstant)
                     {
-                        if (fieldType.get_IsPrimitive())
+                        if (fieldType.GetIsPrimitive())
                         {
                             if (!IsDefaultValue(item.Value, fieldType))
                             {
@@ -284,7 +284,7 @@ namespace Flame.Cecil
                         }
                         else
                         {
-                            setField = fieldType.get_IsValueType() || !IsNullValue(item.Value);
+                            setField = fieldType.GetIsValueType() || !IsNullValue(item.Value);
                         }
                     }
                     else

@@ -112,7 +112,7 @@ namespace Flame.Cecil
                     break;
             }
             if (Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.ConstantAttribute.AttributeType) && 
-                Template.FieldType.Value.get_IsPrimitive())
+                Template.FieldType.Value.GetIsPrimitive())
             {
                 attrs |= FieldAttributes.Literal | FieldAttributes.HasDefault | FieldAttributes.Static;
             }
@@ -138,7 +138,7 @@ namespace Flame.Cecil
             }
             else
             {
-                if (DeclaringType.get_IsGenericDeclaration() && DeclaringType.get_IsGeneric())
+                if (DeclaringType.GetIsGenericDeclaration() && DeclaringType.GetIsGeneric())
                 {
                     var genericDeclType = DeclaringType.MakeGenericType(DeclaringType.GenericParameters);
                     var genericField = genericDeclType.GetField(Name, IsStatic);

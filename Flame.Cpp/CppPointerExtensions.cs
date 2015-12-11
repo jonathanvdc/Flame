@@ -18,7 +18,7 @@ namespace Flame.Cpp
 
         public static bool IsAtAddressPointer(this IType Type)
         {
-            return Type.get_IsPointer() && Type.AsContainerType().AsPointerType().PointerKind.Equals(AtAddressPointer);
+            return Type.GetIsPointer() && Type.AsContainerType().AsPointerType().PointerKind.Equals(AtAddressPointer);
         }
 
         public static IType RemoveAtAddressPointers(this IType Type)

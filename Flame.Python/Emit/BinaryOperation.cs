@@ -146,7 +146,7 @@ namespace Flame.Python.Emit
             {
                 return "and";
             }
-            else if (Operator.Equals(Operator.Divide) && !Type.get_IsFloatingPoint())
+            else if (Operator.Equals(Operator.Divide) && !Type.GetIsFloatingPoint())
             {
                 return "//";
             }
@@ -179,7 +179,7 @@ namespace Flame.Python.Emit
                 return PrimitiveTypes.Boolean;
             }
             var rType = Right.Type;
-            if (rType.get_IsFloatingPoint())
+            if (rType.GetIsFloatingPoint())
             {
                 return rType;
             }

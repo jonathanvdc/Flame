@@ -21,7 +21,7 @@ namespace Flame.Cecil
 
         private bool CheckIfEquivalentPrimitive(IType First, IType Second)
         {
-            if (First.get_IsPrimitive())
+            if (First.GetIsPrimitive())
             {
                 return First.Equals(Second);
             }
@@ -33,14 +33,14 @@ namespace Flame.Cecil
 
         public int GetAncestryDegree(IType First, IType Second)
         {
-            if (First.get_IsPrimitive())
+            if (First.GetIsPrimitive())
             {
                 if (CheckIfEquivalentPrimitive(Second, First))
                 {
                     return 0;
                 }
             }
-            else if (Second.get_IsPrimitive())
+            else if (Second.GetIsPrimitive())
             {
                 if (CheckIfEquivalentPrimitive(First, Second))
                 {

@@ -96,7 +96,7 @@ namespace Flame.Verification
             bool success = true;
             foreach (var item in Member.BaseMethods)
             {
-                if (!item.get_IsVirtual() && !item.get_IsAbstract() && !item.DeclaringType.get_IsInterface())
+                if (!item.GetIsVirtual() && !item.GetIsAbstract() && !item.DeclaringType.GetIsInterface())
                 {
                     Log.LogError(new LogEntry("Invalid base method",
                         GetDescription(Member) + " has a non-virtual, non-abstract and non-interface base method, declared in '" + item.DeclaringType.FullName + "'",
@@ -104,11 +104,11 @@ namespace Flame.Verification
                     success = false;
                 }
 
-                if (item.get_Access() != Member.get_Access())
+                if (item.GetAccess() != Member.GetAccess())
                 {
                     Log.LogError(new LogEntry("Access modifier mismatch",
-                        GetDescription(Member) + " was marked '" + Member.get_Access().GetAccessModifierName() +
-                        "' but its base method in '" + item.DeclaringType.FullName + "' was declared '" + item.get_Access().GetAccessModifierName() + "'. " + 
+                        GetDescription(Member) + " was marked '" + Member.GetAccess().GetAccessModifierName() +
+                        "' but its base method in '" + item.DeclaringType.FullName + "' was declared '" + item.GetAccess().GetAccessModifierName() + "'. " + 
                         "Access modifiers should remain the same within a method inheritance tree.",
                         Member.GetSourceLocation()));
                     success = false;
@@ -118,7 +118,7 @@ namespace Flame.Verification
             {
                 success = false;
             }
-            if (Member.get_IsAbstract() && !Member.DeclaringType.get_IsAbstract() && !Member.DeclaringType.get_IsInterface())
+            if (Member.GetIsAbstract() && !Member.DeclaringType.GetIsAbstract() && !Member.DeclaringType.GetIsInterface())
             {
                 Log.LogError(new LogEntry("Abstract method in non-abstract type",
                     GetDescription(Member) + " has been marked abstract, but its declaring type is neither abstract nor an interface.",

@@ -26,11 +26,11 @@ namespace Flame.MIPS.Emit
         {
             var fReg = Context.AllocateRegister(Type);
             var valReg = Value.EmitToRegister(Context);
-            if (valReg.Type.get_IsBit())
+            if (valReg.Type.GetIsBit())
             {
                 Context.Emit(new Instruction(OpCodes.MoveToFloat32, new IInstructionArgument[] { Context.ToArgument(valReg), Context.ToArgument(fReg) }, "moves " + valReg.Identifier + " to " + fReg.Identifier));
             }
-            else if (valReg.Type.get_IsInteger())
+            else if (valReg.Type.GetIsInteger())
             {
                 Context.Emit(new Instruction(OpCodes.MoveToFloat32, new IInstructionArgument[] { Context.ToArgument(valReg), Context.ToArgument(fReg) }, "moves " + valReg.Identifier + " to " + fReg.Identifier));
                 Context.Emit(new Instruction(OpCodes.ConvertInt32ToFloat32, new IInstructionArgument[] { Context.ToArgument(fReg), Context.ToArgument(fReg) }, "converts value in " + fReg.Identifier + " to a floating-point number"));
@@ -53,7 +53,7 @@ namespace Flame.MIPS.Emit
             var valReg = Context.AllocateRegister(Type);
             if (fReg.Type.GetSize() > 4)
             {
-                if (valReg.Type.get_IsInteger())
+                if (valReg.Type.GetIsInteger())
                 {
                     Context.Emit(new Instruction(OpCodes.ConvertFloat64ToInt32, new IInstructionArgument[] { Context.ToArgument(fReg), Context.ToArgument(fReg) }, "converts 64-bit floating-point number in " + fReg.Identifier + " to an integer"));
                     Context.Emit(new Instruction(OpCodes.MoveFromFloat32, new IInstructionArgument[] { Context.ToArgument(valReg), Context.ToArgument(fReg) }, "moves " + fReg.Identifier + " to " + valReg.Identifier));
@@ -65,11 +65,11 @@ namespace Flame.MIPS.Emit
             }
             else
             {
-                if (valReg.Type.get_IsBit())
+                if (valReg.Type.GetIsBit())
                 {
                     Context.Emit(new Instruction(OpCodes.MoveFromFloat32, new IInstructionArgument[] { Context.ToArgument(valReg), Context.ToArgument(fReg) }, "moves " + fReg.Identifier + " to " + valReg.Identifier));
                 }
-                else if (valReg.Type.get_IsInteger())
+                else if (valReg.Type.GetIsInteger())
                 {
                     Context.Emit(new Instruction(OpCodes.ConvertFloat32ToInt32, new IInstructionArgument[] { Context.ToArgument(fReg), Context.ToArgument(fReg) }, "converts floating-point number in " + fReg.Identifier + " to an integer"));
                     Context.Emit(new Instruction(OpCodes.MoveFromFloat32, new IInstructionArgument[] { Context.ToArgument(valReg), Context.ToArgument(fReg) }, "moves " + fReg.Identifier + " to " + valReg.Identifier));
@@ -117,11 +117,11 @@ namespace Flame.MIPS.Emit
             }
             else
             {
-                if (Type.get_IsFloatingPoint())
+                if (Type.GetIsFloatingPoint())
                 {
                     return EmitToFloatingPoint(Context);
                 }
-                else if (valType.get_IsFloatingPoint())
+                else if (valType.GetIsFloatingPoint())
                 {
                     return EmitFromFloatingPoint(Context);
                 }

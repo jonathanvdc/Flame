@@ -21,7 +21,7 @@ namespace Flame.Cecil.Emit
 
         public void Emit(IEmitContext Context)
         {
-            if (TargetType.get_IsPrimitive())
+            if (TargetType.GetIsPrimitive())
             {
                 ((ICecilBlock)CodeGenerator.EmitInt32(TargetType.GetPrimitiveSize())).Emit(Context);
             }

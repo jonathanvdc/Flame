@@ -74,7 +74,7 @@ namespace Flame.Cpp.Emit
         {
             var opType = Operand.Type;
 
-            bool ptrCmp = opType.get_IsPointer() && OtherType.get_IsPointer() && IsComparisonOperator(Operator);
+            bool ptrCmp = opType.GetIsPointer() && OtherType.GetIsPointer() && IsComparisonOperator(Operator);
 
             ICppBlock actualOperand = ptrCmp && opType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer) && 
                                       OtherType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.TransientPointer) ?
@@ -95,7 +95,7 @@ namespace Flame.Cpp.Emit
             int lLength = cb.LastCodeLine.Length;
             int rLength = rCode.FirstCodeLine.Length;
 
-            int maxLength = CodeGenerator.GetOptions().get_MaxLineLength();
+            int maxLength = CodeGenerator.GetOptions().GetMaxLineLength();
 
             if (lLength <= maxLength && rLength <= maxLength && lLength + rLength > maxLength)
             {
@@ -204,7 +204,7 @@ namespace Flame.Cpp.Emit
             {
                 return PrimitiveTypes.Boolean;
             }
-            if (rType.get_IsFloatingPoint() && lType.get_IsInteger())
+            if (rType.GetIsFloatingPoint() && lType.GetIsInteger())
             {
                 return rType;
             }

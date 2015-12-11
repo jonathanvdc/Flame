@@ -160,7 +160,7 @@ namespace Flame.Cpp.Emit
                 }
                 else
                 {
-                    return !Declaration.Local.Type.get_IsPrimitive() && !Value.Type.Equals(PrimitiveTypes.Null);
+                    return !Declaration.Local.Type.GetIsPrimitive() && !Value.Type.Equals(PrimitiveTypes.Null);
                 }
             }
         }
@@ -169,7 +169,7 @@ namespace Flame.Cpp.Emit
         {
             get
             {
-                return Declaration.Local.Type.get_IsPointer() && Declaration.Local.Type.AsContainerType().AsPointerType().PointerKind.Equals(CppPointerExtensions.AtAddressPointer);
+                return Declaration.Local.Type.GetIsPointer() && Declaration.Local.Type.AsContainerType().AsPointerType().PointerKind.Equals(CppPointerExtensions.AtAddressPointer);
             }
         }
 

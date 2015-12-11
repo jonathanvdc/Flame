@@ -174,7 +174,7 @@ namespace Flame.Cecil
                 methodRef = module.Import(MethodReference);
             }
 
-            if (DeclaringType.get_IsContainerType())
+            if (DeclaringType.GetIsContainerType())
             {
                 return methodRef;
             }
@@ -203,7 +203,7 @@ namespace Flame.Cecil
                 fieldRef = module.Import(FieldReference);
             }
 
-            if (DeclaringType.get_IsContainerType())
+            if (DeclaringType.GetIsContainerType())
             {
                 return fieldRef;
             }

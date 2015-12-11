@@ -16,15 +16,15 @@ namespace Flame.MIPS.Emit
             {
                 return ((IAssemblerType)Type).GetSize();
             }
-            else if (Type.get_IsPrimitive())
+            else if (Type.GetIsPrimitive())
             {
                 return Type.GetPrimitiveSize();
             }
-            else if (Type.get_IsPointer())
+            else if (Type.GetIsPointer())
             {
                 return 4;
             }
-            else if (Type.get_IsVector())
+            else if (Type.GetIsVector())
             {
                 var vectType = Type.AsContainerType().AsVectorType();
                 return vectType.ElementType.GetSize() * vectType.Dimensions.Aggregate(1, (a, b) => a * b);

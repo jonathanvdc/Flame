@@ -82,7 +82,7 @@ namespace Flame.Cecil
                 var cecilProperties = type.Properties;
                 var cecilProp = cecilProperties.Single((item) =>
                 {
-                    if (item.IsStatic == declProp.IsStatic && ((item.get_IsIndexer() && declProp.get_IsIndexer()) || item.Name == declProp.Name) && item.PropertyType.Equals(propType))
+                    if (item.IsStatic == declProp.IsStatic && ((item.GetIsIndexer() && declProp.GetIsIndexer()) || item.Name == declProp.Name) && item.PropertyType.Equals(propType))
                     {
                         return indexerTypes.AreEqual(item.IndexerParameters.GetTypes());
                     }
@@ -98,7 +98,7 @@ namespace Flame.Cecil
 
         public override MethodReference Convert(IMethod Value)
         {
-            if (Value.get_IsGenericInstance())
+            if (Value.GetIsGenericInstance())
             {
                 return ConvertGenericInstance(Value);
             }

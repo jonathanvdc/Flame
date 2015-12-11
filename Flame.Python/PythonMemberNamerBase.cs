@@ -23,11 +23,11 @@ namespace Flame.Python
             {
                 return "str";
             }
-            else if (Member.get_IsInteger())
+            else if (Member.GetIsInteger())
             {
                 return "int";
             }
-            else if (Member.get_IsFloatingPoint())
+            else if (Member.GetIsFloatingPoint())
             {
                 return "float";
             }
@@ -35,11 +35,11 @@ namespace Flame.Python
             {
                 return "None";
             }
-            else if (Member.get_IsArray())
+            else if (Member.GetIsArray())
             {
                 return "list";
             }
-            else if (Member.get_IsVector())
+            else if (Member.GetIsVector())
             {
                 return "list";
             }
@@ -84,7 +84,7 @@ namespace Flame.Python
             else
             {
                 var acc = (IAccessor)Accessor;
-                if (acc.DeclaringProperty.get_IsIndexer() && acc.DeclaringProperty.Name == "this")
+                if (acc.DeclaringProperty.GetIsIndexer() && acc.DeclaringProperty.Name == "this")
                 {
                     if (acc.AccessorType.Equals(AccessorType.GetAccessor))
                     {

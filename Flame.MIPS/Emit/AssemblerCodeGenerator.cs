@@ -84,11 +84,11 @@ namespace Flame.MIPS.Emit
             var right = (IAssemblerBlock)B;
             if (BinaryOpBlock.IsSupported(Op, left.Type))
 	        {
-                if (left.Type.get_IsPointer() && right.Type.get_IsInteger())
+                if (left.Type.GetIsPointer() && right.Type.GetIsInteger())
                 {
                     return new BinaryOpBlock(this, left, Op, (IAssemblerBlock)EmitBinary(right, EmitInt32(left.Type.AsContainerType().ElementType.GetSize()), Operator.Multiply));
                 }
-                else if (right.Type.get_IsPointer() && left.Type.get_IsInteger())
+                else if (right.Type.GetIsPointer() && left.Type.GetIsInteger())
                 {
                     return new BinaryOpBlock(this, (IAssemblerBlock)EmitBinary(left, EmitInt32(right.Type.AsContainerType().ElementType.GetSize()), Operator.Multiply), Op, right);
                 }
@@ -207,7 +207,7 @@ namespace Flame.MIPS.Emit
 
         public ICodeBlock EmitDefaultValue(IType Type)
         {
-            if (Type.get_IsInteger() || Type.get_IsBit())
+            if (Type.GetIsInteger() || Type.GetIsBit())
             {
                 return EmitConversion(EmitInt32(0), Type);
             }

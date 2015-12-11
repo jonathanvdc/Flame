@@ -2,6 +2,7 @@
 <Project Name="Pixie.Xml">
   <Setter Property="TargetPlatform" Value="CLR" />
   <Setter Property="AssemblyName" Value="Pixie.Xml" />
+  <Option Key="fwrap-extension-properties" Value="true" />
   <Option Key="docs" Value="xml" />
   <ItemGroup>
     <RuntimeLibrary Include="PortableRT" />

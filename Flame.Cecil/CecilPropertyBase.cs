@@ -125,14 +125,14 @@ namespace Flame.Cecil
                     }
                     else
                     {
-                        return SetAccessor.get_Access();
+                        return SetAccessor.GetAccess();
                     }
                 }
                 else
                 {
                     if (setMethod == null)
                     {
-                        return GetAccessor.get_Access();
+                        return GetAccessor.GetAccess();
                     }
                     else
                     {
@@ -169,12 +169,12 @@ namespace Flame.Cecil
 
         public virtual bool IsAbstract
         {
-            get { return GetAccessors().Any((item) => item.get_IsAbstract()); }
+            get { return GetAccessors().Any((item) => item.GetIsAbstract()); }
         }
 
         public virtual bool IsVirtual
         {
-            get { return GetAccessors().Any((item) => item.get_IsVirtual()); }
+            get { return GetAccessors().Any((item) => item.GetIsVirtual()); }
         }
 
         protected override IEnumerable<IAttribute> GetMemberAttributes()

@@ -48,7 +48,7 @@ namespace Flame.Cecil.Emit
         {
             Caller.Emit(Context);
             var type = Context.Stack.Peek();
-            if (!type.get_IsPointer() && ILCodeGenerator.IsPossibleValueType(type)) // Sometimes the address of a value type has to be taken
+            if (!type.GetIsPointer() && ILCodeGenerator.IsPossibleValueType(type)) // Sometimes the address of a value type has to be taken
             {
                 Context.EmitPushPointerCommands((IUnmanagedCodeGenerator)Caller.CodeGenerator, type, true);
             }
@@ -64,7 +64,7 @@ namespace Flame.Cecil.Emit
             {
                 EmitCaller(Caller, Method, Context);
                 var callerType = Context.Stack.Pop();
-                if (callerType.get_IsValueType())
+                if (callerType.GetIsValueType())
                 {
                     // Box value types
                     Context.Emit(OpCodes.Box, callerType);

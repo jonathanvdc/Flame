@@ -129,7 +129,7 @@ namespace Flame.Cpp.Emit
         {
             var left = (ICppBlock)A;
             var right = (ICppBlock)B;
-            if (left.IsZeroLiteral() && right.Type.get_IsPrimitive())
+            if (left.IsZeroLiteral() && right.Type.GetIsPrimitive())
             {
                 return new UnaryOperation(this, right, Operator.Subtract);
             }
@@ -312,13 +312,13 @@ namespace Flame.Cpp.Emit
 
         public ICodeBlock EmitDefaultValue(IType Type)
         {
-            if (Type.get_IsPrimitive())
+            if (Type.GetIsPrimitive())
             {
-                if (Type.get_IsInteger() || Type.get_IsBit())
+                if (Type.GetIsInteger() || Type.GetIsBit())
                 {
                     return new LiteralBlock(this, "0", Type);
                 }
-                else if (Type.get_IsFloatingPoint())
+                else if (Type.GetIsFloatingPoint())
                 {
                     return new LiteralBlock(this, "0.0", Type);
                 }
@@ -331,7 +331,7 @@ namespace Flame.Cpp.Emit
                     return EmitBoolean(false);
                 }
             }
-            if (Type.get_IsReferenceType() || Type.Equals(PrimitiveTypes.String))
+            if (Type.GetIsReferenceType() || Type.Equals(PrimitiveTypes.String))
             {
                 return EmitNull();
             }
@@ -363,7 +363,7 @@ namespace Flame.Cpp.Emit
                 if (Method.IsConstructor)
                 {
                     var resultType = Environment.TypeConverter.Convert(Method.DeclaringType);
-                    if (!resultType.get_IsValueType())
+                    if (!resultType.GetIsValueType())
                     {
                         return new PartialSharedPtrBlock(Method.CreateConstructorBlock(this));
                     }
@@ -388,7 +388,7 @@ namespace Flame.Cpp.Emit
                 {
                     var accessor = (IAccessor)Method;
                     var declProp = accessor.DeclaringProperty;
-                    if (cppCaller.Type.get_IsArray())
+                    if (cppCaller.Type.GetIsArray())
                     {
                         var arrSliceProp = cppCaller.Type.Properties.FirstOrDefault((item) => item.Name == declProp.Name && item.IsStatic == declProp.IsStatic);
                         if (arrSliceProp != null)
@@ -400,13 +400,13 @@ namespace Flame.Cpp.Emit
                             }
                         }
                     }
-                    else if (declProp.get_IsIndexer() && Method.DeclaringType.IsForeign() && declProp.IndexerParameters.Count() == 1)
+                    else if (declProp.GetIsIndexer() && Method.DeclaringType.IsForeign() && declProp.IndexerParameters.Count() == 1)
                     {
-                        if (accessor.get_IsGetAccessor())
+                        if (accessor.GetIsGetAccessor())
                         {
                             return new PartialElementBlock(cppCaller, Method.ReturnType);
                         }
-                        else if (accessor.get_IsSetAccessor())
+                        else if (accessor.GetIsSetAccessor())
                         {
                             return new PartialSetElementBlock(cppCaller, declProp.PropertyType);
                         }

@@ -50,7 +50,7 @@ namespace Flame.Cecil
         {
             get
             {
-                return this.get_IsValueType();
+                return this.GetIsValueType();
             }
         }
 
@@ -58,7 +58,7 @@ namespace Flame.Cecil
         {
             get
             {
-                return this.get_IsInterface();
+                return this.GetIsInterface();
             }
         }
 

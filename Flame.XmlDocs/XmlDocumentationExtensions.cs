@@ -67,7 +67,7 @@ namespace Flame.XmlDocs
             {
                 sb.Append(Method.Name.Replace('.', '#'));
             }
-            if (Method.get_IsGeneric())
+            if (Method.GetIsGeneric())
             {
                 sb.Append("``");
                 sb.Append(Method.GenericParameters.Count());

@@ -43,7 +43,7 @@ namespace Flame.MIPS.Emit
         public static OpCode GetLoadOpCode(IType Type)
         {            
             int size = Type.GetSize();
-            if (Type.get_IsFloatingPoint())
+            if (Type.GetIsFloatingPoint())
             {
                 return GetFloatLoadOpCode(size);
             }
@@ -52,9 +52,9 @@ namespace Flame.MIPS.Emit
                 switch (size)
                 {
                     case 1:
-                        return (Type.get_IsUnsignedInteger() || Type.get_IsBit()) ? OpCodes.LoadUInt8 : OpCodes.LoadInt8;
+                        return (Type.GetIsUnsignedInteger() || Type.GetIsBit()) ? OpCodes.LoadUInt8 : OpCodes.LoadInt8;
                     case 2:
-                        return (Type.get_IsUnsignedInteger() || Type.get_IsBit()) ? OpCodes.LoadUInt16 : OpCodes.LoadInt16;
+                        return (Type.GetIsUnsignedInteger() || Type.GetIsBit()) ? OpCodes.LoadUInt16 : OpCodes.LoadInt16;
                     case 4:
                         return OpCodes.LoadInt32;
                     default:
@@ -82,7 +82,7 @@ namespace Flame.MIPS.Emit
         public static OpCode GetStoreOpCode(IType Type)
         {
             int size = Type.GetSize();
-            if (Type.get_IsFloatingPoint())
+            if (Type.GetIsFloatingPoint())
             {
                 return GetFloatStoreOpCode(size);
             }

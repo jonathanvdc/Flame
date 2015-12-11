@@ -84,7 +84,7 @@ namespace Flame.Cpp
                     CreateSummary(),
                     CreateRemarks()
                 };
-                if (DeclaringType.get_IsVirtual() || DeclaringType.get_IsInterface())
+                if (DeclaringType.GetIsVirtual() || DeclaringType.GetIsInterface())
                 {
                     return baseAttrs.With(new AccessAttribute(AccessModifier.Protected)).With(PrimitiveAttributes.Instance.VirtualAttribute);
                 }
@@ -111,7 +111,7 @@ namespace Flame.Cpp
         {
             get
             {
-                return !this.get_IsVirtual() && !BaseMethods.Any();
+                return !this.GetIsVirtual() && !BaseMethods.Any();
             }
         }
 

@@ -99,7 +99,7 @@ namespace Flame.Cecil
 
         protected override bool ContainerEquals(IContainerType other)
         {
-            return other.get_IsPointer() && (other.AsPointerType().PointerKind.Equals(PointerKind));
+            return other.GetIsPointer() && (other.AsPointerType().PointerKind.Equals(PointerKind));
         }
 
         protected override string GetName()

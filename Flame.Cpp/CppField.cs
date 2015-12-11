@@ -92,7 +92,7 @@ namespace Flame.Cpp
 
         private bool EmitPrimitiveAssignment
         {
-            get { return IsStatic || FieldType.get_IsPrimitive() && !FieldType.Equals(PrimitiveTypes.String) && Environment.Log.Options.GetOption<bool>("initialize-fields", true); }
+            get { return IsStatic || FieldType.GetIsPrimitive() && !FieldType.Equals(PrimitiveTypes.String) && Environment.Log.Options.GetOption<bool>("initialize-fields", true); }
         }
 
         private bool EmitAssignment
@@ -160,7 +160,7 @@ namespace Flame.Cpp
                 return cb;
             }
 
-            if (DeclaringType.get_IsGeneric())
+            if (DeclaringType.GetIsGeneric())
             {
                 cb.Append(DeclaringType.GetFullTemplateDefinition().GetHeaderCode());
                 cb.AppendLine();

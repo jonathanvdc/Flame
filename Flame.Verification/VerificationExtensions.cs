@@ -77,7 +77,7 @@ namespace Flame.Verification
         public static bool VerifyImplementation(this IMethod DefinitionMethod, IType ImplementationType, ICompilerLog Log)
         {
             bool success = true;
-            if (DefinitionMethod.get_IsAbstract() || DefinitionMethod.DeclaringType.get_IsInterface())
+            if (DefinitionMethod.GetIsAbstract() || DefinitionMethod.DeclaringType.GetIsInterface())
             {
                 var impl = DefinitionMethod.GetImplementation(ImplementationType);
                 if (impl == null || impl.Equals(DefinitionMethod))

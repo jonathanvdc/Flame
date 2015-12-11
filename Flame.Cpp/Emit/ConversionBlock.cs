@@ -37,23 +37,23 @@ namespace Flame.Cpp.Emit
             {
                 return true;
             }
-            else if (SourceType.get_IsPointer() && TargetType.get_IsPointer() && SourceType.AsContainerType().AsPointerType().PointerKind.Equals(TargetType.AsContainerType().AsPointerType().PointerKind))
+            else if (SourceType.GetIsPointer() && TargetType.GetIsPointer() && SourceType.AsContainerType().AsPointerType().PointerKind.Equals(TargetType.AsContainerType().AsPointerType().PointerKind))
             {
                 return SourceType.AsContainerType().ElementType.Is(TargetType.AsContainerType().ElementType);
             }
-            else if (TargetType.get_IsBit())
+            else if (TargetType.GetIsBit())
             {
-                return SourceType.get_IsUnsignedInteger();
+                return SourceType.GetIsUnsignedInteger();
             }
-            else if (SourceType.get_IsBit())
+            else if (SourceType.GetIsBit())
             {
-                return TargetType.get_IsUnsignedInteger();
+                return TargetType.GetIsUnsignedInteger();
             }
-            else if ((SourceType.get_IsSignedInteger() && TargetType.get_IsSignedInteger()) || (SourceType.get_IsUnsignedInteger() && TargetType.get_IsUnsignedInteger()) || (SourceType.get_IsBit() && TargetType.get_IsBit()) || (SourceType.get_IsFloatingPoint() && TargetType.get_IsFloatingPoint()))
+            else if ((SourceType.GetIsSignedInteger() && TargetType.GetIsSignedInteger()) || (SourceType.GetIsUnsignedInteger() && TargetType.GetIsUnsignedInteger()) || (SourceType.GetIsBit() && TargetType.GetIsBit()) || (SourceType.GetIsFloatingPoint() && TargetType.GetIsFloatingPoint()))
             {
                 return SourceType.GetPrimitiveMagnitude() <= TargetType.GetPrimitiveMagnitude();
             }
-            else if (SourceType.get_IsUnsignedInteger() && TargetType.get_IsSignedInteger())
+            else if (SourceType.GetIsUnsignedInteger() && TargetType.GetIsSignedInteger())
             {
                 return SourceType.GetPrimitiveMagnitude() < TargetType.GetPrimitiveMagnitude();
             }
@@ -65,32 +65,32 @@ namespace Flame.Cpp.Emit
 
         public static bool UseReinterpretBits(IType SourceType, IType TargetType)
         {
-            return (SourceType.get_IsBit() || TargetType.get_IsBit()) && SourceType.get_IsBit() != TargetType.get_IsBit() && SourceType.GetPrimitiveSize() != TargetType.GetPrimitiveSize();
+            return (SourceType.GetIsBit() || TargetType.GetIsBit()) && SourceType.GetIsBit() != TargetType.GetIsBit() && SourceType.GetPrimitiveSize() != TargetType.GetPrimitiveSize();
         }
 
         public static bool UseConvertToSharedPtr(IType SourceType, IType TargetType)
         {
-            return SourceType.get_IsPointer() && SourceType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.TransientPointer) && TargetType.get_IsPointer() && TargetType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer);
+            return SourceType.GetIsPointer() && SourceType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.TransientPointer) && TargetType.GetIsPointer() && TargetType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer);
         }
 
         public static bool UseConvertToTransientPtr(IType SourceType, IType TargetType)
         {
-            return SourceType.get_IsPointer() && SourceType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer) && TargetType.get_IsPointer() && TargetType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.TransientPointer);
+            return SourceType.GetIsPointer() && SourceType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer) && TargetType.GetIsPointer() && TargetType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.TransientPointer);
         }
 
         public static bool UseBoxConversion(IType SourceType, IType TargetType)
         {
-            return TargetType.get_IsPointer() && TargetType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer) && SourceType.Is(TargetType.AsContainerType().ElementType);
+            return TargetType.GetIsPointer() && TargetType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer) && SourceType.Is(TargetType.AsContainerType().ElementType);
         }
 
         public static bool UseDynamicCast(IType SourceType, IType TargetType)
         {
-            return SourceType.get_IsPointer() && TargetType.get_IsPointer();
+            return SourceType.GetIsPointer() && TargetType.GetIsPointer();
         }
 
         public static bool UseToStringCast(IType SourceType, IType TargetType)
         {
-            return TargetType.Equals(PrimitiveTypes.String) && (SourceType.get_IsInteger() || SourceType.get_IsFloatingPoint());
+            return TargetType.Equals(PrimitiveTypes.String) && (SourceType.GetIsInteger() || SourceType.GetIsFloatingPoint());
         }
 
         public CodeBuilder GetCode()

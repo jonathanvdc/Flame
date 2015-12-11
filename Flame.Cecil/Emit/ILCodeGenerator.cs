@@ -312,7 +312,7 @@ namespace Flame.Cecil.Emit
         public ICodeBlock EmitConversion(ICodeBlock Value, IType Type)
         {
             var ilVal = (ICecilBlock)Value;
-            if (ilVal.IsInt32Literal() && Type.get_IsInteger() && Type.GetPrimitiveMagnitude() < 4)
+            if (ilVal.IsInt32Literal() && Type.GetIsInteger() && Type.GetPrimitiveMagnitude() < 4)
             {
                 return new RetypedBlock(ilVal, Type);
             }
@@ -510,12 +510,12 @@ namespace Flame.Cecil.Emit
 
         public static bool IsPossibleValueType(IType Type)
         {
-            return IsCLRValueType(Type) || (Type.get_IsGenericParameter() && !Type.get_IsReferenceType());
+            return IsCLRValueType(Type) || (Type.GetIsGenericParameter() && !Type.GetIsReferenceType());
         }
 
         public static bool IsCLRValueType(IType Type)
         {
-            return Type.get_IsValueType() || Type.get_IsEnum() || (Type.get_IsPrimitive() && Type.GetPrimitiveMagnitude() > 0);
+            return Type.GetIsValueType() || Type.GetIsEnum() || (Type.GetIsPrimitive() && Type.GetPrimitiveMagnitude() > 0);
         }
 
         #endregion
@@ -525,8 +525,8 @@ namespace Flame.Cecil.Emit
         public static IType GetThisParameterType(IMethod Method)
         {
             var declType = Method.DeclaringType;
-            var genInst = declType.get_IsGeneric() ? declType.MakeGenericType(declType.GenericParameters) : declType;
-            if (declType.get_IsValueType())
+            var genInst = declType.GetIsGeneric() ? declType.MakeGenericType(declType.GenericParameters) : declType;
+            if (declType.GetIsValueType())
             {
                 return genInst.MakePointerType(PointerKind.ReferencePointer);
             }
@@ -628,7 +628,7 @@ namespace Flame.Cecil.Emit
 
         public static bool IsExpectedCallingType(IMethod Method, IType Type)
         {
-            if (Type.get_IsPointer())
+            if (Type.GetIsPointer())
             {
                 return Type.AsContainerType().ElementType.Is(Method.DeclaringType);
             }
@@ -642,7 +642,7 @@ namespace Flame.Cecil.Emit
         {
             if (IsVirtual)
             {
-                if (CallerType != null && CallerType.get_IsPointer())
+                if (CallerType != null && CallerType.GetIsPointer())
                 {
                     Context.Emit(OpCodes.Constrained, CallerType.AsContainerType().ElementType);
                 }
@@ -665,7 +665,7 @@ namespace Flame.Cecil.Emit
         /// <returns></returns>
         public static bool IsCultureSpecific(IMethod Method)
         {
-            if (Method.DeclaringType.get_IsPrimitive())
+            if (Method.DeclaringType.GetIsPrimitive())
             {
                 if (Method.Name == "Parse" && Method.IsStatic)
                 {
@@ -695,7 +695,7 @@ namespace Flame.Cecil.Emit
                 // Pushes System.Globalization.CultureInfo.InvariantCulture on the stack
                 EmitCall(Context, invariantCultureProperty.GetGetAccessor(), null, false);
                 // Makes the invariant call
-                EmitCall(Context, newMethod, CallerType, newMethod.get_IsVirtual());
+                EmitCall(Context, newMethod, CallerType, newMethod.GetIsVirtual());
             }
         }
 
