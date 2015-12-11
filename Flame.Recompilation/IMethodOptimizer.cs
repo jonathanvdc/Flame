@@ -15,12 +15,5 @@ namespace Flame.Recompilation
         /// <param name="Method"></param>
         /// <returns></returns>
         IStatement GetOptimizedBody(IBodyMethod Method);
-
-        /// <summary>
-        /// Infers attributes for the given method, such as purity, which may improve performance.
-        /// </summary>
-        /// <param name="Method"></param>
-        /// <returns></returns>
-        IEnumerable<IAttribute> InferAttributes(IMethod Method);
     }
 }

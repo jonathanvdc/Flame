@@ -38,10 +38,5 @@ namespace Flame.Recompilation
             var stmt = Method.GetMethodBody();
             return OptimizeStatements ? stmt.Optimize() : stmt;
         }
-
-        public IEnumerable<IAttribute> InferAttributes(IMethod Method)
-        {
-            return Enumerable.Empty<IAttribute>();
-        }
     }
 }
