@@ -1,0 +1,13 @@
+
+public class TestClass
+{
+    public int TestMethod(int x, int y)
+        in { x > y }
+        in { x > 0 }
+        in { y < 100 }
+        out (result) { result > 0 }
+        out { x > 0 }
+    {
+        return 50;
+    }
+}

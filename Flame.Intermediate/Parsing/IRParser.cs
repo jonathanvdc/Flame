@@ -788,7 +788,9 @@ namespace Flame.Intermediate.Parsing
                     { ExpressionParsers.AddressOfArgumentNodeName, ExpressionParsers.CreateAddressOfArgumentParser(paramList) },
                     { ExpressionParsers.SetArgumentNodeName, ExpressionParsers.CreateSetArgumentParser(paramList) },
                     { ExpressionParsers.ReleaseArgumentNodeName, ExpressionParsers.CreateReleaseArgumentParser(paramList) },
-                };
+
+					{ ExpressionParsers.GetReturnValueNodeName, ExpressionParsers.CreateConstantParser(new ReturnValueGetExpression(EnclosingMethod.ReturnType)) },
+				};
 
                 if (!EnclosingMethod.IsStatic && EnclosingMethod.DeclaringType != null)
                 {
