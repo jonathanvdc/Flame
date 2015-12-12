@@ -192,6 +192,8 @@ namespace Flame.Cecil.Emit
             if (!CanDowncastDelegate(Type, TargetType))
             {
                 var callMethod = CecilDelegateType.GetInvokeMethod(Type);
+				Context.Emit(OpCodes.Dup);
+				Context.Emit(OpCodes.Ldvirtftn, callMethod);
                 Context.Emit(OpCodes.Newobj, TargetType.GetConstructors().Single());
             }
         }
