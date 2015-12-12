@@ -29,7 +29,7 @@ namespace Flame.Compiler.Visitors
 
         /// <summary>
         /// Gets a flow delta that represents flow termination:
-        /// sequential flow that succeeds it will never be executed.
+        /// sequential flow that trails it will never be executed.
         /// </summary>
         public bool TerminatedFlow { const get return false; }
 
@@ -94,10 +94,25 @@ namespace Flame.Compiler.Visitors
             }
             else
             {
-                Statement.Accept(this); // Try to find dead code source statements.
+                Statement.Accept(this); // Try to find dead source code statements.
             }
 
             return EmptyStatement;
+        }
+
+        /// <summary>
+        /// Tries to simplify the given statement.
+        /// </summary>
+        private IStatement SimplifyStatement(IStatement Statement)
+        {
+            if (Statement is BlockStatement)
+            {
+                return ((BlockStatement)Statement).Simplify();
+            }
+            else
+            {
+                return Statement;
+            }
         }
 
         protected override IExpression Transform(IExpression Expression)
@@ -111,19 +126,17 @@ namespace Flame.Compiler.Visitors
                 bool oldFlow = CurrentFlow;
                 var result = ((IFlowStatement)Statement).AcceptFlow<bool, bool>(this);
                 if (!oldFlow && !CurrentFlow)
-                {
                     return EliminateDeadStatement(result); // Don't restart the flow now.
-                }
-                return result;
+                else
+                    return SimplifyStatement(result);
             }
             else
             {
                 var result = Statement.Accept(this);
                 if (!CurrentFlow)
-                {
                     return EliminateDeadStatement(result); // Don't restart the flow now.
-                }
-                return result;
+                else
+                    return SimplifyStatement(result);
             }
         }
 
