@@ -33,7 +33,30 @@ namespace Flame.Intermediate.Emit
         {
             return new NodeBlock(CodeGenerator, NodeFactory.Call(NodeName, Nodes));
         }
+
+		public static NodeBlock Block(IRCodeGenerator CodeGenerator, IEnumerable<ICodeBlock> Nodes)
+		{
+			return Block(CodeGenerator, Nodes.Select(ToNode));
+		}
+		public static NodeBlock Block(IRCodeGenerator CodeGenerator, IEnumerable<LNode> Nodes)
+		{
+			return new NodeBlock(CodeGenerator, NodeFactory.Block(Nodes));
+		}
+		public static NodeBlock Block(IRCodeGenerator CodeGenerator, params ICodeBlock[] Nodes)
+		{
+			return Block(CodeGenerator, (IEnumerable<ICodeBlock>)Nodes);
+		}
+		public static NodeBlock Block(IRCodeGenerator CodeGenerator, params LNode[] Nodes)
+		{
+			return Block(CodeGenerator, (IEnumerable<LNode>)Nodes);
+		}
         
+		/// <summary>
+		/// Converts the given (optionally null) block
+		/// to a node.
+		/// </summary>
+		/// <returns>The node.</returns>
+		/// <param name="Block">Block.</param>
         public static LNode ToNode(ICodeBlock Block)
         {
             if (Block == null)

@@ -26,6 +26,7 @@ namespace Flame.Intermediate.Parsing
         public const string ReturnNodeName = "#return";
         public const string ThrowNodeName = "#throw";
         public const string AssertNodeName = "#assert";
+		public const string ContractNodeName = "#contract";
 
         /// <summary>
         /// Defines a node type for yield-return nodes.
@@ -360,6 +361,13 @@ namespace Flame.Intermediate.Parsing
         public static readonly string ReleaseFieldNodeName = CreateReleaseVariableName(FieldVariableKindName);
         public static readonly string AddressOfFieldNodeName = CreateAddressOfVariableName(FieldVariableKindName);
 
+		/// <summary>
+		/// Gets the return value ("retval") variable kind name.
+		/// </summary>
+		public const string ReturnValueVariableKindName = "retval";
+
+		public static readonly string GetReturnValueNodeName = CreateGetVariableName(ReturnValueVariableKindName);
+
         #endregion
 
         #region Special
@@ -544,6 +552,28 @@ namespace Flame.Intermediate.Parsing
                 return result;
             }
         }
+
+		/// <summary>
+		/// Parses a '#contract' node.
+		/// </summary>
+		/// <returns>An expression that contains a contract body statement.</returns>
+		/// <param name="State"></param>
+		/// <param name="Node"></param>
+		public static IExpression ParseContract(ParserState State, LNode Node)
+		{
+			if (Node.ArgCount != 3)
+			{
+				return new ErrorExpression(VoidExpression.Instance,
+					new LogEntry("Invalid '" + ContractNodeName + "' node",
+						"'" + ContractNodeName + "' nodes take exactly three arguments."));
+			}
+
+			var body = ToStatement(ParseExpression(State, Node.Args[0]));
+			var pre = Node.Args[1].Select(item => ParseExpression(State, item)).ToArray();
+			var post = Node.Args[2].Select(item => ParseExpression(State, item)).ToArray();
+
+			return ToExpression(new ContractBodyStatement(body, pre, post));
+		}
 
         /// <summary>
         /// Parses a '#try' node.
@@ -1643,6 +1673,7 @@ namespace Flame.Intermediate.Parsing
                     { ReturnNodeName, CreateParser(ParseReturn) },
                     { ThrowNodeName, CreateParser(ParseThrow) },
                     { AssertNodeName, CreateParser(ParseAssert) },
+					{ ContractNodeName, CreateParser(ParseContract) },
                     { TryNodeName, CreateParser(ParseTry) },
                     { YieldBreakNodeName, CreateParser(ParseYieldBreak) },
                     { YieldReturnNodeName, CreateParser(ParseYieldReturn) },

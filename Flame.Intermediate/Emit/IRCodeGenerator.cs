@@ -15,7 +15,7 @@ namespace Flame.Intermediate.Emit
                                    IDoWhileCodeGenerator, IForCodeGenerator,
                                    IForeachCodeGenerator, ICommentedCodeGenerator,
                                    IYieldCodeGenerator, ILambdaCodeGenerator,
-                                   IInitializingCodeGenerator
+                                   IInitializingCodeGenerator, IContractCodeGenerator
     {
         public IRCodeGenerator(IRAssemblyBuilder Assembly, IMethod Method)
         {
@@ -38,8 +38,8 @@ namespace Flame.Intermediate.Emit
 
         /// <summary>
         /// "Postprocesses" the given node: nodes
-        /// for a number of purposes, such as variable declaration,
-        /// may be inserted by this pass.
+		/// may be inserted by this pass
+        /// for a number of purposes, such as variable declaration.
         /// </summary>
         /// <param name="Node"></param>
         /// <returns></returns>
@@ -629,5 +629,38 @@ namespace Flame.Intermediate.Emit
         }
 
         #endregion
+
+		#region IContractCodeGenerator implementation
+
+		/// <summary>
+		/// Gets the contract method's return value variable.
+		/// </summary>
+		/// <value>The return variable.</value>
+		public IEmitVariable ReturnVariable
+		{
+			get
+			{
+				return new NodeEmitVariable(this, ExpressionParsers.ReturnValueVariableKindName, Enumerable.Empty<LNode>());
+			}
+		}
+
+		/// <summary>
+		/// Emits a contract block.
+		/// </summary>
+		/// <returns>The contract block.</returns>
+		/// <param name="Preconditions">Preconditions.</param>
+		/// <param name="Postconditions">Postconditions.</param>
+		/// <param name="Body">Body.</param>
+		public ICodeBlock EmitContractBlock(
+			IEnumerable<ICodeBlock> Preconditions, IEnumerable<ICodeBlock> Postconditions, 
+			ICodeBlock Body)
+		{
+			return NodeBlock.Call(this, ExpressionParsers.ContractNodeName, 
+				Body, 
+				NodeBlock.Block(this, Preconditions), 
+				NodeBlock.Block(this, Postconditions));
+		}
+
+		#endregion
     }
 }
