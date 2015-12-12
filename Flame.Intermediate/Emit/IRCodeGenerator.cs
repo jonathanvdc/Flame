@@ -424,7 +424,7 @@ namespace Flame.Intermediate.Emit
             return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.NewVectorName, new[] 
             { 
                 Assembly.TypeTable.GetReference(ElementType) 
-            }.Concat(Dimensions.Select(item => NodeFactory.Literal(item)))));
+            }.Concat(Dimensions.Select(item => NodeFactory.VarLiteral(item)))));
         }
 
         public ICodeBlock EmitInitializedArray(IType ElementType, ICodeBlock[] Items)
@@ -491,7 +491,7 @@ namespace Flame.Intermediate.Emit
 
         public IUnmanagedEmitVariable GetUnmanagedArgument(int Index)
         {
-            return new NodeEmitVariable(this, ExpressionParsers.ArgumentVariableKindName, NodeFactory.Literal(Index));
+            return new NodeEmitVariable(this, ExpressionParsers.ArgumentVariableKindName, NodeFactory.VarLiteral(Index));
         }
 
         public IEmitVariable GetArgument(int Index)

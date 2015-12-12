@@ -18,8 +18,8 @@ namespace Flame.Intermediate
             this.Node = NodeFactory.Call(VersionNodeName,
                 new LNode[] 
                 {
-                    NodeFactory.Literal(Value.Major), NodeFactory.Literal(Value.Minor),
-                    NodeFactory.Literal(Value.Build), NodeFactory.Literal(Value.Revision)
+					NodeFactory.VarLiteral(Value.Major), NodeFactory.VarLiteral(Value.Minor),
+					NodeFactory.VarLiteral(Value.Build), NodeFactory.VarLiteral(Value.Revision)
                 });
         }
 

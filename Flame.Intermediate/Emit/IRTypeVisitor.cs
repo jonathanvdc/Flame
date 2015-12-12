@@ -80,7 +80,7 @@ namespace Flame.Intermediate.Emit
 
         protected virtual LNode MakePrimitiveType(string Name, int PrimitiveSize)
         {
-            return NodeFactory.Call(Name, new LNode[] { NodeFactory.Literal(PrimitiveSize * 8) });
+            return NodeFactory.Call(Name, new LNode[] { NodeFactory.VarLiteral(PrimitiveSize * 8) });
         }
 
         protected LNode MakePrimitiveType(string Name, IType Primitive)
@@ -124,7 +124,7 @@ namespace Flame.Intermediate.Emit
                 return NodeFactory.Call(IRParser.MethodGenericParameterReferenceName, new LNode[]
                 {
                     Assembly.MethodTable.GetReference((IMethod)Type.DeclaringMember),
-                    NodeFactory.Literal(index)
+                    NodeFactory.VarLiteral(index)
                 });
 	        }
             else
@@ -132,7 +132,7 @@ namespace Flame.Intermediate.Emit
                 return NodeFactory.Call(IRParser.TypeGenericParamaterReferenceName, new LNode[]
                 {
                     GetTypeReference((IType)Type.DeclaringMember),
-                    NodeFactory.Literal(index)
+                    NodeFactory.VarLiteral(index)
                 });
             }
         }

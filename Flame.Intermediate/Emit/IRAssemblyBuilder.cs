@@ -32,15 +32,15 @@ namespace Flame.Intermediate.Emit
             this.TypeTable = new IRTableBuilder<IType>(
                 IRParser.TypeTableName,
                 createElementNode<IType>(new IRTypeVisitor(this).Convert, CreateTypeNamer().Convert), 
-                index => NodeFactory.Call(IRParser.TypeTableReferenceName, new LNode[] { NodeFactory.Literal(index) }));
+                index => NodeFactory.Call(IRParser.TypeTableReferenceName, new LNode[] { NodeFactory.VarLiteral(index) }));
             this.MethodTable = new IRTableBuilder<IMethod>(
                 IRParser.MethodTableName,
                 createElementNode<IMethod>(new IRMethodVisitor(this).Convert, DescribeMethod), 
-                index => NodeFactory.Call(IRParser.MethodTableReferenceName, new LNode[] { NodeFactory.Literal(index) }));
+                index => NodeFactory.Call(IRParser.MethodTableReferenceName, new LNode[] { NodeFactory.VarLiteral(index) }));
             this.FieldTable = new IRTableBuilder<IField>(
                 IRParser.FieldTableName, 
                 createElementNode<IField>(new IRFieldVisitor(this).Convert, DescribeField),
-                index => NodeFactory.Call(IRParser.FieldTableReferenceName, new LNode[] { NodeFactory.Literal(index) }));
+                index => NodeFactory.Call(IRParser.FieldTableReferenceName, new LNode[] { NodeFactory.VarLiteral(index) }));
         }
 
         public IRDependencyBuilder Dependencies { get; private set; }

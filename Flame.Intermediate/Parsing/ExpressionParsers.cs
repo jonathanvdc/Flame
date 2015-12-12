@@ -940,7 +940,7 @@ namespace Flame.Intermediate.Parsing
         public static IExpression ParseNewVector(ParserState State, LNode Node)
         {
             var elemTy = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
-            var dims = Node.Args.Slice(1).Select(item => Convert.ToInt32(item.Value)).ToArray();
+			var dims = Node.Args.Slice(1).Select(item => IRParser.GetInt32(item)).ToArray();
             return new NewVectorExpression(elemTy, dims);
         }
 
@@ -1206,7 +1206,7 @@ namespace Flame.Intermediate.Parsing
 
             var exprParser = State.Parser.ExpressionParser
                 .WithParser(CapturedValueNodeName, CreateParser((state, node) => 
-                    new LambdaCapturedValueExpression(header, boundHeaderBlock, Convert.ToInt32(node.Args.Single().Value))))
+					new LambdaCapturedValueExpression(header, boundHeaderBlock, IRParser.GetInt32(node.Args.Single()))))
                 .WithParser(RecursiveLambdaDelegateNodeName, CreateParser((state, node) =>
                     new LambdaDelegateExpression(header, boundHeaderBlock)));
             var newState = State.WithParser(State.Parser.WithExpressionParser(exprParser));
@@ -1403,7 +1403,7 @@ namespace Flame.Intermediate.Parsing
         {
             return CreateParser((state, item) =>
             {
-                int index = Convert.ToInt32(item.Args[0].Value);
+				int index = IRParser.GetInt32(item.Args[0]);
                 return new ArgumentVariable(Parameters[index], index).CreateGetExpression();
             });
         }
@@ -1417,7 +1417,7 @@ namespace Flame.Intermediate.Parsing
         {
             return CreateParser((state, item) =>
             {
-                int index = Convert.ToInt32(item.Args[0].Value);
+				int index = IRParser.GetInt32(item.Args[0]);
                 return new ArgumentVariable(Parameters[index], index).CreateAddressOfExpression();
             });
         }
@@ -1431,7 +1431,7 @@ namespace Flame.Intermediate.Parsing
         {
             return CreateParser((state, item) =>
             {
-                int index = Convert.ToInt32(item.Args[0].Value);
+				int index = IRParser.GetInt32(item.Args[0]);
                 var value = ParseExpression(state, item.Args[1]);
                 return ToExpression(new ArgumentVariable(Parameters[index], index).CreateSetStatement(value));
             });
@@ -1446,7 +1446,7 @@ namespace Flame.Intermediate.Parsing
         {
             return CreateParser((state, item) =>
             {
-                int index = Convert.ToInt32(item.Args[0].Value);
+				int index = IRParser.GetInt32(item.Args[0]);
                 return ToExpression(new ArgumentVariable(Parameters[index], index).CreateReleaseStatement());
             });
         }
