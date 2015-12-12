@@ -564,9 +564,11 @@ namespace Flame.Front.Cli
         {
             var names = PassExtensions.GetSelectedPassNames(Log, Preferences);
 
-            var resultNode = ListExtensions.Instance.CreateList(
-                                names.Select(item => new MarkupNode(NodeConstants.TextNodeType, "-f" + item)));
-            Log.LogMessage(new LogEntry("Passes in use (in order of application)", resultNode));
+            var lists = names.Select(kv =>
+                ListExtensions.Instance.CreateList(
+                    " - " + kv.Key + " passes: ",
+                    kv.Value.Select(item => new MarkupNode(NodeConstants.TextNodeType, "-f" + item))));
+            Log.LogMessage(new LogEntry("Passes in use (in order of application)", lists));
             
             var optLevel = OptimizationInfo.GetOptimizationLevel(Log.Options);
             var optList = ListExtensions.Instance.CreateList(
