@@ -262,29 +262,36 @@ namespace Flame.Front.Target
 
         /// <summary>
         /// Gets the names of all passes that are selected by the
-        /// given optimization info and pass preferences.
+        /// given optimization info and pass preferences. The
+        /// results are returned as a dictionary that maps pass types
+        /// to a sequence of selected pass names.
         /// </summary>
         /// <param name="Log"></param>
         /// <param name="Preferences"></param>
         /// <returns></returns>
-        public static IEnumerable<string> GetSelectedPassNames(OptimizationInfo OptInfo, PassPreferences Preferences)
+        public static IReadOnlyDictionary<string, IEnumerable<string>> GetSelectedPassNames(OptimizationInfo OptInfo, PassPreferences Preferences)
         {
             var selected = GetSelectedPasses(OptInfo, Preferences);
 
-            return selected.Item3.Select(item => item.Name)
-                .Concat(selected.Item1.Select(item => item.Name))
-                .Concat(selected.Item2.Select(item => item.Name));
+            return new Dictionary<string, IEnumerable<string>>()
+            {
+                { "Signature", selected.Item3.Select(item => item.Name) },
+                { "Body", selected.Item1.Select(item => item.Name) },
+                { "Root", selected.Item2.Select(item => item.Name) }
+            };
         }
 
 
         /// <summary>
         /// Gets the names of all passes that are selected by the
-        /// given compiler log and pass preferences.
+        /// given compiler log and pass preferences. The
+        /// results are returned as a dictionary that maps pass types
+        /// to a sequence of selected pass names.
         /// </summary>
         /// <param name="Log"></param>
         /// <param name="Preferences"></param>
         /// <returns></returns>
-        public static IEnumerable<string> GetSelectedPassNames(ICompilerLog Log, PassPreferences Preferences)
+        public static IReadOnlyDictionary<string, IEnumerable<string>> GetSelectedPassNames(ICompilerLog Log, PassPreferences Preferences)
         {
             return GetSelectedPassNames(new OptimizationInfo(Log), Preferences);
         }
