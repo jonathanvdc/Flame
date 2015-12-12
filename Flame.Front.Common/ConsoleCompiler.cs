@@ -567,7 +567,8 @@ namespace Flame.Front.Cli
             var lists = names.Select(kv =>
                 ListExtensions.Instance.CreateList(
                     " - " + kv.Key + " passes: ",
-                    kv.Value.Select(item => new MarkupNode(NodeConstants.TextNodeType, "-f" + item))));
+                    kv.Value.Select(item => new MarkupNode(NodeConstants.TextNodeType, "-f" + item))
+                            .DefaultIfEmpty(new MarkupNode(NodeConstants.TextNodeType, "none"))));
             Log.LogMessage(new LogEntry("Passes in use (in order of application)", lists));
             
             var optLevel = OptimizationInfo.GetOptimizationLevel(Log.Options);
