@@ -87,7 +87,6 @@ namespace Flame.Cecil
 
             methodDef.Attributes = attrs;
 
-            var log = ((INamespace)DeclaringType).GetLog();
             if (simpleBaseMethod == null)
             {
                 var imported = ImportMethodOverrides(DeclaringType, Module, baseMethods, genericParams);

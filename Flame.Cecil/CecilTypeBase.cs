@@ -73,7 +73,6 @@ namespace Flame.Cecil
         public static IMethod[] ConvertMethodDefinitions(ICecilType DeclaringType, IList<MethodDefinition> MethodDefinitions)
         {
             List<IMethod> methods = new List<IMethod>();
-            var declRef = DeclaringType.GetTypeReference();
             foreach (var item in MethodDefinitions)
             {
                 if (item.IsConstructor || !item.IsSpecialName)
