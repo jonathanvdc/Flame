@@ -569,8 +569,8 @@ namespace Flame.Intermediate.Parsing
 			}
 
 			var body = ToStatement(ParseExpression(State, Node.Args[0]));
-			var pre = Node.Args[1].Select(item => ParseExpression(State, item)).ToArray();
-			var post = Node.Args[2].Select(item => ParseExpression(State, item)).ToArray();
+			var pre = Node.Args[1].Args.Select(item => ParseExpression(State, item)).ToArray();
+			var post = Node.Args[2].Args.Select(item => ParseExpression(State, item)).ToArray();
 
 			return ToExpression(new ContractBodyStatement(body, pre, post));
 		}
