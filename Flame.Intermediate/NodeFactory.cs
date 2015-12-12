@@ -49,6 +49,64 @@ namespace Flame.Intermediate
             return factory.Literal(Value);
         }
 
+		#region VarLiteral
+
+		/// <summary>
+		/// Creates a literal node whose encoding varies
+		/// based on its value.
+		/// </summary>
+		/// <returns>A literal node.</returns>
+		/// <param name="Value">The value to encode.</param>
+		public static LNode VarLiteral(short Value)
+		{
+			if (Value < sbyte.MaxValue && Value > sbyte.MinValue)
+			{
+				return Literal((sbyte)Value);
+			}
+			else
+			{
+				return factory.Literal(Value);
+			}
+		}
+
+		/// <summary>
+		/// Creates a literal node whose encoding varies
+		/// based on its value.
+		/// </summary>
+		/// <returns>A literal node.</returns>
+		/// <param name="Value">The value to encode.</param>
+		public static LNode VarLiteral(int Value)
+		{
+			if (Value < short.MaxValue && Value > short.MinValue)
+			{
+				return VarLiteral((short)Value);
+			}
+			else
+			{
+				return factory.Literal(Value);
+			}
+		}
+
+		/// <summary>
+		/// Creates a literal node whose encoding varies
+		/// based on its value.
+		/// </summary>
+		/// <returns>A literal node.</returns>
+		/// <param name="Value">The value to encode.</param>
+		public static LNode VarLiteral(long Value)
+		{
+			if (Value < int.MaxValue && Value > int.MinValue)
+			{
+				return VarLiteral((int)Value);
+			}
+			else
+			{
+				return factory.Literal(Value);
+			}
+		}
+
+		#endregion
+
         public static LNode Block(IEnumerable<LNode> Arguments)
         {
             var node = factory.Braces(Arguments);

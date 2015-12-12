@@ -37,7 +37,7 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitGetCapturedValue(int Index)
         {
-            return NodeBlock.Call(LambdaCodeGenerator, ExpressionParsers.CapturedValueNodeName, NodeFactory.Literal(Index));
+            return NodeBlock.Call(LambdaCodeGenerator, ExpressionParsers.CapturedValueNodeName, NodeFactory.VarLiteral(Index));
         }
 
         ICodeGenerator ILambdaHeaderBlock.LambdaCodeGenerator

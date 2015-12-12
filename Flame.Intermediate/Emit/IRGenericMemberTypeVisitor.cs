@@ -44,7 +44,7 @@ namespace Flame.Intermediate.Emit
                     {
                         return NodeFactory.Call(IRParser.LocalGenericParameterReferenceName, new LNode[]
                         {
-                            NodeFactory.Literal(index)
+                            NodeFactory.VarLiteral(index)
                         });
                     }
                     index++;
