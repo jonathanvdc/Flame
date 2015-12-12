@@ -24,25 +24,30 @@ namespace Flame.Front.Target
         /// </summary>
         Normal = 2,
         /// <summary>
+        /// Perform aggressive optimizations.
+        /// </summary>
+        Aggressive = 4,
+        /// <summary>
         /// Perform experimental optimizations.
         /// </summary>
-        Experimental = 4,
+        Experimental = 8,
         /// <summary>
         /// Perform optimizations that reduce code size,
         /// but may impact performance.
         /// </summary>
-        Size = 8,
+        Size = 16,
         /// <summary>
-        /// Perform optimizations that do not
-        /// affect the debugging experience.
+        /// Perform optimizations that improve
+        /// the debugging experience, and avoid
+        /// performing optimizations that negatively
+        /// affect debugging.
         /// </summary>
-        Debug = 16,
+        Debug = 32,
         /// <summary>
-        /// Perform optimizations that make 
-        /// assumptions which may not always turn out
-        /// to be true, thus creating invalid code.
+        /// Perform optimizations that disregard
+        /// strict standards compliance.
         /// </summary>
-        Dangerous = 32
+        Volatile = 64
     }
 
     /// <summary>
@@ -71,13 +76,23 @@ namespace Flame.Front.Target
         public OptimizationMode OptimizationLevel { get; private set; }
 
         /// <summary>
+        /// Checks if the given optimization mode is enabled.
+        /// </summary>
+        /// <param name="Mode"></param>
+        /// <returns></returns>
+        public bool ShouldOptimize(OptimizationMode Mode)
+        {
+            return (OptimizationLevel & Mode) == Mode;
+        }
+
+        /// <summary>
         /// Checks if minimal optimization (`-O1` or above) is turned on.
         /// </summary>
         public bool OptimizeMinimal
         {
             get
             {
-                return (OptimizationLevel & OptimizationMode.Minimal) == OptimizationMode.Minimal;
+                return ShouldOptimize(OptimizationMode.Minimal);
             }
         }
 
@@ -88,18 +103,29 @@ namespace Flame.Front.Target
         {
             get
             {
-                return (OptimizationLevel & OptimizationMode.Normal) == OptimizationMode.Normal;
+                return ShouldOptimize(OptimizationMode.Normal);
             }
         }
 
         /// <summary>
-        /// Checks if experimental optimization (`-O3` or above) is turned on.
+        /// Checks if aggressive optimization (`-O3` or above) is turned on.
+        /// </summary>
+        public bool OptimizeAggressive
+        {
+            get
+            {
+                return ShouldOptimize(OptimizationMode.Aggressive);
+            }
+        }
+
+        /// <summary>
+        /// Checks if experimental optimization (`-O4` or above) is turned on.
         /// </summary>
         public bool OptimizeExperimental
         {
             get
             {
-                return (OptimizationLevel & OptimizationMode.Experimental) == OptimizationMode.Experimental;
+                return ShouldOptimize(OptimizationMode.Experimental);
             }
         }
 
@@ -110,7 +136,7 @@ namespace Flame.Front.Target
         {
             get
             {
-                return (OptimizationLevel & OptimizationMode.Size) == OptimizationMode.Size;
+                return ShouldOptimize(OptimizationMode.Size);
             }
         }
 
@@ -121,7 +147,18 @@ namespace Flame.Front.Target
         {
             get
             {
-                return (OptimizationLevel & OptimizationMode.Debug) == OptimizationMode.Debug;
+                return ShouldOptimize(OptimizationMode.Debug);
+            }
+        }
+
+        /// <summary>
+        /// Checks if volatile optimization (`-Ofast`) is turned on.
+        /// </summary>
+        public bool OptimizeVolatile
+        {
+            get
+            {
+                return ShouldOptimize(OptimizationMode.Volatile);
             }
         }
         
@@ -131,11 +168,11 @@ namespace Flame.Front.Target
             { "O", OptimizationMode.Minimal },
             { "O1", OptimizationMode.Minimal },
             { "O2", OptimizationMode.Minimal | OptimizationMode.Normal },
-            { "O3", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental },
-            { "O4", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental },
-            { "Ofast", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental | OptimizationMode.Dangerous },
+            { "O3", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Aggressive },
+            { "O4", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Aggressive | OptimizationMode.Experimental },
+            { "Ofast", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Aggressive | OptimizationMode.Experimental | OptimizationMode.Volatile },
             { "Os", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Size },
-            { "Oz", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Experimental | OptimizationMode.Size },
+            { "Oz", OptimizationMode.Minimal | OptimizationMode.Normal | OptimizationMode.Aggressive | OptimizationMode.Size },
             { "g", OptimizationMode.Debug },
             { "Og", OptimizationMode.Minimal | OptimizationMode.Debug }
         };
@@ -164,10 +201,11 @@ namespace Flame.Front.Target
         {
             { OptimizationMode.Minimal, Tuple.Create("minimal", "O1") },
             { OptimizationMode.Normal, Tuple.Create("normal", "O2") },
-            { OptimizationMode.Experimental, Tuple.Create("experimental", "O3") },
+            { OptimizationMode.Aggressive, Tuple.Create("aggressive", "O3") },
+            { OptimizationMode.Experimental, Tuple.Create("experimental", "O4") },
             { OptimizationMode.Size, Tuple.Create("size", "Os") },
             { OptimizationMode.Debug, Tuple.Create("debug", "g") },
-            { OptimizationMode.Dangerous, Tuple.Create("dangerous", "Ofast") },
+            { OptimizationMode.Volatile, Tuple.Create("volatile", "Ofast") },
         };
 
         /// <summary>

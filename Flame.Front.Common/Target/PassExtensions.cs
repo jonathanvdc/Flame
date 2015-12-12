@@ -34,12 +34,12 @@ namespace Flame.Front.Target
             RegisterPassCondition(TailRecursionPass.TailRecursionPassName, optInfo => optInfo.OptimizeNormal);
 
             RegisterMethodPass(new MethodPassInfo(InliningPass.Instance, InliningPass.InliningPassName));
-            RegisterPassCondition(InliningPass.InliningPassName, optInfo => optInfo.OptimizeExperimental);
+            RegisterPassCondition(InliningPass.InliningPassName, optInfo => optInfo.OptimizeAggressive);
             RegisterStatementPass(new StatementPassInfo(SimplifyFlowPass.Instance, SimplifyFlowPassName));
             RegisterPassCondition(SimplifyFlowPassName, optInfo => optInfo.OptimizeNormal);
             RegisterPassCondition(SimplifyFlowPassName, optInfo => optInfo.OptimizeSize);
             RegisterStatementPass(new StatementPassInfo(Flame.Optimization.Variables.DefinitionPropagationPass.Instance, PropagateLocalsName));
-            RegisterPassCondition(PropagateLocalsName, optInfo => optInfo.OptimizeExperimental);
+            RegisterPassCondition(PropagateLocalsName, optInfo => optInfo.OptimizeAggressive);
             RegisterStatementPass(new StatementPassInfo(Flame.Optimization.ImperativeCodePass.Instance, Flame.Optimization.ImperativeCodePass.ImperativeCodePassName));
 
             RegisterRootPass(new RootPassInfo(GenerateStaticPass.Instance, GenerateStaticPass.GenerateStaticPassName));
