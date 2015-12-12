@@ -124,7 +124,7 @@ namespace Flame
 					"' with " + genParamCount + " generic parameters, cannot be instantiated with " +
 					argArr.Length + " type arguments.");
 			}
-			else if (argArr == 0)
+			else if (argArr.Length == 0)
 			{
 				return GenericDeclaration;
 			}
@@ -148,7 +148,7 @@ namespace Flame
 					"' with " + genParamCount + " generic parameters, cannot be instantiated with " +
 					argArr.Length + " type arguments.");
 			}
-			else if (argArr == 0)
+			else if (argArr.Length == 0)
 			{
 				return GenericDeclaration;
 			}
