@@ -27,8 +27,13 @@ namespace Flame.Front.Target
             SignaturePasses = new List<SignaturePassInfo>();
             PassConditions = new List<PassCondition>();
 
+            // Activate -fstrip-assert whenever -g is turned off.
+            RegisterMethodPass(new MethodPassInfo(StripAssertPass.Instance, StripAssertPass.StripAssertPassName));
+            RegisterPassCondition(new PassCondition(StripAssertPass.StripAssertPassName, optInfo => !optInfo.OptimizeDebug));
+
             RegisterMethodPass(new MethodPassInfo(SlimLambdaPass.Instance, SlimLambdaPass.SlimLambdaPassName));
             RegisterMethodPass(new MethodPassInfo(LowerLambdaPass.Instance, LowerLambdaPassName));
+            RegisterMethodPass(new MethodPassInfo(LowerContractPass.Instance, LowerContractPass.LowerContractPassName));
             RegisterMethodPass(new MethodPassInfo(Flame.Optimization.FlattenInitializationPass.Instance, Flame.Optimization.FlattenInitializationPass.FlattenInitializationPassName));
             RegisterMethodPass(new MethodPassInfo(TailRecursionPass.Instance, TailRecursionPass.TailRecursionPassName));
             RegisterPassCondition(TailRecursionPass.TailRecursionPassName, optInfo => optInfo.OptimizeNormal);

@@ -1,0 +1,192 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Build;
+using Flame.Compiler.Build;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// A method body pass that lowers contract statements into assertions.
+    /// </summary>
+    public static class LowerContractPass : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// Stores the lower contract pass' name.
+        /// </summary>
+        public const string LowerContractPassName = "lower-contracts";
+
+        public IStatement Apply(BodyPassArgument Args)
+        {
+            return LowerContractVisitor.Visit(Args.Body);
+        }
+    }
+
+    /// <summary>
+    /// A node visitor that lowers contract statements into assertions.
+    /// </summary>
+    public static class LowerContractVisitor : ContextlessVisitorBase
+    {
+        public override const bool Matches(IExpression Value)
+        {
+            return false;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is ContractBodyStatement;
+        }
+
+        /// <summary>
+        /// Lowers the given contract statement.
+        /// </summary>
+        public IStatement LowerContractStatement(ContractBodyStatement Value)
+        {
+            var results = new List<IStatement>();
+            foreach (var item in Value.Preconditions)
+            {
+                results.Add(item);
+            }
+            var rewriter = new PostconditionInsertingVisitor(Value.Postconditions);
+            results.Add(rewriter.Visit(Value.Body));
+            return new BlockStatement(results).Simplify();
+        }
+
+        protected override IExpression Transform(IExpression Value)
+        {
+            return Value.Accept(this);
+        }
+
+        protected override IStatement Transform(IStatement Value)
+        {
+            return LowerContractStatement((ContractBodyStatement)Value);
+        }
+    }
+
+    /// <summary>
+    /// A statement visitor that inserts postcondition checks whenever
+    /// a value is returned.
+    /// </summary>
+    public class PostconditionInsertingVisitor : StatementVisitorBase
+    {
+        /// <summary>
+        /// Creates a new postcondition inserting visitor from the given
+        /// sequence of postconditions.
+        /// </summary>
+        public const this(set [IExpression] Postconditions);
+
+        /// <summary>
+        /// Gets a sequence of postconditions to insert.
+        /// </summary>
+        public [IExpression] Postconditions { const get; private set; }
+
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is ReturnStatement;
+        }
+
+        protected override IStatement Transform(IStatement Value)
+        {
+            // Rewrite
+            //
+            //    return x;
+            //
+            // as
+            //
+            //    var retVal = x;
+            //    assert(...);
+            //    ...
+            //    assert(...);
+            //    return x;
+            //
+            // Rewrite
+            //
+            //    return;
+            //
+            // as
+            //
+            //    assert(...);
+            //    ...
+            //    assert(...);
+            //    return;
+
+            var retStmt = (ReturnStatement)Value;
+            var results = new List<IStatement>();
+
+            IVariable returnVariable;
+            if (retStmt.Value == null)
+            {
+                returnVariable = null;
+            }
+            else if (retStmt.Value.Type.IsEquivalent(PrimitiveTypes.Void))
+            {
+                returnVariable = null;
+                results.Add(new ExpressionStatement(retStmt.Value).Simplify());
+            }
+            else
+            {
+                returnVariable = new LocalVariable("retVal", retStmt.Value.Type);
+                results.Add(returnVariable.CreateSetStatement(retStmt.Value));
+            }
+
+            // Now rewrite return value-getting expressions as
+            // return value *variable*-getting expressions.
+            var postcondRewriter = new ReturnValueRewritingVisitor(returnVariable);
+
+            foreach (var item in Postconditions)
+            {
+                results.Add(new AssertStatement(postcondRewriter.Visit(item)));
+            }
+
+            if (returnVariable != null)
+                results.Add(new ReturnStatement(returnVariable.CreateGetExpression()));
+            else
+                results.Add(new ReturnStatement());
+
+            return new BlockStatement(results).Simplify();
+        }
+    }
+
+    /// <summary>
+    /// Defines a return value access rewriting visitor that replaces
+    /// return value access expressions with get-expressions from the given
+    /// variables.
+    /// </summary>
+    public class ReturnValueRewritingVisitor : NodeVisitorBase
+    {
+        /// <summary>
+        /// Creates a return value access rewriting visitor that replaces
+        /// return value access expressions with get-expressions from the given
+        /// variables.
+        /// </summary>
+        public const this(set IVariable ReturnValueVariable);
+
+        /// <summary>
+        /// Gets the return value variable that is used to replace return value
+        /// access expressions with.
+        /// </summary>
+        public IVariable ReturnValueVariable { const get; private set; }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is ReturnValueGetExpression;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return false;
+        }
+        protected override IExpression Transform(IExpression Expression)
+        {
+            if (ReturnValueVariable != null)
+                return ReturnValueVariable.CreateGetExpression();
+            else
+                return VoidExpression;
+        }
+        protected override IStatement Transform(IStatement Statement)
+        {
+            return Statement.Accept(this);
+        }
+    }
+}
