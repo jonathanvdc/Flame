@@ -47,7 +47,7 @@ namespace Flame.Compiler.Visitors
             var results = new List<IStatement>();
             foreach (var item in Value.Preconditions)
             {
-                results.Add(item);
+                results.Add(new AssertStatement(item));
             }
             var rewriter = new PostconditionInsertingVisitor(Value.Postconditions);
             results.Add(rewriter.Visit(Value.Body));
