@@ -30,7 +30,6 @@
 		<Compile Include="IInitializedField.ds" />
 		<Compile Include="ILambdaNode.ds" />
 		<Compile Include="IBodyMethod.ds" />
-		<Compile Include="IDynamicEnvironment.ds" />
 		<Compile Include="PrimitiveExpressionExtensions.ds" />
 		<Compile Include="ICompilerOptions.ds" />
 		<Compile Include="EmptyCompilerOptions.ds" />
