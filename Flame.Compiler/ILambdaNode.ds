@@ -2,8 +2,8 @@
 namespace Flame.Compiler
 {
     /// <summary>
-    /// Defines common functionality for lambda nodes: nodes that
-    /// contain nodes that belong to a different method than the outer method.
+    /// Defines common functionality for lambda nodes: nodes whose contents
+    /// belong to a separate method.
     /// </summary>
     public interface ILambdaNode<T> : INode
         where T : INode
