@@ -1,0 +1,70 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Build;
+using Flame.Compiler.Build;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// A pass that removes all assertions, as well as any
+    /// precondition and postcondition checks from a method's body.
+    /// </summary>
+    public static class StripAssertPass : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// Stores the assertion-stripping pass' name.
+        /// </summary>
+        public const string StripAssertPassName = "strip-assert";
+
+        public IStatement Apply(BodyPassArgument Args)
+        {
+            return StripAssertVisitor.Visit(Args.Body);
+        }
+    }
+
+    /// <summary>
+    /// A node visitor that removes all assertions, as well as any
+    /// precondition and postcondition checks.
+    /// </summary>
+    public static class StripAssertVisitor : ContextlessVisitorBase
+    {
+        public override const bool Matches(IExpression Value)
+        {
+            return false;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is AssertStatement || Value is ContractBodyStatement ||
+                   Value is BlockStatement;
+        }
+
+        protected override IExpression Transform(IExpression Value)
+        {
+            return Value.Accept(this);
+        }
+
+        private IStatement Simplify(IStatement Statement)
+        {
+            if (Statement is BlockStatement)
+                return ((BlockStatement)Statement).Simplify();
+            else
+                return Statement;
+        }
+
+        protected override IStatement Transform(IStatement Value)
+        {
+            if (Value is AssertStatement)
+                // Get rid of all assertions.
+                return EmptyStatement;
+            else if (Value is ContractBodyStatement)
+                // Get rid of all pre- and postconditions.
+                return Simplify(((ContractBodyStatement)Value).Body.Accept(this));
+            else
+                return Simplify(Value.Accept(this));
+        }
+    }
+}

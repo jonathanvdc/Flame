@@ -228,14 +228,16 @@
 			<Compile Include="Visitors/IPass.ds" />
 			<Compile Include="Visitors/LocationVisitorBase.ds" />
 			<Compile Include="Visitors/LoggingVisitor.ds" />
-			<Compile Include="Visitors/LowerYieldPass.ds" />
+			<Compile Include="Visitors/LowerContractPass.ds" />
 			<Compile Include="Visitors/LowerLambdaPass.ds" />
+			<Compile Include="Visitors/LowerYieldPass.ds" />
 			<Compile Include="Visitors/MemberNodeVisitor.ds" />
 			<Compile Include="Visitors/MemberSignaturePassArgument.ds" />
 			<Compile Include="Visitors/NodeVisitorBase.ds" />
 			<Compile Include="Visitors/PassMetadata.ds" />
 			<Compile Include="Visitors/StatementPass.ds" />
 			<Compile Include="Visitors/StatementVisitorBase.ds" />
+			<Compile Include="Visitors/StripAssertPass.ds" />
 			<Compile Include="Visitors/VariableCapturingVisitor.ds" />
 			<Compile Include="Visitors/VariableSubstitutingVisitor.ds" />
 		</ItemGroup>

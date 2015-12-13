@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Flame.Compiler.Emit;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Statements
 {
@@ -61,18 +62,8 @@ namespace Flame.Compiler.Statements
 			}
 			else if (Target is IExceptionCodeGenerator)
 			{
-				var cg = (IExceptionCodeGenerator)Target;
-
-				var pres = cg.EmitVoid();
-				foreach (var item in Preconditions)
-				{
-					pres = cg.EmitSequence(pres, cg.EmitAssert(item.Emit(cg)));
-				}
-				return cg.EmitSequence(pres, Body.Emit(Target));
-				/*foreach (var item in Postconditions) // Not helpful. The method has already returned at this point.
-				{
-					Target.EmitBlock(cg.EmitAssert(item.Emit(cg)));
-				}*/
+				// We can just lower the contract body statement.
+				return LowerContractVisitor.LowerContractStatement(this).Emit(Target);
 			}
 			else
 			{
