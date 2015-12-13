@@ -57,10 +57,5 @@ namespace Flame.Build
         {
         	get { return genericParams; }
         }
-
-        public virtual const IBoundObject Invoke(IBoundObject Target, [IBoundObject] Arguments)
-        {
-        	return null;
-        }
 	}
 }

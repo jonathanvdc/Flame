@@ -150,16 +150,6 @@ namespace Flame.DSharp.Build
             const get { return Syntax.Name.Equals("this"); }
         }
 
-        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
-        {
-        	var environment = GetDeclaringSyntaxState();
-        	if (environment is IDynamicEnvironment)
-        	{
-        		return ((IDynamicEnvironment)environment).InvokeDynamic(this, Caller, Arguments);
-        	}
-            return null;
-        }
-
         #endregion
 
         #region Common Properties

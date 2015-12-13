@@ -23,7 +23,7 @@ namespace Flame.Intermediate
             this.BaseMethodNodes = EmptyNodeList<IMethod>.Instance;
         }
         public IRMethod(IType DeclaringType, IRSignature Signature, bool IsStatic, bool IsConstructor)
-            : this(DeclaringType, Signature, IsStatic, IsConstructor, 
+            : this(DeclaringType, Signature, IsStatic, IsConstructor,
                    new ConstantNodeStructure<IType>(NodeFactory.Id(IRParser.VoidTypeName), PrimitiveTypes.Void))
         { }
 
@@ -52,11 +52,6 @@ namespace Flame.Intermediate
         public IEnumerable<IMethod> BaseMethods
         {
             get { return BaseMethodNodes.Value; }
-        }
-
-        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
-        {
-            return null;
         }
 
         public IEnumerable<IParameter> Parameters

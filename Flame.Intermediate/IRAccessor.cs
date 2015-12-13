@@ -59,11 +59,6 @@ namespace Flame.Intermediate
             get { return BaseMethodNodes.Value; }
         }
 
-        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
-        {
-            return null;
-        }
-
         public IEnumerable<IParameter> Parameters
         {
             get { return ParameterNodes.Value; }

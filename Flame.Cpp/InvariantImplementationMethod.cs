@@ -34,11 +34,6 @@ namespace Flame.Cpp
             get { return new IParameter[0]; }
         }
 
-        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
-        {
-            throw new NotImplementedException();
-        }
-
         public bool IsConstructor
         {
             get { return false; }
@@ -78,7 +73,7 @@ namespace Flame.Cpp
         {
             get
             {
-                var baseAttrs = new IAttribute[] 
+                var baseAttrs = new IAttribute[]
                 {
                     PrimitiveAttributes.Instance.ConstantAttribute,
                     CreateSummary(),
@@ -136,7 +131,7 @@ namespace Flame.Cpp
                 if (Invariants.HasInvariants)
                 {
                     var codeGen = method.GetBodyGenerator();
-                    
+
                     var allInvariants = Invariants.GetAllInvariants();
                     var test = allInvariants.First();
                     foreach (var item in allInvariants.Skip(1))

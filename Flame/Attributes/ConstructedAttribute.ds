@@ -37,7 +37,10 @@ namespace Flame.Attributes
         {
         	const get
         	{
-        		return Constructor.Invoke(null, ConstructorArguments);
+				if (Constructor is IInvocableMethod)
+					return ((IInvocableMethod)Constructor).Invoke(null, ConstructorArguments);
+				else
+					return null;
         	}
         }
 	}

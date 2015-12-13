@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Flame.ExpressionTrees
 {
-    public class ExpressionMethod : DescribedMethod, IMethodBuilder
+    public class ExpressionMethod : DescribedMethod, IMethodBuilder, IInvocableMethod
     {
         public ExpressionMethod(string Name, IType DeclaringType, IType ReturnType, bool IsStatic)
             : base(Name, DeclaringType, ReturnType, IsStatic)
@@ -20,7 +20,7 @@ namespace Flame.ExpressionTrees
             if (!IsStatic)
             {
                 this.parameters.Add(Expression.Parameter(typeof(IBoundObject), "this"));
-            }            
+            }
             this.CodeGenerator = new ExpressionCodeGenerator(this);
         }
 
@@ -46,7 +46,7 @@ namespace Flame.ExpressionTrees
             }
         }
 
-        public override IBoundObject Invoke(IBoundObject Target, IEnumerable<IBoundObject> Arguments)
+        public IBoundObject Invoke(IBoundObject Target, IEnumerable<IBoundObject> Arguments)
         {
             if (Body == null)
             {

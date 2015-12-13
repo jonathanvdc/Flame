@@ -33,11 +33,6 @@ namespace Flame.Python
             get { return GetPythonParameters(); }
         }
 
-        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
-        {
-            throw new NotSupportedException();
-        }
-
         public bool IsConstructor
         {
             get { return Methods.All((item) => item.IsConstructor); }
@@ -249,7 +244,7 @@ namespace Flame.Python
                 {
                     ifBody = codeGenerator.EmitSequence(ifBody, codeGenerator.EmitReturn(null));
                 }
-                var ifBlock = codeGenerator.EmitIfElse(condition, ifBody, codeGenerator.EmitVoid());    
+                var ifBlock = codeGenerator.EmitIfElse(condition, ifBody, codeGenerator.EmitVoid());
                 cb.AddCodeBuilder(((IPythonBlock)ifBlock).GetCode());
             }
             cb.AddCodeBuilder(sortedMethods.Last().GetBodyCode());

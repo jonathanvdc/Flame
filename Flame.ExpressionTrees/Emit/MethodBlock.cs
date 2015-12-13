@@ -35,7 +35,8 @@ namespace Flame.ExpressionTrees.Emit
 
         public Expression CreateIndirectCall(FlowStructure Flow)
         {
-            Expression<Func<IBoundObject, Func<IBoundObject[], IBoundObject>>> quote = target => args => Member.GetImplementation(target.Type).Invoke(target, args);
+            Expression<Func<IBoundObject, Func<IBoundObject[], IBoundObject>>> quote =
+                target => args => ((IInvocableMethod)Member.GetImplementation(target.Type)).Invoke(target, args);
 
             return ExpressionCodeGenerator.AutoUnbox(Expression.Invoke(quote, Target.CreateExpression(Flow)), Target.Type);
         }
@@ -82,11 +83,11 @@ namespace Flame.ExpressionTrees.Emit
                     var delegateTarget = Expression.Convert(Target.CreateExpression(Flow), typeof(object));
 
                     return Expression.New(
-                        Expression.GetDelegateType(targetParamTypes.Concat(new Type[] { targetMethod.ReturnType }).ToArray()).GetConstructor(new Type[] { typeof(object), typeof(IntPtr) }), 
-                        new Expression[] 
-                        { 
-                            delegateTarget, 
-                            Expression.Constant(targetMethod.MethodHandle.Value) 
+                        Expression.GetDelegateType(targetParamTypes.Concat(new Type[] { targetMethod.ReturnType }).ToArray()).GetConstructor(new Type[] { typeof(object), typeof(IntPtr) }),
+                        new Expression[]
+                        {
+                            delegateTarget,
+                            Expression.Constant(targetMethod.MethodHandle.Value)
                         });
                 }
             }

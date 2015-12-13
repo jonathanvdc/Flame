@@ -33,11 +33,6 @@ namespace Flame.Cpp
             get { return BinaryOverload.IsStatic ? BinaryOverload.Parameters.Skip(1).ToArray() : BinaryOverload.Parameters; }
         }
 
-        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
-        {
-            return null;
-        }
-
         public bool IsConstructor
         {
             get { return false; }
@@ -62,10 +57,10 @@ namespace Flame.Cpp
         {
             get
             {
-                return new IAttribute[] 
-                { 
-                    new AccessAttribute(AccessModifier.Public), 
-                    new OperatorAttribute(Operator.Register(BinaryOverload.GetOperator().Name + "=")) 
+                return new IAttribute[]
+                {
+                    new AccessAttribute(AccessModifier.Public),
+                    new OperatorAttribute(Operator.Register(BinaryOverload.GetOperator().Name + "="))
                 };
             }
         }

@@ -133,16 +133,6 @@ namespace Flame.DSharp.Build
             }
         }
 
-        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
-        {
-        	var environment = GetSyntaxState();
-        	if (environment is IDynamicEnvironment)
-        	{
-        		return ((IDynamicEnvironment)environment).InvokeDynamic(this, Caller, Arguments);
-        	}
-            return null;
-        }
-
         public [IAttribute] Attributes { get { return attrCache.Value; } }
 
 		private Lazy<IAttribute[]> attrCache;

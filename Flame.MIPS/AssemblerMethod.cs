@@ -19,7 +19,7 @@ namespace Flame.MIPS
             this.Label = GlobalState.Labels.DeclareLabel(this);
             this.CallConvention = new AutoCallConvention(this);
 
-            this.codeGen = new AssemblerCodeGenerator(this);            
+            this.codeGen = new AssemblerCodeGenerator(this);
         }
 
         public IType DeclaringType { get; private set; }
@@ -60,7 +60,7 @@ namespace Flame.MIPS
                     cb.Append(", ");
                 }
                 cb.Append(parameters[i].ParameterType.Name);
-                cb.Append(" "); 
+                cb.Append(" ");
                 cb.Append(parameters[i].Name);
             }
             cb.Append(")");
@@ -80,11 +80,6 @@ namespace Flame.MIPS
         public IEnumerable<IParameter> Parameters
         {
             get { return Template.Parameters.Value; }
-        }
-
-        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
-        {
-            return null;
         }
 
         public bool IsConstructor
@@ -139,7 +134,7 @@ namespace Flame.MIPS
         }
 
         public IMethod Build()
-        {            
+        {
             return this;
         }
 

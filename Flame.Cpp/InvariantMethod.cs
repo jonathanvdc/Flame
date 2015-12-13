@@ -37,11 +37,6 @@ namespace Flame.Cpp
             get { return new IParameter[0]; }
         }
 
-        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
-        {
-            throw new NotImplementedException();
-        }
-
         public bool IsConstructor
         {
             get { return false; }
@@ -71,8 +66,8 @@ namespace Flame.Cpp
         {
             get
             {
-                return new IAttribute[] 
-                { 
+                return new IAttribute[]
+                {
                     new AccessAttribute(AccessModifier.Public),
                     PrimitiveAttributes.Instance.ConstantAttribute,
                     CreateSummary()

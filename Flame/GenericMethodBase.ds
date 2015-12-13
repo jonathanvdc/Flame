@@ -85,11 +85,6 @@ namespace Flame
             return Enumerable.ToArray<IMethod>(Resolver.ResolveMethods(Declaration.BaseMethods));
         }
 
-        public IBoundObject Invoke(IBoundObject Caller, [IBoundObject] Arguments)
-        {
-            return null;
-        }
-
         public override string ToString()
         {
             return FullName;

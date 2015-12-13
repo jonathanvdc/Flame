@@ -25,11 +25,6 @@ namespace Flame.Cpp
             get { return new IParameter[0]; }
         }
 
-        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
-        {
-            throw new NotImplementedException();
-        }
-
         public bool IsConstructor
         {
             get { return true; }

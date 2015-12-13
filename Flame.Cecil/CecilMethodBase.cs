@@ -43,11 +43,6 @@ namespace Flame.Cecil
 
         public IEnumerable<IParameter> Parameters { get { return GetParameters(); } }
 
-        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
-        {
-            return null;
-        }
-
         #region CecilTypeMemberBase Implementation
 
         public override MemberReference GetMemberReference()
