@@ -152,11 +152,6 @@ namespace Flame.Cpp
             }
         }
 
-        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
-        {
-            throw new NotImplementedException();
-        }
-
         public bool IsConstructor
         {
             get { return Template.IsConstructor; }

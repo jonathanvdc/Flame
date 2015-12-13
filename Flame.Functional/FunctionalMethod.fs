@@ -12,7 +12,7 @@ type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
                               isStatic : bool, isCtor : bool,
                               genericParameters : IGenericMember -> IGenericParameter seq,
                               baseMethods : IMethod -> IMethod seq,
-                              returnType : IMethod -> IType, 
+                              returnType : IMethod -> IType,
                               parameters : IMethod -> IParameter seq,
                               body : IMethod -> IStatement) as this =
 
@@ -26,7 +26,7 @@ type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
 
     new(header : FunctionalMemberHeader, declType : IType,
         isStatic : bool) =
-        FunctionalMethod(header, declType, isStatic, false, 
+        FunctionalMethod(header, declType, isStatic, false,
                          (fun _ -> Seq.empty),
                          (fun _ -> Seq.empty),
                          (fun _ -> PrimitiveTypes.Void),
@@ -54,7 +54,7 @@ type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
     /// Gets this functional-style method's body-generating function.
     member this.CreateBody = body
 
-    /// Gets this functional-style method's base methods, 
+    /// Gets this functional-style method's base methods,
     /// with a lazy evaluation scheme.
     member this.LazyBaseMethods = appliedBaseMethods
 
@@ -66,7 +66,7 @@ type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
         new FunctionalMethod(header, declType, isStatic, true, genericParameters, baseMethods, returnType, parameters, body)
 
     /// Gets this functional method as a non-constructor method.
-    member this.AsMethod = 
+    member this.AsMethod =
         new FunctionalMethod(header, declType, isStatic, false, genericParameters, baseMethods, returnType, parameters, body)
 
     /// Sets this functional method's return type.
@@ -95,10 +95,7 @@ type FunctionalMethod private(header : FunctionalMemberHeader, declType : IType,
         member this.IsConstructor = isCtor
         member this.BaseMethods = this.BaseMethods
 
-        member this.Invoke(target : IBoundObject, args : IBoundObject seq) = null // We don't do that yet.
-
         member this.GenericParameters = this.GenericParameters
 
     interface IBodyMethod with
         member this.GetMethodBody() = this.Body
-        

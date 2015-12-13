@@ -45,18 +45,17 @@ namespace Flame.Compiler.Expressions
                 {
                 	return false;
                 }
-                var clrCtor = Constructor;
-                return clrCtor == null || clrCtor.IsConstant;
+                return Constructor == null || Constructor.IsConstant;
             }
         }
 
         public const IBoundObject Evaluate()
         {
             var clrCtor = Constructor;
-            if (clrCtor != null)
+            if (clrCtor is IInvocableMethod)
             {
                 var args = Arguments.EvaluateAll();
-                return clrCtor.Invoke(null, args);
+                return ((IInvocableMethod)clrCtor).Invoke(null, args);
             }
             else
             {

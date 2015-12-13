@@ -49,11 +49,6 @@ namespace Flame.DSharp.Build
 			const get { return new IGenericParameter[0]; }
 		}
 
-		public const IBoundObject Invoke(IBoundObject Target, [IBoundObject] Arguments)
-		{
-			return null;
-		}
-
 		public const IStatement GetMethodBody()
         {
         	// Statement for: (initialization is done in the static constructor)

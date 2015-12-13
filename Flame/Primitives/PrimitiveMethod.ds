@@ -5,7 +5,7 @@ namespace Flame
 {
         #region PrimitiveMethod
 
-        public virtual class PrimitiveMethod : IMethod
+        public virtual class PrimitiveMethod : IInvocableMethod
         {
         	protected const this()
         	{
@@ -31,7 +31,8 @@ namespace Flame
             public [IParameter] Parameters { const get; protected set; }
             public [IMethod] BaseMethods { const get; protected set; }
 
-            public virtual IBoundObject Invoke(IBoundObject Caller, [IBoundObject] Arguments) : IMethod.Invoke
+            public virtual IBoundObject Invoke(IBoundObject Caller, [IBoundObject] Arguments)
+                : IInvocableMethod.Invoke
             {
             	return null;
             }

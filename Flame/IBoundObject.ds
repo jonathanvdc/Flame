@@ -23,9 +23,12 @@ namespace Flame
 
 	public static class BoundObjectExtensions
 	{
-		public static IBoundObject Invoke(this IBoundMethod Target, IEnumerable<IBoundObject> Arguments)
+		public static IBoundObject Invoke(this IBoundMethod Target, [IBoundObject] Arguments)
 		{
-			return Target.Method.Invoke(Target.Caller, Arguments);
+			if (Target.Method is IInvocableMethod)
+				return ((IInvocableMethod)Target.Method).Invoke(Target.Caller, Arguments);
+			else
+				return null;
 		}
 		public static T GetValue<T>(this IBoundObject Target)
 		{

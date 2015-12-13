@@ -10,20 +10,20 @@ namespace Flame.DSharp.Build
 	/*public class SingletonInitializeMethod : IBodyMethod
 	{
 		public const this(set ISyntaxState DeclaringState, set MethodSyntax ConstructorSyntax, set IField BackingField);
-	
+
 		public IType DeclaringType { const get return DeclaringState.DeclaringType; }
 		public MethodSyntax ConstructorSyntax { const get; private set; }
 		public IField BackingField { const get; private set; }
 		public ISyntaxState DeclaringState { const get; private set; }
-		
+
 		public const ISyntaxState GetSyntaxState()
 		{
 			return new SyntaxState(this, DeclaringState.Binder, DeclaringState.Log, DeclaringState.MemberProvider);
 		}
-		
+
 		public string Name { const get return "InitializeSingleton"; }
 		public string FullName { const get return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
-		
+
 		public IType ReturnType { const get return PrimitiveTypes.Void; }
 		public bool IsStatic { const get return true; }
 		public const IParameter[] GetParameters()
@@ -35,7 +35,7 @@ namespace Flame.DSharp.Build
 		{
 			return new IMethod[0];
 		}
-		
+
 		private IEnumerable<IAttribute> attrCache;
 		public const IEnumerable<IAttribute> GetAttributes()
 		{
@@ -47,39 +47,34 @@ namespace Flame.DSharp.Build
 			}
 			return attrCache;
 		}
-		
-		public const IBoundObject Invoke(IBoundObject Target, IEnumerable<IBoundObject> Arguments)
-		{
-			return null;
-		}
-		
+
 		public const IMethod GetGenericDeclaration()
 		{
 			return this;
 		}
-		
+
 		public const IMethod MakeGenericMethod(IEnumerable<IType> Arguments)
 		{
 			return null;
 		}
-		
+
 		public const IEnumerable<IType> GetGenericArguments()
 		{
 			return (IEnumerable<IType>)new IType[0];
 		}
-		
+
 		public const IEnumerable<IGenericParameter> GetGenericParameters()
 		{
 			return (IEnumerable<IGenericParameter>)new IGenericParameter[0];
 		}
-		
+
 		private IStatement methodBodyCache;
 		public const IStatement GetMethodBody()
         {
         	if (methodBodyCache == null)
-        	{   
+        	{
 	        	// Statement for:
-	        	// 
+	        	//
 	        	// <call to base InitializeSingleton method if applicable>
 	        	// if (<field> == null)
 				// {
@@ -87,7 +82,7 @@ namespace Flame.DSharp.Build
 				//     <initialization logic in constructor body if applicable>
 				// }
 				// return;
-	        	
+
 	        	var state = GetSyntaxState();
 	        	IStatement baseCall;
 	        	var parent = State.CurrentType.GetParent();
@@ -116,7 +111,7 @@ namespace Flame.DSharp.Build
         	}
         	return methodBodyCache;
         }
-        
+
         public static const IStatement CreateInitializeSingletonStatement(IType TargetType)
         {
         	IType declType = TargetType;

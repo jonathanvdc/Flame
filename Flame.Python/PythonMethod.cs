@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Python
 {
-    public class PythonMethod : IPythonMethod, IMethodBuilder, IDependencyNode 
+    public class PythonMethod : IPythonMethod, IMethodBuilder, IDependencyNode
     {
         public PythonMethod(IType DeclaringType, IMethodSignatureTemplate Template)
         {
@@ -48,7 +48,7 @@ namespace Flame.Python
                     else if (op.Equals(Operator.Subtract))
                     {
                         return "__sub__";
-                    } 
+                    }
                     else if (op.Equals(Operator.Multiply))
                     {
                         return "__mul__";
@@ -172,11 +172,6 @@ namespace Flame.Python
             {
                 return MemberSelection.Concat(new DescribedParameter("self", DeclaringType), this.GetParameters());
             }
-        }
-
-        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
-        {
-            return null;
         }
 
         public bool IsConstructor

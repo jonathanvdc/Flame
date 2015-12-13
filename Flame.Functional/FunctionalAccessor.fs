@@ -11,7 +11,7 @@ type FunctionalAccessor private(header : FunctionalMemberHeader,
                                 declProp : IProperty,
                                 accType : AccessorType,
                                 baseMethods : IAccessor -> IMethod seq,
-                                returnType : IType Lazy, 
+                                returnType : IType Lazy,
                                 parameters : IParameter LazyArrayBuilder,
                                 body : IMethod -> IStatement) as this =
 
@@ -21,9 +21,9 @@ type FunctionalAccessor private(header : FunctionalMemberHeader,
     let appliedBody = lazy (body this)
 
     new(header : FunctionalMemberHeader, declProp : IProperty, accType : AccessorType) =
-        let retType = if accType.Equals(AccessorType.GetAccessor) then 
-                          lazy (declProp.PropertyType) 
-                      else 
+        let retType = if accType.Equals(AccessorType.GetAccessor) then
+                          lazy (declProp.PropertyType)
+                      else
                           lazy (PrimitiveTypes.Void)
         FunctionalAccessor(header, declProp, accType,
                            (fun _ -> Seq.empty),
@@ -49,7 +49,7 @@ type FunctionalAccessor private(header : FunctionalMemberHeader,
     /// Gets this functional-style accessor's body statement.
     member this.Body = evalLazy appliedBody
 
-    /// Gets this functional-style accessor's base methods, 
+    /// Gets this functional-style accessor's base methods,
     /// with a lazy evaluation scheme.
     member this.LazyBaseMethods = appliedBaseMethods
 
@@ -81,8 +81,6 @@ type FunctionalAccessor private(header : FunctionalMemberHeader,
         member this.Parameters = this.Parameters
         member this.IsConstructor = false
         member this.BaseMethods = this.BaseMethods
-
-        member this.Invoke(target : IBoundObject, args : IBoundObject seq) = null // We don't do that yet.
 
         member this.GenericParameters = Seq.empty
 

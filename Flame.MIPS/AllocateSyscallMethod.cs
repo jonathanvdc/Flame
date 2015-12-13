@@ -74,11 +74,6 @@ namespace Flame.MIPS
             get { return new IParameter[] { new DescribedParameter("Count", PrimitiveTypes.Int32) }; }
         }
 
-        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
-        {
-            throw new NotImplementedException();
-        }
-
         public bool IsConstructor
         {
             get { return false; }

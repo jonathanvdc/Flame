@@ -27,15 +27,28 @@ namespace Flame
         /// Gets the method's base methods.
         /// </summary>
         [IMethod] BaseMethods { get; }
+    }
 
+    /// <summary>
+    /// Supplies an interface that defines invocable methods.
+    /// </summary>
+    public interface IInvocableMethod : IMethod
+    {
         /// <summary>
         /// Invokes the method with the provided caller and arguments.
         /// </summary>
         /// <param name="Caller"></param>
         /// <param name="Arguments"></param>
-        /// <returns></returns>
+        /// <returns>
+        /// A bound object if the invocation was successful.
+        /// Otherwise, null.
+        /// </returns>
         IBoundObject Invoke(IBoundObject Caller, [IBoundObject] Arguments);
     }
+
+    /// <summary>
+    /// Defines common behavior for property accessor methods.
+    /// </summary>
     public interface IAccessor : IMethod
     {
         /// <summary>

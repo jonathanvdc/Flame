@@ -30,11 +30,6 @@ namespace Flame.TextContract
             get { return Template.Parameters.Value; }
         }
 
-        public IBoundObject Invoke(IBoundObject Caller, IEnumerable<IBoundObject> Arguments)
-        {
-            return null;
-        }
-
         public bool IsConstructor
         {
             get { return Template.IsConstructor; }
@@ -179,7 +174,7 @@ namespace Flame.TextContract
 
         public void SetMethodBody(ICodeBlock Body)
         {
-            
+
         }
     }
 }
