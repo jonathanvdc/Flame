@@ -21,7 +21,8 @@ namespace Flame.Front
 
         public static ConverterCache ConversionCache { get; private set; }
 
-        private static string[] SecondaryExtensions = new[] { "pdb", "xml" }; // Copy debugging files and xml docs
+        // Copy debugging files and xml docs
+        private static string[] SecondaryExtensions = new[] { "pdb", "dll.mdb", "exe.mdb", "xml" };
 
         public Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
         {
@@ -84,7 +85,7 @@ namespace Flame.Front
                 {
                     using (var destination = new FileStream(absTargetPath, FileMode.Create, FileAccess.Write))
                     {
-                        await source.CopyToAsync(destination);                        
+                        await source.CopyToAsync(destination);
                     }
                 }
             }
