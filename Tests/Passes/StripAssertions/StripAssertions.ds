@@ -1,0 +1,14 @@
+
+public class StripAssertionsTest
+{
+    // The precondition, postcondition and assertion should be stripped
+    // by -fstrip-assert.
+
+    public int Strip(int x)
+        in { x > 3 }
+        out (result) { result != 0 }
+    {
+        assert(x < 50);
+        return x;
+    }
+}
