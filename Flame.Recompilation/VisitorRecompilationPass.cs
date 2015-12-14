@@ -106,8 +106,7 @@ namespace Flame.Recompilation
 
         protected override bool CanSubstituteVariable(IVariable Variable)
         {
-            return (Variable is LateBoundVariable && !(Variable is ManuallyBoundVariable)) ||
-                   Variable is LocalVariable;
+            return Variable is LocalVariable;
         }
 
         protected override IVariable SubstituteVariable(IVariable Variable)
@@ -116,16 +115,9 @@ namespace Flame.Recompilation
             {
                 return recompiledLocals[Variable];
             }
-            else if (Variable is LocalVariable)
-            {
-                var oldVar = (LocalVariable)Variable;
-                var newVar = new LocalVariable(new RetypedVariableMember(oldVar.Member, Converter.Convert(oldVar.Type)));
-                recompiledLocals[Variable] = newVar;
-                return newVar;
-            }
             else
             {
-                var oldVar = (LateBoundVariable)Variable;
+                var oldVar = (LocalVariable)Variable;
                 var newVar = new LocalVariable(new RetypedVariableMember(oldVar.Member, Converter.Convert(oldVar.Type)));
                 recompiledLocals[Variable] = newVar;
                 return newVar;

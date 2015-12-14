@@ -156,24 +156,10 @@ namespace Flame.Optimization
 
     public class InliningVariableVisitor : VariableSubstitutingVisitorBase
     {
-        public const this(set IVariable ThisArgument, set IVariable[] Arguments)
-        {
-            this.locals = new Dictionary<LateBoundVariable, LocalVariable>();
-        }
+        public const this(set IVariable ThisArgument, set IVariable[] Arguments);
 
         public IVariable ThisArgument { const get; private set; }
         public IVariable[] Arguments { const get; private set; }
-
-        private Dictionary<LateBoundVariable, LocalVariable> locals;
-
-        private LocalVariable GetLocal(LateBoundVariable Variable)
-        {
-            if (!locals.ContainsKey(Variable))
-            {
-                locals[Variable] = new LocalVariable(Variable.Member);
-            }
-            return locals[Variable];
-        }
 
         public static IStatement InlineVariables(IStatement Target, IExpression ThisArgument, IExpression[] Arguments)
         {
@@ -202,11 +188,6 @@ namespace Flame.Optimization
 
             results.Add(visitor.Visit(Target));
 
-            foreach (var item in visitor.locals)
-            {
-                cleanup.Add(item.Value.CreateReleaseStatement());
-            }
-
             results.AddRange(cleanup);
 
             return new BlockStatement(results);
@@ -214,8 +195,7 @@ namespace Flame.Optimization
 
         protected override bool CanSubstituteVariable(IVariable Variable)
         {
-            return Variable is ArgumentVariable || Variable is ThisVariable ||
-                   (Variable is LateBoundVariable && !(Variable is ManuallyBoundVariable));
+            return Variable is ArgumentVariable || Variable is ThisVariable;
         }
         protected override IVariable SubstituteVariable(IVariable Variable)
         {
@@ -223,14 +203,10 @@ namespace Flame.Optimization
             {
                 return ThisArgument;
             }
-            else if (Variable is ArgumentVariable)
+            else // if (Variable is ArgumentVariable)
             {
                 var argVar = (ArgumentVariable)Variable;
                 return Arguments[argVar.Index];
-            }
-            else
-            {
-                return GetLocal((LateBoundVariable)Variable);
             }
         }
     }

@@ -13,7 +13,11 @@ namespace Flame.Compiler.Variables
         IVariable BoundVariable { const get; }
     }
 
-    public virtual class LateBoundVariable : ILateBoundVariable, IUnmanagedVariable
+    /// <summary>
+    /// A type of variable that can be bound to another variable, which it
+    /// then uses to generate code blocks.
+    /// </summary>
+    public virtual class ManuallyBoundVariable : ILateBoundVariable, IUnmanagedVariable
     {
     	protected const this();
     	public const this(set IVariableMember Member);
@@ -32,19 +36,15 @@ namespace Flame.Compiler.Variables
         public IVariable BoundVariable { const get; private set; }
 
         /// <summary>
-        /// Assigns a real variable to this late-bound variable.
+        /// Automatically assigns a real variable to this late-bound variable,
+        /// based on the given method structure generator.
         /// </summary>
         /// <param name="Generator"></param>
         public virtual void BindVariable(IMethodStructureGenerator Generator)
         {
-            if (Generator is IUnmanagedMethodStructureGenerator)
-            {
-                BindVariable(((IUnmanagedMethodStructureGenerator)Generator).DeclareUnmanagedLocal(new UniqueTag(), Member));
-            }
-            else
-            {
-                BindVariable(Generator.DeclareLocal(new UniqueTag(), Member));
-            }
+            throw new InvalidOperationException(
+                "Cannot auto-bind a manually bound variable to a " +
+                "code generator.");
         }
 
         /// <summary>
@@ -91,23 +91,6 @@ namespace Flame.Compiler.Variables
         public const IStatement CreateReleaseStatement()
         {
             return new LateBoundVariableReleaseStatement(this);
-        }
-    }
-
-    public class ManuallyBoundVariable : LateBoundVariable
-    {
-        public const this(set IVariableMember Member);
-        public const this(IType Type)
-        {
-        	this.Member = new TypeVariableMember(Type);
-        }
-        public const this(string Name, IType Type)
-        {
-        	this.Member = new DescribedVariableMember(Name, Type);
-        }
-
-        public override void BindVariable(IMethodStructureGenerator Generator)
-        {
         }
     }
 }

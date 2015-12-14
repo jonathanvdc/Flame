@@ -199,7 +199,7 @@
 			<Compile Include="Variables/ThisVariable.ds" />
 			<Compile Include="Variables/ExpressionVariable.ds" />
 			<Compile Include="Variables/ArgumentVariable.ds" />
-			<Compile Include="Variables/LateBoundVariable.ds" />
+			<Compile Include="Variables/ManuallyBoundVariable.ds" />
 			<Compile Include="Variables/LocalVariable.ds" />
 			<Compile Include="Variables/FieldVariable.ds" />
 			<Compile Include="Variables/PropertyVariable.ds" />

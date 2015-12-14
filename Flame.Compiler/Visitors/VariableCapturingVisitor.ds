@@ -103,9 +103,9 @@ namespace Flame.Compiler.Visitors
 
         protected override IVariable SubstituteVariableRecursivelyOrNull(IVariable Variable)
         {
-            if (Variable is LateBoundVariable)
+            if (Variable is ILateBoundVariable)
             {
-                var innerVal = ((LateBoundVariable)Variable).BoundVariable;
+                var innerVal = ((ILateBoundVariable)Variable).BoundVariable;
                 if (innerVal != null)
                 {
                     if (capturedVariables.ContainsKey(Variable)) // Variables pushed down
@@ -141,7 +141,7 @@ namespace Flame.Compiler.Visitors
 
         protected override bool CanSubstituteVariable(IVariable Variable)
         {
-            return Variable is LateBoundVariable || Variable is LocalVariable ||
+            return Variable is ILateBoundVariable || Variable is LocalVariable ||
                    Variable is ArgumentVariable || Variable is ThisVariable ||
                    capturedVariables.ContainsKey(Variable);
         }
@@ -152,9 +152,9 @@ namespace Flame.Compiler.Visitors
                 return capturedVariables[Variable];
             }
 
-            if (Variable is LateBoundVariable)
+            if (Variable is ILateBoundVariable)
             {
-                return CaptureVariable(Variable, "local_" + ((LateBoundVariable)Variable).Member.Name, false);
+                return CaptureVariable(Variable, "", false);
             }
             else if (Variable is LocalVariable)
             {

@@ -123,8 +123,7 @@ namespace Flame.Optimization.Variables
         private const bool IsLocal(IVariable Variable)
         {
             return Variable is ThisVariable || Variable is ArgumentVariable ||
-                   Variable is LocalVariable ||
-                   (Variable is LateBoundVariable && !(Variable is ManuallyBoundVariable));
+                   Variable is LocalVariable;
         }
 
         /// <summary>
@@ -270,9 +269,9 @@ namespace Flame.Optimization.Variables
 
         private IVariable GetInnerVariable(IVariable Variable)
         {
-            if (Variable is LateBoundVariable)
+            if (Variable is ILateBoundVariable)
             {
-                var innerVar = ((LateBoundVariable)Variable).BoundVariable;
+                var innerVar = ((ILateBoundVariable)Variable).BoundVariable;
                 if (innerVar != null)
                     return GetInnerVariable(innerVar);
             }
