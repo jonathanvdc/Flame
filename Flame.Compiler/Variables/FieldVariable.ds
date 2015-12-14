@@ -92,8 +92,14 @@ namespace Flame.Compiler.Variables
             }
             else
             {
-                var lateboundVar = new LateBoundVariable(Type);
-                return new InitializedExpression(lateboundVar.CreateSetStatement(CreateGetExpression()), lateboundVar.CreateAddressOfExpression(), lateboundVar.CreateReleaseStatement());
+                // TODO: this technique just isn't safe. We should find
+                // some other place to put the release statement, or make
+                // this operation illegal altogether.
+                var temp = new LocalVariable(Target.Type);
+                return new InitializedExpression(
+                    temp.CreateSetStatement(Target.CreateGetExpression()),
+                    temp.CreateAddressOfExpression(),
+                    temp.CreateReleaseStatement());
             }
         }
 

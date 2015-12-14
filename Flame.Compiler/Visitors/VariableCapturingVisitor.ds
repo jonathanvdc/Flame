@@ -141,8 +141,9 @@ namespace Flame.Compiler.Visitors
 
         protected override bool CanSubstituteVariable(IVariable Variable)
         {
-            return Variable is LateBoundVariable || Variable is ArgumentVariable ||
-                   Variable is ThisVariable || capturedVariables.ContainsKey(Variable);
+            return Variable is LateBoundVariable || Variable is LocalVariable ||
+                   Variable is ArgumentVariable || Variable is ThisVariable ||
+                   capturedVariables.ContainsKey(Variable);
         }
         protected override IVariable SubstituteVariable(IVariable Variable)
         {
@@ -154,6 +155,10 @@ namespace Flame.Compiler.Visitors
             if (Variable is LateBoundVariable)
             {
                 return CaptureVariable(Variable, "local_" + ((LateBoundVariable)Variable).Member.Name, false);
+            }
+            else if (Variable is LocalVariable)
+            {
+                return CaptureVariable(Variable, "local_" + ((LocalVariable)Variable).Member.Name, false);
             }
             else if (Variable is ArgumentVariable)
             {

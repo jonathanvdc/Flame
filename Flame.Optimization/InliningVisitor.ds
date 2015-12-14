@@ -96,7 +96,7 @@ namespace Flame.Optimization
             // Acquire and copy the method body.
             var body = CloningVisitor.Visit(GetMethodBody(Call.Method));
             // Create a variable for the return value.
-            var lbVariable = new LateBoundVariable(Call.Method.ReturnType);
+            var lbVariable = new LocalVariable(Call.Method.ReturnType);
 
             // Transforms the copied body to match our needs.
             var visitedBody = InliningReturnVisitor.InlineReturns(
@@ -158,19 +158,19 @@ namespace Flame.Optimization
     {
         public const this(set IVariable ThisArgument, set IVariable[] Arguments)
         {
-            this.locals = new Dictionary<LateBoundVariable, LateBoundVariable>();
+            this.locals = new Dictionary<LateBoundVariable, LocalVariable>();
         }
 
         public IVariable ThisArgument { const get; private set; }
         public IVariable[] Arguments { const get; private set; }
 
-        private Dictionary<LateBoundVariable, LateBoundVariable> locals;
+        private Dictionary<LateBoundVariable, LocalVariable> locals;
 
-        private LateBoundVariable GetLocal(LateBoundVariable Variable)
+        private LocalVariable GetLocal(LateBoundVariable Variable)
         {
             if (!locals.ContainsKey(Variable))
             {
-                locals[Variable] = new LateBoundVariable(Variable.Member);
+                locals[Variable] = new LocalVariable(Variable.Member);
             }
             return locals[Variable];
         }
@@ -185,7 +185,7 @@ namespace Flame.Optimization
                 thisVar = null;
             else
             {
-                thisVar = new LateBoundVariable(ThisArgument.Type);
+                thisVar = new LocalVariable(ThisArgument.Type);
                 results.Add(thisVar.CreateSetStatement(ThisArgument));
                 cleanup.Add(thisVar.CreateReleaseStatement());
             }
@@ -193,7 +193,7 @@ namespace Flame.Optimization
             var argVars = new IVariable[Arguments.Length];
             foreach (var input in Arguments, var output in argVars)
             {
-                output = new LateBoundVariable(input.Type);
+                output = new LocalVariable(input.Type);
                 results.Add(output.CreateSetStatement(input));
                 cleanup.Add(output.CreateReleaseStatement());
             }

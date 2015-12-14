@@ -33,7 +33,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #yield_return(expr)
         /// </remarks>
         public const string YieldReturnNodeName = "#yield_return";
@@ -43,7 +43,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #yield_break
         /// </remarks>
         public const string YieldBreakNodeName = "#yield_break";
@@ -63,7 +63,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #foreach(tag, { #collection(...)... }, body)
         /// </remarks>
         public const string ForeachNodeName = "#foreach";
@@ -73,7 +73,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #collection(local_name, #member(name, attrs...), local_type, collection_expression)
         /// </remarks>
         public const string CollectionNodeName = "#collection";
@@ -132,7 +132,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #const_default(type)
         /// </remarks>
         public const string ConstantDefaultName = "#const_default";
@@ -142,7 +142,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #comment("text")
         /// </remarks>
         public const string CommentNodeName = "#comment";
@@ -154,7 +154,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #new_array(element_type, dimension_expressions...)
         /// </remarks>
         public const string NewArrayName = "#new_array";
@@ -164,7 +164,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #new_init_array(element_type, item...)
         /// </remarks>
         public const string NewInitializedArrayName = "#new_init_array";
@@ -174,7 +174,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #new_vector(element_type, dimension_literals...)
         /// </remarks>
         public const string NewVectorName = "#new_vector";
@@ -184,7 +184,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #new_init_vector(element_type, item...)
         /// </remarks>
         public const string NewInitializedVectorName = "#new_init_vector";
@@ -198,18 +198,18 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #dereference(pointer_expression)
         /// </remarks>
         public const string DereferenceName = "#dereference";
 
         /// <summary>
-        /// Stores a value expression at the address 
+        /// Stores a value expression at the address
         /// specified by a pointer expression.
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #store_at(pointer_expression, value_expression)
         /// </remarks>
         public const string StoreAtName = "#store_at";
@@ -219,7 +219,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #sizeof(type_reference)
         /// </remarks>
         public const string SizeOfName = "#sizeof";
@@ -233,7 +233,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #lambda(#member(name, attrs...), return_type, { parameter... }, { captured_exprs... }, body)
         /// </remarks>
         public const string LambdaNodeName = "#lambda";
@@ -243,7 +243,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #lambda_captured_value(index)
         /// </remarks>
         public const string CapturedValueNodeName = "#lambda_captured_value";
@@ -253,7 +253,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #get_rec_lambda_delegate()
         /// </remarks>
         public const string RecursiveLambdaDelegateNodeName = "#get_rec_lambda_delegate";
@@ -377,7 +377,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #tag(tag_identifier)
         /// </remarks>
         public const string TagReferenceName = "#tag";
@@ -405,7 +405,7 @@ namespace Flame.Intermediate.Parsing
         #region Expression/Statement Helpers
 
         /// <summary>
-        /// Wraps the given statement in an expression that 
+        /// Wraps the given statement in an expression that
         /// yields a value of type void.
         /// </summary>
         /// <param name="Statement"></param>
@@ -733,7 +733,7 @@ namespace Flame.Intermediate.Parsing
         public static IExpression ParseWhile(ParserState State, LNode Node, UniqueTag Tag)
         {
             // Format:
-            // 
+            //
             // #while(tag, condition, body)
 
             var cond = ParseExpression(State, Node.Args[1]);
@@ -769,7 +769,7 @@ namespace Flame.Intermediate.Parsing
         public static IExpression ParseFor(ParserState State, LNode Node, UniqueTag Tag)
         {
             // Format:
-            // 
+            //
             // #for(tag, initialize, condition, delta, body, finalize)
 
             var init = ToStatement(ParseExpression(State, Node.Args[1]));
@@ -927,7 +927,7 @@ namespace Flame.Intermediate.Parsing
         #region Ignore operator
 
         /// <summary>
-        /// Parses an 'ignore' node, which computes and then 
+        /// Parses an 'ignore' node, which computes and then
         /// discards its body expression.
         /// </summary>
         /// <param name="State"></param>
@@ -1205,19 +1205,19 @@ namespace Flame.Intermediate.Parsing
         public static IExpression ParseLambda(ParserState State, LNode Node)
         {
             // Format:
-            // 
+            //
             // #lambda(#member(name, attrs...), return_type, { parameter... }, { captured_exprs... }, body)
 
             if (Node.ArgCount != 5)
             {
                 return new ErrorExpression(VoidExpression.Instance, new LogEntry(
                     "Invalid '" + LambdaNodeName + "' node.",
-                    "'" + LambdaNodeName + "' nodes must have exactly five arguments: " + 
+                    "'" + LambdaNodeName + "' nodes must have exactly five arguments: " +
                     "an IR signature, a return type, a parameter list, a list of captured expressions, " +
                     "and the lambda expression's body."));
             }
 
-            var sig = IRParser.ParseSignature(State, Node.Args[0]); 
+            var sig = IRParser.ParseSignature(State, Node.Args[0]);
             var descMethod = new DescribedMethod(sig.Name, null);
             descMethod.IsStatic = true;
             foreach (var item in sig.Attributes)
@@ -1235,7 +1235,7 @@ namespace Flame.Intermediate.Parsing
             var boundHeaderBlock = new LambdaBoundHeaderBlock();
 
             var exprParser = State.Parser.ExpressionParser
-                .WithParser(CapturedValueNodeName, CreateParser((state, node) => 
+                .WithParser(CapturedValueNodeName, CreateParser((state, node) =>
 					new LambdaCapturedValueExpression(header, boundHeaderBlock, IRParser.GetInt32(node.Args.Single()))))
                 .WithParser(RecursiveLambdaDelegateNodeName, CreateParser((state, node) =>
                     new LambdaDelegateExpression(header, boundHeaderBlock)));
@@ -1541,7 +1541,7 @@ namespace Flame.Intermediate.Parsing
                 }
                 else
                 {
-                    // HACK: create a synthetic #get_local node, parse it, 
+                    // HACK: create a synthetic #get_local node, parse it,
                     //       and extract its variable.
                     //       This may seem pointless, but it's not:
                     //       just delegating the parsing of this expression
@@ -1586,7 +1586,7 @@ namespace Flame.Intermediate.Parsing
         public static IExpression ParseLocalDefinition(ParserState State, LNode Node)
         {
             // Format:
-            // 
+            //
             // #def_local(local_name, #member(name, attrs...), type, body)
 
             string localName = IRParser.GetIdOrString(Node.Args[0]);
@@ -1594,7 +1594,7 @@ namespace Flame.Intermediate.Parsing
             var ty = State.Parser.TypeReferenceParser.Parse(State, Node.Args[2]).Value;
             var member = CreateVariableMember(sig, ty);
 
-            var local = new LateBoundVariable(member);
+            var local = new LocalVariable(member);
 
             return ParseWithLocal(State, localName, local, Node.Args[3]);
         }

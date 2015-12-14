@@ -130,7 +130,7 @@ namespace Flame.Optimization.Variables
             if (Local.Variable is IUnmanagedVariable)
                 return (IUnmanagedVariable)Local.Variable;
             else
-                return new LateBoundVariable(Local.Variable.Type);
+                return new LocalVariable(Local.Variable.Type);
         }
 
         /// <summary>

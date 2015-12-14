@@ -75,9 +75,10 @@ namespace Flame.Syntax.DSharp
                     new Expressions.ConversionExpression(Caller.CreateGetExpression(), State.Binder.RootType),
                     property.DeclaringType.MakePointerType(PointerKind.ReferencePointer));*/
 
-                var placeholder = new LateBoundVariable(Variable.Type);
+                var placeholder = new LocalVariable(Variable.Type);
 
-                callerExpr = new Expressions.InitializedExpression(placeholder.CreateSetStatement(Variable.CreateGetExpression()),
+                callerExpr = new Expressions.InitializedExpression(
+                    placeholder.CreateSetStatement(Variable.CreateGetExpression()),
                     placeholder.CreateAddressOfExpression(),
                     placeholder.CreateReleaseStatement());
                 // This may not be the best place to release the temporary variable. Ideally, it would be released after usage.

@@ -148,9 +148,14 @@ namespace Flame.Compiler.Variables
             }
             else
             {
-            	// Create a temporary variable
-                var temp = new LateBoundVariable(IndexerProperty.PropertyType);
-                return new InitializedExpression(temp.CreateSetStatement(CreateGetExpression()), temp.CreateAddressOfExpression(), temp.CreateReleaseStatement());
+            	// Create a temporary variable.
+				// TODO: actually, we should release the local later on, rather
+				// than here, to avoid UB.
+                var temp = new LocalVariable(IndexerProperty.PropertyType);
+                return new InitializedExpression(
+					temp.CreateSetStatement(CreateGetExpression()),
+					temp.CreateAddressOfExpression(),
+					temp.CreateReleaseStatement());
             }
         }
 
@@ -174,7 +179,7 @@ namespace Flame.Compiler.Variables
             }
             else
             {
-            	var args = Enumerable.Concat<IExpression>(IndexArguments, (IEnumerable<IExpression>)new IExpression[] { Value });
+            	var args = Enumerable.Concat<IExpression>(IndexArguments, new IExpression[] { Value });
                 return new ExpressionStatement(new InvocationExpression(IndexerProperty.GetSetAccessor(), Target, args));
             }
         }

@@ -38,7 +38,7 @@ namespace Flame.Optimization
             }
             else
             {
-                var local = new LateBoundVariable(Value.Type);
+                var local = new LocalVariable(Value.Type);
                 Initialization.Insert(local.CreateSetStatement(Value));
                 Finalization.Insert(local.CreateReleaseStatement());
                 Value = local.CreateGetExpression();

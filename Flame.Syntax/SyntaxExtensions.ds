@@ -140,7 +140,7 @@ namespace Flame.Syntax
 
         public static IVariable DeclareVariable(this ISyntaxState State, string Name, IType Type, SourceLocation Location)
         {
-            LateBoundVariable lbVar = new LateBoundVariable(Name, Type);
+            var lbVar = new LocalVariable(Name, Type);
             return State.DeclareVariable(Name, lbVar, Location);
         }
 

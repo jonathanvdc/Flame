@@ -95,19 +95,24 @@ namespace Flame.Compiler.Expressions
 			}
 			else
 			{
-				var enumExpr = new NewArrayExpression(ElementType, (IEnumerable<IExpression>)new IExpression[] { new Int32Expression(Elements.Length) });
+				var enumExpr = new NewArrayExpression(
+					ElementType,
+					new IExpression[] { new Int32Expression(Elements.Length) });
 
-				var localVar = new LateBoundVariable(enumExpr.Type);
+				var localVar = new LocalVariable(enumExpr.Type);
 
 				IStatement[] initStatements = new IStatement[Elements.Length + 1];
 	            initStatements[0] = localVar.CreateSetStatement(enumExpr);
 	            for (int i = 0; i < Elements.Length; i++)
 	            {
-	                var elemVar = new ElementVariable(localVar.CreateGetExpression(), (IEnumerable<IExpression>)new IExpression[] { new Int32Expression(i) });
+	                var elemVar = new ElementVariable(
+						localVar.CreateGetExpression(),
+						new IExpression[] { new Int32Expression(i) });
 	                initStatements[i + 1] = elemVar.CreateSetStatement(Elements[i]);
 	            }
 
-	            InitializedExpression expr = new InitializedExpression(new BlockStatement((IEnumerable<IStatement>)initStatements),
+	            var expr = new InitializedExpression(
+					new BlockStatement(initStatements),
 	                localVar.CreateGetExpression(),
 	                localVar.CreateReleaseStatement());
 
