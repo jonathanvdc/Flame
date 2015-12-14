@@ -20,6 +20,7 @@ namespace Flame.Compiler.Expressions
         {
             this.Type = ConstructedType;
             this.Arguments = Enumerable.Empty<IExpression>();
+            this.lazyCtor = new Lazy<IMethod>(getCtor);
         }
 
         /// <summary>
@@ -31,9 +32,18 @@ namespace Flame.Compiler.Expressions
         public const this(IType ConstructedType, set [IExpression] Arguments)
         {
             this.Type = ConstructedType;
+            this.lazyCtor = new Lazy<IMethod>(getCtor);
         }
 
+        /// <summary>
+        /// Gets this new-object expression's argument list.
+        /// </summary>
         public [IExpression] Arguments { const get; private set; }
+
+        /// <summary>
+        /// Gets the type this new-object expression will create an instance
+        /// of.
+        /// </summary>
         public IType Type { const get; private set; }
 
         public IExpression Accept(INodeVisitor Visitor)
@@ -49,7 +59,8 @@ namespace Flame.Compiler.Expressions
                 {
                 	return false;
                 }
-                return Constructor == null || Constructor.IsConstant;
+                var ctor = Constructor;
+                return ctor == null || ctor.IsConstant;
             }
         }
 
@@ -58,12 +69,58 @@ namespace Flame.Compiler.Expressions
             return Lower().Evaluate();
         }
 
-        private IMethod Constructor
+        // Memoizes the constructor's value.
+        private Lazy<IMethod> lazyCtor;
+
+        /// <summary>
+        /// Gets the constructor this new-object expression will use when
+        /// lowering itself. If no such constructor can be found, then null
+        /// is returned.
+        /// </summary>
+        /// <remarks>
+        /// This expression can still be semantically valid, even if the
+        /// constructor is null, provided the instance type is a value type,
+        /// and the argument list is empty.
+        /// </remarks>
+        public IMethod Constructor
         {
-            const get
+            get { return lazyCtor.Value; }
+        }
+
+        private IMethod getCtor()
+        {
+            return Type.GetConstructors().GetBestMethod(Type, Arguments.Types);
+        }
+
+        /// <summary>
+        /// Tests if this new-object expression will be lowered to a constructor
+        /// call expression.
+        /// </summary>
+        public bool IsConstructorCall
+        {
+            get { return Constructor != null; }
+        }
+
+        /// <summary>
+        /// Tests if this new-object expression will be lowered to a default
+        /// value expression.
+        /// </summary>
+        public bool IsDefaultValue
+        {
+            get
             {
-                return Type.GetConstructors().GetBestMethod(Type, Arguments.Types);
-            }
+                return !IsConstructorCall && Type.IsValueType &&
+                       !Enumerable.Any<IExpression>(Arguments);
+           }
+        }
+
+        /// <summary>
+        /// Tests if this new-object expression is erroneous: it cannot be
+        /// lowered to another expression.
+        /// </summary>
+        public bool IsError
+        {
+            get { return !IsConstructorCall && !IsDefaultValue; }
         }
 
         /// <summary>
@@ -73,22 +130,12 @@ namespace Flame.Compiler.Expressions
         /// </summary>
         public IExpression LowerSoft()
         {
-            var ctor = Constructor;
-            if (ctor != null)
-            {
-                return new InvocationExpression(ctor, null, Arguments);
-            }
+            if (IsConstructorCall)
+                return new InvocationExpression(Constructor, null, Arguments);
+            else if (IsDefaultValue)
+                return new DefaultValueExpression(Type);
             else
-            {
-                if (Type.IsValueType && Enumerable.Count<IExpression>(Arguments) == 0)
-                {
-                    return new DefaultValueExpression(Type);
-                }
-                else
-                {
-                    return this;
-                }
-            }
+                return this;
         }
 
         /// <summary>
@@ -101,7 +148,7 @@ namespace Flame.Compiler.Expressions
              if (result is NewObjectExpression)
                 throw new InvalidOperationException(
                 "Could not lower new-object expression '" +
-                ToString() + "': no appropriate constructor could be found");
+                ToString() + "': no appropriate constructor was found.");
 
             return result;
         }
