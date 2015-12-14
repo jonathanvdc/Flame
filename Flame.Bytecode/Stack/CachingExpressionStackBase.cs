@@ -65,7 +65,7 @@ namespace Flame.Bytecode.Stack
         /// </summary>
         public IStatement Cache()
         {
-            List<IStatement> results = new List<IStatement>();
+            var results = new List<IStatement>();
             for (int i = cachedCount; i < stack.Count; i++)
             {
                 var cached = CacheExpression(stack[i], i);

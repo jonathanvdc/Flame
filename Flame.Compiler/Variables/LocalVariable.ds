@@ -109,6 +109,26 @@ namespace Flame.Compiler.Variables
         {
             return new LocalReleaseStatement(this);
         }
+
+        public bool Equals(LocalVariable Other)
+        {
+            return this.Tag == Other.Tag;
+        }
+
+        public override bool Equals(object Other)
+        {
+            return Other is LocalVariable && Equals((LocalVariable)Other);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Tag.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return "local(" + Member.Name + ")";
+        }
     }
 
     public class LocalGetExpression : VariableGetExpressionBase<LocalVariable>,

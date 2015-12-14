@@ -63,11 +63,12 @@ namespace Flame.Compiler.Statements
             List<IStatement> initStatements = new List<IStatement>();
             List<IStatement> finalStatements = new List<IStatement>();
 
-			// Local variable and argument get expressions are inlined, other expressions will be cached
+			// Local variable and argument get expressions are inlined,
+			// other expressions will be cached
             IVariable collectionVariable;
-            if (Collection is LateBoundVariableGetExpression)
+            if (Collection is LocalGetExpression)
             {
-                collectionVariable = ((LateBoundVariableGetExpression)Collection).Variable;
+                collectionVariable = ((LocalGetExpression)Collection).Variable;
             }
             else if (Collection is ArgumentGetExpression)
             {
@@ -75,7 +76,7 @@ namespace Flame.Compiler.Statements
             }
             else
             {
-                collectionVariable = new LateBoundVariable(Collection.Type);
+                collectionVariable = new LocalVariable(Collection.Type);
                 initStatements.Add(collectionVariable.CreateSetStatement(Collection));
                 finalStatements.Add(collectionVariable.CreateReleaseStatement());
             }
@@ -88,7 +89,7 @@ namespace Flame.Compiler.Statements
             else
             {
                 var lengthPropertyVariable = new PropertyVariable(collectionVariable.CreateGetExpression().Type.GetAllProperties().GetProperty("Length", false), collectionVariable.CreateGetExpression());
-                var cachedLengthVariable = new LateBoundVariable(lengthPropertyVariable.Type);
+                var cachedLengthVariable = new LocalVariable(lengthPropertyVariable.Type);
                 initStatements.Add(cachedLengthVariable.CreateSetStatement(lengthPropertyVariable.CreateGetExpression()));
                 finalStatements.Add(cachedLengthVariable.CreateReleaseStatement());
                 lengthExpr = cachedLengthVariable.CreateGetExpression();
@@ -98,7 +99,7 @@ namespace Flame.Compiler.Statements
             IStatement delta;
             if (IndexVariable == null)
             {
-                index = new LateBoundVariable(lengthExpr.Type);
+                index = new LocalVariable(lengthExpr.Type);
                 initStatements.Add(index.CreateSetStatement(ConversionExpression.Create(new Int32Expression(0), index.Type)));
                 delta = index.CreateSetStatement(new AddExpression(index.CreateGetExpression(), ConversionExpression.Create(new Int32Expression(1), index.Type)));
             }
@@ -142,7 +143,7 @@ namespace Flame.Compiler.Statements
             	return null;
             }
 
-            var iteratingVariable = new LateBoundVariable(Member);
+            var iteratingVariable = new LocalVariable(Member);
             int32 minAncestry = int32.MaxValue;
             foreach (var item in getEnumeratorMethods)
             {
@@ -170,7 +171,7 @@ namespace Flame.Compiler.Statements
                 return null;
             }
 
-            var enumeratorVariable = new LateBoundVariable(getEnumerator.ReturnType);
+            var enumeratorVariable = new LocalVariable(getEnumerator.ReturnType);
             var enumeratorInitStatement = enumeratorVariable.CreateSetStatement(CreateInvocationExpression(getEnumerator, new ExpressionVariable(Collection)));
             var disposeMethod = enumeratorVariable.Type.GetAllMethods().GetMethod("Dispose", false, PrimitiveTypes.Void, new IType[0]);
 

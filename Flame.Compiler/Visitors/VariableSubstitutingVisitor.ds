@@ -171,30 +171,42 @@ namespace Flame.Compiler.Visitors
 
         protected override bool CanSubstituteVariable(IVariable Variable)
         {
-            return Variable is LateBoundVariable && !(Variable is ManuallyBoundVariable);
+            return Variable is LocalVariable ||
+                   (Variable is LateBoundVariable && !(Variable is ManuallyBoundVariable));
         }
+
+        private IVariable ConvertVariable(IVariable Variable, IVariableMember Member)
+        {
+            var varType = Member.VariableType;
+            var convType = TypeConverter.Convert(varType);
+            if (varType == convType)
+            {
+                substVariables[Variable] = Variable;
+                return Variable;
+            }
+            else
+            {
+                var newLocal = new LocalVariable(new RetypedVariableMember(Member, convType));
+                substVariables[Variable] = newLocal;
+                return newLocal;
+            }
+        }
+
         protected override IVariable SubstituteVariable(IVariable Variable)
         {
             if (substVariables.ContainsKey(Variable))
             {
                 return substVariables[Variable];
             }
+            else if (Variable is LocalVariable)
+            {
+                var localVar = (LocalVariable)Variable;
+                return ConvertVariable(localVar, localVar.Member);
+            }
             else
             {
                 var lbVar = (LateBoundVariable)Variable;
-                var varType = lbVar.Type;
-                var convType = TypeConverter.Convert(varType);
-                if (varType == convType)
-                {
-                    substVariables[Variable] = lbVar;
-                    return lbVar;
-                }
-                else
-                {
-                    var newLbVar = new LateBoundVariable(new RetypedVariableMember(lbVar.Member, convType));
-                    substVariables[Variable] = newLbVar;
-                    return newLbVar;
-                }
+                return ConvertVariable(lbVar, lbVar.Member);
             }
         }
 

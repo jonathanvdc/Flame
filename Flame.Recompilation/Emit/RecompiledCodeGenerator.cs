@@ -391,7 +391,7 @@ namespace Flame.Recompilation.Emit
 
         public IUnmanagedEmitVariable DeclareUnmanagedLocal(UniqueTag Tag, IVariableMember VariableMember)
         {
-            var result = new RecompiledVariable(this, new LateBoundVariable(new RetypedVariableMember(VariableMember, Recompiler.GetType(VariableMember.VariableType))));
+            var result = new RecompiledVariable(this, new LocalVariable(new RetypedVariableMember(VariableMember, Recompiler.GetType(VariableMember.VariableType))));
             locals.Add(Tag, result);
             return result;
         }

@@ -17,12 +17,15 @@ namespace Flame.Bytecode.Stack
             return new CachedExpression()
             {
                 InitializedCacheStatement = Variable.CreateSetStatement(Expression),
-                RetrieveExpression = new InitializedExpression(EmptyStatement.Instance, Variable.CreateGetExpression(), Variable.CreateReleaseStatement())
+                RetrieveExpression = new InitializedExpression(
+                    EmptyStatement.Instance,
+                    Variable.CreateGetExpression(),
+                    Variable.CreateReleaseStatement())
             };
         }
         public static CachedExpression Cache(this IExpression Expression)
         {
-            var local = new LateBoundVariable(Expression.Type);
+            var local = new LocalVariable(Expression.Type);
             return Expression.CacheTo(local);
         }
     }

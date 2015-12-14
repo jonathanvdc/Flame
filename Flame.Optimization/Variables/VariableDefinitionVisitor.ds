@@ -123,6 +123,7 @@ namespace Flame.Optimization.Variables
         private const bool IsLocal(IVariable Variable)
         {
             return Variable is ThisVariable || Variable is ArgumentVariable ||
+                   Variable is LocalVariable ||
                    (Variable is LateBoundVariable && !(Variable is ManuallyBoundVariable));
         }
 

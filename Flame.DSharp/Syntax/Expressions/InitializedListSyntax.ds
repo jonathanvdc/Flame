@@ -105,7 +105,7 @@ namespace Flame.Syntax.DSharp
                 }
             }
 
-            var localVar = new LateBoundVariable(enumExpr.Type);
+            var localVar = new LocalVariable(enumExpr.Type);
 
 			var initStatements = new IStatement[Elements.Count + 1];
             initStatements[0] = localVar.CreateSetStatement(enumExpr);
