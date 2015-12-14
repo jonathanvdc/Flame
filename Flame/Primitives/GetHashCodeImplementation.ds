@@ -4,7 +4,8 @@ using Flame.Build;
 
 namespace Flame.Primitives
 {
-	public class GetHashCodeImplementation<T> : PrimitiveMethod where T : object
+	public class GetHashCodeImplementation<T> : PrimitiveMethod
+		where T : object
 	{
 		public const this(set IType DeclaringType)
 		{

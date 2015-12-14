@@ -8,6 +8,7 @@ namespace Flame.Primitives
 	#region PrimitiveType
 
 	public virtual class PrimitiveType<T> : IType
+		where T : object
 	{
         public const this(set string Name, set int32 Magnitude, set T DefaultValue)
 		{
