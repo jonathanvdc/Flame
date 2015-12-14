@@ -59,14 +59,10 @@ namespace Flame.Front.Cli
         public void Compile(string[] args)
         {
             var prefs = new MergedOptions(PreferenceFile.ReadPreferences(OptionParser), DefaultOptions);
-
-            var log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(prefs), prefs);
-            var buildArgs = BuildArguments.Parse(OptionParser, log, args);
-
+            var buildArgs = BuildArguments.Parse(OptionParser, args);
             var mergedArgs = new MergedOptions(buildArgs, prefs);
 
-            log.Dispose();
-            log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(mergedArgs), mergedArgs);
+            var log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(mergedArgs), mergedArgs);
 
             if (mergedArgs.GetOption<bool>("repeat-command", false))
             {
@@ -177,7 +173,7 @@ namespace Flame.Front.Cli
 
         public IReadOnlyList<ProjectDependency> LoadProjects(BuildArguments Args, ICompilerLog Log)
         {
-            // Maintain a dictionary that maps project handlers to 
+            // Maintain a dictionary that maps project handlers to
             // the minimal project index in the build argument list for
             // that type of project and a list of all parsed projects
             // for said type.
@@ -199,7 +195,7 @@ namespace Flame.Front.Cli
             }
 
             var dict = parsedProjects.ToDictionary(
-                pair => pair.Value.Item1, 
+                pair => pair.Value.Item1,
                 pair => pair.Key.Partition(pair.Value.Item2).Select(proj => new ProjectDependency(proj, pair.Key)));
 
             return dict.OrderBy(item => item.Key).SelectMany(item => item.Value).ToArray();
@@ -241,7 +237,7 @@ namespace Flame.Front.Cli
             // Do this in reverse such that projects which were specified later
             // on in the list of command-line arguments are compiled first.
             // Given no dependencies, this will result in the first
-            // project becoming the main project, which makes sense from a 
+            // project becoming the main project, which makes sense from a
             // user's point of view.
             var worklist = new List<ProjectDependency>(Projects.Reverse());
             while (worklist.Count > 0)
@@ -297,7 +293,7 @@ namespace Flame.Front.Cli
         }
 
         /// <summary>
-        /// Creates a binder task and a build target building 
+        /// Creates a binder task and a build target building
         /// function for the given set of projects and main project state.
         /// </summary>
         /// <param name="Projects">The set of all projects to resolve dependencies for.</param>
@@ -325,7 +321,7 @@ namespace Flame.Front.Cli
             var binderTask = binderResolver.CreateBinderAsync(dependencyBuilder);
 
             return Tuple.Create<Task<IBinder>, Func<IAssembly, BuildTarget>>(
-                binderTask, 
+                binderTask,
                 mainAsm => BuildTargetParsers.CreateBuildTarget(targetParser, targetIdent, dependencyBuilder, mainAsm));
         }
 
@@ -378,7 +374,7 @@ namespace Flame.Front.Cli
         #region Linking
 
         /// <summary>
-        /// Links the given set of source assemblies into a 
+        /// Links the given set of source assemblies into a
         /// single target assembly. A build target is returned,
         /// whose target assembly is functionally equivalent to
         /// the input assemblies linked together.
@@ -431,7 +427,7 @@ namespace Flame.Front.Cli
         /// <param name="MainAssembly"></param>
         /// <param name="AuxiliaryAssemblies"></param>
         /// <returns></returns>
-        public static IDocumentationBuilder Document(CompilerEnvironment State, 
+        public static IDocumentationBuilder Document(CompilerEnvironment State,
             IAssembly MainAssembly, IEnumerable<IAssembly> AuxiliaryAssemblies)
         {
             State.FilteredLog.LogEvent(new LogEntry("Status", "Generating docs..."));
@@ -535,7 +531,7 @@ namespace Flame.Front.Cli
             if (UpToDateWarning.UseWarning(Log.Options))
             {
                 Log.LogWarning(new LogEntry(
-                    "No changes", 
+                    "No changes",
                     UpToDateWarning.CreateMessage(
                         "The output assembly and documentation were already up-to-date. ")));
             }
@@ -570,14 +566,14 @@ namespace Flame.Front.Cli
                     kv.Value.Select(item => new MarkupNode(NodeConstants.TextNodeType, "-f" + item))
                             .DefaultIfEmpty(new MarkupNode(NodeConstants.TextNodeType, "none"))));
             Log.LogMessage(new LogEntry("Passes in use (in order of application)", lists));
-            
+
             var optLevel = OptimizationInfo.GetOptimizationLevel(Log.Options);
             var optList = ListExtensions.Instance.CreateList(
                             OptimizationInfo.GetOptimizationDirectives(optLevel)
-                                            .Select(item => 
-                                                new MarkupNode("#group", new IMarkupNode[] 
+                                            .Select(item =>
+                                                new MarkupNode("#group", new IMarkupNode[]
                                                 {
-                                                    new MarkupNode(NodeConstants.TextNodeType, item.Item1 + " "), 
+                                                    new MarkupNode(NodeConstants.TextNodeType, item.Item1 + " "),
                                                     new MarkupNode(NodeConstants.CauseNodeType, item.Item2)
                                                 })));
             Log.LogMessage(new LogEntry("Optimization directives", optList));
