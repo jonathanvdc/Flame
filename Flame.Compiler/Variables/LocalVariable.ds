@@ -10,7 +10,7 @@ namespace Flame.Compiler.Variables
     /// A type for local variables.
     /// </summary>
     /// <remarks>
-    /// This type is intended to someday replace LateBoundVariable.
+    /// This type of variable replaces LateBoundVariable.
     /// </remarks>
     public class LocalVariable : IUnmanagedVariable
     {

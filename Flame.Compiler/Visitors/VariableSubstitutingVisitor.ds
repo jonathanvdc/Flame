@@ -69,9 +69,9 @@ namespace Flame.Compiler.Visitors
         protected virtual IVariable SubstituteVariableRecursivelyOrNull(IVariable Variable)
         {
             // First, try to use late-bound variable indirection.
-            if (Variable is LateBoundVariable)
+            if (Variable is ILateBoundVariable)
             {
-                var innerVal = ((LateBoundVariable)Variable).BoundVariable;
+                var innerVal = ((ILateBoundVariable)Variable).BoundVariable;
                 if (innerVal != null)
                 {
                     // If we can substitute the late-bound variable's bound variable,
@@ -171,8 +171,7 @@ namespace Flame.Compiler.Visitors
 
         protected override bool CanSubstituteVariable(IVariable Variable)
         {
-            return Variable is LocalVariable ||
-                   (Variable is LateBoundVariable && !(Variable is ManuallyBoundVariable));
+            return Variable is LocalVariable;
         }
 
         private IVariable ConvertVariable(IVariable Variable, IVariableMember Member)
@@ -198,15 +197,10 @@ namespace Flame.Compiler.Visitors
             {
                 return substVariables[Variable];
             }
-            else if (Variable is LocalVariable)
+            else // if (Variable is LocalVariable)
             {
                 var localVar = (LocalVariable)Variable;
                 return ConvertVariable(localVar, localVar.Member);
-            }
-            else
-            {
-                var lbVar = (LateBoundVariable)Variable;
-                return ConvertVariable(lbVar, lbVar.Member);
             }
         }
 
