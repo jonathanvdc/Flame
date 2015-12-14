@@ -87,7 +87,7 @@ namespace Flame.Front.Plugs
         {
             string platform = TargetPlatform.Split('\\', '/').First();
             List<IAssembly> asms = new List<IAssembly>();
-            foreach (var item in GetPlugAssemblyTasks(Resolver, TargetPlatform))
+            foreach (var item in GetPlugAssemblyTasks(Resolver, platform))
             {
                 var asm = await item;
                 if (asm.Name == AssemblyName)
