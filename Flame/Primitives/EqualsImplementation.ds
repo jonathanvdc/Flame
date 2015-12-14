@@ -5,7 +5,8 @@ using Flame.Build;
 
 namespace Flame.Primitives
 {
-	public class EqualsImplementation<T> : PrimitiveMethod where T : object
+	public class EqualsImplementation<T> : PrimitiveMethod
+		where T : object
 	{
 		public const this(set IType DeclaringType)
 		{
