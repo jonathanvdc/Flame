@@ -250,12 +250,12 @@ namespace Flame.Front.Options
             return results.ToArray();
         }
 
-        public static BuildArguments Parse(IOptionParser<string> OptionParser, ICompilerLog Log, params string[] Arguments)
+        public static BuildArguments Parse(IOptionParser<string> OptionParser, params string[] Arguments)
         {
-            return Parse(new StringArrayOptionParser(OptionParser), Log, Arguments);
+            return Parse(new StringArrayOptionParser(OptionParser), Arguments);
         }
 
-        public static BuildArguments Parse(IOptionParser<string[]> OptionParser, ICompilerLog Log, params string[] Arguments)
+        public static BuildArguments Parse(IOptionParser<string[]> OptionParser, params string[] Arguments)
         {
             BuildArguments result = new BuildArguments(OptionParser);
             const string defaultParameter = "source";
