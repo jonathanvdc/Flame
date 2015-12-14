@@ -44,6 +44,13 @@ namespace Flame.Compiler.Visitors
         /// </summary>
         public IStatement LowerContractStatement(ContractBodyStatement Value)
         {
+            if (Value.IsEmptyContract)
+            {
+                // Maybe we'll get lucky, and find ourselves an empty
+                // contract block.
+                return Value.Body;
+            }
+
             var results = new List<IStatement>();
             foreach (var item in Value.Preconditions)
             {

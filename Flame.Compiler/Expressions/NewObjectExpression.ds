@@ -5,13 +5,29 @@ using System.Linq;
 
 namespace Flame.Compiler.Expressions
 {
-    public class NewObjectExpression : IExpression, IMemberNode
+    /// <summary>
+    /// A type of expression that creates new object instances,
+    /// based on a type and a sequence of arguments.
+    /// </summary>
+    public class NewObjectExpression : IExpression
     {
+        /// <summary>
+        /// Creates an expression that produces an instance of the given
+        /// type, by invoking its parameterless constructor (or by taking its
+        /// default value, if the type is a value type).
+        /// </summary>
         public const this(IType ConstructedType)
         {
             this.Type = ConstructedType;
             this.Arguments = Enumerable.Empty<IExpression>();
         }
+
+        /// <summary>
+        /// Creates an expression that produces an instance of the given
+        /// type, by invoking one of its constructors with the given arguments
+        /// (or by taking its default value, if the type is a value type,
+        /// and the sequence of arguments is empty).
+        /// </summary>
         public const this(IType ConstructedType, set [IExpression] Arguments)
         {
             this.Type = ConstructedType;
@@ -20,21 +36,9 @@ namespace Flame.Compiler.Expressions
         public [IExpression] Arguments { const get; private set; }
         public IType Type { const get; private set; }
 
-        public IMemberNode ConvertMembers(MemberConverter Converter)
-        {
-            var elemType = Converter.Convert(Type);
-            if (object.ReferenceEquals(elemType, Type))
-            {
-                return this;
-            }
-            else return new NewObjectExpression(elemType, Arguments);
-        }
-
         public IExpression Accept(INodeVisitor Visitor)
         {
-            var transArgs = Visitor.VisitAll(Arguments);
-
-            return new NewObjectExpression(Type, transArgs);
+            return Visitor.Visit(Lower());
         }
 
         public bool IsConstant
@@ -51,16 +55,7 @@ namespace Flame.Compiler.Expressions
 
         public const IBoundObject Evaluate()
         {
-            var clrCtor = Constructor;
-            if (clrCtor is IInvocableMethod)
-            {
-                var args = Arguments.EvaluateAll();
-                return ((IInvocableMethod)clrCtor).Invoke(null, args);
-            }
-            else
-            {
-                return null;
-            }
+            return Lower().Evaluate();
         }
 
         private IMethod Constructor
@@ -71,45 +66,68 @@ namespace Flame.Compiler.Expressions
             }
         }
 
-        public const IExpression Optimize()
+        /// <summary>
+        /// Attempts to lower this new-object expression.
+        /// If that cannot be done, then this instance
+        /// is simply returned.
+        /// </summary>
+        public IExpression LowerSoft()
         {
-            var clrCtor = Constructor;
-            if (clrCtor != null)
+            var ctor = Constructor;
+            if (ctor != null)
             {
-                //return new ConstructorCallExpression(clrCtor, Arguments).Optimize();
-                return new InvocationExpression(clrCtor, null, Arguments).Optimize();
+                return new InvocationExpression(ctor, null, Arguments);
             }
             else
             {
-                var optArgs = Arguments.OptimizeAll();
-                var newFunc = new NewObjectExpression(Type, optArgs);
-                /*if (newFunc.IsConstant && newFunc.Type.IsCompileableType)
+                if (Type.IsValueType && Enumerable.Count<IExpression>(Arguments) == 0)
                 {
-                    return NodeExtensions.ToExpression(newFunc.Evaluate());
-                }
-                else */
-                if (newFunc.Type.IsValueType && Enumerable.Count<IExpression>(newFunc.Arguments) == 0 && newFunc.Constructor == null)
-                {
-                    return new DefaultValueExpression(newFunc.Type);
+                    return new DefaultValueExpression(Type);
                 }
                 else
                 {
-                    return new NewObjectExpression(Type, optArgs);
+                    return this;
                 }
             }
         }
 
+        /// <summary>
+        /// Lowers this new-object expression.
+        /// If that cannot be done, then an exception is thrown.
+        /// </summary>
+        public IExpression Lower()
+        {
+             var result = LowerSoft();
+             if (result is NewObjectExpression)
+                throw new InvalidOperationException(
+                "Could not lower new-object expression '" +
+                ToString() + "': no appropriate constructor could be found");
+
+            return result;
+        }
+
+        public const IExpression Optimize()
+        {
+            return Lower().Optimize();
+        }
+
         public const ICodeBlock Emit(ICodeGenerator Generator)
         {
-            var ctor = Constructor;
-            if (ctor == null && Type.IsValueType && Enumerable.Count<IExpression>(Arguments) == 0)
+            return Lower().Emit(Generator);
+        }
+
+        public override string ToString()
+        {
+            var result = new StringBuilder();
+            result.Append("new(");
+            result.Append(Type.ToString());
+            foreach (var item in Arguments)
             {
-                return Generator.EmitDefaultValue(Type);
+                result.Append(", ");
+                result.Append(item.ToString());
             }
-            else
-            {
-                return Generator.EmitInvocation(ctor, null, Arguments.EmitAll(Generator));
-            }
+            result.Append(")");
+            return (string)result;
         }
     }
 }

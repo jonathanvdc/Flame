@@ -32,9 +32,22 @@ namespace Flame.Compiler.Statements
 				postcond);
 		}
 
+		/// <summary>
+		/// Tests if this contract's preconditions and postconditions are
+		/// actually both empty.
+		/// </summary>
+		public bool IsEmptyContract
+		{
+			const get
+			{
+				return !Enumerable.Any<IExpression>(Preconditions) &&
+					   !Enumerable.Any<IExpression>(Postconditions);
+		   }
+		}
+
 		public const IStatement Optimize()
 		{
-			if (!Enumerable.Any<IExpression>(Preconditions) && !Enumerable.Any<IExpression>(Postconditions))
+			if (IsEmptyContract)
 			{
 				return Body.Optimize();
 			}
@@ -46,7 +59,7 @@ namespace Flame.Compiler.Statements
 
 		public bool IsEmpty
 		{
-			const get return Body.IsEmpty && !Enumerable.Any<IExpression>(Preconditions) && !Enumerable.Any<IExpression>(Postconditions);
+			const get return Body.IsEmpty && IsEmptyContract;
 		}
 
 		public ICodeBlock Emit(ICodeGenerator Target)
