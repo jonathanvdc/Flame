@@ -4,10 +4,20 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Expressions
 {
+    /// <summary>
+    /// A unary expression that dereferences a pointer expression.
+    /// </summary>
     public class DereferencePointerExpression : IExpression, IVariableNode
     {
-        public this(set IExpression Expression);
+        /// <summary>
+        /// Creates an expression that dereferences the pointer created by the
+        /// given expression.
+        /// </summary>
+        public const this(set IExpression Expression);
 
+        /// <summary>
+        /// Gets this pointer-dereferencing expression's operand.
+        /// </summary>
         public IExpression Expression { const get; private set; }
 
         public IExpression Accept(INodeVisitor Visitor)

@@ -72,8 +72,10 @@ namespace Flame.Compiler.Expressions
             	if (eval == null) return null;
 
             	var evalType = eval.Type;
-            	if (evalType.Equals(PrimitiveTypes.Null)) return new BooleanExpression(TestType.Equals(PrimitiveTypes.Null));
-                else return new BooleanExpression(evalType.Is(TestType));
+            	if (evalType.Equals(PrimitiveTypes.Null))
+                    return new BooleanExpression(TestType.Equals(PrimitiveTypes.Null));
+                else
+                    return new BooleanExpression(evalType.Is(TestType));
             }
             else
             {
