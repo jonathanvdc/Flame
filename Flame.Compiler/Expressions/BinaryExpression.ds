@@ -237,7 +237,7 @@ namespace Flame.Compiler.Expressions
 			const get
 			{
 				if (loweredExpr == null)
-					loweredExpr = ToBinaryExpression(LeftOperand, Op, RightOperand);
+					loweredExpr = CreateBinaryExpression(LeftOperand, Op, RightOperand);
 				return loweredExpr;
 			}
 		}
@@ -247,7 +247,12 @@ namespace Flame.Compiler.Expressions
 			const get return !(LoweredExpression is DirectBinaryExpression);
 		}
 
-		public static const IExpression ToBinaryExpression(IExpression LeftOperand, Operator Op, IExpression RightOperand)
+		/// <summary>
+		/// Creates a new binary expression from the given left operand,
+		/// operator and right operand.
+		/// </summary>
+		public static const IExpression CreateBinaryExpression(
+			IExpression LeftOperand, Operator Op, IExpression RightOperand)
 		{
 			if (Op == Operator.Add)
 				return new AddExpression(LeftOperand, RightOperand);
