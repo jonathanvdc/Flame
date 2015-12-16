@@ -156,10 +156,24 @@ namespace Flame.Optimization
 
     public class InliningVariableVisitor : VariableSubstitutingVisitorBase
     {
-        public const this(set IVariable ThisArgument, set IVariable[] Arguments);
+        public const this(set IVariable ThisArgument, set IVariable[] Arguments)
+        {
+            this.locals = new Dictionary<UniqueTag, LocalVariable>();
+        }
 
         public IVariable ThisArgument { const get; private set; }
         public IVariable[] Arguments { const get; private set; }
+
+        private Dictionary<UniqueTag, LocalVariable> locals;
+
+        private LocalVariable inlineLocal(LocalVariable localVar)
+        {
+            if (!locals.ContainsKey(localVar.Tag))
+            {
+                locals[localVar.Tag] = new LocalVariable(localVar.Member);
+            }
+            return locals[localVar.Tag];
+        }
 
         public static IStatement InlineVariables(IStatement Target, IExpression ThisArgument, IExpression[] Arguments)
         {
@@ -195,7 +209,8 @@ namespace Flame.Optimization
 
         protected override bool CanSubstituteVariable(IVariable Variable)
         {
-            return Variable is ArgumentVariable || Variable is ThisVariable;
+            return Variable is ArgumentVariable || Variable is ThisVariable ||
+                   Variable is LocalVariable;
         }
         protected override IVariable SubstituteVariable(IVariable Variable)
         {
@@ -203,10 +218,15 @@ namespace Flame.Optimization
             {
                 return ThisArgument;
             }
-            else // if (Variable is ArgumentVariable)
+            else if (Variable is ArgumentVariable)
             {
                 var argVar = (ArgumentVariable)Variable;
                 return Arguments[argVar.Index];
+            }
+            else // Variable is LocalVariable
+            {
+                var localVar = (LocalVariable)Variable;
+                return inlineLocal(localVar);
             }
         }
     }
