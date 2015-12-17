@@ -12,7 +12,7 @@ namespace Flame.Compiler
         /// <summary>
         /// Gets the type of object that the expression will return.
         /// </summary>
-        IType Type { const get; }
+        IType Type { get; }
 
         /// <summary>
         /// Gets a boolean value that indicates if the expression is a constant expression.
@@ -25,7 +25,7 @@ namespace Flame.Compiler
         /// constant by its very nature, but cannot be evaluated before the
         /// layout of the type has been defined.
         /// </remarks>
-        bool IsConstant { const get; }
+        bool IsConstant { get; }
 
         /// <summary>
         /// Performs a compile-time evaluation of the expression.
@@ -59,12 +59,12 @@ namespace Flame.Compiler
         /// <summary>
         /// Gets the delegate expression's parameter types.
         /// </summary>
-        [IType] ParameterTypes { const get; }
+        [IType] ParameterTypes { get; }
 
         /// <summary>
         /// Gets the return type of the delegate expression's delegate.
         /// </summary>
-        IType ReturnType { const get; }
+        IType ReturnType { get; }
 
         /// <summary>
         /// Creates an invocation expression based on this delegate expression and

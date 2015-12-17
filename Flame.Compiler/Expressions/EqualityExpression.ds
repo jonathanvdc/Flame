@@ -4,22 +4,21 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
+    /// <summary>
+    /// Defines a type of expression that compares its arguments for equality.
+    /// </summary>
     public class EqualityExpression : ConditionalExpression
     {
-        public const this(set IExpression LeftOperand, set IExpression RightOperand);
+        public const this(IExpression LeftOperand, IExpression RightOperand)
+            : base(LeftOperand, RightOperand);
 
-        protected override Operator GetOperator() { return Operator.CheckEquality; }
-
-        public override bool IsConstant
-        {
-            override const get
-            {
-                return LeftOperand.IsConstant && RightOperand.IsConstant;
-            }
-        }
+        public override Operator Op { override const get { return Operator.CheckEquality; } }
 
         public static const IBoundObject CheckObjectEquality(IBoundObject First, IBoundObject Second)
         {
+            if (First == null || Second == null)
+                return null;
+
             object firstObj = First.GetObjectValue();
             object secondObj = Second.GetObjectValue();
 
@@ -44,23 +43,14 @@ namespace Flame.Compiler.Expressions
             return CheckObjectEquality(first, second);
         }
 
-        public override const IExpression Optimize()
-        {
-            var optA = LeftOperand.Optimize();
-            var optB = RightOperand.Optimize();
-            var expr = new EqualityExpression(optA, optB);
-            if (expr.IsConstant && expr.Type.IsPrimitiveExpressionType())
-            {
-                var evalExpr = expr.Evaluate();
-                if (evalExpr != null)
-                   return evalExpr.ToExpression();
-            }
-            return expr;
-        }
-
         protected override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
         {
             return Generator.EmitEquals(Left, Right);
+        }
+
+        protected override IExpression Create(IExpression Left, IExpression Right)
+        {
+            return new EqualityExpression(Left, Right);
         }
     }
 }

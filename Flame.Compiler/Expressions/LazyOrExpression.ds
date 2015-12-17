@@ -12,7 +12,7 @@ namespace Flame.Compiler.Expressions
         public const this(IExpression LeftOperand, IExpression RightOperand)
             : base(LeftOperand, RightOperand);
 
-        protected override Operator GetOperator() { return Operator.LogicalOr; }
+        public override Operator Op { override const get { return Operator.LogicalOr; } }
 
         public override bool IsConstant
         {
@@ -46,6 +46,11 @@ namespace Flame.Compiler.Expressions
         protected override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
         {
         	return Generator.EmitLogicalOr(Left, Right);
+        }
+
+        protected override IExpression Create(IExpression Left, IExpression Right)
+        {
+            return new LazyAndExpression(Left, Right);
         }
     }
 }

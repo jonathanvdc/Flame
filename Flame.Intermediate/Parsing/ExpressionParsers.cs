@@ -1130,7 +1130,7 @@ namespace Flame.Intermediate.Parsing
             var op = Operator.Register((string)Node.Args[1].Value);
             var rhs = ParseExpression(State, Node.Args[2]);
 
-            return new DirectBinaryExpression(lhs, op, rhs);
+            return DirectBinaryExpression.Create(lhs, op, rhs);
         }
 
         /// <summary>
