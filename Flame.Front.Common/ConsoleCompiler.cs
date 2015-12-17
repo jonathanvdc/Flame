@@ -491,7 +491,47 @@ namespace Flame.Front.Cli
 
         #region Helpers
 
-        private static void LogUnhandledException(Exception ex, ICompilerLog log, MergedOptions mergedArgs)
+        private const string ExceptionDumpExtension = ".exception.log";
+
+        /// <summary>
+        /// Writes the given unhandled exception to
+        /// an exception dump file.
+        /// </summary>
+        /// <param name="ex"></param>
+        private void DumpUnhandledException(Exception ex, ICompilerLog log)
+        {
+            string fileName = Path.GetFullPath(this.Name + ExceptionDumpExtension);
+            try
+            {
+                using (var fs = new FileStream(fileName, FileMode.Create))
+                using (var writer = new StreamWriter(fs))
+                {
+                    writer.WriteLine("Options");
+                    writer.WriteLine("=========");
+                    writer.WriteLine();
+                    writer.WriteLine(this.Name + " " + string.Join(" ", Environment.GetCommandLineArgs()));
+                    writer.WriteLine();
+                    writer.WriteLine("Exception");
+                    writer.WriteLine("=========");
+                    writer.WriteLine();
+                    writer.WriteLine(ex.ToString());
+                }
+                log.LogMessage(new LogEntry("Exception dumped", "Wrote exception data to '" + fileName + "'."));
+            }
+            catch (Exception)
+            {
+                // Get really mad, but don't throw another exception.
+                log.LogError(new LogEntry("Log file inaccessible", "Couldn't write an exception log to file '" + fileName + "'."));
+            }
+        }
+
+        /// <summary>
+        /// Logs the given unhandled exception.
+        /// </summary>
+        /// <param name="ex"></param>
+        /// <param name="log"></param>
+        /// <param name="mergedArgs"></param>
+        private void LogUnhandledException(Exception ex, ICompilerLog log, MergedOptions mergedArgs)
         {
             if (ex is AbortCompilationException)
             {
@@ -509,6 +549,7 @@ namespace Flame.Front.Cli
                 {
                     log.LogError(entry);
                 }
+                DumpUnhandledException(ex, log);
             }
         }
 
