@@ -88,8 +88,9 @@ namespace Flame.Compiler.Expressions
 
 		public override ICodeBlock Emit(ICodeGenerator Generator)
 		{
-			return Generator.EmitBinary(
-				LeftOperand.Emit(Generator), RightOperand.Emit(Generator), Op);
+			var lBlock = LeftOperand.Emit(Generator);
+			var rBlock = RightOperand.Emit(Generator);
+			return EmitPrimitive(lBlock, rBlock, Generator);
 		}
 
 		/// <summary>
