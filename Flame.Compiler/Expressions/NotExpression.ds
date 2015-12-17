@@ -19,6 +19,8 @@ namespace Flame.Compiler.Expressions
         public override IBoundObject Evaluate()
         {
             var boundObject = Value.Evaluate();
+            if (boundObject == null)
+                return null;
             if (Value.Type.Equals(PrimitiveTypes.Boolean))
             {
                 return new BooleanExpression(!boundObject.GetPrimitiveValue<bool>());

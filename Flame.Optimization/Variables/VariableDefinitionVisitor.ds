@@ -366,10 +366,7 @@ namespace Flame.Optimization.Variables
             else if (Value is UnaryOperatorExpression)
             {
                 var opExpr = (UnaryOperatorExpression)Value;
-                if (opExpr.OperatorOverload == null || opExpr.OperatorOverload.IsConstant)
-                    return GetDependencies(opExpr.Value).Union(PropagationDependencies.Once());
-                else
-                    return PropagationDependencies.Never();
+                return GetDependencies(opExpr.Value).Union(PropagationDependencies.Once());
             }
             else if (Value is BinaryExpression)
             {

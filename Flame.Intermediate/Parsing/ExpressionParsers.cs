@@ -1109,7 +1109,7 @@ namespace Flame.Intermediate.Parsing
             var op = Operator.Register((string)Node.Args[0].Value);
             var operand = ParseExpression(State, Node.Args[1]);
 
-            return DirectUnaryExpression.CreateUnaryExpression(op, operand);
+            return DirectUnaryExpression.Instance.CreateUnaryExpression(op, operand);
         }
 
         /// <summary>
