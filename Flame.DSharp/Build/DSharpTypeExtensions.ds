@@ -48,7 +48,7 @@ namespace Flame.DSharp.Build
                 }
 			}
 
-			return (IEnumerable<IGenericParameter>)simpleGenericParams;
+			return simpleGenericParams;
         }
 
         public static IType CreateExtensionType(INamespace Namespace, ISyntaxState State, TypeDeclarationSyntax Syntax)
@@ -203,13 +203,23 @@ namespace Flame.DSharp.Build
 	    	return descType;
 	    }*/
 
-	    private static const IExpression CreateNotBinaryOp(IMethod Method, ISyntaxState State, Operator Op)
+	    private static const IExpression CreateNotBinaryOp(IMethod Method, ISyntaxState State)
         {
         	var parameters = Method.GetParameters();
         	if (parameters.Length == 1)
-        		return new NotExpression(new DirectBinaryExpression(new ThisVariable(State.CurrentType).CreateGetExpression(), Op, new ArgumentVariable(parameters[0], 0).CreateGetExpression()));
+        		return new NotExpression(new InvocationExpression(
+					Method, new ThisVariable(State.CurrentType).CreateGetExpression(),
+					new IExpression[]
+					{
+						new ArgumentVariable(parameters[0], 0).CreateGetExpression()
+					}));
         	else
-        		return new NotExpression(new DirectBinaryExpression(new ArgumentVariable(parameters[0], 0).CreateGetExpression(), Op, new ArgumentVariable(parameters[1], 0).CreateGetExpression()));
+        		return new NotExpression(new InvocationExpression(
+					Method, null, new IExpression[]
+					{
+						new ArgumentVariable(parameters[0], 0).CreateGetExpression(),
+						new ArgumentVariable(parameters[1], 1).CreateGetExpression()
+					}));
         }
 
         private static const IMethod CreateNotOperator(IMethod Method, ISyntaxState State, Operator Op)
@@ -224,13 +234,13 @@ namespace Flame.DSharp.Build
     		{
     			bodyMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
     		}
-    		bodyMethod.Body = new ReturnStatement(CreateNotBinaryOp(bodyMethod, State, Method.GetOperator()));
+    		bodyMethod.Body = new ReturnStatement(CreateNotBinaryOp(bodyMethod, State));
     		return bodyMethod;
         }
 
 	    public static const IEnumerable<IMethod> GenerateOperators(IEnumerable<IMethod> Methods, ISyntaxState State)
 	    {
-	    	List<IMethod> results = new List<IMethod>();
+	    	var results = new List<IMethod>();
 
 	    	IMethod ceq = null;
 	    	IMethod cne = null;

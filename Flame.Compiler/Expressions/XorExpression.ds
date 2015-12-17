@@ -4,20 +4,28 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-    public class XorExpression : BinaryOperatorExpression
+    /// <summary>
+    /// A type of expression that computes the bitwise exclusive 'or' of its
+    /// operands.
+    /// </summary>
+    public class XorExpression : BinaryExpression
     {
-        public const this(set IExpression LeftOperand, set IExpression RightOperand);
+        public const this(IExpression LeftOperand, IExpression RightOperand)
+            : base(LeftOperand, RightOperand);
 
-        protected override Operator GetOperator() { return Operator.Xor; }
+        public override Operator Op { override const get { return Operator.Xor; } }
 
         public override IBoundObject Evaluate()
         {
         	var lObj = LeftOperand.Evaluate();
         	var rObj = RightOperand.Evaluate();
+            if (lObj == null || rObj == null)
+                return null;
+
         	var resultType = Type;
         	if (resultType.Equals(PrimitiveTypes.Boolean))
         	{
-        		return new BooleanExpression(lObj.GetValue<bool>() ^ rObj.GetValue<bool>());
+        		return new BooleanExpression(lObj.GetValue<bool>() != rObj.GetValue<bool>());
         	}
         	else if (resultType.Equals(PrimitiveTypes.Int8))
         	{
@@ -70,23 +78,14 @@ namespace Flame.Compiler.Expressions
             return null;
         }
 
-        public override const IExpression Optimize()
-        {
-            var optA = LeftOperand.Optimize();
-            var optB = RightOperand.Optimize();
-            var expr = new XorExpression(optA, optB);
-            if (expr.IsConstant && expr.Type.IsPrimitiveExpressionType())
-            {
-                var evalExpr = expr.Evaluate();
-                if (evalExpr != null)
-                   return evalExpr.ToExpression();
-            }
-            return expr;
-        }
-
         protected override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
         {
             return Generator.EmitXor(Left, Right);
+        }
+
+        protected override IExpression Create(IExpression Left, IExpression Right)
+        {
+            return new XorExpression(Left, Right);
         }
     }
 }

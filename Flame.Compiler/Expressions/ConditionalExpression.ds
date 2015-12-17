@@ -4,14 +4,21 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-    public abstract class ConditionalExpression : BinaryOperatorExpression
+    /// <summary>
+    /// Defines a base type for condition expressions: expressions with
+    /// a boolean return type, regardless of their argument types.
+    /// </summary>
+    public abstract class ConditionalExpression : BinaryExpression
     {
-    	protected const this();
-    
-        protected virtual override IType GetExpressionType()
+    	public const this(IExpression LeftOperand, IExpression RightOperand)
+            : base(LeftOperand, RightOperand);
+
+        public virtual override IType Type
         {
-            if (OperatorOverload != null) return OperatorOverload.ReturnType;
-			else return PrimitiveTypes.Boolean;
+            virtual override get
+            {
+                return PrimitiveTypes.Boolean;
+            }
         }
     }
 }
