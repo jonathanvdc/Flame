@@ -509,7 +509,7 @@ namespace Flame.Front.Cli
                     writer.WriteLine("Options");
                     writer.WriteLine("=========");
                     writer.WriteLine();
-                    writer.WriteLine(this.Name + " " + string.Join(" ", Environment.GetCommandLineArgs()));
+                    writer.WriteLine(string.Join(" ", Environment.GetCommandLineArgs()));
                     writer.WriteLine();
                     writer.WriteLine("Exception");
                     writer.WriteLine("=========");
