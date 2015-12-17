@@ -43,7 +43,10 @@ namespace Flame.Front.Options
         {
             if (args.ContainsKey(Key) && OptionParser.CanParse<T>())
             {
-                accOptions.Add(Key);
+                lock (accOptions)
+                {
+                    accOptions.Add(Key);
+                }
                 return OptionParser.ParseValue<T>(args[Key]);
             }
             else
