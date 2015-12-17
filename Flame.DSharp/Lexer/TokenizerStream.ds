@@ -281,6 +281,7 @@ namespace Flame.DSharp.Lexer
 		}
 
 		private Token ParseNextTokenValue()
+			in { pos < Code.Length }
 		{
 			char nextChar = Code[pos];
 			if (IsWhitespace(nextChar))
