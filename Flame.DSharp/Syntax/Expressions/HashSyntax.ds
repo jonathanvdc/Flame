@@ -10,17 +10,17 @@ namespace Flame.Syntax.DSharp
 	public class HashSyntax : IExpressionSyntax, IRelevantSyntax<Token>, ITokenNode, ISourceSyntax
 	{
 		public const this(set Token HashKeyword, set Token LeadingParen, set IExpressionSyntax Target, set Token TrailingParen);
-	
+
 		public Token HashKeyword { const get; private set; }
 		public Token LeadingParen { const get; private set; }
 		public IExpressionSyntax Target { const get; private set; }
 		public Token TrailingParen { const get; private set; }
-		
+
 		public SourceLocation Location
 		{
 			const get return HashKeyword.Location.Concat(LeadingParen.Location).Concat(Target.GetSourceLocation()).Concat(TrailingParen.Location);
 		}
-		
+
         public IReadOnlyList<Token> Tokens
         {
         	const get
@@ -33,7 +33,7 @@ namespace Flame.Syntax.DSharp
 				return tks;
         	}
         }
-		
+
 		public [Token] LeadingTrivia
 		{
 			const get
@@ -44,7 +44,7 @@ namespace Flame.Syntax.DSharp
 				return trivia;
 			}
 		}
-		
+
 		public [Token] TrailingTrivia
 		{
 			const get
@@ -52,13 +52,12 @@ namespace Flame.Syntax.DSharp
 				return TrailingParen.GetAllTrivia();
 			}
 		}
-		
+
 		public const IExpression CreateExpression(ISyntaxState State)
 		{
-			var innerExpr = Target.CreateVerifiedExpression(State);
-			return new HashExpression(innerExpr);
+			return UnaryExpressionSyntax.CreateExpression(State, Operator.Hash, Target);
 		}
-		
+
 		public const CodeBuilder GetCode()
 		{
 			CodeBuilder cb = new CodeBuilder();

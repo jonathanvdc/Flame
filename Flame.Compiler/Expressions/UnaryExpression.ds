@@ -24,12 +24,12 @@ namespace Flame.Compiler.Expressions
 
         public virtual IType Type
         {
-            virtual const get { return Value.Type; }
+            virtual get { return Value.Type; }
         }
 
         public virtual bool IsConstant
         {
-            const get { return Value.IsConstant; }
+            get { return Value.IsConstant; }
         }
 
         public void AcceptPredicate(INodeVisitor Visitor)
@@ -50,10 +50,23 @@ namespace Flame.Compiler.Expressions
             }
         }
 
-        protected const abstract IExpression Create(IExpression Operand);
+        public virtual IExpression Optimize()
+        {
+            var optVal = Value.Optimize();
+            var expr = Create(optVal);
+            if (expr.IsConstant &&
+                expr.Type.IsPrimitiveExpressionType())
+            {
+                var evalExpr = expr.Evaluate();
+                if (evalExpr != null)
+                   return evalExpr.ToExpression();
+            }
+            return expr;
+        }
 
-        public const abstract IBoundObject Evaluate();
-        public const abstract IExpression Optimize();
+        protected abstract IExpression Create(IExpression Operand);
+
+        public abstract IBoundObject Evaluate();
         public abstract ICodeBlock Emit(ICodeGenerator Generator);
     }
 
@@ -72,70 +85,9 @@ namespace Flame.Compiler.Expressions
         /// <summary>
         /// Gets the unary operator that this expression applies to its operand.
         /// </summary>
-        public abstract Operator Op { const get; }
+        public abstract Operator Op { get; }
 
-        private IType cachedType;
-        public virtual override IType Type
-        {
-            virtual override const get
-            {
-                if (cachedType == null)
-                {
-                    cachedType = GetExpressionType();
-                }
-                return cachedType;
-            }
-        }
-
-        public virtual override bool IsConstant
-        {
-            const get
-            {
-                return Value.IsConstant &&
-                       (OperatorOverload == null || OperatorOverload.IsConstant);
-            }
-        }
-
-        /// <summary>
-        /// Gets the operator overload for this unary expression if an overload exists. Otherwise, null.
-        /// </summary>
-        protected virtual IMethod GetOpOverload()
-        {
-            return Op.GetOperatorOverload(new IExpression[] { Value });
-        }
-
-        private IMethod opOverload;
-        /// <summary>
-        /// Gets the operator overload for this unary expression if an overload exists. Otherwise, null.
-        /// </summary>
-        public IMethod OperatorOverload
-        {
-            const get
-            {
-                if (opOverload == null)
-                {
-                    opOverload = GetOpOverload();
-                }
-                return opOverload;
-            }
-        }
-
-        protected IExpression OverloadInvocation
-        {
-            const get
-            {
-                if (OperatorOverload == null) return null;
-                else return new RelaxedInvocation(OperatorOverload, new IExpression[] { Value });
-            }
-        }
-
-        protected virtual IType GetExpressionType()
-        {
-            if (OperatorOverload != null) return OperatorOverload.ReturnType;
-            else return Value.Type;
-        }
-
-        protected virtual const ICodeBlock EmitPrimitive(ICodeBlock Block, ICodeGenerator Generator)
+        protected virtual ICodeBlock EmitPrimitive(ICodeBlock Block, ICodeGenerator Generator)
         {
             return Generator.EmitUnary(Block, Op);
         }
@@ -143,19 +95,7 @@ namespace Flame.Compiler.Expressions
         public virtual override ICodeBlock Emit(ICodeGenerator Generator)
         {
             var innerBlock = Value.Emit(Generator);
-            var primBlock = EmitPrimitive(innerBlock, Generator);
-            if (primBlock != null)
-            {
-                return primBlock;
-            }
-            else if (OperatorOverload != null)
-            {
-                return OverloadInvocation.Emit(Generator);
-            }
-            else
-            {
-                return null;
-            }
+            return EmitPrimitive(innerBlock, Generator);
         }
 
         public override const string ToString()
@@ -165,62 +105,48 @@ namespace Flame.Compiler.Expressions
     }
 
     /// <summary>
-    /// A type of unary expressions whose default behavior is to reduce themselves
-    /// to specialized implementations if at all possible. Otherwise,
-    /// a default unary operator code sequence is generated.
-    /// </summary>
-    public class DirectUnaryExpression : UnaryOperatorExpression
+	/// Defines a unary expression that does not know how to evaluate itself,
+	/// and simply instructs the code generator to create a unary operator block.
+	/// </summary>
+    public class PrimitiveUnaryExpression : UnaryOperatorExpression
     {
         /// <summary>
-        /// Creates a unary expression that applies the given
-        /// unary operator to the given operand.
+        /// Initializes this unary operator expression with the given expression
+        /// and operator.
         /// </summary>
-        public const this(Operator UnaryOp, IExpression Operand)
-            : base(Operand)
+        public const this(Operator Op, IExpression Value)
+            : base(Value)
         {
-            this.oper = UnaryOp;
-            this.loweredExpr = new Lazy<IExpression>(lowerThisExpr);
+            this.unaryOp = Op;
         }
 
-        private Operator oper;
+        private Operator unaryOp;
         /// <summary>
         /// Gets the unary operator that this expression applies to its operand.
         /// </summary>
-        public override Operator Op { const get { return oper; } }
+        public override Operator Op { const get { return unaryOp; } }
 
-        private Lazy<IExpression> loweredExpr;
-        private IExpression lowerThisExpr()
+        public override IBoundObject Evaluate()
         {
-            return CreateUnaryExpression(Op, Value);
+            return null;
         }
 
-        /// <summary>
-        /// Gets the potentially more specialized expression this unary
-        /// expression is "lowered" to.
-        /// </summary>
-        public IExpression LoweredExpression
+        protected override IExpression Create(IExpression Operand)
         {
-            const get { return loweredExpr.Value; }
+            return new PrimitiveUnaryExpression(unaryOp, Operand);
         }
+    }
 
-        /// <summary>
-        /// Gets a boolean value that indicates whether this unary expression
-        /// can be lowered to a specialized unary expression.
-        /// </summary>
-        public bool CanLower
-        {
-            const get { return !(LoweredExpression is DirectUnaryExpression); }
-        }
-
-        protected const override IExpression Create(IExpression Operand)
-        {
-            return CreateUnaryExpression(Op, Operand);
-        }
-
+    /// <summary>
+	/// A helper class that can be used to create optimal built-in
+	/// unary expressions.
+	/// </summary>
+    public static class DirectUnaryExpression
+    {
         /// <summary>
         /// Creates a unary expression from the given operation and operand.
         /// </summary>
-        public static const IExpression CreateUnaryExpression(Operator UnaryOp, IExpression Operand)
+        public const IExpression Create(Operator UnaryOp, IExpression Operand)
         {
             if (UnaryOp == Operator.Not)
                 return new NotExpression(Operand);
@@ -229,68 +155,7 @@ namespace Flame.Compiler.Expressions
             else if (UnaryOp == Operator.Hash)
                 return new HashExpression(Operand);
             else
-                return new DirectUnaryExpression(UnaryOp, Operand);
-        }
-
-        public override IBoundObject Evaluate()
-        {
-            if (CanLower)
-                return LoweredExpression.Evaluate();
-            else
-                return null;
-        }
-
-        protected override IType GetExpressionType()
-        {
-            if (CanLower)
-                return LoweredExpression.Type;
-            else if (OperatorOverload != null)
-                return OperatorOverload.ReturnType;
-            else
-                return Value.Type;
-        }
-
-        public override bool IsConstant
-        {
-            const get
-            {
-                if (CanLower)
-                    return LoweredExpression.IsConstant;
-                else
-                    return Value.IsConstant &&
-                           (OperatorOverload == null || OperatorOverload.IsConstant);
-            }
-        }
-
-        public const override IExpression Optimize()
-        {
-            if (CanLower)
-                return LoweredExpression.Optimize();
-            else
-                return new DirectUnaryExpression(Op, Value.Optimize());
-        }
-
-        public override ICodeBlock Emit(ICodeGenerator Generator)
-        {
-            if (CanLower)
-            {
-                return LoweredExpression.Emit(Generator);
-            }
-
-            var innerBlock = Value.Emit(Generator);
-            var primBlock = EmitPrimitive(innerBlock, Generator);
-            if (primBlock != null)
-            {
-                return primBlock;
-            }
-            else if (OperatorOverload != null)
-            {
-                return OverloadInvocation.Emit(Generator);
-            }
-            else
-            {
-                return null;
-            }
+                return new PrimitiveUnaryExpression(UnaryOp, Operand);
         }
     }
 }

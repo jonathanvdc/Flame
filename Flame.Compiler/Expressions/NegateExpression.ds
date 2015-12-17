@@ -65,10 +65,6 @@ namespace Flame.Compiler.Expressions
             {
                 return primBlock;
             }
-            else if (OperatorOverload != null)
-            {
-                return OverloadInvocation.Emit(Generator);
-            }
             else
             {
                 return LowerPrimitive().Emit(Generator);
