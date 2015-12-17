@@ -436,7 +436,7 @@ module ExpressionBuilder =
 
             let lExpr = rules.ConvertImplicit left tType
             let rExpr = rules.ConvertImplicit right tType
-            DirectBinaryExpression.Create(lExpr, op, rExpr)
+            DirectBinaryExpression.Instance.Create(lExpr, op, rExpr)
 
         else
             let overloadParams = overload.GetParameters()
@@ -803,7 +803,7 @@ module ExpressionBuilder =
                 else if result |> Seq.skip 1 |> Seq.isEmpty then
                     Seq.exactlyOne result, None
                 else
-                    let picked = Seq.item 1 result
+                    let picked = Seq.nth 1 result
                     let msg    = new LogEntry("Ambiguous property access",
                                                "The '" + accType.ToString() + "' accessor of property '" + picked.DeclaringProperty.Name + "' could not be resolved unambiguously.")
                     picked, Some msg
