@@ -50,7 +50,7 @@ namespace Flame.Compiler.Expressions
 
         protected override IExpression Create(IExpression Left, IExpression Right)
         {
-            return new LazyAndExpression(Left, Right);
+            return new LazyOrExpression(Left, Right);
         }
     }
 }
