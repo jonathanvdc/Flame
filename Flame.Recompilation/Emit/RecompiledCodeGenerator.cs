@@ -252,7 +252,7 @@ namespace Flame.Recompilation.Emit
             var exprA = GetExpression(A);
             var exprB = GetExpression(B);
 
-            return new ExpressionBlock(this, DirectBinaryExpression.Create(exprA, Op, exprB));
+            return new ExpressionBlock(this, DirectBinaryExpression.Instance.Create(exprA, Op, exprB));
         }
 
         public ICodeBlock EmitUnary(ICodeBlock Value, Operator Op)
