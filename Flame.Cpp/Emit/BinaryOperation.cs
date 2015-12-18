@@ -11,16 +11,26 @@ namespace Flame.Cpp.Emit
     public class BinaryOperation : IOpBlock
     {
         public BinaryOperation(ICodeGenerator CodeGenerator, ICppBlock Left, Operator Operator, ICppBlock Right)
+            : this(CodeGenerator, Left, Operator, Right, null)
+        { }
+        public BinaryOperation(ICodeGenerator CodeGenerator, ICppBlock Left, Operator Operator, ICppBlock Right, IMethod OperatorOverload)
         {
             this.CodeGenerator = CodeGenerator;
             this.Left = Left;
             this.Operator = Operator;
             this.Right = Right;
+            this.OperatorOverload = OperatorOverload;
+            this.returnType = new Lazy<IType>(getRetType);
         }
 
         public ICppBlock Left { get; private set; }
         public Operator Operator { get; private set; }
         public ICppBlock Right { get; private set; }
+
+        /// <summary>
+        /// Gets this binary operation's operator overload, if any.
+        /// </summary>
+        public IMethod OperatorOverload { get; private set; }
 
         public ICodeGenerator CodeGenerator { get; private set; }
 
@@ -74,7 +84,7 @@ namespace Flame.Cpp.Emit
         {
             var opType = Operand.Type;
 
-            bool ptrCmp = opType.GetIsPointer() && OtherType.GetIsPointer() && IsComparisonOperator(Operator);
+            bool ptrCmp = opType.GetIsPointer() && OtherType.GetIsPointer() && Operator.IsComparisonOperator(Operator);
 
             ICppBlock actualOperand = ptrCmp && opType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.ReferencePointer) && 
                                       OtherType.AsContainerType().AsPointerType().PointerKind.Equals(PointerKind.TransientPointer) ?
@@ -143,7 +153,7 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        public static readonly Operator[] AssignableOperators = new Operator[] 
+        public static readonly HashSet<Operator> AssignableOperators = new HashSet<Operator>()
         { 
             Operator.Add, Operator.Subtract, Operator.Multiply, Operator.Divide, Operator.Remainder, 
             Operator.Concat, 
@@ -161,17 +171,17 @@ namespace Flame.Cpp.Emit
             return GetOperatorString(Operator);
         }
 
-        private IType returnType;
+        private Lazy<IType> returnType;
         public IType Type
         {
             get
             {
-                if (returnType == null)
-                {
-                    returnType = GetResultType(Left, Right, Operator);
-                }
-                return returnType;
+                return returnType.Value;
             }
+        }
+        private IType getRetType()
+        {
+            return GetResultType(Left, Right, Operator, OperatorOverload);
         }
 
         public IEnumerable<CppLocal> LocalsUsed
@@ -179,28 +189,25 @@ namespace Flame.Cpp.Emit
             get { return Left.LocalsUsed.Concat(Right.LocalsUsed).Distinct(); }
         }
 
+        private IEnumerable<IHeaderDependency> OverloadDependencies
+        {
+            get { return OperatorOverload == null ? Enumerable.Empty<IHeaderDependency>() : OperatorOverload.GetDependencies(); }
+        }
+
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get { return Left.Dependencies.MergeDependencies(Right.Dependencies); }
+            get { return Left.Dependencies.MergeDependencies(Right.Dependencies).MergeDependencies(OverloadDependencies); }
         }
 
-        private static bool IsComparisonOperator(Operator Op)
-        {
-            return Op.Equals(Operator.CheckEquality) || Op.Equals(Operator.CheckInequality) ||
-                   Op.Equals(Operator.CheckGreaterThan) || Op.Equals(Operator.CheckLessThan) || 
-                   Op.Equals(Operator.CheckGreaterThanOrEqual) || Op.Equals(Operator.CheckGreaterThanOrEqual);
-        }
-
-        public static IType GetResultType(ICppBlock Left, ICppBlock Right, Operator Operator)
+        public static IType GetResultType(ICppBlock Left, ICppBlock Right, Operator Operator, IMethod Overload)
         {
             var lType = Left.Type.RemoveAtAddressPointers();
             var rType = Right.Type;
-            var overload = Operator.GetOperatorOverload(new IType[] { lType, rType });
-            if (overload != null)
+            if (Overload != null)
             {
-                return overload.ReturnType;
+                return Overload.ReturnType;
             }
-            if (IsComparisonOperator(Operator))
+            if (Operator.IsComparisonOperator(Operator))
             {
                 return PrimitiveTypes.Boolean;
             }
@@ -219,16 +226,16 @@ namespace Flame.Cpp.Emit
             return GetCode().ToString();
         }
 
-        public static bool IsSupported(Operator Op, IType Left, IType Right)
+        /// <summary>
+        /// Tests if the operator is a known binary operator
+        /// in C++.
+        /// </summary>
+        /// <param name="Op"></param>
+        /// <returns></returns>
+        public static bool IsSupported(Operator Op)
         {
-            if (Op.Equals(Operator.Concat))
-            {
-                return Left.Equals(PrimitiveTypes.String) && Right.Equals(PrimitiveTypes.String);
-            }
-            else
-            {
-                return true;
-            }
+            // Maybe we could refine this a bit.
+            return true;
         }
     }
 }

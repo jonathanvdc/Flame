@@ -237,7 +237,10 @@ namespace Flame.Cpp
             {
                 return ((CppCodeGenerator)CodeGenerator).Environment;
             }
-            return CodeGenerator.Method.GetEnvironment();
+            else
+            {
+                return CodeGenerator.Method.GetEnvironment();
+            }
         }
 
         public static ICppEnvironment GetEnvironment(this IMember Member)

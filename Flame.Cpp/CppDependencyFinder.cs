@@ -88,7 +88,12 @@ namespace Flame.Cpp
 
         protected override IEnumerable<IHeaderDependency> ConvertGenericInstance(IType Type)
         {
-            return new IHeaderDependency[0];
+            return Enumerable.Empty<IHeaderDependency>();
+        }
+
+        protected override IEnumerable<IHeaderDependency> ConvertGenericParameter(IGenericParameter Type)
+        {
+            return Enumerable.Empty<IHeaderDependency>();
         }
 
         public override IEnumerable<IHeaderDependency> Convert(IType Value)

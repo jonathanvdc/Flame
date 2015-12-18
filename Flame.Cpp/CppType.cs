@@ -20,8 +20,6 @@ namespace Flame.Cpp
             this.Template = new TypeSignatureInstance(Template, this);
             this.Templates = new CppTemplateDefinition(this, this.Template.GenericParameters);
             this.Environment = new TemplatedMemberCppEnvironment(Environment, this);
-            this.Invariants = new TypeInvariants(this, Environment);
-            CreateMemberCache();
         }
 
         public INamespace DeclaringNamespace { get; private set; }
@@ -328,7 +326,8 @@ namespace Flame.Cpp
 
         public void Initialize()
         {
-
+            this.Invariants = new TypeInvariants(this, Environment);
+            CreateMemberCache();
         }
 
         INamespace IMemberBuilder<INamespace>.Build()

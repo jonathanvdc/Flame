@@ -129,11 +129,7 @@ namespace Flame.Cpp.Emit
         {
             var left = (ICppBlock)A;
             var right = (ICppBlock)B;
-            if (left.IsZeroLiteral() && right.Type.GetIsPrimitive())
-            {
-                return new UnaryOperation(this, right, Operator.Subtract);
-            }
-            else if (BinaryOperation.IsSupported(Op, left.Type, right.Type))
+            if (BinaryOperation.IsSupported(Op))
             {
                 return new BinaryOperation(this, left, Op, right);
             }
@@ -149,9 +145,13 @@ namespace Flame.Cpp.Emit
             {
                 return new HashBlock((ICppBlock)Value);
             }
-            else
+            else if (UnaryOperation.IsSupported(Op))
             {
                 return new UnaryOperation(this, (ICppBlock)Value, Op);
+            }
+            else
+            {
+                return null; // Not supported.
             }
         }
 
@@ -358,7 +358,11 @@ namespace Flame.Cpp.Emit
 
         public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller)
         {
-            if (Caller == null)
+            if (Method.GetIsOperator() && PartialOperatorBlock.IsSupportedOverload(Method))
+            {
+                return new PartialOperatorBlock(this, Method, Caller as ICppBlock);
+            }
+            else if (Caller == null)
             {
                 if (Method.IsConstructor)
                 {
