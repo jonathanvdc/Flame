@@ -12,18 +12,7 @@ namespace Flame.Front
 {
     public static class MarsRuntimeLibraries
     {
-        private static IAssemblyResolver resolver;
-        public static IAssemblyResolver Resolver
-        {
-            get
-            {
-                if (resolver == null)
-                {
-                    resolver = new MarsRTLibraryResolver();
-                }
-                return resolver;
-            }
-        }
+        public static readonly IAssemblyResolver Resolver = new MarsRTLibraryResolver();
 
         public static IAssembly RevolveRuntimeLibrary(string Identifier)
         {

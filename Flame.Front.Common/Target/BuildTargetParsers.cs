@@ -26,6 +26,9 @@ namespace Flame.Front.Target
             Parser.RegisterParser(new FlameIRBuildTargetParser());
         }
 
+        /// <summary>
+        /// Gets the top-level build target parser.
+        /// </summary>
         public static MultiBuildTargetParser Parser { get; private set; }
 
         public static IMarkupNode CreateTargetPlatformList()
@@ -71,7 +74,7 @@ namespace Flame.Front.Target
             {
                 LogUnrecognizedTargetPlatform(Log, BuildTargetIdentifier, CurrentPath);
 
-                throw new NotSupportedException();
+                throw new AbortCompilationException();
             }
 
             return parser;
@@ -82,16 +85,19 @@ namespace Flame.Front.Target
             var rt = Parser.GetRuntime(BuildTargetIdentifier, Log);
             var rtLibResolver = new RuntimeAssemblyResolver(rt, ReferenceResolvers.ReferenceResolver);
 
-            return Parser.CreateDependencyBuilder(BuildTargetIdentifier, rtLibResolver, ReferenceResolvers.ReferenceResolver, Log, CurrentPath, OutputDirectory);
+            return Parser.CreateDependencyBuilder(
+                BuildTargetIdentifier, rtLibResolver, ReferenceResolvers.ReferenceResolver, 
+                Log, CurrentPath, OutputDirectory);
         }
 
         public static BuildTarget CreateBuildTarget(IBuildTargetParser Parser, string BuildTargetIdentifier, IDependencyBuilder DependencyBuilder, IAssembly SourceAssembly)
         {
             var log = DependencyBuilder.Log;
 
-            var info = new AssemblyCreationInfo(log.GetAssemblyName(SourceAssembly.Name),
-                                                log.GetAssemblyVersion(new Version(1, 0, 0, 0)), 
-                                                new Lazy<bool>(() => SourceAssembly.GetEntryPoint() != null));
+            var info = new AssemblyCreationInfo(
+                log.GetAssemblyName(SourceAssembly.Name),
+                log.GetAssemblyVersion(new Version(1, 0, 0, 0)), 
+                new Lazy<bool>(() => SourceAssembly.GetEntryPoint() != null));
             return Parser.CreateBuildTarget(BuildTargetIdentifier, info, DependencyBuilder);
         }
     }
