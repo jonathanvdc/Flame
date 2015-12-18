@@ -14,16 +14,7 @@ namespace Flame.Front
 {
     public static class CecilRuntimeLibraries
     {
-        static CecilRuntimeLibraries()
-        {
-            resolver = new CecilRTLibraryResolver();
-        }
-
-        private static IAssemblyResolver resolver;
-        public static IAssemblyResolver Resolver
-        {
-            get { return resolver; }
-        }
+        public static readonly IAssemblyResolver Resolver = new CecilRTLibraryResolver();
 
         public static IAssembly RevolveRuntimeLibrary(string Identifier, IDependencyBuilder DependencyBuilder)
         {
