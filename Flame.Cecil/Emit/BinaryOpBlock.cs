@@ -28,15 +28,18 @@ namespace Flame.Cecil.Emit
             var aType = Left.BlockType;
             var bType = Right.BlockType;
 
-			if (aType.Equals(PrimitiveTypes.String) &&
+			bool isEq = Operator.Equals(Operator.CheckEquality);
+			bool isNeq = Operator.Equals(Operator.CheckInequality);
+			if ((isEq || isNeq) &&
+				aType.Equals(PrimitiveTypes.String) &&
 			    bType.Equals(PrimitiveTypes.String))
 			{
-				if (Operator.Equals(Operator.CheckEquality))
+				if (isEq)
 				{
 					EmitCallOp(GetEqualsOverload(aType, bType), Context);
 					return;
 				}
-				else if (Operator.Equals(Operator.CheckInequality))
+				else if (isNeq)
 				{					
 					EmitCallOp(GetEqualsOverload(aType, bType), Context);
 					UnaryOpBlock.EmitBooleanNot(Context);
