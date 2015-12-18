@@ -99,7 +99,7 @@ namespace Flame.Syntax.DSharp
             var rType = rightExpr.Type;
 
             IMethod overload;
-            if (IsPrimitiveOperation(lType, rType, Op) || IsReferenceComparison(lType, rType, Op))
+            if (IsPrimitiveOperation(lType, rType, Op))
             {
             	overload = null;
             }
@@ -107,7 +107,7 @@ namespace Flame.Syntax.DSharp
             {
             	overload = Op.GetOperatorOverload(new IType[] { lType, rType });
 
-            	if (overload == null)
+            	if (overload == null && !IsReferenceComparison(lType, rType, Op))
                 {
                     if (lType.IsGenericParameter || rType.IsGenericParameter)
                     {
