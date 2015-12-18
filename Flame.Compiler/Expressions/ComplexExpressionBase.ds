@@ -5,22 +5,35 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler.Expressions
 {
+	/// <summary>
+	/// A base class for high-level expressions that lower themselves to
+	/// lower-level expressions.
+	/// </summary>
 	public abstract class ComplexExpressionBase : IExpression
 	{
-		public const this();
-
-		protected abstract const IExpression Lower();
-
-		private IExpression lowered;
-		public const IExpression LoweredExpression
+		/// <summary>
+		/// Initializes a complex expression.
+		/// </summary>
+		public const this()
 		{
-			const get
+			this.lowered = new Lazy<IExpression>(this.Lower);
+		}
+
+		/// <summary>
+		/// Lowers this expression to a semantically equivalent expression.
+		/// </summary>
+		protected abstract IExpression Lower();
+
+		private Lazy<IExpression> lowered;
+
+		/// <summary>
+		/// Gets this expression's semantically equivalent lowered expression.
+		/// </summary>
+		public IExpression LoweredExpression
+		{
+			get
 			{
-				if (lowered == null)
-				{
-					lowered = Lower();
-				}
-				return lowered;
+				return lowered.Value;
 			}
 		}
 

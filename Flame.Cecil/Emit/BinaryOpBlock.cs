@@ -28,40 +28,26 @@ namespace Flame.Cecil.Emit
             var aType = Left.BlockType;
             var bType = Right.BlockType;
 
-            if (IsIntrinsicType(aType) && IsIntrinsicType(bType))
-            {
-                EmitInstrinsicOp(aType, bType, Context);
-            }
-            else
-            {
-                EmitCallOp(aType, bType, Context);
-            }
-        }
+			bool isEq = Operator.Equals(Operator.CheckEquality);
+			bool isNeq = Operator.Equals(Operator.CheckInequality);
+			if ((isEq || isNeq) &&
+				aType.Equals(PrimitiveTypes.String) &&
+			    bType.Equals(PrimitiveTypes.String))
+			{
+				if (isEq)
+				{
+					EmitCallOp(GetEqualsOverload(aType, bType), Context);
+					return;
+				}
+				else if (isNeq)
+				{					
+					EmitCallOp(GetEqualsOverload(aType, bType), Context);
+					UnaryOpBlock.EmitBooleanNot(Context);
+					return;
+				}
+			}
 
-        private void EmitCallOp(IType aType, IType bType, IEmitContext Context)
-        {
-            var overload = GetBinaryOverload(aType, Operator, bType);
-            if (overload != null)
-            {
-                var call = (ICecilBlock)CodeGenerator.EmitOperatorCall(overload, Left, Right);
-                call.Emit(Context);
-            }
-            else
-            {
-                Operator negOp;
-                if (TryGetNegatedOperator(Operator, out negOp))
-                {
-                    var negOverload = GetBinaryOverload(aType, negOp, bType);
-                    if (negOverload != null)
-                    {
-                        var call = (ICecilBlock)CodeGenerator.EmitOperatorCall(negOverload, Left, Right);
-                        call.Emit(Context);
-                        UnaryOpBlock.EmitBooleanNot(Context);
-                        return;
-                    }
-                }
-                EmitInstrinsicOp(aType, bType, Context);
-            }
+            EmitInstrinsicOp(aType, bType, Context);
         }
 
         private static void EmitInstrinsicCode(IType aType, IType bType, Operator Op, IEmitContext Context)
@@ -97,6 +83,11 @@ namespace Flame.Cecil.Emit
 
             EmitInstrinsicCode(aType, bType, Operator, Context);
         }
+
+		private void EmitCallOp(IMethod Method, IEmitContext Context)
+		{
+			((ICecilBlock)CodeGenerator.EmitOperatorCall(Method, Left, Right)).Emit(Context);
+		}
 
         public IType BlockType
         {
@@ -256,23 +247,6 @@ namespace Flame.Cecil.Emit
             else
             {
                 return eqMethods.GetBestMethod(false, LeftType, new IType[] { RightType });
-            }
-        }
-
-        private static IMethod GetBinaryOverload(IType LeftType, Operator Op, IType RightType)
-        {
-            var overload = Op.GetOperatorOverload(new IType[] { LeftType, RightType });
-            if (overload != null)
-            {
-                return overload;
-            }
-            if (Op.Equals(Operator.CheckEquality))
-            {
-                return GetEqualsOverload(LeftType, RightType);
-            }
-            else
-            {
-                return null;
             }
         }
 

@@ -25,16 +25,5 @@ namespace Flame.Compiler.Expressions
         }
 
         public override Operator Op { const get return Operator.Hash; }
-
-        /// <summary>
-        /// Gets the operator overload for this unary expression if an overload exists. Otherwise, null.
-        /// </summary>
-        protected override IMethod GetOpOverload()
-        {
-            var overrideOverload = PrimitiveMethods.GetHashCode.GetImplementation(Value.Type);
-            if (overrideOverload != null)
-                return overrideOverload;
-            return Op.GetOperatorOverload(new IExpression[] { Value });
-        }
     }
 }

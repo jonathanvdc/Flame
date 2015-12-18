@@ -12,9 +12,9 @@ namespace Flame.Syntax.DSharp
     {
         public const this(set IExpressionSyntax Operand)
         {
-        	this.Operator = new Token(TokenType.Asterisk, "*");
+        	this.OperatorToken = new Token(TokenType.Asterisk, "*");
         }
-        public const this(set Token Operator, set IExpressionSyntax Operand);
+        public const this(set Token OperatorToken, set IExpressionSyntax Operand);
 
         public const IVariable CreateVariable(ISyntaxState State)
         {

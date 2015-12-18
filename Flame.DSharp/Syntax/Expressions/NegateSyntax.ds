@@ -9,13 +9,11 @@ namespace Flame.Syntax.DSharp
 {
     public class NegateSyntax : UnaryExpressionSyntax
     {
-        public const this(set Token Operator, set IExpressionSyntax Operand);
+        public const this(set Token OperatorToken, set IExpressionSyntax Operand);
 
-        protected override const IExpression CreateExpression(ISyntaxState State, Token Operator, IExpressionSyntax Operand)
+        protected override const IExpression CreateExpression(ISyntaxState State, Token Op, IExpressionSyntax Operand)
         {
-            var expr = Operand.CreateVerifiedExpression(State);
-
-            return new NegateExpression(expr);
+            return UnaryExpressionSyntax.CreateExpression(State, Operator.Subtract, Operand);
         }
     }
 }

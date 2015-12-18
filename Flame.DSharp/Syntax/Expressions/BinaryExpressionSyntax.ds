@@ -99,7 +99,7 @@ namespace Flame.Syntax.DSharp
             var rType = rightExpr.Type;
 
             IMethod overload;
-            if (IsPrimitiveOperation(lType, rType, Op) || IsReferenceComparison(lType, rType, Op))
+            if (IsPrimitiveOperation(lType, rType, Op))
             {
             	overload = null;
             }
@@ -107,7 +107,7 @@ namespace Flame.Syntax.DSharp
             {
             	overload = Op.GetOperatorOverload(new IType[] { lType, rType });
 
-            	if (overload == null)
+            	if (overload == null && !IsReferenceComparison(lType, rType, Op))
                 {
                     if (lType.IsGenericParameter || rType.IsGenericParameter)
                     {
@@ -138,7 +138,7 @@ namespace Flame.Syntax.DSharp
 
 		    	var lExpr = CastLeftOperand(State, tType, leftExpr, Left, Op);
 		    	var rExpr = CastRightOperand(State, tType, rightExpr, Right, Op);
-		        return new DirectBinaryExpression(lExpr, Op, rExpr);
+		        return DirectBinaryExpression.Create(lExpr, Op, rExpr);
 	        }
 	        else
 	        {
@@ -147,13 +147,15 @@ namespace Flame.Syntax.DSharp
 	        	{
 		        	var lExpr = CastSyntax.CreateImplicitCast(State, leftExpr, Left, overloadParams[0].ParameterType);
 		        	var rExpr = CastSyntax.CreateImplicitCast(State, rightExpr, Right, overloadParams[1].ParameterType);
-		        	return new DirectBinaryExpression(lExpr, Op, rExpr);
+
+                    return new InvocationExpression(overload, null, new IExpression[] { lExpr, rExpr });
 	        	}
 	        	else
 	        	{
 	        		var lExpr = CastSyntax.CreateImplicitCast(State, leftExpr, Left, overload.DeclaringType);
 		        	var rExpr = CastSyntax.CreateImplicitCast(State, rightExpr, Right, overloadParams[0].ParameterType);
-		        	return new DirectBinaryExpression(lExpr, Op, rExpr);
+
+                    return new InvocationExpression(overload, lExpr, new IExpression[] { rExpr });
 	        	}
 	        }
         }

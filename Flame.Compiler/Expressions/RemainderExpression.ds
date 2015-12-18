@@ -4,16 +4,23 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-    public class RemainderExpression : BinaryOperatorExpression
+    /// <summary>
+    /// A type of expression that computes the remainder of its operands.
+    /// </summary>
+    public class RemainderExpression : BinaryExpression
     {
-        public const this(set IExpression LeftOperand, set IExpression RightOperand);
+        public const this(IExpression LeftOperand, IExpression RightOperand)
+            : base(LeftOperand, RightOperand);
 
-        protected override Operator GetOperator() { return Operator.Remainder; }
+        public override Operator Op { override const get { return Operator.Remainder; } }
 
         public override IBoundObject Evaluate()
         {
             var lObj = LeftOperand.Evaluate();
         	var rObj = RightOperand.Evaluate();
+            if (lObj == null || rObj == null)
+                return null;
+
         	var resultType = Type;
         	if (resultType.Equals(PrimitiveTypes.Int8))
         	{
@@ -50,18 +57,14 @@ namespace Flame.Compiler.Expressions
             return null;
         }
 
-        public override const IExpression Optimize()
+        protected override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
         {
-            var optA = LeftOperand.Optimize();
-            var optB = RightOperand.Optimize();
-            var expr = new RemainderExpression(optA, optB);
-            if (expr.IsConstant && expr.Type.IsPrimitiveExpressionType())
-            {
-                var evalExpr = expr.Evaluate();
-                if (evalExpr != null)
-            	   return evalExpr.ToExpression();
-            }
-            return expr;
+            return Generator.EmitBinary(Left, Right, Op);
+        }
+
+        protected override IExpression Create(IExpression Left, IExpression Right)
+        {
+            return new RemainderExpression(Left, Right);
         }
     }
 }
