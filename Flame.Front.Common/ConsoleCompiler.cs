@@ -342,7 +342,7 @@ namespace Flame.Front.Cli
             if (State.Options.MustVerifyAssembly())
             {
                 State.FilteredLog.LogEvent(new LogEntry("Status", "Verifying '" + State.Project.Name + "'..."));
-                VerificationExtensions.VerifyAssembly(projAsm, State.Log);
+                VerificationExtensions.VerifyAssembly(projAsm, State.FilteredLog);
                 State.FilteredLog.LogEvent(new LogEntry("Status", "Verified '" + State.Project.Name + "'..."));
             }
 
