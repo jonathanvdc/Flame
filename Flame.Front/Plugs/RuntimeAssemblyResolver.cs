@@ -1,5 +1,6 @@
 ﻿using Flame;
 using Flame.Compiler;
+using Flame.Front.Target;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,16 +11,16 @@ namespace Flame.Front.Plugs
 {
     public class RuntimeAssemblyResolver : IAssemblyResolver
     {
-        public RuntimeAssemblyResolver(IAssemblyResolver RuntimeLibraryResolver, IAssemblyResolver ExternalResolver, string TargetPlatform)
+        public RuntimeAssemblyResolver(PlatformRuntime Runtime, IAssemblyResolver ExternalResolver)
         {
-            this.RuntimeLibraryResolver = RuntimeLibraryResolver;
+            this.Runtime = Runtime;
             this.ExternalResolver = ExternalResolver;
-            this.TargetPlatform = TargetPlatform;
         }
 
-        public string TargetPlatform { get; private set; }
-        public IAssemblyResolver RuntimeLibraryResolver { get; private set; }
+        public PlatformRuntime Runtime { get; private set; }
         public IAssemblyResolver ExternalResolver { get; private set; }
+        public IAssemblyResolver RuntimeLibraryResolver { get { return Runtime.RuntimeResolver; } }
+        public string TargetPlatform { get { return Runtime.Name; } }
 
         public async Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
         {

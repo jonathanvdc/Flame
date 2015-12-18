@@ -10,10 +10,28 @@ namespace Flame.Front.Target
 {
     public interface IBuildTargetParser
     {
+        /// <summary>
+        /// Gets a sequence of suggested platform identifiers for
+        /// this build target.
+        /// </summary>
         IEnumerable<string> PlatformIdentifiers { get; }
 
+        /// <summary>
+        /// Checks if the given platform identifier
+        /// belongs to this build target.
+        /// </summary>
+        /// <param name="Identifier"></param>
+        /// <returns></returns>
         bool MatchesPlatformIdentifier(string Identifier);
-        IAssemblyResolver GetRuntimeAssemblyResolver(string Identifier, ICompilerLog Log);
+
+        /// <summary>
+        /// Gets the runtime identified by the given
+        /// platform identifier and compiler log.
+        /// </summary>
+        /// <param name="Identifier"></param>
+        /// <param name="Log"></param>
+        /// <returns></returns>
+        PlatformRuntime GetRuntime(string Identifier, ICompilerLog Log);
 
         IDependencyBuilder CreateDependencyBuilder(string Identifier, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, 
                                                    ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory);

@@ -23,9 +23,9 @@ namespace Flame.Front.Target
             return PlatformIdentifiers.Any(item => item.Equals(Identifier, StringComparison.OrdinalIgnoreCase));
         }
 
-        public IAssemblyResolver GetRuntimeAssemblyResolver(string Identifier, ICompilerLog Log)
+        public PlatformRuntime GetRuntime(string Identifier, ICompilerLog Log)
         {
-            return new EmptyAssemblyResolver();
+            return new PlatformRuntime("contract", CecilRuntimeLibraries.Resolver);
         }
 
         public IDependencyBuilder CreateDependencyBuilder(string Identifier, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)

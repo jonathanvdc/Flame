@@ -38,9 +38,9 @@ namespace Flame.Front.Target
             return GetParser(Identifier) != null;
         }
 
-        public IAssemblyResolver GetRuntimeAssemblyResolver(string Identifier, ICompilerLog Log)
+        public PlatformRuntime GetRuntime(string Identifier, ICompilerLog Log)
         {
-            return GetParser(Identifier).GetRuntimeAssemblyResolver(Identifier, Log);
+            return GetParser(Identifier).GetRuntime(Identifier, Log);
         }
 
         public IDependencyBuilder CreateDependencyBuilder(string Identifier, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
