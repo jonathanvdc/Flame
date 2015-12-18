@@ -49,7 +49,7 @@ namespace Flame.Compiler.Expressions
 
         public override string ToString()
         {
-            return "as_instance(" + Value + ", " + TargetType.FullName + ")";
+            return "as_instance(" + Value + ", " + TargetType.ToString() + ")";
         }
     }
 }

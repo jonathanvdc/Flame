@@ -57,7 +57,7 @@ namespace Flame.Compiler.Expressions
 
         public override string ToString()
         {
-            return "reinterpret_cast(" + Value + ", " + TargetType.FullName + ")";
+            return "reinterpret_cast(" + Value + ", " + TargetType.ToString() + ")";
         }
     }
 }

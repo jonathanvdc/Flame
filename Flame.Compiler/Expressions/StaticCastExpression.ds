@@ -123,7 +123,7 @@ namespace Flame.Compiler.Expressions
 
         public override string ToString()
         {
-            return "static_cast(" + Value + ", " + TargetType.FullName + ")";
+            return "static_cast(" + Value + ", " + TargetType.ToString() + ")";
         }
     }
 }
