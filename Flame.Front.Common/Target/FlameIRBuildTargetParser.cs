@@ -45,9 +45,9 @@ namespace Flame.Front.Target
 
         #endregion
 
-        #region Runtime assembly resolution
+        #region Runtime resolution
 
-        public IAssemblyResolver GetRuntimeAssemblyResolver(string Identifier, ICompilerLog Log)
+        public PlatformRuntime GetRuntime(string Identifier, ICompilerLog Log)
         {
             // Log warnings here, fail silently elsewhere.
             var platformIdent = GetIndirectPlatformIdentifier(Log.Options);
@@ -63,7 +63,7 @@ namespace Flame.Front.Target
                             "The indirect platform '" + platformIdent + "' " +
                             "was not recognized as a known target platform. ")));
                 }
-                return new EmptyAssemblyResolver();
+                return new PlatformRuntime("ir", new EmptyAssemblyResolver());
             }
             else if (indirectParser is FlameIRBuildTargetParser)
             {
@@ -75,11 +75,11 @@ namespace Flame.Front.Target
                             "The indirect platform '" + platformIdent + "' " +
                             "cannot be of the same type as the target platform. ")));
                 }
-                return new EmptyAssemblyResolver();
+                return new PlatformRuntime("ir", new EmptyAssemblyResolver());
             }
             else
             {
-                return indirectParser.GetRuntimeAssemblyResolver(Identifier, Log);
+                return indirectParser.GetRuntime(Identifier, Log);
             }
         }
 

@@ -79,8 +79,8 @@ namespace Flame.Front.Target
 
         public static IDependencyBuilder CreateDependencyBuilder(IBuildTargetParser Parser, string BuildTargetIdentifier, ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
         {
-            var rtLibs = Parser.GetRuntimeAssemblyResolver(BuildTargetIdentifier, Log);
-            var rtLibResolver = new RuntimeAssemblyResolver(rtLibs, ReferenceResolvers.ReferenceResolver, BuildTargetIdentifier);
+            var rt = Parser.GetRuntime(BuildTargetIdentifier, Log);
+            var rtLibResolver = new RuntimeAssemblyResolver(rt, ReferenceResolvers.ReferenceResolver);
 
             return Parser.CreateDependencyBuilder(BuildTargetIdentifier, rtLibResolver, ReferenceResolvers.ReferenceResolver, Log, CurrentPath, OutputDirectory);
         }

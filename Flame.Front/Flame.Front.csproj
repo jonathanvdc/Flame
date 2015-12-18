@@ -130,6 +130,7 @@
     <Compile Include="Target\MultiBuildTargetParser.cs" />
     <Compile Include="Target\OptimizationInfo.cs" />
     <Compile Include="Target\PassPreferences.cs" />
+    <Compile Include="Target\PlatformRuntime.cs" />
     <Compile Include="TypedDictionary.cs" />
   </ItemGroup>
   <ItemGroup>
