@@ -386,7 +386,9 @@ namespace Flame.Front.Cli
 
             State.FilteredLog.LogEvent(new LogEntry("Status", "Recompiling..."));
 
-            var recompSettings = new RecompilationSettings(GetRecompilationPass(State.FilteredLog), !(target.TargetAssembly is Flame.TextContract.ContractAssembly), true);
+            var recompSettings = new RecompilationSettings(
+                GetRecompilationPass(State.FilteredLog), 
+                !(target.TargetAssembly is Flame.TextContract.ContractAssembly), true);
 
             var passPrefs = State.Handler.GetPassPreferences(State.FilteredLog).Union(target.Passes);
 
@@ -398,7 +400,9 @@ namespace Flame.Front.Cli
             var passSuite = PassExtensions.CreateSuite(State.FilteredLog, passPrefs);
             var recompStrategy = State.Options.GetRecompilationStrategy(IsWholeProgram(State.Options, MainAssembly));
 
-            var asmRecompiler = new AssemblyRecompiler(target.TargetAssembly, State.FilteredLog, new SingleThreadedTaskManager(), passSuite, recompSettings);
+            var asmRecompiler = new AssemblyRecompiler(
+                target.TargetAssembly, State.FilteredLog, 
+                new SingleThreadedTaskManager(), passSuite, recompSettings);
             asmRecompiler.AddAssembly(MainAssembly, new RecompilationOptions(recompStrategy, true));
             foreach (var item in AuxiliaryAssemblies)
             {
