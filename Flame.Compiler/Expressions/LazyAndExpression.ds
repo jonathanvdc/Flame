@@ -8,9 +8,10 @@ namespace Flame.Compiler.Expressions
     /// <summary>
     /// A base class for short-circuiting binary expressions.
     /// </summary>
-    public abstract class ShortCircuitBinaryExpression : BinaryOperatorExpression, IFlowExpression
+    public abstract class ShortCircuitBinaryExpression : BinaryExpression, IFlowExpression
     {
-        public const this(set IExpression LeftOperand, set IExpression RightOperand);
+       public const this(IExpression LeftOperand, IExpression RightOperand)
+           : base(LeftOperand, RightOperand);
 
         /// <summary>
         /// Accepts and interacts with a flow visitor.
@@ -53,7 +54,7 @@ namespace Flame.Compiler.Expressions
         public const this(IExpression LeftOperand, IExpression RightOperand)
             : base(LeftOperand, RightOperand);
 
-        protected override Operator GetOperator() { return Operator.LogicalAnd; }
+        public override Operator Op { override const get { return Operator.LogicalAnd; } }
 
         public override bool IsConstant
         {
@@ -73,7 +74,9 @@ namespace Flame.Compiler.Expressions
         {
             var lValue = LeftOperand.Evaluate();
 
-            if (lValue.GetValue<bool>())
+            if (lValue == null)
+                return null;
+            else if (lValue.GetValue<bool>())
                 return RightOperand.Evaluate();
             else
                 return new BooleanExpression(false);
@@ -206,6 +209,11 @@ namespace Flame.Compiler.Expressions
         protected override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
         {
         	return Generator.EmitLogicalAnd(Left, Right);
+        }
+
+        protected override IExpression Create(IExpression Left, IExpression Right)
+        {
+            return new LazyAndExpression(Left, Right);
         }
     }
 }

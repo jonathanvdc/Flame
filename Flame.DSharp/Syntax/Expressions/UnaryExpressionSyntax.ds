@@ -11,53 +11,139 @@ namespace Flame.Syntax.DSharp
     public abstract class UnaryExpressionSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>, ISourceSyntax
     {
     	protected const this();
-        public const this(set Token Operator, set IExpressionSyntax Operand);
-        
+        public const this(set Token OperatorToken, set IExpressionSyntax Operand);
+
         public IReadOnlyList<Token> Tokens
         {
         	const get
         	{
         		var tks = new List<Token>();
-        		tks.Add(Operator);
+        		tks.Add(OperatorToken);
 				tks.AddRange(Operand.GetTokens());
 				return tks;
         	}
         }
-        
+
         public SourceLocation Location
         {
-        	const get return Operator.Location.Concat(Operand.GetSourceLocation());
+        	const get return OperatorToken.Location.Concat(Operand.GetSourceLocation());
         }
-        
+
         public [Token] LeadingTrivia
         {
-        	const get return Operator.GetAllTrivia();
+        	const get return OperatorToken.GetAllTrivia();
         }
-        
+
         public [Token] TrailingTrivia
         {
         	const get return Enumerable.Empty<Token>();
         }
 
-        public Token Operator { const get; protected set; }
+        public Token OperatorToken { const get; protected set; }
         public IExpressionSyntax Operand { const get; protected set; }
 
         protected abstract const IExpression CreateExpression(ISyntaxState State, Token Operator, IExpressionSyntax Operand);
 
         public const IExpression CreateExpression(ISyntaxState State)
         {
-            return CreateExpression(State, Operator, Operand);
+            return CreateExpression(State, OperatorToken, Operand);
         }
 
         public override const string ToString()
         {
-            return Operator.ToString() + Operand.GetCode().ToString();
+            return OperatorToken.ToString() + Operand.GetCode().ToString();
         }
 
         public const CodeBuilder GetCode()
         {
             return new CodeBuilder(this.ToString());
         }
-    }
 
+        private static bool IsPrimitiveOperation(Operator Op, IType Operand)
+        {
+            if (Op == Operator.Not)
+                return Operand.IsEnum || Operand.IsInteger || Operand.IsBit ||
+                       Operand.IsEquivalent(PrimitiveTypes.Boolean);
+            else if (Op == Operator.Subtract)
+                return Operand.IsSignedInteger || Operand.IsFloatingPoint;
+            else
+                return false;
+        }
+
+        private static IMethod GetUnaryOpOverload(Operator Op, IType Operand)
+        {
+            var overload = Op.GetOperatorOverload(new IType[] { Operand });
+            if (overload == null && Op == Operator.Hash)
+            {
+                return PrimitiveMethods.GetHashCode.GetImplementation(Operand);
+            }
+            else
+            {
+                return overload;
+            }
+        }
+
+        public static const IExpression CreateExpression(ISyntaxState State, Operator Op, IExpressionSyntax Operand)
+        {
+            var innerExpr = Operand.CreateVerifiedExpression(State);
+
+            var exprTy = innerExpr.Type;
+
+            IMethod overload;
+            if (IsPrimitiveOperation(Op, exprTy))
+            {
+                overload = null;
+            }
+            else
+            {
+                overload = GetUnaryOpOverload(Op, exprTy);
+
+                if (overload == null)
+                {
+                    if (exprTy.IsGenericParameter)
+                    {
+                        if (Warnings.GenericOperators.UseWarning(State.Log.Options))
+                        {
+                            State.Log.LogWarning(new LogEntry("Operator overload missing",
+                                Warnings.GenericOperators.CreateMessage(
+                                    "No operator overload could be found for generic parameter operator '" +
+                                    Op.ToString() + "'. "),
+                                Operand.GetSourceLocation()));
+                        }
+                    }
+                    else if (Warnings.Operators.UseWarning(State.Log.Options))
+                    {
+                        State.Log.LogWarning(new LogEntry("Operator overload missing",
+                            Warnings.Operators.CreateMessage(
+                                "No operator overload could be found for operator '" +
+                                Op.ToString() + "'. "),
+                            Operand.GetSourceLocation()));
+                    }
+                }
+            }
+
+            if (overload == null)
+            {
+                return DirectUnaryExpression.Create(Op, innerExpr);
+            }
+            else
+            {
+                var overloadParams = overload.GetParameters();
+                if (overloadParams.Length == 1)
+                {
+                    var expr = CastSyntax.CreateImplicitCast(
+                        State, innerExpr, Operand, overloadParams[0].ParameterType);
+
+                    return new InvocationExpression(overload, null, new IExpression[] { expr });
+                }
+                else
+                {
+                    var expr = CastSyntax.CreateImplicitCast(
+                        State, innerExpr, Operand, overload.DeclaringType);
+
+                    return new InvocationExpression(overload, expr, new IExpression[] { });
+                }
+            }
+        }
+    }
 }

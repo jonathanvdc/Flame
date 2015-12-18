@@ -115,7 +115,7 @@ namespace Flame.Compiler.Expressions
 
         public override const string ToString()
         {
-            return "is_instance(" + Target + ", " + TestType + ")";
+            return "is_instance(" + Target + ", " + TestType.ToString() + ")";
         }
     }
 }

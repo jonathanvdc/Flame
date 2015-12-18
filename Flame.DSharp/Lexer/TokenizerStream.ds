@@ -197,7 +197,7 @@ namespace Flame.DSharp.Lexer
 			int startPos = pos;
 			pos += StartLength;
 			string slice = Code.Substring(pos, End.Length);
-			while (pos < Code.Length && !slice.Equals(End))
+			while (pos < Code.Length && slice != End)
 			{
 				pos++;
 				if (pos + End.Length - 1 < Code.Length)
@@ -281,6 +281,7 @@ namespace Flame.DSharp.Lexer
 		}
 
 		private Token ParseNextTokenValue()
+			in { pos < Code.Length }
 		{
 			char nextChar = Code[pos];
 			if (IsWhitespace(nextChar))
@@ -308,17 +309,17 @@ namespace Flame.DSharp.Lexer
 			if (pos + 2 < Code.Length)
 			{
 				string slice = Code.Substring(pos, 3);
-				if (slice.Equals("///"))
+				if (slice == "///")
 					return new Token(TokenType.DescriptionComment, ParseUntil(3, "\n"));
 			}
 			if (pos + 1 < Code.Length)
 			{
 				string slice = Code.Substring(pos, 2);
-				if (slice.Equals("//"))
+				if (slice == "//")
 				{
 					return new Token(TokenType.LineComment, ParseUntil(2, "\n"));
 				}
-				else if (slice.Equals("/*"))
+				else if (slice == "/*")
 				{
 					return new Token(TokenType.BigComment, ParseUntil(2, "*/"));
 				}

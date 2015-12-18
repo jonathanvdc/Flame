@@ -4,11 +4,16 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-    public class DivideExpression : BinaryOperatorExpression
+    /// <summary>
+    /// Defines a type of expression that computes the quotient of its
+    /// operands.
+    /// </summary>
+    public class DivideExpression : BinaryExpression
     {
-        public const this(set IExpression LeftOperand, set IExpression RightOperand);
+        public const this(IExpression LeftOperand, IExpression RightOperand)
+            : base(LeftOperand, RightOperand);
 
-        protected override Operator GetOperator() { return Operator.Divide; }
+        public override Operator Op { override const get { return Operator.Divide; } }
 
         public override IBoundObject Evaluate()
         {
@@ -102,6 +107,11 @@ namespace Flame.Compiler.Expressions
         protected override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
         {
             return Generator.EmitDivide(Left, Right);
+        }
+
+        protected override IExpression Create(IExpression Left, IExpression Right)
+        {
+            return new DivideExpression(Left, Right);
         }
     }
 }

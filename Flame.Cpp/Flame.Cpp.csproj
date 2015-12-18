@@ -83,6 +83,7 @@
     <Compile Include="Emit\InitializedConstructorBody.cs" />
     <Compile Include="Emit\MemberInitializationBlock.cs" />
     <Compile Include="Emit\MethodBodyBlock.cs" />
+    <Compile Include="Emit\PartialOperatorBlock.cs" />
     <Compile Include="Emit\ReinterpretCastBlock.cs" />
     <Compile Include="Emit\SizeOfBlock.cs" />
     <Compile Include="Emit\TryBlock.cs" />

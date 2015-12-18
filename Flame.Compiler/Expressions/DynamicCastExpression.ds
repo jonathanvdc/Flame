@@ -47,7 +47,7 @@ namespace Flame.Compiler.Expressions
 
         public override string ToString()
         {
-            return "dynamic_cast(" + Value + ", " + TargetType.FullName + ")";
+            return "dynamic_cast(" + Value + ", " + TargetType.ToString() + ")";
         }
     }
 }

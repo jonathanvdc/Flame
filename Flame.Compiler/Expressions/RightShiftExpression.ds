@@ -4,27 +4,30 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-    public class RightShiftExpression : BinaryOperatorExpression
+    /// <summary>
+    /// Defines a type of expression that shifts its left-hand operand to the
+    /// right by the number of positions indicated by its right-hand operand.
+    /// </summary>
+    public class RightShiftExpression : BinaryExpression
     {
-        public const this(set IExpression LeftOperand, set IExpression RightOperand);
-        
-        protected override Operator GetOperator() { return Operator.RightShift; }
+        public const this(IExpression LeftOperand, IExpression RightOperand)
+            : base(LeftOperand, RightOperand);
+
+        public override Operator Op { override const get { return Operator.RightShift; } }
 
         public override IBoundObject Evaluate()
         {
             return null;
         }
 
-        public override const IExpression Optimize()
-        {
-            var optA = LeftOperand.Optimize();
-            var optB = RightOperand.Optimize();
-            return new RightShiftExpression(optA, optB);
-        }
-
         protected override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)
         {
             return Generator.EmitRightShift(Left, Right);
+        }
+
+        protected override IExpression Create(IExpression Left, IExpression Right)
+        {
+            return new RightShiftExpression(Left, Right);
         }
     }
 }
