@@ -31,7 +31,7 @@ namespace Flame.Front.Target
         public ICompilerLog Log { get; private set; }
         public PathIdentifier CurrentPath { get; private set; }
         public PathIdentifier OutputFolder { get; private set; }
-        public ITypedDictionary<string> Properties { get; private set; }
+        public TypedDictionary<string> Properties { get; private set; }
         public IBinder Binder { get; private set; }
 
         public IEnumerable<IAssembly> RegisteredAssemblies { get { return registeredAssemblies; } }

@@ -20,7 +20,7 @@ namespace Flame.Front.Target
         {
             if (!HasCppEnvironment(DependencyBuilder))
             {
-                DependencyBuilder.SetCppEnvironment(CppEnvironment.Create(DependencyBuilder.Log));
+                DependencyBuilder.SetCppEnvironment(DependencyBuilder.Environment as ICppEnvironment ?? CppEnvironment.Create(DependencyBuilder.Log));
             }
             return DependencyBuilder.Properties.GetValue<ICppEnvironment>(CppAssemblyResolverKey);
         }

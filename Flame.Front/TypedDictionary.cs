@@ -6,15 +6,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Front
 {
-    public interface ITypedDictionary<in TKey>
-    {
-        bool ContainsKey(TKey Name);
-
-        void SetValue<T>(TKey Name, T Value);
-        T GetValue<T>(TKey Name);
-    }
-
-    public class TypedDictionary<TKey> : ITypedDictionary<TKey>
+    public class TypedDictionary<TKey>
     {
         public TypedDictionary()
         {

@@ -13,9 +13,12 @@ namespace Flame.Front.Target
 {
     public class MipsBuildTargetParser : IBuildTargetParser
     {
+        public const string MipsIdentifier = "mips";
+        public const string MarsIdentifier = "mars";
+
         public IEnumerable<string> PlatformIdentifiers
         {
-            get { return new string[] { "mips" }; }
+            get { return new string[] { MipsIdentifier }; }
         }
 
         public bool MatchesPlatformIdentifier(string Identifier)
@@ -23,14 +26,9 @@ namespace Flame.Front.Target
             return PlatformIdentifiers.Any(item => item.Equals(Identifier, StringComparison.OrdinalIgnoreCase));
         }
 
-        public PlatformRuntime GetRuntime(string Identifier, ICompilerLog Log)
+        public string GetRuntimeIdentifier(string Identifier, ICompilerLog Log)
         {
-            return new PlatformRuntime("mips", MarsRuntimeLibraries.Resolver);
-        }
-
-        public IDependencyBuilder CreateDependencyBuilder(string Identifier, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
-        {
-            return new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, MarsEnvironment.Instance, CurrentPath, OutputDirectory, Log);
+            return MarsIdentifier;
         }
 
         public BuildTarget CreateBuildTarget(string PlatformIdentifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)

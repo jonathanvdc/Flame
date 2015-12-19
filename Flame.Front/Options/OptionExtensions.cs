@@ -1,5 +1,6 @@
 ﻿using Flame.Compiler;
 using Flame.Compiler.Projects;
+using Flame.Front.Target;
 using Flame.Recompilation;
 using System;
 using System.Collections.Generic;
@@ -75,6 +76,41 @@ namespace Flame.Front.Options
             {
                 return platform;
             }
+        }
+
+        /// <summary>
+        /// Gets the runtime identifier for the given options.
+        /// A default runtime identifier is also given.
+        /// </summary>
+        /// <param name="Options"></param>
+        /// <param name="Default"></param>
+        /// <returns></returns>
+        public static string GetRuntimeIdentifier(this ICompilerOptions Options, Lazy<string> Default)
+        {
+            return Options.GetOption<string>("runtime", null) ?? Default.Value;
+        }
+
+        /// <summary>
+        /// Gets the runtime identifier for the given options.
+        /// A default runtime identifier-producing function is also given.
+        /// </summary>
+        /// <param name="Options"></param>
+        /// <param name="Default"></param>
+        /// <returns></returns>
+        public static string GetRuntimeIdentifier(this ICompilerOptions Options, Func<string> Default)
+        {
+            return Options.GetRuntimeIdentifier(new Lazy<string>(Default));
+        }
+
+        /// <summary>
+        /// Gets the environment identifier for the given options.
+        /// </summary>
+        /// <param name="Options"></param>
+        /// <param name="Default"></param>
+        /// <returns></returns>
+        public static string GetEnvironmentIdentifier(this ICompilerOptions Options, string Default)
+        {
+            return Options.GetOption<string>("environment", Default);
         }
     }
 }

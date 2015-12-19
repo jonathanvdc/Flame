@@ -14,19 +14,21 @@ namespace Flame.Front.Target
 {
     public class ClrBuildTargetParser : IBuildTargetParser
     {
+        public const string ClrIdentifier = "clr";
+
         public IEnumerable<string> PlatformIdentifiers
         {
-            get { return new string[] { "clr", "clr/console", "clr/dll" }; }
+            get { return new string[] { ClrIdentifier, "clr/console", "clr/dll" }; }
         }
 
         public bool MatchesPlatformIdentifier(string Identifier)
         {
-            return Identifier.Split('/', '\\').First().Equals("clr", StringComparison.OrdinalIgnoreCase);
+            return Identifier.Split('/', '\\').First().Equals(ClrIdentifier, StringComparison.OrdinalIgnoreCase);
         }
 
-        public PlatformRuntime GetRuntime(string Identifier, ICompilerLog Log)
+        public string GetRuntimeIdentifier(string Identifier, ICompilerLog Log)
         {
-            return new PlatformRuntime("clr", CecilRuntimeLibraries.Resolver);
+            return ClrIdentifier;
         }
 
         public static Mono.Cecil.IAssemblyResolver CreateCecilAssemblyResolver()
@@ -34,18 +36,13 @@ namespace Flame.Front.Target
             return new SpecificAssemblyResolver();
         }
 
-        public IDependencyBuilder CreateDependencyBuilder(string Identifier, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, 
-                                                          ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
+        public static CecilEnvironment CreateEnvironment(ICompilerLog Log)
         {
             var resolver = CreateCecilAssemblyResolver();
 
             var mscorlib = Mono.Cecil.ModuleDefinition.ReadModule(typeof(object).Module.FullyQualifiedName, new Mono.Cecil.ReaderParameters() { AssemblyResolver = resolver });
             var mscorlibAsm = new CecilAssembly(mscorlib.Assembly, Log, CecilReferenceResolver.ConversionCache);
-            var env = new CecilEnvironment(mscorlibAsm.MainModule);
-
-            var cecilDepBuilder = new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, env, CurrentPath, OutputDirectory, Log);
-            cecilDepBuilder.SetCecilResolver(resolver);
-            return cecilDepBuilder;
+            return new CecilEnvironment(mscorlibAsm.MainModule);
         }
 
         private static Mono.Cecil.ModuleKind GetModuleKind(string Identifier, AssemblyCreationInfo Info)

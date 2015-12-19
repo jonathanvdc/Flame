@@ -25,16 +25,14 @@ namespace Flame.Front.Target
         bool MatchesPlatformIdentifier(string Identifier);
 
         /// <summary>
-        /// Gets the runtime identified by the given
-        /// platform identifier and compiler log.
+        /// Gets the preferred runtime identifier for
+        /// this platform, given a platform identifier 
+        /// and a compiler log.
         /// </summary>
         /// <param name="Identifier"></param>
         /// <param name="Log"></param>
         /// <returns></returns>
-        PlatformRuntime GetRuntime(string Identifier, ICompilerLog Log);
-
-        IDependencyBuilder CreateDependencyBuilder(string Identifier, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, 
-                                                   ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory);
+        string GetRuntimeIdentifier(string Identifier, ICompilerLog Log);
 
         BuildTarget CreateBuildTarget(string PlatformIdentifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder);
     }
