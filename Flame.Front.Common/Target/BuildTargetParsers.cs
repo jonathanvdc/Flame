@@ -84,7 +84,7 @@ namespace Flame.Front.Target
         public static PlatformRuntime GetRuntime(string RuntimeIdentifier)
         {
             PlatformRuntime result;
-            if (rts.TryGetValue(RuntimeIdentifier, out result))
+            if (rts.TryGetValue(RuntimeIdentifier ?? "", out result))
             {
                 return result;
             }
@@ -106,7 +106,7 @@ namespace Flame.Front.Target
         public static IEnvironment GetEnvironment(string EnvironmentIdentifier, ICompilerLog Log)
         {
             Func<ICompilerLog, IEnvironment> result;
-            if (Environments.TryGetValue(EnvironmentIdentifier, out result))
+            if (Environments.TryGetValue(EnvironmentIdentifier ?? "", out result))
             {
                 return result(Log);
             }
