@@ -5,6 +5,7 @@ using Flame.Front;
 using Flame.Front.Cli;
 using Flame.Front.Plugs;
 using Flame.Front.Target;
+using Flame.Front.Options;
 using Pixie;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,7 @@ namespace Flame.Front.Target
             rts = new Dictionary<string, PlatformRuntime>(StringComparer.OrdinalIgnoreCase);
             RegisterRuntime(new PlatformRuntime(ClrBuildTargetParser.ClrIdentifier, CecilRuntimeLibraries.Resolver));
             RegisterRuntime(new PlatformRuntime(MipsBuildTargetParser.MarsIdentifier, MarsRuntimeLibraries.Resolver));
+			RegisterRuntime(new PlatformRuntime(CppBuildTargetParser.CppIdentifier, EmptyAssemblyResolver.Instance));
 
             Environments = new Dictionary<string, Func<ICompilerLog, IEnvironment>>(StringComparer.OrdinalIgnoreCase);
             RegisterEnvironment(ClrBuildTargetParser.ClrIdentifier, ClrBuildTargetParser.CreateEnvironment);
@@ -74,6 +76,46 @@ namespace Flame.Front.Target
             Environments[Name] = EnvironmentBuilder;
         }
 
+		/// <summary>
+		/// Logs a warning that explains that some component
+		/// is unknown/unresolved.
+		/// </summary>
+		/// <param name="Warning">Warning.</param>
+		/// <param name="Option">Option.</param>
+		/// <param name="Identifier">Identifier.</param>
+		/// <param name="Name">Name.</param>
+		/// <param name="Log">Log.</param>
+        private static void LogUnknownWarning(
+            WarningDescription Warning, string Option, string Identifier,
+			string Name, ICompilerLog Log)
+        {
+            if (!string.IsNullOrWhiteSpace(Identifier) &&
+                Warning.UseWarning(Log.Options))
+            {
+                if (Log.Options.HasOption(Option) &&
+                    Log.Options.GetOption<string>(Option, Identifier) == Identifier)
+                {
+                    Log.LogWarning(new LogEntry(
+                        "Unknown " + Name,
+						Warning.CreateMessage(
+                            new MarkupNode(NodeConstants.TextNodeType,
+                                "'-" + Option +
+                                " " + Identifier +
+                                "' could not be resolved as a known " + Name + ". "))));
+                }
+                else
+                {
+                    Log.LogWarning(new LogEntry(
+                        "Unknown " + Name,
+						Warning.CreateMessage(
+                            new MarkupNode(NodeConstants.TextNodeType,
+                                "No " + Name + " was associated with '" + Identifier +
+                                "'. You can specify one explicitly by passing '-" + Option +
+                                "' followed by some known runtime identifier. "))));
+                }
+            }
+        }
+
         /// <summary>
         /// Gets the runtime belonging to the given runtime identifier.
         /// If no such runtime exists, then a new runtime object is created
@@ -91,17 +133,10 @@ namespace Flame.Front.Target
             }
             else
             {
-				if (!string.IsNullOrWhiteSpace(RuntimeIdentifier) &&
-					Warnings.Instance.UnknownRuntime.UseWarning(Log.Options))
-				{
-					Log.LogWarning(new LogEntry(
-						"Unknown runtime",
-						Warnings.Instance.UnknownRuntime.CreateMessage(
-							new MarkupNode(NodeConstants.TextNodeType, 
-								"Runtime specification '" + RuntimeIdentifier + "' could not be " + 
-								"resolved as a known runtime. "))));
-				}
-                return new PlatformRuntime(RuntimeIdentifier, new EmptyAssemblyResolver());
+                LogUnknownWarning(
+                    Warnings.Instance.UnknownRuntime, OptionExtensions.RuntimeOption,
+					RuntimeIdentifier, "runtime", Log);
+                return new PlatformRuntime(RuntimeIdentifier, EmptyAssemblyResolver.Instance);
             }
         }
 
@@ -123,16 +158,9 @@ namespace Flame.Front.Target
             }
             else
             {
-                if (!string.IsNullOrWhiteSpace(EnvironmentIdentifier) &&
-					Warnings.Instance.UnknownEnvironment.UseWarning(Log.Options))
-                {
-					Log.LogWarning(new LogEntry(
-						"Unknown environment",
-						Warnings.Instance.UnknownEnvironment.CreateMessage(
-							new MarkupNode(NodeConstants.TextNodeType, 
-								"Environment specification '" + EnvironmentIdentifier + "' could not be " + 
-								"resolved as a known environment. "))));
-                }
+                LogUnknownWarning(
+                    Warnings.Instance.UnknownEnvironment, OptionExtensions.EnvironmentOption,
+					EnvironmentIdentifier, "environment", Log);
                 return EmptyEnvironment.Instance;
             }
         }

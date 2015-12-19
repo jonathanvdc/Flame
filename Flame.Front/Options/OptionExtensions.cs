@@ -12,6 +12,10 @@ namespace Flame.Front.Options
 {
     public static class OptionExtensions
     {
+        public const string PlatformOption = "platform";
+        public const string RuntimeOption = "runtime";
+        public const string EnvironmentOption = "environment";
+
         public static IRecompilationStrategy GetRecompilationStrategy(this ICompilerOptions Options, bool IsWholeProgram)
         {
             switch (Options.GetOption<string>("recompilation-strategy", IsWholeProgram ? "executable" : "library").ToLower())
@@ -48,7 +52,7 @@ namespace Flame.Front.Options
         }
         public static string GetTargetPlatform(this ICompilerOptions Options)
         {
-            return Options.GetOption<string>("platform", "");
+            return Options.GetOption<string>(PlatformOption, "");
         }
         public static string GetDefaultTargetPlatform(this ICompilerOptions Options)
         {
@@ -70,7 +74,7 @@ namespace Flame.Front.Options
                 else
                 {
                     return Project.BuildTargetIdentifier;
-                }                
+                }
             }
             else
             {
@@ -87,7 +91,7 @@ namespace Flame.Front.Options
         /// <returns></returns>
         public static string GetRuntimeIdentifier(this ICompilerOptions Options, Lazy<string> Default)
         {
-            return Options.GetOption<string>("runtime", null) ?? Default.Value;
+            return Options.GetOption<string>(RuntimeOption, null) ?? Default.Value;
         }
 
         /// <summary>
@@ -110,7 +114,7 @@ namespace Flame.Front.Options
         /// <returns></returns>
         public static string GetEnvironmentIdentifier(this ICompilerOptions Options, string Default)
         {
-            return Options.GetOption<string>("environment", Default);
+            return Options.GetOption<string>(EnvironmentOption, Default);
         }
     }
 }
