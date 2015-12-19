@@ -30,7 +30,7 @@ namespace Flame.Front.Target
             RegisterRuntime(new PlatformRuntime(ClrBuildTargetParser.ClrIdentifier, CecilRuntimeLibraries.Resolver));
             RegisterRuntime(new PlatformRuntime(MipsBuildTargetParser.MarsIdentifier, MarsRuntimeLibraries.Resolver));
 
-            Environments = new Dictionary<string, Func<ICompilerLog, IEnvironment>>();
+            Environments = new Dictionary<string, Func<ICompilerLog, IEnvironment>>(StringComparer.OrdinalIgnoreCase);
             RegisterEnvironment(ClrBuildTargetParser.ClrIdentifier, ClrBuildTargetParser.CreateEnvironment);
             RegisterEnvironment(CppBuildTargetParser.CppIdentifier, Flame.Cpp.CppEnvironment.Create);
             RegisterEnvironment(PythonBuildTargetParser.PythonIdentifier, _ => Flame.Python.PythonEnvironment.Instance);
