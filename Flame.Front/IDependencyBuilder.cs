@@ -42,7 +42,7 @@ namespace Flame.Front
         /// <summary>
         /// Gets a types dictionary that describes the dependency builder's properties.
         /// </summary>
-        ITypedDictionary<string> Properties { get; }
+        TypedDictionary<string> Properties { get; }
     }
 
     public static class DependencyBuilderExtensions

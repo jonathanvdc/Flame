@@ -1,4 +1,5 @@
-﻿using Flame.Compiler;
+﻿using Flame.Binding;
+using Flame.Compiler;
 using Flame.Compiler.Projects;
 using Flame.Front;
 using Flame.Front.Cli;
@@ -24,6 +25,17 @@ namespace Flame.Front.Target
             Parser.RegisterParser(new MipsBuildTargetParser());
             Parser.RegisterParser(new ContractBuildTargetParser());
             Parser.RegisterParser(new FlameIRBuildTargetParser());
+
+            rts = new Dictionary<string, PlatformRuntime>(StringComparer.OrdinalIgnoreCase);
+            RegisterRuntime(new PlatformRuntime(ClrBuildTargetParser.ClrIdentifier, CecilRuntimeLibraries.Resolver));
+            RegisterRuntime(new PlatformRuntime(MipsBuildTargetParser.MarsIdentifier, MarsRuntimeLibraries.Resolver));
+
+            Environments = new Dictionary<string, Func<ICompilerLog, IEnvironment>>();
+            RegisterEnvironment(ClrBuildTargetParser.ClrIdentifier, ClrBuildTargetParser.CreateEnvironment);
+            RegisterEnvironment(CppBuildTargetParser.CppIdentifier, Flame.Cpp.CppEnvironment.Create);
+            RegisterEnvironment(PythonBuildTargetParser.PythonIdentifier, _ => Flame.Python.PythonEnvironment.Instance);
+            RegisterEnvironment(MipsBuildTargetParser.MarsIdentifier, _ => Flame.MIPS.MarsEnvironment.Instance);
+            RegisterEnvironment(ContractBuildTargetParser.ContractIdentifier, _ => Flame.TextContract.ContractEnvironment.Instance);
         }
 
         /// <summary>
@@ -31,6 +43,83 @@ namespace Flame.Front.Target
         /// </summary>
         public static MultiBuildTargetParser Parser { get; private set; }
 
+        private static Dictionary<string, PlatformRuntime> rts;
+
+        /// <summary>
+        /// Gets a list that contains all platform runtimes.
+        /// </summary>
+        public static IEnumerable<PlatformRuntime> Runtimes { get { return rts.Values; } }
+
+        /// <summary>
+        /// Gets a mapping of identifiers to environments.
+        /// </summary>
+        public static Dictionary<string, Func<ICompilerLog, IEnvironment>> Environments { get; private set; }
+
+        /// <summary>
+        /// Registers the given runtime.
+        /// </summary>
+        /// <param name="Runtime"></param>
+        public static void RegisterRuntime(PlatformRuntime Runtime)
+        {
+            rts[Runtime.Name] = Runtime;
+        }
+
+        /// <summary>
+        /// Registers an environment.
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="EnvironmentBuilder"></param>
+        public static void RegisterEnvironment(string Name, Func<ICompilerLog, IEnvironment> EnvironmentBuilder)
+        {
+            Environments[Name] = EnvironmentBuilder;
+        }
+
+        /// <summary>
+        /// Gets the runtime belonging to the given runtime identifier.
+        /// If no such runtime exists, then a new runtime object is created
+        /// with an empty runtime assembly resolver.
+        /// </summary>
+        /// <param name="RuntimeIdentifier"></param>
+        /// <returns></returns>
+        public static PlatformRuntime GetRuntime(string RuntimeIdentifier)
+        {
+            PlatformRuntime result;
+            if (rts.TryGetValue(RuntimeIdentifier, out result))
+            {
+                return result;
+            }
+            else
+            {
+                return new PlatformRuntime(RuntimeIdentifier, new EmptyAssemblyResolver());
+            }
+        }
+
+        /// <summary>
+        /// Gets the environment belonging to the given
+        /// environment identifier. 
+        /// If no such runtime exists, then the empty environment 
+        /// is returned.
+        /// </summary>
+        /// <param name="EnvironmentIdentifier"></param>
+        /// <param name="Log"></param>
+        /// <returns></returns>
+        public static IEnvironment GetEnvironment(string EnvironmentIdentifier, ICompilerLog Log)
+        {
+            Func<ICompilerLog, IEnvironment> result;
+            if (Environments.TryGetValue(EnvironmentIdentifier, out result))
+            {
+                return result(Log);
+            }
+            else
+            {
+                return EmptyEnvironment.Instance;
+            }
+        }
+
+        /// <summary>
+        /// Creates a markup node that lists all target platforms.
+        /// </summary>
+        /// <returns></returns>
         public static IMarkupNode CreateTargetPlatformList()
         {
             var listItems = new List<IMarkupNode>();
@@ -80,17 +169,24 @@ namespace Flame.Front.Target
             return parser;
         }
 
-        public static IDependencyBuilder CreateDependencyBuilder(IBuildTargetParser Parser, string BuildTargetIdentifier, ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
+        public static IDependencyBuilder CreateDependencyBuilder(
+            string RuntimeIdentifier, string EnvironmentIdentifier,
+            ICompilerLog Log, PathIdentifier CurrentPath, 
+            PathIdentifier OutputDirectory)
         {
-            var rt = Parser.GetRuntime(BuildTargetIdentifier, Log);
+            var rt = GetRuntime(RuntimeIdentifier);
             var rtLibResolver = new RuntimeAssemblyResolver(rt, ReferenceResolvers.ReferenceResolver);
 
-            return Parser.CreateDependencyBuilder(
-                BuildTargetIdentifier, rtLibResolver, ReferenceResolvers.ReferenceResolver, 
-                Log, CurrentPath, OutputDirectory);
+            var env = GetEnvironment(EnvironmentIdentifier, Log);
+
+            return new DependencyBuilder(
+                rtLibResolver, ReferenceResolvers.ReferenceResolver, 
+                env, CurrentPath, OutputDirectory, Log);
         }
 
-        public static BuildTarget CreateBuildTarget(IBuildTargetParser Parser, string BuildTargetIdentifier, IDependencyBuilder DependencyBuilder, IAssembly SourceAssembly)
+        public static BuildTarget CreateBuildTarget(
+            IBuildTargetParser Parser, string PlatformIdentifier, 
+            IDependencyBuilder DependencyBuilder, IAssembly SourceAssembly)
         {
             var log = DependencyBuilder.Log;
 
@@ -98,7 +194,7 @@ namespace Flame.Front.Target
                 log.GetAssemblyName(SourceAssembly.Name),
                 log.GetAssemblyVersion(new Version(1, 0, 0, 0)), 
                 new Lazy<bool>(() => SourceAssembly.GetEntryPoint() != null));
-            return Parser.CreateBuildTarget(BuildTargetIdentifier, info, DependencyBuilder);
+            return Parser.CreateBuildTarget(PlatformIdentifier, info, DependencyBuilder);
         }
     }
 }

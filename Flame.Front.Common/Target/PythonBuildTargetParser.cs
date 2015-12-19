@@ -13,9 +13,11 @@ namespace Flame.Front.Target
 {
     public class PythonBuildTargetParser : IBuildTargetParser
     {
+        public const string PythonIdentifier = "python";
+
         public IEnumerable<string> PlatformIdentifiers
         {
-            get { return new string[] { "python" }; }
+            get { return new string[] { PythonIdentifier }; }
         }
 
         public bool MatchesPlatformIdentifier(string Identifier)
@@ -23,14 +25,9 @@ namespace Flame.Front.Target
             return PlatformIdentifiers.Any(item => item.Equals(Identifier, StringComparison.OrdinalIgnoreCase));
         }
 
-        public PlatformRuntime GetRuntime(string Identifier, ICompilerLog Log)
+        public string GetRuntimeIdentifier(string Identifier, ICompilerLog Log)
         {
-            return new PlatformRuntime("python", new EmptyAssemblyResolver());
-        }
-
-        public IDependencyBuilder CreateDependencyBuilder(string Identifier, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
-        {
-            return new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, PythonEnvironment.Instance, CurrentPath, OutputDirectory, Log);
+            return PythonIdentifier;
         }
 
         public BuildTarget CreateBuildTarget(string PlatformIdentifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)

@@ -13,9 +13,11 @@ namespace Flame.Front.Target
 {
     public class CppBuildTargetParser : IBuildTargetParser
     {
+        public const string CppIdentifier = "c++";
+
         public IEnumerable<string> PlatformIdentifiers
         {
-            get { return new string[] { "c++" }; }
+            get { return new string[] { CppIdentifier }; }
         }
 
         public bool MatchesPlatformIdentifier(string Identifier)
@@ -23,19 +25,9 @@ namespace Flame.Front.Target
             return PlatformIdentifiers.Any(item => item.Equals(Identifier, StringComparison.OrdinalIgnoreCase));
         }
 
-        public PlatformRuntime GetRuntime(string Identifier, ICompilerLog Log)
+        public string GetRuntimeIdentifier(string Identifier, ICompilerLog Log)
         {
-            return new PlatformRuntime("c++", new EmptyAssemblyResolver());
-        }
-
-        public IDependencyBuilder CreateDependencyBuilder(string Identifier, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
-        {
-            var cppEnv = CppEnvironment.Create(Log);
-
-            var depBuilder = new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, cppEnv, CurrentPath, OutputDirectory, Log);
-            depBuilder.SetCppEnvironment(cppEnv);
-
-            return depBuilder;
+            return CppIdentifier;
         }
 
         public BuildTarget CreateBuildTarget(string PlatformIdentifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)

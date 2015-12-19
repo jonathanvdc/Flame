@@ -13,9 +13,11 @@ namespace Flame.Front.Target
 {
     public class ContractBuildTargetParser : IBuildTargetParser
     {
+        public const string ContractIdentifier = "contract";
+
         public IEnumerable<string> PlatformIdentifiers
         {
-            get { return new string[] { "contract" }; }
+            get { return new string[] { ContractIdentifier }; }
         }
 
         public bool MatchesPlatformIdentifier(string Identifier)
@@ -23,14 +25,9 @@ namespace Flame.Front.Target
             return PlatformIdentifiers.Any(item => item.Equals(Identifier, StringComparison.OrdinalIgnoreCase));
         }
 
-        public PlatformRuntime GetRuntime(string Identifier, ICompilerLog Log)
+        public string GetRuntimeIdentifier(string Identifier, ICompilerLog Log)
         {
-            return new PlatformRuntime("contract", CecilRuntimeLibraries.Resolver);
-        }
-
-        public IDependencyBuilder CreateDependencyBuilder(string Identifier, IAssemblyResolver RuntimeAssemblyResolver, IAssemblyResolver ExternalResolver, ICompilerLog Log, PathIdentifier CurrentPath, PathIdentifier OutputDirectory)
-        {
-            return new DependencyBuilder(RuntimeAssemblyResolver, ExternalResolver, ContractEnvironment.Instance, CurrentPath, OutputDirectory, Log);
+            return ContractIdentifier;
         }
 
         public BuildTarget CreateBuildTarget(string PlatformIdentifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)

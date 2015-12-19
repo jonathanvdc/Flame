@@ -306,8 +306,11 @@ namespace Flame.Front.Cli
             string targetIdent = State.Project.GetTargetPlatform(State.Options);
 
             var targetParser = BuildTargetParsers.GetParserOrThrow(State.FilteredLog, targetIdent, State.CurrentPath);
+            string rtIdent = State.Options.GetRuntimeIdentifier(() => targetParser.GetRuntimeIdentifier(targetIdent, State.FilteredLog));
+            string envIdent = State.Options.GetEnvironmentIdentifier(rtIdent);
 
-            var dependencyBuilder = BuildTargetParsers.CreateDependencyBuilder(targetParser, targetIdent, State.FilteredLog, State.CurrentPath, dirName);
+            var dependencyBuilder = BuildTargetParsers.CreateDependencyBuilder(
+                rtIdent, envIdent, State.FilteredLog, State.CurrentPath, dirName);
 
             var binderResolver = BinderResolver.Create(Projects);
             foreach (var item in State.Options.GetOption<string[]>(AdditionalLibrariesOption, new string[0]))

@@ -27,10 +27,7 @@ namespace Flame.Front.Target
                 resolver.AddSearchDirectory(FlameAssemblies.FlameAssemblyDirectory.Path);
                 return resolver;
             }
-            if (!HasCecilResolver(DependencyBuilder))
-            {
-                DependencyBuilder.SetupCecil();
-            }
+            DependencyBuilder.SetupCecil();
             return DependencyBuilder.Properties.GetValue<Mono.Cecil.IAssemblyResolver>(CecilAssemblyResolverKey);
         }
 
@@ -59,7 +56,15 @@ namespace Flame.Front.Target
         {
             if (!DependencyBuilder.HasCecilResolver())
             {
-                DependencyBuilder.SetCecilResolver(ClrBuildTargetParser.CreateCecilAssemblyResolver());
+                if (DependencyBuilder.Environment is CecilEnvironment)
+                {
+                    var env = (CecilEnvironment)DependencyBuilder.Environment;
+                    DependencyBuilder.SetCecilResolver(env.Module.Module.AssemblyResolver);
+                }
+                else
+                {
+                    DependencyBuilder.SetCecilResolver(ClrBuildTargetParser.CreateCecilAssemblyResolver());
+                }
             }
         }
 
