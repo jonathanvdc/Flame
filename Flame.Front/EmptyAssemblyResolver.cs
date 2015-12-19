@@ -8,8 +8,12 @@ using System.Threading.Tasks;
 
 namespace Flame.Front
 {
-    public class EmptyAssemblyResolver : IAssemblyResolver
+    public sealed class EmptyAssemblyResolver : IAssemblyResolver
     {
+		private EmptyAssemblyResolver() { }
+
+		public static readonly EmptyAssemblyResolver Instance = new EmptyAssemblyResolver();
+
         public Task<IAssembly> ResolveAsync(PathIdentifier Identifier, IDependencyBuilder DependencyBuilder)
         {
             return Task.FromResult<IAssembly>(null);
