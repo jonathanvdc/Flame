@@ -42,6 +42,8 @@ namespace Flame.Compiler
             // -Wbuild warnings
             Warnings.UnusedOption = new WarningDescription("unused-option", Warnings.Build);
             Warnings.MissingDependency = new WarningDescription("missing-dependency", Warnings.Build);
+            Warnings.UnknownRuntime = new WarningDescription("unknown-runtime", Warnings.Build);
+            Warnings.UnknownEnvironment = new WarningDescription("unknown-environment", Warnings.Build);
         }
 
         /// <summary>
@@ -259,6 +261,16 @@ namespace Flame.Compiler
         /// A warning name for missing library dependencies.
         /// </summary>
         public static WarningDescription MissingDependency { const get; private set; }
+
+        /// <summary>
+        /// A warning name for unknown/unresolved runtime specifications.
+        /// </summary>
+        public static WarningDescription UnknownRuntime { const get; private set; }
+
+        /// <summary>
+        /// A warning name for unknown/unresolved environment specifications.
+        /// </summary>
+        public static WarningDescription UnknownEnvironment { const get; private set; }
 
         /// <summary>
         /// A warning group for declarations that are never used.

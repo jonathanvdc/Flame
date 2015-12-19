@@ -80,8 +80,9 @@ namespace Flame.Front.Target
         /// with an empty runtime assembly resolver.
         /// </summary>
         /// <param name="RuntimeIdentifier"></param>
+		/// <param name="Log"></param>
         /// <returns></returns>
-        public static PlatformRuntime GetRuntime(string RuntimeIdentifier)
+		public static PlatformRuntime GetRuntime(string RuntimeIdentifier, ICompilerLog Log)
         {
             PlatformRuntime result;
             if (rts.TryGetValue(RuntimeIdentifier ?? "", out result))
@@ -90,14 +91,24 @@ namespace Flame.Front.Target
             }
             else
             {
+				if (!string.IsNullOrWhiteSpace(RuntimeIdentifier) &&
+					Warnings.Instance.UnknownRuntime.UseWarning(Log.Options))
+				{
+					Log.LogWarning(new LogEntry(
+						"Unknown runtime",
+						Warnings.Instance.UnknownRuntime.CreateMessage(
+							new MarkupNode(NodeConstants.TextNodeType, 
+								"Runtime specification '" + RuntimeIdentifier + "' could not be " + 
+								"resolved as a known runtime. "))));
+				}
                 return new PlatformRuntime(RuntimeIdentifier, new EmptyAssemblyResolver());
             }
         }
 
         /// <summary>
         /// Gets the environment belonging to the given
-        /// environment identifier. 
-        /// If no such runtime exists, then the empty environment 
+        /// environment identifier.
+        /// If no such runtime exists, then the empty environment
         /// is returned.
         /// </summary>
         /// <param name="EnvironmentIdentifier"></param>
@@ -112,6 +123,16 @@ namespace Flame.Front.Target
             }
             else
             {
+                if (!string.IsNullOrWhiteSpace(EnvironmentIdentifier) &&
+					Warnings.Instance.UnknownEnvironment.UseWarning(Log.Options))
+                {
+					Log.LogWarning(new LogEntry(
+						"Unknown environment",
+						Warnings.Instance.UnknownEnvironment.CreateMessage(
+							new MarkupNode(NodeConstants.TextNodeType, 
+								"Environment specification '" + EnvironmentIdentifier + "' could not be " + 
+								"resolved as a known environment. "))));
+                }
                 return EmptyEnvironment.Instance;
             }
         }
@@ -145,12 +166,12 @@ namespace Flame.Front.Target
             var list = CreateTargetPlatformList();
             string firstPlatform = Parser.PlatformIdentifiers.FirstOrDefault();
 
-            var hint = new MarkupNode(NodeConstants.RemarksNodeType, 
-                "Prefix one of these platforms with '-platform' when providing build arguments to specify a target platform. For example: '" + 
-                (Environment.GetCommandLineArgs().FirstOrDefault() ?? "<compiler>") + " " + 
-                Log.Options.GetOption<string>("source", CurrentPath.ToString()) + " -platform " + firstPlatform + 
+            var hint = new MarkupNode(NodeConstants.RemarksNodeType,
+                "Prefix one of these platforms with '-platform' when providing build arguments to specify a target platform. For example: '" +
+                (Environment.GetCommandLineArgs().FirstOrDefault() ?? "<compiler>") + " " +
+                Log.Options.GetOption<string>("source", CurrentPath.ToString()) + " -platform " + firstPlatform +
                 "' will instruct the compiler to compile for the '" + firstPlatform + "' target platform.");
-            
+
             var message = new MarkupNode("entry", new IMarkupNode[] { list, hint });
             Log.LogMessage(new LogEntry("Known target platforms", message));
         }
@@ -171,28 +192,28 @@ namespace Flame.Front.Target
 
         public static IDependencyBuilder CreateDependencyBuilder(
             string RuntimeIdentifier, string EnvironmentIdentifier,
-            ICompilerLog Log, PathIdentifier CurrentPath, 
+            ICompilerLog Log, PathIdentifier CurrentPath,
             PathIdentifier OutputDirectory)
         {
-            var rt = GetRuntime(RuntimeIdentifier);
+            var rt = GetRuntime(RuntimeIdentifier, Log);
             var rtLibResolver = new RuntimeAssemblyResolver(rt, ReferenceResolvers.ReferenceResolver);
 
             var env = GetEnvironment(EnvironmentIdentifier, Log);
 
             return new DependencyBuilder(
-                rtLibResolver, ReferenceResolvers.ReferenceResolver, 
+                rtLibResolver, ReferenceResolvers.ReferenceResolver,
                 env, CurrentPath, OutputDirectory, Log);
         }
 
         public static BuildTarget CreateBuildTarget(
-            IBuildTargetParser Parser, string PlatformIdentifier, 
+            IBuildTargetParser Parser, string PlatformIdentifier,
             IDependencyBuilder DependencyBuilder, IAssembly SourceAssembly)
         {
             var log = DependencyBuilder.Log;
 
             var info = new AssemblyCreationInfo(
                 log.GetAssemblyName(SourceAssembly.Name),
-                log.GetAssemblyVersion(new Version(1, 0, 0, 0)), 
+                log.GetAssemblyVersion(new Version(1, 0, 0, 0)),
                 new Lazy<bool>(() => SourceAssembly.GetEntryPoint() != null));
             return Parser.CreateBuildTarget(PlatformIdentifier, info, DependencyBuilder);
         }
