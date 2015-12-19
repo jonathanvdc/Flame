@@ -2,28 +2,28 @@
 
 # First build all libraries individually
 dsc Pixie/Pixie.dsproj -repeat-command -time -platform ir \
-    -indirect-platform clr -fgenerate-static false $@
+    -runtime clr -fgenerate-static false $@
 dsc Pixie/Pixie.Xml.dsproj -repeat-command -time -platform ir \
-    -indirect-platform clr -libs Pixie/bin/Pixie.flo -fgenerate-static false $@
+    -runtime clr -libs Pixie/bin/Pixie.flo -fgenerate-static false $@
 dsc Flame/Flame.dsc.dsproj -repeat-command -time -platform ir \
-    -indirect-platform clr -libs Pixie/bin/Pixie.flo -fgenerate-static false $@
+    -runtime clr -libs Pixie/bin/Pixie.flo -fgenerate-static false $@
 dsc Flame.Compiler/Flame.Compiler.dsc.dsproj -repeat-command -time -platform ir \
-    -indirect-platform clr -libs Flame/bin/Flame.flo Pixie/bin/Pixie.flo \
+    -runtime clr -libs Flame/bin/Flame.flo Pixie/bin/Pixie.flo \
     -fgenerate-static false $@
 dsc Flame.Optimization/Flame.Optimization.dsproj -repeat-command -time \
-    -platform ir -indirect-platform clr -libs Flame/bin/Flame.flo \
+    -platform ir -runtime clr -libs Flame/bin/Flame.flo \
     Flame.Compiler/bin/Flame.Compiler.flo Pixie/bin/Pixie.flo \
     -fgenerate-static false $@
 dsc Flame.Syntax/Flame.Syntax.dsc.dsproj -repeat-command -time -platform ir \
-    -indirect-platform clr -libs Flame/bin/Flame.flo \
+    -runtime clr -libs Flame/bin/Flame.flo \
     Flame.Compiler/bin/Flame.Compiler.flo Pixie/bin/Pixie.flo \
     -fgenerate-static false $@
 dsc Flame.Markdown/Flame.Markdown.dsproj -repeat-command -time -platform ir \
-    -indirect-platform clr -libs Flame/bin/Flame.flo \
+    -runtime clr -libs Flame/bin/Flame.flo \
     Flame.Compiler/bin/Flame.Compiler.flo Flame.Syntax/bin/Flame.Syntax.flo \
     Pixie/bin/Pixie.flo -fgenerate-static false $@
 dsc Flame.DSharp/Flame.DSharp.dsc.dsproj -repeat-command -time -platform ir \
-    -indirect-platform clr -libs Flame/bin/Flame.flo \
+    -runtime clr -libs Flame/bin/Flame.flo \
     Flame.Compiler/bin/Flame.Compiler.flo Flame.Syntax/bin/Flame.Syntax.flo \
     Pixie/bin/Pixie.flo -fgenerate-static false $@
 
