@@ -101,7 +101,8 @@ namespace Flame.Front.Cli
 
                 ReportUnusedOptions(buildArgs, tempLog, "Option not relevant");
 
-                log.WriteEntry("Nothing to compile", log.WarningStyle, "No source file or project was given.");
+				log.Console.Write(Name + ": ", log.ContrastForegroundColor);
+                log.WriteEntry("nothing to compile", log.WarningStyle, "no input files");
                 log.Dispose();
                 return;
             }
