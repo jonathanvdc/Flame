@@ -676,7 +676,9 @@ namespace Flame
         #region GetParent/GetInterfaces
 
         /// <summary>
-        /// Gets the type's parent type.
+        /// Gets the type's parent type, which is the first non-interface type
+		/// in the type's base type list. Null is returned if no such type
+		/// exists.
         /// </summary>
         /// <param name="Other"></param>
         /// <returns></returns>
@@ -690,6 +692,9 @@ namespace Flame
         	return null;
         }
 
+		/// <summary>
+		/// Gets all interfaces implemented by the given type.
+		/// </summary>
         public const static [IType] GetInterfaces(this IType Type)
         {
         	var interfs = new List<IType>();
@@ -705,6 +710,9 @@ namespace Flame
 
         #region GetAllBaseTypes
 
+		/// <summary>
+		/// Recursively finds all direct and indirect base types for this type.
+		/// </summary>
         public const static [IType] GetAllBaseTypes(this IType Type)
         {
         	var allTypes = new HashSet<IType>(Type.BaseTypes);
