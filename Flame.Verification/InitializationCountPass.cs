@@ -55,8 +55,10 @@ namespace Flame.Verification
         /// <returns></returns>
         public static bool IsUseful(ICompilerLog Log)
         {
-            return UninitializedWarning.UseWarning(Log.Options) || MultipleInitializationWarning.UseWarning(Log.Options) ||
-                   MaybeUninitializedWarning.UseWarning(Log.Options) || MaybeMultipleInitializationWarning.UseWarning(Log.Options);
+            return UninitializedWarning.UseWarning(Log.Options) ||
+                   MultipleInitializationWarning.UseWarning(Log.Options) ||
+                   MaybeUninitializedWarning.UseWarning(Log.Options) ||
+                   MaybeMultipleInitializationWarning.UseWarning(Log.Options);
         }
 
         /// <summary>
@@ -165,10 +167,19 @@ namespace Flame.Verification
             }
         }
 
+        /// <summary>
+        /// Tests if the given type can and must be initialized.
+        /// </summary>
+        public static bool IsInitializableType(IType Type)
+        {
+            return Type != null && (Type.GetIsValueType() || Type.GetParent() != null);
+        }
+
         public IStatement Apply(Tuple<IStatement, IMethod, ICompilerLog> Value)
         {
             var log = Value.Item3;
-            if (Value.Item2.IsConstructor && !Value.Item2.IsStatic)
+            if (Value.Item2.IsConstructor && !Value.Item2.IsStatic &&
+                IsInitializableType(Value.Item2.DeclaringType))
             {
                 var visitor = InitializationCountHelpers.CreateVisitor();
                 visitor.Visit(Value.Item1);
