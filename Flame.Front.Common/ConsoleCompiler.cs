@@ -391,7 +391,7 @@ namespace Flame.Front.Cli
             State.FilteredLog.LogEvent(new LogEntry("Status", "Recompiling..."));
 
             var recompSettings = new RecompilationSettings(
-                GetRecompilationPass(State.FilteredLog), 
+                GetRecompilationPass(State.FilteredLog),
                 !(target.TargetAssembly is Flame.TextContract.ContractAssembly), true);
 
             var passPrefs = State.Handler.GetPassPreferences(State.FilteredLog).Union(target.Passes);
@@ -405,7 +405,7 @@ namespace Flame.Front.Cli
             var recompStrategy = State.Options.GetRecompilationStrategy(IsWholeProgram(State.Options, MainAssembly));
 
             var asmRecompiler = new AssemblyRecompiler(
-                target.TargetAssembly, State.FilteredLog, 
+                target.TargetAssembly, State.FilteredLog,
                 new SingleThreadedTaskManager(), passSuite, recompSettings);
             asmRecompiler.AddAssembly(MainAssembly, new RecompilationOptions(recompStrategy, true));
             foreach (var item in AuxiliaryAssemblies)
@@ -592,10 +592,16 @@ namespace Flame.Front.Cli
             {
                 foreach (var item in Args.UnusedOptions)
                 {
-                    Log.LogWarning(new LogEntry(
-                        "Unused option",
-                        Warnings.Instance.UnusedOption.CreateMessage(
-                            Doc + ": '-" + item + "'. ")));
+                    var optName = new MarkupNode(NodeConstants.BrightNodeType, "-" + item);
+                    var msg = new MarkupNode("#group", new IMarkupNode[]
+                    {
+						new MarkupNode(NodeConstants.TextNodeType, Doc + ": '"),
+                        optName,
+						new MarkupNode(NodeConstants.TextNodeType, "'. "),
+                        Warnings.Instance.UnusedOption.CauseNode
+                    });
+
+                    Log.LogWarning(new LogEntry("Unused option", msg));
                 }
             }
         }
