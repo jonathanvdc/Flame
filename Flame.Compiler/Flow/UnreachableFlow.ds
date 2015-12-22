@@ -1,0 +1,23 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Flow
+{
+    /// <summary>
+    /// A type of basic block flow that flags the end of the basic block
+    /// as unreachable. It has no successors.
+    /// </summary>
+    public static class UnreachableFlow : BlockFlow
+    {
+        public override [BlockBranch] Branches
+        {
+            get
+            {
+                return Enumerable.Empty<BlockBranch>();
+            }
+        }
+    }
+}
