@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Statements
 {
@@ -106,6 +108,42 @@ namespace Flame.Compiler.Statements
 			var transElse = Visitor.Visit(ElseBody);
 
 			return CreateIfElse(transCond, transIf, transElse);
+		}
+
+		/// <summary>
+		/// Creates a number of basic blocks that are semantically equivalent
+		/// to this flow statement.
+		/// </summary>
+		public void ToBlocks(BlockBuilder Builder)
+		{
+			// Generate the following blocks:
+			//
+			// @if():
+			//     cond = <cond-expr>
+			//     if cond
+			//         then @if.then()
+			//         else @if.else()
+			//
+			// @if.then():
+			//     <then-body>
+			//     @next()
+			//
+			// @if.else():
+			//     <else-body>
+			//     @next()
+
+			var ifBlock = Builder.CreateBlock(
+				"if.then", IfBody, new JumpFlow(new BlockBranch(Builder.NextBlockTag)));
+			var elseBlock = Builder.CreateBlock(
+				"if.else", ElseBody, new JumpFlow(new BlockBranch(Builder.NextBlockTag)));
+
+			var condVariable = new SSAVariable("cond", Condition.Type);
+
+			Builder.CreateCurrentBlock(
+				condVariable.CreateSetStatement(Condition),
+				new SelectFlow(condVariable,
+					new BlockBranch(ifBlock),
+					new BlockBranch(elseBlock)));
 		}
 
 		public bool IsEmpty : IStatement.IsEmpty
