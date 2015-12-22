@@ -18,7 +18,7 @@ namespace Flame.Compiler.Flow
         /// branch otherwise.
         /// </summary>
         public const this(
-            set IExpression Condition,
+            set SSAVariable Condition,
             set BlockBranch ThenBranch, set BlockBranch ElseBranch);
 
         /// <summary>
