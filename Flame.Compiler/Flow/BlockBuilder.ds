@@ -1,0 +1,88 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Flow
+{
+	public class BlockBuilder
+	{
+		public const this(set UniqueTag CurrentBlockTag)
+		{
+			this.results = new List<BasicBlock>();
+			this.NextBlockTag = new UniqueTag();
+		}
+
+		private List<BasicBlock> results;
+
+		/// <summary>
+		/// Gets a sequence of all blocks that have been built by this block
+		/// builder so far.
+		/// </summary>
+		public [BasicBlock] Blocks { const get { return results; } }
+
+		/// <summary>
+		/// Gets a tag that uniquely identifies the current basic block.
+		/// </summary>
+		public UniqueTag CurrentBlockTag { const get; private set; }
+
+		/// <summary>
+		/// Gets a tag that uniquely identifies the next basic block.
+		/// </summary>
+		public UniqueTag NextBlockTag { const get; private set; }
+
+		/// <summary>
+		/// Adds the given basic block to the created blocks list.
+		/// </summary>
+		public void RegisterBlock(BasicBlock Block)
+		{
+			this.results.Add(Block);
+		}
+
+		/// <summary>
+		/// Creates the current block by assigning it the given parameters,
+		/// contents and flow.
+		/// </summary>
+		public void CreateCurrentBlock(
+			IReadOnlyList<SSAVariable> Parameters, IStatement Contents,
+			BlockFlow Flow)
+		{
+			RegisterBlock(
+				new BasicBlock(CurrentBlockTag, Parameters, Contents, Flow));
+		}
+
+		/// <summary>
+		/// Creates the current block by assigning it the given contents and flow.
+		/// </summary>
+		public void CreateCurrentBlock(IStatement Contents, BlockFlow Flow)
+		{
+			CreateCurrentBlock(new List<SSAVariable>(), Contents, Flow);
+		}
+
+		/// <summary>
+		/// Creates a new basic block, registers it and returns its unique
+		/// tag.
+		/// </summary>
+		public UniqueTag CreateBlock(
+			string Name, IReadOnlyList<SSAVariable> Parameters,
+			IStatement Contents, BlockFlow Flow)
+		{
+			var tag = new UniqueTag(Name);
+			var result = new BasicBlock(tag, Parameters, Contents, Flow);
+
+			RegisterBlock(result);
+			return tag;
+		}
+
+		/// <summary>
+		/// Creates a new basic block, registers it and returns its unique
+		/// tag.
+		/// </summary>
+		public UniqueTag CreateBlock(
+			string Name, IStatement Contents, BlockFlow Flow)
+		{
+			return CreateBlock(Name, new List<SSAVariable>(), Contents, Flow);
+		}
+	}
+}
