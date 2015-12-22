@@ -19,5 +19,13 @@ namespace Flame.Compiler.Flow
                 return Enumerable.Empty<BlockBranch>();
             }
         }
+
+        /// <summary>
+        /// Accepts the given basic block visitor.
+        /// </summary>
+        public override BlockFlow Accept(IBasicBlockVisitor Visitor)
+        {
+            return this;
+        }
     }
 }

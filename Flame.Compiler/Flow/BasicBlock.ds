@@ -62,11 +62,29 @@ namespace Flame.Compiler.Flow
 		/// </summary>
 		public BasicBlock Accept(INodeVisitor Visitor)
 		{
+			if (Visitor is IBasicBlockVisitor)
+				return Accept((IBasicBlockVisitor)Visitor);
+
 			var visitedContents = Visitor.Visit(Contents);
 			if (visitedContents == Contents)
 				return this;
 			else
 				return new BasicBlock(Tag, Parameters, visitedContents, Flow);
+		}
+
+		/// <summary>
+		/// Applies the given node visitor to this basic block's contents and
+		/// final flow statement.
+		/// </summary>
+		public BasicBlock Accept(IBasicBlockVisitor Visitor)
+		{
+			var visitedContents = Visitor.Visit(Contents);
+			var visitedParameters = new List<SSAVariable>(
+				Enumerable.Select<SSAVariable, SSAVariable>(
+					Parameters, Visitor.Visit));
+			var visitedFlow = Flow.Accept(Visitor);
+			return new BasicBlock(
+				Tag, visitedParameters, visitedContents, visitedFlow);
 		}
 	}
 }

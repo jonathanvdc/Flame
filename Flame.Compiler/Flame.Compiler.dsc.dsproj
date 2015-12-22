@@ -160,6 +160,7 @@
 		<ItemGroup>
 			<Compile Include="Flow/BasicBlock.ds" />
 			<Compile Include="Flow/BlockFlow.ds" />
+			<Compile Include="Flow/IBasicBlockVisitor.ds" />
 			<Compile Include="Flow/JumpFlow.ds" />
 			<Compile Include="Flow/SelectFlow.ds" />
 			<Compile Include="Flow/UnreachableFlow.ds" />

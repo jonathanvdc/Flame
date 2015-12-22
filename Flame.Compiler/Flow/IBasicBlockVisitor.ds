@@ -1,0 +1,24 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Flow
+{
+    /// <summary>
+    /// Defines common functionality for visitors that can visit basic blocks.
+    /// </summary>
+    public interface IBasicBlockVisitor : INodeVisitor
+    {
+        /// <summary>
+        /// Visits the given SSA local variable.
+        /// </summary>
+        SSAVariable Visit(SSAVariable Variable);
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        BlockBranch Visit(BlockBranch Branch);
+    }
+}
