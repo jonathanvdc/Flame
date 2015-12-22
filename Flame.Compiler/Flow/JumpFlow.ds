@@ -31,5 +31,13 @@ namespace Flame.Compiler.Flow
                 return new BlockBranch[] { Branch };
             }
         }
+
+        /// <summary>
+        /// Accepts the given basic block visitor.
+        /// </summary>
+        public override BlockFlow Accept(IBasicBlockVisitor Visitor)
+        {
+            return new JumpFlow(Visitor.Visit(Branch));
+        }
     }
 }

@@ -46,5 +46,15 @@ namespace Flame.Compiler.Flow
                 return new BlockBranch[] { ThenBranch, ElseBranch };
             }
         }
+
+        /// <summary>
+        /// Accepts the given basic block visitor.
+        /// </summary>
+        public override BlockFlow Accept(IBasicBlockVisitor Visitor)
+        {
+            return new SelectFlow(
+                Visitor.Visit(Condition),
+                Visitor.Visit(ThenBranch), Visitor.Visit(ElseBranch));
+        }
     }
 }

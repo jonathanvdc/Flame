@@ -54,6 +54,11 @@ namespace Flame.Compiler.Flow
         public abstract [BlockBranch] Branches { get; }
 
         /// <summary>
+        /// Accepts the given basic block visitor.
+        /// </summary>
+        public abstract BlockFlow Accept(IBasicBlockVisitor Visitor);
+
+        /// <summary>
         /// Gets a sequence of potential direct successor blocks for this
         /// basic block flow node. A delegate is given that maps
         /// block tags to their associated basic blocks.
