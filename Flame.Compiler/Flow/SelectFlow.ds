@@ -1,0 +1,50 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Flow
+{
+    /// <summary>
+    /// A type of basic block control flow statement that transfers control
+    /// to one of two basic blocks, based on a condition.
+    /// </summary>
+    public class SelectFlow : BlockFlow
+    {
+        /// <summary>
+        /// Creates a basic block flow node that performs the first branch
+        /// if the given SSA local's value is true, and performs the second
+        /// branch otherwise.
+        /// </summary>
+        public const this(
+            set IExpression Condition,
+            set BlockBranch ThenBranch, set BlockBranch ElseBranch);
+
+        /// <summary>
+        /// Gets the SSA boolean local this conditional branch relies on to
+        /// to select a basic block.
+        /// </summary>
+        public SSAVariable Condition { const get; private set; }
+
+        /// <summary>
+        /// Gets the basic block branch that will be executed if the condition
+        /// local evaluates to true.
+        /// </summary>
+        public BlockBranch ThenBranch { const get; private set; }
+
+        /// <summary>
+        /// Gets the basic block branch that will be executed if the condition
+        /// local evaluates to false.
+        /// </summary>
+        public BlockBranch ElseBranch { const get; private set; }
+
+        public override [BlockBranch] Branches
+        {
+            get
+            {
+                return new BlockBranch[] { ThenBranch, ElseBranch };
+            }
+        }
+    }
+}

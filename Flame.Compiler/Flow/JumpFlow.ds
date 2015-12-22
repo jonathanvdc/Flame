@@ -1,0 +1,35 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Flow
+{
+    /// <summary>
+    /// A type of basic block control flow node that unconditionally
+    /// transfers control to another block.
+    /// </summary>
+    public class JumpFlow : BlockFlow
+    {
+        /// <summary>
+        /// Creates a basic block flow statement that unconditionally
+        /// performs the given branch.
+        /// </summary>
+        public const this(set BlockBranch Branch);
+
+        /// <summary>
+        /// Gets the block branch that describes this jump flow node's
+        /// contents.
+        /// </summary>
+        public BlockBranch Branch { const get; private set; }
+
+        public override [BlockBranch] Branches
+        {
+            get
+            {
+                return new BlockBranch[] { Branch };
+            }
+        }
+    }
+}
