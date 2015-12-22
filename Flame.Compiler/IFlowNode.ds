@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Flame.Compiler.Flow;
 
 namespace Flame.Compiler
 {
@@ -23,6 +24,12 @@ namespace Flame.Compiler
     /// </summary>
     public interface IFlowStatement : IStatement
     {
+        /// <summary>
+        /// Creates a number of basic blocks that are semantically equivalent
+        /// to this flow statement.
+        /// </summary>
+        void ToBlocks(BlockBuilder Builder);
+
         /// <summary>
         /// Accepts and interacts with a flow visitor.
         /// </summary>
