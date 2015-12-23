@@ -119,8 +119,7 @@ namespace Flame.Compiler.Expressions
     /// by-value capture: variables outside the lambda are not permitted within.
     /// </summary>
     public class LambdaExpression : IExpression, ICopyableNode<IExpression>,
-                                    IMemberNode, IFlowExpression,
-                                    ILambdaNode<IExpression>
+                                    IMemberNode, ILambdaNode<IExpression>
     {
         public const this(set LambdaHeader Header, set IStatement Body)
         {
@@ -192,15 +191,6 @@ namespace Flame.Compiler.Expressions
         }
 
         public IExpression Accept(INodeVisitor Visitor)
-        {
-            return CreateLambda(Header.Accept(Visitor), VisitBody(Visitor), BoundHeaderBlock);
-        }
-
-        /// <summary>
-        /// Accepts and interacts with a flow visitor.
-        /// </summary>
-        public IExpression AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
-            : IFlowExpression.AcceptFlow<TState, TFlow>
         {
             return CreateLambda(Header.Accept(Visitor), VisitBody(Visitor), BoundHeaderBlock);
         }
