@@ -23,12 +23,14 @@ namespace Flame.Compiler.Statements
 		/// Gets the do...while statement's block tag.
 		/// </summary>
 		public UniqueTag Tag { const get; private set; }
+		
 		/// <summary>
 		/// Gets the do...while statement's condition. After the initial iteration,
 		/// the loop's body will be executed as long as this condition evaluates to
 		/// true.
 		/// </summary>
 		public IExpression Condition { const get; private set; }
+		
 		/// <summary>
 		/// Gets the do...while statement's body.
 		/// </summary>
