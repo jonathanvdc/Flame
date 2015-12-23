@@ -1,0 +1,173 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// A visitor class that converts control-flow statements and expressions
+    /// into basic blocks.
+    /// </summary>
+    public class BlockBuildingVisitor : NodeVisitorBase
+    {
+        /// <summary>
+        /// Creates a basic block constructing visitor.
+        /// </summary>
+        public const this()
+        {
+            this.Builder = new BlockBuilder(new UniqueTag("entry_point"));
+
+            this.unspilledStatements = new List<MovableStatement>();
+            this.unspilledExpressions = new List<Tuple<SpillableExpression, InsertStatement>>();
+        }
+
+        /// <summary>
+        /// Gets this visitor's basic block builder.
+        /// </summary>
+        public BlockBuilder Builder { const get; private set; }
+
+        // A list of unspilled movable statements.
+        // These are predecessor sibling statements
+        // from the perspective of the node that is
+        // currently being visited.
+        private List<MovableStatement> unspilledStatements;
+
+        // A list of unspilled expressions, along with
+        // their spill target statements.
+        // These are predecessor sibling expressions
+        // from the perspective of the the that is
+        // currently being visited.
+        private List<Tuple<SpillableExpression, InsertStatement>> unspilledExpressions;
+
+        /// <summary>
+        /// "Spills" all unspilled statements and expressions into the current
+        /// basic block.
+        /// </summary>
+        private void Spill()
+        {
+            var spillTarget = new InsertStatement();
+
+            foreach (var item in unspilledExpressions)
+            {
+                item.Item1.Spill(item.Item2);
+            }
+            unspilledExpressions.Clear();
+            foreach (var item in unspilledStatements)
+            {
+                item.Move(spillTarget);
+            }
+            unspilledStatements.Clear();
+
+            Builder.CreateCurrentBlock(
+                spillTarget.Unwrap(),
+                new JumpFlow(new BlockBranch(Builder.NextBlockTag)));
+            Builder.Next();
+        }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return true;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return true;
+        }
+        protected override IExpression Transform(IExpression Expression)
+        {
+            // Remember all sibling expressions and statements.
+            var siblExprs = unspilledExpressions;
+            var siblStmts = unspilledStatements;
+
+            unspilledStatements = new List<MovableStatement>();
+            unspilledExpressions = new List<Tuple<SpillableExpression, InsertStatement>>();
+
+            // Visit this statement's children, with a new set of unspilled
+            // expressions and statements.
+            var visited = Expression.Accept(this);
+
+            // Restore the sibling statements/expressions. Discard any
+            // references to child statements.
+            // We won't spill them now if they haven't been spilled already.
+            unspilledStatements = siblStmts;
+            unspilledExpressions = siblExprs;
+
+            if (visited is IFlowExpression)
+            {
+                // All right then. Spill all sibling statements/expressions.
+                Spill();
+
+                // Have the expression reduce itself to a number of basic blocks.
+                // An SSA local variable is returned that contains the expression's
+                // result.
+                var resultVar = ((IFlowExpression)visited).ToBlocks(Builder);
+                // Move on to the next block.
+                Builder.Next();
+
+                // Flow expression has been encoded as an empty block.
+                // All we have to do now is load its result variable.
+                return resultVar.CreateGetExpression();
+            }
+            else
+            {
+                // Add this expression to the sequence of unspilled sibling
+                // expressions, then. To do this, we'll also need to append
+                // a spill target statement to the list of unspilled statements,
+                // to preserve the order of operations.
+                var spillExpr = new SpillableExpression(visited);
+                var spillTarget = new InsertStatement();
+                unspilledStatements.Add(new MovableStatement(spillTarget));
+                unspilledExpressions.Add(
+                    new Tuple<SpillableExpression, InsertStatement>(spillExpr, spillTarget));
+                return spillExpr;
+            }
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            // Remember all sibling expressions and statements.
+            var siblExprs = unspilledExpressions;
+            var siblStmts = unspilledStatements;
+
+            unspilledStatements = new List<MovableStatement>();
+            unspilledExpressions = new List<Tuple<SpillableExpression, InsertStatement>>();
+
+            // Visit this statement's children, with a new set of unspilled
+            // expressions and statements.
+            var visited = Statement.Accept(this);
+
+            // Restore the sibling statements/expressions. Discard any
+            // references to child statements.
+            // We won't spill them now if they haven't been spilled already.
+            unspilledStatements = siblStmts;
+            unspilledExpressions = siblExprs;
+
+            if (visited is IFlowStatement)
+            {
+                // All right then. Spill all sibling statements/expressions.
+                Spill();
+
+                // Have the statement reduce itself to a number of basic blocks.
+                ((IFlowStatement)visited).ToBlocks(Builder);
+                // Move on to the next block.
+                Builder.Next();
+
+                // Flow statement has been encoded as an empty block.
+                // Return an empty statement here so the flow statement doesn't
+                // hang around in a basic block.
+                return EmptyStatement;
+            }
+            else
+            {
+                // Add this statement to the sequence of unspilled sibling
+                // statements, then.
+                var movStmt = new MovableStatement(visited);
+                unspilledStatements.Add(movStmt);
+                return movStmt;
+            }
+        }
+    }
+}
