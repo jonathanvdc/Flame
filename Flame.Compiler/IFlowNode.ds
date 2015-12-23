@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Flame.Compiler.Flow;
+using Flame.Compiler.Variables;
 
 namespace Flame.Compiler
 {
@@ -12,6 +13,13 @@ namespace Flame.Compiler
     /// </summary>
     public interface IFlowExpression : IExpression
     {
+        /// <summary>
+        /// Creates a number of basic blocks that are semantically equivalent
+        /// to this flow expression. An SSA local variable is returned that
+        /// contains this expression's result.
+        /// </summary>
+        SSAVariable ToBlocks(BlockBuilder Builder);
+
         /// <summary>
         /// Accepts and interacts with a flow visitor.
         /// </summary>
