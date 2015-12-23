@@ -30,6 +30,17 @@ namespace Flame.Compiler.Flow
             set UniqueTag TargetTag, set IReadOnlyList<SSAVariable> Arguments);
 
         /// <summary>
+        /// Creates a block branch node that branches to the block
+        /// identified by the given unique tag, and passes the given
+        /// SSA locals as arguments.
+        /// </summary>
+        public const this(
+            set UniqueTag TargetTag, SSAVariable[] Arguments)
+        {
+            this.Arguments = (IReadOnlyList<SSAVariable>)Arguments;
+        }
+
+        /// <summary>
         /// Gets the block tag that uniquely identifies this block branch's
         /// destination block.
         /// </summary>

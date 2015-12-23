@@ -136,6 +136,7 @@
 			<Compile Include="Expressions/GetMethodExpression.ds" />
 			<Compile Include="Expressions/SizeOfExpression.ds" />
 			<Compile Include="Expressions/SourceExpression.ds" />
+			<Compile Include="Expressions/SpillableExpression.ds" />
 			<Compile Include="Expressions/StaticCastExpression.ds" />
 			<Compile Include="Expressions/InequalityExpression.ds" />
 			<Compile Include="Expressions/RemainderExpression.ds" />
@@ -200,6 +201,7 @@
 			<Compile Include="Statements/AssertStatement.ds" />
 			<Compile Include="Statements/SourceStatement.ds" />
 			<Compile Include="Statements/TryStatement.ds" />
+			<Compile Include="Statements/UnwrapStatement.ds" />
 			<Compile Include="Statements/ContractBodyStatement.ds" />
 			<Compile Include="Statements/EmitVariableSetStatement.ds" />
 		</ItemGroup>
@@ -230,6 +232,7 @@
 			<Compile Include="Visitors/AggregatePass.ds" />
 			<Compile Include="Visitors/AggregateVisitor.ds" />
 			<Compile Include="Visitors/AnyPredicateVisitorBase.ds" />
+			<Compile Include="Visitors/BlockBuildingVisitor.ds" />
 			<Compile Include="Visitors/BodyPassBase.ds" />
 			<Compile Include="Visitors/CloningVisitor.ds" />
 			<Compile Include="Visitors/ContextlessVisitorBase.ds" />
