@@ -1,9 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
 
 namespace Flame.Compiler.Statements
 {
+	/// <summary>
+	/// Defines a type of flow statement that represents a 'while' statement in
+	/// C family programming languages.
+	/// </summary>
 	public class WhileStatement : IStatement, IFlowStatement
 	{
 		public const this(set IExpression Condition, set IStatement Body)
@@ -12,8 +17,22 @@ namespace Flame.Compiler.Statements
 		}
 		public const this(set UniqueTag Tag, set IExpression Condition, set IStatement Body);
 
+		/// <summary>
+		/// Gets this while statement's unique tag.
+		/// </summary>
 		public UniqueTag Tag { const get; private set; }
+
+		/// <summary>
+		/// Gets this while statement's condition expression. The while loop
+		/// will execute the body for as long as this expression evalutes
+		/// to true.
+		/// </summary>
 		public IExpression Condition { const get; private set; }
+
+		/// <summary>
+		/// Gets this while statement's body, which will be executed as long
+		/// as the condition expression evaluates to true.
+		/// </summary>
 		public IStatement Body { const get; private set; }
 
 		public bool IsEmpty : IStatement.IsEmpty
@@ -34,6 +53,12 @@ namespace Flame.Compiler.Statements
 			{
 				return new WhileStatement(Tag, NewCondition, NewBody);
 			}
+		}
+
+		public void ToBlocks(BlockBuilder Builder)
+		{
+			// Create a tagged block, and let that do the heavy lifting.
+			return Lower().ToBlocks(Builder);
 		}
 
 		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
@@ -74,7 +99,7 @@ namespace Flame.Compiler.Statements
 		/// <summary>
 		/// Lowers this while block to an equivalent tagged block IR tree.
 		/// </summary>
-		public IStatement Lower()
+		public TaggedStatement Lower()
 		{
 			// "Lower" a while block like this:
 			//
