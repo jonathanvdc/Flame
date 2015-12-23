@@ -75,11 +75,7 @@ namespace Flame.Compiler.Statements
             // @break():
             //     @end()
 
-            var targetBlock = Builder.GetBlock(Target);
-            var endBlockBranch = Enumerable.Single<BlockBranch>(targetBlock.Flow.Branches);
-
-            Builder.CreateCurrentBlock(
-                EmptyStatement, new JumpFlow(endBlockBranch));
+            Builder.RedirectCurrent(Builder.GetBreakTag(Target));
         }
 
         public override ICodeBlock Emit(ICodeGenerator Generator)

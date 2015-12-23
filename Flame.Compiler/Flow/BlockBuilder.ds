@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Flame.Compiler.Variables;
+using Flame.Compiler.Statements;
 
 namespace Flame.Compiler.Flow
 {
@@ -11,10 +12,14 @@ namespace Flame.Compiler.Flow
 		public const this(set UniqueTag CurrentBlockTag)
 		{
 			this.results = new Dictionary<UniqueTag, BasicBlock>();
+			this.continueTags = new Dictionary<UniqueTag, UniqueTag>();
+			this.breakTags = new Dictionary<UniqueTag, UniqueTag>();
 			this.NextBlockTag = new UniqueTag();
 		}
 
 		private Dictionary<UniqueTag, BasicBlock> results;
+		private Dictionary<UniqueTag, UniqueTag> continueTags;
+		private Dictionary<UniqueTag, UniqueTag> breakTags;
 
 		/// <summary>
 		/// Gets a sequence of all blocks that have been built by this block
@@ -48,6 +53,43 @@ namespace Flame.Compiler.Flow
 		public BasicBlock GetBlock(UniqueTag Tag)
 		{
 			return this.results[Tag];
+		}
+
+		/// <summary>
+		/// Gets or creates a unique tag value in the given dictionary.
+		/// </summary>
+		private UniqueTag GetOrCreateTag(
+			Dictionary<UniqueTag, UniqueTag> Dict, UniqueTag Tag, string Suffix)
+		{
+			UniqueTag result;
+			if (Dict.TryGetValue(Tag, &result))
+			{
+				return result;
+			}
+			else
+			{
+				result = new UniqueTag(Tag.Name + "." + Suffix);
+				Dict[Tag] = result;
+				return result;
+			}
+		}
+
+		/// <summary>
+		/// Gets a block tag that uniquely identifies the `continue` destination
+		/// block of the block that owns the given tag.
+		/// </summary>
+		public UniqueTag GetBreakTag(UniqueTag Tag)
+		{
+			return GetOrCreateTag(breakTags, Tag, "break");
+		}
+
+		/// <summary>
+		/// Gets a block tag that uniquely identifies the `break` destination
+		/// block of the block that owns the given tag.
+		/// </summary>
+		public UniqueTag GetContinueTag(UniqueTag Tag)
+		{
+			return GetOrCreateTag(continueTags, Tag, "continue");
 		}
 
 		/// <summary>
@@ -121,6 +163,28 @@ namespace Flame.Compiler.Flow
 			string Name, IStatement Contents, BlockFlow Flow)
 		{
 			return CreateBlock(Name, new List<SSAVariable>(), Contents, Flow);
+		}
+
+		/// <summary>
+		/// Creates a block identified by the first tag that simply jumps to the
+		/// block identified by the second tag. The destination tag must not
+		/// take any parameters.
+		/// </summary>
+		public UniqueTag Redirect(UniqueTag SourceTag, UniqueTag DestinationTag)
+		{
+			return CreateBlock(
+				SourceTag, EmptyStatement,
+				new JumpFlow(new BlockBranch(DestinationTag)));
+		}
+
+		/// <summary>
+		/// Creates the current block, and have it jump to the
+		/// block identified by the given tag.
+		/// The destination tag must not take any parameters.
+		/// </summary>
+		public void RedirectCurrent(UniqueTag DestinationTag)
+		{
+			Redirect(CurrentBlockTag, DestinationTag);
 		}
 	}
 }

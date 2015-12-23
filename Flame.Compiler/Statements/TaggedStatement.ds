@@ -23,6 +23,7 @@ namespace Flame.Compiler.Statements
 		/// Gets the tag that identifies this tagged statement.
 		/// </summary>
 		public UniqueTag Tag { const get; private set; }
+
 		/// <summary>
 		/// Gets this tagged statement's body.
 		/// </summary>
@@ -60,15 +61,26 @@ namespace Flame.Compiler.Statements
 			//
 			// @enter():
 			//     @start()
+			//
+			// @continue():
+			//     @start()
+			//
 			// @start():
 			//     <body-statement>
+			//     @next()
+			//
+			// @break():
 			//     @next()
 
 			var startBlock = Builder.CreateBlock(
 				Tag, Body, new JumpFlow(new BlockBranch(Builder.NextBlockTag)));
 
-			Builder.CreateCurrentBlock(
-				EmptyStatement, new JumpFlow(new BlockBranch(startBlock)));
+			// Create the `@enter` block
+			Builder.RedirectCurrent(startBlock);
+			// Create the `@break` block
+			Builder.Redirect(Builder.GetBreakTag(Tag), Builder.NextBlockTag);
+			// Create the `@continue` block
+			Builder.Redirect(Builder.GetContinueTag(Tag), startBlock);
 		}
 
 		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
