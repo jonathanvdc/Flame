@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Compiler.Flow;
 using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Expressions
 {
@@ -10,8 +12,10 @@ namespace Flame.Compiler.Expressions
     /// </summary>
     public abstract class ShortCircuitBinaryExpression : BinaryExpression, IFlowExpression
     {
-       public const this(IExpression LeftOperand, IExpression RightOperand)
-           : base(LeftOperand, RightOperand);
+        public const this(IExpression LeftOperand, IExpression RightOperand)
+            : base(LeftOperand, RightOperand);
+
+        public abstract override SSAVariable ToBlocks(BlockBuilder Builder);
 
         /// <summary>
         /// Accepts and interacts with a flow visitor.
@@ -58,7 +62,7 @@ namespace Flame.Compiler.Expressions
 
         public override bool IsConstant
         {
-            override const get
+            override get
             {
                 if (LeftOperand.Type.Equals(PrimitiveTypes.Boolean) &&
                     LeftOperand.EvaluatesTo<bool>(false))
@@ -70,7 +74,7 @@ namespace Flame.Compiler.Expressions
             }
         }
 
-        public override const IBoundObject Evaluate()
+        public override IBoundObject Evaluate()
         {
             var lValue = LeftOperand.Evaluate();
 
@@ -80,6 +84,25 @@ namespace Flame.Compiler.Expressions
                 return RightOperand.Evaluate();
             else
                 return new BooleanExpression(false);
+        }
+
+        /// <summary>
+        /// Lowers this logical 'and' expression by creating an equivalent
+        /// selection expression.
+        /// </summary>
+        public const SelectExpression Lower()
+        {
+            // Left ? Right : false
+            return new SelectExpression(
+                LeftOperand, RightOperand, new BooleanExpression(false));
+        }
+
+        /// <summary>
+        /// Reduces this logical 'and' expression to a sequence of basic blocks.
+        /// </summary>
+        public override SSAVariable ToBlocks(BlockBuilder Builder)
+        {
+            return Lower().ToBlocks(Builder);
         }
 
         /// <summary>

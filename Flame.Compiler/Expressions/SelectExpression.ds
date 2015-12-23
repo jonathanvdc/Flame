@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Expressions
 {
@@ -27,6 +30,73 @@ namespace Flame.Compiler.Expressions
 			{
 				return new SelectExpression(NewCond, NewIf, NewElse);
 			}
+		}
+
+		/// <summary>
+		/// Converts this select-expression to a series of blocks.
+		/// </summary>
+		public SSAVariable ToBlocks(BlockBuilder Builder)
+		{
+			// Generate the following blocks:
+			//
+			// @select():
+			//     cond = <cond-expr>
+			//     if cond
+			//         then @select.then()
+			//         else @select.else()
+			//
+			// @select.then():
+			//     select_true = <true-expr>
+			//     @select.phi(select_true)
+			//
+			// @select.else():
+			//     select_false = <false-expr>
+			//     @select.phi(select_false)
+			//
+			// @select.phi(select_result):
+			//     goto @next()
+
+			// Create some some SSA locals.
+			var resultVar = new SSAVariable("select_result", Type);
+			var trueResultVar = new SSAVariable("select_true", TrueValue.Type);
+			var falseResultVar = new SSAVariable("select_false", FalseValue.Type);
+			var condVariable = new SSAVariable("cond", Condition.Type);
+
+			// Create the `@select.phi` block, which ties the `true` and `false`
+			// results together.
+			var phiParamList = new List<SSAVariable>();
+			phiParamList.Add(resultVar);
+			var phiBlock = Builder.CreateBlock(
+				"select.phi", phiParamList, EmptyStatement,
+				new JumpFlow(new BlockBranch(Builder.NextBlockTag)));
+
+			// Create the `@select.then` block, which represents the `true`
+			// branch.
+			var trueBlock = Builder.CreateBlock(
+				"select.then",
+				trueResultVar.CreateSetStatement(TrueValue),
+				new JumpFlow(new BlockBranch(phiBlock, new SSAVariable[]
+				{
+					trueResultVar
+				})));
+
+			// Create the `@select.else` block, which represents the `false`
+			// branch.
+			var falseBlock = Builder.CreateBlock(
+				"select.else",
+				falseResultVar.CreateSetStatement(FalseValue),
+				new JumpFlow(new BlockBranch(phiBlock, new SSAVariable[]
+				{
+					falseResultVar
+				})));
+
+			Builder.CreateCurrentBlock(
+				condVariable.CreateSetStatement(Condition),
+				new SelectFlow(condVariable,
+					new BlockBranch(trueBlock),
+					new BlockBranch(falseBlock)));
+
+			return resultVar;
 		}
 
 		public IExpression AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
