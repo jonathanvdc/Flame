@@ -10,17 +10,17 @@ namespace Flame.Compiler.Flow
 	{
 		public const this(set UniqueTag CurrentBlockTag)
 		{
-			this.results = new List<BasicBlock>();
+			this.results = new Dictionary<UniqueTag, BasicBlock>();
 			this.NextBlockTag = new UniqueTag();
 		}
 
-		private List<BasicBlock> results;
+		private Dictionary<UniqueTag, BasicBlock> results;
 
 		/// <summary>
 		/// Gets a sequence of all blocks that have been built by this block
 		/// builder so far.
 		/// </summary>
-		public [BasicBlock] Blocks { const get { return results; } }
+		public [BasicBlock] Blocks { const get { return results.Values; } }
 
 		/// <summary>
 		/// Gets a tag that uniquely identifies the current basic block.
@@ -33,11 +33,29 @@ namespace Flame.Compiler.Flow
 		public UniqueTag NextBlockTag { const get; private set; }
 
 		/// <summary>
+		/// Proceeds to the next block by setting the current block tag to
+		/// the next block tag, and creating a new unique tag for the next block.
+		/// </summary>
+		public void Next()
+		{
+			this.CurrentBlockTag = NextBlockTag;
+			this.NextBlockTag = new UniqueTag();
+		}
+
+		/// <summary>
+		/// Gets the basic block identified by the given tag.
+		/// </summary>
+		public BasicBlock GetBlock(UniqueTag Tag)
+		{
+			return this.results[Tag];
+		}
+
+		/// <summary>
 		/// Adds the given basic block to the created blocks list.
 		/// </summary>
 		public void RegisterBlock(BasicBlock Block)
 		{
-			this.results.Add(Block);
+			this.results[Block.Tag] = Block;
 		}
 
 		/// <summary>
@@ -65,14 +83,34 @@ namespace Flame.Compiler.Flow
 		/// tag.
 		/// </summary>
 		public UniqueTag CreateBlock(
+			UniqueTag Tag, IReadOnlyList<SSAVariable> Parameters,
+			IStatement Contents, BlockFlow Flow)
+		{
+			var result = new BasicBlock(Tag, Parameters, Contents, Flow);
+
+			RegisterBlock(result);
+			return Tag;
+		}
+
+		/// <summary>
+		/// Creates a new basic block, registers it and returns its unique
+		/// tag.
+		/// </summary>
+		public UniqueTag CreateBlock(
 			string Name, IReadOnlyList<SSAVariable> Parameters,
 			IStatement Contents, BlockFlow Flow)
 		{
-			var tag = new UniqueTag(Name);
-			var result = new BasicBlock(tag, Parameters, Contents, Flow);
+			return CreateBlock(new UniqueTag(Name), Parameters, Contents, Flow);
+		}
 
-			RegisterBlock(result);
-			return tag;
+		/// <summary>
+		/// Creates a new basic block, registers it and returns its unique
+		/// tag.
+		/// </summary>
+		public UniqueTag CreateBlock(
+			UniqueTag Tag, IStatement Contents, BlockFlow Flow)
+		{
+			return CreateBlock(Tag, new List<SSAVariable>(), Contents, Flow);
 		}
 
 		/// <summary>
