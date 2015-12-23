@@ -5,7 +5,7 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler.Statements
 {
-	public class YieldBreakStatement : GlobalFlowStatementBase
+	public class YieldBreakStatement : FlowTerminatingStatementBase
 	{
 		public const this();
 

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Flame.Compiler.Emit;
+using Flame.Compiler.Flow;
 
 namespace Flame.Compiler.Statements
 {
@@ -35,6 +37,8 @@ namespace Flame.Compiler.Statements
             return this;
         }
 
+        public abstract override void ToBlocks(BlockBuilder Builder);
+
         /// <summary>
         /// Accepts and interacts with a flow visitor.
         /// </summary>
@@ -63,6 +67,20 @@ namespace Flame.Compiler.Statements
         /// </summary>
         public const this(UniqueTag Target)
             : base(Target);
+
+        public override void ToBlocks(BlockBuilder Builder)
+        {
+            // Create the following block:
+            //
+            // @break():
+            //     @end()
+
+            var targetBlock = Builder.GetBlock(Target);
+            var endBlockBranch = Enumerable.Single<BlockBranch>(targetBlock.Flow.Branches);
+
+            Builder.CreateCurrentBlock(
+                EmptyStatement, new JumpFlow(endBlockBranch));
+        }
 
         public override ICodeBlock Emit(ICodeGenerator Generator)
         {

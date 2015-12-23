@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Flame.Compiler.Emit;
+using Flame.Compiler.Flow;
 
 namespace Flame.Compiler.Statements
 {
@@ -16,6 +17,17 @@ namespace Flame.Compiler.Statements
         /// </summary>
         public const this(UniqueTag Target)
             : base(Target);
+
+        public override void ToBlocks(BlockBuilder Builder)
+        {
+            // Create the following block:
+            //
+            // @continue():
+            //     @start()
+
+            Builder.CreateCurrentBlock(
+                EmptyStatement, new JumpFlow(new BlockBranch(Target)));
+        }
 
         public override ICodeBlock Emit(ICodeGenerator Generator)
         {

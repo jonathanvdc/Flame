@@ -8,7 +8,7 @@ namespace Flame.Compiler.Statements
 	/// <summary>
 	/// Defines a type of statement that throws the given exception expression.
 	/// </summary>
-	public class ThrowStatement : GlobalFlowStatementBase
+	public class ThrowStatement : FlowTerminatingStatementBase
 	{
 		/// <summary>
 		/// Creates a new throw statement from the given exception expression.

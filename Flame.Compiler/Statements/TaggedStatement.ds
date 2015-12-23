@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Compiler.Flow;
 using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Statements
@@ -48,6 +49,26 @@ namespace Flame.Compiler.Statements
 				return this;
 			else
 				return new TaggedStatement(Tag, NewBody);
+		}
+
+		/// <summary>
+		/// Converts this tagged statement to a sequence of basic blocks.
+		/// </summary>
+		public void ToBlocks(BlockBuilder Builder)
+		{
+			// Create the following blocks:
+			//
+			// @enter():
+			//     @start()
+			// @start():
+			//     <body-statement>
+			//     @next()
+
+			var startBlock = Builder.CreateBlock(
+				Tag, Body, new JumpFlow(new BlockBranch(Builder.NextBlockTag)));
+
+			Builder.CreateCurrentBlock(
+				EmptyStatement, new JumpFlow(new BlockBranch(startBlock)));
 		}
 
 		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
