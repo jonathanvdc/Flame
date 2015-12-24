@@ -1,0 +1,98 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Flow
+{
+	/// <summary>
+	/// Defines a control flow graph: a self-contained sequence of basic
+	/// blocks, with an entry point.
+	/// </summary>
+	public class FlowGraph
+	{
+		/// <summary>
+		/// Creates a new flow graph from the given entry point tag and
+		/// tag-basic block mapping.
+		/// </summary>
+		public const this(
+			set UniqueTag EntryPointTag,
+			IReadOnlyDictionary<UniqueTag, BasicBlock> Blocks)
+		{
+			this.allBlocks = Blocks;
+		}
+
+		/// <summary>
+		/// Creates a new flow graph from the given entry point tag and sequence
+		/// of basic blocks.
+		/// </summary>
+		public const this(set UniqueTag EntryPointTag, [BasicBlock] Blocks)
+		{
+			var blockDict = new Dictionary<UniqueTag, BasicBlock>();
+			foreach (var item in Blocks)
+			{
+				blockDict.Add(item.Tag, item);
+			}
+			this.allBlocks = blockDict;
+		}
+
+		private IReadOnlyDictionary<UniqueTag, BasicBlock> allBlocks;
+
+		/// <summary>
+		/// Gets the unique tag that identifies the entry point block in
+		/// this control flow graph.
+		/// </summary>
+		public UniqueTag EntryPointTag { const get; private set; }
+
+		/// <summary>
+		/// Gets the sequence of all blocks in this control flow graph.
+		/// </summary>
+		public [BasicBlock] Blocks { get { return allBlocks.Values; } }
+
+		/// <summary>
+		/// Gets this control flow graph's entry point graph.
+		/// </summary>
+		public BasicBlock EntryPointBlock
+		{
+			get { return GetBlock(EntryPointTag); }
+		}
+
+		/// <summary>
+		/// Gets the block associated with the given tag in this control flow
+		/// graph.
+		/// </summary>
+		public BasicBlock GetBlock(UniqueTag Tag)
+		{
+			return allBlocks[Tag];
+		}
+
+		alias PredecessorPair = Tuple<UniqueTag, IReadOnlyList<SSAVariable>>;
+
+		/// <summary>
+		/// Creates a dictionary that maps basic block tags to sequences of
+		/// (predecessor block tag, argument list) pairs.
+		/// </summary>
+		public IReadOnlyDictionary<UniqueTag, [PredecessorPair]> GetPredecessors()
+		{
+			var results = new Dictionary<UniqueTag, [PredecessorPair]>();
+			foreach (var item in Blocks)
+			{
+				foreach (var branch in item.Flow.Branches)
+				{
+					[PredecessorPair] preds;
+					if (!results.TryGetValue(branch.TargetTag, &preds))
+					{
+						preds = new List<PredecessorPair>();
+						results[branch.TargetTag] = preds;
+					}
+					var predList = (List<PredecessorPair>)preds;
+					// Add the (predecessor block tag, argument list) to the
+					// list of predecessors for the target block.
+					predList.Add(new PredecessorPair(item.Tag, branch.Arguments));
+				}
+			}
+			return results;
+		}
+	}
+}
