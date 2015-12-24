@@ -77,7 +77,11 @@ namespace Flame.Compiler.Flow
 			}
 			else
 			{
-				result = new UniqueTag(Tag.Name + "." + Suffix);
+				if (string.IsNullOrWhiteSpace(Tag.Name))
+					result = new UniqueTag(Suffix);
+				else
+					result = new UniqueTag(Tag.Name + "." + Suffix);
+
 				Dict[Tag] = result;
 				return result;
 			}
