@@ -58,7 +58,6 @@ namespace Flame.Optimization
             var initialize = new InsertStatement();
             var newCaptures = new List<IExpression>();
             var unspilledExprs = new List<SpillableExpression>();
-            var finalize = new InsertStatement();
             for (int i = 0; i < header.CaptureList.Count; i++)
             {
                 if (visitor.UsedCapturedValues.Contains(i))
@@ -76,7 +75,7 @@ namespace Flame.Optimization
                     {
                         foreach (var item in unspilledExprs)
                         {
-                            item.Spill(initialize, finalize);
+                            item.Spill(initialize);
                         }
                         unspilledExprs = new List<SpillableExpression>();
                         initialize.Insert(stmt);
@@ -99,7 +98,7 @@ namespace Flame.Optimization
                     CurrentLocation, oldCount, newCount));
 
             var resultLambda = new LambdaExpression(optHeader, optBody, Lambda.BoundHeaderBlock);
-            return new InitializedExpression(initialize, resultLambda, finalize);
+            return new InitializedExpression(initialize, resultLambda);
         }
 
         protected override IExpression TransformCore(IExpression Expression)
