@@ -12,7 +12,8 @@ namespace Flame.Compiler.Flow
     public interface IBasicBlockVisitor : INodeVisitor
     {
         /// <summary>
-        /// Visits the given SSA local variable.
+        /// Visits the given SSA local variable. This can be either a parameter,
+        /// argument, load or definition.
         /// </summary>
         SSAVariable Visit(SSAVariable Variable);
 
