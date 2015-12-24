@@ -38,6 +38,15 @@ namespace Flame.Compiler.Flow
 		public UniqueTag NextBlockTag { const get; private set; }
 
 		/// <summary>
+		/// Creates a flow graph from this block builder, with the given
+		/// entry point tag.
+		/// </summary>
+		public FlowGraph ToFlowGraph(UniqueTag EntryPointTag)
+		{
+			return new FlowGraph(EntryPointTag, results);
+		}
+
+		/// <summary>
 		/// Proceeds to the next block by setting the current block tag to
 		/// the next block tag, and creating a new unique tag for the next block.
 		/// </summary>
