@@ -73,6 +73,10 @@ namespace Flame.Compiler.Flow
 		/// Creates a dictionary that maps basic block tags to sequences of
 		/// (predecessor block tag, argument list) pairs.
 		/// </summary>
+		/// <remarks>
+		/// This is O(n*m), where n represents the number of blocks,
+		/// and m is equal to the number of branches per block.
+		/// </remarks>
 		public IReadOnlyDictionary<UniqueTag, [PredecessorPair]> GetPredecessors()
 		{
 			var results = new Dictionary<UniqueTag, [PredecessorPair]>();
