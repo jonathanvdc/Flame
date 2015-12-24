@@ -162,6 +162,7 @@
 			<Compile Include="Flow/BasicBlock.ds" />
 			<Compile Include="Flow/BlockBuilder.ds" />
 			<Compile Include="Flow/BlockFlow.ds" />
+			<Compile Include="Flow/FlowGraph.ds" />
 			<Compile Include="Flow/IBasicBlockVisitor.ds" />
 			<Compile Include="Flow/JumpFlow.ds" />
 			<Compile Include="Flow/SelectFlow.ds" />
