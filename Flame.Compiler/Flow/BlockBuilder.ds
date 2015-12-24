@@ -110,6 +110,12 @@ namespace Flame.Compiler.Flow
 		/// </summary>
 		public void RegisterBlock(BasicBlock Block)
 		{
+			if (this.results.ContainsKey(Block.Tag))
+			{
+				throw new InvalidOperationException(
+					"No more than one basic block can be assigned to any " +
+					"given unique tag.");
+			}
 			this.results[Block.Tag] = Block;
 		}
 
