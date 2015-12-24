@@ -15,6 +15,16 @@ namespace Flame.Compiler.Visitors
     public class BlockBuildingVisitor : NodeVisitorBase
     {
         /// <summary>
+        /// Creates a basic block constructing visitor from the given block
+        /// builder.
+        /// </summary>
+        public const this(set BlockBuilder Builder)
+        {
+            this.unspilledStatements = new List<MovableStatement>();
+            this.unspilledExpressions = new List<Tuple<SpillableExpression, InsertStatement>>();
+        }
+
+        /// <summary>
         /// Creates a basic block constructing visitor.
         /// </summary>
         public const this()
@@ -66,6 +76,33 @@ namespace Flame.Compiler.Visitors
                 spillTarget.Unwrap(),
                 new JumpFlow(new BlockBranch(Builder.NextBlockTag)));
             Builder.Next();
+        }
+
+        /// <summary>
+        /// Creates the current block from the given statement.
+        /// This statement may contain control-flow nodes: they will
+        /// be lowered to basic blocks. The created block will jump
+        /// to the next block when it is done.
+        /// </summary>
+        public void CreateCurrentBlock(IStatement Statement)
+        {
+            var visited = Visit(Statement);
+
+            Builder.CreateCurrentBlock(
+                visited,
+                new JumpFlow(new BlockBranch(Builder.NextBlockTag)));
+        }
+
+        /// <summary>
+        /// Creates the current block from the given statement and final flow.
+        /// This statement may contain control-flow nodes: they will
+        /// be lowered to basic blocks.
+        /// </summary>
+        public void CreateCurrentBlock(IStatement Statement, BlockFlow Flow)
+        {
+            var visited = Visit(Statement);
+
+            Builder.CreateCurrentBlock(visited, Flow);
         }
 
         public override const bool Matches(IExpression Value)
