@@ -4,6 +4,7 @@ using System.Text;
 using Flame.Build;
 using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
 using Flame.Compiler.Variables;
 using Flame.Compiler.Visitors;
 
@@ -152,7 +153,10 @@ namespace Flame.Compiler.Statements
 			{
 				return Collections;
 			}
-			else return newCollectionElements;
+			else
+			{
+				return newCollectionElements;
+			}
 		}
 
 		public void AcceptPredicate(INodeVisitor Visitor)
@@ -162,6 +166,20 @@ namespace Flame.Compiler.Statements
 				item.AcceptPredicate(Visitor);
 			}
 			Visitor.Visit(Body);
+		}
+
+		public void ToBlocks(BlockBuilder Builder)
+		{
+			// Creating the sequence of basic blocks explicitly here
+			// would be pretty challenging. Instead, we'll just lower
+			// this foreach statement and have a basic block constructing
+			// visitor reduce that to a sequence of basic blocks.
+			// This will also reduce child control flow nodes to basic
+			// blocks, but that's no big deal, because the basic block visitor
+			// will have already done so.
+
+			var visitor = new BlockBuildingVisitor(Builder);
+			visitor.CreateCurrentBlock(Lower());
 		}
 
 		public IStatement AcceptFlow<TState, TDelta>(IFlowVisitor<TState, TDelta> Visitor)

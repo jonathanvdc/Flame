@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Compiler.Flow;
 using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Statements
@@ -23,14 +24,14 @@ namespace Flame.Compiler.Statements
 		/// Gets the do...while statement's block tag.
 		/// </summary>
 		public UniqueTag Tag { const get; private set; }
-		
+
 		/// <summary>
 		/// Gets the do...while statement's condition. After the initial iteration,
 		/// the loop's body will be executed as long as this condition evaluates to
 		/// true.
 		/// </summary>
 		public IExpression Condition { const get; private set; }
-		
+
 		/// <summary>
 		/// Gets the do...while statement's body.
 		/// </summary>
@@ -46,6 +47,18 @@ namespace Flame.Compiler.Statements
 			{
 				return new DoWhileStatement(Tag, NewBody, NewCondition);
 			}
+		}
+
+		public void ToBlocks(BlockBuilder Builder)
+		{
+			// We can just lower this statement and have a basic block
+			// constructing visitor reduce that to a sequence of basic blocks.
+			// This will also reduce child control flow nodes to basic
+			// blocks, but that's no big deal, because the basic block visitor
+			// will have already done so.
+
+			var visitor = new BlockBuildingVisitor(Builder);
+			visitor.CreateCurrentBlock(Lower());
 		}
 
 		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
