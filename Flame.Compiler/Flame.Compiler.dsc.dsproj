@@ -57,7 +57,7 @@
 			<Compile Include="Emit/ICodeGenerator.ds" />
 			<Compile Include="Emit/IMethodStructureGenerator.ds" />
 			<Compile Include="Emit/ICodeBlock.ds" />
-			<Compile Include="Emit/IBlockGenerator.ds" />
+			<Compile Include="Emit/IBlockCodeGenerator.ds" />
 			<Compile Include="Emit/IUnmanagedCodeGenerator.ds" />
 			<Compile Include="Emit/IUnmanagedMethodStructureGenerator.ds" />
 			<Compile Include="Emit/IBranchingCodeGenerator.ds" />
