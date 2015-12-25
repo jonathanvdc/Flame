@@ -67,6 +67,34 @@ namespace Flame.Compiler.Flow
 			return allBlocks[Tag];
 		}
 
+		/// <summary>
+		/// Accepts the given node visitor.
+		/// </summary>
+		public FlowGraph Accept(INodeVisitor Visitor)
+		{
+			var newBlocks = new Dictionary<UniqueTag, BasicBlock>();
+			foreach (var item in Blocks)
+			{
+				var visitedBlock = item.Accept(Visitor);
+				newBlocks[visitedBlock.Tag] = visitedBlock;
+			}
+			return new FlowGraph(EntryPointTag, newBlocks);
+		}
+
+		/// <summary>
+		/// Applies simple optimizations to this control flow graph.
+		/// </summary>
+		public FlowGraph Optimize()
+		{
+			var newBlocks = new Dictionary<UniqueTag, BasicBlock>();
+			foreach (var item in Blocks)
+			{
+				var visitedBlock = item.Optimize();
+				newBlocks[visitedBlock.Tag] = visitedBlock;
+			}
+			return new FlowGraph(EntryPointTag, newBlocks).EliminateUnreachable();
+		}
+
 		alias PredecessorPair = Tuple<UniqueTag, IReadOnlyList<SSAVariable>>;
 
 		/// <summary>
@@ -97,6 +125,54 @@ namespace Flame.Compiler.Flow
 				}
 			}
 			return results;
+		}
+
+		/// <summary>
+		/// Marks the block identified by the given tag - and all blocks that
+		/// are reachable from this block - as reachable by adding them to
+		/// the given set.
+		/// </summary>
+		private void MarkReachable(UniqueTag Tag, HashSet<UniqueTag> Results)
+		{
+			// Mark this block as reachable.
+			if (!Results.Add(Tag))
+			{
+				// Mark all blocks that are reachable from this block
+				// as reachable.
+				foreach (var item in GetBlock(Tag).Flow.Branches)
+				{
+					MarkReachable(item.TargetTag, Results);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Computes the set of all reachable blocks in this flow graph.
+		/// </summary>
+		public [UniqueTag] FindReachableBlocks()
+		{
+			var results = new HashSet<UniqueTag>();
+			MarkReachable(EntryPointTag, results);
+			return results;
+		}
+
+		/// <summary>
+		/// Creates a flow graph that contains all blocks that are
+		/// reachable in this flow graph.
+		/// </summary>
+		public FlowGraph EliminateUnreachable()
+		{
+			var reachable = new HashSet<UniqueTag>();
+			MarkReachable(EntryPointTag, reachable);
+			var results = new Dictionary<UniqueTag, BasicBlock>();
+			foreach (var item in Blocks)
+			{
+				if (reachable.Contains(item.Tag))
+				{
+					results[item.Tag] = item;
+				}
+			}
+			return new FlowGraph(EntryPointTag, results);
 		}
 	}
 }
