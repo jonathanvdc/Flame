@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Flame.Compiler.Flow;
+using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Emit
 {
@@ -43,10 +44,11 @@ namespace Flame.Compiler.Emit
 	{
         /// <summary>
         /// Creates a basic block from the given unique tag, contents and
-        /// block flow.
+        /// block flow. A parameter list is also given.
         /// </summary>
         IEmitBasicBlock EmitBasicBlock(
-            UniqueTag Tag, ICodeBlock Contents, BlockFlow Flow);
+            UniqueTag Tag, IReadOnlyList<SSAVariable> Parameters,
+            ICodeBlock Contents, BlockFlow Flow);
 
         /// <summary>
         /// Creates a flow graph code block from the given entry point tag
