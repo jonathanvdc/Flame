@@ -66,7 +66,12 @@ namespace Flame.Compiler.Variables
         /// </summary>
         public IEmitVariable GetEmitVariable(ICodeGenerator CodeGenerator)
         {
-            return CodeGenerator.GetOrDeclareLocal(Tag, Member);
+            // Prefer SSA variables.
+            if (CodeGenerator is ISSACodeGenerator)
+                return ((ISSACodeGenerator)CodeGenerator)
+                    .GetOrDeclareSSALocal(Tag, Member);
+            else
+                return CodeGenerator.GetOrDeclareLocal(Tag, Member);
         }
 
         /// <summary>
@@ -149,7 +154,7 @@ namespace Flame.Compiler.Variables
             return (string)Variable;
         }
     }
-    
+
     public class SSADefineStatement : VariableSetStatementBase<SSAVariable>,
                                       IMemberNode
     {
