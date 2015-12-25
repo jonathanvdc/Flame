@@ -68,6 +68,23 @@ namespace Flame.Compiler.Flow
 		}
 
 		/// <summary>
+		/// Tests if this flow graph is "empty" from the perspective of a statement:
+		/// all reachable blocks have empty bodies.
+		/// </summary>
+		public bool IsEmpty
+		{
+			get
+			{
+				foreach (var item in FindReachableBlocks())
+				{
+					if (!GetBlock(item).Contents.IsEmpty)
+						return false;
+				}
+				return true;
+			}
+		}
+
+		/// <summary>
 		/// Accepts the given node visitor.
 		/// </summary>
 		public FlowGraph Accept(INodeVisitor Visitor)
