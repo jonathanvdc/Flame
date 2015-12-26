@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Flow;
 
 namespace Flame.Intermediate.Emit
 {
@@ -16,7 +18,7 @@ namespace Flame.Intermediate.Emit
                                    IForeachCodeGenerator, ICommentedCodeGenerator,
                                    IYieldCodeGenerator, ILambdaCodeGenerator,
                                    IInitializingCodeGenerator, IContractCodeGenerator,
-								   ISSACodeGenerator
+								   ISSACodeGenerator, IBlockCodeGenerator
     {
         public IRCodeGenerator(IRAssemblyBuilder Assembly, IMethod Method)
         {
@@ -684,6 +686,72 @@ namespace Flame.Intermediate.Emit
 				Body, 
 				NodeBlock.Block(this, Preconditions), 
 				NodeBlock.Block(this, Postconditions));
+		}
+
+		#endregion
+
+		#region IBlockCodeGenerator implementation
+
+		public NodeBlock EmitBasicBlockBranch(BlockBranch Branch)
+		{
+			// Create a "#branch(target_tag, args...)" node
+
+			return NodeBlock.Call(this, ExpressionParsers.BranchNodeName,
+				new UniqueTag[] { Branch.TargetTag }.Concat(
+					Branch.Arguments.Select(item => item.Tag))
+					.Select(EmitTagNode).ToArray());
+		}
+
+		public NodeBlock EmitBasicBlockFlow(BlockFlow Flow)
+		{
+			if (Flow is UnreachableFlow)
+			{
+				// Create an "#unreachable" node
+				return NodeBlock.Id(this, ExpressionParsers.UnreachableFlowNodeName);
+			}
+			else if (Flow is JumpFlow)
+			{
+				// Create a "#jump(#branch(...))" node
+				return NodeBlock.Call(this, ExpressionParsers.JumpFlowNodeName,
+					EmitBasicBlockBranch(((JumpFlow)Flow).Branch));
+			}
+			else if (Flow is SelectFlow)
+			{
+				// Create a "#select(cond, #branch(...), #branch(...))" node
+				var selectFlow = (SelectFlow)Flow;
+				return NodeBlock.Call(this, ExpressionParsers.SelectFlowNodeName,
+					EmitTagNode(selectFlow.Condition.Tag),
+					EmitBasicBlockBranch(selectFlow.ThenBranch).Node,
+					EmitBasicBlockBranch(selectFlow.ElseBranch).Node);
+			}
+			else
+			{
+				throw new InvalidOperationException("Could not encode '" + Flow.ToString() + "' flow.");
+			}
+		}
+
+		public IEmitBasicBlock EmitBasicBlock(
+			UniqueTag Tag, IReadOnlyList<SSAVariable> Parameters, 
+			ICodeBlock Contents, BlockFlow Flow)
+		{
+			// Create a "#basic_block(tag, { parameters... }, body, flow)" 
+			// node
+
+			return new EmitBasicBlock(Tag, NodeBlock.Call(
+				this, ExpressionParsers.BasicBlockNodeName,
+				EmitTagNode(Tag), NodeFactory.Block(Parameters.Select(item => EmitTagNode(item.Tag))),
+				NodeBlock.ToNode(Contents), EmitBasicBlockFlow(Flow).Node).Node);
+		}
+
+		public ICodeBlock EmitFlowGraph(
+			UniqueTag EntryPointTag, IEnumerable<IEmitBasicBlock> Blocks)
+		{
+			// Create a "#flow_graph(entry_point_tag, { blocks... })" node
+
+			return NodeBlock.Call(this, ExpressionParsers.FlowGraphNodeName,
+				new LNode[] { EmitTagNode(EntryPointTag) }
+					.Concat(Blocks.Select(item => ((EmitBasicBlock)item).Node))
+					.ToArray());
 		}
 
 		#endregion
