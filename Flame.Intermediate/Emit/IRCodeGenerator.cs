@@ -15,7 +15,8 @@ namespace Flame.Intermediate.Emit
                                    IDoWhileCodeGenerator, IForCodeGenerator,
                                    IForeachCodeGenerator, ICommentedCodeGenerator,
                                    IYieldCodeGenerator, ILambdaCodeGenerator,
-                                   IInitializingCodeGenerator, IContractCodeGenerator
+                                   IInitializingCodeGenerator, IContractCodeGenerator,
+								   ISSACodeGenerator
     {
         public IRCodeGenerator(IRAssemblyBuilder Assembly, IMethod Method)
         {
@@ -488,6 +489,30 @@ namespace Flame.Intermediate.Emit
         {
             return DeclareUnmanagedLocal(Tag, VariableMember);
         }
+
+		public IEmitVariable GetSSALocal(UniqueTag Tag)
+		{
+			return GetUnmanagedLocal(Tag);
+		}
+
+		public IEmitVariable DeclareSSALocal(UniqueTag Tag, IVariableMember VariableMember)
+		{
+			string name = variableNames.GenerateName(VariableMember);
+			var sig = EmitSignature(VariableMember);
+			var type = Assembly.TypeTable.GetReference(VariableMember.VariableType);
+
+			var oldPostprocessor = this.postprocessNode;
+			this.postprocessNode = body => oldPostprocessor(NodeFactory.Call(ExpressionParsers.DefineSSALocalNodeName, new LNode[]
+			{
+				NodeFactory.IdOrLiteral(name),
+				sig.Node,
+				type,
+				body
+			}));
+			var result = new NodeEmitVariable(this, ExpressionParsers.LocalVariableKindName, NodeFactory.IdOrLiteral(name));
+			locals.Add(Tag, result);
+			return result;
+		}
 
         public IUnmanagedEmitVariable GetUnmanagedArgument(int Index)
         {
