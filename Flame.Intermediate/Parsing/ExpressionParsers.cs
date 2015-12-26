@@ -48,6 +48,43 @@ namespace Flame.Intermediate.Parsing
         /// </remarks>
         public const string YieldBreakNodeName = "#yield_break";
 
+		#region Flow graph
+
+		/// <summary>
+		/// Defines a node type for basic block nodes.
+		/// </summary>
+		public const string BasicBlockNodeName = "#basic_block";
+
+		/// <summary>
+		/// Defines a node type for flow graph nodes.
+		/// </summary>
+		public const string FlowGraphNodeName = "#flow_graph";
+
+		/// <summary>
+		/// Defines a node type that hints at unreachable control flow.
+		/// </summary>
+		public const string UnreachableFlowNodeName = "#unreachable";
+
+		/// <summary>
+		/// Defines a node type that encodes an unconditional branch
+		/// to a basic block.
+		/// </summary>
+		public const string JumpFlowNodeName = "#jump";
+
+		/// <summary>
+		/// Defines a node type that encodes a condition branch to
+		/// one of two basic blocks.
+		/// </summary>
+		public const string SelectFlowNodeName = "#select";
+
+		/// <summary>
+		/// A node type that encodes data related to
+		/// control flow graph branches.
+		/// </summary>
+		public const string BranchNodeName = "#branch";
+
+		#endregion
+
         #endregion
 
         #region Intraprocedural control flow
