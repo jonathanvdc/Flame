@@ -339,7 +339,8 @@ namespace Flame.Intermediate.Parsing
         public static readonly string SetLocalNodeName = CreateSetVariableName(LocalVariableKindName);
         public static readonly string ReleaseLocalNodeName = CreateReleaseVariableName(LocalVariableKindName);
         public static readonly string AddressOfLocalNodeName = CreateAddressOfVariableName(LocalVariableKindName);
-        public const string DefineLocalNodeName = "#def_local";
+		public const string DefineLocalNodeName = "#def_local";
+		public const string DefineSSALocalNodeName = "#def_ssa_local";
 
         /// <summary>
         /// Gets the "element" variable kind name.
@@ -1599,6 +1600,28 @@ namespace Flame.Intermediate.Parsing
             return ParseWithLocal(State, localName, local, Node.Args[3]);
         }
 
+		/// <summary>
+		/// Parses a single local definition block.
+		/// </summary>
+		/// <param name="State"></param>
+		/// <param name="Node"></param>
+		/// <returns></returns>
+		public static IExpression ParseSSALocalDefinition(ParserState State, LNode Node)
+		{
+			// Format:
+			//
+			// #def_ssa_local(local_name, #member(name, attrs...), type, body)
+
+			string localName = IRParser.GetIdOrString(Node.Args[0]);
+			var sig = IRParser.ParseSignature(State, Node.Args[1]);
+			var ty = State.Parser.TypeReferenceParser.Parse(State, Node.Args[2]).Value;
+			var member = CreateVariableMember(sig, ty);
+
+			var local = new SSAVariable(member);
+
+			return ParseWithLocal(State, localName, local, Node.Args[3]);
+		}
+
         /// <summary>
         /// Creates a variable member from the given IR signature and type.
         /// </summary>
@@ -1696,6 +1719,9 @@ namespace Flame.Intermediate.Parsing
                     { AddressOfLocalNodeName, (state, node) => { throw new InvalidOperationException("Undefined local '" + IRParser.GetIdOrString(node.Args[0]) + "'."); }  },
                     { SetLocalNodeName, (state, node) => { throw new InvalidOperationException("Undefined local '" + IRParser.GetIdOrString(node.Args[0]) + "'."); }  },
                     { ReleaseLocalNodeName, CreateParser((state, node) => new WarningExpression(VoidExpression.Instance, new LogEntry("Undefined local", "Local '" + IRParser.GetIdOrString(node.Args[0]) + "' was not defined within the scope of the '#release_local' node."))) },
+
+					// SSA locals
+					{ DefineSSALocalNodeName, CreateParser(ParseSSALocalDefinition) },
 
                     // Null expressions
                     { IRParser.NullNodeName, CreateParser((state, node) => null) },
