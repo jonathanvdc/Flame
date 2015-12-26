@@ -746,7 +746,7 @@ namespace Flame.Intermediate.Emit
 		public ICodeBlock EmitFlowGraph(
 			UniqueTag EntryPointTag, IEnumerable<IEmitBasicBlock> Blocks)
 		{
-			// Create a "#flow_graph(entry_point_tag, { blocks... })" node
+			// Create a "#flow_graph(entry_point_tag, blocks...)" node
 
 			return NodeBlock.Call(this, ExpressionParsers.FlowGraphNodeName,
 				new LNode[] { EmitTagNode(EntryPointTag) }
