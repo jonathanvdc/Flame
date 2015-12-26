@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flame.Compiler.Flow;
 
 namespace Flame.Intermediate.Parsing
 {
@@ -960,6 +961,143 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+		#region Control flow graphs
+
+		/// <summary>
+		/// Parses the given SSA local reference node.
+		/// </summary>
+		/// <returns>The SSA local.</returns>
+		/// <param name="State"></param>
+		/// <param name="LocalIdentifier"></param>
+		public static SSAVariable ParseSSALocal(
+			ParserState State, LNode LocalIdentifier)
+		{
+			var localVar = ParseLocal(State, LocalIdentifier) as SSAVariable;
+			if (localVar == null)
+			{
+				throw new InvalidOperationException(
+					"Expected an SSA local, which " +
+					"must be declared as '" + DefineSSALocalNodeName + "', " +
+					"not as '" + DefineLocalNodeName + "'.");
+			}
+			return localVar;
+		}
+
+		/// <summary>
+		/// Parses the given basic block branch node.
+		/// </summary>
+		/// <returns>The basic block branch.</returns>
+		/// <param name="State"></param>
+		/// <param name="Node"></param>
+		/// <param name="Tags">
+		/// A dictionary that contains all relevant basic block tags
+		/// for this basic block branch.
+		/// </param>
+		public static BlockBranch ParseBasicBlockBranch(
+			ParserState State, LNode Node,
+			IReadOnlyDictionary<string, UniqueTag> Tags)
+		{
+			var targetTag = Tags[IRParser.GetIdOrString(Node.Args[0])];
+			var args = Node.Args.Slice(1).Select(item => ParseSSALocal(State, item)).ToArray();
+			return new BlockBranch(targetTag, args);
+		}
+
+		/// <summary>
+		/// Parses the given outgoing basic block flow
+		/// node.
+		/// </summary>
+		/// <returns>The outgoing basic block flow.</returns>
+		/// <param name="State"></param>
+		/// <param name="Node"></param>
+		/// <param name="Tags">
+		/// A dictionary that contains all relevant basic block tags
+		/// for this basic flow node.
+		/// </param>
+		public static BlockFlow ParseBasicBlockFlow(
+			ParserState State, LNode Node,
+			IReadOnlyDictionary<string, UniqueTag> Tags)
+		{
+			string type = Node.Name.Name;
+			if (type == JumpFlowNodeName)
+			{
+				// #jump(#branch(...))
+
+				return new JumpFlow(ParseBasicBlockBranch(State, Node.Args[0], Tags));
+			}
+			else if (type == SelectFlowNodeName)
+			{
+				// #select(cond, #branch(...), #branch(...))
+
+				var cond = ParseSSALocal(State, Node.Args[0]);
+				var ifBranch = ParseBasicBlockBranch(State, Node.Args[1], Tags);
+				var elseBranch = ParseBasicBlockBranch(State, Node.Args[2], Tags);
+				return new SelectFlow(cond, ifBranch, elseBranch);
+			}
+			else if (type == UnreachableFlowNodeName)
+			{
+				// #unreachable
+
+				return UnreachableFlow.Instance;
+			}
+			else
+			{
+				throw new NotSupportedException(
+					"Unknown flow node type: '" + type + "'.");
+			}
+		}
+
+		/// <summary>
+		/// Parses the given basic block node.
+		/// </summary>
+		/// <returns>The basic block.</returns>
+		/// <param name="State"></param>
+		/// <param name="Node">The node to parse.</param>
+		/// <param name="Tags">
+		/// A dictionary that contains all relevant basic block tags
+		/// for this basic block.
+		/// </param>
+		public static BasicBlock ParseBasicBlock(
+			ParserState State, LNode Node,
+			IReadOnlyDictionary<string, UniqueTag> Tags)
+		{
+			if (Node.ArgCount != 4)
+			{
+				throw new InvalidOperationException(
+					"'" + BlockNodeName + "' nodes take exactly four " +
+					"arguments: a tag, a parameter list, a body statement, " +
+					"and a final flow node.");
+			}
+
+			var tag = Tags[IRParser.GetIdOrString(Node.Args[0])];
+			// Synthesize a #get_local(tag) node for every parameter.
+			// Then parse that, and extract the SSA local it contains.
+			var parameterNodes = Node.Args[1].Args;
+			var parameters = parameterNodes.Select(item => ParseSSALocal(State, item)).ToArray();
+			var body = ToStatement(ParseExpression(State, Node.Args[2]));
+			var flow = ParseBasicBlockFlow(State, Node.Args[3], Tags);
+
+			return new BasicBlock(tag, parameters, body, flow);
+		}
+
+		/// <summary>
+		/// Parses a flow graph node.
+		/// </summary>
+		/// <returns>The flow graph.</returns>
+		/// <param name="State"></param>
+		/// <param name="Node">The node to parse.</param>
+		public static IExpression ParseFlowGraph(ParserState State, LNode Node)
+		{
+			var blockNodes = Node.Args.Slice(1);
+			var tags = blockNodes.Select(IRParser.GetIdOrString)
+				.ToDictionary(item => item, item => new UniqueTag(item));
+			var epTag = tags[IRParser.GetIdOrString(Node.Args[0])];
+			var blocks = blockNodes.Select(item => ParseBasicBlock(State, Node, tags));
+
+			return ToExpression(new FlowGraphStatement(new FlowGraph(epTag, blocks)));
+		}
+
+		#endregion
+
         #endregion
 
         #region Ignore operator
@@ -1563,8 +1701,25 @@ namespace Flame.Intermediate.Parsing
             });
         }
 
+		/// <summary>
+		/// Parses the local variable identified by the given local identifier.
+		/// </summary>
+		/// <returns>The local variable.</returns>
+		/// <param name="State"></param>
+		/// <param name="LocalIdentifier">An LNode that identifies a local variable.</param>
+		public static IVariable ParseLocal(ParserState State, LNode LocalIdentifier)
+		{
+			// HACK: create a synthetic #get_local node, parse it,
+			//       and extract its variable.
+
+			var synthNode = NodeFactory.Call(GetLocalNodeName, new LNode[] { LocalIdentifier });
+			var variable = ParseExpression(State, synthNode) as IVariableNode;
+
+			return variable.GetVariable();
+		}
+
         /// <summary>
-        /// Creates a parser that parses set-argument statements.
+        /// Creates a parser that parses set-variable statements.
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
@@ -1579,18 +1734,17 @@ namespace Flame.Intermediate.Parsing
                 }
                 else
                 {
-                    // HACK: create a synthetic #get_local node, parse it,
-                    //       and extract its variable.
-                    //       This may seem pointless, but it's not:
-                    //       just delegating the parsing of this expression
-                    //       to the old state will also cause the old state
-                    //       to parse the #set_local's value, which breaks
-                    //       scoping rules.
+                    // Explicitly parse this set-variable statement's 
+					// underlying variable, and then create the set
+					// statement.
+                    // We can't just delegate parsing this expression
+                    // to the old state will also cause the old state
+                    // to parse the #set_local's value, which breaks
+                    // scoping rules.
 
-                    var synthNode = NodeFactory.Call(GetLocalNodeName, new LNode[] { node.Args[0] });
-                    var variable = ParseExpression(OldState, synthNode) as IVariableNode;
-
-                    return ToExpression(variable.GetVariable().CreateSetStatement(value));
+					return ToExpression(
+						ParseLocal(OldState, node.Args[0])
+							.CreateSetStatement(value));
                 }
             });
         }
@@ -1749,6 +1903,7 @@ namespace Flame.Intermediate.Parsing
                     { BreakNodeName, CreateParser(ParseBreak) },
                     { ContinueNodeName, CreateParser(ParseContinue) },
                     { TagReferenceName, (state, node) => { throw new InvalidOperationException("Undefined block tag '" + node.Args[0].Name.Name + "'."); }  },
+					{ FlowGraphNodeName, CreateParser(ParseFlowGraph) },
 
                     // Locals
                     { DefineLocalNodeName, CreateParser(ParseLocalDefinition) },
