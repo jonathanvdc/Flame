@@ -4,6 +4,7 @@ using System.Text;
 using System.Linq;
 using Flame.Compiler.Emit;
 using Flame.Compiler.Flow;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Statements
 {
@@ -37,7 +38,7 @@ namespace Flame.Compiler.Statements
             return this;
         }
 
-        public abstract override void ToBlocks(BlockBuilder Builder);
+        public abstract override void ToBlocks(BlockBuildingVisitor Visitor);
 
         /// <summary>
         /// Accepts and interacts with a flow visitor.
@@ -68,14 +69,14 @@ namespace Flame.Compiler.Statements
         public const this(UniqueTag Target)
             : base(Target);
 
-        public override void ToBlocks(BlockBuilder Builder)
+        public override void ToBlocks(BlockBuildingVisitor Visitor)
         {
             // Create the following block:
             //
             // @break():
             //     @end()
 
-            Builder.RedirectCurrent(Builder.GetBreakTag(Target));
+            Visitor.Builder.RedirectCurrent(Visitor.Builder.GetBreakTag(Target));
         }
 
         public override ICodeBlock Emit(ICodeGenerator Generator)

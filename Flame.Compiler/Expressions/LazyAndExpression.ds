@@ -4,6 +4,7 @@ using System.Text;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Expressions
 {
@@ -15,7 +16,7 @@ namespace Flame.Compiler.Expressions
         public const this(IExpression LeftOperand, IExpression RightOperand)
             : base(LeftOperand, RightOperand);
 
-        public abstract override SSAVariable ToBlocks(BlockBuilder Builder);
+        public abstract override SSAVariable ToBlocks(BlockBuildingVisitor Visitor);
 
         /// <summary>
         /// Accepts and interacts with a flow visitor.
@@ -100,9 +101,9 @@ namespace Flame.Compiler.Expressions
         /// <summary>
         /// Reduces this logical 'and' expression to a sequence of basic blocks.
         /// </summary>
-        public override SSAVariable ToBlocks(BlockBuilder Builder)
+        public override SSAVariable ToBlocks(BlockBuildingVisitor Visitor)
         {
-            return Lower().ToBlocks(Builder);
+            return Lower().ToBlocks(Visitor);
         }
 
         /// <summary>

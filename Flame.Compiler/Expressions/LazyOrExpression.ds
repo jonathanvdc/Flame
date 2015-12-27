@@ -4,6 +4,7 @@ using System.Text;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Expressions
 {
@@ -53,9 +54,9 @@ namespace Flame.Compiler.Expressions
         /// <summary>
         /// Reduces this logical 'or' expression to a sequence of basic blocks.
         /// </summary>
-        public override SSAVariable ToBlocks(BlockBuilder Builder)
+        public override SSAVariable ToBlocks(BlockBuildingVisitor Visitor)
         {
-            return Lower().ToBlocks(Builder);
+            return Lower().ToBlocks(Visitor);
         }
 
         public override const IExpression Optimize()

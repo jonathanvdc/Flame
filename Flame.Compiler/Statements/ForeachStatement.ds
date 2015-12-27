@@ -168,18 +168,14 @@ namespace Flame.Compiler.Statements
 			Visitor.Visit(Body);
 		}
 
-		public void ToBlocks(BlockBuilder Builder)
+		public void ToBlocks(BlockBuildingVisitor Visitor)
 		{
 			// Creating the sequence of basic blocks explicitly here
 			// would be pretty challenging. Instead, we'll just lower
 			// this foreach statement and have a basic block constructing
 			// visitor reduce that to a sequence of basic blocks.
-			// This will also reduce child control flow nodes to basic
-			// blocks, but that's no big deal, because the basic block visitor
-			// will have already done so.
 
-			var visitor = new BlockBuildingVisitor(Builder);
-			visitor.CreateCurrentBlock(Lower());
+			Visitor.CreateCurrentBlock(Lower());
 		}
 
 		public IStatement AcceptFlow<TState, TDelta>(IFlowVisitor<TState, TDelta> Visitor)

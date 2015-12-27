@@ -147,6 +147,45 @@ namespace Flame.Compiler.Visitors
             Builder.CreateCurrentBlock(visited, Flow);
         }
 
+        /// <summary>
+        /// Creates a block with the given tag, body and block flow.
+        /// </summary>
+        public UniqueTag CreateBlock(UniqueTag Tag, IStatement Statement, BlockFlow Flow)
+        {
+            var curBlockTag = Builder.CurrentBlockTag;
+            var nextBlockTag = Builder.NextBlockTag;
+            Builder.NextBlockTag = Tag;
+            Builder.Next();
+            CreateCurrentBlock(Statement, Flow);
+            Builder.CurrentBlockTag = curBlockTag;
+            Builder.NextBlockTag = nextBlockTag;
+            return Tag;
+        }
+
+        /// <summary>
+        /// Creates a block with the given tag, body and destination tag.
+        /// </summary>
+        public UniqueTag CreateBlock(UniqueTag Tag, IStatement Statement, UniqueTag Destination)
+        {
+            return CreateBlock(Tag, Statement, new JumpFlow(new BlockBranch(Destination)));
+        }
+
+        /// <summary>
+        /// Creates a block with the given name, body and block flow.
+        /// </summary>
+        public UniqueTag CreateBlock(string Name, IStatement Statement, BlockFlow Flow)
+        {
+            return CreateBlock(new UniqueTag(Name), Statement, Flow);
+        }
+
+        /// <summary>
+        /// Creates a block with the given name, body and destination tag.
+        /// </summary>
+        public UniqueTag CreateBlock(string Name, IStatement Statement, UniqueTag Destination)
+        {
+            return CreateBlock(new UniqueTag(Name), Statement, Destination);
+        }
+
         public override const bool Matches(IExpression Value)
         {
             return true;
@@ -157,24 +196,7 @@ namespace Flame.Compiler.Visitors
         }
         protected override IExpression Transform(IExpression Expression)
         {
-            // Remember all sibling expressions and statements.
-            var siblExprs = unspilledExpressions;
-            var siblStmts = unspilledStatements;
-
-            unspilledStatements = new List<MovableStatement>();
-            unspilledExpressions = new List<Tuple<SpillableExpression, InsertStatement>>();
-
-            // Visit this statement's children, with a new set of unspilled
-            // expressions and statements.
-            var visited = Expression.Accept(this);
-
-            // Restore the sibling statements/expressions. Discard any
-            // references to child statements.
-            // We won't spill them now if they haven't been spilled already.
-            unspilledStatements = siblStmts;
-            unspilledExpressions = siblExprs;
-
-            if (visited is IFlowExpression)
+            if (Expression is IFlowExpression)
             {
                 // All right then. Spill all sibling statements/expressions.
                 Spill();
@@ -182,9 +204,13 @@ namespace Flame.Compiler.Visitors
                 // Have the expression reduce itself to a number of basic blocks.
                 // An SSA local variable is returned that contains the expression's
                 // result.
-                var resultVar = ((IFlowExpression)visited).ToBlocks(Builder);
+                var resultVar = ((IFlowExpression)Expression).ToBlocks(this);
                 // Move on to the next block.
                 Builder.Next();
+
+                // Clear any child unspilled statements/expressions.
+                unspilledStatements = new List<MovableStatement>();
+                unspilledExpressions = new List<Tuple<SpillableExpression, InsertStatement>>();
 
                 // Flow expression has been encoded as an empty block.
                 // All we have to do now is load its result variable.
@@ -192,6 +218,23 @@ namespace Flame.Compiler.Visitors
             }
             else
             {
+                // Remember all sibling expressions and statements.
+                var siblExprs = unspilledExpressions;
+                var siblStmts = unspilledStatements;
+
+                unspilledStatements = new List<MovableStatement>();
+                unspilledExpressions = new List<Tuple<SpillableExpression, InsertStatement>>();
+
+                // Visit this statement's children, with a new set of unspilled
+                // expressions and statements.
+                var visited = Expression.Accept(this);
+
+                // Restore the sibling statements/expressions. Discard any
+                // references to child statements.
+                // We won't spill them now if they haven't been spilled already.
+                unspilledStatements = siblStmts;
+                unspilledExpressions = siblExprs;
+
                 // Add this expression to the sequence of unspilled sibling
                 // expressions, then. To do this, we'll also need to append
                 // a spill target statement to the list of unspilled statements,
@@ -207,32 +250,19 @@ namespace Flame.Compiler.Visitors
 
         protected override IStatement Transform(IStatement Statement)
         {
-            // Remember all sibling expressions and statements.
-            var siblExprs = unspilledExpressions;
-            var siblStmts = unspilledStatements;
-
-            unspilledStatements = new List<MovableStatement>();
-            unspilledExpressions = new List<Tuple<SpillableExpression, InsertStatement>>();
-
-            // Visit this statement's children, with a new set of unspilled
-            // expressions and statements.
-            var visited = Statement.Accept(this);
-
-            // Restore the sibling statements/expressions. Discard any
-            // references to child statements.
-            // We won't spill them now if they haven't been spilled already.
-            unspilledStatements = siblStmts;
-            unspilledExpressions = siblExprs;
-
-            if (visited is IFlowStatement)
+            if (Statement is IFlowStatement)
             {
                 // All right then. Spill all sibling statements/expressions.
                 Spill();
 
                 // Have the statement reduce itself to a number of basic blocks.
-                ((IFlowStatement)visited).ToBlocks(Builder);
+                ((IFlowStatement)Statement).ToBlocks(this);
                 // Move on to the next block.
                 Builder.Next();
+
+                // Clear any child unspilled statements/expressions.
+                unspilledStatements = new List<MovableStatement>();
+                unspilledExpressions = new List<Tuple<SpillableExpression, InsertStatement>>();
 
                 // Flow statement has been encoded as an empty block.
                 // Return an empty statement here so the flow statement doesn't
@@ -241,6 +271,23 @@ namespace Flame.Compiler.Visitors
             }
             else
             {
+                // Remember all sibling expressions and statements.
+                var siblExprs = unspilledExpressions;
+                var siblStmts = unspilledStatements;
+
+                unspilledStatements = new List<MovableStatement>();
+                unspilledExpressions = new List<Tuple<SpillableExpression, InsertStatement>>();
+
+                // Visit this statement's children, with a new set of unspilled
+                // expressions and statements.
+                var visited = Statement.Accept(this);
+
+                // Restore the sibling statements/expressions. Discard any
+                // references to child statements.
+                // We won't spill them now if they haven't been spilled already.
+                unspilledStatements = siblStmts;
+                unspilledExpressions = siblExprs;
+
                 // Add this statement to the sequence of unspilled sibling
                 // statements, then.
                 var movStmt = new MovableStatement(visited);

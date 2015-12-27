@@ -4,6 +4,7 @@ using System.Text;
 using System.Linq;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler
 {
@@ -18,7 +19,7 @@ namespace Flame.Compiler
         /// to this flow expression. An SSA local variable is returned that
         /// contains this expression's result.
         /// </summary>
-        SSAVariable ToBlocks(BlockBuilder Builder);
+        SSAVariable ToBlocks(BlockBuildingVisitor Visitor);
 
         /// <summary>
         /// Accepts and interacts with a flow visitor.
@@ -36,7 +37,7 @@ namespace Flame.Compiler
         /// Creates a number of basic blocks that are semantically equivalent
         /// to this flow statement.
         /// </summary>
-        void ToBlocks(BlockBuilder Builder);
+        void ToBlocks(BlockBuildingVisitor Visitor);
 
         /// <summary>
         /// Accepts and interacts with a flow visitor.
