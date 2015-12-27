@@ -51,6 +51,28 @@ namespace Flame.Compiler.Flow
         /// These arguments are given as SSA locals.
         /// </summary>
         public IReadOnlyList<SSAVariable> Arguments { const get; private set; }
+
+        public bool Equals(BlockBranch Other)
+        {
+            return this.TargetTag == Other.TargetTag &&
+                Enumerable.SequenceEqual<SSAVariable>(
+                    this.Arguments, Other.Arguments);
+        }
+
+        public override bool Equals(object Other)
+        {
+            return Other is BlockBranch && this.Equals((BlockBranch)Other);
+        }
+
+        public override int GetHashCode()
+        {
+            int result = TargetTag.GetHashCode();
+            foreach (var item in Arguments)
+            {
+                result = (result << 1) ^ item.GetHashCode();
+            }
+            return result;
+        }
     }
 
     /// <summary>

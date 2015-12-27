@@ -29,6 +29,28 @@ namespace Flame.Compiler.Visitors
     }
 
     /// <summary>
+    /// A base class for flow graph visitors.
+    /// </summary>
+    public abstract class FlowGraphVisitorBase : StatementVisitorBase
+    {
+        /// <summary>
+        /// Visits the given flow graph.
+        /// </summary>
+        protected abstract FlowGraph Visit(FlowGraph Graph);
+
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is FlowGraphStatement;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            var stmt = (FlowGraphStatement)Statement;
+            return new FlowGraphStatement(Visit(stmt.Graph));
+        }
+    }
+
+    /// <summary>
     /// A visitor class that converts control-flow statements and expressions
     /// into basic blocks.
     /// </summary>
