@@ -157,7 +157,7 @@ namespace Flame.Compiler.Flow
 		private void MarkReachable(UniqueTag Tag, HashSet<UniqueTag> Results)
 		{
 			// Mark this block as reachable.
-			if (!Results.Add(Tag))
+			if (Results.Add(Tag))
 			{
 				// Mark all blocks that are reachable from this block
 				// as reachable.
