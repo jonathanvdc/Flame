@@ -692,14 +692,18 @@ namespace Flame.Intermediate.Emit
 
 		#region IBlockCodeGenerator implementation
 
+		public LNode EmitSSALocalTagNode(SSAVariable Local)
+		{
+			return ((NodeEmitVariable)Local.GetEmitVariable(this)).VariableArguments.Single();
+		}
+
 		public NodeBlock EmitBasicBlockBranch(BlockBranch Branch)
 		{
 			// Create a "#branch(target_tag, args...)" node
 
 			return NodeBlock.Call(this, ExpressionParsers.BranchNodeName,
-				new UniqueTag[] { Branch.TargetTag }.Concat(
-					Branch.Arguments.Select(item => item.Tag))
-					.Select(EmitTagNode).ToArray());
+				new LNode[] { EmitTagNode(Branch.TargetTag) }.Concat(
+					Branch.Arguments.Select(EmitSSALocalTagNode)).ToArray());
 		}
 
 		public NodeBlock EmitBasicBlockFlow(BlockFlow Flow)
@@ -720,7 +724,7 @@ namespace Flame.Intermediate.Emit
 				// Create a "#select(cond, #branch(...), #branch(...))" node
 				var selectFlow = (SelectFlow)Flow;
 				return NodeBlock.Call(this, ExpressionParsers.SelectFlowNodeName,
-					EmitTagNode(selectFlow.Condition.Tag),
+					EmitSSALocalTagNode(selectFlow.Condition),
 					EmitBasicBlockBranch(selectFlow.ThenBranch).Node,
 					EmitBasicBlockBranch(selectFlow.ElseBranch).Node);
 			}
@@ -739,7 +743,7 @@ namespace Flame.Intermediate.Emit
 
 			return new EmitBasicBlock(Tag, NodeBlock.Call(
 				this, ExpressionParsers.BasicBlockNodeName,
-				EmitTagNode(Tag), NodeFactory.Block(Parameters.Select(item => EmitTagNode(item.Tag))),
+				EmitTagNode(Tag), NodeFactory.Block(Parameters.Select(EmitSSALocalTagNode)),
 				NodeBlock.ToNode(Contents), EmitBasicBlockFlow(Flow).Node).Node);
 		}
 
