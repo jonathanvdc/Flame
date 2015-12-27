@@ -48,6 +48,9 @@ namespace Flame.Front.Target
             RegisterPassCondition(PropagateLocalsName, optInfo => optInfo.OptimizeAggressive);
             RegisterStatementPass(new StatementPassInfo(Flame.Optimization.ImperativeCodePass.Instance, Flame.Optimization.ImperativeCodePass.ImperativeCodePassName));
 
+            // Note: -fconstruct-cfg should not be enabled until -fdeconstruct-cfg is implemented
+            RegisterStatementPass(new StatementPassInfo(ConstructFlowGraphPass.Instance, ConstructFlowGraphPass.ConstructFlowGraphPassName));
+
             RegisterRootPass(new RootPassInfo(GenerateStaticPass.Instance, GenerateStaticPass.GenerateStaticPassName));
 
             // Register -fnormalize-names-clr here, because the IR back-end could also use
