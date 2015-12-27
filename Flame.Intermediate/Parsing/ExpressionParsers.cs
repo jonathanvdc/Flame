@@ -1063,7 +1063,7 @@ namespace Flame.Intermediate.Parsing
 			if (Node.ArgCount != 4)
 			{
 				throw new InvalidOperationException(
-					"'" + BlockNodeName + "' nodes take exactly four " +
+					"'" + BasicBlockNodeName + "' nodes take exactly four " +
 					"arguments: a tag, a parameter list, a body statement, " +
 					"and a final flow node.");
 			}
@@ -1088,10 +1088,11 @@ namespace Flame.Intermediate.Parsing
 		public static IExpression ParseFlowGraph(ParserState State, LNode Node)
 		{
 			var blockNodes = Node.Args[1].Args;
-			var tags = blockNodes.Select(IRParser.GetIdOrString)
+			var tags = blockNodes
+				.Select(item => IRParser.GetIdOrString(item.Args[0]))
 				.ToDictionary(item => item, item => new UniqueTag(item));
 			var epTag = tags[IRParser.GetIdOrString(Node.Args[0])];
-			var blocks = blockNodes.Select(item => ParseBasicBlock(State, Node, tags));
+			var blocks = blockNodes.Select(item => ParseBasicBlock(State, item, tags)).ToArray();
 
 			return ToExpression(new FlowGraphStatement(new FlowGraph(epTag, blocks)));
 		}
