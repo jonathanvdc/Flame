@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Expressions
 {
@@ -35,7 +36,7 @@ namespace Flame.Compiler.Expressions
 		/// <summary>
 		/// Converts this select-expression to a series of blocks.
 		/// </summary>
-		public SSAVariable ToBlocks(BlockBuilder Builder)
+		public SSAVariable ToBlocks(BlockBuildingVisitor Visitor)
 		{
 			// Generate the following blocks:
 			//
@@ -66,13 +67,13 @@ namespace Flame.Compiler.Expressions
 			// results together.
 			var phiParamList = new List<SSAVariable>();
 			phiParamList.Add(resultVar);
-			var phiBlock = Builder.CreateBlock(
+			var phiBlock = Visitor.Builder.CreateBlock(
 				"select.phi", phiParamList, EmptyStatement,
-				new JumpFlow(new BlockBranch(Builder.NextBlockTag)));
+				new JumpFlow(new BlockBranch(Visitor.Builder.NextBlockTag)));
 
 			// Create the `@select.then` block, which represents the `true`
 			// branch.
-			var trueBlock = Builder.CreateBlock(
+			var trueBlock = Visitor.CreateBlock(
 				"select.then",
 				trueResultVar.CreateSetStatement(TrueValue),
 				new JumpFlow(new BlockBranch(phiBlock, new SSAVariable[]
@@ -82,7 +83,7 @@ namespace Flame.Compiler.Expressions
 
 			// Create the `@select.else` block, which represents the `false`
 			// branch.
-			var falseBlock = Builder.CreateBlock(
+			var falseBlock = Visitor.CreateBlock(
 				"select.else",
 				falseResultVar.CreateSetStatement(FalseValue),
 				new JumpFlow(new BlockBranch(phiBlock, new SSAVariable[]
@@ -90,7 +91,7 @@ namespace Flame.Compiler.Expressions
 					falseResultVar
 				})));
 
-			Builder.CreateCurrentBlock(
+			Visitor.CreateCurrentBlock(
 				condVariable.CreateSetStatement(Condition),
 				new SelectFlow(condVariable,
 					new BlockBranch(trueBlock),

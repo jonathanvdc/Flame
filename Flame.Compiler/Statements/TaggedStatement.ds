@@ -55,7 +55,7 @@ namespace Flame.Compiler.Statements
 		/// <summary>
 		/// Converts this tagged statement to a sequence of basic blocks.
 		/// </summary>
-		public void ToBlocks(BlockBuilder Builder)
+		public void ToBlocks(BlockBuildingVisitor Visitor)
 		{
 			// Create the following blocks:
 			//
@@ -72,15 +72,19 @@ namespace Flame.Compiler.Statements
 			// @break():
 			//     @next()
 
-			var startBlock = Builder.CreateBlock(
-				Tag, Body, new JumpFlow(new BlockBranch(Builder.NextBlockTag)));
+			var startBlock = Visitor.CreateBlock(
+				Tag, Body, Visitor.Builder.NextBlockTag);
 
 			// Create the `@enter` block
-			Builder.RedirectCurrent(startBlock);
+			Visitor.Builder.RedirectCurrent(startBlock);
 			// Create the `@break` block
-			Builder.Redirect(Builder.GetBreakTag(Tag), Builder.NextBlockTag);
+			Visitor.Builder.Redirect(
+				Visitor.Builder.GetBreakTag(Tag),
+				Visitor.Builder.NextBlockTag);
 			// Create the `@continue` block
-			Builder.Redirect(Builder.GetContinueTag(Tag), startBlock);
+			Visitor.Builder.Redirect(
+				Visitor.Builder.GetContinueTag(Tag), 
+				startBlock);
 		}
 
 		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)

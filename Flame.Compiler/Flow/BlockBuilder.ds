@@ -28,14 +28,14 @@ namespace Flame.Compiler.Flow
 		public [BasicBlock] Blocks { const get { return results.Values; } }
 
 		/// <summary>
-		/// Gets a tag that uniquely identifies the current basic block.
+		/// Gets or sets a tag that uniquely identifies the current basic block.
 		/// </summary>
-		public UniqueTag CurrentBlockTag { const get; private set; }
+		public UniqueTag CurrentBlockTag { const get; set; }
 
 		/// <summary>
-		/// Gets a tag that uniquely identifies the next basic block.
+		/// Gets or sets a tag that uniquely identifies the next basic block.
 		/// </summary>
-		public UniqueTag NextBlockTag { const get; private set; }
+		public UniqueTag NextBlockTag { const get; set; }
 
 		/// <summary>
 		/// Creates a flow graph from this block builder, with the given

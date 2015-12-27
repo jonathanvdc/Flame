@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Flame.Compiler.Flow;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Statements
 {
@@ -17,7 +18,7 @@ namespace Flame.Compiler.Statements
 		/// <summary>
 		/// Creates a basic block that represents this flow-terminating statement.
 		/// </summary>
-		public void ToBlocks(BlockBuilder Builder)
+		public void ToBlocks(BlockBuildingVisitor Visitor)
 		{
 			// Create the following block:
 			//
@@ -25,7 +26,7 @@ namespace Flame.Compiler.Statements
 			//     <body-statement>
 			//     unreachable
 
-			Builder.CreateCurrentBlock(this, UnreachableFlow);
+			Visitor.Builder.CreateCurrentBlock(this.Accept(Visitor), UnreachableFlow);
 		}
 
 		/// <summary>

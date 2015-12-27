@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Flow;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Statements
 {
@@ -55,10 +56,10 @@ namespace Flame.Compiler.Statements
 			}
 		}
 
-		public void ToBlocks(BlockBuilder Builder)
+		public void ToBlocks(BlockBuildingVisitor Visitor)
 		{
 			// Create a tagged block, and let that do the heavy lifting.
-			return Lower().ToBlocks(Builder);
+			return Lower().ToBlocks(Visitor);
 		}
 
 		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
