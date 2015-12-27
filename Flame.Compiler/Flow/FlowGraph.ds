@@ -51,6 +51,11 @@ namespace Flame.Compiler.Flow
 		public [BasicBlock] Blocks { get { return allBlocks.Values; } }
 
 		/// <summary>
+		/// Gets the sequence of all block tags in this control flow graph.
+		/// </summary>
+		public [UniqueTag] BlockTags { get { return allBlocks.Keys; } }
+
+		/// <summary>
 		/// Gets this control flow graph's entry point graph.
 		/// </summary>
 		public BasicBlock EntryPointBlock
@@ -132,10 +137,10 @@ namespace Flame.Compiler.Flow
 					[PredecessorPair] preds;
 					if (!results.TryGetValue(branch.TargetTag, &preds))
 					{
-						preds = new List<PredecessorPair>();
+						preds = new HashSet<PredecessorPair>();
 						results[branch.TargetTag] = preds;
 					}
-					var predList = (List<PredecessorPair>)preds;
+					var predList = (HashSet<PredecessorPair>)preds;
 					// Add the (predecessor block tag, argument list) to the
 					// list of predecessors for the target block.
 					predList.Add(new PredecessorPair(item.Tag, branch.Arguments));

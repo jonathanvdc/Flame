@@ -17,6 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccessChecker.ds" />
+    <Compile Include="ConcatBlocksPass.ds" />
     <Compile Include="ConciseFlowPass.ds" />
     <Compile Include="FinalFlowRemover.ds" />
     <Compile Include="FlattenInitializationPass.ds" />
