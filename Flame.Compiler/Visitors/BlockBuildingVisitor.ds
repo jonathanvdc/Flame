@@ -9,6 +9,26 @@ using Flame.Compiler.Variables;
 namespace Flame.Compiler.Visitors
 {
     /// <summary>
+    /// A statement pass that converts tree-based IR nodes into a CFG-based
+    /// representation.
+    /// </summary>
+    public static class ConstructFlowGraphPass : IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// The pass name for the control-flow graph construction pass.
+        /// </summary>
+        public const string ConstructFlowGraphPassName = "construct-cfg";
+
+        public IStatement Apply(IStatement Value)
+        {
+            var visitor = new BlockBuildingVisitor();
+            var epTag = visitor.Builder.CurrentBlockTag;
+            visitor.CreateCurrentBlock(Value, UnreachableFlow);
+            return new FlowGraphStatement(visitor.Builder.ToFlowGraph(epTag));
+        }
+    }
+
+    /// <summary>
     /// A visitor class that converts control-flow statements and expressions
     /// into basic blocks.
     /// </summary>
