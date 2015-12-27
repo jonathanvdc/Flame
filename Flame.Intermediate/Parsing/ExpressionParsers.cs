@@ -1087,7 +1087,7 @@ namespace Flame.Intermediate.Parsing
 		/// <param name="Node">The node to parse.</param>
 		public static IExpression ParseFlowGraph(ParserState State, LNode Node)
 		{
-			var blockNodes = Node.Args.Slice(1);
+			var blockNodes = Node.Args[1].Args;
 			var tags = blockNodes.Select(IRParser.GetIdOrString)
 				.ToDictionary(item => item, item => new UniqueTag(item));
 			var epTag = tags[IRParser.GetIdOrString(Node.Args[0])];
