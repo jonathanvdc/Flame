@@ -187,9 +187,9 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitDefaultValue(IType Type)
         {
-            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.ConstantDefaultName, new[] 
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.ConstantDefaultName, new[]
             {
-                Assembly.TypeTable.GetReference(Type) 
+                Assembly.TypeTable.GetReference(Type)
             }));
         }
 
@@ -210,9 +210,9 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitPop(ICodeBlock Value)
         {
-            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.IgnoreNodeName, new[] 
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.IgnoreNodeName, new[]
             {
-                NodeBlock.ToNode(Value) 
+                NodeBlock.ToNode(Value)
             }));
         }
 
@@ -221,7 +221,7 @@ namespace Flame.Intermediate.Emit
             string opName;
             if (typeBinaryOpNames.TryGetValue(Op, out opName))
             {
-                return new NodeBlock(this, NodeFactory.Call(opName, new[] 
+                return new NodeBlock(this, NodeFactory.Call(opName, new[]
                 {
                     Assembly.TypeTable.GetReference(Type),
                     NodeBlock.ToNode(Value)
@@ -235,8 +235,8 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitBinary(ICodeBlock A, ICodeBlock B, Operator Op)
         {
-            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.BinaryNode, new[] 
-            { 
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.BinaryNode, new[]
+            {
                 NodeBlock.ToNode(A),
                 NodeFactory.Literal(Op.Name),
                 NodeBlock.ToNode(B)
@@ -245,10 +245,10 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitUnary(ICodeBlock Value, Operator Op)
         {
-            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.UnaryNode, new[] 
-            { 
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.UnaryNode, new[]
+            {
                 NodeFactory.Literal(Op.Name),
-                NodeBlock.ToNode(Value) 
+                NodeBlock.ToNode(Value)
             }));
         }
 
@@ -258,9 +258,9 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitReturn(ICodeBlock Value)
         {
-            return NodeBlock.Call(this, ExpressionParsers.ReturnNodeName, Value == null ? new LNode[0] : new[] 
+            return NodeBlock.Call(this, ExpressionParsers.ReturnNodeName, Value == null ? new LNode[0] : new[]
             {
-                NodeBlock.ToNode(Value) 
+                NodeBlock.ToNode(Value)
             });
         }
 
@@ -284,7 +284,7 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
         {
-            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.SelectNodeName, new[] 
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.SelectNodeName, new[]
             {
                 NodeBlock.ToNode(Condition),
                 NodeBlock.ToNode(IfBody),
@@ -351,7 +351,7 @@ namespace Flame.Intermediate.Emit
         {
             var header = (NodeForeachHeader)Header;
 
-            return NodeBlock.Call(this, ExpressionParsers.ForeachNodeName, 
+            return NodeBlock.Call(this, ExpressionParsers.ForeachNodeName,
                 header.TagNode, header.CollectionsNode, NodeBlock.ToNode(Body));
         }
 
@@ -386,7 +386,7 @@ namespace Flame.Intermediate.Emit
             string opName;
             if (delegateOperatorNames.TryGetValue(Op, out opName))
             {
-                return new NodeBlock(this, NodeFactory.Call(opName, new[] 
+                return new NodeBlock(this, NodeFactory.Call(opName, new[]
                 {
                     Assembly.MethodTable.GetReference(Method),
                     NodeBlock.ToNode(Caller)
@@ -404,7 +404,7 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitInvocation(ICodeBlock Method, IEnumerable<ICodeBlock> Arguments)
         {
-            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.InvocationNodeName, new[] 
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.InvocationNodeName, new[]
             {
                 NodeBlock.ToNode(Method)
             }.Concat(Arguments.Select(NodeBlock.ToNode))));
@@ -416,23 +416,23 @@ namespace Flame.Intermediate.Emit
 
         public ICodeBlock EmitNewArray(IType ElementType, IEnumerable<ICodeBlock> Dimensions)
         {
-            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.NewArrayName, new[] 
-            { 
-                Assembly.TypeTable.GetReference(ElementType) 
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.NewArrayName, new[]
+            {
+                Assembly.TypeTable.GetReference(ElementType)
             }.Concat(Dimensions.Select(NodeBlock.ToNode))));
         }
 
         public ICodeBlock EmitNewVector(IType ElementType, IReadOnlyList<int> Dimensions)
         {
-            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.NewVectorName, new[] 
-            { 
-                Assembly.TypeTable.GetReference(ElementType) 
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.NewVectorName, new[]
+            {
+                Assembly.TypeTable.GetReference(ElementType)
             }.Concat(Dimensions.Select(item => NodeFactory.VarLiteral(item)))));
         }
 
         public ICodeBlock EmitInitializedArray(IType ElementType, ICodeBlock[] Items)
         {
-            return NodeBlock.Call(this, ExpressionParsers.NewInitializedArrayName, 
+            return NodeBlock.Call(this, ExpressionParsers.NewInitializedArrayName,
                 new LNode[] { Assembly.TypeTable.GetReference(ElementType) }
                 .Concat(Items.Select(NodeBlock.ToNode)).ToArray());
         }
@@ -679,12 +679,12 @@ namespace Flame.Intermediate.Emit
 		/// <param name="Postconditions">Postconditions.</param>
 		/// <param name="Body">Body.</param>
 		public ICodeBlock EmitContractBlock(
-			IEnumerable<ICodeBlock> Preconditions, IEnumerable<ICodeBlock> Postconditions, 
+			IEnumerable<ICodeBlock> Preconditions, IEnumerable<ICodeBlock> Postconditions,
 			ICodeBlock Body)
 		{
-			return NodeBlock.Call(this, ExpressionParsers.ContractNodeName, 
-				Body, 
-				NodeBlock.Block(this, Preconditions), 
+			return NodeBlock.Call(this, ExpressionParsers.ContractNodeName,
+				Body,
+				NodeBlock.Block(this, Preconditions),
 				NodeBlock.Block(this, Postconditions));
 		}
 
@@ -713,6 +713,11 @@ namespace Flame.Intermediate.Emit
 				// Create an "#unreachable" node
 				return NodeBlock.Id(this, ExpressionParsers.UnreachableFlowNodeName);
 			}
+            else if (Flow is TerminatedFlow)
+            {
+                // Create a "#terminated" node
+                return NodeBlock.Id(this, ExpressionParsers.TerminatedFlowNodeName);
+            }
 			else if (Flow is JumpFlow)
 			{
 				// Create a "#jump(#branch(...))" node
@@ -735,10 +740,10 @@ namespace Flame.Intermediate.Emit
 		}
 
 		public IEmitBasicBlock EmitBasicBlock(
-			UniqueTag Tag, IReadOnlyList<SSAVariable> Parameters, 
+			UniqueTag Tag, IReadOnlyList<SSAVariable> Parameters,
 			ICodeBlock Contents, BlockFlow Flow)
 		{
-			// Create a "#basic_block(tag, { parameters... }, body, flow)" 
+			// Create a "#basic_block(tag, { parameters... }, body, flow)"
 			// node
 
 			return new EmitBasicBlock(Tag, NodeBlock.Call(
@@ -752,10 +757,10 @@ namespace Flame.Intermediate.Emit
 		{
 			// Create a "#flow_graph(entry_point_tag, { blocks... })" node
 
-			return NodeBlock.Call(this, ExpressionParsers.FlowGraphNodeName, new LNode[] 
-            { 
-                EmitTagNode(EntryPointTag), 
-                NodeFactory.Block(Blocks.Select(item => ((EmitBasicBlock)item).Node)) 
+			return NodeBlock.Call(this, ExpressionParsers.FlowGraphNodeName, new LNode[]
+            {
+                EmitTagNode(EntryPointTag),
+                NodeFactory.Block(Blocks.Select(item => ((EmitBasicBlock)item).Node))
             });
 		}
 
