@@ -1,0 +1,203 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// Contains all SSA local variable liveliness data for a single block.
+    /// </summary>
+    public class SSALivelinessData
+    {
+        public const this()
+        {
+            this.nodeIndex = 1;
+            this.livePos = new Dictionary<SSAVariable, int>();
+            this.deadPos = new Dictionary<SSAVariable, int>();
+        }
+
+        private int nodeIndex;
+        private Dictionary<SSAVariable, int> livePos;
+        private Dictionary<SSAVariable, int> deadPos;
+
+        /// <summary>
+        /// Registers a definition action for the given variable.
+        /// </summary>
+        public void RegisterDefinition(SSAVariable Variable)
+        {
+            nodeIndex++;
+            livePos[Variable] = nodeIndex;
+        }
+
+        /// <summary>
+        /// Registers a get-value action for the given variable.
+        /// </summary>
+        public void RegisterAccess(SSAVariable Variable)
+        {
+            nodeIndex++;
+            deadPos[Variable] = nodeIndex;
+        }
+
+        /// <summary>
+        /// Marks the given variable as "imported", which means that
+        /// it is defined elsewhere.
+        /// </summary>
+        public void MarkImport(SSAVariable Variable)
+        {
+            livePos[Variable] = -1;
+        }
+
+        /// <summary>
+        /// Marks the given variable as a parameter: a locally defined
+        /// variable that is assigned in parallel with the other parameters.
+        /// </summary>
+        public void MarkParameter(SSAVariable Variable)
+        {
+            livePos[Variable] = 0;
+        }
+
+        /// <summary>
+        /// Marks the given variable as an argument for this block.
+        /// </summary>
+        public void MarkArgument(SSAVariable Variable)
+        {
+            deadPos[Variable] = 0;
+        }
+
+        /// <summary>
+        /// "Exports" the given variable: its final access it set to the
+        /// maximal value, which basically makes it immortal within the
+        /// context of this block.
+        /// </summary>
+        public void MarkExport(SSAVariable Variable)
+        {
+            deadPos[Variable] = int.MaxValue;
+        }
+
+        /// <summary>
+        /// Checks if this block defines the given variable locally, i.e.
+        /// it is defined within the block's body, or it is one of the block's
+        /// parameters.
+        /// </summary>
+        public bool Defines(SSAVariable Variable)
+        {
+            int livePoint;
+            return livePos.TryGetValue(Variable, &int livePoint)
+                && livePoint >= 0;
+        }
+
+        /// <summary>
+        /// Gets an index that describes the point at which the given variable
+        /// is defined.
+        /// </summary>
+        public int GetDefinitionIndex(SSAVariable Variable)
+        {
+            if (livePos.TryGetValue(Variable, &int livePoint))
+                return livePoint;
+            else
+                return int.MaxValue;
+        }
+
+        /// <summary>
+        /// Gets an index that describes the point at which the given variable
+        /// is accessed for the last time.
+        /// </summary>
+        public int GetLastAccessIndex(SSAVariable Variable)
+        {
+            if (!deadPos.TryGetValue(Variable, &int deadPoint))
+                return deadPoint;
+            else
+                return int.MinValue;
+        }
+
+        /// <summary>
+        /// Checks if the given variable is live at the given index.
+        /// </summary>
+        public bool IsLive(SSAVariable Variable, int Index)
+        {
+            int deadPoint = GetLastAccessIndex(Variable);
+            int livePoint = GetDefinitionIndex(Variable);
+
+            return Index >= livePoint && Index <= deadPoint;
+        }
+    }
+
+    public class SSALiveRangeVisitor : NodeVisitorBase
+    {
+        public const this(set SSALiveRangeData Data);
+
+        public SSALiveRangeData Data { const get; private set; }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is SSAGetExpression;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is SSADefineStatement;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            var expr = (SSAGetExpression)Expression;
+            Data.RegisterAccess(expr.Variable);
+            return expr;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            var stmt = (SSADefineStatement)Statement;
+            Data.RegisterDefinition(expr.Variable);
+            return stmt;
+        }
+    }
+
+    /// <summary>
+    /// Defines a pass that deconstructs SSA form.
+    /// </summary>
+    public static class DeconstructSSAPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>
+    {
+        public const string DeconstructSSAPassName = "deconstruct-ssa";
+
+        private Dictionary<UniqueTag, SSALiveRangeData> ComputeLiveliness(FlowGraph Graph)
+        {
+            var results = new Dictionary<UniqueTag, SSALiveRangeData>();
+            foreach (var tag in Graph.BlockTags)
+            {
+                results[tag] = new SSALiveRangeData();
+            }
+            foreach (var block in Graph.Blocks)
+            {
+                var data = results[block.Tag];
+                var visitor = new SSALiveRangeVisitor(data);
+                visitor.Visit(block.Contents);
+
+                foreach (var parameter in block.Parameters)
+                    data.MarkParameter(parameter);
+
+                foreach (var branch in block.Flow.Branches)
+                foreach (var arg in branch.Arguments)
+                    data.MarkArgument(arg);
+            }
+            return results;
+        }
+
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            foreach (var item in Graph.Blocks)
+            {
+
+            }
+        }
+
+        public IStatement Apply(IStatement Statement)
+        {
+            return Visit(Statement);
+        }
+    }
+}
