@@ -66,6 +66,11 @@ namespace Flame.Intermediate.Parsing
 		/// </summary>
 		public const string UnreachableFlowNodeName = "#unreachable";
 
+        /// <summary>
+        /// Defines a node type that hints at terminated control flow.
+        /// </summary>
+        public const string TerminatedFlowNodeName = "#terminated";
+
 		/// <summary>
 		/// Defines a node type that encodes an unconditional branch
 		/// to a basic block.
@@ -1039,6 +1044,12 @@ namespace Flame.Intermediate.Parsing
 
 				return UnreachableFlow.Instance;
 			}
+            else if (type == TerminatedFlowNodeName)
+            {
+                // #terminated
+
+                return TerminatedFlow.Instance;
+            }
 			else
 			{
 				throw new NotSupportedException(
@@ -1735,7 +1746,7 @@ namespace Flame.Intermediate.Parsing
                 }
                 else
                 {
-                    // Explicitly parse this set-variable statement's 
+                    // Explicitly parse this set-variable statement's
 					// underlying variable, and then create the set
 					// statement.
                     // We can't just delegate parsing this expression

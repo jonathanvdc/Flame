@@ -7,10 +7,9 @@ using Flame.Compiler.Variables;
 namespace Flame.Compiler.Flow
 {
     /// <summary>
-    /// A type of basic block flow that flags the end of the basic block
-    /// as unreachable. It has no successors.
+    /// A base class for basic block flow that has no successors.
     /// </summary>
-    public static class UnreachableFlow : BlockFlow
+    public abstract class TerminatedFlowBase : BlockFlow
     {
         public override [BlockBranch] Branches
         {
@@ -28,4 +27,18 @@ namespace Flame.Compiler.Flow
             return this;
         }
     }
+
+    /// <summary>
+    /// A type of basic block flow that flags the end of the basic block
+    /// as unreachable. It has no successors.
+    /// </summary>
+    public static class UnreachableFlow : TerminatedFlowBase
+    { }
+
+    /// <summary>
+    /// A type of basic block flow that flags the end of the basic block as
+    /// unreachable, because the basic block's body terminates control flow.
+    /// </summary>
+    public static class TerminatedFlow : TerminatedFlowBase
+    { }
 }

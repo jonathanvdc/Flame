@@ -26,7 +26,7 @@ namespace Flame.Compiler.Statements
 			//     <body-statement>
 			//     unreachable
 
-			Visitor.Builder.CreateCurrentBlock(this.Accept(Visitor), UnreachableFlow);
+			Visitor.Builder.CreateCurrentBlock(this.Accept(Visitor), TerminatedFlow);
 		}
 
 		/// <summary>
