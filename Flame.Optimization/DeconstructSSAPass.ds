@@ -19,11 +19,28 @@ namespace Flame.Optimization
             this.nodeIndex = 1;
             this.livePos = new Dictionary<SSAVariable, int>();
             this.deadPos = new Dictionary<SSAVariable, int>();
+            this.usedVars = new HashSet<SSAVariable>();
         }
 
         private int nodeIndex;
         private Dictionary<SSAVariable, int> livePos;
         private Dictionary<SSAVariable, int> deadPos;
+        private HashSet<SSAVariable> usedVars;
+
+        private const int ImportPoint = -1;
+        private const int ParameterPoint = 0;
+        private const int ExportPoint = int.MaxValue;
+
+        /// <summary>
+        /// Gets the set of all variables whose values are loaded by this block.
+        /// </summary>
+        public [SSAVariable] UsedVariables
+        {
+            const get
+            {
+                return usedVars;
+            }
+        }
 
         /// <summary>
         /// Registers a definition action for the given variable.
@@ -41,6 +58,7 @@ namespace Flame.Optimization
         {
             nodeIndex++;
             deadPos[Variable] = nodeIndex;
+            usedVars.Add(Variable);
         }
 
         /// <summary>
@@ -49,7 +67,7 @@ namespace Flame.Optimization
         /// </summary>
         public void MarkImport(SSAVariable Variable)
         {
-            livePos[Variable] = -1;
+            livePos[Variable] = ImportPoint;
         }
 
         /// <summary>
@@ -58,7 +76,7 @@ namespace Flame.Optimization
         /// </summary>
         public void MarkParameter(SSAVariable Variable)
         {
-            livePos[Variable] = 0;
+            livePos[Variable] = ParameterPoint;
         }
 
         /// <summary>
@@ -66,7 +84,8 @@ namespace Flame.Optimization
         /// </summary>
         public void MarkArgument(SSAVariable Variable)
         {
-            deadPos[Variable] = 0;
+            deadPos[Variable] = ParameterPoint;
+            usedVars.Add(Variable);
         }
 
         /// <summary>
@@ -76,7 +95,7 @@ namespace Flame.Optimization
         /// </summary>
         public void MarkExport(SSAVariable Variable)
         {
-            deadPos[Variable] = int.MaxValue;
+            deadPos[Variable] = ExportPoint;
         }
 
         /// <summary>
@@ -88,7 +107,15 @@ namespace Flame.Optimization
         {
             int livePoint;
             return livePos.TryGetValue(Variable, &int livePoint)
-                && livePoint >= 0;
+                && livePoint >= ParameterPoint;
+        }
+
+        /// <summary>
+        /// Checks if this block defines or imports the given variable.
+        /// </summary>
+        public bool DefinesOrImports(SSAVariable Variable)
+        {
+            return livePos.ContainsKey(Variable);
         }
 
         /// <summary>
@@ -116,7 +143,8 @@ namespace Flame.Optimization
         }
 
         /// <summary>
-        /// Checks if the given variable is live at the given index.
+        /// Checks if the given variable is live at the given point in execution,
+        /// which is encoded as an integer.
         /// </summary>
         public bool IsLive(SSAVariable Variable, int Index)
         {
@@ -127,6 +155,9 @@ namespace Flame.Optimization
         }
     }
 
+    /// <summary>
+    /// A node visitor that discovers live ranges.
+    /// </summary>
     public class SSALiveRangeVisitor : NodeVisitorBase
     {
         public const this(
@@ -186,13 +217,25 @@ namespace Flame.Optimization
         }
     }
 
+    /// <summary>
+    /// A data structure that contains live ranges for a control-flow graph,
+    /// as well as a related variable map.
+    /// </summary>
     public struct SSAGraphLiveliness
     {
         public const this(
             set Dictionary<UniqueTag, SSALiveRangeData> LiveRanges,
             set Dictionary<SSAVariable, HashSet<SSAVariable>> Related);
 
+        /// <summary>
+        /// Gets the graph's block tag-live ranges map.
+        /// </summary>
         public Dictionary<UniqueTag, SSALiveRangeData> LiveRanges { const get; private set; }
+
+        /// <summary>
+        /// Gets the graph's related variable set map.
+        /// Coalescing these variables should result in less variable copying.
+        /// </summary>
         public Dictionary<SSAVariable, HashSet<SSAVariable>> Related { const get; private set; }
     }
 
@@ -203,6 +246,36 @@ namespace Flame.Optimization
     {
         public const string DeconstructSSAPassName = "deconstruct-ssa";
 
+        alias PredecessorPair = Tuple<UniqueTag, IReadOnlyList<SSAVariable>>;
+        alias PredecessorDict = IReadOnlyDictionary<UniqueTag, [PredecessorPair]>;
+
+        /// <summary>
+        /// Checks if the live range for the block with the given tag defines
+        /// or imports the given SSA variable. If not, then that variable is
+        /// imported, and this method is applied recursively to its
+        /// predecessor blocks.
+        /// </summary>
+        private void PropagateImport(
+            UniqueTag Tag, SSAVariable Imported,
+            PredecessorDict Predecessors,
+            Dictionary<UniqueTag, SSALiveRangeData> LiveRanges)
+        {
+            var range = LiveRanges[Tag];
+            if (!range.DefinesOrImports(Imported))
+            {
+                range.Import(Imported);
+                foreach (var item in Predecessors[Tag])
+                {
+                    PropagateImport(
+                        item.Item1, Imported, Predecessors, LiveRanges);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Computes live ranges, as well as related variables, for the given
+        /// flow graph.
+        /// </summary>
         private SSAGraphLiveliness ComputeLiveliness(FlowGraph Graph)
         {
             var results = new Dictionary<UniqueTag, SSALiveRangeData>();
@@ -228,6 +301,17 @@ namespace Flame.Optimization
                     visitor.MarkRelated(arg, parameter);
                 }
             }
+
+            var preds = Graph.GetPredecessors();
+            foreach (var item in results)
+            {
+                foreach (var usedVar in item.Value.UsedVariables)
+                {
+                    // Mark all imported variables as live.
+                    PropagateImport(item.Key, usedVar, preds, results);
+                }
+            }
+
             return new SSAGraphLiveliness(results, related);
         }
 
