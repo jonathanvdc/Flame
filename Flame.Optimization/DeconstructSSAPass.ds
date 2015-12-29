@@ -162,9 +162,11 @@ namespace Flame.Optimization
     {
         public const this(
             set SSALiveRangeData Data,
+            set Dictionary<SSAVariable, HashSet<SSALiveRangeData>> DefinitionBlocks,
             set Dictionary<SSAVariable, HashSet<SSAVariable>> Related);
 
         public SSALiveRangeData Data { const get; private set; }
+        public Dictionary<SSAVariable, HashSet<SSALiveRangeData>> DefinitionBlocks { const get; private set; }
         public Dictionary<SSAVariable, HashSet<SSAVariable>> Related { const get; private set; }
 
         private void MarkRelatedAsymmetric(SSAVariable Left, SSAVariable Right)
@@ -213,6 +215,12 @@ namespace Flame.Optimization
             }
 
             Data.RegisterDefinition(leftVar);
+
+            assert(!DefinitionBlocks.ContainsKey(leftVar));
+            var defsSet = new HashSet<SSALivelinessData>();
+            defsSet.Add(Data);
+            DefinitionBlocks[leftVar] = defsSet;
+
             return stmt;
         }
     }
@@ -225,12 +233,19 @@ namespace Flame.Optimization
     {
         public const this(
             set Dictionary<UniqueTag, SSALiveRangeData> LiveRanges,
+            set Dictionary<SSAVariable, HashSet<SSALiveRangeData>> DefinitionBlocks,
             set Dictionary<SSAVariable, HashSet<SSAVariable>> Related);
 
         /// <summary>
-        /// Gets the graph's block tag-live ranges map.
+        /// Gets the graph's block tag - live ranges map.
         /// </summary>
         public Dictionary<UniqueTag, SSALiveRangeData> LiveRanges { const get; private set; }
+
+        /// <summary>
+        /// Gets a dictionary that maps SSA variables to their set of definition
+        /// points, which are either assignments, or arguments.
+        /// </summary>
+        public Dictionary<SSAVariable, HashSet<SSALiveRangeData>> DefinitionBlocks { const get; private set; }
 
         /// <summary>
         /// Gets the graph's related variable set map.
@@ -264,10 +279,13 @@ namespace Flame.Optimization
             if (!range.DefinesOrImports(Imported))
             {
                 range.Import(Imported);
-                foreach (var item in Predecessors[Tag])
+                if (Predecessors.ContainsKey(Tag))
                 {
-                    PropagateImport(
-                        item.Item1, Imported, Predecessors, LiveRanges);
+                    foreach (var pred in Predecessors[Tag])
+                    {
+                        PropagateImport(
+                            pred.Item1, Imported, Predecessors, LiveRanges);
+                    }
                 }
             }
         }
@@ -279,6 +297,7 @@ namespace Flame.Optimization
         private SSAGraphLiveliness ComputeLiveliness(FlowGraph Graph)
         {
             var results = new Dictionary<UniqueTag, SSALiveRangeData>();
+            var defBlocks = new Dictionary<SSAVariable, HashSet<SSALiveRangeData>>();
             var related = new Dictionary<SSAVariable, HashSet<SSAVariable>>();
             foreach (var tag in Graph.BlockTags)
             {
@@ -287,7 +306,7 @@ namespace Flame.Optimization
             foreach (var block in Graph.Blocks)
             {
                 var data = results[block.Tag];
-                var visitor = new SSALiveRangeVisitor(data, related);
+                var visitor = new SSALiveRangeVisitor(data, defBlocks, related);
                 visitor.Visit(block.Contents);
 
                 foreach (var parameter in block.Parameters)
@@ -299,6 +318,14 @@ namespace Flame.Optimization
                 {
                     data.MarkArgument(arg);
                     visitor.MarkRelated(arg, parameter);
+
+                    HashSet<SSALiveRangeData> defSet;
+                    if (!defBlocks.TryGetValue(parameter, &defSet))
+                    {
+                        defSet = new HashSet<SSALiveRangeData>();
+                        defBlocks[parameter] = defSet;
+                    }
+                    defSet.Add(data);
                 }
             }
 
@@ -312,15 +339,18 @@ namespace Flame.Optimization
                 }
             }
 
-            return new SSAGraphLiveliness(results, related);
+            return new SSAGraphLiveliness(results, defBlocks, related);
+        }
+
+        private FlowGraph RegAlloc(FlowGraph Graph, SSAGraphLiveliness Liveliness)
+        {
+            // Perform register allocation on the SSA variables.
+            // We will try to coalesce SSA variables as much as possible.
         }
 
         protected override FlowGraph Visit(FlowGraph Graph)
         {
-            foreach (var item in Graph.Blocks)
-            {
-
-            }
+            return RegAlloc(Graph, ComputeLiveliness(Graph));
         }
 
         public IStatement Apply(IStatement Statement)
