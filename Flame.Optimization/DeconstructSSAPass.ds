@@ -342,10 +342,84 @@ namespace Flame.Optimization
             return new SSAGraphLiveliness(results, defBlocks, related);
         }
 
+        private bool LivelinessIntersects(
+            SSAVariable First, SSAVariable Second,
+            SSALivelinessData Liveliness)
+        {
+            
+        }
+
+        private bool CanCoalesce(
+            LocalVariable Register, SSAVariable Variable,
+            HashSet<SSAVariable> Neighbors)
+        {
+            foreach (var local in Neighbors)
+            {
+                if (LivelinessIntersects(local, Variable))
+                    return false;
+            }
+            return true;
+        }
+
+        private bool HasIntersectionElements(
+            HashSet<SSAVariable> Left, HashSet<SSAVariable> Right)
+        {
+            var inter = new HashSet<SSAVariable>(Left);
+            inter.IntersectWith(Right);
+            return inter.Count > 0;
+        }
+
+        private LocalVariable AllocateRegister(
+            SSAVariable Variable, SSALivelinessData Liveliness,
+            HashSet<SSAVariable> RelatedVariables,
+            Dictionary<LocalVariable, HashSet<SSAVariable>> AllocatedRegisters)
+        {
+            var unrelated = new Dictionary<LocalVariable, HashSet<SSAVariable>>();
+
+            // Try to coalesce related variables first.
+            foreach (var pair in AllocatedRegisters)
+            {
+                if (HasIntersectionElements(RelatedVariables, pair.Value))
+                {
+                    if (CanCoalesce(pair.Key, Variable, pair.Value))
+                    {
+                        pair.Value.Add(Variable);
+                        return pair.Key;
+                    }
+                    else
+                    {
+                        unrelated[pair.Key] = pair.Value;
+                    }
+                }
+            }
+
+            // Then try to coalesce unrelated variables.
+            foreach (var pair in unrelated)
+            {
+                if (CanCoalesce(pair.Key, Variable, pair.Value))
+                {
+                    pair.Value.Add(Variable);
+                    return pair.Key;
+                }
+            }
+
+            // We couldn't re-use a pre-existing register. That's okay, though.
+            // We'll just conjure op a new register, and use that.
+            var newReg = new LocalVariable(Variable.Member);
+            var newSet = new HashSet<SSAVariable>();
+            newSet.Add(Variable);
+            AllocatedRegisters[newReg] = Variable;
+            return newReg;
+        }
+
         private FlowGraph RegAlloc(FlowGraph Graph, SSAGraphLiveliness Liveliness)
         {
             // Perform register allocation on the SSA variables.
             // We will try to coalesce SSA variables as much as possible.
+
+            var allocatedRegs = new Dictionary<LocalVariable, HashSet<SSAVariable>>();
+            var allocatedVars = new Dictionary<SSAVariable, LocalVariable>();
+
         }
 
         protected override FlowGraph Visit(FlowGraph Graph)
