@@ -129,9 +129,29 @@ namespace Flame.Optimization
 
     public class SSALiveRangeVisitor : NodeVisitorBase
     {
-        public const this(set SSALiveRangeData Data);
+        public const this(
+            set SSALiveRangeData Data,
+            set Dictionary<SSAVariable, HashSet<SSAVariable>> Related);
 
         public SSALiveRangeData Data { const get; private set; }
+        public Dictionary<SSAVariable, HashSet<SSAVariable>> Related { const get; private set; }
+
+        private void MarkRelatedAsymmetric(SSAVariable Left, SSAVariable Right)
+        {
+            HashSet<SSAVariable> relatedSet;
+            if (!Related.TryGetValue(Left, &relatedSet))
+            {
+                relatedSet = new HashSet<SSAVariable>();
+                Related[Left] = relatedSet;
+            }
+            relatedSet.Add(Right);
+        }
+
+        public void MarkRelated(SSAVariable Left, SSAVariable Right)
+        {
+            MarkRelatedAsymmetric(Left, Right);
+            MarkRelatedAsymmetric(Right, Left);
+        }
 
         public override const bool Matches(IExpression Value)
         {
@@ -152,9 +172,28 @@ namespace Flame.Optimization
         protected override IStatement Transform(IStatement Statement)
         {
             var stmt = (SSADefineStatement)Statement;
-            Data.RegisterDefinition(expr.Variable);
+            var leftVar = stmt.Variable;
+            var val = stmt.Value.GetEssentialExpression();
+            Visit(val);
+            if (val is SSAGetExpression)
+            {
+                var rightVar = ((SSAGetExpression)val).Variable;
+                MarkRelated(leftVar, rightVar);
+            }
+
+            Data.RegisterDefinition(leftVar);
             return stmt;
         }
+    }
+
+    public struct SSAGraphLiveliness
+    {
+        public const this(
+            set Dictionary<UniqueTag, SSALiveRangeData> LiveRanges,
+            set Dictionary<SSAVariable, HashSet<SSAVariable>> Related);
+
+        public Dictionary<UniqueTag, SSALiveRangeData> LiveRanges { const get; private set; }
+        public Dictionary<SSAVariable, HashSet<SSAVariable>> Related { const get; private set; }
     }
 
     /// <summary>
@@ -164,9 +203,10 @@ namespace Flame.Optimization
     {
         public const string DeconstructSSAPassName = "deconstruct-ssa";
 
-        private Dictionary<UniqueTag, SSALiveRangeData> ComputeLiveliness(FlowGraph Graph)
+        private SSAGraphLiveliness ComputeLiveliness(FlowGraph Graph)
         {
             var results = new Dictionary<UniqueTag, SSALiveRangeData>();
+            var related = new Dictionary<SSAVariable, HashSet<SSAVariable>>();
             foreach (var tag in Graph.BlockTags)
             {
                 results[tag] = new SSALiveRangeData();
@@ -174,17 +214,21 @@ namespace Flame.Optimization
             foreach (var block in Graph.Blocks)
             {
                 var data = results[block.Tag];
-                var visitor = new SSALiveRangeVisitor(data);
+                var visitor = new SSALiveRangeVisitor(data, related);
                 visitor.Visit(block.Contents);
 
                 foreach (var parameter in block.Parameters)
                     data.MarkParameter(parameter);
 
                 foreach (var branch in block.Flow.Branches)
-                foreach (var arg in branch.Arguments)
+                foreach (var arg in branch.Arguments,
+                         var parameter in Graph.GetBlock(arg.TargetTag).Parameters)
+                {
                     data.MarkArgument(arg);
+                    visitor.MarkRelated(arg, parameter);
+                }
             }
-            return results;
+            return new SSAGraphLiveliness(results, related);
         }
 
         protected override FlowGraph Visit(FlowGraph Graph)
