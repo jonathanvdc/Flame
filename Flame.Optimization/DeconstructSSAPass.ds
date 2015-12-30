@@ -470,7 +470,9 @@ namespace Flame.Optimization
 
         protected override FlowGraph Visit(FlowGraph Graph)
         {
+            // Allocate registers for the given graph's SSA variables.
             var regAlloc = AllocateRegisters(Graph);
+
             
         }
 

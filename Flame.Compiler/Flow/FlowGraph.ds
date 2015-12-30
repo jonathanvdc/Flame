@@ -80,9 +80,10 @@ namespace Flame.Compiler.Flow
 		{
 			get
 			{
-				foreach (var item in FindReachableBlocks())
+				foreach (var tag in FindReachableBlocks())
 				{
-					if (!GetBlock(item).Contents.IsEmpty)
+					var block = GetBlock(tag);
+					if (!block.Contents.IsEmpty || !block.Flow.IsConstant)
 						return false;
 				}
 				return true;
