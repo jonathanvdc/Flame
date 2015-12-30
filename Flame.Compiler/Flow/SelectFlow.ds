@@ -14,18 +14,18 @@ namespace Flame.Compiler.Flow
     {
         /// <summary>
         /// Creates a basic block flow node that performs the first branch
-        /// if the given SSA local's value is true, and performs the second
-        /// branch otherwise.
+        /// if the given boolean expression evaluates to true, and performs
+        /// the second branch otherwise.
         /// </summary>
         public const this(
-            set SSAVariable Condition,
+            set IExpression Condition,
             set BlockBranch ThenBranch, set BlockBranch ElseBranch);
 
         /// <summary>
-        /// Gets the SSA boolean local this conditional branch relies on to
+        /// Gets a boolean expression this conditional branch relies on to
         /// to select a basic block.
         /// </summary>
-        public SSAVariable Condition { const get; private set; }
+        public IExpression Condition { const get; private set; }
 
         /// <summary>
         /// Gets the basic block branch that will be executed if the condition
@@ -44,6 +44,17 @@ namespace Flame.Compiler.Flow
             get
             {
                 return new BlockBranch[] { ThenBranch, ElseBranch };
+            }
+        }
+
+        /// <summary>
+        /// Checks if this control flow node has no side-effects.
+        /// </summary>
+        public override bool IsConstant
+        {
+            get
+            {
+                return Condition.IsConstant;
             }
         }
 

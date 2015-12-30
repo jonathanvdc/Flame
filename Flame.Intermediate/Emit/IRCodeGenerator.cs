@@ -729,9 +729,9 @@ namespace Flame.Intermediate.Emit
 				// Create a "#select(cond, #branch(...), #branch(...))" node
 				var selectFlow = (SelectFlow)Flow;
 				return NodeBlock.Call(this, ExpressionParsers.SelectFlowNodeName,
-					EmitSSALocalTagNode(selectFlow.Condition),
-					EmitBasicBlockBranch(selectFlow.ThenBranch).Node,
-					EmitBasicBlockBranch(selectFlow.ElseBranch).Node);
+					selectFlow.Condition.Emit(this),
+					EmitBasicBlockBranch(selectFlow.ThenBranch),
+					EmitBasicBlockBranch(selectFlow.ElseBranch));
 			}
 			else
 			{

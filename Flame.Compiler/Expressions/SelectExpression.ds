@@ -41,7 +41,6 @@ namespace Flame.Compiler.Expressions
 			// Generate the following blocks:
 			//
 			// @select():
-			//     cond = <cond-expr>
 			//     if cond
 			//         then @select.then()
 			//         else @select.else()
@@ -61,7 +60,6 @@ namespace Flame.Compiler.Expressions
 			var resultVar = new SSAVariable("select_result", Type);
 			var trueResultVar = new SSAVariable("select_true", TrueValue.Type);
 			var falseResultVar = new SSAVariable("select_false", FalseValue.Type);
-			var condVariable = new SSAVariable("cond", Condition.Type);
 
 			// Create the `@select.phi` block, which ties the `true` and `false`
 			// results together.
@@ -92,8 +90,8 @@ namespace Flame.Compiler.Expressions
 				})));
 
 			Visitor.CreateCurrentBlock(
-				condVariable.CreateSetStatement(Condition),
-				new SelectFlow(condVariable,
+				EmptyStatement,
+				new SelectFlow(Condition,
 					new BlockBranch(trueBlock),
 					new BlockBranch(falseBlock)));
 

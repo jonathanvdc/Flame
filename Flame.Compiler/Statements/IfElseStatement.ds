@@ -134,14 +134,13 @@ namespace Flame.Compiler.Statements
 			//     @next()
 
 			var nextBlockTag = Visitor.Builder.NextBlockTag;
-			var condVariable = new SSAVariable("cond", Condition.Type);
 
 			var ifTag = Visitor.CreateBlock("if.then", IfBody, nextBlockTag);
 			var elseTag = Visitor.CreateBlock("if.else", ElseBody, nextBlockTag);
 
 			Visitor.CreateCurrentBlock(
-				condVariable.CreateSetStatement(Condition),
-				new SelectFlow(condVariable,
+				EmptyStatement,
+				new SelectFlow(Condition,
 					new BlockBranch(ifTag),
 					new BlockBranch(elseTag)));
 		}

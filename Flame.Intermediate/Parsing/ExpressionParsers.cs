@@ -1033,7 +1033,7 @@ namespace Flame.Intermediate.Parsing
 			{
 				// #select(cond, #branch(...), #branch(...))
 
-				var cond = ParseSSALocal(State, Node.Args[0]);
+				var cond = ParseExpression(State, Node.Args[0]);
 				var ifBranch = ParseBasicBlockBranch(State, Node.Args[1], Tags);
 				var elseBranch = ParseBasicBlockBranch(State, Node.Args[2], Tags);
 				return new SelectFlow(cond, ifBranch, elseBranch);
