@@ -229,7 +229,7 @@ namespace Flame.Optimization
     /// A data structure that contains live ranges for a control-flow graph,
     /// as well as a related variable map.
     /// </summary>
-    public struct SSAGraphLiveliness
+    public class SSAGraphLiveliness
     {
         public const this(
             set Dictionary<UniqueTag, SSALiveRangeData> LiveRanges,
@@ -285,6 +285,7 @@ namespace Flame.Optimization
                     {
                         PropagateImport(
                             pred.Item1, Imported, Predecessors, LiveRanges);
+                        LiveRanges[pred.Item1].MarkExport(Imported);
                     }
                 }
             }
@@ -294,7 +295,7 @@ namespace Flame.Optimization
         /// Computes live ranges, as well as related variables, for the given
         /// flow graph.
         /// </summary>
-        private SSAGraphLiveliness ComputeLiveliness(FlowGraph Graph)
+        public SSAGraphLiveliness ComputeLiveliness(FlowGraph Graph)
         {
             var results = new Dictionary<UniqueTag, SSALiveRangeData>();
             var defBlocks = new Dictionary<SSAVariable, HashSet<SSALiveRangeData>>();
@@ -342,13 +343,43 @@ namespace Flame.Optimization
             return new SSAGraphLiveliness(results, defBlocks, related);
         }
 
+        /// <summary>
+        /// Checks if the first variable is live at any of the definition
+        /// points of the second variable.
+        /// </summary>
+        private bool IsLiveAtDef(
+            SSAVariable LiveVariable, SSAVariable DefVariable,
+            SSALivelinessData Liveliness)
+        {
+            var defBlocks = Liveliness.DefinitionBlocks;
+            if (defblocks.ContainsKey(DefVariable))
+            {
+                foreach (var block in defBlocks[DefVariable])
+                {
+                    if (block.IsLive(LiveVariable, block.GetDefinitionIndex(DefVariable)))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the liveliness of the given variables intersects.
+        /// </summary>
         private bool LivelinessIntersects(
             SSAVariable First, SSAVariable Second,
             SSALivelinessData Liveliness)
         {
-            
+            return IsLiveAtDef(First, Second, Liveliness)
+                || IsLiveAtDef(Second, First, Liveliness);
         }
 
+        /// <summary>
+        /// Checks if the given variable can share the given register with the
+        /// given set of already-allocated variables.
+        /// </summary>
         private bool CanCoalesce(
             LocalVariable Register, SSAVariable Variable,
             HashSet<SSAVariable> Neighbors)
@@ -361,6 +392,9 @@ namespace Flame.Optimization
             return true;
         }
 
+        /// <summary>
+        /// Checks if the intersection of the given sets is nonempty.
+        /// </summary>
         private bool HasIntersectionElements(
             HashSet<SSAVariable> Left, HashSet<SSAVariable> Right)
         {
@@ -372,9 +406,9 @@ namespace Flame.Optimization
         private LocalVariable AllocateRegister(
             SSAVariable Variable, SSALivelinessData Liveliness,
             HashSet<SSAVariable> RelatedVariables,
-            Dictionary<LocalVariable, HashSet<SSAVariable>> AllocatedRegisters)
+            Dictionary<IVariable, HashSet<SSAVariable>> AllocatedRegisters)
         {
-            var unrelated = new Dictionary<LocalVariable, HashSet<SSAVariable>>();
+            var unrelated = new Dictionary<IVariable, HashSet<SSAVariable>>();
 
             // Try to coalesce related variables first.
             foreach (var pair in AllocatedRegisters)
@@ -403,8 +437,8 @@ namespace Flame.Optimization
                 }
             }
 
-            // We couldn't re-use a pre-existing register. That's okay, though.
-            // We'll just conjure op a new register, and use that.
+            // Seems like we can't re-use a pre-existing register.
+            // We'll just conjure op a new register, and use that instead.
             var newReg = new LocalVariable(Variable.Member);
             var newSet = new HashSet<SSAVariable>();
             newSet.Add(Variable);
@@ -412,19 +446,32 @@ namespace Flame.Optimization
             return newReg;
         }
 
-        private FlowGraph RegAlloc(FlowGraph Graph, SSAGraphLiveliness Liveliness)
+        /// <summary>
+        /// Performs register allocation on the given flow graph.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, LocalVariable> AllocateRegisters(
+            FlowGraph Graph)
         {
             // Perform register allocation on the SSA variables.
             // We will try to coalesce SSA variables as much as possible.
 
-            var allocatedRegs = new Dictionary<LocalVariable, HashSet<SSAVariable>>();
-            var allocatedVars = new Dictionary<SSAVariable, LocalVariable>();
+            var liveliness = ComputeLiveliness(Graph);
+            var allocatedRegs = new Dictionary<IVariable, HashSet<SSAVariable>>();
+            var allocatedVars = new Dictionary<SSAVariable, IVariable>();
 
+            foreach (var item in Liveliness.DefinitionBlocks)
+            {
+                allocatedVars[item.Key] = AllocateRegister(
+                    item.Key, liveliness, item.Value, allocatedRegs);
+            }
+
+            return allocatedVars;
         }
 
         protected override FlowGraph Visit(FlowGraph Graph)
         {
-            return RegAlloc(Graph, ComputeLiveliness(Graph));
+            var regAlloc = AllocateRegisters(Graph);
+            
         }
 
         public IStatement Apply(IStatement Statement)
