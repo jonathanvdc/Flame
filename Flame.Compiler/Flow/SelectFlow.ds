@@ -59,6 +59,28 @@ namespace Flame.Compiler.Flow
         }
 
         /// <summary>
+        /// Optimizes this control flow node.
+        /// </summary>
+        public override BlockFlow Optimize()
+        {
+            var optCond = Condition.Optimize();
+
+            var condVal = optCond.EvaluateConstant();
+            if (condVal.EvaluatesTo<bool>(true))
+            {
+                return new JumpFlow(ThenBranch);
+            }
+            else if (condVal.EvaluatesTo<bool>(false))
+            {
+                return new JumpFlow(ElseBranch);
+            }
+            else
+            {
+                return new SelectFlow(optCond, ThenBranch, ElseBranch);
+            }
+        }
+
+        /// <summary>
         /// Accepts the given basic block visitor.
         /// </summary>
         public override BlockFlow Accept(IBasicBlockVisitor Visitor)

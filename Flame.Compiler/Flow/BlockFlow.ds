@@ -97,6 +97,14 @@ namespace Flame.Compiler.Flow
         public abstract BlockFlow Accept(IBasicBlockVisitor Visitor);
 
         /// <summary>
+        /// Optimizes this control flow node.
+        /// </summary>
+        public virtual BlockFlow Optimize()
+        {
+            return this;
+        }
+
+        /// <summary>
         /// Gets a sequence of potential direct successor blocks for this
         /// basic block flow node. A delegate is given that maps
         /// block tags to their associated basic blocks.

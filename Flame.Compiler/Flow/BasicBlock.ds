@@ -88,11 +88,20 @@ namespace Flame.Compiler.Flow
 		}
 
 		/// <summary>
+		/// Checks if this basic block has no side-effects.
+		/// </summary>
+		public bool IsConstant
+		{
+			get { return Body.IsEmpty && Flow.IsConstant; }
+		}
+
+		/// <summary>
 		/// Applies simple optimizations to this basic block's contents.
 		/// </summary>
 		public BasicBlock Optimize()
 		{
-			return new BasicBlock(Tag, Parameters, Contents.Optimize(), Flow);
+			return new BasicBlock(
+				Tag, Parameters, Contents.Optimize(), Flow.Optimize());
 		}
 	}
 }
