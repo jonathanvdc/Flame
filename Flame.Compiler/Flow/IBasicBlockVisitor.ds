@@ -12,14 +12,65 @@ namespace Flame.Compiler.Flow
     public interface IBasicBlockVisitor : INodeVisitor
     {
         /// <summary>
-        /// Visits the given SSA local variable. This can be either a parameter,
-        /// argument, load or definition.
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
         /// </summary>
-        SSAVariable Visit(SSAVariable Variable);
+        SSAVariable VisitParameter(SSAVariable Variable);
 
         /// <summary>
         /// Visits the given block branch instruction.
         /// </summary>
         BlockBranch Visit(BlockBranch Branch);
+    }
+
+    /// <summary>
+    /// A type of basic block visitor that is the identity function for
+    /// block parameters and branches, and applies a node visitor
+    /// to statements and expressions.
+    /// </summary>
+    public class EmulatedBasicBlockVisitor : IBasicBlockVisitor
+    {
+        public const this(set INodeVisitor Visitor);
+
+        /// <summary>
+        /// Gets the underlying node visitor that is applied to statements
+        /// and expressions.
+        /// </summary>
+        public INodeVisitor Visitor { const get; private set; }
+
+        /// <summary>
+        /// Visits an expression: an expression is taken as input and
+        /// transformed into another expression.
+        /// </summary>
+        public IExpression Visit(IExpression Value)
+        {
+            return Visitor.Visit(Value);
+        }
+
+        /// <summary>
+        /// Visits a statement: an statement is taken as input and
+        /// transformed into another statement.
+        /// </summary>
+        public IStatement Visit(IStatement Value)
+        {
+            return Visitor.Visit(Value);
+        }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            return Variable;
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public BlockBranch Visit(BlockBranch Branch)
+        {
+            return Branch;
+        }
     }
 }

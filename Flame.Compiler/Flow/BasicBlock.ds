@@ -64,12 +64,8 @@ namespace Flame.Compiler.Flow
 		{
 			if (Visitor is IBasicBlockVisitor)
 				return Accept((IBasicBlockVisitor)Visitor);
-
-			var visitedContents = Visitor.Visit(Contents);
-			if (visitedContents == Contents)
-				return this;
 			else
-				return new BasicBlock(Tag, Parameters, visitedContents, Flow);
+				return Accept(new EmulatedBasicBlockVisitor(Visitor));
 		}
 
 		/// <summary>
@@ -81,7 +77,7 @@ namespace Flame.Compiler.Flow
 			var visitedContents = Visitor.Visit(Contents);
 			var visitedParameters = new List<SSAVariable>(
 				Enumerable.Select<SSAVariable, SSAVariable>(
-					Parameters, Visitor.Visit));
+					Parameters, Visitor.VisitParameter));
 			var visitedFlow = Flow.Accept(Visitor);
 			return new BasicBlock(
 				Tag, visitedParameters, visitedContents, visitedFlow);
