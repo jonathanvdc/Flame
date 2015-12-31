@@ -92,7 +92,7 @@ namespace Flame.Compiler.Flow
 		/// </summary>
 		public bool IsConstant
 		{
-			get { return Body.IsEmpty && Flow.IsConstant; }
+			get { return Contents.IsEmpty && Flow.IsConstant; }
 		}
 
 		/// <summary>
