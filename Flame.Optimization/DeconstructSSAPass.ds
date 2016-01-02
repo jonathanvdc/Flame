@@ -477,7 +477,8 @@ namespace Flame.Optimization
         private IStatement CreatePhiAssignStatement(
             IReadOnlyList<SSAVariable> Arguments,
             IReadOnlyList<SSAVariable> Parameters,
-            IReadOnlyDictionary<SSAVariable, IVariable> Registers)
+            IReadOnlyDictionary<SSAVariable, IVariable> Registers,
+            Dictionary<IType, IVariable> Temporaries)
         {
             assert(Arguments.Count == Parameters.Count);
 
@@ -490,35 +491,84 @@ namespace Flame.Optimization
 
                 var srcReg = Registers[arg];
                 var tgtReg = Registers[param];
+
+                assert(!assignVars.ContainsKey(tgtReg));
+
                 if (!srcReg.Equals(tgtReg))
-                    assignVars[srcReg] = tgtReg;
+                    assignVars[tgtReg] = srcReg;
             }
 
-            return CreateParallelAssign(assignVars);
+            return VariableHelpers.CreateParallelSetStatement(assignVars, Temporaries);
         }
 
-        private BlockFlow RewriteFlow(
-            BlockFlow Flow, BlockBuilder Blocks,
-            IReadOnlyDictionary<SSAVariable, IVariable> Registers)
+        /// <summary>
+        /// Rewrites the given conditional branch so that it doesn't
+        /// take any arguments. A new basic block is
+        /// created if this is deemed necessary.
+        /// </summary>
+        private BlockBranch RewriteConditionalBranch(
+            BlockBranch Branch, FlowGraph Graph,
+            IReadOnlyDictionary<SSAVariable, IVariable> Registers,
+            BlockBuilder Blocks, Dictionary<IType, IVariable> Temporaries)
+
+            out (result) { result.Arguments.Count == 0 }
+        {
+            if (Branch.Arguments.Count == 0)
+            {
+                // Argumentless branches do not need an extra basic block.
+                return Branch;
+            }
+            else
+            {
+                // Create a basic block that performs the assignment, and
+                // then
+                var extraBlockTag = Blocks.CreateBlock(
+                    "assign.phi",
+                    CreatePhiAssignStatement(
+                        Branch.Arguments, Graph.GetBlock(targetTag).Parameters,
+                        Registers, Temporaries),
+                    new JumpFlow(new BlockBranch(targetTag)));
+
+                return new BlockBranch(Branch);
+            }
+        }
+
+        private Tuple<BlockFlow, IStatement> RewriteFlow(
+            BlockFlow Flow, FlowGraph Graph,
+            IReadOnlyDictionary<SSAVariable, IVariable> Registers,
+            BlockBuilder Blocks, Dictionary<IType, IVariable> Temporaries)
         {
             if (Flow is JumpFlow)
             {
                 var jmpFlow = (JumpFlow)Flow;
-                return new JumpFlow(new BlockBranch(jmpFlow.TargetTag));
+                var br = jmpFlow.Branch;
+                return new Tuple<BlockFlow, IStatement>(
+                    new JumpFlow(new BlockBranch(br.TargetTag)),
+                    CreatePhiAssignStatement(
+                        br.Arguments, Graph.GetBlock(br.TargetTag).Parameters,
+                        Registers, Temporaries));
             }
             else if (Flow is SelectFlow)
             {
                 var selFlow = (SelectFlow)Flow;
-                var thenBr = selFlow.ThenBranch;
-                var elseBr = selFlow.ElseBranch;
-                if (thenBr.Arguments.Count == 0 && elseBr.Arguments.Count == 0)
-                {
-                    return selFlow;
-                }
-                else
-                {
-
-                }
+                return new Tuple<BlockFlow, IStatement>(
+                    new SelectFlow(
+                        selFlow.Condition,
+                        RewriteConditionalBranch(
+                            selFlow.ThenBranch, Graph, Registers,
+                            Blocks, Temporaries),
+                        RewriteConditionalBranch(
+                            selFlow.ElseBranch, Graph, Registers,
+                            Blocks, Temporaries)));
+            }
+            else if (Flow is TerminatedFlowBase)
+            {
+                return Flow;
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    "Unknown flow instruction type: " + Flow.ToString());
             }
         }
 
@@ -531,7 +581,7 @@ namespace Flame.Optimization
             var newBlocks = new BlockBuilder();
             foreach (var item in Graph.Blocks)
             {
-                var visitedBlock = new
+
             }
         }
 
