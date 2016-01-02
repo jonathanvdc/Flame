@@ -26,9 +26,6 @@ namespace Flame.Compiler.Variables
             // dictionary to their current locations.
             var loc = new Dictionary<IVariable, IVariable>();
 
-            // A to-do stack that contains all destination variables
-            // that haven't been assigned to yet.
-            var todo = new Stack<IVariable>();
             // A stack of variables which are ready to be written to.
             var ready = new Stack<IVariable>();
 
@@ -38,8 +35,6 @@ namespace Flame.Compiler.Variables
                 // We still have to copy this value, so its value
                 // resides in the source variable for now.
                 loc[item.Value] = item.Value;
-                // Push the destination variable on the to-do stack.
-                todo.Push(item.Key);
             }
 
             // Iterate over all destination variables, and
@@ -52,9 +47,10 @@ namespace Flame.Compiler.Variables
                     ready.Push(tgtReg);
             }
 
-            // Now work our way through the worklist.
-            while (todo.Count > 0)
+            // Now work our way through the assignment dictionary.
+            foreach (var dest in Assignments.Keys)
             {
+                // Perform all assignments that can be performed at this time.
                 while (ready.Count > 0)
                 {
                     // Pop an item from the ready stack.
@@ -81,10 +77,7 @@ namespace Flame.Compiler.Variables
                     }
                 }
 
-                // Pop a single destination variable from the to-do list.
-                var dest = todo.Pop();
-
-                // Check if we have a cyclic dependency.
+                // Check if we have a cyclic dependency right now.
                 if (loc[Assignments[dest]].Equals(dest))
                 {
                     // We have a situation that looks somewhat like this:
