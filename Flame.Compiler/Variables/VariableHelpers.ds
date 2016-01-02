@@ -16,7 +16,7 @@ namespace Flame.Compiler.Variables
         /// by the given destination variable-source variable map. A mutable
         /// dictionary of temporaries by type is also given.
         /// </summary>
-        public IStatement CreateParallelAssign(
+        public IStatement CreateParallelSetStatement(
             IReadOnlyDictionary<IVariable, IVariable> Assignments,
             Dictionary<IType, IVariable> Temporaries)
         {
