@@ -1,0 +1,124 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler.Variables
+{
+    /// <summary>
+    /// Exposes a number of variable-related helper methods.
+    /// </summary>
+    public static class VariableHelpers
+    {
+        /// <summary>
+        /// Creates a statement that performs a parallel assignment, as specified
+        /// by the given destination variable-source variable map. A mutable
+        /// dictionary of temporaries by type is also given.
+        /// </summary>
+        public IStatement CreateParallelAssign(
+            IReadOnlyDictionary<IVariable, IVariable> Assignments,
+            Dictionary<IType, IVariable> Temporaries)
+        {
+            var stmts = new List<IStatement>();
+
+            // A dictionary that maps the values of variables in the argument
+            // dictionary to their current locations.
+            var loc = new Dictionary<IVariable, IVariable>();
+
+            // A to-do stack that contains all destination variables
+            // that haven't been assigned to yet.
+            var todo = new Stack<IVariable>();
+            // A stack of variables which are ready to be written to.
+            var ready = new Stack<IVariable>();
+
+            // Initialization step
+            foreach (var item in Assignments)
+            {
+                // We still have to copy this value, so its value
+                // resides in the source variable for now.
+                loc[item.Value] = item.Value;
+                // Push the destination variable on the to-do stack.
+                todo.Push(item.Key);
+            }
+
+            // Iterate over all destination variables, and
+            // mark all destination variables that are not source
+            // variables as ready variables.
+            foreach (var tgtReg in Assignments.Keys)
+            {
+                // We can overwrite this variable all right.
+                if (!loc.ContainsKey(tgtReg))
+                    ready.Push(tgtReg);
+            }
+
+            // Now work our way through the worklist.
+            while (todo.Count > 0)
+            {
+                while (ready.Count > 0)
+                {
+                    // Pop an item from the ready stack.
+                    var tgtReg = ready.Pop();
+                    // Find that variable's source variable.
+                    var predReg = Assignments[tgtReg];
+                    // Lookup the source variable's current location
+                    // (its value may have been moved).
+                    var srcReg = loc[predReg];
+                    // Emit an assignment.
+                    stmts.Add(tgtReg.CreateSetStatement(srcReg.CreateGetExpression()));
+                    // The source variable's value now resides in the destination
+                    // variable, so we should update the value-location map
+                    // accordingly.
+                    loc[srcReg] = tgtReg;
+
+                    // If this assignment's source variable has not been
+                    // renamed, and the source variable is also a destination
+                    // variable, then we can mark that variable as ready, because
+                    // its value now resides in this iteration's target variable.
+                    if (predReg.Equals(srcReg) && Assignments.ContainsKey(predReg))
+                    {
+                        ready.Push(predReg);
+                    }
+                }
+
+                // Pop a single destination variable from the to-do list.
+                var dest = todo.Pop();
+
+                // Check if we have a cyclic dependency.
+                if (loc[Assignments[dest]].Equals(dest))
+                {
+                    // We have a situation that looks somewhat like this:
+                    //
+                    // (a, b) = (b, a)
+                    //
+                    // Since `a` and `b` alone cannot be used to perform
+                    // this swap, we'll have to introduce a new variable,
+                    // which will break the cycle.
+
+                    // Gets a temporary variable.
+                    IVariable temp;
+                    var ty = dest.Type;
+                    if (!Temporaries.TryGetValue(ty, &temp))
+                    {
+                        temp = new LocalVariable("temp", ty);
+                        Temporaries[ty] = temp;
+                    }
+
+                    // Emit an assignment statement that stores the destination
+                    // variable's value in the temporary.
+                    stmts.Add(temp.CreateSetStatement(dest.CreateGetExpression()));
+
+                    // Keep track of the destination variable's value,
+                    // which now resides in the temporary.
+                    loc[dest] = temp;
+
+                    // Push the destination variable on the "ready" stack,
+                    // so it gets written to on the next iteration.
+                    ready.Push(dest);
+                }
+            }
+
+            return new BlockStatement(stmts);
+        }
+    }
+}
