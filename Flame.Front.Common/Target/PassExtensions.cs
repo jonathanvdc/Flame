@@ -51,6 +51,7 @@ namespace Flame.Front.Target
             // Note: -fconstruct-cfg should not be enabled until -fdeconstruct-cfg is implemented
             RegisterStatementPass(new StatementPassInfo(ConstructFlowGraphPass.Instance, ConstructFlowGraphPass.ConstructFlowGraphPassName));
             RegisterStatementPass(new StatementPassInfo(Flame.Optimization.ConcatBlocksPass.Instance, Flame.Optimization.ConcatBlocksPass.ConcatBlocksPassName));
+			RegisterStatementPass(new StatementPassInfo(Flame.Optimization.DeconstructSSAPass.Instance, Flame.Optimization.DeconstructSSAPass.DeconstructSSAPassName));
 
             RegisterRootPass(new RootPassInfo(GenerateStaticPass.Instance, GenerateStaticPass.GenerateStaticPassName));
 
