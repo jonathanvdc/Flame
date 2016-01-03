@@ -138,9 +138,12 @@ namespace Flame.Compiler.Statements
 			var ifTag = Visitor.CreateBlock("if.then", IfBody, nextBlockTag);
 			var elseTag = Visitor.CreateBlock("if.else", ElseBody, nextBlockTag);
 
+			var cond = Visitor.Visit(Condition);
+
 			Visitor.CreateCurrentBlock(
 				EmptyStatement,
-				new SelectFlow(Condition,
+				new SelectFlow(
+					cond,
 					new BlockBranch(ifTag),
 					new BlockBranch(elseTag)));
 		}

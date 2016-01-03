@@ -89,9 +89,12 @@ namespace Flame.Compiler.Expressions
 					falseResultVar
 				})));
 
+			var cond = Visitor.Visit(Condition);
+
 			Visitor.CreateCurrentBlock(
 				EmptyStatement,
-				new SelectFlow(Condition,
+				new SelectFlow(
+					cond,
 					new BlockBranch(trueBlock),
 					new BlockBranch(falseBlock)));
 

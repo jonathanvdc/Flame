@@ -83,7 +83,7 @@ namespace Flame.Compiler.Statements
 				Visitor.Builder.NextBlockTag);
 			// Create the `@continue` block
 			Visitor.Builder.Redirect(
-				Visitor.Builder.GetContinueTag(Tag), 
+				Visitor.Builder.GetContinueTag(Tag),
 				startBlock);
 		}
 
