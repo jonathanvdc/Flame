@@ -105,7 +105,6 @@ namespace Flame.Optimization
         /// </summary>
         public bool Defines(SSAVariable Variable)
         {
-            int livePoint;
             return livePos.TryGetValue(Variable, &int livePoint)
                 && livePoint >= ParameterPoint;
         }
@@ -161,12 +160,12 @@ namespace Flame.Optimization
     public class SSALiveRangeVisitor : NodeVisitorBase
     {
         public const this(
-            set SSALiveRangeData Data,
-            set Dictionary<SSAVariable, HashSet<SSALiveRangeData>> DefinitionBlocks,
+            set SSALivenessData Data,
+            set Dictionary<SSAVariable, HashSet<SSALivenessData>> DefinitionBlocks,
             set Dictionary<SSAVariable, HashSet<SSAVariable>> Related);
 
-        public SSALiveRangeData Data { const get; private set; }
-        public Dictionary<SSAVariable, HashSet<SSALiveRangeData>> DefinitionBlocks { const get; private set; }
+        public SSALivenessData Data { const get; private set; }
+        public Dictionary<SSAVariable, HashSet<SSALivenessData>> DefinitionBlocks { const get; private set; }
         public Dictionary<SSAVariable, HashSet<SSAVariable>> Related { const get; private set; }
 
         private void MarkRelatedAsymmetric(SSAVariable Left, SSAVariable Right)
@@ -232,26 +231,40 @@ namespace Flame.Optimization
     public class SSAGraphLiveness
     {
         public const this(
-            set Dictionary<UniqueTag, SSALiveRangeData> LiveRanges,
-            set Dictionary<SSAVariable, HashSet<SSALiveRangeData>> DefinitionBlocks,
+            set Dictionary<UniqueTag, SSALivenessData> LiveRanges,
+            set Dictionary<SSAVariable, HashSet<SSALivenessData>> DefinitionBlocks,
             set Dictionary<SSAVariable, HashSet<SSAVariable>> Related);
 
         /// <summary>
         /// Gets the graph's block tag - live ranges map.
         /// </summary>
-        public Dictionary<UniqueTag, SSALiveRangeData> LiveRanges { const get; private set; }
+        public Dictionary<UniqueTag, SSALivenessData> LiveRanges { const get; private set; }
 
         /// <summary>
         /// Gets a dictionary that maps SSA variables to their set of definition
         /// points, which are either assignments, or arguments.
         /// </summary>
-        public Dictionary<SSAVariable, HashSet<SSALiveRangeData>> DefinitionBlocks { const get; private set; }
+        public Dictionary<SSAVariable, HashSet<SSALivenessData>> DefinitionBlocks { const get; private set; }
 
         /// <summary>
         /// Gets the graph's related variable set map.
         /// Coalescing these variables should result in less variable copying.
         /// </summary>
         public Dictionary<SSAVariable, HashSet<SSAVariable>> Related { const get; private set; }
+
+        /// <summary>
+        /// Gets the given variable's set of related variables.
+        /// </summary>
+        public HashSet<SSAVariable> GetRelatedVariables(SSAVariable Variable)
+        {
+            HashSet<SSAVariable> results;
+            if (!Related.TryGetValue(Variable, &results))
+            {
+                results = new HashSet<SSAVariable>();
+                Related[Variable] = results;
+            }
+            return results;
+        }
     }
 
     /// <summary>
@@ -273,12 +286,12 @@ namespace Flame.Optimization
         private void PropagateImport(
             UniqueTag Tag, SSAVariable Imported,
             PredecessorDict Predecessors,
-            Dictionary<UniqueTag, SSALiveRangeData> LiveRanges)
+            Dictionary<UniqueTag, SSALivenessData> LiveRanges)
         {
             var range = LiveRanges[Tag];
             if (!range.DefinesOrImports(Imported))
             {
-                range.Import(Imported);
+                range.MarkImport(Imported);
                 if (Predecessors.ContainsKey(Tag))
                 {
                     foreach (var pred in Predecessors[Tag])
@@ -297,12 +310,12 @@ namespace Flame.Optimization
         /// </summary>
         public SSAGraphLiveness ComputeLiveness(FlowGraph Graph)
         {
-            var results = new Dictionary<UniqueTag, SSALiveRangeData>();
-            var defBlocks = new Dictionary<SSAVariable, HashSet<SSALiveRangeData>>();
+            var results = new Dictionary<UniqueTag, SSALivenessData>();
+            var defBlocks = new Dictionary<SSAVariable, HashSet<SSALivenessData>>();
             var related = new Dictionary<SSAVariable, HashSet<SSAVariable>>();
             foreach (var tag in Graph.BlockTags)
             {
-                results[tag] = new SSALiveRangeData();
+                results[tag] = new SSALivenessData();
             }
             foreach (var block in Graph.Blocks)
             {
@@ -311,7 +324,7 @@ namespace Flame.Optimization
                 // Visit the block's body to discover live ranges.
                 visitor.Visit(block.Contents);
                 // Make sure we visit the flow instruction as well
-                Flow.Accept(new EmulatedBasicBlockVisitor(visitor));
+                block.Flow.Accept(new EmulatedBasicBlockVisitor(visitor));
 
                 // Mark all parameters as such
                 foreach (var parameter in block.Parameters)
@@ -321,15 +334,15 @@ namespace Flame.Optimization
                 // the corresponding parameter variables.
                 foreach (var branch in block.Flow.Branches)
                 foreach (var arg in branch.Arguments,
-                         var parameter in Graph.GetBlock(arg.TargetTag).Parameters)
+                         var parameter in Graph.GetBlock(branch.TargetTag).Parameters)
                 {
                     data.MarkArgument(arg);
                     visitor.MarkRelated(arg, parameter);
 
-                    HashSet<SSALiveRangeData> defSet;
+                    HashSet<SSALivenessData> defSet;
                     if (!defBlocks.TryGetValue(parameter, &defSet))
                     {
-                        defSet = new HashSet<SSALiveRangeData>();
+                        defSet = new HashSet<SSALivenessData>();
                         defBlocks[parameter] = defSet;
                     }
                     defSet.Add(data);
@@ -355,10 +368,10 @@ namespace Flame.Optimization
         /// </summary>
         private bool IsLiveAtDef(
             SSAVariable LiveVariable, SSAVariable DefVariable,
-            SSALivenessData Liveness)
+            SSAGraphLiveness Liveness)
         {
             var defBlocks = Liveness.DefinitionBlocks;
-            if (defblocks.ContainsKey(DefVariable))
+            if (defBlocks.ContainsKey(DefVariable))
             {
                 foreach (var block in defBlocks[DefVariable])
                 {
@@ -376,7 +389,7 @@ namespace Flame.Optimization
         /// </summary>
         private bool LivenessIntersects(
             SSAVariable First, SSAVariable Second,
-            SSALivenessData Liveness)
+            SSAGraphLiveness Liveness)
         {
             return IsLiveAtDef(First, Second, Liveness)
                 || IsLiveAtDef(Second, First, Liveness);
@@ -387,12 +400,13 @@ namespace Flame.Optimization
         /// given set of already-allocated variables.
         /// </summary>
         private bool CanCoalesce(
-            LocalVariable Register, SSAVariable Variable,
-            HashSet<SSAVariable> Neighbors)
+            IVariable Register, SSAVariable Variable,
+            HashSet<SSAVariable> Neighbors,
+            SSAGraphLiveness Liveness)
         {
             foreach (var local in Neighbors)
             {
-                if (LivenessIntersects(local, Variable))
+                if (LivenessIntersects(local, Variable, Liveness))
                     return false;
             }
             return true;
@@ -409,19 +423,19 @@ namespace Flame.Optimization
             return inter.Count > 0;
         }
 
-        private LocalVariable AllocateRegister(
-            SSAVariable Variable, SSALivenessData Liveness,
-            HashSet<SSAVariable> RelatedVariables,
+        private IVariable AllocateRegister(
+            SSAVariable Variable, SSAGraphLiveness Liveness,
             Dictionary<IVariable, HashSet<SSAVariable>> AllocatedRegisters)
         {
+            var related = Liveness.GetRelatedVariables(Variable);
             var unrelated = new Dictionary<IVariable, HashSet<SSAVariable>>();
 
             // Try to coalesce related variables first.
             foreach (var pair in AllocatedRegisters)
             {
-                if (HasIntersectionElements(RelatedVariables, pair.Value))
+                if (HasIntersectionElements(related, pair.Value))
                 {
-                    if (CanCoalesce(pair.Key, Variable, pair.Value))
+                    if (CanCoalesce(pair.Key, Variable, pair.Value, Liveness))
                     {
                         pair.Value.Add(Variable);
                         return pair.Key;
@@ -436,7 +450,7 @@ namespace Flame.Optimization
             // Then try to coalesce unrelated variables.
             foreach (var pair in unrelated)
             {
-                if (CanCoalesce(pair.Key, Variable, pair.Value))
+                if (CanCoalesce(pair.Key, Variable, pair.Value, Liveness))
                 {
                     pair.Value.Add(Variable);
                     return pair.Key;
@@ -448,7 +462,7 @@ namespace Flame.Optimization
             var newReg = new LocalVariable(Variable.Member);
             var newSet = new HashSet<SSAVariable>();
             newSet.Add(Variable);
-            AllocatedRegisters[newReg] = Variable;
+            AllocatedRegisters[newReg] = newSet;
             return newReg;
         }
 
@@ -468,7 +482,7 @@ namespace Flame.Optimization
             foreach (var item in liveness.DefinitionBlocks)
             {
                 allocatedVars[item.Key] = AllocateRegister(
-                    item.Key, liveness, item.Value, allocatedRegs);
+                    item.Key, liveness, allocatedRegs);
             }
 
             return allocatedVars;
@@ -520,16 +534,24 @@ namespace Flame.Optimization
             }
             else
             {
+                var targetTag = Branch.TargetTag;
+
+                var body = CreatePhiAssignStatement(
+                    Branch.Arguments, Graph.GetBlock(targetTag).Parameters,
+                    Registers, Temporaries);
+
+                // We don't have to create another basic block if we don't
+                // have any work to do when this branch is taken.
+                if (body.IsEmpty)
+                    return new BlockBranch(targetTag);
+
                 // Create a basic block that performs the assignment, and
-                // then
+                // then jump to the original target block.
                 var extraBlockTag = Blocks.CreateBlock(
-                    "assign.phi",
-                    CreatePhiAssignStatement(
-                        Branch.Arguments, Graph.GetBlock(targetTag).Parameters,
-                        Registers, Temporaries),
+                    "assign.phi", body,
                     new JumpFlow(new BlockBranch(targetTag)));
 
-                return new BlockBranch(Branch);
+                return new BlockBranch(extraBlockTag);
             }
         }
 
@@ -559,11 +581,12 @@ namespace Flame.Optimization
                             Blocks, Temporaries),
                         RewriteConditionalBranch(
                             selFlow.ElseBranch, Graph, Registers,
-                            Blocks, Temporaries)));
+                            Blocks, Temporaries)),
+                    EmptyStatement);
             }
             else if (Flow is TerminatedFlowBase)
             {
-                return Flow;
+                return new Tuple<BlockFlow, IStatement>(Flow, EmptyStatement);
             }
             else
             {
@@ -572,17 +595,58 @@ namespace Flame.Optimization
             }
         }
 
+        /// <summary>
+        /// Turns the given block into a parameterless block that performs
+        /// argumentless branches.
+        /// </summary>
+        private void RewriteBlock(
+            BasicBlock Block, FlowGraph Graph,
+            IReadOnlyDictionary<SSAVariable, IVariable> Registers,
+            INodeVisitor RegisterSubstitutingVisitor,
+            BlockBuilder Results, Dictionary<IType, IVariable> Temporaries)
+        {
+            // Rewrite this block's flow.
+            var flowAndFinalization = RewriteFlow(
+                Block.Flow, Graph, Registers, Results, Temporaries);
+
+            // The new block's body is the original block's body, followed by a
+            // finalization statement.
+            var body = new BlockStatement(new IStatement[]
+            {
+                RegisterSubstitutingVisitor.Visit(Block.Contents),
+                flowAndFinalization.Item2
+            }).Simplify();
+
+            // Create a new block that has the old block's tag.
+            Results.CreateBlock(Block.Tag, body, flowAndFinalization.Item1);
+        }
+
         protected override FlowGraph Visit(FlowGraph Graph)
         {
             // Allocate registers for the given graph's SSA variables.
             var regAlloc = AllocateRegisters(Graph);
 
-            // Rewrite all blocks, making them
-            var newBlocks = new BlockBuilder();
-            foreach (var item in Graph.Blocks)
+            // Create an IVariable -> IVariable mapping that maps SSA variables
+            // to the newly allocated registers.
+            var regMap = new Dictionary<IVariable, IVariable>();
+            foreach (var item in regAlloc)
             {
-
+                regMap.Add(item.Key, item.Value);
             }
+            var visitor = new VariableSubstitutingVisitor(regMap);
+
+            var temps = new Dictionary<IType, IVariable>();
+
+            // Rewrite all blocks. All basic blocks are made parameterless.
+            var newBlocks = new BlockBuilder(new UniqueTag());
+            foreach (var block in Graph.Blocks)
+            {
+                RewriteBlock(
+                    block, Graph, regAlloc,
+                    visitor, newBlocks, temps);
+            }
+
+            return newBlocks.ToFlowGraph(Graph.EntryPointTag);
         }
 
         public IStatement Apply(IStatement Statement)
