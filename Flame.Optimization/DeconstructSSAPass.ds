@@ -558,6 +558,7 @@ namespace Flame.Optimization
         private Tuple<BlockFlow, IStatement> RewriteFlow(
             BlockFlow Flow, FlowGraph Graph,
             IReadOnlyDictionary<SSAVariable, IVariable> Registers,
+            INodeVisitor RegisterSubstitutingVisitor,
             BlockBuilder Blocks, Dictionary<IType, IVariable> Temporaries)
         {
             if (Flow is JumpFlow)
@@ -575,7 +576,7 @@ namespace Flame.Optimization
                 var selFlow = (SelectFlow)Flow;
                 return new Tuple<BlockFlow, IStatement>(
                     new SelectFlow(
-                        selFlow.Condition,
+                        RegisterSubstitutingVisitor.Visit(selFlow.Condition),
                         RewriteConditionalBranch(
                             selFlow.ThenBranch, Graph, Registers,
                             Blocks, Temporaries),
@@ -607,7 +608,8 @@ namespace Flame.Optimization
         {
             // Rewrite this block's flow.
             var flowAndFinalization = RewriteFlow(
-                Block.Flow, Graph, Registers, Results, Temporaries);
+                Block.Flow, Graph, Registers, RegisterSubstitutingVisitor,
+                Results, Temporaries);
 
             // The new block's body is the original block's body, followed by a
             // finalization statement.
