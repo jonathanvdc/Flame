@@ -6,9 +6,53 @@ using Flame.Compiler.Flow;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
 using Flame.Compiler.Visitors;
+using Pixie;
 
 namespace Flame.Optimization
 {
+    /// <summary>
+    /// A node visitor that finds the first source location that contains
+    /// a non-constant expression or non-empty statement.
+    /// </summary>
+    public class FirstSourceLocationFinder : LocationVisitorBase
+    {
+        /// <summary>
+        /// The first source location belonging to a non-constant expression
+        /// or a non-empty statement.
+        /// </summary>
+        public SourceLocation FirstLocation { const get; private set; }
+
+        /// <summary>
+        /// Tells if a first source location has been found. FirstLocation
+        /// is null if and only if this evaluates to false.
+        /// </summary>
+        public bool FoundLocation { get { return FirstLocation != null; } }
+
+        protected override const bool MatchesCore(IExpression Value)
+        {
+            return FoundLocation || (CurrentLocation != null && !Value.IsConstant);
+        }
+
+        protected override const bool MatchesCore(IStatement Value)
+        {
+            return FoundLocation || (CurrentLocation != null && !Value.IsEmpty);
+        }
+
+        protected override IExpression TransformCore(IExpression Value)
+        {
+            if (!FoundLocation)
+                FirstLocation = CurrentLocation;
+            return Value;
+        }
+
+        protected override IStatement TransformCore(IStatement Value)
+        {
+            if (!FoundLocation)
+                FirstLocation = CurrentLocation;
+            return Value;
+        }
+    }
+
     /// <summary>
     /// A flow graph visitor that eliminates dead blocks.
     /// </summary>
@@ -35,8 +79,19 @@ namespace Flame.Optimization
         {
             if (Warnings.DeadCodeWarning.UseWarning(Log.Options))
             {
-                // TODO: extract a source location from the given block,
-                //       issue a warning
+                var visitor = new FirstSourceLocationFinder();
+                visitor.Visit(Block.Contents);
+                if (visitor.FoundLocation)
+                {
+                    var node = new MarkupNode("entry", new IMarkupNode[]
+                    {
+                        Warnings.DeadCodeWarning.CreateMessage("Unreachable code detected and removed. "),
+                        visitor.FirstLocation.CreateDiagnosticsNode(),
+                        DeclaringMethod.GetSourceLocation().CreateRemarkDiagnosticsNode("In method: ")
+                    });
+
+                    Log.LogWarning(new LogEntry("Removed dead code", node));
+                }
             }
         }
 
