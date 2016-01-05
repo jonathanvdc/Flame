@@ -70,7 +70,8 @@ namespace Flame.Optimization
                 if (reachable.Contains(item.Tag))
                 {
                     results[item.Tag] = item;
-                    unreachableIsReachable = true;
+                    if (item.Flow is UnreachableFlow)
+                        unreachableIsReachable = true;
                 }
                 else
                 {
