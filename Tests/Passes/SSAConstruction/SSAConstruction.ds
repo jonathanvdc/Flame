@@ -1,0 +1,13 @@
+
+public class TestClass
+{
+    public int Select(bool Condition, int Left, int Right)
+    {
+        int result;
+        if (Condition)
+            result = Left;
+        else
+            result = Right;
+        return result;
+    }
+}
