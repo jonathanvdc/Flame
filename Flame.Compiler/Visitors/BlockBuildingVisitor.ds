@@ -46,7 +46,8 @@ namespace Flame.Compiler.Visitors
         protected override IStatement Transform(IStatement Statement)
         {
             var stmt = (FlowGraphStatement)Statement;
-            return new FlowGraphStatement(Visit(stmt.Graph));
+            var newGraph = new FlowGraphStatement(Visit(stmt.Graph));
+            return newGraph.Accept(this);
         }
     }
 
