@@ -20,6 +20,7 @@
     <Compile Include="ConcatBlocksPass.ds" />
     <Compile Include="ConciseFlowPass.ds" />
     <Compile Include="DeadBlockEliminationPass.ds" />
+    <Compile Include="DeconstructFlowGraphPass.ds" />
     <Compile Include="DeconstructSSAPass.ds" />
     <Compile Include="FinalFlowRemover.ds" />
     <Compile Include="FlattenInitializationPass.ds" />

@@ -1,0 +1,204 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A class that constructs a fairly linear tree of instructions
+    /// that use branches to model basic block flow.
+    /// </summary>
+    public class LinearLabelFlowBuilder
+    {
+        public const this()
+        {
+            this.results = new List<IStatement>();
+            this.labels = new Dictionary<UniqueTag, LateBoundLabel>();
+            this.placedBlocks = new HashSet<UniqueTag>();
+        }
+
+        private List<IStatement> results;
+        private Dictionary<UniqueTag, LateBoundLabel> labels;
+        private HashSet<UniqueTag> placedBlocks;
+
+        /// <summary>
+        /// Gets the generated statement tree.
+        /// </summary>
+        public IStatement Result
+        {
+            get { return new BlockStatement(results).Simplify(); }
+        }
+
+        /// <summary>
+        /// Gets a boolean value that tells whether the basic block with
+        /// the given tag has been placed yet or not.
+        /// </summary>
+        public bool HasPlaced(UniqueTag Tag)
+        {
+            return placedBlocks.Contains(Tag);
+        }
+
+        /// <summary>
+        /// Gets the label that belongs to the given tag.
+        /// </summary>
+        private LateBoundLabel GetLabel(UniqueTag Tag)
+        {
+            LateBoundLabel result;
+            if (!labels.TryGetValue(Tag, &result))
+            {
+                result = new LateBoundLabel();
+                labels[Tag] = result;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Adds the given statement to the statement tree.
+        /// </summary>
+        public void EmitStatement(IStatement Statement)
+        {
+            results.Add(Statement);
+        }
+
+        /// <summary>
+        /// Adds a conditional branch to the given block to the statement tree.
+        /// </summary>
+        public void EmitBranch(UniqueTag Target, IExpression Condition)
+        {
+            var label = GetLabel(Target);
+            EmitStatement(label.CreateBranchStatement(Condition));
+        }
+
+        /// <summary>
+        /// Adds an unconditional branch to the given block to the statement tree.
+        /// </summary>
+        public void EmitBranch(UniqueTag Target)
+        {
+            EmitBranch(Target, new BooleanExpression(true));
+        }
+
+        /// <summary>
+        /// Places the given block's contents in the statement tree.
+        /// Its location is marked with a label, which allows branches to use it
+        /// as a target.
+        /// </summary>
+        public void PlaceBlock(BasicBlock Block)
+            in { !HasPlaced(Block.Tag) }
+        {
+            var label = GetLabel(Block.Tag);
+            EmitStatement(label.CreateMarkStatement());
+            EmitStatement(Block.Contents);
+            placedBlocks.Add(Block.Tag);
+        }
+    }
+
+    /// <summary>
+    /// A pass that deconstructs control-flow graphs into a tree
+    /// of instructions that include labels and branches.
+    /// This is suitable for back-ends that support branch instructions.
+    /// </summary>
+    /// <remarks>
+    /// The SSA deconstruction pass is run on the flow graph before it
+    /// is lowered to an instruction tree.
+    /// </remarks>
+    public static class DeconstructFlowGraphPass : StatementVisitorBase, IPass<IStatement, IStatement>
+    {
+        public const string DeconstructFlowGraphPassName = "deconstruct-cfg";
+
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is FlowGraphStatement;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            assert(Statement is FlowGraphStatement);
+            var flowGraphStmt = (FlowGraphStatement)Statement;
+            return VisitFlowGraph(flowGraphStmt.Graph);
+        }
+
+        /// <summary>
+        /// Emits a "jump" to the given block. This method will try to
+        /// simulate jumps with fallthrough whenever possible.
+        /// </summary>
+        private void EmitJumpToBlock(
+            UniqueTag TargetTag, FlowGraph Graph,
+            LinearLabelFlowBuilder FlowBuilder)
+        {
+            if (!FlowBuilder.HasPlaced(TargetTag))
+            {
+                // Just fall through.
+                EmitBlock(TargetTag, Graph, FlowBuilder);
+            }
+            else
+            {
+                // Create a branch, then.
+                FlowBuilder.EmitBranch(TargetTag);
+            }
+        }
+
+        private void EmitBlock(
+            UniqueTag BlockTag, FlowGraph Graph,
+            LinearLabelFlowBuilder FlowBuilder)
+        {
+            if (FlowBuilder.HasPlaced(BlockTag))
+            {
+                return;
+            }
+
+            var block = Graph.GetBlock(BlockTag);
+            FlowBuilder.PlaceBlock(block);
+
+            var flow = block.Flow;
+            if (flow is JumpFlow)
+            {
+                var targetTag = ((JumpFlow)flow).Branch.TargetTag;
+                EmitJumpToBlock(targetTag, Graph, FlowBuilder);
+            }
+            else if (flow is SelectFlow)
+            {
+                var selFlow = (SelectFlow)flow;
+                var thenTag = selFlow.ThenBranch.TargetTag;
+                var elseTag = selFlow.ElseBranch.TargetTag;
+                if (FlowBuilder.HasPlaced(elseTag) &&
+                    !FlowBuilder.HasPlaced(thenTag))
+                {
+                    FlowBuilder.EmitBranch(elseTag, new NotExpression(selFlow.Condition).Simplify());
+                    EmitBlock(thenTag, Graph, FlowBuilder);
+                    EmitBlock(elseTag, Graph, FlowBuilder);
+                }
+                else
+                {
+                    FlowBuilder.EmitBranch(thenTag, selFlow.Condition);
+                    EmitBlock(elseTag, Graph, FlowBuilder);
+                    EmitJumpToBlock(thenTag, Graph, FlowBuilder);
+                }
+            }
+            else if (!(flow is TerminatedFlowBase))
+            {
+                throw new InvalidOperationException(
+                    "Flow instruction type '" + flow.ToString() +
+                    "' is not supported by the flow graph deconstruction pass.");
+            }
+            // Unreachable flow means no branches out.
+        }
+
+        private IStatement VisitFlowGraph(FlowGraph Graph)
+        {
+            var flowBuilder = new LinearLabelFlowBuilder();
+            EmitBlock(Graph.EntryPointTag, Graph, flowBuilder);
+            return flowBuilder.Result;
+        }
+
+        public IStatement Apply(IStatement Statement)
+        {
+            return this.Visit(DeconstructSSAPass.Apply(Statement));
+        }
+    }
+}
