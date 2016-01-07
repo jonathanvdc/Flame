@@ -24,6 +24,45 @@ namespace Flame.Compiler.Flow
     }
 
     /// <summary>
+    /// Gets a type of basic block visitor that visits branches, and ignores
+    /// everything else.
+    /// </summary>
+    public abstract class BranchVisitorBase : IBasicBlockVisitor
+    {
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public abstract override BlockBranch Visit(BlockBranch Branch);
+
+        /// <summary>
+        /// Visits an expression: an expression is taken as input and
+        /// transformed into another expression.
+        /// </summary>
+        public IExpression Visit(IExpression Value)
+        {
+            return Value;
+        }
+
+        /// <summary>
+        /// Visits a statement: an statement is taken as input and
+        /// transformed into another statement.
+        /// </summary>
+        public IStatement Visit(IStatement Value)
+        {
+            return Value;
+        }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            return Variable;
+        }
+    }
+
+    /// <summary>
     /// A type of basic block visitor that is the identity function for
     /// block parameters and branches, and applies a node visitor
     /// to statements and expressions.

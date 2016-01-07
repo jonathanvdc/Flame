@@ -51,6 +51,7 @@ namespace Flame.Front.Target
             // Note: these CFG/SSA passes should not be enabled until they have become beneficial.
             RegisterStatementPass(new StatementPassInfo(ConstructFlowGraphPass.Instance, ConstructFlowGraphPass.ConstructFlowGraphPassName));
 			RegisterMethodPass(new MethodPassInfo(DeadBlockEliminationPass.Instance, DeadBlockEliminationPass.DeadBlockEliminationPassName));
+            RegisterStatementPass(new StatementPassInfo(Flame.Optimization.ConstructSSAPass.Instance, Flame.Optimization.ConstructSSAPass.ConstructSSAPassName));
             RegisterStatementPass(new StatementPassInfo(Flame.Optimization.ConcatBlocksPass.Instance, Flame.Optimization.ConcatBlocksPass.ConcatBlocksPassName));
 			RegisterStatementPass(new StatementPassInfo(Flame.Optimization.DeconstructSSAPass.Instance, Flame.Optimization.DeconstructSSAPass.DeconstructSSAPassName));
 			RegisterStatementPass(new StatementPassInfo(Flame.Optimization.DeconstructFlowGraphPass.Instance, Flame.Optimization.DeconstructFlowGraphPass.DeconstructFlowGraphPassName));
@@ -83,7 +84,7 @@ namespace Flame.Front.Target
         public static List<SignaturePassInfo> SignaturePasses { get; private set; }
 
         /// <summary>
-        /// Gets the list of all globally available pass conditions. 
+        /// Gets the list of all globally available pass conditions.
         /// </summary>
         public static List<PassCondition> PassConditions { get; private set; }
 
@@ -140,7 +141,7 @@ namespace Flame.Front.Target
         }
 
         /// <summary>
-        /// Registers a sufficient condition for a 
+        /// Registers a sufficient condition for a
         /// pass to be run.
         /// </summary>
         /// <param name="Condition"></param>
@@ -150,7 +151,7 @@ namespace Flame.Front.Target
         }
 
         /// <summary>
-        /// Registers a sufficient condition for the 
+        /// Registers a sufficient condition for the
         /// pass with the given name to be run.
         /// </summary>
         /// <param name="PassName"></param>
@@ -235,7 +236,7 @@ namespace Flame.Front.Target
         /// <returns></returns>
         private static ISignaturePass Aggregate(IEnumerable<ISignaturePass> RootPasses)
         {
-            return RootPasses.Aggregate<ISignaturePass, ISignaturePass>(EmptyMemberSignaturePass<IMember>.Instance, 
+            return RootPasses.Aggregate<ISignaturePass, ISignaturePass>(EmptyMemberSignaturePass<IMember>.Instance,
                 (result, item) => new AggregateMemberSignaturePass<IMember>(result, item));
         }
 
@@ -321,7 +322,7 @@ namespace Flame.Front.Target
             var optInfo = new OptimizationInfo(Log);
 
             // Call the `Optimize` method on method body statements
-            // if `-O1` or above is given. (`-Og` == `-O1 -g` is the 
+            // if `-O1` or above is given. (`-Og` == `-O1 -g` is the
             // default optimization level. `-O0` should only be used
             // when hacking the compiler or something)
             var methodOpt = new DefaultOptimizer(optInfo.OptimizeMinimal);
