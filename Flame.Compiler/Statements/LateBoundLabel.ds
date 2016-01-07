@@ -44,7 +44,11 @@ namespace Flame.Compiler.Statements
 
 		public IStatement Accept(INodeVisitor Visitor)
 		{
-			return this;
+			var visitedCond = Visitor.Visit(Condition);
+			if (visitedCond == Condition)
+				return this;
+			else
+				return new LateBoundLabelBranchStatement(Label, visitedCond);
 		}
 
 		public bool IsEmpty { const get return Condition.EvaluatesTo<bool>(false); }

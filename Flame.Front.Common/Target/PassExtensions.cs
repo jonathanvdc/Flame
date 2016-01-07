@@ -48,11 +48,12 @@ namespace Flame.Front.Target
             RegisterPassCondition(PropagateLocalsName, optInfo => optInfo.OptimizeAggressive);
             RegisterStatementPass(new StatementPassInfo(Flame.Optimization.ImperativeCodePass.Instance, Flame.Optimization.ImperativeCodePass.ImperativeCodePassName));
 
-            // Note: -fconstruct-cfg should not be enabled until -fdeconstruct-cfg is implemented
+            // Note: these CFG/SSA passes should not be enabled until they have become beneficial.
             RegisterStatementPass(new StatementPassInfo(ConstructFlowGraphPass.Instance, ConstructFlowGraphPass.ConstructFlowGraphPassName));
 			RegisterMethodPass(new MethodPassInfo(DeadBlockEliminationPass.Instance, DeadBlockEliminationPass.DeadBlockEliminationPassName));
             RegisterStatementPass(new StatementPassInfo(Flame.Optimization.ConcatBlocksPass.Instance, Flame.Optimization.ConcatBlocksPass.ConcatBlocksPassName));
 			RegisterStatementPass(new StatementPassInfo(Flame.Optimization.DeconstructSSAPass.Instance, Flame.Optimization.DeconstructSSAPass.DeconstructSSAPassName));
+			RegisterStatementPass(new StatementPassInfo(Flame.Optimization.DeconstructFlowGraphPass.Instance, Flame.Optimization.DeconstructFlowGraphPass.DeconstructFlowGraphPassName));
 
             RegisterRootPass(new RootPassInfo(GenerateStaticPass.Instance, GenerateStaticPass.GenerateStaticPassName));
 
