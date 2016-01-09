@@ -10,4 +10,12 @@ public class TestClass
             result = Right;
         return result;
     }
+
+    public int Loop(int Target)
+    {
+        int result = 0;
+        while (result < Target)
+            result++;
+        return result;
+    }
 }

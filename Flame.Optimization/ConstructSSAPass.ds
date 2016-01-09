@@ -113,17 +113,19 @@ namespace Flame.Optimization
         public IReadOnlyList<SSAVariable> ParameterVariables { const get { return parameterVars; } }
 
         /// <summary>
-        /// Adds a new SSA local to this block's parameter list, and maps
-        /// the given variable to it.
+        /// Adds the given SSA local to this block's parameter list.
         /// </summary>
-        public SSAVariable AddParameter(IVariable Variable)
+        public void AddParameter(SSAVariable Variable)
         {
-            var result = ConstructSSAPass.CreateSSAVariable(Variable);
-            parameterVars.Add(result);
-            if (!localVars.ContainsKey(Variable))
-                localVars[Variable] = result;
+            parameterVars.Add(Variable);
+        }
 
-            return result;
+        /// <summary>
+        /// Maps the given variable to an SSA local.
+        /// </summary>
+        public void MapVariable(IVariable Variable, SSAVariable Target)
+        {
+            localVars[Variable] = Target;
         }
 
         public override bool Matches(IExpression Value)
@@ -260,6 +262,11 @@ namespace Flame.Optimization
         private Dictionary<UniqueTag, LocalSSAConstructionVisitor> localVisitors;
         private PredecessorDict preds;
 
+        // A dictionary that maps block tags that belong to
+        // unsealed blocks, to SSA variables whose origins
+        // are unknown at this point.
+        private Dictionary<UniqueTag, List<Tuple<IVariable, SSAVariable>>> incompletePhis;
+
         // A `source block tag * target block tag -> argument list` map.
         private Dictionary<Tuple<UniqueTag, UniqueTag>, List<SSAVariable>> extraArgLists;
 
@@ -290,30 +297,170 @@ namespace Flame.Optimization
             return tags;
         }
 
+        private void addPhiOperands(
+            IVariable Variable, SSAVariable Value, LocalSSAConstructionVisitor LocalVisitor,
+            HashSet<UniqueTag> PredecessorTags)
+        {
+            // We'll create a new parameter (phi) for this block, and
+            // have have its predecessor blocks pass their versions of the
+            // requested variable as arguments.
+
+            LocalVisitor.AddParameter(Value);
+            foreach (var tag in PredecessorTags)
+            {
+                var arg = localVisitors[tag].GetSSAVariable(Variable);
+                GetExtraArgumentList(tag, LocalVisitor.BlockTag).Add(arg);
+            }
+        }
+
+        private void addPhiOperands(
+            IVariable Variable, SSAVariable Value, LocalSSAConstructionVisitor LocalVisitor)
+        {
+            var predTags = GetPredecessorTags(LocalVisitor.BlockTag);
+            addPhiOperands(Variable, Value, LocalVisitor, predTags);
+        }
+
         private SSAVariable ImportVariable(
             IVariable Variable, LocalSSAConstructionVisitor LocalVisitor)
         {
-            var predTags = GetPredecessorTags(LocalVisitor.BlockTag);
-            if (predTags.Count == 1)
+            SSAVariable val;
+
+            if (!isSealed(LocalVisitor.BlockTag))
             {
-                // Optimize the common case of just one predecessor.
-                // No phi needed here.
-                var pred = Enumerable.Single<UniqueTag>(predTags);
-                return localVisitors[pred].GetSSAVariable(Variable);
+                // Create a new SSA variable, but don't try to figure out
+                // what its definition is going to look like just yet.
+                // We don't have the whole picture yet, because this
+                // block hasn't been sealed yet.
+
+                val = ConstructSSAPass.CreateSSAVariable(Variable);
+
+                incompletePhis[LocalVisitor.BlockTag].Add(
+                    new Tuple<IVariable, SSAVariable>(Variable, val));
             }
             else
             {
-                // We'll create a new parameter (phi) for this block, and
-                // have have its predecessor blocks pass their versions of the
-                // requested variable as arguments.
-
-                var parameterVar = LocalVisitor.AddParameter(Variable);
-                foreach (var tag in predTags)
+                var predTags = GetPredecessorTags(LocalVisitor.BlockTag);
+                if (predTags.Count == 1)
                 {
-                    var arg = localVisitors[tag].GetSSAVariable(Variable);
-                    GetExtraArgumentList(tag, LocalVisitor.BlockTag).Add(arg);
+                    // Optimize the common case of just one predecessor.
+                    // No arguments (phi) needed here.
+
+                    var pred = Enumerable.Single<UniqueTag>(predTags);
+                    val = localVisitors[pred].GetSSAVariable(Variable);
                 }
-                return parameterVar;
+                else
+                {
+                    // Break potential cycles by creating and mapping
+                    // a variable first, then figuring out what the
+                    // arguments (phi) are supposed to look like.
+
+                    val = ConstructSSAPass.CreateSSAVariable(Variable);
+                    LocalVisitor.MapVariable(Variable, val);
+
+                    // All right. We can handle the arguments now.
+                    addPhiOperands(Variable, val, LocalVisitor, predTags);
+                }
+            }
+            LocalVisitor.MapVariable(Variable, val);
+            return val;
+        }
+
+        /// <summary>
+        /// Checks if the block belonging to the given tag has been sealed.
+        /// </summary>
+        private bool isSealed(UniqueTag Tag)
+        {
+            return !incompletePhis.ContainsKey(Tag);
+        }
+
+        /// <summary>
+        /// Seals the given block. A block is called 'sealed' when all of its
+        /// predecessors have been filled.
+        /// </summary>
+        private void sealBlock(UniqueTag Tag)
+        {
+            if (isSealed(Tag))
+            {
+                // Don't seal the same block twice.
+                return;
+            }
+
+            var visitor = localVisitors[Tag];
+            foreach (var item in incompletePhis[Tag])
+            {
+                // Resolve phi operands now. These are represented
+                // as parameter/argument pairs.
+
+                addPhiOperands(item.Item1, item.Item2, visitor);
+            }
+
+            incompletePhis.Remove(Tag);
+        }
+
+        /// <summary>
+        /// Checks if the given block has been filled yet. A block is called
+        /// 'filled' when its body has been visited, i.e. its locals have
+        /// can rewritten in SSA form.
+        /// </summary>
+        private bool isFilled(UniqueTag Tag, Dictionary<UniqueTag, IStatement> Bodies)
+        {
+            return Bodies.ContainsKey(Tag) && Bodies[Tag] != null;
+        }
+
+        /// <summary>
+        /// Checks if the given basic block can be sealed.
+        /// </summary>
+        private bool canSealBlock(BasicBlock Block, Dictionary<UniqueTag, IStatement> Bodies)
+        {
+            var predTags = GetPredecessorTags(Block.Tag);
+            foreach (var tag in GetPredecessorTags(Block.Tag))
+            {
+                if (!isFilled(tag, Bodies))
+                    return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Seals all blocks that can be sealed at this time.
+        /// </summary>
+        private void sealBlocks(Dictionary<UniqueTag, IStatement> Bodies, FlowGraph Graph)
+        {
+            foreach (var item in Graph.Blocks)
+            {
+                if (canSealBlock(item, Bodies))
+                    sealBlock(item.Tag);
+            }
+        }
+
+        /// <summary>
+        /// Fills the given block.
+        /// </summary>
+        private void fillBlock(
+            BasicBlock Block, Dictionary<UniqueTag, IStatement> Bodies,
+            FlowGraph Graph)
+        {
+            if (Bodies.ContainsKey(Block.Tag))
+                return;
+
+            // Put a null placeholder value in the dictionary to
+            // make sure this block is not filled twice.
+            Bodies[Block.Tag] = null;
+
+            // Try to seal this block right away if at all possible.
+            if (canSealBlock(Block, Bodies))
+                sealBlock(Block.Tag);
+
+            // Fill the block.
+            Bodies[Block.Tag] = localVisitors[Block.Tag].Visit(Block.Contents);
+
+            // Seal this block.
+            sealBlocks(Bodies, Graph);
+
+            // Fill successor blocks.
+            foreach (var item in Block.Flow.GetSuccessors(Graph.GetBlock))
+            {
+                fillBlock(item, Bodies, Graph);
             }
         }
 
@@ -322,6 +469,7 @@ namespace Flame.Optimization
             // Initialize the predecessor and extra argument list dictionaries.
             preds = Graph.GetPredecessors();
             extraArgLists = new Dictionary<Tuple<UniqueTag, UniqueTag>, List<SSAVariable>>();
+            incompletePhis = new Dictionary<UniqueTag, List<Tuple<IVariable, SSAVariable>>>();
 
             // Setup the local visitors.
             localVisitors = new Dictionary<UniqueTag, LocalSSAConstructionVisitor>();
@@ -329,13 +477,14 @@ namespace Flame.Optimization
             {
                 localVisitors[item.Tag] = new LocalSSAConstructionVisitor(
                     item, CanPromote, ImportVariable);
+                incompletePhis[item.Tag] = new List<Tuple<IVariable, SSAVariable>>();
             }
 
             // Number all variables.
             var bodies = new Dictionary<UniqueTag, IStatement>();
             foreach (var item in Graph.Blocks)
             {
-                bodies[item.Tag] = localVisitors[item.Tag].Visit(item.Contents);
+                fillBlock(item, bodies, Graph);
             }
 
             // Now, we'll put all of that information together.
@@ -353,6 +502,7 @@ namespace Flame.Optimization
             preds = null;
             localVisitors = null;
             extraArgLists = null;
+            incompletePhis = null;
 
             return new FlowGraph(Graph.EntryPointTag, results);
         }

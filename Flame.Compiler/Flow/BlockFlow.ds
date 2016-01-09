@@ -105,6 +105,21 @@ namespace Flame.Compiler.Flow
         }
 
         /// <summary>
+        /// Gets a sequence of successor block tags for this basic
+        /// block flow node.
+        /// </summary>
+        public [UniqueTag] SuccessorTags
+        {
+            get
+            {
+                var succTags = new HashSet<UniqueTag>();
+                foreach (var item in Branches)
+                    succTags.Add(item.TargetTag);
+                return succTags;
+            }
+        }
+
+        /// <summary>
         /// Gets a sequence of potential direct successor blocks for this
         /// basic block flow node. A delegate is given that maps
         /// block tags to their associated basic blocks.
@@ -112,8 +127,8 @@ namespace Flame.Compiler.Flow
         public [BasicBlock] GetSuccessors(BasicBlock(UniqueTag) ResolveBlock)
         {
             var results = new List<BasicBlock>();
-            foreach (var item in Branches)
-                results.Add(ResolveBlock(item.TargetTag));
+            foreach (var tag in SuccessorTags)
+                results.Add(ResolveBlock(tag));
 
             return results;
         }
