@@ -20,6 +20,11 @@ namespace Flame.Compiler.Variables
             IReadOnlyDictionary<IVariable, IVariable> Assignments,
             Dictionary<IType, IVariable> Temporaries)
         {
+            // Based on the parallel copy algorithm described in:
+            //     Revisiting Out-of-SSA Translation for Correctness, Code
+            //     Quality, and Efficiency
+            //     - https://hal.inria.fr/inria-00349925v1/document
+
             var stmts = new List<IStatement>();
 
             // A dictionary that maps the values of variables in the argument
@@ -65,7 +70,7 @@ namespace Flame.Compiler.Variables
                     // The source variable's value now resides in the destination
                     // variable, so we should update the value-location map
                     // accordingly.
-                    loc[srcReg] = tgtReg;
+                    loc[predReg] = tgtReg;
 
                     // If this assignment's source variable has not been
                     // renamed, and the source variable is also a destination
@@ -77,8 +82,9 @@ namespace Flame.Compiler.Variables
                     }
                 }
 
-                // Check if we have a cyclic dependency right now.
-                if (loc[Assignments[dest]].Equals(dest))
+                // Check if a value is not in the right place yet, but
+                // we somehow got stuck in a cyclic situation.
+                if (!loc[Assignments[dest]].Equals(dest))
                 {
                     // We have a situation that looks somewhat like this:
                     //
