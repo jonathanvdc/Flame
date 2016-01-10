@@ -223,8 +223,8 @@ namespace Flame.Compiler.Visitors
                 var siblExprs = unspilledExpressions;
                 var siblStmts = unspilledStatements;
 
-                unspilledStatements = new List<MovableStatement>();
-                unspilledExpressions = new List<Tuple<SpillableExpression, InsertStatement>>();
+                unspilledStatements = new List<MovableStatement>(siblStmts);
+                unspilledExpressions = new List<Tuple<SpillableExpression, InsertStatement>>(siblExprs);
 
                 // Visit this statement's children, with a new set of unspilled
                 // expressions and statements.
@@ -276,8 +276,8 @@ namespace Flame.Compiler.Visitors
                 var siblExprs = unspilledExpressions;
                 var siblStmts = unspilledStatements;
 
-                unspilledStatements = new List<MovableStatement>();
-                unspilledExpressions = new List<Tuple<SpillableExpression, InsertStatement>>();
+                unspilledStatements = new List<MovableStatement>(siblStmts);
+                unspilledExpressions = new List<Tuple<SpillableExpression, InsertStatement>>(siblExprs);
 
                 // Visit this statement's children, with a new set of unspilled
                 // expressions and statements.

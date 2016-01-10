@@ -75,6 +75,11 @@ namespace Flame.Compiler.Statements
         {
             return new BlockStatement(Statements).Simplify();
         }
+
+        public override string ToString()
+        {
+            return "insert-statement(" + Unwrap().ToString() + ")";
+        }
     }
 
     /// <summary>
@@ -108,6 +113,11 @@ namespace Flame.Compiler.Statements
         public override IStatement Unwrap()
         {
             return Statement;
+        }
+
+        public override string ToString()
+        {
+            return "movable-statement(" + Statement.ToString() + ")";
         }
     }
 }
