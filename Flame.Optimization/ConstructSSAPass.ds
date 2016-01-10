@@ -124,6 +124,7 @@ namespace Flame.Optimization
         /// Maps the given variable to an SSA local.
         /// </summary>
         public void MapVariable(IVariable Variable, SSAVariable Target)
+            out { GetSSAVariable(Variable) == Target }
         {
             localVars[Variable] = Target;
         }
@@ -146,6 +147,7 @@ namespace Flame.Optimization
                 // we'll just import an externally defined variable.
 
                 result = ImportVariable(Variable, this);
+                assert(GetSSAVariable(Variable) == result);
             }
             return result;
         }
@@ -180,7 +182,7 @@ namespace Flame.Optimization
 
                     var val = ((ISetVariableNode)node).Value.Accept(this);
                     var newLocal = ConstructSSAPass.CreateSSAVariable(variable);
-                    localVars[variable] = newLocal;
+                    MapVariable(variable, newLocal);
                     return newLocal.CreateSetStatement(val);
                 }
                 else
@@ -402,7 +404,7 @@ namespace Flame.Optimization
         /// 'filled' when its body has been visited, i.e. its locals have
         /// can rewritten in SSA form.
         /// </summary>
-        private bool isFilled(UniqueTag Tag, Dictionary<UniqueTag, IStatement> Bodies)
+        private bool isFilled(UniqueTag Tag, Dictionary<UniqueTag, Tuple<IStatement, BlockFlow>> Bodies)
         {
             return Bodies.ContainsKey(Tag) && Bodies[Tag] != null;
         }
@@ -410,7 +412,7 @@ namespace Flame.Optimization
         /// <summary>
         /// Checks if the given basic block can be sealed.
         /// </summary>
-        private bool canSealBlock(BasicBlock Block, Dictionary<UniqueTag, IStatement> Bodies)
+        private bool canSealBlock(BasicBlock Block, Dictionary<UniqueTag, Tuple<IStatement, BlockFlow>> Bodies)
         {
             var predTags = GetPredecessorTags(Block.Tag);
             foreach (var tag in GetPredecessorTags(Block.Tag))
@@ -424,7 +426,7 @@ namespace Flame.Optimization
         /// <summary>
         /// Seals all blocks that can be sealed at this time.
         /// </summary>
-        private void sealBlocks(Dictionary<UniqueTag, IStatement> Bodies, FlowGraph Graph)
+        private void sealBlocks(Dictionary<UniqueTag, Tuple<IStatement, BlockFlow>> Bodies, FlowGraph Graph)
         {
             foreach (var item in Graph.Blocks)
             {
@@ -437,7 +439,7 @@ namespace Flame.Optimization
         /// Fills the given block.
         /// </summary>
         private void fillBlock(
-            BasicBlock Block, Dictionary<UniqueTag, IStatement> Bodies,
+            BasicBlock Block, Dictionary<UniqueTag, Tuple<IStatement, BlockFlow>> Bodies,
             FlowGraph Graph)
         {
             if (Bodies.ContainsKey(Block.Tag))
@@ -452,7 +454,9 @@ namespace Flame.Optimization
                 sealBlock(Block.Tag);
 
             // Fill the block.
-            Bodies[Block.Tag] = localVisitors[Block.Tag].Visit(Block.Contents);
+            var visitedBlock = Block.Accept(localVisitors[Block.Tag]);
+            Bodies[Block.Tag] = new Tuple<IStatement, BlockFlow>(
+                visitedBlock.Contents, visitedBlock.Flow);
 
             // Seal this block.
             sealBlocks(Bodies, Graph);
@@ -481,7 +485,7 @@ namespace Flame.Optimization
             }
 
             // Number all variables.
-            var bodies = new Dictionary<UniqueTag, IStatement>();
+            var bodies = new Dictionary<UniqueTag, Tuple<IStatement, BlockFlow>>();
             foreach (var item in Graph.Blocks)
             {
                 fillBlock(item, bodies, Graph);
@@ -493,9 +497,11 @@ namespace Flame.Optimization
             {
                 var fixingVisitor = new BranchArgAppendingVisitor(item, extraArgLists);
 
+                var bodyAndFlow = bodies[item.Tag];
+
                 results[item.Tag] = new BasicBlock(
                     item.Tag, localVisitors[item.Tag].ParameterVariables,
-                    bodies[item.Tag], item.Flow.Accept(fixingVisitor));
+                    bodyAndFlow.Item1, bodyAndFlow.Item2.Accept(fixingVisitor));
             }
 
             // Do some cleanup.
