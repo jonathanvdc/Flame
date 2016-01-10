@@ -69,5 +69,10 @@ namespace Flame.Compiler.Expressions
         {
             return Value.Emit(CodeGenerator);
         }
+
+        public override string ToString()
+        {
+            return "spillable-expression(" + Value.ToString() + ")";
+        }
     }
 }

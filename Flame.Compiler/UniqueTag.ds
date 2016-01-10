@@ -27,5 +27,10 @@ namespace Flame.Compiler
         /// Gets this unique tag's name.
         /// </summary>
         public string Name { const get; private set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }
