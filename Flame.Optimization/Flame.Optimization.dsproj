@@ -31,6 +31,7 @@
     <Compile Include="InliningVisitor.ds" />
     <Compile Include="LambdaCapturedValueVisitor.ds" />
     <Compile Include="PredicateMemberNodeVisitor.ds" />
+    <Compile Include="RemoveTrivialPhiPass.ds" />
     <Compile Include="SimplifyFlowPass.ds" />
     <Compile Include="SizeVisitor.ds" />
     <Compile Include="SlimLambdaPass.ds" />
