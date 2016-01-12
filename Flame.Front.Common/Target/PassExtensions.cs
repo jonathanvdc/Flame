@@ -50,12 +50,13 @@ namespace Flame.Front.Target
 
             // Note: these CFG/SSA passes should not be enabled until they have become beneficial.
             RegisterStatementPass(new StatementPassInfo(ConstructFlowGraphPass.Instance, ConstructFlowGraphPass.ConstructFlowGraphPassName));
+            RegisterStatementPass(new StatementPassInfo(JumpThreadingPass.Instance, JumpThreadingPass.JumpThreadingPassName));
 			RegisterMethodPass(new MethodPassInfo(DeadBlockEliminationPass.Instance, DeadBlockEliminationPass.DeadBlockEliminationPassName));
-            RegisterStatementPass(new StatementPassInfo(Flame.Optimization.ConstructSSAPass.Instance, Flame.Optimization.ConstructSSAPass.ConstructSSAPassName));
-            RegisterStatementPass(new StatementPassInfo(Flame.Optimization.RemoveTrivialPhiPass.Instance, Flame.Optimization.RemoveTrivialPhiPass.RemoveTrivialPhiPassName));
-            RegisterStatementPass(new StatementPassInfo(Flame.Optimization.ConcatBlocksPass.Instance, Flame.Optimization.ConcatBlocksPass.ConcatBlocksPassName));
-			RegisterStatementPass(new StatementPassInfo(Flame.Optimization.DeconstructSSAPass.Instance, Flame.Optimization.DeconstructSSAPass.DeconstructSSAPassName));
-			RegisterStatementPass(new StatementPassInfo(Flame.Optimization.DeconstructFlowGraphPass.Instance, Flame.Optimization.DeconstructFlowGraphPass.DeconstructFlowGraphPassName));
+            RegisterStatementPass(new StatementPassInfo(ConstructSSAPass.Instance, ConstructSSAPass.ConstructSSAPassName));
+            RegisterStatementPass(new StatementPassInfo(RemoveTrivialPhiPass.Instance, RemoveTrivialPhiPass.RemoveTrivialPhiPassName));
+            RegisterStatementPass(new StatementPassInfo(ConcatBlocksPass.Instance, ConcatBlocksPass.ConcatBlocksPassName));
+			RegisterStatementPass(new StatementPassInfo(DeconstructSSAPass.Instance, DeconstructSSAPass.DeconstructSSAPassName));
+			RegisterStatementPass(new StatementPassInfo(DeconstructFlowGraphPass.Instance, DeconstructFlowGraphPass.DeconstructFlowGraphPassName));
 
             RegisterRootPass(new RootPassInfo(GenerateStaticPass.Instance, GenerateStaticPass.GenerateStaticPassName));
 
