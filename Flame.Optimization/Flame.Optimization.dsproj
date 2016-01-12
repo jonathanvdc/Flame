@@ -29,6 +29,7 @@
     <Compile Include="InitialFlowRemover.ds" />
     <Compile Include="InliningExtensions.ds" />
     <Compile Include="InliningVisitor.ds" />
+    <Compile Include="JumpThreadingPass.ds" />
     <Compile Include="LambdaCapturedValueVisitor.ds" />
     <Compile Include="PredicateMemberNodeVisitor.ds" />
     <Compile Include="RemoveTrivialPhiPass.ds" />
