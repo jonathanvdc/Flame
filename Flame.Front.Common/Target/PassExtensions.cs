@@ -52,6 +52,7 @@ namespace Flame.Front.Target
             RegisterStatementPass(new StatementPassInfo(ConstructFlowGraphPass.Instance, ConstructFlowGraphPass.ConstructFlowGraphPassName));
 			RegisterMethodPass(new MethodPassInfo(DeadBlockEliminationPass.Instance, DeadBlockEliminationPass.DeadBlockEliminationPassName));
             RegisterStatementPass(new StatementPassInfo(Flame.Optimization.ConstructSSAPass.Instance, Flame.Optimization.ConstructSSAPass.ConstructSSAPassName));
+            RegisterStatementPass(new StatementPassInfo(Flame.Optimization.RemoveTrivialPhiPass.Instance, Flame.Optimization.RemoveTrivialPhiPass.RemoveTrivialPhiPassName));
             RegisterStatementPass(new StatementPassInfo(Flame.Optimization.ConcatBlocksPass.Instance, Flame.Optimization.ConcatBlocksPass.ConcatBlocksPassName));
 			RegisterStatementPass(new StatementPassInfo(Flame.Optimization.DeconstructSSAPass.Instance, Flame.Optimization.DeconstructSSAPass.DeconstructSSAPassName));
 			RegisterStatementPass(new StatementPassInfo(Flame.Optimization.DeconstructFlowGraphPass.Instance, Flame.Optimization.DeconstructFlowGraphPass.DeconstructFlowGraphPassName));
