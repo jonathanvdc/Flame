@@ -86,28 +86,35 @@ namespace Flame.Optimization
                     var jump = (JumpFlow)block.Flow;
                     var branch = jump.Branch;
 
+                    BlockBranch flattenedBr;
+
                     if (results.ContainsKey(branch.TargetTag))
                     {
                         assert(branch.Arguments.Count == 0);
 
-                        var flattenedBr = results[branch.TargetTag];
-
-                        // Redirect this block and any block that jumps to it.
-                        results[block.Tag] = flattenedBr;
-                        // Register this block as a user of the target block.
-                        GetOrCreate<UniqueTag, UniqueTag>(flattenedBr.TargetTag, preds).Add(branch.TargetTag);
-
-                        // Redirect any blocks that jump to this block.
-                        foreach (var tag in GetOrCreate<UniqueTag, UniqueTag>(block.Tag, preds))
-                        {
-                            results[tag] = flattenedBr;
-                            GetOrCreate<UniqueTag, UniqueTag>(flattenedBr.TargetTag, preds).Add(tag);
-                        }
+                        // Skip this block and as many successors as possible
+                        // when jumping.
+                        flattenedBr = results[branch.TargetTag];
                     }
                     else
                     {
-                        results[block.Tag] = branch;
-                        GetOrCreate<UniqueTag, UniqueTag>(branch.TargetTag, preds).Add(block.Tag);
+                        // Skip this block when jumping.
+                        flattenedBr = branch;
+                    }
+
+                    // Redirect this block and any block that jumps to it.
+                    results[block.Tag] = flattenedBr;
+
+                    var targetSet = GetOrCreate<UniqueTag, UniqueTag>(flattenedBr.TargetTag, preds);
+
+                    // Register this block as a user of the target block.
+                    targetSet.Add(block.Tag);
+
+                    // Redirect any blocks that jump to this block.
+                    foreach (var tag in GetOrCreate<UniqueTag, UniqueTag>(block.Tag, preds))
+                    {
+                        results[tag] = flattenedBr;
+                        targetSet.Add(tag);
                     }
                 }
             }
