@@ -1,0 +1,203 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using Pixie;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A visitor that removed (but does not recognize) dead stores from
+    /// a flow graph.
+    /// </summary>
+    public class DeadStoreEliminatingVisitor : NodeVisitorBase, IBasicBlockVisitor
+    {
+        /// <summary>
+        /// Creates a dead store eliminating visitor from the given
+        /// control flow graph and set of live variables.
+        /// </summary>
+        public const this(set FlowGraph Graph, set HashSet<SSAVariable> LiveVariables);
+
+        /// <summary>
+        /// Gets the flow graph this visitor is removing dead stores from.
+        /// </summary>
+        public FlowGraph Graph { const get; private set; }
+
+        /// <summary>
+        /// Gets the set of live variables in this dead store eliminating
+        /// visitor's flow graph.
+        /// </summary>
+        public HashSet<SSAVariable> LiveVariables { const get; private set; }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return false;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is SSADefineStatement;
+        }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            return Variable;
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public BlockBranch Visit(BlockBranch Branch)
+        {
+            var parameterList = Graph.GetBlock(Branch.TargetTag).Parameters;
+
+            var argList = new List<SSAVariable>();
+            foreach (var arg in Branch.Arguments, var param in parameterList)
+            {
+                if (LiveVariables.Contains(param))
+                    argList.Add(arg);
+            }
+
+            return new BlockBranch(Branch.TargetTag, argList);
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            return Expression;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            assert(Statement is SSADefineStatement);
+            var defStatement = (SSADefineStatement)Statement;
+
+            if (LiveVariables.Contains(defStatement.Variable))
+            {
+                return defStatement.Accept(this);
+            }
+            else
+            {
+                return new ExpressionStatement(defStatement.Value.Accept(this)).Simplify();
+            }
+        }
+    }
+
+    /// <summary>
+    /// A pass that eliminates SSA variable definitions that are never used.
+    /// </summary>
+    public static class DeadStoreEliminationPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// This pass' name.
+        /// </summary>
+        public const string DeadStoreEliminationPassName = "dead-store-elimination";
+
+        /// <summary>
+        /// Adds the given variable to the set of used variables.
+        /// If this variable depends on any other variables, then those
+        /// are marked as used, too.
+        /// </summary>
+        private void MarkLive(
+            SSAVariable Variable, HashSet<SSAVariable> UsedVariables,
+            Dictionary<SSAVariable, HashSet<SSAVariable>> ConditionalUseMap)
+        {
+            // Add the variable to the used variable set.
+            if (UsedVariables.Add(Variable))
+            {
+                // Check if this variable has any dependencies.
+                HashSet<SSAVariable> dependencies;
+                if (ConditionalUseMap.TryGetValue(Variable, &dependencies))
+                {
+                    // If so, mark all dependencies as used.
+                    foreach (var item in dependencies)
+                        MarkLive(item, UsedVariables, ConditionalUseMap);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Computes the set of live variables in the given flow graph.
+        /// </summary>
+        private HashSet<SSAVariable> GetLiveVariables(FlowGraph Graph)
+        {
+            var useVisitor = new SSAVariableUseFinder();
+            var phiFunctions = new Dictionary<SSAVariable, HashSet<SSAVariable>>();
+
+            // Step one: figure out which variables are unconditionally in use,
+            // and produce a map that represents phi functions for parameters.
+
+            foreach (var block in Graph.Blocks)
+            {
+                // Find unconditional uses in this block.
+                block.Accept(useVisitor);
+
+                // Now find conditional uses as well.
+                // Conditional uses correspond to
+                foreach (var br in block.Flow.Branches)
+                {
+                    var targetBlock = Graph.GetBlock(br.TargetTag);
+                    foreach (var arg in br.Arguments,
+                             var param in targetBlock.Parameters)
+                    {
+                        if (!phiFunctions.ContainsKey(param))
+                            phiFunctions[param] = new HashSet<SSAVariable>();
+
+                        phiFunctions[param].Add(arg);
+                    }
+                }
+            }
+
+            // Step two: use that information to build a set that contains
+            // all variables that are live. Any variable not in this set is dead.
+
+            var liveVariables = new HashSet<SSAVariable>();
+
+            foreach (var item in useVisitor.UsedVariables)
+            {
+                MarkLive(item, liveVariables, phiFunctions);
+            }
+
+            return liveVariables;
+        }
+
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            // First, figure out which variables are live.
+            var liveVars = GetLiveVariables(Graph);
+
+
+            // Then use that information to get rid of dead stores.
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+            var visitor = new DeadStoreEliminatingVisitor(Graph, liveVars);
+            foreach (var block in Graph.Blocks)
+            {
+                // Remove all dead variables from the parameter list.
+                var parameterList = new List<SSAVariable>(
+                    Enumerable.Where<SSAVariable>(block.Parameters,
+                    liveVars.Contains));
+
+                // Remove dead stores from the body. Also get rid
+                // of dead arguments in branches.
+                var body = visitor.Visit(block.Contents);
+                var flow = block.Flow.Accept(visitor);
+
+                results[block.Tag] = new BasicBlock(
+                    block.Tag, parameterList, body, flow);
+            }
+
+            return new FlowGraph(Graph.EntryPointTag, results);
+        }
+
+        public IStatement Apply(IStatement Statement)
+        {
+            return Visit(Statement);
+        }
+    }
+}

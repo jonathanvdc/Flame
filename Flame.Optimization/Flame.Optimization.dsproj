@@ -22,6 +22,7 @@
     <Compile Include="ConstantPropagationPass.ds" />
     <Compile Include="ConstructSSAPass.ds" />
     <Compile Include="DeadBlockEliminationPass.ds" />
+    <Compile Include="DeadStoreEliminationPass.ds" />
     <Compile Include="DeconstructFlowGraphPass.ds" />
     <Compile Include="DeconstructSSAPass.ds" />
     <Compile Include="FinalFlowRemover.ds" />
