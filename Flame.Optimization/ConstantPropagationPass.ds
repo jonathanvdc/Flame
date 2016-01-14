@@ -1,0 +1,507 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A data structure that represents an SSA variable definition.
+    /// </summary>
+    public class VariableDefinition
+    {
+        public const this()
+        {
+            defs = new HashSet<IExpression>();
+        }
+
+        private HashSet<IExpression> defs;
+
+        /// <summary>
+        /// Gets all definitions for this variable.
+        /// </summary>
+        public [IExpression] Definitions { const get { return defs; } }
+
+        /// <summary>
+        /// Registers the given expression as a variable definition.
+        /// </summary>
+        public void AddDefinition(IExpression Value)
+        {
+            defs.Add(Value);
+        }
+
+        /// <summary>
+        /// Checks if this variable's value is unknown.
+        /// </summary>
+        public bool IsUnknown { get { return defs.Count == 0; } }
+
+        /// <summary>
+        /// Checks if this variable's value is constant.
+        /// </summary>
+        public bool IsConstant { get { return defs.Count == 1; } }
+
+        /// <summary>
+        /// Checks if this variable is known to vary.
+        /// </summary>
+        public bool IsVariable { get { return defs.Count > 1; } }
+
+        /// <summary>
+        /// Gets this variable's constant definition, assuming it is indeed
+        /// constant. Otherwise, a null reference is returned.
+        /// </summary>
+        public IExpression ConstantDefinition
+        {
+            get
+            {
+                if (IsConstant)
+                    return Enumerable.Single<IExpression>(Definitions);
+                else
+                    return null;
+            }
+        }
+    }
+
+    public class SSAConstantReplacingVisitor : NodeVisitorBase
+    {
+        public const this(
+            set IReadOnlyDictionary<SSAVariable, VariableDefinition> Definitions)
+        {
+            this.ShouldInline = bool(IExpression expr) => true;
+        }
+        public const this(
+            set IReadOnlyDictionary<SSAVariable, VariableDefinition> Definitions,
+            set bool(IExpression) ShouldInline);
+
+        public IReadOnlyDictionary<SSAVariable, VariableDefinition> Definitions { const get; private set; }
+        public bool(IExpression) ShouldInline { const get; private set; }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is SSAGetExpression;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return false;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            var expr = (SSAGetExpression)Expression;
+            if (!Definitions.ContainsKey(expr.Variable))
+                return expr;
+
+            var constDef = Definitions[expr.Variable].ConstantDefinition;
+
+            if (constDef == null)
+            {
+                return expr;
+            }
+            else
+            {
+                var result = Visit(constDef);
+                if (ShouldInline(result))
+                    return result;
+                else
+                    return expr;
+            }
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            return Statement;
+        }
+    }
+
+    /// <summary>
+    /// A node visitor that finds SSA variable definitions.
+    /// </summary>
+    public class SSAVariableDefFinder : NodeVisitorBase
+    {
+        public const this()
+        {
+            this.defs = new Dictionary<SSAVariable, IExpression>();
+        }
+
+        private Dictionary<SSAVariable, IExpression> defs;
+
+        /// <summary>
+        /// Gets a mapping of variables to definitions, procured by this node
+        /// visitor.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, IExpression> Definitions { const get { return defs; } }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return false;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is SSADefineStatement;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            return Expression;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            assert(Statement is SSADefineStatement);
+            var defStatement = (SSADefineStatement)Statement;
+
+            // SSA means single static assignment. Make sure we don't
+            // define the same value more than once.
+            assert(!defs.ContainsKey(defStatement.Variable));
+            defs[defStatement.Variable] = Visit(defStatement.Value);
+            return defStatement;
+        }
+    }
+
+    /// <summary>
+    /// A node visitor that finds SSA variables whose values are used.
+    /// </summary>
+    public class SSAVariableUseFinder : NodeVisitorBase
+    {
+        public const this()
+        {
+            this.usedVars = new HashSet<SSAVariable>();
+        }
+
+        private HashSet<SSAVariable> usedVars;
+
+        /// <summary>
+        /// Gets the set of variables that have been used by nodes visited
+        /// by this object.
+        /// </summary>
+        public [SSAVariable] UsedVariables { const get { return usedVars; } }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is SSAGetExpression;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return false;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            var expr = (SSAGetExpression)Expression;
+            usedVars.Add(expr.Variable);
+            return expr;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            return Statement;
+        }
+    }
+
+    /// <summary>
+    /// Defines a data structure that represents a (potentially)
+    /// ignored branch.
+    /// </summary>
+    public class IgnoredBranch
+    {
+        public const this(set BlockBranch Branch)
+        {
+            this.HasChased = false;
+        }
+
+        /// <summary>
+        /// Gets a boolean value that tells whether this branch has been
+        /// chased yet.
+        /// </summary>
+        public bool HasChased { const get; set; }
+
+        /// <summary>
+        /// Gets the actual branch that is (potentially) ignored.
+        /// </summary>
+        public BlockBranch Branch { const get; private set; }
+    }
+
+    public class ConstantPropagationData
+    {
+        public const this(set FlowGraph Graph)
+        {
+            this.defs = new Dictionary<SSAVariable, VariableDefinition>();
+            this.dependentBranches = new Dictionary<SSAVariable, HashSet<IgnoredBranch>>();
+            this.cfgWorklist = new Stack<UniqueTag>();
+            this.processedBlocks = new HashSet<UniqueTag>();
+            this.constantReplVisitor = new SSAConstantReplacingVisitor(defs);
+            this.propTypes = new ConcurrentDictionary<IType, bool>();
+            this.MarkReachable(Graph.EntryPointTag);
+        }
+
+        private Dictionary<SSAVariable, VariableDefinition> defs;
+        private Dictionary<SSAVariable, HashSet<IgnoredBranch>> dependentBranches;
+        private Stack<UniqueTag> cfgWorklist;
+        private HashSet<UniqueTag> processedBlocks;
+        private SSAConstantReplacingVisitor constantReplVisitor;
+        private ConcurrentDictionary<IType, bool> propTypes;
+
+        /// <summary>
+        /// Gets a node visitor that tries to replace SSA variables loads
+        /// by constant definitions.
+        /// </summary>
+        public SSAConstantReplacingVisitor ConstantReplacingVisitor { const get { return constantReplVisitor; } }
+
+        /// <summary>
+        /// Gets this constant propagation instance's flow graph.
+        /// </summary>
+        public FlowGraph Graph { const get; private set; }
+
+        /// <summary>
+        /// Checks if the given type is a propagate-always type, which can
+        /// safely be propagated anywhere.
+        /// </summary>
+        private bool IsPropagateAlwaysTypeCore(IType Type)
+        {
+            if (Type.IsPrimitive || Type.IsDelegate)
+            {
+                return true;
+            }
+            else if (Type.IsValueType)
+            {
+                foreach (var item in Type.Fields)
+                    if (!IsPropagateAlwaysType(item.FieldType))
+                {
+                    return false;
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Checks if the given type is a propagate-always type, which can
+        /// safely be propagated anywhere.
+        /// </summary>
+        public bool IsPropagateAlwaysType(IType Type)
+        {
+            return propTypes.GetOrAdd(Type, IsPropagateAlwaysTypeCore);
+        }
+
+        /// <summary>
+        /// Checks if the given expression is a literal, which can always
+        /// be propagated.
+        /// </summary>
+        public bool IsLiteralExpression(IExpression Expression)
+        {
+            return Expression.IsConstant
+                && IsPropagateAlwaysType(Expression.Type)
+                && Expression.Evaluate() != null;
+        }
+
+        private VariableDefinition GetOrCreateDef(SSAVariable Variable)
+        {
+            VariableDefinition result;
+            if (!defs.TryGetValue(Variable, &result))
+            {
+                result = new VariableDefinition();
+                defs[Variable] = result;
+            }
+            return result;
+        }
+
+        private HashSet<IgnoredBranch> GetOrCreateSet(SSAVariable Variable)
+        {
+            HashSet<IgnoredBranch> result;
+            if (!dependentBranches.TryGetValue(Variable, &result))
+            {
+                result = new HashSet<IgnoredBranch>();
+                dependentBranches[Variable] = result;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Tries to evaluate the given expression. If that can't be done,
+        /// null is returned.
+        /// </summary>
+        public IBoundObject Evaluate(IExpression Expression)
+        {
+            return ConstantReplacingVisitor.Visit(Expression).EvaluateConstant();
+        }
+
+        /// <summary>
+        /// Adds a definition for this given SSA variable to this
+        /// constant propagation data structure.
+        /// </summary>
+        public void AddDefinition(SSAVariable Variable, IExpression Value)
+        {
+            var def = GetOrCreateDef(Variable);
+            def.AddDefinition(Value);
+
+            if (def.IsVariable)
+            {
+                // Chase all branches.
+                var branchSet = GetOrCreateSet(Variable);
+                foreach (var branch in branchSet)
+                {
+                    if (!branch.HasChased)
+                    {
+                        ChaseBranch(branch.Branch);
+                        branch.HasChased = true;
+                    }
+                }
+
+                // Clear the set of branches to chase.
+                branchSet.Clear();
+            }
+        }
+
+        /// <summary>
+        /// "Chases" the given branch by marking its target block as
+        /// reachable and turning its arguments into definitions for
+        /// the the target block parameters.
+        /// </summary>
+        public void ChaseBranch(BlockBranch Branch)
+        {
+            var targetTag = Branch.TargetTag;
+            var targetBlock = Graph.GetBlock(targetTag);
+            MarkReachable(targetTag);
+            foreach (var arg in Branch.Arguments,
+                     var param in targetBlock.Parameters)
+            {
+                AddDefinition(param, arg.CreateGetExpression());
+            }
+        }
+
+        /// <summary>
+        /// Ignores the given branch for now. It is registered as dependent
+        /// on the SSA variables in its condition expression, which is
+        /// optimistically constant for now.
+        /// </summary>
+        public void IgnoreBranch(BlockBranch Branch, IExpression Condition)
+            in { Evaluate(Condition) != null }
+        {
+            var useFinder = new SSAVariableUseFinder();
+            useFinder.Visit(Condition);
+            var ignoredBr = new IgnoredBranch(Branch);
+            foreach (var item in useFinder.UsedVariables)
+            {
+                GetOrCreateSet(item).Add(ignoredBr);
+            }
+        }
+
+        /// <summary>
+        /// Marks the given tag as reachable.
+        /// </summary>
+        public void MarkReachable(UniqueTag Tag)
+        {
+            if (processedBlocks.Add(Tag))
+                cfgWorklist.Push(Tag);
+        }
+
+        /// <summary>
+        /// Checks if this constant propagation pass instance is "done", i.e.
+        /// its CFG worklist has become empty.
+        /// </summary>
+        public bool IsDone
+        {
+            get { return cfgWorklist.Count == 0; }
+        }
+
+        /// <summary>
+        /// Pops a block tag from the CFG worklist.
+        /// </summary>
+        public BasicBlock PopBlock()
+        {
+            return Graph.GetBlock(cfgWorklist.Pop());
+        }
+    }
+
+    /// <summary>
+    /// A pass that implements sparse conditional constant propagation.
+    /// This transformation is applied to control flow graphs in SSA form.
+    /// </summary>
+    public static class ConstantPropagationPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// This pass' name.
+        /// </summary>
+        public const string ConstantPropagationPassName = "constprop";
+
+        private void ProcessFlow(
+            ConstantPropagationData Data, BlockFlow Flow)
+        {
+            if (Flow is SelectFlow)
+            {
+                var sel = (SelectFlow)Flow;
+                assert(sel.Condition.Type.Equals(PrimitiveTypes.Boolean));
+                var evalCond = Data.Evaluate(sel.Condition);
+                if (evalCond == null)
+                {
+                    Data.ChaseBranch(sel.ThenBranch);
+                    Data.ChaseBranch(sel.ElseBranch);
+                }
+                else if (evalCond.GetValue<bool>())
+                {
+                    Data.IgnoreBranch(sel.ElseBranch, sel.Condition);
+                    Data.ChaseBranch(sel.ThenBranch);
+                }
+                else
+                {
+                    assert(!evalCond.GetValue<bool>());
+                    Data.IgnoreBranch(sel.ThenBranch, sel.Condition);
+                    Data.ChaseBranch(sel.ElseBranch);
+                }
+            }
+            else
+            {
+                foreach (var br in Flow.Branches)
+                {
+                    Data.ChaseBranch(br);
+                }
+            }
+        }
+
+        private void ProcessDefinitions(
+            ConstantPropagationData Data, BasicBlock Block)
+        {
+            var defFinder = new SSAVariableDefFinder();
+            Block.Accept(defFinder);
+            foreach (var item in defFinder.Definitions)
+            {
+                Data.AddDefinition(item.Key, item.Value);
+            }
+        }
+
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            var data = new ConstantPropagationData(Graph);
+
+            while (!data.IsDone)
+            {
+                var block = data.PopBlock();
+                ProcessDefinitions(data, block);
+                ProcessFlow(data, block.Flow);
+            }
+
+            // Now replace constant SSA variables by their definitions, but
+            // only if we think that doing so will actually speed things up.
+            var visitor = new SSAConstantReplacingVisitor(
+                data.ConstantReplacingVisitor.Definitions,
+                data.IsLiteralExpression);
+
+            // Apply the visitor to the graph, then apply a select flow
+            // simplification pass.
+            return SimplifySelectFlowPass.Visit(
+                Graph.Accept(visitor).Accept(NodeOptimizationPass));
+        }
+
+        public IStatement Apply(IStatement Statement)
+        {
+            return Visit(Statement);
+        }
+    }
+}
