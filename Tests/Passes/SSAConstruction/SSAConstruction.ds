@@ -28,6 +28,14 @@ public class TestClass
         return y * y;
     }
 
+    public int CopyPropagation(int arg)
+    {
+        int x = arg;
+        int y = x;
+        int z = y;
+        return z;
+    }
+
     public int ConvolutedLoop(int x, int y)
     {
         int a, b, c, d, e, f, g;

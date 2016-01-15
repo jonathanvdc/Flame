@@ -58,6 +58,7 @@ namespace Flame.Front.Target
             RegisterStatementPass(new StatementPassInfo(ConstructSSAPass.Instance, ConstructSSAPass.ConstructSSAPassName));
             RegisterStatementPass(new StatementPassInfo(RemoveTrivialPhiPass.Instance, RemoveTrivialPhiPass.RemoveTrivialPhiPassName));
             RegisterStatementPass(new StatementPassInfo(ConstantPropagationPass.Instance, ConstantPropagationPass.ConstantPropagationPassName));
+            RegisterStatementPass(new StatementPassInfo(CopyPropagationPass.Instance, CopyPropagationPass.CopyPropagationPassName));
             RegisterStatementPass(new StatementPassInfo(DeadStoreEliminationPass.Instance, DeadStoreEliminationPass.DeadStoreEliminationPassName));
             RegisterStatementPass(new StatementPassInfo(ConcatBlocksPass.Instance, ConcatBlocksPass.ConcatBlocksPassName));
 			RegisterStatementPass(new StatementPassInfo(DeconstructSSAPass.Instance, DeconstructSSAPass.DeconstructSSAPassName));

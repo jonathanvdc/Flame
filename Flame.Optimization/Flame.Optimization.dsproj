@@ -21,6 +21,7 @@
     <Compile Include="ConciseFlowPass.ds" />
     <Compile Include="ConstantPropagationPass.ds" />
     <Compile Include="ConstructSSAPass.ds" />
+    <Compile Include="CopyPropagationPass.ds" />
     <Compile Include="DeadBlockEliminationPass.ds" />
     <Compile Include="DeadStoreEliminationPass.ds" />
     <Compile Include="DeconstructFlowGraphPass.ds" />
