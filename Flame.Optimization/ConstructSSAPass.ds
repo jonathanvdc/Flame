@@ -180,7 +180,7 @@ namespace Flame.Optimization
                     // Found an assignment. Create a new SSA local, and assign
                     // the right-hand side to that.
 
-                    var val = ((ISetVariableNode)node).Value.Accept(this);
+                    var val = Visit(((ISetVariableNode)node).Value);
                     var newLocal = ConstructSSAPass.CreateSSAVariable(variable);
                     MapVariable(variable, newLocal);
                     return newLocal.CreateSetStatement(val);
