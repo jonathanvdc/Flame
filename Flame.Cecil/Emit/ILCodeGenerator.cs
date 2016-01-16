@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Flame.Cecil.Emit
 {
     public class ILCodeGenerator : IBranchingCodeGenerator, IUnmanagedCodeGenerator, 
-                                   IExceptionCodeGenerator
+                                   IExceptionCodeGenerator, IStackCodeGenerator
     {
         public ILCodeGenerator(IMethod Method)
         {
@@ -489,6 +489,25 @@ namespace Flame.Cecil.Emit
         }
 
         #endregion
+
+		#region Stack intrinsics
+
+		public ICodeBlock EmitPush(ICodeBlock Value)
+		{
+			return new StackPushBlock(this, (ICecilBlock)Value);
+		}
+
+		public ICodeBlock EmitPeek(IType Type)
+		{
+			return new StackPeekBlock(this, Type);
+		}
+
+		public ICodeBlock EmitPop(IType Type)
+		{
+			return new StackPopBlock(this, Type);
+		}
+
+		#endregion
 
         #region Helpers
 
