@@ -303,6 +303,25 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+        #region Stack intrinsics
+
+        /// <summary>
+        /// A node name for stack push nodes.
+        /// </summary>
+        public const string PushStackName = "#push_stack";
+
+        /// <summary>
+        /// A node name for stack peek nodes.
+        /// </summary>
+        public const string PeekStackName = "#peek_stack";
+
+        /// <summary>
+        /// A node name for stack pop nodes.
+        /// </summary>
+        public const string PopStackName = "#pop_stack";
+
+        #endregion
+
         #region Variables
 
         #region Create*VariableName
@@ -1478,6 +1497,73 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+		#region Stack intrinsics
+
+		/// <summary>
+		/// Parses the given '#push_stack' node.
+		/// </summary>
+		/// <returns>A stack push statement wrapped as an expression.</returns>
+		/// <param name="State"></param>
+		/// <param name="Node"></param>
+		public static IExpression ParsePushStackNode(ParserState State, LNode Node)
+		{
+			if (Node.ArgCount != 1)
+			{
+				return new ErrorExpression(VoidExpression.Instance, new LogEntry(
+					"Invalid '" + PushStackName + "' node.",
+					"'" + PushStackName + "' nodes must have exactly one argument: " +
+					"an expression that represents the value to push on the stack."));
+			}
+
+			var inner = ParseExpression(State, Node.Args.Single());
+
+			return ToExpression(new PushStackStatement(inner));
+		}
+
+		/// <summary>
+		/// Parses the given '#peek_stack' node.
+		/// </summary>
+		/// <returns>A stack peek expression.</returns>
+		/// <param name="State"></param>
+		/// <param name="Node"></param>
+		public static IExpression ParsePeekStackNode(ParserState State, LNode Node)
+		{
+			if (Node.ArgCount != 1)
+			{
+				return new ErrorExpression(VoidExpression.Instance, new LogEntry(
+					"Invalid '" + PeekStackName + "' node.",
+					"'" + PeekStackName + "' nodes must have exactly one argument: " +
+					"the type of the value on the stack."));
+			}
+
+			var typeRef = State.Parser.TypeReferenceParser.Parse(State, Node.Args.Single()).Value;
+
+			return new PeekStackExpression(typeRef);
+		}
+
+		/// <summary>
+		/// Parses the given '#pop_stack' node.
+		/// </summary>
+		/// <returns>A stack pop expression.</returns>
+		/// <param name="State"></param>
+		/// <param name="Node"></param>
+		public static IExpression ParsePopStackNode(ParserState State, LNode Node)
+		{
+			if (Node.ArgCount != 1)
+			{
+				return new ErrorExpression(VoidExpression.Instance, new LogEntry(
+					"Invalid '" + PopStackName + "' node.",
+					"'" + PopStackName + "' nodes must have exactly one argument: " +
+					"the type of the value on the stack."));
+			}
+
+			var typeRef = State.Parser.TypeReferenceParser.Parse(State, Node.Args.Single()).Value;
+
+			return new PopStackExpression(typeRef);
+		}
+
+		#endregion
+
         #region Variables
 
         #region Generic
@@ -1976,6 +2062,11 @@ namespace Flame.Intermediate.Parsing
                     { DereferenceName, CreateParser(ParseDereferenceNode) },
                     { StoreAtName, CreateParser(ParseStoreAtNode) },
                     { SizeOfName, CreateParser(ParseSizeOfNode) },
+
+					// Stack intrinsics
+					{ PushStackName, CreateParser(ParsePushStackNode) },
+					{ PeekStackName, CreateParser(ParsePeekStackNode) },
+					{ PopStackName, CreateParser(ParsePopStackNode) },
 
                     // Constants
                     //  - Bit<n>

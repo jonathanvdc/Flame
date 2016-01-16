@@ -18,7 +18,8 @@ namespace Flame.Intermediate.Emit
                                    IForeachCodeGenerator, ICommentedCodeGenerator,
                                    IYieldCodeGenerator, ILambdaCodeGenerator,
                                    IInitializingCodeGenerator, IContractCodeGenerator,
-								   ISSACodeGenerator, IBlockCodeGenerator
+								   ISSACodeGenerator, IBlockCodeGenerator, 
+								   IStackCodeGenerator
     {
         public IRCodeGenerator(IRAssemblyBuilder Assembly, IMethod Method)
         {
@@ -762,6 +763,25 @@ namespace Flame.Intermediate.Emit
                 EmitTagNode(EntryPointTag),
                 NodeFactory.Block(Blocks.Select(item => ((EmitBasicBlock)item).Node))
             });
+		}
+
+		#endregion
+
+		#region Stack intrinsics
+
+		public ICodeBlock EmitPush(ICodeBlock Value)
+		{
+			return NodeBlock.Call(this, ExpressionParsers.PushStackName, Value);
+		}
+
+		public ICodeBlock EmitPeek(IType Type)
+		{
+			return NodeBlock.Call(this, ExpressionParsers.PeekStackName, Assembly.TypeTable.GetReference(Type));
+		}
+
+		public ICodeBlock EmitPop(IType Type)
+		{
+			return NodeBlock.Call(this, ExpressionParsers.PopStackName, Assembly.TypeTable.GetReference(Type));
 		}
 
 		#endregion
