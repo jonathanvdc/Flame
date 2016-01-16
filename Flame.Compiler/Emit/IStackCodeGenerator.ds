@@ -1,0 +1,28 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Emit
+{
+    /// <summary>
+    /// A code generator interface for stack-based (virtual) machines.
+    /// </summary>
+    public interface IStackCodeGenerator : ICodeGenerator
+    {
+        /// <summary>
+        /// Pushes the value that the given code block produces on
+        /// top of the stack. Results in a void value.
+        /// </summary>
+        ICodeBlock EmitPush(ICodeBlock Block);
+
+        /// <summary>
+        /// Peeks at the value that is currently on top of the stack,
+        /// which is of the given type.
+        /// </summary>
+        ICodeBlock EmitPeek(IType Type);
+
+        /// <summary>
+        /// Pops the top of the stack, which is of the given type.
+        /// </summary>
+        ICodeBlock EmitPop(IType Type);
+    }
+}

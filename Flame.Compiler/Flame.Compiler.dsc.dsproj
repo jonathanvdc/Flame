@@ -58,6 +58,7 @@
 			<Compile Include="Emit/IMethodStructureGenerator.ds" />
 			<Compile Include="Emit/ICodeBlock.ds" />
 			<Compile Include="Emit/IBlockCodeGenerator.ds" />
+			<Compile Include="Emit/IStackCodeGenerator.ds" />
 			<Compile Include="Emit/IUnmanagedCodeGenerator.ds" />
 			<Compile Include="Emit/IUnmanagedMethodStructureGenerator.ds" />
 			<Compile Include="Emit/IBranchingCodeGenerator.ds" />
@@ -127,6 +128,7 @@
 			<Compile Include="Expressions/AndExpression.ds" />
 			<Compile Include="Expressions/AsInstanceExpression.ds" />
 			<Compile Include="Expressions/OrExpression.ds" />
+			<Compile Include="Expressions/PopStackExpression.ds" />
 			<Compile Include="Expressions/XorExpression.ds" />
 			<Compile Include="Expressions/LazyAndExpression.ds" />
 			<Compile Include="Expressions/LazyOrExpression.ds" />
@@ -193,6 +195,7 @@
 			<Compile Include="Statements/IfElseStatement.ds" />
 			<Compile Include="Statements/LateBoundLabel.ds" />
 			<Compile Include="Statements/LateBoundVariableSetStatement.ds" />
+			<Compile Include="Statements/PushStackStatement.ds" />
 			<Compile Include="Statements/RawExpressionStatement.ds" />
 			<Compile Include="Statements/ReturnStatement.ds" />
 			<Compile Include="Statements/SourceStatement.ds" />
