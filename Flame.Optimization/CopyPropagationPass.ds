@@ -62,7 +62,7 @@ namespace Flame.Optimization
             }
             else
             {
-                return defStatement;
+                return defStatement.Accept(this);
             }
         }
 
