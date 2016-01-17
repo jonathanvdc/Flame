@@ -169,16 +169,22 @@ namespace Flame.Optimization
     {
         public const this()
         {
-            this.usedVars = new HashSet<SSAVariable>();
+            this.useCount = new Dictionary<SSAVariable, int>();
         }
 
-        private HashSet<SSAVariable> usedVars;
+        private Dictionary<SSAVariable, int> useCount;
 
         /// <summary>
         /// Gets the set of variables that have been used by nodes visited
         /// by this object.
         /// </summary>
-        public [SSAVariable] UsedVariables { const get { return usedVars; } }
+        public [SSAVariable] UsedVariables { const get { return useCount.Keys; } }
+
+        /// <summary>
+        /// Gets a dictionary that maps SSA variables to the number of times
+        /// their values have been loaded.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, int> LoadCount { const get { return useCount; } }
 
         public override const bool Matches(IExpression Value)
         {
@@ -192,7 +198,12 @@ namespace Flame.Optimization
         protected override IExpression Transform(IExpression Expression)
         {
             var expr = (SSAGetExpression)Expression;
-            usedVars.Add(expr.Variable);
+
+            // Increment the use count.
+            if (!useCount.ContainsKey(expr.Variable))
+                useCount[expr.Variable] = 1;
+            else
+                useCount[expr.Variable] = useCount[expr.Variable] + 1;
             return expr;
         }
 
