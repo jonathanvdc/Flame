@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Flame.Compiler.Emit;
+using Flame.Compiler.Expressions;
 
 namespace Flame.Compiler.Statements
 {
@@ -45,7 +46,13 @@ namespace Flame.Compiler.Statements
 
         public const IStatement Optimize()
         {
-            return new PushStackStatement(Expression.Optimize());
+            var optExpr = Expression.Optimize();
+
+            // push_stack(pop_stack()) is really just a nop
+            if (optExpr.GetEssentialExpression() is PopStackExpression)
+                return EmptyStatement;
+
+            return new PushStackStatement(optExpr);
         }
     }
 }
