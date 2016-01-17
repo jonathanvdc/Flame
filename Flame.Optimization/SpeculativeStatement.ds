@@ -8,8 +8,8 @@ namespace Flame.Optimization
     /// <summary>
     /// Defines a speculative statement: a statement that can first be defined
     /// and inserted into the node tree, and later be marked "alive" or "dead".
-    /// "Dead" speculative statements are equivalent to the empty statement.
-    /// "Alive" speculative statements are equivalent to the statement they contain.
+    /// "Dead" speculative statements are equivalent to the "dead" inner statement.
+    /// "Alive" speculative statements are equivalent to their "live" inner statement.
     /// </summary>
     public class SpeculativeStatement : IStatement
     {
@@ -17,21 +17,41 @@ namespace Flame.Optimization
         /// Creates a speculative statement that corresponds to the given
         /// inner statement, and is marked "alive".
         /// </summary>
-        public const this(set IStatement Contents)
+        public const this(set IStatement LiveContents)
         {
             this.IsAlive = true;
+            this.DeadContents = EmptyStatement;
         }
 
         /// <summary>
         /// Creates a speculative statement from the given inner statement and
         /// a boolean that determines whether it is alive or dead.
         /// </summary>
-        public const this(set IStatement Contents, set bool IsAlive);
+        public const this(set IStatement LiveContents, set bool IsAlive)
+        {
+            this.DeadContents = EmptyStatement;
+        }
 
         /// <summary>
-        /// Gets the speculative statement's inner statement.
+        /// Creates a speculative statement that is marked "alive". Its "live"
+        /// and "dead" inner statements are given.
         /// </summary>
-        public IStatement Contents { const get; private set; }
+        public const this(set IStatement LiveContents, set IStatement DeadContents)
+        {
+            this.IsAlive = true;
+        }
+
+        /// <summary>
+        /// Gets the speculative statement's inner statement when this statement
+        /// is alive.
+        /// </summary>
+        public IStatement LiveContents { const get; private set; }
+
+        /// <summary>
+        /// Gets this speculative statement's inner statement when this statement
+        /// is dead.
+        /// </summary>
+        public IStatement DeadContents { const get; private set; }
 
         /// <summary>
         /// Gets or sets a boolean flag that tells if this speculative statement
@@ -39,17 +59,17 @@ namespace Flame.Optimization
         /// </summary>
         public bool IsAlive { const get; set; }
 
-        public bool IsEmpty
-        {
-            const get return !IsAlive || Contents.IsEmpty;
-        }
-
         public IStatement Unwrap()
         {
             if (IsAlive)
-                return Contents;
+                return LiveContents;
             else
-                return EmptyStatement;
+                return DeadContents;
+        }
+
+        public bool IsEmpty
+        {
+            get { return Unwrap().IsEmpty; }
         }
 
         public IStatement Optimize()
@@ -58,6 +78,77 @@ namespace Flame.Optimization
         }
 
         public IStatement Accept(INodeVisitor Visitor)
+        {
+            return Visitor.Visit(Unwrap());
+        }
+
+        public ICodeBlock Emit(ICodeGenerator CodeGenerator)
+        {
+            return Unwrap().Emit(CodeGenerator);
+        }
+    }
+
+    /// <summary>
+    /// The expression equivalent of SpeculativeStatement.
+    /// </summary>
+    public class SpeculativeExpression : IExpression
+    {
+        /// <summary>
+        /// Creates a speculative expression that is marked "alive". Its "live"
+        /// and "dead" inner statements are given.
+        /// </summary>
+        public const this(set IExpression LiveContents, set IExpression DeadContents)
+        {
+            this.IsAlive = true;
+        }
+
+        /// <summary>
+        /// Gets the speculative expression's inner expression when this statement
+        /// is alive.
+        /// </summary>
+        public IExpression LiveContents { const get; private set; }
+
+        /// <summary>
+        /// Gets this speculative expression's inner expression when this statement
+        /// is dead.
+        /// </summary>
+        public IExpression DeadContents { const get; private set; }
+
+        /// <summary>
+        /// Gets or sets a boolean flag that tells if this speculative expression
+        /// is "alive" or "dead".
+        /// </summary>
+        public bool IsAlive { const get; set; }
+
+        public IExpression Unwrap()
+        {
+            if (IsAlive)
+                return LiveContents;
+            else
+                return DeadContents;
+        }
+
+        public IType Type
+        {
+            get { return Unwrap().Type; }
+        }
+
+        public bool IsConstant
+        {
+            get { return Unwrap().IsConstant; }
+        }
+
+        public IBoundObject Evaluate()
+        {
+            return Unwrap().Evaluate();
+        }
+
+        public IExpression Optimize()
+        {
+            return Unwrap().Optimize();
+        }
+
+        public IExpression Accept(INodeVisitor Visitor)
         {
             return Visitor.Visit(Unwrap());
         }
