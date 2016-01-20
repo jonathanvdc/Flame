@@ -1,0 +1,137 @@
+using System;
+using System.Text;
+
+// This test has been stolen straight from the Pixie repo.
+
+namespace Pixie
+{
+    /// <summary>
+    /// Describes an RGBA color.
+    /// </summary>
+    public struct Color
+    {
+        /// <summary>
+        /// Creates a new color instance from the given channels.
+        /// </summary>
+        public const this(set double Red, set double Green, set double Blue, set double Alpha);
+        /// <summary>
+        /// Creates a new color instance from the given RGB channels.
+        /// Alpha is set to one.
+        /// </summary>
+        public const this(set double Red, set double Green, set double Blue)
+        {
+            this.Alpha = 1.0;
+        }
+        /// <summary>
+        /// Creates a new color instance from the given grayscale and alpha values.
+        /// </summary>
+        public const this(double Grayscale, set double Alpha)
+        {
+            this.Red = Grayscale;
+            this.Green = Grayscale;
+            this.Blue = Grayscale;
+        }
+        /// <summary>
+        /// Creates a new color instance from the given grayscale value.
+        /// </summary>
+        public const this(double Grayscale)
+        {
+            this.Alpha = 1.0;
+            this.Red = Grayscale;
+            this.Green = Grayscale;
+            this.Blue = Grayscale;
+        }
+
+        /// <summary>
+        /// Gets the color's alpha channel.
+        /// </summary>
+        public double Alpha { const get; private set; }
+        /// <summary>
+        /// Gets the color's red channel.
+        /// </summary>
+        public double Red { const get; private set; }
+        /// <summary>
+        /// Gets the color's green channel.
+        /// </summary>
+        public double Green { const get; private set; }
+        /// <summary>
+        /// Gets the color's blue channel.
+        /// </summary>
+        public double Blue { const get; private set; }
+
+        /// <summary>
+        /// Gets the color's grayscale intensity.
+        /// </summary>
+        public double Grayscale
+        {
+            const get return (Red + Green + Blue) / 3.0;
+        }
+
+        /// <summary>
+        /// Applies the "over" alpha blending operator to this color and the given
+        /// other color.
+        /// </summary>
+        public const Color Over(Color Other)
+        {
+            double otherAlpha = Other.Alpha * (1.0 - Alpha);
+            double ao = Alpha + otherAlpha;
+            double ro = Red * Alpha + Other.Red * otherAlpha;
+            double go = Green * Alpha + Other.Green * otherAlpha;
+            double bo = Blue * Alpha + Other.Blue * otherAlpha;
+            return new Color(ro, go, bo, ao);
+        }
+
+        private void AppendChannel(StringBuilder sb, string Name, double Value)
+        {
+            sb.Append(Name);
+            sb.Append(":");
+            sb.Append((string)Value);
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            AppendChannel(sb, "a", Alpha);
+            sb.Append(";");
+            AppendChannel(sb, "r", Red);
+            sb.Append(";");
+            AppendChannel(sb, "g", Green);
+            sb.Append(";");
+            AppendChannel(sb, "b", Blue);
+            return sb.ToString();
+        }
+
+        public static const Color Parse(string Value)
+        {
+            string[] split = Value.Split(new char[] { ';' });
+            double a = 1.0, r = 0.0, g = 0.0, b = 0.0;
+            foreach (var item in split)
+            {
+                string[] splitElem = item.Split(new char[] { ':' });
+                string key = splitElem[0].Trim(new char[] { });
+                double val = double.Parse(splitElem[1].Trim(new char[] { }));
+
+                if (key == "a" || key == "alpha") a = val;
+                else if (key == "r" || key == "red") r = val;
+                else if (key == "g" || key == "green") g = val;
+                else if (key == "b" || key == "blue") b = val;
+                else if (key == "gray" || key == "grey" || key == "grayscale" || key == "greyscale")
+                {
+                    r = val;
+                    g = val;
+                    b = val;
+                }
+            }
+            return new Color(r, g, b, a);
+        }
+    }
+
+    public static class Program
+    {
+        public void Main(string[] Args)
+        {
+            // Reads a line, parses it, and prints the result.
+            Console.WriteLine(Color.Parse(Console.ReadLine()).ToString());
+        }
+    }
+}
