@@ -60,6 +60,16 @@ namespace Flame.Optimization
         // Same thing as above, but for expressions.
         private List<SpeculativeExpression> speculativeStackExpressions;
 
+        /// <summary>
+        /// Checks that this stack intrinsics pass has run to completion.
+        /// This is intended for debug purposes, and need not be called on
+        /// release builds.
+        /// </summary>
+        public bool CheckCompleted()
+        {
+            return hasFailed || (hasReplacedDef && LoadCount == actualLoadCount);
+        }
+
         private void Fail()
         {
             hasFailed = true;
@@ -138,20 +148,22 @@ namespace Flame.Optimization
             {
                 assert(Statement is SSADefineStatement);
                 var defStatement = (SSADefineStatement)Statement;
+                var val = Visit(defStatement.Value);
+                var newDefStmt = new SSADefineStatement(defStatement.Variable, val);
 
                 if (defStatement.Variable != Variable)
-                    return Statement;
+                    return newDefStmt;
 
                 if (hasReplacedDef)
                 {
                     Fail();
-                    return Statement;
+                    return newDefStmt;
                 }
 
                 hasReplacedDef = true;
 
                 var specStmt = new SpeculativeStatement(
-                    new PushStackStatement(defStatement.Value), Statement);
+                    new PushStackStatement(val), newDefStmt);
 
                 speculativeStackStatements.Add(specStmt);
 
@@ -257,6 +269,7 @@ namespace Flame.Optimization
                     {
                         var placingVisitor = new BlockStackIntrinsicsPlacingVisitor(local, defCount);
                         newBlock = newBlock.Accept(placingVisitor);
+                        assert(placingVisitor.CheckCompleted());
                     }
                 }
                 results[newBlock.Tag] = newBlock;

@@ -50,7 +50,7 @@ namespace Flame.Optimization
             var varNode = (IVariableNode)Expression;
             if (varNode.Action == VariableNodeAction.AddressOf)
             {
-                var assocVar = varNode.GetVariable();
+                var assocVar = ConstructSSAPass.GetInnerVariable(varNode.GetVariable());
                 if (IsEligible(assocVar))
                 {
                     results.Add(assocVar);
@@ -155,7 +155,7 @@ namespace Flame.Optimization
         protected override IExpression Transform(IExpression Expression)
         {
             var node = (IVariableNode)Expression;
-            var variable = node.GetVariable();
+            var variable = ConstructSSAPass.GetInnerVariable(node.GetVariable());
 
             if (CanPromote(variable))
             {
@@ -171,7 +171,7 @@ namespace Flame.Optimization
         protected override IStatement Transform(IStatement Statement)
         {
             var node = (IVariableNode)Statement;
-            var variable = node.GetVariable();
+            var variable = ConstructSSAPass.GetInnerVariable(node.GetVariable());
 
             if (CanPromote(variable))
             {
@@ -222,7 +222,7 @@ namespace Flame.Optimization
             if (!extraArgLists.TryGetValue(tuple, &extraArgs))
                 return Branch;
 
-            var totalArgs = new List<SSAVariable>(sourceBlock.Parameters);
+            var totalArgs = new List<SSAVariable>(Branch.Arguments);
             totalArgs.AddRange(extraArgs);
 
             return new BlockBranch(Branch.TargetTag, totalArgs);
@@ -540,6 +540,22 @@ namespace Flame.Optimization
             {
                 return new SSAVariable(Variable.Type);
             }
+        }
+
+        /// <summary>
+        /// Gets the given variable's inner variable, which can either be
+        /// the variable itself, or the variable it is bound to, if it is
+        /// a late-bound variable.
+        /// </summary>
+        public IVariable GetInnerVariable(IVariable Variable)
+        {
+            if (Variable is ILateBoundVariable)
+            {
+                var innerVar = ((ILateBoundVariable)Variable).BoundVariable;
+                if (innerVar != null)
+                    return innerVar;
+            }
+            return Variable;
         }
 
         public IStatement Apply(IStatement Statement)
