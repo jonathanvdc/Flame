@@ -56,6 +56,11 @@ namespace Flame.Compiler.Expressions
 			// @select.phi(select_result):
 			//     goto @next()
 
+			// Visit the condition first, because it is logically evaluated first.
+			// If we don't do this here, then the 'current' and/or 'next' blocks
+			// for the given visitor will no longer be correct.
+			var cond = Visitor.Visit(Condition);
+
 			// Create some some SSA locals.
 			var resultVar = new SSAVariable("select_result", Type);
 			var trueResultVar = new SSAVariable("select_true", TrueValue.Type);
@@ -88,8 +93,6 @@ namespace Flame.Compiler.Expressions
 				{
 					falseResultVar
 				})));
-
-			var cond = Visitor.Visit(Condition);
 
 			Visitor.CreateCurrentBlock(
 				EmptyStatement,

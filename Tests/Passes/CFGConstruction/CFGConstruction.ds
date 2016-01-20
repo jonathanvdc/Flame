@@ -1,0 +1,47 @@
+using System;
+
+public static class CFGTest
+{
+    public int Sum([int] Values)
+    {
+        int result = 0;
+        foreach (var item in Values)
+            result += item;
+        return result;
+    }
+
+    public bool AnyTrue([bool] Values)
+    {
+        bool result = false;
+        foreach (var item in Values)
+        {
+            if (result || item)
+                result = true;
+        }
+        return result;
+    }
+
+    public bool Or(bool x, bool y)
+    {
+        if (x || y)
+            if (x)
+                return x;
+            else
+                return y;
+        else
+            return false;
+    }
+
+    public void Main(string[] Args)
+    {
+        Console.WriteLine(Or(true, false));
+        Console.WriteLine(Or(true, true));
+        Console.WriteLine(Or(false, true));
+        Console.WriteLine(Or(false, false));
+        Console.WriteLine(AnyTrue(new bool[] { true, false }));
+        Console.WriteLine(AnyTrue(new bool[] { false, false }));
+        Console.WriteLine(AnyTrue(new bool[] { true, true }));
+        Console.WriteLine(Sum(new int[] { 1, 2, 4 }));
+        Console.WriteLine(Sum(new int[] { 1, 5, 10 }));
+    }
+}

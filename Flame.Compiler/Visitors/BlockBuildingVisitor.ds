@@ -153,6 +153,13 @@ namespace Flame.Compiler.Visitors
         /// </summary>
         public UniqueTag CreateBlock(UniqueTag Tag, IStatement Statement, BlockFlow Flow)
         {
+            // Remember all sibling expressions/statements.
+            var siblExprs = unspilledExpressions;
+            var siblStmts = unspilledStatements;
+
+            unspilledStatements = new List<MovableStatement>();
+            unspilledExpressions = new List<Tuple<SpillableExpression, InsertStatement>>();
+
             var curBlockTag = Builder.CurrentBlockTag;
             var nextBlockTag = Builder.NextBlockTag;
             Builder.NextBlockTag = Tag;
@@ -160,6 +167,13 @@ namespace Flame.Compiler.Visitors
             CreateCurrentBlock(Statement, Flow);
             Builder.CurrentBlockTag = curBlockTag;
             Builder.NextBlockTag = nextBlockTag;
+
+            // Restore the sibling statements/expressions. Discard any
+            // references to child statements.
+            // We won't spill them now if they haven't been spilled already.
+            unspilledStatements = siblStmts;
+            unspilledExpressions = siblExprs;
+
             return Tag;
         }
 
