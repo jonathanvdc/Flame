@@ -262,9 +262,9 @@ namespace Flame
 			if (Type.DeclaringNamespace is IType)
 			{
 				var nsType = (IType)Type.DeclaringNamespace;
-				if (nsType.IsRecursiveGenericInstance)
+				int paramCount = Enumerable.Count<IGenericParameter>(nsType.GetRecursiveGenericParameters());
+				if (paramCount > 0)
 				{
-					int paramCount = Enumerable.Count<IGenericParameter>(nsType.GetRecursiveGenericParameters());
 					var parentArgs = Enumerable.Take<IType>(TypeArguments, paramCount);
 					var actualArgs = Enumerable.Skip<IType>(TypeArguments, paramCount);
 					var parentType = nsType.MakeRecursiveGenericType(parentArgs);
