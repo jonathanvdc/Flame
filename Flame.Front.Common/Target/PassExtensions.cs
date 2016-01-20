@@ -71,8 +71,11 @@ namespace Flame.Front.Target
             RegisterPassCondition(DeadStoreEliminationPass.DeadStoreEliminationPassName, optInfo => optInfo.OptimizeAggressive);
             RegisterStatementPass(new StatementPassInfo(ConcatBlocksPass.Instance, ConcatBlocksPass.ConcatBlocksPassName));
             RegisterPassCondition(ConcatBlocksPass.ConcatBlocksPassName, optInfo => optInfo.OptimizeAggressive);
+
+            // Watch out with -fstack-intrinsics
             RegisterStatementPass(new StatementPassInfo(StackIntrinsicsPass.Instance, StackIntrinsicsPass.StackIntrinsicsPassName));
-            RegisterPassCondition(StackIntrinsicsPass.StackIntrinsicsPassName, optInfo => optInfo.OptimizeAggressive);
+            RegisterPassCondition(StackIntrinsicsPass.StackIntrinsicsPassName, optInfo => optInfo.OptimizeExperimental);
+            
 			RegisterStatementPass(new StatementPassInfo(DeconstructSSAPass.Instance, DeconstructSSAPass.DeconstructSSAPassName));
             RegisterPassCondition(DeconstructSSAPass.DeconstructSSAPassName, optInfo => optInfo.OptimizeAggressive);
 			RegisterStatementPass(new StatementPassInfo(DeconstructFlowGraphPass.Instance, DeconstructFlowGraphPass.DeconstructFlowGraphPassName));
