@@ -560,10 +560,17 @@ namespace Flame.Optimization
 
         public IStatement Apply(IStatement Statement)
         {
+            // Get rid of any late-bound variables here. They'll just get in
+            // our way, and SSA construction is a delicate procedure.
+            var normalStatement = UnwrapBoundVariablesPass.Apply(Statement);
+
+            // Find out which variables we cannot substitute.
             var identFinder = new IdentityVariableFinder(IsEligible);
-            identFinder.Visit(Statement);
+            identFinder.Visit(normalStatement);
+
+            // Perform the SSA construction itself.
             var visitor = new GlobalSSAConstructionVisitor(IsEligible, identFinder.IdentityVariables);
-            return visitor.Visit(Statement);
+            return visitor.Visit(normalStatement);
         }
     }
 }
