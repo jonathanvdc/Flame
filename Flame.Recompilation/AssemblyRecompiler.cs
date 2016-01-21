@@ -1042,7 +1042,7 @@ namespace Flame.Recompilation
 
         private void RecompileMethodBodyCore(IMethodBuilder TargetMethod, IMethod SourceMethod)
         {
-            var body = GetMethodBody(SourceMethod);
+			var body = Passes.GetLoweredBody(this, SourceMethod);
 
             // Don't proceed if there is no method body.
             if (body == null)
