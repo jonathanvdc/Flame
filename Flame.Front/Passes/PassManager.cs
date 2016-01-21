@@ -313,7 +313,7 @@ namespace Flame.Front.Passes
 			var selectedLoweringPasses = new List<MethodPassInfo>();
 			foreach (var item in LoweringPasses)
 			{
-				AddPassInfo(selectedMethodPasses, item, OptInfo, conditionDict);
+				AddPassInfo(selectedLoweringPasses, item, OptInfo, conditionDict);
 			}
 
 			var selectedRootPasses = new List<RootPassInfo>();
