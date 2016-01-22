@@ -160,7 +160,7 @@ namespace Flame.Compiler.Expressions
             return null;
         }
 
-        private const LambdaExpression CreateLambda(LambdaHeader NewHeader,
+        private LambdaExpression CreateLambda(LambdaHeader NewHeader,
             IStatement NewBody, LambdaBoundHeaderBlock NewBoundHeader)
         {
             if (Header == NewHeader && Body == NewBody && BoundHeaderBlock == NewBoundHeader)
@@ -171,6 +171,19 @@ namespace Flame.Compiler.Expressions
             {
                 return new LambdaExpression(NewHeader, NewBody, NewBoundHeader);
             }
+        }
+
+        private LambdaExpression CreateLambdaCopy(
+            LambdaHeader NewHeader, IStatement NewBody,
+            LambdaBoundHeaderBlock NewBoundHeader)
+        {
+            var newLambda = CreateLambda(NewHeader, NewBody, NewBoundHeader);
+            if (newLambda == this)
+                return newLambda;
+            else
+                // Copy the lambda to remove dependencies on
+                // the previous lambda header.
+                return (LambdaExpression)newLambda.Copy();
         }
 
         public IExpression Optimize()
@@ -192,7 +205,7 @@ namespace Flame.Compiler.Expressions
 
         public IExpression Accept(INodeVisitor Visitor)
         {
-            return CreateLambda(Header.Accept(Visitor), VisitBody(Visitor), BoundHeaderBlock);
+            return CreateLambdaCopy(Header.Accept(Visitor), VisitBody(Visitor), BoundHeaderBlock);
         }
 
         /// <summary>
@@ -272,12 +285,7 @@ namespace Flame.Compiler.Expressions
         /// </summary>
         public IMemberNode ConvertMembers(MemberConverter Converter)
         {
-            var newLambda = CreateLambda(Header.ConvertMembers(Converter), Body, BoundHeaderBlock);
-            if (newLambda == this)
-                return newLambda;
-            else
-                return (IMemberNode)newLambda.Copy(); // Copy the lambda to remove dependencies on
-                                                      // the previous lambda header.
+            return CreateLambdaCopy(Header.ConvertMembers(Converter), Body, BoundHeaderBlock);
         }
 
         public ICodeBlock Emit(ICodeGenerator Generator)
