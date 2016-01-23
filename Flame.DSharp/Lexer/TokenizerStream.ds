@@ -47,6 +47,7 @@ namespace Flame.DSharp.Lexer
 			this.keywords["struct"] = TokenType.StructKeyword;
 			this.keywords["interface"] = TokenType.InterfaceKeyword;
 			this.keywords["enum"] = TokenType.EnumKeyword;
+			this.keywords["module"] = TokenType.ModuleKeyword;
 			this.keywords["public"] = TokenType.PublicKeyword;
 			this.keywords["protected"] = TokenType.ProtectedKeyword;
 			this.keywords["assembly"] = TokenType.AssemblyKeyword;

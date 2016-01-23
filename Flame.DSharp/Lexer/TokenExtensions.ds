@@ -169,7 +169,8 @@ namespace Flame.DSharp.Lexer
         public static const bool IsTypeKindToken(this TokenType Token)
         {
             return Token == TokenType.ClassKeyword || Token == TokenType.InterfaceKeyword ||
-        		Token == TokenType.StructKeyword || Token == TokenType.EnumKeyword;
+        		Token == TokenType.StructKeyword || Token == TokenType.EnumKeyword ||
+				Token == TokenType.ModuleKeyword;
         }
 
         #endregion
