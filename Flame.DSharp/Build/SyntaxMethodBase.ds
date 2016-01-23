@@ -156,7 +156,11 @@ namespace Flame.DSharp.Build
 
         public bool IsStatic
         {
-            const get { return Syntax.Signature.ModifierTokens.IsStatic && !DeclaringType.IsSingleton; }
+            get
+            {
+                return DeclaringType.IsStaticType
+                    || (Syntax.Signature.ModifierTokens.IsStatic && !DeclaringType.IsSingleton);
+            }
         }
 
         public string Name

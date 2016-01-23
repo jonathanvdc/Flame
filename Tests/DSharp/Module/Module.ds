@@ -1,0 +1,17 @@
+using System;
+
+public module ModuleTest
+{
+    public int f(int x)
+    {
+        return x * 2;
+    }
+}
+
+public static class Program
+{
+    public void Main(string[] Args)
+    {
+        Console.WriteLine(ModuleTest.f(2));
+    }
+}

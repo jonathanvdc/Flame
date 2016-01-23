@@ -301,6 +301,21 @@ namespace Flame
 
         #endregion
 
+		#region IsStaticType
+
+		/// <summary>
+		/// Determines if the given type has a 'static type' attribute.
+		/// </summary>
+		public static bool IsStaticType[this IType Type]
+		{
+			get
+			{
+				return Type.HasAttribute(PrimitiveAttributes.StaticTypeAttribute.AttributeType);
+			}
+		}
+
+		#endregion
+
 		#region IsDelegate
 
 		public static bool IsDelegate[this IType Type]
