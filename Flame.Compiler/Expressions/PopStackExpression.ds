@@ -1,0 +1,98 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Expressions
+{
+    /// <summary>
+    /// A base type for expressions that pop or peek values from the evaluation
+    /// stack.
+    /// </summary>
+    public abstract class PopStackExpressionBase : IExpression, IMemberNode
+    {
+        public const this(set IType Type);
+
+        /// <summary>
+        /// The type of value to pop.
+        /// </summary>
+        public IType Type { const get; private set; }
+
+        protected abstract PopStackExpressionBase Create(IType Type);
+        public abstract override ICodeBlock Emit(ICodeGenerator Generator);
+
+		public IMemberNode ConvertMembers(MemberConverter Converter)
+		{
+			var convType = Converter.Convert(Type);
+			if (object.ReferenceEquals(Type, convType))
+			{
+				return this;
+			}
+			else
+            {
+                return Create(convType);
+            }
+		}
+
+		public IExpression Accept(INodeVisitor Visitor)
+		{
+			return this;
+		}
+
+        public bool IsConstant
+        {
+            const get { return false; }
+        }
+
+        public IBoundObject Evaluate()
+        {
+            return null;
+        }
+
+        public IExpression Optimize()
+        {
+            return this;
+        }
+    }
+
+    /// <summary>
+    /// An expression that pops the value that is currently on top
+    /// of the stack.
+    /// </summary>
+	public class PopStackExpression : PopStackExpressionBase
+    {
+        public const this(IType Type)
+            : base(Type);
+
+        protected override PopStackExpressionBase Create(IType Type)
+        {
+            return new PopStackExpression(Type);
+        }
+
+        public override ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return ((IStackCodeGenerator)Generator).EmitPop(Type);
+        }
+    }
+
+    /// <summary>
+    /// An expression that peeks at the value that is currently on top
+    /// of the stack, but does not pop it.
+    /// </summary>
+    public class PeekStackExpression : PopStackExpressionBase
+    {
+        public const this(IType Type)
+            : base(Type);
+
+        protected override PopStackExpressionBase Create(IType Type)
+        {
+            return new PeekStackExpression(Type);
+        }
+
+        public override ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return ((IStackCodeGenerator)Generator).EmitPeek(Type);
+        }
+    }
+}

@@ -1,0 +1,327 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A visitor that attempts to replace SSA locals by stack
+    /// intrinsics.
+    /// </summary>
+    public class BlockStackIntrinsicsPlacingVisitor : NodeVisitorBase
+    {
+        public const this(set SSAVariable Variable, set int LoadCount)
+        {
+            this.hasReplacedDef = false;
+            this.hasFailed = false;
+            this.stackCount = 0;
+            this.exprStackCount = 0;
+            this.actualLoadCount = 0;
+            this.speculativeStackExpressions = new List<SpeculativeExpression>();
+            this.speculativeStackStatements = new List<SpeculativeStatement>();
+        }
+
+        /// <summary>
+        /// Gets the variable to replace by stack intrinsics.
+        /// </summary>
+        public SSAVariable Variable { const get; private set; }
+
+        /// <summary>
+        /// Gets the number of this this visitor's associated SSA variable
+        /// is loaded.
+        /// </summary>
+        public int LoadCount { const get; private set; }
+
+        // Determines whether the SSA variable's definition has already been
+        // replaced.
+        private bool hasReplacedDef;
+
+        // A boolean value that indicates failure.
+        private bool hasFailed;
+
+        // Stores the number of items currently on the evaluation stack,
+        // relative to the SSA variable's push statement.
+        private int stackCount;
+
+        // Stores the number of items on the evaluation stack that were not
+        // placed there explicitly: these items have been added by evaluating
+        // expressions.
+        private int exprStackCount;
+
+        // Stores the number of times this variable has _actually_ been loaded
+        // so far.
+        private int actualLoadCount;
+
+        // A list of speculative statements that model stack intrinsics when
+        // they're live, and fall back to variable manipulation Statements
+        // if something goes wrong.
+        private List<SpeculativeStatement> speculativeStackStatements;
+
+        // Same thing as above, but for expressions.
+        private List<SpeculativeExpression> speculativeStackExpressions;
+
+        /// <summary>
+        /// Checks that this stack intrinsics pass has run to completion.
+        /// This is intended for debug purposes, and need not be called on
+        /// release builds.
+        /// </summary>
+        public bool CheckCompleted()
+        {
+            return hasFailed || (hasReplacedDef && LoadCount == actualLoadCount);
+        }
+
+        private void Fail()
+        {
+            hasFailed = true;
+            foreach (var item in speculativeStackExpressions)
+                item.IsAlive = false;
+            foreach (var item in speculativeStackStatements)
+                item.IsAlive = false;
+        }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return !hasFailed;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return !hasFailed;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            if (Expression is SSAGetExpression)
+            {
+                var getExpr = (SSAGetExpression)Expression;
+
+                if (getExpr.Variable != Variable)
+                    return Expression;
+
+                if (!hasReplacedDef || stackCount + exprStackCount != 0)
+                {
+                    Fail();
+                    return Expression;
+                }
+
+                actualLoadCount++;
+
+                if (actualLoadCount == LoadCount)
+                {
+                    var specExpr = new SpeculativeExpression(
+                        new PopStackExpression(Variable.Type), Expression);
+
+                    speculativeStackExpressions.Add(specExpr);
+
+                    return specExpr;
+                }
+                else
+                {
+                    assert(actualLoadCount < LoadCount);
+                    var specExpr = new SpeculativeExpression(
+                        new PeekStackExpression(Variable.Type), Expression);
+
+                    speculativeStackExpressions.Add(specExpr);
+
+                    return specExpr;
+                }
+            }
+            else if (hasReplacedDef)
+            {
+                if (Expression is PopStackExpression)
+                {
+                    var result = Expression.Accept(this);
+                    // Turn a manually managed stack value into an
+                    // automatically managed stack value.
+                    stackCount--;
+                    exprStackCount++;
+                    return result;
+                }
+                else
+                {
+                    // Every expression pushes a single value onto the evaluation
+                    // stack.
+                    int oldExprCount = exprStackCount;
+                    var result = Expression.Accept(this);
+                    exprStackCount = oldExprCount + 1;
+                    return result;
+                }
+            }
+            else
+            {
+                return Expression.Accept(this);
+            }
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            if (Statement is SSADefineStatement)
+            {
+                var defStatement = (SSADefineStatement)Statement;
+                var val = Visit(defStatement.Value);
+                var newDefStmt = new SSADefineStatement(defStatement.Variable, val);
+
+                if (defStatement.Variable != Variable)
+                    return newDefStmt;
+
+                if (hasReplacedDef)
+                {
+                    Fail();
+                    return newDefStmt;
+                }
+
+                hasReplacedDef = true;
+
+                var specStmt = new SpeculativeStatement(
+                    new PushStackStatement(val), newDefStmt);
+
+                speculativeStackStatements.Add(specStmt);
+
+                return specStmt;
+            }
+            else if (hasReplacedDef)
+            {
+                if (Statement is PushStackStatement)
+                {
+                    // Move a value from the expression stack to the manual stack.
+                    // (the value stays right where it is -- expression "stack"
+                    // and manual "stack" are just different management schemes
+                    // for the same stack)
+                    var result = Statement.Accept(this);
+                    exprStackCount--;
+                    stackCount++;
+                    return result;
+                }
+                else
+                {
+                    // Statements do not push values onto the evaluation stack.
+                    int oldExprCount = exprStackCount;
+                    var result = Statement.Accept(this);
+                    oldExprCount = exprStackCount;
+                    return result;
+                }
+            }
+            else
+            {
+                return Statement.Accept(this);
+            }
+        }
+    }
+
+    /// <summary>
+    /// A pass that tries to replace SSA variables by stack intrinsics.
+    /// </summary>
+    public static class StackIntrinsicsPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// This pass' name.
+        /// </summary>
+        public const string StackIntrinsicsPassName = "stack-intrinsics";
+
+        alias BlockLocalVariables = Tuple<
+            Dictionary<SSAVariable, int>,
+            Dictionary<UniqueTag, HashSet<SSAVariable>>>;
+
+        /// <summary>
+        /// Finds all variables in the given flow graph that are used only
+        /// in the block that defines them.
+        /// </summary>
+        private BlockLocalVariables ComputeBlockLocalVariables(FlowGraph Graph)
+        {
+            var singleBlockVariables = new HashSet<SSAVariable>();
+            var multiBlockVariables = new HashSet<SSAVariable>();
+            var useCount = new Dictionary<SSAVariable, int>();
+            var blockDefs = new Dictionary<UniqueTag, HashSet<SSAVariable>>();
+
+            foreach (var block in Graph.Blocks)
+            {
+                foreach (var param in block.Parameters)
+                {
+                    // Mark all SSA parameters all ineligible.
+                    multiBlockVariables.Add(param);
+                }
+
+                var defFinder = new SSAVariableDefFinder();
+                var useFinder = new SSAVariableUseFinder();
+
+                block.Accept(defFinder);
+                block.Accept(useFinder);
+
+                foreach (var local in useFinder.UsedVariables)
+                {
+                    // Try to add this local to the set of variables that are
+                    // used in at least one block.
+                    if (!singleBlockVariables.Add(local))
+                    {
+                        // If the above set already contained this local, then
+                        // add it to the set of variables that are used in
+                        // more than one block.
+                        multiBlockVariables.Add(local);
+                    }
+                }
+
+                // Remember the number of times variables defined in this
+                // block are used.
+                var defSet = new HashSet<SSAVariable>(defFinder.Definitions.Keys);
+                defSet.IntersectWith(useFinder.UsedVariables);
+                foreach (var local in defSet)
+                {
+                    useCount[local] = useFinder.LoadCount[local];
+                }
+
+                blockDefs[block.Tag] = defSet;
+            }
+
+            var results = new Dictionary<SSAVariable, int>();
+            foreach (var item in useCount)
+            {
+                // Filter out all variables that are used in more than one block.
+                if (!multiBlockVariables.Contains(item.Key))
+                {
+                    results[item.Key] = item.Value;
+                }
+            }
+
+            return new BlockLocalVariables(results, blockDefs);
+        }
+
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            // Step one: find all variable definitions, as well as all
+            // variable uses.
+            var blockLocals = ComputeBlockLocalVariables(Graph);
+
+            // Step two: replace all variables that are only used in the block
+            // that defines them, provided this does not destabilize the stack.
+
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+            foreach (var block in Graph.Blocks)
+            {
+                var newBlock = block;
+                foreach (var local in blockLocals.Item2[newBlock.Tag])
+                {
+                    // (Try to) replace all block-local variables.
+                    if (blockLocals.Item1.TryGetValue(local, &int defCount))
+                    {
+                        var placingVisitor = new BlockStackIntrinsicsPlacingVisitor(local, defCount);
+                        newBlock = newBlock.Accept(placingVisitor);
+                        assert(placingVisitor.CheckCompleted());
+                    }
+                }
+                results[newBlock.Tag] = newBlock;
+            }
+            return new FlowGraph(Graph.EntryPointTag, results);
+        }
+
+        public IStatement Apply(IStatement Value)
+        {
+            return Visit(Value);
+        }
+    }
+}

@@ -1,0 +1,165 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using Pixie;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A node visitor that finds the first source location that contains
+    /// a non-constant expression or non-empty statement.
+    /// </summary>
+    public class FirstSourceLocationFinder : LocationVisitorBase
+    {
+        /// <summary>
+        /// The first source location belonging to a non-constant expression
+        /// or a non-empty statement.
+        /// </summary>
+        public SourceLocation FirstLocation { const get; private set; }
+
+        /// <summary>
+        /// Tells if a first source location has been found. FirstLocation
+        /// is null if and only if this evaluates to false.
+        /// </summary>
+        public bool FoundLocation { get { return FirstLocation != null; } }
+
+        protected override const bool MatchesCore(IExpression Value)
+        {
+            return FoundLocation || (CurrentLocation != null && !Value.IsConstant);
+        }
+
+        protected override const bool MatchesCore(IStatement Value)
+        {
+            return FoundLocation || (CurrentLocation != null && !Value.IsEmpty);
+        }
+
+        protected override IExpression TransformCore(IExpression Value)
+        {
+            if (!FoundLocation)
+                FirstLocation = CurrentLocation;
+            return Value;
+        }
+
+        protected override IStatement TransformCore(IStatement Value)
+        {
+            if (!FoundLocation)
+                FirstLocation = CurrentLocation;
+            return Value;
+        }
+    }
+
+    /// <summary>
+    /// A flow graph visitor that eliminates dead blocks.
+    /// </summary>
+    public class DeadBlockEliminationVisitor : FlowGraphVisitorBase
+    {
+        public const this(set ICompilerLog Log, set IMethod DeclaringMethod);
+
+        /// <summary>
+        /// Gets this dead block eliminating visitor's associated
+        /// compiler log, which it uses to issue diagnostics.
+        /// </summary>
+        public ICompilerLog Log { const get; private set; }
+
+        /// <summary>
+        /// Gets the declaring method.
+        /// </summary>
+        public IMethod DeclaringMethod { const get; private set; }
+
+        /// <summary>
+        /// Emits a warning that informs the user that the given basic
+        /// block is unreachable.
+        /// </summary>
+        private void WarnDeadBlock(BasicBlock Block)
+        {
+            if (Warnings.DeadCodeWarning.UseWarning(Log.Options))
+            {
+                var visitor = new FirstSourceLocationFinder();
+                visitor.Visit(Block.Contents);
+                if (visitor.FoundLocation)
+                {
+                    var node = new MarkupNode("entry", new IMarkupNode[]
+                    {
+                        Warnings.DeadCodeWarning.CreateMessage("Unreachable code detected and removed. "),
+                        visitor.FirstLocation.CreateDiagnosticsNode(),
+                        DeclaringMethod.GetSourceLocation().CreateRemarkDiagnosticsNode("In method: ")
+                    });
+
+                    Log.LogWarning(new LogEntry("Removed dead code", node));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Emits a warning that advises the user to insert a flow-terminating
+        /// statement, such as a "return".
+        /// </summary>
+        private void WarnMissingReturn()
+        {
+            if (Warnings.MissingReturnWarning.UseWarning(Log.Options))
+            {
+                Log.LogWarning(new LogEntry("Missing return statement?",
+                    Warnings.MissingReturnWarning.CreateMessage(
+                        "This method may not always return or throw. "),
+                    DeclaringMethod.GetSourceLocation()));
+            }
+        }
+
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            // Maintain a boolean value that tells whether we found
+            // an "unreachable" block that actually turned
+            // out to be reachable.
+
+            bool unreachableIsReachable = false;
+
+            var reachable = new HashSet<UniqueTag>(Graph.FindReachableBlocks());
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+            foreach (var item in Graph.Blocks)
+            {
+                if (reachable.Contains(item.Tag))
+                {
+                    results[item.Tag] = item;
+                    if (item.Flow is UnreachableFlow)
+                        unreachableIsReachable = true;
+                }
+                else
+                {
+                    WarnDeadBlock(item);
+                }
+            }
+
+            if (unreachableIsReachable)
+            {
+                WarnMissingReturn();
+            }
+
+            return new FlowGraph(Graph.EntryPointTag, results);
+        }
+    }
+
+    /// <summary>
+    /// A pass that eliminates dead blocks from flow graphs. A warning is
+    /// issued for dead blocks that contain non-empty source statements or
+    /// non-constant source expressions.
+    /// </summary>
+    public static class DeadBlockEliminationPass : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// This pass' name string.
+        /// </summary>
+        public const string DeadBlockEliminationPassName = "dead-block-elimination";
+
+        public IStatement Apply(BodyPassArgument Args)
+        {
+            var log = Args.PassEnvironment.Log;
+            var rewriter = new DeadBlockEliminationVisitor(log, Args.DeclaringMethod);
+            return rewriter.Visit(Args.Body);
+        }
+    }
+}

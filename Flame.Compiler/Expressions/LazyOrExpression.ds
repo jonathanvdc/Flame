@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Expressions
 {
@@ -16,7 +20,7 @@ namespace Flame.Compiler.Expressions
 
         public override bool IsConstant
         {
-            override const get
+            override get
             {
                 return LeftOperand.IsConstant && RightOperand.IsConstant &&
                     LeftOperand.Type.Equals(PrimitiveTypes.Boolean) &&
@@ -24,9 +28,35 @@ namespace Flame.Compiler.Expressions
             }
         }
 
-        public override const IBoundObject Evaluate()
+        public override IBoundObject Evaluate()
         {
-            return new BooleanExpression(LeftOperand.Evaluate().GetValue<bool>() || RightOperand.Evaluate().GetValue<bool>());
+            var lValue = LeftOperand.Evaluate();
+
+            if (lValue == null)
+                return null;
+            else if (lValue.GetValue<bool>())
+                return new BooleanExpression(true);
+            else
+                return RightOperand.Evaluate();
+        }
+
+        /// <summary>
+        /// Lowers this logical 'or' expression by creating an equivalent
+        /// selection expression.
+        /// </summary>
+        public const SelectExpression Lower()
+        {
+            // Left ? true : Right
+            return new SelectExpression(
+                LeftOperand, new BooleanExpression(true), RightOperand);
+        }
+
+        /// <summary>
+        /// Reduces this logical 'or' expression to a sequence of basic blocks.
+        /// </summary>
+        public override SSAVariable ToBlocks(BlockBuildingVisitor Visitor)
+        {
+            return Lower().ToBlocks(Visitor);
         }
 
         public override const IExpression Optimize()

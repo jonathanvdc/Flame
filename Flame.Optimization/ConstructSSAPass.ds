@@ -1,0 +1,576 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A node visitor that finds all variables that have the identity property,
+    /// i.e. they have a unique address - which means they cannot be
+    /// replaced by SSA variables.
+    /// </summary>
+    public class IdentityVariableFinder : NodeVisitorBase
+    {
+        public const this(set bool(IVariable) IsEligible)
+        {
+            this.results = new HashSet<IVariable>();
+        }
+
+        private HashSet<IVariable> results;
+
+        /// <summary>
+        /// Gets the set of variables encountered by this variable
+        /// finder that have the identity property.
+        /// </summary>
+        public [IVariable] IdentityVariables { get { return results; } }
+
+        /// <summary>
+        /// A delegate that tells whether the user of this class is interested
+        /// in a given variable or not. If this is not the case, then it will
+        /// not be inserted in the identity variables set.
+        /// </summary>
+        public bool(IVariable) IsEligible { const get; private set; }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is IVariableNode;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return false;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            var varNode = (IVariableNode)Expression;
+            if (varNode.Action == VariableNodeAction.AddressOf)
+            {
+                var assocVar = ConstructSSAPass.GetInnerVariable(varNode.GetVariable());
+                if (IsEligible(assocVar))
+                {
+                    results.Add(assocVar);
+                }
+            }
+            return Expression.Accept(this);
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            return Statement;
+        }
+    }
+
+    /// <summary>
+    /// A visitor that promotes (normal) variables to SSA variables.
+    /// This particular visitor is intended to be used for a single
+    /// basic block.
+    /// </summary>
+    public class LocalSSAConstructionVisitor : NodeVisitorBase
+    {
+        public const this(
+            BasicBlock Block, set bool(IVariable) CanPromote,
+            set SSAVariable(IVariable, LocalSSAConstructionVisitor) ImportVariable)
+        {
+            this.BlockTag = Block.Tag;
+            this.localVars = new Dictionary<IVariable, SSAVariable>();
+            this.parameterVars = new List<SSAVariable>(Block.Parameters);
+        }
+
+        /// <summary>
+        /// Gets this local SSA constructing visitor's associated block tag.
+        /// </summary>
+        public UniqueTag BlockTag { const get; private set; }
+
+        /// <summary>
+        /// A delegate that tests if a given variable can be promoted to
+        /// an SSA variable.
+        /// </summary>
+        public bool(IVariable) CanPromote { const get; private set; }
+
+        /// <summary>
+        /// A delegate that "imports" a non-local variable. The variable to
+        /// import and this instance are given.
+        /// </summary>
+        public SSAVariable(IVariable, LocalSSAConstructionVisitor) ImportVariable { const get; private set; }
+
+
+        // A dictionary that maps original variables to locally defined
+        // SSA variables.
+        private Dictionary<IVariable, SSAVariable> localVars;
+
+        // This basic block's parameter list.
+        private List<SSAVariable> parameterVars;
+
+        /// <summary>
+        /// Gets the parameter list for this SSA constructing visitor's
+        /// associated block.
+        /// </summary>
+        public IReadOnlyList<SSAVariable> ParameterVariables { const get { return parameterVars; } }
+
+        /// <summary>
+        /// Adds the given SSA local to this block's parameter list.
+        /// </summary>
+        public void AddParameter(SSAVariable Variable)
+        {
+            parameterVars.Add(Variable);
+        }
+
+        /// <summary>
+        /// Maps the given variable to an SSA local.
+        /// </summary>
+        public void MapVariable(IVariable Variable, SSAVariable Target)
+            out { GetSSAVariable(Variable) == Target }
+        {
+            localVars[Variable] = Target;
+        }
+
+        public override bool Matches(IExpression Value)
+        {
+            return Value is IVariableNode;
+        }
+        public override bool Matches(IStatement Value)
+        {
+            return Value is IVariableNode;
+        }
+
+        public SSAVariable GetSSAVariable(IVariable Variable)
+        {
+            SSAVariable result;
+            if (!localVars.TryGetValue(Variable, &result))
+            {
+                // Try to use a locally defined variable. If we can't, then
+                // we'll just import an externally defined variable.
+
+                result = ImportVariable(Variable, this);
+                assert(GetSSAVariable(Variable) == result);
+            }
+            return result;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            var node = (IVariableNode)Expression;
+            var variable = ConstructSSAPass.GetInnerVariable(node.GetVariable());
+
+            if (CanPromote(variable))
+            {
+                assert(node.Action == VariableNodeAction.Get);
+                return GetSSAVariable(variable).CreateGetExpression();
+            }
+            else
+            {
+                return Expression.Accept(this);
+            }
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            var node = (IVariableNode)Statement;
+            var variable = ConstructSSAPass.GetInnerVariable(node.GetVariable());
+
+            if (CanPromote(variable))
+            {
+                if (node.Action == VariableNodeAction.Set)
+                {
+                    // Found an assignment. Create a new SSA local, and assign
+                    // the right-hand side to that.
+
+                    var val = Visit(((ISetVariableNode)node).Value);
+                    var newLocal = ConstructSSAPass.CreateSSAVariable(variable);
+                    MapVariable(variable, newLocal);
+                    return newLocal.CreateSetStatement(val);
+                }
+                else
+                {
+                    // Release statements are meaningless for SSA variables,
+                    // which don't really "hang on" to a resource.
+                    // Create an empty statement instead.
+
+                    assert(node.Action == VariableNodeAction.Release);
+                    return EmptyStatement;
+                }
+            }
+            else
+            {
+                return Statement.Accept(this);
+            }
+        }
+    }
+
+    public class BranchArgAppendingVisitor : BranchVisitorBase
+    {
+        public const this(
+            set BasicBlock sourceBlock,
+            set Dictionary<Tuple<UniqueTag, UniqueTag>, List<SSAVariable>> extraArgLists);
+
+        private BasicBlock sourceBlock;
+        private Dictionary<Tuple<UniqueTag, UniqueTag>, List<SSAVariable>> extraArgLists;
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public override BlockBranch Visit(BlockBranch Branch)
+        {
+            var tuple = new Tuple<UniqueTag, UniqueTag>(sourceBlock.Tag, Branch.TargetTag);
+
+            List<SSAVariable> extraArgs;
+            if (!extraArgLists.TryGetValue(tuple, &extraArgs))
+                return Branch;
+
+            var totalArgs = new List<SSAVariable>(Branch.Arguments);
+            totalArgs.AddRange(extraArgs);
+
+            return new BlockBranch(Branch.TargetTag, totalArgs);
+        }
+    }
+
+    /// <summary>
+    /// A visitor that promotes (normal) variables to SSA variables. This
+    /// type of SSA constructing visitor is applied to control-flow graphs.
+    /// </summary>
+    public class GlobalSSAConstructionVisitor : FlowGraphVisitorBase
+    {
+        public const this(set bool(IVariable) IsEligible, [IVariable] Blacklisted)
+        {
+            this.blacklist = new HashSet<IVariable>(Blacklisted);
+        }
+
+        private HashSet<IVariable> blacklist;
+
+        /// <summary>
+        /// A delegate that determines whether a given variable can be
+        /// promoted to an SSA variable - assuming said variable has not been
+        /// blacklisted.
+        /// </summary>
+        public bool(IVariable) IsEligible { const get; private set; }
+
+        /// <summary>
+        /// Tests if the given variable can be promoted to an SSA variable.
+        /// This method also makes sure that this variable is not blacklisted.
+        /// </summary>
+        public bool CanPromote(IVariable Variable)
+        {
+            return IsEligible(Variable) && !blacklist.Contains(Variable);
+        }
+
+        alias PredecessorPair = Tuple<UniqueTag, IReadOnlyList<SSAVariable>>;
+        alias PredecessorDict = IReadOnlyDictionary<UniqueTag, [PredecessorPair]>;
+
+        private Dictionary<UniqueTag, LocalSSAConstructionVisitor> localVisitors;
+        private PredecessorDict preds;
+
+        // A dictionary that maps block tags that belong to
+        // unsealed blocks, to SSA variables whose origins
+        // are unknown at this point.
+        private Dictionary<UniqueTag, List<Tuple<IVariable, SSAVariable>>> incompletePhis;
+
+        // A `source block tag * target block tag -> argument list` map.
+        private Dictionary<Tuple<UniqueTag, UniqueTag>, List<SSAVariable>> extraArgLists;
+
+        /// <summary>
+        /// Gets the extra-argument list for this given source and target
+        /// block combination.
+        /// </summary>
+        private List<SSAVariable> GetExtraArgumentList(UniqueTag SourceBlock, UniqueTag TargetBlock)
+        {
+            var tuple = new Tuple<UniqueTag, UniqueTag>(SourceBlock, TargetBlock);
+
+            if (!extraArgLists.ContainsKey(tuple))
+                extraArgLists[tuple] = new List<SSAVariable>();
+
+            return extraArgLists[tuple];
+        }
+
+        private HashSet<UniqueTag> GetPredecessorTags(UniqueTag Tag)
+        {
+            assert(preds != null);
+            var tags = new HashSet<UniqueTag>();
+            [PredecessorPair] results;
+            if (preds.TryGetValue(Tag, &results))
+            {
+                foreach (var item in results)
+                    tags.Add(item.Item1);
+            }
+            return tags;
+        }
+
+        private void addPhiOperands(
+            IVariable Variable, SSAVariable Value, LocalSSAConstructionVisitor LocalVisitor,
+            HashSet<UniqueTag> PredecessorTags)
+        {
+            // We'll create a new parameter (phi) for this block, and
+            // have have its predecessor blocks pass their versions of the
+            // requested variable as arguments.
+
+            LocalVisitor.AddParameter(Value);
+            foreach (var tag in PredecessorTags)
+            {
+                var arg = localVisitors[tag].GetSSAVariable(Variable);
+                GetExtraArgumentList(tag, LocalVisitor.BlockTag).Add(arg);
+            }
+        }
+
+        private void addPhiOperands(
+            IVariable Variable, SSAVariable Value, LocalSSAConstructionVisitor LocalVisitor)
+        {
+            var predTags = GetPredecessorTags(LocalVisitor.BlockTag);
+            addPhiOperands(Variable, Value, LocalVisitor, predTags);
+        }
+
+        private SSAVariable ImportVariable(
+            IVariable Variable, LocalSSAConstructionVisitor LocalVisitor)
+        {
+            SSAVariable val;
+
+            if (!isSealed(LocalVisitor.BlockTag))
+            {
+                // Create a new SSA variable, but don't try to figure out
+                // what its definition is going to look like just yet.
+                // We don't have the whole picture yet, because this
+                // block hasn't been sealed yet.
+
+                val = ConstructSSAPass.CreateSSAVariable(Variable);
+
+                incompletePhis[LocalVisitor.BlockTag].Add(
+                    new Tuple<IVariable, SSAVariable>(Variable, val));
+            }
+            else
+            {
+                var predTags = GetPredecessorTags(LocalVisitor.BlockTag);
+                if (predTags.Count == 1)
+                {
+                    // Optimize the common case of just one predecessor.
+                    // No arguments (phi) needed here.
+
+                    var pred = Enumerable.Single<UniqueTag>(predTags);
+                    val = localVisitors[pred].GetSSAVariable(Variable);
+                }
+                else
+                {
+                    // Break potential cycles by creating and mapping
+                    // a variable first, then figuring out what the
+                    // arguments (phi) are supposed to look like.
+
+                    val = ConstructSSAPass.CreateSSAVariable(Variable);
+                    LocalVisitor.MapVariable(Variable, val);
+
+                    // All right. We can handle the arguments now.
+                    addPhiOperands(Variable, val, LocalVisitor, predTags);
+                }
+            }
+            LocalVisitor.MapVariable(Variable, val);
+            return val;
+        }
+
+        /// <summary>
+        /// Checks if the block belonging to the given tag has been sealed.
+        /// </summary>
+        private bool isSealed(UniqueTag Tag)
+        {
+            return !incompletePhis.ContainsKey(Tag);
+        }
+
+        /// <summary>
+        /// Seals the given block. A block is called 'sealed' when all of its
+        /// predecessors have been filled.
+        /// </summary>
+        private void sealBlock(UniqueTag Tag)
+        {
+            if (isSealed(Tag))
+            {
+                // Don't seal the same block twice.
+                return;
+            }
+
+            var visitor = localVisitors[Tag];
+            foreach (var item in incompletePhis[Tag])
+            {
+                // Resolve phi operands now. These are represented
+                // as parameter/argument pairs.
+
+                addPhiOperands(item.Item1, item.Item2, visitor);
+            }
+
+            incompletePhis.Remove(Tag);
+        }
+
+        /// <summary>
+        /// Checks if the given block has been filled yet. A block is called
+        /// 'filled' when its body has been visited, i.e. its locals have
+        /// can rewritten in SSA form.
+        /// </summary>
+        private bool isFilled(UniqueTag Tag, Dictionary<UniqueTag, Tuple<IStatement, BlockFlow>> Bodies)
+        {
+            return Bodies.ContainsKey(Tag) && Bodies[Tag] != null;
+        }
+
+        /// <summary>
+        /// Checks if the given basic block can be sealed.
+        /// </summary>
+        private bool canSealBlock(BasicBlock Block, Dictionary<UniqueTag, Tuple<IStatement, BlockFlow>> Bodies)
+        {
+            var predTags = GetPredecessorTags(Block.Tag);
+            foreach (var tag in GetPredecessorTags(Block.Tag))
+            {
+                if (!isFilled(tag, Bodies))
+                    return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Seals all blocks that can be sealed at this time.
+        /// </summary>
+        private void sealBlocks(Dictionary<UniqueTag, Tuple<IStatement, BlockFlow>> Bodies, FlowGraph Graph)
+        {
+            foreach (var item in Graph.Blocks)
+            {
+                if (canSealBlock(item, Bodies))
+                    sealBlock(item.Tag);
+            }
+        }
+
+        /// <summary>
+        /// Fills the given block.
+        /// </summary>
+        private void fillBlock(
+            BasicBlock Block, Dictionary<UniqueTag, Tuple<IStatement, BlockFlow>> Bodies,
+            FlowGraph Graph)
+        {
+            if (Bodies.ContainsKey(Block.Tag))
+                return;
+
+            // Put a null placeholder value in the dictionary to
+            // make sure this block is not filled twice.
+            Bodies[Block.Tag] = null;
+
+            // Try to seal this block right away if at all possible.
+            if (canSealBlock(Block, Bodies))
+                sealBlock(Block.Tag);
+
+            // Fill the block.
+            var visitedBlock = Block.Accept(localVisitors[Block.Tag]);
+            Bodies[Block.Tag] = new Tuple<IStatement, BlockFlow>(
+                visitedBlock.Contents, visitedBlock.Flow);
+
+            // Seal this block.
+            sealBlocks(Bodies, Graph);
+
+            // Fill successor blocks.
+            foreach (var item in Block.Flow.GetSuccessors(Graph.GetBlock))
+            {
+                fillBlock(item, Bodies, Graph);
+            }
+        }
+
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            // Initialize the predecessor and extra argument list dictionaries.
+            preds = Graph.GetPredecessors();
+            extraArgLists = new Dictionary<Tuple<UniqueTag, UniqueTag>, List<SSAVariable>>();
+            incompletePhis = new Dictionary<UniqueTag, List<Tuple<IVariable, SSAVariable>>>();
+
+            // Setup the local visitors.
+            localVisitors = new Dictionary<UniqueTag, LocalSSAConstructionVisitor>();
+            foreach (var item in Graph.Blocks)
+            {
+                localVisitors[item.Tag] = new LocalSSAConstructionVisitor(
+                    item, CanPromote, ImportVariable);
+                incompletePhis[item.Tag] = new List<Tuple<IVariable, SSAVariable>>();
+            }
+
+            // Number all variables.
+            var bodies = new Dictionary<UniqueTag, Tuple<IStatement, BlockFlow>>();
+            foreach (var item in Graph.Blocks)
+            {
+                fillBlock(item, bodies, Graph);
+            }
+
+            // Now, we'll put all of that information together.
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+            foreach (var item in Graph.Blocks)
+            {
+                var fixingVisitor = new BranchArgAppendingVisitor(item, extraArgLists);
+
+                var bodyAndFlow = bodies[item.Tag];
+
+                results[item.Tag] = new BasicBlock(
+                    item.Tag, localVisitors[item.Tag].ParameterVariables,
+                    bodyAndFlow.Item1, bodyAndFlow.Item2.Accept(fixingVisitor));
+            }
+
+            // Do some cleanup.
+            preds = null;
+            localVisitors = null;
+            extraArgLists = null;
+            incompletePhis = null;
+
+            return new FlowGraph(Graph.EntryPointTag, results);
+        }
+    }
+
+    public static class ConstructSSAPass : IPass<IStatement, IStatement>
+    {
+        public const string ConstructSSAPassName = "construct-ssa";
+
+        /// <summary>
+        /// Tells if the given variable can be replaced by an SSA variable.
+        /// </summary>
+        public bool IsEligible(IVariable Variable)
+        {
+            return Variable is LocalVariable;
+        }
+
+        /// <summary>
+        /// Creates a new SSA variable from the given variable's signature.
+        /// </summary>
+        public SSAVariable CreateSSAVariable(IVariable Variable)
+        {
+            if (Variable is LocalVariable)
+            {
+                var local = (LocalVariable)Variable;
+                return new SSAVariable(local.Member);
+            }
+            else
+            {
+                return new SSAVariable(Variable.Type);
+            }
+        }
+
+        /// <summary>
+        /// Gets the given variable's inner variable, which can either be
+        /// the variable itself, or the variable it is bound to, if it is
+        /// a late-bound variable.
+        /// </summary>
+        public IVariable GetInnerVariable(IVariable Variable)
+        {
+            if (Variable is ILateBoundVariable)
+            {
+                var innerVar = ((ILateBoundVariable)Variable).BoundVariable;
+                if (innerVar != null)
+                    return innerVar;
+            }
+            return Variable;
+        }
+
+        public IStatement Apply(IStatement Statement)
+        {
+            // Get rid of any late-bound variables here. They'll just get in
+            // our way, and SSA construction is a delicate procedure.
+            var normalStatement = UnwrapBoundVariablesPass.Apply(Statement);
+
+            // Find out which variables we cannot substitute.
+            var identFinder = new IdentityVariableFinder(IsEligible);
+            identFinder.Visit(normalStatement);
+
+            // Perform the SSA construction itself.
+            var visitor = new GlobalSSAConstructionVisitor(IsEligible, identFinder.IdentityVariables);
+            return visitor.Visit(normalStatement);
+        }
+    }
+}

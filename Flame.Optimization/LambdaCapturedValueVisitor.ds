@@ -52,7 +52,7 @@ namespace Flame.Optimization
     }
 
     /// <summary>
-    /// A type of node visitor that modifies the capture listindices of
+    /// A type of node visitor that modifies the capture list indices of
     /// captured value expressions.
     /// </summary>
     public class LambdaCapturedValueRewriter : NodeVisitorBase
@@ -61,7 +61,9 @@ namespace Flame.Optimization
         /// Creates a new captured value rewriter from the given
         /// captured value index mapping.
         /// </summary>
-        public const this(set IReadOnlyDictionary<int, int> CapturedValueMapping);
+        public const this(
+            set LambdaHeader Header, set LambdaBoundHeaderBlock BoundHeaderBlock,
+            set IReadOnlyDictionary<int, int> CapturedValueMapping);
 
         /// <summary>
         /// Gets a mapping of source captured value indices to target captured
@@ -69,9 +71,20 @@ namespace Flame.Optimization
         /// </summary>
         public IReadOnlyDictionary<int, int> CapturedValueMapping { const get; private set; }
 
+        /// <summary>
+        /// Gets the lambda header to use.
+        /// </summary>
+        public LambdaHeader Header { const get; private set; }
+
+        /// <summary>
+        /// Gets the bound header block to use.
+        /// </summary>
+        public LambdaBoundHeaderBlock BoundHeaderBlock { const get; private set; }
+
         public override const bool Matches(IExpression Value)
         {
-            return Value is LambdaCapturedValueExpression;
+            return Value is LambdaCapturedValueExpression ||
+                   Value is LambdaDelegateExpression;
         }
         public override const bool Matches(IStatement Value)
         {
@@ -79,12 +92,20 @@ namespace Flame.Optimization
         }
         protected override IExpression Transform(IExpression Expression)
         {
-            var captVal = (LambdaCapturedValueExpression)Expression;
+            if (Expression is LambdaCapturedValueExpression)
+            {
+                var captVal = (LambdaCapturedValueExpression)Expression;
 
-            int newIndex = CapturedValueMapping[captVal.Index];
+                int newIndex = CapturedValueMapping[captVal.Index];
 
-            return new LambdaCapturedValueExpression(
-                captVal.Header, captVal.BoundHeaderBlock, newIndex);
+                return new LambdaCapturedValueExpression(
+                    Header, BoundHeaderBlock, newIndex);
+            }
+            else
+            {
+                assert(Expression is LambdaDelegateExpression);
+                return new LambdaDelegateExpression(Header, BoundHeaderBlock);
+            }
         }
         protected override IStatement Transform(IStatement Statement)
         {

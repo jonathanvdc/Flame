@@ -1,0 +1,659 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// Contains all SSA local variable liveness data for a single block.
+    /// </summary>
+    public class SSALivenessData
+    {
+        public const this()
+        {
+            this.nodeIndex = 1;
+            this.livePos = new Dictionary<SSAVariable, int>();
+            this.deadPos = new Dictionary<SSAVariable, int>();
+            this.usedVars = new HashSet<SSAVariable>();
+        }
+
+        private int nodeIndex;
+        private Dictionary<SSAVariable, int> livePos;
+        private Dictionary<SSAVariable, int> deadPos;
+        private HashSet<SSAVariable> usedVars;
+
+        private const int ImportPoint = -1;
+        private const int ParameterPoint = 0;
+        private const int ExportPoint = int.MaxValue;
+
+        /// <summary>
+        /// Gets the set of all variables whose values are loaded by this block.
+        /// </summary>
+        public [SSAVariable] UsedVariables
+        {
+            const get
+            {
+                return usedVars;
+            }
+        }
+
+        /// <summary>
+        /// Registers a definition action for the given variable.
+        /// </summary>
+        public void RegisterDefinition(SSAVariable Variable)
+        {
+            nodeIndex++;
+            livePos[Variable] = nodeIndex;
+        }
+
+        /// <summary>
+        /// Registers a get-value action for the given variable.
+        /// </summary>
+        public void RegisterAccess(SSAVariable Variable)
+        {
+            nodeIndex++;
+            deadPos[Variable] = nodeIndex;
+            usedVars.Add(Variable);
+        }
+
+        /// <summary>
+        /// Marks the given variable as "imported", which means that
+        /// it is defined elsewhere.
+        /// </summary>
+        public void MarkImport(SSAVariable Variable)
+        {
+            livePos[Variable] = ImportPoint;
+        }
+
+        /// <summary>
+        /// Marks the given variable as a parameter: a locally defined
+        /// variable that is assigned in parallel with the other parameters.
+        /// </summary>
+        public void MarkParameter(SSAVariable Variable)
+        {
+            livePos[Variable] = ParameterPoint;
+        }
+
+        /// <summary>
+        /// Marks the given variable as an argument for this block.
+        /// </summary>
+        public void MarkArgument(SSAVariable Variable)
+        {
+            deadPos[Variable] = ParameterPoint;
+            usedVars.Add(Variable);
+        }
+
+        /// <summary>
+        /// "Exports" the given variable: its final access it set to the
+        /// maximal value, which basically makes it immortal within the
+        /// context of this block.
+        /// </summary>
+        public void MarkExport(SSAVariable Variable)
+        {
+            deadPos[Variable] = ExportPoint;
+        }
+
+        /// <summary>
+        /// Checks if this block defines the given variable locally, i.e.
+        /// it is defined within the block's body, or it is one of the block's
+        /// parameters.
+        /// </summary>
+        public bool Defines(SSAVariable Variable)
+        {
+            return livePos.TryGetValue(Variable, &int livePoint)
+                && livePoint >= ParameterPoint;
+        }
+
+        /// <summary>
+        /// Checks if this block defines or imports the given variable.
+        /// </summary>
+        public bool DefinesOrImports(SSAVariable Variable)
+        {
+            return livePos.ContainsKey(Variable);
+        }
+
+        /// <summary>
+        /// Gets an index that describes the point at which the given variable
+        /// is defined.
+        /// </summary>
+        public int GetDefinitionIndex(SSAVariable Variable)
+        {
+            if (livePos.TryGetValue(Variable, &int livePoint))
+                return livePoint;
+            else
+                return int.MaxValue;
+        }
+
+        /// <summary>
+        /// Gets an index that describes the point at which the given variable
+        /// is accessed for the last time.
+        /// </summary>
+        public int GetLastAccessIndex(SSAVariable Variable)
+        {
+            if (!deadPos.TryGetValue(Variable, &int deadPoint))
+                return deadPoint;
+            else
+                return int.MinValue;
+        }
+
+        /// <summary>
+        /// Checks if the given variable is live at the given point in execution,
+        /// which is encoded as an integer.
+        /// </summary>
+        public bool IsLive(SSAVariable Variable, int Index)
+        {
+            int deadPoint = GetLastAccessIndex(Variable);
+            int livePoint = GetDefinitionIndex(Variable);
+
+            return Index >= livePoint && Index <= deadPoint;
+        }
+    }
+
+    /// <summary>
+    /// A node visitor that discovers live ranges.
+    /// </summary>
+    public class SSALiveRangeVisitor : NodeVisitorBase
+    {
+        public const this(
+            set SSALivenessData Data,
+            set Dictionary<SSAVariable, HashSet<SSALivenessData>> DefinitionBlocks,
+            set Dictionary<SSAVariable, HashSet<SSAVariable>> Related);
+
+        public SSALivenessData Data { const get; private set; }
+        public Dictionary<SSAVariable, HashSet<SSALivenessData>> DefinitionBlocks { const get; private set; }
+        public Dictionary<SSAVariable, HashSet<SSAVariable>> Related { const get; private set; }
+
+        private void MarkRelatedAsymmetric(SSAVariable Left, SSAVariable Right)
+        {
+            HashSet<SSAVariable> relatedSet;
+            if (!Related.TryGetValue(Left, &relatedSet))
+            {
+                relatedSet = new HashSet<SSAVariable>();
+                Related[Left] = relatedSet;
+            }
+            relatedSet.Add(Right);
+        }
+
+        public void MarkRelated(SSAVariable Left, SSAVariable Right)
+        {
+            MarkRelatedAsymmetric(Left, Right);
+            MarkRelatedAsymmetric(Right, Left);
+        }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is SSAGetExpression;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is SSADefineStatement;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            var expr = (SSAGetExpression)Expression;
+            Data.RegisterAccess(expr.Variable);
+            return expr;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            var stmt = (SSADefineStatement)Statement;
+            var leftVar = stmt.Variable;
+            var val = stmt.Value.GetEssentialExpression();
+            Visit(val);
+            if (val is SSAGetExpression)
+            {
+                var rightVar = ((SSAGetExpression)val).Variable;
+                MarkRelated(leftVar, rightVar);
+            }
+
+            Data.RegisterDefinition(leftVar);
+
+            assert(!DefinitionBlocks.ContainsKey(leftVar));
+            var defsSet = new HashSet<SSALivenessData>();
+            defsSet.Add(Data);
+            DefinitionBlocks[leftVar] = defsSet;
+
+            return stmt;
+        }
+    }
+
+    /// <summary>
+    /// A data structure that contains live ranges for a control-flow graph,
+    /// as well as a related variable map.
+    /// </summary>
+    public class SSAGraphLiveness
+    {
+        public const this(
+            set Dictionary<UniqueTag, SSALivenessData> LiveRanges,
+            set Dictionary<SSAVariable, HashSet<SSALivenessData>> DefinitionBlocks,
+            set Dictionary<SSAVariable, HashSet<SSAVariable>> Related);
+
+        /// <summary>
+        /// Gets the graph's block tag - live ranges map.
+        /// </summary>
+        public Dictionary<UniqueTag, SSALivenessData> LiveRanges { const get; private set; }
+
+        /// <summary>
+        /// Gets a dictionary that maps SSA variables to their set of definition
+        /// points, which are either assignments, or arguments.
+        /// </summary>
+        public Dictionary<SSAVariable, HashSet<SSALivenessData>> DefinitionBlocks { const get; private set; }
+
+        /// <summary>
+        /// Gets the graph's related variable set map.
+        /// Coalescing these variables should result in less variable copying.
+        /// </summary>
+        public Dictionary<SSAVariable, HashSet<SSAVariable>> Related { const get; private set; }
+
+        /// <summary>
+        /// Gets the given variable's set of related variables.
+        /// </summary>
+        public HashSet<SSAVariable> GetRelatedVariables(SSAVariable Variable)
+        {
+            HashSet<SSAVariable> results;
+            if (!Related.TryGetValue(Variable, &results))
+            {
+                results = new HashSet<SSAVariable>();
+                Related[Variable] = results;
+            }
+            return results;
+        }
+    }
+
+    /// <summary>
+    /// Defines a pass that deconstructs SSA form.
+    /// </summary>
+    public static class DeconstructSSAPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>
+    {
+        public const string DeconstructSSAPassName = "deconstruct-ssa";
+
+        alias PredecessorPair = Tuple<UniqueTag, IReadOnlyList<SSAVariable>>;
+        alias PredecessorDict = IReadOnlyDictionary<UniqueTag, [PredecessorPair]>;
+
+        /// <summary>
+        /// Checks if the live range for the block with the given tag defines
+        /// or imports the given SSA variable. If not, then that variable is
+        /// imported, and this method is applied recursively to its
+        /// predecessor blocks.
+        /// </summary>
+        private void PropagateImport(
+            UniqueTag Tag, SSAVariable Imported,
+            PredecessorDict Predecessors,
+            Dictionary<UniqueTag, SSALivenessData> LiveRanges)
+        {
+            var range = LiveRanges[Tag];
+            if (!range.DefinesOrImports(Imported))
+            {
+                range.MarkImport(Imported);
+                if (Predecessors.ContainsKey(Tag))
+                {
+                    foreach (var pred in Predecessors[Tag])
+                    {
+                        PropagateImport(
+                            pred.Item1, Imported, Predecessors, LiveRanges);
+                        LiveRanges[pred.Item1].MarkExport(Imported);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Computes live ranges, as well as related variables, for the given
+        /// flow graph.
+        /// </summary>
+        public SSAGraphLiveness ComputeLiveness(FlowGraph Graph)
+        {
+            var results = new Dictionary<UniqueTag, SSALivenessData>();
+            var defBlocks = new Dictionary<SSAVariable, HashSet<SSALivenessData>>();
+            var related = new Dictionary<SSAVariable, HashSet<SSAVariable>>();
+            foreach (var tag in Graph.BlockTags)
+            {
+                results[tag] = new SSALivenessData();
+            }
+            foreach (var block in Graph.Blocks)
+            {
+                var data = results[block.Tag];
+                var visitor = new SSALiveRangeVisitor(data, defBlocks, related);
+                // Visit the block's body to discover live ranges.
+                visitor.Visit(block.Contents);
+                // Make sure we visit the flow instruction as well
+                block.Flow.Accept(new EmulatedBasicBlockVisitor(visitor));
+
+                // Mark all parameters as such
+                foreach (var parameter in block.Parameters)
+                    data.MarkParameter(parameter);
+
+                // Mark all arguments as such, and make then related to
+                // the corresponding parameter variables.
+                foreach (var branch in block.Flow.Branches)
+                foreach (var arg in branch.Arguments,
+                         var parameter in Graph.GetBlock(branch.TargetTag).Parameters)
+                {
+                    data.MarkArgument(arg);
+                    visitor.MarkRelated(arg, parameter);
+
+                    HashSet<SSALivenessData> defSet;
+                    if (!defBlocks.TryGetValue(parameter, &defSet))
+                    {
+                        defSet = new HashSet<SSALivenessData>();
+                        defBlocks[parameter] = defSet;
+                    }
+                    defSet.Add(data);
+                }
+            }
+
+            var preds = Graph.GetPredecessors();
+            foreach (var item in results)
+            {
+                foreach (var usedVar in item.Value.UsedVariables)
+                {
+                    // Mark all imported variables as live.
+                    PropagateImport(item.Key, usedVar, preds, results);
+                }
+            }
+
+            return new SSAGraphLiveness(results, defBlocks, related);
+        }
+
+        /// <summary>
+        /// Checks if the first variable is live at any of the definition
+        /// points of the second variable.
+        /// </summary>
+        private bool IsLiveAtDef(
+            SSAVariable LiveVariable, SSAVariable DefVariable,
+            SSAGraphLiveness Liveness)
+        {
+            var defBlocks = Liveness.DefinitionBlocks;
+            if (defBlocks.ContainsKey(DefVariable))
+            {
+                foreach (var block in defBlocks[DefVariable])
+                {
+                    if (block.IsLive(LiveVariable, block.GetDefinitionIndex(DefVariable)))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the liveness of the given variables intersects.
+        /// </summary>
+        private bool LivenessIntersects(
+            SSAVariable First, SSAVariable Second,
+            SSAGraphLiveness Liveness)
+        {
+            return IsLiveAtDef(First, Second, Liveness)
+                || IsLiveAtDef(Second, First, Liveness);
+        }
+
+        /// <summary>
+        /// Checks if the given variable can share the given register with the
+        /// given set of already-allocated variables.
+        /// </summary>
+        private bool CanCoalesce(
+            IVariable Register, SSAVariable Variable,
+            HashSet<SSAVariable> Neighbors,
+            SSAGraphLiveness Liveness)
+        {
+            foreach (var local in Neighbors)
+            {
+                if (LivenessIntersects(local, Variable, Liveness))
+                    return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Checks if the intersection of the given sets is nonempty.
+        /// </summary>
+        private bool HasIntersectionElements(
+            HashSet<SSAVariable> Left, HashSet<SSAVariable> Right)
+        {
+            var inter = new HashSet<SSAVariable>(Left);
+            inter.IntersectWith(Right);
+            return inter.Count > 0;
+        }
+
+        private IVariable AllocateRegister(
+            SSAVariable Variable, SSAGraphLiveness Liveness,
+            Dictionary<IVariable, HashSet<SSAVariable>> AllocatedRegisters)
+        {
+            var related = Liveness.GetRelatedVariables(Variable);
+            var unrelated = new Dictionary<IVariable, HashSet<SSAVariable>>();
+
+            // Try to coalesce related variables first.
+            foreach (var pair in AllocatedRegisters)
+            {
+                if (HasIntersectionElements(related, pair.Value))
+                {
+                    if (CanCoalesce(pair.Key, Variable, pair.Value, Liveness))
+                    {
+                        pair.Value.Add(Variable);
+                        return pair.Key;
+                    }
+                    else
+                    {
+                        unrelated[pair.Key] = pair.Value;
+                    }
+                }
+            }
+
+            // Then try to coalesce unrelated variables.
+            foreach (var pair in unrelated)
+            {
+                if (CanCoalesce(pair.Key, Variable, pair.Value, Liveness))
+                {
+                    pair.Value.Add(Variable);
+                    return pair.Key;
+                }
+            }
+
+            // Seems like we can't re-use a pre-existing register.
+            // We'll just conjure op a new register, and use that instead.
+            var newReg = new LocalVariable(Variable.Member);
+            var newSet = new HashSet<SSAVariable>();
+            newSet.Add(Variable);
+            AllocatedRegisters[newReg] = newSet;
+            return newReg;
+        }
+
+        /// <summary>
+        /// Performs register allocation on the given flow graph.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, IVariable> AllocateRegisters(
+            FlowGraph Graph)
+        {
+            // Perform register allocation on the SSA variables.
+            // We will try to coalesce SSA variables as much as possible.
+
+            var liveness = ComputeLiveness(Graph);
+            var allocatedRegs = new Dictionary<IVariable, HashSet<SSAVariable>>();
+            var allocatedVars = new Dictionary<SSAVariable, IVariable>();
+
+            foreach (var item in liveness.DefinitionBlocks)
+            {
+                allocatedVars[item.Key] = AllocateRegister(
+                    item.Key, liveness, allocatedRegs);
+            }
+
+            return allocatedVars;
+        }
+
+        private IStatement CreatePhiAssignStatement(
+            IReadOnlyList<SSAVariable> Arguments,
+            IReadOnlyList<SSAVariable> Parameters,
+            IReadOnlyDictionary<SSAVariable, IVariable> Registers,
+            Dictionary<IType, IVariable> Temporaries)
+        {
+            assert(Arguments.Count == Parameters.Count);
+
+            var assignVars = new Dictionary<IVariable, IVariable>();
+
+            foreach (var arg in Arguments, var param in Parameters)
+            {
+                assert(Registers.ContainsKey(arg));
+                assert(Registers.ContainsKey(param));
+
+                var srcReg = Registers[arg];
+                var tgtReg = Registers[param];
+
+                assert(!assignVars.ContainsKey(tgtReg));
+
+                if (!srcReg.Equals(tgtReg))
+                    assignVars[tgtReg] = srcReg;
+            }
+
+            return VariableHelpers.CreateParallelSetStatement(assignVars, Temporaries);
+        }
+
+        /// <summary>
+        /// Rewrites the given conditional branch so that it doesn't
+        /// take any arguments. A new basic block is
+        /// created if this is deemed necessary.
+        /// </summary>
+        private BlockBranch RewriteConditionalBranch(
+            BlockBranch Branch, FlowGraph Graph,
+            IReadOnlyDictionary<SSAVariable, IVariable> Registers,
+            BlockBuilder Blocks, Dictionary<IType, IVariable> Temporaries)
+
+            out (result) { result.Arguments.Count == 0 }
+        {
+            if (Branch.Arguments.Count == 0)
+            {
+                // Argumentless branches do not need an extra basic block.
+                return Branch;
+            }
+            else
+            {
+                var targetTag = Branch.TargetTag;
+
+                var body = CreatePhiAssignStatement(
+                    Branch.Arguments, Graph.GetBlock(targetTag).Parameters,
+                    Registers, Temporaries);
+
+                // We don't have to create another basic block if we don't
+                // have any work to do when this branch is taken.
+                if (body.IsEmpty)
+                    return new BlockBranch(targetTag);
+
+                // Create a basic block that performs the assignment, and
+                // then jump to the original target block.
+                var extraBlockTag = Blocks.CreateBlock(
+                    "assign.phi", body,
+                    new JumpFlow(new BlockBranch(targetTag)));
+
+                return new BlockBranch(extraBlockTag);
+            }
+        }
+
+        private Tuple<BlockFlow, IStatement> RewriteFlow(
+            BlockFlow Flow, FlowGraph Graph,
+            IReadOnlyDictionary<SSAVariable, IVariable> Registers,
+            INodeVisitor RegisterSubstitutingVisitor,
+            BlockBuilder Blocks, Dictionary<IType, IVariable> Temporaries)
+        {
+            if (Flow is JumpFlow)
+            {
+                var jmpFlow = (JumpFlow)Flow;
+                var br = jmpFlow.Branch;
+                return new Tuple<BlockFlow, IStatement>(
+                    new JumpFlow(new BlockBranch(br.TargetTag)),
+                    CreatePhiAssignStatement(
+                        br.Arguments, Graph.GetBlock(br.TargetTag).Parameters,
+                        Registers, Temporaries));
+            }
+            else if (Flow is SelectFlow)
+            {
+                var selFlow = (SelectFlow)Flow;
+                return new Tuple<BlockFlow, IStatement>(
+                    new SelectFlow(
+                        RegisterSubstitutingVisitor.Visit(selFlow.Condition),
+                        RewriteConditionalBranch(
+                            selFlow.ThenBranch, Graph, Registers,
+                            Blocks, Temporaries),
+                        RewriteConditionalBranch(
+                            selFlow.ElseBranch, Graph, Registers,
+                            Blocks, Temporaries)),
+                    EmptyStatement);
+            }
+            else if (Flow is TerminatedFlowBase)
+            {
+                return new Tuple<BlockFlow, IStatement>(Flow, EmptyStatement);
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    "Unknown flow instruction type: " + Flow.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Turns the given block into a parameterless block that performs
+        /// argumentless branches.
+        /// </summary>
+        private void RewriteBlock(
+            BasicBlock Block, FlowGraph Graph,
+            IReadOnlyDictionary<SSAVariable, IVariable> Registers,
+            INodeVisitor RegisterSubstitutingVisitor,
+            BlockBuilder Results, Dictionary<IType, IVariable> Temporaries)
+        {
+            // Rewrite this block's flow.
+            var flowAndFinalization = RewriteFlow(
+                Block.Flow, Graph, Registers, RegisterSubstitutingVisitor,
+                Results, Temporaries);
+
+            // The new block's body is the original block's body, followed by a
+            // finalization statement.
+            var body = new BlockStatement(new IStatement[]
+            {
+                RegisterSubstitutingVisitor.Visit(Block.Contents),
+                flowAndFinalization.Item2
+            }).Simplify();
+
+            // Create a new block that has the old block's tag.
+            Results.CreateBlock(Block.Tag, body, flowAndFinalization.Item1);
+        }
+
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            // Allocate registers for the given graph's SSA variables.
+            var regAlloc = AllocateRegisters(Graph);
+
+            // Create an IVariable -> IVariable mapping that maps SSA variables
+            // to the newly allocated registers.
+            var regMap = new Dictionary<IVariable, IVariable>();
+            foreach (var item in regAlloc)
+            {
+                regMap.Add(item.Key, item.Value);
+            }
+            var visitor = new VariableSubstitutingVisitor(regMap);
+
+            var temps = new Dictionary<IType, IVariable>();
+
+            // Rewrite all blocks. All basic blocks are made parameterless.
+            var newBlocks = new BlockBuilder(new UniqueTag());
+            foreach (var block in Graph.Blocks)
+            {
+                RewriteBlock(
+                    block, Graph, regAlloc,
+                    visitor, newBlocks, temps);
+            }
+
+            return newBlocks.ToFlowGraph(Graph.EntryPointTag);
+        }
+
+        public IStatement Apply(IStatement Statement)
+        {
+            return Visit(Statement);
+        }
+    }
+}

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Flame.Recompilation;
+using Flame.Front.Passes;
 
 namespace Flame.Front.Target
 {
@@ -99,71 +100,90 @@ namespace Flame.Front.Target
     }
 
     /// <summary>
-    /// A component's list of pass preferences.
+    /// A component's set of pass preferences.
     /// </summary>
     public class PassPreferences
     {
         public PassPreferences()
             : this(Enumerable.Empty<PassCondition>())
         { }
-        public PassPreferences(params PassCondition[] AdditionalConditions)
-            : this((IEnumerable<PassCondition>)AdditionalConditions)
+        public PassPreferences(params PassCondition[] Conditions)
+            : this((IEnumerable<PassCondition>)Conditions)
         { }
-        public PassPreferences(IEnumerable<PassCondition> AdditionalConditions)
-            : this(AdditionalConditions,
+        public PassPreferences(IEnumerable<PassCondition> Conditions)
+            : this(Conditions,
                    Enumerable.Empty<MethodPassInfo>())
         { }
-        public PassPreferences(IEnumerable<PassCondition> AdditionalConditions,
-                               IEnumerable<MethodPassInfo> AdditionalMethodPasses)
-            : this(AdditionalConditions, AdditionalMethodPasses, Enumerable.Empty<RootPassInfo>())
+        public PassPreferences(
+			IEnumerable<PassCondition> Conditions,
+            IEnumerable<MethodPassInfo> MethodPasses)
+            : this(Conditions, MethodPasses, Enumerable.Empty<RootPassInfo>())
         { }
-        public PassPreferences(IEnumerable<PassCondition> AdditionalConditions,
-                               IEnumerable<AnalysisPassInfo> AdditionalAnalysisPasses)
-            : this(AdditionalConditions, 
-                   AdditionalAnalysisPasses.Select(BodyAnalysisPass.ToBodyPass).ToArray())
+        public PassPreferences(
+			IEnumerable<PassCondition> Conditions,
+            IEnumerable<AnalysisPassInfo> AnalysisPasses)
+            : this(Conditions, 
+                   AnalysisPasses.Select(BodyAnalysisPass.ToBodyPass).ToArray())
         { }
-        public PassPreferences(IEnumerable<PassCondition> AdditionalConditions,
-                               IEnumerable<StatementPassInfo> AdditionalStatementPasses)
-            : this(AdditionalConditions,
-                   AdditionalStatementPasses.Select(BodyStatementPass.ToBodyPass).ToArray())
+        public PassPreferences(
+			IEnumerable<PassCondition> Conditions,
+            IEnumerable<StatementPassInfo> StatementPasses)
+            : this(Conditions,
+                   StatementPasses.Select(BodyStatementPass.ToBodyPass).ToArray())
         { }
-        public PassPreferences(IEnumerable<PassCondition> AdditionalConditions,
-                               IEnumerable<MethodPassInfo> AdditionalMethodPasses,
-                               IEnumerable<RootPassInfo> AdditionalRootPasses)
-            : this(AdditionalConditions, AdditionalMethodPasses, AdditionalRootPasses, 
+        public PassPreferences(
+			IEnumerable<PassCondition> Conditions,
+            IEnumerable<MethodPassInfo> MethodPasses,
+            IEnumerable<RootPassInfo> RootPasses)
+            : this(Conditions, MethodPasses, RootPasses, 
                    Enumerable.Empty<SignaturePassInfo>())
         { }
-        public PassPreferences(IEnumerable<PassCondition> AdditionalConditions,
-                               IEnumerable<MethodPassInfo> AdditionalMethodPasses,
-                               IEnumerable<RootPassInfo> AdditionalRootPasses,
-                               IEnumerable<SignaturePassInfo> AdditionalSignaturePasses)
-        {
-            this.AdditionalConditions = AdditionalConditions;
-            this.AdditionalMethodPasses = AdditionalMethodPasses;
-            this.AdditionalRootPasses = AdditionalRootPasses;
-            this.AdditionalSignaturePasses = AdditionalSignaturePasses;
-        }
+		public PassPreferences(
+			IEnumerable<PassCondition> Conditions,
+			IEnumerable<MethodPassInfo> MethodPasses,
+			IEnumerable<RootPassInfo> RootPasses,
+			IEnumerable<SignaturePassInfo> SignaturePasses)
+			: this(Conditions, MethodPasses, Enumerable.Empty<MethodPassInfo>(), RootPasses, SignaturePasses)
+		{ }
+		public PassPreferences(
+			IEnumerable<PassCondition> Conditions,
+			IEnumerable<MethodPassInfo> MethodPasses,
+			IEnumerable<MethodPassInfo> LoweringPasses,
+			IEnumerable<RootPassInfo> RootPasses,
+			IEnumerable<SignaturePassInfo> SignaturePasses)
+		{
+			this.Conditions = Conditions;
+			this.MethodPasses = MethodPasses;
+			this.LoweringPasses = LoweringPasses;
+			this.RootPasses = RootPasses;
+			this.SignaturePasses = SignaturePasses;
+		}
 
         /// <summary>
-        /// Gets a sequence of additional sufficient conditions for
+        /// Gets a sequence of sufficient conditions for
         /// passes to run.
         /// </summary>
-        public IEnumerable<PassCondition> AdditionalConditions { get; private set; }
+        public IEnumerable<PassCondition> Conditions { get; private set; }
 
         /// <summary>
-        /// Gets a sequence of additional method passes.
+        /// Gets a sequence of method passes.
         /// </summary>
-        public IEnumerable<MethodPassInfo> AdditionalMethodPasses { get; private set; }
+        public IEnumerable<MethodPassInfo> MethodPasses { get; private set; }
+
+		/// <summary>
+		/// Gets a sequence of machine lowering passes.
+		/// </summary>
+		public IEnumerable<MethodPassInfo> LoweringPasses { get; private set; }
 
         /// <summary>
-        /// Gets a sequence of additional root passes.
+        /// Gets a sequence of root passes.
         /// </summary>
-        public IEnumerable<RootPassInfo> AdditionalRootPasses { get; private set; }
+        public IEnumerable<RootPassInfo> RootPasses { get; private set; }
 
         /// <summary>
-        /// Gets a sequence of additional signature passes.
+        /// Gets a sequence of signature passes.
         /// </summary>
-        public IEnumerable<SignaturePassInfo> AdditionalSignaturePasses { get; private set; }
+        public IEnumerable<SignaturePassInfo> SignaturePasses { get; private set; }
 
         /// <summary>
         /// Takes the union of these pass
@@ -174,10 +194,19 @@ namespace Flame.Front.Target
         /// <returns></returns>
         public PassPreferences Union(PassPreferences Other)
         {
-            return new PassPreferences(AdditionalConditions.Concat(Other.AdditionalConditions),
-                AdditionalMethodPasses.Union(Other.AdditionalMethodPasses),
-                AdditionalRootPasses.Union(Other.AdditionalRootPasses),
-                AdditionalSignaturePasses.Union(Other.AdditionalSignaturePasses));
+            return new PassPreferences(Conditions.Concat(Other.Conditions),
+                MethodPasses.Union(Other.MethodPasses),
+                RootPasses.Union(Other.RootPasses),
+                SignaturePasses.Union(Other.SignaturePasses));
         }
+
+		/// <summary>
+		/// Creates a pass manager that is equivalent to this pass
+		/// preference set.
+		/// </summary>
+		public PassManager ToManager()
+		{
+			return new PassManager(this);
+		}
     }
 }

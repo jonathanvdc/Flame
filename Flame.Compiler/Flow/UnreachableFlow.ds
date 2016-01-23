@@ -1,0 +1,49 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Flow
+{
+    /// <summary>
+    /// A base class for basic block flow that has no successors.
+    /// </summary>
+    public abstract class TerminatedFlowBase : BlockFlow
+    {
+        public override [BlockBranch] Branches
+        {
+            get
+            {
+                return Enumerable.Empty<BlockBranch>();
+            }
+        }
+
+        /// <summary>
+        /// Checks if this control flow node has no side-effects.
+        /// </summary>
+        public override bool IsConstant { get { return false; } }
+
+        /// <summary>
+        /// Accepts the given basic block visitor.
+        /// </summary>
+        public override BlockFlow Accept(IBasicBlockVisitor Visitor)
+        {
+            return this;
+        }
+    }
+
+    /// <summary>
+    /// A type of basic block flow that flags the end of the basic block
+    /// as unreachable. It has no successors.
+    /// </summary>
+    public static class UnreachableFlow : TerminatedFlowBase
+    { }
+
+    /// <summary>
+    /// A type of basic block flow that flags the end of the basic block as
+    /// unreachable, because the basic block's body terminates control flow.
+    /// </summary>
+    public static class TerminatedFlow : TerminatedFlowBase
+    { }
+}

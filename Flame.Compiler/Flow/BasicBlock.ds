@@ -1,0 +1,103 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Flow
+{
+	/// <summary>
+	/// Defines a basic block: a data structure that executes a number of
+	/// instructions in sequence, before transferring control to another basic
+	/// block.
+	/// </summary>
+	public class BasicBlock
+	{
+		/// <summary>
+		/// Creates a basic block from the given components.
+		/// The created block does not take any parameters.
+		/// </summary>
+		public const this(
+			set UniqueTag Tag, set IStatement Contents,
+			set BlockFlow Flow)
+		{
+			this.Parameters = new List<SSAVariable>();
+		}
+
+		/// <summary>
+		/// Creates a basic block from the given components.
+		/// </summary>
+		public const this(
+			set UniqueTag Tag, set IReadOnlyList<SSAVariable> Parameters,
+			set IStatement Contents, set BlockFlow Flow);
+
+		/// <summary>
+		/// Gets a tag that uniquely identifies this block.
+		/// </summary>
+		public UniqueTag Tag { const get; private set; }
+
+		/// <summary>
+		/// Gets this basic block's parameter list. Arguments are stored in
+		/// SSA locals. This parameter list is the moral equivalent of a
+		/// list of phi statements.
+		/// </summary>
+		public IReadOnlyList<SSAVariable> Parameters { const get; private set; }
+
+		/// <summary>
+		/// Gets the basic block's contents as a statement tree, whose children
+		/// are executed in sequential order.
+		/// </summary>
+		public IStatement Contents { const get; private set; }
+
+		/// <summary>
+		/// Gets this basic block's terminating control flow statement.
+		/// It is executed right after the body has been executed, and
+		/// transfers control to some other basic block.
+		/// </summary>
+		public BlockFlow Flow { const get; private set; }
+
+		/// <summary>
+		/// Applies the given node visitor to this basic block's contents and
+		/// final flow statement.
+		/// </summary>
+		public BasicBlock Accept(INodeVisitor Visitor)
+		{
+			if (Visitor is IBasicBlockVisitor)
+				return Accept((IBasicBlockVisitor)Visitor);
+			else
+				return Accept(new EmulatedBasicBlockVisitor(Visitor));
+		}
+
+		/// <summary>
+		/// Applies the given node visitor to this basic block's contents and
+		/// final flow statement.
+		/// </summary>
+		public BasicBlock Accept(IBasicBlockVisitor Visitor)
+		{
+			var visitedContents = Visitor.Visit(Contents);
+			var visitedParameters = new List<SSAVariable>(
+				Enumerable.Select<SSAVariable, SSAVariable>(
+					Parameters, Visitor.VisitParameter));
+			var visitedFlow = Flow.Accept(Visitor);
+			return new BasicBlock(
+				Tag, visitedParameters, visitedContents, visitedFlow);
+		}
+
+		/// <summary>
+		/// Checks if this basic block has no side-effects.
+		/// </summary>
+		public bool IsConstant
+		{
+			get { return Contents.IsEmpty && Flow.IsConstant; }
+		}
+
+		/// <summary>
+		/// Applies simple optimizations to this basic block's contents.
+		/// </summary>
+		public BasicBlock Optimize()
+		{
+			return new BasicBlock(
+				Tag, Parameters, Contents.Optimize(), Flow.Optimize());
+		}
+	}
+}

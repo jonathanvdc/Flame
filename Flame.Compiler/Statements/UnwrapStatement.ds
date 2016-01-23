@@ -1,0 +1,123 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Statements
+{
+    /// <summary>
+    /// Defines a base class for transient statements that "unwrap" themselves.
+    /// Their contents are assumed to be mutable, so no caching is done.
+    /// </summary>
+    /// <remarks>
+    /// This type of statement will "unwrap" itself as soon as possible, and
+    /// is mainly intended for use in node visitors that reorder the
+    /// statement/expression tree.
+    /// </remarks>
+    public abstract class UnwrapStatement : IStatement
+    {
+        /// <summary>
+        /// "Unwraps" this statement: the (optional) layer of mutability this
+        /// statement offers is removed, and its contents are returned.
+        /// </summary>
+        public abstract IStatement Unwrap();
+
+        public bool IsEmpty
+        {
+            const get return Unwrap().IsEmpty;
+        }
+
+        public IStatement Optimize()
+        {
+            return Unwrap().Optimize();
+        }
+
+        public IStatement Accept(INodeVisitor Visitor)
+        {
+            return Visitor.Visit(Unwrap());
+        }
+
+        public ICodeBlock Emit(ICodeGenerator CodeGenerator)
+        {
+            return Unwrap().Emit(CodeGenerator);
+        }
+    }
+
+    /// <summary>
+    /// Defines an insert statement: a statement that can later be populated
+    /// with other statements.
+    /// </summary>
+    public class InsertStatement : UnwrapStatement
+    {
+        /// <summary>
+        /// Creates a new insert statement.
+        /// </summary>
+        public const this()
+        {
+            this.stmts = new List<IStatement>();
+        }
+
+        private List<IStatement> stmts;
+
+        /// <summary>
+        /// Gets all inserted statements.
+        /// </summary>
+        public [IStatement] Statements { const get return stmts; }
+
+        /// <summary>
+        /// Inserts the given statement: it is appended to the insert statement's
+        /// list of inner statements.
+        /// </summary>
+        public void Insert(IStatement Statement)
+        {
+            stmts.Add(Statement);
+        }
+
+        public override IStatement Unwrap()
+        {
+            return new BlockStatement(Statements).Simplify();
+        }
+
+        public override string ToString()
+        {
+            return "insert-statement(" + Unwrap().ToString() + ")";
+        }
+    }
+
+    /// <summary>
+    /// Defines a movable statement: a statement that can later be neutralized,
+    /// and have its contents appended to an insert statement.
+    /// </summary>
+    public class MovableStatement : UnwrapStatement
+    {
+        /// <summary>
+        /// Creates a movable statement with the given statement as its
+        /// contents.
+        /// </summary>
+        public const this(set IStatement Statement);
+
+        /// <summary>
+        /// Gets this movable statement's inner statement, which defines
+        /// this statement's semantics.
+        /// </summary>
+        public IStatement Statement { const get; private set; }
+
+        /// <summary>
+        /// "Moves" this statement's inner statement to the given insert
+        /// statement.
+        /// </summary>
+        public void Move(InsertStatement Target)
+        {
+            Target.Insert(Statement);
+            Statement = EmptyStatement;
+        }
+
+        public override IStatement Unwrap()
+        {
+            return Statement;
+        }
+
+        public override string ToString()
+        {
+            return "movable-statement(" + Statement.ToString() + ")";
+        }
+    }
+}

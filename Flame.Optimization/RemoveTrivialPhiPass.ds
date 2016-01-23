@@ -1,0 +1,221 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// Defines a branch visitor that removes arguments to trivial parameters.
+    /// </summary>
+    public class ArgumentRemovingVisitor : BranchVisitorBase
+    {
+        /// <summary>
+        /// Creates a trivial argument removing visitor from the given
+        /// control flow graph and marked variable set.
+        /// </summary>
+        public const this(
+            set FlowGraph Graph,
+            [SSAVariable] MarkedVariables)
+        {
+            this.MarkedVariables = new HashSet<SSAVariable>(MarkedVariables);
+        }
+
+        /// <summary>
+        /// Gets the control flow graph this trivial argument removing visitor
+        /// uses to resolve basic block tags.
+        /// </summary>
+        public FlowGraph Graph { const get; private set; }
+
+        /// <summary>
+        /// Gets a set of SSA parameters that have been marked for removal.
+        /// </summary>
+        public HashSet<SSAVariable> MarkedVariables { const get; private set; }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public override BlockBranch Visit(BlockBranch Branch)
+        {
+            var parameterList = Graph.GetBlock(Branch.TargetTag).Parameters;
+
+            var argList = new List<SSAVariable>();
+            foreach (var arg in Branch.Arguments, var param in parameterList)
+            {
+                if (!MarkedVariables.Contains(param))
+                    argList.Add(arg);
+            }
+
+            return new BlockBranch(Branch.TargetTag, argList);
+        }
+    }
+
+    /// <summary>
+    /// A pass that removes trivial SSA argument/parameter pairs.
+    /// </summary>
+    public static class RemoveTrivialPhiPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// This pass' name.
+        /// </summary>
+        public const string RemoveTrivialPhiPassName = "remove-trivial-phi";
+
+        private HashSet<SSAVariable> GetOrCreate(
+            SSAVariable Key, Dictionary<SSAVariable, HashSet<SSAVariable>> Map)
+        {
+            HashSet<SSAVariable> result;
+            if (!Map.TryGetValue(Key, &result))
+            {
+                result = new HashSet<SSAVariable>();
+                Map[Key] = result;
+            }
+            return result;
+        }
+
+
+        /// <summary>
+        /// Tries to mark trivial SSA local parameters as trivial.
+        /// </summary>
+        /// <remarks>
+        /// The following phi statements are trivial:
+        ///
+        ///     x := phi(y)
+        ///     x := phi(x, y)
+        ///     x := phi()
+        ///
+        /// </remarks>
+        private void tryRemoveTrivialPhi(
+            SSAVariable Parameter,
+            Dictionary<SSAVariable, HashSet<SSAVariable>> Phis,
+            Dictionary<SSAVariable, HashSet<SSAVariable>> Uses,
+            Dictionary<SSAVariable, IExpression> TrivialPhis)
+        {
+            SSAVariable same = null;
+            foreach (var item in Phis[Parameter])
+            {
+                if (item != same && item != Parameter)
+                {
+                    if (same != null)
+                        // This parameter takes two or more distinct arguments.
+                        // It is therefore not trivial.
+                        return;
+                    else
+                        same = item;
+                }
+            }
+
+            IExpression defValue;
+            if (same == null)
+            {
+                // The phi is unreachable or in the start block. We can take
+                // advantage of that by assigning it the default value for its
+                // type.
+                //
+                // NOTE: this kind of situation is kind of UB in low-level
+                //       programming languages. Maybe we could declare this
+                //       to be UB in Flame as well and take advantage of that?
+                //       On the other hand, default values are pretty useful
+                //       to the optimizer as well, and less UB is always
+                //       desirable.
+
+                defValue = new DefaultValueExpression(Parameter.Type);
+            }
+            else
+            {
+                defValue = same.CreateGetExpression();
+            }
+
+            // Mark this parameter as trivial.
+            TrivialPhis[Parameter] = defValue;
+
+            // Remember all users except the phi itself
+            var users = GetOrCreate(Parameter, Uses);
+            users.Remove(Parameter);
+
+            if (same == null)
+            {
+                // Reroute all uses of phi to same and remove phi
+                foreach (var item in users)
+                {
+                    var argSet = GetOrCreate(item, Phis);
+                    argSet.Remove(Parameter);
+                    if (same == null)
+                        argSet.Add(same);
+
+                    // Other phis may have become trivial now. Try to remove
+                    // them as well.
+                    tryRemoveTrivialPhi(item, Phis, Uses, TrivialPhis);
+                }
+            }
+        }
+
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            // A dictionary that maps parameter variables to argument variables.
+            var phis = new Dictionary<SSAVariable, HashSet<SSAVariable>>();
+
+            // A dictionary that maps argument variables to parameter variables.
+            var uses = new Dictionary<SSAVariable, HashSet<SSAVariable>>();
+
+            // A dictionary that maps trivial parameters to their definition
+            // expressions.
+            var trivialPhis = new Dictionary<SSAVariable, IExpression>();
+
+            foreach (var block in Graph.Blocks)
+            {
+                foreach (var branch in block.Flow.Branches)
+                {
+                    // Map parameters to arguments, and vice-versa.
+
+                    var targetBlock = Graph.GetBlock(branch.TargetTag);
+                    foreach (var arg in branch.Arguments, var param in targetBlock.Parameters)
+                    {
+                        GetOrCreate(param, phis).Add(arg);
+                        GetOrCreate(arg, uses).Add(param);
+                    }
+                }
+            }
+
+            foreach (var param in phis.Keys)
+            {
+                // Try to get rid of trivial phi statements.
+                tryRemoveTrivialPhi(param, phis, uses, trivialPhis);
+            }
+
+            // Now rewrite all blocks to exclude trivial phis.
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+            foreach (var block in Graph.Blocks)
+            {
+                var body = new List<IStatement>();
+                var parameters = new List<SSAVariable>();
+
+                foreach (var param in block.Parameters)
+                {
+                    if (trivialPhis.TryGetValue(param, &IExpression def))
+                        body.Add(param.CreateSetStatement(def));
+                    else
+                        parameters.Add(param);
+                }
+
+                body.Add(block.Contents);
+
+                var flowFixingVisitor = new ArgumentRemovingVisitor(Graph, trivialPhis.Keys);
+                results[block.Tag] = new BasicBlock(
+                    block.Tag, parameters, new BlockStatement(body).Simplify(),
+                    block.Flow.Accept(flowFixingVisitor));
+            }
+
+            return new FlowGraph(Graph.EntryPointTag, results);
+        }
+
+        public IStatement Apply(IStatement Value)
+        {
+            return Visit(Value);
+        }
+    }
+}

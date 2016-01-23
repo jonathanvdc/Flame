@@ -1,0 +1,78 @@
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Expressions
+{
+    /// <summary>
+    /// Defines an expression that can be "spilled", i.e. store its value in
+    /// a temporary (SSA) local and retrieve that local's value.
+    /// </summary>
+    public class SpillableExpression : IExpression
+    {
+        /// <summary>
+        /// Creates a spillable expression from the given value.
+        /// </summary>
+        public const this(set IExpression Value);
+
+        /// <summary>
+        /// Gets the value this spillable expression computes.
+        /// </summary>
+        public IExpression Value { const get; private set; }
+
+        public IType Type { get { return Value.Type; } }
+        public bool IsConstant { get { return Value.IsConstant; } }
+
+        /// <summary>
+        /// "Spills" this expression to the given initialization statement.
+        /// An SSA local variable is created if necessary.
+        /// </summary>
+        public void Spill(InsertStatement Initialization)
+        {
+            if (IsConstant)
+            {
+                // Do nothing, really.
+                return;
+            }
+            else if (PrimitiveTypes.Void.Equals(Type))
+            {
+                Initialization.Insert(new ExpressionStatement(Value));
+                Value = VoidExpression;
+            }
+            else
+            {
+                var local = new SSAVariable(Value.Type);
+                Initialization.Insert(local.CreateSetStatement(Value));
+                Value = local.CreateGetExpression();
+                // No need to "release" SSA locals, as this is not meaningful.
+            }
+        }
+
+        public IExpression Optimize()
+        {
+            return Value.Optimize();
+        }
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            return Visitor.Visit(Value);
+        }
+
+        public IBoundObject Evaluate()
+        {
+            return Value.Evaluate();
+        }
+
+        public ICodeBlock Emit(ICodeGenerator CodeGenerator)
+        {
+            return Value.Emit(CodeGenerator);
+        }
+
+        public override string ToString()
+        {
+            return "spillable-expression(" + Value.ToString() + ")";
+        }
+    }
+}

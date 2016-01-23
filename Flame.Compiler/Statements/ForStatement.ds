@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Statements
 {
@@ -83,6 +85,14 @@ namespace Flame.Compiler.Statements
             Visitor.Visit(Body);
             Visitor.Visit(Change);
             Visitor.Visit(End);
+        }
+
+        public void ToBlocks(BlockBuildingVisitor Visitor)
+        {
+            // We can just lower this statement and have a basic block
+            // constructing visitor reduce that to a sequence of basic blocks.
+
+            Visitor.CreateCurrentBlock(Lower());
         }
 
         public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)

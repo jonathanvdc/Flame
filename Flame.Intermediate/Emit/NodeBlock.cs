@@ -61,7 +61,7 @@ namespace Flame.Intermediate.Emit
         {
             if (Block == null)
             {
-                return NodeFactory.Id(IRParser.NullNodeName);
+                return NodeFactory.Literal(null);
             }
             else
             {

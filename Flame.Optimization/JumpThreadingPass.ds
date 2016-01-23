@@ -1,0 +1,144 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A branch visitor that tries to replace argumentless indirect branches
+    /// with more direct branches.
+    /// </summary>
+    public class JumpThreadingVisitor : BranchVisitorBase
+    {
+        /// <summary>
+        /// Creates a jump-threading visitor from the given threaded jumps dictionary.
+        /// </summary>
+        public const this(set IReadOnlyDictionary<UniqueTag, BlockBranch> ThreadedJumps);
+
+        /// <summary>
+        /// A dictionary that maps block tags to the branch they eventually
+        /// and unambiguously execute.
+        /// </summary>
+        public IReadOnlyDictionary<UniqueTag, BlockBranch> ThreadedJumps { const get; private set; }
+
+        public override BlockBranch Visit(BlockBranch Branch)
+        {
+            // Early-out here.
+            if (Branch.Arguments.Count > 0)
+                return Branch;
+
+            if (ThreadedJumps.TryGetValue(Branch.TargetTag, &BlockBranch newBranch))
+            {
+                // Replace this branch by the direct branch.
+                return newBranch;
+            }
+            else
+            {
+                return Branch;
+            }
+        }
+    }
+
+    /// <summary>
+    /// A pass that applies simple jump threading to flow graphs.
+    /// </summary>
+    public static class JumpThreadingPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// This pass' name.
+        /// </summary>
+        public const string JumpThreadingPassName = "jump-threading";
+
+        private HashSet<V> GetOrCreate<K, V>(
+            K Key, Dictionary<K, HashSet<V>> Map)
+        {
+            HashSet<V> result;
+            if (!Map.TryGetValue(Key, &result))
+            {
+                result = new HashSet<V>();
+                Map[Key] = result;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Populates a dictionary with block tags that are really just
+        /// direct jumps, and maps them to their eventual target block.
+        /// </summary>
+        private Dictionary<UniqueTag, BlockBranch> FlattenIndirectJumps(FlowGraph Graph)
+        {
+            var results = new Dictionary<UniqueTag, BlockBranch>();
+
+            // An inverted version of the 'results' dictionary.
+            var preds = new Dictionary<UniqueTag, HashSet<UniqueTag>>();
+
+            foreach (var block in Graph.Blocks)
+            {
+                if (block.Flow is JumpFlow && block.Parameters.Count == 0 &&
+                    block.Contents.IsEmpty)
+                {
+                    var jump = (JumpFlow)block.Flow;
+                    var branch = jump.Branch;
+
+                    BlockBranch flattenedBr;
+
+                    if (results.ContainsKey(branch.TargetTag))
+                    {
+                        assert(branch.Arguments.Count == 0);
+
+                        // Skip this block and as many successors as possible
+                        // when jumping.
+                        flattenedBr = results[branch.TargetTag];
+                    }
+                    else
+                    {
+                        // Skip this block when jumping.
+                        flattenedBr = branch;
+                    }
+
+                    // Redirect this block and any block that jumps to it.
+                    results[block.Tag] = flattenedBr;
+
+                    var targetSet = GetOrCreate<UniqueTag, UniqueTag>(flattenedBr.TargetTag, preds);
+
+                    // Register this block as a user of the target block.
+                    targetSet.Add(block.Tag);
+
+                    // Redirect any blocks that jump to this block.
+                    foreach (var tag in GetOrCreate<UniqueTag, UniqueTag>(block.Tag, preds))
+                    {
+                        results[tag] = flattenedBr;
+                        targetSet.Add(tag);
+                    }
+                }
+            }
+
+            return results;
+        }
+
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+            var indirectJumps = FlattenIndirectJumps(Graph);
+            var visitor = new JumpThreadingVisitor(indirectJumps);
+            foreach (var block in Graph.Blocks)
+            {
+                results[block.Tag] = new BasicBlock(
+                    block.Tag, block.Parameters, block.Contents,
+                    block.Flow.Accept(visitor));
+            }
+            return new FlowGraph(Graph.EntryPointTag, results);
+        }
+
+        public IStatement Apply(IStatement Statement)
+        {
+            return Visit(Statement);
+        }
+    }
+}

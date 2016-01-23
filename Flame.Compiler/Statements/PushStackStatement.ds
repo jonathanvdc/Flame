@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Expressions;
+
+namespace Flame.Compiler.Statements
+{
+    /// <summary>
+    /// A statement that pushes the value that the given expression yields
+    /// on top of the evaluation stack.
+    /// </summary>
+    public class PushStackStatement : IStatement
+    {
+        public const this(set IExpression Expression);
+
+        /// <summary>
+        /// Gets the expression whose value will be pushed onto the
+        /// evaluation stack by this statement.
+        /// </summary>
+        public IExpression Expression { const get; private set; }
+
+        public override IStatement Accept(INodeVisitor Visitor)
+        {
+            var transExpr = Visitor.Visit(Expression);
+
+            if (transExpr == Expression)
+            {
+                return this;
+            }
+            else
+            {
+                return new PushStackStatement(transExpr);
+            }
+        }
+
+        public ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return ((IStackCodeGenerator)Generator).EmitPush(Expression.Emit(Generator));
+        }
+
+        public bool IsEmpty
+        {
+            const get { return false; }
+        }
+
+        public const IStatement Optimize()
+        {
+            var optExpr = Expression.Optimize();
+
+            // push_stack(pop_stack()) is really just a nop
+            if (optExpr.GetEssentialExpression() is PopStackExpression)
+                return EmptyStatement;
+
+            return new PushStackStatement(optExpr);
+        }
+    }
+}

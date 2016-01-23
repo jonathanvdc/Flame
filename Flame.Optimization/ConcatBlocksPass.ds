@@ -1,0 +1,140 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A visitor that concatenates blocks that have a 1:1 successor-predecessor
+    /// relationship.
+    /// </summary>
+    public static class ConcatBlocksPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// The pass name for this pass.
+        /// </summary>
+        public const string ConcatBlocksPassName = "concat-blocks";
+
+        alias PredecessorPair = Tuple<UniqueTag, IReadOnlyList<SSAVariable>>;
+        alias PredecessorDict = IReadOnlyDictionary<UniqueTag, [PredecessorPair]>;
+
+        /// <summary>
+        /// Preferably gets a block from the results dictionary. If said
+        /// dictionary does not contain any block identified by the given tag,
+        /// then the block is retrieved from the graph.
+        /// </summary>
+        private BasicBlock GetBlock(
+            Dictionary<UniqueTag, BasicBlock> Results,
+            FlowGraph Graph, UniqueTag Tag)
+        {
+            BasicBlock result;
+            if (Results.TryGetValue(Tag, &result))
+                return result;
+            else
+                return Graph.GetBlock(Tag);
+        }
+
+        /// <summary>
+        /// Figures out if the block identified by the given tag has
+        /// exactly one predecessor.
+        /// </summary>
+        private bool HasExactlyOnePredecessor(
+            UniqueTag Tag, FlowGraph Graph, PredecessorDict Dict)
+        {
+            return Enumerable.Count<PredecessorPair>(Dict[Tag]) == 1 &&
+                Tag != Graph.EntryPointTag;
+        }
+
+        /// <summary>
+        /// Concatenates the given blocks.
+        /// </summary>
+        private BasicBlock ConcatBlocks(BasicBlock First, BasicBlock Second, BlockBranch Branch)
+        {
+            var bodyStmts = new List<IStatement>();
+            bodyStmts.Add(First.Contents);
+
+            // Convert all SSA local arguments to explicit stores.
+            foreach (var param in Second.Parameters,
+                     var arg in Branch.Arguments)
+            {
+                bodyStmts.Add(param.CreateSetStatement(arg.CreateGetExpression()));
+            }
+
+            bodyStmts.Add(Second.Contents);
+
+            return new BasicBlock(
+                First.Tag, First.Parameters,
+                new BlockStatement(bodyStmts).Simplify(),
+                Second.Flow);
+        }
+
+        /// <summary>
+        /// Processes a single block in the worklist.
+        /// </summary>
+        private void ProcessBlock(
+            FlowGraph Graph, HashSet<UniqueTag> Worklist,
+            Dictionary<UniqueTag, BasicBlock> Results,
+            PredecessorDict Predecessors)
+        {
+            // Gets a block tag from the worklist
+            var srcTag = Enumerable.First<UniqueTag>(Worklist);
+
+            // Get the block associated with that tag.
+            var srcBlock = GetBlock(Results, Graph, srcTag);
+
+            // Find out if this block has exactly one distinct
+            // outgoing branch.
+            var branches = Enumerable.Distinct<BlockBranch>(srcBlock.Flow.Branches);
+            if (Enumerable.Count<BlockBranch>(branches) == 1)
+            {
+                // If so, find out if the target block also has exactly
+                // one predecessor.
+                var branch = Enumerable.Single<BlockBranch>(branches);
+                var target = branch.TargetTag;
+                if (HasExactlyOnePredecessor(target, Graph, Predecessors))
+                {
+                    // Awesome! We can concatenate the source and
+                    // target blocks.
+                    Results[srcTag] = ConcatBlocks(
+                        srcBlock, GetBlock(Results, Graph, target), branch);
+                    // Don't remove this block tag from the worklist, but do
+                    // remove the target block (which we have merged with
+                    // the source block).
+                    Worklist.Remove(target);
+                    Results.Remove(target);
+                    return;
+                }
+            }
+
+            // We couldn't merge this block with its successor.
+            // Remove it from the worklist.
+            Results[srcTag] = srcBlock;
+            Worklist.Remove(srcTag);
+        }
+
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            var preds = Graph.GetPredecessors();
+            var worklist = new HashSet<UniqueTag>(Graph.BlockTags);
+
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+
+            while (worklist.Count > 0)
+            {
+                ProcessBlock(Graph, worklist, results, preds);
+            }
+
+            return new FlowGraph(Graph.EntryPointTag, results);
+        }
+
+        public IStatement Apply(IStatement Statement)
+        {
+            return Visit(Statement);
+        }
+    }
+}

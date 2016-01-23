@@ -25,6 +25,7 @@ namespace Flame.Compiler
             Warnings.DanglingElse = new WarningDescription("dangling-else", Warnings.All);
             Warnings.IncompleteInitialization = new WarningDescription("incomplete-initialization", Warnings.All);
             Warnings.VariableLengthInitialization = new WarningDescription("variable-length-initialization", Warnings.All);
+            Warnings.MissingReturnWarning = new WarningDescription("missing-return", Warnings.All);
 
             // -Wextra warnings
             Warnings.Bitcast = new WarningDescription("bitcast", Warnings.Extra);
@@ -33,6 +34,7 @@ namespace Flame.Compiler
             Warnings.MeaninglessCast = new WarningDescription("meaningless-cast", Warnings.Extra);
             Warnings.ConstantAssert = new WarningDescription("constant-assert", Warnings.Extra);
             Warnings.Unused = new WarningDescription("unused", Warnings.Extra);
+            Warnings.DeadCodeWarning = new WarningDescription("dead-code", Warnings.Extra);
 
             // -Wpedantic warnings
             Warnings.CSharpUsingAlias = new WarningDescription("csharp-using-alias", Warnings.Pedantic);
@@ -243,6 +245,31 @@ namespace Flame.Compiler
         /// }
         /// </example>
         public static WarningDescription VariableLengthInitialization { const get; private set; }
+
+        /// <summary>
+        /// The warning name for missing return statements.
+        /// </summary>
+        /// <example>
+        /// public static int Herp()
+        ///                   ^~~~
+        /// {
+        ///
+        /// }
+        /// </example>
+        public static WarningDescription MissingReturnWarning { const get; private set; }
+
+        /// <summary>
+        /// The warning name for dead (unreachable) code.
+        /// </summary>
+        /// <example>
+        /// public static int Derp()
+        /// {
+        ///     return 6;
+        ///     return 4;
+        ///     ^~~~~~~~~
+        /// }
+        /// </example>
+        public static WarningDescription DeadCodeWarning { const get; private set; }
 
         /// <summary>
         /// A warning name for unused compiler options. Note, however, that

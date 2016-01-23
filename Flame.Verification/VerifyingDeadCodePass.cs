@@ -18,8 +18,8 @@ namespace Flame.Verification
 
         public static readonly VerifyingDeadCodePass Instance = new VerifyingDeadCodePass();
 
-        public static readonly WarningDescription MissingReturnWarning = new WarningDescription("missing-return", Warnings.Instance.All);
-        public static readonly WarningDescription DeadCodeWarning = new WarningDescription("dead-code", Warnings.Instance.Extra);
+        public static readonly WarningDescription MissingReturnWarning = Warnings.Instance.MissingReturnWarning;
+        public static readonly WarningDescription DeadCodeWarning = Warnings.Instance.DeadCodeWarning;
 
         public IStatement Apply(Tuple<IStatement, IMethod, ICompilerLog> Value)
         {
@@ -32,14 +32,14 @@ namespace Flame.Verification
             if (visitor.CurrentFlow && MissingReturnWarning.UseWarning(Value.Item3.Options) && !YieldNodeFindingVisitor.UsesYield(stmt))
             {
                 log.LogWarning(new LogEntry("Missing return statement?",
-                    MissingReturnWarning.CreateMessage("This method may not always return or throw. "), 
+                    MissingReturnWarning.CreateMessage("This method may not always return or throw. "),
                     method.GetSourceLocation()));
             }
             var firstUnreachable = visitor.DeadCodeStatements.FirstOrDefault();
             if (firstUnreachable != null && DeadCodeWarning.UseWarning(Value.Item3.Options))
             {
                 var node = new MarkupNode("entry", new IMarkupNode[]
-                { 
+                {
                     DeadCodeWarning.CreateMessage("Unreachable code detected and removed. "),
                     firstUnreachable.Location.CreateDiagnosticsNode(),
                     RedefinitionHelpers.Instance.CreateNeutralDiagnosticsNode("In method: ", method.GetSourceLocation())

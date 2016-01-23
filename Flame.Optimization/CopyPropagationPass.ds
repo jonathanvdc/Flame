@@ -1,0 +1,191 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using Pixie;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A node visitor that propagates SSA variable copies, but does not
+    /// detect them.
+    /// </summary>
+    public class SSACopyPropagatingVisitor : NodeVisitorBase, IBasicBlockVisitor
+    {
+        public const this(set IReadOnlyDictionary<SSAVariable, SSAVariable> Copies);
+
+        /// <summary>
+        /// A dictionary that maps SSA variables to the SSA variables they
+        /// are copied of.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, SSAVariable> Copies { const get; private set; }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is SSAGetExpression;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is SSADefineStatement;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            assert(Expression is SSAGetExpression);
+            var getExpr = (SSAGetExpression)Expression;
+
+            SSAVariable copiedVar;
+            if (Copies.TryGetValue(getExpr.Variable, &copiedVar))
+            {
+                return copiedVar.CreateGetExpression();
+            }
+            else
+            {
+                return getExpr;
+            }
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            assert(Statement is SSADefineStatement);
+            var defStatement = (SSADefineStatement)Statement;
+
+            SSAVariable copiedVar;
+            if (Copies.TryGetValue(defStatement.Variable, &copiedVar) &&
+                !copiedVar.Equals(defStatement.Variable))
+            {
+                return EmptyStatement;
+            }
+            else
+            {
+                return defStatement.Accept(this);
+            }
+        }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            // Parameters are not regarded as mere copies.
+            return Variable;
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public BlockBranch Visit(BlockBranch Branch)
+        {
+            var argList = new List<SSAVariable>();
+            foreach (var arg in Branch.Arguments)
+            {
+                if (Copies.TryGetValue(arg, &SSAVariable copiedVar))
+                {
+                    argList.Add(copiedVar);
+                }
+                else
+                {
+                    argList.Add(arg);
+                }
+            }
+            return new BlockBranch(Branch.TargetTag, argList);
+        }
+    }
+
+    /// <summary>
+    /// A pass that propagates SSA variable copies.
+    /// </summary>
+    public static class CopyPropagationPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// This pass' name.
+        /// </summary>
+        public const string CopyPropagationPassName = "copyprop";
+
+        /// <summary>
+        /// Tries to extract the SSA variable that this expression loads.
+        /// </summary>
+        private SSAVariable TryGetLoadedVariable(IExpression Expression)
+        {
+            var innerExpr = Expression.GetEssentialExpression();
+            if (innerExpr is SSAGetExpression)
+            {
+                var getExpr = (SSAGetExpression)innerExpr;
+                return getExpr.Variable;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Finds out which variable the given variable is a copy of,
+        /// recursively.
+        /// </summary>
+        private SSAVariable GetRecursiveCopy(
+            SSAVariable Variable,
+            IReadOnlyDictionary<SSAVariable, SSAVariable> Copies)
+        {
+            if (Copies.TryGetValue(Variable, &SSAVariable copied))
+            {
+                return GetRecursiveCopy(copied, Copies);
+            }
+            else
+            {
+                return Variable;
+            }
+        }
+
+        /// <summary>
+        /// Produces a dictionary of SSA variables that are really just copies
+        /// of another variable.
+        /// </summary>
+        private IReadOnlyDictionary<SSAVariable, SSAVariable> FindCopies(
+            IReadOnlyDictionary<SSAVariable, IExpression> Definitions)
+        {
+            // Start off by mapping variables to their direct copy.
+            var initResults = new Dictionary<SSAVariable, SSAVariable>();
+            foreach (var item in Definitions)
+            {
+                var target = TryGetLoadedVariable(item.Value);
+                if (target != null)
+                    initResults[item.Key] = target;
+            }
+
+            // Next, combine those results to propagate recursive copies as well.
+            var results = new Dictionary<SSAVariable, SSAVariable>();
+            foreach (var key in initResults.Keys)
+            {
+                results[key] = GetRecursiveCopy(key, initResults);
+            }
+
+            return results;
+        }
+
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            // First, find all SSA variable definitions.
+
+            var defFinder = new SSAVariableDefFinder();
+            Graph.Accept(defFinder);
+
+            // Then, find copies.
+            var copies = FindCopies(defFinder.Definitions);
+
+            // Finally, propagate those copies.
+            var visitor = new SSACopyPropagatingVisitor(copies);
+            return Graph.Accept(visitor);
+        }
+
+        public IStatement Apply(IStatement Value)
+        {
+            return Visit(Value);
+        }
+    }
+}

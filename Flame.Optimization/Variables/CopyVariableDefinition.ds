@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Flame.Compiler;
+using Flame.Compiler.Statements;
 
 namespace Flame.Optimization.Variables
 {

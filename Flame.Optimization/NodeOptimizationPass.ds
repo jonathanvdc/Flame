@@ -1,0 +1,48 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A pass that calls the `Optimize` method on statements and expression
+    /// nodes.
+    /// </summary>
+    public static class NodeOptimizationPass : NodeVisitorBase, IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// This pass' name.
+        /// </summary>
+        public const string NodeOptimizationPassName = "optimize-nodes";
+
+        public override const bool Matches(IExpression Value)
+        {
+            return true;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return true;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            return Expression.Optimize();
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            return Statement.Optimize();
+        }
+
+        public IStatement Apply(IStatement Statement)
+        {
+            return Statement.Optimize();
+        }
+    }
+}

@@ -17,22 +17,35 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccessChecker.ds" />
+    <Compile Include="ConcatBlocksPass.ds" />
     <Compile Include="ConciseFlowPass.ds" />
+    <Compile Include="ConstantPropagationPass.ds" />
+    <Compile Include="ConstructSSAPass.ds" />
+    <Compile Include="CopyPropagationPass.ds" />
+    <Compile Include="DeadBlockEliminationPass.ds" />
+    <Compile Include="DeadStoreEliminationPass.ds" />
+    <Compile Include="DeconstructFlowGraphPass.ds" />
+    <Compile Include="DeconstructSSAPass.ds" />
     <Compile Include="FinalFlowRemover.ds" />
     <Compile Include="FlattenInitializationPass.ds" />
     <Compile Include="ImperativeCodeRewriter.ds" />
     <Compile Include="InitialFlowRemover.ds" />
     <Compile Include="InliningExtensions.ds" />
     <Compile Include="InliningVisitor.ds" />
-    <Compile Include="InsertStatement.ds" />
+    <Compile Include="JumpThreadingPass.ds" />
     <Compile Include="LambdaCapturedValueVisitor.ds" />
+    <Compile Include="NodeOptimizationPass.ds" />
     <Compile Include="PredicateMemberNodeVisitor.ds" />
+    <Compile Include="RemoveTrivialPhiPass.ds" />
     <Compile Include="SimplifyFlowPass.ds" />
+    <Compile Include="SimplifySelectFlowPass.ds" />
     <Compile Include="SizeVisitor.ds" />
     <Compile Include="SlimLambdaPass.ds" />
     <Compile Include="SpeculativeStatement.ds" />
+    <Compile Include="StackIntrinsicsPass.ds" />
     <Compile Include="StatementRewriter.ds" />
     <Compile Include="TailRecursionPass.ds" />
+    <Compile Include="UnwrapBoundVariablesPass.ds" />
   </ItemGroup>
   <ItemGroup Name="Variables">
     <Compile Include="Variables/AccessCount.ds" />

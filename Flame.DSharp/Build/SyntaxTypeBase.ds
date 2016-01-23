@@ -61,10 +61,30 @@ namespace Flame.DSharp.Build
             const get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
         }
 
+        /// <summary>
+        /// Checks if this type has a `static` modifier.
+        /// </summary>
 		public bool HasStaticModifier
 		{
 			const get return Syntax.Signature.ModifierTokens.IsStatic;
 		}
+
+        /// <summary>
+        /// Checks if this type has a `module` modifier.
+        /// </summary>
+        public bool HasModuleModifier
+        {
+            get { return Syntax.Signature.ModifierTokens.IsModule; }
+        }
+
+        /// <summary>
+        /// Checks if this type is a module, i.e. it has a `module` modifier, or
+        /// is an extension type.
+        /// </summary>
+        public bool IsModule
+        {
+            get { return HasModuleModifier || IsExtensionType; }
+        }
 
 		public bool IsExtensionType
 		{
@@ -124,7 +144,7 @@ namespace Flame.DSharp.Build
             if (IsExtensionType)
             {
             	attrs.Add(PrimitiveAttributes.ExtensionAttribute);
-            	if (modifiers.IsStatic)
+            	if (!modifiers.IsModule)
             	{
             		attrs.Add(PrimitiveAttributes.StaticTypeAttribute);
             	}
@@ -230,7 +250,7 @@ namespace Flame.DSharp.Build
         {
             var state = this.GetSyntaxState();
             var members = new List<T>();
-            bool isStaticType = this.IsSingleton || this.IsExtensionType;
+            bool isStaticType = this.IsSingleton || this.IsModule;
             foreach (var item in Syntax)
                 if (isStaticType || !item.IsSingletonMember)
             {
@@ -281,7 +301,7 @@ namespace Flame.DSharp.Build
         	var state = GetSyntaxState();
 
             if (!hasInstanceCtors && !this.IsInterface && !this.IsValueType &&
-                !this.IsEnum && (this.IsSingleton || !this.HasStaticModifier))
+                !this.IsEnum && !this.IsModule && (this.IsSingleton || !this.HasStaticModifier))
             {
                 // Create a default constructor if necessary.
                 methods.Add(DSharpTypeExtensions.CreateParameterlessConstructor(state));

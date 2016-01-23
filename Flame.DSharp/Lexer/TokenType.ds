@@ -120,7 +120,8 @@ namespace Flame.DSharp.Lexer
         ThrowKeyword = 106,
         InvariantKeyword = 107,
         AliasKeyword = 108,
-        RFatArrow = 109 // `=>`
+        RFatArrow = 109, // `=>`
+        ModuleKeyword = 110
     }
 
     #endregion

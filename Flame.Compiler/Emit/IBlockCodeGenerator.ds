@@ -1,0 +1,60 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Emit
+{
+    /// <summary>
+    /// Defines a code generator that supports the creation of SSA locals.
+    /// </summary>
+    public interface ISSACodeGenerator : ICodeGenerator
+    {
+        /// <summary>
+        /// Gets the SSA local variable with the given unique tag, if there is
+        /// such a variable. Otherwise, null is returned.
+        /// </summary>
+        IEmitVariable GetSSALocal(UniqueTag Tag);
+
+        /// <summary>
+        /// Declares a new SSA local variable based on the given unique tag and
+        /// variable member. Declaring two variables with the same tag
+        /// results in an exception.
+        /// </summary>
+        IEmitVariable DeclareSSALocal(UniqueTag Tag, IVariableMember VariableMember);
+    }
+
+    /// <summary>
+    /// Defines a fairly opaque interface for back-end-specific basic
+    /// block structures.
+    /// </summary>
+    public interface IEmitBasicBlock
+    {
+        /// <summary>
+        /// Gets this basic block's tag.
+        /// </summary>
+        UniqueTag Tag { get; }
+    }
+
+	/// <summary>
+    /// Defines a code generator interface for code generators that can create
+    /// flow graphs that consist of basic blocks.
+	/// </summary>
+	public interface IBlockCodeGenerator : ISSACodeGenerator
+	{
+        /// <summary>
+        /// Creates a basic block from the given unique tag, contents and
+        /// block flow. A parameter list is also given.
+        /// </summary>
+        IEmitBasicBlock EmitBasicBlock(
+            UniqueTag Tag, IReadOnlyList<SSAVariable> Parameters,
+            ICodeBlock Contents, BlockFlow Flow);
+
+        /// <summary>
+        /// Creates a flow graph code block from the given entry point tag
+        /// and sequence of basic blocks.
+        /// </summary>
+        ICodeBlock EmitFlowGraph(
+            UniqueTag EntryPointTag, [IEmitBasicBlock] Blocks);
+    }
+}

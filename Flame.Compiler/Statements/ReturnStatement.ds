@@ -1,17 +1,33 @@
 using System;
 using System.Collections.Generic;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Statements
 {
 	/// <summary>
 	/// Defines common functionality for statements that end a function call.
 	/// </summary>
-	public abstract class GlobalFlowStatementBase : IFlowStatement
+	public abstract class FlowTerminatingStatementBase : IFlowStatement
 	{
 		public bool IsEmpty { const get return false; }
 		public abstract IStatement Accept(INodeVisitor Visitor);
 		public abstract IStatement Optimize();
 		public abstract ICodeBlock Emit(ICodeGenerator Generator);
+
+		/// <summary>
+		/// Creates a basic block that represents this flow-terminating statement.
+		/// </summary>
+		public void ToBlocks(BlockBuildingVisitor Visitor)
+		{
+			// Create the following block:
+			//
+			// @enter():
+			//     <body-statement>
+			//     unreachable
+
+			Visitor.Builder.CreateCurrentBlock(this.Accept(Visitor), TerminatedFlow);
+		}
 
 		/// <summary>
 		/// Accepts and interacts with a flow visitor.
@@ -36,7 +52,7 @@ namespace Flame.Compiler.Statements
 	/// Defines a statement that sets the function's return value,
 	/// and then terminates the function's execution.
 	/// </summary>
-	public class ReturnStatement : GlobalFlowStatementBase, IFlowStatement
+	public class ReturnStatement : FlowTerminatingStatementBase, IFlowStatement
 	{
 		/// <summary>
 		/// Creates a return statement that returns `void`.

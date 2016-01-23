@@ -1,0 +1,209 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Statements;
+
+namespace Flame.Compiler.Flow
+{
+	public class BlockBuilder
+	{
+		public const this(set UniqueTag CurrentBlockTag)
+		{
+			this.results = new Dictionary<UniqueTag, BasicBlock>();
+			this.continueTags = new Dictionary<UniqueTag, UniqueTag>();
+			this.breakTags = new Dictionary<UniqueTag, UniqueTag>();
+			this.NextBlockTag = new UniqueTag();
+		}
+
+		private Dictionary<UniqueTag, BasicBlock> results;
+		private Dictionary<UniqueTag, UniqueTag> continueTags;
+		private Dictionary<UniqueTag, UniqueTag> breakTags;
+
+		/// <summary>
+		/// Gets a sequence of all blocks that have been built by this block
+		/// builder so far.
+		/// </summary>
+		public [BasicBlock] Blocks { const get { return results.Values; } }
+
+		/// <summary>
+		/// Gets or sets a tag that uniquely identifies the current basic block.
+		/// </summary>
+		public UniqueTag CurrentBlockTag { const get; set; }
+
+		/// <summary>
+		/// Gets or sets a tag that uniquely identifies the next basic block.
+		/// </summary>
+		public UniqueTag NextBlockTag { const get; set; }
+
+		/// <summary>
+		/// Creates a flow graph from this block builder, with the given
+		/// entry point tag.
+		/// </summary>
+		public FlowGraph ToFlowGraph(UniqueTag EntryPointTag)
+		{
+			return new FlowGraph(EntryPointTag, results);
+		}
+
+		/// <summary>
+		/// Proceeds to the next block by setting the current block tag to
+		/// the next block tag, and creating a new unique tag for the next block.
+		/// </summary>
+		public void Next()
+		{
+			this.CurrentBlockTag = NextBlockTag;
+			this.NextBlockTag = new UniqueTag();
+		}
+
+		/// <summary>
+		/// Gets the basic block identified by the given tag.
+		/// </summary>
+		public BasicBlock GetBlock(UniqueTag Tag)
+		{
+			return this.results[Tag];
+		}
+
+		/// <summary>
+		/// Gets or creates a unique tag value in the given dictionary.
+		/// </summary>
+		private UniqueTag GetOrCreateTag(
+			Dictionary<UniqueTag, UniqueTag> Dict, UniqueTag Tag, string Suffix)
+		{
+			UniqueTag result;
+			if (Dict.TryGetValue(Tag, &result))
+			{
+				return result;
+			}
+			else
+			{
+				if (string.IsNullOrWhiteSpace(Tag.Name))
+					result = new UniqueTag(Suffix);
+				else
+					result = new UniqueTag(Tag.Name + "." + Suffix);
+
+				Dict[Tag] = result;
+				return result;
+			}
+		}
+
+		/// <summary>
+		/// Gets a block tag that uniquely identifies the `continue` destination
+		/// block of the block that owns the given tag.
+		/// </summary>
+		public UniqueTag GetBreakTag(UniqueTag Tag)
+		{
+			return GetOrCreateTag(breakTags, Tag, "break");
+		}
+
+		/// <summary>
+		/// Gets a block tag that uniquely identifies the `break` destination
+		/// block of the block that owns the given tag.
+		/// </summary>
+		public UniqueTag GetContinueTag(UniqueTag Tag)
+		{
+			return GetOrCreateTag(continueTags, Tag, "continue");
+		}
+
+		/// <summary>
+		/// Adds the given basic block to the created blocks list.
+		/// </summary>
+		public void RegisterBlock(BasicBlock Block)
+		{
+			if (this.results.ContainsKey(Block.Tag))
+			{
+				throw new InvalidOperationException(
+					"No more than one basic block can be assigned to any " +
+					"given unique tag.");
+			}
+			this.results[Block.Tag] = Block;
+		}
+
+		/// <summary>
+		/// Creates the current block by assigning it the given parameters,
+		/// contents and flow.
+		/// </summary>
+		public void CreateCurrentBlock(
+			IReadOnlyList<SSAVariable> Parameters, IStatement Contents,
+			BlockFlow Flow)
+		{
+			RegisterBlock(
+				new BasicBlock(CurrentBlockTag, Parameters, Contents, Flow));
+		}
+
+		/// <summary>
+		/// Creates the current block by assigning it the given contents and flow.
+		/// </summary>
+		public void CreateCurrentBlock(IStatement Contents, BlockFlow Flow)
+		{
+			CreateCurrentBlock(new List<SSAVariable>(), Contents, Flow);
+		}
+
+		/// <summary>
+		/// Creates a new basic block, registers it and returns its unique
+		/// tag.
+		/// </summary>
+		public UniqueTag CreateBlock(
+			UniqueTag Tag, IReadOnlyList<SSAVariable> Parameters,
+			IStatement Contents, BlockFlow Flow)
+		{
+			var result = new BasicBlock(Tag, Parameters, Contents, Flow);
+
+			RegisterBlock(result);
+			return Tag;
+		}
+
+		/// <summary>
+		/// Creates a new basic block, registers it and returns its unique
+		/// tag.
+		/// </summary>
+		public UniqueTag CreateBlock(
+			string Name, IReadOnlyList<SSAVariable> Parameters,
+			IStatement Contents, BlockFlow Flow)
+		{
+			return CreateBlock(new UniqueTag(Name), Parameters, Contents, Flow);
+		}
+
+		/// <summary>
+		/// Creates a new basic block, registers it and returns its unique
+		/// tag.
+		/// </summary>
+		public UniqueTag CreateBlock(
+			UniqueTag Tag, IStatement Contents, BlockFlow Flow)
+		{
+			return CreateBlock(Tag, new List<SSAVariable>(), Contents, Flow);
+		}
+
+		/// <summary>
+		/// Creates a new basic block, registers it and returns its unique
+		/// tag.
+		/// </summary>
+		public UniqueTag CreateBlock(
+			string Name, IStatement Contents, BlockFlow Flow)
+		{
+			return CreateBlock(Name, new List<SSAVariable>(), Contents, Flow);
+		}
+
+		/// <summary>
+		/// Creates a block identified by the first tag that simply jumps to the
+		/// block identified by the second tag. The destination tag must not
+		/// take any parameters.
+		/// </summary>
+		public UniqueTag Redirect(UniqueTag SourceTag, UniqueTag DestinationTag)
+		{
+			return CreateBlock(
+				SourceTag, EmptyStatement,
+				new JumpFlow(new BlockBranch(DestinationTag)));
+		}
+
+		/// <summary>
+		/// Creates the current block, and have it jump to the
+		/// block identified by the given tag.
+		/// The destination tag must not take any parameters.
+		/// </summary>
+		public void RedirectCurrent(UniqueTag DestinationTag)
+		{
+			Redirect(CurrentBlockTag, DestinationTag);
+		}
+	}
+}
