@@ -138,7 +138,9 @@ namespace Flame.Optimization
                 if (result.Length > 0)
                     result.Append(", ");
 
+                result.Append("'");
                 result.Append(item.Type.ToString());
+                result.Append("'");
             }
             return result.ToString();
         }
