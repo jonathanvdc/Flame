@@ -1,0 +1,196 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler.Variables
+{
+    /// <summary>
+    /// Defines a class for local variables that are in single-static-assignment
+    /// (SSA) form. The main property of these variables is that they are
+    /// assigned to exactly once.
+    /// </summary>
+    public class SSAVariable : IVariable
+    {
+        /// <summary>
+        /// Creates an SSA local variable from the given variable member and
+        /// unique tag.
+        /// </summary>
+    	public const this(set IVariableMember Member, set UniqueTag Tag);
+
+        /// <summary>
+        /// Creates an SSA local variable from the given variable member.
+        /// </summary>
+        public const this(set IVariableMember Member)
+        {
+            this.Tag = new UniqueTag(Member.Name);
+        }
+
+        /// <summary>
+        /// Creates an SSA local variable from the given type.
+        /// </summary>
+        public const this(IType Type)
+        {
+        	this.Member = new TypeVariableMember(Type);
+            this.Tag = new UniqueTag();
+        }
+
+        /// <summary>
+        /// Creates an SSA local variable from the given name and type.
+        /// </summary>
+        public const this(string Name, IType Type)
+        {
+        	this.Member = new DescribedVariableMember(Name, Type);
+            this.Tag = new UniqueTag(Name);
+        }
+
+        /// <summary>
+        /// Gets this SSA local variable's unique tag.
+        /// </summary>
+        public UniqueTag Tag { const get; private set; }
+
+        /// <summary>
+        /// Gets this SSA local variable's associated variable member.
+        /// </summary>
+        public IVariableMember Member { const get; protected set; }
+
+        /// <summary>
+        /// Gets this SSA local variable's type.
+        /// </summary>
+        public IType Type { const get return Member.VariableType; }
+
+        /// <summary>
+        /// Gets the emit variable for this SSA local variable, in
+        /// the given code generator.
+        /// </summary>
+        public IEmitVariable GetEmitVariable(ICodeGenerator CodeGenerator)
+        {
+            // Prefer SSA variables.
+            if (CodeGenerator is ISSACodeGenerator)
+                return ((ISSACodeGenerator)CodeGenerator)
+                    .GetOrDeclareSSALocal(Tag, Member);
+            else
+                return CodeGenerator.GetOrDeclareLocal(Tag, Member);
+        }
+
+        /// <summary>
+        /// Converts this local variable's type by applying the given
+        /// member converter.
+        /// </summary>
+        public SSAVariable ConvertType(MemberConverter Converter)
+        {
+            var convType = Converter.Convert(this.Type);
+            if (convType == this.Type)
+                return this;
+            else
+                return new SSAVariable(
+                    new RetypedVariableMember(this.Member, convType),
+                    this.Tag);
+        }
+
+        public const IExpression CreateGetExpression()
+        {
+            return new SSAGetExpression(this);
+        }
+
+        public const IStatement CreateSetStatement(IExpression Value)
+        {
+            return new SSADefineStatement(this, Value);
+        }
+
+        public const IStatement CreateReleaseStatement()
+        {
+            return EmptyStatement;
+        }
+
+        public bool Equals(SSAVariable Other)
+        {
+            return this.Tag == Other.Tag;
+        }
+
+        public override bool Equals(object Other)
+        {
+            return Other is SSAVariable && Equals((SSAVariable)Other);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Tag.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return "ssa-local(" + Member.Name + ")";
+        }
+    }
+
+    public class SSAGetExpression : VariableGetExpressionBase<SSAVariable>,
+                                    IMemberNode
+    {
+        public const this(set SSAVariable Variable);
+
+        public override IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
+        public override const ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Variable.GetEmitVariable(Generator).EmitGet();
+        }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convArg = Variable.ConvertType(Converter);
+            if (object.ReferenceEquals(convArg, Variable))
+                return this;
+            else
+                return new SSAGetExpression(convArg);
+        }
+
+        public override const string ToString()
+        {
+            return (string)Variable;
+        }
+    }
+
+    public class SSADefineStatement : VariableSetStatementBase<SSAVariable>,
+                                      IMemberNode
+    {
+        public const this(set SSAVariable Variable, set IExpression Value);
+
+        public override IStatement Accept(INodeVisitor Visitor)
+        {
+            var transVal = Visitor.Visit(Value);
+
+            if (transVal == Value)
+            {
+                return this;
+            }
+            else
+            {
+                return new SSADefineStatement(Variable, transVal);
+            }
+        }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convArg = Variable.ConvertType(Converter);
+            if (object.ReferenceEquals(convArg, Variable))
+                return this;
+            else
+                return new SSADefineStatement(convArg, Value);
+        }
+
+        public override ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Variable.GetEmitVariable(Generator).EmitSet(Value.Emit(Generator));
+        }
+
+        public override const string ToString()
+        {
+            return (string)Variable + " = " + Value;
+        }
+    }
+}

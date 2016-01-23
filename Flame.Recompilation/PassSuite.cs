@@ -55,14 +55,33 @@ namespace Flame.Recompilation
         /// <param name="MethodPass"></param>
         /// <param name="RootPass"></param>
         /// <param name="MemberSignaturePass"></param>
-        public PassSuite(IMethodOptimizer Optimizer, IMethodPass MethodPass, IRootPass RootPass, 
+        public PassSuite(
+			IMethodOptimizer Optimizer, IMethodPass MethodPass, 
+			IRootPass RootPass, 
             IMemberSignaturePass MemberSignaturePass)
-        {
-            this.Optimizer = Optimizer;
-            this.MethodPass = MethodPass;
-            this.RootPass = RootPass;
-            this.MemberSignaturePass = MemberSignaturePass;
-        }
+			: this(Optimizer, MethodPass, new SlimBodyPass(new EmptyPass<BodyPassArgument>()), 
+				   RootPass, MemberSignaturePass)
+        { }
+
+		/// <summary>
+		/// Creates a new pass suite from the given method optimizer,
+		/// method pass, machine lowering pass, root pass and member signature pass.
+		/// </summary>
+		/// <param name="Optimizer"></param>
+		/// <param name="MethodPass"></param>
+		/// <param name="RootPass"></param>
+		/// <param name="MemberSignaturePass"></param>
+		public PassSuite(
+			IMethodOptimizer Optimizer, IMethodPass MethodPass, 
+			IMethodPass LoweringPass, IRootPass RootPass, 
+			IMemberSignaturePass MemberSignaturePass)
+		{
+			this.Optimizer = Optimizer;
+			this.MethodPass = MethodPass;
+			this.LoweringPass = LoweringPass;
+			this.RootPass = RootPass;
+			this.MemberSignaturePass = MemberSignaturePass;
+		}
 
         /// <summary>
         /// Gets the method's "optimizer", whose main job is 
@@ -73,7 +92,7 @@ namespace Flame.Recompilation
 
         /// <summary>
         /// Gets the method pass this pass suite applies to its
-        /// input. This pass may actually consist of many other
+        /// input. This pass may typically consist of many other
         /// passes, as an aggregate pass is itself a pass.
         /// </summary>
         /// <remarks>
@@ -82,6 +101,12 @@ namespace Flame.Recompilation
         /// and diagnostics.
         /// </remarks>
         public IMethodPass MethodPass { get; private set; }
+
+		/// <summary>
+		/// Gets the machine lowering pass this pass suite applies
+		/// to its input.
+		/// </summary>
+		public IMethodPass LoweringPass { get; private set; }
 
         /// <summary>
         /// Gets this pass suite's root pass. A root
@@ -183,6 +208,24 @@ namespace Flame.Recompilation
             var initBody = Optimizer.GetOptimizedBody(SourceMethod);
             return MethodPass.Apply(new BodyPassArgument(Recompiler, metadata, SourceMethod, initBody));
         }
+
+		/// <summary>
+		/// Applies the machine lowering pass to the given method's
+		/// body.
+		/// </summary>
+		/// <returns></returns>
+		/// <param name="Recompiler"></param>
+		/// <param name="Body"></param>
+		public IStatement GetLoweredBody(AssemblyRecompiler Recompiler, IMethod SourceMethod)
+		{
+			var body = Recompiler.GetMethodBody(SourceMethod);
+
+			if (body == null)
+				return null;
+
+			var metadata = Recompiler.MetadataManager.GetPassMetadata(SourceMethod);
+			return LoweringPass.Apply(new BodyPassArgument(Recompiler, metadata, SourceMethod, body));
+		}
 
         /// <summary>
         /// Applies the root pass to the given method and body, 

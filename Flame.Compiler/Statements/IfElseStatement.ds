@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Statements
 {
@@ -106,6 +109,44 @@ namespace Flame.Compiler.Statements
 			var transElse = Visitor.Visit(ElseBody);
 
 			return CreateIfElse(transCond, transIf, transElse);
+		}
+
+		/// <summary>
+		/// Creates a number of basic blocks that are semantically equivalent
+		/// to this flow statement.
+		/// </summary>
+		public void ToBlocks(BlockBuildingVisitor Visitor)
+		{
+			// Generate the following blocks:
+			//
+			// @if():
+			//     if cond
+			//         then @if.then()
+			//         else @if.else()
+			//
+			// @if.then():
+			//     <then-body>
+			//     @next()
+			//
+			// @if.else():
+			//     <else-body>
+			//     @next()
+
+			// Visit the condition first, because it's logically evaluated first,
+			// and because it may change the 'current' and 'next' block tags.
+			var cond = Visitor.Visit(Condition);
+
+			var nextBlockTag = Visitor.Builder.NextBlockTag;
+
+			var ifTag = Visitor.CreateBlock("if.then", IfBody, nextBlockTag);
+			var elseTag = Visitor.CreateBlock("if.else", ElseBody, nextBlockTag);
+
+			Visitor.CreateCurrentBlock(
+				EmptyStatement,
+				new SelectFlow(
+					cond,
+					new BlockBranch(ifTag),
+					new BlockBranch(elseTag)));
 		}
 
 		public bool IsEmpty : IStatement.IsEmpty

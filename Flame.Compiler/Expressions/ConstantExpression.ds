@@ -46,6 +46,23 @@ namespace Flame.Compiler.Expressions
 
         public abstract ICodeBlock Emit(ICodeGenerator Generator);
 
+        public override bool Equals(object Other)
+        {
+            if (Other is ConstantExpression<T>)
+            {
+                return Value.Equals(((ConstantExpression<T>)Other).Value);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+
         public override virtual const string ToString()
         {
             return Value.ToString();

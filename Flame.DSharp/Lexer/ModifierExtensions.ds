@@ -13,7 +13,7 @@ namespace Flame.DSharp.Lexer
 					return true;
 			return false;
 		}
-	
+
 		public static bool IsStatic[this IEnumerable<Token> Modifiers]
 		{
 			const get
@@ -21,7 +21,15 @@ namespace Flame.DSharp.Lexer
 				return Modifiers.ContainsTokenOfType(TokenType.StaticKeyword);
 			}
 		}
-		
+
+		public static bool IsModule[this IEnumerable<Token> Modifiers]
+		{
+			const get
+			{
+				return Modifiers.ContainsTokenOfType(TokenType.ModuleKeyword);
+			}
+		}
+
 		public static bool IsAbstract[this IEnumerable<Token> Modifiers]
 		{
 			const get
@@ -29,7 +37,7 @@ namespace Flame.DSharp.Lexer
 				return Modifiers.ContainsTokenOfType(TokenType.AbstractKeyword);
 			}
 		}
-		
+
 		public static bool IsOverride[this IEnumerable<Token> Modifiers]
 		{
 			const get
@@ -37,7 +45,7 @@ namespace Flame.DSharp.Lexer
 				return Modifiers.ContainsTokenOfType(TokenType.OverrideKeyword);
 			}
 		}
-		
+
 		public static bool SetsMember[this IEnumerable<Token> Modifiers]
 		{
 			const get
@@ -45,7 +53,7 @@ namespace Flame.DSharp.Lexer
 				return Modifiers.ContainsTokenOfType(TokenType.SetKeyword);
 			}
 		}
-		
+
 		public static bool HasAccessAttribute[this IAttribute[] Modifiers]
 		{
 			const get
@@ -56,7 +64,7 @@ namespace Flame.DSharp.Lexer
 				return false;
 			}
 		}
-		
+
 		public static AccessModifier GetAccess(this IEnumerable<Token> Modifiers)
 		{
 			foreach (var item in Modifiers)
@@ -76,8 +84,8 @@ namespace Flame.DSharp.Lexer
             }
             return AccessModifier.Public;
 		}
-	
-		
+
+
 		public static IAttribute[] GetModifiers(this IEnumerable<Token> Modifiers)
         {
             List<IAttribute> attrs = new List<IAttribute>();
@@ -115,6 +123,10 @@ namespace Flame.DSharp.Lexer
             	{
             		attrs.Add(PrimitiveAttributes.EnumAttribute);
             	}
+				else if (item.Type == TokenType.ModuleKeyword)
+				{
+					attrs.Add(PrimitiveAttributes.StaticTypeAttribute);
+				}
             	else if (item.Type == TokenType.AbstractKeyword)
             	{
             		attrs.Add(PrimitiveAttributes.VirtualAttribute);

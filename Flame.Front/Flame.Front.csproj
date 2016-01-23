@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -30,14 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Flame, Version=0.0.65535.65535, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Flame.Compiler\bin\Flame.dll</HintPath>
-    </Reference>
-    <Reference Include="Flame.Compiler, Version=0.0.65535.65535, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Flame.Compiler\bin\Flame.Compiler.dll</HintPath>
-    </Reference>
     <Reference Include="Pixie">
       <HintPath>..\Pixie\bin\Pixie.dll</HintPath>
     </Reference>
@@ -48,6 +40,12 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Flame">
+      <HintPath>..\Flame.Compiler\bin\Flame.dll</HintPath>
+    </Reference>
+    <Reference Include="Flame.Compiler">
+      <HintPath>..\Flame.Compiler\bin\Flame.Compiler.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinderResolver.cs" />
@@ -132,10 +130,11 @@
     <Compile Include="Target\PassPreferences.cs" />
     <Compile Include="Target\PlatformRuntime.cs" />
     <Compile Include="TypedDictionary.cs" />
+    <Compile Include="Passes\PassManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame.Recompilation\Flame.Recompilation.csproj">
-      <Project>{f88efcdf-ef4d-4b49-8908-af89017c5a1d}</Project>
+      <Project>{F88EFCDF-EF4D-4B49-8908-AF89017C5A1D}</Project>
       <Name>Flame.Recompilation</Name>
     </ProjectReference>
   </ItemGroup>

@@ -1,0 +1,42 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A pass that replaces late bound variables by their contents.
+    /// </summary>
+    public static class UnwrapBoundVariablesPass : VariableSubstitutingVisitorBase, IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// Determines whether the given variable can be substituted or not.
+        /// </summary>
+        protected override bool CanSubstituteVariable(IVariable Variable)
+        {
+            return Variable is ILateBoundVariable && ((ILateBoundVariable)Variable).BoundVariable != null;
+        }
+
+        /// <summary>
+        /// Substitutes the given variable.
+        /// </summary>
+        protected override IVariable SubstituteVariable(IVariable Variable)
+        {
+            assert(Variable is ILateBoundVariable);
+            return ((ILateBoundVariable)Variable).BoundVariable;
+        }
+
+        /// <summary>
+        /// Applies this pass to the given statement.
+        /// </summary>
+        public IStatement Apply(IStatement Statement)
+        {
+            return Visit(Statement);
+        }
+    }
+}

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Compiler.Flow;
 using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Statements
@@ -22,6 +23,7 @@ namespace Flame.Compiler.Statements
 		/// Gets the tag that identifies this tagged statement.
 		/// </summary>
 		public UniqueTag Tag { const get; private set; }
+
 		/// <summary>
 		/// Gets this tagged statement's body.
 		/// </summary>
@@ -48,6 +50,41 @@ namespace Flame.Compiler.Statements
 				return this;
 			else
 				return new TaggedStatement(Tag, NewBody);
+		}
+
+		/// <summary>
+		/// Converts this tagged statement to a sequence of basic blocks.
+		/// </summary>
+		public void ToBlocks(BlockBuildingVisitor Visitor)
+		{
+			// Create the following blocks:
+			//
+			// @enter():
+			//     @start()
+			//
+			// @continue():
+			//     @start()
+			//
+			// @start():
+			//     <body-statement>
+			//     @next()
+			//
+			// @break():
+			//     @next()
+
+			var startBlock = Visitor.CreateBlock(
+				Tag, Body, Visitor.Builder.NextBlockTag);
+
+			// Create the `@enter` block
+			Visitor.Builder.RedirectCurrent(startBlock);
+			// Create the `@break` block
+			Visitor.Builder.Redirect(
+				Visitor.Builder.GetBreakTag(Tag),
+				Visitor.Builder.NextBlockTag);
+			// Create the `@continue` block
+			Visitor.Builder.Redirect(
+				Visitor.Builder.GetContinueTag(Tag),
+				startBlock);
 		}
 
 		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)

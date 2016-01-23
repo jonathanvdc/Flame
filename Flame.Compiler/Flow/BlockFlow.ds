@@ -1,0 +1,136 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Flow
+{
+    /// <summary>
+    /// A data structure that represents a branch to a basic block, which is
+    /// identified by a unique tag.
+    /// </summary>
+    public struct BlockBranch
+    {
+        /// <summary>
+        /// Creates a block branch node that branches to the block
+        /// identified by the given unique tag. No arguments are given.
+        /// </summary>
+        public const this(set UniqueTag TargetTag)
+        {
+            this.Arguments = new List<SSAVariable>();
+        }
+
+        /// <summary>
+        /// Creates a block branch node that branches to the block
+        /// identified by the given unique tag, and passes the given
+        /// SSA locals as arguments.
+        /// </summary>
+        public const this(
+            set UniqueTag TargetTag, set IReadOnlyList<SSAVariable> Arguments);
+
+        /// <summary>
+        /// Creates a block branch node that branches to the block
+        /// identified by the given unique tag, and passes the given
+        /// SSA locals as arguments.
+        /// </summary>
+        public const this(
+            set UniqueTag TargetTag, SSAVariable[] Arguments)
+        {
+            this.Arguments = (IReadOnlyList<SSAVariable>)Arguments;
+        }
+
+        /// <summary>
+        /// Gets the block tag that uniquely identifies this block branch's
+        /// destination block.
+        /// </summary>
+        public UniqueTag TargetTag { const get; private set; }
+
+        /// <summary>
+        /// Gets this block branch node's argument list.
+        /// These arguments are given as SSA locals.
+        /// </summary>
+        public IReadOnlyList<SSAVariable> Arguments { const get; private set; }
+
+        public bool Equals(BlockBranch Other)
+        {
+            return this.TargetTag == Other.TargetTag &&
+                Enumerable.SequenceEqual<SSAVariable>(
+                    this.Arguments, Other.Arguments);
+        }
+
+        public override bool Equals(object Other)
+        {
+            return Other is BlockBranch && this.Equals((BlockBranch)Other);
+        }
+
+        public override int GetHashCode()
+        {
+            int result = TargetTag.GetHashCode();
+            foreach (var item in Arguments)
+            {
+                result = (result << 1) ^ item.GetHashCode();
+            }
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// Defines a base class for basic block control flow nodes.
+    /// </summary>
+    public abstract class BlockFlow
+    {
+        /// <summary>
+        /// Gets a sequence of potential block branches for this
+        /// basic block flow statement.
+        /// </summary>
+        public abstract [BlockBranch] Branches { get; }
+
+        /// <summary>
+        /// Checks if this control flow node has no side-effects.
+        /// </summary>
+        public abstract bool IsConstant { get; }
+
+        /// <summary>
+        /// Accepts the given basic block visitor.
+        /// </summary>
+        public abstract BlockFlow Accept(IBasicBlockVisitor Visitor);
+
+        /// <summary>
+        /// Optimizes this control flow node.
+        /// </summary>
+        public virtual BlockFlow Optimize()
+        {
+            return this;
+        }
+
+        /// <summary>
+        /// Gets a sequence of successor block tags for this basic
+        /// block flow node.
+        /// </summary>
+        public [UniqueTag] SuccessorTags
+        {
+            get
+            {
+                var succTags = new HashSet<UniqueTag>();
+                foreach (var item in Branches)
+                    succTags.Add(item.TargetTag);
+                return succTags;
+            }
+        }
+
+        /// <summary>
+        /// Gets a sequence of potential direct successor blocks for this
+        /// basic block flow node. A delegate is given that maps
+        /// block tags to their associated basic blocks.
+        /// </summary>
+        public [BasicBlock] GetSuccessors(BasicBlock(UniqueTag) ResolveBlock)
+        {
+            var results = new List<BasicBlock>();
+            foreach (var tag in SuccessorTags)
+                results.Add(ResolveBlock(tag));
+
+            return results;
+        }
+    }
+}

@@ -79,54 +79,59 @@ namespace Flame.Compiler.Expressions
             }
         }
 
+        public IExpression Simplify()
+        {
+            if (Value is NotExpression)
+            {
+                return ((NotExpression)Value).Value;
+            }
+            else if (Value is EqualityExpression)
+            {
+                var ceq = ((EqualityExpression)Value);
+                return new InequalityExpression(ceq.LeftOperand, ceq.RightOperand);
+            }
+            else if (Value is InequalityExpression)
+            {
+                var cne = ((InequalityExpression)Value);
+                return new EqualityExpression(cne.LeftOperand, cne.RightOperand);
+            }
+            else if (Value is LessThanExpression)
+            {
+                var clt = (LessThanExpression)Value;
+                return new GreaterThanOrEqualsExpression(clt.LeftOperand, clt.RightOperand);
+            }
+            else if (Value is GreaterThanExpression)
+            {
+                var cgt = (GreaterThanExpression)Value;
+                return new LessThanOrEqualsExpression(cgt.LeftOperand, cgt.RightOperand);
+            }
+            else if (Value is GreaterThanOrEqualsExpression)
+            {
+                var cge = (GreaterThanOrEqualsExpression)Value;
+                return new LessThanExpression(cge.LeftOperand, cge.RightOperand);
+            }
+            else if (Value is LessThanOrEqualsExpression)
+            {
+                var cle = (LessThanOrEqualsExpression)Value;
+                return new GreaterThanExpression(cle.LeftOperand, cle.RightOperand);
+            }
+            else
+            {
+                return this;
+            }
+        }
+
         public override IExpression Optimize()
         {
-            var optVal = Value.Optimize();
-            var optExpr = new NotExpression(optVal);
+            var Value = Value.Optimize();
+            var optExpr = new NotExpression(Value);
             if (optExpr.IsConstant && optExpr.Type.IsPrimitiveExpressionType())
             {
                 var evalExpr = optExpr.Evaluate();
                 if (evalExpr != null)
                    return evalExpr.ToExpression();
             }
-            if (optVal is NotExpression)
-            {
-                return ((NotExpression)optVal).Value;
-            }
-            else if (optVal is EqualityExpression)
-            {
-            	var ceq = ((EqualityExpression)optVal);
-            	return new InequalityExpression(ceq.LeftOperand, ceq.RightOperand);
-            }
-            else if (optVal is InequalityExpression)
-            {
-            	var cne = ((InequalityExpression)optVal);
-            	return new EqualityExpression(cne.LeftOperand, cne.RightOperand);
-            }
-            else if (optVal is LessThanExpression)
-            {
-                var clt = (LessThanExpression)optVal;
-                return new GreaterThanOrEqualsExpression(clt.LeftOperand, clt.RightOperand);
-            }
-            else if (optVal is GreaterThanExpression)
-            {
-                var cgt = (GreaterThanExpression)optVal;
-                return new LessThanOrEqualsExpression(cgt.LeftOperand, cgt.RightOperand);
-            }
-            else if (optVal is GreaterThanOrEqualsExpression)
-            {
-                var cge = (GreaterThanOrEqualsExpression)optVal;
-                return new LessThanExpression(cge.LeftOperand, cge.RightOperand);
-            }
-            else if (optVal is LessThanOrEqualsExpression)
-            {
-                var cle = (LessThanOrEqualsExpression)optVal;
-                return new GreaterThanExpression(cle.LeftOperand, cle.RightOperand);
-            }
-            else
-            {
-                return optExpr;
-            }
+            return optExpr.Simplify();
         }
     }
 }

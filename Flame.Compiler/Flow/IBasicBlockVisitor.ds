@@ -1,0 +1,115 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Flow
+{
+    /// <summary>
+    /// Defines common functionality for visitors that can visit basic blocks.
+    /// </summary>
+    public interface IBasicBlockVisitor : INodeVisitor
+    {
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        SSAVariable VisitParameter(SSAVariable Variable);
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        BlockBranch Visit(BlockBranch Branch);
+    }
+
+    /// <summary>
+    /// Gets a type of basic block visitor that visits branches, and ignores
+    /// everything else.
+    /// </summary>
+    public abstract class BranchVisitorBase : IBasicBlockVisitor
+    {
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public abstract override BlockBranch Visit(BlockBranch Branch);
+
+        /// <summary>
+        /// Visits an expression: an expression is taken as input and
+        /// transformed into another expression.
+        /// </summary>
+        public IExpression Visit(IExpression Value)
+        {
+            return Value;
+        }
+
+        /// <summary>
+        /// Visits a statement: an statement is taken as input and
+        /// transformed into another statement.
+        /// </summary>
+        public IStatement Visit(IStatement Value)
+        {
+            return Value;
+        }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            return Variable;
+        }
+    }
+
+    /// <summary>
+    /// A type of basic block visitor that is the identity function for
+    /// block parameters and branches, and applies a node visitor
+    /// to statements and expressions.
+    /// </summary>
+    public class EmulatedBasicBlockVisitor : IBasicBlockVisitor
+    {
+        public const this(set INodeVisitor Visitor);
+
+        /// <summary>
+        /// Gets the underlying node visitor that is applied to statements
+        /// and expressions.
+        /// </summary>
+        public INodeVisitor Visitor { const get; private set; }
+
+        /// <summary>
+        /// Visits an expression: an expression is taken as input and
+        /// transformed into another expression.
+        /// </summary>
+        public IExpression Visit(IExpression Value)
+        {
+            return Visitor.Visit(Value);
+        }
+
+        /// <summary>
+        /// Visits a statement: an statement is taken as input and
+        /// transformed into another statement.
+        /// </summary>
+        public IStatement Visit(IStatement Value)
+        {
+            return Visitor.Visit(Value);
+        }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            return Variable;
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public BlockBranch Visit(BlockBranch Branch)
+        {
+            return Branch;
+        }
+    }
+}

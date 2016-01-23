@@ -1,0 +1,89 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A pass that simplifies 'select' control flow where the 'select' condition
+    /// can be evaluated at compile-time.
+    /// </summary>
+    public static class SimplifySelectFlowPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// This pass' name.
+        /// </summary>
+        public const string SimplifySelectFlowPassName = "simplify-select";
+
+        /// <summary>
+        /// Tries to simplify the given basic block's outgoing flow.
+        /// </summary>
+        public BasicBlock Simplify(BasicBlock Block)
+        {
+            if (Block.Flow is SelectFlow)
+            {
+                // Try to simplify selection flow.
+                var selFlow = (SelectFlow)Block.Flow;
+
+                // See if we can evaluate the selection flow's constant.
+                var evalCond = selFlow.Condition.EvaluateConstant();
+
+                if (evalCond == null)
+                {
+                    // Couldn't evaluate condition.
+                    return Block;
+                }
+                else if (evalCond.GetValue<bool>())
+                {
+                    // Condition evaluated to `true`. Pick the 'then' branch.
+                    return new BasicBlock(
+                        Block.Tag, Block.Parameters, Block.Contents,
+                        new JumpFlow(selFlow.ThenBranch));
+                }
+                else
+                {
+                    // Condition evaluted to `false`. Pick the 'else' branch.
+                    assert(!evalCond.GetValue<bool>());
+                    return new BasicBlock(
+                        Block.Tag, Block.Parameters, Block.Contents,
+                        new JumpFlow(selFlow.ElseBranch));
+                }
+            }
+            else
+            {
+                return Block;
+            }
+        }
+
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+            foreach (var block in Graph.Blocks)
+            {
+                results[block.Tag] = Simplify(block);
+            }
+            return new FlowGraph(Graph.EntryPointTag, results);
+        }
+
+        /// <summary>
+        /// Applies this pass to the given flow graph.
+        /// </summary>
+        public FlowGraph Apply(FlowGraph Graph)
+        {
+            return Visit(Graph);
+        }
+
+        /// <summary>
+        /// Recursively applies this pass to the given statement.
+        /// </summary>
+        public IStatement Apply(IStatement Statement)
+        {
+            return Visit(Statement);
+        }
+    }
+}

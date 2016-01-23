@@ -10,10 +10,12 @@ namespace Flame.Compiler.Emit
         /// Creates a block that gets this variable's value.
         /// </summary>
         ICodeBlock EmitGet();
+        
         /// <summary>
         /// Creates a block that sets this variable's value to the given value.
         /// </summary>
         ICodeBlock EmitSet(ICodeBlock Value);
+        
         /// <summary>
         /// Creates a block that flags this variable for re-use.
         /// </summary>

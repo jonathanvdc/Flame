@@ -236,6 +236,22 @@ namespace Flame.Compiler
 			else
 				return Generator.DeclareUnmanagedLocal(Tag, VariableMember);
 		}
+		
+ 		/// <summary>
+		/// Gets the SSA local variable with the given tag if it
+		/// exists already, or creates one with the given tag based on
+		/// the given variable member if it doesn't.
+		/// </summary>
+		public static IEmitVariable GetOrDeclareSSALocal(
+			this ISSACodeGenerator Generator,
+			UniqueTag Tag, IVariableMember VariableMember)
+		{
+			var result = Generator.GetSSALocal(Tag);
+			if (result != null)
+				return result;
+			else
+				return Generator.DeclareSSALocal(Tag, VariableMember);
+		}
 
 		#endregion
 	}

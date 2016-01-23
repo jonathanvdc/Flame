@@ -1,0 +1,69 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Statements
+{
+    /// <summary>
+    /// A statement that contains a control flow graph.
+    /// </summary>
+    public class FlowGraphStatement : IStatement
+    {
+        /// <summary>
+        /// Creates a statement that wraps the given control flow graph.
+        /// </summary>
+        public const this(set FlowGraph Graph);
+
+        /// <summary>
+        /// Gets this statement's control flow graph.
+        /// </summary>
+        public FlowGraph Graph { const get; private set; }
+
+        public bool IsEmpty
+        {
+            get { return Graph.IsEmpty; }
+        }
+
+        public IStatement Accept(INodeVisitor Visitor)
+        {
+            return new FlowGraphStatement(Graph.Accept(Visitor));
+        }
+
+        public IStatement Optimize()
+        {
+            return new FlowGraphStatement(Graph.Optimize());
+        }
+
+        public ICodeBlock Emit(IBlockCodeGenerator Generator)
+        {
+            var blocks = new List<IEmitBasicBlock>();
+            foreach (var item in Graph.Blocks)
+            {
+                blocks.Add(Generator.EmitBasicBlock(
+                    item.Tag, item.Parameters,
+                    item.Contents.Emit(Generator), item.Flow));
+            }
+            return Generator.EmitFlowGraph(Graph.EntryPointTag, blocks);
+        }
+
+        public ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            if (Generator is IBlockCodeGenerator)
+            {
+                return Emit((IBlockCodeGenerator)Generator);
+            }
+            else
+            {
+                throw new NotImplementedException(
+                    "Lowering flow graphs is not supported yet.");
+            }
+        }
+
+        public override const string ToString()
+        {
+            return "flow-graph(...)";
+        }
+    }
+}
