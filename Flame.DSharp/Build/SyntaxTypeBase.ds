@@ -105,7 +105,7 @@ namespace Flame.DSharp.Build
 		{
 			const get
 			{
-				if (!HasStaticModifier)
+				if (!HasStaticModifier && !IsModule)
     			{
     				foreach (var item in Syntax.Members)
     				{

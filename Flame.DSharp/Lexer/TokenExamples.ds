@@ -124,6 +124,7 @@ namespace Flame.DSharp.Lexer
 			RegisterExample(TokenType.NamespaceKeyword, "namespace");
 			RegisterExample(TokenType.ClassKeyword, "class");
 			RegisterExample(TokenType.StructKeyword, "struct");
+			RegisterExample(TokenType.ModuleKeyword, "module");
 			RegisterExample(TokenType.InterfaceKeyword, "interface");
 			RegisterExample(TokenType.EnumKeyword, "enum");
 			RegisterExample(TokenType.PublicKeyword, "public");

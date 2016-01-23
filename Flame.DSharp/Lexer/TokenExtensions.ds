@@ -188,7 +188,7 @@ namespace Flame.DSharp.Lexer
         			Token == TokenType.ThisKeyword || Token == TokenType.ClassKeyword ||
         			Token == TokenType.StructKeyword || Token == TokenType.InterfaceKeyword ||
         			Token == TokenType.EnumKeyword || Token == TokenType.OutKeyword ||
-        			Token == TokenType.InKeyword;
+        			Token == TokenType.InKeyword || Token == TokenType.ModuleKeyword;
         }
 
         #endregion
@@ -227,7 +227,7 @@ namespace Flame.DSharp.Lexer
         		Token == TokenType.ElseKeyword || Token == TokenType.DefaultKeyword ||
         		Token == TokenType.EnumKeyword || Token == TokenType.BreakKeyword ||
         		Token == TokenType.NextKeyword || Token == TokenType.OutKeyword ||
-				Token == TokenType.AssertKeyword;
+				Token == TokenType.AssertKeyword || Token == TokenType.ModuleKeyword;
         }
 
         #endregion
