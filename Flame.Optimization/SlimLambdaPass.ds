@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
@@ -16,19 +17,21 @@ namespace Flame.Optimization
     /// </summary>
     public class SlimLambdaVisitor : LocationVisitorBase
     {
+        alias TransformedLocation = Tuple<SourceLocation, LambdaHeader, LambdaHeader>;
+
         public const this()
         {
-            this.transLocs = new List<Tuple<SourceLocation, int, int>>();
+            this.transLocs = new List<TransformedLocation>();
         }
 
-        private List<Tuple<SourceLocation, int, int>> transLocs;
+        private List<TransformedLocation> transLocs;
 
         /// <summary>
         /// Gets the source locations belonging to lambda expressions
         /// that have been optimized by this visitor, followed by their
         /// old capture list size, and the new capture list size.
         /// </summary>
-        public [Tuple<SourceLocation, int, int>] TransformedLocations
+        public [TransformedLocation] TransformedLocations
         {
             const get { return transLocs; }
         }
@@ -83,21 +86,21 @@ namespace Flame.Optimization
                 }
             }
 
-            int oldCount = header.CaptureList.Count;
-            int newCount = newCaptures.Count;
-            if (newCount == oldCount)
+            if (newCaptures.Count == header.CaptureList.Count)
                 return Lambda;
 
             var optHeader = new LambdaHeader(header.Signature, newCaptures);
-            var rewriter = new LambdaCapturedValueRewriter(indexMapping);
+            var newHeaderBlock = new LambdaBoundHeaderBlock();
+            var rewriter = new LambdaCapturedValueRewriter(
+                optHeader, newHeaderBlock, indexMapping);
 
             var optBody = rewriter.Visit(body);
 
             if (CurrentLocation != null)
-                transLocs.Add(new Tuple<SourceLocation, int, int>(
-                    CurrentLocation, oldCount, newCount));
+                transLocs.Add(new TransformedLocation(
+                    CurrentLocation, header, optHeader));
 
-            var resultLambda = new LambdaExpression(optHeader, optBody, Lambda.BoundHeaderBlock);
+            var resultLambda = new LambdaExpression(optHeader, optBody, newHeaderBlock);
             return new InitializedExpression(initialize, resultLambda);
         }
 
@@ -122,6 +125,24 @@ namespace Flame.Optimization
         /// </summary>
         public const string SlimLambdaPassName = "slim-lambda";
 
+        /// <summary>
+        /// The remark name that turns on type remarks.
+        /// </summary>
+        public const string SlimLambdaTypesRemarkName = "slim-lambda-types";
+
+        private string NameCaptureTypes(LambdaHeader Header)
+        {
+            var result = new StringBuilder();
+            foreach (var item in Header.CaptureList)
+            {
+                if (result.Length > 0)
+                    result.Append(", ");
+
+                result.Append(item.Type.ToString());
+            }
+            return result.ToString();
+        }
+
         public IStatement Apply(BodyPassArgument Args)
         {
             var rewriter = new SlimLambdaVisitor();
@@ -131,17 +152,34 @@ namespace Flame.Optimization
             var log = Args.PassEnvironment.Log;
             if (log.Options.ShouldRemark(SlimLambdaPassName, false))
             {
+                bool shouldRemarkTypes = log.Options.ShouldRemark(SlimLambdaTypesRemarkName, false);
                 foreach (var item in rewriter.TransformedLocations)
                 {
+                    var nodes = new List<IMarkupNode>();
+                    nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
+                        "Eliminated " +
+                        (item.Item2.CaptureList.Count - item.Item3.CaptureList.Count) +
+                        " out of " + item.Item2.CaptureList.Count +
+                        " values from this lambda capture list. "));
+                    if (shouldRemarkTypes)
+                    {
+                        nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
+                            "Old capture list types: " + NameCaptureTypes(item.Item2) + ". "));
+                        nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
+                            "New capture list types: " + NameCaptureTypes(item.Item3) + ". "));
+                        nodes.Add(Flags.CreateCauseNode(
+                            Flags.GetRemarkOptionName(SlimLambdaPassName) + ", " +
+                            Flags.GetRemarkOptionName(SlimLambdaTypesRemarkName)));
+                    }
+                    else
+                    {
+                        nodes.Add(Flags.CreateCauseNode(
+                            Flags.GetRemarkOptionName(SlimLambdaPassName)));
+                    }
+
                     log.LogMessage(new LogEntry(
                         "Pass remark",
-                        new IMarkupNode[]
-                        {
-                            new MarkupNode(NodeConstants.TextNodeType,
-                                "Eliminated " + (item.Item2 - item.Item3) + " out of " +
-                                item.Item2 + " values from this lambda capture list. "),
-                            Flags.CreateCauseNode(Flags.GetRemarkOptionName(SlimLambdaPassName))
-                        },
+                        nodes,
                         item.Item1));
                 }
             }
