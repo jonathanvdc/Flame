@@ -143,15 +143,29 @@ namespace Flame.Compiler.Visitors
         /// </summary>
         public void CreateCurrentBlock(IStatement Statement, BlockFlow Flow)
         {
-            var visited = Visit(Statement);
-
-            Builder.CreateCurrentBlock(visited, Flow);
+            CreateCurrentBlock(new List<SSAVariable>(), Statement, Flow);
         }
 
         /// <summary>
-        /// Creates a block with the given tag, body and block flow.
+        /// Creates the current block from the given statement and final flow.
+        /// This statement may contain control-flow nodes: they will
+        /// be lowered to basic blocks.
         /// </summary>
-        public UniqueTag CreateBlock(UniqueTag Tag, IStatement Statement, BlockFlow Flow)
+        public void CreateCurrentBlock(
+            IReadOnlyList<SSAVariable> Parameters, IStatement Statement,
+            BlockFlow Flow)
+        {
+            var visited = Visit(Statement);
+
+            Builder.CreateCurrentBlock(Parameters, visited, Flow);
+        }
+
+        /// <summary>
+        /// Creates a block with the given tag, parameter list, body and block flow.
+        /// </summary>
+        public UniqueTag CreateBlock(
+            UniqueTag Tag, IReadOnlyList<SSAVariable> Parameters,
+            IStatement Statement, BlockFlow Flow)
         {
             // Remember all sibling expressions/statements.
             var siblExprs = unspilledExpressions;
@@ -164,7 +178,7 @@ namespace Flame.Compiler.Visitors
             var nextBlockTag = Builder.NextBlockTag;
             Builder.NextBlockTag = Tag;
             Builder.Next();
-            CreateCurrentBlock(Statement, Flow);
+            CreateCurrentBlock(Parameters, Statement, Flow);
             Builder.CurrentBlockTag = curBlockTag;
             Builder.NextBlockTag = nextBlockTag;
 
@@ -175,6 +189,14 @@ namespace Flame.Compiler.Visitors
             unspilledExpressions = siblExprs;
 
             return Tag;
+        }
+
+        /// <summary>
+        /// Creates a block with the given tag, body and block flow.
+        /// </summary>
+        public UniqueTag CreateBlock(UniqueTag Tag, IStatement Statement, BlockFlow Flow)
+        {
+            return CreateBlock(Tag, new List<SSAVariable>(), Statement, Flow);
         }
 
         /// <summary>

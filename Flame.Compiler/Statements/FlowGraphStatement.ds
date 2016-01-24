@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using Flame.Compiler.Emit;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Statements
 {
     /// <summary>
     /// A statement that contains a control flow graph.
     /// </summary>
-    public class FlowGraphStatement : IStatement
+    public class FlowGraphStatement : IFlowStatement
     {
         /// <summary>
         /// Creates a statement that wraps the given control flow graph.
@@ -24,6 +25,30 @@ namespace Flame.Compiler.Statements
         public bool IsEmpty
         {
             get { return Graph.IsEmpty; }
+        }
+
+        /// <summary>
+        /// Creates a number of basic blocks that are semantically equivalent
+        /// to this flow statement.
+        /// </summary>
+        public void ToBlocks(BlockBuildingVisitor Visitor)
+        {
+            // Redirect the current block to the entry point tag.
+            Visitor.Builder.RedirectCurrent(Graph.EntryPointTag);
+            foreach (var item in Graph.Blocks)
+            {
+                // Create all blocks.
+                Visitor.CreateBlock(item.Tag, item.Parameters, item.Contents, item.Flow);
+            }
+        }
+
+        /// <summary>
+        /// Accepts and interacts with a flow visitor.
+        /// </summary>
+        public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+        {
+            // HACK: Just lie to the visitor and pretend this is linear flow.
+            return Accept(Visitor);
         }
 
         public IStatement Accept(INodeVisitor Visitor)
