@@ -48,6 +48,8 @@ namespace Flame.Compiler.Statements
         public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
         {
             // HACK: Just lie to the visitor and pretend this is linear flow.
+            //       This is evil, but the visitor would have assumed this
+            //       to be the case anyway had we not implemented IFlowStatement.
             return Accept(Visitor);
         }
 
