@@ -42,7 +42,7 @@ namespace Flame.Compiler.Expressions
 		/// </summary>
 		public IMethod Method
 		{
-			const get return MethodType.GetMethod(Target.Type);
+			get return MethodType.GetMethod(Target.Type);
 		}
 
 		public void AcceptPredicate(INodeVisitor Visitor)
