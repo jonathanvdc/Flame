@@ -3,43 +3,224 @@ using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
 using Flame.Compiler.Visitors;
+using Pixie;
 
 namespace Flame.Optimization
 {
+    /// <summary>
+    /// A method call that has been decomposed into a callee, a 'this' object,
+    /// and a sequence of arguments.
+    /// </summary>
     public class DissectedCall
     {
-        public const this(set IExpression ThisValue, set IMethod Method, set [IExpression] Arguments);
+        /// <summary>
+        /// Creates a new dissected call from the given 'this' value,
+        /// callee, and sequence of arguments.
+        /// </summary>
+        public const this(
+            set IExpression ThisValue, set IMethod Method,
+            set [IExpression] Arguments);
 
+        /// <summary>
+        /// Gets the expression that produces the 'this' object for
+        /// this call.
+        /// </summary>
         public IExpression ThisValue { const get; private set; }
+
+        /// <summary>
+        /// Gets the callee of this call.
+        /// </summary>
         public IMethod Method { const get; private set; }
+
+        /// <summary>
+        /// Gets the sequence of arguments that are passed to the
+        /// callee.
+        /// </summary>
         public [IExpression] Arguments { const get; private set; }
     }
 
+    /// <summary>
+    /// A pass that performs a number of iterations, which consist of
+    /// inlining followed by whole-body optimization.
+    /// </summary>
+    public abstract class InliningPassBase : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// Gets the default inlining pass name.
+        /// </summary>
+        public const string InliningPassName = "inline";
+
+        /// <summary>
+        /// The remarks option for inlining: applying this pass to
+        /// a function will emit a message if this is option set to true.
+        /// </summary>
+        public string InliningRemarksOption
+        {
+            get { return Flags.GetRemarkOptionName(InliningPassName); }
+        }
+
+        /// <summary>
+        /// Creates a delegate that determines whether the given dissected
+        /// direct call should be inlined.
+        /// </summary>
+        public abstract bool(DissectedCall) GetInliningCriteria(BodyPassArgument Argument);
+
+        /// <summary>
+        /// Creates a statement optimizer. Note that this should perform
+        /// simple intraprocedural optimizations, rather than more advance
+        /// optimizations, such as inlining.
+        /// </summary>
+        public abstract IStatement(IStatement) GetBodyOptimizer(BodyPassArgument Argument);
+
+        /// <summary>
+        /// Gets the number of times this pass is allowed to
+        /// inline functions recursively. This corresponds
+        /// to the maximal number of inline-optimize iterations this pass makes.
+        /// </summary>
+        public abstract int GetMaxRecursion(BodyPassArgument Argument);
+
+        /// <summary>
+        /// Names the given method. This includes any quotation marks, or other
+        /// delimiters.
+        /// </summary>
+        protected virtual string NameMethod(IMethod Method)
+        {
+            string name = Method.Name;
+            if (string.IsNullOrWhiteSpace(name))
+                return "anonymous method";
+            else
+                return "'" + name + "'";
+        }
+
+        /// <summary>
+        /// Logs a message that proclaims that an inlining operation
+        /// has occurred.
+        /// </summary>
+        protected virtual void LogInlinedCall(
+            BodyPassArgument Argument, SourceLocation CallLocation,
+            DissectedCall InlinedCall, int RecursionDepth)
+        {
+            var nodes = new List<IMarkupNode>();
+            if (RecursionDepth == 0)
+            {
+                // Add a description
+                nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
+                    "Inlined direct call to " + NameMethod(InlinedCall.Method) + ". "));
+            }
+            else
+            {
+                // Add a description
+                nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
+                    "Recursively inlined direct call to " +
+                    NameMethod(InlinedCall.Method) + ". (Recursion depth: " +
+                    RecursionDepth + ") "));
+            }
+            // Add a cause node ('[-Rinline]')
+            nodes.Add(Flags.CreateCauseNode(InliningRemarksOption));
+            // Add diagnostics for the inlined call
+            nodes.Add(CallLocation.CreateDiagnosticsNode());
+
+            var log = Argument.PassEnvironment.Log;
+            log.LogMessage(new LogEntry("Pass remark", nodes));
+        }
+
+        /// <summary>
+        /// Applies this pass to the given body pass argument.
+        /// </summary>
+        public IStatement Apply(BodyPassArgument Argument)
+        {
+            int maxRec = GetMaxRecursion(Argument);
+            var shouldInline = GetInliningCriteria(Argument);
+            var optimizeBody = GetBodyOptimizer(Argument);
+            var result = Argument.Body;
+            var log = Argument.PassEnvironment.Log;
+            for (int i = 0; i < maxRec; i++)
+            {
+                var visitor = new InliningVisitor(Argument, shouldInline);
+                result = visitor.Visit(result);
+                if (visitor.HasInlined)
+                {
+                    if (log.Options.ShouldRemark(InliningPassName))
+                    {
+                        // Let's print some diagnostics, because we're so proud of
+                        // our work.
+                        foreach (var item in visitor.InlinedCallLocations)
+                        {
+                            LogInlinedCall(Argument, item.Value, item.Key, i);
+                        }
+                    }
+
+                    // Perform variable/control flow optimizations
+                    // to expose more inlining opportunities, and to
+                    // reconstruct the CFG form of choice (which the inlining
+                    // visitor may have violated)
+                    result = optimizeBody(result);
+                }
+                else
+                {
+                    // Visitor hasn't inlined anything, which implies the following:
+                    //   1. The method body has not changed.
+                    //   2. There are no viable candidates for
+                    //      inlining in the method body.
+                    //
+                    // In other words, we're done here, and the statement
+                    // need not be optimized again, either.
+                    break;
+                }
+            }
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// A visitor that inlines direct calls, if they meet certain criteria.
+    /// </summary>
     public class InliningVisitor : LocationVisitorBase
     {
-        public const this(set IMethod CurrentMethod, set bool(DissectedCall) ShouldInline,
-                          set IStatement(IMethod) GetMethodBody, set IStatement(IStatement) Optimize,
-                          set int MaxRecursion)
+        public const this(
+            set BodyPassArgument PassArgument,
+            set bool(DissectedCall) ShouldInline)
         {
             this.inlineCount = new Dictionary<IMethod, int>();
             this.inlinedCallLocs = new List<KeyValuePair<DissectedCall, SourceLocation>>();
         }
 
-        public IMethod CurrentMethod { const get; private set; }
-        public bool(DissectedCall) ShouldInline { const get; private set; }
-        public IStatement(IMethod) GetMethodBody { const get; private set; }
-        public IStatement(IStatement) Optimize { const get; private set; }
-        public int MaxRecursion { const get; private set; }
+        /// <summary>
+        /// Gets this visitor's body pass argument.
+        /// </summary>
+        public BodyPassArgument PassArgument { const get; private set; }
 
-        public bool HasInlined { const get return inlineCount.Count != 0; }
+        /// <summary>
+        /// Gets the current method, whose body is being processed.
+        /// </summary>
+        public IMethod CurrentMethod { get { return PassArgument.DeclaringMethod; } }
+
+        /// <summary>
+        /// Determines whether the given dissected direct call should be inlined.
+        /// </summary>
+        public bool(DissectedCall) ShouldInline { const get; private set; }
+
+        /// <summary>
+        /// Checks if this inlining visitor has inlined anything yet.
+        /// </summary>
+        public bool HasInlined { get { return inlineCount.Count != 0; } }
+
+        /// <summary>
+        /// Gets a read-only dictionary that maps methods to the number
+        /// of times they have been inlined by this visitor.
+        /// </summary>
         public IReadOnlyDictionary<IMethod, int> InlinedCount { const get return inlineCount; }
 
-        public IEnumerable<KeyValuePair<DissectedCall, SourceLocation>> InlinedCallLocations
+        /// <summary>
+        /// Gets all call locations that have been inlined.
+        /// </summary>
+        public [KeyValuePair<DissectedCall, SourceLocation>] InlinedCallLocations
         {
-            const get return inlinedCallLocs;
+            get { return inlinedCallLocs; }
         }
 
         private Dictionary<IMethod, int> inlineCount;
@@ -65,36 +246,21 @@ namespace Flame.Optimization
             return null;
         }
 
-        private const IExpression OptimizeExpr(IExpression Value)
+        /// <summary>
+        /// Inlines the given dissected call: its arguments and return value
+        /// are replaced by local variables, and control will resume when the
+        /// inlined callee is done. Null is returned if the inlining operation
+        /// could not be performed.
+        /// </summary>
+        public IExpression Inline(DissectedCall Call)
         {
-            var rawExprStmt = new RawExpressionStatement(Value);
-            var optStmt = Optimize(rawExprStmt);
-            if (optStmt.IsEmpty)
-            {
-                return VoidExpression;
-            }
-            else if (optStmt is RawExpressionStatement)
-            {
-                return ((RawExpressionStatement)optStmt).Expression;
-            }
-            else
-            {
-                throw new Exception("The inlining pass' optimizer may not optimize away a " +
-                                    "RawExpressionStatement.");
-            }
-        }
+            // Acquire the method body.
+            var oldMethodBody = PassArgument.PassEnvironment.GetMethodBody(Call.Method);
+            if (oldMethodBody == null)
+                return null;
 
-        public const IExpression Inline(DissectedCall Call)
-        {
-            int preCount = 0;
-            if (inlineCount.ContainsKey(Call.Method))
-            {
-                preCount = inlineCount[Call.Method];
-            }
-            inlineCount[Call.Method] = preCount + 1;
-
-            // Acquire and copy the method body.
-            var body = CloningVisitor.Visit(GetMethodBody(Call.Method));
+            // Copy the method body.
+            var body = CloningVisitor.Visit(oldMethodBody);
             // Create a variable for the return value.
             var lbVariable = new LocalVariable(Call.Method.ReturnType);
 
@@ -107,15 +273,14 @@ namespace Flame.Optimization
 
             if (lbVariable.Type.Equals(PrimitiveTypes.Void))
             {
-                return OptimizeExpr(new InitializedExpression(visitedBody,
-                                                              VoidExpression));
+                return new InitializedExpression(
+                    visitedBody, VoidExpression).Simplify();
             }
             else
             {
-                return OptimizeExpr(new InitializedExpression(
-                    visitedBody,
-                    lbVariable.CreateGetExpression(),
-                    lbVariable.CreateReleaseStatement()));
+                return new InitializedExpression(
+                    visitedBody, lbVariable.CreateGetExpression(),
+                    lbVariable.CreateReleaseStatement()).Simplify();
             }
         }
 
@@ -127,14 +292,7 @@ namespace Flame.Optimization
                 return false;
             }
 
-            int preCount = 0;
-            if (inlineCount.ContainsKey(result.Method))
-            {
-                preCount = inlineCount[result.Method];
-            }
-
-            return preCount < MaxRecursion &&
-                   InliningExtensions.CanInline(result.Method, result.ThisValue) &&
+            return InliningExtensions.CanInline(result.Method, result.ThisValue) &&
                    this.ShouldInline(result);
         }
 
@@ -144,9 +302,31 @@ namespace Flame.Optimization
             // step.
             var dissected = DissectCall((InvocationExpression)Expression);
 
-            inlinedCallLocs.Add(new KeyValuePair<DissectedCall, SourceLocation>(dissected, CurrentLocation));
+            // Perform the actual inlining.
+            var result = Inline(dissected);
 
-            return Visit(Inline(dissected));
+            if (result == null)
+            {
+                return Expression;
+            }
+            else
+            {
+                if (CurrentLocation != null)
+                {
+                    // Log the inlining operation.
+                    inlinedCallLocs.Add(new KeyValuePair<DissectedCall, SourceLocation>(dissected, CurrentLocation));
+                }
+
+                // Increment the inlining counter.
+                int preCount = 0;
+                if (inlineCount.ContainsKey(dissected.Method))
+                {
+                    preCount = inlineCount[dissected.Method];
+                }
+                inlineCount[dissected.Method] = preCount + 1;
+
+                return result;
+            }
         }
         protected override IStatement TransformCore(IStatement Statement)
         {
@@ -154,17 +334,20 @@ namespace Flame.Optimization
         }
     }
 
-    public class InliningVariableVisitor : VariableSubstitutingVisitorBase
+    public class InliningVariableVisitor : VariableSubstitutingVisitorBase,
+                                           IBasicBlockVisitor
     {
         public const this(set IVariable ThisArgument, set IVariable[] Arguments)
         {
             this.locals = new Dictionary<UniqueTag, LocalVariable>();
+            this.ssaLocals = new Dictionary<UniqueTag, SSAVariable>();
         }
 
         public IVariable ThisArgument { const get; private set; }
         public IVariable[] Arguments { const get; private set; }
 
         private Dictionary<UniqueTag, LocalVariable> locals;
+        private Dictionary<UniqueTag, SSAVariable> ssaLocals;
 
         private LocalVariable inlineLocal(LocalVariable localVar)
         {
@@ -175,6 +358,15 @@ namespace Flame.Optimization
             return locals[localVar.Tag];
         }
 
+        private SSAVariable inlineSSALocal(SSAVariable localVar)
+        {
+            if (!ssaLocals.ContainsKey(localVar.Tag))
+            {
+                ssaLocals[localVar.Tag] = new SSAVariable(localVar.Member);
+            }
+            return ssaLocals[localVar.Tag];
+        }
+
         public static IStatement InlineVariables(IStatement Target, IExpression ThisArgument, IExpression[] Arguments)
         {
             var results = new List<IStatement>();
@@ -182,7 +374,9 @@ namespace Flame.Optimization
 
             IVariable thisVar;
             if (ThisArgument == null)
+            {
                 thisVar = null;
+            }
             else
             {
                 thisVar = new LocalVariable(ThisArgument.Type);
@@ -210,7 +404,7 @@ namespace Flame.Optimization
         protected override bool CanSubstituteVariable(IVariable Variable)
         {
             return Variable is ArgumentVariable || Variable is ThisVariable ||
-                   Variable is LocalVariable;
+                   Variable is LocalVariable || Variable is SSAVariable;
         }
         protected override IVariable SubstituteVariable(IVariable Variable)
         {
@@ -223,11 +417,39 @@ namespace Flame.Optimization
                 var argVar = (ArgumentVariable)Variable;
                 return Arguments[argVar.Index];
             }
-            else // Variable is LocalVariable
+            else if (Variable is SSAVariable)
             {
+                var localVar = (SSAVariable)Variable;
+                return inlineSSALocal(localVar);
+            }
+            else
+            {
+                assert(Variable is LocalVariable);
                 var localVar = (LocalVariable)Variable;
                 return inlineLocal(localVar);
             }
+        }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            return inlineSSALocal(Variable);
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public BlockBranch Visit(BlockBranch Branch)
+        {
+            var newArgs = new List<SSAVariable>();
+            foreach (var arg in Branch.Arguments)
+            {
+                newArgs.Add(inlineSSALocal(arg));
+            }
+            return new BlockBranch(Branch.TargetTag, newArgs);
         }
     }
 
@@ -238,12 +460,12 @@ namespace Flame.Optimization
         public IVariable ReturnVariable { const get; private set; }
         public UniqueTag ReturnTag { const get; private set; }
 
-        public static const IStatement InlineReturns(IStatement Statement, IVariable ReturnVariable)
+        public static IStatement InlineReturns(IStatement Statement, IVariable ReturnVariable)
         {
             var label = new UniqueTag();
             var visitor = new InliningReturnVisitor(ReturnVariable, label);
             var body = visitor.Visit(Statement);
-            return SimplifyFlowPass.TaggedBreakVisitor.Visit(new TaggedStatement(label, body));
+            return new TaggedStatement(label, body);
         }
 
         public override const bool Matches(IExpression Value)

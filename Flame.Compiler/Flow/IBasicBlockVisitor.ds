@@ -112,4 +112,38 @@ namespace Flame.Compiler.Flow
             return Branch;
         }
     }
+
+    /// <summary>
+    /// A basic block visitor that renames basic blocks by consulting a unique tag
+    /// dictionary.
+    /// </summary>
+    public class BlockRenamingVisitor : BranchVisitorBase
+    {
+        /// <summary>
+        /// Creates a block renaming visitor from the given renaming
+        /// dictionary.
+        /// </summary>
+        public const this(set IReadOnlyDictionary<UniqueTag, UniqueTag> Renamed);
+
+        /// <summary>
+        /// Gets a dictionary that maps original tags to their renamed
+        /// versions.
+        /// </summary>
+        public IReadOnlyDictionary<UniqueTag, UniqueTag> Renamed { const get; private set; }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public override BlockBranch Visit(BlockBranch Branch)
+        {
+            if (Renamed.TryGetValue(Branch.TargetTag, &UniqueTag renamedTag))
+            {
+                return new BlockBranch(renamedTag, Branch.Arguments);
+            }
+            else
+            {
+                return Branch;
+            }
+        }
+    }
 }

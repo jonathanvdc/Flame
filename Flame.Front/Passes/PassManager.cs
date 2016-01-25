@@ -357,12 +357,11 @@ namespace Flame.Front.Passes
 
 		/// <summary>
 		/// Gets the names of all passes that are selected by the
-		/// given compiler log and pass preferences. The
+		/// given compiler log. The
 		/// results are returned as a dictionary that maps pass types
 		/// to a sequence of selected pass names.
 		/// </summary>
 		/// <param name="Log"></param>
-		/// <param name="Preferences"></param>
 		/// <returns></returns>
 		public IReadOnlyDictionary<string, IEnumerable<string>> GetSelectedPassNames(ICompilerLog Log)
 		{
@@ -370,11 +369,9 @@ namespace Flame.Front.Passes
 		}
 
 		/// <summary>
-		/// Creates a pass suite from the given compiler log and
-		/// pass preferences.
+		/// Creates a pass suite from the given compiler log.
 		/// </summary>
 		/// <param name="Log"></param>
-		/// <param name="Preferences"></param>
 		/// <returns></returns>
 		public PassSuite CreateSuite(ICompilerLog Log)
 		{

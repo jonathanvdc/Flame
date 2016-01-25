@@ -58,6 +58,20 @@ namespace Flame.Optimization
     /// </summary>
     public class DeadBlockEliminationVisitor : FlowGraphVisitorBase
     {
+        /// <summary>
+        /// Creates a dead block eliminating visitor that does not
+        /// log anything.
+        /// </summary>
+        public const this()
+        {
+            this.DeclaringMethod = null;
+            this.Log = null;
+        }
+
+        /// <summary>
+        /// Creates a dead block eliminating visitor that logs warnings about
+        /// the given declaring method to the given log.
+        /// </summary>
         public const this(set ICompilerLog Log, set IMethod DeclaringMethod);
 
         /// <summary>
@@ -65,6 +79,13 @@ namespace Flame.Optimization
         /// compiler log, which it uses to issue diagnostics.
         /// </summary>
         public ICompilerLog Log { const get; private set; }
+
+        /// <summary>
+        /// Tests if this dead block eliminating visitor's compiler log
+        /// is not null, which indicates that logging warnings is expected
+        /// of us if we run into fishy code.
+        /// </summary>
+        public bool ShouldLog { const get { return Log != null; } }
 
         /// <summary>
         /// Gets the declaring method.
@@ -77,7 +98,7 @@ namespace Flame.Optimization
         /// </summary>
         private void WarnDeadBlock(BasicBlock Block)
         {
-            if (Warnings.DeadCodeWarning.UseWarning(Log.Options))
+            if (ShouldLog && Warnings.DeadCodeWarning.UseWarning(Log.Options))
             {
                 var visitor = new FirstSourceLocationFinder();
                 visitor.Visit(Block.Contents);
@@ -101,12 +122,16 @@ namespace Flame.Optimization
         /// </summary>
         private void WarnMissingReturn()
         {
-            if (Warnings.MissingReturnWarning.UseWarning(Log.Options))
+            if (ShouldLog && Warnings.MissingReturnWarning.UseWarning(Log.Options))
             {
-                Log.LogWarning(new LogEntry("Missing return statement?",
-                    Warnings.MissingReturnWarning.CreateMessage(
-                        "This method may not always return or throw. "),
-                    DeclaringMethod.GetSourceLocation()));
+                var srcLoc = DeclaringMethod.GetSourceLocation();
+                if (srcLoc != null)
+                {
+                    Log.LogWarning(new LogEntry("Missing return statement?",
+                        Warnings.MissingReturnWarning.CreateMessage(
+                            "This method may not always return or throw. "),
+                        DeclaringMethod.GetSourceLocation()));
+                }
             }
         }
 
@@ -160,6 +185,19 @@ namespace Flame.Optimization
             var log = Args.PassEnvironment.Log;
             var rewriter = new DeadBlockEliminationVisitor(log, Args.DeclaringMethod);
             return rewriter.Visit(Args.Body);
+        }
+    }
+
+    /// <summary>
+    /// A pass that eliminates dead blocks from flow graphs. No diagnostics
+    /// are ever issued by this pass.
+    /// </summary>
+    public static class SilentDeadBlockEliminationPass : IPass<IStatement, IStatement>
+    {
+        public IStatement Apply(IStatement Body)
+        {
+            var rewriter = new DeadBlockEliminationVisitor();
+            return rewriter.Visit(Body);
         }
     }
 }

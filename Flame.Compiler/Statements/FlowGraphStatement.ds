@@ -10,7 +10,7 @@ namespace Flame.Compiler.Statements
     /// <summary>
     /// A statement that contains a control flow graph.
     /// </summary>
-    public class FlowGraphStatement : IFlowStatement
+    public class FlowGraphStatement : IFlowStatement, ICopyableNode<IStatement>
     {
         /// <summary>
         /// Creates a statement that wraps the given control flow graph.
@@ -51,6 +51,31 @@ namespace Flame.Compiler.Statements
             //       This is evil, but the visitor would have assumed this
             //       to be the case anyway had we not implemented IFlowStatement.
             return Accept(Visitor);
+        }
+
+        /// <summary>
+        /// Copies this flow graph statement.
+        /// </summary>
+        public IStatement Copy()
+        {
+            var renamedTags = new Dictionary<UniqueTag, UniqueTag>();
+            renamedTags[Graph.EntryPointTag] = new UniqueTag(Graph.EntryPointTag.Name);
+            foreach (var tag in Graph.BlockTags)
+            {
+                renamedTags[tag] = new UniqueTag(tag.Name);
+            }
+
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+            var renamingVisitor = new BlockRenamingVisitor(renamedTags);
+            foreach (var block in Graph.Blocks)
+            {
+                var tag = renamedTags[block.Tag];
+                results[tag] = new BasicBlock(
+                    tag, block.Parameters, block.Contents,
+                    block.Flow.Accept(renamingVisitor));
+            }
+            return new FlowGraphStatement(new FlowGraph(
+                renamedTags[Graph.EntryPointTag], results));
         }
 
         public IStatement Accept(INodeVisitor Visitor)

@@ -8,32 +8,57 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics.Contracts;
+using Flame.Front.Passes;
 
 namespace Flame.Front.Target
 {
-    public class InliningPass : IPass<BodyPassArgument, IStatement>
+	/// <summary>
+	/// A body pass that is derived from another underlying
+	/// body pass environment, but comes with its own log.
+	/// </summary>
+	public class DerivedBodyPassEnvironment : IBodyPassEnvironment
+	{
+		public DerivedBodyPassEnvironment(
+			IBodyPassEnvironment BaseEnvironment, ICompilerLog Log)
+		{
+			this.BaseEnvironment = BaseEnvironment;
+			this.Log = Log;
+		}
+
+		/// <summary>
+		/// Gets the body pass environment this body pass environment
+		/// is based on.
+		/// </summary>
+		/// <value>The base environment.</value>
+		public IBodyPassEnvironment BaseEnvironment { get; private set; }
+
+		/// <summary>
+		/// Gets the body pass' log.
+		/// </summary>
+		public ICompilerLog Log { get; private set; }
+
+		/// <summary>
+		/// Gets the body pass' environment.
+		/// </summary>
+		public IEnvironment Environment { get { return BaseEnvironment.Environment; } }
+
+		/// <summary>
+		/// Gets the method body for the given method.
+		/// </summary>
+		/// <returns>The method body.</returns>
+		public IStatement GetMethodBody(IMethod Method)
+		{
+			return BaseEnvironment.GetMethodBody(Method);
+		}
+	}
+
+    public class InliningPass : InliningPassBase
     {
         private InliningPass()
-        {
+        { }
 
-        }
-
-        static InliningPass()
-        {
-            Instance = new InliningPass();
-        }
-
-        public static InliningPass Instance { get; private set; }
-
-        /// <summary>
-        /// The inlining pass' name.
-        /// </summary>
-        public const string InliningPassName = "inline";
-
-        /// <summary>
-        /// The name of the option that enables inlining remarks.
-        /// </summary>
-        public static readonly string InliningRemarksOption = Flags.Instance.GetRemarkOptionName(InliningPassName);
+		public static readonly InliningPass Instance = new InliningPass();
 
         private static int ApproximateSize(IType Type)
         {
@@ -99,16 +124,6 @@ namespace Flame.Front.Target
             return con - pro < Tolerance;
         }
 
-        private IStatement OptimizeSimple(IStatement Value)
-        {
-            return Value.Optimize();
-        }
-
-        private IStatement OptimizeAdvanced(IStatement Value)
-        {
-            return DefinitionPropagationPass.Instance.Apply(Value.Optimize()).Optimize();
-        }
-
         private IStatement GetMethodBody(BodyPassArgument Value, IMethod Method)
         {
             var result = Value.PassEnvironment.GetMethodBody(Method);
@@ -121,38 +136,28 @@ namespace Flame.Front.Target
             return CloningVisitor.Instance.Visit(result);
         }
 
-        public IStatement Apply(BodyPassArgument Value)
-        {
-            var log = Value.PassEnvironment.Log;
-            int maxRecursion = log.Options.GetOption<int>("max-inline-recursion", 3);
-            int inlineTolerance = log.Options.GetOption<int>("inline-tolerance", 0);
-            bool propInline = log.Options.GetOption<bool>("inline-propagate-locals", true);
+		public override Func<DissectedCall, bool> GetInliningCriteria(BodyPassArgument Argument)
+		{
+			var log = Argument.PassEnvironment.Log;
+			int inlineTolerance = log.Options.GetOption<int>("inline-tolerance", 0);
+			return call => ShouldInline(Argument, call, inlineTolerance);
+		}
 
-            var inliner = new InliningVisitor(Value.DeclaringMethod, call => ShouldInline(Value, call, inlineTolerance),
-                                              item => GetMethodBody(Value, item), 
-                                              propInline ? new Func<IStatement, IStatement>(OptimizeAdvanced) 
-                                                         : new Func<IStatement, IStatement>(OptimizeSimple),
-                                              maxRecursion);
-            var result = inliner.Visit(Value.Body);
-            if (inliner.HasInlined)
-            {
-                result = result.Optimize();
+		public override int GetMaxRecursion(BodyPassArgument Argument)
+		{
+			var log = Argument.PassEnvironment.Log;
+			return log.Options.GetOption<int>("max-inline-recursion", 3);
+		}
 
-                if (inliner.InlinedCallLocations.Any() && log.Options.GetOption<bool>(InliningRemarksOption, false))
-                {
-                    foreach (var item in inliner.InlinedCallLocations)
-                    {
-                        log.LogMessage(new LogEntry("Pass remark", new IMarkupNode[]
-                        {
-                            new MarkupNode(
-                                NodeConstants.TextNodeType, 
-                                "Inlined call to '" + item.Key.Method.Name + "' into '" + Value.DeclaringMethod.Name + "'. "),
-                            Flags.Instance.CreateCauseNode(InliningRemarksOption)
-                        }, item.Value));
-                    }
-                }
-            }
-            return result;
-        }
+		public override Func<IStatement, IStatement> GetBodyOptimizer(BodyPassArgument Argument)
+		{
+			var emptyLog = new EmptyCompilerLog(Argument.PassEnvironment.Log.Options);
+			var passManager = new PassManager(PassExtensions.SSAPassManager);
+			var optSuite = passManager.CreateSuite(emptyLog);
+			var newArgs = new BodyPassArgument(
+				new DerivedBodyPassEnvironment(Argument.PassEnvironment, emptyLog), Argument.Metadata, 
+				Argument.DeclaringMethod, null);
+			return body => optSuite.MethodPass.Apply(new BodyPassArgument(newArgs, body));
+		}
     }
 }
