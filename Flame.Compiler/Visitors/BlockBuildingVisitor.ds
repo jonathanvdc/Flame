@@ -55,7 +55,7 @@ namespace Flame.Compiler.Visitors
     /// A visitor class that converts control-flow statements and expressions
     /// into basic blocks.
     /// </summary>
-    public class BlockBuildingVisitor : NodeVisitorBase
+    public class BlockBuildingVisitor : NodeVisitorBase, IBasicBlockVisitor
     {
         /// <summary>
         /// Creates a basic block constructing visitor from the given block
@@ -156,8 +156,9 @@ namespace Flame.Compiler.Visitors
             BlockFlow Flow)
         {
             var visited = Visit(Statement);
+            var blockFlow = Flow.Accept(this);
 
-            Builder.CreateCurrentBlock(Parameters, visited, Flow);
+            Builder.CreateCurrentBlock(Parameters, visited, blockFlow);
         }
 
         /// <summary>
@@ -331,6 +332,23 @@ namespace Flame.Compiler.Visitors
                 unspilledStatements.Add(movStmt);
                 return movStmt;
             }
+        }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            return Variable;
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public BlockBranch Visit(BlockBranch Branch)
+        {
+            return Branch;
         }
     }
 }
