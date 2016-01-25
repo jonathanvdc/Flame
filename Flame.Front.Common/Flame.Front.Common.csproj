@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -109,47 +109,47 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame.Cecil\Flame.Cecil.csproj">
-      <Project>{4a1d02a2-22df-4355-8edc-9e47db1979c3}</Project>
+      <Project>{4A1D02A2-22DF-4355-8EDC-9E47DB1979C3}</Project>
       <Name>Flame.Cecil</Name>
     </ProjectReference>
     <ProjectReference Include="..\Flame.CodeDescription\Flame.CodeDescription.csproj">
-      <Project>{b11dbde8-1b3a-4474-b425-d79178148c9d}</Project>
+      <Project>{B11DBDE8-1B3A-4474-B425-D79178148C9D}</Project>
       <Name>Flame.CodeDescription</Name>
     </ProjectReference>
     <ProjectReference Include="..\Flame.Cpp\Flame.Cpp.csproj">
-      <Project>{1e89128e-a307-474e-bfd7-02810498f792}</Project>
+      <Project>{1E89128E-A307-474E-BFD7-02810498F792}</Project>
       <Name>Flame.Cpp</Name>
     </ProjectReference>
     <ProjectReference Include="..\Flame.Front\Flame.Front.csproj">
-      <Project>{a362bcd9-7b23-45da-99a6-6b995c92480e}</Project>
+      <Project>{A362BCD9-7B23-45DA-99A6-6B995C92480E}</Project>
       <Name>Flame.Front</Name>
     </ProjectReference>
     <ProjectReference Include="..\Flame.Intermediate\Flame.Intermediate.csproj">
-      <Project>{8fa49fdd-2e4b-4f1b-9dc4-3a0df48ad309}</Project>
+      <Project>{8FA49FDD-2E4B-4F1B-9DC4-3A0DF48AD309}</Project>
       <Name>Flame.Intermediate</Name>
     </ProjectReference>
     <ProjectReference Include="..\Flame.MIPS\Flame.MIPS.csproj">
-      <Project>{0f61b9f7-907b-4b19-8227-55662dc6e70a}</Project>
+      <Project>{0F61B9F7-907B-4B19-8227-55662DC6E70A}</Project>
       <Name>Flame.MIPS</Name>
     </ProjectReference>
     <ProjectReference Include="..\Flame.Python\Flame.Python.csproj">
-      <Project>{52e014a4-37d9-4049-9d92-cb8e5ff2151c}</Project>
+      <Project>{52E014A4-37D9-4049-9D92-CB8E5FF2151C}</Project>
       <Name>Flame.Python</Name>
     </ProjectReference>
     <ProjectReference Include="..\Flame.Recompilation\Flame.Recompilation.csproj">
-      <Project>{f88efcdf-ef4d-4b49-8908-af89017c5a1d}</Project>
+      <Project>{F88EFCDF-EF4D-4B49-8908-AF89017C5A1D}</Project>
       <Name>Flame.Recompilation</Name>
     </ProjectReference>
     <ProjectReference Include="..\Flame.TextContract\Flame.TextContract.csproj">
-      <Project>{54ec66e3-8b54-476f-8fac-8ac1934453e8}</Project>
+      <Project>{54EC66E3-8B54-476F-8FAC-8AC1934453E8}</Project>
       <Name>Flame.TextContract</Name>
     </ProjectReference>
     <ProjectReference Include="..\Flame.Verification\Flame.Verification.csproj">
-      <Project>{a934b6b2-14ec-47e8-8b89-d978378b82f7}</Project>
+      <Project>{A934B6B2-14EC-47E8-8B89-D978378B82F7}</Project>
       <Name>Flame.Verification</Name>
     </ProjectReference>
     <ProjectReference Include="..\Flame.XmlDocs\Flame.XmlDocs.csproj">
-      <Project>{cd2775af-ed95-4562-9903-a309a6841bae}</Project>
+      <Project>{CD2775AF-ED95-4562-9903-A309A6841BAE}</Project>
       <Name>Flame.XmlDocs</Name>
     </ProjectReference>
   </ItemGroup>

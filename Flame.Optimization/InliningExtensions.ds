@@ -9,7 +9,7 @@ namespace Flame.Optimization
         /// <summary>
         /// Finds out whether a call to the given method can be inlined.
         /// </summary>
-        public static const bool CanInline(this IMethod Method, IType ThisType)
+        public static bool CanInline(this IMethod Method, IType ThisType)
         {
             if (ThisType == null)
                 return Method.IsStatic;
@@ -20,7 +20,7 @@ namespace Flame.Optimization
         /// <summary>
         /// Finds out whether a call to the given method can be inlined.
         /// </summary>
-        public static const bool CanInline(this IMethod Method, IExpression ThisExpression)
+        public static bool CanInline(this IMethod Method, IExpression ThisExpression)
         {
             return Method.CanInline(ThisExpression.TypeOrNull);
         }
