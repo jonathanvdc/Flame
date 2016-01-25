@@ -230,9 +230,15 @@ namespace Flame.Optimization
 
         /// <summary>
         /// Finds all variables in the given flow graph that are used only
-        /// in the block that defines them.
+        /// in the block that defines them. The result is a tuple that
+        /// consists of the given values:
+        ///     1. A dictionary that maps block-local variables to
+        ///        their use count.
+        ///     2. A dictionary that maps basic block tags to a set
+        ///        of variables that includes the block's
+        ///        block-local variables.
         /// </summary>
-        private BlockLocalVariables ComputeBlockLocalVariables(FlowGraph Graph)
+        public BlockLocalVariables ComputeBlockLocalVariables(FlowGraph Graph)
         {
             var singleBlockVariables = new HashSet<SSAVariable>();
             var multiBlockVariables = new HashSet<SSAVariable>();
@@ -243,7 +249,7 @@ namespace Flame.Optimization
             {
                 foreach (var param in block.Parameters)
                 {
-                    // Mark all SSA parameters all ineligible.
+                    // Mark all SSA parameters as ineligible.
                     multiBlockVariables.Add(param);
                 }
 
@@ -252,6 +258,12 @@ namespace Flame.Optimization
 
                 block.Accept(defFinder);
                 block.Accept(useFinder);
+
+                foreach (var arg in useFinder.ArgumentVariables)
+                {
+                    // Mark all SSA arguments as ineligible.
+                    multiBlockVariables.Add(arg);
+                }
 
                 foreach (var local in useFinder.UsedVariables)
                 {

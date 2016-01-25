@@ -165,14 +165,16 @@ namespace Flame.Optimization
     /// <summary>
     /// A node visitor that finds SSA variables whose values are used.
     /// </summary>
-    public class SSAVariableUseFinder : NodeVisitorBase
+    public class SSAVariableUseFinder : NodeVisitorBase, IBasicBlockVisitor
     {
         public const this()
         {
             this.useCount = new Dictionary<SSAVariable, int>();
+            this.argVariables = new HashSet<SSAVariable>();
         }
 
         private Dictionary<SSAVariable, int> useCount;
+        private HashSet<SSAVariable> argVariables;
 
         /// <summary>
         /// Gets the set of variables that have been used by nodes visited
@@ -186,6 +188,11 @@ namespace Flame.Optimization
         /// </summary>
         public IReadOnlyDictionary<SSAVariable, int> LoadCount { const get { return useCount; } }
 
+        /// <summary>
+        /// Gets the set of all variables that are known to be used as arguments.
+        /// </summary>
+        public [SSAVariable] ArgumentVariables { const get { return argVariables; } }
+
         public override const bool Matches(IExpression Value)
         {
             return Value is SSAGetExpression;
@@ -195,21 +202,47 @@ namespace Flame.Optimization
             return false;
         }
 
+        private void IncrementUseCount(SSAVariable Variable)
+        {
+            if (!useCount.ContainsKey(Variable))
+                useCount[Variable] = 1;
+            else
+                useCount[Variable] = useCount[Variable] + 1;
+        }
+
         protected override IExpression Transform(IExpression Expression)
         {
             var expr = (SSAGetExpression)Expression;
-
             // Increment the use count.
-            if (!useCount.ContainsKey(expr.Variable))
-                useCount[expr.Variable] = 1;
-            else
-                useCount[expr.Variable] = useCount[expr.Variable] + 1;
+            IncrementUseCount(expr.Variable);
             return expr;
         }
 
         protected override IStatement Transform(IStatement Statement)
         {
             return Statement;
+        }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            return Variable;
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public BlockBranch Visit(BlockBranch Branch)
+        {
+            foreach (var arg in Branch.Arguments)
+            {
+                argVariables.Add(arg);
+                IncrementUseCount(arg);
+            }
+            return Branch;
         }
     }
 

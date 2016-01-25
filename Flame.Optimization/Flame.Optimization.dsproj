@@ -46,6 +46,7 @@
     <Compile Include="StatementRewriter.ds" />
     <Compile Include="TailRecursionPass.ds" />
     <Compile Include="UnwrapBoundVariablesPass.ds" />
+    <Compile Include="ValuePropagationPass.ds" />
   </ItemGroup>
   <ItemGroup Name="Variables">
     <Compile Include="Variables/AccessCount.ds" />
