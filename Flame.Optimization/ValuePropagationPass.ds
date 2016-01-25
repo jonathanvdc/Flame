@@ -1,0 +1,256 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    public class ValuePropagatingVisitor : NodeVisitorBase
+    {
+        public const this(
+            set IReadOnlyDictionary<SSAVariable, int> UseCounts)
+        {
+            this.propAlwaysVars = new HashSet<SSAVariable>();
+            this.variableDefs = new Dictionary<SSAVariable, IExpression>();
+            this.lastDef = null;
+        }
+
+        /// <summary>
+        /// Gets the use counts associated with block-local variables by
+        /// this value propagating visitor.
+        /// </summary>
+        private IReadOnlyDictionary<SSAVariable, int> UseCounts { const get; private set; }
+
+        // Gets a dictionary that maps propagate-always SSA variables
+        // to their definitions.
+        private HashSet<SSAVariable> propAlwaysVars;
+
+        // A dictionary that maps SSA variables to their definitions.
+        private Dictionary<SSAVariable, IExpression> variableDefs;
+
+        // Gets the use-once SSA variable that was last defined.
+        // If it is non-null, then no expression or non-empty statement
+        // has been encountered since its definition. This variable can
+        // always be safely propagated, and its definition can always be
+        // reordered.
+        private SSAVariable lastDef;
+
+        private IStatement FlushLastDef()
+        {
+            if (lastDef == null)
+            {
+                return EmptyStatement;
+            }
+
+            var defStmt = new SSADefineStatement(lastDef, variableDefs[lastDef]);
+            lastDef = null;
+            return defStmt;
+        }
+
+        public override bool Matches(IExpression Value)
+        {
+            return true;
+        }
+        public override bool Matches(IStatement Value)
+        {
+            return true;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            if (Expression is SSAGetExpression)
+            {
+                var getExpr = (SSAGetExpression)Expression;
+                var ssaVar = getExpr.Variable;
+
+                if (propAlwaysVars.Contains(ssaVar))
+                {
+                    return variableDefs[ssaVar];
+                }
+                else if (lastDef != null && lastDef.Equals(ssaVar))
+                {
+                    lastDef = null;
+                    return variableDefs[ssaVar];
+                }
+                else
+                {
+                    return getExpr;
+                }
+            }
+            else
+            {
+                // Visit, then flush the last definition.
+                var result = Expression.Accept(this);
+                return new InitializedExpression(
+                    FlushLastDef(), result).Simplify();
+            }
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            if (Statement is SSADefineStatement)
+            {
+                var defStatement = (SSADefineStatement)Statement;
+                var val = Visit(defStatement.Value);
+                var ssaVar = defStatement.Variable;
+
+                variableDefs[ssaVar] = val;
+
+                if (UseCounts.TryGetValue(ssaVar, &int useCount))
+                {
+                    if (useCount == 0 ||
+                        ValuePropagationPass.IsPropagateAlwaysExpression(val))
+                    {
+                        // Mark this variable as a propagate-always
+                        // variable and don't emit its definition.
+                        propAlwaysVars.Add(ssaVar);
+                        return EmptyStatement;
+                    }
+                    else if (useCount == 1)
+                    {
+                        if (ValuePropagationPass.IsPropagateOnceExpression(val))
+                        {
+                            // Mark this variable as a propagate-always
+                            // variable and don't emit its definition.
+                            // This is safe, because its definition is
+                            // propagate-once, and it is used only once.
+                            propAlwaysVars.Add(ssaVar);
+                            return EmptyStatement;
+                        }
+                        else
+                        {
+                            // Flush the previous definition, and set this
+                            // variable as the last variable instead.
+                            var result = FlushLastDef();
+                            lastDef = ssaVar;
+                            return result;
+                        }
+                    }
+                }
+                return new SSADefineStatement(defStatement.Variable, val);
+            }
+            else if (Statement.IsEmpty)
+            {
+                return Statement;
+            }
+            else
+            {
+                // Visit, then flush the last definition.
+                var result = Statement.Accept(this);
+                return new BlockStatement(new IStatement[] {
+                    FlushLastDef(), result }).Simplify();
+            }
+        }
+    }
+
+    /// <summary>
+    /// A pass that propagates block-local SSA variable definitions.
+    /// </summary>
+    public static class ValuePropagationPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// Gets this pass' name.
+        /// </summary>
+        public const string ValuePropagationPassName = "valueprop";
+
+        /// <summary>
+        /// Tells if this expression is a propagate-always expression:
+        /// an expression that should always be propagated, regardless
+        /// of use count.
+        /// </summary>
+        public bool IsPropagateAlwaysExpression(IExpression Expression)
+        {
+            if (Expression is IMetadataNode<IExpression>)
+            {
+                return IsPropagateAlwaysExpression(((IMetadataNode<IExpression>)Expression).Value);
+            }
+            else if (Expression is LocalAddressOfExpression ||
+                     Expression is ArgumentAddressOfExpression ||
+                     Expression is ThisGetExpression ||
+                     Expression is SSAGetExpression)
+            {
+                // Always propagate address-of-local expressions, this-expressions,
+                // and ssa-get expressions.
+                return true;
+            }
+            else if (Expression is GetMethodExpression)
+            {
+                // Always propagate get-method expressions, provided
+                // its target is propagate-always.
+
+                var getMethodExpr = (GetMethodExpression)Expression;
+                return getMethodExpr.Caller == null
+                    || IsPropagateAlwaysExpression(getMethodExpr.Caller);
+            }
+            else if (Expression is ReinterpretCastExpression)
+            {
+                // Propagate reinterpret_casts of propagate-always expressions,
+                // because these casts are assumed to be zero-cost.
+                return IsPropagateAlwaysExpression(((ReinterpretCastExpression)Expression).Value);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Tells if this expression is a propagate-always expression:
+        /// an expression that should always be propagated, provided
+        /// its use count is one.
+        /// </summary>
+        public bool IsPropagateOnceExpression(IExpression Expression)
+        {
+            if (Expression is IMetadataNode<IExpression>)
+            {
+                return IsPropagateOnceExpression(((IMetadataNode<IExpression>)Expression).Value);
+            }
+            else if (Expression is LambdaExpression)
+            {
+                // Propagate lambdas once, provided their capture lists
+                // is either propagate-once or propagate-always.
+                var lambdaExpr = (LambdaExpression)Expression;
+                foreach (var item in lambdaExpr.Header.CaptureList)
+                    if (!IsPropagateAlwaysExpression(item) &&
+                        !IsPropagateOnceExpression(item))
+                        return false;
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            // Step one: find all variable definitions, as well as all
+            // variable uses.
+            var blockLocals = StackIntrinsicsPass.ComputeBlockLocalVariables(Graph);
+
+            // Step two: replace variables that are only used in the block
+            // that defines them.
+
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+            foreach (var block in Graph.Blocks)
+            {
+                // (Try to) replace block-local variables.
+                var placingVisitor = new ValuePropagatingVisitor(blockLocals.Item1);
+                results[block.Tag] = block.Accept(placingVisitor);
+            }
+            return new FlowGraph(Graph.EntryPointTag, results);
+        }
+
+        public IStatement Apply(IStatement Statement)
+        {
+            return Visit(Statement);
+        }
+    }
+}

@@ -21,7 +21,7 @@ namespace Flame.Compiler
 		/// <summary>
 		/// Gets the variable node's underlying variable.
 		/// </summary>
-		const IVariable GetVariable();
+		IVariable GetVariable();
 
 		/// <summary>
 		/// Gets the action associated with this variable node.
