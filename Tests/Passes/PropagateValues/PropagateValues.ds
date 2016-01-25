@@ -1,0 +1,21 @@
+
+public struct X
+{
+    public int A;
+    public int B;
+}
+
+public class PropagateValuesTest
+{
+    public int f(int x, int y)
+    {
+        // -fvalueprop should see the alias for what it is, and
+        // propagate its definition.
+
+        X a = default(X);
+        X^ aPtr = &a;
+        aPtr->A = x;
+        aPtr->B = y;
+        return aPtr->A * aPtr->B;
+    }
+}
