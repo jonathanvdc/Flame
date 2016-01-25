@@ -83,8 +83,7 @@ namespace Flame.Optimization
                     return getExpr;
                 }
             }
-            else if (Expression is InitializedExpression ||
-                     Expression is VoidExpression)
+            else if (ValuePropagationPass.CanDelayTopLevelExpression(Expression))
             {
                 // These expressions don't actually *do* anything themselves,
                 // so we needn't flush the last definition.
@@ -142,7 +141,7 @@ namespace Flame.Optimization
                 }
                 return new SSADefineStatement(defStatement.Variable, val);
             }
-            else if (Statement.IsEmpty)
+            else if (ValuePropagationPass.CanDelayTopLevelStatement(Statement))
             {
                 return Statement.Accept(this);
             }
@@ -165,6 +164,31 @@ namespace Flame.Optimization
         /// Gets this pass' name.
         /// </summary>
         public const string ValuePropagationPassName = "valueprop";
+
+        /// <summary>
+        /// Tests if the given top-level expression can be delayed.
+        /// </summary>
+        public bool CanDelayTopLevelExpression(IExpression Expression)
+        {
+            return Expression is IMetadataNode<IExpression>||
+                   Expression is InitializedExpression ||
+                   Expression is VoidExpression ||
+                   Expression is LocalGetExpression ||
+                   Expression is ArgumentGetExpression ||
+                   Expression is GetMethodExpression ||
+                   Expression is ConversionExpressionBase ||
+                   Expression is LambdaExpression;
+        }
+
+        /// <summary>
+        /// Tests if the given top-level expression can be delayed.
+        /// </summary>
+        public bool CanDelayTopLevelStatement(IStatement Statement)
+        {
+            return Statement.IsEmpty ||
+                   Statement is BlockStatement ||
+                   Statement is IMetadataNode<IStatement>;
+        }
 
         /// <summary>
         /// Tells if this expression is a propagate-always expression:
