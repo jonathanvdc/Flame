@@ -83,6 +83,13 @@ namespace Flame.Optimization
                     return getExpr;
                 }
             }
+            else if (Expression is InitializedExpression ||
+                     Expression is VoidExpression)
+            {
+                // These expressions don't actually *do* anything themselves,
+                // so we needn't flush the last definition.
+                return Expression.Accept(this);
+            }
             else
             {
                 // Visit, then flush the last definition.
@@ -137,7 +144,7 @@ namespace Flame.Optimization
             }
             else if (Statement.IsEmpty)
             {
-                return Statement;
+                return Statement.Accept(this);
             }
             else
             {

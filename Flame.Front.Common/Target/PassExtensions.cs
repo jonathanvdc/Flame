@@ -63,12 +63,12 @@ namespace Flame.Front.Target
 			SSAPassManager.RegisterPassCondition(ConstantPropagationPass.ConstantPropagationPassName, optInfo => optInfo.OptimizeAggressive);
 			SSAPassManager.RegisterMethodPass(new StatementPassInfo(CopyPropagationPass.Instance, CopyPropagationPass.CopyPropagationPassName));
 			SSAPassManager.RegisterPassCondition(CopyPropagationPass.CopyPropagationPassName, optInfo => optInfo.OptimizeAggressive);
+            SSAPassManager.RegisterMethodPass(new StatementPassInfo(ConcatBlocksPass.Instance, ConcatBlocksPass.ConcatBlocksPassName));
+            SSAPassManager.RegisterPassCondition(ConcatBlocksPass.ConcatBlocksPassName, optInfo => optInfo.OptimizeAggressive);
             SSAPassManager.RegisterMethodPass(new StatementPassInfo(ValuePropagationPass.Instance, ValuePropagationPass.ValuePropagationPassName));
             SSAPassManager.RegisterPassCondition(ValuePropagationPass.ValuePropagationPassName, optInfo => optInfo.OptimizeAggressive);
 			SSAPassManager.RegisterMethodPass(new StatementPassInfo(DeadStoreEliminationPass.Instance, DeadStoreEliminationPass.DeadStoreEliminationPassName));
 			SSAPassManager.RegisterPassCondition(DeadStoreEliminationPass.DeadStoreEliminationPassName, optInfo => optInfo.OptimizeAggressive);
-			SSAPassManager.RegisterMethodPass(new StatementPassInfo(ConcatBlocksPass.Instance, ConcatBlocksPass.ConcatBlocksPassName));
-			SSAPassManager.RegisterPassCondition(ConcatBlocksPass.ConcatBlocksPassName, optInfo => optInfo.OptimizeAggressive);
 
 			GlobalPassManager.Append(SSAPassManager.ToPreferences());
 
