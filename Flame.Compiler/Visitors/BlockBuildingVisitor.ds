@@ -156,9 +156,18 @@ namespace Flame.Compiler.Visitors
             BlockFlow Flow)
         {
             var visited = Visit(Statement);
-            var blockFlow = Flow.Accept(this);
-
-            Builder.CreateCurrentBlock(Parameters, visited, blockFlow);
+            if (Flow is JumpFlow || Flow is UnreachableFlow)
+            {
+                Builder.CreateCurrentBlock(Parameters, visited, Flow);
+            }
+            else
+            {
+                Builder.CreateCurrentBlock(
+                    Parameters, visited,
+                    new JumpFlow(new BlockBranch(Builder.NextBlockTag)));
+                Builder.Next();
+                Builder.CreateCurrentBlock(EmptyStatement, Flow.Accept(this));
+            }
         }
 
         /// <summary>
