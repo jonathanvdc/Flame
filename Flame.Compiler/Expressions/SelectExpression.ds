@@ -94,7 +94,7 @@ namespace Flame.Compiler.Expressions
 					falseResultVar
 				})));
 
-			Visitor.CreateCurrentBlock(
+			Visitor.Builder.CreateCurrentBlock(
 				EmptyStatement,
 				new SelectFlow(
 					cond,
