@@ -12,6 +12,7 @@ namespace Flame.Optimization
 {
     /// <summary>
     /// A statement visitor that rewrites tail recursion as iteration.
+    /// Also works for lambdas.
     /// </summary>
     /// <remarks>
     /// Rewrites
@@ -37,7 +38,7 @@ namespace Flame.Optimization
     /// ...
     /// continue OuterTag;
     /// </remarks>
-    public class TailRecursionVisitor : LocationVisitorBase
+    public class TailRecursionVisitor : LocationVisitorBase, ILambdaVisitor
     {
         public const this(set IMethod Method)
         {
@@ -71,12 +72,39 @@ namespace Flame.Optimization
         /// </summary>
         public IReadOnlyList<SourceLocation> MatchedLocations { const get { return matchLocations; } }
 
-        protected override const bool MatchesCore(IExpression Value)
+        protected override bool MatchesCore(IExpression Value)
         {
             return false;
         }
 
-        protected override const bool MatchesCore(IStatement Value)
+        /// <summary>
+        /// Determines whether the given expression is a self-call.
+        /// </summary>
+        private bool MatchesSelfCall(IExpression Expression)
+        {
+            var retVal = Expression.GetEssentialExpression();
+            if (retVal is InvocationExpression)
+            {
+                var invExpr = (InvocationExpression)retVal;
+                var invTarget = invExpr.Target.GetEssentialExpression();
+                if (invTarget is LambdaDelegateExpression)
+                {
+                    // Recursive lambda delegate expressions are _always_
+                    // calls to the current lambda.
+                    return true;
+                }
+                else if (invTarget is GetMethodExpression)
+                {
+                    var tgt = (GetMethodExpression)invTarget;
+                    return tgt.Op == Operator.GetDelegate &&
+                           (tgt.Caller == null || tgt.Caller is ThisGetExpression) &&
+                           Method.Equals(tgt.Target);
+                }
+            }
+            return false;
+        }
+
+        protected override bool MatchesCore(IStatement Value)
         {
             // Match nodes that look like this:
             //
@@ -88,21 +116,12 @@ namespace Flame.Optimization
             if (Value is ReturnStatement)
             {
                 var retStmt = (ReturnStatement)Value;
-                var retVal = retStmt.Value.GetEssentialExpression();
-                if (retVal is InvocationExpression)
-                {
-                    var invExpr = (InvocationExpression)retVal;
-                    var invTarget = invExpr.Target.GetEssentialExpression();
-                    if (invTarget is GetMethodExpression)
-                    {
-                        var tgt = (GetMethodExpression)invTarget;
-                        return tgt.Op == Operator.GetDelegate &&
-                               (tgt.Caller == null || tgt.Caller is ThisGetExpression) &&
-                               Method.Equals(tgt.Target);
-                    }
-                }
+                return MatchesSelfCall(retStmt.Value);
             }
-            return false;
+            else
+            {
+                return false;
+            }
         }
 
         protected override IExpression TransformCore(IExpression Expression)
@@ -161,6 +180,31 @@ namespace Flame.Optimization
                 matchLocations.Add(CurrentLocation);
 
             return new BlockStatement(results).Simplify();
+        }
+
+        /// <summary>
+        /// Visits the given expression, which logically belongs to the given method.
+        /// </summary>
+        public IExpression VisitBody(IExpression Value, IMethod OwningMember)
+        {
+            // Not sure what to do here. This should be the most
+            // conservative choice.
+            return Value;
+        }
+
+        /// <summary>
+        /// Visits the given statement, which logically belongs to the given method.
+        /// </summary>
+        public IStatement VisitBody(IStatement Value, IMethod OwningMember)
+        {
+            var visitor = new TailRecursionVisitor(OwningMember);
+            var result = visitor.Visit(Value);
+            if (visitor.HasReplaced)
+            {
+                result = new TaggedStatement(visitor.OuterTag, result);
+                matchLocations.AddRange(visitor.MatchedLocations);
+            }
+            return result;
         }
     }
 
@@ -226,27 +270,31 @@ namespace Flame.Optimization
             return new LogEntry("Pass remark", nodes);
         }
 
-        public IStatement Apply(BodyPassArgument Arg)
+        public IStatement Apply(
+            IStatement Body, IMethod DeclaringMethod, ICompilerLog Log)
         {
-            var declMethod = Arg.DeclaringMethod;
-            if (declMethod.IsGeneric && declMethod.IsGenericDeclaration)
+            if (DeclaringMethod.IsGeneric && DeclaringMethod.IsGenericDeclaration)
             {
-                declMethod = declMethod.MakeGenericMethod(declMethod.GenericParameters);
+                DeclaringMethod = DeclaringMethod.MakeGenericMethod(DeclaringMethod.GenericParameters);
             }
-            var visitor = new TailRecursionVisitor(declMethod);
-            var result = visitor.Visit(Arg.Body);
+            var visitor = new TailRecursionVisitor(DeclaringMethod);
+            var result = visitor.Visit(Body);
             if (visitor.HasReplaced)
             {
                 result = new TaggedStatement(visitor.OuterTag, result);
-                var log = Arg.PassEnvironment.Log;
                 if (Enumerable.Any<SourceLocation>(visitor.MatchedLocations) &&
-                    log.Options.ShouldRemark(TailRecursionPassName))
+                    Log.Options.ShouldRemark(TailRecursionPassName))
                 {
                     // Maybe also emit a remark.
-                    log.LogMessage(CreateTailRecursionMessage(Arg.DeclaringMethod, visitor.MatchedLocations));
+                    Log.LogMessage(CreateTailRecursionMessage(DeclaringMethod, visitor.MatchedLocations));
                 }
             }
             return result;
+        }
+
+        public IStatement Apply(BodyPassArgument Arg)
+        {
+            return Apply(Arg.Body, Arg.DeclaringMethod, Arg.PassEnvironment.Log);
         }
     }
 }
