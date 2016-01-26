@@ -41,7 +41,7 @@ namespace Flame.Optimization
             if (Value is SourceExpression)
             {
                 var srcExpr = (SourceExpression)Value;
-                return new SourceStatement(
+                return SourceStatement.Create(
                     PushDownReturn(srcExpr.Value), srcExpr.Location);
             }
             else if (Value is SelectExpression)
