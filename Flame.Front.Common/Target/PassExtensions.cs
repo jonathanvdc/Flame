@@ -33,11 +33,13 @@ namespace Flame.Front.Target
 			GlobalPassManager.RegisterPassCondition(new PassCondition(StripAssertPass.StripAssertPassName, optInfo => optInfo.OptimizeMinimal && !optInfo.OptimizeDebug));
 
             GlobalPassManager.RegisterMethodPass(new MethodPassInfo(SlimLambdaPass.Instance, SlimLambdaPass.SlimLambdaPassName));
-            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(LowerLambdaPass.Instance, LowerLambdaPassName));
-            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(LowerContractPass.Instance, LowerContractPass.LowerContractPassName));
-            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(Flame.Optimization.FlattenInitializationPass.Instance, Flame.Optimization.FlattenInitializationPass.FlattenInitializationPassName));
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(FlattenInitializationPass.Instance, FlattenInitializationPass.FlattenInitializationPassName));
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(ReturnMotionPass.Instance, ReturnMotionPass.ReturnMotionPassName));
             GlobalPassManager.RegisterMethodPass(new MethodPassInfo(TailRecursionPass.Instance, TailRecursionPass.TailRecursionPassName));
             GlobalPassManager.RegisterPassCondition(TailRecursionPass.TailRecursionPassName, optInfo => optInfo.OptimizeNormal);
+
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(LowerLambdaPass.Instance, LowerLambdaPassName));
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(LowerContractPass.Instance, LowerContractPass.LowerContractPassName));
 
             GlobalPassManager.RegisterMethodPass(new StatementPassInfo(SimplifyFlowPass.Instance, SimplifyFlowPassName));
             GlobalPassManager.RegisterPassCondition(SimplifyFlowPassName, optInfo => optInfo.OptimizeNormal);

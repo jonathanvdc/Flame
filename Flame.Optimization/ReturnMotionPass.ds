@@ -1,0 +1,182 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using Pixie;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A visitor that attempts to "push down" return statements.
+    /// </summary>
+    public class ReturnMotionVisitor : LocationVisitorBase, ILambdaVisitor
+    {
+        public const this()
+        {
+            this.matchLocations = new List<SourceLocation>();
+        }
+
+        private List<SourceLocation> matchLocations;
+
+        /// <summary>
+        /// Gets a sequence of source locations that identify the sites where
+        /// 'return' statements were successfully pushed down.
+        /// </summary>
+        public IReadOnlyList<SourceLocation> MatchedLocations
+        {
+            const get { return matchLocations; }
+        }
+
+        /// <summary>
+        /// Creates a logical return statement, which is pushed down
+        /// as far as possible.
+        /// </summary>
+        private IStatement PushDownReturn(IExpression Value)
+        {
+            if (Value is SourceExpression)
+            {
+                var srcExpr = (SourceExpression)Value;
+                return new SourceStatement(
+                    PushDownReturn(srcExpr.Value), srcExpr.Location);
+            }
+            else if (Value is SelectExpression)
+            {
+                var selExpr = (SelectExpression)Value;
+                return new IfElseStatement(
+                    selExpr.Condition,
+                    PushDownReturn(selExpr.TrueValue),
+                    PushDownReturn(selExpr.FalseValue));
+            }
+            else if (Value is InitializedExpression)
+            {
+                var initExpr = (InitializedExpression)Value;
+                if (NodeExtensions.CanDelay(initExpr.Finalization))
+                {
+                    return new BlockStatement(new IStatement[]
+                    {
+                        initExpr.Initialization,
+                        PushDownReturn(initExpr.Value)
+                    }).Simplify();
+                }
+            }
+            return new ReturnStatement(Value);
+        }
+
+        protected override bool MatchesCore(IExpression Value)
+        {
+            return false;
+        }
+
+        protected override bool MatchesCore(IStatement Value)
+        {
+            return Value is ReturnStatement;
+        }
+
+        protected override IExpression TransformCore(IExpression Expression)
+        {
+            return Expression.Accept(this);
+        }
+
+        protected override IStatement TransformCore(IStatement Statement)
+        {
+            assert(Statement is ReturnStatement);
+            var retStmt = (ReturnStatement)Statement;
+            if (retStmt.Value != null)
+            {
+                var result = PushDownReturn(retStmt.Value);
+                if (CurrentLocation != null && !(result is ReturnStatement))
+                {
+                    // Looks like we managed to actually pull this off.
+                    // Let's add this location to the list of matched
+                    // locations.
+                    matchLocations.Add(CurrentLocation);
+                }
+                return result.Accept(this);
+            }
+            else
+            {
+                return retStmt.Accept(this);
+            }
+        }
+
+        public IExpression VisitBody(IExpression Value, IMethod OwningMember)
+        {
+            return Visit(Value);
+        }
+
+        public IStatement VisitBody(IStatement Value, IMethod OwningMember)
+        {
+            return Visit(Value);
+        }
+    }
+
+    /// <summary>
+    /// A pass that attempts to "push down" 'return-select', 'return-source-expr' and
+    /// 'return-initialized' expressions. Running this pass before applying
+    /// -ftail-recursion should improve the latter's effectiveness, especially
+    /// for expression-based languages.
+    /// </summary>
+    /// <remarks>
+    /// The following transformations are made, which can be recursive:
+    ///
+    ///     return(select(flag, x, y))
+    /// --> if-else(flag, return(x), return(y))
+    ///
+    ///     return(initialized(init, val, {}))
+    /// --> { init, return(val) }
+    ///
+    ///     return(source-expr(val))
+    /// --> source-stmt(return(val))
+    /// </remarks>
+    public static class ReturnMotionPass : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// This pass' name.
+        /// </summary>
+        public const string ReturnMotionPassName = "return-motion";
+
+        /// <summary>
+        /// The remarks option for return motion: applying this pass to
+        /// a function will emit a message if this is option set to true.
+        /// </summary>
+        public string ReturnMotionRemarksOption
+        {
+            const get { return Flags.GetRemarkOptionName(ReturnMotionPassName); }
+        }
+
+        private LogEntry CreateReturnMotionMessage(
+            SourceLocation Location)
+        {
+            var nodes = new List<IMarkupNode>();
+            // Add a description
+            nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
+                "Pushed down 'return' statement here. "));
+            // Add a cause node ('[-Rreturn-motion]')
+            nodes.Add(Flags.CreateCauseNode(ReturnMotionRemarksOption));
+            // Add diagnostics for the site.
+            nodes.Add(Location.CreateDiagnosticsNode());
+
+            return new LogEntry("Pass remark", nodes);
+        }
+
+        public IStatement Apply(BodyPassArgument Arg)
+        {
+            var visitor = new ReturnMotionVisitor();
+            var result = visitor.Visit(Arg.Body);
+            var log = Arg.PassEnvironment.Log;
+            if (log.Options.ShouldRemark(ReturnMotionPassName))
+            {
+                foreach (var item in visitor.MatchedLocations)
+                {
+                    log.LogMessage(CreateReturnMotionMessage(item));
+                }
+            }
+            return result;
+        }
+    }
+}

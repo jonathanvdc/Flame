@@ -13,10 +13,19 @@ namespace Flame.Verification
 {
     public sealed class VerifyingDeadCodePass : IPass<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>
     {
-        private VerifyingDeadCodePass()
-        { }
+        private VerifyingDeadCodePass(bool LogMissingReturn)
+        {
+            this.LogMissingReturn = LogMissingReturn;
+        }
 
-        public static readonly VerifyingDeadCodePass Instance = new VerifyingDeadCodePass();
+        /// <summary>
+        /// A boolean that indicates whether this pass will try to emit
+        /// missing-return warnings.
+        /// </summary>
+        public bool LogMissingReturn { get; private set; }
+
+        public static readonly VerifyingDeadCodePass Instance = new VerifyingDeadCodePass(true);
+        public static readonly VerifyingDeadCodePass NoMissingReturnInstance = new VerifyingDeadCodePass(false);
 
         public static readonly WarningDescription MissingReturnWarning = Warnings.Instance.MissingReturnWarning;
         public static readonly WarningDescription DeadCodeWarning = Warnings.Instance.DeadCodeWarning;
@@ -29,7 +38,9 @@ namespace Flame.Verification
 
             var visitor = new DeadCodeVisitor();
             var optStmt = visitor.Visit(stmt);
-            if (visitor.CurrentFlow && MissingReturnWarning.UseWarning(Value.Item3.Options) && !YieldNodeFindingVisitor.UsesYield(stmt))
+            if (LogMissingReturn && visitor.CurrentFlow &&
+                MissingReturnWarning.UseWarning(Value.Item3.Options) &&
+                !YieldNodeFindingVisitor.UsesYield(stmt))
             {
                 log.LogWarning(new LogEntry("Missing return statement?",
                     MissingReturnWarning.CreateMessage("This method may not always return or throw. "),
