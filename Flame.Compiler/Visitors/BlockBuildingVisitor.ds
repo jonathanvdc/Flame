@@ -155,16 +155,33 @@ namespace Flame.Compiler.Visitors
             IReadOnlyList<SSAVariable> Parameters, IStatement Statement,
             BlockFlow Flow)
         {
-            var visited = Visit(Statement);
-            if (Flow is JumpFlow || Flow is UnreachableFlow)
+            if (Parameters.Count > 0)
             {
-                Builder.CreateCurrentBlock(Parameters, visited, Flow);
+                // If this block has a non-empty parameter list, then we'll
+                // emit a empty-bodied block that captures the parameter list first.
+                // The point of this is to keep CFG construction both safe and
+                // simple: invididual nodes are always expected to build "current"
+                // blocks with empty parameter lists.
+                // Without this, flow control statements can and will create
+                // parameterless "current" blocks, even though this call
+                // promises to create a current block with the given parameter
+                // list.
+
+                Builder.CreateCurrentBlock(
+                    Parameters, EmptyStatement,
+                    new JumpFlow(new BlockBranch(Builder.NextBlockTag)));
+                Builder.Next();
+            }
+
+            var visited = Visit(Statement);
+            if (Flow is JumpFlow || Flow is TerminatedFlowBase)
+            {
+                Builder.CreateCurrentBlock(visited, Flow);
             }
             else
             {
                 Builder.CreateCurrentBlock(
-                    Parameters, visited,
-                    new JumpFlow(new BlockBranch(Builder.NextBlockTag)));
+                    visited, new JumpFlow(new BlockBranch(Builder.NextBlockTag)));
                 Builder.Next();
                 Builder.CreateCurrentBlock(EmptyStatement, Flow.Accept(this));
             }
