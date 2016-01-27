@@ -79,8 +79,6 @@
     <Compile Include="Emit\NodeEmitVariable.cs" />
     <Compile Include="Emit\NodeForeachHeader.cs" />
     <Compile Include="Emit\NodeLambdaHeader.cs" />
-    <Compile Include="Emit\UniqueNameMap.cs" />
-    <Compile Include="Emit\UniqueNameSet.cs" />
     <Compile Include="EmptyNodeList.cs" />
     <Compile Include="INodeStructure.cs" />
     <Compile Include="IRAccessor.cs" />
@@ -118,7 +116,7 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
