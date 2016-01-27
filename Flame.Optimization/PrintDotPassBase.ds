@@ -1,0 +1,444 @@
+using Flame;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A class of objects that construct graphviz files.
+    /// </summary>
+    public class GraphvizWriter
+    {
+        public this(set TextWriter Writer)
+        {
+            this.Indentation = 0;
+            this.IndentationString = "    ";
+        }
+
+        public this(set TextWriter Writer, set int Indentation)
+        {
+            this.IndentationString = "    ";
+        }
+
+        public this(
+            set TextWriter Writer, set int Indentation,
+            set string IndentationString);
+
+        /// <summary>
+        /// Gets this graphviz writer's underlying text writer.
+        /// </summary>
+        public TextWriter Writer { get; private set; }
+
+        /// <summary>
+        /// Gets the current indentation level.
+        /// </summary>
+        public int Indentation { get; set; }
+
+        /// <summary>
+        /// Gets the indentation string this graphviz writer uses.
+        /// </summary>
+        public string IndentationString { get; private set; }
+
+        /// <summary>
+        /// "Forks" this graphviz writer: a new graphviz writer is created
+        /// that copies this writer's indentation and indentation string, but
+        /// has a separate text writer.
+        /// </summary>
+        public GraphvizWriter Fork(TextWriter Writer)
+        {
+            return new GraphvizWriter(Writer, Indentation, IndentationString);
+        }
+
+        /// <summary>
+        /// Writes the indentation string to the underlying text writer.
+        /// </summary>
+        public void WriteIndentation()
+        {
+            for (int i = 0; i < Indentation; i++)
+                Writer.Write(IndentationString);
+        }
+
+        /// <summary>
+        /// Writes a newline to the underlying text writer.
+        /// </summary>
+        public void WriteLine()
+        {
+            Writer.WriteLine();
+        }
+
+        /// <summary>
+        /// 'Starts' a block.
+        /// </summary>
+        public void StartBlock(string Type, string Name)
+        {
+            // Format: `type name {`
+
+            WriteIndentation();
+            Writer.Write(Type);
+            Writer.Write(' ');
+            Writer.Write(Name);
+            Writer.Write(" {");
+            Indentation++;
+            WriteLine();
+        }
+
+        /// <summary>
+        /// 'Ends' a block.
+        /// </summary>
+        public void EndBlock()
+        {
+            // Format: `}`
+
+            Indentation--;
+            WriteIndentation();
+            Writer.Write('}');
+            WriteLine();
+        }
+
+        /// <summary>
+        /// Writes an identifier to the underlying text writer.
+        /// </summary>
+        public void WriteIdentifier(string Value)
+        {
+            Writer.Write(Value);
+        }
+
+        /// <summary>
+        /// Writes the end of a single-line entity, which consists of a semicolon
+        /// followed by a newline.
+        /// </summary>
+        public void EndEntity()
+        {
+            Writer.Write(';');
+            WriteLine();
+        }
+
+        /// <summary>
+        /// Writes a simple attribute.
+        /// </summary>
+        public void WriteAttribute(string Attribute, string Value)
+        {
+            Writer.Write(Attribute);
+            Writer.Write('=');
+            Writer.Write(Value);
+        }
+
+        /// <summary>
+        /// Writes a graphviz attribute list to the underlying text writer.
+        /// </summary>
+        public void WriteAttributeList(IReadOnlyDictionary<string, string> Attributes)
+        {
+            Writer.Write('[');
+            bool isFirst = true;
+            foreach (var item in Attributes)
+            {
+                if (isFirst)
+                    isFirst = false;
+                else
+                    Writer.Write(',')
+
+                WriteAttribute(item.Key, item.Value);
+            }
+            Writer.Write(']');
+        }
+
+        /// <summary>
+        /// Writes a graphviz attribute list to the underlying text writer
+        /// if the given dictionary is nonempty, prefixed by a single
+        /// space character. This method does nothing
+        /// for empty attribute lists.
+        /// </summary>
+        public void WriteOptionalAttributeList(IReadOnlyDictionary<string, string> Attributes)
+        {
+            if (Attributes.Count > 0)
+            {
+                Writer.Write(' ');
+                WriteAttributeList(Attributes);
+            }
+        }
+
+        /// <summary>
+        /// Writes an edge that connects the given nodes, with the given
+        /// attribute list.
+        /// </summary>
+        public void WriteEdge(
+            string FromNode, string ToNode,
+            IReadOnlyDictionary<string, string> Attributes)
+        {
+            WriteIndentation();
+            WriteIdentifier(FromNode);
+            Writer.Write(" -> ");
+            WriteIdentifier(ToNode);
+            WriteOptionalAttributeList(Attributes);
+            EndEntity();
+        }
+
+        /// <summary>
+        /// Writes an edge that connects the given nodes.
+        /// </summary>
+        public void WriteEdge(string FromNode, string ToNode)
+        {
+            WriteEdge(FromNode, ToNode, new Dictionary<string, string>());
+        }
+
+        /// <summary>
+        /// Writes a node definition with the given name and attribute list.
+        /// </summary>
+        public void WriteNode(
+            string Name, IReadOnlyDictionary<string, string> Attributes)
+        {
+            WriteIndentation();
+            WriteIdentifier(Name);
+            WriteOptionalAttributeList(Attributes);
+            EndEntity();
+        }
+
+        /// <summary>
+        /// Writes a node definition with the given name.
+        /// </summary>
+        public void WriteNode(string Name)
+        {
+            WriteNode(Name, new Dictionary<string, string>());
+        }
+    }
+
+    public class DotPrintingVisitor : INodeVisitor
+    {
+        public this(GraphvizWriter NodeWriter, GraphvizWriter EdgeWriter)
+        {
+            this.nodeIndex = 0;
+            this.blockLabels = new UniqueNameMap<UniqueTag>(GetTagName, "!");
+            this.localLabels = new UniqueNameMap<UniqueTag>(GetTagName, "%");
+            this.nodeWriter = NodeWriter;
+            this.edgeWriter = EdgeWriter;
+            this.parentNodeName = GenerateEntryPoint();
+        }
+
+        private string GetTagName(UniqueTag Tag)
+        {
+            return Tag.Name;
+        }
+
+        private const string NodePrefix = "node";
+
+        private int nodeIndex;
+        private UniqueNameMap<UniqueTag> blockLabels;
+        private UniqueNameMap<UniqueTag> localLabels;
+        private GraphvizWriter nodeWriter;
+        private GraphvizWriter edgeWriter;
+        private string parentNodeName;
+
+        private string GenerateNodeName()
+        {
+            string result = NodePrefix + (string)nodeIndex;
+            nodeIndex++;
+            return result;
+        }
+
+        private string GenerateNode(string Label)
+        {
+            string nodeName = GenerateNodeName();
+            var attrs = new Dictionary<string, string>();
+            attrs["label"] = "\"" + Label + "\"";
+            nodeWriter.WriteNode(nodeName, attrs);
+            return nodeName;
+        }
+
+        private string GenerateEntryPoint()
+        {
+            string nodeName = GenerateNodeName();
+            var attrs = new Dictionary<string, string>();
+            attrs["shape"] = "point";
+            attrs["style"] = "invis";
+            nodeWriter.WriteNode(nodeName, attrs);
+            return nodeName;
+        }
+
+        private string ToLabel(string Representation)
+        {
+            // Attempts to get rid of argument lists.
+            int index = Representation.IndexOf('(');
+            if (index < 0)
+                return Representation;
+            else
+                return Representation.Substring(0, index);
+        }
+
+        private string Describe(VariableNodeAction Action)
+        {
+            if (Action == VariableNodeAction.Get)
+                return "get";
+            else if (Action == VariableNodeAction.Set)
+                return "set";
+            else if (Action == VariableNodeAction.AddressOf)
+                return "address-of";
+            else if (Action == VariableNodeAction.Release)
+                return "release";
+            else
+                return "other";
+        }
+
+        private string Describe(IVariable Variable)
+        {
+            if (Variable is LocalVariable)
+            {
+                var local = (LocalVariable)Variable;
+                return "local(" + localLabels[local.Tag] + ")";
+            }
+            else if (Variable is SSAVariable)
+            {
+                var local = (SSAVariable)Variable;
+                return "ssa-local(" + localLabels[local.Tag] + ")";
+            }
+            else if (Variable is ArgumentVariable)
+            {
+                var arg = (ArgumentVariable)Variable;
+                return "arg(" + (string)arg.Index + ")";
+            }
+            else if (Variable is ThisVariable)
+            {
+                return "this";
+            }
+            else if (Variable is FieldVariable)
+            {
+                var field = (FieldVariable)Variable;
+                return "field(" + field.Field.Name + ")";
+            }
+            else if (Variable is ElementVariable)
+            {
+                return "element";
+            }
+            else
+            {
+                return ToLabel(Variable.ToString());
+            }
+        }
+
+        private string ToLabel(IVariableNode Node)
+        {
+            var variable = Node.GetVariable();
+            return Describe(Node.Action) + "-" + Describe(variable);
+        }
+
+        private string ToLabel(IStatement Value)
+        {
+            if (Value is BlockStatement)
+                return "block";
+            else if (Value is EmptyStatement)
+                return "nop";
+            else if (Value is IVariableNode)
+                return ToLabel((IVariableNode)Value);
+            else
+                return ToLabel(Value.ToString());
+        }
+
+        private string ToLabel(IExpression Value)
+        {
+            if (Value is IVariableNode)
+                return ToLabel((IVariableNode)Value);
+            else
+                return ToLabel(Value.ToString());
+        }
+
+        public IStatement Visit(IStatement Value)
+        {
+            string nodeName = GenerateNode(ToLabel(Value));
+            edgeWriter.WriteEdge(parentNodeName, nodeName);
+
+            string grandParentNodeName = parentNodeName;
+            parentNodeName = nodeName;
+            var result = Value.Accept(this);
+            parentNodeName = grandParentNodeName;
+            return result;
+        }
+
+        public IExpression Visit(IExpression Value)
+        {
+            string nodeName = GenerateNode(ToLabel(Value));
+            edgeWriter.WriteEdge(parentNodeName, nodeName);
+
+            string grandParentNodeName = parentNodeName;
+            parentNodeName = nodeName;
+            var result = Value.Accept(this);
+            parentNodeName = grandParentNodeName;
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// A base class for passes that create dot representations from
+    /// method body control-flow graphs. Tree-based control flow and nodes
+    /// are rendered as trees.
+    /// </summary>
+    public abstract class PrintDotPassBase : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// The default name for dot printing passes.
+        /// </summary>
+        public const string PrintDotPassName = "dot-cfg";
+
+        /// <summary>
+        /// Tries to open an output stream for the given method. If that can't
+        /// be done, then null is returned. A compiler log is also provided.
+        /// </summary>
+        protected abstract TextWriter TryOpen(IMethod Method, ICompilerLog Log);
+
+        /// <summary>
+        /// Closes the given output stream. The method this stream belongs to,
+        /// as well as a compiler log, are given, as well.
+        /// </summary>
+        protected abstract void Close(TextWriter Writer, IMethod Method, ICompilerLog Log);
+
+        private void Write(TextWriter Writer, IMethod Method, IStatement Body)
+        {
+            var gvWriter = new GraphvizWriter(Writer);
+            gvWriter.StartBlock("digraph", "CFG");
+            gvWriter.WriteIndentation();
+            gvWriter.WriteAttribute("label", "\"CFG for method '" + Method.FullName + "'.\"");
+            gvWriter.EndEntity();
+
+            // graph [fontname=Monospace];
+            // node [fontname=Monospace];
+            // edge [fontname=Monospace];
+
+            var prefs = new Dictionary<string, string>();
+            prefs["fontname"] = "Monospace";
+
+            gvWriter.WriteNode("graph", prefs);
+            gvWriter.WriteNode("node", prefs);
+            gvWriter.WriteNode("edge", prefs);
+
+            var edgeBuilder = new StringBuilder();
+            var gvEdgeWriter = gvWriter.Fork(new StringWriter(edgeBuilder));
+            var visitor = new DotPrintingVisitor(gvWriter, gvEdgeWriter);
+            visitor.Visit(Body);
+            gvWriter.WriteLine();
+            gvWriter.Writer.Write(edgeBuilder.ToString());
+            gvWriter.EndBlock();
+        }
+
+        public IStatement Apply(BodyPassArgument Argument)
+        {
+            var body = Argument.Body;
+
+            var declMethod = Argument.DeclaringMethod;
+            var log = Argument.PassEnvironment.Log;
+            var writer = TryOpen(declMethod, log);
+
+            if (writer != null)
+            {
+                Write(writer, declMethod, body);
+                Close(writer, declMethod, log);
+            }
+
+            return body;
+        }
+    }
+}
