@@ -106,6 +106,7 @@
     <Compile Include="Target\MipsBuildTargetParser.cs" />
     <Compile Include="Target\PassExtensions.cs" />
     <Compile Include="Target\PythonBuildTargetParser.cs" />
+    <Compile Include="Target\PrintDotPass.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame.Cecil\Flame.Cecil.csproj">

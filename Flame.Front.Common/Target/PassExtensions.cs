@@ -25,6 +25,8 @@ namespace Flame.Front.Target
 			GlobalPassManager = new PassManager();
 			SSAPassManager = new PassManager();
 
+			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotTreePassName));
+
             GlobalPassManager.RegisterMethodPass(new StatementPassInfo(NodeOptimizationPass.Instance, NodeOptimizationPass.NodeOptimizationPassName));
 
             // Activate -fstrip-assert whenever -g is turned off, and the
@@ -73,10 +75,13 @@ namespace Flame.Front.Target
 			SSAPassManager.RegisterPassCondition(DeadStoreEliminationPass.DeadStoreEliminationPassName, optInfo => optInfo.OptimizeAggressive);
 
 			GlobalPassManager.Append(SSAPassManager.ToPreferences());
+			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotPassName));
 
 			// -finline uses CFG/SSA form, so it's -O3, too.
 			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(InliningPass.Instance, InliningPass.InliningPassName));
 			GlobalPassManager.RegisterPassCondition(InliningPass.InliningPassName, optInfo => optInfo.OptimizeAggressive);
+
+			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotOptimizedPassName));
 
             // Watch out with -fstack-intrinsics
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(StackIntrinsicsPass.Instance, StackIntrinsicsPass.StackIntrinsicsPassName));
