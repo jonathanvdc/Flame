@@ -14,6 +14,9 @@
     </ItemGroup>
 	<ItemGroup>
         <Compile Include="AccessExtensions.ds" />
+		<Compile Include="AccessModifier.ds" />
+		<Compile Include="AncestryGraph.ds" />
+		<Compile Include="AndConstraint.ds" />
 		<Compile Include="IMember.ds" />
 		<Compile Include="ITypeMember.ds" />
 		<Compile Include="IType.ds" />
@@ -43,7 +46,6 @@
 		<Compile Include="Operator.ds" />
         <Compile Include="OperatorCache.ds" />
         <Compile Include="OperatorExtensions.ds" />
-		<Compile Include="AccessModifier.ds" />
 		<Compile Include="GenericNameExtensions.ds" />
         <Compile Include="GenericExtensions.ds" />
         <Compile Include="GenericInstanceAccessor.ds" />
@@ -59,10 +61,9 @@
 		<Compile Include="INamespaceTree.ds" />
 		<Compile Include="NamespaceTreeExtensions.ds" />
 		<Compile Include="SingletonExtensions.ds" />
-		<Compile Include="AncestryGraph.ds" />
 		<Compile Include="IGenericConstraint.ds" />
 		<Compile Include="TypeConstraint.ds" />
-		<Compile Include="AndConstraint.ds" />
+        <Compile Include="UniqueNameMap.ds" />
 		<Compile Include="ValueTypeConstraint.ds" />
 	</ItemGroup>
 	<ItemGroup Name="Primitives">

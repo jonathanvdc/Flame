@@ -1,0 +1,138 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+
+namespace Flame
+{
+    /// <summary>
+    /// A name generator class that generates names by prefixing string
+    /// representations of integers with a constant string.
+    /// </summary>
+    public class PrefixNameGenerator<T>
+    {
+        /// <summary>
+        /// Creates a prefix name generator from the given prefix.
+        /// </summary>
+        public this(set string Prefix);
+
+        /// <summary>
+        /// Gets the prefix to prepend to indices.
+        /// </summary>
+        public string Prefix { const get; private set; }
+
+        /// <summary>
+        /// Generates a name from the given parameters.
+        /// </summary>
+        public string GenerateName(T Item, int Index)
+        {
+            return Prefix + (string)Index;
+        }
+    }
+
+    /// <summary>
+    /// Defines a type that generates a unique name for every
+    /// value it is passed. Generated names are stored, but not
+    /// associated with the object they originated from:
+    /// generating a name for the same object twice
+    /// will always result in two different unique names.
+    /// The resulting name will never be null or empty.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class UniqueNameSet<T>
+    {
+        /// <summary>
+        /// Creates a unique name set from the given name-providing function,
+        /// and a prefix that is used to resolve collisions.
+        /// </summary>
+        public this(string(T) GetName, string Prefix)
+        {
+            this.getName = GetName;
+            this.generateName = new PrefixNameGenerator<T>(Prefix).GenerateName;
+            this.nameSet = new HashSet<string>();
+        }
+
+        /// <summary>
+        /// Creates a unique name set from the given name-providing function,
+        /// and a name-generating function that is used to resolve
+        /// collisions.
+        /// </summary>
+        public this(string(T) GetName, string(T, int) GenerateName)
+        {
+            this.getName = GetName;
+            this.generateName = GenerateName;
+            this.nameSet = new HashSet<string>();
+        }
+
+        private string(T) getName;
+        private string(T, int) generateName;
+        private HashSet<string> nameSet;
+
+        /// <summary>
+        /// Generates a unique name for the given value.
+        /// </summary>
+        /// <param name="Element"></param>
+        /// <returns></returns>
+        public string GenerateName(T Element)
+        {
+            string name = getName(Element);
+
+            if (!string.IsNullOrEmpty(name) && nameSet.Add(name))
+            {
+                return name;
+            }
+            int index = 0;
+            do
+            {
+                name = generateName(Element, index);
+                index++;
+            } while (!nameSet.Add(name));
+
+            return name;
+        }
+    }
+
+    /// <summary>
+    /// Defines a type that generates a unique name for every
+    /// value that is given to it. Generated names are stored, such
+    /// that requesting a name for the same object more than once
+    /// results in the same unique name.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class UniqueNameMap<T>
+    {
+        /// <summary>
+        /// Creates a unique name map from the given name-providing function,
+        /// and a prefix that is used to resolve collisions.
+        /// </summary>
+        public this(string(T) GetName, string Prefix)
+        {
+            this.nameSet = new UniqueNameSet<T>(GetName, Prefix);
+            this.dict = new ConcurrentDictionary<T, string>();
+        }
+
+        /// <summary>
+        /// Creates a unique name map from the given name-providing function,
+        /// and a name-generating function that is used to resolve
+        /// collisions.
+        /// </summary>
+        public this(string(T) GetName, string(T, int) GenerateName)
+        {
+            this.nameSet = new UniqueNameSet<T>(GetName, GenerateName);
+            this.dict = new ConcurrentDictionary<T, string>();
+        }
+
+        private UniqueNameSet<T> nameSet;
+        private ConcurrentDictionary<T, string> dict;
+
+        /// <summary>
+        /// Gets the name that the given element is mapped to.
+        /// </summary>
+        public string this[T Element]
+        {
+            get
+            {
+                return dict.GetOrAdd(Element, nameSet.GenerateName);
+            }
+        }
+    }
+}
