@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Flame.Front.Cli;
 using Pixie;
 using System.Text;
@@ -29,20 +30,41 @@ namespace Flame.Front
 				return;
 			}
 
+			var style = Palette.GetNamedStyle(NodeConstants.SourceLocationAttribute);
+			Console.PushStyle(style);
+
+			bool msvc = style.Preferences.Contains("msvc");
+			bool vi = !msvc && style.Preferences.Contains("vi");
+
 			var pos = loc.GridPosition;
 			var text = new StringBuilder();
 			text.Append(loc.Document.Identifier);
 			if (pos.Line > -1)
 			{
-				text.Append(':');
+				if (vi)
+					text.Append(" +");
+				else if (msvc)
+					text.Append('(');
+				else
+					text.Append(':');
+				
 				text.Append(pos.Line + 1);
 				if (pos.Offset > -1)
 				{
-					text.Append(':');
+					if (msvc)
+						text.Append(',');
+					else
+						text.Append(':');
 					text.Append(pos.Offset + 1);
 				}
 			}
-			MainWriter.Write(new MarkupNode(NodeConstants.BrightNodeType, text.ToString()), Console, Palette);
+			if (msvc)
+			{
+				text.Append(')');
+			}
+			MainWriter.Write(new MarkupNode(NodeConstants.TextNodeType, text.ToString()), Console, Palette);
+
+			Console.PopStyle();
 		}
 	}
 }

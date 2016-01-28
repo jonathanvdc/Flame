@@ -268,9 +268,9 @@ namespace Flame.Front
 				// if at all possible.
 				if (srcLocFinder.FirstSourceLocation != null)
 				{
-					NodeWriter.Write(
+					WriteNodeCore(
 						CompilerLogExtensions.CreateLineNumberNode(srcLocFinder.FirstSourceLocation),
-						Console, Palette);
+						PrimaryStyle, SecondaryStyle);
 					Console.Write(": ");
 				}
 
@@ -349,6 +349,7 @@ namespace Flame.Front
             var dependentStyles = new List<Style>();
             dependentStyles.Add(new Style(StyleConstants.CaretMarkerStyleName, CaretStyle.ForegroundColor, CaretStyle.BackgroundColor, GetDiagnosticsCharacterPreferences("caret-character")));
             dependentStyles.Add(new Style(StyleConstants.CaretHighlightStyleName, HighlightStyle.ForegroundColor, HighlightStyle.BackgroundColor, GetDiagnosticsCharacterPreferences("highlight-character")));
+			dependentStyles.Add(GetStyle(Options, NodeConstants.SourceLocationNodeType, NodeConstants.SourceLocationNodeType, ContrastForegroundColor));
 
             var extPalette = new ExtendedPalette(Palette, dependentStyles);
 
