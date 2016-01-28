@@ -29,7 +29,7 @@ namespace Pixie.Xml
         /// <summary>
         /// Converts the given XML node list to a sequence of markup nodes.
         /// </summary>
-        public static [IMarkupNode] ToMarkupNodes(XmlNodeList Nodes)
+        public static [MarkupNode] ToMarkupNodes(XmlNodeList Nodes)
         {
             return ToMarkupNodes(Nodes.Cast<XmlNode>());
         }
@@ -37,19 +37,19 @@ namespace Pixie.Xml
         /// <summary>
         /// Converts the given sequence of XML nodes to a sequence of markup nodes.
         /// </summary>
-        public static [IMarkupNode] ToMarkupNodes([XmlNode] Nodes)
+        public static [MarkupNode] ToMarkupNodes([XmlNode] Nodes)
         {
-            return Enumerable.Where<IMarkupNode>(
-                       Enumerable.Select<XmlNode, IMarkupNode>(Nodes, ToMarkupNode),
-                       bool(IMarkupNode item) => item != null);
+            return Enumerable.Where<MarkupNode>(
+                       Enumerable.Select<XmlNode, MarkupNode>(Nodes, ToMarkupNode),
+                       bool(MarkupNode item) => item != null);
         }
 
         /// <summary>
         /// Creates a markup node from the given tag, XML attribute collection,
         /// and children (which have already been parsed).
         /// </summary>
-        public static IMarkupNode CreateMarkupNode(string Tag,
-            XmlAttributeCollection Attributes, [IMarkupNode] Children)
+        public static MarkupNode CreateMarkupNode(string Tag,
+            XmlAttributeCollection Attributes, [MarkupNode] Children)
         {
             return new MarkupNode(Tag,
                                   ToMarkupAttributes(Attributes),
@@ -59,7 +59,7 @@ namespace Pixie.Xml
         /// <summary>
         /// Converts the given XML element to a markup node.
         /// </summary>
-        public static IMarkupNode ToMarkupNode(XmlElement Element)
+        public static MarkupNode ToMarkupNode(XmlElement Element)
         {
             return CreateMarkupNode(Element.LocalName, Element.Attributes,
                 ToMarkupNodes(Element.ChildNodes));
@@ -68,7 +68,7 @@ namespace Pixie.Xml
         /// <summary>
         /// Converts the given XML text node to a markup node.
         /// </summary>
-        public static IMarkupNode ToMarkupNode(XmlText Element)
+        public static MarkupNode ToMarkupNode(XmlText Element)
         {
             return new MarkupNode(NodeConstants.TextNodeType, Element.Value);
         }
@@ -77,7 +77,7 @@ namespace Pixie.Xml
         /// Converts an arbitrary XML node to a markup node.
         /// Null is returned if this cannot be done, or just doesn't make sense.
         /// </summary>
-        public static IMarkupNode ToMarkupNode(XmlNode Element)
+        public static MarkupNode ToMarkupNode(XmlNode Element)
         {
             if (Element.NodeType == XmlNodeType.Element)
             {
@@ -90,7 +90,7 @@ namespace Pixie.Xml
             else
             {
                 var children = ToMarkupNodes(Element.ChildNodes);
-                if (Enumerable.Any<IMarkupNode>(children))
+                if (Enumerable.Any<MarkupNode>(children))
                 {
                     return CreateMarkupNode(Element.LocalName, Element.Attributes, children);
                 }
@@ -105,7 +105,7 @@ namespace Pixie.Xml
         /// Reads a markup node from the given XML reader, and returns the
         /// result.
         /// </summary>
-        public static IMarkupNode ReadMarkupNode(XmlReader reader)
+        public static MarkupNode ReadMarkupNode(XmlReader reader)
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(reader);
@@ -122,7 +122,7 @@ namespace Pixie.Xml
         /// entire markup node, except from its start and end tag -
         /// to the given XML writer.
         /// </summary>
-        public static void WriteMarkupNodeContents(XmlWriter Writer, IMarkupNode Node)
+        public static void WriteMarkupNodeContents(XmlWriter Writer, MarkupNode Node)
         {
             var attrs = Node.Attributes;
             foreach (var item in attrs.Keys)
@@ -144,7 +144,7 @@ namespace Pixie.Xml
         /// <summary>
         /// Writes the given markup node to the given XML writer.
         /// </summary>
-        public static void WriteMarkupNode(XmlWriter Writer, IMarkupNode Node)
+        public static void WriteMarkupNode(XmlWriter Writer, MarkupNode Node)
         {
             if (Node.IsTextNode)
             {

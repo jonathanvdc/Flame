@@ -9,14 +9,14 @@ namespace Pixie
         /// Gets a boolean value that tells if the given markup node has a
         /// color attribute.
         /// </summary>
-        public static bool HasColor[this IMarkupNode Node]
+        public static bool HasColor[this MarkupNode Node]
         {
             const get return Node.Attributes.ContainsKey(NodeConstants.ColorAttribute);
         }
         /// <summary>
         /// Gets the color associated with this markup node.
         /// </summary>
-        public static Color GetColor(this IMarkupNode Node)
+        public static Color GetColor(this MarkupNode Node)
         {
             return Node.Attributes.Get<Color>(NodeConstants.ColorAttribute, default(Color));
         }
