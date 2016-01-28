@@ -96,10 +96,10 @@ namespace Flame.Front.Cli
                         allTasks.Add(ReferenceResolvers.ReferenceResolver.CopyAsync(item, targetPath.Combine(item.Name), tempLog));
                     }
                     Task.WhenAll(allTasks).Wait();
-                    tempLog.LogMessage(new LogEntry("Flame libraries copied", "All Flame libraries included with " + Name + " have been copied to '" + targetPath.ToString() + "'."));
+                    tempLog.LogMessage(new LogEntry("Flame libraries copied", "all Flame libraries included with " + Name + " have been copied to '" + targetPath.ToString() + "'."));
                 }
 
-                ReportUnusedOptions(buildArgs, tempLog, "Option not relevant");
+                ReportUnusedOptions(buildArgs, tempLog, "option not relevant");
 
 				log.Console.Write(Name + ": ", log.ContrastForegroundColor);
                 log.WriteEntry("nothing to compile", log.WarningStyle, "no input files");
@@ -206,9 +206,9 @@ namespace Flame.Front.Cli
         {
             if (!Path.FileExists)
             {
-                throw new AbortCompilationException(new LogEntry("File not found", "The file at '" + Path + "' could not be found."));
+                throw new AbortCompilationException(new LogEntry("file not found", "the file at '" + Path + "' could not be found."));
             }
-            Log.LogEvent(new LogEntry("Status", "Parsing project at '" + Path + "'"));
+            Log.LogEvent(new LogEntry("Status", "parsing project at '" + Path + "'"));
             IProject proj;
             try
             {
@@ -216,10 +216,10 @@ namespace Flame.Front.Cli
             }
             catch (Exception)
             {
-                Log.LogError(new LogEntry("Error parsing project", "An error occured when parsing the project at '" + Path + "'"));
+                Log.LogError(new LogEntry("error parsing project", "an error occured when parsing the project at '" + Path + "'"));
                 throw;
             }
-            Log.LogEvent(new LogEntry("Status", "Parsed project at '" + Path + "' (" + proj.Name + ")"));
+            Log.LogEvent(new LogEntry("Status", "parsed project at '" + Path + "' (" + proj.Name + ")"));
             return proj;
         }
 
@@ -248,8 +248,8 @@ namespace Flame.Front.Cli
                 if (root == null)
                 {
                     throw new AbortCompilationException(new LogEntry(
-                        "Cyclic dependency graph",
-                        "The given set of projects produces cyclic graph of project dependencies, which cannot be compiled."));
+                        "cyclic dependency graph",
+                        "the given set of projects produces cyclic graph of project dependencies, which cannot be compiled."));
                 }
 
                 results.Add(root);
@@ -345,9 +345,9 @@ namespace Flame.Front.Cli
 
             if (State.Options.MustVerifyAssembly())
             {
-                State.FilteredLog.LogEvent(new LogEntry("Status", "Verifying '" + State.Project.Name + "'..."));
+                State.FilteredLog.LogEvent(new LogEntry("Status", "verifying '" + State.Project.Name + "'..."));
                 VerificationExtensions.VerifyAssembly(projAsm, State.FilteredLog);
-                State.FilteredLog.LogEvent(new LogEntry("Status", "Verified '" + State.Project.Name + "'..."));
+                State.FilteredLog.LogEvent(new LogEntry("Status", "verified '" + State.Project.Name + "'..."));
             }
 
             return projAsm;
@@ -388,7 +388,7 @@ namespace Flame.Front.Cli
         {
             var target = CreateBuildTarget(MainAssembly);
 
-            State.FilteredLog.LogEvent(new LogEntry("Status", "Recompiling..."));
+            State.FilteredLog.LogEvent(new LogEntry("Status", "recompiling..."));
 
             var recompSettings = new RecompilationSettings(
                 GetRecompilationPass(State.FilteredLog),
@@ -414,7 +414,7 @@ namespace Flame.Front.Cli
             }
             await asmRecompiler.RecompileAsync();
 
-            State.FilteredLog.LogEvent(new LogEntry("Status", "Done recompiling"));
+            State.FilteredLog.LogEvent(new LogEntry("Status", "done recompiling"));
 
             target.TargetAssembly.Build();
 
@@ -438,9 +438,9 @@ namespace Flame.Front.Cli
         public static IDocumentationBuilder Document(CompilerEnvironment State,
             IAssembly MainAssembly, IEnumerable<IAssembly> AuxiliaryAssemblies)
         {
-            State.FilteredLog.LogEvent(new LogEntry("Status", "Generating docs..."));
+            State.FilteredLog.LogEvent(new LogEntry("Status", "generating docs..."));
             var result = State.Options.CreateDocumentationBuilder(MainAssembly, AuxiliaryAssemblies);
-            State.FilteredLog.LogEvent(new LogEntry("Status", "Done generating docs"));
+            State.FilteredLog.LogEvent(new LogEntry("Status", "done generating docs"));
             return result;
         }
 
@@ -524,12 +524,12 @@ namespace Flame.Front.Cli
                     writer.WriteLine();
                     writer.WriteLine(ex.ToString());
                 }
-                log.LogMessage(new LogEntry("Exception dumped", "Wrote exception data to '" + fileName + "'."));
+                log.LogMessage(new LogEntry("Exception dumped", "wrote exception data to '" + fileName + "'."));
             }
             catch (Exception)
             {
                 // Get really mad, but don't throw another exception.
-                log.LogError(new LogEntry("Log file inaccessible", "Couldn't write an exception log to file '" + fileName + "'."));
+                log.LogError(new LogEntry("log file inaccessible", "couldn't write an exception log to file '" + fileName + "'."));
             }
         }
 
@@ -551,8 +551,8 @@ namespace Flame.Front.Cli
             }
             else
             {
-                log.LogError(new LogEntry("Compilation terminated", "Compilation has been terminated due to a fatal error."));
-                var entry = new LogEntry("Exception", ex.ToString());
+                log.LogError(new LogEntry("compilation terminated", "compilation has been terminated due to a fatal error."));
+                var entry = new LogEntry("exception", ex.ToString());
                 if (mergedArgs.GetLogFilter().ShouldLogEvent(entry))
                 {
                     log.LogError(entry);
@@ -580,9 +580,9 @@ namespace Flame.Front.Cli
             if (UpToDateWarning.UseWarning(Log.Options))
             {
                 Log.LogWarning(new LogEntry(
-                    "No changes",
+                    "no changes",
                     UpToDateWarning.CreateMessage(
-                        "The output assembly and documentation were already up-to-date. ")));
+                        "the output assembly and documentation were already up-to-date. ")));
             }
         }
 
@@ -601,14 +601,14 @@ namespace Flame.Front.Cli
                         Warnings.Instance.UnusedOption.CauseNode
                     });
 
-                    Log.LogWarning(new LogEntry("Unused option", msg));
+                    Log.LogWarning(new LogEntry("unused option", msg));
                 }
             }
         }
 
         private static void ReportUnusedOptions(BuildArguments Args, ICompilerLog Log)
         {
-            ReportUnusedOptions(Args, Log, "Option unused during compilation");
+            ReportUnusedOptions(Args, Log, "option unused during compilation");
         }
 
         private static void PrintPasses(ICompilerLog Log, PassPreferences Preferences)

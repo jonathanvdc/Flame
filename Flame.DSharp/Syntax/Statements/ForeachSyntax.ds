@@ -74,9 +74,10 @@ namespace Flame.Syntax.DSharp
 
             if (loop.Body.IsEmpty && Warnings.EmptyBody.UseWarning(State.Log.Options))
             {
-                State.Log.LogWarning(new LogEntry("Foreach block without body",
+                State.Log.LogWarning(new LogEntry(
+                    "empty 'foreach' statement",
                     Warnings.EmptyBody.CreateMessage(
-                        "Foreach block '" + this.GetCode().Trim().ToString() +
+                        "'foreach' block '" + this.GetCode().Trim().ToString() +
                         "' has an empty statement as its body. "),
                     Body.GetSourceLocation()));
             }

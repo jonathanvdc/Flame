@@ -29,7 +29,7 @@ namespace Flame.Front
             var absPath = Identifier.AbsolutePath.Path;
             if (!File.Exists(absPath))
             {
-                DependencyBuilder.Log.LogError(new LogEntry("File not found", "File '" + Identifier.AbsolutePath + "' could not be found."));
+                DependencyBuilder.Log.LogError(new LogEntry("file not found", "file '" + Identifier.AbsolutePath + "' could not be found."));
             }
             var readerParams = DependencyBuilder.GetCecilReaderParameters();
             return Task.FromResult<IAssembly>(new CecilAssembly(Mono.Cecil.AssemblyDefinition.ReadAssembly(absPath, readerParams), ConversionCache));
@@ -73,7 +73,7 @@ namespace Flame.Front
             {
                 if (!File.Exists(absSourcePath))
                 {
-                    Log.LogError(new LogEntry("File not found", "File '" + sourcePath + "' could not be found."));
+                    Log.LogError(new LogEntry("file not found", "file '" + sourcePath + "' could not be found."));
                     return null;
                 }
                 string dirName = Path.GetDirectoryName(absTargetPath);

@@ -37,9 +37,10 @@ namespace Flame.Syntax.DSharp
         	if (expr != null && Warnings.ConstantDiscarded.UseWarning(State.Log.Options) &&
                 expr.IsConstant)
         	{
-        		State.Log.LogWarning(new LogEntry("Value discarded",
+        		State.Log.LogWarning(new LogEntry(
+                    "value discarded",
                     Warnings.ConstantDiscarded.CreateMessage(
-                        "Expression statement '" + this.GetCode().Trim().ToString() +
+                        "expression statement '" + this.GetCode().Trim().ToString() +
                         "' discards a constant value (of type '" +
                         State.TypeNamer.Convert(expr.Type) + "'). "),
                     Location));

@@ -41,10 +41,10 @@ namespace Flame.Syntax.DSharp
 	        	return ConversionExpression.Create(callerInst.CreateGetExpression(), TargetType);
 	      	}
 
-	        State.Log.LogError(new LogEntry("Cast error",
-                "The caller of '" + MethodNode.GetCode().ToString() +
-                "' of type '" + State.TypeNamer.Convert(valType) +
-                "' could not be cast implicitly to '" +
+	        State.Log.LogError(new LogEntry("cast error",
+                "the caller of '" + MethodNode.GetCode().ToString() +
+                "' (of type '" + State.TypeNamer.Convert(valType) +
+                "') could not be cast implicitly to '" +
                 State.TypeNamer.Convert(TargetType) + "'",
                 MethodNode.GetSourceLocation()));
 
@@ -159,17 +159,17 @@ namespace Flame.Syntax.DSharp
                     failedMatchesList.Add(CreateSignatureDiff(item, argTypes, namer));
         		}
                 var explanationNode = new MarkupNode(NodeConstants.TextNodeType,
-                    "Method call '" + thisCode.ToString() + "' could not be resolved. " +
+                    "method call '" + thisCode.ToString() + "' could not be resolved. " +
                     "Expected signature compatible with " + expectedSignature.ToString() +
                     ". Incompatible or ambiguous matches:");
                 var failedMatchesNode = new MarkupNode("list", failedMatchesList);
                 var messageNode = new MarkupNode("entry", new MarkupNode[] { explanationNode, failedMatchesNode });
-        		State.Log.LogError(new LogEntry("Method resolution error", messageNode, Location));
+        		State.Log.LogError(new LogEntry("method resolution error", messageNode, Location));
         	}
         	else
         	{
                 var thisMethodCode = this.Method.GetCode().Trim();
-        		State.Log.LogError(new LogEntry("Method resolution error", "Method call '" + thisCode.ToString() + "' could not be resolved because '" + thisMethodCode.ToString() + "' was not recognized as function or type member. Expected signature compatible with " + expectedSignature.ToString() + ".", Location));
+        		State.Log.LogError(new LogEntry("method resolution error", "method call '" + thisCode.ToString() + "' could not be resolved because '" + thisMethodCode.ToString() + "' was not recognized as function or type member. Expected signature compatible with " + expectedSignature.ToString() + ".", Location));
         	}
 
             return null;

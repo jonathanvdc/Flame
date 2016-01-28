@@ -54,16 +54,16 @@ namespace Flame.Verification
                     var loc = item.GetSourceLocation();
                     if (loc != null)
                     {
-                        mainNode = RedefinitionHelpers.Instance.AppendDiagnosticsRemark(mainNode, dupls.Length == 1 ? "Duplicate definition: " : "Duplicate #" + count + ": ", loc);
+                        mainNode = RedefinitionHelpers.Instance.AppendDiagnosticsRemark(mainNode, dupls.Length == 1 ? "duplicate definition: " : "Duplicate #" + count + ": ", loc);
                     }
                     else
                     {
-                        mainNode = new MarkupNode("entry", new MarkupNode[] { mainNode, new MarkupNode(NodeConstants.RemarksNodeType, "Could not get duplicate #" + count + "'s source location.") });
+                        mainNode = new MarkupNode("entry", new MarkupNode[] { mainNode, new MarkupNode(NodeConstants.RemarksNodeType, "could not get duplicate #" + count + "'s source location.") });
                     }
                     count++;
                 }
 
-                Log.LogError(new LogEntry(dupls.Length == 1 ? "Duplicate " + SingularMemberKindName : "Duplicate " + PluralMemberKindName, mainNode));
+                Log.LogError(new LogEntry(dupls.Length == 1 ? "duplicate " + SingularMemberKindName : "duplicate " + PluralMemberKindName, mainNode));
 
                 return false;
             }
@@ -74,7 +74,7 @@ namespace Flame.Verification
 
         protected virtual string GetDescription(TMethod Method)
         {
-            return "Method '" + Method.Name + "' of '" + Method.DeclaringType.FullName + "'";
+            return "method '" + Method.Name + "' of '" + Method.DeclaringType.FullName + "'";
         }
 
         protected virtual string SingularMemberKindName { get { return "method"; } }
@@ -86,8 +86,9 @@ namespace Flame.Verification
             {
                 if (item.ParameterType == null)
                 {
-                    Log.LogError(new LogEntry("Invalid (unresolved?) parameter type",
-                        "Parameter '" + item.Name + "' of " + SingularMemberKindName + " '" + Member.FullName + "' has a null parameter type.",
+                    Log.LogError(new LogEntry(
+                        "invalid (unresolved?) parameter type",
+                        "parameter '" + item.Name + "' of " + SingularMemberKindName + " '" + Member.FullName + "' has a null parameter type.",
                         Member.GetSourceLocation()));
                     return false;
                 }
@@ -98,7 +99,8 @@ namespace Flame.Verification
             {
                 if (!item.GetIsVirtual() && !item.GetIsAbstract() && !item.DeclaringType.GetIsInterface())
                 {
-                    Log.LogError(new LogEntry("Invalid base method",
+                    Log.LogError(new LogEntry(
+                        "invalid base method",
                         GetDescription(Member) + " has a non-virtual, non-abstract and non-interface base method, declared in '" + item.DeclaringType.FullName + "'",
                         Member.GetSourceLocation()));
                     success = false;
@@ -106,9 +108,10 @@ namespace Flame.Verification
 
                 if (item.GetAccess() != Member.GetAccess())
                 {
-                    Log.LogError(new LogEntry("Access modifier mismatch",
+                    Log.LogError(new LogEntry(
+                        "access modifier mismatch",
                         GetDescription(Member) + " was marked '" + Member.GetAccess().GetAccessModifierName() +
-                        "' but its base method in '" + item.DeclaringType.FullName + "' was declared '" + item.GetAccess().GetAccessModifierName() + "'. " + 
+                        "' but its base method in '" + item.DeclaringType.FullName + "' was declared '" + item.GetAccess().GetAccessModifierName() + "'. " +
                         "Access modifiers should remain the same within a method inheritance tree.",
                         Member.GetSourceLocation()));
                     success = false;
@@ -120,7 +123,8 @@ namespace Flame.Verification
             }
             if (Member.GetIsAbstract() && !Member.DeclaringType.GetIsAbstract() && !Member.DeclaringType.GetIsInterface())
             {
-                Log.LogError(new LogEntry("Abstract method in non-abstract type",
+                Log.LogError(new LogEntry(
+                    "abstract method in non-abstract type",
                     GetDescription(Member) + " has been marked abstract, but its declaring type is neither abstract nor an interface.",
                     Member.GetSourceLocation()));
                 success = false;

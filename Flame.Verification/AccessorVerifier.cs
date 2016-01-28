@@ -29,7 +29,7 @@ namespace Flame.Verification
         }
         protected override string GetDescription(IAccessor Method)
         {
-            return "Accessor '" + Method.Name + "' in property '" + Method.DeclaringProperty.Name + "' of '" + Method.DeclaringType.FullName + "'";
+            return "accessor '" + Method.Name + "' in property '" + Method.DeclaringProperty.Name + "' of '" + Method.DeclaringType.FullName + "'";
         }
 
         protected override IEnumerable<IAccessor> GetDuplicates(IAccessor Member, ICompilerLog Log)

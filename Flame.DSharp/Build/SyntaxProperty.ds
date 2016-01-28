@@ -87,7 +87,7 @@ namespace Flame.DSharp.Build
 
         public bool IsStatic
         {
-            get 
+            get
             {
                 return DeclaringType.IsStaticType
                     || (Syntax.Signature.ModifierTokens.IsStatic && !DeclaringType.IsSingleton);
@@ -163,8 +163,9 @@ namespace Flame.DSharp.Build
             	}
             	if (baseMethods.Count == 0 && Syntax.Signature.ModifierTokens.IsOverride)
             	{
-            		state.Log.LogError(new LogEntry("Base property missing",
-                        "Override property '" + FullName + "' could not find any suitable base properties to override.",
+            		state.Log.LogError(new LogEntry(
+                        "base property missing",
+                        "override property '" + FullName + "' could not find any suitable base properties to override.",
                         Location));
             	}
             }

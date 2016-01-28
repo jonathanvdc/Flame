@@ -66,9 +66,10 @@ namespace Flame.Syntax.DSharp
 
 			if (showEmptyBodyWarnings && tryClause.IsEmpty)
 			{
-				State.Log.LogWarning(new LogEntry("Empty try block",
+				State.Log.LogWarning(new LogEntry(
+					"empty 'try' block",
 					Warnings.EmptyBody.CreateMessage(
-						"A try block has an empty statement as its body. " +
+						"this 'try' block has an empty statement as its body. " +
 						"Any associated catch or finally clauses will never be executed. "),
 					TryKeyword.Location.Concat(TryBody.GetSourceLocation())));
 			}
@@ -88,9 +89,10 @@ namespace Flame.Syntax.DSharp
 
 				if (showEmptyBodyWarnings && finallyClause.IsEmpty)
 				{
-					State.Log.LogWarning(new LogEntry("Empty finally clause",
+					State.Log.LogWarning(new LogEntry(
+						"empty 'finally' clause",
 						Warnings.EmptyBody.CreateMessage(
-							"A finally block has an empty statement as its body. " +
+							"a finally block has an empty statement as its body. " +
 							"This does not change the observable behavior of the program. "),
 						FinallyClause.Location));
 				}
@@ -176,7 +178,9 @@ namespace Flame.Syntax.DSharp
 
     		if (Enumerable.Any<string>(Enumerable.Skip<string>(varNames, 1)))
     		{
-    			State.Log.LogError(new LogEntry("Invalid syntax", "Catch clauses may have no more than one exception-catching variable."));
+    			State.Log.LogError(new LogEntry(
+					"invalid syntax",
+					"catch clauses may have no more than one exception-catching variable."));
     		}
 
     		string variableName = Enumerable.Single<string>(varNames);
@@ -192,9 +196,10 @@ namespace Flame.Syntax.DSharp
 
 			if (bodyStmt.IsEmpty && Warnings.EmptyBody.UseWarning(State.Log.Options))
 			{
-				State.Log.LogWarning(new LogEntry("Empty catch clause",
+				State.Log.LogWarning(new LogEntry(
+					"empty 'catch' clause",
 					Warnings.EmptyBody.CreateMessage(
-						"Catch clause '" + this.GetHeaderCode().Trim() +
+						"'catch' clause '" + this.GetHeaderCode().Trim() +
 						"' has an empty statement as its body. " +
 						"This will silently hide all exceptions of type '" +
 						ExceptionDeclaration.Type.GetCode().Trim() + "'. "),

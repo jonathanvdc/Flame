@@ -88,7 +88,10 @@ namespace Flame.Syntax.DSharp
         	{
         		if (Operator.Type != TokenType.Equals)
         		{
-        			State.Log.LogError("The operator " + Operator.ToString() + " is not supported as an assignment operator.");
+        			State.Log.LogError(new LogEntry(
+						"parser error",
+						"operator " + Operator.ToString() + " is not supported as an assignment operator.",
+						Operator.Location));
         		}
         		if (SourceVariable.Type.Is(TargetVariable.Type))
         		{

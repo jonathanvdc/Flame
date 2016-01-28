@@ -436,7 +436,7 @@ namespace Flame.Syntax.DSharp
                     var innerCode = innerTarget.GetCode().Trim();
             		if (innerCallerExpr == null)
             		{
-            			State.Log.LogError(new LogEntry("Member access error",
+            			State.Log.LogError(new LogEntry("member access error",
                             "'" + targetCode.ToString() + "' in member access syntax '" +
                             thisCode.ToString() +
                             "' could not be resolved as a variable, expression or type, and '" +
@@ -445,7 +445,7 @@ namespace Flame.Syntax.DSharp
             		}
             		else
             		{
-            			State.Log.LogError(new LogEntry("Member access error",
+            			State.Log.LogError(new LogEntry("member access error",
                             "'" + targetCode.ToString() + "' in member access syntax '" +
                             thisCode.ToString() +
                             "' could not be resolved as a variable, expression or type, though '" +
@@ -456,7 +456,7 @@ namespace Flame.Syntax.DSharp
             	}
             	else
             	{
-            		State.Log.LogError(new LogEntry("Member access error",
+            		State.Log.LogError(new LogEntry("member access error",
                         "'" + targetCode.ToString() + "' in member access syntax '" +
                         thisCode.ToString() + "' could not be resolved as a variable, expression or type.",
                         Target.GetSourceLocation()));

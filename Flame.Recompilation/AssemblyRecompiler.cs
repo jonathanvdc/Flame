@@ -553,7 +553,7 @@ namespace Flame.Recompilation
             }
             else
             {
-                throw new InvalidOperationException("Could not get a generic type resolver for type '" + Type.FullName + 
+                throw new InvalidOperationException("Could not get a generic type resolver for type '" + Type.FullName +
                                                     "' because it is neither a generic resolver nor a generic instance type.");
             }
         }
@@ -807,7 +807,7 @@ namespace Flame.Recompilation
 
         /// <summary>
         /// Takes an attribute and produces an equivalent attribute
-        /// whose dependencies have been rewritten to target the 
+        /// whose dependencies have been rewritten to target the
         /// output assembly.
         /// </summary>
         /// <param name="Value"></param>
@@ -848,7 +848,7 @@ namespace Flame.Recompilation
                 // The type has already been created. This can happen sometimes.
                 // For example, if a type's attribute refers a nested type, and the
                 // latter's recompilation was started first, then the nested type will
-                // be recompiled by virtue of the attribute access *before* the 
+                // be recompiled by virtue of the attribute access *before* the
                 // original recompilation request can be processed.
                 // To avoid creating a duplicate type, we can just return the
                 // already recompiled type here.
@@ -857,9 +857,9 @@ namespace Flame.Recompilation
 
             if (LogRecompilation)
             {
-                Log.LogEvent(new LogEntry("Status", "Recompiling " + SourceType.FullName));
+                Log.LogEvent(new LogEntry("Status", "recompiling " + SourceType.FullName));
             }
-            
+
             var typeTemplate = RecompiledTypeTemplate.GetRecompilerTemplate(this, SourceType);
             var type = DeclaringNamespace.DeclareType(typeTemplate);
             return new MemberCreationResult<IType>(type, (tgt, src) =>
@@ -902,7 +902,7 @@ namespace Flame.Recompilation
         private MemberCreationResult<IField> RecompileField(ITypeBuilder DeclaringType, IField SourceField)
         {
             var header = RecompileFieldHeader(DeclaringType, SourceField);
-            return new MemberCreationResult<IField>(header, (tgt, src) => 
+            return new MemberCreationResult<IField>(header, (tgt, src) =>
             {
                 var fieldBuilder = (IFieldBuilder)tgt;
                 fieldBuilder.Initialize();
@@ -931,7 +931,9 @@ namespace Flame.Recompilation
                         }
                         catch (Exception ex)
                         {
-                            Log.LogError(new LogEntry("Unhandled exception while recompiling field", "An unhandled exception was thrown while recompiling value of field '" + SourceField.FullName + "'."));
+                            Log.LogError(new LogEntry(
+                                "unhandled exception while recompiling field",
+                                "an unhandled exception was thrown while recompiling value of field '" + SourceField.FullName + "'."));
                             Log.LogException(ex);
                             throw;
                         }
@@ -1032,8 +1034,8 @@ namespace Flame.Recompilation
             catch (Exception ex)
             {
                 Log.LogError(new LogEntry(
-                    "Unhandled exception while getting method body", 
-                    "An unhandled exception was thrown while acquiring the method body of '" + 
+                    "unhandled exception while getting method body",
+                    "an unhandled exception was thrown while acquiring the method body of '" +
                     SourceMethod.FullName + "'."));
                 Log.LogException(ex);
                 return null;
@@ -1049,12 +1051,12 @@ namespace Flame.Recompilation
             {
                 if (!IsAbstractOrInterfaceMethod(SourceMethod))
                 {
-                    Log.LogError(new LogEntry("Recompilation error", "Could not find a method body for '" + SourceMethod.FullName + "'."));
+                    Log.LogError(new LogEntry("recompilation error", "could not find a method body for '" + SourceMethod.FullName + "'."));
                 }
                 return;
             }
 
-            // Recompile all roots that can be derived from 
+            // Recompile all roots that can be derived from
             // this source method and body.
             Passes.RecompileRoots(this, SourceMethod, body);
 
@@ -1074,7 +1076,9 @@ namespace Flame.Recompilation
             }
             catch (Exception ex)
             {
-                Log.LogError(new LogEntry("Unhandled exception while recompiling method", "An unhandled exception was thrown while recompiling method '" + SourceMethod.FullName + "'."));
+                Log.LogError(new LogEntry(
+                    "unhandled exception while recompiling method",
+                    "an unhandled exception was thrown while recompiling method '" + SourceMethod.FullName + "'."));
                 Log.LogException(ex);
             }
         }
@@ -1093,7 +1097,7 @@ namespace Flame.Recompilation
         private MemberCreationResult<IProperty> RecompilePropertyHeader(ITypeBuilder DeclaringType, IProperty SourceProperty)
         {
             return new MemberCreationResult<IProperty>(
-                DeclaringType.DeclareProperty(RecompiledPropertyTemplate.GetRecompilerTemplate(this, SourceProperty)), 
+                DeclaringType.DeclareProperty(RecompiledPropertyTemplate.GetRecompilerTemplate(this, SourceProperty)),
                 (tgt, src) => ((IPropertyBuilder)tgt).Initialize());
         }
 
@@ -1212,7 +1216,7 @@ namespace Flame.Recompilation
             {
                 RecompileAssemblyCore(item.Key, item.Value);
             }
-            
+
             await TaskManager.WhenDoneAsync();
             TaskManager.RunSequential(() =>
             {
@@ -1247,11 +1251,11 @@ namespace Flame.Recompilation
         }
 
         /// <summary>
-        /// Gets the set of all types in the given sequence of types 
+        /// Gets the set of all types in the given sequence of types
         /// that have not been recompiled so far.
         /// </summary>
         public IEnumerable<IType> FilterEliminatedTypes(IEnumerable<IType> SourceTypes)
-        {                
+        {
             return SourceTypes.Except(TypeCache.Keys);
         }
 

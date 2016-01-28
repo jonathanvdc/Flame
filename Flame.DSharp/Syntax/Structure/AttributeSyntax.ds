@@ -47,7 +47,10 @@ namespace Flame.Syntax.DSharp
 
             if (ctor == null)
             {
-            	State.Log.LogError("The constructor for attribute '" + GetCode() + "' could not be resolved.");
+            	State.Log.LogError(new LogEntry(
+                    "constructor resolution error",
+                    "no appropriate constructor for attribute '" + GetCode() + "' could not be found.",
+                    Location));
             }
 
             var args = new List<IBoundObject>();

@@ -104,18 +104,20 @@ namespace Flame.Verification
                 {
                     if (UninitializedWarning.UseWarning(Log.Options))
                     {
-                        var msg = new LogEntry("Instance uninitialized",
+                        var msg = new LogEntry(
+                            "instance uninitialized",
                             UninitializedWarning.CreateMessage(
-                                "The constructed instance is never initialized by this constructor. "),
+                                "the constructed instance is never initialized by this constructor. "),
                             Target.GetSourceLocation());
                         Log.LogWarning(AppendInitializationLocations(msg, Visitor));
                     }
                 }
                 else if (MaybeUninitializedWarning.UseWarning(Log.Options))
                 {
-                    var msg = new LogEntry("Instance possibly uninitialized",
+                    var msg = new LogEntry(
+                        "instance possibly uninitialized",
                         MaybeUninitializedWarning.CreateMessage(
-                        "Some control flow paths may not initialize the constructed instance. "),
+                        "some control flow paths may not initialize the constructed instance. "),
                         Target.GetSourceLocation());
                     Log.LogWarning(AppendInitializationLocations(msg, Visitor));
                 }
@@ -144,18 +146,20 @@ namespace Flame.Verification
                 {
                     if (MultipleInitializationWarning.UseWarning(Log.Options))
 	                {
-                        var msg = new LogEntry("Instance initialized more than once",
+                        var msg = new LogEntry(
+                            "instance initialized more than once",
                             MultipleInitializationWarning.CreateMessage(
-                                "The constructed instance is initialized more than once by this constructor. "),
+                                "the constructed instance is initialized more than once by this constructor. "),
                             Target.GetSourceLocation());
                         Log.LogWarning(AppendInitializationLocations(msg, Visitor));
 	                }
                 }
                 else if (MaybeMultipleInitializationWarning.UseWarning(Log.Options))
                 {
-                    var msg = new LogEntry("Instance possibly initialized more than once",
+                    var msg = new LogEntry(
+                        "instance possibly initialized more than once",
                         MaybeMultipleInitializationWarning.CreateMessage(
-                            "The constructed instance may be initialized more than once in some control flow paths in this constructor. "),
+                            "the constructed instance may be initialized more than once in some control flow paths in this constructor. "),
                         Target.GetSourceLocation());
                     Log.LogWarning(AppendInitializationLocations(msg, Visitor));
                 }

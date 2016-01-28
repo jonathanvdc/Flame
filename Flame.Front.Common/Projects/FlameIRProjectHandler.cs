@@ -57,7 +57,9 @@ namespace Flame.Front.Projects
 
         public IProject MakeProject(IProject Project, ProjectPath Path, ICompilerLog Log)
         {
-            Log.LogWarning(new LogEntry("Ignored '-make-project'", "The '-make-project' option was ignored because Flame IR files are self-contained assemblies: they have no use for a project."));
+            Log.LogWarning(new LogEntry(
+                "ignored '-make-project'",
+                "the '-make-project' option was ignored because Flame IR files are self-contained assemblies: they have no use for a project."));
             return Project;
         }
 
@@ -78,7 +80,7 @@ namespace Flame.Front.Projects
         public PassPreferences GetPassPreferences(ICompilerLog Log)
         {
             // Flame IR projects don't have any pass preferences.
-            // Warnings are expected to be issued when source code 
+            // Warnings are expected to be issued when source code
             // is compiled to the IR format, not afterwards.
             return new PassPreferences();
         }

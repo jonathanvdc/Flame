@@ -32,8 +32,8 @@ namespace Flame.Syntax.DSharp
 
                 if (expectedLength < Elements.Count)
                 {
-                    Log.LogError(new LogEntry("Invalid " + Name + " initialization",
-                                "Initialized " + Name + " expression '" +
+                    Log.LogError(new LogEntry("invalid " + Name + " initialization",
+                                "initialized " + Name + " expression '" +
                                 (string)this.GetCode().Trim() +
                                 "' has length " + expectedLength +
                                 ", but was initialized with " + Elements.Count +
@@ -42,9 +42,9 @@ namespace Flame.Syntax.DSharp
                 }
                 else if (Warnings.IncompleteInitialization.UseWarning(Log.Options))
                 {
-                    Log.LogWarning(new LogEntry("Incomplete " + Name + " initialization",
+                    Log.LogWarning(new LogEntry("incomplete " + Name + " initialization",
                         Warnings.IncompleteInitialization.CreateMessage(
-                            "Initialized " + Name + " expression '" +
+                            "initialized " + Name + " expression '" +
                             (string)this.GetCode().Trim() +
                             "' has length " + expectedLength +
                             ", but was initialized with only " + Elements.Count +
@@ -54,9 +54,9 @@ namespace Flame.Syntax.DSharp
             }
             else if (Warnings.VariableLengthInitialization.UseWarning(Log.Options))
             {
-                Log.LogWarning(new LogEntry("Variable-length " + Name + " initialization",
+                Log.LogWarning(new LogEntry("variable-length " + Name + " initialization",
                     Warnings.VariableLengthInitialization.CreateMessage(
-                    "Initialized " + Name + " expression '" +
+                    "initialized " + Name + " expression '" +
                     (string)this.GetCode().Trim() +
                     "' has a variable length, but was initialized with " +
                     "a constant number (" + Elements.Count +

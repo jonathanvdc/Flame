@@ -125,15 +125,15 @@ namespace Flame.Syntax.DSharp
             if (localDecls.ContainsKey(Name))
             {
                 var body = RedefinitionHelpers.CreateRedefinitionNode(Name, Location, localDecls[Name].Location);
-                Log.LogError(new LogEntry("Variable redefinition", body));
+                Log.LogError(new LogEntry("variable redefinition", body));
             }
             else if (Warnings.Shadow.UseWarning(Log.Options) && VariableExists(Name))
             {
                 var node = RedefinitionHelpers.CreateRedefinitionMessageNode(
                     Warnings.Shadow.CreateMessage(
-                        "Variable '" + Name + "' is shadowed. "),
+                        "variable '" + Name + "' is shadowed. "),
                     Location, this.GetDeclarationLocation(Name));
-                Log.LogWarning(new LogEntry("Variable shadowed", node));
+                Log.LogWarning(new LogEntry("variable shadowed", node));
             }
             localDecls[Name] = new DeclaredVariable(Variable, Location);
             return Variable;

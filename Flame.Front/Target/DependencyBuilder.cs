@@ -98,9 +98,9 @@ namespace Flame.Front.Target
                 Warnings.Instance.MissingDependency.UseWarning(Log.Options))
             {
                 Log.LogWarning(new LogEntry(
-                    "Missing dependency",
+                    "missing dependency",
                     Warnings.Instance.MissingDependency.CreateMessage(
-                        "Could not resolve runtime library '" + Reference.Identifier.ToString() + "'. ")));
+                        "could not resolve runtime library '" + Reference.Identifier.ToString() + "'. ")));
             }
         }
 
@@ -113,9 +113,9 @@ namespace Flame.Front.Target
                 Warnings.Instance.MissingDependency.UseWarning(Log.Options))
             {
                 Log.LogWarning(new LogEntry(
-                    "Missing dependency", 
+                    "missing dependency",
                     Warnings.Instance.MissingDependency.CreateMessage(
-                        "Could not resolve library '" + Reference.Identifier.ToString() + "'. ")));
+                        "could not resolve library '" + Reference.Identifier.ToString() + "'. ")));
             }
         }
     }

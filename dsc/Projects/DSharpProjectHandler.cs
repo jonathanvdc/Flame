@@ -96,7 +96,7 @@ namespace dsc.Projects
 
         public static Task<CompilationUnit> ParseCompilationUnitAsync(IProjectSourceItem SourceItem, CompilationParameters Parameters)
         {
-            Parameters.Log.LogEvent(new LogEntry("Status", "Parsing " + SourceItem.SourceIdentifier));
+            Parameters.Log.LogEvent(new LogEntry("Status", "parsing " + SourceItem.SourceIdentifier));
             return Task.Run(() =>
             {
                 var code = ProjectHandlerHelpers.GetSourceSafe(SourceItem, Parameters);
@@ -106,7 +106,7 @@ namespace dsc.Projects
                 }
                 var parser = new TokenizerStream(code);
                 var unit = ParseCompilationUnit(parser, Parameters.Log);
-                Parameters.Log.LogEvent(new LogEntry("Status", "Parsed " + SourceItem.SourceIdentifier));
+                Parameters.Log.LogEvent(new LogEntry("Status", "parsed " + SourceItem.SourceIdentifier));
                 return unit;
             });
         }
@@ -123,23 +123,23 @@ namespace dsc.Projects
 
         public PassPreferences GetPassPreferences(ICompilerLog Log)
         {
-            return new PassPreferences(new PassCondition[] 
+            return new PassPreferences(new PassCondition[]
                 {
                     new PassCondition(
-                        ValueTypeDelegateVisitor.ValueTypeDelegatePassName, 
+                        ValueTypeDelegateVisitor.ValueTypeDelegatePassName,
                         optInfo => ValueTypeDelegateVisitor.ValueTypeDelegateWarning.UseWarning(optInfo.Log.Options)),
                     new PassCondition(
-                        PassExtensions.EliminateDeadCodePassName, 
+                        PassExtensions.EliminateDeadCodePassName,
                         optInfo => optInfo.OptimizeMinimal || optInfo.OptimizeDebug),
                     new PassCondition(
-                        PassExtensions.InitializationPassName, 
+                        PassExtensions.InitializationPassName,
                         optInfo => InitializationCountPass.IsUseful(optInfo.Log)),
                     new PassCondition(
-                        InfiniteRecursionPass.InfiniteRecursionPassName, 
+                        InfiniteRecursionPass.InfiniteRecursionPassName,
                         optInfo => InfiniteRecursionPass.IsUseful(optInfo.Log))
                 },
-                new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>[] 
-                { 
+                new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>[]
+                {
                     new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>(
                         AnalysisPasses.ValueTypeDelegatePass,
                         ValueTypeDelegateVisitor.ValueTypeDelegatePassName),

@@ -83,7 +83,7 @@ namespace Flame.Syntax.DSharp
     public class BinaryIntegerSyntax : LiteralSyntax
     {
     	public const this(set Token Value);
-    
+
     	private static const uint64 Pow2Long(int Exponent)
     	{
     		uint64 result = (uint64)1;
@@ -112,7 +112,7 @@ namespace Flame.Syntax.DSharp
         		result *= (uint8)2;
         	return result;
     	}
-    	
+
     	public static const IExpression ParseBinaryInteger(string Binary)
         {
             if (Binary.Length > 32)
@@ -161,7 +161,7 @@ namespace Flame.Syntax.DSharp
         {
         	string binary = Value.TokenValue.Substring(2);
             if (binary.Length > 64)
-            	State.Log.LogError(new LogEntry("Literal out of bounds", "Bitstring '" + Value.TokenValue + "' was out of bounds"));
+            	State.Log.LogError(new LogEntry("literal out of bounds", "bitstring '" + Value.TokenValue + "' was out of bounds"));
             return ParseBinaryInteger(binary);
         }
     }

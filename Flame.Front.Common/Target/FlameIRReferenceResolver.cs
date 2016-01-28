@@ -19,7 +19,7 @@ namespace Flame.Front.Target
             var absPath = Identifier.AbsolutePath.Path;
             if (!File.Exists(absPath))
             {
-                DependencyBuilder.Log.LogError(new LogEntry("File not found", "File '" + Identifier.AbsolutePath + "' could not be found."));
+                DependencyBuilder.Log.LogError(new LogEntry("file not found", "file '" + Identifier.AbsolutePath + "' could not be found."));
             }
 
             var nodes = FlameIRProjectHandler.ParseFile(Identifier);

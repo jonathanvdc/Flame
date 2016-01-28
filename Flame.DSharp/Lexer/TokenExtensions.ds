@@ -364,7 +364,10 @@ namespace Flame.DSharp.Lexer
             {
            		string typeExampleString = TokenExamples.GetExampleString(Type);
            		string tokenValString = Token.TokenValue;
-                Log.LogError(new LogEntry("Parser error", "Invalid syntax. Expected " + typeExampleString + ", got '" + tokenValString + "'.", Token.FullLocation));
+                Log.LogError(new LogEntry(
+					"parser error",
+					"invalid syntax. Expected " + typeExampleString + ", got '" + tokenValString + "'.",
+					Token.FullLocation));
                 return false;
             }
             else
