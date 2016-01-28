@@ -40,7 +40,7 @@ namespace Flame.Compiler
         /// if the left-hand's document is null. Otherwise, it is the left-hand argument's
         /// document.
         /// </summary>
-        public static const SourceLocation Concat(this SourceLocation Location, SourceLocation Other)
+        public static SourceLocation Concat(this SourceLocation Location, SourceLocation Other)
         {
             if (Location == null || Location.Position < 0) return Other;
             else if (Other == null || Other.Position < 0) return Location;
@@ -71,7 +71,7 @@ namespace Flame.Compiler
             var oldSrc = Location.CreateSourceNode();
             var neutralOldSrc = new MarkupNode("neutral-diagnostics", new MarkupNode[] { oldSrc });
             var oldTitle = new MarkupNode(NodeConstants.BrightNodeType, Title);
-            var oldMessage = Location.CreateLineNumberNode(NodeConstants.TextNodeType);
+            var oldMessage = CreateLineNumberNode(Location);
 
             return new MarkupNode(NodeConstants.RemarksNodeType, new MarkupNode[]
             {
@@ -84,20 +84,19 @@ namespace Flame.Compiler
         /// <summary>
         /// Creates a source code diagnostics node.
         /// </summary>
-        public static const MarkupNode CreateDiagnosticsNode(this SourceLocation Location)
+        public static MarkupNode CreateDiagnosticsNode(this SourceLocation Location)
         {
             if (Location == null)
-            {
                 return new MarkupNode(NodeConstants.TextNodeType, "");
-            }
 
             var doc = Location.Document;
             var gridPos = Location.GridPosition;
-            var posNode = CreateLineNumberNode(doc, gridPos);
+            var posNode = new MarkupNode(
+                NodeConstants.RemarksNodeType,
+                new MarkupNode[] { CreateLineNumberNode(Location) });
+
             if (gridPos.Line < 0)
-            {
                 return posNode;
-            }
 
             var srcNode = CreateSourceNode(doc, gridPos, Location.Length);
 
@@ -109,7 +108,7 @@ namespace Flame.Compiler
             return totalNode;
         }
 
-        public static const MarkupNode CreateSourceNode(this SourceLocation Location)
+        public static MarkupNode CreateSourceNode(this SourceLocation Location)
         {
             var doc = Location.Document;
             var gridPos = Location.GridPosition;
@@ -121,7 +120,7 @@ namespace Flame.Compiler
             return CreateSourceNode(doc, gridPos, Location.Length);
         }
 
-        public static const MarkupNode CreateSourceNode(ISourceDocument doc, SourceGridPosition gridPos, int Length)
+        public static MarkupNode CreateSourceNode(ISourceDocument doc, SourceGridPosition gridPos, int Length)
         {
             string lineText = doc.GetLine(gridPos.Line);
             int offset = gridPos.Offset;
@@ -144,41 +143,16 @@ namespace Flame.Compiler
             return srcNode;
         }
 
-        public static const MarkupNode CreateLineNumberNode(this SourceLocation Location)
+        /// <summary>
+        /// Creates a line number node from the given source location.
+        /// </summary>
+        public static MarkupNode CreateLineNumberNode(SourceLocation Location)
         {
-            return Location.CreateLineNumberNode(NodeConstants.RemarksNodeType);
-        }
-
-        public static const MarkupNode CreateLineNumberNode(this SourceLocation Location, string NodeType)
-        {
-            var doc = Location.Document;
-            var gridPos = Location.GridPosition;
-            return CreateLineNumberNode(doc, gridPos, NodeType);
-        }
-
-        public static const MarkupNode CreateLineNumberNode(ISourceDocument Document, SourceGridPosition Position)
-        {
-            return CreateLineNumberNode(Document, Position, NodeConstants.RemarksNodeType);
-        }
-
-        public static const MarkupNode CreateLineNumberNode(ISourceDocument Document, SourceGridPosition Position, string NodeType)
-        {
-            var text = new StringBuilder();
-            text.Append("In '");
-            text.Append(Document.Identifier);
-            text.Append("'");
-            if (Position.Line > -1)
-            {
-                text.Append(" on line ");
-                text.Append(Position.Line + 1);
-                if (Position.Offset > -1)
-                {
-                    text.Append(", column ");
-                    text.Append(Position.Offset + 1);
-                }
-            }
-            text.Append('.');
-            return new MarkupNode(NodeType, text.ToString());
+            var attrs = new Dictionary<string, object>();
+            attrs[NodeConstants.SourceLocationAttribute] = Location;
+            return new MarkupNode(
+                NodeConstants.SourceLocationNodeType,
+                new PredefinedAttributes(attrs));
         }
     }
 }

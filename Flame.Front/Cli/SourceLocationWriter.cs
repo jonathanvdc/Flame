@@ -21,7 +21,7 @@ namespace Flame.Front
 		/// <param name="Node"></param>
 		public void Write(MarkupNode Node, IConsole Console, IStylePalette Palette)
 		{
-			// Rewrite source location nodes as remarks.
+			// Rewrite source location nodes as simpler nodes.
 			var loc = Node.Attributes.Get<SourceLocation>(NodeConstants.SourceLocationAttribute, new SourceLocation(null));
 
 			if (loc.Document == null)
@@ -31,7 +31,6 @@ namespace Flame.Front
 
 			var pos = loc.GridPosition;
 			var text = new StringBuilder();
-			text.Append("in ");
 			text.Append(loc.Document.Identifier);
 			if (pos.Line > -1)
 			{
@@ -43,8 +42,7 @@ namespace Flame.Front
 					text.Append(pos.Offset + 1);
 				}
 			}
-			text.Append('.');
-			MainWriter.Write(new MarkupNode(NodeConstants.RemarksNodeType, text.ToString()), Console, Palette);
+			MainWriter.Write(new MarkupNode(NodeConstants.BrightNodeType, text.ToString()), Console, Palette);
 		}
 	}
 }
