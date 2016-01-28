@@ -1,6 +1,7 @@
 using Flame;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
 using Flame.Compiler.Visitors;
@@ -207,6 +208,17 @@ namespace Flame.Optimization
         {
             WriteNode(Name, new Dictionary<string, string>());
         }
+
+        /// <summary>
+        /// Writes an invisible node with the given name.
+        /// </summary>
+        public void WriteInvisibleNode(string Name)
+        {
+            var attrs = new Dictionary<string, string>();
+            attrs["shape"] = "point";
+            attrs["style"] = "invis";
+            WriteNode(Name, attrs);
+        }
     }
 
     public class DotPrintingVisitor : INodeVisitor
@@ -254,10 +266,7 @@ namespace Flame.Optimization
         private string GenerateEntryPoint()
         {
             string nodeName = GenerateNodeName();
-            var attrs = new Dictionary<string, string>();
-            attrs["shape"] = "point";
-            attrs["style"] = "invis";
-            nodeWriter.WriteNode(nodeName, attrs);
+            nodeWriter.WriteInvisibleNode(nodeName);
             return nodeName;
         }
 
@@ -347,6 +356,82 @@ namespace Flame.Optimization
                 return ToLabel(Value.ToString());
         }
 
+        private void VisitFlow(
+            BlockFlow Flow, UniqueTag CurrentBlock,
+            FlowGraph Graph,
+            Dictionary<UniqueTag, string> BlockNodes)
+        {
+            var curNode = BlockNodes[CurrentBlock];
+            foreach (var item in Flow.Branches)
+            {
+                var targetBlock = Graph.GetBlock(item.TargetTag);
+                var edgeLabel = new StringBuilder();
+                edgeLabel.Append('\"');
+                for (int i = 0; i < item.Arguments.Count; i++)
+                {
+                    edgeLabel.Append(localLabels[targetBlock.Parameters[i].Tag]);
+                    edgeLabel.Append(" <- ");
+                    edgeLabel.Append(localLabels[item.Arguments[i].Tag]);
+                    if (i < item.Arguments.Count - 1)
+                        edgeLabel.Append("\\l");
+                }
+                edgeLabel.Append('\"');
+                var attrs = new Dictionary<string, string>();
+                attrs["label"] = edgeLabel.ToString();
+                edgeWriter.WriteEdge(curNode, BlockNodes[item.TargetTag], attrs);
+            }
+        }
+
+        private string CreateBlockLabel(BasicBlock Block)
+        {
+            var sb = new StringBuilder();
+            sb.Append('\"');
+            sb.Append(blockLabels[Block.Tag]);
+            sb.Append('(');
+            bool isFirst = true;
+            foreach (var item in Block.Parameters)
+            {
+                if (isFirst)
+                    isFirst = false;
+                else
+                    sb.Append(", ");
+                sb.Append(localLabels[item.Tag]);
+            }
+            sb.Append(')');
+            sb.Append('\"');
+            return sb.ToString();
+        }
+
+        private void Visit(FlowGraph Graph)
+        {
+            var graphNodes = new Dictionary<UniqueTag, string>();
+            foreach (var tag in Graph.BlockTags)
+            {
+                graphNodes[tag] = GenerateNodeName();
+            }
+            edgeWriter.WriteEdge(parentNodeName, graphNodes[Graph.EntryPointTag]);
+            foreach (var block in Graph.Blocks)
+            {
+                string label = CreateBlockLabel(block);
+                nodeWriter.StartBlock("subgraph", label);
+
+                var tagNode = graphNodes[block.Tag];
+                var tagAttrs = new Dictionary<string, string>();
+                tagAttrs["shape"] = "record";
+                tagAttrs["label"] = label;
+                nodeWriter.WriteNode(tagNode, tagAttrs);
+
+                var grandParentNodeName = parentNodeName;
+                parentNodeName = tagNode;
+                Visit(block.Contents);
+                parentNodeName = grandParentNodeName;
+
+                VisitFlow(block.Flow, block.Tag, Graph, graphNodes);
+
+                nodeWriter.EndBlock();
+            }
+        }
+
         public IStatement Visit(IStatement Value)
         {
             string nodeName = GenerateNode(ToLabel(Value));
@@ -354,9 +439,19 @@ namespace Flame.Optimization
 
             string grandParentNodeName = parentNodeName;
             parentNodeName = nodeName;
-            var result = Value.Accept(this);
+
+            if (Value is FlowGraphStatement)
+            {
+                var graphStmt = (FlowGraphStatement)Value;
+                Visit(graphStmt.Graph);
+            }
+            else
+            {
+                var result = Value.Accept(this);
+            }
+
             parentNodeName = grandParentNodeName;
-            return result;
+            return Value;
         }
 
         public IExpression Visit(IExpression Value)
