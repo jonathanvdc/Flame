@@ -22,5 +22,6 @@
     <Compile Include="StringAttributes.ds" />
     <Compile Include="Color.ds" />
     <Compile Include="MarkupNode.ds" />
+    <Compile Include="MarkupNodeVisitorBase.ds" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,51 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Pixie
+{
+    /// <summary>
+    /// A base class for markup node visitors.
+    /// </summary>
+    public abstract class MarkupNodeVisitorBase
+    {
+        /// <summary>
+        /// Tests if the given node matches the pattern this
+        /// markup node visitor is interested in.
+        /// </summary>
+        protected abstract bool Matches(MarkupNode Node);
+
+        /// <summary>
+        /// Transforms the given node, which was matched by this visitor.
+        /// </summary>
+        protected abstract MarkupNode Transform(MarkupNode Node);
+
+        /// <summary>
+        /// Visits the given sequence of markup nodes.
+        /// </summary>
+        public virtual [MarkupNode] Visit([MarkupNode] Nodes)
+        {
+            return Enumerable.Select<MarkupNode, MarkupNode>(Nodes, Visit);
+        }
+
+        /// <summary>
+        /// Visits the given node. If it was matched by this visitor, then
+        /// it is transformed, and the result of that operation is returned.
+        /// Otherwise, the node's children are visited recursively, and a new
+        /// node is created that copies the original node's attributes list,
+        /// and accomodates the visited children.
+        /// </summary>
+        public virtual MarkupNode Visit(MarkupNode Node)
+        {
+            if (Matches)
+            {
+                return Transform(Node);
+            }
+            else
+            {
+                return new MarkupNode(
+                    Node.Type, Node.Attributes, Visit(Node.Children));
+            }
+        }
+    }
+}
