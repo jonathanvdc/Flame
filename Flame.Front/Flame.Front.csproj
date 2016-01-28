@@ -131,6 +131,7 @@
     <Compile Include="Target\PlatformRuntime.cs" />
     <Compile Include="TypedDictionary.cs" />
     <Compile Include="Passes\PassManager.cs" />
+    <Compile Include="Cli\SourceLocationWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame.Recompilation\Flame.Recompilation.csproj">
