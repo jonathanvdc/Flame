@@ -106,12 +106,10 @@ namespace Flame.Compiler
 
             var attrs = new Dictionary<string, object>();
             attrs[NodeConstants.SourceLocationAttribute] = Location;
-            var totalNode = new MarkupNode(
+            return new MarkupNode(
                 NodeConstants.DiagnosticsNodeType,
                 new PredefinedAttributes(attrs),
                 new MarkupNode[] { srcNode });
-
-            return totalNode;
         }
 
         public static MarkupNode CreateSourceNode(this SourceLocation Location)

@@ -261,19 +261,18 @@ namespace Flame.Front
 		{
 			lock (writeLock)
 			{
-				// var srcLocFinder = new SourceLocationFinder();
-				// var node = srcLocFinder.Visit(Entry.Contents);
-				var node = Entry.Contents;
+				var srcLocFinder = new SourceLocationFinder();
+				var node = srcLocFinder.Visit(Entry.Contents);
 
 				// Write the first diagnostic source location,
 				// if at all possible.
-				/*if (srcLocFinder.FirstSourceLocation != null)
+				if (srcLocFinder.FirstSourceLocation != null)
 				{
 					NodeWriter.Write(
 						CompilerLogExtensions.CreateLineNumberNode(srcLocFinder.FirstSourceLocation),
 						Console, Palette);
 					Console.Write(": ");
-				}*/
+				}
 
 				// Write the header, if there is a header.
 				if (!string.IsNullOrWhiteSpace(Header))
