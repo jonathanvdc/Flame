@@ -15,12 +15,12 @@ namespace Pixie.Xml
         /// <summary>
         /// Deserializes the given markup node into this instance.
         /// </summary>
-        public abstract void Deserialize(IMarkupNode Node);
+        public abstract void Deserialize(MarkupNode Node);
 
         /// <summary>
         /// Serializes this instance into a markup node.
         /// </summary>
-        public abstract IMarkupNode Serialize();
+        public abstract MarkupNode Serialize();
 
         public System.Xml.Schema.XmlSchema GetSchema()
         {
