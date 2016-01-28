@@ -123,7 +123,9 @@ namespace Flame.DSharp.Build
                 var ctor = parent.GetConstructor(new IType[0]);
                 if (ctor == null)
                 {
-                	State.Log.LogError(new LogEntry("Could not generate constructor", "A parameterless constructor for '" + declType.FullName + "' could not be generated because no appropriate parameterless constructor could be found for type \'" + parent.FullName + "\'"));
+                	State.Log.LogError(new LogEntry(
+						"could not generate constructor",
+						"a parameterless constructor for '" + declType.FullName + "' could not be generated because no appropriate parameterless constructor could be found for type \'" + parent.FullName + "\'"));
                 }
                 defaultCtor.Body = new ExpressionStatement(new InvocationExpression(ctor, new ThisVariable(declType).CreateGetExpression(), (IEnumerable<IExpression>)new IExpression[0]));
         		if (ctor.IsConstant)

@@ -39,7 +39,7 @@ namespace Flame.Cecil.Emit
                     callerType = Context.Stack.Pop();
                     if (!ILCodeGenerator.IsExpectedCallingType(method, callerType))
                     {
-                        log.LogError(new LogEntry("IL emit error", "Invalid calling type on stack. Expected '" + ILCodeGenerator.GetExpectedCallingType(method).FullName + "', got '" + callerType.FullName + "'"));
+                        log.LogError(new LogEntry("IL emit error", "invalid calling type on stack. Expected '" + ILCodeGenerator.GetExpectedCallingType(method).FullName + "', got '" + callerType.FullName + "'"));
                     }
                 }
                 ILCodeGenerator.EmitArguments(Arguments, method, Context);
@@ -75,7 +75,7 @@ namespace Flame.Cecil.Emit
                 Context.Emit(OpCodes.Callvirt, invokeMethod);
 
                 // This emits calli (for function pointers), but Flame.Cecil uses delegates
-                /* 
+                /*
                 var method = (IMethod)type;
                 var cecilMethod = (ICecilMethod)CodeGenerator.Method;
                 var methodRef = cecilMethod.GetMethodReference();
@@ -90,7 +90,7 @@ namespace Flame.Cecil.Emit
                 Context.Emit(OpCodes.Calli, callSite); */
 
                 Context.Stack.PushValue(invokeMethod.ReturnType);
-               
+
             }
         }
 
@@ -101,7 +101,7 @@ namespace Flame.Cecil.Emit
 
         public IType BlockType
         {
-            get 
+            get
             {
                 if (Method is MethodBlock)
                 {

@@ -32,14 +32,12 @@ namespace Flame.Recompilation
             {
                 // Don't issue warnings for members that don't
                 // have source locations, because they could have been
-                // be compiler-generated. We don't want to 
+                // be compiler-generated. We don't want to
                 // confuse people with false positives like that.
 
-                string upperMemberType = MemberType.Length > 0 ? MemberType.Substring(0, 1).ToUpper() + MemberType.Substring(1) : MemberType;
-
                 Log.LogWarning(new LogEntry(
-                    "Unused " + MemberType,
-                    Warning.CreateMessage(upperMemberType + " '" + Member.Name + "' is never used. "),
+                    "unused " + MemberType,
+                    Warning.CreateMessage(MemberType + " '" + Member.Name + "' is never used. "),
                     srcLoc));
             }
         }
@@ -56,7 +54,7 @@ namespace Flame.Recompilation
             {
                 foreach (var item in Recompiler.FilterEliminatedTypes(SourceTypes))
                 {
-                    WarnUnused(item, "type", UnusedTypeWarning, Recompiler.Log);                    
+                    WarnUnused(item, "type", UnusedTypeWarning, Recompiler.Log);
                 }
             }
             bool warnFields = UnusedFieldWarning.UseWarning(Recompiler.Log.Options);
@@ -80,7 +78,7 @@ namespace Flame.Recompilation
                 if (warnMethods)
                 {
                     foreach (var item in Recompiler.FilterEliminatedMethods(
-                        recompSourceTypes.SelectMany(item => 
+                        recompSourceTypes.SelectMany(item =>
                             item.Methods.Concat(item.Properties.SelectMany(prop => prop.Accessors)))))
                     {
                         string methodType = item.IsConstructor ? "constructor" : item is IAccessor ? "accessor" : "method";

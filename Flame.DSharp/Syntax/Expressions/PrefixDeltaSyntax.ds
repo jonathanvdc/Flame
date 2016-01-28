@@ -41,7 +41,7 @@ namespace Flame.Syntax.DSharp
         	const get return Enumerable.Empty<Token>();
         }
 
-        public static const IStatement CreateSetStatement(IVariable Variable, Token Operator, ICompilerLog Log)
+        public static IStatement CreateSetStatement(IVariable Variable, Token Operator, ICompilerLog Log)
         {
             var getExpr = Variable.CreateGetExpression();
             IExpression val;
@@ -55,7 +55,7 @@ namespace Flame.Syntax.DSharp
             }
             else
             {
-            	Log.LogError("Expected ++ or --, not " + Operator.TokenValue + ".");
+            	Log.LogError(new LogEntry("parser error", "expected ++ or --, not " + Operator.TokenValue + ".", Operator.Location));
             	val = null;
             }
             return Variable.CreateSetStatement(val);
@@ -74,7 +74,7 @@ namespace Flame.Syntax.DSharp
             return new InitializedExpression(setStatement, variable.CreateGetExpression());
         }
 
-        public override const string ToString()
+        public override string ToString()
         {
             return GetCode().ToString();
         }

@@ -96,7 +96,7 @@ namespace Flame.Front.Target
                     Log.Options.GetOption<string>(Option, Identifier) == Identifier)
                 {
                     Log.LogWarning(new LogEntry(
-                        "Unknown " + Name,
+                        "unknown " + Name,
 						Warning.CreateMessage(
                             new MarkupNode(NodeConstants.TextNodeType,
                                 "'-" + Option +
@@ -106,10 +106,10 @@ namespace Flame.Front.Target
                 else
                 {
                     Log.LogWarning(new LogEntry(
-                        "Unknown " + Name,
+                        "unknown " + Name,
 						Warning.CreateMessage(
                             new MarkupNode(NodeConstants.TextNodeType,
-                                "No " + Name + " was associated with '" + Identifier +
+                                "no " + Name + " was associated with '" + Identifier +
                                 "'. You can specify one explicitly by passing '-" + Option +
                                 "' followed by some known runtime identifier. "))));
                 }
@@ -184,11 +184,11 @@ namespace Flame.Front.Target
             bool hasPlatform = !string.IsNullOrWhiteSpace(BuildTargetIdentifier);
             if (hasPlatform)
             {
-                Log.LogError(new LogEntry("Unrecognized target platform", "Target platform '" + BuildTargetIdentifier + "' was not recognized as a known target platform."));
+                Log.LogError(new LogEntry("unrecognized target platform", "target platform '" + BuildTargetIdentifier + "' was not recognized as a known target platform."));
             }
             else
             {
-                Log.LogError(new LogEntry("Missing target platform", "No target platform was provided."));
+                Log.LogError(new LogEntry("missing target platform", "no target platform was provided."));
             }
 
             var list = CreateTargetPlatformList();

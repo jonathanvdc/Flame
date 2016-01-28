@@ -67,7 +67,7 @@ namespace Flame.Syntax.DSharp
         public const IVariable CreateVariable(ITypeSyntax VariableType, ISyntaxState State, IType TypeHint)
         {
             string name = Name.TokenValue;
-            
+
         	bool varType;
         	if (VariableType == null)
         	{
@@ -87,7 +87,10 @@ namespace Flame.Syntax.DSharp
                 type = VariableType.CreateType(State);
                 if (!varType && type == null)
                 {
-                	State.Log.LogError(new LogEntry("Type resolution error", "Type '" + VariableType.GetCode().ToString() + "' in variable declaration '" + this.GetCode().ToString() + "' could not be resolved"));
+                	State.Log.LogError(new LogEntry(
+                        "type resolution error",
+                        "type '" + VariableType.GetCode().ToString() + "' in variable declaration '" + this.GetCode().ToString() + "' could not be resolved",
+                        VariableType.GetSourceLocation()));
                 }
             }
 
@@ -95,7 +98,10 @@ namespace Flame.Syntax.DSharp
             {
             	if (varType)
             	{
-            		State.Log.LogError(new LogEntry("Type inference error", "Could not infer 'var' type in variable declaration '" + this.GetCode().ToString() + "' as the variable was not initialized with an expression"));
+            		State.Log.LogError(new LogEntry(
+                        "type inference error",
+                        "could not infer 'var' type in variable declaration '" + this.GetCode().ToString() + "' as the variable was not initialized with an expression",
+                        VariableType.GetSourceLocation()));
             	}
                 return State.DeclareVariable(name, type, Location);
             }

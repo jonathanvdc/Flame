@@ -387,7 +387,7 @@ namespace Flame.Front
 
         public void LogError(LogEntry Entry)
         {
-            WriteBlockEntry("Error", ErrorStyle, Entry);
+            WriteBlockEntry("error", ErrorStyle, Entry);
         }
 
         public void LogEvent(LogEntry Entry)
@@ -402,7 +402,7 @@ namespace Flame.Front
 
         public void LogWarning(LogEntry Entry)
         {
-            WriteBlockEntry("Warning", WarningStyle, Entry);
+            WriteBlockEntry("warning", WarningStyle, Entry);
         }
 
         public void Dispose()

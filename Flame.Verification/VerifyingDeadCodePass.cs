@@ -42,8 +42,8 @@ namespace Flame.Verification
                 MissingReturnWarning.UseWarning(Value.Item3.Options) &&
                 !YieldNodeFindingVisitor.UsesYield(stmt))
             {
-                log.LogWarning(new LogEntry("Missing return statement?",
-                    MissingReturnWarning.CreateMessage("This method may not always return or throw. "),
+                log.LogWarning(new LogEntry("missing return statement?",
+                    MissingReturnWarning.CreateMessage("this method may not always return or throw. "),
                     method.GetSourceLocation()));
             }
             var firstUnreachable = visitor.DeadCodeStatements.FirstOrDefault();
@@ -51,12 +51,12 @@ namespace Flame.Verification
             {
                 var node = new MarkupNode("entry", new MarkupNode[]
                 {
-                    DeadCodeWarning.CreateMessage("Unreachable code detected and removed. "),
+                    DeadCodeWarning.CreateMessage("unreachable code detected and removed. "),
                     firstUnreachable.Location.CreateDiagnosticsNode(),
                     RedefinitionHelpers.Instance.CreateNeutralDiagnosticsNode("In method: ", method.GetSourceLocation())
                 });
 
-                log.LogWarning(new LogEntry("Removed dead code", node));
+                log.LogWarning(new LogEntry("removed dead code", node));
             }
             return optStmt;
         }

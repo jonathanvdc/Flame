@@ -50,9 +50,10 @@ namespace Flame.Syntax.DSharp
 
             if (body.IsEmpty && Warnings.EmptyBody.UseWarning(State.Log.Options))
             {
-                State.Log.LogWarning(new LogEntry("While block without body",
+                State.Log.LogWarning(new LogEntry(
+                    "empty 'while' block",
                     Warnings.EmptyBody.CreateMessage(
-                        "While block '" + this.GetCode().Trim().ToString() +
+                        "'while' block '" + this.GetCode().Trim().ToString() +
                         "' has an empty statement as its body. "),
                     Body.GetSourceLocation()));
             }

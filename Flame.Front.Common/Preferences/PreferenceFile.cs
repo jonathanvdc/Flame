@@ -36,14 +36,14 @@ namespace Flame.Front.Preferences
                     }
                     catch (Exception ex)
                     {
-                        Log.LogError("Could not deserialize JSON preference file '" + Path + "'.");
+						Log.LogError(new LogEntry("preferences error", "could not deserialize JSON preference file '" + Path + "'."));
                         Log.LogException(ex);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Log.LogError("Could not open preference file '" + Path + "'.");
+				Log.LogError(new LogEntry("preferences error", "could not open preference file '" + Path + "'."));
                 Log.LogException(ex);
             }
 

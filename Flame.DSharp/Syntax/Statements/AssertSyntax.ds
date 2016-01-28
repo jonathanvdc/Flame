@@ -80,26 +80,29 @@ namespace Flame.Syntax.DSharp
 				{
 					if (evalExpr.GetValue<bool>())
 					{
-						State.Log.LogWarning(new LogEntry("Constant assertion",
+						State.Log.LogWarning(new LogEntry(
+							"constant assertion",
 							Warnings.ConstantAssert.CreateMessage(
-								"Assertion '" + assertCode +
+								"assertion '" + assertCode +
 								"' always evaluates to true (which makes it meaningless). "),
 							AssertKeyword.Location));
 					}
 					else
 					{
-						State.Log.LogWarning(new LogEntry("Constant assertion",
+						State.Log.LogWarning(new LogEntry(
+							"constant assertion",
 							Warnings.ConstantAssert.CreateMessage(
-								"Assertion '" + assertCode +
+								"assertion '" + assertCode +
 								"' always evaluates to false (which will always results in an assertion failure). "),
 							AssertKeyword.Location));
 					}
 				}
 				else
 				{
-					State.Log.LogWarning(new LogEntry("Constant assertion",
+					State.Log.LogWarning(new LogEntry(
+						"constant assertion",
 						Warnings.ConstantAssert.CreateMessage(
-							"Assertion '" + assertCode +
+							"assertion '" + assertCode +
 							"' depends on a constant value (which means it doesn't check any run-time behavior). "),
 						AssertKeyword.Location));
 				}

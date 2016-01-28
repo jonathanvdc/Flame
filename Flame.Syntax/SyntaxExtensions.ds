@@ -41,7 +41,9 @@ namespace Flame.Syntax
 			var type = Syntax.CreateType(State);
 			if (type == null)
 			{
-				State.Log.LogError(new LogEntry("Type resolution error", CreateCodeQuote("Could not resolve type ", Syntax, "."), Syntax.GetSourceLocation()));
+				State.Log.LogError(new LogEntry(
+					"type resolution error",
+					CreateCodeQuote("could not resolve type ", Syntax, "."), Syntax.GetSourceLocation()));
 			}
 			return type;
 		}
@@ -51,7 +53,9 @@ namespace Flame.Syntax
 			var type = Syntax.CreateExpression(State);
 			if (type == null)
 			{
-				State.Log.LogError(new LogEntry("Expression resolution error", CreateCodeQuote("Could not resolve expression ", Syntax, "."), Syntax.GetSourceLocation()));
+				State.Log.LogError(new LogEntry(
+					"expression resolution error",
+					CreateCodeQuote("could not resolve expression ", Syntax, "."), Syntax.GetSourceLocation()));
 			}
 			return type;
 		}
@@ -61,7 +65,9 @@ namespace Flame.Syntax
 			var stmt = Syntax.CreateStatement(State);
 			if (stmt == null)
 			{
-				State.Log.LogError(new LogEntry("Statement resolution error", CreateCodeQuote("Could not resolve statement ", Syntax, "."), Syntax.GetSourceLocation()));
+				State.Log.LogError(
+					new LogEntry("statement resolution error",
+					CreateCodeQuote("could not resolve statement ", Syntax, "."), Syntax.GetSourceLocation()));
 			}
 			return stmt;
 		}
@@ -109,7 +115,10 @@ namespace Flame.Syntax
         	var variable = SyntaxExtensions.CreateVariable(ExpressionSyntax, State);
 			if (variable == null)
 			{
-				State.Log.LogError(new LogEntry("Variable resolution error", CreateCodeQuote("Could not resolve ", ExpressionSyntax, " as a variable or expression."), ExpressionSyntax.GetSourceLocation()));
+				State.Log.LogError(
+					new LogEntry("variable resolution error",
+					CreateCodeQuote("could not resolve ", ExpressionSyntax, " as a variable or expression."),
+					ExpressionSyntax.GetSourceLocation()));
 			}
 			return variable;
         }
@@ -119,7 +128,10 @@ namespace Flame.Syntax
         	var variable = Syntax.CreateVariable(State);
 			if (variable == null)
 			{
-				State.Log.LogError(new LogEntry("Variable resolution error", CreateCodeQuote("Variable ", Syntax, " could not be resolved."), Syntax.GetSourceLocation()));
+				State.Log.LogError(
+					new LogEntry("variable resolution error",
+					CreateCodeQuote("variable ", Syntax, " could not be resolved."),
+					Syntax.GetSourceLocation()));
 			}
 			return variable;
         }

@@ -113,7 +113,9 @@ namespace Flame.DSharp.Parser
 	            }
 	            else
 	            {
-	                Log.LogError(new LogEntry("Parser error", "Could not identify token '" + token.TokenValue + "' as valid expression syntax.", token.Location));
+	                Log.LogError(new LogEntry(
+						"parser error",
+						"could not identify token '" + token.TokenValue + "' as valid expression syntax.", token.Location));
 	                return null;
 	            }
 	            return ParseIdentifierExpression(expr, Parser);
@@ -169,7 +171,6 @@ namespace Flame.DSharp.Parser
                 		type = new VectorTypeSyntax(ElementType, leading.TokenPeek, new SeparatedList<IExpressionSyntax>(exprs, commas), peek.TokenPeek);
 	                	if (exprs.Count - 1 != commas.Count)
 	                	{
-	                		// State.Log.LogError(new LogEntry("Type parsing error", "Type '" + type.GetCode().ToString() + "' is neither a vector nor an array type"));
 	                		return null;
 	                	}
                 	}
@@ -1116,8 +1117,9 @@ namespace Flame.DSharp.Parser
             }
             else
             {
-            	Log.LogError(new LogEntry("Parser error",
-					"Token '" + Token.ToString() +
+            	Log.LogError(new LogEntry(
+					"parser error",
+					"token '" + Token.ToString() +
 					"' was mistakenly identified as a literal or could not be parsed.",
 					Token.Location));
             	return null;
@@ -1160,7 +1162,10 @@ namespace Flame.DSharp.Parser
                 }
                 else
                 {
-                	Log.LogError("The token " + Token.ToString() + " was mistakenly identified as an expression prefix or could not be parsed.");
+                	Log.LogError(new LogEntry(
+						"parser error",
+						"token " + Token.ToString() + " was mistakenly identified as an expression prefix or could not be parsed.",
+						Token.Location));
                 	return null;
                 }
             }
@@ -1683,7 +1688,7 @@ namespace Flame.DSharp.Parser
 					if (ifElseBody.ElseBody != null)
 					{
 						var firstMessage = Warnings.DanglingElse.CreateMessage(
-							"Nested if statement has a dangling else clause. " +
+							"nested if statement has a dangling else clause. " +
 							"(A dangling else clause is assumed to belong to the innermost " +
 							"if statement.) ");
 
@@ -1696,10 +1701,10 @@ namespace Flame.DSharp.Parser
 						});
 
 						var node = RedefinitionHelpers.AppendDiagnosticsRemark(firstEntry,
-							"Dangling else belongs to this if statement: ",
+							"dangling else belongs to this if statement: ",
 							ifElseBody.IfKeyword.Location);
 
-						Log.LogWarning(new LogEntry("Dangling else", node));
+						Log.LogWarning(new LogEntry("dangling else", node));
 					}
 				}
                 return new IfElseSyntax(ifKeyword, leadingParen, expr, trailingParen, ifBody);
@@ -1837,7 +1842,10 @@ namespace Flame.DSharp.Parser
         		{
         			if (finallyClause != null)
         			{
-        				Log.LogError(new LogEntry("Invalid syntax", "A try/catch/finally statement cannot have multiple finally clauses.", peek.TokenPeek.Location));
+        				Log.LogError(new LogEntry(
+							"invalid syntax",
+							"a try/catch/finally statement cannot have multiple finally clauses.",
+							peek.TokenPeek.Location));
         			}
         			finallyClause = ParseFinallySyntax(Tokens);
         		}
@@ -1846,9 +1854,10 @@ namespace Flame.DSharp.Parser
 
 			if (finallyClause == null && catchClauses.Count == 0 && Warnings.LonelyTry.UseWarning(Log.Options))
 			{
-				Log.LogWarning(new LogEntry("Lonely try statement",
+				Log.LogWarning(new LogEntry(
+					"lonely try statement",
 					Warnings.LonelyTry.CreateMessage(
-						"This try statement does not have an associated catch or finally clause. " +
+						"this try statement does not have an associated catch or finally clause. " +
 						"The 'try' keyword is therefore meaningless here. "),
 					tryKeyword.Location));
 			}
@@ -2305,7 +2314,9 @@ namespace Flame.DSharp.Parser
             {
             	// Parse a single token here so we don't end up in an infinite loop when parsing properties
             	var parsedToken = Tokens.NextNoTrivia();
-            	Log.LogError(new LogEntry("Parser error", "Invalid accessor syntax. Expected valid accessor name, got '" + parsedToken.ToString() + "'", parsedToken.Location));
+            	Log.LogError(new LogEntry(
+					"parser error",
+					"invalid accessor syntax. Expected valid accessor name, got '" + parsedToken.ToString() + "'", parsedToken.Location));
             	return null;
             }
 
@@ -2530,7 +2541,7 @@ namespace Flame.DSharp.Parser
             }
 			if (name.Count == 0)
 			{
-				Log.LogError(new LogEntry("Empty using declaration", "An empty using declaration is not legal.", usingKeyword.Location));
+				Log.LogError(new LogEntry("empty using declaration", "an empty using declaration is not legal.", usingKeyword.Location));
 				if (token.Type == TokenType.Equals)
 				{
 					var type = ParseType(Tokens);

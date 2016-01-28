@@ -42,7 +42,7 @@ namespace Flame.Verification
         public IStatement Apply(Tuple<IStatement, IMethod, ICompilerLog> Value)
         {
             // Count self-calls
-            var matchCall = new Func<DissectedCall, bool>(call => 
+            var matchCall = new Func<DissectedCall, bool>(call =>
                 call.Method.GetGenericDeclaration().Equals(Value.Item2) && !call.IsVirtual);
 
             var visitor = new NodeCountVisitor(NodeCountVisitor.MatchCalls(matchCall));
@@ -53,9 +53,10 @@ namespace Flame.Verification
                 // All paths have more than one self-call.
                 // Flag infinite recursion.
 
-                var msg = new LogEntry("Infinite recursion",
+                var msg = new LogEntry(
+                    "infinite recursion",
                     InfiniteRecursionWarning.CreateMessage(
-                        "Every path in this method's control flow graph contains a call to itself. " +
+                        "every path in this method's control flow graph contains a call to itself. " +
                         "Once called, it will never terminate. "),
                         Value.Item2.GetSourceLocation());
 

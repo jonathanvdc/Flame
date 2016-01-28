@@ -69,7 +69,7 @@ namespace Flame.Verification
 
         private static MarkupNode CreateImplementationNode(IMethod DefinitionMethod, IType ImplementationType)
         {
-            var message = new MarkupNode(NodeConstants.TextNodeType, "Method '" + DefinitionMethod.FullName + "' was not implemented in '" + ImplementationType.FullName + "'.");
+            var message = new MarkupNode(NodeConstants.TextNodeType, "method '" + DefinitionMethod.FullName + "' was not implemented in '" + ImplementationType.FullName + "'.");
             var diagnostics = CreateImplementationDiagnostics(DefinitionMethod, ImplementationType);
             return new MarkupNode("entry", new[] { message, diagnostics });
         }
@@ -82,7 +82,7 @@ namespace Flame.Verification
                 var impl = DefinitionMethod.GetImplementation(ImplementationType);
                 if (impl == null || impl.Equals(DefinitionMethod))
                 {
-                    Log.LogError(new LogEntry("Method not implemented", CreateImplementationNode(DefinitionMethod, ImplementationType)));
+                    Log.LogError(new LogEntry("method not implemented", CreateImplementationNode(DefinitionMethod, ImplementationType)));
                     success = false;
                 }
             }

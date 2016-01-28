@@ -45,8 +45,9 @@ namespace Flame.Syntax.DSharp
             var parent = State.CurrentType.GetParent();
             if (parent == null)
             {
-                State.Log.LogError(new LogEntry("Invalid 'base' constructor call",
-                    "A 'base' constructor call could not be resolved because the enclosing type ('" +
+                State.Log.LogError(new LogEntry(
+                    "invalid 'base' constructor call",
+                    "a 'base' constructor call could not be resolved because the enclosing type ('" +
                     State.TypeNamer.Convert(State.CurrentType) + "') does not have a 'base' type.",
                     BaseKeyword.Location));
                 return null;

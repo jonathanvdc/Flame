@@ -106,12 +106,12 @@ namespace Flame.Optimization
                 {
                     var node = new MarkupNode("entry", new MarkupNode[]
                     {
-                        Warnings.DeadCodeWarning.CreateMessage("Unreachable code detected and removed. "),
+                        Warnings.DeadCodeWarning.CreateMessage("unreachable code detected and removed. "),
                         visitor.FirstLocation.CreateDiagnosticsNode(),
-                        DeclaringMethod.GetSourceLocation().CreateRemarkDiagnosticsNode("In method: ")
+                        DeclaringMethod.GetSourceLocation().CreateRemarkDiagnosticsNode("in method: ")
                     });
 
-                    Log.LogWarning(new LogEntry("Removed dead code", node));
+                    Log.LogWarning(new LogEntry("removed dead code", node));
                 }
             }
         }
@@ -127,9 +127,10 @@ namespace Flame.Optimization
                 var srcLoc = DeclaringMethod.GetSourceLocation();
                 if (srcLoc != null)
                 {
-                    Log.LogWarning(new LogEntry("Missing return statement?",
+                    Log.LogWarning(new LogEntry(
+                        "missing return statement?",
                         Warnings.MissingReturnWarning.CreateMessage(
-                            "This method may not always return or throw. "),
+                            "this method may not always return or throw. "),
                         DeclaringMethod.GetSourceLocation()));
                 }
             }

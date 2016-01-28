@@ -39,9 +39,9 @@ namespace Flame.XmlDocs
             messageRewriteRules = new Dictionary<Regex, Func<Match, string>>()
             {
                 // Try to extract unterminated tag errors, which are quite common.
-                { 
+                {
                     new Regex("The '(?<starttag>.*?)' start tag on line [0-9]* position [0-9]* does not match the end tag of '(?<endtag>.*?)'. Line [0-9]*, position [0-9]*."),
-                    match => 
+                    match =>
                     {
                         if (match.Groups["endtag"].Value == DocWrapperName)
                         {
@@ -77,7 +77,7 @@ namespace Flame.XmlDocs
             catch (XmlException ex)
             {
                 Log.LogWarning(new LogEntry(
-                    "Invalid XML documentation",
+                    "invalid XML documentation",
                     ExtractXmlMessage(ex.Message),
                     Location));
             }

@@ -64,9 +64,10 @@ namespace Flame.Syntax.DSharp
 
             if (ifBody.IsEmpty && Warnings.EmptyBody.UseWarning(State.Log.Options))
             {
-                State.Log.LogWarning(new LogEntry("If block without body",
+                State.Log.LogWarning(new LogEntry(
+                    "empty 'if' clause",
                     Warnings.EmptyBody.CreateMessage(
-                        "If block '" + IfKeyword.ToString().TrimStart(null) +
+                        "'if' clause '" + IfKeyword.ToString().TrimStart(null) +
                         LeadingParentheses.ToString() + Condition.GetCode().ToString() +
                         TrailingParentheses.ToString().TrimEnd(null) +
                         "' has an empty statement as its body. "),
@@ -88,9 +89,10 @@ namespace Flame.Syntax.DSharp
                 var elseBody = ElseBody.CreateStatement(State);
                 if (elseBody.IsEmpty && Warnings.EmptyBody.UseWarning(State.Log.Options))
                 {
-                    State.Log.LogWarning(new LogEntry("Else block without body",
+                    State.Log.LogWarning(new LogEntry(
+                        "empty 'else' clause",
                         Warnings.EmptyBody.CreateMessage(
-                            "Else block '"  + ElseKeyword.ToString().TrimStart(null) +
+                            "'else' clause '"  + ElseKeyword.ToString().TrimStart(null) +
                             ElseBody.GetCode().ToString().TrimEnd(null) +
                             "' has an empty statement as its body. "),
                         ElseBody.GetSourceLocation()));

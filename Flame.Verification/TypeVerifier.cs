@@ -25,7 +25,7 @@ namespace Flame.Verification
             this.PropertyVerifier = PropertyVerifier;
             this.MethodVerifier = MethodVerifier;
         }
-        public TypeVerifier(IVerifier<IField> FieldVerifier, IVerifier<IProperty> PropertyVerifier, 
+        public TypeVerifier(IVerifier<IField> FieldVerifier, IVerifier<IProperty> PropertyVerifier,
                             IVerifier<IMethod> MethodVerifier, IEnumerable<IAttributeVerifier<IType>> AttributeVerifiers)
             : base(AttributeVerifiers)
         {
@@ -47,15 +47,17 @@ namespace Flame.Verification
                 {
                     if (!item.GetIsValueType() && !item.GetIsPrimitive())
                     {
-                        Log.LogError(new LogEntry("Invalid enum backing type", 
+                        Log.LogError(new LogEntry(
+                            "invalid enum backing type",
                             "enum type '" + Member.FullName + "' must be backed by a primitive or value type. '" + item.FullName + "' is neither.",
                             Member.GetSourceLocation()));
                     }
                 }
                 else if (!item.GetIsVirtual() && !item.GetIsAbstract() && !item.GetIsInterface())
                 {
-                    Log.LogError(new LogEntry("Invalid inheritance tree", 
-                        "Type '" + Member.FullName + "' cannot derive from non-virtual type '" + item.FullName + "'.",
+                    Log.LogError(new LogEntry(
+                        "invalid inheritance tree",
+                        "type '" + Member.FullName + "' cannot derive from non-virtual type '" + item.FullName + "'.",
                         Member.GetSourceLocation()));
                 }
             }

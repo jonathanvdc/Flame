@@ -98,7 +98,7 @@ namespace Flame.DSharp.Build
                 	var setStatement = parameters[i].CreateSetMemberStatement(i, state.CurrentType, this.IsStatic);
                 	if (setStatement == null)
                 	{
-                		state.Log.LogError(new LogEntry("Invalid 'set' modifier",
+                		state.Log.LogError(new LogEntry("invalid 'set' modifier",
                             "'set' modifier on parameter '" + parameters[i].Name +
                             "' could not be mapped to a field or property of type '" +
                             this.DeclaringType.FullName + "'.",
@@ -231,7 +231,9 @@ namespace Flame.DSharp.Build
             	  		var providedAccess = ((AccessAttribute)extraAttrs[i]).Access;
             	  		if (providedAccess != accessMod)
             	  		{
-            	  			state.Log.LogWarning(new LogEntry("Invalid access modifier", "Invalid explicit access modifier at '" + this.GetHeaderString() + "' in singleton '" + DeclaringType.FullName + "': expected '" + accessMod + "', got '" + providedAccess + "'"));
+            	  			state.Log.LogWarning(
+                                new LogEntry("invalid access modifier",
+                                "invalid explicit access modifier at '" + this.GetHeaderString() + "' in singleton '" + DeclaringType.FullName + "': expected '" + accessMod + "', got '" + providedAccess + "'"));
             	  		}
             	  		extraAttrs.RemoveAt(i);
             		}
@@ -260,7 +262,9 @@ namespace Flame.DSharp.Build
 	        		var op = Operator.GetOperator(Syntax.Signature.NameToken.TokenValue);
 	        		if (!op.IsDefined)
 	        		{
-	        			state.Log.LogError(new LogEntry("Unknown operator overload", "Overloaded operator '" + opName + "' in '" + this.FullName + "' is not a known operator."));
+	        			state.Log.LogError(new LogEntry(
+                            "unknown operator overload",
+                            "overloaded operator '" + opName + "' in '" + this.FullName + "' is not a known operator."));
 	        		}
 	        		extraAttrs.Add(new OperatorAttribute(op));
 	        	}
@@ -294,7 +298,9 @@ namespace Flame.DSharp.Build
                 var member = Enumerable.OfType<IMethod>(item.GetAccessedMembers(state)).GetMethod(this.IsStatic, this.ReturnType, paramTypes);
                 if (member == null)
                 {
-                	state.Log.LogError(new LogEntry("Base method resolution error", "Could not resolve base method '" + item.GetCode().Trim().ToString() + "'.", item.GetSourceLocation()));
+                	state.Log.LogError(new LogEntry(
+                        "base method resolution error",
+                        "could not resolve base method '" + item.GetCode().Trim().ToString() + "'.", item.GetSourceLocation()));
                 }
                 baseMethods.Add(member);
             }
@@ -310,8 +316,9 @@ namespace Flame.DSharp.Build
             	}
             	if (baseMethods.Count == 0 && Syntax.Signature.ModifierTokens.IsOverride)
             	{
-            		state.Log.LogError(new LogEntry("Base method missing",
-                        "Override method '" + FullName + "' could not find any suitable base methods to override.",
+            		state.Log.LogError(new LogEntry(
+                        "base method missing",
+                        "override method '" + FullName + "' could not find any suitable base methods to override.",
                         Location));
             	}
             }

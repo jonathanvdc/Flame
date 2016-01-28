@@ -40,9 +40,9 @@ namespace Flame.Analysis
                 // There's some shady business going on right here.
 
                 Log.LogWarning(new LogEntry(
-                    "Delegate to value type pointer",
+                    "delegate to value type pointer",
                     ValueTypeDelegateWarning.CreateMessage(
-                        "A delegate is created that takes a pointer to a value type as its closure. " +
+                        "a delegate is created that takes a pointer to a value type as its closure. " +
                         "This is dangerous, because the pointer's target may go out of scope before the delegate does. "),
                     CurrentLocation));
             }

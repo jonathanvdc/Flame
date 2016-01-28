@@ -19,13 +19,13 @@ namespace Flame.Front.Projects
             }
             catch (FileNotFoundException)
             {
-                Parameters.Log.LogError(new LogEntry("Error getting source code", "File '" + Item.SourceIdentifier + "' was not found"));
+                Parameters.Log.LogError(new LogEntry("error getting source code", "file '" + Item.SourceIdentifier + "' was not found"));
                 return null;
             }
             catch (Exception ex)
             {
-                Parameters.Log.LogError(new LogEntry("Error getting source code", "'" + Item.SourceIdentifier + "' could not be opened"));
-                Parameters.Log.LogError(new LogEntry("Exception", ex.ToString()));
+                Parameters.Log.LogError(new LogEntry("error getting source code", "'" + Item.SourceIdentifier + "' could not be opened"));
+                Parameters.Log.LogError(new LogEntry("exception", ex.ToString()));
                 return null;
             }
         }
