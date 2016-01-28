@@ -29,12 +29,6 @@ namespace Flame.Front
 			return Node.Type == NodeConstants.DiagnosticsNodeType;
 		}
 
-		private MarkupNode Accept(MarkupNode Node)
-		{
-			return new MarkupNode(
-				Node.Type, Node.Attributes, Visit(Node.Children));
-		}
-
 		protected override MarkupNode Transform(MarkupNode Node)
 		{
 			var srcLoc = Node.Attributes.Get<SourceLocation>(
