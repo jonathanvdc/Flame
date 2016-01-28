@@ -40,7 +40,7 @@ namespace Flame.Front.Cli
             }
         }
 
-        public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
+        public void Write(MarkupNode Node, IConsole Console, IStylePalette Palette)
         {
             var neutralStyle = GetNeutralCaretMarkerStyle(Palette);
             var neutralHighlightStyle = GetNeutralCaretHighlightStyle(Palette);

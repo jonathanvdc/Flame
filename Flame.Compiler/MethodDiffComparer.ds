@@ -9,7 +9,7 @@ namespace Flame.Compiler
     public virtual class MethodDiffComparer
     {
         public const this(set IConverter<IType, string> TypeNamer,
-                          set TypeComparerBase<IMarkupNode> Comparer);
+                          set TypeComparerBase<MarkupNode> Comparer);
         public const this(set IConverter<IType, string> TypeNamer)
         {
             this.Comparer = new TypeDiffComparer(TypeNamer);
@@ -22,13 +22,13 @@ namespace Flame.Compiler
         }
 
         public IConverter<IType, string> TypeNamer { const get; private set; }
-        public TypeComparerBase<IMarkupNode> Comparer { const get; private set; }
+        public TypeComparerBase<MarkupNode> Comparer { const get; private set; }
 
-        public const IMarkupNode CompareArguments([IType] ArgumentTypes, IMethod Method)
+        public const MarkupNode CompareArguments([IType] ArgumentTypes, IMethod Method)
         {
             var argArray = Enumerable.ToArray<IType>(ArgumentTypes);
             var paramArray = Method.GetParameters();
-            var nodes = new List<IMarkupNode>();
+            var nodes = new List<MarkupNode>();
             nodes.Add(TypeDiffComparer.ToTextNode("("));
             for (int i = 0; i < paramArray.Length; i++)
             {

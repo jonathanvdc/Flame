@@ -49,7 +49,7 @@ namespace Flame.Verification
             var firstUnreachable = visitor.DeadCodeStatements.FirstOrDefault();
             if (firstUnreachable != null && DeadCodeWarning.UseWarning(Value.Item3.Options))
             {
-                var node = new MarkupNode("entry", new IMarkupNode[]
+                var node = new MarkupNode("entry", new MarkupNode[]
                 {
                     DeadCodeWarning.CreateMessage("Unreachable code detected and removed. "),
                     firstUnreachable.Location.CreateDiagnosticsNode(),

@@ -42,7 +42,7 @@ namespace Flame.Front.Cli
             }
         }
 
-        public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
+        public void Write(MarkupNode Node, IConsole Console, IStylePalette Palette)
         {
             var writer = new SourceNodeWriterState(Console, GetCaretMarkerStyle(Palette), GetCaretHighlightStyle(Palette), Indentation, MaxWidth, Palette);
             writer.Write(Node);
@@ -144,7 +144,7 @@ namespace Flame.Front.Cli
             return true;
         }
 
-        private void Write(IMarkupNode Node, bool UseCaret, bool CaretStarted)
+        private void Write(MarkupNode Node, bool UseCaret, bool CaretStarted)
         {
             Console.PushStyle(Node.GetStyle(Palette));
             if (Node.Type == NodeConstants.HighlightNodeType)
@@ -204,7 +204,7 @@ namespace Flame.Front.Cli
             Console.PopStyle();
         }
 
-        public void Write(IMarkupNode Node)
+        public void Write(MarkupNode Node)
         {
             Console.WriteLine();
             Write(Node, false, false);

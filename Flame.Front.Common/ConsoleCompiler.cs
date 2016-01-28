@@ -593,7 +593,7 @@ namespace Flame.Front.Cli
                 foreach (var item in Args.UnusedOptions)
                 {
                     var optName = new MarkupNode(NodeConstants.BrightNodeType, "-" + item);
-                    var msg = new MarkupNode("#group", new IMarkupNode[]
+                    var msg = new MarkupNode("#group", new MarkupNode[]
                     {
 						new MarkupNode(NodeConstants.TextNodeType, Doc + ": '"),
                         optName,
@@ -626,7 +626,7 @@ namespace Flame.Front.Cli
             var optList = ListExtensions.Instance.CreateList(
                             OptimizationInfo.GetOptimizationDirectives(optLevel)
                                             .Select(item =>
-                                                new MarkupNode("#group", new IMarkupNode[]
+                                                new MarkupNode("#group", new MarkupNode[]
                                                 {
                                                     new MarkupNode(NodeConstants.TextNodeType, item.Item1 + " "),
                                                     new MarkupNode(NodeConstants.CauseNodeType, item.Item2)

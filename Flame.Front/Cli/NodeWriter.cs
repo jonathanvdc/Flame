@@ -16,7 +16,7 @@ namespace Flame.Front.Cli
 
         public IDictionary<string, INodeWriter> Writers { get; private set; }
 
-        public static void WriteDefault(IMarkupNode Node, IConsole Console, IStylePalette Palette, INodeWriter MainWriter)
+        public static void WriteDefault(MarkupNode Node, IConsole Console, IStylePalette Palette, INodeWriter MainWriter)
         {
             Console.PushStyle(Node.GetStyle(Palette));
             Console.Write(Node.GetText());
@@ -27,12 +27,12 @@ namespace Flame.Front.Cli
             Console.PopStyle();
         }
 
-        protected virtual void WriteDefault(IMarkupNode Node, IConsole Console, IStylePalette Palette)
+        protected virtual void WriteDefault(MarkupNode Node, IConsole Console, IStylePalette Palette)
         {
             WriteDefault(Node, Console, Palette, this);
         }
 
-        public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
+        public void Write(MarkupNode Node, IConsole Console, IStylePalette Palette)
         {
             if (Writers.ContainsKey(Node.Type))
             {

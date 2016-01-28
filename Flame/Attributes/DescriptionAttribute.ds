@@ -23,15 +23,15 @@ namespace Flame
 		/// <summary>
 		/// Creates a new description attribute from the given markup node.
 		/// </summary>
-		public const this(set IMarkupNode Contents);
+		public const this(set MarkupNode Contents);
 
 		/// <summary>
 		/// Creates a new description attribute from the given tag and
 		/// description body.
 		/// </summary>
-		public const this(string Tag, IMarkupNode Contents)
+		public const this(string Tag, MarkupNode Contents)
 		{
-			this.Contents = new MarkupNode(Tag, new IMarkupNode[] { Contents });
+			this.Contents = new MarkupNode(Tag, new MarkupNode[] { Contents });
 		}
 
 		/// <summary>
@@ -41,7 +41,7 @@ namespace Flame
 		public const this(string Description)
 		{
 			this.Contents = new MarkupNode("summary",
-								new IMarkupNode[]
+								new MarkupNode[]
 								{
 									new MarkupNode(NodeConstants.TextNodeType, Description)
 								});
@@ -54,7 +54,7 @@ namespace Flame
 		public const this(string Tag, string Description)
 		{
 			this.Contents = new MarkupNode(Tag,
-								new IMarkupNode[]
+								new MarkupNode[]
 								{
 									new MarkupNode(NodeConstants.TextNodeType, Description)
 								});
@@ -63,7 +63,7 @@ namespace Flame
 		/// <summary>
 		/// Gets the description attribute as a markup node.
 		/// </summary>
-		public IMarkupNode Contents { const get; private set; }
+		public MarkupNode Contents { const get; private set; }
 
 		/// <summary>
 		/// Gets this description's tag, which identifies the type of description.

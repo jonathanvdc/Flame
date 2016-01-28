@@ -52,12 +52,12 @@ namespace Flame.DSProject
             get { return null; }
         }
 
-        public override void Deserialize(IMarkupNode Node)
+        public override void Deserialize(MarkupNode Node)
         {
             SourceIdentifier = Node.Attributes.Get<string>("Include", "");
         }
 
-        public override IMarkupNode Serialize()
+        public override MarkupNode Serialize()
         {
             return new MarkupNode("Compile", new PredefinedAttributes(new Dictionary<string, object>()
             {

@@ -19,12 +19,17 @@ namespace Flame.Front
 		/// Writes the markup node to the designated output.
 		/// </summary>
 		/// <param name="Node"></param>
-		public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
+		public void Write(MarkupNode Node, IConsole Console, IStylePalette Palette)
 		{
 			// Rewrite source location nodes as remarks.
-			var loc = Node.Attributes.Get<SourceLocation>("source-location");
-			var pos = loc.GridPosition;
+			var loc = Node.Attributes.Get<SourceLocation>(NodeConstants.SourceLocationAttribute, new SourceLocation(null));
 
+			if (loc.Document == null)
+			{
+				return;
+			}
+
+			var pos = loc.GridPosition;
 			var text = new StringBuilder();
 			text.Append("in ");
 			text.Append(loc.Document.Identifier);

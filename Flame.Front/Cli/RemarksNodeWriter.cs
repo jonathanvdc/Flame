@@ -21,7 +21,7 @@ namespace Flame.Front.Cli
             return StyleConstants.GetDimStyle(Palette, StyleConstants.RemarksStyleName, new Color(0.75));
         }
 
-        public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
+        public void Write(MarkupNode Node, IConsole Console, IStylePalette Palette)
         {
             Console.WriteLine();
             Console.PushStyle(Node.GetStyle(Palette));

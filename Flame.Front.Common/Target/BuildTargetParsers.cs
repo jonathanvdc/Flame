@@ -169,9 +169,9 @@ namespace Flame.Front.Target
         /// Creates a markup node that lists all target platforms.
         /// </summary>
         /// <returns></returns>
-        public static IMarkupNode CreateTargetPlatformList()
+        public static MarkupNode CreateTargetPlatformList()
         {
-            var listItems = new List<IMarkupNode>();
+            var listItems = new List<MarkupNode>();
             foreach (var item in Parser.PlatformIdentifiers)
             {
                 listItems.Add(new MarkupNode(NodeConstants.ListItemNodeType, item));
@@ -200,7 +200,7 @@ namespace Flame.Front.Target
                 Log.Options.GetOption<string>("source", CurrentPath.ToString()) + " -platform " + firstPlatform +
                 "' will instruct the compiler to compile for the '" + firstPlatform + "' target platform.");
 
-            var message = new MarkupNode("entry", new IMarkupNode[] { list, hint });
+            var message = new MarkupNode("entry", new MarkupNode[] { list, hint });
             Log.LogMessage(new LogEntry("Known target platforms", message));
         }
 

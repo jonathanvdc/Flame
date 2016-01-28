@@ -61,14 +61,14 @@ namespace Flame.Front.Cli
             }
         }
 
-        public static Color GetColor(this IMarkupNode Node, IStylePalette Palette)
+        public static Color GetColor(this MarkupNode Node, IStylePalette Palette)
         {
             var color = Node.GetColor();
             string modifier = Node.Attributes.Get<string>(ColorModifierAttribute, NoColorModifier);
             return ModifyColor(color, Palette, modifier);
         }
 
-        public static Style GetStyle(this IMarkupNode Node, IStylePalette Palette)
+        public static Style GetStyle(this MarkupNode Node, IStylePalette Palette)
         {
             return new Style("custom", Node.GetColor(Palette), new Color());
         }

@@ -129,7 +129,7 @@ namespace Flame.Compiler
         /// <summary>
         /// Gets a cause node for this warning.
         /// </summary>
-        public IMarkupNode CauseNode
+        public MarkupNode CauseNode
         {
             const get
             {
@@ -144,16 +144,16 @@ namespace Flame.Compiler
         /// Creates a warning message node for this warning, which consists
         /// of the given message node, and a cause node for this warning.
         /// </summary>
-        public IMarkupNode CreateMessage(IMarkupNode Message)
+        public MarkupNode CreateMessage(MarkupNode Message)
         {
-            return new MarkupNode("entry", new IMarkupNode[] { Message, CauseNode });
+            return new MarkupNode("entry", new MarkupNode[] { Message, CauseNode });
         }
 
         /// <summary>
         /// Creates a warning message node this warning, which consists
         /// of the given message node, and a cause node for this warning.
         /// </summary>
-        public IMarkupNode CreateMessage(string Message)
+        public MarkupNode CreateMessage(string Message)
         {
             return CreateMessage(new MarkupNode(NodeConstants.TextNodeType, Message));
         }

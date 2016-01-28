@@ -16,6 +16,6 @@ namespace Flame.Front.Cli
         /// Writes the markup node to the designated output.
         /// </summary>
         /// <param name="Node"></param>
-        void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette);
+        void Write(MarkupNode Node, IConsole Console, IStylePalette Palette);
     }
 }

@@ -35,12 +35,12 @@ namespace Flame.Syntax
 
     public static class RedefinitionHelpers
     {
-        public static const IMarkupNode CreateNeutralDiagnosticsNode(string Title, SourceLocation Location)
+        public static const MarkupNode CreateNeutralDiagnosticsNode(string Title, SourceLocation Location)
         {
             return Location.CreateRemarkDiagnosticsNode(Title);
         }
 
-        public static const IMarkupNode AppendDiagnosticsRemark(IMarkupNode Node, string Title, SourceLocation Location)
+        public static const MarkupNode AppendDiagnosticsRemark(MarkupNode Node, string Title, SourceLocation Location)
         {
             if (Location == null)
             {
@@ -49,19 +49,19 @@ namespace Flame.Syntax
 
             var nextRemark = CreateNeutralDiagnosticsNode(Title, Location);
 
-            return new MarkupNode("entry", new IMarkupNode[]
+            return new MarkupNode("entry", new MarkupNode[]
             {
                 Node,
                 nextRemark
             });
         }
 
-        public static const IMarkupNode CreateRedefinitionMessageNode(IMarkupNode Message,
+        public static const MarkupNode CreateRedefinitionMessageNode(MarkupNode Message,
             SourceLocation NewDefinition, SourceLocation OldDefinition)
         {
             var firstDiag = NewDefinition.CreateDiagnosticsNode();
 
-            var firstEntry = new MarkupNode("entry", new IMarkupNode[]
+            var firstEntry = new MarkupNode("entry", new MarkupNode[]
             {
                 Message,
                 firstDiag
@@ -70,14 +70,14 @@ namespace Flame.Syntax
             return AppendDiagnosticsRemark(firstEntry, "Previous definition: ", OldDefinition);
         }
 
-        public static const IMarkupNode CreateRedefinitionMessageNode(string Message,
+        public static const MarkupNode CreateRedefinitionMessageNode(string Message,
             SourceLocation NewDefinition, SourceLocation OldDefinition)
         {
             var firstMessage = new MarkupNode(NodeConstants.TextNodeType, Message);
             return CreateRedefinitionMessageNode(firstMessage, NewDefinition, OldDefinition);
         }
 
-        public static const IMarkupNode CreateRedefinitionNode(string Name,
+        public static const MarkupNode CreateRedefinitionNode(string Name,
             SourceLocation NewDefinition, SourceLocation OldDefinition)
         {
             return CreateRedefinitionMessageNode("'" + Name + "' is defined more than once.", NewDefinition, OldDefinition);

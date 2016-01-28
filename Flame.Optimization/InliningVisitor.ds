@@ -104,7 +104,7 @@ namespace Flame.Optimization
             BodyPassArgument Argument, SourceLocation CallLocation,
             DissectedCall InlinedCall, int RecursionDepth)
         {
-            var nodes = new List<IMarkupNode>();
+            var nodes = new List<MarkupNode>();
             if (RecursionDepth == 0)
             {
                 // Add a description

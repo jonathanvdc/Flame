@@ -16,7 +16,7 @@ namespace Flame.XmlDocs
         {
             this.Elements = new List<DocumentationElement>();
         }
-        public DocumentationBucket(IEnumerable<IMarkupNode> Elements)
+        public DocumentationBucket(IEnumerable<MarkupNode> Elements)
         {
             this.Elements = new List<DocumentationElement>(Elements.Select(item => new DocumentationElement(item)));
         }
@@ -27,7 +27,7 @@ namespace Flame.XmlDocs
 
         public List<DocumentationElement> Elements { get; set; }
 
-        public IEnumerable<IMarkupNode> Nodes
+        public IEnumerable<MarkupNode> Nodes
         {
             get
             {

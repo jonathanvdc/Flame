@@ -38,23 +38,23 @@ namespace Flame.Compiler
         {
             var messageNode = new MarkupNode(NodeConstants.TextNodeType, Message);
             var diagNode = Location.CreateDiagnosticsNode();
-            this.Contents = new MarkupNode("entry", new IMarkupNode[] { messageNode, diagNode });
+            this.Contents = new MarkupNode("entry", new MarkupNode[] { messageNode, diagNode });
         }
-        public const this(set string Name, set IMarkupNode Contents);
-        public const this(set string Name, [IMarkupNode] Contents)
+        public const this(set string Name, set MarkupNode Contents);
+        public const this(set string Name, [MarkupNode] Contents)
         {
             this.Contents = new MarkupNode("entry", Contents);
         }
-        public const this(set string Name, IMarkupNode Message, SourceLocation Location)
+        public const this(set string Name, MarkupNode Message, SourceLocation Location)
         {
             var diagNode = Location.CreateDiagnosticsNode();
-            this.Contents = new MarkupNode("entry", new IMarkupNode[] { Message, diagNode });
+            this.Contents = new MarkupNode("entry", new MarkupNode[] { Message, diagNode });
         }
-        public const this(set string Name, [IMarkupNode] Message, SourceLocation Location)
+        public const this(set string Name, [MarkupNode] Message, SourceLocation Location)
         {
             var diagNode = Location.CreateDiagnosticsNode();
-            var diagArr = new IMarkupNode[] { diagNode };
-            this.Contents = new MarkupNode("entry", Enumerable.Concat<IMarkupNode>(Message, diagArr));
+            var diagArr = new MarkupNode[] { diagNode };
+            this.Contents = new MarkupNode("entry", Enumerable.Concat<MarkupNode>(Message, diagArr));
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Flame.Compiler
         /// <summary>
         /// Gets the log entry's contents.
         /// </summary>
-        public IMarkupNode Contents { const get; private set; }
+        public MarkupNode Contents { const get; private set; }
 
         /// <summary>
         /// Gets the log entry's entire error message.

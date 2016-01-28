@@ -16,7 +16,7 @@ namespace Flame.Front.Cli
 
         public INodeWriter MainWriter { get; private set; }
 
-        public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
+        public void Write(MarkupNode Node, IConsole Console, IStylePalette Palette)
         {
             Console.PushStyle(Node.GetStyle(Palette));
             Console.Write("[-");

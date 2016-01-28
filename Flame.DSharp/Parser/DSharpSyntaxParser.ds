@@ -1689,7 +1689,7 @@ namespace Flame.DSharp.Parser
 
 						var firstDiag = ifElseBody.ElseKeyword.Location.CreateDiagnosticsNode();
 
-						var firstEntry = new MarkupNode("entry", new IMarkupNode[]
+						var firstEntry = new MarkupNode("entry", new MarkupNode[]
 						{
 							firstMessage,
 							firstDiag

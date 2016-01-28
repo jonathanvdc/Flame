@@ -67,7 +67,7 @@ namespace Flame.Syntax.DSharp
             var failedMatches = Enumerable.ToArray<IMethod>(Candidates);
             if (failedMatches.Length > 0)
             {
-                var failedMatchesList = new List<IMarkupNode>();
+                var failedMatchesList = new List<MarkupNode>();
                 foreach (var item in failedMatches)
                 {
                     failedMatchesList.Add(InvocationSyntax.CreateSignatureDiff(item, ArgumentTypes, namer));
@@ -75,7 +75,7 @@ namespace Flame.Syntax.DSharp
                 var explanationNode = new MarkupNode(NodeConstants.TextNodeType,
                     "No appropriate constructor for '" + TypeNode.GetCode().ToString() + "' could be found in " + NodeDescription + " '" + Node.GetCode().Trim().ToString() + "', expected signature compatible with " + expectedSignature.ToString() + ". Incompatible or ambiguous matches:");
                 var failedMatchesNode = new MarkupNode("list", failedMatchesList);
-                var messageNode = new MarkupNode("entry", new IMarkupNode[] { explanationNode, failedMatchesNode });
+                var messageNode = new MarkupNode("entry", new MarkupNode[] { explanationNode, failedMatchesNode });
                 return new LogEntry("Constructor resolution error", messageNode, Node.GetSourceLocation());
             }
             else

@@ -21,19 +21,19 @@ namespace Flame.Syntax
 			else return null;
 		}
 
-		public static const IMarkupNode CreateCodeQuote(this ISyntaxNode Node)
+		public static const MarkupNode CreateCodeQuote(this ISyntaxNode Node)
 		{
 			var src = new MarkupNode(NodeConstants.SourceQuoteNodeType, Node.GetCode().Trim().ToString());
 			var quoteNode = new MarkupNode(NodeConstants.TextNodeType, "'");
-			return new MarkupNode("node", new IMarkupNode[] { quoteNode, src, quoteNode });
+			return new MarkupNode("node", new MarkupNode[] { quoteNode, src, quoteNode });
 		}
 
-		public static const IMarkupNode CreateCodeQuote(string LeadingText, ISyntaxNode Node, string TrailingText)
+		public static const MarkupNode CreateCodeQuote(string LeadingText, ISyntaxNode Node, string TrailingText)
 		{
 			var preTextNode = new MarkupNode(NodeConstants.TextNodeType, LeadingText);
 			var quoteNode = Node.CreateCodeQuote();
 			var postTextNode = new MarkupNode(NodeConstants.TextNodeType, TrailingText);
-			return new MarkupNode("node", new IMarkupNode[] { preTextNode, quoteNode, postTextNode });
+			return new MarkupNode("node", new MarkupNode[] { preTextNode, quoteNode, postTextNode });
 		}
 
 		public static IType CreateVerifiedType(this ITypeSyntax Syntax, ISyntaxState State)

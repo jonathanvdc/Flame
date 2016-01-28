@@ -123,7 +123,7 @@ namespace Flame.Syntax.DSharp
                 var diffBuilder = new TypeDiffComparer(State.TypeNamer);
                 var leftDiff = diffBuilder.Compare(TargetType, valType);
                 var rightDiff = diffBuilder.Compare(valType, TargetType);
-                var nodes = new List<IMarkupNode>();
+                var nodes = new List<MarkupNode>();
                 nodes.Add(TypeDiffComparer.ToTextNode("Expression '"));
                 nodes.Add(TypeDiffComparer.ToTextNode(Value.GetCode().Trim().ToString()));
                 nodes.Add(TypeDiffComparer.ToTextNode("' of type '"));

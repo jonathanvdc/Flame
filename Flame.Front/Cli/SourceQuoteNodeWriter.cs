@@ -21,7 +21,7 @@ namespace Flame.Front.Cli
             return StyleConstants.GetBrightStyle(Palette, StyleConstants.SourceQuoteStyleName, Console.Description.ForegroundColor);
         }
 
-        public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
+        public void Write(MarkupNode Node, IConsole Console, IStylePalette Palette)
         {
             Console.PushStyle(GetSourceQuoteStyle(Console, Palette));
             NodeWriter.WriteDefault(Node, Console, Palette, MainWriter);

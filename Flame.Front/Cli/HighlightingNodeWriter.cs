@@ -29,7 +29,7 @@ namespace Flame.Front.Cli
             return StyleConstants.GetDimStyle(Palette, StyleConstants.HighlightExtraStyleName, new Color(1.0, 0.0, 1.0));
         }
 
-        public void Write(IMarkupNode Node, IConsole Console, IStylePalette Palette)
+        public void Write(MarkupNode Node, IConsole Console, IStylePalette Palette)
         {
             string type = Node.Attributes.Get<string>(NodeConstants.HighlightingTypeAttribute, NodeConstants.DefaultHighlightingType);
             if (NodeConstants.MissingHighlightingType.Equals(type, StringComparison.OrdinalIgnoreCase))
