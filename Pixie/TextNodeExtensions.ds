@@ -11,7 +11,7 @@ namespace Pixie
         /// <summary>
         /// Gets a boolean value that indicates whether this node is a text node.
         /// </summary>
-        public static bool IsTextNode[this IMarkupNode Node]
+        public static bool IsTextNode[this MarkupNode Node]
         {
             const get return Node.Type.Equals(NodeConstants.TextNodeType);
         }
@@ -19,7 +19,7 @@ namespace Pixie
         /// <summary>
         /// Gets the text this node contains directly.
         /// </summary>
-        public static const string GetText(this IMarkupNode Node)
+        public static const string GetText(this MarkupNode Node)
         {
             return Node.Attributes.Get<string>(NodeConstants.TextAttribute, "");
         }
@@ -28,7 +28,7 @@ namespace Pixie
         /// Recursively gets the text this node contains, concatenated with the
         /// text its children contain.
         /// </summary>
-        public static const string GetAllText(this IMarkupNode Node)
+        public static const string GetAllText(this MarkupNode Node)
         {
             StringBuilder result = new StringBuilder();
             result.Append(Node.GetText());

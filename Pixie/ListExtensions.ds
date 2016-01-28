@@ -11,17 +11,17 @@ namespace Pixie
         /// <summary>
         /// Creates a list from the given header, attributes and items.
         /// </summary>
-        public const IMarkupNode CreateList(IMarkupNode Header, IAttributes Attributes, [IMarkupNode] Items)
+        public const MarkupNode CreateList(MarkupNode Header, IAttributes Attributes, [MarkupNode] Items)
         {
             var listNode = new MarkupNode(NodeConstants.ListNodeType, Attributes, Items);
             return new MarkupNode(NodeConstants.ParagraphNodeType,
-                Attributes, new IMarkupNode[] { Header, listNode });
+                Attributes, new MarkupNode[] { Header, listNode });
         }
 
         /// <summary>
         /// Creates a list from the given header, attributes and items.
         /// </summary>
-        public const IMarkupNode CreateList(string Header, IAttributes Attributes, [IMarkupNode] Items)
+        public const MarkupNode CreateList(string Header, IAttributes Attributes, [MarkupNode] Items)
         {
             var listNode = new MarkupNode(NodeConstants.ListNodeType, Attributes, Items);
             if (string.IsNullOrWhiteSpace(Header))
@@ -31,13 +31,13 @@ namespace Pixie
 
             var headerNode = new MarkupNode(NodeConstants.TextNodeType, Header);
             return new MarkupNode(NodeConstants.ParagraphNodeType,
-                Attributes, new IMarkupNode[] { headerNode, listNode });
+                Attributes, new MarkupNode[] { headerNode, listNode });
         }
 
         /// <summary>
         /// Creates a list from the given header, bullet string and list items.
         /// </summary>
-        public const IMarkupNode CreateList(string Header, string Bullet, [IMarkupNode] Items)
+        public const MarkupNode CreateList(string Header, string Bullet, [MarkupNode] Items)
         {
             var attrDict = new Dictionary<string, object>();
             attrDict[NodeConstants.ListBulletAttribute] = Bullet;
@@ -47,7 +47,7 @@ namespace Pixie
         /// <summary>
         /// Creates a list from the given header and list items.
         /// </summary>
-        public const IMarkupNode CreateList(IMarkupNode Header, [IMarkupNode] Items)
+        public const MarkupNode CreateList(MarkupNode Header, [MarkupNode] Items)
         {
             return CreateList(Header, new PredefinedAttributes(), Items);
         }
@@ -55,7 +55,7 @@ namespace Pixie
         /// <summary>
         /// Creates a list from the given header and list items.
         /// </summary>
-        public const IMarkupNode CreateList(string Header, [IMarkupNode] Items)
+        public const MarkupNode CreateList(string Header, [MarkupNode] Items)
         {
             return CreateList(Header, new PredefinedAttributes(), Items);
         }
@@ -63,7 +63,7 @@ namespace Pixie
         /// <summary>
         /// Creates a list from the given list items.
         /// </summary>
-        public const IMarkupNode CreateList([IMarkupNode] Items)
+        public const MarkupNode CreateList([MarkupNode] Items)
         {
             return CreateList("", Items);
         }
