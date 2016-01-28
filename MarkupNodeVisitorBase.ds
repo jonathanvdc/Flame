@@ -29,6 +29,17 @@ namespace Pixie
         }
 
         /// <summary>
+        /// Visits the node's children recursively, and a creates a new
+        /// node is that copies the original node's attributes list,
+        /// and accomodates the visited children.
+        /// </summary>
+        public virtual MarkupNode Accept(MarkupNode Node)
+        {
+            return new MarkupNode(
+                Node.Type, Node.Attributes, Visit(Node.Children));
+        }
+
+        /// <summary>
         /// Visits the given node. If it was matched by this visitor, then
         /// it is transformed, and the result of that operation is returned.
         /// Otherwise, the node's children are visited recursively, and a new
@@ -37,15 +48,10 @@ namespace Pixie
         /// </summary>
         public virtual MarkupNode Visit(MarkupNode Node)
         {
-            if (Matches)
-            {
+            if (Matches(Node))
                 return Transform(Node);
-            }
             else
-            {
-                return new MarkupNode(
-                    Node.Type, Node.Attributes, Visit(Node.Children));
-            }
+                return Accept(Node);
         }
     }
 }
