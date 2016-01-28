@@ -253,7 +253,7 @@ namespace Flame.Optimization
 
         private LogEntry CreateTailRecursionMessage(IMethod DeclaringMethod, [SourceLocation] Locations)
         {
-            var nodes = new List<IMarkupNode>();
+            var nodes = new List<MarkupNode>();
             // Add a description
             nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
                 "Optimized tail call recursion in '" + DeclaringMethod.Name + "'. "));

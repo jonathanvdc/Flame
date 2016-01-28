@@ -35,13 +35,13 @@ namespace Flame.DSProject
         [XmlAttribute("Value")]
         public string Value { get; set; }
 
-        public override void Deserialize(IMarkupNode Node)
+        public override void Deserialize(MarkupNode Node)
         {
             Property = Node.Attributes.Get<string>("Property", "");
             Value = Node.Attributes.Get<string>("Value", "");
         }
 
-        public override IMarkupNode Serialize()
+        public override MarkupNode Serialize()
         {
             return new MarkupNode("Setter", new PredefinedAttributes(new Dictionary<string, object>()
             {

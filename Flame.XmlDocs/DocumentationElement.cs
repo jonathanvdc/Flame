@@ -16,7 +16,7 @@ namespace Flame.XmlDocs
         {
             this.Contents = new MarkupNode("summary");
         }
-        public DocumentationElement(IMarkupNode Contents)
+        public DocumentationElement(MarkupNode Contents)
         {
             this.Contents = Contents;
         }
@@ -30,7 +30,7 @@ namespace Flame.XmlDocs
         /// <summary>
         /// Gets or sets the documentation element's contents.
         /// </summary>
-        public IMarkupNode Contents { get; set; }
+        public MarkupNode Contents { get; set; }
 
         /// <summary>
         /// Gets or sets the documentation element's value as a description attribute.

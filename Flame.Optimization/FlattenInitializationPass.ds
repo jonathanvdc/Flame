@@ -275,7 +275,7 @@ namespace Flame.Optimization
                 {
                     log.LogMessage(new LogEntry(
                         "Pass remark",
-                        new IMarkupNode[]
+                        new MarkupNode[]
                         {
                             new MarkupNode(NodeConstants.TextNodeType,
                                 "Moved this initialization logic up the tree. "),

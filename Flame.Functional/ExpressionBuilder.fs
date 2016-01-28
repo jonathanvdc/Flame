@@ -579,7 +579,7 @@ module ExpressionBuilder =
             | (false, true)  -> [TypeDiffComparer.ToTextNode("new " + namer target.DeclaringType); argDiff]
             | (false, false) -> [TypeDiffComparer.ToTextNode(namer target.ReturnType + " " + target.FullName); argDiff]
 
-        new MarkupNode("node", nodes |> Seq.ofList) :> IMarkupNode
+        new MarkupNode("node", nodes |> Seq.ofList)
 
     /// Instatiates the given generic delegates expression with the given type arguments.
     let InstantiateGenericDelegates (scope : LocalScope) (target : IExpression) (typeArgs : IType seq) : IExpression =
@@ -622,8 +622,8 @@ module ExpressionBuilder =
                 let explanationNode = new MarkupNode(NodeConstants.TextNodeType,
                                                      "Method call could not be resolved. " +
                                                      "Expected signature compatible with '" + expectedSignature.ToString() +
-                                                     "'. Incompatible or ambiguous matches:") :> IMarkupNode
-                let failedMatchesNode = new MarkupNode("list", failedMatchesList) :> IMarkupNode
+                                                     "'. Incompatible or ambiguous matches:")
+                let failedMatchesNode = new MarkupNode("list", failedMatchesList)
                 let messageNode = new MarkupNode("entry", Seq.ofArray [| explanationNode; failedMatchesNode |])
                 Error (new LogEntry("Method resolution error", messageNode)) innerExpr
             else

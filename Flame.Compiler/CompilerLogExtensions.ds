@@ -61,7 +61,7 @@ namespace Flame.Compiler
         /// Creates a remark node with the given title that contains
         /// source code diagnostics for this source location.
         /// </summary>
-        public static IMarkupNode CreateRemarkDiagnosticsNode(this SourceLocation Location, string Title)
+        public static MarkupNode CreateRemarkDiagnosticsNode(this SourceLocation Location, string Title)
         {
             if (Location == null)
             {
@@ -69,11 +69,11 @@ namespace Flame.Compiler
             }
 
             var oldSrc = Location.CreateSourceNode();
-            var neutralOldSrc = new MarkupNode("neutral-diagnostics", new IMarkupNode[] { oldSrc });
+            var neutralOldSrc = new MarkupNode("neutral-diagnostics", new MarkupNode[] { oldSrc });
             var oldTitle = new MarkupNode(NodeConstants.BrightNodeType, Title);
             var oldMessage = Location.CreateLineNumberNode(NodeConstants.TextNodeType);
 
-            return new MarkupNode(NodeConstants.RemarksNodeType, new IMarkupNode[]
+            return new MarkupNode(NodeConstants.RemarksNodeType, new MarkupNode[]
             {
                 oldTitle,
                 oldMessage,
@@ -84,7 +84,7 @@ namespace Flame.Compiler
         /// <summary>
         /// Creates a source code diagnostics node.
         /// </summary>
-        public static const IMarkupNode CreateDiagnosticsNode(this SourceLocation Location)
+        public static const MarkupNode CreateDiagnosticsNode(this SourceLocation Location)
         {
             if (Location == null)
             {
@@ -101,7 +101,7 @@ namespace Flame.Compiler
 
             var srcNode = CreateSourceNode(doc, gridPos, Location.Length);
 
-            var totalNode = new MarkupNode(NodeConstants.DiagnosticsNodeType, new IMarkupNode[]
+            var totalNode = new MarkupNode(NodeConstants.DiagnosticsNodeType, new MarkupNode[]
             {
                 srcNode, posNode
             });
@@ -109,7 +109,7 @@ namespace Flame.Compiler
             return totalNode;
         }
 
-        public static const IMarkupNode CreateSourceNode(this SourceLocation Location)
+        public static const MarkupNode CreateSourceNode(this SourceLocation Location)
         {
             var doc = Location.Document;
             var gridPos = Location.GridPosition;
@@ -121,7 +121,7 @@ namespace Flame.Compiler
             return CreateSourceNode(doc, gridPos, Location.Length);
         }
 
-        public static const IMarkupNode CreateSourceNode(ISourceDocument doc, SourceGridPosition gridPos, int Length)
+        public static const MarkupNode CreateSourceNode(ISourceDocument doc, SourceGridPosition gridPos, int Length)
         {
             string lineText = doc.GetLine(gridPos.Line);
             int offset = gridPos.Offset;
@@ -136,7 +136,7 @@ namespace Flame.Compiler
             var highlightTextNode = new MarkupNode(NodeConstants.HighlightNodeType, highlightedText);
             var postTextNode = new MarkupNode(NodeConstants.TextNodeType, lineText.Substring(offset + length));
 
-            var srcNode = new MarkupNode(NodeConstants.SourceNodeType, new IMarkupNode[]
+            var srcNode = new MarkupNode(NodeConstants.SourceNodeType, new MarkupNode[]
             {
                 preTextNode, highlightTextNode, postTextNode
             });
@@ -144,24 +144,24 @@ namespace Flame.Compiler
             return srcNode;
         }
 
-        public static const IMarkupNode CreateLineNumberNode(this SourceLocation Location)
+        public static const MarkupNode CreateLineNumberNode(this SourceLocation Location)
         {
             return Location.CreateLineNumberNode(NodeConstants.RemarksNodeType);
         }
 
-        public static const IMarkupNode CreateLineNumberNode(this SourceLocation Location, string NodeType)
+        public static const MarkupNode CreateLineNumberNode(this SourceLocation Location, string NodeType)
         {
             var doc = Location.Document;
             var gridPos = Location.GridPosition;
             return CreateLineNumberNode(doc, gridPos, NodeType);
         }
 
-        public static const IMarkupNode CreateLineNumberNode(ISourceDocument Document, SourceGridPosition Position)
+        public static const MarkupNode CreateLineNumberNode(ISourceDocument Document, SourceGridPosition Position)
         {
             return CreateLineNumberNode(Document, Position, NodeConstants.RemarksNodeType);
         }
 
-        public static const IMarkupNode CreateLineNumberNode(ISourceDocument Document, SourceGridPosition Position, string NodeType)
+        public static const MarkupNode CreateLineNumberNode(ISourceDocument Document, SourceGridPosition Position, string NodeType)
         {
             var text = new StringBuilder();
             text.Append("In '");

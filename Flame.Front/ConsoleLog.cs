@@ -319,7 +319,7 @@ namespace Flame.Front
 
         #region Write*Node
 
-        public void WriteNode(IMarkupNode Node, Style CaretStyle, Style HighlightStyle)
+        public void WriteNode(MarkupNode Node, Style CaretStyle, Style HighlightStyle)
         {
             lock (writeLock)
             {
@@ -327,7 +327,7 @@ namespace Flame.Front
             }
         }
 
-        private void WriteNodeDefault(IMarkupNode Node, Style CaretStyle, Style HighlightStyle)
+        private void WriteNodeDefault(MarkupNode Node, Style CaretStyle, Style HighlightStyle)
         {
             Console.Write(Node.GetText());
             foreach (var item in Node.Children)
@@ -336,7 +336,7 @@ namespace Flame.Front
             }
         }
 
-        private void WriteNodeCore(IMarkupNode Node, Style CaretStyle, Style HighlightStyle)
+        private void WriteNodeCore(MarkupNode Node, Style CaretStyle, Style HighlightStyle)
         {
             var dependentStyles = new List<Style>();
             dependentStyles.Add(new Style(StyleConstants.CaretMarkerStyleName, CaretStyle.ForegroundColor, CaretStyle.BackgroundColor, GetDiagnosticsCharacterPreferences("caret-character")));

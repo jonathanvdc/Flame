@@ -27,7 +27,7 @@ namespace Flame.Markdown
         ///
         ///     #title with whitespace
         ///
-        private const string GetAttributeTitle(IMarkupNode Node)
+        private const string GetAttributeTitle(MarkupNode Node)
         {
             if (Node.Type == NodeConstants.TitleNodeType)
             {
@@ -45,7 +45,7 @@ namespace Flame.Markdown
         /// #summary
         /// Creates description attributes that represent the given list of
         /// nodes.
-        public const IReadOnlyList<DescriptionAttribute> ToAttributes(IReadOnlyList<IMarkupNode> Nodes)
+        public const IReadOnlyList<DescriptionAttribute> ToAttributes(IReadOnlyList<MarkupNode> Nodes)
         {
             var attrs = new List<DescriptionAttribute>();
 
@@ -55,7 +55,7 @@ namespace Flame.Markdown
 
             while (i < Nodes.Count)
             {
-                var elems = new List<IMarkupNode>();
+                var elems = new List<MarkupNode>();
 
                 string headerTitle;
 
@@ -79,7 +79,7 @@ namespace Flame.Markdown
 
         /// #summary
         /// Parses a top-level markdown code node.
-        public IMarkupNode Parse(Tokenizer Tokens, int LeadingWhitespace)
+        public MarkupNode Parse(Tokenizer Tokens, int LeadingWhitespace)
         {
             int leadingWs = ParseLeadingWhitespace(Tokens);
 
@@ -102,9 +102,9 @@ namespace Flame.Markdown
 
         /// #summary
         /// Parses top-level markdown nodes until the token stream is empty.
-        public IReadOnlyList<IMarkupNode> ParseAll(Tokenizer Tokens, int LeadingWhitespace)
+        public IReadOnlyList<MarkupNode> ParseAll(Tokenizer Tokens, int LeadingWhitespace)
         {
-            var results = new List<IMarkupNode>();
+            var results = new List<MarkupNode>();
             while (Tokens.Current.Type != TokenType.EndOfStream)
             {
                 results.Add(Parse(Tokens, LeadingWhitespace));
@@ -175,7 +175,7 @@ namespace Flame.Markdown
 
         /// #summary
         /// Parses a markdown title, which may be interpreted as a node type.
-        private IMarkupNode ParseTitle(Tokenizer Tokens, int LeadingWhitespace)
+        private MarkupNode ParseTitle(Tokenizer Tokens, int LeadingWhitespace)
         {
             int hashCount = 0;
             while (Tokens.Current.Type == TokenType.Hash)
@@ -186,14 +186,14 @@ namespace Flame.Markdown
 
             var header = ParseLineContents(Tokens);
 
-            return new MarkupNode(NodeConstants.TitleNodeType, new IMarkupNode[] { header });
+            return new MarkupNode(NodeConstants.TitleNodeType, new MarkupNode[] { header });
         }
 
         /// #summary
         /// Parses a markdown paragraph.
-        private IMarkupNode ParseParagraph(Tokenizer Tokens, int LeadingWhitespace)
+        private MarkupNode ParseParagraph(Tokenizer Tokens, int LeadingWhitespace)
         {
-            var contents = new List<IMarkupNode>();
+            var contents = new List<MarkupNode>();
 
             while (!EndsParagraph(Tokens))
             {
@@ -207,7 +207,7 @@ namespace Flame.Markdown
 
         /// #summary
         /// Parses a markdown preformatted code block.
-        private IMarkupNode ParseCodeBlock(Tokenizer Tokens, int LeadingWhitespace)
+        private MarkupNode ParseCodeBlock(Tokenizer Tokens, int LeadingWhitespace)
         {
             var contents = new StringBuilder();
 
@@ -230,10 +230,10 @@ namespace Flame.Markdown
 
         /// #summary
         /// Parses a markdown list, which may or may not be numbered.
-        private IMarkupNode ParseList(Tokenizer Tokens, int LeadingWhitespace, bool IsNumbered)
+        private MarkupNode ParseList(Tokenizer Tokens, int LeadingWhitespace, bool IsNumbered)
         {
-            var items = new List<IMarkupNode>();
-            var curItems = new List<IMarkupNode>();
+            var items = new List<MarkupNode>();
+            var curItems = new List<MarkupNode>();
 
             var listItemType = Tokens.Current.Type;
 
@@ -256,7 +256,7 @@ namespace Flame.Markdown
                     if (curItems.Count > 0)
                     {
                         items.Add(new MarkupNode(NodeConstants.ListItemNodeType, curItems));
-                        curItems = new List<IMarkupNode>();
+                        curItems = new List<MarkupNode>();
                     }
 
                     Tokens.Next(); // Skip the bullet
@@ -274,7 +274,7 @@ namespace Flame.Markdown
 
         /// #summary
         /// Parses a markdown paragraph item.
-        private IMarkupNode ParseParagraphItem(Tokenizer Tokens, int LeadingWhitespace)
+        private MarkupNode ParseParagraphItem(Tokenizer Tokens, int LeadingWhitespace)
         {
             var firstType = Tokens.Current.Type;
 
@@ -297,7 +297,7 @@ namespace Flame.Markdown
         /// #summary
         /// Parses the contents of a line of markdown code, up to and including
         /// the trailing newline or end-of-stream token.
-        private IMarkupNode ParseLineContents(Tokenizer Tokens)
+        private MarkupNode ParseLineContents(Tokenizer Tokens)
         {
             int endIndex = Tokens.FindNext(TokenType.Newline);
 
@@ -305,7 +305,7 @@ namespace Flame.Markdown
                 endIndex = Tokens.FindEnd();
 
             var frag = ParseFragment(Tokens, endIndex);
-            var body = new MarkupNode(GroupNodeType, new IMarkupNode[]
+            var body = new MarkupNode(GroupNodeType, new MarkupNode[]
             {
                 frag,
                 new MarkupNode(NodeConstants.TextNodeType, " ")
@@ -318,7 +318,7 @@ namespace Flame.Markdown
         /// #summary
         /// Parses a fragment of markup code, which extends no further than the
         /// given end index.
-        private IMarkupNode ParseFragment(Tokenizer Tokens, int ParentEndIndex)
+        private MarkupNode ParseFragment(Tokenizer Tokens, int ParentEndIndex)
         {
             var sb = new StringBuilder();
 
@@ -357,21 +357,21 @@ namespace Flame.Markdown
 
         /// #summary
         /// Parses a fragment that was interrupted by a region.
-        private IMarkupNode ParseInterruptedFragment(StringBuilder Left, Tokenizer Tokens,
+        private MarkupNode ParseInterruptedFragment(StringBuilder Left, Tokenizer Tokens,
                                                      string RegionType, int ParentEndIndex)
         {
             var leftNode  = new MarkupNode(NodeConstants.TextNodeType, (string)Left);
             var innerNode = ParseRegion(Tokens, Tokens.Current.Type, RegionType, ParentEndIndex);
             var rightNode = ParseFragment(Tokens, ParentEndIndex);
 
-            return new MarkupNode(GroupNodeType, new IMarkupNode[] { leftNode, innerNode, rightNode });
+            return new MarkupNode(GroupNodeType, new MarkupNode[] { leftNode, innerNode, rightNode });
         }
 
         /// #summary
         /// Creates a node that represents the given string as preformatted code.
-        private IMarkupNode ToCodeNode(string NodeType, string Code)
+        private MarkupNode ToCodeNode(string NodeType, string Code)
         {
-            return new MarkupNode(NodeType, new IMarkupNode[]
+            return new MarkupNode(NodeType, new MarkupNode[]
             {
                 new MarkupNode(NodeConstants.TextNodeType, Code)
             });
@@ -379,7 +379,7 @@ namespace Flame.Markdown
 
         /// #summary
         /// Parses a fragment that was interrupted by inline preformatted code.
-        private IMarkupNode ParseInlineCode(StringBuilder Left, Tokenizer Tokens,
+        private MarkupNode ParseInlineCode(StringBuilder Left, Tokenizer Tokens,
                                             int ParentEndIndex)
         {
             var leftNode  = new MarkupNode(NodeConstants.TextNodeType, (string)Left);
@@ -388,7 +388,7 @@ namespace Flame.Markdown
 
             int endIndex = Tokens.FindNext(lbacktick.Type);
 
-            IMarkupNode innerNode;
+            MarkupNode innerNode;
             if (endIndex >= 0 && endIndex < ParentEndIndex)
             {
                 innerNode = ParseCodeNode(Tokens, endIndex);
@@ -401,10 +401,10 @@ namespace Flame.Markdown
 
             var rightNode = ParseFragment(Tokens, ParentEndIndex);
 
-            return new MarkupNode(GroupNodeType, new IMarkupNode[] { leftNode, innerNode, rightNode });
+            return new MarkupNode(GroupNodeType, new MarkupNode[] { leftNode, innerNode, rightNode });
         }
 
-        private IMarkupNode ParseCodeNode(Tokenizer Tokens, int EndIndex)
+        private MarkupNode ParseCodeNode(Tokenizer Tokens, int EndIndex)
         {
             return ToCodeNode("c", ParseCode(Tokens, EndIndex));
         }
@@ -426,7 +426,7 @@ namespace Flame.Markdown
         /// Parses a markdown 'region', such as `Why, *hello*, there, random citizen.`
         /// If the region's starting tag does not match an ending tag, a text node is
         /// returned.
-        private IMarkupNode ParseRegion(Tokenizer Tokens, TokenType DelimiterType,
+        private MarkupNode ParseRegion(Tokenizer Tokens, TokenType DelimiterType,
                                         string RegionType, int ParentEndIndex)
         {
             var leadingDelim = Tokens.Current; // Parse leading delimiter
@@ -441,7 +441,7 @@ namespace Flame.Markdown
             {
                 var body = ParseFragment(Tokens, endIndex); // Parse body
                 Tokens.Next();                              // Parse trailing delimiter
-                return new MarkupNode(RegionType, new IMarkupNode[] { body });
+                return new MarkupNode(RegionType, new MarkupNode[] { body });
             }
         }
     }

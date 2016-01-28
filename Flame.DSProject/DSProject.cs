@@ -27,7 +27,7 @@ namespace Flame.DSProject
             : base(Node.Name, Node.Children)
         {
         }
-        public DSProject(IMarkupNode Node)
+        public DSProject(MarkupNode Node)
             : base(Node)
         {
         }

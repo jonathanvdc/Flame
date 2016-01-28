@@ -66,7 +66,7 @@ namespace Flame.Compiler
         /// Creates a markup node that represents the cause of some message,
         /// which happens to be the given option.
         /// </summary>
-        public IMarkupNode CreateCauseNode(string OptionName)
+        public MarkupNode CreateCauseNode(string OptionName)
         {
             return new MarkupNode(NodeConstants.CauseNodeType, OptionName);
         }
@@ -75,7 +75,7 @@ namespace Flame.Compiler
         /// Creates a markup node that represents the cause of some message,
         /// which happens to be the given value assigned to the given option.
         /// </summary>
-        public IMarkupNode CreateCauseNode(string OptionName, string Value)
+        public MarkupNode CreateCauseNode(string OptionName, string Value)
         {
             return new MarkupNode(NodeConstants.CauseNodeType, OptionName + "=" + Value);
         }

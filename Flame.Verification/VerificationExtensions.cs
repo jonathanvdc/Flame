@@ -46,7 +46,7 @@ namespace Flame.Verification
             return success;
         }
 
-        private static IMarkupNode CreateImplementationDiagnostics(IMethod DefinitionMethod, IType ImplementationType)
+        private static MarkupNode CreateImplementationDiagnostics(IMethod DefinitionMethod, IType ImplementationType)
         {
             var implLoc = ImplementationType.GetSourceLocation();
             var defLoc = DefinitionMethod.GetSourceLocation();
@@ -67,7 +67,7 @@ namespace Flame.Verification
             }
         }
 
-        private static IMarkupNode CreateImplementationNode(IMethod DefinitionMethod, IType ImplementationType)
+        private static MarkupNode CreateImplementationNode(IMethod DefinitionMethod, IType ImplementationType)
         {
             var message = new MarkupNode(NodeConstants.TextNodeType, "Method '" + DefinitionMethod.FullName + "' was not implemented in '" + ImplementationType.FullName + "'.");
             var diagnostics = CreateImplementationDiagnostics(DefinitionMethod, ImplementationType);

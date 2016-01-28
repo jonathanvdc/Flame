@@ -152,7 +152,7 @@ namespace Flame.Optimization
         private LogEntry CreateReturnMotionMessage(
             SourceLocation Location)
         {
-            var nodes = new List<IMarkupNode>();
+            var nodes = new List<MarkupNode>();
             // Add a description
             nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
                 "Pushed down 'return' statement here. "));

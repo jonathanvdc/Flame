@@ -47,7 +47,7 @@ namespace Flame.Verification
                 duplicates.UnionWith(dupls);
 
                 var message = new MarkupNode(NodeConstants.TextNodeType, GetDescription(Member) + " has a duplicate.");
-                IMarkupNode mainNode = new MarkupNode("entry", new IMarkupNode[] { message, Member.GetSourceLocation().CreateDiagnosticsNode() });
+                MarkupNode mainNode = new MarkupNode("entry", new MarkupNode[] { message, Member.GetSourceLocation().CreateDiagnosticsNode() });
                 int count = 1;
                 foreach (var item in dupls)
                 {
@@ -58,7 +58,7 @@ namespace Flame.Verification
                     }
                     else
                     {
-                        mainNode = new MarkupNode("entry", new IMarkupNode[] { mainNode, new MarkupNode(NodeConstants.RemarksNodeType, "Could not get duplicate #" + count + "'s source location.") });
+                        mainNode = new MarkupNode("entry", new MarkupNode[] { mainNode, new MarkupNode(NodeConstants.RemarksNodeType, "Could not get duplicate #" + count + "'s source location.") });
                     }
                     count++;
                 }

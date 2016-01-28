@@ -26,7 +26,7 @@ namespace Flame.XmlDocs
             : this(Member.GetXmlDocName())
         {
         }
-        public MemberDocumentation(IMarkupNode Node)
+        public MemberDocumentation(MarkupNode Node)
         {
             Deserialize(Node);
         }
@@ -87,13 +87,13 @@ namespace Flame.XmlDocs
             return doc;
         }
 
-        public override void Deserialize(IMarkupNode Node)
+        public override void Deserialize(MarkupNode Node)
         {
             this.MemberName = Node.Attributes.Get<string>("name", "");
             this.Bucket = new DocumentationBucket(Node.Children);
         }
 
-        public override IMarkupNode Serialize()
+        public override MarkupNode Serialize()
         {
             return new MarkupNode("member",
                 new PredefinedAttributes(new Dictionary<string, object>() { { "name", MemberName } }),

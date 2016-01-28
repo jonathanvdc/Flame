@@ -58,18 +58,18 @@ namespace Flame.Front.Projects
                     doc = new MarkupNode(NodeConstants.TextNodeType,
                         "Extension '" + Path.Extension + "' in '" + Path.Path.Path + "' was not recognized as a known project extension.");
                 }
-                var listItems = new List<IMarkupNode>();
+                var listItems = new List<MarkupNode>();
                 foreach (var item in handlers.SelectMany(item => item.Extensions))
                 {
                     listItems.Add(new MarkupNode(NodeConstants.ListItemNodeType, item));
                 }
-                var listHeader = new MarkupNode(NodeConstants.BrightNodeType, new IMarkupNode[] 
+                var listHeader = new MarkupNode(NodeConstants.BrightNodeType, new MarkupNode[] 
                 { 
                     new MarkupNode(NodeConstants.TextNodeType, "Supported extensions:") 
                 });
                 var list = ListExtensions.Instance.CreateList(listHeader, listItems);
                 // Log.LogMessage(new LogEntry("Supported extensions", list));
-                var body = new MarkupNode("entry", new IMarkupNode[] { doc, list });
+                var body = new MarkupNode("entry", new MarkupNode[] { doc, list });
                 throw new AbortCompilationException(new LogEntry("Invalid extension", body));
             }
             return handler;

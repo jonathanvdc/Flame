@@ -81,9 +81,9 @@ namespace Flame.Syntax.DSharp
         	SignatureBuilder.Append(')');
         }
 
-        public static const IMarkupNode CreateSignatureDiff(IMethod Method, IType[] ArgumentTypes, IConverter<IType, string> TypeNamer)
+        public static const MarkupNode CreateSignatureDiff(IMethod Method, IType[] ArgumentTypes, IConverter<IType, string> TypeNamer)
         {
-            var nodes = new List<IMarkupNode>();
+            var nodes = new List<MarkupNode>();
             if (Method.IsStatic)
             {
                 nodes.Add(TypeDiffComparer.ToTextNode("static "));
@@ -153,7 +153,7 @@ namespace Flame.Syntax.DSharp
         	var failedMatches = Enumerable.ToArray<IMethod>(matches);
         	if (failedMatches.Length > 0)
         	{
-        		var failedMatchesList = new List<IMarkupNode>();
+        		var failedMatchesList = new List<MarkupNode>();
         		foreach (var item in failedMatches)
         		{
                     failedMatchesList.Add(CreateSignatureDiff(item, argTypes, namer));
@@ -163,7 +163,7 @@ namespace Flame.Syntax.DSharp
                     "Expected signature compatible with " + expectedSignature.ToString() +
                     ". Incompatible or ambiguous matches:");
                 var failedMatchesNode = new MarkupNode("list", failedMatchesList);
-                var messageNode = new MarkupNode("entry", new IMarkupNode[] { explanationNode, failedMatchesNode });
+                var messageNode = new MarkupNode("entry", new MarkupNode[] { explanationNode, failedMatchesNode });
         		State.Log.LogError(new LogEntry("Method resolution error", messageNode, Location));
         	}
         	else

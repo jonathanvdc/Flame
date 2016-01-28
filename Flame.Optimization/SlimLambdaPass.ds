@@ -157,7 +157,7 @@ namespace Flame.Optimization
                 bool shouldRemarkTypes = log.Options.ShouldRemark(SlimLambdaTypesRemarkName, false);
                 foreach (var item in rewriter.TransformedLocations)
                 {
-                    var nodes = new List<IMarkupNode>();
+                    var nodes = new List<MarkupNode>();
                     nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
                         "Eliminated " +
                         (item.Item2.CaptureList.Count - item.Item3.CaptureList.Count) +

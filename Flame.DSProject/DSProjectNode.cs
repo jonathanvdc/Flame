@@ -27,7 +27,7 @@ namespace Flame.DSProject
             this.Name = Name;
             this.Children = new List<IProjectItem>(Children);
         }
-        public DSProjectNode(IMarkupNode Node)
+        public DSProjectNode(MarkupNode Node)
         {
             Deserialize(Node);
         }
@@ -108,7 +108,7 @@ namespace Flame.DSProject
             return Children.ToArray();
         }
 
-        public override void Deserialize(IMarkupNode Node)
+        public override void Deserialize(MarkupNode Node)
         {
             XmlName = Node.Attributes.Get<string>("Name", "");
             Children = new List<IProjectItem>();
@@ -146,7 +146,7 @@ namespace Flame.DSProject
             }
         }
 
-        public override IMarkupNode Serialize()
+        public override MarkupNode Serialize()
         {
             return new MarkupNode("ItemGroup", new PredefinedAttributes(new Dictionary<string, object>()
             {
