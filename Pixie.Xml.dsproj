@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<Project Name="Pixie.Xml">
+  <Setter Property="TargetPlatform" Value="CLR" />
+  <Setter Property="AssemblyName" Value="Pixie.Xml" />
+  <Option Key="docs" Value="xml" />
+  <ItemGroup>
+    <RuntimeLibrary Include="PortableRT" />
+    <RuntimeLibrary Include="System" />
+    <RuntimeLibrary Include="System.Core" />
+    <RuntimeLibrary Include="System.Xml" />
+    <Reference Include="bin/Pixie.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Pixie.Xml/PixieXmlSerializable.ds" />
+    <Compile Include="Pixie.Xml/XmlNodeHandler.ds" />
+  </ItemGroup>
+</Project>

@@ -87,6 +87,13 @@ namespace Pixie
         public const string DiagnosticsNodeType = "diagnostics";
 
         /// <summary>
+        /// A markup node type for source location nodes. These nodes
+        /// capture the source file, offset and length of a source code
+        /// fragment.
+        /// </summary>
+        public const string SourceLocationNodeType = "source-location";
+
+        /// <summary>
         /// A markup node type for title nodes.
         /// </summary>
         public const string TitleNodeType = "title";
@@ -120,5 +127,32 @@ namespace Pixie
         /// A markup node type for paragraphs.
         /// </summary>
         public const string ParagraphNodeType = "para";
+
+        /// <summary>
+        /// A markup node type for nodes whose contents should be printed
+        /// in a bright color.
+        /// </summary>
+        public const string BrightNodeType = "bright";
+
+        /// <summary>
+        /// A markup node type for nodes whose contents should be printed
+        /// in a dim color.
+        /// </summary>
+        public const string DimNodeType = "dim";
+
+        /// <summary>
+        /// A markup node type that contains the superficial cause of why
+        /// something is happening. For example, if a compiler issues a warning,
+        /// then the "cause" of said warning being issued is the warning's
+        /// associated option having been set to 'true'.
+        /// Cause nodes should be as succinct as possible.
+        /// </summary>
+        /// <remarks>
+        /// A console markup renderer could markup nodes such as
+        ///    <code>&lt;cause&gt;Winfinite-recursion&lt;/cause&gt;</code>,
+        /// like so
+        ///    <code>[-Winfinite-recursion]</code>
+        /// </remarks>
+        public const string CauseNodeType = "cause";
     }
 }
