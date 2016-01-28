@@ -25,7 +25,9 @@ namespace Pixie
         /// </summary>
         public virtual [MarkupNode] Visit([MarkupNode] Nodes)
         {
-            return Enumerable.Select<MarkupNode, MarkupNode>(Nodes, Visit);
+            // Immediately visit all nodes.
+            return Enumerable.ToArray<MarkupNode>(
+                Enumerable.Select<MarkupNode, MarkupNode>(Nodes, Visit));
         }
 
         /// <summary>
