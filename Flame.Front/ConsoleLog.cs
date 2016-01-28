@@ -53,74 +53,12 @@ namespace Flame.Front
         private object writeLock;
 
         public int BufferWidth
-        {
-            get
-            {
-                return Console.Description.BufferWidth;
-            }
-        }
-
-        private void WriteEntryInternal(Style PrimaryStyle, Style SecondaryStyle, LogEntry Entry)
-        {
-            string name = Entry.Name;
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                Console.Write(name, ContrastForegroundColor);
-                Console.Write(": ");
-            }
-            WriteNode(Entry.Contents, PrimaryStyle, SecondaryStyle);
-            Console.WriteLine();
-        }
-
-        public void WriteEntry(string Header, Style HeaderStyle, Style PrimaryStyle, Style SecondaryStyle, LogEntry Entry)
-        {
-            lock (writeLock)
-            {
-                if (!string.IsNullOrWhiteSpace(Header))
-                {
-                    Console.Write(Header + ": ", HeaderStyle);
-                }
-                WriteEntryInternal(PrimaryStyle, SecondaryStyle, Entry);
-            }
-        }
-        public void WriteEntry(string Header, Style PrimaryStyle, Style SecondaryStyle, LogEntry Entry)
-        {
-            WriteEntry(Header, PrimaryStyle, PrimaryStyle, SecondaryStyle, Entry);
-        }
-        public void WriteEntry(string Header, Style EntryStyle, LogEntry Entry)
-        {
-            WriteEntry(Header, MakeBrightStyle(EntryStyle), MakeDimStyle(EntryStyle), Entry);
-        }
-        public void WriteEntry(string Header, Style EntryStyle, string Entry)
-        {
-            WriteEntry(Header, EntryStyle, new LogEntry("", Entry));
-        }
-        public void WriteEntry(LogEntry Entry)
-        {
-            WriteEntry("", MessageStyle, Entry);
-        }
-
-        public void WriteBlockEntry(string Header, Style HeaderStyle, Style PrimaryStyle, Style SecondaryStyle, LogEntry Entry)
-        {
-            lock (writeLock)
-            {
-                Console.WriteSeparator(2);
-                WriteEntry(Header, HeaderStyle, PrimaryStyle, SecondaryStyle, Entry);
-                Console.WriteSeparator(2);
-            }
-        }
-        public void WriteBlockEntry(string Header, Style PrimaryStyle, Style SecondaryStyle, LogEntry Entry)
-        {
-            WriteBlockEntry(Header, PrimaryStyle, PrimaryStyle, SecondaryStyle, Entry);
-        }
-        public void WriteBlockEntry(string Header, Style EntryStyle, LogEntry Entry)
-        {
-            WriteBlockEntry(Header, MakeBrightStyle(EntryStyle), MakeDimStyle(EntryStyle), Entry);
-        }
-        public void WriteBlockEntry(LogEntry Entry)
-        {
-            WriteBlockEntry("", MessageStyle, Entry);
-        }
+		{
+			get
+			{
+				return Console.Description.BufferWidth;
+			}
+		}
 
         #region Defaults
 
@@ -317,22 +255,93 @@ namespace Flame.Front
 
         #endregion
 
-        #region Write*Node
+		#region WriteEntry
+
+		public void WriteEntry(string Header, Style HeaderStyle, Style PrimaryStyle, Style SecondaryStyle, LogEntry Entry)
+		{
+			lock (writeLock)
+			{
+				// var srcLocFinder = new SourceLocationFinder();
+				// var node = srcLocFinder.Visit(Entry.Contents);
+				var node = Entry.Contents;
+
+				// Write the first diagnostic source location,
+				// if at all possible.
+				/*if (srcLocFinder.FirstSourceLocation != null)
+				{
+					NodeWriter.Write(
+						CompilerLogExtensions.CreateLineNumberNode(srcLocFinder.FirstSourceLocation),
+						Console, Palette);
+					Console.Write(": ");
+				}*/
+
+				// Write the header, if there is a header.
+				if (!string.IsNullOrWhiteSpace(Header))
+				{
+					Console.Write(Header + ": ", HeaderStyle);
+				}
+
+				// Write the entry's name, provided it has a name.
+				string name = Entry.Name;
+				if (!string.IsNullOrWhiteSpace(name))
+				{
+					Console.Write(name, ContrastForegroundColor);
+					Console.Write(": ");
+				}
+
+				// Write the node itself.
+				WriteNodeCore(node, PrimaryStyle, SecondaryStyle);
+				Console.WriteLine();
+			}
+		}
+		public void WriteEntry(string Header, Style PrimaryStyle, Style SecondaryStyle, LogEntry Entry)
+		{
+			WriteEntry(Header, PrimaryStyle, PrimaryStyle, SecondaryStyle, Entry);
+		}
+		public void WriteEntry(string Header, Style EntryStyle, LogEntry Entry)
+		{
+			WriteEntry(Header, MakeBrightStyle(EntryStyle), MakeDimStyle(EntryStyle), Entry);
+		}
+		public void WriteEntry(string Header, Style EntryStyle, string Entry)
+		{
+			WriteEntry(Header, EntryStyle, new LogEntry("", Entry));
+		}
+		public void WriteEntry(LogEntry Entry)
+		{
+			WriteEntry("", MessageStyle, Entry);
+		}
+
+		public void WriteBlockEntry(string Header, Style HeaderStyle, Style PrimaryStyle, Style SecondaryStyle, LogEntry Entry)
+		{
+			lock (writeLock)
+			{
+				Console.WriteSeparator(2);
+				WriteEntry(Header, HeaderStyle, PrimaryStyle, SecondaryStyle, Entry);
+				Console.WriteSeparator(2);
+			}
+		}
+		public void WriteBlockEntry(string Header, Style PrimaryStyle, Style SecondaryStyle, LogEntry Entry)
+		{
+			WriteBlockEntry(Header, PrimaryStyle, PrimaryStyle, SecondaryStyle, Entry);
+		}
+		public void WriteBlockEntry(string Header, Style EntryStyle, LogEntry Entry)
+		{
+			WriteBlockEntry(Header, MakeBrightStyle(EntryStyle), MakeDimStyle(EntryStyle), Entry);
+		}
+		public void WriteBlockEntry(LogEntry Entry)
+		{
+			WriteBlockEntry("", MessageStyle, Entry);
+		}
+
+		#endregion
+
+        #region WriteNode
 
         public void WriteNode(MarkupNode Node, Style CaretStyle, Style HighlightStyle)
         {
             lock (writeLock)
             {
                 WriteNodeCore(Node, CaretStyle, HighlightStyle);
-            }
-        }
-
-        private void WriteNodeDefault(MarkupNode Node, Style CaretStyle, Style HighlightStyle)
-        {
-            Console.Write(Node.GetText());
-            foreach (var item in Node.Children)
-            {
-                WriteNodeCore(item, CaretStyle, HighlightStyle);
             }
         }
 

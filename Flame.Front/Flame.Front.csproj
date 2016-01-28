@@ -132,6 +132,7 @@
     <Compile Include="TypedDictionary.cs" />
     <Compile Include="Passes\PassManager.cs" />
     <Compile Include="Cli\SourceLocationWriter.cs" />
+    <Compile Include="Cli\SourceLocationFinder.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame.Recompilation\Flame.Recompilation.csproj">
