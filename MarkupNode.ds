@@ -5,36 +5,47 @@ using System.Linq;
 namespace Pixie
 {
     /// <summary>
-    /// A straightforward markup node implementation.
+    /// Defines a simple and extensible interchange format for markup data.
     /// </summary>
-    public class MarkupNode : IMarkupNode
+    public class MarkupNode
     {
         public const this(set string Type)
         {
             var dict = new Dictionary<string, object>();
             this.Attributes = new PredefinedAttributes(dict);
-            this.Children = Enumerable.Empty<IMarkupNode>();
+            this.Children = Enumerable.Empty<MarkupNode>();
         }
         public const this(set string Type, string Text)
         {
             var dict = new Dictionary<string, object>();
             dict[NodeConstants.TextAttribute] = Text;
             this.Attributes = new PredefinedAttributes(dict);
-            this.Children = Enumerable.Empty<IMarkupNode>();
+            this.Children = Enumerable.Empty<MarkupNode>();
         }
-        public const this(set string Type, set [IMarkupNode] Children)
+        public const this(set string Type, set [MarkupNode] Children)
         {
             var dict = new Dictionary<string, object>();
             this.Attributes = new PredefinedAttributes(dict);
         }
         public const this(set string Type, set IAttributes Attributes)
         {
-            this.Children = Enumerable.Empty<IMarkupNode>();
+            this.Children = Enumerable.Empty<MarkupNode>();
         }
-        public const this(set string Type, set IAttributes Attributes, set [IMarkupNode] Children);
+        public const this(set string Type, set IAttributes Attributes, set [MarkupNode] Children);
 
+        /// <summary>
+        /// Gets the markup node's type.
+        /// </summary>
         public string Type { const get; private set; }
+
+        /// <summary>
+        /// Gets the options associated with this markup node.
+        /// </summary>
         public IAttributes Attributes { const get; private set; }
-        public [IMarkupNode] Children { const get; private set; }
+
+        /// <summary>
+        /// Gets the markup node's children.
+        /// </summary>
+        public [MarkupNode] Children { const get; private set; }
     }
 }

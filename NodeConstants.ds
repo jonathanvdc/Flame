@@ -94,6 +94,11 @@ namespace Pixie
         public const string SourceLocationNodeType = "source-location";
 
         /// <summary>
+        /// A markup node attribute for source locations.
+        /// </summary>
+        public const string SourceLocationAttribute = "source-location";
+
+        /// <summary>
         /// A markup node type for title nodes.
         /// </summary>
         public const string TitleNodeType = "title";

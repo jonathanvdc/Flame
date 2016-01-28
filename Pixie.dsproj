@@ -10,7 +10,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IAttributes.ds" />
-    <Compile Include="IMarkupNode.ds" />
     <Compile Include="IStringAttributes.ds" />
     <Compile Include="IAttributeParser.ds" />
     <Compile Include="IAttributePrinter.ds" />
