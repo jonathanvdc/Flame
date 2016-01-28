@@ -91,19 +91,25 @@ namespace Flame.Compiler
 
             var doc = Location.Document;
             var gridPos = Location.GridPosition;
-            var posNode = new MarkupNode(
-                NodeConstants.RemarksNodeType,
-                new MarkupNode[] { CreateLineNumberNode(Location) });
 
             if (gridPos.Line < 0)
-                return posNode;
+            {
+                return new MarkupNode(NodeConstants.RemarksNodeType, new MarkupNode[]
+                {
+                    new MarkupNode(NodeConstants.TextNodeType, "In "),
+                    CreateLineNumberNode(Location),
+                    new MarkupNode(NodeConstants.TextNodeType, ".")
+                });
+            }
 
             var srcNode = CreateSourceNode(doc, gridPos, Location.Length);
 
-            var totalNode = new MarkupNode(NodeConstants.DiagnosticsNodeType, new MarkupNode[]
-            {
-                srcNode, posNode
-            });
+            var attrs = new Dictionary<string, object>();
+            attrs[NodeConstants.SourceLocationAttribute] = Location;
+            var totalNode = new MarkupNode(
+                NodeConstants.DiagnosticsNodeType,
+                new PredefinedAttributes(attrs),
+                new MarkupNode[] { srcNode });
 
             return totalNode;
         }
