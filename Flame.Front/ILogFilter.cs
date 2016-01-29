@@ -16,9 +16,9 @@ namespace Flame.Front
     }
 
     /// <summary>
-    /// Defines a type of compiler log that filters 
-    /// its messages based on a log filter, and 
-    /// manages the exact meaning of warnings, 
+    /// Defines a type of compiler log that filters
+    /// its messages based on a log filter, and
+    /// manages the exact meaning of warnings,
     /// as well as the fatality of errors.
     /// </summary>
     public class FilteredLog : ICompilerLog
@@ -42,7 +42,7 @@ namespace Flame.Front
         }
         /// <summary>
         /// Creates a new filtered log from the given log filter
-        /// and underlying log. Properties such as whether warnings 
+        /// and underlying log. Properties such as whether warnings
         /// should be treated as errors and the maximal error count
         /// are inferred from the compiler log's options.
         /// </summary>
@@ -71,7 +71,7 @@ namespace Flame.Front
 
         /// <summary>
         /// Gets the number of error messages to print before the compiler
-        /// bails out. Null means that there is no limit to the 
+        /// bails out. Null means that there is no limit to the
         /// number of errors to print. Otherwise, an integer value
         /// specifies the maximal number of error messages to print.
         /// </summary>
@@ -83,7 +83,7 @@ namespace Flame.Front
         public int ErrorCount { get { lock (errCount) { return (int)errCount; } } }
 
         // The error count is stored as its boxed
-        // representation so we can use it 
+        // representation so we can use it
         // for locking.
         private object errCount;
 
@@ -102,12 +102,12 @@ namespace Flame.Front
                         string reason = maxErrCount == Log.Options.GetOption<int>(ErrorLimitName, 0)
                             ? ErrorLimitName
                             : MaxErrorCountName;
-                        throw new AbortCompilationException("Maximal error count exceeded. Aborting compilation. [-" + reason + "=" + maxErrCount + "]");
+                        throw new AbortCompilationException("maximal error count exceeded. Aborting compilation. [-" + reason + "=" + maxErrCount + "]");
                     }
                     Log.LogError(Entry);
                     if (MaxErrorCount.HasValue && maxErrCount <= 0)
                     {
-                        throw new AbortCompilationException("Encountered an error. Aborting compilation. [-" + FatalErrorsName + "]");
+                        throw new AbortCompilationException("encountered an error. Aborting compilation. [-" + FatalErrorsName + "]");
                     }
                     errCount = newCount;
                 }
@@ -165,15 +165,15 @@ namespace Flame.Front
 
         /// <summary>
         /// This option causes the compiler to abort compilation on the first error
-        /// occurred rather than trying to keep going and printing further error messages. 
+        /// occurred rather than trying to keep going and printing further error messages.
         /// </summary>
         public const string FatalErrorsName = "Wfatal-errors";
 
         /// <summary>
-        /// Limits the maximum number of error messages to n, 
-        /// at which point the compiler bails out rather than attempting to continue processing the source code. 
-        /// If n is 0 (the default), there is no limit on the number of error messages produced. 
-        /// If -Wfatal-errors is also specified, then -Wfatal-errors takes precedence over this option. 
+        /// Limits the maximum number of error messages to n,
+        /// at which point the compiler bails out rather than attempting to continue processing the source code.
+        /// If n is 0 (the default), there is no limit on the number of error messages produced.
+        /// If -Wfatal-errors is also specified, then -Wfatal-errors takes precedence over this option.
         /// </summary>
         public const string MaxErrorCountName = "fmax-errors";
 
@@ -196,7 +196,7 @@ namespace Flame.Front
 
         /// <summary>
         /// Gets the number of error messages to print before the compiler
-        /// bails out. Null is returned if there is no limit to the 
+        /// bails out. Null is returned if there is no limit to the
         /// number of errors to print. Otherwise, an integer value
         /// is returned that specifies the maximal number of error messages to print.
         /// This is dependent on the -Wfatal-errors, -fmax-errors and -ferror-limit options.
