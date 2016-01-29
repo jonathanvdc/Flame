@@ -42,13 +42,13 @@ namespace Flame.Compiler
         /// <summary>
         /// Gets the default entry title for fatal errors.
         /// </summary>
-        public const string FatalErrorEntryTitle = "Fatal error";
+        public const string FatalErrorEntryTitle = "fatal error";
 
         /// <summary>
         /// Gets the default entry message for fatal errors.
         /// </summary>
         public const string FatalErrorEntryMessage =
-            "A fatal error has occured, which forced compilation to be aborted.";
+            "a fatal error has occured, which forced compilation to be aborted.";
 
         /// <summary>
         /// Gets the default log entry for fatal errors.
