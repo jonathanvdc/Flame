@@ -26,7 +26,7 @@ namespace Flame.Front.Cli
             Console.WriteLine();
             Console.PushStyle(Node.GetStyle(Palette));
             Console.PushStyle(GetRemarksStyle(Palette));
-            Console.Write("Remark: ");
+            Console.Write("remark: ");
             Console.PopStyle();
             Console.Write(Node.GetText());
             foreach (var item in Node.Children)

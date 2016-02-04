@@ -24,7 +24,7 @@ namespace Flame.Compiler
 		private string[] lines;
 		private string[] SourceLines
 		{
-			const get
+			get
 			{
 				if (lines == null)
 				{
@@ -39,7 +39,7 @@ namespace Flame.Compiler
 		/// </summary>
 		public int LineCount
 		{
-			const get return SourceLines.Length;
+			get return SourceLines.Length;
 		}
 
 		/// <summary>
@@ -47,7 +47,7 @@ namespace Flame.Compiler
 		/// </summary>
 		public int CharacterCount
 		{
-			const get return Source.Length;
+			get return Source.Length;
 		}
 
 		/// <summary>
@@ -55,7 +55,7 @@ namespace Flame.Compiler
 		/// </summary>
 		public int[] LineLengths
 		{
-			const get
+			get
 			{
 				string[] lines = SourceLines;
 				int[] lens = new int[lines.Length];
@@ -71,7 +71,7 @@ namespace Flame.Compiler
 		/// </summary>
 		public int[] CumulativeLineLengths
 		{
-			const get
+			get
 			{
 				if (cumSums == null)
 				{
@@ -92,7 +92,7 @@ namespace Flame.Compiler
 		/// <summary>
 		/// Gets the source line with the given index.
 		/// </summary>
-		public const string GetLine(int Index)
+		public string GetLine(int Index)
 		{
 			return SourceLines[Index];
 		}
@@ -100,7 +100,7 @@ namespace Flame.Compiler
 		/// <summary>
 		/// Converts a source code character index to a grid position.
 		/// </summary>
-		public const SourceGridPosition ToGridPosition(int CharacterIndex)
+		public SourceGridPosition ToGridPosition(int CharacterIndex)
 		{
 			if (CharacterIndex < 0 || CharacterIndex >= CharacterCount)
 			{
