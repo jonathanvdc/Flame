@@ -97,7 +97,7 @@ namespace Flame.Front
                     int maxErrCount = MaxErrorCount.GetValueOrDefault();
                     if (MaxErrorCount.HasValue && maxErrCount > 0 && newCount > maxErrCount)
                     {
-                        // We'll a simple heuristic to determine whether whether
+                        // We'll use a simple heuristic to determine whether
                         // -ferror-limit or -fmax-errors caused this.
                         string reason = maxErrCount == Log.Options.GetOption<int>(ErrorLimitName, 0)
                             ? ErrorLimitName

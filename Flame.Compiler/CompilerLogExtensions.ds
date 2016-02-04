@@ -133,8 +133,11 @@ namespace Flame.Compiler
             string highlightedText = lineText.Substring(offset, length);
             if (string.IsNullOrWhiteSpace(highlightedText))
             {
-                highlightedText = " "; // Make sure we have at least a whitespace
-                                       // character to highlight.
+                // Make sure we have at least a whitespace
+                // character to highlight. This handles the
+                // inconvenient case where the text to highlight
+                // is located at the end of a line.
+                highlightedText = " ";
             }
             var highlightTextNode = new MarkupNode(NodeConstants.HighlightNodeType, highlightedText);
             var postTextNode = new MarkupNode(NodeConstants.TextNodeType, lineText.Substring(offset + length));
