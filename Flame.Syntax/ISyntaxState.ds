@@ -67,7 +67,7 @@ namespace Flame.Syntax
                 firstDiag
             });
 
-            return AppendDiagnosticsRemark(firstEntry, "Previous definition: ", OldDefinition);
+            return AppendDiagnosticsRemark(firstEntry, "previous definition: ", OldDefinition);
         }
 
         public static const MarkupNode CreateRedefinitionMessageNode(string Message,

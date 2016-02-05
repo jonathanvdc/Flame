@@ -114,7 +114,7 @@ namespace Flame.Compiler.Expressions
             }
             else if (UseDynamicCast(interType, Type))
             {
-                if (interType.Is(Type))
+                if (UseReinterpretAsDynamicCast(interType, Type))
                 {
                     return new ReinterpretCastExpression(interExpr, Type);
                 }
@@ -144,11 +144,22 @@ namespace Flame.Compiler.Expressions
 
         /// <summary>
         /// Tests if a value of the given source type can safely be cast to a value
+        /// of the given target type using a reinterpret cast, provided that it
+        /// can already be used in the context of a dynamic cast.
+        /// </summary>
+        public bool UseReinterpretAsDynamicCast(IType SourceType, IType TargetType)
+        {
+            return SourceType.Is(TargetType);
+        }
+
+        /// <summary>
+        /// Tests if a value of the given source type can safely be cast to a value
         /// of the given target type using a reinterpret cast.
         /// </summary>
         public bool UseReinterpretCast(IType SourceType, IType TargetType)
         {
-            return UseDynamicCast(SourceType, TargetType) && SourceType.Is(TargetType);
+            return UseDynamicCast(SourceType, TargetType)
+                && UseReinterpretAsDynamicCast(SourceType, TargetType);
         }
     }
 }

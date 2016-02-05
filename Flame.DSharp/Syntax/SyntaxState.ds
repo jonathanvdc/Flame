@@ -157,7 +157,10 @@ namespace Flame.Syntax.DSharp
             {
                 return new DeclaredVariable(ThisReferenceVariable.Create(CurrentType), null);
             }
-            return default(DeclaredVariable);
+            else
+            {
+                return default(DeclaredVariable);
+            }
         }
         public const bool VariableExists(string Name)
         {

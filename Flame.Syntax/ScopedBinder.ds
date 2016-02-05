@@ -36,7 +36,10 @@ namespace Flame.Syntax
 				newBinder.scopes.RemoveAt(scopes.Count - 1);
 				return newBinder;
 			}
-			else return new ScopedBinder(Binder, State, scopes);
+			else
+			{
+				return new ScopedBinder(Binder, State, scopes);
+			}
 		}
 		public IScopedBinder PushScope()
 		{
