@@ -4,6 +4,17 @@ using System.Collections.Generic;
 namespace Flame.Compiler
 {
 	/// <summary>
+	/// An enumeration of log entry kinds.
+	/// </summary>
+	public enum LogEntryKind : int
+	{
+		Event = 0,
+		Message = 1,
+		Warning = 2,
+		Error = 3
+	}
+
+	/// <summary>
 	/// Defines common functionality for compiler feedback providers:
 	/// objects that create various compiler logs for individual compilation
 	/// processes.
