@@ -8,49 +8,89 @@ namespace Flame.Compiler
     {
         public const this(set ICompilerOptions Options)
         {
-            this.errs = new List<LogEntry>();
-            this.warns = new List<LogEntry>();
-            this.messgs = new List<LogEntry>();
-            this.evnts = new List<LogEntry>();
+            this.entries = new List<KeyValuePair<LogEntryKind, LogEntry>>();
         }
 
-        private List<LogEntry> errs;
-        private List<LogEntry> warns;
-        private List<LogEntry> messgs;
-        private List<LogEntry> evnts;
+        private List<KeyValuePair<LogEntryKind, LogEntry>> entries;
 
-        public IReadOnlyList<LogEntry> Errors { const get return errs; }
-        public IReadOnlyList<LogEntry> Warnings { const get return warns; }
-        public IReadOnlyList<LogEntry> Messages { const get return messgs; }
-        public IReadOnlyList<LogEntry> Events { const get return evnts; }
-        public [LogEntry] Entries
+        public IReadOnlyList<LogEntry> EntriesOfKind(LogEntryKind Kind)
         {
-            const get
+            var results = new List<LogEntry>();
+            foreach (var item in entries)
             {
-                return  Enumerable.Concat<LogEntry>(
-                        Enumerable.Concat<LogEntry>(
-                        Enumerable.Concat<LogEntry>(
-                            errs, warns), messgs), evnts);
+                if (item.Key == Kind)
+                    results.Add(item.Value);
             }
+            return results;
+        }
+
+        public IReadOnlyList<LogEntry> Errors
+        {
+            get { return EntriesOfKind(LogEntryKind.Error); }
+        }
+
+        public IReadOnlyList<LogEntry> Warnings
+        {
+            get { return EntriesOfKind(LogEntryKind.Warning); }
+        }
+
+        public IReadOnlyList<LogEntry> Messages
+        {
+            get { return EntriesOfKind(LogEntryKind.Message); }
+        }
+
+        public IReadOnlyList<LogEntry> Events
+        {
+            get { return EntriesOfKind(LogEntryKind.Event); }
+        }
+
+        public IReadOnlyList<KeyValuePair<LogEntryKind, LogEntry>> Entries
+        {
+            const get { return entries; }
         }
 
         public ICompilerOptions Options { const get; private set; }
 
+        public void Log(LogEntryKind Kind, LogEntry Entry)
+        {
+            entries.Add(new KeyValuePair<LogEntryKind, LogEntry>(Kind, Entry));
+        }
+
         public void LogError(LogEntry Entry)
         {
-            errs.Add(Entry);
+            Log(LogEntryKind.Error, Entry);
         }
         public void LogWarning(LogEntry Entry)
         {
-            warns.Add(Entry);
+            Log(LogEntryKind.Warning, Entry);
         }
         public void LogMessage(LogEntry Entry)
         {
-            messgs.Add(Entry);
+            Log(LogEntryKind.Message, Entry);
         }
         public void LogEvent(LogEntry Entry)
         {
-            evnts.Add(Entry);
+            Log(LogEntryKind.Event, Entry);
+        }
+
+        /// <summary>
+        /// "Pipes" this silent log's contents to the given (possibly non-silent)
+        /// log: all log entries that have been accumulated by this log are
+        /// added to the given log, in order. 
+        /// </summary>
+        public void PipeTo(ICompilerLog Log)
+        {
+            foreach (var item in entries)
+            {
+                if (item.Key == LogEntryKind.Error)
+                    Log.LogError(item.Value);
+                else if (item.Key == LogEntryKind.Warning)
+                    Log.LogWarning(item.Value);
+                else if (item.Key == LogEntryKind.Message)
+                    Log.LogMessage(item.Value);
+                else
+                    Log.LogEvent(item.Value);
+            }
         }
 
         public void Dispose();

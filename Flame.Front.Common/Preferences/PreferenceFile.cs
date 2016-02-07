@@ -55,10 +55,5 @@ namespace Flame.Front.Preferences
             string path = FlameAssemblies.FlameAssemblyDirectory.Combine("prefs.json").AbsolutePath.Path;
             return ReadPreferences(path, Parser, Log);
         }
-
-        public static ICompilerOptions ReadPreferences(IOptionParser<string> Parser)
-        {
-            return ReadPreferences(Parser, new ConsoleLog(ConsoleEnvironment.AcquireConsole(), new StringCompilerOptions()));
-        }
     }
 }

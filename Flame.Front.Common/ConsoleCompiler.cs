@@ -58,11 +58,15 @@ namespace Flame.Front.Cli
 
         public void Compile(string[] args)
         {
-            var prefs = new MergedOptions(PreferenceFile.ReadPreferences(OptionParser), DefaultOptions);
+			var recLog = new SilentLog(DefaultOptions);
+
+			var prefs = new MergedOptions(PreferenceFile.ReadPreferences(OptionParser, recLog), DefaultOptions);
             var buildArgs = BuildArguments.Parse(OptionParser, args);
             var mergedArgs = new MergedOptions(buildArgs, prefs);
 
             var log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(mergedArgs), mergedArgs);
+
+			recLog.PipeTo(log);
 
             if (mergedArgs.GetOption<bool>("repeat-command", false))
             {

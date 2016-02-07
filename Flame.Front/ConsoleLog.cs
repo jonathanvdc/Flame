@@ -12,16 +12,6 @@ namespace Flame.Front
 {
     public sealed class ConsoleLog : ICompilerLog
     {
-        public ConsoleLog()
-            : this(ConsoleEnvironment.AcquireConsole(), new StringCompilerOptions())
-        {
-        }
-
-        public ConsoleLog(ICompilerOptions Options)
-            : this(ConsoleEnvironment.AcquireConsole(), Options)
-        {
-        }
-
         public ConsoleLog(IConsole Console, ICompilerOptions Options)
             : this(Console, Options, CreateDefaultPalette(Console.Description, Options))
         {
