@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 
 namespace Flame.Front.Preferences
 {
@@ -30,8 +31,7 @@ namespace Flame.Front.Preferences
                     string contents = reader.ReadToEnd();
                     try
                     {
-                        var serializer = new JavaScriptSerializer();
-                        var dict = serializer.Deserialize<Dictionary<string, string>>(contents);
+						var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(contents);
                         return new StringCompilerOptions(dict, Parser);
                     }
                     catch (Exception ex)
