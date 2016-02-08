@@ -21,7 +21,11 @@ namespace Flame.Front.Projects
         public FlameIRProjectHandler()
         { }
 
-        public static readonly IRParser Parser = new IRParser();
+		private static readonly Lazy<IRParser> lazyParser = new Lazy<IRParser>(() => new IRParser());
+		public static IRParser Parser
+		{
+			get { return lazyParser.Value; }
+		}
 
         public IEnumerable<string> Extensions
         {
