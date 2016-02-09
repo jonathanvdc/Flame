@@ -76,7 +76,7 @@ namespace Flame.Compiler
         /// <summary>
         /// "Pipes" this silent log's contents to the given (possibly non-silent)
         /// log: all log entries that have been accumulated by this log are
-        /// added to the given log, in order. 
+        /// added to the given log, in order.
         /// </summary>
         public void PipeTo(ICompilerLog Log)
         {
