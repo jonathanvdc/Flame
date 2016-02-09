@@ -1,0 +1,125 @@
+using System;
+
+/// <summary>
+/// The IO monad type.
+/// </summary>
+public class IO<T>
+{
+    public this(T() Action)
+    {
+        this.Action = Action;
+    }
+
+    public T() Action;
+}
+
+/// <summary>
+/// The "Unit" singleton class.
+/// </summary>
+public static class Unit
+{ }
+
+public class WriteLineClosure
+{
+    public this(set string contents);
+
+    private string contents;
+
+    public Unit WriteLine()
+    {
+        Console.WriteLine(contents);
+        return Unit;
+    }
+}
+
+public class BindClosure<T1, T2>
+{
+    public this(set IO<T1> monad, set IO<T2>(T1) binder);
+
+    /// <summary>
+    /// This bind closure's inner monad.
+    /// </summary>
+    private IO<T1> monad;
+    /// <summary>
+    /// The bind function.
+    /// </summary>
+    private IO<T2>(T1) binder;
+
+    /// <summary>
+    /// Performs the action contained in the field monad first, then
+    /// applies the function to the result. After that, the monad that
+    /// the function returns is itself evaluated.
+    /// </summary>
+    public T2 Perform()
+    {
+        return binder(monad.Action()).Action();
+    }
+}
+
+public module primio
+{
+    /// <summary>
+    /// Gets the 'unit' singleton value.
+    /// </summary>
+    public Unit getUnit()
+    {
+        return Unit;
+    }
+
+    public static T performIO<T>(IO<T> Monad)
+    {
+        return Monad.Action();
+    }
+
+    public IO<string> readLineIO()
+    {
+        return new IO<string>(Console.ReadLine);
+    }
+
+    private Unit PerformWriteLine(string Contents)
+    {
+        Console.WriteLine(Contents);
+        return Unit;
+    }
+
+    public IO<Unit> writeLineIO(string Contents)
+    {
+        return new IO<Unit>(new WriteLineClosure(Contents).WriteLine);
+    }
+
+    public IO<T2> bindIO<T1, T2>(IO<T1> Monad, IO<T2>(T1) Function)
+    {
+        return new IO<T2>(new BindClosure<T1, T2>(Monad, Function).Perform);
+    }
+
+    public IO<T> returnIO<T>(T Value)
+    {
+        return new IO<T>(T() => Value);
+    }
+
+    public IO<T> failIO<T>(string ErrorMessage)
+    {
+        return new IO<T>(T() =>
+        {
+            throw new Exception(ErrorMessage);
+        });
+    }
+}
+
+public static class Program
+{
+    private static IO<TResult> createFailIO<TArg, TResult>(TArg Arg)
+    {
+        return primio.failIO<TResult>("Well, damn");
+    }
+
+    public static void Main(string[] Args)
+    {
+        var monad = primio.bindIO<Unit, Unit>(
+            primio.bindIO<string, Unit>(
+                primio.readLineIO(),
+                primio.writeLineIO),
+            createFailIO<Unit, Unit>);
+        primio.performIO<Unit>(monad);
+    }
+}
