@@ -132,6 +132,10 @@ namespace Flame.Optimization
         /// Applies this pass to the given body pass argument.
         /// </summary>
         public IStatement Apply(BodyPassArgument Argument)
+            in { VerifyCFGPass.Apply(Argument.Body) }
+            in { VerifySSAPass.Apply(Argument.Body) }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result) { VerifySSAPass.Apply(result) }
         {
             int maxRec = GetMaxRecursion(Argument);
             var shouldInline = GetInliningCriteria(Argument);

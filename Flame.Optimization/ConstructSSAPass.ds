@@ -559,6 +559,9 @@ namespace Flame.Optimization
         }
 
         public IStatement Apply(IStatement Statement)
+            in { VerifyCFGPass.Apply(Statement) }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result) { VerifySSAPass.Apply(result) }
         {
             // Get rid of any late-bound variables here. They'll just get in
             // our way, and SSA construction is a delicate procedure.

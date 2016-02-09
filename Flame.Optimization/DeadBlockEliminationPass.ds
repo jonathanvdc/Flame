@@ -182,6 +182,8 @@ namespace Flame.Optimization
         public const string DeadBlockEliminationPassName = "dead-block-elimination";
 
         public IStatement Apply(BodyPassArgument Args)
+            in { VerifyCFGPass.Apply(Args.Body) }
+            out (result) { VerifyCFGPass.Apply(result) }
         {
             var log = Args.PassEnvironment.Log;
             var rewriter = new DeadBlockEliminationVisitor(log, Args.DeclaringMethod);
@@ -196,6 +198,8 @@ namespace Flame.Optimization
     public static class SilentDeadBlockEliminationPass : IPass<IStatement, IStatement>
     {
         public IStatement Apply(IStatement Body)
+            in { VerifyCFGPass.Apply(Body) }
+            out (result) { VerifyCFGPass.Apply(result) }
         {
             var rewriter = new DeadBlockEliminationVisitor();
             return rewriter.Visit(Body);

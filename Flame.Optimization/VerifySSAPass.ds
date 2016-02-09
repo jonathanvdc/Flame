@@ -1,0 +1,177 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame;
+using Flame.Compiler;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A visitor that verifies a control-flow graph's SSA
+    /// </summary>
+    public class VerifySSAVisitor : NodeVisitorBase, IBasicBlockVisitor
+    {
+        public const this(set HashSet<UniqueTag> Worklist)
+        {
+            this.definedVars = new HashSet<SSAVariable>();
+            this.forwardRefs = new HashSet<SSAVariable>();
+            this.redefs = new HashSet<SSAVariable>();
+        }
+
+        // The set of variables that have been defined.
+        private HashSet<SSAVariable> definedVars;
+
+        // The set of variables that may be used before they
+        // are defined.
+        private HashSet<SSAVariable> forwardRefs;
+
+        // The set of variables that have been defined more
+        // than once.
+        private HashSet<SSAVariable> redefs;
+
+        /// <summary>
+        /// Gets the "worklist" set of unique tags, which determines
+        /// block reachability.
+        /// </summary>
+        public HashSet<UniqueTag> Worklist { get; private set; }
+
+        /// <summary>
+        /// Gets a set of SSA variables in the control-flow graph that
+        /// may have been used before they are defined.
+        /// </summary>
+        public [SSAVariable] ForwardReferences { get { return forwardRefs; } }
+
+        /// <summary>
+        /// Gets the set of SSA variables in the control-flow graph that
+        /// have been defined more than once.
+        /// </summary>
+        public [SSAVariable] Redefinitions { get { return redefs; } }
+
+        private void RegisterUse(SSAVariable Variable)
+        {
+            if (!definedVars.Contains(Variable))
+                // If the set of defined variables does not contain the given
+                // variable, then we have encountered a forward reference.
+                forwardRefs.Add(Variable);
+        }
+
+        private void RegisterDef(SSAVariable Variable)
+        {
+            if (!definedVars.Add(Variable))
+                // If the set of defined variables already contains the given
+                // variable, then this is a redefinition.
+                redefs.Add(Variable);
+        }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            // Register the parameter as a definition.
+            RegisterDef(Variable);
+            return Variable;
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public BlockBranch Visit(BlockBranch Branch)
+        {
+            // Register the arguments as uses.
+            foreach (var item in Branch.Arguments)
+                RegisterUse(item);
+
+            // Mark the target tag as reachable.
+            Worklist.Add(Branch.TargetTag);
+
+            return Branch;
+        }
+
+        /// <summary>
+        /// Visits a nested control-flow graph.
+        /// </summary>
+        private void VisitFlowGraph(FlowGraph Graph)
+        {
+            var worklist = new HashSet<UniqueTag>();
+            worklist.Add(Graph.EntryPointTag)
+            var visited = new HashSet<UniqueTag>();
+            var childVisitor = new VerifySSAVisitor(worklist);
+            while (worklist.Count > 0)
+            {
+                var firstItem = Enumerable.First<UniqueTag>(worklist);
+                if (!visited.Contains(firstItem))
+                {
+                    visited.Add(firstItem);
+                    Graph.GetBlock(firstItem).Accept(childVisitor);
+                }
+                worklist.Remove(firstItem);
+            }
+            forwardRefs.UnionWith(childVisitor.ForwardReferences);
+            redefs.UnionWith(childVisitor.Redefinitions);
+        }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is SSAGetExpression;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is SSADefineStatement;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            assert(Expression is SSAGetExpression);
+            var expr = (SSAGetExpression)Expression;
+            RegisterUse(expr.Variable);
+            return Expression;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            if (Statement is FlowGraphStatement)
+            {
+                VisitFlowGraph(((FlowGraphStatement)Statement).Graph);
+            }
+            else
+            {
+                assert(Statement is SSADefineStatement);
+                var stmt = (SSADefineStatement)Statement;
+                RegisterDef(stmt.Variable);
+            }
+            return Statement;
+        }
+    }
+
+    /// <summary>
+    /// A pass that tries to verify SSA form. The first error is
+    /// immediately thrown as an exception. If nothing goes wrong, then
+    /// `true` is returned.
+    /// </summary>
+    /// <remarks>
+    /// The boolean-returning behavior of this pass can be used to wrap it
+    /// in an assertion.
+    /// </remarks>
+    public static class VerifySSAPass : IPass<IStatement, bool>
+    {
+        public bool Apply(IStatement Value)
+        {
+            var visitor = new VerifySSAVisitor(new HashSet<UniqueTag>());
+            visitor.Visit(Value);
+
+            if (Enumerable.Any<SSAVariable>(visitor.ForwardReferences))
+                throw new Exception("Found a forward reference to an SSA variable.");
+
+            if (Enumerable.Any<SSAVariable>(visitor.Redefinitions))
+                throw new Exception("An SSA variable was defined more than once.");
+
+            return true;
+        }
+    }
+}
