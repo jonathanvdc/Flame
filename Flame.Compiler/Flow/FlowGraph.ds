@@ -73,6 +73,15 @@ namespace Flame.Compiler.Flow
 		}
 
 		/// <summary>
+		/// Checks if this control-flow graph contains a block that is
+		/// identified by the given unique tag.
+		/// </summary>
+		public bool ContainsBlock(UniqueTag Tag)
+		{
+			return allBlocks.ContainsKey(Tag);
+		}
+
+		/// <summary>
 		/// Tests if this flow graph is "empty" from the perspective of a statement:
 		/// all reachable blocks have empty bodies.
 		/// </summary>

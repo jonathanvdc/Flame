@@ -1,0 +1,107 @@
+using System;
+using System.Collections.Generic;
+using Flame;
+using Flame.Compiler;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using Pixie;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A visitor that tracks down CFG errors. These errors are stored in a list
+    /// of errors.
+    /// </summary>
+    public class VerifyCFGVisitor : IBasicBlockVisitor
+    {
+        public const this(set FlowGraph Graph)
+        {
+            this.errList = new List<LogEntry>();
+        }
+
+        /// <summary>
+        /// Gets the control-flow graph this visitor is verifying.
+        /// </summary>
+        public FlowGraph Graph { get; private set; }
+
+        private List<LogEntry> errList;
+
+        /// <summary>
+        /// Gets the sequence of all CFG-related semantic errors that have been
+        /// observed by this CFG verifying visitor.
+        /// </summary>
+        public IReadOnlyList<LogEntry> Errors { get { return errList; } }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            return Variable;
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public BlockBranch Visit(BlockBranch Branch)
+        {
+            if (!Graph.ContainsBlock(Branch.TargetTag))
+            {
+                errList.Add(new LogEntry(
+                    "Invalid CFG",
+                    "A CFG contained a branch to a basic block that it does not define."));
+            }
+
+            var tgtParams = Graph.GetBlock(Branch.TargetTag).Parameters;
+            if (tgtParams.Count != Branch.Arguments.Count)
+            {
+                errList.Add(new LogEntry(
+                    "Invalid CFG",
+                    "A branch to a basic block did not match the arity of that block's " +
+                    "parameter list."));
+            }
+
+            return Branch;
+        }
+
+        public IExpression Visit(IExpression Value)
+        {
+            return Value;
+        }
+
+        public IStatement Visit(IStatement Value)
+        {
+            return Value;
+        }
+    }
+
+    /// <summary>
+    /// A pass that tries to verify a control-flow graph. The first error is
+    /// immediately thrown as an exception. If nothing goes wrong, then
+    /// `true` is returned.
+    /// </summary>
+    /// <remarks>
+    /// The boolean-returning behavior of this pass can be used to wrap it
+    /// in an assertion.
+    /// </remarks>
+    public static class VerifyCFGPass : FlowGraphVisitorBase, IPass<IStatement, bool>
+    {
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            var visitor = new VerifyCFGVisitor(Graph);
+            Graph.Accept(visitor);
+            if (visitor.Errors.Count > 0)
+                throw new Exception(visitor.Errors[0].Contents.GetAllText());
+
+            return Graph;
+        }
+
+        public bool Apply(IStatement Value)
+        {
+            Visit(Value);
+            return true;
+        }
+    }
+}

@@ -652,6 +652,9 @@ namespace Flame.Optimization
         }
 
         public IStatement Apply(IStatement Statement)
+            in { VerifyCFGPass.Apply(Statement) }
+            in { VerifySSAPass.Apply(Statement) }
+            out (result) { VerifyCFGPass.Apply(result) }
         {
             return Visit(Statement);
         }
