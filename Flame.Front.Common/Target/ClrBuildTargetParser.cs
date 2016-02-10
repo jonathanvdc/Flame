@@ -66,18 +66,21 @@ namespace Flame.Front.Target
         }
 
         public static readonly PassPreferences PassPreferences = new PassPreferences(
-            new PassCondition[] 
+            new PassCondition[]
             {
                 new PassCondition(PassExtensions.LowerLambdaPassName, optInfo => true),
                 new PassCondition(PassExtensions.SimplifyFlowPassName, optInfo => optInfo.OptimizeMinimal),
                 new PassCondition(PassExtensions.LowerYieldPassName, optInfo => true),
+                // Activate -flower-contracts, because CFG-related optimizations
+                // could modify the contract block's placement.
+                new PassCondition(LowerContractPass.LowerContractPassName, optInfo => optInfo.OptimizeDebug),
                 // Run -fnormalize-names-clr no matter what, because
                 // compilers for other languages (mcs, I'm looking at you here)
                 // can be pretty restrictive about these naming schemes.
                 new PassCondition(NormalizeNamesPass.NormalizeNamesPassName, optInfo => true)
             },
-            new PassInfo<BodyPassArgument, IStatement>[] 
-            { 
+            new PassInfo<BodyPassArgument, IStatement>[]
+            {
                 new PassInfo<BodyPassArgument, IStatement>(CecilLowerYieldPass.Instance, PassExtensions.LowerYieldPassName)
             });
 
