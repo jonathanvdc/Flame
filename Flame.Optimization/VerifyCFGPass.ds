@@ -50,16 +50,16 @@ namespace Flame.Optimization
             if (!Graph.ContainsBlock(Branch.TargetTag))
             {
                 errList.Add(new LogEntry(
-                    "Invalid CFG",
-                    "A CFG contained a branch to a basic block that it does not define."));
+                    "invalid CFG",
+                    "a CFG contained a branch to a basic block that it does not define."));
             }
 
             var tgtParams = Graph.GetBlock(Branch.TargetTag).Parameters;
             if (tgtParams.Count != Branch.Arguments.Count)
             {
                 errList.Add(new LogEntry(
-                    "Invalid CFG",
-                    "A branch to a basic block did not match the arity of that block's " +
+                    "invalid CFG",
+                    "a branch to a basic block did not match the arity of that block's " +
                     "parameter list."));
             }
 

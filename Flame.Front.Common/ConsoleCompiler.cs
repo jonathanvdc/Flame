@@ -23,8 +23,41 @@ using System.Threading.Tasks;
 
 namespace Flame.Front.Cli
 {
+	public class LogTraceListener : System.Diagnostics.TraceListener
+	{
+		public override void Fail(string message)
+		{
+			Fail(message, string.Empty);
+		}
+
+		public override void Fail(string message, string detailMessage)
+		{
+			WriteLine("Internal error: " + message);
+			if (!string.IsNullOrWhiteSpace(detailMessage))
+				WriteLine(detailMessage);
+			WriteLine("Stack trace: ");
+			WriteLine(Environment.StackTrace);
+		}
+
+		public override void Write(string message)
+		{
+			Console.Write(message);
+		}
+
+		public override void WriteLine(string message)
+		{
+			Console.WriteLine(message);
+		}
+	}
+
     public class ConsoleCompiler
     {
+		public static void SetupDebugListener()
+		{
+			var tl = new LogTraceListener();
+			System.Diagnostics.Debug.Listeners.Add(tl);
+		}
+
         public ConsoleCompiler(string Name, string FullName, string ReleasesSite)
             : this(Name, FullName, ReleasesSite, CompilerOptionExtensions.CreateOptionParser())
         {
