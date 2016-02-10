@@ -9,6 +9,10 @@ using Flame.Compiler.Visitors;
 
 namespace Flame.Optimization
 {
+    // Based on the algorithm described by M. Braun et al
+    // in Simple and Efficient Construction of Static Single Assignment Form
+    // (https://pp.info.uni-karlsruhe.de/uploads/publikationen/braun13cc.pdf).
+
     /// <summary>
     /// A node visitor that finds all variables that have the identity property,
     /// i.e. they have a unique address - which means they cannot be
