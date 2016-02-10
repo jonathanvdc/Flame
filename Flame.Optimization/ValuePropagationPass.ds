@@ -11,6 +11,172 @@ using Flame.Compiler.Visitors;
 
 namespace Flame.Optimization
 {
+    /// <summary>
+    /// A data structure that manages block-local def-once, use-once variables
+    /// as they are propagated. This "queue" will automatically revert to
+    /// conservative behavior if the FIFO discipline is not respected.
+    /// </summary>
+    public class ValuePropagationQueue
+    {
+        // A tuple that contains a def-once, use-once variable,
+        // its value, its definition statement
+        // (which is speculatively empty), and its (single) use, which is either
+        // null or speculatively its value definition.
+        alias VariableData = Tuple<
+            SSAVariable, IExpression,
+            SpeculativeStatement, SpeculativeExpression>;
+
+        public const this()
+        {
+            Reset();
+        }
+
+        // A list that represents the "queue" of variables, whose definitions
+        // can be moved, but not reordered (as they may have side-effects).
+        private List<VariableData> variableQueue;
+
+        // A lazy dictionary that maps SSA variables to their index in the variable
+        // queue.
+        private Lazy<Dictionary<SSAVariable, int>> lazyVariableIndices;
+
+        // Gets the number of variables that are currently being propagated
+        // speculatively.
+        private int speculativePropagationCount;
+
+        // A read-only dictionary that maps SSA variables to their index in
+        // the variable queue.
+        private IReadOnlyDictionary<SSAVariable, int> variableIndices
+        {
+            get { return lazyVariableIndices.Value; }
+        }
+
+        private void Reset()
+        {
+            this.variableQueue = new List<VariableData>();
+            this.speculativePropagationCount = 0;
+            RegenerateIndices();
+        }
+
+        private Dictionary<SSAVariable, int> ComputeIndices()
+        {
+            var results = new Dictionary<SSAVariable, int>();
+            for (int i = 0; i < variableQueue.Count; i++)
+            {
+                results[variableQueue[i].Item1] = i;
+            }
+            return results;
+        }
+
+        /// <summary>
+        /// Recomputes the variable index dictionary.
+        /// </summary>
+        private void RegenerateIndices()
+        {
+            lazyVariableIndices = new Lazy<Dictionary<SSAVariable, int>>(ComputeIndices);
+        }
+
+        /// <summary>
+        /// "Spills" the given number of variables in this variable queue,
+        /// reverting them to conservative behavior.
+        /// </summary>
+        private void Spill(int Count)
+            in { Count <= variableQueue.Count }
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                var item = variableQueue[i];
+
+                // Revert to conservative behavior for the definition.
+                item.Item3.IsAlive = false;
+
+                // Revert to conservative behavior for the use.
+                if (item.Item4 != null)
+                {
+                    speculativePropagationCount--;
+                    item.Item4.IsAlive = false;
+                }
+            }
+            variableQueue.RemoveRange(0, Count);
+
+            // Regenerate the variable index dictionary.
+            RegenerateIndices();
+        }
+
+        /// <summary>
+        /// "Spills" all variables in this variable queue, reverting them
+        /// to conservative behavior.
+        /// </summary>
+        public void Spill()
+        {
+            Spill(variableQueue.Count);
+        }
+
+        /// <summary>
+        /// Creates a load expression to the given SSA variable, which may
+        /// or may not be a speculative definition propagation.
+        /// </summary>
+        public IExpression Load(SSAVariable Variable)
+        {
+            var getExpr = Variable.CreateGetExpression();
+
+            int index;
+            if (variableIndices.TryGetValue(Variable, &index))
+            {
+                if (speculativePropagationCount != index)
+                {
+                    // Spill all previous variables in the queue if this
+                    // request does not obey the FIFO discipline.
+                    Spill(speculativePropagationCount);
+                    // Spilling all previous variables will move this
+                    // SSA variable to the front of the queue.
+                    index = 0;
+                }
+
+                var oldEntry = variableQueue[index];
+
+                var specExpr = new SpeculativeExpression(
+                    oldEntry.Item2, getExpr);
+
+                // Update the queue entry to reflect the variable load.
+                variableQueue[index] = new VariableData(
+                    Variable, oldEntry.Item2,
+                    oldEntry.Item3, specExpr);
+
+                // Increment the speculative propagation counter.
+                speculativePropagationCount++;
+                if (speculativePropagationCount == variableQueue.Count)
+                {
+                    // The entire variable queue has been propagated, in order.
+                    // This means that the transformations that we have performed
+                    // are correct. We can simply forget about the speculative
+                    // statements and expressions, which should make sure that
+                    // they won't accidentally be marked as dead later on.
+                    Reset();
+                }
+
+                return specExpr;
+            }
+            else
+            {
+                return getExpr;
+            }
+        }
+
+        /// <summary>
+        /// Creates a statement that defined the given def-once,
+        /// use-once variable. It is then inserted to the back of the
+        /// queue.
+        /// </summary>
+        public IStatement Define(SSAVariable Variable, IExpression Value)
+        {
+            var result = new SpeculativeStatement(
+                EmptyStatement, Variable.CreateSetStatement(Value));
+            variableQueue.Add(new VariableData(Variable, Value, result, null));
+            RegenerateIndices();
+            return result;
+        }
+    }
+
     public class ValuePropagatingVisitor : NodeVisitorBase
     {
         public const this(
@@ -18,7 +184,7 @@ namespace Flame.Optimization
         {
             this.propAlwaysVars = new HashSet<SSAVariable>();
             this.variableDefs = new Dictionary<SSAVariable, IExpression>();
-            this.lastDef = null;
+            this.propQueue = new ValuePropagationQueue();
         }
 
         /// <summary>
@@ -34,24 +200,9 @@ namespace Flame.Optimization
         // A dictionary that maps SSA variables to their definitions.
         private Dictionary<SSAVariable, IExpression> variableDefs;
 
-        // Gets the use-once SSA variable that was last defined.
-        // If it is non-null, then no expression or non-empty statement
-        // has been encountered since its definition. This variable can
-        // always be safely propagated, and its definition can always be
-        // reordered.
-        private SSAVariable lastDef;
-
-        private IStatement FlushLastDef()
-        {
-            if (lastDef == null)
-            {
-                return EmptyStatement;
-            }
-
-            var defStmt = new SSADefineStatement(lastDef, variableDefs[lastDef]);
-            lastDef = null;
-            return defStmt;
-        }
+        // The propagation queue, which manages block-local def-once, use-once
+        // variables.
+        private ValuePropagationQueue propQueue;
 
         public override bool Matches(IExpression Value)
         {
@@ -73,14 +224,9 @@ namespace Flame.Optimization
                 {
                     return variableDefs[ssaVar];
                 }
-                else if (lastDef != null && lastDef.Equals(ssaVar))
-                {
-                    lastDef = null;
-                    return variableDefs[ssaVar];
-                }
                 else
                 {
-                    return getExpr;
+                    return propQueue.Load(ssaVar);
                 }
             }
             else if (ValuePropagationPass.CanDelayTopLevelExpression(Expression))
@@ -91,10 +237,10 @@ namespace Flame.Optimization
             }
             else
             {
-                // Visit, then flush the last definition.
+                // Visit, then flush the propagation queue.
                 var result = Expression.Accept(this);
-                return new InitializedExpression(
-                    FlushLastDef(), result).Simplify();
+                propQueue.Spill();
+                return result;
             }
         }
 
@@ -131,11 +277,8 @@ namespace Flame.Optimization
                         }
                         else
                         {
-                            // Flush the previous definition, and set this
-                            // variable as the last variable instead.
-                            var result = FlushLastDef();
-                            lastDef = ssaVar;
-                            return result;
+                            // Add the variable to the propagation queue.
+                            return propQueue.Define(ssaVar, val);
                         }
                     }
                 }
@@ -148,10 +291,10 @@ namespace Flame.Optimization
             }
             else
             {
-                // Visit, then flush the last definition.
+                // Visit, then flush the propagation queue.
                 var result = Statement.Accept(this);
-                return new BlockStatement(new IStatement[] {
-                    result, FlushLastDef() }).Simplify();
+                propQueue.Spill();
+                return result;
             }
         }
     }
@@ -179,7 +322,7 @@ namespace Flame.Optimization
             }
             else if (Expression is IVariableNode)
             {
-                // Variables load/address-of nodes don't change any state,
+                // Variable load/address-of nodes don't change any state,
                 // either.
                 var action = ((IVariableNode)Expression).Action;
                 return action == VariableNodeAction.Get

@@ -125,7 +125,7 @@ namespace Flame.Optimization
             nodes.Add(CallLocation.CreateDiagnosticsNode());
 
             var log = Argument.PassEnvironment.Log;
-            log.LogMessage(new LogEntry("Pass remark", nodes));
+            log.LogMessage(new LogEntry("pass remark", nodes));
         }
 
         /// <summary>
