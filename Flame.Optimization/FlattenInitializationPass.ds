@@ -274,7 +274,7 @@ namespace Flame.Optimization
                 foreach (var item in rewriter.TransformedLocations)
                 {
                     log.LogMessage(new LogEntry(
-                        "Pass remark",
+                        "pass remark",
                         new MarkupNode[]
                         {
                             new MarkupNode(NodeConstants.TextNodeType,

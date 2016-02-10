@@ -180,7 +180,7 @@ namespace Flame.Optimization
                     }
 
                     log.LogMessage(new LogEntry(
-                        "Pass remark",
+                        "pass remark",
                         nodes,
                         item.Item1));
                 }

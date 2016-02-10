@@ -161,7 +161,7 @@ namespace Flame.Optimization
             // Add diagnostics for the site.
             nodes.Add(Location.CreateDiagnosticsNode());
 
-            return new LogEntry("Pass remark", nodes);
+            return new LogEntry("pass remark", nodes);
         }
 
         public IStatement Apply(BodyPassArgument Arg)
