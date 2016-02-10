@@ -370,7 +370,7 @@ namespace Flame.Optimization
                 for (int i = 0; i < item.Arguments.Count; i++)
                 {
                     edgeLabel.Append(localLabels[targetBlock.Parameters[i].Tag]);
-                    edgeLabel.Append(" <- ");
+                    edgeLabel.Append(" &larr; ");
                     edgeLabel.Append(localLabels[item.Arguments[i].Tag]);
                     if (i < item.Arguments.Count - 1)
                         edgeLabel.Append("\\l");

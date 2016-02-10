@@ -313,7 +313,6 @@ namespace Flame.Optimization
                     {
                         return new SSADefineStatement(ssaVar, val);
                     }
-
                 }
             }
             else if (ValuePropagationPass.CanDelayTopLevelStatement(Statement))
