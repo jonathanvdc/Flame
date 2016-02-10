@@ -105,9 +105,8 @@ namespace Flame.Optimization
             while (worklist.Count > 0)
             {
                 var firstItem = Enumerable.First<UniqueTag>(worklist);
-                if (!visited.Contains(firstItem))
+                if (visited.Add(firstItem))
                 {
-                    visited.Add(firstItem);
                     Graph.GetBlock(firstItem).Accept(childVisitor);
                 }
                 worklist.Remove(firstItem);
@@ -143,6 +142,7 @@ namespace Flame.Optimization
             {
                 assert(Statement is SSADefineStatement);
                 var stmt = (SSADefineStatement)Statement;
+                Visit(stmt.Value);
                 RegisterDef(stmt.Variable);
             }
             return Statement;
