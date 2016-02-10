@@ -28,7 +28,7 @@ namespace Flame.Compiler
         /// </summary>
         public static void LogException(this ICompilerLog Log, Exception ex)
         {
-            var entry = new LogEntry("Exception", ex.ToString());
+            var entry = new LogEntry("exception", ex.ToString());
             Log.LogError(entry);
         }
 
