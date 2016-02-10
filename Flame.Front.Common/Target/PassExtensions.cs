@@ -59,7 +59,7 @@ namespace Flame.Front.Target
 			SSAPassManager.RegisterPassCondition(JumpThreadingPass.JumpThreadingPassName, optInfo => optInfo.OptimizeAggressive);
 			SSAPassManager.RegisterMethodPass(new MethodPassInfo(DeadBlockEliminationPass.Instance, DeadBlockEliminationPass.DeadBlockEliminationPassName));
 			SSAPassManager.RegisterPassCondition(DeadBlockEliminationPass.DeadBlockEliminationPassName, optInfo => optInfo.OptimizeAggressive);
-			SSAPassManager.RegisterMethodPass(new StatementPassInfo(ConstructSSAPass.Instance, ConstructSSAPass.ConstructSSAPassName));
+			SSAPassManager.RegisterMethodPass(new MethodPassInfo(ConstructSSAPass.Instance, ConstructSSAPass.ConstructSSAPassName));
 			SSAPassManager.RegisterPassCondition(ConstructSSAPass.ConstructSSAPassName, optInfo => optInfo.OptimizeAggressive);
 			SSAPassManager.RegisterMethodPass(new StatementPassInfo(RemoveTrivialPhiPass.Instance, RemoveTrivialPhiPass.RemoveTrivialPhiPassName));
 			SSAPassManager.RegisterPassCondition(RemoveTrivialPhiPass.RemoveTrivialPhiPassName, optInfo => optInfo.OptimizeAggressive);

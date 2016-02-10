@@ -150,9 +150,8 @@ namespace Flame.Optimization
     }
 
     /// <summary>
-    /// A pass that tries to verify SSA form. The first error is
-    /// immediately thrown as an exception. If nothing goes wrong, then
-    /// `true` is returned.
+    /// A pass that tries to verify SSA form. A boolean is returned that states
+    /// whether SSA form has been respected.
     /// </summary>
     /// <remarks>
     /// The boolean-returning behavior of this pass can be used to wrap it
@@ -165,11 +164,42 @@ namespace Flame.Optimization
             var visitor = new VerifySSAVisitor(new HashSet<UniqueTag>());
             visitor.Visit(Value);
 
+            return !Enumerable.Any<SSAVariable>(visitor.ForwardReferences)
+                && !Enumerable.Any<SSAVariable>(visitor.Redefinitions);
+        }
+
+        /// <summary>
+        /// Applies this pass to the given value and log. Returns true no matter
+        /// what, but may write messages to the log.
+        /// </summary>
+        public bool Apply(
+            IStatement Value, ICompilerLog Log, IMethod DeclaringMethod,
+            string CauseName)
+        {
+            var visitor = new VerifySSAVisitor(new HashSet<UniqueTag>());
+            visitor.Visit(Value);
+
+            bool result = true;
+
             if (Enumerable.Any<SSAVariable>(visitor.ForwardReferences))
-                throw new Exception("Found a forward reference to an SSA variable.");
+            {
+                Log.LogError(new LogEntry(
+                    "invalid SSA form",
+                    "found a forward reference to an SSA variable in body " +
+                    "of method '" + DeclaringMethod.FullName + "'. Caused by: '" +
+                    CauseName + "'.",
+                    DeclaringMethod.GetSourceLocation()));
+            }
 
             if (Enumerable.Any<SSAVariable>(visitor.Redefinitions))
-                throw new Exception("An SSA variable was defined more than once.");
+            {
+                Log.LogError(new LogEntry(
+                    "invalid SSA form",
+                    "found a redefinition of an SSA variable in body " +
+                    "of method '" + DeclaringMethod.FullName + "'. Caused by: '" +
+                    CauseName + "'.",
+                    DeclaringMethod.GetSourceLocation()));
+            }
 
             return true;
         }

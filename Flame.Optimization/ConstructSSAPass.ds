@@ -518,7 +518,8 @@ namespace Flame.Optimization
         }
     }
 
-    public static class ConstructSSAPass : IPass<IStatement, IStatement>
+    public static class ConstructSSAPass : IPass<IStatement, IStatement>,
+                                           IPass<BodyPassArgument, IStatement>
     {
         public const string ConstructSSAPassName = "construct-ssa";
 
@@ -562,10 +563,7 @@ namespace Flame.Optimization
             return Variable;
         }
 
-        public IStatement Apply(IStatement Statement)
-            in { VerifyCFGPass.Apply(Statement) }
-            out (result) { VerifyCFGPass.Apply(result) }
-            out (result) { VerifySSAPass.Apply(result) }
+        private IStatement ApplyImpl(IStatement Statement)
         {
             // Get rid of any late-bound variables here. They'll just get in
             // our way, and SSA construction is a delicate procedure.
@@ -578,6 +576,27 @@ namespace Flame.Optimization
             // Perform the SSA construction itself.
             var visitor = new GlobalSSAConstructionVisitor(IsEligible, identFinder.IdentityVariables);
             return visitor.Visit(normalStatement);
+        }
+
+        public IStatement Apply(IStatement Statement)
+            in { VerifyCFGPass.Apply(Statement) }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result) { VerifySSAPass.Apply(result) }
+        {
+            return ApplyImpl(Statement);
+        }
+
+        public IStatement Apply(BodyPassArgument Arg)
+            in { VerifyCFGPass.Apply(Arg.Body) }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result)
+            {
+                VerifySSAPass.Apply(
+                    result, Arg.PassEnvironment.Log,
+                    Arg.DeclaringMethod, ConstructSSAPassName)
+            }
+        {
+            return ApplyImpl(Arg.Body);
         }
     }
 }
