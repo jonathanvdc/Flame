@@ -74,10 +74,10 @@ namespace Flame.Compiler.Flow
 		/// </summary>
 		public BasicBlock Accept(IBasicBlockVisitor Visitor)
 		{
-			var visitedContents = Visitor.Visit(Contents);
 			var visitedParameters = new List<SSAVariable>(
 				Enumerable.Select<SSAVariable, SSAVariable>(
 					Parameters, Visitor.VisitParameter));
+			var visitedContents = Visitor.Visit(Contents);
 			var visitedFlow = Flow.Accept(Visitor);
 			return new BasicBlock(
 				Tag, visitedParameters, visitedContents, visitedFlow);
