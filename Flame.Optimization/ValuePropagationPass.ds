@@ -182,7 +182,6 @@ namespace Flame.Optimization
         public const this(
             set IReadOnlyDictionary<SSAVariable, int> UseCounts)
         {
-            this.propAlwaysVars = new HashSet<SSAVariable>();
             this.variableDefs = new Dictionary<SSAVariable, IExpression>();
             this.propQueue = new ValuePropagationQueue();
         }
@@ -193,11 +192,8 @@ namespace Flame.Optimization
         /// </summary>
         private IReadOnlyDictionary<SSAVariable, int> UseCounts { const get; private set; }
 
-        // Gets a dictionary that maps propagate-always SSA variables
+        // A dictionary that maps propagate-always SSA variables
         // to their definitions.
-        private HashSet<SSAVariable> propAlwaysVars;
-
-        // A dictionary that maps SSA variables to their definitions.
         private Dictionary<SSAVariable, IExpression> variableDefs;
 
         // The propagation queue, which manages block-local def-once, use-once
@@ -220,9 +216,9 @@ namespace Flame.Optimization
                 var getExpr = (SSAGetExpression)Expression;
                 var ssaVar = getExpr.Variable;
 
-                if (propAlwaysVars.Contains(ssaVar))
+                if (variableDefs.TryGetValue(ssaVar, &IExpression defValue))
                 {
-                    return variableDefs[ssaVar];
+                    return defValue;
                 }
                 else
                 {
@@ -252,28 +248,36 @@ namespace Flame.Optimization
                 var val = Visit(defStatement.Value);
                 var ssaVar = defStatement.Variable;
 
-                variableDefs[ssaVar] = val;
-
                 if (UseCounts.TryGetValue(ssaVar, &int useCount))
                 {
-                    if (useCount == 0 ||
-                        ValuePropagationPass.IsPropagateAlwaysExpression(val))
+                    if (useCount == 0)
+                    {
+                        // Perform some trivial dead store elimination.
+                        return new ExpressionStatement(val);
+                    }
+
+                    var propAlways = ValuePropagationPass.MakePropagateAlwaysExpression(val);
+                    if (propAlways != null)
                     {
                         // Mark this variable as a propagate-always
-                        // variable and don't emit its definition.
-                        propAlwaysVars.Add(ssaVar);
-                        return EmptyStatement;
+                        // variable and emit some initialization
+                        // code instead of a definition.
+                        variableDefs[ssaVar] = propAlways.Item1;
+                        return propAlways.Item2;
                     }
                     else if (useCount == 1)
                     {
-                        if (ValuePropagationPass.IsPropagateOnceExpression(val))
+                        var propOnce = ValuePropagationPass.MakePropagateOnceExpression(val);
+                        if (propOnce != null)
                         {
                             // Mark this variable as a propagate-always
                             // variable and don't emit its definition.
                             // This is safe, because its definition is
                             // propagate-once, and it is used only once.
-                            propAlwaysVars.Add(ssaVar);
-                            return EmptyStatement;
+                            // We may have to emit some initialization
+                            // code, though.
+                            variableDefs[ssaVar] = propOnce.Item1;
+                            return propOnce.Item2;
                         }
                         else
                         {
@@ -281,9 +285,36 @@ namespace Flame.Optimization
                             return propQueue.Define(ssaVar, val);
                         }
                     }
+                    else
+                    {
+                        return new SSADefineStatement(ssaVar, val);
+                    }
                 }
+                else
+                {
+                    // This variable may not be block-local, but we can at least
+                    // _try_ to propagate it. We'll have to emit a variable store,
+                    // because the variable _may_ be used as an argument. If not,
+                    // then dead store elimination will hopefully take care of it.
+                    var propAlways = ValuePropagationPass.MakePropagateAlwaysExpression(val);
+                    if (propAlways != null)
+                    {
+                        // Mark this variable as a propagate-always
+                        // variable and emit some initialization
+                        // code, followed by a definition.
+                        variableDefs[ssaVar] = propAlways.Item1;
+                        return new BlockStatement(new IStatement[]
+                        {
+                            propAlways.Item2,
+                            new SSADefineStatement(ssaVar, propAlways.Item1)
+                        }).Simplify();
+                    }
+                    else
+                    {
+                        return new SSADefineStatement(ssaVar, val);
+                    }
 
-                return new SSADefineStatement(defStatement.Variable, val);
+                }
             }
             else if (ValuePropagationPass.CanDelayTopLevelStatement(Statement))
             {
@@ -349,15 +380,39 @@ namespace Flame.Optimization
         }
 
         /// <summary>
-        /// Tells if this expression is a propagate-always expression:
-        /// an expression that should always be propagated, regardless
-        /// of use count.
+        /// Spills the given expression's variable to a temporary.
         /// </summary>
-        public bool IsPropagateAlwaysExpression(IExpression Expression)
+        public Tuple<IExpression, IStatement> Spill(IExpression Expression)
+        {
+            var temp = new SSAVariable(Expression.Type);
+            return new Tuple<IExpression, IStatement>(
+                temp.CreateGetExpression(),
+                temp.CreateSetStatement(Expression));
+        }
+
+        /// <summary>
+        /// Tries to convert the given expression to a propagate-always expression.
+        /// The expression's value is spilled to a temporary if that can't be done.
+        /// </summary>
+        public Tuple<IExpression, IStatement> MakePropagateAlwaysExpressionOrSpill(IExpression Expression)
+        {
+            var result = MakePropagateAlwaysExpression(Expression);
+            if (result == null)
+                return Spill(Expression);
+            else
+                return result;
+        }
+
+        /// <summary>
+        /// Tries to convert the given expression to a propagate-always expression.
+        /// Null is returned if that can't be done.
+        /// </summary>
+        public Tuple<IExpression, IStatement> MakePropagateAlwaysExpression(IExpression Expression)
         {
             if (Expression is IMetadataNode<IExpression>)
             {
-                return IsPropagateAlwaysExpression(((IMetadataNode<IExpression>)Expression).Value);
+                // TODO: maybe preserve the metadata?
+                return MakePropagateAlwaysExpression(((IMetadataNode<IExpression>)Expression).Value);
             }
             else if (Expression is LocalAddressOfExpression ||
                      Expression is ArgumentAddressOfExpression ||
@@ -366,55 +421,101 @@ namespace Flame.Optimization
             {
                 // Always propagate address-of-local expressions, this-expressions,
                 // and ssa-get expressions.
-                return true;
+                return new Tuple<IExpression, IStatement>(Expression, EmptyStatement);
             }
             else if (Expression is GetMethodExpression)
             {
-                // Always propagate get-method expressions, provided
-                // its target is propagate-always.
+                // Always propagate get-method expressions. Spill their target
+                // if that's not propagate-always.
 
                 var getMethodExpr = (GetMethodExpression)Expression;
-                return getMethodExpr.Caller == null
-                    || IsPropagateAlwaysExpression(getMethodExpr.Caller);
+                if (getMethodExpr.Caller == null)
+                {
+                    return new Tuple<IExpression, IStatement>(getMethodExpr, EmptyStatement);
+                }
+                else
+                {
+                    var callerExpr = MakePropagateAlwaysExpressionOrSpill(getMethodExpr.Caller);
+                    return new Tuple<IExpression, IStatement>(
+                        new GetMethodExpression(
+                            getMethodExpr.Target, callerExpr.Item1,
+                            getMethodExpr.Op),
+                        callerExpr.Item2);
+                }
             }
             else if (Expression is ReinterpretCastExpression)
             {
                 // Propagate reinterpret_casts of propagate-always expressions,
                 // because these casts are assumed to be zero-cost.
-                return IsPropagateAlwaysExpression(((ReinterpretCastExpression)Expression).Value);
+                var castExpr = (ReinterpretCastExpression)Expression;
+                var inner = MakePropagateAlwaysExpression(castExpr.Value);
+                if (inner == null)
+                    return null;
+                else
+                    return new Tuple<IExpression, IStatement>(
+                        new ReinterpretCastExpression(inner.Item1, castExpr.Type),
+                        inner.Item2);
             }
             else
             {
-                return false;
+                return null;
             }
         }
 
         /// <summary>
-        /// Tells if this expression is a propagate-always expression:
+        /// Tries to convert the given expression to a propagate-once expression:
         /// an expression that should always be propagated, provided
         /// its use count is one.
+        /// The expression's value is spilled to a temporary if that can't be done.
         /// </summary>
-        public bool IsPropagateOnceExpression(IExpression Expression)
+        public Tuple<IExpression, IStatement> MakePropagateOnceExpressionOrSpill(IExpression Expression)
+        {
+            var result = MakePropagateAlwaysExpression(Expression);
+            if (result == null)
+                return Spill(Expression);
+            else
+                return result;
+        }
+
+        /// <summary>
+        /// Tries to convert the given expression to a propagate-once expression:
+        /// an expression that should always be propagated, provided
+        /// its use count is one.
+        /// The expression's value is spilled to a temporary if that can't be done.
+        /// </summary>
+        public Tuple<IExpression, IStatement> MakePropagateOnceExpression(IExpression Expression)
         {
             if (Expression is IMetadataNode<IExpression>)
             {
-                return IsPropagateOnceExpression(((IMetadataNode<IExpression>)Expression).Value);
+                // TODO: maybe preserve the metadata?
+                return MakePropagateOnceExpression(((IMetadataNode<IExpression>)Expression).Value);
             }
             else if (Expression is LambdaExpression)
             {
-                // Propagate lambdas once, provided their capture lists
-                // is either propagate-once or propagate-always.
+                // Propagate lambdas once, provided their capture list items
+                // are either propagate-once or propagate-always.
                 var lambdaExpr = (LambdaExpression)Expression;
-                foreach (var item in lambdaExpr.Header.CaptureList)
-                    if (!IsPropagateAlwaysExpression(item) &&
-                        !IsPropagateOnceExpression(item))
-                        return false;
 
-                return true;
+                var initList = new List<IStatement>();
+                var captList = new List<IExpression>();
+                foreach (var item in lambdaExpr.Header.CaptureList)
+                {
+                    var initCapt = MakePropagateOnceExpressionOrSpill(item);
+                    captList.Add(initCapt.Item1);
+                    initList.Add(initCapt.Item2);
+                }
+
+                var newHeader = new LambdaHeader(
+                    lambdaExpr.Header.Signature, captList);
+
+                return new Tuple<IExpression, IStatement>(
+                    new LambdaExpression(
+                        newHeader, lambdaExpr.Body, lambdaExpr.BoundHeaderBlock),
+                    new BlockStatement(initList).Simplify());
             }
             else
             {
-                return false;
+                return MakePropagateAlwaysExpression(Expression);
             }
         }
 
