@@ -218,7 +218,7 @@ namespace Flame.Optimization
 
                 if (variableDefs.TryGetValue(ssaVar, &IExpression defValue))
                 {
-                    return defValue;
+                    return Visit(defValue);
                 }
                 else
                 {
@@ -253,7 +253,7 @@ namespace Flame.Optimization
                     if (useCount == 0)
                     {
                         // Perform some trivial dead store elimination.
-                        return new ExpressionStatement(val);
+                        return new ExpressionStatement(val).Simplify();
                     }
 
                     var propAlways = ValuePropagationPass.MakePropagateAlwaysExpression(val);
@@ -285,35 +285,8 @@ namespace Flame.Optimization
                             return propQueue.Define(ssaVar, val);
                         }
                     }
-                    else
-                    {
-                        return new SSADefineStatement(ssaVar, val);
-                    }
                 }
-                else
-                {
-                    // This variable may not be block-local, but we can at least
-                    // _try_ to propagate it. We'll have to emit a variable store,
-                    // because the variable _may_ be used as an argument. If not,
-                    // then dead store elimination will hopefully take care of it.
-                    var propAlways = ValuePropagationPass.MakePropagateAlwaysExpression(val);
-                    if (propAlways != null)
-                    {
-                        // Mark this variable as a propagate-always
-                        // variable and emit some initialization
-                        // code, followed by a definition.
-                        variableDefs[ssaVar] = propAlways.Item1;
-                        return new BlockStatement(new IStatement[]
-                        {
-                            propAlways.Item2,
-                            new SSADefineStatement(ssaVar, propAlways.Item1)
-                        }).Simplify();
-                    }
-                    else
-                    {
-                        return new SSADefineStatement(ssaVar, val);
-                    }
-                }
+                return new SSADefineStatement(ssaVar, val);
             }
             else if (ValuePropagationPass.CanDelayTopLevelStatement(Statement))
             {

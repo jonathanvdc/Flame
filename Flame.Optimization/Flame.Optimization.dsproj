@@ -28,6 +28,7 @@
     <Compile Include="DeconstructSSAPass.ds" />
     <Compile Include="FinalFlowRemover.ds" />
     <Compile Include="FlattenInitializationPass.ds" />
+    <Compile Include="GlobalValuePropagationPass.ds" />
     <Compile Include="ImperativeCodeRewriter.ds" />
     <Compile Include="InitialFlowRemover.ds" />
     <Compile Include="InliningExtensions.ds" />

@@ -58,6 +58,11 @@ namespace Flame.Compiler.Statements
                     initExpr.Finalization
                 }).Simplify();
             }
+            else if (Expression is GetMethodExpression)
+            {
+                var getMethodExpr = (GetMethodExpression)Expression;
+                return new ExpressionStatement(getMethodExpr.Caller).Simplify();
+            }
             else
             {
                 return this;

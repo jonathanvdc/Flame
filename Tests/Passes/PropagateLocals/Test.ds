@@ -86,6 +86,15 @@ public static class Test
         return result;
     }
 
+    public int PropDelegate(bool Condition, int Value)
+    {
+        var f = AddTen;
+        if (Condition)
+            return f(Value);
+        else
+            return Value;
+    }
+
     public const int InlineSum(int N)
     {
         // Compile with `-fpropagate-locals -finline -inline-tolerance 50`
