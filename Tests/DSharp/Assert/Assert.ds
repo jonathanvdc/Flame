@@ -1,0 +1,18 @@
+
+public static class Test
+{
+    public void AssertCondition(bool Condition)
+    {
+        assert(Condition);
+    }
+
+    public void Main(string[] Args)
+    {
+        var tl = new System.Diagnostics.ConsoleTraceListener();
+        tl.TraceOutputOptions |= System.Diagnostics.TraceOptions.Callstack;
+        System.Diagnostics.Debug.Listeners.Add(tl);
+
+        AssertCondition(true);
+        AssertCondition(false);
+    }
+}
