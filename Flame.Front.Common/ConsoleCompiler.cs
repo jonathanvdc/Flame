@@ -25,6 +25,13 @@ namespace Flame.Front.Cli
 {
 	public class LogTraceListener : System.Diagnostics.TraceListener
 	{
+		public LogTraceListener(ICompilerLog Log)
+		{
+			this.Log = Log;
+		}
+
+		public ICompilerLog Log { get; private set; }
+
 		public override void Fail(string message)
 		{
 			Fail(message, string.Empty);
@@ -32,11 +39,17 @@ namespace Flame.Front.Cli
 
 		public override void Fail(string message, string detailMessage)
 		{
-			WriteLine("Internal error: " + message);
-			if (!string.IsNullOrWhiteSpace(detailMessage))
-				WriteLine(detailMessage);
-			WriteLine("Stack trace: ");
-			WriteLine(Environment.StackTrace);
+			var node = new MarkupNode("entry", new MarkupNode[] 
+			{
+				new MarkupNode(NodeConstants.TextNodeType, message),
+				string.IsNullOrWhiteSpace(detailMessage) 
+					? new MarkupNode(NodeConstants.TextNodeType, "") 
+					: new MarkupNode(NodeConstants.ParagraphNodeType, detailMessage),
+				new MarkupNode(NodeConstants.BrightNodeType, "stack trace: "),
+				new MarkupNode(NodeConstants.ParagraphNodeType, Environment.StackTrace),
+			});
+
+			Log.LogError(new LogEntry("internal error", node));
 		}
 
 		public override void Write(string message)
@@ -52,12 +65,6 @@ namespace Flame.Front.Cli
 
     public class ConsoleCompiler
     {
-		public static void SetupDebugListener()
-		{
-			var tl = new LogTraceListener();
-			System.Diagnostics.Debug.Listeners.Add(tl);
-		}
-
         public ConsoleCompiler(string Name, string FullName, string ReleasesSite)
             : this(Name, FullName, ReleasesSite, CompilerOptionExtensions.CreateOptionParser())
         {
@@ -120,6 +127,13 @@ namespace Flame.Front.Cli
             }
 
             var tempLog = new FilteredLog(mergedArgs.GetLogFilter(), log);
+
+			LogTraceListener traceListener = null;
+			if (log.Options.GetOption<bool>("debug", false))
+			{
+				traceListener = new LogTraceListener(tempLog);
+				System.Diagnostics.Debug.Listeners.Add(traceListener);
+			}
 
             if (!buildArgs.CanCompile)
             {
@@ -202,6 +216,10 @@ namespace Flame.Front.Cli
                     var listNode = ListExtensions.Instance.CreateList(listItems);
                     log.WriteBlockEntry(new LogEntry("Timing report", listNode));
                 }
+				if (traceListener != null)
+				{
+					System.Diagnostics.Debug.Listeners.Remove(traceListener);
+				}
                 log.Console.WriteSeparator(1);
                 log.Dispose();
             }
