@@ -65,8 +65,10 @@ namespace Flame.Front.Target
 			SSAPassManager.RegisterPassCondition(RemoveTrivialPhiPass.RemoveTrivialPhiPassName, optInfo => optInfo.OptimizeAggressive);
 			SSAPassManager.RegisterMethodPass(new StatementPassInfo(ConstantPropagationPass.Instance, ConstantPropagationPass.ConstantPropagationPassName));
 			SSAPassManager.RegisterPassCondition(ConstantPropagationPass.ConstantPropagationPassName, optInfo => optInfo.OptimizeAggressive);
-			SSAPassManager.RegisterMethodPass(new StatementPassInfo(CopyPropagationPass.Instance, CopyPropagationPass.CopyPropagationPassName));
+			SSAPassManager.RegisterMethodPass(new MethodPassInfo(CopyPropagationPass.Instance, CopyPropagationPass.CopyPropagationPassName));
 			SSAPassManager.RegisterPassCondition(CopyPropagationPass.CopyPropagationPassName, optInfo => optInfo.OptimizeAggressive);
+            SSAPassManager.RegisterMethodPass(new MethodPassInfo(GlobalValuePropagationPass.Instance, GlobalValuePropagationPass.GlobalValuePropagationPassName));
+            SSAPassManager.RegisterPassCondition(GlobalValuePropagationPass.GlobalValuePropagationPassName, optInfo => optInfo.OptimizeAggressive);
             SSAPassManager.RegisterMethodPass(new StatementPassInfo(ConcatBlocksPass.Instance, ConcatBlocksPass.ConcatBlocksPassName));
             SSAPassManager.RegisterPassCondition(ConcatBlocksPass.ConcatBlocksPassName, optInfo => optInfo.OptimizeAggressive);
             SSAPassManager.RegisterMethodPass(new StatementPassInfo(ValuePropagationPass.Instance, ValuePropagationPass.ValuePropagationPassName));
@@ -87,7 +89,7 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(StackIntrinsicsPass.Instance, StackIntrinsicsPass.StackIntrinsicsPassName));
             GlobalPassManager.RegisterPassCondition(StackIntrinsicsPass.StackIntrinsicsPassName, optInfo => optInfo.OptimizeExperimental);
 
-			GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(DeconstructSSAPass.Instance, DeconstructSSAPass.DeconstructSSAPassName));
+			GlobalPassManager.RegisterLoweringPass(new MethodPassInfo(DeconstructSSAPass.Instance, DeconstructSSAPass.DeconstructSSAPassName));
             GlobalPassManager.RegisterPassCondition(DeconstructSSAPass.DeconstructSSAPassName, optInfo => optInfo.OptimizeAggressive);
 			GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(DeconstructFlowGraphPass.Instance, DeconstructFlowGraphPass.DeconstructFlowGraphPassName));
             GlobalPassManager.RegisterPassCondition(DeconstructFlowGraphPass.DeconstructFlowGraphPassName, optInfo => optInfo.OptimizeAggressive);

@@ -193,6 +193,15 @@ namespace Flame.Optimization
         /// </summary>
         public [SSAVariable] ArgumentVariables { const get { return argVariables; } }
 
+        /// <summary>
+        /// Checks if the given variable is a known argument to a branch
+        /// instruction.
+        /// </summary>
+        public bool IsArgumentVariable(SSAVariable Variable)
+        {
+            return argVariables.Contains(Variable);
+        }
+
         public override const bool Matches(IExpression Value)
         {
             return Value is SSAGetExpression;

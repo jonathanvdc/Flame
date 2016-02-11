@@ -1,0 +1,227 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A statement visitor that analyzes and rewrites propagate-always
+    /// and propagate-once SSA variable definitions.
+    /// </summary>
+    public class GlobalValuePropagationDefVisitor : StatementVisitorBase
+    {
+        public const this([SSAVariable] UseOnceVariables)
+        {
+            this.useOnceVars = new HashSet<SSAVariable>(UseOnceVariables);
+            this.variableDefs = new Dictionary<SSAVariable, IExpression>();
+        }
+
+        private HashSet<SSAVariable> useOnceVars;
+
+        // A dictionary that maps variables to a value they can be
+        // replaced by.
+        private Dictionary<SSAVariable, IExpression> variableDefs;
+
+        /// <summary>
+        /// Gets a read-only dictionary that maps variables to the value
+        /// they can safely be replaced by.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, IExpression> VariableDefinitions
+        {
+            get { return variableDefs; }
+        }
+
+        /// <summary>
+        /// Gets a sequence of variables that are used only once, and which
+        /// are never used as arguments.
+        /// </summary>
+        public [SSAVariable] UseOnceVariables { get { return useOnceVars; } }
+
+        public override bool Matches(IStatement Value)
+        {
+            return Value is SSADefineStatement;
+        }
+
+        protected override IStatement Transform(IStatement Value)
+        {
+            assert(Value is SSADefineStatement);
+            var defStatement = (SSADefineStatement)Value;
+            var val = Visit(defStatement.Value);
+            var ssaVar = defStatement.Variable;
+
+            if (useOnceVars.Contains(ssaVar))
+            {
+                // Variables _could_ be a propagate-once variable. Propagate
+                // it if it is. If it's no propagate-once variable, then it's
+                // not a propagate-always variable, either, because the former
+                // implies the latter.
+
+                var propOnce = ValuePropagationPass.MakePropagateOnceExpression(val);
+                if (propOnce != null)
+                {
+                    // Mark this variable as a propagate-always
+                    // variable and don't emit its definition.
+                    // This is safe, because its definition is
+                    // propagate-once, and it is used only once.
+                    // We may have to emit some initialization
+                    // code, though.
+                    variableDefs[ssaVar] = propOnce.Item1;
+                    return propOnce.Item2;
+                }
+            }
+            else
+            {
+                // This variable is propagate-always, which means we should try
+                // to propagate it as much as possible. We'll have to emit a variable store,
+                // because the variable _may_ be used as an argument. If not,
+                // then dead store elimination will (hopefully) take care of it.
+                var propAlways = ValuePropagationPass.MakePropagateAlwaysExpression(val);
+                if (propAlways != null)
+                {
+                    // Mark this variable as a propagate-always
+                    // variable and emit some initialization
+                    // code, followed by a definition.
+                    variableDefs[ssaVar] = propAlways.Item1;
+                    return new BlockStatement(new IStatement[]
+                    {
+                        propAlways.Item2,
+                        new SSADefineStatement(ssaVar, propAlways.Item1)
+                    }).Simplify();
+                }
+            }
+
+            return new SSADefineStatement(ssaVar, val);
+        }
+    }
+
+    /// <summary>
+    /// A statement visitor that replaces propagate-always
+    /// and propagate-once SSA variable uses by their definition values.
+    /// </summary>
+    public class GlobalValuePropagationUseVisitor : NodeVisitorBase
+    {
+        public const this(
+            set IReadOnlyDictionary<SSAVariable, IExpression> VariableDefinitions);
+
+        /// <summary>
+        /// Gets a read-only dictionary that maps variables to the value
+        /// they can safely be replaced by.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, IExpression> VariableDefinitions { get; private set; }
+
+        public override bool Matches(IExpression Value)
+        {
+            return Value is SSAGetExpression;
+        }
+
+        public override bool Matches(IStatement Value)
+        {
+            return false;
+        }
+
+        protected override IExpression Transform(IExpression Value)
+        {
+            assert(Value is SSAGetExpression);
+            var getExpr = (SSAGetExpression)Value;
+
+            if (VariableDefinitions.TryGetValue(getExpr.Variable, &IExpression val))
+            {
+                // Propagate that variable's definition.
+                return Visit(val);
+            }
+            else
+            {
+                return getExpr;
+            }
+        }
+
+        protected override IStatement Transform(IStatement Value)
+        {
+            return Value;
+        }
+    }
+
+    /// <summary>
+    /// A pass that performs value propagation for variables that are potentially
+    /// not block-local.
+    /// </summary>
+    public static class GlobalValuePropagationPass : IPass<IStatement, IStatement>, IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// This pass' name.
+        /// </summary>
+        public const string GlobalValuePropagationPassName = "global-valueprop";
+
+        /// <summary>
+        /// Finds all variables that are used exactly once, and are not used
+        /// as an argument.
+        /// </summary>
+        private [SSAVariable] GetUseOnceVariables(IStatement Statement)
+        {
+            // Count variable uses...
+            var useVisitor = new SSAVariableUseFinder();
+            useVisitor.Visit(Statement);
+
+            // ...and then use that information to create the set
+            // of variables that interest us.
+            var results = new HashSet<SSAVariable>();
+            foreach (var item in useVisitor.LoadCount)
+            {
+                // Filter all variables that are only used once, and are not
+                // arguments.
+                if (item.Value == 1 && !useVisitor.IsArgumentVariable(item.Key))
+                {
+                    results.Add(item.Key);
+                }
+            }
+            return results;
+        }
+
+        private IStatement ApplyImpl(IStatement Value)
+        {
+            // Start by figuring out which variables are use-once.
+            var useOnceVars = GetUseOnceVariables(Value);
+            // Then analyze/rewrite variable definition.
+            var defVisitor = new GlobalValuePropagationDefVisitor(useOnceVars);
+            var result = defVisitor.Visit(Value);
+            // Finally, rewrite variable uses.
+            var useVisitor = new GlobalValuePropagationUseVisitor(defVisitor.VariableDefinitions);
+            return useVisitor.Visit(result);
+        }
+
+        public IStatement Apply(IStatement Value)
+            in { VerifyCFGPass.Apply(Value) }
+            in { VerifySSAPass.Apply(Value) }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result) { VerifySSAPass.Apply(result) }
+        {
+            return ApplyImpl(Value);
+        }
+
+        public IStatement Apply(BodyPassArgument Arg)
+            in { VerifyCFGPass.Apply(Arg.Body) }
+            in
+            {
+                VerifySSAPass.Apply(
+                    Arg.Body, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
+                    GlobalValuePropagationPassName + " (input)")
+            }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result)
+            {
+                VerifySSAPass.Apply(
+                    result, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
+                    GlobalValuePropagationPassName + " (output)")
+            }
+        {
+            return ApplyImpl(Arg.Body);
+        }
+    }
+}

@@ -84,7 +84,7 @@ namespace Flame.Optimization
             }
             else
             {
-                return new ExpressionStatement(defStatement.Value.Accept(this)).Simplify();
+                return new ExpressionStatement(Visit(defStatement.Value)).Simplify();
             }
         }
     }

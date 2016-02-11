@@ -100,7 +100,7 @@ namespace Flame.Optimization
     /// <summary>
     /// A pass that propagates SSA variable copies.
     /// </summary>
-    public static class CopyPropagationPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>
+    public static class CopyPropagationPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>, IPass<BodyPassArgument, IStatement>
     {
         /// <summary>
         /// This pass' name.
@@ -190,6 +190,25 @@ namespace Flame.Optimization
             out (result) { VerifySSAPass.Apply(result) }
         {
             return Visit(Value);
+        }
+
+        public IStatement Apply(BodyPassArgument Arg)
+            in { VerifyCFGPass.Apply(Arg.Body) }
+            in
+            {
+                VerifySSAPass.Apply(
+                    Arg.Body, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
+                    CopyPropagationPassName + " (input)")
+            }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result)
+            {
+                VerifySSAPass.Apply(
+                    result, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
+                    CopyPropagationPassName + " (output)")
+            }
+        {
+            return Visit(Arg.Body);
         }
     }
 }

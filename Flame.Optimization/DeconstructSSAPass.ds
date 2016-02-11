@@ -270,7 +270,7 @@ namespace Flame.Optimization
     /// <summary>
     /// Defines a pass that deconstructs SSA form.
     /// </summary>
-    public static class DeconstructSSAPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>
+    public static class DeconstructSSAPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>, IPass<BodyPassArgument, IStatement>
     {
         public const string DeconstructSSAPassName = "deconstruct-ssa";
 
@@ -651,12 +651,33 @@ namespace Flame.Optimization
             return newBlocks.ToFlowGraph(Graph.EntryPointTag);
         }
 
-        public IStatement Apply(IStatement Statement)
-            in { VerifyCFGPass.Apply(Statement) }
-            in { VerifySSAPass.Apply(Statement) }
+
+        public IStatement Apply(IStatement Value)
+            in { VerifyCFGPass.Apply(Value) }
+            in { VerifySSAPass.Apply(Value) }
             out (result) { VerifyCFGPass.Apply(result) }
+            out (result) { VerifySSAPass.Apply(result) }
         {
-            return Visit(Statement);
+            return Visit(Value);
+        }
+
+        public IStatement Apply(BodyPassArgument Arg)
+            in { VerifyCFGPass.Apply(Arg.Body) }
+            in
+            {
+                VerifySSAPass.Apply(
+                    Arg.Body, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
+                    DeconstructSSAPassName + " (input)")
+            }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result)
+            {
+                VerifySSAPass.Apply(
+                    result, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
+                    DeconstructSSAPassName + " (output)")
+            }
+        {
+            return Visit(Arg.Body);
         }
     }
 }
