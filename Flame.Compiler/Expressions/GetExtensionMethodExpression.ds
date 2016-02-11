@@ -63,7 +63,7 @@ namespace Flame.Compiler.Expressions
 
 		public bool IsConstant
 		{
-			const get return Target.IsConstant && Caller.IsConstantOrNull;
+			get { return Caller.IsConstantOrNull; }
 		}
 
 		public const IBoundObject Evaluate()

@@ -42,7 +42,7 @@ namespace Flame.Compiler.Expressions
 		/// </summary>
 		public IMethod Method
 		{
-			get return MethodType.GetMethod(Target.Type);
+			get { return MethodType.GetMethod(Target.Type); }
 		}
 
 		public void AcceptPredicate(INodeVisitor Visitor)
@@ -76,9 +76,9 @@ namespace Flame.Compiler.Expressions
 
 		public bool IsConstant
 		{
-			const get
+			get
 			{
-				return Target.IsConstant && Arguments.AreConstant;
+				return Method.IsConstant && Target.IsConstant && Arguments.AreConstant;
 			}
 		}
 
