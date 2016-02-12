@@ -15,11 +15,18 @@ namespace Flame.Optimization
     /// </summary>
     public class VerifySSAVisitor : NodeVisitorBase, IBasicBlockVisitor
     {
-        public const this(set HashSet<UniqueTag> Worklist)
+        public const this()
         {
+            this.Worklist = new HashSet<UniqueTag>();
             this.definedVars = new HashSet<SSAVariable>();
             this.forwardRefs = new HashSet<SSAVariable>();
-            this.allVars = new HashSet<SSAVariable>();
+            this.redefs = new HashSet<SSAVariable>();
+        }
+
+        public const this(set HashSet<UniqueTag> Worklist, [SSAVariable] DefinedVariables)
+        {
+            this.definedVars = new HashSet<SSAVariable>(DefinedVariables);
+            this.forwardRefs = new HashSet<SSAVariable>();
             this.redefs = new HashSet<SSAVariable>();
         }
 
@@ -29,9 +36,6 @@ namespace Flame.Optimization
         // The set of variables that may be used before they
         // are defined.
         private HashSet<SSAVariable> forwardRefs;
-
-        // The set of all variables that have been encountered.
-        private HashSet<SSAVariable> allVars;
 
         // The set of variables that have been defined more
         // than once.
@@ -59,11 +63,16 @@ namespace Flame.Optimization
         /// Gets the set of all SSA variables that have been encountered by this
         /// visitor so far.
         /// </summary>
-        public [SSAVariable] AllVariables { get { return allVars; } }
+        public [SSAVariable] AllVariables
+        {
+            get
+            {
+                return Enumerable.Union<SSAVariable>(definedVars, forwardRefs);
+            }
+        }
 
         private void RegisterUse(SSAVariable Variable)
         {
-            allVars.Add(Variable);
             if (!definedVars.Contains(Variable))
                 // If the set of defined variables does not contain the given
                 // variable, then we have encountered a forward reference.
@@ -72,7 +81,6 @@ namespace Flame.Optimization
 
         private void RegisterDef(SSAVariable Variable)
         {
-            allVars.Add(Variable);
             if (!definedVars.Add(Variable))
                 // If the set of defined variables already contains the given
                 // variable, then this is a redefinition.
@@ -113,7 +121,7 @@ namespace Flame.Optimization
             var worklist = new HashSet<UniqueTag>();
             worklist.Add(Graph.EntryPointTag)
             var visited = new HashSet<UniqueTag>();
-            var childVisitor = new VerifySSAVisitor(worklist);
+            var childVisitor = new VerifySSAVisitor(worklist, definedVars);
             while (worklist.Count > 0)
             {
                 var firstItem = Enumerable.First<UniqueTag>(worklist);
@@ -125,6 +133,7 @@ namespace Flame.Optimization
             }
             forwardRefs.UnionWith(childVisitor.ForwardReferences);
             redefs.UnionWith(childVisitor.Redefinitions);
+            definedVars.UnionWith(childVisitor.definedVars);
         }
 
         public override const bool Matches(IExpression Value)
@@ -133,7 +142,7 @@ namespace Flame.Optimization
         }
         public override const bool Matches(IStatement Value)
         {
-            return Value is SSADefineStatement;
+            return Value is FlowGraphStatement || Value is SSADefineStatement;
         }
 
         protected override IExpression Transform(IExpression Expression)
@@ -171,15 +180,6 @@ namespace Flame.Optimization
     /// </remarks>
     public static class VerifySSAPass : IPass<IStatement, bool>
     {
-        public bool Apply(IStatement Value)
-        {
-            var visitor = new VerifySSAVisitor(new HashSet<UniqueTag>());
-            visitor.Visit(Value);
-
-            return !Enumerable.Any<SSAVariable>(visitor.ForwardReferences)
-                && !Enumerable.Any<SSAVariable>(visitor.Redefinitions);
-        }
-
         private string getSSAVarName(SSAVariable Variable)
         {
             return Variable.Tag.Name;
@@ -197,6 +197,15 @@ namespace Flame.Optimization
                 return "'" + varId + "' ('" + varName + "')";
         }
 
+        public bool Apply(IStatement Value)
+        {
+            var visitor = new VerifySSAVisitor();
+            visitor.Visit(Value);
+
+            return !Enumerable.Any<SSAVariable>(visitor.ForwardReferences)
+                && !Enumerable.Any<SSAVariable>(visitor.Redefinitions);
+        }
+
         /// <summary>
         /// Applies this pass to the given value and log. Returns true no matter
         /// what, but may write messages to the log.
@@ -205,7 +214,7 @@ namespace Flame.Optimization
             IStatement Value, ICompilerLog Log, IMethod DeclaringMethod,
             string CauseName)
         {
-            var visitor = new VerifySSAVisitor(new HashSet<UniqueTag>());
+            var visitor = new VerifySSAVisitor();
             visitor.Visit(Value);
 
             bool result = true;
