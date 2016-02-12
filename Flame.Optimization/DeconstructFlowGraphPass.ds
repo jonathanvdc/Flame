@@ -170,14 +170,14 @@ namespace Flame.Optimization
                     !FlowBuilder.HasPlaced(thenTag))
                 {
                     FlowBuilder.EmitBranch(elseTag, new NotExpression(selFlow.Condition).Simplify());
-                    EmitBlock(thenTag, Graph, FlowBuilder);
+                    EmitJumpToBlock(thenTag, Graph, FlowBuilder);
                     EmitBlock(elseTag, Graph, FlowBuilder);
                 }
                 else
                 {
                     FlowBuilder.EmitBranch(thenTag, selFlow.Condition);
-                    EmitBlock(elseTag, Graph, FlowBuilder);
-                    EmitJumpToBlock(thenTag, Graph, FlowBuilder);
+                    EmitJumpToBlock(elseTag, Graph, FlowBuilder);
+                    EmitBlock(thenTag, Graph, FlowBuilder);
                 }
             }
             else if (!(flow is TerminatedFlowBase))
