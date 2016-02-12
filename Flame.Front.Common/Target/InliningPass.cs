@@ -60,6 +60,8 @@ namespace Flame.Front.Target
 
 		public static readonly InliningPass Instance = new InliningPass();
 
+		private const int WordSize = 4;
+
         private static int ApproximateSize(IType Type)
         {
             int primSize = Type.GetPrimitiveSize();
@@ -67,18 +69,32 @@ namespace Flame.Front.Target
             {
                 return primSize;
             }
-
-            if (Type.GetIsReferenceType() || Type.GetIsPointer() || Type.GetIsArray())
+			else if (Type.GetIsReferenceType() || Type.GetIsPointer() || Type.GetIsArray())
             {
-                return 4;
+                return WordSize;
             }
-
-            if (Type.GetIsVector())
+			else if (Type.GetIsVector())
             {
                 return ApproximateSize(Type.GetEnumerableElementType()) * Type.AsContainerType().AsVectorType().Dimensions.Aggregate(1, (aggr, val) => aggr * val);
             }
-
-            return Type.Fields.Aggregate(0, (aggr, field) => aggr + ApproximateSize(field.FieldType));
+			else if (Type.GetIsEnum())
+			{
+				var parentTy = Type.GetParent();
+				if (parentTy == null)
+					return WordSize;
+				else
+					return ApproximateSize(parentTy);
+			}
+			else if (Type.GetIsValueType())
+			{
+				return Type.Fields.Where(item => !item.IsStatic).Aggregate(0, (aggr, field) => aggr + ApproximateSize(field.FieldType));
+			}
+			else
+			{
+				// We have absolutely no idea of what this thing is.
+				// Assume that it's two words wide.
+				return 2 * WordSize;
+			}
         }
 
         private static int RateArgument(IType ParameterType, IExpression Argument)
@@ -114,7 +130,7 @@ namespace Flame.Front.Target
             }
 
             int pro = Call.ThisValue != null ? RateArgument(Call.Method.DeclaringType, Call.ThisValue) : 0;
-            foreach (var item in Call.Method.GetParameters().Zip(Call.Arguments, Tuple.Create))
+            foreach (var item in Call.Method.Parameters.Zip(Call.Arguments, Tuple.Create))
             {
                 pro += RateArgument(item.Item1.ParameterType, item.Item2);
             }
@@ -155,7 +171,7 @@ namespace Flame.Front.Target
 			var passManager = new PassManager(PassExtensions.SSAPassManager);
 			var optSuite = passManager.CreateSuite(emptyLog);
 			var newArgs = new BodyPassArgument(
-				new DerivedBodyPassEnvironment(Argument.PassEnvironment, emptyLog), Argument.Metadata, 
+				new DerivedBodyPassEnvironment(Argument.PassEnvironment, emptyLog), Argument.Metadata,
 				Argument.DeclaringMethod, null);
 			return body => optSuite.MethodPass.Apply(new BodyPassArgument(newArgs, body));
 		}
