@@ -127,11 +127,19 @@ namespace Flame
         /// <summary>
         /// Gets the name that the given element is mapped to.
         /// </summary>
+        public string Get(T Element)
+        {
+            return dict.GetOrAdd(Element, nameSet.GenerateName);
+        }
+
+        /// <summary>
+        /// Gets the name that the given element is mapped to.
+        /// </summary>
         public string this[T Element]
         {
             get
             {
-                return dict.GetOrAdd(Element, nameSet.GenerateName);
+                return Get(Element);
             }
         }
     }

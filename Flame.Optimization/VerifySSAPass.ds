@@ -19,6 +19,7 @@ namespace Flame.Optimization
         {
             this.definedVars = new HashSet<SSAVariable>();
             this.forwardRefs = new HashSet<SSAVariable>();
+            this.allVars = new HashSet<SSAVariable>();
             this.redefs = new HashSet<SSAVariable>();
         }
 
@@ -28,6 +29,9 @@ namespace Flame.Optimization
         // The set of variables that may be used before they
         // are defined.
         private HashSet<SSAVariable> forwardRefs;
+
+        // The set of all variables that have been encountered.
+        private HashSet<SSAVariable> allVars;
 
         // The set of variables that have been defined more
         // than once.
@@ -51,8 +55,15 @@ namespace Flame.Optimization
         /// </summary>
         public [SSAVariable] Redefinitions { get { return redefs; } }
 
+        /// <summary>
+        /// Gets the set of all SSA variables that have been encountered by this
+        /// visitor so far.
+        /// </summary>
+        public [SSAVariable] AllVariables { get { return allVars; } }
+
         private void RegisterUse(SSAVariable Variable)
         {
+            allVars.Add(Variable);
             if (!definedVars.Contains(Variable))
                 // If the set of defined variables does not contain the given
                 // variable, then we have encountered a forward reference.
@@ -61,6 +72,7 @@ namespace Flame.Optimization
 
         private void RegisterDef(SSAVariable Variable)
         {
+            allVars.Add(Variable);
             if (!definedVars.Add(Variable))
                 // If the set of defined variables already contains the given
                 // variable, then this is a redefinition.
@@ -168,6 +180,23 @@ namespace Flame.Optimization
                 && !Enumerable.Any<SSAVariable>(visitor.Redefinitions);
         }
 
+        private string getSSAVarName(SSAVariable Variable)
+        {
+            return Variable.Tag.Name;
+        }
+
+        private string nameSSAVar(
+            SSAVariable Variable, UniqueNameMap<SSAVariable> NameMap)
+        {
+            string varId = NameMap[Variable];
+            string varName = Variable.Member.Name;
+
+            if (string.IsNullOrEmpty(varName))
+                return "'" + varId + "'";
+            else
+                return "'" + varId + "' ('" + varName + "')";
+        }
+
         /// <summary>
         /// Applies this pass to the given value and log. Returns true no matter
         /// what, but may write messages to the log.
@@ -181,24 +210,36 @@ namespace Flame.Optimization
 
             bool result = true;
 
-            if (Enumerable.Any<SSAVariable>(visitor.ForwardReferences))
+            if (Enumerable.Any<SSAVariable>(visitor.ForwardReferences)
+                || Enumerable.Any<SSAVariable>(visitor.Redefinitions))
             {
-                Log.LogError(new LogEntry(
-                    "invalid SSA form",
-                    "found a forward reference to an SSA variable in body " +
-                    "of method '" + DeclaringMethod.FullName + "'. Caused by: '" +
-                    CauseName + "'.",
-                    DeclaringMethod.GetSourceLocation()));
-            }
+                var nameMap = new UniqueNameMap<SSAVariable>(getSSAVarName, "%");
+                foreach (var item in visitor.AllVariables)
+                {
+                    nameMap.Get(item);
+                }
 
-            if (Enumerable.Any<SSAVariable>(visitor.Redefinitions))
-            {
-                Log.LogError(new LogEntry(
-                    "invalid SSA form",
-                    "found a redefinition of an SSA variable in body " +
-                    "of method '" + DeclaringMethod.FullName + "'. Caused by: '" +
-                    CauseName + "'.",
-                    DeclaringMethod.GetSourceLocation()));
+                foreach (var forwardRef in visitor.ForwardReferences)
+                {
+                    Log.LogError(new LogEntry(
+                        "invalid SSA form",
+                        "found a forward reference to SSA variable " +
+                        nameSSAVar(forwardRef, nameMap) + " in body " +
+                        "of method '" + DeclaringMethod.FullName + "'. Caused by: '" +
+                        CauseName + "'.",
+                        DeclaringMethod.GetSourceLocation()));
+                }
+
+                foreach (var redef in visitor.Redefinitions)
+                {
+                    Log.LogError(new LogEntry(
+                        "invalid SSA form",
+                        "found a redefinition of SSA variable " +
+                        nameSSAVar(redef, nameMap) + " in body " +
+                        "of method '" + DeclaringMethod.FullName + "'. Caused by: '" +
+                        CauseName + "'.",
+                        DeclaringMethod.GetSourceLocation()));
+                }
             }
 
             return true;
