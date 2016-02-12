@@ -47,16 +47,6 @@ namespace Flame.DSharp.Parser
 
         protected virtual IExpressionSyntax ParseSafeExpression(ITokenStream Tokens)
         {
-            /*IExpressionSyntax syntax;
-            try
-            {
-                syntax = ParseExpression(Tokens);
-            }
-            catch (Exception)
-            {
-                syntax = null;
-            }
-            return syntax;*/
             return ParseExpression(Tokens); // All expressions should be safe now.
         }
 
