@@ -69,11 +69,6 @@ namespace Flame.Optimization
     public class SSAConstantReplacingVisitor : NodeVisitorBase
     {
         public const this(
-            set IReadOnlyDictionary<SSAVariable, VariableDefinition> Definitions)
-        {
-            this.ShouldInline = bool(IExpression expr) => true;
-        }
-        public const this(
             set IReadOnlyDictionary<SSAVariable, VariableDefinition> Definitions,
             set bool(IExpression) ShouldInline);
 
@@ -286,7 +281,7 @@ namespace Flame.Optimization
             this.dependentBranches = new Dictionary<SSAVariable, HashSet<IgnoredBranch>>();
             this.cfgWorklist = new Stack<UniqueTag>();
             this.processedBlocks = new HashSet<UniqueTag>();
-            this.constantReplVisitor = new SSAConstantReplacingVisitor(defs);
+            this.constantReplVisitor = new SSAConstantReplacingVisitor(defs, IsLiteralExpression);
             this.propTypes = new ConcurrentDictionary<IType, bool>();
             this.MarkReachable(Graph.EntryPointTag);
         }
