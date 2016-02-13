@@ -1,0 +1,29 @@
+
+public class Test
+{
+    public int Undef()
+    {
+        int x;
+        return x;
+    }
+
+    public bool f(int x)
+    {
+        return x < 100;
+    }
+
+    public int SelectAssign(int x)
+    {
+        int y; // 'y' is left undefined on purpose.
+        if ((x > 0) && f(y = x))
+        {
+            // 'y' is only used here, and it's also defined here.
+            return y;
+        }
+        else
+        {
+            // 'y' is undefined here.
+            return x;
+        }
+    }
+}
