@@ -29,7 +29,8 @@ namespace Flame.Optimization
 
         private const int ImportPoint = -1;
         private const int ParameterPoint = 0;
-        private const int ExportPoint = int.MaxValue;
+        private const int ExportPoint = int.MaxValue - 1;
+        private const int OutParameterPoint = int.MaxValue;
 
         /// <summary>
         /// Gets the set of all variables whose values are loaded by this block.
@@ -80,9 +81,9 @@ namespace Flame.Optimization
         }
 
         /// <summary>
-        /// Marks the given variable as an argument for this block.
+        /// Marks the given variable as an input argument for this block.
         /// </summary>
-        public void MarkArgument(SSAVariable Variable)
+        public void MarkInArgument(SSAVariable Variable)
         {
             deadPos[Variable] = ParameterPoint;
             usedVars.Add(Variable);
@@ -96,6 +97,16 @@ namespace Flame.Optimization
         public void MarkExport(SSAVariable Variable)
         {
             deadPos[Variable] = ExportPoint;
+        }
+
+        /// <summary>
+        /// Marks the given variable as an argument for the given parameter.
+        /// </summary>
+        public void MarkOutArgument(SSAVariable Argument, SSAVariable Parameter)
+        {
+            deadPos[Argument] = ExportPoint;
+            deadPos[Parameter] = OutParameterPoint;
+            usedVars.Add(Argument);
         }
 
         /// <summary>
@@ -330,19 +341,24 @@ namespace Flame.Optimization
                 // Mark all arguments as such, and make then related to
                 // the corresponding parameter variables.
                 foreach (var branch in block.Flow.Branches)
-                foreach (var arg in branch.Arguments,
-                         var parameter in Graph.GetBlock(branch.TargetTag).Parameters)
                 {
-                    data.MarkArgument(arg);
-                    visitor.MarkRelated(arg, parameter);
-
-                    HashSet<SSALivenessData> defSet;
-                    if (!defBlocks.TryGetValue(parameter, &defSet))
+                    var tgtTag = branch.TargetTag;
+                    var tgtData = results[tgtTag];
+                    foreach (var arg in branch.Arguments,
+                             var parameter in Graph.GetBlock(tgtTag).Parameters)
                     {
-                        defSet = new HashSet<SSALivenessData>();
-                        defBlocks[parameter] = defSet;
+                        data.MarkOutArgument(arg, parameter);
+                        tgtData.MarkInArgument(arg);
+                        visitor.MarkRelated(arg, parameter);
+
+                        HashSet<SSALivenessData> defSet;
+                        if (!defBlocks.TryGetValue(parameter, &defSet))
+                        {
+                            defSet = new HashSet<SSALivenessData>();
+                            defBlocks[parameter] = defSet;
+                        }
+                        defSet.Add(data);
                     }
-                    defSet.Add(data);
                 }
             }
 
