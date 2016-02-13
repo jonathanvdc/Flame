@@ -205,8 +205,7 @@ namespace Flame.Optimization
         {
             var stmt = (SSADefineStatement)Statement;
             var leftVar = stmt.Variable;
-            var val = stmt.Value.GetEssentialExpression();
-            Visit(val);
+            var val = Visit(stmt.Value).GetEssentialExpression();
             if (val is SSAGetExpression)
             {
                 var rightVar = ((SSAGetExpression)val).Variable;
@@ -321,10 +320,8 @@ namespace Flame.Optimization
             {
                 var data = results[block.Tag];
                 var visitor = new SSALiveRangeVisitor(data, defBlocks, related);
-                // Visit the block's body to discover live ranges.
-                visitor.Visit(block.Contents);
-                // Make sure we visit the flow instruction as well
-                block.Flow.Accept(new EmulatedBasicBlockVisitor(visitor));
+                // Visit the block's body and flow to discover live ranges.
+                block.Accept(visitor);
 
                 // Mark all parameters as such
                 foreach (var parameter in block.Parameters)
@@ -525,6 +522,7 @@ namespace Flame.Optimization
             IReadOnlyDictionary<SSAVariable, IVariable> Registers,
             BlockBuilder Blocks, Dictionary<IType, IVariable> Temporaries)
 
+            in { Branch.Arguments.Count == Graph.GetBlock(Branch.TargetTag).Parameters.Count }
             out (result) { result.Arguments.Count == 0 }
         {
             if (Branch.Arguments.Count == 0)
