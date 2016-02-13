@@ -503,7 +503,8 @@ namespace Flame.Optimization
                 var srcReg = Registers[arg];
                 var tgtReg = Registers[param];
 
-                assert(!assignVars.ContainsKey(tgtReg));
+                assert(!assignVars.ContainsKey(tgtReg)
+                    || assignVars[tgtReg].Equals(srcReg));
 
                 if (!srcReg.Equals(tgtReg))
                     assignVars[tgtReg] = srcReg;
