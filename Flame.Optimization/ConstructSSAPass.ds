@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler;
+using Flame.Compiler.Expressions;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
@@ -514,7 +515,51 @@ namespace Flame.Optimization
             extraArgLists = null;
             incompletePhis = null;
 
-            return new FlowGraph(Graph.EntryPointTag, results);
+            var epBlock = results[Graph.EntryPointTag];
+            if (epBlock.Parameters.Count == 0)
+            {
+                return new FlowGraph(Graph.EntryPointTag, results);
+            }
+            else
+            {
+                // At this point, undefined SSA variables will have been promoted
+                // to entry point block parameters. That's kind of an awkward
+                // representation for other passes, though. We can fix that
+                // by creating an entry point "header" block, which initializes
+                // those undefined variables to their default values.
+                // TODO: maybe we could take advantage of this undefined-ness, and
+                // introduce some kind of special 'undefined' expression?
+
+                // For now, build a block that looks like this:
+                //
+                // @entry_point.header():
+                //     %0 = default(typeof(%0));
+                //     %1 = default(typeof(%1));
+                //     ...
+                //     %n = default(typeof(%n));
+                //     jump(entry_point, { %0, %1, ..., %n })
+                //
+                // @entry_point(%p0, %p1, ..., %pn):
+                //     ...
+
+                var headerTag = new UniqueTag("entry_point.header");
+
+                var body = new List<IStatement>();
+                var argVars = new List<SSAVariable>();
+                foreach (var item in epBlock.Parameters)
+                {
+                    var arg = new SSAVariable(item.Member);
+                    argVars.Add(arg);
+                    body.Add(arg.CreateSetStatement(new DefaultValueExpression(arg.Type)));
+                }
+
+                results[headerTag] = new BasicBlock(
+                    headerTag, new BlockStatement(body).Simplify(),
+                    new JumpFlow(new BlockBranch(
+                        Graph.EntryPointTag, argVars)));
+
+                return new FlowGraph(headerTag, results);
+            }
         }
     }
 
