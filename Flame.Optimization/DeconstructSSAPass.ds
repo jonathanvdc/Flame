@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler;
+using Flame.Compiler.Expressions;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
@@ -207,17 +208,32 @@ namespace Flame.Optimization
             return expr;
         }
 
+        private void TryMarkRelated(SSAVariable LVar, IExpression RVal)
+        {
+            if (RVal is IMetadataNode<IExpression>)
+            {
+                var metaNode = (IMetadataNode<IExpression>)RVal;
+                TryMarkRelated(LVar, metaNode.Value);
+            }
+            else if (RVal is SSAGetExpression)
+            {
+                var rightVar = ((SSAGetExpression)RVal).Variable;
+                MarkRelated(LVar, rightVar);
+            }
+            else if (RVal is InitializedExpression)
+            {
+                var initExpr = (InitializedExpression)RVal;
+                TryMarkRelated(LVar, initExpr.Value);
+            }
+        }
+
         protected override IStatement Transform(IStatement Statement)
         {
             var stmt = (SSADefineStatement)Statement;
             var leftVar = stmt.Variable;
-            var val = Visit(stmt.Value).GetEssentialExpression();
-            if (val is SSAGetExpression)
-            {
-                var rightVar = ((SSAGetExpression)val).Variable;
-                MarkRelated(leftVar, rightVar);
-            }
+            var val = Visit(stmt.Value);
 
+            TryMarkRelated(leftVar, val);
             Data.RegisterDefinition(leftVar);
 
             assert(!DefinitionBlocks.ContainsKey(leftVar));
@@ -438,7 +454,7 @@ namespace Flame.Optimization
             var liveness = ComputeLiveness(Graph);
             var groupedVars = GroupByType(liveness.DefinitionBlocks.Keys);
             var regAlloc = new Dictionary<SSAVariable, IVariable>();
-            var colorer = new GreedyGraphColorer<SSAVariable, IVariable>();
+            var colorer = new GreedyRelatedGraphColorer<SSAVariable, IVariable>();
             // Creates a new color.
             var createColor = IVariable(SSAVariable v) => new LocalVariable(v.Member);
 

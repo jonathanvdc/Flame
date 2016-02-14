@@ -25,14 +25,14 @@ namespace Flame.Optimization
     }
 
     /// <summary>
-    /// A greedy graph colorer implementation.
+    /// A base class for greedy graph colorers.
     /// </summary>
-    public class GreedyGraphColorer<TVertex, TColor> : IGraphColorer<TVertex, TColor>
+    public abstract class GreedyGraphColorerBase<TVertex, TColor> : IGraphColorer<TVertex, TColor>
     {
         /// <summary>
         /// Colors a single vertex in the interference graph.
         /// </summary>
-        private TColor ColorVertex(
+        protected TColor ColorVertex(
             Graph<TVertex> InterferenceGraph,
             Graph<TVertex> RelatedGraph,
             TColor(TVertex) CreateColor,
@@ -81,7 +81,21 @@ namespace Flame.Optimization
         /// <summary>
         /// Greedily colors the given (undirected) interference graph.
         /// </summary>
-        public IReadOnlyDictionary<TVertex, TColor> Color(
+        public abstract override IReadOnlyDictionary<TVertex, TColor> Color(
+            Graph<TVertex> InterferenceGraph,
+            Graph<TVertex> RelatedGraph,
+            TColor(TVertex) CreateColor);
+    }
+
+    /// <summary>
+    /// A greedy graph colorer implementation.
+    /// </summary>
+    public class GreedyGraphColorer<TVertex, TColor> : GreedyGraphColorerBase<TVertex, TColor>
+    {
+        /// <summary>
+        /// Greedily colors the given (undirected) interference graph.
+        /// </summary>
+        public override IReadOnlyDictionary<TVertex, TColor> Color(
             Graph<TVertex> InterferenceGraph,
             Graph<TVertex> RelatedGraph,
             TColor(TVertex) CreateColor)
@@ -94,6 +108,64 @@ namespace Flame.Optimization
                 results[vertex] = ColorVertex(
                     InterferenceGraph, RelatedGraph, CreateColor,
                     vertex, results, colors);
+            }
+
+            return results;
+        }
+    }
+
+    /// <summary>
+    /// A greedy graph colorer implementation that spends extra time trying
+    /// to coalesce related variables.
+    /// </summary>
+    public class GreedyRelatedGraphColorer<TVertex, TColor> : GreedyGraphColorerBase<TVertex, TColor>
+    {
+        /// <summary>
+        /// Moves the vertices in the given set of vertices to the front
+        /// of the worklist.
+        /// </summary>
+        private void MakePriority(
+            [TVertex] PriorityVertices, LinkedList<TVertex> Worklist)
+        {
+            var verts = new HashSet<TVertex>(PriorityVertices);
+            var node = Worklist.First;
+            while (node != null)
+            {
+                var nextNode = node.Next;
+                if (verts.Contains(node.Value))
+                {
+                    Worklist.Remove(node);
+                    Worklist.AddFirst(node.Value);
+                }
+                node = nextNode;
+            }
+        }
+
+        /// <summary>
+        /// Greedily colors the given (undirected) interference graph.
+        /// </summary>
+        public override IReadOnlyDictionary<TVertex, TColor> Color(
+            Graph<TVertex> InterferenceGraph,
+            Graph<TVertex> RelatedGraph,
+            TColor(TVertex) CreateColor)
+        {
+            var results = new Dictionary<TVertex, TColor>();
+            var colors = new HashSet<TColor>();
+            var worklist = new LinkedList<TVertex>(InterferenceGraph.Vertices);
+
+            while (worklist.First != null)
+            {
+                // Pop a vertex from the worklist.
+                var v = worklist.First.Value;
+                worklist.RemoveFirst();
+
+                // Color it.
+                results[v] = ColorVertex(
+                    InterferenceGraph, RelatedGraph, CreateColor,
+                    v, results, colors);
+
+                // Move its related vertices to the front of the worklist.
+                MakePriority(RelatedGraph[v], worklist);
             }
 
             return results;
