@@ -51,7 +51,8 @@ namespace Flame.Compiler.Expressions
 
         public IExpression Optimize()
         {
-            if (this.IsConstant && Type.IsPrimitiveExpressionType())
+            if (this.IsConstant && Type.IsPrimitiveExpressionType() &&
+                !Type.Equals(PrimitiveTypes.String))
             {
                 var evalExpr = Evaluate();
                 if (evalExpr != null)
