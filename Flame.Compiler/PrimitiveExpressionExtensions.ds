@@ -84,7 +84,11 @@ namespace Flame.Compiler
 			}
 			else if (valType.Equals(PrimitiveTypes.String))
 			{
-				return new StringExpression(Value.GetValue<string>());
+				var val = Value.GetValue<string>();
+				if (val == null)
+					return new ReinterpretCastExpression(NullExpression, PrimitiveTypes.String);
+				else
+					return new StringExpression(val);
 			}
 			else
 			{
