@@ -1,0 +1,102 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A common interface for graph coloring techniques that can use an
+    /// unbounded number of colors. This can be used to solve the problem of
+    /// register allocation, given an interference graph and an unbounded
+    /// number of (virtual) registers.
+    /// </summary>
+    public interface IGraphColorer<TVertex, TColor>
+    {
+        /// <summary>
+        /// Colors the given (undirected) interference graph. A 'related' graph
+        /// expresses preferences: an edge connecting two vertices in this graph
+        /// means that these vertices should preferably be allocated the same
+        /// color. A delegate is responsible for generating new colors.
+        /// </summary>
+        IReadOnlyDictionary<TVertex, TColor> Color(
+            Graph<TVertex> InterferenceGraph,
+            Graph<TVertex> RelatedGraph,
+            TColor(TVertex) CreateColor);
+    }
+
+    /// <summary>
+    /// A greedy graph colorer implementation.
+    /// </summary>
+    public class GreedyGraphColorer<TVertex, TColor> : IGraphColorer<TVertex, TColor>
+    {
+        /// <summary>
+        /// Colors a single vertex in the interference graph.
+        /// </summary>
+        private TColor ColorVertex(
+            Graph<TVertex> InterferenceGraph,
+            Graph<TVertex> RelatedGraph,
+            TColor(TVertex) CreateColor,
+            TVertex Vertex,
+            Dictionary<TVertex, TColor> Results,
+            HashSet<TColor> Colors)
+        {
+            // Figure out which colors we can use for this vertex by first
+            // assuming that all colors can be used...
+            var availColors = new HashSet<TColor>(Colors);
+            foreach (var neighbor in InterferenceGraph[Vertex])
+            {
+                // ... and then removing colors from the set of available
+                // colors.
+                if (Results.TryGetValue(neighbor, &TColor neighborColor))
+                    availColors.Remove(neighborColor);
+            }
+
+            if (availColors.Count > 0)
+            {
+                // We don't need any extra colors.
+                foreach (var related in RelatedGraph[Vertex])
+                {
+                    if (Results.TryGetValue(related, &TColor relatedColor) &&
+                        availColors.Contains(relatedColor))
+                    {
+                        // Look for a color that has already been used to
+                        // color a related vertex, and can also be used
+                        // to color this vertex.
+                        return relatedColor;
+                    }
+                }
+
+                // Pick the first available color, then.
+                return Enumerable.First<TColor>(availColors);
+            }
+            else
+            {
+                // Create a new color, and use it to color this vertex.
+                var newColor = CreateColor(Vertex);
+                Colors.Add(newColor);
+                return newColor;
+            }
+        }
+
+        /// <summary>
+        /// Greedily colors the given (undirected) interference graph.
+        /// </summary>
+        public IReadOnlyDictionary<TVertex, TColor> Color(
+            Graph<TVertex> InterferenceGraph,
+            Graph<TVertex> RelatedGraph,
+            TColor(TVertex) CreateColor)
+        {
+            var results = new Dictionary<TVertex, TColor>();
+            var colors = new HashSet<TColor>();
+
+            foreach (var vertex in InterferenceGraph.Vertices)
+            {
+                results[vertex] = ColorVertex(
+                    InterferenceGraph, RelatedGraph, CreateColor,
+                    vertex, results, colors);
+            }
+
+            return results;
+        }
+    }
+}
