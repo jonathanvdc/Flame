@@ -1,0 +1,141 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A directed graph data structure.
+    /// </summary>
+    public class Graph<T>
+    {
+        /// <summary>
+        /// Creates an empty graph.
+        /// </summary>
+        public const this()
+        {
+            this.edges = new Dictionary<T, HashSet<T>>();
+        }
+
+        /// <summary>
+        /// Creates a copy of the given graph.
+        /// </summary>
+        public const this(Graph<T> Other)
+        {
+            this.edges = new Dictionary<T, HashSet<T>>();
+            foreach (var item in Other.edges)
+            {
+                this.edges[item.Key] = new HashSet<T>(item.Value);
+            }
+        }
+
+        private Dictionary<T, HashSet<T>> edges;
+
+        /// <summary>
+        /// Gets the set of all vertices in the graph.
+        /// </summary>
+        public [T] Vertices
+        {
+            get { return edges.Keys; }
+        }
+
+        /// <summary>
+        /// Gets the set of all end-points of directed edges that have the
+        /// given vertex as their origin.
+        /// </summary>
+        public [T] this[T From]
+        {
+            get
+            {
+                if (!ContainsVertex(From))
+                    return Enumerable.Empty<T>();
+
+                var results = new HashSet<T>(edges[From]);
+                results.IntersectWith(Vertices);
+                return results;
+            }
+        }
+
+        /// <summary>
+        /// Adds a vertex to the graph. A boolean is returned that tells if
+        /// the vertex has actually been added to the graph.
+        /// </summary>
+        public bool AddVertex(T Vertex)
+        {
+            if (edges.ContainsKey(Vertex))
+            {
+                return false;
+            }
+            else
+            {
+                edges.Add(Vertex, new HashSet<T>());
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Checks if this graph contains the given vertex.
+        /// </summary>
+        public bool ContainsVertex(T Vertex)
+        {
+            return edges.ContainsKey(Vertex);
+        }
+
+        /// <summary>
+        /// Removes a vertex from the graph. A boolean is returned that explains
+        /// whether the operation was successful or not.
+        /// </summary>
+        public bool RemoveVertex(T Vertex)
+        {
+            return edges.Remove(Vertex);
+        }
+
+        /// <summary>
+        /// Adds a directed edge to this graph. A boolean is returned that tells if
+        /// the edge has actually been added to the graph.
+        /// </summary>
+        public bool AddEdge(T From, T To)
+        {
+            AddVertex(From);
+            bool addedTo = AddVertex(To);
+
+            return edges[From].Add(To) || addedTo;
+        }
+
+        /// <summary>
+        /// Adds an undirected edge to this graph, which is really
+        /// a pair of directed edges. A boolean is returned that tells if
+        /// at least one edge has actually been added to the graph.
+        /// </summary>
+        public bool AddUndirectedEdge(T From, T To)
+        {
+            bool firstSuccess = AddEdge(From, To);
+            bool secondSuccess = AddEdge(To, From);
+            return firstSuccess || secondSuccess;
+        }
+
+        /// <summary>
+        /// Checks if this graph contains an edge that connects the given
+        /// source vertex to the given destination.
+        /// </summary>
+        public bool ContainsEdge(T From, T To)
+        {
+            return ContainsVertex(From)
+                && ContainsVertex(To)
+                && edges[From].Contains(To);
+        }
+
+        /// <summary>
+        /// Removes a directed edge from the graph.
+        /// A boolean is returned that explains
+        /// whether the operation was successful or not.
+        /// </summary>
+        public bool RemoveEdge(T From, T To)
+        {
+            if (ContainsVertex(From) && ContainsVertex(To))
+                return edges[From].Remove(To);
+            else
+                return false;
+        }
+    }
+}

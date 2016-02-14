@@ -33,6 +33,15 @@ namespace Flame.Optimization
         private const int OutParameterPoint = int.MaxValue;
 
         /// <summary>
+        /// Gets a dictionary that maps SSA variables to their
+        /// definition index for this basic block.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, int> DefinitionIndices
+        {
+            get { return livePos; }
+        }
+
+        /// <summary>
         /// Gets the set of all variables whose values are loaded by this block.
         /// </summary>
         public [SSAVariable] UsedVariables
@@ -146,7 +155,7 @@ namespace Flame.Optimization
         /// </summary>
         public int GetLastAccessIndex(SSAVariable Variable)
         {
-            if (!deadPos.TryGetValue(Variable, &int deadPoint))
+            if (deadPos.TryGetValue(Variable, &int deadPoint))
                 return deadPoint;
             else
                 return int.MinValue;
@@ -158,10 +167,8 @@ namespace Flame.Optimization
         /// </summary>
         public bool IsLive(SSAVariable Variable, int Index)
         {
-            int deadPoint = GetLastAccessIndex(Variable);
-            int livePoint = GetDefinitionIndex(Variable);
-
-            return Index >= livePoint && Index <= deadPoint;
+            return Index >= GetDefinitionIndex(Variable)
+                && Index <= GetLastAccessIndex(Variable);
         }
     }
 
@@ -173,27 +180,15 @@ namespace Flame.Optimization
         public const this(
             set SSALivenessData Data,
             set Dictionary<SSAVariable, HashSet<SSALivenessData>> DefinitionBlocks,
-            set Dictionary<SSAVariable, HashSet<SSAVariable>> Related);
+            set Graph<SSAVariable> Related);
 
         public SSALivenessData Data { const get; private set; }
         public Dictionary<SSAVariable, HashSet<SSALivenessData>> DefinitionBlocks { const get; private set; }
-        public Dictionary<SSAVariable, HashSet<SSAVariable>> Related { const get; private set; }
-
-        private void MarkRelatedAsymmetric(SSAVariable Left, SSAVariable Right)
-        {
-            HashSet<SSAVariable> relatedSet;
-            if (!Related.TryGetValue(Left, &relatedSet))
-            {
-                relatedSet = new HashSet<SSAVariable>();
-                Related[Left] = relatedSet;
-            }
-            relatedSet.Add(Right);
-        }
+        public Graph<SSAVariable> Related { const get; private set; }
 
         public void MarkRelated(SSAVariable Left, SSAVariable Right)
         {
-            MarkRelatedAsymmetric(Left, Right);
-            MarkRelatedAsymmetric(Right, Left);
+            Related.AddUndirectedEdge(Left, Right);
         }
 
         public override const bool Matches(IExpression Value)
@@ -243,7 +238,7 @@ namespace Flame.Optimization
         public const this(
             set Dictionary<UniqueTag, SSALivenessData> LiveRanges,
             set Dictionary<SSAVariable, HashSet<SSALivenessData>> DefinitionBlocks,
-            set Dictionary<SSAVariable, HashSet<SSAVariable>> Related);
+            set Graph<SSAVariable> Related);
 
         /// <summary>
         /// Gets the graph's block tag - live ranges map.
@@ -260,21 +255,7 @@ namespace Flame.Optimization
         /// Gets the graph's related variable set map.
         /// Coalescing these variables should result in less variable copying.
         /// </summary>
-        public Dictionary<SSAVariable, HashSet<SSAVariable>> Related { const get; private set; }
-
-        /// <summary>
-        /// Gets the given variable's set of related variables.
-        /// </summary>
-        public HashSet<SSAVariable> GetRelatedVariables(SSAVariable Variable)
-        {
-            HashSet<SSAVariable> results;
-            if (!Related.TryGetValue(Variable, &results))
-            {
-                results = new HashSet<SSAVariable>();
-                Related[Variable] = results;
-            }
-            return results;
-        }
+        public Graph<SSAVariable> Related { const get; private set; }
     }
 
     /// <summary>
@@ -322,7 +303,7 @@ namespace Flame.Optimization
         {
             var results = new Dictionary<UniqueTag, SSALivenessData>();
             var defBlocks = new Dictionary<SSAVariable, HashSet<SSALivenessData>>();
-            var related = new Dictionary<SSAVariable, HashSet<SSAVariable>>();
+            var related = new Graph<SSAVariable>();
             foreach (var tag in Graph.BlockTags)
             {
                 results[tag] = new SSALivenessData();
@@ -376,107 +357,73 @@ namespace Flame.Optimization
         }
 
         /// <summary>
-        /// Checks if the first variable is live at any of the definition
-        /// points of the second variable.
+        /// Groups the given sequence of SSA variables by their types.
         /// </summary>
-        private bool IsLiveAtDef(
-            SSAVariable LiveVariable, SSAVariable DefVariable,
-            SSAGraphLiveness Liveness)
+        private Dictionary<IType, HashSet<SSAVariable>> GroupByType(
+            [SSAVariable] Variables)
         {
-            var defBlocks = Liveness.DefinitionBlocks;
-            if (defBlocks.ContainsKey(DefVariable))
+            var results = new Dictionary<IType, HashSet<SSAVariable>>();
+            foreach (var item in Variables)
             {
-                foreach (var block in defBlocks[DefVariable])
+                var ty = item.Type;
+                HashSet<SSAVariable> vars;
+                if (!results.TryGetValue(ty, &vars))
                 {
-                    if (block.IsLive(LiveVariable, block.GetDefinitionIndex(DefVariable)))
-                    {
-                        return true;
-                    }
+                    vars = new HashSet<SSAVariable>();
+                    results[ty] = vars;
                 }
+                vars.Add(item);
             }
-            return false;
+            return results;
         }
 
         /// <summary>
-        /// Checks if the liveness of the given variables intersects.
+        /// Creates an interference graph for the given sequence of vertices
+        /// and liveness information.
         /// </summary>
-        private bool LivenessIntersects(
-            SSAVariable First, SSAVariable Second,
-            SSAGraphLiveness Liveness)
+        private Graph<SSAVariable> CreateInterferenceGraph(
+            [SSAVariable] Vertices, SSAGraphLiveness Liveness)
         {
-            return IsLiveAtDef(First, Second, Liveness)
-                || IsLiveAtDef(Second, First, Liveness);
-        }
+            var verts = new HashSet<SSAVariable>(Vertices);
+            var result = new Graph<SSAVariable>();
+            var liveRanges = Liveness.LiveRanges.Values;
 
-        /// <summary>
-        /// Checks if the given variable can share the given register with the
-        /// given set of already-allocated variables.
-        /// </summary>
-        private bool CanCoalesce(
-            IVariable Register, SSAVariable Variable,
-            HashSet<SSAVariable> Neighbors,
-            SSAGraphLiveness Liveness)
-        {
-            foreach (var local in Neighbors)
+            foreach (var v in verts)
             {
-                if (LivenessIntersects(local, Variable, Liveness))
-                    return false;
-            }
-            return true;
-        }
+                // Add all vertices to the graph. Adding an edge to the graph
+                // will also add its origin and destination vertices to the graph,
+                // so this is redundant for most vertices. It is not redundant,
+                // however, for variables that do not interfere with any other
+                // variables.
+                result.AddVertex(v);
 
-        /// <summary>
-        /// Checks if the intersection of the given sets is nonempty.
-        /// </summary>
-        private bool HasIntersectionElements(
-            HashSet<SSAVariable> Left, HashSet<SSAVariable> Right)
-        {
-            var inter = new HashSet<SSAVariable>(Left);
-            inter.IntersectWith(Right);
-            return inter.Count > 0;
-        }
-
-        private IVariable AllocateRegister(
-            SSAVariable Variable, SSAGraphLiveness Liveness,
-            Dictionary<IVariable, HashSet<SSAVariable>> AllocatedRegisters)
-        {
-            var related = Liveness.GetRelatedVariables(Variable);
-            var unrelated = new Dictionary<IVariable, HashSet<SSAVariable>>();
-
-            // Try to coalesce related variables first.
-            foreach (var pair in AllocatedRegisters)
-            {
-                if (HasIntersectionElements(related, pair.Value))
+                // Next, we'll insert edges. The approach is based on the
+                // following property:
+                //
+                //      A variable interferes with another variable if the
+                //      former is live at the latter's point of definition,
+                //      or vice-versa.
+                //
+                // Instead of looping over all pairs of variables and then trying
+                // to determine whether they interfere, we'll loop over all
+                // live ranges. If the current variable is live at some other
+                // variable's point of definition,
+                // then we'll insert an undirected edge. The vice-versa
+                // thing is satisfied by simply looping over all variables.
+                foreach (var block in liveRanges)
                 {
-                    if (CanCoalesce(pair.Key, Variable, pair.Value, Liveness))
+                    foreach (var pair in block.DefinitionIndices)
                     {
-                        pair.Value.Add(Variable);
-                        return pair.Key;
-                    }
-                    else
-                    {
-                        unrelated[pair.Key] = pair.Value;
+                        if (verts.Contains(pair.Key) &&
+                            block.IsLive(v, pair.Value))
+                        {
+                            result.AddUndirectedEdge(v, pair.Key);
+                        }
                     }
                 }
             }
 
-            // Then try to coalesce unrelated variables.
-            foreach (var pair in unrelated)
-            {
-                if (CanCoalesce(pair.Key, Variable, pair.Value, Liveness))
-                {
-                    pair.Value.Add(Variable);
-                    return pair.Key;
-                }
-            }
-
-            // Seems like we can't re-use a pre-existing register.
-            // We'll just conjure op a new register, and use that instead.
-            var newReg = new LocalVariable(Variable.Member);
-            var newSet = new HashSet<SSAVariable>();
-            newSet.Add(Variable);
-            AllocatedRegisters[newReg] = newSet;
-            return newReg;
+            return result;
         }
 
         /// <summary>
@@ -486,19 +433,29 @@ namespace Flame.Optimization
             FlowGraph Graph)
         {
             // Perform register allocation on the SSA variables.
-            // We will try to coalesce SSA variables as much as possible.
+            // We use a greedy graph colorer for this purpose.
 
             var liveness = ComputeLiveness(Graph);
-            var allocatedRegs = new Dictionary<IVariable, HashSet<SSAVariable>>();
-            var allocatedVars = new Dictionary<SSAVariable, IVariable>();
+            var groupedVars = GroupByType(liveness.DefinitionBlocks.Keys);
+            var regAlloc = new Dictionary<SSAVariable, IVariable>();
+            var colorer = new GreedyGraphColorer<SSAVariable, IVariable>();
+            // Creates a new color.
+            var createColor = IVariable(SSAVariable v) => new LocalVariable(v.Member);
 
-            foreach (var item in liveness.DefinitionBlocks)
+            foreach (var pair in groupedVars)
             {
-                allocatedVars[item.Key] = AllocateRegister(
-                    item.Key, liveness, allocatedRegs);
+                // Construct an interference graph.
+                var interGraph = CreateInterferenceGraph(pair.Value, liveness);
+                // Color the graph.
+                var coloring = colorer.Color(interGraph, liveness.Related, createColor);
+                foreach (var item in coloring)
+                {
+                    // Add the coloring to the results.
+                    regAlloc.Add(item.Key, item.Value);
+                }
             }
 
-            return allocatedVars;
+            return regAlloc;
         }
 
         private IStatement CreatePhiAssignStatement(
