@@ -275,14 +275,19 @@ namespace Flame.Optimization
     }
 
     /// <summary>
-    /// Defines a pass that deconstructs SSA form.
+    /// A node visitor that deconstructs SSA form.
     /// </summary>
-    public static class DeconstructSSAPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>, IPass<BodyPassArgument, IStatement>
+    public class DeconstructSSAVisitor : FlowGraphVisitorBase
     {
-        public const string DeconstructSSAPassName = "deconstruct-ssa";
-
         alias PredecessorPair = Tuple<UniqueTag, IReadOnlyList<SSAVariable>>;
         alias PredecessorDict = IReadOnlyDictionary<UniqueTag, [PredecessorPair]>;
+
+        public const this(set IGraphColorer<SSAVariable, IVariable> GraphColorer);
+
+        /// <summary>
+        /// Gets this SSA deconstruction visitor's graph colorer.
+        /// </summary>
+        public IGraphColorer<SSAVariable, IVariable> GraphColorer { const get; private set; }
 
         /// <summary>
         /// Checks if the live range for the block with the given tag defines
@@ -454,7 +459,6 @@ namespace Flame.Optimization
             var liveness = ComputeLiveness(Graph);
             var groupedVars = GroupByType(liveness.DefinitionBlocks.Keys);
             var regAlloc = new Dictionary<SSAVariable, IVariable>();
-            var colorer = new GreedyRelatedGraphColorer<SSAVariable, IVariable>();
             // Creates a new color.
             var createColor = IVariable(SSAVariable v) => new LocalVariable(v.Member);
 
@@ -463,7 +467,7 @@ namespace Flame.Optimization
                 // Construct an interference graph.
                 var interGraph = CreateInterferenceGraph(pair.Value, liveness);
                 // Color the graph.
-                var coloring = colorer.Color(interGraph, liveness.Related, createColor);
+                var coloring = GraphColorer.Color(interGraph, liveness.Related, createColor);
                 foreach (var item in coloring)
                 {
                     // Add the coloring to the results.
@@ -638,7 +642,33 @@ namespace Flame.Optimization
 
             return newBlocks.ToFlowGraph(Graph.EntryPointTag);
         }
+    }
 
+    /// <summary>
+    /// Defines a pass that deconstructs SSA form.
+    /// </summary>
+    public static class DeconstructSSAPass : IPass<IStatement, IStatement>, IPass<BodyPassArgument, IStatement>
+    {
+        public const string DeconstructSSAPassName = "deconstruct-ssa";
+
+        /// <summary>
+        /// The option for the graph colorer.
+        /// </summary>
+        public const string GraphColorerOption = "graph-colorer";
+
+        /// <summary>
+        /// Figures out which graph colorer should be used, based on the given
+        /// compiler options.
+        /// </summary>
+        public IGraphColorer<TVertex, TColor> GetGraphColorer<TVertex, TColor>(
+            ICompilerOptions Options)
+        {
+            string name = Options.GetOption<string>(GraphColorerOption, "greedy-related").ToLower();
+            if (name == "greedy")
+                return new GreedyGraphColorer<TVertex, TColor>();
+            else
+                return new GreedyRelatedGraphColorer<TVertex, TColor>();
+        }
 
         public IStatement Apply(IStatement Value)
             in { VerifyCFGPass.Apply(Value) }
@@ -646,7 +676,9 @@ namespace Flame.Optimization
             out (result) { VerifyCFGPass.Apply(result) }
             out (result) { VerifySSAPass.Apply(result) }
         {
-            return Visit(Value);
+            var colorer = new GreedyRelatedGraphColorer<SSAVariable, IVariable>();
+            var visitor = new DeconstructSSAVisitor(colorer);
+            return visitor.Visit(Value);
         }
 
         public IStatement Apply(BodyPassArgument Arg)
@@ -665,7 +697,9 @@ namespace Flame.Optimization
                     DeconstructSSAPassName + " (output)")
             }
         {
-            return Visit(Arg.Body);
+            var colorer = GetGraphColorer<SSAVariable, IVariable>(Arg.PassEnvironment.Log.Options);
+            var visitor = new DeconstructSSAVisitor(colorer);
+            return visitor.Visit(Arg.Body);
         }
     }
 }
