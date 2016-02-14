@@ -1,6 +1,15 @@
 
 public class TestClass
 {
+    public int NoCoalescing(int x, int y)
+    {
+        int y2 = y;
+        int x2 = x;
+        if (x2 < y2)
+            x2 = y2;
+        return x2 + y2;
+    }
+
     public int Select(bool Condition, int Left, int Right)
     {
         int result = Right;
