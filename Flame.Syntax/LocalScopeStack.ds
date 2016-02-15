@@ -1,0 +1,141 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+
+namespace Flame.Syntax
+{
+    /// <summary>
+    /// A data structure that models a stack of scopes
+    /// that declare local variables.
+    /// </summary>
+    public class LocalScopeStack
+    {
+        alias LocalDictionary = Dictionary<string, DeclaredVariable>;
+
+        // Local scope dictionaries are stored in pairs: the 'key' dictionary
+        // contains all variables that have been declared in a scope, whereas
+        // the 'value' dictionary contains all variables that are visible
+        // from said scope.
+        alias DictionaryPair = KeyValuePair<LocalDictionary, LocalDictionary>;
+
+        public const this()
+        {
+            this.localStack = new Stack<DictionaryPair>();
+        }
+
+        // Maintain a stack of declared/visible locals at all times.
+        private Stack<DictionaryPair> localStack;
+
+        /// <summary>
+        /// Gets the number of local scopes this stack contains.
+        /// </summary>
+        public int Count { get { return localStack.Count; } }
+
+        /// <summary>
+        /// Gets a mutable dictionary that maps all locally declared local names
+        /// to their associated variables.
+        /// </summary>
+        private LocalDictionary declLocals
+        {
+            get { return localStack.Peek().Key; }
+        }
+
+        /// <summary>
+        /// Gets a dictionary that maps all locally declared local names
+        /// to their associated variables.
+        /// </summary>
+        public IReadOnlyDictionary<string, DeclaredVariable> DeclaredLocals
+        {
+            get
+            {
+                if (Count == 0)
+                    return new LocalDictionary();
+                else
+                    return declLocals;
+            }
+        }
+
+        /// <summary>
+        /// Gets a mutable dictionary that maps all currently visible local names
+        /// to their associated variables.
+        /// </summary>
+        private LocalDictionary visLocals
+        {
+            get { return localStack.Peek().Value; }
+        }
+
+        /// <summary>
+        /// Gets a dictionary that maps all currently visible local names
+        /// to their associated variables.
+        /// </summary>
+        public IReadOnlyDictionary<string, DeclaredVariable> VisibleLocals
+        {
+            get
+            {
+                if (Count == 0)
+                    return new LocalDictionary();
+                else
+                    return visLocals;
+            }
+        }
+
+        /// <summary>
+        /// Pushes a new scope onto the stack.
+        /// </summary>
+        public void Push()
+            out { Count > 0 }
+        {
+            // Push an empty local dictionary on the stack, as well as
+            // a copy of the visible local dictionary.
+
+            LocalDictionary parentLocals;
+            if (Count == 0)
+                parentLocals = new LocalDictionary();
+            else
+                parentLocals = visLocals;
+
+            this.localStack.Push(
+                new DictionaryPair(
+                    new LocalDictionary(),
+                    new LocalDictionary(parentLocals)));
+        }
+
+        /// <summary>
+        /// Pops a single scope from this stack. A statement is returned
+        /// that releases all declared locals.
+        /// </summary>
+        public IStatement Pop()
+            in { Count > 0 }
+        {
+            var scopeVars = localStack.Pop().Key;
+            var statements = new List<IStatement>();
+            foreach (var item in scopeVars)
+            {
+                statements.Add(item.Value.Variable.CreateReleaseStatement());
+            }
+            return new BlockStatement(statements.ToArray());
+        }
+
+        /// <summary>
+        /// Declares a variable in this scope.
+        /// </summary>
+        public void Declare(string Name, DeclaredVariable Variable)
+        {
+            visLocals[Name] = Variable;
+            declLocals[Name] = Variable;
+        }
+
+        /// <summary>
+        /// Declares a variable in this scope.
+        /// </summary>
+        public void Declare(
+            string Name, IVariable Variable, SourceLocation Location)
+            in { Count > 0 }
+        {
+            var declVar = new DeclaredVariable(Variable, Location);
+            Declare(Name, declVar);
+        }
+    }
+}
