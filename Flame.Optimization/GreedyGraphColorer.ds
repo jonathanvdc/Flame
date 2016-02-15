@@ -171,4 +171,29 @@ namespace Flame.Optimization
             return results;
         }
     }
+
+    /// <summary>
+    /// A graph colorer implementation that trivially colors a graph, by
+    /// assigning every vertex a unique color.
+    /// </summary>
+    public class TrivialGraphColorer<TVertex, TColor> : IGraphColorer<TVertex, TColor>
+    {
+        /// <summary>
+        /// Trivially colors the given (undirected) interference graph.
+        /// </summary>
+        public IReadOnlyDictionary<TVertex, TColor> Color(
+            Graph<TVertex> InterferenceGraph,
+            Graph<TVertex> RelatedGraph,
+            TColor(TVertex) CreateColor)
+        {
+            var results = new Dictionary<TVertex, TColor>();
+
+            foreach (var v in InterferenceGraph.Vertices)
+            {
+                results[v] = CreateColor(v);
+            }
+
+            return results;
+        }
+    }
 }

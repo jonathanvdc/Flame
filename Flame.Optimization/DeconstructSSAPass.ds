@@ -20,18 +20,15 @@ namespace Flame.Optimization
             this.nodeIndex = 1;
             this.livePos = new Dictionary<SSAVariable, int>();
             this.deadPos = new Dictionary<SSAVariable, int>();
-            this.usedVars = new HashSet<SSAVariable>();
         }
 
         private int nodeIndex;
         private Dictionary<SSAVariable, int> livePos;
         private Dictionary<SSAVariable, int> deadPos;
-        private HashSet<SSAVariable> usedVars;
 
         private const int ImportPoint = -1;
         private const int ParameterPoint = 0;
-        private const int ExportPoint = int.MaxValue - 1;
-        private const int OutParameterPoint = int.MaxValue;
+        private const int ExportPoint = int.MaxValue;
 
         /// <summary>
         /// Gets a dictionary that maps SSA variables to their
@@ -49,7 +46,7 @@ namespace Flame.Optimization
         {
             const get
             {
-                return usedVars;
+                return deadPos.Keys;
             }
         }
 
@@ -69,7 +66,6 @@ namespace Flame.Optimization
         {
             nodeIndex++;
             deadPos[Variable] = nodeIndex;
-            usedVars.Add(Variable);
         }
 
         /// <summary>
@@ -82,21 +78,20 @@ namespace Flame.Optimization
         }
 
         /// <summary>
+        /// Marks the given variable as a (potential) argument to this block.
+        /// </summary>
+        public void MarkArgument(SSAVariable Variable)
+        {
+            deadPos[Variable] = ImportPoint;
+        }
+
+        /// <summary>
         /// Marks the given variable as a parameter: a locally defined
         /// variable that is assigned in parallel with the other parameters.
         /// </summary>
         public void MarkParameter(SSAVariable Variable)
         {
             livePos[Variable] = ParameterPoint;
-        }
-
-        /// <summary>
-        /// Marks the given variable as an input argument for this block.
-        /// </summary>
-        public void MarkInArgument(SSAVariable Variable)
-        {
-            deadPos[Variable] = ParameterPoint;
-            usedVars.Add(Variable);
         }
 
         /// <summary>
@@ -107,16 +102,6 @@ namespace Flame.Optimization
         public void MarkExport(SSAVariable Variable)
         {
             deadPos[Variable] = ExportPoint;
-        }
-
-        /// <summary>
-        /// Marks the given variable as an argument for the given parameter.
-        /// </summary>
-        public void MarkOutArgument(SSAVariable Argument, SSAVariable Parameter)
-        {
-            deadPos[Argument] = ExportPoint;
-            deadPos[Parameter] = OutParameterPoint;
-            usedVars.Add(Argument);
         }
 
         /// <summary>
@@ -349,8 +334,7 @@ namespace Flame.Optimization
                     foreach (var arg in branch.Arguments,
                              var parameter in Graph.GetBlock(tgtTag).Parameters)
                     {
-                        data.MarkOutArgument(arg, parameter);
-                        tgtData.MarkInArgument(arg);
+                        data.MarkExport(arg);
                         visitor.MarkRelated(arg, parameter);
 
                         HashSet<SSALivenessData> defSet;
@@ -367,7 +351,13 @@ namespace Flame.Optimization
             var preds = Graph.GetPredecessors();
             foreach (var item in results)
             {
-                foreach (var usedVar in item.Value.UsedVariables)
+                // Create a local copy of the block's used variables, as
+                // import propagation may export variables, which could result
+                // in changes to the variable-use dictionary.
+                // Enumerators aren't all that fond of changes like that, and
+                // a read-only copy avoids the issue entirely.
+                var usedVars = Enumerable.ToArray<SSAVariable>(item.Value.UsedVariables);
+                foreach (var usedVar in usedVars)
                 {
                     // Mark all imported variables as live.
                     PropagateImport(item.Key, usedVar, preds, results);
@@ -407,7 +397,11 @@ namespace Flame.Optimization
         {
             var verts = new HashSet<SSAVariable>(Vertices);
             var result = new Graph<SSAVariable>();
-            var liveRanges = Liveness.LiveRanges.Values;
+
+            // var liveRanges = Liveness.LiveRanges.Values;
+            var liveRanges = new HashSet<SSALivenessData>();
+            foreach (var block in Liveness.LiveRanges)
+                liveRanges.Add(block.Value);
 
             foreach (var v in verts)
             {
@@ -666,6 +660,8 @@ namespace Flame.Optimization
             string name = Options.GetOption<string>(GraphColorerOption, "greedy-related").ToLower();
             if (name == "greedy")
                 return new GreedyGraphColorer<TVertex, TColor>();
+            else if (name == "none")
+                return new TrivialGraphColorer<TVertex, TColor>();
             else
                 return new GreedyRelatedGraphColorer<TVertex, TColor>();
         }
