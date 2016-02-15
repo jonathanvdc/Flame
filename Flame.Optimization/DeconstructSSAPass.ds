@@ -438,6 +438,10 @@ namespace Flame.Optimization
                 }
             }
 
+            // Get rid of cyclic edges. They're not helpful.
+            foreach (var v in verts)
+                result.RemoveEdge(v, v);
+
             return result;
         }
 

@@ -79,6 +79,25 @@ namespace Flame.Optimization
         }
 
         /// <summary>
+        /// Checks that the given coloring is valid.
+        /// </summary>
+        protected bool CheckValidColoring(
+            Graph<TVertex> InterferenceGraph,
+            IReadOnlyDictionary<TVertex, TColor> Coloring)
+        {
+            var eqComp = EqualityComparer<TColor>.Default;
+            foreach (var pair in Coloring)
+            {
+                foreach (var neighbor in InterferenceGraph[pair.Key])
+                {
+                    if (eqComp.Equals(Coloring[neighbor], pair.Value))
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Greedily colors the given (undirected) interference graph.
         /// </summary>
         public abstract override IReadOnlyDictionary<TVertex, TColor> Color(
@@ -110,6 +129,7 @@ namespace Flame.Optimization
                     vertex, results, colors);
             }
 
+            assert(CheckValidColoring(InterferenceGraph, results));
             return results;
         }
     }
@@ -168,6 +188,7 @@ namespace Flame.Optimization
                 MakePriority(RelatedGraph[v], worklist);
             }
 
+            assert(CheckValidColoring(InterferenceGraph, results));
             return results;
         }
     }
