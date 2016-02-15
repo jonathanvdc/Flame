@@ -1,0 +1,52 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+
+namespace Flame.Syntax
+{
+    /// <summary>
+    /// Represents a stack of unique tags.
+    /// </summary>
+    public class TagStack
+    {
+        public const this()
+        {
+            this.tags = new List<UniqueTag>();
+        }
+
+        private List<UniqueTag> tags;
+
+        /// <summary>
+        /// Gets the stack's top non-null tag. If there is no such tag,
+        /// then null is returned.
+        /// </summary>
+        public UniqueTag Top
+        {
+            get
+            {
+                for (int i = tags.Count - 1; i >= 0; i--)
+                    if (tags[i] != null)
+                {
+                    return tags[i];
+                }
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Pushes a single (possibly null) tag onto the stack.
+        /// </summary>
+        public void Push(UniqueTag Tag)
+        {
+            this.tags.Add(Tag);
+        }
+
+        /// <summary>
+        /// Pops a single (possibly null) tag from the stack.
+        /// </summary>
+        public void Pop()
+        {
+            this.tags.RemoveAt(this.tags.Count - 1);
+        }
+    }
+}

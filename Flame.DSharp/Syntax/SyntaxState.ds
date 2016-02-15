@@ -17,8 +17,8 @@ namespace Flame.Syntax.DSharp
         {
             this.MemberProvider = new MemberProvider(Binder);
             this.ParameterProvider = new MethodParameterProvider(Method);
-            this.declaredVariables = new Stack<Dictionary<string, DeclaredVariable>>();
-            this.tags = new List<UniqueTag>();
+            this.locals = new LocalScopeStack();
+            this.tags = new TagStack();
             PushScope();
         }
         public const this(set IMethod Method, IBinder OuterBinder, set ICompilerLog Log, set IConverter<IType, string> TypeNamer)
@@ -26,16 +26,16 @@ namespace Flame.Syntax.DSharp
             this.Binder = new ScopedBinder(OuterBinder, this);
             this.ParameterProvider = new MethodParameterProvider(Method);
             this.MemberProvider = new MemberProvider(Binder);
-            this.declaredVariables = new Stack<Dictionary<string, DeclaredVariable>>();
-            this.tags = new List<UniqueTag>();
+            this.locals = new LocalScopeStack();
+            this.tags = new TagStack();
             PushScope();
         }
         public const this(set IMethod Method, IBinder OuterBinder, set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer)
         {
             this.Binder = new ScopedBinder(OuterBinder, this);
             this.ParameterProvider = new MethodParameterProvider(Method);
-            this.declaredVariables = new Stack<Dictionary<string, DeclaredVariable>>();
-            this.tags = new List<UniqueTag>();
+            this.locals = new LocalScopeStack();
+            this.tags = new TagStack();
             PushScope();
         }
         public const this(set IMethod Method, IBinder OuterBinder, set ICompilerLog Log,
@@ -43,8 +43,8 @@ namespace Flame.Syntax.DSharp
             set IVariableProvider ParameterProvider)
         {
             this.Binder = new ScopedBinder(OuterBinder, this);
-            this.declaredVariables = new Stack<Dictionary<string, DeclaredVariable>>();
-            this.tags = new List<UniqueTag>();
+            this.locals = new LocalScopeStack();
+            this.tags = new TagStack();
             PushScope();
         }
 
@@ -73,32 +73,17 @@ namespace Flame.Syntax.DSharp
         public IConverter<IType, string> TypeNamer { const get; private set; }
         public IMemberProvider MemberProvider { const get; private set; }
 
+        private LocalScopeStack locals;
+        private TagStack tags;
+
         public UniqueTag Tag
         {
-            const get
+            get
             {
-                for (int i = tags.Count - 1; i >= 0; i--)
-                    if (tags[i] != null)
-                {
-                    return tags[i];
-                }
-                throw new InvalidOperationException("Could not get the local block's tag, because the syntax state is not inside a control flow block.");
-            }
-        }
-
-        private Stack<Dictionary<string, DeclaredVariable>> declaredVariables;
-        private List<UniqueTag> tags;
-        public Dictionary<string, DeclaredVariable> Locals
-        {
-            const get
-            {
-            	var dict = new Dictionary<string, DeclaredVariable>();
-            	foreach (var map in declaredVariables)
-            	foreach (var item in map)
-            	{
-            		dict[item.Key] = item.Value;
-            	}
-                return dict;
+                var result = tags.Top;
+                if (result == null)
+                    throw new InvalidOperationException("Could not get the local block's tag, because the syntax state is not inside a control flow block.");
+                return result;
             }
         }
 
@@ -107,21 +92,22 @@ namespace Flame.Syntax.DSharp
 
         public IType ReturnType
         {
-            const get
+            get
             {
                 return Method.ReturnType;
             }
         }
         public IType DeclaringType
         {
-            const get
+            get
             {
                 return Method.DeclaringType;
             }
         }
+
         public IVariable DeclareVariable(string Name, IVariable Variable, SourceLocation Location)
         {
-            var localDecls = declaredVariables.Peek();
+            var localDecls = locals.DeclaredLocals;
             if (localDecls.ContainsKey(Name))
             {
                 var body = RedefinitionHelpers.CreateRedefinitionNode(Name, Location, localDecls[Name].Location);
@@ -135,16 +121,18 @@ namespace Flame.Syntax.DSharp
                     Location, this.GetDeclarationLocation(Name));
                 Log.LogWarning(new LogEntry("variable shadowed", node));
             }
-            localDecls[Name] = new DeclaredVariable(Variable, Location);
+            locals.Declare(Name, Variable, Location);
             return Variable;
         }
-        public const IVariable GetVariable(string Name)
+
+        public IVariable GetVariable(string Name)
         {
             return GetDeclaredVariable(Name).Variable;
         }
+
         public const DeclaredVariable GetDeclaredVariable(string Name)
         {
-            var localDict = Locals;
+            var localDict = locals.VisibleLocals;
             if (localDict.ContainsKey(Name))
             {
                 return localDict[Name];
@@ -164,8 +152,8 @@ namespace Flame.Syntax.DSharp
         }
         public const bool VariableExists(string Name)
         {
-            var localDict = Locals;
-            if (localDict.ContainsKey(Name) || (Name.Equals("this") && CurrentType != null))
+            if (locals.VisibleLocals.ContainsKey(Name) ||
+                (Name.Equals("this") && CurrentType != null))
             {
                 return true;
             }
@@ -183,24 +171,15 @@ namespace Flame.Syntax.DSharp
         public void PushScope(UniqueTag Tag)
         {
             Binder = Binder.PushScope();
-            this.declaredVariables.Push(new Dictionary<string, DeclaredVariable>());
-            this.tags.Add(Tag);
+            locals.Push();
+            tags.Push(Tag);
         }
 
         public IStatement PopScope()
         {
-            this.tags.RemoveAt(this.tags.Count - 1);
-
-            var statements = new List<IStatement>();
-            var scopeVars = declaredVariables.Pop();
-            foreach (var item in scopeVars)
-            {
-                statements.Add(item.Value.Variable.CreateReleaseStatement());
-            }
-
+            tags.Pop();
             Binder = Binder.PopScope();
-
-            return new BlockStatement(statements.ToArray());
+            return locals.Pop();
         }
     }
 }
