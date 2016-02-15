@@ -40,6 +40,15 @@ namespace Flame.Optimization
         }
 
         /// <summary>
+        /// Gets a dictionary that maps SSA variables to their
+        /// load index for this basic block.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, int> LoadIndices
+        {
+            get { return deadPos; }
+        }
+
+        /// <summary>
         /// Gets the set of all variables whose values are loaded by this block.
         /// </summary>
         public [SSAVariable] UsedVariables
@@ -398,10 +407,10 @@ namespace Flame.Optimization
             var verts = new HashSet<SSAVariable>(Vertices);
             var result = new Graph<SSAVariable>();
 
-            // var liveRanges = Liveness.LiveRanges.Values;
-            var liveRanges = new HashSet<SSALivenessData>();
-            foreach (var block in Liveness.LiveRanges)
-                liveRanges.Add(block.Value);
+            var liveRanges = Liveness.LiveRanges.Values;
+            // var liveRanges = new HashSet<SSALivenessData>();
+            // foreach (var block in Liveness.LiveRanges)
+            //     liveRanges.Add(block.Value);
 
             foreach (var v in verts)
             {
@@ -413,7 +422,7 @@ namespace Flame.Optimization
                 result.AddVertex(v);
 
                 // Next, we'll insert edges. The approach is based on the
-                // following property:
+                // following assumption:
                 //
                 //      A variable interferes with another variable if the
                 //      former is live at the latter's point of definition,
