@@ -50,6 +50,7 @@
     <Compile Include="StackIntrinsicsPass.ds" />
     <Compile Include="StatementRewriter.ds" />
     <Compile Include="TailRecursionPass.ds" />
+    <Compile Include="TypeAnalysisPass.ds" />
     <Compile Include="UnwrapBoundVariablesPass.ds" />
     <Compile Include="ValuePropagationPass.ds" />
     <Compile Include="VerifyCFGPass.ds" />

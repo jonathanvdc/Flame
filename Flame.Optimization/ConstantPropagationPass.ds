@@ -149,7 +149,7 @@ namespace Flame.Optimization
             assert(Statement is SSADefineStatement);
             var defStatement = (SSADefineStatement)Statement;
 
-            // SSA means single static assignment. Make sure we don't
+            // SSA means static single assignment. Make sure we don't
             // define the same value more than once.
             assert(!defs.ContainsKey(defStatement.Variable));
             defs[defStatement.Variable] = Visit(defStatement.Value);
