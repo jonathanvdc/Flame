@@ -1,0 +1,498 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using Pixie;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A base interface for data structures that tag values with one or more
+    /// types.
+    /// </summary>
+    public interface IAnalysisType
+    {
+        /// <summary>
+        /// Tries to simplify this analysis type.
+        /// </summary>
+        IAnalysisType Simplify();
+    }
+
+    public abstract class ConstantAnalysisTypeBase : IAnalysisType
+    {
+        /// <summary>
+        /// Creates a constant analysis type from the given type.
+        /// </summary>
+        public const this(set IType Type);
+
+        /// <summary>
+        /// Gets this analysis type's constant type constant.
+        /// </summary>
+        public IType Type { const get; private set; }
+
+        /// <summary>
+        /// Tries to simplify this analysis type.
+        /// </summary>
+        public abstract override IAnalysisType Simplify();
+
+        public override int GetHashCode()
+        {
+            return Type.GetHashCode();
+        }
+    }
+
+    /// <summary>
+    /// A data structure that tags values with a single, constant type,
+    /// without any subtyping hierarchy.
+    /// </summary>
+    public class ConstantAnalysisType : ConstantAnalysisTypeBase
+    {
+        /// <summary>
+        /// Creates a constant analysis type from the given type.
+        /// </summary>
+        public const this(IType Type) : base(Type);
+
+        /// <summary>
+        /// Tries to simplify this analysis type.
+        /// </summary>
+        public override IAnalysisType Simplify()
+        {
+            return this;
+        }
+
+        public override bool Equals(object Other)
+        {
+            if (Other is ConstantAnalysisType)
+            {
+                var ty = (ConstantAnalysisType)Other;
+                return Type.IsEquivalent(ty.Type);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override string ToString()
+        {
+            return "const(" + Type.ToString() + ")";
+        }
+    }
+
+    /// <summary>
+    /// A data structure that tags values with a single type,
+    /// or one of its descendants.
+    /// </summary>
+    public class ConeAnalysisType : ConstantAnalysisTypeBase
+    {
+        /// <summary>
+        /// Creates a cone analysis type from the given type.
+        /// </summary>
+        public const this(IType Type) : base(Type);
+
+        /// <summary>
+        /// Tries to simplify this analysis type.
+        /// </summary>
+        public override IAnalysisType Simplify()
+        {
+            if (!Type.IsVirtual && !Type.IsInterface)
+                return new ConstantAnalysisType(Type);
+            else
+                return this;
+        }
+
+        public override bool Equals(object Other)
+        {
+            if (Other is ConeAnalysisType)
+            {
+                var ty = (ConeAnalysisType)Other;
+                return Type.IsEquivalent(ty.Type);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override string ToString()
+        {
+            return "cone(" + Type.ToString() + ")";
+        }
+    }
+
+    /// <summary>
+    /// A data structure that tags values with two types, which the
+    /// value implements simultaneously.
+    /// </summary>
+    public class IntersectionAnalysisType : IAnalysisType
+    {
+        /// <summary>
+        /// Creates an intersection analysis type from the given types.
+        /// </summary>
+        public const this(set IAnalysisType Left, set IAnalysisType Right);
+
+        /// <summary>
+        /// Gets the left-hand side of the intersection.
+        /// </summary>
+        public IAnalysisType Left { const get; private set; }
+
+        /// <summary>
+        /// Gets the right-hand side of the intersection.
+        /// </summary>
+        public IAnalysisType Right { const get; private set; }
+
+        /// <summary>
+        /// Tries to simplify this analysis type.
+        /// </summary>
+        public IAnalysisType Simplify()
+        {
+            var lTy = Left.Simplify();
+            var rTy = Right.Simplify();
+
+            if (lTy is ConstantAnalysisType)
+                return lTy;
+            else if (rTy is ConstantAnalysisType)
+                return rTy;
+            else if (lTy.Equals(rTy))
+                return lTy;
+            else if (lTy is ConeAnalysisType && rTy is ConeAnalysisType)
+            {
+                var leftCone = (ConeAnalysisType)lTy;
+                var rightCone = (ConeAnalysisType)rTy;
+                if (leftCone.Type.Is(rightCone.Type))
+                    // C = A & B, A :> B => C = A
+                    return leftCone;
+                else if (rightCone.Type.Is(leftCone.Type))
+                    // C = A & B, B :> A => C = B
+                    return rightCone;
+                else
+                    return new IntersectionAnalysisType(lTy, rTy);
+            }
+            else
+                return new IntersectionAnalysisType(lTy, rTy);
+        }
+
+        public override int GetHashCode()
+        {
+            return Left.GetHashCode() ^ Right.GetHashCode();
+        }
+
+        public override bool Equals(object Other)
+        {
+            if (Other is IntersectionAnalysisType)
+            {
+                var ty = (IntersectionAnalysisType)Other;
+                return (Left.Equals(ty.Left) && Right.Equals(ty.Right))
+                    || (Left.Equals(ty.Right) && Right.Equals(ty.Left));
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override string ToString()
+        {
+            return "intersect(" + Left.ToString() + ", " + Right.ToString() + ")";
+        }
+    }
+
+    /// <summary>
+    /// A data structure that tags values with two types, of which one must
+    /// be implemented.
+    /// </summary>
+    public class UnionAnalysisType : IAnalysisType
+    {
+        /// <summary>
+        /// Creates a union analysis type from the given types.
+        /// </summary>
+        public const this(set IAnalysisType Left, set IAnalysisType Right);
+
+        /// <summary>
+        /// Gets the left-hand side of the union.
+        /// </summary>
+        public IAnalysisType Left { const get; private set; }
+
+        /// <summary>
+        /// Gets the right-hand side of the union.
+        /// </summary>
+        public IAnalysisType Right { const get; private set; }
+
+        /// <summary>
+        /// Tries to simplify this analysis type.
+        /// </summary>
+        public IAnalysisType Simplify()
+        {
+            var lTy = Left.Simplify();
+            var rTy = Right.Simplify();
+
+            if (lTy.Equals(rTy))
+                return lTy;
+            else if (lTy is ConstantAnalysisTypeBase &&
+                     rTy is ConstantAnalysisTypeBase)
+            {
+                var leftCone = (ConstantAnalysisTypeBase)lTy;
+                var rightCone = (ConstantAnalysisTypeBase)rTy;
+                if (leftCone.Type.Is(rightCone.Type))
+                    // C = A | B, A :> B => C = B
+                    return rightCone;
+                else if (rightCone.Type.Is(leftCone.Type))
+                    // C = A | B, B :> A => C = A
+                    return leftCone;
+                else
+                    return new UnionAnalysisType(lTy, rTy);
+            }
+            else
+                return new UnionAnalysisType(lTy, rTy);
+        }
+
+        public override int GetHashCode()
+        {
+            return Left.GetHashCode() ^ Right.GetHashCode();
+        }
+
+        public override bool Equals(object Other)
+        {
+            if (Other is UnionAnalysisType)
+            {
+                var ty = (UnionAnalysisType)Other;
+                return (Left.Equals(ty.Left) && Right.Equals(ty.Right))
+                    || (Left.Equals(ty.Right) && Right.Equals(ty.Left));
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override string ToString()
+        {
+            return "union(" + Left.ToString() + ", " + Right.ToString() + ")";
+        }
+    }
+
+    /// <summary>
+    /// A node visitor that finds SSA variable definitions for a
+    /// given flow graph. Definitions for locally defined variables and
+    /// parameter variables are represented uniformly as a sequence
+    /// of expressions.
+    /// </summary>
+    public class SSAVariablePhiDefFinder : FlowGraphVisitorBase, IBasicBlockVisitor
+    {
+        public const this()
+        {
+            this.Graph = null;
+            this.defs = new Dictionary<SSAVariable, [IExpression]>();
+        }
+        public const this(set FlowGraph Graph)
+        {
+            this.defs = new Dictionary<SSAVariable, [IExpression]>();
+        }
+
+        private Dictionary<SSAVariable, [IExpression]> defs;
+
+        /// <summary>
+        /// Gets the control-flow graph this phi definition finder uses.
+        /// </summary>
+        public FlowGraph Graph { const get; private set; }
+
+        /// <summary>
+        /// Gets a mapping of variables to definitions, procured by this node
+        /// visitor.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, [IExpression]> Definitions { const get { return defs; } }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return false;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is SSADefineStatement;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            return Expression;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            assert(Statement is SSADefineStatement);
+            var defStatement = (SSADefineStatement)Statement;
+
+            // SSA means static single assignment. Make sure we don't
+            // define the same value more than once.
+            assert(!defs.ContainsKey(defStatement.Variable));
+            defs[defStatement.Variable] = new IExpression[] { Visit(defStatement.Value) };
+            return defStatement;
+        }
+
+        protected override FlowGraph Visit(FlowGraph OtherGraph)
+        {
+            var oldGraph = this.Graph;
+            this.Graph = OtherGraph;
+            OtherGraph.Accept(this);
+            this.Graph = oldGraph;
+            return OtherGraph;
+        }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            return Variable;
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public BlockBranch Visit(BlockBranch Branch)
+        {
+            assert(Graph != null);
+
+            if (Branch.Arguments.Count == 0)
+                return Branch;
+
+            foreach (var arg in Branch.Arguments,
+                     var parameter in Graph.GetBlock(Branch.TargetTag).Parameters)
+            {
+                [IExpression] paramDefs;
+                if (!defs.TryGetValue(parameter, &paramDefs))
+                {
+                    paramDefs = new List<IExpression>();
+                    defs[parameter] = paramDefs;
+                }
+                assert(paramDefs is List<IExpression>);
+                ((List<IExpression>)paramDefs).Add(arg.CreateGetExpression());
+            }
+            return Branch;
+        }
+    }
+
+    /// <summary>
+    /// An analysis pass that analyzes SSA variable type information.
+    /// </summary>
+    public static class TypeAnalysisPass : IPass<IStatement, IReadOnlyDictionary<SSAVariable, IAnalysisType>>
+    {
+        /// <summary>
+        /// Tries to refine our hypothesis about a type.
+        /// </summary>
+        private IAnalysisType RefineType(
+            SSAVariable Variable,
+            IExpression Value,
+            IAnalysisType Hypothesis,
+            IReadOnlyDictionary<SSAVariable, [IExpression]> Definitions,
+            Dictionary<SSAVariable, IAnalysisType> AnalysisResults)
+        {
+            if (Value is ReinterpretCastExpression)
+            {
+                var castExpr = (ReinterpretCastExpression)Value;
+                var newTy = new ConeAnalysisType(castExpr.Type);
+                return RefineType(
+                    Variable, castExpr.Value,
+                    new IntersectionAnalysisType(Hypothesis, newTy),
+                    Definitions, AnalysisResults);
+            }
+            else if (Value is IMetadataNode<IExpression>)
+            {
+                var innerExpr = ((IMetadataNode<IExpression>)Value).Value;
+                return RefineType(
+                    Variable, innerExpr, Hypothesis,
+                    Definitions, AnalysisResults);
+            }
+            else if (Value is SSAGetExpression)
+            {
+                var rVar = ((SSAGetExpression)Value).Variable;
+                ExamineVariable(rVar, Definitions, AnalysisResults);
+                var newTy = AnalysisResults[rVar];
+                return new IntersectionAnalysisType(Hypothesis, newTy);
+            }
+            else if (Value is InvocationExpression)
+            {
+                var invExpr = (InvocationExpression)Value;
+                if (invExpr.Target is GetMethodExpression)
+                {
+                    var getMethodExpr = (GetMethodExpression)invExpr.Target;
+                    var method = getMethodExpr.Target;
+                    if (getMethodExpr.Caller == null &&
+                        method.IsConstructor && !method.IsStatic)
+                    {
+                        // new-expressions imply constant types.
+                        return new ConstantAnalysisType(method.DeclaringType);
+                    }
+                }
+            }
+            var newTy = new ConeAnalysisType(Value.Type);
+            return new IntersectionAnalysisType(Hypothesis, newTy);
+        }
+
+        /// <summary>
+        /// Examines the given variable's type.
+        /// </summary>
+        private void ExamineVariable(
+            SSAVariable Variable,
+            IReadOnlyDictionary<SSAVariable, [IExpression]> Definitions,
+            Dictionary<SSAVariable, IAnalysisType> AnalysisResults)
+        {
+            if (AnalysisResults.ContainsKey(Variable))
+                return;
+
+            // Set the variable's type here to break potential cycles.
+            var hypothesis = new ConeAnalysisType(Variable.Type);
+            AnalysisResults[Variable] = hypothesis;
+
+            var unionElements = new List<IAnalysisType>();
+            foreach (var defExpr in Definitions[Variable])
+            {
+                // Refine the variable's type as much as possible
+                unionElements.Add(RefineType(
+                    Variable, defExpr, hypothesis,
+                    Definitions, AnalysisResults));
+            }
+
+            // Early-out if we discover a parameter variable with no arguments.
+            if (unionElements.Count == 0)
+                return;
+
+            // Take the union of all definitions for this variable.
+            var result = unionElements[0];
+            for (int i = 1; i < unionElements.Count; i++)
+            {
+                result = new UnionAnalysisType(result, unionElements[i]);
+            }
+
+            // Simplify the result, and store that as our final answer.
+            AnalysisResults[Variable] = result.Simplify();
+        }
+
+        /// <summary>
+        /// Analyzes the types of the variables in the given variable-definition list
+        /// dictionary.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, IAnalysisType> AnalyzeTypes(
+            IReadOnlyDictionary<SSAVariable, [IExpression]> Definitions)
+        {
+            var results = new Dictionary<SSAVariable, IAnalysisType>();
+            foreach (var local in Definitions.Keys)
+            {
+                ExamineVariable(local, Definitions, results);
+            }
+            return results;
+        }
+
+        public IReadOnlyDictionary<SSAVariable, IAnalysisType> Apply(IStatement Value)
+        {
+            var defFinder = new SSAVariablePhiDefFinder();
+            defFinder.Visit(Value);
+            return AnalyzeTypes(defFinder.Definitions);
+        }
+    }
+}
