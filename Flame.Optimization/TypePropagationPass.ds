@@ -53,7 +53,7 @@ namespace Flame.Optimization
                 // replace `x` by `reinterpret_cast(y, typeof(x))`
 
                 return new ReinterpretCastExpression(
-                    result.CreateGetExpression(), ssaVar.Type);
+                    result.CreateGetExpression(), ssaVar.Type).Simplify();
             }
             else
             {
@@ -73,7 +73,7 @@ namespace Flame.Optimization
                 // replace `x = a` by `y = reinterpret_cast(a, typeof(y))`
 
                 return result.CreateSetStatement(
-                    new ReinterpretCastExpression(val, result.Type));
+                    new ReinterpretCastExpression(val, result.Type).Simplify());
             }
             else
             {

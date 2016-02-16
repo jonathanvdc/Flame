@@ -38,13 +38,49 @@ namespace Flame.Compiler.Expressions
             return Value.Evaluate();
         }
 
+        /// <summary>
+        /// Optimizes this conversion expression.
+        /// </summary>
+        public override IExpression Optimize()
+        {
+            var optVal = Value.Optimize();
+            if (optVal.Type.IsEquivalent(TargetType))
+                return optVal;
+
+            var optExpr = new ReinterpretCastExpression(optVal, Type);
+            if (optExpr.IsConstant)
+            {
+                var evalExpr = optExpr.Evaluate();
+                if (evalExpr != null)
+                    return evalExpr.ToExpression();
+            }
+
+            return optExpr.Simplify();
+        }
+
+        /// <summary>
+        /// Tries to "simplify" this expression by replacing nested
+        /// reinterpret_casts by a single reinterpret_casts.
+        /// </summary>
+        public IExpression Simplify()
+        {
+            var innerVal = Value.GetEssentialExpression();
+            if (innerVal is ReinterpretCastExpression)
+            {
+                return new ReinterpretCastExpression(((ReinterpretCastExpression)innerVal).Value, Type).Simplify();
+            }
+            else
+            {
+                return this;
+            }
+        }
+
         public override ICodeBlock Emit(ICodeGenerator Generator)
         {
             var valueBlock = Value.Emit(Generator);
             var resultBlock = Generator.EmitTypeBinary(valueBlock, TargetType, Operator.ReinterpretCast);
             // If the code generator refuses to create a reinterpret_cast block,
-            // then just return the given value. This is exactly what machine code
-            // and bytecode generator want us to do.
+            // then just return the given value.
             if (resultBlock != null)
             {
                 return resultBlock;
