@@ -282,7 +282,7 @@ namespace Flame.Optimization
     /// parameter variables are represented uniformly as a sequence
     /// of expressions.
     /// </summary>
-    public class SSAVariablePhiDefFinder : FlowGraphVisitorBase, IBasicBlockVisitor
+    public class SSAVariablePhiDefFinder : NodeVisitorBase, IBasicBlockVisitor
     {
         public const this()
         {
@@ -313,7 +313,7 @@ namespace Flame.Optimization
         }
         public override const bool Matches(IStatement Value)
         {
-            return Value is SSADefineStatement;
+            return Value is SSADefineStatement || Value is FlowGraphStatement;
         }
 
         protected override IExpression Transform(IExpression Expression)
@@ -323,6 +323,12 @@ namespace Flame.Optimization
 
         protected override IStatement Transform(IStatement Statement)
         {
+            if (Statement is FlowGraphStatement)
+            {
+                var stmt = (FlowGraphStatement)Statement;
+                return new FlowGraphStatement(Visit(stmt.Graph));
+            }
+
             assert(Statement is SSADefineStatement);
             var defStatement = (SSADefineStatement)Statement;
 
@@ -333,7 +339,7 @@ namespace Flame.Optimization
             return defStatement;
         }
 
-        protected override FlowGraph Visit(FlowGraph OtherGraph)
+        private FlowGraph Visit(FlowGraph OtherGraph)
         {
             var oldGraph = this.Graph;
             this.Graph = OtherGraph;

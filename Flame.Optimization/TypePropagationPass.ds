@@ -1,0 +1,176 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using Pixie;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A node visitor that propagates SSA variable types.
+    /// </summary>
+    public class TypePropagationVisitor : NodeVisitorBase, IBasicBlockVisitor
+    {
+        public const this(set IReadOnlyDictionary<SSAVariable, SSAVariable> Mapping);
+
+        /// <summary>
+        /// A dictionary that maps SSA variables to SSA the variables that they
+        /// should be substituted by.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, SSAVariable> Mapping { get; private set; }
+
+        private SSAVariable TrySubstituteVariable(SSAVariable Variable)
+        {
+            if (Mapping.TryGetValue(Variable, &SSAVariable result))
+                return result;
+            else
+                return Variable;
+        }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is SSAGetExpression;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is SSADefineStatement;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            assert(Expression is SSAGetExpression);
+            var getExpr = (SSAGetExpression)Expression;
+            var ssaVar = getExpr.Variable;
+
+            if (Mapping.TryGetValue(ssaVar, &SSAVariable result))
+            {
+                // replace `x` by `reinterpret_cast(y, typeof(x))`
+
+                return new ReinterpretCastExpression(
+                    result.CreateGetExpression(), ssaVar.Type);
+            }
+            else
+            {
+                return ssaVar.CreateGetExpression();
+            }
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            assert(Statement is SSADefineStatement);
+            var defStatement = (SSADefineStatement)Statement;
+            var val = Visit(defStatement.Value);
+            var ssaVar = defStatement.Variable;
+
+            if (Mapping.TryGetValue(ssaVar, &SSAVariable result))
+            {
+                // replace `x = a` by `y = reinterpret_cast(a, typeof(y))`
+
+                return result.CreateSetStatement(
+                    new ReinterpretCastExpression(val, result.Type));
+            }
+            else
+            {
+                return ssaVar.CreateSetStatement(val);
+            }
+        }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            return TrySubstituteVariable(Variable);
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public BlockBranch Visit(BlockBranch Branch)
+        {
+            var newArgs = new List<SSAVariable>();
+            foreach (var arg in Branch.Arguments)
+            {
+                newArgs.Add(TrySubstituteVariable(arg));
+            }
+            return new BlockBranch(Branch.TargetTag, newArgs);
+        }
+    }
+
+    /// <summary>
+    /// A pass that propagates SSA variable type information: variables types
+    /// are modified to match their underlying type.
+    /// </summary>
+    public static class TypePropagationPass : IPass<IStatement, IStatement>, IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// This pass' name.
+        /// </summary>
+        public const string TypePropagationPassName = "typeprop";
+
+        private IType TryEvaluateAnalyzedType(IAnalysisType Type)
+        {
+            if (Type is ConstantAnalysisTypeBase)
+                return ((ConstantAnalysisTypeBase)Type).Type;
+            else
+                return null;
+        }
+
+        private IStatement ApplyImpl(IStatement Value)
+        {
+            var defFinder = new SSAVariablePhiDefFinder();
+            defFinder.Visit(Value);
+            var typeInfo = TypeAnalysisPass.AnalyzeTypes(defFinder.Definitions);
+            var mapping = new Dictionary<SSAVariable, SSAVariable>();
+
+            foreach (var pair in typeInfo)
+            {
+                var evalTy = TryEvaluateAnalyzedType(pair.Value);
+                if (evalTy != null && !evalTy.Equals(pair.Key.Type))
+                {
+                    mapping[pair.Key] = new SSAVariable(
+                        new RetypedVariableMember(pair.Key.Member, evalTy),
+                        pair.Key.Tag);
+                }
+            }
+
+            var substVisitor = new TypePropagationVisitor(mapping);
+            return substVisitor.Visit(Value);
+        }
+
+        public IStatement Apply(IStatement Value)
+            in { VerifyCFGPass.Apply(Value) }
+            in { VerifySSAPass.Apply(Value) }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result) { VerifySSAPass.Apply(result) }
+        {
+            return ApplyImpl(Value);
+        }
+
+        public IStatement Apply(BodyPassArgument Arg)
+            in { VerifyCFGPass.Apply(Arg.Body) }
+            in
+            {
+                VerifySSAPass.Apply(
+                    Arg.Body, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
+                    TypePropagationPassName + " (input)")
+            }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result)
+            {
+                VerifySSAPass.Apply(
+                    result, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
+                    TypePropagationPassName + " (output)")
+            }
+        {
+            return ApplyImpl(Arg.Body);
+        }
+    }
+}
