@@ -109,14 +109,14 @@ namespace Flame.Optimization
             {
                 // Add a description
                 nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
-                    "Inlined direct call to " + NameMethod(InlinedCall.Method) + ". "));
+                    "inlined direct call to " + NameMethod(InlinedCall.Method) + ". "));
             }
             else
             {
                 // Add a description
                 nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
-                    "Recursively inlined direct call to " +
-                    NameMethod(InlinedCall.Method) + ". (Recursion depth: " +
+                    "recursively inlined direct call to " +
+                    NameMethod(InlinedCall.Method) + ". (recursion depth: " +
                     RecursionDepth + ") "));
             }
             // Add a cause node ('[-Rinline]')

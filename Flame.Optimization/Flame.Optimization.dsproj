@@ -26,6 +26,7 @@
     <Compile Include="DeadStoreEliminationPass.ds" />
     <Compile Include="DeconstructFlowGraphPass.ds" />
     <Compile Include="DeconstructSSAPass.ds" />
+    <Compile Include="DevirtualizationPass.ds" />
     <Compile Include="FinalFlowRemover.ds" />
     <Compile Include="FlattenInitializationPass.ds" />
     <Compile Include="GlobalValuePropagationPass.ds" />
