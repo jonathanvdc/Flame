@@ -75,6 +75,8 @@ namespace Flame.Front.Target
             SSAPassManager.RegisterPassCondition(ValuePropagationPass.ValuePropagationPassName, optInfo => optInfo.OptimizeAggressive);
             SSAPassManager.RegisterMethodPass(new MethodPassInfo(TypePropagationPass.Instance, TypePropagationPass.TypePropagationPassName));
             SSAPassManager.RegisterPassCondition(TypePropagationPass.TypePropagationPassName, optInfo => optInfo.OptimizeAggressive);
+            SSAPassManager.RegisterMethodPass(new MethodPassInfo(DevirtualizationPass.Instance, DevirtualizationPass.DevirtualizationPassName));
+            SSAPassManager.RegisterPassCondition(DevirtualizationPass.DevirtualizationPassName, optInfo => optInfo.OptimizeAggressive);
 			SSAPassManager.RegisterMethodPass(new StatementPassInfo(DeadStoreEliminationPass.Instance, DeadStoreEliminationPass.DeadStoreEliminationPassName));
 			SSAPassManager.RegisterPassCondition(DeadStoreEliminationPass.DeadStoreEliminationPassName, optInfo => optInfo.OptimizeAggressive);
 
