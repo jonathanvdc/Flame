@@ -39,9 +39,16 @@ namespace Flame.DSharp.Build
 			const get { return new IMethod[0]; }
 		}
 
-		public const [IAttribute] Attributes
+		public [IAttribute] Attributes
 		{
-			const get { return new IAttribute[] { new AccessAttribute(AccessModifier.Public) }; }
+			const get
+			{
+				return new IAttribute[]
+				{
+					new AccessAttribute(AccessModifier.Public),
+					PrimitiveAttributes.ConstantAttribute
+				};
+			}
 		}
 
 		public [IGenericParameter] GenericParameters
