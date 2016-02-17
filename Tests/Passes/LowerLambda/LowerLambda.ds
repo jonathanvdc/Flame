@@ -70,7 +70,7 @@ public static class Program
             result.Append(' ');
             result.Append(item);
         }
-        result.Append('}');
+        result.Append(" }");
         return (string)result;
     }
 
