@@ -23,7 +23,7 @@ namespace Flame.DSProject
         public DSProjectSourceItem(string SourceIdentifier, string CurrentPath)
         {
             var localUri = new Uri(CurrentPath, UriKind.RelativeOrAbsolute);
-            var absUri = new Uri(SourceIdentifier, UriKind.RelativeOrAbsolute);
+			var absUri = new Uri(Path.GetFullPath(SourceIdentifier), UriKind.RelativeOrAbsolute);
 
             var relUri = localUri.MakeRelativeUri(absUri);
 
