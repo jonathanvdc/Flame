@@ -172,6 +172,17 @@ namespace Flame.Front.Options
             }
         }
 
+		private static string GetOutputFileName(IProject Project)
+		{
+			string asmName = Project.AssemblyName;
+			if (!string.IsNullOrWhiteSpace(asmName))
+				return asmName;
+			else if (!string.IsNullOrWhiteSpace(Project.Name))
+				return Project.Name;
+			else
+				return "out";
+		}
+
         public PathIdentifier GetTargetPathWithoutExtension(PathIdentifier CurrentPath, IProject Project)
         {
             if (!TargetPath.IsEmpty)
@@ -180,7 +191,7 @@ namespace Flame.Front.Options
             }
             else
             {
-                return CurrentPath.GetAbsolutePath(new PathIdentifier("bin", Project.Name));
+				return CurrentPath.GetAbsolutePath(new PathIdentifier("bin", GetOutputFileName(Project)));
             }
         }
 
@@ -192,7 +203,7 @@ namespace Flame.Front.Options
             }
             else
             {
-                return CurrentPath.GetAbsolutePath(new PathIdentifier("bin", Project.Name).AppendExtension(Target.Extension));
+				return CurrentPath.GetAbsolutePath(new PathIdentifier("bin", GetOutputFileName(Project)).AppendExtension(Target.Extension));
             }
         }
 

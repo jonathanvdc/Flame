@@ -126,6 +126,7 @@ namespace Flame.DSProject
         public static DSProject FromProject(IProject Project, string CurrentPath)
         {
             var dsProj = new DSProject();
+			dsProj.Name = Project.Name;
             Project.CopyTo(dsProj, CurrentPath);
             return dsProj;
         }
