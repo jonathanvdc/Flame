@@ -1,5 +1,6 @@
+using System;
 
-public class TestClass
+public static class TestClass
 {
     public int NoCoalescing(int x, int y)
     {
@@ -76,5 +77,17 @@ public class TestClass
             }
             d = 2;
         }
+    }
+
+    public void Main(string[] Args)
+    {
+        Console.WriteLine(NoCoalescing(4, 5));
+        Console.WriteLine(NoCoalescing(9, 11));
+        Console.WriteLine(Select(true, 1, 4));
+        Console.WriteLine(Select(false, 2, 5));
+        Console.WriteLine(Loop(20));
+        Console.WriteLine(ConstantPropagation());
+        Console.WriteLine(CopyPropagation(12));
+        Console.WriteLine(NoStackIntrinsics(28));
     }
 }
