@@ -1,0 +1,11 @@
+
+tests
+{
+    CFGConstruction/CFGConstruction.test;
+    Devirtualization/Devirtualization.test;
+    Inlining/Inlining.test;
+    Linking/Linking.test;
+    LowerLambda/LowerLambda.test;
+    SSAConstruction/SSAConstruction.test;
+    WholeProgram/WholeProgram.test;
+}
