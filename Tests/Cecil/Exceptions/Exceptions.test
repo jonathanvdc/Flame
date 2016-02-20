@@ -22,4 +22,7 @@ init
     dsc = dsc;
     Filename = Exceptions;
     Args = 42;
+
+    // Make sure that the output is "Oops?\nFinally!"
+    return = @(echo "Oops?")@(echo "Finally!");
 }
