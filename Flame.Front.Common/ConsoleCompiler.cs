@@ -39,11 +39,11 @@ namespace Flame.Front.Cli
 
 		public override void Fail(string message, string detailMessage)
 		{
-			var node = new MarkupNode("entry", new MarkupNode[] 
+			var node = new MarkupNode("entry", new MarkupNode[]
 			{
 				new MarkupNode(NodeConstants.TextNodeType, message),
-				string.IsNullOrWhiteSpace(detailMessage) 
-					? new MarkupNode(NodeConstants.TextNodeType, "") 
+				string.IsNullOrWhiteSpace(detailMessage)
+					? new MarkupNode(NodeConstants.TextNodeType, "")
 					: new MarkupNode(NodeConstants.ParagraphNodeType, detailMessage),
 				new MarkupNode(NodeConstants.BrightNodeType, "stack trace: "),
 				new MarkupNode(NodeConstants.ParagraphNodeType, Environment.StackTrace),
@@ -96,7 +96,11 @@ namespace Flame.Front.Cli
             return new StringCompilerOptions(dict, OptionParser);
         }
 
-        public void Compile(string[] args)
+		/// <summary>
+		/// Runs the compilation process, based on the given command-line
+		/// arguments. An exit code is returned.
+		/// </summary>
+        public int Compile(string[] args)
         {
 			var recLog = new SilentLog(DefaultOptions);
 
@@ -126,12 +130,12 @@ namespace Flame.Front.Cli
                 CompilerVersion.PrintVersion(Name, FullName, ReleasesSite, log);
             }
 
-            var tempLog = new FilteredLog(mergedArgs.GetLogFilter(), log);
+            var filteredLog = new FilteredLog(mergedArgs.GetLogFilter(), log);
 
 			LogTraceListener traceListener = null;
-			if (log.Options.GetOption<bool>("debug", false))
+			if (filteredLog.Options.GetOption<bool>("debug", false))
 			{
-				traceListener = new LogTraceListener(tempLog);
+				traceListener = new LogTraceListener(filteredLog);
 				System.Diagnostics.Debug.Listeners.Add(traceListener);
 			}
 
@@ -144,29 +148,29 @@ namespace Flame.Front.Cli
                     var allTasks = new List<Task>();
                     foreach (var item in FlameAssemblies.FlameAssemblyPaths)
                     {
-                        allTasks.Add(ReferenceResolvers.ReferenceResolver.CopyAsync(item, targetPath.Combine(item.Name), tempLog));
+                        allTasks.Add(ReferenceResolvers.ReferenceResolver.CopyAsync(item, targetPath.Combine(item.Name), filteredLog));
                     }
                     Task.WhenAll(allTasks).Wait();
-                    tempLog.LogMessage(new LogEntry("Flame libraries copied", "all Flame libraries included with " + Name + " have been copied to '" + targetPath.ToString() + "'."));
+                    filteredLog.LogMessage(new LogEntry("Flame libraries copied", "all Flame libraries included with " + Name + " have been copied to '" + targetPath.ToString() + "'."));
                 }
 
-                ReportUnusedOptions(buildArgs, tempLog, "option not relevant");
+                ReportUnusedOptions(buildArgs, filteredLog, "option not relevant");
 
 				log.Console.Write(Name + ": ", log.ContrastForegroundColor);
                 log.WriteEntry("nothing to compile", log.WarningStyle, "no input files");
                 log.Dispose();
-                return;
+                return 0;
             }
 
             try
             {
-                var allProjs = LoadProjects(buildArgs, tempLog);
+                var allProjs = LoadProjects(buildArgs, filteredLog);
                 var projOrder = GetCompilationOrder(allProjs);
                 var fixedProjs = projOrder.Select(proj =>
                 {
                     if (buildArgs.MakeProject)
                     {
-                        var innerProj = proj.Handler.MakeProject(proj.Project.Project, new ProjectPath(proj.Project.CurrentPath, buildArgs), tempLog);
+                        var innerProj = proj.Handler.MakeProject(proj.Project.Project, new ProjectPath(proj.Project.CurrentPath, buildArgs), filteredLog);
                         return new ProjectDependency(new ParsedProject(proj.Project.CurrentPath, innerProj), proj.Handler);
                     }
                     else
@@ -176,11 +180,11 @@ namespace Flame.Front.Cli
                 }).ToArray();
 
                 var mainProj = fixedProjs.Last();
-                var mainState = new CompilerEnvironment(mainProj.Project.CurrentPath, buildArgs, mainProj.Handler, mainProj.Project.Project, log);
+				var mainState = new CompilerEnvironment(mainProj.Project.CurrentPath, buildArgs, mainProj.Handler, mainProj.Project.Project, filteredLog);
 
                 var resolvedDependencies = ResolveDependencies(fixedProjs.Select(item => item.Project), mainState);
 
-                var allStates = fixedProjs.Select(proj => new CompilerEnvironment(proj.Project.CurrentPath, buildArgs, proj.Handler, proj.Project.Project, log));
+				var allStates = fixedProjs.Select(proj => new CompilerEnvironment(proj.Project.CurrentPath, buildArgs, proj.Handler, proj.Project.Project, filteredLog));
 
                 var allAsms = CompileAsync(allStates, resolvedDependencies.Item1).Result;
 
@@ -198,11 +202,17 @@ namespace Flame.Front.Cli
                     Save(mainState, buildTarget, docs);
                 }
 
-                ReportUnusedOptions(buildArgs, mainState.FilteredLog);
+				ReportUnusedOptions(buildArgs, mainState.Log);
+
+				// Looks like everything went according to plan. Be sure to
+				// check for errors first, though.
+				return filteredLog.ErrorCount == 0 ? 0 : 1;
             }
             catch (Exception ex)
             {
-                LogUnhandledException(ex, log, mergedArgs);
+				LogUnhandledException(ex, filteredLog, mergedArgs);
+				// Dreaded unhandled exception.
+				return 2;
             }
             finally
             {
@@ -361,12 +371,12 @@ namespace Flame.Front.Cli
 
             string targetIdent = State.Project.GetTargetPlatform(State.Options);
 
-            var targetParser = BuildTargetParsers.GetParserOrThrow(State.FilteredLog, targetIdent, State.CurrentPath);
-            string rtIdent = State.Options.GetRuntimeIdentifier(() => targetParser.GetRuntimeIdentifier(targetIdent, State.FilteredLog));
+            var targetParser = BuildTargetParsers.GetParserOrThrow(State.Log, targetIdent, State.CurrentPath);
+            string rtIdent = State.Options.GetRuntimeIdentifier(() => targetParser.GetRuntimeIdentifier(targetIdent, State.Log));
             string envIdent = State.Options.GetEnvironmentIdentifier(rtIdent);
 
             var dependencyBuilder = BuildTargetParsers.CreateDependencyBuilder(
-                rtIdent, envIdent, State.FilteredLog, State.CurrentPath, dirName);
+                rtIdent, envIdent, State.Log, State.CurrentPath, dirName);
 
             var binderResolver = BinderResolver.Create(Projects);
             foreach (var item in State.Options.GetOption<string[]>(AdditionalLibrariesOption, new string[0]))
@@ -400,9 +410,9 @@ namespace Flame.Front.Cli
 
             if (State.Options.MustVerifyAssembly())
             {
-                State.FilteredLog.LogEvent(new LogEntry("Status", "verifying '" + State.Project.Name + "'..."));
-                VerificationExtensions.VerifyAssembly(projAsm, State.FilteredLog);
-                State.FilteredLog.LogEvent(new LogEntry("Status", "verified '" + State.Project.Name + "'..."));
+				State.Log.LogEvent(new LogEntry("Status", "verifying '" + State.Project.Name + "'..."));
+                VerificationExtensions.VerifyAssembly(projAsm, State.Log);
+				State.Log.LogEvent(new LogEntry("Status", "verified '" + State.Project.Name + "'..."));
             }
 
             return projAsm;
@@ -443,24 +453,24 @@ namespace Flame.Front.Cli
         {
             var target = CreateBuildTarget(MainAssembly);
 
-            State.FilteredLog.LogEvent(new LogEntry("Status", "recompiling..."));
+            State.Log.LogEvent(new LogEntry("Status", "recompiling..."));
 
             var recompSettings = new RecompilationSettings(
-                GetRecompilationPass(State.FilteredLog),
+                GetRecompilationPass(State.Log),
                 !(target.TargetAssembly is Flame.TextContract.ContractAssembly), true);
 
-            var passPrefs = State.Handler.GetPassPreferences(State.FilteredLog).Union(target.Passes);
+            var passPrefs = State.Handler.GetPassPreferences(State.Log).Union(target.Passes);
 
-            if (State.FilteredLog.Options.GetOption("print-passes", false))
+            if (State.Log.Options.GetOption("print-passes", false))
             {
-                PrintPasses(State.FilteredLog, passPrefs);
+                PrintPasses(State.Log, passPrefs);
             }
 
-            var passSuite = PassExtensions.CreateSuite(State.FilteredLog, passPrefs);
+            var passSuite = PassExtensions.CreateSuite(State.Log, passPrefs);
             var recompStrategy = State.Options.GetRecompilationStrategy(IsWholeProgram(State.Options, MainAssembly));
 
             var asmRecompiler = new AssemblyRecompiler(
-                target.TargetAssembly, State.FilteredLog,
+                target.TargetAssembly, State.Log,
                 new SingleThreadedTaskManager(), passSuite, recompSettings);
             asmRecompiler.AddAssembly(MainAssembly, new RecompilationOptions(recompStrategy, true));
             foreach (var item in AuxiliaryAssemblies)
@@ -469,7 +479,7 @@ namespace Flame.Front.Cli
             }
             await asmRecompiler.RecompileAsync();
 
-            State.FilteredLog.LogEvent(new LogEntry("Status", "done recompiling"));
+            State.Log.LogEvent(new LogEntry("Status", "done recompiling"));
 
             target.TargetAssembly.Build();
 
@@ -493,9 +503,9 @@ namespace Flame.Front.Cli
         public static IDocumentationBuilder Document(CompilerEnvironment State,
             IAssembly MainAssembly, IEnumerable<IAssembly> AuxiliaryAssemblies)
         {
-            State.FilteredLog.LogEvent(new LogEntry("Status", "generating docs..."));
+            State.Log.LogEvent(new LogEntry("Status", "generating docs..."));
             var result = State.Options.CreateDocumentationBuilder(MainAssembly, AuxiliaryAssemblies);
-            State.FilteredLog.LogEvent(new LogEntry("Status", "done generating docs"));
+            State.Log.LogEvent(new LogEntry("Status", "done generating docs"));
             return result;
         }
 
@@ -521,7 +531,7 @@ namespace Flame.Front.Cli
                 dirName = dirName.Combine(targetPath.NameWithoutExtension);
             }
 
-            bool forceWrite = State.FilteredLog.Options.GetOption<bool>("force-write", !Target.PreferPreserve);
+            bool forceWrite = State.Log.Options.GetOption<bool>("force-write", !Target.PreferPreserve);
             bool anyChanges = false;
 
             var outputProvider = new FileOutputProvider(dirName, targetPath, forceWrite);
@@ -546,7 +556,7 @@ namespace Flame.Front.Cli
 
             if (!anyChanges)
             {
-                NotifyUpToDate(State.FilteredLog);
+                NotifyUpToDate(State.Log);
             }
         }
 
