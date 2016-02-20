@@ -21,7 +21,6 @@ namespace Flame.Front.State
             this.Handler = Handler;
             this.Project = Project;
             this.log = new Lazy<ICompilerLog>(() => Log.WithOptions(Options));
-            this.filteredLog = new Lazy<ICompilerLog>(() => new FilteredLog(Options.GetLogFilter(), this.Log));
             this.options = new Lazy<ICompilerOptions>(() =>
             {
                 var parser = new TransformingOptionParser<string, string[]>(Arguments.OptionParser, item => new string[] { item });
@@ -35,15 +34,6 @@ namespace Flame.Front.State
             get
             {
                 return log.Value;
-            }
-        }
-
-        private Lazy<ICompilerLog> filteredLog;
-        public ICompilerLog FilteredLog
-        {
-            get
-            {
-                return filteredLog.Value;
             }
         }
 
@@ -64,7 +54,7 @@ namespace Flame.Front.State
 
         public Task<IAssembly> CompileAsync(Task<IBinder> Binder)
         {
-            return Handler.CompileAsync(Project, new CompilationParameters(FilteredLog, Binder, CurrentPath));
+            return Handler.CompileAsync(Project, new CompilationParameters(Log, Binder, CurrentPath));
         }
     }
 }
