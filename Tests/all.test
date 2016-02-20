@@ -1,0 +1,6 @@
+
+tests
+{
+    Cecil/all.test;
+    Passes/all.test;
+}

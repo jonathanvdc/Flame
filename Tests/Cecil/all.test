@@ -1,0 +1,6 @@
+
+tests
+{
+    Constrained/Constrained.test;
+    Exceptions/Exceptions.test;
+}
