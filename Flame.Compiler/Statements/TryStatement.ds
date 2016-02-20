@@ -65,7 +65,7 @@ namespace Flame.Compiler.Statements
 			}
 			else
 			{
-				return new CatchClause(exVariable, EmptyStatement);
+				return new CatchClause(exVariable, visitedBody);
 			}
 		}
 
