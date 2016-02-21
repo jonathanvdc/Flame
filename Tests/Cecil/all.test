@@ -3,4 +3,5 @@ tests
 {
     Constrained/Constrained.test;
     Exceptions/Exceptions.test;
+    Foreach/Foreach.test;
 }
