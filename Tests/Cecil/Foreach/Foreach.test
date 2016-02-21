@@ -19,7 +19,6 @@ configs
 
 init
 {
-    dsc = dsc;
     Filename = Foreach;
     // Make sure that the output is "29"
     return = @(echo 29);

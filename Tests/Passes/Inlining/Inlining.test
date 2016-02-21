@@ -21,6 +21,5 @@ configs
 
 init
 {
-    dsc = dsc;
     Filename = Inlining;
 }

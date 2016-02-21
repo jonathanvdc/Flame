@@ -17,8 +17,3 @@ configs
     O2 { Flags = -O2 -Wno-build; }
     O3 { Flags = -O3 -Wno-build; }
 }
-
-init
-{
-    dsc = dsc;
-}

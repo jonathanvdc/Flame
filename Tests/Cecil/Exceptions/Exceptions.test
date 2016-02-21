@@ -19,7 +19,6 @@ configs
 
 init
 {
-    dsc = dsc;
     Filename = Exceptions;
     Args = 42;
 
