@@ -130,8 +130,13 @@ namespace Pixie
     {
         public void Main(string[] Args)
         {
+            string line;
+            if (Args.Length == 0)
+                line = Console.ReadLine();
+            else
+                line = Args[0];
             // Reads a line, parses it, and prints the result.
-            Console.WriteLine(Color.Parse(Console.ReadLine()).ToString());
+            Console.WriteLine(Color.Parse(line).ToString());
         }
     }
 }
