@@ -42,4 +42,22 @@ public static class ForeachTest
                 results.Add((int)item);
         return results;
     }
+
+    public void Main(string[] Args)
+    {
+        var listA = new List<object>();
+        var listB = new List<object>();
+        var listC = new List<object>();
+        listA.Add((int)6);
+        listA.Add((int)7);
+        listA.Add((int)8);
+        listB.Add((int)2);
+        listB.Add("hi");
+        listC.Add((int)3);
+        listC.Add((int)3);
+        listC.Add(42.0);
+        var filteredA = GetIntegers(listA);
+        var filteredBC = GetIntegers(listB, listC);
+        Console.WriteLine(Sum(filteredA, filteredBC));
+    }
 }
