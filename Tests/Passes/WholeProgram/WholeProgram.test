@@ -22,6 +22,5 @@ configs
 
 init
 {
-    dsc = dsc;
     Filename = WholeProgram;
 }

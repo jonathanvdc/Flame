@@ -1,0 +1,14 @@
+// A global test description that sets the 'dsc' variable, and then proceeds
+// to run all Flame tests.
+
+tests
+{
+    // Include all Flame tests.
+    Tests/all.test;
+}
+
+init
+{
+    // Specify what the '$dsc' command means.
+    dsc = $net-runtime $(working-directory)/dsc/bin/Release/dsc.exe;
+}

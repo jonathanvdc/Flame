@@ -19,6 +19,5 @@ configs
 
 init
 {
-    dsc = dsc;
     Filename = Constrained;
 }
