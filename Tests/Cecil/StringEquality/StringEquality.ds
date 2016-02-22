@@ -1,4 +1,6 @@
-public class StringEqualityTest
+using System;
+
+public static class StringEqualityTest
 {
     public const bool CheckEquality(string Left, string Right)
     {
@@ -8,5 +10,20 @@ public class StringEqualityTest
     public const bool CheckInequality(string Left, string Right)
     {
         return Left != Right;
+    }
+
+    public void Main(string[] Args)
+    {
+        Console.WriteLine(CheckEquality(null, null));
+        Console.WriteLine(CheckInequality(null, null));
+        Console.WriteLine(CheckEquality(null, ""));
+        Console.WriteLine(CheckInequality(null, ""));
+        Console.WriteLine(CheckEquality("", ""));
+        Console.WriteLine(CheckInequality("", ""));
+        if (Args.Length >= 2)
+        {
+            Console.WriteLine(CheckEquality(Args[0].Trim(null), Args[1].Trim(null)));
+            Console.WriteLine(CheckInequality(Args[0].Trim(null), Args[1].Trim(null)));
+        }
     }
 }

@@ -2,6 +2,10 @@
 tests
 {
     Constrained/Constrained.test;
+    Enumerables/Enumerables.test;
     Exceptions/Exceptions.test;
     Foreach/Foreach.test;
+    LogicalOps/LogicalOps.test;
+    StringEquality/StringEquality.test;
+    WhileNext/WhileNext.test;
 }

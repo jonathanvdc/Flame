@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public static class WhileNextTests
 {
-    public const int Sum(List<int> Values)
+    public int Sum(List<int> Values)
     {
         int result = 0;
         foreach (var item in Values) // This should be disassembled and then reviewed.
@@ -14,5 +14,24 @@ public static class WhileNextTests
             result += item;
         }
         return result;
+    }
+
+    public List<int> Range(int From, int To)
+    {
+        var results = new List<int>();
+        for (int i = From; i < To; i++)
+            results.Add(i);
+        return results;
+    }
+
+    public static void Main(string[] Args)
+    {
+        if (Args.Length < 2)
+        {
+            Console.WriteLine("usage: WhileNext from to");
+            return;
+        }
+
+        Console.WriteLine(Sum(Range(int.Parse(Args[0]), int.Parse(Args[1]))));
     }
 }
