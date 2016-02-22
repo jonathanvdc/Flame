@@ -1,4 +1,10 @@
-# Flame [![Build Status](https://travis-ci.org/jonathanvdc/Flame.svg?branch=master)](https://travis-ci.org/jonathanvdc/Flame)
+# Build Status
+
+Linux | Windows
+----- | -------
+[![Build Status](https://travis-ci.org/jonathanvdc/Flame.svg?branch=master)](https://travis-ci.org/jonathanvdc/Flame) | [![Build status](https://ci.appveyor.com/api/projects/status/yoe8u6g1p74570ir?svg=true)](https://ci.appveyor.com/project/jonathanvdc/flame)
+
+# Flame 
 Flame is a collection of projects that form a compiler framework for managed code.
 It also includes a compiler for the homegrown D# programming language.
 Flame's eventual goal is to provide a framework that can be used to compile code in a programming language to relatively efficient machine code or translate code to idiomatic code in another programming language.
