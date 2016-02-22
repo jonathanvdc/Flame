@@ -1,0 +1,30 @@
+using System;
+
+public interface ITest
+{
+    int Index { get; }
+    string Name { get; }
+}
+
+public static class TestImpl1 : ITest
+{
+    public int Index { get { return 1; } }
+    public string Name { get { return "Impl1"; } }
+}
+
+public static class TestImpl2 : ITest
+{
+    public int Index { get { return 2; } }
+    public string Name { get { return "Impl2"; } }
+}
+
+public static class Program
+{
+    public void Main(string[] Args)
+    {
+        var impl1 = TestImpl1;
+        var impl2 = TestImpl2;
+        Console.WriteLine(impl1.Index);
+        Console.WriteLine(impl2.Name);
+    }
+}
