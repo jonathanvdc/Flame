@@ -93,26 +93,34 @@ namespace Flame.Recompilation
         /// </summary>
         private Dictionary<IMethod, HashSet<IMethod>> implementations;
 
+		private HashSet<IMethod> ComputeImplementationsWorklist()
+		{
+			var worklist = new HashSet<IMethod>();
+			foreach (var pair in implementations)
+			{
+				if (MethodCache.ContainsKey(pair.Key))
+				{
+					worklist.UnionWith(pair.Value);
+				}
+			}
+			worklist.ExceptWith(MethodCache.Keys);
+			return worklist;
+		}
+
         /// <summary>
         /// Recompiles all implementations.
         /// </summary>
         private void RecompileImplementations()
         {
-            bool changed = true;
-            while (changed)
-            {
-                changed = false;
-                var all = implementations.ToArray();
-                foreach (var item in all.Where(pair => MethodCache.ContainsKey(pair.Key)))
-                {
-                    foreach (var impl in item.Value)
-                    {
-                        GetMethod(impl);
-                    }
-                    implementations.Remove(item.Key);
-                    changed = true;
-                }
-            }
+			var worklist = ComputeImplementationsWorklist();
+			while (worklist.Count > 0)
+			{
+				foreach (var impl in worklist)
+				{
+					GetMethod(impl);
+				}
+				worklist = ComputeImplementationsWorklist();
+			}
         }
 
         /// <summary>
@@ -158,7 +166,7 @@ namespace Flame.Recompilation
         /// <param name="Type"></param>
         private void RegisterImplementations(IType Type)
         {
-            foreach (var item in Type.Methods)
+			foreach (var item in Type.Methods.Concat(Type.Properties.SelectMany(item => item.Accessors)))
             {
                 RegisterImplementations(item);
             }

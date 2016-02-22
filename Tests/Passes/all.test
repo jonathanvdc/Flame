@@ -8,4 +8,5 @@ tests
     LowerLambda/LowerLambda.test;
     SSAConstruction/SSAConstruction.test;
     WholeProgram/WholeProgram.test;
+    WholeProgram/WholeProgram2.test;
 }
