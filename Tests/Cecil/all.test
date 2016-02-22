@@ -2,6 +2,7 @@
 tests
 {
     Constrained/Constrained.test;
+    Dictionaries/Dictionaries.test;
     Enumerables/Enumerables.test;
     Exceptions/Exceptions.test;
     Foreach/Foreach.test;

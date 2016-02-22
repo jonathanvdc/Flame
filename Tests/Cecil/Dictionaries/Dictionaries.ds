@@ -15,13 +15,38 @@ public class DictionariesTest
         set dict[Key] = value;
     }
 
+    public string this[int Key]
+    {
+        const get return otherDict[Key];
+        set otherDict[Key] = value;
+    }
+
     public [string] Values
     {
         const get
         {
             var vals = dict.Values;
             var otherVals = otherDict.Values;
-            return Enumerable.Concat<string>(vals, otherVals);
+            var result = new List<string>(Enumerable.Concat<string>(vals, otherVals));
+            result.Sort();
+            return result;
+        }
+    }
+}
+
+public static class Program
+{
+    public void Main(string[] Args)
+    {
+        var test = new DictionariesTest();
+        test[1] = "wow";
+        test[42] = "such";
+        test["x"] = "test";
+        test["y"] = "very";
+        test["z"] = "amaze";
+        foreach (var item in test.Values)
+        {
+            Console.WriteLine(item);
         }
     }
 }
