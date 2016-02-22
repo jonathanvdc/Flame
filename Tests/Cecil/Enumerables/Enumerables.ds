@@ -7,10 +7,18 @@ public interface IEnumerableTest
     int Process([int] Values);
 }
 
-public class EnumerableImpl : IEnumerableTest
+public static class EnumerableImpl : IEnumerableTest
 {
     public int Process(IEnumerable<int> Values) : IEnumerableTest.Process
     {
         return Enumerable.SingleOrDefault<int>(Values);
+    }
+}
+
+public static class Program
+{
+    public void Main(string[] Args)
+    {
+        Console.WriteLine(EnumerableImpl.Process(new int[] { 42 }));
     }
 }

@@ -14,4 +14,16 @@ public static class LogicalOpsTest
     {
         return First || Second;
     }
+
+    public static void Main(string[] Args)
+    {
+        Console.WriteLine(LogicalAnd(false, false));
+        Console.WriteLine(LogicalAnd(false, true));
+        Console.WriteLine(LogicalAnd(true, false));
+        Console.WriteLine(LogicalAnd(true, true));
+        Console.WriteLine(LogicalOr(false, false));
+        Console.WriteLine(LogicalOr(false, true));
+        Console.WriteLine(LogicalOr(true, false));
+        Console.WriteLine(LogicalOr(true, true));
+    }
 }
