@@ -51,6 +51,7 @@
     <Compile Include="StackIntrinsicsPass.ds" />
     <Compile Include="StatementRewriter.ds" />
     <Compile Include="TailRecursionPass.ds" />
+    <Compile Include="TailSplittingPass.ds" />
     <Compile Include="TypeAnalysisPass.ds" />
     <Compile Include="TypePropagationPass.ds" />
     <Compile Include="UnwrapBoundVariablesPass.ds" />

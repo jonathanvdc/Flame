@@ -1,0 +1,361 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A visitor that substitutes block-local SSA variables by new
+    /// SSA variables. It relies on the assumption that all locally defined
+    /// SSA variables are also block-local.
+    /// </summary>
+    public class LocalSSASubstitutingVisitor : NodeVisitorBase
+    {
+        public const this()
+        {
+            this.substRecords = new Dictionary<SSAVariable, SSAVariable>();
+        }
+
+        private Dictionary<SSAVariable, SSAVariable> substRecords;
+
+        /// <summary>
+        /// Gets a read-only dictionary of substitutions made by this visitor.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, SSAVariable> Subsitutions
+        {
+            get { return substRecords; }
+        }
+
+        /// <summary>
+        /// Tests if the given variable has been marked as local to the
+        /// visitor's block.
+        /// </summary>
+        public bool IsLocal(SSAVariable Variable)
+        {
+            return substRecords.ContainsKey(Variable);
+        }
+
+        /// <summary>
+        /// Substitutes the given SSA variable by another variable. The first
+        /// variable is also marked as a block-local variable.
+        /// </summary>
+        public SSAVariable Substitute(SSAVariable Variable)
+        {
+            SSAVariable result;
+            if (!substRecords.TryGetValue(Variable, &result))
+            {
+                result = new SSAVariable(Variable.Member);
+                substRecords[Variable] = result;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Substitutes the given SSA variable by another variable, but
+        /// only if it's a block-local variable.
+        /// </summary>
+        public SSAVariable SubstituteIfLocal(SSAVariable Variable)
+        {
+            if (substRecords.TryGetValue(Variable, &SSAVariable result))
+                return result;
+            else
+                return Variable;
+        }
+
+        public override bool Matches(IExpression Value)
+        {
+            return Value is SSAGetExpression;
+        }
+
+        public override bool Matches(IStatement Value)
+        {
+            return Value is SSADefineStatement;
+        }
+
+        protected override IStatement Transform(IStatement Value)
+        {
+            assert(Value is SSADefineStatement);
+            var defStmt = (SSADefineStatement)Value;
+            var val = Visit(defStmt.Value);
+            return Substitute(defStmt.Variable).CreateSetStatement(val);
+        }
+
+        protected override IExpression Transform(IExpression Value)
+        {
+            assert(Value is SSAGetExpression);
+            var getExpr = (SSAGetExpression)Value;
+            return SubstituteIfLocal(getExpr.Variable).CreateGetExpression();
+        }
+    }
+
+    /// <summary>
+    /// A visitor that performs the tail splitting optimization: very small blocks
+    /// are appended to the blocks that jump to them directly. This replaces
+    /// lots of small blocks by a number of larger blocks, which may allow us
+    /// to optimize more aggressively.
+    /// </summary>
+    public class TailSplittingVisitor : FlowGraphVisitorBase
+    {
+        public const this(set int Tolerance, set int ParameterWeight);
+
+        /// <summary>
+        /// Gets the 'tolerance' value, which is used as a constant factor
+        /// when deciding whether a block should be split or not.
+        /// </summary>
+        public int Tolerance { get; private set; }
+
+        /// <summary>
+        /// Gets the 'parameter weight' value, which describes the 'cost' of
+        /// having a parameter in terms of IR node sizes.
+        /// </summary>
+        public int ParameterWeight { get; private set; }
+
+        /// <summary>
+        /// Decides whether it is feasible to split the given block. Splitting
+        /// is assumed to be legal.
+        /// </summary>
+        private bool ShouldSplit(BasicBlock Block)
+        {
+            if (Enumerable.Contains<UniqueTag>(Block.Flow.SuccessorTags, Block.Tag))
+            {
+                // Don't split self-referencing blocks.
+                return false;
+            }
+
+            // All of this block's parameters are block-local.
+            // Replacing parameters
+            // by locals will typically allow us to optimize more
+            // aggressively, and it also reduces the size of live
+            // ranges.
+            int pro = Tolerance + Block.Parameters.Count * ParameterWeight;
+
+            // Don't tail-split large blocks. That'd just increase code
+            // size, which is probably a bad idea, for cache and JIT reasons.
+            var sizeVisitor = new SizeVisitor(true);
+            Block.Accept(sizeVisitor);
+
+            return pro - sizeVisitor.Size > 0;
+        }
+
+        /// <summary>
+        /// Rewrites the given tail block's body for inclusion in
+        /// another block.
+        /// </summary>
+        private Tuple<IStatement, BlockFlow> VisitTailBody(
+            BasicBlock Tail, IReadOnlyList<SSAVariable> Arguments)
+        {
+            var substVisitor = new LocalSSASubstitutingVisitor();
+            var stmts = new List<IStatement>();
+            foreach (var parameter in Tail.Parameters, var arg in Arguments)
+            {
+                // Substitute the parameter list by a sequence of SSA variable
+                // definitions.
+                stmts.Add(substVisitor.Substitute(parameter).CreateSetStatement(
+                    arg.CreateGetExpression()));
+            }
+
+            var composedVisitor = CloningVisitor.Aggregate(substVisitor);
+
+            // Then append the tail block's body, after cloning it and
+            // replacing any and all locally-defined SSA variables.
+            stmts.Add(composedVisitor.Visit(Tail.Contents));
+
+            // Be sure to visit the tail block's outgoing flow node
+            // as well.
+            return new Tuple<IStatement, BlockFlow>(
+                new BlockStatement(stmts).Simplify(),
+                Tail.Flow.Accept(new EmulatedBasicBlockVisitor(composedVisitor)));
+        }
+
+        /// <summary>
+        /// Performs the actual tail splitting transformation.
+        /// </summary>
+        private BasicBlock SplitTail(
+            BasicBlock Head, BasicBlock Tail,
+            IReadOnlyList<SSAVariable> Arguments)
+        {
+            var tailBodyPair = VisitTailBody(Tail, Arguments);
+
+            var bodyStmts = new List<IStatement>();
+            bodyStmts.Add(Head.Contents);
+            bodyStmts.Add(tailBodyPair.Item1);
+
+            return new BasicBlock(
+                Head.Tag, Head.Parameters,
+                new BlockStatement(bodyStmts).Simplify(),
+                tailBodyPair.Item2);
+        }
+
+        /// <summary>
+        /// Processed the given block, optionally applying the tail-splitting
+        /// optimization.
+        /// </summary>
+        private BasicBlock ProcessBlock(
+            BasicBlock Block, FlowGraph Graph,
+            Dictionary<UniqueTag, bool> SplitDecisions,
+            HashSet<UniqueTag> SplittableBlocks)
+        {
+            var outFlow = Block.Flow;
+            if (outFlow is JumpFlow)
+            {
+                var jump = (JumpFlow)outFlow;
+                var targetTag = jump.Branch.TargetTag;
+
+                // Try to retrieve the 'should-split' decision from the
+                // cache.
+                bool shouldSplit;
+                if (!SplitDecisions.TryGetValue(targetTag, &shouldSplit))
+                {
+                    // Cache didn't contain an entry for the target tag.
+                    // Find out if we can and should split, then update
+                    // the cache.
+                    shouldSplit = SplittableBlocks.Contains(targetTag)
+                                && ShouldSplit(Graph.GetBlock(targetTag));
+                    SplitDecisions[targetTag] = shouldSplit;
+                }
+
+                if (shouldSplit)
+                {
+                    // Split this block's tail, and try to split again.
+                    return ProcessBlock(
+                        SplitTail(
+                            Block, Graph.GetBlock(targetTag),
+                            jump.Branch.Arguments),
+                        Graph, SplitDecisions, SplittableBlocks);
+                }
+            }
+
+            // We can't, or won't, tail-split. Just return this block.
+            return Block;
+        }
+
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            var eligibleBlocks = new HashSet<UniqueTag>(TailSplittingPass.FindNoExportBlocks(Graph));
+            var splitDecisions = new Dictionary<UniqueTag, bool>();
+
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+
+            // First, process all reachable blocks, and consider them for
+            // tail splitting.
+            foreach (var tag in Graph.FindReachableBlocks())
+            {
+                results[tag] = ProcessBlock(
+                    Graph.GetBlock(tag), Graph,
+                    splitDecisions, eligibleBlocks);
+            }
+
+            // Now add all unreachable blocks to the
+            foreach (var block in Graph.Blocks)
+            {
+                if (!results.ContainsKey(block.Tag))
+                    results[block.Tag] = block;
+            }
+
+            return new FlowGraph(Graph.EntryPointTag, results);
+        }
+    }
+
+    /// <summary>
+    /// A pass that performs the tail splitting optimization: very small blocks
+    /// are appended to the blocks that jump to them directly. This replaces
+    /// lots of small blocks by a number of larger blocks, which may allow us
+    /// to optimize more aggressively.
+    /// </summary>
+    public static class TailSplittingPass : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// This pass' name.
+        /// </summary>
+        public const string TailSplittingPassName = "split-tails";
+
+        /// <summary>
+        /// The option that specifies the tail split pass' 'tolerance' value.
+        /// </summary>
+        public const string ToleranceOption = "split-tails-tolerance";
+
+        /// <summary>
+        /// The option that specifies the tail split pass' 'parameter weight'
+        /// value.
+        /// </summary>
+        public const string ParameterWeightOption = "split-tails-param-weight";
+
+        /// <summary>
+        /// Finds the set of all basic block tags in the given flow graph
+        /// that do not export any values.
+        /// </summary>
+        public [UniqueTag] FindNoExportBlocks(FlowGraph Graph)
+        {
+            var exported = new HashSet<SSAVariable>();
+            var defVars = new Dictionary<UniqueTag, HashSet<SSAVariable>>();
+
+            foreach (var block in Graph.Blocks)
+            {
+                // Find all variables this block uses.
+                var defFinder = new SSAVariableDefFinder();
+                var useFinder = new SSAVariableUseFinder();
+                block.Accept(defFinder);
+                block.Accept(useFinder);
+
+                // Create a set that contains this block's parameters and
+                // locally defined variables.
+                var localDefs = new HashSet<SSAVariable>(block.Parameters);
+                localDefs.UnionWith(defFinder.Definitions.Keys);
+                defVars[block.Tag] = localDefs;
+
+                foreach (var local in useFinder.UsedVariables)
+                {
+                    if (!localDefs.Contains(local))
+                    {
+                        // Mark all used variables that are not parameters
+                        // or locally defined variables of
+                        // this block as 'exported'.
+                        exported.Add(local);
+                    }
+                }
+            }
+
+            var results = new HashSet<UniqueTag>();
+            foreach (var pair in defVars)
+            {
+                // Add all blocks that do not export any variables to the
+                // results list.
+                var localExports = pair.Value;
+                localExports.IntersectWith(exported);
+                if (localExports.Count == 0)
+                    results.Add(pair.Key);
+            }
+
+            return results;
+        }
+
+        public IStatement Apply(BodyPassArgument Arg)
+            in { VerifyCFGPass.Apply(Arg.Body) }
+            in
+            {
+                VerifySSAPass.Apply(
+                    Arg.Body, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
+                    TailSplittingPassName + " (input)")
+            }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result)
+            {
+                VerifySSAPass.Apply(
+                    result, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
+                    TailSplittingPassName + " (output)")
+            }
+        {
+            var log = Arg.PassEnvironment.Log;
+            int tolerance = log.Options.GetOption<int>(ToleranceOption, 2);
+            int paramWeight = log.Options.GetOption<int>(ParameterWeightOption, 2);
+            var visitor = new TailSplittingVisitor(tolerance, paramWeight);
+            return visitor.Visit(Arg.Body);
+        }
+    }
+}
