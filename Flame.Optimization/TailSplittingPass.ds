@@ -376,7 +376,9 @@ namespace Flame.Optimization
             int tolerance = log.Options.GetOption<int>(ToleranceOption, 2);
             int paramWeight = log.Options.GetOption<int>(ParameterWeightOption, 2);
             var visitor = new TailSplittingVisitor(tolerance, paramWeight);
-            return visitor.Visit(Arg.Body);
+            return JumpThreadingPass.Apply(
+                RemoveTrivialPhiPass.Apply(
+                    visitor.Visit(Arg.Body)));
         }
     }
 }
