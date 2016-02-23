@@ -6,79 +6,41 @@ namespace Flame.Optimization
 {
     /// <summary>
     /// A node visitor that computes an approximate size of a syntax tree.
+    /// Metadata nodes are optionally ignored.
     /// </summary>
-    public class SizeVisitor : IFlowVisitor<int, int>
+    public class SizeVisitor : INodeVisitor
     {
-        public const this(set bool IsOptimistic, set int LoopWeight)
-        {
-            this.CurrentFlow = 0;
-        }
+        public const this(set bool IgnoreMetadata);
 
-        public int CurrentFlow { const get; set; }
-        public bool IsOptimistic { const get; private set; }
-        public int LoopWeight { const get; private set; }
+        /// <summary>
+        /// Gets a boolean value that specifies whether metadata is ignored
+        /// or not.
+        /// </summary>
+        public bool IgnoreMetadata { get; private set; }
 
-        public int TerminatedFlow { const get return 0; }
+        /// <summary>
+        /// Gets the approximate total size of all syntax nodes this visitor
+        /// has come across.
+        /// </summary>
+        public int Size { get; private set; }
 
         /// <summary>
         /// Approximates the given statement's size, based on the given parameters.
         /// </summary>
-        public static const int ApproximateSize(IStatement Statement, bool IsOptimistic, int LoopWeight)
+        public static int ApproximateSize(IStatement Statement, bool IgnoreMetadata)
         {
-            var visitor = new SizeVisitor(IsOptimistic, LoopWeight);
+            var visitor = new SizeVisitor(IgnoreMetadata);
             visitor.Visit(Statement);
-            return visitor.CurrentFlow;
+            return visitor.Size;
         }
 
         /// <summary>
-        /// Computes the "sum" of a flow state and a control flow delta.
+        /// Approximates the given statement's size. Metadata nodes are
+        /// ignored.
         /// </summary>
-        public const int CreateCollapsedFlow(int First, int Second)
+        public static int ApproximateSize(IStatement Statement)
         {
-            return CreateSequenceFlow(First, Second);
-        }
-
-        /// <summary>
-        /// Computes the "difference" between two flow states, such that
-        /// the "sum" of the first flow state and the result of this operation
-        /// results in the second state.
-        /// </summary>
-        public const int CreateDeltaFlow(int First, int Second)
-        {
-            return Second - First;
-        }
-
-        /// <summary>
-        /// Creates a flow delta that represents the sequential execution of
-        /// two flow deltas.
-        /// </summary>
-        public const int CreateSequenceFlow(int First, int Second)
-        {
-            return First + Second;
-        }
-
-        /// <summary>
-        /// Selects precisely one of two flow paths.
-        /// </summary>
-        public const int CreateSelectFlow(int First, int Second)
-        {
-            if (IsOptimistic)
-            {
-                return Math.Min(First, Second);
-            }
-            else
-            {
-                return Math.Max(First, Second);
-            }
-        }
-
-        /// <summary>
-        /// Creates a flow state that "loops", i.e. will be executed zero or more
-        /// times.
-        /// </summary>
-        public const int CreateLoopFlow(UniqueTag Tag, int Flow)
-        {
-            return Flow * LoopWeight;
+            return ApproximateSize(Statement, true);
         }
 
         /// <summary>
@@ -86,12 +48,11 @@ namespace Flame.Optimization
         /// </summary>
         public IExpression Visit(IExpression Value)
         {
-            CurrentFlow++;
-            if (Value is IFlowExpression)
-            {
-                return ((IFlowExpression)Value).AcceptFlow<int, int>(this);
-            }
-            else if (Value is IPredicateNode)
+            if (IgnoreMetadata && Value is IMetadataNode<IExpression>)
+                return Value;
+
+            Size++;
+            if (Value is IPredicateNode)
             {
                 ((IPredicateNode)Value).AcceptPredicate(this);
                 return Value;
@@ -108,17 +69,11 @@ namespace Flame.Optimization
         /// </summary>
         public IStatement Visit(IStatement Value)
         {
-            if (Value.IsEmpty)
-            {
+            if (Value.IsEmpty || (IgnoreMetadata && Value is IMetadataNode<IStatement>))
                 return Value;
-            }
 
-            CurrentFlow++;
-            if (Value is IFlowStatement)
-            {
-                return ((IFlowStatement)Value).AcceptFlow<int, int>(this);
-            }
-            else if (Value is IPredicateNode)
+            Size++;
+            if (Value is IPredicateNode)
             {
                 ((IPredicateNode)Value).AcceptPredicate(this);
                 return Value;

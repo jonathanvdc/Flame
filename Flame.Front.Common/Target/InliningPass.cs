@@ -135,7 +135,7 @@ namespace Flame.Front.Target
                 pro += RateArgument(item.Item1.ParameterType, item.Item2);
             }
 
-            int con = SizeVisitor.ApproximateSize(body, true, 2);
+            int con = SizeVisitor.ApproximateSize(body);
 
             return con - pro < Tolerance;
         }
