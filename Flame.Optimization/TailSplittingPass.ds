@@ -15,7 +15,7 @@ namespace Flame.Optimization
     /// SSA variables. It relies on the assumption that all locally defined
     /// SSA variables are also block-local.
     /// </summary>
-    public class LocalSSASubstitutingVisitor : NodeVisitorBase
+    public class LocalSSASubstitutingVisitor : NodeVisitorBase, IBasicBlockVisitor
     {
         public const this()
         {
@@ -91,6 +91,27 @@ namespace Flame.Optimization
             assert(Value is SSAGetExpression);
             var getExpr = (SSAGetExpression)Value;
             return SubstituteIfLocal(getExpr.Variable).CreateGetExpression();
+        }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            return Substitute(Variable);
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public BlockBranch Visit(BlockBranch Branch)
+        {
+            return new BlockBranch(
+                Branch.TargetTag,
+                Enumerable.ToArray<SSAVariable>(
+                    Enumerable.Select<SSAVariable, SSAVariable>(
+                        Branch.Arguments, SubstituteIfLocal)));
         }
     }
 
@@ -170,7 +191,7 @@ namespace Flame.Optimization
             // as well.
             return new Tuple<IStatement, BlockFlow>(
                 new BlockStatement(stmts).Simplify(),
-                Tail.Flow.Accept(new EmulatedBasicBlockVisitor(composedVisitor)));
+                Tail.Flow.Accept(new EmulatedBasicBlockVisitor(CloningVisitor)).Accept(substVisitor));
         }
 
         /// <summary>
