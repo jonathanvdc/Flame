@@ -6,6 +6,7 @@ tests
     Inlining/Inlining.test;
     Linking/Linking.test;
     LowerLambda/LowerLambda.test;
+    SplitTails/SplitTails.test;
     SSAConstruction/SSAConstruction.test;
     WholeProgram/WholeProgram.test;
     WholeProgram/WholeProgram2.test;

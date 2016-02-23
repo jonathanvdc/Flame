@@ -1,0 +1,20 @@
+using System;
+
+public static class Program
+{
+    public bool BigAnd(bool A, bool B, bool C, bool D, bool E)
+    {
+        return A && B && C && D && E;
+    }
+
+    public bool BigOr(bool A, bool B, bool C, bool D, bool E)
+    {
+        return A || B || C || D || E;
+    }
+
+    public void Main(string[] Args)
+    {
+        Console.WriteLine(BigAnd(true, true, true, true, true));
+        Console.WriteLine(BigOr(true, true, true, true, true));
+    }
+}
