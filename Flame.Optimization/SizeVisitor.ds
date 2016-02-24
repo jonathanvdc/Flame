@@ -48,10 +48,9 @@ namespace Flame.Optimization
         /// </summary>
         public IExpression Visit(IExpression Value)
         {
-            if (IgnoreMetadata && Value is IMetadataNode<IExpression>)
-                return Value;
+            if (!IgnoreMetadata || !(Value is IMetadataNode<IExpression>))
+                Size++;
 
-            Size++;
             if (Value is IPredicateNode)
             {
                 ((IPredicateNode)Value).AcceptPredicate(this);
@@ -69,10 +68,11 @@ namespace Flame.Optimization
         /// </summary>
         public IStatement Visit(IStatement Value)
         {
-            if (Value.IsEmpty || (IgnoreMetadata && Value is IMetadataNode<IStatement>))
+            if (Value.IsEmpty)
                 return Value;
 
-            Size++;
+            if (!IgnoreMetadata || !(Value is IMetadataNode<IStatement>))
+                Size++;
             if (Value is IPredicateNode)
             {
                 ((IPredicateNode)Value).AcceptPredicate(this);
