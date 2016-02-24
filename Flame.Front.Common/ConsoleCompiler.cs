@@ -210,7 +210,7 @@ namespace Flame.Front.Cli
             }
             catch (Exception ex)
             {
-				LogUnhandledException(ex, filteredLog, mergedArgs);
+				LogUnhandledException(ex, log, mergedArgs);
 				// Dreaded unhandled exception.
 				return 2;
             }
