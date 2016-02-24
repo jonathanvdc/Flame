@@ -263,8 +263,7 @@ namespace Flame.Optimization
 
             var results = new Dictionary<UniqueTag, BasicBlock>();
 
-            // First, process all reachable blocks, and consider them for
-            // tail splitting.
+            // Process all reachable blocks, and optionally tail-split them.
             foreach (var tag in Graph.FindReachableBlocks())
             {
                 results[tag] = ProcessBlock(
@@ -272,14 +271,9 @@ namespace Flame.Optimization
                     splitDecisions, eligibleBlocks);
             }
 
-            // Now add all unreachable blocks to the
-            foreach (var block in Graph.Blocks)
-            {
-                if (!results.ContainsKey(block.Tag))
-                    results[block.Tag] = block;
-            }
-
-            return new FlowGraph(Graph.EntryPointTag, results);
+            // Create a new flow graph, and remove all unreachable blocks from
+            // that block.
+            return new FlowGraph(Graph.EntryPointTag, results).EliminateUnreachable();
         }
     }
 
