@@ -330,16 +330,12 @@ namespace Flame.Optimization
                 localDefs.UnionWith(defFinder.Definitions.Keys);
                 defVars[block.Tag] = localDefs;
 
-                foreach (var local in useFinder.UsedVariables)
-                {
-                    if (!localDefs.Contains(local))
-                    {
-                        // Mark all used variables that are not parameters
-                        // or locally defined variables of
-                        // this block as 'exported'.
-                        exported.Add(local);
-                    }
-                }
+                // Mark all used variables that are not parameters
+                // or locally defined variables of
+                // this block as 'exported'.
+                var usedVars = new HashSet<SSAVariable>(useFinder.UsedVariables);
+                usedVars.ExceptWith(localDefs);
+                exported.UnionWith(usedVars);
             }
 
             var results = new HashSet<UniqueTag>();
