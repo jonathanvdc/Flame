@@ -3,6 +3,7 @@ tests
 {
     CFGConstruction/CFGConstruction.test;
     Devirtualization/Devirtualization.test;
+    Devirtualization/Devirtualization2.test;
     Inlining/Inlining.test;
     Linking/Linking.test;
     LowerLambda/LowerLambda.test;

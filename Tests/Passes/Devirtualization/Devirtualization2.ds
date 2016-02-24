@@ -1,0 +1,50 @@
+using System;
+
+public interface INum<T>
+{
+    T Add(T Left, T Right);
+    T Mul(T Left, T Right);
+}
+
+public static class LongNum : INum<long>
+{
+    public long Add(long Left, long Right)
+    {
+        return Left + Right;
+    }
+
+    public long Mul(long Left, long Right)
+    {
+        return Left * Right;
+    }
+}
+
+public static class Program
+{
+    public T VectorLengthSquared<T>(INum<T> Ops, T X, T Y)
+    {
+        return Ops.Add(Ops.Mul(X, X), Ops.Mul(Y, Y));
+    }
+
+    public static void Main(string[] args)
+    {
+        if (args.Length != 2)
+        {
+            Console.WriteLine("This program expected exactly two (integer) arguments.");
+            return;
+        }
+
+        long maxX = long.Parse(args[0]);
+        long maxY = long.Parse(args[1]);
+
+        long result = 0;
+        for (long i = 0; i < maxX; i++)
+        {
+            for (long j = 0; j < maxY; j++)
+            {
+                result += VectorLengthSquared<long>(LongNum, i, j);
+            }
+        }
+        Console.WriteLine(result);
+    }
+}
