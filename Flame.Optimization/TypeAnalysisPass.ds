@@ -455,6 +455,11 @@ namespace Flame.Optimization
             var hypothesis = new ConeAnalysisType(Variable.Type);
             AnalysisResults[Variable] = hypothesis;
 
+            if (!Definitions.ContainsKey(Variable))
+                // This is perfectly possible. For example, we could be
+                // examining a parameter variable to a dead block.
+                return;
+
             var unionElements = new List<IAnalysisType>();
             foreach (var defExpr in Definitions[Variable])
             {
