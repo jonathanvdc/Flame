@@ -376,8 +376,8 @@ namespace Flame.Optimization
             int tolerance = log.Options.GetOption<int>(ToleranceOption, 2);
             int paramWeight = log.Options.GetOption<int>(ParameterWeightOption, 2);
             var visitor = new TailSplittingVisitor(tolerance, paramWeight);
-            // Apply the visitor, and (try to) get rid of trivial phi statements.
-            return RemoveTrivialPhiPass.Apply(visitor.Visit(Arg.Body));
+            // Apply the visitor.
+            return visitor.Visit(Arg.Body);
         }
     }
 }
