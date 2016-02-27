@@ -47,6 +47,14 @@ namespace Flame.Wasm
 		public static readonly OpCode Int32Multiply = new OpCode("i32.mul", ExprKind.Call, ExprKind.Call);
 		public static readonly OpCode Int32DivideSigned = new OpCode("i32.div_s", ExprKind.Call, ExprKind.Call);
 		public static readonly OpCode Int32DivideUnsigned = new OpCode("i32.div_u", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32RemainderSigned = new OpCode("i32.rem_s", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32RemainderUnsigned = new OpCode("i32.rem_u", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32And = new OpCode("i32.and", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32Or = new OpCode("i32.or", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32Xor = new OpCode("i32.xor", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32ShiftLeft = new OpCode("i32.shl", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32ShiftRightSigned = new OpCode("i32.shr_s", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32ShiftRightUnsigned = new OpCode("i32.shr_u", ExprKind.Call, ExprKind.Call);
 		public static readonly OpCode Int32Equal = new OpCode("i32.eq", ExprKind.Call, ExprKind.Call);
 		public static readonly OpCode Int32NotEqual = new OpCode("i32.ne", ExprKind.Call, ExprKind.Call);
 		public static readonly OpCode Int32LessThanSigned = new OpCode("i32.lt_s", ExprKind.Call, ExprKind.Call);
