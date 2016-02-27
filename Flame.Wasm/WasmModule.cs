@@ -74,7 +74,7 @@ namespace Flame.Wasm
 			cb.AppendLine();
 			cb.AddCodeBuilder(moduleNs.ToCode());
 			cb.DecreaseIndentation();
-			cb.AppendLine(")");
+			cb.AddLine(")");
 			return cb;
 		}
 
