@@ -9,8 +9,13 @@ namespace Flame.Wasm
 {
 	public class WasmModule : IAssembly, IAssemblyBuilder
 	{
-		public WasmModule()
+		public WasmModule(string Name, Version AssemblyVersion, IEnvironment Environment)
 		{
+			this.Name = Name;
+			this.AssemblyVersion = AssemblyVersion;
+			this.Environment = Environment;
+			this.entryPoint = null;
+			this.moduleNs = new WasmModuleNamespace(this);
 		}
 
 		/// <summary>
