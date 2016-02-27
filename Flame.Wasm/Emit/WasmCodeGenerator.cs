@@ -1,0 +1,494 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame;
+using Flame.Compiler;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Variables;
+
+namespace Flame.Wasm.Emit
+{
+	/// <summary>
+	/// A code generator for wasm.
+	/// </summary>
+	public class WasmCodeGenerator : ICodeGenerator
+	{
+		public WasmCodeGenerator(IMethod Method)
+		{
+			this.Method = Method;
+			this.locals = new Dictionary<UniqueTag, IEmitVariable>();
+			this.localNames = new UniqueNameMap<UniqueTag>(item => item.Name, "tmp");
+			this.breakTags = new UniqueNameMap<UniqueTag>(item => item.Name, "break");
+			this.continueTags = new UniqueNameMap<UniqueTag>(item => item.Name, "next");
+			this.localNames.Get(new UniqueTag("this"));
+			foreach (var item in Method.Parameters)
+			{
+				this.localNames.Get(new UniqueTag(item.Name));
+			}
+		}
+
+		/// <summary>
+		/// Gets the method this code generator belongs to.
+		/// </summary>
+		public IMethod Method { get; private set; }
+
+		private Dictionary<UniqueTag, IEmitVariable> locals;
+		private UniqueNameMap<UniqueTag> localNames;
+		private UniqueNameMap<UniqueTag> breakTags;
+		private UniqueNameMap<UniqueTag> continueTags;
+
+		#region Helpers
+
+		public CodeBlock EmitCallBlock(OpCode Target, IType Type, params WasmExpr[] Args)
+		{
+			return new ExprBlock(this, new CallExpr(Target, Args), Type);
+		}
+
+		#endregion
+
+		#region Constants
+
+		private CodeBlock EmitTypedInt32(int Value, IType Type)
+		{
+			return EmitCallBlock(OpCodes.Int32Const, Type, new Int32Expr(Value));
+		}
+
+		private CodeBlock EmitTypedInt64(long Value, IType Type)
+		{
+			return EmitCallBlock(OpCodes.Int64Const, Type, new Int64Expr(Value));
+		}
+
+		public ICodeBlock EmitBit8(byte Value)
+		{
+			return EmitTypedInt32(Value, PrimitiveTypes.Bit8);
+		}
+
+		public ICodeBlock EmitBit16(ushort Value)
+		{
+			return EmitTypedInt32(Value, PrimitiveTypes.Bit16);
+		}
+
+		public ICodeBlock EmitBit32(uint Value)
+		{
+			return EmitTypedInt32((int)Value, PrimitiveTypes.Bit32);
+		}
+
+		public ICodeBlock EmitBit64(ulong Value)
+		{
+			return EmitTypedInt64((long)Value, PrimitiveTypes.Bit64);
+		}
+
+		public ICodeBlock EmitInt8(sbyte Value)
+		{
+			return EmitTypedInt32(Value, PrimitiveTypes.Int8);
+		}
+
+		public ICodeBlock EmitInt16(short Value)
+		{
+			return EmitTypedInt32(Value, PrimitiveTypes.Int16);
+		}
+
+		public ICodeBlock EmitInt32(int Value)
+		{
+			return EmitTypedInt32(Value, PrimitiveTypes.Int32);
+		}
+
+		public ICodeBlock EmitInt64(long Value)
+		{
+			return EmitTypedInt64(Value, PrimitiveTypes.Int64);
+		}
+
+		public ICodeBlock EmitUInt8(byte Value)
+		{
+			return EmitTypedInt32(Value, PrimitiveTypes.UInt8);
+		}
+
+		public ICodeBlock EmitUInt16(ushort Value)
+		{
+			return EmitTypedInt32(Value, PrimitiveTypes.UInt16);
+		}
+
+		public ICodeBlock EmitUInt32(uint Value)
+		{
+			return EmitTypedInt32((int)Value, PrimitiveTypes.UInt32);
+		}
+
+		public ICodeBlock EmitUInt64(ulong Value)
+		{
+			return EmitTypedInt64((long)Value, PrimitiveTypes.UInt64);
+		}
+
+		public ICodeBlock EmitFloat32(float Value)
+		{
+			return EmitCallBlock(OpCodes.Float32Const, PrimitiveTypes.Float32, new Float32Expr(Value));
+		}
+
+		public ICodeBlock EmitFloat64(double Value)
+		{
+			return EmitCallBlock(OpCodes.Float64Const, PrimitiveTypes.Float64, new Float64Expr(Value));
+		}
+
+		public ICodeBlock EmitBoolean(bool Value)
+		{
+			return EmitTypedInt32(Value ? 1 : 0, PrimitiveTypes.Boolean);
+		}
+
+		public ICodeBlock EmitChar(char Value)
+		{
+			return EmitTypedInt32((int)Value, PrimitiveTypes.Char);
+		}
+
+		public ICodeBlock EmitNull()
+		{
+			return EmitTypedInt32(0, PrimitiveTypes.Null);
+		}
+
+		public ICodeBlock EmitVoid()
+		{
+			return new NopBlock(this);
+		}
+
+		public ICodeBlock EmitString(string Value)
+		{
+			throw new NotImplementedException();
+		}
+
+		public ICodeBlock EmitDefaultValue(IType Type)
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion
+
+		#region Control Flow
+
+		public ICodeBlock EmitBreak(UniqueTag Target)
+		{
+			return EmitCallBlock(OpCodes.Br, PrimitiveTypes.Void, new IdentifierExpr(breakTags[Target]));
+		}
+
+		public ICodeBlock EmitContinue(UniqueTag Target)
+		{
+			return EmitCallBlock(OpCodes.Br, PrimitiveTypes.Void, new IdentifierExpr(continueTags[Target]));
+		}
+
+		public ICodeBlock EmitReturn(ICodeBlock Value)
+		{
+			var retVal = Value ?? EmitVoid();
+			return EmitCallBlock(OpCodes.Return, PrimitiveTypes.Void, CodeBlock.ToExpression(retVal));
+		}
+
+		public ICodeBlock EmitSequence(ICodeBlock First, ICodeBlock Second)
+		{
+			if (First is NopBlock)
+			{
+				return Second;
+			} 
+			else if (Second is NopBlock)
+			{
+				return First;
+			}
+			else
+			{
+				var lBlock = (CodeBlock)First;
+				var rBlock = (CodeBlock)Second;
+				return EmitCallBlock(
+					OpCodes.Block, 
+					lBlock.Type.Equals(PrimitiveTypes.Void) ? rBlock.Type : lBlock.Type, 
+					lBlock.Expression, rBlock.Expression);
+			}
+		}
+
+		public ICodeBlock EmitTagged(UniqueTag Tag, ICodeBlock Contents)
+		{
+			var val = (CodeBlock)Contents;
+
+			return EmitCallBlock(OpCodes.Loop, val.Type, val.Expression);
+		}
+
+		public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
+		{
+			var condBlock = (CodeBlock)Condition;
+			var lBlock = (CodeBlock)IfBody;
+			var rBlock = (CodeBlock)ElseBody;
+
+			if (rBlock is NopBlock)
+			{
+				// emit:
+				//     (if <cond> <if-body>)
+				return EmitCallBlock(
+					OpCodes.If, PrimitiveTypes.Void, 
+					condBlock.Expression, lBlock.Expression);
+			}
+			else if (lBlock is NopBlock)
+			{
+				// emit:
+				//     (if (not <cond>) <else-body>)
+				return EmitCallBlock(
+					OpCodes.If, PrimitiveTypes.Void, 
+					CodeBlock.ToExpression(this.EmitNot(condBlock)), rBlock.Expression);
+			}
+			else
+			{
+				// emit:
+				//     (if_else <cond> <if-body> <else-body>)
+				return EmitCallBlock(
+					OpCodes.IfElse, lBlock.Type, 
+					condBlock.Expression, lBlock.Expression, rBlock.Expression); 
+			}
+		}
+
+		public ICodeBlock EmitPop(ICodeBlock Value)
+		{
+			var innerVal = (CodeBlock)Value;
+
+			if (innerVal.Type.Equals(PrimitiveTypes.Void))
+				// Nothing to pop here.
+				return innerVal;
+			else
+				// emit:
+				//     (block <expr> (nop))
+				return EmitCallBlock(
+					OpCodes.Block, PrimitiveTypes.Void, 
+					innerVal.Expression, new CallExpr(OpCodes.Nop));
+		}
+
+		#endregion
+
+		#region Intrinsics
+
+		private static readonly Dictionary<Tuple<IType, Operator>, Tuple<IType, OpCode>> ops = new Dictionary<Tuple<IType, Operator>, Tuple<IType, OpCode>>()
+		{
+			{ Tuple.Create(PrimitiveTypes.Int32, Operator.Add), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32Add) },
+			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.Add), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32Add) },
+			{ Tuple.Create(PrimitiveTypes.Int32, Operator.Multiply), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32Mul) },
+			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.Multiply), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32Mul) },
+
+			{ Tuple.Create(PrimitiveTypes.Int64, Operator.Add), Tuple.Create(PrimitiveTypes.Int64, OpCodes.Int64Add) },
+			{ Tuple.Create(PrimitiveTypes.UInt64, Operator.Add), Tuple.Create(PrimitiveTypes.UInt64, OpCodes.Int64Add) },
+			{ Tuple.Create(PrimitiveTypes.Int64, Operator.Multiply), Tuple.Create(PrimitiveTypes.Int64, OpCodes.Int64Mul) },
+			{ Tuple.Create(PrimitiveTypes.UInt64, Operator.Multiply), Tuple.Create(PrimitiveTypes.UInt64, OpCodes.Int64Mul) }
+		};
+
+		public ICodeBlock EmitUnary(ICodeBlock Value, Operator Op)
+		{
+			var val = (CodeBlock)Value;
+
+			Tuple<IType, OpCode> wasmOp;
+			if (ops.TryGetValue(Tuple.Create(val.Type, Op), out wasmOp))
+			{
+				return EmitCallBlock(
+					wasmOp.Item2, wasmOp.Item1, 
+					val.Expression);
+			}
+			else
+			{
+				// Sorry. Can't do that.
+				return null;
+			}
+		}
+
+		public ICodeBlock EmitBinary(ICodeBlock A, ICodeBlock B, Operator Op)
+		{
+			var lVal = (CodeBlock)A;
+			var rVal = (CodeBlock)B;
+
+			Tuple<IType, OpCode> wasmOp;
+			if (ops.TryGetValue(Tuple.Create(lVal.Type, Op), out wasmOp))
+			{
+				return EmitCallBlock(
+					wasmOp.Item2, wasmOp.Item1, 
+					lVal.Expression, rVal.Expression);
+			}
+			else
+			{
+				// Sorry. Can't do that.
+				return null;
+			}
+		}
+
+		#endregion
+
+		#region Casts
+
+		private static readonly Dictionary<Tuple<IType, IType>, OpCode> staticCastOps = new Dictionary<Tuple<IType, IType>, OpCode>()
+		{
+			{ Tuple.Create(PrimitiveTypes.Int32, PrimitiveTypes.Int64), OpCodes.Int64ExtendInt32 },
+			{ Tuple.Create(PrimitiveTypes.UInt32, PrimitiveTypes.UInt64), OpCodes.Int64ExtendUInt32 },
+			{ Tuple.Create(PrimitiveTypes.Int64, PrimitiveTypes.Int32), OpCodes.Int32WrapInt64 },
+			{ Tuple.Create(PrimitiveTypes.UInt64, PrimitiveTypes.UInt32), OpCodes.Int32WrapInt64 }
+		};
+
+		private static readonly Dictionary<int, IType> intTys = new Dictionary<int, IType>() 
+		{
+			{ 1, PrimitiveTypes.Int8 },
+			{ 2, PrimitiveTypes.Int16 },
+			{ 3, PrimitiveTypes.Int32 },
+			{ 4, PrimitiveTypes.Int64 }
+		};
+
+		private static readonly Dictionary<int, IType> uintTys = new Dictionary<int, IType>() 
+		{
+			{ 1, PrimitiveTypes.UInt8 },
+			{ 2, PrimitiveTypes.UInt16 },
+			{ 3, PrimitiveTypes.UInt32 },
+			{ 4, PrimitiveTypes.UInt64 }
+		};
+
+		private static readonly Dictionary<int, IType> bitTys = new Dictionary<int, IType>() 
+		{
+			{ 1, PrimitiveTypes.Bit8 },
+			{ 2, PrimitiveTypes.Bit16 },
+			{ 3, PrimitiveTypes.Bit32 },
+			{ 4, PrimitiveTypes.Bit64 }
+		};
+
+		private CodeBlock EmitStaticCast(CodeBlock Value, IType FromType, IType ToType)
+		{
+			OpCode op;
+			if (staticCastOps.TryGetValue(Tuple.Create(FromType, ToType), out op))
+			{
+				return EmitCallBlock(op, ToType, Value.Expression);
+			}
+			else if (ToType.GetIsSignedInteger() && !FromType.GetIsSignedInteger())
+			{
+				return EmitStaticCast(Value, intTys[FromType.GetPrimitiveMagnitude()], ToType);
+			}
+			else if (ToType.GetIsUnsignedInteger() && !FromType.GetIsUnsignedInteger())
+			{
+				return EmitStaticCast(Value, uintTys[FromType.GetPrimitiveMagnitude()], ToType);
+			}
+			else if (ToType.GetIsBit() && !FromType.GetIsBit())
+			{
+				return EmitStaticCast(Value, bitTys[FromType.GetPrimitiveMagnitude()], ToType);
+			}
+			else
+			{
+				return null;
+			}
+		}
+
+		public ICodeBlock EmitTypeBinary(ICodeBlock Value, IType Type, Operator Op)
+		{
+			var val = (CodeBlock)Value;
+			if (Op.Equals(Operator.ReinterpretCast))
+			{
+				return new ExprBlock(this, val.Expression, Type);
+			}
+			else if (Op.Equals(Operator.StaticCast))
+			{
+				return EmitStaticCast(val, val.Type, Type);
+			}
+			else
+			{
+				// Sorry. Can't do that.
+				return null;
+			}
+		}
+
+		#endregion
+
+		#region Methods
+
+		public ICodeBlock EmitInvocation(ICodeBlock Method, IEnumerable<ICodeBlock> Arguments)
+		{
+			if (Method is DelegateBlock)
+			{
+				var delegBlock = (DelegateBlock)Method;
+				var func = (WasmMethod)delegBlock.Method;
+				if (delegBlock.Target == null)
+				{
+					return EmitCallBlock(
+						OpCodes.Call, func.ReturnType, 
+						new WasmExpr[] { new IdentifierExpr(func.WasmName) }
+							.Concat(Arguments.Select(CodeBlock.ToExpression))
+							.ToArray());
+				}
+			}
+			throw new NotImplementedException();
+		}
+
+		public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller, Operator Op)
+		{
+			return new DelegateBlock(this, (CodeBlock)Caller, Method, Op);
+		}
+
+		#endregion
+
+		public ICodeBlock EmitNewArray(IType ElementType, IEnumerable<ICodeBlock> Dimensions)
+		{
+			// This requires malloc.
+			throw new NotImplementedException();
+		}
+
+		public ICodeBlock EmitNewVector(IType ElementType, IReadOnlyList<int> Dimensions)
+		{
+			// This can be stack-allocated.
+			throw new NotImplementedException();
+		}
+
+		public IEmitVariable GetElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
+		{
+			// This requires newarray/newvector to be implemented first.
+			throw new NotImplementedException();
+		}
+
+		public IEmitVariable GetField(IField Field, ICodeBlock Target)
+		{
+			// Requires precise data layout.
+			throw new NotImplementedException();
+		}
+
+		#region Variables
+
+		private IEmitVariable CreateLocal(UniqueTag Tag, IVariableMember VariableMember)
+		{
+			if (VariableMember.VariableType.IsScalar())
+			{
+				return new Register(this, localNames[Tag], VariableMember.VariableType);
+			}
+			else
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IEmitVariable DeclareLocal(UniqueTag Tag, IVariableMember VariableMember)
+		{
+			var local = CreateLocal(Tag, VariableMember);
+			locals[Tag] = local;
+			return local;
+		}
+
+		public IEmitVariable GetArgument(int Index)
+		{
+			var param = Method.Parameters.ElementAt(Index);
+			var ty = param.ParameterType;
+			if (ty.IsScalar())
+			{
+				return new Register(this, param.Name, ty);
+			}
+			else
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IEmitVariable GetLocal(UniqueTag Tag)
+		{
+			IEmitVariable result;
+			if (locals.TryGetValue(Tag, out result))
+				return result;
+			else
+				return null;
+		}
+
+		public IEmitVariable GetThis()
+		{
+			return new Register(this, "this", ThisVariable.GetThisType(Method.DeclaringType));
+		}
+
+		#endregion
+	}
+}
+
