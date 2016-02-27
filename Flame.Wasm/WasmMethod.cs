@@ -13,7 +13,7 @@ namespace Flame.Wasm
 		{
 			this.DeclaringType = DeclaringType;
 			this.TemplateInstance = new MethodSignatureInstance(Template, this);
-			this.WasmName = WasmHelpers.MangleName(this);
+			this.WasmName = WasmHelpers.GetWasmName(this);
 		}
 
 		public IType DeclaringType { get; private set; }
@@ -55,6 +55,39 @@ namespace Flame.Wasm
 		public IMethod Build()
 		{
 			return this;
+		}
+
+		public CodeBuilder ToCode()
+		{
+			var cb = new CodeBuilder();
+			cb.Append("(func ");
+			cb.Append(new IdentifierExpr(WasmName).ToCode());
+			foreach (var item in Parameters)
+			{
+				cb.Append(" (param ");
+				cb.Append(new IdentifierExpr(item.Name).ToCode());
+				cb.Append(' ');
+				cb.Append(WasmHelpers.GetScalarWasmName(item.ParameterType));
+				cb.Append(')');
+			}
+			if (!ReturnType.Equals(PrimitiveTypes.Void))
+			{
+				cb.Append(" (result ");
+				cb.Append(WasmHelpers.GetScalarWasmName(ReturnType));
+				cb.Append(')');
+			}
+			if (Body != null)
+			{
+				cb.Append(' ');
+				cb.Append(Body.ToCode());
+			}
+			cb.Append(')');
+			return cb;
+		}
+
+		public override string ToString()
+		{
+			return ToCode().ToString();
 		}
 	}
 }

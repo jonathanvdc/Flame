@@ -54,6 +54,8 @@
     <Compile Include="WasmHelpers.cs" />
     <Compile Include="Emit\Register.cs" />
     <Compile Include="Emit\StackSlot.cs" />
+    <Compile Include="WasmModule.cs" />
+    <Compile Include="WasmNamespace.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -4,6 +4,7 @@ using System.Linq;
 using Flame;
 using Flame.Build;
 using Flame.Compiler.Build;
+using Flame.Compiler;
 
 namespace Flame.Wasm
 {
@@ -77,6 +78,21 @@ namespace Flame.Wasm
 		public IType Build()
 		{
 			return this;
+		}
+
+		public CodeBuilder ToCode()
+		{
+			var cb = new CodeBuilder();
+			foreach (var item in methodList)
+			{
+				cb.AddCodeBuilder(item.ToCode());
+			}
+			return cb;
+		}
+
+		public override string ToString()
+		{
+			return ToCode().ToString();
 		}
 	}
 }
