@@ -43,10 +43,23 @@ namespace Flame.Wasm
 		#region Intrinsics
 
 		public static readonly OpCode Int32Add = new OpCode("i32.add", ExprKind.Call, ExprKind.Call);
-		public static readonly OpCode Int32Mul = new OpCode("i32.mul", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32Subtract = new OpCode("i32.sub", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32Multiply = new OpCode("i32.mul", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32DivideSigned = new OpCode("i32.div_s", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32DivideUnsigned = new OpCode("i32.div_u", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32Equal = new OpCode("i32.eq", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32NotEqual = new OpCode("i32.ne", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32LessThanSigned = new OpCode("i32.lt_s", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32LessThanUnsigned = new OpCode("i32.lt_u", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32LessThanOrEqualSigned = new OpCode("i32.le_s", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32LessThanOrEqualUnsigned = new OpCode("i32.le_u", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32GreaterThanSigned = new OpCode("i32.gt_s", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32GreaterThanUnsigned = new OpCode("i32.gt_u", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32GreaterThanOrEqualSigned = new OpCode("i32.ge_s", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int32GreaterThanOrEqualUnsigned = new OpCode("i32.ge_u", ExprKind.Call, ExprKind.Call);
 
 		public static readonly OpCode Int64Add = new OpCode("i64.add", ExprKind.Call, ExprKind.Call);
-		public static readonly OpCode Int64Mul = new OpCode("i64.mul", ExprKind.Call, ExprKind.Call);
+		public static readonly OpCode Int64Multiply = new OpCode("i64.mul", ExprKind.Call, ExprKind.Call);
 
 		#endregion
 

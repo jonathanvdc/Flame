@@ -261,13 +261,29 @@ namespace Flame.Wasm.Emit
 		{
 			{ Tuple.Create(PrimitiveTypes.Int32, Operator.Add), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32Add) },
 			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.Add), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32Add) },
-			{ Tuple.Create(PrimitiveTypes.Int32, Operator.Multiply), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32Mul) },
-			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.Multiply), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32Mul) },
+			{ Tuple.Create(PrimitiveTypes.Int32, Operator.Subtract), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32Subtract) },
+			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.Subtract), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32Subtract) },
+			{ Tuple.Create(PrimitiveTypes.Int32, Operator.Multiply), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32Multiply) },
+			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.Multiply), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32Multiply) },
+			{ Tuple.Create(PrimitiveTypes.Int32, Operator.Divide), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32DivideSigned) },
+			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.Divide), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32DivideUnsigned) },
+			{ Tuple.Create(PrimitiveTypes.Int32, Operator.CheckEquality), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32Equal) },
+			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckEquality), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32Equal) },
+			{ Tuple.Create(PrimitiveTypes.Int32, Operator.CheckInequality), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32NotEqual) },
+			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckInequality), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32NotEqual) },
+			{ Tuple.Create(PrimitiveTypes.Int32, Operator.CheckLessThan), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32LessThanSigned) },
+			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckLessThan), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32LessThanUnsigned) },
+			{ Tuple.Create(PrimitiveTypes.Int32, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32LessThanOrEqualSigned) },
+			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32LessThanOrEqualUnsigned) },			
+			{ Tuple.Create(PrimitiveTypes.Int32, Operator.CheckGreaterThan), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32GreaterThanSigned) },
+			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckGreaterThan), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32GreaterThanUnsigned) },
+			{ Tuple.Create(PrimitiveTypes.Int32, Operator.CheckGreaterThanOrEqual), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32GreaterThanOrEqualSigned) },
+			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckGreaterThanOrEqual), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32GreaterThanOrEqualUnsigned) },
 
 			{ Tuple.Create(PrimitiveTypes.Int64, Operator.Add), Tuple.Create(PrimitiveTypes.Int64, OpCodes.Int64Add) },
 			{ Tuple.Create(PrimitiveTypes.UInt64, Operator.Add), Tuple.Create(PrimitiveTypes.UInt64, OpCodes.Int64Add) },
-			{ Tuple.Create(PrimitiveTypes.Int64, Operator.Multiply), Tuple.Create(PrimitiveTypes.Int64, OpCodes.Int64Mul) },
-			{ Tuple.Create(PrimitiveTypes.UInt64, Operator.Multiply), Tuple.Create(PrimitiveTypes.UInt64, OpCodes.Int64Mul) }
+			{ Tuple.Create(PrimitiveTypes.Int64, Operator.Multiply), Tuple.Create(PrimitiveTypes.Int64, OpCodes.Int64Multiply) },
+			{ Tuple.Create(PrimitiveTypes.UInt64, Operator.Multiply), Tuple.Create(PrimitiveTypes.UInt64, OpCodes.Int64Multiply) }
 		};
 
 		public ICodeBlock EmitUnary(ICodeBlock Value, Operator Op)
