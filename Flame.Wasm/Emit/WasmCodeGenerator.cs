@@ -178,6 +178,17 @@ namespace Flame.Wasm.Emit
 			return EmitCallBlock(OpCodes.Return, PrimitiveTypes.Void, CodeBlock.ToExpression(retVal));
 		}
 
+		private IReadOnlyList<WasmExpr> FlattenWasmBlock(WasmExpr Block)
+		{
+			if (Block is CallExpr)
+			{
+				var blockCall = (CallExpr)Block;
+				if (blockCall.Target == OpCodes.Block)
+					return blockCall.Arguments;
+			}
+			return new WasmExpr[] { Block };
+		}
+
 		public ICodeBlock EmitSequence(ICodeBlock First, ICodeBlock Second)
 		{
 			if (First is NopBlock)
@@ -195,7 +206,7 @@ namespace Flame.Wasm.Emit
 				return EmitCallBlock(
 					OpCodes.Block, 
 					lBlock.Type.Equals(PrimitiveTypes.Void) ? rBlock.Type : lBlock.Type, 
-					lBlock.Expression, rBlock.Expression);
+					FlattenWasmBlock(lBlock.Expression).Concat(FlattenWasmBlock(rBlock.Expression)).ToArray());
 			}
 		}
 
