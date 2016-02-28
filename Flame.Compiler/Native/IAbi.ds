@@ -1,0 +1,14 @@
+
+namespace Flame.Compiler.Native
+{
+    /// <summary>
+    /// Defines common functionality for application binary interfaces.
+    /// </summary>
+    public interface IAbi
+    {
+        /// <summary>
+        /// Gets the given type's memory data layout.
+        /// </summary>
+        DataLayout GetLayout(IType Type);
+    }
+}
