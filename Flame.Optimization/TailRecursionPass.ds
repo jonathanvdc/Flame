@@ -151,7 +151,7 @@ namespace Flame.Optimization
                 var param = paramArr[i];
 
                 // var temp(i) = arg(i);
-                var tempVar = new LocalVariable(arg.Type);
+                var tempVar = new RegisterVariable(arg.Type);
                 results.Add(tempVar.CreateSetStatement(arg));
 
                 // param(i) = temp(i);
