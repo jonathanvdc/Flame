@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Flame.Compiler;
 using System.Globalization;
+using System.Linq;
+using Flame.Compiler;
 
 namespace Flame.Wasm
 {
@@ -57,6 +58,22 @@ namespace Flame.Wasm
 		/// </summary>
 		public override ExprKind Kind { get { return ExprKind.Call; } }
 
+		private static bool UseNewlines(CodeBuilder[] Args, int MaxLength, int IndentationLength)
+		{
+			int totalLength = 0;
+			foreach (var item in Args)
+			{
+				if (item.GetCodeLineCount(0) > 1)
+					return true;
+
+				totalLength += item.FirstCodeLine.GetTotalLength(IndentationLength);
+
+				if (totalLength > MaxLength)
+					return true;
+			}
+			return false;
+		}
+
 		/// <summary>
 		/// Gets this S-expression's code.
 		/// </summary>
@@ -65,15 +82,25 @@ namespace Flame.Wasm
 			var cb = new CodeBuilder();
 			cb.Append('(');
 			cb.Append(Target.Mnemonic);
-			cb.AppendLine();
 			cb.IncreaseIndentation();
-			foreach (var item in Arguments)
+			var argsCode = Arguments.Select(item => item.ToCode()).ToArray();
+			if (UseNewlines(argsCode, 80, 4))
 			{
-				cb.AddCodeBuilder(item.ToCode());
+				foreach (var item in argsCode)
+				{
+					cb.AddCodeBuilder(item);
+				}
+			}
+			else
+			{
+				foreach (var item in argsCode)
+				{
+					cb.Append(' ');
+					cb.Append(item);
+				}
 			}
 			cb.DecreaseIndentation();
-			cb.Append(')');
-			cb.AppendLine();
+			cb.Append(")");
 			return cb;
 		}
 	}
