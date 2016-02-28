@@ -163,32 +163,17 @@ namespace Flame.Compiler.Visitors
         public const this(set IConverter<IType, IType> TypeConverter)
         {
             this.substVariables = new Dictionary<IVariable, IVariable>();
+            this.memberConverter = MemberNodeVisitor.CreateMemberConverter(TypeConverter);
         }
 
         public IConverter<IType, IType> TypeConverter { const get; private set; }
 
         private Dictionary<IVariable, IVariable> substVariables;
+        private MemberConverter memberConverter;
 
         protected override bool CanSubstituteVariable(IVariable Variable)
         {
-            return Variable is LocalVariable;
-        }
-
-        private IVariable ConvertVariable(IVariable Variable, IVariableMember Member)
-        {
-            var varType = Member.VariableType;
-            var convType = TypeConverter.Convert(varType);
-            if (varType == convType)
-            {
-                substVariables[Variable] = Variable;
-                return Variable;
-            }
-            else
-            {
-                var newLocal = new LocalVariable(new RetypedVariableMember(Member, convType));
-                substVariables[Variable] = newLocal;
-                return newLocal;
-            }
+            return Variable is LocalVariableBase;
         }
 
         protected override IVariable SubstituteVariable(IVariable Variable)
@@ -197,10 +182,13 @@ namespace Flame.Compiler.Visitors
             {
                 return substVariables[Variable];
             }
-            else // if (Variable is LocalVariable)
+            else
             {
-                var localVar = (LocalVariable)Variable;
-                return ConvertVariable(localVar, localVar.Member);
+                assert(Variable is LocalVariableBase);
+                var localVar = (LocalVariableBase)Variable;
+                var result = localVar.ConvertType(memberConverter);
+                substVariables[localVar] = result;
+                return result;
             }
         }
 

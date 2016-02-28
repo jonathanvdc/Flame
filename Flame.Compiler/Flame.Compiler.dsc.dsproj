@@ -234,6 +234,7 @@
 			<Compile Include="Variables/SSAVariable.ds" />
 			<Compile Include="Variables/ConstantVariable.ds" />
 			<Compile Include="Variables/ThisReferenceVariable.ds" />
+			<Compile Include="Variables/RegisterVariable.ds" />
 			<Compile Include="Variables/ReturnValueVariable.ds" />
 			<Compile Include="Variables/TypedEmitVariable.ds" />
 			<Compile Include="Variables/VariableHelpers.ds" />

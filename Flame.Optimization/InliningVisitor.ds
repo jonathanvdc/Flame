@@ -353,7 +353,7 @@ namespace Flame.Optimization
         private Dictionary<UniqueTag, LocalVariable> locals;
         private Dictionary<UniqueTag, SSAVariable> ssaLocals;
 
-        private LocalVariable inlineLocal(LocalVariable localVar)
+        private LocalVariable inlineLocal(LocalVariableBase localVar)
         {
             if (!locals.ContainsKey(localVar.Tag))
             {
@@ -408,7 +408,7 @@ namespace Flame.Optimization
         protected override bool CanSubstituteVariable(IVariable Variable)
         {
             return Variable is ArgumentVariable || Variable is ThisVariable ||
-                   Variable is LocalVariable || Variable is SSAVariable;
+                   Variable is LocalVariableBase || Variable is SSAVariable;
         }
         protected override IVariable SubstituteVariable(IVariable Variable)
         {
@@ -428,8 +428,8 @@ namespace Flame.Optimization
             }
             else
             {
-                assert(Variable is LocalVariable);
-                var localVar = (LocalVariable)Variable;
+                assert(Variable is LocalVariableBase);
+                var localVar = (LocalVariableBase)Variable;
                 return inlineLocal(localVar);
             }
         }
