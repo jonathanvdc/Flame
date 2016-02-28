@@ -1,0 +1,8 @@
+
+public module PointersTest
+{
+    public int Dereference(int* Pointer)
+    {
+        return *Pointer;
+    }
+}
