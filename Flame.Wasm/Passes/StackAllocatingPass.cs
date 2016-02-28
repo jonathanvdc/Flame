@@ -65,7 +65,8 @@ namespace Flame.Wasm.Passes
 			IVariable result;
 			if (!variableMapping.TryGetValue(localVar, out result))
 			{
-				variableMapping[localVar] = Allocate(localVar);
+				result = Allocate(localVar);
+				variableMapping[localVar] = result;
 			}
 			return result;
 		}

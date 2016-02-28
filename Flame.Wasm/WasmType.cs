@@ -17,6 +17,7 @@ namespace Flame.Wasm
 			this.TemplateInstance = new TypeSignatureInstance(Template, this);
 			this.Abi = Abi;
 			this.methodList = new List<WasmMethod>();
+			this.fieldList = new List<WasmField>();
 		}
 
 		public INamespace DeclaringNamespace { get; private set; }
@@ -36,10 +37,11 @@ namespace Flame.Wasm
 		}
 
 		private List<WasmMethod> methodList;
+		private List<WasmField> fieldList;
 
 		public IEnumerable<IField> Fields
 		{
-			get { return Enumerable.Empty<IField>(); }
+			get { return fieldList; }
 		}
 
 		public IEnumerable<IMethod> Methods
@@ -59,7 +61,9 @@ namespace Flame.Wasm
 
 		public IFieldBuilder DeclareField(IFieldSignatureTemplate Template)
 		{
-			throw new NotImplementedException();
+			var result = new WasmField(this, Template);
+			fieldList.Add(result);
+			return result;
 		}
 
 		public IMethodBuilder DeclareMethod(IMethodSignatureTemplate Template)
