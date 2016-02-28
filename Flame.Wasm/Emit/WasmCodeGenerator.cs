@@ -214,7 +214,11 @@ namespace Flame.Wasm.Emit
 		{
 			var val = (CodeBlock)Contents;
 
-			return EmitCallBlock(OpCodes.Loop, val.Type, val.Expression);
+			return EmitCallBlock(
+				OpCodes.Loop, val.Type, 
+				new IdentifierExpr(breakTags[Tag]), 
+				new IdentifierExpr(continueTags[Tag]), 
+				val.Expression);
 		}
 
 		public ICodeBlock EmitIfElse(ICodeBlock Condition, ICodeBlock IfBody, ICodeBlock ElseBody)
