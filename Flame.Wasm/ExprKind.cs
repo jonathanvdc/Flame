@@ -32,6 +32,10 @@ namespace Flame.Wasm
 		/// </summary>
 		Identifier,
 		/// <summary>
+		/// A mnemonic.
+		/// </summary>
+		Mnemonic,
+		/// <summary>
 		/// A variable number of call expressions.
 		/// </summary>
 		CallList
