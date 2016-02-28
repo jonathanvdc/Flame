@@ -11,4 +11,30 @@ namespace Flame.Compiler.Native
         /// </summary>
         DataLayout GetLayout(IType Type);
     }
+
+    /// <summary>
+    /// A common interface for ABIs that can manipulate the stack.
+    /// </summary>
+    public interface IStackAbi : IAbi
+    {
+        /// <summary>
+        /// Writes a prologue for the given method.
+        /// </summary>
+        IStatement GetPrologue(IMethod Method);
+
+        /// <summary>
+        /// Gets the address of the stack slot at the given offset.
+        /// </summary>
+        IExpression GetStackSlotAddress(IExpression Offset);
+
+        /// <summary>
+        /// Allocates the given number of bytes on the stack.
+        /// </summary>
+        IStatement StackAllocate(IExpression Size);
+
+        /// <summary>
+        /// Writes an epilogue for the given method.
+        /// </summary>
+        IStatement GetEpilogue(IMethod Method);
+    }
 }

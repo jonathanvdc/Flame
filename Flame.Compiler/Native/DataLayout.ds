@@ -40,7 +40,7 @@ namespace Flame.Compiler.Native
     /// A data structure that describes a field that has been positioned
     /// in some data layout structure.
     /// </summary>
-    public class DataMember
+    public struct DataMember
     {
         public const this(set DataLayout Layout, set int Offset);
 
