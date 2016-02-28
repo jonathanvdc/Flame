@@ -69,6 +69,7 @@ namespace Flame.Wasm
 		public CodeBuilder ToCode()
 		{
 			var cb = new CodeBuilder();
+			cb.IndentationString = new string(' ', 4);
 			cb.Append("(module ");
 			cb.IncreaseIndentation();
 			cb.AppendLine();
