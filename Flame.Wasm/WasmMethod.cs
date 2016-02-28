@@ -9,15 +9,17 @@ namespace Flame.Wasm
 {
 	public class WasmMethod : IMethod, IMethodBuilder
 	{
-		public WasmMethod(IType DeclaringType, IMethodSignatureTemplate Template)
+		public WasmMethod(IType DeclaringType, IMethodSignatureTemplate Template, IWasmAbi Abi)
 		{
 			this.DeclaringType = DeclaringType;
 			this.TemplateInstance = new MethodSignatureInstance(Template, this);
+			this.Abi = Abi;
 			this.WasmName = WasmHelpers.GetWasmName(this);
 		}
 
 		public IType DeclaringType { get; private set; }
 		public MethodSignatureInstance TemplateInstance { get; private set; }
+		public IWasmAbi Abi { get; private set; }
 		public WasmExpr Body { get; private set; }
 
 		private WasmCodeGenerator bodyGen;
@@ -43,7 +45,7 @@ namespace Flame.Wasm
 			get 
 			{ 			
 				if (bodyGen == null)
-					bodyGen = new WasmCodeGenerator(this);
+					bodyGen = new WasmCodeGenerator(this, Abi);
 				return bodyGen;
 			} 
 		}
@@ -67,31 +69,11 @@ namespace Flame.Wasm
 
 		public CodeBuilder ToCode()
 		{
-			var cb = new CodeBuilder();
-			cb.Append("(func ");
-			cb.Append(new IdentifierExpr(WasmName).ToCode());
-			foreach (var item in Parameters)
-			{
-				cb.Append(" (param ");
-				cb.Append(new IdentifierExpr(item.Name).ToCode());
-				cb.Append(' ');
-				cb.Append(WasmHelpers.GetScalarWasmName(item.ParameterType));
-				cb.Append(')');
-			}
-			if (!ReturnType.Equals(PrimitiveTypes.Void))
-			{
-				cb.Append(" (result ");
-				cb.Append(WasmHelpers.GetScalarWasmName(ReturnType));
-				cb.Append(')');
-			}
-			if (Body != null)
-			{
-				cb.IncreaseIndentation();
-				cb.AddCodeBuilder(BodyGenerator.WrapBody(Body));
-				cb.DecreaseIndentation();
-			}
-			cb.Append(')');
-			return cb;
+			var args = new List<WasmExpr>();
+			args.Add(new IdentifierExpr(WasmName));
+			args.AddRange(Abi.GetSignature(this));
+			args.AddRange(BodyGenerator.WrapBody(Body));
+			return new CallExpr(OpCodes.DeclareFunction, args).ToCode();
 		}
 
 		public override string ToString()

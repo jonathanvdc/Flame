@@ -56,9 +56,16 @@
     <Compile Include="Emit\StackSlot.cs" />
     <Compile Include="WasmModule.cs" />
     <Compile Include="WasmNamespace.cs" />
+    <Compile Include="WasmAbi.cs" />
+    <Compile Include="IWasmAbi.cs" />
+    <Compile Include="Passes\StackAllocatingPass.cs" />
+    <Compile Include="GetNamedLocalExpression.cs" />
+    <Compile Include="DirectCallExpression.cs" />
+    <Compile Include="Passes\CallLoweringPass.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Emit\" />
+    <Folder Include="Passes\" />
   </ItemGroup>
 </Project>

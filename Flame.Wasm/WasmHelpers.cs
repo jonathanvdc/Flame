@@ -23,10 +23,10 @@ namespace Flame.Wasm
 			{ PrimitiveTypes.Char, "i32" }
 		};
 
-		public static string GetScalarWasmName(IType Type)
+		public static string GetScalarWasmName(IType Type, IWasmAbi Abi)
 		{
 			if (Type.GetIsPointer())
-				return "i32";
+				return scalarWasmNames[Abi.PointerIntegerType];
 			else
 				return scalarWasmNames[Type];
 		}
@@ -48,6 +48,22 @@ namespace Flame.Wasm
 		public static bool IsScalar(this IType Type)
 		{
 			return Type.GetIsPrimitive() || Type.GetIsPointer();
+		}
+
+		/// <summary>
+		/// Creates a parameter declaration expression for the given parameter.
+		/// </summary>
+		public static WasmExpr DeclareParameter(IParameter Parameter, IWasmAbi Abi)
+		{
+			return new CallExpr(OpCodes.DeclareParameter, new IdentifierExpr(Parameter.Name), new MnemonicExpr(GetScalarWasmName(Parameter.ParameterType, Abi)));
+		}
+
+		/// <summary>
+		/// Creates a result declaration expression for the given return type.
+		/// </summary>
+		public static WasmExpr DeclareResult(IType Type, IWasmAbi Abi)
+		{
+			return new CallExpr(OpCodes.DeclareResult, new MnemonicExpr(GetScalarWasmName(Type, Abi)));
 		}
 	}
 }

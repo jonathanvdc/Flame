@@ -33,9 +33,24 @@ namespace Flame.Wasm
 		#region PseudoOps
 
 		/// <summary>
+		/// The declare-function pseudo-op, which can only appear in a module definition.
+		/// </summary>
+		public static readonly OpCode DeclareFunction = new OpCode("func", ExprKind.Identifier, ExprKind.CallList);
+
+		/// <summary>
 		/// The declare-local pseudo-op, which can only appear in a function definition.
 		/// </summary>
 		public static readonly OpCode DeclareLocal = new OpCode("local", ExprKind.Identifier, ExprKind.Mnemonic);
+
+		/// <summary>
+		/// The declare-parameter pseudo-op, which can only appear in a function definition.
+		/// </summary>
+		public static readonly OpCode DeclareParameter = new OpCode("param", ExprKind.Identifier, ExprKind.Mnemonic);
+
+		/// <summary>
+		/// The declare-result pseudo-op, which can only appear in a function definition.
+		/// </summary>
+		public static readonly OpCode DeclareResult = new OpCode("result", ExprKind.Mnemonic);
 
 		#endregion
 

@@ -9,13 +9,13 @@ namespace Flame.Wasm
 {
 	public class WasmModule : IAssembly, IAssemblyBuilder
 	{
-		public WasmModule(string Name, Version AssemblyVersion, IEnvironment Environment)
+		public WasmModule(string Name, Version AssemblyVersion, IEnvironment Environment, IWasmAbi Abi)
 		{
 			this.Name = Name;
 			this.AssemblyVersion = AssemblyVersion;
 			this.Environment = Environment;
 			this.entryPoint = null;
-			this.moduleNs = new WasmModuleNamespace(this);
+			this.moduleNs = new WasmModuleNamespace(this, Abi);
 		}
 
 		/// <summary>
@@ -28,6 +28,7 @@ namespace Flame.Wasm
 		private WasmModuleNamespace moduleNs;
 		private IMethod entryPoint;
 
+		public IWasmAbi Abi { get { return moduleNs.Abi; } }
 		public string FullName { get { return Name; } }
 		public IEnumerable<IAttribute> Attributes { get { return Enumerable.Empty<IAttribute>(); } }
 

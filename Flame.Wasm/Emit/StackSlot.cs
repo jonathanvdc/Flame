@@ -1,5 +1,6 @@
 ﻿using System;
 using Flame.Compiler.Emit;
+using Flame.Compiler.Native;
 
 namespace Flame.Wasm.Emit
 {
@@ -8,11 +9,17 @@ namespace Flame.Wasm.Emit
 	/// </summary>
 	public class StackSlot
 	{
-		public StackSlot(IType Type, int Offset)
+		public StackSlot(WasmCodeGenerator CodeGenerator, IType Type, DataMember Slot)
 		{
+			this.CodeGenerator = CodeGenerator;
 			this.Type = Type;
-			this.Offset = Offset;
+			this.Slot = Slot;
 		}
+
+		/// <summary>
+		/// Gets the code generator that produced this stack slot.
+		/// </summary>
+		public WasmCodeGenerator CodeGenerator { get; private set; }
 
 		/// <summary>
 		/// Gets this stack slot's type.
@@ -20,9 +27,10 @@ namespace Flame.Wasm.Emit
 		public IType Type { get; private set; }
 
 		/// <summary>
-		/// Gets the stack slot's offset.
+		/// Gets this stack slot layout and offset, 
+		/// described as a data member.
 		/// </summary>
-		public int Offset { get; private set; }
+		public DataMember Slot { get; private set; }
 	}
 }
 
