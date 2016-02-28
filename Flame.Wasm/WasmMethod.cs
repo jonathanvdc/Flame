@@ -18,8 +18,9 @@ namespace Flame.Wasm
 
 		public IType DeclaringType { get; private set; }
 		public MethodSignatureInstance TemplateInstance { get; private set; }
-		public WasmCodeGenerator BodyGenerator { get; private set; }
 		public WasmExpr Body { get; private set; }
+
+		private WasmCodeGenerator bodyGen;
 
 		/// <summary>
 		/// Gets this method's actual name in the module.
@@ -37,10 +38,17 @@ namespace Flame.Wasm
 		public IEnumerable<IParameter> Parameters { get { return TemplateInstance.Parameters.Value; } }
 		public IEnumerable<IGenericParameter> GenericParameters { get { return TemplateInstance.GenericParameters.Value; } }
 
+		public WasmCodeGenerator BodyGenerator 
+		{
+			get 
+			{ 			
+				if (bodyGen == null)
+					bodyGen = new WasmCodeGenerator(this);
+				return bodyGen;
+			} 
+		}
 		public ICodeGenerator GetBodyGenerator()
 		{
-			if (BodyGenerator == null)
-				BodyGenerator = new WasmCodeGenerator(this);
 			return BodyGenerator;
 		}
 
@@ -78,8 +86,9 @@ namespace Flame.Wasm
 			}
 			if (Body != null)
 			{
-				cb.Append(' ');
-				cb.Append(Body.ToCode());
+				cb.IncreaseIndentation();
+				cb.AddCodeBuilder(BodyGenerator.WrapBody(Body));
+				cb.DecreaseIndentation();
 			}
 			cb.Append(')');
 			return cb;

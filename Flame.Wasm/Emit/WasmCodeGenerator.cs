@@ -17,6 +17,7 @@ namespace Flame.Wasm.Emit
 		{
 			this.Method = Method;
 			this.locals = new Dictionary<UniqueTag, IEmitVariable>();
+			this.registers = new List<Register>();
 			this.localNames = new UniqueNameMap<UniqueTag>(item => item.Name, "tmp");
 			this.breakTags = new UniqueNameMap<UniqueTag>(item => item.Name, "break");
 			this.continueTags = new UniqueNameMap<UniqueTag>(item => item.Name, "next");
@@ -33,6 +34,7 @@ namespace Flame.Wasm.Emit
 		public IMethod Method { get; private set; }
 
 		private Dictionary<UniqueTag, IEmitVariable> locals;
+		private List<Register> registers;
 		private UniqueNameMap<UniqueTag> localNames;
 		private UniqueNameMap<UniqueTag> breakTags;
 		private UniqueNameMap<UniqueTag> continueTags;
@@ -42,6 +44,39 @@ namespace Flame.Wasm.Emit
 		public CodeBlock EmitCallBlock(OpCode Target, IType Type, params WasmExpr[] Args)
 		{
 			return new ExprBlock(this, new CallExpr(Target, Args), Type);
+		}
+
+		#endregion
+
+		#region Prologue/Epilogue
+
+		/// <summary>
+		/// Gets a sequence of register declaration expressions.
+		/// </summary>
+		public IEnumerable<WasmExpr> RegisterDeclarations
+		{
+			get
+			{
+				return registers.Select(item => 
+					new CallExpr(OpCodes.DeclareLocal, 
+						new IdentifierExpr(item.Identifier), 
+						new MnemonicExpr(WasmHelpers.GetScalarWasmName(item.Type))));
+			}
+		}
+
+		/// <summary>
+		/// Wraps the given body expression in a prologue for this
+		/// function.
+		/// </summary>
+		public CodeBuilder WrapBody(WasmExpr Body)
+		{
+			var result = new CodeBuilder();
+			foreach (var item in RegisterDeclarations)
+			{
+				result.AddCodeBuilder(item.ToCode());
+			}
+			result.AddCodeBuilder(Body.ToCode());
+			return result;
 		}
 
 		#endregion
@@ -488,7 +523,9 @@ namespace Flame.Wasm.Emit
 		{
 			if (VariableMember.VariableType.IsScalar())
 			{
-				return new Register(this, localNames[Tag], VariableMember.VariableType);
+				var result = new Register(this, localNames[Tag], VariableMember.VariableType);
+				registers.Add(result);
+				return result;
 			}
 			else
 			{

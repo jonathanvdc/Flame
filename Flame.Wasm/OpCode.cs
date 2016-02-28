@@ -30,6 +30,15 @@ namespace Flame.Wasm
 
 	public static class OpCodes
 	{
+		#region PseudoOps
+
+		/// <summary>
+		/// The declare-local pseudo-op, which can only appear in a function definition.
+		/// </summary>
+		public static readonly OpCode DeclareLocal = new OpCode("local", ExprKind.Identifier, ExprKind.Mnemonic);
+
+		#endregion
+
 		#region Constants
 
 		public static readonly OpCode Int32Const = new OpCode("i32.const", ExprKind.Int32);

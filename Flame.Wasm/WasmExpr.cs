@@ -234,5 +234,31 @@ namespace Flame.Wasm
 			return new CodeBuilder("$" + Identifier);
 		}
 	}
+
+	/// <summary>
+	/// A wasm mnemonic expression.
+	/// </summary>
+	public class MnemonicExpr : WasmExpr
+	{
+		public MnemonicExpr(string Mnemonic)
+		{
+			this.Mnemonic = Mnemonic;
+		}
+
+		/// <summary>
+		/// Gets this wasm literal's contents.
+		/// </summary>
+		public string Mnemonic { get; private set; }
+
+		/// <summary>
+		/// Gets this wasm literal's expression kind.
+		/// </summary>
+		public override ExprKind Kind { get { return ExprKind.Mnemonic; } }
+
+		public override CodeBuilder ToCode()
+		{
+			return new CodeBuilder(Mnemonic);
+		}
+	}
 }
 
