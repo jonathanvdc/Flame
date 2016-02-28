@@ -1,0 +1,17 @@
+
+public struct Vector2
+{
+    public int X;
+    public int Y;
+}
+
+public module StructTest
+{
+    public int* Allocate()
+    {
+        Vector2 val;
+        val.X = 3;
+        val.Y = 4;
+        return &val.Y;
+    }
+}
