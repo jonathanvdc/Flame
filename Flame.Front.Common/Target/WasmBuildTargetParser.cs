@@ -8,6 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flame.Front.Passes;
+using Flame.Compiler.Visitors;
+using Flame.Wasm.Passes;
 
 namespace Flame.Front.Target
 {
@@ -32,8 +35,18 @@ namespace Flame.Front.Target
 
 		public BuildTarget CreateBuildTarget(string PlatformIdentifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)
 		{
-			var targetAsm = new WasmModule(Info.Name, Info.Version, DependencyBuilder.Environment);
-			return new BuildTarget(targetAsm, DependencyBuilder, "wast", true);
+			var abi = new WasmAbi(PrimitiveTypes.Int32);
+			var targetAsm = new WasmModule(Info.Name, Info.Version, DependencyBuilder.Environment, abi);
+
+			var extraPasses = new PassManager();
+			extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
+				new StackAllocatingPass(abi), StackAllocatingPass.StackAllocatingPassName));
+			extraPasses.RegisterPassCondition(new PassCondition(StackAllocatingPass.StackAllocatingPassName, optInfo => true));
+			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
+				new CallLoweringPass(abi), CallLoweringPass.CallLoweringPassName));
+			extraPasses.RegisterPassCondition(new PassCondition(CallLoweringPass.CallLoweringPassName, optInfo => true));
+
+			return new BuildTarget(targetAsm, DependencyBuilder, "wast", true, extraPasses.ToPreferences());
 		}
 	}
 }

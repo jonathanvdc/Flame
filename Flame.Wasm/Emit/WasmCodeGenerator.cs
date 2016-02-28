@@ -5,6 +5,7 @@ using Flame;
 using Flame.Compiler;
 using Flame.Compiler.Emit;
 using Flame.Compiler.Variables;
+using Flame.Compiler.Native;
 
 namespace Flame.Wasm.Emit
 {
@@ -13,7 +14,7 @@ namespace Flame.Wasm.Emit
 	/// </summary>
 	public class WasmCodeGenerator : ICodeGenerator
 	{
-		public WasmCodeGenerator(IMethod Method)
+		public WasmCodeGenerator(IMethod Method, IWasmAbi Abi)
 		{
 			this.Method = Method;
 			this.locals = new Dictionary<UniqueTag, IEmitVariable>();
@@ -32,6 +33,11 @@ namespace Flame.Wasm.Emit
 		/// Gets the method this code generator belongs to.
 		/// </summary>
 		public IMethod Method { get; private set; }
+
+		/// <summary>
+		/// Gets the ABI that this function uses.
+		/// </summary>
+		public IWasmAbi Abi { get; private set; }
 
 		private Dictionary<UniqueTag, IEmitVariable> locals;
 		private List<Register> registers;
@@ -60,7 +66,7 @@ namespace Flame.Wasm.Emit
 				return registers.Select(item => 
 					new CallExpr(OpCodes.DeclareLocal, 
 						new IdentifierExpr(item.Identifier), 
-						new MnemonicExpr(WasmHelpers.GetScalarWasmName(item.Type))));
+						new MnemonicExpr(WasmHelpers.GetScalarWasmName(item.Type, Abi))));
 			}
 		}
 
@@ -68,15 +74,9 @@ namespace Flame.Wasm.Emit
 		/// Wraps the given body expression in a prologue for this
 		/// function.
 		/// </summary>
-		public CodeBuilder WrapBody(WasmExpr Body)
+		public IEnumerable<WasmExpr> WrapBody(WasmExpr Body)
 		{
-			var result = new CodeBuilder();
-			foreach (var item in RegisterDeclarations)
-			{
-				result.AddCodeBuilder(item.ToCode());
-			}
-			result.AddCodeBuilder(Body.ToCode());
-			return result;
+			return RegisterDeclarations.Concat(new WasmExpr[] { Body });
 		}
 
 		#endregion

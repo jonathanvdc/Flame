@@ -96,21 +96,29 @@ namespace Flame.Compiler.Expressions
 			return ((IBoundMethod)targetObj).Invoke(allArgs);
 		}
 
-		private const IExpression GetInnerExpression(IExpression Expression)
+		private IExpression GetInnerExpression(IExpression Expression)
 		{
 			if (Expression is ConversionExpressionBase)
+				return GetInnerExpression(((ConversionExpressionBase)Expression).Value);
+			else if (Expression is IMetadataNode<IExpression>)
 				return GetInnerExpression(((ConversionExpressionBase)Expression).Value);
 			else
 				return Expression;
 		}
 
-		private const IExpression RemoveRedundantConversions(IExpression Expression)
+		private IExpression RemoveRedundantConversions(IExpression Expression)
 		{
 			var innerExpr = GetInnerExpression(Expression);
 			if (innerExpr is IDelegateExpression)
 				return innerExpr;
 			else
 				return Expression;
+		}
+
+		public InvocationExpression Simplify()
+		{
+			return new InvocationExpression(
+				RemoveRedundantConversions(Target), Arguments);
 		}
 
 		public IExpression Optimize()

@@ -33,8 +33,20 @@ namespace Flame.Compiler.Native
         IStatement StackAllocate(IExpression Size);
 
         /// <summary>
+        /// Deallocates the given number of bytes from the stack.
+        /// </summary>
+        IStatement StackRelease(IExpression Size);
+
+        /// <summary>
         /// Writes an epilogue for the given method.
         /// </summary>
         IStatement GetEpilogue(IMethod Method);
+
+        /// <summary>
+        /// Creates a direct call to the given method. A 'this' pointer and
+        /// a sequence of arguments are given.
+        /// </summary>
+        IExpression CreateDirectCall(
+            IMethod Target, IExpression ThisPointer, [IExpression] Arguments);
     }
 }

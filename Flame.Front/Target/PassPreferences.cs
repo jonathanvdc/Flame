@@ -194,9 +194,11 @@ namespace Flame.Front.Target
         /// <returns></returns>
         public PassPreferences Union(PassPreferences Other)
         {
-            return new PassPreferences(Conditions.Concat(Other.Conditions),
+            return new PassPreferences(
+				Conditions.Concat(Other.Conditions),
                 MethodPasses.Union(Other.MethodPasses),
-                RootPasses.Union(Other.RootPasses),
+				LoweringPasses.Union(Other.LoweringPasses),
+				RootPasses.Union(Other.RootPasses),
                 SignaturePasses.Union(Other.SignaturePasses));
         }
 
