@@ -171,6 +171,12 @@
 			<Compile Include="Flow/UnreachableFlow.ds" />
 		</ItemGroup>
 	</ItemGroup>
+	<ItemGroup Name="Native">
+		<ItemGroup>
+			<Compile Include="Native/DataLayout.ds" />
+			<Compile Include="Native/IAbi.ds" />
+		</ItemGroup>
+	</ItemGroup>
 	<ItemGroup Name="Statements">
 		<ItemGroup>
 			<Compile Include="Statements/AssertStatement.ds" />
