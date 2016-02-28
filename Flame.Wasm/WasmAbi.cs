@@ -172,7 +172,7 @@ namespace Flame.Wasm
 		{
 			var callArgs = new List<IExpression>();
 			callArgs.Add(StackPointerRegister.CreateGetExpression());
-			if (!Target.IsStatic)
+			if (ThisPointer != null)
 				callArgs.Add(ThisPointer);
 			callArgs.AddRange(Arguments);
 			return new DirectCallExpression(Target, callArgs);
@@ -184,6 +184,7 @@ namespace Flame.Wasm
 		public WasmDataLayoutBuilder(IType PointerIntegerType)
 		{
 			this.PointerIntegerType = PointerIntegerType;
+			this.layoutDictionary = new ConcurrentDictionary<IType, DataLayout>();
 		}
 
 		/// <summary>

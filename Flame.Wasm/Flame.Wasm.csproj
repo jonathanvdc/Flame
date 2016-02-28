@@ -62,6 +62,8 @@
     <Compile Include="GetNamedLocalExpression.cs" />
     <Compile Include="DirectCallExpression.cs" />
     <Compile Include="Passes\CallLoweringPass.cs" />
+    <Compile Include="WasmField.cs" />
+    <Compile Include="Emit\MemoryLocation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

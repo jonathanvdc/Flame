@@ -12,11 +12,12 @@ namespace Flame.Wasm.Emit
 	/// <summary>
 	/// A code generator for wasm.
 	/// </summary>
-	public class WasmCodeGenerator : ICodeGenerator
+	public class WasmCodeGenerator : ICodeGenerator, IUnmanagedCodeGenerator
 	{
 		public WasmCodeGenerator(IMethod Method, IWasmAbi Abi)
 		{
 			this.Method = Method;
+			this.Abi = Abi;
 			this.locals = new Dictionary<UniqueTag, IEmitVariable>();
 			this.registers = new List<Register>();
 			this.localNames = new UniqueNameMap<UniqueTag>(item => item.Name, "tmp");
@@ -371,11 +372,16 @@ namespace Flame.Wasm.Emit
 			var lVal = (CodeBlock)A;
 			var rVal = (CodeBlock)B;
 
+			var lTy = lVal.Type;
+			bool isPtr = lTy.GetIsPointer();
+			if (isPtr)
+				lTy = Abi.PointerIntegerType;
+
 			Tuple<IType, OpCode> wasmOp;
-			if (ops.TryGetValue(Tuple.Create(lVal.Type, Op), out wasmOp))
+			if (ops.TryGetValue(Tuple.Create(lTy, Op), out wasmOp))
 			{
 				return EmitCallBlock(
-					wasmOp.Item2, wasmOp.Item1, 
+					wasmOp.Item2, isPtr ? lVal.Type : wasmOp.Item1, 
 					lVal.Expression, rVal.Expression);
 			}
 			else
@@ -449,8 +455,9 @@ namespace Flame.Wasm.Emit
 		public ICodeBlock EmitTypeBinary(ICodeBlock Value, IType Type, Operator Op)
 		{
 			var val = (CodeBlock)Value;
-			if (Op.Equals(Operator.ReinterpretCast))
+			if (Op.Equals(Operator.ReinterpretCast) || Op.Equals(Operator.DynamicCast))
 			{
+				// TODO: actually check the type for dynamic casts
 				return new ExprBlock(this, val.Expression, Type);
 			}
 			else if (Op.Equals(Operator.StaticCast))
@@ -493,6 +500,8 @@ namespace Flame.Wasm.Emit
 
 		#endregion
 
+		#region Aggregates
+
 		public ICodeBlock EmitNewArray(IType ElementType, IEnumerable<ICodeBlock> Dimensions)
 		{
 			// This requires malloc.
@@ -511,11 +520,106 @@ namespace Flame.Wasm.Emit
 			throw new NotImplementedException();
 		}
 
-		public IEmitVariable GetField(IField Field, ICodeBlock Target)
+		public IUnmanagedEmitVariable GetUnmanagedElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
 		{
-			// Requires precise data layout.
+			// This requires newarray/newvector to be implemented first.
 			throw new NotImplementedException();
 		}
+
+		public IUnmanagedEmitVariable GetUnmanagedField(IField Field, ICodeBlock Target)
+		{
+			var targetBlock = (CodeBlock)Target;
+			var layout = Abi.GetLayout(Field.DeclaringType);
+			var rawAddress = this.EmitAdd(targetBlock, EmitInt32(layout.Members[Field].Offset));
+			return new MemoryLocation((CodeBlock)EmitTypeBinary(
+				rawAddress, 
+				Field.FieldType.MakePointerType(PointerKind.ReferencePointer), 
+				Operator.ReinterpretCast));
+		}
+
+		public IEmitVariable GetField(IField Field, ICodeBlock Target)
+		{
+			return GetUnmanagedField(Field, Target);
+		}
+
+		#endregion
+
+		#region Pointer magic
+
+		private static readonly Dictionary<IType, OpCode> loadOpCodes = new Dictionary<IType, OpCode>() 
+		{
+			{ PrimitiveTypes.Int8, OpCodes.LoadInt8 },
+			{ PrimitiveTypes.UInt8, OpCodes.LoadUInt8 },
+			{ PrimitiveTypes.Bit8, OpCodes.LoadUInt8 },
+			{ PrimitiveTypes.Boolean, OpCodes.LoadUInt8 },
+			{ PrimitiveTypes.Int16, OpCodes.LoadInt16 },
+			{ PrimitiveTypes.UInt16, OpCodes.LoadUInt16 },
+			{ PrimitiveTypes.Bit16, OpCodes.LoadUInt16 },
+			{ PrimitiveTypes.Char, OpCodes.LoadUInt16 },
+			{ PrimitiveTypes.Int32, OpCodes.LoadInt32 },
+			{ PrimitiveTypes.UInt32, OpCodes.LoadInt32 },
+			{ PrimitiveTypes.Bit32, OpCodes.LoadInt32 },
+			{ PrimitiveTypes.Int64, OpCodes.LoadInt64 },
+			{ PrimitiveTypes.UInt64, OpCodes.LoadInt64 },
+			{ PrimitiveTypes.Bit64, OpCodes.LoadInt64 },
+			{ PrimitiveTypes.Float32, OpCodes.LoadFloat32 },
+			{ PrimitiveTypes.Float64, OpCodes.LoadFloat64 }
+		};
+
+		private static readonly Dictionary<IType, OpCode> storeOpCodes = new Dictionary<IType, OpCode>() 
+		{
+			{ PrimitiveTypes.Int8, OpCodes.StoreInt8 },
+			{ PrimitiveTypes.UInt8, OpCodes.StoreInt8 },
+			{ PrimitiveTypes.Bit8, OpCodes.StoreInt8 },
+			{ PrimitiveTypes.Boolean, OpCodes.StoreInt8 },
+			{ PrimitiveTypes.Int16, OpCodes.StoreInt16 },
+			{ PrimitiveTypes.UInt16, OpCodes.StoreInt16 },
+			{ PrimitiveTypes.Bit16, OpCodes.StoreInt16 },
+			{ PrimitiveTypes.Char, OpCodes.StoreInt16 },
+			{ PrimitiveTypes.Int32, OpCodes.StoreInt32 },
+			{ PrimitiveTypes.UInt32, OpCodes.StoreInt32 },
+			{ PrimitiveTypes.Bit32, OpCodes.StoreInt32 },
+			{ PrimitiveTypes.Int64, OpCodes.StoreInt64 },
+			{ PrimitiveTypes.UInt64, OpCodes.StoreInt64 },
+			{ PrimitiveTypes.Bit64, OpCodes.StoreInt64 },
+			{ PrimitiveTypes.Float32, OpCodes.StoreFloat32 },
+			{ PrimitiveTypes.Float64, OpCodes.StoreFloat64 }
+		};
+
+		public ICodeBlock EmitDereferencePointer(ICodeBlock Pointer)
+		{
+			var targetBlock = (CodeBlock)Pointer;
+			var elemTy = targetBlock.Type.AsPointerType().ElementType;
+
+			OpCode loadOpCode;
+			if (elemTy.GetIsPointer() || elemTy.Equals(PrimitiveTypes.Null))
+				loadOpCode = loadOpCodes[Abi.PointerIntegerType];
+			else
+				loadOpCode = loadOpCodes[elemTy];
+
+			return EmitCallBlock(loadOpCode, elemTy, targetBlock.Expression);
+		}
+
+		public ICodeBlock EmitSizeOf(IType Type)
+		{
+			return EmitInt32(Abi.GetLayout(Type).Size);
+		}
+
+		public ICodeBlock EmitStoreAtAddress(ICodeBlock Pointer, ICodeBlock Value)
+		{
+			var targetBlock = (CodeBlock)Pointer;
+			var elemTy = targetBlock.Type.AsPointerType().ElementType;
+
+			OpCode storeOpCode;
+			if (elemTy.GetIsPointer() || elemTy.Equals(PrimitiveTypes.Null))
+				storeOpCode = storeOpCodes[Abi.PointerIntegerType];
+			else
+				storeOpCode = storeOpCodes[elemTy];
+
+			return EmitCallBlock(storeOpCode, PrimitiveTypes.Void, targetBlock.Expression, CodeBlock.ToExpression(Value));
+		}
+
+		#endregion
 
 		#region Variables
 
@@ -566,6 +670,26 @@ namespace Flame.Wasm.Emit
 		public IEmitVariable GetThis()
 		{
 			return new Register(this, "this", ThisVariable.GetThisType(Method.DeclaringType));
+		}
+
+		public IUnmanagedEmitVariable DeclareUnmanagedLocal(UniqueTag Tag, IVariableMember VariableMember)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IUnmanagedEmitVariable GetUnmanagedArgument(int Index)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IUnmanagedEmitVariable GetUnmanagedLocal(UniqueTag Tag)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IUnmanagedEmitVariable GetUnmanagedThis()
+		{
+			throw new NotImplementedException();
 		}
 
 		#endregion

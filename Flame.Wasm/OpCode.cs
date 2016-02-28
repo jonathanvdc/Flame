@@ -127,6 +127,26 @@ namespace Flame.Wasm
 		public static readonly OpCode SetLocal = new OpCode("set_local", ExprKind.Identifier, ExprKind.Call);
 
 		#endregion
+
+		#region Memory
+
+		public static readonly OpCode LoadInt8 = new OpCode("i32.load8_s", ExprKind.Call);
+		public static readonly OpCode LoadUInt8 = new OpCode("i32.load8_u", ExprKind.Call);
+		public static readonly OpCode LoadInt16 = new OpCode("i32.load16_s", ExprKind.Call);
+		public static readonly OpCode LoadUInt16 = new OpCode("i32.load16_u", ExprKind.Call);
+		public static readonly OpCode LoadInt32 = new OpCode("i32.load", ExprKind.Call);
+		public static readonly OpCode LoadInt64 = new OpCode("i64.load", ExprKind.Call);
+		public static readonly OpCode LoadFloat32 = new OpCode("f32.load", ExprKind.Call);
+		public static readonly OpCode LoadFloat64 = new OpCode("f64.load", ExprKind.Call);
+
+		public static readonly OpCode StoreInt8 = new OpCode("i32.store8", ExprKind.Call); 
+		public static readonly OpCode StoreInt16 = new OpCode("i32.store16", ExprKind.Call);
+		public static readonly OpCode StoreInt32 = new OpCode("i32.store", ExprKind.Call);
+		public static readonly OpCode StoreInt64 = new OpCode("i64.store", ExprKind.Call);
+		public static readonly OpCode StoreFloat32 = new OpCode("f32.store", ExprKind.Call);
+		public static readonly OpCode StoreFloat64 = new OpCode("f64.store", ExprKind.Call);
+
+		#endregion
 	}
 }
 
