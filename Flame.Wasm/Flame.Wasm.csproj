@@ -38,6 +38,9 @@
     <Reference Include="Pixie">
       <HintPath>..\Flame.Compiler\bin\Pixie.dll</HintPath>
     </Reference>
+    <Reference Include="Flame.Optimization">
+      <HintPath>..\Flame.Optimization\bin\Flame.Optimization.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -65,6 +68,7 @@
     <Compile Include="WasmField.cs" />
     <Compile Include="Emit\MemoryLocation.cs" />
     <Compile Include="Passes\PrologueEpiloguePass.cs" />
+    <Compile Include="CallingConventionSpec.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

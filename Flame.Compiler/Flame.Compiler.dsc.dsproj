@@ -173,6 +173,7 @@
 	</ItemGroup>
 	<ItemGroup Name="Native">
 		<ItemGroup>
+			<Compile Include="Native/ArgumentLayout.ds" />
 			<Compile Include="Native/DataLayout.ds" />
 			<Compile Include="Native/IAbi.ds" />
 		</ItemGroup>

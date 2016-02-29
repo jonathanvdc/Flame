@@ -1,0 +1,45 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Native
+{
+    /// <summary>
+    /// A data structure that describes how input arguments are allocated.
+    /// </summary>
+    public class ArgumentLayout
+    {
+        public const this(
+            set IVariable ThisPointer,
+            set IReadOnlyDictionary<int, IUnmanagedVariable> MemoryArguments,
+            set IReadOnlyDictionary<int, IVariable> RegisterArguments);
+
+        /// <summary>
+        /// Gets the 'this' pointer variable.
+        /// </summary>
+        public IVariable ThisPointer { get; private set; }
+
+        /// <summary>
+        /// A dictionary that maps indices of memory-allocated arguments to
+        /// the unmanaged variables that are used to store them.
+        /// </summary>
+        public IReadOnlyDictionary<int, IUnmanagedVariable> MemoryArguments { get; private set; }
+
+        /// <summary>
+        /// A dictionary that maps indices of register-allocated arguments to
+        /// the variables that are used to store them.
+        /// </summary>
+        public IReadOnlyDictionary<int, IVariable> RegisterArguments { get; private set; }
+
+        /// <summary>
+        /// Gets the argument with the specified index, irrespective of whether
+        /// it is stored in memory or in a register.
+        /// </summary>
+        public IVariable GetArgument(int Index)
+        {
+            if (RegisterArguments.ContainsKey(Index))
+                return RegisterArguments[Index];
+            else
+                return MemoryArguments[Index];
+        }
+    }
+}

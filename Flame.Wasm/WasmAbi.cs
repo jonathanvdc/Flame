@@ -79,8 +79,8 @@ namespace Flame.Wasm
 		public IStatement CreatePrologue(IMethod Method)
 		{
 			var results = new List<IStatement>();
-			results.Add(StackPointerRegister.CreateSetStatement(new GetNamedLocalExpression(StackPointerName, PointerIntegerType)));
-			results.Add(FramePointerRegister.CreateSetStatement(StackPointerRegister.CreateGetExpression()));
+			results.Add(FramePointerRegister.CreateSetStatement(new GetNamedLocalExpression(StackPointerName, PointerIntegerType)));
+			results.Add(StackPointerRegister.CreateSetStatement(FramePointerRegister.CreateGetExpression()));
 			return new BlockStatement(results);
 		}
 
@@ -106,7 +106,9 @@ namespace Flame.Wasm
 		public IStatement StackAllocate(IExpression Size)
 		{
 			return StackPointerRegister.CreateSetStatement(
-				new AddExpression(StackPointerRegister.CreateGetExpression(), Size));
+				new AddExpression(
+					StackPointerRegister.CreateGetExpression(), 
+					new StaticCastExpression(Size, PointerIntegerType).Simplify()));
 		}
 
 		/// <summary>
@@ -115,7 +117,9 @@ namespace Flame.Wasm
 		public IStatement StackRelease(IExpression Size)
 		{
 			return StackPointerRegister.CreateSetStatement(
-				new SubtractExpression(StackPointerRegister.CreateGetExpression(), Size));
+				new SubtractExpression(
+					StackPointerRegister.CreateGetExpression(), 
+					new StaticCastExpression(Size, PointerIntegerType).Simplify()));
 		}
 
 		/// <summary>
@@ -127,6 +131,88 @@ namespace Flame.Wasm
 				OpCodes.GetLocal, 
 				PointerIntegerType, 
 				new IdentifierExpr(StackPointerName));
+		}
+
+		/// <summary>
+		/// Gets the given method's calling convention spec.
+		/// </summary>
+		public CallingConventionSpec GetConventionSpec(IMethod Method)
+		{
+			var memLocals = new List<int>();
+			var regLocals = new List<int>();
+			int i = 0;
+			foreach (var item in Method.Parameters)
+			{
+				if (item.ParameterType.IsScalar())
+					regLocals.Add(i);
+				else
+					memLocals.Add(i);
+				i++;
+			}
+			return new CallingConventionSpec(
+				!Method.IsStatic, !Method.ReturnType.IsScalar(), 
+				memLocals, regLocals);
+		}
+
+		/// <summary>
+		/// Gets the argument layout for the given method.
+		/// </summary>
+		/// <returns>The argument layout.</returns>
+		/// <param name="Method">The method to inspect.</param>
+		public ArgumentLayout GetArgumentLayout(IMethod Method)
+		{
+			// This is how we'll do the argument layout:
+			// 
+			//     stack_argument_1
+			//     ...
+			//     stack_argument_n
+			//     return_value (if any)
+			//
+			// Note, however, that we have to reverse this, because
+			// we'll be using frame pointer-relative addresses.
+
+			var spec = GetConventionSpec(Method);
+
+			// Start off by computing stack addresses, relative
+			// to the calling function's stack pointer.
+			var parameters = Method.GetParameters();
+			var argOffsets = new Dictionary<int, int>();
+
+			int stackSize = 0;
+			foreach (var i in spec.StackArguments)
+			{
+				argOffsets[i] = stackSize;
+				stackSize += GetLayout(parameters[i].ParameterType).Size;
+			}
+			if (spec.ReturnValueOnStack)
+			{
+				stackSize += GetLayout(Method.ReturnType).Size;
+			}
+
+			// Now that we know the total stack size, we can compute
+			// the stack layout relative to the frame pointer.
+			var memLocals = new Dictionary<int, IUnmanagedVariable>();
+			foreach (var i in spec.StackArguments)
+			{
+				// &stack_argument_i = frame_pointer - (arg_stack_size - &caller_relative_stack_argument1)
+
+				int offset = stackSize - argOffsets[i];
+				memLocals[i] = new AtAddressVariable(
+					new ReinterpretCastExpression(
+						new SubtractExpression(
+							new ReinterpretCastExpression(FramePointerRegister.CreateGetExpression(), PointerIntegerType), 
+							new StaticCastExpression(new Int32Expression(offset), PointerIntegerType).Optimize()),
+						parameters[i].ParameterType.MakePointerType(PointerKind.ReferencePointer)));
+			}
+
+			// Oh, yeah. And consider register arguments, too.
+			var regLocals = new Dictionary<int, IVariable>();
+			foreach (var i in spec.RegisterArguments)
+			{
+				regLocals[i] = new ArgumentVariable(parameters[i], i);
+			}
+
+			return new ArgumentLayout(new ThisVariable(Method.DeclaringType), memLocals, regLocals);
 		}
 
 		/// <summary>
@@ -147,15 +233,17 @@ namespace Flame.Wasm
 		{
 			var results = new List<WasmExpr>();
 			results.Add(WasmHelpers.DeclareParameter(StackPointerParameter, this));
-			if (!Method.IsStatic)
+			var ccSpec = GetConventionSpec(Method);
+			if (ccSpec.HasThisPointer)
 			{
 				results.Add(WasmHelpers.DeclareParameter(new DescribedParameter(ThisPointerName, ThisVariable.GetThisType(Method.DeclaringType)), this));
 			}
-			foreach (var item in Method.Parameters)
+			var paramSigs = Method.GetParameters();
+			foreach (var i in ccSpec.RegisterArguments)
 			{
-				results.Add(WasmHelpers.DeclareParameter(item, this));
+				results.Add(WasmHelpers.DeclareParameter(paramSigs[i], this));
 			}
-			if (!Method.ReturnType.Equals(PrimitiveTypes.Void))
+			if (!ccSpec.ReturnValueOnStack && !Method.ReturnType.Equals(PrimitiveTypes.Void))
 			{
 				results.Add(WasmHelpers.DeclareResult(Method.ReturnType, this));
 			}
