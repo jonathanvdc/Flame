@@ -669,7 +669,7 @@ namespace Flame.Wasm.Emit
 
 		public IEmitVariable GetThis()
 		{
-			return new Register(this, "this", ThisVariable.GetThisType(Method.DeclaringType));
+			return Abi.GetThisPointer(this);
 		}
 
 		public IUnmanagedEmitVariable DeclareUnmanagedLocal(UniqueTag Tag, IVariableMember VariableMember)

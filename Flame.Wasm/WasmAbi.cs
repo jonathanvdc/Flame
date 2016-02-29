@@ -132,12 +132,11 @@ namespace Flame.Wasm
 		/// <summary>
 		/// Gets the 'this' pointer.
 		/// </summary>
-		public CodeBlock GetThisPointer(WasmCodeGenerator CodeGenerator)
+		public IEmitVariable GetThisPointer(WasmCodeGenerator CodeGenerator)
 		{
-			return CodeGenerator.EmitCallBlock(
-				OpCodes.GetLocal, 
-				ThisVariable.GetThisType(CodeGenerator.Method.DeclaringType), 
-				new IdentifierExpr(ThisPointerName));
+			return new Register(
+				CodeGenerator, "this", 
+				ThisVariable.GetThisType(CodeGenerator.Method.DeclaringType));
 		}
 
 		/// <summary>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Flame.Compiler.Native;
 using Flame.Wasm.Emit;
+using Flame.Compiler.Emit;
 
 namespace Flame.Wasm
 {
@@ -18,7 +19,7 @@ namespace Flame.Wasm
 		/// <summary>
 		/// Gets the 'this' pointer.
 		/// </summary>
-		CodeBlock GetThisPointer(WasmCodeGenerator CodeGenerator);
+		IEmitVariable GetThisPointer(WasmCodeGenerator CodeGenerator);
 
 		/// <summary>
 		/// Gets the given method's signature, as a sequence of
