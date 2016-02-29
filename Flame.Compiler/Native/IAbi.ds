@@ -14,6 +14,22 @@ namespace Flame.Compiler.Native
 
     /// <summary>
     /// A common interface for ABIs that can manipulate the stack.
+    /// This type of ABI is resposible for the following things:
+    /// <list>
+    /// <item><description>
+    /// Allocating data on the stack.
+    /// </description></item>
+    /// <item><description>
+    /// Retrieving arguments, including the 'this' pointer, which may
+    /// or may not be stored on the stack.
+    /// </description></item>
+    /// <item><description>
+    /// Writing prologues and epilogues for functions.
+    /// </description></item>
+    /// <item><description>
+    /// Creating function call expressions that adhere to this ABI.
+    /// </description></item>
+    /// </list>
     /// </summary>
     public interface IStackAbi : IAbi
     {
@@ -31,6 +47,11 @@ namespace Flame.Compiler.Native
         /// Deallocates the given number of bytes from the stack.
         /// </summary>
         IStatement StackRelease(IExpression Size);
+
+        /// <summary>
+        /// Gets the argument layout for the given method.
+        /// </summary>
+        ArgumentLayout GetArgumentLayout(IMethod Method);
 
         /// <summary>
         /// Writes a prologue for the given method.

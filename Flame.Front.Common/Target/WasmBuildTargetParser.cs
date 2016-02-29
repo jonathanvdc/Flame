@@ -39,15 +39,22 @@ namespace Flame.Front.Target
 			var targetAsm = new WasmModule(Info.Name, Info.Version, DependencyBuilder.Environment, abi);
 
 			var extraPasses = new PassManager();
-			extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
-				new PrologueEpiloguePass(abi), PrologueEpiloguePass.PrologueEpiloguePassName));
-			extraPasses.RegisterPassCondition(new PassCondition(PrologueEpiloguePass.PrologueEpiloguePassName, optInfo => true));
+
+			// These passes are required to ensure correctness. Disable them
+			// at your own peril.
+			// -fstackalloc
 			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
 				new StackAllocatingPass(abi), StackAllocatingPass.StackAllocatingPassName));
 			extraPasses.RegisterPassCondition(new PassCondition(StackAllocatingPass.StackAllocatingPassName, optInfo => true));
+			// -fprologue
+			extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
+				new PrologueEpiloguePass(abi), PrologueEpiloguePass.PrologueEpiloguePassName));
+			extraPasses.RegisterPassCondition(new PassCondition(PrologueEpiloguePass.PrologueEpiloguePassName, optInfo => true));
+			// -flower-call
 			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
 				new CallLoweringPass(abi), CallLoweringPass.CallLoweringPassName));
 			extraPasses.RegisterPassCondition(new PassCondition(CallLoweringPass.CallLoweringPassName, optInfo => true));
+
 
 			return new BuildTarget(targetAsm, DependencyBuilder, "wast", true, extraPasses.ToPreferences());
 		}
