@@ -63,7 +63,7 @@ namespace Flame.Wasm.Passes
 					new AddExpression(
 						new ReinterpretCastExpression(
 							new InitializedExpression(init, ptr).Simplify(), 
-							Abi.PointerIntegerType),
+							Abi.PointerIntegerType).Simplify(),
 						new StaticCastExpression(new Int32Expression(offset), Abi.PointerIntegerType).Simplify()),
 					fieldVar.Field.FieldType.MakePointerType(PointerKind.ReferencePointer)));
 		}

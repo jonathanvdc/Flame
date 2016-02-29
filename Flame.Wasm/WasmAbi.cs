@@ -200,8 +200,8 @@ namespace Flame.Wasm
 				memLocals[i] = new AtAddressVariable(
 					new ReinterpretCastExpression(
 						new SubtractExpression(
-							new ReinterpretCastExpression(FramePointerRegister.CreateGetExpression(), PointerIntegerType), 
-							new StaticCastExpression(new Int32Expression(offset), PointerIntegerType).Optimize()),
+							new ReinterpretCastExpression(FramePointerRegister.CreateGetExpression(), PointerIntegerType).Simplify(), 
+							new StaticCastExpression(new Int32Expression(offset), PointerIntegerType).Simplify()),
 						parameters[i].ParameterType.MakePointerType(PointerKind.ReferencePointer)));
 			}
 
