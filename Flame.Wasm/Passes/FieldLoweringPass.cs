@@ -27,19 +27,6 @@ namespace Flame.Wasm.Passes
 
 		private ConcurrentDictionary<IType, LocalVariable> temps;
 
-		/// <summary>
-		/// 'Dereferences' the given type: a single layer of 
-		/// type-level pointer indirection is performed, but
-		/// only if that can actually be done.
-		/// </summary>
-		public static IType DereferenceType(IType Type)
-		{
-			if (Type.GetIsPointer())
-				return Type.AsPointerType().ElementType;
-			else
-				return Type;
-		}
-
 		protected override bool CanSubstituteVariable(IVariable Variable)
 		{
 			return Variable is FieldVariable;
@@ -57,7 +44,7 @@ namespace Flame.Wasm.Passes
 				init = localCopy.CreateSetStatement(ptr);
 				ptr = localCopy.CreateAddressOfExpression();
 			}
-			int offset = Abi.GetLayout(DereferenceType(targetTy)).Members[fieldVar.Field].Offset;
+			int offset = Abi.GetLayout(CopyLoweringPass.DereferenceType(targetTy)).Members[fieldVar.Field].Offset;
 			return new AtAddressVariable(
 				new ReinterpretCastExpression(
 					new AddExpression(
