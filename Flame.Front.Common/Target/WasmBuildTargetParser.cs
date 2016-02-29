@@ -54,7 +54,11 @@ namespace Flame.Front.Target
 			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
 				new CallLoweringPass(abi), CallLoweringPass.CallLoweringPassName));
 			extraPasses.RegisterPassCondition(new PassCondition(CallLoweringPass.CallLoweringPassName, optInfo => true));
-
+			// -flower-fields
+			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
+				new FieldLoweringPass(abi), FieldLoweringPass.FieldLoweringPassName));
+			extraPasses.RegisterPassCondition(new PassCondition(FieldLoweringPass.FieldLoweringPassName, optInfo => true));
+			// -flower-copy
 
 			return new BuildTarget(targetAsm, DependencyBuilder, "wast", true, extraPasses.ToPreferences());
 		}

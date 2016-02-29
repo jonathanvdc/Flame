@@ -12,11 +12,6 @@ namespace Flame.Wasm
 	public interface IWasmAbi : IStackAbi
 	{
 		/// <summary>
-		/// Gets the integer type that is used to represent pointer values.
-		/// </summary>
-		IType PointerIntegerType { get; }
-
-		/// <summary>
 		/// Gets the 'this' pointer.
 		/// </summary>
 		IEmitVariable GetThisPointer(WasmCodeGenerator CodeGenerator);

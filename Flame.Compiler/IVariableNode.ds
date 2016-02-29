@@ -26,7 +26,7 @@ namespace Flame.Compiler
 		/// <summary>
 		/// Gets the action associated with this variable node.
 		/// </summary>
-		VariableNodeAction Action { const get; }
+		VariableNodeAction Action { get; }
 	}
 
 	/// <summary>
@@ -37,6 +37,6 @@ namespace Flame.Compiler
 		/// <summary>
 		/// Gets the value this node assigns to the underlying variable.
 		/// </summary>
-		IExpression Value { const get; }
+		IExpression Value { get; }
 	}
 }
