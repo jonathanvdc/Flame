@@ -40,6 +40,9 @@ namespace Flame.Front.Target
 
 			var extraPasses = new PassManager();
 			extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
+				new PrologueEpiloguePass(abi), PrologueEpiloguePass.PrologueEpiloguePassName));
+			extraPasses.RegisterPassCondition(new PassCondition(PrologueEpiloguePass.PrologueEpiloguePassName, optInfo => true));
+			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
 				new StackAllocatingPass(abi), StackAllocatingPass.StackAllocatingPassName));
 			extraPasses.RegisterPassCondition(new PassCondition(StackAllocatingPass.StackAllocatingPassName, optInfo => true));
 			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(

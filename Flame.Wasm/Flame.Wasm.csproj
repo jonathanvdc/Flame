@@ -64,6 +64,7 @@
     <Compile Include="Passes\CallLoweringPass.cs" />
     <Compile Include="WasmField.cs" />
     <Compile Include="Emit\MemoryLocation.cs" />
+    <Compile Include="Passes\PrologueEpiloguePass.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
