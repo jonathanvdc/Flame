@@ -60,6 +60,9 @@ namespace Flame.Front.Target
 				new FieldLoweringPass(abi), FieldLoweringPass.FieldLoweringPassName));
 			extraPasses.RegisterPassCondition(new PassCondition(FieldLoweringPass.FieldLoweringPassName, optInfo => true));
 			// -flower-copy
+			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
+				new CopyLoweringPass(abi), CopyLoweringPass.CopyLoweringPassName));
+			extraPasses.RegisterPassCondition(new PassCondition(CopyLoweringPass.CopyLoweringPassName, optInfo => true));
 
 			// These passes perform optimizations _after_ the correctness passes have
 			// lowered a number of constructs.

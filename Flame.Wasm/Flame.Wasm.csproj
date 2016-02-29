@@ -70,6 +70,7 @@
     <Compile Include="Passes\PrologueEpiloguePass.cs" />
     <Compile Include="CallingConventionSpec.cs" />
     <Compile Include="Passes\FieldLoweringPass.cs" />
+    <Compile Include="Passes\CopyLoweringPass.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

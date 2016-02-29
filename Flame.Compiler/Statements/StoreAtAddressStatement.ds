@@ -4,7 +4,7 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Statements
 {
-    public class StoreAtAddressStatement : IStatement, IVariableNode
+    public class StoreAtAddressStatement : IStatement, ISetVariableNode
     {
         public const this(set IExpression Pointer, set IExpression Value);
 
