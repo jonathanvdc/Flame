@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Flame.Front.Passes;
 using Flame.Compiler.Visitors;
 using Flame.Wasm.Passes;
+using Flame.Optimization;
 
 namespace Flame.Front.Target
 {
@@ -59,6 +60,14 @@ namespace Flame.Front.Target
 				new FieldLoweringPass(abi), FieldLoweringPass.FieldLoweringPassName));
 			extraPasses.RegisterPassCondition(new PassCondition(FieldLoweringPass.FieldLoweringPassName, optInfo => true));
 			// -flower-copy
+
+			// These passes perform optimizations _after_ the correctness passes have
+			// lowered a number of constructs.
+
+			// -foptimize-nodes-lowered
+			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
+				NodeOptimizationPass.Instance, NodeOptimizationPass.NodeOptimizationPassName + "-lowered"));
+			extraPasses.RegisterPassCondition(new PassCondition(NodeOptimizationPass.NodeOptimizationPassName + "-lowered", optInfo => optInfo.OptimizeMinimal));
 
 			return new BuildTarget(targetAsm, DependencyBuilder, "wast", true, extraPasses.ToPreferences());
 		}
