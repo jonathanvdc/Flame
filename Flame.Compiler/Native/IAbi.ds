@@ -10,6 +10,11 @@ namespace Flame.Compiler.Native
         /// Gets the given type's memory data layout.
         /// </summary>
         DataLayout GetLayout(IType Type);
+
+        /// <summary>
+		/// Gets the integer type that is used to represent pointer values.
+		/// </summary>
+        IType PointerIntegerType { get; }
     }
 
     /// <summary>

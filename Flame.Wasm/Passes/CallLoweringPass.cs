@@ -1,8 +1,8 @@
 ﻿using System;
-using Flame.Compiler.Visitors;
 using Flame.Compiler;
-using Flame.Compiler.Native;
 using Flame.Compiler.Expressions;
+using Flame.Compiler.Native;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Wasm.Passes
 {
