@@ -18,11 +18,6 @@ namespace Flame.Compiler.Native
     public interface IStackAbi : IAbi
     {
         /// <summary>
-        /// Writes a prologue for the given method.
-        /// </summary>
-        IStatement GetPrologue(IMethod Method);
-
-        /// <summary>
         /// Gets the address of the stack slot at the given offset.
         /// </summary>
         IExpression GetStackSlotAddress(IExpression Offset);
@@ -38,9 +33,14 @@ namespace Flame.Compiler.Native
         IStatement StackRelease(IExpression Size);
 
         /// <summary>
-        /// Writes an epilogue for the given method.
+        /// Writes a prologue for the given method.
         /// </summary>
-        IStatement GetEpilogue(IMethod Method);
+        IStatement CreatePrologue(IMethod Method);
+
+        /// <summary>
+        /// Writes a return statement/epilogue for the given method.
+        /// </summary>
+        IStatement CreateReturnEpilogue(IMethod Method, IExpression Value);
 
         /// <summary>
         /// Creates a direct call to the given method. A 'this' pointer and

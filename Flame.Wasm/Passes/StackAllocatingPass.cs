@@ -76,7 +76,7 @@ namespace Flame.Wasm.Passes
 	/// A pass that stack-allocates all local variables, and inserts
 	/// a prologue/epilogue.
 	/// </summary>
-	public class StackAllocatingPass : IPass<BodyPassArgument, IStatement>
+	public class StackAllocatingPass : IPass<IStatement, IStatement>
 	{
 		public StackAllocatingPass(IStackAbi Abi)
 		{
@@ -90,19 +90,16 @@ namespace Flame.Wasm.Passes
 		/// </summary>
 		public IStackAbi Abi { get; private set; }
 
-		public IStatement Apply(BodyPassArgument Arg)
+		public IStatement Apply(IStatement Statement)
 		{
 			var resultStmts = new List<IStatement>();
 			var visitor = new StackAllocatingVisitor(Abi);
 
-			var visitedBody = visitor.Visit(Arg.Body);
-
-			resultStmts.Add(Abi.GetPrologue(Arg.DeclaringMethod));
+			var visitedBody = visitor.Visit(Statement);
 			if (visitor.StackSize > 0)
 				resultStmts.Add(Abi.StackAllocate(new Int32Expression(visitor.StackSize)));
 			resultStmts.Add(visitedBody);
-			resultStmts.Add(Abi.GetEpilogue(Arg.DeclaringMethod));
-			return new BlockStatement(resultStmts);
+			return new BlockStatement(resultStmts).Simplify();
 		}
 	}
 }

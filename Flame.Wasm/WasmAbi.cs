@@ -76,7 +76,7 @@ namespace Flame.Wasm
 		/// <summary>
 		/// Writes a prologue for the given method.
 		/// </summary>
-		public IStatement GetPrologue(IMethod Method)
+		public IStatement CreatePrologue(IMethod Method)
 		{
 			var results = new List<IStatement>();
 			results.Add(StackPointerRegister.CreateSetStatement(new GetNamedLocalExpression(StackPointerName, PointerIntegerType)));
@@ -85,11 +85,11 @@ namespace Flame.Wasm
 		}
 
 		/// <summary>
-		/// Writes an epilogue for the given method.
+		/// Writes a return statement/epilogue for the given method.
 		/// </summary>
-		public IStatement GetEpilogue(IMethod Method)
+		public IStatement CreateReturnEpilogue(IMethod Method, IExpression Value)
 		{
-			return EmptyStatement.Instance;
+			return new ReturnStatement(Value);
 		}
 
 		/// <summary>
