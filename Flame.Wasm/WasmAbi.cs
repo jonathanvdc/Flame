@@ -47,6 +47,11 @@ namespace Flame.Wasm
 		public const string ThisPointerName = "this";
 
 		/// <summary>
+		/// The name of the return pointer parameter.
+		/// </summary>
+		public const string ReturnPointerName = "retptr";
+
+		/// <summary>
 		/// Gets the stack pointer parameter.
 		/// </summary>
 		public IParameter StackPointerParameter { get; private set; }
@@ -89,7 +94,22 @@ namespace Flame.Wasm
 		/// </summary>
 		public IStatement CreateReturnEpilogue(IMethod Method, IExpression Value)
 		{
-			return new ReturnStatement(Value);
+			if (HasMemoryReturnValue(Method))
+			{
+				return new BlockStatement(new IStatement[] 
+				{
+					new StoreAtAddressStatement(
+						new GetNamedLocalExpression(
+							ReturnPointerName, 
+							Method.ReturnType.MakePointerType(PointerKind.ReferencePointer)),
+						Value),
+					new ReturnStatement()
+				});
+			}
+			else
+			{
+				return new ReturnStatement(Value);
+			}
 		}
 
 		/// <summary>
@@ -134,6 +154,15 @@ namespace Flame.Wasm
 		}
 
 		/// <summary>
+		/// Determines if the specified method has a memory return value.
+		/// </summary>
+		/// <returns><c>true</c> if the specified method has a memory return value; otherwise, <c>false</c>.</returns>
+		public static bool HasMemoryReturnValue(IMethod Method)
+		{
+			return !Method.ReturnType.IsScalar();
+		}
+
+		/// <summary>
 		/// Gets the given method's calling convention spec.
 		/// </summary>
 		public CallingConventionSpec GetConventionSpec(IMethod Method)
@@ -150,28 +179,29 @@ namespace Flame.Wasm
 				i++;
 			}
 			return new CallingConventionSpec(
-				!Method.IsStatic, !Method.ReturnType.IsScalar(), 
+				!Method.IsStatic, HasMemoryReturnValue(Method), 
 				memLocals, regLocals);
 		}
 
 		/// <summary>
-		/// Gets the argument layout for the given method.
+		/// Gets the argument layout for the given method 
+		/// and calling convention spec.
 		/// </summary>
 		/// <returns>The argument layout.</returns>
 		/// <param name="Method">The method to inspect.</param>
-		public ArgumentLayout GetArgumentLayout(IMethod Method)
+		private ArgumentLayout GetArgumentLayout(IMethod Method, CallingConventionSpec Spec)
 		{
 			// This is how we'll do the argument layout:
 			// 
 			//     stack_argument_1
 			//     ...
 			//     stack_argument_n
-			//     return_value (if any)
 			//
-			// Note, however, that we have to reverse this, because
-			// we'll be using frame pointer-relative addresses.
-
-			var spec = GetConventionSpec(Method);
+			// Note, however, that we have modify these addressed, because
+			// we'll be using callee frame pointer-relative addresses.
+			// A pointer is used to identify return value locations 
+			// if they are memory-allocated, so we need not worry about
+			// that here.
 
 			// Start off by computing stack addresses, relative
 			// to the calling function's stack pointer.
@@ -179,20 +209,16 @@ namespace Flame.Wasm
 			var argOffsets = new Dictionary<int, int>();
 
 			int stackSize = 0;
-			foreach (var i in spec.StackArguments)
+			foreach (var i in Spec.StackArguments)
 			{
 				argOffsets[i] = stackSize;
 				stackSize += GetLayout(parameters[i].ParameterType).Size;
-			}
-			if (spec.ReturnValueOnStack)
-			{
-				stackSize += GetLayout(Method.ReturnType).Size;
 			}
 
 			// Now that we know the total stack size, we can compute
 			// the stack layout relative to the frame pointer.
 			var memLocals = new Dictionary<int, IUnmanagedVariable>();
-			foreach (var i in spec.StackArguments)
+			foreach (var i in Spec.StackArguments)
 			{
 				// &stack_argument_i = frame_pointer - (arg_stack_size - &caller_relative_stack_argument1)
 
@@ -207,7 +233,7 @@ namespace Flame.Wasm
 
 			// Oh, yeah. And consider register arguments, too.
 			var regLocals = new Dictionary<int, IVariable>();
-			foreach (var i in spec.RegisterArguments)
+			foreach (var i in Spec.RegisterArguments)
 			{
 				regLocals[i] = new ArgumentVariable(parameters[i], i);
 			}
@@ -216,12 +242,22 @@ namespace Flame.Wasm
 		}
 
 		/// <summary>
+		/// Gets the argument layout for the given method.
+		/// </summary>
+		/// <returns>The argument layout.</returns>
+		/// <param name="Method">The method to inspect.</param>
+		public ArgumentLayout GetArgumentLayout(IMethod Method)
+		{
+			return GetArgumentLayout(Method, GetConventionSpec(Method));
+		}
+
+		/// <summary>
 		/// Gets the 'this' pointer.
 		/// </summary>
 		public IEmitVariable GetThisPointer(WasmCodeGenerator CodeGenerator)
 		{
 			return new Register(
-				CodeGenerator, "this", 
+				CodeGenerator, ThisPointerName, 
 				ThisVariable.GetThisType(CodeGenerator.Method.DeclaringType));
 		}
 
@@ -236,14 +272,27 @@ namespace Flame.Wasm
 			var ccSpec = GetConventionSpec(Method);
 			if (ccSpec.HasThisPointer)
 			{
-				results.Add(WasmHelpers.DeclareParameter(new DescribedParameter(ThisPointerName, ThisVariable.GetThisType(Method.DeclaringType)), this));
+				results.Add(WasmHelpers.DeclareParameter(
+					new DescribedParameter(
+						ThisPointerName,
+						ThisVariable.GetThisType(Method.DeclaringType)), 
+					this));
 			}
 			var paramSigs = Method.GetParameters();
 			foreach (var i in ccSpec.RegisterArguments)
 			{
 				results.Add(WasmHelpers.DeclareParameter(paramSigs[i], this));
 			}
-			if (!ccSpec.ReturnValueOnStack && !Method.ReturnType.Equals(PrimitiveTypes.Void))
+			if (ccSpec.HasMemoryReturnValue)
+			{
+				// Append a return pointer variable.
+				results.Add(WasmHelpers.DeclareParameter(
+					new DescribedParameter(
+						ReturnPointerName, 
+						Method.ReturnType.MakePointerType(PointerKind.ReferencePointer)), 
+					this));
+			}
+			else if (!Method.ReturnType.Equals(PrimitiveTypes.Void))
 			{
 				results.Add(WasmHelpers.DeclareResult(Method.ReturnType, this));
 			}
@@ -257,12 +306,98 @@ namespace Flame.Wasm
 		public IExpression CreateDirectCall(
 			IMethod Target, IExpression ThisPointer, IEnumerable<IExpression> Arguments)
 		{
+			var callInit = new List<IStatement>();
+			var argArr = Arguments.ToArray();
+			var paramArr = Target.GetParameters();
+			var ccSpec = GetConventionSpec(Target);
+
+			var regArgs = new List<IExpression>();
+			var stackArgs = new HashSet<int>(ccSpec.StackArguments);
+
+			int i = 0;
+			int argStackSize = 0;
+			foreach (var arg in Arguments)
+			{
+				if (stackArgs.Contains(i))
+				{
+					// Spill all unspilled register-allocated arguments,
+					// to preserve the order of evaluation.
+					var unspilledRegArgs = new List<IExpression>(regArgs);
+					regArgs = new List<IExpression>();
+					foreach (var rArg in unspilledRegArgs)
+					{
+						if (rArg.GetEssentialExpression() is IVariableNode)
+						{
+							regArgs.Add(rArg);
+						}
+						else
+						{
+							var temp = new RegisterVariable(rArg.Type);
+							callInit.Add(temp.CreateSetStatement(rArg));
+							regArgs.Add(temp.CreateGetExpression());
+						}
+					}
+
+					// Push stack-allocated arguments on the stack.
+					var ty = paramArr[i].ParameterType;
+					callInit.Add(new StoreAtAddressStatement(
+						Passes.CopyLoweringPass.IndexPointer(
+							StackPointerRegister.CreateGetExpression(), argStackSize,
+							this, ty), 
+						argArr[i]));
+					argStackSize += GetLayout(ty).Size;
+				}
+				else
+				{
+					regArgs.Add(arg);
+				}
+				i++;
+			}
+
 			var callArgs = new List<IExpression>();
-			callArgs.Add(StackPointerRegister.CreateGetExpression());
+
+			// The first argument is the stack pointer.
+			if (argStackSize == 0)
+			{
+				callArgs.Add(StackPointerRegister.CreateGetExpression());
+			}
+			else
+			{
+				// Pass an updated version of the stack pointer as argument,
+				// so we don't have to restore the stack pointer's value later.
+				callArgs.Add(new AddExpression(
+					StackPointerRegister.CreateGetExpression(),
+					new StaticCastExpression(new Int32Expression(argStackSize), PointerIntegerType).Simplify()));
+			}
+
+			// Optionally insert a 'this' pointer.
 			if (ThisPointer != null)
 				callArgs.Add(ThisPointer);
-			callArgs.AddRange(Arguments);
-			return new DirectCallExpression(Target, callArgs);
+
+			// Include the actual register arguments.
+			callArgs.AddRange(regArgs);
+
+			if (ccSpec.HasMemoryReturnValue)
+			{
+				// Finally, append a pointer to the return variable,
+				// if necessary.
+				var retVar = new LocalVariable(Target.ReturnType);
+				callArgs.Add(retVar.CreateAddressOfExpression());
+				return new InitializedExpression(
+					new BlockStatement(new IStatement[] 
+					{
+						new BlockStatement(callInit).Simplify(),
+						new ExpressionStatement(new DirectCallExpression(Target, callArgs))
+					}),
+					retVar.CreateGetExpression());
+			}
+			else
+			{
+				// A scalar is returned. This is easy.
+				return new InitializedExpression(
+					new BlockStatement(callInit).Simplify(),
+					new DirectCallExpression(Target, callArgs));
+			}
 		}
 	}
 

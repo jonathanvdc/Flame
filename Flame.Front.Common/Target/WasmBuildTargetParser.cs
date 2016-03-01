@@ -43,18 +43,22 @@ namespace Flame.Front.Target
 
 			// These passes are required to ensure correctness. Disable them
 			// at your own peril.
-			// -fstackalloc
-			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
-				new StackAllocatingPass(abi), StackAllocatingPass.StackAllocatingPassName));
-			extraPasses.RegisterPassCondition(new PassCondition(StackAllocatingPass.StackAllocatingPassName, optInfo => true));
-			// -fprologue
+			// -fepilogue
 			extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
-				new PrologueEpiloguePass(abi), PrologueEpiloguePass.PrologueEpiloguePassName));
-			extraPasses.RegisterPassCondition(new PassCondition(PrologueEpiloguePass.PrologueEpiloguePassName, optInfo => true));
+				new EpiloguePass(abi), EpiloguePass.EpiloguePassName));
+			extraPasses.RegisterPassCondition(new PassCondition(EpiloguePass.EpiloguePassName, optInfo => true));
 			// -flower-call
 			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
 				new CallLoweringPass(abi), CallLoweringPass.CallLoweringPassName));
 			extraPasses.RegisterPassCondition(new PassCondition(CallLoweringPass.CallLoweringPassName, optInfo => true));
+			// -fstackalloc
+			extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
+				new StackAllocatingPass(abi), StackAllocatingPass.StackAllocatingPassName));
+			extraPasses.RegisterPassCondition(new PassCondition(StackAllocatingPass.StackAllocatingPassName, optInfo => true));
+			// -fprologue
+			extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
+				new ProloguePass(abi), ProloguePass.ProloguePassName));
+			extraPasses.RegisterPassCondition(new PassCondition(ProloguePass.ProloguePassName, optInfo => true));
 			// -flower-fields
 			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
 				new FieldLoweringPass(abi), FieldLoweringPass.FieldLoweringPassName));

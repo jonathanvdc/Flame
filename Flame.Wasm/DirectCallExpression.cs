@@ -32,7 +32,7 @@ namespace Flame.Wasm
 
 		public IExpression Accept(INodeVisitor Visitor)
 		{
-			return new DirectCallExpression(Target, Arguments.Select(item => item.Accept(Visitor)).ToArray());
+			return new DirectCallExpression(Target, Arguments.Select(Visitor.Visit).ToArray());
 		}
 
 		public IMemberNode ConvertMembers(MemberConverter Converter)

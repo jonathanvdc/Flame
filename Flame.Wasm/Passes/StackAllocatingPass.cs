@@ -14,9 +14,10 @@ namespace Flame.Wasm.Passes
 	/// </summary>
 	public class StackAllocatingVisitor : VariableSubstitutingVisitorBase
 	{
-		public StackAllocatingVisitor(IStackAbi Abi)
+		public StackAllocatingVisitor(IStackAbi Abi, ArgumentLayout Arguments)
 		{
 			this.Abi = Abi;
+			this.Arguments = Arguments;
 			this.StackSize = 0;
 			this.variableMapping = new Dictionary<LocalVariableBase, IVariable>();
 		}
@@ -28,7 +29,12 @@ namespace Flame.Wasm.Passes
 		public IStackAbi Abi { get; private set; }
 
 		/// <summary>
-		/// Gets the size of the stack.
+		/// Gets the argument layout for the current method.
+		/// </summary>
+		public ArgumentLayout Arguments { get; private set; }
+
+		/// <summary>
+		/// Gets the size of the local value stack.
 		/// </summary>
 		public int StackSize { get; private set; }
 
@@ -55,20 +61,34 @@ namespace Flame.Wasm.Passes
 
 		protected override bool CanSubstituteVariable(IVariable Variable)
 		{
-			return Variable is LocalVariableBase;
+			return Variable is LocalVariableBase 
+				|| Variable is ThisVariable 
+				|| Variable is ArgumentVariable;
 		}
 
 		protected override IVariable SubstituteVariable(IVariable Variable)
 		{
-			var localVar = (LocalVariableBase)Variable;
-
-			IVariable result;
-			if (!variableMapping.TryGetValue(localVar, out result))
+			if (Variable is ThisVariable)
 			{
-				result = Allocate(localVar);
-				variableMapping[localVar] = result;
+				return Arguments.ThisPointer;
 			}
-			return result;
+			else if (Variable is ArgumentVariable)
+			{
+				var arg = (ArgumentVariable)Variable;
+				return Arguments.GetArgument(arg.Index);
+			}
+			else
+			{
+				var localVar = (LocalVariableBase)Variable;
+
+				IVariable result;
+				if (!variableMapping.TryGetValue(localVar, out result))
+				{
+					result = Allocate(localVar);
+					variableMapping[localVar] = result;
+				}
+				return result;
+			}
 		}
 	}
 
@@ -76,7 +96,7 @@ namespace Flame.Wasm.Passes
 	/// A pass that stack-allocates all local variables, and inserts
 	/// a prologue/epilogue.
 	/// </summary>
-	public class StackAllocatingPass : IPass<IStatement, IStatement>
+	public class StackAllocatingPass : IPass<BodyPassArgument, IStatement>
 	{
 		public StackAllocatingPass(IStackAbi Abi)
 		{
@@ -90,12 +110,13 @@ namespace Flame.Wasm.Passes
 		/// </summary>
 		public IStackAbi Abi { get; private set; }
 
-		public IStatement Apply(IStatement Statement)
+		public IStatement Apply(BodyPassArgument Arg)
 		{
 			var resultStmts = new List<IStatement>();
-			var visitor = new StackAllocatingVisitor(Abi);
+			var visitor = new StackAllocatingVisitor(
+				Abi, Abi.GetArgumentLayout(Arg.DeclaringMethod));
 
-			var visitedBody = visitor.Visit(Statement);
+			var visitedBody = visitor.Visit(Arg.Body);
 			if (visitor.StackSize > 0)
 				resultStmts.Add(Abi.StackAllocate(new Int32Expression(visitor.StackSize)));
 			resultStmts.Add(visitedBody);

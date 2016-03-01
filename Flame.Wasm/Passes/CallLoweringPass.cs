@@ -40,7 +40,9 @@ namespace Flame.Wasm.Passes
 			if (target is GetMethodExpression)
 			{
 				var getMethodExpr = (GetMethodExpression)target;
-				return Abi.CreateDirectCall(getMethodExpr.Target, getMethodExpr.Caller, invExpr.Arguments);
+				return Abi.CreateDirectCall(
+					getMethodExpr.Target, getMethodExpr.Caller, 
+					invExpr.Arguments).Accept(this);
 			}
 			throw new NotSupportedException("Indirect calls are not supported at this time.");
 		}

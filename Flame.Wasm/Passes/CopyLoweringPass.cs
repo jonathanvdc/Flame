@@ -47,10 +47,14 @@ namespace Flame.Wasm.Passes
 
 		private static IExpression GetSourcePointer(IExpression Expression)
 		{
-			if (Expression is DereferencePointerExpression)
+			if (Expression is IVariableNode)
 			{
-				var derefExpr = (DereferencePointerExpression)Expression;
-				return derefExpr.Expression;
+				var varNode = (IVariableNode)Expression;
+				var srcVar = varNode.GetVariable() as IUnmanagedVariable;
+				if (varNode.Action == VariableNodeAction.Get && srcVar != null)
+				{
+					return srcVar.CreateAddressOfExpression();
+				}
 			}
 			else if (Expression is IMetadataNode<IExpression>)
 			{
@@ -65,12 +69,9 @@ namespace Flame.Wasm.Passes
 					GetSourcePointer(initExpr.Value), 
 					initExpr.Finalization);
 			}
-			else
-			{
-				throw new Exception(
-					"Could not find a source pointer " +
-					"for an aggregate copy operation.");
-			}
+			throw new Exception(
+				"Could not find a source pointer " +
+				"for an aggregate copy operation.");
 		}
 
 		protected override IStatement Transform(IStatement Statement)
