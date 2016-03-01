@@ -3,16 +3,21 @@ public struct Vector2
 {
     public int X;
     public int Y;
+
+    public int LengthSquared()
+    {
+        return X * X + Y * Y;
+    }
 }
 
 public module StructTest
 {
-    public int* Allocate()
+    public int Allocate()
     {
         Vector2 val;
         val.X = 3;
         val.Y = 4;
         Vector2 copy = val;
-        return &copy.Y;
+        return copy.LengthSquared();
     }
 }
