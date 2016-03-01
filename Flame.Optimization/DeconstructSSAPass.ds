@@ -467,7 +467,7 @@ namespace Flame.Optimization
             var groupedVars = GroupByType(liveness.DefinitionBlocks.Keys);
             var regAlloc = new Dictionary<SSAVariable, IVariable>();
             // Creates a new color.
-            var createColor = IVariable(SSAVariable v) => new LocalVariable(v.Member);
+            var createColor = IVariable(SSAVariable v) => new RegisterVariable(v.Member);
 
             foreach (var pair in groupedVars)
             {

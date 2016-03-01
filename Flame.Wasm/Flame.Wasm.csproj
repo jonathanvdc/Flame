@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{24545215-0C8B-4B7A-B109-2E4B325FA728}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Flame.Wasm</RootNamespace>
+    <AssemblyName>Flame.Wasm</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Flame.Compiler">
+      <HintPath>..\Flame.Compiler\bin\Flame.Compiler.dll</HintPath>
+    </Reference>
+    <Reference Include="Flame">
+      <HintPath>..\Flame.Compiler\bin\Flame.dll</HintPath>
+    </Reference>
+    <Reference Include="Pixie">
+      <HintPath>..\Flame.Compiler\bin\Pixie.dll</HintPath>
+    </Reference>
+    <Reference Include="Flame.Optimization">
+      <HintPath>..\Flame.Optimization\bin\Flame.Optimization.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="OpCode.cs" />
+    <Compile Include="WasmExpr.cs" />
+    <Compile Include="ExprKind.cs" />
+    <Compile Include="Emit\WasmCodeGenerator.cs" />
+    <Compile Include="Emit\CodeBlock.cs" />
+    <Compile Include="Emit\ExprBlock.cs" />
+    <Compile Include="Emit\NopBlock.cs" />
+    <Compile Include="Emit\DelegateBlock.cs" />
+    <Compile Include="WasmMethod.cs" />
+    <Compile Include="WasmType.cs" />
+    <Compile Include="WasmHelpers.cs" />
+    <Compile Include="Emit\Register.cs" />
+    <Compile Include="Emit\StackSlot.cs" />
+    <Compile Include="WasmModule.cs" />
+    <Compile Include="WasmNamespace.cs" />
+    <Compile Include="WasmAbi.cs" />
+    <Compile Include="IWasmAbi.cs" />
+    <Compile Include="Passes\StackAllocatingPass.cs" />
+    <Compile Include="GetNamedLocalExpression.cs" />
+    <Compile Include="DirectCallExpression.cs" />
+    <Compile Include="Passes\CallLoweringPass.cs" />
+    <Compile Include="WasmField.cs" />
+    <Compile Include="Emit\MemoryLocation.cs" />
+    <Compile Include="Passes\PrologueEpiloguePass.cs" />
+    <Compile Include="CallingConventionSpec.cs" />
+    <Compile Include="Passes\FieldLoweringPass.cs" />
+    <Compile Include="Passes\CopyLoweringPass.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Emit\" />
+    <Folder Include="Passes\" />
+  </ItemGroup>
+</Project>

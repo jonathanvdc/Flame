@@ -99,7 +99,7 @@ namespace Flame.Compiler.Expressions
 					ElementType,
 					new IExpression[] { new Int32Expression(Elements.Length) });
 
-				var localVar = new LocalVariable(enumExpr.Type);
+				var localVar = new RegisterVariable(enumExpr.Type);
 
 				IStatement[] initStatements = new IStatement[Elements.Length + 1];
 	            initStatements[0] = localVar.CreateSetStatement(enumExpr);

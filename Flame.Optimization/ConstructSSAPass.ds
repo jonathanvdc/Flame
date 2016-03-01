@@ -573,7 +573,7 @@ namespace Flame.Optimization
         /// </summary>
         public bool IsEligible(IVariable Variable)
         {
-            return Variable is LocalVariable;
+            return Variable is LocalVariableBase;
         }
 
         /// <summary>
@@ -581,9 +581,9 @@ namespace Flame.Optimization
         /// </summary>
         public SSAVariable CreateSSAVariable(IVariable Variable)
         {
-            if (Variable is LocalVariable)
+            if (Variable is LocalVariableBase)
             {
-                var local = (LocalVariable)Variable;
+                var local = (LocalVariableBase)Variable;
                 return new SSAVariable(local.Member);
             }
             else

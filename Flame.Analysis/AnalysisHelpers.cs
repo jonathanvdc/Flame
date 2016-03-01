@@ -14,7 +14,16 @@ namespace Flame.Analysis
         public static bool IsThisVariable(IExpression Value)
         {
             var innerNode = Value.GetEssentialExpression();
-            return innerNode is IVariableNode && ((IVariableNode)innerNode).GetVariable() is ThisVariable;
+			var varNode = innerNode as IVariableNode;
+			if (varNode != null)
+			{
+				var innerVar = varNode.GetVariable();
+				if (innerVar is ThisVariable)
+					return true;
+				else if (innerVar is AtAddressVariable)
+					return IsThisVariable(((AtAddressVariable)innerVar).Pointer);
+			}
+			return false;
         }
 
         public static DissectedCall DissectCall(IExpression Node)

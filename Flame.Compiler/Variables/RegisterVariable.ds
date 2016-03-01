@@ -1,0 +1,84 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler.Variables
+{
+    /// <summary>
+    /// A type for local variables whose address is irrelevant, and can be
+    /// placed in a register.
+    /// </summary>
+    public class RegisterVariable : LocalVariableBase
+    {
+        /// <summary>
+        /// Creates a new local variable from the given variable member and
+        /// unique tag.
+        /// </summary>
+        public const this(IVariableMember Member, UniqueTag Tag)
+            : base(Member, Tag);
+
+        /// <summary>
+        /// Creates a new local variable from the given variable member.
+        /// </summary>
+        public const this(IVariableMember Member)
+            : base(Member);
+
+        /// <summary>
+        /// Creates a new local variable from the given type.
+        /// </summary>
+        public const this(IType Type)
+            : base(Type);
+
+        /// <summary>
+        /// Creates a new local variable from the given name and type.
+        /// </summary>
+        public const this(string Name, IType Type)
+            : base(Name, Type);
+
+        /// <summary>
+        /// Gets the emit variable for this local variable, in
+        /// the given code generator.
+        /// </summary>
+        public override IEmitVariable GetEmitVariable(ICodeGenerator CodeGenerator)
+        {
+            return CodeGenerator.GetOrDeclareLocal(Tag, Member);
+        }
+
+        /// <summary>
+        /// Converts this local variable's type by applying the given
+        /// member converter.
+        /// </summary>
+        public override LocalVariableBase ConvertType(MemberConverter Converter)
+        {
+            var convType = Converter.Convert(this.Type);
+            if (convType == this.Type)
+                return this;
+            else
+                return new RegisterVariable(
+                    new RetypedVariableMember(this.Member, convType),
+                    this.Tag);
+        }
+
+        public bool Equals(RegisterVariable Other)
+        {
+            return this.Tag == Other.Tag;
+        }
+
+        public override bool Equals(object Other)
+        {
+            return Other is RegisterVariable && Equals((RegisterVariable)Other);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Tag.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return "register(" + Member.Name + ")";
+        }
+    }
+}

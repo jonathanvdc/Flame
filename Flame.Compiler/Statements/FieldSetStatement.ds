@@ -4,7 +4,7 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Statements
 {
-    public class FieldSetStatement : IStatement, IVariableNode, IMemberNode
+    public class FieldSetStatement : IStatement, ISetVariableNode, IMemberNode
     {
         public const this(set IField Field, set IExpression Target, set IExpression Value);
 

@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Native
+{
+    /// <summary>
+    /// A data structure that represents the precise data layout of some type.
+    /// </summary>
+    public class DataLayout
+    {
+        /// <summary>
+        /// Creates a data layout structure from the given size and
+        /// data member dictionary.
+        /// </summary>
+        public const this(
+            set int Size,
+            set IReadOnlyDictionary<IField, DataMember> Members);
+
+        /// <summary>
+        /// Creates an opaque data layout structure from the given size.
+        /// </summary>
+        public const this(set int Size)
+        {
+            this.Members = new Dictionary<IField, DataMember>();
+        }
+
+        /// <summary>
+        /// Gets this data layout's total size.
+        /// </summary>
+        public int Size { get; private set; }
+
+        /// <summary>
+        /// Gets this data layout's members, as a dictionary that maps
+        /// fields to data members.
+        /// </summary>
+        public IReadOnlyDictionary<IField, DataMember> Members { get; private set; }
+    }
+
+    /// <summary>
+    /// A data structure that describes a field that has been positioned
+    /// in some data layout structure.
+    /// </summary>
+    public struct DataMember
+    {
+        public const this(set DataLayout Layout, set int Offset);
+
+        /// <summary>
+        /// Gets this member's data layout.
+        /// </summary>
+        public DataLayout Layout { get; private set; }
+
+        /// <summary>
+        /// Gets this data member's offset in the parent data layout
+        /// that declares it.
+        /// </summary>
+        public int Offset { get; private set; }
+    }
+}

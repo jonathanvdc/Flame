@@ -171,6 +171,13 @@
 			<Compile Include="Flow/UnreachableFlow.ds" />
 		</ItemGroup>
 	</ItemGroup>
+	<ItemGroup Name="Native">
+		<ItemGroup>
+			<Compile Include="Native/ArgumentLayout.ds" />
+			<Compile Include="Native/DataLayout.ds" />
+			<Compile Include="Native/IAbi.ds" />
+		</ItemGroup>
+	</ItemGroup>
 	<ItemGroup Name="Statements">
 		<ItemGroup>
 			<Compile Include="Statements/AssertStatement.ds" />
@@ -228,6 +235,7 @@
 			<Compile Include="Variables/SSAVariable.ds" />
 			<Compile Include="Variables/ConstantVariable.ds" />
 			<Compile Include="Variables/ThisReferenceVariable.ds" />
+			<Compile Include="Variables/RegisterVariable.ds" />
 			<Compile Include="Variables/ReturnValueVariable.ds" />
 			<Compile Include="Variables/TypedEmitVariable.ds" />
 			<Compile Include="Variables/VariableHelpers.ds" />

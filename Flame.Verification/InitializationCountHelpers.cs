@@ -18,12 +18,8 @@ namespace Flame.Verification
             if (Value is ISetVariableNode)
             {
                 var setNode = (ISetVariableNode)Value;
-                return setNode.Action == VariableNodeAction.Set && setNode.GetVariable() is ThisVariable;
-            }
-            else if (Value is StoreAtAddressStatement)
-            {
-                var stmt = (StoreAtAddressStatement)Value;
-                return AnalysisHelpers.IsThisVariable(stmt.Pointer);
+				return setNode.Action == VariableNodeAction.Set 
+					&& AnalysisHelpers.IsThisVariable(setNode.GetVariable().CreateGetExpression());
             }
             else if (Value is GetMethodExpression)
             {

@@ -141,7 +141,7 @@ namespace Flame.Compiler.Visitors
 
         protected override bool CanSubstituteVariable(IVariable Variable)
         {
-            return Variable is ILateBoundVariable || Variable is LocalVariable ||
+            return Variable is ILateBoundVariable || Variable is LocalVariableBase ||
                    Variable is ArgumentVariable || Variable is ThisVariable ||
                    capturedVariables.ContainsKey(Variable);
         }
@@ -156,9 +156,9 @@ namespace Flame.Compiler.Visitors
             {
                 return CaptureVariable(Variable, "", false);
             }
-            else if (Variable is LocalVariable)
+            else if (Variable is LocalVariableBase)
             {
-                return CaptureVariable(Variable, "local_" + ((LocalVariable)Variable).Member.Name, false);
+                return CaptureVariable(Variable, "local_" + ((LocalVariableBase)Variable).Member.Name, false);
             }
             else if (Variable is ArgumentVariable)
             {
