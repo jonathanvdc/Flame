@@ -33,6 +33,24 @@ namespace Flame.Compiler.Expressions
         }
 
         /// <summary>
+        /// Tries to simplify this static_cast expression.
+        /// </summary>
+        public IExpression Simplify()
+        {
+            if (Value.Type.IsEquivalent(TargetType))
+                return Value;
+
+            if (IsConstant)
+            {
+                var evalExpr = Value.Evaluate();
+                if (evalExpr != null)
+                    return evalExpr.ToExpression();
+            }
+
+            return this;
+        }
+
+        /// <summary>
         /// Evaluates this conversion expression at compile-time.
         /// </summary>
         public override IBoundObject Evaluate()

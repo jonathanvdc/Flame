@@ -301,6 +301,11 @@ namespace Flame.Optimization
                 var local = (LocalVariable)Variable;
                 return "local(" + localLabels[local.Tag] + ")";
             }
+            else if (Variable is RegisterVariable)
+            {
+                var local = (RegisterVariable)Variable;
+                return "register(" + localLabels[local.Tag] + ")";
+            }
             else if (Variable is SSAVariable)
             {
                 var local = (SSAVariable)Variable;

@@ -106,7 +106,7 @@ namespace Flame.Recompilation
 
         protected override bool CanSubstituteVariable(IVariable Variable)
         {
-            return Variable is LocalVariable;
+            return Variable is LocalVariableBase;
         }
 
         protected override IVariable SubstituteVariable(IVariable Variable)
@@ -117,8 +117,8 @@ namespace Flame.Recompilation
             }
             else
             {
-                var oldVar = (LocalVariable)Variable;
-                var newVar = new LocalVariable(new RetypedVariableMember(oldVar.Member, Converter.Convert(oldVar.Type)));
+                var oldVar = (LocalVariableBase)Variable;
+                var newVar = oldVar.ConvertType(Converter);
                 recompiledLocals[Variable] = newVar;
                 return newVar;
             }

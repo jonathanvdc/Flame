@@ -60,7 +60,7 @@ namespace Flame.Compiler.Expressions
 
         /// <summary>
         /// Tries to "simplify" this expression by replacing nested
-        /// reinterpret_casts by a single reinterpret_casts.
+        /// reinterpret_casts by a single reinterpret_cast.
         /// </summary>
         public IExpression Simplify()
         {

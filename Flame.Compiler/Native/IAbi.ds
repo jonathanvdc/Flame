@@ -1,0 +1,78 @@
+
+namespace Flame.Compiler.Native
+{
+    /// <summary>
+    /// Defines common functionality for application binary interfaces.
+    /// </summary>
+    public interface IAbi
+    {
+        /// <summary>
+        /// Gets the given type's memory data layout.
+        /// </summary>
+        DataLayout GetLayout(IType Type);
+
+        /// <summary>
+		/// Gets the integer type that is used to represent pointer values.
+		/// </summary>
+        IType PointerIntegerType { get; }
+    }
+
+    /// <summary>
+    /// A common interface for ABIs that can manipulate the stack.
+    /// This type of ABI is resposible for the following things:
+    /// <list>
+    /// <item><description>
+    /// Allocating data on the stack.
+    /// </description></item>
+    /// <item><description>
+    /// Retrieving arguments, including the 'this' pointer, which may
+    /// or may not be stored on the stack.
+    /// </description></item>
+    /// <item><description>
+    /// Writing prologues and epilogues for functions.
+    /// </description></item>
+    /// <item><description>
+    /// Creating function call expressions that adhere to this ABI.
+    /// </description></item>
+    /// </list>
+    /// </summary>
+    public interface IStackAbi : IAbi
+    {
+        /// <summary>
+        /// Gets the address of the stack slot at the given offset.
+        /// </summary>
+        IExpression GetStackSlotAddress(IExpression Offset);
+
+        /// <summary>
+        /// Allocates the given number of bytes on the stack.
+        /// </summary>
+        IStatement StackAllocate(IExpression Size);
+
+        /// <summary>
+        /// Deallocates the given number of bytes from the stack.
+        /// </summary>
+        IStatement StackRelease(IExpression Size);
+
+        /// <summary>
+        /// Gets the argument layout for the given method.
+        /// </summary>
+        ArgumentLayout GetArgumentLayout(IMethod Method);
+
+        /// <summary>
+        /// Writes a prologue for the given method.
+        /// </summary>
+        IStatement CreatePrologue(IMethod Method);
+
+        /// <summary>
+        /// Writes a return statement/epilogue for the given method.
+        /// </summary>
+        IStatement CreateReturnEpilogue(IMethod Method, IExpression Value);
+
+        /// <summary>
+        /// Creates a direct call to the given method. A 'this' pointer and
+        /// a sequence of arguments are given.
+        /// </summary>
+        IExpression CreateDirectCall(
+            IMethod Target, IExpression ThisPointer, [IExpression] Arguments);
+    }
+}

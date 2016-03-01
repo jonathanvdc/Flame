@@ -1,0 +1,24 @@
+
+public module FibTest
+{
+    public int Fib(int n)
+    {
+        if (n < 2)
+            return 1;
+        else
+            return Fib(n - 1) + Fib(n - 2);
+    }
+
+    public int FacAcc(int n, int acc)
+    {
+        if (n <= 0)
+            return acc;
+        else
+            return FacAcc(n - 1, n * acc);
+    }
+
+    public int Fac(int n)
+    {
+        return FacAcc(n, 1);
+    }
+}

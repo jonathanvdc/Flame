@@ -7,18 +7,15 @@ using Flame.Compiler.Emit;
 namespace Flame.Compiler.Variables
 {
     /// <summary>
-    /// A type for local variables.
+    /// A base class for local variables.
     /// </summary>
-    /// <remarks>
-    /// This type of variable replaces LateBoundVariable.
-    /// </remarks>
-    public class LocalVariable : IUnmanagedVariable
+    public abstract class LocalVariableBase : IVariable
     {
         /// <summary>
         /// Creates a new local variable from the given variable member and
         /// unique tag.
         /// </summary>
-    	public const this(set IVariableMember Member, set UniqueTag Tag);
+        public const this(set IVariableMember Member, set UniqueTag Tag);
 
         /// <summary>
         /// Creates a new local variable from the given variable member.
@@ -33,7 +30,7 @@ namespace Flame.Compiler.Variables
         /// </summary>
         public const this(IType Type)
         {
-        	this.Member = new TypeVariableMember(Type);
+            this.Member = new TypeVariableMember(Type);
             this.Tag = new UniqueTag();
         }
 
@@ -42,7 +39,7 @@ namespace Flame.Compiler.Variables
         /// </summary>
         public const this(string Name, IType Type)
         {
-        	this.Member = new DescribedVariableMember(Name, Type);
+            this.Member = new DescribedVariableMember(Name, Type);
             this.Tag = new UniqueTag(Name);
         }
 
@@ -65,7 +62,68 @@ namespace Flame.Compiler.Variables
         /// Gets the emit variable for this local variable, in
         /// the given code generator.
         /// </summary>
-        public IEmitVariable GetEmitVariable(ICodeGenerator CodeGenerator)
+        public abstract IEmitVariable GetEmitVariable(ICodeGenerator CodeGenerator);
+
+        /// <summary>
+        /// Converts this local variable's type by applying the given
+        /// member converter.
+        /// </summary>
+        public abstract LocalVariableBase ConvertType(MemberConverter Converter);
+
+        public IExpression CreateGetExpression()
+        {
+            return new LocalGetExpression(this);
+        }
+
+        public IStatement CreateSetStatement(IExpression Value)
+        {
+            return new LocalSetStatement(this, Value);
+        }
+
+        public IStatement CreateReleaseStatement()
+        {
+            return new LocalReleaseStatement(this);
+        }
+    }
+
+    /// <summary>
+    /// A type for local variables.
+    /// </summary>
+    /// <remarks>
+    /// This type of variable replaces LateBoundVariable.
+    /// </remarks>
+    public class LocalVariable : LocalVariableBase, IUnmanagedVariable
+    {
+        /// <summary>
+        /// Creates a new local variable from the given variable member and
+        /// unique tag.
+        /// </summary>
+    	public const this(IVariableMember Member, UniqueTag Tag)
+            : base(Member, Tag);
+
+        /// <summary>
+        /// Creates a new local variable from the given variable member.
+        /// </summary>
+        public const this(IVariableMember Member)
+            : base(Member);
+
+        /// <summary>
+        /// Creates a new local variable from the given type.
+        /// </summary>
+        public const this(IType Type)
+            : base(Type);
+
+        /// <summary>
+        /// Creates a new local variable from the given name and type.
+        /// </summary>
+        public const this(string Name, IType Type)
+            : base(Name, Type);
+
+        /// <summary>
+        /// Gets the emit variable for this local variable, in
+        /// the given code generator.
+        /// </summary>
+        public override IEmitVariable GetEmitVariable(ICodeGenerator CodeGenerator)
         {
             // Prefer unmanaged variables.
             if (CodeGenerator is IUnmanagedMethodStructureGenerator)
@@ -79,7 +137,7 @@ namespace Flame.Compiler.Variables
         /// Converts this local variable's type by applying the given
         /// member converter.
         /// </summary>
-        public LocalVariable ConvertType(MemberConverter Converter)
+        public override LocalVariableBase ConvertType(MemberConverter Converter)
         {
             var convType = Converter.Convert(this.Type);
             if (convType == this.Type)
@@ -90,24 +148,9 @@ namespace Flame.Compiler.Variables
                     this.Tag);
         }
 
-        public const IExpression CreateGetExpression()
-        {
-            return new LocalGetExpression(this);
-        }
-
-        public const IStatement CreateSetStatement(IExpression Value)
-        {
-            return new LocalSetStatement(this, Value);
-        }
-
-        public const IExpression CreateAddressOfExpression()
+        public IExpression CreateAddressOfExpression()
         {
             return new LocalAddressOfExpression(this);
-        }
-
-        public const IStatement CreateReleaseStatement()
-        {
-            return new LocalReleaseStatement(this);
         }
 
         public bool Equals(LocalVariable Other)
@@ -131,10 +174,10 @@ namespace Flame.Compiler.Variables
         }
     }
 
-    public class LocalGetExpression : VariableGetExpressionBase<LocalVariable>,
+    public class LocalGetExpression : VariableGetExpressionBase<LocalVariableBase>,
                                          IMemberNode
     {
-        public const this(set LocalVariable Variable);
+        public const this(set LocalVariableBase Variable);
 
         public override IExpression Accept(INodeVisitor Visitor)
         {
@@ -176,7 +219,7 @@ namespace Flame.Compiler.Variables
             if (object.ReferenceEquals(convArg, Variable))
                 return this;
             else
-                return new LocalAddressOfExpression(convArg);
+                return new LocalAddressOfExpression((LocalVariable)convArg);
         }
 
         public override const ICodeBlock Emit(ICodeGenerator Generator)
@@ -189,10 +232,10 @@ namespace Flame.Compiler.Variables
             return "&" + (string)Variable;
         }
     }
-    public class LocalSetStatement : VariableSetStatementBase<LocalVariable>,
+    public class LocalSetStatement : VariableSetStatementBase<LocalVariableBase>,
                                      IMemberNode
     {
-        public const this(set LocalVariable Variable, set IExpression Value);
+        public const this(set LocalVariableBase Variable, set IExpression Value);
 
         public override IStatement Accept(INodeVisitor Visitor)
         {
@@ -228,10 +271,10 @@ namespace Flame.Compiler.Variables
         }
     }
 
-    public class LocalReleaseStatement : VariableReleaseStatementBase<LocalVariable>,
+    public class LocalReleaseStatement : VariableReleaseStatementBase<LocalVariableBase>,
                                          IMemberNode
     {
-        public const this(set LocalVariable Variable);
+        public const this(set LocalVariableBase Variable);
 
         public IMemberNode ConvertMembers(MemberConverter Converter)
         {
