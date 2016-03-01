@@ -52,17 +52,43 @@ namespace Flame.Wasm.Passes
 	}
 
 	/// <summary>
-	/// A pass that converts return statements to 
-	/// return/epilogue statements, for a specific ABI.
+	/// A pass that prepends an ABI-specific prologues to method bodies.
 	/// </summary>
-	public class PrologueEpiloguePass : IPass<BodyPassArgument, IStatement>
+	public class ProloguePass : IPass<BodyPassArgument, IStatement>
 	{
-		public PrologueEpiloguePass(IStackAbi Abi)
+		public ProloguePass(IStackAbi Abi)
 		{
 			this.Abi = Abi;
 		}
 
-		public const string PrologueEpiloguePassName = "prologue";
+		public const string ProloguePassName = "prologue";
+
+		/// <summary>
+		/// Gets the ABI that is used to append prologues.
+		/// </summary>
+		public IStackAbi Abi { get; private set; }
+
+		public IStatement Apply(BodyPassArgument Arg)
+		{
+			var results = new List<IStatement>();
+			results.Add(Abi.CreatePrologue(Arg.DeclaringMethod));
+			results.Add(Arg.Body);
+			return new BlockStatement(results).Simplify();
+		}
+	}
+
+	/// <summary>
+	/// A pass that converts return statements to 
+	/// return/epilogue statements, for a specific ABI.
+	/// </summary>
+	public class EpiloguePass : IPass<BodyPassArgument, IStatement>
+	{
+		public EpiloguePass(IStackAbi Abi)
+		{
+			this.Abi = Abi;
+		}
+
+		public const string EpiloguePassName = "epilogue";
 
 		/// <summary>
 		/// Gets the ABI that is used to write return statements/epilogues.
@@ -71,10 +97,7 @@ namespace Flame.Wasm.Passes
 
 		public IStatement Apply(BodyPassArgument Arg)
 		{
-			var results = new List<IStatement>();
-			results.Add(Abi.CreatePrologue(Arg.DeclaringMethod));
-			results.Add(new ReturnEpilogueVisitor(Abi, Arg.DeclaringMethod).Visit(Arg.Body));
-			return new BlockStatement(results).Simplify();
+			return new ReturnEpilogueVisitor(Abi, Arg.DeclaringMethod).Visit(Arg.Body);
 		}
 	}
 }

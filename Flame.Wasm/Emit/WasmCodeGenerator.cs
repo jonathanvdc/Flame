@@ -23,7 +23,11 @@ namespace Flame.Wasm.Emit
 			this.localNames = new UniqueNameMap<UniqueTag>(item => item.Name, "tmp");
 			this.breakTags = new UniqueNameMap<UniqueTag>(item => item.Name, "break");
 			this.continueTags = new UniqueNameMap<UniqueTag>(item => item.Name, "next");
-			this.localNames.Get(new UniqueTag("this"));
+
+			// Register reserved names
+			this.localNames.Get(new UniqueTag(WasmAbi.ThisPointerName));
+			this.localNames.Get(new UniqueTag(WasmAbi.StackPointerName));
+			this.localNames.Get(new UniqueTag(WasmAbi.ReturnPointerName));
 			foreach (var item in Method.Parameters)
 			{
 				this.localNames.Get(new UniqueTag(item.Name));
