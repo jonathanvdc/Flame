@@ -1,4 +1,13 @@
 
+public module spectest
+{
+    /// <summary>
+    /// Prints a single character to standard output.
+    /// </summary>
+    [[import]]
+    public void print(int Value);
+}
+
 public struct Vector2
 {
     public int X;
@@ -24,5 +33,10 @@ public module StructTest
         val.Y = 4;
         Vector2 copy = val;
         return CopyVector(copy).LengthSquared();
+    }
+
+    public void Main()
+    {
+        spectest.print(Allocate());
     }
 }

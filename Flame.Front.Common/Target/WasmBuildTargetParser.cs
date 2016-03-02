@@ -54,18 +54,18 @@ namespace Flame.Front.Target
 			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
 				new CallLoweringPass(abi), CallLoweringPass.CallLoweringPassName));
 			extraPasses.RegisterPassCondition(new PassCondition(CallLoweringPass.CallLoweringPassName, optInfo => true));
-			// -fstackalloc
-			extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
-				new StackAllocatingPass(abi), StackAllocatingPass.StackAllocatingPassName));
-			extraPasses.RegisterPassCondition(new PassCondition(StackAllocatingPass.StackAllocatingPassName, optInfo => true));
-			// -fprologue
-			extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
-				new ProloguePass(abi), ProloguePass.ProloguePassName));
-			extraPasses.RegisterPassCondition(new PassCondition(ProloguePass.ProloguePassName, optInfo => true));
 			// -flower-fields
 			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
 				new FieldLoweringPass(abi), FieldLoweringPass.FieldLoweringPassName));
 			extraPasses.RegisterPassCondition(new PassCondition(FieldLoweringPass.FieldLoweringPassName, optInfo => true));
+            // -fstackalloc
+            extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
+                new StackAllocatingPass(abi), StackAllocatingPass.StackAllocatingPassName));
+            extraPasses.RegisterPassCondition(new PassCondition(StackAllocatingPass.StackAllocatingPassName, optInfo => true));
+            // -fprologue
+            extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
+                new ProloguePass(abi), ProloguePass.ProloguePassName));
+            extraPasses.RegisterPassCondition(new PassCondition(ProloguePass.ProloguePassName, optInfo => true));
 			// -flower-copy
 			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
 				new CopyLoweringPass(abi), CopyLoweringPass.CopyLoweringPassName));

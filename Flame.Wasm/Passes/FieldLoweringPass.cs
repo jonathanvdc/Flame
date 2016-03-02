@@ -45,14 +45,10 @@ namespace Flame.Wasm.Passes
 				ptr = localCopy.CreateAddressOfExpression();
 			}
 			int offset = Abi.GetLayout(CopyLoweringPass.DereferenceType(targetTy)).Members[fieldVar.Field].Offset;
-			return new AtAddressVariable(
-				new ReinterpretCastExpression(
-					new AddExpression(
-						new ReinterpretCastExpression(
-							new InitializedExpression(init, ptr).Simplify(), 
-							Abi.PointerIntegerType).Simplify(),
-						new StaticCastExpression(new Int32Expression(offset), Abi.PointerIntegerType).Simplify()),
-					fieldVar.Field.FieldType.MakePointerType(PointerKind.ReferencePointer)));
+            return new AtAddressVariable(
+                CopyLoweringPass.IndexPointer(
+                    new InitializedExpression(init, ptr).Simplify(), 
+                    offset, Abi, fieldVar.Field.FieldType));
 		}
 	}
 	
