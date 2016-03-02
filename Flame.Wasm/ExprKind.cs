@@ -12,21 +12,25 @@ namespace Flame.Wasm
 		/// </summary>
 		Call,
 		/// <summary>
-		/// A 32-bit integer constant.
+		/// A 32-bit integer literal.
 		/// </summary>
 		Int32,
 		/// <summary>
-		/// A 64-bit integer constant.
+        /// A 64-bit integer literal.
 		/// </summary>
 		Int64,
 		/// <summary>
-		/// A 32-bit floating point constant.
+        /// A 32-bit floating point literal.
 		/// </summary>
 		Float32,
 		/// <summary>
-		/// A 64-bit floating point constant.
+        /// A 64-bit floating point literal.
 		/// </summary>
 		Float64,
+        /// <summary>
+        /// A string literal.
+        /// </summary>
+        String,
 		/// <summary>
 		/// An identifier.
 		/// </summary>

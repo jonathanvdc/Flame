@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Flame.Compiler.Native;
 
 namespace Flame.Wasm
 {
@@ -23,7 +24,7 @@ namespace Flame.Wasm
 			{ PrimitiveTypes.Char, "i32" }
 		};
 
-		public static string GetScalarWasmName(IType Type, IWasmAbi Abi)
+        public static string GetScalarWasmName(IType Type, IAbi Abi)
 		{
 			if (Type.GetIsPointer())
 				return scalarWasmNames[Abi.PointerIntegerType];
@@ -53,7 +54,7 @@ namespace Flame.Wasm
 		/// <summary>
 		/// Creates a parameter declaration expression for the given parameter.
 		/// </summary>
-		public static WasmExpr DeclareParameter(IParameter Parameter, IWasmAbi Abi)
+		public static WasmExpr DeclareParameter(IParameter Parameter, IAbi Abi)
 		{
 			return new CallExpr(OpCodes.DeclareParameter, new IdentifierExpr(Parameter.Name), new MnemonicExpr(GetScalarWasmName(Parameter.ParameterType, Abi)));
 		}
@@ -61,7 +62,7 @@ namespace Flame.Wasm
 		/// <summary>
 		/// Creates a result declaration expression for the given return type.
 		/// </summary>
-		public static WasmExpr DeclareResult(IType Type, IWasmAbi Abi)
+        public static WasmExpr DeclareResult(IType Type, IAbi Abi)
 		{
 			return new CallExpr(OpCodes.DeclareResult, new MnemonicExpr(GetScalarWasmName(Type, Abi)));
 		}

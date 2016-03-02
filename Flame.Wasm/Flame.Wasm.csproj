@@ -71,6 +71,8 @@
     <Compile Include="CallingConventionSpec.cs" />
     <Compile Include="Passes\FieldLoweringPass.cs" />
     <Compile Include="Passes\CopyLoweringPass.cs" />
+    <Compile Include="WasmImportAbi.cs" />
+    <Compile Include="MemoryLayout.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

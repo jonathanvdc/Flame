@@ -18,6 +18,19 @@ namespace Flame.Compiler.Native
     }
 
     /// <summary>
+    /// A common interface for ABIs that specify how functions are called.
+    /// </summary>
+    public interface ICallAbi : IAbi
+    {
+        /// <summary>
+        /// Creates a direct call to the given method. A 'this' pointer and
+        /// a sequence of arguments are given.
+        /// </summary>
+        IExpression CreateDirectCall(
+            IMethod Target, IExpression ThisPointer, [IExpression] Arguments);
+    }
+
+    /// <summary>
     /// A common interface for ABIs that can manipulate the stack.
     /// This type of ABI is resposible for the following things:
     /// <list>
@@ -36,7 +49,7 @@ namespace Flame.Compiler.Native
     /// </description></item>
     /// </list>
     /// </summary>
-    public interface IStackAbi : IAbi
+    public interface IStackAbi : ICallAbi
     {
         /// <summary>
         /// Gets the address of the stack slot at the given offset.
@@ -67,12 +80,5 @@ namespace Flame.Compiler.Native
         /// Writes a return statement/epilogue for the given method.
         /// </summary>
         IStatement CreateReturnEpilogue(IMethod Method, IExpression Value);
-
-        /// <summary>
-        /// Creates a direct call to the given method. A 'this' pointer and
-        /// a sequence of arguments are given.
-        /// </summary>
-        IExpression CreateDirectCall(
-            IMethod Target, IExpression ThisPointer, [IExpression] Arguments);
     }
 }

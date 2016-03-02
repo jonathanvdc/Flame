@@ -1,0 +1,28 @@
+
+public module spectest
+{
+    /// <summary>
+    /// Prints a single character to standard output.
+    /// </summary>
+    [[import]]
+    public void print(char Value);
+}
+
+public module Program
+{
+    public void Main()
+    {
+        spectest.print('H');
+        spectest.print('e');
+        spectest.print('l');
+        spectest.print('l');
+        spectest.print('o');
+        spectest.print(' ');
+        spectest.print('w');
+        spectest.print('o');
+        spectest.print('r');
+        spectest.print('l');
+        spectest.print('d');
+        spectest.print('!');
+    }
+}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Flame.Compiler;
+using Flame.Compiler.Expressions;
 
 namespace Flame.Wasm
 {
@@ -260,5 +261,31 @@ namespace Flame.Wasm
 			return new CodeBuilder(Mnemonic);
 		}
 	}
+
+    /// <summary>
+    /// A wasm string expression.
+    /// </summary>
+    public class StringExpr : WasmExpr
+    {
+        public StringExpr(string Value)
+        {
+            this.Value = Value;
+        }
+
+        /// <summary>
+        /// Gets this wasm literal's contents.
+        /// </summary>
+        public string Value { get; private set; }
+
+        /// <summary>
+        /// Gets this wasm literal's expression kind.
+        /// </summary>
+        public override ExprKind Kind { get { return ExprKind.String; } }
+
+        public override CodeBuilder ToCode()
+        {
+            return new CodeBuilder(StringExpression.ToLiteral(Value, "\""));
+        }
+    }
 }
 
