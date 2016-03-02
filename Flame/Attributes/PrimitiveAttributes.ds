@@ -26,6 +26,7 @@ namespace Flame
 			PrimitiveAttributes.InAttribute = new FlagAttribute("InAttribute");
 			PrimitiveAttributes.StaticTypeAttribute = new FlagAttribute("StaticTypeAttribute");
 			PrimitiveAttributes.CastAttribute = new FlagAttribute("CastAttribute");
+			PrimitiveAttributes.ImportAttribute = new FlagAttribute("ImportAttribute");
 		}
 
 		public static IAttribute InterfaceAttribute { const get; private set; }
@@ -45,6 +46,7 @@ namespace Flame
 		public static IAttribute InAttribute { const get; private set; }
 		public static IAttribute StaticTypeAttribute { const get; private set; }
 		public static IAttribute CastAttribute { const get; private set; }
+		public static IAttribute ImportAttribute { const get; private set; }
 
 		#endregion
 	}

@@ -1866,14 +1866,28 @@ namespace Flame.DSharp.Parser
         public virtual IAttributeSyntax ParseAttribute(ITokenStream Tokens)
         {
             var openingToken = Tokens.NextNoTrivia(TokenType.RBrackets, Log);
-            var expr = (IInvocationSyntax)ParseNewObjectExpression(Token.Undefined, Tokens);
-            var closingToken = Tokens.NextNoTrivia(TokenType.LBrackets, Log);
-            return new AttributeSyntax(openingToken, expr, closingToken);
+			if (Tokens.PeekNoTrivia().Type == TokenType.RBrackets)
+			{
+				var innerOpeningToken = Tokens.NextNoTrivia(TokenType.RBrackets, Log);
+				var intrinsicName = Tokens.NextNoTrivia(TokenType.Identifier, Log);
+				var innerClosingToken = Tokens.NextNoTrivia(TokenType.LBrackets, Log);
+				var closingToken = Tokens.NextNoTrivia(TokenType.LBrackets, Log);
+				return new IntrinsicAttributeSyntax(
+					openingToken, innerOpeningToken,
+					intrinsicName, innerClosingToken,
+					closingToken);
+			}
+			else
+			{
+				var expr = (IInvocationSyntax)ParseNewObjectExpression(Token.Undefined, Tokens);
+				var closingToken = Tokens.NextNoTrivia(TokenType.LBrackets, Log);
+				return new AttributeSyntax(openingToken, expr, closingToken);
+			}
         }
 
-        public virtual IEnumerable<IAttributeSyntax> ParseAttributes(ITokenStream Tokens)
+        public virtual [IAttributeSyntax] ParseAttributes(ITokenStream Tokens)
         {
-            List<IAttributeSyntax> attrs = new List<IAttributeSyntax>();
+            var attrs = new List<IAttributeSyntax>();
             while (Tokens.PeekNoTrivia().Type == TokenType.RBrackets)
             {
                 attrs.Add(ParseAttribute(Tokens));

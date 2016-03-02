@@ -29,6 +29,7 @@ namespace Flame.Intermediate.Parsing
         public const string InNodeName = "#in";
         public const string OutNodeName = "#out";
         public const string IndexerNodeName = "#indexer";
+        public const string ImportNodeName = "#import";
 
         public const string AbstractNodeName = "#abstract";
         public const string VirtualNodeName = "#virtual";
@@ -159,6 +160,7 @@ namespace Flame.Intermediate.Parsing
                     { IndexerNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.IndexerAttribute) },
                     { InNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.InAttribute) },
                     { OutNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.OutAttribute) },
+                    { ImportNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.ImportAttribute) },
 
                     // Inheritance attributes
                     { AbstractNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.AbstractAttribute) },
