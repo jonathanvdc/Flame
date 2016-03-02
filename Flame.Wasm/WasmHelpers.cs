@@ -54,9 +54,13 @@ namespace Flame.Wasm
 		/// <summary>
 		/// Creates a parameter declaration expression for the given parameter.
 		/// </summary>
-		public static WasmExpr DeclareParameter(IParameter Parameter, IAbi Abi)
+        public static WasmExpr DeclareParameter(IParameter Parameter, IAbi Abi)
 		{
-			return new CallExpr(OpCodes.DeclareParameter, new IdentifierExpr(Parameter.Name), new MnemonicExpr(GetScalarWasmName(Parameter.ParameterType, Abi)));
+            var args = new List<WasmExpr>();
+            if (!string.IsNullOrWhiteSpace(Parameter.Name))
+                args.Add(new IdentifierExpr(Parameter.Name));
+            args.Add(new MnemonicExpr(GetScalarWasmName(Parameter.ParameterType, Abi)));
+            return new CallExpr(OpCodes.DeclareParameter, args);
 		}
 
 		/// <summary>
