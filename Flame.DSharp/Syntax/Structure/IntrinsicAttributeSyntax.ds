@@ -1,0 +1,74 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Build;
+using Flame.Compiler;
+using Flame.Compiler.Build;
+using Flame.Attributes;
+using Flame.DSharp;
+using Flame.DSharp.Lexer;
+
+namespace Flame.Syntax.DSharp
+{
+    public class IntrinsicAttributeSyntax : IAttributeSyntax, ISourceSyntax
+    {
+        public this(
+            set Token OuterOpeningBracket, set Token InnerOpeningBracket,
+            set Token AttributeName, set Token InnerClosingBracket,
+            set Token OuterClosingBracket);
+
+        public Token OuterOpeningBracket { const get; private set; }
+        public Token InnerOpeningBracket { const get; private set; }
+        public Token AttributeName { const get; private set; }
+        public Token InnerClosingBracket { const get; private set; }
+        public Token OuterClosingBracket { const get; private set; }
+
+        public SourceLocation Location
+        {
+            get
+            {
+                return OuterOpeningBracket.Location
+                    .Concat(InnerOpeningBracket.Location)
+                    .Concat(AttributeName.Location)
+                    .Concat(InnerClosingBracket.Location)
+                    .Concat(OuterClosingBracket.Location);
+            }
+        }
+
+        static this()
+        {
+            attrNameMapping = new Dictionary<string, IAttribute>();
+            attrNameMapping["import"] = PrimitiveAttributes.ImportAttribute;
+        }
+
+        private static Dictionary<string, IAttribute> attrNameMapping;
+
+        public IAttribute CreateAttribute(ISyntaxState State, IMember DeclaringMember)
+        {
+            if (attrNameMapping.TryGetValue(AttributeName.TokenValue, &IAttribute result))
+            {
+                return result;
+            }
+            else
+            {
+                State.Log.LogError(new LogEntry(
+                    "unknown intrinsic attribute",
+                    "'" + AttributeName.TokenValue + "' was not a known intrinsic attribute.",
+                    AttributeName.Location));
+                return null;
+            }
+        }
+
+        public const CodeBuilder GetCode()
+        {
+            CodeBuilder cb = new CodeBuilder();
+            cb.Append(OuterOpeningBracket.ToString());
+            cb.Append(InnerOpeningBracket.ToString());
+            cb.Append(AttributeName.ToString());
+            cb.Append(InnerClosingBracket.ToString());
+            cb.Append(OuterClosingBracket.ToString());
+            return cb;
+        }
+    }
+}

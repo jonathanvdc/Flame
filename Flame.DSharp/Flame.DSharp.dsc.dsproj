@@ -139,6 +139,7 @@
 				<Compile Include="Syntax/Structure/UsingSyntax.ds" />
 				<Compile Include="Syntax/Structure/UsingMapSyntax.ds" />
 				<Compile Include="Syntax/Structure/GenericParameterDeclarationSyntax.ds" />
+				<Compile Include="Syntax/Structure/IntrinsicAttributeSyntax.ds" />
 				<Compile Include="Syntax/Structure/AccessorSignatureSyntax.ds" />
 				<Compile Include="Syntax/Structure/ConstructorSignatureSyntax.ds" />
 				<Compile Include="Syntax/Structure/SignatureSyntax.ds" />
