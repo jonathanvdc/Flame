@@ -231,12 +231,10 @@ namespace Flame.Wasm
 				// &stack_argument_i = frame_pointer - (arg_stack_size - &caller_relative_stack_argument1)
 
 				int offset = stackSize - argOffsets[i];
-				memLocals[i] = new AtAddressVariable(
-					new ReinterpretCastExpression(
-						new SubtractExpression(
-							new ReinterpretCastExpression(FramePointerRegister.CreateGetExpression(), PointerIntegerType).Simplify(), 
-							new StaticCastExpression(new Int32Expression(offset), PointerIntegerType).Simplify()),
-						parameters[i].ParameterType.MakePointerType(PointerKind.ReferencePointer)));
+                memLocals[i] = new AtAddressVariable(
+                    Passes.CopyLoweringPass.IndexPointer(
+                        FramePointerRegister.CreateGetExpression(),
+                        -offset, this, parameters[i].ParameterType));
 			}
 
 			// Oh, yeah. And consider register arguments, too.
