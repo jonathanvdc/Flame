@@ -163,6 +163,14 @@ namespace Flame.Wasm.Passes
 		/// </summary>
 		public static IExpression IndexPointer(IExpression BasePointer, int Offset, IAbi Abi, IType Type)
 		{
+            if (Offset == 0)
+            {
+                // Simple, yet surprisingly common, case
+                return new ReinterpretCastExpression(
+                    BasePointer, 
+                    Type.MakePointerType(PointerKind.ReferencePointer)).Simplify();
+            }
+
 			return new ReinterpretCastExpression(
 				new AddExpression(
 					new ReinterpretCastExpression(BasePointer, Abi.PointerIntegerType).Simplify(),
