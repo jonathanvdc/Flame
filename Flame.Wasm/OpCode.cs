@@ -143,7 +143,7 @@ namespace Flame.Wasm
 		public static readonly OpCode IfElse = new OpCode("if_else", ExprKind.Call, ExprKind.Call, ExprKind.Call);
 		public static readonly OpCode Block = new OpCode("block", ExprKind.Call, ExprKind.Call);
 		public static readonly OpCode Loop = new OpCode("loop", ExprKind.Identifier, ExprKind.Identifier, ExprKind.Call);
-		public static readonly OpCode Return = new OpCode("return", ExprKind.Call);
+		public static readonly OpCode Return = new OpCode("return", ExprKind.CallList);
 
 		#endregion
 

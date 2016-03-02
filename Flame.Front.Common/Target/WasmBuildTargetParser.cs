@@ -70,13 +70,14 @@ namespace Flame.Front.Target
 			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
 				new CopyLoweringPass(abi), CopyLoweringPass.CopyLoweringPassName));
 			extraPasses.RegisterPassCondition(new PassCondition(CopyLoweringPass.CopyLoweringPassName, optInfo => true));
-            // -frewrite-return-void
-            extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
-                RewriteVoidReturnPass.Instance, RewriteVoidReturnPass.RewriteVoidReturnPassName));
-            extraPasses.RegisterPassCondition(new PassCondition(RewriteVoidReturnPass.RewriteVoidReturnPassName, optInfo => true));
 
 			// These passes perform optimizations _after_ the correctness passes have
 			// lowered a number of constructs.
+
+            // -frewrite-return-void
+            extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
+                RewriteVoidReturnPass.Instance, RewriteVoidReturnPass.RewriteVoidReturnPassName));
+            // extraPasses.RegisterPassCondition(new PassCondition(RewriteVoidReturnPass.RewriteVoidReturnPassName, optInfo => true));
 
 			// -foptimize-nodes-lowered
 			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(

@@ -217,8 +217,13 @@ namespace Flame.Wasm.Emit
 
 		public ICodeBlock EmitReturn(ICodeBlock Value)
 		{
-			var retVal = Value ?? EmitVoid();
-			return EmitCallBlock(OpCodes.Return, PrimitiveTypes.Void, CodeBlock.ToExpression(retVal));
+            var retVal = Value as CodeBlock;
+            if (retVal == null)
+                return EmitCallBlock(OpCodes.Return, PrimitiveTypes.Void);
+            else if (retVal.Type.Equals(PrimitiveTypes.Void))
+                return EmitSequence(retVal, EmitReturn(null));
+            else
+                return EmitCallBlock(OpCodes.Return, PrimitiveTypes.Void, CodeBlock.ToExpression(retVal));
 		}
 
 		private IReadOnlyList<WasmExpr> FlattenWasmBlock(WasmExpr Block)
