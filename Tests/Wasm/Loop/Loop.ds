@@ -1,0 +1,21 @@
+
+public module Loop
+{
+    public int While(int n)
+    {
+        int i = 0;
+        while (i < n)
+        {
+            i++;
+        }
+        return i;
+    }
+
+    public int For(int n)
+    {
+        int j = 0;
+        for (int i = 0; i < n; i++)
+            j++;
+        return j;
+    }
+}

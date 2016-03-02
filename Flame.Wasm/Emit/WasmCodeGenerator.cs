@@ -6,6 +6,7 @@ using Flame.Compiler;
 using Flame.Compiler.Emit;
 using Flame.Compiler.Variables;
 using Flame.Compiler.Native;
+using Flame.Compiler.Expressions;
 
 namespace Flame.Wasm.Emit
 {
@@ -334,18 +335,18 @@ namespace Flame.Wasm.Emit
 			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.LeftShift), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32ShiftLeft) },
 			{ Tuple.Create(PrimitiveTypes.Int32, Operator.RightShift), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32ShiftRightSigned) },
 			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.RightShift), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32ShiftRightUnsigned) },
-			{ Tuple.Create(PrimitiveTypes.Int32, Operator.CheckEquality), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32Equal) },
-			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckEquality), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32Equal) },
-			{ Tuple.Create(PrimitiveTypes.Int32, Operator.CheckInequality), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32NotEqual) },
-			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckInequality), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32NotEqual) },
-			{ Tuple.Create(PrimitiveTypes.Int32, Operator.CheckLessThan), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32LessThanSigned) },
-			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckLessThan), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32LessThanUnsigned) },
-			{ Tuple.Create(PrimitiveTypes.Int32, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32LessThanOrEqualSigned) },
-			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32LessThanOrEqualUnsigned) },			
-			{ Tuple.Create(PrimitiveTypes.Int32, Operator.CheckGreaterThan), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32GreaterThanSigned) },
-			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckGreaterThan), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32GreaterThanUnsigned) },
-			{ Tuple.Create(PrimitiveTypes.Int32, Operator.CheckGreaterThanOrEqual), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32GreaterThanOrEqualSigned) },
-			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckGreaterThanOrEqual), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32GreaterThanOrEqualUnsigned) },
+            { Tuple.Create(PrimitiveTypes.Int32, Operator.CheckEquality), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32Equal) },
+            { Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckEquality), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32Equal) },
+            { Tuple.Create(PrimitiveTypes.Int32, Operator.CheckInequality), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32NotEqual) },
+            { Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckInequality), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32NotEqual) },
+            { Tuple.Create(PrimitiveTypes.Int32, Operator.CheckLessThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32LessThanSigned) },
+            { Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckLessThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32LessThanUnsigned) },
+            { Tuple.Create(PrimitiveTypes.Int32, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32LessThanOrEqualSigned) },
+            { Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32LessThanOrEqualUnsigned) },			
+            { Tuple.Create(PrimitiveTypes.Int32, Operator.CheckGreaterThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32GreaterThanSigned) },
+            { Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckGreaterThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32GreaterThanUnsigned) },
+            { Tuple.Create(PrimitiveTypes.Int32, Operator.CheckGreaterThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32GreaterThanOrEqualSigned) },
+			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckGreaterThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32GreaterThanOrEqualUnsigned) },
 
 			{ Tuple.Create(PrimitiveTypes.Int64, Operator.Add), Tuple.Create(PrimitiveTypes.Int64, OpCodes.Int64Add) },
 			{ Tuple.Create(PrimitiveTypes.UInt64, Operator.Add), Tuple.Create(PrimitiveTypes.UInt64, OpCodes.Int64Add) },
@@ -357,13 +358,19 @@ namespace Flame.Wasm.Emit
 		{
 			var val = (CodeBlock)Value;
 
-			Tuple<IType, OpCode> wasmOp;
-			if (ops.TryGetValue(Tuple.Create(val.Type, Op), out wasmOp))
-			{
-				return EmitCallBlock(
-					wasmOp.Item2, wasmOp.Item1, 
-					val.Expression);
-			}
+            Tuple<IType, OpCode> wasmOp;
+            if (Op.Equals(Operator.Not))
+            {
+                return EmitBinary(
+                    val, new DefaultValueExpression(val.Type).Optimize().Emit(this), 
+                    Operator.CheckEquality);
+            }
+            else if (ops.TryGetValue(Tuple.Create(val.Type, Op), out wasmOp))
+            {
+                return EmitCallBlock(
+                    wasmOp.Item2, wasmOp.Item1, 
+                    val.Expression);
+            }
 			else
 			{
 				// Sorry. Can't do that.
@@ -380,12 +387,17 @@ namespace Flame.Wasm.Emit
 			bool isPtr = lTy.GetIsPointer();
 			if (isPtr)
 				lTy = Abi.PointerIntegerType;
+            if (lTy.Equals(PrimitiveTypes.Boolean))
+                lTy = PrimitiveTypes.Int32;
 
 			Tuple<IType, OpCode> wasmOp;
 			if (ops.TryGetValue(Tuple.Create(lTy, Op), out wasmOp))
 			{
 				return EmitCallBlock(
-					wasmOp.Item2, isPtr ? lVal.Type : wasmOp.Item1, 
+                    wasmOp.Item2, 
+                    isPtr && !wasmOp.Item1.Equals(PrimitiveTypes.Boolean) 
+                        ? lVal.Type 
+                        : wasmOp.Item1, 
 					lVal.Expression, rVal.Expression);
 			}
 			else
