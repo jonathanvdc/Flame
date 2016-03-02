@@ -83,13 +83,17 @@ namespace Flame.Wasm
 
                 var importFunc = new DescribedMethod("__import_" + Name, DeclaringType, ReturnType, IsStatic);
                 foreach (var item in Parameters)
-                    importFunc.AddParameter(item);
+                {
+                    var descParam = new DescribedParameter(
+                        null, item.ParameterType);
+                    importFunc.AddParameter(descParam);
+                }
 
                 var importArgs = new List<WasmExpr>();
                 importArgs.Add(new IdentifierExpr(WasmHelpers.GetWasmName(importFunc)));
                 importArgs.Add(new StringExpr(DeclaringType.Name));
                 importArgs.Add(new StringExpr(Name));
-                importArgs.AddRange(importAbi.GetSignature(this));
+                importArgs.AddRange(importAbi.GetSignature(importFunc));
                 cb.AddCodeBuilder(new CallExpr(OpCodes.DeclareImport, importArgs).ToCode());
 
                 var argLayout = ModuleData.Abi.GetArgumentLayout(this);
