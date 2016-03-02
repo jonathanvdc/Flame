@@ -75,6 +75,8 @@
     <Compile Include="MemoryLayout.cs" />
     <Compile Include="WasmModuleData.cs" />
     <Compile Include="Passes\RewriteVoidReturnPass.cs" />
+    <Compile Include="WasmProperty.cs" />
+    <Compile Include="WasmAccessor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

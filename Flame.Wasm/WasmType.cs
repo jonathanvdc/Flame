@@ -17,6 +17,7 @@ namespace Flame.Wasm
 			this.TemplateInstance = new TypeSignatureInstance(Template, this);
             this.ModuleData = ModuleData;
 			this.methodList = new List<WasmMethod>();
+            this.propertyList = new List<WasmProperty>();
 			this.fieldList = new List<WasmField>();
 		}
 
@@ -37,6 +38,7 @@ namespace Flame.Wasm
 		}
 
 		private List<WasmMethod> methodList;
+        private List<WasmProperty> propertyList;
 		private List<WasmField> fieldList;
 
 		public IEnumerable<IField> Fields
@@ -75,7 +77,9 @@ namespace Flame.Wasm
 
 		public IPropertyBuilder DeclareProperty(IPropertySignatureTemplate Template)
 		{
-			throw new NotImplementedException();
+            var result = new WasmProperty(this, Template, ModuleData);
+            propertyList.Add(result);
+            return result;
 		}
 
 		public void Initialize()
@@ -93,6 +97,10 @@ namespace Flame.Wasm
 			{
 				cb.AddCodeBuilder(item.ToCode());
 			}
+            foreach (var item in propertyList)
+            {
+                cb.AddCodeBuilder(item.ToCode());
+            }
 			return cb;
 		}
 

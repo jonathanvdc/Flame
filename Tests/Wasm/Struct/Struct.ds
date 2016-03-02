@@ -13,9 +13,9 @@ public struct Vector2
     public int X;
     public int Y;
 
-    public int LengthSquared()
+    public int LengthSquared
     {
-        return X * X + Y * Y;
+        get { return X * X + Y * Y; }
     }
 }
 
@@ -32,7 +32,7 @@ public module StructTest
         val.X = 3;
         val.Y = 4;
         Vector2 copy = val;
-        return CopyVector(copy).LengthSquared();
+        return CopyVector(copy).LengthSquared;
     }
 
     public void Main()
