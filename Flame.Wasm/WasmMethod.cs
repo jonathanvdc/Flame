@@ -103,8 +103,15 @@ namespace Flame.Wasm
                                      Parameters.Select((item, i) => 
                                         argLayout.GetArgument(i).CreateGetExpression())
                                  .ToArray());
-                args.Add(CodeBlock.ToExpression(
-                    BodyGenerator.EmitReturn(importCall.Emit(BodyGenerator))));
+                if (ReturnType.Equals(PrimitiveTypes.Void))
+                {
+                    args.Add(CodeBlock.ToExpression(importCall.Emit(BodyGenerator)));
+                }
+                else
+                {
+                    args.Add(CodeBlock.ToExpression(
+                        BodyGenerator.EmitReturn(importCall.Emit(BodyGenerator))));
+                }
             }
             else
             {

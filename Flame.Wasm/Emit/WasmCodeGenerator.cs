@@ -21,9 +21,10 @@ namespace Flame.Wasm.Emit
 			this.Abi = Abi;
 			this.locals = new Dictionary<UniqueTag, IEmitVariable>();
 			this.registers = new List<Register>();
-			this.localNames = new UniqueNameMap<UniqueTag>(item => item.Name, "tmp");
-			this.breakTags = new UniqueNameMap<UniqueTag>(item => item.Name, "break");
-			this.continueTags = new UniqueNameMap<UniqueTag>(item => item.Name, "next");
+            var localNameSet = new UniqueNameSet<UniqueTag>(item => item.Name, "tmp");
+            this.localNames = new UniqueNameMap<UniqueTag>(localNameSet);
+            this.breakTags = new UniqueNameMap<UniqueTag>(new UniqueNameSet<UniqueTag>(item => item.Name, "break", localNameSet));
+            this.continueTags = new UniqueNameMap<UniqueTag>(new UniqueNameSet<UniqueTag>(item => item.Name, "next", localNameSet));
 
 			// Register reserved names
 			this.localNames.Get(new UniqueTag(WasmAbi.ThisPointerName));
@@ -47,6 +48,7 @@ namespace Flame.Wasm.Emit
 
 		private Dictionary<UniqueTag, IEmitVariable> locals;
 		private List<Register> registers;
+
 		private UniqueNameMap<UniqueTag> localNames;
 		private UniqueNameMap<UniqueTag> breakTags;
 		private UniqueNameMap<UniqueTag> continueTags;

@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using Flame.Compiler;
 using Flame.Compiler.Native;
 using Flame.Compiler.Visitors;
-using System.Collections.Generic;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
 using Flame.Compiler.Expressions;
