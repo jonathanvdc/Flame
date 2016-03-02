@@ -32,6 +32,7 @@ namespace Flame.Wasm
 
 		private WasmModuleNamespace moduleNs;
 		private IMethod entryPoint;
+        private IEnumerable<WasmExpr> epCode;
 
         public WasmModuleData Data { get { return moduleNs.Data; } }
 
@@ -68,13 +69,10 @@ namespace Flame.Wasm
 		public void Initialize()
 		{ }
 
-        // Stores the stack section for this wasm module.
-        private MemorySection stackSection;
-
 		public IAssembly Build()
 		{
-            // Declare a stack section.
-            stackSection = Data.Memory.DeclareSection(Options.GetOption<int>("stack-size", 1 << 16));
+            if (entryPoint != null)
+                epCode = Data.Abi.SetupEntryPoint(this);
             return this;
 		}
 
@@ -103,6 +101,11 @@ namespace Flame.Wasm
             if (Data.Memory.Size > 0)
                 cb.AddCodeBuilder(GetMemoryExpr().ToCode());
 			cb.AddCodeBuilder(moduleNs.ToCode());
+            if (epCode != null)
+            {
+                foreach (var item in epCode)
+                    cb.AddCodeBuilder(item.ToCode());
+            }
 			cb.DecreaseIndentation();
 			cb.AddLine(")");
 			return cb;

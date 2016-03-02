@@ -28,6 +28,12 @@ namespace Flame.Wasm
         /// </summary>
         IWasmCallAbi ImportAbi { get; }
 
+        /// <summary>
+        /// Create a number of wasm expressions that setup the
+        /// given wasm module's entry point.
+        /// </summary>
+        IEnumerable<WasmExpr> SetupEntryPoint(WasmModule Module);
+
 		/// <summary>
 		/// Gets the 'this' pointer.
 		/// </summary>

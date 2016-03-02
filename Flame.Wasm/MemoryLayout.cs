@@ -101,7 +101,7 @@ namespace Flame.Wasm
             return DeclareSection(Layout, null);
         }
         public MemorySection DeclareSection(IReadOnlyList<byte> InitialData)
-        { 
+        {
             return DeclareSection(new DataLayout(InitialData.Count), InitialData);
         }
         public MemorySection DeclareSection(int Size)
