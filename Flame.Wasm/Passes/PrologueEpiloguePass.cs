@@ -47,7 +47,7 @@ namespace Flame.Wasm.Passes
 		protected override IStatement Transform(IStatement Statement)
 		{
 			var retStmt = (ReturnStatement)Statement;
-			return Abi.CreateReturnEpilogue(Method, Visit(retStmt.Value));
+			return Abi.CreateReturnEpilogue(Method, retStmt.Value == null ? null : Visit(retStmt.Value));
 		}
 	}
 

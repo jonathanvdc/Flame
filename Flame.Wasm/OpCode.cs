@@ -26,6 +26,11 @@ namespace Flame.Wasm
 		/// Gets this opcode's expected argument types.
 		/// </summary>
 		public IReadOnlyList<ExprKind> ArgTypes { get; private set; }
+
+		public override string ToString()
+		{
+			return Mnemonic;
+		}
 	}
 
 	public static class OpCodes
