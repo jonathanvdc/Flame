@@ -53,6 +53,18 @@ namespace Flame
 
         /// <summary>
         /// Creates a unique name set from the given name-providing function,
+        /// and a prefix that is used to resolve collisions. This unique set's
+        /// name pool is aliased with the given other unique name set.
+        /// </summary>
+        public this(string(T) GetName, string Prefix, UniqueNameSet<T> Alias)
+        {
+            this.getName = GetName;
+            this.generateName = new PrefixNameGenerator<T>(Prefix).GenerateName;
+            this.nameSet = Alias.nameSet;
+        }
+
+        /// <summary>
+        /// Creates a unique name set from the given name-providing function,
         /// and a name-generating function that is used to resolve
         /// collisions.
         /// </summary>
@@ -61,6 +73,21 @@ namespace Flame
             this.getName = GetName;
             this.generateName = GenerateName;
             this.nameSet = new HashSet<string>();
+        }
+
+        /// <summary>
+        /// Creates a unique name set from the given name-providing function,
+        /// and a name-generating function that is used to resolve
+        /// collisions. This unique set's name pool is aliased with the given
+        /// other unique name set.
+        /// </summary>
+        public this(
+            string(T) GetName, string(T, int) GenerateName,
+            UniqueNameSet<T> Alias)
+        {
+            this.getName = GetName;
+            this.generateName = GenerateName;
+            this.nameSet = Alias.nameSet;
         }
 
         private string(T) getName;
@@ -118,6 +145,15 @@ namespace Flame
         public this(string(T) GetName, string(T, int) GenerateName)
         {
             this.nameSet = new UniqueNameSet<T>(GetName, GenerateName);
+            this.dict = new ConcurrentDictionary<T, string>();
+        }
+
+        /// <summary>
+        /// Creates a unique name map from unique name set.
+        /// </summary>
+        public this(UniqueNameSet<T> NameSet)
+        {
+            this.nameSet = NameSet;
             this.dict = new ConcurrentDictionary<T, string>();
         }
 
