@@ -37,6 +37,11 @@ namespace Flame.Wasm
 	{
 		#region PseudoOps
 
+        /// <summary>
+        /// The declare-import pseudo-op, which can only appear in a module definition.
+        /// </summary>
+        public static readonly OpCode DeclareImport = new OpCode("import", ExprKind.Identifier, ExprKind.CallList);
+
 		/// <summary>
 		/// The declare-function pseudo-op, which can only appear in a module definition.
 		/// </summary>
@@ -111,6 +116,7 @@ namespace Flame.Wasm
 		#region Methods
 
 		public static readonly OpCode Call = new OpCode("call", ExprKind.Identifier, ExprKind.CallList);
+        public static readonly OpCode CallImport = new OpCode("call_import", ExprKind.Identifier, ExprKind.CallList);
 
 		#endregion
 

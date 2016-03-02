@@ -73,6 +73,14 @@ namespace Flame.Wasm
 		/// </summary>
 		public IType PointerIntegerType { get { return layoutBuilder.PointerIntegerType; } }
 
+        /// <summary>
+        /// Gets the ABI that is used for module imports.
+        /// </summary>
+        public IWasmCallAbi ImportAbi
+        {
+            get { return new WasmImportAbi(PointerIntegerType, layoutBuilder.Convert); }
+        }
+
 		public DataLayout GetLayout(IType Type)
 		{
 			return layoutBuilder.Convert(Type);
@@ -387,7 +395,7 @@ namespace Flame.Wasm
 					new BlockStatement(new IStatement[] 
 					{
 						new BlockStatement(callInit).Simplify(),
-						new ExpressionStatement(new DirectCallExpression(Target, callArgs))
+						new ExpressionStatement(new DirectCallExpression(OpCodes.Call, Target, callArgs))
 					}),
 					retVar.CreateGetExpression());
 			}
@@ -396,7 +404,7 @@ namespace Flame.Wasm
 				// A scalar is returned. This is easy.
 				return new InitializedExpression(
 					new BlockStatement(callInit).Simplify(),
-					new DirectCallExpression(Target, callArgs));
+                    new DirectCallExpression(OpCodes.Call, Target, callArgs));
 			}
 		}
 	}

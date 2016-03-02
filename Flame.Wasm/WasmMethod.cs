@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Flame;
 using Flame.Compiler.Build;
-using System.Collections.Generic;
 using Flame.Wasm.Emit;
 using Flame.Compiler;
+using Flame.Build;
 
 namespace Flame.Wasm
 {
@@ -40,6 +42,8 @@ namespace Flame.Wasm
 		public IEnumerable<IParameter> Parameters { get { return TemplateInstance.Parameters.Value; } }
 		public IEnumerable<IGenericParameter> GenericParameters { get { return TemplateInstance.GenericParameters.Value; } }
 
+        public bool IsImport { get { return Attributes.HasAttribute(PrimitiveAttributes.Instance.ImportAttribute.AttributeType); } }
+
 		public WasmCodeGenerator BodyGenerator 
 		{
 			get 
@@ -69,11 +73,41 @@ namespace Flame.Wasm
 
 		public CodeBuilder ToCode()
 		{
-			var args = new List<WasmExpr>();
-			args.Add(new IdentifierExpr(WasmName));
-			args.AddRange(Abi.GetSignature(this));
-			args.AddRange(BodyGenerator.WrapBody(Body));
-			return new CallExpr(OpCodes.DeclareFunction, args).ToCode();
+            var cb = new CodeBuilder();
+            var args = new List<WasmExpr>();
+            args.Add(new IdentifierExpr(WasmName));
+            args.AddRange(Abi.GetSignature(this));
+            if (IsImport)
+            {
+                var importAbi = Abi.ImportAbi;
+
+                var importFunc = new DescribedMethod("__import_" + Name, DeclaringType, ReturnType, IsStatic);
+                foreach (var item in Parameters)
+                    importFunc.AddParameter(item);
+
+                var importArgs = new List<WasmExpr>();
+                importArgs.Add(new IdentifierExpr(WasmHelpers.GetWasmName(importFunc)));
+                importArgs.Add(new StringExpr(DeclaringType.Name));
+                importArgs.Add(new StringExpr(Name));
+                importArgs.AddRange(importAbi.GetSignature(this));
+                cb.AddCodeBuilder(new CallExpr(OpCodes.DeclareImport, importArgs).ToCode());
+
+                var argLayout = Abi.GetArgumentLayout(this);
+                // Synthesize a method body that performs a call_import
+                var importCall = importAbi.CreateDirectCall(
+                                     importFunc, argLayout.ThisPointer.CreateGetExpression(), 
+                                     Parameters.Select((item, i) => 
+                                        argLayout.GetArgument(i).CreateGetExpression())
+                                 .ToArray());
+                args.Add(CodeBlock.ToExpression(
+                    BodyGenerator.EmitReturn(importCall.Emit(BodyGenerator))));
+            }
+            else
+            {
+                args.AddRange(BodyGenerator.WrapBody(Body));
+            }
+            cb.AddCodeBuilder(new CallExpr(OpCodes.DeclareFunction, args).ToCode());
+            return cb;
 		}
 
 		public override string ToString()

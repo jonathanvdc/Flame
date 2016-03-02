@@ -6,21 +6,32 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Wasm
 {
-	/// <summary>
+    /// <summary>
+    /// An ABI interface for callable wasm functions.
+    /// </summary>
+    public interface IWasmCallAbi : ICallAbi
+    {
+        /// <summary>
+        /// Gets the given method's signature, as a sequence of
+        /// 'param' and 'result' expressions.
+        /// </summary>
+        IEnumerable<WasmExpr> GetSignature(IMethod Method);
+    }
+
+    /// <summary>
 	/// An ABI interface for wasm applications.
 	/// </summary>
-	public interface IWasmAbi : IStackAbi
+    public interface IWasmAbi : IStackAbi, IWasmCallAbi
 	{
+        /// <summary>
+        /// Gets the ABI that is used for module imports.
+        /// </summary>
+        IWasmCallAbi ImportAbi { get; }
+
 		/// <summary>
 		/// Gets the 'this' pointer.
 		/// </summary>
 		IEmitVariable GetThisPointer(WasmCodeGenerator CodeGenerator);
-
-		/// <summary>
-		/// Gets the given method's signature, as a sequence of
-		/// 'param' and 'result' expressions.
-		/// </summary>
-		IEnumerable<WasmExpr> GetSignature(IMethod Method);
 	}
 }
 
