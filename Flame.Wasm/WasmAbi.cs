@@ -407,6 +407,50 @@ namespace Flame.Wasm
                     new DirectCallExpression(OpCodes.Call, Target, callArgs));
 			}
 		}
+
+        /// <summary>
+        /// Create a number of wasm expressions that setup the
+        /// given wasm module's entry point.
+        /// </summary>
+        public IEnumerable<WasmExpr> SetupEntryPoint(WasmModule Module)
+        {
+            var results = new List<WasmExpr>();
+            var ep = Module.GetEntryPoint();
+            if (ep == null)
+                return results;
+
+            if (ep.Parameters.Any())
+            {
+                throw new AbortCompilationException(
+                    new LogEntry(
+                        AbortCompilationException.FatalErrorEntryTitle,
+                        "a wasm entry point function must not take any parameters.",
+                        ep.GetSourceLocation()));
+            }
+
+            // Declare a null section. Make this 256 bytes by default.
+            Module.Data.Memory.DeclareSection(Module.Options.GetOption<int>("null-section-size", 1 << 8));
+            // Declare a stack section. Make this 2^16 bytes by default.
+            var stackSection = Module.Data.Memory.DeclareSection(Module.Options.GetOption<int>("stack-size", 1 << 16));
+            // Declare an actual entry point function, which calls the
+            // user-defined entry point, and gives it a stack pointer value.
+            var epNode = new CallExpr(
+                OpCodes.DeclareFunction, 
+                new IdentifierExpr("main"),
+                new CallExpr(
+                    OpCodes.Call, 
+                    new IdentifierExpr(WasmHelpers.GetWasmName(ep)), 
+                    new CallExpr(
+                        OpCodes.Int32Const, 
+                        new Int32Expr(stackSection.Offset))));
+
+            results.Add(epNode);
+            results.Add(new CallExpr(
+                OpCodes.DeclareStart, 
+                new IdentifierExpr("main")));
+
+            return results;
+        }
 	}
 
 	public class WasmDataLayoutBuilder : TypeConverterBase<DataLayout>
