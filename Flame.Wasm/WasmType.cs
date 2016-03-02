@@ -11,18 +11,18 @@ namespace Flame.Wasm
 	public class WasmType : IType, ITypeBuilder
 	{
 		public WasmType(
-			INamespace DeclaringNamespace, ITypeSignatureTemplate Template, IWasmAbi Abi)
+			INamespace DeclaringNamespace, ITypeSignatureTemplate Template, WasmModuleData ModuleData)
 		{
 			this.DeclaringNamespace = DeclaringNamespace;
 			this.TemplateInstance = new TypeSignatureInstance(Template, this);
-			this.Abi = Abi;
+            this.ModuleData = ModuleData;
 			this.methodList = new List<WasmMethod>();
 			this.fieldList = new List<WasmField>();
 		}
 
 		public INamespace DeclaringNamespace { get; private set; }
 		public TypeSignatureInstance TemplateInstance { get; private set; }
-		public IWasmAbi Abi { get; private set; }
+        public WasmModuleData ModuleData { get; private set; }
 
 		public string Name { get { return TemplateInstance.Name; } }
 		public string FullName { get { return MemberExtensions.CombineNames(DeclaringNamespace.Name, Name); } }
@@ -61,14 +61,14 @@ namespace Flame.Wasm
 
 		public IFieldBuilder DeclareField(IFieldSignatureTemplate Template)
 		{
-			var result = new WasmField(this, Template);
+            var result = new WasmField(this, Template, ModuleData);
 			fieldList.Add(result);
 			return result;
 		}
 
 		public IMethodBuilder DeclareMethod(IMethodSignatureTemplate Template)
 		{
-			var result = new WasmMethod(this, Template, Abi);
+            var result = new WasmMethod(this, Template, ModuleData);
 			methodList.Add(result);
 			return result;
 		}

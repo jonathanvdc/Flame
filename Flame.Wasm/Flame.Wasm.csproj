@@ -73,6 +73,7 @@
     <Compile Include="Passes\CopyLoweringPass.cs" />
     <Compile Include="WasmImportAbi.cs" />
     <Compile Include="MemoryLayout.cs" />
+    <Compile Include="WasmModuleData.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

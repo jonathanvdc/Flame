@@ -37,7 +37,10 @@ namespace Flame.Front.Target
 		public BuildTarget CreateBuildTarget(string PlatformIdentifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)
 		{
 			var abi = new WasmAbi(PrimitiveTypes.Int32);
-			var targetAsm = new WasmModule(Info.Name, Info.Version, DependencyBuilder.Environment, abi);
+            var targetAsm = new WasmModule(
+                Info.Name, Info.Version, 
+                DependencyBuilder.Environment, 
+                abi, DependencyBuilder.Log.Options);
 
 			var extraPasses = new PassManager();
 

@@ -8,14 +8,14 @@ namespace Flame.Wasm
 {
 	public abstract class WasmNamespaceBase : INamespaceBranch, INamespaceBuilder
 	{		
-		public WasmNamespaceBase(IWasmAbi Abi)
+        public WasmNamespaceBase(WasmModuleData Data)
 		{
-			this.Abi = Abi;
+            this.Data = Data;
 			this.nsList = new List<WasmNamespace>();
 			this.tyList = new List<WasmType>();
 		}
 
-		public IWasmAbi Abi { get; private set; }
+        public WasmModuleData Data { get; private set; }
 
 		public abstract string Name { get; }
 		public abstract IAssembly DeclaringAssembly { get; }
@@ -31,14 +31,14 @@ namespace Flame.Wasm
 
 		public INamespaceBuilder DeclareNamespace(string Name)
 		{
-			var result = new WasmNamespace(this, Name, Abi);
+            var result = new WasmNamespace(this, Name, Data);
 			nsList.Add(result);
 			return result;
 		}
 
 		public ITypeBuilder DeclareType(ITypeSignatureTemplate Template)
 		{
-			var result = new WasmType(this, Template, Abi);
+            var result = new WasmType(this, Template, Data);
 			tyList.Add(result);
 			return result;
 		}
@@ -73,8 +73,8 @@ namespace Flame.Wasm
 
 	public class WasmNamespace : WasmNamespaceBase
 	{
-		public WasmNamespace(INamespace DeclaringNamespace, string Name, IWasmAbi Abi)
-			: base(Abi)
+        public WasmNamespace(INamespace DeclaringNamespace, string Name, WasmModuleData Data)
+            : base(Data)
 		{
 			this.DeclaringNamespace = DeclaringNamespace;
 			this.name = Name;
@@ -90,8 +90,8 @@ namespace Flame.Wasm
 
 	public class WasmModuleNamespace : WasmNamespaceBase
 	{
-		public WasmModuleNamespace(IAssembly DeclaringAssembly, IWasmAbi Abi)
-			: base(Abi)
+        public WasmModuleNamespace(IAssembly DeclaringAssembly, WasmModuleData Data)
+            : base(Data)
 		{
 			this.module = DeclaringAssembly;
 		}

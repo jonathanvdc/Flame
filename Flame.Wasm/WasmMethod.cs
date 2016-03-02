@@ -11,17 +11,17 @@ namespace Flame.Wasm
 {
 	public class WasmMethod : IMethod, IMethodBuilder
 	{
-		public WasmMethod(IType DeclaringType, IMethodSignatureTemplate Template, IWasmAbi Abi)
+        public WasmMethod(IType DeclaringType, IMethodSignatureTemplate Template, WasmModuleData ModuleData)
 		{
 			this.DeclaringType = DeclaringType;
 			this.TemplateInstance = new MethodSignatureInstance(Template, this);
-			this.Abi = Abi;
+            this.ModuleData = ModuleData;
 			this.WasmName = WasmHelpers.GetWasmName(this);
 		}
 
 		public IType DeclaringType { get; private set; }
 		public MethodSignatureInstance TemplateInstance { get; private set; }
-		public IWasmAbi Abi { get; private set; }
+        public WasmModuleData ModuleData { get; private set; }
 		public WasmExpr Body { get; private set; }
 
 		private WasmCodeGenerator bodyGen;
@@ -49,7 +49,7 @@ namespace Flame.Wasm
 			get 
 			{ 			
 				if (bodyGen == null)
-					bodyGen = new WasmCodeGenerator(this, Abi);
+                    bodyGen = new WasmCodeGenerator(this, ModuleData.Abi);
 				return bodyGen;
 			} 
 		}
@@ -76,10 +76,10 @@ namespace Flame.Wasm
             var cb = new CodeBuilder();
             var args = new List<WasmExpr>();
             args.Add(new IdentifierExpr(WasmName));
-            args.AddRange(Abi.GetSignature(this));
+            args.AddRange(ModuleData.Abi.GetSignature(this));
             if (IsImport)
             {
-                var importAbi = Abi.ImportAbi;
+                var importAbi = ModuleData.Abi.ImportAbi;
 
                 var importFunc = new DescribedMethod("__import_" + Name, DeclaringType, ReturnType, IsStatic);
                 foreach (var item in Parameters)
@@ -92,7 +92,7 @@ namespace Flame.Wasm
                 importArgs.AddRange(importAbi.GetSignature(this));
                 cb.AddCodeBuilder(new CallExpr(OpCodes.DeclareImport, importArgs).ToCode());
 
-                var argLayout = Abi.GetArgumentLayout(this);
+                var argLayout = ModuleData.Abi.GetArgumentLayout(this);
                 // Synthesize a method body that performs a call_import
                 var importCall = importAbi.CreateDirectCall(
                                      importFunc, argLayout.ThisPointer.CreateGetExpression(), 
