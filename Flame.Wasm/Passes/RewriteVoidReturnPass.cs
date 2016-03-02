@@ -18,12 +18,19 @@ namespace Flame.Wasm.Passes
         public RewriteVoidReturnVisitor(UniqueTag BreakTag)
         {
             this.BreakTag = BreakTag;
+            this.HasRewritten = false;
         }
 
         /// <summary>
         /// Gets the tag of the tagged block to break to.
         /// </summary>
         public UniqueTag BreakTag { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether any return-void statements have been rewritten.
+        /// </summary>
+        /// <value><c>true</c> if any return-void statements have been rewritten; otherwise, <c>false</c>.</value>
+        public bool HasRewritten { get; private set; }
 
         public override bool Matches(IStatement Value)
         {
@@ -32,7 +39,16 @@ namespace Flame.Wasm.Passes
 
         protected override IStatement Transform(IStatement Statement)
         {
-            return new BreakStatement(BreakTag);
+            var retStmt = (ReturnStatement)Statement;
+            if (retStmt.Value == null || retStmt.Value.Type.Equals(PrimitiveTypes.Void))
+            {
+                HasRewritten = true;
+                return new BreakStatement(BreakTag);
+            }
+            else
+            {
+                return Statement.Accept(this);
+            }
         }
     }
 
@@ -54,12 +70,13 @@ namespace Flame.Wasm.Passes
 
         public IStatement Apply(BodyPassArgument Argument)
         {
-            if (!Argument.DeclaringMethod.ReturnType.Equals(PrimitiveTypes.Void))
-                return Argument.Body;
-
             var outerTag = new UniqueTag("outer");
-            return new TaggedStatement(
-                outerTag, new RewriteVoidReturnVisitor(outerTag).Visit(Argument.Body));
+            var visitor = new RewriteVoidReturnVisitor(outerTag);
+            var body = visitor.Visit(Argument.Body);
+            if (visitor.HasRewritten)
+                return new TaggedStatement(outerTag, body);
+            else
+                return body;
         }
     }
 }

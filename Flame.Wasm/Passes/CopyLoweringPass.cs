@@ -18,8 +18,7 @@ namespace Flame.Wasm.Passes
 		public CopyLoweringVisitor(IAbi Abi)
 		{
 			this.Abi = Abi;
-			this.srcTemp = new RegisterVariable(Abi.PointerIntegerType);
-			this.destTemp = new RegisterVariable(Abi.PointerIntegerType);
+            this.tempPtrs = new Queue<RegisterVariable>();
 		}
 
 		/// <summary>
@@ -27,8 +26,20 @@ namespace Flame.Wasm.Passes
 		/// </summary>
 		public IAbi Abi { get; private set; }
 
-		private RegisterVariable srcTemp;
-		private RegisterVariable destTemp;
+        private Queue<RegisterVariable> tempPtrs;
+
+        private RegisterVariable GetTemporaryPointer()
+        {
+            if (tempPtrs.Count == 0)
+                return new RegisterVariable(Abi.PointerIntegerType);
+            else
+                return tempPtrs.Dequeue();
+        }
+
+        private void ReleaseTemporaryPointer(RegisterVariable Temp)
+        {
+            tempPtrs.Enqueue(Temp);
+        }
 
 		public override bool Matches(IExpression Value)
 		{
@@ -85,11 +96,13 @@ namespace Flame.Wasm.Passes
 
 			var stmts = new List<IStatement>();
 			
+            var destTemp = GetTemporaryPointer();
 			stmts.Add(destTemp.CreateSetStatement(
 				new ReinterpretCastExpression(
 					Visit(((IUnmanagedVariable)targetVar).CreateAddressOfExpression()), 
 					Abi.PointerIntegerType).Simplify()));
 
+            var srcTemp = GetTemporaryPointer();
 			stmts.Add(srcTemp.CreateSetStatement(
 				new ReinterpretCastExpression(
 					GetSourcePointer(Visit(setVarNode.Value)), 
@@ -98,6 +111,9 @@ namespace Flame.Wasm.Passes
 			stmts.Add(CopyLoweringPass.CreateBitwiseCopy(
 				srcTemp.CreateGetExpression(), destTemp.CreateGetExpression(), 
 				Abi.GetLayout(targetTy), Abi));
+
+            ReleaseTemporaryPointer(destTemp);
+            ReleaseTemporaryPointer(srcTemp);
 
 			return new BlockStatement(stmts).Simplify();
 		}
@@ -174,17 +190,17 @@ namespace Flame.Wasm.Passes
 			{
 				instrs.Add(
 					new StoreAtAddressStatement(
-						IndexPointer(SourcePointer, i * wordSize, Abi, Abi.PointerIntegerType),
+                        IndexPointer(DestinationPointer, i * wordSize, Abi, Abi.PointerIntegerType),
 						new DereferencePointerExpression(
-							IndexPointer(DestinationPointer, i * wordSize, Abi, Abi.PointerIntegerType))));
+                            IndexPointer(SourcePointer, i * wordSize, Abi, Abi.PointerIntegerType))));
 			}
 			for (int i = totalWordSize; i < Layout.Size; i++)
 			{
 				instrs.Add(
 					new StoreAtAddressStatement(
-						IndexPointer(SourcePointer, i, Abi, PrimitiveTypes.Bit8),
+                        IndexPointer(DestinationPointer, i, Abi, PrimitiveTypes.Bit8),
 						new DereferencePointerExpression(
-							IndexPointer(DestinationPointer, i, Abi, PrimitiveTypes.Bit8))));
+							IndexPointer(SourcePointer, i, Abi, PrimitiveTypes.Bit8))));
 			}
 			return new BlockStatement(instrs).Simplify();
 		}
