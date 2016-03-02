@@ -38,6 +38,16 @@ namespace Flame.Wasm
 		#region PseudoOps
 
         /// <summary>
+        /// The declare-memory pseudo-op, which can only appear in a module definition.
+        /// </summary>
+        public static readonly OpCode DeclareMemory = new OpCode("memory", ExprKind.Int32, ExprKind.CallList);
+
+        /// <summary>
+        /// The declare-segment pseudo-op, which can only appear in a declare-memory call.
+        /// </summary>
+        public static readonly OpCode DeclareSegment = new OpCode("segment", ExprKind.Int32, ExprKind.String);
+
+        /// <summary>
         /// The declare-import pseudo-op, which can only appear in a module definition.
         /// </summary>
         public static readonly OpCode DeclareImport = new OpCode("import", ExprKind.Identifier, ExprKind.CallList);

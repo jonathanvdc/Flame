@@ -9,13 +9,17 @@ namespace Flame.Wasm
 {
 	public class WasmModule : IAssembly, IAssemblyBuilder
 	{
-		public WasmModule(string Name, Version AssemblyVersion, IEnvironment Environment, IWasmAbi Abi)
+		public WasmModule(
+            string Name, Version AssemblyVersion, 
+            IEnvironment Environment, IWasmAbi Abi,
+            ICompilerOptions Options)
 		{
 			this.Name = Name;
 			this.AssemblyVersion = AssemblyVersion;
 			this.Environment = Environment;
+            this.Options = Options;
 			this.entryPoint = null;
-			this.moduleNs = new WasmModuleNamespace(this, Abi);
+            this.moduleNs = new WasmModuleNamespace(this, new WasmModuleData(Abi));
 		}
 
 		/// <summary>
@@ -24,11 +28,13 @@ namespace Flame.Wasm
 		public string Name { get; private set; }
 		public IEnvironment Environment { get; private set; }
 		public Version AssemblyVersion { get; private set; }
+        public ICompilerOptions Options { get; private set; }
 
 		private WasmModuleNamespace moduleNs;
 		private IMethod entryPoint;
 
-		public IWasmAbi Abi { get { return moduleNs.Abi; } }
+        public WasmModuleData Data { get { return moduleNs.Data; } }
+
 		public string FullName { get { return Name; } }
 		public IEnumerable<IAttribute> Attributes { get { return Enumerable.Empty<IAttribute>(); } }
 
@@ -62,10 +68,30 @@ namespace Flame.Wasm
 		public void Initialize()
 		{ }
 
+        // Stores the stack section for this wasm module.
+        private MemorySection stackSection;
+
 		public IAssembly Build()
 		{
-			return this;
+            // Declare a stack section.
+            stackSection = Data.Memory.DeclareSection(Options.GetOption<int>("stack-size", 1 << 16));
+            return this;
 		}
+
+        private WasmExpr GetMemoryExpr()
+        {
+            var args = new List<WasmExpr>();
+            args.Add(new Int32Expr(Data.Memory.Size));
+            foreach (var sec in Data.Memory.Sections)
+            {
+                if (sec.IsInitialized)
+                    args.Add(new CallExpr(
+                        OpCodes.DeclareSegment, new Int32Expr(sec.Offset), 
+                        new StringExpr(new string(sec.InitialData.Select(b => (char)b).ToArray()))));
+            }
+
+            return new CallExpr(OpCodes.DeclareMemory, args);
+        }
 
 		public CodeBuilder ToCode()
 		{
@@ -74,6 +100,8 @@ namespace Flame.Wasm
 			cb.Append("(module ");
 			cb.IncreaseIndentation();
 			cb.AppendLine();
+            if (Data.Memory.Size > 0)
+                cb.AddCodeBuilder(GetMemoryExpr().ToCode());
 			cb.AddCodeBuilder(moduleNs.ToCode());
 			cb.DecreaseIndentation();
 			cb.AddLine(")");

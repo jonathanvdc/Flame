@@ -11,27 +11,18 @@ namespace Flame.Wasm
     public sealed class MemorySection
     {
         public MemorySection(
-            string Name, DataLayout Layout, 
+            int Offset, DataLayout Layout, 
             IReadOnlyList<byte> InitialData)
         {
-            this.Name = Name;
+            this.Offset = Offset;
             this.Layout = Layout;
             this.InitialData = InitialData;
         }
-        public MemorySection(string Name, DataLayout Layout)
-            : this(Name, Layout, null)
-        { }
-        public MemorySection(string Name, IReadOnlyList<byte> InitialData)
-            : this(Name, new DataLayout(InitialData.Count), InitialData)
-        { }
-        public MemorySection(string Name, int Size)
-            : this(Name, new DataLayout(Size))
-        { }
 
         /// <summary>
-        /// Gets this memory section's name.
+        /// Gets this memory section's offset.
         /// </summary>
-        public string Name { get; private set; }
+        public int Offset { get; private set; }
 
         /// <summary>
         /// Gets the memory section's size, in bytes.
@@ -60,7 +51,7 @@ namespace Flame.Wasm
 
         public override string ToString()
         {
-            return string.Format("memory-section({0}, {1}, {2})", Name, Size, IsInitialized ? "initialized" : "uninitialized");
+            return string.Format("memory-section({0}, {1}, {2})", Offset, Size, IsInitialized ? "initialized" : "uninitialized");
         }
     }
 
@@ -68,14 +59,21 @@ namespace Flame.Wasm
     /// Describes the memory layout of a program, as
     /// a sequence of memory sections.
     /// </summary>
-    public class MemoryLayout
+    public sealed class MemoryLayout
     {
         public MemoryLayout()
         {
             this.memSecs = new List<MemorySection>();
+            this.offset = 0;
         }
 
         private List<MemorySection> memSecs;
+        private int offset;
+
+        /// <summary>
+        /// Gets the total size of this memory layout.
+        /// </summary>
+        public int Size { get { return offset; } }
 
         /// <summary>
         /// Gets this memory layout's section list.
@@ -86,9 +84,29 @@ namespace Flame.Wasm
         /// Adds the given memory section to this memory
         /// layout structure.
         /// </summary>
-        public void DeclareSection(MemorySection Section)
+        public MemorySection DeclareSection(MemorySection Section)
         {
             memSecs.Add(Section);
+            return Section;
+        }
+
+        public MemorySection DeclareSection(DataLayout Layout, IReadOnlyList<byte> InitialData)
+        {
+            var result = new MemorySection(offset, Layout, InitialData);
+            offset += Layout.Size;
+            return DeclareSection(result);
+        }
+        public MemorySection DeclareSection(DataLayout Layout)
+        { 
+            return DeclareSection(Layout, null);
+        }
+        public MemorySection DeclareSection(IReadOnlyList<byte> InitialData)
+        { 
+            return DeclareSection(new DataLayout(InitialData.Count), InitialData);
+        }
+        public MemorySection DeclareSection(int Size)
+        { 
+            return DeclareSection(new DataLayout(Size));
         }
     }
 }
