@@ -14,7 +14,7 @@ namespace Flame.Compiler.Expressions
 
         public const IVariable GetVariable()
         {
-            return new ThisVariable(Type);
+            return new ThisVariable(Type.AsPointerType().ElementType);
         }
 
         public VariableNodeAction Action

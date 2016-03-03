@@ -68,11 +68,11 @@ namespace Flame.Compiler.Expressions
             return new SingletonGetExpression(Variable, InstanceGetExpression.Optimize());
         }
 
-        public const ICodeBlock Emit(ICodeGenerator Generator)
+        public ICodeBlock Emit(ICodeGenerator Generator)
         {
         	if (Generator.Method.DeclaringType.Equals(Type))
         	{
-        		return new ThisGetExpression(Type).Emit(Generator);
+        		return new ThisVariable(Type).CreateGetExpression().Emit(Generator);
         	}
         	else
         	{

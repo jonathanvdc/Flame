@@ -11,13 +11,13 @@ namespace Flame.Compiler
 	public static class ParameterExtensions
 	{
 		#region Member-Setting Parameters
-		
+
 		/// <summary>
         /// Gets the field this parameter sets. Returns null if no field is set.
         /// </summary>
         /// <param name="Parameter"></param>
         /// <returns></returns>
-        public const static IField GetSetField(this IParameter Parameter, IType ParentType, bool IsStatic)
+        public static IField GetSetField(this IParameter Parameter, IType ParentType, bool IsStatic)
         {
             var attr = (SetsMemberAttribute)Parameter.GetAttribute(SetsMemberAttribute.SetsMemberAttributeType);
             if (attr == null)
@@ -41,7 +41,7 @@ namespace Flame.Compiler
         /// </summary>
         /// <param name="Parameter"></param>
         /// <returns></returns>
-        public const static IProperty GetSetProperty(this IParameter Parameter, IType ParentType, bool IsStatic)
+        public static IProperty GetSetProperty(this IParameter Parameter, IType ParentType, bool IsStatic)
         {
             var attr = (SetsMemberAttribute)Parameter.GetAttribute(SetsMemberAttribute.SetsMemberAttributeType);
             if (attr == null)
@@ -73,7 +73,9 @@ namespace Flame.Compiler
             }
         }
 
-        public const static IStatement CreateSetMemberStatement(this IParameter Parameter, int ParameterIndex, IType ParentType, bool IsStatic)
+        public static IStatement CreateSetMemberStatement(
+			this IParameter Parameter, int ParameterIndex,
+			IType ParentType, bool IsStatic)
         {
             var field = Parameter.GetSetField(ParentType, IsStatic);
             var thisVariable = new ThisVariable(ParentType);
