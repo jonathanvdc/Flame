@@ -77,6 +77,7 @@
     <Compile Include="Passes\RewriteVoidReturnPass.cs" />
     <Compile Include="WasmProperty.cs" />
     <Compile Include="WasmAccessor.cs" />
+    <Compile Include="Passes\DefaultValueLoweringPass.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

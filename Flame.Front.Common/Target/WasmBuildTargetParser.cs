@@ -54,6 +54,10 @@ namespace Flame.Front.Target
 			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
 				new CallLoweringPass(abi), CallLoweringPass.CallLoweringPassName));
 			extraPasses.RegisterPassCondition(new PassCondition(CallLoweringPass.CallLoweringPassName, optInfo => true));
+            // -flower-default-value
+            extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
+                DefaultValueLoweringPass.Instance, DefaultValueLoweringPass.DefaultValueLoweringPassName));
+            extraPasses.RegisterPassCondition(new PassCondition(DefaultValueLoweringPass.DefaultValueLoweringPassName, optInfo => true));
 			// -flower-fields
 			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
 				new FieldLoweringPass(abi), FieldLoweringPass.FieldLoweringPassName));
