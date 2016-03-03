@@ -10,8 +10,8 @@ public module spectest
 
 public struct Vector2
 {
-    public int X;
-    public int Y;
+    public int X { get; private set; }
+    public int Y { get; private set; }
 
     public int LengthSquared
     {
