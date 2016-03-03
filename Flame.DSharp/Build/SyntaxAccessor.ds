@@ -203,7 +203,7 @@ namespace Flame.DSharp.Build
                 }
                 else
                 {
-                	thisExpr = new ThisGetExpression(currentType);
+                	thisExpr = new ThisVariable(currentType).CreateGetExpression();
                 }
                 var backingField = new FieldVariable(GetBackingField(currentType, ParentProperty.Name), thisExpr);
                 IStatement body;
