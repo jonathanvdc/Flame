@@ -50,6 +50,10 @@ namespace Flame.Front.Target
 			extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
 				new EpiloguePass(abi), EpiloguePass.EpiloguePassName));
 			extraPasses.RegisterPassCondition(new PassCondition(EpiloguePass.EpiloguePassName, optInfo => true));
+            // -flower-new-struct
+            extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
+                NewValueTypeLoweringPass.Instance, NewValueTypeLoweringPass.NewValueTypeLoweringPassName));
+            extraPasses.RegisterPassCondition(new PassCondition(NewValueTypeLoweringPass.NewValueTypeLoweringPassName, optInfo => true));
 			// -flower-call
 			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
 				new CallLoweringPass(abi), CallLoweringPass.CallLoweringPassName));

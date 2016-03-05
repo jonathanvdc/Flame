@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Native;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Visitors;
 using Flame.Compiler.Variables;
-using System.Collections.Generic;
 
 namespace Flame.Wasm.Passes
 {
