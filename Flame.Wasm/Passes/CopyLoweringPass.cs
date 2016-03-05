@@ -70,7 +70,7 @@ namespace Flame.Wasm.Passes
 			else if (Expression is IMetadataNode<IExpression>)
 			{
 				var metaNode = (IMetadataNode<IExpression>)Expression;
-				return metaNode.Value;
+                return GetSourcePointer(metaNode.Value);
 			}
 			else if (Expression is InitializedExpression)
 			{
