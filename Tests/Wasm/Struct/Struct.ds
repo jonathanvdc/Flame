@@ -10,7 +10,7 @@ public module spectest
 
 public struct Vector2
 {
-    public const this(set int X, set int Y);
+    public this(set int X, set int Y);
 
     public int X { get; private set; }
     public int Y { get; private set; }
