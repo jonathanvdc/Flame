@@ -2,7 +2,7 @@
 public module spectest
 {
     /// <summary>
-    /// Prints a single character to standard output.
+    /// Prints a number to standard output.
     /// </summary>
     [[import]]
     public void print(int Value);
@@ -10,6 +10,8 @@ public module spectest
 
 public struct Vector2
 {
+    public const this(set int X, set int Y);
+
     public int X { get; private set; }
     public int Y { get; private set; }
 
@@ -28,11 +30,9 @@ public module StructTest
 
     public int Allocate()
     {
-        Vector2 val;
-        val.X = 3;
-        val.Y = 4;
-        Vector2 copy = val;
-        return CopyVector(copy).LengthSquared;
+        // var val = new Vector2(3, 4);
+        // Vector2 copy = val;
+        return new Vector2(3, 4).LengthSquared;
     }
 
     public void Main()
