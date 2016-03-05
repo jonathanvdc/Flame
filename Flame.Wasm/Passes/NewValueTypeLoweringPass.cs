@@ -50,7 +50,7 @@ namespace Flame.Wasm
             IEnumerable<IExpression> Arguments)
         {
             var result = new List<IStatement>();
-            if (!Constructor.GetIsConstant())
+            if (!Constructor.HasAttribute(PrimitiveAttributes.Instance.TotalInitializationAttribute.AttributeType))
                 result.Add(Variable.CreateSetStatement(
                     new DefaultValueExpression(Variable.Type)));
             result.Add(new ExpressionStatement(new InvocationExpression(

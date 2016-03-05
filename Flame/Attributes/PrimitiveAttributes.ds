@@ -27,6 +27,7 @@ namespace Flame
 			PrimitiveAttributes.StaticTypeAttribute = new FlagAttribute("StaticTypeAttribute");
 			PrimitiveAttributes.CastAttribute = new FlagAttribute("CastAttribute");
 			PrimitiveAttributes.ImportAttribute = new FlagAttribute("ImportAttribute");
+			PrimitiveAttributes.TotalInitializationAttribute = new FlagAttribute("TotalInitializationAttribute");
 		}
 
 		public static IAttribute InterfaceAttribute { const get; private set; }
@@ -47,6 +48,13 @@ namespace Flame
 		public static IAttribute StaticTypeAttribute { const get; private set; }
 		public static IAttribute CastAttribute { const get; private set; }
 		public static IAttribute ImportAttribute { const get; private set; }
+
+		/// <summary>
+		/// Hints that a constructor performs total initialization, i.e.
+		/// there is no need to initialize memory contents before the
+		/// constructor is run.
+		/// </summary>
+		public static IAttribute TotalInitializationAttribute { get; private set; }
 
 		#endregion
 	}
