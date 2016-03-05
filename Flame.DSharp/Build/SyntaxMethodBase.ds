@@ -206,8 +206,16 @@ namespace Flame.DSharp.Build
 
             var modifierAttrs = Syntax.Signature.ModifierTokens.GetModifiers();
             var extraAttrs = new List<IAttribute>();
+            bool isCtor = IsConstructor;
+            if (isCtor)
+            {
+                // All D# constructors perform total initialization, i.e.
+                // there is no need to initialize memory contents before the
+                // constructor is run.
+                extraAttrs.Add(PrimitiveAttributes.TotalInitializationAttribute);
+            }
             // Singleton constructor handling
-            bool singletonCtor = DeclaringType.IsSingleton && this.IsConstructor;
+            bool singletonCtor = DeclaringType.IsSingleton && isCtor;
             if (!modifierAttrs.HasAccessAttribute && !singletonCtor)
             {
                 extraAttrs.Add(new AccessAttribute(AccessModifier.Public));
