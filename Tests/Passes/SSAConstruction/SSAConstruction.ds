@@ -79,6 +79,19 @@ public static class TestClass
         }
     }
 
+    public int Swap(int x, int y)
+    {
+        int a = x;
+        int b = y;
+        if (a < b)
+        {
+            int z = a;
+            a = b;
+            b = z;
+        }
+        return a - b;
+    }
+
     public void Main(string[] Args)
     {
         Console.WriteLine(NoCoalescing(4, 5));
@@ -89,5 +102,7 @@ public static class TestClass
         Console.WriteLine(ConstantPropagation());
         Console.WriteLine(CopyPropagation(12));
         Console.WriteLine(NoStackIntrinsics(28));
+        Console.WriteLine(Swap(1, 4));
+        Console.WriteLine(Swap(4, 4));
     }
 }
