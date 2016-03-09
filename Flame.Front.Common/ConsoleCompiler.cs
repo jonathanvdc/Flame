@@ -188,7 +188,7 @@ namespace Flame.Front.Cli
 
                 var allAsms = CompileAsync(allStates, resolvedDependencies.Item1).Result;
 
-                var partitionedAsms = GetMainAssembly(allAsms);
+                var partitionedAsms = RewriteAssembliesAsync(GetMainAssembly(allAsms), resolvedDependencies.Item1, filteredLog).Result;
                 var mainAsm = partitionedAsms.Item1;
                 var auxAsms = partitionedAsms.Item2;
 
@@ -248,15 +248,14 @@ namespace Flame.Front.Cli
             int index = 0;
             foreach (var item in Args.SourcePaths)
             {
-                var projPath = new ProjectPath(item, Args);
-                var handler = ProjectHandlers.GetProjectHandler(projPath, Log);
-                var project = LoadProject(projPath, handler, Log);
-                var currentPath = GetAbsolutePath(item);
+                var parsedProj = ParseProject(item, Args, Log);
+                var handler = parsedProj.Item2;
+
                 if (!parsedProjects.ContainsKey(handler))
                 {
                     parsedProjects[handler] = Tuple.Create(index, new List<ParsedProject>());
                 }
-                parsedProjects[handler].Item2.Add(new ParsedProject(currentPath, project));
+                parsedProjects[handler].Item2.Add(parsedProj.Item1);
                 index++;
             }
 
@@ -264,7 +263,7 @@ namespace Flame.Front.Cli
                 pair => pair.Value.Item1,
                 pair => pair.Key.Partition(pair.Value.Item2).Select(proj => new ProjectDependency(proj, pair.Key)));
 
-            return dict.OrderBy(item => item.Key).SelectMany(item => item.Value).ToArray();
+            return dict.OrderBy(item => item.Key).SelectMany(item => item.Value).Concat(GetExtraProjects(Args, Log)).ToArray();
         }
 
         public static IProject LoadProject(ProjectPath Path, IProjectHandler Handler, ICompilerLog Log)
@@ -286,6 +285,43 @@ namespace Flame.Front.Cli
             }
             Log.LogEvent(new LogEntry("Status", "parsed project at '" + Path + "' (" + proj.Name + ")"));
             return proj;
+        }
+
+        /// <summary>
+        /// Parses the project that belongs to the given identifier. 
+        /// The result is returned as a parsed project-project handler pair.
+        /// </summary>
+        public static Tuple<ParsedProject, IProjectHandler> ParseProject(PathIdentifier Identifier, BuildArguments Args, ICompilerLog Log)
+        {
+            var projPath = new ProjectPath(Identifier, Args);
+            var handler = ProjectHandlers.GetProjectHandler(projPath, Log);
+            var project = LoadProject(projPath, handler, Log);
+            var currentPath = GetAbsolutePath(Identifier);
+            return Tuple.Create(new ParsedProject(currentPath, project), handler);
+        }
+
+        #endregion
+
+        #region Rewriting
+
+        /// <summary>
+        /// Gets a (possibly empty) sequence of extra projects, that will be
+        /// compiled along with the user-specified projects. These projects
+        /// will never be merged.
+        /// </summary>
+        protected virtual IEnumerable<ProjectDependency> GetExtraProjects(BuildArguments Args, ICompilerLog Log)
+        {
+            return Enumerable.Empty<ProjectDependency>();
+        }
+
+        /// <summary>
+        /// Optionally rewrites the given main-and-other assemblies tuple.
+        /// </summary>
+        protected virtual Task<Tuple<IAssembly, IEnumerable<IAssembly>>> RewriteAssembliesAsync(
+            Tuple<IAssembly, IEnumerable<IAssembly>> MainAndOtherAssemblies, Task<IBinder> Binder,
+            ICompilerLog Log)
+        {
+            return Task.FromResult(MainAndOtherAssemblies);
         }
 
         #endregion
@@ -626,7 +662,7 @@ namespace Flame.Front.Cli
             }
         }
 
-        private static PathIdentifier GetAbsolutePath(PathIdentifier RelativePath)
+        protected static PathIdentifier GetAbsolutePath(PathIdentifier RelativePath)
         {
             var currentUri = new PathIdentifier(Directory.GetCurrentDirectory());
             var resultUri = currentUri.Combine(RelativePath);
