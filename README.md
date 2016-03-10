@@ -89,7 +89,7 @@ A _driver program_ is the actual compiler: it's a compact program that glues the
 
 At the heart of Flame is the _intermediate representation_ (IR), which is a language-agnostic way of representing code. Front-ends generate this IR, back-ends consume it, and the middle-end optimizes it.
 
-Flame IR can be stored both in-memory and on-disk. That's pretty neat, because it allows us to compile a project, store it as a file of IR, and then link it with some other project, which can even be in another programming language.
+Flame IR can be stored both in-memory and on-disk. That's pretty neat, because it allows us to compile a project, save it as IR, and then link it with some other project, which can even be in another programming language.
 
 # The D# programming language
 
