@@ -60,7 +60,10 @@ namespace Flame.DSharp.Build
 	            }
 	            else
 	            {
-	                cachedFieldValue = Syntax.FieldValueSyntax.CreateVerifiedExpression(State);
+	                cachedFieldValue = CastSyntax.CreateImplicitCast(
+						State,
+						Syntax.FieldValueSyntax,
+						FieldType);
 	            }
             }
             return cachedFieldValue;

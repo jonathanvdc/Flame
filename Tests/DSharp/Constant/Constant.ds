@@ -1,0 +1,11 @@
+using System;
+
+public module ConstantTest
+{
+    public const int LineLength = 80;
+
+    public void Main()
+    {
+        Console.WriteLine(LineLength * 4);
+    }
+}
