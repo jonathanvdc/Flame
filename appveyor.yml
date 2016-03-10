@@ -1,6 +1,6 @@
 install:
-  - curl -L https://github.com/jonathanvdc/Flame/releases/download/v0.7.3/dsc.zip > dsc.zip
-  - 7z x dsc.zip -obin_dsc
+  - curl -L https://github.com/jonathanvdc/Flame/releases/download/v0.7.3/dsc.zip > dsc_binaries.zip
+  - 7z x dsc_binaries.zip -obin_dsc
   - git clone https://github.com/jonathanvdc/compare-test
   - nuget restore Flame.Cecil\Flame.Cecil.mono.sln
 build_script:
@@ -8,6 +8,18 @@ build_script:
   - BuildCI.bat bin_dsc\dsc\dsc.exe
   # Perform a second build to make sure that Flame can bootstrap
   - BuildCI.bat dsc\bin\Release\dsc.exe
+
+after_build:
+  # Zip the compiled dsc binaries, and upload them.
+  - mkdir dsc_build
+  - xcopy dsc\bin\Release\*.dll dsc_build
+  - xcopy dsc\bin\Release\*.exe dsc_build
+  - 7z a dsc.zip %APPVEYOR_BUILD_FOLDER%\dsc_build\*
+
+artifacts:
+  - path: dsc.zip
+    name: dsc
+
 test_script:
   # Build compare-test
   - dsc\bin\Release\dsc.exe compare-test\src\compare-test.dsproj
