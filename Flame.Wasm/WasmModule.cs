@@ -99,8 +99,13 @@ namespace Flame.Wasm
 
         private WasmExpr GetMemoryExpr()
         {
+            // The initial and maximum memory size are required to
+            // be a multiple of the WebAssembly page size, 
+            // which is 64KiB on all engines
+            const int PageSize = 64 * (1 << 10);
+
             var args = new List<WasmExpr>();
-            args.Add(new Int32Expr(Data.Memory.Size));
+            args.Add(new Int32Expr(Data.Memory.Size + (PageSize - Data.Memory.Size % PageSize)));
             foreach (var sec in Data.Memory.Sections)
             {
                 if (sec.IsInitialized)
