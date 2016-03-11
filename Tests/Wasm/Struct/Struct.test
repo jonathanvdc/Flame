@@ -1,0 +1,21 @@
+// A compare-test test description that compiles this test file to WebAssembly.
+// TODO: Wasm tests should really be run against some kind of Wasm interpreter,
+// to verify their behavior. Sadly, Wasm is a moving target right now, and
+// including a Wasm interpreter submodule seems inappropriate here.
+
+build
+{
+    $(dsc) $(Filename).ds $(Flags) -o bin/$(Filename).wast;
+}
+
+configs
+{
+    Og { Flags = $Flags -Og; }
+    O2 { Flags = $Flags -O2; }
+}
+
+init
+{
+    Filename = Struct;
+    Flags = -Wno-build -platform wasm;
+}
