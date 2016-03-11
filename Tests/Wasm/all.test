@@ -1,0 +1,10 @@
+
+tests
+{
+    Fibonacci/Fibonacci.test;
+    Loop/Loop.test;
+    Pointers/Pointers.test;
+    Print/Print.test;
+    Static/Static.test;
+    Struct/Struct.test;
+}
