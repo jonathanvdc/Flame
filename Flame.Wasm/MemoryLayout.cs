@@ -35,13 +35,13 @@ namespace Flame.Wasm
         public DataLayout Layout { get; private set; }
 
         /// <summary>
-        /// Gets this section's initial data, 
+        /// Gets or sets this section's initial data, 
         /// as a read-only sequence of bytes.
         /// This can be null if the memory section
         /// is left uninitialized.
         /// </summary>
         /// <value>The section's initial data.</value>
-        public IReadOnlyList<byte> InitialData { get; private set; }
+        public IReadOnlyList<byte> InitialData { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether this memory section's data is initialized.

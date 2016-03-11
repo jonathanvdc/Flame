@@ -407,6 +407,15 @@ namespace Flame.Wasm
 		}
 
         /// <summary>
+        /// Initializes the given wasm module's memory layout.
+        /// </summary>
+        public void InitializeMemory(WasmModule Module)
+        {
+            // Declare a null section. Make this 256 bytes by default.
+            Module.Data.Memory.DeclareSection(Module.Options.GetOption<int>("null-section-size", 1 << 8));
+        }
+
+        /// <summary>
         /// Create a number of wasm expressions that setup the
         /// given wasm module's entry point.
         /// </summary>
@@ -426,8 +435,6 @@ namespace Flame.Wasm
                         ep.GetSourceLocation()));
             }
 
-            // Declare a null section. Make this 256 bytes by default.
-            Module.Data.Memory.DeclareSection(Module.Options.GetOption<int>("null-section-size", 1 << 8));
             // Declare a stack section. Make this 2^16 bytes by default.
             var stackSection = Module.Data.Memory.DeclareSection(Module.Options.GetOption<int>("stack-size", 1 << 16));
             // Declare an actual entry point function, which calls the

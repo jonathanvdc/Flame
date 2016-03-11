@@ -551,6 +551,17 @@ namespace Flame.Wasm.Emit
 
 		public IUnmanagedEmitVariable GetUnmanagedField(IField Field, ICodeBlock Target)
 		{
+            if (Target == null)
+            {
+                var wasmField = (WasmField)Field;
+                return new MemoryLocation((CodeBlock)EmitTypeBinary(
+                    new StaticCastExpression(
+                        new Int32Expression(wasmField.StaticStorageLocation.Offset), 
+                        Abi.PointerIntegerType).Simplify().Emit(this), 
+                    Field.FieldType.MakePointerType(PointerKind.ReferencePointer), 
+                    Operator.ReinterpretCast));
+            }
+
 			var targetBlock = (CodeBlock)Target;
 			var layout = Abi.GetLayout(Field.DeclaringType);
 			var rawAddress = this.EmitAdd(targetBlock, EmitInt32(layout.Members[Field].Offset));

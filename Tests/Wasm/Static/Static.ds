@@ -1,0 +1,39 @@
+
+public module spectest
+{
+    /// <summary>
+    /// Prints a number to standard output.
+    /// </summary>
+    [[import]]
+    public void print(int Value);
+}
+
+public struct Vector2
+{
+    public this(set int X, set int Y);
+
+    public int X { get; private set; }
+    public int Y { get; private set; }
+
+    public int LengthSquared
+    {
+        get { return X * X + Y * Y; }
+    }
+}
+
+public module StaticTest
+{
+    public const int ConstValue = 40;
+
+    public static int StaticValue;
+    public static Vector2 StaticStruct;
+
+    public void Main()
+    {
+        StaticValue = ConstValue;
+        spectest.print(StaticValue);
+
+        StaticStruct = new Vector2(1, 2);
+        spectest.print(StaticStruct.LengthSquared);
+    }
+}
