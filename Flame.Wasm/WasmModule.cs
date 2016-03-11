@@ -20,6 +20,7 @@ namespace Flame.Wasm
             this.Options = Options;
 			this.entryPoint = null;
             this.moduleNs = new WasmModuleNamespace(this, new WasmModuleData(Abi));
+            Abi.InitializeMemory(this);
 		}
 
 		/// <summary>
@@ -76,6 +77,26 @@ namespace Flame.Wasm
             return this;
 		}
 
+        private Tuple<int, IEnumerable<byte>> TrimInitialData(IReadOnlyList<byte> InitialData)
+        {
+            var initData = InitialData;
+
+            int firstNonzero = 0;
+            while (firstNonzero < initData.Count && initData[firstNonzero] == 0)
+                firstNonzero++;
+
+            if (firstNonzero == initData.Count)
+                return Tuple.Create(firstNonzero, Enumerable.Empty<byte>());
+
+            int lastNonzero = initData.Count - 1;
+            while (lastNonzero >= 0 && initData[lastNonzero] == 0)
+                lastNonzero--;
+
+            return Tuple.Create(
+                firstNonzero, 
+                initData.Skip(firstNonzero).Take(lastNonzero - firstNonzero));
+        }
+
         private WasmExpr GetMemoryExpr()
         {
             var args = new List<WasmExpr>();
@@ -83,9 +104,16 @@ namespace Flame.Wasm
             foreach (var sec in Data.Memory.Sections)
             {
                 if (sec.IsInitialized)
-                    args.Add(new CallExpr(
-                        OpCodes.DeclareSegment, new Int32Expr(sec.Offset), 
-                        new StringExpr(new string(sec.InitialData.Select(b => (char)b).ToArray()))));
+                {
+                    var trimmed = TrimInitialData(sec.InitialData);
+
+                    if (trimmed.Item2.Any())
+                    {
+                        args.Add(new CallExpr(
+                            OpCodes.DeclareSegment, new Int32Expr(sec.Offset + trimmed.Item1), 
+                            new StringExpr(new string(trimmed.Item2.Select(b => (char)b).ToArray()))));
+                    }
+                }
             }
 
             return new CallExpr(OpCodes.DeclareMemory, args);

@@ -35,6 +35,9 @@ namespace Flame.Wasm.Passes
 		protected override IVariable SubstituteVariable(IVariable Variable)
 		{
 			var fieldVar = (FieldVariable)Variable;
+            if (fieldVar.Target == null)
+                return fieldVar;
+            
 			var targetTy = fieldVar.Target.Type;
 			var ptr = fieldVar.Target;
 			IStatement init = EmptyStatement.Instance;

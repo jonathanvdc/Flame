@@ -29,6 +29,11 @@ namespace Flame.Wasm
         IWasmCallAbi ImportAbi { get; }
 
         /// <summary>
+        /// Initializes the given wasm module's memory layout.
+        /// </summary>
+        void InitializeMemory(WasmModule Module);
+
+        /// <summary>
         /// Create a number of wasm expressions that setup the
         /// given wasm module's entry point.
         /// </summary>
