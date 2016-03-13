@@ -4,6 +4,7 @@ tests
     Constrained/Constrained.test;
     Dictionaries/Dictionaries.test;
     Enumerables/Enumerables.test;
+    Equatable/Equatable.test;
     Exceptions/Exceptions.test;
     Foreach/Foreach.test;
     LogicalOps/LogicalOps.test;
