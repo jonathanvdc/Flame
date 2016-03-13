@@ -115,10 +115,17 @@ namespace Flame.Optimization.Relooper
         {
             var labelVar = new RegisterVariable("label", PrimitiveTypes.Int32);
             var nameMap = new AutoLabelMap();
+
+            IStatement initLabel;
+            if (Shape is SimpleShape)
+                initLabel = EmptyStatement;
+            else
+                initLabel = labelVar.CreateSetStatement(
+                    new Int32Expression(nameMap[Graph.EntryPointTag]));
+
             return new BlockStatement(new IStatement[]
             {
-                labelVar.CreateSetStatement(
-                    new Int32Expression(nameMap[Graph.EntryPointTag])),
+                initLabel,
                 Shape.Lower(labelVar, nameMap)
             }).Simplify();
         }
