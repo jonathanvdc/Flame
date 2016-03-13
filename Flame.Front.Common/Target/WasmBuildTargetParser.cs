@@ -12,6 +12,7 @@ using Flame.Front.Passes;
 using Flame.Compiler.Visitors;
 using Flame.Wasm.Passes;
 using Flame.Optimization;
+using Flame.Optimization.Relooper;
 
 namespace Flame.Front.Target
 {
@@ -38,8 +39,8 @@ namespace Flame.Front.Target
 		{
 			var abi = new WasmAbi(PrimitiveTypes.Int32);
             var targetAsm = new WasmModule(
-                Info.Name, Info.Version, 
-                DependencyBuilder.Environment, 
+                Info.Name, Info.Version,
+                DependencyBuilder.Environment,
                 abi, DependencyBuilder.Log.Options);
 
 			var extraPasses = new PassManager();
@@ -91,6 +92,11 @@ namespace Flame.Front.Target
 			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
 				NodeOptimizationPass.Instance, NodeOptimizationPass.NodeOptimizationPassName + "-lowered"));
 			extraPasses.RegisterPassCondition(new PassCondition(NodeOptimizationPass.NodeOptimizationPassName + "-lowered", optInfo => optInfo.OptimizeMinimal));
+
+			// Use -frelooper to deconstruct control-flow graphs,
+			// if -O3 or more has been specified (we won't construct
+			// a flow graph otherwise, anyway)
+			extraPasses.RegisterPassCondition(new PassCondition(RelooperPass.RelooperPassName, optInfo => optInfo.OptimizeAggressive));
 
 			return new BuildTarget(targetAsm, DependencyBuilder, "wast", true, extraPasses.ToPreferences());
 		}

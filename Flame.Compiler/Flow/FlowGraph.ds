@@ -160,6 +160,20 @@ namespace Flame.Compiler.Flow
 		}
 
 		/// <summary>
+		/// Marks all blocks that are reachable from this block as
+		/// reachable by adding them to the given set.
+		/// </summary>
+		private void MarkStrictlyReachable(UniqueTag Tag, HashSet<UniqueTag> Results)
+		{
+			// Mark all blocks that are reachable from this block
+			// as reachable.
+			foreach (var item in GetBlock(Tag).Flow.Branches)
+			{
+				MarkReachable(item.TargetTag, Results);
+			}
+		}
+
+		/// <summary>
 		/// Marks the block identified by the given tag - and all blocks that
 		/// are reachable from this block - as reachable by adding them to
 		/// the given set.
@@ -169,13 +183,33 @@ namespace Flame.Compiler.Flow
 			// Mark this block as reachable.
 			if (Results.Add(Tag))
 			{
-				// Mark all blocks that are reachable from this block
+				// Mark all blocks that are reachable strictly from this block
 				// as reachable.
-				foreach (var item in GetBlock(Tag).Flow.Branches)
-				{
-					MarkReachable(item.TargetTag, Results);
-				}
+				MarkStrictlyReachable(Tag, Results);
 			}
+		}
+
+		/// <summary>
+		/// Computes the set of all blocks in this flow graph that are reachable
+		/// from the given block tag.
+		/// </summary>
+		public [UniqueTag] FindReachableBlocks(UniqueTag Tag)
+		{
+			var results = new HashSet<UniqueTag>();
+			MarkReachable(Tag, results);
+			return results;
+		}
+
+		/// <summary>
+		/// Computes the set of all blocks in this flow graph that are strictly reachable
+		/// from the given block tag: this does not include the given block if
+		/// there is no (cyclic) path that reaches it.
+		/// </summary>
+		public [UniqueTag] FindStrictlyReachableBlocks(UniqueTag Tag)
+		{
+			var results = new HashSet<UniqueTag>();
+			MarkStrictlyReachable(Tag, results);
+			return results;
 		}
 
 		/// <summary>
@@ -183,9 +217,7 @@ namespace Flame.Compiler.Flow
 		/// </summary>
 		public [UniqueTag] FindReachableBlocks()
 		{
-			var results = new HashSet<UniqueTag>();
-			MarkReachable(EntryPointTag, results);
-			return results;
+			return FindReachableBlocks(EntryPointTag);
 		}
 
 		/// <summary>

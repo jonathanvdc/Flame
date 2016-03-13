@@ -1,0 +1,463 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization.Relooper
+{
+    public class SolipsizingVisitor : BranchVisitorBase
+    {
+        public const this(
+            set HashSet<UniqueTag> ContinueTags,
+            set HashSet<UniqueTag> BreakTags,
+            set UniqueTag Label,
+            set Dictionary<UniqueTag, BasicBlock> BlockMap,
+            set Dictionary<UniqueTag, HashSet<UniqueTag>> ReachableBlocks);
+
+        public HashSet<UniqueTag> ContinueTags { get; private set; }
+        public HashSet<UniqueTag> BreakTags { get; private set; }
+        public UniqueTag Label { get; private set; }
+        public Dictionary<UniqueTag, BasicBlock> BlockMap { get; private set; }
+        public Dictionary<UniqueTag, HashSet<UniqueTag>> ReachableBlocks { get; private set; }
+
+        public UniqueTag CurrentBlock { get; set; }
+
+        private BlockBranch ReplaceBlock(string Name, IStatement Body, UniqueTag OldTag)
+        {
+            var extraBlock = new BasicBlock(
+                new UniqueTag(Name), Body, TerminatedFlow);
+
+            BlockMap[extraBlock.Tag] = extraBlock;
+            ReachableBlocks[extraBlock.Tag] = new HashSet<UniqueTag>();
+            ReachableBlocks[CurrentBlock].Add(extraBlock.Tag);
+            ReachableBlocks[CurrentBlock].Remove(OldTag);
+
+            return new BlockBranch(extraBlock.Tag);
+        }
+
+        public BasicBlock Visit(BasicBlock Block)
+        {
+            CurrentBlock = Block.Tag;
+            return Block.Accept(this);
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public override BlockBranch Visit(BlockBranch Branch)
+        {
+            if (ContinueTags.Contains(Branch.TargetTag))
+            {
+                return ReplaceBlock(
+                    "continue", new ContinueStatement(Label),
+                    Branch.TargetTag);
+            }
+            else if (BreakTags.Contains(Branch.TargetTag))
+            {
+                return ReplaceBlock(
+                    "break", new BreakStatement(Label),
+                    Branch.TargetTag);
+            }
+            else
+            {
+                return Branch;
+            }
+        }
+    }
+
+    /// <summary>
+    /// A pass that implements the relooper algorithm. Note that this pass also
+    /// deconstructs SSA form.
+    /// </summary>
+    /// <remarks>
+    /// This pass is based on the relooper algorithm described in the
+    /// Emscripten paper, by Alon Zakai:
+    ///     https://github.com/kripken/emscripten/blob/master/docs/paper.pdf
+    /// </remarks>
+    public static class RelooperPass : StatementVisitorBase, IPass<BodyPassArgument, IStatement>
+    {
+        alias ReachableBlockDict = Dictionary<UniqueTag, HashSet<UniqueTag>>;
+
+        /// <summary>
+        /// This name of the relooper pass.
+        /// </summary>
+        public const string RelooperPassName = "relooper";
+
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is FlowGraphStatement;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            assert(Statement is FlowGraphStatement);
+            var flowGraphStmt = (FlowGraphStatement)Statement;
+            return VisitFlowGraph(flowGraphStmt.Graph);
+        }
+
+        private IStatement VisitFlowGraph(FlowGraph Graph)
+        {
+            // First, create a subgraph that contains the entire graph.
+            var component = new FlowGraphComponent(
+                Graph, new List<UniqueTag>(new UniqueTag[] { Graph.EntryPointTag }),
+                ComputeReachability(Graph));
+
+            // Then, visit that subgraph, and apply the relooper algorithm.
+            return LowerShape(VisitComponent(component), Graph);
+        }
+
+        private IStatement LowerShape(FlowShape Shape, FlowGraph Graph)
+        {
+            var labelVar = new RegisterVariable("label", PrimitiveTypes.Int32);
+            var nameMap = new AutoLabelMap();
+            return new BlockStatement(new IStatement[]
+            {
+                labelVar.CreateSetStatement(
+                    new Int32Expression(nameMap[Graph.EntryPointTag])),
+                Shape.Lower(labelVar, nameMap)
+            }).Simplify();
+        }
+
+        /// <summary>
+        /// Visits a control-flow graph component, and converts it to
+        /// structured control flow. This is the core functionality of the
+        /// relooper algorithm. A dictionary is given, which maps block tags
+        /// to the statements they should be replace by. Loops use this to
+        /// implement break and continue.
+        /// </summary>
+        private FlowShape VisitComponent(FlowGraphComponent Component)
+        {
+            // Base case
+            if (Component.EntryPoints.Count == 0)
+                return new EmptyShape();
+
+            // Comments below are copied from the Emscripten paper.
+
+            // If we have a single entry, and cannot return to it (by
+            // some other label later on branching to it) then create a
+            // Simple block...
+            if (Component.EntryPoints.Count == 1 &&
+                !Component.IsStrictlyReachable(Component.EntryPoints[0]))
+            {
+                // ... with the entry as its internal label, and the
+                // Next block comprised of all the other labels. The entries
+                // for the Next block are the entries to which the internal
+                // label can branch.
+
+                var epBlock = Component.Graph.GetBlock(Component.EntryPoints[0]);
+
+                return new SimpleShape(
+                    epBlock,
+                    VisitComponent(
+                        new FlowGraphComponent(
+                            Component,
+                            new List<UniqueTag>(epBlock.Flow.SuccessorTags))));
+            }
+            // If we can return to all of the entries, create a Loop
+            // block, ...
+            else if (Enumerable.All<UniqueTag>(
+                Component.EntryPoints, Component.IsStrictlyReachable))
+            {
+                return VisitLoop(Component);
+            }
+            else
+            {
+                // If we have more than one entry, try to create a Multiple block.
+                return VisitMultipleOrLoop(Component);
+            }
+        }
+
+        /// <summary>
+        /// Visits a control-flow graph component, which has been classified as
+        /// either a Multiple block, or a Loop block.
+        /// </summary>
+        private LabeledShape VisitMultipleOrLoop(FlowGraphComponent Component)
+        {
+            // -------------------------------------------------------------
+            // From the Emscripten paper:
+            //
+            // If we have more than one entry, try to create a Multiple block:
+            // For each entry, find all the labels it reaches that
+            // cannot be reached by any other entry. If at least one entry
+            // has such labels, return a Multiple block, whose Handled
+            // blocks are blocks for those labels (and whose entries are
+            // those labels), and whose Next block is all the rest. Entries
+            // for the next block are entries that did not become part of
+            // the Handled blocks, and also labels that can be reached
+            // from the Handled blocks.
+            // -------------------------------------------------------------
+
+            if (Component.EntryPoints.Count == 1)
+                return VisitLoop(Component);
+
+            var exclusiveBlocks = new Dictionary<UniqueTag, HashSet<UniqueTag>>();
+            foreach (var epTag in Component.EntryPoints)
+            {
+                var exclusiveSet = new HashSet<UniqueTag>(
+                    Component.ReachableBlocks[epTag]);
+                exclusiveSet.Add(epTag);
+
+                foreach (var otherEp in Component.EntryPoints)
+                {
+                    if (otherEp != epTag)
+                    {
+                        exclusiveSet.Remove(otherEp);
+                        exclusiveSet.ExceptWith(Component.ReachableBlocks[otherEp]);
+                    }
+                }
+
+                if (exclusiveSet.Count > 0)
+                {
+                    exclusiveBlocks[epTag] = exclusiveSet;
+                }
+            }
+
+            if (exclusiveBlocks.Count == 0)
+                return VisitLoop(Component);
+
+            var nextEntries = new HashSet<UniqueTag>(Component.EntryPoints);
+            foreach (var blockSet in exclusiveBlocks.Values)
+            {
+                nextEntries.UnionWith(ComputeDirectlyReachable(
+                    blockSet, Component));
+            }
+            nextEntries.ExceptWith(exclusiveBlocks.Keys);
+
+            var loopTag = new UniqueTag("multiple");
+
+            var handledShapes = new Dictionary<UniqueTag, FlowShape>();
+            foreach (var pair in exclusiveBlocks)
+            {
+                var otherBlocks = new HashSet<UniqueTag>(Component.Graph.BlockTags);
+                otherBlocks.ExceptWith(pair.Value);
+                handledShapes[pair.Key] = VisitComponent(Solipsize(
+                    Component, loopTag,
+                    new UniqueTag[] { pair.Key }, otherBlocks));
+            }
+
+            return new MultipleShape(
+                loopTag, handledShapes,
+                VisitComponent(GetSubcomponent(
+                    Component, nextEntries)));
+        }
+
+        private HashSet<UniqueTag> GetSolipsizedReach(
+            FlowGraphComponent Component, UniqueTag BlockTag,
+            [UniqueTag] ContinueTags, [UniqueTag] BreakTags)
+        {
+            var reachSet = new HashSet<UniqueTag>(Component.ReachableBlocks[BlockTag]);
+            reachSet.ExceptWith(ContinueTags);
+            reachSet.ExceptWith(BreakTags);
+            return reachSet;
+        }
+
+        /// <summary>
+        /// Replaces all branches to 'continue' blocks in the given control-flow graph
+        /// component by `continue` statements to the given label, and performs
+        /// an analogous operation for 'break' blocks. All `continue` and `break`
+        /// tags are marked as unreachable.
+        /// </summary>
+        private FlowGraphComponent Solipsize(
+            FlowGraphComponent Component, UniqueTag Label,
+            [UniqueTag] ContinueTags, [UniqueTag] BreakTags)
+        {
+            var cTags = new HashSet<UniqueTag>(ContinueTags);
+            var bTags = new HashSet<UniqueTag>(BreakTags);
+
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+            var reachDict = new ReachableBlockDict();
+            var visitor = new SolipsizingVisitor(
+                cTags, bTags, Label, results, reachDict);
+
+            foreach (var tag in cTags)
+            {
+                reachDict[tag] = GetSolipsizedReach(Component, tag, cTags, bTags);
+            }
+            foreach (var tag in Component.ComponentBlocks)
+            {
+                if (!bTags.Contains(tag))
+                {
+                    reachDict[tag] = GetSolipsizedReach(Component, tag, cTags, bTags);
+                    results[tag] = visitor.Visit(Component.Graph.GetBlock(tag));
+                }
+            }
+
+            return new FlowGraphComponent(
+                new FlowGraph(Enumerable.First<UniqueTag>(cTags), results),
+                new List<UniqueTag>(cTags), reachDict);
+        }
+
+        /// <summary>
+        /// Computes the set of all blocks that are directly reachable from
+        /// the given set of roots, excluding said roots.
+        /// </summary>
+        private HashSet<UniqueTag> ComputeDirectlyReachable(
+            [UniqueTag] Roots, FlowGraphComponent Component)
+        {
+            var nextEntries = new HashSet<UniqueTag>();
+            foreach (var tag in Roots)
+            {
+                // Mark all blocks that can be reached directly blocks
+                // in the root set.
+                nextEntries.UnionWith(Component.Graph.GetBlock(tag).Flow.SuccessorTags);
+            }
+            // Unmark all blocks that are in the root set.
+            nextEntries.ExceptWith(Roots);
+            // Make sure that the resulting blocks are in the current component.
+            nextEntries.IntersectWith(Component.ComponentBlocks);
+            return nextEntries;
+        }
+
+        private FlowGraphComponent GetSubcomponent(
+            FlowGraphComponent Component, [UniqueTag] ComponentBlocks)
+        {
+            // Compute a new reachability dictionary for the subcomponent.
+            var reachDict = new ReachableBlockDict();
+            var compBlocks = new HashSet<UniqueTag>(ComponentBlocks);
+            foreach (var pair in Component.ReachableBlocks)
+            {
+                if (compBlocks.Contains(pair.Key))
+                {
+                    var newSet = new HashSet<UniqueTag>(pair.Value);
+                    newSet.IntersectWith(compBlocks);
+                    reachDict[pair.Key] = newSet;
+                }
+            }
+            var entries = new HashSet<UniqueTag>(Component.EntryPoints);
+            entries.IntersectWith(ComponentBlocks);
+            return new FlowGraphComponent(
+                Component.Graph, new List<UniqueTag>(entries), reachDict);
+        }
+
+        /// <summary>
+        /// Visits a control-flow graph component, which has been classified
+        /// as a Loop block by the relooper algorithm.
+        /// </summary>
+        private LoopShape VisitLoop(
+            FlowGraphComponent Component)
+        {
+            // -------------------------------------------------------------
+            // From the Emscripten paper:
+            //
+            // ... create a Loop
+            // block, whose Inner block is comprised of all labels that
+            // can reach one of the entries, and whose Next block is
+            // comprised of all the others. The entry labels for the
+            // current block become entry labels for the Inner block (note
+            // that they must be in the Inner block by definition, as each
+            // one can reach itself). The Next block’s entry labels are
+            // all the labels in the Next block that can be reached by the
+            // Inner block.
+            //
+            // The technical mechanism by which execution flow is
+            // controlled in the generated code involves the __label__
+            // variable, mentioned earlier. Whenever we enter a block
+            // with more than one entry, we set __label__ before we
+            // branch into it, and we check its value when we enter that
+            // block. So, for example, when we create a Loop block, its
+            // Next block can have multiple entries – any label to which
+            // we branch out from the loop. By creating a Multiple
+            // block after the loop, we can enter the proper label when
+            // the loop is exited. (Having a __label__ variable does add
+            // some overhead, but it greatly simplifies the problem that
+            // the Relooper needs to solve and allows us to only need
+            // three kinds of blocks as described above. Of course, it is
+            // possible to optimize away writes and reads to __label__ in
+            // many or even most cases.)
+            //
+            // As the Relooper processes labels, it replaces branch in-
+            // structions accordingly. For example, when we create a
+            // Loop block, then all branch instructions to the outside
+            // of the loop are converted into break commands (since a
+            // break instruction in JavaScript will indeed get us to out-
+            // side of the loop), and all branch instructions to the begin-
+            // ning of the loop are converted into continue commands,
+            // etc. Those commands are then ignored when called recur-
+            // sively to generate the Inner block (that is, the break and
+            // continue commands are guaranteed, by the semantics of
+            // JavaScript, to get us to where we need to go – they do not
+            // need any further work for them to work properly).
+            // -------------------------------------------------------------
+
+            // Find all blocks that can reach the entry point.
+            var innerBlocks = new HashSet<UniqueTag>();
+            foreach (var tag in Component.ComponentBlocks)
+            {
+                if (Enumerable.Any<UniqueTag>(
+                    Component.EntryPoints,
+                    Component.ReachableBlocks[tag].Contains))
+                {
+                    innerBlocks.Add(tag);
+                }
+            }
+
+            // Compute a new reachability dictionary for the loop's Inner block,
+            // as well as for the Next blocks.
+            var innerReachDict = new ReachableBlockDict();
+            var outerReachDict = new ReachableBlockDict();
+            foreach (var pair in Component.ReachableBlocks)
+            {
+                var newSet = new HashSet<UniqueTag>(pair.Value);
+                if (innerBlocks.Contains(pair.Key))
+                {
+                    newSet.IntersectWith(innerBlocks);
+                    newSet.ExceptWith(Component.EntryPoints);
+                    innerReachDict[pair.Key] = newSet;
+                }
+                else
+                {
+                    newSet.ExceptWith(innerBlocks);
+                    outerReachDict[pair.Key] = newSet;
+                }
+            }
+
+            // Create the loop Inner block component.
+            var loopComponent = new FlowGraphComponent(
+                Component.Graph, Component.EntryPoints, innerReachDict);
+
+            // Find entry points for the Next blocks.
+            var nextEntries = ComputeDirectlyReachable(innerBlocks, Component);
+
+            // Create the Next block component.
+            var nextComponent = new FlowGraphComponent(
+                Component.Graph, new List<UniqueTag>(nextEntries), outerReachDict);
+
+            // Create a loop tag that `break` and `continue` statements can
+            // target.
+            var loopTag = new UniqueTag("loop");
+
+            return new LoopShape(
+                loopTag,
+                VisitComponent(Solipsize(loopComponent, loopTag, Component.EntryPoints, nextEntries)),
+                VisitComponent(nextComponent));
+        }
+
+        /// <summary>
+        /// Computes the set of all strictly reachable blocks, for every block in the
+        /// control-flow graph.
+        /// </summary>
+        private ReachableBlockDict ComputeReachability(FlowGraph Graph)
+        {
+            var reachableBlocks = new ReachableBlockDict();
+
+            foreach (var item in Graph.BlockTags)
+            {
+                reachableBlocks[item] = new HashSet<UniqueTag>(
+                    Graph.FindStrictlyReachableBlocks(item));
+            }
+
+            return reachableBlocks;
+        }
+
+        public IStatement Apply(BodyPassArgument Arg)
+            in { VerifyCFGPass.Apply(Arg.Body) }
+        {
+            return this.Visit(DeconstructSSAPass.Apply(Arg.Body));
+        }
+    }
+}

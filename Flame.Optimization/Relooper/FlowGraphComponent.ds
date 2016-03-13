@@ -1,0 +1,73 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Flow;
+
+namespace Flame.Optimization.Relooper
+{
+    /// <summary>
+    /// A data structure that describes a component in a control-flow graph,
+    /// suitable for use by the relooper algorithm.
+    /// </summary>
+    public class FlowGraphComponent
+    {
+        alias ReachableBlockDict = IReadOnlyDictionary<UniqueTag, HashSet<UniqueTag>>;
+
+        public const this(
+            set FlowGraph Graph, set IReadOnlyList<UniqueTag> EntryPoints,
+            set ReachableBlockDict ReachableBlocks);
+
+        public const this(
+            FlowGraphComponent Component,
+            set IReadOnlyList<UniqueTag> EntryPoints)
+        {
+            this.Graph = Component.Graph;
+            this.ReachableBlocks = Component.ReachableBlocks;
+        }
+
+        /// <summary>
+        /// Gets the graph this component belongs to.
+        /// </summary>
+        public FlowGraph Graph { get; private set; }
+
+        /// <summary>
+        /// Gets this component's entry points.
+        /// </summary>
+        public IReadOnlyList<UniqueTag> EntryPoints { get; private set; }
+
+        /// <summary>
+        /// Gets the set of all strictly reachable blocks, for every block in the
+        /// control-flow graph.
+        /// </summary>
+        public ReachableBlockDict ReachableBlocks { get; private set; }
+
+        /// <summary>
+        /// Computes the set of all blocks that belong to this component.
+        /// </summary>
+        public [UniqueTag] ComponentBlocks
+        {
+            get
+            {
+                var results = new HashSet<UniqueTag>();
+                foreach (var ep in EntryPoints)
+                {
+                    results.Add(ep);
+                    results.UnionWith(ReachableBlocks[ep]);
+                }
+                return results;
+            }
+        }
+
+        /// <summary>
+        /// Checks if the given tag is strictly reachable.
+        /// </summary>
+        public bool IsStrictlyReachable(UniqueTag Tag)
+        {
+            foreach (var item in EntryPoints)
+                if (ReachableBlocks[item].Contains(Tag))
+                    return true;
+            return false;
+        }
+    }
+}
