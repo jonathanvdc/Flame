@@ -1,0 +1,47 @@
+using System;
+using System.Collections.Generic;
+
+public class EquatableInt : IEquatable<EquatableInt>
+{
+    public const this(set int Value);
+
+    public int Value { get; private set; }
+
+    public bool Equals(EquatableInt Other)
+    {
+        return Value == Other.Value;
+    }
+
+    public override bool Equals(object Other)
+    {
+        return Other is EquatableInt && Equals((EquatableInt)Other);
+    }
+
+    public override int GetHashCode()
+    {
+        return Value.GetHashCode();
+    }
+}
+
+public module Program
+{
+    public void Main()
+    {
+        var a = new EquatableInt(42);
+        var b = new EquatableInt(42);
+        var c = new EquatableInt(7);
+        int d = 42;
+
+        Console.WriteLine(a.Equals(a));
+        Console.WriteLine(b.Equals(b));
+        Console.WriteLine(c.Equals(c));
+        Console.WriteLine(a.Equals(b));
+        Console.WriteLine(b.Equals(c));
+        Console.WriteLine(c.Equals(a));
+        Console.WriteLine(a.Equals(d));
+        Console.WriteLine(d.Equals(a));
+        Console.WriteLine(a.GetHashCode());
+        Console.WriteLine(b.GetHashCode());
+        Console.WriteLine(c.GetHashCode());
+    }
+}
