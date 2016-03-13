@@ -4,6 +4,7 @@ using Flame.Compiler.Projects;
 using Flame.Compiler.Visitors;
 using Flame.Front;
 using Flame.Front.Target;
+using Flame.Optimization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,7 +78,12 @@ namespace Flame.Front.Target
                 // Run -fnormalize-names-clr no matter what, because
                 // compilers for other languages (mcs, I'm looking at you here)
                 // can be pretty restrictive about these naming schemes.
-                new PassCondition(NormalizeNamesPass.NormalizeNamesPassName, optInfo => true)
+                new PassCondition(NormalizeNamesPass.NormalizeNamesPassName, optInfo => true),
+
+                // Use -fdeconstruct-cfg to deconstruct control-flow graphs,
+                // if -O3 or more has been specified (we won't construct
+                // a flow graph otherwise, anyway)
+                new PassCondition(DeconstructFlowGraphPass.DeconstructFlowGraphPassName, optInfo => optInfo.OptimizeAggressive)
             },
             new PassInfo<BodyPassArgument, IStatement>[]
             {

@@ -1,0 +1,34 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+
+namespace Flame.Optimization.Relooper
+{
+    /// <summary>
+    /// A dictionary that automatically maps unique tags to
+    /// unique integer indices.
+    /// </summary>
+    public class AutoLabelMap
+    {
+        public const this()
+        {
+            this.dict = new Dictionary<UniqueTag, int>();
+        }
+
+        private Dictionary<UniqueTag, int> dict;
+
+        public int this[UniqueTag Tag]
+        {
+            get
+            {
+                int result;
+                if (!dict.TryGetValue(Tag, &result))
+                {
+                    result = dict.Count;
+                    dict[Tag] = result;
+                }
+                return result;
+            }
+        }
+    }
+}

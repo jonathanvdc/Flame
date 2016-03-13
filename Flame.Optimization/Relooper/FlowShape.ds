@@ -1,0 +1,209 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+
+namespace Flame.Optimization.Relooper
+{
+    /// <summary>
+    /// Represents a structured control flow shape.
+    /// </summary>
+    public abstract class FlowShape
+    {
+        public const this(set FlowShape Next);
+
+        /// <summary>
+        /// Gets this flow shape's successor.
+        /// </summary>
+        public FlowShape Next { get; private set; }
+
+        /// <summary>
+        /// Converts this flow shape to a statement, given a unique name map
+        /// that handles labelled shapes.
+        /// </summary>
+        public abstract IStatement Lower(
+            IVariable LabelVariable, AutoLabelMap LabelMap);
+    }
+
+    /// <summary>
+    /// An empty flow shape.
+    /// </summary>
+    public class EmptyShape : FlowShape
+    {
+        public const this()
+            : base(null);
+
+        /// <summary>
+        /// Converts this flow shape to a statement, given a unique name map
+        /// that handles labelled shapes.
+        /// </summary>
+        public override IStatement Lower(
+            IVariable LabelVariable, AutoLabelMap LabelMap)
+        {
+            return EmptyStatement;
+        }
+    }
+
+    /// <summary>
+    /// A simple flow shape, which represents linear flow.
+    /// </summary>
+    public class SimpleShape : FlowShape
+    {
+        public const this(set BasicBlock Contents, FlowShape Next)
+            : base(Next);
+
+        /// <summary>
+        /// Gets this 'simple' shape's contents, as a block.
+        /// </summary>
+        public BasicBlock Contents { get; private set; }
+
+        /// <summary>
+        /// Converts this flow shape to a statement, given a unique name map
+        /// that handles labelled shapes.
+        /// </summary>
+        public override IStatement Lower(
+            IVariable LabelVariable, AutoLabelMap LabelMap)
+        {
+            if (Next is SimpleShape)
+            {
+                // Try to merge blocks first.
+
+                var simpleNext = (SimpleShape)Next;
+                return new SimpleShape(
+                    new BasicBlock(
+                        Contents.Tag, new BlockStatement(new IStatement[]
+                        {
+                            Contents.Contents, simpleNext.Contents.Contents
+                        }).Simplify(), simpleNext.Contents.Flow), simpleNext.Next)
+                    .Lower(LabelVariable, LabelMap);
+            }
+
+            return new BlockStatement(new IStatement[]
+            {
+                Contents.Contents,
+                LowerFlow(Contents.Flow, LabelVariable, LabelMap),
+                Next.Lower(LabelVariable, LabelMap)
+            }).Simplify();
+        }
+
+        private IStatement LowerFlow(
+            BlockFlow Flow, IVariable LabelVariable,
+            AutoLabelMap LabelMap)
+        {
+            // Set the __label__ variable here.
+            if (Flow is JumpFlow)
+            {
+                var jump = (JumpFlow)Flow;
+                return LabelVariable.CreateSetStatement(
+                    new Int32Expression(LabelMap[jump.Branch.TargetTag]));
+            }
+            else if (Flow is SelectFlow)
+            {
+                var selectFlow = (SelectFlow)Flow;
+                return new IfElseStatement(
+                    selectFlow.Condition,
+                    LabelVariable.CreateSetStatement(
+                        new Int32Expression(LabelMap[selectFlow.ThenBranch.TargetTag])),
+                    LabelVariable.CreateSetStatement(
+                        new Int32Expression(LabelMap[selectFlow.ElseBranch.TargetTag])));
+            }
+            else
+            {
+                return EmptyStatement;
+            }
+        }
+    }
+
+    /// <summary>
+    /// A labelled shape: a shape that may be implemented with
+    /// a labeled loop.
+    /// </summary>
+    public abstract class LabeledShape : FlowShape
+    {
+        public const this(set UniqueTag Label, FlowShape Next)
+            : base(Next);
+
+        /// <summary>
+        /// Gets this labelled shape's label.
+        /// </summary>
+        public UniqueTag Label { get; private set; }
+    }
+
+    /// <summary>
+    /// A shape that represents a simple loop.
+    /// </summary>
+    public class LoopShape : LabeledShape
+    {
+        public const this(
+            UniqueTag Label, set FlowShape Inner, FlowShape Next)
+            : base(Label, Next);
+
+        /// <summary>
+        /// Gets this loop's inner flow shape.
+        /// </summary>
+        public FlowShape Inner { get; private set; }
+
+        /// <summary>
+        /// Converts this flow shape to a statement, given a unique name map
+        /// that handles labelled shapes.
+        /// </summary>
+        public override IStatement Lower(
+            IVariable LabelVariable, AutoLabelMap LabelMap)
+        {
+            return new BlockStatement(new IStatement[]
+            {
+                new TaggedStatement(
+                    Label, Inner.Lower(LabelVariable, LabelMap)),
+                Next.Lower(LabelVariable, LabelMap)
+            }).Simplify();
+        }
+    }
+
+    /// <summary>
+    /// A shape with more than one entry. If the next block to
+    /// be entered is among them, we run it and continue to
+    /// the next shape, otherwise we continue immediately to the
+    /// next shape.
+    /// </summary>
+    public class MultipleShape : LabeledShape
+    {
+        public const this(
+            UniqueTag Label,
+            set IReadOnlyDictionary<UniqueTag, FlowShape> Handled,
+            FlowShape Next)
+            : base(Label, Next);
+
+        /// <summary>
+        /// Gets a dictionary that maps handled block tags to flow shapes.
+        /// </summary>
+        public IReadOnlyDictionary<UniqueTag, FlowShape> Handled { get; private set; }
+
+        /// <summary>
+        /// Converts this flow shape to a statement, given a unique name map
+        /// that handles labelled shapes.
+        /// </summary>
+        public override IStatement Lower(
+            IVariable LabelVariable, AutoLabelMap LabelMap)
+        {
+            IStatement selection = EmptyStatement;
+            foreach (var item in Handled)
+            {
+                selection = new IfElseStatement(
+                    new EqualityExpression(
+                        LabelVariable.CreateGetExpression(),
+                        new Int32Expression(LabelMap[item.Key])),
+                    item.Value.Lower(LabelVariable, LabelMap),
+                    selection);
+            }
+
+            return new BlockStatement(new IStatement[]
+            {
+                new TaggedStatement(Label, selection).Simplify(),
+                Next.Lower(LabelVariable, LabelMap)
+            }).Simplify();
+        }
+    }
+}
