@@ -12,6 +12,7 @@ configs
 {
     Og { Flags = $(Flags) -Og; }
     O2 { Flags = $(Flags) -O2; }
+    O3 { Flags = $(Flags) -O3; }
 }
 
 init
