@@ -18,4 +18,10 @@ public module Loop
             j++;
         return j;
     }
+
+    public int Select(bool c, int x, int y)
+    {
+        if (c) return x;
+        else return y;
+    }
 }
