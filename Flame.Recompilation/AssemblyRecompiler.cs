@@ -988,14 +988,21 @@ namespace Flame.Recompilation
             return new TypeMappingConverter(tMap);
         }
 
-        private static bool IsAbstractOrInterfaceMethod(IMethod SourceMethod)
+        /// <summary>
+        /// Determines if the given method shouldn't have a method body.
+        /// Abstract, interface and method methods should not have a method body.
+        /// Conversely, all other methods should have bodies.
+        /// </summary>
+        private static bool IsBodylessMethod(IMethod SourceMethod)
         {
-            return SourceMethod.GetIsAbstract() || (SourceMethod.DeclaringType != null && SourceMethod.DeclaringType.GetIsInterface());
+            return SourceMethod.GetIsAbstract() 
+                || (SourceMethod.DeclaringType != null && SourceMethod.DeclaringType.GetIsInterface())
+                || SourceMethod.HasAttribute(PrimitiveAttributes.Instance.ImportAttribute.AttributeType);
         }
 
         private IStatement GetMethodBodyCore(IMethod SourceMethod)
         {
-            if (IsAbstractOrInterfaceMethod(SourceMethod))
+            if (IsBodylessMethod(SourceMethod))
             {
                 return null;
             }
@@ -1057,7 +1064,7 @@ namespace Flame.Recompilation
             // Don't proceed if there is no method body.
             if (body == null)
             {
-                if (!IsAbstractOrInterfaceMethod(SourceMethod))
+                if (!IsBodylessMethod(SourceMethod))
                 {
                     Log.LogError(new LogEntry("recompilation error", "could not find a method body for '" + SourceMethod.FullName + "'."));
                 }
