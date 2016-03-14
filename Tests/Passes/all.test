@@ -7,6 +7,7 @@ tests
     Inlining/Inlining.test;
     Linking/Linking.test;
     LowerLambda/LowerLambda.test;
+    Specialization/Specialization.test;
     SplitTails/SplitTails.test;
     SSAConstruction/SSAConstruction.test;
     WholeProgram/WholeProgram.test;

@@ -1,0 +1,55 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public interface INum<T>
+{
+    bool IsLessThan(T a, T b);
+}
+
+public static class IntNum : INum<int>
+{
+    public bool IsLessThan(int a, int b)
+    {
+        return a < b;
+    }
+}
+
+public module Quicksort
+{
+    public [T] Sort<T>(List<T> Data, INum<T> NumImpl)
+    {
+        var results = new List<T>();
+        if (Data.Count == 0)
+            return results;
+
+        var lList = new List<T>();
+        var rList = new List<T>();
+        var pivot = Data[0];
+        for (int i = 1; i < Data.Count; i++)
+        {
+            var item = Data[i];
+            if (NumImpl.IsLessThan(item, pivot))
+                lList.Add(item);
+            else
+                rList.Add(item);
+        }
+
+        results.AddRange(Sort<T>(lList, NumImpl));
+        results.Add(pivot);
+        results.AddRange(Sort<T>(rList, NumImpl));
+
+        return results;
+    }
+
+    public void Main()
+    {
+        int n = 1000;
+
+        var input = new List<int>();
+        for (int i = n; i >= 0; i -= 3)
+            input.Add(i);
+
+        Console.WriteLine(Enumerable.Last<int>(Sort<int>(input, IntNum)));
+    }
+}
