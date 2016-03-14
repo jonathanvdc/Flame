@@ -1,0 +1,55 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Build;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A type converter that checks if types contain generic parameters.
+    /// </summary>
+    public static class GenericParameterFinder : TypeConverterBase<bool>
+    {
+        protected override bool ConvertTypeDefault(IType Type)
+        {
+            return false;
+        }
+
+        protected override bool ConvertGenericParameter(IGenericParameter Type)
+        {
+            return true;
+        }
+
+        protected override bool MakeArrayType(bool ElementType, int ArrayRank)
+        {
+            return ElementType;
+        }
+
+        protected override bool MakeGenericType(bool GenericDeclaration, IEnumerable<bool> TypeArguments)
+        {
+            return GenericDeclaration || Enumerable.Any<bool>(TypeArguments);
+        }
+
+        protected override bool MakePointerType(bool ElementType, PointerKind Kind)
+        {
+            return ElementType;
+        }
+
+        protected override bool MakeVectorType(bool ElementType, IReadOnlyList<int> Dimensions)
+        {
+            return ElementType;
+        }
+
+        protected override bool ConvertDelegateType(IType Type)
+        {
+            var method = MethodType.GetMethod(Type);
+
+            return Convert(method.ReturnType) || Enumerable.Any<bool>(Convert(method.Parameters.GetTypes()));
+        }
+
+        protected override bool ConvertIntersectionType(IntersectionType Type)
+        {
+            return Convert(Type.First) || Convert(Type.Second);
+        }
+    }
+}

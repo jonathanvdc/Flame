@@ -29,6 +29,7 @@
     <Compile Include="DevirtualizationPass.ds" />
     <Compile Include="FinalFlowRemover.ds" />
     <Compile Include="FlattenInitializationPass.ds" />
+    <Compile Include="GenericParameterFinder.ds" />
     <Compile Include="GlobalValuePropagationPass.ds" />
     <Compile Include="Graph.ds" />
     <Compile Include="GreedyGraphColorer.ds" />
