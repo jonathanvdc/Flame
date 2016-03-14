@@ -1353,6 +1353,15 @@ namespace Flame.Recompilation
             return methodBodies.GetOrAdd(Method, null, method => TaskManager.RunAsync(() => GetMethodBodyCore(method)));
         }
 
+        /// <summary>
+        /// Checks if the given type can be extended with additional members.
+        /// </summary>
+        /// <returns><c>true</c> if the specified type can be extended; otherwise, <c>false</c>.</returns>
+        public bool CanExtend(IType Type)
+        {
+            return !IsExternalStrict(Type);
+        }
+
         #endregion
     }
 }

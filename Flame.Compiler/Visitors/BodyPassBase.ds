@@ -23,6 +23,12 @@ namespace Flame.Compiler.Visitors
         /// If this cannot be done, null is returned.
         /// </summary>
         IStatement GetMethodBody(IMethod Method);
+
+        /// <summary>
+        /// Checks if the given type can be extended with additional members.
+        /// </summary>
+        /// <returns><c>true</c> if the specified type can be extended; otherwise, <c>false</c>.</returns>
+        bool CanExtend(IType Type);
     }
 
     /// <summary>

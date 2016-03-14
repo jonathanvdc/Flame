@@ -51,6 +51,15 @@ namespace Flame.Front.Target
 		{
 			return BaseEnvironment.GetMethodBody(Method);
 		}
+
+        /// <summary>
+        /// Checks if the given type can be extended with additional members.
+        /// </summary>
+        /// <returns><c>true</c> if the specified type can be extended; otherwise, <c>false</c>.</returns>
+        public bool CanExtend(IType Type)
+        {
+            return BaseEnvironment.CanExtend(Type);
+        }
 	}
 
     public class InliningPass : InliningPassBase
