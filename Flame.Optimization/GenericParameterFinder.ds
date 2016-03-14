@@ -10,6 +10,11 @@ namespace Flame.Optimization
     /// </summary>
     public static class GenericParameterFinder : TypeConverterBase<bool>
     {
+        private bool Id(bool c)
+        {
+            return c;
+        }
+
         protected override bool ConvertTypeDefault(IType Type)
         {
             return false;
@@ -27,7 +32,7 @@ namespace Flame.Optimization
 
         protected override bool MakeGenericType(bool GenericDeclaration, IEnumerable<bool> TypeArguments)
         {
-            return GenericDeclaration || Enumerable.Any<bool>(TypeArguments);
+            return GenericDeclaration || Enumerable.Any<bool>(TypeArguments, Id);
         }
 
         protected override bool MakePointerType(bool ElementType, PointerKind Kind)
@@ -44,7 +49,7 @@ namespace Flame.Optimization
         {
             var method = MethodType.GetMethod(Type);
 
-            return Convert(method.ReturnType) || Enumerable.Any<bool>(Convert(method.Parameters.GetTypes()));
+            return Convert(method.ReturnType) || Enumerable.Any<bool>(Convert(method.Parameters.GetTypes()), Id);
         }
 
         protected override bool ConvertIntersectionType(IntersectionType Type)

@@ -111,6 +111,7 @@
     <Compile Include="Target\PythonBuildTargetParser.cs" />
     <Compile Include="Target\PrintDotPass.cs" />
     <Compile Include="Target\WasmBuildTargetParser.cs" />
+    <Compile Include="Target\SpecializationPass.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame.Cecil\Flame.Cecil.csproj">

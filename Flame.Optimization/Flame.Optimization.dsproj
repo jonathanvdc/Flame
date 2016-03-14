@@ -48,6 +48,7 @@
     <Compile Include="SimplifySelectFlowPass.ds" />
     <Compile Include="SizeVisitor.ds" />
     <Compile Include="SlimLambdaPass.ds" />
+    <Compile Include="SpecializationPass.ds" />
     <Compile Include="SpeculativeStatement.ds" />
     <Compile Include="StackIntrinsicsPass.ds" />
     <Compile Include="StatementRewriter.ds" />
