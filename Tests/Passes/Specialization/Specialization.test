@@ -1,0 +1,25 @@
+// A compare-test test description.
+
+build
+{
+    $(dsc) $(Filename).ds -platform clr -o bin/$(Filename).exe $(Flags);
+}
+
+run
+{
+    return = @($(net-runtime) bin/$(Filename).exe);
+}
+
+configs
+{
+    Og { Flags = -Og -w; }
+    O2 { Flags = -O2 -w; }
+    O3 { Flags = -O3 -w; }
+    O4 { Flags = -O4 -w; }
+}
+
+init
+{
+    Filename = Specialization;
+    return = @($echo 1000);
+}
