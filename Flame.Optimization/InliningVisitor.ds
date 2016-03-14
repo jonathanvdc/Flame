@@ -84,7 +84,8 @@ namespace Flame.Optimization
         public abstract int GetMaxRecursion(BodyPassArgument Argument);
 
         /// <summary>
-        /// Names the given method. This includes any quotation marks, or other
+        /// Names the given method, for logging purposes.
+        /// This includes any quotation marks, or other
         /// delimiters.
         /// </summary>
         protected virtual string NameMethod(IMethod Method)
@@ -181,9 +182,11 @@ namespace Flame.Optimization
     }
 
     /// <summary>
-    /// A visitor that inlines direct calls, if they meet certain criteria.
+    /// A base class for inlining visitors. This can be subclassed to create
+    /// an inlining visitor, but can also be subclassed to create a function
+    /// specializing visitor.
     /// </summary>
-    public class InliningVisitor : LocationVisitorBase
+    public abstract class InliningVisitorBase : LocationVisitorBase
     {
         public const this(
             set BodyPassArgument PassArgument,
@@ -230,6 +233,12 @@ namespace Flame.Optimization
         private Dictionary<IMethod, int> inlineCount;
         private List<KeyValuePair<DissectedCall, SourceLocation>> inlinedCallLocs;
 
+        /// <summary>
+        /// Performs inlining. Null is returned if the inlining operation
+        /// could not be performed.
+        /// </summary>
+        public abstract IExpression Inline(DissectedCall Call);
+
         protected override const bool MatchesCore(IStatement Statement)
         {
             return false;
@@ -248,44 +257,6 @@ namespace Flame.Optimization
                 }
             }
             return null;
-        }
-
-        /// <summary>
-        /// Inlines the given dissected call: its arguments and return value
-        /// are replaced by local variables, and control will resume when the
-        /// inlined callee is done. Null is returned if the inlining operation
-        /// could not be performed.
-        /// </summary>
-        public IExpression Inline(DissectedCall Call)
-        {
-            // Acquire the method body.
-            var oldMethodBody = PassArgument.PassEnvironment.GetMethodBody(Call.Method);
-            if (oldMethodBody == null)
-                return null;
-
-            // Copy the method body.
-            var body = CloningVisitor.Visit(oldMethodBody);
-            // Create a variable for the return value.
-            var lbVariable = new LocalVariable(Call.Method.ReturnType);
-
-            // Transforms the copied body to match our needs.
-            var visitedBody = InliningReturnVisitor.InlineReturns(
-                                InliningVariableVisitor.InlineVariables(body,
-                                    Call.ThisValue,
-                                    Enumerable.ToArray<IExpression>(Call.Arguments)),
-                                lbVariable);
-
-            if (lbVariable.Type.Equals(PrimitiveTypes.Void))
-            {
-                return new InitializedExpression(
-                    visitedBody, VoidExpression).Simplify();
-            }
-            else
-            {
-                return new InitializedExpression(
-                    visitedBody, lbVariable.CreateGetExpression(),
-                    lbVariable.CreateReleaseStatement()).Simplify();
-            }
         }
 
         protected override const bool MatchesCore(IExpression Expression)
@@ -332,9 +303,59 @@ namespace Flame.Optimization
                 return result;
             }
         }
+
         protected override IStatement TransformCore(IStatement Statement)
         {
             return Statement;
+        }
+    }
+
+    /// <summary>
+    /// A visitor that inlines direct calls, if they meet certain criteria.
+    /// </summary>
+    public class InliningVisitor : InliningVisitorBase
+    {
+        public const this(
+            BodyPassArgument PassArgument,
+            bool(DissectedCall) ShouldInline)
+            : base(PassArgument, ShouldInline);
+
+        /// <summary>
+        /// Inlines the given dissected call: its arguments and return value
+        /// are replaced by local variables, and control will resume when the
+        /// inlined callee is done. Null is returned if the inlining operation
+        /// could not be performed.
+        /// </summary>
+        public override IExpression Inline(DissectedCall Call)
+        {
+            // Acquire the method body.
+            var oldMethodBody = PassArgument.PassEnvironment.GetMethodBody(Call.Method);
+            if (oldMethodBody == null)
+                return null;
+
+            // Copy the method body.
+            var body = CloningVisitor.Visit(oldMethodBody);
+            // Create a variable for the return value.
+            var lbVariable = new LocalVariable(Call.Method.ReturnType);
+
+            // Transforms the copied body to match our needs.
+            var visitedBody = InliningReturnVisitor.InlineReturns(
+                                InliningVariableVisitor.InlineVariables(body,
+                                    Call.ThisValue,
+                                    Enumerable.ToArray<IExpression>(Call.Arguments)),
+                                lbVariable);
+
+            if (lbVariable.Type.Equals(PrimitiveTypes.Void))
+            {
+                return new InitializedExpression(
+                    visitedBody, VoidExpression).Simplify();
+            }
+            else
+            {
+                return new InitializedExpression(
+                    visitedBody, lbVariable.CreateGetExpression(),
+                    lbVariable.CreateReleaseStatement()).Simplify();
+            }
         }
     }
 
