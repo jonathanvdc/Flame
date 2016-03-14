@@ -41,16 +41,6 @@ namespace Flame.Optimization
             return false;
         }
 
-        private IExpression UnwrapCaller(IExpression Value)
-        {
-            if (Value is ReinterpretCastExpression)
-                return UnwrapCaller(((ReinterpretCastExpression)Value).Value);
-            else if (Value is IMetadataNode<IExpression>)
-                return UnwrapCaller(((IMetadataNode<IExpression>)Value).Value);
-            else
-                return Value;
-        }
-
         protected override IExpression TransformCore(IExpression Value)
         {
             assert(Value is GetMethodExpression);
@@ -63,7 +53,7 @@ namespace Flame.Optimization
                 if (expr.Target.DeclaringType.IsValueType)
                     return expr;
 
-                var caller = UnwrapCaller(expr.Caller);
+                var caller = SpecializedCall.UnwrapCast(expr.Caller);
                 var callerTy = caller.Type;
                 if (callerTy == expr.Caller.Type)
                     return expr;

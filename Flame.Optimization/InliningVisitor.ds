@@ -282,7 +282,7 @@ namespace Flame.Optimization
 
             if (result == null)
             {
-                return Expression;
+                return Expression.Accept(this);
             }
             else
             {
@@ -300,7 +300,7 @@ namespace Flame.Optimization
                 }
                 inlineCount[dissected.Method] = preCount + 1;
 
-                return result;
+                return result.Accept(this);
             }
         }
 

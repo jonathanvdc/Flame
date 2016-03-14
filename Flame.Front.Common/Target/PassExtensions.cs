@@ -86,6 +86,10 @@ namespace Flame.Front.Target
 			GlobalPassManager.Append(SSAPassManager.ToPreferences());
 			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotPassName));
 
+            // -fspecialize tries to specialize methods.
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(SpecializationPass.Instance, SpecializationPass.SpecializationPassName));
+            GlobalPassManager.RegisterPassCondition(SpecializationPass.SpecializationPassName, optInfo => optInfo.OptimizeExperimental);
+
 			// -finline uses CFG/SSA form, so it's -O3, too.
 			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(InliningPass.Instance, InliningPass.InliningPassName));
 			GlobalPassManager.RegisterPassCondition(InliningPass.InliningPassName, optInfo => optInfo.OptimizeAggressive);
@@ -94,7 +98,7 @@ namespace Flame.Front.Target
 
             // Watch out with -fstack-intrinsics
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(StackIntrinsicsPass.Instance, StackIntrinsicsPass.StackIntrinsicsPassName));
-            GlobalPassManager.RegisterPassCondition(StackIntrinsicsPass.StackIntrinsicsPassName, optInfo => optInfo.OptimizeExperimental);
+            GlobalPassManager.RegisterPassCondition(StackIntrinsicsPass.StackIntrinsicsPassName, optInfo => optInfo.OptimizeVolatile);
 
 			GlobalPassManager.RegisterLoweringPass(new MethodPassInfo(DeconstructSSAPass.Instance, DeconstructSSAPass.DeconstructSSAPassName));
             GlobalPassManager.RegisterPassCondition(DeconstructSSAPass.DeconstructSSAPassName, optInfo => optInfo.OptimizeAggressive);

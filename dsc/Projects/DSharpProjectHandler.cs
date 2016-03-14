@@ -128,9 +128,12 @@ namespace dsc.Projects
                     new PassCondition(
                         ValueTypeDelegateVisitor.ValueTypeDelegatePassName,
                         optInfo => ValueTypeDelegateVisitor.ValueTypeDelegateWarning.UseWarning(optInfo.Log.Options)),
+                    // Use -fdead-code-elimination for -O0 -g, -O1, -Og and -O2 -g.
+                    // Don't use it when a CFG is constructed, because that may
+                    // hurt correctness.
                     new PassCondition(
                         PassExtensions.EliminateDeadCodePassName,
-                        optInfo => optInfo.OptimizeMinimal || optInfo.OptimizeDebug),
+                        optInfo => !optInfo.OptimizeAggressive && (optInfo.OptimizeMinimal || optInfo.OptimizeDebug)),
                     new PassCondition(
                         PassExtensions.InitializationPassName,
                         optInfo => InitializationCountPass.IsUseful(optInfo.Log)),

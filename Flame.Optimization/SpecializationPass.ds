@@ -1,0 +1,551 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Build;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using Pixie;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A method call that has been decomposed into a callee, a 'this' type,
+    /// and a sequence of argument types.
+    /// </summary>
+    public class SpecializedCall : IEquatable<SpecializedCall>
+    {
+        /// <summary>
+        /// Creates a new specialized call from the given 'this' type,
+        /// callee, and sequence of argument types.
+        /// </summary>
+        public this(
+            set IType ThisType, set IMethod Method,
+            set [IType] ArgumentTypes);
+
+        /// <summary>
+        /// Creates a new specialized call from the given dissected call.
+        /// </summary>
+        public this(DissectedCall Call)
+        {
+            this.Method = Call.Method;
+            this.ThisType = UnwrapCast(Call.ThisValue).TypeOrNull;
+            this.ArgumentTypes = Enumerable.Select<IExpression, IExpression>(Call.Arguments, UnwrapCast).Types;
+        }
+
+        /// <summary>
+        /// Strips the given expression of top-level reinterpret_cast expressions.
+        /// </summary>
+        public static IExpression UnwrapCast(IExpression Expr)
+        {
+            if (Expr is ReinterpretCastExpression)
+            {
+                var castExpr = (ReinterpretCastExpression)Expr;
+                return UnwrapCast(castExpr.Value);
+            }
+            else if (Expr is IMetadataNode<IExpression>)
+            {
+                var metaExpr = (IMetadataNode<IExpression>)Expr;
+                return UnwrapCast(metaExpr.Value);
+            }
+            else if (Expr is InitializedExpression)
+            {
+                var initExpr = (InitializedExpression)Expr;
+                return new InitializedExpression(
+                    initExpr.Initialization,
+                    UnwrapCast(initExpr.Value),
+                    initExpr.Finalization);
+            }
+            else
+            {
+                return Expr;
+            }
+        }
+
+        /// <summary>
+        /// Gets the type of the expression that produces the 'this' object for
+        /// this call.
+        /// </summary>
+        public IType ThisType { const get; private set; }
+
+        /// <summary>
+        /// Gets the callee.
+        /// </summary>
+        public IMethod Method { const get; private set; }
+
+        /// <summary>
+        /// Gets the sequence of types of the arguments that are passed to the
+        /// callee.
+        /// </summary>
+        public [IType] ArgumentTypes { const get; private set; }
+
+        public bool Equals(SpecializedCall Other)
+        {
+            if (Method.Equals(Other.Method) &&
+                Enumerable.SequenceEqual<IType>(ArgumentTypes, Other.ArgumentTypes))
+            {
+                if (ThisType == null)
+                    return Other.ThisType == null;
+                else
+                    return ThisType.Equals(Other.ThisType);
+            }
+            return false;
+        }
+
+        public override bool Equals(object Other)
+        {
+            return Other is SpecializedCall && Equals((SpecializedCall)Other);
+        }
+
+        public override int GetHashCode()
+        {
+            int result = Method.GetHashCode();
+            if (ThisType != null)
+                result = (result << 1) ^ ThisType.GetHashCode();
+
+            foreach (var item in ArgumentTypes)
+                result = (result << 1) ^ item.GetHashCode();
+
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// A data structure that represents a specialized method, and its modified
+    /// calling convention.
+    /// </summary>
+    public class SpecializedMethod
+    {
+        public const this(
+            set IMethod Specialization,
+            set IReadOnlyDictionary<int, int> ParameterIndexMap)
+        {
+            this.ParameterCount = Enumerable.Count<IParameter>(Specialization.Parameters);
+        }
+
+        /// <summary>
+        /// Gets the method specialization itself.
+        /// </summary>
+        public IMethod Specialization { get; private set; }
+
+        /// <summary>
+        /// Gets the number of parameters the given specialization takes.
+        /// </summary>
+        public int ParameterCount { get; private set; }
+
+        /// <summary>
+        /// Gets a dictionary that maps parameter indices in the original
+        /// method to parameter indices in the specialization.
+        /// </summary>
+        public IReadOnlyDictionary<int, int> ParameterIndexMap { get; private set; }
+
+        /// <summary>
+        /// Rewrites the given dissected call in terms of the specialized
+        /// method.
+        /// </summary>
+        public IExpression RewriteCall(DissectedCall Call)
+        {
+            IExpression[] args = new IExpression[ParameterCount];
+            var initialize = new InsertStatement();
+            var unspilledExprs = new List<SpillableExpression>();
+
+            IExpression thisExpr;
+            if (Call.ThisValue == null)
+            {
+                thisExpr = null;
+            }
+            else
+            {
+                var spillableThis = new SpillableExpression(Call.ThisValue);
+                unspilledExprs.Add(spillableThis);
+                thisExpr = spillableThis;
+            }
+
+            int i = 0;
+            foreach (var arg in Call.Arguments)
+            {
+                if (ParameterIndexMap.TryGetValue(i, &int paramIndex))
+                {
+                    var expr = new SpillableExpression(arg);
+                    args[paramIndex] = expr;
+                    unspilledExprs.Add(expr);
+                }
+                else
+                {
+                    var stmt = new ExpressionStatement(arg);
+
+                    if (!stmt.IsEmpty)
+                    {
+                        foreach (var item in unspilledExprs)
+                        {
+                            item.Spill(initialize);
+                        }
+                        unspilledExprs = new List<SpillableExpression>();
+                        initialize.Insert(stmt);
+                    }
+                }
+                i++;
+            }
+
+            return new InitializedExpression(
+                initialize,
+                new InvocationExpression(Specialization, thisExpr, args));
+        }
+    }
+
+    /// <summary>
+    /// A pass that performs the partial function evaluation optimization:
+    /// direct function calls are replaced by specialized functions.
+    /// </summary>
+    public abstract class SpecializationPassBase : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// Gets the default partial evaluation pass name.
+        /// </summary>
+        public const string SpecializationPassName = "specialize";
+
+        /// <summary>
+        /// The remarks option for partial function evaluation: applying this pass to
+        /// a function will emit a message if this is option set to true.
+        /// </summary>
+        public static string SpecializationRemarksOption
+        {
+            get { return Flags.GetRemarkOptionName(SpecializationPassName); }
+        }
+
+        /// <summary>
+        /// Creates a delegate that determines whether the given dissected
+        /// direct call should be specialized. This delegate should perform
+        /// both correctness and feasibility checks.
+        /// </summary>
+        public abstract bool(DissectedCall) GetSpecializationCriteria(BodyPassArgument Argument);
+
+        /// <summary>
+        /// Names the given method, for logging purposes.
+        /// This includes any quotation marks, or other
+        /// delimiters.
+        /// </summary>
+        protected virtual string NameMethod(IMethod Method)
+        {
+            string name = Method.Name;
+            if (string.IsNullOrWhiteSpace(name))
+                return "anonymous method";
+            else
+                return "'" + name + "'";
+        }
+
+        /// <summary>
+        /// Logs a message that proclaims that a partial evaluation operation
+        /// has occurred.
+        /// </summary>
+        protected virtual void LogSpecializedCall(
+            BodyPassArgument Argument, SourceLocation CallLocation,
+            DissectedCall InlinedCall)
+        {
+            var nodes = new List<MarkupNode>();
+            // Add a description
+            nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
+                "specialized direct call to " + NameMethod(InlinedCall.Method) + ". "));
+            // Add a cause node ('[-Rspecialize]')
+            nodes.Add(Flags.CreateCauseNode(SpecializationRemarksOption));
+            // Add diagnostics for the specialized call
+            nodes.Add(CallLocation.CreateDiagnosticsNode());
+
+            var log = Argument.PassEnvironment.Log;
+            log.LogMessage(new LogEntry("pass remark", nodes));
+        }
+
+        /// <summary>
+        /// Applies this pass to the given body pass argument.
+        /// </summary>
+        public IStatement Apply(BodyPassArgument Argument)
+            in { VerifyCFGPass.Apply(Argument.Body) }
+            in { VerifySSAPass.Apply(Argument.Body) }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result) { VerifySSAPass.Apply(result) }
+        {
+            var shouldSpecialize = GetSpecializationCriteria(Argument);
+            var log = Argument.PassEnvironment.Log;
+            bool shouldRemark = log.Options.ShouldRemark(SpecializationPassName);
+            var visitor = new SpecializingVisitor(
+                Argument, shouldSpecialize, NameMethod, shouldRemark);
+            var result = visitor.Visit(Argument.Body);
+            if (shouldRemark)
+            {
+                // Let's print some diagnostics, because we're so proud of
+                // our work.
+                foreach (var item in visitor.InlinedCallLocations)
+                {
+                    LogSpecializedCall(Argument, item.Value, item.Key);
+                }
+            }
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// A visitor that specializes direct calls, if they meet certain criteria.
+    /// </summary>
+    public class SpecializingVisitor : InliningVisitorBase
+    {
+        public const this(
+            BodyPassArgument PassArgument,
+            bool(DissectedCall) ShouldSpecialize,
+            set string(IMethod) NameMethod,
+            set bool ShouldRemark)
+            : base(PassArgument, ShouldSpecialize);
+
+        /// <summary>
+        /// Tells whether this visitor should print remarks that relate to
+        /// function specialization.
+        /// </summary>
+        public bool ShouldRemark { get; private set; }
+
+        /// <summary>
+        /// Names the given method.
+        /// </summary>
+        public string(IMethod) NameMethod { get; private set; }
+
+        /// <summary>
+        /// Gets this visitor's log.
+        /// </summary>
+        public ICompilerLog Log { get { return PassArgument.PassEnvironment.Log; } }
+
+        private Dictionary<SpecializedCall, SpecializedMethod> SpecializationCache
+        {
+            get
+            {
+                var tyMetadata = PassArgument.Metadata.TypeMetadata;
+                string key = "specialization-cache";
+                var result = tyMetadata.GetOption<Dictionary<SpecializedCall, SpecializedMethod>>(
+                    key, null);
+
+                if (result == null)
+                {
+                    result = new Dictionary<SpecializedCall, SpecializedMethod>();
+                    tyMetadata.SetOption<Dictionary<SpecializedCall, SpecializedMethod>>(
+                        key, result);
+                }
+
+                return result;
+            }
+        }
+
+        private string GenerateName(string Name)
+        {
+            return GenericNameExtensions.TrimGenerics(Name) +
+                "__specialization$" + SpecializationCache.Count;
+        }
+
+        /// <summary>
+        /// Tries to create a constant expression that represents the
+        /// only instance of the given type. Null is returned if there
+        /// is no such expression.
+        /// </summary>
+        private IExpression CreateSingletonExpression(IType Type)
+        {
+            if (Type.IsSingleton)
+                return new SingletonVariable(Type).CreateGetExpression();
+            else if (Type.Equals(PrimitiveTypes.Void))
+                return VoidExpression;
+            else if (Type.Equals(PrimitiveTypes.Null))
+                return NullExpression;
+            else
+                return null;
+        }
+
+        private void PrintSpecializationFailedMessage(IMethod Method, string Reason)
+        {
+            if (!ShouldRemark)
+                return;
+
+            string methodName = NameMethod(Method);
+            var nodes = new List<MarkupNode>();
+            // Add a description
+            nodes.Add(new MarkupNode(
+                NodeConstants.TextNodeType,
+                "could not specialize direct call to " + methodName +
+                ", because " + Reason + ". "));
+            // Add a cause node ('[-Rspecialize]')
+            nodes.Add(Flags.CreateCauseNode(SpecializationPassBase.SpecializationRemarksOption));
+
+            if (CurrentLocation != null)
+                // Add diagnostics for the specialized call
+                nodes.Add(CurrentLocation.CreateDiagnosticsNode());
+
+            Log.LogMessage(new LogEntry("pass remark", nodes));
+        }
+
+        private SpecializedMethod SpecializeImpl(SpecializedCall Call)
+        {
+            var callTarget = Call.Method;
+            var declTy = callTarget.DeclaringType;
+
+            // Only specialize functions that are defined by extensible types,
+            // i.e. not in some external library.
+            // In addition, don't apply this optimization
+            // to methods that are declared in generic types, to avoid
+            // type parameter transitivity issues.
+            if (declTy.IsGeneric || declTy.IsGenericInstance)
+            {
+                PrintSpecializationFailedMessage(
+                    callTarget,
+                    "the target method's declaring type is generic");
+                return null;
+            }
+
+            if (!PassArgument.PassEnvironment.CanExtend(declTy))
+            {
+                PrintSpecializationFailedMessage(
+                    callTarget,
+                    "the target method's declaring type could not be extended");
+                return null;
+            }
+
+            // Check that the method call does not refer to any type parameters.
+            // Type arguments could be generic. Make sure to check those.
+            foreach (var genArgTy in callTarget.GetGenericArguments())
+            {
+                if (GenericParameterFinder.Convert(genArgTy))
+                {
+                    PrintSpecializationFailedMessage(
+                        callTarget,
+                        "the target method contained free generic parameters");
+                    return null;
+                }
+            }
+
+            // In addition, the 'this' type and the argument types could refer
+            // to generic parameters.
+            if (Call.ThisType != null && GenericParameterFinder.Convert(Call.ThisType))
+            {
+                PrintSpecializationFailedMessage(
+                    callTarget,
+                    "the 'this' type contained free generic parameters");
+                return null;
+            }
+
+            foreach (var argTy in Call.ArgumentTypes)
+            {
+                if (GenericParameterFinder.Convert(argTy))
+                {
+                    PrintSpecializationFailedMessage(
+                        callTarget,
+                        "an argument type (" + argTy.Name + ") contained free generic parameters");
+                    return null;
+                }
+            }
+
+            // Acquire the method body.
+            var oldMethodBody = PassArgument.PassEnvironment.GetMethodBody(callTarget);
+            if (oldMethodBody == null)
+            {
+                PrintSpecializationFailedMessage(
+                    callTarget,
+                    "the target method's body could not be retrieved");
+                return null;
+            }
+
+            // Create a new method that represents a specialized version of
+            // the original method.
+            // We will (partially) specialize methods based on the following:
+            //   * Type parameters
+            //   * Parameter types
+            // After that, we'll let the other optimizations
+            // (including devirtualization) do their thing.
+            // The compilation pipeline actually does that for us.
+
+            var specMethod = new DescribedBodyMethod(
+                GenerateName(callTarget.Name), declTy,
+                callTarget.ReturnType, callTarget.IsStatic);
+
+            // Copy all attributes.
+            foreach (var attr in callTarget.Attributes)
+                specMethod.AddAttribute(attr);
+
+            // Create a parameter list.
+            var bodyStmts = new List<IStatement>();
+            var paramIndexMap = new Dictionary<int, int>();
+            var argList = new List<IVariable>();
+
+            foreach (var parameter in callTarget.Parameters,
+                     var argTy in Call.ArgumentTypes)
+            {
+                var oldVar = new ArgumentVariable(parameter, argList.Count);
+                var singletonExpr = CreateSingletonExpression(argTy);
+                IVariable temp = new LocalVariable(parameter.Name, parameter.ParameterType);
+                if (singletonExpr == null)
+                {
+                    // Not a singleton type. We'll have to create a parameter in
+                    // the specialized method.
+                    int i = paramIndexMap.Count;
+                    paramIndexMap[argList.Count] = i;
+                    var paramDesc = new DescribedParameter(parameter.Name, argTy);
+                    specMethod.AddParameter(paramDesc);
+                    bodyStmts.Add(temp.CreateSetStatement(
+                        new ReinterpretCastExpression(
+                            new ArgumentVariable(paramDesc, i).CreateGetExpression(),
+                            parameter.ParameterType).Simplify()));
+                }
+                else
+                {
+                    // Singleton type. Have the specialized method extract its
+                    // own copy. This will reduce the amount of arguments that
+                    // have to be passed, and the inner method has a fair chance
+                    // at inlining singleton methods, as they will all be
+                    // direct calls.
+                    bodyStmts.Add(temp.CreateSetStatement(new ReinterpretCastExpression(singletonExpr, parameter.ParameterType)));
+                }
+                argList.Add(temp);
+            }
+
+            // Now, we'll synthesize a method body for the specialized method.
+            // We need to initialize singleton type locals (the exact
+            // initialization details have already been taken care of above)
+            // and then replace original argument variables by the new argument
+            // variables.
+
+            // Clone the method body and substitute argument variables.
+            var argSubstVisitor = new InliningVariableVisitor(
+                new ThisVariable(declTy),
+                argList.ToArray());
+            bodyStmts.Add(argSubstVisitor.Visit(CloningVisitor.Visit(oldMethodBody)));
+
+            specMethod.Body = new BlockStatement(bodyStmts).Simplify();
+
+            // Return the specialized method.
+            return new SpecializedMethod(specMethod, paramIndexMap);
+        }
+
+        private SpecializedMethod Specialize(SpecializedCall Call)
+        {
+            var specCache = SpecializationCache;
+
+            SpecializedMethod result;
+            if (!specCache.TryGetValue(Call, &result))
+            {
+                result = SpecializeImpl(Call);
+                specCache[Call] = result;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Specializes the given call. Null is returned if the inlining operation
+        /// cannot be performed.
+        /// </summary>
+        public override IExpression Inline(DissectedCall Call)
+        {
+            var specMethod = Specialize(new SpecializedCall(Call));
+
+            if (specMethod == null)
+                return null;
+            else
+                return specMethod.RewriteCall(Call);
+        }
+    }
+}
