@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler;
+using Flame.Compiler.Expressions;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
@@ -12,17 +13,33 @@ namespace Flame.Optimization
 {
     /// <summary>
     /// A node visitor that propagates SSA variable copies, but does not
-    /// detect them.
+    /// detect them. Arguments to trivial phi functions are removed, and
+    /// the trivial phi functions themselves are also eliminated.
     /// </summary>
     public class SSACopyPropagatingVisitor : NodeVisitorBase, IBasicBlockVisitor
     {
-        public const this(set IReadOnlyDictionary<SSAVariable, SSAVariable> Copies);
+        public const this(
+            set FlowGraph Graph,
+            set IReadOnlyDictionary<SSAVariable, SSAVariable> Copies,
+            set IReadOnlyDictionary<SSAVariable, IExpression> Definitions);
 
         /// <summary>
-        /// A dictionary that maps SSA variables to the SSA variables they
-        /// are copied of.
+        /// Gets the control flow graph this trivial argument removing visitor
+        /// uses to resolve basic block tags.
+        /// </summary>
+        public FlowGraph Graph { const get; private set; }
+
+        /// <summary>
+        /// A dictionary that maps SSA variables to the variables their
+        /// values are copied from.
         /// </summary>
         public IReadOnlyDictionary<SSAVariable, SSAVariable> Copies { const get; private set; }
+
+        /// <summary>
+        /// A dictionary that maps SSA variables to the values they are defined
+        /// as.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, IExpression> Definitions { const get; private set; }
 
         public override const bool Matches(IExpression Value)
         {
@@ -33,6 +50,12 @@ namespace Flame.Optimization
             return Value is SSADefineStatement;
         }
 
+        private bool IsCopyVariable(SSAVariable Variable)
+        {
+            return Copies.TryGetValue(Variable, &SSAVariable copiedVar) &&
+                !copiedVar.Equals(Variable);
+        }
+
         protected override IExpression Transform(IExpression Expression)
         {
             assert(Expression is SSAGetExpression);
@@ -41,6 +64,7 @@ namespace Flame.Optimization
             SSAVariable copiedVar;
             if (Copies.TryGetValue(getExpr.Variable, &copiedVar))
             {
+                assert(!IsCopyVariable(copiedVar));
                 return copiedVar.CreateGetExpression();
             }
             else
@@ -55,10 +79,14 @@ namespace Flame.Optimization
             var defStatement = (SSADefineStatement)Statement;
 
             SSAVariable copiedVar;
-            if (Copies.TryGetValue(defStatement.Variable, &copiedVar) &&
-                !copiedVar.Equals(defStatement.Variable))
+            if (IsCopyVariable(defStatement.Variable))
             {
                 return EmptyStatement;
+            }
+            else if (Definitions.TryGetValue(defStatement.Variable, &IExpression newDef))
+            {
+                // Redefine the variable in terms of the new value.
+                return defStatement.Variable.CreateSetStatement(newDef);
             }
             else
             {
@@ -72,7 +100,7 @@ namespace Flame.Optimization
         /// </summary>
         public SSAVariable VisitParameter(SSAVariable Variable)
         {
-            // Parameters are not regarded as mere copies.
+            // Parameters cannot be eliminated here.
             return Variable;
         }
 
@@ -81,19 +109,56 @@ namespace Flame.Optimization
         /// </summary>
         public BlockBranch Visit(BlockBranch Branch)
         {
+            var parameterList = Graph.GetBlock(Branch.TargetTag).Parameters;
+
             var argList = new List<SSAVariable>();
-            foreach (var arg in Branch.Arguments)
+
+            foreach (var arg in Branch.Arguments, var param in parameterList)
             {
-                if (Copies.TryGetValue(arg, &SSAVariable copiedVar))
+                // Don't emit arguments to trivial phi functions.
+                if (!IsCopyVariable(param) && !Definitions.ContainsKey(param))
                 {
-                    argList.Add(copiedVar);
-                }
-                else
-                {
-                    argList.Add(arg);
+                    if (Copies.TryGetValue(arg, &SSAVariable copiedVar))
+                    {
+                        argList.Add(copiedVar);
+                    }
+                    else
+                    {
+                        argList.Add(arg);
+                    }
                 }
             }
             return new BlockBranch(Branch.TargetTag, argList);
+        }
+
+        /// <summary>
+        /// Visits the graph.
+        /// </summary>
+        public FlowGraph RewriteGraph()
+        {
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+            foreach (var block in Graph.Blocks)
+            {
+                var body = new List<IStatement>();
+                var parameters = new List<SSAVariable>();
+
+                foreach (var param in block.Parameters)
+                {
+                    if (Definitions.TryGetValue(param, &IExpression def))
+                        body.Add(param.CreateSetStatement(def));
+                    else if (!IsCopyVariable(param))
+                        parameters.Add(param);
+                }
+
+                body.Add(Visit(block.Contents));
+
+                results[block.Tag] = new BasicBlock(
+                    block.Tag, parameters,
+                    new BlockStatement(body).Simplify(),
+                    block.Flow.Accept(this));
+            }
+
+            return new FlowGraph(Graph.EntryPointTag, results);
         }
     }
 
@@ -125,62 +190,200 @@ namespace Flame.Optimization
         }
 
         /// <summary>
-        /// Finds out which variable the given variable is a copy of,
-        /// recursively.
+        /// Tries to extra a set of SSA variables form the given set of
+        /// definition expressions. Null is returned if this operation
+        /// is unsuccessful.
         /// </summary>
-        private SSAVariable GetRecursiveCopy(
-            SSAVariable Variable,
-            IReadOnlyDictionary<SSAVariable, SSAVariable> Copies)
+        private HashSet<SSAVariable> TryGetLoadedVariables([IExpression] Definitions)
         {
-            if (Copies.TryGetValue(Variable, &SSAVariable copied))
+            var defSet = new HashSet<SSAVariable>();
+            foreach (var defExpr in Definitions)
             {
-                return GetRecursiveCopy(copied, Copies);
+                var srcVar = TryGetLoadedVariable(defExpr);
+                if (srcVar == null)
+                    return null;
+
+                defSet.Add(srcVar);
+            }
+            return defSet;
+        }
+
+        /// <summary>
+        /// Tries to mark trivial SSA local parameters as trivial. Note that
+        /// this is also used to eliminate normal copies.
+        /// </summary>
+        /// <remarks>
+        /// The following phi statements are trivial:
+        ///
+        ///     x := phi(y)
+        ///     x := phi(x, y)
+        ///     x := phi()
+        ///
+        /// </remarks>
+        private void TryRemoveTrivialPhi(
+            SSAVariable Parameter,
+            Dictionary<SSAVariable, HashSet<SSAVariable>> Phis,
+            Dictionary<SSAVariable, HashSet<SSAVariable>> Uses,
+            Dictionary<SSAVariable, IExpression> TrivialPhis)
+        {
+            SSAVariable same = null;
+            foreach (var item in Phis[Parameter])
+            {
+                if (item != same && item != Parameter)
+                {
+                    if (same != null)
+                        // This parameter takes two or more distinct arguments.
+                        // It is therefore not trivial.
+                        return;
+                    else
+                        same = item;
+                }
+            }
+
+            IExpression defValue;
+            if (same == null)
+            {
+                // The phi is unreachable or in the start block. We can take
+                // advantage of that by assigning it the default value for its
+                // type.
+                //
+                // NOTE: this kind of situation is kind of UB in low-level
+                //       programming languages. Maybe we could declare this
+                //       to be UB in Flame as well and take advantage of that?
+                //       On the other hand, default values are pretty useful
+                //       to the optimizer as well, and less UB is always
+                //       desirable.
+
+                defValue = new DefaultValueExpression(Parameter.Type);
             }
             else
             {
-                return Variable;
+                defValue = same.CreateGetExpression();
             }
+
+            // Mark this parameter as trivial.
+            TrivialPhis[Parameter] = defValue;
+
+            // Remember all users except the phi itself
+            var users = GetOrCreate(Parameter, Uses);
+            users.Remove(Parameter);
+
+            if (same != null)
+            {
+                // Reroute all uses of phi to same and remove phi
+                foreach (var item in users)
+                {
+                    var argSet = GetOrCreate(item, Phis);
+                    if (argSet.Remove(Parameter))
+                    {
+                        argSet.Add(same);
+
+                        // Other phis may have become trivial now. Try to remove
+                        // them as well.
+                        TryRemoveTrivialPhi(item, Phis, Uses, TrivialPhis);
+                    }
+                }
+            }
+        }
+
+        private HashSet<SSAVariable> GetOrCreate(
+            SSAVariable Key, Dictionary<SSAVariable, HashSet<SSAVariable>> Map)
+        {
+            HashSet<SSAVariable> result;
+            if (!Map.TryGetValue(Key, &result))
+            {
+                result = new HashSet<SSAVariable>();
+                Map[Key] = result;
+            }
+            return result;
+        }
+
+        private void AddToSet(
+            Dictionary<SSAVariable, HashSet<SSAVariable>> Cache,
+            SSAVariable Key, SSAVariable Value)
+        {
+            GetOrCreate(Key, Cache).Add(Value);
+        }
+
+        /// <summary>
+        /// Creates a dictionary that maps SSA variables to the SSA variables
+        /// the use them, based on the given definition dictionary.
+        /// </summary>
+        private Dictionary<SSAVariable, HashSet<SSAVariable>> FindUses(
+            Dictionary<SSAVariable, HashSet<SSAVariable>> Definitions)
+        {
+            var results = new Dictionary<SSAVariable, HashSet<SSAVariable>>();
+            foreach (var defPair in Definitions)
+            {
+                foreach (var srcVar in defPair.Value)
+                {
+                    AddToSet(results, srcVar, defPair.Key);
+                }
+            }
+            return results;
         }
 
         /// <summary>
         /// Produces a dictionary of SSA variables that are really just copies
-        /// of another variable.
+        /// of another variable, or are undefined.
         /// </summary>
-        private IReadOnlyDictionary<SSAVariable, SSAVariable> FindCopies(
-            IReadOnlyDictionary<SSAVariable, IExpression> Definitions)
+        private IReadOnlyDictionary<SSAVariable, IExpression> FindCopies(
+            IReadOnlyDictionary<SSAVariable, [IExpression]> Definitions)
         {
-            // Start off by mapping variables to their direct copy.
-            var initResults = new Dictionary<SSAVariable, SSAVariable>();
+            // Start off by mapping variables to their direct variable definitions.
+            var phis = new Dictionary<SSAVariable, HashSet<SSAVariable>>();
             foreach (var item in Definitions)
             {
-                var target = TryGetLoadedVariable(item.Value);
-                if (target != null)
-                    initResults[item.Key] = target;
+                var defSet = TryGetLoadedVariables(item.Value);
+                if (!object.ReferenceEquals(defSet, null))
+                {
+                    phis[item.Key] = defSet;
+                }
             }
 
-            // Next, combine those results to propagate recursive copies as well.
-            var results = new Dictionary<SSAVariable, SSAVariable>();
-            foreach (var key in initResults.Keys)
+            // A dictionary that maps argument variables to parameter variables.
+            var uses = FindUses(phis);
+
+            // A dictionary that maps trivial parameters to their definition
+            // expressions.
+            var trivialPhis = new Dictionary<SSAVariable, IExpression>();
+
+            // Remove all trivial phis.
+            foreach (var param in phis.Keys)
             {
-                results[key] = GetRecursiveCopy(key, initResults);
+                // Try to get rid of trivial phi statements.
+                TryRemoveTrivialPhi(param, phis, uses, trivialPhis);
             }
 
-            return results;
+            return trivialPhis;
         }
 
         protected override FlowGraph Visit(FlowGraph Graph)
         {
             // First, find all SSA variable definitions.
-
-            var defFinder = new SSAVariableDefFinder();
+            var defFinder = new SSAVariablePhiDefFinder(Graph);
             Graph.Accept(defFinder);
 
-            // Then, find copies.
-            var copies = FindCopies(defFinder.Definitions);
+            // Then, find copies, i.e. trivial phis.
+            var trivialPhis = FindCopies(defFinder.Definitions);
+
+            // Now split the trivial phi dictionary in a copies dictionary,
+            // and in a definitions dictionary.
+            var copies = new Dictionary<SSAVariable, SSAVariable>();
+            var defs = new Dictionary<SSAVariable, IExpression>();
+
+            foreach (var item in trivialPhis)
+            {
+                var loadedVar = TryGetLoadedVariable(item.Value);
+                if (loadedVar != null)
+                    copies[item.Key] = loadedVar;
+                else
+                    defs[item.Key] = item.Value;
+            }
 
             // Finally, propagate those copies.
-            var visitor = new SSACopyPropagatingVisitor(copies);
-            return Graph.Accept(visitor);
+            var visitor = new SSACopyPropagatingVisitor(Graph, copies, defs);
+            return visitor.RewriteGraph();
         }
 
         public IStatement Apply(IStatement Value)

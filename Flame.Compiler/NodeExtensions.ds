@@ -246,6 +246,14 @@ namespace Flame.Compiler
 					   NodeExtensions.IsEffectful(initExpr.Value) ||
 					   !initExpr.Finalization.IsEmpty;
 			}
+			else if (Expression is IMetadataNode<IExpression>)
+			{
+				return IsEffectful(((IMetadataNode<IExpression>)Expression).Value);
+			}
+			else if (Expression is ConversionExpressionBase)
+			{
+				return IsEffectful(((ConversionExpressionBase)Expression).Value);
+			}
 			else
 			{
 				return true;
