@@ -66,6 +66,7 @@ namespace Flame.Recompilation
 
             this.MetadataManager = new MetadataManager();
             this.implementations = new Dictionary<IMethod, HashSet<IMethod>>();
+            this.pendingRecompilationList = new List<IMember>();
         }
 
         public CompilationCache<IType> TypeCache { [Pure] get; private set; }
@@ -92,6 +93,11 @@ namespace Flame.Recompilation
         /// recompiled yet, and their implementations.
         /// </summary>
         private Dictionary<IMethod, HashSet<IMethod>> implementations;
+
+        /// <summary>
+        /// Maintains a list of members that are still pending recompilation. 
+        /// </summary>
+        private List<IMember> pendingRecompilationList;
 
 		private HashSet<IMethod> ComputeImplementationsWorklist()
 		{
@@ -121,6 +127,31 @@ namespace Flame.Recompilation
 				}
 				worklist = ComputeImplementationsWorklist();
 			}
+        }
+
+        /// <summary>
+        /// Recompiles the contents of the pending list.
+        /// </summary>
+        private void RecompilePending()
+        {
+            do
+            {
+                var listCopy = pendingRecompilationList;
+                pendingRecompilationList = new List<IMember>();
+                foreach (var item in listCopy)
+                {
+                    GetMember(item);
+                }
+                RecompileImplementations();
+            } while (pendingRecompilationList.Count > 0);
+        }
+
+        /// <summary>
+        /// Appends the given member to the 'recompilation pending' list.
+        /// </summary>
+        private void RequestRecompilation(IMember Member)
+        {
+            pendingRecompilationList.Add(Member);
         }
 
         /// <summary>
@@ -875,32 +906,9 @@ namespace Flame.Recompilation
                 var typeBuilder = (ITypeBuilder)tgt;
                 typeBuilder.Initialize();
                 RecompileInvariants(typeBuilder, src);
+                RegisterStaticConstructors(src);
                 RegisterImplementations(src);
             });
-        }
-
-        private void RecompileEntireType(IType Type)
-        {
-            GetType(Type);
-            foreach (var item in Type.Fields.Concat<ITypeMember>(Type.Methods))
-            {
-                GetMember(item);
-            }
-            foreach (var item in Type.Properties)
-            {
-                GetProperty(item);
-                foreach (var accessor in item.Accessors)
-                {
-                    GetMethod(accessor);
-                }
-            }
-            if (Type is INamespace)
-            {
-                foreach (var item in ((INamespace)Type).Types)
-                {
-                    RecompileEntireType(item);
-                }
-            }
         }
 
         #endregion
@@ -1152,6 +1160,17 @@ namespace Flame.Recompilation
             }
         }
 
+        /// <summary>
+        /// Recompiles the given type's static constructors.
+        /// </summary>
+        private void RegisterStaticConstructors(IType SourceType)
+        {
+            foreach (var item in SourceType.GetConstructors().Where(item => item.IsStatic))
+            {
+                RequestRecompilation(item);
+            }
+        }
+
         #endregion
 
         #region Body Recompilation
@@ -1222,7 +1241,7 @@ namespace Flame.Recompilation
                 }
             }
 
-            RecompileImplementations();
+            RecompilePending();
         }
 
         public async Task RecompileAsync()
