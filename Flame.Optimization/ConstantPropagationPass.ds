@@ -317,7 +317,7 @@ namespace Flame.Optimization
             else if (Type.IsValueType)
             {
                 foreach (var item in Type.Fields)
-                    if (!IsPropagateAlwaysType(item.FieldType))
+                    if (!item.IsStatic && !IsPropagateAlwaysType(item.FieldType))
                 {
                     return false;
                 }
