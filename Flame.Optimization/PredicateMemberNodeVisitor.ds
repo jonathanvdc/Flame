@@ -19,22 +19,26 @@ namespace Flame.Optimization
 
         public override const bool Matches(IExpression Value)
         {
-            return Value is IMemberNode || Value is IPredicateNode || localVisitor.Matches(Value);
+            return Value is IMemberNode
+                || Value is IPredicateNode
+                || localVisitor.Matches(Value);
         }
         public override const bool Matches(IStatement Value)
         {
-            return Value is IMemberNode || Value is IPredicateNode || localVisitor.Matches(Value);
+            return Value is IMemberNode
+                || Value is IPredicateNode
+                || localVisitor.Matches(Value);
         }
 
-        private void AcceptPred(INode Node)
+        private void AcceptPred(IPredicateNode Node)
         {
-            ((IPredicateNode)Node).AcceptPredicate(this);
+            Node.AcceptPredicate(this);
         }
 
         private void AcceptExpr(IExpression Expression)
         {
             if (Expression is IPredicateNode)
-                AcceptPred(Expression);
+                AcceptPred((IPredicateNode)Expression);
             else
                 Expression.Accept(this);
         }
@@ -42,7 +46,7 @@ namespace Flame.Optimization
         private void AcceptStmt(IStatement Statement)
         {
             if (Statement is IPredicateNode)
-                AcceptPred(Statement);
+                AcceptPred((IPredicateNode)Statement);
             else
                 Statement.Accept(this);
         }
@@ -57,11 +61,12 @@ namespace Flame.Optimization
             }
             else if (localVisitor.Matches(Expression))
             {
-                localVisitor.Visit(Expression);
+                AcceptExpr(localVisitor.Visit(Expression));
             }
             else // Must be a predicate node. Just accept it and be done with it.
             {
-                AcceptPred(Expression);
+                assert(Expression is IPredicateNode);
+                AcceptPred((IPredicateNode)Expression);
             }
             return Expression;
         }
@@ -75,11 +80,12 @@ namespace Flame.Optimization
             }
             else if (localVisitor.Matches(Statement))
             {
-                localVisitor.Visit(Statement);
+                AcceptStmt(localVisitor.Visit(Statement));
             }
             else // Must be a predicate node. Just accept it and be done with it.
             {
-                AcceptPred(Statement);
+                assert(Statement is IPredicateNode);
+                AcceptPred((IPredicateNode)Statement);
             }
             return Statement;
         }
