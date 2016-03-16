@@ -19,5 +19,5 @@ configs
 
 init
 {
-    Filename = Inlining;
+    Filename = Inlining2;
 }

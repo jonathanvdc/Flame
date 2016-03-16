@@ -5,6 +5,7 @@ tests
     Devirtualization/Devirtualization.test;
     Devirtualization/Devirtualization2.test;
     Inlining/Inlining.test;
+    Inlining/Inlining2.test;
     Linking/Linking.test;
     LowerLambda/LowerLambda.test;
     Specialization/Specialization.test;
