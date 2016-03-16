@@ -545,7 +545,7 @@ namespace Flame.Optimization
             if (specMethod == null)
                 return null;
             else
-                return specMethod.RewriteCall(Call);
+                return specMethod.RewriteCall(Call).Accept(this);
         }
     }
 }
