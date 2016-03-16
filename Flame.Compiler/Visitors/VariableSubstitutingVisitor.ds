@@ -1,15 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Flame.Compiler.Variables;
 using Flame.Compiler.Emit;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Visitors
 {
     /// <summary>
     /// Defines a base class for node visitors that substitute variable nodes.
     /// </summary>
-    public abstract class VariableSubstitutingVisitorBase : NodeVisitorBase
+    public abstract class VariableSubstitutingVisitorBase : NodeVisitorBase, IBasicBlockVisitor
     {
         public const this();
 
@@ -32,7 +34,7 @@ namespace Flame.Compiler.Visitors
         }
         public override virtual const bool Matches(IStatement Value)
         {
-            return Value is IVariableNode;
+            return Value is IVariableNode || Value is FlowGraphStatement;
         }
 
         /// <summary>
@@ -130,14 +132,71 @@ namespace Flame.Compiler.Visitors
             return Statement.Accept(this);
         }
 
+        /// <summary>
+        /// Transforms the given flow graph statement.
+        /// </summary>
+        protected virtual IStatement TransformFlowGraph(FlowGraphStatement Graph)
+        {
+            return Graph.Accept(this);
+        }
+
+        /// <summary>
+        /// Substitutes the given SSA variable.
+        /// </summary>
+        private SSAVariable SubstituteSSAVariable(SSAVariable Variable)
+        {
+            var newVar = SubstituteVariableRecursivelyOrNull(Variable);
+            if (newVar == null)
+            {
+                return Variable;
+            }
+            else
+            {
+                assert(newVar is SSAVariable);
+                return (SSAVariable)newVar;
+            }
+        }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            return SubstituteSSAVariable(Variable);
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public BlockBranch Visit(BlockBranch Branch)
+        {
+            // Simply substitute all argument variables.
+            var newArgs = new List<SSAVariable>(Branch.Arguments.Count);
+            foreach (var arg in Branch.Arguments)
+            {
+                newArgs.Add(SubstituteSSAVariable(arg));
+            }
+            return new BlockBranch(Branch.TargetTag, newArgs);
+        }
+
         protected override virtual IExpression Transform(IExpression Expression)
         {
+            assert(Expression is IVariableNode);
             return TransformVariableAccess(Expression);
         }
 
         protected override virtual IStatement Transform(IStatement Statement)
         {
-            return TransformVariableAccess(Statement);
+            if (Statement is FlowGraphStatement)
+            {
+                return TransformFlowGraph((FlowGraphStatement)Statement);
+            }
+            else
+            {
+                assert(Statement is IVariableNode);
+                return TransformVariableAccess(Statement);
+            }
         }
     }
 
