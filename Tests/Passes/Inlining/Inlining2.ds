@@ -1,0 +1,40 @@
+using System;
+
+public struct Vector2
+{
+    public const this(set double X, set double Y);
+
+    public double X { get; private set; }
+    public double Y { get; private set; }
+
+    static this()
+    {
+        Vector2.specialVecs = new Vector2[1];
+        Vector2.specialVecs[0] = new Vector2(0, 0);
+    }
+
+    private static Vector2[] specialVecs;
+
+    public static Vector2 Origin { get { return Vector2.specialVecs[0]; } }
+}
+
+public static class VectorExtensions
+{
+    public static bool IsOrigin[this Vector2 Vector]
+    {
+        get
+        {
+            return Vector.Equals(Vector2.Origin);
+        }
+    }
+}
+
+public module Program
+{
+    public void Main()
+    {
+        var v = new Vector2(2, 3);
+        Console.WriteLine(v.IsOrigin);
+        Console.WriteLine(Vector2.Origin.IsOrigin);
+    }
+}
