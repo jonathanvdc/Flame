@@ -9,6 +9,7 @@ tests
     Linking/Linking.test;
     LowerLambda/LowerLambda.test;
     Specialization/Specialization.test;
+    Specialization/Specialization3.test;
     SplitTails/SplitTails.test;
     SSAConstruction/SSAConstruction.test;
     WholeProgram/WholeProgram.test;

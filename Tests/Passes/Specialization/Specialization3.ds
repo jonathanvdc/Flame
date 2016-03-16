@@ -1,0 +1,67 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public interface INum<T>
+{
+    T Zero { get; }
+    T One { get; }
+    T Add(T a, T b);
+    T Subtract(T a, T b);
+    bool IsLessThan(T a, T b);
+    bool Equals(T a, T b);
+    bool IsGreaterThan(T a, T b);
+}
+
+public static class LongNum : INum<long>
+{
+    public long Zero { get { return 0; } }
+    public long One { get { return 1; } }
+
+    public long Add(long a, long b)
+    {
+        return a + b;
+    }
+
+    public long Subtract(long a, long b)
+    {
+        return a - b;
+    }
+
+    public bool IsLessThan(long a, long b)
+    {
+        return a < b;
+    }
+
+    public bool IsGreaterThan(long a, long b)
+    {
+        return a > b;
+    }
+
+    public bool Equals(long a, long b)
+    {
+        return a == b;
+    }
+}
+
+public module FibTest
+{
+    public T Fib<T>(int n, INum<T> NumImpl)
+    {
+        if (n == 0)
+            return NumImpl.Zero;
+        else if (n == 1)
+            return NumImpl.One;
+        else
+            return NumImpl.Add(Fib<T>(n - 1, NumImpl), Fib<T>(n - 2, NumImpl));
+    }
+
+    public void Main(string[] Args)
+    {
+        int n = 0;
+        if (Args.Length > 0)
+            n = int.Parse(Args[0]);
+
+        Console.WriteLine(Fib<long>(n, LongNum));
+    }
+}
