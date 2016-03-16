@@ -261,14 +261,7 @@ namespace Flame.Optimization
 
         protected override const bool MatchesCore(IExpression Expression)
         {
-            var result = this.DissectCall(Expression);
-            if (result == null)
-            {
-                return false;
-            }
-
-            return InliningExtensions.CanInline(result.Method, result.ThisValue) &&
-                   this.ShouldInline(result);
+            return Expression is InvocationExpression;
         }
 
         protected override IExpression TransformCore(IExpression Expression)
@@ -277,31 +270,33 @@ namespace Flame.Optimization
             // step.
             var dissected = DissectCall((InvocationExpression)Expression);
 
-            // Perform the actual inlining.
+            // Only inline functions if we can and should inline them.
+            if (dissected == null
+                || !InliningExtensions.CanInline(dissected.Method, dissected.ThisValue)
+                || !this.ShouldInline(dissected))
+                return Expression.Accept(this);
+
+            // Perform the actual inlining operation.
             var result = Inline(dissected);
 
             if (result == null)
-            {
                 return Expression.Accept(this);
-            }
-            else
+
+            if (CurrentLocation != null)
             {
-                if (CurrentLocation != null)
-                {
-                    // Log the inlining operation.
-                    inlinedCallLocs.Add(new KeyValuePair<DissectedCall, SourceLocation>(dissected, CurrentLocation));
-                }
-
-                // Increment the inlining counter.
-                int preCount = 0;
-                if (inlineCount.ContainsKey(dissected.Method))
-                {
-                    preCount = inlineCount[dissected.Method];
-                }
-                inlineCount[dissected.Method] = preCount + 1;
-
-                return result.Accept(this);
+                // Log the inlining operation.
+                inlinedCallLocs.Add(new KeyValuePair<DissectedCall, SourceLocation>(dissected, CurrentLocation));
             }
+
+            // Increment the inlining counter.
+            int preCount = 0;
+            if (inlineCount.ContainsKey(dissected.Method))
+            {
+                preCount = inlineCount[dissected.Method];
+            }
+            inlineCount[dissected.Method] = preCount + 1;
+
+            return result;
         }
 
         protected override IStatement TransformCore(IStatement Statement)

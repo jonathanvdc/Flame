@@ -44,7 +44,7 @@ namespace Flame.Optimization
         /// Determines whether the given type can access all types and members
         /// that are referenced by the given statement.
         /// </summary>
-        public static const bool CanAccess(IType CurrentType, IStatement Statement)
+        public static bool CanAccess(IType CurrentType, IStatement Statement)
         {
             var checker = new AccessChecker(CurrentType);
             var memberConv = new MemberConverter(
