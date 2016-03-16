@@ -56,21 +56,25 @@ namespace Flame.Optimization
                 !copiedVar.Equals(Variable);
         }
 
+        /// <summary>
+        /// Recursively finds the variable that is copied by the given
+        /// variable.
+        /// </summary>
+        private SSAVariable GetCopiedVariable(SSAVariable Variable)
+        {
+            if (Copies.TryGetValue(Variable, &SSAVariable copiedVar) &&
+                !copiedVar.Equals(Variable))
+                return GetCopiedVariable(copiedVar);
+            else
+                return Variable;
+        }
+
         protected override IExpression Transform(IExpression Expression)
         {
             assert(Expression is SSAGetExpression);
             var getExpr = (SSAGetExpression)Expression;
 
-            SSAVariable copiedVar;
-            if (Copies.TryGetValue(getExpr.Variable, &copiedVar))
-            {
-                assert(!IsCopyVariable(copiedVar));
-                return copiedVar.CreateGetExpression();
-            }
-            else
-            {
-                return getExpr;
-            }
+            return GetCopiedVariable(getExpr.Variable).CreateGetExpression();
         }
 
         protected override IStatement Transform(IStatement Statement)
@@ -240,6 +244,11 @@ namespace Flame.Optimization
                 }
             }
 
+            // Getting here means that we have found a trivial phi, which we can
+            // safely interpret as either:
+            //     * A parameterless phi function, i.e. an undefined value
+            //     * A phi function with one argument, i.e. a copy
+
             IExpression defValue;
             if (same == null)
             {
@@ -264,13 +273,15 @@ namespace Flame.Optimization
             // Mark this parameter as trivial.
             TrivialPhis[Parameter] = defValue;
 
-            // Remember all users except the phi itself
+            // Retrieve this variable's set of users from the dictionary, then
+            // remove this variable's entry from said dictionary.
             var users = GetOrCreate(Parameter, Uses);
             users.Remove(Parameter);
 
             if (same != null)
             {
-                // Reroute all uses of phi to same and remove phi
+                // Reroute all uses of phi to the `same` variable, and try to
+                // remove any further trivial phis
                 foreach (var item in users)
                 {
                     var argSet = GetOrCreate(item, Phis);
