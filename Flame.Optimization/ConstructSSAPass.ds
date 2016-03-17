@@ -573,7 +573,7 @@ namespace Flame.Optimization
         /// </summary>
         public bool IsEligible(IVariable Variable)
         {
-            return Variable is LocalVariableBase;
+            return Variable is LocalVariableBase && !(Variable is SSAVariable);
         }
 
         /// <summary>

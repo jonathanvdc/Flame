@@ -423,7 +423,7 @@ namespace Flame.Optimization
         protected override bool CanSubstituteVariable(IVariable Variable)
         {
             return Variable is ArgumentVariable || Variable is ThisVariable ||
-                   Variable is LocalVariableBase || Variable is SSAVariable;
+                   Variable is LocalVariableBase;
         }
         protected override IVariable SubstituteVariable(IVariable Variable)
         {

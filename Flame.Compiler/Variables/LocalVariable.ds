@@ -59,7 +59,7 @@ namespace Flame.Compiler.Variables
         public IType Type { const get return Member.VariableType; }
 
         /// <summary>
-        /// Gets the emit variable for this local variable, in
+        /// Gets the emit variable for this local variable, for
         /// the given code generator.
         /// </summary>
         public abstract IEmitVariable GetEmitVariable(ICodeGenerator CodeGenerator);
@@ -70,17 +70,17 @@ namespace Flame.Compiler.Variables
         /// </summary>
         public abstract LocalVariableBase ConvertType(MemberConverter Converter);
 
-        public IExpression CreateGetExpression()
+        public virtual IExpression CreateGetExpression()
         {
             return new LocalGetExpression(this);
         }
 
-        public IStatement CreateSetStatement(IExpression Value)
+        public virtual IStatement CreateSetStatement(IExpression Value)
         {
             return new LocalSetStatement(this, Value);
         }
 
-        public IStatement CreateReleaseStatement()
+        public virtual IStatement CreateReleaseStatement()
         {
             return new LocalReleaseStatement(this);
         }
