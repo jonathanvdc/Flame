@@ -1,0 +1,63 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public interface INum<T>
+{
+    T Zero { get; }
+    T One { get; }
+    T Add(T a, T b);
+    bool IsLessThan(T a, T b);
+    bool Equals(T a, T b);
+    bool IsGreaterThan(T a, T b);
+}
+
+public static class IntNum : INum<int>
+{
+    public int Zero { get { return 0; } }
+    public int One { get { return 1; } }
+
+    public int Add(int a, int b)
+    {
+        return a + b;
+    }
+
+    public bool IsLessThan(int a, int b)
+    {
+        return a < b;
+    }
+
+    public bool IsGreaterThan(int a, int b)
+    {
+        return a > b;
+    }
+
+    public bool Equals(int a, int b)
+    {
+        return a == b;
+    }
+}
+
+public module CountTest
+{
+    public T Count<T>(int n, INum<T> NumImpl)
+    {
+        T val = NumImpl.Zero;
+        for (int i = 0; i < n; i++)
+        {
+            val = NumImpl.Add(val, NumImpl.One);
+        }
+        return val;
+    }
+
+    public void Main(string[] Args)
+    {
+        int n;
+        if (Args.Length > 0)
+            n = int.Parse(Args[0]);
+        else
+            n = 2000;
+
+        Console.WriteLine(Count<int>(n, IntNum));
+    }
+}
