@@ -1,0 +1,20 @@
+using System;
+
+public struct Vector2
+{
+    public double X { get; set; }
+    public double Y { get; set; }
+
+    public double Length { get { return X * X + Y * Y; } }
+}
+
+public module Program
+{
+    public void Main()
+    {
+        Vector2 vec;
+        vec.X = 4;
+        vec.Y = 3;
+        Console.WriteLine(vec.Length);
+    }
+}

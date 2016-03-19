@@ -10,6 +10,7 @@ tests
     LowerLambda/LowerLambda.test;
     ScalarReplacement/ScalarReplacement.test;
     ScalarReplacement/ScalarReplacement2.test;
+    ScalarReplacement/ScalarReplacement3.test;
     Specialization/Specialization.test;
     Specialization/Specialization2.test;
     Specialization/Specialization3.test;
