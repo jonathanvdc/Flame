@@ -282,12 +282,16 @@ namespace Flame.Optimization
             if (inlineTarget != null && !DeclaringType.CanAccess(Member))
             {
                 if (IsBlacklisted(Target))
+                {
                     // There's just no way to recover from this.
                     CancelInline();
+                }
                 else
+                {
                     // Inaccessible members _can_ be accessed, provided that
                     // their target is replaced by scalars.
-                    GetOrCreateSet(variableDependencies, inlineTarget).Add(Target);
+                    GetOrCreateSet(variableDependencies, Target).Add(inlineTarget);
+                }
             }
         }
 
@@ -382,10 +386,11 @@ namespace Flame.Optimization
             }
             else
             {
-                CheckAccessibility(target, Expression.Field);
-                return MakeSpeculative(
+                var result = MakeSpeculative(
                     target, Expression,
                     GetScalarReplacements(target)[Expression.Field].CreateGetExpression());
+                CheckAccessibility(target, Expression.Field);
+                return result;
             }
         }
 
@@ -398,10 +403,11 @@ namespace Flame.Optimization
             }
             else
             {
-                CheckAccessibility(target, Expression.Field);
-                return MakeSpeculative(
+                var result = MakeSpeculative(
                     target, Expression,
                     ((IUnmanagedVariable)GetScalarReplacements(target)[Expression.Field]).CreateAddressOfExpression());
+                CheckAccessibility(target, Expression.Field);
+                return result;
             }
         }
 
@@ -414,11 +420,12 @@ namespace Flame.Optimization
             }
             else
             {
-                CheckAccessibility(target, Statement.Field);
                 var val = Visit(Statement.Value);
-                return MakeSpeculative(
+                var result = MakeSpeculative(
                     target, Statement,
                     GetScalarReplacements(target)[Statement.Field].CreateSetStatement(val));
+                CheckAccessibility(target, Statement.Field);
+                return result;
             }
         }
 
@@ -551,10 +558,12 @@ namespace Flame.Optimization
             inlineTarget = null;
 
             if (!AccessChecker.CanAccess(DeclaringType, result))
+            {
                 // Sometimes, we just can't inline everything, due to
                 // access modifiers. In that case, we have to cancel
                 // the inlining operation.
                 return null;
+            }
 
             return result;
         }
@@ -714,20 +723,24 @@ namespace Flame.Optimization
             BodyPassArgument Argument, int ReplacementCount, int RecursionDepth)
         {
             var nodes = new List<MarkupNode>();
-            if (RecursionDepth == 0)
+
+            // Add a description
+            if (ReplacementCount == 1)
             {
-                // Add a description
                 nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
-                    "replaced " + ReplacementCount + " aggregates by scalars. "));
+                    "replaced 1 aggregate by scalars. "));
             }
             else
             {
-                // Add a description
                 nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
-                    "recursively replaced " + ReplacementCount +
-                    " aggregates by scalars. (recursion depth: " +
-                    RecursionDepth + ") "));
+                    "replaced " + ReplacementCount + " aggregates by scalars. "));
             }
+            if (RecursionDepth > 0)
+            {
+                nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
+                    "(recursion depth: " + RecursionDepth + ") "));
+            }
+            
             // Add a cause node ('[-Rscalarrepl]')
             nodes.Add(Flags.CreateCauseNode(ScalarReplacementRemarksOption));
             // Add diagnostics for the method
