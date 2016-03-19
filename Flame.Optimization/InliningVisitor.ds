@@ -407,7 +407,9 @@ namespace Flame.Optimization
             else
             {
                 var essentialThisArg = ThisArgument.GetEssentialExpression();
-                if (essentialThisArg is IVariableNode)
+                if (essentialThisArg is LocalVariableBase
+                    || essentialThisArg is ArgumentVariable 
+                    || essentialThisArg is ThisVariable)
                 {
                     // Direct stores to 'this' are prohibited, so we can
                     // safely replace the 'this' variable by a variable argument.
