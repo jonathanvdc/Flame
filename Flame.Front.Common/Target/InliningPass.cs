@@ -133,7 +133,7 @@ namespace Flame.Front.Target
             return ApproximateSize(argType) + inheritanceBoost + constantBoost + delegateBoost;
         }
 
-        public static bool ShouldInline(BodyPassArgument Args, DissectedCall Call, int Tolerance)
+        public static bool ShouldInline(BodyPassArgument Args, DissectedCall Call, int Tolerance, bool RespectAccess)
         {
             if (Call.Method.GetIsVirtual() || (Call.Method.IsConstructor && !Call.Method.DeclaringType.GetIsValueType()))
             {
@@ -146,7 +146,7 @@ namespace Flame.Front.Target
             {
                 thisType = thisType.MakeGenericType(thisType.GenericParameters);
             }
-            if (body == null || !AccessChecker.CanAccess(thisType, body))
+            if (body == null || (RespectAccess && !AccessChecker.CanAccess(thisType, body)))
             {
                 return false;
             }
@@ -178,7 +178,7 @@ namespace Flame.Front.Target
 		{
 			var log = Argument.PassEnvironment.Log;
             int inlineTolerance = log.Options.GetOption<int>(InlineToleranceOption, DefaultInlineTolerance);
-			return call => ShouldInline(Argument, call, inlineTolerance);
+			return call => ShouldInline(Argument, call, inlineTolerance, true);
 		}
 
 		public override int GetMaxRecursion(BodyPassArgument Argument)
