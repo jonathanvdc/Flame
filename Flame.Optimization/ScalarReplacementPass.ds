@@ -35,6 +35,9 @@ namespace Flame.Optimization
     //     A = B;
     // ==> { A1 = B1; ... An = Bn; }
     //
+    //     A = default(typeof(A));
+    // ==> { A1 = default(A1); ... An = default(An); }
+    //
     // Only variables that are used in one of the above rewrite rules can be
     // transformed.
 
@@ -326,6 +329,12 @@ namespace Flame.Optimization
                 var localVar = (LocalVariableBase)Variable;
                 if (!IsBlacklisted(localVar) && IsAggregate(localVar.Type))
                     return localVar;
+            }
+            else if (Variable is AtAddressVariable && IsAggregate(Variable.Type))
+            {
+                // Also try to peek through pointer indirection.
+                var addrVar = (AtAddressVariable)Variable;
+                return AsAggregateLocal(addrVar.Pointer);
             }
             return null;
         }
