@@ -237,14 +237,15 @@ namespace Flame.Compiler
 			else if (Expression is IVariableNode)
 			{
 				var varNode = (IVariableNode)Expression;
-				return varNode.Action != VariableNodeAction.Get;
+				return varNode.Action != VariableNodeAction.Get
+					&& varNode.Action != VariableNodeAction.AddressOf;
 			}
 			else if (Expression is InitializedExpression)
 			{
 				var initExpr = (InitializedExpression)Expression;
-				return !initExpr.Initialization.IsEmpty ||
-					   NodeExtensions.IsEffectful(initExpr.Value) ||
-					   !initExpr.Finalization.IsEmpty;
+				return !initExpr.Initialization.IsEmpty
+					|| NodeExtensions.IsEffectful(initExpr.Value)
+				   	|| !initExpr.Finalization.IsEmpty;
 			}
 			else if (Expression is IMetadataNode<IExpression>)
 			{
