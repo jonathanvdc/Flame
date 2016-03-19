@@ -449,6 +449,21 @@ namespace Flame.Optimization
                 new BlockStatement(scalarCopy).Simplify());
         }
 
+        private IStatement TransformAssignDefault(
+            LocalVariableBase Destination, IStatement Original)
+        {
+            var stmts = new List<IStatement>();
+            var destRepls = GetScalarReplacements(Destination);
+            foreach (var scalar in destRepls.Values)
+            {
+                stmts.Add(scalar.CreateSetStatement(
+                    new DefaultValueExpression(scalar.Type).Optimize()));
+            }
+            return MakeSpeculative(
+                Destination, Original,
+                new BlockStatement(stmts).Simplify());
+        }
+
         private IExpression TransformInvocation(InvocationExpression Expression)
         {
             // Invocation expressions are a bit of an odd case: their
@@ -656,15 +671,21 @@ namespace Flame.Optimization
                     return Statement.Accept(this);
 
                 var src = AsAggregateLocal(setVarStmt.Value);
-                if (src == null)
+                if (src != null)
+                {
+                    return TransformCopy(dest, src, Statement);
+                }
+                else if (setVarStmt.Value.GetEssentialExpression() is DefaultValueExpression)
+                {
+                    return TransformAssignDefault(dest, Statement);
+                }
+                else
                 {
                     // Destination variable cannot be replaced by scalars, because
                     // the source variable cannot be replaced, either. Bummer.
                     MarkIrreplaceable(dest);
                     return Statement.Accept(this);
                 }
-
-                return TransformCopy(dest, src, Statement);
             }
         }
     }
@@ -740,7 +761,7 @@ namespace Flame.Optimization
                 nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
                     "(recursion depth: " + RecursionDepth + ") "));
             }
-            
+
             // Add a cause node ('[-Rscalarrepl]')
             nodes.Add(Flags.CreateCauseNode(ScalarReplacementRemarksOption));
             // Add diagnostics for the method
