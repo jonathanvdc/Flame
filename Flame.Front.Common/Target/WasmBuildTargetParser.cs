@@ -52,16 +52,15 @@ namespace Flame.Front.Target
 
 			var extraPasses = new PassManager();
 
+            // Always use -flower-new-struct, for correctness reasons.
+            extraPasses.RegisterPassCondition(new PassCondition(NewValueTypeLoweringPass.NewValueTypeLoweringPassName, optInfo => true));
+
 			// These passes are required to ensure correctness. Disable them
 			// at your own peril.
 			// -fepilogue
 			extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
 				new EpiloguePass(abi), EpiloguePass.EpiloguePassName));
 			extraPasses.RegisterPassCondition(new PassCondition(EpiloguePass.EpiloguePassName, optInfo => true));
-            // -flower-new-struct
-            extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
-                NewValueTypeLoweringPass.Instance, NewValueTypeLoweringPass.NewValueTypeLoweringPassName));
-            extraPasses.RegisterPassCondition(new PassCondition(NewValueTypeLoweringPass.NewValueTypeLoweringPassName, optInfo => true));
 			// -flower-call
 			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
 				new CallLoweringPass(abi), CallLoweringPass.CallLoweringPassName));

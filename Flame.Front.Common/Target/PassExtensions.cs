@@ -47,8 +47,19 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterMethodPass(new StatementPassInfo(SimplifyFlowPass.Instance, SimplifyFlowPassName));
             GlobalPassManager.RegisterPassCondition(SimplifyFlowPassName, optInfo => optInfo.OptimizeNormal);
             GlobalPassManager.RegisterPassCondition(SimplifyFlowPassName, optInfo => optInfo.OptimizeSize);
-            GlobalPassManager.RegisterMethodPass(new StatementPassInfo(Flame.Optimization.Variables.DefinitionPropagationPass.Instance, PropagateLocalsName));
-            // GlobalPassManager.RegisterPassCondition(PropagateLocalsName, optInfo => optInfo.OptimizeAggressive);
+
+            // -flower-new-struct replaces all new-value type expressions by temporaries and direct
+            // calls. -flower-new-struct is used at -O3, as it may aid other optimizations.
+            GlobalPassManager.RegisterMethodPass(new StatementPassInfo(new NewValueTypeLoweringPass(true), NewValueTypeLoweringPass.NewValueTypeLoweringPassName));
+            GlobalPassManager.RegisterPassCondition(NewValueTypeLoweringPass.NewValueTypeLoweringPassName, optInfo => optInfo.OptimizeAggressive && !optInfo.OptimizeSize);
+
+            // -foptimize-new-struct is a watered-down version of -flower-new-struct which does
+            // not create temporaries. -foptimize-new-struct is used at -O1, -O2 and Os, as it
+            // can improve code quality without introducing extra overhead.
+            GlobalPassManager.RegisterMethodPass(new StatementPassInfo(new NewValueTypeLoweringPass(false), NewValueTypeLoweringPass.NewValueTypeOptimizationPassName));
+            GlobalPassManager.RegisterPassCondition(NewValueTypeLoweringPass.NewValueTypeLoweringPassName, optInfo => optInfo.OptimizeMinimal && (!optInfo.OptimizeAggressive || optInfo.OptimizeSize));
+
+            // -fimperative-code is useful for high-level programming language output.
             GlobalPassManager.RegisterMethodPass(new StatementPassInfo(Flame.Optimization.ImperativeCodePass.Instance, Flame.Optimization.ImperativeCodePass.ImperativeCodePassName));
 
             // Note: these CFG/SSA passes are -O3 for now
