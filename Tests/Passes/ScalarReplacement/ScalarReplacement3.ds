@@ -2,6 +2,8 @@ using System;
 
 public struct Vector2
 {
+    public const this(set double X, set double Y);
+
     public double X { get; set; }
     public double Y { get; set; }
 
@@ -12,9 +14,7 @@ public module Program
 {
     public void Main()
     {
-        Vector2 vec;
-        vec.X = 4;
-        vec.Y = 3;
+        Vector2 vec = new Vector2(3, 4);
         Console.WriteLine(vec.Length);
     }
 }
