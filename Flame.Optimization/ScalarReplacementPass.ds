@@ -1,0 +1,804 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using Pixie;
+
+namespace Flame.Optimization
+{
+    // Scalar replacement of aggregates is an optimization that replaces
+    // aggregates (for now, we'll stick to value types) by a number of scalars.
+    // This has the advantage of making those scalars candidates for register
+    // allocation, and is useful because it enables other optimizations.
+    //
+    // Let A and B be an aggregate variables, let C and D be values of X's type,
+    // let X be a field of said aggregate, and let f be a function.
+    // We will define the following transformation rules:
+    //
+    //     (&A)->X = C;
+    // ==> D = C;
+    //
+    //     (&A)->X;
+    // ==> D;
+    //
+    //     &(&A)->X;
+    // ==> &D;
+    //
+    //     (&A)->f(args...);
+    // ==> inline(f, D, ..., args...);
+    //
+    //     A = B;
+    // ==> { A1 = B1; ... An = Bn; }
+    //
+    // Only variables that are used in one of the above rewrite rules can be
+    // transformed.
+
+    /// <summary>
+    /// A helper visitor that replaces aggregates by scalars
+    /// in branch instructions.
+    /// </summary>
+    public class ScalarReplacementBranchVisitor : BranchVisitorBase
+    {
+        public const this(
+            set IReadOnlyDictionary<LocalVariableBase, IReadOnlyDictionary<IField, LocalVariableBase>> Replacements);
+
+        public IReadOnlyDictionary<LocalVariableBase, IReadOnlyDictionary<IField, LocalVariableBase>> Replacements { get; private set; }
+
+        /// <summary>
+        /// Visits an argument/parameter list of SSA variables.
+        /// </summary>
+        public IReadOnlyList<SSAVariable> VisitVariableList(
+            IReadOnlyList<SSAVariable> Variables)
+        {
+            var argList = new List<SSAVariable>(Variables.Count);
+            foreach (var arg in Variables)
+            {
+                IReadOnlyDictionary<IField, LocalVariableBase> replMap;
+                if (Replacements.TryGetValue(arg, &replMap))
+                {
+                    argList.AddRange(Enumerable.Cast<SSAVariable>(replMap.Values));
+                }
+                else
+                {
+                    argList.Add(arg);
+                }
+            }
+            return argList;
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public override BlockBranch Visit(BlockBranch Branch)
+        {
+            return new BlockBranch(
+                Branch.TargetTag, VisitVariableList(Branch.Arguments));
+        }
+    }
+
+    /// <summary>
+    /// A node visitor that replaces value type variables by scalar variables,
+    /// provided that such a substitution is possible.
+    /// </summary>
+    public class ScalarReplacementVisitor : NodeVisitorBase
+    {
+        public const this(
+            set BodyPassArgument PassArgument,
+            set bool(IType) ShouldReplace,
+            set bool(DissectedCall) ShouldInline)
+        {
+            this.variableDependencies = new Dictionary<LocalVariableBase, HashSet<LocalVariableBase>>();
+            this.blacklist = new HashSet<LocalVariableBase>();
+            this.specExprs = new Dictionary<LocalVariableBase, List<SpeculativeExpression>>();
+            this.specStmts = new Dictionary<LocalVariableBase, List<SpeculativeStatement>>();
+            this.specRepls = new Dictionary<LocalVariableBase, IReadOnlyDictionary<IField, LocalVariableBase>>();
+        }
+
+        /// <summary>
+        /// Gets the pass argument.
+        /// </summary>
+        public BodyPassArgument PassArgument { get; private set; }
+
+        /// <summary>
+        /// Determines whether the given (value) type should be replaced by its
+        /// components.
+        /// </summary>
+        public bool(IType) ShouldReplace { get; private set; }
+
+        /// <summary>
+        /// Checks if the given method should be inlined.
+        /// </summary>
+        public bool(DissectedCall) ShouldInline { get; private set; }
+
+        /// <summary>
+        /// Gets the declaring type, which is used to evaluate member
+        /// accessibility.
+        /// </summary>
+        public IType DeclaringType { get { return PassArgument.DeclaringType; } }
+
+        // Dictionaries that maps local variables to lists of speculative nodes,
+        // which describe said local variable's behavior, assuming that it is
+        // safe to replace by scalars.
+        private Dictionary<LocalVariableBase, List<SpeculativeExpression>> specExprs;
+        private Dictionary<LocalVariableBase, List<SpeculativeStatement>> specStmts;
+        private Dictionary<LocalVariableBase, IReadOnlyDictionary<IField, LocalVariableBase>> specRepls;
+
+        // Remember the local variable that is the current inline target.
+        // This can be used to make accesses to inaccessible fields
+        // dependent on the replacement of specific variables:
+        // if the inline target is marked as irreplaceable, then the
+        // inaccessible field accesses will disappear.
+        private LocalVariableBase inlineTarget;
+
+        /// <summary>
+        /// Gets a dictionary that maps local variables to their
+        /// field-scalar mapping.
+        /// </summary>
+        public IReadOnlyDictionary<LocalVariableBase, IReadOnlyDictionary<IField, LocalVariableBase>> Replacements
+        {
+            get { return specRepls; }
+        }
+
+        // A dictionary that maps local variables to the variables that depend
+        // on them: the value variables cannot be replaced by scalars unless the
+        // key variable is replaced by an aggregate.
+        private Dictionary<LocalVariableBase, HashSet<LocalVariableBase>> variableDependencies;
+
+        // A set of local variables that are ineligible for scalar replacement.
+        private HashSet<LocalVariableBase> blacklist;
+
+        private List<T> GetOrCreateList<T>(
+            Dictionary<LocalVariableBase, List<T>> Cache,
+            LocalVariableBase Key)
+        {
+            List<T> result;
+            if (!Cache.TryGetValue(Key, &result))
+            {
+                result = new List<T>();
+                Cache[Key] = result;
+            }
+            return result;
+        }
+
+        private HashSet<LocalVariableBase> GetOrCreateSet(
+            Dictionary<LocalVariableBase, HashSet<LocalVariableBase>> Cache,
+            LocalVariableBase Key)
+        {
+            HashSet<LocalVariableBase> result;
+            if (!Cache.TryGetValue(Key, &result))
+            {
+                result = new HashSet<LocalVariableBase>();
+                Cache[Key] = result;
+            }
+            return result;
+        }
+
+        private IReadOnlyDictionary<IField, LocalVariableBase> GetScalarReplacements(
+            LocalVariableBase Key)
+        {
+            IReadOnlyDictionary<IField, LocalVariableBase> result;
+            if (!specRepls.TryGetValue(Key, &result))
+            {
+                var mutResult = new Dictionary<IField, LocalVariableBase>();
+                bool makeSSA = Key is SSAVariable;
+                foreach (var item in Key.Type.Fields)
+                {
+                    if (!item.IsStatic)
+                    {
+                        if (makeSSA)
+                            mutResult[item] = new SSAVariable(item.FieldType);
+                        else
+                            mutResult[item] = new LocalVariable(item.FieldType);
+                    }
+                }
+                specRepls[Key] = mutResult;
+                result = mutResult;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Marks the given local variable as irreplaceable.
+        /// </summary>
+        private void MarkIrreplaceable(LocalVariableBase Local)
+        {
+            if (blacklist.Add(Local))
+            {
+                // Kill all speculative scalar replacement nodes for this
+                // local.
+                foreach (var item in GetOrCreateList<SpeculativeExpression>(specExprs, Local))
+                {
+                    item.IsAlive = false;
+                }
+                specExprs.Remove(Local);
+
+                foreach (var item in GetOrCreateList<SpeculativeStatement>(specStmts, Local))
+                {
+                    item.IsAlive = false;
+                }
+                specStmts.Remove(Local);
+
+                // Remove the local from the speculative replacement dictionary.
+                specRepls.Remove(Local);
+
+                // Mark all variables that depend on this variable getting
+                // replaced, as irreplaceable.
+                foreach (var item in GetOrCreateSet(variableDependencies, Local))
+                {
+                    MarkIrreplaceable(item);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Marks the first local variable as a copy of the second local variable.
+        /// </summary>
+        public void MarkCopy(LocalVariableBase Destination, LocalVariableBase Source)
+        {
+            if (IsBlacklisted(Destination) || IsBlacklisted(Source))
+            {
+                // If one is irreplaceable, then we should make the other
+                // irreplaceable, as well.
+                MarkIrreplaceable(Destination);
+                MarkIrreplaceable(Source);
+            }
+            else
+            {
+                // Otherwise, insert a dependency.
+                GetOrCreateSet(variableDependencies, Destination).Add(Source);
+                GetOrCreateSet(variableDependencies, Source).Add(Destination);
+            }
+        }
+
+        /// <summary>
+        /// Cancels the current inlining operation, by blacklisting the
+        /// inline target.
+        /// </summary>
+        private void CancelInline()
+        {
+            if (inlineTarget != null)
+            {
+                MarkIrreplaceable(inlineTarget);
+                // Might as well make the inline target null now
+                // to save ourselves some cycles.
+                inlineTarget = null;
+            }
+        }
+
+        /// <summary>
+        /// Makes the innermost inlining operation dependent on the given type
+        /// member's accessibility. All is well as long as either the type
+        /// member is accessible from the current scope, or the target variable
+        /// is replaced by aggregates.
+        /// </summary>
+        private void CheckAccessibility(
+            LocalVariableBase Target, ITypeMember Member)
+        {
+            if (inlineTarget != null && !DeclaringType.CanAccess(Member))
+            {
+                if (IsBlacklisted(Target))
+                    // There's just no way to recover from this.
+                    CancelInline();
+                else
+                    // Inaccessible members _can_ be accessed, provided that
+                    // their target is replaced by scalars.
+                    GetOrCreateSet(variableDependencies, inlineTarget).Add(Target);
+            }
+        }
+
+        /// <summary>
+        /// Checks if the given type is an aggregate type that should, if at all
+        /// possible, be replaced by scalars.
+        /// </summary>
+        private bool IsAggregate(IType Type)
+        {
+            return Type.IsValueType && ShouldReplace(Type);
+        }
+
+        /// <summary>
+        /// Checks if the given variable has been blacklisted: it cannot be
+        /// replaced by scalars, even though it is an aggregate.
+        /// </summary>
+        private bool IsBlacklisted(LocalVariableBase Variable)
+        {
+            return blacklist.Contains(Variable);
+        }
+
+        /// <summary>
+        /// Represents the given variable as an aggregate local.
+        /// If the variable is no aggregate variable,
+        /// or if it's an irreplaceable aggregate,
+        /// then null is returned.
+        /// </summary>
+        private LocalVariableBase AsAggregateLocal(IVariable Variable)
+        {
+            if (Variable is LocalVariableBase)
+            {
+                var localVar = (LocalVariableBase)Variable;
+                if (!IsBlacklisted(localVar) && IsAggregate(localVar.Type))
+                    return localVar;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Tries to interpret the given expression as some local aggregate's address.
+        /// If the expression does indeed represent an aggregate's address, then
+        /// the local aggregate variable is returned. Otherwise, null is returned.
+        /// </summary>
+        private LocalVariableBase AsAggregateLocal(IExpression Expression)
+        {
+            var innerExpr = Expression.GetEssentialExpression();
+            if (innerExpr is IVariableNode)
+            {
+                var varNode = (IVariableNode)Expression;
+                return AsAggregateLocal(varNode.GetVariable());
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private SpeculativeExpression MakeSpeculative(
+            LocalVariableBase Variable, IExpression Safe, IExpression Speculative)
+        {
+            var result = new SpeculativeExpression(Speculative, Safe);
+            GetOrCreateList<SpeculativeExpression>(specExprs, Variable).Add(result);
+            return result;
+        }
+
+        private SpeculativeStatement MakeSpeculative(
+            LocalVariableBase Variable, IStatement Safe, IStatement Speculative)
+        {
+            var result = new SpeculativeStatement(Speculative, Safe);
+            GetOrCreateList<SpeculativeStatement>(specStmts, Variable).Add(result);
+            return result;
+        }
+
+        public bool Matches(IExpression Expression)
+        {
+            return Expression is IVariableNode
+                || Expression is InvocationExpression;
+        }
+
+        public bool Matches(IStatement Statement)
+        {
+            return Statement is ISetVariableNode
+                || Statement is FlowGraphStatement;
+        }
+
+        private IExpression TransformGetField(FieldGetExpression Expression)
+        {
+            var target = AsAggregateLocal(Expression.Target);
+            if (target == null)
+            {
+                return Expression.Accept(this);
+            }
+            else
+            {
+                CheckAccessibility(target, Expression.Field);
+                return MakeSpeculative(
+                    target, Expression,
+                    GetScalarReplacements(target)[Expression.Field].CreateGetExpression());
+            }
+        }
+
+        private IExpression TransformFieldAddress(FieldGetPointerExpression Expression)
+        {
+            var target = AsAggregateLocal(Expression.Target);
+            if (target == null)
+            {
+                return Expression.Accept(this);
+            }
+            else
+            {
+                CheckAccessibility(target, Expression.Field);
+                return MakeSpeculative(
+                    target, Expression,
+                    ((IUnmanagedVariable)GetScalarReplacements(target)[Expression.Field]).CreateAddressOfExpression());
+            }
+        }
+
+        private IStatement TransformSetField(FieldSetStatement Statement)
+        {
+            var target = AsAggregateLocal(Statement.Target);
+            if (target == null)
+            {
+                return Statement.Accept(this);
+            }
+            else
+            {
+                CheckAccessibility(target, Statement.Field);
+                var val = Visit(Statement.Value);
+                return MakeSpeculative(
+                    target, Statement,
+                    GetScalarReplacements(target)[Statement.Field].CreateSetStatement(val));
+            }
+        }
+
+        private IStatement TransformCopy(
+            LocalVariableBase Destination, LocalVariableBase Source,
+            IStatement Original)
+        {
+            var scalarCopy = new List<IStatement>();
+
+            var destRepls = GetScalarReplacements(Destination);
+            var srcRepls = GetScalarReplacements(Source);
+            foreach (var field in srcRepls.Keys)
+            {
+                scalarCopy.Add(
+                    destRepls[field].CreateSetStatement(
+                        srcRepls[field].CreateGetExpression()));
+            }
+            GetOrCreateSet(variableDependencies, Source).Add(Destination);
+            return MakeSpeculative(
+                Destination, Original,
+                new BlockStatement(scalarCopy).Simplify());
+        }
+
+        private IExpression TransformInvocation(InvocationExpression Expression)
+        {
+            // Invocation expressions are a bit of an odd case: their
+            // caller can always be replaced by scalars (if the invocation
+            // is inlined, that is). Their arguments cannot be replaced,
+            // however, unless the aforementioned inlining operation
+            // is performed.
+            var target = Expression.Target.GetEssentialExpression();
+            if (target is GetMethodExpression)
+            {
+                // We can only inline direct calls.
+                var getMethodExpr = (GetMethodExpression)target;
+                if (!getMethodExpr.Op.Equals(Operator.GetDelegate))
+                    return Expression.Accept(this);
+
+                // Inlining non-aggregate local calls may not be safe, and is
+                // not one of this pass' responsibilities.
+                var targetVar = AsAggregateLocal(getMethodExpr.Caller);
+                if (targetVar == null)
+                    return Expression.Accept(this);
+
+                // Inline the call, and then visit the expression.
+                var inlinedCall = MakeInlinedCall(
+                    targetVar, getMethodExpr.Caller,
+                    getMethodExpr.Target, Expression.Arguments);
+
+                // The inlining operation itself could have blacklisted
+                // the target variable. So we have to check for that here.
+                if (inlinedCall == null || IsBlacklisted(targetVar))
+                    return Expression.Accept(this);
+
+                // We did it! Now let's just hope that we won't have to
+                // roll back the inlining operation.
+                return MakeSpeculative(targetVar, Expression, inlinedCall);
+            }
+
+            return Expression.Accept(this);
+        }
+
+        private IExpression MakeInlinedCall(
+            LocalVariableBase TargetVar, IExpression TargetExpr,
+            IMethod Method, [IExpression] Arguments)
+        {
+            // Let's start by checking if the inlining operation makes sense,
+            // theoretically, according to the inlining heuristic.
+            var theoreticalCall = new DissectedCall(TargetExpr, Method, Arguments);
+
+            if (!ShouldInline(theoreticalCall))
+                return null;
+
+            // Scalar replacement of aggregates allows us to perform inlining
+            // that would be illegal under normal circumstances, due to
+            // of access modifiers.
+            //
+            // However, we have to be careful to preserve the program's validity.
+            // What we'd really like to avoid is the following unsafe
+            // transformation:
+            //
+            //   1. First, we speculatively inline a function call.
+            //   2. We then visit said inlined call, and the base
+            //      argument variables' replaceabilities on the inlined call.
+            //   3. At some point, we notice that the inlined call's
+            //      target variable cannot be replaced by scalars.
+            //      We roll back the inlining operation.
+            //   4. The notion of replaceability for argument variables,
+            //      which we computed in step 2., has now become incorrect.
+            //
+            // To avoid generating an invalid program (which is what happens
+            // if we do nothing in step 4.), we will do one of the following,
+            // per argument:
+            //
+            //   1. Preferably, we will discover that the argument is
+            //      a local aggregate that can be replaced by scalars. We will
+            //      mark said local variable as dependent on the call's target
+            //      variable.
+            //   2. Otherwise, we will visit the argument expression. This is
+            //      a more conservative approach than option 1, so we'll use
+            //      it as a last resort.
+
+            var argList = new List<IExpression>();
+            foreach (var arg in Arguments)
+            {
+                var aggrLocal = AsAggregateLocal(arg);
+                if (aggrLocal != null)
+                {
+                    // Option 1., as described above.
+                    GetOrCreateSet(variableDependencies, TargetVar).Add(aggrLocal);
+                    argList.Add(arg);
+                }
+                else
+                {
+                    // Option 2., as described above.
+                    argList.Add(Visit(arg));
+                }
+            }
+
+            var call = new DissectedCall(TargetExpr, Method, argList);
+
+            inlineTarget = TargetVar;
+
+            // Be sure to visit the inlined call, as it will probably impose
+            // additional restrictions (though they probably won't be
+            // as severe as the restrictions obtained by electing _not_
+            // to inline the call).
+            var result = Visit(InliningVisitor.Inline(call, PassArgument));
+
+            inlineTarget = null;
+
+            if (!AccessChecker.CanAccess(DeclaringType, result))
+                // Sometimes, we just can't inline everything, due to
+                // access modifiers. In that case, we have to cancel
+                // the inlining operation.
+                return null;
+
+            return result;
+        }
+
+        private BasicBlock RewriteFlow(BasicBlock Block, ScalarReplacementBranchVisitor Visitor)
+        {
+            return new BasicBlock(
+                Block.Tag, Visitor.VisitVariableList(Block.Parameters),
+                Block.Contents, Block.Flow.Accept(Visitor));
+        }
+
+        private IStatement TransformFlowGraph(FlowGraphStatement Statement)
+        {
+            var graph = Statement.Graph;
+
+            // First, mark all argument/parameter pairs as copies,
+            // and rewrite block contents.
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+            foreach (var block in graph.Blocks)
+            {
+                results[block.Tag] = block.Accept(this);
+                foreach (var br in block.Flow.Branches)
+                {
+                    foreach (var arg in br.Arguments,
+                             var parameter in graph.GetBlock(br.TargetTag).Parameters)
+                    {
+                        MarkCopy(parameter, arg);
+                    }
+                }
+            }
+
+            // All replacements are now final.
+            // We can safely rewrite parameter and argument lists.
+            var branchReplVisitor = new ScalarReplacementBranchVisitor(Replacements);
+            foreach (var tag in graph.BlockTags)
+            {
+                results[tag] = RewriteFlow(results[tag], branchReplVisitor);
+            }
+            return new FlowGraphStatement(new FlowGraph(graph.EntryPointTag, results));
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            if (Expression is FieldGetExpression)
+            {
+                return TransformGetField((FieldGetExpression)Expression);
+            }
+            else if (Expression is FieldGetPointerExpression)
+            {
+                return TransformFieldAddress((FieldGetPointerExpression)Expression);
+            }
+            else if (Expression is InvocationExpression)
+            {
+                return TransformInvocation((InvocationExpression)Expression);
+            }
+
+            assert(Expression is IVariableNode);
+            var varNode = (IVariableNode)Expression;
+            var srcVar = varNode.GetVariable();
+            if (srcVar is LocalVariableBase)
+            {
+                // Both get and address-of expressions cannot be replaced, unless
+                // they appear in some special context. Clearly this is not
+                // such a special case.
+                MarkIrreplaceable((LocalVariableBase)srcVar);
+            }
+            return Expression.Accept(this);
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            if (Statement is FlowGraphStatement)
+                return TransformFlowGraph((FlowGraphStatement)Statement);
+
+            assert(Statement is ISetVariableNode);
+            if (Statement is FieldSetStatement)
+            {
+                return TransformSetField((FieldSetStatement)Statement);
+            }
+            else
+            {
+                // This is a simple (aggregate) copy, i.e. A = B;
+                // We'll try to transform it to a scalar copy.
+
+                var setVarStmt = (ISetVariableNode)Statement;
+                var dest = AsAggregateLocal(setVarStmt.GetVariable());
+                if (dest == null)
+                    // Destination variable is not an aggregate.
+                    // Nothing to do here.
+                    return Statement.Accept(this);
+
+                var src = AsAggregateLocal(setVarStmt.Value);
+                if (src == null)
+                {
+                    // Destination variable cannot be replaced by scalars, because
+                    // the source variable cannot be replaced, either. Bummer.
+                    MarkIrreplaceable(dest);
+                    return Statement.Accept(this);
+                }
+
+                return TransformCopy(dest, src, Statement);
+            }
+        }
+    }
+
+    /// <summary>
+    /// A base class for passes that replace scalars by aggregates.
+    /// </summary>
+    public abstract class ScalarReplacementPassBase : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// The scalar replacement of aggregates pass name.
+        /// </summary>
+        public const string ScalarReplacementPassName = "scalarrepl";
+
+        /// <summary>
+        /// The remarks option for scalar replacement: applying this pass to
+        /// functions may emit messages if this is option set to true.
+        /// </summary>
+        public string ScalarReplacementRemarksOption
+        {
+            get { return Flags.GetRemarkOptionName(ScalarReplacementPassName); }
+        }
+
+        /// <summary>
+        /// Creates a delegate that determines whether the given aggregate
+        /// should be replaced by scalars.
+        /// </summary>
+        public abstract bool(IType) GetReplacementCriteria(BodyPassArgument Argument);
+
+        /// <summary>
+        /// Creates a delegate that determines whether the given dissected
+        /// direct call should be inlined. There is no need to take accessibility
+        /// into account, as the scalar replacement visitor takes care of this.
+        /// </summary>
+        public abstract bool(DissectedCall) GetInliningCriteria(BodyPassArgument Argument);
+
+        /// <summary>
+        /// Creates a statement optimizer. Note that this should perform
+        /// simple intraprocedural optimizations, rather than more advanced
+        /// optimizations, such as inlining.
+        /// </summary>
+        public abstract IStatement(IStatement) GetBodyOptimizer(BodyPassArgument Argument);
+
+        /// <summary>
+        /// Gets the number of times this pass is allowed to
+        /// replace aggregates by scalars recursively. This corresponds
+        /// to the maximal number of replace-optimize iterations this pass makes.
+        /// </summary>
+        public abstract int GetMaxRecursion(BodyPassArgument Argument);
+
+        /// <summary>
+        /// Logs a message that proclaims that an inlining operation
+        /// has occurred.
+        /// </summary>
+        protected virtual void LogScalarReplacements(
+            BodyPassArgument Argument, int ReplacementCount, int RecursionDepth)
+        {
+            var nodes = new List<MarkupNode>();
+            if (RecursionDepth == 0)
+            {
+                // Add a description
+                nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
+                    "replaced " + ReplacementCount + " aggregates by scalars. "));
+            }
+            else
+            {
+                // Add a description
+                nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
+                    "recursively replaced " + ReplacementCount +
+                    " aggregates by scalars. (recursion depth: " +
+                    RecursionDepth + ") "));
+            }
+            // Add a cause node ('[-Rscalarrepl]')
+            nodes.Add(Flags.CreateCauseNode(ScalarReplacementRemarksOption));
+            // Add diagnostics for the method
+            nodes.Add(Argument.DeclaringMethod.GetSourceLocation().CreateDiagnosticsNode());
+
+            var log = Argument.PassEnvironment.Log;
+            log.LogMessage(new LogEntry("pass remark", nodes));
+        }
+
+        /// <summary>
+        /// Applies this pass to the given body pass argument.
+        /// </summary>
+        public IStatement Apply(BodyPassArgument Argument)
+            in { VerifyCFGPass.Apply(Argument.Body) }
+            in
+            {
+                VerifySSAPass.Apply(
+                    Argument.Body, Argument.PassEnvironment.Log, Argument.DeclaringMethod,
+                    ScalarReplacementPassName + " (input)")
+            }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result)
+            {
+                VerifySSAPass.Apply(
+                    result, Argument.PassEnvironment.Log, Argument.DeclaringMethod,
+                    ScalarReplacementPassName + " (output)")
+            }
+        {
+            int maxRec = GetMaxRecursion(Argument);
+            var shouldReplace = GetReplacementCriteria(Argument);
+            var shouldInline = GetInliningCriteria(Argument);
+            var optimizeBody = GetBodyOptimizer(Argument);
+            var result = Argument.Body;
+            var log = Argument.PassEnvironment.Log;
+            bool shouldRemark = log.Options.ShouldRemark(ScalarReplacementPassName);
+
+            for (int i = 0; i < maxRec; i++)
+            {
+                var visitor = new ScalarReplacementVisitor(
+                    Argument, shouldReplace, shouldInline);
+                result = visitor.Visit(result);
+
+                int replCount = visitor.Replacements.Count;
+                if (replCount > 0)
+                {
+                    if (shouldRemark)
+                    {
+                        // Let's print some diagnostics, because we're so proud of
+                        // our work.
+                        LogScalarReplacements(Argument, replCount, i);
+                    }
+
+                    // Perform variable/control flow optimizations
+                    // to expose more inlining opportunities, and to
+                    // reconstruct the CFG form of choice (which inlining
+                    // operations may have broken)
+                    result = optimizeBody(result);
+                }
+                else
+                {
+                    // Visitor hasn't inlined anything, which implies the following:
+                    //   1. The method body has not changed.
+                    //   2. There are no viable candidates for
+                    //      scalar replacement in the method body.
+                    //
+                    // In other words, we're done here, and the statement
+                    // need not be optimized again, either.
+                    break;
+                }
+            }
+            return result;
+        }
+    }
+}

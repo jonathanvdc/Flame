@@ -71,7 +71,7 @@ namespace Flame.Optimization
 
         /// <summary>
         /// Creates a statement optimizer. Note that this should perform
-        /// simple intraprocedural optimizations, rather than more advance
+        /// simple intraprocedural optimizations, rather than more advanced
         /// optimizations, such as inlining.
         /// </summary>
         public abstract IStatement(IStatement) GetBodyOptimizer(BodyPassArgument Argument);
@@ -316,12 +316,9 @@ namespace Flame.Optimization
             : base(PassArgument, ShouldInline);
 
         /// <summary>
-        /// Inlines the given dissected call: its arguments and return value
-        /// are replaced by local variables, and control will resume when the
-        /// inlined callee is done. Null is returned if the inlining operation
-        /// could not be performed.
+        /// Inlines the given method call. A pass argument is also given.
         /// </summary>
-        public override IExpression Inline(DissectedCall Call)
+        public static IExpression Inline(DissectedCall Call, BodyPassArgument PassArgument)
         {
             // Acquire the method body.
             var oldMethodBody = PassArgument.PassEnvironment.GetMethodBody(Call.Method);
@@ -351,6 +348,17 @@ namespace Flame.Optimization
                     visitedBody, lbVariable.CreateGetExpression(),
                     lbVariable.CreateReleaseStatement()).Simplify();
             }
+        }
+
+        /// <summary>
+        /// Inlines the given dissected call: its arguments and return value
+        /// are replaced by local variables, and control will resume when the
+        /// inlined callee is done. Null is returned if the inlining operation
+        /// could not be performed.
+        /// </summary>
+        public override IExpression Inline(DissectedCall Call)
+        {
+            return Inline(Call, PassArgument);
         }
     }
 
@@ -398,9 +406,20 @@ namespace Flame.Optimization
             }
             else
             {
-                thisVar = new LocalVariable(ThisArgument.Type);
-                results.Add(thisVar.CreateSetStatement(ThisArgument));
-                cleanup.Add(thisVar.CreateReleaseStatement());
+                var essentialThisArg = ThisArgument.GetEssentialExpression();
+                if (essentialThisArg is IVariableNode)
+                {
+                    // Direct stores to 'this' are prohibited, so we can
+                    // safely replace the 'this' variable by a variable argument.
+                    var varNode = (IVariableNode)essentialThisArg;
+                    thisVar = varNode.GetVariable();
+                }
+                else
+                {
+                    thisVar = new LocalVariable(ThisArgument.Type);
+                    results.Add(thisVar.CreateSetStatement(ThisArgument));
+                    cleanup.Add(thisVar.CreateReleaseStatement());
+                }
             }
 
             var argVars = new IVariable[Arguments.Length];

@@ -86,13 +86,19 @@ namespace Flame.Front.Target
 			GlobalPassManager.Append(SSAPassManager.ToPreferences());
 			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotPassName));
 
-            // -fspecialize tries to specialize methods.
+            // -fspecialize tries to specialize methods. 
+            // -O4, because it doesn't always play nice with CLR libraries. 
             GlobalPassManager.RegisterMethodPass(new MethodPassInfo(SpecializationPass.Instance, SpecializationPass.SpecializationPassName));
             GlobalPassManager.RegisterPassCondition(SpecializationPass.SpecializationPassName, optInfo => optInfo.OptimizeExperimental);
 
 			// -finline uses CFG/SSA form, so it's -O3, too.
 			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(InliningPass.Instance, InliningPass.InliningPassName));
 			GlobalPassManager.RegisterPassCondition(InliningPass.InliningPassName, optInfo => optInfo.OptimizeAggressive);
+
+            // -fscalarrepl performs scalar replacement of aggregates.
+            // It's -O4, because it hasn't been tested extensively.
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(ScalarReplacementPass.Instance, ScalarReplacementPass.ScalarReplacementPassName));
+            GlobalPassManager.RegisterPassCondition(ScalarReplacementPass.ScalarReplacementPassName, optInfo => optInfo.OptimizeExperimental);
 
 			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotOptimizedPassName));
 

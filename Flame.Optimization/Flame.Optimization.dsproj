@@ -44,6 +44,7 @@
     <Compile Include="PrintDotPassBase.ds" />
     <Compile Include="RemoveTrivialPhiPass.ds" />
     <Compile Include="ReturnMotionPass.ds" />
+    <Compile Include="ScalarReplacementPass.ds" />
     <Compile Include="SimplifyFlowPass.ds" />
     <Compile Include="SimplifySelectFlowPass.ds" />
     <Compile Include="SizeVisitor.ds" />

@@ -40,6 +40,16 @@ namespace Flame.Optimization
             return Target;
         }
 
+        private PredicateMemberNodeVisitor CreateCheckingVisitor()
+        {
+            var memberConv = new MemberConverter(
+                new DelegateConverter<IType, IType>(CheckTypeAccess),
+                new DelegateConverter<IMethod, IMethod>(CheckMemberAccess<IMethod>),
+                new DelegateConverter<IField, IField>(CheckMemberAccess<IField>));
+
+            return new PredicateMemberNodeVisitor(memberConv);
+        }
+
         /// <summary>
         /// Determines whether the given type can access all types and members
         /// that are referenced by the given statement.
@@ -47,14 +57,23 @@ namespace Flame.Optimization
         public static bool CanAccess(IType CurrentType, IStatement Statement)
         {
             var checker = new AccessChecker(CurrentType);
-            var memberConv = new MemberConverter(
-                new DelegateConverter<IType, IType>(checker.CheckTypeAccess),
-                new DelegateConverter<IMethod, IMethod>(checker.CheckMemberAccess<IMethod>),
-                new DelegateConverter<IField, IField>(checker.CheckMemberAccess<IField>));
-
-            var visitor = new PredicateMemberNodeVisitor(memberConv);
+            var visitor = checker.CreateCheckingVisitor();
 
             visitor.Visit(Statement);
+
+            return !checker.invalidAccess;
+        }
+
+        /// <summary>
+        /// Determines whether the given type can access all types and members
+        /// that are referenced by the given expression.
+        /// </summary>
+        public static bool CanAccess(IType CurrentType, IExpression Expression)
+        {
+            var checker = new AccessChecker(CurrentType);
+            var visitor = checker.CreateCheckingVisitor();
+
+            visitor.Visit(Expression);
 
             return !checker.invalidAccess;
         }
