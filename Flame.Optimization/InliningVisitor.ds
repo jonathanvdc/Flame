@@ -394,35 +394,58 @@ namespace Flame.Optimization
             return ssaLocals[localVar.Tag];
         }
 
+        private static IVariable CreateInlinedThis(
+            IExpression ThisArgument, List<IStatement> Statements,
+            List<IStatement> Cleanup)
+        {
+            if (ThisArgument == null)
+            {
+                return null;
+            }
+            else
+            {
+                var essentialThisArg = ThisArgument.GetEssentialExpression();
+                if (essentialThisArg is IVariableNode)
+                {
+                    // Direct stores to 'this' are prohibited, so we can
+                    // safely replace the 'this' variable by a local variable.
+                    // However, we must take said local variable's address if
+                    // we are targeting a value type, because
+                    // 'this' should be a pointer.
+                    var varNode = (IVariableNode)essentialThisArg;
+                    var thisArgVar = varNode.GetVariable();
+                    if (thisArgVar is LocalVariableBase
+                        || thisArgVar is ArgumentVariable
+                        || thisArgVar is ThisVariable)
+                    {
+                        if (thisArgVar.Type.IsValueType)
+                        {
+                            if (thisArgVar is IUnmanagedVariable)
+                            {
+                                return new ExpressionVariable(((IUnmanagedVariable)thisArgVar).CreateAddressOfExpression());
+                            }
+                            // Non-unmanaged variables will just have to be copied.
+                        }
+                        else
+                        {
+                            return thisArgVar;
+                        }
+                    }
+                }
+
+                var thisVar = new LocalVariable(ThisArgument.Type);
+                Statements.Add(thisVar.CreateSetStatement(ThisArgument));
+                Cleanup.Add(thisVar.CreateReleaseStatement());
+                return thisVar;
+            }
+        }
+
         public static IStatement InlineVariables(IStatement Target, IExpression ThisArgument, IExpression[] Arguments)
         {
             var results = new List<IStatement>();
             var cleanup = new List<IStatement>();
 
-            IVariable thisVar;
-            if (ThisArgument == null)
-            {
-                thisVar = null;
-            }
-            else
-            {
-                var essentialThisArg = ThisArgument.GetEssentialExpression();
-                if (essentialThisArg is LocalVariableBase
-                    || essentialThisArg is ArgumentVariable 
-                    || essentialThisArg is ThisVariable)
-                {
-                    // Direct stores to 'this' are prohibited, so we can
-                    // safely replace the 'this' variable by a variable argument.
-                    var varNode = (IVariableNode)essentialThisArg;
-                    thisVar = varNode.GetVariable();
-                }
-                else
-                {
-                    thisVar = new LocalVariable(ThisArgument.Type);
-                    results.Add(thisVar.CreateSetStatement(ThisArgument));
-                    cleanup.Add(thisVar.CreateReleaseStatement());
-                }
-            }
+            var thisVar = CreateInlinedThis(ThisArgument, results, cleanup);
 
             var argVars = new IVariable[Arguments.Length];
             foreach (var input in Arguments, var output in argVars)
