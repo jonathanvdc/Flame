@@ -7,7 +7,7 @@ build
 
 run
 {
-    return = @($(net-runtime) bin/$(Filename).exe);
+    return = @($(net-runtime) bin/$(Filename).exe $Args);
 }
 
 configs
@@ -15,12 +15,11 @@ configs
     Og { Flags = -Og; }
     O2 { Flags = -O2; }
     O3 { Flags = -O3; }
-    O4 { Flags = -O4; }
 }
 
 init
 {
-    Filename = ScalarReplacement;
+    Filename = ScalarReplacement2;
     Args = 10 10;
-    return = 25;
+    return = 5700;
 }

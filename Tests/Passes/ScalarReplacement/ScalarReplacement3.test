@@ -19,6 +19,6 @@ configs
 
 init
 {
-    Filename = ScalarReplacement;
+    Filename = ScalarReplacement3;
     return = 25;
 }
