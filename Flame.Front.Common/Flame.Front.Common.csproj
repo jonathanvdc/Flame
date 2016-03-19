@@ -112,6 +112,7 @@
     <Compile Include="Target\PrintDotPass.cs" />
     <Compile Include="Target\WasmBuildTargetParser.cs" />
     <Compile Include="Target\SpecializationPass.cs" />
+    <Compile Include="Target\ScalarReplacementPass.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame.Cecil\Flame.Cecil.csproj">

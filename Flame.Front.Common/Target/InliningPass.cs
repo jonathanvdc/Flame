@@ -69,9 +69,18 @@ namespace Flame.Front.Target
 
 		public static readonly InliningPass Instance = new InliningPass();
 
-		private const int WordSize = 4;
+        public const string InlineToleranceOption = "inline-tolerance";
+        public const int DefaultInlineTolerance = 0;
 
-        private static int ApproximateSize(IType Type)
+        /// <summary>
+        /// The word size that is used for inlining heuristics.
+        /// </summary>
+		public const int WordSize = 4;
+
+        /// <summary>
+        /// Heuristically tries to approximate the given type's size.
+        /// </summary>
+        public static int ApproximateSize(IType Type)
         {
             int primSize = Type.GetPrimitiveSize();
             if (primSize > 0)
@@ -110,17 +119,21 @@ namespace Flame.Front.Target
         {
             var argType = Argument.Type;
 
-            int inheritanceBoost = !argType.Equals(ParameterType) ? 4 : 0;  // This is interesting, because it may allow us to
-                                                                            // replace indirect calls with direct calls
+            // This is interesting, because it may allow us to                                                       
+            // replace indirect calls with direct calls.
+            int inheritanceBoost = !argType.Equals(ParameterType) ? 4 : 0;
 
-            int constantBoost = Argument.IsConstant ? 4 : 0;                // Constants may allow us to eliminate branches
+            // Constants may allow us to eliminate branches.
+            int constantBoost = Argument.IsConstant ? 4 : 0;
 
-            int delegateBoost = ParameterType.GetIsDelegate() ? 4 : 0;     // Delegates can be sometimes be replaced with direct or virtual calls.
+            // Delegates can be sometimes be replaced 
+            // with direct or virtual calls.
+            int delegateBoost = ParameterType.GetIsDelegate() ? 4 : 0;
 
             return ApproximateSize(argType) + inheritanceBoost + constantBoost + delegateBoost;
         }
 
-        public bool ShouldInline(BodyPassArgument Args, DissectedCall Call, int Tolerance)
+        public static bool ShouldInline(BodyPassArgument Args, DissectedCall Call, int Tolerance)
         {
             if (Call.Method.GetIsVirtual() || (Call.Method.IsConstructor && !Call.Method.DeclaringType.GetIsValueType()))
             {
@@ -164,7 +177,7 @@ namespace Flame.Front.Target
 		public override Func<DissectedCall, bool> GetInliningCriteria(BodyPassArgument Argument)
 		{
 			var log = Argument.PassEnvironment.Log;
-			int inlineTolerance = log.Options.GetOption<int>("inline-tolerance", 0);
+            int inlineTolerance = log.Options.GetOption<int>(InlineToleranceOption, DefaultInlineTolerance);
 			return call => ShouldInline(Argument, call, inlineTolerance);
 		}
 
