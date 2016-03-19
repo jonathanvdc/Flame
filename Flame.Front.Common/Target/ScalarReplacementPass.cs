@@ -73,12 +73,12 @@ namespace Flame.Front.Target
         {
             if (Options.HasOption(ScalarReplacementInlineToleranceOption))
                 return Options.GetOption<int>(
-                    ScalarReplacementInlineToleranceOption, 
+                    ScalarReplacementInlineToleranceOption,
                     DefaultScalarReplacementInlineTolerance);
             else if (Options.HasOption(InliningPass.InlineToleranceOption))
-                return Options.GetOption<int>(
-                    InliningPass.InlineToleranceOption, 
-                    DefaultScalarReplacementInlineTolerance);
+                return DefaultScalarReplacementTolerance + Options.GetOption<int>(
+                    InliningPass.InlineToleranceOption,
+                    InliningPass.DefaultInlineTolerance);
             else
                 return DefaultScalarReplacementInlineTolerance;
         }
@@ -95,7 +95,7 @@ namespace Flame.Front.Target
         public override Func<DissectedCall, bool> GetInliningCriteria(BodyPassArgument Argument)
         {
             var log = Argument.PassEnvironment.Log;
-            
+
             int inlineTolerance = GetInlineTolerance(log.Options);
             return call => InliningPass.ShouldInline(Argument, call, inlineTolerance, false);
         }
@@ -124,8 +124,8 @@ namespace Flame.Front.Target
                 Manager.RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(InliningPass.Instance, InliningPass.InliningPassName));
                 Manager.RegisterPassCondition(InliningPass.InliningPassName, optInfo => true);
             }
-            else if (!option.Equals("none", StringComparison.InvariantCultureIgnoreCase) 
-                  && !string.IsNullOrWhiteSpace(option) 
+            else if (!option.Equals("none", StringComparison.InvariantCultureIgnoreCase)
+                  && !string.IsNullOrWhiteSpace(option)
                   && UnknownInlinerArgumentWarning.UseWarning(log.Options))
             {
                 var nodes = new List<MarkupNode>();
