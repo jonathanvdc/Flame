@@ -8,6 +8,8 @@ tests
     Inlining/Inlining2.test;
     Linking/Linking.test;
     LowerLambda/LowerLambda.test;
+    ScalarReplacement/ScalarReplacement.test;
+    ScalarReplacement/ScalarReplacement2.test;
     Specialization/Specialization.test;
     Specialization/Specialization2.test;
     Specialization/Specialization3.test;
