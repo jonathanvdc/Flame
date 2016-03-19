@@ -97,7 +97,7 @@ namespace Flame.Front.Target
             var log = Argument.PassEnvironment.Log;
             
             int inlineTolerance = GetInlineTolerance(log.Options);
-            return call => InliningPass.ShouldInline(Argument, call, inlineTolerance);
+            return call => InliningPass.ShouldInline(Argument, call, inlineTolerance, false);
         }
 
         public override int GetMaxRecursion(BodyPassArgument Argument)
