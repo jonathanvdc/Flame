@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Native;
@@ -10,17 +11,12 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Optimization
 {
-    /// <summary>
-    /// A pass that lowers value type creation expressions
-    /// (i.e. calls to value type constructors that do not have
-    /// a 'this' pointer) to temporaries and direct calls.
-    /// </summary>
-    public class NewValueTypeLoweringPass : NodeVisitorBase, IPass<IStatement, IStatement>
+    public class NewValueTypeLoweringVisitor : NodeVisitorBase
     {
         /// <summary>
-        /// Creates a new-value type lowering pass instance.
+        /// Creates a new-value-type lowering visitor instance.
         /// </summary>
-        public const this(set bool MustLowerExpressions);
+        public const this(set bool MustLowerExpressions, set BodyPassArgument PassArgument);
 
         /// <summary>
         /// A boolean value that tells whether new-value type expressions must
@@ -29,14 +25,10 @@ namespace Flame.Optimization
         public bool MustLowerExpressions { get; private set; }
 
         /// <summary>
-        /// The name of the new-value type expression lowering pass.
+        /// Gets the body pass argument this visitor uses to access
+        /// global metadata.
         /// </summary>
-        public const string NewValueTypeLoweringPassName = "lower-new-struct";
-
-        /// <summary>
-        /// The name of the new-value type expression optimization pass.
-        /// </summary>
-        public const string NewValueTypeOptimizationPassName = "optimize-new-struct";
+        public BodyPassArgument PassArgument { get; private set; }
 
         public override bool Matches(IExpression Value)
         {
@@ -51,23 +43,196 @@ namespace Flame.Optimization
         }
 
         /// <summary>
+        /// Checks if the given type may reference memory.
+        /// </summary>
+        private static bool MayReferenceMemoryImpl(IType Type)
+        {
+            if (Type.IsPrimitive)
+            {
+                return false;
+            }
+            else if (Type.IsValueType)
+            {
+                foreach (var field in Type.Fields)
+                {
+                    if (!field.IsStatic && MayReferenceMemoryImpl(field.FieldType))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            else
+            {
+                // We don't know anything about this type. Assume that
+                // it may reference memory.
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Checks if the given type may reference memory.
+        /// </summary>
+        public static bool MayReferenceMemory(IType Type, BodyPassArgument PassArg)
+        {
+            string optionName = "may-reference-memory-dictionary";
+            var globalData = PassArg.Metadata.GlobalMetadata;
+            var dict = globalData.GetOption<ConcurrentDictionary<IType, bool>>(optionName, null);
+            if (dict == null)
+            {
+                dict = new ConcurrentDictionary<IType, bool>();
+                globalData.SetOption<ConcurrentDictionary<IType, bool>>(optionName, dict);
+            }
+            return dict.GetOrAdd(Type, MayReferenceMemoryImpl);
+        }
+
+        /// <summary>
+        /// Determines if the given constructor performs total
+        /// initialization.
+        /// </summary>
+        public static bool IsTotalInitializer(IMethod Constructor)
+        {
+            return Constructor.HasAttribute(
+                PrimitiveAttributes.Instance.TotalInitializationAttribute.AttributeType);
+        }
+
+        /// <summary>
+        /// Checks if new-object expressions that call the given constructor
+        /// are naively lowerable: direct assignments can be lowered
+        /// without introducing any additional variables.
+        /// </summary>
+        public static bool IsNaivelyLowerable(IMethod Constructor, BodyPassArgument PassArg)
+        {
+            if (!Constructor.IsConstant)
+            {
+                // Non-pure constructors can use static variables to change
+                // their own state.
+                return false;
+            }
+            else
+            {
+                foreach (var parameter in Constructor.Parameters)
+                {
+                    if (MayReferenceMemory(parameter.ParameterType, PassArg))
+                        return false;
+                }
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Safely applies the given constructor to the given 'this' variable,
+        /// with the given sequence of arguments. The 'this' variable is
+        /// first zero-initialized if the constructor does not perform total
+        /// initialization.
+        /// </summary>
+        private static IStatement InitializeSafe(
+            IUnmanagedVariable ThisVariable, IMethod Constructor,
+            [IExpression] Arguments)
+        {
+            var result = new List<IStatement>();
+
+            var thisAddr = ThisVariable.CreateAddressOfExpression();
+            // Store the 'this' pointer in a temporary.
+            var thisArg = new RegisterVariable(thisAddr.Type);
+            result.Add(thisArg.CreateSetStatement(thisAddr));
+
+            // Store all arguments in temporaries.
+            var newArgs = new List<IExpression>();
+            foreach (var arg in Arguments)
+            {
+                var argTemp = new RegisterVariable(arg.Type);
+                result.Add(argTemp.CreateSetStatement(arg));
+                newArgs.Add(argTemp.CreateGetExpression());
+            }
+
+            if (!IsTotalInitializer(Constructor))
+            {
+                // Now that the 'this' pointer and arguments have been stored,
+                // we can initialize the 'this' variable.
+                result.Add(new StoreAtAddressStatement(
+                    thisArg.CreateGetExpression(),
+                    new DefaultValueExpression(ThisVariable.Type)));
+            }
+
+            result.Add(new ExpressionStatement(new InvocationExpression(
+                Constructor, thisArg.CreateGetExpression(), newArgs)));
+
+            return new BlockStatement(result).Simplify();
+        }
+
+        /// <summary>
+        /// Naively applies the given constructor to the given 'this' variable,
+        /// with the given sequence of arguments.
+        /// </summary>
+        private static IStatement InitializeNaive(
+            IUnmanagedVariable ThisVariable, IMethod Constructor,
+            [IExpression] Arguments)
+        {
+            return new ExpressionStatement(new InvocationExpression(
+                Constructor, ThisVariable.CreateAddressOfExpression(), Arguments));
+        }
+
+        /// <summary>
         /// Initializes the given value type variable.
         /// The given constructor is called with the given
         /// arguments.
         /// </summary>
         public static IStatement InitializeValueType(
             IUnmanagedVariable Variable, IMethod Constructor,
-            [IExpression] Arguments)
+            [IExpression] Arguments, BodyPassArgument PassArg)
         {
-            var result = new List<IStatement>();
-            if (!Constructor.HasAttribute(PrimitiveAttributes.Instance.TotalInitializationAttribute.AttributeType))
-                result.Add(Variable.CreateSetStatement(
-                    new DefaultValueExpression(Variable.Type)));
-            result.Add(new ExpressionStatement(new InvocationExpression(
-                Constructor,
-                Variable.CreateAddressOfExpression(),
-                Arguments)));
-            return new BlockStatement(result).Simplify();
+            if (IsNaivelyLowerable(Constructor, PassArg))
+            {
+                // This case is simple and elegant.
+                return InitializeNaive(Variable, Constructor, Arguments);
+            }
+            else
+            {
+                // This is kind of an ugly case. Naively initializing
+                // the target variable before performing the call could
+                // break construction semantics. Consider the given struct:
+                //
+                //     public struct A
+                //     {
+                //         public this(int X)
+                //         {
+                //             // This constructor does _not_ perform
+                //             // total initialization. Assume that the compiler
+                //             // does not insert total initialization code.
+                //             this.X = X;
+                //         }
+                //         public int X;
+                //         public int Y;
+                //     }
+                //
+                // Now, if we were to create a new instance of A, like so,
+                //
+                //     a = new A(a.Y);
+                //
+                // performing the following naive transformation:
+                //
+                //     a = default(A);
+                //     A.this(&a, a.Y);
+                //
+                // would be wrong. So we have to copy the 'this' pointer,
+                // and all arguments, then initialize the instance to a default
+                // value, and subsequently call the constructor. In the above
+                // example:
+                //
+                //     A* tmp0 = &a;
+                //     int tmp1 = a.Y;
+                //     *tmp0 = default(A);
+                //     A.this(tmp0, tmp1);
+                //
+                // Which is kind of a bummer. SSA optimizations can
+                // probably turn the above snippet into a fairly decent
+                // piece of code, but lower optimization levels probably can't.
+                // For this reasons, this construction should be avoided
+                // unless we absolutely have to lower all new-object expressions.
+
+                return InitializeSafe(Variable, Constructor, Arguments);
+            }
         }
 
         /// <summary>
@@ -107,7 +272,7 @@ namespace Flame.Optimization
         {
             var temp = new LocalVariable(Constructor.DeclaringType);
             return new InitializedExpression(
-                Visit(InitializeValueType(temp, Constructor, Arguments)),
+                Visit(InitializeValueType(temp, Constructor, Arguments, PassArgument)),
                 temp.CreateGetExpression(),
                 temp.CreateReleaseStatement());
         }
@@ -132,20 +297,51 @@ namespace Flame.Optimization
 
             var destVar = setVarNode.GetVariable();
 
-            if (destVar is IUnmanagedVariable)
+            if (destVar is IUnmanagedVariable
+                && IsNaivelyLowerable(exprTuple.Item1, PassArgument))
             {
-                return Visit(InitializeValueType(
-                    (IUnmanagedVariable)destVar, exprTuple.Item1, exprTuple.Item2));
+                // Only naive lowering can be applied directly to the target
+                // variable.
+                return Visit(InitializeNaive(
+                    (IUnmanagedVariable)destVar, exprTuple.Item1,
+                    exprTuple.Item2));
             }
-            else
-            {
-                return Statement.Accept(this);
-            }
+            return Statement.Accept(this);
         }
+    }
 
-        public IStatement Apply(IStatement Statement)
+    /// <summary>
+    /// A pass that lowers value type creation expressions
+    /// (i.e. calls to value type constructors that do not have
+    /// a 'this' pointer) to temporaries and direct calls.
+    /// </summary>
+    public class NewValueTypeLoweringPass : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// Creates a new-value type lowering pass instance.
+        /// </summary>
+        public const this(set bool MustLowerExpressions);
+
+        /// <summary>
+        /// A boolean value that tells whether new-value type expressions must
+        /// also be lowered, in addition to new-value type assignments.
+        /// </summary>
+        public bool MustLowerExpressions { get; private set; }
+
+        /// <summary>
+        /// The name of the new-value type expression lowering pass.
+        /// </summary>
+        public const string NewValueTypeLoweringPassName = "lower-new-struct";
+
+        /// <summary>
+        /// The name of the new-value type expression optimization pass.
+        /// </summary>
+        public const string NewValueTypeOptimizationPassName = "optimize-new-struct";
+
+        public IStatement Apply(BodyPassArgument Arg)
         {
-            return Visit(Statement);
+            var visitor = new NewValueTypeLoweringVisitor(MustLowerExpressions, Arg);
+            return visitor.Visit(Arg.Body);
         }
     }
 }

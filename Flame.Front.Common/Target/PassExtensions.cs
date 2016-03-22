@@ -50,13 +50,13 @@ namespace Flame.Front.Target
 
             // -flower-new-struct replaces all new-value type expressions by temporaries and direct
             // calls. -flower-new-struct is used at -O3, as it may aid other optimizations.
-            GlobalPassManager.RegisterMethodPass(new StatementPassInfo(new NewValueTypeLoweringPass(true), NewValueTypeLoweringPass.NewValueTypeLoweringPassName));
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(new NewValueTypeLoweringPass(true), NewValueTypeLoweringPass.NewValueTypeLoweringPassName));
             GlobalPassManager.RegisterPassCondition(NewValueTypeLoweringPass.NewValueTypeLoweringPassName, optInfo => optInfo.OptimizeAggressive && !optInfo.OptimizeSize);
 
             // -foptimize-new-struct is a watered-down version of -flower-new-struct which does
-            // not create temporaries. -foptimize-new-struct is used at -O1, -O2 and Os, as it
+            // not create temporaries. -foptimize-new-struct is used at -O1, -O2 and -Os, as it
             // can improve code quality without introducing extra overhead.
-            GlobalPassManager.RegisterMethodPass(new StatementPassInfo(new NewValueTypeLoweringPass(false), NewValueTypeLoweringPass.NewValueTypeOptimizationPassName));
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(new NewValueTypeLoweringPass(false), NewValueTypeLoweringPass.NewValueTypeOptimizationPassName));
             GlobalPassManager.RegisterPassCondition(NewValueTypeLoweringPass.NewValueTypeLoweringPassName, optInfo => optInfo.OptimizeMinimal && (!optInfo.OptimizeAggressive || optInfo.OptimizeSize));
 
             // -fimperative-code is useful for high-level programming language output.
@@ -97,8 +97,8 @@ namespace Flame.Front.Target
 			GlobalPassManager.Append(SSAPassManager.ToPreferences());
 			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotPassName));
 
-            // -fspecialize tries to specialize methods. 
-            // -O4, because it doesn't always play nice with CLR libraries. 
+            // -fspecialize tries to specialize methods.
+            // -O4, because it doesn't always play nice with CLR libraries.
             GlobalPassManager.RegisterMethodPass(new MethodPassInfo(SpecializationPass.Instance, SpecializationPass.SpecializationPassName));
             GlobalPassManager.RegisterPassCondition(SpecializationPass.SpecializationPassName, optInfo => optInfo.OptimizeExperimental);
 
