@@ -507,7 +507,7 @@ namespace Flame.Optimization
             else
             {
                 var val = Visit(Statement.Value);
-                var conservativeStmt = target.CreateSetStatement(val);
+                var conservativeStmt = new FieldSetStatement(Statement.Field, Statement.Target, val);
                 if (IsBlacklisted(target))
                 {
                     return conservativeStmt;
