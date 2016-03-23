@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public class OverloadingTest
+public module OverloadingTest
 {
     public int Max(int A, int B)
     {
@@ -16,10 +16,14 @@ public class OverloadingTest
         else return B;
     }
 
-    public void Test()
+    public void Main()
     {
         int a = 1, b = 3;
         int x = Max(a, b);
         [int] seq = Enumerable.Concat<int>(new int[] { a, b }, new int[] { x });
+        foreach (var item in seq)
+        {
+            Console.WriteLine(item);
+        }
     }
 }
