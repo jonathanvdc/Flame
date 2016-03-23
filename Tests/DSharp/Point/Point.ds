@@ -1,0 +1,71 @@
+using System;
+
+// This is a D# port of the .NET Struct Performance benchmark by
+// Christoph Nahr. Original code is available on:
+// kynosarges.org/StructPerformance.html
+
+public struct Point
+{
+    public const this(set double X, set double Y);
+
+    public double X { get; private set; }
+    public double Y { get; private set; }
+}
+
+public module PointTest
+{
+    public Point AddByVal(Point a, Point b)
+    {
+        return new Point(a.X + b.Y, a.Y + b.X);
+    }
+
+    public Point AddByRef(Point^ a, Point^ b)
+    {
+        return new Point(a->X + b->Y, a->Y + b->X);
+    }
+
+    public void AddByOut(Point^ a, Point^ b, Point^ c)
+    {
+        *c = new Point(a->X + b->Y, a->Y + b->X);
+    }
+
+    public void AddNaked(double ax, double ay, double bx, double by, double^ cx, double^ cy)
+    {
+        *cx = ax + by; *cy = ay + bx;
+    }
+
+    public static void Main()
+    {
+        int iterations = 100;
+
+        // trigger runtime compilation if needed
+        Point a = new Point(1, 1), b = new Point(1, 1);
+        double ax = 1, ay = 1, bx = 1, by = 1;
+        for (int i = 0; i < 1000; i++) {
+            a = AddByVal(a, b);
+            a = AddByRef(&a, &b);
+            AddByOut(&a, &b, &a);
+            AddNaked(ax, ay, bx, by, &ax, &ay);
+        }
+
+        a = new Point(1, 1); b = new Point(1, 1);
+        for (int i = 0; i < iterations; i++)
+            a = AddByVal(a, b);
+        Console.WriteLine("{0} {1} ", a.X, a.Y);
+
+        a = new Point(1, 1); b = new Point(1, 1);
+        for (int i = 0; i < iterations; i++)
+            a = AddByRef(&a, &b);
+        Console.WriteLine("{0} {1} ", a.X, a.Y);
+
+        a = new Point(1, 1); b = new Point(1, 1);
+        for (int i = 0; i < iterations; i++)
+            AddByOut(&a, &b, &a);
+        Console.WriteLine("{0} {1} ", a.X, a.Y);
+
+        ax = 1; ay = 1; bx = 1; by = 1;
+        for (int i = 0; i < iterations; i++)
+            AddNaked(ax, ay, bx, by, &ax, &ay);
+        Console.WriteLine("{0} {1} ", ax, ay);
+    }
+}
