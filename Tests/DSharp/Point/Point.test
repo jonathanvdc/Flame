@@ -7,7 +7,7 @@ build
 
 run
 {
-    return = @($(net-runtime) bin/$(Filename).exe $Args);
+    return = @($(net-runtime) bin/$(Filename).exe);
 }
 
 configs
@@ -20,5 +20,5 @@ configs
 init
 {
     Filename = Point;
-    Args = @(echo 101 101)@(echo 101 101)@(echo 101 101)@(echo 101 101);
+    return = @(echo 101 101)@(echo 101 101)@(echo 101 101)@(echo 101 101);
 }

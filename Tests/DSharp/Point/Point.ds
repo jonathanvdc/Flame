@@ -51,21 +51,21 @@ public module PointTest
         a = new Point(1, 1); b = new Point(1, 1);
         for (int i = 0; i < iterations; i++)
             a = AddByVal(a, b);
-        Console.WriteLine("{0} {1} ", a.X, a.Y);
+        Console.WriteLine("{0} {1}", a.X, a.Y);
 
         a = new Point(1, 1); b = new Point(1, 1);
         for (int i = 0; i < iterations; i++)
             a = AddByRef(&a, &b);
-        Console.WriteLine("{0} {1} ", a.X, a.Y);
+        Console.WriteLine("{0} {1}", a.X, a.Y);
 
         a = new Point(1, 1); b = new Point(1, 1);
         for (int i = 0; i < iterations; i++)
             AddByOut(&a, &b, &a);
-        Console.WriteLine("{0} {1} ", a.X, a.Y);
+        Console.WriteLine("{0} {1}", a.X, a.Y);
 
         ax = 1; ay = 1; bx = 1; by = 1;
         for (int i = 0; i < iterations; i++)
             AddNaked(ax, ay, bx, by, &ax, &ay);
-        Console.WriteLine("{0} {1} ", ax, ay);
+        Console.WriteLine("{0} {1}", ax, ay);
     }
 }
