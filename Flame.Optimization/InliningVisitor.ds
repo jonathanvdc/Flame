@@ -321,6 +321,44 @@ namespace Flame.Optimization
         /// </summary>
         public static IExpression Inline(DissectedCall Call, BodyPassArgument PassArgument)
         {
+            // Create a variable for the return value.
+            var lbVariable = new LocalVariable(Call.Method.ReturnType);
+
+            // Perform the actual inlining.
+            var visitedBody = InlineBody(Call, lbVariable, PassArgument);
+
+            if (visitedBody == null)
+                return null;
+
+            return CreateLetExpression(visitedBody, lbVariable);
+        }
+
+        /// <summary>
+        /// Creates an expression that first executes the given statement,
+        /// and then loads the given variable. The variable is then released.
+        /// </summary>
+        public static IExpression CreateLetExpression(
+            IStatement InlinedBody, IVariable ReturnVariable)
+        {
+            if (ReturnVariable.Type.Equals(PrimitiveTypes.Void))
+            {
+                return new InitializedExpression(
+                    InlinedBody, VoidExpression).Simplify();
+            }
+            else
+            {
+                return new InitializedExpression(
+                    InlinedBody, ReturnVariable.CreateGetExpression(),
+                    ReturnVariable.CreateReleaseStatement()).Simplify();
+            }
+        }
+
+        /// <summary>
+        /// Inlines the given method call. A pass argument is also given.
+        /// </summary>
+        public static IStatement InlineBody(
+            DissectedCall Call, IVariable ReturnVariable, BodyPassArgument PassArgument)
+        {
             // Acquire the method body.
             var oldMethodBody = PassArgument.PassEnvironment.GetMethodBody(Call.Method);
             if (oldMethodBody == null)
@@ -328,27 +366,13 @@ namespace Flame.Optimization
 
             // Copy the method body.
             var body = CloningVisitor.Visit(oldMethodBody);
-            // Create a variable for the return value.
-            var lbVariable = new LocalVariable(Call.Method.ReturnType);
 
-            // Transforms the copied body to match our needs.
-            var visitedBody = InliningReturnVisitor.InlineReturns(
-                                InliningVariableVisitor.InlineVariables(body,
-                                    Call.ThisValue,
-                                    Enumerable.ToArray<IExpression>(Call.Arguments)),
-                                lbVariable);
-
-            if (lbVariable.Type.Equals(PrimitiveTypes.Void))
-            {
-                return new InitializedExpression(
-                    visitedBody, VoidExpression).Simplify();
-            }
-            else
-            {
-                return new InitializedExpression(
-                    visitedBody, lbVariable.CreateGetExpression(),
-                    lbVariable.CreateReleaseStatement()).Simplify();
-            }
+            // Transform the copied body to match use local variables.
+            return InliningReturnVisitor.InlineReturns(
+                InliningVariableVisitor.InlineVariables(body,
+                    Call.ThisValue,
+                    Enumerable.ToArray<IExpression>(Call.Arguments)),
+                ReturnVariable);
         }
 
         /// <summary>

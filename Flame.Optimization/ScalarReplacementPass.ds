@@ -558,7 +558,47 @@ namespace Flame.Optimization
                 new BlockStatement(stmts).Simplify());
         }
 
+        private IStatement TransformAssignInvocation(
+            LocalVariableBase Destination, IStatement Original,
+            InvocationExpression Expression)
+        {
+            var inlinedCall = TryMakeInlinedCall(Expression, Destination);
+
+            if (inlinedCall == null)
+            {
+                return Original.Accept(this);
+            }
+            else
+            {
+                // Awesome. Now we just have to take into account that the
+                // destination variable's replaceability hinges on this
+                // inlining operation being performed, i.e. the call target
+                // getting replaced by scalars.
+                GetOrCreateSet(variableDependencies, inlinedCall.Item1).Add(Destination);
+                return MakeSpeculative(inlinedCall.Item1, Original, inlinedCall.Item2);
+            }
+        }
+
         private IExpression TransformInvocation(InvocationExpression Expression)
+        {
+            var temp = new LocalVariable(Expression.Type);
+            var inlinedCall = TryMakeInlinedCall(Expression, temp);
+
+            if (inlinedCall == null)
+            {
+                return Expression.Accept(this);
+            }
+            else
+            {
+                return MakeSpeculative(
+                    inlinedCall.Item1, Expression,
+                    InliningVisitor.CreateLetExpression(
+                        inlinedCall.Item2, temp));
+            }
+        }
+
+        private Tuple<LocalVariableBase, IStatement> TryMakeInlinedCall(
+            InvocationExpression Expression, IVariable ReturnVariable)
         {
             // Invocation expressions are a bit of an odd case: their
             // caller can always be replaced by scalars (if the invocation
@@ -571,35 +611,35 @@ namespace Flame.Optimization
                 // We can only inline direct calls.
                 var getMethodExpr = (GetMethodExpression)target;
                 if (!getMethodExpr.Op.Equals(Operator.GetDelegate))
-                    return Expression.Accept(this);
+                    return null;
 
                 // Inlining non-aggregate local calls may not be safe, and is
                 // not one of this pass' responsibilities.
                 var targetVar = AsAggregateLocal(getMethodExpr.Caller);
                 if (targetVar == null)
-                    return Expression.Accept(this);
+                    return null;
 
                 // Inline the call, and then visit the expression.
                 var inlinedCall = MakeInlinedCall(
                     targetVar, getMethodExpr.Caller,
-                    getMethodExpr.Target, Expression.Arguments);
+                    getMethodExpr.Target, Expression.Arguments,
+                    ReturnVariable);
 
                 // The inlining operation itself could have blacklisted
                 // the target variable. So we have to check for that here.
                 if (inlinedCall == null || IsBlacklisted(targetVar))
-                    return Expression.Accept(this);
+                    return null;
 
                 // We did it! Now let's just hope that we won't have to
                 // roll back the inlining operation.
-                return MakeSpeculative(targetVar, Expression, inlinedCall);
+                return Tuple.Create<LocalVariableBase, IStatement>(targetVar, inlinedCall);
             }
-
-            return Expression.Accept(this);
+            return null;
         }
 
-        private IExpression MakeInlinedCall(
+        private IStatement MakeInlinedCall(
             LocalVariableBase TargetVar, IExpression TargetExpr,
-            IMethod Method, [IExpression] Arguments)
+            IMethod Method, [IExpression] Arguments, IVariable ReturnVariable)
         {
             // Let's start by checking if the inlining operation makes sense,
             // theoretically, according to the inlining heuristic.
@@ -662,7 +702,7 @@ namespace Flame.Optimization
             // additional restrictions (though they probably won't be
             // as severe as the restrictions obtained by electing _not_
             // to inline the call).
-            var result = Visit(InliningVisitor.Inline(call, PassArgument));
+            var result = Visit(InliningVisitor.InlineBody(call, ReturnVariable, PassArgument));
 
             inlineTarget = null;
 
@@ -777,14 +817,22 @@ namespace Flame.Optimization
                 {
                     return TransformCopy(dest, src, Statement);
                 }
-                else if (setVarStmt.Value.GetEssentialExpression() is DefaultValueExpression)
+
+                var essentialVal = setVarStmt.Value.GetEssentialExpression();
+                if (essentialVal is DefaultValueExpression)
                 {
+                    // We can handle default assignment.
                     return TransformAssignDefault(dest, Statement);
+                }
+                else if (essentialVal is InvocationExpression)
+                {
+                    // We can also transform a number of assignments.
+                    return TransformAssignInvocation(dest, Statement, (InvocationExpression)essentialVal);
                 }
                 else
                 {
                     // Destination variable cannot be replaced by scalars, because
-                    // the source variable cannot be replaced, either. Bummer.
+                    // the source value cannot be replaced, either. Bummer.
                     MarkIrreplaceable(dest);
                     return Statement.Accept(this);
                 }
