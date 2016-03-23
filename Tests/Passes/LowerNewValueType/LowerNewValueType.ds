@@ -7,6 +7,11 @@ public struct Vector2
         this.X = Other->X;
         this.Y = Other->Y;
     }
+    public const this(Vector2 Other)
+    {
+        this.X = Other.X;
+        this.Y = Other.Y;
+    }
     public const this(set double X, set double Y);
 
     public double X { get; private set; }
@@ -20,6 +25,9 @@ public module Program
         // This can safely be converted to direct initialization,
         // by the naive (and efficient) construction.
         var vec = new Vector2(5, 4);
+        // This, too, can safely be converted to direct initialization,
+        // by the naive (and efficient) construction.
+        vec = new Vector2(vec);
         // This can safely be converted to direct initialization,
         // but not by the naive (and efficient) construction.
         vec = new Vector2(&vec);
