@@ -11,10 +11,7 @@ namespace Flame.Compiler.Expressions
 
         public bool IsConstant
         {
-            const get
-            {
-                return Type.IsPrimitiveExpressionType();
-            }
+            const get { return true; }
         }
 
         public IMemberNode ConvertMembers(MemberConverter Converter)
