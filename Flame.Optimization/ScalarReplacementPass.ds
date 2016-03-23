@@ -93,19 +93,28 @@ namespace Flame.Optimization
         public const this(
             set BodyPassArgument PassArgument,
             set bool(IType) ShouldReplace,
-            set bool(DissectedCall) ShouldInline)
+            set bool(DissectedCall) ShouldInline,
+            set bool ShouldExplainReplacements)
         {
             this.variableDependencies = new Dictionary<LocalVariableBase, HashSet<LocalVariableBase>>();
             this.blacklist = new HashSet<LocalVariableBase>();
             this.specExprs = new Dictionary<LocalVariableBase, List<SpeculativeExpression>>();
             this.specStmts = new Dictionary<LocalVariableBase, List<SpeculativeStatement>>();
             this.specRepls = new Dictionary<LocalVariableBase, IReadOnlyDictionary<IField, LocalVariableBase>>();
+            this.variableNameMap = new UniqueNameMap<LocalVariableBase>(GetVariableName, "%");
         }
 
         /// <summary>
         /// Gets the pass argument.
         /// </summary>
         public BodyPassArgument PassArgument { get; private set; }
+
+        /// <summary>
+        /// Gets boolean value that dictates whether this scalar replacement pass
+        /// should explain its reasoning for scalar replacements, and scalar
+        /// replacement failures.
+        /// </summary>
+        public bool ShouldExplainReplacements { get; private set; }
 
         /// <summary>
         /// Determines whether the given (value) type should be replaced by its
@@ -131,6 +140,10 @@ namespace Flame.Optimization
         private Dictionary<LocalVariableBase, List<SpeculativeStatement>> specStmts;
         private Dictionary<LocalVariableBase, IReadOnlyDictionary<IField, LocalVariableBase>> specRepls;
 
+        // A map that maps local variables to unique names, to issue
+        // remarks.
+        private UniqueNameMap<LocalVariableBase> variableNameMap;
+
         // Remember the local variable that is the current inline target.
         // This can be used to make accesses to inaccessible fields
         // dependent on the replacement of specific variables:
@@ -145,6 +158,53 @@ namespace Flame.Optimization
         public IReadOnlyDictionary<LocalVariableBase, IReadOnlyDictionary<IField, LocalVariableBase>> Replacements
         {
             get { return specRepls; }
+        }
+
+        private string GetVariableName(LocalVariableBase Local)
+        {
+            return Local.Member.Name;
+        }
+
+        /// <summary>
+        /// Describes the given local with a sequence of markup nodes.
+        /// </summary>
+        public [MarkupNode] DescribeLocal(LocalVariableBase Local)
+        {
+            var nodes = new List<MarkupNode>();
+            string varName = variableNameMap[Local];
+            nodes.Add(new MarkupNode(NodeConstants.TextNodeType, "'"));
+            nodes.Add(new MarkupNode(NodeConstants.BrightNodeType, varName));
+            nodes.Add(new MarkupNode(NodeConstants.TextNodeType, "'"));
+            string memberName = Local.Member.Name;
+            if (!string.IsNullOrWhiteSpace(memberName) && memberName != varName)
+            {
+                nodes.Add(new MarkupNode(NodeConstants.TextNodeType, " ('"));
+                nodes.Add(new MarkupNode(NodeConstants.BrightNodeType, memberName));
+                nodes.Add(new MarkupNode(NodeConstants.TextNodeType, "')"));
+            }
+            return nodes;
+        }
+
+        private void RemarkFailedScalarReplacement(LocalVariableBase Aggregate, string Reason)
+        {
+            if (!ShouldExplainReplacements || !IsAggregate(Aggregate.Type))
+                return;
+
+            var nodes = new List<MarkupNode>();
+
+            nodes.Add(new MarkupNode(NodeConstants.TextNodeType, "could not replace "));
+            nodes.AddRange(DescribeLocal(Aggregate));
+            nodes.Add(new MarkupNode(NodeConstants.TextNodeType, " by scalars, because "));
+            nodes.Add(new MarkupNode(NodeConstants.TextNodeType, Reason));
+            nodes.Add(new MarkupNode(NodeConstants.TextNodeType, " "));
+
+            // Add a cause node ('[-Rscalarrepl-details]')
+            nodes.Add(Flags.CreateCauseNode(ScalarReplacementPassBase.ScalarReplacementDetailsRemarksOption));
+            // Add diagnostics for the method
+            nodes.Add(PassArgument.DeclaringMethod.GetSourceLocation().CreateDiagnosticsNode());
+
+            var log = PassArgument.PassEnvironment.Log;
+            log.LogMessage(new LogEntry("pass remark", nodes));
         }
 
         // A dictionary that maps local variables to the variables that depend
@@ -184,6 +244,7 @@ namespace Flame.Optimization
         private IReadOnlyDictionary<IField, LocalVariableBase> GetScalarReplacements(
             LocalVariableBase Key)
         {
+            assert(!IsBlacklisted(Key));
             IReadOnlyDictionary<IField, LocalVariableBase> result;
             if (!specRepls.TryGetValue(Key, &result))
             {
@@ -239,6 +300,18 @@ namespace Flame.Optimization
         }
 
         /// <summary>
+        /// Marks the given local variable as irreplaceable, and explains why.
+        /// </summary>
+        private void MarkIrreplaceable(LocalVariableBase Local, string Reason)
+        {
+            if (!IsBlacklisted(Local))
+            {
+                MarkIrreplaceable(Local);
+                RemarkFailedScalarReplacement(Local, Reason);
+            }
+        }
+
+        /// <summary>
         /// Marks the first local variable as a copy of the second local variable.
         /// </summary>
         public void MarkCopy(LocalVariableBase Destination, LocalVariableBase Source)
@@ -262,11 +335,11 @@ namespace Flame.Optimization
         /// Cancels the current inlining operation, by blacklisting the
         /// inline target.
         /// </summary>
-        private void CancelInline()
+        private void CancelInline(string Reason)
         {
             if (inlineTarget != null)
             {
-                MarkIrreplaceable(inlineTarget);
+                MarkIrreplaceable(inlineTarget, Reason);
                 // Might as well make the inline target null now
                 // to save ourselves some cycles.
                 inlineTarget = null;
@@ -287,7 +360,9 @@ namespace Flame.Optimization
                 if (IsBlacklisted(Target))
                 {
                     // There's just no way to recover from this.
-                    CancelInline();
+                    CancelInline(
+                        "member '" + Member.FullName + "' was not accessible " +
+                        "from the current scope.");
                 }
                 else
                 {
@@ -361,6 +436,7 @@ namespace Flame.Optimization
         private SpeculativeExpression MakeSpeculative(
             LocalVariableBase Variable, IExpression Safe, IExpression Speculative)
         {
+            assert(!IsBlacklisted(Variable));
             var result = new SpeculativeExpression(Speculative, Safe);
             GetOrCreateList<SpeculativeExpression>(specExprs, Variable).Add(result);
             return result;
@@ -369,6 +445,7 @@ namespace Flame.Optimization
         private SpeculativeStatement MakeSpeculative(
             LocalVariableBase Variable, IStatement Safe, IStatement Speculative)
         {
+            assert(!IsBlacklisted(Variable));
             var result = new SpeculativeStatement(Speculative, Safe);
             GetOrCreateList<SpeculativeStatement>(specStmts, Variable).Add(result);
             return result;
@@ -430,11 +507,19 @@ namespace Flame.Optimization
             else
             {
                 var val = Visit(Statement.Value);
-                var result = MakeSpeculative(
-                    target, Statement,
-                    GetScalarReplacements(target)[Statement.Field].CreateSetStatement(val));
-                CheckAccessibility(target, Statement.Field);
-                return result;
+                var conservativeStmt = target.CreateSetStatement(val);
+                if (IsBlacklisted(target))
+                {
+                    return conservativeStmt;
+                }
+                else
+                {
+                    var result = MakeSpeculative(
+                        target, conservativeStmt,
+                        GetScalarReplacements(target)[Statement.Field].CreateSetStatement(val));
+                    CheckAccessibility(target, Statement.Field);
+                    return result;
+                }
             }
         }
 
@@ -452,7 +537,7 @@ namespace Flame.Optimization
                     destRepls[field].CreateSetStatement(
                         srcRepls[field].CreateGetExpression()));
             }
-            GetOrCreateSet(variableDependencies, Source).Add(Destination);
+            MarkCopy(Destination, Source);
             return MakeSpeculative(
                 Destination, Original,
                 new BlockStatement(scalarCopy).Simplify());
@@ -525,7 +610,7 @@ namespace Flame.Optimization
 
             // Scalar replacement of aggregates allows us to perform inlining
             // that would be illegal under normal circumstances, due to
-            // of access modifiers.
+            // access modifiers.
             //
             // However, we have to be careful to preserve the program's validity.
             // What we'd really like to avoid is the following unsafe
@@ -650,9 +735,17 @@ namespace Flame.Optimization
             if (srcVar is LocalVariableBase)
             {
                 // Both get and address-of expressions cannot be replaced, unless
-                // they appear in some special context. Clearly this is not
-                // such a special case.
-                MarkIrreplaceable((LocalVariableBase)srcVar);
+                // they appear in some special context. This is not
+                // one of those special cases.
+                string valOrAddress;
+                if (varNode.Action == VariableNodeAction.AddressOf)
+                    valOrAddress = "address";
+                else
+                    valOrAddress = "value";
+
+                MarkIrreplaceable(
+                    (LocalVariableBase)srcVar,
+                    "its " + valOrAddress + " was taken outside of some special context.");
             }
             return Expression.Accept(this);
         }
@@ -719,6 +812,15 @@ namespace Flame.Optimization
         }
 
         /// <summary>
+        /// The option for detailed scalar replacement remarks: this option
+        /// explains why scalar replacement is and is not performed.
+        /// </summary>
+        public static string ScalarReplacementDetailsRemarksOption
+        {
+            get { return Flags.GetRemarkOptionName(ScalarReplacementPassName + "-details"); }
+        }
+
+        /// <summary>
         /// Creates a delegate that determines whether the given aggregate
         /// should be replaced by scalars.
         /// </summary>
@@ -750,21 +852,43 @@ namespace Flame.Optimization
         /// has occurred.
         /// </summary>
         protected virtual void LogScalarReplacements(
-            BodyPassArgument Argument, int ReplacementCount, int RecursionDepth)
+            BodyPassArgument Argument, ScalarReplacementVisitor Visitor,
+            int RecursionDepth, bool Detailed)
         {
             var nodes = new List<MarkupNode>();
 
-            // Add a description
-            if (ReplacementCount == 1)
+            nodes.Add(new MarkupNode(NodeConstants.TextNodeType, "replaced "));
+            if (Detailed)
             {
-                nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
-                    "replaced 1 aggregate by scalars. "));
+                bool first = true;
+                foreach (var local in Visitor.Replacements.Keys)
+                {
+                    if (first)
+                        first = false;
+                    else
+                        nodes.Add(new MarkupNode(NodeConstants.TextNodeType, ", "));
+
+                    nodes.AddRange(Visitor.DescribeLocal(local));
+                }
             }
             else
             {
-                nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
-                    "replaced " + ReplacementCount + " aggregates by scalars. "));
+                int replCount = Visitor.Replacements.Count;
+
+                // Add a description
+                if (replCount == 1)
+                {
+                    nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
+                        "1 aggregate"));
+                }
+                else
+                {
+                    nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
+                        replCount + " aggregates"));
+                }
             }
+            nodes.Add(new MarkupNode(NodeConstants.TextNodeType, " by scalars. "));
+
             if (RecursionDepth > 0)
             {
                 nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
@@ -805,12 +929,15 @@ namespace Flame.Optimization
             var optimizeBody = GetBodyOptimizer(Argument);
             var result = Argument.Body;
             var log = Argument.PassEnvironment.Log;
-            bool shouldRemark = log.Options.ShouldRemark(ScalarReplacementPassName);
+            bool shouldRemarkDetails = log.Options.GetOption<bool>(
+                ScalarReplacementDetailsRemarksOption, false);
+            bool shouldRemark = log.Options.GetOption<bool>(
+                ScalarReplacementRemarksOption, shouldRemarkDetails);
 
             for (int i = 0; i < maxRec; i++)
             {
                 var visitor = new ScalarReplacementVisitor(
-                    Argument, shouldReplace, shouldInline);
+                    Argument, shouldReplace, shouldInline, shouldRemarkDetails);
                 result = visitor.Visit(result);
 
                 int replCount = visitor.Replacements.Count;
@@ -820,7 +947,8 @@ namespace Flame.Optimization
                     {
                         // Let's print some diagnostics, because we're so proud of
                         // our work.
-                        LogScalarReplacements(Argument, replCount, i);
+                        LogScalarReplacements(
+                            Argument, visitor, i, shouldRemarkDetails);
                     }
 
                     // Perform variable/control flow optimizations
