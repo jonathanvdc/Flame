@@ -60,7 +60,10 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterPassCondition(NewValueTypeLoweringPass.NewValueTypeOptimizationPassName, optInfo => optInfo.OptimizeMinimal && (!optInfo.OptimizeAggressive || optInfo.OptimizeSize));
 
             // -fimperative-code is useful for high-level programming language output.
-            GlobalPassManager.RegisterMethodPass(new StatementPassInfo(Flame.Optimization.ImperativeCodePass.Instance, Flame.Optimization.ImperativeCodePass.ImperativeCodePassName));
+            // It also makes the optimizer's work easier, so enable it
+            // for -O3.
+            GlobalPassManager.RegisterMethodPass(new StatementPassInfo(ImperativeCodePass.Instance, ImperativeCodePass.ImperativeCodePassName));
+            GlobalPassManager.RegisterPassCondition(ImperativeCodePass.ImperativeCodePassName, optInfo => optInfo.OptimizeAggressive);
 
             // Note: these CFG/SSA passes are -O3 for now
 			SSAPassManager.RegisterMethodPass(new StatementPassInfo(ConstructFlowGraphPass.Instance, ConstructFlowGraphPass.ConstructFlowGraphPassName));
