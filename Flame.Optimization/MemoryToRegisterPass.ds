@@ -1,0 +1,163 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using Pixie;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A node visitor that collapses pointer indirection when it encounters it,
+    /// and remembers how many pointer indirection nodes have been simplified.
+    /// </summary>
+    public class IndirectionCollapsingVisitor : NodeVisitorBase
+    {
+        public const this()
+        {
+            this.CollapsedNodeCount = 0;
+        }
+
+        /// <summary>
+        /// Gets a boolean value that tells if pointer indirection has been
+        /// collapsed by this visitor.
+        /// </summary>
+        public bool HasCollapsed { get { return CollapsedNodeCount > 0; } }
+
+        /// <summary>
+        /// Gets the total number of pointer indirection nodes this visitor
+        /// has collapsed.
+        /// </summary>
+        public int CollapsedNodeCount { get; private set; }
+
+        public override bool Matches(IExpression Expression)
+        {
+            return Expression is DereferencePointerExpression;
+        }
+
+        public override bool Matches(IStatement Statement)
+        {
+            return Statement is StoreAtAddressStatement;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            assert(Expression is DereferencePointerExpression);
+            var expr = (DereferencePointerExpression)Expression;
+            var simplifiedExpr = expr.Simplify();
+            if (simplifiedExpr == expr)
+            {
+                return simplifiedExpr.Accept(this);
+            }
+            else
+            {
+                CollapsedNodeCount++;
+                return Visit(simplifiedExpr);
+            }
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            assert(Statement is StoreAtAddressStatement);
+            var stmt = (StoreAtAddressStatement)Statement;
+            var simplifiedStmt = stmt.Simplify();
+            if (simplifiedStmt == stmt)
+            {
+                return simplifiedStmt.Accept(this);
+            }
+            else
+            {
+                CollapsedNodeCount++;
+                return Visit(simplifiedStmt);
+            }
+        }
+    }
+
+    /// <summary>
+    /// A pass that iteratively replaces pointer indirection by direct variable
+    /// access. In addition, variables are promoted to SSA variables, and copy
+    /// propagation is applied.
+    /// </summary>
+    public static class MemoryToRegisterPass : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// The indirection-collapsing pass' name.
+        /// </summary>
+        public const string MemoryToRegisterPassName = "mem2reg";
+
+        /// <summary>
+        /// Gets the remarks option for this pass.
+        /// </summary>
+        public string MemoryToRegisterRemarksOption
+        {
+            get { return Flags.GetRemarkOptionName(MemoryToRegisterPassName); }
+        }
+
+        public IStatement Apply(BodyPassArgument Arg)
+            in { VerifyCFGPass.Apply(Arg.Body) }
+            in
+            {
+                VerifySSAPass.Apply(
+                    Arg.Body, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
+                    MemoryToRegisterPassName + " (input)")
+            }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result)
+            {
+                VerifySSAPass.Apply(
+                    result, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
+                    MemoryToRegisterPassName + " (output)")
+            }
+        {
+            int totalNodesCollapsed = 0;
+            int iterCount = 0;
+
+            // Let's start by performing the _actual_ optimization.
+            var result = Arg.Body;
+            bool hasCollapsed = true;
+            while (hasCollapsed)
+            {
+                // The optimization loop:
+                //     1. Collapse indirection
+                //     2. Construct SSA form
+                //     3. Propagate copies
+
+                var visitor = new IndirectionCollapsingVisitor();
+                result = visitor.Visit(result);
+                totalNodesCollapsed += visitor.CollapsedNodeCount;
+                hasCollapsed = visitor.HasCollapsed;
+                if (hasCollapsed)
+                {
+                    // If at least one pointer indirection node has been collapsed,
+                    // then we re-construct SSA form, and then apply copy propagation,
+                    // to expose additional optimization opportunities.
+                    result = CopyPropagationPass.Apply(ConstructSSAPass.Apply(result));
+                }
+                iterCount++;
+            }
+
+            var log = Arg.PassEnvironment.Log;
+            bool shouldRemark = log.Options.ShouldRemark(MemoryToRegisterPassName);
+            if (shouldRemark && totalNodesCollapsed > 0)
+            {
+                var nodes = new List<MarkupNode>();
+                nodes.Add(new MarkupNode(NodeConstants.TextNodeType, "replaced "));
+                nodes.Add(new MarkupNode(NodeConstants.BrightNodeType, (string)totalNodesCollapsed));
+                nodes.Add(new MarkupNode(NodeConstants.TextNodeType, " pointer indirection nodes, over the course of "));
+                nodes.Add(new MarkupNode(NodeConstants.BrightNodeType, (string)iterCount));
+                nodes.Add(new MarkupNode(NodeConstants.TextNodeType, " iterations. "));
+                nodes.Add(Flags.CreateCauseNode(MemoryToRegisterPassName));
+
+                log.LogMessage(new LogEntry(
+                    "pass remark", nodes,
+                    Arg.DeclaringMethod.GetSourceLocation()));
+            }
+
+            return result;
+        }
+    }
+}
