@@ -57,7 +57,7 @@ namespace Flame.Front.Target
             // not create temporaries. -foptimize-new-struct is used at -O1, -O2 and -Os, as it
             // can improve code quality without introducing extra overhead.
             GlobalPassManager.RegisterMethodPass(new MethodPassInfo(new NewValueTypeLoweringPass(false), NewValueTypeLoweringPass.NewValueTypeOptimizationPassName));
-            GlobalPassManager.RegisterPassCondition(NewValueTypeLoweringPass.NewValueTypeLoweringPassName, optInfo => optInfo.OptimizeMinimal && (!optInfo.OptimizeAggressive || optInfo.OptimizeSize));
+            GlobalPassManager.RegisterPassCondition(NewValueTypeLoweringPass.NewValueTypeOptimizationPassName, optInfo => optInfo.OptimizeMinimal && (!optInfo.OptimizeAggressive || optInfo.OptimizeSize));
 
             // -fimperative-code is useful for high-level programming language output.
             GlobalPassManager.RegisterMethodPass(new StatementPassInfo(Flame.Optimization.ImperativeCodePass.Instance, Flame.Optimization.ImperativeCodePass.ImperativeCodePassName));
