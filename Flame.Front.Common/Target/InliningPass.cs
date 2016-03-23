@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics.Contracts;
 using Flame.Front.Passes;
+using Flame.Compiler.Variables;
 
 namespace Flame.Front.Target
 {
@@ -119,21 +120,46 @@ namespace Flame.Front.Target
         {
             var argType = Argument.Type;
 
-            // This is interesting, because it may allow us to                                                       
+            // The bigger the size of the argument type,
+            // the costlier the function call itself is.
+            int argSize = ApproximateSize(argType);
+
+            // This is interesting, because it may allow us to
             // replace indirect calls with direct calls.
             int inheritanceBoost = !argType.Equals(ParameterType) ? 4 : 0;
 
             // Constants may allow us to eliminate branches.
             int constantBoost = Argument.IsConstant ? 4 : 0;
 
-            // Delegates can be sometimes be replaced 
+            // Delegates can be sometimes be replaced
             // with direct or virtual calls.
             int delegateBoost = ParameterType.GetIsDelegate() ? 4 : 0;
 
-            return ApproximateSize(argType) + inheritanceBoost + constantBoost + delegateBoost;
+            // We also want to boost addresses to local variables.
+			// These addresses can often be converted to direct variable access
+            // once inlining has been performed.
+            // Inlining things that involve local variables
+            // also tends to help scalar replacement of aggregates
+            // a great deal.
+            var essentialExpr = Argument.GetEssentialExpression();
+            int localBoost = 0;
+            if (essentialExpr is IVariableNode)
+            {
+                var varNode = (IVariableNode)essentialExpr;
+                var variable = varNode.GetVariable();
+                if (variable is LocalVariableBase)
+                {
+                    if (varNode.Action == VariableNodeAction.AddressOf)
+                    {
+                        localBoost = ApproximateSize(variable.Type);
+                    }
+                }
+            }
+
+            return argSize + inheritanceBoost + constantBoost + delegateBoost + localBoost;
         }
 
-        public static bool ShouldInline(BodyPassArgument Args, DissectedCall Call, int Tolerance, bool RespectAccess)
+        public static bool ShouldInline(BodyPassArgument Args, DissectedCall Call, Func<IStatement, int> ComputeCost, bool RespectAccess)
         {
             if (Call.Method.GetIsVirtual() || (Call.Method.IsConstructor && !Call.Method.DeclaringType.GetIsValueType()))
             {
@@ -152,14 +178,20 @@ namespace Flame.Front.Target
             }
 
             int pro = Call.ThisValue != null ? RateArgument(Call.Method.DeclaringType, Call.ThisValue) : 0;
+            pro += ApproximateSize(Call.Method.ReturnType);
             foreach (var item in Call.Method.Parameters.Zip(Call.Arguments, Tuple.Create))
             {
                 pro += RateArgument(item.Item1.ParameterType, item.Item2);
             }
 
-            int con = SizeVisitor.ApproximateSize(body);
+            int con = ComputeCost(body);
 
-            return con - pro < Tolerance;
+            return con - pro < 0;
+        }
+
+        public static bool ShouldInline(BodyPassArgument Args, DissectedCall Call, int Tolerance, bool RespectAccess)
+        {
+            return ShouldInline(Args, Call, body => SizeVisitor.ApproximateSize(body) - Tolerance, RespectAccess);
         }
 
         private IStatement GetMethodBody(BodyPassArgument Value, IMethod Method)
