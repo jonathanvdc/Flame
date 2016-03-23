@@ -3,6 +3,7 @@ tests
 {
     Color/Color.test;
     Constant/Constant.test;
+    Fractal/Fractal.test;
     Overloading/Overloading.test;
     Point/Point.test;
 }

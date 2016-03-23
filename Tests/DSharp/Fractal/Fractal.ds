@@ -1,0 +1,153 @@
+// This is a D# port of the fractal performance benchmark by Kevin Frei,
+// licensed under the MIT license. Original source code available at:
+// https://kscdg.codeplex.com/SourceControl/latest#JIT-Benchmarks/FractalPerf.cs
+// Fractal.resolution has also been tweaked, to make sure that the program
+// terminates quickly.
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace FractalPerf
+{
+    public struct complex
+    {
+        public this(double a, double b) { r = a; i = b; }
+        public double r;
+        public double i;
+
+        public complex square()
+        {
+            return new complex(r * r - i * i, 2.0 * r * i);
+        }
+        public double sqabs()
+        {
+            return r * r + i * i;
+        }
+        public override string ToString()
+        {
+            return String.Format("[{0} + {1}i]", r, i);
+        }
+        public complex add(complex b)
+        {
+            return new complex(this.r + b.r, this.i + b.i);
+        }
+    }
+    public module Launch
+    {
+        public void Main()
+        {
+            Mandelbrot m = new Mandelbrot();
+            Julia j = new Julia(-0.62, 0.41);
+            double mres = m.Render();
+            double jres = j.Render();
+            Console.WriteLine(mres);
+            Console.WriteLine(jres);
+        }
+    }
+
+    public abstract class Fractal
+    {
+        protected double XB;
+        protected double YB;
+        protected double XE;
+        protected double YE;
+        protected double XS;
+        protected double YS;
+        const double resolution = 20.0;
+        public this(double xbeg, double ybeg, double xend, double yend)
+        {
+            XB = Math.Min(xbeg, xend);
+            YB = Math.Min(ybeg, yend);
+            XE = Math.Max(xbeg, xend);
+            YE = Math.Max(ybeg, yend);
+            XS = (xend - xbeg) / resolution;
+            YS = (yend - ybeg) / resolution;
+        }
+        public abstract double Render();
+
+        public static double Clamp(double val, double lo, double hi)
+        {
+            return Math.Min(Math.Max(val, lo), hi);
+        }
+    }
+    public class Mandelbrot : Fractal
+    {
+        public this() : base(-2.0, -1.5, 1.0, 1.5) { }
+
+        public override double Render()
+        {
+            double limit = 4.0;
+            double result = 0.0;
+
+            for (double y = YB; y < YE; y += YS)
+            {
+                for (double x = YB; x < YE; x += XS)
+                {
+                    complex num = new complex(x, y);
+                    complex accum = num;
+                    int iters;
+                    for (iters = 0; iters < 1000; iters++)
+                    {
+                        accum = accum.square();
+                        accum = accum.add(num);
+                        if (accum.sqabs() > limit)
+                            break;
+                    }
+                    result += (double)iters;
+                }
+            }
+            return result;
+        }
+    }
+
+    public class Julia : Fractal
+    {
+        private double Real;
+        private double Imaginary;
+
+        public this(double real, double imaginary)
+            : base(-2.0, -1.5, 1.0, 1.5)
+        {
+            Real = real;
+            Imaginary = imaginary;
+        }
+
+        public override double Render()
+        {
+            double limit = 4.0;
+            double result = 0.0;
+
+            // set the Julia Set constant
+            complex seed = new complex(Real, Imaginary);
+            // run through every point on the screen, setting
+            // m and n to the coordinates
+            for (double m = XB; m < XE; m += XS)
+            {
+                for (double n = YB; n < YE; n += YS)
+                {
+                    // the initial z value is the current pixel,
+                    // so x and y have to be set to m and n
+                    complex accum = new complex(m, n);
+                    // perform the iteration
+                    int num;
+                    for (num = 0; num < 1000; num++)
+                    {
+                        // exit the loop if the number  becomes too big
+                        if (accum.sqabs() > limit)
+                            break;
+                        // use the formula
+                        accum = accum.square().add(seed);
+                    }
+                    // determine the color using the number of iterations it took  for the number to become too big
+                    // char color = num % number_of_colors;
+                    // plot the point
+                    result += (double)num;
+                }
+            }
+            return result;
+        }
+    }
+}

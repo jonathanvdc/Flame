@@ -1,7 +1,7 @@
 using System;
 
 // This is a D# port of the .NET Struct Performance benchmark by
-// Christoph Nahr. Original code is available on:
+// Christoph Nahr. Original code is available at:
 // kynosarges.org/StructPerformance.html
 
 public struct Point
