@@ -43,7 +43,22 @@ namespace Flame.Compiler.Statements
 
         public IStatement Optimize()
         {
-            return new StoreAtAddressStatement(Pointer.Optimize(), Value.Optimize());
+            return new StoreAtAddressStatement(Pointer.Optimize(), Value.Optimize()).Simplify();
+        }
+
+        public IStatement Simplify()
+        {
+            var essentialExpr = Pointer.GetEssentialExpression();
+            if (essentialExpr is IVariableNode)
+            {
+                var varNode = (IVariableNode)essentialExpr;
+                if (varNode.Action == VariableNodeAction.AddressOf)
+                {
+                    // `*(&a) = b` can safely be replaced by `a = b`
+                    return varNode.GetVariable().CreateSetStatement(Value);
+                }
+            }
+            return this;
         }
 
         public ICodeBlock Emit(ICodeGenerator Generator)

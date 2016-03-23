@@ -61,7 +61,22 @@ namespace Flame.Compiler.Expressions
 
         public IExpression Optimize()
         {
-            return new DereferencePointerExpression(Expression.Optimize());
+            return new DereferencePointerExpression(Expression.Optimize()).Simplify();
+        }
+
+        public IExpression Simplify()
+        {
+            var essentialExpr = Expression.GetEssentialExpression();
+            if (essentialExpr is IVariableNode)
+            {
+                var varNode = (IVariableNode)essentialExpr;
+                if (varNode.Action == VariableNodeAction.AddressOf)
+                {
+                    // `*(&a)` can safely be replaced by `a`
+                    return varNode.GetVariable().CreateGetExpression();
+                }
+            }
+            return this;
         }
 
         public ICodeBlock Emit(ICodeGenerator Generator)
