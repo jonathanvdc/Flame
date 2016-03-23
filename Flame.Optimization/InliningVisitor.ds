@@ -143,13 +143,14 @@ namespace Flame.Optimization
             var optimizeBody = GetBodyOptimizer(Argument);
             var result = Argument.Body;
             var log = Argument.PassEnvironment.Log;
+            bool shouldRemark = log.Options.ShouldRemark(InliningPassName);
             for (int i = 0; i < maxRec; i++)
             {
                 var visitor = new InliningVisitor(Argument, shouldInline);
                 result = visitor.Visit(result);
                 if (visitor.HasInlined)
                 {
-                    if (log.Options.ShouldRemark(InliningPassName))
+                    if (shouldRemark)
                     {
                         // Let's print some diagnostics, because we're so proud of
                         // our work.
