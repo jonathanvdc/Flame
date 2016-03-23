@@ -8,7 +8,7 @@ namespace Flame.Optimization
     /// A node visitor that computes an approximate size of a syntax tree.
     /// Metadata nodes are optionally ignored.
     /// </summary>
-    public class SizeVisitor : INodeVisitor
+    public virtual class SizeVisitor : INodeVisitor
     {
         public const this(set bool IgnoreMetadata);
 
@@ -22,7 +22,7 @@ namespace Flame.Optimization
         /// Gets the approximate total size of all syntax nodes this visitor
         /// has come across.
         /// </summary>
-        public int Size { get; private set; }
+        public int Size { get; protected set; }
 
         /// <summary>
         /// Approximates the given statement's size, based on the given parameters.
@@ -46,7 +46,7 @@ namespace Flame.Optimization
         /// <summary>
         /// "Visits" an expression: an expression is taken as input and transformed another expression.
         /// </summary>
-        public IExpression Visit(IExpression Value)
+        public virtual IExpression Visit(IExpression Value)
         {
             if (!IgnoreMetadata || !(Value is IMetadataNode<IExpression>))
                 Size++;
@@ -66,7 +66,7 @@ namespace Flame.Optimization
         /// <summary>
         /// "Visits" a statement: an statement is taken as input and transformed another statement.
         /// </summary>
-        public IStatement Visit(IStatement Value)
+        public virtual IStatement Visit(IStatement Value)
         {
             if (Value.IsEmpty)
                 return Value;
