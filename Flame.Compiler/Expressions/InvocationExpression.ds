@@ -101,7 +101,7 @@ namespace Flame.Compiler.Expressions
 			if (Expression is ConversionExpressionBase)
 				return GetInnerExpression(((ConversionExpressionBase)Expression).Value);
 			else if (Expression is IMetadataNode<IExpression>)
-				return GetInnerExpression(((ConversionExpressionBase)Expression).Value);
+				return GetInnerExpression(((IMetadataNode<IExpression>)Expression).Value);
 			else
 				return Expression;
 		}
