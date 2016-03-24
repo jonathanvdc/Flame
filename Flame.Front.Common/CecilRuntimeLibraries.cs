@@ -18,28 +18,32 @@ namespace Flame.Front
 
         public static IAssembly RevolveRuntimeLibrary(string Identifier, IDependencyBuilder DependencyBuilder)
         {
-            Assembly loadedAsm;
+            string asmPath;
             switch (Identifier)
             {
                 case "PlatformRT":
                 case "PortableRT":
                 case "mscorlib":
-                    loadedAsm = typeof(Math).Assembly;
+                    asmPath = typeof(Math).Assembly.Location;
                     break;
                 case "System":
-                    loadedAsm = typeof(System.Net.WebRequest).Assembly;
+                    asmPath = typeof(System.Net.WebRequest).Assembly.Location;
                     break;
                 case "System.Core":
-                    loadedAsm = typeof(Enumerable).Assembly;
+                    asmPath = typeof(Enumerable).Assembly.Location;
                     break;
                 case "System.Xml":
-                    loadedAsm = typeof(System.Xml.XmlDocument).Assembly;
+                    asmPath = typeof(System.Xml.XmlDocument).Assembly.Location;
                     break;
                 default:
-                    return null;
+                    asmPath = MonoGlobalAssemblyCache.ResolvePartialName(Identifier);
+                    break;
             }
+            if (asmPath == null)
+                return null;
+            
             var readerParams = DependencyBuilder.GetCecilReaderParameters();
-            var asmDef = Mono.Cecil.AssemblyDefinition.ReadAssembly(loadedAsm.Location, readerParams);
+            var asmDef = Mono.Cecil.AssemblyDefinition.ReadAssembly(asmPath, readerParams);
             return new CecilAssembly(asmDef, CecilReferenceResolver.ConversionCache);
         }
 
