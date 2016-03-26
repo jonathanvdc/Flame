@@ -20,5 +20,6 @@ configs
 init
 {
     Filename = Overloading;
-    Args = @(echo 1)@(echo 3)@(echo 3);
+    Args = 1 2 3;
+    return = @($echo 1)@($echo 3)@($echo 3);
 }
