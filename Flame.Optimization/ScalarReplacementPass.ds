@@ -566,6 +566,9 @@ namespace Flame.Optimization
 
             if (inlinedCall == null)
             {
+                MarkIrreplaceable(
+                    Destination,
+                    "it was assigned the return value of a non-inlined function call.");
                 return Original.Accept(this);
             }
             else
