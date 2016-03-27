@@ -130,8 +130,6 @@ namespace Flame.Front
                         continue;
                     }
 
-                    var gacAssemblyName = new AssemblyName(assemblyPath);
-
                     yield return assemblyPath;
                 }
             }
