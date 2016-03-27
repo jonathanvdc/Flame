@@ -66,7 +66,7 @@ namespace Flame.Front.Target
         {
             var varExpr = Expr.GetEssentialExpression() as IVariableNode;
             var srcVar = varExpr.GetVariable();
-            return srcVar is ThisVariable 
+            return srcVar is ThisVariable
                 || srcVar is ArgumentVariable
                 || srcVar is LocalVariableBase;
         }
@@ -150,9 +150,10 @@ namespace Flame.Front.Target
         public const int DefaultScalarReplacementInlineTolerance = InliningPass.DefaultInlineTolerance + DefaultScalarReplacementTolerance;
 
         public const string ScalarReplacementToleranceOption = "scalarrepl-tolerance";
-        // By default, don't replace aggregates that are more than eight words
-        // (i.e. eight ints or four longs) wide.
-        public const int DefaultScalarReplacementTolerance = 8 * InliningPass.WordSize;
+        // By default, don't replace aggregates that are more than sixteen words
+        // (i.e. sixteen ints or eight longs) wide. On most architectures, this
+        // boils down to 64 bytes.
+        public const int DefaultScalarReplacementTolerance = 16 * InliningPass.WordSize;
 
         public static readonly WarningDescription UnknownInlinerArgumentWarning = new WarningDescription("unknown-inliner", Warnings.Instance.Build);
 
@@ -199,8 +200,8 @@ namespace Flame.Front.Target
             var replCriteria = GetReplacementCriteria(Argument);
             Func<IType, bool> canRepl = ty => ty.GetIsValueType() && replCriteria(ty);
             return call => InliningPass.ShouldInline(
-                Argument, call, 
-                body => 
+                Argument, call,
+                body =>
                 {
                     var visitor = new ScalarReplacementSizeVisitor(canRepl);
                     visitor.Visit(body);
