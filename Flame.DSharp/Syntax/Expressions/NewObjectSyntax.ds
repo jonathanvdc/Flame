@@ -106,6 +106,15 @@ namespace Flame.Syntax.DSharp
             }
             else
             {
+                if (realType.IsAbstract)
+                {
+                    State.Log.LogError(new LogEntry(
+                        "abstract class instantiation",
+                        "abstract class '" + State.TypeNamer.Convert(realType) +
+                        "' cannot be instantiated directly.",
+                        Location));
+                }
+
             	var argTypes = args.Types;
 
                 var ctor = realType.GetConstructors().GetBestMethod(false, realType, argTypes);
