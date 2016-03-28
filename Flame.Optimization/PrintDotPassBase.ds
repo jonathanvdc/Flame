@@ -223,7 +223,7 @@ namespace Flame.Optimization
 
     public class DotPrintingVisitor : INodeVisitor
     {
-        public this(GraphvizWriter NodeWriter, GraphvizWriter EdgeWriter)
+        public this(GraphvizWriter NodeWriter, GraphvizWriter EdgeWriter, set bool ShouldVisitContents)
         {
             this.nodeIndex = 0;
             this.blockLabels = new UniqueNameMap<UniqueTag>(GetTagName, "!");
@@ -246,6 +246,12 @@ namespace Flame.Optimization
         private GraphvizWriter nodeWriter;
         private GraphvizWriter edgeWriter;
         private string parentNodeName;
+
+        /// <summary>
+        /// A boolean that specifies whether basic block contents should also
+        /// be printed.
+        /// </summary>
+        public bool ShouldVisitContents { get; private set; }
 
         private string GenerateNodeName()
         {
@@ -426,10 +432,14 @@ namespace Flame.Optimization
                 tagAttrs["label"] = label;
                 nodeWriter.WriteNode(tagNode, tagAttrs);
 
-                var grandParentNodeName = parentNodeName;
-                parentNodeName = tagNode;
-                Visit(block.Contents);
-                parentNodeName = grandParentNodeName;
+                if (ShouldVisitContents)
+                {
+                    var grandParentNodeName = parentNodeName;
+                    parentNodeName = tagNode;
+                    Visit(block.Contents);
+                    parentNodeName = grandParentNodeName;
+                }
+
 
                 VisitFlow(block.Flow, block.Tag, Graph, graphNodes);
 
@@ -496,7 +506,7 @@ namespace Flame.Optimization
         /// </summary>
         protected abstract void Close(TextWriter Writer, IMethod Method, ICompilerLog Log);
 
-        private void Write(TextWriter Writer, IMethod Method, IStatement Body)
+        private void Write(TextWriter Writer, IMethod Method, IStatement Body, bool ShouldVisitContents)
         {
             var gvWriter = new GraphvizWriter(Writer);
             gvWriter.StartBlock("digraph", "CFG");
@@ -517,7 +527,7 @@ namespace Flame.Optimization
 
             var edgeBuilder = new StringBuilder();
             var gvEdgeWriter = gvWriter.Fork(new StringWriter(edgeBuilder));
-            var visitor = new DotPrintingVisitor(gvWriter, gvEdgeWriter);
+            var visitor = new DotPrintingVisitor(gvWriter, gvEdgeWriter, ShouldVisitContents);
             visitor.Visit(Body);
             gvWriter.WriteLine();
             gvWriter.Writer.Write(edgeBuilder.ToString());
@@ -532,9 +542,11 @@ namespace Flame.Optimization
             var log = Argument.PassEnvironment.Log;
             var writer = TryOpen(declMethod, log);
 
+            bool shouldPrintContents = log.Options.GetOption<bool>("print-block-contents", true);
+
             if (writer != null)
             {
-                Write(writer, declMethod, body);
+                Write(writer, declMethod, body, shouldPrintContents);
                 Close(writer, declMethod, log);
             }
 
