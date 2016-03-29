@@ -60,7 +60,7 @@ namespace Flame.Compiler.Expressions
 		/// <summary>
         /// Gets a boolean value that indicates if the expression is a constant expression. A constant expression can be evaluated at compile-time.
         /// </summary>
-        public virtual bool IsConstant { const get return LoweredExpression.IsConstant; }
+        public virtual bool IsConstantNode { const get return true; }
         /// <summary>
         /// Performs a compile-time evaluation of the expression. If it cannot be evaluated, null is returned.
         /// </summary>

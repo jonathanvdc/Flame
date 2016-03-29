@@ -40,7 +40,7 @@ namespace Flame.Compiler.Statements
             return new ThisSetStatement(optVal);
         }
 
-        public bool IsEmpty
+        public bool IsConstantNode
         {
             const get { return false; }
         }

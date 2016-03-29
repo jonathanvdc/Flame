@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler
 {
@@ -36,9 +37,29 @@ namespace Flame.Compiler
 
 		#region IsConstant
 
+		public static bool IsConstant[this IExpression Expression]
+		{
+			get
+			{
+				var visitor = new ConstnessVisitor();
+				visitor.Visit(Expression);
+				return visitor.IsConstant;
+			}
+		}
+
+		public static bool IsEmpty[this IStatement Statement]
+		{
+			get
+			{
+				var visitor = new ConstnessVisitor();
+				visitor.Visit(Statement);
+				return visitor.IsConstant;
+			}
+		}
+
 		public static bool AreConstant[this IEnumerable<IExpression> Expressions]
 		{
-			const get
+			get
 			{
 				foreach (var expr in Expressions)
 				{
@@ -53,7 +74,7 @@ namespace Flame.Compiler
 
 		public static bool IsConstantOrNull[this IExpression Expression]
 		{
-			const get
+			get
 			{
 				if (Expression == null)
 				{
@@ -176,26 +197,25 @@ namespace Flame.Compiler
 
 		#region EvaluateConstant
 
-		public static const IBoundObject EvaluateConstant(this IExpression Expression)
+		public static IBoundObject EvaluateConstant(this IExpression Expression)
 		{
 			if (Expression.IsConstant)
-			{
 				return Expression.Evaluate();
-			}
-			return null;
+			else
+				return null;
 		}
 
 		#endregion
 
 		#region EvaluatesTo
 
-		public static const bool EvaluatesTo<T>(this IExpression Expression, T Value)
+		public static bool EvaluatesTo<T>(this IExpression Expression, T Value)
 			where T : object
 		{
 			return Expression.EvaluateConstant().EvaluatesTo<T>(Value);
 		}
 
-		public static const bool EvaluatesTo<T>(this IBoundObject BoundObject, T Value)
+		public static bool EvaluatesTo<T>(this IBoundObject BoundObject, T Value)
 			where T : object
 		{
 			if (BoundObject is IBoundPrimitive<T>) // This also performs an implicit null-check.
@@ -209,7 +229,7 @@ namespace Flame.Compiler
 
 		#region TypeOrNull
 
-		public static const IType TypeOrNull[this IExpression Expression]
+		public static IType TypeOrNull[this IExpression Expression]
 		{
 			const get
 			{

@@ -19,9 +19,9 @@ namespace Flame.Optimization.Variables
             return new BlockStatement(results);
         }
 
-        public bool IsEmpty
+        public bool IsConstantNode
         {
-            const get return Unwrap().IsEmpty;
+            const get return Unwrap().IsConstantNode;
         }
 
         public IStatement Optimize()

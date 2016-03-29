@@ -51,7 +51,7 @@ namespace Flame.Compiler.Statements
 				return new LateBoundLabelBranchStatement(Label, visitedCond);
 		}
 
-		public bool IsEmpty { const get return Condition.EvaluatesTo<bool>(false); }
+		public bool IsConstantNode { const get return false; }
 
 		public const IStatement Optimize()
 		{
@@ -82,7 +82,7 @@ namespace Flame.Compiler.Statements
 			return this;
 		}
 
-		public bool IsEmpty { const get return false; }
+		public bool IsConstantNode { const get return false; }
 
 		public const IStatement Optimize()
 		{

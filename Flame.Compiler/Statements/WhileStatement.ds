@@ -36,11 +36,11 @@ namespace Flame.Compiler.Statements
 		/// </summary>
 		public IStatement Body { const get; private set; }
 
-		public bool IsEmpty : IStatement.IsEmpty
+		public bool IsConstantNode : IStatement.IsConstantNode
 		{
 			const get
 			{
-				return Condition.EvaluatesTo<bool>(false);
+				return true;
 			}
 		}
 

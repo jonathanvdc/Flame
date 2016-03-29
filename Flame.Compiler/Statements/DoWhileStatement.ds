@@ -87,12 +87,9 @@ namespace Flame.Compiler.Statements
 			return CreateDoWhile(transBody, transCond);
 		}
 
-		public bool IsEmpty : IStatement.IsEmpty
+		public bool IsConstantNode : IStatement.IsConstantNode
 		{
-			const get
-			{
-				return Body.IsEmpty;
-			}
+			const get { return true; }
 		}
 
 		/// <summary>

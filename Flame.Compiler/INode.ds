@@ -17,6 +17,18 @@ namespace Flame.Compiler
         /// Creates a code block that captures this code node.
         /// </summary>
         ICodeBlock Emit(ICodeGenerator CodeGenerator);
+
+        /// <summary>
+        /// Gets a boolean value that indicates if this node (but not its children)
+        /// is constant: it may compute a value, but has no side-effects.
+        /// </summary>
+        /// <remarks>
+        /// Constant expressions can often be evaluated at compile-time,
+        /// but this is not a requirement. For example, a sizeof(type) expression is
+        /// constant by its very nature, but cannot be evaluated before the
+        /// layout of the type has been defined.
+        /// </remarks>
+        bool IsConstantNode { get; }
     }
 
     /// <summary>

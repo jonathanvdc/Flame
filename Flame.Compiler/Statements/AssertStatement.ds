@@ -21,7 +21,7 @@ namespace Flame.Compiler.Statements
 		/// </summary>
 		public IExpression Expression { const get; private set; }
 
-		public bool IsEmpty
+		public bool IsConstantNode
 		{
 			const get return Expression.EvaluatesTo<bool>(true);
 		}

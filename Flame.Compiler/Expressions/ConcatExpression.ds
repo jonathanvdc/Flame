@@ -49,15 +49,10 @@ namespace Flame.Compiler.Expressions
     		return new StringExpression(result.ToString());
         }
 
-        public bool IsConstant
+        public bool IsConstantNode
 		{
 			const get
 			{
-				foreach (var item in Operands)
-				if (!item.IsConstant || !item.Type.Equals(PrimitiveTypes.String))
-				{
-					return false;
-				}
 				return true;
 			}
 		}

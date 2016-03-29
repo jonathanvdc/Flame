@@ -9,6 +9,9 @@ namespace Flame.Compiler
 	{
 		public static const IExpression ToExpression(this IBoundObject Value)
 		{
+			if (Value == null)
+				return null;
+
 			var valType = Value.Type;
 			if (valType.Equals(PrimitiveTypes.Boolean))
 			{

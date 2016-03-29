@@ -18,7 +18,7 @@ namespace Flame.Wasm
 		public string Name { get; private set; }
 		public IType Type { get; private set; }
 
-		public bool IsConstant
+		public bool IsConstantNode
 		{
 			get { return true; }
 		}
@@ -45,4 +45,3 @@ namespace Flame.Wasm
 		}
 	}
 }
-

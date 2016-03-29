@@ -59,28 +59,22 @@ namespace Flame.Compiler.Expressions
             const get { return PrimitiveTypes.Boolean; }
         }
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
-            const get { return Target.IsConstant; }
+            const get { return true; }
         }
 
         public const IBoundObject Evaluate()
         {
-            if (IsConstant)
-            {
-            	var eval = Target.Evaluate();
-            	if (eval == null) return null;
-
-            	var evalType = eval.Type;
-            	if (evalType.Equals(PrimitiveTypes.Null))
-                    return new BooleanExpression(TestType.Equals(PrimitiveTypes.Null));
-                else
-                    return new BooleanExpression(evalType.Is(TestType));
-            }
-            else
-            {
+        	var eval = Target.Evaluate();
+        	if (eval == null)
                 return null;
-            }
+
+        	var evalType = eval.Type;
+        	if (evalType.Equals(PrimitiveTypes.Null))
+                return new BooleanExpression(TestType.Equals(PrimitiveTypes.Null));
+            else
+                return new BooleanExpression(evalType.Is(TestType));
         }
 
         public const IExpression Optimize()

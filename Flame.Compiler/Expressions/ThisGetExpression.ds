@@ -10,9 +10,9 @@ namespace Flame.Compiler.Expressions
 
         public IType Type { const get; private set; }
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
-            const get { return false; }
+            const get { return true; }
         }
 
         public const IVariable GetVariable()
@@ -30,7 +30,7 @@ namespace Flame.Compiler.Expressions
             var convType = Converter.Convert(Type);
             if (object.ReferenceEquals(convType, Type))
                 return this;
-            else 
+            else
                 return new ThisGetExpression(convType);
         }
 

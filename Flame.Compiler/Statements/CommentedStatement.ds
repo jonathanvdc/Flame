@@ -24,12 +24,9 @@ namespace Flame.Compiler.Statements
 		/// </summary>
 		public IStatement Statement { const get; private set; }
 
-		public bool IsEmpty
+		public bool IsConstantNode
 		{
-			const get
-			{
-				return Statement.IsEmpty;
-			}
+			const get { return true; }
 		}
 
 		public IStatement Accept(INodeVisitor Visitor)

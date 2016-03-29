@@ -24,7 +24,7 @@ namespace Flame.Compiler.Expressions
 
         public abstract IType Type { const get; }
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
             const get { return true; }
         }

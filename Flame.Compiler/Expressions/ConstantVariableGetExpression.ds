@@ -14,9 +14,9 @@ namespace Flame.Compiler.Expressions
             return this;
         }
 
-		public override bool IsConstant
+		public override bool IsConstantNode
         {
-            const get { return Variable.Value.IsConstant; }
+            const get { return Variable.Value.IsConstantNode; }
         }
 
         public override const IBoundObject Evaluate()
@@ -26,16 +26,15 @@ namespace Flame.Compiler.Expressions
 
         public override IExpression Optimize()
         {
-        	if (IsConstant && Type.IsPrimitiveExpressionType())
-        	{
-        		return Evaluate().ToExpression();
-        	}
-            else
+            if (Type.IsPrimitiveExpressionType)
             {
-            	/*var optVar = new ConstantVariable(new ExpressionVariable(Variable.Variable.CreateGetExpression().Optimize()), Variable.Value.Optimize());
-            	return optVar.CreateGetExpression();*/
-            	return Variable.Variable.CreateGetExpression().Optimize(); // This approach yields better results when combined with math optimizations, which perform type checks at runtime
+                var evalExpr = Evaluate();
+            	if (evalExpr != null)
+            		return evalExpr.ToExpression();
             }
+        	/*var optVar = new ConstantVariable(new ExpressionVariable(Variable.Variable.CreateGetExpression().Optimize()), Variable.Value.Optimize());
+        	return optVar.CreateGetExpression();*/
+        	return Variable.Variable.CreateGetExpression().Optimize(); // This approach yields better results when combined with math optimizations, which perform type checks at runtime
         }
 
         public override ICodeBlock Emit(ICodeGenerator Generator)

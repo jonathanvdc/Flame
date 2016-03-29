@@ -16,7 +16,7 @@ module ExpressionBuilder =
     /// Conservatively tries to determine whether the given
     /// expression may change the local or global state.
     let ChangesState (value : IExpression) =
-        if value.IsConstant then
+        if value.GetIsConstant() then
             false
         else
             match value with

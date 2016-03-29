@@ -62,17 +62,10 @@ namespace Flame.Compiler.Statements
             return result;
         }
 
-        public bool IsEmpty
+        public bool IsConstantNode
         {
             const get
             {
-            	foreach (var item in Children)
-            	{
-            		if (!item.IsEmpty)
-            		{
-            			return false;
-            		}
-            	}
             	return true;
             }
         }

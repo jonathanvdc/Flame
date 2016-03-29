@@ -38,7 +38,7 @@ namespace Flame.Compiler.Expressions
         public SourceLocation Location { const get; private set; }
 
         public IType Type { const get return Value.Type; }
-        public bool IsConstant { const get return Value.IsConstant; }
+        public bool IsConstantNode { const get return true; }
 
         public IBoundObject Evaluate()
         {

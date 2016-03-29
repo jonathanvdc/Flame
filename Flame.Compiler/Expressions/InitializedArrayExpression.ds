@@ -59,15 +59,10 @@ namespace Flame.Compiler.Expressions
 			}
 		}
 
-		public bool IsConstant : IExpression.IsConstant
+		public bool IsConstantNode : IExpression.IsConstantNode
 		{
 			const get
 			{
-				foreach (var item in Elements)
-				{
-					if (!item.IsConstant)
-						return false;
-				}
 				return true;
 			}
 		}

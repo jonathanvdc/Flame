@@ -13,7 +13,10 @@ type VariableExpression(expression : IExpression, variable : IVariable, action :
 
     interface INode with
         member this.Emit codeGenerator =
-            expression.Emit(codeGenerator);
+            expression.Emit(codeGenerator)
+
+        member this.IsConstantNode =
+            expression.IsConstantNode
 
     interface IExpression with
         member this.Accept visitor =
@@ -26,9 +29,6 @@ type VariableExpression(expression : IExpression, variable : IVariable, action :
 
         member this.Evaluate() =
             expression.Evaluate()
-
-        member this.IsConstant =
-            expression.IsConstant
 
         member this.Optimize() =
             expression.Optimize()

@@ -57,9 +57,9 @@ namespace Flame.Compiler.Statements
 			}
 		}
 
-		public bool IsEmpty
+		public bool IsConstantNode
 		{
-			const get return Body.IsEmpty && IsEmptyContract;
+			const get return IsEmptyContract;
 		}
 
 		public ICodeBlock Emit(ICodeGenerator Target)

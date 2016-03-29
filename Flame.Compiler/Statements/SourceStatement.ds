@@ -38,7 +38,7 @@ namespace Flame.Compiler.Statements
         /// </summary>
         public SourceLocation Location { const get; private set; }
 
-		public bool IsEmpty { const get return Value.IsEmpty; }
+		public bool IsConstantNode { const get return true; }
 
         public void AcceptPredicate(INodeVisitor Visitor)
         {

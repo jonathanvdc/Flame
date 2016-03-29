@@ -76,7 +76,7 @@ namespace Flame.Compiler.Expressions
             }
         }
 
-        public bool IsConstant { const get return First.IsConstant && Second.IsConstant; }
+        public bool IsConstantNode { const get return true; }
 
         public const IBoundObject Evaluate()
         {

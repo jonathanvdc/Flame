@@ -82,24 +82,6 @@ namespace Flame.Compiler.Flow
 		}
 
 		/// <summary>
-		/// Tests if this flow graph is "empty" from the perspective of a statement:
-		/// all reachable blocks have empty bodies.
-		/// </summary>
-		public bool IsEmpty
-		{
-			get
-			{
-				foreach (var tag in FindReachableBlocks())
-				{
-					var block = GetBlock(tag);
-					if (!block.IsConstant)
-						return false;
-				}
-				return true;
-			}
-		}
-
-		/// <summary>
 		/// Accepts the given node visitor.
 		/// </summary>
 		public FlowGraph Accept(INodeVisitor Visitor)
@@ -111,6 +93,17 @@ namespace Flame.Compiler.Flow
 				newBlocks[visitedBlock.Tag] = visitedBlock;
 			}
 			return new FlowGraph(EntryPointTag, newBlocks);
+		}
+
+		/// <summary>
+		/// Accepts the given predicate node visitor.
+		/// </summary>
+		public void AcceptPredicate(INodeVisitor Visitor)
+		{
+			foreach (var item in Blocks)
+			{
+				item.Accept(Visitor);
+			}
 		}
 
 		/// <summary>

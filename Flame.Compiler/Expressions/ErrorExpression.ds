@@ -31,7 +31,7 @@ namespace Flame.Compiler.Expressions
         /// wrong idea and constant-fold this object into oblivion, based on the (invalid)
         /// assumption that this expression is perfectly legal.
         /// </summary>
-        public bool IsConstant { virtual const get return false; }
+        public bool IsConstantNode { virtual const get return false; }
 
         public virtual IBoundObject Evaluate()
         {

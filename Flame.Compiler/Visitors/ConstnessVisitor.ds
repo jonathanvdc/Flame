@@ -1,0 +1,67 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// A type of node visitor that figures out whether an IR tree is constant
+    /// or not.
+    /// </summary>
+    public class ConstnessVisitor : INodeVisitor
+    {
+        public const this()
+        {
+            this.IsConstant = true;
+        }
+
+        /// <summary>
+        /// Gets a boolean value that tells whether the visited IR nodes are
+        /// constant or not.
+        /// </summary>
+        public bool IsConstant { const get; private set; }
+
+        public override IExpression Visit(IExpression Node)
+        {
+            // Assume that all visited nodes are constant, then try
+            // to disprove that statement.
+            if (IsConstant)
+            {
+                if (!Node.IsConstantNode)
+                {
+                    IsConstant = false;
+                }
+                else if (Node is IPredicateNode)
+                {
+                    ((IPredicateNode)Node).AcceptPredicate(this);
+                }
+                else
+                {
+                    Node.Accept(this);
+                }
+            }
+            return Node;
+        }
+        public override IStatement Visit(IStatement Node)
+        {
+            // Assume that all visited nodes are constant, then try
+            // to disprove that statement.
+            if (IsConstant)
+            {
+                if (!Node.IsConstantNode)
+                {
+                    IsConstant = false;
+                }
+                else if (Node is IPredicateNode)
+                {
+                    ((IPredicateNode)Node).AcceptPredicate(this);
+                }
+                else
+                {
+                    Node.Accept(this);
+                }
+            }
+            return Node;
+        }
+    }
+}

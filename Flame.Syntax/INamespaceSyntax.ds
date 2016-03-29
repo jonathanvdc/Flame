@@ -7,6 +7,6 @@ namespace Flame.Syntax
 {
 	public interface INamespaceSyntax : ICompilationUnit
 	{
-		const INamespace CreateNamespace(INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log);
+		INamespace CreateNamespace(INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log);
 	}
 }

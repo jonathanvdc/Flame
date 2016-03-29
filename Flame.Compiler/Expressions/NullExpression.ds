@@ -10,7 +10,7 @@ namespace Flame.Compiler.Expressions
             const get { return PrimitiveTypes.Null; }
         }
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
             const get { return true; }
         }

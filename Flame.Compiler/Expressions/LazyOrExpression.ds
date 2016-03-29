@@ -18,14 +18,9 @@ namespace Flame.Compiler.Expressions
 
         public override Operator Op { override const get { return Operator.LogicalOr; } }
 
-        public override bool IsConstant
+        public override bool IsConstantNode
         {
-            override get
-            {
-                return LeftOperand.IsConstant && RightOperand.IsConstant &&
-                    LeftOperand.Type.Equals(PrimitiveTypes.Boolean) &&
-                    RightOperand.Type.Equals(PrimitiveTypes.Boolean);
-            }
+            override get { return true; }
         }
 
         public override IBoundObject Evaluate()

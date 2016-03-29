@@ -53,9 +53,9 @@ namespace Flame.Compiler.Expressions
             return new SingletonGetExpression(Variable, Visitor.Visit(InstanceGetExpression));
         }
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
-            const get { return InstanceGetExpression.IsConstant; }
+            const get { return InstanceGetExpression.IsConstantNode; }
         }
 
         public const IBoundObject Evaluate()

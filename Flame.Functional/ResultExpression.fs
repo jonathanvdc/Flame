@@ -15,7 +15,10 @@ type ResultExpression(expression : IExpression) =
 
     interface INode with
         member this.Emit codeGenerator =
-            expression.Emit(codeGenerator);
+            expression.Emit(codeGenerator)
+
+        member this.IsConstantNode =
+            expression.IsConstantNode
 
     interface IExpression with
         member this.Accept visitor =
@@ -28,9 +31,6 @@ type ResultExpression(expression : IExpression) =
 
         member this.Evaluate() =
             expression.Evaluate()
-
-        member this.IsConstant =
-            expression.IsConstant
 
         member this.Optimize() =
             expression.Optimize()

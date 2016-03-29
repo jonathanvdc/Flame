@@ -16,9 +16,9 @@ namespace Flame.Compiler.Expressions
             const get { return PrimitiveTypes.Int32; }
         }
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
-            const get { return false; }
+            const get { return true; }
         }
 
 		public IMemberNode ConvertMembers(MemberConverter Converter)

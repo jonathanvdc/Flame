@@ -67,9 +67,9 @@ namespace Flame.Optimization
                 return DeadContents;
         }
 
-        public bool IsEmpty
+        public bool IsConstantNode
         {
-            get { return Unwrap().IsEmpty; }
+            get { return Unwrap().IsConstantNode; }
         }
 
         public IStatement Optimize()
@@ -133,9 +133,9 @@ namespace Flame.Optimization
             get { return Unwrap().Type; }
         }
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
-            get { return Unwrap().IsConstant; }
+            get { return Unwrap().IsConstantNode; }
         }
 
         public IBoundObject Evaluate()

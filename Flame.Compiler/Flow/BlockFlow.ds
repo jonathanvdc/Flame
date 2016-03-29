@@ -87,11 +87,6 @@ namespace Flame.Compiler.Flow
         public abstract [BlockBranch] Branches { get; }
 
         /// <summary>
-        /// Checks if this control flow node has no side-effects.
-        /// </summary>
-        public abstract bool IsConstant { get; }
-
-        /// <summary>
         /// Accepts the given basic block visitor.
         /// </summary>
         public abstract BlockFlow Accept(IBasicBlockVisitor Visitor);

@@ -9,7 +9,7 @@ namespace Flame.Compiler.Statements
     /// </summary>
     public static class EmptyStatement : IStatement
     {
-        public bool IsEmpty
+        public bool IsConstantNode
         {
             const get { return true; }
         }

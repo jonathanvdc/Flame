@@ -10,7 +10,7 @@ namespace Flame.Compiler.Statements
 	/// </summary>
 	public abstract class FlowTerminatingStatementBase : IFlowStatement
 	{
-		public bool IsEmpty { const get return false; }
+		public bool IsConstantNode { const get return false; }
 		public abstract IStatement Accept(INodeVisitor Visitor);
 		public abstract IStatement Optimize();
 		public abstract ICodeBlock Emit(ICodeGenerator Generator);

@@ -26,7 +26,7 @@ namespace Flame.Compiler.Statements
             return this;
         }
 
-        public bool IsEmpty
+        public bool IsConstantNode
         {
             const get { return false; }
         }
@@ -54,7 +54,7 @@ namespace Flame.Compiler.Statements
             return this;
         }
 
-        public bool IsEmpty
+        public bool IsConstantNode
         {
             const get { return false; }
         }

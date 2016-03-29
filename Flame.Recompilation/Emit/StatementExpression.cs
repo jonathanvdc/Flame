@@ -25,12 +25,12 @@ namespace Flame.Recompilation.Emit
 
         public IBoundObject Evaluate()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
-            get { return false; }
+            get { return Statement.IsConstantNode; }
         }
 
         public IExpression Optimize()

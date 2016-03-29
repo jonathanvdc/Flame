@@ -51,14 +51,10 @@ namespace Flame.Compiler.Expressions
             return Visitor.Visit(Lower());
         }
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
             const get
             {
-                if (!Arguments.AreConstant)
-                {
-                	return false;
-                }
                 var ctor = Constructor;
                 return ctor == null || ctor.IsConstant;
             }

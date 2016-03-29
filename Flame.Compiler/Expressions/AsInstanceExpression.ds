@@ -23,9 +23,9 @@ namespace Flame.Compiler.Expressions
         }
 
         /// <summary>
-        /// Tells if this conversion expression is a compile-time constant.
+        /// Tells if this conversion expression has no side-effects.
         /// </summary>
-        public override bool IsConstant { get { return Value.IsConstant; } }
+        public override bool IsConstantNode { get { return true; } }
 
         /// <summary>
         /// Evaluates this conversion expression at compile-time.

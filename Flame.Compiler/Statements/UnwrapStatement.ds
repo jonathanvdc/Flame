@@ -20,9 +20,9 @@ namespace Flame.Compiler.Statements
         /// </summary>
         public abstract IStatement Unwrap();
 
-        public bool IsEmpty
+        public bool IsConstantNode
         {
-            const get return Unwrap().IsEmpty;
+            const get return true;
         }
 
         public IStatement Optimize()

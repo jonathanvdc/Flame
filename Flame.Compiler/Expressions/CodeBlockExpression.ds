@@ -21,7 +21,7 @@ namespace Flame.Compiler.Expressions
 			return this;
 		}
 
-		public bool IsConstant { const get return false; }
+		public bool IsConstantNode { const get return false; }
 
 		public const IBoundObject Evaluate()
 		{

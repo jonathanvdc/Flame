@@ -273,7 +273,7 @@ namespace Flame.Cecil
                 if (item.Value != null && !(item.Value is DefaultValueExpression && ((DefaultValueExpression)item.Value).Type.Equals(fieldType)))
                 {
                     bool setField = false;
-                    if (item.Value.IsConstant)
+                    if (item.Value.GetIsConstant())
                     {
                         if (fieldType.GetIsPrimitive())
                         {

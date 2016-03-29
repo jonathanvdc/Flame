@@ -25,7 +25,7 @@ namespace Flame.Compiler.Statements
 			}
 		}
 
-		public bool IsEmpty { const get return false; }
+		public bool IsConstantNode { const get return false; }
 
 		public const IStatement Optimize()
 		{
