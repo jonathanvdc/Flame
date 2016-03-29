@@ -249,6 +249,7 @@
 			<Compile Include="Visitors/BlockBuildingVisitor.ds" />
 			<Compile Include="Visitors/BodyPassBase.ds" />
 			<Compile Include="Visitors/CloningVisitor.ds" />
+			<Compile Include="Visitors/ConstnessVisitor.ds" />
 			<Compile Include="Visitors/ContextlessVisitorBase.ds" />
 			<Compile Include="Visitors/ContinueRewriter.ds" />
 			<Compile Include="Visitors/DeadCodeVisitor.ds" />

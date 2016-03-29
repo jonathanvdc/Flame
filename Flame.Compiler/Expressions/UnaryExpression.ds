@@ -27,9 +27,9 @@ namespace Flame.Compiler.Expressions
             virtual get { return Value.Type; }
         }
 
-        public virtual bool IsConstant
+        public virtual bool IsConstantNode
         {
-            get { return Value.IsConstant; }
+            get { return true; }
         }
 
         public void AcceptPredicate(INodeVisitor Visitor)

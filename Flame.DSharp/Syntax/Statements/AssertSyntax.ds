@@ -71,8 +71,7 @@ namespace Flame.Syntax.DSharp
 		public const IStatement CreateStatement(ISyntaxState State)
 		{
 			var innerExpr = Target.CreateVerifiedExpression(State);
-			if (innerExpr != null && Warnings.ConstantAssert.UseWarning(State.Log.Options) &&
-				innerExpr.IsConstant)
+			if (innerExpr != null && Warnings.ConstantAssert.UseWarning(State.Log.Options))
 			{
 				var evalExpr = innerExpr.Evaluate();
 				string assertCode = this.GetCode().Trim().ToString();
@@ -93,18 +92,9 @@ namespace Flame.Syntax.DSharp
 							"constant assertion",
 							Warnings.ConstantAssert.CreateMessage(
 								"assertion '" + assertCode +
-								"' always evaluates to false (which will always results in an assertion failure). "),
+								"' always evaluates to false (which will always result in an assertion failure). "),
 							AssertKeyword.Location));
 					}
-				}
-				else
-				{
-					State.Log.LogWarning(new LogEntry(
-						"constant assertion",
-						Warnings.ConstantAssert.CreateMessage(
-							"assertion '" + assertCode +
-							"' depends on a constant value (which means it doesn't check any run-time behavior). "),
-						AssertKeyword.Location));
 				}
 			}
 			return SourceStatement.Create(new AssertStatement(innerExpr), Location);

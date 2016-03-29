@@ -28,9 +28,9 @@ namespace Flame.Recompilation.Emit
             return null;
         }
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
-            get { return false; }
+            get { return true; }
         }
 
         public IExpression Optimize()

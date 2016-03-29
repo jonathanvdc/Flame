@@ -10,7 +10,8 @@ namespace Flame.Compiler.Statements
     /// <summary>
     /// A statement that contains a control flow graph.
     /// </summary>
-    public class FlowGraphStatement : IFlowStatement, ICopyableNode<IStatement>
+    public class FlowGraphStatement : IFlowStatement, ICopyableNode<IStatement>,
+                                      IPredicateNode
     {
         /// <summary>
         /// Creates a statement that wraps the given control flow graph.
@@ -22,9 +23,9 @@ namespace Flame.Compiler.Statements
         /// </summary>
         public FlowGraph Graph { const get; private set; }
 
-        public bool IsEmpty
+        public bool IsConstantNode
         {
-            get { return Graph.IsEmpty; }
+            get { return true; }
         }
 
         /// <summary>
@@ -81,6 +82,11 @@ namespace Flame.Compiler.Statements
         public IStatement Accept(INodeVisitor Visitor)
         {
             return new FlowGraphStatement(Graph.Accept(Visitor));
+        }
+
+        public void AcceptPredicate(INodeVisitor Visitor)
+        {
+            Graph.AcceptPredicate(Visitor);
         }
 
         public IStatement Optimize()

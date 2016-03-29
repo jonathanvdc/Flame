@@ -40,9 +40,9 @@ namespace Flame.Compiler.Expressions
 			}
 		}
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
-            const get { return false; }
+            const get { return true; }
         }
 
         public const IVariable GetVariable() : IVariableNode.GetVariable

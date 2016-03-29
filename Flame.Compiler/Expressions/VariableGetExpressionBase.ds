@@ -25,9 +25,9 @@ namespace Flame.Compiler.Expressions
             virtual const get { return Variable.Type; }
         }
 
-        public virtual bool IsConstant
+        public virtual bool IsConstantNode
         {
-            const get { return false; }
+            const get { return true; }
         }
 
         public virtual const IBoundObject Evaluate()

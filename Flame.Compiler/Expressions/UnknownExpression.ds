@@ -20,7 +20,7 @@ namespace Flame.Compiler.Expressions
         /// </summary>
         public IType Type { const get; private set; }
 
-        public bool IsConstant { const get return false; }
+        public bool IsConstantNode { const get return false; }
         public const IBoundObject Evaluate()
         {
             return null;

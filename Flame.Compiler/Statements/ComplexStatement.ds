@@ -27,9 +27,9 @@ namespace Flame.Compiler.Statements
             return Visitor.Visit(LoweredStatement);
         }
 
-        public virtual bool IsEmpty
+        public virtual bool IsConstantNode
         {
-            const get { return LoweredStatement.IsEmpty; }
+            const get { return true; }
         }
 
         public virtual IStatement Optimize()

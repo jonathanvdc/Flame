@@ -49,7 +49,7 @@ namespace Flame.Compiler.Statements
             }
         }
 
-        public bool IsEmpty : IStatement.IsEmpty
+        public bool IsConstantNode : IStatement.IsConstantNode
         {
             const get { return false; }
         }

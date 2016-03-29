@@ -39,7 +39,7 @@ namespace Flame.Compiler.Statements
             return ((IStackCodeGenerator)Generator).EmitPush(Expression.Emit(Generator));
         }
 
-        public bool IsEmpty
+        public bool IsConstantNode
         {
             const get { return false; }
         }

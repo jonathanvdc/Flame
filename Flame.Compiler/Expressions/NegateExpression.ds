@@ -29,6 +29,8 @@ namespace Flame.Compiler.Expressions
             if (Value.Type.Equals(PrimitiveTypes.Boolean))
             {
                 var boundObject = Value.Evaluate();
+                if (boundObject == null)
+                    return null;
                 return new BooleanExpression(!boundObject.GetPrimitiveValue<bool>());
             }
             else

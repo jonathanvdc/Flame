@@ -41,14 +41,11 @@ namespace Flame.Compiler.Expressions
 		}
 
 		/// <summary>
-		/// Checks if this binary expression is constant.
+		/// Checks if this binary expression has no side-effects.
 		/// </summary>
-		public virtual bool IsConstant
+		public virtual bool IsConstantNode
 		{
-			virtual get
-			{
-				return LeftOperand.IsConstant && RightOperand.IsConstant;
-			}
+			virtual get { return true; }
 		}
 
 		public void AcceptPredicate(INodeVisitor Visitor)

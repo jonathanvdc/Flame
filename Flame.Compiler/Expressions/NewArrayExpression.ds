@@ -56,10 +56,9 @@ namespace Flame.Compiler.Expressions
             }
         }
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
-            //const get { return ElementType is ICLRType && Dimensions.All((item) => item.IsConstant); }
-            const get return false; // Determining if this expression is constant is no problem. Evaluating constant values is, however.
+            const get return true;
         }
 
         public const IBoundObject Evaluate()
@@ -67,12 +66,12 @@ namespace Flame.Compiler.Expressions
             return null;
         }
 
-        public const IExpression Optimize()
+        public IExpression Optimize()
         {
             return new NewArrayExpression(ElementType, Dimensions.OptimizeAll());
         }
 
-        public const ICodeBlock Emit(ICodeGenerator Generator)
+        public ICodeBlock Emit(ICodeGenerator Generator)
         {
             return Generator.EmitNewArray(ElementType, Dimensions.EmitAll(Generator));
         }

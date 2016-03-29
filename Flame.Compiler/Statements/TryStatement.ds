@@ -147,9 +147,9 @@ namespace Flame.Compiler.Statements
 			else return new TryStatement(visitedTryBody, visitedFinallyBody, visitedCatchClauses);
 		}
 
-		public bool IsEmpty
+		public bool IsConstantNode
 		{
-			const get return TryBody.IsEmpty && FinallyBody.IsEmpty;
+			const get return true;
 		}
 
 		public const IStatement Optimize()

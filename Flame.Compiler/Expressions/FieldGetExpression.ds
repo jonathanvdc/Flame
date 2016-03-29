@@ -57,25 +57,11 @@ namespace Flame.Compiler.Expressions
 			const get return VariableNodeAction.Get;
 		}
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
             const get
             {
-            	if (Field.IsConstant)
-            	{
-            		if (Target == null)
-            		{
-            			return true;
-            		}
-            		else
-            		{
-            			return Target.IsConstant;
-            		}
-            	}
-            	else
-            	{
-            		return false;
-            	}
+            	return true;
            	}
         }
 
@@ -83,28 +69,32 @@ namespace Flame.Compiler.Expressions
         {
             if (Field.IsStatic)
             {
-            	if (Field is IInitializedField)
-            	{
-            		return ((IInitializedField)Field).GetValue().Evaluate();
-            	}
-                return Field.GetField(null);
+				if (Field.IsConstant)
+				{
+					if (Field is ILiteralField)
+						return ((ILiteralField)Field).Value;
+					else if (Field is IInitializedField)
+            			return ((IInitializedField)Field).GetValue().Evaluate();
+				}
             }
             else
             {
-                return Field.GetField(Target.Evaluate());
+				var tgt = Target.Evaluate();
+				if (tgt != null)
+                	return Field.GetField(tgt);
             }
+			return null;
         }
 
         public IExpression Optimize()
         {
-            if (IsConstant && Type.IsPrimitive)
+            if (Type.IsPrimitive)
             {
-                return PrimitiveExpressionExtensions.ToExpression(this.Evaluate());
+				var eval = this.Evaluate();
+				if (eval != null)
+                	return PrimitiveExpressionExtensions.ToExpression(eval);
             }
-            else
-            {
-                return this;
-            }
+            return this;
         }
 
         public ICodeBlock Emit(ICodeGenerator Generator)
@@ -113,12 +103,13 @@ namespace Flame.Compiler.Expressions
         	if (Target == null)
         	{
         		targetBlock = null;
-        		if (IsConstant)
-        		{
-        			var evaluatedExpr = PrimitiveExpressionExtensions.ToExpression(this.Evaluate());
-        			if (evaluatedExpr != null)
-        				return evaluatedExpr.Emit(Generator);
-        		}
+				var eval = this.Evaluate();
+				if (eval != null)
+				{
+	    			var evaluatedExpr = PrimitiveExpressionExtensions.ToExpression(eval);
+	    			if (evaluatedExpr != null)
+	    				return evaluatedExpr.Emit(Generator);
+				}
         	}
         	else
         	{
@@ -189,9 +180,9 @@ namespace Flame.Compiler.Expressions
 			const get return VariableNodeAction.AddressOf;
 		}
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
-            const get { return false; }
+            const get { return true; }
         }
 
         public IBoundObject Evaluate()

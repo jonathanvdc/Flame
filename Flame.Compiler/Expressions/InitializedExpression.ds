@@ -41,11 +41,9 @@ namespace Flame.Compiler.Expressions
 			}
 		}
 
-		public bool IsConstant : IExpression.IsConstant
+		public bool IsConstantNode : IExpression.IsConstantNode
 		{
-			const get return Initialization.IsEmpty &&
-							 Value.IsConstant &&
-							 Finalization.IsEmpty;
+			const get { return true; }
 		}
 
 		public IBoundObject Evaluate() : IExpression.Evaluate

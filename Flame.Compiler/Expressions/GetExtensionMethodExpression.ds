@@ -61,9 +61,9 @@ namespace Flame.Compiler.Expressions
 			const get return MethodType.Create(Target);
 		}
 
-		public bool IsConstant
+		public bool IsConstantNode
 		{
-			get { return Caller.IsConstantOrNull; }
+			const get { return true; }
 		}
 
 		public const IBoundObject Evaluate()

@@ -64,7 +64,7 @@ namespace Flame.Syntax.DSharp
             return Delegate.CreateDelegateInvocationExpression(callArgs);
         }
 
-        public static const void AppendCallSignature(CodeBuilder SignatureBuilder, IType[] argTypes, IConverter<IType, string> TypeNamer)
+        public static void AppendCallSignature(CodeBuilder SignatureBuilder, IType[] argTypes, IConverter<IType, string> TypeNamer)
         {
     	    SignatureBuilder.Append('(');
         	bool first = true;

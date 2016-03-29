@@ -22,13 +22,11 @@ namespace Flame.Compiler.Expressions
             return new StaticCastExpression(NewValue, NewType);
         }
 
-        public override bool IsConstant
+        public override bool IsConstantNode
         {
             get
             {
-            	return Value.IsConstant &&
-                       Value.Type.IsPrimitiveExpressionType() &&
-                       TargetType.IsPrimitiveExpressionType();
+            	return true;
            	}
         }
 
@@ -37,12 +35,13 @@ namespace Flame.Compiler.Expressions
         /// </summary>
         public IExpression Simplify()
         {
-            if (Value.Type.IsEquivalent(TargetType))
+            var valTy = Value.Type;
+            if (valTy.IsEquivalent(TargetType))
                 return Value;
 
-            if (IsConstant)
+            if (valTy.IsPrimitiveExpressionType() && TargetType.IsPrimitiveExpressionType())
             {
-                var evalExpr = Value.Evaluate();
+                var evalExpr = Evaluate();
                 if (evalExpr != null)
                     return evalExpr.ToExpression();
             }
@@ -60,6 +59,9 @@ namespace Flame.Compiler.Expressions
                 return null;
 
             object objVal = normalVal.GetObjectValue();
+            if (objVal == null)
+                return null;
+
             if (TargetType.Equals(PrimitiveTypes.UInt8))
             {
                 return new UInt8Expression(Convert.ToByte(objVal));

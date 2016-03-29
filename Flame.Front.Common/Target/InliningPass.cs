@@ -129,7 +129,7 @@ namespace Flame.Front.Target
             int inheritanceBoost = !argType.Equals(ParameterType) ? 4 : 0;
 
             // Constants may allow us to eliminate branches.
-            int constantBoost = Argument.IsConstant ? 4 : 0;
+            int constantBoost = Argument.GetIsConstant() ? 4 : 0;
 
             // Delegates can be sometimes be replaced
             // with direct or virtual calls.

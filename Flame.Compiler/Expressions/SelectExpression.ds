@@ -132,20 +132,11 @@ namespace Flame.Compiler.Expressions
 			return CreateSelect(cond, trueVal, falseVal);
 		}
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
             const get
             {
-				var condVal = Condition.EvaluateConstant();
-                if (condVal.EvaluatesTo<bool>(true))
-                {
-                    return TrueValue.IsConstant;
-                }
-                else if (condVal.EvaluatesTo<bool>(false))
-                {
-                    return FalseValue.IsConstant;
-                }
-                else return false;
+				return true;
             }
         }
 

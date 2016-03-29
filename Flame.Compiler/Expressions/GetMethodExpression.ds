@@ -94,14 +94,18 @@ namespace Flame.Compiler.Expressions
 			}
 		}
 
-		public bool IsConstant
+		public bool IsConstantNode
 		{
-			get { return Caller.IsConstantOrNull; }
+			const get { return true; }
 		}
 
 		public const IBoundObject Evaluate()
 		{
-			return new BoundMethod(Target, Caller.EvaluateOrNull());
+			var callerObj = Caller.EvaluateOrNull();
+			if (callerObj != null)
+				return new BoundMethod(Target, callerObj);
+			else
+				return null;
 		}
 
 		public IExpression Optimize()

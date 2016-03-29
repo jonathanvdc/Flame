@@ -32,7 +32,7 @@ namespace Flame.Intermediate.Parsing
             return null;
         }
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
             get { return true; }
         }

@@ -45,24 +45,22 @@ namespace Flame.Compiler.Expressions
 
         public IType Type { const get; private set; }
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
-            //const get { return new NewArrayExpression(ElementType, Dimensions.Select((item) => new Int32Expression(item))).IsConstant; }
-            const get return false;
+            const get return true;
         }
 
         public const IBoundObject Evaluate()
         {
-            //return new NewArrayExpression(ElementType, Dimensions.Select((item) => new Int32Expression(item))).Evaluate(); // close enough
             return null;
         }
 
-        public const IExpression Optimize()
+        public IExpression Optimize()
         {
             return this;
         }
 
-        public const ICodeBlock Emit(ICodeGenerator Generator)
+        public ICodeBlock Emit(ICodeGenerator Generator)
         {
             return Generator.EmitNewVector(ElementType, Dimensions);
         }

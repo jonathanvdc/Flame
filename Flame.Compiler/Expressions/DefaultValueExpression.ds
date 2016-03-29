@@ -9,7 +9,7 @@ namespace Flame.Compiler.Expressions
 
         public IType Type { get; private set; }
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
             const get { return true; }
         }

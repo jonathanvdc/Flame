@@ -48,17 +48,6 @@ namespace Flame.Compiler.Flow
         }
 
         /// <summary>
-        /// Checks if this control flow node has no side-effects.
-        /// </summary>
-        public override bool IsConstant
-        {
-            get
-            {
-                return Condition.IsConstant;
-            }
-        }
-
-        /// <summary>
         /// Optimizes this control flow node.
         /// </summary>
         public override BlockFlow Optimize()

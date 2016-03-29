@@ -22,7 +22,7 @@ namespace Flame.Optimization.Variables
             return Chain.GetDefinition(Access).CreateGetExpression();
         }
 
-        public bool IsConstant { const get return Unwrap().IsConstant; }
+        public bool IsConstantNode { const get return Unwrap().IsConstantNode; }
         public IBoundObject Evaluate()
         {
             return Unwrap().Evaluate();

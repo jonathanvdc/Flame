@@ -37,9 +37,9 @@ namespace Flame.Compiler.Expressions
         protected abstract ConversionExpressionBase Create(IExpression NewValue, IType NewType);
 
         /// <summary>
-        /// Tells if this conversion expression is a compile-time constant.
+        /// Tells if this conversion expression does not have side-effects.
         /// </summary>
-        public abstract bool IsConstant { get; }
+        public abstract bool IsConstantNode { get; }
 
         /// <summary>
         /// Evaluates this conversion expression at compile-time.

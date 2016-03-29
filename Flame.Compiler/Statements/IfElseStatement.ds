@@ -149,14 +149,9 @@ namespace Flame.Compiler.Statements
 					new BlockBranch(elseTag)));
 		}
 
-		public bool IsEmpty : IStatement.IsEmpty
+		public bool IsConstantNode : IStatement.IsConstantNode
 		{
-			const get
-			{
-				var evalCond = Condition.EvaluateConstant();
-				return (evalCond.EvaluatesTo<bool>(false) || IfBody.IsEmpty) &&
-				       (evalCond.EvaluatesTo<bool>(true)  || ElseBody.IsEmpty);
-			}
+			const get { return true; }
 		}
 
 		public IStatement Optimize() : IStatement.Optimize

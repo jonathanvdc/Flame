@@ -31,9 +31,9 @@ namespace Flame.Optimization.Variables
         /// </summary>
         public IExpression Value { const get; private set; }
 
-        public bool IsEmpty
+        public bool IsConstantNode
         {
-            const get return Unwrap().IsEmpty;
+            const get return Unwrap().IsConstantNode;
         }
 
         public IStatement Unwrap()
@@ -76,7 +76,7 @@ namespace Flame.Optimization.Variables
         /// </summary>
         public VariableDefinitionReach Definition { const get; private set; }
 
-        public bool IsEmpty
+        public bool IsConstantNode
         {
             const get return true;
         }

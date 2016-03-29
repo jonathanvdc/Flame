@@ -23,7 +23,7 @@ namespace Flame.Compiler.Expressions
         public IExpression Value { const get; private set; }
 
         public IType Type { get { return Value.Type; } }
-        public bool IsConstant { get { return Value.IsConstant; } }
+        public bool IsConstantNode { get { return Value.IsConstantNode; } }
 
         /// <summary>
         /// "Spills" this expression to the given initialization statement.
@@ -31,9 +31,9 @@ namespace Flame.Compiler.Expressions
         /// </summary>
         public void Spill(InsertStatement Initialization)
         {
-            if (IsConstant)
+            if (Value.Evaluate() != null)
             {
-                // Do nothing, really.
+                // Compile-time constant. No need to do anything.
                 return;
             }
             else if (PrimitiveTypes.Void.Equals(Type))

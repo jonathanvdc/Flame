@@ -22,9 +22,9 @@ namespace Flame.Wasm
 		public IMethod Target { get; private set; }
 		public IEnumerable<IExpression> Arguments { get; private set; }
 
-		public bool IsConstant
+		public bool IsConstantNode
 		{
-			get { return Target.GetIsConstant() && Arguments.All(item => item.IsConstant); }
+			get { return Target.GetIsConstant(); }
 		}
 
 		public IType Type
@@ -71,4 +71,3 @@ namespace Flame.Wasm
 		}
 	}
 }
-

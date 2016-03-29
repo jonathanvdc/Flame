@@ -52,15 +52,10 @@ namespace Flame.Compiler.Expressions
 			return new InitializedVectorExpression(ElementType, optElems);
 		}
 
-		public bool IsConstant : IExpression.IsConstant
+		public bool IsConstantNode : IExpression.IsConstantNode
 		{
 			const get
 			{
-				foreach (var item in Elements)
-				{
-					if (!item.IsConstant)
-						return false;
-				}
 				return true;
 			}
 		}

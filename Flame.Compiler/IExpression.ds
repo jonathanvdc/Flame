@@ -15,19 +15,6 @@ namespace Flame.Compiler
         IType Type { get; }
 
         /// <summary>
-        /// Gets a boolean value that indicates if the expression is a constant expression.
-        /// A constant expression has no side-effects, and depends solely on
-        /// information that is known at compile-time.
-        /// </summary>
-        /// <remarks>
-        /// Constant expressions can often be evaluated at compile-time,
-        /// but this is not a requirement. For example, a sizeof(type) expression is
-        /// constant by its very nature, but cannot be evaluated before the
-        /// layout of the type has been defined.
-        /// </remarks>
-        bool IsConstant { get; }
-
-        /// <summary>
         /// Performs a compile-time evaluation of the expression.
         /// If it cannot be evaluated, null is returned.
         /// </summary>

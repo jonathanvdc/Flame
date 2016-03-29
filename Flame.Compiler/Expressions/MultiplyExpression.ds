@@ -17,7 +17,11 @@ namespace Flame.Compiler.Expressions
         public override IBoundObject Evaluate()
         {
             var lObj = LeftOperand.Evaluate();
+            if (lObj == null)
+                return null;
         	var rObj = RightOperand.Evaluate();
+            if (rObj == null)
+                return null;
         	var resultType = Type;
         	if (resultType.Equals(PrimitiveTypes.Int8))
         	{

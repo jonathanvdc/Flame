@@ -47,11 +47,11 @@ namespace Flame.Compiler.Statements
 
 		public IReadOnlyList<IVariable> Elements { const get return elemCache.ElementVariables; }
 
-		public bool IsEmpty : IStatement.IsEmpty
+		public bool IsConstantNode : IStatement.IsConstantNode
 		{
 			const get
 			{
-				return Body.IsEmpty;
+				return true;
 			}
 		}
 

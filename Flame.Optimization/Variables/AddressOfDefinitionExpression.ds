@@ -22,7 +22,7 @@ namespace Flame.Optimization.Variables
 
         public IType Type { const get return Unwrap().Type; }
 
-        public bool IsConstant { const get return Unwrap().IsConstant; }
+        public bool IsConstantNode { const get return Unwrap().IsConstantNode; }
         public IBoundObject Evaluate()
         {
             return Unwrap().Evaluate();

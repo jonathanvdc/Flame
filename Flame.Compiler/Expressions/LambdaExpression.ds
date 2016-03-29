@@ -55,6 +55,14 @@ namespace Flame.Compiler.Expressions
             return Apply(Visitor.Visit);
         }
 
+        public void AcceptPredicate(INodeVisitor Visitor)
+        {
+            foreach (var item in CaptureList)
+            {
+                Visitor.Visit(item);
+            }
+        }
+
         public LambdaHeader ConvertMembers(MemberConverter Converter)
         {
             var newMethod = Converter.Convert(Signature);
@@ -119,7 +127,8 @@ namespace Flame.Compiler.Expressions
     /// by-value capture: variables outside the lambda are not permitted within.
     /// </summary>
     public class LambdaExpression : IExpression, ICopyableNode<IExpression>,
-                                    IMemberNode, ILambdaNode<IExpression>
+                                    IMemberNode, ILambdaNode<IExpression>,
+                                    IPredicateNode
     {
         public const this(set LambdaHeader Header, set IStatement Body)
         {
@@ -145,9 +154,9 @@ namespace Flame.Compiler.Expressions
 
         public IMethod Signature { const get return Header.Signature; }
 
-        public bool IsConstant
+        public bool IsConstantNode
         {
-            const get return Header.CaptureList.AreConstant;
+            const get return true;
         }
 
         public IType Type
@@ -206,6 +215,12 @@ namespace Flame.Compiler.Expressions
         public IExpression Accept(INodeVisitor Visitor)
         {
             return CreateLambdaCopy(Header.Accept(Visitor), VisitBody(Visitor), BoundHeaderBlock);
+        }
+
+        public void AcceptPredicate(INodeVisitor Visitor)
+        {
+            Header.AcceptPredicate(Visitor);
+            Visitor.Visit(Body);
         }
 
         /// <summary>
@@ -333,7 +348,7 @@ namespace Flame.Compiler.Expressions
 
         public IExpression CapturedValue { const get return Header.CaptureList[Index]; }
 
-        public bool IsConstant { const get return CapturedValue.IsConstant; }
+        public bool IsConstantNode { const get return true; }
         public IType Type { const get return CapturedValue.Type; }
         public IBoundObject Evaluate()
         {
@@ -390,7 +405,7 @@ namespace Flame.Compiler.Expressions
         /// </summary>
         public LambdaBoundHeaderBlock BoundHeaderBlock { const get; private set; }
 
-        public bool IsConstant { const get return true; }
+        public bool IsConstantNode { const get return true; }
         public IType Type { const get return MethodType.Create(Header.Signature); }
 
         public IBoundObject Evaluate()
