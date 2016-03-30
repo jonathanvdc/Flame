@@ -89,7 +89,12 @@ namespace Flame.Compiler.Statements
 
 		public bool IsConstantNode : IStatement.IsConstantNode
 		{
-			const get { return true; }
+			const get
+			{
+				// Return false here. Otherwise, the optimizer may get the
+				// wrong idea and eliminate an infinite loop.
+				return false;
+			}
 		}
 
 		/// <summary>

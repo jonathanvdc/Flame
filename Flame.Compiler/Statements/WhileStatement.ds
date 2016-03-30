@@ -40,7 +40,9 @@ namespace Flame.Compiler.Statements
 		{
 			const get
 			{
-				return true;
+				// Return false here. Otherwise, the optimizer may get the
+				// wrong idea and eliminate an infinite loop.
+				return false;
 			}
 		}
 
