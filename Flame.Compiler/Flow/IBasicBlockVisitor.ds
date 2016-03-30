@@ -146,4 +146,59 @@ namespace Flame.Compiler.Flow
             }
         }
     }
+
+    /// <summary>
+    /// A type of basic block visitor that converts parameter and argument
+    /// variable types, but ignores the block's contents.
+    /// </summary>
+    public class BlockTypeVisitor : IBasicBlockVisitor
+    {
+        public const this(set MemberConverter Converter);
+
+        /// <summary>
+        /// Gets the underlying node visitor that is applied to statements
+        /// and expressions.
+        /// </summary>
+        public MemberConverter Converter { const get; private set; }
+
+        /// <summary>
+        /// Visits an expression: an expression is taken as input and
+        /// transformed into another expression.
+        /// </summary>
+        public IExpression Visit(IExpression Value)
+        {
+            return Value;
+        }
+
+        /// <summary>
+        /// Visits a statement: an statement is taken as input and
+        /// transformed into another statement.
+        /// </summary>
+        public IStatement Visit(IStatement Value)
+        {
+            return Value;
+        }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            return (SSAVariable)Variable.ConvertType(Converter);
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public BlockBranch Visit(BlockBranch Branch)
+        {
+            var argList = new List<SSAVariable>(Branch.Arguments.Count);
+            foreach (var arg in Branch.Arguments)
+            {
+                argList.Add((SSAVariable)arg.ConvertType(Converter));
+            }
+            return new BlockBranch(Branch.TargetTag, argList);
+        }
+    }
 }

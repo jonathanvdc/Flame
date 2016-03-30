@@ -35,93 +35,41 @@ namespace Flame.Recompilation
         }
     }
 
-    public class RecompilingVisitor : VariableSubstitutingVisitorBase
+    public class RecompilingVisitor : NodeVisitorBase
     {
         public RecompilingVisitor(AssemblyRecompiler Recompiler)
         {
             this.Converter = new MemberConverter(new DelegateConverter<IType, IType>(Recompiler.GetType),
                                                  new DelegateConverter<IMethod, IMethod>(Recompiler.GetMethod),
                                                  new DelegateConverter<IField, IField>(Recompiler.GetField));
-            this.recompiledLocals = new Dictionary<IVariable, IVariable>();
         }
         public RecompilingVisitor(MemberConverter Converter)
         {
             this.Converter = Converter;
-            this.recompiledLocals = new Dictionary<IVariable,IVariable>();
         }
-
-        private Dictionary<IVariable, IVariable> recompiledLocals;
 
         public MemberConverter Converter { get; private set; }
 
         public override bool Matches(IExpression Value)
         {
-            return Value is IMemberNode || base.Matches(Value);
+            return Value is IMemberNode;
         }
 
         public override bool Matches(IStatement Value)
         {
-            return Value is IMemberNode || base.Matches(Value);
+            return Value is IMemberNode;
         }
 
         protected override IExpression Transform(IExpression Expression)
         {
-            if (Expression is IMemberNode)
-            {
-                var memberNode = (IExpression)((IMemberNode)Expression).ConvertMembers(Converter);
-                if (base.Matches(memberNode))
-                {
-                    return base.Transform(memberNode);
-                }
-                else
-                {
-                    return memberNode.Accept(this);
-                }
-            }
-            else
-            {
-                return base.Transform(Expression);
-            }
+            var memberNode = (IExpression)((IMemberNode)Expression).ConvertMembers(Converter);
+            return memberNode.Accept(this);
         }
 
         protected override IStatement Transform(IStatement Statement)
         {
-            if (Statement is IMemberNode)
-            {
-                var memberNode = (IStatement)((IMemberNode)Statement).ConvertMembers(Converter);
-                if (base.Matches(memberNode))
-                {
-                    return base.Transform(memberNode);
-                }
-                else
-                {
-                    return memberNode.Accept(this);
-                }
-            }
-            else
-            {
-                return base.Transform(Statement);
-            }
-        }
-
-        protected override bool CanSubstituteVariable(IVariable Variable)
-        {
-            return Variable is LocalVariableBase;
-        }
-
-        protected override IVariable SubstituteVariable(IVariable Variable)
-        {
-            if (recompiledLocals.ContainsKey(Variable))
-            {
-                return recompiledLocals[Variable];
-            }
-            else
-            {
-                var oldVar = (LocalVariableBase)Variable;
-                var newVar = oldVar.ConvertType(Converter);
-                recompiledLocals[Variable] = newVar;
-                return newVar;
-            }
+            var memberNode = (IStatement)((IMemberNode)Statement).ConvertMembers(Converter);
+            return memberNode.Accept(this);
         }
     }
 }

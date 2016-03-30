@@ -107,6 +107,15 @@ namespace Flame.Compiler.Flow
 		}
 
 		/// <summary>
+		/// Converts all SSA parameter/argument types in the flow graphs.
+		/// </summary>
+		public FlowGraph ConvertMembers(MemberConverter Converter)
+		{
+			var visitor = new BlockTypeVisitor(Converter);
+			return Accept(visitor);
+		}
+
+		/// <summary>
 		/// Applies simple optimizations to this control flow graph.
 		/// </summary>
 		public FlowGraph Optimize()
