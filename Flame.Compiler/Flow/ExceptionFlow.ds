@@ -43,11 +43,12 @@ namespace Flame.Compiler.Flow
             : base(Branch);
 
         /// <summary>
-        /// Accepts the given basic block visitor.
+        /// Creates a new jump flow instruction of the current type from the
+        /// given block branch.
         /// </summary>
-        public override BlockFlow Accept(IBasicBlockVisitor Visitor)
+        public override JumpFlowBase Create(BlockBranch Branch)
         {
-            return new TryFlow(Visitor.Visit(Branch));
+            return new TryFlow(Branch);
         }
     }
 
@@ -65,11 +66,12 @@ namespace Flame.Compiler.Flow
             : base(Branch);
 
         /// <summary>
-        /// Accepts the given basic block visitor.
+        /// Creates a new jump flow instruction of the current type from the
+        /// given block branch.
         /// </summary>
-        public override BlockFlow Accept(IBasicBlockVisitor Visitor)
+        public override JumpFlowBase Create(BlockBranch Branch)
         {
-            return new FinallyFlow(Visitor.Visit(Branch));
+            return new FinallyFlow(Branch);
         }
     }
 
@@ -87,11 +89,12 @@ namespace Flame.Compiler.Flow
             : base(Branch);
 
         /// <summary>
-        /// Accepts the given basic block visitor.
+        /// Creates a new jump flow instruction of the current type from the
+        /// given block branch.
         /// </summary>
-        public override BlockFlow Accept(IBasicBlockVisitor Visitor)
+        public override JumpFlowBase Create(BlockBranch Branch)
         {
-            return new LeaveFlow(Visitor.Visit(Branch));
+            return new LeaveFlow(Branch);
         }
     }
 
