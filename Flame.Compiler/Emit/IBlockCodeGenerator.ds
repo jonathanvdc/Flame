@@ -56,5 +56,10 @@ namespace Flame.Compiler.Emit
         /// </summary>
         ICodeBlock EmitFlowGraph(
             UniqueTag EntryPointTag, [IEmitBasicBlock] Blocks);
+
+        /// <summary>
+        /// Creates a caught-exception code block with the given type.
+        /// </summary>
+        ICodeBlock EmitCaughtException(IType ExceptionType);
     }
 }
