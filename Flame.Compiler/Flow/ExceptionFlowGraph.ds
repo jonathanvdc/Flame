@@ -1,0 +1,109 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Flame.Compiler.Flow
+{
+    /// <summary>
+    /// An exception handling region: a 'try', 'finally' (or 'catch')
+    /// graph component.
+    /// </summary>
+    public struct ExceptionFlowRegion
+    {
+        public const this(
+            set UniqueTag EntryPointTag, set [UniqueTag] Tags);
+
+        /// <summary>
+        /// Gets this exception flow region's single entry point.
+        /// </summary>
+        public UniqueTag EntryPointTag { get; private set; }
+
+        /// <summary>
+        /// Gets the set of all block tags of blocks that belong to this
+        /// region.
+        /// </summary>
+        public [UniqueTag] Tags { get; private set; }
+
+        /// <summary>
+        /// Checks if this exception flow region is empty. This is equivalent
+        /// to a null entry point tag.
+        /// </summary>
+        public bool IsEmpty
+        {
+            get { return EntryPointTag == null; }
+        }
+
+        /// <summary>
+        /// Computes this exception flow region's set of 'leave' tags: tags
+        /// that refer to blocks which are the target of some LeaveFlow instruction.
+        /// </summary>
+        public HashSet<UniqueTag> FindLeaveTags(FlowGraph Graph)
+        {
+            var results = new HashSet<UniqueTag>();
+            foreach (var tag in Tags)
+            {
+                var block = Graph.GetBlock(tag);
+                if (block.Flow is LeaveFlow)
+                {
+                    var jmpFlow = (LeaveFlow)block.Flow;
+                    results.Add(jmpFlow.Branch.TargetTag);
+                }
+            }
+            return results;
+        }
+    }
+
+    /// <summary>
+    /// A graph component that represents an exception handler, i.e.
+    /// a 'catch' region, annotated with its exception type.
+    /// </summary>
+    public class ExceptionHandlerRegion
+    {
+        public const this(
+            set IType ExceptionType, set ExceptionFlowRegion Region);
+
+        /// <summary>
+        /// Gets the type of the exceptions handled by this exception handler
+        /// </summary>
+        public IType ExceptionType { get; private set; }
+
+        /// <summary>
+        /// Gets this exception handler's graph component.
+        /// </summary>
+        public ExceptionFlowRegion Region { get; private set; }
+    }
+
+    /// <summary>
+    /// Describes a component of a flow graph that handles exceptions.
+    /// This consists of a 'try' and 'finally' region, as well as a
+    /// variable number of 'catch' regions.
+    /// </summary>
+    public class ExceptionFlowGraph
+    {
+        /// <summary>
+        /// Creates an exception flow subgraph from the given 'try', 'finally'
+        /// and 'catch' regions.
+        /// </summary>
+        public const this(
+            set ExceptionFlowRegion TryRegion,
+            set ExceptionFlowRegion FinallyRegion,
+            set IReadOnlyList<ExceptionHandlerRegion> CatchRegions);
+
+        /// <summary>
+        /// Gets the 'try' region of this flow graph.
+        /// </summary>
+        public ExceptionFlowRegion TryRegion { get; private set; }
+
+        /// <summary>
+        /// Gets the 'finally' region of this flow graph.
+        /// </summary>
+        public ExceptionFlowRegion FinallyRegion { get; private set; }
+
+        /// <summary>
+        /// Gets a list of all exception handler regions for this
+        /// exception handling subgraph, in order.
+        /// </summary>
+        public IReadOnlyList<ExceptionHandlerRegion> CatchRegions { get; private set; }
+    }
+}

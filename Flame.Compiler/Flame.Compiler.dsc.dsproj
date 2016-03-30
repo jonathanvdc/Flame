@@ -165,6 +165,7 @@
 			<Compile Include="Flow/BlockBuilder.ds" />
 			<Compile Include="Flow/BlockFlow.ds" />
 			<Compile Include="Flow/ExceptionFlow.ds" />
+			<Compile Include="Flow/ExceptionFlowGraph.ds" />
 			<Compile Include="Flow/FlowGraph.ds" />
 			<Compile Include="Flow/IBasicBlockVisitor.ds" />
 			<Compile Include="Flow/JumpFlow.ds" />
