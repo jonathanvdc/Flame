@@ -36,10 +36,24 @@ namespace Flame.Compiler.Statements
         {
             // Redirect the current block to the entry point tag.
             Visitor.Builder.RedirectCurrent(Graph.EntryPointTag);
+
             foreach (var item in Graph.Blocks)
             {
                 // Create all blocks.
-                Visitor.CreateBlock(item.Tag, item.Parameters, item.Contents, item.Flow);
+                if (item.Flow is ExceptionFlow)
+                {
+                    // Exception blocks introduce an EH scope, which
+                    // we must take into account.
+                    var ehFlow = (ExceptionFlow)item.Flow;
+                    Visitor.CreateTryBlock(
+                        item.Tag, item.Parameters, item.Contents, ehFlow,
+                        ehFlow.ExceptionBranches, ehFlow.FinallyBranch);
+                }
+                else
+                {
+                    Visitor.CreateBlock(
+                        item.Tag, item.Parameters, item.Contents, item.Flow);
+                }
             }
         }
 
@@ -88,7 +102,7 @@ namespace Flame.Compiler.Statements
         {
             Graph.AcceptPredicate(Visitor);
         }
-        
+
         public IMemberNode ConvertMembers(MemberConverter Converter)
         {
             return new FlowGraphStatement(Graph.ConvertMembers(Converter));
