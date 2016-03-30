@@ -554,8 +554,15 @@ namespace Flame.Optimization
             }
         }
 
+        /// <summary>
+        /// Rewrites the given basic block flow instruction for the
+        /// given flow graph, replacing arguments and parameters with the
+        /// registers they have been allocated to. The original block contents
+        /// are also given.
+        /// A new (flow instruction, block contents) pair is returned.
+        /// </summary>
         private Tuple<BlockFlow, IStatement> RewriteFlow(
-            BlockFlow Flow, FlowGraph Graph,
+            BlockFlow Flow, IStatement Contents, FlowGraph Graph,
             IReadOnlyDictionary<SSAVariable, IVariable> Registers,
             INodeVisitor RegisterSubstitutingVisitor,
             BlockBuilder Blocks, Dictionary<IType, IVariable> Temporaries)
@@ -566,9 +573,55 @@ namespace Flame.Optimization
                 var br = jmpFlow.Branch;
                 return new Tuple<BlockFlow, IStatement>(
                     jmpFlow.Create(new BlockBranch(br.TargetTag)),
-                    CreatePhiAssignStatement(
-                        br.Arguments, Graph.GetBlock(br.TargetTag).Parameters,
+                    new BlockStatement(new IStatement[]
+                    {
+                        Contents,
+                        CreatePhiAssignStatement(
+                            br.Arguments, Graph.GetBlock(br.TargetTag).Parameters,
+                            Registers, Temporaries)
+                    }).Simplify());
+            }
+            else if (Flow is ExceptionFlow)
+            {
+                // Exception flow instructions should first perform
+                // phi assignments for variables that are used by the EH, and
+                // then emit the block's body. Finally, phi assignments are
+                // performed for the success (fallthrough) block.
+
+                var ehFlow = (ExceptionFlow)Flow;
+                var successBr = ehFlow.SuccessBranch;
+                var finallyBr = ehFlow.FinallyBranch;
+
+                var ehBranches = new List<ExceptionBranch>(ehFlow.ExceptionBranches.Count);
+                var bodyStmts = new List<IStatement>(ehBranches.Count + 3);
+
+                foreach (var br in ehFlow.ExceptionBranches)
+                {
+                    var tag = br.Branch.TargetTag;
+                    bodyStmts.Add(CreatePhiAssignStatement(
+                        br.Branch.Arguments,
+                        Graph.GetBlock(tag).Parameters,
                         Registers, Temporaries));
+                    ehBranches.Add(new ExceptionBranch(
+                        br.ExceptionType, new BlockBranch(tag)));
+                }
+
+                bodyStmts.Add(CreatePhiAssignStatement(
+                    finallyBr.Arguments,
+                    Graph.GetBlock(finallyBr.TargetTag).Parameters,
+                    Registers, Temporaries));
+                bodyStmts.Add(Contents);
+                bodyStmts.Add(CreatePhiAssignStatement(
+                    successBr.Arguments,
+                    Graph.GetBlock(successBr.TargetTag).Parameters,
+                    Registers, Temporaries));
+
+                return new Tuple<BlockFlow, IStatement>(
+                    new ExceptionFlow(
+                        new BlockBranch(successBr.TargetTag),
+                        new BlockBranch(finallyBr.TargetTag),
+                        ehBranches),
+                    new BlockStatement(bodyStmts).Simplify());
             }
             else if (Flow is SelectFlow)
             {
@@ -582,11 +635,11 @@ namespace Flame.Optimization
                         RewriteConditionalBranch(
                             selFlow.ElseBranch, Graph, Registers,
                             Blocks, Temporaries)),
-                    EmptyStatement);
+                    Contents);
             }
             else if (Flow is TerminatedFlowBase)
             {
-                return new Tuple<BlockFlow, IStatement>(Flow, EmptyStatement);
+                return new Tuple<BlockFlow, IStatement>(Flow, Contents);
             }
             else
             {
@@ -607,16 +660,13 @@ namespace Flame.Optimization
         {
             // Rewrite this block's flow.
             var flowAndFinalization = RewriteFlow(
-                Block.Flow, Graph, Registers, RegisterSubstitutingVisitor,
+                Block.Flow, RegisterSubstitutingVisitor.Visit(Block.Contents),
+                Graph, Registers, RegisterSubstitutingVisitor,
                 Results, Temporaries);
 
             // The new block's body is the original block's body, followed by a
             // finalization statement.
-            var body = new BlockStatement(new IStatement[]
-            {
-                RegisterSubstitutingVisitor.Visit(Block.Contents),
-                flowAndFinalization.Item2
-            }).Simplify();
+            var body = flowAndFinalization.Item2;
 
             // Create a new block that has the old block's tag.
             Results.CreateBlock(Block.Tag, body, flowAndFinalization.Item1);
