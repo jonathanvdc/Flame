@@ -1,0 +1,196 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+using Flame.Compiler.Variables;
+
+namespace Flame.Compiler.Flow
+{
+    // Exception handling in Flame's control-flow graph representation is as follows:
+    //
+    //     TryFlow -> ... -> ExceptionFlow -> ... -> FinallyFlow -> ... -> LeaveFlow
+    //                             \                               /
+    //                              \                             /
+    //                               \ -> ... -> FinallyFlow ->  /
+    //
+    // The following properties need to be respected:
+    //   * Each exception handling subgraph's 'try' region has exactly
+    //     one entry point.
+    //   * Each 'catch' region has exactly one entry point.
+    //   * Each exception handling subgraph's 'try' region is terminated by
+    //     zero or more FinallyFlow instructions.
+    //   * Ditto for 'catch' regions.
+    //   * The order of 'catch' regions in ExceptionFlow instructions
+    //     must be consistent.
+    //   * The type of exceptions handled by 'catch' regions must be
+    //     consistent.
+    //   * Each exception handling subgraph's 'finally' region has exactly
+    //     one entry point.
+    //   * Each exception handling subgraph's 'finally' region is terminated
+    //     by zero or more LeaveFlow instructions.
+
+    /// <summary>
+    /// A type of basic block control flow node that creates a new exception handling
+    /// region, starting at the block it points to.
+    /// </summary>
+    public class TryFlow : JumpFlowBase
+    {
+        /// <summary>
+        /// Creates a basic block flow statement that initiates an exception
+        /// handling region.
+        /// </summary>
+        public const this(BlockBranch Branch)
+            : base(Branch);
+
+        /// <summary>
+        /// Accepts the given basic block visitor.
+        /// </summary>
+        public override BlockFlow Accept(IBasicBlockVisitor Visitor)
+        {
+            return new TryFlow(Visitor.Visit(Branch));
+        }
+    }
+
+    /// <summary>
+    /// A type of basic block control flow node that ends a 'try'/'catch' region,
+    /// and transfers control to a 'finally' region.
+    /// </summary>
+    public class FinallyFlow : JumpFlowBase
+    {
+        /// <summary>
+        /// Creates a basic block flow statement that transfers control to
+        /// a 'finally' region.
+        /// </summary>
+        public const this(BlockBranch Branch)
+            : base(Branch);
+
+        /// <summary>
+        /// Accepts the given basic block visitor.
+        /// </summary>
+        public override BlockFlow Accept(IBasicBlockVisitor Visitor)
+        {
+            return new FinallyFlow(Visitor.Visit(Branch));
+        }
+    }
+
+    /// <summary>
+    /// A type of basic block control flow node that terminates a 'finally' exception
+    /// handling region.
+    /// </summary>
+    public class LeaveFlow : JumpFlowBase
+    {
+        /// <summary>
+        /// Creates a basic block flow statement that terminates a 'finally' exception
+        /// handling region.
+        /// </summary>
+        public const this(BlockBranch Branch)
+            : base(Branch);
+
+        /// <summary>
+        /// Accepts the given basic block visitor.
+        /// </summary>
+        public override BlockFlow Accept(IBasicBlockVisitor Visitor)
+        {
+            return new LeaveFlow(Visitor.Visit(Branch));
+        }
+    }
+
+    /// <summary>
+    /// A data structure that encodes a branch to an exception handler block,
+    /// which handles a specific type of exception.
+    /// </summary>
+    public struct ExceptionBranch
+    {
+        public const this(set IType ExceptionType, set BlockBranch Branch);
+
+        /// <summary>
+        /// Gets the type of the exception that is handled by this branch.
+        /// </summary>
+        public IType ExceptionType { get; private set; }
+
+        /// <summary>
+        /// Gets the branch to the exception handler block.
+        /// </summary>
+        public BlockBranch Branch { get; private set; }
+
+        public ExceptionBranch Accept(IBasicBlockVisitor Visitor)
+        {
+            return new ExceptionBranch(ExceptionType, Visitor.Visit(Branch));
+        }
+
+        public ExceptionBranch ConvertMembers(MemberConverter Converter)
+        {
+            return new ExceptionBranch(Converter.Convert(ExceptionType), Branch);
+        }
+    }
+
+    /// <summary>
+    /// A type of basic block control flow that identifies its parent block
+    /// as something that can potentially throw an exception. Exception handler
+    /// blocks are explicitly identified.
+    /// </summary>
+    public class ExceptionFlow : BlockFlow
+    {
+        /// <summary>
+        /// Creates a new exception flow instruction.
+        /// </summary>
+        public const this(
+            set BlockBranch SuccessBranch, set BlockBranch FinallyBranch,
+            set IReadOnlyList<ExceptionBranch> ExceptionBranches);
+
+        /// <summary>
+        /// Gets the 'success' branch, which is taken when no exception
+        /// is thrown.
+        /// </summary>
+        public BlockBranch SuccessBranch { get; private set; }
+
+        /// <summary>
+        /// Gets the 'finally' branch, which is taken when an exception is
+        /// thrown that could not be handled by any exception handler.
+        /// </summary>
+        public BlockBranch FinallyBranch { get; private set; }
+
+        /// <summary>
+        /// Gets a list of exception branches, which are taken when an exception
+        /// is thrown.
+        /// </summary>
+        public IReadOnlyList<ExceptionBranch> ExceptionBranches { get; private set; }
+
+        public [BlockBranch] Branches
+        {
+            get
+            {
+                var results = new List<BlockBranch>(ExceptionBranches.Count + 2);
+                results.Add(SuccessBranch);
+                results.Add(FinallyBranch);
+                foreach (var item in ExceptionBranches)
+                {
+                    results.Add(item.Branch);
+                }
+                return results;
+            }
+        }
+
+        public override BlockFlow Accept(IBasicBlockVisitor Visitor)
+        {
+            var brSuccess = Visitor.Visit(SuccessBranch);
+            var brFinally = Visitor.Visit(FinallyBranch);
+            var brException = new List<ExceptionBranch>(ExceptionBranches.Count);
+            foreach (var item in ExceptionBranches)
+            {
+                brException.Add(item.Accept(Visitor));
+            }
+            return new ExceptionFlow(brSuccess, brFinally, brException);
+        }
+
+        public override BlockFlow ConvertMembers(MemberConverter Converter)
+        {
+            var brException = new List<ExceptionBranch>(ExceptionBranches.Count);
+            foreach (var item in ExceptionBranches)
+            {
+                brException.Add(item.ConvertMembers(Converter));
+            }
+            return new ExceptionFlow(SuccessBranch, FinallyBranch, brException);
+        }
+    }
+}
