@@ -11,7 +11,7 @@ namespace Flame.Compiler.Statements
     /// A statement that contains a control flow graph.
     /// </summary>
     public class FlowGraphStatement : IFlowStatement, ICopyableNode<IStatement>,
-                                      IPredicateNode
+                                      IPredicateNode, IMemberNode
     {
         /// <summary>
         /// Creates a statement that wraps the given control flow graph.
@@ -87,6 +87,11 @@ namespace Flame.Compiler.Statements
         public void AcceptPredicate(INodeVisitor Visitor)
         {
             Graph.AcceptPredicate(Visitor);
+        }
+        
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            return new FlowGraphStatement(Graph.ConvertMembers(Converter));
         }
 
         public IStatement Optimize()
