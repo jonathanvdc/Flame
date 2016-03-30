@@ -89,12 +89,11 @@ namespace Flame.Optimization
 
             // Find out if this block has exactly one distinct
             // outgoing branch.
-            var branches = Enumerable.Distinct<BlockBranch>(srcBlock.Flow.Branches);
-            if (Enumerable.Count<BlockBranch>(branches) == 1)
+            if (srcBlock.Flow is JumpFlow)
             {
                 // If so, find out if the target block also has exactly
                 // one predecessor.
-                var branch = Enumerable.Single<BlockBranch>(branches);
+                var branch = ((JumpFlow)srcBlock.Flow).Branch;
                 var target = branch.TargetTag;
                 if (HasExactlyOnePredecessor(target, Graph, Predecessors))
                 {
