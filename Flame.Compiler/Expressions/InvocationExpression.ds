@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Expressions
 {
@@ -7,7 +10,7 @@ namespace Flame.Compiler.Expressions
 	/// A type of expression that invokes a delegate expression by passing
 	/// it a list of arguments.
 	/// </summary>
-	public class InvocationExpression : IExpression, IPredicateNode
+	public class InvocationExpression : IExpression, IPredicateNode, IFlowExpression
 	{
 		/// <summary>
 		/// Creates an invocation expression that invokes the given delegate
@@ -151,6 +154,32 @@ namespace Flame.Compiler.Expressions
 		public ICodeBlock Emit(ICodeGenerator Generator)
 		{
 			return Generator.EmitInvocation(Target.Emit(Generator), Arguments.EmitAll(Generator));
+		}
+
+		/// <summary>
+		/// Accepts and interacts with a flow visitor.
+		/// </summary>
+		public IExpression AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+		{
+			// HACK: Just lie to the visitor and pretend this is linear flow.
+			//       This is evil, but the visitor would have assumed this
+			//       to be the case anyway had we not implemented IFlowStatement.
+			return Accept(Visitor);
+		}
+
+		/// <summary>
+		/// Converts this invocation-expression to a series of blocks.
+		/// </summary>
+		public SSAVariable ToBlocks(BlockBuildingVisitor Visitor)
+		{
+			// Create an SSA local to hold the result.
+			var resultVar = new SSAVariable("invocation_result", Type);
+			var setStmt = resultVar.CreateSetStatement(this.Accept(Visitor));
+			// Create the block.
+			Visitor.Builder.CreateCurrentBlock(
+				setStmt,
+				Visitor.CreateExceptionFlow(Visitor.Builder.NextBlockTag));
+			return resultVar;
 		}
 	}
 }

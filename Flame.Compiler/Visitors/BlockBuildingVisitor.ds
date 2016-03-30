@@ -326,7 +326,10 @@ namespace Flame.Compiler.Visitors
         }
         protected override IExpression Transform(IExpression Expression)
         {
-            if (Expression is IFlowExpression)
+            // Treat flow-expressions differently, but make an exception for
+            // invocation blocks that appear outside of some 'try' block.
+            if (Expression is IFlowExpression &&
+                (!(Expression is InvocationExpression) || InTryBlock))
             {
                 // All right then. Spill all sibling statements/expressions.
                 Spill();
