@@ -709,31 +709,70 @@ namespace Flame.Intermediate.Emit
 
 		public NodeBlock EmitBasicBlockFlow(BlockFlow Flow)
 		{
-			if (Flow is UnreachableFlow)
-			{
-				// Create an "#unreachable" node
-				return NodeBlock.Id(this, ExpressionParsers.UnreachableFlowNodeName);
-			}
+            if (Flow is UnreachableFlow)
+            {
+                // Create an "#unreachable" node
+                return NodeBlock.Id(this, ExpressionParsers.UnreachableFlowNodeName);
+            }
             else if (Flow is TerminatedFlow)
             {
                 // Create a "#terminated" node
                 return NodeBlock.Id(this, ExpressionParsers.TerminatedFlowNodeName);
             }
-			else if (Flow is JumpFlow)
-			{
-				// Create a "#jump(#branch(...))" node
-				return NodeBlock.Call(this, ExpressionParsers.JumpFlowNodeName,
-					EmitBasicBlockBranch(((JumpFlow)Flow).Branch));
-			}
-			else if (Flow is SelectFlow)
-			{
-				// Create a "#select(cond, #branch(...), #branch(...))" node
-				var selectFlow = (SelectFlow)Flow;
-				return NodeBlock.Call(this, ExpressionParsers.SelectFlowNodeName,
-					selectFlow.Condition.Emit(this),
-					EmitBasicBlockBranch(selectFlow.ThenBranch),
-					EmitBasicBlockBranch(selectFlow.ElseBranch));
-			}
+            else if (Flow is JumpFlow)
+            {
+                // Create a "#jump(#branch(...))" node
+                return NodeBlock.Call(this, ExpressionParsers.JumpFlowNodeName,
+                    EmitBasicBlockBranch(((JumpFlow)Flow).Branch));
+            }
+            else if (Flow is SelectFlow)
+            {
+                // Create a "#select(cond, #branch(...), #branch(...))" node
+                var selectFlow = (SelectFlow)Flow;
+                return NodeBlock.Call(this, ExpressionParsers.SelectFlowNodeName,
+                    selectFlow.Condition.Emit(this),
+                    EmitBasicBlockBranch(selectFlow.ThenBranch),
+                    EmitBasicBlockBranch(selectFlow.ElseBranch));
+            }
+            else if (Flow is TryFlow)
+            {
+                // Create a "#try(#branch(...))" node
+                return NodeBlock.Call(this, ExpressionParsers.TryFlowNodeName,
+                    EmitBasicBlockBranch(((TryFlow)Flow).Branch));
+            }
+            else if (Flow is FinallyFlow)
+            {
+                // Create a "#finally(#branch(...))" node
+                return NodeBlock.Call(this, ExpressionParsers.FinallyFlowNodeName,
+                    EmitBasicBlockBranch(((FinallyFlow)Flow).Branch));
+            }
+            else if (Flow is LeaveFlow)
+            {
+                // Create a "#leave(#branch(...))" node
+                return NodeBlock.Call(this, ExpressionParsers.LeaveFlowNodeName,
+                    EmitBasicBlockBranch(((LeaveFlow)Flow).Branch));
+            }
+            else if (Flow is ExceptionFlow)
+            {
+                // Create an "#exception(#branch(...) #branch(...), { #catch(type, #branch(...))... })" node
+                var ehFlow = (ExceptionFlow)Flow;
+                var handlerList = new List<LNode>(ehFlow.ExceptionBranches.Count);
+                foreach (var br in ehFlow.ExceptionBranches)
+                {
+                    handlerList.Add(NodeFactory.Call(
+                        ExpressionParsers.CatchNodeName, 
+                        new LNode[] 
+                        {
+                            Assembly.TypeTable.GetReference(br.ExceptionType),
+                            EmitBasicBlockBranch(br.Branch).Node
+                        }));
+                }
+                return NodeBlock.Call(
+                    this, ExpressionParsers.ExceptionFlowNodeName,
+                    EmitBasicBlockBranch(ehFlow.SuccessBranch).Node,
+                    EmitBasicBlockBranch(ehFlow.FinallyBranch).Node,
+                    NodeFactory.Block(handlerList));
+            }
 			else
 			{
 				throw new InvalidOperationException("Could not encode '" + Flow.ToString() + "' flow.");

@@ -90,6 +90,26 @@ namespace Flame.Intermediate.Parsing
 		public const string BranchNodeName = "#branch";
 
         /// <summary>
+        /// A node type that encodes a 'try' flow instruction.
+        /// </summary>
+        public const string TryFlowNodeName = "#try";
+
+        /// <summary>
+        /// A node type that encodes a 'finally' flow instruction.
+        /// </summary>
+        public const string FinallyFlowNodeName = "#finally";
+
+        /// <summary>
+        /// A node type that encodes a 'leave' flow instruction.
+        /// </summary>
+        public const string LeaveFlowNodeName = "#leave";
+
+        /// <summary>
+        /// A node type that encodes an ExceptionFlow flow instruction.
+        /// </summary>
+        public const string ExceptionFlowNodeName = "#exception";
+
+        /// <summary>
         /// A node type that represents the exception caught
         /// by the enclosing 'catch' handler.
         /// </summary>
@@ -1054,6 +1074,40 @@ namespace Flame.Intermediate.Parsing
 
 				return new JumpFlow(ParseBasicBlockBranch(State, Node.Args[0], Tags));
 			}
+            else if (type == TryFlowNodeName)
+            {
+                // #try(#branch(...))
+
+                return new TryFlow(ParseBasicBlockBranch(State, Node.Args[0], Tags));
+            }
+            else if (type == FinallyFlowNodeName)
+            {
+                // #finally(#branch(...))
+
+                return new FinallyFlow(ParseBasicBlockBranch(State, Node.Args[0], Tags));
+            }
+            else if (type == LeaveFlowNodeName)
+            {
+                // #leave(#branch(...))
+
+                return new LeaveFlow(ParseBasicBlockBranch(State, Node.Args[0], Tags));
+            }
+            else if (type == ExceptionFlowNodeName)
+            {
+                // #exception(#branch(...), #branch(...), { #catch(type, #branch(...))... })
+
+                var successBranch = ParseBasicBlockBranch(State, Node.Args[0], Tags);
+                var finallyBranch = ParseBasicBlockBranch(State, Node.Args[1], Tags);
+                var ehNodes = Node.Args[2].Args;
+                var ehBranches = new List<ExceptionBranch>(ehNodes.Count);
+                foreach (var item in ehNodes)
+                {
+                    var ty = State.Parser.TypeReferenceParser.Parse(State, item.Args[0]).Value;
+                    var br = ParseBasicBlockBranch(State, item.Args[1], Tags);
+                    ehBranches.Add(new ExceptionBranch(ty, br));
+                }
+                return new ExceptionFlow(successBranch, finallyBranch, ehBranches);
+            }
 			else if (type == SelectFlowNodeName)
 			{
 				// #select(cond, #branch(...), #branch(...))
