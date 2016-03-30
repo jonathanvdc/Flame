@@ -1,0 +1,63 @@
+using System;
+using Flame.Compiler.Emit;
+
+namespace Flame.Compiler.Expressions
+{
+    /// <summary>
+    /// Defines an expression that represents the exception that has been caught
+    /// by the enclosing 'catch' block. Note that this is intended for use
+    /// in control-flow graph representations of exception handling only:
+    /// structured exception handling constructs define catch clause variables.
+    /// </summary>
+    public class CaughtExceptionExpression : IExpression, IMemberNode
+    {
+        /// <summary>
+        /// Creates a caught exception expression with the given type.
+        /// </summary>
+        public const this(set IType Type);
+
+        /// <summary>
+        /// Gets the caught exception's type.
+        /// </summary>
+        public IType Type { const get; private set; }
+
+        public bool IsConstantNode { const get return true; }
+
+        public const IBoundObject Evaluate()
+        {
+            return null;
+        }
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convType = Converter.Convert(Type);
+            if (object.ReferenceEquals(convType, Type))
+                // Test for reference equality
+                // for performance reasons.
+                return this;
+            else
+                return new CaughtExceptionExpression(Type);
+        }
+
+        public IExpression Optimize()
+        {
+            return this;
+        }
+
+        public ICodeBlock Emit(ICodeGenerator CodeGenerator)
+        {
+            var cg = (IBlockCodeGenerator)CodeGenerator;
+            return cg.EmitCaughtException(Type);
+        }
+
+        public override string ToString()
+        {
+            return "caught-exception(" + Type.FullName + ")";
+        }
+    }
+}

@@ -765,6 +765,11 @@ namespace Flame.Intermediate.Emit
             });
 		}
 
+        public ICodeBlock EmitCaughtException(IType Type)
+        {
+            return NodeBlock.Call(this, ExpressionParsers.CaughtExceptionNodeName, Assembly.TypeTable.GetReference(Type));
+        }
+
 		#endregion
 
 		#region Stack intrinsics

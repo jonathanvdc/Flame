@@ -89,6 +89,12 @@ namespace Flame.Intermediate.Parsing
 		/// </summary>
 		public const string BranchNodeName = "#branch";
 
+        /// <summary>
+        /// A node type that represents the exception caught
+        /// by the enclosing 'catch' handler.
+        /// </summary>
+        public const string CaughtExceptionNodeName = "#caught_exception";
+
 		#endregion
 
         #endregion
@@ -1127,6 +1133,25 @@ namespace Flame.Intermediate.Parsing
 			return ToExpression(new FlowGraphStatement(new FlowGraph(epTag, blocks)));
 		}
 
+        /// <summary>
+        /// Parses a caught exception node.
+        /// </summary>
+        /// <returns>The caught exception.</returns>
+        /// <param name="State"></param>
+        /// <param name="Node">The node to parse.</param>
+        public static IExpression ParseCaughtException(ParserState State, LNode Node)
+        {
+            if (Node.ArgCount != 1)
+            {
+                throw new InvalidOperationException(
+                    "'" + CaughtExceptionNodeName + "' nodes take exactly one " +
+                    "argument: the type of the exception that is caught.");
+            }
+
+            var ty = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
+            return new CaughtExceptionExpression(ty);
+        }
+
 		#endregion
 
         #endregion
@@ -2002,6 +2027,7 @@ namespace Flame.Intermediate.Parsing
                     { ContinueNodeName, CreateParser(ParseContinue) },
                     { TagReferenceName, (state, node) => { throw new InvalidOperationException("Undefined block tag '" + node.Args[0].Name.Name + "'."); }  },
 					{ FlowGraphNodeName, CreateParser(ParseFlowGraph) },
+                    { CaughtExceptionNodeName, CreateParser(ParseCaughtException) },
 
                     // Locals
                     { DefineLocalNodeName, CreateParser(ParseLocalDefinition) },
