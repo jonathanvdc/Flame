@@ -70,32 +70,4 @@
     <Compile Include="Relooper/FlowShape.ds" />
     <Compile Include="Relooper/RelooperPass.ds" />
   </ItemGroup>
-  <ItemGroup Name="Variables">
-    <Compile Include="Variables/AccessCount.ds" />
-    <Compile Include="Variables/AccessMetrics.ds" />
-    <Compile Include="Variables/AccessVisitor.ds" />
-    <Compile Include="Variables/AddressOfDefinitionExpression.ds" />
-    <Compile Include="Variables/ConstantVariableDefinition.ds" />
-    <Compile Include="Variables/CopyVariableDefinition.ds" />
-    <Compile Include="Variables/DefinitionPropagationPass.ds" />
-    <Compile Include="Variables/DependentVariableDefinition.ds" />
-    <Compile Include="Variables/IDefinitionAccess.ds" />
-    <Compile Include="Variables/IVariableDefinition.ds" />
-    <Compile Include="Variables/IVariableFlow.ds" />
-    <Compile Include="Variables/LoadDefinitionExpression.ds" />
-    <Compile Include="Variables/LocalVariableDefinition.ds" />
-    <Compile Include="Variables/LocalVariableDescription.ds" />
-    <Compile Include="Variables/LoopVariableFlow.ds" />
-    <Compile Include="Variables/PropagationDependencies.ds" />
-    <Compile Include="Variables/ReleaseChainStatement.ds" />
-    <Compile Include="Variables/SelectVariableFlow.ds" />
-    <Compile Include="Variables/TerminatedVariableFlow.ds" />
-    <Compile Include="Variables/TransferDefinitionStatement.ds" />
-    <Compile Include="Variables/VariableDefinitionChain.ds" />
-    <Compile Include="Variables/VariableDefinitionReach.ds" />
-    <Compile Include="Variables/VariableDefinitionStatement.ds" />
-    <Compile Include="Variables/VariableDefinitionVisitor.ds" />
-    <Compile Include="Variables/VariableFlowHelpers.ds" />
-    <Compile Include="Variables/VariableFlowState.ds" />
-  </ItemGroup>
 </Project>
