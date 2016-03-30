@@ -18,7 +18,7 @@ namespace Flame.Compiler.Statements
 		/// <summary>
 		/// Creates a basic block that represents this flow-terminating statement.
 		/// </summary>
-		public void ToBlocks(BlockBuildingVisitor Visitor)
+		public virtual void ToBlocks(BlockBuildingVisitor Visitor)
 		{
 			// Create the following block:
 			//

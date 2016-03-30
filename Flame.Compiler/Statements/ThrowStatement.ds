@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Flame.Compiler.Emit;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Statements
 {
@@ -38,6 +40,47 @@ namespace Flame.Compiler.Statements
 			var transVal = Visitor.Visit(Exception);
 
 			return CreateThrow(transVal);
+		}
+
+		/// <summary>
+		/// Creates a basic block that represents this
+		/// flow-terminating statement.
+		/// </summary>
+		public override void ToBlocks(BlockBuildingVisitor Visitor)
+		{
+			if (Visitor.InTryBlock)
+			{
+				// Create the following blocks:
+				//
+				// @enter():
+				//     throw ex;
+				//     success: @exit()
+				//     handlers:
+				//         @catch_0()
+				//         ...
+				//         @catch_n()
+				//     finally: @finally()
+				//
+				// @exit():
+				//     terminated
+
+				var exitTag = Visitor.CreateBlock(
+					"exit", EmptyStatement, TerminatedFlow);
+
+				Visitor.Builder.CreateCurrentBlock(
+					this.Accept(Visitor), Visitor.CreateExceptionFlow(exitTag));
+			}
+			else
+			{
+				// Create the following block:
+				//
+				// @enter():
+				//     throw ex;
+				//     terminated
+
+				Visitor.Builder.CreateCurrentBlock(
+					this.Accept(Visitor), TerminatedFlow);
+			}
 		}
 
 		public override IStatement Optimize()

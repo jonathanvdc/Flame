@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Flame.Compiler.Emit;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
 using Flame.Compiler.Variables;
 using Flame.Compiler.Visitors;
 
@@ -81,9 +83,21 @@ namespace Flame.Compiler.Statements
 			var body = Body.Emit(Generator);
 			return Generator.EmitCatchClause(header, body);
 		}
+
+		public UniqueTag ToBlock(BlockBuildingVisitor Visitor, FinallyFlow OutFlow)
+		{
+			var exVar = new LocalVariable(ExceptionVariable.Type);
+			exVariable.BindVariable(exVar);
+			var newBody = new BlockStatement(new IStatement[]
+			{
+				exVar.CreateSetStatement(new CaughtExceptionExpression(exVar.Type)),
+				Body
+			}).Simplify();
+			return Visitor.CreateBlock("catch", newBody, OutFlow);
+		}
 	}
 
-	public class TryStatement : IStatement, IPredicateNode, IMemberNode
+	public class TryStatement : IStatement, IPredicateNode, IMemberNode, IFlowStatement
 	{
 		public const this(set IStatement TryBody, set IStatement FinallyBody)
 		{
@@ -145,6 +159,61 @@ namespace Flame.Compiler.Statements
 
 			if (sameStatement) return this;
 			else return new TryStatement(visitedTryBody, visitedFinallyBody, visitedCatchClauses);
+		}
+
+		/// <summary>
+		/// Creates a number of basic blocks that are semantically equivalent
+		/// to this flow statement.
+		/// </summary>
+		public void ToBlocks(BlockBuildingVisitor Visitor)
+		{
+			// Generate the following blocks:
+			//
+			// @entry:
+			//     try @try()
+			//
+			// @try():
+			//     <try-body>
+			//     finally @finally()
+			//
+			// @catch_i():
+			//     var ex = caught-exception;
+			//     <catch-body>
+			//     finally @finally()
+			//
+			// @finally():
+			//     <finally-body>
+			//     leave @next()
+
+			var nextBlockTag = Visitor.Builder.NextBlockTag;
+
+			var finallyTag = Visitor.CreateBlock("finally", FinallyBody, new LeaveFlow(new BlockBranch(nextBlockTag)));
+			var finallyBr = new BlockBranch(finallyTag);
+			var finallyFlow = new FinallyFlow(finallyBr);
+
+			var ehBlocks = new List<ExceptionBranch>();
+			foreach (var clause in CatchClauses)
+			{
+				var ehTag = clause.ToBlock(Visitor, finallyFlow);
+				ehBlocks.Add(new ExceptionBranch(
+					clause.ExceptionVariable.Type, new BlockBranch(ehTag)));
+			}
+
+			var tryTag = Visitor.CreateTryBlock("try", TryBody, ehBlocks, finallyBr);
+
+			Visitor.Builder.CreateCurrentBlock(
+				EmptyStatement, new TryFlow(new BlockBranch(tryTag)));
+		}
+
+		/// <summary>
+		/// Accepts and interacts with a flow visitor.
+		/// </summary>
+		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+		{
+			// HACK: Just lie to the visitor and pretend this is linear flow.
+			//       This is evil, but the visitor would have assumed this
+			//       to be the case anyway had we not implemented IFlowStatement.
+			return Accept(Visitor);
 		}
 
 		public bool IsConstantNode
