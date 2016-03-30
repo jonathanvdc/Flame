@@ -35,15 +35,26 @@ namespace Flame.Syntax.DSharp
         {
         	var expr = Expression.CreateVerifiedExpression(State);
         	if (expr != null && Warnings.ConstantDiscarded.UseWarning(State.Log.Options) &&
-                expr.IsConstant)
+                expr.IsConstantNode)
         	{
-        		State.Log.LogWarning(new LogEntry(
-                    "value discarded",
-                    Warnings.ConstantDiscarded.CreateMessage(
-                        "expression statement '" + this.GetCode().Trim().ToString() +
-                        "' discards a constant value (of type '" +
-                        State.TypeNamer.Convert(expr.Type) + "'). "),
-                    Location));
+                if (expr.IsConstant)
+                {
+            		State.Log.LogWarning(new LogEntry(
+                        "value discarded",
+                        Warnings.ConstantDiscarded.CreateMessage(
+                            "expression statement discards a constant value (of type '" +
+                            State.TypeNamer.Convert(expr.Type) + "'). "),
+                        Location));
+                }
+                else
+                {
+                    State.Log.LogWarning(new LogEntry(
+                        "redundant top-level expression",
+                        Warnings.ConstantDiscarded.CreateMessage(
+                            "this expression statement's top-level expression " +
+                            " is constant, hence redundant."),
+                        Location));
+                }
         	}
             return SourceStatement.Create(new ExpressionStatement(expr), Location);
         }
