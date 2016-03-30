@@ -24,12 +24,26 @@ namespace Flame.Compiler.Flow
         /// </summary>
         public BlockBranch Branch { const get; private set; }
 
+        /// <summary>
+        /// Creates a new jump flow instruction of the current type from the
+        /// given block branch.
+        /// </summary>
+        public abstract JumpFlowBase Create(BlockBranch Branch);
+
         public override [BlockBranch] Branches
         {
             get
             {
                 return new BlockBranch[] { Branch };
             }
+        }
+
+        /// <summary>
+        /// Accepts the given basic block visitor.
+        /// </summary>
+        public override BlockFlow Accept(IBasicBlockVisitor Visitor)
+        {
+            return Create(Visitor.Visit(Branch));
         }
     }
 
@@ -47,11 +61,12 @@ namespace Flame.Compiler.Flow
             : base(Branch);
 
         /// <summary>
-        /// Accepts the given basic block visitor.
+        /// Creates a new jump flow instruction of the current type from the
+        /// given block branch.
         /// </summary>
-        public override BlockFlow Accept(IBasicBlockVisitor Visitor)
+        public override JumpFlowBase Create(BlockBranch Branch)
         {
-            return new JumpFlow(Visitor.Visit(Branch));
+            return new JumpFlow(Branch);
         }
     }
 }

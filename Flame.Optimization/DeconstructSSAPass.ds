@@ -560,12 +560,12 @@ namespace Flame.Optimization
             INodeVisitor RegisterSubstitutingVisitor,
             BlockBuilder Blocks, Dictionary<IType, IVariable> Temporaries)
         {
-            if (Flow is JumpFlow)
+            if (Flow is JumpFlowBase)
             {
-                var jmpFlow = (JumpFlow)Flow;
+                var jmpFlow = (JumpFlowBase)Flow;
                 var br = jmpFlow.Branch;
                 return new Tuple<BlockFlow, IStatement>(
-                    new JumpFlow(new BlockBranch(br.TargetTag)),
+                    jmpFlow.Create(new BlockBranch(br.TargetTag)),
                     CreatePhiAssignStatement(
                         br.Arguments, Graph.GetBlock(br.TargetTag).Parameters,
                         Registers, Temporaries));
