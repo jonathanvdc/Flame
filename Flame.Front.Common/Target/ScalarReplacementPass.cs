@@ -1,7 +1,6 @@
 ﻿using Flame.Compiler;
 using Flame.Compiler.Visitors;
 using Flame.Optimization;
-using Flame.Optimization.Variables;
 using Pixie;
 using System;
 using System.Collections.Generic;
