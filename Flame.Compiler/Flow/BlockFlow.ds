@@ -100,6 +100,16 @@ namespace Flame.Compiler.Flow
         }
 
         /// <summary>
+        /// Converts this block flow instruction's members. Note that SSA
+        /// argument/parameter types are not converted by this method: they
+        /// are handled by applying a visitor to a block.
+        /// </summary>
+        public virtual BlockFlow ConvertMembers(MemberConverter Converter)
+        {
+            return this;
+        }
+
+        /// <summary>
         /// Gets a sequence of successor block tags for this basic
         /// block flow node.
         /// </summary>

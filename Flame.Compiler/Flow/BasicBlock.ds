@@ -84,6 +84,20 @@ namespace Flame.Compiler.Flow
 		}
 
 		/// <summary>
+		/// Converts this basic block's parameter, argument and flow instruction
+		/// types.
+		/// </summary>
+		public BasicBlock ConvertMembers(BlockTypeVisitor Visitor)
+		{
+			var visitedParameters = new List<SSAVariable>(
+				Enumerable.Select<SSAVariable, SSAVariable>(
+					Parameters, Visitor.VisitParameter));
+			var visitedFlow = Flow.ConvertMembers(Visitor.Converter).Accept(Visitor);
+			return new BasicBlock(
+				Tag, visitedParameters, Contents, visitedFlow);
+		}
+
+		/// <summary>
 		/// Applies simple optimizations to this basic block's contents.
 		/// </summary>
 		public BasicBlock Optimize()
