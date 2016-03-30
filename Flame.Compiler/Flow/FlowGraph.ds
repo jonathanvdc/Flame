@@ -248,5 +248,226 @@ namespace Flame.Compiler.Flow
 			}
 			return new FlowGraph(EntryPointTag, results);
 		}
+
+		/// <summary>
+		/// Adds all block tags that are reachable from the given tag,
+		/// and are part of the 'finally' region,
+		/// to the set of 'finally' region tags.
+		/// </summary>
+		private void ExploreFinallyRegion(
+			UniqueTag Tag, HashSet<UniqueTag> FinallyRegionBlocks,
+			Dictionary<UniqueTag, ExceptionFlowGraph> Subgraphs)
+		{
+			if (FinallyRegionBlocks.Add(Tag))
+			{
+				var block = GetBlock(Tag);
+				assert(!(block.Flow is FinallyFlow));
+				if (block.Flow is LeaveFlow)
+				{
+					// All right. We're done here.
+					return;
+				}
+				else if (block.Flow is TryFlow)
+				{
+					// We've encountered the start of another exception handling
+					// subgraph. Handle it separately.
+					var target = ((TryFlow)block.Flow).Branch.TargetTag;
+					ExploreExceptionFlowGraph(target, Subgraphs);
+					var result = Subgraphs[target];
+					foreach (var tag in result.FinallyRegion.FindLeaveTags(this))
+					{
+						ExploreFinallyRegion(tag, FinallyRegionBlocks, Subgraphs);
+					}
+				}
+				else
+				{
+					// Explore all successor tags.
+					foreach (var tag in block.Flow.SuccessorTags)
+					{
+						ExploreFinallyRegion(tag, FinallyRegionBlocks, Subgraphs);
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Adds all block tags that are reachable from the given tag,
+		/// and are part of the 'catch' region, to the set of 'catch' region tags.
+		/// </summary>
+		private void ExploreCatchRegion(
+			UniqueTag Tag, HashSet<UniqueTag> CatchRegionBlocks,
+			Dictionary<UniqueTag, ExceptionFlowGraph> Subgraphs)
+		{
+			if (CatchRegionBlocks.Add(Tag))
+			{
+				var block = GetBlock(Tag);
+				assert(!(block.Flow is LeaveFlow));
+				if (block.Flow is FinallyFlow)
+				{
+					// All right. We're done here.
+					return;
+				}
+				else if (block.Flow is TryFlow)
+				{
+					// We've encountered the start of another exception handling
+					// subgraph. Handle it separately.
+					var target = ((TryFlow)block.Flow).Branch.TargetTag;
+					ExploreExceptionFlowGraph(target, Subgraphs);
+					var result = Subgraphs[target];
+					foreach (var tag in result.FinallyRegion.FindLeaveTags(this))
+					{
+						ExploreCatchRegion(tag, CatchRegionBlocks, Subgraphs);
+					}
+				}
+				else
+				{
+					// Explore all successor tags.
+					foreach (var tag in block.Flow.SuccessorTags)
+					{
+						ExploreCatchRegion(tag, CatchRegionBlocks, Subgraphs);
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Adds all block tags that are reachable from the given tag,
+		/// and are part of the 'try' region, to the set of
+		/// 'try' region tags. 'Catch' regions are also analyzed.
+		/// </summary>
+		private UniqueTag ExploreTryRegion(
+			UniqueTag Tag, HashSet<UniqueTag> TryRegionBlocks,
+			List<UniqueTag> ExceptionHandlers,
+			Dictionary<UniqueTag, ExceptionHandlerRegion> HandlerRegions,
+			Dictionary<UniqueTag, ExceptionFlowGraph> Subgraphs)
+		{
+			if (TryRegionBlocks.Add(Tag))
+			{
+				var block = GetBlock(Tag);
+				assert(!(block.Flow is LeaveFlow));
+				if (block.Flow is FinallyFlow)
+				{
+					// All right. We're done here.
+					return ((FinallyFlow)block.Flow).Branch.TargetTag;
+				}
+				else if (block.Flow is TryFlow)
+				{
+					// We've encountered the start of another exception handling
+					// subgraph. Handle it separately.
+					var target = ((TryFlow)block.Flow).Branch.TargetTag;
+					ExploreExceptionFlowGraph(target, Subgraphs);
+					var ehGraph = Subgraphs[target];
+					UniqueTag result = null;
+					foreach (var tag in ehGraph.FinallyRegion.FindLeaveTags(this))
+					{
+						var finallyTag = ExploreTryRegion(
+							tag, TryRegionBlocks, ExceptionHandlers,
+							HandlerRegions, Subgraphs);
+
+						if (finallyTag != null)
+							result = finallyTag;
+					}
+					return result;
+				}
+				else if (block.Flow is ExceptionFlow)
+				{
+					var flow = (ExceptionFlow)block.Flow;
+					ExploreTryRegion(
+						flow.SuccessBranch.TargetTag, TryRegionBlocks,
+						ExceptionHandlers, HandlerRegions, Subgraphs);
+
+					foreach (var br in flow.ExceptionBranches)
+					{
+						var target = br.Branch.TargetTag;
+						if (!HandlerRegions.ContainsKey(target))
+						{
+							ExceptionHandlers.Add(target);
+							HandlerRegions[target] = null;
+							var catchRegionBlocks = new HashSet<UniqueTag>();
+							ExploreCatchRegion(
+								target, catchRegionBlocks, Subgraphs);
+							HandlerRegions[target] = new ExceptionHandlerRegion(
+								br.ExceptionType, new ExceptionFlowRegion(
+									target, catchRegionBlocks));
+						}
+					}
+					return flow.FinallyBranch.TargetTag;
+				}
+				else
+				{
+					// Explore all successor tags.
+					UniqueTag result = null;
+					foreach (var tag in block.Flow.SuccessorTags)
+					{
+						var finallyTag = ExploreTryRegion(
+							tag, TryRegionBlocks, ExceptionHandlers,
+							HandlerRegions, Subgraphs);
+
+						if (finallyTag != null)
+							result = finallyTag;
+					}
+					return result;
+				}
+			}
+			else
+			{
+				return null;
+			}
+		}
+
+		/// <summary>
+		/// Explores the exception flow graph with the given tag as entry point,
+		/// and adds it to the set of exception flow subgraphs.
+		/// </summary>
+		private void ExploreExceptionFlowGraph(
+			UniqueTag Tag, Dictionary<UniqueTag, ExceptionFlowGraph> Subgraphs)
+		{
+			if (Subgraphs.ContainsKey(Tag))
+				return;
+
+			// Set this to null, to make sure we don't accidentally
+			// compute the same exception flow subgraph twice.
+			Subgraphs[Tag] = null;
+
+			var tryRegionBlocks = new HashSet<UniqueTag>();
+			var ehBlocks = new List<UniqueTag>();
+			var ehRegions = new Dictionary<UniqueTag, ExceptionHandlerRegion>();
+
+			var finallyTag = ExploreTryRegion(
+				Tag, tryRegionBlocks, ehBlocks, ehRegions, Subgraphs);
+
+			var tryRegion = new ExceptionFlowRegion(Tag, tryRegionBlocks);
+
+			var finallyBlocks = new HashSet<UniqueTag>();
+			if (finallyTag != null)
+				ExploreFinallyRegion(finallyTag, finallyBlocks, Subgraphs);
+			var finallyRegion = new ExceptionFlowRegion(finallyTag, finallyBlocks);
+
+			var catchRegions = new List<ExceptionHandlerRegion>(ehBlocks.Count);
+			foreach (var tag in ehBlocks)
+			{
+				catchRegions.Add(ehRegions[tag]);
+			}
+
+			Subgraphs[Tag] = new ExceptionFlowGraph(tryRegion, finallyRegion, catchRegions);
+		}
+
+		/// <summary>
+		/// Finds the set of all exception flow graphs
+		/// in this basic block.
+		/// </summary>
+		public [ExceptionFlowGraph] FindExceptionFlowGraphs()
+		{
+			var results = new Dictionary<UniqueTag, ExceptionFlowGraph>();
+			foreach (var block in Blocks)
+			{
+				if (block.Flow is TryFlow)
+				{
+					var flow = (TryFlow)block.Flow;
+					ExploreExceptionFlowGraph(flow.Branch.TargetTag, results);
+				}
+			}
+			return results.Values;
+		}
 	}
 }
