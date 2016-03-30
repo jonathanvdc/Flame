@@ -291,11 +291,13 @@ namespace Flame.Compiler.Visitors
         }
 
         /// <summary>
-        /// Creates a 'try' block with the given name, body, exception handlers
-        /// and 'finally' flow.
+        /// Creates a 'try' block with the given name, parameters, body,
+        /// exception handlers and 'finally' flow. The block's outgoing flow
+        /// is also specified.
         /// </summary>
         public UniqueTag CreateTryBlock(
-            string Name, IStatement Statement,
+            UniqueTag Tag, IReadOnlyList<SSAVariable> Parameters,
+            IStatement Statement, BlockFlow Flow,
             IReadOnlyList<ExceptionBranch> BlockExceptionHandlers,
             BlockBranch BlockFinallyBranch)
         {
@@ -306,14 +308,41 @@ namespace Flame.Compiler.Visitors
             this.FinallyBranch = BlockFinallyBranch;
 
             // Create the block.
-            var result = CreateBlock(
-                new UniqueTag(Name), Statement, new FinallyFlow(FinallyBranch));
+            var result = CreateBlock(Tag, Parameters, Statement, Flow);
 
             // Restore the old EH environment.
             this.ExceptionHandlers = oldEh;
             this.FinallyBranch = oldFinally;
 
             return result;
+        }
+
+        /// <summary>
+        /// Creates a 'try' block with the given name, parameters, body,
+        /// exception handlers and 'finally' flow.
+        /// </summary>
+        public UniqueTag CreateTryBlock(
+            string Name, IStatement Statement, BlockFlow Flow,
+            IReadOnlyList<ExceptionBranch> BlockExceptionHandlers,
+            BlockBranch BlockFinallyBranch)
+        {
+            return CreateTryBlock(
+                new UniqueTag(Name), new List<SSAVariable>(), Statement, Flow,
+                BlockExceptionHandlers, BlockFinallyBranch);
+        }
+
+        /// <summary>
+        /// Creates a 'try' block with the given name, body, exception handlers
+        /// and 'finally' flow.
+        /// </summary>
+        public UniqueTag CreateTryBlock(
+            string Name, IStatement Statement,
+            IReadOnlyList<ExceptionBranch> BlockExceptionHandlers,
+            BlockBranch BlockFinallyBranch)
+        {
+            return CreateTryBlock(
+                Name, Statement, new FinallyFlow(BlockFinallyBranch),
+                BlockExceptionHandlers, BlockFinallyBranch);
         }
 
         public override const bool Matches(IExpression Value)
