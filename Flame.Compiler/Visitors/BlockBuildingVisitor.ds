@@ -83,6 +83,46 @@ namespace Flame.Compiler.Visitors
         /// </summary>
         public BlockBuilder Builder { const get; private set; }
 
+        /// <summary>
+        /// Checks if this block building visitor is currently in a 'try' block.
+        /// </summary>
+        public bool InTryBlock
+        {
+            get
+            {
+                return ExceptionHandlers != null;
+            }
+        }
+
+        /// <summary>
+        /// Gets the list of exception handlers.
+        /// </summary>
+        public IReadOnlyList<ExceptionBranch> ExceptionHandlers { const get; private set; }
+
+        /// <summary>
+        /// Gets an outgoing flow instruction that represents the branch to
+        /// take when a 'finally' block is reached.
+        /// </summary>
+        public BlockBranch FinallyBranch { const get; private set; }
+
+        public BlockFlow CreateExceptionFlow(UniqueTag SuccessTag)
+        {
+            return CreateExceptionFlow(new BlockBranch(SuccessTag));
+        }
+
+        public BlockFlow CreateExceptionFlow(BlockBranch SuccessBranch)
+        {
+            if (InTryBlock)
+            {
+                return new ExceptionFlow(
+                    SuccessBranch, FinallyBranch, ExceptionHandlers);
+            }
+            else
+            {
+                return new JumpFlow(SuccessBranch);
+            }
+        }
+
         // A list of unspilled movable statements.
         // These are predecessor sibling statements
         // from the perspective of the node that is
@@ -248,6 +288,32 @@ namespace Flame.Compiler.Visitors
         public UniqueTag CreateBlock(string Name, IStatement Statement, UniqueTag Destination)
         {
             return CreateBlock(new UniqueTag(Name), Statement, Destination);
+        }
+
+        /// <summary>
+        /// Creates a 'try' block with the given name, body, exception handlers
+        /// and 'finally' flow.
+        /// </summary>
+        public UniqueTag CreateTryBlock(
+            string Name, IStatement Statement,
+            IReadOnlyList<ExceptionBranch> BlockExceptionHandlers,
+            BlockBranch BlockFinallyBranch)
+        {
+            // Create a new EH environment.
+            var oldEh = this.ExceptionHandlers;
+            var oldFinally = this.FinallyBranch;
+            this.ExceptionHandlers = BlockExceptionHandlers;
+            this.FinallyBranch = BlockFinallyBranch;
+
+            // Create the block.
+            var result = CreateBlock(
+                new UniqueTag(Name), Statement, new FinallyFlow(FinallyBranch));
+
+            // Restore the old EH environment.
+            this.ExceptionHandlers = oldEh;
+            this.FinallyBranch = oldFinally;
+
+            return result;
         }
 
         public override const bool Matches(IExpression Value)
