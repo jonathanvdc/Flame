@@ -6,6 +6,7 @@ tests
     Enumerables/Enumerables.test;
     Equatable/Equatable.test;
     Exceptions/Exceptions.test;
+    Exceptions/Exceptions2.test;
     Foreach/Foreach.test;
     LogicalOps/LogicalOps.test;
     StringEquality/StringEquality.test;
