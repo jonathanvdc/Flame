@@ -77,7 +77,7 @@ namespace Flame.Optimization
                 if (Region.Contains(jmpFlow.Branch.TargetTag))
                     return new JumpFlow(jmpFlow.Branch);
                 else
-                    return TerminatedFlow;
+                    return ExitFlow;
             }
             else
             {

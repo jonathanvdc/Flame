@@ -41,4 +41,16 @@ namespace Flame.Compiler.Flow
     /// </summary>
     public static class TerminatedFlow : TerminatedFlowBase
     { }
+
+    /// <summary>
+    /// A type of basic block flow that flags the end of the basic block as
+    /// a jump to the control-flow graph's successor node. Like terminated
+    /// flow, this ends control-flow within the context of the enclosing
+    /// control-flow graph. Unlike terminated flow, it does not terminate
+    /// control-flow for the entire function body. This is mainly intended for
+    /// usage by the lowering passes, and the middle-end need not take exit
+    /// flow into consideration.
+    /// </summary>
+    public static class ExitFlow : TerminatedFlowBase
+    { }
 }
