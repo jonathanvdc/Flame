@@ -12,7 +12,12 @@ namespace Flame.Compiler.Flow
     public struct ExceptionFlowRegion
     {
         public const this(
-            set UniqueTag EntryPointTag, set [UniqueTag] Tags);
+            set UniqueTag EntryPointTag, [UniqueTag] Tags)
+        {
+            this.tagSet = new HashSet<UniqueTag>(Tags);
+        }
+
+        private HashSet<UniqueTag> tagSet;
 
         /// <summary>
         /// Gets this exception flow region's single entry point.
@@ -23,7 +28,7 @@ namespace Flame.Compiler.Flow
         /// Gets the set of all block tags of blocks that belong to this
         /// region.
         /// </summary>
-        public [UniqueTag] Tags { get; private set; }
+        public [UniqueTag] Tags { get { return tagSet; } }
 
         /// <summary>
         /// Checks if this exception flow region is empty. This is equivalent
@@ -32,6 +37,15 @@ namespace Flame.Compiler.Flow
         public bool IsEmpty
         {
             get { return EntryPointTag == null; }
+        }
+
+        /// <summary>
+        /// Checks if this exception flow region contains a block that is
+        /// identified by the given unique tag.
+        /// </summary>
+        public bool Contains(UniqueTag Tag)
+        {
+            return tagSet.Contains(Tag);
         }
 
         /// <summary>
