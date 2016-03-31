@@ -105,9 +105,9 @@ namespace Flame.Intermediate.Parsing
         public const string LeaveFlowNodeName = "#leave";
 
         /// <summary>
-        /// A node type that encodes an ExceptionFlow flow instruction.
+        /// A node type that encodes an GuardedFlow flow instruction.
         /// </summary>
-        public const string ExceptionFlowNodeName = "#exception";
+        public const string GuardedFlowNodeName = "#guarded";
 
         /// <summary>
         /// A node type that represents the exception caught
@@ -1092,9 +1092,9 @@ namespace Flame.Intermediate.Parsing
 
                 return new LeaveFlow(ParseBasicBlockBranch(State, Node.Args[0], Tags));
             }
-            else if (type == ExceptionFlowNodeName)
+            else if (type == GuardedFlowNodeName)
             {
-                // #exception(#branch(...), #branch(...), { #catch(type, #branch(...))... })
+                // #guarded(#branch(...), #branch(...), { #catch(type, #branch(...))... })
 
                 var successBranch = ParseBasicBlockBranch(State, Node.Args[0], Tags);
                 var finallyBranch = ParseBasicBlockBranch(State, Node.Args[1], Tags);
@@ -1106,7 +1106,7 @@ namespace Flame.Intermediate.Parsing
                     var br = ParseBasicBlockBranch(State, item.Args[1], Tags);
                     ehBranches.Add(new ExceptionBranch(ty, br));
                 }
-                return new ExceptionFlow(successBranch, finallyBranch, ehBranches);
+                return new GuardedFlow(successBranch, finallyBranch, ehBranches);
             }
 			else if (type == SelectFlowNodeName)
 			{

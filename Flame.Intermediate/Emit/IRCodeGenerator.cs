@@ -18,7 +18,7 @@ namespace Flame.Intermediate.Emit
                                    IForeachCodeGenerator, ICommentedCodeGenerator,
                                    IYieldCodeGenerator, ILambdaCodeGenerator,
                                    IInitializingCodeGenerator, IContractCodeGenerator,
-								   ISSACodeGenerator, IBlockCodeGenerator, 
+								   ISSACodeGenerator, IBlockCodeGenerator,
 								   IStackCodeGenerator
     {
         public IRCodeGenerator(IRAssemblyBuilder Assembly, IMethod Method)
@@ -752,24 +752,24 @@ namespace Flame.Intermediate.Emit
                 return NodeBlock.Call(this, ExpressionParsers.LeaveFlowNodeName,
                     EmitBasicBlockBranch(((LeaveFlow)Flow).Branch));
             }
-            else if (Flow is ExceptionFlow)
+            else if (Flow is GuardedFlow)
             {
-                // Create an "#exception(#branch(...) #branch(...), { #catch(type, #branch(...))... })" node
-                var ehFlow = (ExceptionFlow)Flow;
+                // Create an "#guarded(#branch(...) #branch(...), { #catch(type, #branch(...))... })" node
+                var ehFlow = (GuardedFlow)Flow;
                 var handlerList = new List<LNode>(ehFlow.ExceptionBranches.Count);
                 foreach (var br in ehFlow.ExceptionBranches)
                 {
                     handlerList.Add(NodeFactory.Call(
-                        ExpressionParsers.CatchNodeName, 
-                        new LNode[] 
+                        ExpressionParsers.CatchNodeName,
+                        new LNode[]
                         {
                             Assembly.TypeTable.GetReference(br.ExceptionType),
                             EmitBasicBlockBranch(br.Branch).Node
                         }));
                 }
                 return NodeBlock.Call(
-                    this, ExpressionParsers.ExceptionFlowNodeName,
-                    EmitBasicBlockBranch(ehFlow.SuccessBranch).Node,
+                    this, ExpressionParsers.GuardedFlowNodeName,
+                    EmitBasicBlockBranch(ehFlow.GuardedBranch).Node,
                     EmitBasicBlockBranch(ehFlow.FinallyBranch).Node,
                     NodeFactory.Block(handlerList));
             }

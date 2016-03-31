@@ -87,10 +87,10 @@ namespace Flame.Optimization
 
         private BlockFlow MakeExceptionlessFlow(BlockFlow Flow)
         {
-            if (Flow is ExceptionFlow)
+            if (Flow is GuardedFlow)
             {
-                var ehFlow = (ExceptionFlow)Flow;
-                return new JumpFlow(ehFlow.SuccessBranch);
+                var ehFlow = (GuardedFlow)Flow;
+                return new JumpFlow(ehFlow.GuardedBranch);
             }
             else if (Flow is TryFlow)
             {

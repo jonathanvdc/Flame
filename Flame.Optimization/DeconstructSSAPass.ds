@@ -581,20 +581,24 @@ namespace Flame.Optimization
                             Registers, Temporaries)
                     }).Simplify());
             }
-            else if (Flow is ExceptionFlow)
+            else if (Flow is GuardedFlow)
             {
-                // Exception flow instructions should first perform
-                // phi assignments for variables that are used by the EH, and
-                // then emit the block's body. Finally, phi assignments are
-                // performed for the success (fallthrough) block.
+                // Guarded flow instructions first emit the block's body, then
+                // create phi assignments for variables that are used by the EH
+                // and finally emit phi assignments for the
+                // success (fallthrough) block.
 
-                var ehFlow = (ExceptionFlow)Flow;
-                var successBr = ehFlow.SuccessBranch;
+                var ehFlow = (GuardedFlow)Flow;
+                var successBr = ehFlow.GuardedBranch;
                 var finallyBr = ehFlow.FinallyBranch;
 
                 var ehBranches = new List<ExceptionBranch>(ehFlow.ExceptionBranches.Count);
                 var bodyStmts = new List<IStatement>(ehBranches.Count + 3);
 
+                // Body first
+                bodyStmts.Add(Contents);
+
+                // Exception branches next
                 foreach (var br in ehFlow.ExceptionBranches)
                 {
                     var tag = br.Branch.TargetTag;
@@ -610,14 +614,14 @@ namespace Flame.Optimization
                     finallyBr.Arguments,
                     Graph.GetBlock(finallyBr.TargetTag).Parameters,
                     Registers, Temporaries));
-                bodyStmts.Add(Contents);
+
                 bodyStmts.Add(CreatePhiAssignStatement(
                     successBr.Arguments,
                     Graph.GetBlock(successBr.TargetTag).Parameters,
                     Registers, Temporaries));
 
                 return new Tuple<BlockFlow, IStatement>(
-                    new ExceptionFlow(
+                    new GuardedFlow(
                         new BlockBranch(successBr.TargetTag),
                         new BlockBranch(finallyBr.TargetTag),
                         ehBranches),

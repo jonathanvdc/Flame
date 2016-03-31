@@ -8,7 +8,7 @@ namespace Flame.Compiler.Flow
 {
     // Exception handling in Flame's control-flow graph representation is as follows:
     //
-    //     TryFlow -> ... -> ExceptionFlow -> ... -> FinallyFlow -> ... -> LeaveFlow
+    //     TryFlow -> ... -> GuardedFlow -> ... -> FinallyFlow -> ... -> LeaveFlow
     //                             \                               /
     //                              \                             /
     //                               \ -> ... -> FinallyFlow ->  /
@@ -20,7 +20,7 @@ namespace Flame.Compiler.Flow
     //   * Each exception handling subgraph's 'try' region is terminated by
     //     zero or more FinallyFlow instructions.
     //   * Ditto for 'catch' regions.
-    //   * The order of 'catch' regions in ExceptionFlow instructions
+    //   * The order of 'catch' regions in GuardedFlow instructions
     //     must be consistent.
     //   * The type of exceptions handled by 'catch' regions must be
     //     consistent.
@@ -130,24 +130,24 @@ namespace Flame.Compiler.Flow
     }
 
     /// <summary>
-    /// A type of basic block control flow that identifies its parent block
-    /// as something that can potentially throw an exception. Exception handler
-    /// blocks are explicitly identified.
+    /// A type of basic block control flow that identifies the target
+    /// of its 'guarded' branch as a block that could throw an exception.
+    /// A list of exception handlers, as well as a 'finally' branch,
+    /// are encoded in this flow construct.
     /// </summary>
-    public class ExceptionFlow : BlockFlow
+    public class GuardedFlow : BlockFlow
     {
         /// <summary>
         /// Creates a new exception flow instruction.
         /// </summary>
         public const this(
-            set BlockBranch SuccessBranch, set BlockBranch FinallyBranch,
+            set BlockBranch GuardedBranch, set BlockBranch FinallyBranch,
             set IReadOnlyList<ExceptionBranch> ExceptionBranches);
 
         /// <summary>
-        /// Gets the 'success' branch, which is taken when no exception
-        /// is thrown.
+        /// Gets the 'guarded' branch, which may throw an exception.
         /// </summary>
-        public BlockBranch SuccessBranch { get; private set; }
+        public BlockBranch GuardedBranch { get; private set; }
 
         /// <summary>
         /// Gets the 'finally' branch, which is taken when an exception is
@@ -166,7 +166,7 @@ namespace Flame.Compiler.Flow
             get
             {
                 var results = new List<BlockBranch>(ExceptionBranches.Count + 2);
-                results.Add(SuccessBranch);
+                results.Add(GuardedBranch);
                 results.Add(FinallyBranch);
                 foreach (var item in ExceptionBranches)
                 {
@@ -178,14 +178,14 @@ namespace Flame.Compiler.Flow
 
         public override BlockFlow Accept(IBasicBlockVisitor Visitor)
         {
-            var brSuccess = Visitor.Visit(SuccessBranch);
+            var brSuccess = Visitor.Visit(GuardedBranch);
             var brFinally = Visitor.Visit(FinallyBranch);
             var brException = new List<ExceptionBranch>(ExceptionBranches.Count);
             foreach (var item in ExceptionBranches)
             {
                 brException.Add(item.Accept(Visitor));
             }
-            return new ExceptionFlow(brSuccess, brFinally, brException);
+            return new GuardedFlow(brSuccess, brFinally, brException);
         }
 
         public override BlockFlow ConvertMembers(MemberConverter Converter)
@@ -195,7 +195,7 @@ namespace Flame.Compiler.Flow
             {
                 brException.Add(item.ConvertMembers(Converter));
             }
-            return new ExceptionFlow(SuccessBranch, FinallyBranch, brException);
+            return new GuardedFlow(GuardedBranch, FinallyBranch, brException);
         }
     }
 }

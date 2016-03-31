@@ -369,11 +369,11 @@ namespace Flame.Compiler.Flow
 					}
 					return result;
 				}
-				else if (block.Flow is ExceptionFlow)
+				else if (block.Flow is GuardedFlow)
 				{
-					var flow = (ExceptionFlow)block.Flow;
+					var flow = (GuardedFlow)block.Flow;
 					ExploreTryRegion(
-						flow.SuccessBranch.TargetTag, TryRegionBlocks,
+						flow.GuardedBranch.TargetTag, TryRegionBlocks,
 						ExceptionHandlers, HandlerRegions, Subgraphs);
 
 					foreach (var br in flow.ExceptionBranches)
