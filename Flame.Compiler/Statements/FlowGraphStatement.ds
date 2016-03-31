@@ -28,6 +28,19 @@ namespace Flame.Compiler.Statements
             get { return true; }
         }
 
+        private BlockFlow RemoveGuards(BlockFlow Flow)
+        {
+            if (Flow is GuardedFlow)
+            {
+                var ehFlow = (GuardedFlow)Flow;
+                return new JumpFlow(ehFlow.GuardedBranch);
+            }
+            else
+            {
+                return Flow;
+            }
+        }
+
         /// <summary>
         /// Creates a number of basic blocks that are semantically equivalent
         /// to this flow statement.
@@ -37,22 +50,36 @@ namespace Flame.Compiler.Statements
             // Redirect the current block to the entry point tag.
             Visitor.Builder.RedirectCurrent(Graph.EntryPointTag);
 
+            // First, figure out which blocks are guarded.
+            var guardedBlocks = new Dictionary<UniqueTag, GuardedFlow>();
             foreach (var item in Graph.Blocks)
             {
-                // Create all blocks.
-                if (item.Flow is ExceptionFlow)
+                if (item.Flow is GuardedFlow)
+                {
+                    var ehFlow = (GuardedFlow)item.Flow;
+                    guardedBlocks[ehFlow.GuardedBranch.TargetTag] = ehFlow;
+                }
+            }
+
+            // Then create all blocks.
+            foreach (var item in Graph.Blocks)
+            {
+                var tag = item.Tag;
+                // Remove guard flow from basic blocks: the CreateTryBlock
+                // call with recreate guard flow whenever necessary.
+                var newFlow = RemoveGuards(item.Flow);
+                if (guardedBlocks.TryGetValue(tag, &GuardedFlow ehFlow))
                 {
                     // Exception blocks introduce an EH scope, which
                     // we must take into account.
-                    var ehFlow = (ExceptionFlow)item.Flow;
                     Visitor.CreateTryBlock(
-                        item.Tag, item.Parameters, item.Contents, ehFlow,
+                        tag, item.Parameters, item.Contents, newFlow,
                         ehFlow.ExceptionBranches, ehFlow.FinallyBranch);
                 }
                 else
                 {
                     Visitor.CreateBlock(
-                        item.Tag, item.Parameters, item.Contents, item.Flow);
+                        tag, item.Parameters, item.Contents, newFlow);
                 }
             }
         }

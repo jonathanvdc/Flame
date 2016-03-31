@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Variables;
 using Flame.Compiler.Visitors;
+using Flame.Compiler.Statements;
 
 namespace Flame.Compiler.Expressions
 {
@@ -175,10 +176,27 @@ namespace Flame.Compiler.Expressions
 			// Create an SSA local to hold the result.
 			var resultVar = new SSAVariable("invocation_result", Type);
 			var setStmt = resultVar.CreateSetStatement(this.Accept(Visitor));
-			// Create the block.
+			// Create the following blocks:
+			//
+			//     @enter:
+			//         guarded: @guarded
+			//         finally: @finally
+			//         handlers:
+			//             @catch_1
+			//             ...
+			//             @catch_n
+			//
+			//     @guarded:
+			//         invocation_result = <call>;
+			//         jump @next
+			//
+			Visitor.Builder.CreateCurrentBlock(
+				EmptyStatement,
+				Visitor.CreateGuardedFlow(Visitor.Builder.NextBlockTag));
+			Visitor.Builder.Next();
 			Visitor.Builder.CreateCurrentBlock(
 				setStmt,
-				Visitor.CreateExceptionFlow(Visitor.Builder.NextBlockTag));
+				new JumpFlow(new BlockBranch(Visitor.Builder.NextBlockTag)));
 			return resultVar;
 		}
 	}

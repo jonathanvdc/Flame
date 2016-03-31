@@ -105,21 +105,21 @@ namespace Flame.Compiler.Visitors
         /// </summary>
         public BlockBranch FinallyBranch { const get; private set; }
 
-        public BlockFlow CreateExceptionFlow(UniqueTag SuccessTag)
+        public BlockFlow CreateGuardedFlow(UniqueTag GuardedBranch)
         {
-            return CreateExceptionFlow(new BlockBranch(SuccessTag));
+            return CreateGuardedFlow(new BlockBranch(GuardedBranch));
         }
 
-        public BlockFlow CreateExceptionFlow(BlockBranch SuccessBranch)
+        public BlockFlow CreateGuardedFlow(BlockBranch GuardedBranch)
         {
             if (InTryBlock)
             {
-                return new ExceptionFlow(
-                    SuccessBranch, FinallyBranch, ExceptionHandlers);
+                return new GuardedFlow(
+                    GuardedBranch, FinallyBranch, ExceptionHandlers);
             }
             else
             {
-                return new JumpFlow(SuccessBranch);
+                return new JumpFlow(GuardedBranch);
             }
         }
 

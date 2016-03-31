@@ -53,8 +53,7 @@ namespace Flame.Compiler.Statements
 				// Create the following blocks:
 				//
 				// @enter():
-				//     throw ex;
-				//     success: @exit()
+				//     guarded: @exit()
 				//     handlers:
 				//         @catch_0()
 				//         ...
@@ -62,13 +61,14 @@ namespace Flame.Compiler.Statements
 				//     finally: @finally()
 				//
 				// @exit():
+				//     throw ex;
 				//     terminated
 
-				var exitTag = Visitor.CreateBlock(
-					"exit", EmptyStatement, TerminatedFlow);
+				var exitTag = Visitor.Builder.CreateBlock(
+					"exit", this.Accept(Visitor), TerminatedFlow);
 
 				Visitor.Builder.CreateCurrentBlock(
-					this.Accept(Visitor), Visitor.CreateExceptionFlow(exitTag));
+					EmptyStatement, Visitor.CreateGuardedFlow(exitTag));
 			}
 			else
 			{
