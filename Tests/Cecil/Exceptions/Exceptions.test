@@ -14,7 +14,7 @@ configs
 {
     Og { Flags = -Og; }
     O2 { Flags = -O2; }
-    // O3 { Flags = -O3; }
+    O3 { Flags = -O3; }
 }
 
 init

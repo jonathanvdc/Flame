@@ -80,6 +80,11 @@ namespace Flame.Front.Target
                 // can be pretty restrictive about these naming schemes.
                 new PassCondition(NormalizeNamesPass.NormalizeNamesPassName, optInfo => true),
 
+                // Use -fdeconstruct-cfg-eh to deconstruct exception control-flow graphs,
+                // if -O3 or more has been specified (we won't construct
+                // a flow graph otherwise, anyway)
+                new PassCondition(DeconstructExceptionFlowPass.DeconstructExceptionFlowPassName, optInfo => optInfo.OptimizeAggressive),
+
                 // Use -fdeconstruct-cfg to deconstruct control-flow graphs,
                 // if -O3 or more has been specified (we won't construct
                 // a flow graph otherwise, anyway)
