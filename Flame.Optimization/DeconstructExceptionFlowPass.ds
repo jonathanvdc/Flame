@@ -1,0 +1,234 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A node visitor that replaces exception expressions.
+    /// </summary>
+    public class ExceptionExpressionReplacer : NodeVisitorBase
+    {
+        public const this(set IExpression Expression);
+
+        /// <summary>
+        /// Gets the expression to replace caught-exception expressions
+        /// by.
+        /// </summary>
+        public IExpression Expression { get; private set; }
+
+        public override bool Matches(IStatement Value)
+        {
+            return Value is TryStatement;
+        }
+
+        public override bool Matches(IExpression Value)
+        {
+            return Value is CaughtExceptionExpression;
+        }
+
+        protected override IStatement Transform(IStatement Value)
+        {
+            return Value;
+        }
+
+        protected override IExpression Transform(IExpression Value)
+        {
+            return Expression;
+        }
+    }
+
+    /// <summary>
+    /// A pass that deconstructs control-flow graph exception handling constructs,
+    /// and replaces them by tree-based exception handling constructs.
+    /// </summary>
+    public static class DeconstructExceptionFlowPass : StatementVisitorBase, IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// This pass' name.
+        /// </summary>
+        public const string DeconstructExceptionFlowPassName = "deconstruct-cfg-eh";
+
+        public override bool Matches(IStatement Value)
+        {
+            return Value is FlowGraphStatement;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            assert(Statement is FlowGraphStatement);
+            var flowGraphStmt = (FlowGraphStatement)Statement;
+            return VisitFlowGraph(flowGraphStmt.Graph);
+        }
+
+        private BlockFlow MakeExceptionlessFlow(
+            BlockFlow Flow, ExceptionFlowRegion Region)
+        {
+            if (Flow is JumpFlowBase)
+            {
+                var jmpFlow = (JumpFlowBase)Flow;
+                if (Region.Contains(jmpFlow.Branch.TargetTag))
+                    return new JumpFlow(jmpFlow.Branch);
+                else
+                    return TerminatedFlow;
+            }
+            else
+            {
+                return MakeExceptionlessFlow(Flow);
+            }
+        }
+
+        private BlockFlow MakeExceptionlessFlow(BlockFlow Flow)
+        {
+            if (Flow is ExceptionFlow)
+            {
+                var ehFlow = (ExceptionFlow)Flow;
+                return new JumpFlow(ehFlow.SuccessBranch);
+            }
+            else if (Flow is TryFlow)
+            {
+                var tryFlow = (TryFlow)Flow;
+                return new JumpFlow(tryFlow.Branch);
+            }
+            else
+            {
+                return Flow;
+            }
+        }
+
+        private FlowGraph GetExceptionSubgraph(
+            ExceptionFlowRegion Region, FlowGraph Graph)
+        {
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+            foreach (var tag in Region.Tags)
+            {
+                var block = Graph.GetBlock(tag);
+                results[tag] = new BasicBlock(
+                    tag, block.Parameters, block.Contents,
+                    MakeExceptionlessFlow(block.Flow, Region));
+            }
+            return new FlowGraph(Region.EntryPointTag, results);
+        }
+
+        private IStatement VisitExceptionRegion(
+            ExceptionFlowRegion Region, FlowGraph Graph,
+            Dictionary<UniqueTag, ExceptionFlowGraph> TryBlocks)
+        {
+            // Remove this region's entry point tag from the try
+            // block dictionary, to avoid recursing forever.
+            TryBlocks.Remove(Region.EntryPointTag);
+            // Take the subgraph that belongs to this region, and
+            // recursively visit that.
+            return VisitFlowGraph(
+                GetExceptionSubgraph(Region, Graph), TryBlocks);
+        }
+
+        private IStatement VisitExceptionGraph(
+            ExceptionFlowGraph ExceptionGraph, FlowGraph Graph,
+            Dictionary<UniqueTag, ExceptionFlowGraph> TryBlocks)
+        {
+            var tryBody = VisitExceptionRegion(
+                ExceptionGraph.TryRegion, Graph, TryBlocks);
+            var finallyBody = VisitExceptionRegion(
+                ExceptionGraph.FinallyRegion, Graph, TryBlocks);
+            var catchClauses = new List<CatchClause>(
+                ExceptionGraph.CatchRegions.Count);
+            foreach (var region in ExceptionGraph.CatchRegions)
+            {
+                var clause = new CatchClause(
+                    new TypeVariableMember(region.ExceptionType));
+                var replVisitor = new ExceptionExpressionReplacer(
+                    clause.ExceptionVariable.CreateGetExpression());
+                clause.Body = replVisitor.Visit(
+                    VisitExceptionRegion(region.Region, Graph, TryBlocks));
+                catchClauses.Add(clause);
+            }
+            return new TryStatement(tryBody, finallyBody, catchClauses);
+        }
+
+        /// <summary>
+        /// Visits the given basic block, and all blocks that can be reached
+        /// from it.
+        /// </summary>
+        private void VisitBasicBlock(
+            UniqueTag Tag, FlowGraph Graph,
+            Dictionary<UniqueTag, ExceptionFlowGraph> TryBlocks,
+            Dictionary<UniqueTag, BasicBlock> Results)
+        {
+            if (Results.ContainsKey(Tag))
+                return;
+
+            var block = Graph.GetBlock(Tag);
+            if (TryBlocks.TryGetValue(Tag, &ExceptionFlowGraph ehGraph))
+            {
+                var body = VisitExceptionGraph(ehGraph, Graph, TryBlocks);
+                if (ehGraph.FinallyRegion.IsEmpty)
+                {
+                    Results[Tag] = new BasicBlock(
+                        Tag, block.Parameters, body, TerminatedFlow);
+                }
+                else
+                {
+                    var leaveTag = Enumerable.Single<UniqueTag>(
+                        ehGraph.FinallyRegion.FindLeaveTags(Graph));
+                    Results[Tag] = new BasicBlock(
+                        Tag, block.Parameters, body,
+                        new JumpFlow(new BlockBranch(leaveTag)));
+
+                    // Visit the 'leave' block.
+                    VisitBasicBlock(leaveTag, Graph, TryBlocks, Results);
+                }
+            }
+            else
+            {
+                var newFlow = MakeExceptionlessFlow(block.Flow);
+                Results[Tag] = new BasicBlock(
+                    Tag, block.Parameters, Visit(block.Contents), newFlow);
+
+                foreach (var tag in newFlow.SuccessorTags)
+                {
+                    // Visit all blocks that are reachable from this
+                    // block.
+                    VisitBasicBlock(tag, Graph, TryBlocks, Results);
+                }
+            }
+        }
+
+        private IStatement VisitFlowGraph(
+            FlowGraph Graph, Dictionary<UniqueTag, ExceptionFlowGraph> TryBlocks)
+        {
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+            VisitBasicBlock(Graph.EntryPointTag, Graph, TryBlocks, results);
+            return new FlowGraphStatement(
+                new FlowGraph(Graph.EntryPointTag, results));
+        }
+
+        private IStatement VisitFlowGraph(FlowGraph Graph)
+        {
+            // We'll first find all EH regions in the control-flow graph.
+            // Then, we can process the control-flow graph, and collapse
+            // EH subgraphs into single blocks that contain control-flow
+            // graphs themselves.
+            var ehGraphs = Graph.FindExceptionFlowGraphs();
+            var tryBlocks = new Dictionary<UniqueTag, ExceptionFlowGraph>();
+            foreach (var item in ehGraphs)
+            {
+                tryBlocks[item.TryRegion.EntryPointTag] = item;
+            }
+            return VisitFlowGraph(Graph, tryBlocks);
+        }
+
+        public IStatement Apply(IStatement Statement)
+            in { VerifyCFGPass.Apply(Statement) }
+        {
+            return this.Visit(DeconstructSSAPass.Apply(Statement));
+        }
+    }
+}

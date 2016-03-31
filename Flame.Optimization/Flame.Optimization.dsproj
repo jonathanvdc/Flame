@@ -24,6 +24,7 @@
     <Compile Include="CopyPropagationPass.ds" />
     <Compile Include="DeadBlockEliminationPass.ds" />
     <Compile Include="DeadStoreEliminationPass.ds" />
+    <Compile Include="DeconstructExceptionFlowPass.ds" />
     <Compile Include="DeconstructFlowGraphPass.ds" />
     <Compile Include="DeconstructSSAPass.ds" />
     <Compile Include="DevirtualizationPass.ds" />

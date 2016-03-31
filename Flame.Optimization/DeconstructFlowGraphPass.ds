@@ -12,7 +12,8 @@ namespace Flame.Optimization
 {
     /// <summary>
     /// A class that constructs a fairly linear tree of instructions
-    /// that use branches to model basic block flow.
+    /// that use branches to model basic block flow. This is used in
+    /// conjunction with DeconstructFlowGraphPass.
     /// </summary>
     public class LinearLabelFlowBuilder
     {
@@ -63,7 +64,7 @@ namespace Flame.Optimization
         /// </summary>
         public void EmitStatement(IStatement Statement)
         {
-            results.Add(Statement);
+            results.Add(DeconstructFlowGraphPass.Visit(Statement));
         }
 
         /// <summary>

@@ -28,6 +28,8 @@ namespace Flame.Compiler.Flow
     //     one entry point.
     //   * Each exception handling subgraph's 'finally' region is terminated
     //     by zero or more LeaveFlow instructions.
+    //   * All LeaveFlow instructions in a 'finally' region target the same
+    //     basic block.
 
     /// <summary>
     /// A type of basic block control flow node that creates a new exception handling
