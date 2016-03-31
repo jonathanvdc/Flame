@@ -71,6 +71,12 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         public const string TerminatedFlowNodeName = "#terminated";
 
+        /// <summary>
+        /// Defines a node type that represents a branch to the control-flow
+        /// graph's successor node.
+        /// </summary>
+        public const string ExitFlowNodeName = "#exit";
+
 		/// <summary>
 		/// Defines a node type that encodes an unconditional branch
 		/// to a basic block.
@@ -1128,6 +1134,12 @@ namespace Flame.Intermediate.Parsing
                 // #terminated
 
                 return TerminatedFlow.Instance;
+            }
+            else if (type == ExitFlowNodeName)
+            {
+                // #exit
+
+                return ExitFlow.Instance;
             }
 			else
 			{

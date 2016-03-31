@@ -22,11 +22,15 @@ namespace Flame.Optimization
             this.results = new List<IStatement>();
             this.labels = new Dictionary<UniqueTag, LateBoundLabel>();
             this.placedBlocks = new HashSet<UniqueTag>();
+            this.exitLabel = new LateBoundLabel();
+            this.pendingExit = false;
         }
 
         private List<IStatement> results;
         private Dictionary<UniqueTag, LateBoundLabel> labels;
         private HashSet<UniqueTag> placedBlocks;
+        private LateBoundLabel exitLabel;
+        private bool pendingExit;
 
         /// <summary>
         /// Gets the generated statement tree.
@@ -59,12 +63,27 @@ namespace Flame.Optimization
             return result;
         }
 
+        private void EmitRawStatement(IStatement Statement)
+        {
+            results.Add(Statement);
+        }
+
+        private void FlushPendingExit()
+        {
+            if (pendingExit)
+            {
+                EmitRawStatement(exitLabel.CreateBranchStatement());
+                pendingExit = false;
+            }
+        }
+
         /// <summary>
         /// Adds the given statement to the statement tree.
         /// </summary>
         public void EmitStatement(IStatement Statement)
         {
-            results.Add(DeconstructFlowGraphPass.Visit(Statement));
+            FlushPendingExit();
+            EmitRawStatement(DeconstructFlowGraphPass.Visit(Statement));
         }
 
         /// <summary>
@@ -85,6 +104,15 @@ namespace Flame.Optimization
         }
 
         /// <summary>
+        /// Emits an unconditional branch to the 'exit' block, i.e. the very
+        /// end of this code sequence.
+        /// </summary>
+        public void EmitExit()
+        {
+            pendingExit = true;
+        }
+
+        /// <summary>
         /// Places the given block's contents in the statement tree.
         /// Its location is marked with a label, which allows branches to use it
         /// as a target.
@@ -96,6 +124,14 @@ namespace Flame.Optimization
             EmitStatement(label.CreateMarkStatement());
             EmitStatement(Block.Contents);
             placedBlocks.Add(Block.Tag);
+        }
+
+        /// <summary>
+        /// Marks this linear flow builder's exit block.
+        /// </summary>
+        public void MarkExit()
+        {
+            EmitRawStatement(exitLabel.CreateMarkStatement());
         }
     }
 
@@ -181,6 +217,10 @@ namespace Flame.Optimization
                     EmitBlock(thenTag, Graph, FlowBuilder);
                 }
             }
+            else if (flow is ExitFlow)
+            {
+                FlowBuilder.EmitExit();
+            }
             else if (!(flow is TerminatedFlowBase))
             {
                 throw new InvalidOperationException(
@@ -194,6 +234,7 @@ namespace Flame.Optimization
         {
             var flowBuilder = new LinearLabelFlowBuilder();
             EmitBlock(Graph.EntryPointTag, Graph, flowBuilder);
+            flowBuilder.MarkExit();
             return flowBuilder.Result;
         }
 

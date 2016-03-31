@@ -719,6 +719,11 @@ namespace Flame.Intermediate.Emit
                 // Create a "#terminated" node
                 return NodeBlock.Id(this, ExpressionParsers.TerminatedFlowNodeName);
             }
+            else if (Flow is ExitFlow)
+            {
+                // Create an "#exit" node
+                return NodeBlock.Id(this, ExpressionParsers.ExitFlowNodeName);
+            }
             else if (Flow is JumpFlow)
             {
                 // Create a "#jump(#branch(...))" node
