@@ -256,6 +256,7 @@ namespace Flame.Compiler.Flow
 		/// </summary>
 		private void ExploreFinallyRegion(
 			UniqueTag Tag, HashSet<UniqueTag> FinallyRegionBlocks,
+			ExceptionFlowRegionBuilder Builder,
 			Dictionary<UniqueTag, ExceptionFlowGraph> Subgraphs)
 		{
 			if (FinallyRegionBlocks.Add(Tag))
@@ -272,19 +273,34 @@ namespace Flame.Compiler.Flow
 					// We've encountered the start of another exception handling
 					// subgraph. Handle it separately.
 					var target = ((TryFlow)block.Flow).Branch.TargetTag;
-					ExploreExceptionFlowGraph(target, Subgraphs);
+					ExploreExceptionFlowGraph(target, Builder, Subgraphs);
 					var result = Subgraphs[target];
 					foreach (var tag in result.FinallyRegion.FindLeaveTags(this))
 					{
-						ExploreFinallyRegion(tag, FinallyRegionBlocks, Subgraphs);
+						ExploreFinallyRegion(tag, FinallyRegionBlocks, Builder, Subgraphs);
 					}
+				}
+				else if (block.Flow is GuardedFlow)
+				{
+					var ehFlow = (GuardedFlow)block.Flow;
+					ExploreFinallyRegion(
+						ehFlow.GuardedBranch.TargetTag, FinallyRegionBlocks,
+						Builder, Subgraphs);
+					foreach (var br in ehFlow.ExceptionBranches)
+					{
+						VisitCatchRegion(
+							br.Branch.TargetTag, br.ExceptionType,
+							Builder, Subgraphs);
+					}
+
+					Builder.AddFinallyEntryPoint(ehFlow.FinallyBranch.TargetTag);
 				}
 				else
 				{
 					// Explore all successor tags.
 					foreach (var tag in block.Flow.SuccessorTags)
 					{
-						ExploreFinallyRegion(tag, FinallyRegionBlocks, Subgraphs);
+						ExploreFinallyRegion(tag, FinallyRegionBlocks, Builder, Subgraphs);
 					}
 				}
 			}
@@ -296,6 +312,7 @@ namespace Flame.Compiler.Flow
 		/// </summary>
 		private void ExploreCatchRegion(
 			UniqueTag Tag, HashSet<UniqueTag> CatchRegionBlocks,
+			ExceptionFlowRegionBuilder Builder,
 			Dictionary<UniqueTag, ExceptionFlowGraph> Subgraphs)
 		{
 			if (CatchRegionBlocks.Add(Tag))
@@ -312,21 +329,53 @@ namespace Flame.Compiler.Flow
 					// We've encountered the start of another exception handling
 					// subgraph. Handle it separately.
 					var target = ((TryFlow)block.Flow).Branch.TargetTag;
-					ExploreExceptionFlowGraph(target, Subgraphs);
+					ExploreExceptionFlowGraph(target, Builder, Subgraphs);
 					var result = Subgraphs[target];
 					foreach (var tag in result.FinallyRegion.FindLeaveTags(this))
 					{
-						ExploreCatchRegion(tag, CatchRegionBlocks, Subgraphs);
+						ExploreCatchRegion(tag, CatchRegionBlocks, Builder, Subgraphs);
 					}
+				}
+				else if (block.Flow is GuardedFlow)
+				{
+					var ehFlow = (GuardedFlow)block.Flow;
+					ExploreCatchRegion(
+						ehFlow.GuardedBranch.TargetTag, CatchRegionBlocks,
+						Builder, Subgraphs);
+					foreach (var br in ehFlow.ExceptionBranches)
+					{
+						VisitCatchRegion(
+							br.Branch.TargetTag, br.ExceptionType,
+							Builder, Subgraphs);
+					}
+
+					Builder.AddFinallyEntryPoint(ehFlow.FinallyBranch.TargetTag);
 				}
 				else
 				{
 					// Explore all successor tags.
 					foreach (var tag in block.Flow.SuccessorTags)
 					{
-						ExploreCatchRegion(tag, CatchRegionBlocks, Subgraphs);
+						ExploreCatchRegion(tag, CatchRegionBlocks, Builder, Subgraphs);
 					}
 				}
+			}
+		}
+
+		private void VisitCatchRegion(
+			UniqueTag Tag, IType ExceptionType,
+			ExceptionFlowRegionBuilder Builder,
+			Dictionary<UniqueTag, ExceptionFlowGraph> Subgraphs)
+		{
+			if (!Builder.HandlerRegions.ContainsKey(Tag))
+			{
+				Builder.ExceptionHandlers.Add(Tag);
+				Builder.HandlerRegions[Tag] = null;
+				var catchRegionBlocks = new HashSet<UniqueTag>();
+				ExploreCatchRegion(Tag, catchRegionBlocks, Builder.Parent, Subgraphs);
+				Builder.HandlerRegions[Tag] = new ExceptionHandlerRegion(
+					ExceptionType, new ExceptionFlowRegion(
+						Tag, catchRegionBlocks));
 			}
 		}
 
@@ -335,83 +384,54 @@ namespace Flame.Compiler.Flow
 		/// and are part of the 'try' region, to the set of
 		/// 'try' region tags. 'Catch' regions are also analyzed.
 		/// </summary>
-		private UniqueTag ExploreTryRegion(
-			UniqueTag Tag, HashSet<UniqueTag> TryRegionBlocks,
-			List<UniqueTag> ExceptionHandlers,
-			Dictionary<UniqueTag, ExceptionHandlerRegion> HandlerRegions,
+		private void ExploreTryRegion(
+			UniqueTag Tag, ExceptionFlowRegionBuilder Builder,
 			Dictionary<UniqueTag, ExceptionFlowGraph> Subgraphs)
 		{
-			if (TryRegionBlocks.Add(Tag))
+			if (Builder.TryTags.Add(Tag))
 			{
 				var block = GetBlock(Tag);
 				assert(!(block.Flow is LeaveFlow));
 				if (block.Flow is FinallyFlow)
 				{
 					// All right. We're done here.
-					return ((FinallyFlow)block.Flow).Branch.TargetTag;
+					Builder.AddFinallyEntryPoint(((FinallyFlow)block.Flow).Branch.TargetTag);
 				}
 				else if (block.Flow is TryFlow)
 				{
 					// We've encountered the start of another exception handling
 					// subgraph. Handle it separately.
 					var target = ((TryFlow)block.Flow).Branch.TargetTag;
-					ExploreExceptionFlowGraph(target, Subgraphs);
+					ExploreExceptionFlowGraph(target, Builder, Subgraphs);
 					var ehGraph = Subgraphs[target];
-					UniqueTag result = null;
 					foreach (var tag in ehGraph.FinallyRegion.FindLeaveTags(this))
 					{
-						var finallyTag = ExploreTryRegion(
-							tag, TryRegionBlocks, ExceptionHandlers,
-							HandlerRegions, Subgraphs);
-
-						if (finallyTag != null)
-							result = finallyTag;
+						ExploreTryRegion(tag, Builder, Subgraphs);
 					}
-					return result;
 				}
 				else if (block.Flow is GuardedFlow)
 				{
-					var flow = (GuardedFlow)block.Flow;
+					var ehFlow = (GuardedFlow)block.Flow;
 					ExploreTryRegion(
-						flow.GuardedBranch.TargetTag, TryRegionBlocks,
-						ExceptionHandlers, HandlerRegions, Subgraphs);
+						ehFlow.GuardedBranch.TargetTag, Builder, Subgraphs);
 
-					foreach (var br in flow.ExceptionBranches)
+					foreach (var br in ehFlow.ExceptionBranches)
 					{
-						var target = br.Branch.TargetTag;
-						if (!HandlerRegions.ContainsKey(target))
-						{
-							ExceptionHandlers.Add(target);
-							HandlerRegions[target] = null;
-							var catchRegionBlocks = new HashSet<UniqueTag>();
-							ExploreCatchRegion(
-								target, catchRegionBlocks, Subgraphs);
-							HandlerRegions[target] = new ExceptionHandlerRegion(
-								br.ExceptionType, new ExceptionFlowRegion(
-									target, catchRegionBlocks));
-						}
+						VisitCatchRegion(
+							br.Branch.TargetTag, br.ExceptionType,
+							Builder, Subgraphs);
 					}
-					return flow.FinallyBranch.TargetTag;
+
+					Builder.AddFinallyEntryPoint(ehFlow.FinallyBranch.TargetTag);
 				}
 				else
 				{
 					// Explore all successor tags.
-					UniqueTag result = null;
 					foreach (var tag in block.Flow.SuccessorTags)
 					{
-						var finallyTag = ExploreTryRegion(
-							tag, TryRegionBlocks, ExceptionHandlers,
-							HandlerRegions, Subgraphs);
-
-						if (finallyTag != null)
-							result = finallyTag;
+						ExploreTryRegion(tag, Builder, Subgraphs);
 					}
-					return result;
 				}
-			}
-			else
-			{
-				return null;
 			}
 		}
 
@@ -420,7 +440,8 @@ namespace Flame.Compiler.Flow
 		/// and adds it to the set of exception flow subgraphs.
 		/// </summary>
 		private void ExploreExceptionFlowGraph(
-			UniqueTag Tag, Dictionary<UniqueTag, ExceptionFlowGraph> Subgraphs)
+			UniqueTag Tag, ExceptionFlowRegionBuilder Parent,
+			Dictionary<UniqueTag, ExceptionFlowGraph> Subgraphs)
 		{
 			if (Subgraphs.ContainsKey(Tag))
 				return;
@@ -429,27 +450,18 @@ namespace Flame.Compiler.Flow
 			// compute the same exception flow subgraph twice.
 			Subgraphs[Tag] = null;
 
-			var tryRegionBlocks = new HashSet<UniqueTag>();
-			var ehBlocks = new List<UniqueTag>();
-			var ehRegions = new Dictionary<UniqueTag, ExceptionHandlerRegion>();
+			var regionBlock = new ExceptionFlowRegionBuilder(Tag, Parent);
 
-			var finallyTag = ExploreTryRegion(
-				Tag, tryRegionBlocks, ehBlocks, ehRegions, Subgraphs);
-
-			var tryRegion = new ExceptionFlowRegion(Tag, tryRegionBlocks);
+			ExploreTryRegion(Tag, regionBlock, Subgraphs);
 
 			var finallyBlocks = new HashSet<UniqueTag>();
+			var finallyTag = regionBlock.FinallyEntryPointTag;
 			if (finallyTag != null)
-				ExploreFinallyRegion(finallyTag, finallyBlocks, Subgraphs);
+				ExploreFinallyRegion(finallyTag, finallyBlocks, regionBlock.Parent, Subgraphs);
+
 			var finallyRegion = new ExceptionFlowRegion(finallyTag, finallyBlocks);
 
-			var catchRegions = new List<ExceptionHandlerRegion>(ehBlocks.Count);
-			foreach (var tag in ehBlocks)
-			{
-				catchRegions.Add(ehRegions[tag]);
-			}
-
-			Subgraphs[Tag] = new ExceptionFlowGraph(tryRegion, finallyRegion, catchRegions);
+			Subgraphs[Tag] = regionBlock.CreateExceptionFlowGraph(finallyRegion);
 		}
 
 		/// <summary>
@@ -459,14 +471,8 @@ namespace Flame.Compiler.Flow
 		public [ExceptionFlowGraph] FindExceptionFlowGraphs()
 		{
 			var results = new Dictionary<UniqueTag, ExceptionFlowGraph>();
-			foreach (var block in Blocks)
-			{
-				if (block.Flow is TryFlow)
-				{
-					var flow = (TryFlow)block.Flow;
-					ExploreExceptionFlowGraph(flow.Branch.TargetTag, results);
-				}
-			}
+			ExploreExceptionFlowGraph(EntryPointTag, null, results);
+			results.Remove(EntryPointTag);
 			return results.Values;
 		}
 	}

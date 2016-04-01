@@ -120,4 +120,55 @@ namespace Flame.Compiler.Flow
         /// </summary>
         public IReadOnlyList<ExceptionHandlerRegion> CatchRegions { get; private set; }
     }
+
+    /// <summary>
+    /// A data structure that is used during exception flow analysis.
+    /// </summary>
+    public class ExceptionFlowRegionBuilder
+    {
+        public const this(set UniqueTag TryEntryPointTag, set ExceptionFlowRegionBuilder Parent)
+        {
+            this.TryTags = new HashSet<UniqueTag>();
+            this.ExceptionHandlers = new List<UniqueTag>();
+            this.HandlerRegions = new Dictionary<UniqueTag, ExceptionHandlerRegion>();
+        }
+
+        public UniqueTag TryEntryPointTag { get; private set; }
+        public HashSet<UniqueTag> TryTags { get; private set; }
+
+        public UniqueTag FinallyEntryPointTag { get; private set; }
+
+        public void AddFinallyEntryPoint(UniqueTag Tag)
+        {
+            if (FinallyEntryPointTag == null)
+                FinallyEntryPointTag = Tag;
+            else
+                assert(FinallyEntryPointTag == Tag);
+        }
+
+        /// <summary>
+        /// Gets this try-flow region builder's parent try-flow region.
+        /// </summary>
+        public ExceptionFlowRegionBuilder Parent { get; private set; }
+
+        public List<UniqueTag> ExceptionHandlers { get; private set; }
+        public Dictionary<UniqueTag, ExceptionHandlerRegion> HandlerRegions { get; private set; }
+
+        public ExceptionFlowRegion TryRegion
+        {
+            get { return new ExceptionFlowRegion(TryEntryPointTag, TryTags); }
+        }
+
+        public ExceptionFlowGraph CreateExceptionFlowGraph(
+            ExceptionFlowRegion FinallyRegion)
+        {
+            var catchRegions = new List<ExceptionHandlerRegion>(ExceptionHandlers.Count);
+			foreach (var tag in ExceptionHandlers)
+			{
+				catchRegions.Add(HandlerRegions[tag]);
+			}
+
+			return new ExceptionFlowGraph(TryRegion, FinallyRegion, catchRegions);
+        }
+    }
 }
