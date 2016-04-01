@@ -71,7 +71,17 @@ namespace Flame.Optimization
         private BlockFlow MakeExceptionlessFlow(
             BlockFlow Flow, ExceptionFlowRegion Region)
         {
-            if (Flow is JumpFlowBase)
+            if (Flow is GuardedFlow)
+            {
+                var ehFlow = (GuardedFlow)Flow;
+                return new JumpFlow(ehFlow.GuardedBranch);
+            }
+            else if (Flow is TryFlow)
+            {
+                var jmpFlow = (TryFlow)Flow;
+                return new JumpFlow(jmpFlow.Branch);
+            }
+            else if (Flow is JumpFlowBase)
             {
                 var jmpFlow = (JumpFlowBase)Flow;
                 if (Region.Contains(jmpFlow.Branch.TargetTag))
@@ -81,63 +91,21 @@ namespace Flame.Optimization
             }
             else
             {
-                return MakeExceptionlessFlow(Flow);
-            }
-        }
-
-        private BlockFlow MakeExceptionlessFlow(BlockFlow Flow)
-        {
-            if (Flow is GuardedFlow)
-            {
-                var ehFlow = (GuardedFlow)Flow;
-                return new JumpFlow(ehFlow.GuardedBranch);
-            }
-            else if (Flow is TryFlow)
-            {
-                var tryFlow = (TryFlow)Flow;
-                return new JumpFlow(tryFlow.Branch);
-            }
-            else
-            {
                 return Flow;
             }
-        }
-
-        private FlowGraph GetExceptionSubgraph(
-            ExceptionFlowRegion Region, FlowGraph Graph)
-        {
-            var results = new Dictionary<UniqueTag, BasicBlock>();
-            foreach (var tag in Region.Tags)
-            {
-                var block = Graph.GetBlock(tag);
-                results[tag] = new BasicBlock(
-                    tag, block.Parameters, block.Contents,
-                    MakeExceptionlessFlow(block.Flow, Region));
-            }
-            return new FlowGraph(Region.EntryPointTag, results);
-        }
-
-        private IStatement VisitExceptionRegion(
-            ExceptionFlowRegion Region, FlowGraph Graph,
-            Dictionary<UniqueTag, ExceptionFlowGraph> TryBlocks)
-        {
-            // Remove this region's entry point tag from the try
-            // block dictionary, to avoid recursing forever.
-            TryBlocks.Remove(Region.EntryPointTag);
-            // Take the subgraph that belongs to this region, and
-            // recursively visit that.
-            return VisitFlowGraph(
-                GetExceptionSubgraph(Region, Graph), TryBlocks);
         }
 
         private IStatement VisitExceptionGraph(
             ExceptionFlowGraph ExceptionGraph, FlowGraph Graph,
             Dictionary<UniqueTag, ExceptionFlowGraph> TryBlocks)
         {
-            var tryBody = VisitExceptionRegion(
-                ExceptionGraph.TryRegion, Graph, TryBlocks);
-            var finallyBody = VisitExceptionRegion(
-                ExceptionGraph.FinallyRegion, Graph, TryBlocks);
+            // Remove this region's entry point tag from the try
+            // block dictionary, to avoid recursing forever.
+            TryBlocks.Remove(ExceptionGraph.TryRegion.EntryPointTag);
+            var tryBody = VisitFlowGraph(
+                Graph, ExceptionGraph.TryRegion, TryBlocks);
+            var finallyBody = VisitFlowGraph(
+                Graph, ExceptionGraph.FinallyRegion, TryBlocks);
             var catchClauses = new List<CatchClause>(
                 ExceptionGraph.CatchRegions.Count);
             foreach (var region in ExceptionGraph.CatchRegions)
@@ -147,7 +115,7 @@ namespace Flame.Optimization
                 var replVisitor = new ExceptionExpressionReplacer(
                     clause.ExceptionVariable.CreateGetExpression());
                 clause.Body = replVisitor.Visit(
-                    VisitExceptionRegion(region.Region, Graph, TryBlocks));
+                    VisitFlowGraph(Graph, region.Region, TryBlocks));
                 catchClauses.Add(clause);
             }
             return new TryStatement(tryBody, finallyBody, catchClauses);
@@ -158,7 +126,7 @@ namespace Flame.Optimization
         /// from it.
         /// </summary>
         private void VisitBasicBlock(
-            UniqueTag Tag, FlowGraph Graph,
+            UniqueTag Tag, FlowGraph Graph, ExceptionFlowRegion Region,
             Dictionary<UniqueTag, ExceptionFlowGraph> TryBlocks,
             Dictionary<UniqueTag, BasicBlock> Results)
         {
@@ -183,12 +151,12 @@ namespace Flame.Optimization
                         new JumpFlow(new BlockBranch(leaveTag)));
 
                     // Visit the 'leave' block.
-                    VisitBasicBlock(leaveTag, Graph, TryBlocks, Results);
+                    VisitBasicBlock(leaveTag, Graph, Region, TryBlocks, Results);
                 }
             }
             else
             {
-                var newFlow = MakeExceptionlessFlow(block.Flow);
+                var newFlow = MakeExceptionlessFlow(block.Flow, Region);
                 Results[Tag] = new BasicBlock(
                     Tag, block.Parameters, Visit(block.Contents), newFlow);
 
@@ -196,18 +164,20 @@ namespace Flame.Optimization
                 {
                     // Visit all blocks that are reachable from this
                     // block.
-                    VisitBasicBlock(tag, Graph, TryBlocks, Results);
+                    VisitBasicBlock(tag, Graph, Region, TryBlocks, Results);
                 }
             }
         }
 
         private IStatement VisitFlowGraph(
-            FlowGraph Graph, Dictionary<UniqueTag, ExceptionFlowGraph> TryBlocks)
+            FlowGraph Graph, ExceptionFlowRegion Region,
+            Dictionary<UniqueTag, ExceptionFlowGraph> TryBlocks)
         {
             var results = new Dictionary<UniqueTag, BasicBlock>();
-            VisitBasicBlock(Graph.EntryPointTag, Graph, TryBlocks, results);
+            VisitBasicBlock(
+                Region.EntryPointTag, Graph, Region, TryBlocks, results);
             return new FlowGraphStatement(
-                new FlowGraph(Graph.EntryPointTag, results));
+                new FlowGraph(Region.EntryPointTag, results));
         }
 
         private IStatement VisitFlowGraph(FlowGraph Graph)
@@ -222,7 +192,8 @@ namespace Flame.Optimization
             {
                 tryBlocks[item.TryRegion.EntryPointTag] = item;
             }
-            return VisitFlowGraph(Graph, tryBlocks);
+            var totalRegion = new ExceptionFlowRegion(Graph.EntryPointTag, Graph.BlockTags);
+            return VisitFlowGraph(Graph, totalRegion, tryBlocks);
         }
 
         public IStatement Apply(IStatement Statement)
