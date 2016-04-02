@@ -1,0 +1,26 @@
+// A compare-test test description.
+
+build
+{
+    $(dsc) $(Filename).ds -platform clr -o bin/$(Filename).exe $(Flags);
+}
+
+run
+{
+    return = @($(net-runtime) bin/$(Filename).exe);
+}
+
+configs
+{
+    Og { Flags = -Og; }
+    O2 { Flags = -O2; }
+    O3 { Flags = -O3; }
+}
+
+init
+{
+    Filename = Exceptions3;
+
+    // Make sure that the output is "hi\n3\n42\n42\n12"
+    return = @(echo hi)@(echo 3)@(echo 42)@(echo 42)@(echo 12);
+}
