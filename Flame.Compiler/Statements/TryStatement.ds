@@ -93,7 +93,16 @@ namespace Flame.Compiler.Statements
 				exVar.CreateSetStatement(new CaughtExceptionExpression(exVar.Type)),
 				Body
 			}).Simplify();
-			return Visitor.CreateBlock("catch", newBody, OutFlow);
+
+			// If a 'catch' block throws an exception, then control will
+			// be transferred to the 'finally' block. Control will never
+			// be transferred directly to some exception handler, so
+			// create a guarded block with no exception handlers and
+			// a single 'finally' branch.
+
+			return Visitor.CreateTryBlock(
+				"catch", newBody, OutFlow,
+				new List<ExceptionBranch>(), OutFlow.Branch);
 		}
 	}
 
@@ -184,13 +193,70 @@ namespace Flame.Compiler.Statements
 			// @finally():
 			//     <finally-body>
 			//     leave @next()
+			//
+			// And then there is only the small matter of what to do when
+			// an exception is thrown. Here's what exceptions do:
+			//
+			//     If an exception is thrown in the 'try' region, then:
+			//         - a matching handler may catch it. If so, then
+			//             - the 'catch' handler is invoked
+			//             - the 'finally' region is invoked
+			//             - control flow continues normally
+			//         - otherwise,
+			//             - the 'finally' region is invoked
+			//             - the exception propagates upward
+			//
+			//     If an exception is thrown in a 'catch' region, then:
+			//         - the 'finally' region is invoked
+			//         - the exception propagates upward
+			//
+			//     If an exception is thrown in a 'finally' region, then:
+			//         - the exception propagates upward
+			//
+			// To ensure correctness, we will insert guarded flow. This type
+			// of basic block flow instruction introduces a safe point before
+			// executing a basic block that *may* throw an exception.
+			//
+			// We will insert guarded flow as follows:
+			//
+			//   * In the 'try' body, guarded flow will refer to the 'try'
+			//     statement's associated 'catch' and 'finally' handlers, as
+			//     the 'try' body may transfer control to either a 'catch'
+			//     or 'finally' handler (if there is no 'catch' handler).
+			//
+			//   * In the 'catch' body, guarded flow will refer to the 'try'
+			//     statement's associated 'finally' handler only: no matter what
+			//     happens, control-flow will visit this region first.
+			//
+			//   * In the 'finally' body, guarded flow will refer to the
+			//     enclosing scope's 'catch' and 'finally' handlers.
+			//     Additionally, we will insert a single guarded flow block
+			//     just before the block that contains the 'leave' instruction,
+			//     because uncaught exceptions may want to propagate upward.
 
 			var nextBlockTag = Visitor.Builder.NextBlockTag;
 
-			var finallyTag = Visitor.CreateBlock("finally", FinallyBody, new LeaveFlow(new BlockBranch(nextBlockTag)));
+			// Create the 'finally' block.
+			var finallyTag = new UniqueTag("finally");
+			var leaveFlow = new LeaveFlow(new BlockBranch(nextBlockTag));
+			if (Visitor.InTryBlock)
+			{
+				var finallyGuardTag = new UniqueTag("finally.guard");
+				Visitor.CreateBlock(
+					finallyTag, FinallyBody,
+					Visitor.CreateGuardedFlow(finallyGuardTag));
+				Visitor.Builder.CreateBlock(
+					finallyGuardTag, EmptyStatement, leaveFlow);
+			}
+			else
+			{
+				Visitor.CreateBlock(finallyTag, FinallyBody, leaveFlow);
+			}
+
 			var finallyBr = new BlockBranch(finallyTag);
 			var finallyFlow = new FinallyFlow(finallyBr);
 
+			// Create the exception handlers ('catch' blocks)
 			var ehBlocks = new List<ExceptionBranch>();
 			foreach (var clause in CatchClauses)
 			{
@@ -199,6 +265,7 @@ namespace Flame.Compiler.Statements
 					clause.ExceptionVariable.Type, new BlockBranch(ehTag)));
 			}
 
+			// Create the 'try' blocks
 			var tryTag = Visitor.CreateTryBlock("try", TryBody, ehBlocks, finallyBr);
 
 			Visitor.Builder.CreateCurrentBlock(

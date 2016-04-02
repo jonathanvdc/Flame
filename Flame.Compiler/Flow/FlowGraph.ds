@@ -342,12 +342,12 @@ namespace Flame.Compiler.Flow
 					ExploreCatchRegion(
 						ehFlow.GuardedBranch.TargetTag, CatchRegionBlocks,
 						Builder, Subgraphs);
-					foreach (var br in ehFlow.ExceptionBranches)
-					{
-						VisitCatchRegion(
-							br.Branch.TargetTag, br.ExceptionType,
-							Builder, Subgraphs);
-					}
+
+					// 'catch' blocks always transfer control to
+					// some 'finally' block. There's no way control
+					// can be tranferred from one exception handler
+					// to another.
+					assert(ehFlow.ExceptionBranches.Count == 0);
 
 					Builder.AddFinallyEntryPoint(ehFlow.FinallyBranch.TargetTag);
 				}
@@ -372,7 +372,7 @@ namespace Flame.Compiler.Flow
 				Builder.ExceptionHandlers.Add(Tag);
 				Builder.HandlerRegions[Tag] = null;
 				var catchRegionBlocks = new HashSet<UniqueTag>();
-				ExploreCatchRegion(Tag, catchRegionBlocks, Builder.Parent, Subgraphs);
+				ExploreCatchRegion(Tag, catchRegionBlocks, Builder, Subgraphs);
 				Builder.HandlerRegions[Tag] = new ExceptionHandlerRegion(
 					ExceptionType, new ExceptionFlowRegion(
 						Tag, catchRegionBlocks));
