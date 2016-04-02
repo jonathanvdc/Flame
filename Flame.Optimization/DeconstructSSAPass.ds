@@ -593,32 +593,30 @@ namespace Flame.Optimization
                 var finallyBr = ehFlow.FinallyBranch;
 
                 var ehBranches = new List<ExceptionBranch>(ehFlow.ExceptionBranches.Count);
-                var bodyStmts = new List<IStatement>(ehBranches.Count + 3);
+                var phiArgs = new List<SSAVariable>();
+                var phiParams = new List<SSAVariable>();
 
-                // Body first
-                bodyStmts.Add(Contents);
-
-                // Exception branches next
+                // Rewrite exception branches, and build a big
+                // SSA argument -> SSA parameter map.
                 foreach (var br in ehFlow.ExceptionBranches)
                 {
                     var tag = br.Branch.TargetTag;
-                    bodyStmts.Add(CreatePhiAssignStatement(
-                        br.Branch.Arguments,
-                        Graph.GetBlock(tag).Parameters,
-                        Registers, Temporaries));
+                    phiArgs.AddRange(br.Branch.Arguments);
+                    phiParams.AddRange(Graph.GetBlock(tag).Parameters);
                     ehBranches.Add(new ExceptionBranch(
                         br.ExceptionType, new BlockBranch(tag)));
                 }
 
-                bodyStmts.Add(CreatePhiAssignStatement(
-                    finallyBr.Arguments,
-                    Graph.GetBlock(finallyBr.TargetTag).Parameters,
-                    Registers, Temporaries));
+                phiArgs.AddRange(finallyBr.Arguments);
+                phiParams.AddRange(Graph.GetBlock(finallyBr.TargetTag).Parameters);
+                phiArgs.AddRange(successBr.Arguments);
+                phiParams.AddRange(Graph.GetBlock(successBr.TargetTag).Parameters);
 
-                bodyStmts.Add(CreatePhiAssignStatement(
-                    successBr.Arguments,
-                    Graph.GetBlock(successBr.TargetTag).Parameters,
-                    Registers, Temporaries));
+                var bodyStmts = new IStatement[]
+                {
+                    Contents, CreatePhiAssignStatement(
+                        phiArgs, phiParams, Registers, Temporaries)
+                };
 
                 return new Tuple<BlockFlow, IStatement>(
                     new GuardedFlow(
