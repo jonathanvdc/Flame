@@ -2,38 +2,32 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Expressions
 {
     /// <summary>
     /// A type of expression that creates new object instances,
-    /// based on a type and a sequence of arguments.
+    /// based on a constructor and a sequence of arguments.
     /// </summary>
-    public class NewObjectExpression : IExpression
+    public class NewObjectExpression : IExpression, IPredicateNode,
+                                       IMemberNode, IFlowExpression
     {
         /// <summary>
-        /// Creates an expression that produces an instance of the given
-        /// type, by invoking its parameterless constructor (or by taking its
-        /// default value, if the type is a value type).
+        /// Creates an expression that produces an object instance,
+        /// by allocating storage and initializing it with the given
+        /// constructor, which is passed the given sequence of argument
+        /// expression.
         /// </summary>
-        public const this(IType ConstructedType)
-        {
-            this.Type = ConstructedType;
-            this.Arguments = Enumerable.Empty<IExpression>();
-            this.lazyCtor = new Lazy<IMethod>(getCtor);
-        }
+        public const this(set IMethod Constructor, set [IExpression] Arguments);
 
         /// <summary>
-        /// Creates an expression that produces an instance of the given
-        /// type, by invoking one of its constructors with the given arguments
-        /// (or by taking its default value, if the type is a value type,
-        /// and the sequence of arguments is empty).
+        /// Gets this new-object expression's constructor.
         /// </summary>
-        public const this(IType ConstructedType, set [IExpression] Arguments)
-        {
-            this.Type = ConstructedType;
-            this.lazyCtor = new Lazy<IMethod>(getCtor);
-        }
+        public IMethod Constructor { const get; private set; }
 
         /// <summary>
         /// Gets this new-object expression's argument list.
@@ -44,126 +38,111 @@ namespace Flame.Compiler.Expressions
         /// Gets the type this new-object expression will create an instance
         /// of.
         /// </summary>
-        public IType Type { const get; private set; }
+        public IType Type { const get { return Constructor.DeclaringType; } }
 
         public IExpression Accept(INodeVisitor Visitor)
         {
-            return Visitor.Visit(Lower());
+            var newArgs = new List<IExpression>();
+            bool same = true;
+            foreach (var arg in Arguments)
+            {
+                var visitedArg = Visitor.Visit(arg);
+                newArgs.Add(visitedArg);
+                if (visitedArg != arg)
+                {
+                    same = false;
+                }
+            }
+
+            if (same)
+                return this;
+            else
+                return new NewObjectExpression(Constructor, newArgs);
+        }
+
+        public void AcceptPredicate(INodeVisitor Visitor)
+        {
+            foreach (var arg in Arguments)
+                Visitor.Visit(arg);
+        }
+
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            return new NewObjectExpression(
+                Converter.Convert(Constructor), Arguments);
         }
 
         public bool IsConstantNode
         {
             const get
             {
-                var ctor = Constructor;
-                return ctor == null || ctor.IsConstant;
+                return Constructor.IsConstant;
             }
         }
 
-        public const IBoundObject Evaluate()
+        public IBoundObject Evaluate()
         {
-            return Lower().Evaluate();
+            return null;
         }
 
-        // Memoizes the constructor's value.
-        private Lazy<IMethod> lazyCtor;
-
-        /// <summary>
-        /// Gets the constructor this new-object expression will use when
-        /// lowering itself. If no such constructor can be found, then null
-        /// is returned.
-        /// </summary>
-        /// <remarks>
-        /// This expression can still be semantically valid, even if the
-        /// constructor is null, provided the instance type is a value type,
-        /// and the argument list is empty.
-        /// </remarks>
-        public IMethod Constructor
+        public IExpression Optimize()
         {
-            get { return lazyCtor.Value; }
+            return new NewObjectExpression(Constructor, Arguments.OptimizeAll());
         }
 
-        private IMethod getCtor()
+        public ICodeBlock Emit(ICodeGenerator Generator)
         {
-            return Type.GetConstructors().GetBestMethod(Type, Arguments.Types);
+            return Generator.EmitNewObject(Constructor, Arguments.EmitAll(Generator));
         }
 
         /// <summary>
-        /// Tests if this new-object expression will be lowered to a constructor
-        /// call expression.
-        /// </summary>
-        public bool IsConstructorCall
-        {
-            get { return Constructor != null; }
-        }
+		/// Accepts and interacts with a flow visitor.
+		/// </summary>
+		public IExpression AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+		{
+			// HACK: Just lie to the visitor and pretend this is linear flow.
+			//       This is evil, but the visitor would have assumed this
+			//       to be the case anyway had we not implemented IFlowStatement.
+			return Accept(Visitor);
+		}
 
-        /// <summary>
-        /// Tests if this new-object expression will be lowered to a default
-        /// value expression.
-        /// </summary>
-        public bool IsDefaultValue
-        {
-            get
-            {
-                return !IsConstructorCall && Type.IsValueType &&
-                       !Enumerable.Any<IExpression>(Arguments);
-           }
-        }
-
-        /// <summary>
-        /// Tests if this new-object expression is erroneous: it cannot be
-        /// lowered to another expression.
-        /// </summary>
-        public bool IsError
-        {
-            get { return !IsConstructorCall && !IsDefaultValue; }
-        }
-
-        /// <summary>
-        /// Attempts to lower this new-object expression.
-        /// If that cannot be done, then this instance
-        /// is simply returned.
-        /// </summary>
-        public IExpression LowerSoft()
-        {
-            if (IsConstructorCall)
-                return new InvocationExpression(Constructor, null, Arguments);
-            else if (IsDefaultValue)
-                return new DefaultValueExpression(Type);
-            else
-                return this;
-        }
-
-        /// <summary>
-        /// Lowers this new-object expression.
-        /// If that cannot be done, then an exception is thrown.
-        /// </summary>
-        public IExpression Lower()
-        {
-             var result = LowerSoft();
-             if (result is NewObjectExpression)
-                throw new InvalidOperationException(
-                "Could not lower new-object expression '" +
-                ToString() + "': no appropriate constructor was found.");
-
-            return result;
-        }
-
-        public const IExpression Optimize()
-        {
-            return Lower().Optimize();
-        }
-
-        public const ICodeBlock Emit(ICodeGenerator Generator)
-        {
-            return Lower().Emit(Generator);
-        }
+		/// <summary>
+		/// Converts this invocation-expression to a series of blocks.
+		/// </summary>
+		public SSAVariable ToBlocks(BlockBuildingVisitor Visitor)
+		{
+			// Create an SSA local to hold the result.
+			var resultVar = new SSAVariable("newobj_result", Type);
+			var setStmt = resultVar.CreateSetStatement(this.Accept(Visitor));
+			// Create the following blocks:
+			//
+			//     @enter:
+			//         guarded: @guarded
+			//         finally: @finally
+			//         handlers:
+			//             @catch_1
+			//             ...
+			//             @catch_n
+			//
+			//     @guarded:
+			//         invocation_result = <newobj>;
+			//         jump @next
+			//
+			Visitor.Builder.CreateCurrentBlock(
+				EmptyStatement,
+				Visitor.CreateGuardedFlow(Visitor.Builder.NextBlockTag));
+			Visitor.Builder.Next();
+			Visitor.Builder.CreateCurrentBlock(
+				setStmt,
+				new JumpFlow(new BlockBranch(Visitor.Builder.NextBlockTag)));
+			return resultVar;
+		}
 
         public override string ToString()
         {
             var result = new StringBuilder();
             result.Append("new(");
-            result.Append(Type.ToString());
+            result.Append(Constructor.ToString());
             foreach (var item in Arguments)
             {
                 result.Append(", ");

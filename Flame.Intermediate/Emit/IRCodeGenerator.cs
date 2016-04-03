@@ -403,6 +403,14 @@ namespace Flame.Intermediate.Emit
 
         #region Invocations
 
+        public ICodeBlock EmitNewObject(IMethod Constructor, IEnumerable<ICodeBlock> Arguments)
+        {
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.NewObjectName, new[]
+            {
+                Assembly.MethodTable.GetReference(Constructor)
+            }.Concat(Arguments.Select(NodeBlock.ToNode))));
+        }
+
         public ICodeBlock EmitInvocation(ICodeBlock Method, IEnumerable<ICodeBlock> Arguments)
         {
             return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.InvocationNodeName, new[]

@@ -356,6 +356,19 @@ namespace Flame.Cpp.Emit
             }
         }
 
+        public ICodeBlock EmitNewObject(IMethod Constructor, IEnumerable<ICodeBlock> Arguments)
+        {
+            var resultType = Environment.TypeConverter.Convert(Constructor.DeclaringType);
+            if (!resultType.GetIsValueType())
+            {
+                return new SharedPtrBlock(Method.CreateConstructorBlock(this), Arguments.Cast<ICppBlock>());
+            }
+            else
+            {
+                return new StackConstructorBlock(Method.CreateConstructorBlock(this), Arguments.Cast<ICppBlock>());
+            }
+        }
+
         public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller)
         {
             if (Method.GetIsOperator() && PartialOperatorBlock.IsSupportedOverload(Method))

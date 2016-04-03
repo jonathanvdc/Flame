@@ -204,6 +204,11 @@ namespace Flame.Python.Emit
 
         #region Invocations
 
+        public ICodeBlock EmitNewObject(IMethod Constructor, IEnumerable<ICodeBlock> Arguments)
+        {
+            return new PythonIdentifierBlock(this, GetName(Constructor.DeclaringType), MethodType.Create(Constructor), ModuleDependency.FromType(Constructor.DeclaringType));
+        }
+
         public ICodeBlock EmitInvocation(ICodeBlock Method, IEnumerable<ICodeBlock> Arguments)
         {
             var target = (IPythonBlock)Method;

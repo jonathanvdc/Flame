@@ -189,6 +189,13 @@ namespace Flame.Compiler
 		ICodeBlock EmitInvocation(ICodeBlock Method, [ICodeBlock] Arguments);
 
 		/// <summary>
+		/// Creates a code block that allocates storage for the given
+		/// constructor's declaring type, and initializes said storage with
+		/// the constructor and the given argument list.
+		/// </summary>
+		ICodeBlock EmitNewObject(IMethod Constructor, [ICodeBlock] Arguments);
+
+		/// <summary>
         /// Creates a new array of the specified element type with the specified dimensions.
         /// </summary>
         /// <param name="ElementType"></param>

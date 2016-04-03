@@ -357,8 +357,9 @@ namespace Flame.Compiler.Visitors
         {
             // Treat flow-expressions differently, but make an exception for
             // invocation blocks that appear outside of some 'try' block.
-            if (Expression is IFlowExpression &&
-                (!(Expression is InvocationExpression) || InTryBlock))
+            if (Expression is IFlowExpression
+                && (!(Expression is InvocationExpression || Expression is NewObjectExpression)
+                    || InTryBlock))
             {
                 // All right then. Spill all sibling statements/expressions.
                 Spill();

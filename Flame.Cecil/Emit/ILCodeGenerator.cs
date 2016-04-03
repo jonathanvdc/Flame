@@ -305,6 +305,11 @@ namespace Flame.Cecil.Emit
             return new InvocationBlock((ICecilBlock)Method, Arguments.Cast<ICecilBlock>());
         }
 
+        public ICodeBlock EmitNewObject(IMethod Constructor, IEnumerable<ICodeBlock> Arguments)
+        {
+            return new NewObjectBlock(this, Constructor, Arguments.Cast<ICecilBlock>());
+        }
+
         #endregion
 
         #region EmitConversion

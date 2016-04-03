@@ -51,7 +51,7 @@ namespace Flame.Syntax.DSharp
 	        return ConversionExpression.Create(callerInst.CreateGetExpression(), TargetType);
         }
 
-        public static const IExpression CreateInvocationExpression(ISyntaxState State, IExpression Delegate, ISyntaxNode MethodNode, [IExpression] Arguments, [IExpressionSyntax] Nodes)
+        public static IExpression CreateInvocationExpression(ISyntaxState State, IExpression Delegate, ISyntaxNode MethodNode, [IExpression] Arguments, [IExpressionSyntax] Nodes)
         {
             var delegateParams = Delegate.GetDelegateParameterTypes();
 

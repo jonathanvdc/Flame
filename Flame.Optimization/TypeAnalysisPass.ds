@@ -421,20 +421,10 @@ namespace Flame.Optimization
                 var newTy = AnalysisResults[rVar];
                 return new IntersectionAnalysisType(Hypothesis, newTy);
             }
-            else if (Value is InvocationExpression)
+            else if (Value is NewObjectExpression)
             {
-                var invExpr = (InvocationExpression)Value;
-                if (invExpr.Target is GetMethodExpression)
-                {
-                    var getMethodExpr = (GetMethodExpression)invExpr.Target;
-                    var method = getMethodExpr.Target;
-                    if (getMethodExpr.Caller == null &&
-                        method.IsConstructor && !method.IsStatic)
-                    {
-                        // new-expressions imply constant types.
-                        return new ConstantAnalysisType(method.DeclaringType);
-                    }
-                }
+                var invExpr = (NewObjectExpression)Value;
+                return new ConstantAnalysisType(invExpr.Type);
             }
             var newTy = new ConeAnalysisType(Value.Type);
             return new IntersectionAnalysisType(Hypothesis, newTy);

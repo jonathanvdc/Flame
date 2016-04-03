@@ -323,6 +323,11 @@ namespace Flame.Optimization
                 var method = ((InvocationExpression)Expression).Method;
                 return method != null && method.IsConstant;
             }
+            else if (Expression is NewObjectExpression)
+            {
+                var expr = (NewObjectExpression)Expression;
+                return expr.IsConstantNode;
+            }
             else if (Expression is IVariableNode)
             {
                 // Variable load/address-of nodes don't change any state,

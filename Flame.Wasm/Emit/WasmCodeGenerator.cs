@@ -521,6 +521,13 @@ namespace Flame.Wasm.Emit
 			return new DelegateBlock(this, (CodeBlock)Caller, Method, Op);
 		}
 
+        public ICodeBlock EmitNewObject(IMethod Constructor, IEnumerable<ICodeBlock> Arguments)
+        {
+            // new-object expressions should be lowered by
+            // the pass pipeline.
+            throw new InvalidOperationException();
+        }
+
 		#endregion
 
 		#region Aggregates

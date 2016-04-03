@@ -429,6 +429,11 @@ namespace Flame.ExpressionTrees.Emit
             return new InvokeBlock(this, (IExpressionBlock)Method, Arguments.Cast<IExpressionBlock>());
         }
 
+        public ICodeBlock EmitNewObject(IMethod Constructor, IEnumerable<ICodeBlock> Arguments)
+        {
+            throw new NotImplementedException("new-object expressions are not implemented yet in the Linq.Expressions back-end");
+        }
+
         public ICodeBlock EmitMethod(IMethod Method, ICodeBlock Caller, Operator Op)
         {
             return new MethodBlock(this, (IExpressionBlock)Caller, Method, Op.Equals(Operator.GetVirtualDelegate));

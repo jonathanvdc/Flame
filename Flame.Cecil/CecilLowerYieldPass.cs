@@ -79,7 +79,7 @@ namespace Flame.Cecil
             // Emit Reset's body: `throw new NotImplementedException();`
 
             var notImplementedCtor = cecilEnv.Module.ConvertStrict(typeof(NotImplementedException)).GetConstructor(new IType[] { }, false);
-            descResetMethod.Body = new ThrowStatement(new InvocationExpression(notImplementedCtor, null, new IExpression[] { }));
+            descResetMethod.Body = new ThrowStatement(new NewObjectExpression(notImplementedCtor, new IExpression[] { }));
             TargetType.AddMethod(descResetMethod);
 
             // Implement IEnumerator.MoveNext()
