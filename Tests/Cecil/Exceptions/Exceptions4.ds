@@ -1,0 +1,50 @@
+using System;
+using System.IO;
+
+public module Program
+{
+    /// <summary>
+    /// Reads a single test file description, specified by the given path.
+    /// </summary>
+    public string ReadToEnd(string Path)
+    {
+        string result = null;
+        FileStream fs = null;
+        try
+        {
+            fs = new FileStream(Path, FileMode.Open, FileAccess.Read);
+            StreamReader reader;
+            try
+            {
+                reader = new StreamReader(fs);
+                result = reader.ReadToEnd();
+            }
+            finally
+            {
+                if (reader != null)
+                    reader.Dispose();
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            Console.WriteLine("file not found");
+        }
+        catch (DirectoryNotFoundException ex)
+        {
+            Console.WriteLine("directory not found");
+        }
+        finally
+        {
+            if (fs != null)
+                fs.Dispose();
+        }
+        return result;
+    }
+
+    public void Main(string[] Args)
+    {
+        assert(Args.Length > 0);
+
+        Console.WriteLine(ReadToEnd(Args[0]));
+    }
+}
