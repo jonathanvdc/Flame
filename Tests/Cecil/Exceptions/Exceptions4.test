@@ -21,6 +21,4 @@ init
 {
     Filename = Exceptions4;
     Args = $(Filename).ds;
-
-    return = @($cat $Args);
 }
