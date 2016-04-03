@@ -326,7 +326,7 @@ module ExpressionBuilder =
     /// Declares a local variable of the given type, name and body.
     let DeclareLocal (context : LocalScope) (varType : IType) (name : string) =
         if context.DeclaresDirectly name then
-            let message = new LogEntry("Variable redefinition", "'" + name + "' is defined more than once.")
+            let message = new LogEntry("variable redefinition", "'" + name + "' is defined more than once.")
             let local = (context.GetVariable name).Value
             local.CreateGetExpression() |> Error message, context
         else
@@ -357,7 +357,7 @@ module ExpressionBuilder =
         | Some variable ->
             variable.CreateGetExpression()
         | None ->
-            new LogEntry("Missing local variable", "Could not find a local variable named '" + name + "' in the current scope.") |> VoidError
+            new LogEntry("missing local variable", "could not find a local variable named '" + name + "' in the current scope.") |> VoidError
 
     /// Assigns the given right hand side to the left hand side.
     let Assign (context : LocalScope) (left : IExpression) (right : IExpression) : IExpression =
@@ -367,7 +367,7 @@ module ExpressionBuilder =
             new VariableExpression(new InitializedExpression(variable.CreateSetStatement(value), left),
                                    variable, VariableNodeAction.Set) :> IExpression
         | None          ->
-            let message = new LogEntry("Expression assignment", "Could not assign an expression to a non-variable expression.")
+            let message = new LogEntry("expression assignment", "could not assign an expression to a non-variable expression.")
             Finalize left right |> Error message
 
     /// Gets the address of the given expression, as a reference pointer.
@@ -376,15 +376,15 @@ module ExpressionBuilder =
         | Some variable ->
             match variable with
             | :? IUnmanagedVariable as variable -> variable.CreateAddressOfExpression()
-            | _                                 -> Error (new LogEntry("Bad address-of operation", "The target of an address-of operation is a variable whose address cannot be taken.")) target
-        | None          -> Error (new LogEntry("Bad address-of operation", "Could not take the address of a non-variable expression.")) target
+            | _                                 -> Error (new LogEntry("bad address-of operation", "the target of an address-of operation is a variable whose address cannot be taken.")) target
+        | None          -> Error (new LogEntry("bad address-of operation", "could not take the address of a non-variable expression.")) target
 
     /// Dereferences the given pointer.
     let Dereference (context : LocalScope) (target : IExpression) : IExpression =
         if target.Type.GetIsPointer() then
             new DereferencePointerExpression(target) :> IExpression
         else
-            Error (new LogEntry("Non-pointer expression dereferenced", "A non-pointer expression cannot be dereferenced. The given expression was of type '" + (context.Global.TypeNamer target.Type) + "', which is no pointer type.")) target
+            Error (new LogEntry("non-pointer expression dereferenced", "a non-pointer expression cannot be dereferenced. The given expression was of type '" + (context.Global.TypeNamer target.Type) + "', which is no pointer type.")) target
 
     /// Casts an expression to a type, based on the conversion rules given by the local scope.
     let Cast (context : LocalScope) (left : IExpression) (right : IType) : IExpression =
@@ -492,13 +492,13 @@ module ExpressionBuilder =
         let funcScope = scope.Function
         match funcScope.Function with
         | None ->
-            let message = new LogEntry("Bad 'this' access",
-                                       "The 'this' parameter can only be accessed from within the scope of a non-static method, constructor or accessor.")
+            let message = new LogEntry("bad 'this' access",
+                                       "the 'this' parameter can only be accessed from within the scope of a non-static method, constructor or accessor.")
             VoidError message
         | Some func ->
             if func.IsStatic then
-                let message = new LogEntry("Bad 'this' access",
-                                           "The 'this' parameter cannot be accessed from within a static method, constructor or accessor.")
+                let message = new LogEntry("bad 'this' access",
+                                           "the 'this' parameter cannot be accessed from within a static method, constructor or accessor.")
                 VoidError message
             else
                 AccessLocal thisIdentifier scope
@@ -592,7 +592,7 @@ module ExpressionBuilder =
                             |> Seq.toArray
 
         match delegates with
-        | [||] -> VoidError (new LogEntry("Invalid generic instance", "Generic instantiation could not be performed because the type of the target expression was '" + (scope.Global.TypeNamer target.Type) + "', which is not a delegate with " + string(tArgs.Length) + " type " + (if tArgs.Length = 1 then "parameter." else "parameters.")))
+        | [||] -> VoidError (new LogEntry("invalid generic instance", "generic instantiation could not be performed because the type of the target expression was '" + (scope.Global.TypeNamer target.Type) + "', which is not a delegate with " + string(tArgs.Length) + " type " + (if tArgs.Length = 1 then "parameter." else "parameters.")))
         | _    -> Intersection delegates
 
     /// Creates an expression that represents the invocation of the given function on the
@@ -620,15 +620,15 @@ module ExpressionBuilder =
                 let failedMatchesList = Seq.map (createSignatureDiff namer argTypes) matches
 
                 let explanationNode = new MarkupNode(NodeConstants.TextNodeType,
-                                                     "Method call could not be resolved. " +
+                                                     "method call could not be resolved. " +
                                                      "Expected signature compatible with '" + expectedSignature.ToString() +
                                                      "'. Incompatible or ambiguous matches:")
                 let failedMatchesNode = new MarkupNode("list", failedMatchesList)
                 let messageNode = new MarkupNode("entry", Seq.ofArray [| explanationNode; failedMatchesNode |])
-                Error (new LogEntry("Method resolution error", messageNode)) innerExpr
+                Error (new LogEntry("method resolution error", messageNode)) innerExpr
             else
-                Error (new LogEntry("Method resolution error",
-                                    "Method call could not be resolved because the invocation's target was not recognized as a function. " +
+                Error (new LogEntry("method resolution error",
+                                    "method call could not be resolved because the invocation's target was not recognized as a function. " +
                                     "Expected signature compatible with '" + expectedSignature.ToString() +
                                     "', got an expression of type '" + (scope.Global.TypeNamer target.Type) + "'."))
                       innerExpr
@@ -650,7 +650,7 @@ module ExpressionBuilder =
             // Create an inner expression that consists of the invocation's target and arguments,
             // whose values are calculated and then popped.
             let innerExpr = Block (Seq.append (Seq.singleton target) args) (fun _ -> false)
-            let entry = new LogEntry("Unresolved indexer", "Indexing operation could not be resolved.")
+            let entry = new LogEntry("unresolved indexer", "indexing operation could not be resolved.")
             Error entry innerExpr
 
     /// Creates a new array of the given element types and dimensions.
@@ -689,9 +689,9 @@ module ExpressionBuilder =
         | (Instance field, Value target)           -> (new ValueTypeFieldVariable(field, GetVariableOrExpressionVariable target)).CreateGetExpression()
         | (Instance field, Reference target)       -> (new FieldVariable(field, target)).CreateGetExpression()
         | (_, _)                                   ->
-            let message = "Could not access " + accessedField.MemberPrefix + " field of " +
+            let message = "could not access " + accessedField.MemberPrefix + " field of " +
                           (accessedExpr.Describe scope.Global.TypeNamer) + "."
-            Error (new LogEntry("Invalid field access", message)) (new UnknownExpression(accessedField.Member.FieldType))
+            Error (new LogEntry("invalid field access", message)) (new UnknownExpression(accessedField.Member.FieldType))
 
     /// Gets the address of the given expression, or creates a copy
     /// of said expression, and creates the address of a temporary backing variable.
@@ -719,9 +719,9 @@ module ExpressionBuilder =
         | (Extension tgt, Reference expr)
         | (Extension tgt, Value expr)                 -> new GetExtensionMethodExpression(tgt, CastImplicit scope expr (tgt.GetParameters().[0].ParameterType)) :> IDelegateExpression
         | (Instance tgt, Global _)                    ->
-            let message = "Could not access instance method '" + tgt.Name + "' of type '" +
+            let message = "could not access instance method '" + tgt.Name + "' of type '" +
                           (scope.Global.TypeNamer tgt.DeclaringType) + " without an instance."
-            new DelegateInstanceExpression (Error (new LogEntry("Invalid method access", message)) (new UnknownExpression(MethodType.Create tgt))) :> IDelegateExpression
+            new DelegateInstanceExpression (Error (new LogEntry("invalid method access", message)) (new UnknownExpression(MethodType.Create tgt))) :> IDelegateExpression
 
     /// Accesses a property on a target expression with the given index arguments, within the given local scope.
     let AccessIndexedProperty (scope : LocalScope) (getter : IMethod) (setter : IMethod) (accessedExpr : AccessedExpression) (indexArgs : IExpression seq) : IExpression =
@@ -742,9 +742,9 @@ module ExpressionBuilder =
         | :? IMethod   as mtd -> AccessMethod scope mtd accessedExpr :> IExpression
         | :? IProperty as prp -> AccessProperty scope (prp.GetGetAccessor()) (prp.GetSetAccessor()) accessedExpr
         | _                   ->
-            let message = "Could not access type member '" + targetMember.Name + "' belonging to type '" +
+            let message = "could not access type member '" + targetMember.Name + "' belonging to type '" +
                           (scope.Global.TypeNamer targetMember.DeclaringType) + " because it could not be identified as a field, method or property."
-            Error (new LogEntry("Unknown type member access", message)) Void
+            Error (new LogEntry("unknown type member access", message)) Void
 
     /// Checks if all elements of the given sequence are of a
     /// specific type.
@@ -763,22 +763,60 @@ module ExpressionBuilder =
         else
             Intersection results
 
-    /// Computes the intersection expression of the new type instance
-    /// delegates for the given type.
-    let NewInstanceDelegates (scope : LocalScope) (instanceType : IType) =
+    /// Computes the list of all non-static constructors for the given type.
+    let NewInstanceConstructors (instanceType : IType) =
         instanceType.GetConstructors().FilterByStatic(false)
-            |> Seq.map (fun x -> new GetMethodExpression(x, null) :> IExpression)
-            |> Intersection
 
-    /// Computes the intersection expression of the constructor delegates
-    /// for the given type and constructed instance expression.
-    let ConstructorDelegates (scope : LocalScope) (declaringType : IType) (constructedInstance : AccessedExpression) =
+    /// Creates a new instance of the given type with the given sequence
+    /// of arguments.
+    let NewInstance (scope : LocalScope) (instanceType : IType) (args : seq<IExpression>) =
+        let matches = NewInstanceConstructors instanceType
+        let argTypes = args.GetTypes()
+        match matches.GetBestMethod argTypes with
+        | null ->
+            let namer = scope.Global.TypeNamer
+            let expectedSignature = createExpectedSignatureDescription namer PrimitiveTypes.Void argTypes
+
+            // Create an inner expression that consists of the invocation's target and arguments,
+            // whose values are calculated and then popped.
+            let innerExpr = Block args (fun _ -> false)
+
+            if not (Seq.isEmpty matches) then
+                let failedMatchesList = Seq.map (createSignatureDiff namer argTypes) matches
+
+                let explanationNode = new MarkupNode(NodeConstants.TextNodeType,
+                                                     "could not find an appropriate constructor. " +
+                                                     "Expected signature compatible with '" + expectedSignature.ToString() +
+                                                     "'. Incompatible or ambiguous matches:")
+                let failedMatchesNode = new MarkupNode("list", failedMatchesList)
+                let messageNode = new MarkupNode("entry", Seq.ofArray [| explanationNode; failedMatchesNode |])
+                Error (new LogEntry("constructor resolution error", messageNode)) innerExpr
+            else
+                Error (new LogEntry("constructor resolution error",
+                                    sprintf "type '%s' does not have any constructors. Expected a constructor with signature '%s'." 
+                                            (scope.Global.TypeNamer instanceType) (expectedSignature.ToString())))
+                      innerExpr
+        | ctor ->
+            let ctorParamTypes = ctor.Parameters |> Seq.map (fun p -> p.ParameterType)
+
+            let convMapping args = args ||> scope.Global.ConversionRules.ConvertImplicit
+
+            let callArgs = Seq.zip args ctorParamTypes |> Seq.map convMapping
+
+            NewObjectExpression(ctor, callArgs) :> IExpression
+
+    /// Constructs an instance of the given type. This is done in-place if the 
+    /// constructed instance expression is non-global. Otherwise,
+    /// a new object is created and initialized.
+    let ConstructObject (scope : LocalScope) (declaringType : IType) (constructedInstance : AccessedExpression) (args : seq<IExpression>) =
         match constructedInstance with
-        | Global _ -> NewInstanceDelegates scope declaringType
+        | Global _ -> NewInstance scope declaringType args
         | _        ->
-            declaringType.GetConstructors().FilterByStatic(false)
+            let deleg = 
+                declaringType.GetConstructors().FilterByStatic(false)
                 |> Seq.map (fun x -> AccessMethod scope x constructedInstance :> IExpression)
                 |> Intersection
+            Invoke scope deleg args
 
     /// Accesses the given sequence of type members on the given expression.
     let AccessMembers (scope : LocalScope) (targetMembers : ITypeMember seq) (accessedExpr : AccessedExpression) : IExpression =
@@ -789,8 +827,8 @@ module ExpressionBuilder =
             if IntersectionExpression.GetIntersectedExpressions vals |> Seq.skip 1 |> Seq.isEmpty then
                 vals
             else
-                let message = "Field access expressions must refer to exactly one field."
-                Error (new LogEntry("Ambiguous field access", message)) (IntersectedMemberAccess scope targetMembers accessedExpr)
+                let message = "field access expressions must refer to exactly one field."
+                Error (new LogEntry("ambiguous field access", message)) (IntersectedMemberAccess scope targetMembers accessedExpr)
         else if AllOfType<ITypeMember, IProperty> targetMembers then
             let props : IProperty seq = OfType targetMembers
 
@@ -804,8 +842,8 @@ module ExpressionBuilder =
                     Seq.exactlyOne result, None
                 else
                     let picked = Seq.nth 1 result
-                    let msg    = new LogEntry("Ambiguous property access",
-                                               "The '" + accType.ToString() + "' accessor of property '" + picked.DeclaringProperty.Name + "' could not be resolved unambiguously.")
+                    let msg    = new LogEntry("ambiguous property access",
+                                              "the '" + accType.ToString() + "' accessor of property '" + picked.DeclaringProperty.Name + "' could not be resolved unambiguously.")
                     picked, Some msg
 
             let getter, getterError = getUpperAccessor AccessorType.GetAccessor
@@ -818,9 +856,9 @@ module ExpressionBuilder =
                                        |> Errors accessExpr
 
         else
-            let message = "The type member access expression was ambiguous, because the given sequence of type members did either " +
+            let message = "the type member access expression was ambiguous, because the given sequence of type members did either " +
                           "fail to exclusively contain fields, properties or methods; or because these kinds of type members were mixed."
-            Error (new LogEntry("Mixed type member access", message)) (IntersectedMemberAccess scope targetMembers accessedExpr)
+            Error (new LogEntry("mixed type member access", message)) (IntersectedMemberAccess scope targetMembers accessedExpr)
 
     /// Accesses all type members with the given name on the given expression.
     let AccessNamedMembers (scope : LocalScope) (memberName : string) (accessedExpr : AccessedExpression) : IExpression =
@@ -829,8 +867,8 @@ module ExpressionBuilder =
             let innerExpr = match accessedExpr with
                             | Global _                          -> Void
                             | Reference x | Value x | Generic x -> x
-            Error (new LogEntry("Missing type members",
-                                "No instance, static or extension members named '" + memberName +
+            Error (new LogEntry("missing type members",
+                                "no instance, static or extension members named '" + memberName +
                                 "' could be found for type '" +
                                 (scope.Global.TypeNamer accessedExpr.Type) + "'."))
                   innerExpr
