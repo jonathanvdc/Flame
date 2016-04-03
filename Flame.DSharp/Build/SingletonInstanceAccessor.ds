@@ -77,7 +77,11 @@ namespace Flame.DSharp.Build
 														  ReturnType);
 			}
 
-    		var newObjExpr = new NewObjectExpression(singletonField.FieldType); // new <type>();
+			// Gets the parameterless constructor for this type.
+			var ctor = singletonField.FieldType.GetConstructors().GetBestMethod(
+				singletonField.FieldType, new IType[] { });
+			assert(ctor != null);
+    		var newObjExpr = new NewObjectExpression(ctor, new IExpression[] { }); // new <type>();
         	var fieldVar = new FieldVariable(singletonField, null);
         	var fieldGetExpr = fieldVar.CreateGetExpression();
         	var eqExpr = new EqualityExpression(fieldGetExpr, NullExpression); // <field> == null

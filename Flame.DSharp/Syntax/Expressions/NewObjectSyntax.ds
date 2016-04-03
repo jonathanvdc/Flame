@@ -128,9 +128,14 @@ namespace Flame.Syntax.DSharp
                 	return null;
                 }
 
-                var methodExpr = new GetMethodExpression(ctor, null);
+                var callArgs = new List<IExpression>();
+                foreach (var input in args, var node in Arguments, var targetParam in ctor.Parameters)
+                {
+                    callArgs.Add(CastSyntax.CreateImplicitCast(
+                        State, input, node, targetParam.ParameterType));
+                }
 
-                return InvocationSyntax.CreateInvocationExpression(State, methodExpr, Type, args, Arguments);
+                return new NewObjectExpression(ctor, callArgs);
             }
         }
 

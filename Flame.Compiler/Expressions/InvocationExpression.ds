@@ -63,34 +63,11 @@ namespace Flame.Compiler.Expressions
 			return new InvocationExpression(transTarget, transArgs);
 		}
 
-		private bool HasNullObject
-		{
-			get
-			{
-				var target = Target.GetEssentialExpression();
-				if (target is GetMethodExpression)
-					return ((GetMethodExpression)target).Caller == null;
-				else
-					return false;
-			}
-		}
-
-		private bool IsNewObjectCall
-		{
-			get
-			{
-				return Method.IsConstructor && HasNullObject;
-			}
-		}
-
 		public IType Type
 		{
 			const get
 			{
-				if (IsNewObjectCall)
-					return Method.DeclaringType;
-				else
-					return Method.ReturnType;
+				return Method.ReturnType;
 			}
 		}
 
@@ -100,8 +77,8 @@ namespace Flame.Compiler.Expressions
 			{
 				// Invocations of constant methods are always constant.
 				// Invocations of constant constructors are constant only if
-				// the call object is null.
-				return Method.IsConstant && (!Method.IsConstructor || HasNullObject);
+				// they initialize a new object, which is not the case here.
+				return Method.IsConstant && !Method.IsConstructor;
 			}
 		}
 

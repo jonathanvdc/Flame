@@ -34,7 +34,7 @@ namespace Flame.Optimization
         {
             // Only lower new-value type invocations if we are instructed
             // to do so.
-            return MustLowerExpressions && Value is InvocationExpression;
+            return MustLowerExpressions && Value is NewObjectExpression;
         }
 
         public override bool Matches(IStatement Value)
@@ -241,30 +241,17 @@ namespace Flame.Optimization
         /// If the given expression does not create a value type,
         /// then null is returned.
         /// </summary>
-        private static Tuple<IMethod, [IExpression]> ExtractNewValueTypeExpr(IExpression Expression)
+        private static NewObjectExpression ExtractNewValueTypeExpr(IExpression Expression)
         {
-            if (!(Expression is InvocationExpression))
+            if (!(Expression is NewObjectExpression))
                 return null;
 
-            var invExpr = (InvocationExpression)Expression;
-            var invTarget = invExpr.Target.GetEssentialExpression();
+            var invExpr = (NewObjectExpression)Expression;
 
-            if (!(invTarget is GetMethodExpression))
-                return null;
-
-            var target = (GetMethodExpression)invTarget;
-
-            if (target != null &&
-                target.Caller == null &&
-                target.Target.IsConstructor &&
-                target.Target.DeclaringType.GetIsValueType())
-            {
-                return Tuple.Create<IMethod, [IExpression]>(target.Target, invExpr.Arguments);
-            }
+            if (invExpr.Type.GetIsValueType())
+                return invExpr;
             else
-            {
                 return null;
-            }
         }
 
         private IExpression CreateInitializedExpression(
@@ -284,7 +271,8 @@ namespace Flame.Optimization
             if (exprTuple == null)
                 return Expression.Accept(this);
 
-            return CreateInitializedExpression(exprTuple.Item1, exprTuple.Item2);
+            return CreateInitializedExpression(
+                exprTuple.Constructor, exprTuple.Arguments);
         }
 
         protected override IStatement Transform(IStatement Statement)
@@ -298,13 +286,13 @@ namespace Flame.Optimization
             var destVar = setVarNode.GetVariable();
 
             if (destVar is IUnmanagedVariable
-                && IsNaivelyLowerable(exprTuple.Item1, PassArgument))
+                && IsNaivelyLowerable(exprTuple.Constructor, PassArgument))
             {
                 // Only naive lowering can be applied directly to the target
                 // variable.
                 return Visit(InitializeNaive(
-                    (IUnmanagedVariable)destVar, exprTuple.Item1,
-                    exprTuple.Item2));
+                    (IUnmanagedVariable)destVar, exprTuple.Constructor,
+                    exprTuple.Arguments));
             }
             return Statement.Accept(this);
         }

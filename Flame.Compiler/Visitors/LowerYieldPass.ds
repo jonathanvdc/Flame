@@ -149,11 +149,11 @@ namespace Flame.Compiler.Visitors
             {
                 var inst = new GenericType(nestedType, Method.GenericParameters);
                 var genCtor = new GenericInstanceMethod(enumCtor, inst);
-                return new ReturnStatement(new InvocationExpression(genCtor, null, initExprs));
+                return new ReturnStatement(new NewObjectExpression(genCtor, initExprs));
             }
             else
             {
-                return new ReturnStatement(new InvocationExpression(enumCtor, null, initExprs));
+                return new ReturnStatement(new NewObjectExpression(enumCtor, initExprs));
             }
         }
     }

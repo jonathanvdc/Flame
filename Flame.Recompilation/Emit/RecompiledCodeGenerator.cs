@@ -302,6 +302,11 @@ namespace Flame.Recompilation.Emit
             return new ExpressionBlock(this, new DefaultValueExpression(Recompiler.GetType(Type)));
         }
 
+        public ICodeBlock EmitNewObject(IMethod Constructor, IEnumerable<ICodeBlock> Arguments)
+        {
+            return new ExpressionBlock(this, new NewObjectExpression(Constructor, GetExpressions(Arguments)));
+        }
+
         public ICodeBlock EmitInvocation(ICodeBlock Method, IEnumerable<ICodeBlock> Arguments)
         {
             return new ExpressionBlock(this, new InvocationExpression(GetExpression(Method), GetExpressions(Arguments)));

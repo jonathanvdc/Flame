@@ -9,6 +9,37 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
+    public class NewObjectBlock : ICecilBlock
+    {
+        public NewObjectBlock(
+            ICodeGenerator CodeGenerator, IMethod Constructor, 
+            IEnumerable<ICecilBlock> Arguments)
+        {
+            this.CodeGenerator = CodeGenerator;
+            this.Constructor = Constructor;
+            this.Arguments = Arguments;
+        }
+
+        public ICodeGenerator CodeGenerator { get; private set; }
+        public IMethod Constructor { get; private set; }
+        public IEnumerable<ICecilBlock> Arguments { get; private set; }
+
+        public void Emit(IEmitContext Context)
+        {
+            ILCodeGenerator.EmitArguments(Arguments, Constructor, Context);
+            Context.Emit(OpCodes.Newobj, Constructor);
+            Context.Stack.Push(Constructor.DeclaringType);
+        }
+
+        public IType BlockType
+        {
+            get
+            {
+                return Constructor.DeclaringType;
+            }
+        }
+    }
+
     public class InvocationBlock : ICecilBlock
     {
         public InvocationBlock(ICecilBlock Method, IEnumerable<ICecilBlock> Arguments)
@@ -27,9 +58,8 @@ namespace Flame.Cecil.Emit
                 var log = CodeGenerator.Method.GetLog();
                 var mBlock = (MethodBlock)Method;
                 var method = mBlock.Method;
-                bool isCtorCall = mBlock.Caller == null && method.IsConstructor;
                 IType callerType = null;
-                if (!method.IsStatic && !isCtorCall)
+                if (!method.IsStatic)
                 {
                     if (mBlock.Caller == null)
                     {
@@ -43,13 +73,7 @@ namespace Flame.Cecil.Emit
                     }
                 }
                 ILCodeGenerator.EmitArguments(Arguments, method, Context);
-                if (isCtorCall)
-                {
-                    Context.Emit(OpCodes.Newobj, method);
-                    Context.Stack.Push(method.DeclaringType);
-                    return;
-                }
-                else if ((method.DeclaringType.GetIsArray() || method.DeclaringType.GetIsVector()) && method is IAccessor && (((IAccessor)method).DeclaringProperty).Name == "Length" && ((IAccessor)method).AccessorType.Equals(AccessorType.GetAccessor))
+                if ((method.DeclaringType.GetIsArray() || method.DeclaringType.GetIsVector()) && method is IAccessor && (((IAccessor)method).DeclaringProperty).Name == "Length" && ((IAccessor)method).AccessorType.Equals(AccessorType.GetAccessor))
                 {
                     Context.Emit(OpCodes.Ldlen);
                 }

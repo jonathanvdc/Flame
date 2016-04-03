@@ -269,7 +269,7 @@ namespace Flame.Compiler.Visitors
 
             var loweredCaptureList = this.VisitAll(Lambda.Header.CaptureList);
 
-            return new GetMethodExpression(genericInv, new InvocationExpression(genericCtor, null, loweredCaptureList));
+            return new GetMethodExpression(genericInv, new NewObjectExpression(genericCtor, loweredCaptureList));
         }
 
         private IExpression LowerLambda(LambdaExpression Lambda)

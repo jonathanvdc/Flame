@@ -248,6 +248,11 @@ namespace Flame.MIPS.Emit
 
         #region Method Calls
 
+        public ICodeBlock EmitNewObject(IMethod Constructor, IEnumerable<ICodeBlock> Arguments)
+        {
+            throw new NotImplementedException();
+        }
+
         public ICodeBlock EmitInvocation(ICodeBlock Method, IEnumerable<ICodeBlock> Arguments)
         {
             return new InvocationBlock(this, (IAssemblerBlock)Method, Arguments.Cast<IAssemblerBlock>());

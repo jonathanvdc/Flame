@@ -240,7 +240,7 @@ namespace Flame.Intermediate.Parsing
         /// <remarks>
         /// Format:
         ///
-        /// #new_init_array(element_type, item...)
+        /// #new_init_array(element_type, items...)
         /// </remarks>
         public const string NewInitializedArrayName = "#new_init_array";
 
@@ -260,9 +260,19 @@ namespace Flame.Intermediate.Parsing
         /// <remarks>
         /// Format:
         ///
-        /// #new_init_vector(element_type, item...)
+        /// #new_init_vector(element_type, items...)
         /// </remarks>
         public const string NewInitializedVectorName = "#new_init_vector";
+
+        /// <summary>
+        /// A name for nodes that create initialized objects.
+        /// </summary>
+        /// <remarks>
+        /// Format:
+        /// 
+        /// #new_object(ctor, args...)
+        /// </remarks>
+        public const string NewObjectName = "#new_object";
 
         #endregion
 
@@ -1388,6 +1398,24 @@ namespace Flame.Intermediate.Parsing
             return target.CreateDelegateInvocationExpression(args);
         }
 
+        /// <summary>
+        /// Parses the given new-object node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseNewObject(ParserState State, LNode Node)
+        {
+            // Format:
+            //
+            // #new_object(ctor, args...)
+
+            var ctor = State.Parser.MethodReferenceParser.Parse(State, Node.Args[0]).Value;
+            var args = ParseExpressions(State, Node.Args.Skip(1));
+
+            return new NewObjectExpression(ctor, args);
+        }
+
         #endregion
 
         #region Operators
@@ -2114,6 +2142,7 @@ namespace Flame.Intermediate.Parsing
                     { GetExtensionDelegateNodeName, CreateParser(ParseGetExtensionDelegate) },
                     { GetCurriedDelegateNodeName, CreateParser(ParseGetCurriedDelegate) },
                     { InvocationNodeName, CreateParser(ParseInvocation) },
+                    { NewObjectName, CreateParser(ParseNewObject) },
 
                     // Operators
                     { BinaryNode, CreateParser(ParseBinary) },
