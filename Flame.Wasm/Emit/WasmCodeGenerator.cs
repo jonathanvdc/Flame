@@ -320,7 +320,14 @@ namespace Flame.Wasm.Emit
 
 		#region Intrinsics
 
-		private static readonly Dictionary<Tuple<IType, Operator>, Tuple<IType, OpCode>> ops = new Dictionary<Tuple<IType, Operator>, Tuple<IType, OpCode>>()
+        private static readonly Dictionary<Tuple<IType, Operator>, Tuple<IType, OpCode>> unaryOps = new Dictionary<Tuple<IType, Operator>, Tuple<IType, OpCode>>()
+        {
+            // Unary negation for floating-point types.
+            { Tuple.Create(PrimitiveTypes.Float32, Operator.Subtract), Tuple.Create(PrimitiveTypes.Float32, OpCodes.Float32Negate) },
+            { Tuple.Create(PrimitiveTypes.Float64, Operator.Subtract), Tuple.Create(PrimitiveTypes.Float64, OpCodes.Float64Negate) },
+        };
+
+		private static readonly Dictionary<Tuple<IType, Operator>, Tuple<IType, OpCode>> binOps = new Dictionary<Tuple<IType, Operator>, Tuple<IType, OpCode>>()
 		{
 			{ Tuple.Create(PrimitiveTypes.Int32, Operator.Add), Tuple.Create(PrimitiveTypes.Int32, OpCodes.Int32Add) },
 			{ Tuple.Create(PrimitiveTypes.UInt32, Operator.Add), Tuple.Create(PrimitiveTypes.UInt32, OpCodes.Int32Add) },
@@ -387,6 +394,28 @@ namespace Flame.Wasm.Emit
             { Tuple.Create(PrimitiveTypes.UInt64, Operator.CheckGreaterThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int64GreaterThanUnsigned) },
             { Tuple.Create(PrimitiveTypes.Int64, Operator.CheckGreaterThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int64GreaterThanOrEqualSigned) },
             { Tuple.Create(PrimitiveTypes.UInt64, Operator.CheckGreaterThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int64GreaterThanOrEqualUnsigned) },
+
+            { Tuple.Create(PrimitiveTypes.Float32, Operator.Add), Tuple.Create(PrimitiveTypes.Float32, OpCodes.Float32Add) },
+            { Tuple.Create(PrimitiveTypes.Float32, Operator.Subtract), Tuple.Create(PrimitiveTypes.Float32, OpCodes.Float32Subtract) },
+            { Tuple.Create(PrimitiveTypes.Float32, Operator.Multiply), Tuple.Create(PrimitiveTypes.Float32, OpCodes.Float32Multiply) },
+            { Tuple.Create(PrimitiveTypes.Float32, Operator.Divide), Tuple.Create(PrimitiveTypes.Float32, OpCodes.Float32Divide) },
+            { Tuple.Create(PrimitiveTypes.Float32, Operator.CheckEquality), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float32Equal) },
+            { Tuple.Create(PrimitiveTypes.Float32, Operator.CheckInequality), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float32NotEqual) },
+            { Tuple.Create(PrimitiveTypes.Float32, Operator.CheckLessThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float32LessThan) },
+            { Tuple.Create(PrimitiveTypes.Float32, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float32LessThanOrEqual) },  
+            { Tuple.Create(PrimitiveTypes.Float32, Operator.CheckGreaterThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float32GreaterThan) },
+            { Tuple.Create(PrimitiveTypes.Float32, Operator.CheckGreaterThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float32GreaterThanOrEqual) },
+
+            { Tuple.Create(PrimitiveTypes.Float64, Operator.Add), Tuple.Create(PrimitiveTypes.Float64, OpCodes.Float64Add) },
+            { Tuple.Create(PrimitiveTypes.Float64, Operator.Subtract), Tuple.Create(PrimitiveTypes.Float64, OpCodes.Float64Subtract) },
+            { Tuple.Create(PrimitiveTypes.Float64, Operator.Multiply), Tuple.Create(PrimitiveTypes.Float64, OpCodes.Float64Multiply) },
+            { Tuple.Create(PrimitiveTypes.Float64, Operator.Divide), Tuple.Create(PrimitiveTypes.Float64, OpCodes.Float64Divide) },
+            { Tuple.Create(PrimitiveTypes.Float64, Operator.CheckEquality), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float64Equal) },
+            { Tuple.Create(PrimitiveTypes.Float64, Operator.CheckInequality), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float64NotEqual) },
+            { Tuple.Create(PrimitiveTypes.Float64, Operator.CheckLessThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float64LessThan) },
+            { Tuple.Create(PrimitiveTypes.Float64, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float64LessThanOrEqual) },  
+            { Tuple.Create(PrimitiveTypes.Float64, Operator.CheckGreaterThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float64GreaterThan) },
+            { Tuple.Create(PrimitiveTypes.Float64, Operator.CheckGreaterThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float64GreaterThanOrEqual) }
 		};
 
 		public ICodeBlock EmitUnary(ICodeBlock Value, Operator Op)
@@ -400,7 +429,7 @@ namespace Flame.Wasm.Emit
                     val, new DefaultValueExpression(val.Type).Optimize().Emit(this), 
                     Operator.CheckEquality);
             }
-            else if (ops.TryGetValue(Tuple.Create(val.Type, Op), out wasmOp))
+            else if (unaryOps.TryGetValue(Tuple.Create(val.Type, Op), out wasmOp))
             {
                 return EmitCallBlock(
                     wasmOp.Item2, wasmOp.Item1, 
@@ -426,7 +455,7 @@ namespace Flame.Wasm.Emit
                 lTy = PrimitiveTypes.Int32;
 
 			Tuple<IType, OpCode> wasmOp;
-			if (ops.TryGetValue(Tuple.Create(lTy, Op), out wasmOp))
+			if (binOps.TryGetValue(Tuple.Create(lTy, Op), out wasmOp))
 			{
 				return EmitCallBlock(
                     wasmOp.Item2, 
@@ -448,10 +477,51 @@ namespace Flame.Wasm.Emit
 
 		private static readonly Dictionary<Tuple<IType, IType>, OpCode> staticCastOps = new Dictionary<Tuple<IType, IType>, OpCode>()
 		{
+            // Integer conversions
 			{ Tuple.Create(PrimitiveTypes.Int32, PrimitiveTypes.Int64), OpCodes.Int64ExtendInt32 },
 			{ Tuple.Create(PrimitiveTypes.UInt32, PrimitiveTypes.UInt64), OpCodes.Int64ExtendUInt32 },
 			{ Tuple.Create(PrimitiveTypes.Int64, PrimitiveTypes.Int32), OpCodes.Int32WrapInt64 },
-			{ Tuple.Create(PrimitiveTypes.UInt64, PrimitiveTypes.UInt32), OpCodes.Int32WrapInt64 }
+			{ Tuple.Create(PrimitiveTypes.UInt64, PrimitiveTypes.UInt32), OpCodes.Int32WrapInt64 },
+
+            // Floating-point conversions
+            { Tuple.Create(PrimitiveTypes.Float32, PrimitiveTypes.Float64), OpCodes.Float64PromoteFloat32 },
+            { Tuple.Create(PrimitiveTypes.Float64, PrimitiveTypes.Float32), OpCodes.Float32DemoteFloat64 },
+
+            // Mixed integer and floating-point conversions
+
+            // - Float32 -> *
+            { Tuple.Create(PrimitiveTypes.Float32, PrimitiveTypes.Int32), OpCodes.Int32TruncateFloat32 },
+            { Tuple.Create(PrimitiveTypes.Float32, PrimitiveTypes.UInt32), OpCodes.UInt32TruncateFloat32 },
+            { Tuple.Create(PrimitiveTypes.Float32, PrimitiveTypes.Int64), OpCodes.Int64TruncateFloat32 },
+            { Tuple.Create(PrimitiveTypes.Float32, PrimitiveTypes.UInt64), OpCodes.UInt64TruncateFloat32 },
+            { Tuple.Create(PrimitiveTypes.Float32, PrimitiveTypes.Bit32), OpCodes.Int32ReinterpretFloat32 },
+
+            // - Float64 -> *
+            { Tuple.Create(PrimitiveTypes.Float64, PrimitiveTypes.Int32), OpCodes.Int32TruncateFloat64 },
+            { Tuple.Create(PrimitiveTypes.Float64, PrimitiveTypes.UInt32), OpCodes.UInt32TruncateFloat64 },
+            { Tuple.Create(PrimitiveTypes.Float64, PrimitiveTypes.Int64), OpCodes.Int64TruncateFloat64 },
+            { Tuple.Create(PrimitiveTypes.Float64, PrimitiveTypes.UInt64), OpCodes.UInt64TruncateFloat64 },
+            { Tuple.Create(PrimitiveTypes.Float64, PrimitiveTypes.Bit64), OpCodes.Int64ReinterpretFloat64 },
+
+            // - Int32 -> *
+            { Tuple.Create(PrimitiveTypes.Int32, PrimitiveTypes.Float32), OpCodes.Float32ConvertInt32 },
+            { Tuple.Create(PrimitiveTypes.Int32, PrimitiveTypes.Float64), OpCodes.Float64ConvertInt32 },
+
+            // - UInt32 -> *
+            { Tuple.Create(PrimitiveTypes.UInt32, PrimitiveTypes.Float32), OpCodes.Float32ConvertUInt32 },
+            { Tuple.Create(PrimitiveTypes.UInt32, PrimitiveTypes.Float64), OpCodes.Float64ConvertUInt32 },
+
+            // - Int64 -> *
+            { Tuple.Create(PrimitiveTypes.Int64, PrimitiveTypes.Float32), OpCodes.Float32ConvertInt64 },
+            { Tuple.Create(PrimitiveTypes.Int64, PrimitiveTypes.Float64), OpCodes.Float64ConvertInt64 },
+
+            // - UInt64 -> *
+            { Tuple.Create(PrimitiveTypes.UInt64, PrimitiveTypes.Float32), OpCodes.Float32ConvertUInt64 },
+            { Tuple.Create(PrimitiveTypes.UInt64, PrimitiveTypes.Float64), OpCodes.Float64ConvertUInt64 },
+
+            // - BitN -> *
+            { Tuple.Create(PrimitiveTypes.Bit32, PrimitiveTypes.Float32), OpCodes.Float32ReinterpretInt32 },
+            { Tuple.Create(PrimitiveTypes.Bit64, PrimitiveTypes.Float64), OpCodes.Float64ReinterpretInt64 },
 		};
 
 		private static readonly Dictionary<int, IType> intTys = new Dictionary<int, IType>() 
@@ -481,26 +551,37 @@ namespace Flame.Wasm.Emit
 		private CodeBlock EmitStaticCast(CodeBlock Value, IType FromType, IType ToType)
 		{
 			OpCode op;
-			if (staticCastOps.TryGetValue(Tuple.Create(FromType, ToType), out op))
-			{
-				return EmitCallBlock(op, ToType, Value.Expression);
-			}
-			else if (ToType.GetIsSignedInteger() && !FromType.GetIsSignedInteger())
-			{
-				return EmitStaticCast(Value, intTys[FromType.GetPrimitiveMagnitude()], ToType);
-			}
-			else if (ToType.GetIsUnsignedInteger() && !FromType.GetIsUnsignedInteger())
-			{
-				return EmitStaticCast(Value, uintTys[FromType.GetPrimitiveMagnitude()], ToType);
-			}
-			else if (ToType.GetIsBit() && !FromType.GetIsBit())
-			{
-				return EmitStaticCast(Value, bitTys[FromType.GetPrimitiveMagnitude()], ToType);
-			}
-			else
-			{
-				return null;
-			}
+            if (staticCastOps.TryGetValue(Tuple.Create(FromType, ToType), out op))
+            {
+                return EmitCallBlock(op, ToType, Value.Expression);
+            }
+            else
+            {
+                int fromMag = FromType.GetPrimitiveMagnitude();
+
+                bool fromBit = FromType.GetIsBit();
+                bool toBit = ToType.GetIsBit();
+                if (fromBit && toBit)
+                {
+                    return EmitStaticCast(Value, uintTys[fromMag], uintTys[ToType.GetPrimitiveMagnitude()]);
+                }
+                else if (fromBit || toBit)
+                {
+                    return new ExprBlock(this, Value.Expression, ToType);
+                }
+                if (ToType.GetIsSignedInteger() && !FromType.GetIsSignedInteger())
+                {
+                    return EmitStaticCast(Value, intTys[fromMag], ToType);
+                }
+                else if (ToType.GetIsUnsignedInteger() && !FromType.GetIsUnsignedInteger())
+                {
+                    return EmitStaticCast(Value, uintTys[fromMag], ToType);
+                }
+                else
+                {
+                    return null;
+                }
+            }
 		}
 
 		public ICodeBlock EmitTypeBinary(ICodeBlock Value, IType Type, Operator Op)

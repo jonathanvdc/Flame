@@ -2,6 +2,8 @@
 tests
 {
     Fibonacci/Fibonacci.test;
+    Float/Float32.test;
+    Float/Float64.test;
     Loop/Loop.test;
     Pointers/Pointers.test;
     Print/Print.test;

@@ -89,7 +89,9 @@ namespace Flame.Wasm
 
 		#endregion
 
-		#region Intrinsics
+		#region Arithmetic
+
+        #region i32
 
 		public static readonly OpCode Int32Add = new OpCode("i32.add", ExprKind.Call, ExprKind.Call);
 		public static readonly OpCode Int32Subtract = new OpCode("i32.sub", ExprKind.Call, ExprKind.Call);
@@ -115,6 +117,10 @@ namespace Flame.Wasm
 		public static readonly OpCode Int32GreaterThanOrEqualSigned = new OpCode("i32.ge_s", ExprKind.Call, ExprKind.Call);
 		public static readonly OpCode Int32GreaterThanOrEqualUnsigned = new OpCode("i32.ge_u", ExprKind.Call, ExprKind.Call);
 
+        #endregion
+
+        #region i64
+
         public static readonly OpCode Int64Add = new OpCode("i64.add", ExprKind.Call, ExprKind.Call);
         public static readonly OpCode Int64Subtract = new OpCode("i64.sub", ExprKind.Call, ExprKind.Call);
         public static readonly OpCode Int64Multiply = new OpCode("i64.mul", ExprKind.Call, ExprKind.Call);
@@ -139,13 +145,168 @@ namespace Flame.Wasm
         public static readonly OpCode Int64GreaterThanOrEqualSigned = new OpCode("i64.ge_s", ExprKind.Call, ExprKind.Call);
         public static readonly OpCode Int64GreaterThanOrEqualUnsigned = new OpCode("i64.ge_u", ExprKind.Call, ExprKind.Call);
 
+        #endregion
+
+        #region f32
+
+        public static readonly OpCode Float32Add = new OpCode("f32.add", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float32Subtract = new OpCode("f32.sub", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float32Multiply = new OpCode("f32.mul", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float32Divide = new OpCode("f32.div", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float32Negate = new OpCode("f32.neg", ExprKind.Call);
+        public static readonly OpCode Float32Equal = new OpCode("f32.eq", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float32NotEqual = new OpCode("f32.ne", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float32LessThan = new OpCode("f32.lt", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float32LessThanOrEqual = new OpCode("f32.le", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float32GreaterThan = new OpCode("f32.gt", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float32GreaterThanOrEqual = new OpCode("f32.ge", ExprKind.Call, ExprKind.Call);
+
+        #endregion
+
+        #region f64
+
+        public static readonly OpCode Float64Add = new OpCode("f64.add", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float64Subtract = new OpCode("f64.sub", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float64Multiply = new OpCode("f64.mul", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float64Divide = new OpCode("f64.div", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float64Negate = new OpCode("f64.neg", ExprKind.Call);
+        public static readonly OpCode Float64Equal = new OpCode("f64.eq", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float64NotEqual = new OpCode("f64.ne", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float64LessThan = new OpCode("f64.lt", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float64LessThanOrEqual = new OpCode("f64.le", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float64GreaterThan = new OpCode("f64.gt", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Float64GreaterThanOrEqual = new OpCode("f64.ge", ExprKind.Call, ExprKind.Call);
+
+        #endregion
+
 		#endregion
 
 		#region Conversions
 
+        /// <summary>
+        /// Wrap a 64-bit integer to a 32-bit integer.
+        /// </summary>
 		public static readonly OpCode Int32WrapInt64 = new OpCode("i32.wrap/i64", ExprKind.Call);
-		public static readonly OpCode Int64ExtendInt32 = new OpCode("i64.extend_s/i32", ExprKind.Call);
-		public static readonly OpCode Int64ExtendUInt32 = new OpCode("i64.extend_u/i32", ExprKind.Call);
+
+        /// <summary>
+        /// Truncate a 64-bit float to a signed 32-bit integer.
+        /// </summary>
+        public static readonly OpCode Int32TruncateFloat64 = new OpCode("i32.trunc_s/f64", ExprKind.Call);
+
+        /// <summary>
+        /// Truncate a 32-bit float to a signed 32-bit integer.
+        /// </summary>
+        public static readonly OpCode Int32TruncateFloat32 = new OpCode("i32.trunc_s/f32", ExprKind.Call);
+
+        /// <summary>
+        /// Truncate a 64-bit float to a unsigned 32-bit integer.
+        /// </summary>
+        public static readonly OpCode UInt32TruncateFloat64 = new OpCode("i32.trunc_u/f64", ExprKind.Call);
+
+        /// <summary>
+        /// Truncate a 32-bit float to a unsigned 32-bit integer.
+        /// </summary>
+        public static readonly OpCode UInt32TruncateFloat32 = new OpCode("i32.trunc_u/f32", ExprKind.Call);
+
+        /// <summary>
+        /// Reinterpret the bits of a 32-bit float as a 32-bit integer.
+        /// </summary>
+        public static readonly OpCode Int32ReinterpretFloat32 = new OpCode("i32.reinterpret/f32", ExprKind.Call);
+
+        /// <summary>
+        /// Extend a signed 32-bit integer to a 64-bit integer.
+        /// </summary>
+        public static readonly OpCode Int64ExtendInt32 = new OpCode("i64.extend_s/i32", ExprKind.Call);
+
+        /// <summary>
+        /// Extend an unsigned 32-bit integer to a 64-bit integer.
+        /// </summary>
+        public static readonly OpCode Int64ExtendUInt32 = new OpCode("i64.extend_u/i32", ExprKind.Call);
+
+        /// <summary>
+        /// Truncate a 32-bit float to a signed 64-bit integer.
+        /// </summary>
+        public static readonly OpCode Int64TruncateFloat32 = new OpCode("i64.trunc_s/f32", ExprKind.Call);
+
+        /// <summary>
+        /// Truncate a 32-bit float to a signed 64-bit integer.
+        /// </summary>
+        public static readonly OpCode Int64TruncateFloat64 = new OpCode("i64.trunc_s/f64", ExprKind.Call);
+
+        /// <summary>
+        /// Truncate a 32-bit float to an unsigned 64-bit integer.
+        /// </summary>
+        public static readonly OpCode UInt64TruncateFloat32 = new OpCode("i64.trunc_u/f32", ExprKind.Call);
+
+        /// <summary>
+        /// Truncate a 32-bit float to an unsigned 64-bit integer.
+        /// </summary>
+        public static readonly OpCode UInt64TruncateFloat64 = new OpCode("i64.trunc_u/f64", ExprKind.Call);
+
+        /// <summary>
+        /// Reinterpret the bits of a 64-bit float as a 64-bit integer.
+        /// </summary>
+        public static readonly OpCode Int64ReinterpretFloat64 = new OpCode("i64.reinterpret/f64", ExprKind.Call);
+
+        /// <summary>
+        /// Demote a 64-bit float to a 32-bit float.
+        /// </summary>
+        public static readonly OpCode Float32DemoteFloat64 = new OpCode("f32.demote/f64", ExprKind.Call);
+
+        /// <summary>
+        /// Convert a signed 32-bit integer to a 32-bit float.
+        /// </summary>
+        public static readonly OpCode Float32ConvertInt32 = new OpCode("f32.convert_s/i32", ExprKind.Call);
+
+        /// <summary>
+        /// Convert a signed 64-bit integer to a 32-bit float.
+        /// </summary>
+        public static readonly OpCode Float32ConvertInt64 = new OpCode("f32.convert_s/i64", ExprKind.Call);
+
+        /// <summary>
+        /// Convert an unsigned 32-bit integer to a 32-bit float.
+        /// </summary>
+        public static readonly OpCode Float32ConvertUInt32 = new OpCode("f32.convert_u/i32", ExprKind.Call);
+
+        /// <summary>
+        /// Convert an unsigned 64-bit integer to a 32-bit float.
+        /// </summary>
+        public static readonly OpCode Float32ConvertUInt64 = new OpCode("f32.convert_u/i64", ExprKind.Call);
+
+        /// <summary>
+        /// Reinterpret the bits of a 32-bit integer as a 32-bit float.
+        /// </summary>
+        public static readonly OpCode Float32ReinterpretInt32 = new OpCode("f32.reinterpret/i32", ExprKind.Call);
+
+        /// <summary>
+        /// Promote a 32-bit float to a 64-bit float.
+        /// </summary>
+        public static readonly OpCode Float64PromoteFloat32 = new OpCode("f64.promote/f32", ExprKind.Call);
+
+        /// <summary>
+        /// Convert a signed 32-bit integer to a 64-bit float.
+        /// </summary>
+        public static readonly OpCode Float64ConvertInt32 = new OpCode("f64.convert_s/i32", ExprKind.Call);
+
+        /// <summary>
+        /// Convert a signed 64-bit integer to a 64-bit float.
+        /// </summary>
+        public static readonly OpCode Float64ConvertInt64 = new OpCode("f64.convert_s/i64", ExprKind.Call);
+
+        /// <summary>
+        /// Convert an unsigned 32-bit integer to a 64-bit float.
+        /// </summary>
+        public static readonly OpCode Float64ConvertUInt32 = new OpCode("f64.convert_u/i32", ExprKind.Call);
+
+        /// <summary>
+        /// Convert an unsigned 64-bit integer to a 64-bit float.
+        /// </summary>
+        public static readonly OpCode Float64ConvertUInt64 = new OpCode("f64.convert_u/i64", ExprKind.Call);
+
+        /// <summary>
+        /// Reinterpret the bits of a 64-bit integer as a 64-bit float.
+        /// </summary>
+        public static readonly OpCode Float64ReinterpretInt64 = new OpCode("f64.reinterpret/i64", ExprKind.Call);
 
 		#endregion
 
