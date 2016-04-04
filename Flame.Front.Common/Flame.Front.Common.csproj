@@ -88,7 +88,6 @@
     <Compile Include="CecilReferenceResolver.cs" />
     <Compile Include="CecilRuntimeLibraries.cs" />
     <Compile Include="CompilerOptionExtensions.cs" />
-    <Compile Include="CompilerVersion.cs" />
     <Compile Include="ConsoleCompiler.cs" />
     <Compile Include="MarsRuntimeLibraries.cs" />
     <Compile Include="Preferences\PreferenceFile.cs" />
@@ -114,6 +113,7 @@
     <Compile Include="Target\SpecializationPass.cs" />
     <Compile Include="Target\ScalarReplacementPass.cs" />
     <Compile Include="MonoGlobalAssemblyCache.cs" />
+    <Compile Include="CompilerName.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame.Cecil\Flame.Cecil.csproj">
