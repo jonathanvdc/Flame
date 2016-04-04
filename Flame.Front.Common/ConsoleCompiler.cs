@@ -66,27 +66,25 @@ namespace Flame.Front.Cli
     public class ConsoleCompiler
     {
         public ConsoleCompiler(string Name, string FullName, string ReleasesSite)
-            : this(Name, FullName, ReleasesSite, CompilerOptionExtensions.CreateOptionParser())
-        {
-        }
+            : this(CompilerName.Create(Name, FullName, ReleasesSite))
+        { }
 
-        public ConsoleCompiler(string Name, string FullName, string ReleasesSite, IOptionParser<string> OptionParser)
-            : this(Name, FullName, ReleasesSite, OptionParser, CreateDefaultOptions(OptionParser))
-        {
-        }
+        public ConsoleCompiler(CompilerName Name)
+            : this(Name, CompilerOptionExtensions.CreateOptionParser())
+        { }
 
-        public ConsoleCompiler(string Name, string FullName, string ReleasesSite, IOptionParser<string> OptionParser, ICompilerOptions DefaultOptions)
+        public ConsoleCompiler(CompilerName Name, IOptionParser<string> OptionParser)
+            : this(Name, OptionParser, CreateDefaultOptions(OptionParser))
+        { }
+
+        public ConsoleCompiler(CompilerName Name, IOptionParser<string> OptionParser, ICompilerOptions DefaultOptions)
         {
             this.Name = Name;
-            this.FullName = FullName;
-            this.ReleasesSite = ReleasesSite;
             this.DefaultOptions = DefaultOptions;
             this.OptionParser = OptionParser;
         }
 
-        public string Name { get; private set; }
-        public string FullName { get; private set; }
-        public string ReleasesSite { get; private set; }
+        public CompilerName Name { get; private set; }
         public ICompilerOptions DefaultOptions { get; private set; }
         public IOptionParser<string> OptionParser { get; private set; }
 
@@ -114,7 +112,7 @@ namespace Flame.Front.Cli
 
             if (mergedArgs.GetOption<bool>("repeat-command", false))
             {
-                log.Console.WriteLine(Name + " " + string.Join(" ", args));
+                log.Console.WriteLine(Name.Name + " " + string.Join(" ", args));
                 log.Console.WriteSeparator(1);
             }
 
@@ -127,7 +125,7 @@ namespace Flame.Front.Cli
 
             if (mergedArgs.MustPrintVersion())
             {
-                CompilerVersion.PrintVersion(Name, FullName, ReleasesSite, log);
+                Name.Print(log);
             }
 
             var filteredLog = new FilteredLog(mergedArgs.GetLogFilter(), log);
@@ -151,12 +149,12 @@ namespace Flame.Front.Cli
                         allTasks.Add(ReferenceResolvers.ReferenceResolver.CopyAsync(item, targetPath.Combine(item.Name), filteredLog));
                     }
                     Task.WhenAll(allTasks).Wait();
-                    filteredLog.LogMessage(new LogEntry("Flame libraries copied", "all Flame libraries included with " + Name + " have been copied to '" + targetPath.ToString() + "'."));
+                    filteredLog.LogMessage(new LogEntry("Flame libraries copied", "all Flame libraries included with " + Name.Name + " have been copied to '" + targetPath.ToString() + "'."));
                 }
 
                 ReportUnusedOptions(buildArgs, filteredLog, "option not relevant");
 
-				log.Console.Write(Name + ": ", log.ContrastForegroundColor);
+				log.Console.Write(Name.Name + ": ", log.ContrastForegroundColor);
                 log.WriteEntry("nothing to compile", log.WarningStyle, "no input files");
                 log.Dispose();
                 return 0;
@@ -609,7 +607,7 @@ namespace Flame.Front.Cli
         /// <param name="ex"></param>
         private void DumpUnhandledException(Exception ex, ICompilerLog log)
         {
-            string fileName = Path.GetFullPath(this.Name + ExceptionDumpExtension);
+            string fileName = Path.GetFullPath(this.Name.Name + ExceptionDumpExtension);
             try
             {
                 using (var fs = new FileStream(fileName, FileMode.Create))
