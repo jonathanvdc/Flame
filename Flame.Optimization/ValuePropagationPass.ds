@@ -133,7 +133,7 @@ namespace Flame.Optimization
                     // SSA variable to the front of the queue.
                     index = 0;
 
-                    assert(VariableIndices[Variable] == index);
+                    assert(variableIndices[Variable] == index);
                 }
 
                 var oldEntry = variableQueue[index];
