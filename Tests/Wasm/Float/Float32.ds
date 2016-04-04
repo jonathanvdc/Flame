@@ -1,0 +1,72 @@
+// Tests various floating-point operations.
+
+public module spectest
+{
+    /// <summary>
+    /// Writes a single-precision floating-point number to standard output.
+    /// </summary>
+    [[import]]
+    public void print(float Value);
+}
+
+public module Console
+{
+    public void Write(float Value)
+    {
+        spectest.print(Value);
+    }
+}
+
+public module FloatTest
+{
+    public float Fib(int n)
+    {
+        // f32.lt, f32.const
+        if (n < 2)
+            return 1.0f;
+        else
+            // f32.add
+            return Fib(n - 1) + Fib(n - 2);
+    }
+
+    public float FacAcc(int n, float acc)
+    {
+        // f32.le
+        if (n <= 0)
+            return acc;
+        else
+            // f32.mul, f32.convert_s/i32
+            return FacAcc(n - 1, n * acc);
+    }
+
+    public float Fac(int n)
+    {
+        return FacAcc(n, 1);
+    }
+
+    public float Neg(float Value)
+    {
+        // f32.neg
+        return -Value;
+    }
+
+    public float Reinterpret(int Value)
+    {
+        // f32.reinterpret/i32
+        return (float)(bit32)Value;
+    }
+
+    public int Reinterpret(float Value)
+    {
+        // i32.reinterpret/f32
+        return (int)(bit32)Value;
+    }
+
+    public void Main()
+    {
+        Console.Write(Fib(16));
+        Console.Write(Fac(5));
+        Console.Write(Neg(2));
+        Console.Write(Reinterpret(Reinterpret(5.0f)));
+    }
+}
