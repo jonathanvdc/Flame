@@ -115,8 +115,29 @@ namespace Flame.Wasm
 		public static readonly OpCode Int32GreaterThanOrEqualSigned = new OpCode("i32.ge_s", ExprKind.Call, ExprKind.Call);
 		public static readonly OpCode Int32GreaterThanOrEqualUnsigned = new OpCode("i32.ge_u", ExprKind.Call, ExprKind.Call);
 
-		public static readonly OpCode Int64Add = new OpCode("i64.add", ExprKind.Call, ExprKind.Call);
-		public static readonly OpCode Int64Multiply = new OpCode("i64.mul", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64Add = new OpCode("i64.add", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64Subtract = new OpCode("i64.sub", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64Multiply = new OpCode("i64.mul", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64DivideSigned = new OpCode("i64.div_s", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64DivideUnsigned = new OpCode("i64.div_u", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64RemainderSigned = new OpCode("i64.rem_s", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64RemainderUnsigned = new OpCode("i64.rem_u", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64And = new OpCode("i64.and", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64Or = new OpCode("i64.or", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64Xor = new OpCode("i64.xor", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64ShiftLeft = new OpCode("i64.shl", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64ShiftRightSigned = new OpCode("i64.shr_s", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64ShiftRightUnsigned = new OpCode("i64.shr_u", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64Equal = new OpCode("i64.eq", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64NotEqual = new OpCode("i64.ne", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64LessThanSigned = new OpCode("i64.lt_s", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64LessThanUnsigned = new OpCode("i64.lt_u", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64LessThanOrEqualSigned = new OpCode("i64.le_s", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64LessThanOrEqualUnsigned = new OpCode("i64.le_u", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64GreaterThanSigned = new OpCode("i64.gt_s", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64GreaterThanUnsigned = new OpCode("i64.gt_u", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64GreaterThanOrEqualSigned = new OpCode("i64.ge_s", ExprKind.Call, ExprKind.Call);
+        public static readonly OpCode Int64GreaterThanOrEqualUnsigned = new OpCode("i64.ge_u", ExprKind.Call, ExprKind.Call);
 
 		#endregion
 
