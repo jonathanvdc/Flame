@@ -10,7 +10,9 @@ script:
   - ./BuildCI.sh bin_dsc/dsc/dsc.exe
   # Perform a second build to make sure that Flame can bootstrap
   - ./BuildCI.sh dsc/bin/Release/dsc.exe
-  # Build compare-test
-  - mono dsc/bin/Release/dsc.exe compare-test/src/compare-test.dsproj
+  # Build compare-test, with -O3, to ensure that aggressive optimizations
+  # work for a real-life application. Use --debug to catch some incorrect
+  # optimizations at compile-time.
+  - mono dsc/bin/Release/dsc.exe compare-test/src/compare-test.dsproj -O3 --debug
   # Run the tests
   - mono compare-test/src/bin/compare-test.exe all-tests.test
