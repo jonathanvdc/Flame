@@ -21,7 +21,9 @@ namespace Flame.Wasm
 			{ PrimitiveTypes.Bit32, "i32" },
 			{ PrimitiveTypes.Bit64, "i64" },
 			{ PrimitiveTypes.Boolean, "i32" },
-			{ PrimitiveTypes.Char, "i32" }
+			{ PrimitiveTypes.Char, "i32" },
+			{ PrimitiveTypes.Float32, "f32" },
+			{ PrimitiveTypes.Float64, "f64" }
 		};
 
         public static string GetScalarWasmName(IType Type, IAbi Abi)
@@ -72,4 +74,3 @@ namespace Flame.Wasm
 		}
 	}
 }
-
