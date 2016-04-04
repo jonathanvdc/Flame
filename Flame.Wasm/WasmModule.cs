@@ -97,15 +97,23 @@ namespace Flame.Wasm
                 initData.Skip(firstNonzero).Take(lastNonzero - firstNonzero));
         }
 
+        /// <summary>
+        /// The WebAssembly page size, in bytes.
+        /// </summary>
+        public const int PageSize = 64 * (1 << 10);
+
         private WasmExpr GetMemoryExpr()
         {
             // The initial and maximum memory size are required to
             // be a multiple of the WebAssembly page size, 
-            // which is 64KiB on all engines
-            const int PageSize = 64 * (1 << 10);
+            // which is 64KiB on all engines.
+            int rem;
+            int pageCount = Math.DivRem(Data.Memory.Size, PageSize, out rem);
+            if (rem > 0)
+                pageCount++;
 
             var args = new List<WasmExpr>();
-            args.Add(new Int32Expr(Data.Memory.Size + (PageSize - Data.Memory.Size % PageSize)));
+            args.Add(new Int32Expr(pageCount));
             foreach (var sec in Data.Memory.Sections)
             {
                 if (sec.IsInitialized)
