@@ -70,7 +70,7 @@ namespace Flame.Front
             nodes.Add(new MarkupNode("#group", new MarkupNode[]
             {
                 new MarkupNode(NodeConstants.BrightNodeType, Name),
-                new MarkupNode(NodeConstants.TextNodeType, " version " + CurrentVersion.ToString()),
+                new MarkupNode(NodeConstants.TextNodeType, " version " + CurrentVersion.ToString())
             }));
             WriteVariable("Platform", ConsoleEnvironment.OSVersionString, nodes);
             WriteVariable("Console", ConsoleEnvironment.TerminalIdentifier, nodes);
@@ -91,5 +91,29 @@ namespace Flame.Front
                 Target.Add(new MarkupNode(NodeConstants.TextNodeType, Name + ": " + Value));
             }
         }
+
+		/// <summary>
+		/// Prints information pertaining to the current color scheme.
+		/// </summary>
+		public static void PrintColorScheme(ConsoleLog Log)
+		{
+			var nodes = new List<MarkupNode>();
+
+			nodes.Add(new MarkupNode("#group", new MarkupNode[]
+			{
+				new MarkupNode(NodeConstants.TextNodeType, "foreground color: "),
+				new MarkupNode(NodeConstants.TextNodeType, Log.ForegroundColor.ToString())
+			}));
+			nodes.Add(new MarkupNode("#group", new MarkupNode[]
+			{
+				new MarkupNode(NodeConstants.TextNodeType, "background color: "),
+				new MarkupNode(NodeConstants.TextNodeType, Log.BackgroundColor.ToString())
+			}));
+
+			foreach (var item in nodes)
+			{
+				Log.WriteEntry(new LogEntry("", item));
+			}
+		}
     }
 }

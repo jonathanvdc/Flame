@@ -128,6 +128,11 @@ namespace Flame.Front.Cli
                 Name.Print(log);
             }
 
+			if (mergedArgs.GetOption<bool>("print-palette", false)) 
+			{
+				CompilerName.PrintColorScheme(log);
+			}
+
             var filteredLog = new FilteredLog(mergedArgs.GetLogFilter(), log);
 
 			LogTraceListener traceListener = null;
