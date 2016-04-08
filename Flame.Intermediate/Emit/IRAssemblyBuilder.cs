@@ -31,14 +31,14 @@ namespace Flame.Intermediate.Emit
             this.Dependencies = new IRDependencyBuilder(this);
             this.TypeTable = new IRTableBuilder<IType>(
                 IRParser.TypeTableName,
-                createElementNode<IType>(new IRTypeVisitor(this).Convert, CreateTypeNamer().Convert), 
+                createElementNode<IType>(new IRTypeVisitor(this).Convert, CreateTypeNamer().Convert),
                 index => NodeFactory.Call(IRParser.TypeTableReferenceName, new LNode[] { NodeFactory.VarLiteral(index) }));
             this.MethodTable = new IRTableBuilder<IMethod>(
                 IRParser.MethodTableName,
-                createElementNode<IMethod>(new IRMethodVisitor(this).Convert, DescribeMethod), 
+                createElementNode<IMethod>(new IRMethodVisitor(this).Convert, DescribeMethod),
                 index => NodeFactory.Call(IRParser.MethodTableReferenceName, new LNode[] { NodeFactory.VarLiteral(index) }));
             this.FieldTable = new IRTableBuilder<IField>(
-                IRParser.FieldTableName, 
+                IRParser.FieldTableName,
                 createElementNode<IField>(new IRFieldVisitor(this).Convert, DescribeField),
                 index => NodeFactory.Call(IRParser.FieldTableReferenceName, new LNode[] { NodeFactory.VarLiteral(index) }));
         }
@@ -99,7 +99,7 @@ namespace Flame.Intermediate.Emit
         {
             if (Encoding == IRAssemblyEncoding.Textual)
             {
-                return (input, index) => 
+                return (input, index) =>
                     Convert(input).PlusAttr(
                         LNode.Trivia(CodeSymbols.TriviaSLCommentBefore, " " + index + ": " + Describe(input)));
             }
@@ -119,10 +119,10 @@ namespace Flame.Intermediate.Emit
 
             var nodes = Dependencies.DependencyNodes.Concat(new LNode[]
             {
-                TypeTable.Node, 
+                TypeTable.Node,
                 MethodTable.Node,
-                FieldTable.Node, 
-                asmNode 
+                FieldTable.Node,
+                asmNode
             }).ToArray();
             using (var fs = OutputProvider.Create().OpenOutput())
             {
@@ -134,7 +134,7 @@ namespace Flame.Intermediate.Emit
                 {
                     using (var writer = new StreamWriter(fs))
                     {
-                        writer.Write(Loyc.Syntax.Les.LesLanguageService.Value.PrintMultiple(nodes));
+                        writer.Write(Loyc.Syntax.Les.LesLanguageService.Value.Print(nodes));
                     }
                 }
             }
