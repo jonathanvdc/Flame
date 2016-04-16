@@ -11,17 +11,22 @@ namespace Flame.Build
             : base(Name)
         {
             this.types = new List<IType>();
+            this.nsBranches = new List<INamespaceBranch>();
             this.Environment = EmptyEnvironment;
         }
         public const this(string Name, set IEnvironment Environment)
             : base(Name)
         {
             this.types = new List<IType>();
+            this.nsBranches = new List<INamespaceBranch>();
         }
-        public const this(string Name, set Version AssemblyVersion, set IEnvironment Environment)
+        public const this(
+            string Name, set Version AssemblyVersion,
+            set IEnvironment Environment)
             : base(Name)
         {
             this.types = new List<IType>();
+            this.nsBranches = new List<INamespaceBranch>();
         }
 
         public override string FullName { const get return Name; }
@@ -32,35 +37,41 @@ namespace Flame.Build
         public IMethod EntryPoint { const get; set; }
 
         private List<IType> types;
+        private List<INamespaceBranch> nsBranches;
 
         public void AddType(IType Type)
         {
             types.Add(Type);
         }
 
-        public [IType] Types
+        public void AddNamespace(INamespaceBranch Namespace)
         {
-            const get { return types; }
+            nsBranches.Add(Namespace);
         }
 
-        public const IBinder CreateBinder()
+        public [IType] Types
+        {
+            get { return types; }
+        }
+
+        public [INamespaceBranch] Namespaces
+        {
+            get { return nsBranches; }
+        }
+
+        public IBinder CreateBinder()
         {
             return new NamespaceTreeBinder(Environment, this);
         }
 
-        public const IMethod GetEntryPoint()
+        public IMethod GetEntryPoint()
         {
             return EntryPoint;
         }
 
         public IAssembly DeclaringAssembly
         {
-            const get { return this; }
-        }
-
-        public [INamespaceBranch] Namespaces
-        {
-            const get { return new INamespaceBranch[] { }; }
+            get { return this; }
         }
     }
 }
