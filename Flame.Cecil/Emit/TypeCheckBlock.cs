@@ -25,26 +25,19 @@ namespace Flame.Cecil.Emit
         {
             Value.Emit(Context);
             var sourceType = Context.Stack.Pop();
-            if (sourceType.Is(TargetType))
+            if (ILCodeGenerator.IsPossibleValueType(sourceType))
             {
-                ((ICecilBlock)CodeGenerator.EmitBoolean(true)).Emit(Context);
+                Context.Emit(OpCodes.Box, sourceType);
             }
-            else
-            {
-                if (ILCodeGenerator.IsPossibleValueType(sourceType))
-                {
-                    Context.Emit(OpCodes.Box, sourceType);
-                }
-                Context.Emit(OpCodes.Isinst, TargetType);
-                Context.Emit(OpCodes.Ldnull);
+            Context.Emit(OpCodes.Isinst, TargetType);
+            Context.Emit(OpCodes.Ldnull);
 #if Emit_Typecheck_Cne
-                Context.Emit(OpCodes.Ceq);
-                UnaryOpBlock.EmitBooleanNot(Context);
+            Context.Emit(OpCodes.Ceq);
+            UnaryOpBlock.EmitBooleanNot(Context);
 #else
-                Context.Emit(OpCodes.Cgt_Un);
+            Context.Emit(OpCodes.Cgt_Un);
 #endif
-                Context.Stack.Push(PrimitiveTypes.Boolean);
-            }
+            Context.Stack.Push(PrimitiveTypes.Boolean);
         }
 
         public IType BlockType
