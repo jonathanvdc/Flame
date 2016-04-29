@@ -64,7 +64,7 @@ namespace Flame.Compiler.Expressions
             const get { return true; }
         }
 
-        public const IBoundObject Evaluate()
+        public IBoundObject Evaluate()
         {
         	var eval = Target.Evaluate();
         	if (eval == null)
@@ -77,7 +77,7 @@ namespace Flame.Compiler.Expressions
                 return new BooleanExpression(evalType.Is(TestType));
         }
 
-        public const IExpression Optimize()
+        public IExpression Optimize()
         {
             var optTarget = Target.Optimize();
             if (optTarget.IsConstant)
@@ -86,10 +86,21 @@ namespace Flame.Compiler.Expressions
                 if (evalTarget != null)
                     return new BooleanExpression(evalTarget.Type.Is(TestType));
             }
-            return new IsExpression(optTarget, TestType);
+            var targetType = optTarget.Type;
+            if (targetType.IsReferenceType && targetType.Is(TestType))
+            {
+                // `x is T` is equivalent to `x != null` if `typeof(x) : T`
+                return new InequalityExpression(
+                    optTarget,
+                    new ReinterpretCastExpression(NullExpression, targetType));
+            }
+            else
+            {
+                return new IsExpression(optTarget, TestType);
+            }
         }
 
-        public const ICodeBlock Emit(ICodeGenerator Generator)
+        public ICodeBlock Emit(ICodeGenerator Generator)
         {
             var targetBlock = Target.Emit(Generator);
             var isInst = Generator.EmitTypeBinary(targetBlock, TestType, Operator.IsInstance);
