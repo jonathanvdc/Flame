@@ -84,7 +84,7 @@ namespace Flame.Compiler.Expressions
             if (optVal.Type.IsEquivalent(TargetType))
                 return optVal;
 
-            var optExpr = Create(optVal, Type);
+            var optExpr = Create(optVal, Type).Simplify();
             if (optExpr.IsConstant)
             {
                 var evalExpr = optExpr.Evaluate();
@@ -93,6 +93,14 @@ namespace Flame.Compiler.Expressions
             }
 
             return optExpr;
+        }
+
+        /// <summary>
+        /// Tries to apply simple node-based simplifications.
+        /// </summary>
+        public virtual IExpression Simplify()
+        {
+            return this;
         }
     }
 

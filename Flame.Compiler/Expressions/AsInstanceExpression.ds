@@ -35,10 +35,21 @@ namespace Flame.Compiler.Expressions
             var evalVal = Value.Evaluate();
             if (evalVal == null)
                 return null;
-            else if (!Value.Type.Is(TargetType))
+            else if (!evalVal.Type.Is(TargetType))
                 return NullExpression;
             else
                 return evalVal;
+        }
+
+        /// <summary>
+        /// Tries to apply simple node-based simplifications.
+        /// </summary>
+        public override IExpression Simplify()
+        {
+            if (Value.Type.Is(TargetType))
+                return new ReinterpretCastExpression(Value, TargetType);
+            else
+                return this;
         }
 
         public override ICodeBlock Emit(ICodeGenerator Generator)
