@@ -34,7 +34,7 @@
     <file src="Flame.Front.Common\bin\Release\Pixie*.pdb" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Pixie*.xml" target="lib\net45\" />
     <file src="Flame.DSProject\bin\Release\Flame.DSProject.dll" target="lib\net45\" />
-    <file src="Flame.DSProject\bin\Release\Flame.DSProject.pdb" target="lib\net45\" />
+    <!-- <file src="Flame.DSProject\bin\Release\Flame.DSProject.pdb" target="lib\net45\" /> -->
     <file src="Flame.DSProject\bin\Release\Flame.DSProject.xml" target="lib\net45\" />
   </files>
 </package>
