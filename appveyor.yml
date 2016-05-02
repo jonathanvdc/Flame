@@ -34,6 +34,12 @@ deploy:
       secure: SA9j/hvLe5XIZuuFRM3bM+WS5ozrv+hwZQKSWECS6ubwj/ep1vyw/uVEa9s2KKVf
     skip_symbols: true
     artifact: /.*\.nupkg/
+  - provider: NuGet
+    server:
+    api_key:
+      secure: vIYC0UO8DFL2HXrIu20ZQs1NR31SvGZWioDBgXzyMwJEd5dySh5peABsrwWvKzU1
+    skip_symbols: true
+    artifact: /.*\.nupkg/
 
 test_script:
   # Build compare-test, with -O3, to ensure that aggressive optimizations
