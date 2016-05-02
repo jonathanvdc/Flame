@@ -30,5 +30,8 @@
     <file src="Flame.Front.Common\bin\Release\Loyc.*.dll" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Loyc.*.pdb" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Loyc.*.xml" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Pixie*.dll" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Pixie*.pdb" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Pixie*.xml" target="lib\net45\" />
   </files>
 </package>
