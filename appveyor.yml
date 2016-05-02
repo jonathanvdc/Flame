@@ -31,7 +31,7 @@ deploy:
   - provider: NuGet
     server: https://www.myget.org/F/flame-front/api/v2/package
     api_key:
-      secure: 12277835-ab7b-4159-a58e-f5bbc3167e9c
+      secure: SA9j/hvLe5XIZuuFRM3bM+WS5ozrv+hwZQKSWECS6ubwj/ep1vyw/uVEa9s2KKVf
     skip_symbols: true
     artifact: /.*\.nupkg/
 
