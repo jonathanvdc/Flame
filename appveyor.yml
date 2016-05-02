@@ -4,6 +4,10 @@ install:
   - git clone https://github.com/jonathanvdc/compare-test
   - nuget restore Flame.Cecil\Flame.Cecil.mono.sln
 build_script:
+  - set SEMVER=0.7.0
+  # Build packages as 0.7.0-ci{build}
+  - set PKG_VERSION=%SEMVER%-ci%APPVEYOR_BUILD_NUMBER%
+
   # Perform one build to check that Flame is buildable
   - BuildCI.bat bin_dsc\dsc\dsc.exe
   # Perform a second build to make sure that Flame can bootstrap
@@ -15,10 +19,13 @@ after_build:
   - xcopy dsc\bin\Release\*.dll dsc_build
   - xcopy dsc\bin\Release\*.exe dsc_build
   - 7z a dsc.zip %APPVEYOR_BUILD_FOLDER%\dsc_build\*
+  - nuget pack -Version %PKG_VERSION% Flame.Front.nuspec
 
 artifacts:
   - path: dsc.zip
     name: dsc
+  - path: '*.nupkg'
+    name: nupkgs
 
 test_script:
   # Build compare-test, with -O3, to ensure that aggressive optimizations
