@@ -24,11 +24,11 @@
   </metadata>
   <files>
     <file src="README.md" target="readme.txt" />
-    <file src="Flame.Front.Common/bin/Release/Flame.*.dll" target="lib\net45\" />
-    <file src="Flame.Front.Common/bin/Release/Flame.*.pdb" target="lib\net45\" />
-    <file src="Flame.Front.Common/bin/Release/Flame.*.xml" target="lib\net45\" />
-    <file src="Flame.Front.Common/bin/Release/Loyc.*.dll" target="lib\net45\" />
-    <file src="Flame.Front.Common/bin/Release/Loyc.*.pdb" target="lib\net45\" />
-    <file src="Flame.Front.Common/bin/Release/Loyc.*.xml" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.*.dll" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.*.pdb" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.*.xml" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Loyc.*.dll" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Loyc.*.pdb" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Loyc.*.xml" target="lib\net45\" />
   </files>
 </package>

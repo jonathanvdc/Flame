@@ -27,6 +27,14 @@ artifacts:
   - path: '*.nupkg'
     name: nupkgs
 
+deploy:
+  - provider: NuGet
+    server: https://www.myget.org/F/flame-front/api/v2/package
+    api_key:
+      secure: 12277835-ab7b-4159-a58e-f5bbc3167e9c
+    skip_symbols: true
+    artifact: /.*\.nupkg/
+
 test_script:
   # Build compare-test, with -O3, to ensure that aggressive optimizations
   # work for a real-life application. Use --debug to catch some incorrect
