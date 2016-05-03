@@ -5,7 +5,7 @@ install:
   - nuget restore Flame.Cecil\Flame.Cecil.mono.sln
 build_script:
   - set SEMVER=0.7.4
-  # Build packages as 0.7.0-ci{build}
+  # Build packages as SEMVER-ci{build}
   - if %APPVEYOR_REPO_TAG% (set PKG_VERSION=%SEMVER%) else (set PKG_VERSION=%SEMVER%-ci%APPVEYOR_BUILD_NUMBER%)
 
   # Perform one build to check that Flame is buildable
@@ -35,7 +35,7 @@ deploy:
     skip_symbols: true
     artifact: /.*\.nupkg/
     on:
-      branch: master
+      branch: master # Release from master branch only.
 
   - provider: NuGet
     server:
@@ -44,8 +44,20 @@ deploy:
     skip_symbols: true
     artifact: /.*\.nupkg/
     on:
-      branch: master
-      appveyor_repo_tag: true
+      branch: master # Release from master branch only.
+      appveyor_repo_tag: true # Deploy on tag push only.
+
+  - provider: GitHub
+    release: dsc v$(SEMVER)
+    description: 'Release description' # Fill this out later.
+    auth_token:
+      secure: 693ZX2DdyyjDOqpJaJlUMO1hcMtLbsqMnCLzQVUEq7JjGb+bfEbaB/oMO0b26KZo
+    artifact: dsc.zip # Release the dsc compiler as an artifact.
+    draft: true  # Make this a draft.
+    prerelease: false
+    on:
+      branch: master # Release from master branch only.
+      appveyor_repo_tag: true # Deploy on tag push only.
 
 test_script:
   # Build compare-test, with -O3, to ensure that aggressive optimizations
