@@ -4,9 +4,9 @@ install:
   - git clone https://github.com/jonathanvdc/compare-test
   - nuget restore Flame.Cecil\Flame.Cecil.mono.sln
 build_script:
-  - set SEMVER=0.7.0
+  - set SEMVER=0.7.4
   # Build packages as 0.7.0-ci{build}
-  - set PKG_VERSION=%SEMVER%-ci%APPVEYOR_BUILD_NUMBER%
+  - if %APPVEYOR_REPO_TAG% (set PKG_VERSION=%SEMVER%) else (set PKG_VERSION=%SEMVER%-ci%APPVEYOR_BUILD_NUMBER%)
 
   # Perform one build to check that Flame is buildable
   - BuildCI.bat bin_dsc\dsc\dsc.exe
@@ -34,12 +34,18 @@ deploy:
       secure: SA9j/hvLe5XIZuuFRM3bM+WS5ozrv+hwZQKSWECS6ubwj/ep1vyw/uVEa9s2KKVf
     skip_symbols: true
     artifact: /.*\.nupkg/
+    on:
+      branch: master
+
   - provider: NuGet
     server:
     api_key:
       secure: vIYC0UO8DFL2HXrIu20ZQs1NR31SvGZWioDBgXzyMwJEd5dySh5peABsrwWvKzU1
     skip_symbols: true
     artifact: /.*\.nupkg/
+    on:
+      branch: master
+      appveyor_repo_tag: true
 
 test_script:
   # Build compare-test, with -O3, to ensure that aggressive optimizations
