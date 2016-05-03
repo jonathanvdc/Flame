@@ -7,11 +7,17 @@ build_script:
   - set SEMVER=0.7.5
   - echo %APPVEYOR_REPO_TAG%
   # Build packages as SEMVER-ci{build}
-  - if %APPVEYOR_REPO_TAG% (
-      set PKG_VERSION=%SEMVER%
-    ) else (
-      set PKG_VERSION=%SEMVER%-ci%APPVEYOR_BUILD_NUMBER%
-    )
+  - ps: |
+    echo $env:SEMVER
+    echo $env:APPVEYOR_BUILD_NUMBER
+    if (%APPVEYOR_REPO_TAG%)
+    {
+        $env:PKG_VERSION = $env:SEMVER
+    }
+    else
+    {
+        $env:PKG_VERSION = "$($env:SEMVER)-ci$($env:APPVEYOR_BUILD_NUMBER)"
+    }
 
   # Perform one build to check that Flame is buildable
   - BuildCI.bat bin_dsc\dsc\dsc.exe
