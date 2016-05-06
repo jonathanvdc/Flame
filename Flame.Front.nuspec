@@ -18,8 +18,8 @@
     <copyright>Copyright 2016</copyright>
     <tags>Flame compiler</tags>
     <dependencies>
-        <dependency id="Mono.Cecil" version="0.9.5.4" />
-        <dependency id="Newtonsoft.Json" version="8.0.2" />
+        <dependency id="Mono.Cecil" version="0.9.6.1" />
+        <dependency id="Newtonsoft.Json" version="8.0.3" />
     </dependencies>
   </metadata>
   <files>
