@@ -26,9 +26,13 @@ __Note__: Flame is still under development. It contains its fair share of bugs. 
 
 ## Getting and building Flame
 
-Flame is partially bootstrapping. So you'll need a working Flame compiler (`dsc` , to be precise) to compile Flame. Bummer. Fortunately, you can grab the latest (stable) version of `dsc` from the [releases page](https://github.com/jonathanvdc/Flame/releases). The download itself is probably `dsc.zip`. You can't miss it.
+[![NuGet](https://img.shields.io/nuget/v/Flame.Front.svg?maxAge=2592000)](https://www.nuget.org/packages/Flame.Front/)
 
+If you want to use Flame as a library, then I recommend you get the latest stable ["Flame.Front" NuGet package](https://www.nuget.org/packages/Flame.Front/), and add that to your project. __Note:__ You may have to update your package dependencies after installing the package.
 
+If you for some reason can't, or don't want to, use NuGet, then you can get a pre-built version of `dsc` (and the Flame libraries it ships with) and optionally compile Flame yourself.
+
+Note that Flame is partially bootstrapping: you'll need a working version of `dsc` to compile Flame. Fortunately, you can grab the latest (stable) version of `dsc` from the [releases page](https://github.com/jonathanvdc/Flame/releases). The download itself is `dsc.zip`. You can't miss it.
 
 Once `dsc` has been downloaded and unzipped, you can use it to get Flame set up for you. There are two ways to do this:
 
