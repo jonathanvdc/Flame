@@ -1,0 +1,181 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace Flame.Collections
+{
+    /// <summary>
+    /// A key-value pair that includes the hash code of the key.
+    /// </summary>
+    public struct HashedKeyValuePair<TKey, TValue>
+    {
+        public const this(set int KeyHashCode, set TKey Key, set TValue Value);
+
+        public int KeyHashCode { get; private set; }
+        public TKey Key { get; private set; }
+        public TValue Value { get; private set; }
+    }
+
+    /// <summary>
+    /// A small, cache-friendly dictionary with O(n) asymptotic complexity
+    /// for all operations.
+    /// </summary>
+    public class SmallMultiDictionary<TKey, TValue>
+    {
+        public const this()
+        {
+            this.KeyEqualityComparer = EqualityComparer<TKey>.Default;
+            this.pairs = new ValueList<HashedKeyValuePair<TKey, TValue>>(6);
+        }
+        public const this(int InitialCapacity)
+        {
+            this.KeyEqualityComparer = EqualityComparer<TKey>.Default;
+            this.pairs = new ValueList<HashedKeyValuePair<TKey, TValue>>(InitialCapacity);
+        }
+        public const this(int InitialCapacity, set IEqualityComparer<TKey> KeyEqualityComparer)
+        {
+            this.pairs = new ValueList<HashedKeyValuePair<TKey, TValue>>(InitialCapacity);
+        }
+        public const this(SmallMultiDictionary<TKey, TValue> Other)
+        {
+            this.pairs = new ValueList<HashedKeyValuePair<TKey, TValue>>(Other.pairs);
+            this.KeyEqualityComparer = Other.KeyEqualityComparer;
+        }
+
+        assembly ValueList<HashedKeyValuePair<TKey, TValue>> pairs;
+
+        public int Capacity { get { return pairs.Capacity; } }
+        public int Count { get { return pairs.Count; } }
+        public IEqualityComparer<TKey> KeyEqualityComparer { get; private set; }
+
+        /// <summary>
+        /// Inserts an item into this dictionary.
+        /// </summary>
+        public void Add(TKey Key, TValue Value)
+        {
+            pairs.Add(new HashedKeyValuePair<TKey, TValue>(
+                KeyEqualityComparer.GetHashCode(Key), Key, Value));
+        }
+
+        /// <summary>
+        /// Inserts a range of items into this dictionary.
+        /// </summary>
+        public void AddRange(SmallMultiDictionary<TKey, TValue> Other)
+        {
+            pairs.AddRange(Other.pairs);
+        }
+
+        /// <summary>
+        /// Checks if this dictionary contains at least one element with
+        /// the given key.
+        /// </summary>
+        public bool ContainsKey(TKey Key)
+        {
+            int hashCode = KeyEqualityComparer.GetHashCode(Key);
+            var items = pairs.Items;
+            for (int i = 0; i < pairs.Count; i++)
+            {
+                if (items[i].KeyHashCode == hashCode
+                    && KeyEqualityComparer.Equals(Key, items[i].Key))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Gets all values with the given keys.
+        /// </summary>
+        public [TValue] GetAll(TKey Key)
+        {
+            int hashCode = KeyEqualityComparer.GetHashCode(Key);
+            var results = new List<TValue>();
+            var items = pairs.Items;
+            for (int i = 0; i < pairs.Count; i++)
+            {
+                if (items[i].KeyHashCode == hashCode
+                    && KeyEqualityComparer.Equals(Key, items[i].Key))
+                {
+                    results.Add(items[i].Value);
+                }
+            }
+            return results;
+        }
+
+        /// <summary>
+        /// Tries to retrieve the first value with the given key in this
+        /// dictionary.
+        /// </summary>
+        public bool TryPeek(TKey Key, TValue^ Result)
+        {
+            int hashCode = KeyEqualityComparer.GetHashCode(Key);
+            var items = pairs.Items;
+            for (int i = 0; i < pairs.Count; i++)
+            {
+                if (items[i].KeyHashCode == hashCode
+                    && KeyEqualityComparer.Equals(Key, items[i].Key))
+                {
+                    *Result = items[i].Value;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Tries to retrieve the first value with the given key in this
+        /// dictionary. If no such item exists, then the default value is
+        /// returned.
+        /// </summary>
+        public TValue PeekOrDefault(TKey Key)
+        {
+            TValue result;
+            TryPeek(Key, &result);
+            return result;
+        }
+
+        public IEnumerator<TValue> GetValueEnumerator()
+        {
+            return new SmallMultiDictionaryValueEnumerator<TKey, TValue>(this);
+        }
+    }
+
+    public class SmallMultiDictionaryValueEnumerator<TKey, TValue> : IEnumerator<TValue>
+    {
+        public const this(set SmallMultiDictionary<TKey, TValue> Dictionary)
+        {
+            this.index = -1;
+        }
+
+        public SmallMultiDictionary<TKey, TValue> Dictionary { get; private set; }
+        private int index;
+
+        public TValue CurrentValue : IEnumerator<TValue>.Current
+        {
+            get { return Dictionary.pairs[index].Value; }
+        }
+
+        public object CurrentObject : IEnumerator.Current
+        {
+            get { return CurrentValue; }
+        }
+
+        public bool MoveNext()
+        {
+            index++;
+            return index < Dictionary.Count;
+        }
+
+        public void Reset()
+        {
+            index = -1;
+        }
+
+        public void Dispose()
+        {
+            index = -1;
+            Dictionary = null;
+        }
+    }
+}

@@ -1,0 +1,101 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Collections
+{
+    /// <summary>
+    /// A growable list that is implemented as a value type.
+    /// This type is mainly intended for use by other collection types,
+    /// and is not a drop-in replacement for System.Collections.Generic.List.
+    /// </summary>
+    public struct ValueList<T>
+    {
+        public const this(int Capacity)
+        {
+            this.Items = new T[Capacity];
+            this.Count = 0;
+        }
+        public const this(ValueList<T> Other)
+        {
+            this.Items = new T[Other.Count];
+            this.Count = Other.Count;
+            Array.Copy((Array)Other.Items, (Array)Items, Count);
+        }
+        public const this([T] Values)
+        {
+            this.Items = Enumerable.ToArray<T>(Values);
+            this.Count = this.Items.Length;
+        }
+
+        /// <summary>
+        /// Gets the backing array for this list.
+        /// </summary>
+        public T[] Items { get; private set; }
+
+        /// <summary>
+        /// Gets the number of items in this list.
+        /// </summary>
+        public int Count { get; private set; }
+
+        /// <summary>
+        /// Gets the size of this list's backing array.
+        /// </summary>
+        public int Capacity { get { return Items.Length; } }
+
+        public T this[int Index]
+        {
+            get
+            {
+                var itemArr = Items;
+                return itemArr[Index];
+            }
+            set
+            {
+                var itemArr = Items;
+                itemArr[Index] = value;
+            }
+        }
+
+        public void Add(T Value)
+        {
+            int newCount = Count + 1;
+            Reserve(newCount);
+            var itemArr = Items;
+            itemArr[newCount - 1] = Value;
+            Count = newCount;
+        }
+
+        public void AddRange(ValueList<T> Values)
+        {
+            int oldCount = Count;
+            int newCount = oldCount + Values.Count;
+            Reserve(newCount);
+            var itemArr = Items;
+            for (int i = 0; i < Values.Count; i++)
+            {
+                itemArr[oldCount + i] = Values[i];
+            }
+            Count = newCount;
+        }
+
+        public void Reserve(int MinimalCapacity)
+        {
+            int cap = Capacity;
+            if (MinimalCapacity <= cap)
+                return;
+
+            int newCapacity = cap;
+            if (newCapacity <= 0)
+                newCapacity = 1;
+            while (newCapacity < MinimalCapacity)
+            {
+                newCapacity += newCapacity;
+            }
+
+            var newArray = new T[newCapacity];
+            Array.Copy((Array)Items, (Array)newArray, Count);
+            Items = newArray;
+        }
+    }
+}
