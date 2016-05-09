@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Flame.Collections;
 
 namespace Flame
 {
@@ -11,41 +12,43 @@ namespace Flame
     {
         public this()
         {
-            attributeDict = new Dictionary<IType, List<IAttribute>>();
+            attributeDict = new SmallMultiDictionary<IType, IAttribute>();
         }
         public this([IAttribute] Attributes)
         {
-            attributeDict = new Dictionary<IType, List<IAttribute>>();
+            attributeDict = new SmallMultiDictionary<IType, IAttribute>();
             AddRange(Attributes);
         }
         public this(AttributeMapBuilder Attributes)
         {
-            attributeDict = new Dictionary<IType, List<IAttribute>>(Attributes.attributeDict);
+            attributeDict = new SmallMultiDictionary<IType, IAttribute>(Attributes.attributeDict);
         }
         public this(AttributeMap Attributes)
         {
-            attributeDict = new Dictionary<IType, List<IAttribute>>(Attributes.builder.attributeDict);
+            attributeDict = new SmallMultiDictionary<IType, IAttribute>(Attributes.builder.attributeDict);
         }
 
-        private Dictionary<IType, List<IAttribute>> attributeDict;
+        private SmallMultiDictionary<IType, IAttribute> attributeDict;
+        //private Dictionary<IType, List<IAttribute>> attributeDict;
 
-        private List<IAttribute> GetAttributeBag(IType Type)
-        {
-            List<IAttribute> results;
-            if (!attributeDict.TryGetValue(Type, &results))
-            {
-                results = new List<IAttribute>();
-                attributeDict[Type] = results;
-            }
-            return results;
-        }
+        //private List<IAttribute> GetAttributeBag(IType Type)
+        //{
+        //    List<IAttribute> results;
+        //    if (!attributeDict.TryGetValue(Type, &results))
+        //    {
+        //        results = new List<IAttribute>();
+        //        attributeDict[Type] = results;
+        //    }
+        //    return results;
+        //}
 
         /// <summary>
         /// Adds the given attribute to this attribute map builder.
         /// </summary>
         public void Add(IAttribute Attribute)
         {
-            GetAttributeBag(Attribute.AttributeType).Add(Attribute);
+            // GetAttributeBag(Attribute.AttributeType).Add(Attribute);
+            attributeDict.Add(Attribute.AttributeType, Attribute);
         }
 
         /// <summary>
@@ -62,8 +65,9 @@ namespace Flame
         /// </summary>
         public void AddRange(AttributeMapBuilder Attributes)
         {
-            foreach (var kvPair in Attributes.attributeDict)
-                GetAttributeBag(kvPair.Key).AddRange(kvPair.Value);
+            attributeDict.AddRange(Attributes.attributeDict);
+            // foreach (var kvPair in Attributes.attributeDict)
+            //     GetAttributeBag(kvPair.Key).AddRange(kvPair.Value);
         }
 
         /// <summary>
@@ -79,7 +83,7 @@ namespace Flame
         /// </summary>
         public [IAttribute] GetAll(IType Type)
         {
-            return GetAttributeBag(Type);
+            return attributeDict.GetAll(Type);
         }
 
         /// <summary>
@@ -88,11 +92,7 @@ namespace Flame
         /// </summary>
         public IAttribute Get(IType Type)
         {
-            List<IAttribute> bag;
-            if (!attributeDict.TryGetValue(Type, &bag))
-                return null;
-            else
-                return bag[0];
+            return attributeDict.PeekOrDefault(Type);
         }
 
         /// <summary>
@@ -106,8 +106,7 @@ namespace Flame
 
         public IEnumerator<IAttribute> GetGenericEnumerator() : IEnumerable<IAttribute>.GetEnumerator
         {
-            [List<IAttribute>] attrs = this.attributeDict.Values;
-            return new AttributeMapEnumerator(attrs.GetEnumerator());
+            return attributeDict.GetValueEnumerator();
         }
 
         public IEnumerator GetObjectEnumerator() : IEnumerable.GetEnumerator

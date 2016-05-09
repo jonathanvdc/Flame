@@ -68,6 +68,12 @@
 		<Compile Include="ValueTypeConstraint.ds" />
 	</ItemGroup>
 	<ItemGroup Name="Primitives">
+        <ItemGroup>
+            <Compile Include="Collections/SmallMultiDictionary.ds" />
+            <Compile Include="Collections/ValueList.ds" />
+        </ItemGroup>
+    </ItemGroup>
+	<ItemGroup Name="Primitives">
 		<ItemGroup>
 			<Compile Include="Primitives/BoundPrimitive.ds" />
 			<Compile Include="Primitives/PrimitiveType.ds" />
