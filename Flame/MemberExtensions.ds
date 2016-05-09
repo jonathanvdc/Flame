@@ -698,8 +698,9 @@ namespace Flame
 		/// </summary>
         public const static [IType] GetAllBaseTypes(this IType Type)
         {
-        	var allTypes = new HashSet<IType>(Type.BaseTypes);
-        	foreach (var item in Type.BaseTypes)
+			var bTypes = new HashSet<IType>(Type.BaseTypes);
+        	var allTypes = new HashSet<IType>(bTypes);
+        	foreach (var item in bTypes)
         	{
 				allTypes.UnionWith(item.GetAllBaseTypes());
         	}
