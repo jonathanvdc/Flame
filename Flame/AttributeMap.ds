@@ -64,12 +64,11 @@ namespace Flame
         /// </summary>
         public IAttribute Get(IType Type)
         {
-            IAttribute result;
-            var bag = GetAttributeBag(Type);
-            if (bag.Count > 0)
-                return bag[0];
-            else
+            List<IAttribute> bag;
+            if (!attributeDict.TryGetValue(Type, &bag))
                 return null;
+            else
+                return bag[0];
         }
 
         /// <summary>
@@ -78,7 +77,7 @@ namespace Flame
         /// </summary>
         public bool Contains(IType Type)
         {
-            return Get(Type) != null;
+            return attributeDict.ContainsKey(Type);
         }
 
         public IEnumerator<IAttribute> GetGenericEnumerator() : IEnumerable<IAttribute>.GetEnumerator
