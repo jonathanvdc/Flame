@@ -36,13 +36,13 @@ namespace Flame.Wasm
 		public bool IsStatic { get { return TemplateInstance.Template.IsStatic; } }
 		public bool IsConstructor { get { return TemplateInstance.IsConstructor; } }
 
-		public IEnumerable<IAttribute> Attributes { get { return TemplateInstance.Attributes.Value; } }
+		public AttributeMap Attributes { get { return TemplateInstance.Attributes.Value; } }
 		public IEnumerable<IMethod> BaseMethods { get { return TemplateInstance.BaseMethods.Value; } }
 		public IType ReturnType { get { return TemplateInstance.ReturnType.Value; } }
 		public IEnumerable<IParameter> Parameters { get { return TemplateInstance.Parameters.Value; } }
 		public IEnumerable<IGenericParameter> GenericParameters { get { return TemplateInstance.GenericParameters.Value; } }
 
-        public bool IsImport { get { return Attributes.HasAttribute(PrimitiveAttributes.Instance.ImportAttribute.AttributeType); } }
+        public bool IsImport { get { return Attributes.Contains(PrimitiveAttributes.Instance.ImportAttribute.AttributeType); } }
 
 		public WasmCodeGenerator BodyGenerator 
 		{

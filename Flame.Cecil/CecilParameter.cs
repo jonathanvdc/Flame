@@ -14,6 +14,7 @@ namespace Flame.Cecil
         {
             this.DeclaringMember = DeclaringMember;
             this.Parameter = Parameter;
+            this.attrMap = new Lazy<AttributeMap>(CreateAttributes);
         }
 
         public ParameterReference Parameter { get; private set; }
@@ -35,20 +36,27 @@ namespace Flame.Cecil
             return attrs;
         }
 
-        protected IList<IAttribute> GetCustomAttributes(ParameterDefinition Parameter)
+        protected AttributeMap GetCustomAttributes(ParameterDefinition Parameter)
         {
             return CecilAttribute.GetAttributes(Parameter.CustomAttributes, DeclaringMember);
         }
 
-        public IEnumerable<IAttribute> Attributes
+        private Lazy<AttributeMap> attrMap;
+        public AttributeMap Attributes
         {
             get
             {
-                var resolvedParam = GetResolvedParameter();
-                var memberAttrs = GetMemberAttributes(resolvedParam);
-                var customAttrs = GetCustomAttributes(resolvedParam);
-                return memberAttrs.Concat(customAttrs);
+                return attrMap.Value;
             }
+        }
+
+        private AttributeMap CreateAttributes()
+        {
+            var resolvedParam = GetResolvedParameter();
+            var results = new AttributeMapBuilder();
+            results.AddRange(GetMemberAttributes(resolvedParam));
+            results.AddRange(GetCustomAttributes(resolvedParam));
+            return new AttributeMap(results);
         }
 
         public string Name

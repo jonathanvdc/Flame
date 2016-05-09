@@ -29,7 +29,7 @@ namespace Flame.MIPS
         public string FullName { get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); } }
         public bool IsStatic { get { return Template.IsStatic; } }
         public IType FieldType { get { return Template.FieldType.Value; } }
-        public IEnumerable<IAttribute> Attributes
+        public AttributeMap Attributes
         {
             get { return Template.Attributes.Value; }
         }

@@ -28,7 +28,7 @@ namespace Flame.Wasm
 		public string Name { get { return TemplateInstance.Name; } }
 		public string FullName { get { return MemberExtensions.CombineNames(DeclaringNamespace.Name, Name); } }
 
-		public IEnumerable<IAttribute> Attributes { get { return TemplateInstance.Attributes.Value; } }
+		public AttributeMap Attributes { get { return TemplateInstance.Attributes.Value; } }
 		public IEnumerable<IType> BaseTypes { get { return TemplateInstance.BaseTypes.Value; } }
 		public IEnumerable<IGenericParameter> GenericParameters { get { return TemplateInstance.GenericParameters.Value; } }
 

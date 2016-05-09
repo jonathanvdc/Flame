@@ -62,7 +62,7 @@ namespace Flame.Cecil
             }
 
             CecilAttribute.DeclareAttributes(methodDef, this, Template.Attributes.Value);
-            if (!Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.ExtensionAttribute.AttributeType) &&
+            if (!Template.Attributes.Value.Contains(PrimitiveAttributes.Instance.ExtensionAttribute.AttributeType) &&
                 Template.Parameters.Value.Any(MemberExtensions.GetIsExtension))
             {
                 CecilAttribute.DeclareAttributeOrDefault(methodDef, this, PrimitiveAttributes.Instance.ExtensionAttribute);
@@ -110,7 +110,9 @@ namespace Flame.Cecil
         {
             get
             {
-                return DeclaringType.GetIsInterface() || Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.AbstractAttribute.AttributeType);
+                return DeclaringType.GetIsInterface() 
+                    || Template.Attributes.Value.Contains(
+                        PrimitiveAttributes.Instance.AbstractAttribute.AttributeType);
             }
         }
 

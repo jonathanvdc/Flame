@@ -22,7 +22,7 @@ namespace Flame.DSharp.Build
             this.returnTypeVal = new Lazy<IType>(CreateReturnType);
             this.parameterVals = new Lazy<IParameter[]>(CreateParameters);
             this.baseMethodVals = new Lazy<IMethod[]>(CreateBaseMethods);
-            this.attributeVals = new Lazy<IAttribute[]>(CreateAttributes);
+            this.attributeVals = new Lazy<AttributeMap>(CreateAttributes);
         }
 
         public IType DeclaringType { const get; protected set; }
@@ -197,15 +197,15 @@ namespace Flame.DSharp.Build
             const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-		private Lazy<IAttribute[]> attributeVals;
-		public [IAttribute] Attributes { get { return attributeVals.Value; } }
+		private Lazy<AttributeMap> attributeVals;
+		public AttributeMap Attributes { get { return attributeVals.Value; } }
 
-        protected virtual const IAttribute[] CreateAttributes()
+        protected virtual const AttributeMap CreateAttributes()
         {
             var state = GetSyntaxState();
 
             var modifierAttrs = Syntax.Signature.ModifierTokens.GetModifiers();
-            var extraAttrs = new List<IAttribute>();
+            var extraAttrs = new AttributeMapBuilder();
             bool isCtor = IsConstructor;
             if (isCtor)
             {
@@ -231,26 +231,19 @@ namespace Flame.DSharp.Build
             	{
             		accessMod = AccessModifier.Private;
             	}
-            	int i = 0;
-            	while (i < extraAttrs.Count)
-            	{
-            		if (extraAttrs[i] is AccessAttribute)
-            	  	{
-            	  		var providedAccess = ((AccessAttribute)extraAttrs[i]).Access;
-            	  		if (providedAccess != accessMod)
-            	  		{
-            	  			state.Log.LogWarning(
-                                new LogEntry("invalid access modifier",
-                                "invalid explicit access modifier at '" + this.GetHeaderString() + "' in singleton '" + DeclaringType.FullName + "': expected '" + accessMod + "', got '" + providedAccess + "'"));
-            	  		}
-            	  		extraAttrs.RemoveAt(i);
-            		}
-            		else
-            		{
-            			i++;
-            		}
-            	}
-            	extraAttrs.Add(new AccessAttribute(accessMod));
+                var providedAccess = ((AccessAttribute)extraAttrs.Get(AccessAttribute.AccessAttributeType));;
+                if (providedAccess != null && providedAccess.Access != accessMod)
+                {
+                    state.Log.LogError(
+                        new LogEntry("invalid access modifier",
+                        "invalid explicit access modifier at '" + this.GetHeaderString() +
+                        "' in singleton '" + DeclaringType.FullName + "': expected '" +
+                        accessMod + "', got '" + providedAccess + "'"));
+                }
+                else
+                {
+                    extraAttrs.Add(new AccessAttribute(accessMod));
+                }
             }
 
             foreach (var item in modifierAttrs)
@@ -280,7 +273,7 @@ namespace Flame.DSharp.Build
 
 	       	extraAttrs.AddRange(Syntax.GetDescriptionAttributes(GetDeclaringSyntaxState()));
 
-            return extraAttrs.ToArray();
+            return new AttributeMap(extraAttrs);
         }
 
         #endregion

@@ -12,7 +12,7 @@ namespace Flame.Compiler.Build
         /// </summary>
         public const this(set IPropertySignatureTemplate Template, set IProperty Property)
         {
-            this.Attributes = new Lazy<[IAttribute]>(createAttributes);
+            this.Attributes = new Lazy<AttributeMap>(createAttributes);
             this.PropertyType = new Lazy<IType>(createPropertyType);
             this.IndexerParameters = new Lazy<[IParameter]>(createIndexerParameters);
         }
@@ -35,7 +35,7 @@ namespace Flame.Compiler.Build
         /// <summary>
         /// Gets the property signature instance's attributes.
         /// </summary>
-        public Lazy<[IAttribute]> Attributes { const get; private set; }
+        public Lazy<AttributeMap> Attributes { const get; private set; }
 
         /// <summary>
         /// Gets the property signature instance's property type.
@@ -47,7 +47,7 @@ namespace Flame.Compiler.Build
         /// </summary>
         public Lazy<[IParameter]> IndexerParameters { const get; private set; }
 
-        private [IAttribute] createAttributes()
+        private AttributeMap createAttributes()
         {
             return Template.CreateAttributes(Property);
         }

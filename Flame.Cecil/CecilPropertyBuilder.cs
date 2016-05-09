@@ -39,12 +39,12 @@ namespace Flame.Cecil
                 CecilParameter.DeclareParameter(this, item);
             }
             CecilAttribute.DeclareAttributes(propDef, this, Template.Attributes.Value);
-            if (!Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.ExtensionAttribute.AttributeType) &&
+            if (!Template.Attributes.Value.Contains(PrimitiveAttributes.Instance.ExtensionAttribute.AttributeType) &&
                 Template.IndexerParameters.Value.Any(MemberExtensions.GetIsExtension))
             {
                 CecilAttribute.DeclareAttributeOrDefault(propDef, this, PrimitiveAttributes.Instance.ExtensionAttribute);
             }
-            if (Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.IndexerAttribute.AttributeType))
+            if (Template.Attributes.Value.Contains(PrimitiveAttributes.Instance.IndexerAttribute.AttributeType))
             {
                 propDef.Name = "Item";
                 DeclaringType.GetTypeReference().Resolve().SetDefaultMember(Name);

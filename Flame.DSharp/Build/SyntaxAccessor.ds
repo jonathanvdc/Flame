@@ -22,7 +22,7 @@ namespace Flame.DSharp.Build
         {
             this.parameterCache = new Lazy<IParameter[]>(CreateParameters);
             this.baseMethodCache = new Lazy<IMethod[]>(CreateBaseMethods);
-            this.attrCache = new Lazy<IAttribute[]>(CreateAttributes);
+            this.attrCache = new Lazy<AttributeMap>(CreateAttributes);
         }
 
         public AccessorSyntax Syntax { const get; private set; }
@@ -133,16 +133,13 @@ namespace Flame.DSharp.Build
             }
         }
 
-        public [IAttribute] Attributes { get { return attrCache.Value; } }
+        public AttributeMap Attributes { get { return attrCache.Value; } }
 
-		private Lazy<IAttribute[]> attrCache;
-        private IAttribute[] CreateAttributes()
+		private Lazy<AttributeMap> attrCache;
+        private AttributeMap CreateAttributes()
         {
-            var attrs = new List<IAttribute>();
-            foreach (var item in Syntax.Signature.ModifierTokens.GetModifiers())
-            {
-            	attrs.Add(item);
-            }
+            var attrs = new AttributeMapBuilder();
+            attrs.AddRange(Syntax.Signature.ModifierTokens.GetModifiers());
             attrs.AddRange(Syntax.GetDescriptionAttributes(GetSyntaxState()));
             if (IsAutoProperty)
             {
@@ -158,29 +155,31 @@ namespace Flame.DSharp.Build
 
             		if (!tag.Equals("remarks"))
             		{
-	            		var localDescAttrs = attrs.GetAttributes(attrType);
+	            		var localDescAttrs = attrs.GetAll(attrType);
 	            		bool containsTag = false;
 	            		foreach (var localAttr in localDescAttrs)
-	            			if (((DescriptionAttribute)localAttr).Tag.Equals(tag))
-	            			{
-	            				containsTag = true;
-	            				break;
-	            			}
+                        {
+                            if (((DescriptionAttribute)localAttr).Tag.Equals(tag))
+                            {
+                                containsTag = true;
+                                break;
+                            }
+                        }
+
 	            		if (!containsTag)
-	            		{
 	            			attrs.Add(desc);
-	            		}
             		}
             	}
-                if (attrType.Equals(AccessAttribute.AccessAttributeType) || attrType.Equals(PrimitiveAttributes.VirtualAttribute.AttributeType) || attrType.Equals(PrimitiveAttributes.AbstractAttribute.AttributeType) || attrType.Equals(PrimitiveAttributes.InlineAttribute.AttributeType))
+                if (attrType.Equals(AccessAttribute.AccessAttributeType)
+                    || attrType.Equals(PrimitiveAttributes.VirtualAttribute.AttributeType)
+                    || attrType.Equals(PrimitiveAttributes.AbstractAttribute.AttributeType)
+                    || attrType.Equals(PrimitiveAttributes.InlineAttribute.AttributeType))
                 {
-                    if (!attrs.HasAttribute(attrType))
-                    {
+                    if (!attrs.Contains(attrType))
                         attrs.Add(item);
-                    }
                 }
             }
-            return attrs.ToArray();
+            return new AttributeMap(attrs);
         }
 
         public static const IField GetBackingField(IType CurrentType, string PropertyName)

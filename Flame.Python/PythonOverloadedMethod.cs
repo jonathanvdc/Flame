@@ -13,12 +13,12 @@ namespace Flame.Python
     public class PythonOverloadedMethod : IPythonMethod
     {
         public PythonOverloadedMethod(params IPythonMethod[] Methods)
-        {
-            this.Methods = new List<IPythonMethod>(Methods);
-        }
+            : this((IEnumerable<IPythonMethod>)Methods)
+        { }
         public PythonOverloadedMethod(IEnumerable<IPythonMethod> Methods)
         {
             this.Methods = new List<IPythonMethod>(Methods);
+            this.attrMap = new Lazy<AttributeMap>(() => new AttributeMap(Methods.SelectMany((item) => item.Attributes).Distinct()));
         }
 
         public List<IPythonMethod> Methods { get; private set; }
@@ -58,9 +58,10 @@ namespace Flame.Python
             get { return Methods.First().FullName; }
         }
 
-        public IEnumerable<IAttribute> Attributes
+        private Lazy<AttributeMap> attrMap;
+        public AttributeMap Attributes
         {
-            get { return Methods.SelectMany((item) => item.Attributes).Distinct(); }
+            get { return attrMap.Value; }
         }
 
         public string Name

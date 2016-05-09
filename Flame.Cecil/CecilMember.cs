@@ -12,7 +12,7 @@ namespace Flame.Cecil
         public CecilMember(CecilModule Module)
         {
             this.Module = Module;
-            this.attrs = new Lazy<IAttribute[]>(() => GetAttributes().ToArray());
+            this.attrs = new Lazy<AttributeMap>(() => GetAttributes());
         }
 
         protected abstract IEnumerable<IAttribute> GetMemberAttributes();
@@ -25,14 +25,16 @@ namespace Flame.Cecil
         public CecilModule Module { get; private set; }
         public AncestryGraph Graph { get { return Module.Graph; } }
 
-        private Lazy<IAttribute[]> attrs;
+        private Lazy<AttributeMap> attrs;
 
-        public IEnumerable<IAttribute> Attributes { get { return attrs.Value; } }
+        public AttributeMap Attributes { get { return attrs.Value; } }
 
-        protected virtual IEnumerable<IAttribute> GetAttributes()
+        protected virtual AttributeMap GetAttributes()
         {
-            var customAttrs = CecilAttribute.GetAttributes(GetCustomAttributes(), this);
-            return new[] { new AncestryGraphAttribute(Graph) }.Concat(GetMemberAttributes()).Concat(customAttrs);
+            var results = new AttributeMapBuilder(CecilAttribute.GetAttributes(GetCustomAttributes(), this));
+            results.AddRange(GetMemberAttributes());
+            results.Add(new AncestryGraphAttribute(Graph));
+            return new AttributeMap(results);
         }
 
         public override string ToString()

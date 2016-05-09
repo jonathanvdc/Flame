@@ -12,7 +12,7 @@ namespace Flame.Compiler.Build
         /// </summary>
         public const this(set IFieldSignatureTemplate Template, set IField Field)
         {
-            this.Attributes = new Lazy<[IAttribute]>(createAttributes);
+            this.Attributes = new Lazy<AttributeMap>(createAttributes);
             this.FieldType = new Lazy<IType>(createFieldType);
         }
 
@@ -39,14 +39,14 @@ namespace Flame.Compiler.Build
         /// <summary>
         /// Gets the field signature instance's attributes.
         /// </summary>
-        public Lazy<[IAttribute]> Attributes { const get; private set; }
+        public Lazy<AttributeMap> Attributes { const get; private set; }
 
         /// <summary>
         /// Gets the field signature instance's field type.
         /// </summary>
         public Lazy<IType> FieldType { const get; private set; }
 
-        private [IAttribute] createAttributes()
+        private AttributeMap createAttributes()
         {
             return Template.CreateAttributes(Field);
         }

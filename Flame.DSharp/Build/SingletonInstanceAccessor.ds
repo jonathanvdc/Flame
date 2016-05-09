@@ -14,10 +14,18 @@ namespace Flame.DSharp.Build
 {
 	public class SingletonInstanceAccessor : IAccessor, IBodyMethod
 	{
-		public const this(set IProperty DeclaringProperty, set IField BackingField);
+		public const this(set IProperty DeclaringProperty, set IField BackingField)
+		{
+			this.Attributes = new AttributeMap(new IAttribute[]
+			{
+				new AccessAttribute(AccessModifier.Public),
+				PrimitiveAttributes.ConstantAttribute
+			});
+		}
 
 		public IField BackingField { const get; private set; }
 		public IProperty DeclaringProperty { const get; private set; }
+		public AttributeMap Attributes { const get; private set; }
 		public IType DeclaringType { const get return DeclaringProperty.DeclaringType; }
 		public string Name { const get return "get_" + DeclaringProperty.Name; }
 		public string FullName { const get return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
@@ -37,18 +45,6 @@ namespace Flame.DSharp.Build
 		public [IMethod] BaseMethods
 		{
 			const get { return new IMethod[0]; }
-		}
-
-		public [IAttribute] Attributes
-		{
-			const get
-			{
-				return new IAttribute[]
-				{
-					new AccessAttribute(AccessModifier.Public),
-					PrimitiveAttributes.ConstantAttribute
-				};
-			}
 		}
 
 		public [IGenericParameter] GenericParameters

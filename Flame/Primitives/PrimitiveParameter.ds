@@ -8,9 +8,12 @@ namespace Flame.Primitives
 	{
 		public const this(set string Name, set IType ParameterType)
 		{
-			this.Attributes = new IAttribute[0];
+			this.Attributes = AttributeMap.Empty;
 		}
-		public const this(set string Name, set IType ParameterType, set [IAttribute] Attributes);
+		public const this(set string Name, set IType ParameterType, [IAttribute] Attributes)
+		{
+			this.Attributes = new AttributeMap(Attributes);
+		}
 
 		/// <summary>
         /// Gets the member's name.
@@ -25,7 +28,7 @@ namespace Flame.Primitives
         /// Gets the member's attributes.
         /// </summary>
         /// <returns></returns>
-        public [IAttribute] Attributes { const get; private set; }
+        public AttributeMap Attributes { const get; private set; }
 
 		/// <summary>
         /// Gets the parameter's type.

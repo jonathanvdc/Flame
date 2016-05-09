@@ -29,9 +29,14 @@ namespace Flame.Cpp.Plugs
             get { return "ArraySlice"; }
         }
 
-        public override IEnumerable<IAttribute> Attributes
+        private static readonly AttributeMap attrMap = new AttributeMap(new IAttribute[] 
+        { 
+            PrimitiveAttributes.Instance.ValueTypeAttribute, 
+            new AccessAttribute(AccessModifier.Public) 
+        });
+        public override AttributeMap Attributes
         {
-            get { return new IAttribute[] { PrimitiveAttributes.Instance.ValueTypeAttribute, new AccessAttribute(AccessModifier.Public) }; }
+            get { return attrMap; }
         }
 
         public override INamespace DeclaringNamespace

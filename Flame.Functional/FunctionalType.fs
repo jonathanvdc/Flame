@@ -18,7 +18,7 @@ type FunctionalMemberHeader(name : string, attrs : IAttribute LazyArrayBuilder, 
     /// Gets this functional-style member header's name.
     member this.Name = name
     /// Gets this functional-style member header's attributes.
-    member this.Attributes = Seq.ofArray attrs.Value
+    member this.Attributes = AttributeMap(attrs.Value)
 
     member this.Location = srcLocation
 
@@ -32,10 +32,10 @@ type FunctionalMemberHeader(name : string, attrs : IAttribute LazyArrayBuilder, 
 /// Provides common functionality for objects that support
 /// constructing types in a functional fashion.
 type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace,
-                            baseTypes : IType -> IType seq, 
-                            nestedTypes : LazyApplicationArray<INamespace, IType>, 
+                            baseTypes : IType -> IType seq,
+                            nestedTypes : LazyApplicationArray<INamespace, IType>,
                             genericParams : IGenericMember -> IGenericParameter seq,
-                            methods : LazyApplicationArray<IType, IMethod>, properties : LazyApplicationArray<IType, IProperty>, 
+                            methods : LazyApplicationArray<IType, IMethod>, properties : LazyApplicationArray<IType, IProperty>,
                             fields : LazyApplicationArray<IType, IField>, ns : LazyApplicationArray<INamespaceBranch, INamespaceBranch>) as this =
 
     let appliedNestedTypes = nestedTypes.ApplyLazy this
@@ -54,10 +54,10 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
                        new LazyApplicationArray<IType, IField>(), new LazyApplicationArray<INamespaceBranch, INamespaceBranch>())
     new(name, declNs) =
         FunctionalType(new FunctionalMemberHeader(name), declNs)
-    
+
     /// Gets the type's "formal" name, i.e., the header's name with a suffix that
     /// identifies the number of type parameters the type takes.
-    member this.Name = 
+    member this.Name =
         match Seq.length this.GenericParameters with
         | 0 -> header.Name
         | x -> header.Name + "<" + (new System.String(',', x - 1)) + ">"
@@ -83,7 +83,7 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
     member this.NestedNamespaces  = evalLazy appliedNs |> Seq.ofArray
 
     /// Sets this type's header.
-    member this.WithHeader newHeader = 
+    member this.WithHeader newHeader =
         new FunctionalType(newHeader, declNs, baseTypes, nestedTypes, genericParams, methods, properties, fields, ns)
 
     /// Adds an attribute to this functional-style type.

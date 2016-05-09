@@ -15,7 +15,7 @@ type LazyNamespaceBinder(env : IEnvironment, getNamespace : unit -> INamespaceTr
 
 /// Defines a simple described assembly type.
 /// This type is mutable such that we can first define the assembly's type hierarchy without
-/// evaluating anything, then perform a bait-and-switch on this assembly's main namespace, 
+/// evaluating anything, then perform a bait-and-switch on this assembly's main namespace,
 /// and some time after that evaluate all associated types.
 type DescribedAssembly(name : string, env : IEnvironment) as this =
 
@@ -23,8 +23,8 @@ type DescribedAssembly(name : string, env : IEnvironment) as this =
     member this.Environment = env
 
     member val Version = new Version(1, 0, 0, 0) with get, set
-    member val EntryPoint = null with get, set 
-    member val Attributes = Seq.empty with get, set
+    member val EntryPoint = null with get, set
+    member val Attributes = AttributeMap.Empty with get, set
     member val MainNamespace = new FunctionalNamespace(new FunctionalMemberHeader(null), this) :> INamespaceBranch with get, set
 
     member this.Binder = new LazyNamespaceBinder(env, fun () -> this.MainNamespace :> INamespaceTree) :> IBinder

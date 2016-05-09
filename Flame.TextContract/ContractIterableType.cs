@@ -17,6 +17,12 @@ namespace Flame.TextContract
         protected ContractIterableType()
         {
             typeParam = new DescribedGenericParameter("T", this);
+            attrMap = new AttributeMap(new IAttribute[] 
+            { 
+                new EnumerableAttribute(typeParam), 
+                PrimitiveAttributes.Instance.ReferenceTypeAttribute,
+                PrimitiveAttributes.Instance.VirtualAttribute
+            });
         }
 
         public static ContractIterableType Instance { get; private set; }
@@ -28,16 +34,12 @@ namespace Flame.TextContract
 
         private IGenericParameter typeParam;
 
-        public override IEnumerable<IAttribute> Attributes
+        private readonly AttributeMap attrMap;
+        public override AttributeMap Attributes
         {
             get
             {
-                return new IAttribute[] 
-                { 
-                    new EnumerableAttribute(typeParam), 
-                    PrimitiveAttributes.Instance.ReferenceTypeAttribute,
-                    PrimitiveAttributes.Instance.VirtualAttribute
-                };
+                return attrMap;
             }
         }
 

@@ -14,6 +14,7 @@ namespace Flame.Cpp
         public InvariantImplementationMethod(TypeInvariants Invariants)
         {
             this.Invariants = Invariants;
+            this.attrMap = new Lazy<AttributeMap>(CreateAttributes);
         }
 
         public TypeInvariants Invariants { get; private set; }
@@ -69,24 +70,30 @@ namespace Flame.Cpp
             return new DescriptionAttribute("remarks", "This method should not be called directly. It should only be called from '" + Invariants.CheckInvariantsMethod.Name + "'.");
         }
 
-        public IEnumerable<IAttribute> Attributes
+        private AttributeMap CreateAttributes()
+        {
+            var results = new AttributeMapBuilder();
+            results.Add(PrimitiveAttributes.Instance.ConstantAttribute);
+            results.Add(CreateSummary());
+            results.Add(CreateRemarks());
+            if (DeclaringType.GetIsVirtual() || DeclaringType.GetIsInterface())
+            {
+                results.Add(new AccessAttribute(AccessModifier.Protected));
+                results.Add(PrimitiveAttributes.Instance.VirtualAttribute);
+            }
+            else
+            {
+                results.Add(new AccessAttribute(AccessModifier.Private));
+            }
+            return new AttributeMap(results);
+        }
+
+        private Lazy<AttributeMap> attrMap;
+        public AttributeMap Attributes
         {
             get
             {
-                var baseAttrs = new IAttribute[]
-                {
-                    PrimitiveAttributes.Instance.ConstantAttribute,
-                    CreateSummary(),
-                    CreateRemarks()
-                };
-                if (DeclaringType.GetIsVirtual() || DeclaringType.GetIsInterface())
-                {
-                    return baseAttrs.With(new AccessAttribute(AccessModifier.Protected)).With(PrimitiveAttributes.Instance.VirtualAttribute);
-                }
-                else
-                {
-                    return baseAttrs.With(new AccessAttribute(AccessModifier.Private));
-                }
+                return attrMap.Value;
             }
         }
 

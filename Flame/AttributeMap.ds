@@ -1,0 +1,257 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace Flame
+{
+    /// <summary>
+    /// Defines a mutable, append-only attribute map.
+    /// </summary>
+    public class AttributeMapBuilder : [IAttribute]
+    {
+        public this()
+        {
+            attributeDict = new Dictionary<IType, List<IAttribute>>();
+        }
+        public this([IAttribute] Attributes)
+        {
+            attributeDict = new Dictionary<IType, List<IAttribute>>();
+            AddRange(Attributes);
+        }
+
+        private Dictionary<IType, List<IAttribute>> attributeDict;
+
+        private List<IAttribute> GetAttributeBag(IType Type)
+        {
+            List<IAttribute> results;
+            if (!attributeDict.TryGetValue(Type, &results))
+            {
+                results = new List<IAttribute>();
+                attributeDict[Type] = results;
+            }
+            return results;
+        }
+
+        /// <summary>
+        /// Adds the given attribute to this attribute map builder.
+        /// </summary>
+        public void Add(IAttribute Attribute)
+        {
+            var bag = GetAttributeBag(Attribute.AttributeType);
+            bag.Add(Attribute);
+        }
+
+        /// <summary>
+        /// Adds the given range of attributes to this attribute map builder.
+        /// </summary>
+        public void AddRange([IAttribute] Attributes)
+        {
+            foreach (var item in Attributes)
+                Add(item);
+        }
+
+        /// <summary>
+        /// Gets all attributes in this attribute map with the given type.
+        /// </summary>
+        public [IAttribute] GetAll(IType Type)
+        {
+            return GetAttributeBag(Type);
+        }
+
+        /// <summary>
+        /// Gets an attribute with the given type. If no such attribute exists,
+        /// then null is returned.
+        /// </summary>
+        public IAttribute Get(IType Type)
+        {
+            IAttribute result;
+            var bag = GetAttributeBag(Type);
+            if (bag.Count > 0)
+                return bag[0];
+            else
+                return null;
+        }
+
+        /// <summary>
+        /// Checks if this attribute map contains at least one attribute
+        /// with the given type.
+        /// </summary>
+        public bool Contains(IType Type)
+        {
+            return Get(Type) != null;
+        }
+
+        public IEnumerator<IAttribute> GetGenericEnumerator() : IEnumerable<IAttribute>.GetEnumerator
+        {
+            [List<IAttribute>] attrs = this.attributeDict.Values;
+            return new AttributeMapEnumerator(attrs.GetEnumerator());
+        }
+
+        public IEnumerator GetObjectEnumerator() : IEnumerable.GetEnumerator
+        {
+            return GetGenericEnumerator();
+        }
+    }
+
+    /// <summary>
+    /// Defines a container that facilitates quick type-based attribute lookups.
+    /// </summary>
+    public class AttributeMap : [IAttribute]
+    {
+        /// <summary>
+        /// Creates a new attribute map from the given sequence of attributes.
+        /// </summary>
+        public this([IAttribute] Attributes)
+        {
+            this.builder = new AttributeMapBuilder(Attributes);
+        }
+
+        /// <summary>
+        /// Creates this attribute map as a read-only view of the given
+        /// attribute map builder.
+        /// </summary>
+        public this(AttributeMapBuilder Builder)
+        {
+            this.builder = Builder;
+        }
+
+        private AttributeMapBuilder builder;
+
+        /// <summary>
+        /// Gets all attributes in this attribute map with the given type.
+        /// </summary>
+        public [IAttribute] GetAll(IType Type)
+        {
+            return builder.GetAll(Type);
+        }
+
+        /// <summary>
+        /// Gets an attribute with the given type. If no such attribute exists,
+        /// then null is returned.
+        /// </summary>
+        public IAttribute Get(IType Type)
+        {
+            return builder.Get(Type);
+        }
+
+        /// <summary>
+        /// Checks if this attribute map contains at least one attribute
+        /// with the given type.
+        /// </summary>
+        public bool Contains(IType Type)
+        {
+            return builder.Contains(Type);
+        }
+
+        public IEnumerator<IAttribute> GetGenericEnumerator() : IEnumerable<IAttribute>.GetEnumerator
+        {
+            return builder.GetGenericEnumerator();
+        }
+
+        public IEnumerator GetObjectEnumerator() : IEnumerable.GetEnumerator
+        {
+            return builder.GetObjectEnumerator();
+        }
+
+        static this()
+        {
+            emptyMap = new AttributeMap(new IAttribute[0]);
+        }
+
+        private static AttributeMap emptyMap;
+
+        /// <summary>
+        /// Gets an empty attribute map.
+        /// </summary>
+        public static AttributeMap Empty
+        {
+            const get { return emptyMap; }
+        }
+    }
+
+    /// <summary>
+    /// An enumerator implementation for attribute maps.
+    /// </summary>
+    public class AttributeMapEnumerator : IEnumerator<IAttribute>
+    {
+        public this(IEnumerator<List<IAttribute>> MapEnumerator)
+        {
+            this.mapEnumerator = MapEnumerator;
+            this.elemIndex = -1;
+            this.currentList = null;
+        }
+
+        private IEnumerator<List<IAttribute>> mapEnumerator;
+        private int elemIndex;
+        private List<IAttribute> currentList;
+
+        public IAttribute CurrentValue : IEnumerator<IAttribute>.Current
+        {
+            get { return currentList[elemIndex]; }
+        }
+
+        public object CurrentObject : IEnumerator.Current
+        {
+            get { return CurrentValue; }
+        }
+
+        /// <summary>
+        /// Advances the enumerator to the next element of the collection.
+        /// </summary>
+        /// <returns>
+        /// true if the enumerator was successfully advanced to the next element;
+        /// false if the enumerator has passed the end of the collection.
+        /// </returns>
+        public bool MoveNext()
+        {
+            // Try to advance one element in the current bag enumerator.
+            // If that doesn't work, then we'll discard the bag enumerator.
+            elemIndex++;
+            if (currentList != null && elemIndex >= currentList.Count)
+                currentList = null;
+
+            // If the bag enumerator has been discarded, then we'll visit
+            // the map iterator's bags, until we find a non-empty bag.
+            while (currentList == null)
+            {
+                if (mapEnumerator.MoveNext())
+                {
+                    // The map-enumerator has not been exhausted yet.
+                    // Retrieve a new bag, and check if it
+                    // is empty.
+                    currentList = mapEnumerator.Current;
+                    elemIndex = 0;
+                    if (currentList.Count == 0)
+                    {
+                        // The bag was empty. Proceed to the next bag.
+                        currentList = null;
+                    }
+                }
+                else
+                {
+                    // Both the bag and the map-enumerator have
+                    // been exhausted.
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public void Reset()
+        {
+            mapEnumerator.Reset();
+            currentList = null;
+        }
+
+        public void Dispose()
+        {
+            currentList = null;
+            if (mapEnumerator != null)
+            {
+                mapEnumerator.Dispose();
+                mapEnumerator = null;
+            }
+        }
+    }
+}

@@ -12,7 +12,10 @@ namespace Flame.Primitives
 		public const this()
 		{
 			this.cachedMethods = new Lazy<IMethod[]>(CreateMethods);
+			this.attrMap = new Lazy<AttributeMap>(CreateAttributes);
 		}
+
+		private Lazy<AttributeMap> attrMap;
 
 		public abstract string Name : IType.Name { const get; }
 		protected abstract IMethod[] CreateMethods();
@@ -24,13 +27,18 @@ namespace Flame.Primitives
 			const get return PrimitivesNamespace;
 		}
 
-		public [IAttribute] Attributes
+		private AttributeMap CreateAttributes()
 		{
-			const get return new IAttribute[]
+			return new AttributeMap(new IAttribute[]
 			{
 				PrimitiveAttributes.InterfaceAttribute,
 				PrimitiveAttributes.RootTypeAttribute
-			};
+			});
+		}
+
+		public AttributeMap Attributes
+		{
+			const get { return attrMap.Value; }
 		}
 
 		private Lazy<IMethod[]> cachedMethods;
@@ -57,7 +65,7 @@ namespace Flame.Primitives
 		{
 			const get return new IGenericParameter[0];
 		}
-		
+
 		public IAncestryRules AncestryRules
 		{
 			const get { return DefinitionAncestryRules; }

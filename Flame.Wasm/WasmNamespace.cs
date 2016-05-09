@@ -21,7 +21,7 @@ namespace Flame.Wasm
 		public abstract IAssembly DeclaringAssembly { get; }
 		public abstract string FullName { get; }
 
-		public IEnumerable<IAttribute> Attributes { get { return Enumerable.Empty<IAttribute>(); } }
+		public AttributeMap Attributes { get { return AttributeMap.Empty; } }
 
 		private List<WasmNamespace> nsList;
 		private List<WasmType> tyList;

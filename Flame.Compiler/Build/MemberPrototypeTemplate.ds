@@ -25,7 +25,7 @@ namespace Flame.Compiler.Build
         /// <summary>
         /// Creates this member prototype's attributes.
         /// </summary>
-        public [IAttribute] CreateAttributes(T Member)
+        public AttributeMap CreateAttributes(T Member)
         {
             return Prototype.Attributes;
         }

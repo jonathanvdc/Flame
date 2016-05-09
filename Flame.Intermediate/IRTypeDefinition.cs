@@ -67,7 +67,7 @@ namespace Flame.Intermediate
             return MemberNodes.Value.OfType<IInvariant>();
         }
 
-        public IEnumerable<IAttribute> Attributes
+        public AttributeMap Attributes
         {
             get { return Signature.Attributes; }
         }

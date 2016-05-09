@@ -20,9 +20,14 @@ namespace Flame.Cpp.Plugs
             get { return "finally"; }
         }
 
-        public override IEnumerable<IAttribute> Attributes
+        private static readonly AttributeMap attrMap = new AttributeMap(new IAttribute[] 
+        { 
+            new AccessAttribute(AccessModifier.Public), 
+            PrimitiveAttributes.Instance.ValueTypeAttribute 
+        });
+        public override AttributeMap Attributes
         {
-            get { return new IAttribute[] { new AccessAttribute(AccessModifier.Public), PrimitiveAttributes.Instance.ValueTypeAttribute }; }
+            get { return attrMap; }
         }
 
         private StdxNamespace declNs;

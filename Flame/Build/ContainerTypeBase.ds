@@ -20,9 +20,9 @@ namespace Flame.Build
 
         public INamespace DeclaringNamespace { const get { return null; } }
 
-        public virtual [IAttribute] Attributes
+        public virtual AttributeMap Attributes
         {
-            get { return new IAttribute[0]; }
+            get { return AttributeMap.Empty; }
         }
 
         public virtual [IMethod] Methods

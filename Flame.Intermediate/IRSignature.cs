@@ -13,13 +13,13 @@ namespace Flame.Intermediate
         {
             this.Name = Name;
             this.AttributeNodes = AttributeNodes;
-            this.cachedAttrs = new Lazy<IAttribute[]>(() => AttributeNodes.Select(item => item.Value).ToArray());
+            this.cachedAttrs = new Lazy<AttributeMap>(() => new AttributeMap(AttributeNodes.Select(item => item.Value)));
         }
         public IRSignature(string Name)
         {
             this.Name = Name;
             this.AttributeNodes = Enumerable.Empty<INodeStructure<IAttribute>>();
-            this.cachedAttrs = new Lazy<IAttribute[]>(() => new IAttribute[0]);
+            this.cachedAttrs = new Lazy<AttributeMap>(() => AttributeMap.Empty);
         }
 
         public string Name { get; private set; }
@@ -38,8 +38,8 @@ namespace Flame.Intermediate
             }
         }
 
-        private Lazy<IAttribute[]> cachedAttrs;
-        public IEnumerable<IAttribute> Attributes
+        private Lazy<AttributeMap> cachedAttrs;
+        public AttributeMap Attributes
         {
             get { return cachedAttrs.Value; }
         }

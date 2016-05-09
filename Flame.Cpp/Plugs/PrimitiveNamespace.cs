@@ -25,9 +25,9 @@ namespace Flame.Cpp.Plugs
             get { return Name; }
         }
 
-        public virtual IEnumerable<IAttribute> Attributes
+        public virtual AttributeMap Attributes
         {
-            get { return Enumerable.Empty<IAttribute>(); }
+            get { return AttributeMap.Empty; }
         }
 
         #region Types

@@ -46,9 +46,9 @@ namespace Flame.Primitives
             get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
         }
 
-        public [IAttribute] Attributes
+        public AttributeMap Attributes
         {
-            const get { return new IAttribute[0]; }
+            const get { return AttributeMap.Empty; }
         }
 
         #region Generics

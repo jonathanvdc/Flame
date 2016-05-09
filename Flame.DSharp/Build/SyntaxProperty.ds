@@ -23,7 +23,7 @@ namespace Flame.DSharp.Build
             this.indexerParams = new Lazy<IParameter[]>(CreateIndexerParameters);
             this.accessorVals = new Lazy<IAccessor[]>(CreateAccessors);
             this.basePropertyCache = new Lazy<IProperty[]>(CreateBaseProperties);
-            this.attrCache = new Lazy<IAttribute[]>(CreateAttributes);
+            this.attrCache = new Lazy<AttributeMap>(CreateAttributes);
         }
 
         public PropertySyntax Syntax { const get; private set; }
@@ -104,36 +104,33 @@ namespace Flame.DSharp.Build
             const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-		private Lazy<IAttribute[]> attrCache;
-		public [IAttribute] Attributes { get { return attrCache.Value; } }
+		private Lazy<AttributeMap> attrCache;
+		public AttributeMap Attributes { get { return attrCache.Value; } }
 
-        private IAttribute[] CreateAttributes()
+        private AttributeMap CreateAttributes()
         {
             var state = GetSyntaxState();
 
             var modifierAttrs = Syntax.Signature.ModifierTokens.GetModifiers();
-            var extraAttributes = new List<IAttribute>();
+            var extraAttributes = new AttributeMapBuilder();
             /*foreach (var item in Syntax.ImplementedProperties)
             {
                 var member = item.GetAccessedMembers(state).First();
                 extraAttributes.Add(new OverrideAttribute(member.Name, member.DeclaringType.FullName));
             }*/
             if (Syntax.Signature.NameToken.Type == TokenType.ThisKeyword && indexerParams.Value.Length > 0)
-            {
                 extraAttributes.Add(PrimitiveAttributes.IndexerAttribute);
-            }
+            
             if (!modifierAttrs.HasAccessAttribute)
-            {
                 extraAttributes.Add(DeclaringType.GetAccessAttribute());
-            }
-            foreach (var item in modifierAttrs)
-            	extraAttributes.Add(item);
+            
+            extraAttributes.AddRange(modifierAttrs);
             foreach (var item in Syntax.Signature.Attributes)
             	extraAttributes.Add(item.CreateAttribute(state, this));
 
             extraAttributes.AddRange(Syntax.GetDescriptionAttributes(GetSyntaxState()));
 
-            return extraAttributes.ToArray();
+            return new AttributeMap(extraAttributes);
         }
 
         #endregion GetBaseProperties

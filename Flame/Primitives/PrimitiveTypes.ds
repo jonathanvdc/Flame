@@ -32,9 +32,9 @@ namespace Flame
                 const get { return "System"; }
             }
 
-            public [IAttribute] Attributes
+            public AttributeMap Attributes
             {
-                get { return new IAttribute[0]; }
+                const get { return AttributeMap.Empty; }
             }
 
 	    	public override const bool Equals(object Other)

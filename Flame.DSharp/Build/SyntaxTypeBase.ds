@@ -21,7 +21,7 @@ namespace Flame.DSharp.Build
         public const this(set INamespace DeclaringNamespace)
         {
             this.typeMemberCache = new ConcurrentDictionary<string, object>();
-            this.attrCache = new Lazy<IAttribute[]>(CreateAttributes);
+            this.attrCache = new Lazy<AttributeMap>(CreateAttributes);
             this.methodCache = new Lazy<IMethod[]>(CreateMethods);
             this.cachedNestedTypes = new Lazy<IType[]>(CreateNestedTypes);
         }
@@ -131,14 +131,14 @@ namespace Flame.DSharp.Build
 			}
 		}
 
-		private Lazy<IAttribute[]> attrCache;
-		public [IAttribute] Attributes { const get return attrCache.Value; }
+		private Lazy<AttributeMap> attrCache;
+		public AttributeMap Attributes { const get return attrCache.Value; }
 
-        protected virtual IAttribute[] CreateAttributes()
+        protected virtual AttributeMap CreateAttributes()
         {
             var state = GetSyntaxState();
             var modifiers = Syntax.Signature.ModifierTokens;
-            var attrs = new List<IAttribute>();
+            var attrs = new AttributeMapBuilder();
             attrs.Add(new AncestryGraphAttribute(RetrieveAncestryGraph()));
             attrs.AddRange(modifiers.GetModifiers());
             if (IsExtensionType)
@@ -166,7 +166,7 @@ namespace Flame.DSharp.Build
 
             attrs.AddRange(Syntax.Signature.GetDescriptionAttributes(GetNamespaceSyntaxState()));
 
-            return attrs.ToArray();
+            return new AttributeMap(attrs);
         }
 
         #endregion

@@ -19,7 +19,7 @@ namespace Flame.DSharp.Build
 	{
 		public const this(set ISyntaxState InstanceState, set TypeDeclarationSyntax Syntax)
 		{
-			this.attrCache = new Lazy<IAttribute[]>(CreateAttributes);
+			this.attrCache = new Lazy<AttributeMap>(CreateAttributes);
 			this.cachedBaseTypes = new Lazy<IType[]>(CreateBaseTypes);
 			this.methodCache = new Lazy<IMethod[]>(CreateMethods);
 			this.propertyCache = new Lazy<IProperty[]>(CreateProperties);
@@ -43,15 +43,15 @@ namespace Flame.DSharp.Build
 		public string FullName { const get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
 		public INamespace DeclaringNamespace { const get return (INamespace)InstanceType; }
 
-		private Lazy<IAttribute[]> attrCache;
-		public [IAttribute] Attributes
+		private Lazy<AttributeMap> attrCache;
+		public AttributeMap Attributes
 		{
 			get { return attrCache.Value; }
 		}
 
-		private IAttribute[] CreateAttributes()
+		private AttributeMap CreateAttributes()
 		{
-			var attrs = new List<IAttribute>();
+			var attrs = new AttributeMapBuilder();
 			attrs.Add(new AccessAttribute(AccessModifier.Public));
 			attrs.Add(PrimitiveAttributes.HiddenAttribute);
 			attrs.Add(new AssociatedTypeAttribute(InstanceType));
@@ -60,7 +60,7 @@ namespace Flame.DSharp.Build
 			{
 				attrs.Add(PrimitiveAttributes.VirtualAttribute);
 			}
-			return attrs.ToArray();
+			return new AttributeMap(attrs);
 		}
 
 		public [IGenericParameter] GenericParameters

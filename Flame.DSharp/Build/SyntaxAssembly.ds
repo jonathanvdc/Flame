@@ -25,6 +25,7 @@ namespace Flame.DSharp.Build
 			this.AssemblyVersion = default(Version);
 			this.MainNamespace = new AssemblyNamespace(this);
 			this.TypeNamer = new DSharpTypeNamer();
+			this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
 		}
 		public const this(set IBinder ExternalBinder, set string Name)
 		{
@@ -32,18 +33,21 @@ namespace Flame.DSharp.Build
 			this.AssemblyVersion = default(Version);
 			this.MainNamespace = new AssemblyNamespace(this);
 			this.TypeNamer = new DSharpTypeNamer();
+			this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
 		}
 		public const this(set IBinder ExternalBinder, set string Name, set IConverter<IType, string> TypeNamer)
 		{
 			this.Graph = new AncestryGraph();
 			this.AssemblyVersion = default(Version);
 			this.MainNamespace = new AssemblyNamespace(this);
+			this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
 		}
 		public const this(set IBinder ExternalBinder, set string Name, set Version AssemblyVersion,
 						  set IConverter<IType, string> TypeNamer)
 		{
 			this.Graph = new AncestryGraph();
 			this.MainNamespace = new AssemblyNamespace(this);
+			this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
 		}
 
 		public string Name { const get; set; }
@@ -56,9 +60,10 @@ namespace Flame.DSharp.Build
         public AncestryGraph Graph { const get; private set; }
 		public IConverter<IType, string> TypeNamer { const get; private set; }
 
-        public [IAttribute] Attributes
+		private AttributeMap attrMap;
+        public AttributeMap Attributes
         {
-        	const get { return new IAttribute[] { new AncestryGraphAttribute(Graph) }; }
+        	const get { return attrMap; }
         }
 
         /// <summary>

@@ -28,7 +28,7 @@ namespace Flame.DSharp.Build
 		public string Name { const get return Declaration.Name; }
 		public string FullName { const get return MemberExtensions.CombineNames(DeclaringMember.FullName, Name); }
 
-		public [IAttribute] Attributes
+		public AttributeMap Attributes
 		{
 			const get { return backingType.Attributes; }
 		}

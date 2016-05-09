@@ -40,11 +40,11 @@ namespace Flame.MIPS
         public IType DeclaringType { get { return MemorySystemType.Instance; } }
         public string Name { get { return "Allocate"; } }
         public string FullName { get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); } }
-        public IEnumerable<IAttribute> Attributes
+        public AttributeMap Attributes
         {
             get
             {
-                return new IAttribute[0];
+                return AttributeMap.Empty;
             }
         }
 

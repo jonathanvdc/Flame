@@ -13,6 +13,7 @@ namespace Flame.Primitives
 			cachedMethods    = new Lazy<IMethod[]>(CreateMethods);
 			cachedFields     = new Lazy<IField[]>(CreateFields);
 			cachedProperties = new Lazy<IProperty[]>(CreateProperties);
+			lazyAttrs = new Lazy<AttributeMap>(CreateAttributes);
 		}
 
         public int32 Magnitude { const get return 0; }
@@ -175,9 +176,17 @@ namespace Flame.Primitives
             const get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
         }
 
-        public [IAttribute] Attributes
+		private Lazy<AttributeMap> lazyAttrs;
+		private AttributeMap CreateAttributes()
+		{
+			return new AttributeMap(new IAttribute[]
+			{
+				PrimitiveAttributes.ReferenceTypeAttribute
+			});
+		}
+        public AttributeMap Attributes
         {
-            const get return new IAttribute[] { PrimitiveAttributes.ReferenceTypeAttribute };
+            const get { return lazyAttrs.Value; }
         }
 
         public [IGenericParameter] GenericParameters

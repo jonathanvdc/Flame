@@ -19,7 +19,7 @@ namespace Flame.Cpp.Plugs
         #region Abstract
 
         public abstract string Name { get; }
-        public abstract IEnumerable<IAttribute> Attributes { get; }
+        public abstract AttributeMap Attributes { get; }
         public abstract INamespace DeclaringNamespace { get; }
 
         #endregion

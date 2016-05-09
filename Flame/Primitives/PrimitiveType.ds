@@ -92,9 +92,9 @@ namespace Flame.Primitives
             const get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
         }
 
-        public [IAttribute] Attributes
+        public AttributeMap Attributes
         {
-            const get return new IAttribute[0];
+            const get { return AttributeMap.Empty; }
         }
 
         public [IGenericParameter] GenericParameters

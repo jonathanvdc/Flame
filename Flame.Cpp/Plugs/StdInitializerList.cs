@@ -34,16 +34,17 @@ namespace Flame.Cpp.Plugs
             get { return "initializer_list<>"; }
         }
 
-        public override IEnumerable<IAttribute> Attributes
+        private static readonly AttributeMap attrMap = new AttributeMap(new IAttribute[] 
+        { 
+            new AccessAttribute(AccessModifier.Public), 
+            PrimitiveAttributes.Instance.ValueTypeAttribute, 
+            new HeaderDependencyAttribute(StandardDependency.InitializerList) 
+        }); 
+        public override AttributeMap Attributes
         {
             get
             {
-                return new IAttribute[] 
-                { 
-                    new AccessAttribute(AccessModifier.Public), 
-                    PrimitiveAttributes.Instance.ValueTypeAttribute, 
-                    new HeaderDependencyAttribute(StandardDependency.InitializerList) 
-                };
+                return attrMap;
             }
 
         }

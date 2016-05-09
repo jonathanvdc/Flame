@@ -59,11 +59,11 @@ namespace Flame
                 if (DeclaringNamespace == null)
                     return Name;
                 else
-                    return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); 
+                    return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
             }
         }
 
-        public [IAttribute] Attributes
+        public AttributeMap Attributes
         {
             const get { return Declaration.Attributes; }
         }

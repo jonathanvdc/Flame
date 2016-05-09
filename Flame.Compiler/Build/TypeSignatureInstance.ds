@@ -12,7 +12,7 @@ namespace Flame.Compiler.Build
         /// </summary>
         public const this(set ITypeSignatureTemplate Template, set IType Type)
         {
-            this.Attributes = new Lazy<[IAttribute]>(createAttributes);
+            this.Attributes = new Lazy<AttributeMap>(createAttributes);
             this.GenericParameters = new Lazy<[IGenericParameter]>(createGenericParameters);
             this.BaseTypes = new Lazy<[IType]>(createBaseTypes);
         }
@@ -38,7 +38,7 @@ namespace Flame.Compiler.Build
         /// evaluated during the creation of a new type builder based on this
         /// template. Doing so anyway will result in undefined behavior.
         /// </summary>
-        public Lazy<[IAttribute]> Attributes { const get; private set; }
+        public Lazy<AttributeMap> Attributes { const get; private set; }
 
         /// <summary>
         /// Gets the type signature instance's generic parameters.
@@ -56,7 +56,7 @@ namespace Flame.Compiler.Build
         /// </summary>
         public Lazy<[IType]> BaseTypes { const get; private set; }
 
-        private [IAttribute] createAttributes()
+        private AttributeMap createAttributes()
         {
             return Template.CreateAttributes(Type);
         }

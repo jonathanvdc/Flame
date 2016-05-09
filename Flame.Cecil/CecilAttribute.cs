@@ -62,16 +62,16 @@ namespace Flame.Cecil
 
         #region Static
 
-        public static IAttribute[] GetAttributes(IList<CustomAttribute> CustomAttributes, ICecilMember ImportingMember)
+        public static AttributeMap GetAttributes(IList<CustomAttribute> CustomAttributes, ICecilMember ImportingMember)
         {
             return GetAttributes(CustomAttributes, ImportingMember.Module);
         }
-        public static IAttribute[] GetAttributes(IList<CustomAttribute> CustomAttributes, CecilModule ImportingModule)
+        public static AttributeMap GetAttributes(IList<CustomAttribute> CustomAttributes, CecilModule ImportingModule)
         {
-            IAttribute[] attrs = new IAttribute[CustomAttributes.Count];
-            for (int i = 0; i < attrs.Length; i++)
+            var attrs = new AttributeMapBuilder();
+            foreach (var item in CustomAttributes)
             {
-                var cecilAttribute = new CecilAttribute(CustomAttributes[i], ImportingModule);
+                var cecilAttribute = new CecilAttribute(item, ImportingModule);
                 IAttribute attribute;
                 switch (cecilAttribute.AttributeType.FullName)
                 {
@@ -79,8 +79,8 @@ namespace Flame.Cecil
                         attribute = PrimitiveAttributes.Instance.ExtensionAttribute;
                         break;
                     case "System.Diagnostics.Contracts.PureAttribute":
-                        var args = CustomAttributes[i].ConstructorArguments;
-                        if (args.Count > 0 && !(bool)CustomAttributes[i].ConstructorArguments[0].Value)
+                        var args = item.ConstructorArguments;
+                        if (args.Count > 0 && !(bool)item.ConstructorArguments[0].Value)
                         {
                             goto default;
                         }
@@ -93,12 +93,16 @@ namespace Flame.Cecil
                         attribute = PrimitiveAttributes.Instance.RecompileAttribute;
                         break;
                     default:
-                        attribute = new CecilAttribute(CustomAttributes[i], ImportingModule);
+                        attribute = cecilAttribute;
                         break;
                 }
-                attrs[i] = attribute;
+                attrs.Add(attribute);
             }
-            return attrs;
+            return new AttributeMap(attrs);
+        }
+        public static Lazy<AttributeMap> GetAttributesLazy(IList<CustomAttribute> CustomAttributes, CecilModule ImportingModule)
+        {
+            return new Lazy<AttributeMap>(() => GetAttributes(CustomAttributes, ImportingModule));
         }
 
         public IMethod Constructor

@@ -33,9 +33,9 @@ namespace Flame.Cpp
             get { return ns; }
         }
 
-        public IEnumerable<IAttribute> Attributes
+        public AttributeMap Attributes
         {
-            get { return new IAttribute[0]; }
+            get { return AttributeMap.Empty; }
         }
 
         public string Name

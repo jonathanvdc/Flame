@@ -62,7 +62,7 @@ namespace Flame
             get { return Method.FullName; }
         }
 
-        public [IAttribute] Attributes
+        public AttributeMap Attributes
         {
             get { return Method.Attributes; }
         }

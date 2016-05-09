@@ -116,7 +116,8 @@ namespace Flame.Cecil
         {
             get
             {
-                return Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.EnumAttribute.AttributeType);
+                return Template.Attributes.Value.Contains(
+                    PrimitiveAttributes.Instance.EnumAttribute.AttributeType);
             }
         }
 
@@ -124,7 +125,8 @@ namespace Flame.Cecil
         {
             get
             {
-                return Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.InterfaceAttribute.AttributeType);
+                return Template.Attributes.Value.Contains(
+                    PrimitiveAttributes.Instance.InterfaceAttribute.AttributeType);
             }
         }
 
@@ -132,7 +134,8 @@ namespace Flame.Cecil
         {
             get
             {
-                return Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.ValueTypeAttribute.AttributeType);
+                return Template.Attributes.Value.Contains(
+                    PrimitiveAttributes.Instance.ValueTypeAttribute.AttributeType);
             }
         }
 

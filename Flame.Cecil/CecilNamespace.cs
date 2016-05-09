@@ -15,10 +15,15 @@ namespace Flame.Cecil
         {
             this.Module = Module;
             this.Name = Name;
+            this.attrMap = new AttributeMap(new IAttribute[] 
+            { 
+                new AncestryGraphAttribute(AncestryGraph) 
+            });
         }
 
         public CecilAssembly Assembly { get { return Module.Assembly; } }
         public CecilModule Module { get; private set; }
+        private AttributeMap attrMap;
 
         public AncestryGraph AncestryGraph { get { return Assembly.AncestryGraph; } }
 
@@ -42,9 +47,9 @@ namespace Flame.Cecil
             get { return Assembly; }
         }
 
-        public IEnumerable<IAttribute> Attributes
+        public AttributeMap Attributes
         {
-            get { return new IAttribute[] { new AncestryGraphAttribute(AncestryGraph) }; }
+            get { return attrMap; }
         }
 
         #region INamespaceBuilder Implementation

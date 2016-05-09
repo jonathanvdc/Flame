@@ -45,7 +45,7 @@ namespace Flame
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-        public [IAttribute] Attributes
+        public AttributeMap Attributes
         {
             get { return Declaration.Attributes; }
         }

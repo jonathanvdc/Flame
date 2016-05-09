@@ -21,16 +21,17 @@ namespace Flame.Python
 
         public static PythonObjectType Instance { get; private set; }
 
-        public override IEnumerable<IAttribute> Attributes
+        private static AttributeMap attrMap = new AttributeMap(new IAttribute[] 
+        { 
+            PrimitiveAttributes.Instance.RootTypeAttribute, 
+            PrimitiveAttributes.Instance.ReferenceTypeAttribute,
+            PrimitiveAttributes.Instance.VirtualAttribute
+        });
+        public override AttributeMap Attributes
         {
             get
             {
-                return new IAttribute[] 
-                { 
-                    PrimitiveAttributes.Instance.RootTypeAttribute, 
-                    PrimitiveAttributes.Instance.ReferenceTypeAttribute,
-                    PrimitiveAttributes.Instance.VirtualAttribute
-                };
+                return attrMap;
             }
         }
 

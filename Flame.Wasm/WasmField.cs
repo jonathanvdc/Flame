@@ -31,7 +31,7 @@ namespace Flame.Wasm
 		public string Name { get { return TemplateInstance.Name; } }
 		public string FullName { get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); } }
 		public bool IsStatic { get { return TemplateInstance.IsStatic; } }
-		public IEnumerable<IAttribute> Attributes { get { return TemplateInstance.Attributes.Value; } }
+		public AttributeMap Attributes { get { return TemplateInstance.Attributes.Value; } }
 		public IType FieldType { get { return TemplateInstance.FieldType.Value; } }
 
 		public void SetValue(IExpression Value)

@@ -48,7 +48,7 @@ namespace Flame.Cecil
             DeclaringType.AddField(fieldRef);
 
             CecilAttribute.DeclareAttributes(fieldRef, cecilField, inst.Attributes.Value);
-            if (fieldRef.IsPrivate && inst.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.HiddenAttribute.AttributeType))
+            if (fieldRef.IsPrivate && inst.Attributes.Value.Contains(PrimitiveAttributes.Instance.HiddenAttribute.AttributeType))
             {
                 fieldRef.CustomAttributes.Add(CecilAttribute.CreateCecil<System.Runtime.CompilerServices.CompilerGeneratedAttribute>(cecilField).Attribute);
             }
@@ -89,7 +89,7 @@ namespace Flame.Cecil
         public static FieldAttributes GetFieldAttributes(FieldSignatureInstance Template)
         {
             FieldAttributes attrs;
-            var accAttr = Template.Attributes.Value.GetAttribute(AccessAttribute.AccessAttributeType) as AccessAttribute;
+            var accAttr = Template.Attributes.Value.Get(AccessAttribute.AccessAttributeType) as AccessAttribute;
             switch (accAttr != null ? accAttr.Access : AccessModifier.Public)
             {
                 case AccessModifier.Protected:
@@ -111,7 +111,7 @@ namespace Flame.Cecil
                     attrs = FieldAttributes.Public;
                     break;
             }
-            if (Template.Attributes.Value.HasAttribute(PrimitiveAttributes.Instance.ConstantAttribute.AttributeType) && 
+            if (Template.Attributes.Value.Contains(PrimitiveAttributes.Instance.ConstantAttribute.AttributeType) && 
                 Template.FieldType.Value.GetIsPrimitive())
             {
                 attrs |= FieldAttributes.Literal | FieldAttributes.HasDefault | FieldAttributes.Static;
