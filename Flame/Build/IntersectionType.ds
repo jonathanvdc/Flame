@@ -58,9 +58,9 @@ namespace Flame
             get { return First.FullName + "&" + Second.FullName; }
         }
 
-        public [IAttribute] Attributes
+        public AttributeMap Attributes
         {
-            const get { return Enumerable.Empty<IAttribute>(); }
+            const get { return AttributeMap.Empty; }
         }
 
         public string Name

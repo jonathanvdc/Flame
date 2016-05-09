@@ -29,7 +29,7 @@ namespace Flame.Intermediate
             get { return ParameterTypeNode.Value; }
         }
 
-        public IEnumerable<IAttribute> Attributes
+        public AttributeMap Attributes
         {
             get { return Signature.Attributes; }
         }

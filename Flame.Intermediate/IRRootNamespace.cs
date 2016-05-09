@@ -27,7 +27,7 @@ namespace Flame.Intermediate
             }
         }
 
-        public override IEnumerable<IAttribute> Attributes
+        public override AttributeMap Attributes
         {
             get { return DeclaringAssembly.Attributes; }
         }

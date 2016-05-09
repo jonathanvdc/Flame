@@ -43,7 +43,7 @@ namespace Flame.Python
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> Attributes
+        public AttributeMap Attributes
         {
             get { return Template.Attributes.Value; }
         }

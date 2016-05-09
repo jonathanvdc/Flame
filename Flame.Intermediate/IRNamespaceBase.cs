@@ -35,7 +35,7 @@ namespace Flame.Intermediate
         }
 
         public abstract IAssembly DeclaringAssembly { get; }
-        public abstract IEnumerable<IAttribute> Attributes { get; }
+        public abstract AttributeMap Attributes { get; }
         public abstract string FullName { get; }
         public abstract string Name { get; }
     }

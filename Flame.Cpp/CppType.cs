@@ -74,7 +74,7 @@ namespace Flame.Cpp
             }
         }
 
-        public IEnumerable<IAttribute> Attributes
+        public AttributeMap Attributes
         {
             get { return Template.Attributes.Value; }
         }

@@ -11,7 +11,10 @@ namespace Flame.DSharp.Build
 {
 	public class SyntaxField : CodeMember, IDSharpField, ISyntaxNode
     {
-        public const this(set FieldSyntax Syntax, set ISyntaxState State);
+        public const this(set FieldSyntax Syntax, set ISyntaxState State)
+		{
+			this.attrCache = new Lazy<AttributeMap>(CreateAttributes);
+		}
 
         public FieldSyntax Syntax { const get; private set; }
         public ISyntaxState State { const get; private set; }
@@ -127,31 +130,27 @@ namespace Flame.DSharp.Build
 			}
         }
 
-		public [IAttribute] Attributes { get { return GetAttributes(); } }
+		public AttributeMap Attributes { get { return attrCache.Value; } }
 
-		private IAttribute[] attrCache;
-        public const [IAttribute] GetAttributes()
-        {
-        	if (attrCache == null)
-        	{
-	            var modifierAttrs = Syntax.Signature.ModifierTokens.GetModifiers();
-	            var extraAttributes = new List<IAttribute>();
+		private Lazy<AttributeMap> attrCache;
 
-	            if (!modifierAttrs.HasAccessAttribute)
-	                extraAttributes.Add(DeclaringType.GetAccessAttribute());
+		private AttributeMap CreateAttributes()
+		{
+			var modifierAttrs = Syntax.Signature.ModifierTokens.GetModifiers();
+			var results = new AttributeMapBuilder();
 
-	            foreach (var item in modifierAttrs)
-	            	extraAttributes.Add(item);
+			if (!modifierAttrs.HasAccessAttribute)
+				results.Add(DeclaringType.GetAccessAttribute());
 
-	            foreach (var item in Syntax.Signature.Attributes)
-	            	extraAttributes.Add(item.CreateAttribute(State, this));
+			results.AddRange(modifierAttrs);
 
-	            extraAttributes.AddRange(Syntax.GetDescriptionAttributes(State));
+			foreach (var item in Syntax.Signature.Attributes)
+				results.Add(item.CreateAttribute(State, this));
 
-	            attrCache = extraAttributes.ToArray();
-            }
-            return attrCache;
-        }
+			results.AddRange(Syntax.GetDescriptionAttributes(State));
+
+			return new AttributeMap(results);
+		}
 
         public const CodeBuilder GetCode()
         {

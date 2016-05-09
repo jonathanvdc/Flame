@@ -81,7 +81,7 @@ namespace Flame.Build
 
         private void AddAttributeCore(IAttribute Attribute)
 		{
-			this.attributeList.Add(Attribute);
+			this.attributeBuilder.Add(Attribute);
 		}
 
         public override void AddAttribute(IAttribute Attribute)

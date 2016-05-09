@@ -17,9 +17,16 @@ namespace Flame.Cpp
         public InvariantMethod(TypeInvariants Invariants)
         {
             this.Invariants = Invariants;
+            this.Attributes = new AttributeMap(new IAttribute[]
+            {
+                new AccessAttribute(AccessModifier.Public),
+                PrimitiveAttributes.Instance.ConstantAttribute,
+                CreateSummary()
+            });
         }
 
         public TypeInvariants Invariants { get; private set; }
+        public AttributeMap Attributes { get; private set; }
         public IType DeclaringType { get { return Invariants.DeclaringType; } }
 
         public IEnumerable<IMethod> BaseMethods
@@ -60,19 +67,6 @@ namespace Flame.Cpp
         private DescriptionAttribute CreateSummary()
         {
             return new DescriptionAttribute("summary", "Checks if this type's invariants are being respected. A boolean value is returned that indicates whether this is indeed the case. This method is publically visible, and can be used to verify an instance's state.");
-        }
-
-        public IEnumerable<IAttribute> Attributes
-        {
-            get
-            {
-                return new IAttribute[]
-                {
-                    new AccessAttribute(AccessModifier.Public),
-                    PrimitiveAttributes.Instance.ConstantAttribute,
-                    CreateSummary()
-                };
-            }
         }
 
         public string Name

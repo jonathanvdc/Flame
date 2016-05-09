@@ -111,7 +111,7 @@ namespace Flame.Cpp
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> Attributes
+        public AttributeMap Attributes
         {
             get { return Template.Attributes.Value; }
         }
@@ -279,7 +279,6 @@ namespace Flame.Cpp
 
         public CodeBuilder GetHeaderCode()
         {
-            bool isConst = this.GetIsConstant();
             CodeBuilder cb = this.GetDocumentationComments();
             cb.AddCodeBuilder(LocalTemplateDefinition.GetHeaderCode());
             cb.AppendLine();
@@ -349,7 +348,6 @@ namespace Flame.Cpp
                 return new CodeBuilder();
             }
 
-            bool isConst = this.GetIsConstant();
             CodeBuilder cb = this.GetDocumentationComments();
             cb.AppendLine();
             if (this.GetIsAbstract() || DeclaringType.GetIsInterface())

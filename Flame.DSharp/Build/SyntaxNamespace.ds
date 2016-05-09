@@ -15,6 +15,7 @@ namespace Flame.DSharp.Build
 			this.namespaceList = new List<INamespace>();
 			this.typeList = new List<IType>();
 			this.cachedGraph = new Lazy<AncestryGraph>(RetrieveAncestryGraph);
+			this.attrMap = new Lazy<AttributeMap>(CreateAttributes);
 		}
 
 		public abstract string FullName { get; }
@@ -40,9 +41,15 @@ namespace Flame.DSharp.Build
 			return DeclaringAssembly.GetAncestryGraph();
 		}
 
-		public [IAttribute] Attributes
+		private Lazy<AttributeMap> attrMap;
+		public AttributeMap Attributes
 		{
-			const get { return new IAttribute[] { new AncestryGraphAttribute(Graph) }; }
+			const get { return attrMap.Value; }
+		}
+
+		private AttributeMap CreateAttributes()
+		{
+			return new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
 		}
 
 		public [INamespaceBranch] Namespaces

@@ -32,9 +32,10 @@ namespace Flame.Python
 
         public static PythonConsoleType Instance { get; private set; }
 
-        public override IEnumerable<IAttribute> Attributes
+        private static readonly AttributeMap attrMap = new AttributeMap(new IAttribute[] { PrimitiveAttributes.Instance.StaticTypeAttribute });
+        public override AttributeMap Attributes
         {
-            get { return new IAttribute[] { PrimitiveAttributes.Instance.StaticTypeAttribute }; }
+            get { return attrMap; }
         }
 
         public override string Name

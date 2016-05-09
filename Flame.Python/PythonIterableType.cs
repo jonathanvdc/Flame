@@ -24,16 +24,17 @@ namespace Flame.Python
             get { return "iterable"; }
         }
 
-        public override IEnumerable<IAttribute> Attributes
+        private static readonly Lazy<AttributeMap> attrMap = new Lazy<AttributeMap>(() => new AttributeMap(new IAttribute[]
+        {
+            new EnumerableAttribute(PythonObjectType.Instance), 
+            PrimitiveAttributes.Instance.ReferenceTypeAttribute,
+            PrimitiveAttributes.Instance.VirtualAttribute
+        }));
+        public override AttributeMap Attributes
         {
             get
             {
-                return new IAttribute[] 
-                { 
-                    new EnumerableAttribute(PythonObjectType.Instance), 
-                    PrimitiveAttributes.Instance.ReferenceTypeAttribute,
-                    PrimitiveAttributes.Instance.VirtualAttribute
-                };
+                return attrMap.Value;
             }
         }
     }

@@ -39,7 +39,7 @@ namespace Flame.Intermediate
             get { return MemberExtensions.CombineNames(DeclaringMember.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> Attributes
+        public AttributeMap Attributes
         {
             get { return Signature.Attributes; }
         }

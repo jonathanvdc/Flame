@@ -50,9 +50,14 @@ namespace Flame.Cpp
             get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> Attributes
+        private static readonly AttributeMap attrMap = new AttributeMap(new IAttribute[] 
+        { 
+                new AccessAttribute(AccessModifier.Public), 
+                PrimitiveAttributes.Instance.ConstantAttribute 
+        });
+        public AttributeMap Attributes
         {
-            get { return new IAttribute[] { new AccessAttribute(AccessModifier.Public), PrimitiveAttributes.Instance.ConstantAttribute }; }
+            get { return attrMap; }
         }
 
         public string Name

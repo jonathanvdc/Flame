@@ -43,7 +43,7 @@ namespace Flame
             const get { return Declaration.Name; }
         }
 
-        public [IAttribute] Attributes
+        public AttributeMap Attributes
         {
             const get { return Declaration.Attributes; }
         }

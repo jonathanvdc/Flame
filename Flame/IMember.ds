@@ -22,6 +22,6 @@ namespace Flame
         /// <summary>
         /// Gets the member's attributes.
         /// </summary>
-        [IAttribute] Attributes { get; }
+        AttributeMap Attributes { get; }
 	}
 }

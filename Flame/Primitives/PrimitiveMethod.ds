@@ -9,20 +9,20 @@ namespace Flame
         {
         	protected const this()
         	{
-        	    this.Attributes = new IAttribute[0];
+        	    this.Attributes = AttributeMap.Empty;
         	}
             public const this(set IType DeclaringType, set string Name, set bool IsConstructor, set IType ReturnType, set [IParameter] Parameters)
             {
             	this.BaseMethods = new IMethod[0];
-            	this.Attributes = new IAttribute[0];
+            	this.Attributes = AttributeMap.Empty;
             }
             public const this(set IType DeclaringType, set string Name, set bool IsConstructor, set IType ReturnType, set [IParameter] Parameters, set [IMethod] BaseMethods)
             {
-            	this.Attributes = new IAttribute[0];
+            	this.Attributes = AttributeMap.Empty;
             }
 
             public string Name { const get; protected set; }
-            public [IAttribute] Attributes { get; protected set; }
+            public AttributeMap Attributes { get; protected set; }
             public bool IsConstructor { const get; protected set; }
 
             public IType DeclaringType { const get; protected set; }

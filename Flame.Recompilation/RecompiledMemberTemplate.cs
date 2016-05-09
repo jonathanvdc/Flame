@@ -27,9 +27,11 @@ namespace Flame.Recompilation
             get { return SignaturePassResult.Name ?? GetSourceMember().Name; }
         }
 
-        public IEnumerable<IAttribute> CreateAttributes(T Type)
+        public AttributeMap CreateAttributes(T Type)
         {
-            return GetSourceMember().Attributes.Select(Recompiler.GetAttribute).Union(SignaturePassResult.AdditionalAttributes);
+            var results = new AttributeMapBuilder(GetSourceMember().Attributes.Select(Recompiler.GetAttribute));
+            results.AddRange(SignaturePassResult.AdditionalAttributes);
+            return new AttributeMap(results);
         }
     }
 }

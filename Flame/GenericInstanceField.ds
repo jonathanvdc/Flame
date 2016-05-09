@@ -43,7 +43,7 @@ namespace Flame
             const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Declaration.Name); }
         }
 
-        public [IAttribute] Attributes
+        public AttributeMap Attributes
         {
             const get { return Declaration.Attributes; }
         }
@@ -78,7 +78,7 @@ namespace Flame
 
         public const bool Equals(GenericInstanceField Other)
         {
-        	return this.DeclaringType.Equals(Other.DeclaringType) && 
+        	return this.DeclaringType.Equals(Other.DeclaringType) &&
 			       this.Declaration.Equals(Other.Declaration);
         }
 

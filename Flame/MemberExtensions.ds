@@ -90,51 +90,19 @@ namespace Flame
 
 		#region Attributes
 
-		public const static [IAttribute] GetAttributes(this IMember Member, IType Type)
+		public static [IAttribute] GetAttributes(this IMember Member, IType Type)
         {
-        	return Member.Attributes.GetAttributes(Type);
+        	return Member.Attributes.GetAll(Type);
         }
 
-        public const static IAttribute GetAttribute(this IMember Member, IType Type)
+        public static IAttribute GetAttribute(this IMember Member, IType Type)
         {
-        	return Member.Attributes.GetAttribute(Type);
+        	return Member.Attributes.Get(Type);
         }
 
-        public const static IAttribute GetAttribute(this IEnumerable<IAttribute> Attributes, IType Type)
+        public static bool HasAttribute(this IMember Member, IType AttributeType)
         {
-            foreach (var attr in Attributes)
-            {
-            	if (attr.AttributeType.Equals(Type))
-                {
-                    return attr;
-                }
-            }
-            return null;
-        }
-
-        public const static [IAttribute] GetAttributes(this IEnumerable<IAttribute> Attributes, IType Type)
-        {
-        	var attrs = new List<IAttribute>();
-            foreach (var attr in Attributes)
-            {
-            	if (attr.AttributeType.Equals(Type))
-                {
-                    attrs.Add(attr);
-                }
-            }
-            return attrs;
-        }
-
-        public const static bool HasAttribute(this IMember Member, IType AttributeType)
-        {
-        	var attr = Member.GetAttribute(AttributeType);
-        	return attr != null;
-        }
-
-        public const static bool HasAttribute(this IEnumerable<IAttribute> Attributes, IType AttributeType)
-        {
-        	var attr = Attributes.GetAttribute(AttributeType);
-        	return attr != null;
+			return Member.Attributes.Contains(AttributeType);
         }
 
         public static AccessAttribute GetAccessAttribute(this IMember Member)

@@ -14,7 +14,10 @@ namespace Flame.Primitives
 			this.ReturnType = PrimitiveTypes.Int32;
 			this.Parameters = new IParameter[0];
 			this.BaseMethods = new IMethod[] { PrimitiveMethods.GetHashCode };
-			this.Attributes = new IAttribute[] { PrimitiveAttributes.RecompileAttribute, new OperatorAttribute(Operator.Hash) };
+			this.Attributes = new AttributeMap(new IAttribute[]
+			{
+				PrimitiveAttributes.RecompileAttribute, new OperatorAttribute(Operator.Hash)
+			});
 		}
 
 		public override const IBoundObject Invoke(IBoundObject Target, [IBoundObject] Arguments) : PrimitiveMethod.Invoke

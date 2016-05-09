@@ -38,7 +38,7 @@ namespace Flame.Wasm
         public WasmModuleData Data { get { return moduleNs.Data; } }
 
 		public string FullName { get { return Name; } }
-		public IEnumerable<IAttribute> Attributes { get { return Enumerable.Empty<IAttribute>(); } }
+		public AttributeMap Attributes { get { return AttributeMap.Empty; } }
 
 		public IMethod GetEntryPoint() { return entryPoint; }
 

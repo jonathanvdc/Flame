@@ -47,9 +47,9 @@ namespace Flame.MIPS
             get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
         }
 
-        public IEnumerable<IAttribute> Attributes
+        public AttributeMap Attributes
         {
-            get { return new IAttribute[0]; }
+            get { return AttributeMap.Empty; }
         }
 
         public IEnumerable<IGenericParameter> GenericParameters

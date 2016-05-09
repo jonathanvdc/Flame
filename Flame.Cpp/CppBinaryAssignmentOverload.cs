@@ -17,11 +17,17 @@ namespace Flame.Cpp
             this.DeclaringType = DeclaringType;
             this.BinaryOverload = BinaryOverload;
             this.Templates = new CppTemplateDefinition(this);
+            this.attrMap = new AttributeMap(new IAttribute[]
+            {
+                new AccessAttribute(AccessModifier.Public),
+                new OperatorAttribute(Operator.Register(BinaryOverload.GetOperator().Name + "="))
+            });
         }
 
         public CppType DeclaringType { get; private set; }
         public IMethod BinaryOverload { get; private set; }
         public CppTemplateDefinition Templates { get; private set; }
+        private AttributeMap attrMap;
 
         public IEnumerable<IMethod> BaseMethods
         {
@@ -53,15 +59,11 @@ namespace Flame.Cpp
             get { return BinaryOverload.FullName + "="; }
         }
 
-        public IEnumerable<IAttribute> Attributes
+        public AttributeMap Attributes
         {
             get
             {
-                return new IAttribute[]
-                {
-                    new AccessAttribute(AccessModifier.Public),
-                    new OperatorAttribute(Operator.Register(BinaryOverload.GetOperator().Name + "="))
-                };
+                return attrMap;
             }
         }
 
@@ -136,7 +138,6 @@ namespace Flame.Cpp
 
         public CodeBuilder GetHeaderCode()
         {
-            bool isConst = this.GetIsConstant();
             CodeBuilder cb = this.GetDocumentationComments();
             cb.AppendLine();
             cb.Append(GetSharedSignature(false));

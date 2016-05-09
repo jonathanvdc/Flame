@@ -33,7 +33,7 @@ namespace Flame.Intermediate
             get { return DeclaringNamespace.DeclaringAssembly; }
         }
 
-        public override IEnumerable<IAttribute> Attributes
+        public override AttributeMap Attributes
         {
             get { return Signature.Attributes; }
         }

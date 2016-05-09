@@ -73,14 +73,14 @@ namespace Flame.Cecil
             }
         }
 
-        protected override IEnumerable<IAttribute> GetAttributes()
+        protected override AttributeMap GetAttributes()
         {
             return Method.Attributes;
         }
 
         protected override IEnumerable<IAttribute> GetMemberAttributes()
         {
-            return new IAttribute[0];
+            return AttributeMap.Empty;
         }
 
         protected override IList<CustomAttribute> GetCustomAttributes()

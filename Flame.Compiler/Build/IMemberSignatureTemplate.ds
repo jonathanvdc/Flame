@@ -16,7 +16,7 @@ namespace Flame.Compiler.Build
         /// <summary>
         /// Creates the member signature's attributes.
         /// </summary>
-        [IAttribute] CreateAttributes(T Type);
+        AttributeMap CreateAttributes(T Type);
     }
 
     /// <summary>

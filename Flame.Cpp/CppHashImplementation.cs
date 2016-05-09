@@ -90,9 +90,10 @@ namespace Flame.Cpp
             get { return GenericNameExtensions.ChangeTypeArguments("std.hash", new string[] { ArgumentType.FullName }); }
         }
 
-        public IEnumerable<IAttribute> Attributes
+        private static readonly AttributeMap attrMap = new AttributeMap(new IAttribute[] { PrimitiveAttributes.Instance.ValueTypeAttribute });
+        public AttributeMap Attributes
         {
-            get { return new IAttribute[] { PrimitiveAttributes.Instance.ValueTypeAttribute }; }
+            get { return attrMap; }
         }
 
         public string Name

@@ -25,6 +25,7 @@ namespace Flame.Cecil
             this.methodConverter = new CecilMethodConverter(this, Assembly.ConversionCache.ConvertedMethods);
             this.fieldConverter = new CecilFieldConverter(this, Assembly.ConversionCache.ConvertedFields);
             this.binder = new Lazy<CecilModuleBinder>(() => new CecilModuleBinder(this));
+            this.attrMap = CecilAttribute.GetAttributesLazy(Module.CustomAttributes, this);
         }
 
         public CecilAssembly Assembly { get; private set; }
@@ -32,6 +33,7 @@ namespace Flame.Cecil
         public AncestryGraph Graph { get; private set; }
         public CecilTypeSystem TypeSystem { get; private set; }
         private Lazy<CecilModuleBinder> binder;
+        private Lazy<AttributeMap> attrMap;
 
         public bool IsMain
         {
@@ -103,9 +105,9 @@ namespace Flame.Cecil
             get { return Module.Name; }
         }
 
-        public IEnumerable<IAttribute> Attributes
+        public AttributeMap Attributes
         {
-            get { return CecilAttribute.GetAttributes(Module.CustomAttributes, this); }
+            get { return attrMap.Value; }
         }
 
         public string Name

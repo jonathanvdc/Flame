@@ -17,7 +17,7 @@ namespace Flame.DSharp.Build
     {
         public const this(set EnumLiteralSyntax Syntax, set ISyntaxState State)
         {
-            this.cachedAttrs = new Lazy<IAttribute[]>(CreateAttributes);
+            this.cachedAttrs = new Lazy<AttributeMap>(CreateAttributes);
         }
 
         public EnumLiteralSyntax Syntax { const get; private set; }
@@ -66,15 +66,15 @@ namespace Flame.DSharp.Build
             const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
         }
 
-        public [IAttribute] Attributes { get { return cachedAttrs.Value; } }
+        public AttributeMap Attributes { get { return cachedAttrs.Value; } }
 
-		private Lazy<IAttribute[]> cachedAttrs;
-        private IAttribute[] CreateAttributes()
+		private Lazy<AttributeMap> cachedAttrs;
+        private AttributeMap CreateAttributes()
         {
-        	var attrs = new List<IAttribute>();
+        	var attrs = new AttributeMapBuilder();
         	attrs.Add(PrimitiveAttributes.ConstantAttribute);
         	attrs.AddRange(Syntax.GetDescriptionAttributes(State));
-        	return attrs.ToArray();
+        	return new AttributeMap(attrs);
         }
 
         public override const string GetHeaderString()

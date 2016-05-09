@@ -37,7 +37,7 @@ namespace Flame.Syntax.DSharp
             const get { return Property.FullName; }
         }
 
-        public [IAttribute] Attributes
+        public AttributeMap Attributes
         {
             const get { return Property.Attributes; }
         }

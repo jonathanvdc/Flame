@@ -12,7 +12,7 @@ namespace Flame.Compiler.Build
         /// </summary>
         public const this(set IMethodSignatureTemplate Template, set IMethod Method)
         {
-            this.Attributes = new Lazy<[IAttribute]>(createAttributes);
+            this.Attributes = new Lazy<AttributeMap>(createAttributes);
             this.GenericParameters = new Lazy<[IGenericParameter]>(createGenericParameters);
             this.BaseMethods = new Lazy<[IMethod]>(createBaseMethods);
             this.ReturnType = new Lazy<IType>(createReturnType);
@@ -45,7 +45,7 @@ namespace Flame.Compiler.Build
         /// evaluated during the creation of a new method builder based on this
         /// template. Doing so anyway will result in undefined behavior.
         /// </summary>
-        public Lazy<[IAttribute]> Attributes { const get; private set; }
+        public Lazy<AttributeMap> Attributes { const get; private set; }
 
         /// <summary>
         /// Gets the method signature instance's generic parameters.
@@ -79,7 +79,7 @@ namespace Flame.Compiler.Build
         /// </summary>
         public Lazy<[IParameter]> Parameters { const get; private set; }
 
-        private [IAttribute] createAttributes()
+        private AttributeMap createAttributes()
         {
             return Template.CreateAttributes(Method);
         }

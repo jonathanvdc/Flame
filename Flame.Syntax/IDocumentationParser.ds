@@ -25,7 +25,7 @@ namespace Flame.Syntax
     {
         public const [IAttribute] Parse(string Documentation, SourceLocation Location, ICompilerLog Log)
         {
-            return Enumerable.Empty<IAttribute>();
+            return AttributeMap.Empty;
         }
     }
 

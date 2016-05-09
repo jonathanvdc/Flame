@@ -65,9 +65,9 @@ namespace Flame.TextContract
             get { return Name; }
         }
 
-        public virtual IEnumerable<IAttribute> Attributes
+        public virtual AttributeMap Attributes
         {
-            get { return new IAttribute[0]; }
+            get { return AttributeMap.Empty; }
         }
 
         public abstract string Name { get; }

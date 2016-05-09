@@ -118,7 +118,7 @@ namespace Flame.Cecil
             get { return Assembly.FullName; }
         }
 
-        public IEnumerable<IAttribute> Attributes
+        public AttributeMap Attributes
         {
             get { return CecilAttribute.GetAttributes(Assembly.CustomAttributes, MainModule); }
         }
