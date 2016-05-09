@@ -18,6 +18,14 @@ namespace Flame
             attributeDict = new Dictionary<IType, List<IAttribute>>();
             AddRange(Attributes);
         }
+        public this(AttributeMapBuilder Attributes)
+        {
+            attributeDict = new Dictionary<IType, List<IAttribute>>(Attributes.attributeDict);
+        }
+        public this(AttributeMap Attributes)
+        {
+            attributeDict = new Dictionary<IType, List<IAttribute>>(Attributes.builder.attributeDict);
+        }
 
         private Dictionary<IType, List<IAttribute>> attributeDict;
 
@@ -37,8 +45,7 @@ namespace Flame
         /// </summary>
         public void Add(IAttribute Attribute)
         {
-            var bag = GetAttributeBag(Attribute.AttributeType);
-            bag.Add(Attribute);
+            GetAttributeBag(Attribute.AttributeType).Add(Attribute);
         }
 
         /// <summary>
@@ -48,6 +55,23 @@ namespace Flame
         {
             foreach (var item in Attributes)
                 Add(item);
+        }
+
+        /// <summary>
+        /// Adds the given range of attributes to this attribute map builder.
+        /// </summary>
+        public void AddRange(AttributeMapBuilder Attributes)
+        {
+            foreach (var kvPair in Attributes.attributeDict)
+                GetAttributeBag(kvPair.Key).AddRange(kvPair.Value);
+        }
+
+        /// <summary>
+        /// Adds the given range of attributes to this attribute map builder.
+        /// </summary>
+        public void AddRange(AttributeMap Attributes)
+        {
+            AddRange(Attributes.builder);
         }
 
         /// <summary>
@@ -114,7 +138,7 @@ namespace Flame
             this.builder = Builder;
         }
 
-        private AttributeMapBuilder builder;
+        assembly AttributeMapBuilder builder;
 
         /// <summary>
         /// Gets all attributes in this attribute map with the given type.
