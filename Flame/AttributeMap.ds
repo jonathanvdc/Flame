@@ -19,6 +19,12 @@ namespace Flame
             attributeDict = new SmallMultiDictionary<IType, IAttribute>();
             AddRange(Attributes);
         }
+        public this(IAttribute[] Attributes)
+        {
+            attributeDict = new SmallMultiDictionary<IType, IAttribute>(Attributes.Length);
+            foreach (var item in Attributes)
+                Add(item);
+        }
         public this(AttributeMapBuilder Attributes)
         {
             attributeDict = new SmallMultiDictionary<IType, IAttribute>(Attributes.attributeDict);
@@ -56,6 +62,16 @@ namespace Flame
         /// </summary>
         public void AddRange([IAttribute] Attributes)
         {
+            foreach (var item in Attributes)
+                Add(item);
+        }
+
+        /// <summary>
+        /// Adds the given range of attributes to this attribute map builder.
+        /// </summary>
+        public void AddRange(IAttribute[] Attributes)
+        {
+            attributeDict.Reserve(attributeDict.Count + Attributes.Length);
             foreach (var item in Attributes)
                 Add(item);
         }
@@ -129,6 +145,14 @@ namespace Flame
         }
 
         /// <summary>
+        /// Creates a new attribute map from the given sequence of attributes.
+        /// </summary>
+        public this(IAttribute[] Attributes)
+        {
+            this.attributeDict = new AttributeMapBuilder(Attributes).attributeDict;
+        }
+
+        /// <summary>
         /// Creates this attribute map as a read-only view of the given
         /// attribute map builder.
         /// </summary>
@@ -177,7 +201,7 @@ namespace Flame
 
         static this()
         {
-            emptyMap = new AttributeMap(new IAttribute[0]);
+            emptyMap = new AttributeMap(new IAttribute[] { });
         }
 
         private static AttributeMap emptyMap;

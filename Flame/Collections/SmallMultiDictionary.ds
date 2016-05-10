@@ -45,6 +45,14 @@ namespace Flame.Collections
         public int Count { get { return pairs.Count; } }
 
         /// <summary>
+        /// Reserves the given capacity in this small multi dictionary.
+        /// </summary>
+        public void Reserve(int MinimalCapacity)
+        {
+            pairs.Reserve(MinimalCapacity);
+        }
+
+        /// <summary>
         /// Inserts an item into this dictionary.
         /// </summary>
         public void Add(TKey Key, TValue Value)
