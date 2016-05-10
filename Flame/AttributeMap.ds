@@ -25,10 +25,10 @@ namespace Flame
         }
         public this(AttributeMap Attributes)
         {
-            attributeDict = new SmallMultiDictionary<IType, IAttribute>(Attributes.builder.attributeDict);
+            attributeDict = new SmallMultiDictionary<IType, IAttribute>(Attributes.attributeDict);
         }
 
-        private SmallMultiDictionary<IType, IAttribute> attributeDict;
+        assembly SmallMultiDictionary<IType, IAttribute> attributeDict;
         //private Dictionary<IType, List<IAttribute>> attributeDict;
 
         //private List<IAttribute> GetAttributeBag(IType Type)
@@ -75,7 +75,7 @@ namespace Flame
         /// </summary>
         public void AddRange(AttributeMap Attributes)
         {
-            AddRange(Attributes.builder);
+            attributeDict.AddRange(Attributes.attributeDict);
         }
 
         /// <summary>
@@ -118,14 +118,14 @@ namespace Flame
     /// <summary>
     /// Defines a container that facilitates quick type-based attribute lookups.
     /// </summary>
-    public class AttributeMap : [IAttribute]
+    public struct AttributeMap : [IAttribute]
     {
         /// <summary>
         /// Creates a new attribute map from the given sequence of attributes.
         /// </summary>
         public this([IAttribute] Attributes)
         {
-            this.builder = new AttributeMapBuilder(Attributes);
+            this.attributeDict = new AttributeMapBuilder(Attributes).attributeDict;
         }
 
         /// <summary>
@@ -134,17 +134,17 @@ namespace Flame
         /// </summary>
         public this(AttributeMapBuilder Builder)
         {
-            this.builder = Builder;
+            this.attributeDict = Builder.attributeDict;
         }
 
-        assembly AttributeMapBuilder builder;
+        assembly SmallMultiDictionary<IType, IAttribute> attributeDict;
 
         /// <summary>
         /// Gets all attributes in this attribute map with the given type.
         /// </summary>
         public [IAttribute] GetAll(IType Type)
         {
-            return builder.GetAll(Type);
+            return attributeDict.GetAll(Type);
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace Flame
         /// </summary>
         public IAttribute Get(IType Type)
         {
-            return builder.Get(Type);
+            return attributeDict.PeekOrDefault(Type);
         }
 
         /// <summary>
@@ -162,17 +162,17 @@ namespace Flame
         /// </summary>
         public bool Contains(IType Type)
         {
-            return builder.Contains(Type);
+            return attributeDict.ContainsKey(Type);
         }
 
         public IEnumerator<IAttribute> GetGenericEnumerator() : IEnumerable<IAttribute>.GetEnumerator
         {
-            return builder.GetGenericEnumerator();
+            return attributeDict.GetValueEnumerator();
         }
 
         public IEnumerator GetObjectEnumerator() : IEnumerable.GetEnumerator
         {
-            return builder.GetObjectEnumerator();
+            return GetGenericEnumerator();
         }
 
         static this()
