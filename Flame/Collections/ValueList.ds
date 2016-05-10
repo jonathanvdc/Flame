@@ -86,12 +86,14 @@ namespace Flame.Collections
                 return;
 
             int newCapacity = cap;
-            if (newCapacity <= 0)
-                newCapacity = 1;
+
+            // Always resize to at least four items.
+            if (newCapacity <= 4)
+                newCapacity = 4;
+
+            // Grow the new capacity exponentially.
             while (newCapacity < MinimalCapacity)
-            {
                 newCapacity += newCapacity;
-            }
 
             var newArray = new T[newCapacity];
             Array.Copy((Array)Items, (Array)newArray, Count);
