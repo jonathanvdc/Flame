@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Flame
+{
+    /// <summary>
+    /// Defines an intersection name: a name for intersection types.
+    /// </summary>
+    public class IntersectionName : UnqualifiedName, IEquatable<IntersectionName>
+    {
+        /// <summary>
+        /// Creates a new intersection name from the given sequence
+        /// of intersected names.
+        /// </summary>
+        public const this(set [QualifiedName] IntersectedNames);
+
+        /// <summary>
+        /// Gets this intersection name's set of intersected names,
+        /// </summary>
+        public [QualifiedName] IntersectedNames { get; private set; }
+
+        public override string ToString()
+        {
+            if (!Enumerable.Any<QualifiedName>(IntersectedNames))
+                return "";
+
+            var sb = new StringBuilder();
+            sb.Append(Enumerable.First<QualifiedName>(IntersectedNames).FullName);
+            foreach (var item in Enumerable.Skip<QualifiedName>(IntersectedNames, 1))
+            {
+                sb.Append('&');
+                sb.Append(item.FullName);
+            }
+            return sb.ToString();
+        }
+
+        public override bool Equals(IntersectionName Other)
+        {
+            return Enumerable.SequenceEqual<QualifiedName>(
+                    IntersectedNames, Other.IntersectedNames);
+        }
+        public override bool Equals(UnqualifiedName Other)
+        {
+            return Other is IntersectionName && Equals((IntersectionName)Other);
+        }
+        public override int GetHashCode()
+        {
+            int result = 0;
+            foreach (var item in IntersectedNames)
+            {
+                result = (result << 2) ^ item.GetHashCode();
+            }
+            return result;
+        }
+    }
+}

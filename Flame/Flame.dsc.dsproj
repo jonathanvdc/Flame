@@ -76,6 +76,7 @@
     <ItemGroup Name="Names">
         <ItemGroup>
             <Compile Include="Names/ArrayName.ds" />
+            <Compile Include="Names/IntersectionName.ds" />
             <Compile Include="Names/PointerName.ds" />
             <Compile Include="Names/QualifiedName.ds" />
             <Compile Include="Names/UnqualifiedName.ds" />
