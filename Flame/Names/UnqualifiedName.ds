@@ -133,7 +133,7 @@ namespace Flame
         }
         public override bool Equals(UnqualifiedName Other)
         {
-            return Other is SimpleName && Equals((SimpleName)Other);
+            return Other is GenericName && Equals((GenericName)Other);
         }
         public override int GetHashCode()
         {
