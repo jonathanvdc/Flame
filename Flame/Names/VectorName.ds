@@ -13,12 +13,12 @@ namespace Flame
         /// <summary>
         /// Creates a new array name from the given unqualified name and array rank.
         /// </summary>
-        public const this(set UnqualifiedName Name, set IReadOnlyList<int> Dimensions);
+        public const this(set QualifiedName Name, set IReadOnlyList<int> Dimensions);
 
         /// <summary>
         /// Gets the unqualified name that is turned into a pointer.
         /// </summary>
-        public UnqualifiedName Name { get; private set; }
+        public QualifiedName Name { get; private set; }
 
         /// <summary>
         /// Gets this vector name's dimensions.

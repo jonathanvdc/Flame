@@ -13,12 +13,12 @@ namespace Flame
         /// <summary>
         /// Creates a new pointer name from the given unqualified name and pointer type.
         /// </summary>
-        public const this(set UnqualifiedName Name, set PointerKind Kind);
+        public const this(set QualifiedName Name, set PointerKind Kind);
 
         /// <summary>
         /// Gets the unqualified name that is turned into a pointer.
         /// </summary>
-        public UnqualifiedName Name { get; private set; }
+        public QualifiedName Name { get; private set; }
 
         /// <summary>
         /// Gets this pointer name's pointer kind.
