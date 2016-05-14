@@ -1,0 +1,148 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Flame
+{
+    /// <summary>
+    /// A base class for unqualified names: names that can be assigned
+    /// to members, but that are not qualified by their enclosing members.
+    /// </summary>
+    public abstract class UnqualifiedName : IEquatable<UnqualifiedName>
+    {
+        public override bool Equals(object Other)
+        {
+            return Other is UnqualifiedName && Equals((UnqualifiedName)Other);
+        }
+
+        public abstract override bool Equals(UnqualifiedName Other);
+
+        public abstract override int GetHashCode();
+        public abstract override string ToString();
+    }
+
+    /// <summary>
+    /// Defines a simple name: a name and a number of type parameters.
+    /// </summary>
+    public class SimpleName : UnqualifiedName, IEquatable<SimpleName>
+    {
+        /// <summary>
+        /// Creates a new simple name from the given string.
+        /// The resulting name has zero type parameters.
+        /// </summary>
+        public const this(set string Name);
+
+        /// <summary>
+        /// Creates a new simple name from the given string and
+        /// number of type parameters.
+        /// </summary>
+        public const this(set string Name, set int TypeParameterCount);
+
+        /// <summary>
+        /// Gets this simple name's actual name.
+        /// </summary>
+        public string Name { get; private set; }
+
+        /// <summary>
+        /// Gets the number of type parameters for this simple name.
+        /// </summary>
+        public int TypeParameterCount { get; private set; }
+
+        /// <summary>
+        /// Instantiates this simple name with the given sequence of type
+        /// arguments.
+        /// </summary>
+        public GenericName Instantiate([QualifiedName] TypeArgumentNames)
+        {
+            return new GenericName(Name, TypeArgumentNames);
+        }
+
+        public override string ToString()
+        {
+            if (TypeParameterCount == 0)
+                return Name;
+
+            var sb = new StringBuilder(Name);
+            sb.Append('<');
+            for (int i = 1; i < TypeParameterCount; i++)
+                sb.Append(',');
+            sb.Append('>');
+            return sb.ToString();
+        }
+
+        public override bool Equals(SimpleName Other)
+        {
+            return Name == Other.Name
+                && TypeParameterCount == Other.TypeParameterCount;
+        }
+        public override bool Equals(UnqualifiedName Other)
+        {
+            return Other is SimpleName && Equals((SimpleName)Other);
+        }
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode() ^ TypeParameterCount;
+        }
+    }
+
+    /// <summary>
+    /// Defines a generic name; a simple name that is instantiated by
+    /// a number of generic type arguments.
+    /// </summary>
+    public class GenericName : UnqualifiedName, IEquatable<GenericName>
+    {
+        /// <summary>
+        /// Creates a new generic name from the given string and
+        /// a number of type arguments.
+        /// </summary>
+        public const this(set string Name, set [QualifiedName] TypeArgumentNames);
+
+        /// <summary>
+        /// Gets this generic name's instantiated name,
+        /// </summary>
+        public string Name { get; private set; }
+
+        /// <summary>
+        /// Gets this generic name's type arguments.
+        /// </summary>
+        public [QualifiedName] TypeArgumentNames { get; private set; }
+
+        public override string ToString()
+        {
+            if (!Enumerable.Any<QualifiedName>(TypeArgumentNames))
+				return Name;
+
+			var sb = new StringBuilder(Name);
+			sb.Append('<');
+			sb.Append(Enumerable.First<QualifiedName>(TypeArgumentNames));
+			foreach (var item in Enumerable.Skip<QualifiedName>(TypeArgumentNames, 1))
+			{
+				sb.Append(',');
+				sb.Append(item.FullName);
+			}
+			sb.Append('>');
+			return sb.ToString();
+        }
+
+        public override bool Equals(GenericName Other)
+        {
+            return Name == Other.Name
+                && Enumerable.SequenceEqual<QualifiedName>(
+                    TypeArgumentNames, Other.TypeArgumentNames);
+        }
+        public override bool Equals(UnqualifiedName Other)
+        {
+            return Other is SimpleName && Equals((SimpleName)Other);
+        }
+        public override int GetHashCode()
+        {
+            var result = Name.GetHashCode();
+            foreach (var item in TypeArgumentNames)
+            {
+                result = (result << 1) ^ item.GetHashCode();
+            }
+            return result;
+        }
+    }
+}
