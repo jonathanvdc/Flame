@@ -1,0 +1,62 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Flame
+{
+    /// <summary>
+    /// Defines an array name: an unqualified name that is turned into an array.
+    /// </summary>
+    public class VectorName : UnqualifiedName, IEquatable<VectorName>
+    {
+        /// <summary>
+        /// Creates a new array name from the given unqualified name and array rank.
+        /// </summary>
+        public const this(set UnqualifiedName Name, set IReadOnlyList<int> Dimensions);
+
+        /// <summary>
+        /// Gets the unqualified name that is turned into a pointer.
+        /// </summary>
+        public UnqualifiedName Name { get; private set; }
+
+        /// <summary>
+        /// Gets this vector name's dimensions.
+        /// </summary>
+        public IReadOnlyList<int> Dimensions { get; private set; }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder(Name.ToString());
+            sb.Append('[');
+            sb.Append(Dimensions[0]);
+            int count = Dimensions.Count;
+            for (int i = 1; i < count; i++)
+            {
+                sb.Append(',');
+                sb.Append(i);
+            }
+            sb.Append(']');
+            return sb.ToString();
+        }
+
+        public override bool Equals(VectorName Other)
+        {
+            return Name == Other.Name
+                && Enumerable.SequenceEqual<int>(Dimensions, Other.Dimensions);
+        }
+        public override bool Equals(UnqualifiedName Other)
+        {
+            return Other is VectorName && Equals((VectorName)Other);
+        }
+        public override int GetHashCode()
+        {
+            int result = 0;
+            foreach (var item in Dimensions)
+            {
+                result = (result << 4) ^ item;
+            }
+            return result ^ Name.GetHashCode();
+        }
+    }
+}
