@@ -1,0 +1,133 @@
+using System;
+
+namespace Flame
+{
+	/// <summary>
+	/// A data structure that represents a qualified name.
+	/// </summary>
+	/// <remarks>
+	/// This data structure is essentially a singly linked list.
+	/// </remarks>
+	public class QualifiedName : IEquatable<QualifiedName>
+	{
+		public const this(set UnqualifiedName Qualifier, set QualifiedName Name);
+		public const this(UnqualifiedName Name)
+		{
+			this.Qualifier = Name;
+		}
+
+		public const this(string Qualifier, set QualifiedName Name)
+		{
+			this.Qualifier = new SimpleName(Qualifier);
+		}
+
+		public const this(set string Name)
+		{
+			this.Qualifier = new SimpleName(Name);
+		}
+
+		/// <summary>
+		/// Gets this qualified name's qualifier, or the
+		/// unqualified name, if this name is not qualified.
+		/// </summary>
+		public UnqualifiedName Qualifier { get; private set; }
+
+		/// <summary>
+		/// Gets the name that is qualified by the qualifier.
+		/// </summary>
+		public QualifiedName Name { get; private set; }
+
+		/// <summary>
+		/// Gets a value indicating whether this name is a qualified name,
+		/// rather than an unqualified name.
+		/// </summary>
+		/// <value><c>true</c> if this name is qualified; otherwise, <c>false</c>.</value>
+		public bool IsQualified { get { return Name != null; } }
+
+		/// <summary>
+		/// Gets a value indicating whether this name is empty: it is both
+		/// unqualified, and its name null.
+		/// </summary>
+		/// <value><c>true</c> if this name is empty; otherwise, <c>false</c>.</value>
+		public bool IsEmpty { get { return !IsQualified && Qualifier == null; } }
+
+		/// <summary>
+		/// Gets this qualified name's full name.
+		/// </summary>
+		public string FullName
+		{
+			get
+			{
+				if (Name == null)
+					return Qualifier.ToString();
+				else
+					return Qualifier.ToString() + "." + Name.FullName;
+			}
+		}
+
+		/// <summary>
+		/// Qualifies this name with an additional qualifier.
+		/// A new instance is returned that represents the
+		/// concatenation of said qualifier and this
+		/// qualified name.
+		/// </summary>
+		public QualifiedName Qualify(string PreQualifier)
+		{
+			return new QualifiedName(PreQualifier, this);
+		}
+
+		/// <summary>
+		/// Qualifies this name with an additional qualifier.
+		/// A new instance is returned that represents the
+		/// concatenation of said qualifier and this
+		/// qualified name.
+		/// </summary>
+		public QualifiedName Qualify(UnqualifiedName PreQualifier)
+		{
+			return new QualifiedName(PreQualifier, this);
+		}
+
+		/// <summary>
+		/// Qualifies this name with an additional qualifier.
+		/// A new instance is returned that represents the
+		/// concatenation of said qualifier and this
+		/// qualified name.
+		/// </summary>
+		public QualifiedName Qualify(QualifiedName PreQualifier)
+		{
+			if (!PreQualifier.IsQualified)
+				return Qualify(PreQualifier.Qualifier);
+			else
+				return Qualify(PreQualifier.Name).Qualify(PreQualifier.Qualifier);
+		}
+
+		public bool Equals(QualifiedName Other)
+		{
+			if (!Qualifier.Equals(Other.Qualifier))
+				return false;
+
+			if (Name == null)
+				return Other.Name == null;
+			else
+				return Other.Name != null && Name.Equals(Other.Name);
+		}
+
+		public override bool Equals(object Other)
+		{
+			return Other is QualifiedName && Equals((QualifiedName)Other);
+		}
+
+		public override int GetHashCode()
+		{
+			if (IsQualified)
+				return Qualifier.GetHashCode() ^ Name.GetHashCode() << 1;
+			else
+				return Qualifier.GetHashCode();
+		}
+
+		public override string ToString()
+		{
+			return FullName;
+		}
+	}
+}

@@ -67,10 +67,16 @@
         <Compile Include="UniqueNameMap.ds" />
 		<Compile Include="ValueTypeConstraint.ds" />
 	</ItemGroup>
-	<ItemGroup Name="Primitives">
+	<ItemGroup Name="Collections">
         <ItemGroup>
             <Compile Include="Collections/SmallMultiDictionary.ds" />
             <Compile Include="Collections/ValueList.ds" />
+        </ItemGroup>
+    </ItemGroup>
+    <ItemGroup Name="Names">
+        <ItemGroup>
+            <Compile Include="Names/QualifiedName.ds" />
+            <Compile Include="Names/UnqualifiedName.ds" />
         </ItemGroup>
     </ItemGroup>
 	<ItemGroup Name="Primitives">
