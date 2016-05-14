@@ -1,0 +1,47 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Flame
+{
+    /// <summary>
+    /// Defines a poiner name: an unqualified name that is turned into a pointer.
+    /// </summary>
+    public class PointerName : UnqualifiedName, IEquatable<PointerName>
+    {
+        /// <summary>
+        /// Creates a new pointer name from the given unqualified name and pointer type.
+        /// </summary>
+        public const this(set UnqualifiedName Name, set PointerKind Kind);
+
+        /// <summary>
+        /// Gets the unqualified name that is turned into a pointer.
+        /// </summary>
+        public UnqualifiedName Name { get; private set; }
+
+        /// <summary>
+        /// Gets this pointer name's pointer kind.
+        /// </summary>
+        public PointerKind Kind { get; private set; }
+
+        public override string ToString()
+        {
+            return Name.ToString() + Kind.ToString();
+        }
+
+        public override bool Equals(PointerName Other)
+        {
+            return Name == Other.Name
+                && Kind == Other.Kind;
+        }
+        public override bool Equals(UnqualifiedName Other)
+        {
+            return Other is PointerName && Equals((PointerName)Other);
+        }
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode() ^ (Kind.GetHashCode() << 8);
+        }
+    }
+}
