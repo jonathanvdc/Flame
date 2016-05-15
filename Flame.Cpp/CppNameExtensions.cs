@@ -11,12 +11,7 @@ namespace Flame.Cpp
     {
         public static string[] SplitScope(QualifiedName Name)
         {
-            var results = new List<string>();
-            for (var n = Name; !n.IsEmpty; n = Name.Name)
-            {
-                results.Add(n.Qualifier.ToString());
-            }
-            return results.ToArray();
+            return Name.Path.Select(item => item.ToString()).ToArray();
         }
 
         public static string[] SplitScope(string Name)
