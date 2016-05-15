@@ -18,7 +18,7 @@ namespace Flame.Cpp.Plugs
 
         #region Abstract
 
-        public abstract string Name { get; }
+        public abstract UnqualifiedName Name { get; }
         public abstract AttributeMap Attributes { get; }
         public abstract INamespace DeclaringNamespace { get; }
 

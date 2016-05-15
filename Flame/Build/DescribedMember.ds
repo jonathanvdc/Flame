@@ -5,14 +5,14 @@ namespace Flame.Build
 {
 	public abstract class DescribedMember : IMember
 	{
-		public const this(set string Name)
+		public const this(set UnqualifiedName Name)
 		{
 			this.attributeBuilder = new AttributeMapBuilder();
 			this.attributeView = new AttributeMap(attributeBuilder);
 		}
 
-		public string Name { const get; private set; }
-		public abstract string FullName { get; }
+		public UnqualifiedName Name { const get; private set; }
+		public abstract QualifiedName FullName { get; }
 
 		protected AttributeMapBuilder attributeBuilder;
 		private AttributeMap attributeView;

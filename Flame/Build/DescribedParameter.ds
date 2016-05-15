@@ -6,9 +6,11 @@ namespace Flame.Build
 	public class DescribedParameter : DescribedMember, IParameter
 	{
 		public const this(string Name, set IType ParameterType)
+			: base(new SimpleName(Name));
+		public const this(UnqualifiedName Name, set IType ParameterType)
 			: base(Name);
 
-		public override string FullName : DescribedMember.FullName { const get return Name; }
+		public override QualifiedName FullName : DescribedMember.FullName { get return new QualifiedName(Name); }
 
 		/// <summary>
         /// Gets the parameter's (default) type.

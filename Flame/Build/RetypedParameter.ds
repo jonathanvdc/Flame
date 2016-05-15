@@ -10,8 +10,8 @@ namespace Flame.Build
 
 		public IParameter Declaration { const get; private set; }
 
-		public string Name { const get return Declaration.Name; }
-		public string FullName { const get return Declaration.FullName; }
+		public UnqualifiedName Name { const get return Declaration.Name; }
+		public QualifiedName FullName { const get return Declaration.FullName; }
 
 		/// <summary>
         /// Gets the parameter's (default) type.

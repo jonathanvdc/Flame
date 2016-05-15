@@ -22,14 +22,14 @@ namespace Flame
                 const get { return null; }
             }
 
-            public string Name
+            public UnqualifiedName Name
             {
-                const get { return "System"; }
+                const get { return new SimpleName("System"); }
             }
 
-            public string FullName
+            public QualifiedName FullName
             {
-                const get { return "System"; }
+                const get { return new QualifiedName(Name); }
             }
 
             public AttributeMap Attributes
@@ -137,14 +137,8 @@ namespace Flame
         {
         	const get
         	{
-	            if (Type.IsPrimitive)
-	            {
-	                return Type.Name.StartsWith("Bit");
-	            }
-	            else
-	            {
-	            	return false;
-	            }
+				return Bit8.Equals(Type) || Bit16.Equals(Type)
+					|| Bit32.Equals(Type) || Bit64.Equals(Type);
             }
         }
 
@@ -152,14 +146,7 @@ namespace Flame
         {
         	const get
         	{
-	            if (Type.IsPrimitive)
-	            {
-	                return Type.Name.StartsWith("Float");
-	            }
-	            else
-	            {
-	            	return false;
-	            }
+				return Float32.Equals(Type) || Float64.Equals(Type);
             }
         }
 
@@ -167,14 +154,8 @@ namespace Flame
         {
         	const get
         	{
-	            if (Type.IsPrimitive)
-	            {
-	                return Type.Name.StartsWith("UInt");
-	            }
-	            else
-	            {
-	            	return false;
-	            }
+				return UInt8.Equals(Type) || UInt16.Equals(Type)
+					|| UInt32.Equals(Type) || UInt64.Equals(Type);
             }
         }
 
@@ -182,14 +163,8 @@ namespace Flame
         {
         	const get
         	{
-	            if (Type.IsPrimitive)
-	            {
-	                return Type.Name.StartsWith("Int");
-	            }
-	            else
-	            {
-	            	return false;
-	            }
+				return Int8.Equals(Type) || Int16.Equals(Type)
+					|| Int32.Equals(Type) || Int64.Equals(Type);
             }
         }
 

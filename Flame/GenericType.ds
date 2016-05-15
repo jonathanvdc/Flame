@@ -30,9 +30,26 @@ namespace Flame
 		public override IGenericResolver Resolver { const get { return this; } }
 		public override INamespace DeclaringNamespace { const get { return Declaration.DeclaringNamespace; } }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
-			const get { return GenericNameExtensions.AppendTypeArguments(Declaration.GetGenericFreeName(), GenericArguments.Names); }
+            get
+            {
+                var typeNames = new List<QualifiedName>();
+                foreach (var item in GenericArguments)
+                    typeNames.Add(new QualifiedName(item.Name));
+                return new GenericName(Declaration.Name, typeNames);
+            }
+        }
+
+        public override QualifiedName FullName
+        {
+            get
+            {
+                var typeNames = new List<QualifiedName>();
+                foreach (var item in GenericArguments)
+                    typeNames.Add(item.FullName);
+                return new QualifiedName(new GenericName(Declaration.FullName, typeNames));
+            }
         }
 
 		private IAncestryRules ancestryRules;

@@ -11,35 +11,31 @@ namespace Flame
     public class IntersectionName : UnqualifiedName, IEquatable<IntersectionName>
     {
         /// <summary>
-        /// Creates a new intersection name from the given sequence
-        /// of intersected names.
+        /// Creates a new intersection name from the given intersected names.
         /// </summary>
-        public const this(set [QualifiedName] IntersectedNames);
+        public const this(set QualifiedName LeftName, set QualifiedName RightName);
 
         /// <summary>
-        /// Gets this intersection name's set of intersected names,
+        /// Gets the qualified name on the left of this intersection name.
         /// </summary>
-        public [QualifiedName] IntersectedNames { get; private set; }
+        public QualifiedName LeftName { get; private set; }
+
+        /// <summary>
+        /// Gets the qualified name on the right of this intersection name.
+        /// </summary>
+        public QualifiedName RightName { get; private set; }
 
         public override string ToString()
         {
-            if (!Enumerable.Any<QualifiedName>(IntersectedNames))
-                return "";
-
-            var sb = new StringBuilder();
-            sb.Append(Enumerable.First<QualifiedName>(IntersectedNames).FullName);
-            foreach (var item in Enumerable.Skip<QualifiedName>(IntersectedNames, 1))
-            {
-                sb.Append('&');
-                sb.Append(item.FullName);
-            }
-            return sb.ToString();
+            return LeftName.ToString() + "&" + RightName.ToString();
         }
 
         public override bool Equals(IntersectionName Other)
         {
-            return Enumerable.SequenceEqual<QualifiedName>(
-                    IntersectedNames, Other.IntersectedNames);
+            return (LeftName.Equals(Other.LeftName)
+                    && RightName.Equals(Other.RightName))
+                || (LeftName.Equals(Other.RightName)
+                    && RightName.Equals(Other.LeftName));
         }
         public override bool Equals(UnqualifiedName Other)
         {
@@ -47,12 +43,7 @@ namespace Flame
         }
         public override int GetHashCode()
         {
-            int result = 0;
-            foreach (var item in IntersectedNames)
-            {
-                result = (result << 2) ^ item.GetHashCode();
-            }
-            return result;
+            return LeftName.GetHashCode() ^ RightName.GetHashCode();
         }
     }
 }

@@ -11,17 +11,19 @@ namespace Flame
         	{
         	    this.Attributes = AttributeMap.Empty;
         	}
-            public const this(set IType DeclaringType, set string Name, set bool IsConstructor, set IType ReturnType, set [IParameter] Parameters)
+            public const this(set IType DeclaringType, string Name, set bool IsConstructor, set IType ReturnType, set [IParameter] Parameters)
             {
+                this.Name = new SimpleName(Name);
             	this.BaseMethods = new IMethod[0];
             	this.Attributes = AttributeMap.Empty;
             }
-            public const this(set IType DeclaringType, set string Name, set bool IsConstructor, set IType ReturnType, set [IParameter] Parameters, set [IMethod] BaseMethods)
+            public const this(set IType DeclaringType, string Name, set bool IsConstructor, set IType ReturnType, set [IParameter] Parameters, set [IMethod] BaseMethods)
             {
+                this.Name = new SimpleName(Name);
             	this.Attributes = AttributeMap.Empty;
             }
 
-            public string Name { const get; protected set; }
+            public UnqualifiedName Name { const get; protected set; }
             public AttributeMap Attributes { get; protected set; }
             public bool IsConstructor { const get; protected set; }
 
@@ -42,9 +44,9 @@ namespace Flame
                 const get { return false; }
             }
 
-            public string FullName
+            public QualifiedName FullName
             {
-                get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+                get { return new QualifiedName(Name); }
             }
 
             #region Generics

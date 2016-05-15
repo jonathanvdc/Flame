@@ -10,16 +10,17 @@ namespace Flame.Primitives
 	public virtual class PrimitiveType<T> : IType
 		where T : object
 	{
-        public const this(set string Name, set int32 Magnitude, set T DefaultValue)
+        public const this(string Name, set int32 Magnitude, set T DefaultValue)
 		{
-			this.cachedMethods    = new Lazy<IMethod[]>(CreateMethods);
+			this.Name = new SimpleName(Name);
+			this.cachedMethods = new Lazy<IMethod[]>(CreateMethods);
 			this.cachedProperties = new Lazy<IProperty[]>(CreateProperties);
-			this.cachedFields     = new Lazy<IField[]>(CreateFields);
+			this.cachedFields = new Lazy<IField[]>(CreateFields);
 		}
 
         public int32 Magnitude { const get; private set; }
         public T DefaultValue { const get; private set; }
-        public string Name { const get; private set; }
+        public UnqualifiedName Name { const get; private set; }
 
         public INamespace DeclaringNamespace
         {
@@ -87,9 +88,12 @@ namespace Flame.Primitives
             };
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            const get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
+            const get
+			{
+				return Name.Qualify(DeclaringNamespace.FullName);
+			}
         }
 
         public AttributeMap Attributes

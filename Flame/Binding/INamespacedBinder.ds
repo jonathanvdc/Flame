@@ -7,10 +7,10 @@ namespace Flame
     public interface INamespacedBinder : IBinder
     {
         bool SupportsNamespaces { const get; }
-        [string] UsingNamespaces { const get; }
-        IDictionary<string, string> MappedNamespaces { const get; }
-        void UseNamespace(string Namespace);
-        void MapNamespace(string Key, string Namespace);
+        [QualifiedName] UsingNamespaces { const get; }
+        IReadOnlyDictionary<UnqualifiedName, QualifiedName> MappedNamespaces { const get; }
+        void UseNamespace(QualifiedName Namespace);
+        void MapNamespace(UnqualifiedName Key, QualifiedName Namespace);
     }
     public interface ILocalNamespaceBinder : INamespacedBinder
     {

@@ -22,6 +22,6 @@ namespace Flame.Compiler.Emit
 		/// Gets the variable member's variable type.
 		/// </summary>
 		public IType VariableType { const get; private set; }
-		public override string FullName { const get return this.Name; }
+		public override QualifiedName FullName { const get return this.Name; }
 	}
 }

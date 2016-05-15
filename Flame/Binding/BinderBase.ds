@@ -8,149 +8,69 @@ namespace Flame
     public abstract class BinderBase : IBinder
     {
     	public const this();
-    
+
     	/// <summary>
 		/// Gets the environment for this binder.
 		/// </summary>
-        public abstract IEnvironment Environment : IBinder.Environment { const get; }
-        public abstract const IEnumerable<IType> GetTypes() : IBinder.GetTypes;
+        public abstract IEnvironment Environment : IBinder.Environment { get; }
+        public abstract [IType] GetTypes() : IBinder.GetTypes;
 
-        public abstract IType BindTypeCore(string Name);
+        public abstract IType BindTypeCore(QualifiedName Name);
 
-        public IType BindType(string Name) : IBinder.BindType
+        public IType BindType(QualifiedName Name) : IBinder.BindType
         {
-        	PointerKind ptrKind;
-            if (PointerKind.TryGetPointerKind(Name, &ptrKind))
+            if (Name.IsQualified)
+                return BindTypeCore(Name);
+
+            var unqualName = Name.Qualifier;
+            if (unqualName is PointerName)
             {
-                string elemName = Name.Substring(0, Name.Length - 1);
-                var elemType = BindType(elemName);
-                return elemType.MakePointerType(ptrKind);
-            }
-            else if (Name.EndsWith("]"))
-            {
-                List<string> dimensions = new List<string>();
-                int length = 0;
-                int i = Name.Length - 2;
-                for (; i >= 0; i--)
-                {
-                    if (Name[i] == '[')
-                    {
-                        dimensions.Add(Name.Substring(i + 1, length));
-                        break;
-                    }
-                    else if (Name[i] == ',')
-                    {
-                        dimensions.Add(Name.Substring(i + 1, length));
-                        length = 0;
-                    }
-                    else
-                    {
-                        length++;
-                    }
-                }
-                var elementType = BindType(Name.Substring(0, i));
-                if (elementType == null)
-                {
+                var ptrName = (PointerName)unqualName;
+                var elemTy = BindType(ptrName.ElementName);
+                if (elemTy == null)
                     return null;
-                }
                 else
-                {
-                	bool anyEmpty = false;
-                	foreach (var item in dimensions)
-                	{
-                		if (string.IsNullOrWhiteSpace(item))
-                		{
-                			anyEmpty = true;
-                		}
-                	}
-                    if (anyEmpty)
-                    {
-                        return elementType.MakeArrayType(dimensions.Count);
-                    }
-                    else
-                    {
-                    	int32[] vectorDims = new int32[dimensions.Count];
-                    	foreach (var input in dimensions, var output in vectorDims)
-                    	{
-	                    	output = int32.Parse(input.Replace(" ", "").Replace("\t", "").Replace("\r", "").Replace("\n", ""));
-	                    }
-                        return elementType.MakeVectorType(vectorDims);
-                    }
-                }
+                    return elemTy.MakePointerType(ptrName.Kind);
             }
-            else if (Name.EndsWith(">"))
+            else if (unqualName is ArrayName)
             {
-                int rank = 1;
-                List<IType> typeArgs = new List<IType>();
-                int i = Name.Length - 2;
-                int length = 0;
-                for (; rank > 0 && i >= 0; i--)
-                {
-                    if (Name[i] == '<')
-                    {
-                        rank--; 
-                        if (rank > 0)
-                        {
-                            length++;
-                        }
-                    }
-                    else if (Name[i] == '>')
-                    {
-                        rank++;
-                        if (rank > 1)
-                        {
-                            length++;
-                        }
-                    }
-                    else if (Name[i] == ',' && rank == 1)
-                    {
-                        string argString = Name.Substring(i + 1, length);
-                        typeArgs.Add(BindType(argString));
-                        length = 0;
-                    }
-                    else
-                    {
-                        length++;
-                    }
-                }
-                string lastArg = Name.Substring(i + 2, length);
-                typeArgs.Add(BindType(lastArg));
-
-                StringBuilder genericTypeName = new StringBuilder();
-                genericTypeName.Append(Name.Substring(0, i + 1));
-                genericTypeName.Append('<');
-                for (int j = 0; j < typeArgs.Count - 1; j++)
-                {
-                    genericTypeName.Append(',');
-                }
-                genericTypeName.Append('>');
-
-                var elementType = BindTypeCore(genericTypeName.ToString());
-                if (elementType == null)
-                {
+                var arrName = (ArrayName)unqualName;
+                var elemTy = BindType(arrName.ElementName);
+                if (elemTy == null)
                     return null;
-                }
-                else 
-                {
-                	bool allNull = true;
-                	foreach (var item in typeArgs)
-                	{
-                		if (item != null)
-                		{
-                			allNull = false;
-                		}
-                	}
-	                if (allNull)
-	                {
-	                    return elementType;
-	                }
-	                else
-	                {
-	                    return elementType.MakeGenericType(Enumerable.Reverse<IType>(typeArgs));
-	                }
-                }
+                else
+                    return elemTy.MakeArrayType(arrName.Rank);
             }
-            return BindTypeCore(Name);
+            else if (unqualName is VectorName)
+            {
+                var vecName = (VectorName)unqualName;
+                var elemTy = BindType(vecName.ElementName);
+                if (elemTy == null)
+                    return null;
+                else
+                    return elemTy.MakeVectorType(vecName.Dimensions);
+            }
+            else if (unqualName is GenericName)
+            {
+                var genName = (GenericName)unqualName;
+                var elemTy = BindType(genName.DeclarationName);
+                if (elemTy == null)
+                    return null;
+
+                var tArgs = new List<IType>();
+                foreach (var item in genName.TypeArgumentNames)
+                {
+                    var resolvedTArg = BindType(item);
+                    if (resolvedTArg == null)
+                        return null;
+                    tArgs.Add(resolvedTArg);
+                }
+                return elemTy.MakeGenericType(tArgs);
+            }
+            else
+            {
+                return BindTypeCore(Name);
+            }
         }
     }
 }

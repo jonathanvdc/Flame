@@ -13,7 +13,7 @@ namespace Flame.Cpp.Plugs
             this.types = new List<IType>();
         }
 
-        public abstract string Name { get; }
+        public abstract UnqualifiedName Name { get; }
 
         public virtual IAssembly DeclaringAssembly
         {

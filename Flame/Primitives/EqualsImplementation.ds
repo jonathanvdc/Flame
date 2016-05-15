@@ -10,7 +10,7 @@ namespace Flame.Primitives
 	{
 		public const this(set IType DeclaringType)
 		{
-			this.Name = "Equals";
+			this.Name = new SimpleName("Equals");
 			this.IsConstructor = false;
 			this.ReturnType = PrimitiveTypes.Boolean;
 			this.Parameters = PrimitiveMethods.Equals.Parameters;

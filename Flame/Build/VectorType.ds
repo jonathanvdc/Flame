@@ -12,9 +12,9 @@ namespace Flame.Build
 
         public IReadOnlyList<int> Dimensions { const get; private set; }
 
-        protected override const string GetName(string ElementName)
+        protected override UnqualifiedName GetName(QualifiedName ElementName)
         {
-            return GenericNameExtensions.AppendVectorSuffix(ElementName, Dimensions);
+            return new VectorName(ElementName, Dimensions);
         }
 
         public override IAncestryRules AncestryRules

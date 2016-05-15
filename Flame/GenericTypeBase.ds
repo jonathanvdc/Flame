@@ -40,7 +40,12 @@ namespace Flame
         /// <summary>
         /// Gets this generic type's name.
         /// </summary>
-        public abstract string Name { get; }
+        public abstract UnqualifiedName Name { get; }
+
+        /// <summary>
+        /// Gets this generic type's full name.
+        /// </summary>
+        public abstract QualifiedName FullName { get; }
 
         /// <summary>
         /// Gets the generic type's ancestry rules.
@@ -50,17 +55,6 @@ namespace Flame
         public IAssembly DeclaringAssembly
         {
             get { return DeclaringNamespace.DeclaringAssembly; }
-        }
-
-        public string FullName
-        {
-            const get
-            {
-                if (DeclaringNamespace == null)
-                    return Name;
-                else
-                    return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
-            }
         }
 
         public AttributeMap Attributes
@@ -148,12 +142,15 @@ namespace Flame
                 }
                 return results.ToArray();
             }
-            else return new IType[0];
+            else
+            {
+                return new IType[0];
+            }
         }
 
         public override string ToString()
         {
-            return FullName;
+            return FullName.ToString();
         }
     }
 }

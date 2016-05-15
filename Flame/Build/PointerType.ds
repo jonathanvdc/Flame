@@ -11,9 +11,9 @@ namespace Flame.Build
 
         public PointerKind PointerKind { const get; private set; }
 
-        protected override string GetName(string ElementName)
+        protected override UnqualifiedName GetName(QualifiedName ElementName)
         {
-            return ElementName + PointerKind.Extension;
+            return new PointerName(ElementName, PointerKind);
         }
 
         public override IAncestryRules AncestryRules
