@@ -152,7 +152,7 @@ namespace Flame.Verification
 		/// </summary>
 		public static string DescribeTypeDefault(IType Type)
 		{
-			return Type.FullName;
+            return Type.FullName.ToString();
 		}
 
 		/// <summary>
