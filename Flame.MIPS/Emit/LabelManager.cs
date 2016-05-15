@@ -77,7 +77,7 @@ namespace Flame.MIPS.Emit
 
         public IAssemblerLabel DeclareLabel(IMethod Method)
         {
-            return DeclareLabel(Method.Name);
+            return DeclareLabel(Method.Name.ToString());
         }
 
         #endregion

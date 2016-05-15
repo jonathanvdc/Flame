@@ -19,7 +19,7 @@ namespace Flame.MIPS
     {
         public static IStaticDataItem Allocate(this IAssemblerState State, IType Type)
         {
-            var item = new StaticInstanceItem(State.Labels.DeclareLabel(Type.Name, true), Type);
+            var item = new StaticInstanceItem(State.Labels.DeclareLabel(Type.Name.ToString(), true), Type);
             State.DataSection.AddItem(item);
             return item;
         }

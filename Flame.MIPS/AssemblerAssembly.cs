@@ -11,15 +11,18 @@ namespace Flame.MIPS
 {
     public class AssemblerAssembly : IAssemblyBuilder
     {
-        public AssemblerAssembly(string Name, Version AssemblyVersion, IEnvironment Environment)
+        public AssemblerAssembly(UnqualifiedName Name, Version AssemblyVersion, IEnvironment Environment)
         {
             this.Name = Name;
             this.AssemblyVersion = AssemblyVersion;
             this.Environment = Environment;
-            this.RootNamespace = new AssemblerNamespace(this, "", new GlobalAssemblerState());
+            this.RootNamespace = new AssemblerNamespace(
+                this, new SimpleName(""), 
+                new QualifiedName(new SimpleName("")), 
+                new GlobalAssemblerState());
         }
 
-        public string Name { get; private set; }
+        public UnqualifiedName Name { get; private set; }
         public Version AssemblyVersion { get; private set; }
         public IEnvironment Environment { get; private set; }
 
@@ -45,9 +48,9 @@ namespace Flame.MIPS
             return entryPoint;
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return Name; }
+            get { return new QualifiedName(Name); }
         }
 
         public AttributeMap Attributes

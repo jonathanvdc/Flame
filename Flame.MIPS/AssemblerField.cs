@@ -25,8 +25,8 @@ namespace Flame.MIPS
         public int Size { get { return FieldType.GetSize(); } }
         public IExpression InitialValue { get; private set; }
 
-        public string Name { get { return Template.Name; } }
-        public string FullName { get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); } }
+        public UnqualifiedName Name { get { return Template.Name; } }
+        public QualifiedName FullName { get { return Name.Qualify(DeclaringType.FullName); } }
         public bool IsStatic { get { return Template.IsStatic; } }
         public IType FieldType { get { return Template.FieldType.Value; } }
         public AttributeMap Attributes

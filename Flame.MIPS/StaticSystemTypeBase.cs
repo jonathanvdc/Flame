@@ -42,9 +42,9 @@ namespace Flame.MIPS
             get { return GetMethods(); }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
+            get { return Name.Qualify(DeclaringNamespace.FullName); }
         }
 
         public AttributeMap Attributes
