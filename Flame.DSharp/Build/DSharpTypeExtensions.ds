@@ -29,7 +29,7 @@ namespace Flame.DSharp.Build
 
 			foreach (var item in simpleGenericParams)
 			{
-				genericBinder.MapType(item.Name, item);
+				genericBinder.MapType(new QualifiedName(item.Name), item);
 			}
 
             var fullSyntaxState = new IndirectSyntaxState(State, genericBinder);
@@ -53,7 +53,7 @@ namespace Flame.DSharp.Build
 
         public static IType CreateExtensionType(INamespace Namespace, ISyntaxState State, TypeDeclarationSyntax Syntax)
         {
-	    	var descType = new DescribedType(Syntax.Signature.NameToken.TokenValue + "_Extensions", Namespace);
+	    	var descType = new DescribedType(new SimpleName(Syntax.Signature.NameToken.TokenValue + "_Extensions"), Namespace);
 	    	descType.AddAttribute(new AccessAttribute(AccessModifier.Public));
 	    	descType.AddAttribute(PrimitiveAttributes.StaticTypeAttribute);
 

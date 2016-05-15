@@ -105,7 +105,7 @@ namespace Flame.Syntax.DSharp
                     nodes.Add(TypeDiffComparer.ToTextNode(TypeNamer.Convert(Method.ReturnType)));
                 }
                 nodes.Add(TypeDiffComparer.ToTextNode(" "));
-                nodes.Add(TypeDiffComparer.ToTextNode(Method.FullName));
+                nodes.Add(TypeDiffComparer.ToTextNode(Method.FullName.ToString()));
             }
             var methodDiffBuilder = new MethodDiffComparer(TypeNamer);
             nodes.Add(methodDiffBuilder.CompareArguments(ArgumentTypes, Method));

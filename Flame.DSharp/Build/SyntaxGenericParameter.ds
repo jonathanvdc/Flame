@@ -25,8 +25,8 @@ namespace Flame.DSharp.Build
 		public IGenericMember DeclaringMember { const get; private set; }
 		public GenericParameterDeclarationSyntax Declaration { const get; private set; }
 
-		public string Name { const get return Declaration.Name; }
-		public string FullName { const get return MemberExtensions.CombineNames(DeclaringMember.FullName, Name); }
+		public UnqualifiedName Name { const get return new SimpleName(Declaration.Name); }
+		public QualifiedName FullName { const get return Name.Qualify(DeclaringMember.FullName); }
 
 		public AttributeMap Attributes
 		{

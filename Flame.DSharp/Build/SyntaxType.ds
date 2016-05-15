@@ -44,28 +44,14 @@ namespace Flame.DSharp.Build
         public IMemberProvider MemberProvider { const get; protected set; }
         public IConverter<IType, string> TypeNamer { const get; protected set; }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
             const get
             {
-                int genericCount = Enumerable.Count<IGenericParameterDeclarationSyntax>(
-                    Syntax.Signature.GenericDeclarations);
-                if (genericCount == 0)
-                {
-                    return Syntax.Signature.NameToken.TokenValue;
-                }
-                else
-                {
-                    var sb = new StringBuilder();
-                    sb.Append(Syntax.Signature.NameToken.TokenValue);
-                    sb.Append('<');
-                    for (int i = 0; i < genericCount - 1; i++)
-                    {
-                        sb.Append(',');
-                    }
-                    sb.Append('>');
-                    return sb.ToString();
-                }
+                return new SimpleName(
+                    Syntax.Signature.NameToken.TokenValue,
+                    Enumerable.Count<IGenericParameterDeclarationSyntax>(
+                       Syntax.Signature.GenericDeclarations));
             }
         }
 
@@ -78,7 +64,7 @@ namespace Flame.DSharp.Build
 
             	foreach (var param in this.GenericParameters)
 	            {
-	            	genericBinder.MapType(param.Name, param);
+	            	genericBinder.MapType(new QualifiedName(param.Name), param);
 	            }
 
     			var descMethod = new DescribedMethod("", this, PrimitiveTypes.Void, false);

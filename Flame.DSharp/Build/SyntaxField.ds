@@ -21,14 +21,14 @@ namespace Flame.DSharp.Build
 
         #region CodeMember Implementation
 
-        public string Name
+        public UnqualifiedName Name
         {
-            const get { return Syntax.Name; }
+            const get { return new SimpleName(Syntax.Name); }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            const get { return Name.Qualify(DeclaringType.FullName); }
         }
 
         public override const string GetHeaderString()

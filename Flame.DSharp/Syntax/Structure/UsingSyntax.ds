@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Flame.Binding;
 using Flame.Compiler;
@@ -28,19 +29,19 @@ namespace Flame.Syntax.DSharp
             }
         }
 
-        public string UsingNamespaceString
+        public QualifiedName UsingNamespaceName
         {
             const get
             {
-                StringBuilder sb = new StringBuilder();
-                foreach (var item in UsingNamespace)
+                QualifiedName result = null;
+                foreach (var item in Enumerable.Reverse<Token>(UsingNamespace))
                 {
-                    if (item.Type != TokenType.Whitespace)
+                    if (item.Type == TokenType.Identifier)
                     {
-                        sb.Append(item.TokenValue);
+                        result = new QualifiedName(new SimpleName(item.TokenValue), result);
                     }
                 }
-                return sb.ToString();
+                return result;
             }
         }
 
@@ -48,7 +49,7 @@ namespace Flame.Syntax.DSharp
 
         public void ApplyDirective(ISyntaxBinder Binder)
         {
-            Binder.UseNamespace(UsingNamespaceString);
+            Binder.UseNamespace(UsingNamespaceName);
         }
 
         public override const string ToString()

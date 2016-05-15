@@ -94,14 +94,14 @@ namespace Flame.DSharp.Build
             }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
-            const get { return Syntax.Signature.NameToken.TokenValue; }
+            const get { return new SimpleName(Syntax.Signature.NameToken.TokenValue); }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            const get { return Name.Qualify(DeclaringType.FullName); }
         }
 
 		private Lazy<AttributeMap> attrCache;
@@ -120,10 +120,10 @@ namespace Flame.DSharp.Build
             }*/
             if (Syntax.Signature.NameToken.Type == TokenType.ThisKeyword && indexerParams.Value.Length > 0)
                 extraAttributes.Add(PrimitiveAttributes.IndexerAttribute);
-            
+
             if (!modifierAttrs.HasAccessAttribute)
                 extraAttributes.Add(DeclaringType.GetAccessAttribute());
-            
+
             extraAttributes.AddRange(modifierAttrs);
             foreach (var item in Syntax.Signature.Attributes)
             	extraAttributes.Add(item.CreateAttribute(state, this));

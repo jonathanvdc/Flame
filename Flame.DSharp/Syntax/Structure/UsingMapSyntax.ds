@@ -26,24 +26,30 @@ namespace Flame.Syntax.DSharp
                                                   .Concat(Semicolon.Location);
         }
 
-        public string AliasNamespaceString
+        public QualifiedName AliasNamespaceName
         {
             const get
             {
                 if (Type is ITokenTypeSyntax)
                 {
-                    var sb = new StringBuilder();
+                    QualifiedName result = null;
                     foreach (var item in ((ITokenTypeSyntax)Type).Tokens)
                     {
                         if (item.Type != TokenType.Identifier && item.Type != TokenType.Dot)
                         {
                             return null;
                         }
-                        sb.Append(item.TokenValue);
+                        if (item.Type == TokenType.Identifier)
+                        {
+                            result = new QualifiedName(new SimpleName(item.TokenValue), result);
+                        }
                     }
-                    return sb.ToString();
+                    return result;
                 }
-                else return null;
+                else
+                {
+                    return null;
+                }
             }
         }
 
@@ -51,11 +57,11 @@ namespace Flame.Syntax.DSharp
         {
             if (!string.IsNullOrWhiteSpace(Alias.TokenValue))
             {
-                Binder.UseAlias(Alias.TokenValue, Type);
-                string aliasString = AliasNamespaceString;
-                if (!string.IsNullOrWhiteSpace(aliasString)) // Also map this to a namespace if it looks like one
+                Binder.UseAlias(new SimpleName(Alias.TokenValue), Type);
+                var aliasName = AliasNamespaceName;
+                if (!object.ReferenceEquals(aliasName, null)) // Also map this to a namespace if it looks like one
                 {
-                    Binder.MapNamespace(Alias.TokenValue, aliasString);
+                    Binder.MapNamespace(new SimpleName(Alias.TokenValue), aliasName);
                 }
             }
         }

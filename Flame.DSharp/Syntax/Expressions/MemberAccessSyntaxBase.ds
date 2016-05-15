@@ -146,7 +146,7 @@ namespace Flame.Syntax.DSharp
 
         private static const IVariable CreateFieldVariable([ITypeMember] members,
             IVariable Caller, IType CallerType,
-            string MemberName, ISyntaxState State)
+            UnqualifiedName MemberName, ISyntaxState State)
         {
             var possibleFields = Enumerable.OfType<IField>(members);
             var field = possibleFields.GetField(MemberName);
@@ -163,13 +163,13 @@ namespace Flame.Syntax.DSharp
         }
 
         private static const [T] GroupTypeMembers<T>([ITypeMember] Members,
-                                    string MemberName)
+                                    UnqualifiedName MemberName)
             where T : ITypeMember
         {
             var results = new List<T>();
             var possibleResults = Enumerable.OfType<T>(Members);
             foreach (var item in possibleResults)
-                if (!item.IsHidden && item.Name == MemberName)
+                if (!item.IsHidden && item.Name.Equals(MemberName))
             {
                 results.Add(item);
             }
@@ -222,7 +222,7 @@ namespace Flame.Syntax.DSharp
 
         private static const IVariable CreatePropertyVariable([ITypeMember] members,
             IVariable Caller, IType CallerType,
-            string MemberName, ISyntaxState State)
+            UnqualifiedName MemberName, ISyntaxState State)
         {
             bool callerNull = Caller == null;
             bool singletonCaller = CallerType.IsSingleton && Caller != null;
@@ -281,7 +281,7 @@ namespace Flame.Syntax.DSharp
 
         private static const IVariable CreateMethodGroupVariable([ITypeMember] members,
             IVariable Caller, IType CallerType,
-            string MemberName, ISyntaxState State)
+            UnqualifiedName MemberName, ISyntaxState State)
         {
             var methods = ExceptShadowed(GroupTypeMembers<IMethod>(members, MemberName), CallerType);
 
@@ -304,11 +304,11 @@ namespace Flame.Syntax.DSharp
             return new ExpressionVariable(IntersectionExpression.Create(results));
         }
 
-        public static IVariable CreateVariable(IVariable Caller, IType CallerType, string MemberName, ISyntaxState State)
+        public static IVariable CreateVariable(IVariable Caller, IType CallerType, UnqualifiedName MemberName, ISyntaxState State)
         {
         	var members = AccessExtensions.FilterAccessible<ITypeMember>(
                             State.CurrentType,
-                            State.MemberProvider.GetMembers(CallerType, MemberName));
+                            State.MemberProvider.GetMembers(CallerType, MemberName.ToString()));
 
             var fieldVar = CreateFieldVariable(members, Caller, CallerType, MemberName, State);
             if (fieldVar != null)
@@ -387,7 +387,7 @@ namespace Flame.Syntax.DSharp
                 return null;
             }
 
-            string name = Member.TokenValue;
+            var name = new SimpleName(Member.TokenValue);
 
             var result = CreateVariable(variable, exprType, name, State);
 
