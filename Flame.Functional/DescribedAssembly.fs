@@ -30,8 +30,8 @@ type DescribedAssembly(name : string, env : IEnvironment) as this =
     member this.Binder = new LazyNamespaceBinder(env, fun () -> this.MainNamespace :> INamespaceTree) :> IBinder
 
     interface IAssembly with
-        member this.Name = name
-        member this.FullName = name
+        member this.Name = SimpleName(name) :> UnqualifiedName
+        member this.FullName = QualifiedName(SimpleName(name))
         member this.Attributes = this.Attributes
 
         member this.AssemblyVersion = this.Version
