@@ -133,7 +133,7 @@ namespace Flame
 		{
 			return !Top.Equals(Bottom) &&
 			       Top.AccessorType == Bottom.AccessorType &&
-			       Top.DeclaringProperty.Name == Bottom.DeclaringProperty.Name &&
+			       Top.DeclaringProperty.Name.Equals(Bottom.DeclaringProperty.Name) &&
 				   Top.DeclaringProperty.IsStatic == Bottom.DeclaringProperty.IsStatic &&
 				   GetThisType(Top).Is(GetThisType(Bottom)) &&
 				   ScopedTypeEqualityComparer.CompareAll(
@@ -213,7 +213,7 @@ namespace Flame
 		public static bool HasSameCallSignature(this IMethod Method, IMethod Other,
 			IEnumerable<IType>(IMethod) GetMethodParameterTypes)
 		{
-			return Method.Name == Other.Name &&
+			return Method.Name.Equals(Other.Name) &&
 				   Method.IsStatic == Other.IsStatic &&
 				   ScopedTypeEqualityComparer.CompareAll(
 					   GetMethodParameterTypes(Method),
@@ -243,12 +243,12 @@ namespace Flame
 		/// Gets all methods - directly declared and inherited - in the given
 		/// declaring type with the given name, staticness and parameter types.
 		/// </summary>
-		public static [IMethod] GetAllMethods(this IType DeclaringType, string Name, bool IsStatic, IType[] ParameterTypes)
+		public static [IMethod] GetAllMethods(this IType DeclaringType, UnqualifiedName Name, bool IsStatic, IType[] ParameterTypes)
 		{
 			var methods = new List<IMethod>();
 			foreach (var method in DeclaringType.GetAllMethods())
 			{
-				if (method.Name == Name &&
+				if (method.Name.Equals(Name) &&
 				    method.IsStatic == IsStatic &&
 				    method.Parameters.GetTypes().AreEqual(ParameterTypes))
 				{
@@ -280,11 +280,11 @@ namespace Flame
 		/// Gets the first method in the given sequence of candidate methods
 		/// with the given name, staticness, return type and parameter types.
 		/// </summary>
-		public static IMethod GetMethod(this [IMethod] Candidates, string Name, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
+		public static IMethod GetMethod(this [IMethod] Candidates, UnqualifiedName Name, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
 		{
 			foreach (var method in Candidates)
 			{
-				if (method.Name == Name &&
+				if (method.Name.Equals(Name) &&
 					method.IsStatic == IsStatic &&
 				    method.ReturnType.Equals(ReturnType) &&
 					method.Parameters.GetTypes().AreEqual(ParameterTypes))
@@ -314,7 +314,7 @@ namespace Flame
 			return null;
 		}
 
-		public static IMethod GetMethod(this IType DeclaringType, string Name, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
+		public static IMethod GetMethod(this IType DeclaringType, UnqualifiedName Name, bool IsStatic, IType ReturnType, IType[] ParameterTypes)
 		{
 			return DeclaringType.GetAllMethods().GetMethod(Name, IsStatic, ReturnType, ParameterTypes);
 		}
