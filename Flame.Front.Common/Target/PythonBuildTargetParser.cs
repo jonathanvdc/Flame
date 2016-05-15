@@ -32,7 +32,7 @@ namespace Flame.Front.Target
 
         public BuildTarget CreateBuildTarget(string PlatformIdentifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)
         {
-            var targetAsm = new PythonAssembly(Info.Name, Info.Version, new PythonifyingMemberNamer());
+            var targetAsm = new PythonAssembly(new SimpleName(Info.Name), Info.Version, new PythonifyingMemberNamer());
             return new BuildTarget(targetAsm, DependencyBuilder, "py", true);
         }
     }
