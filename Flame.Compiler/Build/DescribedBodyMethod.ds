@@ -9,6 +9,16 @@ namespace Flame.Compiler
 {
 	public virtual class DescribedBodyMethod : DescribedMethod, IBodyMethod
 	{
+		public const this(UnqualifiedName Name, IType DeclaringType)
+			: base(Name, DeclaringType)
+		{
+			this.Body = new ReturnStatement();
+		}
+		public const this(UnqualifiedName Name, IType DeclaringType, IType ReturnType, bool IsStatic)
+			: base(Name, DeclaringType, ReturnType, IsStatic)
+		{
+			this.Body = new ReturnStatement(new DefaultValueExpression(ReturnType));
+		}
 		public const this(string Name, IType DeclaringType)
 			: base(Name, DeclaringType)
 		{
