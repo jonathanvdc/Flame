@@ -12,11 +12,11 @@ namespace Flame.TextContract
 {
     public class ContractAssembly : IAssemblyBuilder
     {
-        public ContractAssembly(string Name, IEnvironment Environment)
+        public ContractAssembly(UnqualifiedName Name, IEnvironment Environment)
         {
             this.Name = Name;
             this.Environment = Environment;
-            this.mainNs = new ContractNamespace(this, "", "");
+            this.mainNs = new ContractNamespace(this, new QualifiedName(""), new SimpleName(""));
         }
 
         public IEnvironment Environment { get; private set; }
@@ -52,9 +52,9 @@ namespace Flame.TextContract
             // Do nothing. This back-end does not need `Initialize` to get things done.
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return Name; }
+            get { return new QualifiedName(Name); }
         }
 
         public AttributeMap Attributes
@@ -62,7 +62,7 @@ namespace Flame.TextContract
             get { return AttributeMap.Empty; }
         }
 
-        public string Name { get; private set; }
+        public UnqualifiedName Name { get; private set; }
 
         public Version AssemblyVersion
         {
