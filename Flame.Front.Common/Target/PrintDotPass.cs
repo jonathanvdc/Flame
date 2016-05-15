@@ -21,7 +21,7 @@ namespace Flame.Front.Target
 
 		protected override TextWriter TryOpen(IMethod Method, ICompilerLog Log)
 		{
-			string name = "cfg." + PlugHandler.ToValidPath(Method.FullName) + ".dot";
+            string name = "cfg." + PlugHandler.ToValidPath(Method.FullName.ToString()) + ".dot";
 			var stream = new FileStream(name, FileMode.Create, FileAccess.Write);
 			return new StreamWriter(stream);
 		}

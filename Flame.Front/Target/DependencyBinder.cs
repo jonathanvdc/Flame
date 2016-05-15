@@ -28,7 +28,7 @@ namespace Flame.Front.Target
             }
         }
 
-        public override IType BindTypeCore(string Name)
+        public override IType BindTypeCore(QualifiedName Name)
         {
             foreach (var item in Binders)
             {
