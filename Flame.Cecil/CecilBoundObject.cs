@@ -22,7 +22,7 @@ namespace Flame.Cecil
 
         public IBoundObject GetField(IField Field)
         {
-            var clrField = Value.GetType().GetField(Field.Name);
+            var clrField = Value.GetType().GetField(Field.Name.ToString());
             if (clrField == null)
             {
                 throw new InvalidOperationException();
@@ -38,7 +38,7 @@ namespace Flame.Cecil
 
         public void SetField(IField Field, IBoundObject Value)
         {
-            var clrField = Value.GetType().GetField(Field.Name);
+            var clrField = Value.GetType().GetField(Field.Name.ToString());
             if (clrField == null)
             {
                 throw new InvalidOperationException();

@@ -57,7 +57,7 @@ namespace Flame.Cecil
             return Method.GetParameters();
         }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
             get
             {
@@ -65,7 +65,7 @@ namespace Flame.Cecil
             }
         }
 
-        public override string FullName
+        public override QualifiedName FullName
         {
             get
             {

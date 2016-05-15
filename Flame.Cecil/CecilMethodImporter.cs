@@ -105,12 +105,12 @@ namespace Flame.Cecil
             else if (Value.Equals(PrimitiveMethods.Instance.Equals))
             {
                 var objType = Module.Convert(Module.Module.TypeSystem.Object);
-                return Convert(objType.GetMethod("Equals", false, PrimitiveTypes.Boolean, new IType[] { objType }));
+                return Convert(objType.GetMethod(new SimpleName("Equals"), false, PrimitiveTypes.Boolean, new IType[] { objType }));
             }
             else if (Value.Equals(PrimitiveMethods.Instance.GetHashCode))
             {
                 var objType = Module.Convert(Module.Module.TypeSystem.Object);
-                return Convert(objType.GetMethod("GetHashCode", false, PrimitiveTypes.Int32, new IType[0]));
+                return Convert(objType.GetMethod(new SimpleName("GetHashCode"), false, PrimitiveTypes.Int32, new IType[0]));
             }
             else
             {
