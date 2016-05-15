@@ -31,8 +31,8 @@ namespace Flame.Wasm
 		/// </summary>
 		public string WasmName { get; private set; }
 
-		public string Name { get { return TemplateInstance.Name; } }
-		public string FullName { get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); } }
+		public UnqualifiedName Name { get { return TemplateInstance.Name; } }
+		public QualifiedName FullName { get { return Name.Qualify(DeclaringType.FullName); } }
 		public bool IsStatic { get { return TemplateInstance.Template.IsStatic; } }
 		public bool IsConstructor { get { return TemplateInstance.IsConstructor; } }
 
@@ -85,14 +85,14 @@ namespace Flame.Wasm
                 foreach (var item in Parameters)
                 {
                     var descParam = new DescribedParameter(
-                        null, item.ParameterType);
+                        new SimpleName(""), item.ParameterType);
                     importFunc.AddParameter(descParam);
                 }
 
                 var importArgs = new List<WasmExpr>();
                 importArgs.Add(new IdentifierExpr(WasmHelpers.GetWasmName(importFunc)));
-                importArgs.Add(new StringExpr(DeclaringType.Name));
-                importArgs.Add(new StringExpr(Name));
+                importArgs.Add(new StringExpr(DeclaringType.Name.ToString()));
+                importArgs.Add(new StringExpr(Name.ToString()));
                 importArgs.AddRange(importAbi.GetSignature(importFunc));
                 cb.AddCodeBuilder(new CallExpr(OpCodes.DeclareImport, importArgs).ToCode());
 

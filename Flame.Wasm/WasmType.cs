@@ -25,8 +25,8 @@ namespace Flame.Wasm
 		public TypeSignatureInstance TemplateInstance { get; private set; }
         public WasmModuleData ModuleData { get; private set; }
 
-		public string Name { get { return TemplateInstance.Name; } }
-		public string FullName { get { return MemberExtensions.CombineNames(DeclaringNamespace.Name, Name); } }
+		public UnqualifiedName Name { get { return TemplateInstance.Name; } }
+        public QualifiedName FullName { get { return Name.Qualify(DeclaringNamespace.FullName); } }
 
 		public AttributeMap Attributes { get { return TemplateInstance.Attributes.Value; } }
 		public IEnumerable<IType> BaseTypes { get { return TemplateInstance.BaseTypes.Value; } }

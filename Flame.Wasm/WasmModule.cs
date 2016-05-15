@@ -14,7 +14,7 @@ namespace Flame.Wasm
             IEnvironment Environment, IWasmAbi Abi,
             ICompilerOptions Options)
 		{
-			this.Name = Name;
+            this.Name = new SimpleName(Name);
 			this.AssemblyVersion = AssemblyVersion;
 			this.Environment = Environment;
             this.Options = Options;
@@ -26,7 +26,7 @@ namespace Flame.Wasm
 		/// <summary>
 		/// Gets this wasm module's name.
 		/// </summary>
-		public string Name { get; private set; }
+		public UnqualifiedName Name { get; private set; }
 		public IEnvironment Environment { get; private set; }
 		public Version AssemblyVersion { get; private set; }
         public ICompilerOptions Options { get; private set; }
@@ -37,7 +37,7 @@ namespace Flame.Wasm
 
         public WasmModuleData Data { get { return moduleNs.Data; } }
 
-		public string FullName { get { return Name; } }
+        public QualifiedName FullName { get { return new QualifiedName(Name); } }
 		public AttributeMap Attributes { get { return AttributeMap.Empty; } }
 
 		public IMethod GetEntryPoint() { return entryPoint; }
