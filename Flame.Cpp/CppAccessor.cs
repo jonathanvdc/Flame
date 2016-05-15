@@ -20,14 +20,14 @@ namespace Flame.Cpp
         public IProperty DeclaringProperty { get; private set; }
         public AccessorType AccessorType { get; private set; }
 
-        private string name;
-        public override string Name
+        private UnqualifiedName name;
+        public override UnqualifiedName Name
         {
             get
             {
                 if (name == null)
                 {
-                    name = Environment.GetAccessorNamer().Name(this);
+                    name = new SimpleName(Environment.GetAccessorNamer().Name(this));
                 }
                 return name;
             }

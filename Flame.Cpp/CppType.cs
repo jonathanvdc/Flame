@@ -61,14 +61,14 @@ namespace Flame.Cpp
 
         #region Type properties
 
-        private string cachedFullName;
-        public string FullName
+        private QualifiedName cachedFullName;
+        public QualifiedName FullName
         {
             get
             {
                 if (cachedFullName == null)
                 {
-                    cachedFullName = MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
+                    cachedFullName = Name.Qualify(DeclaringNamespace.FullName);
                 }
                 return cachedFullName;
             }
@@ -79,16 +79,11 @@ namespace Flame.Cpp
             get { return Template.Attributes.Value; }
         }
 
-        private string cachedName;
-        public string Name
+        public UnqualifiedName Name
         {
             get
             {
-                if (cachedName == null)
-                {
-                    cachedName = GenericNameExtensions.TrimGenerics(Template.Name);
-                }
-                return cachedName;
+                return Template.Name;
             }
         }
 
@@ -127,7 +122,7 @@ namespace Flame.Cpp
             {
                 if (DeclaringNamespace is IType)
                 {
-                    return this.GetIsSingleton() && this.Name == "Static_Singleton";
+                    return this.GetIsSingleton() && this.Name.ToString() == "Static_Singleton";
                 }
                 else
                 {
@@ -298,7 +293,7 @@ namespace Flame.Cpp
 
         public INamespaceBuilder DeclareNamespace(string Name)
         {
-            return (INamespaceBuilder)DeclareType(new TypePrototypeTemplate(new DescribedType(Name, this)));
+            return (INamespaceBuilder)DeclareType(new TypePrototypeTemplate(new DescribedType(new SimpleName(Name), this)));
         }
 
         public ITypeBuilder DeclareType(ITypeSignatureTemplate Template)
@@ -504,7 +499,7 @@ namespace Flame.Cpp
 
         public bool Equals(IType other)
         {
-            return this.FullName == other.FullName;
+            return this.FullName.Equals(other.FullName);
         }
 
         public override int GetHashCode()

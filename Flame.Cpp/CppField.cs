@@ -53,9 +53,9 @@ namespace Flame.Cpp
             // No initialization logic yet.
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            get { return Name.Qualify(DeclaringType.FullName); }
         }
 
         public AttributeMap Attributes
@@ -63,7 +63,7 @@ namespace Flame.Cpp
             get { return Template.Attributes.Value; }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             get { return Template.Name; }
         }
@@ -142,7 +142,7 @@ namespace Flame.Cpp
             }
             cb.Append(TypeNamer.Name(FieldType, this));
             cb.Append(' ');
-            cb.Append(Name);
+            cb.Append(Name.ToString());
             if (!IsStatic)
             {
                 AppendAssignment(cb);
@@ -170,7 +170,7 @@ namespace Flame.Cpp
             var genDeclType = DeclaringType.MakeGenericType(DeclaringType.GenericParameters);
             cb.Append(TypeNamer.Name(genDeclType, this));
             cb.Append("::");
-            cb.Append(Name);
+            cb.Append(Name.ToString());
             AppendAssignment(cb);
             cb.Append(';');
             return cb;

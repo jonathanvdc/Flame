@@ -12,9 +12,9 @@ namespace Flame.Cpp.Plugs
         {
         }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
-            get { return "std"; }
+            get { return new SimpleName("std"); }
         }
 
         #region Static

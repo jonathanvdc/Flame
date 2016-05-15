@@ -9,6 +9,16 @@ namespace Flame.Cpp
 {
     public static class CppNameExtensions
     {
+        public static string[] SplitScope(QualifiedName Name)
+        {
+            var results = new List<string>();
+            for (var n = Name; !n.IsEmpty; n = Name.Name)
+            {
+                results.Add(n.Qualifier.ToString());
+            }
+            return results.ToArray();
+        }
+
         public static string[] SplitScope(string Name)
         {
             return Name.Split(new string[] { "::", "." }, StringSplitOptions.RemoveEmptyEntries);
@@ -38,7 +48,7 @@ namespace Flame.Cpp
 
         public static string RemoveRedundantScope(string Name, INamespace CurrentNamespace)
         {
-            return RemoveRedundantScope(Name, CurrentNamespace.FullName);
+            return RemoveRedundantScope(Name, CurrentNamespace.FullName.ToString());
         }
 
         public static string Name(this Func<INamespace, IConverter<IType, string>> TypeNamer, IType Value, INamespace CurrentNamespace)

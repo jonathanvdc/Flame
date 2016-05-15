@@ -54,9 +54,9 @@ namespace Flame.Cpp
             get { return false; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return BinaryOverload.FullName + "="; }
+            get { return NameParser.Instance.AppendSimpleSuffix(BinaryOverload.FullName, "="); }
         }
 
         public AttributeMap Attributes
@@ -67,9 +67,9 @@ namespace Flame.Cpp
             }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
-            get { return BinaryOverload.Name + "="; }
+            get { return new SimpleName(BinaryOverload.Name.ToString() + "="); }
         }
 
         public IEnumerable<IGenericParameter> GenericParameters
@@ -116,7 +116,7 @@ namespace Flame.Cpp
                 cb.Append(envir.TypeNamer.Name(genDeclType, this));
                 cb.Append("::");
             }
-            cb.Append(this.Name);
+            cb.Append(this.Name.ToString());
             cb.Append('(');
             var parameters = this.GetParameters();
             for (int i = 0; i < parameters.Length; i++)
@@ -128,7 +128,7 @@ namespace Flame.Cpp
                 var tParam = parameters[i].ParameterType;
                 cb.Append(envir.TypeNamer.Name(tParam, this));
                 cb.Append(' ');
-                cb.Append(parameters[i].Name);
+                cb.Append(parameters[i].Name.ToString());
             }
             cb.Append(')');
             return cb;
@@ -168,7 +168,7 @@ namespace Flame.Cpp
             cb.Append("return *this = *this ");
             cb.Append(Emit.BinaryOperation.GetOperatorString(BinaryOverload.GetOperator()));
             cb.Append(" ");
-            cb.Append(this.GetParameters().Single().Name);
+            cb.Append(this.GetParameters().Single().Name.ToString());
             cb.Append(";");
             cb.DecreaseIndentation();
             cb.AddLine("}");

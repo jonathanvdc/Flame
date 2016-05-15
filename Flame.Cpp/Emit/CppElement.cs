@@ -30,7 +30,7 @@ namespace Flame.Cpp.Emit
             get 
             {
                 var targetType = Target.Type;
-                if (targetType.GetGenericDeclaration().FullName == "stdx.ArraySlice")
+                if (targetType.GetGenericDeclaration().FullName.ToString() == "stdx.ArraySlice")
                 {
                     return targetType.GetGenericArguments().Single();
                 }

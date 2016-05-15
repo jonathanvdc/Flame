@@ -91,7 +91,13 @@ namespace Flame.Cpp.Emit
                         var accessBlock = (MemberAccessBlock)assignment.Target;
                         if (accessBlock.Target is ThisBlock)
                         {
-                            return new MemberInitializationBlock(accessBlock.CodeGenerator, new LiteralBlock(accessBlock.CodeGenerator, accessBlock.Member.Name, accessBlock.Type), assignment.Value);
+                            return new MemberInitializationBlock(
+                                accessBlock.CodeGenerator, 
+                                new LiteralBlock(
+                                    accessBlock.CodeGenerator, 
+                                    accessBlock.Member.Name.ToString(), 
+                                    accessBlock.Type), 
+                                assignment.Value);
                         }
                     }
                 }
@@ -103,7 +109,13 @@ namespace Flame.Cpp.Emit
                         var accessBlock = (MemberAccessBlock)invocation.Member;
                         if (accessBlock.IsSliceMethod && invocation.Method.IsConstructor)
                         {
-                            return new MemberInitializationBlock(accessBlock.CodeGenerator, new LiteralBlock(accessBlock.CodeGenerator, accessBlock.Member.Name, accessBlock.Type), invocation.Arguments);
+                            return new MemberInitializationBlock(
+                                accessBlock.CodeGenerator, 
+                                new LiteralBlock(
+                                    accessBlock.CodeGenerator, 
+                                    accessBlock.Member.Name.ToString(), 
+                                    accessBlock.Type), 
+                                invocation.Arguments);
                         }
                     }
                 }

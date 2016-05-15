@@ -184,5 +184,22 @@ namespace Flame
                 return null;
             }
         }
+
+        public QualifiedName AppendSimpleSuffix(QualifiedName Name, string Suffix)
+        {
+            if (Name.IsQualified)
+            {
+                return AppendSimpleSuffix(Name.Name, Suffix).Qualify(Name.Qualifier);
+            }
+            else if (Name.Qualifier is SimpleName)
+            {
+                var simple = (SimpleName)Name.Qualifier;
+                return new QualifiedName(new SimpleName(simple.Name + Suffix, simple.TypeParameterCount));
+            }
+            else
+            {
+                return Name;
+            }
+        }
     }
 }

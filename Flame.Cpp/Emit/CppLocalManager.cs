@@ -67,15 +67,15 @@ namespace Flame.Cpp.Emit
         /// </summary>
         /// <param name="Name"></param>
         /// <returns></returns>
-        public bool CanDeclare(string Name)
+        public bool CanDeclare(UnqualifiedName Name)
         {
-            if (string.IsNullOrWhiteSpace(Name))
+            if (string.IsNullOrWhiteSpace(Name.ToString()))
             {
                 return false;
             }
             else
             {
-                return !Locals.Any((item) => item.Member.Name == Name) && !CodeGenerator.Method.GetParameters().Any((item) => item.Name == Name);
+                return !Locals.Any((item) => item.Member.Name.Equals(Name)) && !CodeGenerator.Method.GetParameters().Any((item) => item.Name.Equals(Name));
             }
         }
 
@@ -83,13 +83,13 @@ namespace Flame.Cpp.Emit
 
         private string GenerateIdentifier(IVariableMember Member)
         {
-            if (string.IsNullOrWhiteSpace(Member.Name))
+            if (string.IsNullOrWhiteSpace(Member.Name.ToString()))
             {
                 return GenerateIdentifier(Member.VariableType);
             }
             else
             {
-                return GenerateIdentifier(Member.Name);
+                return GenerateIdentifier(Member.Name.ToString());
             }
         }
 
@@ -141,13 +141,13 @@ namespace Flame.Cpp.Emit
         {
             foreach (var item in Names)
             {
-                if (CanDeclare(item))
+                if (CanDeclare(new SimpleName(item)))
                 {
                     return item;
                 }
             }
             int index = 0;
-            while (!CanDeclare(Names[Names.Length - 1] + index))
+            while (!CanDeclare(new SimpleName(Names[Names.Length - 1] + index)))
             {
                 index++;
             }
