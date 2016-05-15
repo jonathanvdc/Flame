@@ -28,8 +28,8 @@ namespace Flame.Wasm
         /// </summary>
         public MemorySection StaticStorageLocation { get; private set; }
 
-		public string Name { get { return TemplateInstance.Name; } }
-		public string FullName { get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); } }
+		public UnqualifiedName Name { get { return TemplateInstance.Name; } }
+		public QualifiedName FullName { get { return Name.Qualify(DeclaringType.FullName); } }
 		public bool IsStatic { get { return TemplateInstance.IsStatic; } }
 		public AttributeMap Attributes { get { return TemplateInstance.Attributes.Value; } }
 		public IType FieldType { get { return TemplateInstance.FieldType.Value; } }
