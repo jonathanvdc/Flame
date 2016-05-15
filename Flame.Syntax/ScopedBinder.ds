@@ -15,7 +15,7 @@ namespace Flame.Syntax
 		public const this(set IBinder Binder, set ISyntaxState State)
         {
         	this.scopes = new List<NamespaceScope>();
-        	PushScope("");
+        	PushScope();
         }
 
 		public IBinder Binder { const get; private set; }
@@ -43,34 +43,34 @@ namespace Flame.Syntax
 		}
 		public IScopedBinder PushScope()
 		{
-			return PushScope("");
+			return PushScope(new SimpleName(""));
 		}
-		public IScopedBinder PushScope(string Name)
+		public IScopedBinder PushScope(UnqualifiedName Name)
 		{
 			var newBinder = new ScopedBinder(Binder, State, scopes);
 			newBinder.scopes.Add(new NamespaceScope(Name));
 			return newBinder;
 		}
-		public IScopedBinder PushScope(string Name, INamespace CurrentNamespace)
+		public IScopedBinder PushScope(UnqualifiedName Name, INamespace CurrentNamespace)
 		{
 			var newBinder = new ScopedBinder(Binder, State, scopes);
 			newBinder.scopes.Add(new NamespaceScope(Name, CurrentNamespace));
 			return newBinder;
 		}
 
-        public void UseNamespace(string Namespace)
+        public void UseNamespace(QualifiedName Namespace)
         {
         	CurrentScope.UsingNamespaces.Add(Namespace);
 			usingNs = null;
         }
 
-        public void MapNamespace(string Key, string Namespace)
+        public void MapNamespace(UnqualifiedName Key, QualifiedName Namespace)
         {
         	CurrentScope.MappedNamespaces[Key] = Namespace;
 			mappedNs = null;
         }
 
-		public void UseAlias(string Key, ITypeSyntax Alias)
+		public void UseAlias(UnqualifiedName Key, ITypeSyntax Alias)
 		{
 			CurrentScope.Aliases[Key] = Alias;
 			allAliases = null;
@@ -89,31 +89,26 @@ namespace Flame.Syntax
         	}
         }
 
-        private string[] localNs;
-        protected string[] LocalNamespaces
+        private QualifiedName[] localNs;
+        protected QualifiedName[] LocalNamespaces
         {
             const get
             {
                 if (localNs == null)
                 {
-                    StringBuilder sb = new StringBuilder();
-                    List<string> ns = new List<string>();
-                    bool first = true;
-                    foreach (var scope in scopes)
+                    var ns = new List<QualifiedName>();
+                    QualifiedName qualifier = null;
+					for (int i = 0; i < scopes.Count; i++)
                     {
-                    	string scopeName = scope.Name;
-                    	if (!string.IsNullOrWhiteSpace(scopeName))
+                    	var scopeName = scopes[i].Name;
+                    	if (!string.IsNullOrWhiteSpace(scopeName.ToString()))
                     	{
-                    		if (!first)
-                    		{
-                    			sb.Append('.');
-                    		}
-                    		else
-                    		{
-                    			first = false;
-                    		}
-                    		sb.Append(scopeName);
-                        	ns.Add(sb.ToString());
+							var qualName = new QualifiedName(scopeName);
+                    		if (!object.ReferenceEquals(qualifier, null))
+								qualName = qualName.Qualify(qualifier);
+
+                        	ns.Add(qualName);
+							qualifier = qualName;
                     	}
                     }
                     localNs = ns.ToArray();
@@ -124,12 +119,12 @@ namespace Flame.Syntax
 
         public override IEnvironment Environment : BinderBase.Environment { const get return Binder.Environment; }
 
-        public override IType BindTypeCore(string Name)
+        public override IType BindTypeCore(QualifiedName Name)
         {
 			var typeAliases = Aliases;
-			if (typeAliases.ContainsKey(Name))
+			if (!Name.IsQualified && typeAliases.ContainsKey(Name.Qualifier))
 			{
-				var aliasType = typeAliases[Name].CreateType(State);
+				var aliasType = typeAliases[Name.Qualifier].CreateType(State);
 				if (VerifyMatch(aliasType))
 					return aliasType;
 			}
@@ -139,24 +134,20 @@ namespace Flame.Syntax
             {
                 return type;
             }
-            string[] splitName = Name.Split(new char[] { '.' });
-            if (MappedNamespaces.ContainsKey(splitName[0]))
+            if (Name.IsQualified
+				&& MappedNamespaces.TryGetValue(Name.Qualifier, &QualifiedName namePrefix))
             {
-                string newName = ToTypeName(ScopedBinder.ConcatArrays<string>(new string[] { MappedNamespaces[splitName[0]] }, ScopedBinder.SubArray<string>(splitName, 1)));
+				var newName = Name.Name.Qualify(namePrefix);
                 type = Binder.BindType(newName);
                 if (VerifyMatch(type))
-                {
                     return type;
-                }
             }
             foreach (var item in UsingNamespaces)
             {
-                string newName = ToTypeName(ScopedBinder.ConcatArrays<string>(new string[] { item }, splitName));
+                var newName = Name.Qualify(item);
                 type = Binder.BindType(newName);
                 if (VerifyMatch(type))
-                {
                     return type;
-                }
             }
             return null;
         }
@@ -250,61 +241,18 @@ namespace Flame.Syntax
 
         #endregion
 
-        private static T[] SubArray<T>(T[] Elements, int StartPosition)
-        {
-            T[] newArray = new T[Elements.Length - StartPosition];
-            for (int32 i = 0; i < newArray.Length; i++)
-            {
-                newArray[i] = Elements[i + StartPosition];
-            }
-            return newArray;
-        }
-
-        private static T[] ConcatArrays<T>(T[] First, T[] Second)
-        {
-        	int32 firstLength = First.Length;
-        	T[] result = new T[firstLength + Second.Length];
-        	for (int32 i = 0; i < firstLength; i++)
-        	{
-        		result[i] = First[i];
-        	}
-        	for (int32 i = 0; i < Second.Length; i++)
-        	{
-        		result[firstLength + i] = Second[i];
-        	}
-        	return result;
-        }
-
-        private static string ToTypeName(string[] Elements)
-        {
-            StringBuilder sb = new StringBuilder();
-            for (int32 i = 0; i < Elements.Length; i++)
-            {
-                if (i != 0)
-                {
-                    sb.Append(".");
-                }
-                sb.Append(Elements[i]);
-            }
-            return sb.ToString();
-        }
-
-		private List<string> usingNs;
-        public [string] UsingNamespaces
+		private HashSet<QualifiedName> usingNs;
+        public [QualifiedName] UsingNamespaces
         {
 	        const get
 	        {
-	        	if (usingNs == null)
+	        	if (object.ReferenceEquals(usingNs, null))
 				{
-		        	List<string> usingNamespaces = new List<string>();
-		        	foreach (var item in LocalNamespaces)
-		        	{
-		        		usingNamespaces.Add(item);
-		        	}
-		        	foreach (var item in scopes)
-		        	foreach (var usage in item.UsingNamespaces)
-		        	{
-		        		usingNamespaces.Add(usage);
+		        	var usingNamespaces = new HashSet<QualifiedName>();
+					usingNamespaces.UnionWith(LocalNamespaces);
+					for (int i = 0; i < scopes.Count; i++)
+                    {
+		        		usingNamespaces.UnionWith(scopes[i].UsingNamespaces);
 		        	}
 		        	usingNs = usingNamespaces;
 		        }
@@ -313,14 +261,14 @@ namespace Flame.Syntax
         }
 
 
-		private Dictionary<string, string> mappedNs;
-        public IDictionary<string, string> MappedNamespaces
+		private Dictionary<UnqualifiedName, QualifiedName> mappedNs;
+        public IReadOnlyDictionary<UnqualifiedName, QualifiedName> MappedNamespaces
         {
         	const get
         	{
         		if (mappedNs == null)
 				{
-	                Dictionary<string, string> dict = new Dictionary<string, string>();
+	                var dict = new Dictionary<UnqualifiedName, QualifiedName>();
 	        		foreach (var item in scopes)
 	        		{
 	        			foreach (var map in item.MappedNamespaces)
@@ -334,14 +282,14 @@ namespace Flame.Syntax
         	}
         }
 
-		private Dictionary<string, ITypeSyntax> allAliases;
-		public IReadOnlyDictionary<string, ITypeSyntax> Aliases
+		private Dictionary<UnqualifiedName, ITypeSyntax> allAliases;
+		public IReadOnlyDictionary<UnqualifiedName, ITypeSyntax> Aliases
 		{
 			const get
 			{
 				if (allAliases == null)
 				{
-					Dictionary<string, ITypeSyntax> dict = new Dictionary<string, ITypeSyntax>();
+					var dict = new Dictionary<UnqualifiedName, ITypeSyntax>();
 					foreach (var item in scopes)
 					{
 						foreach (var map in item.Aliases)

@@ -23,10 +23,10 @@ namespace Flame.Syntax
             {
                 if (extTypes == null)
                 {
-                	List<IType> extTypeList = new List<IType>();
+                	var extTypeList = new List<IType>();
                 	foreach (var item in GlobalExtensionTypeProvider.ExtensionTypes)
                 	{
-                		if (Binder.BindType(item.Name) != null)
+                		if (Binder.BindType(new QualifiedName(item.Name)) != null)
                 		{
                 			extTypeList.Add(item);
                 		}
