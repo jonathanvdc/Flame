@@ -121,14 +121,16 @@ namespace Flame.Python
                 var setField = item.GetSetField(Method.DeclaringType, false);
                 if (setField != null)
                 {
-                    if (setField.Name.Equals(Field.Name, StringComparison.InvariantCultureIgnoreCase)) return true;
+                    if (setField.Name.ToString().Equals(Field.Name.ToString(), StringComparison.InvariantCultureIgnoreCase)) 
+                        return true;
                 }
                 else
                 {
                     var setProperty = item.GetSetProperty(Method.DeclaringType, false);
                     if (setProperty != null)
                     {
-                        if (Field.GetIsHidden() && setProperty.Name.Equals(Field.Name + "_value", StringComparison.InvariantCultureIgnoreCase)) return true;
+                        if (Field.GetIsHidden() && setProperty.Name.ToString().Equals(Field.Name.ToString() + "_value", StringComparison.InvariantCultureIgnoreCase)) 
+                            return true;
                     }
                 }
 #if AGGRESSIVE // This is a really abgressive optimization, and may well get it wrong sometimes

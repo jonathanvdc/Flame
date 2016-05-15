@@ -20,12 +20,12 @@ namespace Flame.Python
 
         protected override string NameCore(IField Field)
         {
-            return Field.Name;
+            return Field.Name.ToString();
         }
 
         protected override string NameCore(IProperty Property)
         {
-            return Property.Name;
+            return Property.Name.ToString();
         }
     }
 }

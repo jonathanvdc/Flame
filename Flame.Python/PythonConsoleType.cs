@@ -38,9 +38,9 @@ namespace Flame.Python
             get { return attrMap; }
         }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
-            get { return "Console"; }
+            get { return new SimpleName("Console"); }
         }
 
         public override IEnumerable<IMethod> Methods

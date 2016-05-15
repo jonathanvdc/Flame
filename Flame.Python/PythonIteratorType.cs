@@ -19,9 +19,9 @@ namespace Flame.Python
 
         public static PythonIteratorType Instance { get; private set; }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
-            get { return "iterator"; }
+            get { return new SimpleName("iterator"); }
         }
 
         private static readonly AttributeMap attrMap = new AttributeMap(new IAttribute[] 

@@ -16,29 +16,29 @@ namespace Flame.Python
 
             #region Strings
 
-            var endsWithMethod = PrimitiveTypes.String.GetMethod("EndsWith", false, PrimitiveTypes.Boolean, new IType[] { PrimitiveTypes.String });
+            var endsWithMethod = PrimitiveTypes.String.GetMethod(new SimpleName("EndsWith"), false, PrimitiveTypes.Boolean, new IType[] { PrimitiveTypes.String });
             MapPrimitiveMethod(endsWithMethod, (cg, caller) => new MemberAccessBlock(cg, caller, "endswith", MethodType.Create(endsWithMethod)));
-            var startsWithMethod = PrimitiveTypes.String.GetMethod("StartsWith", false, PrimitiveTypes.Boolean, new IType[] { PrimitiveTypes.String });
+            var startsWithMethod = PrimitiveTypes.String.GetMethod(new SimpleName("StartsWith"), false, PrimitiveTypes.Boolean, new IType[] { PrimitiveTypes.String });
             MapPrimitiveMethod(endsWithMethod, (cg, caller) => new MemberAccessBlock(cg, caller, "startswith", MethodType.Create(endsWithMethod)));
-            var concatMethod = PrimitiveTypes.String.GetMethod("Concat", true, PrimitiveTypes.String, new IType[] { PrimitiveTypes.String, PrimitiveTypes.String });
+            var concatMethod = PrimitiveTypes.String.GetMethod(new SimpleName("Concat"), true, PrimitiveTypes.String, new IType[] { PrimitiveTypes.String, PrimitiveTypes.String });
             MapPrimitiveMethod(concatMethod, (cg, caller) => new PartialBinaryOperation(cg, PrimitiveTypes.String, Operator.Add));
-            var nullOrEmptyMethod = PrimitiveTypes.String.GetMethod("IsNullOrEmpty", true, PrimitiveTypes.Boolean, new IType[] { PrimitiveTypes.String });
+            var nullOrEmptyMethod = PrimitiveTypes.String.GetMethod(new SimpleName("IsNullOrEmpty"), true, PrimitiveTypes.Boolean, new IType[] { PrimitiveTypes.String });
             MapPrimitiveMethod(nullOrEmptyMethod, (cg, caller) =>
                 new PartialRedirectedBinaryOperation(cg, 
                     new PartialRedirectedBinaryOperation(cg, new PartialArgumentBlock(cg, PrimitiveTypes.String, 0), Operator.CheckEquality, (IPythonBlock)cg.EmitNull()),
                     Operator.LogicalOr, 
                     new PartialRedirectedBinaryOperation(cg, new PartialInvocationBlock(cg, new PythonIdentifierBlock(cg, "len", PythonObjectType.Instance), PrimitiveTypes.Int32), Operator.CheckGreaterThan, (IPythonBlock)cg.EmitInt32(0))
                 ));
-            var nullOrWhitespaceMethod = PrimitiveTypes.String.GetMethod("IsNullOrWhiteSpace", true, PrimitiveTypes.Boolean, new IType[] { PrimitiveTypes.String });
+            var nullOrWhitespaceMethod = PrimitiveTypes.String.GetMethod(new SimpleName("IsNullOrWhiteSpace"), true, PrimitiveTypes.Boolean, new IType[] { PrimitiveTypes.String });
             MapPrimitiveMethod(nullOrWhitespaceMethod, (cg, caller) =>
                 new PartialRedirectedBinaryOperation(cg,
                     new PartialRedirectedBinaryOperation(cg, new PartialArgumentBlock(cg, PrimitiveTypes.String, 0), Operator.CheckEquality, (IPythonBlock)cg.EmitNull()),
                     Operator.LogicalOr,
                     new PartialMemberAccessBlock(cg, new PartialArgumentBlock(cg, PrimitiveTypes.String, 0), new PythonIdentifierBlock(cg, "isspace()", PrimitiveTypes.Boolean))
                 ));
-            var substringMethod = PrimitiveTypes.String.GetMethod("Substring", false, PrimitiveTypes.String, new IType[] { PrimitiveTypes.Int32, PrimitiveTypes.Int32 });
+            var substringMethod = PrimitiveTypes.String.GetMethod(new SimpleName("Substring"), false, PrimitiveTypes.String, new IType[] { PrimitiveTypes.Int32, PrimitiveTypes.Int32 });
             MapPrimitiveMethod(substringMethod, (cg, caller) => new PartialLengthSliceBlock(caller));
-            var substringStartMethod = PrimitiveTypes.String.GetMethod("Substring", false, PrimitiveTypes.String, new IType[] { PrimitiveTypes.Int32 });
+            var substringStartMethod = PrimitiveTypes.String.GetMethod(new SimpleName("Substring"), false, PrimitiveTypes.String, new IType[] { PrimitiveTypes.Int32 });
             MapPrimitiveMethod(substringStartMethod, (cg, caller) => new PartialLengthSliceBlock(caller));
 
             #endregion

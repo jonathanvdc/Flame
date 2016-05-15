@@ -23,9 +23,9 @@ namespace Flame.Python
             return null;
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return Name; }
+            get { return new QualifiedName(Name); }
         }
 
         public AttributeMap Attributes
@@ -33,9 +33,9 @@ namespace Flame.Python
             get { return AttributeMap.Empty; }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
-            get { return "PortableRT"; }
+            get { return new SimpleName("PortableRT"); }
         }
     }
 }

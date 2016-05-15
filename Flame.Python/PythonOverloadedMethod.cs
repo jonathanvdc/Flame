@@ -53,7 +53,7 @@ namespace Flame.Python
             get { return Methods.All((item) => item.IsStatic); }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
             get { return Methods.First().FullName; }
         }
@@ -64,7 +64,7 @@ namespace Flame.Python
             get { return attrMap.Value; }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             get { return Methods.First().Name; }
         }
@@ -137,7 +137,7 @@ namespace Flame.Python
             else
             {
                 parameters = new PythonParameter[fattestParams.Length + 1];
-                parameters[0] = new PythonParameter("self", DeclaringType);
+                parameters[0] = new PythonParameter(new SimpleName("self"), DeclaringType);
                 offset = 1;
             }
             for (int i = 0; i < smallestParams.Length; i++)
@@ -193,7 +193,7 @@ namespace Flame.Python
                 cb.AddCodeBuilder(item.GetCode());
             }
             cb.Append("def ");
-            cb.Append(Name);
+            cb.Append(Name.ToString());
             cb.Append("(");
             bool first = true;
             var codeGenerator = new PythonCodeGenerator(this);
@@ -207,7 +207,7 @@ namespace Flame.Python
                 {
                     cb.Append(", ");
                 }
-                cb.Append(item.Name);
+                cb.Append(item.Name.ToString());
                 if (item.DefaultValue != null)
                 {
                     cb.Append(" = ");
@@ -232,11 +232,13 @@ namespace Flame.Python
             {
                 var itemParams = item.GetParameters();
                 var firstExtraParam = pythonParams[itemParams.Length + 1];
-                var condition = codeGenerator.EmitEquals(new PythonIdentifierBlock(codeGenerator, firstExtraParam.Name, firstExtraParam.ParameterType), firstExtraParam.DefaultValue.Emit(codeGenerator));
+                var condition = codeGenerator.EmitEquals(
+                    new PythonIdentifierBlock(codeGenerator, firstExtraParam.Name.ToString(), firstExtraParam.ParameterType), 
+                    firstExtraParam.DefaultValue.Emit(codeGenerator));
                 for (int i = itemParams.Length + 2; i < pythonParams.Length; i++)
                 {
                     var param = pythonParams[i];
-                    var parameterIdentBlock = new PythonIdentifierBlock(codeGenerator, param.Name, param.ParameterType);
+                    var parameterIdentBlock = new PythonIdentifierBlock(codeGenerator, param.Name.ToString(), param.ParameterType);
                     var ceq = codeGenerator.EmitEquals(parameterIdentBlock, param.DefaultValue.Emit(codeGenerator));
                     condition = codeGenerator.EmitLogicalAnd(condition, ceq);
                 }

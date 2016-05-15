@@ -61,9 +61,9 @@ namespace Flame.Python
             get { return new IProperty[0]; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return Name; }
+            get { return new QualifiedName(Name); }
         }
 
         public virtual AttributeMap Attributes
@@ -80,7 +80,7 @@ namespace Flame.Python
 
         public override string ToString()
         {
-            return Name;
+            return Name.ToString();
         }
 
         public IAncestryRules AncestryRules

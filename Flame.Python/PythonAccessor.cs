@@ -19,7 +19,7 @@ namespace Flame.Python
         public IProperty DeclaringProperty { get; private set; }
         public AccessorType AccessorType { get; private set; }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
             get
             {
