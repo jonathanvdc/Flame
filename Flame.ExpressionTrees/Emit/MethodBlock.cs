@@ -77,7 +77,10 @@ namespace Flame.ExpressionTrees.Emit
                 }
                 else
                 {
-                    var targetMethod = exprType.GetMethod(Member.Name, Member.GetParameters().Select(item => ExpressionTypeConverter.Instance.Convert(item.ParameterType)).ToArray());
+                    var targetMethod = exprType.GetMethod(
+                        Member.Name.ToString(), 
+                        Member.GetParameters().Select(
+                            item => ExpressionTypeConverter.Instance.Convert(item.ParameterType)).ToArray());
                     var targetParamTypes = targetMethod.GetParameters().Select(item => item.ParameterType);
 
                     var delegateTarget = Expression.Convert(Target.CreateExpression(Flow), typeof(object));

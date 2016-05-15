@@ -63,7 +63,9 @@ namespace Flame.ExpressionTrees
         public override void AddParameter(IParameter Parameter)
         {
             base.AddParameter(Parameter);
-            parameters.Add(Expression.Parameter(ExpressionTypeConverter.Instance.Convert(Parameter.ParameterType), Parameter.Name));
+            parameters.Add(Expression.Parameter(
+                ExpressionTypeConverter.Instance.Convert(Parameter.ParameterType), 
+                Parameter.Name.ToString()));
         }
 
         public ICodeGenerator GetBodyGenerator()
