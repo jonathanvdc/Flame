@@ -91,7 +91,10 @@ namespace Flame
 		/// </summary>
 		public QualifiedName Qualify(string PreQualifier)
 		{
-			return new QualifiedName(PreQualifier, this);
+			if (string.IsNullOrEmpty(PreQualifier))
+				return this;
+			else
+				return new QualifiedName(PreQualifier, this);
 		}
 
 		/// <summary>
@@ -102,7 +105,15 @@ namespace Flame
 		/// </summary>
 		public QualifiedName Qualify(UnqualifiedName PreQualifier)
 		{
-			return new QualifiedName(PreQualifier, this);
+			if (PreQualifier is SimpleName
+				&& string.IsNullOrEmpty(((SimpleName)PreQualifier).Name))
+			{
+				return this;
+			}
+			else
+			{
+				return new QualifiedName(PreQualifier, this);
+			}
 		}
 
 		/// <summary>
