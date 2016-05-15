@@ -238,7 +238,7 @@ namespace Flame.Cecil.Emit
 
         private static IMethod GetEqualsOverload(IType LeftType, IType RightType)
         {
-            var eqMethods = LeftType.GetAllMethods().Where((item) => item.Name == "Equals");
+            var eqMethods = LeftType.GetAllMethods().Where((item) => item.Name.ToString() == "Equals");
             var staticEq = eqMethods.GetBestMethod(true, null, new IType[] { LeftType, RightType });
             if (staticEq != null)
             {

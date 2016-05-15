@@ -73,7 +73,7 @@ namespace Flame.Cecil
             {
                 var cecilAttribute = new CecilAttribute(item, ImportingModule);
                 IAttribute attribute;
-                switch (cecilAttribute.AttributeType.FullName)
+                switch (cecilAttribute.AttributeType.FullName.ToString())
                 {
                     case "System.Runtime.CompilerServices.ExtensionAttribute":
                         attribute = PrimitiveAttributes.Instance.ExtensionAttribute;

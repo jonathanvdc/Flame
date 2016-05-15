@@ -59,22 +59,22 @@ namespace Flame.Cecil
             return new AttributeMap(results);
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
-            get { return Parameter.Name; }
+            get { return new SimpleName(Parameter.Name); }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
             get
             {
                 if (DeclaringMember is IMember)
                 {
-                    return MemberExtensions.CombineNames(((IMember)DeclaringMember).FullName, Parameter.Name);
+                    return Name.Qualify(((IMember)DeclaringMember).FullName);
                 }
                 else
                 {
-                    return Parameter.Name;
+                    return new QualifiedName(Name);
                 }
             }
         }
@@ -100,7 +100,7 @@ namespace Flame.Cecil
         {
             var module = Member.Module;
             var context = Member.GetMemberReference() as IGenericParameterProvider;
-            paramDef = new ParameterDefinition(Template.Name, ParameterAttributes.None, Template.ParameterType.GetImportedReference(module, context));
+            paramDef = new ParameterDefinition(Template.Name.ToString(), ParameterAttributes.None, Template.ParameterType.GetImportedReference(module, context));
             var cecilParam = new CecilParameter(Member, paramDef);
             var attrs = Template.Attributes;
             if (attrs.Any((item) => item.AttributeType.Equals(PrimitiveAttributes.Instance.OutAttribute.AttributeType)))

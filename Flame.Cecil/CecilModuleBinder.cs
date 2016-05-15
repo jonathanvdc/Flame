@@ -12,7 +12,7 @@ namespace Flame.Cecil
         public CecilModuleBinder(CecilModule Module)
         {
             this.Module = Module;
-            this.types = new Dictionary<string, IType>();
+            this.types = new Dictionary<QualifiedName, IType>();
             foreach (var item in Module.Types)
             {
                 AddType(item);
@@ -20,7 +20,7 @@ namespace Flame.Cecil
         }
 
         public CecilModule Module { get; private set; }
-        private Dictionary<string, IType> types;
+        private Dictionary<QualifiedName, IType> types;
 
         public override IEnumerable<IType> GetTypes()
         {
@@ -32,12 +32,10 @@ namespace Flame.Cecil
             this.types[Type.FullName] = Type;
         }
 
-        public override IType BindTypeCore(string Name)
+        public override IType BindTypeCore(QualifiedName Name)
         {
-            if (string.IsNullOrWhiteSpace(Name))
-            {
+            if (Name == null || string.IsNullOrWhiteSpace(Name.ToString()))
                 return null;
-            }
 
             IType result;
             if (types.TryGetValue(Name, out result))

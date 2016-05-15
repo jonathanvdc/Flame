@@ -173,7 +173,7 @@ namespace Flame.Cecil
             }
         }
 
-        protected virtual string GetName()
+        protected virtual UnqualifiedName GetName()
         {
             var tRef = GetTypeReference();
             if (tRef.HasGenericParameters)
@@ -189,16 +189,16 @@ namespace Flame.Cecil
             }
             else
             {
-                return tRef.Name;
+                return new SimpleName(tRef.Name);
             }
         }
-        protected virtual string GetFullName()
+        protected virtual QualifiedName GetFullName()
         {
-            return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
+            return Name.Qualify(DeclaringNamespace.FullName);
         }
 
-        private string nameCache;
-        public sealed override string Name
+        private UnqualifiedName nameCache;
+        public sealed override UnqualifiedName Name
         {
             get
             {
@@ -210,8 +210,8 @@ namespace Flame.Cecil
             }
         }
 
-        private string fullNameCache;
-        public sealed override string FullName
+        private QualifiedName fullNameCache;
+        public sealed override QualifiedName FullName
         {
             get
             {

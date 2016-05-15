@@ -39,7 +39,7 @@ namespace Flame.Cecil
 
         public override string ToString()
         {
-            return FullName;
+            return FullName.ToString();
         }
         public override bool Equals(object obj)
         {

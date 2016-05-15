@@ -11,10 +11,11 @@ namespace Flame.Cecil
 {
     public class CecilNamespace : INamespaceBuilder, ICecilNamespace, IEquatable<ICecilNamespace>
     {
-        public CecilNamespace(CecilModule Module, string Name)
+        public CecilNamespace(CecilModule Module, UnqualifiedName Name, QualifiedName FullName)
         {
             this.Module = Module;
             this.Name = Name;
+            this.FullName = FullName;
             this.attrMap = new AttributeMap(new IAttribute[] 
             { 
                 new AncestryGraphAttribute(AncestryGraph) 
@@ -27,17 +28,15 @@ namespace Flame.Cecil
 
         public AncestryGraph AncestryGraph { get { return Assembly.AncestryGraph; } }
 
-        public string Name { get; private set; }
-        public string FullName
-        {
-            get { return Name; }
-        }
+        public UnqualifiedName Name { get; private set; }
+        public QualifiedName FullName { get; private set; }
 
         public IEnumerable<IType> Types
         {
             get
             {
-                return Assembly.Assembly.MainModule.Types.Where(item => item.Namespace == Name)
+                var fullNameStr = FullName.ToString();
+                return Assembly.Assembly.MainModule.Types.Where(item => item.Namespace == fullNameStr)
                                                          .Select(Module.Convert);
             }
         }
@@ -61,7 +60,12 @@ namespace Flame.Cecil
 
         public INamespaceBuilder DeclareNamespace(string Name)
         {
-            return new CecilNamespace(Module, MemberExtensions.CombineNames(FullName, Name));
+            var simpleName = new SimpleName(Name);
+            return new CecilNamespace(
+                Module, simpleName, 
+                string.IsNullOrWhiteSpace(FullName.ToString())
+                    ? new QualifiedName(simpleName)
+                    : simpleName.Qualify(FullName));
         }
 
         public ITypeBuilder DeclareType(ITypeSignatureTemplate Template)
@@ -85,7 +89,7 @@ namespace Flame.Cecil
 
         public override string ToString()
         {
-            return FullName;
+            return FullName.ToString();
         }
 
         public override bool Equals(object obj)
@@ -102,7 +106,7 @@ namespace Flame.Cecil
 
         public bool Equals(ICecilNamespace other)
         {
-            return FullName == other.FullName;
+            return FullName.Equals(other.FullName);
         }
 
         public override int GetHashCode()

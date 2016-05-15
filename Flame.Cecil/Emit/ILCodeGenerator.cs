@@ -691,11 +691,11 @@ namespace Flame.Cecil.Emit
         {
             if (Method.DeclaringType.GetIsPrimitive())
             {
-                if (Method.Name == "Parse" && Method.IsStatic)
+                if (Method.Name.ToString() == "Parse" && Method.IsStatic)
                 {
                     return Method.GetParameters().Length == 1;
                 }
-                else if (Method.Name == "ToString" && !Method.IsStatic)
+                else if (Method.Name.ToString() == "ToString" && !Method.IsStatic)
                 {
                     return Method.GetParameters().Length == 0;
                 }
@@ -715,7 +715,7 @@ namespace Flame.Cecil.Emit
             else
             {
                 var cultureInfoType = CecilType.ImportCecil(typeof(System.Globalization.CultureInfo), Module);
-                var invariantCultureProperty = cultureInfoType.Properties.GetProperty("InvariantCulture", true);
+                var invariantCultureProperty = cultureInfoType.Properties.GetProperty(new SimpleName("InvariantCulture"), true);
                 // Pushes System.Globalization.CultureInfo.InvariantCulture on the stack
                 EmitCall(Context, invariantCultureProperty.GetGetAccessor(), null, false);
                 // Makes the invariant call

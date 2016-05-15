@@ -100,9 +100,9 @@ namespace Flame.Cecil
             return Convert(Module.EntryPoint);
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return Module.Name; }
+            get { return new QualifiedName(Name); }
         }
 
         public AttributeMap Attributes
@@ -110,9 +110,9 @@ namespace Flame.Cecil
             get { return attrMap.Value; }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
-            get { return Module.Name; }
+            get { return new SimpleName(Module.Name); }
         }
 
         #endregion

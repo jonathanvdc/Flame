@@ -17,7 +17,7 @@ namespace Flame.Cecil.Emit
             : this(CodeGenerator, Type, null)
         {
         }
-        public LocalVariable(ILCodeGenerator CodeGenerator, IType Type, string Name)
+        public LocalVariable(ILCodeGenerator CodeGenerator, IType Type, UnqualifiedName Name)
             : base(CodeGenerator)
         {
             this.Member = new DescribedVariableMember(Name, Type);
@@ -29,7 +29,7 @@ namespace Flame.Cecil.Emit
         }
 
         public IVariableMember Member { get; private set; }
-        public string Name { get { return Member.Name; } }
+        public UnqualifiedName Name { get { return Member.Name; } }
         public override IType Type { get { return Member.VariableType; } }
 
         private IEmitLocal emitLocal;
@@ -38,9 +38,9 @@ namespace Flame.Cecil.Emit
             if (emitLocal == null)
             {
                 emitLocal = Context.DeclareLocal(Type);
-                if (!string.IsNullOrWhiteSpace(Name))
+                if (!string.IsNullOrWhiteSpace(Name.ToString()))
                 {
-                    emitLocal.Name = Name;
+                    emitLocal.Name = Name.ToString();
                 }
             }
             return emitLocal;
