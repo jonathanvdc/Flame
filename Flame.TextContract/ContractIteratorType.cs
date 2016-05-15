@@ -27,9 +27,9 @@ namespace Flame.TextContract
 
         public static ContractIteratorType Instance { get; private set; }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
-            get { return "iterator<>"; }
+            get { return new SimpleName("iterator", 1); }
         }
 
         private IGenericParameter typeParam;

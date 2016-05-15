@@ -40,9 +40,9 @@ namespace Flame.TextContract
             // Do nothing. This back-end does not need `Initialize` to get things done.
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            get { return Name.Qualify(DeclaringType.FullName); }
         }
 
         public AttributeMap Attributes
@@ -50,7 +50,7 @@ namespace Flame.TextContract
             get { return Template.Attributes.Value; }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             get 
             {
@@ -88,7 +88,7 @@ namespace Flame.TextContract
             else
             {
                 cb.Append("property ");
-                cb.Append(Name);
+                cb.Append(Name.ToString());
             }
             cb.AddLine("{");
             cb.IncreaseIndentation();
