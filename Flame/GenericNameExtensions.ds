@@ -14,7 +14,7 @@ namespace Flame
         /// <returns></returns>
         public const static string GetGenericFreeName(this IGenericMember Member)
         {
-            string genericName = Member.Name;
+            string genericName = Member.Name.ToString();
             return RemoveGenerics(genericName);
         }
         /// <summary>
@@ -24,7 +24,7 @@ namespace Flame
         /// <returns></returns>
         public const static string GetGenericFreeFullName(this IGenericMember Member)
         {
-            string genericName = Member.FullName;
+            string genericName = Member.FullName.ToString();
             return RemoveGenerics(genericName);
         }
 
@@ -32,7 +32,7 @@ namespace Flame
 		{
 			return RemoveGenerics(Name);
 		}
-		
+
 		public static const string ChangeTypeArguments(string Name, [string] TypeArgumentNames)
 		{
 			return AppendTypeArguments(TrimGenerics(Name), TypeArgumentNames);
@@ -68,7 +68,7 @@ namespace Flame
                 return genericName;
             }
         }
-        
+
         public static const string AppendTypeArguments(string Name, [string] TypeArgumentNames)
 		{
 			if (!Enumerable.Any<string>(TypeArgumentNames))
@@ -86,7 +86,7 @@ namespace Flame
 			sb.Append('>');
 			return sb.ToString();
 		}
-		
+
 		public static const string AppendArraySuffix(string Name, int Rank)
 		{
 			if (Rank > 0)
@@ -97,7 +97,7 @@ namespace Flame
 				{
 					sb.Append(',');
 				}
-				sb.Append(']'); 
+				sb.Append(']');
 				return sb.ToString();
 			}
 			else
@@ -105,7 +105,7 @@ namespace Flame
 				return Name;
 			}
 		}
-		
+
 		public static const string AppendVectorSuffix(string Name, [int] Dimensions)
 		{
 			if (Enumerable.Any<int>(Dimensions))
