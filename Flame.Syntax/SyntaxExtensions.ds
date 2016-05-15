@@ -136,7 +136,12 @@ namespace Flame.Syntax
 			return variable;
         }
 
-        public static const [ITypeMember] GetMembers(this IMemberProvider MemberProvider, IType Type, string Name)
+		public static const [ITypeMember] GetMembers(this IMemberProvider MemberProvider, IType Type, string Name)
+		{
+			return MemberProvider.GetMembers(Type, new SimpleName(Name));
+		}
+
+        public static const [ITypeMember] GetMembers(this IMemberProvider MemberProvider, IType Type, UnqualifiedName Name)
         {
         	var candidates = MemberProvider.GetMembers(Type);
         	List<ITypeMember> members = new List<ITypeMember>();
