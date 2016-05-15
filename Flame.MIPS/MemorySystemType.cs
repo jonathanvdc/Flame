@@ -25,9 +25,9 @@ namespace Flame.MIPS
             }
         }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
-            get { return "Memory"; }
+            get { return new SimpleName("Memory"); }
         }
 
         /*private static IMethod sbrkMethod;

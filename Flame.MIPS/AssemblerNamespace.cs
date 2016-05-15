@@ -11,10 +11,11 @@ namespace Flame.MIPS
 {
     public class AssemblerNamespace : INamespaceBuilder, INamespaceBranch
     {
-        public AssemblerNamespace(IAssembly DeclaringAssembly, string Name, IAssemblerState GlobalState)
+        public AssemblerNamespace(IAssembly DeclaringAssembly, UnqualifiedName Name, QualifiedName FullName, IAssemblerState GlobalState)
         {
             this.DeclaringAssembly = DeclaringAssembly;
             this.Name = Name;
+            this.FullName = FullName;
             this.GlobalState = GlobalState;
 
             this.ns = new List<AssemblerNamespace>();
@@ -23,14 +24,21 @@ namespace Flame.MIPS
 
         public IAssembly DeclaringAssembly { get; private set; }
         public IAssemblerState GlobalState { get; private set; }
-        public string Name { get; private set; }
+        public UnqualifiedName Name { get; private set; }
+        public QualifiedName FullName { get; private set; }
 
         private List<AssemblerNamespace> ns;
         private List<AssemblerType> types;
 
         public INamespaceBuilder DeclareNamespace(string Name)
         {
-            var asmNs = new AssemblerNamespace(DeclaringAssembly, MemberExtensions.CombineNames(this.FullName, Name), GlobalState);
+            var simpleName = new SimpleName(Name);
+            var asmNs = new AssemblerNamespace(
+                DeclaringAssembly, simpleName, 
+                string.IsNullOrWhiteSpace(this.FullName.ToString()) 
+                    ? new QualifiedName(simpleName)
+                    : simpleName.Qualify(this.FullName), 
+                GlobalState);
             ns.Add(asmNs);
             return asmNs;
         }
@@ -50,11 +58,6 @@ namespace Flame.MIPS
         public void Initialize()
         {
             // Do nothing. This back-end does not need `Initialize` to get things done.
-        }
-
-        public string FullName
-        {
-            get { return Name; }
         }
 
         public AttributeMap Attributes

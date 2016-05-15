@@ -40,9 +40,9 @@ namespace Flame.MIPS
             get { return MarsPlatformRT.Instance; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return Name; }
+            get { return new QualifiedName(Name); }
         }
 
         public AttributeMap Attributes
@@ -50,9 +50,9 @@ namespace Flame.MIPS
             get { return AttributeMap.Empty; }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
-            get { return "System"; }
+            get { return new SimpleName("System"); }
         }
 
         public IEnumerable<INamespaceBranch> Namespaces
