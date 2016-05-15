@@ -190,7 +190,8 @@ namespace Flame.Cecil
                 attrs.Add(PrimitiveAttributes.Instance.VirtualAttribute);
             }
             var defaultMemberAttr = DeclaringType.GetAttribute(CecilTypeBase.Import(typeof(System.Reflection.DefaultMemberAttribute), this));
-            if (defaultMemberAttr != null && ((System.Reflection.DefaultMemberAttribute)defaultMemberAttr.Value.GetPrimitiveValue<object>()).MemberName == GetPropertyReference().Name)
+            if (defaultMemberAttr != null 
+                && ((System.Reflection.DefaultMemberAttribute)defaultMemberAttr.Value.GetPrimitiveValue<object>()).MemberName == GetPropertyReference().Name)
             {
                 attrs.Add(PrimitiveAttributes.Instance.IndexerAttribute);
             }

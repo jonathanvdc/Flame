@@ -408,7 +408,7 @@ namespace Flame.Cpp
             {
                 return false;
             }
-            if (First.Name == Other.Name && Other.IsStatic == First.IsStatic && (First.DeclaringType == null || First.DeclaringType.Equals(Other.DeclaringType)))
+            if (First.Name.Equals(Other.Name) && Other.IsStatic == First.IsStatic && (First.DeclaringType == null || First.DeclaringType.Equals(Other.DeclaringType)))
             {
                 var tComparer = ScopedTypeEqualityComparer.Instance;
 
