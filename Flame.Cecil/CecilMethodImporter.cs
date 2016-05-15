@@ -82,7 +82,9 @@ namespace Flame.Cecil
                 var cecilProperties = type.Properties;
                 var cecilProp = cecilProperties.Single((item) =>
                 {
-                    if (item.IsStatic == declProp.IsStatic && ((item.GetIsIndexer() && declProp.GetIsIndexer()) || item.Name == declProp.Name) && item.PropertyType.Equals(propType))
+                    if (item.IsStatic == declProp.IsStatic 
+                        && ((item.GetIsIndexer() && declProp.GetIsIndexer()) || item.Name.Equals(declProp.Name)) 
+                        && item.PropertyType.Equals(propType))
                     {
                         return indexerTypes.AreEqual(item.IndexerParameters.GetTypes());
                     }
