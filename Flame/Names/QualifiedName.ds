@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Flame
 {
@@ -62,6 +63,23 @@ namespace Flame
 					return Qualifier.ToString();
 				else
 					return Qualifier.ToString() + "." + Name.FullName;
+			}
+		}
+
+		/// <summary>
+		/// Describes this qualified name as a "path": a sequence of unqualified
+		/// names that spell this qualified name.
+		/// </summary>
+		public [UnqualifiedName] Path
+		{
+			get
+			{
+				var results = new List<UnqualifiedName>();
+				for (var name = this; name != null; name = name.Name)
+				{
+					results.Add(name.Qualifier);
+				}
+				return results;
 			}
 		}
 
