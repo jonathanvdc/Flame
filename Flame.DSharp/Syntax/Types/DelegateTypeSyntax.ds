@@ -58,7 +58,7 @@ namespace Flame.Syntax.DSharp
             {
                 var paramMember = item.CreateMember(State);
 
-                if (string.IsNullOrEmpty(paramMember.Name))
+                if (string.IsNullOrEmpty(paramMember.Name.ToString()))
                 {
                     var descParam = new DescribedParameter("__param" + descMethod.GetParameters().Length,
                                                            paramMember.ParameterType);

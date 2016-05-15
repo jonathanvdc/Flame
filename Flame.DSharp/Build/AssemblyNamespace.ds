@@ -42,8 +42,8 @@ namespace Flame.DSharp.Build
 				this.extTypeProvider.ClearCache();
 		}
 
-		public override UnqualifiedName Name { const get return ""; }
-		public override QualifiedName FullName { const get return Name; }
+		public override UnqualifiedName Name { const get return new SimpleName(""); }
+		public override QualifiedName FullName { const get return new QualifiedName(Name); }
 
 		public const CodeBuilder GetCode()
 		{

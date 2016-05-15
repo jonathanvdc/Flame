@@ -74,12 +74,16 @@ namespace Flame.DSharp.Build
 
 	public class SyntaxNamespace : SyntaxNamespaceBase, ISyntaxNode
 	{
-		public const this(set string name, set INamespaceBranchBuilder DeclaringNamespace);
+		public const this(string name, set INamespaceBranchBuilder DeclaringNamespace)
+		{
+			this.name = new SimpleName(name);
+		}
+		public const this(set SimpleName name, set INamespaceBranchBuilder DeclaringNamespace);
 
-		private string name;
+		private SimpleName name;
 		public INamespaceBranchBuilder DeclaringNamespace { const get; private set; }
 
-		public override QualifiedName FullName { const get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
+		public override QualifiedName FullName { const get return Name.Qualify(DeclaringNamespace.FullName); }
 		public override UnqualifiedName Name { const get return name; }
 		public override IAssembly DeclaringAssembly { const get return DeclaringNamespace.DeclaringAssembly; }
 		public override IExtensionTypeProvider ExtensionTypeProvider { const get return DeclaringNamespace.ExtensionTypeProvider; }
@@ -88,7 +92,7 @@ namespace Flame.DSharp.Build
 		public const CodeBuilder GetCode()
 		{
 			var cb = new CodeBuilder();
-			cb.AddLine("namespace " + Name);
+			cb.AddLine("namespace " + name.Name);
 			cb.AddLine("{");
 			cb.IncreaseIndentation();
 			foreach (var item in Namespaces)
@@ -104,7 +108,7 @@ namespace Flame.DSharp.Build
 
 		public override const string ToString()
 		{
-			return "namespace " + Name;
+			return "namespace " + name.Name;
 		}
 	}
 }

@@ -39,8 +39,8 @@ namespace Flame.DSharp.Build
 				InstanceState.TypeNamer);
         }
 
-		public string Name { const get return "Static_Singleton"; }
-		public string FullName { const get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
+		public UnqualifiedName Name { const get return new SimpleName("Static_Singleton"); }
+		public QualifiedName FullName { const get return Name.Qualify(DeclaringNamespace.FullName); }
 		public INamespace DeclaringNamespace { const get return (INamespace)InstanceType; }
 
 		private Lazy<AttributeMap> attrCache;
@@ -242,7 +242,7 @@ namespace Flame.DSharp.Build
 
 		public override const string operator cast()
 		{
-			return FullName;
+			return FullName.ToString();
 		}
 	}
 }

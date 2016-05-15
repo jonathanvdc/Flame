@@ -19,6 +19,14 @@ namespace Flame
         {
         	PredefinedTypes[Name] = Value;
         }
+        public void MapType(UnqualifiedName Name, IType Value)
+        {
+            MapType(new QualifiedName(Name), Value);
+        }
+        public void MapType(string Name, IType Value)
+        {
+            MapType(new SimpleName(Name), Value);
+        }
 
         public IEnvironment Environment
         {
