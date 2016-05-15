@@ -70,7 +70,7 @@ namespace Flame.TextContract
             get { return AttributeMap.Empty; }
         }
 
-        public abstract string Name { get; }
+        public abstract UnqualifiedName Name { get; }
 
         public virtual IEnumerable<IGenericParameter> GenericParameters
         {

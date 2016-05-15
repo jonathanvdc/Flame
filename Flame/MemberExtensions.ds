@@ -366,7 +366,8 @@ namespace Flame
 
 		public static bool IsAnonymous[this ITypeMember Member]
 		{
-			const get return string.IsNullOrEmpty(Member.Name) && Member.DeclaringType == null;
+			const get return string.IsNullOrEmpty(Member.Name.ToString())
+				&& Member.DeclaringType == null;
 		}
 
 		#endregion

@@ -12,17 +12,17 @@ namespace Flame.Binding
 	{
 		public const this(set IBinder Binder)
 		{
-			this.cache = new Dictionary<string, IType>();
+			this.cache = new Dictionary<QualifiedName, IType>();
 		}
-	
+
 		public IBinder Binder { const get; private set; }
-		
-		private Dictionary<string, IType> cache;
-		public const IType BindType(string Name)
+
+		private Dictionary<QualifiedName, IType> cache;
+		public IType BindType(QualifiedName Name)
 		{
-			if (cache.ContainsKey(Name))
+			if (cache.TryGetValue(Name, &IType result))
 			{
-				return cache[Name];
+				return result;
 			}
 			else
 			{
@@ -31,20 +31,18 @@ namespace Flame.Binding
 				return result;
 			}
 		}
-		
+
 		private IType[] allTypes;
-		public const IEnumerable<IType> GetTypes()
+		public [IType] GetTypes()
 		{
 			if (allTypes == null)
-			{
 				allTypes = Enumerable.ToArray<IType>(Binder.GetTypes());
-			}
-			return (IEnumerable<IType>)allTypes;
+			return allTypes;
 		}
-		
+
 		/// <summary>
 		/// Gets the environment for this binder.
 		/// </summary>
-		public IEnvironment Environment { const get return Binder.Environment; }
+		public IEnvironment Environment { get return Binder.Environment; }
 	}
 }

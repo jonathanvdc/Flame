@@ -33,12 +33,12 @@ namespace Flame
             const get { return Declaration.IsStatic; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Declaration.Name); }
+            const get { return Declaration.Name.Qualify(DeclaringType.FullName); }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             const get { return Declaration.Name; }
         }
@@ -76,7 +76,7 @@ namespace Flame
 
 		public override string ToString()
 		{
-			return FullName;
+			return FullName.ToString();
 		}
 
         #region Equality

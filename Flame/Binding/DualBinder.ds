@@ -5,24 +5,25 @@ using System.Linq;
 
 namespace Flame.Binding
 {
-	public class DualBinder : BinderBase
+	public class DualBinder : IBinder
 	{
 		public const this(set IBinder MainBinder, set IBinder ExtraBinder);
-	
+
 		/// <summary>
 		/// Gets the environment for this binder.
 		/// </summary>
-        public override IEnvironment Environment : BinderBase.Environment { const get return MainBinder.Environment; }
-        
+        public override IEnvironment Environment : IBinder.Environment { const get return MainBinder.Environment; }
+
         public IBinder MainBinder { const get; private set; }
         public IBinder ExtraBinder { const get; private set; }
-        
-        public override const IEnumerable<IType> GetTypes() : BinderBase.GetTypes
+
+        public override [IType] GetTypes() : IBinder.GetTypes
         {
-        	return Enumerable.Concat<IType>(MainBinder.GetTypes(), ExtraBinder.GetTypes());
+        	return Enumerable.Concat<IType>(
+				MainBinder.GetTypes(), ExtraBinder.GetTypes());
         }
 
-        public override IType BindTypeCore(string Name)
+        public override IType BindType(QualifiedName Name)
         {
         	var boundType = MainBinder.BindType(Name);
         	if (boundType == null)

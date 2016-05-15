@@ -14,7 +14,7 @@ namespace Flame.MIPS
             get { return SystemNamespace.Instance; }
         }
 
-        public abstract string Name { get; }
+        public abstract UnqualifiedName Name { get; }
         public abstract IMethod[] GetMethods();
 
         public IEnumerable<IType> BaseTypes

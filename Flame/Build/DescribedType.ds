@@ -10,7 +10,7 @@ namespace Flame.Build
 	/// </summary>
 	public class DescribedType : DescribedMember, IType, INamespace
 	{
-		public const this(string Name, set INamespace DeclaringNamespace)
+		public const this(UnqualifiedName Name, set INamespace DeclaringNamespace)
 			: base(Name)
 		{
 			this.baseTypes = new List<IType>();
@@ -142,14 +142,14 @@ namespace Flame.Build
 			const get { return DefinitionAncestryRules; }
 		}
 
-        public string FullName
+        public QualifiedName FullName
         {
             get
             {
 				if (DeclaringNamespace == null)
-					return Name;
+					return new QualifiedName(Name);
                 else
-					return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
+					return Name.Qualify(DeclaringNamespace.FullName);
             }
         }
 
@@ -165,7 +165,7 @@ namespace Flame.Build
 
         public override string ToString()
         {
-            return FullName;
+            return FullName.ToString();
         }
 	}
 }

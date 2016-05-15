@@ -52,21 +52,21 @@ namespace Flame.Build
 
         public abstract IAncestryRules AncestryRules { get; }
 
-        protected abstract string GetName(string ElementName);
+        protected abstract UnqualifiedName GetName(QualifiedName ElementName);
 
-        public string Name
+        public UnqualifiedName Name
         {
-            get { return GetName(ElementType.Name); }
+            get { return GetName(new QualifiedName(ElementType.Name)); }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return GetName(ElementType.FullName); }
+            get { return new QualifiedName(GetName(ElementType.FullName)); }
         }
 
         public override string ToString()
         {
-            return FullName;
+            return FullName.ToString();
         }
 
         public IBoundObject GetDefaultValue()

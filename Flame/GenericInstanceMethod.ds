@@ -35,7 +35,12 @@ namespace Flame
 		public override IGenericResolver Resolver { const get { return resolver; } }
 		public override IType DeclaringType { const get { return declaringType; } }
 
-		public override string Name
+        public QualifiedName FullName
+        {
+            const get { return Declaration.Name.Qualify(DeclaringType.FullName); }
+        }
+
+        public UnqualifiedName Name
         {
             const get { return Declaration.Name; }
         }

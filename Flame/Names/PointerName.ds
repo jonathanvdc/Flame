@@ -13,12 +13,12 @@ namespace Flame
         /// <summary>
         /// Creates a new pointer name from the given unqualified name and pointer type.
         /// </summary>
-        public const this(set QualifiedName Name, set PointerKind Kind);
+        public const this(set QualifiedName ElementName, set PointerKind Kind);
 
         /// <summary>
         /// Gets the unqualified name that is turned into a pointer.
         /// </summary>
-        public QualifiedName Name { get; private set; }
+        public QualifiedName ElementName { get; private set; }
 
         /// <summary>
         /// Gets this pointer name's pointer kind.
@@ -27,12 +27,12 @@ namespace Flame
 
         public override string ToString()
         {
-            return Name.ToString() + Kind.ToString();
+            return ElementName.ToString() + Kind.ToString();
         }
 
         public override bool Equals(PointerName Other)
         {
-            return Name == Other.Name
+            return ElementName == Other.ElementName
                 && Kind == Other.Kind;
         }
         public override bool Equals(UnqualifiedName Other)
@@ -41,7 +41,7 @@ namespace Flame
         }
         public override int GetHashCode()
         {
-            return Name.GetHashCode() ^ (Kind.GetHashCode() << 8);
+            return ElementName.GetHashCode() ^ (Kind.GetHashCode() << 8);
         }
     }
 }

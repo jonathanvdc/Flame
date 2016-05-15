@@ -17,9 +17,9 @@ namespace Flame.Wasm
 
         public WasmModuleData Data { get; private set; }
 
-		public abstract string Name { get; }
+		public abstract UnqualifiedName Name { get; }
 		public abstract IAssembly DeclaringAssembly { get; }
-		public abstract string FullName { get; }
+		public abstract QualifiedName FullName { get; }
 
 		public AttributeMap Attributes { get { return AttributeMap.Empty; } }
 
@@ -83,9 +83,9 @@ namespace Flame.Wasm
 		private string name;
 		public INamespace DeclaringNamespace { get; private set; }
 
-		public override string Name { get { return name; } }
+		public override UnqualifiedName Name { get { return name; } }
 		public override IAssembly DeclaringAssembly { get { return DeclaringNamespace.DeclaringAssembly; } }
-		public override string FullName { get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); } }
+		public override QualifiedName FullName { get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); } }
 	}
 
 	public class WasmModuleNamespace : WasmNamespaceBase
@@ -98,9 +98,9 @@ namespace Flame.Wasm
 
 		private IAssembly module;
 
-		public override string Name { get { return ""; } }
+		public override UnqualifiedName Name { get { return ""; } }
 		public override IAssembly DeclaringAssembly { get { return module; } }
-		public override string FullName { get { return Name; } }
+		public override QualifiedName FullName { get { return Name; } }
 	}
 }
 

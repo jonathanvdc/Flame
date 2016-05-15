@@ -5,24 +5,26 @@ namespace Flame.Build
 {
 	public virtual class DescribedTypeMember : DescribedMember, ITypeMember
 	{
-		public const this(string Name, set IType DeclaringType)
+		public const this(UnqualifiedName Name, set IType DeclaringType)
 			: base(Name);
 
 		public IType DeclaringType { const get; set; }
 		public bool IsStatic { const get; set; }
 
-		public override string FullName : DescribedMember.FullName
+		public override QualifiedName FullName : DescribedMember.FullName
 		{
 			const get
 			{
-				if (DeclaringType == null) return Name;
-				else return MemberExtensions.CombineNames(DeclaringType.FullName, Name);
+				if (DeclaringType == null)
+					return new QualifiedName(Name);
+				else
+					return Name.Qualify(DeclaringType.FullName);
 			}
 		}
 
 		public virtual override const string ToString()
 		{
-			return FullName;
+			return FullName.ToString();
 		}
 	}
 }

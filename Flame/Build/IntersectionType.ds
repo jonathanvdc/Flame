@@ -53,9 +53,13 @@ namespace Flame
         	}
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return First.FullName + "&" + Second.FullName; }
+            get
+            {
+                return new QualifiedName(
+                    new IntersectionName(First.FullName, Second.FullName));
+            }
         }
 
         public AttributeMap Attributes
@@ -63,9 +67,14 @@ namespace Flame
             const get { return AttributeMap.Empty; }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
-            get { return First.Name + "&" + Second.Name; }
+            get
+            {
+                return new IntersectionName(
+                    new QualifiedName(First.Name), 
+                    new QualifiedName(Second.Name));
+            }
         }
 
         public [IGenericParameter] GenericParameters

@@ -36,7 +36,12 @@ namespace Flame
 		public IType DeclaringType { const get { return declaringType; } }
 		public override INamespace DeclaringNamespace { const get { return (INamespace)declaringType; } }
 
-		public override string Name
+        public QualifiedName FullName
+        {
+            const get { return Declaration.Name.Qualify(DeclaringType.FullName); }
+        }
+
+        public UnqualifiedName Name
         {
             const get { return Declaration.Name; }
         }

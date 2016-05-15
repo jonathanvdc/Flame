@@ -5,7 +5,21 @@ namespace Flame.Build
 {
 	public virtual class DescribedMethod : DescribedTypeMember, IMethod
 	{
+		public const this(UnqualifiedName Name, IType DeclaringType)
+			: base(Name, DeclaringType)
+		{
+			this.parameters = new List<IParameter>();
+			this.baseMethods = new List<IMethod>();
+			this.genericParams = new List<IGenericParameter>();
+		}
 		public const this(string Name, IType DeclaringType)
+			: base(new SimpleName(Name), DeclaringType)
+		{
+			this.parameters = new List<IParameter>();
+			this.baseMethods = new List<IMethod>();
+			this.genericParams = new List<IGenericParameter>();
+		}
+		public const this(UnqualifiedName Name, IType DeclaringType, set IType ReturnType, set bool IsStatic)
 			: base(Name, DeclaringType)
 		{
 			this.parameters = new List<IParameter>();
@@ -13,7 +27,7 @@ namespace Flame.Build
 			this.genericParams = new List<IGenericParameter>();
 		}
 		public const this(string Name, IType DeclaringType, set IType ReturnType, set bool IsStatic)
-			: base(Name, DeclaringType)
+			: base(new SimpleName(Name), DeclaringType)
 		{
 			this.parameters = new List<IParameter>();
 			this.baseMethods = new List<IMethod>();

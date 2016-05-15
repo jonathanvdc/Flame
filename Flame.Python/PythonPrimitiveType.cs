@@ -71,7 +71,7 @@ namespace Flame.Python
             get { return AttributeMap.Empty; }
         }
 
-        public abstract string Name { get; }
+        public abstract UnqualifiedName Name { get; }
 
         public IEnumerable<IGenericParameter> GenericParameters
         {

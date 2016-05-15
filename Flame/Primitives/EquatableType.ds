@@ -6,7 +6,7 @@ namespace Flame.Primitives
 {
 	public static class EquatableType : MethodRootPrimitiveType
 	{
-		public override string Name { const get return "IEquatable"; }
+		public override UnqualifiedName Name { const get return new SimpleName("IEquatable"); }
 
 		protected override const IMethod[] CreateMethods()
 		{

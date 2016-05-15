@@ -77,6 +77,7 @@
         <ItemGroup>
             <Compile Include="Names/ArrayName.ds" />
             <Compile Include="Names/IntersectionName.ds" />
+            <Compile Include="Names/NameParser.ds" />
             <Compile Include="Names/PointerName.ds" />
             <Compile Include="Names/QualifiedName.ds" />
             <Compile Include="Names/UnqualifiedName.ds" />
@@ -127,8 +128,6 @@
 			<Compile Include="Binding/BinderBase.ds" />
             <Compile Include="Binding/EmptyBinder.ds" />
 			<Compile Include="Binding/INamespacedBinder.ds" />
-			<Compile Include="Binding/LocalNamespaceBinder.ds" />
-			<Compile Include="Binding/NamespaceState.ds" />
 			<Compile Include="Binding/PredefinedBinder.ds" />
 			<Compile Include="Binding/NamespaceTreeBinder.ds" />
 			<Compile Include="Binding/DualBinder.ds" />

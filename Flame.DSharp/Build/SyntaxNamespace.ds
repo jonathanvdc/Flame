@@ -18,8 +18,8 @@ namespace Flame.DSharp.Build
 			this.attrMap = new Lazy<AttributeMap>(CreateAttributes);
 		}
 
-		public abstract string FullName { get; }
-		public abstract string Name { get; }
+		public abstract QualifiedName FullName { get; }
+		public abstract UnqualifiedName Name { get; }
 		public abstract IAssembly DeclaringAssembly { get; }
 		public abstract IExtensionTypeProvider ExtensionTypeProvider { get; }
 		public abstract IConverter<IType, string> TypeNamer { get; }
@@ -79,8 +79,8 @@ namespace Flame.DSharp.Build
 		private string name;
 		public INamespaceBranchBuilder DeclaringNamespace { const get; private set; }
 
-		public override string FullName { const get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
-		public override string Name { const get return name; }
+		public override QualifiedName FullName { const get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
+		public override UnqualifiedName Name { const get return name; }
 		public override IAssembly DeclaringAssembly { const get return DeclaringNamespace.DeclaringAssembly; }
 		public override IExtensionTypeProvider ExtensionTypeProvider { const get return DeclaringNamespace.ExtensionTypeProvider; }
 		public override IConverter<IType, string> TypeNamer { const get return DeclaringNamespace.TypeNamer; }

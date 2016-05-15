@@ -17,7 +17,7 @@ namespace Flame.Binding
 
     public static class EmptyBinder : IBinder
     {
-		public const IType BindType(string Name) { return null; }
+		public const IType BindType(QualifiedName Name) { return null; }
 		public const [IType] GetTypes() { return Enumerable.Empty<IType>(); }
 
 		public IEnvironment Environment { const get return EmptyEnvironment; }
