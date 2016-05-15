@@ -13,7 +13,7 @@ namespace Flame.Cpp
     {
         public CppFile(ICppMember Member)
         {
-            this.Name = Member.Name;
+            this.Name = GenericNameExtensions.TrimGenerics(Member.Name.ToString());
             this.Members = Member.WithAssociatedMembers();
             this.HeaderDirectives = new PreprocessorDirective[] { PreprocessorDirective.PragmaOnce };
             this.SourceDirectives = new PreprocessorDirective[] { };
@@ -189,7 +189,7 @@ namespace Flame.Cpp
             {
                 foreach (var item in usings)
                 {
-                    cb.AddLine("using namespace " + item.Replace(".", "::") + ";");
+                    cb.AddLine("using namespace " + item.FullName.Replace(".", "::") + ";");
                 }
                 cb.AddEmptyLine();
             }
@@ -204,7 +204,7 @@ namespace Flame.Cpp
         {
             CodeBuilder cb = GetIncludeCode(true);
             cb.AddEmptyLine();
-            Dictionary<string, CodeBuilder> ns = new Dictionary<string, CodeBuilder>();
+            var ns = new Dictionary<QualifiedName, CodeBuilder>();
             foreach (var item in ForwardReferences)
             {
                 AddToNamespace(item.Namespace, item.GetCode(), ns);
@@ -268,12 +268,12 @@ namespace Flame.Cpp
 
         #region Helpers
 
-        private IEnumerable<string> GetNamespaces()
+        private IEnumerable<QualifiedName> GetNamespaces()
         {
-            return Members.Select(GetNamespace).Where((item) => !string.IsNullOrWhiteSpace(item)).Distinct();
+            return Members.Select(GetNamespace).Where((item) => !string.IsNullOrWhiteSpace(item.ToString())).Distinct();
         }
 
-        private static string GetNamespace(ICppMember Member)
+        private static QualifiedName GetNamespace(ICppMember Member)
         {
             if (Member is IType)
             {
@@ -281,11 +281,11 @@ namespace Flame.Cpp
             }
             else
             {
-                return "";
+                return new QualifiedName(new SimpleName(""));
             }
         }
 
-        private static void AddToNamespace(string Namespace, CodeBuilder Code, IDictionary<string, CodeBuilder> Namespaces)
+        private static void AddToNamespace(QualifiedName Namespace, CodeBuilder Code, IDictionary<QualifiedName, CodeBuilder> Namespaces)
         {
             if (!Namespaces.ContainsKey(Namespace))
             {
@@ -297,12 +297,12 @@ namespace Flame.Cpp
             }
         }
 
-        private static CodeBuilder WrapNamespaces(IDictionary<string, CodeBuilder> Namespaces)
+        private static CodeBuilder WrapNamespaces(IDictionary<QualifiedName, CodeBuilder> Namespaces)
         {
             CodeBuilder cb = new CodeBuilder();
             foreach (var item in Namespaces)
             {
-                string[] split = item.Key.Split(new string[] { "::", "." }, StringSplitOptions.RemoveEmptyEntries);
+                string[] split = item.Key.ToString().Split(new string[] { "::", "." }, StringSplitOptions.RemoveEmptyEntries);
                 cb.AddCodeBuilder(WrapNamespaces(item.Value, split));
             }
             return cb;

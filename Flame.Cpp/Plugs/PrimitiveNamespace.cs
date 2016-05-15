@@ -20,9 +20,9 @@ namespace Flame.Cpp.Plugs
             get { return null; }
         }
 
-        public virtual string FullName
+        public virtual QualifiedName FullName
         {
-            get { return Name; }
+            get { return new QualifiedName(Name); }
         }
 
         public virtual AttributeMap Attributes

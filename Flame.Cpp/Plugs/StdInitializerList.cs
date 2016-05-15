@@ -29,9 +29,9 @@ namespace Flame.Cpp.Plugs
 
         public IGenericParameter ElementType { get; private set; }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
-            get { return "initializer_list<>"; }
+            get { return new SimpleName("initializer_list", 1); }
         }
 
         private static readonly AttributeMap attrMap = new AttributeMap(new IAttribute[] 

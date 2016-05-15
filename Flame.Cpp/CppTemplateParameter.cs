@@ -56,9 +56,9 @@ namespace Flame.Cpp
             get { return new IProperty[0]; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringMember.FullName, Name); }
+            get { return Name.Qualify(DeclaringMember.FullName); }
         }
 
         public AttributeMap Attributes
@@ -66,7 +66,7 @@ namespace Flame.Cpp
             get { return Template.Attributes; }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             get { return Template.Name; }
         }
@@ -87,7 +87,7 @@ namespace Flame.Cpp
         {
             CodeBuilder cb = new CodeBuilder();
             cb.Append("typename ");
-            cb.Append(Name);
+            cb.Append(Name.ToString());
             return cb;
         }
 

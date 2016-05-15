@@ -196,7 +196,7 @@ namespace Flame.Cpp.Emit
                     cb.Append(Declaration.Local.Type.CreateBlock(CodeGenerator).GetCode());
                 }
                 cb.Append(' ');
-                cb.Append(Declaration.Local.Member.Name);
+                cb.Append(Declaration.Local.Member.Name.ToString());
 
                 if (Value != null)
                 {

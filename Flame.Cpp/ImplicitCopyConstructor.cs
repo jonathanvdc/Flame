@@ -45,9 +45,9 @@ namespace Flame.Cpp
             get { return false; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            get { return Name.Qualify(DeclaringType.FullName); }
         }
 
         private static readonly AttributeMap attrMap = new AttributeMap(new IAttribute[] 
@@ -60,7 +60,7 @@ namespace Flame.Cpp
             get { return attrMap; }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             get { return DeclaringType.Name; }
         }

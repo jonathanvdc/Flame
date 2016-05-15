@@ -27,7 +27,7 @@ namespace Flame.Cpp
         {
             foreach (var item in Member.Attributes)
             {
-                if (item != null && item.AttributeType.FullName == typeof(HeaderAttribute).FullName)
+                if (item != null && item.AttributeType.FullName.ToString() == typeof(HeaderAttribute).FullName)
                 {
                     var eval = item.Value.GetObjectValue();
                     if (eval is HeaderAttribute)
@@ -72,7 +72,7 @@ namespace Flame.Cpp
         {
             foreach (var item in Member.Attributes)
             {
-                if (item != null && item.AttributeType.FullName == typeof(GlobalTypeAttribute).FullName)
+                if (item != null && item.AttributeType.FullName.ToString() == typeof(GlobalTypeAttribute).FullName)
                 {
                     return true;
                 }
@@ -88,7 +88,7 @@ namespace Flame.Cpp
         {
             foreach (var item in Member.Attributes)
             {
-                if (item != null && item.AttributeType.FullName == typeof(ReferencePointerAttribute).FullName)
+                if (item != null && item.AttributeType.FullName.ToString() == typeof(ReferencePointerAttribute).FullName)
                 {
                     var eval = item.Value.GetObjectValue();
                     if (eval is ReferencePointerAttribute)
@@ -144,6 +144,16 @@ namespace Flame.Cpp
         #region Scoping Blocks
 
         public static ICppBlock BlockFromName(ICodeGenerator CodeGenerator, string Name)
+        {
+            return BlockFromSplitName(CodeGenerator, CppNameExtensions.SplitScope(Name));
+        }
+
+        public static ICppBlock BlockFromName(ICodeGenerator CodeGenerator, UnqualifiedName Name)
+        {
+            return BlockFromName(CodeGenerator, new QualifiedName(Name));
+        }
+
+        public static ICppBlock BlockFromName(ICodeGenerator CodeGenerator, QualifiedName Name)
         {
             return BlockFromSplitName(CodeGenerator, CppNameExtensions.SplitScope(Name));
         }
