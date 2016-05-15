@@ -101,12 +101,12 @@ namespace Flame.Optimization
 
         private string GetShortMethodName(IMethod Method)
         {
-            string methodName = Method.Name;
+            string methodName = Method.Name.ToString();
             if (Method.DeclaringType == null)
                 return methodName;
             else
                 return MemberExtensions.CombineNames(
-                    Method.DeclaringType.Name, methodName);
+                    Method.DeclaringType.Name.ToString(), methodName);
         }
 
         private void LogDevirtualizationRecord(

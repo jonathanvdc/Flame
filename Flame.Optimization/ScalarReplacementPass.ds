@@ -162,7 +162,7 @@ namespace Flame.Optimization
 
         private string GetVariableName(LocalVariableBase Local)
         {
-            return Local.Member.Name;
+            return Local.Member.Name.ToString();
         }
 
         /// <summary>
