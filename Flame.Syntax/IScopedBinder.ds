@@ -9,7 +9,7 @@ namespace Flame.Syntax
 	{
 		IScopedBinder PopScope();
 		IScopedBinder PushScope();
-		IScopedBinder PushScope(string Name);
-		IScopedBinder PushScope(string Name, INamespace CurrentNamespace);
+		IScopedBinder PushScope(UnqualifiedName Name);
+		IScopedBinder PushScope(UnqualifiedName Name, INamespace CurrentNamespace);
 	}
 }

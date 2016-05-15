@@ -6,7 +6,7 @@ namespace Flame.Syntax
 {
     public interface ISyntaxBinder : INamespacedBinder
     {
-        IReadOnlyDictionary<string, ITypeSyntax> Aliases { const get; }
-        void UseAlias(string Key, ITypeSyntax Alias);
+        IReadOnlyDictionary<UnqualifiedName, ITypeSyntax> Aliases { const get; }
+        void UseAlias(UnqualifiedName Key, ITypeSyntax Alias);
     }
 }
