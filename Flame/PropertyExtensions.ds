@@ -256,11 +256,11 @@ namespace Flame
 		/// Gets the first property in the given sequence of properties
 		/// that has the given name and staticness.
 		/// </summary>
-        public static IProperty GetProperty(this [IProperty] Candidates, string Name, bool IsStatic)
+        public static IProperty GetProperty(this [IProperty] Candidates, UnqualifiedName Name, bool IsStatic)
         {
         	foreach (var method in Candidates)
 			{
-				if (method.Name == Name &&
+				if (method.Name.Equals(Name) &&
 				    method.IsStatic == IsStatic)
 				{
 					return method;
@@ -291,11 +291,11 @@ namespace Flame
 		/// Gets the first property in the given sequence of properties
 		/// that has the given name, staticness, property type and indexer parameters.
 		/// </summary>
-        public static IProperty GetProperty(this [IProperty] Candidates, string Name, bool IsStatic, IType PropertyType, IType[] IndexerParameters)
+        public static IProperty GetProperty(this [IProperty] Candidates, UnqualifiedName Name, bool IsStatic, IType PropertyType, IType[] IndexerParameters)
         {
         	foreach (var method in Candidates)
 			{
-				if (method.Name == Name &&
+				if (method.Name.Equals(Name) &&
 				    method.IsStatic == IsStatic &&
 				    method.PropertyType.Equals(PropertyType) &&
 				    method.IndexerParameters.GetTypes().AreEqual(IndexerParameters))
