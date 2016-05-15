@@ -10,7 +10,7 @@ namespace Flame.XmlDocs
     {
         public static string GetXmlDocName(this IField Field)
         {
-            return "F:" + MemberExtensions.CombineNames(Field.DeclaringType.GetXmlTypeName(), Field.Name);
+            return "F:" + MemberExtensions.CombineNames(Field.DeclaringType.GetXmlTypeName(), Field.Name.ToString());
         }
 
         public static string GetXmlTypeName(this IType Type)
@@ -25,7 +25,7 @@ namespace Flame.XmlDocs
 
         public static string GetXmlDocName(this IProperty Property)
         {
-            return "P:" + MemberExtensions.CombineNames(Property.DeclaringType.GetXmlTypeName(), Property.Name);
+            return "P:" + MemberExtensions.CombineNames(Property.DeclaringType.GetXmlTypeName(), Property.Name.ToString());
         }
 
         public static string AppendTypeArguments(string Name, IEnumerable<string> TypeArguments)
@@ -65,7 +65,7 @@ namespace Flame.XmlDocs
             }
             else
             {
-                sb.Append(Method.Name.Replace('.', '#'));
+                sb.Append(Method.Name.ToString().Replace('.', '#'));
             }
             if (Method.GetIsGeneric())
             {
