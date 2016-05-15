@@ -28,10 +28,11 @@ namespace Flame
 			}
 			else
 			{
-				var field = Type.GetField(attr.InstanceMemberName, true);
+				var name = new SimpleName(attr.InstanceMemberName);
+				var field = Type.GetField(name, true);
 				if (field != null)
 					return field;
-				return Type.GetAllProperties().GetProperty(attr.InstanceMemberName, true);
+				return Type.GetAllProperties().GetProperty(name, true);
 			}
 		}
 

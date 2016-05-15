@@ -28,17 +28,17 @@ namespace Flame
         	Target.SetField(Field, Value);
         }
 
-        public static const IField GetField(this [IField] Candidates, string Name, bool IsStatic)
+        public static const IField GetField(this [IField] Candidates, UnqualifiedName Name, bool IsStatic)
         {
         	foreach (var item in Candidates)
         	{
-        		if (item.Name == Name && item.IsStatic == IsStatic)
+        		if (item.Name.Equals(Name) && item.IsStatic == IsStatic)
 					return item;
         	}
         	return null;
         }
 
-        public static const IField GetField(this IType Type, string Name, bool IsStatic)
+        public static const IField GetField(this IType Type, UnqualifiedName Name, bool IsStatic)
         {
         	return Type.GetAllFields().GetField(Name, IsStatic);
         }
