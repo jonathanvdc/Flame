@@ -30,11 +30,11 @@ namespace Flame
 			}
 		}
 
-		public static [string] Names[this [IMember] Members]
+		public static [UnqualifiedName] Names[this [IMember] Members]
 		{
 			const get
 			{
-				var results = new List<string>();
+				var results = new List<UnqualifiedName>();
 				foreach (var item in Members)
 				{
 					results.Add(item.Name);
@@ -42,11 +42,11 @@ namespace Flame
 				return results;
 			}
 		}
-		public static [string] Names[this [IType] Types]
+		public static [UnqualifiedName] Names[this [IType] Types]
 		{
 			const get
 			{
-				var results = new List<string>();
+				var results = new List<UnqualifiedName>();
 				foreach (var item in Types)
 				{
 					results.Add(item.Name);
@@ -55,11 +55,11 @@ namespace Flame
 			}
 		}
 
-		public static [string] FullNames[this [IMember] Members]
+		public static [QualifiedName] FullNames[this [IMember] Members]
 		{
 			const get
 			{
-				var results = new List<string>();
+				var results = new List<QualifiedName>();
 				foreach (var item in Members)
 				{
 					results.Add(item.FullName);
@@ -67,11 +67,11 @@ namespace Flame
 				return results;
 			}
 		}
-		public static [string] FullNames[this [IType] Types]
+		public static [QualifiedName] FullNames[this [IType] Types]
 		{
 			const get
 			{
-				var results = new List<string>();
+				var results = new List<QualifiedName>();
 				foreach (var item in Types)
 				{
 					results.Add(item.FullName);
