@@ -36,7 +36,7 @@ namespace Flame.Intermediate.Emit
             return NodeFactory.Call(Value.IsConstructor ? IRParser.ConstructorReferenceName : IRParser.MethodReferenceName, new LNode[]
             {
                 declType,
-                NodeFactory.IdOrLiteral(Value.Name),
+                NodeFactory.IdOrLiteral(Value.Name.ToString()),
                 NodeFactory.Literal(Value.IsStatic),
                 genParamNames,
                 retType,
@@ -58,7 +58,7 @@ namespace Flame.Intermediate.Emit
             return NodeFactory.Call(IRParser.AccessorReferenceName, new LNode[]
             {
                 declType,
-                NodeFactory.IdOrLiteral(Value.DeclaringProperty.Name),
+                NodeFactory.IdOrLiteral(Value.DeclaringProperty.Name.ToString()),
                 NodeFactory.Literal(Value.DeclaringProperty.IsStatic),
                 propType,
                 paramTypes,

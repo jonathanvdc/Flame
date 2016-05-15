@@ -230,6 +230,32 @@ namespace Flame.Intermediate.Parsing
             return new LazyValueStructure<IType>(Node, () => State.Header.TypeTable[GetInt32(Node.Args.Single())].Value);
         }
 
+        public static QualifiedName ParseQualifiedName(string Name)
+        {
+            var qualName = NameParser.Instance.Convert(Name);
+            if (qualName == null)
+                throw new InvalidOperationException("'" + Name + "' was not a valid Flame IR qualified name");
+            return qualName;
+        }
+
+        public static UnqualifiedName ParseUnqualifiedName(string Name)
+        {
+            var qualName = ParseQualifiedName(Name);
+            if (qualName.IsQualified)
+                throw new InvalidOperationException("'" + Name + "' was not a valid Flame IR unqualified name");
+            return qualName.Qualifier;
+        }
+
+        public static QualifiedName GetQualifiedName(LNode Node)
+        {
+            return ParseQualifiedName(GetIdOrString(Node));
+        }
+
+        public static UnqualifiedName GetUnqualifiedName(LNode Node)
+        {
+            return ParseUnqualifiedName(GetIdOrString(Node));
+        }
+
         public static INodeStructure<IType> ParseNestedTypeReference(ParserState State, LNode Node)
         {
             // Format:
@@ -239,8 +265,8 @@ namespace Flame.Intermediate.Parsing
             return new LazyValueStructure<IType>(Node, () =>
             {
                 var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
-                string name = GetIdOrString(Node.Args[1]);
-                return ((INamespace)declType).Types.First(item => item.Name == name);
+                var name = GetUnqualifiedName(Node.Args[1]);
+                return ((INamespace)declType).Types.First(item => item.Name.Equals(name));
             });
         }
 
@@ -252,7 +278,7 @@ namespace Flame.Intermediate.Parsing
 
             return new LazyValueStructure<IType>(Node, () =>
             {
-                string name = GetIdOrString(Node.Args.Single());
+                var name = GetQualifiedName(Node.Args.Single());
                 var ty = State.Binder.BindType(name);
                 if (ty == null)
                 {
@@ -440,7 +466,7 @@ namespace Flame.Intermediate.Parsing
             return new LazyValueStructure<IField>(Node, () =>
             {
                 var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
-                string fieldName = GetIdOrString(Node.Args[1]);
+                var fieldName = GetUnqualifiedName(Node.Args[1]);
                 bool isStatic = Convert.ToBoolean(Node.Args[2].Value);
                 return declType.GetField(fieldName, isStatic);
             });
@@ -523,7 +549,7 @@ namespace Flame.Intermediate.Parsing
             return new LazyValueStructure<IMethod>(Node, () =>
             {
                 var declType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
-                string propertyName = GetIdOrString(Node.Args[1]);
+                var propertyName = GetUnqualifiedName(Node.Args[1]);
                 bool propIsStatic = Convert.ToBoolean(Node.Args[2].Value);
                 var propType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[3]).Value;
                 var propParamTypes = Node.Args[4].Args.Select(item => State.Parser.TypeReferenceParser.Parse(State, item).Value).ToArray();
@@ -582,14 +608,14 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="SignatureNode"></param>
         /// <returns></returns>
-        public static string ParseSignatureName(LNode SignatureNode)
+        public static UnqualifiedName ParseSignatureName(LNode SignatureNode)
         {
             // Format:
             //
             // #member(name, attributes...)
             //         ^~~~
 
-            return GetIdOrString(SignatureNode.Args[0]);
+            return GetUnqualifiedName(SignatureNode.Args[0]);
         }
 
         /// <summary>
@@ -605,7 +631,7 @@ namespace Flame.Intermediate.Parsing
             //
             // #member(name, attributes...)
 
-            string name = ParseSignatureName(Node);
+            var name = ParseSignatureName(Node);
             var attrs = Node.Args.Skip(1).Select(item => State.Parser.AttributeParser.Parse(State, item));
             return new IRSignature(name, attrs);
         }
@@ -951,7 +977,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="RootNodes"></param>
         /// <returns></returns>
-        public static string ParseAssemblyName(IEnumerable<LNode> RootNodes)
+        public static UnqualifiedName ParseAssemblyName(IEnumerable<LNode> RootNodes)
         {
             var asmNode = GetAssemblyNode(RootNodes);
             return ParseSignatureName(asmNode.Args[0]);

@@ -29,14 +29,14 @@ namespace Flame.Intermediate
         public INodeStructure<IEnumerable<IGenericParameter>> GenericParameterNodes { get; set; }
         public INodeStructure<IEnumerable<IGenericConstraint>> ConstraintNodes { get; set; }
 
-        public string Name
+        public UnqualifiedName Name
         {
             get { return Signature.Name; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringMember.FullName, Name); }
+            get { return Name.Qualify(DeclaringMember.FullName); }
         }
 
         public AttributeMap Attributes
