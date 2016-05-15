@@ -55,12 +55,12 @@ namespace Flame.Intermediate
             get { return Signature.Attributes; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            get { return Name.Qualify(DeclaringType.FullName); }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             get { return Signature.Name; }
         }
@@ -89,7 +89,7 @@ namespace Flame.Intermediate
 
         public override string ToString()
         {
-            return FullName;
+            return FullName.ToString();
         }
     }
 }

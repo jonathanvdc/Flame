@@ -14,26 +14,16 @@ namespace Flame.Intermediate.Emit
         {
             this.AssemblyBuilder = AssemblyBuilder;
         }
-        public IRNamespaceBuilder(IRAssemblyBuilder AssemblyBuilder, INamespace DeclaringNamespace, string Name)
+        public IRNamespaceBuilder(IRAssemblyBuilder AssemblyBuilder, INamespace DeclaringNamespace, UnqualifiedName Name)
             : this(AssemblyBuilder, DeclaringNamespace, new IRSignature(Name, Enumerable.Empty<INodeStructure<IAttribute>>()))
         { }
 
         public IRAssemblyBuilder AssemblyBuilder { get; private set; }
 
-        public static IRNamespaceBuilder DeclareNamespace(IRAssemblyBuilder AssemblyBuilder, IRNamespaceBase DeclaringNamespace, string Name)
+        public static IRNamespaceBuilder DeclareNamespace(IRAssemblyBuilder AssemblyBuilder, IRNamespaceBase DeclaringNamespace, UnqualifiedName Name)
         {
-            string[] splitName = Name.Split(new char[] { '.' }, 2);
-
-            if (splitName.Length > 1)
-            {
-                return DeclareNamespace(
-                    AssemblyBuilder, 
-                    DeclareNamespace(AssemblyBuilder, DeclaringNamespace, splitName[0]), 
-                    splitName[1]);
-            }
-
             var match = DeclaringNamespace.Namespaces.OfType<IRNamespaceBuilder>()
-                                                     .FirstOrDefault(item => item.Name == Name);
+                .FirstOrDefault(item => item.Name.Equals(Name));
 
             if (match != null)
             {
@@ -54,7 +44,7 @@ namespace Flame.Intermediate.Emit
 
         public INamespaceBuilder DeclareNamespace(string Name)
         {
-            return DeclareNamespace(AssemblyBuilder, this, Name);
+            return DeclareNamespace(AssemblyBuilder, this, new SimpleName(Name));
         }
 
         public ITypeBuilder DeclareType(ITypeSignatureTemplate Template)

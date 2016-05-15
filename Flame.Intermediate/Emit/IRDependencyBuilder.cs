@@ -78,7 +78,7 @@ namespace Flame.Intermediate.Emit
         /// <param name="Name"></param>
         public void AddRuntimeDependency(string Name)
         {
-            if (Assembly.Name != Name)
+            if (Assembly.Name.ToString() != Name)
             {
                 lock (rtDepends)
                 {
@@ -93,7 +93,7 @@ namespace Flame.Intermediate.Emit
         /// <param name="Name"></param>
         public void AddLibraryDependency(string Name)
         {
-            if (Assembly.Name != Name)
+            if (Assembly.Name.ToString() != Name)
             {
                 lock (libDepends)
                 {
@@ -127,7 +127,7 @@ namespace Flame.Intermediate.Emit
         /// <param name="Name"></param>
         public void AddDependency(IAssembly Assembly)
         {
-            AddDependency(Assembly.Name);
+            AddDependency(Assembly.Name.ToString());
         }
     }
 }

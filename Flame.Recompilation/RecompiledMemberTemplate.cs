@@ -32,8 +32,8 @@ namespace Flame.Recompilation
                 else
                     return new SimpleName(
                         SignaturePassResult.Name, 
-                        srcMember is IGenericMember 
-                            ? ((IGenericMember)srcMember).GenericParameters.Count()
+                        srcMember is IType 
+                            ? ((IType)srcMember).GenericParameters.Count()
                             : 0); 
             }
         }
