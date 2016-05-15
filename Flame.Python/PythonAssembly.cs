@@ -12,11 +12,11 @@ namespace Flame.Python
 {
     public class PythonAssembly : IAssemblyBuilder, IMemberNamingAssembly
     {
-        public PythonAssembly(string Name, Version AssemblyVersion)
+        public PythonAssembly(UnqualifiedName Name, Version AssemblyVersion)
             : this(Name, AssemblyVersion, new DefaultPythonMemberNamer())
         {
         }
-        public PythonAssembly(string Name, Version AssemblyVersion, IMemberNamer MemberNamer)
+        public PythonAssembly(UnqualifiedName Name, Version AssemblyVersion, IMemberNamer MemberNamer)
         {
             this.Name = Name;
             this.AssemblyVersion = AssemblyVersion;
@@ -24,7 +24,7 @@ namespace Flame.Python
             this.MemberNamer = MemberNamer;
         }
 
-        public string Name { get; private set; }
+        public UnqualifiedName Name { get; private set; }
         public Version AssemblyVersion { get; private set; }
         public PythonRootNamespace RootNamespace { get; private set; }
         public IMemberNamer MemberNamer { get; private set; }
@@ -94,9 +94,9 @@ namespace Flame.Python
             return this;
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return Name; }
+            get { return new QualifiedName(Name); }
         }
 
         public AttributeMap Attributes

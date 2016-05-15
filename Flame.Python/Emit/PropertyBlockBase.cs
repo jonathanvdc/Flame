@@ -26,7 +26,7 @@ namespace Flame.Python.Emit
         {
             get
             {
-                return new MemberAccessBlock(CodeGenerator, Target, Property.Name, Type);
+                return new MemberAccessBlock(CodeGenerator, Target, Property.Name.ToString(), Type);
             }
         }
         public abstract IPythonBlock InvocationBlock { get; }

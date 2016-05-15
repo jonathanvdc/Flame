@@ -17,14 +17,14 @@ namespace Flame.Python
             this.namespaces = new List<PythonNamespaceBuilder>();
         }
 
-        public string Name { get { return ""; } }
+        public UnqualifiedName Name { get { return new SimpleName(""); } }
         public IAssembly DeclaringAssembly { get; private set; }
         private List<PythonClass> classes;
         private List<PythonNamespaceBuilder> namespaces;
 
         public INamespaceBuilder DeclareNamespace(string Name)
         {
-            var ns = new PythonNamespaceBuilder(this, Name);
+            var ns = new PythonNamespaceBuilder(this, new SimpleName(Name));
             namespaces.Add(ns);
             return ns;
         }
@@ -41,9 +41,9 @@ namespace Flame.Python
             return this;
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return Name; }
+            get { return new QualifiedName(Name); }
         }
 
         public AttributeMap Attributes

@@ -38,9 +38,9 @@ namespace Flame.Python
             get { return Template.Template.IsStatic; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            get { return Name.Qualify(DeclaringType.FullName); }
         }
 
         public AttributeMap Attributes
@@ -53,12 +53,12 @@ namespace Flame.Python
             return DeclaringType.DeclaringNamespace.GetMemberNamer();
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             get
             {
                 var descProp = new DescribedProperty(Template.Name, DeclaringType);
-                return GetMemberNamer().Name(descProp);
+                return new SimpleName(GetMemberNamer().Name(descProp));
             }
         }
 

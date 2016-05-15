@@ -21,7 +21,7 @@ namespace Flame.Python.Emit
 
         public override IPythonBlock CreateGetBlock()
         {
-            return new MemberAccessBlock(CodeGenerator, Target, Field.Name, Field.FieldType);
+            return new MemberAccessBlock(CodeGenerator, Target, Field.Name.ToString(), Field.FieldType);
         }
 
         public override IType Type

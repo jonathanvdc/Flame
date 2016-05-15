@@ -26,84 +26,89 @@ namespace Flame.Python
             return DeclaringType.DeclaringNamespace.GetMemberNamer();
         }
 
-        public virtual string Name
+        public virtual UnqualifiedName Name
         {
             get
             {
+                string result = null;
                 if (Template.IsConstructor)
                 {
-                    return "__init__";
+                    result = "__init__";
                 }
                 else if (this.GetIsCast() && Template.ReturnType.Equals(PrimitiveTypes.String))
                 {
-                    return "__str__";
+                    result = "__str__";
                 }
                 else if (this.GetIsOperator())
                 {
                     var op = this.GetOperator();
                     if (op.Equals(Operator.Add))
                     {
-                        return "__add__";
+                        result = "__add__";
                     }
                     else if (op.Equals(Operator.Subtract))
                     {
-                        return "__sub__";
+                        result = "__sub__";
                     }
                     else if (op.Equals(Operator.Multiply))
                     {
-                        return "__mul__";
+                        result = "__mul__";
                     }
                     else if (op.Equals(Operator.Divide))
                     {
-                        return "__div__";
+                        result = "__div__";
                     }
                     else if (op.Equals(Operator.Or))
                     {
-                        return "__or__";
+                        result = "__or__";
                     }
                     else if (op.Equals(Operator.And))
                     {
-                        return "__and__";
+                        result = "__and__";
                     }
                     else if (op.Equals(Operator.Xor))
                     {
-                        return "__xor__";
+                        result = "__xor__";
                     }
                     else if (op.Equals(Operator.Not))
                     {
-                        return "__not__";
+                        result = "__not__";
                     }
                     else if (op.Equals(Operator.CheckEquality))
                     {
-                        return "__eq__";
+                        result = "__eq__";
                     }
                     else if (op.Equals(Operator.CheckInequality))
                     {
-                        return "__ne__";
+                        result = "__ne__";
                     }
                     else if (op.Equals(Operator.CheckGreaterThan))
                     {
-                        return "__gt__";
+                        result = "__gt__";
                     }
                     else if (op.Equals(Operator.CheckGreaterThanOrEqual))
                     {
-                        return "__ge__";
+                        result = "__ge__";
                     }
                     else if (op.Equals(Operator.CheckLessThan))
                     {
-                        return "__lt__";
+                        result = "__lt__";
                     }
                     else if (op.Equals(Operator.CheckLessThanOrEqual))
                     {
-                        return "__le__";
+                        result = "__le__";
                     }
                     else if (op.Equals(Operator.Hash))
                     {
-                        return "__hash__";
+                        result = "__hash__";
                     }
                 }
-                var descMethod = new DescribedMethod(Template.Name, DeclaringType);
-                return GetMemberNamer().Name(descMethod);
+                if (result == null)
+                {
+                    var descMethod = new DescribedMethod(Template.Name, DeclaringType);
+                    result = GetMemberNamer().Name(descMethod);
+                }
+                return new SimpleName(result);
             }
         }
 
@@ -176,7 +181,7 @@ namespace Flame.Python
 
         public bool IsConstructor
         {
-            get { return Name == "__init__"; }
+            get { return Template.IsConstructor; }
         }
 
         public IType ReturnType
@@ -189,9 +194,9 @@ namespace Flame.Python
             get { return Template.Template.IsStatic; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            get { return Name.Qualify(DeclaringType.FullName); }
         }
 
         public AttributeMap Attributes
@@ -228,7 +233,7 @@ namespace Flame.Python
                 cb.AppendLine();
             }
             cb.Append("def ");
-            cb.Append(Name);
+            cb.Append(Name.ToString());
             cb.Append("(");
             bool first = true;
             foreach (var item in GetPythonParameters())
@@ -241,7 +246,7 @@ namespace Flame.Python
                 {
                     cb.Append(", ");
                 }
-                cb.Append(item.Name);
+                cb.Append(item.Name.ToString());
             }
             cb.Append(")");
             return cb;
