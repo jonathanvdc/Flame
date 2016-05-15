@@ -15,13 +15,20 @@ namespace Flame.Compiler.Emit
 		/// Creates a new described variable member from the given name and variable
 		/// type.
 		/// </summary>
-		public const this(string Name, set IType VariableType)
+		public const this(UnqualifiedName Name, set IType VariableType)
 			: base(Name);
+
+		/// <summary>
+		/// Creates a new described variable member from the given name and variable
+		/// type.
+		/// </summary>
+		public const this(string Name, set IType VariableType)
+			: base(new SimpleName(Name));
 
 		/// <summary>
 		/// Gets the variable member's variable type.
 		/// </summary>
 		public IType VariableType { const get; private set; }
-		public override QualifiedName FullName { const get return this.Name; }
+		public override QualifiedName FullName { const get return new QualifiedName(Name); }
 	}
 }

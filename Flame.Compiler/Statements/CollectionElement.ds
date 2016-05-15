@@ -88,7 +88,9 @@ namespace Flame.Compiler.Statements
             }
             else
             {
-                var lengthPropertyVariable = new PropertyVariable(collectionVariable.CreateGetExpression().Type.GetAllProperties().GetProperty("Length", false), collectionVariable.CreateGetExpression());
+                var lengthPropertyVariable = new PropertyVariable(
+                    collectionVariable.CreateGetExpression().Type.GetAllProperties().GetProperty(new SimpleName("Length"), false),
+                    collectionVariable.CreateGetExpression());
                 var cachedLengthVariable = new LocalVariable(lengthPropertyVariable.Type);
                 initStatements.Add(cachedLengthVariable.CreateSetStatement(lengthPropertyVariable.CreateGetExpression()));
                 finalStatements.Add(cachedLengthVariable.CreateReleaseStatement());
@@ -135,7 +137,7 @@ namespace Flame.Compiler.Statements
 
         private ElementInCollection CreateEnumerableElementInCollection()
         {
-            var getEnumeratorMethods = Collection.Type.GetAllMethods("GetEnumerator", false, new IType[0]);
+            var getEnumeratorMethods = Collection.Type.GetAllMethods(new SimpleName("GetEnumerator"), false, new IType[0]);
             IMethod getEnumerator = null, nextMethod = null, currentAccessor = null;
 
             if (!Enumerable.Any<IMethod>(getEnumeratorMethods))
@@ -148,8 +150,8 @@ namespace Flame.Compiler.Statements
             foreach (var item in getEnumeratorMethods)
             {
                 var retType = item.ReturnType;
-                var possibleNextMethod = retType.GetAllMethods().GetMethod("MoveNext", false, PrimitiveTypes.Boolean, new IType[0]);
-                var currentProperty = retType.GetAllProperties().GetProperty("Current", false);
+                var possibleNextMethod = retType.GetAllMethods().GetMethod(new SimpleName("MoveNext"), false, PrimitiveTypes.Boolean, new IType[0]);
+                var currentProperty = retType.GetAllProperties().GetProperty(new SimpleName("Current"), false);
                 if (currentProperty != null && possibleNextMethod != null)
                 {
                     var getAccessor = currentProperty.GetGetAccessor();
@@ -173,7 +175,7 @@ namespace Flame.Compiler.Statements
 
             var enumeratorVariable = new LocalVariable(getEnumerator.ReturnType);
             var enumeratorInitStatement = enumeratorVariable.CreateSetStatement(CreateInvocationExpression(getEnumerator, new ExpressionVariable(Collection)));
-            var disposeMethod = enumeratorVariable.Type.GetAllMethods().GetMethod("Dispose", false, PrimitiveTypes.Void, new IType[0]);
+            var disposeMethod = enumeratorVariable.Type.GetAllMethods().GetMethod(new SimpleName("Dispose"), false, PrimitiveTypes.Void, new IType[0]);
 
             IExpression condition = CreateInvocationExpression(nextMethod, enumeratorVariable);
 

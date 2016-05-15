@@ -12,11 +12,11 @@ namespace Flame.Compiler
 	/// </summary>
 	public class DescribedInvariant : DescribedTypeMember, IInvariant
 	{
-		public const this(string Name, IType DeclaringType, set IExpression Invariant)
+		public const this(UnqualifiedName Name, IType DeclaringType, set IExpression Invariant)
 			: base(Name, DeclaringType);
-			
+
 		public const this(IType DeclaringType, set IExpression Invariant)
-			: base("invariant", DeclaringType);
+			: base(new SimpleName("invariant"), DeclaringType);
 
 
 		public IExpression Invariant { const get; private set; }
