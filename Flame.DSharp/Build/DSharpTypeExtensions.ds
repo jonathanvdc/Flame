@@ -41,7 +41,7 @@ namespace Flame.DSharp.Build
 			{
 				foreach (var genericConstraint in GenericConstraints)
                 {
-                    if (genParam.Name.Equals(genericConstraint.GenericParameterIdentifier.TokenValue))
+                    if (genParam.Name.ToString().Equals(genericConstraint.GenericParameterIdentifier.TokenValue))
                     {
                         foreach (var type in genericConstraint.Constraints)
                         {
