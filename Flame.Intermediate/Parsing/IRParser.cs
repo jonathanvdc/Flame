@@ -242,8 +242,9 @@ namespace Flame.Intermediate.Parsing
         {
             var qualName = ParseQualifiedName(Name);
             if (qualName.IsQualified)
-                throw new InvalidOperationException("'" + Name + "' was not a valid Flame IR unqualified name");
-            return qualName.Qualifier;
+                return new SimpleName(qualName.ToString());
+            else
+                return qualName.Qualifier;
         }
 
         public static QualifiedName GetQualifiedName(LNode Node)
