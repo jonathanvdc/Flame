@@ -32,7 +32,7 @@ namespace Flame.Intermediate
             get
             {
                 var args = new List<LNode>();
-                args.Add(NodeFactory.IdOrLiteral(Name.ToString()));
+                args.Add(NodeFactory.IdOrLiteral(Name));
                 args.AddRange(AttributeNodes.Select(item => item.Node));
                 return NodeFactory.Call(MemberNodeName, args);
             }

@@ -34,6 +34,16 @@ namespace Flame.Intermediate
             }
         }
 
+        public static LNode IdOrLiteral(UnqualifiedName Name)
+        {
+            return IdOrLiteral(Name.ToString());
+        }
+
+        public static LNode IdOrLiteral(QualifiedName Name)
+        {
+            return IdOrLiteral(Name.ToString());
+        }
+
         public static LNode Call(string Target, IEnumerable<LNode> Arguments)
         {
             return factory.Call(GSymbol.Get(Target), Arguments);

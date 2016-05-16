@@ -32,7 +32,7 @@ namespace Flame.Intermediate.Emit
                 return NodeFactory.Call(IRParser.FieldReferenceName, new LNode[]
                 {
                     Assembly.TypeTable.GetReference(Value.DeclaringType), 
-                    NodeFactory.Literal(Value.Name),
+                    NodeFactory.IdOrLiteral(Value.Name),
                     NodeFactory.Literal(Value.IsStatic)
                 });
             }
