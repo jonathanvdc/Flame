@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Front.Target
 {
-    public class DependencyBinder : BinderBase
+    public class DependencyBinder : IBinder
     {
         public DependencyBinder(DependencyBuilder Builder)
         {
@@ -28,7 +28,7 @@ namespace Flame.Front.Target
             }
         }
 
-        public override IType BindTypeCore(QualifiedName Name)
+        public IType BindType(QualifiedName Name)
         {
             foreach (var item in Binders)
             {
@@ -41,9 +41,9 @@ namespace Flame.Front.Target
             return null;
         }
 
-        public override IEnvironment Environment { get { return Builder.Environment; } }
+        public IEnvironment Environment { get { return Builder.Environment; } }
 
-        public override IEnumerable<IType> GetTypes()
+        public IEnumerable<IType> GetTypes()
         {
             return Binders.SelectMany((item) => item.GetTypes());
         }
