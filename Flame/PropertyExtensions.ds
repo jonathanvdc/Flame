@@ -111,7 +111,7 @@ namespace Flame
 			bool isIndexer = Left.IsIndexer;
 			return isIndexer == Right.IsIndexer &&
 			       Left.IsStatic == Right.IsStatic &&
-				   (isIndexer || Left.Name == Right.Name) &&
+				   (isIndexer || Left.Name.Equals(Right.Name)) &&
 				   ScopedTypeEqualityComparer.CompareAll(GetPropertyParameterTypes(Left),
 									   					 GetPropertyParameterTypes(Right));
 		}

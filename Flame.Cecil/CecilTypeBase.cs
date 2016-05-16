@@ -306,7 +306,7 @@ namespace Flame.Cecil
                 return true;
             }
 
-            return FullName == other.FullName;
+            return FullName.Equals(other.FullName);
         }
 
         public override bool Equals(object obj)
