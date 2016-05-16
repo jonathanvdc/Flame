@@ -121,7 +121,18 @@ namespace Flame
                         length++;
                     }
                 }
-                typeArgs.Add(Convert(Name.Substring(i + 2, length)));
+                var lastElemStr = Name.Substring(i + 2, length).Trim(null);
+                if (string.IsNullOrEmpty(lastElemStr))
+                {
+                    typeArgs.Add(null);
+                }
+                else
+                {
+                    var elemName = Convert(lastElemStr);
+                    if (object.ReferenceEquals(elemName, null))
+                        return null;
+                    typeArgs.Add(elemName);
+                }
 
                 var elementName = Convert(Name.Substring(0, i + 1));
                 if (elementName == null)
@@ -183,10 +194,10 @@ namespace Flame
                 else
                     return innerName.Qualify(Name.Qualifier);
             }
-            else if (Name is SimpleName)
+            else if (Name.Qualifier is SimpleName)
             {
                 return new QualifiedName(
-                    new SimpleName(((SimpleName)Name).Name, TypeParameterCount));
+                    new SimpleName(((SimpleName)Name.Qualifier).Name, TypeParameterCount));
             }
             else
             {
