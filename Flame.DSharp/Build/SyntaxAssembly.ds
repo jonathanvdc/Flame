@@ -130,7 +130,7 @@ namespace Flame.DSharp.Build
                 foreach (var item in type.GetMethods())
                 {
                     if (isSingletonType || item.IsStatic)
-                    if (item.Name.Equals("main") || item.Name.Equals("Main"))
+                    if (item.Name.ToString().Equals("main") || item.Name.ToString().Equals("Main"))
 					if (item.Access == AccessModifier.Public)
 					{
                         return item;
