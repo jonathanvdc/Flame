@@ -50,7 +50,7 @@ namespace Flame.Intermediate.Emit
                 Assembly.Dependencies.AddDependency(Type.DeclaringNamespace.DeclaringAssembly);
             }
 
-            return NodeFactory.Call(IRParser.TypeReferenceName, new LNode[] { NodeFactory.Literal(Type.FullName) });
+            return NodeFactory.Call(IRParser.TypeReferenceName, new LNode[] { NodeFactory.IdOrLiteral(Type.FullName) });
         }
 
         protected override LNode MakeArrayType(LNode ElementType, int ArrayRank)
@@ -151,7 +151,7 @@ namespace Flame.Intermediate.Emit
             return NodeFactory.Call(IRParser.NestedTypeName, new LNode[]
             {
                 GetTypeReference(DeclaringType),
-                NodeFactory.Literal(Type.Name)
+                NodeFactory.IdOrLiteral(Type.Name)
             });
         }
 
