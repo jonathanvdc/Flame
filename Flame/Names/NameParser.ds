@@ -102,7 +102,18 @@ namespace Flame
                     }
                     else if (Name[i] == ',' && rank == 1)
                     {
-                        typeArgs.Add(Convert(Name.Substring(i + 1, length)));
+                        var elemStr = Name.Substring(i + 1, length).Trim(null);
+                        if (string.IsNullOrEmpty(elemStr))
+                        {
+                            typeArgs.Add(null);
+                        }
+                        else
+                        {
+                            var elemName = Convert(elemStr);
+                            if (object.ReferenceEquals(elemName, null))
+                                return null;
+                            typeArgs.Add(elemName);
+                        }
                         length = 0;
                     }
                     else
@@ -124,8 +135,6 @@ namespace Flame
                 	foreach (var item in typeArgs)
                 	{
                 		if (item == null)
-                            return null;
-                        else if (string.IsNullOrWhiteSpace(item.ToString()))
                             anyEmpty = true;
                         else
                             allEmpty = false;
