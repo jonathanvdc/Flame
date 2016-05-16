@@ -53,6 +53,8 @@ namespace Flame.Syntax.DSharp
         	foreach (var item in GenericArguments, var output in args)
         	{
         		output = item.CreateType(State);
+				if (output == null)
+					return null;
         	}
         	return args;
         }
@@ -80,10 +82,10 @@ namespace Flame.Syntax.DSharp
         {
         	var elemType = State.Binder.BindType(GenericTypeName);
         	if (elemType == null)
-            {
             	return null;
-            }
         	IType[] typeArgs = GetGenericArguments(State);
+			if (typeArgs == null)
+				return null;
         	return elemType.MakeGenericType(typeArgs);
         }
 

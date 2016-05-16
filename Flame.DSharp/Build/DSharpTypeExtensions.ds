@@ -17,7 +17,10 @@ namespace Flame.DSharp.Build
 {
 	public static class DSharpTypeExtensions
 	{
-        public static [IGenericParameter] CreateConstrainedGenericParameters(ISyntaxState State, IGenericMember DeclaringMember, [IGenericParameterDeclarationSyntax] GenericDeclarations, [GenericConstraintSyntax] GenericConstraints)
+        public static [IGenericParameter] CreateConstrainedGenericParameters(
+			ISyntaxState State, IGenericMember DeclaringMember,
+			[IGenericParameterDeclarationSyntax] GenericDeclarations,
+			[GenericConstraintSyntax] GenericConstraints)
 		{
 			var simpleGenericParams = new List<IGenericParameterBuilder>();
 			foreach (var item in GenericDeclarations)
@@ -42,7 +45,15 @@ namespace Flame.DSharp.Build
                     {
                         foreach (var type in genericConstraint.Constraints)
                         {
-                            genParam.AddTypeConstraint(type.CreateType(fullSyntaxState));
+							var constraintType = type.CreateType(fullSyntaxState);
+							if (constraintType == null)
+							{
+								State.Log.LogError(new LogEntry(
+									"unresolved constraint",
+									"constraint type could not be resolved.",
+									type.GetSourceLocation()));
+							}
+                            genParam.AddTypeConstraint(constraintType);
                         }
                     }
                 }
