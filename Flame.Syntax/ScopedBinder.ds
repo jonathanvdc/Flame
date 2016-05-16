@@ -6,7 +6,7 @@ using Flame.Compiler;
 
 namespace Flame.Syntax
 {
-	public class ScopedBinder : BinderBase, IScopedBinder
+	public class ScopedBinder : IScopedBinder
 	{
 		protected const this(set IBinder Binder, set ISyntaxState State, List<NamespaceScope> Scopes)
 		{
@@ -117,9 +117,9 @@ namespace Flame.Syntax
             }
         }
 
-        public override IEnvironment Environment : BinderBase.Environment { const get return Binder.Environment; }
+        public override IEnvironment Environment : IBinder.Environment { const get return Binder.Environment; }
 
-        public override IType BindTypeCore(QualifiedName Name)
+        public override IType BindType(QualifiedName Name)
         {
 			var typeAliases = Aliases;
 			if (!Name.IsQualified && typeAliases.ContainsKey(Name.Qualifier))

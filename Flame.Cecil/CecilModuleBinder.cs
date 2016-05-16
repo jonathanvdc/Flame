@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil
 {
-    public class CecilModuleBinder : BinderBase
+    public class CecilModuleBinder : IBinder
     {
         public CecilModuleBinder(CecilModule Module)
         {
@@ -22,7 +22,7 @@ namespace Flame.Cecil
         public CecilModule Module { get; private set; }
         private Dictionary<QualifiedName, IType> types;
 
-        public override IEnumerable<IType> GetTypes()
+        public IEnumerable<IType> GetTypes()
         {
             return Module.Types;
         }
@@ -32,7 +32,7 @@ namespace Flame.Cecil
             this.types[Type.FullName] = Type;
         }
 
-        public override IType BindTypeCore(QualifiedName Name)
+        public IType BindType(QualifiedName Name)
         {
             if (Name == null || string.IsNullOrWhiteSpace(Name.ToString()))
                 return null;
@@ -48,7 +48,7 @@ namespace Flame.Cecil
             }
         }
 
-        public override IEnvironment Environment
+        public IEnvironment Environment
         {
             get { return new CecilEnvironment(Module); }
         }
