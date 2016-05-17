@@ -32,12 +32,12 @@ namespace Flame.Syntax.DSharp
             {
                 if (Type is ITokenTypeSyntax)
                 {
-                    QualifiedName result = null;
+                    var result = default(QualifiedName);
                     foreach (var item in ((ITokenTypeSyntax)Type).Tokens)
                     {
                         if (item.Type != TokenType.Identifier && item.Type != TokenType.Dot)
                         {
-                            return null;
+                            return default(QualifiedName);
                         }
                         if (item.Type == TokenType.Identifier)
                         {
@@ -48,7 +48,7 @@ namespace Flame.Syntax.DSharp
                 }
                 else
                 {
-                    return null;
+                    return default(QualifiedName);
                 }
             }
         }
@@ -59,7 +59,7 @@ namespace Flame.Syntax.DSharp
             {
                 Binder.UseAlias(new SimpleName(Alias.TokenValue), Type);
                 var aliasName = AliasNamespaceName;
-                if (!object.ReferenceEquals(aliasName, null)) // Also map this to a namespace if it looks like one
+                if (!aliasName.IsEmpty) // Also map this to a namespace if it looks like one
                 {
                     Binder.MapNamespace(new SimpleName(Alias.TokenValue), aliasName);
                 }

@@ -33,7 +33,7 @@ namespace Flame.Syntax.DSharp
         {
             const get
             {
-                QualifiedName result = null;
+                var result = default(QualifiedName);
                 foreach (var item in Enumerable.Reverse<Token>(UsingNamespace))
                 {
                     if (item.Type == TokenType.Identifier)

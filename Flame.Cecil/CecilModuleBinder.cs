@@ -34,7 +34,7 @@ namespace Flame.Cecil
 
         public IType BindType(QualifiedName Name)
         {
-            if (Name == null || string.IsNullOrWhiteSpace(Name.ToString()))
+            if (Name.IsEmpty)
                 return null;
 
             IType result;

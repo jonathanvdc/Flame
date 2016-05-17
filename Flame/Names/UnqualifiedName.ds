@@ -16,12 +16,29 @@ namespace Flame
             return Other is UnqualifiedName && Equals((UnqualifiedName)Other);
         }
 
+        public virtual bool IsEmpty
+        {
+            get { return false; }
+        }
+
+        /// <summary>
+        /// Creates a qualified name for this unqualified name.
+        /// </summary>
+        public QualifiedName Qualify()
+        {
+            return new QualifiedName(this);
+        }
+
         /// <summary>
         /// Qualifies this unqualified name with the given qualifier.
         /// </summary>
         public QualifiedName Qualify(QualifiedName Qualifier)
         {
-            return new QualifiedName(this).Qualify(Qualifier);
+            var result = Qualify();
+            if (Qualifier.IsEmpty)
+				return result;
+			else
+				return result.Qualify(Qualifier);
         }
 
         public abstract override bool Equals(UnqualifiedName Other);
@@ -56,6 +73,11 @@ namespace Flame
         /// Gets the number of type parameters for this simple name.
         /// </summary>
         public int TypeParameterCount { get; private set; }
+
+        public override bool IsEmpty
+        {
+            get { return string.IsNullOrEmpty(Name); }
+        }
 
         public override string ToString()
         {

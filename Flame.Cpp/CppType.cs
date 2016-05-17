@@ -48,7 +48,7 @@ namespace Flame.Cpp
             this.methods = new List<ICppMethod>();
             this.properties = new List<CppProperty>();
             this.types = new List<CppType>();
-            this.globalFriends = new List<ICppMember>(); 
+            this.globalFriends = new List<ICppMember>();
         }
 
         private List<CppField> fields;
@@ -66,7 +66,7 @@ namespace Flame.Cpp
         {
             get
             {
-                if (cachedFullName == null)
+                if (cachedFullName.IsEmpty)
                 {
                     cachedFullName = Name.Qualify(DeclaringNamespace.FullName);
                 }
@@ -186,7 +186,7 @@ namespace Flame.Cpp
                 if (method.IsHashOperator)
                 {
                     globalFriends.Add(new CppHashImplementation(this, method));
-                }                
+                }
                 else if (method.GetIsOperator() && BinaryOperation.IsAssignableBinaryOperator(method.GetOperator()) && method.ReturnType.Equals(this))
                 {
                     methods.Add(new CppBinaryAssignmentOverload(this, method));

@@ -16,8 +16,8 @@ type TypeName(path : UnqualifiedName[]) =
     /// Gets this type name's "path".
     member this.Path = path
 
-    member this.Name = 
-        path |> Array.fold (fun s p -> QualifiedName(p, s)) null 
+    member this.Name =
+        path |> Array.fold (fun s p -> QualifiedName(p, s)) (Unchecked.defaultof<QualifiedName>) 
 
     /// Checks if this type name is empty.
     member this.IsEmpty = path.Length = 0
@@ -26,7 +26,7 @@ type TypeName(path : UnqualifiedName[]) =
     member this.Head = path.[0]
 
     /// Gets this type name's "tail" type name.
-    member this.Tail = 
+    member this.Tail =
         new TypeName(path |> List.ofArray
                           |> List.tail
                           |> Array.ofList)
@@ -41,7 +41,7 @@ type TypeName(path : UnqualifiedName[]) =
         new TypeName(Array.append this.Path other.Path)
 
     member first.Equals (second : TypeName) =
-        first.Path.Length = second.Path.Length && 
+        first.Path.Length = second.Path.Length &&
         Seq.zip first.Path second.Path |> Seq.exists (fun (x, y) -> x <> y)
                                        |> not
 
@@ -55,13 +55,13 @@ type TypeName(path : UnqualifiedName[]) =
 
     override this.ToString() = this.Name.ToString()
 
-    member first.CompareTo (second : TypeName) = 
+    member first.CompareTo (second : TypeName) =
         let longest   = max first.Path.Length second.Path.Length
         let extend (path : string[]) =
             path |> Seq.append (Seq.init (longest - path.Length) (fun _ -> ""))
         let newFirst  = extend (first.Path |> Array.map string)
         let newSecond = extend (second.Path |> Array.map string)
-        let compare result (x : string, y) = 
+        let compare result (x : string, y) =
             if result = 0 then x.CompareTo(y) else result
         Seq.zip newFirst newSecond |> Seq.fold compare 0
 
@@ -69,7 +69,7 @@ type TypeName(path : UnqualifiedName[]) =
         member first.CompareTo second = first.CompareTo second
 
     interface IComparable with
-        member first.CompareTo second = 
+        member first.CompareTo second =
             match second with
             | :? TypeName as snd -> first.CompareTo snd
             | _                  -> 1
@@ -110,7 +110,7 @@ type FunctionalBinder(innerBinder : IBinder,
     member this.Environment = innerBinder.Environment
 
     /// Binds the given name to a type.
-    member this.Bind (name : TypeName) : IType = 
+    member this.Bind (name : TypeName) : IType =
         if name.IsEmpty then
             null
         else if aliasedTypes.ContainsKey name then

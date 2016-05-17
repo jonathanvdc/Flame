@@ -215,7 +215,7 @@ namespace Flame.Cecil
         {
             get
             {
-                if (fullNameCache == null)
+                if (fullNameCache.IsEmpty)
                 {
                     fullNameCache = GetFullName();
                 }
