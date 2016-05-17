@@ -21,13 +21,13 @@ namespace Flame.DSharp.Build
 		public const this(set IBinder ExternalBinder)
 		{
 			this.Graph = new AncestryGraph();
-			this.Name = "";
+			this.Name = new SimpleName("");
 			this.AssemblyVersion = default(Version);
 			this.MainNamespace = new AssemblyNamespace(this);
 			this.TypeNamer = new DSharpTypeNamer();
 			this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
 		}
-		public const this(set IBinder ExternalBinder, set string Name)
+		public const this(set IBinder ExternalBinder, set UnqualifiedName Name)
 		{
 			this.Graph = new AncestryGraph();
 			this.AssemblyVersion = default(Version);
@@ -35,14 +35,14 @@ namespace Flame.DSharp.Build
 			this.TypeNamer = new DSharpTypeNamer();
 			this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
 		}
-		public const this(set IBinder ExternalBinder, set string Name, set IConverter<IType, string> TypeNamer)
+		public const this(set IBinder ExternalBinder, set UnqualifiedName Name, set IConverter<IType, string> TypeNamer)
 		{
 			this.Graph = new AncestryGraph();
 			this.AssemblyVersion = default(Version);
 			this.MainNamespace = new AssemblyNamespace(this);
 			this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
 		}
-		public const this(set IBinder ExternalBinder, set string Name, set Version AssemblyVersion,
+		public const this(set IBinder ExternalBinder, set UnqualifiedName Name, set Version AssemblyVersion,
 						  set IConverter<IType, string> TypeNamer)
 		{
 			this.Graph = new AncestryGraph();
@@ -50,8 +50,11 @@ namespace Flame.DSharp.Build
 			this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
 		}
 
-		public string Name { const get; set; }
-		public string FullName { const get return Name; }
+		public UnqualifiedName Name { const get; set; }
+		public QualifiedName FullName
+		{
+			const get { return new QualifiedName(Name); }
+		}
 		/// <summary>
         /// Gets the assembly's version.
         /// </summary>
@@ -127,7 +130,7 @@ namespace Flame.DSharp.Build
                 foreach (var item in type.GetMethods())
                 {
                     if (isSingletonType || item.IsStatic)
-                    if (item.Name.Equals("main") || item.Name.Equals("Main"))
+                    if (item.Name.ToString().Equals("main") || item.Name.ToString().Equals("Main"))
 					if (item.Access == AccessModifier.Public)
 					{
                         return item;
@@ -159,7 +162,7 @@ namespace Flame.DSharp.Build
 					return entryPointWrapper;
 				}
 
-				var descType = new DescribedType("__entry_point", RootNamespace);
+				var descType = new DescribedType(new SimpleName("__entry_point"), RootNamespace);
 				descType.AddAttribute(PrimitiveAttributes.StaticTypeAttribute);
 				descType.AddAttribute(new AccessAttribute(AccessModifier.Public));
 				var descMethod = new DescribedBodyMethod(target.Name, descType, target.ReturnType, true);

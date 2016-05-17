@@ -55,7 +55,7 @@ namespace Flame.DSharp.Build
 
         	foreach (var param in this.GenericParameters)
             {
-            	genericBinder.MapType(param.Name, param);
+            	genericBinder.MapType(new QualifiedName(param.Name), param);
             }
 
             return new SyntaxState(this, genericBinder, Log, MemberProvider, TypeNamer);

@@ -57,11 +57,7 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
 
     /// Gets the type's "formal" name, i.e., the header's name with a suffix that
     /// identifies the number of type parameters the type takes.
-    member this.Name =
-        match Seq.length this.GenericParameters with
-        | 0 -> header.Name
-        | x -> header.Name + "<" + (new System.String(',', x - 1)) + ">"
-
+    member this.Name = SimpleName(header.Name, Seq.length this.GenericParameters)
     /// Gets this functional type's base types.
     member this.BaseTypes         = appliedBaseTypes.Value
     /// Gets this functional type's nested types.
@@ -128,8 +124,8 @@ type FunctionalType private(header : FunctionalMemberHeader, declNs : INamespace
             (this.WithNestedNamespace value) :> IFunctionalNamespace
 
     interface IMember with
-        member this.Name = this.Name
-        member this.FullName = MemberExtensions.CombineNames(declNs.FullName, this.Name)
+        member this.Name = this.Name :> UnqualifiedName
+        member this.FullName = this.Name.Qualify declNs.FullName
         member this.Attributes = header.Attributes
 
     interface IType with
@@ -169,8 +165,8 @@ type FunctionalMemberBase(header : FunctionalMemberHeader, declType : IType,
     member this.Location       = header.Location
 
     interface IMember with
-        member this.Name = header.Name
-        member this.FullName = if declType = null then header.Name else MemberExtensions.CombineNames(declType.FullName, header.Name)
+        member this.Name = SimpleName header.Name :> UnqualifiedName
+        member this.FullName = if declType = null then new QualifiedName(SimpleName header.Name) else (SimpleName header.Name).Qualify(declType.FullName)
         member this.Attributes = header.Attributes
 
     interface ITypeMember with

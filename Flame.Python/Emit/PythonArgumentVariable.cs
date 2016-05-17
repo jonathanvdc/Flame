@@ -29,7 +29,7 @@ namespace Flame.Python.Emit
 
         public override IPythonBlock CreateGetBlock()
         {
-            return new PythonIdentifierBlock(CodeGenerator, Parameter.Name, Type);
+            return new PythonIdentifierBlock(CodeGenerator, Parameter.Name.ToString(), Type);
         }
 
         public override IType Type

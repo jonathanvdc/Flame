@@ -5,14 +5,26 @@ namespace Flame.Build
 {
 	public class DescribedProperty : DescribedTypeMember, IProperty
 	{
-		public const this(string Name, IType DeclaringType, set IType PropertyType, set bool IsStatic)
+		public const this(UnqualifiedName Name, IType DeclaringType, set IType PropertyType, set bool IsStatic)
 			: base(Name, DeclaringType)
 		{
 			this.indexerParameters = new List<IParameter>();
 			this.accessors = new List<IAccessor>();
 		}
-		public const this(string Name, IType DeclaringType)
+		public const this(UnqualifiedName Name, IType DeclaringType)
 			: base(Name, DeclaringType)
+		{
+			this.indexerParameters = new List<IParameter>();
+			this.accessors = new List<IAccessor>();
+		}
+		public const this(string Name, IType DeclaringType, set IType PropertyType, set bool IsStatic)
+			: base(new SimpleName(Name), DeclaringType)
+		{
+			this.indexerParameters = new List<IParameter>();
+			this.accessors = new List<IAccessor>();
+		}
+		public const this(string Name, IType DeclaringType)
+			: base(new SimpleName(Name), DeclaringType)
 		{
 			this.indexerParameters = new List<IParameter>();
 			this.accessors = new List<IAccessor>();

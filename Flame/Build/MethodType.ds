@@ -57,7 +57,7 @@ namespace Flame
             return results;
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
             get { return Method.FullName; }
         }
@@ -67,7 +67,7 @@ namespace Flame
             get { return Method.Attributes; }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             get { return Method.Name; }
         }
@@ -159,7 +159,7 @@ namespace Flame
             if (Method.IsAnonymous)
                 return this.SignatureName;
             else
-                return Method.FullName;
+                return Method.FullName.ToString();
         }
     }
 

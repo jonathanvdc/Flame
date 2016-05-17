@@ -49,13 +49,13 @@ namespace Flame.XmlDocs
             }
             else
             {
-                return Namespace.FullName;
+                return Namespace.FullName.ToString();
             }
         }
 
         protected override string ConvertTypeDefault(IType Type)
         {
-            return MemberExtensions.CombineNames(ConvertNamespace(Type.DeclaringNamespace), ConvertName(Type.Name, Type.GenericParameters));
+            return MemberExtensions.CombineNames(ConvertNamespace(Type.DeclaringNamespace), ConvertName(Type.Name.ToString(), Type.GenericParameters));
         }
 
         protected override string MakeGenericType(string GenericDeclaration, IEnumerable<string> TypeArguments)
@@ -65,7 +65,7 @@ namespace Flame.XmlDocs
 
         protected override string ConvertGenericParameter(IGenericParameter Type)
         {
-            return Type.Name;
+            return Type.Name.ToString();
         }
 
         private static XmlTypeNamer inst;

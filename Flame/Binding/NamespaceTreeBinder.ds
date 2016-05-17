@@ -4,23 +4,23 @@ using System.Text;
 
 namespace Flame.Binding
 {
-	public class NamespaceTreeBinder : BinderBase
+	public class NamespaceTreeBinder : IBinder
 	{
 		public const this(set IEnvironment environment, set INamespaceTree NamespaceTree);
-	
+
 		public INamespaceTree NamespaceTree { const get; private set; }
-	
+
 		private IEnvironment environment;
 		/// <summary>
 		/// Gets the environment for this binder.
 		/// </summary>
-        public override IEnvironment Environment : BinderBase.Environment { const get return environment; }
-        public override const IEnumerable<IType> GetTypes() : BinderBase.GetTypes
+        public override IEnvironment Environment : IBinder.Environment { get return environment; }
+        public override [IType] GetTypes() : IBinder.GetTypes
         {
         	return NamespaceTree.GetAllTypes();
         }
 
-        public override IType BindTypeCore(string Name)
+        public override IType BindType(QualifiedName Name)
         {
         	return NamespaceTree.FindType(Name);
         }

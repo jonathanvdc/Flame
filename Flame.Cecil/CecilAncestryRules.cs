@@ -27,7 +27,7 @@ namespace Flame.Cecil
             }
             else
             {
-                return First.FullName == Second.FullName;
+                return First.FullName.Equals(Second.FullName);
             }
         }
 

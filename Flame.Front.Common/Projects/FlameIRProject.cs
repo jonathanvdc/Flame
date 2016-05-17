@@ -41,7 +41,7 @@ namespace Flame.Front.Projects
 
         private string extractName()
         {
-            return IRParser.ParseAssemblyName(RootNodes);
+            return IRParser.ParseAssemblyName(RootNodes).ToString();
         }
 
         private Lazy<IProjectItem[]> lazyChildren;

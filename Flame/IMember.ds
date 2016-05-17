@@ -12,12 +12,12 @@ namespace Flame
 		/// <summary>
         /// Gets the member's name.
         /// </summary>
-        string Name { get; }
+        UnqualifiedName Name { get; }
 
         /// <summary>
         /// Gets the member's full name.
         /// </summary>
-        string FullName { get; }
+        QualifiedName FullName { get; }
 
         /// <summary>
         /// Gets the member's attributes.

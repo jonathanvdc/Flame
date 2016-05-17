@@ -12,7 +12,7 @@ namespace Flame.Intermediate.Emit
 {
     public static class IREmitHelpers
     {
-        public static IRSignature CreateSignature(IRAssemblyBuilder Assembly, string Name, IEnumerable<IAttribute> Attributes)
+        public static IRSignature CreateSignature(IRAssemblyBuilder Assembly, UnqualifiedName Name, IEnumerable<IAttribute> Attributes)
         {
             return new IRSignature(Name, ConvertAttributes(Assembly, Attributes));
         }

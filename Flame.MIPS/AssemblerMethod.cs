@@ -31,7 +31,7 @@ namespace Flame.MIPS
 
         public IAssemblerBlock CreateCallBlock(ICodeGenerator CodeGenerator)
         {
-            return new CallLabelBlock(CodeGenerator, Label, Name);
+            return new CallLabelBlock(CodeGenerator, Label, Name.ToString());
         }
 
         private AssemblerEmitContext bodyContext;
@@ -48,9 +48,9 @@ namespace Flame.MIPS
         {
             CodeBuilder cb = new CodeBuilder();
             cb.Append("# ");
-            cb.Append(ReturnType.Name);
+            cb.Append(ReturnType.Name.ToString());
             cb.Append(" ");
-            cb.Append(Name);
+            cb.Append(Name.ToString());
             cb.Append("(");
             var parameters = this.GetParameters();
             for (int i = 0; i < parameters.Length; i++)
@@ -59,9 +59,9 @@ namespace Flame.MIPS
                 {
                     cb.Append(", ");
                 }
-                cb.Append(parameters[i].ParameterType.Name);
+                cb.Append(parameters[i].ParameterType.Name.ToString());
                 cb.Append(" ");
-                cb.Append(parameters[i].Name);
+                cb.Append(parameters[i].Name.ToString());
             }
             cb.Append(")");
             cb.AddCodeBuilder(bodyContext.GetCode());
@@ -97,9 +97,9 @@ namespace Flame.MIPS
             get { return Template.Template.IsStatic; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            get { return Name.Qualify(DeclaringType.FullName); }
         }
 
         public AttributeMap Attributes
@@ -107,7 +107,7 @@ namespace Flame.MIPS
             get { return Template.Attributes.Value; }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             get { return Template.Name; }
         }

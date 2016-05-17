@@ -51,14 +51,14 @@ namespace Flame.DSharp.Build
 
         #region IMember
 
-        public virtual string Name
+        public virtual UnqualifiedName Name
         {
-            const get { return Syntax.Signature.NameToken.TokenValue; }
+            const get { return new SimpleName(Syntax.Signature.NameToken.TokenValue); }
         }
 
-        public virtual string FullName
+        public virtual QualifiedName FullName
         {
-            const get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
+            const get { return Name.Qualify(DeclaringNamespace.FullName); }
         }
 
         /// <summary>

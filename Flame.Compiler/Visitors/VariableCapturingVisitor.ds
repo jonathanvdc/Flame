@@ -48,7 +48,7 @@ namespace Flame.Compiler.Visitors
             }
             string result = prefix;
 
-            for (int i = 1; Type.GetField(result, false) != null; i++)
+            for (int i = 1; Type.GetField(new SimpleName(result), false) != null; i++)
             {
                 result = prefix + i;
             }

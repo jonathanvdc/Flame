@@ -225,7 +225,7 @@ namespace Flame.Cecil
             }
             else
             {
-                methodName = Template.Name;
+                methodName = Template.Name.ToString();
             }
 
             var methodDef = new MethodDefinition(methodName, attrs, DeclaringType.Module.Module.TypeSystem.Void);
@@ -238,7 +238,7 @@ namespace Flame.Cecil
         {
             var voidTy = ((ICecilType)DeclaringProperty.DeclaringType).Module.Module.TypeSystem.Void;
 
-            var methodDef = new MethodDefinition(Template.Name, MethodAttributes.SpecialName, voidTy);
+            var methodDef = new MethodDefinition(Template.Name.ToString(), MethodAttributes.SpecialName, voidTy);
 
             DeclaringProperty.AddAccessor(methodDef, Kind);
 

@@ -46,7 +46,7 @@ namespace Flame.Syntax.DSharp
             var parameters = Header.Signature.GetParameters();
             for (int i = 0; i < parameters.Length; i++)
             {
-                if (parameters[i].Name.Equals(Name))
+                if (parameters[i].Name.ToString().Equals(Name))
                 {
                     return new ArgumentVariable(parameters[i], i);
                 }
@@ -62,7 +62,7 @@ namespace Flame.Syntax.DSharp
         {
             foreach (var item in Header.Signature.GetParameters())
             {
-                if (item.Name.Equals(Name))
+                if (item.Name.ToString().Equals(Name))
                 {
                     return true;
                 }

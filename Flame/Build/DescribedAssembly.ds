@@ -7,21 +7,21 @@ namespace Flame.Build
 {
     public class DescribedAssembly : DescribedMember, IAssembly, INamespaceBranch
     {
-        public const this(string Name)
+        public const this(UnqualifiedName Name)
             : base(Name)
         {
             this.types = new List<IType>();
             this.nsBranches = new List<INamespaceBranch>();
             this.Environment = EmptyEnvironment;
         }
-        public const this(string Name, set IEnvironment Environment)
+        public const this(UnqualifiedName Name, set IEnvironment Environment)
             : base(Name)
         {
             this.types = new List<IType>();
             this.nsBranches = new List<INamespaceBranch>();
         }
         public const this(
-            string Name, set Version AssemblyVersion,
+            UnqualifiedName Name, set Version AssemblyVersion,
             set IEnvironment Environment)
             : base(Name)
         {
@@ -29,7 +29,7 @@ namespace Flame.Build
             this.nsBranches = new List<INamespaceBranch>();
         }
 
-        public override string FullName { const get return Name; }
+        public override QualifiedName FullName { get { return new QualifiedName(Name); } }
 
         public Version AssemblyVersion { const get; private set; }
         public IEnvironment Environment { const get; private set; }

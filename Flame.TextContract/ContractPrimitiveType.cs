@@ -46,7 +46,7 @@ namespace Flame.TextContract
         {
             get
             {
-                var paramlessCtor = new DescribedMethod("Create" + char.ToUpper(Name[0]).ToString() + Name.Substring(1), this);
+                var paramlessCtor = new DescribedMethod("Create" + char.ToUpper(Name.ToString()[0]).ToString() + Name.ToString().Substring(1), this);
                 paramlessCtor.IsConstructor = true;
                 return new IMethod[]
                 {
@@ -60,9 +60,9 @@ namespace Flame.TextContract
             get { return new IProperty[0]; }
         }
 
-        public virtual string FullName
+        public virtual QualifiedName FullName
         {
-            get { return Name; }
+            get { return new QualifiedName(Name); }
         }
 
         public virtual AttributeMap Attributes
@@ -70,7 +70,7 @@ namespace Flame.TextContract
             get { return AttributeMap.Empty; }
         }
 
-        public abstract string Name { get; }
+        public abstract UnqualifiedName Name { get; }
 
         public virtual IEnumerable<IGenericParameter> GenericParameters
         {
@@ -79,7 +79,7 @@ namespace Flame.TextContract
 
         public override string ToString()
         {
-            return Name;
+            return Name.ToString();
         }
 
         public IAncestryRules AncestryRules

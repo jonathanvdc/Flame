@@ -59,9 +59,9 @@ namespace Flame.TextContract
             // Do nothing. This back-end does not need `Initialize` to get things done.
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
+            get { return Name.Qualify(DeclaringNamespace.FullName); }
         }
 
         public AttributeMap Attributes
@@ -69,35 +69,11 @@ namespace Flame.TextContract
             get { return Template.Attributes.Value; }
         }
 
-        public virtual string Name
+        public virtual UnqualifiedName Name
         {
             get
             {
-                if (this.GetIsGeneric())
-                {
-                    var genericFreeName = GenericNameExtensions.TrimGenerics(this.Template.Name);
-                    StringBuilder sb = new StringBuilder(genericFreeName);
-                    sb.Append('<');
-                    bool first = true;
-                    foreach (var item in GenericParameters)
-                    {
-                        if (first)
-                        {
-                            first = false;
-                        }
-                        else
-                        {
-                            sb.Append(", ");
-                        }
-                        sb.Append(ContractHelpers.GetTypeName(item));
-                    }
-                    sb.Append('>');
-                    return sb.ToString();
-                }
-                else
-                {
-                    return Template.Name;
-                }
+                return Template.Name;
             }
         }
 
@@ -135,7 +111,7 @@ namespace Flame.TextContract
         {
             CodeBuilder cb = new CodeBuilder();
             cb.Append("class ");
-            cb.Append(Name);
+            cb.Append(this.MakeGenericType(this.GenericParameters).Name.ToString());
             var baseTypes = BaseTypes.Where((item) => !item.GetIsRootType()).ToArray();
             if (baseTypes.Length > 0)
             {

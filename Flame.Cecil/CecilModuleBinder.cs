@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil
 {
-    public class CecilModuleBinder : BinderBase
+    public class CecilModuleBinder : IBinder
     {
         public CecilModuleBinder(CecilModule Module)
         {
             this.Module = Module;
-            this.types = new Dictionary<string, IType>();
+            this.types = new Dictionary<QualifiedName, IType>();
             foreach (var item in Module.Types)
             {
                 AddType(item);
@@ -20,9 +20,9 @@ namespace Flame.Cecil
         }
 
         public CecilModule Module { get; private set; }
-        private Dictionary<string, IType> types;
+        private Dictionary<QualifiedName, IType> types;
 
-        public override IEnumerable<IType> GetTypes()
+        public IEnumerable<IType> GetTypes()
         {
             return Module.Types;
         }
@@ -32,12 +32,10 @@ namespace Flame.Cecil
             this.types[Type.FullName] = Type;
         }
 
-        public override IType BindTypeCore(string Name)
+        public IType BindType(QualifiedName Name)
         {
-            if (string.IsNullOrWhiteSpace(Name))
-            {
+            if (Name == null || string.IsNullOrWhiteSpace(Name.ToString()))
                 return null;
-            }
 
             IType result;
             if (types.TryGetValue(Name, out result))
@@ -50,7 +48,7 @@ namespace Flame.Cecil
             }
         }
 
-        public override IEnvironment Environment
+        public IEnvironment Environment
         {
             get { return new CecilEnvironment(Module); }
         }

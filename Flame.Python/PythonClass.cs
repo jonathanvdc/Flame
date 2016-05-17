@@ -61,9 +61,9 @@ namespace Flame.Python
             get { return properties; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
+            get { return Name.Qualify(DeclaringNamespace.FullName); }
         }
 
         public AttributeMap Attributes
@@ -76,12 +76,12 @@ namespace Flame.Python
             return DeclaringNamespace.GetMemberNamer();
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             get
             {
                 var descTy = new DescribedType(Template.Name, DeclaringNamespace);
-                return GetMemberNamer().Name(descTy); 
+                return new SimpleName(GetMemberNamer().Name(descTy)); 
             }
         }
 
@@ -96,8 +96,8 @@ namespace Flame.Python
 
         public IEnumerable<IPythonMethod> GetOverloadResolvedMethods()
         {
-            Dictionary<string, PythonOverloadedMethod> overloaded = new Dictionary<string, PythonOverloadedMethod>();
-            Dictionary<string, IPythonMethod> simple = new Dictionary<string, IPythonMethod>();
+            var overloaded = new Dictionary<UnqualifiedName, PythonOverloadedMethod>();
+            var simple = new Dictionary<UnqualifiedName, IPythonMethod>();
             foreach (var item in this.methods)
             {
                 if (overloaded.ContainsKey(item.Name))
@@ -127,7 +127,7 @@ namespace Flame.Python
             CodeBuilder cb = new CodeBuilder();
             cb.IndentationString = "    ";
             cb.Append("class ");
-            cb.Append(Name);
+            cb.Append(GenericNameExtensions.TrimGenerics(Name.ToString()));
             var namer = GetMemberNamer();
             var baseTypeNames = BaseTypes.Where((item) => !(item is PythonPrimitiveType)).Select(namer.Name).ToArray();
             if (baseTypeNames.Length > 0)

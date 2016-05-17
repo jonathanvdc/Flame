@@ -38,9 +38,14 @@ namespace Flame
             const get { return Declaration.IsStatic; }
         }
 
-        public string FullName
+		public QualifiedName FullName
         {
-            const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Declaration.Name); }
+            const get { return Declaration.Name.Qualify(DeclaringType.FullName); }
+        }
+
+        public UnqualifiedName Name
+        {
+            const get { return Declaration.Name; }
         }
 
         public AttributeMap Attributes
@@ -48,14 +53,9 @@ namespace Flame
             const get { return Declaration.Attributes; }
         }
 
-        public string Name
-        {
-            const get { return Declaration.Name; }
-        }
-
         public override string ToString()
         {
-            return FullName;
+            return FullName.ToString();
         }
 
         #region Equality

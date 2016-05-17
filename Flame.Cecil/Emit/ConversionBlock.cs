@@ -166,10 +166,10 @@ namespace Flame.Cecil.Emit
         {
             if (!Type.Equals(PrimitiveTypes.Null))
             {
-                var info = Type.GetMethod("ToString", false, PrimitiveTypes.String, new IType[0]);
+                var info = Type.GetMethod(new SimpleName("ToString"), false, PrimitiveTypes.String, new IType[0]);
                 if (info == null)
                 {
-                    info = CodeGenerator.GetModule().Convert(Context.Processor.Body.Method.Module.TypeSystem.Object).GetMethod("ToString", false, PrimitiveTypes.String, new IType[0]);
+                    info = CodeGenerator.GetModule().Convert(Context.Processor.Body.Method.Module.TypeSystem.Object).GetMethod(new SimpleName("ToString"), false, PrimitiveTypes.String, new IType[0]);
                 }
                 var block = (ICecilBlock)CodeGenerator.EmitInvocation(info, new VirtualPushBlock(CodeGenerator, Type), new ICodeBlock[0]);
                 block.Emit(Context);

@@ -10,14 +10,14 @@ namespace Flame.Syntax
 
         public IBinderDirectiveSyntax Syntax { const get; private set; }
 
-        public string Name
+        public UnqualifiedName Name
         {
-            const get { return Syntax.GetCode().ToString(); }
+            const get { return new SimpleName(Syntax.GetCode().ToString()); }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            const get { return Name; }
+            const get { return new QualifiedName(Name); }
         }
 
         public AttributeMap Attributes

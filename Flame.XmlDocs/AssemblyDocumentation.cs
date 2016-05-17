@@ -25,7 +25,7 @@ namespace Flame.XmlDocs
 
         public static AssemblyDocumentation FromAssembly(IAssembly Assembly)
         {
-            return new AssemblyDocumentation(Assembly.Name);
+            return new AssemblyDocumentation(Assembly.Name.ToString());
         }
     }
 }

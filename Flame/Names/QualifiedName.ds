@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Flame
 {
@@ -66,6 +67,23 @@ namespace Flame
 		}
 
 		/// <summary>
+		/// Describes this qualified name as a "path": a sequence of unqualified
+		/// names that spell this qualified name.
+		/// </summary>
+		public [UnqualifiedName] Path
+		{
+			get
+			{
+				var results = new List<UnqualifiedName>();
+				for (var name = this; name != null; name = name.Name)
+				{
+					results.Add(name.Qualifier);
+				}
+				return results;
+			}
+		}
+
+		/// <summary>
 		/// Qualifies this name with an additional qualifier.
 		/// A new instance is returned that represents the
 		/// concatenation of said qualifier and this
@@ -73,7 +91,10 @@ namespace Flame
 		/// </summary>
 		public QualifiedName Qualify(string PreQualifier)
 		{
-			return new QualifiedName(PreQualifier, this);
+			if (string.IsNullOrEmpty(PreQualifier))
+				return this;
+			else
+				return new QualifiedName(PreQualifier, this);
 		}
 
 		/// <summary>
@@ -84,7 +105,15 @@ namespace Flame
 		/// </summary>
 		public QualifiedName Qualify(UnqualifiedName PreQualifier)
 		{
-			return new QualifiedName(PreQualifier, this);
+			if (PreQualifier is SimpleName
+				&& string.IsNullOrEmpty(((SimpleName)PreQualifier).Name))
+			{
+				return this;
+			}
+			else
+			{
+				return new QualifiedName(PreQualifier, this);
+			}
 		}
 
 		/// <summary>

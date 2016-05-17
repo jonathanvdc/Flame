@@ -18,12 +18,12 @@ namespace Flame.Syntax.DSharp
         public const this(set Token Identifier);
 
         public Token Identifier { const get; private set; }
-        
+
         public SourceLocation Location
         {
         	const get return Identifier.Location;
         }
-        
+
         public IReadOnlyList<Token> Tokens
         {
         	const get return (IReadOnlyList<Token>)new Token[] { Identifier };
@@ -43,7 +43,7 @@ namespace Flame.Syntax.DSharp
             	{
             		return localVar;
             	}
-            	var staticVar = MemberAccessSyntaxBase.CreateVariable(null, State.CurrentType, Identifier.TokenValue, State);
+            	var staticVar = MemberAccessSyntaxBase.CreateVariable(null, State.CurrentType, new SimpleName(Identifier.TokenValue), State);
             	if (staticVar != null)
             	{
             		return staticVar;
@@ -52,13 +52,13 @@ namespace Flame.Syntax.DSharp
             	if (associatedSingleton != null)
             	{
             		var singletonVar = SingletonVariable.GetSingletonVariable(associatedSingleton, State.CurrentType);
-            		var singletonMemberVar = MemberAccessSyntaxBase.CreateVariable(singletonVar, associatedSingleton, Identifier.TokenValue, State);
+            		var singletonMemberVar = MemberAccessSyntaxBase.CreateVariable(singletonVar, associatedSingleton, new SimpleName(Identifier.TokenValue), State);
             		if (singletonMemberVar != null)
             		{
             			return singletonMemberVar;
             		}
             	}
-            
+
             	var tSyntax = new IdentifierTypeSyntax(Identifier);
             	var type = tSyntax.CreateType(State);
             	// Try singleton as a last resort. This will return null if there is no singleton class in sight.
@@ -76,7 +76,7 @@ namespace Flame.Syntax.DSharp
             return new ThisSyntax().CreateVariable(State);
         }
 
-        public const IEnumerable<ITypeMember> GetAccessedMembers(ISyntaxState State)
+        public [ITypeMember] GetAccessedMembers(ISyntaxState State)
         {
             var localMembers = State.MemberProvider.GetMembers(State.CurrentType, Identifier.TokenValue);
             if (Enumerable.Any<ITypeMember>(localMembers))
@@ -85,7 +85,7 @@ namespace Flame.Syntax.DSharp
             }
             else
             {
-            	var typeMembers = State.CurrentType.GetAllMembers(Identifier.TokenValue);
+            	var typeMembers = State.CurrentType.GetAllMembers(new SimpleName(Identifier.TokenValue));
             	return typeMembers;
             }
         }

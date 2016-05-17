@@ -163,7 +163,7 @@ namespace Flame.DSharp.Build
             }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             const get
             {
@@ -172,29 +172,29 @@ namespace Flame.DSharp.Build
             		string tokenVal = Syntax.Signature.NameToken.TokenValue;
             		if (tokenVal.Equals("hash"))
             		{
-            			return "GetHashCode";
+            			return new SimpleName("GetHashCode");
             		}
             		else if (tokenVal.Equals("cast"))
             		{
             			var retType = ReturnType;
             			if (retType.Equals(PrimitiveTypes.String))
-            				return "ToString";
+            				return new SimpleName("ToString");
             			else
-            				return "cast<" + retType.FullName + ">";
+            				return new SimpleName("cast<" + retType.FullName + ">");
             		}
             		else
             		{
-            			return "operator" + tokenVal;
+            			return new SimpleName("operator" + tokenVal);
             		}
             	}
             	else
-            		return Syntax.Signature.NameToken.TokenValue;
+            		return new SimpleName(Syntax.Signature.NameToken.TokenValue);
            	}
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            const get { return Name.Qualify(DeclaringType.FullName); }
         }
 
 		private Lazy<AttributeMap> attributeVals;

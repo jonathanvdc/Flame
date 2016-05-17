@@ -55,9 +55,9 @@ namespace Flame.Cpp
             get { return false; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            get { return Name.Qualify(DeclaringType.FullName); }
         }
 
         private DescriptionAttribute CreateSummary()
@@ -97,9 +97,9 @@ namespace Flame.Cpp
             }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
-            get { return "CheckInvariantsCore"; }
+            get { return new SimpleName("CheckInvariantsCore"); }
         }
 
         public IEnumerable<IGenericParameter> GenericParameters

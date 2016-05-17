@@ -8,7 +8,7 @@ namespace Flame
 	{
 		#region GetAllFields
 
-        public const static [IField] GetAllFields(this IType Type, string Name)
+        public const static [IField] GetAllFields(this IType Type, UnqualifiedName Name)
         {
             return MemberSelection.FilterByName<IField>(Type.GetAllFields(), Name);
         }
@@ -33,12 +33,12 @@ namespace Flame
 
         #region GetField
 
-        public const static IField GetField(this IType Type, string Name)
+        public const static IField GetField(this IType Type, UnqualifiedName Name)
         {
         	return Type.GetAllFields().GetField(Name);
         }
 
-        public const static IField GetField(this [IField] Fields, string Name)
+        public const static IField GetField(this [IField] Fields, UnqualifiedName Name)
         {
 			return Enumerable.FirstOrDefault<IField>(MemberSelection.FilterByName<IField>(Fields, Name));
         }
@@ -60,7 +60,7 @@ namespace Flame
             return props;
         }
 
-        public const static [IProperty] GetAllProperties(this IType Type, string Name)
+        public const static [IProperty] GetAllProperties(this IType Type, UnqualifiedName Name)
         {
             return MemberSelection.FilterByName<IProperty>(Type.GetAllProperties(), Name);
         }
@@ -83,7 +83,7 @@ namespace Flame
             return methods;
         }
 
-        public const static [IMethod] GetAllMethods(this IType Type, string Name)
+        public const static [IMethod] GetAllMethods(this IType Type, UnqualifiedName Name)
         {
             return MemberSelection.FilterByName<IMethod>(Type.GetAllMethods(), Name);
         }
@@ -103,7 +103,7 @@ namespace Flame
 
         #region GetAllMembers
 
-        public const static [ITypeMember] GetAllMembers(this IType Type, string Name)
+        public const static [ITypeMember] GetAllMembers(this IType Type, UnqualifiedName Name)
         {
 			return Enumerable.Concat<ITypeMember>(Type.GetAllFields(Name),
 				   Enumerable.Concat<ITypeMember>(Type.GetAllMethods(Name),

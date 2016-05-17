@@ -6,11 +6,11 @@ namespace Flame.Primitives
 {
 	public class PrimitiveParameter : IParameter
 	{
-		public const this(set string Name, set IType ParameterType)
+		public const this(set UnqualifiedName Name, set IType ParameterType)
 		{
 			this.Attributes = AttributeMap.Empty;
 		}
-		public const this(set string Name, set IType ParameterType, [IAttribute] Attributes)
+		public const this(set UnqualifiedName Name, set IType ParameterType, [IAttribute] Attributes)
 		{
 			this.Attributes = new AttributeMap(Attributes);
 		}
@@ -18,11 +18,17 @@ namespace Flame.Primitives
 		/// <summary>
         /// Gets the member's name.
         /// </summary>
-        public string Name { const get; private set; }
+        public UnqualifiedName Name { const get; private set; }
         /// <summary>
         /// Gets the member's full name.
         /// </summary>
-        public string FullName { const get return Name; }
+        public QualifiedName FullName
+		{
+			const get
+			{
+				return new QualifiedName(Name);
+			}
+		}
 
         /// <summary>
         /// Gets the member's attributes.

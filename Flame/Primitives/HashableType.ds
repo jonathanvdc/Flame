@@ -9,7 +9,7 @@ namespace Flame.Primitives
 	/// </summary>
 	public static class HashableType : MethodRootPrimitiveType
 	{
-		public override string Name { const get return "IHashable"; }
+		public override UnqualifiedName Name { const get return new SimpleName("IHashable"); }
 
 		protected override const IMethod[] CreateMethods()
 		{

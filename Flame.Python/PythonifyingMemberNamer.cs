@@ -39,7 +39,7 @@ namespace Flame.Python
         {
             if (Method is IPythonMethod)
             {
-                return Method.Name;
+                return Method.Name.ToString();
             }
             return Pythonify(Method.GetGenericFreeName());
         }
@@ -48,18 +48,18 @@ namespace Flame.Python
         {
             if (Field is PythonField)
             {
-                return Field.Name;
+                return Field.Name.ToString();
             }
-            return Pythonify(Field.Name);
+            return Pythonify(Field.Name.ToString());
         }
 
         protected override string NameCore(IProperty Property)
         {
             if (Property is PythonProperty)
             {
-                return Property.Name;
+                return Property.Name.ToString();
             }
-            return Pythonify(Property.Name);
+            return Pythonify(Property.Name.ToString());
         }
     }
 }

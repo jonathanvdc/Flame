@@ -27,8 +27,14 @@ namespace Flame.DSharp.Build
 		public IProperty DeclaringProperty { const get; private set; }
 		public AttributeMap Attributes { const get; private set; }
 		public IType DeclaringType { const get return DeclaringProperty.DeclaringType; }
-		public string Name { const get return "get_" + DeclaringProperty.Name; }
-		public string FullName { const get return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+		public UnqualifiedName Name
+		{
+			const get { return new SimpleName("get_" + DeclaringProperty.Name.ToString()); }
+		}
+		public QualifiedName FullName
+		{
+			const get { return Name.Qualify(DeclaringType.FullName); }
+		}
 
 		public FlameAccessorType AccessorType
         {
@@ -108,7 +114,7 @@ namespace Flame.DSharp.Build
 
         public static const IField GetSingletonInstanceField(IType TargetType)
         {
-        	return TargetType.GetField(GetSingletonInstanceFieldName(TargetType), true);
+        	return TargetType.GetField(new SimpleName(GetSingletonInstanceFieldName(TargetType)), true);
         }
 	}
 }

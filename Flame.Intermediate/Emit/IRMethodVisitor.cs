@@ -28,7 +28,7 @@ namespace Flame.Intermediate.Emit
             // #ctor_reference(...)
 
             var declType = Assembly.TypeTable.GetReference(Value.DeclaringType);
-            var genParamNames = NodeFactory.Block(Value.GenericParameters.Select(item => NodeFactory.Literal(item.Name)));
+            var genParamNames = NodeFactory.Block(Value.GenericParameters.Select(item => NodeFactory.IdOrLiteral(item.Name)));
             var visitor = new IRGenericMemberTypeVisitor(Assembly, Value);
             var retType = visitor.Convert(Value.ReturnType);
             var paramTypes = NodeFactory.Block(Value.Parameters.GetTypes().Select(visitor.GetTypeReference));

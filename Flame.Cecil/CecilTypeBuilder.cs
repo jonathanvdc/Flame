@@ -148,12 +148,12 @@ namespace Flame.Cecil
             int genCount = Template.GenericParameters.Value.Count();
             if (genCount == 0)
             {
-                return Template.Name;
+                return Template.Name.ToString();
             }
             else
             {
                 var sb = new StringBuilder();
-                sb.Append(GenericNameExtensions.TrimGenerics(Template.Name));
+                sb.Append(GenericNameExtensions.TrimGenerics(Template.Name.ToString()));
                 sb.Append('`');
                 sb.Append(genCount);
                 return sb.ToString();
@@ -162,7 +162,7 @@ namespace Flame.Cecil
 
         public static CecilTypeBuilder DeclareType(ICecilNamespace CecilNamespace, ITypeSignatureTemplate Template)
         {
-            var reference = new TypeDefinition(CecilNamespace.FullName, Template.Name, (TypeAttributes)0);
+            var reference = new TypeDefinition(CecilNamespace.FullName.ToString(), Template.Name.ToString(), (TypeAttributes)0);
 
             var cecilType = new CecilTypeBuilder(reference, Template, CecilNamespace, CecilNamespace.Module);
             if (CecilNamespace is ICecilType)
@@ -404,7 +404,7 @@ namespace Flame.Cecil
 
         public INamespaceBuilder DeclareNamespace(string Name)
         {
-            return (INamespaceBuilder)DeclareType(new TypePrototypeTemplate(new Flame.Build.DescribedType(Name, this)));
+            return (INamespaceBuilder)DeclareType(new TypePrototypeTemplate(new Flame.Build.DescribedType(new SimpleName(Name), this)));
         }
 
         public ITypeBuilder DeclareType(ITypeSignatureTemplate Template)

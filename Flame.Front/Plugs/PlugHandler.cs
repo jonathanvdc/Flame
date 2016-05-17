@@ -90,7 +90,7 @@ namespace Flame.Front.Plugs
             foreach (var item in GetPlugAssemblyTasks(Resolver, platform))
             {
                 var asm = await item;
-                if (asm.Name == AssemblyName)
+                if (asm.Name.ToString() == AssemblyName)
                 {
                     return asm;
                 }
@@ -103,7 +103,7 @@ namespace Flame.Front.Plugs
                 {
                     foreach (var asm in asms)
                     {
-                        if (asm.Name == item)
+                        if (asm.Name.ToString() == item)
                         {
                             return asm;
                         }

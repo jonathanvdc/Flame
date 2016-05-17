@@ -26,7 +26,7 @@ namespace Flame.Intermediate.Emit
             this.Assembly = Assembly;
             this.Method = Method;
 
-            this.variableNames = new UniqueNameSet<IVariableMember>(item => item.Name, "%");
+            this.variableNames = new UniqueNameSet<IVariableMember>(item => item.Name.ToString(), "%");
             this.tags = new UniqueNameMap<UniqueTag>(item => item.Name, "!");
             this.postprocessNode = x => x;
         }

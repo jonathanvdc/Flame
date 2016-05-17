@@ -24,9 +24,9 @@ namespace Flame.Cpp.Plugs
             get { return new IGenericParameter[] { ElementType }; }
         }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
-            get { return "ArraySlice"; }
+            get { return new SimpleName("ArraySlice"); }
         }
 
         private static readonly AttributeMap attrMap = new AttributeMap(new IAttribute[] 

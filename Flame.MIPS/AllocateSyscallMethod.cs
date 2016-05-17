@@ -38,8 +38,8 @@ namespace Flame.MIPS
         public ICallConvention CallConvention { get; private set; }
 
         public IType DeclaringType { get { return MemorySystemType.Instance; } }
-        public string Name { get { return "Allocate"; } }
-        public string FullName { get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); } }
+        public UnqualifiedName Name { get { return new SimpleName("Allocate"); } }
+        public QualifiedName FullName { get { return Name.Qualify(DeclaringType.FullName); } }
         public AttributeMap Attributes
         {
             get

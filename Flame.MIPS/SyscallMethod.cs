@@ -58,9 +58,9 @@ namespace Flame.MIPS
             get { return Template.IsStatic; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            get { return Name.Qualify(DeclaringType.FullName); }
         }
 
         public AttributeMap Attributes
@@ -68,7 +68,7 @@ namespace Flame.MIPS
             get { return Template.Attributes; }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             get { return Template.Name; }
         }

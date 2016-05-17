@@ -104,7 +104,7 @@ namespace Flame.Cpp
 
         protected override string ConvertGenericParameter(IGenericParameter Type)
         {
-            return Type.Name;
+            return Type.Name.ToString();
         }
 
         protected override string ConvertTypeDeclaration(IType Type)
@@ -120,11 +120,11 @@ namespace Flame.Cpp
         {
             if (Type.IsGlobalType())
             {
-                return CppNameExtensions.RemoveRedundantScope(Type.DeclaringNamespace.FullName, CurrentNamespace);
+                return CppNameExtensions.RemoveRedundantScope(Type.DeclaringNamespace.FullName.ToString(), CurrentNamespace);
             }
             else
             {
-                return CppNameExtensions.RemoveRedundantScope(Type.FullName, CurrentNamespace);
+                return CppNameExtensions.RemoveRedundantScope(Type.FullName.ToString(), CurrentNamespace);
             }
         }
     }

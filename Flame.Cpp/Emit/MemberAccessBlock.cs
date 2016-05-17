@@ -75,7 +75,7 @@ namespace Flame.Cpp.Emit
             }
             else
             {
-                return new CodeBuilder(Member.Name);
+                return new CodeBuilder(Member.Name.ToString());
             }
         }
 

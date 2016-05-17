@@ -103,19 +103,19 @@ namespace Flame.Cecil
             get { return Modules.Aggregate(Enumerable.Empty<IType>(), (acc, module) => acc.Concat(module.Types)); }
         }
 
-        public IType GetType(string Name)
+        public IType GetType(QualifiedName Name)
         {
             return CreateBinder().BindType(Name);
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
-            get { return Assembly.Name.Name; }
+            get { return new SimpleName(Assembly.Name.Name); }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return Assembly.FullName; }
+            get { return new QualifiedName(Assembly.FullName); }
         }
 
         public AttributeMap Attributes
@@ -127,7 +127,7 @@ namespace Flame.Cecil
 
         public INamespaceBuilder DeclareNamespace(string Name)
         {
-            return new CecilNamespace(MainModule, Name);
+            return new CecilNamespace(MainModule, new SimpleName(Name), new QualifiedName(new SimpleName(Name)));
         }
 
         public void Save(Stream Stream)
@@ -165,7 +165,7 @@ namespace Flame.Cecil
 
         public override string ToString()
         {
-            return this.Name;
+            return this.Name.ToString();
         }
 
         public override bool Equals(object obj)

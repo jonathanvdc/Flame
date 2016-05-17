@@ -294,11 +294,11 @@ namespace Flame.Python.Emit
             else if (Method is IAccessor)
             {
                 var acc = (IAccessor)Method;
-                if ((Method.DeclaringType.GetIsArray() || Method.DeclaringType.GetIsVector() || Method.DeclaringType.Equals(PrimitiveTypes.String)) && acc.DeclaringProperty.Name == "Length")
+                if ((Method.DeclaringType.GetIsArray() || Method.DeclaringType.GetIsVector() || Method.DeclaringType.Equals(PrimitiveTypes.String)) && acc.DeclaringProperty.Name.ToString() == "Length")
                 {
                     return new PartialInvocationBlock(this, new PythonIdentifierBlock(this, "len", PythonObjectType.Instance), Method.ReturnType, (IPythonBlock)Caller);
                 }
-                else if (acc.DeclaringProperty.GetIsIndexer() && acc.DeclaringProperty.Name == "this")
+                else if (acc.DeclaringProperty.GetIsIndexer() && acc.DeclaringProperty.Name.ToString() == "this")
                 {
                     return new PartialIndexedBlock(this, (IPythonBlock)Caller, acc.AccessorType, Method.ReturnType);
                 }

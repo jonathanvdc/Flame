@@ -36,16 +36,16 @@ namespace Flame.Wasm
 
 		public static string GetWasmName(IType Type)
 		{
-			if (Type == null)
+            if (Type == null)
 				return "";
-			return Type.FullName;
+            return Type.FullName.ToString();
 		}
 
 		public static string GetWasmName(IMethod Method)
 		{
 			if (Method == null)
 				return "";
-			return MemberExtensions.CombineNames(GetWasmName(Method.DeclaringType), Method.Name);
+            return MemberExtensions.CombineNames(GetWasmName(Method.DeclaringType), Method.Name.ToString());
 		}
 
 		public static bool IsScalar(this IType Type)
@@ -59,8 +59,8 @@ namespace Flame.Wasm
         public static WasmExpr DeclareParameter(IParameter Parameter, IAbi Abi)
 		{
             var args = new List<WasmExpr>();
-            if (!string.IsNullOrWhiteSpace(Parameter.Name))
-                args.Add(new IdentifierExpr(Parameter.Name));
+            if (!string.IsNullOrWhiteSpace(Parameter.Name.ToString()))
+                args.Add(new IdentifierExpr(Parameter.Name.ToString()));
             args.Add(new MnemonicExpr(GetScalarWasmName(Parameter.ParameterType, Abi)));
             return new CallExpr(OpCodes.DeclareParameter, args);
 		}

@@ -11,7 +11,7 @@ namespace Flame.Python
 {
     public class PythonNamespaceBuilder : INamespaceBuilder, INamespaceBranch, ISyntaxNode
     {
-        public PythonNamespaceBuilder(INamespace DeclaringNamespace, string Name)
+        public PythonNamespaceBuilder(INamespace DeclaringNamespace, UnqualifiedName Name)
         {
             this.DeclaringNamespace = DeclaringNamespace;
             this.Name = Name;
@@ -19,7 +19,7 @@ namespace Flame.Python
             this.namespaces = new List<PythonNamespaceBuilder>();
         }
 
-        public string Name { get; private set; }
+        public UnqualifiedName Name { get; private set; }
         public INamespace DeclaringNamespace { get; private set; }
         public IAssembly DeclaringAssembly { get { return DeclaringNamespace.DeclaringAssembly; } }
         private List<PythonClass> classes;
@@ -27,7 +27,7 @@ namespace Flame.Python
 
         public INamespaceBuilder DeclareNamespace(string Name)
         {
-            var ns = new PythonNamespaceBuilder(this, Name);
+            var ns = new PythonNamespaceBuilder(this, new SimpleName(Name));
             namespaces.Add(ns);
             return ns;
         }
@@ -49,9 +49,9 @@ namespace Flame.Python
             // Do nothing. This back-end does not need `Initialize` to get things done.
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
+            get { return Name.Qualify(DeclaringNamespace.FullName); }
         }
 
         public AttributeMap Attributes

@@ -14,11 +14,11 @@ namespace Flame.Compiler.Emit
 		/// <summary>
         /// Gets the member's name.
         /// </summary>
-        public string Name { const get return null; }
+        public UnqualifiedName Name { const get return new SimpleName(""); }
         /// <summary>
         /// Gets the member's full name.
         /// </summary>
-        public string FullName { const get return Name; }
+        public QualifiedName FullName { const get return new QualifiedName(Name); }
         /// <summary>
         /// Gets the member's attributes.
         /// </summary>

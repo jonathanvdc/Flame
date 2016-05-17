@@ -32,7 +32,7 @@ namespace Flame.Python
         {
             if (Type is PythonClass)
             {
-                return new ModuleDependency[] { new ModuleDependency(new ClassModule(Type.Name, (PythonClass)Type)) };
+                return new ModuleDependency[] { new ModuleDependency(new ClassModule(Type.Name.ToString(), (PythonClass)Type)) };
             }
             else
             {

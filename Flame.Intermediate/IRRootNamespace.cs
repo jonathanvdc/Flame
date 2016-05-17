@@ -32,14 +32,14 @@ namespace Flame.Intermediate
             get { return DeclaringAssembly.Attributes; }
         }
 
-        public override string FullName
+        public override QualifiedName FullName
         {
-            get { return Name; }
+            get { return new QualifiedName(Name); }
         }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
-            get { return ""; }
+            get { return new SimpleName(""); }
         }
     }
 }

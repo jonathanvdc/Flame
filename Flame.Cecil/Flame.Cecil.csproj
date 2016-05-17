@@ -125,8 +125,6 @@
     <Compile Include="Emit\OptimizationExtensions.cs" />
     <Compile Include="Emit\ArgumentVariable.cs" />
     <Compile Include="CecilAccessor.cs" />
-    <Compile Include="CecilArrayType.cs" />
-    <Compile Include="CecilArrayTypeBase.cs" />
     <Compile Include="CecilAssembly.cs" />
     <Compile Include="CecilAttribute.cs" />
     <Compile Include="CecilBoundObject.cs" />
@@ -143,7 +141,6 @@
     <Compile Include="CecilModuleBinder.cs" />
     <Compile Include="CecilNamespace.cs" />
     <Compile Include="CecilParameter.cs" />
-    <Compile Include="CecilPointerType.cs" />
     <Compile Include="CecilProperty.cs" />
     <Compile Include="CecilPropertyBuilder.cs" />
     <Compile Include="CecilResolvedTypeBase.cs" />
@@ -151,7 +148,6 @@
     <Compile Include="CecilTypeBase.cs" />
     <Compile Include="CecilTypeBuilder.cs" />
     <Compile Include="CecilTypeMemberBase.cs" />
-    <Compile Include="CecilVectorType.cs" />
     <Compile Include="Emit\BinaryOpBlock.cs" />
     <Compile Include="Emit\BlockBuilder.cs" />
     <Compile Include="Emit\BreakBlock.cs" />

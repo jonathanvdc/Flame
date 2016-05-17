@@ -19,8 +19,8 @@ namespace Flame.Cecil
         protected abstract IList<CustomAttribute> GetCustomAttributes();
         public abstract MemberReference GetMemberReference();
 
-        public abstract string Name { get; }
-        public abstract string FullName { get; }
+        public abstract UnqualifiedName Name { get; }
+        public abstract QualifiedName FullName { get; }
 
         public CecilModule Module { get; private set; }
         public AncestryGraph Graph { get { return Module.Graph; } }
@@ -39,7 +39,7 @@ namespace Flame.Cecil
 
         public override string ToString()
         {
-            return FullName;
+            return FullName.ToString();
         }
         public override bool Equals(object obj)
         {

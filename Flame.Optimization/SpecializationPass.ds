@@ -334,10 +334,14 @@ namespace Flame.Optimization
             }
         }
 
-        private string GenerateName(string Name)
+        private string GenerateName(UnqualifiedName Name)
         {
-            return GenericNameExtensions.TrimGenerics(Name) +
-                "__specialization$" + SpecializationCache.Count;
+            string nameStr;
+            if (Name is SimpleName)
+                nameStr = ((SimpleName)Name).Name.ToString();
+            else
+                nameStr = Name.ToString();
+            return nameStr + "__specialization$" + SpecializationCache.Count;
         }
 
         /// <summary>
@@ -476,7 +480,7 @@ namespace Flame.Optimization
             {
                 var oldVar = new ArgumentVariable(parameter, argList.Count);
                 var singletonExpr = CreateSingletonExpression(argTy);
-                IVariable temp = new LocalVariable(parameter.Name, parameter.ParameterType);
+                IVariable temp = new LocalVariable(parameter.Name.ToString(), parameter.ParameterType);
                 if (singletonExpr == null)
                 {
                     // Not a singleton type. We'll have to create a parameter in

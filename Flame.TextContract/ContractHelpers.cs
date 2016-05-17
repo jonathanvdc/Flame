@@ -92,7 +92,7 @@ namespace Flame.TextContract
             }
             else
             {
-                return Type.Name;
+                return Type.Name.ToString();
             }
         }
 
@@ -103,7 +103,7 @@ namespace Flame.TextContract
         /// <returns></returns>
         public static bool InContract(IMember Member)
         {
-            return Member.Name != null && !Member.Name.StartsWith("_");
+            return Member.Name != null && !Member.Name.ToString().StartsWith("_");
         }
 
         public static string GetAccessCode(AccessModifier Access)

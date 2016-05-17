@@ -38,7 +38,7 @@ namespace Flame.Cecil
         public static CecilField DeclareField(ICecilTypeBuilder DeclaringType, IFieldSignatureTemplate Template)
         {
             var module = DeclaringType.Module;
-            var fieldRef = new FieldDefinition(Template.Name, (FieldAttributes)0, module.Module.TypeSystem.Object);
+            var fieldRef = new FieldDefinition(Template.Name.ToString(), (FieldAttributes)0, module.Module.TypeSystem.Object);
             var cecilField = new CecilField(DeclaringType, fieldRef);
             var inst = new FieldSignatureInstance(Template, cecilField);
 
@@ -62,7 +62,7 @@ namespace Flame.Cecil
         public static CecilField DeclareEnumField(ICecilTypeBuilder DeclaringType, IFieldSignatureTemplate Template)
         {
             var module = DeclaringType.Module;
-            var fieldRef = new FieldDefinition(Template.Name, (FieldAttributes)0, module.Module.TypeSystem.Object);
+            var fieldRef = new FieldDefinition(Template.Name.ToString(), (FieldAttributes)0, module.Module.TypeSystem.Object);
             var cecilField = new CecilField(DeclaringType, fieldRef);
             var inst = new FieldSignatureInstance(Template, cecilField);
 

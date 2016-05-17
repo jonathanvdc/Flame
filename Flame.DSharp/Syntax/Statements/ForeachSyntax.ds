@@ -67,7 +67,7 @@ namespace Flame.Syntax.DSharp
 
         	foreach (var item in collExprs, var elem in loop.Elements, var node in Elements)
         	{
-        		State.DeclareVariable(item.Member.Name, elem, node.Location);
+        		State.DeclareVariable(item.Member.Name.ToString(), elem, node.Location);
         	}
 
         	loop.Body = Body.CreateVerifiedStatement(State);

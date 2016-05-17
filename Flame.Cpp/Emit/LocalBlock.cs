@@ -38,7 +38,7 @@ namespace Flame.Cpp.Emit
 
         public CodeBuilder GetCode()
         {
-            return new CodeBuilder(Local.Member.Name);
+            return new CodeBuilder(Local.Member.Name.ToString());
         }
 
         public override string ToString()

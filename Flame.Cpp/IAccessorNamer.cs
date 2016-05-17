@@ -31,7 +31,7 @@ namespace Flame.Cpp
 
         public string Name(IAccessor Accessor)
         {
-            return Accessor.DeclaringProperty.Name;
+            return Accessor.DeclaringProperty.Name.ToString();
         }
     }
 
@@ -56,7 +56,7 @@ namespace Flame.Cpp
         public string Name(IAccessor Accessor)
         {
             var type = Accessor.AccessorType;
-            string propName = Accessor.DeclaringProperty.Name;
+            string propName = Accessor.DeclaringProperty.Name.ToString();
             if (type.Equals(AccessorType.GetAccessor))
                 return "get" + propName;
             else if (type.Equals(AccessorType.SetAccessor))
@@ -91,7 +91,7 @@ namespace Flame.Cpp
         public string Name(IAccessor Accessor)
         {
             var type = Accessor.AccessorType;
-            string propName = Accessor.DeclaringProperty.Name;
+            string propName = Accessor.DeclaringProperty.Name.ToString();
             if (type.Equals(AccessorType.GetAccessor))
                 return "Get" + propName;
             else if (type.Equals(AccessorType.SetAccessor))

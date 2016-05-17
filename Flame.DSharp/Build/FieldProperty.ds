@@ -27,12 +27,12 @@ namespace Flame.Syntax.DSharp
             const get { return Property.IsStatic; }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             const get { return Property.Name; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
             const get { return Property.FullName; }
         }

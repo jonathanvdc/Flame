@@ -18,7 +18,7 @@ namespace Flame.Cpp.Plugs
 
         #region Abstract
 
-        public abstract string Name { get; }
+        public abstract UnqualifiedName Name { get; }
         public abstract AttributeMap Attributes { get; }
         public abstract INamespace DeclaringNamespace { get; }
 
@@ -26,9 +26,9 @@ namespace Flame.Cpp.Plugs
 
         #region General
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
+            get { return Name.Qualify(DeclaringNamespace.FullName); }
         }
 
         public virtual IEnumerable<IType> BaseTypes

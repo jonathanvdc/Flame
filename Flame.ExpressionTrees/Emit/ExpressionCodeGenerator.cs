@@ -495,7 +495,9 @@ namespace Flame.ExpressionTrees.Emit
 
         private ExpressionVariable CreateNewLocal(IVariableMember Member)
         {
-            var localVar = Expression.Variable(ExpressionTypeConverter.Instance.Convert(Member.VariableType), Member.Name);
+            var localVar = Expression.Variable(
+                ExpressionTypeConverter.Instance.Convert(Member.VariableType), 
+                Member.Name.ToString());
 
             localParameters.Add(localVar);
 

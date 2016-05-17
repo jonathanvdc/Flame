@@ -1,0 +1,225 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Flame
+{
+    /// <summary>
+    /// Defines simple parsing functionality for names.
+    /// </summary>
+    public static class NameParser : IConverter<string, QualifiedName>
+    {
+        /// <summary>
+        /// Tries to parse the given string as a qualified name.
+        /// Null is returned if the input was malformed.
+        /// </summary>
+        public QualifiedName Convert(string Name)
+        {
+            PointerKind ptrKind;
+            if (PointerKind.TryGetPointerKind(Name, &ptrKind))
+            {
+                var elemName = Convert(Name.Substring(0, Name.Length - 1));
+                if (elemName == null)
+                    return null;
+                else
+                    return new QualifiedName(new PointerName(elemName, ptrKind));
+            }
+            else if (Name.EndsWith("]"))
+            {
+                var dimensions = new List<string>();
+                int length = 0;
+                int i = Name.Length - 2;
+                for (; i >= 0; i--)
+                {
+                    if (Name[i] == '[')
+                    {
+                        dimensions.Add(Name.Substring(i + 1, length));
+                        break;
+                    }
+                    else if (Name[i] == ',')
+                    {
+                        dimensions.Add(Name.Substring(i + 1, length));
+                        length = 0;
+                    }
+                    else
+                    {
+                        length++;
+                    }
+                }
+                var elementName = Convert(Name.Substring(0, i));
+                if (elementName == null)
+                {
+                    return null;
+                }
+                else
+                {
+                	bool anyEmpty = false;
+                	foreach (var item in dimensions)
+                	{
+                		if (string.IsNullOrWhiteSpace(item))
+                			anyEmpty = true;
+                	}
+                    if (anyEmpty)
+                    {
+                        return new QualifiedName(new ArrayName(elementName, dimensions.Count));
+                    }
+                    else
+                    {
+                    	var vectorDims = new int[dimensions.Count];
+                    	foreach (var input in dimensions, var output in vectorDims)
+                    	{
+	                    	output = int.Parse(input.Trim(null));
+	                    }
+                        return new QualifiedName(new VectorName(
+                            elementName, (IReadOnlyList<int>)vectorDims));
+                    }
+                }
+            }
+            else if (Name.EndsWith(">"))
+            {
+                int rank = 1;
+                var typeArgs = new List<QualifiedName>();
+                int i = Name.Length - 2;
+                int length = 0;
+                for (; rank > 0 && i >= 0; i--)
+                {
+                    if (Name[i] == '<')
+                    {
+                        rank--;
+                        if (rank > 0)
+                        {
+                            length++;
+                        }
+                    }
+                    else if (Name[i] == '>')
+                    {
+                        rank++;
+                        if (rank > 1)
+                        {
+                            length++;
+                        }
+                    }
+                    else if (Name[i] == ',' && rank == 1)
+                    {
+                        var elemStr = Name.Substring(i + 1, length).Trim(null);
+                        if (string.IsNullOrEmpty(elemStr))
+                        {
+                            typeArgs.Add(null);
+                        }
+                        else
+                        {
+                            var elemName = Convert(elemStr);
+                            if (object.ReferenceEquals(elemName, null))
+                                return null;
+                            typeArgs.Add(elemName);
+                        }
+                        length = 0;
+                    }
+                    else
+                    {
+                        length++;
+                    }
+                }
+                var lastElemStr = Name.Substring(i + 2, length).Trim(null);
+                if (string.IsNullOrEmpty(lastElemStr))
+                {
+                    typeArgs.Add(null);
+                }
+                else
+                {
+                    var elemName = Convert(lastElemStr);
+                    if (object.ReferenceEquals(elemName, null))
+                        return null;
+                    typeArgs.Add(elemName);
+                }
+
+                var elementName = Convert(Name.Substring(0, i + 1));
+                if (elementName == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    var anyEmpty = false;
+                    var allEmpty = true;
+                	foreach (var item in typeArgs)
+                	{
+                		if (item == null)
+                            anyEmpty = true;
+                        else
+                            allEmpty = false;
+                	}
+                    if (anyEmpty && allEmpty)
+                    {
+                        return MakeGenericDeclName(elementName, typeArgs.Count);
+                    }
+                    else if (anyEmpty && !allEmpty)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        return new QualifiedName(new GenericName(
+                            elementName, Enumerable.ToArray<QualifiedName>(
+                                Enumerable.Reverse<QualifiedName>(typeArgs))));
+                    }
+                }
+            }
+            else
+            {
+                var split = Name.Split(new char[] { '.' });
+                if (split.Length == 0)
+                {
+                    return new QualifiedName(new SimpleName(Name));
+                }
+                else
+                {
+                    var result = new QualifiedName(new SimpleName(split[0]));
+                    for (int i = 1; i < split.Length; i++)
+                        result = new SimpleName(split[i]).Qualify(result);
+                    return result;
+                }
+            }
+        }
+
+        private QualifiedName MakeGenericDeclName(
+            QualifiedName Name, int TypeParameterCount)
+        {
+            if (Name.IsQualified)
+            {
+                var innerName = MakeGenericDeclName(Name.Name, TypeParameterCount);
+                if (innerName == null)
+                    return null;
+                else
+                    return innerName.Qualify(Name.Qualifier);
+            }
+            else if (Name.Qualifier is SimpleName)
+            {
+                return new QualifiedName(
+                    new SimpleName(((SimpleName)Name.Qualifier).Name, TypeParameterCount));
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public QualifiedName AppendSimpleSuffix(QualifiedName Name, string Suffix)
+        {
+            if (Name.IsQualified)
+            {
+                return AppendSimpleSuffix(Name.Name, Suffix).Qualify(Name.Qualifier);
+            }
+            else if (Name.Qualifier is SimpleName)
+            {
+                var simple = (SimpleName)Name.Qualifier;
+                return new QualifiedName(new SimpleName(simple.Name + Suffix, simple.TypeParameterCount));
+            }
+            else
+            {
+                return Name;
+            }
+        }
+    }
+}

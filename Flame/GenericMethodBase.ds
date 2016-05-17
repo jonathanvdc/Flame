@@ -30,7 +30,12 @@ namespace Flame
         /// <summary>
         /// Gets name of this generic method.
         /// </summary>
-        public abstract string Name { get; }
+        public abstract UnqualifiedName Name { get; }
+
+        /// <summary>
+        /// Gets the full name of this generic method.
+        /// </summary>
+        public abstract QualifiedName FullName { get; }
 
         /// <summary>
         /// Gets this generic method's declaring type.
@@ -39,11 +44,6 @@ namespace Flame
 
         public bool IsStatic { get return Declaration.IsStatic; }
         public bool IsConstructor { get return Declaration.IsConstructor; }
-
-        public string FullName
-        {
-            get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
-        }
 
         public AttributeMap Attributes
         {
@@ -87,7 +87,7 @@ namespace Flame
 
         public override string ToString()
         {
-            return FullName;
+            return FullName.ToString();
         }
     }
 }

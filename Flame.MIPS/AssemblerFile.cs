@@ -48,7 +48,7 @@ namespace Flame.MIPS
         public void Save(IOutputProvider Output)
         {
             string code = GetCode().ToString();
-            using (var stream = Output.Create(Assembly.Name, "asm").OpenOutput())
+            using (var stream = Output.Create(Assembly.Name.ToString(), "asm").OpenOutput())
             using (var writer = new StreamWriter(stream))
             {
                 writer.Write(code);

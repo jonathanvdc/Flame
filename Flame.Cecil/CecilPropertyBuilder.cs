@@ -47,7 +47,7 @@ namespace Flame.Cecil
             if (Template.Attributes.Value.Contains(PrimitiveAttributes.Instance.IndexerAttribute.AttributeType))
             {
                 propDef.Name = "Item";
-                DeclaringType.GetTypeReference().Resolve().SetDefaultMember(Name);
+                DeclaringType.GetTypeReference().Resolve().SetDefaultMember(Name.ToString());
             }
         }
 
@@ -101,7 +101,7 @@ namespace Flame.Cecil
 
         public static CecilPropertyBuilder DeclareProperty(ICecilTypeBuilder DeclaringType, IPropertySignatureTemplate Template)
         {
-            var propDef = new PropertyDefinition(Template.Name, PropertyAttributes.None, DeclaringType.Module.Module.TypeSystem.Object);
+            var propDef = new PropertyDefinition(Template.Name.ToString(), PropertyAttributes.None, DeclaringType.Module.Module.TypeSystem.Object);
             DeclaringType.AddProperty(propDef);
             return new CecilPropertyBuilder(DeclaringType, propDef, Template);
         }

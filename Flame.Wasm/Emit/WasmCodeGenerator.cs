@@ -32,7 +32,7 @@ namespace Flame.Wasm.Emit
 			this.localNames.Get(new UniqueTag(WasmAbi.ReturnPointerName));
 			foreach (var item in Method.Parameters)
 			{
-				this.localNames.Get(new UniqueTag(item.Name));
+                this.localNames.Get(new UniqueTag(item.Name.ToString()));
 			}
 		}
 
@@ -800,7 +800,7 @@ namespace Flame.Wasm.Emit
 			var ty = param.ParameterType;
 			if (ty.IsScalar())
 			{
-				return new Register(this, param.Name, ty);
+                return new Register(this, param.Name.ToString(), ty);
 			}
 			else
 			{

@@ -24,7 +24,7 @@ namespace Flame.Python
             {
                 if (tModules == null)
                 {
-                    tModules = Assembly.AllTypes.OfType<PythonClass>().Select((item) => new ClassModule(item.Name, item)).ToArray();
+                    tModules = Assembly.AllTypes.OfType<PythonClass>().Select((item) => new ClassModule(item.Name.ToString(), item)).ToArray();
                 }
                 return tModules;
             }
@@ -32,7 +32,7 @@ namespace Flame.Python
 
         public string Name
         {
-            get { return Assembly.Name; }
+            get { return Assembly.Name.ToString(); }
         }
 
         public IEnumerable<IType> GetModuleTypes()

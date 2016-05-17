@@ -19,21 +19,21 @@ namespace Flame.TextContract
         public AccessorType AccessorType { get; private set; }
         public IProperty DeclaringProperty { get; private set; }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
             get
             {
                 if (AccessorType.Equals(AccessorType.GetAccessor))
                 {
-                    return "get";
+                    return new SimpleName("get");
                 }
                 else if (AccessorType.Equals(AccessorType.SetAccessor))
                 {
-                    return "set";
+                    return new SimpleName("set");
                 }
                 else
                 {
-                    return AccessorType.ToString().ToLower();
+                    return new SimpleName(AccessorType.ToString().ToLower());
                 }
             }
         }

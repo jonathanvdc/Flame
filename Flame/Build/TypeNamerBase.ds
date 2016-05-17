@@ -30,7 +30,7 @@ namespace Flame.Build
 
 		protected override virtual const string ConvertGenericParameter(IGenericParameter Type)
 		{
-			return Type.Name;
+			return Type.Name.ToString();
 		}
 
 		protected override virtual const string ConvertDelegateType(IType Type)
@@ -57,10 +57,9 @@ namespace Flame.Build
 		protected override virtual const string ConvertTypeDefault(IType Type)
 		{
 			if (Type == null)
-			{
 				return "<unresolved type>";
-			}
-			else return Type.FullName;
+			else
+				return Type.FullName.ToString();
 		}
 	}
 }

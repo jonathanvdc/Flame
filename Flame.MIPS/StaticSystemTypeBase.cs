@@ -14,7 +14,7 @@ namespace Flame.MIPS
             get { return SystemNamespace.Instance; }
         }
 
-        public abstract string Name { get; }
+        public abstract UnqualifiedName Name { get; }
         public abstract IMethod[] GetMethods();
 
         public IEnumerable<IType> BaseTypes
@@ -42,9 +42,9 @@ namespace Flame.MIPS
             get { return GetMethods(); }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
+            get { return Name.Qualify(DeclaringNamespace.FullName); }
         }
 
         public AttributeMap Attributes
