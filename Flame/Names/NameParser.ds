@@ -12,10 +12,13 @@ namespace Flame
     {
         /// <summary>
         /// Tries to parse the given string as a qualified name.
-        /// Null is returned if the input was malformed.
+        /// The empty qualified name is returned if the input was malformed.
         /// </summary>
         public QualifiedName Convert(string Name)
         {
+            if (string.IsNullOrWhiteSpace(Name))
+                return default(QualifiedName);
+
             PointerKind ptrKind;
             if (PointerKind.TryGetPointerKind(Name, &ptrKind))
             {
@@ -169,17 +172,10 @@ namespace Flame
             else
             {
                 var split = Name.Split(new char[] { '.' });
-                if (split.Length == 0)
-                {
-                    return new QualifiedName(new SimpleName(Name));
-                }
-                else
-                {
-                    var resultArr = new UnqualifiedName[split.Length];
-                    for (int i = 0; i < split.Length; i++)
-                        resultArr[i] = new SimpleName(split[i]);
-                    return new QualifiedName(resultArr);
-                }
+                var resultArr = new UnqualifiedName[split.Length];
+                for (int i = 0; i < split.Length; i++)
+                    resultArr[i] = new SimpleName(split[i]);
+                return new QualifiedName(resultArr);
             }
         }
 

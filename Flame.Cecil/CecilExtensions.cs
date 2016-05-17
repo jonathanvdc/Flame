@@ -236,7 +236,7 @@ namespace Flame.Cecil
             {
                 if (Reference.Name == item.Name && item.ReturnType.Equals(Reference.ReturnType))
                 {
-                    
+
                 }
             }
         }*/
@@ -251,7 +251,7 @@ namespace Flame.Cecil
                 var tail = qualName;
                 while (tail.IsQualified)
                     tail = tail.Name;
-                return new CecilNamespace(Module, tail.Qualifier, qualName);
+                return new CecilNamespace(Module, tail.IsEmpty ? new SimpleName("") : tail.Qualifier, qualName);
             }
             else
             {

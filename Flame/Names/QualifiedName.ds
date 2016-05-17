@@ -23,22 +23,33 @@ namespace Flame
 
 		public const this(UnqualifiedName Qualifier, QualifiedName Name)
 		{
-			this.qualifiers = Name.PrependQualifier(Qualifier);
+			if (Qualifier.IsEmpty)
+			{
+				this.qualifiers = Name.qualifiers;
+				this.qualifierIndex = Name.qualifierIndex;
+			}
+			else
+			{
+				this.qualifiers = Name.PrependQualifier(Qualifier);
+			}
 		}
 
 		public const this(UnqualifiedName Name)
 		{
-			this.qualifiers = new UnqualifiedName[] { Name };
+			if (!Name.IsEmpty)
+				this.qualifiers = new UnqualifiedName[] { Name };
 		}
 
 		public const this(string Qualifier, QualifiedName Name)
 		{
-			this.qualifiers = Name.PrependQualifier(new SimpleName(Qualifier));
+			if (!string.IsNullOrWhiteSpace(Qualifier))
+				this.qualifiers = Name.PrependQualifier(new SimpleName(Qualifier));
 		}
 
 		public const this(string Name)
 		{
-			this.qualifiers = new UnqualifiedName[] { new SimpleName(Name) };
+			if (!string.IsNullOrWhiteSpace(Name))
+				this.qualifiers = new UnqualifiedName[] { new SimpleName(Name) };
 		}
 
 		private UnqualifiedName[] qualifiers;
@@ -118,8 +129,8 @@ namespace Flame
 					return null;
 
 				var results = new StringBuilder();
-				results.Append(qualifiers[0].ToString());
-				for (int i = 1; i < qualifiers.Length; i++)
+				results.Append(qualifiers[qualifierIndex].ToString());
+				for (int i = qualifierIndex + 1; i < qualifiers.Length; i++)
 				{
 					results.Append('.');
 					results.Append(qualifiers[i].ToString());
