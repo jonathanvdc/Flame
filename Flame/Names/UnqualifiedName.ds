@@ -76,7 +76,7 @@ namespace Flame
 
         public override bool IsEmpty
         {
-            get { return string.IsNullOrEmpty(Name); }
+            get { return string.IsNullOrWhiteSpace(Name); }
         }
 
         public override string ToString()
