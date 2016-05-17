@@ -16,6 +16,14 @@ namespace Flame
             return Other is UnqualifiedName && Equals((UnqualifiedName)Other);
         }
 
+        /// <summary>
+        /// Qualifies this unqualified name with the given qualifier.
+        /// </summary>
+        public QualifiedName Qualify(QualifiedName Qualifier)
+        {
+            return new QualifiedName(this).Qualify(Qualifier);
+        }
+
         public abstract override bool Equals(UnqualifiedName Other);
 
         public abstract override int GetHashCode();
@@ -48,15 +56,6 @@ namespace Flame
         /// Gets the number of type parameters for this simple name.
         /// </summary>
         public int TypeParameterCount { get; private set; }
-
-        /// <summary>
-        /// Instantiates this simple name with the given sequence of type
-        /// arguments.
-        /// </summary>
-        public GenericName Instantiate([QualifiedName] TypeArgumentNames)
-        {
-            return new GenericName(Name, TypeArgumentNames);
-        }
 
         public override string ToString()
         {
@@ -93,15 +92,23 @@ namespace Flame
     public class GenericName : UnqualifiedName, IEquatable<GenericName>
     {
         /// <summary>
-        /// Creates a new generic name from the given string and
-        /// a number of type arguments.
+        /// Creates a new generic name from the given declaration name and
+        /// a number of type arguments names.
         /// </summary>
-        public const this(set string Name, set [QualifiedName] TypeArgumentNames);
+        public const this(UnqualifiedName DeclarationName, set [QualifiedName] TypeArgumentNames)
+        {
+            this.DeclarationName = new QualifiedName(DeclarationName);
+        }
+        /// <summary>
+        /// Creates a new generic name from the given declaration name and
+        /// a number of type arguments names.
+        /// </summary>
+        public const this(set QualifiedName DeclarationName, set [QualifiedName] TypeArgumentNames);
 
         /// <summary>
         /// Gets this generic name's instantiated name,
         /// </summary>
-        public string Name { get; private set; }
+        public QualifiedName DeclarationName { get; private set; }
 
         /// <summary>
         /// Gets this generic name's type arguments.
@@ -111,9 +118,9 @@ namespace Flame
         public override string ToString()
         {
             if (!Enumerable.Any<QualifiedName>(TypeArgumentNames))
-				return Name;
+				return DeclarationName.ToString();
 
-			var sb = new StringBuilder(Name);
+			var sb = new StringBuilder(DeclarationName.ToString());
 			sb.Append('<');
 			sb.Append(Enumerable.First<QualifiedName>(TypeArgumentNames));
 			foreach (var item in Enumerable.Skip<QualifiedName>(TypeArgumentNames, 1))
@@ -127,7 +134,7 @@ namespace Flame
 
         public override bool Equals(GenericName Other)
         {
-            return Name == Other.Name
+            return DeclarationName.Equals(Other.DeclarationName)
                 && Enumerable.SequenceEqual<QualifiedName>(
                     TypeArgumentNames, Other.TypeArgumentNames);
         }
@@ -137,7 +144,7 @@ namespace Flame
         }
         public override int GetHashCode()
         {
-            var result = Name.GetHashCode();
+            var result = DeclarationName.GetHashCode();
             foreach (var item in TypeArgumentNames)
             {
                 result = (result << 1) ^ item.GetHashCode();

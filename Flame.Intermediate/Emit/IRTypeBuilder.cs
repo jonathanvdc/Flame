@@ -61,7 +61,7 @@ namespace Flame.Intermediate.Emit
 
         public INamespaceBuilder DeclareNamespace(string Name)
         {
-            var prototype = new DescribedType(Name, this);
+            var prototype = new DescribedType(new SimpleName(Name), this);
             prototype.AddAttribute(PrimitiveAttributes.Instance.StaticTypeAttribute);
             var ty = new IRTypeBuilder(Assembly, this, new TypePrototypeTemplate(prototype));
             AddNestedType(ty);

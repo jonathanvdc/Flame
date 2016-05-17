@@ -44,7 +44,7 @@ namespace Flame.Python.Emit
         public CodeBuilder GetCode()
         {
             CodeBuilder cb = new CodeBuilder();
-            cb.Append(Member.Name);
+            cb.Append(Member.Name.ToString());
             cb.Append(" in ");
             cb.Append(Collection.GetCode());
             return cb;
@@ -111,7 +111,7 @@ namespace Flame.Python.Emit
         public CodeBuilder GetCode()
         {
             CodeBuilder cb = new CodeBuilder();
-            cb.Append(Member.Name);
+            cb.Append(Member.Name.ToString());
             cb.Append(" in ");
             cb.Append(Collection.GetCode());
             return cb;

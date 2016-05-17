@@ -32,7 +32,7 @@ namespace Flame.Front.Target
 
         public BuildTarget CreateBuildTarget(string PlatformIdentifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)
         {
-            var targetAsm = new ContractAssembly(Info.Name, ContractEnvironment.Instance);
+            var targetAsm = new ContractAssembly(new SimpleName(Info.Name), ContractEnvironment.Instance);
             return new BuildTarget(targetAsm, DependencyBuilder, "txt", true);
         }
     }

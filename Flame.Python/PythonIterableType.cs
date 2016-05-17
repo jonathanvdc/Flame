@@ -19,9 +19,9 @@ namespace Flame.Python
 
         public static PythonIterableType Instance { get; private set; }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
-            get { return "iterable"; }
+            get { return new SimpleName("iterable"); }
         }
 
         private static readonly Lazy<AttributeMap> attrMap = new Lazy<AttributeMap>(() => new AttributeMap(new IAttribute[]

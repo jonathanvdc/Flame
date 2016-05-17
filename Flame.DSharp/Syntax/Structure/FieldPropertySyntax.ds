@@ -27,9 +27,9 @@ namespace Flame.Syntax.DSharp
         {
             var property = PropertySyntax.CreateMember(State);
             var field = new DescribedField(
-                GetBackingFieldName(property.Name),
+                GetBackingFieldName(property.Name.ToString()),
                 State.DeclaringType,
-                property.PropertyType, 
+                property.PropertyType,
                 property.IsStatic);
             field.AddAttribute(new AccessAttribute(AccessModifier.Private));
             field.AddAttribute(PrimitiveAttributes.HiddenAttribute);

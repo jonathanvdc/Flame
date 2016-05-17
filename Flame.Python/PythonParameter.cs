@@ -15,13 +15,13 @@ namespace Flame.Python
         public PythonParameter(IParameter Template, IExpression DefaultValue)
             : this(Template.Name, Template.ParameterType, Template.Attributes, DefaultValue)
         { }
-        public PythonParameter(string Name, IType ParameterType)
+        public PythonParameter(UnqualifiedName Name, IType ParameterType)
             : this(Name, ParameterType, AttributeMap.Empty)
         { }
-        public PythonParameter(string Name, IType ParameterType, AttributeMap Attributes)
+        public PythonParameter(UnqualifiedName Name, IType ParameterType, AttributeMap Attributes)
             : this(Name, ParameterType, Attributes, null)
         { }
-        public PythonParameter(string Name, IType ParameterType, AttributeMap Attributes, IExpression DefaultValue)
+        public PythonParameter(UnqualifiedName Name, IType ParameterType, AttributeMap Attributes, IExpression DefaultValue)
         {
             this.Name = Name;
             this.ParameterType = ParameterType;
@@ -35,13 +35,13 @@ namespace Flame.Python
         }
 
         public IType ParameterType { get; private set; }
-        public string Name { get; private set; }
+        public UnqualifiedName Name { get; private set; }
         public AttributeMap Attributes { get; private set; }
         public IExpression DefaultValue { get; private set; }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return Name; }
+            get { return new QualifiedName(Name); }
         }
 
         public IEnumerable<IAttribute> GetAttributes()

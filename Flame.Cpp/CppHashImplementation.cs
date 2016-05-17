@@ -85,9 +85,16 @@ namespace Flame.Cpp
             return new CodeBuilder();
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return GenericNameExtensions.ChangeTypeArguments("std.hash", new string[] { ArgumentType.FullName }); }
+            get 
+            { 
+                return new QualifiedName(new GenericName(
+                    new QualifiedName(
+                        new SimpleName("std"), 
+                        new QualifiedName(new SimpleName("hash", 1))), 
+                    new QualifiedName[] { ArgumentType.FullName })); 
+            }
         }
 
         private static readonly AttributeMap attrMap = new AttributeMap(new IAttribute[] { PrimitiveAttributes.Instance.ValueTypeAttribute });
@@ -96,9 +103,14 @@ namespace Flame.Cpp
             get { return attrMap; }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
-            get { return GenericNameExtensions.ChangeTypeArguments("hash", new string[] { ArgumentType.Name }); }
+            get 
+            { 
+                return new GenericName(
+                    new SimpleName("hash", 1), 
+                    new QualifiedName[] { new QualifiedName(ArgumentType.Name) }); 
+            }
         }
     }
 }

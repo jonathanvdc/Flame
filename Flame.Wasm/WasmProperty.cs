@@ -23,8 +23,8 @@ namespace Flame.Wasm
 
         private List<WasmAccessor> accList;
 
-        public string Name { get { return TemplateInstance.Name; } }
-        public string FullName { get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); } }
+        public UnqualifiedName Name { get { return TemplateInstance.Name; } }
+        public QualifiedName FullName { get { return Name.Qualify(DeclaringType.FullName); } }
         public bool IsStatic { get { return TemplateInstance.Template.IsStatic; } }
         public AttributeMap Attributes { get { return TemplateInstance.Attributes.Value; } }
         public IType PropertyType { get { return TemplateInstance.PropertyType.Value; } }

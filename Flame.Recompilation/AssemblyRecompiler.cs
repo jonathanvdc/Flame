@@ -209,7 +209,7 @@ namespace Flame.Recompilation
 
         private static bool HasExternalAttribute(IMember Member)
         {
-            return Member.Attributes.Any(item => item.AttributeType.FullName == "Flame.RT.ExternalAttribute");
+            return Member.Attributes.Any(item => item.AttributeType.FullName.ToString() == "Flame.RT.ExternalAttribute");
         }
 
         public bool IsExternal(IAssembly Assembly)
@@ -501,7 +501,7 @@ namespace Flame.Recompilation
             {
                 var declType = ((IGenericParameter)SourceType).DeclaringMember;
                 var recompiledDeclType = (IGenericMember)GetMember(declType);
-                return new MemberCreationResult<IType>(recompiledDeclType.GenericParameters.Single((item) => item.Name == SourceType.Name));
+                return new MemberCreationResult<IType>(recompiledDeclType.GenericParameters.Single((item) => item.Name.Equals(SourceType.Name)));
             }
             else
             {
@@ -779,14 +779,14 @@ namespace Flame.Recompilation
             }
             else
             {
-                return DeclareNamespaceBuilder(SourceNamespace.FullName);
+                return DeclareNamespaceBuilder(SourceNamespace.FullName.ToString());
             }
         }
 
         private MemberCreationResult<INamespace> DeclareNamespaceBuilder(string FullName)
         {
             // Look for a pre-existing namespace first.
-            var preNs = NamespaceCache.FirstOrDefault(item => item is INamespaceBuilder && item.FullName == FullName);
+            var preNs = NamespaceCache.FirstOrDefault(item => item is INamespaceBuilder && item.FullName.ToString() == FullName);
             if (preNs != null)
             {
                 return new MemberCreationResult<INamespace>(preNs);

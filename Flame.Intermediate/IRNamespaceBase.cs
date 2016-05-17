@@ -36,7 +36,7 @@ namespace Flame.Intermediate
 
         public abstract IAssembly DeclaringAssembly { get; }
         public abstract AttributeMap Attributes { get; }
-        public abstract string FullName { get; }
-        public abstract string Name { get; }
+        public abstract QualifiedName FullName { get; }
+        public abstract UnqualifiedName Name { get; }
     }
 }

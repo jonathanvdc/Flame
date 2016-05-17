@@ -9,7 +9,7 @@ namespace Flame.Primitives
 	{
         public int32 Magnitude { const get return 0; }
         public object DefaultValue { const get return null; }
-        public string Name { const get return "Null"; }
+        public UnqualifiedName Name { const get return new SimpleName("Null"); }
 
         public INamespace DeclaringNamespace
         {
@@ -41,9 +41,9 @@ namespace Flame.Primitives
             const get { return new IType[0]; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
+            get return Name.Qualify(DeclaringNamespace.FullName);
         }
 
         public AttributeMap Attributes

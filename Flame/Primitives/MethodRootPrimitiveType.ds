@@ -17,10 +17,16 @@ namespace Flame.Primitives
 
 		private Lazy<AttributeMap> attrMap;
 
-		public abstract string Name : IType.Name { const get; }
+		public abstract UnqualifiedName Name : IType.Name { const get; }
 		protected abstract IMethod[] CreateMethods();
 
-		public string FullName : IType.FullName { const get return "System." + Name; }
+		public QualifiedName FullName : IType.FullName
+		{
+			const get
+			{
+				return new QualifiedName(Name).Qualify("System");
+			}
+		}
 
 		public INamespace DeclaringNamespace
 		{

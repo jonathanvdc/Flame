@@ -9,7 +9,7 @@ namespace Flame.Primitives
 	{
 		public const this(set IType DeclaringType)
 		{
-			this.Name = "GetHashCode";
+			this.Name = new SimpleName("GetHashCode");
 			this.IsConstructor = false;
 			this.ReturnType = PrimitiveTypes.Int32;
 			this.Parameters = new IParameter[0];

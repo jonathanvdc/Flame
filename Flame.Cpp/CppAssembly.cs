@@ -12,19 +12,21 @@ namespace Flame.Cpp
 {
     public class CppAssembly : IAssemblyBuilder
     {
-        public CppAssembly(string Name, Version AssemblyVersion, ICompilerLog Log)
+        public CppAssembly(UnqualifiedName Name, Version AssemblyVersion, ICompilerLog Log)
             : this(Name, AssemblyVersion, CppEnvironment.Create(Log))
         {
         }
-        public CppAssembly(string Name, Version AssemblyVersion, ICppEnvironment Environment)
+        public CppAssembly(UnqualifiedName Name, Version AssemblyVersion, ICppEnvironment Environment)
         {
             this.Name = Name;
             this.AssemblyVersion = AssemblyVersion;
-            this.RootNamespace = new CppNamespace(this, "", Environment);
+            this.RootNamespace = new CppNamespace(
+                this, new SimpleName(""), 
+                new QualifiedName(new SimpleName("")), Environment);
         }
 
         public CppNamespace RootNamespace { get; private set; }
-        public string Name { get; private set; }
+        public UnqualifiedName Name { get; private set; }
         public Version AssemblyVersion { get; private set; }
 
         public IBinder CreateBinder()
@@ -37,9 +39,9 @@ namespace Flame.Cpp
             return null;
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return Name; }
+            get { return new QualifiedName(Name); }
         }
 
         public AttributeMap Attributes

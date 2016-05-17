@@ -7,23 +7,23 @@ namespace Flame.Syntax
 {
 	public class NamespaceScope
 	{
-		public const this(set string Name)
+		public const this(set UnqualifiedName Name)
 		{
-			this.UsingNamespaces = new List<string>();
-			this.MappedNamespaces = new Dictionary<string, string>();
-			this.Aliases = new Dictionary<string, ITypeSyntax>();
+			this.UsingNamespaces = new HashSet<QualifiedName>();
+			this.MappedNamespaces = new Dictionary<UnqualifiedName, QualifiedName>();
+			this.Aliases = new Dictionary<UnqualifiedName, ITypeSyntax>();
 		}
-		public const this(set string Name, set INamespace CurrentNamespace)
+		public const this(set UnqualifiedName Name, set INamespace CurrentNamespace)
 		{
-			this.UsingNamespaces = new List<string>();
-			this.MappedNamespaces = new Dictionary<string, string>();
-			this.Aliases = new Dictionary<string, ITypeSyntax>();
+			this.UsingNamespaces = new HashSet<QualifiedName>();
+			this.MappedNamespaces = new Dictionary<UnqualifiedName, QualifiedName>();
+			this.Aliases = new Dictionary<UnqualifiedName, ITypeSyntax>();
 		}
 
-		public string Name { const get; private set; }
+		public UnqualifiedName Name { const get; private set; }
 		public INamespace CurrentNamespace { const get; private set; }
-		public List<string> UsingNamespaces { const get; private set; }
-        public Dictionary<string, string> MappedNamespaces { const get; private set; }
-		public Dictionary<string, ITypeSyntax> Aliases { const get; private set; }
+		public HashSet<QualifiedName> UsingNamespaces { const get; private set; }
+        public Dictionary<UnqualifiedName, QualifiedName> MappedNamespaces { const get; private set; }
+		public Dictionary<UnqualifiedName, ITypeSyntax> Aliases { const get; private set; }
 	}
 }

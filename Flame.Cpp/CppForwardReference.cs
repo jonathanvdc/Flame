@@ -16,7 +16,7 @@ namespace Flame.Cpp
 
         public CppType Type { get; private set; }
 
-        public string Namespace
+        public QualifiedName Namespace
         {
             get { return Type.DeclaringNamespace.FullName; }
         }

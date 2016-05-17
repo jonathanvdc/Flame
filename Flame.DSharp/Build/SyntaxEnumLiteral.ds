@@ -56,14 +56,14 @@ namespace Flame.DSharp.Build
             const get { return true; }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
-            const get { return Syntax.Identifier.TokenValue; }
+            const get { return new SimpleName(Syntax.Identifier.TokenValue); }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            const get { return Name.Qualify(DeclaringType.FullName); }
         }
 
         public AttributeMap Attributes { get { return cachedAttrs.Value; } }

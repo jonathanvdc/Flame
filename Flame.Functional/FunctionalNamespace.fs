@@ -53,6 +53,6 @@ type FunctionalNamespace private(header : FunctionalMemberHeader, declAsm : IAss
         member this.Namespaces = this.Namespaces
 
     interface IMember with
-        member this.Name = header.Name
-        member this.FullName = header.Name
+        member this.Name = SimpleName(header.Name) :> UnqualifiedName
+        member this.FullName = QualifiedName(SimpleName(header.Name))
         member this.Attributes = header.Attributes

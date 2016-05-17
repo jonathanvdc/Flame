@@ -62,7 +62,7 @@ namespace Flame.Cecil.Emit
             }
             else
             {
-                var getMethod = containerType.GetMethod("Address", false, elemType, argumentTypes);
+                var getMethod = containerType.GetMethod(new SimpleName("Address"), false, elemType, argumentTypes);
                 Context.Emit(OpCodes.Call, getMethod);
             }
         }
@@ -82,7 +82,7 @@ namespace Flame.Cecil.Emit
             }
             else
             {
-                var getMethod = containerType.GetMethod("Get", false, elemType, argumentTypes);
+                var getMethod = containerType.GetMethod(new SimpleName("Get"), false, elemType, argumentTypes);
                 Context.Emit(OpCodes.Call, getMethod);
             }
         }
@@ -104,7 +104,7 @@ namespace Flame.Cecil.Emit
             }
             else
             {
-                var getMethod = containerType.GetMethod("Set", false, elemType, argumentTypes);
+                var getMethod = containerType.GetMethod(new SimpleName("Set"), false, elemType, argumentTypes);
                 Context.Emit(OpCodes.Call, getMethod);
             }
         }

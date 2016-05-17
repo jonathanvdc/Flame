@@ -73,7 +73,9 @@ namespace Flame.Cecil.Emit
                     }
                 }
                 ILCodeGenerator.EmitArguments(Arguments, method, Context);
-                if ((method.DeclaringType.GetIsArray() || method.DeclaringType.GetIsVector()) && method is IAccessor && (((IAccessor)method).DeclaringProperty).Name == "Length" && ((IAccessor)method).AccessorType.Equals(AccessorType.GetAccessor))
+                if ((method.DeclaringType.GetIsArray() || method.DeclaringType.GetIsVector()) && method is IAccessor 
+                    && (((IAccessor)method).DeclaringProperty).Name.ToString() == "Length" 
+                    && ((IAccessor)method).AccessorType.Equals(AccessorType.GetAccessor))
                 {
                     Context.Emit(OpCodes.Ldlen);
                 }

@@ -53,24 +53,28 @@ namespace Flame.Syntax.DSharp
         	foreach (var item in GenericArguments, var output in args)
         	{
         		output = item.CreateType(State);
+				if (output == null)
+					return null;
         	}
         	return args;
         }
 
-        public string GenericTypeName
+        public QualifiedName GenericTypeName
         {
         	const get
 			{
-				StringBuilder sb = new StringBuilder();
-				foreach (var item in ElementType.Tokens)
-					sb.Append(item.TokenValue);
-				sb.Append("<");
-				for (int i = 1; i < GenericArguments.Count; i++)
+				QualifiedName result = null;
+				foreach (var item in Enumerable.Reverse<Token>(ElementType.Tokens))
 				{
-					sb.Append(',');
+					if (item.Type == TokenType.Identifier)
+					{
+						if (object.ReferenceEquals(result, null))
+							result = new QualifiedName(new SimpleName(item.TokenValue, GenericArguments.Count));
+						else
+							result = result.Qualify(new QualifiedName(new SimpleName(item.TokenValue)));
+					}
 				}
-				sb.Append(">");
-				return sb.ToString();
+				return result;
 			}
         }
 
@@ -78,10 +82,10 @@ namespace Flame.Syntax.DSharp
         {
         	var elemType = State.Binder.BindType(GenericTypeName);
         	if (elemType == null)
-            {
             	return null;
-            }
         	IType[] typeArgs = GetGenericArguments(State);
+			if (typeArgs == null)
+				return null;
         	return elemType.MakeGenericType(typeArgs);
         }
 

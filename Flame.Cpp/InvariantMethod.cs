@@ -59,9 +59,9 @@ namespace Flame.Cpp
             get { return false; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            get { return Name.Qualify(DeclaringType.FullName); }
         }
 
         private DescriptionAttribute CreateSummary()
@@ -69,9 +69,9 @@ namespace Flame.Cpp
             return new DescriptionAttribute("summary", "Checks if this type's invariants are being respected. A boolean value is returned that indicates whether this is indeed the case. This method is publically visible, and can be used to verify an instance's state.");
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
-            get { return "CheckInvariants"; }
+            get { return new SimpleName("CheckInvariants"); }
         }
 
         public IEnumerable<IGenericParameter> GenericParameters

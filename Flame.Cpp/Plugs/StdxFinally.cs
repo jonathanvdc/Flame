@@ -15,9 +15,9 @@ namespace Flame.Cpp.Plugs
             this.declNs = Namespace;
         }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
-            get { return "finally"; }
+            get { return new SimpleName("finally"); }
         }
 
         private static readonly AttributeMap attrMap = new AttributeMap(new IAttribute[] 

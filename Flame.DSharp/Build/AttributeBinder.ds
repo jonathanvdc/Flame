@@ -4,31 +4,46 @@ using System.Text;
 
 namespace Flame.DSharp.Build
 {
-    public class AttributeBinder : BinderBase
+    public class AttributeBinder : IBinder
     {
         public const this(set IBinder Binder);
 
         public IBinder Binder { const get; private set; }
 
-		public override IEnvironment Environment : BinderBase.Environment
+		public override IEnvironment Environment : IBinder.Environment
 		{
-			const get
-			{
-				return Binder.Environment;	
-			}
+			get { return Binder.Environment; }
 		}
 
-        public override const IType BindTypeCore(string Name) : BinderBase.BindTypeCore
+        public override IType BindType(QualifiedName Name) : IBinder.BindType
         {
             var normalType = Binder.BindType(Name);
             if (normalType != null)
             {
                 return normalType;
             }
-            return Binder.BindType(Name + "Attribute");
+            return Binder.BindType(AppendSuffix(Name, "Attribute"));
         }
 
-        public override const IEnumerable<IType> GetTypes() : BinderBase.GetTypes
+        private QualifiedName AppendSuffix(QualifiedName Name, string Suffix)
+        {
+            if (Name.IsQualified)
+            {
+                return AppendSuffix(Name.Name, Suffix).Qualify(Name.Qualifier);
+            }
+            else if (Name.Qualifier is SimpleName)
+            {
+                var simple = (SimpleName)Name.Qualifier;
+                return new QualifiedName(
+                    new SimpleName(simple.Name + Suffix, simple.TypeParameterCount));
+            }
+            else
+            {
+                return Name;
+            }
+        }
+
+        public override [IType] GetTypes() : IBinder.GetTypes
         {
             return Binder.GetTypes();
         }

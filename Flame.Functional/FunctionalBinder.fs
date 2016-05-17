@@ -4,14 +4,20 @@ open Flame
 open Flame.Binding
 open System
 
-type TypeName(path : string[]) =
+type TypeName(path : UnqualifiedName[]) =
+    new (name : QualifiedName) =
+        TypeName(name)
+    new (name : UnqualifiedName) =
+        TypeName(name)
     new (name : string) =
-        TypeName(name.Split('.'))
+        TypeName(name.Split('.') |> Seq.map (fun s -> new SimpleName(s) :> UnqualifiedName)
+                                 |> Array.ofSeq)
 
     /// Gets this type name's "path".
     member this.Path = path
 
-    member this.Name = String.Join(".", this.Path)
+    member this.Name = 
+        path |> Array.fold (fun s p -> QualifiedName(p, s)) null 
 
     /// Checks if this type name is empty.
     member this.IsEmpty = path.Length = 0
@@ -47,14 +53,14 @@ type TypeName(path : string[]) =
     override this.GetHashCode() =
         path |> Seq.fold (fun res item -> (res <<< 1) ^^^ hash(item)) 0
 
-    override this.ToString() = this.Name
+    override this.ToString() = this.Name.ToString()
 
     member first.CompareTo (second : TypeName) = 
         let longest   = max first.Path.Length second.Path.Length
         let extend (path : string[]) =
             path |> Seq.append (Seq.init (longest - path.Length) (fun _ -> ""))
-        let newFirst  = extend first.Path
-        let newSecond = extend second.Path
+        let newFirst  = extend (first.Path |> Array.map string)
+        let newSecond = extend (second.Path |> Array.map string)
         let compare result (x : string, y) = 
             if result = 0 then x.CompareTo(y) else result
         Seq.zip newFirst newSecond |> Seq.fold compare 0
@@ -109,8 +115,8 @@ type FunctionalBinder(innerBinder : IBinder,
             null
         else if aliasedTypes.ContainsKey name then
             aliasedTypes.[name].Value
-        else if mappedNamespaces.ContainsKey name.Head then
-            mappedNamespaces.[name.Head].Append name.Tail |> this.Bind
+        else if mappedNamespaces.ContainsKey (string name.Head) then
+            mappedNamespaces.[string name.Head].Append name.Tail |> this.Bind
         else
             let tyMatch = usingNamespaces |> Seq.map (fun x -> x.Append name)
                                           |> Seq.map (fun x -> innerBinder.BindType x.Name)
@@ -124,6 +130,6 @@ type FunctionalBinder(innerBinder : IBinder,
         this.Bind (new TypeName(name))
 
     interface IBinder with
-        member this.BindType name = this.Bind name
+        member this.BindType name = this.Bind (TypeName name)
         member this.Environment = innerBinder.Environment
         member this.GetTypes()  = innerBinder.GetTypes()

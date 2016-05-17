@@ -11,7 +11,7 @@ namespace Flame.TextContract
 {
     public class ContractNamespace : INamespaceBuilder, INamespaceBranch, ISyntaxNode
     {
-        public ContractNamespace(IAssembly DeclaringAssembly, string FullName, string Name)
+        public ContractNamespace(IAssembly DeclaringAssembly, QualifiedName FullName, UnqualifiedName Name)
         {
             this.DeclaringAssembly = DeclaringAssembly;
             this.FullName = FullName;
@@ -21,8 +21,8 @@ namespace Flame.TextContract
         }
 
         public IAssembly DeclaringAssembly { get; private set; }
-        public string Name { get; private set; }
-        public string FullName { get; private set; }
+        public UnqualifiedName Name { get; private set; }
+        public QualifiedName FullName { get; private set; }
 
         private List<ContractNamespace> namespaces;
         private List<ContractType> types;
@@ -44,7 +44,13 @@ namespace Flame.TextContract
 
         public INamespaceBuilder DeclareNamespace(string Name)
         {
-            var ns = new ContractNamespace(this.DeclaringAssembly, MemberExtensions.CombineNames(this.FullName, Name), Name);
+            var simpleName = new SimpleName(Name);
+            var ns = new ContractNamespace(
+                this.DeclaringAssembly, 
+                string.IsNullOrWhiteSpace(this.FullName.ToString()) 
+                    ? new QualifiedName(simpleName) 
+                    : simpleName.Qualify(this.FullName), 
+                simpleName);
             namespaces.Add(ns);
             return ns;
         }

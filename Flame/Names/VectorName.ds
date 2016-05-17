@@ -13,12 +13,12 @@ namespace Flame
         /// <summary>
         /// Creates a new array name from the given unqualified name and array rank.
         /// </summary>
-        public const this(set QualifiedName Name, set IReadOnlyList<int> Dimensions);
+        public const this(set QualifiedName ElementName, set IReadOnlyList<int> Dimensions);
 
         /// <summary>
         /// Gets the unqualified name that is turned into a pointer.
         /// </summary>
-        public QualifiedName Name { get; private set; }
+        public QualifiedName ElementName { get; private set; }
 
         /// <summary>
         /// Gets this vector name's dimensions.
@@ -27,7 +27,7 @@ namespace Flame
 
         public override string ToString()
         {
-            var sb = new StringBuilder(Name.ToString());
+            var sb = new StringBuilder(ElementName.ToString());
             sb.Append('[');
             sb.Append(Dimensions[0]);
             int count = Dimensions.Count;
@@ -42,7 +42,7 @@ namespace Flame
 
         public override bool Equals(VectorName Other)
         {
-            return Name == Other.Name
+            return ElementName == Other.ElementName
                 && Enumerable.SequenceEqual<int>(Dimensions, Other.Dimensions);
         }
         public override bool Equals(UnqualifiedName Other)
@@ -56,7 +56,7 @@ namespace Flame
             {
                 result = (result << 4) ^ item;
             }
-            return result ^ Name.GetHashCode();
+            return result ^ ElementName.GetHashCode();
         }
     }
 }

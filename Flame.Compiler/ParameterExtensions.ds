@@ -32,7 +32,7 @@ namespace Flame.Compiler
                 }
                 else
                 {
-                    return ParentType.GetField(attr.TargetName, IsStatic);
+                    return ParentType.GetField(new SimpleName(attr.TargetName), IsStatic);
                 }
             }
         }
@@ -58,7 +58,7 @@ namespace Flame.Compiler
                 }
                 else
                 {
-                    result = properties.GetProperty(attr.TargetName, IsStatic);
+                    result = properties.GetProperty(new SimpleName(attr.TargetName), IsStatic);
                 }
                 if (result == null)
                 {

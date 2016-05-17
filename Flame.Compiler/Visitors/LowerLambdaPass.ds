@@ -196,14 +196,15 @@ namespace Flame.Compiler.Visitors
 
             var nsBuilder = (INamespace)DeclaringType;
             string name = GenerateName("__lambda_closure");
-            var closureType = new DescribedType(name, nsBuilder);
+            var declGenParameters = Enumerable.ToArray<IGenericParameter>(DeclaringMethod.GenericParameters);
+            var closureType = new DescribedType(new SimpleName(name, declGenParameters.Length), nsBuilder);
             closureType.AddAttribute(new AccessAttribute(AccessModifier.Private));
             if (Environment.RootType != null)
             {
                 closureType.AddBaseType(Environment.RootType);
             }
             foreach (var item in GenericExtensions.CloneGenericParameters(
-                                            DeclaringMethod.GenericParameters,
+                                            declGenParameters,
                                             closureType))
             {
                 closureType.AddGenericParameter(item);

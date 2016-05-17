@@ -71,7 +71,7 @@ namespace Flame.Python.Emit
         {
             get
             {
-                var regularNames = collectionMap.Keys.Select((item) => item.Member.Name);
+                var regularNames = collectionMap.Keys.Select((item) => item.Member.Name.ToString());
                 var indexNames = IndexVariables.Select((item) => ((PythonVariableBase)item).GetCode().ToString());
                 return indexNames.Concat(regularNames);
             }

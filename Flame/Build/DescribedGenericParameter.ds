@@ -8,16 +8,28 @@ namespace Flame.Build
 {
     public class DescribedGenericParameter : DescribedMember, IGenericParameterBuilder
     {
-        public const this(string Name, set IGenericMember DeclaringMember)
+        public const this(UnqualifiedName Name, set IGenericMember DeclaringMember)
             : base(Name)
         {
             this.constraints = new List<IGenericConstraint>();
             ClearCache();
         }
-        public const this(string Name, set IGenericMember DeclaringMember, [IGenericConstraint] Constraints)
+        public const this(UnqualifiedName Name, set IGenericMember DeclaringMember, [IGenericConstraint] Constraints)
             : base(Name)
         {
         	this.constraints = new List<IGenericConstraint>(Constraints);
+            ClearCache();
+        }
+        public const this(string Name, set IGenericMember DeclaringMember)
+            : base(new SimpleName(Name))
+        {
+            this.constraints = new List<IGenericConstraint>();
+            ClearCache();
+        }
+        public const this(string Name, set IGenericMember DeclaringMember, [IGenericConstraint] Constraints)
+            : base(new SimpleName(Name))
+        {
+            this.constraints = new List<IGenericConstraint>(Constraints);
             ClearCache();
         }
 
@@ -104,11 +116,11 @@ namespace Flame.Build
         	}
         }
 
-        public override string FullName
+        public override QualifiedName FullName
         {
         	const get
         	{
-        		return MemberExtensions.CombineNames(DeclaringMember.FullName, Name);
+                return Name.Qualify(DeclaringMember.FullName);
         	}
         }
 
@@ -194,7 +206,7 @@ namespace Flame.Build
 
         public override const string ToString()
         {
-        	return FullName;
+        	return FullName.ToString();
         }
     }
 }

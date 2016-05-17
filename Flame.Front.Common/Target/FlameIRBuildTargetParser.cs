@@ -64,7 +64,7 @@ namespace Flame.Front.Target
             var encoding = GetEncoding(PlatformIdentifier, Info, DependencyBuilder.Log.Options);
             string extension = encoding == IRAssemblyEncoding.Binary ? "flo" : "fir";
 
-            var asm = new IRAssemblyBuilder(new IRSignature(Info.Name), DependencyBuilder.Environment, encoding, Info.Version);
+            var asm = new IRAssemblyBuilder(new IRSignature(new SimpleName(Info.Name)), DependencyBuilder.Environment, encoding, Info.Version);
 
             return new BuildTarget(asm, DependencyBuilder, extension, true);
         }

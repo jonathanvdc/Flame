@@ -119,9 +119,9 @@ namespace Flame.MIPS
             throw new NotImplementedException();
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
+            get { return Name.Qualify(DeclaringNamespace.FullName); }
         }
 
         public AttributeMap Attributes
@@ -132,7 +132,7 @@ namespace Flame.MIPS
             }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             get { return Template.Name; }
         }

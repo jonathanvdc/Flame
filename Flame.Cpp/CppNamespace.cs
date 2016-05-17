@@ -10,9 +10,10 @@ namespace Flame.Cpp
 {
     public class CppNamespace : INamespaceBuilder, INamespaceBranch
     {
-        public CppNamespace(IAssembly DeclaringAssembly, string FullName, ICppEnvironment Environment)
+        public CppNamespace(IAssembly DeclaringAssembly, UnqualifiedName Name, QualifiedName FullName, ICppEnvironment Environment)
         {
             this.DeclaringAssembly = DeclaringAssembly;
+            this.Name = Name;
             this.FullName = FullName;
             this.Environment = Environment;
             this.types = new List<CppType>();
@@ -20,7 +21,8 @@ namespace Flame.Cpp
         }
 
         public IAssembly DeclaringAssembly { get; private set; }
-        public string FullName { get; private set; }
+        public UnqualifiedName Name { get; private set; }
+        public QualifiedName FullName { get; private set; }
         public ICppEnvironment Environment { get; private set; }
 
         private List<CppType> types;
@@ -38,11 +40,6 @@ namespace Flame.Cpp
             get { return AttributeMap.Empty; }
         }
 
-        public string Name
-        {
-            get { return FullName; }
-        }
-
         public IEnumerable<IType> Types
         {
             get { return types; }
@@ -54,7 +51,13 @@ namespace Flame.Cpp
 
         public INamespaceBuilder DeclareNamespace(string Name)
         {
-            var namesp = new CppNamespace(DeclaringAssembly, MemberExtensions.CombineNames(FullName, Name), Environment);
+            var simpleName = new SimpleName(Name);
+            var namesp = new CppNamespace(
+                DeclaringAssembly, simpleName, 
+                string.IsNullOrWhiteSpace(FullName.ToString()) 
+                    ? new QualifiedName(simpleName) 
+                    : simpleName.Qualify(FullName), 
+                Environment);
             ns.Add(namesp);
             return namesp;
         }

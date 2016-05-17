@@ -35,9 +35,9 @@ namespace Flame.Python
             }
         }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
-            get { return "object"; }
+            get { return new SimpleName("object"); }
         }
     }
 }

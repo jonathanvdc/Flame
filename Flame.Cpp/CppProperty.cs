@@ -58,9 +58,9 @@ namespace Flame.Cpp
             return cb;
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            get { return Name.Qualify(DeclaringType.FullName); }
         }
 
         public AttributeMap Attributes
@@ -68,13 +68,13 @@ namespace Flame.Cpp
             get { return Template.Attributes.Value; }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             get 
             {
                 if (this.GetIsIndexer())
                 {
-                    return "Item";
+                    return new SimpleName("Item");
                 }
                 else
                 {

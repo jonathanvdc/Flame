@@ -106,9 +106,9 @@ namespace Flame.Cpp
             // No need for this quite yet.
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            get { return Name.Qualify(DeclaringType.FullName); }
         }
 
         public AttributeMap Attributes
@@ -124,7 +124,7 @@ namespace Flame.Cpp
             return docBuilder.GetDocumentationComments(this);
         }
 
-        public virtual string Name
+        public virtual UnqualifiedName Name
         {
             get
             {
@@ -265,7 +265,7 @@ namespace Flame.Cpp
                 }
                 cb.Append(TypeNamer.Name(tParam, this));
                 cb.Append(' ');
-                cb.Append(parameters[i].Name);
+                cb.Append(parameters[i].Name.ToString());
             }
             cb.Append(')');
             if (isConst && !IsStatic)
@@ -408,7 +408,7 @@ namespace Flame.Cpp
             {
                 return false;
             }
-            if (First.Name == Other.Name && Other.IsStatic == First.IsStatic && (First.DeclaringType == null || First.DeclaringType.Equals(Other.DeclaringType)))
+            if (First.Name.Equals(Other.Name) && Other.IsStatic == First.IsStatic && (First.DeclaringType == null || First.DeclaringType.Equals(Other.DeclaringType)))
             {
                 var tComparer = ScopedTypeEqualityComparer.Instance;
 

@@ -536,7 +536,7 @@ module ExpressionBuilder =
         | None -> captLocals
         | Some signature ->
             signature.Parameters |> Seq.mapi (fun i param -> param, i)
-                                 |> Seq.fold (fun result (param, i) -> Map.add param.Name (ArgumentVariable(param, i) :> IVariable) result) captLocals
+                                 |> Seq.fold (fun result (param, i) -> Map.add (string param.Name) (ArgumentVariable(param, i) :> IVariable) result) captLocals
 
         let globalScope = GlobalScope(scope.Global.Binder, scope.Global.ConversionRules, scope.Global.Log,
                                       scope.Global.TypeNamer, scope.Global.GetAllMembers, getLambdaParameters)
@@ -575,9 +575,9 @@ module ExpressionBuilder =
         let nodes =
             match target.IsStatic, target.IsConstructor with
             | (true, true)   -> [TypeDiffComparer.ToTextNode("static new " + namer target.DeclaringType); argDiff]
-            | (true, false)  -> [TypeDiffComparer.ToTextNode("static " + namer target.ReturnType + " " + target.FullName); argDiff]
+            | (true, false)  -> [TypeDiffComparer.ToTextNode("static " + namer target.ReturnType + " " + string target.FullName); argDiff]
             | (false, true)  -> [TypeDiffComparer.ToTextNode("new " + namer target.DeclaringType); argDiff]
-            | (false, false) -> [TypeDiffComparer.ToTextNode(namer target.ReturnType + " " + target.FullName); argDiff]
+            | (false, false) -> [TypeDiffComparer.ToTextNode(namer target.ReturnType + " " + string target.FullName); argDiff]
 
         new MarkupNode("node", nodes |> Seq.ofList)
 
@@ -719,7 +719,7 @@ module ExpressionBuilder =
         | (Extension tgt, Reference expr)
         | (Extension tgt, Value expr)                 -> new GetExtensionMethodExpression(tgt, CastImplicit scope expr (tgt.GetParameters().[0].ParameterType)) :> IDelegateExpression
         | (Instance tgt, Global _)                    ->
-            let message = "could not access instance method '" + tgt.Name + "' of type '" +
+            let message = "could not access instance method '" + string tgt.Name + "' of type '" +
                           (scope.Global.TypeNamer tgt.DeclaringType) + " without an instance."
             new DelegateInstanceExpression (Error (new LogEntry("invalid method access", message)) (new UnknownExpression(MethodType.Create tgt))) :> IDelegateExpression
 
@@ -742,7 +742,7 @@ module ExpressionBuilder =
         | :? IMethod   as mtd -> AccessMethod scope mtd accessedExpr :> IExpression
         | :? IProperty as prp -> AccessProperty scope (prp.GetGetAccessor()) (prp.GetSetAccessor()) accessedExpr
         | _                   ->
-            let message = "could not access type member '" + targetMember.Name + "' belonging to type '" +
+            let message = "could not access type member '" + string targetMember.Name + "' belonging to type '" +
                           (scope.Global.TypeNamer targetMember.DeclaringType) + " because it could not be identified as a field, method or property."
             Error (new LogEntry("unknown type member access", message)) Void
 
@@ -843,7 +843,7 @@ module ExpressionBuilder =
                 else
                     let picked = Seq.nth 1 result
                     let msg    = new LogEntry("ambiguous property access",
-                                              "the '" + accType.ToString() + "' accessor of property '" + picked.DeclaringProperty.Name + "' could not be resolved unambiguously.")
+                                              "the '" + accType.ToString() + "' accessor of property '" + string picked.DeclaringProperty.Name + "' could not be resolved unambiguously.")
                     picked, Some msg
 
             let getter, getterError = getUpperAccessor AccessorType.GetAccessor
@@ -862,7 +862,7 @@ module ExpressionBuilder =
 
     /// Accesses all type members with the given name on the given expression.
     let AccessNamedMembers (scope : LocalScope) (memberName : string) (accessedExpr : AccessedExpression) : IExpression =
-        let allMembers = scope.Global.GetAllMembers accessedExpr.Type |> Seq.filter (fun x -> x.Name = memberName)
+        let allMembers = scope.Global.GetAllMembers accessedExpr.Type |> Seq.filter (fun x -> string x.Name = memberName)
         if Seq.isEmpty allMembers then
             let innerExpr = match accessedExpr with
                             | Global _                          -> Void

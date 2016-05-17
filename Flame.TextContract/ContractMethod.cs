@@ -45,9 +45,9 @@ namespace Flame.TextContract
             get { return Template.Template.IsStatic; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            get { return Name.Qualify(DeclaringType.FullName); }
         }
 
         public AttributeMap Attributes
@@ -55,32 +55,13 @@ namespace Flame.TextContract
             get { return Template.Attributes.Value; }
         }
 
-        public virtual string Name
+        public virtual UnqualifiedName Name
         {
             get
             {
                 if (this.IsConstructor)
-                    return "Create" + DeclaringType.GetGenericFreeName();
-                else if (this.GetIsGeneric())
                 {
-                    var genericFreeName = GenericNameExtensions.TrimGenerics(this.Template.Name);
-                    StringBuilder sb = new StringBuilder(genericFreeName);
-                    sb.Append('<');
-                    bool first = true;
-                    foreach (var item in GenericParameters)
-                    {
-                        if (first)
-                        {
-                            first = false;
-                        }
-                        else
-                        {
-                            sb.Append(", ");
-                        }
-                        sb.Append(ContractHelpers.GetTypeName(item));
-                    }
-                    sb.Append('>');
-                    return sb.ToString();
+                    return new SimpleName("Create" + DeclaringType.GetGenericFreeName());
                 }
                 else
                 {
@@ -98,7 +79,10 @@ namespace Flame.TextContract
         {
             var cb = new CodeBuilder();
             cb.Append(ContractHelpers.GetAccessCode(this.GetAccess()));
-            cb.Append(Name);
+            if (this.GetIsGeneric())
+                cb.Append(this.MakeGenericMethod(GenericParameters).Name.ToString());
+            else
+                cb.Append(Name.ToString());
             cb.Append("(");
             bool first = true;
             foreach (var item in Parameters)
@@ -119,7 +103,7 @@ namespace Flame.TextContract
                 {
                     cb.Append("in ");
                 }
-                cb.Append(item.Name);
+                cb.Append(item.Name.ToString());
                 cb.Append(" : ");
                 cb.Append(ContractHelpers.GetTypeName(item.ParameterType));
             }

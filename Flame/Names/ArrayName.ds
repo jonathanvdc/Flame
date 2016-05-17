@@ -13,12 +13,12 @@ namespace Flame
         /// <summary>
         /// Creates a new array name from the given unqualified name and array rank.
         /// </summary>
-        public const this(set QualifiedName Name, set int Rank);
+        public const this(set QualifiedName ElementName, set int Rank);
 
         /// <summary>
         /// Gets the unqualified name that is turned into a pointer.
         /// </summary>
-        public QualifiedName Name { get; private set; }
+        public QualifiedName ElementName { get; private set; }
 
         /// <summary>
         /// Gets this array name's rank.
@@ -27,7 +27,7 @@ namespace Flame
 
         public override string ToString()
         {
-            var sb = new StringBuilder(Name.ToString());
+            var sb = new StringBuilder(ElementName.ToString());
             sb.Append('[');
             for (int i = 1; i < Rank; i++)
                 sb.Append(',');
@@ -37,7 +37,7 @@ namespace Flame
 
         public override bool Equals(ArrayName Other)
         {
-            return Name == Other.Name
+            return ElementName == Other.ElementName
                 && Rank == Other.Rank;
         }
         public override bool Equals(UnqualifiedName Other)
@@ -46,7 +46,7 @@ namespace Flame
         }
         public override int GetHashCode()
         {
-            return Name.GetHashCode() ^ (Rank.GetHashCode() << 16);
+            return ElementName.GetHashCode() ^ (Rank.GetHashCode() << 16);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Flame.Compiler.Variables
             var parameters = Method.GetParameters();
             for (int i = 0; i < parameters.Length; i++)
             {
-                if (parameters[i].Name.Equals(Name))
+                if (parameters[i].Name.ToString().Equals(Name))
                 {
                     return new ArgumentVariable(parameters[i], i);
                 }
@@ -27,7 +27,7 @@ namespace Flame.Compiler.Variables
         {
             foreach (var item in Method.GetParameters())
             {
-                if (item.Name.Equals(Name))
+                if (item.Name.ToString().Equals(Name))
                 {
                     return true;
                 }

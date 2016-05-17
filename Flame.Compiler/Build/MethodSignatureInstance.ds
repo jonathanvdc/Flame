@@ -32,7 +32,7 @@ namespace Flame.Compiler.Build
         /// <summary>
         /// Gets the method signature instance's name.
         /// </summary>
-        public string Name { const get { return Template.Name; } }
+        public UnqualifiedName Name { const get { return Template.Name; } }
 
         /// <summary>
         /// Gets a boolean value that tells if this method signature instance is a constructor.

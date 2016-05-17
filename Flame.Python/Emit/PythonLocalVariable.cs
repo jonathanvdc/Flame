@@ -22,13 +22,13 @@ namespace Flame.Python.Emit
             {
                 if (name == null)
                 {
-                    if (string.IsNullOrWhiteSpace(Member.Name))
+                    if (string.IsNullOrWhiteSpace(Member.Name.ToString()))
                     {
                         name = ((PythonCodeGenerator)CodeGenerator).GetLocalName(Member.VariableType);
                     }
                     else
                     {
-                        name = ((PythonCodeGenerator)CodeGenerator).GetLocalName(Member.Name);
+                        name = ((PythonCodeGenerator)CodeGenerator).GetLocalName(Member.Name.ToString());
                     }
                 }
                 return name;

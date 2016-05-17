@@ -87,14 +87,14 @@ namespace Flame.Cecil
 
         protected bool IsSingletonProperty(IProperty Property)
         {
-            return Property.Name == "Instance" && Property.IsStatic && Property.PropertyType.Equals(this);
+            return Property.Name.ToString() == "Instance" && Property.IsStatic && Property.PropertyType.Equals(this);
         }
 
         protected IType GetAssociatedSingleton()
         {
             foreach (var item in Types)
             {
-                if (item.Name == StaticSingletonName && item.GetIsSingleton())
+                if (item.Name.ToString() == StaticSingletonName && item.GetIsSingleton())
                 {
                     return item;
                 }

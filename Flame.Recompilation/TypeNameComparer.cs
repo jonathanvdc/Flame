@@ -28,7 +28,7 @@ namespace Flame.Recompilation
 
         public bool Equals(IType x, IType y)
         {
-            return x.Name == y.Name;
+            return x.Name.Equals(y.Name);
         }
 
         public int GetHashCode(IType obj)

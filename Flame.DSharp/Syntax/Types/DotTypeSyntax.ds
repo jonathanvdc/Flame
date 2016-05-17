@@ -10,16 +10,16 @@ namespace Flame.Syntax.DSharp
 	public class DotTypeSyntax : ITokenTypeSyntax, IRelevantSyntax<Token>, ISourceSyntax
 	{
 		public const this(set ITokenTypeSyntax ElementType, set Token Dot, set Token Identifier);
-		
+
 		public ITokenTypeSyntax ElementType { const get; private set; }
 		public Token Dot { const get; private set; }
 		public Token Identifier { const get; private set; }
-		
+
 		public SourceLocation Location
 		{
 			const get return ElementType.GetSourceLocation().Concat(Dot.Location).Concat(Identifier.Location);
 		}
-		
+
 		public [Token] LeadingTrivia
         {
         	const get
@@ -31,12 +31,12 @@ namespace Flame.Syntax.DSharp
         		return list;
         	}
         }
-        
+
         public [Token] TrailingTrivia
         {
         	const get return Enumerable.Empty<Token>();
         }
-        
+
         public IReadOnlyList<Token> Tokens
         {
         	const get
@@ -51,26 +51,27 @@ namespace Flame.Syntax.DSharp
         		tokens[tokens.Length - 1] = Identifier;
         		return (IReadOnlyList<Token>)tokens;
         	}
-        } 
-        
-        public string TypeName
+        }
+
+        public QualifiedName TypeName
         {
         	const get
 			{
-				StringBuilder sb = new StringBuilder();
-				foreach (var item in ElementType.Tokens)
-					sb.Append(item.TokenValue);
-				sb.Append(Dot.TokenValue);
-				sb.Append(Identifier.TokenValue);
-				return sb.ToString();
+				var result = new QualifiedName(new SimpleName(Identifier.TokenValue));
+				foreach (var item in Enumerable.Reverse<Token>(ElementType.Tokens))
+				{
+					if (item.Type == TokenType.Identifier)
+						result = result.Qualify(new QualifiedName(new SimpleName(item.TokenValue)));
+				}
+				return result;
 			}
         }
-        
+
         public IType CreateType(ISyntaxState State)
         {
         	return State.Binder.BindType(TypeName);
         }
-        
+
         public override string ToString()
         {
             return GetCode().ToString();

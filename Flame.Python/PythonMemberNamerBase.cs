@@ -53,7 +53,7 @@ namespace Flame.Python
         {
             if (Method is IPythonMethod)
             {
-                return Method.Name;
+                return Method.Name.ToString();
             }
             else if (Method is IAccessor)
             {
@@ -79,12 +79,12 @@ namespace Flame.Python
         {
             if (Accessor is IPythonMethod)
             {
-                return Accessor.Name;
+                return Accessor.Name.ToString();
             }
             else
             {
                 var acc = (IAccessor)Accessor;
-                if (acc.DeclaringProperty.GetIsIndexer() && acc.DeclaringProperty.Name == "this")
+                if (acc.DeclaringProperty.GetIsIndexer() && acc.DeclaringProperty.Name.ToString() == "this")
                 {
                     if (acc.AccessorType.Equals(AccessorType.GetAccessor))
                     {
@@ -119,7 +119,7 @@ namespace Flame.Python
             }
             else
             {
-                return Member.Name;
+                return Member.Name.ToString();
             }
         }
     }

@@ -11,21 +11,23 @@ namespace Flame.Cecil
     {
         public GenericParameterTransformer(IEnumerable<IGenericParameter> GenericParameters)
         {
-            this.GenericParameters = GenericParameters.ToDictionary(item => item.Name,
-                                                                    item => item,
-                                                                    StringComparer.InvariantCulture);
+            this.GenericParameters = GenericParameters.ToDictionary(
+                item => item.Name, item => item);
         }
 
-        public IReadOnlyDictionary<string, IGenericParameter> GenericParameters { get; private set; }
+        public IReadOnlyDictionary<UnqualifiedName, IGenericParameter> GenericParameters { get; private set; }
 
         protected override IType ConvertGenericParameter(IGenericParameter Type)
         {
-            string name = Type.Name;
-            if (GenericParameters.ContainsKey(name))
+            IGenericParameter result;
+            if (GenericParameters.TryGetValue(Type.Name, out result))
             {
-                return GenericParameters[name];
+                return result;
             }
-            else return base.ConvertGenericParameter(Type);
+            else
+            {
+                return base.ConvertGenericParameter(Type);
+            }
         }
     }
 }

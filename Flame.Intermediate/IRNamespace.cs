@@ -38,12 +38,12 @@ namespace Flame.Intermediate
             get { return Signature.Attributes; }
         }
 
-        public override string FullName
+        public override QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name); }
+            get { return Name.Qualify(DeclaringNamespace.FullName); }
         }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
             get { return Signature.Name; }
         }

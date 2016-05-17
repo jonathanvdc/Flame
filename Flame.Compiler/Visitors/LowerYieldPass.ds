@@ -37,11 +37,12 @@ namespace Flame.Compiler.Visitors
         private DescribedType CreateNestedType(INamespace DeclaringNamespace,
                                                IMethod Method)
         {
-            var descNestedType = new DescribedType("__" + Method.Name + "_enumerator", DeclaringNamespace);
+            var declGenParameters = Enumerable.ToArray<IGenericParameter>(Method.GenericParameters);
+            var descNestedType = new DescribedType(new SimpleName("__" + Method.Name + "_enumerator", declGenParameters.Length), DeclaringNamespace);
             descNestedType.AddAttribute(new AccessAttribute(AccessModifier.Private));
             descNestedType.AddAttribute(PrimitiveAttributes.HiddenAttribute);
             foreach (var item in GenericExtensions.CloneGenericParameters(
-                                            Method.GenericParameters,
+                                            declGenParameters,
                                             descNestedType))
             {
                 descNestedType.AddGenericParameter(item);

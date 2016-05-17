@@ -122,11 +122,12 @@ namespace Flame.Cecil
             }
             if (this.DeclaringType.GetIsRootType())
             {
-                if (this.Name == "GetHashCode")
+                var nameStr = this.Name.ToString();
+                if (nameStr == "GetHashCode")
                 {
                     overrides.Add(PrimitiveMethods.Instance.GetHashCode);
                 }
-                else if (this.Name == "Equals")
+                else if (nameStr == "Equals")
                 {
                     overrides.Add(PrimitiveMethods.Instance.Equals);
                 }

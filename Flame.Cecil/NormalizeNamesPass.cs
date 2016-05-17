@@ -75,7 +75,7 @@ namespace Flame.Cecil
         private static string RenameAccessor(IAccessor Accessor)
         {
             var declProp = Accessor.DeclaringProperty;
-            return Accessor.AccessorType.Name.ToLower() + "_" + (RenameProperty(declProp) ?? declProp.Name);
+            return Accessor.AccessorType.Name.ToLower() + "_" + (RenameProperty(declProp) ?? declProp.Name.ToString());
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Flame.Intermediate.Emit
 
         public INamespaceBuilder DeclareNamespace(string Name)
         {
-            return IRNamespaceBuilder.DeclareNamespace(AssemblyBuilder, this, Name);
+            return IRNamespaceBuilder.DeclareNamespace(AssemblyBuilder, this, new SimpleName(Name));
         }
 
         public ITypeBuilder DeclareType(ITypeSignatureTemplate Template)

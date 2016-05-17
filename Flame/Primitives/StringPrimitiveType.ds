@@ -18,7 +18,7 @@ namespace Flame.Primitives
 
         public int32 Magnitude { const get return 0; }
         public string DefaultValue { const get return null; }
-        public string Name { const get return "String"; }
+        public UnqualifiedName Name { const get return new SimpleName("String"); }
 
         public INamespace DeclaringNamespace
         {
@@ -171,9 +171,9 @@ namespace Flame.Primitives
             };
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            const get return MemberExtensions.CombineNames(DeclaringNamespace.FullName, Name);
+            const get return Name.Qualify(DeclaringNamespace.FullName);
         }
 
 		private Lazy<AttributeMap> lazyAttrs;

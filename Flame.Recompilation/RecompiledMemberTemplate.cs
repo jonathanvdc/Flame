@@ -22,9 +22,20 @@ namespace Flame.Recompilation
 
         public abstract T GetSourceMember();
 
-        public string Name
+        public UnqualifiedName Name
         {
-            get { return SignaturePassResult.Name ?? GetSourceMember().Name; }
+            get 
+            {
+                var srcMember = GetSourceMember();
+                if (SignaturePassResult.Name == null)
+                    return srcMember.Name;
+                else
+                    return new SimpleName(
+                        SignaturePassResult.Name, 
+                        srcMember is IType 
+                            ? ((IType)srcMember).GenericParameters.Count()
+                            : 0); 
+            }
         }
 
         public AttributeMap CreateAttributes(T Type)

@@ -23,16 +23,16 @@ namespace Flame.Cecil
 
         public abstract bool IsStatic { get; }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
-            get { return GetMemberReference().Name; }
+            get { return new SimpleName(GetMemberReference().Name); }
         }
 
-        public override string FullName
+        public override QualifiedName FullName
         {
             get
             {
-                return MemberExtensions.CombineNames(DeclaringType.FullName, Name);
+                return Name.Qualify(DeclaringType.FullName);
             }
         }
 

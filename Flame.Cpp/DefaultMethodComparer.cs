@@ -84,7 +84,7 @@ namespace Flame.Cpp
             {
                 if (x.GetIsCast() && y.GetIsCast())
                 {
-                    return x.ReturnType.Name.CompareTo(y.ReturnType.Name);
+                    return x.ReturnType.Name.ToString().CompareTo(y.ReturnType.Name.ToString());
                 }
                 else if (x.GetIsCast())
                 {
@@ -97,7 +97,7 @@ namespace Flame.Cpp
             }
             else
             {
-                int nameComparison = x.Name.CompareTo(y.Name);
+                int nameComparison = x.Name.ToString().CompareTo(y.Name.ToString());
                 if (nameComparison == 0)
                 {
                     return x.GetParameters().Length.CompareTo(y.GetParameters().Length);

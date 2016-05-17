@@ -19,7 +19,7 @@ namespace Flame.Cecil
         public static bool IsDelegateType(IType Type)
         {
             var bType = Type.GetParent();
-            return bType != null && bType.FullName == "System.MulticastDelegate";
+            return bType != null && bType.FullName.ToString() == "System.MulticastDelegate";
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace Flame.Cecil
         /// <returns></returns>
         public static IMethod GetInvokeMethod(IType Type)
         {
-            return Type.GetMethods().Single(item => item.Name == "Invoke" && !item.IsStatic);
+            return Type.GetMethods().Single(item => item.Name.ToString() == "Invoke" && !item.IsStatic);
         }
 
         /// <summary>

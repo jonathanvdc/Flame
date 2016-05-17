@@ -9,7 +9,7 @@ namespace Flame
 		{
 			const get
 			{
-				return Binder.Environment.RootType;	
+				return Binder.Environment.RootType;
 			}
 		}
 	}

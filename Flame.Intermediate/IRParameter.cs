@@ -34,12 +34,12 @@ namespace Flame.Intermediate
             get { return Signature.Attributes; }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return Name; }
+            get { return new QualifiedName(Name); }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             get { return Signature.Name; }
         }

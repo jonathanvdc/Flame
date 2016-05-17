@@ -3,14 +3,25 @@ using System.Collections.Generic;
 
 namespace Flame
 {
+	/// <summary>
+	/// Defines a common interface for binders: objects that can resolve
+	/// qualified names as types.
+	/// </summary>
 	public interface IBinder
 	{
-		const IType BindType(string Name);
-		const IEnumerable<IType> GetTypes();
-		
+		/// <summary>
+		/// Resolves the given qualified name.
+		/// </summary>
+		IType BindType(QualifiedName Name);
+
+		/// <summary>
+		/// Gets all types that are known to this binder.
+		/// </summary>
+		[IType] GetTypes();
+
 		/// <summary>
 		/// Gets the environment for this binder.
 		/// </summary>
-		IEnvironment Environment { const get; }
+		IEnvironment Environment { get; }
 	}
 }

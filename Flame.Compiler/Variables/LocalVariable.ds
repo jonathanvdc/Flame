@@ -22,7 +22,7 @@ namespace Flame.Compiler.Variables
         /// </summary>
         public const this(set IVariableMember Member)
         {
-            this.Tag = new UniqueTag(Member.Name);
+            this.Tag = new UniqueTag(Member.Name.ToString());
         }
 
         /// <summary>

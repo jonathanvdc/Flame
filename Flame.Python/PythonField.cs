@@ -48,9 +48,9 @@ namespace Flame.Python
             // Do nothing. This back-end does not need `Initialize` to get things done.
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            get { return Name.Qualify(DeclaringType.FullName); }
         }
 
         public AttributeMap Attributes
@@ -63,12 +63,12 @@ namespace Flame.Python
             return DeclaringType.DeclaringNamespace.GetMemberNamer();
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
             get 
             {
                 var descField = new DescribedField(Template.Name, DeclaringType, FieldType);
-                return DeclaringType.DeclaringNamespace.GetMemberNamer().Name(descField); 
+                return new SimpleName(DeclaringType.DeclaringNamespace.GetMemberNamer().Name(descField)); 
             }
         }
 

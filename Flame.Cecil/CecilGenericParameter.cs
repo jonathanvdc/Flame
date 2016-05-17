@@ -277,7 +277,7 @@ namespace Flame.Cecil
             GenericParameter[] parameters = new GenericParameter[Templates.Length];
             for (int i = 0; i < Templates.Length; i++)
             {
-                var param = new GenericParameter(Templates[i].Name, ParameterProvider);
+                var param = new GenericParameter(Templates[i].Name.ToString(), ParameterProvider);
                 parameters[i] = param;
                 ParameterProvider.GenericParameters.Add(param);
             }

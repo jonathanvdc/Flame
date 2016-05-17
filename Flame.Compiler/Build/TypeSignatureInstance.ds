@@ -30,7 +30,7 @@ namespace Flame.Compiler.Build
         /// <summary>
         /// Gets the type signature instance's name.
         /// </summary>
-        public string Name { const get { return Template.Name; } }
+        public UnqualifiedName Name { const get { return Template.Name; } }
 
         /// <summary>
         /// Gets the type signature instance's attributes.

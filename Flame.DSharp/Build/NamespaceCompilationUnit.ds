@@ -78,11 +78,11 @@ namespace Flame.DSharp.Build
 			}
 		}
 
-		public static INamespaceBranchBuilder CreateNamespaceBuilder(string Name, INamespaceBranchBuilder DeclaringNamespace)
+		public static INamespaceBranchBuilder CreateNamespaceBuilder(SimpleName Name, INamespaceBranchBuilder DeclaringNamespace)
 		{
 			foreach (var item in DeclaringNamespace.Namespaces)
 			{
-				if (Name == item.Name && item is INamespaceBranchBuilder)
+				if (Name.Equals(item.Name) && item is INamespaceBranchBuilder)
 				{
 					return (INamespaceBranchBuilder)item;
 				}
@@ -95,11 +95,11 @@ namespace Flame.DSharp.Build
 		public INamespace CreateNamespace(INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log)
 		{
 			var splitName = this.SplitName;
-			INamespaceBranchBuilder ns = NamespaceCompilationUnit.CreateNamespaceBuilder(splitName[0], DeclaringNamespace);
+			INamespaceBranchBuilder ns = NamespaceCompilationUnit.CreateNamespaceBuilder(new SimpleName(splitName[0]), DeclaringNamespace);
 			for (int i = 1; i < splitName.Length; i++)
 			{
 				Binder = Binder.PushScope(ns.Name);
-				ns = NamespaceCompilationUnit.CreateNamespaceBuilder(splitName[i], ns);
+				ns = NamespaceCompilationUnit.CreateNamespaceBuilder(new SimpleName(splitName[i]), ns);
 			}
 			this.CompileToNamespace(ns, Binder, Log);
 			return ns;

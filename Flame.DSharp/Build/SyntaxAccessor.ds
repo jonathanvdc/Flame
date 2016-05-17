@@ -48,14 +48,14 @@ namespace Flame.DSharp.Build
             const get { return ParentProperty.IsStatic; }
         }
 
-        public string Name
+        public UnqualifiedName Name
         {
-            const get { return Syntax.Name + "_" + ParentProperty.Name; }
+            const get { return new SimpleName(Syntax.Name + "_" + ParentProperty.Name); }
         }
 
-        public string FullName
+        public QualifiedName FullName
         {
-            const get { return MemberExtensions.CombineNames(DeclaringType.FullName, Name); }
+            const get { return Name.Qualify(DeclaringType.FullName); }
         }
 
         public bool IsConstructor
@@ -143,7 +143,7 @@ namespace Flame.DSharp.Build
             attrs.AddRange(Syntax.GetDescriptionAttributes(GetSyntaxState()));
             if (IsAutoProperty)
             {
-            	attrs.Add(new FieldAccessorAttribute(FieldPropertySyntax.GetBackingFieldName(ParentProperty.Name)));
+            	attrs.Add(new FieldAccessorAttribute(FieldPropertySyntax.GetBackingFieldName(ParentProperty.Name.ToString())));
             }
             foreach (var item in DeclaringProperty.Attributes)
             {
@@ -184,7 +184,7 @@ namespace Flame.DSharp.Build
 
         public static const IField GetBackingField(IType CurrentType, string PropertyName)
         {
-            return CurrentType.GetField(FieldPropertySyntax.GetBackingFieldName(PropertyName));
+            return CurrentType.GetField(new SimpleName(FieldPropertySyntax.GetBackingFieldName(PropertyName)));
         }
 
         public bool IsAutoProperty { const get return !ParentProperty.DeclaringType.IsInterface && ParentProperty.Syntax.IsFieldProperty; }
@@ -204,7 +204,7 @@ namespace Flame.DSharp.Build
                 {
                 	thisExpr = new ThisVariable(currentType).CreateGetExpression();
                 }
-                var backingField = new FieldVariable(GetBackingField(currentType, ParentProperty.Name), thisExpr);
+                var backingField = new FieldVariable(GetBackingField(currentType, ParentProperty.Name.ToString()), thisExpr);
                 IStatement body;
                 if (this.IsGetAccessor)
                 {

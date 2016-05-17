@@ -17,7 +17,10 @@ namespace Flame.DSharp.Build
 {
 	public static class DSharpTypeExtensions
 	{
-        public static [IGenericParameter] CreateConstrainedGenericParameters(ISyntaxState State, IGenericMember DeclaringMember, [IGenericParameterDeclarationSyntax] GenericDeclarations, [GenericConstraintSyntax] GenericConstraints)
+        public static [IGenericParameter] CreateConstrainedGenericParameters(
+			ISyntaxState State, IGenericMember DeclaringMember,
+			[IGenericParameterDeclarationSyntax] GenericDeclarations,
+			[GenericConstraintSyntax] GenericConstraints)
 		{
 			var simpleGenericParams = new List<IGenericParameterBuilder>();
 			foreach (var item in GenericDeclarations)
@@ -29,7 +32,7 @@ namespace Flame.DSharp.Build
 
 			foreach (var item in simpleGenericParams)
 			{
-				genericBinder.MapType(item.Name, item);
+				genericBinder.MapType(new QualifiedName(item.Name), item);
 			}
 
             var fullSyntaxState = new IndirectSyntaxState(State, genericBinder);
@@ -38,11 +41,19 @@ namespace Flame.DSharp.Build
 			{
 				foreach (var genericConstraint in GenericConstraints)
                 {
-                    if (genParam.Name.Equals(genericConstraint.GenericParameterIdentifier.TokenValue))
+                    if (genParam.Name.ToString().Equals(genericConstraint.GenericParameterIdentifier.TokenValue))
                     {
                         foreach (var type in genericConstraint.Constraints)
                         {
-                            genParam.AddTypeConstraint(type.CreateType(fullSyntaxState));
+							var constraintType = type.CreateType(fullSyntaxState);
+							if (constraintType == null)
+							{
+								State.Log.LogError(new LogEntry(
+									"unresolved constraint",
+									"constraint type could not be resolved.",
+									type.GetSourceLocation()));
+							}
+                            genParam.AddTypeConstraint(constraintType);
                         }
                     }
                 }
@@ -53,7 +64,7 @@ namespace Flame.DSharp.Build
 
         public static IType CreateExtensionType(INamespace Namespace, ISyntaxState State, TypeDeclarationSyntax Syntax)
         {
-	    	var descType = new DescribedType(Syntax.Signature.NameToken.TokenValue + "_Extensions", Namespace);
+	    	var descType = new DescribedType(new SimpleName(Syntax.Signature.NameToken.TokenValue + "_Extensions"), Namespace);
 	    	descType.AddAttribute(new AccessAttribute(AccessModifier.Public));
 	    	descType.AddAttribute(PrimitiveAttributes.StaticTypeAttribute);
 

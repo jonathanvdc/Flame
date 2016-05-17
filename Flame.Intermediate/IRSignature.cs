@@ -9,20 +9,20 @@ namespace Flame.Intermediate
 {
     public class IRSignature
     {
-        public IRSignature(string Name, IEnumerable<INodeStructure<IAttribute>> AttributeNodes)
+        public IRSignature(UnqualifiedName Name, IEnumerable<INodeStructure<IAttribute>> AttributeNodes)
         {
             this.Name = Name;
             this.AttributeNodes = AttributeNodes;
             this.cachedAttrs = new Lazy<AttributeMap>(() => new AttributeMap(AttributeNodes.Select(item => item.Value)));
         }
-        public IRSignature(string Name)
+        public IRSignature(UnqualifiedName Name)
         {
             this.Name = Name;
             this.AttributeNodes = Enumerable.Empty<INodeStructure<IAttribute>>();
             this.cachedAttrs = new Lazy<AttributeMap>(() => AttributeMap.Empty);
         }
 
-        public string Name { get; private set; }
+        public UnqualifiedName Name { get; private set; }
         public IEnumerable<INodeStructure<IAttribute>> AttributeNodes { get; private set; }
 
         public const string MemberNodeName = "#member";
@@ -44,6 +44,6 @@ namespace Flame.Intermediate
             get { return cachedAttrs.Value; }
         }
 
-        public static readonly IRSignature Empty = new IRSignature("", Enumerable.Empty<INodeStructure<IAttribute>>());
+        public static readonly IRSignature Empty = new IRSignature(new SimpleName(""), Enumerable.Empty<INodeStructure<IAttribute>>());
     }
 }

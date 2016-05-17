@@ -247,7 +247,11 @@ namespace Flame.Cecil
         {
             if (Reference.DeclaringType == null)
             {
-                return new CecilNamespace(Module, Reference.Namespace);
+                var qualName = NameParser.Instance.Convert(Reference.Namespace);
+                var tail = qualName;
+                while (tail.IsQualified)
+                    tail = tail.Name;
+                return new CecilNamespace(Module, tail.Qualifier, qualName);
             }
             else
             {
@@ -268,18 +272,9 @@ namespace Flame.Cecil
             }
         }
 
-        public static string AppendFlameGenerics(string Name, int TypeParameterCount)
+        public static SimpleName GetFlameGenericName(string Name, int TypeParameterCount)
         {
-            if (TypeParameterCount == 0)
-            {
-                return Name;
-            }
-            return Name + '<' + new string(',', TypeParameterCount - 1) + '>';
-        }
-
-        public static string GetFlameGenericName(string Name, int TypeParameterCount)
-        {
-            return AppendFlameGenerics(StripCLRGenerics(Name), TypeParameterCount);
+            return new SimpleName(StripCLRGenerics(Name), TypeParameterCount);
         }
 
         public static bool IsDelegate(this TypeDefinition Definition)

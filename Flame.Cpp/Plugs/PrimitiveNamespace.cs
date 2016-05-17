@@ -13,16 +13,16 @@ namespace Flame.Cpp.Plugs
             this.types = new List<IType>();
         }
 
-        public abstract string Name { get; }
+        public abstract UnqualifiedName Name { get; }
 
         public virtual IAssembly DeclaringAssembly
         {
             get { return null; }
         }
 
-        public virtual string FullName
+        public virtual QualifiedName FullName
         {
-            get { return Name; }
+            get { return new QualifiedName(Name); }
         }
 
         public virtual AttributeMap Attributes

@@ -16,9 +16,9 @@ namespace Flame.Cpp.Plugs
             Register(Finally = new StdxFinally(this));
         }
 
-        public override string Name
+        public override UnqualifiedName Name
         {
-            get { return "stdx"; }
+            get { return new SimpleName("stdx"); }
         }
 
         public ICppEnvironment Environment { get; private set; }
