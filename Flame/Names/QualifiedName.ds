@@ -126,7 +126,7 @@ namespace Flame
 			get
 			{
 				if (IsEmpty)
-					return null;
+					return "";
 
 				var results = new StringBuilder();
 				results.Append(qualifiers[qualifierIndex].ToString());
