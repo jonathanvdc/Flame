@@ -233,7 +233,7 @@ namespace Flame.Intermediate.Parsing
         public static QualifiedName ParseQualifiedName(string Name)
         {
             var qualName = NameParser.Instance.Convert(Name);
-            if (qualName == null)
+            if (qualName.IsEmpty)
                 throw new InvalidOperationException("'" + Name + "' was not a valid Flame IR qualified name");
             return qualName;
         }
@@ -292,7 +292,7 @@ namespace Flame.Intermediate.Parsing
         public static INodeStructure<IType> ParseMethodGenericParameterReference(ParserState State, LNode Node)
         {
             // Format:
-            // 
+            //
             // #method_generic_parameter(declaring_method, index)
             return new LazyValueStructure<IType>(Node, () =>
             {
@@ -305,7 +305,7 @@ namespace Flame.Intermediate.Parsing
         public static INodeStructure<IType> ParseTypeGenericParameterReference(ParserState State, LNode Node)
         {
             // Format:
-            // 
+            //
             // #type_generic_parameter(declaring_type, index)
             return new LazyValueStructure<IType>(Node, () =>
             {
@@ -529,7 +529,7 @@ namespace Flame.Intermediate.Parsing
                     descMethod.AddParameter(new DescribedParameter("arg" + item.Key, genericParser.Parse(genericState, item.Value).Value));
                 }
 
-                var result = descMethod.IsConstructor ? declType.GetConstructors().GetMethod(descMethod) 
+                var result = descMethod.IsConstructor ? declType.GetConstructors().GetMethod(descMethod)
                                                       : declType.GetMethods().GetMethod(descMethod);
 
                 if (result == null)
@@ -810,7 +810,7 @@ namespace Flame.Intermediate.Parsing
                 var paramList = EnclosingMethod.GetParameters();
 
                 var parserDict = new Dictionary<string, Func<ParserState, LNode, INodeStructure<IExpression>>>()
-                { 
+                {
                     { ExpressionParsers.GetArgumentNodeName, ExpressionParsers.CreateGetArgumentParser(paramList) },
                     { ExpressionParsers.AddressOfArgumentNodeName, ExpressionParsers.CreateAddressOfArgumentParser(paramList) },
                     { ExpressionParsers.SetArgumentNodeName, ExpressionParsers.CreateSetArgumentParser(paramList) },
@@ -973,7 +973,7 @@ namespace Flame.Intermediate.Parsing
         }
 
         /// <summary>
-        /// Given the given set of top-level nodes, extracts the 
+        /// Given the given set of top-level nodes, extracts the
         /// '#assembly' node's name.
         /// </summary>
         /// <param name="RootNodes"></param>
@@ -1220,7 +1220,7 @@ namespace Flame.Intermediate.Parsing
         }
 
         /// <summary>
-        /// Parses a single IR assembly from the given external reference resolver and 
+        /// Parses a single IR assembly from the given external reference resolver and
         /// set of root nodes.
         /// </summary>
         /// <param name="Resolver"></param>

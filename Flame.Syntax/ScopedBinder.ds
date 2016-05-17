@@ -97,14 +97,14 @@ namespace Flame.Syntax
                 if (localNs == null)
                 {
                     var ns = new List<QualifiedName>();
-                    QualifiedName qualifier = null;
+                    var qualifier = default(QualifiedName);
 					for (int i = 0; i < scopes.Count; i++)
                     {
                     	var scopeName = scopes[i].Name;
                     	if (!string.IsNullOrWhiteSpace(scopeName.ToString()))
                     	{
 							var qualName = new QualifiedName(scopeName);
-                    		if (!object.ReferenceEquals(qualifier, null))
+                    		if (!qualifier.IsEmpty)
 								qualName = qualName.Qualify(qualifier);
 
                         	ns.Add(qualName);

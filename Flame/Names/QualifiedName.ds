@@ -1,56 +1,111 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Flame
 {
 	/// <summary>
 	/// A data structure that represents a qualified name.
 	/// </summary>
-	/// <remarks>
-	/// This data structure is essentially a singly linked list.
-	/// </remarks>
-	public class QualifiedName : IEquatable<QualifiedName>
+	public struct QualifiedName
 	{
-		public const this(set UnqualifiedName Qualifier, set QualifiedName Name);
+		private const this(UnqualifiedName[] qualifiers, int qualifierIndex)
+		{
+			this.qualifiers = qualifiers;
+			this.qualifierIndex = qualifierIndex;
+		}
+
+		assembly const this(UnqualifiedName[] qualifiers)
+		{
+			this.qualifiers = qualifiers;
+		}
+
+		public const this(UnqualifiedName Qualifier, QualifiedName Name)
+		{
+			this.qualifiers = Name.PrependQualifier(Qualifier);
+		}
+
 		public const this(UnqualifiedName Name)
 		{
-			this.Qualifier = Name;
+			this.qualifiers = new UnqualifiedName[] { Name };
 		}
 
-		public const this(string Qualifier, set QualifiedName Name)
+		public const this(string Qualifier, QualifiedName Name)
 		{
-			this.Qualifier = new SimpleName(Qualifier);
+			this.qualifiers = Name.PrependQualifier(new SimpleName(Qualifier));
 		}
 
-		public const this(set string Name)
+		public const this(string Name)
 		{
-			this.Qualifier = new SimpleName(Name);
+			this.qualifiers = new UnqualifiedName[] { new SimpleName(Name) };
+		}
+
+		private UnqualifiedName[] qualifiers;
+		private int qualifierIndex;
+
+		private UnqualifiedName[] PrependQualifier(UnqualifiedName Prefix)
+		{
+			if (qualifiers == null)
+				return new UnqualifiedName[] { Prefix };
+
+			int len = qualifiers.Length - qualifierIndex;
+			var results = new UnqualifiedName[len + 1];
+			results[0] = Prefix;
+			Array.Copy((Array)qualifiers, qualifierIndex, (Array)results, 1, len);
+			return results;
+		}
+
+		private UnqualifiedName[] PrependArray(UnqualifiedName[] Prefix, int PrefixIndex)
+		{
+			int len = qualifiers.Length - qualifierIndex;
+			int preLen = Prefix.Length - PrefixIndex;
+			var results = new UnqualifiedName[len + preLen];
+			Array.Copy((Array)Prefix, PrefixIndex, (Array)results, 0, preLen);
+			Array.Copy((Array)qualifiers, qualifierIndex, (Array)results, preLen, len);
+			return results;
 		}
 
 		/// <summary>
 		/// Gets this qualified name's qualifier, or the
 		/// unqualified name, if this name is not qualified.
 		/// </summary>
-		public UnqualifiedName Qualifier { get; private set; }
+		public UnqualifiedName Qualifier
+		{
+			get
+			{
+				return qualifiers[qualifierIndex];
+			}
+		}
 
 		/// <summary>
 		/// Gets the name that is qualified by the qualifier.
 		/// </summary>
-		public QualifiedName Name { get; private set; }
+		public QualifiedName Name
+		{
+			get
+			{
+				int newIndex = qualifierIndex + 1;
+				if (newIndex < qualifiers.Length)
+					return new QualifiedName(qualifiers, newIndex);
+				else
+					return default(QualifiedName);
+			}
+		}
 
 		/// <summary>
 		/// Gets a value indicating whether this name is a qualified name,
 		/// rather than an unqualified name.
 		/// </summary>
 		/// <value><c>true</c> if this name is qualified; otherwise, <c>false</c>.</value>
-		public bool IsQualified { get { return Name != null; } }
+		public bool IsQualified { get { return qualifiers != null && qualifierIndex < qualifiers.Length - 1; } }
 
 		/// <summary>
 		/// Gets a value indicating whether this name is empty: it is both
 		/// unqualified, and its name null.
 		/// </summary>
 		/// <value><c>true</c> if this name is empty; otherwise, <c>false</c>.</value>
-		public bool IsEmpty { get { return !IsQualified && Qualifier == null; } }
+		public bool IsEmpty { get { return qualifiers == null; } }
 
 		/// <summary>
 		/// Gets this qualified name's full name.
@@ -59,12 +114,21 @@ namespace Flame
 		{
 			get
 			{
-				if (Name == null)
-					return Qualifier.ToString();
-				else
-					return Qualifier.ToString() + "." + Name.FullName;
+				if (IsEmpty)
+					return null;
+
+				var results = new StringBuilder();
+				results.Append(qualifiers[0].ToString());
+				for (int i = 1; i < qualifiers.Length; i++)
+				{
+					results.Append('.');
+					results.Append(qualifiers[i].ToString());
+				}
+				return results.ToString();
 			}
 		}
+
+		private int PathLength { get { return qualifiers.Length - qualifierIndex; } }
 
 		/// <summary>
 		/// Describes this qualified name as a "path": a sequence of unqualified
@@ -74,12 +138,12 @@ namespace Flame
 		{
 			get
 			{
-				var results = new List<UnqualifiedName>();
-				for (var name = this; name != null; name = name.Name)
-				{
-					results.Add(name.Qualifier);
-				}
-				return results;
+				if (IsEmpty)
+					return Enumerable.Empty<UnqualifiedName>();
+				else
+					return new ArraySegment<UnqualifiedName>(
+						qualifiers, qualifierIndex,
+						qualifiers.Length - qualifierIndex);
 			}
 		}
 
@@ -105,15 +169,10 @@ namespace Flame
 		/// </summary>
 		public QualifiedName Qualify(UnqualifiedName PreQualifier)
 		{
-			if (PreQualifier is SimpleName
-				&& string.IsNullOrEmpty(((SimpleName)PreQualifier).Name))
-			{
+			if (PreQualifier.IsEmpty)
 				return this;
-			}
 			else
-			{
 				return new QualifiedName(PreQualifier, this);
-			}
 		}
 
 		/// <summary>
@@ -124,21 +183,34 @@ namespace Flame
 		/// </summary>
 		public QualifiedName Qualify(QualifiedName PreQualifier)
 		{
-			if (!PreQualifier.IsQualified)
-				return Qualify(PreQualifier.Qualifier);
+			if (IsEmpty)
+				return PreQualifier;
+			else if (PreQualifier.IsEmpty)
+				return this;
 			else
-				return Qualify(PreQualifier.Name).Qualify(PreQualifier.Qualifier);
+				return new QualifiedName(PrependArray(
+					PreQualifier.qualifiers, PreQualifier.qualifierIndex));
 		}
 
 		public bool Equals(QualifiedName Other)
 		{
-			if (!Qualifier.Equals(Other.Qualifier))
+			var ownQuals = qualifiers;
+			var otherQuals = Other.qualifiers;
+
+			if (ownQuals == null || otherQuals == null)
+				return ownQuals == null && otherQuals == null;
+
+			if (PathLength != Other.PathLength)
 				return false;
 
-			if (Name == null)
-				return Other.Name == null;
-			else
-				return Other.Name != null && Name.Equals(Other.Name);
+			int delta = Other.qualifierIndex - qualifierIndex;
+			int qualLength = qualifiers.Length;
+			for (int i = qualifierIndex; i < qualLength; i++)
+			{
+				if (!ownQuals[i].Equals(otherQuals[i + delta]))
+					return false;
+			}
+			return true;
 		}
 
 		public override bool Equals(object Other)
@@ -148,10 +220,17 @@ namespace Flame
 
 		public override int GetHashCode()
 		{
-			if (IsQualified)
-				return Qualifier.GetHashCode() ^ Name.GetHashCode() << 1;
-			else
-				return Qualifier.GetHashCode();
+			var quals = qualifiers;
+			if (quals == null)
+				return 0;
+
+			int qualIndex = qualifierIndex;
+			int qualLen = quals.Length;
+			int result = 0;
+			for (int i = qualIndex; i < qualLen; i++)
+				result = (result << 1) ^ quals[i].GetHashCode();
+
+			return result;
 		}
 
 		public override string ToString()

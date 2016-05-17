@@ -63,12 +63,12 @@ namespace Flame.Syntax.DSharp
         {
         	const get
 			{
-				QualifiedName result = null;
+				var result = default(QualifiedName);
 				foreach (var item in Enumerable.Reverse<Token>(ElementType.Tokens))
 				{
 					if (item.Type == TokenType.Identifier)
 					{
-						if (object.ReferenceEquals(result, null))
+						if (result.IsEmpty)
 							result = new QualifiedName(new SimpleName(item.TokenValue, GenericArguments.Count));
 						else
 							result = result.Qualify(new QualifiedName(new SimpleName(item.TokenValue)));
