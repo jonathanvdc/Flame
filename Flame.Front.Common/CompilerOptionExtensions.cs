@@ -40,6 +40,7 @@ namespace Flame.Front
         public static IOptionParser<string> CreateOptionParser()
         {
             var options = StringOptionParser.CreateDefault();
+            options.RegisterParser<Version>(Version.Parse);
             options.RegisterParser<Flame.CodeDescription.IDocumentationFormatter>(item =>
             {
                 switch (item.ToLower())
