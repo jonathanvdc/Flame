@@ -1,3 +1,5 @@
+version: 0.7.6.{build}
+
 install:
   - curl -L https://github.com/jonathanvdc/Flame/releases/download/v0.7.3/dsc.zip > dsc_binaries.zip
   - 7z x dsc_binaries.zip -obin_dsc
@@ -14,6 +16,13 @@ build_script:
   - BuildCI.bat bin_dsc\dsc\dsc.exe
   # Perform a second build to make sure that Flame can bootstrap
   - BuildCI.bat dsc\bin\Release\dsc.exe
+
+assembly_info:
+    patch: true
+    file: AssemblyInfo.*
+    assembly_version: "{version}"
+    assembly_file_version: "{version}"
+    assembly_informational_version: "{version}"
 
 after_build:
   # Zip the compiled dsc binaries, and upload them.
