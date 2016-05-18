@@ -15,7 +15,7 @@ build_script:
   - set ASM_VERSION=%SEMVER%.%APPVEYOR_BUILD_NUMBER%
   - echo %ASM_VERSION%
   # Perform one build to check that Flame is buildable
-  - BuildCI.bat bin_dsc\dsc\dsc.exe --asm-version=%ASM_VERSION%
+  - BuildCI.bat bin_dsc\dsc\dsc.exe
   # Perform a second build to make sure that Flame can bootstrap
   - BuildCI.bat dsc\bin\Release\dsc.exe --asm-version=%ASM_VERSION%
 
