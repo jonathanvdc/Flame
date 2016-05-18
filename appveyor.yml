@@ -12,10 +12,12 @@ build_script:
   - ps: if ($env:APPVEYOR_REPO_TAG -eq $True) { $env:PKG_VERSION = $env:SEMVER; } else { $env:PKG_VERSION = "$($env:SEMVER)-ci$($env:APPVEYOR_BUILD_NUMBER)"; }
   - echo %PKG_VERSION%
 
+  - set ASM_VERSION=%SEMVER%.%APPVEYOR_BUILD_NUMBER%
+  - echo %ASM_VERSION%
   # Perform one build to check that Flame is buildable
-  - BuildCI.bat bin_dsc\dsc\dsc.exe
+  - BuildCI.bat bin_dsc\dsc\dsc.exe --asm-version=%ASM_VERSION%
   # Perform a second build to make sure that Flame can bootstrap
-  - BuildCI.bat dsc\bin\Release\dsc.exe
+  - BuildCI.bat dsc\bin\Release\dsc.exe --asm-version=%ASM_VERSION%
 
 assembly_info:
     patch: true
