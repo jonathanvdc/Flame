@@ -1,5 +1,6 @@
 
 SET dsc=%1
+shift
 
 :loop
       ::-------------------------- has argument ?
