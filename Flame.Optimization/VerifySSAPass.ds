@@ -189,7 +189,7 @@ namespace Flame.Optimization
             SSAVariable Variable, UniqueNameMap<SSAVariable> NameMap)
         {
             string varId = NameMap[Variable];
-            string varName = Variable.Member.Name;
+            string varName = Variable.Member.Name.ToString();
 
             if (string.IsNullOrEmpty(varName))
                 return "'" + varId + "'";

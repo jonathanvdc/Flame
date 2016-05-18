@@ -230,7 +230,7 @@ namespace Flame.Optimization
         /// </summary>
         protected virtual string NameMethod(IMethod Method)
         {
-            string name = Method.Name;
+            string name = Method.Name.ToString();
             if (string.IsNullOrWhiteSpace(name))
                 return "anonymous method";
             else
