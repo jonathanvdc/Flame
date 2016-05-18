@@ -175,7 +175,7 @@ namespace Flame.Optimization
             nodes.Add(new MarkupNode(NodeConstants.TextNodeType, "'"));
             nodes.Add(new MarkupNode(NodeConstants.BrightNodeType, varName));
             nodes.Add(new MarkupNode(NodeConstants.TextNodeType, "'"));
-            string memberName = Local.Member.Name;
+            string memberName = Local.Member.Name.ToString();
             if (!string.IsNullOrWhiteSpace(memberName) && memberName != varName)
             {
                 nodes.Add(new MarkupNode(NodeConstants.TextNodeType, " ('"));
