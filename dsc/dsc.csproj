@@ -65,18 +65,6 @@
     <Reference Include="Flame.Syntax">
       <HintPath>..\Flame.DSharp\bin\Flame.Syntax.dll</HintPath>
     </Reference>
-    <Reference Include="Loyc.Binary">
-      <HintPath>..\libs\Loyc\Loyc.Binary.dll</HintPath>
-    </Reference>
-    <Reference Include="Loyc.Collections">
-      <HintPath>..\libs\Loyc\Loyc.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="Loyc.Essentials">
-      <HintPath>..\libs\Loyc\Loyc.Essentials.dll</HintPath>
-    </Reference>
-    <Reference Include="Loyc.Syntax">
-      <HintPath>..\libs\Loyc\Loyc.Syntax.dll</HintPath>
-    </Reference>
     <Reference Include="Pixie">
       <HintPath>..\Pixie\bin\Pixie.dll</HintPath>
     </Reference>
@@ -104,6 +92,21 @@
     </Reference>
     <Reference Include="Mono.Cecil.Rocks">
       <HintPath>..\Flame.Cecil\packages\Mono.Cecil.0.9.6.1\lib\net45\Mono.Cecil.Rocks.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Collections">
+      <HintPath>..\Flame.Cecil\packages\LoycCore.1.4.1\lib\net45\Loyc.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Essentials">
+      <HintPath>..\Flame.Cecil\packages\LoycCore.1.4.1\lib\net45\Loyc.Essentials.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Syntax">
+      <HintPath>..\Flame.Cecil\packages\LoycCore.1.4.1\lib\net45\Loyc.Syntax.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Utilities">
+      <HintPath>..\Flame.Cecil\packages\LoycCore.1.4.1\lib\net45\Loyc.Utilities.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Binary">
+      <HintPath>..\Flame.Cecil\packages\Loyc.Binary.0.1.0\lib\net45\Loyc.Binary.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
