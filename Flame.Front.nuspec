@@ -20,6 +20,8 @@
     <dependencies>
         <dependency id="Mono.Cecil" version="0.9.6.1" />
         <dependency id="Newtonsoft.Json" version="8.0.3" />
+        <dependency id="LoycCore" version="1.4.1" />
+        <dependency id="Loyc.Binary" version="0.1.0" />
     </dependencies>
   </metadata>
   <files>
@@ -27,9 +29,6 @@
     <file src="Flame.Front.Common\bin\Release\Flame*.dll" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Flame*.pdb" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Flame*.xml" target="lib\net45\" />
-    <file src="Flame.Front.Common\bin\Release\Loyc.*.dll" target="lib\net45\" />
-    <file src="Flame.Front.Common\bin\Release\Loyc.*.pdb" target="lib\net45\" />
-    <file src="Flame.Front.Common\bin\Release\Loyc.*.xml" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Pixie*.dll" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Pixie*.pdb" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Pixie*.xml" target="lib\net45\" />
