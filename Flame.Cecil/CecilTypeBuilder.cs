@@ -29,12 +29,7 @@ namespace Flame.Cecil
         {
             var typeDef = GetResolvedType();
 
-            var typeAttrs = ExtractTypeAttributes(Template.Attributes.Value);
-            if (IsNested && (typeAttrs & TypeAttributes.VisibilityMask) == TypeAttributes.Public)
-            {
-                typeAttrs &= ~TypeAttributes.Public;
-                typeAttrs |= TypeAttributes.NestedPublic;
-            }
+            var typeAttrs = ExtractTypeAttributes(Template.Attributes.Value, IsNested);
 
             typeDef.Name = CreateCLRName(Template);
             typeDef.Attributes = typeAttrs;
@@ -329,7 +324,7 @@ namespace Flame.Cecil
 
         #region ExtractTypeAttributes
 
-        private static TypeAttributes ExtractTypeAttributes(IEnumerable<IAttribute> Attributes)
+        private static TypeAttributes ExtractTypeAttributes(IEnumerable<IAttribute> Attributes, bool IsNested)
         {
             TypeAttributes attr = TypeAttributes.BeforeFieldInit | TypeAttributes.Sealed;
             bool accessSet = false;
@@ -338,26 +333,47 @@ namespace Flame.Cecil
                 if (item.AttributeType.Equals(AccessAttribute.AccessAttributeType))
                 {
                     var access = ((AccessAttribute)item).Access;
-                    switch (access)
+                    if (IsNested)
                     {
-                        case AccessModifier.Protected:
-                            attr |= TypeAttributes.NestedFamily;
-                            break;
-                        case AccessModifier.Assembly:
-                            attr |= TypeAttributes.NestedAssembly;
-                            break;
-                        case AccessModifier.ProtectedAndAssembly:
-                            attr |= TypeAttributes.NestedFamANDAssem;
-                            break;
-                        case AccessModifier.ProtectedOrAssembly:
-                            attr |= TypeAttributes.NestedFamORAssem;
-                            break;
-                        case AccessModifier.Private:
-                            attr |= TypeAttributes.NestedPrivate;
-                            break;
-                        default:
-                            attr |= TypeAttributes.Public;
-                            break;
+                        switch (access)
+                        {
+                            case AccessModifier.Protected:
+                                attr |= TypeAttributes.NestedFamily;
+                                break;
+                            case AccessModifier.Assembly:
+                                attr |= TypeAttributes.NestedAssembly;
+                                break;
+                            case AccessModifier.ProtectedAndAssembly:
+                                attr |= TypeAttributes.NestedFamANDAssem;
+                                break;
+                            case AccessModifier.ProtectedOrAssembly:
+                                attr |= TypeAttributes.NestedFamORAssem;
+                                break;
+                            case AccessModifier.Private:
+                                attr |= TypeAttributes.NestedPrivate;
+                                break;
+                            default:
+                                attr |= TypeAttributes.NestedPublic;
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        switch (access)
+                        {
+                            case AccessModifier.Assembly:
+                            case AccessModifier.Protected:
+                            case AccessModifier.ProtectedAndAssembly:
+                            case AccessModifier.ProtectedOrAssembly:
+                            case AccessModifier.Private:
+                                // This is a no-op, so I omitted it.
+                                //
+                                // attr |= TypeAttributes.NotPublic;
+                                break;
+                            default:
+                                attr |= TypeAttributes.Public;
+                                break;
+                        }
                     }
                     accessSet = true;
                 }
@@ -385,7 +401,7 @@ namespace Flame.Cecil
             }
             if (!accessSet)
             {
-                attr |= TypeAttributes.Public;
+                attr |= IsNested ? TypeAttributes.NestedPublic : TypeAttributes.Public;
             }
             return attr;
         }
