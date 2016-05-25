@@ -1,6 +1,7 @@
 
 tests
 {
+    Assembly/Assembly.test;
     Color/Color.test;
     Constant/Constant.test;
     Fractal/Fractal.test;

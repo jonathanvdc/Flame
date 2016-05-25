@@ -1,0 +1,19 @@
+using System;
+
+assembly struct Vector2<T>
+{
+    public const this(set T X, set T Y);
+
+    public T X { get; private set; }
+    public T Y { get; private set; }
+}
+
+public module Program
+{
+    public void Main(string[] Args)
+    {
+        var vec = new Vector2<int>(17, 42);
+        Console.WriteLine(vec.X);
+        Console.WriteLine(vec.Y);
+    }
+}
