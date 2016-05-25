@@ -9,7 +9,7 @@ namespace Flame
     /// A base class for unqualified names: names that can be assigned
     /// to members, but that are not qualified by their enclosing members.
     /// </summary>
-    public abstract class UnqualifiedName : IEquatable<UnqualifiedName>
+    public abstract class UnqualifiedName : IEquatable<UnqualifiedName>, IComparable<UnqualifiedName>
     {
         public override bool Equals(object Other)
         {
@@ -39,6 +39,11 @@ namespace Flame
 				return result;
 			else
 				return result.Qualify(Qualifier);
+        }
+
+        public int CompareTo(UnqualifiedName Other)
+        {
+            return ((IComparable<string>)ToString()).CompareTo(Other.ToString());
         }
 
         public abstract override bool Equals(UnqualifiedName Other);
