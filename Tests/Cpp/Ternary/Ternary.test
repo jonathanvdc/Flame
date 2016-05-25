@@ -1,0 +1,16 @@
+// A compare-test test description.
+
+build
+{
+    $(dsc) $(Filename).fir -platform c++ -o bin/$(Filename).exe $(Flags);
+}
+
+configs
+{
+    Og { Flags = -Og -Wno-build; }
+}
+
+init
+{
+    Filename = Ternary;
+}
