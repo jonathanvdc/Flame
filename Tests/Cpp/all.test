@@ -1,0 +1,6 @@
+
+tests
+{
+    Ternary/Ternary.test;
+    ValueType/ValueType.test;
+}

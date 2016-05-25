@@ -10,6 +10,7 @@
 tests
 {
     Cecil/all.test;
+    Cpp/all.test;
     DSharp/all.test;
     Passes/all.test;
     Wasm/all.test;
