@@ -141,14 +141,13 @@ namespace Flame
             var srcDecl = SourceType;
             var tgtDecl = TargetType;
 
-            var targetAccess = tgtDecl.Access;
-
             if (tgtDecl.DeclaringNamespace is IType &&
                 !srcDecl.CanAccess((IType)tgtDecl.DeclaringNamespace))
             {
                 return false;
             }
 
+            var targetAccess = tgtDecl.Access;
             if (targetAccess == AccessModifier.Public || tgtDecl.DefinesType(srcDecl))
             {
                 return true;
