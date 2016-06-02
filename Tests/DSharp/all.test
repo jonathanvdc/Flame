@@ -4,6 +4,7 @@ tests
     Assembly/Assembly.test;
     Color/Color.test;
     Constant/Constant.test;
+    Flow/Flow.test;
     Fractal/Fractal.test;
     Overloading/Overloading.test;
     Point/Point.test;

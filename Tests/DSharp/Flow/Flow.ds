@@ -1,0 +1,60 @@
+using System;
+
+public module Program
+{
+    public static bool DoWhile(bool[] Values)
+    {
+        bool result = false;
+        int i = 0;
+        do
+        {
+            if (i >= Values.Length)
+                break;
+            i++;
+            if (result)
+                next;
+            else
+                result = Values[i];
+        } while (i < Values.Length);
+        return result;
+    }
+
+    public static bool For(bool[] Values)
+    {
+        bool result = false;
+        for (int i = 0; i < Values.Length; i++)
+        {
+            if (result)
+                next;
+            else
+                result = Values[i];
+
+            if (i + 1 >= Values.Length)
+                break;
+        }
+        return result;
+    }
+
+    public static bool Foreach(bool[] Values)
+    {
+        bool result = false;
+        foreach (var item in Values)
+        {
+            if (result)
+                next;
+            else
+                result = item;
+        }
+        return result;
+    }
+
+    public static void Main(string[] Args)
+    {
+        Console.WriteLine(DoWhile(new bool[] { }));
+        Console.WriteLine(DoWhile(new bool[] { false, false, true, true, false }));
+        Console.WriteLine(For(new bool[] { }));
+        Console.WriteLine(For(new bool[] { false, false, true, true, false }));
+        Console.WriteLine(Foreach(new bool[] { }));
+        Console.WriteLine(Foreach(new bool[] { false, false, true, true, false }));
+    }
+}
