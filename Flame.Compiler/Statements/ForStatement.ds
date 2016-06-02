@@ -153,18 +153,48 @@ namespace Flame.Compiler.Statements
 
         protected override IStatement Lower()
         {
+            // We'll lower a for statement like so:
+			//
+			// for (init; cond; delta) body; finalize;
+			//
+			// ==>
+			//
+			// Case #1: no `continue`
+			//
+            // init;
+			// while (cond)
+			// {
+			//     body;
+            //     delta;
+			// }
+            // finalize;
+			//
+			// Case #2: at least one `continue`
+			//
+            // init;
+			// while (cond)
+			// {
+			//     inner:
+			//     {
+			//         rewrittenBody; // <-- `continue loop;` in `body;`
+			//						  // is rewritten as `break inner;`
+			//     }
+			//     delta;
+			// }
+            // finalize;
+
         	var list = new List<IStatement>();
             list.Add(Setup);
 
             var loopBody = new List<IStatement>();
-            loopBody.Add(Body);
+            loopBody.Add(ContinueRewriter.RewriteContinueToBreak(
+                Tag, Body, new UniqueTag(), false));
             loopBody.Add(Change);
-            var loop = new WhileStatement(Tag, Condition, new BlockStatement(loopBody));
+            var loop = new WhileStatement(
+                Tag, Condition, new BlockStatement(loopBody));
             list.Add(loop);
-
             list.Add(End);
-            BlockStatement block = new BlockStatement(list);
-            return block;
+            return new BlockStatement(list);
         }
     }
 }

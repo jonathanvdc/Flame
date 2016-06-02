@@ -104,17 +104,8 @@ namespace Flame.Compiler.Statements
 		/// </summary>
 		private IStatement RewriteContinueToBreak(UniqueTag ContinueTag, bool ForceEnclose)
 		{
-			var rewriter = new ContinueRewriter(Tag, new BreakStatement(ContinueTag));
-			var rewritten = rewriter.Visit(Body);
-
-			if (ForceEnclose || rewriter.HasRewritten)
-			{
-				return new TaggedStatement(ContinueTag, rewritten);
-			}
-			else
-			{
-				return rewritten;
-			}
+			return ContinueRewriter.RewriteContinueToBreak(
+				Tag, Body, ContinueTag, ForceEnclose);
 		}
 
 		public override IStatement Optimize() : IStatement.Optimize
