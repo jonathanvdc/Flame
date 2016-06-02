@@ -45,6 +45,30 @@ namespace Flame.Compiler.Visitors
             return rewriter.Visit(Statement);
         }
 
+        /// <summary>
+        /// Rewrites the statement by replacing `continue` statements
+        /// with `break` statements to a tagged statement, which has the
+        /// given tag. If at least one statement has to be rewritten, or the
+        /// given boolean is true, then the result is wrapped in a tagged
+        /// statement for the given tag.
+        /// </summary>
+        public static IStatement RewriteContinueToBreak(
+            UniqueTag OldTag, IStatement Statement,
+            UniqueTag NewTag, bool ForceEnclose)
+        {
+            var rewriter = new ContinueRewriter(OldTag, new BreakStatement(NewTag));
+            var rewritten = rewriter.Visit(Statement);
+
+            if (ForceEnclose || rewriter.HasRewritten)
+            {
+                return new TaggedStatement(NewTag, rewritten);
+            }
+            else
+            {
+                return rewritten;
+            }
+        }
+
         public override const bool Matches(IExpression Value)
         {
             return false;
