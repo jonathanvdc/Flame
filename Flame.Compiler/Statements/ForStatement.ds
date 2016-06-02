@@ -151,7 +151,7 @@ namespace Flame.Compiler.Statements
             return LoweredStatement.Emit(Generator);
         }
 
-        protected override const IStatement Lower()
+        protected override IStatement Lower()
         {
         	var list = new List<IStatement>();
             list.Add(Setup);
