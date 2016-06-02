@@ -18,11 +18,14 @@ namespace Flame.Analysis
 			if (varNode != null)
 			{
 				var innerVar = varNode.GetVariable();
-				if (innerVar is ThisVariable)
-					return true;
-				else if (innerVar is AtAddressVariable)
-					return IsThisVariable(((AtAddressVariable)innerVar).Pointer);
+                if (innerVar is ThisVariable)
+                    return true;
+                else if (innerVar is AtAddressVariable)
+                    return IsThisVariable(((AtAddressVariable)innerVar).Pointer);
 			}
+            else if (innerNode is ReinterpretCastExpression 
+                || innerNode is DynamicCastExpression)
+                return IsThisVariable(((ConversionExpressionBase)innerNode).Value);
 			return false;
         }
 
