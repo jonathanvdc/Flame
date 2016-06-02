@@ -12,7 +12,7 @@ namespace Flame.Compiler.Statements
 	/// to `true`. This is equivalent to a `do...while` statement in the C family
 	/// of languages.
 	/// </summary>
-	public class DoWhileStatement : IStatement, IFlowStatement
+	public class DoWhileStatement : ComplexStatement, IFlowStatement
 	{
 		public const this(set IStatement Body, set IExpression Condition)
 		{
@@ -54,7 +54,7 @@ namespace Flame.Compiler.Statements
 			// We can just lower this statement and have a basic block
 			// constructing visitor reduce that to a sequence of basic blocks.
 
-			Visitor.CreateCurrentBlock(Lower());
+			Visitor.CreateCurrentBlock(LoweredStatement);
 		}
 
 		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
@@ -79,7 +79,7 @@ namespace Flame.Compiler.Statements
 			return CreateDoWhile(transBody, transCond);
 		}
 
-		public IStatement Accept(INodeVisitor Visitor)
+		public override IStatement Accept(INodeVisitor Visitor)
 		{
 			var transCond = Visitor.Visit(Condition);
 			var transBody = Visitor.Visit(Body);
@@ -87,7 +87,7 @@ namespace Flame.Compiler.Statements
 			return CreateDoWhile(transBody, transCond);
 		}
 
-		public bool IsConstantNode : IStatement.IsConstantNode
+		public override bool IsConstantNode : IStatement.IsConstantNode
 		{
 			const get
 			{
@@ -117,7 +117,7 @@ namespace Flame.Compiler.Statements
 			}
 		}
 
-		public IStatement Optimize() : IStatement.Optimize
+		public override IStatement Optimize() : IStatement.Optimize
 		{
 			var optCond = Condition.Optimize();
 
@@ -132,7 +132,7 @@ namespace Flame.Compiler.Statements
 		/// <summary>
 		/// Lowers this do...while block to an equivalent tagged block IR tree.
 		/// </summary>
-		public IStatement Lower()
+		protected override IStatement Lower()
 		{
 			// "Lower" a do...while block like this:
 			//
@@ -171,7 +171,7 @@ namespace Flame.Compiler.Statements
 			return new TaggedStatement(Tag, outerBody);
 		}
 
-		public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
+		public override ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
 		{
 			if (Generator is IDoWhileCodeGenerator)
 			{
@@ -182,7 +182,7 @@ namespace Flame.Compiler.Statements
 			}
 			else
 			{
-				return Lower().Emit(Generator);
+				return LoweredStatement.Emit(Generator);
 			}
 		}
 	}
