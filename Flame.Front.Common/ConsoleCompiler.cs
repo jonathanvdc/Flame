@@ -125,7 +125,7 @@ namespace Flame.Front.Cli
 
             if (mergedArgs.MustPrintVersion())
             {
-                Name.Print(log);
+                Name.PrintInfo(log);
             }
 
 			if (mergedArgs.GetOption<bool>("print-palette", false)) 
