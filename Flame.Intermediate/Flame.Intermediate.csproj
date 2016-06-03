@@ -47,19 +47,19 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Loyc.Collections">
-      <HintPath>..\Flame.Cecil\packages\LoycCore.1.4.1\lib\net45\Loyc.Collections.dll</HintPath>
+      <HintPath>..\Flame.Cecil\packages\LoycCore.1.8.0\lib\net45\Loyc.Collections.dll</HintPath>
     </Reference>
     <Reference Include="Loyc.Essentials">
-      <HintPath>..\Flame.Cecil\packages\LoycCore.1.4.1\lib\net45\Loyc.Essentials.dll</HintPath>
+      <HintPath>..\Flame.Cecil\packages\LoycCore.1.8.0\lib\net45\Loyc.Essentials.dll</HintPath>
     </Reference>
     <Reference Include="Loyc.Syntax">
-      <HintPath>..\Flame.Cecil\packages\LoycCore.1.4.1\lib\net45\Loyc.Syntax.dll</HintPath>
+      <HintPath>..\Flame.Cecil\packages\LoycCore.1.8.0\lib\net45\Loyc.Syntax.dll</HintPath>
     </Reference>
     <Reference Include="Loyc.Utilities">
-      <HintPath>..\Flame.Cecil\packages\LoycCore.1.4.1\lib\net45\Loyc.Utilities.dll</HintPath>
+      <HintPath>..\Flame.Cecil\packages\LoycCore.1.8.0\lib\net45\Loyc.Utilities.dll</HintPath>
     </Reference>
     <Reference Include="Loyc.Binary">
-      <HintPath>..\Flame.Cecil\packages\Loyc.Binary.0.1.0\lib\net45\Loyc.Binary.dll</HintPath>
+      <HintPath>..\Flame.Cecil\packages\Loyc.Binary.0.1.4\lib\net45\Loyc.Binary.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

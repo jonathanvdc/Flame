@@ -9,6 +9,9 @@ namespace Flame.Intermediate
 {
     public class NodeList<T> : INodeStructure<IReadOnlyList<T>>
     {
+        public NodeList(IEnumerable<INodeStructure<T>> Items)
+            : this(Items.ToArray())
+        { }
         public NodeList(IReadOnlyList<INodeStructure<T>> Items)
         {
             this.Items = Items;
