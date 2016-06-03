@@ -20,8 +20,8 @@
     <dependencies>
         <dependency id="Mono.Cecil" version="0.9.6.1" />
         <dependency id="Newtonsoft.Json" version="8.0.3" />
-        <dependency id="LoycCore" version="1.4.1" />
-        <dependency id="Loyc.Binary" version="0.1.0" />
+        <dependency id="LoycCore" version="1.8.0" />
+        <dependency id="Loyc.Binary" version="0.1.4" />
     </dependencies>
   </metadata>
   <files>
