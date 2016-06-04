@@ -139,9 +139,34 @@ namespace Flame.Collections
             return result;
         }
 
+        /// <summary>
+        /// Gets all values in this dictionary.
+        /// </summary>
+        public IEnumerable<TValue> Values
+        {
+            get { return new SmallMultiDictionaryValueEnumerable<TKey, TValue>(this); }
+        }
+
         public IEnumerator<TValue> GetValueEnumerator()
         {
             return new SmallMultiDictionaryValueEnumerator<TKey, TValue>(this);
+        }
+    }
+
+    public class SmallMultiDictionaryValueEnumerable<TKey, TValue> : IEnumerable<TValue>
+    {
+        public const this(set SmallMultiDictionary<TKey, TValue> Dictionary);
+
+        public SmallMultiDictionary<TKey, TValue> Dictionary { get; private set; }
+
+        public IEnumerator<TValue> GetGenericEnumerator() : IEnumerable<TValue>.GetEnumerator
+        {
+            return new SmallMultiDictionaryValueEnumerator<TKey, TValue>(Dictionary);
+        }
+
+        public IEnumerator GetObjectEnumerator() : IEnumerable.GetEnumerator
+        {
+            return GetGenericEnumerator();
         }
     }
 
