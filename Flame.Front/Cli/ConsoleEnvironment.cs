@@ -69,7 +69,7 @@ namespace Flame.Front.Cli
         static ConsoleEnvironment()
         {
             registeredConsoles = new List<KeyValuePair<Func<string, bool>, Func<string, ICompilerOptions, IConsole>>>();
-            RegisterConsole(name => IsXTerminalIdentifier(name) || IsVTerminal(name),
+            RegisterConsole(name => IsXTerminalIdentifier(name) || IsVTerminal(name) || name.Equals(LinuxIdentifier, StringComparison.OrdinalIgnoreCase),
                 (name, ops) => new AnsiConsole(name, DefaultConsole.GetBufferWidth(), GetForegroundColor(ops), GetBackgroundColor(ops)));
             RegisterConsole(name => name != null && name.Equals(HtmlIdentifier, StringComparison.OrdinalIgnoreCase),
                 (name, ops) => new HtmlConsole(new ConsoleDescription(name, 80, GetForegroundColor(ops), GetBackgroundColor(ops)), OverridesDefaultStyle(ops), EmbedHtmlStyle(ops), IdentHtml(ops)));
