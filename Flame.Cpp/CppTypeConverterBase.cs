@@ -19,7 +19,7 @@ namespace Flame.Cpp
         protected abstract override IType MakeArrayType(IType Type, int ArrayRank);
         protected abstract override IType MakeVectorType(IType Type, IReadOnlyList<int> Dimensions);
 
-        protected override IType ConvertPointerType(IPointerType Type)
+        protected override IType ConvertPointerType(PointerType Type)
         {
             return MakePointerType(ConvertWithValueSemantics(Type.ElementType), Type.PointerKind);
         }

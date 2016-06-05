@@ -11,34 +11,4 @@ namespace Flame
         /// <returns></returns>
         IType ElementType { get; }
     }
-
-    public interface IArrayType : IContainerType
-    {
-        /// <summary>
-        /// Gets the number of dimensions in an array.
-        /// </summary>
-        int ArrayRank { get; }
-    }
-
-    /// <summary>
-    /// Represents a pointer type: a value that points to the location in memory of an object.
-    /// </summary>
-    public interface IPointerType : IContainerType
-    {
-		/// <summary>
-		/// Gets the pointer's "kind".
-		/// </summary>
-        PointerKind PointerKind { get; }
-    }
-
-    /// <summary>
-    /// Represents a vector type: an array with fixed dimensions.
-    /// </summary>
-    public interface IVectorType : IContainerType
-    {
-        /// <summary>
-        /// Gets the vector's dimensions.
-        /// </summary>
-        IReadOnlyList<int> Dimensions { get; }
-    }
 }

@@ -529,7 +529,7 @@ namespace Flame.Wasm
 			return Convert(Type.GetParent() ?? PrimitiveTypes.Int32);
 		}
 
-		protected override DataLayout ConvertPointerType(IPointerType Type)
+		protected override DataLayout ConvertPointerType(PointerType Type)
 		{
 			return Convert(PointerIntegerType);
 		}

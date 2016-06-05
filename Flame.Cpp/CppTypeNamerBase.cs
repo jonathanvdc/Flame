@@ -73,7 +73,7 @@ namespace Flame.Cpp
             }
         }
 
-        protected override string ConvertArrayType(IArrayType Type)
+        protected override string ConvertArrayType(ArrayType Type)
         {
             if (Type.GetIsGenericInstance())
             {
@@ -85,7 +85,7 @@ namespace Flame.Cpp
             }
         }
 
-        protected override string ConvertVectorType(IVectorType Type)
+        protected override string ConvertVectorType(VectorType Type)
         {
             if (Type.GetIsGenericInstance())
             {

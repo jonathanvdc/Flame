@@ -50,12 +50,12 @@ namespace Flame.Cecil
             return elemType;
         }
 
-        private IType ConvertArrayType(ArrayType Type)
+        private IType ConvertArrayType(Mono.Cecil.ArrayType Type)
         {
             return Convert(Type.ElementType).MakeArrayType(Type.Rank);
         }
 
-        private IType ConvertPointerType(PointerType Type)
+        private IType ConvertPointerType(Mono.Cecil.PointerType Type)
         {
             return Convert(Type.ElementType).MakePointerType(PointerKind.TransientPointer);
         }
@@ -159,7 +159,7 @@ namespace Flame.Cecil
         {
             if (Value.IsPointer)
             {
-                return ConvertPointerType((PointerType)Value);
+                return ConvertPointerType((Mono.Cecil.PointerType)Value);
             }
             else if (Value.IsByReference)
             {
@@ -171,7 +171,7 @@ namespace Flame.Cecil
             }
             else if (Value.IsArray)
             {
-                return ConvertArrayType((ArrayType)Value);
+                return ConvertArrayType((Mono.Cecil.ArrayType)Value);
             }
             else if (Value.IsOptionalModifier || Value.IsRequiredModifier)
             {

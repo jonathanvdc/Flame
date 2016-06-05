@@ -99,7 +99,7 @@ namespace Flame.Build
 			return MakeGenericType(convDecl, convArgs);
 		}
 
-		protected override virtual const IType ConvertPointerType(IPointerType Type)
+		protected override virtual const IType ConvertPointerType(PointerType Type)
 		{
 			var elemType = Type.ElementType;
 			var convElem = Convert(elemType);
@@ -112,7 +112,7 @@ namespace Flame.Build
 			return MakePointerType(convElem, Type.PointerKind);
 		}
 
-		protected override virtual const IType ConvertArrayType(IArrayType Type)
+		protected override virtual const IType ConvertArrayType(ArrayType Type)
 		{
 			var elemType = Type.ElementType;
 			var convElem = Convert(elemType);
@@ -125,7 +125,7 @@ namespace Flame.Build
 			return MakeArrayType(convElem, Type.ArrayRank);
 		}
 
-		protected override virtual const IType ConvertVectorType(IVectorType Type)
+		protected override virtual const IType ConvertVectorType(VectorType Type)
 		{
 			var elemType = Type.ElementType;
 			var convElem = Convert(elemType);

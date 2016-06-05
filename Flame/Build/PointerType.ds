@@ -1,14 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Build;
 
-namespace Flame.Build
+namespace Flame
 {
-    public class PointerType : ContainerTypeBase, IPointerType
+    /// <summary>
+    /// Represents a pointer type: a value that points to an in-memory object.
+    /// </summary>
+    public class PointerType : ContainerTypeBase
     {
         public const this(IType ElementType, set PointerKind PointerKind)
             : base(ElementType);
 
+        /// <summary>
+        /// Gets this pointer's kind.
+        /// </summary>
         public PointerKind PointerKind { const get; private set; }
 
         protected override UnqualifiedName GetName(QualifiedName ElementName)

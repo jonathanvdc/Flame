@@ -76,17 +76,17 @@ namespace Flame.Build
 			return CompareDefault(First, Second);
 		}
 
-		protected virtual const T ComparePointerTypes(IPointerType First, IPointerType Second)
+		protected virtual const T ComparePointerTypes(PointerType First, PointerType Second)
 		{
 			return MakePointerComparison(Compare(First.ElementType, Second.ElementType), First.PointerKind, Second.PointerKind);
 		}
 
-		protected virtual const T CompareArrayTypes(IArrayType First, IArrayType Second)
+		protected virtual const T CompareArrayTypes(ArrayType First, ArrayType Second)
 		{
 			return MakeArrayComparison(Compare(First.ElementType, Second.ElementType), First.ArrayRank, Second.ArrayRank);
 		}
 
-		protected virtual const T CompareVectorTypes(IVectorType First, IVectorType Second)
+		protected virtual const T CompareVectorTypes(VectorType First, VectorType Second)
 		{
 			return MakeVectorComparison(Compare(First.ElementType, Second.ElementType), First.Dimensions, Second.Dimensions);
 		}
