@@ -85,7 +85,8 @@ namespace Flame
                 Operator.StaticCast, Operator.DynamicCast,
                 Operator.ReinterpretCast,
                 Operator.GetDelegate, Operator.GetVirtualDelegate,
-                Operator.GetCurriedDelegate
+                Operator.GetCurriedDelegate,
+                Operator.Increment, Operator.Decrement
             });
         }
 
@@ -319,6 +320,22 @@ namespace Flame
         	{
         		return Register("++");
         	}
+        }
+
+        public static Operator Increment
+        {
+            const get
+            {
+                return Register("+1");
+            }
+        }
+
+        public static Operator Decrement
+        {
+            const get
+            {
+                return Register("-1");
+            }
         }
 
         /// <summary>
