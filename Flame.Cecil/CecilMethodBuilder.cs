@@ -41,6 +41,10 @@ namespace Flame.Cecil
                 attrs |= MethodAttributes.Abstract | MethodAttributes.Virtual;
             }
 
+            if (Template.Attributes.Value.Contains(OperatorAttribute.OperatorAttributeType))
+                // User-defined operators are `hidebysig specialname`
+                attrs |= MethodAttributes.HideBySig | MethodAttributes.SpecialName;
+
             methodDef.Attributes = attrs;
 
             var cecilGenericParams = CecilGenericParameter.DeclareGenericParameters(methodDef, Template.GenericParameters.Value.ToArray(), Module);
