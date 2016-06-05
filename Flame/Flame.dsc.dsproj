@@ -69,6 +69,7 @@
 	</ItemGroup>
 	<ItemGroup Name="Collections">
         <ItemGroup>
+            <Compile Include="Collections/MultiDictionary.ds" />
             <Compile Include="Collections/SmallMultiDictionary.ds" />
             <Compile Include="Collections/ValueList.ds" />
         </ItemGroup>

@@ -1,0 +1,90 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Flame.Collections
+{
+    /// <summary>
+    /// A dictionary that maps keys to collections of values, instead of
+    /// single values.
+    /// </summary>
+    public class MultiDictionary<TKey, TValue>
+    {
+        public const this()
+        {
+            this.dict = new Dictionary<TKey, List<TValue>>();
+        }
+
+        private Dictionary<TKey, List<TValue>> dict;
+
+        /// <summary>
+        /// Inserts an item into this dictionary.
+        /// </summary>
+        public void Add(TKey Key, TValue Value)
+        {
+            List<TValue> bag;
+            if (dict.TryGetValue(Key, &bag))
+            {
+                bag.Add(Value);
+            }
+            else
+            {
+                bag = new List<TValue>();
+                bag.Add(Value);
+                dict[Key] = bag;
+            }
+        }
+
+        /// <summary>
+        /// Checks if this dictionary contains at least one element with
+        /// the given key.
+        /// </summary>
+        public bool ContainsKey(TKey Key)
+        {
+            return dict.ContainsKey(Key);
+        }
+
+        /// <summary>
+        /// Gets all values with the given keys.
+        /// </summary>
+        public [TValue] GetAll(TKey Key)
+        {
+            List<TValue> bag;
+            if (dict.TryGetValue(Key, &bag))
+                return bag;
+            else
+                return Enumerable.Empty<TValue>();
+        }
+
+        /// <summary>
+        /// Tries to retrieve the first value with the given key in this
+        /// dictionary.
+        /// </summary>
+        public bool TryPeek(TKey Key, TValue^ Result)
+        {
+            List<TValue> bag;
+            if (dict.TryGetValue(Key, &bag) && bag.Count > 0)
+            {
+                *Result = bag[0];
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Tries to retrieve the first value with the given key in this
+        /// dictionary. If no such item exists, then the default value is
+        /// returned.
+        /// </summary>
+        public TValue PeekOrDefault(TKey Key)
+        {
+            TValue result;
+            TryPeek(Key, &result);
+            return result;
+        }
+    }
+}
