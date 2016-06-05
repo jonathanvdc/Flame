@@ -48,6 +48,18 @@ namespace Flame.Cecil
         {
             if (!Method.IsConstructor)
             {
+                var op = Method.GetOperator();
+                if (op.IsDefined)
+                {
+                    int paramCount = Method.Parameters.Count();
+                    if (!Method.IsStatic)
+                        paramCount++;
+
+                    if (paramCount == 1)
+                        return CecilOperatorNames.NameUnaryOperator(op);
+                    else if (paramCount == 2)
+                        return CecilOperatorNames.NameBinaryOperator(op);
+                }
                 return null;
             }
             else if (Method.IsStatic)

@@ -198,6 +198,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Emit\TypeStack.cs" />
     <Compile Include="Emit\StackPushBlock.cs" />
+    <Compile Include="CecilOperatorNames.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FlameRT\FlameRT.csproj">
