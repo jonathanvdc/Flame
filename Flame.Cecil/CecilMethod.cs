@@ -90,7 +90,15 @@ namespace Flame.Cecil
             {
                 attrs.Add(PrimitiveAttributes.Instance.VirtualAttribute);
             }
-            if (resolvedMethod.IsStatic && resolvedMethod.Name == "Concat" && resolvedMethod.Parameters.Count == 2 && resolvedMethod.DeclaringType.Equals(resolvedMethod.Module.TypeSystem.String))
+            if (resolvedMethod.IsSpecialName)
+            {
+                var op = CecilOperatorNames.ParseOperatorName(resolvedMethod.Name);
+                if (op.IsDefined)
+                    attrs.Add(new OperatorAttribute(op));
+            }
+            else if (resolvedMethod.IsStatic && resolvedMethod.Name == "Concat" 
+                && resolvedMethod.Parameters.Count == 2 
+                && resolvedMethod.DeclaringType.Equals(resolvedMethod.Module.TypeSystem.String))
             {
                 attrs.Add(new OperatorAttribute(Operator.Concat));
             }

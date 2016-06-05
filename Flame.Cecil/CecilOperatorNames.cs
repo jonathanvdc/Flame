@@ -200,6 +200,20 @@ namespace Flame.Cecil
                 return Operator.Undefined;
         }
 
+        /// <summary>
+        /// Parses the given name as an operator name.
+        /// If the name does not name a known operator, then
+        /// an undefined operator is returned. 
+        /// </summary>
+        public static Operator ParseOperatorName(string Name)
+        {
+            Operator result;
+            if (opMap.TryGetValue(Name, out result))
+                return result;
+            else
+                return Operator.Undefined;
+        }
+
         static CecilOperatorNames()
         {
             binaryNameMap = new Dictionary<Operator, string>()
@@ -234,19 +248,27 @@ namespace Flame.Cecil
                 { Operator.Subtract, UnaryNegationOperatorName }
             };
 
+            opMap = new Dictionary<string, Operator>();
             binaryOpMap = new Dictionary<string, Operator>();
             foreach (var item in binaryNameMap)
+            {
                 binaryOpMap[item.Value] = item.Key;
+                opMap[item.Value] = item.Key;
+            }
 
             unaryOpMap = new Dictionary<string, Operator>();
             foreach (var item in unaryNameMap)
+            {
                 unaryOpMap[item.Value] = item.Key;
+                opMap[item.Value] = item.Key;
+            }
         }
         
         private static readonly Dictionary<Operator, string> binaryNameMap;
         private static readonly Dictionary<Operator, string> unaryNameMap;
         private static readonly Dictionary<string, Operator> binaryOpMap;
         private static readonly Dictionary<string, Operator> unaryOpMap;
+        private static readonly Dictionary<string, Operator> opMap;
     }
 }
 
