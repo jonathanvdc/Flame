@@ -128,7 +128,6 @@
     <Compile Include="CecilAssembly.cs" />
     <Compile Include="CecilAttribute.cs" />
     <Compile Include="CecilBoundObject.cs" />
-    <Compile Include="CecilContainerTypeBase.cs" />
     <Compile Include="CecilEnvironment.cs" />
     <Compile Include="CecilExtensions.cs" />
     <Compile Include="CecilField.cs" />
