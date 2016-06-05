@@ -10,23 +10,19 @@ namespace Flame.Cecil
     {
         public AncestryGraphCacheBase()
         {
-
+            this.ancestryGraphCache = new Lazy<AncestryGraph>(() => new AncestryGraph());
         }
         public AncestryGraphCacheBase(AncestryGraph AncestryGraph)
         {
-            this.ancestryGraphCache = AncestryGraph;
+            this.ancestryGraphCache = new Lazy<AncestryGraph>(() => AncestryGraph);
         }
 
-        private AncestryGraph ancestryGraphCache;
+        private Lazy<AncestryGraph> ancestryGraphCache;
         public AncestryGraph AncestryGraph
         {
             get
             {
-                if (ancestryGraphCache == null)
-                {
-                    ancestryGraphCache = new AncestryGraph();
-                }
-                return ancestryGraphCache;
+                return ancestryGraphCache.Value;
             }
         }
     }
