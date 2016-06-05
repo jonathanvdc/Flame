@@ -1,14 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Build;
 
-namespace Flame.Build
+namespace Flame
 {
-	public class ArrayType : ContainerTypeBase, IArrayType, IGenericResolverType
+	public class ArrayType : ContainerTypeBase, IGenericResolverType
 	{
         public const this(IType ElementType, set int ArrayRank)
 			: base(ElementType);
 
+		/// <summary>
+        /// Gets the number of dimensions in this array type.
+        /// </summary>
         public int ArrayRank { const get; private set; }
 
 		#region Static
@@ -85,13 +89,13 @@ namespace Flame.Build
 		{
 			if (First.IsArray && Second.IsArray &&
 				First.AsArrayType().ArrayRank == Second.AsArrayType().ArrayRank &&
-				First.AsContainerType().ElementType.IsEquivalent(Second.AsContainerType().ElementType))
+				First.AsArrayType().ElementType.IsEquivalent(Second.AsArrayType().ElementType))
             {
 				return 0;
             }
 			else if (First.IsArray && Second.IsEnumerableType) // Arrays are direct subtypes of enumerables.
 			{
-				int elemDegree = First.AsContainerType().ElementType.GetAncestryDegree(
+				int elemDegree = First.AsArrayType().ElementType.GetAncestryDegree(
 									Second.GetEnumerableElementType());
 				if (elemDegree >= 0)
 					return elemDegree + 1;

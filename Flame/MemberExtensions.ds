@@ -523,19 +523,19 @@ namespace Flame
 			return AsTypeInstance<IContainerType>(Type);
 		}
 
-		public static const IArrayType AsArrayType(this IType Type)
+		public static const ArrayType AsArrayType(this IType Type)
 		{
-			return AsTypeInstance<IArrayType>(Type);
+			return AsTypeInstance<ArrayType>(Type);
 		}
 
-		public static const IPointerType AsPointerType(this IType Type)
+		public static const PointerType AsPointerType(this IType Type)
 		{
-			return AsTypeInstance<IPointerType>(Type);
+			return AsTypeInstance<PointerType>(Type);
 		}
 
-		public static const IVectorType AsVectorType(this IType Type)
+		public static const VectorType AsVectorType(this IType Type)
 		{
-			return AsTypeInstance<IVectorType>(Type);
+			return AsTypeInstance<VectorType>(Type);
 		}
 
 		#endregion
@@ -544,7 +544,7 @@ namespace Flame
 
         public static bool IsPointer[this IType Type]
         {
-        	const get return Type is IPointerType;
+        	const get return Type is PointerType;
         }
 
         #endregion
@@ -553,7 +553,7 @@ namespace Flame
 
         public static bool IsArray[this IType Type]
         {
-        	const get return Type is IArrayType;
+        	const get return Type is ArrayType;
         }
 
         #endregion
@@ -562,7 +562,7 @@ namespace Flame
 
         public static bool IsVector[this IType Type]
         {
-        	const get return Type is IVectorType;
+        	const get return Type is VectorType;
         }
 
         #endregion
@@ -716,7 +716,7 @@ namespace Flame
 		/// Creates an array type based on the given element type and
 		/// array rank.
 		/// </summary>
-		public const static IArrayType MakeArrayType(this IType ElementType, int ArrayRank)
+		public const static ArrayType MakeArrayType(this IType ElementType, int ArrayRank)
 		{
 			return new ArrayType(ElementType, ArrayRank);
 		}
@@ -725,7 +725,7 @@ namespace Flame
 		/// Creates a pointer type that points to an object of the given type
 		/// and is of the given pointer kind.
 		/// </summary>
-		public const static IPointerType MakePointerType(this IType ElementType, PointerKind Kind)
+		public const static PointerType MakePointerType(this IType ElementType, PointerKind Kind)
 		{
 			return new PointerType(ElementType, Kind);
 		}
@@ -734,7 +734,7 @@ namespace Flame
 		/// Creates a vector type that contains objects of the given type
 		/// and has the given dimensions.
 		/// </summary>
-		public const static IVectorType MakeVectorType(this IType ElementType, IReadOnlyList<int> Dimensions)
+		public const static VectorType MakeVectorType(this IType ElementType, IReadOnlyList<int> Dimensions)
 		{
 			return new VectorType(ElementType, Dimensions);
 		}
@@ -743,7 +743,7 @@ namespace Flame
 		/// Creates a vector type that contains objects of the given type
 		/// and has the given dimensions.
 		/// </summary>
-		public const static IVectorType MakeVectorType(this IType ElementType, int[] Dimensions)
+		public const static VectorType MakeVectorType(this IType ElementType, int[] Dimensions)
 		{
 			return ElementType.MakeVectorType((IReadOnlyList<int>)Dimensions);
 		}

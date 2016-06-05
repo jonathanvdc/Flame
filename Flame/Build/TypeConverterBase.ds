@@ -15,17 +15,17 @@ namespace Flame.Build
 		protected abstract TTarget MakeGenericType(TTarget GenericDeclaration, [TTarget] TypeArguments);
 		protected abstract TTarget ConvertTypeDefault(IType Type);
 
-		protected virtual TTarget ConvertPointerType(IPointerType Type)
+		protected virtual TTarget ConvertPointerType(PointerType Type)
 		{
 			return MakePointerType(Convert(Type.ElementType), Type.PointerKind);
 		}
 
-		protected virtual TTarget ConvertArrayType(IArrayType Type)
+		protected virtual TTarget ConvertArrayType(ArrayType Type)
 		{
 			return MakeArrayType(Convert(Type.ElementType), Type.ArrayRank);
 		}
 
-		protected virtual TTarget ConvertVectorType(IVectorType Type)
+		protected virtual TTarget ConvertVectorType(VectorType Type)
 		{
 			return MakeVectorType(Convert(Type.ElementType), Type.Dimensions);
 		}
@@ -144,15 +144,15 @@ namespace Flame.Build
 		{
 			if (Value.IsPointer)
 			{
-				return ConvertPointerType((IPointerType)Value);
+				return ConvertPointerType((PointerType)Value);
 			}
 			else if (Value.IsArray)
 			{
-				return ConvertArrayType((IArrayType)Value);
+				return ConvertArrayType((ArrayType)Value);
 			}
 			else if (Value.IsVector)
 			{
-				return ConvertVectorType((IVectorType)Value);
+				return ConvertVectorType((VectorType)Value);
 			}
 			else if (Value.IsGenericInstance)
 			{

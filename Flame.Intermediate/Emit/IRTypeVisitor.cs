@@ -88,17 +88,17 @@ namespace Flame.Intermediate.Emit
             return MakePrimitiveType(Name, Primitive.GetPrimitiveSize());
         }
 
-        protected override LNode ConvertArrayType(IArrayType Type)
+        protected override LNode ConvertArrayType(ArrayType Type)
         {
             return MakeArrayType(GetTypeReference(Type.ElementType), Type.ArrayRank);
         }
 
-        protected override LNode ConvertPointerType(IPointerType Type)
+        protected override LNode ConvertPointerType(PointerType Type)
         {
             return MakePointerType(GetTypeReference(Type.ElementType), Type.PointerKind);
         }
 
-        protected override LNode ConvertVectorType(IVectorType Type)
+        protected override LNode ConvertVectorType(VectorType Type)
         {
             return MakeVectorType(GetTypeReference(Type.ElementType), Type.Dimensions);
         }

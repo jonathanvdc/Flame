@@ -2,14 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Flame.Build;
 
-namespace Flame.Build
+namespace Flame
 {
-    public class VectorType : ContainerTypeBase, IVectorType
+    /// <summary>
+    /// Represents a vector type: an array with fixed dimensions.
+    /// </summary>
+    public class VectorType : ContainerTypeBase
     {
         public const this(IType ElementType, set IReadOnlyList<int> Dimensions)
             : base(ElementType);
 
+        /// <summary>
+        /// Gets this vector's dimensions.
+        /// </summary>
         public IReadOnlyList<int> Dimensions { const get; private set; }
 
         protected override UnqualifiedName GetName(QualifiedName ElementName)

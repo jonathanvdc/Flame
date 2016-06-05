@@ -33,7 +33,7 @@ namespace Flame.Cpp
             }
         }
 
-        public static bool IsPrimitivePointer(this IPointerType Type)
+        public static bool IsPrimitivePointer(this PointerType Type)
         {
             return Type.PointerKind.Equals(PointerKind.TransientPointer) || Type.PointerKind.Equals(AtAddressPointer);
         }
