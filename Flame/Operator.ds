@@ -76,6 +76,7 @@ namespace Flame
             	Operator.LeftShift, Operator.RightShift,
             	Operator.Or, Operator.And, Operator.Xor,
             	Operator.LogicalOr, Operator.LogicalAnd,
+                Operator.BitwiseComplement,
             	Operator.CheckEquality, Operator.CheckInequality,
             	Operator.CheckLessThan, Operator.CheckLessThanOrEqual,
             	Operator.CheckGreaterThan, Operator.CheckGreaterThanOrEqual,
@@ -237,6 +238,19 @@ namespace Flame
             const get
             {
                 return Register("!");
+            }
+        }
+
+        /// <summary>
+        /// Gets the bitwise complement operator symbol. Note that this symbol
+        /// should only be used for user-defined operators: intrinsics use
+        /// the logical complement operator.
+        /// </summary>
+        public static Operator BitwiseComplement
+        {
+            const get
+            {
+                return Register("~");
             }
         }
 
