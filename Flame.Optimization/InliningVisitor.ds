@@ -245,7 +245,7 @@ namespace Flame.Optimization
             return false;
         }
 
-        private const DissectedCall DissectCall(IExpression Expression)
+        private DissectedCall DissectCall(IExpression Expression)
         {
             if (Expression is InvocationExpression)
             {
