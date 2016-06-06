@@ -1,0 +1,24 @@
+
+namespace Flame.Collections
+{
+    /// <summary>
+    /// A reference to a mutable value.
+    /// </summary>
+    public class Box<T>
+    {
+        /// <summary>
+        /// Creates a new box with default-initialized contents.
+        /// </summary>
+        public const this();
+
+        /// <summary>
+        /// Creates a new box from the given value.
+        /// </summary>
+        public const this(set T Value);
+
+        /// <summary>
+        /// The box's contents.
+        /// </summary>
+        public T Value;
+    }
+}
