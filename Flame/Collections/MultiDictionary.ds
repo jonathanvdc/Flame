@@ -86,5 +86,10 @@ namespace Flame.Collections
             TryPeek(Key, &result);
             return result;
         }
+
+        /// <summary>
+        /// Gets the set of all keys in this dictionary.
+        /// </summary>
+        public [TKey] Keys { get { return dict.Keys; } }
     }
 }
