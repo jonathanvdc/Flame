@@ -9,6 +9,83 @@ using System.Collections.Generic;
 namespace Flame.Optimization
 {
     /// <summary>
+    /// A node visitor that tracks down non-empty statements
+    /// that occur in top-level expressions trees. Top-level statements
+    /// trees are ignored.
+    /// </summary>
+    /// <remarks>
+    /// This can be used to track down functional flow constructs that require
+    /// special treatment to be lowered to imperative code.
+    /// </remarks>
+    public class TopLevelFunctionalCodeFinder : INodeVisitor
+    {
+        public this()
+        {
+            FoundFunctionalCode = false;
+            inExpression = false;
+        }
+
+        /// <summary>
+        /// Gets a boolean value that tells whether at least one non-empty
+        /// statement has been found in an expression.
+        /// </summary>
+        public bool FoundFunctionalCode { get; private set; }
+
+        private bool inExpression;
+
+        public IExpression Visit(IExpression Value)
+        {
+            if (FoundFunctionalCode)
+                // Early-out here.
+                return Value;
+
+            // Store the old state.
+            bool oldInExpression = inExpression;
+            // Update the state.
+            inExpression = true;
+            IExpression result;
+            // Visit the expression's children and look for statements.
+            if (Value is IPredicateNode)
+            {
+                ((IPredicateNode)Value).AcceptPredicate(this);
+                result = Value;
+            }
+            else
+            {
+                result = Value.Accept(this);
+            }
+            // Restore the old state.
+            inExpression = oldInExpression;
+            return result;
+        }
+
+        public IStatement Visit(IStatement Value)
+        {
+            if (FoundFunctionalCode || !inExpression)
+                // Early-out here.
+                return Value;
+
+            if (!Value.IsConstantNode)
+            {
+                // We found a non-empty statement in a
+                // top-level expression tree.
+                FoundFunctionalCode = true;
+                return Value;
+            }
+
+            if (Value is IPredicateNode)
+            {
+                ((IPredicateNode)Value).AcceptPredicate(this);
+                return Value;
+            }
+            else
+            {
+                return Value.Accept(this);
+            }
+        }
+    }
+
+    /// <summary>
     /// A node visitor that rewrites nodes such that they are legal
     /// for traditional imperative programming languages:
     /// statements do not appear inside of expressions,
@@ -110,7 +187,7 @@ namespace Flame.Optimization
         {
             if (Statement.IsEmpty)
             {
-                // Empty statements aren't exactly in the danger zone, because
+                // Empty statements are harmless, because
                 // they are equivalent to void expressions.
 
                 return Statement;
@@ -154,36 +231,69 @@ namespace Flame.Optimization
                     return EmptyStatement;
                 }
             }
-            else
+            else if (Statement is IFlowStatement && Statement is ComplexStatement)
             {
-                // This is an imperative-style statement. There's nothing wrong
-                // with this node at the top-level, but that doesn't guarantee
-                // that its children behave equally well.
-                // Sets up an environment that facilitates spilling expressions.
+                // Rewriting complex flow statements is tricky,
+                // because we can't use the usual spilling technique.
+                // Consider the loop below:
+                //
+                //     int i = 0;
+                //     while (i++ < count);
+                //
+                // Blindly spilling results in:
+                //
+                //     int i = 0;
+                //     int tmp = i;
+                //     i++;
+                //     while (tmp < count);
+                //
+                // Which is an infinite loop.
+                //
+                // We will instead lower these statements to more primitive
+                // constructs, and then spill -- but only if we have to.
+                assert(!(Statement is TaggedStatement));
 
-                var oldInit = initStatement;
-                var oldFinal = finalStatement;
-                var oldExprs = unspilledExpressions;
+                // Look for functional code in the top-level expressions
+                // of the flow statement.
+                var finder = new TopLevelFunctionalCodeFinder();
+                var stmt = Statement.Accept(finder);
 
-                initStatement = new InsertStatement();
-                finalStatement = new InsertStatement();
-                unspilledExpressions = new HashSet<SpillableExpression>();
-
-                var innerResult = Statement.Accept(this);
-
-                var result = new BlockStatement(new IStatement[]
+                if (finder.FoundFunctionalCode && stmt is ComplexStatement)
                 {
-                    initStatement.Unwrap(),
-                    innerResult,
-                    finalStatement.Unwrap()
-                }).Simplify();
-
-                initStatement = oldInit;
-                finalStatement = oldFinal;
-                unspilledExpressions = oldExprs;
-
-                return result;
+                    // It seems that we really have to lower this statement.
+                    // We'll deal with the lowered results by recursively
+                    // visiting it.
+                    return Visit(((ComplexStatement)stmt).LoweredStatement);
+                }
             }
+
+            // This is an imperative-style statement. There's nothing wrong
+            // with this node at the top-level, but that doesn't guarantee
+            // that its children behave equally well.
+            // Sets up an environment that facilitates spilling expressions.
+
+            var oldInit = initStatement;
+            var oldFinal = finalStatement;
+            var oldExprs = unspilledExpressions;
+
+            initStatement = new InsertStatement();
+            finalStatement = new InsertStatement();
+            unspilledExpressions = new HashSet<SpillableExpression>();
+
+            var innerResult = Statement.Accept(this);
+
+            var result = new BlockStatement(new IStatement[]
+            {
+                initStatement.Unwrap(),
+                innerResult,
+                finalStatement.Unwrap()
+            }).Simplify();
+
+            initStatement = oldInit;
+            finalStatement = oldFinal;
+            unspilledExpressions = oldExprs;
+
+            return result;
         }
     }
 
