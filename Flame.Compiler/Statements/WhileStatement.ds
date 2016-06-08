@@ -10,7 +10,7 @@ namespace Flame.Compiler.Statements
 	/// Defines a type of flow statement that represents a 'while' statement in
 	/// C family programming languages.
 	/// </summary>
-	public class WhileStatement : IStatement, IFlowStatement
+	public class WhileStatement : ComplexStatement, IFlowStatement
 	{
 		public const this(set IExpression Condition, set IStatement Body)
 		{
@@ -36,7 +36,7 @@ namespace Flame.Compiler.Statements
 		/// </summary>
 		public IStatement Body { const get; private set; }
 
-		public bool IsConstantNode : IStatement.IsConstantNode
+		public override bool IsConstantNode : IStatement.IsConstantNode
 		{
 			const get
 			{
@@ -61,7 +61,8 @@ namespace Flame.Compiler.Statements
 		public void ToBlocks(BlockBuildingVisitor Visitor)
 		{
 			// Create a tagged block, and let that do the heavy lifting.
-			return Lower().ToBlocks(Visitor);
+			assert(LoweredStatement is TaggedStatement);
+			return ((TaggedStatement)LoweredStatement).ToBlocks(Visitor);
 		}
 
 		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
@@ -79,7 +80,7 @@ namespace Flame.Compiler.Statements
 			return CreateWhile(transCond, transBody);
 		}
 
-		public IStatement Accept(INodeVisitor Visitor)
+		public override IStatement Accept(INodeVisitor Visitor)
 		{
 			var transCond = Visitor.Visit(Condition);
 			var transBody = Visitor.Visit(Body);
@@ -87,7 +88,7 @@ namespace Flame.Compiler.Statements
 			return CreateWhile(transCond, transBody);
 		}
 
-		public IStatement Optimize() : IStatement.Optimize
+		public override IStatement Optimize() : IStatement.Optimize
 		{
 			var optCond = Condition.Optimize();
 			if (optCond.EvaluatesTo<bool>(false))
@@ -102,7 +103,7 @@ namespace Flame.Compiler.Statements
 		/// <summary>
 		/// Lowers this while block to an equivalent tagged block IR tree.
 		/// </summary>
-		public TaggedStatement Lower()
+		protected override IStatement Lower()
 		{
 			// "Lower" a while block like this:
 			//
@@ -128,7 +129,7 @@ namespace Flame.Compiler.Statements
 			return new TaggedStatement(Tag, loopBody);
 		}
 
-		public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
+		public override ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
 		{
 			if (Generator is IWhileCodeGenerator)
 			{
@@ -139,7 +140,7 @@ namespace Flame.Compiler.Statements
 			}
 			else
 			{
-				return Lower().Emit(Generator);
+				return LoweredStatement.Emit(Generator);
 			}
 		}
 	}
