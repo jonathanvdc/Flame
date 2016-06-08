@@ -162,6 +162,47 @@ namespace Flame.Optimization
 
         protected override IExpression Transform(IExpression Expression)
         {
+            if (Expression is SelectExpression)
+            {
+                // TODO: handle flow-expressions in general. But how?
+                // Handle select-expressions as a special case here.
+                // Consider the following statement:
+                //
+                //    int x = c ? ++i : i;
+                //
+                // Spilling would result in:
+                //
+                //    int tmp = ++i;
+                //    int x = c ? tmp : i;
+                //
+                // But clearly that's not what we want here.
+                // If a select-expression contains a statement,
+                // then we will re-write it as:
+                //
+                //    {
+                //        T result;
+                //        if (c) result = x else result = y;
+                //        result,
+                //        release(result)
+                //    }
+                //
+                var finder = new TopLevelFunctionalCodeFinder();
+                var resultExpr = finder.Visit(Expression);
+                if (finder.FoundFunctionalCode)
+                {
+                    assert(resultExpr is SelectExpression);
+                    var selExpr = (SelectExpression)resultExpr;
+                    var tmp = new RegisterVariable("select-result", selExpr.Type);
+                    return new InitializedExpression(
+                        new IfElseStatement(
+                            selExpr.Condition,
+                            tmp.CreateSetStatement(selExpr.TrueValue),
+                            tmp.CreateSetStatement(selExpr.FalseValue)),
+                        tmp.CreateGetExpression(),
+                        tmp.CreateReleaseStatement());
+                }
+            }
+
             bool oldInExpr = inExpression;
 
             inExpression = true;
@@ -170,13 +211,13 @@ namespace Flame.Optimization
 
             inExpression = oldInExpr;
 
-            // Be sure to simplify initialized expressions.
-            // This step may not be _absolutely essential_, but it does
-            // remove a ton of generated empty statements by having
-            // the initialized expression realize what's going on and
-            // gracefully simplify itself to its value expression.
             if (result is InitializedExpression)
             {
+                // Be sure to simplify initialized expressions.
+                // This step may not be _absolutely essential_, but it does
+                // remove a ton of generated empty statements by having
+                // the initialized expression realize what's going on and
+                // gracefully simplify itself to its value expression.
                 result = ((InitializedExpression)result).Simplify();
             }
 
