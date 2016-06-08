@@ -4,6 +4,7 @@ tests
     CFGConstruction/CFGConstruction.test;
     Devirtualization/Devirtualization.test;
     Devirtualization/Devirtualization2.test;
+    ImperativeCode/ImperativeCode2.test;
     Inlining/Inlining.test;
     Inlining/Inlining2.test;
     Linking/Linking.test;

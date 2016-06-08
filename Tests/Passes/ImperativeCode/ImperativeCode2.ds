@@ -1,0 +1,14 @@
+using System;
+
+public module Program
+{
+    public static void Main(string[] Args)
+    {
+        int i = 0;
+        int count = 10;
+        while (i++ < count)
+        {
+            Console.WriteLine(i);
+        }
+    }
+}
