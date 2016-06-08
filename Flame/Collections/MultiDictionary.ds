@@ -11,9 +11,23 @@ namespace Flame.Collections
     /// </summary>
     public class MultiDictionary<TKey, TValue>
     {
+        /// <summary>
+        /// Creates an empty multi-dictionary.
+        /// </summary>
         public const this()
         {
             this.dict = new Dictionary<TKey, List<TValue>>();
+        }
+
+        /// <summary>
+        /// Creates a new multi-dictionary that is populated with data
+        /// from the given dictionary.
+        /// </summary>
+        public const this(MultiDictionary<TKey, TValue> Other)
+        {
+            this.dict = new Dictionary<TKey, List<TValue>>();
+            foreach (var pair in Other.dict)
+                this.dict[pair.Key] = new List<TValue>(pair.Value);
         }
 
         private Dictionary<TKey, List<TValue>> dict;
