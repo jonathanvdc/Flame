@@ -67,7 +67,10 @@ namespace Flame.Compiler.Expressions
 			{
 				return this;
 			}
-			else return new GetMethodExpression(convMethod, Caller);
+			else
+			{
+				return new GetMethodExpression(convMethod, Caller);
+			}
 		}
 
 		public IExpression Accept(INodeVisitor Visitor)

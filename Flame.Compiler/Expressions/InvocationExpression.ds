@@ -58,9 +58,22 @@ namespace Flame.Compiler.Expressions
 		public IExpression Accept(INodeVisitor Visitor)
 		{
 			var transTarget = Visitor.Visit(Target);
-			var transArgs = Visitor.VisitAll(Arguments);
+			var transArgs = new List<IExpression>();
+            bool same = transTarget == Target;
+            foreach (var arg in Arguments)
+            {
+                var visitedArg = Visitor.Visit(arg);
+                transArgs.Add(visitedArg);
+                if (visitedArg != arg)
+                {
+                    same = false;
+                }
+            }
 
-			return new InvocationExpression(transTarget, transArgs);
+            if (same)
+                return this;
+            else
+                return new InvocationExpression(transTarget, transArgs);
 		}
 
 		public IType Type
