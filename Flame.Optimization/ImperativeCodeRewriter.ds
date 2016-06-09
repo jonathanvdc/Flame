@@ -193,13 +193,13 @@ namespace Flame.Optimization
                     assert(resultExpr is SelectExpression);
                     var selExpr = (SelectExpression)resultExpr;
                     var tmp = new RegisterVariable("select-result", selExpr.Type);
-                    return new InitializedExpression(
+                    return Visit(new InitializedExpression(
                         new IfElseStatement(
                             selExpr.Condition,
                             tmp.CreateSetStatement(selExpr.TrueValue),
                             tmp.CreateSetStatement(selExpr.FalseValue)),
                         tmp.CreateGetExpression(),
-                        tmp.CreateReleaseStatement());
+                        tmp.CreateReleaseStatement()));
                 }
             }
 
