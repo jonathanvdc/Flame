@@ -1,0 +1,501 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// Describes the result of escape analysis for a particular value.
+    /// </summary>
+    /// <remarks>
+    /// Escape analysis results can be merged by using the bitwise and
+    /// operator.
+    /// </remarks>
+    public enum EscapeAnalysisResult : int
+    {
+        /// <summary>
+        /// Specifies that a value does not depend on any specific scope:
+        /// it is neither an input value, an output value, a local value,
+        /// or a global value. This can be an intermediate state,
+        /// and a final state for variables that are never assigned to.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// Specifies that a value flows into the method as an input parameter,
+        /// but is only read from. The value is not used as output, and is not
+        /// leaked to some global state.
+        /// </summary>
+        In = 1,
+
+        /// <summary>
+        /// Specifies that a value is created locally, and flows out
+        /// of the function as an output value.
+        /// The value is not leaked to some global state.
+        /// </summary>
+        Out = 2,
+
+        /// <summary>
+        /// Specifies that a value flows into the method as an input parameter,
+        /// and then flows out of the function as an output value.
+        /// The value is not leaked to some global state.
+        /// </summary>
+        InOut = 3,
+
+        /// <summary>
+        /// Specifies that a value is created locally: it is tied to the
+        /// function's scope, but does not escape to some global state.
+        /// </summary>
+        Local = 7,
+
+        /// <summary>
+        /// Specifies that a value escapes the function's scope: it is leaked
+        /// to some global state.
+        /// </summary>
+        Global = 15
+    }
+
+    /// <summary>
+    /// Describes the result of escape analysis, as applied to a method
+    /// signature.
+    /// </summary>
+    public class SignatureEscapeAnalysis : IEquatable<SignatureEscapeAnalysis>
+    {
+        public this(
+            set IMethod Method,
+            set EscapeAnalysisResult ThisValue,
+            set IReadOnlyList<EscapeAnalysisResult> Parameters,
+            set EscapeAnalysisResult ReturnValue)
+            in { Method != null }
+            in { Parameters != null }
+        { }
+
+        /// <summary>
+        /// Gets the method that was analyzed.
+        /// </summary>
+        public IMethod Method { get; private set; }
+
+        /// <summary>
+        /// Gets the escape analysis result for the 'this' value.
+        /// </summary>
+        public EscapeAnalysisResult ThisValue { get; private set; }
+
+        /// <summary>
+        /// Gets the escape analysis results for the parameters.
+        /// </summary>
+        public IReadOnlyList<EscapeAnalysisResult> Parameters { get; private set; }
+
+        /// <summary>
+        /// Gets the escape analysis result for the return value.
+        /// </summary>
+        public EscapeAnalysisResult ReturnValue { get; private set; }
+
+        public int GetHashCode()
+        {
+            int result = (int)ThisValue << 8 ^ (int)ReturnValue << 4 ^ Method.GetHashCode();
+            for (int i = 0; i < Parameters.Count; i++)
+                result = (result << 1) ^ (int)Parameters[i];
+            return result;
+        }
+
+        public bool Equals(SignatureEscapeAnalysis Other)
+        {
+            return ThisValue == Other.ThisValue
+                && ReturnValue == Other.ReturnValue
+                && Enumerable.SequenceEqual<EscapeAnalysisResult>(Parameters, Other.Parameters)
+                && Method.Equals(Other.Method);
+        }
+
+        public bool Equals(object Other)
+        {
+            return Other is SignatureEscapeAnalysis && Equals((SignatureEscapeAnalysis)Other);
+        }
+    }
+
+    /// <summary>
+    /// Captures a method call's escape dependencies: value tags that
+    /// are determine which tags the signature can depend on.
+    /// </summary>
+    public class CallEscapeDependencies
+    {
+        public this(
+            set EscapeAnalysisData CalleeAnalysis,
+            set UniqueTag ThisValue,
+            set IReadOnlyList<UniqueTag> Arguments,
+            set UniqueTag ReturnValue)
+            in { CalleeAnalysis != null }
+            in { Arguments != null }
+            in { ReturnValue != null }
+        { }
+
+        /// <summary>
+        /// Gets the escape analysis for the callee.
+        /// </summary>
+        public EscapeAnalysisData CalleeAnalysis { get; private set; }
+
+        /// <summary>
+        /// Gets the tag for the 'this' value.
+        /// </summary>
+        public UniqueTag ThisValue { get; private set; }
+
+        /// <summary>
+        /// Gets the tag results for the arguments.
+        /// </summary>
+        public IReadOnlyList<UniqueTag> Arguments { get; private set; }
+
+        /// <summary>
+        /// Gets the tag result for the return value.
+        /// </summary>
+        public UniqueTag ReturnValue { get; private set; }
+
+        /// <summary>
+        /// Converts these signature escape dependencies to a signature
+        /// escape analysis.
+        /// </summary>
+        public SignatureEscapeAnalysis ToSignatureAnalysis(
+            EscapeAnalysisData CallerAnalysis)
+        {
+            // We will create a copy of the callee's analysis, and use that
+            // to propagate any and all constraints imposed by the caller.
+
+            var calleeAnalysisCopy = new EscapeAnalysisData(CalleeAnalysis);
+
+            if (ThisValue != null)
+                calleeAnalysisCopy.UpdateResult(
+                    calleeAnalysisCopy.ThisParameterTag,
+                    CallerAnalysis.GetResult(ThisValue));
+
+            for (int i = 0; i < Arguments.Count; i++)
+            {
+                var arg = Arguments[i];
+                if (arg != null)
+                    calleeAnalysisCopy.UpdateResult(
+                        calleeAnalysisCopy.GetParameterTag(i),
+                        CallerAnalysis.GetResult(arg));
+            }
+
+            calleeAnalysisCopy.UpdateResult(
+                calleeAnalysisCopy.ReturnValueTag,
+                CallerAnalysis.GetResult(ReturnValue));
+
+            return calleeAnalysisCopy.SignatureResult;
+        }
+    }
+
+    /// <summary>
+    /// A data structure that can be used to perform escape analysis.
+    /// </summary>
+    public class EscapeAnalysisData
+    {
+        // We'll use the following data structure:
+        //   - We will associate each value with a unique tag. A value is either:
+        //         1) a parameter,
+        //         2) the return value, or
+        //         3) a local variable.
+        //
+        //   - Each unique tag is mapped to exactly one escape analysis result.
+        //
+        //   - Then, we'll connect these tags with a directed graph. An edge
+        //     from tag A to tag B means that tag B depends on tag A. If the escape
+        //     analysis result changes for tag A, then tag B's escape analysis
+        //     must also be updated.
+        //
+        // Initially, all parameters are marked 'In', and the return value
+        // is marked 'Out.' Local variables are marked 'None' by default.
+
+        public this(set IMethod Method)
+        {
+            dependencyGraph = new Graph<UniqueTag>();
+            results = new Dictionary<UniqueTag, EscapeAnalysisResult>();
+            paramTags = new List<UniqueTag>();
+            nodeTypes = new Dictionary<UniqueTag, IType>();
+            foreach (var param in Method.Parameters)
+            {
+                paramTags.Add(CreateTag(
+                    param.Name.ToString(), param.ParameterType,
+                    EscapeAnalysisResult.In));
+            }
+            ThisParameterTag = CreateTag(
+                "this", ThisVariable.GetThisType(Method.DeclaringType),
+                EscapeAnalysisResult.In);
+            ReturnValueTag = CreateTag(
+                "return", ThisVariable.GetThisType(Method.ReturnType),
+                EscapeAnalysisResult.Out);
+        }
+
+        /// <summary>
+        /// Copies the given escape analysis data.
+        /// </summary>
+        public this(EscapeAnalysisData Other)
+        {
+            this.Method = Other.Method;
+            this.paramTags = new List<UniqueTag>(Other.paramTags);
+            this.results = new Dictionary<UniqueTag, EscapeAnalysisResult>(Other.results);
+            this.dependencyGraph = new Graph<UniqueTag>(Other.dependencyGraph);
+            this.nodeTypes = new Dictionary<UniqueTag, IType>(Other.nodeTypes);
+        }
+
+        // A list of unique tags for the parameter list.
+        private List<UniqueTag> paramTags;
+
+        // A dictionary that maps unique tags to their escape analysis results.
+        private Dictionary<UniqueTag, EscapeAnalysisResult> results;
+
+        // A graph that tracks dependencies between values.
+        private Graph<UniqueTag> dependencyGraph;
+
+        // Gets the types of the nodes in the graph.
+        private Dictionary<UniqueTag, IType> nodeTypes;
+
+        /// <summary>
+        /// Gets the method that is being analyzed.
+        /// </summary>
+        public IMethod Method { get; private set; }
+
+        /// <summary>
+        /// Gets the escape analysis result for the entire method signature.
+        /// </summary>
+        public SignatureEscapeAnalysis SignatureResult
+        {
+            get
+            {
+                var paramResults = new List<EscapeAnalysisResult>();
+                foreach (var item in paramTags)
+                    paramResults.Add(GetResult(item));
+
+                return new SignatureEscapeAnalysis(
+                    Method, ThisParameterResult, paramResults, ReturnValueResult);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new tag for a value from the given name, initial type,
+        /// and escape analysis result.
+        /// </summary>
+        public UniqueTag CreateTag(
+            string Name, IType Type, EscapeAnalysisResult Result)
+        {
+            var tag = new UniqueTag(Name);
+            nodeTypes[tag] = Type;
+            UpdateResult(tag, Result);
+            return tag;
+        }
+
+        /// <summary>
+        /// Gets the escape analysis' result for the value that is
+        /// identified by the given tag.
+        /// </summary>
+        public EscapeAnalysisResult GetResult(UniqueTag Tag)
+        {
+            if (results.TryGetValue(Tag, &EscapeAnalysisResult result))
+            {
+                return result;
+            }
+            else
+            {
+                results[Tag] = EscapeAnalysisResult.None;
+                return EscapeAnalysisResult.None;
+            }
+        }
+
+        /// <summary>
+        /// Gets the type that is assigned to the given value tag.
+        /// If that can't be done, then null is returned.
+        /// </summary>
+        public IType TryGetType(UniqueTag Tag)
+            in { Tag != null }
+        {
+            if (nodeTypes.TryGetValue(Tag, &IType result))
+                return result;
+            else
+                return null;
+        }
+
+        /// <summary>
+        /// Gets the type that is assigned to the given value tag.
+        /// </summary>
+        public IType GetType(UniqueTag Tag)
+            in { Tag != null && TryGetType(Tag) != null }
+        {
+            return nodeTypes[Tag];
+        }
+
+        /// <summary>
+        /// Gets the unique tags for the analyzed function's parameter list.
+        /// </summary>
+        public IReadOnlyList<UniqueTag> ParameterTags { get { return paramTags; } }
+
+        /// <summary>
+        /// Gets the number of parameters for the function that is being analyzed.
+        /// </summary>
+        public int ParameterCount { get { return paramTags.Count; } }
+
+        /// <summary>
+        /// Gets the unique tag for the parameter with the given index.
+        /// </summary>
+        public UniqueTag GetParameterTag(int ParameterIndex)
+            in { ParameterIndex < ParameterCount }
+        {
+            return paramTags[ParameterIndex];
+        }
+
+        /// <summary>
+        /// Tries to get the parameter index for the given tag.
+        /// </summary>
+        public bool TryGetParameterIndex(UniqueTag Tag, out int^ Index)
+        {
+            for (int i = 0; i < paramTags.Count; i++)
+            {
+                if (paramTags[i] == Tag)
+                {
+                    *Index = i;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the given tag is a parameter tag.
+        /// </summary>
+        public bool IsParameterTag(UniqueTag Tag)
+        {
+            return TryGetParameterIndex(Tag, &int result);
+        }
+
+        /// <summary>
+        /// Gets the escape analysis' result for the parameter with the
+        /// given index.
+        /// </summary>
+        public EscapeAnalysisResult GetParameterResult(int ParameterIndex)
+            in { ParameterIndex < ParameterCount }
+        {
+            return GetResult(paramTags[ParameterIndex]);
+        }
+
+        /// <summary>
+        /// Checks if the given tag is the return tag.
+        /// </summary>
+        public bool IsReturnTag(UniqueTag Tag)
+        {
+            return ReturnValueTag == Tag;
+        }
+
+        /// <summary>
+        /// Gets the return value's tag.
+        /// </summary>
+        public UniqueTag ReturnValueTag { get; private set; }
+
+        /// <summary>
+        /// Gets the escape analysis' result for the return value.
+        /// </summary>
+        public EscapeAnalysisResult ReturnValueResult
+        {
+            get { return GetResult(ReturnValueTag); }
+        }
+
+        /// <summary>
+        /// Gets the 'this' parameter's tag.
+        /// </summary>
+        public UniqueTag ThisParameterTag { get; private set; }
+
+        /// <summary>
+        /// Gets the escape analysis' result for the 'this' parameter.
+        /// </summary>
+        public EscapeAnalysisResult ThisParameterResult
+        {
+            get { return GetResult(ThisParameterTag); }
+        }
+
+        /// <summary>
+        /// Gets the given value's dependencies.
+        /// </summary>
+        public IEnumerable<UniqueTag> GetDependencies(UniqueTag Value)
+        {
+            return dependencyGraph[Value];
+        }
+
+        /// <summary>
+        /// Updates the given value's escape analysis result with the given
+        /// result. A boolean explains whether any constraints have changed.
+        /// </summary>
+        public bool UpdateResult(UniqueTag Value, EscapeAnalysisResult Result)
+        {
+            var oldResult = GetResult(Value);
+            var newResult = oldResult | Result;
+            results[Value] = newResult;
+            if (newResult != oldResult)
+            {
+                foreach (var item in dependencyGraph[Value])
+                {
+                    // Update all dependencies.
+                    UpdateResult(item, newResult);
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Updates the given value's type. A boolean explains whether any
+        /// constraints were changed.
+        /// </summary>
+        public bool UpdateType(UniqueTag Value, IType Type)
+        {
+            var oldType = TryGetType(Value);
+            if (oldType == null || !Type.Is(oldType))
+            {
+                assert(oldType == null || oldType.Is(Type));
+                nodeTypes[Value] = Type;
+                foreach (var item in dependencyGraph[Value])
+                {
+                    // Update all dependencies.
+                    UpdateType(item, Type);
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Adds an asymmetric dependency to the dependency graph.
+        /// </summary>
+        private void AddAsymmetricDependency(UniqueTag Value, UniqueTag Dependency)
+        {
+            dependencyGraph.AddEdge(Value, Dependency);
+            UpdateResult(Value, GetResult(Dependency));
+        }
+
+        /// <summary>
+        /// Adds an symmetric dependency to the dependency graph.
+        /// </summary>
+        public void AddSymmetricDependency(UniqueTag Value, UniqueTag Dependency)
+        {
+            AddAsymmetricDependency(Value, Dependency);
+            AddAsymmetricDependency(Dependency, Value);
+        }
+
+        /// <summary>
+        /// Checks that all tags are typed.
+        /// </summary>
+        public bool CheckTypes()
+        {
+            foreach (var node in dependencyGraph.Vertices)
+            {
+                if (TryGetType(node) == null)
+                    return false;
+            }
+            return true;
+        }
+    }
+}
