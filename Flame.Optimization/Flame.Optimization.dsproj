@@ -35,6 +35,7 @@
     <Compile Include="GlobalValuePropagationPass.ds" />
     <Compile Include="Graph.ds" />
     <Compile Include="GreedyGraphColorer.ds" />
+    <Compile Include="HeapToStackVisitor.ds" />
     <Compile Include="ImperativeCodeRewriter.ds" />
     <Compile Include="InitialFlowRemover.ds" />
     <Compile Include="InliningExtensions.ds" />
