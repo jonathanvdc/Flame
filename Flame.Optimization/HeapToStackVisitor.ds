@@ -1,0 +1,992 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A base class for heap-to-stack visitors: specific constructs are
+    /// recognized, which must then be handled by derived classes.
+    /// </summary>
+    public abstract class HeapToStackVisitorBase : IBasicBlockVisitor
+    {
+        public this(set EscapeAnalysisData AnalysisData);
+
+        /// <summary>
+        /// Gets the escape analysis data that this visitor maintains.
+        /// </summary>
+        public EscapeAnalysisData AnalysisData { get; private set; }
+
+        // Remembers the current flow graph.
+        private FlowGraph currentFlowGraph;
+
+        protected UniqueTag TryGetTag(IVariable Variable)
+        {
+            if (Variable is ArgumentVariable)
+            {
+                var argVar = (ArgumentVariable)Variable;
+                return AnalysisData.GetParameterTag(argVar.Index);
+            }
+            else if (Variable is ThisVariable)
+            {
+                return AnalysisData.ThisParameterTag;
+            }
+            else if (Variable is LocalVariableBase)
+            {
+                var locVar = (LocalVariableBase)Variable;
+                return locVar.Tag;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// An action that is invoked just before a node is visited.
+        /// </summary>
+        protected virtual void AcknowledgeNode(INode Node)
+        {
+
+        }
+
+        protected abstract IExpression VisitNewObject(NewObjectExpression Expression);
+        protected abstract IExpression VisitDynamicCast(DynamicCastExpression Expression);
+        protected abstract IExpression VisitReinterpretCast(ReinterpretCastExpression Expression);
+        protected abstract IExpression VisitLoad(IExpression LoadExpression, IVariable Variable);
+        protected abstract IExpression VisitCall(InvocationExpression Expression, DissectedCall Call);
+        protected abstract IExpression VisitAnalyzedCall(EscapeAnalysisCallExpression Expression);
+        protected abstract IExpression VisitUnknown(IExpression Expression);
+
+        protected abstract IStatement VisitReturn(ReturnStatement Statement);
+        protected abstract IStatement VisitStore(IStatement StoreStatement, IVariable Variable, IExpression StoreValue);
+        protected abstract IStatement VisitUnknown(IStatement Statement);
+
+        /// <summary>
+        /// Visits a basic block argument. The parameter for which it
+        /// is an argument, is also given.
+        /// </summary>
+        protected abstract SSAVariable VisitPhiArgument(SSAVariable Argument, SSAVariable Parameter);
+
+        /// <summary>
+        /// Visits a basic block parameter.
+        /// </summary>
+        protected abstract SSAVariable VisitPhiParameter(SSAVariable Parameter);
+
+        protected virtual IExpression VisitMetadata(IExpression Expression)
+        {
+            return Expression.Accept(this);
+        }
+
+        protected virtual IStatement VisitMetadata(IStatement Statement)
+        {
+            return Statement.Accept(this);
+        }
+
+        public IExpression Visit(IExpression Value)
+        {
+            AcknowledgeNode(Value);
+            if (Value is IMetadataNode<IExpression>)
+            {
+                return VisitMetadata(Value);
+            }
+            else if (Value is NewObjectExpression)
+            {
+                return VisitNewObject((NewObjectExpression)Value);
+            }
+            else if (Value is EscapeAnalysisCallExpression)
+            {
+                return VisitAnalyzedCall((EscapeAnalysisCallExpression)Value);
+            }
+            else if (Value is InvocationExpression)
+            {
+                var invExpr = (InvocationExpression)Value;
+                var invTrgt = invExpr.Target.GetEssentialExpression();
+                if (invTrgt is GetMethodExpression)
+                {
+                    var target = (GetMethodExpression)invTrgt;
+                    if (!target.Op.Equals(Operator.GetVirtualDelegate))
+                    {
+                        return VisitCall(
+                            invExpr, new DissectedCall(
+                                target.Caller, target.Target, invExpr.Arguments));
+                    }
+                }
+            }
+            else if (Value is ReinterpretCastExpression)
+            {
+                return VisitReinterpretCast((ReinterpretCastExpression)Value);
+            }
+            else if (Value is DynamicCastExpression)
+            {
+                return VisitDynamicCast((DynamicCastExpression)Value);
+            }
+            else if (Value is IVariableNode)
+            {
+                var varNode = (IVariableNode)Value;
+                if (varNode.Action == VariableNodeAction.Get)
+                {
+                    return VisitLoad(Value, varNode.GetVariable());
+                }
+            }
+            return VisitUnknown(Value);
+        }
+
+        public IStatement Visit(IStatement Value)
+        {
+            AcknowledgeNode(Value);
+            if (Value is IMetadataNode<IStatement>)
+            {
+                return VisitMetadata(Value);
+            }
+            else if (Value is ReturnStatement)
+            {
+                return VisitReturn((ReturnStatement)Value);
+            }
+            else if (Value is FlowGraphStatement)
+            {
+                var oldGraph = currentFlowGraph;
+                currentFlowGraph = ((FlowGraphStatement)Value).Graph;
+                var result = new FlowGraphStatement(currentFlowGraph.Accept(this));
+                currentFlowGraph = oldGraph;
+                return result;
+            }
+            else if (Value is ISetVariableNode)
+            {
+                var varNode = (ISetVariableNode)Value;
+                if (varNode.Action == VariableNodeAction.Set)
+                {
+                    return VisitStore(Value, varNode.GetVariable(), varNode.Value);
+                }
+            }
+            return VisitUnknown(Value);
+        }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            return VisitPhiParameter(Variable);
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public BlockBranch Visit(BlockBranch Branch)
+        {
+            assert(currentFlowGraph != null);
+            var targetBlock = currentFlowGraph.GetBlock(Branch.TargetTag);
+            var argList = new List<SSAVariable>(Branch.Arguments.Count);
+            foreach (var arg in Branch.Arguments, var param in targetBlock.Parameters)
+            {
+                argList.Add(VisitPhiArgument(arg, param));
+            }
+            return new BlockBranch(Branch.TargetTag, argList);
+        }
+    }
+
+    /// <summary>
+    /// A heap-to-stack visitor that performs escape analysis, to figure
+    /// out which heap objects can safely be allocated on the stack.
+    /// No attempt is made to
+    /// </summary>
+    public class HeapToStackAnalyzer : HeapToStackVisitorBase
+    {
+        public this(
+            EscapeAnalysisData AnalysisData,
+            set IBodyPassEnvironment Environment,
+            set Dictionary<IMethod, EscapeAnalysisData> FunctionAnalysis,
+            set bool CallsEscape)
+            : base(AnalysisData)
+        {
+            exprTag = null;
+            this.callList = new List<CallEscapeDependencies>();
+        }
+
+        private List<CallEscapeDependencies> callList;
+
+        /// <summary>
+        /// Gets the heap-to-stack analyzer's pass environment.
+        /// </summary>
+        public IBodyPassEnvironment Environment { get; private set; }
+
+        /// <summary>
+        /// Gets the function analysis dictionary.
+        /// </summary>
+        public Dictionary<IMethod, EscapeAnalysisData> FunctionAnalysis { get; private set; }
+
+        /// <summary>
+        /// Gets the set of all calls that were found and analyzed by this
+        /// heap-to-stack analyzer.
+        /// </summary>
+        public IReadOnlyList<CallEscapeDependencies> Calls { get { return callList; } }
+
+        /// <summary>
+        /// Gets a boolean value that specifies whether function arguments
+        /// and return values escape. 'this' pointers created by constructor
+        /// invocation are exempted from this rule.
+        /// </summary>
+        /// <remarks>
+        /// This should be set to 'true' if
+        /// interprocedural heap-to-stack replacement is desired, and can be
+        /// set to 'false' for intraprocedural heap-to-stack replacement.
+        /// </remarks>
+        public bool CallsEscape { get; private set; }
+
+        // A unique tag for the value that the top-of-stack
+        // expression represents.
+        private UniqueTag exprTag;
+
+        private UniqueTag PopExpressionTag()
+        {
+            var result = exprTag;
+            exprTag = null;
+            return result;
+        }
+
+        private void PopGlobalExpressionTag()
+        {
+            UpdateTag(exprTag, EscapeAnalysisResult.Global);
+            exprTag = null;
+        }
+
+        private void ReplaceExpressionTag(UniqueTag Tag)
+        {
+            PopGlobalExpressionTag();
+            exprTag = Tag;
+        }
+
+        private EscapeAnalysisResult MakeLocal(EscapeAnalysisResult Result)
+        {
+            if ((Result & ~EscapeAnalysisResult.InOut) == EscapeAnalysisResult.None)
+                return EscapeAnalysisResult.None;
+            else
+                return Result;
+        }
+
+        /// <summary>
+        /// Creates escape analysis data for the given method's signature.
+        /// All input and output values are assumed to escape.
+        /// </summary>
+        public static EscapeAnalysisData CreateConservativeAnalysis(IMethod Method)
+        {
+            var result = new EscapeAnalysisData(Method);
+            // Mark all input and output as global.
+            for (int i = 0; i < result.ParameterCount; i++)
+                result.UpdateResult(result.GetParameterTag(i), EscapeAnalysisResult.Global);
+
+            result.UpdateResult(result.ThisParameterTag, EscapeAnalysisResult.Global);
+            result.UpdateResult(result.ReturnValueTag, EscapeAnalysisResult.Global);
+            return result;
+        }
+
+        /// <summary>
+        /// Analyzes the given method.
+        /// </summary>
+        public static EscapeAnalysisData Analyze(
+            IMethod Method, IBodyPassEnvironment PassEnvironment,
+            Dictionary<IMethod, EscapeAnalysisData> AnalyzedFunctions,
+            bool CallsEscape)
+        {
+            EscapeAnalysisData result;
+            if (AnalyzedFunctions.TryGetValue(Method, &result))
+            {
+                return result;
+            }
+            else
+            {
+                var conservative = CreateConservativeAnalysis(Method);
+                AnalyzedFunctions[Method] = conservative;
+                var body = PassEnvironment.GetMethodBody(Method);
+                if (body == null)
+                    return conservative;
+
+                result = new EscapeAnalysisData(Method);
+                var visitor = new HeapToStackAnalyzer(
+                    result, PassEnvironment, AnalyzedFunctions, CallsEscape);
+                visitor.Visit(body);
+                AnalyzedFunctions[Method] = result;
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Analyzes the given method.
+        /// </summary>
+        public EscapeAnalysisData Analyze(IMethod Method)
+        {
+            return Analyze(Method, Environment, FunctionAnalysis, CallsEscape);
+        }
+
+        private UniqueTag AnalyzeExpression(IExpression Expression)
+        {
+            Visit(Expression);
+            return PopExpressionTag();
+        }
+
+        private void UpdateTag(UniqueTag Tag, EscapeAnalysisResult Result)
+        {
+            if (Tag != null)
+                AnalysisData.UpdateResult(Tag, Result);
+        }
+
+        private void UpdateVariable(IVariable Variable, EscapeAnalysisResult Result)
+        {
+            UpdateTag(TryGetTag(Variable), Result);
+        }
+
+        private UniqueTag UpdateOrAnalyzeExpression(IExpression Expression, EscapeAnalysisResult Result)
+        {
+            var tag = AnalyzeExpression(Expression);
+            if (tag != null)
+                UpdateTag(tag, Result);
+
+            return tag;
+        }
+
+        private CallEscapeDependencies UpdateCallResults(
+            EscapeAnalysisData CalleeAnalysis,
+            IExpression ThisArgument, IEnumerable<IExpression> Arguments)
+        {
+            return UpdateCallResults(
+                CalleeAnalysis, AnalyzeExpression(ThisArgument), Arguments);
+        }
+
+        private CallEscapeDependencies UpdateCallResults(
+            EscapeAnalysisData CalleeAnalysis,
+            UniqueTag ThisTag, IEnumerable<IExpression> Arguments)
+        {
+            var method = CalleeAnalysis.Method;
+            var resultTag = AnalysisData.CreateTag(
+                "return-value", method.ReturnType, EscapeAnalysisResult.None);
+            var paramDepends = new List<UniqueTag>();
+            if (CallsEscape)
+            {
+                // Mark everything as global.
+                if (ThisTag != null)
+                {
+                    if (method.IsConstructor)
+                        // Give constructors special treatment, to make
+                        // heap-to-stack allocation viable.
+                        UpdateTag(ThisTag, MakeLocal(CalleeAnalysis.ThisParameterResult));
+                    else
+                        UpdateTag(ThisTag, EscapeAnalysisResult.Global);
+                }
+                foreach (var arg in Arguments)
+                {
+                    paramDepends.Add(
+                        UpdateOrAnalyzeExpression(arg, EscapeAnalysisResult.Global));
+                }
+                UpdateTag(resultTag, EscapeAnalysisResult.Global);
+            }
+            else
+            {
+                if (ThisTag != null)
+                {
+                    UpdateTag(ThisTag, MakeLocal(CalleeAnalysis.ThisParameterResult));
+                }
+                foreach (var arg in Arguments, var param in method.Parameters,
+                    var paramTag in CalleeAnalysis.ParameterTags)
+                {
+                    var argTag = UpdateOrAnalyzeExpression(
+                        arg, MakeLocal(CalleeAnalysis.GetResult(paramTag)));
+                    paramDepends.Add(argTag);
+                    if (argTag != null)
+                        AnalysisData.UpdateType(argTag, param.ParameterType);
+                }
+                UpdateTag(resultTag, MakeLocal(CalleeAnalysis.ReturnValueResult));
+            }
+            var result = new CallEscapeDependencies(
+                CalleeAnalysis, ThisTag, paramDepends, resultTag);
+            callList.Add(result);
+            return result;
+        }
+
+        /// <summary>
+        /// An action that is invoked just before a node is visited.
+        /// </summary>
+        protected override void AcknowledgeNode(INode Node)
+        {
+            // Pop the previous node's result.
+            PopGlobalExpressionTag();
+        }
+
+        protected override IExpression VisitNewObject(NewObjectExpression Expression)
+        {
+            var ctorData = Analyze(Expression.Constructor);
+            var newTag = AnalysisData.CreateTag(
+                "new-object", Expression.Type,
+                MakeLocal(ctorData.ThisParameterResult));
+            var callDepends = UpdateCallResults(ctorData, newTag, Expression.Arguments);
+            // Create a new unique tag to represent the new-value expression
+            // result, and mark that as 'Local' or 'Global,' depending on
+            // the constructor's escape analysis.
+            PopGlobalExpressionTag();
+            ReplaceExpressionTag(newTag);
+            return new EscapeAnalysisCallExpression(Expression, callDepends);
+        }
+
+        protected override IExpression VisitDynamicCast(DynamicCastExpression Expression)
+        {
+            // Don't modify the expression result.
+            return Expression.Accept(this);
+        }
+
+        protected override IExpression VisitReinterpretCast(ReinterpretCastExpression Expression)
+        {
+            // Don't modify the expression result.
+            return Expression.Accept(this);
+        }
+
+        protected override IExpression VisitLoad(IExpression LoadExpression, IVariable Variable)
+        {
+            if (Variable is FieldVariable)
+            {
+                var fieldVar = (FieldVariable)Variable;
+                if (fieldVar.Field.IsStatic)
+                    return VisitUnknown(LoadExpression);
+
+                // Analyze the field's target, then discard its tag.
+                // Loading a field does not impose any additional restrictions
+                // on heap-to-stack allocation.
+                // Note that we're not trying to replace heap-allocated fields
+                // by stack-allocated fields, so we don't have to create a new
+                // value tag here.
+                // We can just assume that the loaded value is global.
+                AnalyzeExpression(fieldVar.Target);
+                return LoadExpression;
+            }
+
+            ReplaceExpressionTag(TryGetTag(Variable));
+            if (exprTag != null)
+            {
+                AnalysisData.UpdateType(exprTag, Variable.Type);
+                return LoadExpression;
+            }
+            else
+            {
+                return VisitUnknown(LoadExpression);
+            }
+        }
+
+        protected override IExpression VisitCall(InvocationExpression Expression, DissectedCall Call)
+        {
+            if (CallsEscape)
+            {
+                // No need to analyze the call. Just pretend that it's an
+                // unknown expression.
+                return VisitUnknown(Expression);
+            }
+            else
+            {
+                var callResults = UpdateCallResults(
+                    Analyze(Call.Method), Call.ThisValue, Call.Arguments);
+                ReplaceExpressionTag(callResults.ReturnValue);
+                return new EscapeAnalysisCallExpression(Expression, callResults);
+            }
+        }
+
+        protected override IExpression VisitAnalyzedCall(
+            EscapeAnalysisCallExpression Expression)
+        {
+            return Visit(Expression.Expression);
+        }
+
+        protected override IExpression VisitUnknown(IExpression Expression)
+        {
+            var result = Expression.Accept(this);
+            // Escape analysis result becomes global.
+            PopGlobalExpressionTag();
+            return result;
+        }
+
+        protected override IStatement VisitReturn(ReturnStatement Statement)
+        {
+            if (Statement.Value != null)
+            {
+                // Returned values become linked to the return value tag.
+                var valueTag = AnalyzeExpression(Statement.Value);
+                AnalysisData.AddSymmetricDependency(
+                    valueTag, AnalysisData.ReturnValueTag);
+            }
+            return Statement;
+        }
+
+        protected override IStatement VisitStore(
+            IStatement StoreStatement, IVariable Variable,
+            IExpression StoreValue)
+        {
+            if (Variable is FieldVariable)
+            {
+                var fieldVar = (FieldVariable)Variable;
+                if (fieldVar.Field.IsStatic)
+                    return VisitUnknown(StoreStatement);
+
+                // Analyze the field's target, then discard its tag.
+                // Stores to a field do not impose any additional restrictions
+                // on heap-to-stack allocation.
+                // Note that we're not trying to replace heap-allocated fields
+                // by stack-allocated fields, so we don't have to create a new
+                // value tag here.
+                AnalyzeExpression(fieldVar.Target);
+                // We cannot give the value the same treatment, because it
+                // does escape to the global scope.
+                VisitUnknown(StoreValue);
+                return StoreStatement;
+            }
+
+            var varTag = TryGetTag(Variable);
+            if (exprTag != null)
+            {
+                AnalysisData.UpdateType(varTag, Variable.Type);
+                var valueTag = AnalyzeExpression(StoreValue);
+                if (valueTag != null)
+                {
+                    // Insert a symmetric dependency.
+                    AnalysisData.AddSymmetricDependency(varTag, valueTag);
+                }
+                else
+                {
+                    // Mark the variable as global.
+                    UpdateTag(varTag, EscapeAnalysisResult.Global);
+                }
+                return StoreStatement;
+            }
+            else
+            {
+                return VisitUnknown(StoreStatement);
+            }
+        }
+
+        /// <summary>
+        /// Visits a basic block argument. The parameter for which it
+        /// is an argument, is also given.
+        /// </summary>
+        protected override SSAVariable VisitPhiArgument(
+            SSAVariable Argument, SSAVariable Parameter)
+        {
+            var paramTag = TryGetTag(Parameter);
+            var argTag = TryGetTag(Argument);
+            assert(paramTag != null);
+            assert(argTag != null);
+            AnalysisData.AddSymmetricDependency(argTag, paramTag);
+            return Argument;
+        }
+
+        /// <summary>
+        /// Visits a basic block parameter.
+        /// </summary>
+        protected override SSAVariable VisitPhiParameter(SSAVariable Parameter)
+        {
+            var tag = TryGetTag(Parameter);
+            assert(tag != null);
+            AnalysisData.UpdateType(tag, Parameter.Type);
+            return Parameter;
+        }
+
+        protected override IStatement VisitUnknown(IStatement Statement)
+        {
+            var result = Statement.Accept(this);
+            // Escape analysis result becomes global.
+            PopGlobalExpressionTag();
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// A type of expression that represents a call that has been analyzed by
+    /// the escape analysis pass. Rewriters can recognize these expressions,
+    /// and use them to connect IR trees to escape analysis results.
+    /// </summary>
+    public class EscapeAnalysisCallExpression : IExpression
+    {
+        public this(
+            set IExpression Expression,
+            set CallEscapeDependencies Dependencies);
+
+        public IExpression Expression { get; private set; }
+        public CallEscapeDependencies Dependencies { get; private set; }
+
+        public bool IsNewObject { get { return Expression is NewObjectExpression; } }
+
+        /// <summary>
+        /// Replaces this escape-analyzed call expresison's method
+        /// by the given method. The escape analysis information is
+        /// discarded from the resulting expression.
+        /// </summary>
+        public IExpression ReplaceMethod(IMethod Method)
+        {
+            if (IsNewObject)
+            {
+                var newObjExpr = (NewObjectExpression)Expression;
+                return new NewObjectExpression(Method, newObjExpr.Arguments);
+            }
+            else
+            {
+                assert(Expression is InvocationExpression);
+                var invExpr = (InvocationExpression)Expression;
+                var invTarget = invExpr.Target.GetEssentialExpression();
+                assert(invTarget is GetMethodExpression);
+                var getMethodExpr = (GetMethodExpression)invTarget;
+                assert(!getMethodExpr.Op.Equals(Operator.GetVirtualDelegate));
+                return new InvocationExpression(
+                    new GetMethodExpression(
+                        Method, getMethodExpr.Caller, getMethodExpr.Op),
+                    invExpr.Arguments);
+            }
+        }
+
+        public IType Type
+		{
+			get { return Expression.Type; }
+		}
+
+		public IExpression Accept(INodeVisitor Visitor)
+		{
+			return new EscapeAnalysisCallExpression(
+                Visitor.Visit(Expression), Dependencies);
+		}
+
+		public IExpression Optimize()
+		{
+			return Expression.Optimize();
+		}
+
+		public ICodeBlock Emit(ICodeGenerator CodeGenerator)
+		{
+			return Expression.Emit(CodeGenerator);
+		}
+
+        public bool IsConstantNode { get { return true; } }
+
+        public IBoundObject Evaluate()
+        {
+        	return null;
+        }
+    }
+
+    /// <summary>
+    /// Describes a rewritten method.
+    /// </summary>
+    public class RewrittenMethodSignature
+    {
+        public this(
+            set IMethod Method,
+            set bool HasReplacedThis,
+            set bool HasReplacedReturn)
+            in { Method != null }
+        { }
+
+        /// <summary>
+        /// Gets the rewritten method.
+        /// </summary>
+        public IMethod Method { get; private set; }
+
+        /// <summary>
+        /// Gets a boolean value that tells if the 'this' parameter has been
+        /// replaced.
+        /// </summary>
+        public bool HasReplacedThis { get; private set; }
+
+        /// <summary>
+        /// Gets a boolean value that tells if the return value has been
+        /// replaced.
+        /// </summary>
+        public bool HasReplacedReturn { get; private set; }
+    }
+
+    public class HeapToStackRewriter : HeapToStackVisitorBase
+    {
+        public this(
+            EscapeAnalysisData AnalysisData,
+            set BodyPassArgument PassArgument,
+            set IReadOnlyDictionary<IType, IType> TypeMap,
+            set IReadOnlyDictionary<CallEscapeDependencies, RewrittenMethodSignature> FunctionMap)
+            : base(AnalysisData)
+            in { AnalysisData != null }
+            in { TypeMap != null }
+            in { FunctionMap != null }
+            in { AnalysisData.CheckTypes() }
+        {
+            this.replacedVariables = new Dictionary<UniqueTag, IVariable>();
+            int paramIndex = 0;
+            foreach (var param in Method.Parameters)
+            {
+                this.replacedVariables[AnalysisData.GetParameterTag(paramIndex)] =
+                    new ArgumentVariable(param, paramIndex);
+                paramIndex++;
+            }
+            this.replacedVariables[AnalysisData.ThisParameterTag] =
+                new ThisVariable(Method.DeclaringType);
+        }
+
+        private Dictionary<UniqueTag, IVariable> replacedVariables;
+
+        // A boolean value that tracks whether the top-of-stack expression
+        // has been replaced by a stack-allocated variable.
+        private bool hasReplaced;
+
+        /// <summary>
+        /// Gets the body pass argument for this heap-to-stack rewriter.
+        /// </summary>
+        public BodyPassArgument PassArgument { get; private set; }
+
+        /// <summary>
+        /// Gets the method that this heap-to-stack rewriter is actually
+        /// rewriting.
+        /// </summary>
+        public IMethod Method { get { return PassArgument.DeclaringMethod; } }
+
+        /// <summary>
+        /// Gets a dictionary that maps reference types to the value
+        /// types they have been rewritten as.
+        /// </summary>
+        public IReadOnlyDictionary<IType, IType> TypeMap { get; private set; }
+
+        /// <summary>
+        /// Gets a dictionary that maps all escaping calls
+        /// to the methods they have been rewritten as.
+        /// </summary>
+        public IReadOnlyDictionary<CallEscapeDependencies, RewrittenMethodSignature> FunctionMap { get; private set; }
+
+        /// <summary>
+        /// Gets a re-written version of the given method. Null is returned
+        /// if there is no re-written version. The original method should
+        /// be used in that case.
+        /// </summary>
+        private RewrittenMethodSignature GetRewrittenMethod(CallEscapeDependencies Dependencies)
+        {
+            if (FunctionMap.TryGetValue(Dependencies, &RewrittenMethodSignature result))
+                return result;
+            else
+                return null;
+        }
+
+        /// <summary>
+        /// Tries to get a rewritten version of the given type. The result
+        /// is stored in the given type reference.
+        /// </summary>
+        public bool TryGetRewrittenType(IType Type, out IType^ Result)
+        {
+            if (TypeMap.TryGetValue(Type, Result))
+            {
+                return true;
+            }
+            else
+            {
+                var recGenDecl = Type.GetRecursiveGenericDeclaration();
+                if (TypeMap.TryGetValue(recGenDecl, Result))
+                {
+                    *Result = Result->MakeGenericType(Type.GetRecursiveGenericArguments());
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tries to replace the given variable by another variable. Null
+        /// is returned if the given variable was not a local variable,
+        /// argument variable, or 'this' variable.
+        /// </summary>
+        private IVariable TryReplaceVariable(IVariable Variable)
+        {
+            var tag = TryGetTag(Variable);
+            IVariable result;
+            if (tag == null)
+            {
+                return null;
+            }
+            else if (replacedVariables.TryGetValue(tag, &result))
+            {
+                return result;
+            }
+            else
+            {
+                assert(Variable is LocalVariableBase);
+                var otherVar = (LocalVariableBase)Variable;
+                if (AnalysisData.GetResult(tag) != EscapeAnalysisResult.Global
+                    && TryGetRewrittenType(otherVar.Type, &IType newType))
+                {
+                    // We found a non-escaping local variable whose type
+                    // can be replaced by a reference type.
+                    // Replace it by a reference pointer to a value type.
+                    result = new LocalVariable(new RetypedVariableMember(
+                        otherVar.Member,
+                        newType.MakePointerType(PointerKind.ReferencePointer)));
+                }
+                else
+                {
+                    result = Variable;
+                }
+                replacedVariables[tag] = result;
+                return result;
+            }
+        }
+
+        protected override void AcknowledgeNode(INode Node)
+        {
+            this.hasReplaced = false;
+        }
+
+        protected override IExpression VisitNewObject(NewObjectExpression Expression)
+        {
+            // We can't handle standalone (non-analyzed) new-object expressions.
+            return VisitUnknown(Expression);
+        }
+
+        protected override IExpression VisitCall(
+            InvocationExpression Expression, DissectedCall Call)
+        {
+            // We can't handle standalone (non-analyzed) call expressions.
+            return VisitUnknown(Expression);
+        }
+
+        protected override IExpression VisitDynamicCast(DynamicCastExpression Expression)
+        {
+            var innerExpr = Visit(Expression.Value);
+            if (hasReplaced)
+                return innerExpr;
+            else
+                return new DynamicCastExpression(innerExpr, Expression.Type);
+        }
+
+        protected override IExpression VisitReinterpretCast(ReinterpretCastExpression Expression)
+        {
+            var innerExpr = Visit(Expression.Value);
+            if (hasReplaced)
+                return innerExpr;
+            else
+                return new ReinterpretCastExpression(innerExpr, Expression.Type);
+        }
+
+        protected override IExpression VisitLoad(IExpression LoadExpression, IVariable Variable)
+        {
+            var replVar = TryReplaceVariable(Variable);
+            if (replVar == null)
+            {
+                return VisitUnknown(LoadExpression);
+            }
+            else
+            {
+                this.hasReplaced = true;
+                return replVar.CreateGetExpression();
+            }
+        }
+
+        protected override IExpression VisitAnalyzedCall(
+            EscapeAnalysisCallExpression Expression)
+        {
+            var newSignature = GetRewrittenMethod(Expression.Dependencies);
+            if (newSignature == null)
+            {
+                return Visit(Expression.Expression);
+            }
+            else
+            {
+                var newMethod = newSignature.Method;
+                // First replace the callee, then visit the call.
+                var result = Visit(Expression.ReplaceMethod(newMethod));
+                if (Expression.IsNewObject && newSignature.HasReplacedThis)
+                {
+                    // A new-object expression that produces a reference type
+                    // which we intend to replace by a value type, is handled
+                    // as a special case here.
+                    var newObjectExpr = (NewObjectExpression)Expression.Expression;
+
+                    this.hasReplaced = true;
+
+                    // Create a new local variable, initialize that, and take
+                    // its address.
+                    var tmpLocal = new LocalVariable("tmp", newMethod.DeclaringType);
+                    return new InitializedExpression(
+                        tmpLocal.CreateSetStatement(result),
+                        tmpLocal.CreateAddressOfExpression());
+                }
+                else
+                {
+                    this.hasReplaced = newSignature.HasReplacedReturn;
+                    return result;
+                }
+            }
+        }
+
+        protected override IExpression VisitUnknown(IExpression Expression)
+        {
+            var result = Expression.Accept(this);
+            hasReplaced = false;
+            return result;
+        }
+
+        protected override IStatement VisitReturn(ReturnStatement Statement)
+        {
+            return Statement.Accept(this);
+        }
+
+        protected override IStatement VisitStore(IStatement StoreStatement, IVariable Variable, IExpression StoreValue)
+        {
+            var replVar = TryReplaceVariable(Variable);
+            if (replVar == null)
+            {
+                return VisitUnknown(StoreStatement);
+            }
+            else
+            {
+                // Visit the value, and create a 'store' statement.
+                return replVar.CreateSetStatement(Visit(StoreValue));
+            }
+        }
+
+        protected override IStatement VisitUnknown(IStatement Statement)
+        {
+            return Statement.Accept(this);
+        }
+
+        /// <summary>
+        /// Visits a basic block argument. The parameter for which it
+        /// is an argument, is also given.
+        /// </summary>
+        protected override SSAVariable VisitPhiArgument(SSAVariable Argument, SSAVariable Parameter)
+        {
+            var replVar = TryReplaceVariable(Argument);
+            if (replVar == null)
+            {
+                return Argument;
+            }
+            else
+            {
+                assert(replVar is SSAVariable);
+                return (SSAVariable)replVar;
+            }
+        }
+
+        /// <summary>
+        /// Visits a basic block parameter.
+        /// </summary>
+        protected override SSAVariable VisitPhiParameter(SSAVariable Parameter)
+        {
+            var replVar = TryReplaceVariable(Parameter);
+            if (replVar == null)
+            {
+                return Parameter;
+            }
+            else
+            {
+                assert(replVar is SSAVariable);
+                return (SSAVariable)replVar;
+            }
+        }
+    }
+}
