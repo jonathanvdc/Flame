@@ -89,7 +89,15 @@ namespace Flame.Collections
         }
 
         /// <summary>
-        /// Gets all values with the given keys.
+        /// Gets all values with the given key.
+        /// </summary>
+        public [TValue] this[TKey Key]
+        {
+            get { return GetAll(Key); }
+        }
+
+        /// <summary>
+        /// Gets all values with the given key.
         /// </summary>
         public [TValue] GetAll(TKey Key)
         {
