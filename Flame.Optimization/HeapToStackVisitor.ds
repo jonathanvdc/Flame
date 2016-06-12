@@ -297,25 +297,26 @@ namespace Flame.Optimization
             Dictionary<IMethod, EscapeAnalysisData> AnalyzedFunctions,
             bool CallsEscape)
         {
+            var genDecl = Method.GetRecursiveGenericDeclaration();
             EscapeAnalysisData result;
-            if (AnalyzedFunctions.TryGetValue(Method, &result))
+            if (AnalyzedFunctions.TryGetValue(genDecl, &result))
             {
-                return result;
+                return new EscapeAnalysisData(Method, result);
             }
             else
             {
-                var conservative = CreateConservativeAnalysis(Method);
-                AnalyzedFunctions[Method] = conservative;
-                var body = PassEnvironment.GetMethodBody(Method);
+                var conservative = CreateConservativeAnalysis(genDecl);
+                AnalyzedFunctions[genDecl] = conservative;
+                var body = PassEnvironment.GetMethodBody(genDecl);
                 if (body == null)
-                    return conservative;
+                    return new EscapeAnalysisData(Method, conservative);
 
-                result = new EscapeAnalysisData(Method);
+                result = new EscapeAnalysisData(genDecl);
                 var visitor = new HeapToStackAnalyzer(
                     result, PassEnvironment, AnalyzedFunctions, CallsEscape);
                 visitor.Visit(body);
-                AnalyzedFunctions[Method] = result;
-                return result;
+                AnalyzedFunctions[genDecl] = result;
+                return new EscapeAnalysisData(Method, result);
             }
         }
 
@@ -708,10 +709,11 @@ namespace Flame.Optimization
     {
         public this(
             EscapeAnalysisData AnalysisData,
-            set BodyPassArgument PassArgument,
+            set IMethod Method,
             set IReadOnlyDictionary<IType, IType> TypeMap,
             set IReadOnlyDictionary<CallEscapeDependencies, RewrittenMethodSignature> FunctionMap)
             : base(AnalysisData)
+            in { Method != null }
             in { AnalysisData != null }
             in { TypeMap != null }
             in { FunctionMap != null }
@@ -736,15 +738,10 @@ namespace Flame.Optimization
         private bool hasReplaced;
 
         /// <summary>
-        /// Gets the body pass argument for this heap-to-stack rewriter.
-        /// </summary>
-        public BodyPassArgument PassArgument { get; private set; }
-
-        /// <summary>
         /// Gets the method that this heap-to-stack rewriter is actually
         /// rewriting.
         /// </summary>
-        public IMethod Method { get { return PassArgument.DeclaringMethod; } }
+        public IMethod Method { get; private set; }
 
         /// <summary>
         /// Gets a dictionary that maps reference types to the value

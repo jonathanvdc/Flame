@@ -74,6 +74,17 @@ namespace Flame.Optimization
             in { Parameters != null }
         { }
 
+        public this(
+            set IMethod Method,
+            SignatureEscapeAnalysis Other)
+            in  { Method != null }
+            in  { Other != null }
+        {
+            ThisValue = Other.ThisValue;
+            Parameters = Other.Parameters;
+            ReturnValue = Other.ReturnValue;
+        }
+
         /// <summary>
         /// Gets the method that was analyzed.
         /// </summary>
@@ -225,6 +236,17 @@ namespace Flame.Optimization
             ReturnValueTag = CreateTag(
                 "return", ThisVariable.GetThisType(Method.ReturnType),
                 EscapeAnalysisResult.Out);
+        }
+
+        /// <summary>
+        /// Copies the given escape analysis data.
+        /// </summary>
+        public this(set IMethod Method, EscapeAnalysisData Other)
+        {
+            this.paramTags = new List<UniqueTag>(Other.paramTags);
+            this.results = new Dictionary<UniqueTag, EscapeAnalysisResult>(Other.results);
+            this.dependencyGraph = new Graph<UniqueTag>(Other.dependencyGraph);
+            this.nodeTypes = new Dictionary<UniqueTag, IType>(Other.nodeTypes);
         }
 
         /// <summary>
