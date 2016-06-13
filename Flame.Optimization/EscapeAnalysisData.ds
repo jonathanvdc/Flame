@@ -279,6 +279,11 @@ namespace Flame.Optimization
         public IMethod Method { get; private set; }
 
         /// <summary>
+        /// Gets all tags that are known to this escape analysis.
+        /// </summary>
+        public [UniqueTag] Tags { get { return dependencyGraph.Vertices;} }
+
+        /// <summary>
         /// Gets the escape analysis result for the entire method signature.
         /// </summary>
         public SignatureEscapeAnalysis SignatureResult

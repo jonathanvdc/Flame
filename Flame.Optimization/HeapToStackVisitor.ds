@@ -783,6 +783,9 @@ namespace Flame.Optimization
                 var recGenDecl = Type.GetRecursiveGenericDeclaration();
                 if (TypeMap.TryGetValue(recGenDecl, Result))
                 {
+                    if (Result == null)
+                        return false;
+                        
                     *Result = Result->MakeGenericType(Type.GetRecursiveGenericArguments());
                     return true;
                 }
