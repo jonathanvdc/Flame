@@ -637,7 +637,7 @@ namespace Flame.Optimization
 
                 var args = invExpr.Arguments;
                 var thisArg = getMethodExpr.Caller;
-                if (Method.IsStatic && !getMethodExpr.IsStatic)
+                if (Method.IsStatic && !getMethodExpr.Target.IsStatic)
                 {
                     args = Enumerable.ToArray<IExpression>(
                         Enumerable.Concat<IExpression>(
@@ -732,9 +732,9 @@ namespace Flame.Optimization
             {
                 this.replacedVariables[AnalysisData.ThisParameterTag] =
                     new ArgumentVariable(
-                        param, Enumerable.First<IParameter>(parameterList));
+                        Enumerable.First<IParameter>(parameterList), 0);
                 parameterList = Enumerable.Skip<IParameter>(parameterList, 1);
-                paramIndex++;
+                paramIndex = 1;
             }
             else
             {
