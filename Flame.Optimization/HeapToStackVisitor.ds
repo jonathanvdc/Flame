@@ -340,11 +340,6 @@ namespace Flame.Optimization
                 AnalysisData.UpdateResult(Tag, Result);
         }
 
-        private void UpdateVariable(IVariable Variable, EscapeAnalysisResult Result)
-        {
-            UpdateTag(TryGetTag(Variable), Result);
-        }
-
         private UniqueTag UpdateOrAnalyzeExpression(IExpression Expression, EscapeAnalysisResult Result)
         {
             var tag = AnalyzeExpression(Expression);
@@ -785,7 +780,7 @@ namespace Flame.Optimization
                 {
                     if (Result == null)
                         return false;
-                        
+
                     *Result = Result->MakeGenericType(Type.GetRecursiveGenericArguments());
                     return true;
                 }
