@@ -634,10 +634,20 @@ namespace Flame.Optimization
                 assert(invTarget is GetMethodExpression);
                 var getMethodExpr = (GetMethodExpression)invTarget;
                 assert(!getMethodExpr.Op.Equals(Operator.GetVirtualDelegate));
+
+                var args = invExpr.Arguments;
+                var thisArg = getMethodExpr.Caller;
+                if (Method.IsStatic && !getMethodExpr.IsStatic)
+                {
+                    args = Enumerable.ToArray<IExpression>(
+                        Enumerable.Concat<IExpression>(
+                            new IExpression[] { thisArg }, args));
+                    thisArg = null;
+                }
+
                 return new InvocationExpression(
-                    new GetMethodExpression(
-                        Method, getMethodExpr.Caller, getMethodExpr.Op),
-                    invExpr.Arguments);
+                    new GetMethodExpression(Method, thisArg, getMethodExpr.Op),
+                    args);
             }
         }
 
@@ -715,15 +725,29 @@ namespace Flame.Optimization
             in { AnalysisData.CheckTypes() }
         {
             this.replacedVariables = new Dictionary<UniqueTag, IVariable>();
+            int argIndex = 0;
             int paramIndex = 0;
-            foreach (var param in Method.Parameters)
+            [IParameter] parameterList = Method.Parameters;
+            if (!AnalysisData.Method.IsStatic && Method.IsStatic)
             {
-                this.replacedVariables[AnalysisData.GetParameterTag(paramIndex)] =
-                    new ArgumentVariable(param, paramIndex);
+                this.replacedVariables[AnalysisData.ThisParameterTag] =
+                    new ArgumentVariable(
+                        param, Enumerable.First<IParameter>(parameterList));
+                parameterList = Enumerable.Skip<IParameter>(parameterList, 1);
                 paramIndex++;
             }
-            this.replacedVariables[AnalysisData.ThisParameterTag] =
-                new ThisVariable(Method.DeclaringType);
+            else
+            {
+                this.replacedVariables[AnalysisData.ThisParameterTag] =
+                    new ThisVariable(Method.DeclaringType);
+            }
+            foreach (var param in parameterList)
+            {
+                this.replacedVariables[AnalysisData.GetParameterTag(argIndex)] =
+                    new ArgumentVariable(param, paramIndex);
+                paramIndex++;
+                argIndex++;
+            }
         }
 
         private Dictionary<UniqueTag, IVariable> replacedVariables;
