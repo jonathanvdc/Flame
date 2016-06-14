@@ -209,6 +209,17 @@ namespace Flame
 			}
 		}
 
+		public static const [IType] GetRecursiveGenericArguments(this IMethod Method)
+		{
+			var declTy = Method.DeclaringType;
+			if (declTy == null)
+				return Method.GetGenericArguments();
+			else
+				return Enumerable.Concat<IType>(
+					declTy.GetRecursiveGenericArguments(),
+					Method.GetGenericArguments());
+		}
+
 		public static const IType GetRecursiveGenericDeclaration(this IType Type)
 		{
 			if (Type is GenericTypeBase)
@@ -257,7 +268,7 @@ namespace Flame
 			}
 		}
 
-		public static const IType MakeRecursiveGenericType(this IType Type, [IType] TypeArguments)
+		public static IType MakeRecursiveGenericType(this IType Type, [IType] TypeArguments)
 		{
 			if (Type.DeclaringNamespace is IType)
 			{
@@ -280,6 +291,28 @@ namespace Flame
 				}
 			}
 			return Type.MakeGenericType(TypeArguments);
+		}
+
+		public static IMethod MakeRecursiveGenericMethod(this IMethod Method, [IType] TypeArguments)
+		{
+			var declTy = Method.DeclaringType;
+			int paramCount = Enumerable.Count<IGenericParameter>(declTy.GetRecursiveGenericParameters());
+			if (paramCount > 0)
+			{
+				var parentArgs = Enumerable.Take<IType>(TypeArguments, paramCount);
+				var actualArgs = Enumerable.Skip<IType>(TypeArguments, paramCount);
+				var parentType = declTy.MakeRecursiveGenericType(parentArgs);
+				var decl = new GenericInstanceMethod(Method, ((GenericTypeBase)parentType).Resolver, parentType);
+				if (Enumerable.Any<IType>(actualArgs))
+				{
+					return decl.MakeGenericMethod(actualArgs);
+				}
+				else
+				{
+					return decl;
+				}
+			}
+			return Method.MakeGenericMethod(TypeArguments);
 		}
 
 		#region Generic Parameter Cloning
