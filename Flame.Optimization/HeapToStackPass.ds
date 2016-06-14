@@ -1,0 +1,584 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Build;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// An intraprocedural heap-to-stack pass: an optimization pass
+    /// that attempts to allocate reference type on the
+    /// stack by replacing them by references to value types.
+    /// Values that cross function call boundaries are not replaced.
+    /// </summary>
+    public static class LocalHeapToStackPass : HeapToStackPassBase
+    {
+        /// <summary>
+        /// The heap-to-stack pass' name.
+        /// </summary>
+        public const string LocalHeapToStackPassName = "heap2stack";
+
+        public override bool CallsEscape { get { return true; } }
+
+        public override string PassName { get { return LocalHeapToStackPassName; } }
+    }
+
+    /// <summary>
+    /// An interprocedural heap-to-stack pass: an optimization pass
+    /// that attempts to allocate reference type on the
+    /// stack by replacing them by references to value types.
+    /// Values that cross function call boundaries are replaced
+    /// whenever possible, by creating specifialized functions.
+    /// </summary>
+    public static class GlobalHeapToStackPass : HeapToStackPassBase
+    {
+        /// <summary>
+        /// The heap-to-stack pass' name.
+        /// </summary>
+        public const string GlobalHeapToStackPassName = "ip-heap2stack";
+
+        public override bool CallsEscape { get { return false; } }
+
+        public override string PassName { get { return GlobalHeapToStackPassName; } }
+    }
+
+    /// <summary>
+    /// An optimization pass that attempts to allocate reference type on the
+    /// stack by replacing them by references to value types.
+    /// </summary>
+    public abstract class HeapToStackPassBase : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// Gets a boolean value that specifies whether function calls
+        /// input/output is considered to have escaped.
+        /// </summary>
+        public abstract bool CallsEscape { get; }
+
+        /// <summary>
+        /// Gets a string that names this pass.
+        /// </summary>
+        public abstract string PassName { get; }
+
+        /// <summary>
+        /// Applies this pass to the given body pass argument.
+        /// </summary>
+        public IStatement Apply(BodyPassArgument Argument)
+            in { VerifyCFGPass.Apply(Argument.Body) }
+            in
+            {
+                VerifySSAPass.Apply(
+                    Argument.Body, Argument.PassEnvironment.Log, Argument.DeclaringMethod,
+                    PassName + " (input)")
+            }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result)
+            {
+                VerifySSAPass.Apply(
+                    result, Argument.PassEnvironment.Log, Argument.DeclaringMethod,
+                    PassName + " (output)")
+            }
+        {
+            var method = Argument.DeclaringMethod;
+            var result = TryRewriteBody(
+                method, HeapToStackAnalyzer.CreateConservativeAnalysis(method).SignatureResult,
+                Argument.Body, Argument, GetAnalysisCache(Argument));
+            if (result == null)
+                return Argument.Body;
+            else
+                return result;
+        }
+
+        private bool CanReplace(EscapeAnalysisResult Result, IType Type)
+        {
+            return Result != EscapeAnalysisResult.Global && CanRewrite(Type);
+        }
+
+        private RewrittenMethodSignature TryRewrite(
+            CallEscapeDependencies Call,
+            EscapeAnalysisData CallerAnalysis,
+            BodyPassArgument PassArgument,
+            Dictionary<SignatureEscapeAnalysis, RewrittenMethodSignature> Cache)
+        {
+            if ((Call.CalleeAnalysis.ReturnValueResult & EscapeAnalysisResult.Local) == EscapeAnalysisResult.Local)
+            {
+                // Return values cannot be stack-allocated in the
+                // callee's stack frame. Just keep them on the heap, then.
+                CallerAnalysis.UpdateResult(
+                    Call.ReturnValue, EscapeAnalysisResult.Global);
+            }
+
+            // Compute the escape analysis signature.
+            var sig = Call.ToSignatureAnalysis(CallerAnalysis);
+
+            var genDecl = Call.CalleeAnalysis.Method.GetRecursiveGenericDeclaration();
+            var genSig = new SignatureEscapeAnalysis(genDecl, sig);
+
+            // Try to do a cache lookup.
+            RewrittenMethodSignature result;
+            if (Cache.TryGetValue(genSig, &result))
+            {
+                // Cache hit. Instantiate and return.
+                if (result == null)
+                    return null;
+
+                return new RewrittenMethodSignature(
+                    result.Method.MakeRecursiveGenericMethod(
+                        Call.CalleeAnalysis.Method.GetRecursiveGenericArguments()),
+                    result.HasReplacedThis, result.HasReplacedReturn);
+            }
+            else
+            {
+                // Cache miss.
+                // Before proceeding, we should make sure that what we're doing
+                // actually makes sense. We don't want to end up generating the
+                // exact same signature.
+                bool hasReplaced = false;
+                bool hasReplacedThis = false;
+                bool hasReplacedResult = false;
+                if (CanReplace(genSig.ThisValue, genDecl.DeclaringType))
+                {
+                    hasReplaced = true;
+                    hasReplacedThis = true;
+                }
+
+                if (CanReplace(genSig.ReturnValue, genDecl.ReturnType))
+                {
+                    hasReplaced = true;
+                    hasReplacedResult = true;
+                }
+
+                foreach (var paramValue in genSig.Parameters, var param in genDecl.Parameters)
+                {
+                    if (hasReplaced)
+                        break;
+
+                    hasReplaced = CanReplace(paramValue, param.ParameterType);
+                }
+
+                if (!hasReplaced)
+                {
+                    // Leave a 'null' value in the dictionary, so we won't
+                    // have to do this analysis again.
+                    Cache[genSig] = null;
+                    return null;
+                }
+
+                // We'll have to create a new method.
+                //
+                // The declaring type is either
+                //
+                //     - a value type that replaces a declaring reference type,
+                //     - an extensible declaring type, or
+                //     - a static class that contains rewritten methods.
+                //
+                // TODO: implement option #3. This is not very useful for static
+                // linking scenarios, but it can be useful for dynamic linking.
+
+                IType declType = null;
+                var oldDeclType = genDecl.DeclaringType;
+                if (!genDecl.IsStatic &&
+                    CanReplace(genSig.ThisValue, oldDeclType))
+                {
+                    declType = TryRewrite(oldDeclType, PassArgument);
+                }
+                else if (PassArgument.PassEnvironment.CanExtend(oldDeclType))
+                {
+                    declType = oldDeclType;
+                }
+
+                if (declType == null)
+                {
+                    // Leave a 'null' value in the dictionary, so we won't
+                    // have to do this analysis again.
+                    Cache[genSig] = null;
+                    return null;
+                }
+
+                var methodResult = TryRewriteImpl(
+                    genSig,
+                    new SimpleName(
+                        "__heap2stack$" + genDecl.Name.ToString() +
+                        "$" + Cache.Count),
+                    declType, genDecl.IsStatic, PassArgument);
+
+                if (methodResult == null)
+                {
+                    Cache[genSig] = result;
+                    return null;
+                }
+                else
+                {
+                    Cache[genSig] = new RewrittenMethodSignature(
+                        methodResult, hasReplacedThis, hasReplacedResult);
+                    return new RewrittenMethodSignature(
+                        methodResult.MakeRecursiveGenericMethod(
+                            Call.CalleeAnalysis.Method.GetRecursiveGenericArguments()),
+                        hasReplacedThis, hasReplacedResult);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tries to re-write the given call's body.
+        /// </summary>
+        private IStatement TryRewriteBody(
+            IMethod Method, SignatureEscapeAnalysis Call, IStatement Body,
+            BodyPassArgument Argument, Dictionary<IMethod, EscapeAnalysisData> AnalyzedFunctions)
+        {
+            // First, analyze the body again. This time, we're only interested
+            // in the analysis nodes that are inserted.
+            // TODO: this is redundant. Maybe we should store the analyzed method
+            // body somewhere.
+            var analysis = new EscapeAnalysisData(Method);
+
+            var analyzer = new HeapToStackAnalyzer(
+                analysis, Argument.PassEnvironment, AnalyzedFunctions, CallsEscape);
+            var analyzedBody = analyzer.Visit(Body);
+
+            // Update the body analysis with the signature analysis.
+            // Parameters and return values may be global because of
+            // constraints imposed by the caller, rather than the callee.
+            analysis.UpdateResult(analysis.ThisParameterTag, Call.ThisValue);
+            analysis.UpdateResult(analysis.ReturnValueTag, Call.ReturnValue);
+            int paramCount = Call.Parameters.Count;
+            for (int i = 0; i < paramCount; i++)
+            {
+                analysis.UpdateResult(analysis.GetParameterTag(i), Call.Parameters[i]);
+            }
+
+            // We'll first attempt to replace all called methods.
+            var methodCache = GetMethodCache(Argument);
+            var replMethods = new Dictionary<CallEscapeDependencies, RewrittenMethodSignature>();
+            foreach (var call in analyzer.Calls)
+            {
+                replMethods[call] = TryRewrite(
+                    call, analysis, Argument, methodCache);
+            }
+
+            // Next, we can try to replace all types.
+            var replTypes = new Dictionary<IType, IType>();
+            foreach (var tag in analysis.Tags)
+            {
+                if (analysis.GetResult(tag) != EscapeAnalysisResult.Global)
+                {
+                    var ty = analysis.GetType(tag);
+                    if (!replTypes.ContainsKey(ty))
+                    {
+                        replTypes[ty] = TryRewrite(ty, Argument);
+                    }
+                }
+            }
+
+            // Finally, we can rewrite the method body itself.
+            // Create a rewriter, and have it visit the analyzed method body.
+            var rewriter = new HeapToStackRewriter(
+                analysis, Method, replTypes, replMethods);
+            return rewriter.Visit(analyzedBody);
+        }
+
+        private IType ReplaceParameterType(
+            IType Type, BodyPassArgument Arg,
+            TypeParameterConverter Converter)
+        {
+            return Converter.Convert(TryRewrite(Type, Arg))
+                .MakePointerType(PointerKind.ReferencePointer);
+        }
+
+        /// <summary>
+        /// Tries to re-write the given method for the given declaring type.
+        /// A boolean tells whether the resulting method should be a static
+        /// or an instance method.
+        /// </summary>
+        private IMethod TryRewriteImpl(
+            SignatureEscapeAnalysis Call, UnqualifiedName Name,
+            IType DeclaringType, bool IsStatic, BodyPassArgument Arg)
+        {
+            var oldMethod = Call.Method;
+
+            bool isCtor = oldMethod.IsConstructor;
+
+            // We can't rewrite constructors as static methods, so we should
+            // definitely check for that.
+            if (isCtor && IsStatic)
+                return null;
+
+            // We're going to need the method body.
+            var body = Arg.PassEnvironment.GetMethodBody(oldMethod);
+            if (body == null)
+                return null;
+
+            // We need to check the body's access: it can't be allowed to
+            // access anything that the new declaring type can't access.
+            if (!AccessChecker.CanAccess(DeclaringType, body))
+                return null;
+
+            // Figure out whether the method we're creating is a static method
+            // based on an instance method.
+            bool wasInstance = IsStatic && !oldMethod.IsStatic;
+
+            // It seems that we can safely proceed by creating a new method.
+            var methodDef = new DescribedBodyMethod(Name, DeclaringType);
+            methodDef.IsStatic = IsStatic;
+
+            // Copy the generic parameters from the old method.
+            foreach (var item in GenericExtensions.CloneGenericParameters(
+                oldMethod.GenericParameters, methodDef))
+            {
+                methodDef.AddGenericParameter(item);
+            }
+
+            // Copy the old method's attributes, too.
+            foreach (var attr in oldMethod.Attributes)
+                methodDef.AddAttribute(attr);
+
+            // Create a type parameter converter for the parameters/return value.
+            var typeConv = new TypeParameterConverter(methodDef);
+
+            // We may have to throw in a special 'this pointer' argument.
+            if (wasInstance)
+            {
+                if (CanReplace(Call.ThisValue, oldMethod.DeclaringType))
+                {
+                    methodDef.AddParameter(new DescribedParameter(
+                        "__this_ptr",
+                        ReplaceParameterType(oldMethod.DeclaringType, Arg, typeConv)));
+                }
+                else
+                {
+                    methodDef.AddParameter(new DescribedParameter(
+                        "__this_ptr",
+                        ThisVariable.GetThisType(methodDef.DeclaringType)));
+                }
+            }
+
+            foreach (var paramValue in Call.Parameters, var param in oldMethod.Parameters)
+            {
+                var paramType = param.ParameterType;
+                if (CanReplace(paramValue, paramType))
+                {
+                    methodDef.AddParameter(new RetypedParameter(
+                        param, ReplaceParameterType(paramType, Arg, typeConv)));
+                }
+                else
+                {
+                    methodDef.AddParameter(new RetypedParameter(
+                        param, typeConv.Convert(paramType)));
+                }
+            }
+
+            if (CanReplace(Call.ReturnValue, oldMethod.ReturnType))
+                methodDef.ReturnType = ReplaceParameterType(oldMethod.ReturnType, Arg, typeConv);
+            else
+                methodDef.ReturnType = typeConv.Convert(oldMethod.ReturnType);
+
+            // Convert any and all type parameters in the method body.
+            var convBody = MemberNodeVisitor.ConvertTypes(typeConv, body);
+
+            // Rewrite the method body.
+            var methodBody = TryRewriteBody(
+                methodDef, Call, convBody, Arg, GetAnalysisCache(Arg));
+
+            if (methodBody == null)
+                // Well, that sure went spectacularly wrong at the last minute.
+                return null;
+
+            methodDef.Body = methodBody;
+
+            // I guess we're done here.
+            return methodDef;
+        }
+
+        /// <summary>
+        /// Tries to rewrite the given type. Null is returned
+        /// if that cannot be done.
+        /// </summary>
+        private IType TryRewrite(IType Type, BodyPassArgument PassArgument)
+        {
+            // Check for the usual things.
+            if (!CanRewrite(Type))
+                // This wasn't a valid candidate in the first place.
+                return null;
+
+            var genDecl = Type.GetRecursiveGenericDeclaration();
+
+            // Rewrite the type.
+            var rewritten = RewriteAsValueType(genDecl, PassArgument);
+
+            // Create a new generic instance, and return that.
+            return rewritten.MakeGenericType(Type.GetRecursiveGenericArguments());
+        }
+
+        /// <summary>
+        /// Checks if the given type can be rewritten as a value type.
+        /// </summary>
+        private bool CanRewrite(IType Type)
+        {
+            // We shall require the following:
+            //
+            //     The type must be a non-virtual reference type, and
+            //     cannot be an interface, a generic parameter, a method
+            //     type, or a primitive type.
+
+            return Type.IsReferenceType && !Type.IsPrimitive
+                && !Type.IsInterface && !Type.IsGenericParameter
+                && !Type.IsAbstract && !Type.IsVirtual
+                && MethodType.GetMethod(Type) == null;
+        }
+
+        /// <summary>
+        /// Gets a namespace for synthetic types within the given assembly.
+        /// </summary>
+        private static INamespace GetSyntheticValueTypesNamespace(
+            IAssembly Assembly)
+        {
+            return new DescribedNamespace(
+                new SimpleName("__synthetic_value_types"), Assembly);
+        }
+
+        /// <summary>
+        /// Gets a namespace for synthetic types within the current assembly.
+        /// </summary>
+        private static INamespace GetSyntheticValueTypesNamespace(
+            BodyPassArgument PassArgument)
+        {
+            return GetSyntheticValueTypesNamespace(
+                PassArgument.DeclaringType.DeclaringNamespace.DeclaringAssembly);
+        }
+
+        private static Dictionary<TKey, TValue> GetGlobalCache<TKey, TValue>(
+            BodyPassArgument PassArgument, string DictionaryKey)
+        {
+            var globalMetadata = PassArgument.Metadata.GlobalMetadata;
+            var result = globalMetadata.GetOption<Dictionary<TKey, TValue>>(
+                DictionaryKey, null);
+
+            if (result == null)
+            {
+                result = new Dictionary<TKey, TValue>();
+                globalMetadata.SetOption<Dictionary<TKey, TValue>>(
+                    DictionaryKey, result);
+            }
+
+            return result;
+        }
+
+        private static Dictionary<IType, IType> GetValueTypeCache(
+            BodyPassArgument Argument)
+        {
+            return GetGlobalCache<IType, IType>(
+                Argument, "heap2stack-struct-cache");
+        }
+
+        private static Dictionary<Tuple<IType, IField>, IField> GetFieldCache(
+            BodyPassArgument Argument)
+        {
+            return GetGlobalCache<Tuple<IType, IField>, IField>(
+                Argument, "heap2stack-field-cache");
+        }
+
+        private static Dictionary<SignatureEscapeAnalysis, RewrittenMethodSignature> GetMethodCache(
+            BodyPassArgument Argument)
+        {
+            return GetGlobalCache<SignatureEscapeAnalysis, RewrittenMethodSignature>(
+                Argument, "heap2stack-method-cache");
+        }
+
+        private static Dictionary<IMethod, EscapeAnalysisData> GetAnalysisCache(
+            BodyPassArgument Argument)
+        {
+            return GetGlobalCache<IMethod, EscapeAnalysisData>(
+                Argument, "heap2stack-analysis-cache");
+        }
+
+        private static string NameSyntheticValueType(
+            UnqualifiedName Name, Dictionary<IType, IType> ValueTypeCache)
+        {
+            string nameStr;
+            if (Name is SimpleName)
+                nameStr = ((SimpleName)Name).Name.ToString();
+            else
+                nameStr = Name.ToString();
+            return nameStr + "__struct$" + ValueTypeCache.Count;
+        }
+
+        /// <summary>
+        /// Rewrites the given reference type as a value type. The resulting
+        /// value type is marked internal.
+        /// </summary>
+        private IType RewriteAsValueType(
+            IType ReferenceType, BodyPassArgument PassArgument)
+            in { CanRewrite(ReferenceType) }
+        {
+            var cache = GetValueTypeCache(PassArgument);
+
+            var genDecl = ReferenceType.GetRecursiveGenericDeclaration();
+            var genDeclArgs = genDecl.GetRecursiveGenericArguments();
+
+            IType resultType;
+            if (cache.TryGetValue(genDecl, &resultType))
+            {
+                return resultType.MakeRecursiveGenericType(genDeclArgs);
+            }
+
+            var genDeclParams = Enumerable.ToArray<IGenericParameter>(
+                genDecl.GetRecursiveGenericParameters());
+
+            var declNs = GetSyntheticValueTypesNamespace(PassArgument);
+            var descTy = new DescribedType(
+                new SimpleName(
+                    NameSyntheticValueType(genDecl.Name, cache),
+                    genDeclParams.Length),
+                declNs);
+            descTy.AddAttribute(new AccessAttribute(AccessModifier.Assembly));
+            descTy.AddAttribute(PrimitiveAttributes.HiddenAttribute);
+            descTy.AddAttribute(PrimitiveAttributes.ValueTypeAttribute);
+            var srcLoc = ReferenceType.GetSourceLocation();
+            if (srcLoc != null)
+                descTy.AddAttribute(new SourceLocationAttribute(srcLoc));
+
+            // Set the base type to the root type (if there is a root type).
+            var rootType = PassArgument.PassEnvironment.Environment.RootType;
+            if (rootType != null)
+            {
+                descTy.AddBaseType(rootType);
+            }
+
+            // Clone all generic parameters.
+            foreach (var item in GenericExtensions.CloneGenericParameters(
+                genDeclParams, descTy))
+            {
+                descTy.AddGenericParameter(item);
+            }
+
+
+            // Convert all instance fields. Take care to transform any
+            // generic parameters while doing that.
+            var fieldCache = GetFieldCache(PassArgument);
+            var typeConv = new TypeParameterConverter(descTy);
+            foreach (var field in genDecl.GetAllFields())
+            {
+                if (!field.IsStatic)
+                {
+                    var fieldDef = new DescribedField(
+                        field.Name, descTy,
+                        typeConv.Convert(field.FieldType), false);
+
+                    foreach (var attr in field.Attributes)
+                        fieldDef.AddAttribute(attr);
+
+                    descTy.AddField(fieldDef);
+                    fieldCache[Tuple.Create<IType, IField>(descTy, field)] = fieldDef;
+                }
+            }
+
+            cache[genDecl] = descTy;
+            return descTy.MakeRecursiveGenericType(genDeclArgs);
+        }
+    }
+}
