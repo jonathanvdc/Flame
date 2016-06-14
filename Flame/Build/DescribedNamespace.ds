@@ -1,0 +1,72 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Build
+{
+    public abstract class DescribedNamespaceBase : DescribedMember, INamespaceBranch
+    {
+        public this(UnqualifiedName Name)
+            : base(Name)
+        {
+            this.types = new List<IType>();
+            this.nsBranches = new List<INamespaceBranch>();
+        }
+
+        public abstract IAssembly DeclaringAssembly { get; }
+        public abstract QualifiedName FullName { get; }
+
+        private List<IType> types;
+        private List<INamespaceBranch> nsBranches;
+
+        public IEnumerable<IType> Types { get { return types; } }
+        public IEnumerable<INamespaceBranch> Namespaces { get { return nsBranches; } }
+
+        public void AddType(IType Type)
+        {
+            types.Add(Type);
+        }
+
+        public void AddNamespace(INamespaceBranch Namespace)
+        {
+            nsBranches.Add(Namespace);
+        }
+    }
+
+    public class DescribedRootNamespace : DescribedNamespaceBase
+    {
+        public this(IAssembly DeclaringAssembly)
+            : base(new SimpleName(""))
+        {
+            this.declAsm = DeclaringAssembly;
+        }
+
+        private IAssembly declAsm;
+
+        public override IAssembly DeclaringAssembly { get { return declAsm; } }
+        public override QualifiedName FullName { get { return new QualifiedName(Name); } }
+    }
+
+    public class DescribedNamespace : DescribedNamespaceBase
+    {
+        public this(UnqualifiedName Name, IAssembly DeclaringAssembly)
+            : base(Name)
+        {
+            this.declNs = new DescribedRootNamespace(DeclaringAssembly);
+        }
+        public this(UnqualifiedName Name, INamespace DeclaringNamespace)
+            : base(Name)
+		{
+			this.declNs = DeclaringNamespace;
+		}
+
+        private INamespace declNs;
+
+		public INamespace DeclaringNamespace { get { return declNs; } }
+		public override IAssembly DeclaringAssembly { get { return declNs.DeclaringAssembly; } }
+
+		public override QualifiedName FullName
+		{
+            get { return Name.Qualify(declNs.FullName); }
+		}
+    }
+}

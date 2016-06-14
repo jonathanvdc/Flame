@@ -150,6 +150,7 @@
             <Compile Include="Build/DescribedLiteralField.ds" />
             <Compile Include="Build/DescribedMember.ds" />
 			<Compile Include="Build/DescribedMethod.ds" />
+            <Compile Include="Build/DescribedNamespace.ds" />
 			<Compile Include="Build/DescribedParameter.ds" />
 			<Compile Include="Build/DescribedProperty.ds" />
             <Compile Include="Build/DescribedType.ds" />
