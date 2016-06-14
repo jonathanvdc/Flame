@@ -180,7 +180,7 @@ namespace Flame
 
 		#endregion
 
-		public static const [IGenericParameter] GetRecursiveGenericParameters(this IType Type)
+		public static [IGenericParameter] GetRecursiveGenericParameters(this IType Type)
 		{
 			var typeParams = Type.GenericParameters;
 			if (Type.DeclaringNamespace is IType)

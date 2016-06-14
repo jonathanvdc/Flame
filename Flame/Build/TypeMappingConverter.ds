@@ -13,7 +13,7 @@ namespace Flame.Build
 
 		public IReadOnlyDictionary<IType, IType> Mapping { const get; private set; }
 
-		protected override const IType ConvertTypeDefault(IType Type)
+		protected override IType ConvertTypeDefault(IType Type)
 		{
 			if (Mapping.ContainsKey(Type))
 			{
@@ -27,22 +27,53 @@ namespace Flame.Build
 	}
 
 	/// <summary>
-	/// A type converter that converts type parameters to a type parameter with the same name of a generic member.
+	/// A type converter that replaces type parameters by a generic member's
+	/// (recursive) type parameters.
 	/// </summary>
 	public class TypeParameterConverter : TypeTransformerBase
 	{
-		public const this(set IGenericMember DeclaringMember);
+		public this(set IGenericMember DeclaringMember)
+		{
+			genericParamMap = new Dictionary<UnqualifiedName, IGenericParameter>();
+			PopulateDictionary(DeclaringMember);
+		}
 
 		public IGenericMember DeclaringMember { const get; private set; }
 
-		protected override const IType ConvertGenericParameter(IGenericParameter Type)
+		private Dictionary<UnqualifiedName, IGenericParameter> genericParamMap;
+
+		private void PopulateDictionary(IGenericMember Member)
 		{
-			foreach (var item in DeclaringMember.GenericParameters)
-				if (item.Name.Equals(Type.Name))
+			if (Member == null)
+				return;
+
+			if (Member is IType)
 			{
-				return item;
+				var ty = (IType)Member;
+				var ns = ty.DeclaringNamespace;
+				if (ns is IType)
+					PopulateDictionary((IType)ns);
 			}
-			return Type;
+			else if (Member is IMethod)
+			{
+				var method = (IMethod)Member;
+				PopulateDictionary(method.DeclaringType);
+			}
+			PopulateDictionary(Member.GenericParameters);
+		}
+
+		private void PopulateDictionary([IGenericParameter] TypeParameters)
+		{
+			foreach (var ty in TypeParameters)
+				genericParamMap[ty.Name] = ty;
+		}
+
+		protected override IType ConvertGenericParameter(IGenericParameter Type)
+		{
+			if (genericParamMap.TryGetValue(Type.Name, &IGenericParameter result))
+				return result;
+			else
+				return Type;
 		}
 	}
 }
