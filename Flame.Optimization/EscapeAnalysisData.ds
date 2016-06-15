@@ -244,6 +244,8 @@ namespace Flame.Optimization
         public this(set IMethod Method, EscapeAnalysisData Other)
         {
             this.paramTags = new List<UniqueTag>(Other.paramTags);
+            this.ThisParameterTag = Other.ThisParameterTag;
+            this.ReturnValueTag = Other.ReturnValueTag;
             this.results = new Dictionary<UniqueTag, EscapeAnalysisResult>(Other.results);
             this.dependencyGraph = new Graph<UniqueTag>(Other.dependencyGraph);
             this.nodeTypes = new Dictionary<UniqueTag, IType>(Other.nodeTypes);
@@ -256,6 +258,8 @@ namespace Flame.Optimization
         {
             this.Method = Other.Method;
             this.paramTags = new List<UniqueTag>(Other.paramTags);
+            this.ThisParameterTag = Other.ThisParameterTag;
+            this.ReturnValueTag = Other.ReturnValueTag;
             this.results = new Dictionary<UniqueTag, EscapeAnalysisResult>(Other.results);
             this.dependencyGraph = new Graph<UniqueTag>(Other.dependencyGraph);
             this.nodeTypes = new Dictionary<UniqueTag, IType>(Other.nodeTypes);
