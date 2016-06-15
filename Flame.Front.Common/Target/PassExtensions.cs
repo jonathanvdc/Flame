@@ -111,6 +111,9 @@ namespace Flame.Front.Target
 			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(InliningPass.Instance, InliningPass.InliningPassName));
 			GlobalPassManager.RegisterPassCondition(InliningPass.InliningPassName, optInfo => optInfo.OptimizeAggressive);
 
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(LocalHeapToStackPass.Instance, LocalHeapToStackPass.LocalHeapToStackPassName));
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(GlobalHeapToStackPass.Instance, GlobalHeapToStackPass.GlobalHeapToStackPassName));
+
             // -fscalarrepl performs scalar replacement of aggregates.
             // It's -O3
             GlobalPassManager.RegisterMethodPass(new MethodPassInfo(ScalarReplacementPass.Instance, ScalarReplacementPass.ScalarReplacementPassName));
