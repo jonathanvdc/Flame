@@ -499,6 +499,9 @@ namespace Flame.Optimization
 
         protected override IExpression VisitUnknown(IExpression Expression)
         {
+            if (Expression == null)
+                return;
+
             var result = Expression.Accept(this);
             // Escape analysis result becomes global.
             PopGlobalExpressionTag();
@@ -511,8 +514,11 @@ namespace Flame.Optimization
             {
                 // Returned values become linked to the return value tag.
                 var valueTag = AnalyzeExpression(Statement.Value);
-                AnalysisData.AddSymmetricDependency(
-                    valueTag, AnalysisData.ReturnValueTag);
+                if (valueTag != null)
+                {
+                    AnalysisData.AddSymmetricDependency(
+                        valueTag, AnalysisData.ReturnValueTag);
+                }
             }
             return Statement;
         }
