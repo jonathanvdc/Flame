@@ -8,6 +8,7 @@ using Flame.Compiler.Flow;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
 using Flame.Compiler.Visitors;
+using Pixie;
 
 namespace Flame.Optimization
 {
@@ -210,6 +211,8 @@ namespace Flame.Optimization
         {
             exprTag = null;
             this.callList = new List<CallEscapeDependencies>();
+            this.shouldLog = Environment.Log.Options.GetOption<bool>(
+                HeapToStackRemarksOption, false);
         }
 
         private List<CallEscapeDependencies> callList;
@@ -242,9 +245,21 @@ namespace Flame.Optimization
         /// </remarks>
         public bool CallsEscape { get; private set; }
 
+        /// <summary>
+        /// Gets the remarks option for the heap-to-stack pass.
+        /// </summary>
+        public static string HeapToStackRemarksOption
+        {
+            get { return Flags.GetRemarkOptionName("heap2stack"); }
+        }
+
         // A unique tag for the value that the top-of-stack
         // expression represents.
         private UniqueTag exprTag;
+
+        // A boolean value that records whether this visitor should log
+        // remarks.
+        private bool shouldLog;
 
         private UniqueTag PopExpressionTag()
         {
@@ -289,13 +304,88 @@ namespace Flame.Optimization
             return result;
         }
 
+        private static string NameType(IType Type)
+        {
+            return Type.Name.ToString();
+        }
+
+        private static string NameMethod(IMethod Method)
+        {
+            var mName = Method.Name;
+            if (Method.DeclaringType == null)
+                return mName.ToString();
+            else
+                return mName.Qualify(Method.DeclaringType.Name.Qualify()).ToString();
+        }
+
+        private static string NameAnalysisResult(EscapeAnalysisResult Result)
+        {
+            if (Result == EscapeAnalysisResult.None)
+                return "none";
+            else if (Result == EscapeAnalysisResult.In)
+                return "in";
+            else if (Result == EscapeAnalysisResult.Out)
+                return "out";
+            else if (Result == EscapeAnalysisResult.InOut)
+                return "inout";
+            else if (Result == EscapeAnalysisResult.Local)
+                return "local";
+            else if (Result == EscapeAnalysisResult.Global)
+                return "global";
+            else
+                return "undefined";
+        }
+
+        private static void LogAnalysisRemark(
+            EscapeAnalysisData Data, ICompilerLog Log)
+        {
+            var method = Data.Method;
+
+            var nodes = new List<MarkupNode>();
+            // Describe the signature
+            if (!method.IsConstructor)
+                nodes.Add(new MarkupNode(NodeConstants.TextNodeType,
+                    NameType(method.ReturnType) + " "));
+
+            nodes.Add(new MarkupNode(NodeConstants.BrightNodeType,
+                NameMethod(method)));
+            nodes.Add(new MarkupNode(NodeConstants.TextNodeType, "("));
+            int index = 0;
+            foreach (var param in method.Parameters)
+            {
+                if (index > 0)
+                    nodes.Add(new MarkupNode(NodeConstants.TextNodeType, ", "));
+
+                nodes.Add(new MarkupNode(
+                    NodeConstants.TextNodeType,
+                    NameType(param.ParameterType) + " " + param.Name + " : " +
+                    NameAnalysisResult(Data.GetParameterResult(index))));
+
+                index++;
+            }
+            nodes.Add(new MarkupNode(
+                NodeConstants.TextNodeType,
+                ") : " + NameAnalysisResult(Data.ReturnValueResult)));
+
+            nodes.Add(new MarkupNode(
+                NodeConstants.TextNodeType,
+                ", this : " + NameAnalysisResult(Data.ThisParameterResult) + " "));
+
+            // Add a cause node ('[-Rheap2stack]')
+            nodes.Add(Flags.CreateCauseNode(HeapToStackRemarksOption));
+            // Add diagnostics for the analyzed call
+            nodes.Add(method.GetSourceLocation().CreateDiagnosticsNode());
+
+            Log.LogMessage(new LogEntry("escape analysis", nodes));
+        }
+
         /// <summary>
         /// Analyzes the given method.
         /// </summary>
         public static EscapeAnalysisData Analyze(
             IMethod Method, IBodyPassEnvironment PassEnvironment,
             Dictionary<IMethod, EscapeAnalysisData> AnalyzedFunctions,
-            bool CallsEscape)
+            bool CallsEscape, ICompilerLog Log)
         {
             var genDecl = Method.GetRecursiveGenericDeclaration();
             EscapeAnalysisData result;
@@ -315,6 +405,10 @@ namespace Flame.Optimization
                 var visitor = new HeapToStackAnalyzer(
                     result, PassEnvironment, AnalyzedFunctions, CallsEscape);
                 visitor.Visit(body);
+
+                if (Log != null)
+                    LogAnalysisRemark(result, Log);
+
                 AnalyzedFunctions[genDecl] = result;
                 return new EscapeAnalysisData(Method, result);
             }
@@ -325,7 +419,10 @@ namespace Flame.Optimization
         /// </summary>
         public EscapeAnalysisData Analyze(IMethod Method)
         {
-            return Analyze(Method, Environment, FunctionAnalysis, CallsEscape);
+            ICompilerLog log = null;
+            if (shouldLog)
+                log = Environment.Log;
+            return Analyze(Method, Environment, FunctionAnalysis, CallsEscape, log);
         }
 
         private UniqueTag AnalyzeExpression(IExpression Expression)
