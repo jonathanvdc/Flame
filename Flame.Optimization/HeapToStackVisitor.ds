@@ -500,7 +500,7 @@ namespace Flame.Optimization
         protected override IExpression VisitUnknown(IExpression Expression)
         {
             if (Expression == null)
-                return;
+                return Expression;
 
             var result = Expression.Accept(this);
             // Escape analysis result becomes global.
