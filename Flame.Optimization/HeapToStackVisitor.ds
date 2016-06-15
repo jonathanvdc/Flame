@@ -519,6 +519,11 @@ namespace Flame.Optimization
                     AnalysisData.AddSymmetricDependency(
                         valueTag, AnalysisData.ReturnValueTag);
                 }
+                else
+                {
+                    AnalysisData.UpdateResult(
+                        AnalysisData.ReturnValueTag, EscapeAnalysisResult.Global);
+                }
             }
             return Statement;
         }
