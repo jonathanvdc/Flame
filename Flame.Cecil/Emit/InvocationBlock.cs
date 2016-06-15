@@ -69,7 +69,17 @@ namespace Flame.Cecil.Emit
                     callerType = Context.Stack.Pop();
                     if (!ILCodeGenerator.IsExpectedCallingType(method, callerType))
                     {
-                        log.LogError(new LogEntry("IL emit error", "invalid calling type on stack. Expected '" + ILCodeGenerator.GetExpectedCallingType(method).FullName + "', got '" + callerType.FullName + "'"));
+                        var srcLoc = CodeGenerator.Method.GetSourceLocation();
+                        log.LogError(new LogEntry(
+                            "IL emit error", 
+                            "invalid calling type on stack" + 
+                            (srcLoc != null && srcLoc.Document != null 
+                                ? "" 
+                                : " of method '" + method.FullName + "'") + 
+                            ". Expected '" + 
+                            ILCodeGenerator.GetExpectedCallingType(method).FullName + 
+                            "', got '" + callerType.FullName + "'.",
+                            srcLoc));
                     }
                 }
                 ILCodeGenerator.EmitArguments(Arguments, method, Context);
