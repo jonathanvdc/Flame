@@ -282,8 +282,10 @@ namespace Flame.Optimization
 
         private EscapeAnalysisResult MakeLocal(EscapeAnalysisResult Result)
         {
-            if ((Result & ~EscapeAnalysisResult.InOut) == EscapeAnalysisResult.None)
+            if (Result == EscapeAnalysisResult.Out)
                 return EscapeAnalysisResult.None;
+            else if (Result == EscapeAnalysisResult.InOut)
+                return EscapeAnalysisResult.In;
             else
                 return Result;
         }
