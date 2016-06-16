@@ -179,14 +179,21 @@ namespace Flame.Optimization
                 calleeAnalysisCopy.UpdateResult(
                     calleeAnalysisCopy.ThisParameterTag,
                     CallerAnalysis.GetResult(ThisValue));
+            else
+                calleeAnalysisCopy.UpdateResult(
+                    calleeAnalysisCopy.ThisParameterTag,
+                    EscapeAnalysisResult.Global);
 
             for (int i = 0; i < Arguments.Count; i++)
             {
                 var arg = Arguments[i];
+                var paramTag = calleeAnalysisCopy.GetParameterTag(i);
                 if (arg != null)
                     calleeAnalysisCopy.UpdateResult(
-                        calleeAnalysisCopy.GetParameterTag(i),
-                        CallerAnalysis.GetResult(arg));
+                        paramTag, CallerAnalysis.GetResult(arg));
+                else
+                    calleeAnalysisCopy.UpdateResult(
+                        paramTag, EscapeAnalysisResult.Global);
             }
 
             calleeAnalysisCopy.UpdateResult(
