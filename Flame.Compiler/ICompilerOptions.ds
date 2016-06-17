@@ -38,7 +38,7 @@ namespace Flame.Compiler
 	public interface IRandomAccessOptions : ICompilerOptions
 	{
 		/// <summary>
-		/// Sets the option witht the given key to the given value.
+		/// Sets the option with the given key to the given value.
 		/// </summary>
 		void SetOption<T>(string Key, T Value);
 	}
