@@ -38,6 +38,11 @@ namespace Flame.Compiler
 	public interface IRandomAccessOptions : ICompilerOptions
 	{
 		/// <summary>
+		/// Gets or creates the option associated with the given key.
+		/// </summary>
+		T GetOrCreateOption<T>(string Key, T() Factory);
+
+		/// <summary>
 		/// Sets the option with the given key to the given value.
 		/// </summary>
 		void SetOption<T>(string Key, T Value);

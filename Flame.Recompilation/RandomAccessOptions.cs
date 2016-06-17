@@ -34,6 +34,20 @@ namespace Flame.Recompilation
             return Default;
         }
 
+        public T GetOrCreateOption<T>(string Key, Func<T> Factory)
+        {
+            if (values.ContainsKey(Key))
+            {
+                return (T)values[Key];
+            }
+            else
+            {
+                var result = Factory();
+                values[Key] = result;
+                return result;
+            }
+        }
+
         public bool HasOption(string Key)
         {
             return values.ContainsKey(Key);
