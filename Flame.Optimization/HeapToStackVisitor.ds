@@ -69,6 +69,7 @@ namespace Flame.Optimization
         protected abstract IStatement VisitReturn(ReturnStatement Statement);
         protected abstract IStatement VisitStore(IStatement StoreStatement, IVariable Variable, IExpression StoreValue);
         protected abstract IStatement VisitRelease(IStatement ReleaseStatement, IVariable Variable);
+        protected abstract IStatement VisitExpressionStatement(ExpressionStatement Statement);
         protected abstract IStatement VisitUnknown(IStatement Statement);
 
         /// <summary>
@@ -159,6 +160,10 @@ namespace Flame.Optimization
                 var result = new FlowGraphStatement(currentFlowGraph.Accept(this));
                 currentFlowGraph = oldGraph;
                 return result;
+            }
+            else if (Value is ExpressionStatement)
+            {
+                return VisitExpressionStatement((ExpressionStatement)Value);
             }
             else if (Value is ISetVariableNode)
             {
@@ -534,7 +539,6 @@ namespace Flame.Optimization
             // Create a new unique tag to represent the new-value expression
             // result, and mark that as 'Local' or 'Global,' depending on
             // the constructor's escape analysis.
-            PopGlobalExpressionTag();
             ReplaceExpressionTag(newTag);
             return new EscapeAnalysisCallExpression(Expression, callDepends);
         }
@@ -613,6 +617,13 @@ namespace Flame.Optimization
             var result = Expression.Accept(this);
             // Escape analysis result becomes global.
             PopGlobalExpressionTag();
+            return result;
+        }
+
+        protected override IStatement VisitExpressionStatement(ExpressionStatement Statement)
+        {
+            var result = Statement.Accept(this);
+            PopExpressionTag();
             return result;
         }
 
@@ -1095,6 +1106,11 @@ namespace Flame.Optimization
             var result = Expression.Accept(this);
             hasReplaced = false;
             return result;
+        }
+
+        protected override IStatement VisitExpressionStatement(ExpressionStatement Statement)
+        {
+            return Statement.Accept(this);
         }
 
         protected override IStatement VisitReturn(ReturnStatement Statement)
