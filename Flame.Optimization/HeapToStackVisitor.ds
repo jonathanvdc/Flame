@@ -934,7 +934,8 @@ namespace Flame.Optimization
         {
             var tag = TryGetTag(Variable);
             IVariable result;
-            if (tag == null)
+            if (tag == null
+                || AnalysisData.GetResult(tag) == EscapeAnalysisResult.Global)
             {
                 return null;
             }
@@ -946,8 +947,7 @@ namespace Flame.Optimization
             {
                 assert(Variable is LocalVariableBase);
                 var otherVar = (LocalVariableBase)Variable;
-                if (AnalysisData.GetResult(tag) != EscapeAnalysisResult.Global
-                    && TryGetRewrittenType(otherVar.Type, &IType newType))
+                if (TryGetRewrittenType(otherVar.Type, &IType newType))
                 {
                     // We found a non-escaping local variable whose type
                     // can be replaced by a reference type.
