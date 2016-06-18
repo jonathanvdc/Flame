@@ -451,6 +451,33 @@ namespace Flame.Optimization
                 PassArgument.DeclaringType.DeclaringNamespace.DeclaringAssembly);
         }
 
+        private static IMethod GetRootConstructorImpl(IEnvironment Environment)
+        {
+            var rootTy = Environment.RootType;
+            if (rootTy == null)
+                return null;
+            else
+                return rootTy.GetConstructors().GetMethod(
+                    false, PrimitiveTypes.Void, new IType[] { });
+        }
+
+        /// <summary>
+        /// Gets the parameterless constructor for the pass environment's root
+        /// type.
+        /// </summary>
+        public static IMethod GetRootConstructor(BodyPassArgument PassArgument)
+        {
+            var globalMetadata = PassArgument.Metadata.GlobalMetadata;
+            string key = "heap2stack-root-ctor";
+            if (!globalMetadata.HasOption(key))
+            {
+                globalMetadata.SetOption<IMethod>(
+                    key, GetRootConstructorImpl(
+                        PassArgument.PassEnvironment.Environment));
+            }
+            return globalMetadata.GetOption<IMethod>(key, null);
+        }
+
         private static Dictionary<TKey, TValue> GetGlobalCache<TKey, TValue>(
             BodyPassArgument PassArgument, string DictionaryKey)
         {
