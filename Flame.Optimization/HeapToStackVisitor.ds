@@ -68,6 +68,7 @@ namespace Flame.Optimization
 
         protected abstract IStatement VisitReturn(ReturnStatement Statement);
         protected abstract IStatement VisitStore(IStatement StoreStatement, IVariable Variable, IExpression StoreValue);
+        protected abstract IStatement VisitRelease(IStatement ReleaseStatement, IVariable Variable);
         protected abstract IStatement VisitUnknown(IStatement Statement);
 
         /// <summary>
@@ -165,6 +166,14 @@ namespace Flame.Optimization
                 if (varNode.Action == VariableNodeAction.Set)
                 {
                     return VisitStore(Value, varNode.GetVariable(), varNode.Value);
+                }
+            }
+            else if (Value is IVariableNode)
+            {
+                var varNode = (IVariableNode)Value;
+                if (varNode.Action == VariableNodeAction.Release)
+                {
+                    return VisitRelease(Value, varNode.GetVariable());
                 }
             }
             return VisitUnknown(Value);
@@ -673,6 +682,12 @@ namespace Flame.Optimization
             }
         }
 
+        protected override IStatement VisitRelease(
+            IStatement ReleaseStatement, IVariable Variable)
+        {
+            return ReleaseStatement.Accept(this);
+        }
+
         /// <summary>
         /// Visits a basic block argument. The parameter for which it
         /// is an argument, is also given.
@@ -1098,6 +1113,21 @@ namespace Flame.Optimization
             {
                 // Visit the value, and create a 'store' statement.
                 return replVar.CreateSetStatement(Visit(StoreValue));
+            }
+        }
+
+        protected override IStatement VisitRelease(
+            IStatement ReleaseStatement, IVariable Variable)
+        {
+            var replVar = TryReplaceVariable(Variable);
+            if (replVar == null)
+            {
+                return VisitUnknown(ReleaseStatement);
+            }
+            else
+            {
+                // Visit the value, and create a 'store' statement.
+                return replVar.CreateReleaseStatement();
             }
         }
 
