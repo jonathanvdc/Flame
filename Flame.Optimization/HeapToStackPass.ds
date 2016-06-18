@@ -135,6 +135,16 @@ namespace Flame.Optimization
             else
             {
                 // Cache miss.
+                //
+                // First take the time to see if we're dealing with the
+                // parameterless root constructor, which needs to be given
+                // special treatment.
+                if (IsRootConstructor(genDecl, PassArgument))
+                {
+                    Cache[genSig] = null;
+                    return null;
+                }
+
                 // Before proceeding, we should make sure that what we're doing
                 // actually makes sense. We don't want to end up generating the
                 // exact same signature.
@@ -451,6 +461,11 @@ namespace Flame.Optimization
                 PassArgument.DeclaringType.DeclaringNamespace.DeclaringAssembly);
         }
 
+        private static bool IsRootConstructor(IMethod Method, BodyPassArgument Arg)
+        {
+            return Method.Equals(GetRootConstructor(Arg));
+        }
+
         private static IMethod GetRootConstructorImpl(IEnvironment Environment)
         {
             var rootTy = Environment.RootType;
@@ -519,8 +534,27 @@ namespace Flame.Optimization
         private static Dictionary<IMethod, EscapeAnalysisData> GetAnalysisCache(
             BodyPassArgument Argument)
         {
-            return GetGlobalCache<IMethod, EscapeAnalysisData>(
-                Argument, "heap2stack-analysis-cache");
+            var globalMetadata = Argument.Metadata.GlobalMetadata;
+            string key = "heap2stack-analysis-cache";
+            var result = globalMetadata.GetOption<Dictionary<IMethod, EscapeAnalysisData>>(
+                key, null);
+
+            if (result == null)
+            {
+                result = new Dictionary<IMethod, EscapeAnalysisData>();
+                var rootCtor = GetRootConstructor(Argument);
+                if (rootCtor != null)
+                {
+                    // Create an aggressive analysis for the root constructor,
+                    // because we know that it is a no-op whenever it can
+                    // be replaced.
+                    result[rootCtor] = new EscapeAnalysisData(rootCtor);
+                }
+                globalMetadata.SetOption<Dictionary<IMethod, EscapeAnalysisData>>(
+                    key, result);
+            }
+
+            return result;
         }
 
         private static string NameSyntheticValueType(
