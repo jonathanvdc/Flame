@@ -979,7 +979,30 @@ namespace Flame.Optimization
         protected override IExpression VisitCall(
             InvocationExpression Expression, DissectedCall Call)
         {
-            // We can't handle standalone (non-analyzed) call expressions.
+            // We will handle one special case here: calls to the parameterless
+            // root constructor.
+            if (!Enumerable.Any<IExpression>(Call.Arguments)
+                && Call.ThisValue != null
+                && Call.Method.IsConstructor
+                && !Call.Method.IsStatic)
+            {
+                var declType = Call.Method.DeclaringType;
+                if (declType != null && declType.IsRootType)
+                {
+                    // We found a call to the parameterless root type
+                    // constructor, which is a no-op if the 'this' value
+                    // is stack-allocated, and must be preserved otherwise.
+                    var thisVal = Visit(Call.ThisValue);
+                    if (hasReplaced)
+                        return VoidExpression;
+                    else
+                        return new InvocationExpression(
+                            Call.Method, thisVal,
+                            Enumerable.Empty<IExpression>());
+                }
+            }
+
+            // We can't handle generalized standalone (non-analyzed) call expressions.
             return VisitUnknown(Expression);
         }
 
