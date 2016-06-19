@@ -414,6 +414,9 @@ namespace Flame.Optimization
                 var visitor = new HeapToStackAnalyzer(
                     result, PassEnvironment, AnalyzedFunctions, CallsEscape);
                 visitor.Visit(body);
+                // Immediately elide locals. This saves memory, and makes
+                // embedding graphs cheaper.
+                result = result.ElideLocals();
 
                 if (Log != null)
                     LogAnalysisRemark(result, Log);

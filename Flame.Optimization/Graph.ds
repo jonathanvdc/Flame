@@ -58,7 +58,7 @@ namespace Flame.Optimization
 
         private void AddReachableVertices(T Vertex, HashSet<T> Results)
         {
-            if (Results.Add(Vertex))
+            if (ContainsVertex(Vertex) && Results.Add(Vertex))
             {
                 foreach (var v in edges[Vertex])
                     AddReachableVertices(v, Results);
@@ -72,7 +72,6 @@ namespace Flame.Optimization
         {
             var results = new HashSet<T>();
             AddReachableVertices(Vertex, results);
-            results.IntersectWith(Vertices);
             return results;
         }
 
@@ -116,10 +115,17 @@ namespace Flame.Optimization
         /// </summary>
         public bool AddEdge(T From, T To)
         {
-            AddVertex(From);
-            bool addedTo = AddVertex(To);
+            bool result = false;
+            if (AddVertex(From))
+                result = true;
 
-            return edges[From].Add(To) || addedTo;
+            if (AddVertex(To))
+                result = true;
+
+            if (edges[From].Add(To))
+                result = true;
+
+            return result;
         }
 
         /// <summary>
