@@ -56,6 +56,26 @@ namespace Flame.Optimization
             }
         }
 
+        private void AddReachableVertices(T Vertex, HashSet<T> Results)
+        {
+            if (Results.Add(Vertex))
+            {
+                foreach (var v in edges[Vertex])
+                    AddReachableVertices(v, Results);
+            }
+        }
+
+        /// <summary>
+        /// Gets the set of all vertices that are reachable from the given vertex.
+        /// </summary>
+        public [T] GetReachableVertices(T Vertex)
+        {
+            var results = new HashSet<T>();
+            AddReachableVertices(Vertex, results);
+            results.IntersectWith(Vertices);
+            return results;
+        }
+
         /// <summary>
         /// Adds a vertex to the graph. A boolean is returned that tells if
         /// the vertex has actually been added to the graph.

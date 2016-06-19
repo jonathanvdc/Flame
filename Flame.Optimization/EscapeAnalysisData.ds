@@ -210,7 +210,15 @@ namespace Flame.Optimization
         //     must also be updated.
         //
         // Initially, all parameters are marked 'In', and the return value
-        // is marked 'Out.' Local variables are marked 'None' by default.
+        // is marked 'Out.' Local variables are marked 'In' by default.
+
+        private this(
+            set IMethod Method, set Graph<UniqueTag> dependencyGraph,
+            set Dictionary<UniqueTag, EscapeAnalysisResult> results,
+            set Dictionary<UniqueTag, IType> nodeTypes,
+            set List<UniqueTag> paramTags,
+            set UniqueTag ThisParameterTag, set UniqueTag ReturnValueTag)
+        { }
 
         public this(set IMethod Method)
         {
@@ -508,6 +516,37 @@ namespace Flame.Optimization
         {
             AddAsymmetricDependency(Value, Dependency);
             AddAsymmetricDependency(Dependency, Value);
+        }
+
+        /// <summary>
+        /// Removes all local nodes from this escape analysis graph. Parameter
+        /// and return value nodes are preserved, along with their
+        /// interdependencies.
+        /// </summary>
+        public EscapeAnalysisData ElideLocals()
+        {
+            // First, construct a set of nodes that we will preserve.
+            var argTags = new HashSet<UniqueTag>();
+            argTags.UnionWith(paramTags);
+            argTags.Add(ThisParameterTag);
+            argTags.Add(ReturnValueTag);
+
+            var newDependencies = new Graph<UniqueTag>();
+            var newResults = new Dictionary<UniqueTag, EscapeAnalysisResult>();
+            var newNodeTypes = new Dictionary<UniqueTag, IType>();
+            foreach (var node in argTags)
+            {
+                foreach (var v in dependencyGraph.GetReachableVertices(node))
+                {
+                    if (argTags.Contains(v))
+                        newDependencies.AddEdge(node, v);
+                }
+                newResults[node] = results[node];
+                newNodeTypes[node] = nodeTypes[node];
+            }
+            return new EscapeAnalysisData(
+                Method, newDependencies, newResults, newNodeTypes,
+                paramTags, ThisParameterTag, ReturnValueTag);
         }
 
         /// <summary>
