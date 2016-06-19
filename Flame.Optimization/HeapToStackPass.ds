@@ -105,14 +105,6 @@ namespace Flame.Optimization
             BodyPassArgument PassArgument,
             Dictionary<SignatureEscapeAnalysis, RewrittenMethodSignature> Cache)
         {
-            if ((Call.CalleeAnalysis.ReturnValueResult & EscapeAnalysisResult.Local) == EscapeAnalysisResult.Local)
-            {
-                // Return values cannot be stack-allocated in the
-                // callee's stack frame. Just keep them on the heap, then.
-                CallerAnalysis.UpdateResult(
-                    Call.ReturnValue, EscapeAnalysisResult.Global);
-            }
-
             // Compute the escape analysis signature.
             var sig = Call.ToSignatureAnalysis(CallerAnalysis);
 
@@ -151,11 +143,19 @@ namespace Flame.Optimization
                 bool hasReplaced = false;
                 bool hasReplacedThis = false;
                 bool hasReplacedResult = false;
-                if (CanReplace(genSig.ThisValue, genDecl.DeclaringType))
+                if (!genDecl.IsStatic && CanReplace(genSig.ThisValue, genDecl.DeclaringType))
                 {
                     hasReplaced = true;
                     hasReplacedThis = true;
                 }
+                if (genDecl.IsStatic)
+                    Console.WriteLine("Not replacing 'this' in static '" + genDecl.FullName + "'");
+                else if (!CanRewrite(genDecl.DeclaringType))
+                    Console.WriteLine("Can't rewrite '" + genDecl.DeclaringType.FullName + "'");
+                else if (genSig.ThisValue == EscapeAnalysisResult.Global)
+                    Console.WriteLine("'this' was global for '" + genDecl.FullName + "'");
+                else
+                    Console.WriteLine("Replaced 'this' for '" + genDecl.FullName + "'");
 
                 if (CanReplace(genSig.ReturnValue, genDecl.ReturnType))
                 {
@@ -167,12 +167,13 @@ namespace Flame.Optimization
                 {
                     if (hasReplaced)
                         break;
-
-                    hasReplaced = CanReplace(paramValue, param.ParameterType);
+                    else
+                        hasReplaced = CanReplace(paramValue, param.ParameterType);
                 }
 
                 if (!hasReplaced)
                 {
+                    Console.WriteLine("Not replacing '" + genDecl.FullName.ToString() + "'");
                     // Leave a 'null' value in the dictionary, so we won't
                     // have to do this analysis again.
                     Cache[genSig] = null;
@@ -219,11 +220,13 @@ namespace Flame.Optimization
 
                 if (methodResult == null)
                 {
+                    Console.WriteLine("Couldn't replace '" + genDecl.FullName.ToString() + "'");
                     Cache[genSig] = result;
                     return null;
                 }
                 else
                 {
+                    Console.WriteLine("Replaced '" + genDecl.FullName.ToString() + "'");
                     Cache[genSig] = new RewrittenMethodSignature(
                         methodResult, hasReplacedThis, hasReplacedResult);
                     return new RewrittenMethodSignature(
