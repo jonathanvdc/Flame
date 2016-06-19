@@ -246,8 +246,6 @@ namespace Flame.Optimization
         {
             // First, analyze the body again. This time, we're only interested
             // in the analysis nodes that are inserted.
-            // TODO: this is redundant. Maybe we should store the analyzed method
-            // body somewhere.
             var analysis = new EscapeAnalysisData(Method);
 
             var analyzer = new HeapToStackAnalyzer(

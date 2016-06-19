@@ -519,8 +519,9 @@ namespace Flame.Optimization
         }
 
         /// <summary>
-        /// Removes all local nodes from this escape analysis graph. Parameter
-        /// and return value nodes are preserved, along with their
+        /// Creates a new escape analysis graph that matches this graph,
+        /// with all local nodes removed.
+        /// Parameter and return value nodes are preserved, along with their
         /// interdependencies.
         /// </summary>
         public EscapeAnalysisData ElideLocals()
@@ -536,6 +537,7 @@ namespace Flame.Optimization
             var newNodeTypes = new Dictionary<UniqueTag, IType>();
             foreach (var node in argTags)
             {
+                newDependencies.AddVertex(node);
                 foreach (var v in dependencyGraph.GetReachableVertices(node))
                 {
                     if (argTags.Contains(v))
