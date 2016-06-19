@@ -290,15 +290,12 @@ namespace Flame.Optimization
 
         private void ReplaceExpressionTag(UniqueTag Tag)
         {
-            PopGlobalExpressionTag();
             exprTag = Tag;
         }
 
         private EscapeAnalysisResult MakeLocal(EscapeAnalysisResult Result)
         {
             if (Result == EscapeAnalysisResult.Out)
-                return EscapeAnalysisResult.None;
-            else if (Result == EscapeAnalysisResult.InOut)
                 return EscapeAnalysisResult.In;
             else
                 return Result;
@@ -336,16 +333,12 @@ namespace Flame.Optimization
 
         private static string NameAnalysisResult(EscapeAnalysisResult Result)
         {
-            if (Result == EscapeAnalysisResult.None)
-                return "none";
-            else if (Result == EscapeAnalysisResult.In)
+            if (Result == EscapeAnalysisResult.In)
                 return "in";
-            else if (Result == EscapeAnalysisResult.Out)
-                return "out";
-            else if (Result == EscapeAnalysisResult.InOut)
-                return "inout";
             else if (Result == EscapeAnalysisResult.Local)
                 return "local";
+            else if (Result == EscapeAnalysisResult.Out)
+                return "out";
             else if (Result == EscapeAnalysisResult.Global)
                 return "global";
             else
@@ -476,7 +469,7 @@ namespace Flame.Optimization
         {
             var method = CalleeAnalysis.Method;
             var resultTag = AnalysisData.CreateTag(
-                "return-value", method.ReturnType, EscapeAnalysisResult.None);
+                "return-value", method.ReturnType, EscapeAnalysisResult.In);
             var paramDepends = new List<UniqueTag>();
             if (CallsEscape)
             {
@@ -533,8 +526,7 @@ namespace Flame.Optimization
         {
             var ctorData = Analyze(Expression.Constructor);
             var newTag = AnalysisData.CreateTag(
-                "new-object", Expression.Type,
-                MakeLocal(ctorData.ThisParameterResult));
+                "new-object", Expression.Type, EscapeAnalysisResult.In);
             var callDepends = UpdateCallResults(ctorData, newTag, Expression.Arguments);
             // Create a new unique tag to represent the new-value expression
             // result, and mark that as 'Local' or 'Global,' depending on

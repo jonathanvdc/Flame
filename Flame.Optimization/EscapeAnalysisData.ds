@@ -15,48 +15,35 @@ namespace Flame.Optimization
     /// Escape analysis results can be merged by using the bitwise and
     /// operator.
     /// </remarks>
+    [Flags]
     public enum EscapeAnalysisResult : int
     {
-        /// <summary>
-        /// Specifies that a value does not depend on any specific scope:
-        /// it is neither an input value, an output value, a local value,
-        /// or a global value. This can be an intermediate state,
-        /// and a final state for variables that are never assigned to.
+        /// <summary>.
+        /// Specifies that a value is at most read from. It is neither reliant
+        /// on the global scope, nor does it depend on the local stack frame.
+        /// An input parameter is an example of an 'in' variable.
         /// </summary>
-        None = 0,
-
-        /// <summary>
-        /// Specifies that a value flows into the method as an input parameter,
-        /// but is only read from. The value is not used as output, and is not
-        /// leaked to some global state.
-        /// </summary>
-        In = 1,
-
-        /// <summary>
-        /// Specifies that a value is created locally, and flows out
-        /// of the function as an output value.
-        /// The value is not leaked to some global state.
-        /// </summary>
-        Out = 2,
-
-        /// <summary>
-        /// Specifies that a value flows into the method as an input parameter,
-        /// and then flows out of the function as an output value.
-        /// The value is not leaked to some global state.
-        /// </summary>
-        InOut = 3,
+        In = 0,
 
         /// <summary>
         /// Specifies that a value is created locally: it is tied to the
         /// function's scope, but does not escape to some global state.
         /// </summary>
-        Local = 7,
+        Local = 1,
+
+        /// <summary>
+        /// Specifies that a flows out of the function as an output value.
+        /// The value is not leaked to some global state. The return value
+        /// is an example of an output value.
+        /// </summary>
+        Out = 2,
 
         /// <summary>
         /// Specifies that a value escapes the function's scope: it is leaked
-        /// to some global state.
+        /// to some global state. A (static) field and a locally created value
+        /// that escapes as a return value are examples values that must be local.
         /// </summary>
-        Global = 15
+        Global = 3
     }
 
     /// <summary>
@@ -335,8 +322,8 @@ namespace Flame.Optimization
             }
             else
             {
-                results[Tag] = EscapeAnalysisResult.None;
-                return EscapeAnalysisResult.None;
+                results[Tag] = EscapeAnalysisResult.In;
+                return EscapeAnalysisResult.In;
             }
         }
 
