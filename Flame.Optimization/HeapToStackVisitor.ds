@@ -827,6 +827,7 @@ namespace Flame.Optimization
             EscapeAnalysisData AnalysisData,
             set IMethod Method,
             set IReadOnlyDictionary<IType, IType> TypeMap,
+            set IReadOnlyDictionary<IField, IField> FieldMap,
             set IReadOnlyDictionary<CallEscapeDependencies, RewrittenMethodSignature> FunctionMap)
             : base(AnalysisData)
             in { Method != null }
@@ -836,6 +837,7 @@ namespace Flame.Optimization
             in { AnalysisData.CheckTypes() }
         {
             this.replacedVariables = new Dictionary<UniqueTag, IVariable>();
+            this.blacklistedVariables = new HashSet<UniqueTag>();
             int argIndex = 0;
             int paramIndex = 0;
             [IParameter] parameterList = Method.Parameters;
@@ -862,6 +864,7 @@ namespace Flame.Optimization
         }
 
         private Dictionary<UniqueTag, IVariable> replacedVariables;
+        private HashSet<UniqueTag> blacklistedVariables;
 
         // A boolean value that tracks whether the top-of-stack expression
         // has been replaced by a stack-allocated variable.
@@ -878,6 +881,12 @@ namespace Flame.Optimization
         /// types they have been rewritten as.
         /// </summary>
         public IReadOnlyDictionary<IType, IType> TypeMap { get; private set; }
+
+        /// <summary>
+        /// Gets a dictionary that maps reference type fields to the value
+        /// type fields they have been rewritten as.
+        /// </summary>
+        public IReadOnlyDictionary<IField, IField> FieldMap { get; private set; }
 
         /// <summary>
         /// Gets a dictionary that maps all escaping calls
@@ -930,26 +939,47 @@ namespace Flame.Optimization
         }
 
         /// <summary>
-        /// Tries to replace the given variable by another variable. Null
-        /// is returned if the given variable was not a local variable,
-        /// argument variable, or 'this' variable.
+        /// Tries to replace the given variable by another variable.
         /// </summary>
-        private IVariable TryReplaceVariable(IVariable Variable)
+        private bool TryReplaceVariable(IVariable Variable, out IVariable^ Result)
         {
+            if (Variable is FieldVariable)
+            {
+                var fieldVar = (FieldVariable)Variable;
+                IExpression visitedTarget;
+                if (fieldVar.Target == null)
+                    visitedTarget = null;
+                else
+                    visitedTarget = Visit(fieldVar.Target);
+                if (hasReplaced)
+                {
+                    *Result = new FieldVariable(
+                        FieldMap[fieldVar.Field], visitedTarget);
+                    hasReplaced = false;
+                    return true;
+                }
+                else
+                {
+                    *Result = new FieldVariable(fieldVar.Field, visitedTarget);
+                    return false;
+                }
+            }
+
             var tag = TryGetTag(Variable);
-            IVariable result;
             if (tag == null
+                || blacklistedVariables.Contains(tag)
                 || AnalysisData.GetResult(tag) == EscapeAnalysisResult.Global)
             {
                 if (tag == null)
                     Console.WriteLine("'" + Variable.ToString() + "' in method '" + Method.FullName + "' was not tagged.");
                 else if (AnalysisData.GetResult(tag) == EscapeAnalysisResult.Global)
                     Console.WriteLine("'" + Variable.ToString() + "' in method '" + Method.FullName + "' was global.");
-                return null;
+                *Result = null;
+                return false;
             }
-            else if (replacedVariables.TryGetValue(tag, &result))
+            else if (replacedVariables.TryGetValue(tag, Result))
             {
-                return result;
+                return true;
             }
             else
             {
@@ -961,16 +991,18 @@ namespace Flame.Optimization
                     // can be replaced by a reference type.
                     // Replace it by a reference pointer to a value type.
                     Console.WriteLine("Replaced variable '" + otherVar.Member.Name + "'");
-                    result = new LocalVariable(new RetypedVariableMember(
+                    *Result = new LocalVariable(new RetypedVariableMember(
                         otherVar.Member,
                         newType.MakePointerType(PointerKind.ReferencePointer)));
+                    replacedVariables[tag] = *Result;
+                    return true;
                 }
                 else
                 {
-                    result = Variable;
+                    *Result = Variable;
+                    blacklistedVariables.Add(tag);
+                    return false;
                 }
-                replacedVariables[tag] = result;
-                return result;
             }
         }
 
@@ -1035,17 +1067,16 @@ namespace Flame.Optimization
 
         protected override IExpression VisitLoad(IExpression LoadExpression, IVariable Variable)
         {
-            var replVar = TryReplaceVariable(Variable);
-            if (replVar == null)
-            {
-                Console.WriteLine("Visiting unknown load statement: '" + LoadExpression.ToString() + "'");
-                return VisitUnknown(LoadExpression);
-            }
-            else
+            if (TryReplaceVariable(Variable, &IVariable replVar))
             {
                 Console.WriteLine("Visiting known load statement: '" + LoadExpression.ToString() + "'");
                 this.hasReplaced = true;
                 return replVar.CreateGetExpression();
+            }
+            else
+            {
+                Console.WriteLine("Visiting unknown load statement: '" + LoadExpression.ToString() + "'");
+                return VisitUnknown(LoadExpression);
             }
         }
 
@@ -1107,32 +1138,29 @@ namespace Flame.Optimization
 
         protected override IStatement VisitStore(IStatement StoreStatement, IVariable Variable, IExpression StoreValue)
         {
-            var replVar = TryReplaceVariable(Variable);
-            if (replVar == null)
-            {
-                Console.WriteLine("Visiting unknown store statement: '" + StoreStatement.ToString() + "'");
-                return VisitUnknown(StoreStatement);
-            }
-            else
+            if (TryReplaceVariable(Variable, &IVariable replVar))
             {
                 Console.WriteLine("Visiting known store statement: '" + StoreStatement.ToString() + "'");
                 // Visit the value, and create a 'store' statement.
                 return replVar.CreateSetStatement(Visit(StoreValue));
+            }
+            else
+            {
+                Console.WriteLine("Visiting unknown store statement: '" + StoreStatement.ToString() + "'");
+                return VisitUnknown(StoreStatement);
             }
         }
 
         protected override IStatement VisitRelease(
             IStatement ReleaseStatement, IVariable Variable)
         {
-            var replVar = TryReplaceVariable(Variable);
-            if (replVar == null)
+            if (TryReplaceVariable(Variable, &IVariable replVar))
             {
-                return VisitUnknown(ReleaseStatement);
+                return replVar.CreateReleaseStatement();
             }
             else
             {
-                // Visit the value, and create a 'store' statement.
-                return replVar.CreateReleaseStatement();
+                return VisitUnknown(ReleaseStatement);
             }
         }
 
@@ -1147,15 +1175,14 @@ namespace Flame.Optimization
         /// </summary>
         protected override SSAVariable VisitPhiArgument(SSAVariable Argument, SSAVariable Parameter)
         {
-            var replVar = TryReplaceVariable(Argument);
-            if (replVar == null)
-            {
-                return Argument;
-            }
-            else
+            if (TryReplaceVariable(Argument, &IVariable replVar))
             {
                 assert(replVar is SSAVariable);
                 return (SSAVariable)replVar;
+            }
+            else
+            {
+                return Argument;
             }
         }
 
@@ -1164,15 +1191,14 @@ namespace Flame.Optimization
         /// </summary>
         protected override SSAVariable VisitPhiParameter(SSAVariable Parameter)
         {
-            var replVar = TryReplaceVariable(Parameter);
-            if (replVar == null)
-            {
-                return Parameter;
-            }
-            else
+            if (TryReplaceVariable(Parameter, &IVariable replVar))
             {
                 assert(replVar is SSAVariable);
                 return (SSAVariable)replVar;
+            }
+            else
+            {
+                return Parameter;
             }
         }
     }

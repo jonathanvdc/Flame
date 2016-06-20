@@ -497,23 +497,17 @@ namespace Flame.Optimization
         }
 
         /// <summary>
-        /// Adds an asymmetric dependency to the dependency graph.
-        /// </summary>
-        private void AddAsymmetricDependency(UniqueTag Value, UniqueTag Dependency)
-        {
-            dependencyGraph.AddEdge(Value, Dependency);
-            UpdateResult(Value, GetResult(Dependency));
-        }
-
-        /// <summary>
-        /// Adds an symmetric dependency to the dependency graph.
+        /// Adds a symmetric dependency to the dependency graph.
         /// </summary>
         public void AddSymmetricDependency(UniqueTag Value, UniqueTag Dependency)
             in { Value != null }
             in { Dependency != null }
         {
-            AddAsymmetricDependency(Value, Dependency);
-            AddAsymmetricDependency(Dependency, Value);
+            dependencyGraph.AddUndirectedEdge(Value, Dependency);
+            UpdateResult(Value, GetResult(Dependency));
+            UpdateResult(Dependency, GetResult(Value));
+            UpdateType(Value, GetType(Dependency));
+            UpdateType(Dependency, GetType(Value));
         }
 
         /// <summary>

@@ -275,10 +275,12 @@ namespace Flame.Optimization
 
             // Next, we can try to replace all types.
             var replTypes = new Dictionary<IType, IType>();
+            var replFields = new Dictionary<IField, IField>();
             if (!Enumerable.Any<UniqueTag>(analysis.Tags))
             {
                 Console.WriteLine("'" + Method.FullName + "' analysis contains no tags");
             }
+            var fieldCache = GetFieldCache(Argument);
             foreach (var tag in analysis.Tags)
             {
                 if (analysis.GetResult(tag) != EscapeAnalysisResult.Global)
@@ -287,11 +289,31 @@ namespace Flame.Optimization
                     var ty = analysis.GetType(tag);
                     if (!replTypes.ContainsKey(ty))
                     {
-                        replTypes[ty] = TryRewrite(ty, Argument);
-                        if (replTypes[ty] == null)
-                            Console.WriteLine("Could not replace type: " + ty.FullName);
+                        var valTy = TryRewrite(ty, Argument);
+                        replTypes[ty] = valTy;
+                        if (valTy != null)
+                        {
+                            var genDeclTy = ty.GetRecursiveGenericDeclaration();
+                            foreach (var field in genDeclTy.GetAllFields())
+                            {
+                                var valField = fieldCache[field];
+                                if (ty.IsRecursiveGenericInstance)
+                                {
+                                    var genInst = (GenericTypeBase)ty;
+                                    replFields[field] = new GenericInstanceField(
+                                        valField, genInst.Resolver, genInst);
+                                }
+                                else
+                                {
+                                    replFields[field] = valField;
+                                }
+                            }
+                            Console.WriteLine("Replaced type '" + ty.FullName + "' with '" + valTy.FullName + "'");
+                        }
                         else
-                            Console.WriteLine("Replaced type '" + ty.FullName + "' with '" + replTypes[ty].FullName + "'");
+                        {
+                            Console.WriteLine("Could not replace type: " + ty.FullName);
+                        }
                     }
                 }
                 else
@@ -303,7 +325,7 @@ namespace Flame.Optimization
             // Finally, we can rewrite the method body itself.
             // Create a rewriter, and have it visit the analyzed method body.
             var rewriter = new HeapToStackRewriter(
-                analysis, Method, replTypes, replMethods);
+                analysis, Method, replTypes, replFields, replMethods);
             return rewriter.Visit(analyzedBody);
         }
 
@@ -534,10 +556,10 @@ namespace Flame.Optimization
                 Argument, "heap2stack-struct-cache");
         }
 
-        private static Dictionary<Tuple<IType, IField>, IField> GetFieldCache(
+        private static Dictionary<IField, IField> GetFieldCache(
             BodyPassArgument Argument)
         {
-            return GetGlobalCache<Tuple<IType, IField>, IField>(
+            return GetGlobalCache<IField, IField>(
                 Argument, "heap2stack-field-cache");
         }
 
@@ -651,7 +673,7 @@ namespace Flame.Optimization
                         fieldDef.AddAttribute(attr);
 
                     descTy.AddField(fieldDef);
-                    fieldCache[Tuple.Create<IType, IField>(descTy, field)] = fieldDef;
+                    fieldCache[field] = fieldDef;
                 }
             }
 
