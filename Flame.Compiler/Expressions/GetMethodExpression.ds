@@ -121,5 +121,21 @@ namespace Flame.Compiler.Expressions
 		{
 			return Generator.EmitMethod(Target, Caller.EmitOrNull(Generator), Op);
 		}
+
+		public override string ToString()
+		{
+			var result = new StringBuilder();
+			result.Append("get-method(");
+			result.Append(Op.ToString());
+			result.Append(", ");
+			result.Append(Target.FullName.ToString());
+			if (Caller != null)
+			{
+				result.Append(", ");
+				result.Append(Caller.ToString());
+			}
+			result.Append(")");
+			return result.ToString();
+		}
 	}
 }

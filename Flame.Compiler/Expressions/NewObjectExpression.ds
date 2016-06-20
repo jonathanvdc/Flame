@@ -142,7 +142,7 @@ namespace Flame.Compiler.Expressions
         {
             var result = new StringBuilder();
             result.Append("new(");
-            result.Append(Constructor.ToString());
+            result.Append(Constructor.FullName.ToString());
             foreach (var item in Arguments)
             {
                 result.Append(", ");
