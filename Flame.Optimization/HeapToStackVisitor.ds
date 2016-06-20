@@ -50,6 +50,15 @@ namespace Flame.Optimization
             }
         }
 
+        protected UniqueTag TryGetAndRegisterTag(IVariable Variable)
+        {
+            var tag = TryGetTag(Variable);
+            if (tag != null)
+                AnalysisData.RegisterTag(tag, Variable.Type);
+
+            return tag;
+        }
+
         /// <summary>
         /// An action that is invoked just before a node is visited.
         /// </summary>
@@ -293,14 +302,6 @@ namespace Flame.Optimization
             exprTag = Tag;
         }
 
-        private EscapeAnalysisResult MakeLocal(EscapeAnalysisResult Result)
-        {
-            if (Result == EscapeAnalysisResult.Out)
-                return EscapeAnalysisResult.In;
-            else
-                return Result;
-        }
-
         /// <summary>
         /// Creates escape analysis data for the given method's signature.
         /// All input and output values are assumed to escape.
@@ -437,81 +438,68 @@ namespace Flame.Optimization
             return Analyze(Method, Environment, FunctionAnalysis, CallsEscape, log);
         }
 
-        private UniqueTag AnalyzeExpression(IExpression Expression)
-        {
-            Visit(Expression);
-            return PopExpressionTag();
-        }
-
         private void UpdateTag(UniqueTag Tag, EscapeAnalysisResult Result)
         {
             if (Tag != null)
                 AnalysisData.UpdateResult(Tag, Result);
         }
 
-        private UniqueTag UpdateOrAnalyzeExpression(IExpression Expression, EscapeAnalysisResult Result)
+        private Tuple<IExpression, UniqueTag> AnalyzeExpression(IExpression Expression)
         {
-            var tag = AnalyzeExpression(Expression);
-            if (tag != null)
-                UpdateTag(tag, Result);
-
-            return tag;
+            var oldTag = PopExpressionTag();
+            var tuple = Tuple.Create<IExpression, UniqueTag>(
+                Visit(Expression), PopExpressionTag());
+            ReplaceExpressionTag(oldTag);
+            return tuple;
         }
 
-        private CallEscapeDependencies UpdateCallResults(
-            EscapeAnalysisData CalleeAnalysis,
-            IExpression ThisArgument, IEnumerable<IExpression> Arguments)
+        /// <summary>
+        /// Analyzes an argument list.
+        /// </summary>
+        private Tuple<IReadOnlyList<IExpression>, IReadOnlyList<UniqueTag>> AnalyzeArguments(
+            IEnumerable<IExpression> Arguments)
         {
-            return UpdateCallResults(
-                CalleeAnalysis, AnalyzeExpression(ThisArgument), Arguments);
+            var oldTag = PopExpressionTag();
+            var exprs = new List<IExpression>();
+            var tags = new List<UniqueTag>();
+            foreach (var arg in Arguments)
+            {
+                exprs.Add(Visit(arg));
+                tags.Add(PopExpressionTag());
+            }
+            ReplaceExpressionTag(oldTag);
+            return Tuple.Create<IReadOnlyList<IExpression>, IReadOnlyList<UniqueTag>>(
+                exprs, tags);
         }
 
-        private CallEscapeDependencies UpdateCallResults(
+        /// <summary>
+        /// Embeds a call in the escape analysis graph, and adds it
+        /// to the call list.
+        /// </summary>
+        private CallEscapeDependencies EmbedCall(
             EscapeAnalysisData CalleeAnalysis,
-            UniqueTag ThisTag, IEnumerable<IExpression> Arguments)
+            UniqueTag ThisTag, IReadOnlyList<UniqueTag> Arguments)
         {
             var method = CalleeAnalysis.Method;
-            var resultTag = AnalysisData.CreateTag(
-                "return-value", method.ReturnType, EscapeAnalysisResult.In);
-            var paramDepends = new List<UniqueTag>();
+            // Start by embedding the actual call.
+            var result = AnalysisData.EmbedCall(
+                CalleeAnalysis, ThisTag, Arguments);
+
             if (CallsEscape)
             {
-                // Mark everything as global.
-                if (ThisTag != null)
-                {
-                    if (method.IsConstructor)
-                        // Give constructors special treatment, to make
-                        // heap-to-stack allocation viable.
-                        UpdateTag(ThisTag, MakeLocal(CalleeAnalysis.ThisParameterResult));
-                    else
-                        UpdateTag(ThisTag, EscapeAnalysisResult.Global);
-                }
+                // If all calls escape, then we should proceed by marking
+                // all arguments as global. However, we should not mark
+                // the 'this' parameter as global, because we need it to
+                // make heap-to-stack allocation viable.
+                // So don't do this:
+                //     UpdateTag(ThisTag, EscapeAnalysisResult.Global);
+                //
                 foreach (var arg in Arguments)
                 {
-                    paramDepends.Add(
-                        UpdateOrAnalyzeExpression(arg, EscapeAnalysisResult.Global));
+                    UpdateTag(arg, EscapeAnalysisResult.Global);
                 }
-                UpdateTag(resultTag, EscapeAnalysisResult.Global);
             }
-            else
-            {
-                if (ThisTag != null)
-                {
-                    UpdateTag(ThisTag, MakeLocal(CalleeAnalysis.ThisParameterResult));
-                }
-                foreach (var arg in Arguments, var param in method.Parameters,
-                    var paramTag in CalleeAnalysis.ParameterTags)
-                {
-                    var argTag = UpdateOrAnalyzeExpression(
-                        arg, MakeLocal(CalleeAnalysis.GetResult(paramTag)));
-                    paramDepends.Add(argTag);
-                    if (argTag != null)
-                        AnalysisData.UpdateType(argTag, param.ParameterType);
-                }
-                UpdateTag(resultTag, MakeLocal(CalleeAnalysis.ReturnValueResult));
-            }
-            var result = new CallEscapeDependencies(
-                CalleeAnalysis, ThisTag, paramDepends, resultTag);
+
             callList.Add(result);
             return result;
         }
@@ -528,14 +516,17 @@ namespace Flame.Optimization
         protected override IExpression VisitNewObject(NewObjectExpression Expression)
         {
             var ctorData = Analyze(Expression.Constructor);
+            // Creates a new tag to hold the result.
             var newTag = AnalysisData.CreateTag(
-                "new-object", Expression.Type, EscapeAnalysisResult.In);
-            var callDepends = UpdateCallResults(ctorData, newTag, Expression.Arguments);
-            // Create a new unique tag to represent the new-value expression
-            // result, and mark that as 'Local' or 'Global,' depending on
-            // the constructor's escape analysis.
+                "new-object", Expression.Type, EscapeAnalysisResult.Local);
+            var args = AnalyzeArguments(Expression.Arguments);
+            var callDepends = EmbedCall(ctorData, newTag, args.Item2);
+            // Replace the old top-of-stack tag by the new tag.
             ReplaceExpressionTag(newTag);
-            return new EscapeAnalysisCallExpression(Expression, callDepends);
+            return new EscapeAnalysisCallExpression(
+                new NewObjectExpression(
+                    Expression.Constructor, args.Item1),
+                callDepends);
         }
 
         protected override IExpression VisitDynamicCast(DynamicCastExpression Expression)
@@ -565,14 +556,14 @@ namespace Flame.Optimization
                 // by stack-allocated fields, so we don't have to create a new
                 // value tag here.
                 // We can just assume that the loaded value is global.
-                AnalyzeExpression(fieldVar.Target);
-                return LoadExpression;
+                var result = LoadExpression.Accept(this);
+                PopExpressionTag();
+                return result;
             }
 
-            ReplaceExpressionTag(TryGetTag(Variable));
+            ReplaceExpressionTag(TryGetAndRegisterTag(Variable));
             if (exprTag != null)
             {
-                AnalysisData.UpdateType(exprTag, Variable.Type);
                 return LoadExpression;
             }
             else
@@ -583,19 +574,15 @@ namespace Flame.Optimization
 
         protected override IExpression VisitCall(InvocationExpression Expression, DissectedCall Call)
         {
-            if (CallsEscape)
-            {
-                // No need to analyze the call. Just pretend that it's an
-                // unknown expression.
-                return VisitUnknown(Expression);
-            }
-            else
-            {
-                var callResults = UpdateCallResults(
-                    Analyze(Call.Method), Call.ThisValue, Call.Arguments);
-                ReplaceExpressionTag(callResults.ReturnValue);
-                return new EscapeAnalysisCallExpression(Expression, callResults);
-            }
+            var thisVal = AnalyzeExpression(Call.ThisValue);
+            var args = AnalyzeArguments(Call.Arguments);
+            var callResults = EmbedCall(
+                Analyze(Call.Method), thisVal.Item2, args.Item2);
+            ReplaceExpressionTag(callResults.ReturnValue);
+            return new EscapeAnalysisCallExpression(
+                new InvocationExpression(
+                    callResults.Method, thisVal.Item1, args.Item1),
+                callResults);
         }
 
         protected override IExpression VisitAnalyzedCall(
@@ -627,7 +614,8 @@ namespace Flame.Optimization
             if (Statement.Value != null)
             {
                 // Returned values become linked to the return value tag.
-                var valueTag = AnalyzeExpression(Statement.Value);
+                var val = Visit(Statement.Value);
+                var valueTag = PopExpressionTag();
                 if (valueTag != null)
                 {
                     AnalysisData.AddSymmetricDependency(
@@ -638,8 +626,12 @@ namespace Flame.Optimization
                     AnalysisData.UpdateResult(
                         AnalysisData.ReturnValueTag, EscapeAnalysisResult.Global);
                 }
+                return new ReturnStatement(val);
             }
-            return Statement;
+            else
+            {
+                return Statement;
+            }
         }
 
         protected override IStatement VisitStore(
@@ -658,18 +650,19 @@ namespace Flame.Optimization
                 // Note that we're not trying to replace heap-allocated fields
                 // by stack-allocated fields, so we don't have to create a new
                 // value tag here.
-                AnalyzeExpression(fieldVar.Target);
                 // We cannot give the value the same treatment, because it
                 // does escape to the global scope.
-                VisitUnknown(StoreValue);
-                return StoreStatement;
+                var tgt = Visit(fieldVar.Target);
+                PopExpressionTag();
+                return new FieldVariable(fieldVar.Field, tgt)
+                    .CreateSetStatement(VisitUnknown(StoreValue));
             }
 
-            var varTag = TryGetTag(Variable);
+            var varTag = TryGetAndRegisterTag(Variable);
             if (exprTag != null)
             {
-                AnalysisData.UpdateType(varTag, Variable.Type);
-                var valueTag = AnalyzeExpression(StoreValue);
+                var val = Visit(StoreValue);
+                var valueTag = PopExpressionTag();
                 if (valueTag != null)
                 {
                     // Insert a symmetric dependency.
@@ -680,7 +673,7 @@ namespace Flame.Optimization
                     // Mark the variable as global.
                     UpdateTag(varTag, EscapeAnalysisResult.Global);
                 }
-                return StoreStatement;
+                return Variable.CreateSetStatement(val);
             }
             else
             {
@@ -701,8 +694,8 @@ namespace Flame.Optimization
         protected override SSAVariable VisitPhiArgument(
             SSAVariable Argument, SSAVariable Parameter)
         {
-            var paramTag = TryGetTag(Parameter);
-            var argTag = TryGetTag(Argument);
+            var paramTag = TryGetAndRegisterTag(Parameter);
+            var argTag = TryGetAndRegisterTag(Argument);
             assert(paramTag != null);
             assert(argTag != null);
             AnalysisData.AddSymmetricDependency(argTag, paramTag);
@@ -714,9 +707,8 @@ namespace Flame.Optimization
         /// </summary>
         protected override SSAVariable VisitPhiParameter(SSAVariable Parameter)
         {
-            var tag = TryGetTag(Parameter);
+            var tag = TryGetAndRegisterTag(Parameter);
             assert(tag != null);
-            AnalysisData.UpdateType(tag, Parameter.Type);
             return Parameter;
         }
 
@@ -934,7 +926,10 @@ namespace Flame.Optimization
                 if (TypeMap.TryGetValue(recGenDecl, Result))
                 {
                     if (Result == null)
+                    {
+                        Console.WriteLine("Type '" + Type.FullName + "' was not in the rewritten-types dictionary.");
                         return false;
+                    }
 
                     *Result = Result->MakeGenericType(Type.GetRecursiveGenericArguments());
                     return true;
@@ -958,6 +953,10 @@ namespace Flame.Optimization
             if (tag == null
                 || AnalysisData.GetResult(tag) == EscapeAnalysisResult.Global)
             {
+                if (tag == null)
+                    Console.WriteLine("'" + Variable.ToString() + "' in method '" + Method.FullName + "' was not tagged.");
+                else if (AnalysisData.GetResult(tag) == EscapeAnalysisResult.Global)
+                    Console.WriteLine("'" + Variable.ToString() + "' in method '" + Method.FullName + "' was global.");
                 return null;
             }
             else if (replacedVariables.TryGetValue(tag, &result))
@@ -973,6 +972,7 @@ namespace Flame.Optimization
                     // We found a non-escaping local variable whose type
                     // can be replaced by a reference type.
                     // Replace it by a reference pointer to a value type.
+                    Console.WriteLine("Replaced variable '" + otherVar.Member.Name + "'");
                     result = new LocalVariable(new RetypedVariableMember(
                         otherVar.Member,
                         newType.MakePointerType(PointerKind.ReferencePointer)));
@@ -1050,10 +1050,12 @@ namespace Flame.Optimization
             var replVar = TryReplaceVariable(Variable);
             if (replVar == null)
             {
+                Console.WriteLine("Visiting unknown load statement: '" + LoadExpression.ToString() + "'");
                 return VisitUnknown(LoadExpression);
             }
             else
             {
+                Console.WriteLine("Visiting known load statement: '" + LoadExpression.ToString() + "'");
                 this.hasReplaced = true;
                 return replVar.CreateGetExpression();
             }
@@ -1065,10 +1067,12 @@ namespace Flame.Optimization
             var newSignature = GetRewrittenMethod(Expression.Dependencies);
             if (newSignature == null)
             {
+                Console.WriteLine("Visiting unreplaced call: '" + Expression.Expression + "'");
                 return Visit(Expression.Expression);
             }
             else
             {
+                Console.WriteLine("Visiting replaced call: '" + Expression.Expression + "'");
                 var newMethod = newSignature.Method;
                 // First replace the callee, then visit the call.
                 var result = Visit(Expression.ReplaceMethod(newMethod));
@@ -1118,10 +1122,12 @@ namespace Flame.Optimization
             var replVar = TryReplaceVariable(Variable);
             if (replVar == null)
             {
+                Console.WriteLine("Visiting unknown store statement: '" + StoreStatement.ToString() + "'");
                 return VisitUnknown(StoreStatement);
             }
             else
             {
+                Console.WriteLine("Visiting known store statement: '" + StoreStatement.ToString() + "'");
                 // Visit the value, and create a 'store' statement.
                 return replVar.CreateSetStatement(Visit(StoreValue));
             }

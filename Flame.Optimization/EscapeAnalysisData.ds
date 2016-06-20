@@ -116,24 +116,25 @@ namespace Flame.Optimization
 
     /// <summary>
     /// Captures a method call's escape dependencies: value tags that
-    /// are determine which tags the signature can depend on.
+    /// identify the call's arguments and return value.
     /// </summary>
     public class CallEscapeDependencies
     {
         public this(
-            set EscapeAnalysisData CalleeAnalysis,
+            set IMethod Method,
             set UniqueTag ThisValue,
-            set IReadOnlyList<UniqueTag> Arguments,
+            set IReadOnlyList<UniqueTag> Parameters,
             set UniqueTag ReturnValue)
-            in { CalleeAnalysis != null }
-            in { Arguments != null }
+            in { Method != null }
+            in { ThisValue != null }
+            in { Parameters != null }
             in { ReturnValue != null }
         { }
 
         /// <summary>
-        /// Gets the escape analysis for the callee.
+        /// Gets the callee: the method that was called.
         /// </summary>
-        public EscapeAnalysisData CalleeAnalysis { get; private set; }
+        public IMethod Method { get; private set; }
 
         /// <summary>
         /// Gets the tag for the 'this' value.
@@ -141,9 +142,9 @@ namespace Flame.Optimization
         public UniqueTag ThisValue { get; private set; }
 
         /// <summary>
-        /// Gets the tag results for the arguments.
+        /// Gets the tag results for the parameters.
         /// </summary>
-        public IReadOnlyList<UniqueTag> Arguments { get; private set; }
+        public IReadOnlyList<UniqueTag> Parameters { get; private set; }
 
         /// <summary>
         /// Gets the tag result for the return value.
@@ -160,34 +161,13 @@ namespace Flame.Optimization
             // We will create a copy of the callee's analysis, and use that
             // to propagate any and all constraints imposed by the caller.
 
-            var calleeAnalysisCopy = new EscapeAnalysisData(CalleeAnalysis);
+            var paramResults = new List<EscapeAnalysisResult>();
+            foreach (var item in Parameters)
+                paramResults.Add(CallerAnalysis.GetResult(item));
 
-            if (ThisValue != null)
-                calleeAnalysisCopy.UpdateResult(
-                    calleeAnalysisCopy.ThisParameterTag,
-                    CallerAnalysis.GetResult(ThisValue));
-            else
-                calleeAnalysisCopy.UpdateResult(
-                    calleeAnalysisCopy.ThisParameterTag,
-                    EscapeAnalysisResult.Global);
-
-            for (int i = 0; i < Arguments.Count; i++)
-            {
-                var arg = Arguments[i];
-                var paramTag = calleeAnalysisCopy.GetParameterTag(i);
-                if (arg != null)
-                    calleeAnalysisCopy.UpdateResult(
-                        paramTag, CallerAnalysis.GetResult(arg));
-                else
-                    calleeAnalysisCopy.UpdateResult(
-                        paramTag, EscapeAnalysisResult.Global);
-            }
-
-            calleeAnalysisCopy.UpdateResult(
-                calleeAnalysisCopy.ReturnValueTag,
-                CallerAnalysis.GetResult(ReturnValue));
-
-            return calleeAnalysisCopy.SignatureResult;
+            return new SignatureEscapeAnalysis(
+                Method, CallerAnalysis.GetResult(ThisValue),
+                paramResults, CallerAnalysis.GetResult(ReturnValue));
         }
     }
 
@@ -247,21 +227,6 @@ namespace Flame.Optimization
         public this(set IMethod Method, EscapeAnalysisData Other)
             in { Method != null }
         {
-            this.paramTags = new List<UniqueTag>(Other.paramTags);
-            this.ThisParameterTag = Other.ThisParameterTag;
-            this.ReturnValueTag = Other.ReturnValueTag;
-            this.results = new Dictionary<UniqueTag, EscapeAnalysisResult>(Other.results);
-            this.dependencyGraph = new Graph<UniqueTag>(Other.dependencyGraph);
-            this.nodeTypes = new Dictionary<UniqueTag, IType>(Other.nodeTypes);
-        }
-
-        /// <summary>
-        /// Copies the given escape analysis data.
-        /// </summary>
-        public this(EscapeAnalysisData Other)
-            in { Other != null }
-        {
-            this.Method = Other.Method;
             this.paramTags = new List<UniqueTag>(Other.paramTags);
             this.ThisParameterTag = Other.ThisParameterTag;
             this.ReturnValueTag = Other.ReturnValueTag;
@@ -536,9 +501,25 @@ namespace Flame.Optimization
         /// Adds an symmetric dependency to the dependency graph.
         /// </summary>
         public void AddSymmetricDependency(UniqueTag Value, UniqueTag Dependency)
+            in { Value != null }
+            in { Dependency != null }
         {
             AddAsymmetricDependency(Value, Dependency);
             AddAsymmetricDependency(Dependency, Value);
+        }
+
+        /// <summary>
+        /// Tries to add a symmetric dependency to the dependency graph. If
+        /// at least one tag is null, then all other tags are marked global.
+        /// </summary>
+        public void TryAddSymmetricDependency(UniqueTag Value, UniqueTag Dependency)
+        {
+            if (Value != null && Dependency != null)
+                AddSymmetricDependency(Value, Dependency);
+            else if (Value != null)
+                UpdateResult(Value, EscapeAnalysisResult.Global);
+            else if (Dependency != null)
+                UpdateResult(Dependency, EscapeAnalysisResult.Global);
         }
 
         /// <summary>
@@ -593,6 +574,77 @@ namespace Flame.Optimization
             return new EscapeAnalysisData(
                 Method, dependencyGraph, newResults, nodeTypes,
                 paramTags, ThisParameterTag, ReturnValueTag);
+        }
+
+        /// <summary>
+        /// Creates a clone of this escape analysis graph. All tags are
+        /// duplicated, and their interdependencies and types are preserved.
+        /// </summary>
+        public EscapeAnalysisData Clone()
+        {
+            var newResults = new Dictionary<UniqueTag, EscapeAnalysisResult>();
+            var newNodeTypes = new Dictionary<UniqueTag, IType>();
+            var tagMap = new Dictionary<UniqueTag, UniqueTag>();
+            foreach (var tag in Tags)
+            {
+                var newTag = new UniqueTag(tag.Name);
+                tagMap[tag] = newTag;
+                newResults[newTag] = results[tag];
+                nodeTypes[newTag] = nodeTypes[tag];
+            }
+
+            var newParameters = new List<UniqueTag>();
+            foreach (var tag in paramTags)
+                newParameters.Add(tagMap[tag]);
+
+            return new EscapeAnalysisData(
+                Method, dependencyGraph.Select<UniqueTag>(tagMap),
+                newResults, newNodeTypes, newParameters,
+                tagMap[ThisParameterTag], tagMap[ReturnValueTag]);
+        }
+
+        /// <summary>
+        /// Embeds a call to the given method in this escape analysis graph.
+        /// </summary>
+        public CallEscapeDependencies EmbedCall(
+            EscapeAnalysisData CalleeAnalysis, UniqueTag ThisValue,
+            IReadOnlyList<UniqueTag> Arguments)
+            in { CalleeAnalysis != null }
+            in { Arguments != null }
+            in { Arguments.Count == CalleeAnalysis.ParameterTags.Count }
+        {
+            // First clone the callee analysis. This is absolutely necessary,
+            // because otherwise vertices from separate calls to the same
+            // method will alias. We don't want this, because it may inhibit
+            // optimizations.
+            var calleeCopy = CalleeAnalysis.Clone();
+
+            // Embed the callee's depedency graph in this dependency graph.
+            dependencyGraph.UnionWith(calleeCopy.dependencyGraph);
+
+            // Update the results for the callee's graph...
+            foreach (var kvPair in calleeCopy.results)
+                UpdateResult(kvPair.Key, kvPair.Value);
+
+            // ... and the node types, as well.
+            foreach (var kvPair in calleeCopy.nodeTypes)
+                UpdateType(kvPair.Key, kvPair.Value);
+
+            // Now make the 'this' argument dependent on the callee's
+            // 'this' value.
+            TryAddSymmetricDependency(ThisValue, calleeCopy.ThisParameterTag);
+
+            // And do the same for the arguments.
+            int argCount = Arguments.Count;
+            for (int i = 0; i < argCount; i++)
+            {
+                TryAddSymmetricDependency(
+                    Arguments[i], calleeCopy.GetParameterTag(i));
+            }
+
+            return new CallEscapeDependencies(
+                CalleeAnalysis.Method, calleeCopy.ThisParameterTag,
+                calleeCopy.ParameterTags, calleeCopy.ReturnValueTag);
         }
 
         /// <summary>

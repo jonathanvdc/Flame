@@ -88,10 +88,8 @@ namespace Flame.Optimization
             var result = TryRewriteBody(
                 method, HeapToStackAnalyzer.CreateConservativeAnalysis(method).SignatureResult,
                 Argument.Body, Argument, GetAnalysisCache(Argument));
-            if (result == null)
-                return Argument.Body;
-            else
-                return result;
+            assert(result != null);
+            return result;
         }
 
         private bool CanReplace(EscapeAnalysisResult Result, IType Type)
@@ -108,7 +106,7 @@ namespace Flame.Optimization
             // Compute the escape analysis signature.
             var sig = Call.ToSignatureAnalysis(CallerAnalysis);
 
-            var genDecl = Call.CalleeAnalysis.Method.GetRecursiveGenericDeclaration();
+            var genDecl = Call.Method.GetRecursiveGenericDeclaration();
             var genSig = new SignatureEscapeAnalysis(genDecl, sig);
 
             // Try to do a cache lookup.
@@ -121,7 +119,7 @@ namespace Flame.Optimization
 
                 return new RewrittenMethodSignature(
                     result.Method.MakeRecursiveGenericMethod(
-                        Call.CalleeAnalysis.Method.GetRecursiveGenericArguments()),
+                        Call.Method.GetRecursiveGenericArguments()),
                     result.HasReplacedThis, result.HasReplacedReturn);
             }
             else
@@ -193,8 +191,7 @@ namespace Flame.Optimization
 
                 IType declType = null;
                 var oldDeclType = genDecl.DeclaringType;
-                if (!genDecl.IsStatic &&
-                    CanReplace(genSig.ThisValue, oldDeclType))
+                if (hasReplacedThis)
                 {
                     declType = TryRewrite(oldDeclType, PassArgument);
                 }
@@ -231,7 +228,7 @@ namespace Flame.Optimization
                         methodResult, hasReplacedThis, hasReplacedResult);
                     return new RewrittenMethodSignature(
                         methodResult.MakeRecursiveGenericMethod(
-                            Call.CalleeAnalysis.Method.GetRecursiveGenericArguments()),
+                            Call.Method.GetRecursiveGenericArguments()),
                         hasReplacedThis, hasReplacedResult);
                 }
             }
@@ -274,15 +271,28 @@ namespace Flame.Optimization
 
             // Next, we can try to replace all types.
             var replTypes = new Dictionary<IType, IType>();
+            if (!Enumerable.Any<UniqueTag>(analysis.Tags))
+            {
+                Console.WriteLine("'" + Method.FullName + "' analysis contains no tags");
+            }
             foreach (var tag in analysis.Tags)
             {
                 if (analysis.GetResult(tag) != EscapeAnalysisResult.Global)
                 {
+                    Console.WriteLine("Variable was local: " + tag.Name);
                     var ty = analysis.GetType(tag);
                     if (!replTypes.ContainsKey(ty))
                     {
                         replTypes[ty] = TryRewrite(ty, Argument);
+                        if (replTypes[ty] == null)
+                            Console.WriteLine("Could not replace type: " + ty.FullName);
+                        else
+                            Console.WriteLine("Replaced type '" + ty.FullName + "' with '" + replTypes[ty].FullName + "'");
                     }
+                }
+                else
+                {
+                    Console.WriteLine("Variable was global: " + tag.Name);
                 }
             }
 
@@ -413,8 +423,10 @@ namespace Flame.Optimization
         {
             // Check for the usual things.
             if (!CanRewrite(Type))
+            {
                 // This wasn't a valid candidate in the first place.
                 return null;
+            }
 
             var genDecl = Type.GetRecursiveGenericDeclaration();
 
