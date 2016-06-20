@@ -417,7 +417,7 @@ namespace Flame.Optimization
                 visitor.Visit(body);
                 // Immediately elide locals. This saves memory, and makes
                 // embedding graphs cheaper.
-                result = result.ElideLocals();
+                result = result.ElideLocals().DiscardOut();
 
                 if (Log != null)
                     LogAnalysisRemark(result, Log);
@@ -616,16 +616,8 @@ namespace Flame.Optimization
                 // Returned values become linked to the return value tag.
                 var val = Visit(Statement.Value);
                 var valueTag = PopExpressionTag();
-                if (valueTag != null)
-                {
-                    AnalysisData.AddSymmetricDependency(
-                        valueTag, AnalysisData.ReturnValueTag);
-                }
-                else
-                {
-                    AnalysisData.UpdateResult(
-                        AnalysisData.ReturnValueTag, EscapeAnalysisResult.Global);
-                }
+                AnalysisData.TryAddSymmetricDependency(
+                    valueTag, AnalysisData.ReturnValueTag);
                 return new ReturnStatement(val);
             }
             else
@@ -663,16 +655,7 @@ namespace Flame.Optimization
             {
                 var val = Visit(StoreValue);
                 var valueTag = PopExpressionTag();
-                if (valueTag != null)
-                {
-                    // Insert a symmetric dependency.
-                    AnalysisData.AddSymmetricDependency(varTag, valueTag);
-                }
-                else
-                {
-                    // Mark the variable as global.
-                    UpdateTag(varTag, EscapeAnalysisResult.Global);
-                }
+                AnalysisData.TryAddSymmetricDependency(varTag, valueTag);
                 return Variable.CreateSetStatement(val);
             }
             else
@@ -800,6 +783,11 @@ namespace Flame.Optimization
         public IBoundObject Evaluate()
         {
         	return null;
+        }
+
+        public override string ToString()
+        {
+            return "escape-analyzed(" + Expression.ToString() + ")";
         }
     }
 
