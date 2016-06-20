@@ -590,7 +590,7 @@ namespace Flame.Optimization
                 var newTag = new UniqueTag(tag.Name);
                 tagMap[tag] = newTag;
                 newResults[newTag] = results[tag];
-                nodeTypes[newTag] = nodeTypes[tag];
+                newNodeTypes[newTag] = nodeTypes[tag];
             }
 
             var newParameters = new List<UniqueTag>();
