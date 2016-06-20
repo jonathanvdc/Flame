@@ -151,6 +151,14 @@ namespace Flame.Optimization
         /// </summary>
         public UniqueTag ReturnValue { get; private set; }
 
+        public void MakeGlobal(EscapeAnalysisData CallerAnalysis)
+        {
+            CallerAnalysis.UpdateResult(ThisValue, EscapeAnalysisResult.Global);
+            CallerAnalysis.UpdateResult(ReturnValue, EscapeAnalysisResult.Global);
+            foreach (var item in Parameters)
+                CallerAnalysis.UpdateResult(item, EscapeAnalysisResult.Global);
+        }
+
         /// <summary>
         /// Converts these signature escape dependencies to a signature
         /// escape analysis.

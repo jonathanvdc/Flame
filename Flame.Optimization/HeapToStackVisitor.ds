@@ -521,7 +521,7 @@ namespace Flame.Optimization
                 "new-object", Expression.Type, EscapeAnalysisResult.Local);
             var args = AnalyzeArguments(Expression.Arguments);
             var callDepends = EmbedCall(ctorData, newTag, args.Item2);
-            // Replace the old top-of-stack tag by the new tag.
+            // Mark the new-object as the return value.
             ReplaceExpressionTag(newTag);
             return new EscapeAnalysisCallExpression(
                 new NewObjectExpression(

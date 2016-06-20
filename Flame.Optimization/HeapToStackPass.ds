@@ -265,8 +265,12 @@ namespace Flame.Optimization
             var replMethods = new Dictionary<CallEscapeDependencies, RewrittenMethodSignature>();
             foreach (var call in analyzer.Calls)
             {
-                replMethods[call] = TryRewrite(
+                var rewrittenCall = TryRewrite(
                     call, analysis, Argument, methodCache);
+                if (rewrittenCall == null)
+                    call.MakeGlobal(analysis);
+
+                replMethods[call] = rewrittenCall;
             }
 
             // Next, we can try to replace all types.
