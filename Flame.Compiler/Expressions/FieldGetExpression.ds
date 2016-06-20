@@ -121,10 +121,7 @@ namespace Flame.Compiler.Expressions
 
 		public override const string ToString()
 		{
-			if (Target == null)
-				return "field(null, " + Field.FullName + ")";
-			else
-				return "field(" + Target + ", " + Field.FullName + ")";
+			return GetVariable().ToString();
 		}
     }
     public class FieldGetPointerExpression : IExpression, IVariableNode, IPredicateNode, IMemberNode
@@ -214,10 +211,7 @@ namespace Flame.Compiler.Expressions
 
 		public override const string ToString()
 		{
-			if (Target == null)
-				return "&field(null, " + Field.FullName + ")";
-			else
-				return "&field(" + Target + ", " + Field.FullName + ")";
+			return "&" + GetVariable().ToString();
 		}
     }
 }

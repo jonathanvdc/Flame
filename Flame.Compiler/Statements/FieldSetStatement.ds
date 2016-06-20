@@ -93,5 +93,10 @@ namespace Flame.Compiler.Statements
 
             return Generator.EmitSetField(Field, targetBlock, Value.Emit(Generator));
         }
+
+        public override string ToString()
+        {
+            return GetVariable().ToString() + " = " + Value.ToString();
+        }
     }
 }
