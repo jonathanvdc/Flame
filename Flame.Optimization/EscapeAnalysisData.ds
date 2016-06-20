@@ -575,6 +575,27 @@ namespace Flame.Optimization
         }
 
         /// <summary>
+        /// Creates a new escape analysis graph by replacing all 'out' analysis
+        /// results by 'in' analysis results.
+        /// The underlying dependency graph is aliased with this instance's
+        /// dependency graph.
+        /// </summary>
+        public EscapeAnalysisData DiscardOut()
+        {
+            var newResults = new Dictionary<UniqueTag, EscapeAnalysisResult>();
+            foreach (var kvPair in results)
+            {
+                if (kvPair.Value == EscapeAnalysisResult.Out)
+                    newResults[kvPair.Key] = EscapeAnalysisResult.In;
+                else
+                    newResults[kvPair.Key] = kvPair.Value
+            }
+            return new EscapeAnalysisData(
+                Method, dependencyGraph, newResults, nodeTypes,
+                paramTags, ThisParameterTag, ReturnValueTag);
+        }
+
+        /// <summary>
         /// Checks that all tags are typed.
         /// </summary>
         public bool CheckTypes()
