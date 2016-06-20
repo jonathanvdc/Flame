@@ -56,9 +56,9 @@ namespace Flame.Compiler.Expressions
             return this;
         }
 
-        public override const string ToString()
+        public override string ToString()
         {
-            return "&this(" + Type.FullName + ")";
+            return "&" + GetVariable().ToString();
         }
     }
 }
