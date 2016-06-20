@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Variables;
 using Flame.Compiler.Visitors;
@@ -188,6 +189,20 @@ namespace Flame.Compiler.Expressions
 				setStmt,
 				new JumpFlow(new BlockBranch(Visitor.Builder.NextBlockTag)));
 			return resultVar;
+		}
+
+		public override string ToString()
+		{
+			var result = new StringBuilder();
+			result.Append("invoke(");
+			result.Append(Target.ToString());
+			foreach (var item in Arguments)
+			{
+				result.Append(", ");
+				result.Append(item.ToString());
+			}
+			result.Append(")");
+			return result.ToString();
 		}
 	}
 }
