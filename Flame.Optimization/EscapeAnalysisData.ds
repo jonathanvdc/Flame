@@ -287,7 +287,7 @@ namespace Flame.Optimization
         /// <summary>
         /// Gets all tags that are known to this escape analysis.
         /// </summary>
-        public [UniqueTag] Tags { get { return dependencyGraph.Vertices;} }
+        public [UniqueTag] Tags { get { return dependencyGraph.Vertices; } }
 
         /// <summary>
         /// Gets the escape analysis result for the entire method signature.
@@ -314,6 +314,7 @@ namespace Flame.Optimization
         {
             var tag = new UniqueTag(Name);
             nodeTypes[tag] = Type;
+            dependencyGraph.AddVertex(tag);
             UpdateResult(tag, Result);
             return tag;
         }
