@@ -64,6 +64,11 @@ namespace Flame.Compiler.Variables
             return Other is ThisVariable;
         }
 
+        public override string ToString()
+        {
+            return "this(" + Type.FullName + ")";
+        }
+
         /// <summary>
         /// Gets the type of the 'this' variable, if the given type is the
         /// declaring type.
