@@ -221,6 +221,7 @@ namespace Flame.Optimization
         { }
 
         public this(set IMethod Method)
+            in { Method != null }
         {
             dependencyGraph = new Graph<UniqueTag>();
             results = new Dictionary<UniqueTag, EscapeAnalysisResult>();
@@ -244,6 +245,7 @@ namespace Flame.Optimization
         /// Copies the given escape analysis data.
         /// </summary>
         public this(set IMethod Method, EscapeAnalysisData Other)
+            in { Method != null }
         {
             this.paramTags = new List<UniqueTag>(Other.paramTags);
             this.ThisParameterTag = Other.ThisParameterTag;
@@ -257,6 +259,7 @@ namespace Flame.Optimization
         /// Copies the given escape analysis data.
         /// </summary>
         public this(EscapeAnalysisData Other)
+            in { Other != null }
         {
             this.Method = Other.Method;
             this.paramTags = new List<UniqueTag>(Other.paramTags);
@@ -311,6 +314,7 @@ namespace Flame.Optimization
         /// </summary>
         public UniqueTag CreateTag(
             string Name, IType Type, EscapeAnalysisResult Result)
+            in { Type != null }
         {
             var tag = new UniqueTag(Name);
             nodeTypes[tag] = Type;
@@ -320,10 +324,28 @@ namespace Flame.Optimization
         }
 
         /// <summary>
+        /// Registers the given tag with this escape analysis data, and
+        /// returns it. If the tag was not known to this visitor, then
+        /// it is added to the escape analysis graph, its result is set to 'in',
+        /// and its type is set to the given type. Otherwise, its type is simply
+        /// updated.
+        /// </summary>
+        public UniqueTag RegisterTag(UniqueTag Tag, IType Type)
+            in { Tag != null }
+            in { Type != null }
+        {
+            dependencyGraph.AddVertex(Tag);
+            UpdateType(Tag, Type);
+            UpdateResult(Tag, EscapeAnalysisResult.In);
+            return Tag;
+        }
+
+        /// <summary>
         /// Gets the escape analysis' result for the value that is
         /// identified by the given tag.
         /// </summary>
         public EscapeAnalysisResult GetResult(UniqueTag Tag)
+            in { Tag != null }
         {
             if (results.TryGetValue(Tag, &EscapeAnalysisResult result))
             {
