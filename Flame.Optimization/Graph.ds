@@ -10,6 +10,11 @@ namespace Flame.Optimization
     public class Graph<T>
     {
         /// <summary>
+        /// Creates a graph from the given edges dictionary.
+        /// </summary>
+        private const this(set Dictionary<T, HashSet<T>> edges);
+
+        /// <summary>
         /// Creates an empty graph.
         /// </summary>
         public const this()
@@ -93,6 +98,24 @@ namespace Flame.Optimization
         }
 
         /// <summary>
+        /// Embeds the given graph in this graph.
+        /// </summary>
+        public void UnionWith(Graph<T> Other)
+        {
+            foreach (var kvPair in Other.edges)
+            {
+                HashSet<T> edgeSet;
+                var key = kvPair.Key;
+                if (!edges.TryGetValue(key, &edgeSet))
+                {
+                    edgeSet = new HashSet<T>();
+                    edges[key] = edgeSet;
+                }
+                edgeSet.UnionWith(kvPair.Value);
+            }
+        }
+
+        /// <summary>
         /// Checks if this graph contains the given vertex.
         /// </summary>
         public bool ContainsVertex(T Vertex)
@@ -162,6 +185,43 @@ namespace Flame.Optimization
                 return edges[From].Remove(To);
             else
                 return false;
+        }
+
+        /// <summary>
+        /// Applies the given mapping to this graph. Every vertex is
+        /// transformed exactly once.
+        /// </summary>
+        public Graph<V> Select<V>(IReadOnlyDictionary<T, V> Mapping)
+        {
+            // Use the vertex-to-vertex mapping to convert the edges.
+            var newEdges = new Dictionary<V, HashSet<V>>();
+            foreach (var kvPair in edges)
+            {
+                var newSet = new HashSet<V>();
+                foreach (var e in kvPair.Value)
+                {
+                    if (ContainsVertex(e))
+                        newSet.Add(Mapping[e]);
+                }
+                newEdges[Mapping[kvPair.Key]] = newSet;
+            }
+
+            return new Graph<V>(newEdges);
+        }
+
+        /// <summary>
+        /// Applies the given mapping function to this graph. Every vertex is
+        /// transformed exactly once.
+        /// </summary>
+        public Graph<V> Select<V>(V(T) Mapping)
+        {
+            // First, apply the mapping to every vertex.
+            var dict = new Dictionary<T, V>();
+            foreach (var v in Vertices)
+                dict[v] = Mapping(v);
+
+            // Then use the vertex-to-vertex dictionary to convert the edges.
+            return Select<V>(dict);
         }
     }
 }
