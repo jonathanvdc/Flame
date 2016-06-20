@@ -481,7 +481,8 @@ namespace Flame.Optimization
             var oldType = TryGetType(Value);
             if (oldType == null || !Type.Is(oldType))
             {
-                assert(oldType == null || oldType.Is(Type));
+                // TODO: re-enable this
+                // assert(oldType == null || oldType.Is(Type));
                 nodeTypes[Value] = Type;
                 foreach (var item in dependencyGraph[Value])
                 {
@@ -649,6 +650,24 @@ namespace Flame.Optimization
                 calleeCopy.ParameterTags, calleeCopy.ReturnValueTag);
         }
 
+        public bool Check()
+        {
+            return CheckTypes() & CheckResults();
+        }
+
+        public bool CheckResults()
+        {
+            foreach (var node in dependencyGraph.Vertices)
+            {
+                foreach (var depend in dependencyGraph[node])
+                {
+                    if (GetResult(node) != GetResult(depend))
+                        return false;
+                }
+            }
+            return true;
+        }
+
         /// <summary>
         /// Checks that all tags are typed.
         /// </summary>
@@ -658,6 +677,12 @@ namespace Flame.Optimization
             {
                 if (TryGetType(node) == null)
                     return false;
+
+                foreach (var depend in dependencyGraph[node])
+                {
+                    if (!GetType(node).Equals(TryGetType(depend)))
+                        return false;
+                }
             }
             return true;
         }

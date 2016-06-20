@@ -834,7 +834,7 @@ namespace Flame.Optimization
             in { AnalysisData != null }
             in { TypeMap != null }
             in { FunctionMap != null }
-            in { AnalysisData.CheckTypes() }
+            in { AnalysisData.Check() }
         {
             this.replacedVariables = new Dictionary<UniqueTag, IVariable>();
             this.blacklistedVariables = new HashSet<UniqueTag>();
