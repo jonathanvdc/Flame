@@ -1,0 +1,154 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A wrapper type for graphs, which supports GraphViz printing.
+    /// </summary>
+    public class PrintableGraph<T>
+    {
+        public this(
+            set string Title, set Graph<T> Graph, set string(T) GetName)
+        {
+            this.nodeMetadata = new List<IReadOnlyDictionary<T, string>>();
+        }
+
+        /// <summary>
+        /// Gets the graph's title.
+        /// </summary>
+        public string Title { get; private set; }
+
+        /// <summary>
+        /// Gets the graph to print.
+        /// </summary>
+        public Graph<T> Graph { get; private set; }
+
+        /// <summary>
+        /// Gets the given node's name.
+        /// </summary>
+        public string(T) GetName { get; private set; }
+
+        private List<IReadOnlyDictionary<T, string>> nodeMetadata;
+
+        /// <summary>
+        /// Adds the given metadata to the graph's nodes.
+        /// </summary>
+        public void AddMetadata(IReadOnlyDictionary<T, string> Metadata)
+        {
+            nodeMetadata.Add(Metadata);
+        }
+
+        /// <summary>
+        /// Converts the given metadata dictionary to a node-to-string map,
+        /// and adds it to the graph's nodes, as metadata.
+        /// </summary>
+        public void AddMetadata<V>(
+            IReadOnlyDictionary<T, V> Metadata, string(V) PrintMetadata)
+        {
+            var metaDict = new Dictionary<T, string>();
+            foreach (var kvPair in Metadata)
+                metaDict[kvPair.Key] = PrintMetadata(kvPair.Value);
+            AddMetadata(metaDict);
+        }
+
+        private string GenerateVertexId(Dictionary<T, string> Vertices)
+        {
+            return "v" + Vertices.Count.ToString();
+        }
+
+        private string PrintVertex(
+            T Vertex, GraphvizWriter Writer, Dictionary<T, string> Vertices)
+        {
+            string id;
+            if (Vertices.TryGetValue(Vertex, &id))
+                return id;
+
+            id = GenerateVertexId(Vertices);
+            Vertices[Vertex] = id;
+
+            var label = new StringBuilder();
+            label.Append(GetName(Vertex));
+            foreach (var dict in nodeMetadata)
+            {
+                if (dict.TryGetValue(Vertex, &string labelMeta))
+                {
+                    label.Append("\\l");
+                    label.Append(labelMeta);
+                }
+            }
+
+            var attrs = new Dictionary<string, string>();
+            attrs["label"] = "\"" + label.ToString() + "\"";
+            Writer.WriteNode(id, attrs);
+
+            return id;
+        }
+
+        private void PrintEdge(
+            T Source, T Destination, GraphvizWriter Writer,
+            Dictionary<T, string> Vertices)
+        {
+            string fromId = PrintVertex(Source, Writer, Vertices);
+            string toId = PrintVertex(Destination, Writer, Vertices);
+
+            Writer.WriteEdge(fromId, toId);
+        }
+
+        /// <summary>
+        /// Prints this printable graph to the given text writer, with the
+        /// given indentation string.
+        /// </summary>
+        public void Print(TextWriter Writer, string IndentationString)
+        {
+            var gvWriter = new GraphvizWriter(Writer, 0, IndentationString);
+            gvWriter.StartBlock("digraph", "Graph");
+            gvWriter.WriteIndentation();
+            gvWriter.WriteAttribute("label", "\"" + Title + "\"");
+            gvWriter.EndEntity();
+
+            var visited = new Dictionary<T, string>();
+            // First, print all vertices in the graph.
+            foreach (var v in Graph.Vertices)
+            {
+                PrintVertex(v, gvWriter, visited);
+            }
+
+            // Then print all edges.
+            foreach (var v in Graph.Vertices)
+            {
+                foreach (var e in Graph[v])
+                {
+                    PrintEdge(v, e, gvWriter, visited);
+                }
+            }
+
+            gvWriter.EndBlock();
+        }
+
+        /// <summary>
+        /// Prints this printable graph to the given text writer.
+        /// </summary>
+        public void Print(TextWriter Writer)
+        {
+            Print(Writer, "    ");
+        }
+
+        /// <summary>
+        /// Prints this printable graph, as a string.
+        /// </summary>
+        public string Print()
+        {
+            var result = new StringBuilder();
+            Print(new StringWriter(result));
+            return result.ToString();
+        }
+
+        public override string ToString()
+        {
+            return Print();
+        }
+    }
+}
