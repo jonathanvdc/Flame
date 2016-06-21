@@ -70,6 +70,7 @@ namespace Flame.Optimization
             Vertices[Vertex] = id;
 
             var label = new StringBuilder();
+            label.Append("\"");
             label.Append(GetName(Vertex));
             foreach (var dict in nodeMetadata)
             {
@@ -79,9 +80,10 @@ namespace Flame.Optimization
                     label.Append(labelMeta);
                 }
             }
+            label.Append("\"");
 
             var attrs = new Dictionary<string, string>();
-            attrs["label"] = "\"" + label.ToString() + "\"";
+            attrs["label"] = label.ToString();
             Writer.WriteNode(id, attrs);
 
             return id;
