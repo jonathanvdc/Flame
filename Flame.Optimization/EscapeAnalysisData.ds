@@ -650,11 +650,18 @@ namespace Flame.Optimization
                 calleeCopy.ParameterTags, calleeCopy.ReturnValueTag);
         }
 
+        /// <summary>
+        /// Checks that this escape analysis graph is well-formed.
+        /// </summary>
         public bool Check()
         {
             return CheckTypes() & CheckResults();
         }
 
+        /// <summary>
+        /// Checks that tag interdependencies are respected by the node
+        /// results.
+        /// </summary>
         public bool CheckResults()
         {
             foreach (var node in dependencyGraph.Vertices)
@@ -685,6 +692,50 @@ namespace Flame.Optimization
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// Gets a string representation for the given escape analysis result.
+        /// </summary>
+        public static string PrintAnalysisResult(EscapeAnalysisResult Result)
+        {
+            if (Result == EscapeAnalysisResult.In)
+                return "in";
+            else if (Result == EscapeAnalysisResult.Local)
+                return "local";
+            else if (Result == EscapeAnalysisResult.Out)
+                return "out";
+            else if (Result == EscapeAnalysisResult.Global)
+                return "global";
+            else
+                return "undefined";
+        }
+
+        private string PrintUniqueTag(UniqueTag Tag)
+        {
+            return Tag.Name;
+        }
+
+        private string PrintTypeName(IType Type)
+        {
+            return Type.FullName.ToString();
+        }
+
+        /// <summary>
+        /// Creates a printable graph that presents this escape analysis
+        /// graph.
+        /// </summary>
+        public PrintableGraph<UniqueTag> ToPrintableGraph()
+        {
+            var nameMap = new UniqueNameMap<UniqueTag>(PrintUniqueTag, "%");
+            var result = new PrintableGraph<UniqueTag>(
+                "Escape analysis graph", dependencyGraph,
+                nameMap.Get);
+
+            result.AddMetadata<EscapeAnalysisResult>(results, PrintAnalysisResult);
+            result.AddMetadata<IType>(nodeTypes, PrintTypeName);
+
+            return result;
         }
     }
 }
