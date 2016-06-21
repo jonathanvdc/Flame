@@ -332,20 +332,6 @@ namespace Flame.Optimization
                 return mName.Qualify(Method.DeclaringType.Name.Qualify()).ToString();
         }
 
-        private static string NameAnalysisResult(EscapeAnalysisResult Result)
-        {
-            if (Result == EscapeAnalysisResult.In)
-                return "in";
-            else if (Result == EscapeAnalysisResult.Local)
-                return "local";
-            else if (Result == EscapeAnalysisResult.Out)
-                return "out";
-            else if (Result == EscapeAnalysisResult.Global)
-                return "global";
-            else
-                return "undefined";
-        }
-
         private static void LogAnalysisRemark(
             EscapeAnalysisData Data, ICompilerLog Log)
         {
@@ -369,17 +355,17 @@ namespace Flame.Optimization
                 nodes.Add(new MarkupNode(
                     NodeConstants.TextNodeType,
                     NameType(param.ParameterType) + " " + param.Name + " : " +
-                    NameAnalysisResult(Data.GetParameterResult(index))));
+                    EscapeAnalysisData.PrintAnalysisResult(Data.GetParameterResult(index))));
 
                 index++;
             }
             nodes.Add(new MarkupNode(
                 NodeConstants.TextNodeType,
-                ") : " + NameAnalysisResult(Data.ReturnValueResult)));
+                ") : " + EscapeAnalysisData.PrintAnalysisResult(Data.ReturnValueResult)));
 
             nodes.Add(new MarkupNode(
                 NodeConstants.TextNodeType,
-                ", this : " + NameAnalysisResult(Data.ThisParameterResult) + " "));
+                ", this : " + EscapeAnalysisData.PrintAnalysisResult(Data.ThisParameterResult) + " "));
 
             // Add a cause node ('[-Rheap2stack]')
             nodes.Add(Flags.CreateCauseNode(HeapToStackRemarksOption));
